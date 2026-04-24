@@ -199,7 +199,7 @@ Zscaler products the skill doesn't cover, ranked by likely value to the fork tea
 
 | Product | What it is | Why it matters | Available material | Effort to cover |
 |---|---|---|---|---|
-| **ZDX** (Digital Experience) | User / app health monitoring, probes, deeptraces | Different question shape from ZIA/ZPA (UX metrics, not policy precedence). Operator use case: "why is Slack slow for 20% of our users?" | SDK (`zscaler/zdx/*`), MCP skills (`analyze-application-health`, `troubleshoot-user-experience`, `diagnose-deeptrace`, `compare-location-experience`, `audit-software-inventory`, `investigate-alerts`), help docs not yet captured | High — whole new product shape, not built on existing reference docs |
+| **ZDX** (Digital Experience) | ~~User / app health monitoring, probes, deeptraces~~ **DONE (2026-04-24).** Captured 7 help articles (`understanding-zdx-cloud-architecture`, `about-zdx-score`, `about-probes`, `understanding-probing-criteria-logic`, `understanding-diagnostics-session-status`, `understanding-alert-status`, `understanding-zdx-api`). Wrote `references/zdx/` with 5 docs: `index.md`, `overview.md` (architecture + ZDX Score + lowest-value-wins aggregation), `probes.md` (Web + Cloud Path + criteria logic), `diagnostics-and-alerts.md` (bridges SDK "deeptrace" ↔ portal "Diagnostics Session" terminology), `api.md` (SDK surface summary). Threaded ZDX hooks into `shared/cross-product-integrations.md` (3 new sections + 3 question-routing rows). Added ZDX-specific terms to `shared/terminology.md` (Diagnostics Session ↔ deeptrace, Cloud Path, Page Fetch Time, TPG). Updated SKILL.md scope declaration and routing. **Remaining ZDX gaps** (explicitly flagged in `zdx/index.md`): application-specific call-quality deep-dives (Teams/Zoom), Zscaler Hosted Probes, Service Desk RBAC, Adaptive Mode probing. | | Done |
 | **ZIdentity deeper coverage** | Unified identity (currently referenced in passing) | Conditional Access drives ZIA `Conditional` action and ZPA `Require Approval`. Auth flow internals matter for step-up-auth debugging. | SDK (`zscaler/zid/*`), help site articles not yet captured | Medium — mostly about auth flow docs, user entitlement semantics |
 | **ZBI / Cloud Browser Isolation** | Remote-browser rendering. Partially referenced (URL Filter `Isolate` action, Device Group = `Cloud Browser Isolation`) but no standalone doc. | Operator question: "what happens when Isolate action fires?" "which apps can be isolated?" Fills a cross-reference currently unanswered. | SDK (`zscaler/zbi/*`), help articles | Low-medium — tight scope, well-defined surface |
 | **ZCC deferred (re-list)** | Already in Section A as ZCC-inside-scope items. | | | |
@@ -239,8 +239,8 @@ Priority list as of the 2026-04-24 follow-up round:
 1. ~~**Cross-product integrations dossier** (Section C)~~ — **DONE 2026-04-24**.
 2. ~~**ZCC snapshot extension + first tenant run** (Section A)~~ — **DONE 2026-04-24** (snapshot extension landed; tenant run pending fork).
 3. ~~**Malware Protection / ATP console diagnostic workflow** (Section A)~~ — **DONE 2026-04-24**.
-4. **ZDX** (Section B) — the biggest remaining gap in product coverage the user has signalled need for. Next candidate.
-5. **ZBI / Cloud Browser Isolation** (Section B) — tight scope, referenced from URL Filter `Isolate` action. Good low-effort follow-up to ZDX.
+4. ~~**ZDX** (Section B)~~ — **DONE 2026-04-24**.
+5. **ZBI / Cloud Browser Isolation** (Section B) — tight scope, referenced from URL Filter `Isolate` action. Good low-effort next candidate.
 6. **ZIdentity deeper** (Section B) — Conditional Access mechanics now cross-referenced from cross-product-integrations.md; a dedicated ZIdentity doc would let the skill reason about auth-flow internals, not just cite the feature.
 
 ## Crash-recovery hints

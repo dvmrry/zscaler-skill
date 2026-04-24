@@ -161,6 +161,24 @@ See [`./cloud-architecture.md § Feed Central`](./cloud-architecture.md).
 
 **NSS (ZIA logs) and LSS (ZPA logs) are separate products with overlapping fields.** Both stream to a customer SIEM. Neither can carry the other's events. Cross-correlating a user's activity across ZIA and ZPA in a SIEM requires joining by user identity, not by a shared log field — and user identity field names differ between the two schemas. See [`../zia/logs/web-log-schema.md`](../zia/logs/web-log-schema.md) and [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md).
 
+### ZDX → ZCC + ZIA/ZPA definitions
+
+**ZDX pulls user, department, and location definitions from ZIA and ZPA.** Per [`./cloud-architecture.md § ZDX integration with ZTE`](./cloud-architecture.md), ZDX's Zero Trust Exchange integration connects to ZIA and ZPA clouds to retrieve the org's users/departments/locations. Standalone ZDX tenants (without ZIA or ZPA) have their own user-definition infrastructure.
+
+**Failure mode**: admin adds users to ZIA but ZDX dashboards don't immediately show them. ZDX is sourcing from its periodic sync with ZIA — expect minutes-to-hours propagation, not real-time.
+
+**ZDX depends on ZCC entitlement to receive device metrics.** Without a user being entitled via `ZdxGroupEntitlements` (see [`../zcc/entitlements.md`](../zcc/entitlements.md)), ZCC doesn't send ZDX telemetry for them. No data → no ZDX Score.
+
+### ZDX → Microsoft Azure Data Explorer (analytics backend)
+
+ZDX's analytics layer is Microsoft-hosted (Azure Data Explorer / ADX) — an external cloud dependency worth knowing for data-residency/sovereignty reviews. See [`../zdx/overview.md § Components`](../zdx/overview.md).
+
+### ZDX probes bypass SSL Inspection
+
+**Synthetic ZDX Web probes skip SSL Inspection** to allow caching at destination servers — per [`../zdx/probes.md § Web probes`](../zdx/probes.md). URL Filtering, CAC, and Firewall rules still apply to probes.
+
+**Failure mode**: "ZDX probe succeeds but real user traffic fails for the same URL" — the probe's SSL-exemption means the probe path differs from user traffic. The probe is not a valid test that SSL inspection isn't in the way.
+
 ## Common cross-product question shapes
 
 Routing hints for question patterns that often hit these hooks. Use this section to pre-empt "I asked about ZIA but the answer is really about ZPA/ZCC."
@@ -179,6 +197,9 @@ Routing hints for question patterns that often hit these hooks. Use this section
 | "Activated my ZIA rule, still not working" | Activation gate — `GET /status` — or quota/validation activation failure | [`./activation.md`](./activation.md) |
 | "Changes propagated for ZPA but not ZIA" | Product-specific activation model — not a bug | [`./activation.md`](./activation.md) |
 | "During an outage, ZPA traffic broke but ZIA didn't" | BC Cloud is ZIA-only; ZPA has its own availability model | [`./cloud-architecture.md § Business Continuity Cloud`](./cloud-architecture.md) |
+| "ZDX has no data for this user" | ZCC entitlement not granted — user can't report telemetry | [`../zcc/entitlements.md`](../zcc/entitlements.md), then [`../zdx/overview.md`](../zdx/overview.md) |
+| "ZDX probe works but real traffic fails" | SSL Inspection skipped on synthetic probes only | [`../zdx/probes.md § Web probes`](../zdx/probes.md) |
+| "ZDX data residency question" | Analytics backend is Microsoft Azure Data Explorer | [`../zdx/overview.md`](../zdx/overview.md) |
 
 ## The recurring patterns
 

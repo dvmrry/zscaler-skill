@@ -1,17 +1,20 @@
 ---
 name: zscaler
 description: >
-  Answer questions about Zscaler ZIA, ZPA, and ZCC (Client Connector) —
-  URL category coverage, URL filtering rule precedence, wildcard matching
-  semantics, SSL inspection ordering, cloud app control interaction with URL
-  filtering, ZPA app-segment matching and policy evaluation order, and ZCC
-  forwarding-profile / trusted-network decisions (which decide whether traffic
-  reaches ZIA or ZPA in the first place). Use whenever the user mentions
-  Zscaler, ZIA, ZPA, ZCC, Client Connector, URL categories, URL filtering,
-  cloud app control, SSL inspection, app segments, forwarding profiles,
-  trusted networks, or asks "is $URL covered / blocked / allowed". Also use
-  for "why does this rule win" or "what happens when these policies overlap"
-  questions, even if the user does not explicitly name Zscaler.
+  Answer questions about Zscaler ZIA, ZPA, ZCC (Client Connector), and ZDX
+  (Digital Experience) — URL category coverage, URL filtering rule precedence,
+  wildcard matching semantics, SSL inspection ordering, cloud app control
+  interaction with URL filtering, ZPA app-segment matching and policy
+  evaluation order, ZCC forwarding-profile / trusted-network decisions (which
+  decide whether traffic reaches ZIA or ZPA in the first place), and ZDX
+  score / probe / diagnostic-session questions about user experience. Use
+  whenever the user mentions Zscaler, ZIA, ZPA, ZCC, ZDX, Client Connector,
+  URL categories, URL filtering, cloud app control, SSL inspection, app
+  segments, forwarding profiles, trusted networks, ZDX score, probes,
+  diagnostic sessions / deeptraces, or asks "is $URL covered / blocked /
+  allowed". Also use for "why does this rule win", "what happens when these
+  policies overlap", or "why is this user's app slow" questions, even if the
+  user does not explicitly name Zscaler.
 ---
 
 # Zscaler
@@ -66,6 +69,8 @@ Go straight to the reference file that covers the question shape. Only read more
 | Cross-product mental model ("how does policy evaluation work in general?") | `references/shared/policy-evaluation.md` |
 | "What does Zscaler actually run?" / Central Authority / Service Edge types / Business Continuity Cloud / Z-Tunnel vs M-Tunnel / PKI and cert trust | `references/shared/cloud-architecture.md` — component-level picture. Covers ZIA CA (active-passive) vs ZPA CA (active-active) split, BC Cloud constraints (Z-Tunnel 1.0 / PAC / GRE only — **not 2.0**), the three Service Edge form factors, and the tunnel model. |
 | Question spans ZIA + ZPA, or ZCC + a server product — silently-wrong-answer territory | **Start at `references/shared/cross-product-integrations.md`** — catalogues every cross-product hook (ZIA→ZPA `zpa_app_segments`, ZPA→ZIA `inspect_traffic_with_zia`, ZCC→ZPA TRUSTED_NETWORK, ZCC→ZIA install_ssl_certs, shared ZIdentity conditional-access, SSL bypass as cross-policy gate, AI/ML recategorization, activation-model difference, BC-Cloud-is-ZIA-only) with failure-mode hints and a question-shape routing table. |
+| "Why is this user's app slow?" / "Is it the network or the app?" / ZDX Score / probes / diagnostic sessions (deeptraces) / alerts | `references/zdx/overview.md` for the Score model; `references/zdx/probes.md` for Web vs Cloud Path measurement; `references/zdx/diagnostics-and-alerts.md` for 1-min-resolution investigation workflow and alert lifecycle. **Terminology: SDK says "deeptrace", admin portal says "Diagnostics Session" — same thing.** |
+| ZDX API / SDK methods | `references/zdx/api.md` — `client.zdx.*` surface summary (apps, devices, alerts, troubleshooting, inventory). Mostly read-only; probe/alert configuration is portal-only. |
 | ZIA API endpoint or response shape | `references/zia/api.md` |
 | ZPA API endpoint or response shape | `references/zpa/api.md` |
 | ZCC API endpoint or response shape | `references/zcc/api.md` |
@@ -135,7 +140,7 @@ When you do query, cite the SPL pattern by name from [`references/shared/splunk-
 - **Tenant state needed, snapshot empty** — say so directly, point to `scripts/snapshot-refresh.py`, and still answer the general case if there is one.
 - **Relevant reference is still a stub** (`author-status: stub`, no body yet) — say the skill hasn't written this down yet, describe what you know from the file's TODO headings, and mark **Confidence: low**.
 - **Question maps to a known open clarification** — if a reference doc cross-links an entry in [`references/_clarifications.md`](references/_clarifications.md) that covers the user's question, cite the clarification ID (e.g. "this hits `zia-03` — wildcard tokenization is unresolved in our public material"), answer what you can, and flag the gap rather than hallucinating the rest.
-- **Out of scope** — this skill covers ZIA, ZPA, and ZCC (forwarding profiles, trusted networks, fail-open). For ZDX (digital experience monitoring), ZIdentity, ZMS (workload microsegmentation), ZINS, or EASM questions, say so and suggest the Zscaler help site. ZCC device-posture rules and on-device web policy are partially in scope — `references/zcc/index.md` lists what's covered and what isn't.
+- **Out of scope** — this skill covers ZIA, ZPA, ZCC (forwarding profiles, trusted networks, fail-open), and ZDX (score, probes, diagnostic sessions, alerts). For ZIdentity, ZMS (workload microsegmentation), ZINS, or EASM questions, say so and suggest the Zscaler help site. ZCC device-posture rules and on-device web policy are partially in scope — `references/zcc/index.md` lists what's covered and what isn't. ZDX's application-specific call-quality integrations (Microsoft Teams, Zoom deep-dives) are also partially in scope — `references/zdx/index.md` lists the gaps.
 
 Do not guess precedence, matching semantics, or evaluation order from first principles. These are exactly the places Zscaler's real behavior diverges from intuition — wrong confident answers here are the failure mode this skill exists to prevent.
 

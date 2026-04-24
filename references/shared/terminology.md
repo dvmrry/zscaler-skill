@@ -33,6 +33,11 @@ Zscaler has renamed several core components over time without fully purging the 
 | Z-Tunnel | (same) | `Z-Tunnel 1.0` / `Z-Tunnel 2.0` in forwarding-profile settings | Point-to-point TLS tunnel between ZCC↔Service Edge or App Connector↔Service Edge |
 | Microtunnel (M-Tunnel) | Microtunnel | — | **ZPA-specific**: end-to-end tunnel ZCC↔App Connector via a Service Edge, MPLS-like label-switched, carries application traffic without exposing real IPs. Runs *inside* a Z-Tunnel. |
 | Business Continuity Cloud | BC Cloud, BCP Cloud | — | Zscaler-managed fallback infrastructure (Private Policy Cache + Private PAC Servers) that keeps traffic inspected during main-cloud unreachability. Distinct from ZCC fail-open. |
+| Zscaler Digital Experience (ZDX) | Zscaler Digital Experience Monitoring, Digital Experience | — | User-experience monitoring product (probes, scores, diagnostics). Distinct from ZIA/ZPA (policy) and ZCC (client agent). |
+| Diagnostics Session | **deeptrace** (in SDK / MCP) | — | On-demand 1-minute-resolution probing of a specific device. The admin portal says "Diagnostics Session"; the SDK says "deeptrace". Same thing. |
+| Cloud Path | (same) | — | ZDX feature: hop-by-hop network-path visualization from endpoint to destination, distinct from generic "cloud path" as a phrase. |
+| Page Fetch Time | (same) | — | ZDX probe metric — top-level document fetch duration. The primary input to the ZDX Score for Web applications. |
+| Telemetry and Policy Gateway (TPG) | — | — | ZDX control-plane component — multi-tenant RESTful gateway routing metrics between ZCC and Microsoft ADX. |
 | Forwarding Profile | ZCC Forwarding Profile, Web Forwarding Profile (in `webForwardingProfile` API path) | `forwardingProfileActions` / `forwardingProfileZpaActions` in snapshot JSON | ZCC policy object: per-network-type rules for where to send traffic (ZIA/ZPA/direct) |
 | Trusted Network | (same) | `trustedNetworkContracts` wrapper in ZCC list responses | Named set of criteria ZCC uses to classify the current network as "trusted" |
 | App Profile (ZCC) | Device Profile, ZCC App Profile | — | **Not in API.** Admin-portal-only object that selects a Forwarding Profile for a device/user. See `clarification zcc-07`. |
