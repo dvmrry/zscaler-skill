@@ -95,9 +95,9 @@ Skim this before reading the full entries.
 
 ### Open
 
-`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zpa-04`, `zpa-07`, `log-03`, `log-04`, `shared-01`, `shared-02`, `shared-04`, `shared-05`, `shared-06`, `zcc-01`, `zcc-02`, `zcc-03`, `zcc-04`, `zcc-06`.
+`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zpa-04`, `zpa-07`, `log-03`, `log-04`, `shared-01`, `shared-02`, `shared-04`, `shared-05`, `shared-06`.
 
-Partial / SDK-mined (resolved via code read or help-doc capture; full lab confirmation pending): `zcc-05`, `zcc-07`.
+Partial / SDK-mined (resolved via code read or help-doc capture; full lab confirmation pending): `zcc-01`, `zcc-02`, `zcc-03`, `zcc-04`, `zcc-05`, `zcc-06`, `zcc-07`. All six ZCC enum clarifications had their **datatype** (int vs string) resolved by the Go SDK cross-check on 2026-04-24; the integer-to-meaning mapping remains open for `zcc-01` through `zcc-04` and `zcc-06`.
 
 ---
 
@@ -760,11 +760,11 @@ A first fork-admin Web Insights export for any known MP or ATP block will answer
 
 *Origin: `references/zcc/forwarding-profile.md` § Trusted-network evaluation*
 
-The `condition_type` field on a `ForwardingProfile` controls how inline trusted-criteria, referenced TrustedNetworks, and the predefined set combine (AND across all of them? OR? some hybrid?). The SDK passes the value through without validation, so valid values aren't enumerated in source.
+The `condition_type` field on a `ForwardingProfile` controls how inline trusted-criteria, referenced TrustedNetworks, and the predefined set combine (AND across all of them? OR? some hybrid?). The Python SDK passes the value through without validation.
 
-**Resolves with**: lab test (configure a profile with two criteria; toggle `condition_type` between plausible values; observe whether both-required vs any-required changes) OR zscaler doc not yet read (`help.zscaler.com` ZCC configuration articles). **Status**: open.
+**Type confirmed (2026-04-24)**: Cross-SDK check against `vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go:22` reveals the field is `int`, not string. Earlier candidate-value speculation (`TRUSTED_CRITERIA_AND`, `AND`, `OR`) was wrong — the wire format uses integer codes.
 
-Candidate values: `TRUSTED_CRITERIA_AND`, `TRUSTED_CRITERIA_OR`, or plain `AND`/`OR`.
+**Resolves with**: lab test (configure a profile with two criteria; toggle `condition_type` between plausible integer values; observe whether both-required vs any-required changes) OR zscaler doc not yet read. **Status**: partially resolved — type known (`int`), semantic mapping still open.
 
 ---
 
@@ -772,9 +772,11 @@ Candidate values: `TRUSTED_CRITERIA_AND`, `TRUSTED_CRITERIA_OR`, or plain `AND`/
 
 *Origin: `references/zcc/forwarding-profile.md` § ForwardingProfileActions*
 
-Each item in `forwardingProfileActions` is keyed by `networkType` specifying which network-classification branch it applies to. Likely `TRUSTED` / `UNTRUSTED` at minimum; possibly additional tiers for VPN-trusted, captive-portal-detected, or similar states. The SDK does not enumerate valid values.
+Each item in `forwardingProfileActions` is keyed by `networkType` specifying which network-classification branch it applies to.
 
-**Resolves with**: tenant snapshot of a tenant with multiple branches OR lab test. **Status**: open.
+**Type confirmed (2026-04-24)**: Go SDK (`forwarding_profile.go:48`) types the field as `int`. Earlier speculation that values might be `TRUSTED` / `UNTRUSTED` strings was wrong — integer codes. Likely 0/1/2/... mapping to Trusted / Untrusted / VPN-Trusted / etc., but the order-to-meaning mapping is unconfirmed.
+
+**Resolves with**: tenant snapshot of a tenant with multiple branches OR lab test. **Status**: partially resolved — type known (`int`), semantic mapping still open.
 
 ---
 
@@ -782,9 +784,11 @@ Each item in `forwardingProfileActions` is keyed by `networkType` specifying whi
 
 *Origin: `references/zcc/forwarding-profile.md` § ForwardingProfileActions*
 
-The `actionType` field on each network-type action block decides what happens to traffic in that branch. Informed guesses based on ZCC behaviors: `NONE` (direct, bypass ZIA), `TUNNEL` / `ENFORCE_POLICIES` (send via Z-Tunnel), `PAC` (honor PAC), possibly `VPN` / `TUNNEL_WITH_LOCAL_PROXY`. The SDK does not enumerate.
+The `actionType` field on each network-type action block decides what happens to traffic in that branch.
 
-**Resolves with**: tenant snapshot covering multiple profile variants OR zscaler doc not yet read. **Status**: open.
+**Type confirmed (2026-04-24)**: Go SDK (`forwarding_profile.go:49`, `:99`) types the field as `int`. Earlier speculation that values might be string literals like `NONE` / `TUNNEL` / `PAC` was wrong — integer codes. Note: in `UnifiedTunnel` sub-objects, the field is split into `actionTypeZIA` (int) and `actionTypeZPA` (int), indicating ZIA and ZPA traffic can have independent action selections within a shared unified tunnel.
+
+**Resolves with**: tenant snapshot covering multiple profile variants OR zscaler doc not yet read. **Status**: partially resolved — type known (`int`), semantic mapping still open.
 
 ---
 
@@ -792,9 +796,11 @@ The `actionType` field on each network-type action block decides what happens to
 
 *Origin: `references/zcc/forwarding-profile.md` § ForwardingProfileActions*
 
-The `primaryTransport` field on both ZIA and ZPA actions specifies the transport protocol preference. Likely values: `ZTUNNEL` (Z-Tunnel 2.0 proprietary), `DTLS`, `TLS`. Exact enum not documented.
+The `primaryTransport` field on both ZIA and ZPA actions specifies the transport protocol preference.
 
-**Resolves with**: tenant snapshot OR zscaler doc. **Status**: open.
+**Type confirmed (2026-04-24)**: Go SDK (`forwarding_profile.go:53`, `:100`, plus `UnifiedTunnel.primaryTransport:122` and `PartnerInfo.primaryTransport:115`) types the field as `int`. Earlier speculation that values might be strings like `ZTUNNEL` / `DTLS` / `TLS` was wrong — integer codes. The integer-to-protocol mapping is likely stable across the 5 instances of this field (consistent semantic across contexts) but the specific mapping is still unconfirmed.
+
+**Resolves with**: tenant snapshot OR zscaler doc. **Status**: partially resolved — type known (`int`), semantic mapping still open.
 
 ---
 
@@ -818,9 +824,11 @@ Key interaction surfaced by the article: `Use Z-Tunnel 2.0 for Proxied Web Traff
 
 *Origin: `references/zcc/trusted-networks.md` § `condition_type`*
 
-Parallel to `zcc-01` but at the TrustedNetwork entity level: how do this TrustedNetwork's own criteria (DNS servers, SSIDs, etc.) combine — AND (all required) or OR (any suffices)? SDK does not enumerate.
+Parallel to `zcc-01` but at the TrustedNetwork entity level: how do this TrustedNetwork's own criteria (DNS servers, SSIDs, etc.) combine — AND (all required) or OR (any suffices)?
 
-**Resolves with**: lab test with two obvious criteria (one correct, one incorrect) toggling `condition_type`. **Status**: open.
+**Type confirmed (2026-04-24)**: Go SDK (`vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network/trusted_network.go:28`) types the field as `int`, not string.
+
+**Resolves with**: lab test with two obvious criteria (one correct, one incorrect) toggling `condition_type` between 0 and 1. **Status**: partially resolved — type known (`int`), semantic mapping still open.
 
 ---
 

@@ -177,6 +177,19 @@ Ranked by ease + value:
 
 Organized by what a future session (or fork admin) would tackle next. Each entry notes what it is, why it matters, what resolving it would require, and rough effort. Cross-link to `_clarifications.md` where a specific behavior question is already tracked by ID; most of these are broader than any single clarification.
 
+### Cross-SDK validation sweep — ✅ DONE (2026-04-24)
+
+Vendored `zscaler-sdk-go` and `terraform-provider-ztc` submodules and ran a cross-SDK audit. Key findings threaded back into existing docs:
+
+- **ZCC `conditionType` / `networkType` / `actionType` / `primaryTransport` / `tunnel2FallbackType` are all `int` on the wire, not string enums.** The Python SDK passes kwargs through without type enforcement, which made earlier docs imply string values. Clarifications `zcc-01` through `zcc-04` and `zcc-06` moved from Open to Partially resolved — datatype is known (`int`); integer-to-meaning mapping is still open (first tenant snapshot will reveal).
+- **ZCC forwarding profile has ~15 fields Python SDK doesn't model**, plus an entire `UnifiedTunnel` sub-structure (a third tunnel mode alongside ZIA+ZPA actions). Threaded into `references/zcc/forwarding-profile.md` as a new "Fields Python SDK doesn't expose" section + "Unified Tunnel" section. Worth a dedicated help-article capture follow-up.
+- **ZIA has Go-SDK-only surfaces**: `scim_api`, `email_profiles`, `eventlogentryreport`, `devicegroups`. Threaded into `references/zia/api.md § Go-SDK-only surfaces`.
+- **ZPA has Go-SDK-only surfaces**: `applicationsegment_move`, `applicationsegment_share` (microtenant cross-segment ops), typed microtenant-sharing sub-objects on `ApplicationSegmentResource`. Threaded into `references/zpa/api.md § Go-SDK-only surfaces`.
+- **ZID Python SDK is read-only on `resource_servers`** (Go has full CRUD). Will be threaded into the upcoming ZIdentity doc.
+- **Two entirely Go-SDK-only products discovered**: ZTW (Zero Trust Workload / Cloud Connector) and ZWA (Workflow Automation / DLP Incident Management). Added to Section B product-scope-expansion list with scope sketches. ZTW has the companion TF provider (`terraform-provider-ztc`) we vendored; ZWA is SDK-only.
+
+**Not revealed by Go SDK**: the integer-to-semantic mapping for any of the 5 int-enum fields. The Go SDK doesn't declare `const`/`iota` enums for these — the int codes are opaque in source. Still need first-tenant-snapshot observation.
+
 ### A. Fuzzy areas inside the current scope (ZIA + ZPA + ZCC)
 
 These live inside what we've already declared "covered" but where the docs still hedge.
@@ -207,6 +220,8 @@ Zscaler products the skill doesn't cover, ranked by likely value to the fork tea
 | **ZINS** | Shadow IT / IoT / SaaS security reporting. Overlaps ZIA reporting at a distance. | Mostly reporting-flavored, not policy-precedence-flavored. Lower skill ROI. | SDK (`zscaler/zins/*`), MCP skills | Medium, low ROI for this skill's reasoning focus |
 | **EASM** | External attack-surface management. | Different audience (security researchers, not traffic operators). | SDK (`zscaler/zeasm/*`), one MCP skill (`review-attack-surface`) | Medium, low fit |
 | **ZAI Guard** | AI/LLM traffic policy. Newer product. | Unclear fork-team relevance until AI traffic becomes material. | SDK (`zscaler/zaiguard/*`), help articles unknown | Defer until fork team signals need |
+| **ZTW / ZTC (Zero Trust Workload / Cloud Connector)** | Cloud Connector orchestration: Edge Connector groups, forwarding gateways (ZIA + DNS paths), policy management (forwarding rules, DNS rules, traffic log rules, each CRUD with rule-ordering), location management, provisioning, partner integrations (AWS workload discovery via CloudFormation). | Only relevant if fork team uses Cloud Connector for cloud workload forwarding. **Go-SDK-only on the Python SDK side** — Python doesn't carry this product. | Go SDK (`vendor/zscaler-sdk-go/zscaler/ztw/`), TF provider (`vendor/terraform-provider-ztc/ztc/` — ~14 resources + data sources), no help docs captured yet | Medium effort — clean service model, but traffic-rule semantics and the ZIA-vs-DNS forwarding-gateway distinction need real-tenant verification |
+| **ZWA (Workflow Automation / DLP Incident Management)** | Narrow: DLP incident lifecycle CRUD + customer audit log. ~10-12 methods total across 2 services. | Only relevant if tenant uses ZWA for DLP incident triage. | Go SDK (`vendor/zscaler-sdk-go/zscaler/zwa/services/`), Python SDK also has `zwa/dlp_incidents.py` with slightly different method set (triggers/tickets/group-search in Python but not Go) | Low effort — narrow surface; unknowns are the `IncidentDetails` shape and filtering query params |
 | **Federal Cloud** | `zscalergov` / `zscalerten` specifics; ZPA GOV/GOVUS | Only if tenant is gov. Most behavior inherits from commercial; gaps are auth paths and feature availability. | Scattered mentions in help-doc site; no consolidated reference | Defer until tenant relevance confirmed |
 
 ### C. Cross-product dossier — ✅ DONE (2026-04-24)

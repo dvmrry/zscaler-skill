@@ -28,7 +28,21 @@ A forwarding profile describes **how ZCC should behave on different classes of n
 3. **ZPA actions per network type** (`forwardingProfileZpaActions`) — same shape, but independently configurable for ZPA traffic. A profile can be, say, "ZIA via Z-Tunnel 2.0, ZPA always on" or "on trusted network, skip ZIA but keep ZPA."
 4. **Fail-open policy** — a separate policy object (`FailOpenPolicy`, one per company) that decides what happens when the tunnel or proxy is unreachable, or a captive portal is blocking auth.
 
-A ZCC install has **exactly one active forwarding profile at a time per device**, selected by ZCC App Profile assignment (not exposed on this SDK module — out of scope here). When a question hinges on "which profile is this user on?", answer by pointing at the App Profile assignment in the ZCC admin portal; the skill can describe what a profile *does* but not *who gets it* from API data alone.
+A ZCC install has **exactly one active forwarding profile at a time per device**, selected by the user/device's active WebPolicy (called "App Profile" in the admin UI) via its `forwarding_profile_id` field. See [`./web-policy.md`](./web-policy.md) for the assignment link.
+
+## Wire-type correction — enum fields are integer-coded, not strings
+
+**Cross-SDK validation (2026-04-24) against `vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go` revealed that all the enum-like fields on ForwardingProfile and its action blocks are `int` on the wire, not string enums.** The Python SDK passes kwargs through without type enforcement, which made it look like operators could send strings like `"TRUSTED_CRITERIA_AND"` or `"ZTUNNEL"` — but the API actually expects small integers. Fields affected:
+
+- `conditionType` (both on ForwardingProfile and on TrustedNetwork)
+- `networkType` (on each `forwardingProfileActions[]` and `forwardingProfileZpaActions[]` entry)
+- `actionType` (same)
+- `primaryTransport` (same)
+- `tunnel2FallbackType` (same)
+
+Plus these flags that look boolean-ish but are `int` (0/1) on the wire: `enableLWFDriver` (string in Go!), `enableSplitVpnTN`, `enableUnifiedTunnel`, `enableAllDefaultAdaptersTN`, `evaluateTrustedNetwork`, `skipTrustedCriteriaMatch`, `systemProxy`, `enablePacketTunnel`, `allowTLSFallback`, `pathMtuDiscovery`, `optimiseForUnstableConnections`, `useTunnel2ForProxiedWebTraffic`, `useTunnel2ForUnencryptedWebTraffic`, `sendAllDNSToTrustedServer`.
+
+**The specific integer-to-meaning mapping is still undocumented** — clarifications `zcc-01` through `zcc-04` and `zcc-06` remain open on the semantic half. But the *datatype* is now confirmed: integer, not string. Tools writing payloads directly must send ints, not strings.
 
 ## Mechanics
 
@@ -144,6 +158,54 @@ A separate `FailOpenPolicy` object lives at the company level (one per tenant), 
 **Captive portal grace period is a common "user got blocked at the airport" story.** `captivePortalWebSecDisableMinutes` is set by admins between 1 and 60 minutes (Zscaler's guidance: set as low as reasonable for users to complete portal auth). If a user logs into the portal slowly, they hit the re-enforcement window and are blocked until they disconnect/reconnect. Not a ZIA URL filter issue — a ZCC fail-open issue. Point the operator here, not at URL filtering rules.
 
 **Captive portal settings were migrated from tenant-global to App Profile scope** per the ZCC release notes and the *About Zscaler Client Connector App Profiles* help article. Older tenants may still have the setting at the Client Connector Support page (global); newer tenants configure it per App Profile (== per Web Policy). The FailOpenPolicy object this doc describes is the cross-tenant/global shape; per-profile captive-portal overrides live on the Web Policy's platform sub-policies (see [`./web-policy.md`](./web-policy.md)). When answering "why did this user get captive-portal-blocked and that user didn't on the same network", the answer is likely per-profile configuration, not the tenant-global FailOpenPolicy.
+
+## Fields Python SDK doesn't expose (Go-SDK-only)
+
+Cross-SDK audit (2026-04-24) against `vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go:36-135` surfaced fields the Python SDK doesn't model. These fields exist on the wire and are settable via direct API call or Go SDK:
+
+**On `ForwardingProfile`:**
+
+- `enableUnifiedTunnel` (int, 0/1) — master toggle for the Unified Tunnel feature (see next section).
+- `unifiedTunnel` (list of `UnifiedTunnel` sub-objects) — per-network-type unified-tunnel configuration.
+- `enableAllDefaultAdaptersTN` (int, 0/1) — whether all OS default network adapters participate in trusted-network evaluation.
+- `trustedNetworkIdsSelected` (list of int) — distinct from `trustedNetworkIds`. Relationship unclear; may be UI-selection state vs authoritative reference list. Needs tenant confirmation.
+
+**On `forwardingProfileActions[]` items:**
+
+- `tunnel2FallbackType` (int enum) — specific kind of Z-Tunnel 2.0 fallback to perform. Python SDK had only a generic `tunnel2_fallback` bool.
+- `useTunnel2ForUnencryptedWebTraffic` (int, 0/1) — sibling of `useTunnel2ForProxiedWebTraffic`. Controls Z-Tunnel 2.0 behavior for unencrypted web traffic separately from proxied.
+- `optimiseForUnstableConnections` (int, 0/1) — performance tuning for flaky networks.
+- `sendAllDNSToTrustedServer` (int, 0/1) — forwards all DNS queries to the trusted DNS server rather than resolving normally.
+- `dropIpv6IncludeTrafficInT2` (IntOrString) — IPv6 drop behavior specific to Z-Tunnel 2.0.
+- `latencyBasedServerEnablement` / `lbsProbeInterval` / `lbsProbeSampleSize` / `lbsThresholdLimit` / `latencyBasedServerMTEnablement` — latency-based server selection on the ZIA-actions side. Python SDK had these only on ZPA actions.
+- `isSameAsOnTrustedNetwork` (bool) — matches the "Same as On-Trusted Network" UI checkbox per [`./z-tunnel.md § 5-Phase deployment`](./z-tunnel.md). Explicit cross-reference to the trusted branch rather than requiring field duplication.
+
+## Unified Tunnel — a third tunnel mode not documented in Python SDK
+
+The Go SDK exposes a `UnifiedTunnel` sub-structure (`forwarding_profile.go:119-135`) distinct from both ForwardingProfileActions and ForwardingProfileZpaActions. Shape:
+
+| Field | Role |
+|---|---|
+| `networkType` (int) | Which network-type branch this unified-tunnel entry applies to. |
+| `actionTypeZIA` (int) | What to do with ZIA traffic on this branch. |
+| `actionTypeZPA` (int) | What to do with ZPA traffic on this branch. Separate from ZIA because a unified tunnel can still differentiate which traffic-kind takes which action. |
+| `primaryTransport` (int) | Transport preference for the unified tunnel. |
+| `tunnel2FallbackType` / `allowTLSFallback` / timeout fields | Standard tunnel-tuning knobs. |
+| `pathMtuDiscovery` / `mtuForZadapter` | MTU tuning. |
+| `optimiseForUnstableConnections` | Performance tuning. |
+| `redirectWebTraffic` | Whether to redirect web traffic through the listening proxy (see [`./z-tunnel.md § 3.8+ Windows options`](./z-tunnel.md)). |
+| `dropIpv6Traffic` / `dropIpv6TrafficInIpv6Network` | IPv6 handling. |
+| `blockUnreachableDomainsTraffic` | Defensive fallback behavior. |
+| `dropIpv6IncludeTrafficInT2` | IPv6 + Z-Tunnel 2.0 interaction. |
+| `sendAllDNSToTrustedServer` | DNS forwarding behavior. |
+| `systemProxyData` | OS-proxy integration (same sub-object as ForwardingProfileAction uses). |
+| `sameAsOnTrusted` (int, 0/1) | "Inherit settings from On-Trusted branch." |
+
+**What Unified Tunnel is (inferred from structure)**: a forwarding mode where ZIA and ZPA traffic share a single transport connection to the Zscaler cloud, rather than maintaining two separate Z-Tunnels (one for ZIA → PSE, one for ZPA → Service Edge). `actionTypeZIA` and `actionTypeZPA` are separate within the same sub-object because unified transport doesn't mean unified policy — individual traffic kinds can still be routed differently.
+
+This is a **third tunnel configuration mode** alongside the traditional two-tunnel model. Not documented in the Python SDK at all. Customer-facing help articles don't surface it in the `what-is-zscaler-client-connector.md` or the `about-z-tunnel-1.0-z-tunnel-2.0.md` we captured — it appears to be a newer feature. Worth flagging as a potential question shape the skill should recognize: "what is Unified Tunnel?" → this section.
+
+**Follow-up to resolve**: capture a help article specifically about Unified Tunnel if one exists. The SDK side is now known; the customer-side operational semantics need doc backing.
 
 ## Edge cases
 

@@ -300,6 +300,18 @@ Not core to the skill's reasoning layer but worth knowing when reading tenant HC
 - **DLP Web Rules** — `min_size` range `0–96,000` KB (~93 MB) (`resource_zia_dlp_web_rules.go:189`).
 - **File Type Control Rules** — `min_size` and `max_size` both `0–409,600` KB (400 MB) (`resource_zia_file_type_control_rules.go:168, 175`).
 
+## Go-SDK-only surfaces (cross-SDK audit 2026-04-24)
+
+Cross-check against `vendor/zscaler-sdk-go/zscaler/zia/services/` surfaced services the Python SDK at `vendor/zscaler-sdk-python/zscaler/zia/` doesn't expose. These are real ZIA API surfaces — tooling that needs them must use the Go SDK or direct HTTP calls:
+
+- **`scim_api`** (Go: `zia/services/scim_api/scim_user_api.go`, `scim_group_api.go`) — full SCIM CRUD for ZIA users and groups via a distinct `ScimZIAService` client. Python has no ZIA SCIM module at all; user management in Python is limited to the older `user_management` surface.
+- **`email_profiles`** (Go: `zia/services/email_profiles/email_profiles.go`) — DLP email profile CRUD with `GetAll` / `GetAllLite` / filter options. Python has no equivalent; closest is `end_user_notification.py` which serves a different purpose.
+- **`eventlogentryreport`** (Go) — event-log entry report CRUD (`GetAll`, `Create`, `Delete`). Python's `audit_logs` covers ZIA admin-action audit; this is a distinct report surface.
+- **`devicegroups`** (Go) — device-group CRUD. Python's `device_management` doesn't expose group-level CRUD.
+- **Naming note: `advancedthreatsettings` (Go) == `atp_policy` (Python).** Same API surface (`GetAdvancedThreatSettings` / `GetMaliciousURLs` / `GetSecurityExceptions`) under different module names. `references/zia/malware-and-atp.md` uses the Python "ATP" naming; a Go-SDK-using reader will find it under `advancedthreatsettings`.
+
+Python-only modules the Go SDK doesn't carry (mostly newer features or SDK-lag not yet ported): `casb_dlp_rules`, `casb_malware_rules`, `cloud_browser_isolation`, `risk_profiles`, `sub_clouds`, `proxies`, `dns_gateways`, `dedicated_ip_gateways`.
+
 ## Pagination
 
 Per SDK README:

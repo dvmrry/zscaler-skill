@@ -55,7 +55,7 @@ The CSV-string wire format (not a JSON array) is the main wire-format quirk — 
 
 ### `condition_type` — how criteria combine within a TrustedNetwork
 
-The `condition_type` field decides whether ZCC requires **all** configured criteria to match (AND — strict) or **any** one of them (OR — permissive). The SDK does not enumerate valid values. Lab-test both behaviors against a real tenant to confirm; see [`clarification zcc-06`](../_clarifications.md#zcc-06-trustednetwork-condition_type-enum).
+The `condition_type` field decides whether ZCC requires **all** configured criteria to match (AND — strict) or **any** one of them (OR — permissive). **The Go SDK (`vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network/trusted_network.go:28`) confirms this field is `int` on the wire, not a string.** The Python SDK passes kwargs through without type enforcement; don't send strings like `"AND"` — send the small integer code. **The specific integer-to-meaning mapping is not enumerated in either SDK** — first tenant snapshot observes the values in use, or lab-test to determine which int means AND vs OR. See [`clarification zcc-06`](../_clarifications.md#zcc-06-trustednetwork-condition_type-enum).
 
 **Operationally this is the critical field.** A TrustedNetwork with OR semantics across (DNS server = `10.11.12.13`) OR (SSID = `CorpGuest`) would classify a user on the guest Wi-Fi as trusted — probably not what was intended. A TrustedNetwork with AND semantics over many criteria can silently never match if *any* criterion is misconfigured (e.g., an unused `ssids` field left empty but not null).
 

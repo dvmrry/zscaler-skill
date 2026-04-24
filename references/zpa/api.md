@@ -247,6 +247,16 @@ TF resources for LSS configuration (each maps to a specific log type):
 
 `models/lss.py` defines `LSSResourceModel` with these top-level fields: `id`, `connector_groups`, `config` (LSSConfig), `policy_rule`, `policy_rule_resource`. `LSSConfig` carries `name`, `description`, `enabled`, `source_log_type`, `modified_time`, `creation_time`, `modified_by`, plus the log-stream content template.
 
+## Go-SDK-only surfaces (cross-SDK audit 2026-04-24)
+
+Cross-check against `vendor/zscaler-sdk-go/zscaler/zpa/services/` surfaced services the Python SDK at `vendor/zscaler-sdk-python/zscaler/zpa/` doesn't expose:
+
+- **`applicationsegment_move`** / **`applicationsegment_share`** (Go) — explicit microtenant-cross-segment operations: `AppSegmentMicrotenantMove` and `AppSegmentMicrotenantShare`. Python's `application_segment` has no equivalent methods. Any tooling that needs to move application segments across microtenants or share segments between microtenant boundaries must use the Go SDK or call the API directly.
+- **Microtenant-sharing sub-objects on `ApplicationSegmentResource`** (Go) — `SharedMicrotenantDetails`, `SharedFromMicrotenant`, `SharedToMicrotenant` are typed sub-structs. Python's `application_segment.py` passes these through as unvalidated dicts. Tenants using microtenants should expect these fields to appear in snapshot JSON.
+- **`scim_api`** (Go) — full ZPA SCIM CRUD. Python has `scim_groups` and `scim_attributes` modules but they don't cover the full SCIM provisioning surface the Go SDK exposes.
+
+Python-only modules the Go SDK doesn't carry (some of these are Python's way of splitting what Go bundles; some are newer features): `tag_key`, `tag_namespace`, all five `pra_*` modules (`pra_approval`, `pra_console`, `pra_credential`, `pra_credential_pool`, `pra_portal`), and all four `cbi_*` modules (`cbi_banner`, `cbi_certificate`, `cbi_profile`, `cbi_region`). The PRA and CBI surfaces exist in Go under different paths — the module split differs rather than the API coverage.
+
 ## Pagination
 
 Per SDK README: built-in `resp.has_next()` / `resp.next()`. Same idiom as ZIA.
