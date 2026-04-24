@@ -23,6 +23,7 @@ Entry point for Zscaler Internet Access (ZIA) questions. Pick the topic that mat
 | Wildcard semantics — leading-period `.foo.com` vs exact form, 5-level subdomain depth, implicit right-wildcard | [`./wildcard-semantics.md`](./wildcard-semantics.md) | draft |
 | Sandbox — Basic vs Advanced tiers, SSL-bypass dependency, quarantine edge cases, block-policy-type discriminator | [`./sandbox.md`](./sandbox.md) | draft |
 | Malware Protection and Advanced Threat Protection — global cybersecurity policies (no rules, no scoping), Page Risk score, C2/phishing/XSS/country blocking, Blocked Malicious URLs, console-only diagnosis | [`./malware-and-atp.md`](./malware-and-atp.md) | draft |
+| Data Loss Prevention (DLP) — dictionaries, engines, policy rules, file-size limits, ICAP/Incident-Receiver/C2C forwarding paths, pipeline gate for ZWA incidents | [`./dlp.md`](./dlp.md) | draft |
 | ZIA API — endpoints, authentication, response shapes relevant to this skill | [`./api.md`](./api.md) | stub |
 
 ## Log schemas

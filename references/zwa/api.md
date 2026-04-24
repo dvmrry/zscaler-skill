@@ -101,5 +101,5 @@ Fork teams automating ZWA should scope ambitions to incident lifecycle (search, 
 ## Cross-links
 
 - Overview (incident lifecycle, workflow templates) — [`./overview.md`](./overview.md)
-- ZIA DLP (upstream detection source) — `references/zia/` (no dedicated DLP doc yet; referenced in SSL Inspection + Malware-and-ATP)
+- ZIA DLP (upstream detection source) — [`../zia/dlp.md`](../zia/dlp.md)
 - Cross-product integration (SSL-must-decrypt-for-DLP dependency) — [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md)

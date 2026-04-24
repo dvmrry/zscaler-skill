@@ -159,7 +159,7 @@ Both actions delegate auth-challenge presentation to ZIdentity. A tenant without
 
 ### ZIA DLP → ZWA (incident lifecycle)
 
-**ZWA is downstream of ZIA DLP.** ZIA detects policy violations during traffic inspection; Workflow Automation ingests each detection as an **incident** and handles triage + remediation (notify user, escalate, create ticket, close).
+**ZWA is downstream of ZIA DLP.** ZIA detects policy violations during traffic inspection; Workflow Automation ingests each detection as an **incident** and handles triage + remediation (notify user, escalate, create ticket, close). Full DLP mechanics in [`../zia/dlp.md`](../zia/dlp.md) — dictionaries, engines, policy rules, file-size inspection limits (400MB file / 100MB extracted text / 5-level archive recursion), and the Cloud-to-Cloud Incident Forwarding path that feeds ZWA.
 
 **Multi-product dependency chain:**
 
@@ -329,6 +329,8 @@ Routing hints for question patterns that often hit these hooks. Use this section
 | "Cloud Connector deployed but traffic not reaching — workloads failing" | Fail-close-by-default: if gateways unreachable, workloads lose internet. Check gateway health + fail-close/fail-open setting | [`../cloud-connector/overview.md § Fail-close vs fail-open`](../cloud-connector/overview.md) |
 | "Workload-to-internal-app fails via Cloud Connector + ZPA" | Multi-product chain: CC rule → ZPA Access Policy → App Connector health | [`../cloud-connector/overview.md`](../cloud-connector/overview.md), [`../zpa/app-segments.md`](../zpa/app-segments.md) |
 | "DLP event didn't create a ticket / notify user" | Multi-link chain: SSL decrypt → ZIA DLP rule → ZIA→ZWA integration → ZWA workflow mapping. Check in that order. | [`../zwa/overview.md § Dependencies`](../zwa/overview.md) |
+| "DLP didn't catch this big file" / "DLP missed content in a 500MB document" | 400MB file-size cap + 100MB extracted-text inspection window + 5-level compression limit | [`../zia/dlp.md § Content inspection limits`](../zia/dlp.md) |
+| "How do I write a DLP rule that matches my custom dictionary?" | Rules reference engines, not dictionaries — wrap the dictionary in an engine first | [`../zia/dlp.md § Three-layer object model`](../zia/dlp.md) |
 | "Why is a DLP incident visible in the ZWA portal but no workflow fired?" | Workflow mapping missing or doesn't match the incident's attributes | [`../zwa/overview.md § Workflow mappings`](../zwa/overview.md) |
 
 ## The recurring patterns

@@ -63,6 +63,13 @@ Zscaler has renamed several core components over time without fully purging the 
 | ZPA Gateway | SIPA Gateway | ZIA Admin > Administration > ZPA Gateway | Named reference to a ZPA tenant used by ZIA Forwarding Control rules to route SIPA traffic. |
 | ZIA Service Edge client type | ZIA Service Edge, Source IP Anchoring client | ZPA Client Forwarding Policy / Access Policy "Client Type" value | The client-type identity ZIA uses when it initiates SIPA forwarding into ZPA. Distinct from Zscaler Client Connector as a client type. |
 | ZPA Resolver for Road Warrior / Locations | — | ZIA DNS Control pre-configured rules | DNS resolution rules that return ZPA Synthetic IPs for SIPA destinations. Road Warrior rule must sit above Locations rule in rule order. |
+| DLP Dictionary | Dictionary (context-dependent) | — | A detection primitive — patented algorithm set matching specific data patterns (credit cards, SSNs, MIP labels, EDM data). Predefined or custom. See `references/zia/dlp.md`. |
+| DLP Engine | Engine (context-dependent) | — | A collection of DLP dictionaries combined with Boolean operators. DLP policy rules reference engines, not dictionaries directly. |
+| EDM | Exact Data Matching | — | Custom DLP dictionary type that matches against uploaded exact data sets (customer records, employee PII). Low false-positive rate vs pattern matching. |
+| MIP | Microsoft Information Protection | — | Microsoft's document classification label system. Zscaler DLP dictionaries can match on MIP labels applied to files. Cross-product with Microsoft 365. |
+| ICAP Receiver | Internet Content Adaptation Protocol receiver | — | External third-party DLP solution to which Zscaler forwards transaction data via secure ICAP. **One-way** — Zscaler does not accept ICAP responses. |
+| Zscaler Incident Receiver | ZIR | — | Zscaler-native destination for outbound email policy rule content. ICAP transport; also one-way. |
+| Cloud-to-Cloud Incident Forwarding | C2C | — | Forwards DLP incident metadata + evidence directly to customer public-cloud storage (S3, Azure Blob, etc.). The feed ZWA reads from. |
 | LWF Driver | (same) | `enableLWFDriver` flag on Forwarding Profile | Windows Lightweight Filter — low-level packet interception driver |
 | Zscaler Internet Access (ZIA) | Internet & SaaS (ZIA) is the newer rename; legacy was just "ZIA" | — | Internet security product line |
 | Zscaler Private Access (ZPA) | (same) | — | Private app access product line |
