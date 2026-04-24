@@ -386,7 +386,98 @@ Eighth pass also: SKILL.md (4 new routing rows), `shared/index.md` (1 row), `zia
 14. **`last-verified` date refresh** — when touching a reference doc, bump the date even if content's unchanged, so staleness is visible.
 15. **README + SKILL.md routing-table hygiene** — the routing-table rows grow as docs are added. Periodically review for redundancy or better question-shape phrasing.
 
-**If picking one concrete next action now:** commit the current state. The skill has grown substantially; a commit here makes the seventh-pass work reviewable and bisectable before further work lands.
+**If picking one concrete next action now:** commit the current state. The skill has grown substantially; a commit here makes the seventh-pass work reviewable and bisectable before further work lands. *(2026-04-24: committed as `a1cf835` and pushed to `origin/main`.)*
+
+## Discovered work — pending action (2026-04-24, post-eighth-pass)
+
+After the eighth pass committed and pushed, a portfolio audit and a portal recon surfaced two distinct lines of work neither in the existing roadmap nor scoped under "blocked on tenant." Both are actionable now.
+
+### Discovery 1: `automate.zscaler.com` is the public OneAPI Automation Hub
+
+User asked whether we'd checked `automate.zscaler.com`. We hadn't. A Playwright recon (no auth wall — fully public) found:
+
+- **What it is:** Zscaler's public OneAPI documentation hub. Docusaurus-based.
+- **Three top sections:**
+  - `https://automate.zscaler.com/docs/getting-started/` — auth flow + onboarding (likely refines `references/zidentity/api-clients.md` and `references/zidentity/overview.md`)
+  - `https://automate.zscaler.com/docs/api-reference-and-guides/` — the API surface; **may contain direct OpenAPI / Swagger spec downloads**
+  - `https://automate.zscaler.com/docs/tools/` — SDK + Postman docs
+- **Why it matters:** if OpenAPI specs are publicly downloadable here, the **admin-portal Swagger extraction is unnecessary**. Specs would live as `vendor/zscaler-api-specs/{zia,zpa,zidentity,zcc,zdx}-openapi.json` and feed into:
+  - Snapshot schema docs (currently deferred until post-fork)
+  - ZCC int-enum semantic mappings (`zcc-01` through `zcc-04`, `zcc-06` — close immediately if the spec annotates enums)
+  - `references/zia/api.md`, `references/zpa/api.md`, `references/zcc/api.md` accuracy beyond SDK source
+  - Closing the "API blind spots" called out in the TL;DR
+
+**Next-action options offered to user (awaiting selection):**
+- (A) Targeted: Capture `/docs/api-reference-and-guides/` only and look for OpenAPI specs.
+- (B) Full sweep: Capture all three top sections + rate limits + auth, then synthesize into reference doc updates.
+
+**If the user picks neither in the current session,** a fresh agent should:
+1. Navigate to `https://automate.zscaler.com/docs/api-reference-and-guides/` via Playwright (or `WebFetch` if simpler — Docusaurus is server-renderable).
+2. Look for "Download Spec", `swagger.json`, or `openapi.json` links.
+3. If specs exist, save under `vendor/zscaler-api-specs/<product>-openapi.json` (one per product) and commit.
+4. If no direct spec downloads, capture the API Reference pages as markdown into `vendor/zscaler-help/automate-zscaler/<page-slug>.md` (or similar — pick a subdir to keep them grouped).
+
+**Important:** the user's CLAUDE.md says to use Sonnet/Haiku for analysis/review agents, not Opus. Same constraint applies to capture agents launched by future passes.
+
+### Discovery 2: Product portfolio audit — gaps vs Zscaler.com marketing
+
+A WebSearch sweep against `zscaler.com` (not help.zscaler.com — product positioning, not config docs) ranked against our coverage list. Findings:
+
+**High-priority gaps (typical customer reasoning lands here):**
+
+1. **AppProtection** — ZPA-bundled WAF + identity-based attack defense (OWASP Top 10, LDAP/Kerberos enumeration, AD attacks, insider threats). **Surprising omission inside ZPA.** Operators with ZPA-protected web apps get this turned on without realizing they did.
+2. **Risk360** — cyber risk quantification (Monte Carlo financial modeling on 115+ risk factors). Separate license. CISOs and risk execs ask about it directly.
+3. **ITDR / Identity Protection** — credential theft, privilege escalation, DCSync, Kerberoasting detection. ZCC-agent-based. Distinct from ZIdentity (which is the IdP layer); ITDR sits on top to detect identity attacks in flight.
+4. **Resilience** — automatic carrier/datacenter failover; bundled into Business+ editions of ZIA/ZPA/ZCC. Adjacent to BC Cloud (which we cover) but is a separate marketed capability.
+5. **DSPM (Data Security Posture Management)** — AI-powered data discovery + classification across IaaS/SaaS/on-prem. Distinct from ZIA DLP (in-flight); DSPM is at-rest discovery.
+
+**Medium-priority gaps:**
+
+- **Asset Exposure Management** — CAASM with CMDB sync, coverage-gap detection. Newer (Feb 2025).
+- **Unified Vulnerability Management (UVM)** — vulnerability prioritization, 150+ connectors. Powered by Data Fabric (Avalor acquisition).
+- **Cloud Protection / Posture Control (CSPM)** — workload misconfig + access hygiene. Adjacent to Cloud Connector but different scope (config scan, not traffic).
+- **Zscaler Cellular** — Zero Trust SIM for IoT/OT. Niche but growing.
+
+**Underweighted (have material but no synthesis):**
+
+- **Zscaler Deception** — we have 3 captures (`vendor/zscaler-help/what-is-zscaler-deception.md`, `about-deception-strategy.md`, `about-zpa-app-connectors-deception.md`) from the `zpa-07` resolution but no `references/zpa/deception.md` synthesis doc.
+- **AI Security as a platform** — we have GenAI URL flags in URL Filtering and DLP coverage, but Zscaler markets AI Asset Management + AI Access Security + AI Red Teaming + AI Guardrails as a cohesive product family.
+
+**Architectural pillars never named in our docs:**
+
+- **Zero Trust Exchange (ZTE)** — the marketing umbrella name for the entire platform. We reference "Zero Trust" everywhere but don't have a doc tying everything to ZTE-the-named-thing.
+- **Data Fabric for Security** — Avalor-powered aggregation layer; foundation for Risk360, Asset Exposure, UVM. Worth naming because customers ask "where does Risk360 get its data."
+- **Agentic SecOps** — newer pillar; Red Canary acquisition (May 2025) reinforces this direction.
+
+**Recommended top three to fill (next-pass candidates):**
+
+1. **AppProtection** — surprising omission inside ZPA. Likely 1 capture sweep + small synthesis doc.
+2. **Risk360** — distinct enough from existing coverage that it warrants its own doc. CISOs ask.
+3. **Deception** — promote captures to a real reasoning doc. Cheap, captures already exist.
+
+**Mentioned but lower urgency:**
+
+4. **ITDR** — overlaps with ZIdentity coverage; could be a section there or its own doc.
+5. **ZTE as a named architectural pillar** — short overview at top of `cloud-architecture.md` or its own doc.
+6. **Resilience** — likely a paragraph in `cloud-architecture.md` rather than its own doc.
+
+**Defer:** DSPM, Asset Exposure Management, UVM, Cloud Protection, Posture Control, Zscaler Cellular, AI Security platform — newer / niche / less likely to come up in policy-and-traffic reasoning, where the skill's core value lives. Add when fork-team signals demand.
+
+### Cross-reference: API spec extraction strategy (regardless of which discovery path)
+
+When OpenAPI/Swagger specs become available (either from `automate.zscaler.com` or admin-portal extraction):
+
+- Save under `vendor/zscaler-api-specs/<product>-openapi.{json,yaml}` — one per product surface (ZIA / ZPA / ZIdentity / ZCC / ZDX / OneAPI gateway if consolidated).
+- **Sanitize before committing**: strip auth tokens, customer hostnames, tenant-specific URLs that may have leaked from a logged-in session.
+- Watch for fragmented specs (one per service area — URL Filtering API, App Segments API, etc.). Save each separately; synthesis can stitch them.
+- These are upstream API surface (not tenant-specific), so they belong in the public repo.
+
+**What spec availability unlocks:**
+
+- Closes "API blind spots" in TL;DR.
+- Pre-populates snapshot-schema reasoning before first fork-admin run.
+- Closes ZCC enum clarifications (`zcc-01` through `zcc-04`, `zcc-06`) if the spec annotates enums.
+- Tightens `references/zia/api.md`, `references/zpa/api.md`, `references/zcc/api.md` beyond SDK-derived knowledge.
 
 ## Crash-recovery hints
 
