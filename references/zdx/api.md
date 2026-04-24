@@ -94,13 +94,46 @@ Backed by the MCP `audit-software-inventory` skill under `vendor/zscaler-mcp-ser
 
 ## Auth
 
-ZDX auth follows the OneAPI ZIdentity pattern in current tenants:
+ZDX has **two auth paths** depending on tenant migration state. Both end with a bearer token used in `Authorization: Bearer <token>` on subsequent calls.
 
-- `ZSCALER_CLIENT_ID`, `ZSCALER_CLIENT_SECRET` (or `ZSCALER_PRIVATE_KEY`), `ZSCALER_VANITY_DOMAIN`, optional `ZSCALER_CLOUD` — same as ZIA / ZPA.
+### OneAPI path (modern tenants)
 
-For pre-ZIdentity tenants, the legacy path (`vendor/zscaler-sdk-python/zscaler/zdx/legacy.py`) uses ZDX-specific credentials — operator needs a ZDX API key pair provisioned in the ZDX admin portal.
+Same as ZIA / ZPA:
 
-See [`../zia/api.md § Authentication`](../zia/api.md) for the shared pattern.
+- `ZSCALER_CLIENT_ID`, `ZSCALER_CLIENT_SECRET` (or `ZSCALER_PRIVATE_KEY`), `ZSCALER_VANITY_DOMAIN`, optional `ZSCALER_CLOUD`. The SDK handles token exchange via ZIdentity.
+- Token endpoint: `https://<vanity>.zslogin.net/oauth2/v1/token` with `audience=https://api.zscaler.com` (see [`../shared/oneapi.md`](../shared/oneapi.md)).
+
+### ZDX-specific legacy auth
+
+ZDX retains a dedicated auth endpoint distinct from OneAPI — pre-ZIdentity tenants and some current ZDX flows use it directly:
+
+```http
+POST https://api.zsapi.net/zdx/v1/oauth/token
+Content-Type: application/json
+
+{
+  "key_id": "<api-key-id>",
+  "key_secret": "SHA256(<secret_key>:<timestamp>)",
+  "timestamp": <unix-epoch-seconds>
+}
+```
+
+Mechanics:
+
+- `key_secret` is the SHA256 hex digest of `<secret_key>:<timestamp>` (literal colon-concatenation).
+- **Requests are rejected if more than 15 minutes have elapsed** between the supplied `timestamp` and ZDX's clock. Clock drift on the calling host is the most common cause of unexpected auth failure here.
+- Returned token is valid for **3600 seconds**.
+
+The Python SDK's `vendor/zscaler-sdk-python/zscaler/zdx/legacy.py` implements this flow. Hand-written callers (curl, Postman without the helper) must produce the SHA256 themselves.
+
+### Auth-utility endpoints
+
+ZDX exposes two introspection endpoints that the OneAPI path doesn't:
+
+- `GET /zdx/v1/oauth/jwks` — JWKS public-key set used to verify ZDX-issued JWTs.
+- `GET /zdx/v1/oauth/validate` — checks whether a presented JWT is valid. Useful for token-validity probing in long-running scripts.
+
+See [`../shared/oneapi.md § Three authentication mechanisms`](../shared/oneapi.md) for the cross-product comparison (OneAPI / ZDX legacy / ZCC legacy).
 
 ## Wire format quirks
 
@@ -119,11 +152,14 @@ See [`../zia/api.md § Authentication`](../zia/api.md) for the shared pattern.
 
 **Caveat**: ZDX data is fundamentally time-series — a single snapshot captures a point-in-time view of what ZDX currently reports. Unlike ZIA/ZPA config (which changes slowly), ZDX metrics update every 5 minutes. A snapshot is useful for "what's the current state?" but not for historical analysis — use the time-range query params on live API calls for that.
 
+## Rate limits
+
+ZDX uses tier-based rate limits keyed to license count (different from ZIA's weight-based / ZPA's per-IP). See [`../shared/oneapi.md § ZDX — tier-based by license count`](../shared/oneapi.md) for the table. Response headers: `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` (UTC epoch seconds — note the `RateLimit-*` form, distinct from ZIA's lowercase `x-ratelimit-*`).
+
 ## Open questions
 
 - Exact endpoint paths for each SDK method (not yet reviewed line-by-line).
 - Query parameter schemas per endpoint.
-- Rate-limit behavior (ZDX's rate-limit page exists but wasn't captured in this pass).
 
 ## Cross-links
 

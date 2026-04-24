@@ -23,7 +23,42 @@ All ZCC API paths live under:
 /zcc/papi/public/v1
 ```
 
-Accessed via the same `ZscalerClient` used for ZIA/ZPA (OneAPI / ZIdentity auth). See [`../zia/api.md § Authentication`](../zia/api.md#authentication). The ZCC portal API requires a tenant admin session; API client credentials need ZCC scopes (`zcc.*`).
+Full base URL: `https://api.zsapi.net/zcc/papi/public/v1`. Accessed via the same `ZscalerClient` used for ZIA/ZPA (OneAPI / ZIdentity auth). The ZCC portal API requires a tenant admin session; API client credentials need ZCC scopes (`zcc.*`).
+
+## Authentication paths — OneAPI vs ZCC legacy
+
+ZCC has **two coexisting auth flows**. Modern tenants use OneAPI; older tenants use ZCC's dedicated login endpoint.
+
+### OneAPI path (modern tenants)
+
+`ZSCALER_CLIENT_ID`, `ZSCALER_CLIENT_SECRET` (or `ZSCALER_PRIVATE_KEY`), `ZSCALER_VANITY_DOMAIN`. SDK handles token exchange via ZIdentity at `https://<vanity>.zslogin.net/oauth2/v1/token` with `audience=https://api.zscaler.com`. See [`../shared/oneapi.md`](../shared/oneapi.md).
+
+### ZCC legacy login
+
+```http
+POST https://api.zsapi.net/zcc/papi/auth/v1/login
+Content-Type: application/json
+
+{ "apiKey": "<key>", "secretKey": "<secret>" }
+```
+
+Response:
+
+```json
+{ "jwtToken": "<token>", "message": "..." }
+```
+
+The returned `jwtToken` goes in `Authorization: Bearer <jwtToken>` on subsequent calls. Path lives under `/zcc/papi/auth/v1` (not `public/v1`). The endpoint catalog notes both `/zcc/papi/public/v1/auth/token` (the modernized variant in some captures) and the legacy `/zcc/papi/auth/v1/login` form — confirm which your tenant accepts.
+
+### Cross-product admin sync (operational behavior worth knowing)
+
+ZCC maintains its **own copy** of admin user lists from ZIA, ZDX, and ZPA. The sync surface:
+
+- `POST /zcc/papi/public/v1/sync/admins` — synchronizes the local copy of admin users (general).
+- `POST /zcc/papi/public/v1/sync/ziaZdxAdmins` — pulls ZIA + ZDX admins into ZCC.
+- `POST /zcc/papi/public/v1/sync/zpaAdmins` — pulls ZPA admins into ZCC.
+
+Implication: when a ZIA admin is added, they don't automatically appear in ZCC's admin view until a sync runs. Periodic / on-demand sync is the operator's responsibility (or scripted via these endpoints). Explains "I'm a ZIA admin but can't see myself in the ZCC portal" — you weren't synced yet.
 
 ## SDK services under `client.zcc.*`
 
@@ -48,6 +83,11 @@ Accessed via the same `ZscalerClient` used for ZIA/ZPA (OneAPI / ZIdentity auth)
 - **Endpoint paths are verb-suffixed.** `.../listByCompany`, `.../create`, `.../edit`, `.../{id}/delete` — not RESTful resource patterns. Scripts that build URLs manually need to follow the suffix convention per method.
 - **`/edit` takes POST on some endpoints and PUT on others.** `webForwardingProfile/edit` uses POST; `webFailOpenPolicy/edit` and `webTrustedNetwork/edit` use PUT. The SDK handles this, but hand-crafted HTTP calls need to match each endpoint's convention.
 - **List responses for `trusted_networks` are wrapped.** `/webTrustedNetwork/listByCompany` returns a body with `trustedNetworkContracts: [...]`, not a bare array.
+- **`/getOtp` is cache-prone.** End-user OTP retrieval (`GET /zcc/papi/public/v1/getOtp?udid={udid}`) can be cached by intermediate proxies / CDNs, returning a stale OTP. Workaround documented by Zscaler: append a dummy random query parameter, e.g. `?udid=...&_=<random>`. The SDK does this internally; hand-crafted HTTP calls need to apply it.
+
+## Rate limits
+
+ZCC has the **tightest rate limits in the OneAPI suite**: 100 calls/hour at the tenant level, with **3 calls/day** for the three CSV-export endpoints (`/downloadDevices`, `/downloadServiceStatus`, `/downloadDisableReasons`). Headers: `X-Rate-Limit-Remaining`, `X-Rate-Limit-Retry-After-Seconds` — note the `X-Rate-Limit-*` form (different from ZIA's `x-ratelimit-*` and ZDX's `RateLimit-*`). See [`../shared/oneapi.md § ZCC — flat tenant-wide`](../shared/oneapi.md).
 
 ## Method summary by service
 

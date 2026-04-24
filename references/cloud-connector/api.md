@@ -91,7 +91,22 @@ From *Configuring a Cloud Provisioning Template*:
 
 ## Activation
 
-Cloud Connector has an **activation gate** similar to ZIA's (see [`../shared/activation.md`](../shared/activation.md)). Config changes are pending until `client.ztw.activation.*` triggers apply. Go SDK method: likely `Activate()` or similar on `activation` service (not inspected in detail). Terraform equivalent: `ztc_activation_status` resource.
+Cloud Connector has an **activation gate** parallel to ZIA's (see [`../shared/activation.md`](../shared/activation.md) for the cross-product treatment). Config changes are pending until activated.
+
+### Wire-format endpoints
+
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/ztw/api/v1/ecAdminActivateStatus` | Current activation status |
+| POST | `/ztw/api/v1/ecAdminActivateStatus/activate` | Apply pending config changes |
+| POST | `/ztw/api/v1/ecAdminActivateStatus/forceActivate` | Force-activate when normal activation is blocked |
+
+**`activate` vs `forceActivate`:** The plain `activate` endpoint runs the normal activation flow — which can fail or be blocked (config validation errors, edit-lock conflicts). `forceActivate` is the bypass — used when normal activation is stuck. **Treat `forceActivate` as last resort**: it sidesteps validation that protects against pushing broken config to live. The fact that two endpoints exist (parallel to plain ZIA which has only `activate`) is itself the signal that CBC's activation pipeline is more failure-prone than ZIA's.
+
+### Terraform / SDK equivalents
+
+- Go SDK: `client.ztw.activation.*` (method names not inspected in detail; expect `Activate()` and likely `ForceActivate()`).
+- Terraform: `ztc_activation_status` resource — runs activation during `terraform apply`.
 
 **This is a ZIA-style pattern, not ZPA-style.** ZPA propagates on write; Cloud Connector stages and requires explicit activation. Match the pattern to the familiar ZIA model, not ZPA.
 
@@ -105,7 +120,11 @@ Scope of "partner integrations" beyond AWS discovery isn't captured in detail. A
 
 ## Rate limiting
 
-A dedicated help article `help.zscaler.com/cloud-branch-connector/understanding-rate-limits` covers rate limits for Cloud & Branch Connector API — not captured in this pass. Operators hitting 429 errors should reference that article.
+CBC uses the **same weight-based rate-limit model as ZIA** — Heavy (DELETE) / Medium (POST, PUT) / Light (GET). See [`../shared/oneapi.md § Cloud & Branch Connector — same as ZIA weight model`](../shared/oneapi.md) for the table. 429 response body shape:
+
+```json
+{ "message": "Rate Limit (1/SECOND) exceeded", "Retry-After": "0 seconds" }
+```
 
 ## Python automation
 

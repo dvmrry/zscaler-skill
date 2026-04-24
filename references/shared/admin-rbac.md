@@ -136,6 +136,29 @@ Practical implication: automation workflows (Terraform, snapshot scripts, CI/CD)
 - **Retention: 6 months.**
 - Failed-login lockout: **5 failures in 1 minute → 5-minute account lock.** Failed attempts logged separately.
 - Filter + search + CSV export available.
+- **Audit-log report is async**: `POST /zia/api/v1/auditlogEntryReport` starts a job, `GET /zia/api/v1/auditlogEntryReport` polls status, `GET /auditlogEntryReport/download` retrieves the CSV when ready, `DELETE /auditlogEntryReport` clears the job. Don't expect synchronous completion on POST — script must poll.
+
+### ZIA `authType` distinguishes session source
+
+`GET /zia/api/v1/authenticatedSession` returns an `authType` field that identifies how the current session was established. Useful when correlating audit events to "who/what made this API call":
+
+| `authType` | Meaning |
+|---|---|
+| `ADMIN_LOGIN` | Standard admin password login |
+| `ADMIN_SAML_SSO_LOGIN` | Admin via SAML SSO |
+| `DEFAULT_LOGIN` | Initial / default tenant admin |
+| `MOBILE_APP_TOKEN` | Mobile app session token |
+| `INTEGRATION_PARTNER_ACCESS` | Partner integration role (SD-WAN partner API etc.) |
+| `PARTNER_ACCESS` | Generic partner access |
+| `SUPPORT_ACCESS_FULL` | Zscaler Support full read/write |
+| `SUPPORT_ACCESS_PARTIAL` | Zscaler Support limited write |
+| `SUPPORT_ACCESS_READ_ONLY` | Zscaler Support read-only |
+
+Implication: **support-access sessions are tracked distinctly from customer-admin sessions** — useful when investigating "did Zscaler Support change something during a ticket window?" Filter audit logs by `authType` to isolate.
+
+### ZIA admin-user mutability
+
+Admin users are **mutable across types** via `POST /zia/api/v1/adminUsers/{userId}/convert`. Standard Admin / SD-WAN partner API / Executive App Admin / combined types can be converted between forms — meaning admin types are not as fixed as they look at creation. Useful when role responsibilities change without forcing recreation.
 
 ### ZPA audit log
 
@@ -148,6 +171,20 @@ Practical implication: automation workflows (Terraform, snapshot scripts, CI/CD)
 - ZIdentity audit logs are view-only for admins with the **Audit Logs** module permission.
 - Log retention and API audit integration differ per-product.
 - **Cross-product tracing**: OneAPI Trace IDs link API calls to admin identities. When debugging "who made this API call and through which product," the OneAPI Trace ID is the stable correlator across ZIA + ZPA + ZIdentity logs.
+
+## ZCC has its own admin copy — sync is operator-controlled
+
+ZCC maintains a **local copy** of admin users from the other products. Three sync endpoints push admin lists into ZCC's database:
+
+| Endpoint | Source |
+|---|---|
+| `POST /zcc/papi/public/v1/sync/admins` | Generic admin sync |
+| `POST /zcc/papi/public/v1/sync/ziaZdxAdmins` | Pull ZIA + ZDX admins |
+| `POST /zcc/papi/public/v1/sync/zpaAdmins` | Pull ZPA admins |
+
+Implication: **a newly-added ZIA admin is NOT automatically visible in the ZCC portal.** A sync must run first. This explains "I'm a ZIA admin but the ZCC portal says I don't have access" — the sync hasn't propagated. Operator action: run the appropriate `/sync/*` endpoint, or wait for the periodic background sync (cadence not documented).
+
+This is the inverse of ZIdentity-based federation (where admins flow through Administrative Entitlements). ZCC's sync is product-local and explicitly imperative.
 
 ## Operational patterns
 
