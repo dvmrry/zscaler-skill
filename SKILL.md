@@ -25,7 +25,7 @@ This skill encodes **how Zscaler actually behaves** — rule precedence, wildcar
 Two kinds of question this skill handles:
 
 - **General behavior** — "how do wildcards match?", "what happens when URL filtering and cloud app control both apply?". Answerable anywhere, sourced from `references/`.
-- **Tenant-specific lookups** — "is `reddit.com` in a URL category in *our* tenant?". Requires a `snapshot/` populated by the refresh scripts. The public upstream repo ships empty; tenant snapshots live only in the private internal fork.
+- **Tenant-specific lookups** — "is `reddit.com` in a URL category in *our* tenant?". Requires a `snapshot/` populated by the refresh scripts. The public upstream repo ships empty; tenant snapshots live only in private forks.
 
 ## Check for a snapshot first
 

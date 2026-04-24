@@ -10,7 +10,7 @@ Follows the [Anthropic skill conventions](https://github.com/anthropics/skills) 
 
 ## Fork-admin first-run walkthrough
 
-If you just forked this internally and this is your first time setting it up, follow this path.
+If you just forked this privately for your own tenant and this is your first time setting it up, follow this path.
 
 ### Prerequisites
 

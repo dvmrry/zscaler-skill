@@ -19,7 +19,7 @@ If you just forked this and are here because [`README.md`](./README.md) step 2 s
 
 Build a Claude skill that lets engineers and non-technical users ask questions about the user's Zscaler environment (ZIA + ZPA) and get usable, sourced, confidence-scored answers. The skill's distinguishing value is **codified reasoning** about rule precedence, wildcard semantics, SSL inspection ordering, policy evaluation, and cross-product interactions — because Zscaler's own docs + MCP tools don't codify this, and raw LLMs hallucinate on precedence questions.
 
-This repo will be **forked internally at work**; design decisions favor our specific needs over general reusability. The fork will run against a real tenant; this public-plan Claude Code environment will never touch real API keys.
+This repo is designed to be **forked privately to run against a real tenant**. The public upstream ships empty `snapshot/` and `logs/` directories; private forks populate them with tenant-specific data that never flows back upstream. Design decisions favor concrete operator workflows over general reusability — the pattern works best when one team owns the fork and can pin it to their environment.
 
 ## Durable state pointers (read these first)
 
@@ -245,4 +245,4 @@ If picking one thing to do next, in order:
 
 - **Resuming the `_clarifications.md` flow:** read Status summary at top → pick a Partial or Open → check origin reference doc for context → look in `vendor/zscaler-help/` for a candidate article → grep with `uv run --with pypdf …` (see transcripts for pattern).
 - **Resuming Playwright captures:** existing captures live as `vendor/zscaler-help/<slug>.md` with frontmatter attribution. Pattern: navigate → wait 2.5s → expand accordion buttons (`aria-expanded="false"`) → `document.querySelector('article').innerText`.
-- **Fork concern:** this repo will be forked internally. Avoid any prompt or script that depends on Claude Code-specific tooling; keep the skill runnable by whatever agent harness the fork uses.
+- **Fork portability:** the skill is designed to be forked privately and run against a real tenant. Avoid prompts or scripts that depend on Claude Code-specific tooling; keep the skill runnable by whatever agent harness a fork uses.
