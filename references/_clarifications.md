@@ -95,9 +95,9 @@ Skim this before reading the full entries.
 
 ### Open
 
-`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zpa-04`, `zpa-07`, `log-03`, `log-04`, `shared-01`, `shared-02`, `shared-04`, `shared-05`, `shared-06`.
+`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zpa-04`, `zpa-07`, `log-03`, `shared-01`, `shared-02`, `shared-04`, `shared-05`, `shared-06`.
 
-Partial / SDK-mined (resolved via code read or help-doc capture; full lab confirmation pending): `zcc-01`, `zcc-02`, `zcc-03`, `zcc-04`, `zcc-05`, `zcc-06`, `zcc-07`. All six ZCC enum clarifications had their **datatype** (int vs string) resolved by the Go SDK cross-check on 2026-04-24; the integer-to-meaning mapping remains open for `zcc-01` through `zcc-04` and `zcc-06`.
+Partial / SDK-mined (resolved via code read or help-doc capture; full lab confirmation pending): `zcc-01`, `zcc-02`, `zcc-03`, `zcc-04`, `zcc-05`, `zcc-06`, `zcc-07`, **`log-04`** (field name + illustrative values confirmed via `web-log-schema.md`; full enum of `ruletype` / `reason` values still needs a tenant export). All six ZCC enum clarifications had their **datatype** (int vs string) resolved by the Go SDK cross-check on 2026-04-24; the integer-to-meaning mapping remains open for `zcc-01` through `zcc-04` and `zcc-06`.
 
 ---
 
@@ -744,15 +744,19 @@ Raw JSON dumps from the API are cheap to produce and `jq`-friendly but noisy for
 
 *Origin: `references/zia/malware-and-atp.md` § Console-only diagnosis workflow*
 
-Malware Protection and Advanced Threat Protection blocks have no public API surface. Diagnosis relies on Web Insights log fields indicating which policy module fired. The operator flow (Security Dashboard → Web Insights → `Blocked Policy Type`) is documented, but:
+Malware Protection and Advanced Threat Protection blocks have no public API surface. Diagnosis relies on Web Insights log fields indicating which policy module fired.
 
-- The exact NSS/Cloud-NSS field name (`blockedpolicytype`, `blocked_policy_type`, `policytype`, etc.) is unverified.
-- The enum values distinguishing MP vs ATP (and their sub-categories — "Ransomware", "Phishing", "Botnet", etc.) are unverified.
-- Whether MP category vs ATP category lands in the same field or separate fields is unverified.
+**Status**: partially resolved (2026-04-24).
 
-**Resolves with**: tenant snapshot (a real Web Insights export) OR the NSS output format CSV for web logs, which is referenced in `references/zia/logs/web-log-schema.md`. **Status**: open.
+**Answer (partial)**: `references/zia/logs/web-log-schema.md` (derived from Zscaler's NSS web-log CSV reference) documents the Block-only field set:
 
-A first fork-admin Web Insights export for any known MP or ATP block will answer this in one pass.
+- **`%s{ruletype}`** — the field name on the wire. Insights column name: `Blocked Policy Type`. Example values from the schema: `File Type Control`, `Data Loss Prevention`, `Sandbox`. The MP/ATP values follow the same pattern — expected strings `Malware Protection` and `Advanced Threat Protection` respectively (not yet confirmed by a live tenant export but matches the pattern).
+- **`%s{rulelabel}`** — Block-only rule name (e.g. `URL_Filtering_1`).
+- **`%s{reason}`** — carries extended detail. Example values: `Virus/Spyware/Malware Blocked`, `This page is unsafe (high PageRisk index)`, `Not allowed to browse this category`. Likely the MP/ATP sub-category discriminator (Ransomware, Phishing, Botnet, etc.). Not in the Insights CSV column list but present in the NSS output.
+
+**Key property**: `ruletype` and `rulelabel` are **Block-only**. An Allow rule firing produces no value for these fields. Operators filtering logs for "which policy blocked this" should filter on `ruletype` non-null.
+
+**Still open**: the full enum of `ruletype` values (the examples above are illustrative, not exhaustive) and the full enum of `reason` sub-categories. A first fork-admin tenant export with at least one MP and one ATP block confirms the complete list.
 
 ---
 

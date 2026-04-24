@@ -19,6 +19,7 @@ Entry point for Zscaler Private Access (ZPA) questions — application segments,
 |---|---|---|
 | Application segment matching — specificity-wins, Multimatch INCLUSIVE/EXCLUSIVE, Bypass precedence | [`./app-segments.md`](./app-segments.md) | draft |
 | Policy precedence — access, timeout, client forwarding, inspection | [`./policy-precedence.md`](./policy-precedence.md) | stub |
+| App Connector — VM model, groups, provisioning keys, scheduled software updates, certificate enrollment | [`./app-connector.md`](./app-connector.md) | draft |
 | ZPA API — endpoints, authentication, response shapes | [`./api.md`](./api.md) | stub |
 
 ## Log schemas
