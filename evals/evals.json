@@ -1,0 +1,143 @@
+{
+  "skill_name": "zscaler",
+  "schema_notes": {
+    "assertions": "Substring/substring-family checks the response MUST contain. Match is case-insensitive unless flagged.",
+    "must_cite_files": "Reference files the response MUST link to or quote from. Claim the citation if any normalized path or the file's title appears.",
+    "must_not_say": "Common wrong-answer traps the response MUST NOT contain. A hit on any of these is an eval failure regardless of other checks.",
+    "expected_confidence": "How confident the answer should be: 'high' (deterministic), 'medium' (needs tenant snapshot to finalize), 'low' (declines without data), 'declines-to-answer' (refuses to guess). Skill's frontmatter/confidence cue should match.",
+    "tenant_data_required": "If true, the response should cite snapshot/ and warn when empty. If false, the answer is fully derivable from references/."
+  },
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Is www.reddit.com covered by any URL category in our tenant? If so, which one, and is it blocked, allowed, or just logged?",
+      "expected_output": "A tenant-specific answer citing the matching category and the rule that governs it. If snapshot/ is empty, the skill should say so, point to scripts/url-lookup.py + scripts/snapshot-refresh.py, and still answer the general question of how URL category coverage is evaluated.",
+      "tenant_data_required": true,
+      "expected_confidence": "low",
+      "assertions": [
+        "snapshot",
+        "url-lookup.py",
+        "category"
+      ],
+      "must_cite_files": [
+        "references/zia/url-filtering.md"
+      ],
+      "must_not_say": [
+        "reddit.com is in the Social Networking category and your tenant blocks it"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I have two URL filtering rules that both match the same request — one is a Block rule lower in the order, one is an Allow rule higher up. Which one wins and why?",
+      "expected_output": "ZIA URL filtering rules evaluate top-down in ascending order; the first match wins. So the Allow rule at higher order (lower order number) fires first and blocks the Block rule from ever running. The answer should also mention that 'matching' has two layers — category resolution (specificity-wins across custom categories) happens before rule evaluation, so a rule with a wildcard category can silently lose to a lower-priority rule whose custom category has a more-specific exact entry for the URL.",
+      "tenant_data_required": false,
+      "expected_confidence": "high",
+      "assertions": [
+        "first match",
+        "ascending",
+        "specificity",
+        "disabled rule",
+        "wildcard"
+      ],
+      "must_cite_files": [
+        "references/zia/url-filtering.md"
+      ],
+      "must_not_say": [
+        "Allow always wins over Block",
+        "Block always takes precedence",
+        "rules are evaluated in parallel"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "If I configure a URL filtering rule matching *.example.com, does it match example.com itself? What about foo.bar.example.com? And does the wildcard care about the scheme (https:// vs http://)?",
+      "expected_output": "Asterisks are not a valid Zscaler wildcard — the leading-period form `.example.com` is. `.example.com` matches the bare domain, any subdomain up to 5 levels deep, plus implicit right-side path/port/query matching. Scheme is stripped at configuration and ignored at match time — http:// and https:// both match. `foo.bar.example.com` matches (2 levels, well within 5). The 5-level cap is a non-obvious gotcha worth flagging. An operator report contradicts the doc on asterisk behavior — see clarification zia-15.",
+      "tenant_data_required": false,
+      "expected_confidence": "high",
+      "assertions": [
+        "leading period",
+        "5",
+        "scheme",
+        "implicit",
+        "not a valid"
+      ],
+      "must_cite_files": [
+        "references/zia/wildcard-semantics.md",
+        "references/zia/url-filtering.md"
+      ],
+      "must_not_say": [
+        "asterisk wildcards work the way you'd expect",
+        "unlimited subdomain depth",
+        "you must include the scheme"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "For an HTTPS request to a site we want to block by URL category, does SSL inspection happen before or after the URL filtering decision? Does the answer change if the URL is in a do-not-inspect category?",
+      "expected_output": "Firewall module runs first. Then web module evaluates in two passes for HTTPS: a CONNECT/SNI pass on the destination domain (URL Filtering + CAC + ATP known-bad URLs + Bandwidth run here, on domain only), then the SSL Inspection policy decides whether to decrypt, then — only if decrypted — a full-URL pass where the same policy modules re-evaluate with full URL path, method, and body. So URL filtering can block pre-decrypt on the domain even when SSL isn't decrypting. For Do Not Inspect: two sub-variants exist — 'Evaluate Other Policies' still runs the SNI-level URL Filtering check; 'Bypass Other Policies' short-circuits the entire policy chain. An operator who uses Bypass Other Policies expecting URL filtering to still fire will get a silent miss.",
+      "tenant_data_required": false,
+      "expected_confidence": "high",
+      "assertions": [
+        "two-pass",
+        "CONNECT",
+        "SNI",
+        "Do Not Inspect",
+        "Evaluate Other Policies",
+        "Bypass Other Policies"
+      ],
+      "must_cite_files": [
+        "references/zia/ssl-inspection.md"
+      ],
+      "must_not_say": [
+        "URL filtering only runs after SSL decryption",
+        "SSL inspection has no effect on URL filtering",
+        "Do Not Inspect always disables URL filtering"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "URL filtering says Block on a site, but cloud app control explicitly Allows the specific SaaS app hosted at that URL. What actually happens to the request?",
+      "expected_output": "Cloud App Control evaluates before URL Filtering by default. A CAC Allow for the app short-circuits URL Filtering entirely — the Block rule never fires — so the user accesses the app. This default can be overridden with the Advanced-Settings 'Allow Cascading to URL Filtering' toggle, which makes URL Filtering re-evaluate after a CAC Allow. If cascading is on, the Block rule fires and the user is blocked. Cascading is Allow-path-only: a CAC Block always wins regardless of cascading. Per-rule `cascading_enabled` toggle also exists for individual CAC rules when the global toggle is off.",
+      "tenant_data_required": false,
+      "expected_confidence": "high",
+      "assertions": [
+        "Cloud App Control",
+        "evaluates before",
+        "Allow Cascading",
+        "default"
+      ],
+      "must_cite_files": [
+        "references/zia/cloud-app-control.md",
+        "references/zia/url-filtering.md"
+      ],
+      "must_not_say": [
+        "URL Filtering always wins over CAC",
+        "rule order across the two policies is flat",
+        "CAC has no interaction with URL filtering"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "In ZPA, I have two application segments and both of them claim *.internal.corp. How does the policy engine pick which segment handles an incoming request to foo.internal.corp?",
+      "expected_output": "Zscaler Client Connector picks the most-specific matching segment on the client side before ZPA sees the request. For two overlapping wildcard segments (both `*.internal.corp`), specificity ranks strictly on the FQDN — neither is more specific, so the tie-break falls through to configuration semantics. Under the default `EXCLUSIVE` match style, ZPA rejects creating two same-domain segments with conflicting Multimatch settings at save time (clarification zpa-03). If both segments legitimately cover the same FQDN with the same Multimatch style, the engine picks one deterministically — lab-test territory (clarification zpa-04). Critical operational fact: if the selected segment doesn't cover the destination port, ZCC drops the connection — it does NOT fall back to a less-specific segment. Bypass setting can override: if one segment has Bypass = Always, it takes priority regardless of specificity.",
+      "tenant_data_required": false,
+      "expected_confidence": "medium",
+      "assertions": [
+        "most-specific",
+        "Zscaler Client Connector",
+        "Multimatch",
+        "port",
+        "bypass"
+      ],
+      "must_cite_files": [
+        "references/zpa/app-segments.md",
+        "references/zpa/policy-precedence.md"
+      ],
+      "must_not_say": [
+        "segments are evaluated top-down like firewall rules",
+        "ZPA always picks the first segment defined",
+        "overlapping segments combine automatically"
+      ]
+    }
+  ]
+}

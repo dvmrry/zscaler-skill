@@ -1,0 +1,91 @@
+Table,Field,Description,Example,Insights Logs
+Date/Time,%s{time},The time and date of the transaction. This excludes the time zone.,Mon Oct 16 22:55:48 2023,Logged Time
+Date/Time,%s{tz},The time zone. This is the same as the time zone you specified when you configured the NSS feed.,GMT,
+Date/Time,%02d{ss},Seconds (0–59),48,This field is derived from Logged Time
+Date/Time,%02d{mm},Minutes (0–59),55,This field is derived from Logged Time
+Date/Time,%02d{hh},Hours (0–23),22,This field is derived from Logged Time
+Date/Time,%02d{dd},The day of the month (1–31),16,This field is derived from Logged Time
+Date/Time,%02d{mth},The month of the year,10,This field is derived from Logged Time
+Date/Time,%04d{yyyy},Year,2023,This field is derived from Logged Time
+Date/Time,%s{mon},The name of the month,Oct,This field is derived from Logged Time
+Date/Time,%s{day},The day of the week,Mon,This field is derived from Logged Time
+Date/Time,%d{epochtime},The epoch time of the transaction,1578128400,
+Client Information,%s{csip},"The client source IP address. For aggregated sessions, this is the client source IP address of the last session in the aggregate.","192.0.2.10, 2a02:2e0:40c:102:1:2b:10:80, 2001:db8::2:1",Client Source IP
+Client Information,%d{csport},"The client source port. For aggregated sessions, this is the client source port of the last session in the aggregate.",22,Client Source Port
+Client Information,%s{cdip},"The client destination IP address. For aggregated sessions, this is the client destination IP address of the last session in the aggregate.","198.51.100.54, 2a02:2e0:40c:102:1:2b:10:80, 2001:db8::2:1",Client Destination IP
+Client Information,%d{cdport},"The client destination port. For aggregated sessions, this is the client destination port of the last session in the aggregate.",22,Client Destination Port
+Client Information,%s{cdfqdn},"The client destination FDQN (e.g., the HTTP host header)",www.example.com,Client Destination Name
+Client Information,%s{tsip},"The tunnel IP address of the client (source). For aggregated sessions, this is the client's tunnel IP address corresponding to the last session in the aggregate.",192.0.2.15,Client Tunnel IP
+Client Information,%s{location},The name of the location from which the session was initiated,Headquarters,Location
+Client Information,%s{ttype},The traffic forwarding method used to send the traffic to the Firewall,L2 tunnel,Traffic Forwarding
+Client Information,%s{aggregate},Indicates whether the Firewall session is aggregated,Yes,Aggregated Session
+Client Information,%s{srcip_country},"The traffic's source country, which is determined by the client IP address location. There is no source country value in logs for aggregated sessions that are allowed.",United States,Source Country
+IPS,%s{threatcat},The category of the threat in the Firewall session by the IPS engine,"Botnet Callback
+Denial of Service attack
+Malicious Content",Advanced Threat Category
+IPS,%s{threatname},The name of the threat detected in the Firewall session by the IPS engine,"Linux.Backdoor.Tsunami
+Win32.Trojan.DNSpionage",Threat Name
+IPS,%d{threat_score},"The score of the threat detected in the Firewall session by the IPS engine. The score is assigned to the threat by Zscaler ThreatLabz and reflected in the Zscaler Threat Library. The score ranges from 0–100, from the least to the greatest threat.",10,Threat Score
+IPS,%s{threat_severity},"The severity of the threat detected in the Firewall session by the IPS engine. The severity relates directly to the threat score. For example, if the value of %d{threat_score} is between 90 and 100, then the value of %s{threatseverity} is Critical.","Critical (90–100)
+High (75–89)
+Medium (46–74)
+Low (1–45)
+None (0)",Threat Severity
+IPS,%s{ipsrulelabel},The name of the IPS policy that was applied to the Firewall session,Default IPS Rule,IPS Rule Name
+IPS,%d{ips_custom_signature},Indicates if a custom IPS signature rule was applied. It is a numeric value (1 or 0).,"1 indicates a custom IPS rule
+0 indicates a non-custom IPS rule",IPS Custom Signature
+Server Information,%d{sdport},"The server destination port. For aggregated sessions, this is the server destination port of the last session in the aggregate.",443,Server Destination Port
+Server Information,%s{sdip},"The server destination IP address. For aggregated sessions, this is the server destination IP address of the last session in the aggregate.","198.51.100.100, 2a02:2e0:40c:102:1:2b:10:80, 2001:db8::2:1",Server Destination IP
+Server Information,%s{ssip},"The server source IP address. For aggregated sessions, this is the server source IP address of the last session in the aggregate.","198.51.100.100, 2a02:2e0:40c:102:1:2b:10:80, 2001:db8::2:1",Server Source IP
+Server Information,%d{ssport},"The server source port. For aggregated sessions, this is the server source port of the last session in the aggregate.",22,Server Source Port
+Server Information,%s{ipcat},The URL category that corresponds to the server IP address,Finance,Server IP Category
+Session Information,%d{avgduration},"The average session duration, in milliseconds, if the sessions were aggregated","600,000",
+Session Information,%d{duration},The session or request duration in seconds,600,
+Session Information,%d{durationms},The session or request duration in milliseconds,"600,000",Session Duration
+Session Information,%d{numsessions},The number of sessions that were aggregated,5,
+Session Information,%s{stateful},Indicates if the Firewall session is stateful,Yes,
+Transaction Action,%s{rulelabel},The name of the rule that was applied to the transaction,Default Firewall Filtering Rule,Rule Name
+Transaction Action,%s{action},The action that the service took on the transaction: Allowed or Blocked,Blocked,Action
+Transaction Action,%s{dnat},Indicates if the destination NAT policy was applied,Yes,
+Transaction Action,%s{dnatrulelabel},The name of the destination NAT policy that was applied,"DNAT_Rule_1
+Any name under the Rule Name column on the NAT Control page (Policy > Firewall Control > NAT Control Policy)",DNAT Rule Name
+Transaction Information,%d{recordid},The record ID,,This field is specific to NSS
+Transaction Information,%s{pcapid},"The path of the packet capture (PCAP) file that captured the transaction. The PCAP ID has the following format: <Company ID>/<Directory>/<PCAP File Name>. The company ID is the internal ID of an organization and can be found on the Company Profile page. The directory is the log type. To download the PCAP file, go to the Capture column on the Firewall Insights Logs page.",43139974/fw/663ba8fd30b50001.pcap,Capture
+Transaction Information,%ld{inbytes},The number of bytes sent from the server to the client,10000,Inbound Bytes
+Transaction Information,%ld{outbytes},The number of bytes sent from the client to the server,10000,Outbound Bytes
+Transaction Information,%s{nwapp},The network application that was accessed,SSH,Network Application
+Transaction Information,%s{nwsvc},The network service that was used,HTTP,Network Service
+Transaction Information,%s{ipproto},The type of IP protocol,TCP,Network Protocol
+Transaction Information,%s{destcountry},The abbreviated code of the country of the destination IP address,USA,Dest Country
+Transaction Information,%s{eedone},Indicates if the characters specified in the Feed Escape Character field of the NSS feed configuration page were hex encoded,,This field is specific to NSS
+User Information,%s{login},The user's login name in email address format,jdoe@safemarch.com,User
+User Information,%s{dept},The department of the user,Sales,Department
+Zscaler Client Connector Device Information,%s{devicehostname},The hostname of the device,THINKPADSMITH,Device Hostname
+Zscaler Client Connector Device Information,%s{devicemodel},The model of the device,20L8S7WC08,Device Model
+Zscaler Client Connector Device Information,%s{devicename},The name of the device,admin,Device Name
+Zscaler Client Connector Device Information,%s{deviceostype},The OS type of the device,"iOS
+Android OS
+Windows OS
+MAC OS
+Other OS",OS Type
+Zscaler Client Connector Device Information,%s{deviceosversion},The OS version that the device uses,Version 10.14.2 (Build 18C54),OS Version
+Zscaler Client Connector Device Information,%s{deviceowner},The owner of the device,jsmith,Device Owner
+Zscaler Client Connector Device Information,%s{deviceappversion},The app version that the device app uses,2.0.0.120,Enrolled Device appversion
+Zscaler Client Connector Device Information,%s{external_deviceid},The external device ID that associates a user’s device with the mobile device management (MDM) solution,1234,External Device ID
+Zscaler Client Connector Device Information,%s{ztunnelversion},The Z-Tunnel version,ZTUNNEL_1_0,Zscaler Client Connector Tunnel Version
+Zscaler Client Connector Device Information,%d{bypassed_session},Indicates whether the traffic bypassed the Zscaler Client Connector. It is a numeric value (1 or 0).,"1 indicates that the traffic bypassed Zscaler Client Connector
+0 indicates that the traffic did not bypass Zscaler Client Connector",Bypassed Session
+Zscaler Client Connector Device Information,%s{bypass_etime},The date and time when the traffic bypassed the Zscaler Client Connector,Mon Oct 16 22:55:48 2023,Bypassed Session Event Time
+Zscaler Client Connector Device Information,%s{flow_type},The flow type of the transaction,"Direct
+Loopback
+VPN
+VPN Tunnel
+ZIA
+ZPA",Flow Type
+Data Center,%s{datacenter},The name of the data center,CA Client Node DC,Data Center
+Data Center,%s{datacentercity},The city where the data center is located,Sa,
+Data Center,%s{datacentercountry},The country where the data center is located,US,
+Forwarding Control,%s{rdr_rulename},The name of the redirect/forwarding policy,"FWD_Rule_1
+Any name under the Rule Name column on the Forwarding Control page (Policy > Forwarding Control)",Forwarding Rule
+Forwarding Control,%s{fwd_gw_name},The name of the gateway defined in a forwarding rule,FWD_1,Gateway Name
+Forwarding Control,%s{zpa_app_seg_name},The name of the Zscaler Private Access (ZPA) application segment,ZPA_test_app_segment,Application Segment
