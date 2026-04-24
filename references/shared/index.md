@@ -24,6 +24,11 @@ Docs under `references/shared/` are **not tied to a single Zscaler product**. Th
 | Terminology — legacy / current / log-field aliases across all products (ZEN, PSEN, VSEN, Z-App, App Profile vs Web Policy, ZTW vs ZTC, etc.) | [`./terminology.md`](./terminology.md) | reviewed |
 | Source IP Anchoring (SIPA) — ZIA+ZPA cross-product feature for preserving customer-controlled source IP at destination (Office 365 Conditional Access, IP-allowlist apps) | [`./source-ip-anchoring.md`](./source-ip-anchoring.md) | draft |
 | SCIM provisioning — cross-product user/group lifecycle (ZIA + ZPA + ZIdentity), attribute-mapping differences, Python-SDK gap (Go SDK has full CRUD) | [`./scim-provisioning.md`](./scim-provisioning.md) | draft |
+| **PAC files** — forwarding layer used by ZIA direct-PAC, ZCC PAC action, ZPA Browser Access, and Kerberos auth; Zscaler-specific variables (`${GATEWAY}` etc.) and their substitution mechanic | [`./pac-files.md`](./pac-files.md) | draft |
+| **Device Posture** — cross-product (ZCC evaluates, ZPA + ZIA consume); posture types, evaluation cadence, Machine Tunnel integration, existing-connection immunity | [`./device-posture.md`](./device-posture.md) | draft |
+| **Subclouds** — named subset of PSEs overriding geolocation default; three types (public / private / mixed), subcloud-qualified PAC variables, Zscaler-managed `CONUS`, propagation cascade (5m PAC / 15m ZCC / 10-20m effective) | [`./subclouds.md`](./subclouds.md) | draft |
+| **NSS architecture** — log-egress layer (VM-based raw-TCP vs Cloud NSS HTTPS), 5-step NSS pipeline, one-hour replay (opt-in), feed-count caps (16 VM / 1-per-type Cloud), NSS-Collector distinction (Shadow IT ingestion, 10K eps cap), LSS-is-different | [`./nss-architecture.md`](./nss-architecture.md) | draft |
+| **Admin RBAC** — three systems (ZIA rank+scope / ZPA feature-flags / ZIdentity modules), federation via Administrative Entitlements, API Clients ≠ admin users, ZIA scope is single-dimension-only, 6-month audit-log retention | [`./admin-rbac.md`](./admin-rbac.md) | draft |
 | Log-correlation guidance — when to consult logs vs rely on config, cross-product correlation patterns | [`./log-correlation.md`](./log-correlation.md) | draft |
 | SPL query patterns — canonical SPL snippets for Zscaler log analysis | [`./splunk-queries.md`](./splunk-queries.md) | draft |
 

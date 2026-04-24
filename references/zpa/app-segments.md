@@ -3,7 +3,7 @@ product: zpa
 topic: "zpa-app-segments"
 title: "ZPA application segment matching"
 content-type: reasoning
-last-verified: "2026-04-23"
+last-verified: "2026-04-24"
 confidence: high
 sources:
   - "https://help.zscaler.com/zpa/configuring-defined-application-segments"

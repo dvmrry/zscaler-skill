@@ -3,7 +3,7 @@ product: meta
 topic: "clarifications-index"
 title: "Clarification index — open questions across references"
 content-type: reference
-last-verified: "2026-04-23"
+last-verified: "2026-04-24"
 confidence: high
 sources: []
 author-status: reviewed
@@ -74,7 +74,12 @@ Skim this before reading the full entries.
 | [`zpa-05`](#zpa-05-no-match-in-segment-criteria) | "No match in segment" = port mismatch specifically |
 | [`zpa-06`](#zpa-06-require-approval-action-semantics) | Require Approval = Conditional Access = ZIdentity step-up |
 | [`zpa-08`](#zpa-08-when-both-fqdns-are-equal-interpretation) | FQDN-equal first-match ordering confirmed |
+| [`shared-01`](#shared-01-spl-index-naming-portability) | SPL index names come from env vars (`SPLUNK_INDEX_*`) |
+| [`shared-02`](#shared-02-log-query-latency-budget) | Skill never auto-queries — always emits SPL for operator to run |
 | [`shared-03`](#shared-03-script-language-choice-for-tenant-data-tooling) | Scripts implemented as Python via `uv run` |
+| [`shared-04`](#shared-04-snapshot-auth-pattern) | Credentials via env vars; no `.env` convention |
+| [`shared-05`](#shared-05-snapshot-format) | Raw JSON per resource; no paraphrasing |
+| [`zpa-07`](#zpa-07-deception-policy-order-interaction) | Deception = separate Zscaler product; rules must fire before normal access rules to intercept attacker traffic to decoys |
 
 ### Partially resolved
 
@@ -95,7 +100,7 @@ Skim this before reading the full entries.
 
 ### Open
 
-`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zpa-04`, `zpa-07`, `log-03`, `shared-01`, `shared-02`, `shared-04`, `shared-05`, `shared-06`.
+`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zpa-04`, `log-03`, `shared-06`.
 
 Partial / SDK-mined (resolved via code read or help-doc capture; full lab confirmation pending): `zcc-01`, `zcc-02`, `zcc-03`, `zcc-04`, `zcc-05`, `zcc-06`, `zcc-07`, **`log-04`** (field name + illustrative values confirmed via `web-log-schema.md`; full enum of `ruletype` / `reason` values still needs a tenant export). All six ZCC enum clarifications had their **datatype** (int vs string) resolved by the Go SDK cross-check on 2026-04-24; the integer-to-meaning mapping remains open for `zcc-01` through `zcc-04` and `zcc-06`.
 
@@ -648,7 +653,21 @@ So: "Require Approval" = "Conditional Access" = ZIdentity step-up authentication
 
 *About Access Policy* p.6 states: regular access policies must have rule order greater than Deception-configured policies; Deception-configured rules cannot be copied/edited/deleted normally. The doc doesn't explain *what* a Deception access policy is, how it evaluates, or what threat model it addresses.
 
-**Resolves with**: zscaler doc not yet read (Zscaler Deception module docs). **Status**: open. **Low priority** unless we're authoring deception-specific content.
+**Status**: resolved (2026-04-24).
+
+**Answer**: Captured three Zscaler Deception help articles (`vendor/zscaler-help/what-is-zscaler-deception.md`, `about-deception-strategy.md`, `about-zpa-app-connectors-deception.md`).
+
+**What Deception is** — a separate Zscaler product for active-defense threat detection. It deploys realistic **decoys** (fake IT assets — servers, apps, Active Directory objects, endpoints, cloud resources) across the environment. Because no legitimate business traffic should ever touch a decoy, any interaction with one is a high-confidence signal of an ongoing breach. Designed to catch threats that bypass traditional defenses — APTs, ransomware, lateral movement, reconnaissance, supply-chain attacks, SCADA/ICS attacks.
+
+**What a Deception access policy is** — when a tenant integrates Deception with ZPA to deploy **Zero Trust Network (ZTN) decoys**, Deception creates access-policy rules inside ZPA that route attacker traffic to the decoy infrastructure via ZPA App Connectors (hosted by Zscaler, managed from the Deception Admin Portal). These rules are the mechanism Deception uses to intercept attacker traffic without requiring changes to network topology.
+
+**Why they must evaluate first** — ZPA is first-match-wins. If a regular access rule matched attacker traffic first (granting or denying access to a real resource), the decoy would never get the connection, defeating the detection. Ordering Deception rules ahead ensures decoy traffic is captured before normal rules fire.
+
+**Why they can't be copied/edited/deleted normally** — the rules are managed by the Deception Admin Portal as a separate product surface, not by ZPA admins. Editing them from the ZPA console would desynchronize Deception's view of what decoys exist, break the coordinated alert-and-orchestration flow, and let an attacker see changes in the real ZPA admin audit log rather than trigger a silent Deception alert.
+
+**Threat model** — advanced threats that bypass perimeter defenses and reach lateral-movement / discovery phases. Deception provides high-fidelity detection specifically for the inside-the-network phase where traditional policy enforcement has already failed. The ordering constraint exists to preserve detection integrity; it is not a general policy-evaluation feature.
+
+**Operational implication for ZPA admins** — don't try to manage Deception rules via the ZPA policy API or Terraform. Treat them as read-only markers showing "something is running in front of my policy chain." If the Deception product is not licensed, these rules don't exist. See `references/zpa/policy-precedence.md § Order and editing constraints` for the cross-link.
 
 ---
 
@@ -690,7 +709,18 @@ ZIA explicitly documents that a disabled URL filtering rule retains its order po
 
 Our SPL patterns parameterize on `$INDEX_ZIA_WEB` / `$INDEX_ZPA` etc. Where those values come from in practice — env var, config file, pulled from snapshot metadata — is undecided. Affects how we make SPL patterns tenant-portable when index naming varies between customers.
 
-**Resolves with**: design decision. **Status**: open.
+**Status**: resolved (2026-04-24).
+
+**Answer**: **Environment variables**, same mechanism as `ZSCALER_*` credentials (see `shared-04`). The operator sets `SPLUNK_INDEX_ZIA_WEB`, `SPLUNK_INDEX_ZIA_FW`, `SPLUNK_INDEX_ZIA_DNS`, `SPLUNK_INDEX_ZPA` (and any others their SIEM uses) in the shell or via a secrets manager; `scripts/splunk-query.sh` substitutes these into pattern templates at run time.
+
+Rationale:
+
+- **Consistency with credential pattern** — operators already have a shell context populated with `ZSCALER_*` vars; SIEM index names fit the same mental model.
+- **No config-file convention invented** — avoids a new `.spl-config.toml`-style file that would sit awkwardly next to the env-var-driven SDK scripts.
+- **Snapshot metadata is the wrong source** — snapshot captures Zscaler config, not SIEM config. Splunk index naming is external to Zscaler and can't be inferred from tenant dumps.
+- **Defaults in `splunk-queries.md`** — the reference doc shows patterns using the `zscaler_*` naming that is conventional out of the box from Zscaler's Splunk-TA; operators with non-default naming override per-pattern via env var.
+
+Threaded into `scripts/splunk-query.sh` header (documents the 4 env vars) and `references/shared/splunk-queries.md` (§ "Tenant-portable index naming" callout).
 
 ---
 
@@ -700,7 +730,22 @@ Our SPL patterns parameterize on `$INDEX_ZIA_WEB` / `$INDEX_ZPA` etc. Where thos
 
 We've said logs are a "validation layer" but haven't set an SLO: at what point does a log query get too slow to be worth waiting for (vs. replying "config says X, can validate on request")? Affects when the skill auto-queries vs. defers.
 
-**Resolves with**: design decision AND operator experience. **Status**: open.
+**Status**: resolved (2026-04-24).
+
+**Answer**: **The skill does not auto-query logs.** All log-validation is an explicit operator action, surfaced as a ready-to-run SPL snippet the user can paste. The skill's default loop is:
+
+1. Answer the question from `references/` + `snapshot/` (config-derived reasoning).
+2. Note where logs would validate or contradict the config-level answer, and emit the SPL query that would do so.
+3. Only if the user explicitly asks ("run it", "what do the logs show?") does a script invocation happen — and even then it's the operator running `scripts/splunk-query.sh`, not the skill auto-executing.
+
+Rationale:
+
+- **Skills are document-only** — `SKILL.md` plus `references/` plus snapshot-JSON read. Script execution is an operator/agent-harness concern, not the skill's.
+- **Log-query latency varies wildly** — from seconds (recent narrow-window Splunk search on a hot index) to minutes (broad time range, cold storage). Setting a universal SLO pins the wrong constraint.
+- **Config-first answers degrade gracefully** — config reasoning is deterministic and fast; log-validation is the "verify" step, and operators can decide whether they want it based on the question's stakes.
+- **Pre-emptive log queries waste tenant query budget** — Splunk license / query quota is finite. The skill should never spend those cycles uninvited.
+
+Affects: `scripts/splunk-query.sh` is run-on-request by the operator; the skill's job is to produce the right SPL, not to run it. Threaded into `references/shared/log-correlation.md` § "When the skill recommends a log query vs answers from config".
 
 ---
 
@@ -726,7 +771,17 @@ Real implementations of the refresh / lookup / splunk-query scripts would need a
 
 Where credentials come from when running the refresh scripts — env vars, `.env` file, `op read` (1Password CLI), cloud secrets manager — is undecided. Shapes `.gitignore`, script structure, and onboarding docs.
 
-**Resolves with**: design decision. **Status**: open.
+**Status**: resolved (2026-04-24).
+
+**Answer**: **Environment variables**, read directly by the SDK's default constructor. The fork-admin onboarding walkthrough in `README.md § 4. Set up ZIA + ZPA credentials` is the canonical path: `ZSCALER_CLIENT_ID`, `ZSCALER_CLIENT_SECRET` (or `ZSCALER_PRIVATE_KEY` for JWT), `ZSCALER_VANITY_DOMAIN`, optional `ZSCALER_CLOUD`. Legacy tenants use `ZSCALER_USE_LEGACY=true` plus product-specific vars documented in `vendor/zscaler-sdk-python/README.md § Legacy API Framework`.
+
+Rationale for env vars over alternatives:
+
+- **No `.env` file** committed — the skill is designed for private forks, and the repo's `.gitignore` doesn't model a `.env` convention. Operators who prefer `.env` can layer one via `direnv`, `dotenv`, or a shell-rc source — none of the scripts block this.
+- **No bundled secrets-manager integration** — 1Password (`op read "op://..."`), Vault, AWS Secrets Manager, etc. are fine upstream of the shell. The scripts only consume env vars; how those get populated is the operator's choice. Example pattern for a fork: `eval "$(op read 'op://private/zscaler/.envrc')" && ./scripts/snapshot-refresh.py`.
+- **Env vars are what the SDK already expects** — the `zscaler-sdk-python` OneAPI path reads these by default. Forcing a custom config layer would duplicate SDK conventions.
+
+Affects: `.gitignore` correctly excludes `snapshot/`, `logs/`, and local-scratch paths but not `.env` (no `.env` is ever created by the skill). Script headers document the 4 required env vars in block comments. No onboarding-doc change needed beyond what's already in README step 4.
 
 ---
 
@@ -736,7 +791,18 @@ Where credentials come from when running the refresh scripts — env vars, `.env
 
 Raw JSON dumps from the API are cheap to produce and `jq`-friendly but noisy for model consumption. Paraphrased-to-markdown is model-friendly but goes stale and adds a transformation step. Decide before the first real refresh script ships.
 
-**Resolves with**: design decision. **Status**: open. **Preference note**: JSON for v1, document a post-processing paraphrase step for later.
+**Status**: resolved (2026-04-24).
+
+**Answer**: **Raw JSON** as shipped by `snapshot-refresh.py` today — one file per resource under `snapshot/<product>/<resource>.json`, plus a `_manifest.json` capturing timestamp + per-resource counts. Wire format (camelCase for ZIA, mixed for ZPA) is preserved as-is; no paraphrasing pass.
+
+Rationale:
+
+- **Faithfulness over friendliness.** Paraphrased markdown risks going stale against API changes or drifting from the SDK's model. Raw JSON is source-of-truth; any transformation is downstream.
+- **`jq`-first access.** Skill answers that need tenant data read JSON directly (`jq '.[] | select(.name == "X")' snapshot/zia/url-categories.json`) or via small Python helpers in the scripts. Claude handles JSON well enough that noisy fields aren't a blocker.
+- **Model consumption concerns are real but bounded.** The scripts are selective — `url-lookup.py` extracts only the fields relevant to the question, doesn't pass the full JSON blob to the model. Reasoning docs under `references/` carry the narrative; snapshot answers "what does this tenant actually have configured" in raw form.
+- **Deferred `snapshot-schema.md` docs** are the answer to "noisy for model consumption" — once the first fork-admin run produces real output, write camelCase-key tables and jq cheatsheets per-product (tracked in PLAN.md § 4).
+
+A paraphrased-markdown post-processing step remains an option for the future if a fork team wants it, but no current skill answer requires one.
 
 ---
 

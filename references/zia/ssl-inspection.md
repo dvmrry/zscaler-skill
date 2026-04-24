@@ -3,7 +3,7 @@ product: zia
 topic: "zia-ssl-inspection"
 title: "ZIA SSL/TLS inspection — pipeline position and policy semantics"
 content-type: reasoning
-last-verified: "2026-04-23"
+last-verified: "2026-04-24"
 confidence: high
 sources:
   - "https://help.zscaler.com/zia/about-policy-enforcement"

@@ -95,7 +95,7 @@ Per-action sub-fields that shape the tunnel/probe behavior:
 | `zen_probe_interval` / `zen_probe_sample_size` / `zen_threshold_limit` | — | Latency probe tuning. |
 | `redirect_web_traffic` | `redirectWebTraffic` | Whether to redirect web traffic into the tunnel at all. |
 | `system_proxy` / `system_proxy_data` | `systemProxy` / `systemProxyData` | OS-level proxy integration (PAC URL, proxy server, bypass rules). Relevant when ZCC is configured to honor an existing enterprise proxy. |
-| `custom_pac` | `customPac` | Custom PAC content or URL. |
+| `custom_pac` | `customPac` | Custom PAC content or URL. For PAC semantics (variable substitution, Kerberos, 10-version history, self-hosted-loses-variables rule) see [`../shared/pac-files.md`](../shared/pac-files.md). |
 | `drop_ipv6_traffic` / `drop_ipv6_traffic_in_ipv6_network` / `drop_ipv6_include_traffic_in_t2` | — | IPv6 handling. ZCC's IPv6 support is limited historically; these flags control the drop behavior. |
 | `path_mtu_discovery` / `mtu_for_zadapter` | — | Path MTU and ZCC virtual-adapter MTU. |
 | `dtls_timeout` / `tls_timeout` / `udp_timeout` | — | Per-transport timeouts. |

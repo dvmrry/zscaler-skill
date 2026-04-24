@@ -3,7 +3,7 @@ product: zpa
 topic: "zpa-policy-precedence"
 title: "ZPA access policy precedence"
 content-type: reasoning
-last-verified: "2026-04-23"
+last-verified: "2026-04-24"
 confidence: high
 sources:
   - "https://help.zscaler.com/zpa/about-policies"
@@ -127,7 +127,7 @@ From *About Access Policy* pp.5–6:
 
 - Rules are listed in a fixed order; "Rule Order" is the policy evaluation number.
 - Rule order can be changed by clicking the number and entering a new value.
-- **Deception-policy constraint:** "Updating the rule order of an access policy configured using Zscaler Deception is not supported. When changing the rule order of a regular access policy and there is an access policy configured using Deception, the rule order of the regular access policy must be greater than the rule order for an access policy configured using Deception." Also: "If an access policy is configured using Deception, the copy, edit, and delete options are unavailable." See [clarification `zpa-07`](../_clarifications.md#zpa-07-deception-policy-order-interaction).
+- **Deception-policy constraint:** "Updating the rule order of an access policy configured using Zscaler Deception is not supported. When changing the rule order of a regular access policy and there is an access policy configured using Deception, the rule order of the regular access policy must be greater than the rule order for an access policy configured using Deception." Also: "If an access policy is configured using Deception, the copy, edit, and delete options are unavailable." Resolution (2026-04-24) in [clarification `zpa-07`](../_clarifications.md#zpa-07-deception-policy-order-interaction): these rules belong to the separate Zscaler Deception product, which deploys decoy infrastructure (fake servers, AD objects, etc.) inside ZPA. Because ZPA is first-match-wins, Deception rules must evaluate ahead of regular rules so attacker traffic hits a decoy before matching any real-resource rule — otherwise the detection silently fails. Copy/edit/delete are disabled because the rules are managed from the Deception Admin Portal, not the ZPA console; editing them out-of-band would desynchronize Deception's view and let an attacker's activity show up as a normal admin audit event instead of triggering a Deception alert. **Operational implication:** don't manage these rules via the ZPA API or Terraform; if the Deception product isn't licensed, they don't exist.
 
 ## The specificity-vs-top-down precedence quirk
 
@@ -188,7 +188,7 @@ From *Access Policy Configuration Examples*, common patterns (p.1–18). Summary
 
 - **SCIM sync timing.** Per *Access Policy Deployment and Operations Guide* p.3: "After you enable SCIM, Zscaler checks if a user is present in the SCIM database. Based on this information, Zscaler decides if the user is allowed or blocked access to ZPA. Ensure the SCIM user sync is complete before enabling SCIM policies for these users. If not, the ZPA service evaluates policies on the users it does not recognize. After SCIM sync is enabled, Zscaler recommends waiting for a minimum of 48 hours (sometimes up to a week) before enabling SCIM policies." Effectively: SCIM criteria on a policy against a mid-sync user will likely deny by default.
 - **Cloud Connector / SIPA / multi-hop country coding.** Per *About Access Policy* p.2: country criterion uses the last NATed layer-3 public IP. For Source IP Anchoring traffic, this means the country is the ZIA Public Service Edge's country, not the user's. A country-scoped ZPA rule will misfire for SIPA users. See [`../shared/source-ip-anchoring.md`](../shared/source-ip-anchoring.md) for the full SIPA cross-product flow.
-- **Deception policy ordering.** Regular rules must have order greater than Deception rules. Copy/edit/delete disabled on Deception-configured rules. (*About Access Policy* p.6.)
+- **Deception policy ordering.** Regular rules must have order greater than Deception rules. Copy/edit/delete disabled on Deception-configured rules. Deception is a separate Zscaler product that deploys decoy infrastructure inside ZPA to detect lateral-movement attackers; rules must fire first to route attacker traffic to decoys before real-resource rules match. See [`zpa-07`](../_clarifications.md#zpa-07-deception-policy-order-interaction). (*About Access Policy* p.6; `vendor/zscaler-help/what-is-zscaler-deception.md`.)
 - **Default block.** No matching rule = blocked. Per *Access Policy Configuration Examples* p.11: "until you configure policy rules for applications, users are blocked from accessing any applications or segment groups."
 
 ## ZPA policy families and their evaluation order
@@ -220,7 +220,7 @@ From `skills/zpa/create-timeout-policy-rule/`:
 
 - **Timeout values are strings**: `"N Minutes"`, `"N Hours"`, `"N Days"`, or `"Never"`. **Not raw integers** — wire-format quirk that breaks programmatic constructors.
 - **Default session timeout: 2 days** (172,800 seconds). **Default idle timeout: 10 minutes** (600 seconds). These apply when a rule's `reauth_timeout` / `reauth_idle_timeout` are unset.
-- **Posture-based tiering**: set `POSTURE` condition with `rhs: "false"` to target *non-compliant* devices and apply shorter timeouts. Compliant devices fall through to a separate rule with longer timeouts. Risk-tiered session management without IDP-side posture assertions.
+- **Posture-based tiering**: set `POSTURE` condition with `rhs: "false"` to target *non-compliant* devices and apply shorter timeouts. Compliant devices fall through to a separate rule with longer timeouts. Risk-tiered session management without IDP-side posture assertions. See [`../shared/device-posture.md`](../shared/device-posture.md) for the posture-type catalog, evaluation cadence, and Machine Tunnel subset.
 - **Restricted condition-type subset**: timeout rules do NOT support `COUNTRY_CODE`, `TRUSTED_NETWORK`, `CLIENT_TYPE` criteria that are available on access/forwarding rules. Rules attempting these conditions fail at save.
 
 ### Condition-format AND/OR semantics (cross-all-policy-types)
@@ -238,7 +238,7 @@ These semantics apply identically across Access, Forwarding, and Timeout policie
 
 ## Open questions
 
-- Deception policy broader interaction model — [clarification `zpa-07`](../_clarifications.md#zpa-07-deception-policy-order-interaction) (still open)
+- Deception policy broader interaction model — [clarification `zpa-07`](../_clarifications.md#zpa-07-deception-policy-order-interaction) (resolved 2026-04-24)
 - Alias mapping for "Require Approval" vs "Conditional Access" vs "Allow with Privileged Approval" — [clarification `zpa-06`](../_clarifications.md#zpa-06-require-approval-action-semantics) (partially resolved)
 
 Resolved while writing this doc:

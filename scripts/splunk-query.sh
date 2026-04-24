@@ -7,14 +7,19 @@
 #
 # Auth — reads from environment variables. Never commit credentials.
 #   SPLUNK_HOST
-#   SPLUNK_PORT        (default 8089)
-#   SPLUNK_TOKEN       (preferred: HEC / auth token)
-#   SPLUNK_USERNAME    (legacy: user+pass)
+#   SPLUNK_PORT              (default 8089)
+#   SPLUNK_TOKEN             (preferred: HEC / auth token)
+#   SPLUNK_USERNAME          (legacy: user+pass)
 #   SPLUNK_PASSWORD
-#   INDEX_ZIA_WEB
-#   INDEX_ZIA_FW
-#   INDEX_ZIA_DNS
-#   INDEX_ZPA
+#
+# Index naming — tenant-portable via env vars, defaults match the Zscaler
+# Splunk Technology Add-on out of the box. Set to override on non-default
+# naming. See references/shared/splunk-queries.md § "Tenant-portable index
+# naming" and clarification shared-01.
+#   SPLUNK_INDEX_ZIA_WEB     (default: zscaler_web)
+#   SPLUNK_INDEX_ZIA_FW      (default: zscaler_firewall)
+#   SPLUNK_INDEX_ZIA_DNS     (default: zscaler_dns)
+#   SPLUNK_INDEX_ZPA         (default: zscaler_zpa)
 #
 # Usage:
 #   ./scripts/splunk-query.sh <pattern-name> [key=value ...]

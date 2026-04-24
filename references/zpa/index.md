@@ -3,7 +3,7 @@ product: zpa
 topic: "zpa-index"
 title: "ZPA reference hub"
 content-type: reference
-last-verified: "2026-04-23"
+last-verified: "2026-04-24"
 confidence: high
 sources: []
 author-status: reviewed
@@ -18,9 +18,11 @@ Entry point for Zscaler Private Access (ZPA) questions — application segments,
 | Topic | File | Status |
 |---|---|---|
 | Application segment matching — specificity-wins, Multimatch INCLUSIVE/EXCLUSIVE, Bypass precedence | [`./app-segments.md`](./app-segments.md) | draft |
-| Policy precedence — access, timeout, client forwarding, inspection | [`./policy-precedence.md`](./policy-precedence.md) | stub |
+| Policy precedence — access, timeout, client forwarding, inspection | [`./policy-precedence.md`](./policy-precedence.md) | draft |
 | App Connector — VM model, groups, provisioning keys, scheduled software updates, certificate enrollment | [`./app-connector.md`](./app-connector.md) | draft |
-| ZPA API — endpoints, authentication, response shapes | [`./api.md`](./api.md) | stub |
+| **Browser Access** — clientless web-app access via browser (no ZCC), dual-access model, TLS-1.2 cipher requirement, wildcard-cert one-level-only gotcha, same-vs-different-hostname cert mechanics, mutual-exclusions with SIPA/Double-Encryption/Multimatch | [`./browser-access.md`](./browser-access.md) | draft |
+| **Privileged Remote Access (PRA)** — clientless RDP/SSH/VNC gateway, credential pooling (3 credential types, immutable protocol), approval workflow (requester → approver → time-bounded), capabilities policy, session recording with 6-state lifecycle | [`./privileged-remote-access.md`](./privileged-remote-access.md) | draft |
+| ZPA API — endpoints, authentication, response shapes | [`./api.md`](./api.md) | draft |
 
 ## Log schemas
 

@@ -1,6 +1,6 @@
 # zscaler-skill
 
-A Claude skill for reasoning about Zscaler ZIA and ZPA environments — the policy evaluation, rule precedence, and cross-product interactions that raw LLMs hallucinate on.
+A Claude skill for reasoning about Zscaler environments — ZIA, ZPA, ZCC, ZDX, ZBI, ZIdentity, Cloud & Branch Connector, and ZWA — covering the policy evaluation, rule precedence, and cross-product interactions that raw LLMs hallucinate on.
 
 ## What this is
 
@@ -59,7 +59,7 @@ The operational scripts use `zscaler-sdk-python` via OneAPI (OAuth 2.0 via ZIden
 
 1. Sign in to the ZIdentity Admin Portal at `https://admin.<your-vanity-domain>.zslogin.net` (or the gov/ten equivalent).
 2. Navigate **Integrations → API Clients → Add Client**.
-3. Grant the client scopes for both ZIA (`zia.*`) and ZPA (`zpa.*`). `snapshot-refresh.py` needs read scopes across URL categories, URL filtering, CAC, SSL inspection, advanced settings, app segments, segment groups, server groups, and access policies. Grant `...:read` for each — no writes are needed.
+3. Grant the client scopes for ZIA (`zia.*`), ZPA (`zpa.*`), and ZCC (`zcc.*`). `snapshot-refresh.py` needs read scopes across URL categories, URL filtering, CAC, SSL inspection, advanced settings, app segments, segment groups, server groups, access policies, plus ZCC forwarding profiles, trusted networks, fail-open policies, and web policies. Grant `...:read` for each — no writes are needed. ZDX / ZBI / CBC / ZWA scopes are only needed if you extend the snapshot script to cover those products.
 4. On save, the portal shows the **Client ID** (use as `ZSCALER_CLIENT_ID`) and either a **Client Secret** (`ZSCALER_CLIENT_SECRET`) or a downloadable private key PEM (`ZSCALER_PRIVATE_KEY`, JWT auth). The secret is shown once — copy it immediately.
 5. Your **Vanity Domain** is the subdomain you use to sign in to ZIdentity — e.g. if your admin portal URL is `https://admin.acme.zslogin.net`, the vanity domain is `acme`.
 
@@ -93,12 +93,13 @@ See [`references/zia/api.md § Authentication`](./references/zia/api.md) for the
 ### 5. Pull the first snapshot
 
 ```bash
-./scripts/snapshot-refresh.py                 # full ZIA + ZPA dump
+./scripts/snapshot-refresh.py                 # full ZIA + ZPA + ZCC dump
 ./scripts/snapshot-refresh.py --zia-only     # just ZIA
 ./scripts/snapshot-refresh.py --zpa-only     # just ZPA
+./scripts/snapshot-refresh.py --zcc-only     # just ZCC
 ```
 
-Writes to `snapshot/zia/*.json` and `snapshot/zpa/*.json` plus a `_manifest.json` with timestamps and per-resource counts. The public upstream repo keeps `snapshot/` empty via `.gitkeep` — **your fork is expected to commit real snapshots.** The skill cites `snapshot/` when answering tenant-specific questions; without it, most tenant-specific answers revert to "I can't verify, here's the general mechanism."
+Writes to `snapshot/zia/*.json`, `snapshot/zpa/*.json`, and `snapshot/zcc/*.json` plus a `_manifest.json` with timestamps and per-resource counts. The public upstream repo keeps `snapshot/` empty via `.gitkeep` — **your fork is expected to commit real snapshots.** The skill cites `snapshot/` when answering tenant-specific questions; without it, most tenant-specific answers revert to "I can't verify, here's the general mechanism."
 
 ### 6. Try an operational script
 
@@ -122,7 +123,7 @@ Full inventory under [Helper scripts](#helper-scripts) below.
 ```bash
 # Uses Anthropic's skill-creator harness (if available) to run each prompt
 # with and without the skill loaded, and diff the outputs.
-# evals/evals.json contains 6 canonical Q→A prompts with structured assertions.
+# evals/evals.json contains 14 canonical Q→A prompts with structured assertions.
 cat evals/evals.json | jq '.evals[] | {id, prompt}'
 ```
 
@@ -137,7 +138,7 @@ Each script's header comment carries a **Status** line — `functional`, `scaffo
 | Script | Status | Question it answers | Notes |
 |---|---|---|---|
 | `scripts/url-lookup.py <url>` | functional | Which URL categories cover this URL, and which rules reference those categories? | Implements MCP `investigate-url` workflow. |
-| `scripts/snapshot-refresh.py` | functional | Bulk dump ZIA + ZPA config to `snapshot/` | Foundation for all tenant-specific skill answers. Dumps URL categories, URL-filter rules, CAC rules, SSL-inspection rules, advanced settings, plus the full ZPA app-segment / segment-group / server-group / access-policy set. |
+| `scripts/snapshot-refresh.py` | functional | Bulk dump ZIA + ZPA + ZCC config to `snapshot/` | Foundation for all tenant-specific skill answers. Dumps ZIA (URL categories, URL-filter rules, CAC rules, SSL-inspection rules, advanced settings), ZPA (app-segments, segment groups, server groups, access policies), and ZCC (forwarding profiles, trusted networks, fail-open policies, web policies). `--zia-only` / `--zpa-only` / `--zcc-only` flags limit scope. |
 | `scripts/access-check.py --user X <url>` | scaffold | Can user X access URL, and which policy layer decides? | Walks SSL → URL Filter → CAC → DLP → Firewall. Flags DLP-not-effective under SSL bypass. Pre-checks activation status. TODOs where per-layer SDK response traversal needs real tenant output to confirm. |
 | `scripts/ssl-audit.py` | scaffold | Which SSL Inspection rules are bypassing what, with what risk? | CRITICAL/HIGH/MEDIUM/LOW classification per `ssl-inspection.md` rubric. `--min-risk`, `--forwarding`, `--with-dlp` flags. |
 | `scripts/sandbox-check.py --md5 <hash> --url <url>` | scaffold | Why was this file blocked / unanalyzed / stuck in quarantine? | Detects static-analysis fast-path, SSL-bypass-prevents-Sandbox, Basic-vs-Advanced tier mismatch. Surfaces the "Malware Protection / ATP have no API" limit. |
@@ -173,9 +174,15 @@ PLAN.md               crash-recovery / hand-off artifact (roadmap, pending lab t
 references/           lazy-loaded reference docs
     zia/              ZIA (Internet & SaaS) topics
     zpa/              ZPA (Private Access) topics
-    shared/           cross-product topics (policy evaluation, terminology, activation)
+    zcc/              ZCC (Client Connector) topics
+    zdx/              ZDX (Digital Experience) topics
+    zbi/              ZBI (Cloud Browser Isolation) topics
+    zidentity/        ZIdentity (unified auth / step-up) topics
+    cloud-connector/  Cloud & Branch Connector (ZTW / ZTC / CBC) topics
+    zwa/              ZWA (Workflow Automation — DLP incidents) topics
+    shared/           cross-product topics (policy evaluation, terminology, activation, SIPA, SCIM, cloud architecture)
     _clarifications.md  canonical index of open/partial/resolved ambiguities
-vendor/               upstream sources as git submodules (SDK, TF providers, MCP server)
+vendor/               upstream sources as git submodules (SDKs, TF providers, MCP server)
     zscaler-help/     Zscaler help-site PDFs + Playwright-captured markdown (pinned bibliography)
 scripts/              operational tooling (URL lookup, access check, SSL audit, etc.)
 evals/                canonical Q→A test prompts with structured assertions
@@ -209,7 +216,10 @@ Expect to do this periodically — upstream SDK / TF provider releases add new r
 
 ## Known gaps (read before filing issues)
 
-- **Malware Protection and ATP blocks have NO API coverage.** `scripts/sandbox-check.py` surfaces this explicitly. Operators must use the ZIA Admin Console for these.
-- **Several clarifications remain open** because they require tenant-specific lab tests — see `PLAN.md § Pending lab tests`.
+- **Malware Protection and ATP blocks have NO API coverage.** `scripts/sandbox-check.py` surfaces this explicitly. `references/zia/malware-and-atp.md` covers the operational/console-only layer; diagnosis of specific blocks still requires the ZIA Admin Console.
+- **Five operational scripts are scaffolds.** `access-check.py`, `ssl-audit.py`, `sandbox-check.py`, `connector-health.py`, `zpa-app-check.py` have auth wiring and structure but leave TODOs where SDK response shape needs confirmation against a real tenant. `url-lookup.py` and `snapshot-refresh.py` are complete end-to-end.
+- **Several clarifications remain open** because they require tenant-specific lab tests — see `PLAN.md § Pending lab tests` (6 items including ZCC int-enum semantic mappings).
 - **Snapshot schema docs deferred** — will be written against real tenant output post-fork, not inferred pre-fork. See `PLAN.md § 4. Snapshot schema docs`.
-- **Z-Tunnel protocol internals are not customer-documented.** Any skill answer about Z-Tunnel 1.0 vs 2.0 is folklore-level; lab-test territory.
+- **Z-Tunnel wire-format internals are not customer-documented.** `references/zcc/z-tunnel.md` covers the operational layer (CONNECT-vs-DTLS, single-IP-NAT requirement, GRE incompatibility, 4-layer bypass architecture). Protocol-level questions (framing, cipher, fallback triggers) remain Zscaler Support territory.
+- **Federal Cloud** (`zscalergov`, `zscalerten`, ZPA GOV/GOVUS) — explicitly out of scope. Most behavior inherits from commercial; gov-specific paths not covered.
+- **Out-of-scope products:** ZMS (microsegmentation), ZINS (shadow IT), EASM, ZAI Guard. Vendored in the Go/Python SDKs but not written up.

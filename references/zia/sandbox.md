@@ -3,7 +3,7 @@ product: zia
 topic: "zia-sandbox"
 title: "ZIA Sandbox — what gets analyzed, what blocks, and why"
 content-type: reasoning
-last-verified: "2026-04-23"
+last-verified: "2026-04-24"
 confidence: medium-high
 sources:
   - "vendor/zscaler-mcp-server/commands/investigate-sandbox.md"

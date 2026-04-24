@@ -3,7 +3,7 @@ product: shared
 topic: "log-correlation"
 title: "When and how to consult logs"
 content-type: reasoning
-last-verified: "2026-04-23"
+last-verified: "2026-04-24"
 confidence: medium
 sources:
   - "references/zia/logs/web-log-schema.md"
@@ -39,6 +39,16 @@ Consult logs when **any** of:
 - **Fresh config changes.** A rule activated five minutes ago hasn't logged enough to be useful; go by config.
 - **When the config answer is clear and the user hasn't pushed back.** Logs cost latency and compute — don't burn either for no reason.
 
+## When the skill recommends a log query vs answers from config
+
+The skill is document-only and never auto-executes log queries. The loop is:
+
+1. **Answer from config first** — `references/` + `snapshot/` produces the deterministic answer. State it with Confidence appropriate to the source.
+2. **Emit SPL for validation** — when the question would benefit from log confirmation, produce a ready-to-run snippet citing the SPL pattern by name (`see references/shared/splunk-queries.md § url-coverage-check`). The operator pastes it into their SIEM or runs `scripts/splunk-query.sh <pattern-name> <args>`.
+3. **Never pre-emptively run the query.** Log-query latency varies wildly (seconds to minutes depending on index hotness and time range), and tenant query budgets are finite. The operator decides whether the validation cost is worth paying — the skill's job is to produce the right query, not to run it.
+
+Exception: when a harness explicitly wires in live log-query capability (e.g., a fork adds an MCP server for Splunk), the skill still defaults to config-first answers but may include log validation in a single turn. That's a per-fork decision, not the skill's default. See [`shared-02`](../_clarifications.md#shared-02-log-query-latency-budget) for the rationale.
+
 ## Citation shape when logs are used
 
 In the `Sources` section of an answer:
@@ -54,8 +64,6 @@ Always name the SPL pattern by its section in `splunk-queries.md` rather than in
 
 ## Open questions
 
-- Log-query latency budget / "when to skip and defer" — [clarification `shared-02`](../_clarifications.md#shared-02-log-query-latency-budget)
-- SPL index naming portability — [clarification `shared-01`](../_clarifications.md#shared-01-spl-index-naming-portability)
 - Behavior when the user has no log access (e.g., empty `snapshot/`, no Splunk credentials) — answer should fall back to config-only with explicit limitation stated; see SKILL.md's "When to decline" section.
 
 ## Cross-links

@@ -3,7 +3,7 @@ product: shared
 topic: "splunk-queries"
 title: "SPL patterns for Zscaler log questions"
 content-type: reference
-last-verified: "2026-04-23"
+last-verified: "2026-04-24"
 confidence: medium
 sources:
   - "references/zia/logs/web-log-schema.md"
@@ -25,7 +25,7 @@ The patterns use **NSS-native field names** as documented in the Zscaler log sch
 
 ## Parameter conventions
 
-- `$INDEX_ZIA_WEB` / `$INDEX_ZIA_FW` / `$INDEX_ZIA_DNS` / `$INDEX_ZPA` — the Splunk indexes receiving each log stream. Tenant-specific; replace at query time. See [clarification `shared-01`](../_clarifications.md#shared-01-spl-index-naming-portability).
+- `$INDEX_ZIA_WEB` / `$INDEX_ZIA_FW` / `$INDEX_ZIA_DNS` / `$INDEX_ZPA` — the Splunk indexes receiving each log stream. Tenant-specific; read from env vars at query time — see **Tenant-portable index naming** below.
 - `$URL`, `$HOSTNAME`, `$USER`, `$CATEGORY` — user-supplied parameters for a given question.
 - Default time window `earliest=-30d`. Shorten to `-7d` / `-24h` for pushback-triggered validation to cut query latency.
 
@@ -155,9 +155,19 @@ Cross-stream query:
 
 The `index` column tells you which side blocked.
 
+## Tenant-portable index naming
+
+SPL patterns parameterize the index on env vars so a fork can drop in non-default index names without editing the patterns:
+
+- `SPLUNK_INDEX_ZIA_WEB` — ZIA web logs (default: `zscaler_web`)
+- `SPLUNK_INDEX_ZIA_FW` — ZIA firewall logs (default: `zscaler_firewall`)
+- `SPLUNK_INDEX_ZIA_DNS` — ZIA DNS logs (default: `zscaler_dns`)
+- `SPLUNK_INDEX_ZPA` — ZPA LSS logs (default: `zscaler_zpa`)
+
+The defaults match Zscaler's Splunk Technology Add-on out-of-the-box configuration. Tenants using custom index naming set the relevant env vars; `scripts/splunk-query.sh` substitutes them into the pattern at run time. See [`shared-01`](../_clarifications.md#shared-01-spl-index-naming-portability) for the rationale.
+
 ## Open questions
 
-- Index naming portability across tenants — [clarification `shared-01`](../_clarifications.md#shared-01-spl-index-naming-portability)
 - Whether field extractions differ between Zscaler TA and a hand-configured feed — see [clarification `log-01`](../_clarifications.md#log-01-nss-feed-format-versions) (partially resolved)
 - `ssl_decrypt` vs `ssldecrypted` field aliasing under the Zscaler TA — depends on the TA version; pattern above uses the NSS-native name.
 
