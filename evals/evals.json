@@ -138,6 +138,166 @@
         "ZPA always picks the first segment defined",
         "overlapping segments combine automatically"
       ]
+    },
+    {
+      "id": 7,
+      "prompt": "A user on our corporate network can reach a URL that our ZIA URL Filter rule is supposed to block. Remote users on home WiFi get blocked correctly for the same URL. Why is the corporate-network user bypassing the block?",
+      "expected_output": "The user's active ZCC forwarding profile likely has `actionType: NONE` on the TRUSTED branch. When set, ZCC bypasses ZIA entirely for traffic on trusted networks — ZIA's URL Filter rules never see that traffic, so they can't block it. The remote user's UNTRUSTED branch probably has `actionType: TUNNEL` or equivalent, which forwards through ZIA where the URL Filter rule fires as expected. Diagnose by inspecting the Forwarding Profile's per-branch action and checking whether the TrustedNetwork criteria are broad enough that home networks might also match (footgun).",
+      "tenant_data_required": false,
+      "expected_confidence": "medium",
+      "assertions": [
+        "trusted",
+        "forwarding profile",
+        "NONE",
+        "ZIA bypassed"
+      ],
+      "must_cite_files": [
+        "references/zcc/forwarding-profile.md"
+      ],
+      "must_not_say": [
+        "ZIA URL Filter rules apply to all traffic regardless of the network",
+        "the user has admin override"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "We migrated to Z-Tunnel 2.0 but dashboards show most users still connecting via Z-Tunnel 1.0. What's the most likely cause?",
+      "expected_output": "Z-Tunnel 2.0 requires the device's network to provide a **single-IP NAT** — all connections from one device must egress through the same NAT IP. When different connections land on different public IPs (multi-NAT, carrier-grade NAT without session-stickiness, some corporate networks), Z-Tunnel 2.0's control and data connections reach different Public Service Edges, the 2.0 handshake fails, and ZCC silently falls back to Z-Tunnel 1.0. The user sees a working tunnel — just not the one they configured. Verify the NAT path is single-IP for the affected users. GRE-tunneled traffic is also incompatible with Z-Tunnel 2.0 and should not be routed through it.",
+      "tenant_data_required": false,
+      "expected_confidence": "high",
+      "assertions": [
+        "single-IP NAT",
+        "fall",
+        "1.0",
+        "silent"
+      ],
+      "must_cite_files": [
+        "references/zcc/z-tunnel.md"
+      ],
+      "must_not_say": [
+        "Z-Tunnel 2.0 requires a specific ZCC version only",
+        "Z-Tunnel 2.0 failback only happens when TLS handshake fails"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "ZDX is reporting our user's score as 38 but they say everything is fine. Is ZDX broken?",
+      "expected_output": "ZDX Score is not an average — it's computed **lowest-value-wins within each time window**. Probes fire every 5 minutes; the lowest value in each hour becomes the hourly score; those roll up (via lowest-value-again or averaged-lowest-per-user depending on scope) into the displayed number. A user who has mostly-fine sessions with one bad 5-minute sample per hour gets a low score even if their subjective experience is mostly good. 38 is in the Okay bucket (34-65), not Poor (0-33). Check the underlying metrics — Page Fetch Time trend, Cloud Path hop-by-hop latency, and device health — rather than reacting to the score alone. Starting a Diagnostics Session on the affected device gets 1-minute-resolution data for deeper investigation.",
+      "tenant_data_required": false,
+      "expected_confidence": "high",
+      "assertions": [
+        "lowest",
+        "5-minute",
+        "not an average",
+        "Diagnostics Session"
+      ],
+      "must_cite_files": [
+        "references/zdx/overview.md"
+      ],
+      "must_not_say": [
+        "ZDX averages across the time range",
+        "ZDX Score is just the mean"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "I have a URL Filter rule with action Isolate targeting the Miscellaneous or Unknown category. SSL Inspection has a Do-Not-Inspect rule for that category. Users are reaching sites in the category directly without an isolated browser. Why isn't the Isolate action firing?",
+      "expected_output": "The Isolate action requires SSL Inspection to decrypt the HTTPS request in order to inject a 302 redirect pointing at the isolation profile URL. When SSL is bypassed for the category, ZIA can only match at the SNI layer pre-decrypt — URL Filter evaluation still happens (SNI is the URL for matching purposes), but the action that would fire a 302 redirect can't execute because there's no HTTP-layer request to intercept. The user's connection proceeds to the destination without isolation. Fix: remove the SSL bypass for the category, or narrow the bypass so it doesn't cover URLs the Isolate rule targets. This is part of the general SSL-bypass-as-cross-policy-gate pattern — DLP, Sandbox, Malware Protection, and Isolate all silently degrade when SSL is bypassed for the affected traffic.",
+      "tenant_data_required": false,
+      "expected_confidence": "high",
+      "assertions": [
+        "SSL",
+        "decrypt",
+        "302",
+        "silently"
+      ],
+      "must_cite_files": [
+        "references/zbi/overview.md",
+        "references/zia/ssl-inspection.md"
+      ],
+      "must_not_say": [
+        "Isolate action works regardless of SSL Inspection",
+        "SSL bypass doesn't affect URL Filter actions"
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "Our Conditional Access rule in ZIA URL Filtering matches traffic but no MFA prompt ever appears — users just get access denied. What should we check first?",
+      "expected_output": "Two silent-miss causes, both common. (1) **Step-up authentication is OIDC-only.** If the tenant's ZIdentity IdP integration is SAML-based, Conditional Access rules match but no step-up MFA prompt can be delivered — the rule's step-up action silently fails and the user sees deny. Migrate to OIDC IdP integration to enable step-up. (2) **Step-up prompts are delivered via Zscaler Client Connector.** Users on GRE/IPSec/PAC (non-ZCC) forwarding paths can't receive the prompt — ZCC is the only channel that carries the step-up challenge. Users on those forwarding paths hitting a Conditional rule will see deny without a prompt. Diagnosis order: IdP integration type first (SAML vs OIDC), then forwarding path (ZCC vs GRE/IPSec). Both constraints apply to ZPA's Require Approval action too.",
+      "tenant_data_required": false,
+      "expected_confidence": "high",
+      "assertions": [
+        "OIDC",
+        "SAML",
+        "Client Connector",
+        "GRE"
+      ],
+      "must_cite_files": [
+        "references/zidentity/step-up-authentication.md"
+      ],
+      "must_not_say": [
+        "SAML IdPs support step-up authentication",
+        "Conditional Access works over GRE tunnels"
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "I'm configuring an Authentication Level tree in ZIdentity. Parent AL1 is password-only with 8-hour validity. Child AL2 is password+TOTP with 1-hour validity. The system rejects the save with a validation error on the validity period. Why?",
+      "expected_output": "ZIdentity's Authentication Level rule is counter-intuitive: **parent validity must be LESS THAN child validity**. AL1 at 8 hours means AL2 must have validity >= 8 hours — likely 24 hours for a stronger-assurance child. The tree semantic is that a higher-assurance authentication demonstrates more about the user's identity and therefore persists longer; the parent's validity is the weakest guarantee in the branch and has to be the shortest. Most admins get this wrong on first attempt because the intuitive model is 'stronger auth → shorter session' (more sensitive = more frequent re-auth). ZIdentity enforces the opposite at save time. Flip the validities — AL1=8h (or less), AL2=24h (or more) — and the save will succeed.",
+      "tenant_data_required": false,
+      "expected_confidence": "high",
+      "assertions": [
+        "less than",
+        "parent",
+        "counter-intuitive"
+      ],
+      "must_cite_files": [
+        "references/zidentity/step-up-authentication.md"
+      ],
+      "must_not_say": [
+        "parent validity must be longer than child",
+        "more sensitive levels require shorter sessions"
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "We deployed Cloud Connector in AWS yesterday. Today some workloads can't reach the internet at all. Admin dashboard shows one of our configured gateways is unhealthy. What's the most likely explanation?",
+      "expected_output": "Cloud Connector's default is **fail-close**: when all gateways are unreachable, internet-bound workload traffic is dropped, not bypassed. This is the opposite of the typical enterprise 'fail-open = broken access' intuition. The failover path is primary → secondary → tertiary (tertiary is automatic even if only two gateways were configured), with ~30-second failover between them. If workloads are failing completely, check whether secondary and tertiary gateways are also unhealthy (not just primary). Alternatively, the tenant might be configured fail-open but a specific rule is still blocking the traffic. If operational posture prefers availability over inspection during outages, flip to fail-open explicitly. Note that fail-open means traffic egresses direct, skipping Zscaler entirely — a security trade-off the tenant has to accept.",
+      "tenant_data_required": false,
+      "expected_confidence": "high",
+      "assertions": [
+        "fail-close",
+        "primary",
+        "secondary",
+        "30"
+      ],
+      "must_cite_files": [
+        "references/cloud-connector/overview.md"
+      ],
+      "must_not_say": [
+        "fail-open is the default",
+        "Cloud Connector always bypasses when gateways are down"
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "Our ZIA DLP policy shows a violation in Web Insights logs, but no incident appears in Workflow Automation for that event. Where should I diagnose first?",
+      "expected_output": "The DLP-incident pipeline is a dependency chain: (1) SSL Inspection decrypts the traffic — DLP engines can't see content without decrypt; (2) ZIA DLP rule is configured and enabled — without a matching rule there's no detection; (3) ZIA→ZWA integration is enabled on the tenant — without it, ZIA detects but doesn't forward to ZWA; (4) ZWA ingestion is working — rare infrastructure issue; (5) Workflow mapping matches the incident's attributes — if not, incident appears in ZWA but no workflow fires. Since the Web Insights log shows the violation, steps 1 and 2 are confirmed fine. Diagnose step 3 next: verify ZIA→ZWA integration is enabled. Don't skip ahead to workflow mappings — the incident needs to reach ZWA first before workflow mapping can fire.",
+      "tenant_data_required": false,
+      "expected_confidence": "high",
+      "assertions": [
+        "diagnostic order",
+        "ZIA",
+        "integration",
+        "SSL"
+      ],
+      "must_cite_files": [
+        "references/zwa/overview.md"
+      ],
+      "must_not_say": [
+        "Check ZWA workflow mappings first",
+        "ZWA ingests all ZIA security events automatically"
+      ]
     }
   ]
 }

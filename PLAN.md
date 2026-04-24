@@ -232,6 +232,21 @@ Threaded from SKILL.md routing table and cross-linked from `shared/policy-evalua
 
 Three recurring themes surfaced in the synthesis: (1) silent-miss flags — a feature appears configured but quietly doesn't apply because an enabling flag is off somewhere else; (2) one-way dependencies — SSL decrypt gates everything content-based; ZCC forwarding `actionType: NONE` gates everything ZIA; ZCC entitlement gates everything ZPA; (3) product-specific control plane — ZIA activates, ZPA propagates; ZIA has BC Cloud, ZPA doesn't; ZIA CA is active-passive, ZPA CA is active-active.
 
+### QA sweep + evals extension + doc maintenance — ✅ DONE (2026-04-24, third pass)
+
+After the product-scope build-out closed at ZWA, ran a consolidation pass covering three strands at once:
+
+- **QA sweep** via a Sonnet subagent against the expanded 8-product scope (first attempt drifted off-script; retry with a tighter prompt produced a clean ~500-word report). Findings:
+  1. One dead link — `references/zia/foo.md` cited in `_clarifications.md` workflow-template section. Fixed by replacing with `<product>/<topic>.md` placeholder.
+  2. Two unrouted shared docs — `references/shared/activation.md` and `references/shared/terminology.md` existed but weren't in SKILL.md's routing table. Added routing rows for both.
+  3. `references/shared/` had no `index.md`. Created one listing all 7 shared docs plus guidance on when to start there vs in a product directory.
+  4. Three cross-product consistency checks (step-up-is-OIDC-only; SSL-decrypt-required-for-content-based-security-features; Cloud-Connector-fails-close-by-default) all passed — no contradictions across products.
+- **evals extension** — extended `evals/evals.json` from 6 to 14 canonical prompts. 8 new prompts cover: ZCC forwarding-profile trusted-network bypass (#7), Z-Tunnel 2.0 single-IP-NAT requirement (#8), ZDX lowest-value-wins score aggregation (#9), ZBI Isolate+SSL-bypass interaction (#10), ZIdentity Conditional Access OIDC-only + ZCC-required (#11), Authentication Level validity inversion (#12), Cloud Connector fail-close default (#13), ZWA DLP incident diagnostic chain (#14). Each carries structured assertions, must_cite_files, must_not_say traps, and expected_confidence consistent with the existing schema.
+- **Doc maintenance**:
+  - 5-level wildcard "gotcha" elevation — added a **"Surprises worth flagging first"** section at the top of `wildcard-semantics.md` covering the 5-level cap, asterisk-not-valid, and specificity-wins-across-categories. Cross-linked from `url-filtering.md § The specificity rule`.
+  - Duplicate refarch PDF — **deferred** (requires user confirmation per PLAN contract; hashes differ even though content is reportedly ~95% identical). Left in place.
+  - `last-verified` date refresh pass — not done this session; low priority.
+
 ### D. Script completion backlog
 
 Five scaffolds (`access-check.py`, `ssl-audit.py`, `sandbox-check.py`, `connector-health.py`, `zpa-app-check.py`) plus the bash stub (`splunk-query.sh`). Each scaffold's internal TODOs are specific and tractable **once a real tenant snapshot exists** to confirm SDK response shapes. First-run-against-tenant resolves most TODOs in one pass; the remainder need operator judgment on rule-classification thresholds etc.

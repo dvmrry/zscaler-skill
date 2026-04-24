@@ -49,7 +49,7 @@ IDs are stable forever. If an entry is resolved, it stays here with its answer �
 3. Add the full entry here with a new stable ID.
 4. Link both ways:
    - Your doc: `See [clarification zia-07](../_clarifications.md#zia-07).`
-   - This file: `*Origin: references/zia/foo.md § Open questions*`
+   - This file: `*Origin: references/<product>/<topic>.md § Open questions*` (placeholder path — substitute the real one)
 5. When resolving an entry, update the `Status:` line and add an `Answer:` paragraph. Don't delete.
 
 ---

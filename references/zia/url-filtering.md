@@ -109,7 +109,7 @@ The admin console walkthrough (*About URL Categories*) doesn't surface this path
 
 ## The specificity rule — the non-obvious precedence gotcha
 
-This is the most commonly misunderstood piece of URL filtering behavior.
+This is the most commonly misunderstood piece of URL filtering behavior. Paired with the wildcard-matching rules — specifically the **5-level subdomain cap** and the **asterisk-is-not-valid** behavior — this is where "intuitive" answers go wrong. See [`./wildcard-semantics.md § Surprises`](./wildcard-semantics.md) for the matching-layer surprises; this section documents the rule-evaluation-layer consequence.
 
 From the *URL Filtering Deployment and Operations Guide*, p.2–3:
 

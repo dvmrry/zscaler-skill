@@ -19,6 +19,14 @@ author-status: draft
 
 How ZIA matches URLs configured in custom URL categories and URL filtering rules against user requests. Directly cited from Zscaler's *URL Format Guidelines* article.
 
+## Surprises worth flagging first
+
+Three non-obvious behaviors that experienced operators still miss:
+
+1. **Leading-period wildcards cap at 5 subdomain levels deep.** `.example.com` matches `a.b.c.d.example.com` (4 levels) but the cap at exactly 5 is ambiguous in docs — see [clarification `zia-14`](../_clarifications.md#zia-14-leading-period-wildcard-at-exactly-5-subdomain-levels). Teams that hardcode deep subdomain chains past 5 levels should not rely on wildcard inheritance — either the traffic falls through, or it hits an ambiguity. When in doubt, add the deeper subdomain as an explicit entry or add a shorter wildcard that fits within the cap.
+2. **Asterisks are not valid wildcards.** `*.example.com` and `*example.com` are documented as invalid, but operator reports suggest the admin console accepts them at save time — see [clarification `zia-15`](../_clarifications.md#zia-15-console-accepts-asterisk-despite-docs-marking-it-invalid). Treat asterisks as broken regardless of whether the console lets you save them; translate to the leading-period form.
+3. **Specificity wins across custom categories, not rule order.** An exact-match entry in category B overrides a wildcard entry in category A for URL-to-category resolution — even if the rule referencing category A is higher in the URL Filtering rule order. See [`./url-filtering.md § The specificity rule`](./url-filtering.md).
+
 ## Summary
 
 Zscaler uses **leading-period wildcards only** — asterisks (`*`) at the start of a domain are **not permitted**. Right-side (path) wildcards are implicit and always apply.
@@ -27,7 +35,7 @@ The two forms:
 
 | Form | What it matches |
 |---|---|
-| `.example.com` (leading period) | The bare domain `example.com`, any subdomain up to 5 levels deep, plus any path under any of those. |
+| `.example.com` (leading period) | The bare domain `example.com`, any subdomain up to 5 levels deep (**the 5-level cap is a hard limit — see Surprises above**), plus any path under any of those. |
 | `example.com` (no leading period) | The exact domain only, plus any path. Does **not** match subdomains. |
 
 Exact match takes priority over wildcard match across custom URL categories.
