@@ -54,6 +54,10 @@ Zscaler has renamed several core components over time without fully purging the 
 | Zero Trust Cloud (ZTC) | — | Terraform provider name | Terraform provider name for the Cloud Connector product surface. Inconsistent with Go SDK's `ztw`. |
 | Cloud Connector Group | Edge Connector Group | Go SDK: `ecgroup` service | Logical cluster of Cloud Connector VMs. Unit of policy application and upgrade orchestration. Autoscaling group = ASG (AWS) / VMSS (Azure) / MIG (GCP). |
 | Edge Connector Group (ECG) | Cloud Connector Group | — | Go SDK name for what admin UI calls "Cloud Connector Group." Same resource. |
+| Workflow Automation (ZWA) | Zscaler Workflow Automation | Help URL path: `workflow-automation/`; SDK: `zwa` | DLP incident lifecycle management — closes the loop between ZIA DLP detection and remediation. See `references/zwa/`. |
+| Incident (in ZWA context) | DLP Incident, Data Protection Incident | — | A single DLP policy violation captured from ZIA. Distinct from ZDX "alerts" and ZIA "security events." |
+| Workflow Template | — | — | Zscaler-provided pattern for automated incident remediation (Auto Close / Auto Notify / Auto Escalate / Auto Create Tickets + variants). 9 predefined; custom workflows also supported. |
+| Workflow Mapping | — | — | Link between incident attributes and a workflow. "When incident has attributes X, Y → fire workflow A." |
 | LWF Driver | (same) | `enableLWFDriver` flag on Forwarding Profile | Windows Lightweight Filter — low-level packet interception driver |
 | Zscaler Internet Access (ZIA) | Internet & SaaS (ZIA) is the newer rename; legacy was just "ZIA" | — | Internet security product line |
 | Zscaler Private Access (ZPA) | (same) | — | Private app access product line |

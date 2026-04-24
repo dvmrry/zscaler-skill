@@ -145,6 +145,35 @@ Both actions delegate auth-challenge presentation to ZIdentity. A tenant without
 - **Cloud provider metadata service (169.254.169.254) breaks**: almost always a missing Direct-method rule for that endpoint. Workloads requesting cloud IAM tokens fail until exempted.
 - **Activation gate differs from ZPA**: Cloud Connector uses a ZIA-style activation gate (staged pending until explicit activate). An admin changing both a Cloud Connector rule and a ZPA rule sees ZPA propagate immediately, Cloud Connector wait for activation. See [`./activation.md`](./activation.md).
 
+### ZIA DLP → ZWA (incident lifecycle)
+
+**ZWA is downstream of ZIA DLP.** ZIA detects policy violations during traffic inspection; Workflow Automation ingests each detection as an **incident** and handles triage + remediation (notify user, escalate, create ticket, close).
+
+**Multi-product dependency chain:**
+
+```
+SSL Inspection decrypts
+    ↓
+ZIA DLP engine sees content and matches policy
+    ↓
+Incident created and forwarded to ZWA
+    ↓
+Workflow mapping evaluates
+    ↓
+Workflow fires (Auto Notify / Auto Escalate / Auto Create Ticket / Auto Close)
+```
+
+**Break any link → no incident in ZWA:**
+
+- **No SSL decrypt** → ZIA DLP can't see content → no detection → no incident. Most common failure mode. See [`../zia/ssl-inspection.md § SSL bypass is a cross-policy gate`](../zia/ssl-inspection.md).
+- **ZIA DLP policy not configured** → no detection → no incident.
+- **ZIA→ZWA integration disabled** → ZIA detects but doesn't forward to ZWA.
+- **Workflow mapping doesn't match incident attributes** → incident lands in ZWA but no workflow triggers (admin must triage manually).
+
+**Failure mode diagnosis order** for "DLP event didn't create a ticket" questions: (1) SSL decrypt, (2) ZIA DLP rule, (3) ZIA→ZWA forwarding, (4) ZWA workflow mapping. Don't skip to step 4; the earlier links are more commonly the cause.
+
+**Evidence field is sensitive.** ZWA's `get_incident_evidence` API call (and the admin-portal Incidents page) returns the actual DLP-matched payload content — the exact data DLP was trying to protect. Admin portal RBAC for ZWA effectively controls access to this content. See [`../zwa/api.md § Sensitive data considerations`](../zwa/api.md).
+
 ### Cloud Connector ↔ ZPA App Connector (adjacent outbound-only VMs)
 
 **Don't confuse Cloud Connector with App Connector** — they're both outbound-only Zscaler VMs but serve opposite sides of the ZPA traffic flow:
@@ -287,6 +316,8 @@ Routing hints for question patterns that often hit these hooks. Use this section
 | "Workload can't reach AWS IMDS / cloud metadata" | Missing Direct-method rule for 169.254.169.254 | [`../cloud-connector/forwarding.md § Common patterns`](../cloud-connector/forwarding.md) |
 | "Cloud Connector deployed but traffic not reaching — workloads failing" | Fail-close-by-default: if gateways unreachable, workloads lose internet. Check gateway health + fail-close/fail-open setting | [`../cloud-connector/overview.md § Fail-close vs fail-open`](../cloud-connector/overview.md) |
 | "Workload-to-internal-app fails via Cloud Connector + ZPA" | Multi-product chain: CC rule → ZPA Access Policy → App Connector health | [`../cloud-connector/overview.md`](../cloud-connector/overview.md), [`../zpa/app-segments.md`](../zpa/app-segments.md) |
+| "DLP event didn't create a ticket / notify user" | Multi-link chain: SSL decrypt → ZIA DLP rule → ZIA→ZWA integration → ZWA workflow mapping. Check in that order. | [`../zwa/overview.md § Dependencies`](../zwa/overview.md) |
+| "Why is a DLP incident visible in the ZWA portal but no workflow fired?" | Workflow mapping missing or doesn't match the incident's attributes | [`../zwa/overview.md § Workflow mappings`](../zwa/overview.md) |
 
 ## The recurring patterns
 
