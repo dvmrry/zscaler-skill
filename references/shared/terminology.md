@@ -47,6 +47,13 @@ Zscaler has renamed several core components over time without fully purging the 
 | OneAPI | Zero Trust Cloud API, Zscaler OneAPI | Endpoint prefix: `/{product}/api/v1/` behind a single OAuth gateway | Unified API framework across all Zscaler products with OAuth 2.0 via ZIdentity. Replaces per-product legacy auth. |
 | API Client | OneAPI API Client | `ZSCALER_CLIENT_ID` env var | ZIdentity OAuth 2.0 client-credentials identity used for programmatic API access. Portal-only creation. |
 | Resource Server | API Resource | — | OneAPI term for a Zscaler service accessible via the gateway (ZIA, ZPA, ZDX each = one resource server). API client scopes reference resource servers. |
+| Cloud Connector | CC, Cloud Connector VM, Zscaler for Workloads | Help URL: `cloud-branch-connector`; SDK: `ztw`; TF: `ztc` | VM-based traffic forwarder deployed in AWS/Azure/GCP to extend ZIA and ZPA to cloud workloads. See `references/cloud-connector/`. |
+| Branch Connector | BC | Same SDK / TF path as Cloud Connector | Physical / virtual appliance for branch offices. Same backend as Cloud Connector; different form factor. |
+| Zero Trust Gateway (ZTG) | — | Admin console Group Type value | Newer group-type variant for Cloud Connector deployments. Semantics vs "Cloud Connector" group type not fully documented. |
+| Zero Trust Workload (ZTW) | — | Go SDK module name | Go SDK naming convention for the Cloud Connector product surface. |
+| Zero Trust Cloud (ZTC) | — | Terraform provider name | Terraform provider name for the Cloud Connector product surface. Inconsistent with Go SDK's `ztw`. |
+| Cloud Connector Group | Edge Connector Group | Go SDK: `ecgroup` service | Logical cluster of Cloud Connector VMs. Unit of policy application and upgrade orchestration. Autoscaling group = ASG (AWS) / VMSS (Azure) / MIG (GCP). |
+| Edge Connector Group (ECG) | Cloud Connector Group | — | Go SDK name for what admin UI calls "Cloud Connector Group." Same resource. |
 | LWF Driver | (same) | `enableLWFDriver` flag on Forwarding Profile | Windows Lightweight Filter — low-level packet interception driver |
 | Zscaler Internet Access (ZIA) | Internet & SaaS (ZIA) is the newer rename; legacy was just "ZIA" | — | Internet security product line |
 | Zscaler Private Access (ZPA) | (same) | — | Private app access product line |

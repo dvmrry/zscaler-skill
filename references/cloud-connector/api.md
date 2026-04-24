@@ -1,0 +1,139 @@
+---
+product: cloud-connector
+topic: "cloud-connector-api"
+title: "Cloud Connector API — Go SDK + Terraform provider"
+content-type: reference
+last-verified: "2026-04-24"
+confidence: medium
+sources:
+  - "https://help.zscaler.com/cloud-branch-connector/configuring-cloud-provisioning-template"
+  - "vendor/zscaler-help/cbc-configuring-cloud-provisioning-template.md"
+  - "https://help.zscaler.com/legacy-apis/understanding-zscaler-cloud-branch-connector-api"
+  - "vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.md"
+  - "vendor/zscaler-sdk-go/zscaler/ztw/services/"
+  - "vendor/terraform-provider-ztc/ztc/"
+author-status: draft
+---
+
+# Cloud Connector API surface
+
+How to manage Cloud Connector programmatically. Two programmatic paths: the **Go SDK** under `client.ztw.*` (module path `vendor/zscaler-sdk-go/zscaler/ztw/`), and the **Terraform provider** with `ztc_*` resources (path `vendor/terraform-provider-ztc/ztc/`). **No Python SDK coverage** — the Python SDK doesn't include a `ztw` module.
+
+## Go SDK service surface
+
+From `vendor/zscaler-sdk-go/zscaler/ztw/services/`:
+
+| Service | Purpose |
+|---|---|
+| `activation` | Apply pending configuration changes (same pattern as ZIA's activation gate). |
+| `activation_cli` | CLI-driven activation (likely an internal convenience). |
+| `adminuserrolemgmt` | Admin user and role RBAC for the Cloud Connector portal. |
+| `ecgroup` | **Edge Connector Group** — the logical grouping of Cloud Connector VMs. Corresponds to "Cloud Connector Group" in the admin UI. See [`./overview.md § Cloud Connector Group`](./overview.md). |
+| `dns_gateway` | DNS gateway CRUD — named DNS destinations used in rule forwarding. |
+| `forwarding_gateways` | Forwarding gateway CRUD — named endpoint pairs (primary/secondary) for ZIA or DNS paths. |
+| `locationmanagement` | Location CRUD — deployment locations where Cloud Connectors run. Complementary to ZIA's location management. |
+| `partner_integrations` | Partner integrations — includes AWS workload-discovery via CloudFormation templates. |
+| `policy_management` | Traffic forwarding rules, DNS rules, traffic log rules. |
+| `policyresources` | Policy resource objects (IP source groups, IP destination groups, network services). |
+| `provisioning` | Provisioning URL, public cloud info (AWS account, Azure subscription, GCP project). |
+| `workload_groups` | Workload group CRUD — tag-based workload abstractions for policy. |
+| `common` | Shared models. |
+
+**Go-SDK endpoint prefix**: cloud connector's API lives at the same OneAPI gateway as the rest of Zscaler; exact path prefix not captured here. Authentication follows the standard OneAPI OAuth 2.0 client-credentials flow via ZIdentity — same `ZSCALER_CLIENT_ID` / `ZSCALER_CLIENT_SECRET` / `ZSCALER_VANITY_DOMAIN` env vars.
+
+## Terraform provider resources
+
+From `vendor/terraform-provider-ztc/ztc/`:
+
+Resources (manage state):
+
+- `ztc_account_groups`
+- `ztc_activation_status` — trigger activation as a Terraform apply step
+- `ztc_dns_forwarding_gateway`
+- `ztc_dns_gateway`
+- `ztc_forwarding_gateway`
+- `ztc_ip_destination_groups`
+- `ztc_ip_pool_groups` — **TF-only** (no Go SDK equivalent surfaced in cross-SDK sweep)
+- `ztc_ip_source_groups`
+- `ztc_location_management`
+- `ztc_location_template`
+- `ztc_network_services`
+- `ztc_network_services_groups`
+- `ztc_provisioning_url`
+- `ztc_public_cloud_info`
+- `ztc_traffic_forwarding_dns_rule`
+- `ztc_traffic_forwarding_rule`
+
+Data sources (read-only lookups): parallel data sources exist for most of the above (`data_source_ztc_*`) for read-only lookups of existing resources. Plus data sources for `edge_connector_group`, `provisioning_url`, `supported_regions`, `public_cloud_info` that offer introspection without creation.
+
+**TF-specific resource**: `ztc_ip_pool_groups` doesn't map to a Go SDK service. Appears to be a Terraform abstraction over a lower-level API. Fork teams modeling IP pools via TF can use this; doing the same in Go or direct HTTP requires checking for the underlying API manually.
+
+## Provisioning workflow
+
+From *Configuring a Cloud Provisioning Template*:
+
+**Goal**: create a *cloud provisioning URL* that's used when deploying the Cloud Connector VM in a cloud provider. The URL carries tenant identity, group assignment, location, and VM-size configuration so the VM auto-enrolls on boot.
+
+**Workflow:**
+
+1. **Create a provisioning template** in the admin portal (`Infrastructure > Connectors > Cloud > Management > Provisioning`).
+2. **Configure the template tabs:**
+   - *General Information*: template name + description.
+   - *Cloud Provider*: AWS / Azure / GCP.
+   - *Location*: `Location Creation: Automatic` (auto-creates a location) + select a Location Template.
+   - *Group Information*: `Cloud Connector Group Creation: Automatic` + VM Size (AWS: Small/Medium/Large; Azure: Small; GCP: Small) + Auto Scaling toggle.
+3. **Save** — the admin portal generates a Cloud Provisioning URL.
+4. **Use the URL in cloud-provider deployment** — CloudFormation (AWS), Azure Resource Manager, GCP deployment templates, or Zscaler's Terraform modules.
+
+**Key constraint** (from the help article): "only deploy an autoscaling group (ASG) with an ASG template or a non-ASG with a non-ASG template." Mismatching template type to deployment mode breaks deployment. Two separate provisioning templates if a tenant runs both ASG and non-ASG deployments.
+
+**Auto Scaling provisioning requires Zscaler Support** — enabling ASG/VMSS/MIG-autoscaling deployment isn't self-service; contact Support for entitlement.
+
+## Activation
+
+Cloud Connector has an **activation gate** similar to ZIA's (see [`../shared/activation.md`](../shared/activation.md)). Config changes are pending until `client.ztw.activation.*` triggers apply. Go SDK method: likely `Activate()` or similar on `activation` service (not inspected in detail). Terraform equivalent: `ztc_activation_status` resource.
+
+**This is a ZIA-style pattern, not ZPA-style.** ZPA propagates on write; Cloud Connector stages and requires explicit activation. Match the pattern to the familiar ZIA model, not ZPA.
+
+## Partner integrations
+
+`ztw/services/partner_integrations/` exposes:
+
+- **AWS workload discovery** via CloudFormation template. Zscaler provides a CloudFormation stack that tags AWS workloads for visibility; the discovery data feeds into Cloud Connector's policy decisions.
+
+Scope of "partner integrations" beyond AWS discovery isn't captured in detail. Azure / GCP equivalents likely exist but weren't found in this pass.
+
+## Rate limiting
+
+A dedicated help article `help.zscaler.com/cloud-branch-connector/understanding-rate-limits` covers rate limits for Cloud & Branch Connector API — not captured in this pass. Operators hitting 429 errors should reference that article.
+
+## Python automation
+
+**No Python SDK coverage exists today.** Fork teams using Python for Zscaler automation can:
+
+- Call the Cloud Connector API directly via `requests` / `httpx`, authenticating via OneAPI OAuth (the auth flow is the same as ZIA/ZPA).
+- Use Go-based tooling for Cloud Connector automation and Python for other products.
+- Wait for Python SDK to add a `ztw` module (Zscaler typically maintains feature parity across SDKs over time).
+
+This is a real gap, not an SDK-version lag — the Python SDK directory `vendor/zscaler-sdk-python/zscaler/` has no `ztw` subdirectory at all. Worth flagging in automation planning for teams standardized on Python.
+
+## Snapshotting Cloud Connector config
+
+`scripts/snapshot-refresh.py` doesn't include Cloud Connector. Adding ZTW would require Go SDK integration (since Python SDK doesn't cover it), or shell out to the Zscaler Terraformer CLI tool (`vendor/zscaler-terraformer` — not vendored here yet) for config capture.
+
+Alternative: use `terraform plan -out` against the `ztc` provider and parse the plan JSON for config state. Workable; not elegant.
+
+## Open questions
+
+- **Exact endpoint paths for each `client.ztw.*` service** — not inspected line-by-line in this pass.
+- **Rate limit specifics** — the rate-limits article exists but isn't captured.
+- **Python SDK timeline** — unknown when/if `ztw` will land in `zscaler-sdk-python`.
+- **Partner integrations beyond AWS** — Azure / GCP discovery integrations likely exist; not documented here.
+- **`ztc_ip_pool_groups` underlying API** — TF resource exists without Go SDK equivalent; the wire format underneath is unclear.
+
+## Cross-links
+
+- Overview (what these APIs manage) — [`./overview.md`](./overview.md)
+- Traffic forwarding (the main rule surface) — [`./forwarding.md`](./forwarding.md)
+- Shared activation mechanics — [`../shared/activation.md`](../shared/activation.md)
+- Shared cloud architecture (where Cloud Connector sits in the platform) — [`../shared/cloud-architecture.md`](../shared/cloud-architecture.md)

@@ -126,6 +126,36 @@ Both actions delegate auth-challenge presentation to ZIdentity. A tenant without
 - **Client secret rotation invalidates all callers immediately** — rotating the secret for a single automation breaks every script/CI/TF pipeline that shared it. Plan rotations.
 - **Legacy-auth tenants can't use OneAPI.** They use per-product auth paths and don't have ZIdentity. Fork admins on legacy tenants need a different auth setup per [`../zia/api.md § Legacy`](../zia/api.md) and [`../zpa/api.md`](../zpa/api.md).
 
+### Cloud Connector → ZIA + ZPA (workload-side traffic forwarding)
+
+**Cloud Connector is the workload-side equivalent of ZCC** — a VM deployed in the customer's cloud account (AWS / Azure / GCP) that forwards cloud-workload traffic to Zscaler. For workloads that can't run ZCC (servers, containers, cloud-native apps), Cloud Connector provides the same ZIA/ZPA integration.
+
+**Traffic forwarding rule methods decide what happens per-packet:**
+
+- **ZIA** → forward internet-bound traffic to a ZIA gateway.
+- **ZPA** → forward workload-to-internal-app traffic through ZPA (requires Cloud Connector ZPA enrollment + ZPA Application Segment + Access Policy allow).
+- **Direct** → bypass Zscaler entirely. Used for cloud metadata endpoints, local VPC services.
+- **Drop** → discard traffic.
+- **Local** → Cloud Connector / ZTG only; cloud-to-cloud local inspection.
+
+**Cross-product failure modes:**
+
+- **Workload traffic fails to reach internet**: check Cloud Connector rule matching (Direct exemption above an intended ZIA rule?) AND ZIA gateway health (primary/secondary/tertiary chain).
+- **Workload-to-workload ZPA access fails**: diagnose in layers. Cloud Connector ZPA enrollment → ZPA Access Policy for the destination → App Connector on the destination side. Multi-product chain.
+- **Cloud provider metadata service (169.254.169.254) breaks**: almost always a missing Direct-method rule for that endpoint. Workloads requesting cloud IAM tokens fail until exempted.
+- **Activation gate differs from ZPA**: Cloud Connector uses a ZIA-style activation gate (staged pending until explicit activate). An admin changing both a Cloud Connector rule and a ZPA rule sees ZPA propagate immediately, Cloud Connector wait for activation. See [`./activation.md`](./activation.md).
+
+### Cloud Connector ↔ ZPA App Connector (adjacent outbound-only VMs)
+
+**Don't confuse Cloud Connector with App Connector** — they're both outbound-only Zscaler VMs but serve opposite sides of the ZPA traffic flow:
+
+- **Cloud Connector**: deployed on the **workload side** (AWS/Azure/GCP customer account). Receives workload traffic, forwards to Zscaler.
+- **App Connector**: deployed on the **application side** (data center / VPC hosting the private app). Receives requests from ZPA Service Edge, forwards to the app server.
+
+They coexist in the same workload-to-private-app traffic flow: Cloud Connector → ZPA Service Edge → App Connector → app server.
+
+See [`../cloud-connector/overview.md § Cloud Connector vs App Connector`](../cloud-connector/overview.md) for the full comparison table.
+
 ### ZIdentity → all products (user/group/department/location sync)
 
 **ZIdentity is the source-of-truth for user directory data** that ZIA, ZPA, ZDX, and ZBI all reference in their policy rules. Other products pull from ZIdentity on a periodic sync — not real-time. See [`../zidentity/overview.md § Cross-product user sync`](../zidentity/overview.md).
@@ -253,6 +283,10 @@ Routing hints for question patterns that often hit these hooks. Use this section
 | "Can't save authentication level — validation error on validity" | Parent-child validity inversion: parent MUST be less than child | [`../zidentity/step-up-authentication.md § The validity inversion`](../zidentity/step-up-authentication.md) |
 | "API call returns 403 for a specific product" | API client scope doesn't include that product's resource server | [`../zidentity/api-clients.md`](../zidentity/api-clients.md) |
 | "New user added to ZIdentity but not showing in ZIA/ZPA" | Sync latency — minutes to hours, not real-time | [`../zidentity/overview.md § Cross-product user sync`](../zidentity/overview.md) |
+| "AWS/Azure/GCP workload traffic isn't going through Zscaler" | Cloud Connector rule match (Direct-exemption rule above intended ZIA rule?) or gateway health | [`../cloud-connector/forwarding.md`](../cloud-connector/forwarding.md), [`../cloud-connector/overview.md § Primary/secondary/tertiary`](../cloud-connector/overview.md) |
+| "Workload can't reach AWS IMDS / cloud metadata" | Missing Direct-method rule for 169.254.169.254 | [`../cloud-connector/forwarding.md § Common patterns`](../cloud-connector/forwarding.md) |
+| "Cloud Connector deployed but traffic not reaching — workloads failing" | Fail-close-by-default: if gateways unreachable, workloads lose internet. Check gateway health + fail-close/fail-open setting | [`../cloud-connector/overview.md § Fail-close vs fail-open`](../cloud-connector/overview.md) |
+| "Workload-to-internal-app fails via Cloud Connector + ZPA" | Multi-product chain: CC rule → ZPA Access Policy → App Connector health | [`../cloud-connector/overview.md`](../cloud-connector/overview.md), [`../zpa/app-segments.md`](../zpa/app-segments.md) |
 
 ## The recurring patterns
 
