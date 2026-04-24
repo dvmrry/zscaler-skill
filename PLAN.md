@@ -209,15 +209,13 @@ Zscaler products the skill doesn't cover, ranked by likely value to the fork tea
 | **ZAI Guard** | AI/LLM traffic policy. Newer product. | Unclear fork-team relevance until AI traffic becomes material. | SDK (`zscaler/zaiguard/*`), help articles unknown | Defer until fork team signals need |
 | **Federal Cloud** | `zscalergov` / `zscalerten` specifics; ZPA GOV/GOVUS | Only if tenant is gov. Most behavior inherits from commercial; gaps are auth paths and feature availability. | Scattered mentions in help-doc site; no consolidated reference | Defer until tenant relevance confirmed |
 
-### C. Not-yet-written cross-product dossier
+### C. Cross-product dossier — ✅ DONE (2026-04-24)
 
-The skill knows about cross-product integration hooks (enumerated in each reference doc and recapped in the architectural synthesis), but they're scattered across `ssl-inspection.md`, `cloud-app-control.md`, `app-segments.md`, `policy-precedence.md`, and `zcc/forwarding-profile.md`. A single `references/shared/cross-product-integrations.md` collecting them would:
+Wrote `references/shared/cross-product-integrations.md` — single-file catalog of hooks between ZIA, ZPA, and ZCC organized by direction of coupling (ZIA→ZPA, ZPA→ZIA, ZCC→ZPA, ZCC→ZIA, shared ZIdentity, SSL-bypass-as-gate, AI/ML recategorization, activation-model difference, BC-Cloud-is-ZIA-only, NSS↔LSS split). Each hook documents the failure mode (what silently breaks when it's misconfigured). Includes a question-shape routing table for pre-empting "I asked about ZIA but the answer is really about ZPA" mis-routings.
 
-- Give the agent one place to load when a question smells cross-product ("traffic hit ZIA then ZPA, something's weird")
-- Document the **direction of coupling** (ZIA → ZPA via `zpa_app_segments`; ZPA → ZIA via `inspect_traffic_with_zia`; ZCC → ZPA via `sendTrustedNetworkResultToZpa`; etc.)
-- Surface the failure modes specific to each hook (the CAC-needs-SSL-decrypt pattern, the TRUSTED_NETWORK-silent-miss pattern)
+Threaded from SKILL.md routing table and cross-linked from `shared/policy-evaluation.md`.
 
-Medium effort (~1 session). Good candidate for the next buildout phase because the raw material already exists — it's a synthesis exercise, not new research.
+Three recurring themes surfaced in the synthesis: (1) silent-miss flags — a feature appears configured but quietly doesn't apply because an enabling flag is off somewhere else; (2) one-way dependencies — SSL decrypt gates everything content-based; ZCC forwarding `actionType: NONE` gates everything ZIA; ZCC entitlement gates everything ZPA; (3) product-specific control plane — ZIA activates, ZPA propagates; ZIA has BC Cloud, ZPA doesn't; ZIA CA is active-passive, ZPA CA is active-active.
 
 ### D. Script completion backlog
 
@@ -234,12 +232,16 @@ Priority order for a fork admin: (1) `access-check.py` highest value, (2) `ssl-a
 
 ### Priority recommendation for next session
 
-If picking one thing to do next, in order:
+~~If picking one thing to do next, in order:~~
 
-1. **Cross-product integrations dossier** (Section C) — highest ratio of value to effort, purely synthesis of material already in-hand.
-2. **ZCC snapshot extension + first tenant run** (Section A) — closes 5 of 7 ZCC clarifications in one pass; 10 lines of code plus a snapshot run.
-3. **Malware Protection / ATP console diagnostic workflow** (Section A) — turns a dead-end into a usable referral.
-4. **ZDX** (Section B) — the biggest gap in product coverage the user has signalled need for.
+Priority list as of the 2026-04-24 follow-up round:
+
+1. ~~**Cross-product integrations dossier** (Section C)~~ — **DONE 2026-04-24**.
+2. ~~**ZCC snapshot extension + first tenant run** (Section A)~~ — **DONE 2026-04-24** (snapshot extension landed; tenant run pending fork).
+3. ~~**Malware Protection / ATP console diagnostic workflow** (Section A)~~ — **DONE 2026-04-24**.
+4. **ZDX** (Section B) — the biggest remaining gap in product coverage the user has signalled need for. Next candidate.
+5. **ZBI / Cloud Browser Isolation** (Section B) — tight scope, referenced from URL Filter `Isolate` action. Good low-effort follow-up to ZDX.
+6. **ZIdentity deeper** (Section B) — Conditional Access mechanics now cross-referenced from cross-product-integrations.md; a dedicated ZIdentity doc would let the skill reason about auth-flow internals, not just cite the feature.
 
 ## Crash-recovery hints
 

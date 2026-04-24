@@ -177,6 +177,9 @@ Beyond the default-allow vs default-block split:
 
 ## Cross-links
 
+- **Cross-product integrations dossier** (hooks between ZIA/ZPA/ZCC — silent-miss catalog) — [`./cross-product-integrations.md`](./cross-product-integrations.md)
+- Cloud architecture (CA, Service Edges, BC Cloud, tunnel model) — [`./cloud-architecture.md`](./cloud-architecture.md)
+- Activation gate (ZIA-only) — [`./activation.md`](./activation.md)
 - ZIA URL filtering precedence — [`../zia/url-filtering.md`](../zia/url-filtering.md)
 - ZIA Cloud App Control interaction — [`../zia/cloud-app-control.md`](../zia/cloud-app-control.md)
 - ZIA SSL inspection ordering — [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md)
