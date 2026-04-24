@@ -140,24 +140,36 @@ What the console surfaces as "Action: Do Not Inspect + Evaluate Other Policies" 
 
 ```
 action: {
-  type: DECRYPT | DO_NOT_DECRYPT | ...
+  type: DECRYPT | DO_NOT_DECRYPT | BLOCK
   decryptSubActions: { ... }           // only when type = DECRYPT
   doNotDecryptSubActions: { ... }      // only when type = DO_NOT_DECRYPT
 }
 ```
 
-**`decryptSubActions`** contains (per `zscaler/zia/models/ssl_inspection_rules.py:395-399, 454-474`):
+Three top-level action types — `DECRYPT`, `DO_NOT_DECRYPT`, and `BLOCK`. The Go SDK's `validateSSLInspectionRule()` (`vendor/zscaler-sdk-go/zscaler/zia/services/sslinspection/sslinspection.go:241-300`) enforces per-type constraints:
+
+- **`DECRYPT`** — takes a `decryptSubActions` block. Full inspection path.
+- **`DO_NOT_DECRYPT`** — takes a `doNotDecryptSubActions` block. The "Evaluate Other Policies" vs "Bypass Other Policies" distinction lives in sub-fields.
+- **`BLOCK`** — no sub-actions allowed. `showEUNATP` (end-user notification) must be false. `sslInterceptionCert` is conditional on other criteria; attempting to attach it unnecessarily fails validation.
+
+**`decryptSubActions`** contains (per Go SDK `sslinspection.go:140-175` and `zscaler/zia/models/ssl_inspection_rules.py:395-399, 454-474`) — **camelCase on the wire**:
 
 - `minClientTLSVersion` — minimum TLS version enforced between client and the Public Service Edge.
 - `minServerTLSVersion` — minimum TLS version enforced between the Public Service Edge and the origin server. **These are independent** — you can require TLS 1.2 client-side but accept TLS 1.0 server-side if forced by an upstream partner.
-- `http2_enabled` — surface HTTP/2 inspection.
-- `block_undecrypt` — block traffic that cannot be decrypted.
+- `http2Enabled` — enable HTTP/2 inspection.
+- `blockUndecrypt` — block traffic that cannot be decrypted.
+- `serverCertificates` — action to take on untrusted server certs (`ALLOW` / `BLOCK` / `PASSTHROUGH`).
+- `ocspCheck` — enable OCSP revocation check.
+- `blockSslTrafficWithNoSniEnabled` — block handshakes that don't include an SNI in the Client Hello.
 
 **`doNotDecryptSubActions`** contains:
 
 - `minTLSVersion` — single TLS floor for bypass traffic (not split client/server).
+- `serverCertificates`, `ocspCheck`, `blockSslTrafficWithNoSniEnabled` — same semantics as the decrypt path's equivalents.
 
-**SDK gotcha:** sending `decryptSubActions` when `type=DO_NOT_DECRYPT` (or vice versa) is **not client-validated**. The wrong sub-object silently goes on the wire; API behavior is unstated. When debugging "why isn't my TLS floor enforced?", verify the action's `type` matches the sub-object used.
+**Python SDK name warning.** The Python SDK uses snake_case kwargs (`http2_enabled`, `block_undecrypt`) that pass through to the wire as camelCase. Operators writing `jq` queries against snapshot JSON must use the camelCase field names above; snake_case returns no matches.
+
+**Type-mismatch validation.** Sending `decryptSubActions` when `type=DO_NOT_DECRYPT` (or vice versa) is validated on the Go SDK side — the wrong sub-object is rejected with an explicit error. Python SDK's kwargs pattern may pass it silently to the wire; behavior there is still unverified. When debugging "why isn't my TLS floor enforced?", check the `type` first, then confirm the sub-object matches.
 
 ### Default rule and predefined markers
 

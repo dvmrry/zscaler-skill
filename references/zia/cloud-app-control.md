@@ -113,6 +113,14 @@ A few settings short-circuit SSL inspection on specific cloud-app categories:
 
 Operational consequence: CAC rules for these categories are enforced against whatever app-identity information is available pre-decrypt, which is thinner than post-decrypt. See [`./ssl-inspection.md`](./ssl-inspection.md) for how SSL state drives policy fidelity generally.
 
+## API surface beyond the basics (Go SDK findings)
+
+Cross-SDK sweep (2026-04-24) surfaced details the earlier Python-SDK-derived doc missed:
+
+- **`Actions` is a slice (`[]string`), not a single string**. A single CAC rule can specify multiple concurrent action behaviors — useful for rules that combine e.g. "allow access AND log" or "block AND alert-admin" semantics. The rule's `action` field in snapshot JSON is an array; `jq '.action[]'` enumerates what a rule actually does.
+- **`CreateDuplicate` method** (Go SDK `cloudappcontrol.go:204`) — dedicated endpoint for cloning CAC rules. Useful for "create a rule like this one but with different scope" workflows. Python SDK doesn't expose this; operators have to `get_rule` → edit → `create_rule` manually.
+- **`AllAvailableActions` API method** — queries which action values are valid for a given (rule type, cloud application) combination. Relevant when debugging "why isn't action X selectable in the console for this app?" — different cloud apps support different action sets (e.g., some apps don't support Cautious, some don't support Isolate). The API surfaces the valid combinations; the console UI is driven by this same lookup.
+
 ## Edge cases
 
 - **No custom EUNs for CAC.** "Cloud App Control policies do not support custom End User Notifications (EUNs)." (*CAC Deployment Guide*, p.3.) Blocked users see the default notification.

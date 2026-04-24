@@ -110,7 +110,7 @@ Several first-class fields on access-policy rules are visible via the API/TF/SDK
   - `reauth_idle_timeout` — idle duration before re-auth.
   - **Both default to `None`**, meaning the global tenant setting applies when a rule doesn't override. If a user asks "why is this session re-auth-ing sooner than the rule says", check both the rule value and the tenant global.
   - ⚠️ **Both are `ForceNew` at the Terraform/API level** (`terraform-provider-zpa/zpa/common.go:554-562`). **Changing either on an existing rule requires destroy-recreate** — the API refuses in-place updates. Operationally: an admin can't just "bump the timeout" on a running rule; the rule is deleted and re-created, which can shuffle rule order and cause transient policy gaps. Plan changes during maintenance windows.
-- **`device_posture_failure_notification_enabled`** (bool) — controls whether users see a notification when device posture causes access denial. Useful context when debugging silent posture-based blocks.
+- **`devicePostureFailureNotificationEnabled`** (bool — Python SDK calls this `device_posture_failure_notification_enabled`, but the wire/snapshot JSON key is camelCase per Go SDK `policysetcontrollerv2.go:78`) — controls whether users see a notification when device posture causes access denial. Useful context when debugging silent posture-based blocks. Operators querying snapshot JSON must use the camelCase form.
 - **Conditional cross-field dependencies for action-specific profiles** (`zscaler/zpa/models/policyset_controller_v2.py:61-65`):
   - `zpn_isolation_profile_id` — only relevant when `action = ISOLATE`. References a ZPA isolation profile that configures the isolated browser session (Turbo Mode, copy/paste allow, region, etc.). See [`../zbi/policy-integration.md`](../zbi/policy-integration.md) for the isolation-profile surface and [`../zbi/overview.md`](../zbi/overview.md) for the container/rendering model.
   - `zpn_inspection_profile_id` / `zpn_inspection_profile_name` — only relevant when `action = INSPECT`.
@@ -208,6 +208,11 @@ Access policy doesn't live in isolation — several policy families evaluate in 
 
 - **Empty conditions list = global rule.** A forwarding rule with no conditions is a global bypass for ALL traffic. An access rule with no conditions allows all users to all apps. Both the MCP forwarding-rule and access-rule skills explicitly call this out as dangerous.
 - **Newly created rules are appended at the end.** Rule order matters (see first-match-wins above); always verify order after creation. The MCP skill notes there's no `order` parameter at create time — rule order is a post-hoc attribute to manage.
+- **Rule order can be changed programmatically** — two dedicated APIs in Go SDK (`policysetcontrollerv2.go:324-415`):
+  - **`Reorder`** — `PUT .../rule/{id}/reorder/{newOrder}` — move a single rule to a new order position.
+  - **`BulkReorder`** — accepts a full ordered rule-ID list and applies the entire re-ordering in one atomic call. Useful after importing rules or for large rule-order refactors.
+  - Plus `GetRiskScoreValues` (v2 endpoint) — retrieves valid values for the `RISK_FACTOR_TYPE` criterion (the ZIA-sourced user risk score; see [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md)).
+  - Python SDK may not expose these directly; the `list_rules` → manual-edit pattern is the Python fallback. Fork teams doing large-scale ZPA rule reorganization should prefer the Go SDK or direct HTTP.
 
 ### Timeout policy specifics
 

@@ -87,6 +87,21 @@ A few fields live at the API/TF level but are absent from or under-documented in
 - **`bypass_type` has three values, not two**: `ALWAYS`, `NEVER`, `ON_NET` (`resource_zpa_application_segment.go:83-87`). **`ON_NET`** (bypass only for on-network users) is undocumented in most help articles but is a valid API value — useful for hybrid on-network-vs-remote patterns.
 - **`icmp_access_type` enum**: `PING_TRACEROUTING`, `PING`, `NONE` (default `NONE`) — controls ICMP behavior on the segment. Relevant when a question asks "why can I ping this app through ZPA?"
 - **`tcp_keep_alive` is a string enum `"0"` / `"1"`, not boolean** (`:228-230`). Wire-format quirk: callers writing JSON payloads programmatically must send strings.
+- **Go-SDK-only segment fields not surfaced in Python.** Cross-SDK sweep (2026-04-24) found these fields on `ApplicationSegmentResource` in Go (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go`) that the Python SDK doesn't model. They appear in snapshot JSON for tenants using them:
+  - **`bypassOnReauth`** — whether the segment bypasses ZPA on session re-authentication. Operationally significant: affects hybrid on-net/off-net users who re-auth mid-session (session flaps can briefly skip ZPA inspection).
+  - **`extranetEnabled`** — extranet access toggle for the segment.
+  - **`apiProtectionEnabled`** / **`autoAppProtectEnabled`** / **`adpEnabled`** — AppProtection and Application Data Protection-related flags.
+  - **`weightedLoadBalancing`** — weighted balancing across App Connectors instead of default strategy.
+  - **`fqdnDnsCheck`** — FQDN DNS-resolution health check on the segment.
+  - **`healthCheckType`** — discriminates health-check strategies beyond the `health_reporting` enum.
+  - **`policyStyle`** — finer-grained policy-style selector (undocumented enum).
+  - **`zpnerId`** — Zscaler internal reference identifier.
+
+  Callers scripting against the wire directly (HTTP or Go SDK) can set these; Python-SDK callers can only read them out of snapshot JSON.
+- **Cross-microtenant Move and Share operations** are Go-SDK-only:
+  - **`AppSegmentMicrotenantMove`** (`applicationsegment_move/` service) — `POST .../application/{id}/move`. Moves a segment from one microtenant to another.
+  - **`AppSegmentMicrotenantShare`** (`applicationsegment_share/` service) — `PUT .../application/{id}/share`. Shares a segment across microtenant boundaries.
+  - These pair with the `read_only` / `shared_from_microtenant` / `shared_to_microtenant` governance flags documented above. An operator asking "how do I move a segment to a different microtenant programmatically" needs the Go SDK or direct HTTP — Python SDK has no equivalent.
 
 ### Wildcard domain constraints
 

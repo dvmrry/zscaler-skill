@@ -125,10 +125,37 @@ File stuck in quarantine?
 └─ Persistent after verdict? → PSE cache propagation lag; support ticket if persistent
 ```
 
+## Sandbox Rule API — programmatic control of first-time-file behavior
+
+Beyond the analysis / report layer, Sandbox has a full **rule CRUD surface** the earlier doc treated as console-only. The Go SDK (`vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_rules/sandbox_rules.go`) exposes a `SandboxRules` object with standard scope fields (Locations, Groups, Departments, Users, Device Groups) plus Sandbox-specific behaviors:
+
+- **`BaRuleAction`** — `ALLOW` or `BLOCK`. The terminal verdict action.
+- **`FirstTimeEnable`** / **`FirstTimeOperation`** — what to do with a file Sandbox has never seen before. `FirstTimeOperation` enum: `ALLOW_SCAN` (let through while scanning), `QUARANTINE` (hold until verdict), `ALLOW_NOSCAN` (let through without scanning), `QUARANTINE_ISOLATE` (hold and isolate).
+- **`MLActionEnabled`** — enable AI/ML verdict action alongside signature-based detection.
+- **`ByThreatScore`** — decision gated by Sandbox threat score threshold.
+- **`BaPolicyCategories`** — which Sandbox threat categories the rule applies to.
+- **`FileTypes`** — which file types trigger this rule (PE, Office, PDF, Archive, etc.).
+- **`ZPAAppSegments`** — scope the rule to specific ZPA Application Segments (cross-product reference, same pattern as SSL Inspection's `zpa_app_segments`; see [`../shared/source-ip-anchoring.md`](../shared/source-ip-anchoring.md) for the SIPA relationship).
+
+**The "Allow and scan" resolution surfaced elsewhere in this doc is literally `FirstTimeOperation = "ALLOW_SCAN"`** on a Sandbox rule. An operator asking "how do I configure first-time file behavior via API" has a full CRUD path — it's not a console-only feature.
+
+Python SDK may not cover all these fields; Go SDK is authoritative for the full surface today.
+
+## Discan API — out-of-band instant inspection
+
+Separate from `SubmitFile` (which submits to Sandbox for full dynamic analysis), Go SDK exposes **`Discan`** (`sandbox_submission.go:44` — `POST /zscsb/discan`) for **real-time out-of-band file inspection** without dynamic analysis. Combines:
+
+- AV (anti-virus) signature matching
+- ATP (Advanced Threat Protection) reputation checks
+- Sandbox cloud-effect lookup (known-file verdict if already analyzed by any tenant)
+- AI/ML scoring
+
+Use case: an operator wants an instant verdict on a file, doesn't want to queue it for 3-10 minutes of dynamic analysis. Discan returns AV+ATP+cloud-effect+AI verdicts synchronously. Won't catch novel malware that needs dynamic-analysis detection, but catches a high fraction of known-bad and reputation-scored files instantly.
+
 ## Open questions
 
 - **No API for Malware Protection or ATP block diagnosis** — the MCP server documents this gap explicitly. Skill should surface this limitation when users hit either policy type. Candidate for a new clarification if we find it warrants one.
-- **Sandbox quota semantics** — `zia_get_sandbox_quota` exists but response schema isn't documented in the vendored MCP skill. Unclear what the units are (files/day? bytes/month?).
+- ~~**Sandbox quota semantics** — `zia_get_sandbox_quota` exists but response schema isn't documented in the vendored MCP skill. Unclear what the units are (files/day? bytes/month?).~~ **Resolved (2026-04-24)**: Go SDK `RatingQuota` struct (`sandbox_report.go:18-25`) defines the response as `{ StartTime int, Used int, Allowed int, Scale string, Unused int }`. Quota is a **time-bounded count of report retrievals**, not bytes — `StartTime` is epoch; `Scale` is the time unit (hour/day/month/etc.); `Used`/`Allowed`/`Unused` are report-count buckets. Quota applies to the Sandbox report-fetch API, not to submission volume.
 
 ## Cross-links
 
