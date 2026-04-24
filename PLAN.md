@@ -14,10 +14,11 @@ If you just forked this and are here because [`README.md`](./README.md) step 2 s
 4. **5 of 8 scripts are scaffolds, not functional code.** Only `url-lookup.py` and `snapshot-refresh.py` are complete end-to-end. The other five (`access-check.py`, `ssl-audit.py`, `sandbox-check.py`, `connector-health.py`, `zpa-app-check.py`) have docstrings, argument parsing, auth wiring, and logical structure but leave TODOs where live-API response shape needs confirmation. First-run-against-real-tenant is where those TODOs become tractable.
 5. **Known API / documentation blind spots** — all have operator-level workarounds documented:
    - **Malware Protection and ATP block diagnosis** — no API, console-only (workflow codified in `references/zia/malware-and-atp.md`).
-   - **Snapshot schema docs** — deferred until post-fork (decided; see §4 below).
+   - **Snapshot schema docs** — deferred until post-fork (decided; see §4 below). Postman collection at `vendor/zscaler-api-specs/oneapi-postman-collection.json` is now an additional spec source for stitching response-shape detail before tenant data exists.
    - **Z-Tunnel wire-format protocol internals** — permanently deferred after targeted search confirmed no public docs (operational layer codified in `references/zcc/z-tunnel.md`).
    - **ZCC int-enum semantic mappings** (`zcc-01` through `zcc-04`, `zcc-06`) — datatype resolved via Go SDK; integer-to-meaning mapping pending first tenant snapshot.
    - **Lab-testable clarifications** (6 remaining) — see §Pending lab tests.
+   - **No public OpenAPI / Swagger spec** — confirmed permanently 2026-04-24 via thorough sweep of automate.zscaler.com. Not published anywhere. Postman collection vendored at `vendor/zscaler-api-specs/oneapi-postman-collection.json` is the closest machine-readable surface.
 6. **Rest of this document is the roadmap and the audit trail** — skim §7-step roadmap and subsequent ✅-DONE sections to see what's been built; skip to §Pending lab tests, §Known findings, and **§Priority recommendation for next session** for work you might want to pick up.
 
 ## Goal
@@ -392,32 +393,53 @@ Eighth pass also: SKILL.md (4 new routing rows), `shared/index.md` (1 row), `zia
 
 After the eighth pass committed and pushed, a portfolio audit and a portal recon surfaced two distinct lines of work neither in the existing roadmap nor scoped under "blocked on tenant." Both are actionable now.
 
-### Discovery 1: `automate.zscaler.com` is the public OneAPI Automation Hub
+### Discovery 1: `automate.zscaler.com` is the public OneAPI Automation Hub — ✅ SCRAPED 2026-04-24 (ninth pass)
 
-User asked whether we'd checked `automate.zscaler.com`. We hadn't. A Playwright recon (no auth wall — fully public) found:
+Public Docusaurus doc site. **No login wall.** A Sonnet capture agent did a thorough sweep covering all three top sections plus the Postman collection.
 
-- **What it is:** Zscaler's public OneAPI documentation hub. Docusaurus-based.
-- **Three top sections:**
-  - `https://automate.zscaler.com/docs/getting-started/` — auth flow + onboarding (likely refines `references/zidentity/api-clients.md` and `references/zidentity/overview.md`)
-  - `https://automate.zscaler.com/docs/api-reference-and-guides/` — the API surface; **may contain direct OpenAPI / Swagger spec downloads**
-  - `https://automate.zscaler.com/docs/tools/` — SDK + Postman docs
-- **Why it matters:** if OpenAPI specs are publicly downloadable here, the **admin-portal Swagger extraction is unnecessary**. Specs would live as `vendor/zscaler-api-specs/{zia,zpa,zidentity,zcc,zdx}-openapi.json` and feed into:
-  - Snapshot schema docs (currently deferred until post-fork)
-  - ZCC int-enum semantic mappings (`zcc-01` through `zcc-04`, `zcc-06` — close immediately if the spec annotates enums)
-  - `references/zia/api.md`, `references/zpa/api.md`, `references/zcc/api.md` accuracy beyond SDK source
-  - Closing the "API blind spots" called out in the TL;DR
+**Outcome:**
 
-**Next-action options offered to user (awaiting selection):**
-- (A) Targeted: Capture `/docs/api-reference-and-guides/` only and look for OpenAPI specs.
-- (B) Full sweep: Capture all three top sections + rate limits + auth, then synthesize into reference doc updates.
+- **17 markdown captures** under `vendor/zscaler-help/automate-zscaler/` covering:
+  - `getting-started.md` — full auth + base URLs + best practices
+  - `guides-rate-limiting.md` — per-product rate-limit math
+  - `guides-response-codes.md` — OneAPI HTTP status codes
+  - `guides-understanding-oneapi.md` — gateway concept
+  - `guides-analytics-api.md` + `analytics-graphql-api.md` — GraphQL endpoint at `zins/graphql`
+  - `api-authentication-overview.md` — three auth flow comparison
+  - `api-endpoint-catalog.md` (17K) — sitemap-derived endpoint URL list
+  - `api-reference-{zia,zdx,zcc,bi}-overview.md` — per-product samples
+  - `api-reference-zpa-from-postman.md` — **only ZPA documentation Zscaler publishes; web pages are absent**
+  - `api-reference-index.md` — synthesized API reference structure
+  - `tools-and-sdks.md` + `tools-postman-collection.md` + `postman-collection-note.md`
+- **Postman collection vendored** at `vendor/zscaler-api-specs/oneapi-postman-collection.json` (14.14 MB, Postman v2.1.0). 7 products × 90 controllers total. ZPA's 36 controllers are the most extensive — and the only ZPA API doc Zscaler publishes anywhere on automate.zscaler.com.
+- **No public OpenAPI / Swagger spec exists.** Confirmed via thorough sweep — no `/swagger.json`, `/openapi.yaml`, or downloadable spec link. API reference data lives in Docusaurus JS bundles, not extractable as standard OpenAPI. Zscaler's chatbot was correct to be ambiguous.
 
-**If the user picks neither in the current session,** a fresh agent should:
-1. Navigate to `https://automate.zscaler.com/docs/api-reference-and-guides/` via Playwright (or `WebFetch` if simpler — Docusaurus is server-renderable).
-2. Look for "Download Spec", `swagger.json`, or `openapi.json` links.
-3. If specs exist, save under `vendor/zscaler-api-specs/<product>-openapi.json` (one per product) and commit.
-4. If no direct spec downloads, capture the API Reference pages as markdown into `vendor/zscaler-help/automate-zscaler/<page-slug>.md` (or similar — pick a subdir to keep them grouped).
+**Synthesis output:**
 
-**Important:** the user's CLAUDE.md says to use Sonnet/Haiku for analysis/review agents, not Opus. Same constraint applies to capture agents launched by future passes.
+- New doc: `references/shared/oneapi.md` — umbrella OneAPI reference covering:
+  - Three coexisting auth flows (OneAPI OAuth via ZIdentity / ZDX legacy SHA256 / ZCC legacy apiKey+secretKey)
+  - **`audience=https://api.zscaler.com` REQUIRED** on token request — most common cause of "401 with valid creds" debugging
+  - JWT (private key) auth flow with signing pseudocode
+  - Per-product base URL table (single host `api.zsapi.net`)
+  - Per-product rate limits + asymmetric response-header names
+  - HTTP status codes + read-only-mode response shape (`x-zscaler-mode: read-only`)
+  - Activation gate (ZIA + CBC only) + `409 EDIT_LOCK_NOT_AVAILABLE` semantics
+  - Postman collection coverage by product
+  - GraphQL Analytics API at `zins/graphql`
+- Updated `references/zidentity/api-clients.md`: added `audience` REQUIRED, JWT signing context, closed two open questions (token TTL configurable, audience param), cross-link to oneapi.md.
+- SKILL.md: 1 new routing row for OneAPI questions.
+- `references/shared/index.md`: 1 new row.
+
+**Findings worth flagging:**
+
+1. **No standalone OpenAPI/Swagger spec** — chatbot was right to dodge. Postman collection is the closest equivalent; it ships everything except OpenAPI shape.
+2. **ZPA web docs are absent** from automate.zscaler.com — sitemap returns 0 ZPA URLs. Postman collection is the **sole ZPA API reference Zscaler publishes**. Worth checking periodically for staged rollout completion.
+3. **Three auth flows must coexist** in any multi-product automation — ZDX and legacy ZCC don't use OneAPI OAuth. Multi-product scripts must implement all three.
+4. **Rate-limit response headers differ per product** — `x-ratelimit-*` (ZIA), `RateLimit-*` (ZDX), `X-Rate-Limit-*` (ZCC). Same conceptual fields, three names.
+5. **ZIA + CBC require activation; nothing else does.** Surprising-to-newcomers asymmetry.
+6. **Postman collection is 14 MB** — vendored at `vendor/zscaler-api-specs/oneapi-postman-collection.json`. Not LFS'd; under GitHub's 100MB limit but above the 50MB recommended threshold. Consider Git LFS if collection grows over future updates.
+
+**Important:** the user's CLAUDE.md says to use Sonnet/Haiku for analysis/review agents, not Opus. Capture agents like this one should follow that.
 
 ### Discovery 2: Product portfolio audit — gaps vs Zscaler.com marketing
 

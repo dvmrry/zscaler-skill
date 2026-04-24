@@ -35,8 +35,8 @@ The flow per *About API Clients*:
    - Authentication credential: **client secret** (shared secret) OR **private key PEM** (JWT-based auth — stronger)
    - One or more **roles** (determines which endpoints it can hit)
    - Scopes (which product services it can access)
-2. **API client authenticates** to ZIdentity's token endpoint, presenting its client ID and either secret or signed JWT.
-3. **ZIdentity returns an access token**. Short-lived (typically 30-60 min; exact TTL tenant-configurable via Authentication Session settings).
+2. **API client authenticates** to ZIdentity's token endpoint (`https://<vanity>.zslogin.net/oauth2/v1/token`), presenting its client ID, either secret or signed JWT, and **`audience=https://api.zscaler.com` (REQUIRED — see [`../shared/oneapi.md § The audience parameter is REQUIRED`](../shared/oneapi.md))**.
+3. **ZIdentity returns an access token**. Lifetime is tenant-configurable (default 3600 seconds) via Authentication Session settings; read `expires_in` from the response rather than assuming.
 4. **Client calls OneAPI** with the access token in `Authorization: Bearer <token>` header.
 5. **OneAPI validates the token** against ZIdentity and routes to the appropriate service (ZIA / ZPA / ZDX / ZCC endpoint).
 
@@ -112,12 +112,16 @@ The SDKs handle the OAuth 2.0 flow internally — callers don't have to implemen
 
 ## Open questions
 
-- Exact token TTL and whether it's tenant-configurable per-client (vs tenant-wide).
-- Rate limits on the token endpoint — not documented.
 - Whether JWT auth supports key rotation with multiple valid keys during a rollover window.
+- Rate limits on the token endpoint — not documented anywhere we've captured (but per-product rate limits are documented in [`../shared/oneapi.md § Rate limits`](../shared/oneapi.md)).
+
+**Closed (2026-04-24 via automate.zscaler.com captures):**
+- Token TTL — tenant-configurable via Authentication Session settings; default 3600 seconds; carried in `expires_in` field of the token response.
+- `audience` parameter — REQUIRED, value `https://api.zscaler.com`. Tokens issued without it succeed at exchange but fail at OneAPI with 401.
 
 ## Cross-links
 
+- **OneAPI gateway, base URLs, rate limits, error model, Postman collection** — [`../shared/oneapi.md`](../shared/oneapi.md). Start there for any cross-product API question; this doc covers the API Client object model only.
 - Overview — [`./overview.md`](./overview.md)
 - ZIdentity API surface (`client.zid.*` in SDK) — [`./api.md`](./api.md)
 - ZIA API authentication section (where legacy vs OneAPI paths are compared) — [`../zia/api.md`](../zia/api.md)
