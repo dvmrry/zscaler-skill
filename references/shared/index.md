@@ -22,6 +22,7 @@ Docs under `references/shared/` are **not tied to a single Zscaler product**. Th
 | **Cross-product integrations** — the canonical catalog of hooks between ZIA, ZPA, ZCC, ZDX, ZBI, ZIdentity, Cloud Connector, ZWA — organized by direction of coupling, with failure-mode notes and a question-shape routing table | [`./cross-product-integrations.md`](./cross-product-integrations.md) | draft |
 | Activation lifecycle — ZIA staged-vs-live gate, API endpoints, EUSA, ZPA contrast | [`./activation.md`](./activation.md) | reviewed |
 | Terminology — legacy / current / log-field aliases across all products (ZEN, PSEN, VSEN, Z-App, App Profile vs Web Policy, ZTW vs ZTC, etc.) | [`./terminology.md`](./terminology.md) | reviewed |
+| Source IP Anchoring (SIPA) — ZIA+ZPA cross-product feature for preserving customer-controlled source IP at destination (Office 365 Conditional Access, IP-allowlist apps) | [`./source-ip-anchoring.md`](./source-ip-anchoring.md) | draft |
 | Log-correlation guidance — when to consult logs vs rely on config, cross-product correlation patterns | [`./log-correlation.md`](./log-correlation.md) | draft |
 | SPL query patterns — canonical SPL snippets for Zscaler log analysis | [`./splunk-queries.md`](./splunk-queries.md) | draft |
 

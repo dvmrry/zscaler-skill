@@ -58,6 +58,11 @@ Zscaler has renamed several core components over time without fully purging the 
 | Incident (in ZWA context) | DLP Incident, Data Protection Incident | — | A single DLP policy violation captured from ZIA. Distinct from ZDX "alerts" and ZIA "security events." |
 | Workflow Template | — | — | Zscaler-provided pattern for automated incident remediation (Auto Close / Auto Notify / Auto Escalate / Auto Create Tickets + variants). 9 predefined; custom workflows also supported. |
 | Workflow Mapping | — | — | Link between incident attributes and a workflow. "When incident has attributes X, Y → fire workflow A." |
+| Source IP Anchoring (SIPA) | Customer-Managed Dedicated IP, SIPA | `source_ip_anchor` flag on ZPA App Segment; admin console under ZIA `Policy > Forwarding Control > Dedicated IP` | Cross-product feature (ZIA+ZPA): ZIA-inspected traffic is forwarded via a ZPA App Connector so the destination sees a customer-controlled IP. See `references/shared/source-ip-anchoring.md`. |
+| SIPA Direct | Source IP Anchoring Direct | — | Disaster-recovery variant of SIPA for when ZIA is impaired. Client Forwarding Policy rules flip so ZCC clients forward to ZPA directly. Manual revert required post-DR. |
+| ZPA Gateway | SIPA Gateway | ZIA Admin > Administration > ZPA Gateway | Named reference to a ZPA tenant used by ZIA Forwarding Control rules to route SIPA traffic. |
+| ZIA Service Edge client type | ZIA Service Edge, Source IP Anchoring client | ZPA Client Forwarding Policy / Access Policy "Client Type" value | The client-type identity ZIA uses when it initiates SIPA forwarding into ZPA. Distinct from Zscaler Client Connector as a client type. |
+| ZPA Resolver for Road Warrior / Locations | — | ZIA DNS Control pre-configured rules | DNS resolution rules that return ZPA Synthetic IPs for SIPA destinations. Road Warrior rule must sit above Locations rule in rule order. |
 | LWF Driver | (same) | `enableLWFDriver` flag on Forwarding Profile | Windows Lightweight Filter — low-level packet interception driver |
 | Zscaler Internet Access (ZIA) | Internet & SaaS (ZIA) is the newer rename; legacy was just "ZIA" | — | Internet security product line |
 | Zscaler Private Access (ZPA) | (same) | — | Private app access product line |

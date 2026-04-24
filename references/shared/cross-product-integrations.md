@@ -42,12 +42,24 @@ Fields on ZIA objects that reference ZPA state.
 
 **SSL Inspection rules can scope by ZPA App Segment.** The `zpa_app_segments` list on a ZIA SSL Inspection rule (`zscaler/zia/models/ssl_inspection_rules.py:113-115`) restricts the rule to traffic going to specific ZPA segments. Non-obvious constraints:
 
-- **Only ZPA segments with `Source IP Anchor` enabled appear** in the criterion's selector. A tenant that expects all segments to be available will miss non-anchor-enabled segments silently.
+- **Only ZPA segments with `Source IP Anchor` enabled appear** in the criterion's selector. A tenant that expects all segments to be available will miss non-anchor-enabled segments silently. This is because SSL-inspecting traffic bound for a ZPA segment only makes sense when that segment is serving SIPA-routed traffic (which ZIA can see); pure-ZPA traffic doesn't flow through ZIA's SSL pipeline. See [`./source-ip-anchoring.md`](./source-ip-anchoring.md).
 - **Cap: 255 segments** per SSL rule.
 - Absent from URL Filtering and Cloud App Control rules — **SSL Inspection is the only ZIA policy type with this cross-product selector.**
 - See [`../zia/ssl-inspection.md § Rule criteria`](../zia/ssl-inspection.md).
 
 **Failure mode**: operator configures a ZPA segment, adds it to a ZIA SSL rule's `zpa_app_segments`, sees the segment isn't listed, and assumes the rule doesn't work. Actual cause: Source IP Anchor isn't enabled on the segment.
+
+### Source IP Anchoring (SIPA) — dedicated cross-product flow
+
+SIPA gets its own dedicated reference doc at [`./source-ip-anchoring.md`](./source-ip-anchoring.md) — it's a multi-step cross-product feature (ZIA forwards → ZPA App Connector delivers, so destination sees customer-controlled IP). Common failure modes threaded throughout this integrations dossier all point back there.
+
+Highlights relevant for cross-product routing:
+
+- **Setup chain spans both portals.** ZPA Admin Portal (App Segment `Source IP Anchor` flag + Client Forwarding Policy + Access Policy) AND ZIA Admin Portal (Forwarding Control rule + ZPA Gateway + DNS Control rules). Most SIPA failures are one portal configured while the other isn't.
+- **Licensing note**: SIPA subscription is separate; a ZPA license is NOT required. Operators can deploy App Connectors purely as SIPA egress points.
+- **Two variants**: standard SIPA and SIPA Direct (DR-mode fallback). Direct mode requires pre-planned Access Policy rules that allow ZCC clients.
+- **Mutual-exclusion** with Browser Access, Double Encryption, and Multimatch on the same App Segment.
+- **Country-code policy misfires** — ZPA country criterion uses last-NATed layer-3 IP, which for SIPA traffic is the ZIA PSE's IP, not the user's. Country-scoped ZPA rules misfire for SIPA users. See [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md).
 
 ### ZPA → ZIA
 

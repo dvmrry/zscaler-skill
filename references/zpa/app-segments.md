@@ -14,7 +14,6 @@ sources:
   - "vendor/zscaler-help/Using_Application_Segment_Multimatch.pdf"
   - "https://www.zscaler.com/resources/reference-architectures"
   - "vendor/zscaler-help/zpa-user-to-app-segmentation-refarch.pdf"
-  - "vendor/zscaler-help/zpa-app-segmentation-refarch.pdf"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_application_segment.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_application_segment_multimatch_bulk.md"
 author-status: draft
@@ -200,6 +199,7 @@ Plus from *Configuring Defined Application Segments* p.16: "If Multimatch is ena
 - **CNAME propagation.** From p.16: the `is_cname_enabled` setting controls whether App Connectors return CNAME DNS records to Zscaler Client Connector. "This setting is not applicable for Browser Access applications, and Private Access functions as if the option is disabled. If Zscaler Client Connector is on a macOS or an iOS device and the application needs to be accessed by CNAME, it is best to disable this setting."
 - **Browser Access segment constraints.** From p.11: "If you selected Browser Access for any application, the port range must include the port specified. If you selected Browser Access for any application, you must use TCP port ranges."
 - **Double encryption mutual exclusion.** From p.12: "If you selected Browser Access or Source IP Anchoring for any application, you can't enable Double Encryption."
+- **Source IP Anchor (SIPA) feature flag.** Enabling `Source IP Anchor` on a segment opts into the SIPA cross-product flow — ZIA-inspected traffic is forwarded to this segment's App Connector so the destination sees a customer-controlled IP (not a Zscaler PSE IP). Full mechanics (ZPA-side + ZIA-side dual config, DNS Resolver rule ordering, SIPA Direct variant for ZIA DR mode, licensing) in [`../shared/source-ip-anchoring.md`](../shared/source-ip-anchoring.md). Mutually exclusive with Browser Access, Double Encryption, and Multimatch on the same segment. The SIPA flag is also the filter determining which ZPA segments appear in ZIA SSL Inspection rule's `zpa_app_segments` criterion — non-SIPA segments are invisible to that selector.
 - **Health reporting + wildcard.** From p.15, cited above: `CONTINUOUS` health reporting is not allowed if any application in the segment is a bare `*` wildcard.
 
 ## Worked example (covers eval Q6)

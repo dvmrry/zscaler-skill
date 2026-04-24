@@ -169,7 +169,7 @@ Ranked by ease + value:
 
 ## Known findings awaiting action
 
-- **Duplicate refarch PDF.** `zpa-user-to-app-segmentation-refarch.pdf` and `zpa-app-segmentation-refarch.pdf` differ only in cover title (~5 lines); content-identical. Same pattern as the deleted AI-Recommendations dup. Delete one after user confirms.
+- **Duplicate refarch PDF — resolved (2026-04-24).** Confirmed via `pypdf` text-diff: the two refarch PDFs differed only in an 8-char title prefix ("user-to-" on cover). Deleted `zpa-app-segmentation-refarch.pdf`; kept `zpa-user-to-app-segmentation-refarch.pdf`.
 - **Keyword quota discrepancy resolved in `ranges-limitations-zia.md`.** `url-filtering.md` line 142 now cites the authoritative 256/2,048 values and flags the 30/1,000 values in `Configuring_URL_Categories_Using_API.pdf` p.12 as stale.
 - **5-level wildcard cap needs "gotcha" elevation.** `wildcard-semantics.md` buries the 5-subdomain-levels-deep cap in a matching table. User flagged this as non-obvious for experienced operators; deserves a Surprises/Gotchas callout near the top, plus a cross-link from `url-filtering.md § Specificity`.
 
@@ -231,6 +231,24 @@ Wrote `references/shared/cross-product-integrations.md` — single-file catalog 
 Threaded from SKILL.md routing table and cross-linked from `shared/policy-evaluation.md`.
 
 Three recurring themes surfaced in the synthesis: (1) silent-miss flags — a feature appears configured but quietly doesn't apply because an enabling flag is off somewhere else; (2) one-way dependencies — SSL decrypt gates everything content-based; ZCC forwarding `actionType: NONE` gates everything ZIA; ZCC entitlement gates everything ZPA; (3) product-specific control plane — ZIA activates, ZPA propagates; ZIA has BC Cloud, ZPA doesn't; ZIA CA is active-passive, ZPA CA is active-active.
+
+### SIPA consolidation + duplicate PDF cleanup — ✅ DONE (2026-04-24, fourth pass)
+
+- **Duplicate refarch PDF resolved.** `pypdf` text-diff confirmed the two ZPA refarch PDFs (`zpa-app-segmentation-refarch.pdf` and `zpa-user-to-app-segmentation-refarch.pdf`) are content-identical except for an 8-character title prefix ("user-to-" on the cover). Same 21 pages, same 42K char body. Deleted `zpa-app-segmentation-refarch.pdf`; kept the "user-to-app" variant (matches newer Zscaler naming convention, cited first in `references/zpa/app-segments.md`). Removed redundant citation from that doc's frontmatter sources list.
+
+- **SIPA (Source IP Anchoring) dedicated reference doc.** SIPA was previously mentioned across 5 reference docs (ssl-inspection.md, app-segments.md, policy-precedence.md, cross-product-integrations.md, policy-evaluation.md) but had no consolidated home. Captured 4 help articles (understanding-source-ip-anchoring, understanding-source-ip-anchoring-direct, configuring-source-ip-anchoring, configuring-forwarding-policies-source-ip-anchoring-using-zpa) and wrote `references/shared/source-ip-anchoring.md` covering:
+  - Traffic flow (ZIA PSE → ZPA App Connector → destination with customer-controlled IP)
+  - Use cases (Office 365 Conditional Access, legacy IP-allowlist apps)
+  - Licensing (SIPA subscription separate from ZPA license)
+  - Full ZPA-side config chain (App Segment `Source IP Anchor` flag, Client Forwarding Policy rules for IP-based vs domain-based apps, Access Policy rules)
+  - Full ZIA-side config chain (Forwarding Control rule with Method=ZPA, ZPA Gateway, DNS Control rules `ZPA Resolver for Road Warrior`/`Locations` with rule-order constraint)
+  - **SIPA Direct variant** — disaster-recovery config that flips Client Forwarding Policy so ZCC clients forward directly; requires pre-planned Access Policy rules; must be manually reverted post-DR
+  - Mutual-exclusion with Browser Access, Double Encryption, Multimatch
+  - ICMP limitations (echo-only, 990-byte cap, no traceroute)
+  - RTSP unsupported
+  - Policy footguns: country-code uses ZIA PSE's country not user's; SSL Inspection's `zpa_app_segments` filter only shows SIPA-enabled segments; DNS resolution must flow through Zscaler for Synthetic-IP return
+  - 8-step diagnostic workflow for "SIPA isn't working"
+- Threaded into SKILL.md routing (new row), cross-product-integrations.md (new section with cross-link), ssl-inspection.md (cross-link added), app-segments.md (new mutual-exclusion bullet), policy-precedence.md (SIPA country-code footgun cross-link), shared/index.md (listed), terminology.md (6 new rows covering SIPA, SIPA Direct, ZPA Gateway, ZIA Service Edge client type, ZPA Resolver rules).
 
 ### QA sweep + evals extension + doc maintenance — ✅ DONE (2026-04-24, third pass)
 
