@@ -85,7 +85,7 @@ Five user-configurable actions, per *Configuring the URL Filtering Policy* pp.10
 | Allow | Pass traffic | Optional bandwidth/time quotas; HTTP header insertion (custom categories only) |
 | Caution | EUN before allowing | Custom redirect URL supported |
 | Block | Deny | EUN or redirect; supports Allow Override for specific users/groups |
-| Isolate | Remote browser | Requires Zero Trust Browser |
+| Isolate | Remote browser | Requires Zero Trust Browser (ZBI). Produces a 302 redirect to an isolation profile URL; ephemeral cloud browser container renders the page, streams result to user's browser. Needs SSL Inspection decrypt for HTTPS. See [`../zbi/overview.md`](../zbi/overview.md) and [`../zbi/policy-integration.md`](../zbi/policy-integration.md). |
 | Conditional | Step-up auth before allowing | Requires ZIdentity + Client Connector forwarding; not supported via Service Edges |
 
 Each action has caveats around SSL Inspection and EUN settings — see `ssl-inspection.md` for how SSL state affects action enforceability.

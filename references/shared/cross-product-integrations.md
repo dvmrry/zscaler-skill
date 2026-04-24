@@ -179,6 +179,25 @@ ZDX's analytics layer is Microsoft-hosted (Azure Data Explorer / ADX) — an ext
 
 **Failure mode**: "ZDX probe succeeds but real user traffic fails for the same URL" — the probe's SSL-exemption means the probe path differs from user traffic. The probe is not a valid test that SSL inspection isn't in the way.
 
+### ZBI (Cloud Browser Isolation) — cross-product triggers
+
+**ZIA URL Filter `Isolate` action routes to ZBI.** A URL Filter rule with action `Isolate` matching a user's request produces a 302 redirect to the configured isolation profile URL, which hands off to an ephemeral cloud browser container. See [`../zbi/overview.md`](../zbi/overview.md).
+
+**ZPA Isolation Policy routes to ZBI for private apps.** ZPA's Isolation Policy family (alongside Access, Timeout, Forwarding, Inspection) decides which private-app requests go through an isolated browser. See [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md) for family evaluation order and [`../zbi/policy-integration.md`](../zbi/policy-integration.md) for ZPA Isolation rule shape.
+
+**Smart Browser Isolation auto-creates an SSL Inspection rule.** When enabled, Smart Isolation silently adds a decrypt rule for suspicious websites. Operators auditing SSL Inspection rule count see a rule they didn't manually create. See [`../zbi/policy-integration.md § Smart Browser Isolation`](../zbi/policy-integration.md).
+
+**ZIA policies apply twice on isolated traffic.** Traffic passes through Public Service Edges on both legs (user→ZBI and ZBI-container→destination). URL Filter, CAC, DLP, Sandbox, Malware Protection evaluate on both — the cloud browser's egress is subject to ZIA as if it were any other user's traffic.
+
+**ZPA Isolation session timeout is the minimum of all configured ZPA timeout policies.** Not a dedicated isolation timeout — inherits the tightest timeout from any timeout-family rule. Can produce surprisingly-short isolation sessions if an unrelated ZPA timeout policy is aggressive.
+
+**Failure modes:**
+
+- **URL Filter Isolate rule matches but doesn't fire**: SSL Inspection isn't decrypting for that URL. Isolate needs to intercept HTTP to send the 302 redirect.
+- **Smart Isolation doesn't fire despite being enabled**: Malware Protection's `Inspect Inbound Traffic` / `Inspect Outbound Traffic` toggles are off. Smart Isolation depends on the Malware Protection content-inspection pipeline to feed its AI/ML classifier.
+- **Isolation unavailable during ZPA maintenance**: "If ZPA is undergoing a maintenance period, Isolation might not be available" per the ZPA Isolation Policy doc. Temporary operator-visible failure mode not common in other products.
+- **M&U subscription tier user can't configure isolation profile settings**: tier limits the profile to pre-set values; upgrade required to unlock. See [`../zbi/policy-integration.md § Miscellaneous & Unknown`](../zbi/policy-integration.md).
+
 ## Common cross-product question shapes
 
 Routing hints for question patterns that often hit these hooks. Use this section to pre-empt "I asked about ZIA but the answer is really about ZPA/ZCC."
@@ -200,6 +219,10 @@ Routing hints for question patterns that often hit these hooks. Use this section
 | "ZDX has no data for this user" | ZCC entitlement not granted — user can't report telemetry | [`../zcc/entitlements.md`](../zcc/entitlements.md), then [`../zdx/overview.md`](../zdx/overview.md) |
 | "ZDX probe works but real traffic fails" | SSL Inspection skipped on synthetic probes only | [`../zdx/probes.md § Web probes`](../zdx/probes.md) |
 | "ZDX data residency question" | Analytics backend is Microsoft Azure Data Explorer | [`../zdx/overview.md`](../zdx/overview.md) |
+| "Isolate URL Filter rule matches but user doesn't get isolated" | SSL Inspection not decrypting that URL | [`../zbi/policy-integration.md`](../zbi/policy-integration.md), then [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md) |
+| "Smart Isolation doesn't fire on suspicious sites" | Malware Protection inspection toggles off | [`../zbi/policy-integration.md § Smart Browser Isolation`](../zbi/policy-integration.md) |
+| "Can't change copy/paste or file-transfer setting on isolation profile" | Miscellaneous & Unknown subscription tier locks those fields | [`../zbi/policy-integration.md § Miscellaneous & Unknown`](../zbi/policy-integration.md) |
+| "Isolated session times out fast / unexpectedly" | ZPA Isolation uses min of all ZPA timeouts, or 10-min idle container timeout | [`../zbi/overview.md`](../zbi/overview.md) |
 
 ## The recurring patterns
 

@@ -50,7 +50,10 @@ Zscaler has renamed several core components over time without fully purging the 
 | Nanolog cluster | — | — | Log storage cluster; receives compressed/tokenized logs from Service Edges |
 | Zscaler Feed Central | — | — | Separate Zscaler cloud that distributes threat/URL/AV feeds to per-region CAs |
 | SaaS Application Control | **Cloud App Control (CAC)** | UI paths still say `SaaS Application Control > Policies`; docs and field conventions still say "Cloud App Control" | Policy module for controlling cloud-app access + granular in-app actions |
-| Zero Trust Browser | **Cloud Browser Isolation** | `Cloud Browser Isolation` appears as a Device Group value | Browser-based isolation of web traffic |
+| Zero Trust Browser | **Cloud Browser Isolation** / CBI, **Zscaler Isolation** (legacy) | `Cloud Browser Isolation` appears as a Device Group value; SDK module named `zbi` | Browser-based isolation of web traffic. Renders pages in ephemeral cloud container, streams result to native browser. See `references/zbi/`. |
+| Turbo Mode | (same) | Per-isolation-profile flag | ZBI rendering optimization — sends browser instructions instead of pixels; requires WebGL/WebGL2; not available on IE11. |
+| Isolation profile | Browser Isolation Profile | — | ZBI config object specifying how an isolated session behaves (Turbo Mode, copy/paste/print/file-transfer allows, region, watermarking, etc.). Separate objects for ZIA and ZPA use. |
+| Smart Browser Isolation | Smart Isolate | UI path: Policy > Secure Browsing > Smart Isolate | ZIA policy that auto-isolates suspicious sites via AI/ML. Requires Malware Protection inspection toggles enabled; auto-creates an SSL Inspection rule. |
 | Zscaler Admin Console | ZIA Admin Portal, ZPA Admin Portal (per product) | — | UI for policy config and reporting |
 
 ## Why the confusion matters for the skill
