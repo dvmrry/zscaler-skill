@@ -104,7 +104,33 @@ Client-side settings that shape ZIA's visibility.
 
 Both actions delegate auth-challenge presentation to ZIdentity. A tenant without ZIdentity configured can't use either action type, regardless of which product owns the rule.
 
-**Failure mode**: operator configures a Conditional rule in ZIA URL Filtering expecting it to work everywhere; it silently doesn't fire for users forwarded via GRE/IPSec (non-ZCC paths). Only the ZCC forwarding path carries the identity context needed for step-up auth.
+**OIDC-only constraint**: per [`../zidentity/step-up-authentication.md`](../zidentity/step-up-authentication.md), step-up requires an OIDC IdP integration. **A tenant on SAML-only IdP integration silently fails to step up** — Conditional and Require Approval rules match but don't produce the MFA prompt. This is a doc-level warning that should surface in any skill answer about these two actions for SAML-IdP tenants.
+
+**Authentication Levels** are a tenant-wide tree (max 32, max depth 4). Both ZIA Conditional and ZPA Require Approval rules pull from the same level tree — you can't define ZIA-only or ZPA-only levels. See [`../zidentity/step-up-authentication.md § Authentication Levels`](../zidentity/step-up-authentication.md).
+
+**Failure modes:**
+
+- **Conditional rule fires for a GRE/IPSec-forwarded user**: no MFA prompt delivered (no ZCC channel); user just sees "access denied."
+- **Conditional rule on a SAML-IdP tenant**: prompt never appears; session never elevates. Migrate to OIDC or don't use Conditional.
+- **Authentication level validity configured backwards**: admin intuition is "parent = short validity, child = long validity" because children are more specific/sensitive. ZIdentity requires the **opposite**: parent validity must be less than child. Save fails with validation error. See [`../zidentity/step-up-authentication.md § The validity inversion`](../zidentity/step-up-authentication.md).
+- **OIDC `acr` value drift**: external IdP team changes the `acr` value without updating the ZIdentity mapping; step-up elevations stop being recognized. Diagnose via token inspection.
+
+### ZIdentity → all products (OneAPI authentication)
+
+**All OneAPI authentication flows through ZIdentity.** Scripts, SDKs, Terraform providers, and direct HTTP callers authenticate as ZIdentity API Clients (OAuth 2.0 client credentials), receive tokens, and present them to the OneAPI gateway. See [`../zidentity/api-clients.md`](../zidentity/api-clients.md).
+
+**Cross-product implications**:
+
+- **API client scope restricts product access.** A client scoped only to `zia.*` can't reach ZPA or ZDX endpoints regardless of tenant configuration. Always the first thing to check on 403 responses.
+- **Token TTL is tenant-wide** — not per-product. A long-running script that's working fine for ZIA calls will also work for ZPA calls until the shared token expires.
+- **Client secret rotation invalidates all callers immediately** — rotating the secret for a single automation breaks every script/CI/TF pipeline that shared it. Plan rotations.
+- **Legacy-auth tenants can't use OneAPI.** They use per-product auth paths and don't have ZIdentity. Fork admins on legacy tenants need a different auth setup per [`../zia/api.md § Legacy`](../zia/api.md) and [`../zpa/api.md`](../zpa/api.md).
+
+### ZIdentity → all products (user/group/department/location sync)
+
+**ZIdentity is the source-of-truth for user directory data** that ZIA, ZPA, ZDX, and ZBI all reference in their policy rules. Other products pull from ZIdentity on a periodic sync — not real-time. See [`../zidentity/overview.md § Cross-product user sync`](../zidentity/overview.md).
+
+**Failure mode**: admin adds user or group to ZIdentity and expects it to immediately appear in ZIA URL Filter rule dropdowns / ZPA Access Policy criteria. Sync latency is minutes-to-hours. Wait and refresh; this is not a bug.
 
 ### SSL Inspection → everything content-based
 
@@ -223,6 +249,10 @@ Routing hints for question patterns that often hit these hooks. Use this section
 | "Smart Isolation doesn't fire on suspicious sites" | Malware Protection inspection toggles off | [`../zbi/policy-integration.md § Smart Browser Isolation`](../zbi/policy-integration.md) |
 | "Can't change copy/paste or file-transfer setting on isolation profile" | Miscellaneous & Unknown subscription tier locks those fields | [`../zbi/policy-integration.md § Miscellaneous & Unknown`](../zbi/policy-integration.md) |
 | "Isolated session times out fast / unexpectedly" | ZPA Isolation uses min of all ZPA timeouts, or 10-min idle container timeout | [`../zbi/overview.md`](../zbi/overview.md) |
+| "Conditional Access / Require Approval doesn't prompt for MFA" | Either SAML IdP (step-up is OIDC-only) or non-ZCC forwarding path | [`../zidentity/step-up-authentication.md`](../zidentity/step-up-authentication.md) |
+| "Can't save authentication level — validation error on validity" | Parent-child validity inversion: parent MUST be less than child | [`../zidentity/step-up-authentication.md § The validity inversion`](../zidentity/step-up-authentication.md) |
+| "API call returns 403 for a specific product" | API client scope doesn't include that product's resource server | [`../zidentity/api-clients.md`](../zidentity/api-clients.md) |
+| "New user added to ZIdentity but not showing in ZIA/ZPA" | Sync latency — minutes to hours, not real-time | [`../zidentity/overview.md § Cross-product user sync`](../zidentity/overview.md) |
 
 ## The recurring patterns
 

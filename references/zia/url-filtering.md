@@ -86,7 +86,7 @@ Five user-configurable actions, per *Configuring the URL Filtering Policy* pp.10
 | Caution | EUN before allowing | Custom redirect URL supported |
 | Block | Deny | EUN or redirect; supports Allow Override for specific users/groups |
 | Isolate | Remote browser | Requires Zero Trust Browser (ZBI). Produces a 302 redirect to an isolation profile URL; ephemeral cloud browser container renders the page, streams result to user's browser. Needs SSL Inspection decrypt for HTTPS. See [`../zbi/overview.md`](../zbi/overview.md) and [`../zbi/policy-integration.md`](../zbi/policy-integration.md). |
-| Conditional | Step-up auth before allowing | Requires ZIdentity + Client Connector forwarding; not supported via Service Edges |
+| Conditional | Step-up auth before allowing | Requires ZIdentity + Client Connector forwarding; not supported via Service Edges. **OIDC IdP required** — SAML IdP integrations don't support step-up. See [`../zidentity/step-up-authentication.md`](../zidentity/step-up-authentication.md). |
 
 Each action has caveats around SSL Inspection and EUN settings — see `ssl-inspection.md` for how SSL state affects action enforceability.
 

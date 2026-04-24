@@ -99,7 +99,7 @@ The authoritative version is *Configuring Access Policies* p.3:
 - **Conditional Access** — step-up authentication. Requires ZIdentity subscription. Forces additional authentication match before granting access.
 - **Allow with Privileged Approval** (checkbox on Allow-action rules) — only for Privileged Remote Access; primarily for PRA-enabled application segments. Contact Zscaler Support for setup.
 
-"Require Approval" from About Access Policy is likely an informal name for Conditional Access or Allow with Privileged Approval — see [clarification `zpa-06`](../_clarifications.md#zpa-06-require-approval-action-semantics).
+"Require Approval" from About Access Policy is likely an informal name for Conditional Access or Allow with Privileged Approval — see [clarification `zpa-06`](../_clarifications.md#zpa-06-require-approval-action-semantics). The step-up authentication mechanism behind these actions lives in ZIdentity — see [`../zidentity/step-up-authentication.md`](../zidentity/step-up-authentication.md). **OIDC IdP integration required** — SAML IdPs don't support step-up.
 
 ### SDK-visible fields not surfaced in help docs
 

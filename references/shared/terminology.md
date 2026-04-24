@@ -41,7 +41,12 @@ Zscaler has renamed several core components over time without fully purging the 
 | Forwarding Profile | ZCC Forwarding Profile, Web Forwarding Profile (in `webForwardingProfile` API path) | `forwardingProfileActions` / `forwardingProfileZpaActions` in snapshot JSON | ZCC policy object: per-network-type rules for where to send traffic (ZIA/ZPA/direct) |
 | Trusted Network | (same) | `trustedNetworkContracts` wrapper in ZCC list responses | Named set of criteria ZCC uses to classify the current network as "trusted" |
 | App Profile (ZCC) | Device Profile, ZCC App Profile | — | **Not in API.** Admin-portal-only object that selects a Forwarding Profile for a device/user. See `clarification zcc-07`. |
-| ZIdentity | — | `ZSCALER_VANITY_DOMAIN` env var points here | Unified identity service; OneAPI OAuth flows run here |
+| ZIdentity | — | `ZSCALER_VANITY_DOMAIN` env var points here | Unified identity service; OneAPI OAuth flows run here. See `references/zidentity/`. |
+| Authentication Level | Auth Level, AL1-AL4 | `acr` claim in OIDC tokens | ZIdentity hierarchical tier of auth strength. Referenced by ZIA Conditional and ZPA Require Approval actions for step-up auth. Max 32 levels, max depth 4. |
+| Step-Up Authentication | Conditional Access, Require Approval | — | ZIdentity feature: re-prompt for stronger auth when accessing sensitive resources. **OIDC-only** — SAML IdPs don't support it. Prompts delivered via ZCC. |
+| OneAPI | Zero Trust Cloud API, Zscaler OneAPI | Endpoint prefix: `/{product}/api/v1/` behind a single OAuth gateway | Unified API framework across all Zscaler products with OAuth 2.0 via ZIdentity. Replaces per-product legacy auth. |
+| API Client | OneAPI API Client | `ZSCALER_CLIENT_ID` env var | ZIdentity OAuth 2.0 client-credentials identity used for programmatic API access. Portal-only creation. |
+| Resource Server | API Resource | — | OneAPI term for a Zscaler service accessible via the gateway (ZIA, ZPA, ZDX each = one resource server). API client scopes reference resource servers. |
 | LWF Driver | (same) | `enableLWFDriver` flag on Forwarding Profile | Windows Lightweight Filter — low-level packet interception driver |
 | Zscaler Internet Access (ZIA) | Internet & SaaS (ZIA) is the newer rename; legacy was just "ZIA" | — | Internet security product line |
 | Zscaler Private Access (ZPA) | (same) | — | Private app access product line |
