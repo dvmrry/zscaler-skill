@@ -160,12 +160,24 @@ The user caught this in review and asked for the protocol to be written down. Th
 
 ### Stage 2 — Source-check sequence (initial pass)
 
-1. TF validator: `vendor/terraform-provider-zia/zia/validator.go:1402` lists `"THE_NETHERLANDS_EUROPE_AMSTERDAM"` as a documented enum value. **Tier A: write-side enum confirmed.**
-2. TF validator: `validator.go:887` lists `"NETHERLANDS_ANTILLES":` (no `THE_` prefix). **Tier A: prefix is selective.**
-3. ZTC TF validator: `vendor/terraform-provider-ztc/ztc/validator.go:24` uses `"NETHERLANDS_EUROPE_AMSTERDAM"` (unprefixed). **Tier A: cross-provider validator drift.**
-4. ZIA TF resource: `resource_zia_location_management.go:89` has `validateLocationManagementTimeZones` commented out — schema doesn't enforce; API does.
-5. Python SDK model: no enum / no normalization extracted from initial scan.
-6. The read-side claim ("API returns the unprefixed form") — **no direct source observation**. At this stage, classified as **tier C**.
+1. ZIA TF validator: `vendor/terraform-provider-zia/zia/validator.go:1402` lists `"THE_NETHERLANDS_EUROPE_AMSTERDAM"` as a documented enum value. **Tier A: write-side enum confirmed.**
+2. ZIA TF validator: `validator.go:887` lists `"NETHERLANDS_ANTILLES":` (no `THE_` prefix). **Tier A: prefix is selective.**
+3. ZIA TF resource: `resource_zia_location_management.go:89` has `validateLocationManagementTimeZones` commented out — schema doesn't enforce; the ZIA API does.
+4. Python SDK model: no enum / no normalization extracted from initial scan.
+5. The read-side claim ("ZIA API returns the unprefixed form") — **no direct source observation**. At this stage, classified as **tier C**.
+
+### Stage 2.5 — Initial framing mistake (caught later, preserved here as a lesson)
+
+In an earlier draft of this worked example, the chain table included a fourth tier-A link: "ZTC TF validator uses `NETHERLANDS_EUROPE_AMSTERDAM` (unprefixed)" — a citation to `terraform-provider-ztc/ztc/validator.go:24`. The reviewer caught this and asked: "But our TF was for ZIA Location Management."
+
+The reviewer was right. The ZTC observation:
+- Is a verifiable fact about the **ZTC TF validator file's content** (tier A on that narrow claim).
+- Is **NOT verified about ZTC's actual API behavior** — the validator file could be accurate, stale, or wrong relative to the ZTC API. We never tested ZTC.
+- **Bears nothing on the ZIA-only workflow** (Python SDK reads ZIA → ZIA TF resource writes ZIA). ZTC isn't in the call path.
+
+Including it in the chain conflated two findings: (a) the verified ZIA-internal asymmetry, and (b) an unverified observation about cross-provider validator drift. Treating (b) as if it strengthened (a) is a logic error — the ZIA-internal chain stands on its own without (b), and (b) needs its own separate verification before any "ZIA-vs-ZTC" claim can be made.
+
+**Lesson encoded into the protocol:** even tier-A citations to a source's *content* can become tier-D *inference* when extrapolated beyond what the source actually establishes. Always ask: "does this source support the conclusion I'm making, or just a narrower claim that I'm extending?"
 
 ### Stage 3 — Operator workflow context arrives
 
@@ -179,33 +191,34 @@ This adds two more tier-A links to the chain.
 
 ### Stage 4 — Chain-of-evidence promotion (tier C → tier B)
 
-Combining the four tier-A sources with the operator workflow:
+Combining the tier-A sources with the operator workflow — **all within the ZIA path**:
 
 | Link | Source | Tier |
 |---|---|---|
 | Write-side requires `THE_` prefix | `terraform-provider-zia/zia/validator.go:1402` | A |
 | Selective application (Antilles unprefixed) | `validator.go:887` | A |
-| ZTC validator uses unprefixed form | `terraform-provider-ztc/ztc/validator.go:24` | A |
+| ZIA TF resource validator commented out at schema level | `resource_zia_location_management.go:89` | A |
 | Python SDK does not normalize `tz` | `zscaler-sdk-python/.../models/location_management.py:43` | A |
-| TF apply on the value Python read fails | Operator workflow under documented conditions | B |
+| ZIA TF apply on the value Python read fails | Operator workflow under documented conditions | B |
 
-**Conclusion:** since the SDK passes through verbatim and TF/the API reject the unprefixed value, the API itself must be returning the unprefixed value on read — there's no plausible alternative transformation in the chain. The read-side stripping is now **tier-B verified through chain of evidence**.
+**Conclusion:** since the Python SDK passes through verbatim and the ZIA TF resource doesn't filter, the value rejected by the ZIA API on write is exactly what the ZIA API returned on read. The ZIA API itself has the asymmetry — there's no intermediate component that could plausibly account for the prefix change. The read-side stripping is **tier-B verified through chain of evidence, all within the ZIA call path**.
 
 ### Stage 5 — Final encoding
 
 The threaded text in `references/zia/locations.md` and the `references/zia/api.md` aggregator now reflects:
 
-- Write-side enum: tier A (direct citation)
-- Cross-provider validator drift: tier A (direct citation)
-- Read-side stripping: tier B (chain-of-evidence verification, listed link by link)
-- Extension to other "the"-article countries: tier D (inference, marked as such, not encoded as fact)
+- Write-side enum (ZIA): tier A (direct citation)
+- Read-side stripping (ZIA API): tier B (chain-of-evidence verification, listed link by link)
+- ZTC validator file content: tier A as a *narrow* observation, but separated as a side note clearly outside the ZIA chain — and explicitly flagged as "ZTC API behavior unverified" so the observation isn't extended into a behavior claim.
+- Extension to other "the"-article countries: tier D (inference, marked as such, not encoded as fact).
 
 ### What this example demonstrates about the protocol
 
-1. **Reviewer pushback works.** The user's "didn't I ask you to verify before adding?" caught a violation that would have otherwise drifted into the doc as fact.
+1. **Reviewer pushback works.** The first round of pushback ("didn't I ask you to verify before adding?") caught the over-claimed "verified" language. The second round ("our TF was for ZIA Location Management") caught an irrelevant link smuggled into the chain. Both corrections were necessary; without them, two different over-claims would have drifted into the doc as fact.
 2. **Operator context is evidence, not authority.** The workflow detail (Python → YAML → TF) didn't elevate the claim because the user said so — it elevated the claim because it allowed source inspection of intermediate components, ruling out alternatives.
 3. **The protocol's tiers are stable across more evidence.** What changed wasn't the protocol; it was how much tier-A material the chain rests on. As more sources are checked, candidates can be promoted; as fewer are available, claims stay tier C.
 4. **Language matters.** "Verified" got us in trouble in stage 1 because it overstated. Stage 5 uses "verified through chain of evidence" with the chain explicit — readers can audit it.
+5. **Even tier-A citations can become tier-D inference if you extend them beyond what the source supports.** The ZTC validator file content is a fact about the ZTC validator file — not about the ZTC API. Pulling it into a chain about ZIA behavior conflated two different things. The protocol's "verify per link, not per finding" discipline applies even to tier-A material.
 
 ## Adversarial-input scenarios — what to do
 
