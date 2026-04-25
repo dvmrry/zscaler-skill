@@ -223,3 +223,7 @@ Expect to do this periodically — upstream SDK / TF provider releases add new r
 - **Z-Tunnel wire-format internals are not customer-documented.** `references/zcc/z-tunnel.md` covers the operational layer (CONNECT-vs-DTLS, single-IP-NAT requirement, GRE incompatibility, 4-layer bypass architecture). Protocol-level questions (framing, cipher, fallback triggers) remain Zscaler Support territory.
 - **Federal Cloud** (`zscalergov`, `zscalerten`, ZPA GOV/GOVUS) — explicitly out of scope. Most behavior inherits from commercial; gov-specific paths not covered.
 - **Out-of-scope products:** ZMS (microsegmentation), ZINS (shadow IT), EASM, ZAI Guard. Vendored in the Go/Python SDKs but not written up.
+
+## License
+
+Licensed under FSL-1.1-Apache-2.0 (Functional Source License, Apache 2.0 Future License). See [`LICENSE.md`](./LICENSE.md). Personal, internal, educational, and non-commercial use is permitted; commercial bundling into products or services that compete with this work requires a separate license. Each version converts to Apache 2.0 two years after release.
