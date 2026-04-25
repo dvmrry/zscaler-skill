@@ -568,7 +568,7 @@ def render_report(candidates: dict) -> str:
         for field, sets_per_provider, vs in sorted(candidates["cross_provider"]):
             lines.append(f"### `{field}`")
             for provider, sets in sorted(sets_per_provider.items()):
-                for s in sets:
+                for s in sorted(sets):
                     files = sorted(
                         {v.resource_file for v in vs if v.provider == provider and v.values == s}
                     )
@@ -590,7 +590,7 @@ def render_report(candidates: dict) -> str:
         lines.append("")
         for field, provider, sets, vs in sorted(candidates["intra_provider"]):
             lines.append(f"### `{provider}.{field}`")
-            for s in sets:
+            for s in sorted(sets):
                 files = sorted({v.resource_file for v in vs if v.values == s})
                 truncated = list(s) if len(s) <= 12 else list(s[:10]) + [f"...({len(s)} total)"]
                 lines.append(f"- `{', '.join(files)}` → `{truncated}`")
