@@ -242,6 +242,16 @@ Distilled from the MCP server's `commands/audit-ssl.md` and `skills/zia/audit-ss
 - **User / device criteria require Client Connector (or Surrogate IP).** SSL Inspection rules that match on User, Group, Department, or Device Group only fire correctly when traffic is forwarded via Zscaler Client Connector (or GRE/IPSec with Enforce Surrogate IP). Under plain GRE/IPSec without surrogate-IP, user identity isn't available pre-inspection, so identity-based SSL rules silently miss. (*Leading Practices Guide*, p.14.)
 - **Untrusted-cert Caution vs Block.** "Caution" lets users click through past a cert warning — but on an untrusted server cert this means letting them continue to a potentially malicious destination. Leading Practices recommends Block.
 - **OCSP check timing.** OCSP revocation check happens *after* the cert chain validates as syntactically correct. A cert that's correctly structured but recently revoked is caught only if OCSP is enabled. Disabled by default on exemption rules.
+- **Show-Notifications dependency chain.** Three options compose conditionally:
+  - `Show Notifications for Blocked Traffic` (parent) — requires Zscaler/enterprise root CA in client truststore, otherwise users see invalid-cert warning instead of EUN.
+  - `Show Notification for ATP Blocks` only appears when the parent is enabled.
+  - `Override Default Intermediate CA Certificate` only appears when the parent is enabled.
+  Configuring ATP-block notifications without first enabling the parent gives no UI path to the toggle. When the parent is **disabled**, the service resets the connection with a generic failed-connection message — no EUN at all. (*Configuring SSL/TLS Inspection Policy* lines 61–67.)
+
+## Limits
+
+- **255 SSL Inspection rules total** = 245 custom + 10 predefined. Tighter than DLP (1,024) and several other policy types; large enterprises with hundreds of per-application exemption rules hit this cap and need to consolidate via destination groups rather than file a support ticket. The cap is NOT raisable.
+- **Rule name max length: 31 characters.** Lower than most other ZIA policies (which allow 128+). Automation scripts that generate descriptive rule names from app metadata will silently truncate — names get rejected at rule-save time. Source: *Configuring SSL/TLS Inspection Policy* line 27.
 
 ## Worked example (covers eval Q4)
 

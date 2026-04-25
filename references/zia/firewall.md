@@ -185,6 +185,22 @@ Documented separately (*About FTP Control*, not captured in this pass). In outli
 
 6. **ATP-before-IPS evaluation is silent.** An ATP block pre-empting an IPS rule won't show up in IPS logs at all. Debug both layers when a block looks unexpected — check `malware-and-atp.md § Blocked Policy Type` log field for the discriminator.
 
+## Rule count limits
+
+| Policy | Limit | Notes |
+|---|---|---|
+| Firewall Filtering — Standard tier | **10 rules** | Hard cap; surprising for orgs migrating from on-prem firewalls expecting unlimited rules |
+| Firewall Filtering — Advanced tier | **1,021 rules** | |
+| SSL Inspection | 255 rules total (245 custom + 10 predefined) | Tighter than DLP; can't be raised |
+| DNS Control — Essential | 64 rules | |
+| DNS Control — Advanced | 1,000 rules | |
+| Destination Groups — FQDNs per group | **100 default → 8,000 with Advanced Firewall** | The 100-FQDN-per-group default is a silent policy gap for FQDN-heavy rules without Advanced |
+| URL Filtering | 1,000 rules | Raisable via support |
+| DLP | 1,024 (→ 2,048 via support) | |
+| All Other Policy Rules (DLP + IPS bucket) | 1,024 (→ 2,048 via support) | |
+
+The Standard-tier 10-rule Firewall Filtering cap is the most operationally consequential — almost any non-trivial deployment outgrows it immediately. Source: *Ranges and Limitations* lines 174-191.
+
 ## Cross-links
 
 - Rule scoping by Location / Location Group: [`./locations.md`](./locations.md).

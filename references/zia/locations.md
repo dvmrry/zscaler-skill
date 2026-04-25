@@ -151,6 +151,8 @@ An **Extranet Location Type** groups locations assigned to a specific extranet (
 
 5. **A single location/sublocation can be in many groups.** No mutual-exclusion check at the group level — a location can be in the Corporate User Traffic predefined group + a Manual group for US + a Dynamic group for "has SSL Inspection on" simultaneously. Rules across all three groups all apply. This is powerful but makes "which rules apply to this location" non-obvious; the skill should always recommend enumerating all group memberships before reasoning about policy coverage.
 
+6. **`Location Type` selection auto-populates predefined Dynamic Groups at write time.** Creating a location/sublocation with `Location Type = Workload traffic` silently adds it to the **Workload Traffic Group** at creation time — no explicit group-membership choice required. Same for `Corporate user traffic` (→ Corporate User Traffic Group), `Guest Wi-Fi traffic`, `IoT traffic`, `Server traffic`. An admin creating a sublocation for Cloud Connector workloads doesn't see this happen explicitly — it's a write-time side effect — and immediately becomes subject to all policies scoped to that predefined group. Always check predefined-group memberships of newly-created locations before considering them "policy-isolated." Source: *Configuring Dynamic Location Groups* lines 18–21.
+
 ## Cross-links
 
 - Rule scoping examples: [`./url-filtering.md`](./url-filtering.md), [`./ssl-inspection.md`](./ssl-inspection.md), [`./cloud-app-control.md`](./cloud-app-control.md).

@@ -166,6 +166,42 @@ Codified from the Deployment Best Practices article for quick reference in skill
 - **Packet filter driver is required for both** — Tunnel Driver Type selection of anything else (e.g. Route-Based on some legacy configs) disables Z-Tunnel 2.0 capability.
 - **Protocol internals are not fully documented.** The Zscaler help site describes what Z-Tunnel 2.0 does (DTLS/TLS, packet-level) but not the wire-format internals (framing, reconnection, keepalive mechanics). Wireshark captures against a Public Service Edge are the only way to inspect lower-level behavior — Zscaler Support engagements cover the protocol's exact shape under NDA.
 
+## Bypass conflict resolution priority (Z-Tunnel 2.0)
+
+When Destination Exclusions and Inclusions overlap on Z-Tunnel 2.0, resolution is deterministic. Priority order:
+
+1. **More specific netmask wins.** `/32` beats `/24` beats `/16`.
+2. **If same netmask, more specific by field count wins.** Port > protocol > subnet — a rule that specifies (subnet, protocol, port) wins over one that specifies (subnet, protocol) wins over one that specifies (subnet) only.
+3. **If identical specificity, INCLUSION wins over EXCLUSION.**
+
+Source: *Best Practices for Adding Bypasses for Z-Tunnel 2.0* lines 43–49.
+
+Operators debugging "why is this destination tunneled when I excluded it" should walk the priority order top-to-bottom — usually a more-specific inclusion is winning.
+
+## Z-Tunnel 1.0 vs 2.0 — bypass-config incompatibility
+
+**Network bypasses must NOT be added to the same place across tunnel modes.** The Z-Tunnel 1.0 vs 2.0 bypass mechanisms are distinct:
+
+| Tunnel mode | Where bypasses live |
+|---|---|
+| **Z-Tunnel 1.0** | PAC file (the app-profile PAC) |
+| **Z-Tunnel 2.0** | App profile's **VPN Gateway bypass** OR **Destination Exclusions** — NOT the PAC file |
+
+**Critical**: do not add network bypasses to the Z-Tunnel 2.0 app profile's PAC file expecting them to take effect — they don't. Z-Tunnel 2.0 ignores PAC-based network bypasses (PAC is still consulted for proxy-routing decisions but not for tunnel-bypass decisions). An operator migrating a 1.0 deployment to 2.0 by copying PAC bypasses gets no bypass effect on 2.0 traffic.
+
+Source: *Best Practices for Adding Bypasses for Z-Tunnel 2.0* lines 19–20.
+
+## Z-Tunnel 2.0 + GRE = performance degradation
+
+**Do not route Z-Tunnel 2.0 traffic through GRE tunnels.** The double-encapsulation creates overhead and potential MTU fragmentation that degrades performance noticeably.
+
+Mitigation options for GRE-deployed offices:
+
+1. **Configure forwarding profile to fall back to Z-Tunnel 1.0 when Trusted Network Criteria are met.** On-LAN users (already inside the GRE pipe to the perimeter) use 1.0; remote users get 2.0.
+2. **Configure a policy-based route to exclude Z-Tunnel 2.0 traffic from the GRE tunnel.** Z-Tunnel 2.0 takes a separate egress path, GRE handles only non-Zscaler traffic.
+
+Either works; the GRE-as-default with no exclusion strategy is the failure mode. Source: *Best Practices for Deploying Z-Tunnel 2.0* lines 43–46.
+
 ## Open questions
 
 - Wire-format protocol details (framing, keepalive, session resumption) — not customer-documented. Zscaler Support / SE engagement territory.

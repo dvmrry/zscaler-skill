@@ -91,8 +91,11 @@ The unqualified `${GATEWAY}` on a subcloud tenant may resolve to the subcloud PS
 | PAC files per organization | 256 | 1,024 |
 | Size per PAC file | 256 KB | 2 MB |
 | **Versions per PAC** | 10 | 10 (cap) |
+| **Non-ASCII characters in a PAC file** | **12% of file size (binary)** | n/a |
 
 10-version history enables staged rollouts — author a new version, test via a small population, promote to current. There is no native canary or percentage-rollout primitive; staging is done by pointing selected users at a versioned URL.
+
+The 12% non-ASCII cap is rarely-discussed but real: PAC files with verbose Unicode comments, non-English hostnames, or BOM markers can silently fail save validation. Standard ASCII-only PAC files don't hit it; PAC files mirroring documentation in non-Latin scripts can. Source: *Ranges and Limitations* line 160.
 
 ## How each Zscaler product consumes PAC files
 

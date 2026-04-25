@@ -185,6 +185,18 @@ The SDK does **not** expose:
 - **Provisioning keys copied from the portal UI** can silently include trailing whitespace. Operators pasting the key into a deployment template should trim whitespace; the `notice:Login request failed - http status(401)` error in the error log is the giveaway.
 - **Nearest-App-Connector selection** uses app-to-connector latency from Zscaler's continuous measurements, not static geography. A connector that's geographically far but has a fast link to the app can be preferred. Can be counter-intuitive for operators expecting pure geo-based routing.
 - **App Connector VM sizing** depends on concurrent-user count, app throughput, and inspection feature set (Double Encryption, AppProtection add overhead). Zscaler publishes sizing guidance in their reference architecture PDFs; not captured in depth here.
+- **App Connector Group must associate with both a Server Group AND a provisioning key** to serve any traffic. A group with no Server Group association silently fails to route traffic — the admin console doesn't flag the partial config as invalid. The same applies to network reachability: only associate Connector Groups with applications the connectors can actually reach. Source: *About Connector Groups* lines 16-17.
+
+## Logging — LSS retransmit window is shorter than NSS
+
+ZPA's Log Streaming Service (LSS) is the equivalent of ZIA's NSS for Private Access logs, but with **stricter retransmit semantics** that catch operators off-guard:
+
+- **Connectivity gap between Private Access and the App Connector** → LSS can retransmit at most **the last 15 minutes** of log data after restoration, and **delivery is not guaranteed**. The 15-minute window vs. ZIA NSS's 60-minute opt-in recovery is a 4× difference.
+- **Connectivity gap between the App Connector and the SIEM** → no retransmit at all (audit logs are the exception). Logs generated during this gap are permanently lost from the SIEM stream.
+
+Implication: a 30-minute App Connector outage = roughly 15 minutes of permanent ZPA log gap, even with retransmit configured. Operators familiar with NSS's 60-minute recovery often assume LSS matches; it doesn't. Source: *About the Log Streaming Service* lines 61-62.
+
+See also [`../shared/nss-architecture.md § Surprises`](../shared/nss-architecture.md) where this is cross-referenced.
 
 ## Open questions
 

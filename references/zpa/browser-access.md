@@ -114,7 +114,7 @@ From `resource_zpa_application_segment_browser_access.go`:
 
 1. **Users without ZCC and without Browser Access = no access.** Some tenants enable BA on only a subset of apps; the others are effectively ZCC-only. Browser Access is opt-in per application inside a segment; it's not a segment-level bundle.
 
-2. **Backend SSL warnings on different-hostname configs are not a bug.** They're the cert-mismatch described above. Either accept them (and document), or switch to same-hostname, or put a Zscaler-managed cert on the backend.
+2. **Backend SSL warnings on different-hostname configs are not a bug — they're EXPECTED and DOCUMENTED Zscaler behavior.** When external and internal hostnames differ, the backend cert can't be validated against the external FQDN, so end users see a web-server cert error. This is the documented expected behavior, not misconfiguration. Help-desk tickets routinely report "internal app via Browser Access shows cert error" for this exact scenario. Either: accept and document (most common), switch to same-hostname (cleanest), or install a cert on the backend whose CN matches the external name. Source: *About Browser Access* lines 34–37.
 
 3. **Browser cipher-support drift.** A browser that fails TLS to the Zscaler ingress usually means the cipher suite `ECDHE-RSA-AES128-GCM-SHA256` isn't in its preferred list. Rare on modern browsers; common on ancient embedded browsers (old IE in legacy VDIs, some appliance WebKit builds).
 

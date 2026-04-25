@@ -117,6 +117,18 @@ Bandwidth Control sits **alongside** URL Filtering / CAC / DLP / SSL Inspection 
 
 **Implication:** traffic blocked at Firewall Control never reaches the Bandwidth Control rule list. Bandwidth Control only shapes traffic that Firewall has allowed.
 
+## Limits (per *Ranges and Limitations*)
+
+| Object | Limit | Notes |
+|---|---|---|
+| Bandwidth Control policy rules | **125 rules** | Lower than most other ZIA policies; per-department / per-app rule designs hit this earlier than expected |
+| Predefined bandwidth classes | 8 | Not deletable; can add domains |
+| Custom bandwidth classes | 245 | |
+| Bandwidth classes with custom domains | 8 | Hard cap on classes using the domains field |
+| Domains across all bandwidth classes | 25,000 | Including those contributed by URL categories |
+| File Type Control rules (parallel limit, since FTC interacts with bandwidth) | 2,048 | |
+| File Type Control file size scan cap | 400 MB | Files larger pass through unscanned |
+
 ## Surprises worth flagging
 
 1. **The "custom domains" cap is a class count, not a domain count.** You can have 24,000 domains distributed across 8 classes + thousands more classes using URL-Category matching only. Tenants hitting the 8-class cap often conflate domain count with class count.

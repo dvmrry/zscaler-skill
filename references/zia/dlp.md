@@ -170,6 +170,24 @@ Not deeply covered here.
 - **DLP rule scope depends on SSL Inspection rule scope.** DLP can't scope tighter than SSL Inspection decrypts. If SSL Inspection decrypts only a subset of traffic, DLP's effective scope is that subset regardless of what the DLP rule's criteria say.
 - **Large file uploads time out before DLP completes.** For files close to the 400 MB cap, DLP may take long enough that the HTTP connection's underlying timeout intervenes. Investigate with Web Insights — look for "DLP pending" or timeout states in log records.
 
+## Surprises worth flagging
+
+These are configuration combinations and behaviors that silently fail or behave non-obviously. Each is a real operator footgun.
+
+1. **`Inspect Downloads` does NOT apply to EDM or IDM engines.** When `Inspect Downloads` is enabled, the rule scope is silently restricted — Exact Data Match and Indexed Data Matching engines are excluded from the download direction. An operator enabling download-DLP for EDM (e.g., to catch exfiltration of exact employee records) gets no coverage. Additionally, when `Inspect Downloads` is on, you must set `Any` for URL Categories AND select at least one Cloud Application — otherwise the rule won't save. Source: *Configuring DLP Policy Rules and Content Inspection* line 169.
+
+2. **Unauthenticated traffic + group/department scope is mutually exclusive.** Any DLP rule that applies to unauthenticated traffic must set `Any` for **both** Groups AND Departments. You cannot scope an unauthenticated-DLP rule to a specific group subset — the constraint surfaces only at rule save time, not during design. Source: *Configuring DLP Policy Rules and Content Inspection* lines 136–137.
+
+3. **`Confirm` action auto-blocks on dialog timeout.** If the user-confirmation message times out without the end user taking action, the Zscaler service automatically cancels (blocks) the transaction. Operators treating Confirm as a "soft gate where the user can always justify and proceed" don't realize the fallback is hard-cancel — relevant for flaky / slow / tab-buried sessions where the dialog never gets attention. Source: *Configuring DLP Policy Rules and Content Inspection* line 184.
+
+4. **Evidence files >100 MB are silently replaced with `.txt` placeholder.** DLP Incident Evidence files cap at 100 MB; larger files don't fail — they get replaced with a `.txt` placeholder containing minimal metadata. A forensics workflow expecting the actual document content for large-file violations gets nothing scrutable. Source: *Ranges and Limitations* line 49.
+
+5. **WebSocket DLP inspection is Microsoft-Copilot-only.** The WebSocket protocol option for DLP inspection works exclusively for Microsoft Copilot. Adding WebSocket as a protocol expecting it to cover other WebSocket-heavy apps (Slack, Figma, Linear, Notion) yields zero coverage for those apps. WebSocket SSL/TLS DLP is similarly Copilot-only. Source: *Configuring DLP Policy Rules and Content Inspection* line 166.
+
+6. **Zscaler-defined file types win over custom file types in evaluation order.** If both a custom file type and a Zscaler predefined type match the same file, the predefined type's rule fires. Custom file types embedded inside archive files are NOT detected at all — archive extraction surfaces only Zscaler-recognized types. Source: *Configuring DLP Policy Rules and Content Inspection* line 115.
+
+7. **DLP rule count cap: 1,024 (→ 2,048 via support).** Higher than several other ZIA policies. Mostly relevant to large multi-team enterprises where rule consolidation strategies hit the cap. Source: *Ranges and Limitations*.
+
 ## Open questions
 
 - **Exact confidence-score threshold semantics** for predefined dictionaries — the thresholds are tunable but the score-to-confidence mapping isn't numeric in the help docs. Needs tenant tuning based on false-positive rates.

@@ -205,6 +205,8 @@ When SIPA traffic appears to exit with the wrong source IP (Zscaler PSE IP visib
 1. **Verify ZPA App Segment has `Source IP Anchor` enabled.** Without this flag, the rest of the config doesn't engage.
 2. **Verify ZPA Client Forwarding Policy rules match the IP-based-vs-domain-based pattern correctly.** Mismatched action types here are the most common config error.
 3. **Verify ZPA Access Policy allows `ZIA Service Edge` client type.** If only ZCC client types are allowed, SIPA traffic gets denied on the ZPA side.
+
+> **Critical: do NOT add user-based SAML/SCIM criteria to the ZPA access policy for the SIPA segment.** When SIPA is restricted to specific users on the ZIA side (via Forwarding Control scoping), the ZPA access policy must use **only the `ZIA Service Edge` client type** as criterion — no user / group / SAML / SCIM operands. Adding user-based ZPA criteria breaks SIPA for those users in a hard-to-diagnose way: ZIA forwards correctly, then ZPA denies access because the SAML attributes that would identify the user aren't present in the ZIA-Service-Edge-originated request. Operators who naturally mirror their ZIA scoping into ZPA hit this. (*Configuring Source IP Anchoring* line 53.)
 4. **Verify ZIA Forwarding Control rule has `Forwarding Method = ZPA`** and points at the correct ZPA Gateway + Application Segment.
 5. **Verify ZIA DNS Control rules `ZPA Resolver for Road Warrior` and `ZPA Resolver for Locations` are enabled** in the correct rule-order.
 6. **Verify DNS routing** — the client's DNS is going through Zscaler, so the ZPA Synthetic IPs get returned.

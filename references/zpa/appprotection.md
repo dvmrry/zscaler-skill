@@ -203,7 +203,7 @@ Specific tier names (Business / Transformation / Workplace+) and what each unloc
 
 1. **AppProtection was called Inspection until recently.** SDKs, Terraform resources, and older docs say "Inspection Policy", "Inspection Profile", `zpn_inspection_profile_id`. They're the same thing. A user looking at ZPA Terraform with `zpa_inspection_*` resources is configuring AppProtection.
 
-2. **The default profile is read-only.** Cannot be edited or deleted. Custom profiles must be authored from scratch or by mental cloning. Tenants new to AppProtection often start by trying to "edit OWASP Top-10 for Visibility" and find they can't.
+2. **The default profile (`OWASP Top-10 for Visibility`) is fully immutable.** It cannot be edited or deleted, and its **Paranoia Level is permanently set to 1**. Some controls are deliberately excluded from it for higher efficacy — Zscaler-tuned. An operator wanting to tune Paranoia Level higher than 1 must clone the profile first, which changes the policy reference. Tenants new to AppProtection often start by trying to "edit OWASP Top-10 for Visibility" and find they can't change anything. Source: *About AppProtection Profiles* lines 27-32.
 
 3. **Active Directory inspection is a feature people miss.** Kerberos / SMB / LDAP protocol inspection inside the ZPA tunnel is rare in WAF products and surprises operators expecting only HTTP/HTTPS scope.
 

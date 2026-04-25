@@ -170,6 +170,10 @@ See terminology: [`./terminology.md § NSS vs LSS`](./terminology.md) (add if no
 
 7. **Cloud NSS recommends JSON over CSV.** CSV works but loses type information. JSON gives SIEM parsers a schema they can map to CIM (Common Information Model) fields more reliably. Tenants standardizing on CIM mapping in Splunk or similar should default to JSON.
 
+8. **Throughput ceiling: 1 billion web transactions per Nanolog cluster.** Each NSS VM connects to exactly **one** Nanolog cluster. So a high-volume tenant exceeding 1B web transactions needs additional Nanolog clusters AND additional NSS VMs (one per cluster). Filter caps stack on top: per-feed filters on Users / Departments / Locations / Clients / Threat Names cap at 1,024 entries each. Source: *Ranges and Limitations* lines 119-125.
+
+9. **ZPA LSS retransmit window is 15 minutes — not 60 like NSS.** When connectivity drops between Private Access and an App Connector, LSS can retransmit at most the last 15 minutes of log data after restoration, and **delivery is not guaranteed**. Logs generated during the gap between App Connector and SIEM are NOT retransmitted at all (audit logs are the exception). Operators familiar with NSS's 60-minute opt-in recovery often assume LSS matches; it doesn't. A 30-minute App Connector outage = ~15 minutes of permanent ZPA log gap. Source: *About the Log Streaming Service* lines 61-62.
+
 ## Operational questions this unlocks
 
 - **"Why is my SIEM missing logs from last Thursday's outage?"** — If the outage was >1 hour, those logs are in the Nanolog but not replayable to SIEM. One-hour recovery only covers the first 60 minutes.
