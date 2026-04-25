@@ -3,7 +3,7 @@ product: shared
 topic: "portfolio-map"
 title: "Zscaler product portfolio map"
 content-type: reference
-last-verified: "2026-04-24"
+last-verified: "2026-04-25"
 confidence: medium
 source-tier: mixed
 sources:
@@ -34,9 +34,9 @@ These aren't products — they're how Zscaler markets the platform layer that ti
 | **Agentic SecOps** | **No dedicated product URL** — capability layer within the broader **Security Operations** marketing page. AI agents trained on 11+ years of telemetry; "99.7% threat accuracy" claimed; Red Canary MDR integration is core. Bigger than the name implies: encompasses **EASM, Asset Exposure Mgmt, UVM, Risk360, CTEM, Deception, Red Canary MDR** as one suite, with Agentic SecOps as the AI automation layer across all of them. Projected $400M+ ARR FY26. Capture: `vendor/zscaler-help/agentic-secops-security-operations-marketing.md`. | Awareness with capture |
 | **Zero Trust for Users / Workloads / Branch / B2B** | The four customer-segment pillars. Maps to product groupings rather than discrete SKUs. | Implicit in product docs |
 
-## Tier 1 — Deep-dive coverage (8 products)
+## Tier 1 — Deep-dive coverage (13 products)
 
-The eight core products operators interact with daily. Each has a dedicated `references/<product>/` directory with multiple reasoning docs.
+Each has a dedicated `references/<product>/` directory with multiple reasoning docs (or a focused single-doc deep-dive).
 
 | Product | What it does | Deep-dive entry |
 |---|---|---|
@@ -51,6 +51,8 @@ The eight core products operators interact with daily. Each has a dedicated `ref
 | **Zscaler Deception** | Active-defense threat detection via decoys (fake servers, AD objects, endpoints, cloud assets). Detects post-breach lateral movement / APTs / ransomware. Integrates with ZPA via Zero Trust Network decoys. | [`deception/index.md`](./deception/index.md) |
 | **AppProtection** (ZPA) | Inline WAF/IPS for ZPA-protected applications. OWASP CRS, ThreatLabZ, Active Directory protocol controls (Kerberos/SMB/LDAP), API, WebSocket. Bundled into ZPA (mostly); Browser Protection tier-gated. Was previously called "Inspection" in ZPA. | [`zpa/appprotection.md`](./zpa/appprotection.md) |
 | **Risk360** | Cyber risk quantification framework. Monte Carlo financial-loss estimation. 115-140+ factors across 4 attack stages, 4 entities, MITRE/NIST/SEC framework mapping. CISO/board audience. Paid add-on under Security Operations tier. | [`risk360/index.md`](./risk360/index.md) |
+| **AI Security family** | AI Guard runtime guardrails (15 detector categories, Proxy / DaaS / OnPrem deployment), AI Guardrails (marketing umbrella for AI Guard), AI Red Teaming (vulnerability assessment for customer LLM apps), and the four-pillar governance framework. Layers on top of ZIA URL Filter + DLP + SSL inspection in proxy mode; decoupled from the Zscaler stack in DaaS mode. **No SDK module — portal-only configuration.** Confidence: medium (marketing-grounded). | [`ai-security/index.md`](./ai-security/index.md) |
+| **ZMS — Microsegmentation** | East-west / workload-to-workload policy enforcement via host-installed agents (Win/Linux). AI-powered policy recommendations on a 14-day rolling telemetry window. Local OS enforcement (Windows Filtering Platform / Linux nftables). Positioned as a ZPA add-on; **no SDK module — portal-only configuration.** Confidence: medium (marketing-grounded). | [`zms/index.md`](./zms/index.md) |
 
 ## Tier 2 — Awareness only (no deep-dive yet)
 
@@ -106,17 +108,17 @@ Newer pillar for secure app-sharing across partner organizations (Feb 2025, limi
 
 These were initially marked Tier 3 ("out of scope") under a "do we use it?" frame. The second-brain framing requires articulateness about everything Zscaler markets, regardless of operational use. Promoted to awareness with one-paragraph treatment + 15 vendored marketing/help-portal captures landed 2026-04-24.
 
-#### ZMS — Zscaler Microsegmentation
-**East-west / workload-to-workload policy.** Distinct from ZPA's north-south user-to-app model. Used to enforce per-flow policy between servers, containers, and cloud workloads — typically inside a single VPC or across a multi-cloud environment. Mental model: ZPA segments user→app traffic; ZMS segments app→app traffic. **Lives under help.zscaler.com/zpa/**, not a standalone `/zms/` namespace — ZMS is positioned as a ZPA add-on; agents deploy to Windows/Linux hosts; AI-powered policy recommendations use a 14-day rolling telemetry window. Vendored in SDK as `zscaler/zms/`. Captures: `vendor/zscaler-help/microsegmentation-marketing.md`, `zero-trust-microsegmentation-marketing.md`, `what-is-microsegmentation-zpa.md`. No deep-dive in this skill — recommend Zscaler docs / TAM for depth.
+#### ~~ZMS — Zscaler Microsegmentation~~ — promoted to deep-dive 2026-04-25
+Now in Tier 1 — see [`./zms/index.md`](./zms/index.md). East-west / workload-to-workload policy via host-installed agents (Win/Linux), AI-powered policy recommendations on a 14-day rolling telemetry window, local OS enforcement (Windows Filtering Platform / Linux nftables). Positioned as a ZPA add-on. **No SDK presence** — neither Python nor Go SDK has a ZMS module as of v2.0.0 / current Go HEAD; configuration is portal-only.
 
 #### Shadow IT / SaaS Security Report — formerly "ZINS"
-**Renamed.** Originally "Shadow IT Report" (ZINS naming), now marketed as "**SaaS Security Report**" in current help docs. Reporting product covering Shadow IT discovery (unsanctioned cloud apps users access), IoT device visibility, and SaaS-app risk reporting. Powered by traffic flowing through ZIA — extracts visibility signals from existing ZIA telemetry. Not a policy-enforcement product; pure observability. Risk Index 1-5 per app; sanctioned/unsanctioned breakdown; supports up to **50,000 cloud apps** in the catalog (some marketing material still cites the older 8,500+ figure — outdated). The GraphQL Analytics API at `https://api.zsapi.net/zins/graphql` is its API surface — the `zins` namespace persists even though the marketing name changed. Vendored in SDK as `zscaler/zins/`. Captures: `vendor/zscaler-help/shadow-it-saas-security-report-zia.md`, `shadow-it-marketing.md`.
+**Renamed.** Originally "Shadow IT Report" (ZINS naming), now marketed as "**SaaS Security Report**" in current help docs. Reporting product covering Shadow IT discovery (unsanctioned cloud apps users access), IoT device visibility, and SaaS-app risk reporting. Powered by traffic flowing through ZIA — extracts visibility signals from existing ZIA telemetry. Not a policy-enforcement product; pure observability. Risk Index 1-5 per app; sanctioned/unsanctioned breakdown; supports up to **50,000 cloud apps** in the catalog (some marketing material still cites the older 8,500+ figure — outdated). The GraphQL Analytics API at `https://api.zsapi.net/zins/graphql` is its API surface — the `zins` namespace persists even though the marketing name changed. **No dedicated SDK module** — neither Python nor Go SDK has a `zins` namespace; access is direct GraphQL via OneAPI auth. Captures: `vendor/zscaler-help/shadow-it-saas-security-report-zia.md`, `shadow-it-marketing.md`.
 
 #### EASM — External Attack Surface Management
-Discovery and analysis of an organization's internet-exposed assets — domains, IPs, services, certificates — to surface unknown / shadow / forgotten infrastructure that attackers can find before defenders do. **Repositioning note**: EASM no longer has a standalone product URL on zscaler.com — it's now positioned as a component of the broader **Exposure Management** suite (alongside Asset Exposure Management, Unified Vulnerability Management, Risk360, CTEM, Deception). Help portal does have dedicated `/easm/` content. Capabilities: passive + active scanning; CISA KEV-based risk prioritization; M&A diligence use cases; risk scores Critical (90-100) → Low (1-39). Adjacent to but distinct from Asset Exposure Management (internal CAASM). EASM is outside-in attacker-perspective; AEM is inside-out infrastructure-team-perspective. Vendored in SDK as `zscaler/zeasm/`. Captures: `vendor/zscaler-help/easm-what-is-zscaler-easm.md`, `easm-introducing-marketing.md`.
+Discovery and analysis of an organization's internet-exposed assets — domains, IPs, services, certificates — to surface unknown / shadow / forgotten infrastructure that attackers can find before defenders do. **Repositioning note**: EASM no longer has a standalone product URL on zscaler.com — it's now positioned as a component of the broader **Exposure Management** suite (alongside Asset Exposure Management, Unified Vulnerability Management, Risk360, CTEM, Deception). Help portal does have dedicated `/easm/` content. Capabilities: passive + active scanning; CISA KEV-based risk prioritization; M&A diligence use cases; risk scores Critical (90-100) → Low (1-39). Adjacent to but distinct from Asset Exposure Management (internal CAASM). EASM is outside-in attacker-perspective; AEM is inside-out infrastructure-team-perspective. **No SDK module** in Python or Go SDK; portal + help-portal docs only. Captures: `vendor/zscaler-help/easm-what-is-zscaler-easm.md`, `easm-introducing-marketing.md`.
 
-#### AI Guard ("ZAI Guard" in marketing) and the broader AI Security platform
-**Naming note**: market name is "ZAI Guard" but help portal calls the product simply "**AI Guard**". Zscaler's AI Security family has **four marketing pillars**: AI Asset Management, Secure Access (to AI), Secure AI Apps/Infra, AI Governance — with **AI Red Teaming** and **AI Guardrails** as named sub-products under Governance. AI Guard itself: 15 named detector categories, two deployment modes (Proxy inline vs. DaaS sidecar), GPU-based inference, prompt-injection / jailbreak / brand / toxicity / refusal-as-DoS detection, 100+ DLP dictionaries, ZIA proxy-chain integration. **More capable than the AI-Guardrails-marketing name implies** — full prompt tagging, competitor-mention detection, legal/finance advice blocking. Vendored in SDK as `zscaler/zaiguard/`. Partial coverage in this skill via the 12 GenAI prompt-tracking flags in URL Filtering and prompt-scanning patterns in DLP. Captures: `vendor/zscaler-help/ai-security-marketing.md`, `ai-guardrails-marketing.md`, `ai-guard-what-is.md`. Worth a focused capture pass if AI traffic becomes material.
+#### ~~AI Guard / AI Security family~~ — promoted to deep-dive 2026-04-25
+Now in Tier 1 — see [`./ai-security/index.md`](./ai-security/index.md). Family includes AI Guard (15 detector categories: prompt injection, jailbreak, toxicity, sensitive data, off-topic responses, malicious URLs, language enforcement, code injection, gibberish, refusal-as-DoS, finance advice, prompt tagging, competitor discussion, URL reachability, legal advice), AI Guardrails (marketing umbrella — same product), AI Red Teaming (offline vulnerability assessment for customer LLM apps), and the four-pillar governance framework (AI Asset Management / Secure Access / Secure AI Apps & Infra / AI Governance). Three deployment modes: Proxy (inline), DaaS (application-layer sidecar), OnPrem hybrid. **No SDK module** in Python or Go SDK; portal + help-portal docs only. Layers on top of existing ZIA GenAI URL Filter categories + DLP prompt scanning. Captures: `vendor/zscaler-help/ai-security-marketing.md`, `ai-guardrails-marketing.md`, `ai-guard-what-is.md`.
 
 #### Federal Cloud variants (`zscalergov`, `zscalerten`, ZPA GOV / GOVUS)
 **Regulated-cloud editions** of the existing product line for US government and gov-adjacent tenants — not strictly separate products. ZIA / ZPA / ZCC etc. all have gov-cloud variants. Concrete differentiators captured:
@@ -151,14 +153,14 @@ When a question lands:
 
 Never pretend deep-dive coverage exists where it doesn't. Confidence drop is honest signal — but **always be articulate about every Zscaler-marketed product**. The chatbot-foundation goal requires breadth of awareness, not just operational depth on the products we use.
 
-## Coverage statistics (as of 2026-04-24)
+## Coverage statistics (as of 2026-04-25)
 
-- **Deep-dive products:** 11 (after Deception, AppProtection, Risk360 promoted from awareness)
-- **Awareness products:** 14 (Tier 2 — after ZMS, ZINS, EASM, AI Security, Federal Cloud re-promoted from former Tier 3)
+- **Deep-dive products:** 13 (after AI Security family + ZMS promoted from awareness 2026-04-25, on top of Deception / AppProtection / Risk360 promoted 2026-04-24)
+- **Awareness products:** 12 (Tier 2 — after AI Security and ZMS promoted out)
 - **Truly out-of-scope products:** 0 (Tier 3 currently empty; reserved for deprecated / internal / unshipped)
 - **Architectural pillars named:** 4 (ZTE, Data Fabric, Agentic SecOps, plus the customer-segment "Zero Trust for X" framing)
 
-Total Zscaler portfolio: roughly 25 distinct products + 4 architectural pillars at this date. We deep-dive 11 (half), are at-minimum aware of all the rest, deliberately ignore none.
+Total Zscaler portfolio: roughly 25 distinct products + 4 architectural pillars at this date. We deep-dive 13 (just over half), are at-minimum aware of all the rest, deliberately ignore none.
 
 ## Maintenance
 

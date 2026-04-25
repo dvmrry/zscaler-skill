@@ -1,6 +1,6 @@
 # zscaler-skill
 
-A Claude skill for reasoning about Zscaler environments — deep-dive coverage of ZIA, ZPA, ZCC, ZDX, ZBI, ZIdentity, Cloud & Branch Connector, ZWA, Deception, ZPA AppProtection, and Risk360, plus Tier 2 awareness of the broader portfolio (ZMS, ZINS, EASM, AI Guard, Federal Cloud) — covering the policy evaluation, rule precedence, and cross-product interactions that raw LLMs hallucinate on.
+A Claude skill for reasoning about Zscaler environments — deep-dive coverage of ZIA, ZPA, ZCC, ZDX, ZBI, ZIdentity, Cloud & Branch Connector, ZWA, Deception, ZPA AppProtection, Risk360, the AI Security family (AI Guard / AI Guardrails / AI Red Teaming), and ZMS (workload microsegmentation), plus Tier 2 awareness of the broader portfolio (ZINS, EASM, Federal Cloud, ITDR, DSPM, Posture Control) — covering the policy evaluation, rule precedence, and cross-product interactions that raw LLMs hallucinate on.
 
 ## What this is
 
@@ -187,6 +187,8 @@ references/                lazy-loaded reference docs
     zwa/                   ZWA (Workflow Automation — DLP incidents) topics
     deception/             Zscaler Deception (decoys, honeypots, post-perimeter detection)
     risk360/               Risk360 (cyber risk quantification, Monte Carlo, CISO board reporting)
+    ai-security/           AI Security family (AI Guard / AI Guardrails / AI Red Teaming / governance pillars)
+    zms/                   ZMS — Microsegmentation (workload east-west, host-agent + WFP/nftables)
     shared/                cross-product topics (policy evaluation, terminology, activation, SIPA, SCIM, cloud architecture, OneAPI)
 vendor/                    upstream sources as git submodules (SDKs, TF providers, MCP server)
     zscaler-help/          Zscaler help-site PDFs + Playwright-captured markdown (pinned bibliography)
@@ -227,7 +229,7 @@ Expect to do this periodically — upstream SDK / TF provider releases add new r
 - **Several clarifications remain open** because they require tenant-specific lab tests — see `PLAN.md § Pending lab tests` (6 items including ZCC int-enum semantic mappings).
 - **Snapshot schema docs deferred** — will be written against real tenant output post-fork, not inferred pre-fork. See `PLAN.md § 4. Snapshot schema docs`.
 - **Z-Tunnel wire-format internals are not customer-documented.** `references/zcc/z-tunnel.md` covers the operational layer (CONNECT-vs-DTLS, single-IP-NAT requirement, GRE incompatibility, 4-layer bypass architecture). Protocol-level questions (framing, cipher, fallback triggers) remain Zscaler Support territory.
-- **Tier 2 awareness only** (one-paragraph treatment in [`references/_portfolio-map.md`](./references/_portfolio-map.md), no deep-dive): ZMS (workload microsegmentation), ZINS (shadow-IT NSS Collector), EASM, AI Guard / AI security family, Federal Cloud variants (`zscalergov`, `zscalerten`, ZPA GOV/GOVUS), plus ITDR, Resilience, DSPM, Posture Control, and others. Promoted from former "out of scope" on 2026-04-24 — the skill can route these, answer breadth questions, and redirect to Zscaler's help site, but won't claim operational depth.
+- **Tier 2 awareness only** (one-paragraph treatment in [`references/_portfolio-map.md`](./references/_portfolio-map.md), no deep-dive): ZINS (shadow-IT NSS Collector), EASM, Federal Cloud variants (`zscalergov`, `zscalerten`, ZPA GOV/GOVUS), plus ITDR, Resilience, DSPM, Posture Control, and others. Promoted from former "out of scope" on 2026-04-24 — the skill can route these, answer breadth questions, and redirect to Zscaler's help site, but won't claim operational depth. AI Security family and ZMS were also re-promoted to Tier 2 in that pass and have since been promoted further to Tier 1 (2026-04-25), though their coverage is marketing-grounded with no SDK module.
 - **Truly out-of-scope products:** currently none — Tier 3 is reserved for deprecated / internal / unshipped products.
 
 ## License
