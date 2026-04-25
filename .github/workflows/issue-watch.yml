@@ -1,0 +1,42 @@
+name: Watch upstream issues
+
+# Runs `scripts/issue-watch.py --sticky-label issue-watch-digest` weekly.
+# The script either creates (first run, --bootstrap-if-missing) or updates
+# the sticky issue with a fresh digest of upstream Zscaler GitHub issue
+# activity. State is embedded in the issue body as an HTML comment marker,
+# so no separate state file or Actions cache is needed.
+#
+# Triage workflow: comment on the sticky issue to record decisions for
+# individual surfaced items. Past digests live in the issue's edit history.
+
+on:
+  schedule:
+    # Mondays at 13:00 UTC (≈9am ET / 6am PT). Weekly cadence keeps the
+    # digest manageable; run more frequently via workflow_dispatch when
+    # following an upstream release.
+    - cron: '0 13 * * 1'
+  workflow_dispatch:
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    permissions:
+      # GITHUB_TOKEN with issues:write — needed to find/create/update the
+      # sticky issue. contents:read is the implicit default for checkout.
+      issues: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Update sticky issue
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # GITHUB_REPOSITORY is set by Actions automatically; the script
+          # auto-detects from it when --target-repo is not passed.
+        run: |
+          ./scripts/issue-watch.py \
+            --sticky-label issue-watch-digest \
+            --bootstrap-if-missing

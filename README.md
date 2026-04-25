@@ -145,7 +145,7 @@ Each script's header comment carries a **Status** line — `functional`, `scaffo
 | `scripts/connector-health.py [--group <name>]` | scaffold | Is connector group X healthy? | Checks provisioning-key exhaustion (#1 enrollment failure), runtime status, version lag, cert expiry. |
 | `scripts/zpa-app-check.py --fqdn <fqdn>` | scaffold | Is this app properly onboarded in ZPA end-to-end? | Validates segment → server group → connector group → access policy chain. Flags port-mismatch-as-dropped. |
 | `scripts/find-asymmetries.py` | functional | What candidate API mismatches sit in the schemas (read/write asymmetries, cross-provider validator drift, intra-resource enum collisions, server-assigned fields)? | Passes 1 + 2 implemented. Pass 1: TF validator extraction across `terraform-provider-{zia,zpa,ztc}` (inline + map + slice patterns) plus within-validator near-duplicate detection. Pass 2: Postman request body vs response example field-path diff. Outputs candidates to `logs/asymmetry-candidates.md` for human triage. Passes 3–5 (fuzzy field-name match, TF git history, Python SDK enum extraction) documented inline as future work. |
-| `scripts/issue-watch.py` | functional | What's new in upstream Zscaler GitHub issues since I last looked? | Walks 7 vendored upstream repos via the public GitHub REST API. Compares against `logs/issue-watch-state.json` (last seen per repo). First run defaults to issues updated in the last 30 days; subsequent runs are incremental. Outputs to `logs/issues-new.md` for human triage. Works unauthenticated at 60 req/hr; honors `GITHUB_TOKEN` for higher rate. |
+| `scripts/issue-watch.py` | functional | What's new in upstream Zscaler GitHub issues since I last looked? | Walks 7 vendored upstream repos via the public GitHub REST API. Two modes. **Local** (default): compares against `logs/issue-watch-state.json`, writes digest to `logs/issues-new.md`. **Sticky-issue** (`--sticky-label LABEL` or `--sticky-issue NUMBER`): finds an existing GitHub issue and rewrites its body with the latest digest each run; state lives in an HTML-comment marker embedded in the issue body, no separate state file. The repo ships a GH Actions workflow at `.github/workflows/issue-watch.yml` that runs sticky mode weekly. First run defaults to a 30-day lookback. Works unauthenticated at 60 req/hr; honors `GITHUB_TOKEN` for higher rate (Actions provides 1000/hr automatically). |
 | `scripts/splunk-query.sh <spl>` | stub | Run an SPL query against Zscaler logs | Placeholder; implement for your SIEM. |
 
 All Python scripts accept `--json` for machine-readable output where appropriate.
@@ -200,6 +200,14 @@ snapshot/                  tenant config dumps — empty upstream, populated per
 ```
 
 Every reference file carries YAML front-matter (`product`, `topic`, `content-type`, `last-verified`, `confidence`, `source-tier`, `sources`, `author-status`). See [`references/_template.md`](./references/_template.md).
+
+## Automation
+
+`.github/workflows/issue-watch.yml` runs `scripts/issue-watch.py` in **sticky-issue mode** every Monday at 13:00 UTC. The first run creates a sticky issue (label `issue-watch-digest`) and seeds it with a 30-day-lookback digest of upstream Zscaler GitHub issues. Each subsequent run rewrites the body in place with the latest digest; the sticky issue's `last_check` HTML-comment marker carries state so no Actions cache or `state.json` is needed.
+
+Triage workflow: comment on the sticky issue to record decisions for individual surfaced items. Past digests live in the issue's edit history (accessible via the GitHub UI). Manual runs via the Actions tab's "Run workflow" button (workflow_dispatch).
+
+To run locally instead (for ad-hoc checks or while developing the script), invoke without flags — it falls back to file-based output at `logs/issues-new.md`.
 
 ## Submodule management
 
