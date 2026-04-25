@@ -102,17 +102,47 @@ Zscaler announced acquisition of Red Canary in May 2025 to build out Agentic Sec
 #### Zero Trust Exchange for B2B
 Newer pillar for secure app-sharing across partner organizations (Feb 2025, limited GA at capture date). Awareness only.
 
-## Tier 3 — Explicitly out of scope (recognized, deliberately not covered)
+### Adjacent products previously classified out-of-scope (re-promoted 2026-04-24)
 
-Products in the Zscaler portfolio we deliberately don't cover. Skill should redirect to Zscaler docs / TAM if these come up.
+These were initially marked Tier 3 ("out of scope") under a "do we use it?" frame. The second-brain framing requires articulateness about everything Zscaler markets, regardless of operational use. Promoted to awareness with one-paragraph treatment.
 
-| Product | What it is | Why out of scope |
-|---|---|---|
-| **ZMS — Workload Microsegmentation** | East-west (server-to-server) policy. Distinct mental model from ZPA's north-south access. | Vendored in SDKs; awaiting fork-team signal |
-| **ZINS** | Shadow IT / IoT / SaaS security reporting. | Reporting-flavored, not policy-precedence-flavored. Lower skill ROI. |
-| **EASM — External Attack Surface Management** | Discovery of internet-exposed assets. | Different audience (security researchers) than the operator-and-traffic-policy focus of this skill |
-| **ZAI Guard / broader AI Security platform** | AI / LLM traffic policy (ZAI Guard), plus AI Asset Management, AI Access Security, AI Red Teaming, AI Guardrails as a cohesive platform. | Newer product family; partial awareness via GenAI flags in URL Filtering and DLP, but no synthesis. Awareness-fill candidate when fork-team signals AI traffic is material. |
-| **Federal Cloud variants** (`zscalergov`, `zscalerten`, ZPA GOV / GOVUS) | Government-cloud editions. Most behavior inherits from commercial; auth paths and feature availability differ. | User-scoped out — fork team is not gov-cloud |
+#### ZMS — Zscaler Microsegmentation
+**East-west / workload-to-workload policy.** Distinct from ZPA's north-south user-to-app model. Used to enforce per-flow policy between servers, containers, and cloud workloads — typically inside a single VPC or across a multi-cloud environment. Mental model: ZPA segments user→app traffic; ZMS segments app→app traffic. Real product, vendored in `vendor/zscaler-sdk-python/zscaler/zms/` and `vendor/zscaler-sdk-go/zscaler/zms/`. No deep-dive in this skill — operational scenarios for ZMS rarely come up in user-traffic / policy-precedence reasoning, but customers absolutely buy + run it for workload-protection use cases. If a question lands here, acknowledge the product, give this paragraph, recommend Zscaler docs / TAM for depth.
+
+#### ZINS — Shadow IT / IoT / SaaS Reporting
+Reporting product covering three adjacent surfaces: Shadow IT discovery (unsanctioned cloud apps users access), IoT device visibility, and SaaS-app risk reporting. Powered by traffic flowing through ZIA — extracts visibility signals from existing ZIA telemetry. Not a policy-enforcement product; pure observability. Distinct from but related to Risk360 (Risk360 quantifies; ZINS reports). Vendored in SDK as `zscaler/zins/`. The GraphQL Analytics API at `https://api.zsapi.net/zins/graphql` (mentioned in `references/shared/oneapi.md`) is ZINS's API surface — covers SaaS Security, Cyber Security, Zero Trust Firewall, IoT, Shadow IT, Web Traffic domains.
+
+#### EASM — External Attack Surface Management
+Discovery and analysis of an organization's internet-exposed assets — domains, IPs, services, certificates — to surface unknown / shadow / forgotten infrastructure that attackers can find before defenders do. Adjacent to but distinct from **Asset Exposure Management** (which is internal CAASM). EASM is outside-in attacker-perspective; AEM is inside-out infrastructure-team-perspective. Audience: security researchers and proactive defense teams. Vendored in SDK as `zscaler/zeasm/`.
+
+#### ZAI Guard and the broader AI Security platform
+Zscaler's AI Security family covers AI/LLM traffic protection at multiple layers:
+- **ZAI Guard** — inline policy and inspection for LLM / generative AI traffic (prompts, responses, attachments). Adjacent to ZIA's GenAI URL flags and DLP's prompt scanning but as a dedicated product.
+- **AI Asset Management** — discovery of AI tools and agents in use across the org.
+- **AI Access Security** — access control for AI services (OpenAI, Anthropic, etc.).
+- **AI Red Teaming** — adversarial testing of customer AI deployments.
+- **AI Guardrails** — runtime policy enforcement on AI agent behavior.
+A cohesive product family; ZAI Guard is the most operationally relevant for traffic-and-policy reasoning. Vendored in SDK as `zscaler/zaiguard/`. Partial coverage in this skill via the 12 GenAI prompt-tracking flags in URL Filtering and the prompt-scanning patterns in DLP. Worth a focused capture pass if AI traffic becomes material.
+
+#### Federal Cloud variants (`zscalergov`, `zscalerten`, ZPA GOV / GOVUS)
+Not strictly products — these are **regulated-cloud editions** of the existing product line for US government and gov-adjacent tenants. ZIA / ZPA / ZCC etc. all have gov-cloud variants. Most behavior inherits from the commercial cloud; differences are:
+- **Auth paths** — gov-cloud tenants have separate ZIdentity instances and OAuth endpoints.
+- **Feature availability** — newer features may launch in commercial cloud first, gov second; some commercial features are restricted in gov.
+- **Compliance posture** — FedRAMP / IL5 / etc. authorizations differ.
+- **Data residency** — gov-cloud data stays in-region (US); commercial may not.
+Mentioning gov-cloud awareness matters because many enterprises have both commercial and gov tenants for different business units. Skill should recognize gov-cloud questions and route to Zscaler's federal-cloud documentation rather than confidently extrapolating from commercial behavior.
+
+## Tier 3 — Truly out of scope (deprecated / superseded / vaporware)
+
+Currently empty. Earlier classifications under this tier (ZMS, ZINS, EASM, AI Security, Federal Cloud) were re-promoted to Tier 2 awareness on 2026-04-24 — see § "Adjacent products previously classified out-of-scope" above.
+
+This tier is reserved for:
+- **Deprecated products** Zscaler has officially sunset
+- **Internal-only / pre-GA products** without public documentation
+- **Vaporware / announced-but-not-shipped** products
+- **Renamed products** where the legacy name should redirect (handled in `references/shared/terminology.md` rather than here)
+
+Add entries here only when a product genuinely doesn't merit awareness.
 
 ## How the skill should use this map
 
@@ -120,18 +150,18 @@ When a question lands:
 
 1. **If the product has a Tier 1 entry**, route to its `references/<product>/` deep-dive.
 2. **If Tier 2**, give the one-paragraph answer from this map, identify what specifically the user wants, and either (a) provide the conceptual framing without claiming deep authority, or (b) recommend the relevant Zscaler help-site path / TAM consultation.
-3. **If Tier 3**, acknowledge it exists, briefly state what it does, and explicitly note it's out of scope of this skill — redirect to Zscaler resources.
+3. **If Tier 3** (currently empty), redirect outright — the product is deprecated, internal-only, or unshipped.
 
-Never pretend deep-dive coverage exists where it doesn't. Confidence drop is honest signal.
+Never pretend deep-dive coverage exists where it doesn't. Confidence drop is honest signal — but **always be articulate about every Zscaler-marketed product**. The chatbot-foundation goal requires breadth of awareness, not just operational depth on the products we use.
 
 ## Coverage statistics (as of 2026-04-24)
 
 - **Deep-dive products:** 11 (after Deception, AppProtection, Risk360 promoted from awareness)
-- **Awareness-only products:** 9 (Tier 2)
-- **Out-of-scope products:** 5+ (Tier 3 — exact count drifts as Zscaler rebrands and acquires)
+- **Awareness products:** 14 (Tier 2 — after ZMS, ZINS, EASM, AI Security, Federal Cloud re-promoted from former Tier 3)
+- **Truly out-of-scope products:** 0 (Tier 3 currently empty; reserved for deprecated / internal / unshipped)
 - **Architectural pillars named:** 4 (ZTE, Data Fabric, Agentic SecOps, plus the customer-segment "Zero Trust for X" framing)
 
-Total Zscaler portfolio: roughly 25 distinct products + 4 architectural pillars at this date. We deep-dive about a third, are aware of half, deliberately ignore the remainder.
+Total Zscaler portfolio: roughly 25 distinct products + 4 architectural pillars at this date. We deep-dive 11 (half), are at-minimum aware of all the rest, deliberately ignore none.
 
 ## Maintenance
 
@@ -139,8 +169,8 @@ Zscaler ships rapidly — products are added, renamed, deprecated, acquired. Re-
 
 1. Visit `https://www.zscaler.com/products-and-solutions`
 2. Walk the product menus / categories
-3. For each product Zscaler markets that's NOT on this map, add it (Tier 2 by default; promote to Tier 3 if explicitly out of scope).
-4. For each product on this map that's NOT on Zscaler's site, mark deprecated (don't delete — institutional memory matters).
+3. For each product Zscaler markets that's NOT on this map, add it as Tier 2 awareness by default. The bar for Tier 1 promotion is "we have or want operational depth on it"; the bar for staying out of Tier 3 is just "Zscaler markets it as a product."
+4. For each product on this map that's NOT on Zscaler's site, mark deprecated (don't delete — institutional memory matters; consider moving to Tier 3 if Zscaler has formally sunset it).
 5. Bump `last-verified` to today's date.
 
 Acquisitions typically take 6-12 months to fully integrate; track them as Tier 2 awareness even before integration completes.
