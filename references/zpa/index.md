@@ -18,6 +18,7 @@ Entry point for Zscaler Private Access (ZPA) questions — application segments,
 | Topic | File | Status |
 |---|---|---|
 | Application segment matching — specificity-wins, Multimatch INCLUSIVE/EXCLUSIVE, Bypass precedence | [`./app-segments.md`](./app-segments.md) | draft |
+| **Segment Groups and Server Groups** — ZPA's two grouping primitives; policy-scoping (Segment Group) vs traffic-delivery (Server Group), four-way relationship, dynamic discovery vs explicit servers, orphan gotchas | [`./segment-server-groups.md`](./segment-server-groups.md) | draft |
 | Policy precedence — access, timeout, client forwarding, inspection | [`./policy-precedence.md`](./policy-precedence.md) | draft |
 | App Connector — VM model, groups, provisioning keys, scheduled software updates, certificate enrollment | [`./app-connector.md`](./app-connector.md) | draft |
 | **Browser Access** — clientless web-app access via browser (no ZCC), dual-access model, TLS-1.2 cipher requirement, wildcard-cert one-level-only gotcha, same-vs-different-hostname cert mechanics, mutual-exclusions with SIPA/Double-Encryption/Multimatch | [`./browser-access.md`](./browser-access.md) | draft |
