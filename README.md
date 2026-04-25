@@ -1,6 +1,6 @@
 # zscaler-skill
 
-A Claude skill for reasoning about Zscaler environments — deep-dive coverage of ZIA, ZPA, ZCC, ZDX, ZBI, ZIdentity, Cloud & Branch Connector, ZWA, Deception, ZPA AppProtection, Risk360, the AI Security family (AI Guard / AI Guardrails / AI Red Teaming), and ZMS (workload microsegmentation), plus Tier 2 awareness of the broader portfolio (ZINS, EASM, Federal Cloud, ITDR, DSPM, Posture Control) — covering the policy evaluation, rule precedence, and cross-product interactions that raw LLMs hallucinate on.
+A Claude skill for reasoning about Zscaler environments — full operational depth (SDK / TF / OneAPI surface) on ZIA, ZPA, ZCC, ZDX, ZBI, ZIdentity, Cloud & Branch Connector, ZWA, and ZPA AppProtection; extended awareness (reasoning docs, no SDK) on Deception, Risk360, the AI Security family (AI Guard / AI Guardrails / AI Red Teaming), and ZMS (workload microsegmentation); plus paragraph-level awareness of the broader portfolio (ZINS, EASM, Federal Cloud, ITDR, DSPM, Posture Control) — covering the policy evaluation, rule precedence, and cross-product interactions that raw LLMs hallucinate on.
 
 ## What this is
 
@@ -185,10 +185,10 @@ references/                lazy-loaded reference docs
     zidentity/             ZIdentity (unified auth / step-up) topics
     cloud-connector/       Cloud & Branch Connector (ZTW / ZTC / CBC) topics
     zwa/                   ZWA (Workflow Automation — DLP incidents) topics
-    deception/             Zscaler Deception (decoys, honeypots, post-perimeter detection)
-    risk360/               Risk360 (cyber risk quantification, Monte Carlo, CISO board reporting)
-    ai-security/           AI Security family (AI Guard / AI Guardrails / AI Red Teaming / governance pillars)
-    zms/                   ZMS — Microsegmentation (workload east-west, host-agent + WFP/nftables)
+    deception/             [Tier 2a] Zscaler Deception — decoys, honeypots, post-perimeter detection (no SDK)
+    risk360/               [Tier 2a] Risk360 — cyber risk quantification, Monte Carlo, CISO board reporting (no SDK)
+    ai-security/           [Tier 2a] AI Security family — AI Guard / AI Guardrails / AI Red Teaming (no SDK)
+    zms/                   [Tier 2a] ZMS — Microsegmentation, workload east-west via WFP/nftables (no SDK)
     shared/                cross-product topics (policy evaluation, terminology, activation, SIPA, SCIM, cloud architecture, OneAPI)
 vendor/                    upstream sources as git submodules (SDKs, TF providers, MCP server)
     zscaler-help/          Zscaler help-site PDFs + Playwright-captured markdown (pinned bibliography)
@@ -229,7 +229,8 @@ Expect to do this periodically — upstream SDK / TF provider releases add new r
 - **Several clarifications remain open** because they require tenant-specific lab tests — see `PLAN.md § Pending lab tests` (6 items including ZCC int-enum semantic mappings).
 - **Snapshot schema docs deferred** — will be written against real tenant output post-fork, not inferred pre-fork. See `PLAN.md § 4. Snapshot schema docs`.
 - **Z-Tunnel wire-format internals are not customer-documented.** `references/zcc/z-tunnel.md` covers the operational layer (CONNECT-vs-DTLS, single-IP-NAT requirement, GRE incompatibility, 4-layer bypass architecture). Protocol-level questions (framing, cipher, fallback triggers) remain Zscaler Support territory.
-- **Tier 2 awareness only** (one-paragraph treatment in [`references/_portfolio-map.md`](./references/_portfolio-map.md), no deep-dive): ZINS (shadow-IT NSS Collector), EASM, Federal Cloud variants (`zscalergov`, `zscalerten`, ZPA GOV/GOVUS), plus ITDR, Resilience, DSPM, Posture Control, and others. Promoted from former "out of scope" on 2026-04-24 — the skill can route these, answer breadth questions, and redirect to Zscaler's help site, but won't claim operational depth. AI Security family and ZMS were also re-promoted to Tier 2 in that pass and have since been promoted further to Tier 1 (2026-04-25), though their coverage is marketing-grounded with no SDK module.
+- **Tier 2a — extended awareness** (reasoning docs exist but no SDK / portal-only): Deception, Risk360, AI Security family, ZMS. Skill answers conceptual / architectural questions at confidence: medium and explicitly notes "no SDK / portal-only" for any API-shaped question. The "0 API exposure → Tier 2" rule was set 2026-04-25 — these products had reasoning docs written in earlier passes but lack SDK / TF surface, so they don't qualify for Tier 1 operational depth.
+- **Tier 2b — awareness only** (one-paragraph treatment in [`references/_portfolio-map.md`](./references/_portfolio-map.md), no deep-dive): ZINS (shadow-IT NSS Collector), EASM, Federal Cloud variants (`zscalergov`, `zscalerten`, ZPA GOV/GOVUS), plus ITDR, Resilience, DSPM, Posture Control, and others. The skill can route these, answer breadth questions, and redirect to Zscaler's help site, but won't claim operational depth.
 - **Truly out-of-scope products:** currently none — Tier 3 is reserved for deprecated / internal / unshipped products.
 
 ## License
