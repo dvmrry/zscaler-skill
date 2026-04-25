@@ -37,15 +37,25 @@ We've vendored the relevant captures under `vendor/zscaler-help/automate-zscaler
 
 **The Postman collection is the closest thing to a machine-readable API surface.** Vendored at `vendor/zscaler-api-specs/oneapi-postman-collection.json` (~14 MB, Postman v2.1.0 schema). 7 product folders covering every OneAPI surface — including the only ZPA documentation Zscaler publishes (web docs are absent for ZPA on automate.zscaler.com).
 
-## Three authentication mechanisms
+## Authentication mechanisms (5 paths in the wild)
 
-| Mechanism | Used by | Token endpoint | Notes |
+OneAPI is the modern path. **Four legacy paths still exist** because (a) gov-cloud tenants don't have OneAPI, (b) some products were never OneAPI-migrated (ZDX, ZCC pre-OneAPI), and (c) plenty of tenants haven't migrated to ZIdentity yet. Operational reality: any code touching multiple Zscaler products today must be prepared to deal with 2–3 different auth flows.
+
+| Mechanism | Used by | Endpoint | Notes |
 |---|---|---|---|
-| **OneAPI OAuth 2.0** | ZIA, ZPA, ZIdentity, ZCC (OneAPI path), ZTW, BI | `https://<vanity>.zslogin.net/oauth2/v1/token` | Modern path. Client-credentials flow via ZIdentity. |
-| **ZDX legacy** | ZDX only | `POST https://api.zsapi.net/zdx/v1/oauth/token` | SHA256-signed `key+timestamp`. **15-minute timestamp window.** |
+| **OneAPI OAuth 2.0** | ZIA, ZPA, ZIdentity, ZCC (OneAPI path), ZTW, BI | `https://<vanity>.zslogin.net/oauth2/v1/token` | Modern path. Client-credentials flow via ZIdentity. **Not supported in gov clouds** (`zscalergov`, `zscalerten`, ZPA `GOV`/`GOVUS`). |
+| **ZIA legacy** | ZIA (pre-ZIdentity tenants + gov clouds) | `POST https://<cloud>.zscaler.net/api/v1/authenticatedSession` | Username + password + API key + obfuscated timestamp. Algorithm below. |
+| **ZPA legacy** | ZPA (pre-ZIdentity tenants + gov clouds `GOV`/`GOVUS`) | `POST /signin` (per cloud) | `client_id`, `client_secret`, `customer_id` issued in ZPA Admin Portal. |
+| **ZDX legacy** | ZDX only — never migrated to OneAPI as of capture | `POST https://api.zsapi.net/zdx/v1/oauth/token` | SHA256-signed `key+timestamp`. **15-minute timestamp window.** |
 | **ZCC legacy** | ZCC (legacy path) | `POST https://api.zsapi.net/zcc/papi/auth/v1/login` | apiKey + secretKey, returns JWT. |
 
-A multi-product workflow that touches ZDX or legacy ZCC must handle multiple auth flows. OneAPI alone can't be assumed — there's no unified token across all three.
+**When you need a legacy path** (any one of these → must use the corresponding legacy auth):
+- Tenant is on a gov cloud (`zscalergov` / `zscalerten` for ZIA/ZCC; ZPA `GOV` / `GOVUS`).
+- Tenant hasn't migrated to ZIdentity yet (some enterprises remain on legacy auth indefinitely; the migration is opt-in, not forced).
+- The product is ZDX (no OneAPI path exists).
+- Code is interfacing with an older automation script written before OneAPI shipped.
+
+**Migration consideration:** when a tenant migrates to ZIdentity, the legacy auth keys keep working in parallel for a transition period. Don't assume legacy is "off" just because OneAPI is enabled — both can coexist on the same tenant. This means an audit script must be explicit about which path it's using; running with stale legacy creds against a ZIdentity-enabled tenant works silently and may produce different results than the modern OneAPI flow against the same data.
 
 ### OneAPI OAuth 2.0 — the audience parameter is REQUIRED
 
@@ -106,6 +116,70 @@ jwt      = unsigned + "." + base64url_encode(sig)
 ```
 
 Two JWT-key registration paths: **JWKS URL** (ZIdentity fetches public key from a URL — best for production, no manual rotation) and **uploaded certificate / public key** (.pem upload — best for compliance/regulatory tenants requiring static keys).
+
+### ZIA legacy — obfuscated timestamp + username/password
+
+The ZIA legacy flow predates OAuth and uses an in-house obfuscation scheme that mixes an **API key** (from the ZIA admin console) with a **timestamp** and an admin **username + password**. The obfuscation algorithm matters because hand-rolling this auth (curl, Postman without the SDK helper) requires implementing it yourself; the SDK abstracts it via `LegacyZIAClient`.
+
+Auth flow:
+
+```http
+POST https://<cloud>.zscaler.net/api/v1/authenticatedSession HTTP/1.1
+Content-Type: application/json
+
+{
+  "apiKey":    "<obfuscated-key>",
+  "timestamp": <unix-epoch-ms>,
+  "username":  "admin@example.com",
+  "password":  "<password>"
+}
+```
+
+The **`apiKey` field is NOT the raw key** from the admin console — it's an obfuscation derived from the raw key + the current timestamp. Algorithm (per `vendor/zscaler-sdk-python/zscaler/utils.py:obfuscate_api_key`):
+
+```python
+def obfuscate_api_key(seed: list):
+    # seed is the raw API key as a list of characters
+    now = int(time.time() * 1000)              # ms epoch
+    n = str(now)[-6:]                          # last 6 digits of timestamp
+    r = str(int(n) >> 1).zfill(6)              # n right-shifted by 1, zero-padded to 6
+    key = "".join(seed[int(str(n)[i])] for i in range(len(str(n))))   # index seed by digits of n
+    for j in range(len(r)):
+        key += seed[int(r[j]) + 2]                                    # append more chars indexed by r+2
+    return {"timestamp": now, "key": key}
+```
+
+Properties:
+- The obfuscated key is **per-request** (depends on the timestamp), so caching or replay across timestamps fails.
+- The seed (raw API key) must be at least ~20 characters — the algorithm indexes positions up to digit+2.
+- The server unwinds the obfuscation server-side using the same algorithm against its stored key.
+- `timestamp` and `apiKey` are submitted together; the server validates the obfuscation matches.
+
+Returned: a session cookie (`JSESSIONID`) used on subsequent calls. Sessions expire after the configured timeout — re-auth is required, with a fresh obfuscation each time. The SDK handles this automatically; hand-coded clients must re-obfuscate before each new session.
+
+**Why this matters:** the algorithm is publicly known but not centrally documented in Zscaler's help portal — the SDK source is the canonical reference. Hand-rolling ZIA legacy auth without consulting the SDK is the most common cause of "401 with valid creds" debugging on the legacy path.
+
+### ZPA legacy — Client ID + Client Secret + customer ID
+
+ZPA's pre-ZIdentity auth model. Client ID and Client Secret are issued in the ZPA Admin Portal (under API Keys); the customer ID is the tenant's ZPA customer identifier (numeric, visible in the admin console URL).
+
+Auth flow:
+
+```http
+POST https://config.zpacloud.com/signin HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+
+client_id=<id>
+&client_secret=<secret>
+```
+
+Returns a Bearer token (~1-hour TTL). The customer ID enters subsequent API call paths as `/mgmtconfig/v1/admin/customers/{customerId}/...`.
+
+ZPA legacy is required for:
+- Pre-ZIdentity ZPA tenants
+- ZPA gov clouds (`GOV`, `GOVUS`) which have not been migrated to OneAPI
+
+The Python SDK `LegacyZPAClient` handles this transparently. Hand-coded clients must POST credentials, capture the bearer token, and inject the customer ID into all paths.
 
 ### ZDX legacy — SHA256-signed timestamp
 
