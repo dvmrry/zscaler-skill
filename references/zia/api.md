@@ -351,6 +351,18 @@ Cross-check against `vendor/zscaler-sdk-go/zscaler/zia/services/` surfaced servi
 
 Python-only modules the Go SDK doesn't carry (mostly newer features or SDK-lag not yet ported): `casb_dlp_rules`, `casb_malware_rules`, `cloud_browser_isolation`, `risk_profiles`, `sub_clouds`, `proxies`, `dns_gateways`, `dedicated_ip_gateways`.
 
+## Read/write shape asymmetries
+
+Cross-cutting hub for fields where `GET` and `POST`/`PUT` disagree on shape, value, or presence semantics. Detail lives in topical docs; this section is the discovery point for "API round-trip will bite me, where?" questions.
+
+| Asymmetry | Topical home | Severity |
+|---|---|---|
+| **Sandbox default rule `order` is `127` on read; cannot be written as `127` (collides with default → `DUPLICATE_ITEM`).** Other ZIA rule types use `-1` as the default sentinel; sandbox is the outlier. Engineering tracks as `BUG-208047`. | [`./sandbox.md § Default rule order is 127, NOT -1`](./sandbox.md) | High — silently breaks rule-ordering math |
+| **Location Management `tz` field strips `THE_` prefix on read.** API returns `NETHERLANDS_EUROPE_AMSTERDAM`; write requires the full `THE_NETHERLANDS_EUROPE_AMSTERDAM`. Same key, different value across read and write. Verified against live tenant 2026-04-25. | [`./locations.md § Edge cases (tz prefix asymmetry)`](./locations.md) | High — round-trip silently fails validation |
+| **URL Filter rule `description` whitespace and line endings normalized server-side.** What you `PUT` is not what `GET` returns; naive equality checks on round-trip falsely report drift. | [`#sdk-response-shape`](#sdk-response-shape) (this doc, in pattern callout) | Low — cosmetic but confuses diffs |
+
+**Adding entries here:** when a new asymmetry is documented in a topical doc, add a one-line cross-link row above. Do not duplicate the detail.
+
 ## Pagination
 
 Per SDK README:

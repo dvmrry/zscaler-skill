@@ -144,6 +144,7 @@ Each script's header comment carries a **Status** line — `functional`, `scaffo
 | `scripts/sandbox-check.py --md5 <hash> --url <url>` | scaffold | Why was this file blocked / unanalyzed / stuck in quarantine? | Detects static-analysis fast-path, SSL-bypass-prevents-Sandbox, Basic-vs-Advanced tier mismatch. Surfaces the "Malware Protection / ATP have no API" limit. |
 | `scripts/connector-health.py [--group <name>]` | scaffold | Is connector group X healthy? | Checks provisioning-key exhaustion (#1 enrollment failure), runtime status, version lag, cert expiry. |
 | `scripts/zpa-app-check.py --fqdn <fqdn>` | scaffold | Is this app properly onboarded in ZPA end-to-end? | Validates segment → server group → connector group → access policy chain. Flags port-mismatch-as-dropped. |
+| `scripts/find-asymmetries.py` | functional | What candidate API mismatches sit in the schemas (read/write asymmetries, cross-provider validator drift, intra-resource enum collisions)? | Pass 1 implemented (TF validator extraction across `terraform-provider-{zia,zpa,ztc}`). Outputs candidates to `logs/asymmetry-candidates.md` for human triage. Passes 2–5 (Postman diff, fuzzy field-name match, TF git history, Python SDK enum extraction) documented inline as future work. |
 | `scripts/splunk-query.sh <spl>` | stub | Run an SPL query against Zscaler logs | Placeholder; implement for your SIEM. |
 
 All Python scripts accept `--json` for machine-readable output where appropriate.

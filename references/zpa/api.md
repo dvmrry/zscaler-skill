@@ -258,6 +258,17 @@ Cross-check against `vendor/zscaler-sdk-go/zscaler/zpa/services/` surfaced servi
 
 Python-only modules the Go SDK doesn't carry (some of these are Python's way of splitting what Go bundles; some are newer features): `tag_key`, `tag_namespace`, all five `pra_*` modules (`pra_approval`, `pra_console`, `pra_credential`, `pra_credential_pool`, `pra_portal`), and all four `cbi_*` modules (`cbi_banner`, `cbi_certificate`, `cbi_profile`, `cbi_region`). The PRA and CBI surfaces exist in Go under different paths — the module split differs rather than the API coverage.
 
+## Read/write shape asymmetries
+
+Cross-cutting hub for fields where `GET` and `POST`/`PUT` disagree on shape, value, or presence semantics. Detail lives in topical docs; this section is the discovery point for "API round-trip will bite me, where?" questions.
+
+| Asymmetry | Topical home | Severity |
+|---|---|---|
+| **`clientless_app_ids` key-presence vs truthiness on Application Segments.** A standard segment's `GET` includes `clientless_app_ids: null`. On `PUT`, you must **omit the key entirely** — including it with `None` triggers a `BROWSER_ACCESS` segment lookup that fails with "No matching clientless App found." Same key, presence-vs-absence asymmetry across read and write. | [`./app-segments.md § Edge cases`](./app-segments.md) | High — common round-trip pattern; failure mode is confusing |
+| **LSS `source_log_type` aliases.** SDK normalizes 8 human-readable aliases (`user_activity`, `browser_access`, ...) on read against the API's wire values (`zpn_trans_log`, `zpn_http_trans_log`, ...). Code that reads via SDK and writes via raw HTTP (or vice versa) must translate. | [`#lss`](#lss) (this doc) | Medium — only bites mixed-toolchain callers |
+
+**Adding entries here:** when a new asymmetry is documented in a topical doc, add a one-line cross-link row above. Do not duplicate the detail.
+
 ## Pagination
 
 Per SDK README: built-in `resp.has_next()` / `resp.next()`. Same idiom as ZIA.
