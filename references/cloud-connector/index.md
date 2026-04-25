@@ -48,6 +48,7 @@ Branch Connector is the same idea for physical branch locations — an on-prem v
 | Overview — VM architecture, Cloud Connector Groups, autoscaling (ASG/VMSS/MIG), HA model, data vs control plane | [`./overview.md`](./overview.md) | draft |
 | Traffic forwarding — the five forwarding methods (ZIA / ZPA / direct / drop / local), rule criteria, rule evaluation, DNS forwarding gateways | [`./forwarding.md`](./forwarding.md) | draft |
 | API and Terraform surface — `client.ztw.*` in Go SDK, `ztc_*` resources in TF, provisioning templates, activation | [`./api.md`](./api.md) | draft |
+| **Azure deployment** — Marketplace listing, dual-NIC architecture, Standard ILB + 15s probe, NAT Gateway per AZ, VMSS scaling + Function App orphan cleanup, HA model | [`./azure-deployment.md`](./azure-deployment.md) | draft |
 
 ## Scope
 
@@ -65,7 +66,7 @@ In scope:
 Not in scope (explicitly deferred):
 
 - **Branch Connector zero-trust appliance specifics** — referenced in the shared help section but not deeply covered here. The configuration model is similar to Cloud Connector; Branch-specific details (hardware, zero-touch provisioning) are operational and vendor-specific.
-- **Per-cloud deployment guides** (AWS CloudFormation, Azure Resource Manager, GCP templates, Terraform module specifics) — reference architecture PDFs exist under `help.zscaler.com/downloads/cloud-branch-connector/reference-architecture/`; not captured here.
+- **Per-cloud deployment guides** — Azure is now covered at [`./azure-deployment.md`](./azure-deployment.md). AWS CloudFormation and GCP templates remain deferred; reference architecture PDFs exist under `help.zscaler.com/downloads/cloud-branch-connector/reference-architecture/`.
 - **VMSS / ASG / MIG operational tuning** — help articles cover this; captured at architecture level only.
 - **Zscaler Zero Trust SD-WAN** — related newer product (Zero Trust Branch) that overlaps Branch Connector. Not covered.
 

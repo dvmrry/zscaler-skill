@@ -1,0 +1,193 @@
+---
+product: ztw
+topic: "azure-deployment"
+title: "Cloud Connector on Azure — deployment shape, NIC model, scaling, HA"
+content-type: reasoning
+last-verified: "2026-04-25"
+confidence: high
+source-tier: mixed
+sources:
+  - "github.com/zscaler/terraform-azurerm-cloud-connector-modules"
+  - "vendor/zscaler-help/cbc-configuring-cloud-provisioning-template.md"
+  - "vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md"
+  - "vendor/zscaler-help/cbc-about-cloud-connector-groups.md"
+  - "vendor/zscaler-help/what-zscaler-cloud-connector.md"
+  - "https://help.zscaler.com/cloud-branch-connector/deploying-zscaler-cloud-connector-microsoft-azure (URL only — JS-gated)"
+  - "https://azuremarketplace.microsoft.com/en/marketplace/apps/zscaler1579058425289.zia_cloud_connector (publisher + offer ID confirmed)"
+author-status: draft
+---
+
+# Cloud Connector on Azure — deployment shape, NIC model, scaling, HA
+
+The Azure-specific deployment of [Cloud Connector](./overview.md). For the cloud-agnostic architecture (CC Groups, forwarding rules, HA concept), start with [`./overview.md`](./overview.md). This doc captures the Azure-specific NIC model, networking requirements, VMSS scaling, and the gotchas that bite Azure deployments specifically.
+
+The canonical source for nearly every Tier A claim below is **Zscaler's first-party Terraform module repository** (`github.com/zscaler/terraform-azurerm-cloud-connector-modules`). When the module code and a help-portal article disagree, the module is authoritative — it's what actually deploys.
+
+## Marketplace listing and image terms
+
+| Field | Value |
+|---|---|
+| Publisher | `zscaler1579058425289` |
+| Offer | `zia_cloud_connector` |
+| Primary SKU | `zs_ser_gen1_cc_01` |
+| Default image version | `24.3.2` (per Terraform module defaults, Sept 2024) |
+| Default VM size (single CC) | `Standard_D2ds_v5` |
+| Default VM size (VMSS) | `Standard_D2s_v3` |
+
+**Image terms must be accepted before any IaC deployment can succeed:**
+```bash
+az vm image terms accept --urn zscaler1579058425289:zia_cloud_connector:zs_ser_gen1_cc_01:latest
+```
+Skipping this produces an ARM-level error, not a Zscaler error — easy to misdiagnose.
+
+The Zscaler-published Terraform repo ships **9 deployment scenarios** ranging from greenfield single-CC POV to brownfield VMSS with BYO VNet/RG/NSG. ARM templates exist as a Marketplace-wizard path but are not separately published as a standalone repo. **No Bicep templates** are published by Zscaler — defer to TF or ARM.
+
+## Dual-NIC architecture (load-bearing)
+
+Azure Cloud Connector requires **two NICs per VM**, in a fixed order:
+
+| NIC | Subnet | IP Forwarding | Notes |
+|---|---|---|---|
+| #0 (primary) — Management | `mgmt-subnet` | **Disabled** | SSH (TCP 22), ICMP, ZIA support tunnel |
+| #1 — Service / Forwarding | `service-subnet` | **Enabled** | Workload traffic, attaches to LB backend pool, accelerated networking on |
+
+Ordering is enforced by the module: "the ordering of `network_interface_ids` associated to the `azurerm_linux_virtual_machine` are #1/first 'Management'." Swapping subnet IDs in module variables produces VMs that fail at boot — the CC expects management traffic on the first interface.
+
+There is **no single-NIC deployment path** for Azure Cloud Connector. The "single-arm" framing in some general Zscaler material refers to the forwarding topology in other cloud products and does not apply to Azure.
+
+## Provisioning URL handoff
+
+The ZIA Admin Console generates a per-template provisioning URL that bootstraps each VM. The flow:
+
+1. ZIA Admin Console → **Infrastructure > Connectors > Cloud > Management > Provisioning** → create a Cloud Provisioning Template; select Azure as cloud provider; optionally enable VMSS autoscaling (gated — see § VMSS).
+2. Save → ZIA generates a `prov_url`. The Terraform `ztc_provisioning_url` resource creates this programmatically (`prov_url_data.cloud_provider_type = "AZURE"`).
+3. The URL is injected into the Azure VM via `cloud_init` / `custom_data`. Modules deliver it as `CC_URL=<prov_url>` inside a `[ZSCALER]` INI block in `user_data`, alongside `AZURE_VAULT_URL`, `AZURE_MANAGED_IDENTITY_CLIENT_ID`, and `HTTP_PROBE_PORT`.
+
+If the provisioning URL is regenerated in the ZIA console (key rotation, template recreation) and the Terraform state isn't refreshed, **VMSS scale-out events will produce CCs that fail to register**. (Tier D — structural inference; not an explicitly documented failure but follows from the bootstrap flow.)
+
+## VNet design
+
+### Hub-spoke topology (Tier B)
+
+Zscaler's reference architecture places Cloud Connectors in a **transit/egress hub VNet**, with spoke workload VNets routing default traffic to the CC ILB via VNet peering + UDRs. Quoted from the reference architecture PDF: *"Spoke VNet workloads requiring internet or private access are directed towards the front-end load balancer IP address using a simple default route."* This reduces CC instance count vs per-spoke deployment.
+
+The reference architecture PDF exists at `help.zscaler.com/downloads/cloud-branch-connector/reference-architecture/zero-trust-security-azure-workloads-zscaler-cloud-connector/` but is binary and not text-extractable. Tier B until captured.
+
+### Routing — UDRs
+
+Workload subnets need a route table with `0.0.0.0/0` pointing at the ILB frontend IP (or directly at the CC service NIC IP in single-CC non-LB deployments). The Terraform modules create `workload_rt` and `private_dns_rt` route tables automatically.
+
+**BGP route propagation gotcha**: when CC coexists with an ExpressRoute or VPN Gateway in the same VNet, learned routes can override the static `0.0.0.0/0`. Disable propagation on the workload route table and rely on the UDR for explicit control. (Tier B — standard Azure routing pattern; not Zscaler-specific.)
+
+### Private DNS Resolver (ZPA-enabled deployments only)
+
+For deployments using Cloud Connector to broker ZPA private-app DNS, the `terraform-zscc-private-dns-azure` module deploys an **Azure Private DNS Resolver** (not Private DNS Zones) in a delegated `/28`–`/24` subnet, with up to 25 forwarding rules per ruleset linked to up to 10 VNets per region. Forwarding targets are Zscaler Global VIPs (`185.46.212.88` and `185.46.212.89` are the defaults) or the local CC service IP.
+
+For pure ZIA workload egress, the Private DNS Resolver is not required.
+
+## NSG requirements
+
+Two NSGs are deployed — one per NIC:
+
+**Management NSG**
+
+| Direction | Priority | Source/Dest | Port | Notes |
+|---|---|---|---|---|
+| Inbound | 4000 | `VirtualNetwork` | TCP 22 | SSH from bastion |
+| Inbound | 4001 | `VirtualNetwork` | ICMP | Health checks |
+| Outbound | 3000 | `199.168.148.101` | TCP 12002 | Zscaler Support tunnel; only when `support_access_enabled = true` |
+| Outbound | 4000 | Any | All | Default allow-out |
+
+**Service NSG**
+
+| Direction | Priority | Source/Dest | Port |
+|---|---|---|---|
+| Inbound | 4000 | `VirtualNetwork` | All |
+| Outbound | 4000 | Any | All |
+
+The Service NSG's permissive `VirtualNetwork` inbound implicitly covers Azure Load Balancer health probe traffic. **No explicit rules for Azure Fabric IPs** (`168.63.129.16`, `169.254.169.254`) — Cloud Connector relies on standard Azure platform reachability for IMDS and DHCP. This is different from ZCC, which actively tunnels and needs explicit Fabric IP bypass.
+
+## Load Balancer
+
+| Setting | Value |
+|---|---|
+| SKU | **Azure Standard ILB** (Basic SKU not referenced anywhere) |
+| Probe protocol/port | HTTP on TCP 50000 |
+| Probe path | `/cchealth` |
+| Probe interval | 15 seconds |
+| Failures to unhealthy | 2 consecutive |
+| Successes to recovery | 1 |
+| Distribution | `Default` (5-tuple hash) |
+
+CC responds `200 OK` when healthy, `503` or no response when unhealthy.
+
+## NAT Gateway
+
+A **NAT Gateway with a dedicated Public IP** is required per CC service subnet for egress to ZIA Public Service Edges. The NAT Gateway's public IP is the egress source IP that ZIA sees — it should be registered/allowed at the ZIA tenant where appropriate.
+
+For multi-AZ deployments, **one NAT Gateway per availability zone** is the Zscaler recommendation. Azure NAT Gateways are zone-specific; a single NAT GW shared across AZs is a single point of AZ failure for egress.
+
+## VMSS autoscaling
+
+**Enablement is gated** — the help docs explicitly require contacting Zscaler Support to enable VMSS in the provisioning template UI:
+> "To enable Auto Scaling, VMSS, or a MIG with autoscaling, contact Zscaler Support."
+
+| Setting | Value |
+|---|---|
+| Orchestration mode | Flexible |
+| Default instances | 2 |
+| Minimum | 2 |
+| Maximum | 16 |
+| Scale-out trigger | CPU > 70% (5-min eval, 15-min cooldown) |
+| Scale-in trigger | CPU < 50% (same eval) |
+| Scheduled scaling | Optional (default: weekday 9–5 in configurable timezone) |
+
+VMSS deployments include a **mandatory Azure Function App** with two functions:
+
+1. **Health Monitoring Function** — runs every 60s, terminates instances reporting health 0 for 5 consecutive checks or flapping (7/10 unhealthy). Controlled by `terminate_unhealthy_instances` (default `true`).
+2. **Resource Sync Function** — runs every 30 minutes, reconciles ZIA Cloud Connector Group membership against the VMSS instance list. **If a CC exists in the Group but not in the VMSS, it cleans up the orphan from the Group.** This is the documented orphan-cleanup mechanism — not folklore.
+
+**Regional caveat**: Flex Consumption plan is not available in all Azure regions. When unavailable but VNet integration is required, upgrade to Elastic Premium (EP1). Skipping this produces a degraded VMSS deployment with no orphan cleanup or unhealthy-instance termination.
+
+## HA model in Azure
+
+| Layer | Recommendation |
+|---|---|
+| CC instances | Minimum **2 per AZ across at least 2 AZs** (4 total) |
+| Load balancer | Standard ILB, 15s probe |
+| Tunnel failover (CC → ZIA) | ~30 seconds on primary tunnel failure; primary/secondary/tertiary gateway selection is automatic by geolocation |
+| Default behavior on full ZIA unreachability | **Fail-close** (drop) — switchable to fail-open |
+| NAT Gateway | One per AZ |
+| Upgrade window | Configurable per CC Group (Admin Console); maintains redundancy during upgrade |
+
+## Common failure modes
+
+**Documented (Tier A):**
+- **Marketplace image terms not accepted** — `az vm image terms accept` must run before any IaC deploy.
+- **VMSS without Support enablement** — provisioning template will be misconfigured if you toggle VMSS without Zscaler Support enabling it on the tenant first.
+- **Function App regional gap** — Flex Consumption plan unavailability requires Elastic Premium fallback; otherwise no orphan cleanup or health-driven termination.
+- **Managed Identity permissions** — at minimum `Microsoft.Network/networkInterfaces/read` (or `Network Contributor`). Missing this causes VM bootstrap failure when the CC tries to discover its own NIC config at startup.
+
+**Inferred (Tier D — verify against your deployment):**
+- **Provisioning URL stale on VMSS** — if the URL is regenerated in ZIA Admin and Terraform state isn't refreshed, scale-out events produce CCs that fail to register.
+- **NIC ordering wrong** — module enforces management-NIC-first; swapping produces boot failures.
+- **`ip_forwarding_enabled` not set on service NIC** — VM is healthy from Azure's perspective but passes no traffic; LB health probe fails to 503 quickly.
+- **NAT Gateway missing or misconfigured** — service NIC has no public egress path; CC can't reach ZIA Service Edges; LB probe shows 503.
+
+## Source-citation gaps (future capture targets)
+
+These pages exist but are JS-gated and weren't text-extractable at last verification:
+
+- `help.zscaler.com/cloud-branch-connector/deploying-zscaler-cloud-connector-microsoft-azure` — main per-cloud deployment help page
+- `help.zscaler.com/cloud-branch-connector/troubleshooting-cloud-connector-microsoft-azure` — troubleshooting page
+- `help.zscaler.com/zscaler-technology-partners/zscaler-and-azure-traffic-forwarding-deployment-guide` — also covers ExpressRoute/VPN Gateway coexistence
+- The reference architecture PDF (binary, not extractable via WebFetch)
+
+ExpressRoute / VPN Gateway coexistence and Azure Route Server interaction remain Tier D until those captures land.
+
+## Cross-links
+
+- Cloud-agnostic architecture: [`./overview.md`](./overview.md)
+- Forwarding rules + methods: [`./forwarding.md`](./forwarding.md)
+- API + Terraform surface: [`./api.md`](./api.md)
+- Portfolio context: [`../_portfolio-map.md`](../_portfolio-map.md)
