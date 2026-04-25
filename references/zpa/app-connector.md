@@ -97,6 +97,8 @@ A literal copy of this error in a support ticket narrows diagnosis to "key is wr
 
 **Zscaler Deception / Zscaler-managed keys** — if a provisioning key is Deception-configured or Zscaler-managed, Edit and Delete options are unavailable. Audit tooling should skip these.
 
+**`association_type` write-vs-read schema asymmetry.** The TF resource accepts five association types (`CONNECTOR_GRP, SERVICE_EDGE_GRP, EXPORTER_GRP, NP_ASSISTANT_GRP, SITE_CONTROLLER_GRP` per `resource_zpa_provisioning_key.go:131`) but the matching data source accepts only two (`CONNECTOR_GRP, SERVICE_EDGE_GRP` per `data_source_zpa_provisioning_key.go:102`). Operators creating provisioning keys for the three "extended" types must look up by ID rather than association_type-plus-name through the data source. The data source's own description explicitly says "supported values are CONNECTOR_GRP and SERVICE_EDGE_GRP" — this is by design at the TF layer, not a stale validator. Implication: tooling that auto-discovers provisioning keys via the data source will silently miss keys for the three extended types. Cross-listed in [`./api.md § Read/write shape asymmetries`](./api.md).
+
 ### Software updates
 
 From *Understanding App Connector Software Updates*:
