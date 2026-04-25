@@ -135,13 +135,62 @@ CBC uses the **same weight-based rate-limit model as ZIA** — Heavy (DELETE) / 
 
 ## Python automation
 
-**Python SDK coverage landed in v2.0.0 (2026-04-22).** Fork teams on older Python SDK versions (≤ v1.9.22) historically had to:
+**Python SDK coverage landed in v2.0.0 (2026-04-22)** with 17 ZTW service modules: `account_details`, `activation`, `admin_roles`, `admin_users`, `api_keys`, `ec_groups`, `forwarding_gateways`, `forwarding_rules`, `ip_destination_groups`, `ip_groups`, `ip_source_groups`, `location_management`, `location_template`, `nw_service`, `nw_service_groups`, `provisioning_url`, plus `ztw_service`. The Python SDK is now at parity with Go for the most-needed surfaces.
 
-- Call the Cloud Connector API directly via `requests` / `httpx`, authenticating via OneAPI OAuth (the auth flow is the same as ZIA/ZPA).
+Fork teams on Python SDK versions ≤ v1.9.22 historically had to:
+
+- Call the Cloud Connector API directly via `requests` / `httpx`, authenticating via OneAPI OAuth (auth flow same as ZIA/ZPA).
 - Use Go-based tooling for Cloud Connector automation and Python for other products.
-- Wait for Python SDK to add a `ztw` module (Zscaler typically maintains feature parity across SDKs over time).
 
-This is a real gap, not an SDK-version lag — the Python SDK directory `vendor/zscaler-sdk-python/zscaler/` has no `ztw` subdirectory at all. Worth flagging in automation planning for teams standardized on Python.
+These workarounds are no longer required as of v2.0.0.
+
+## Common SDK patterns
+
+The most-used call patterns inline. For full method signatures see `vendor/zscaler-sdk-python/zscaler/ztw/`. Use `client.ztw.*` for all Cloud Connector operations (note: `ztw` not `cbc` — see [`./overview.md`](./overview.md) on the five-name product family).
+
+```python
+from zscaler import ZscalerClient
+
+client = ZscalerClient({...})  # OneAPI; same client as ZIA/ZPA, ZTW resources via .ztw
+
+# Pattern 1: list-and-paginate
+def list_all(method, **kwargs):
+    items, resp, err = method(**kwargs)
+    if err: raise RuntimeError(f"{method.__qualname__}: {err}")
+    out = list(items)
+    while resp.has_next():
+        more, resp, err = resp.next()
+        if err: raise RuntimeError(f"pagination: {err}")
+        out.extend(more)
+    return out
+
+ec_groups = list_all(client.ztw.ec_groups.list_groups)
+fwd_rules = list_all(client.ztw.forwarding_rules.list_rules)
+locations = list_all(client.ztw.location_management.list_locations)
+
+# Pattern 2: activate (CBC has same staged-vs-live model as ZIA)
+status, _, err = client.ztw.activation.get_status()
+if err: raise RuntimeError(f"get_status: {err}")
+if status.status == "PENDING":
+    _, _, err = client.ztw.activation.activate()
+    if err: raise RuntimeError(f"activate: {err}")
+# See ../shared/activation.md for the full staged-vs-live treatment.
+
+# Pattern 3: forceActivate — last resort when standard activate is stuck
+# CBC has a forceActivate endpoint that ZIA doesn't have; treat it as escape hatch.
+# Per ./api.md § Activation: forceActivate sidesteps validation that protects
+# against pushing broken config. Don't use it as a default; only when ./api.md
+# § "activate vs forceActivate" diagnostic flow says you need it.
+# _, _, err = client.ztw.activation.force_activate()  # ← uncomment only if needed
+
+# Pattern 4: error-handling wrapper
+def call(method, *args, **kwargs):
+    data, resp, err = method(*args, **kwargs)
+    if err: raise RuntimeError(f"{method.__qualname__} failed: {err}")
+    return data
+```
+
+For troubleshooting these patterns, see [`../_runbooks.md § Troubleshooting flows`](../_runbooks.md).
 
 ## Snapshotting Cloud Connector config
 
@@ -153,7 +202,7 @@ Alternative: use `terraform plan -out` against the `ztc` provider and parse the 
 
 - **Exact endpoint paths for each `client.ztw.*` service** — not inspected line-by-line in this pass.
 - **Rate limit specifics** — the rate-limits article exists but isn't captured.
-- **Python SDK timeline** — unknown when/if `ztw` will land in `zscaler-sdk-python`.
+- ~~**Python SDK timeline**~~ — **Resolved 2026-04-22**: Python SDK v2.0.0 landed full ZTW coverage (17 service modules). Pre-v2.0.0 the gap was real; current pinned submodule version has parity with Go.
 - **Partner integrations beyond AWS** — Azure / GCP discovery integrations likely exist; not documented here.
 - **`ztc_ip_pool_groups` underlying API** — TF resource exists without Go SDK equivalent; the wire format underneath is unclear.
 

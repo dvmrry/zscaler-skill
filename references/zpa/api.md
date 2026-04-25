@@ -258,6 +258,72 @@ Cross-check against `vendor/zscaler-sdk-go/zscaler/zpa/services/` surfaced servi
 
 Python-only modules the Go SDK doesn't carry (some of these are Python's way of splitting what Go bundles; some are newer features): `tag_key`, `tag_namespace`, all five `pra_*` modules (`pra_approval`, `pra_console`, `pra_credential`, `pra_credential_pool`, `pra_portal`), and all four `cbi_*` modules (`cbi_banner`, `cbi_certificate`, `cbi_profile`, `cbi_region`). The PRA and CBI surfaces exist in Go under different paths — the module split differs rather than the API coverage.
 
+## Common SDK patterns
+
+The most-used call patterns inline. For full method signatures see `vendor/zscaler-sdk-python/zscaler/zpa/`. For the procedural auth-selection decision tree, see [`../_runbooks.md § Authentication selection`](../_runbooks.md).
+
+```python
+from zscaler import ZscalerClient
+
+client = ZscalerClient({
+    "client_id": os.environ["ZSCALER_CLIENT_ID"],
+    "client_secret": os.environ["ZSCALER_CLIENT_SECRET"],
+    "vanity_domain": os.environ["ZSCALER_VANITY_DOMAIN"],
+})
+
+# Pattern 1: list-and-paginate
+def list_all(method, **kwargs):
+    items, resp, err = method(**kwargs)
+    if err: raise RuntimeError(f"{method.__qualname__}: {err}")
+    out = list(items)
+    while resp.has_next():
+        more, resp, err = resp.next()
+        if err: raise RuntimeError(f"pagination: {err}")
+        out.extend(more)
+    return out
+
+segments = list_all(client.zpa.application_segment.list_segments)
+policies = list_all(client.zpa.policy_set_controller.list_rules)
+
+# Pattern 2: round-trip update for an Application Segment
+# CRITICAL: do NOT include `clientless_app_ids` in the body for standard segments.
+# The SDK checks `if "clientless_app_ids" in body:` (key presence, not truthiness).
+# Including it as None triggers a BROWSER_ACCESS lookup that fails with
+# "No matching clientless App found." Omit the key entirely.
+seg_dict = segment.as_dict()
+seg_dict.pop("clientless_app_ids", None)  # ← required for standard segments
+seg_dict["enabled"] = True
+updated, _, err = client.zpa.application_segment.update_segment(segment_id=42, **seg_dict)
+if err: raise RuntimeError(f"update_segment: {err}")
+# See ./app-segments.md § Edge cases for the full clientless_app_ids gotcha.
+
+# Pattern 3: reorder access policy rules
+# (Go SDK has BulkReorder; Python uses list_rules → manual update per rule.
+# For >5 rules, prefer the Go SDK route or direct HTTP to the bulk endpoint.)
+rules_in_order = [42, 7, 13]  # IDs in desired evaluation order
+for new_position, rule_id in enumerate(rules_in_order, 1):
+    rule, _, err = client.zpa.policy_set_controller.get_rule(policy_id=POLICY_ID, rule_id=rule_id)
+    if err: raise RuntimeError(f"get_rule: {err}")
+    rule_dict = rule.as_dict()
+    rule_dict["rule_order"] = new_position
+    _, _, err = client.zpa.policy_set_controller.update_rule(policy_id=POLICY_ID, rule_id=rule_id, **rule_dict)
+    if err: raise RuntimeError(f"update_rule: {err}")
+# See ./policy-precedence.md for rule-order vs priority disambiguation.
+
+# Pattern 4: LSS feed config (V1 policy format — only place V1 remains current)
+feeds = list_all(client.zpa.lss.list_feeds)
+
+# Pattern 5: error-handling wrapper (same shape as ZIA)
+def call(method, *args, **kwargs):
+    data, resp, err = method(*args, **kwargs)
+    if err: raise RuntimeError(f"{method.__qualname__} failed: {err}")
+    return data
+```
+
+**No activation step** — ZPA propagates writes immediately (distinct from ZIA's saved-but-not-live model). See [`../shared/activation.md`](../shared/activation.md) for the cross-product activation-model comparison.
+
+For troubleshooting these patterns, see [`../_runbooks.md § Troubleshooting flows`](../_runbooks.md).
+
 ## Read/write shape asymmetries
 
 Cross-cutting hub for fields where `GET` and `POST`/`PUT` disagree on shape, value, or presence semantics. Detail lives in topical docs; this section is the discovery point for "API round-trip will bite me, where?" questions.

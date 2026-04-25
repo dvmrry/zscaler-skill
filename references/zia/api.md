@@ -351,6 +351,64 @@ Cross-check against `vendor/zscaler-sdk-go/zscaler/zia/services/` surfaced servi
 
 Python-only modules the Go SDK doesn't carry (mostly newer features or SDK-lag not yet ported): `casb_dlp_rules`, `casb_malware_rules`, `cloud_browser_isolation`, `risk_profiles`, `sub_clouds`, `proxies`, `dns_gateways`, `dedicated_ip_gateways`.
 
+## Common SDK patterns
+
+The most-used call patterns inline. For full method signatures see `vendor/zscaler-sdk-python/zscaler/zia/`. For the procedural decision tree on auth selection, see [`../_runbooks.md § Authentication selection`](../_runbooks.md).
+
+```python
+from zscaler import ZscalerClient
+
+client = ZscalerClient({
+    "client_id": os.environ["ZSCALER_CLIENT_ID"],
+    "client_secret": os.environ["ZSCALER_CLIENT_SECRET"],
+    "vanity_domain": os.environ["ZSCALER_VANITY_DOMAIN"],
+})
+
+# Pattern 1: list-and-paginate (always check has_next, even on small tenants)
+def list_all(method, **kwargs):
+    items, resp, err = method(**kwargs)
+    if err: raise RuntimeError(f"{method.__qualname__}: {err}")
+    out = list(items)
+    while resp.has_next():
+        more, resp, err = resp.next()
+        if err: raise RuntimeError(f"pagination: {err}")
+        out.extend(more)
+    return out
+
+rules = list_all(client.zia.url_filtering_rules.list_rules)
+categories = list_all(client.zia.url_categories.list_categories)
+
+# Pattern 2: get-by-id
+rule, _, err = client.zia.url_filtering_rules.get_rule(rule_id=42)
+if err: raise RuntimeError(f"get_rule: {err}")
+
+# Pattern 3: round-trip update (mutate + write back)
+# CAUTION: server-assigned fields (id, last_modified_*) are echoed but ignored.
+# CAUTION: see `Read/write shape asymmetries` below for known same-key gotchas
+# (Sandbox order=127, Location tz THE_ prefix, URL Filter description whitespace).
+rule_dict = rule.as_dict()
+rule_dict["order"] = 5
+updated, _, err = client.zia.url_filtering_rules.update_rule(rule_id=42, **rule_dict)
+if err: raise RuntimeError(f"update_rule: {err}")
+
+# Pattern 4: activate (ZIA changes are saved-but-not-live until activation)
+status, _, err = client.zia.activation.get_status()
+if err: raise RuntimeError(f"get_status: {err}")
+if status.status == "PENDING":
+    _, _, err = client.zia.activation.activate()
+    if err: raise RuntimeError(f"activate: {err}")
+# See ../shared/activation.md for the full activation lifecycle.
+
+# Pattern 5: error-handling wrapper (Pythonic exceptions over the tuple pattern)
+def call(method, *args, **kwargs):
+    data, resp, err = method(*args, **kwargs)
+    if err: raise RuntimeError(f"{method.__qualname__} failed: {err}")
+    return data
+# Usage: rules = call(client.zia.url_filtering_rules.list_rules)
+```
+
+For troubleshooting these patterns when something goes wrong, see [`../_runbooks.md § Troubleshooting flows`](../_runbooks.md).
+
 ## Read/write shape asymmetries
 
 Cross-cutting hub for fields where `GET` and `POST`/`PUT` disagree on shape, value, or presence semantics. Detail lives in topical docs; this section is the discovery point for "API round-trip will bite me, where?" questions.

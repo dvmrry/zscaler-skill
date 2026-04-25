@@ -112,6 +112,50 @@ No `add_forwarding_profile` in the current SDK — profiles are created via a di
 - `list_by_company(query_params={...})` — `GET /webFailOpenPolicy/listByCompany`. Typically returns a single policy per tenant — the "list" is a historical artifact of the endpoint design.
 - `update_failopen_policy(**kwargs)` — `PUT /webFailOpenPolicy/edit`. Takes `id`, `active`, `enable_fail_open`, `enable_captive_portal_detection`, `captive_portal_web_sec_disable_minutes`, `tunnel_failure_retry_count`, and the other FailOpenPolicy fields.
 
+## Common SDK patterns
+
+The most-used call patterns inline. For full method signatures see `vendor/zscaler-sdk-python/zscaler/zcc/`. For auth-selection decision tree, see [`../_runbooks.md § Authentication selection`](../_runbooks.md).
+
+```python
+from zscaler import ZscalerClient
+
+client = ZscalerClient({...})  # OneAPI; for legacy use LegacyZCCClient (apiKey + secretKey)
+
+# Pattern 1: list-and-paginate
+def list_all(method, **kwargs):
+    items, resp, err = method(**kwargs)
+    if err: raise RuntimeError(f"{method.__qualname__}: {err}")
+    out = list(items)
+    while resp.has_next():
+        more, resp, err = resp.next()
+        if err: raise RuntimeError(f"pagination: {err}")
+        out.extend(more)
+    return out
+
+profiles = list_all(client.zcc.forwarding_profile.list_profiles)
+devices = list_all(client.zcc.devices.list_devices)
+web_policies = list_all(client.zcc.web_policy.list_by_company,
+                        query_params={"device_type": "windows"})
+
+# Pattern 2: force-remove a device
+# (regular remove leaves a tombstone; force-remove deletes the record outright)
+_, _, err = client.zcc.devices.force_remove_devices(udid=["abc123", "def456"])
+if err: raise RuntimeError(f"force_remove: {err}")
+
+# Pattern 3: WARNING — web_policy_edit() is broken on v1.9.13–v1.9.14 (status v2.0.0 unconfirmed)
+# Per upstream issue zscaler/zscaler-sdk-python#458, every web_policy_edit() call returns 400
+# regardless of body. If you hit this, work around via direct HTTP or upgrade-and-retest.
+# See ./web-policy.md for the workaround status.
+
+# Pattern 4: error-handling wrapper
+def call(method, *args, **kwargs):
+    data, resp, err = method(*args, **kwargs)
+    if err: raise RuntimeError(f"{method.__qualname__} failed: {err}")
+    return data
+```
+
+For troubleshooting these patterns, see [`../_runbooks.md § Troubleshooting flows`](../_runbooks.md).
+
 ## Snapshotting ZCC configuration
 
 `scripts/snapshot-refresh.py` currently does not dump ZCC resources. Adding them means extending `refresh_zia(...)` (misleadingly named — it's a full-tenant refresh orchestrator) with entries for:
