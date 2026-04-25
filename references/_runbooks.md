@@ -392,6 +392,114 @@ else:
 
 ---
 
+## Rollback / safe-change patterns
+
+Reversibility differs sharply by product. Pick the right pattern for the product and resource you're changing.
+
+### Reversibility per product
+
+| Product | Reversibility model | Rollback window | Pattern |
+|---|---|---|---|
+| **ZIA** | **Staged via activation gate** (changes are saved-but-not-live until activate) | Until you call `/zia/api/v1/status/activate` | Make changes, snapshot, **revert before activating** if needed. The activation gate IS the rollback window. |
+| **ZTW (Cloud Connector)** | Staged (ZIA-style activation gate, plus `forceActivate` escape hatch) | Until `activate` (or `forceActivate`) | Same as ZIA. `forceActivate` is last-resort and bypasses validation — see [`../cloud-connector/api.md § Activation`](./cloud-connector/api.md). |
+| **ZPA** | **Propagate on write** (no activation gate; changes are live immediately) | None — change is live as soon as the API returns 200 | **Snapshot-before-change**, manual revert. Atomic operations only safe at the per-resource level. |
+| **ZCC** | Propagate on write (web policy / forwarding profile changes apply on next ZCC agent check-in, but the API write is immediate) | None for the API; agent re-pulls on next check-in (Forwarding Profile / Trusted Network changes) or logout/restart (App Profile / Web Policy changes) | Snapshot-before-change. Plan for grace window before agents notice. |
+| **ZBI** | Propagate on write | None | Snapshot-before-change. |
+| **ZIdentity** | Propagate on write | None | Snapshot-before-change. RBAC changes are particularly sensitive. |
+| **ZWA** | Propagate on write (workflow runs on next DLP incident) | None for config; in-flight incidents continue with their original workflow | Snapshot-before-change for config. |
+| **Deception / Risk360 / AI Security / ZMS** | Portal-only — no programmatic rollback | N/A | Manual revert via portal. |
+
+### Pattern: ZIA staged-and-revert (the activation-gate workflow)
+
+ZIA's activation gate is a **rollback window built into the platform**. Use it deliberately.
+
+```python
+# 1. Snapshot before the change so you have a known-good baseline
+import json, subprocess
+subprocess.run(["./scripts/snapshot-refresh.py", "--zia-only"], check=True)
+
+# 2. Confirm activation status is clean before starting
+status, _, err = client.zia.activation.get_status()
+if err: raise RuntimeError(f"get_status: {err}")
+if status.status != "ACTIVE":
+    raise RuntimeError(f"Cannot start change — activation status is {status.status}")
+
+# 3. Make the change (any number of writes — they all stage)
+rule_dict = current_rule.as_dict()
+rule_dict["action"] = "BLOCK"
+_, _, err = client.zia.url_filtering_rules.update_rule(rule_id=42, **rule_dict)
+if err: raise RuntimeError(f"update_rule: {err}")
+
+# 4. Sanity-check before activating (e.g., re-read and verify, run policy_simulator
+#    against representative URLs, etc.)
+verified, _, err = client.zia.url_filtering_rules.get_rule(rule_id=42)
+if verified.action != "BLOCK":
+    # Revert: re-write with the original
+    _, _, err = client.zia.url_filtering_rules.update_rule(rule_id=42, **original_rule.as_dict())
+    raise RuntimeError("Sanity check failed; reverted before activation")
+
+# 5. Activate (or NOT — if you abort here, the staged changes are still pending
+#    and will activate on the NEXT person's apply. Be explicit.)
+_, _, err = client.zia.activation.activate()
+if err: raise RuntimeError(f"activate: {err}")
+```
+
+**Important** — staging is not isolation. **Anyone with admin access can activate your pending changes**, including a different automation script or a human admin. If you want to abort cleanly, you must revert the staged changes (re-PUT the original values) before walking away. There's no "drop my pending changes without activating" API.
+
+### Pattern: snapshot-before-change for propagate-on-write products
+
+For ZPA / ZCC / ZBI / ZIdentity, the only rollback path is to capture state before the change and re-write it after if you need to revert.
+
+```python
+# 1. Snapshot the specific resource(s) you're touching
+original = client.zpa.application_segment.get_segment(segment_id=42)
+backup = original.as_dict()  # in-memory snapshot
+
+# Optionally persist for audit:
+import json, datetime
+backup_path = f"/tmp/zpa-segment-42-{datetime.datetime.utcnow().isoformat()}.json"
+with open(backup_path, "w") as f:
+    json.dump(backup, f, indent=2)
+
+# 2. Apply the change
+update = {**backup, "enabled": False}
+update.pop("clientless_app_ids", None)  # required for standard segments — see app-segments.md
+updated, _, err = client.zpa.application_segment.update_segment(segment_id=42, **update)
+if err:
+    # Write itself failed; original state intact
+    raise RuntimeError(f"update_segment: {err}")
+
+# 3. Verify (optional — write succeeded but did it apply correctly?)
+verified, _, err = client.zpa.application_segment.get_segment(segment_id=42)
+if verified.enabled is not False:
+    # Revert by re-PUTting the backup
+    _, _, err = client.zpa.application_segment.update_segment(segment_id=42, **backup)
+    raise RuntimeError("Change didn't apply as expected; reverted to backup")
+```
+
+This is **best-effort**, not transactional — between step 2 and 3, the change is live and traffic is affected. Plan for a maintenance window if the change is risky.
+
+### What's NOT reversible
+
+Some changes can't be rolled back even with the patterns above:
+
+- **Deleted resources** can't be restored without recreation. The snapshot has the data but recreating yields a NEW resource ID. Anything that referenced the old ID (rules, segment groups, server groups, dependencies) needs manual re-wiring.
+- **LSS log data once streamed** is gone — the receiving SIEM has it; Zscaler doesn't retain a duplicate.
+- **Provisioning keys at max-utilization** can't be reused. Generate a new key.
+- **App Connector enrollment certificates** expire on a schedule (yearly per docs). Pre-emptive rotation matters; a missed rotation requires re-enrollment.
+- **Activation that succeeded** — once committed, ZIA changes can't be "un-activated." You can apply a counter-change (e.g., rule revert) and re-activate, but the original change's effect during the window between activations is permanent.
+- **DLP-blocked content** — once blocked, the content didn't reach the destination. Reverting the rule doesn't deliver back-dated traffic.
+
+### Operational guidance
+
+- **Always snapshot before risky changes.** `./scripts/snapshot-refresh.py` is cheap; running it pre-change costs ~30 seconds and gives you a known-good baseline.
+- **Use ZIA's activation gate deliberately.** Stage all related changes together, then activate as one atomic step. Don't activate one change at a time when they're related.
+- **Coordinate concurrent admins.** ZIA's edit lock + activation gate mean concurrent automation can step on each other — see `EDIT_LOCK_NOT_AVAILABLE` in [§ Troubleshooting flows § TS-4](#ts-4-activation-is-stuck-or-returning-409).
+- **Test on a non-production tenant first if available.** A dev / sandbox tenant lets you exercise the activation gate without production-impact risk.
+- **For ZPA, plan the maintenance window.** Propagate-on-write means risky changes affect users immediately. Schedule them.
+
+For the simulator-based pattern of "validate the change before applying," see [`./_policy-simulation.md § Change validation`](./_policy-simulation.md).
+
 ## Cross-links
 
 - Authentication mechanisms (full reference, not runbook): [`./shared/oneapi.md § Authentication mechanisms`](./shared/oneapi.md)
