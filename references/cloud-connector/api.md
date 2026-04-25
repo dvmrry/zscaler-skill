@@ -18,7 +18,13 @@ author-status: draft
 
 # Cloud Connector API surface
 
-How to manage Cloud Connector programmatically. Two programmatic paths: the **Go SDK** under `client.ztw.*` (module path `vendor/zscaler-sdk-go/zscaler/ztw/`), and the **Terraform provider** with `ztc_*` resources (path `vendor/terraform-provider-ztc/ztc/`). **No Python SDK coverage** — the Python SDK doesn't include a `ztw` module.
+How to manage Cloud Connector programmatically. Three programmatic paths now exist:
+
+1. **Python SDK** (added in v2.0.0, 2026-04-22) — module path `vendor/zscaler-sdk-python/zscaler/ztw/`. The Python SDK historically lacked ZTW coverage; the v2.0.0 release closed this gap. Service modules: `account_details`, `activation`, `admin_roles`, `admin_users`, `api_keys`, `ec_groups`, `forwarding_gateways`, `forwarding_rules`, `ip_destination_groups`, `ip_groups`, `ip_source_groups`, `location_management`, `location_template`, `nw_service`, `nw_service_groups`, `provisioning_url`, plus a `legacy` auth module and a `ztw_service` entry point.
+2. **Go SDK** under `client.ztw.*` — module path `vendor/zscaler-sdk-go/zscaler/ztw/`. Slightly broader coverage than Python (still includes `partner_integrations`, `policy_management`, `policyresources`, `provisioning`, `workload_groups` as dedicated services that Python folds into broader modules).
+3. **Terraform provider** with `ztc_*` resources — path `vendor/terraform-provider-ztc/ztc/`.
+
+For automation that's been pinned to Python pre-v2.0.0, the historical workaround was direct HTTP via `requests` or shelling out to the Go-based Zscaler Terraformer. The v2.0.0 SDK supersedes those workarounds.
 
 ## Go SDK service surface
 
@@ -129,7 +135,7 @@ CBC uses the **same weight-based rate-limit model as ZIA** — Heavy (DELETE) / 
 
 ## Python automation
 
-**No Python SDK coverage exists today.** Fork teams using Python for Zscaler automation can:
+**Python SDK coverage landed in v2.0.0 (2026-04-22).** Fork teams on older Python SDK versions (≤ v1.9.22) historically had to:
 
 - Call the Cloud Connector API directly via `requests` / `httpx`, authenticating via OneAPI OAuth (the auth flow is the same as ZIA/ZPA).
 - Use Go-based tooling for Cloud Connector automation and Python for other products.
@@ -139,7 +145,7 @@ This is a real gap, not an SDK-version lag — the Python SDK directory `vendor/
 
 ## Snapshotting Cloud Connector config
 
-`scripts/snapshot-refresh.py` doesn't include Cloud Connector. Adding ZTW would require Go SDK integration (since Python SDK doesn't cover it), or shell out to the Zscaler Terraformer CLI tool (`vendor/zscaler-terraformer` — not vendored here yet) for config capture.
+`scripts/snapshot-refresh.py` doesn't include Cloud Connector yet. As of SDK v2.0.0, adding ZTW is now native Python — `client.ztw.ec_groups.list_groups()`, `client.ztw.forwarding_rules.list_rules()`, etc. Pre-v2.0.0 the workaround was Go SDK or Zscaler Terraformer CLI; that workaround is no longer required.
 
 Alternative: use `terraform plan -out` against the `ztc` provider and parse the plan JSON for config state. Workable; not elegant.
 
