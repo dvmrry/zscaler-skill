@@ -117,7 +117,7 @@ Issue #297 proposes restructuring the SDK to raise; not yet implemented as of v2
 
 ### Pagination has had recurring bugs — handle defensively
 
-From upstream issues #197 and #272 (both closed), pagination has had two separate "doesn't return all data" bugs. Pattern to use, as of v2.0.0:
+From upstream issues #197, #272, and #477 (all closed), pagination has had **three separate** "doesn't return all data" bugs over time — the most recent (#477, closed 2026-04 era) was a regression from pre-1.0 versions where `list_users` / `list_groups` returned `N-1` records instead of `N` and `has_next()` returned `False` prematurely. The pattern of recurring pagination bugs is itself a signal: **don't trust pagination silently; always verify total counts on bulk operations against tenant-known sizes when possible.** Pattern to use, as of v2.0.0:
 
 ```python
 records, resp, err = client.zia.url_categories.list_categories()

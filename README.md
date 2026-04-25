@@ -80,6 +80,8 @@ export ZSCALER_CLOUD=...            # optional — omit for default commercial c
 - **Gov**: `zscalergov` (US Gov), `zscalerten` (US Gov 10).
 - **ZPA-only gov values** also exist (`GOV`, `GOVUS`) — use the legacy path below if your ZPA tenant uses these.
 
+> **Production note:** for production commercial-cloud tenants, leaving `ZSCALER_CLOUD` *unset* (rather than setting it to a commercial value) is the correct configuration for the activation CLI's runtime path. Per `tf-zia#552`, hard-requiring it via `getEnvVarOrFail` was a bug — the SDK's expected production behavior is empty / unset. Only set `ZSCALER_CLOUD` when running against gov clouds, beta clouds, or non-default commercial clouds where the tenant is explicitly on a non-`zscaler.net` cloud.
+
 **Legacy path** — use when your tenant is pre-ZIdentity, or a gov tenant that hasn't migrated:
 
 ```bash

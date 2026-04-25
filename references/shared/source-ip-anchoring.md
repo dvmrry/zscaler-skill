@@ -162,6 +162,7 @@ The ZIA Forwarding Control rule's `forward_method` enum (`zia_forwarding_control
 | `PROXYCHAIN` | Forward to upstream proxy (legacy / partner-proxy chains) |
 | `ZPA` | Forward to ZPA — the SIPA path. Requires `zpa_app_segments` referencing a SIPA-flagged segment + a ZPA gateway. |
 | `ENATDEDIP` | Forward through a **Dedicated IP gateway** — the dedicated-IP / customer-controlled-egress variant. Requires the `dedicated_ip_gateway` block referencing a `data.zia_dedicated_ip_proxy` data source. |
+| `GEOIP` | Forward decision keyed to **destination geo-IP** (`dest_countries`, `dest_ip_categories`). Allows the same `dest_addresses` / `dest_countries` / `dest_ip_categories` qualifier set as `PROXYCHAIN` / `DIRECT` / `ENATDEDIP` (per `resource_zia_forwarding_control_rule.go:79`). Added in TF v4.7.x via [tf-zia#544](https://github.com/zscaler/terraform-provider-zia/issues/544). |
 
 The `ENATDEDIP` value was added to the TF provider's allowed-enum set in **v4.7.4** (closed in upstream `terraform-provider-zia` issue #515) — earlier versions rejected it at validation. The `dedicated_ip_gateway` block + `zia_dedicated_ip_proxy` data source landed in **v4.7.9**:
 
