@@ -325,19 +325,35 @@ def check_clarification_propagation(path: Path, resolved_ids: set[str]) -> list[
     if not m:
         return findings
     section = m.group(1)
-    found_ids = {f"{p}-{n}" for p, n in CLARIFICATION_ID_RE.findall(section)}
+
+    # Structural split: many docs separate the Open questions section into a
+    # "still-open" portion and a "Resolved while writing this doc:" portion.
+    # Only check the still-open portion for propagation gaps. Splitting on the
+    # first "Resolved [...]:" line-or-paragraph-start handles both formats:
+    #   - Subsection header: "\nResolved while writing this doc:\n- ..."
+    #   - Inline paragraph:  "\nResolved while writing or after capture: ...; <ID> ..."
+    parts = re.split(
+        r"\n\s*Resolved\b[^\n]*?:",
+        section,
+        maxsplit=1,
+        flags=re.IGNORECASE,
+    )
+    still_open = parts[0]
+
+    found_ids = {f"{p}-{n}" for p, n in CLARIFICATION_ID_RE.findall(still_open)}
     propagation_gaps = found_ids & resolved_ids
 
     for cid in sorted(propagation_gaps):
-        # Heuristic suppression: if the bullet line containing this ID also
-        # mentions "resolved" or "answer" within a wider window, treat as
-        # already-noted-as-resolved in-line. The window is wide enough (300
-        # chars) to catch the "Resolved while writing this doc:" sub-section
-        # header that some docs use to group their resolved entries below
-        # the still-open ones.
-        idx = section.find(cid)
-        nearby = section[max(0, idx - 300) : idx + 300].lower()
-        if "resolved" in nearby or "answer" in nearby:
+        # Per-line check: if the bullet/line containing this ID has its own
+        # inline (resolved) / (partially resolved) / answer annotation, treat
+        # as already-noted. Common pattern: "- Foo — [`zpa-07`](...) (resolved 2026-04-24)".
+        idx = still_open.find(cid)
+        line_start = still_open.rfind("\n", 0, idx) + 1
+        line_end = still_open.find("\n", idx)
+        if line_end == -1:
+            line_end = len(still_open)
+        line = still_open[line_start:line_end].lower()
+        if "resolved" in line or "answer" in line:
             continue
         findings.append(
             Finding(

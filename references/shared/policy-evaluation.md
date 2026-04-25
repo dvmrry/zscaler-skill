@@ -174,7 +174,7 @@ Beyond the default-allow vs default-block split:
 ## Open questions
 
 - ZPA disabled-rule semantics (parity with ZIA unclear from docs) — [clarification `shared-06`](../_clarifications.md#shared-06-zpa-disabled-rule-semantics)
-- Policy Evaluation Order article (referenced but not vendored) — would further strengthen both ZIA and ZPA pipeline claims (see zpa-08)
+- Policy Evaluation Order article (referenced but not vendored) — would further strengthen both ZIA and ZPA pipeline claims. (Note: `zpa-08` "When both FQDNs are equal" is resolved via *About Policies*; the standalone article is what's un-vendored here.)
 
 ## Cross-links
 

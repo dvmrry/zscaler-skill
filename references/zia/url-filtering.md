@@ -213,8 +213,11 @@ Result: **moving the entry from wildcard to exact-match in a lower-priority rule
 Each links to the canonical entry in [`../_clarifications.md`](../_clarifications.md) for full context and status.
 
 - Same-specificity collision across custom categories — [clarification `zia-02`](../_clarifications.md#zia-02-same-specificity-custom-category-collision)
-- Wildcard tokenization (`.example.com` vs `*.example.com` vs bare) — [clarification `zia-03`](../_clarifications.md#zia-03-wildcard-tokenization); see also [`./wildcard-semantics.md`](./wildcard-semantics.md)
 - NROD propagation lag, upper-bound precision — [clarification `zia-04`](../_clarifications.md#zia-04-nrod-propagation-lag) *(partial: "within hours of going live" doc'd)*
+
+Resolved while writing this doc:
+
+- Wildcard tokenization (`.example.com` vs `*.example.com` vs bare) — [clarification `zia-03`](../_clarifications.md#zia-03-wildcard-tokenization) — resolved: leading-period form is the documented wildcard; asterisks are invalid (see [`./wildcard-semantics.md`](./wildcard-semantics.md)).
 
 ## Cross-links
 
