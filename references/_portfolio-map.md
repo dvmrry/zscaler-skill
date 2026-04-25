@@ -47,6 +47,7 @@ The eight core products operators interact with daily. Each has a dedicated `ref
 | **ZIdentity** | Unified identity + auth platform for the Zscaler ecosystem. OneAPI OAuth, API Clients, step-up auth, admin RBAC. | [`zidentity/index.md`](./zidentity/index.md) |
 | **Cloud & Branch Connector (ZTW / ZTC / CBC)** | VM-based traffic forwarding for cloud workloads (AWS / Azure / GCP) and branch offices. Cloud Connector Groups, traffic forwarding, gateway failover. **Five marketing names for the same product family.** | [`cloud-connector/index.md`](./cloud-connector/index.md) |
 | **ZWA — Workflow Automation** | DLP incident lifecycle management. Incident triage, workflows, ticketing/notification integrations. Downstream of ZIA DLP. | [`zwa/index.md`](./zwa/index.md) |
+| **Zscaler Deception** | Active-defense threat detection via decoys (fake servers, AD objects, endpoints, cloud assets). Detects post-breach lateral movement / APTs / ransomware. Integrates with ZPA via Zero Trust Network decoys. | [`deception/index.md`](./deception/index.md) |
 
 ## Tier 2 — Awareness only (no deep-dive yet)
 
@@ -66,8 +67,8 @@ Marketed as **Zscaler Identity Protection**. Detects credential theft, privilege
 #### Resilience
 Automatic carrier / datacenter failover for ZIA, ZPA, ZCC. Bundled into Business+ editions. Adjacent to but distinct from BC Cloud (which we cover in `cloud-architecture.md`). Not deep-dived; **fill priority** for enterprises with uptime guarantees.
 
-#### Zscaler Deception
-Active-defense threat detection via decoys (fake servers, AD objects, endpoints, cloud assets). Detects lateral movement, APTs, ransomware. Integrated with ZPA via Zero Trust Network decoys. **Three captures in `vendor/zscaler-help/`** (`what-is-zscaler-deception.md`, `about-deception-strategy.md`, `about-zpa-app-connectors-deception.md`) but no `references/zpa/deception.md` synthesis doc. **Fill priority** because captures are already done — synthesis is cheap.
+#### ~~Zscaler Deception~~ — promoted to deep-dive 2026-04-24
+Now in Tier 1 — see [`./deception/index.md`](./deception/index.md). Active-defense threat detection via decoys (fake servers, AD objects, endpoints, cloud assets); detects post-breach lateral movement / APTs / ransomware; integrates with ZPA via Zero Trust Network decoys. Three captures in `vendor/zscaler-help/` synthesized into `references/deception/overview.md`.
 
 ### Adjacent / newer (medium relevance)
 
@@ -122,8 +123,8 @@ Never pretend deep-dive coverage exists where it doesn't. Confidence drop is hon
 
 ## Coverage statistics (as of 2026-04-24)
 
-- **Deep-dive products:** 8
-- **Awareness-only products:** 12 (Tier 2)
+- **Deep-dive products:** 9 (after Deception promoted from awareness)
+- **Awareness-only products:** 11 (Tier 2)
 - **Out-of-scope products:** 5+ (Tier 3 — exact count drifts as Zscaler rebrands and acquires)
 - **Architectural pillars named:** 4 (ZTE, Data Fabric, Agentic SecOps, plus the customer-segment "Zero Trust for X" framing)
 
