@@ -1,10 +1,10 @@
 # zscaler-skill
 
-A Claude skill for reasoning about Zscaler environments — ZIA, ZPA, ZCC, ZDX, ZBI, ZIdentity, Cloud & Branch Connector, and ZWA — covering the policy evaluation, rule precedence, and cross-product interactions that raw LLMs hallucinate on.
+A Claude skill for reasoning about Zscaler environments — deep-dive coverage of ZIA, ZPA, ZCC, ZDX, ZBI, ZIdentity, Cloud & Branch Connector, ZWA, Deception, ZPA AppProtection, and Risk360, plus Tier 2 awareness of the broader portfolio (ZMS, ZINS, EASM, AI Guard, Federal Cloud) — covering the policy evaluation, rule precedence, and cross-product interactions that raw LLMs hallucinate on.
 
 ## What this is
 
-A knowledge skill that helps engineers and non-technical users answer questions about Zscaler — from simple lookups ("is this URL covered by a category?") to subtle reasoning ("why does rule A beat rule B, and does SSL inspection happen before or after?"). The core value is **codified behavior** — rule precedence, wildcard semantics, policy evaluation order — not API access. An agent with the API but without this knowledge will answer confidently and wrong.
+A knowledge skill that helps engineers and non-technical users answer questions about Zscaler — from simple lookups ("is this URL covered by a category?") to subtle reasoning ("why does rule A beat rule B, and does SSL inspection happen before or after?") to portfolio breadth ("what is Risk360?", "does Zscaler do microsegmentation?"). The core value is **codified behavior** — rule precedence, wildcard semantics, policy evaluation order, product-fit framing — not API access. An agent with the API but without this knowledge will answer confidently and wrong.
 
 Follows the [Anthropic skill conventions](https://github.com/anthropics/skills) — `SKILL.md` at the root, progressive disclosure through `references/`, helper scripts in `scripts/`, and test prompts in `evals/`.
 
@@ -169,27 +169,33 @@ Lines prefixed `!` indicate a per-resource fetch failure (the run continues). Li
 ## Layout
 
 ```
-SKILL.md              routing hub Claude reads on every invocation
-PLAN.md               crash-recovery / hand-off artifact (roadmap, pending lab tests, gaps)
-references/           lazy-loaded reference docs
-    zia/              ZIA (Internet & SaaS) topics
-    zpa/              ZPA (Private Access) topics
-    zcc/              ZCC (Client Connector) topics
-    zdx/              ZDX (Digital Experience) topics
-    zbi/              ZBI (Cloud Browser Isolation) topics
-    zidentity/        ZIdentity (unified auth / step-up) topics
-    cloud-connector/  Cloud & Branch Connector (ZTW / ZTC / CBC) topics
-    zwa/              ZWA (Workflow Automation — DLP incidents) topics
-    shared/           cross-product topics (policy evaluation, terminology, activation, SIPA, SCIM, cloud architecture)
-    _clarifications.md  canonical index of open/partial/resolved ambiguities
-vendor/               upstream sources as git submodules (SDKs, TF providers, MCP server)
-    zscaler-help/     Zscaler help-site PDFs + Playwright-captured markdown (pinned bibliography)
-scripts/              operational tooling (URL lookup, access check, SSL audit, etc.)
-evals/                canonical Q→A test prompts with structured assertions
-snapshot/             tenant config dumps — empty upstream, populated per-fork
+SKILL.md                   routing hub Claude reads on every invocation
+PLAN.md                    crash-recovery / hand-off artifact (roadmap, pending lab tests, gaps)
+references/                lazy-loaded reference docs
+    _portfolio-map.md      single-page index of every Zscaler product (Tier 1 deep-dive / Tier 2 awareness / Tier 3 out-of-scope)
+    _primer/               prerequisite concepts (networking, zero trust, identity, Zscaler platform shape)
+    _layering-model.md     three-layer framing: general docs / tenant config / SME tribal knowledge
+    _clarifications.md     canonical index of open / partial / resolved ambiguities
+    _template.md           YAML front-matter template for new reference files
+    zia/                   ZIA (Internet & SaaS) topics
+    zpa/                   ZPA (Private Access), including AppProtection (inline WAF/IPS) and Browser Access
+    zcc/                   ZCC (Client Connector) topics
+    zdx/                   ZDX (Digital Experience) topics
+    zbi/                   ZBI (Cloud Browser Isolation / Zero Trust Browser) topics
+    zidentity/             ZIdentity (unified auth / step-up) topics
+    cloud-connector/       Cloud & Branch Connector (ZTW / ZTC / CBC) topics
+    zwa/                   ZWA (Workflow Automation — DLP incidents) topics
+    deception/             Zscaler Deception (decoys, honeypots, post-perimeter detection)
+    risk360/               Risk360 (cyber risk quantification, Monte Carlo, CISO board reporting)
+    shared/                cross-product topics (policy evaluation, terminology, activation, SIPA, SCIM, cloud architecture, OneAPI)
+vendor/                    upstream sources as git submodules (SDKs, TF providers, MCP server)
+    zscaler-help/          Zscaler help-site PDFs + Playwright-captured markdown (pinned bibliography)
+scripts/                   operational tooling (URL lookup, access check, SSL audit, etc.)
+evals/                     canonical Q→A test prompts with structured assertions
+snapshot/                  tenant config dumps — empty upstream, populated per-fork
 ```
 
-Every reference file carries YAML front-matter (`product`, `topic`, `content-type`, `last-verified`, `confidence`, `sources`, `author-status`). See `references/_template.md`.
+Every reference file carries YAML front-matter (`product`, `topic`, `content-type`, `last-verified`, `confidence`, `source-tier`, `sources`, `author-status`). See [`references/_template.md`](./references/_template.md).
 
 ## Submodule management
 
@@ -221,8 +227,8 @@ Expect to do this periodically — upstream SDK / TF provider releases add new r
 - **Several clarifications remain open** because they require tenant-specific lab tests — see `PLAN.md § Pending lab tests` (6 items including ZCC int-enum semantic mappings).
 - **Snapshot schema docs deferred** — will be written against real tenant output post-fork, not inferred pre-fork. See `PLAN.md § 4. Snapshot schema docs`.
 - **Z-Tunnel wire-format internals are not customer-documented.** `references/zcc/z-tunnel.md` covers the operational layer (CONNECT-vs-DTLS, single-IP-NAT requirement, GRE incompatibility, 4-layer bypass architecture). Protocol-level questions (framing, cipher, fallback triggers) remain Zscaler Support territory.
-- **Federal Cloud** (`zscalergov`, `zscalerten`, ZPA GOV/GOVUS) — explicitly out of scope. Most behavior inherits from commercial; gov-specific paths not covered.
-- **Out-of-scope products:** ZMS (microsegmentation), ZINS (shadow IT), EASM, ZAI Guard. Vendored in the Go/Python SDKs but not written up.
+- **Tier 2 awareness only** (one-paragraph treatment in [`references/_portfolio-map.md`](./references/_portfolio-map.md), no deep-dive): ZMS (workload microsegmentation), ZINS (shadow-IT NSS Collector), EASM, AI Guard / AI security family, Federal Cloud variants (`zscalergov`, `zscalerten`, ZPA GOV/GOVUS), plus ITDR, Resilience, DSPM, Posture Control, and others. Promoted from former "out of scope" on 2026-04-24 — the skill can route these, answer breadth questions, and redirect to Zscaler's help site, but won't claim operational depth.
+- **Truly out-of-scope products:** currently none — Tier 3 is reserved for deprecated / internal / unshipped products.
 
 ## License
 

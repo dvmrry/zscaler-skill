@@ -1,28 +1,41 @@
 ---
 name: zscaler
 description: >
-  Answer questions about Zscaler ZIA, ZPA, ZCC (Client Connector), ZDX
-  (Digital Experience), ZBI (Zero Trust Browser / Cloud Browser
-  Isolation), ZIdentity (unified identity + OneAPI authentication +
-  step-up auth), Cloud & Branch Connector (ZTW/ZTC — VM-based
-  traffic forwarding for cloud workloads and branch offices), and ZWA
-  (Workflow Automation — DLP incident lifecycle management) — URL
-  category coverage, URL filtering rule precedence,
-  wildcard matching semantics, SSL inspection ordering, cloud app control
-  interaction with URL filtering, ZPA app-segment matching and policy
-  evaluation order, ZCC forwarding-profile / trusted-network decisions
+  Answer questions about the Zscaler portfolio — deep-dive coverage of ZIA,
+  ZPA (including AppProtection inline WAF/IPS and Browser Access), ZCC
+  (Client Connector), ZDX (Digital Experience), ZBI (Zero Trust Browser /
+  Cloud Browser Isolation), ZIdentity (unified identity + OneAPI
+  authentication + step-up auth), Cloud & Branch Connector (ZTW/ZTC —
+  VM-based traffic forwarding for cloud workloads and branch offices),
+  ZWA (Workflow Automation — DLP incident lifecycle), Deception
+  (decoys/honeypots for post-perimeter detection), and Risk360 (cyber
+  risk quantification / Monte Carlo / CISO board reporting); plus Tier 2
+  awareness of ZMS (workload microsegmentation), ZINS (shadow-IT NSS
+  Collector), EASM, AI Guard / AI security family, Federal Cloud
+  variants, ITDR, DSPM, and Posture Control. Covers URL category
+  coverage, URL filtering rule precedence, wildcard matching semantics,
+  SSL inspection ordering, cloud app control interaction with URL
+  filtering, DLP three-layer model, sandbox / malware / ATP, firewall
+  filtering, ZPA app-segment matching and policy evaluation order,
+  AppProtection profiles / paranoia levels, Browser Access wildcard
+  certificate rules, ZCC forwarding-profile / trusted-network decisions
   (which decide whether traffic reaches ZIA or ZPA in the first place),
   ZDX score / probe / diagnostic-session questions about user experience,
-  and browser isolation (Isolate action, Smart Browser Isolation, isolation
-  profiles). Use whenever the user mentions Zscaler, ZIA, ZPA, ZCC, ZDX,
-  ZBI, Zero Trust Browser, Cloud Browser Isolation, Client Connector, URL
-  categories, URL filtering, cloud app control, SSL inspection, app
-  segments, forwarding profiles, trusted networks, ZDX score, probes,
-  diagnostic sessions / deeptraces, isolation profiles, or asks "is $URL
-  covered / blocked / allowed". Also use for "why does this rule win",
-  "what happens when these policies overlap", "why is this user's app
-  slow", or "what happens when traffic gets isolated" questions, even if
-  the user does not explicitly name Zscaler.
+  browser isolation (Isolate action, Smart Browser Isolation, isolation
+  profiles), Cloud Connector provisioning and activation, and Zscaler
+  portfolio breadth ("what is X?", "does Zscaler do Y?"). Use whenever
+  the user mentions Zscaler, ZIA, ZPA, ZCC, ZDX, ZBI, ZWA, ZTW, ZTC,
+  CBC, Zero Trust Browser, Cloud Browser Isolation, Client Connector,
+  AppProtection, Browser Access, Deception, Risk360, ZMS, ZINS, EASM,
+  AI Guard, URL categories, URL filtering, cloud app control, SSL
+  inspection, DLP, sandbox, app segments, forwarding profiles, trusted
+  networks, ZDX score, probes, diagnostic sessions / deeptraces,
+  isolation profiles, or asks "is $URL covered / blocked / allowed".
+  Also use for "why does this rule win", "what happens when these
+  policies overlap", "why is this user's app slow", "what happens when
+  traffic gets isolated", "what is $product", or "does Zscaler have
+  something for $use-case" questions, even if the user does not
+  explicitly name Zscaler.
 ---
 
 # Zscaler
@@ -185,7 +198,10 @@ When you do query, cite the SPL pattern by name from [`references/shared/splunk-
 - **Tenant state needed, snapshot empty** — say so directly, point to `scripts/snapshot-refresh.py`, and still answer the general case if there is one.
 - **Relevant reference is still a stub** (`author-status: stub`, no body yet) — say the skill hasn't written this down yet, describe what you know from the file's TODO headings, and mark **Confidence: low**.
 - **Question maps to a known open clarification** — if a reference doc cross-links an entry in [`references/_clarifications.md`](references/_clarifications.md) that covers the user's question, cite the clarification ID (e.g. "this hits `zia-03` — wildcard tokenization is unresolved in our public material"), answer what you can, and flag the gap rather than hallucinating the rest.
-- **Out of scope** — this skill covers ZIA, ZPA, ZCC (forwarding profiles, trusted networks, fail-open), ZDX (score, probes, diagnostic sessions, alerts), ZBI (Cloud Browser Isolation / Zero Trust Browser — architecture, policy integration, isolation profiles), ZIdentity (unified identity, OneAPI auth, step-up authentication), Cloud & Branch Connector (ZTW/ZTC — Cloud Connector VM architecture, traffic forwarding rules, SDK/TF surface), and ZWA (Workflow Automation — DLP incident lifecycle management). For ZMS (workload microsegmentation), ZINS, EASM, or Federal Cloud-specific questions, say so and suggest the Zscaler help site. ZCC device-posture rules and on-device web policy are partially in scope — `references/zcc/index.md` lists what's covered and what isn't. ZDX's application-specific call-quality integrations (Microsoft Teams, Zoom deep-dives) are also partially in scope — `references/zdx/index.md` lists the gaps. ZBI's Votiro CDR integration, Sandbox+Isolation, Local Browser Rendering, and end-user UX features are partially in scope — `references/zbi/index.md` lists the gaps. ZIdentity's IdP-specific configurations (Entra, AD FS, Okta) and MFA method configs are partially in scope — `references/zidentity/index.md` lists the gaps.
+- **Tier 1 deep-dive coverage** — ZIA, ZPA (including AppProtection and Browser Access), ZCC (forwarding profiles, trusted networks, fail-open), ZDX (score, probes, diagnostic sessions, alerts), ZBI (Cloud Browser Isolation / Zero Trust Browser — architecture, policy integration, isolation profiles), ZIdentity (unified identity, OneAPI auth, step-up authentication), Cloud & Branch Connector (ZTW/ZTC — Cloud Connector VM architecture, traffic forwarding rules, SDK/TF surface), ZWA (Workflow Automation — DLP incident lifecycle), Deception (decoys / honeypots / post-perimeter detection), and Risk360 (cyber risk quantification). Answer with full confidence and cite specific reference sections.
+- **Tier 2 awareness routing** — for ZMS (workload microsegmentation), ZINS (shadow-IT NSS Collector), EASM, AI Guard / AI security family, Federal Cloud variants (`zscalergov`, `zscalerten`, ZPA GOV/GOVUS), ITDR, Resilience, DSPM, Posture Control, or any other Zscaler-marketed product not in the Tier 1 list, start at [`references/_portfolio-map.md`](references/_portfolio-map.md) for the one-paragraph framing. Give the conceptual answer and point to the Zscaler help site / TAM for operational depth — do NOT fabricate API details or rule behaviors. Confidence: medium at most; annotate as "awareness, not operational depth."
+- **Tier 3 truly out of scope** — currently empty. Reserved for deprecated / internal / unshipped products. If a user question lands here, decline outright.
+- **Partial scope within Tier 1** — ZCC device-posture rules and on-device web policy are partially in scope (see [`references/zcc/index.md`](references/zcc/index.md) for gaps). ZDX's application-specific call-quality integrations (Microsoft Teams, Zoom deep-dives) are partially in scope — [`references/zdx/index.md`](references/zdx/index.md) lists the gaps. ZBI's Votiro CDR integration, Sandbox+Isolation, Local Browser Rendering, and end-user UX features are partially in scope — [`references/zbi/index.md`](references/zbi/index.md) lists the gaps. ZIdentity's IdP-specific configurations (Entra, AD FS, Okta) and MFA method configs are partially in scope — [`references/zidentity/index.md`](references/zidentity/index.md) lists the gaps.
 
 Do not guess precedence, matching semantics, or evaluation order from first principles. These are exactly the places Zscaler's real behavior diverges from intuition — wrong confident answers here are the failure mode this skill exists to prevent.
 
