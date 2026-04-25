@@ -203,14 +203,34 @@ Combining the tier-A sources with the operator workflow — **all within the ZIA
 
 **Conclusion:** since the Python SDK passes through verbatim and the ZIA TF resource doesn't filter, the value rejected by the ZIA API on write is exactly what the ZIA API returned on read. The ZIA API itself has the asymmetry — there's no intermediate component that could plausibly account for the prefix change. The read-side stripping is **tier-B verified through chain of evidence, all within the ZIA call path**.
 
-### Stage 5 — Final encoding
+### Stage 5 — First final encoding
 
-The threaded text in `references/zia/locations.md` and the `references/zia/api.md` aggregator now reflects:
+The threaded text in `references/zia/locations.md` and the `references/zia/api.md` aggregator at this stage reflected:
 
 - Write-side enum (ZIA): tier A (direct citation)
 - Read-side stripping (ZIA API): tier B (chain-of-evidence verification, listed link by link)
-- ZTC validator file content: tier A as a *narrow* observation, but separated as a side note clearly outside the ZIA chain — and explicitly flagged as "ZTC API behavior unverified" so the observation isn't extended into a behavior claim.
-- Extension to other "the"-article countries: tier D (inference, marked as such, not encoded as fact).
+- ZTC validator file content: tier A as a *narrow* observation, but separated as a side note clearly outside the ZIA chain.
+- Extension to other "the"-article countries: tier D (inference, marked as such).
+
+This was committed and pushed.
+
+### Stage 6 — Issue watcher surfaces upstream context, finding evolves further
+
+`scripts/issue-watch.py`'s first run surfaced [tf-zia#562 "Netherlands country drift in location resource"](https://github.com/zscaler/terraform-provider-zia/issues/562), closed 2026-04-17. Reading the issue revealed:
+
+- An independent operator on TF v4.7.6 hit the same drift pattern — *second independent reproduction*, promoting the read-side observation from chain-of-evidence tier B to direct-corroboration tier A.
+- Reporter framing: *"This used to be `THE_NETHERLANDS`, but appears to now be just `NETHERLANDS`."* — meaning **the ZIA API recently changed its read-side behavior**. The asymmetry isn't a long-standing API quirk; it's a transition.
+- Maintainer fix: TF v4.7.18 changelog says "Removed `country` and `tz` validation from resource `zia_location_management` to align with recent API changes." Removed validation rather than updated it.
+
+This adds a layer of nuance the original encoding didn't capture: **what the ZIA API actually accepts on write today is undetermined**. The maintainer punted on which form is canonical. Three scenarios (A: API accepts both; B: API now requires unprefixed; C: API still requires prefixed) are all plausible without lab observation.
+
+The threaded text was revised again to:
+- Promote the read-side claim to tier A (now corroborated by upstream report).
+- Demote the original "write requires prefixed" claim to tier C — the user's report was consistent with that scenario at *some* point, but the current state isn't verified.
+- Document the three scenarios explicitly so an operator hitting this knows what to test.
+- Add operational guidance keyed to TF version (pre-v4.7.18 vs post).
+
+**Key lesson from Stage 6:** verification isn't a one-shot operation. As more evidence arrives — via the issue watcher, submodule bumps, lab tests, or new operator reports — the tier of any given finding can change in either direction. A tier-B finding can graduate to tier A, but it can also fragment (as here, where one tier-B claim split into one tier-A part and one tier-C part on closer inspection). Re-verification when new evidence arrives is part of the protocol's normal operation.
 
 ### What this example demonstrates about the protocol
 
@@ -219,6 +239,8 @@ The threaded text in `references/zia/locations.md` and the `references/zia/api.m
 3. **The protocol's tiers are stable across more evidence.** What changed wasn't the protocol; it was how much tier-A material the chain rests on. As more sources are checked, candidates can be promoted; as fewer are available, claims stay tier C.
 4. **Language matters.** "Verified" got us in trouble in stage 1 because it overstated. Stage 5 uses "verified through chain of evidence" with the chain explicit — readers can audit it.
 5. **Even tier-A citations can become tier-D inference if you extend them beyond what the source supports.** The ZTC validator file content is a fact about the ZTC validator file — not about the ZTC API. Pulling it into a chain about ZIA behavior conflated two different things. The protocol's "verify per link, not per finding" discipline applies even to tier-A material.
+6. **Verification is iterative. Findings can fragment when more evidence arrives.** Stage 6 promoted the read-side claim from tier B to tier A (independent corroboration) AND demoted the write-side claim from tier A to tier C (the API's current write behavior turned out to be unverified). The same finding moved in both directions on different sub-claims at the same time. The protocol's tier system has to be applied per claim, not per finding.
+7. **Automation produces evidence that triggers re-verification.** Stage 6 only happened because `scripts/issue-watch.py` surfaced tf-zia#562. Without that automation, Stage 5's encoding would have stood unchallenged. Tooling that brings new evidence into view is itself a protocol operator — it forces the tier model to keep adjudicating instead of crystallizing prematurely.
 
 ## Adversarial-input scenarios — what to do
 

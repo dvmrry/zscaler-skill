@@ -5,9 +5,11 @@
 # ///
 """find-asymmetries.py — surface candidate API mismatches across vendored upstream.
 
-Status: functional. Pass 1 implemented (TF validator extraction + cross-source diff,
-including map-based validators and within-validator near-duplicate detection).
-Passes 2-5 documented inline as future-work scaffolding.
+Status: functional. Passes 1 + 2 implemented.
+  - Pass 1: TF validator extraction + cross-source diff, including map-based and
+    slice-based validators and within-validator near-duplicate detection.
+  - Pass 2: Postman request body vs response example field-path diff.
+Passes 3-5 documented inline as future-work scaffolding.
 
 Output: logs/asymmetry-candidates.md (gitignored upstream — populate per-fork).
 
@@ -49,12 +51,19 @@ Pass 1 — TF validator extraction + cross-source diff (IMPLEMENTED)
         Lower signal — most matches are legitimate variant families (BLOCK_DROP / BLOCK_RESET).
         Worth eyeballing for asymmetry-shaped patterns.
 
-Pass 2 — Postman request body vs response example diff (FUTURE)
+Pass 2 — Postman request body vs response example diff (IMPLEMENTED)
     Walk vendor/zscaler-api-specs/oneapi-postman-collection.json. For each
-    request, compare the request body schema against the response example
-    block. Surface fields present in response but absent from request (server
-    -assigned), or values that differ between request and response examples
-    for the same key (the `tz` THE_ pattern shape).
+    request with a body AND a 2xx response example, parse both as JSON and
+    diff the field paths. Surface fields present in response but absent from
+    request (server-assigned candidates) and fields present in request but
+    absent from response (write-only candidates).
+
+    Limitation: Postman bodies use placeholder values (`<string>`, `<boolean>`,
+    `<integer>`, etc.), not real data. This means Pass 2 catches FIELD-PRESENCE
+    asymmetries (read-only / write-only fields) but NOT VALUE asymmetries
+    (e.g., the tz THE_ pattern). For value-level asymmetries, lab observation
+    against a real tenant is the only path; the Postman collection isn't
+    sufficient.
 
 Pass 3 — Cross-product field name fuzzy match (FUTURE)
     For each provider, list every field name. Compute Levenshtein distance
@@ -78,6 +87,7 @@ Pass 5 — Python SDK enum extraction (FUTURE)
 ------------------------------------------------------------------------
 """
 
+import json
 import re
 import sys
 from collections import defaultdict
@@ -90,6 +100,7 @@ TF_PROVIDERS = [
     ("zpa", REPO_ROOT / "vendor" / "terraform-provider-zpa" / "zpa"),
     ("ztc", REPO_ROOT / "vendor" / "terraform-provider-ztc" / "ztc"),
 ]
+POSTMAN_COLLECTION = REPO_ROOT / "vendor" / "zscaler-api-specs" / "oneapi-postman-collection.json"
 OUTPUT = REPO_ROOT / "logs" / "asymmetry-candidates.md"
 
 # Thresholds tuned by triage:
@@ -283,6 +294,151 @@ def find_near_duplicates_in_set(values: tuple[str, ...]) -> list[tuple[str, str,
     return pairs
 
 
+# ---- Pass 2: Postman request body vs response example field diff ----
+# Server-assigned fields commonly visible in response but not request — suppress to reduce noise.
+COMMON_SERVER_ASSIGNED_LEAVES = {
+    "id",
+    "creationTime",
+    "modifiedTime",
+    "modifiedBy",
+    "modifiedTimestamp",
+    "lastUpdatedTime",
+    "lastUpdatedBy",
+    "createdAt",
+    "updatedAt",
+    "createdBy",
+    "objectId",
+    "self",
+    "href",
+}
+
+# Postman placeholder tags inside JSON string bodies — replace with a sentinel
+# so the body parses as valid JSON for field-path extraction.
+POSTMAN_PLACEHOLDER_TAGS = [
+    "<string>",
+    "<boolean>",
+    "<integer>",
+    "<long>",
+    "<number>",
+    "<float>",
+    "<double>",
+    "<array>",
+    "<object>",
+]
+
+
+def walk_postman_items(items, path=()):
+    """Recursively yield (path, leaf) for every leaf endpoint in a Postman tree."""
+    for it in items:
+        sub = path + (it.get("name", "?"),)
+        if "item" in it:
+            yield from walk_postman_items(it["item"], sub)
+        else:
+            yield sub, it
+
+
+def parse_postman_body(raw: str) -> dict | list | None:
+    """Postman bodies often contain `<string>` / `<boolean>` placeholders. Replace with
+    a literal sentinel so the body parses as JSON; we only care about field paths,
+    not the values."""
+    if not raw or not raw.strip():
+        return None
+    cleaned = raw
+    for tag in POSTMAN_PLACEHOLDER_TAGS:
+        cleaned = cleaned.replace(tag, '"__PLACEHOLDER__"')
+    try:
+        return json.loads(cleaned)
+    except json.JSONDecodeError:
+        return None
+
+
+def extract_field_paths(obj, prefix: str = "") -> set[str]:
+    """Recursively collect every field path in a parsed JSON object/array.
+    Arrays use `[]` as their position marker (we don't index into list items)."""
+    paths: set[str] = set()
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            new = f"{prefix}.{k}" if prefix else k
+            paths.add(new)
+            paths.update(extract_field_paths(v, new))
+    elif isinstance(obj, list):
+        for v in obj:
+            paths.update(extract_field_paths(v, f"{prefix}[]"))
+    return paths
+
+
+def is_obvious_server_field(field_path: str) -> bool:
+    """Heuristic noise filter — common server-assigned field names like `id`,
+    `creationTime`, etc. that show up in nearly every response but rarely in
+    request bodies."""
+    leaf = field_path.split(".")[-1].split("[]")[-1]
+    return leaf in COMMON_SERVER_ASSIGNED_LEAVES
+
+
+def find_postman_diffs() -> list[dict]:
+    """Walk the Postman collection. For endpoints with both a request body and
+    a 2xx response example, diff field paths and surface candidates."""
+    if not POSTMAN_COLLECTION.exists():
+        print(f"WARN: Postman collection missing at {POSTMAN_COLLECTION}", file=sys.stderr)
+        return []
+    try:
+        with POSTMAN_COLLECTION.open(encoding="utf-8") as f:
+            data = json.load(f)
+    except json.JSONDecodeError as e:
+        print(f"WARN: Postman collection unparseable: {e}", file=sys.stderr)
+        return []
+
+    diffs = []
+    for path, leaf in walk_postman_items(data.get("item", [])):
+        req = leaf.get("request")
+        if not isinstance(req, dict):
+            continue
+        method = req.get("method", "")
+        if method not in ("POST", "PUT", "PATCH"):
+            continue
+        body_raw = (req.get("body") or {}).get("raw")
+        request_body = parse_postman_body(body_raw) if body_raw else None
+        if not request_body:
+            continue
+
+        # Pick the first 2xx response example with a body
+        responses = leaf.get("response", []) or []
+        chosen = None
+        for resp in responses:
+            code = resp.get("code", 0)
+            if 200 <= code < 300 and resp.get("body"):
+                chosen = resp
+                break
+        if not chosen:
+            continue
+        response_body = parse_postman_body(chosen.get("body", ""))
+        if not response_body:
+            continue
+
+        request_fields = extract_field_paths(request_body)
+        response_fields = extract_field_paths(response_body)
+        only_in_response = response_fields - request_fields
+        only_in_request = request_fields - response_fields
+
+        # Filter common server-assigned noise (id, createdAt, etc.)
+        only_in_response_signal = {f for f in only_in_response if not is_obvious_server_field(f)}
+        only_in_request_signal = {f for f in only_in_request if not is_obvious_server_field(f)}
+
+        if only_in_response_signal or only_in_request_signal:
+            diffs.append(
+                {
+                    "path": path,
+                    "method": method,
+                    "name": leaf.get("name", "?"),
+                    "response_only": sorted(only_in_response_signal),
+                    "request_only": sorted(only_in_request_signal),
+                    "response_only_filtered_count": len(only_in_response) - len(only_in_response_signal),
+                    "request_only_filtered_count": len(only_in_request) - len(only_in_request_signal),
+                }
+            )
+    return diffs
+
+
 def find_candidates(validators: list[Validator]) -> dict:
     by_field: dict[str, list[Validator]] = defaultdict(list)
     for v in validators:
@@ -325,6 +481,51 @@ def find_candidates(validators: list[Validator]) -> dict:
         "map_count": sum(1 for v in validators if v.kind == "mapstruct"),
         "slice_count": sum(1 for v in validators if v.kind == "stringslice"),
     }
+
+
+def render_postman_section(diffs: list[dict]) -> list[str]:
+    if not diffs:
+        return [
+            "## Pass 2 — Postman request vs response field-path diff",
+            "",
+            "No field-presence asymmetries surfaced (or Postman collection unavailable).",
+            "",
+            "---",
+            "",
+        ]
+    lines = [
+        "## Pass 2 — Postman request vs response field-path diff",
+        "",
+        f"{len(diffs)} endpoints have field-path differences between request body and 2xx response example "
+        "(after filtering common server-assigned fields like `id`, `createdAt`).",
+        "",
+        "**Read 'Response only' as: server returns this field but client never sent it → likely "
+        "read-only / server-assigned attribute.** Operators round-tripping responses back as write payloads "
+        "may include these and either get them ignored or trigger a write-validation error depending on the API.",
+        "",
+        "**Read 'Request only' as: client sends but response example doesn't echo → likely write-only "
+        "(passwords, secrets) or response-trim.** Compare with corresponding GET examples to confirm.",
+        "",
+        "**Limitation reminder:** Postman placeholders block value-level asymmetry detection (the `tz` THE_ shape).",
+        "",
+    ]
+    for d in diffs:
+        title = " / ".join(d["path"][-2:]) if len(d["path"]) >= 2 else d["path"][-1]
+        lines.append(f"### {d['method']} — {title}")
+        if d["response_only"]:
+            lines.append(f"- Response only: `{d['response_only']}`")
+        if d["request_only"]:
+            lines.append(f"- Request only: `{d['request_only']}`")
+        if d["response_only_filtered_count"] or d["request_only_filtered_count"]:
+            lines.append(
+                f"- (Filtered as common server-assigned: "
+                f"{d['response_only_filtered_count']} response-only, "
+                f"{d['request_only_filtered_count']} request-only)"
+            )
+        lines.append("")
+    lines.append("---")
+    lines.append("")
+    return lines
 
 
 def render_report(candidates: dict) -> str:
@@ -432,18 +633,21 @@ def render_report(candidates: dict) -> str:
 def main():
     validators = collect_all_validators()
     candidates = find_candidates(validators)
+    postman_diffs = find_postman_diffs()
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT.write_text(render_report(candidates))
+    full_report = render_report(candidates) + "\n\n" + "\n".join(render_postman_section(postman_diffs))
+    OUTPUT.write_text(full_report)
     print(f"Wrote {OUTPUT}")
     print(
-        f"  {candidates['total_validators']} validators "
+        f"  Pass 1: {candidates['total_validators']} validators "
         f"({candidates['inline_count']} inline + {candidates['map_count']} map-based + "
         f"{candidates['slice_count']} slice-based) "
         f"across {candidates['unique_fields']} unique field/var names"
     )
-    print(f"  {len(candidates['cross_provider'])} cross-provider mismatches")
-    print(f"  {len(candidates['intra_provider'])} intra-provider mismatches")
-    print(f"  {len(candidates['near_duplicates'])} within-validator near-duplicates")
+    print(f"    {len(candidates['cross_provider'])} cross-provider mismatches")
+    print(f"    {len(candidates['intra_provider'])} intra-provider mismatches")
+    print(f"    {len(candidates['near_duplicates'])} within-validator near-duplicates")
+    print(f"  Pass 2: {len(postman_diffs)} Postman request/response field diffs")
 
 
 if __name__ == "__main__":
