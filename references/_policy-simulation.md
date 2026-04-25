@@ -116,9 +116,9 @@ print(result.summary())
 
 Requires `snapshot/zia/url-filtering-rules.json` + `snapshot/zia/url-categories.json`. Run `./scripts/snapshot-refresh.py --zia-only` first.
 
-## Change validation
+## Single-URL before/after primitive
 
-Two-call pattern for "what would changing this rule do?":
+For one-URL "what would changing this rule do?" sanity checks, the module exposes a `diff_simulations()` helper:
 
 ```python
 before = simulate_url_filter(request, rules, categories)
@@ -130,7 +130,7 @@ diff = diff_simulations(before, after)
 # {'url': ..., 'rule_changed': True/False, 'action_changed': True/False, ...}
 ```
 
-For a meaningful change-validation harness, run the simulator against a representative set of test URLs before AND after the proposed change; surface only the diffs. That's the natural extension when the simulator gets validated against real log data — the test URLs become a regression suite.
+This is a primitive, not a harness. A full PR-level "what does this change do to traffic?" workflow has dependencies the skill can't assume yet — extracting proposed state from a `terraform plan` artifact, building a representative test-URL corpus (which without log access has known blind spots), grouping diffs into operator-readable buckets, and abstaining cleanly when the change touches surfaces the simulator doesn't model (CAC / DLP / SSL inspection two-pass). That work is deferred until the prerequisites land (log access for corpus quality + CI specifics for plan-artifact ingestion).
 
 ## When to use the simulator vs. logs
 
