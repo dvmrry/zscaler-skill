@@ -3,7 +3,7 @@ product: zia
 topic: "zia-ssl-inspection"
 title: "ZIA SSL/TLS inspection — pipeline position and policy semantics"
 content-type: reasoning
-last-verified: "2026-04-24"
+last-verified: "2026-04-25"
 confidence: high
 source-tier: doc
 sources:
@@ -21,6 +21,8 @@ sources:
   - "vendor/zscaler-help/About_SSL_TLS_Inspection_Policy.pdf"
   - "https://help.zscaler.com/zia/configuring-url-filtering-policy"
   - "vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.pdf"
+  - "https://duo.com/docs/duo-desktop"
+  - "https://help.duo.com/s/article/9585"
 author-status: draft
 ---
 
@@ -176,6 +178,21 @@ Three top-level action types — `DECRYPT`, `DO_NOT_DECRYPT`, and `BLOCK`. The G
 
 Both `default_rule` (bool) and `predefined` (bool) are first-class SSL-rule fields. Built-in rules (Zscaler Recommended Exemptions, Microsoft 365 Click-to-Run, IoT Classifications) carry `predefined=true`; the terminal Inspect-All rule carries `default_rule=true`. Both are server-set and **echoed back on PUT** — don't strip them when updating rules programmatically. (`zscaler/zia/models/ssl_inspection_rules.py:123-125,208`.)
 
+## Trust mechanics — what Zscaler presents to clients
+
+When inspecting, **the ZIA Public Service Edge acts as a short-lived intermediate CA** — it issues a per-connection certificate on demand for the requested application and signs it with the configured intermediate CA. (*Leading Practices Guide*, p.33.) The client receives a fresh leaf cert per session, signed by Zscaler's CA, valid for the destination's hostname/SAN. There is no long-lived "Zscaler-as-the-server" cert; each connection gets its own ephemeral leaf.
+
+For this to work without browser warnings, **the signing CA must be in the client's trust store**. Two intermediate-CA options exist (*Leading Practices Guide*, pp.6, 33):
+
+| Option | What it is | Cost / requirement |
+|---|---|---|
+| **Default Zscaler intermediate CA** | Zscaler-managed root + intermediate, distributed by Zscaler | Included; no extra subscription |
+| **Customer's existing PKI as the intermediate** | Customer uploads their own intermediate CA + private key (or HSM-backed key) to Zscaler | **Requires an additional Zscaler subscription** |
+
+**Customer-PKI option also supports HSM** — private keys can live in a cloud hardware security module rather than being uploaded directly. (*SSL Inspection Deployment & Operations Guide*, p.3.) This addresses the "I don't want to upload my private key" objection without forcing the default-CA path.
+
+**In-memory inspection** — *SSL Inspection Deployment & Operations Guide* p.3 states: "Web transaction content inspection takes place in memory and is never written to disk." Useful for privacy/legal objections to TLS inspection.
+
 ## What depends on SSL inspection
 
 These ZIA security features require decrypted traffic to function at all (*Leading Practices Guide*, p.4):
@@ -195,12 +212,39 @@ These ZIA security features require decrypted traffic to function at all (*Leadi
 
 Even with SSL inspection enabled, certain traffic resists interception:
 
-- **Certificate-pinned apps** — application has the expected server certificate hard-coded; rejects any other cert. Common: most iOS/Android apps, Adobe products, Cisco WebEx app, Dropbox app, many Microsoft 365 components. (*Leading Practices Guide*, p.22.) Options: bypass via custom URL category, replace the app, or deny. Recommended: deny unless business-critical.
+- **Certificate-pinned apps** — application has the expected server certificate (or CA bundle) hard-coded; rejects any other cert. Two flavors:
+  - **Leaf/key pinning** — most iOS/Android apps, Adobe products, Cisco WebEx app, Dropbox app, many Microsoft 365 components. (*Leading Practices Guide*, p.22.)
+  - **CA-bundle pinning** — the application embeds a specific set of trusted CAs and ignores the OS trust store. **Duo Desktop**, **Duo Mobile**, and the **Duo Authentication Proxy** all do this — Duo's documentation states explicitly: "Proxy connections that perform HTTPS inspection or filtering from endpoints are not supported." (`duo.com/docs/duo-desktop`; Duo KB 9585.)
+  Options: bypass via custom URL category, replace the app, or deny. Recommended: deny unless business-critical.
 - **Client authentication certificates** — when the server requires the *client* to present a cert, the Public Service Edge can't impersonate the client. (*Leading Practices Guide*, p.4.)
 - **Unsupported ciphers** — rare; typically a signal the site is using broken or custom crypto. (*Leading Practices Guide*, p.24.) Zscaler recommends blocking undecryptable traffic rather than passing it.
 - **QUIC (HTTP/3)** — uses UDP, skips TCP handshake; Zscaler's TLS inspection relies on TCP session state. Recommendation: **block QUIC at the firewall so browsers fall back to TCP/TLS**, which can then be inspected. (*Leading Practices Guide*, p.24; also noted as a CAC troubleshooting item in the *CAC Deployment Guide*.)
 - **IoT / OT / BYOD / guest networks** — typically can't install the Zscaler root certificate on the endpoint. Segment off; inspect only the managed-device paths. (*Leading Practices Guide*, pp.25–26.)
-- **Developer environments with custom trust stores** — Python, Node, some IDEs ship their own cert stores. Need explicit cert installation or a scoped bypass. (*Leading Practices Guide*, pp.25–26.)
+- **Developer environments with custom trust stores** — Python, Node, some IDEs ship their own cert stores. Need explicit cert installation or a scoped bypass. (*Leading Practices Guide*, pp.25–26.) See § Trust store deployment below for the per-toolchain catalog.
+
+## Trust store deployment
+
+Beyond the OS trust store, several application classes maintain their own — installing the Zscaler root in the OS isn't enough. (*Leading Practices Guide*, pp.6, 24, 25–26; *SSL Inspection Deployment & Operations Guide*, p.2; Zscaler "SSL Inspection in Developer Environments" blog.)
+
+| Class | What needs configuring | Mechanism |
+|---|---|---|
+| **Firefox** | Mozilla's own NSS-based trust store | Separate import; or `security.enterprise_roots.enabled = true` to honor the OS store |
+| **Python / pip / requests** | `certifi` bundle (not OS store) | `PIP_CERT`, `REQUESTS_CA_BUNDLE` env var, or patch `certifi` |
+| **Node.js / npm** | Bundled OpenSSL CA bundle | `NODE_EXTRA_CA_CERTS=/path/to/zscaler.crt`; `cafile` in `~/.npmrc` |
+| **Git over HTTPS** | libcurl with own CA bundle | `git config --global http.sslCAInfo /path/to/zscaler.crt` |
+| **Java (JDK / Maven / Gradle)** | JRE `cacerts` keystore | `keytool -import` to `$JAVA_HOME/lib/security/cacerts` |
+| **Docker** | Per-registry trust under `/etc/docker/certs.d/` | Copy CA file + restart daemon |
+| **Duo Desktop / Mobile / Auth Proxy** | Embedded CA bundle, Duo-managed | **No deployment path.** Bypass at the network or SSL layer. (`duo.com/docs/duo-desktop`.) |
+| **ChromeOS** | OS-level Google traffic trusts only Google CAs | **Cannot be reconfigured.** OS-level traffic must be exempted; user traffic can be inspected once the cert is pushed via Google Admin. (*Leading Practices Guide*, p.25.) |
+
+**Deployment paths Zscaler explicitly mentions:**
+- **Microsoft SCCM** for desktop trust-store push (*Leading Practices Guide*, p.24)
+- **MDM** (Intune, Jamf, Android EMM) for mobile + ZCC bundling — installing the cert and deploying ZCC are typically bundled tasks (*Leading Practices Guide*, p.25)
+- **GPO** is the implicit default for AD-joined Windows but the Leading Practices guide does not enumerate the GPO-specific path
+
+**Server networks should be deferred from initial rollout** — the primary challenge is getting the root CA installed on hosts plus all containers and custom-trust-store apps running on them. Restrict server-side internet access to permitted destinations while inspection is being rolled out. (*Leading Practices Guide*, p.26.)
+
+**BYOD/guest networks** must be physically/logically segmented — exemption alone isn't enough; "no chance of accessing anything other than the internet." (*Leading Practices Guide*, p.26.)
 
 ## SSL bypass is a cross-policy gate
 
@@ -216,6 +260,29 @@ SSL bypass doesn't just skip TLS inspection — it **breaks or disables multiple
 | Certificate-pinned apps | Bypass is **required** for these apps — they reject Zscaler's intercept cert. |
 
 The inverse failure mode: **an SSL Inspection rule with `Do Not Inspect + Bypass Other Policies`** also skips URL Filtering and Cloud App Control. See the "Do Not Inspect variants" section above for that distinction — it's the extra-dangerous flavor.
+
+## Bypass rule hygiene — anti-patterns
+
+Distilled from *Leading Practices Guide* pp.23–24:
+
+- **Use FQDNs, not IPs.** IPs change; CDN backings rotate; tomorrow's `52.x.x.x` may be a different tenant.
+- **Use specific subdomains, not wildcards** — especially for shared CDNs.
+- **Don't add file paths** to bypass rules — bypass acts at the connection level, paths don't matter.
+- **Prefer Cloud Application criterion over domain** when one exists. Tightly scoped, vendor-tracked, less prone to drift.
+- **Document every bypass entry.** Audit rubric below depends on knowing why each rule exists.
+
+**The CDN wildcard danger** (*Leading Practices Guide*, pp.23–24) — these patterns are explicitly called out as anti-patterns:
+
+| Pattern | Why it's dangerous |
+|---|---|
+| `*.s3.amazonaws.com` | Any AWS account holder gets their own S3 subdomain. Bypass = Zscaler-allowlisted exfiltration channel. |
+| `*.blob.core.windows.net` | Same shape, Azure Blob Storage. |
+| `*.cloudfront.net` | CloudFront distribution names are user-chosen. |
+| `*.googleusercontent.com` | Google Drive shared content lives under user-suffixed subdomains. |
+
+If a specific S3 bucket / Blob container / CloudFront distribution must be bypassed, name it explicitly: `mybucket.s3.amazonaws.com`, not the parent.
+
+**Use Evaluate Other Policies, not Bypass Other Policies** for any custom exemption. The exception is the predefined **Microsoft 365 Click-to-Run** rule, which Zscaler ships with `Bypass Other Policies` because the URLs would break under URL Filtering too. Don't replicate that pattern for new rules. (*Leading Practices Guide*, p.10.)
 
 ## Audit rubric for SSL bypass rules
 

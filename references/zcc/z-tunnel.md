@@ -191,6 +191,25 @@ Operators debugging "why is this destination tunneled when I excluded it" should
 
 Source: *Best Practices for Adding Bypasses for Z-Tunnel 2.0* lines 19–20.
 
+## Mobile push notifications — required bypass for any push-MFA app
+
+Push-notification MFA apps (**Duo Mobile, Microsoft Authenticator, Okta Verify**, etc.) deliver pushes via Apple Push Notification service (APNs) on iOS and Firebase Cloud Messaging (FCM) on Android. Apple's documented stance: *"a proxy server on the Wi-Fi network will prevent devices from being able to use APNs, because APNs requires a direct and persistent connection."* Duo's iOS Push troubleshooting guide (`help.duo.com/s/article/2051`) recommends temporarily disabling VPN as a diagnostic step — implicitly acknowledging the same incompatibility.
+
+**iOS one-VPN-at-a-time** — Apple enforces strict single-VPN-profile behavior. ZCC on iOS sets up a VPN profile that tunnels all traffic. APNs delivery to the same device requires the APNs persistent connection to reach Apple's servers; if the ZCC profile doesn't exclude APNs IPs, push delivery breaks.
+
+**Required Destination Exclusions for mobile ZCC deployments:**
+
+| Service | Destinations | Ports |
+|---|---|---|
+| **Apple Push (APNs, iOS)** | `17.0.0.0/8` | TCP 443, TCP 5223 |
+| **Firebase Cloud Messaging (FCM, Android)** | `*.googleapis.com` (specifically `fcm.googleapis.com`, `play.googleapis.com`) | TCP 443 |
+
+This applies generically to any mobile push channel — not just MFA. The same bypass enables iOS notifications across the device (Mail, calendar, IM apps that use APNs).
+
+**Symptom without the bypass**: Duo Push (or equivalent) "works on cellular but not Wi-Fi." Cellular bypasses ZCC; corporate Wi-Fi has ZCC active and tunnels APNs traffic into oblivion.
+
+Sources: Apple's [APNs network requirements](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/APNSOverview.html), Duo support article 2051, Apple's MDM proxy bypass documentation. Tier A on the mechanism; Tier C on Duo-specific failure reports (community-confirmed pattern, no Zscaler-published KB specifically calling it out for Duo).
+
 ## Z-Tunnel 2.0 + GRE = performance degradation
 
 **Do not route Z-Tunnel 2.0 traffic through GRE tunnels.** The double-encapsulation creates overhead and potential MTU fragmentation that degrades performance noticeably.

@@ -33,6 +33,7 @@ Entry point for Zscaler Internet Access (ZIA) questions. Pick the topic that mat
 | **Forwarding Control + Source IP Anchoring (SIPA)** — egress routing after inspection (ZPA / DIRECT / DROP / PROXYCHAIN), SIPA mechanics (connector-as-egress for IP allowlisting), ZPA Gateway config, SIPA Direct DR mode, Z-Tunnel-1.0 gating, ZPA-side prerequisites | [`./forwarding-control.md`](./forwarding-control.md) | draft |
 | ZIA API — endpoints, authentication, response shapes relevant to this skill | [`./api.md`](./api.md) | draft |
 | **Snapshot schema** — what's in `snapshot/zia/*.json`, top-level shapes, common jq queries, wire-format gotchas | [`./snapshot-schema.md`](./snapshot-schema.md) | draft |
+| **SaaS app + browser quirks** — root-cause catalog (cert pinning / CA-bundle pinning / auth-bypass / source-IP+CA / CDN bypass anti-pattern / QUIC / tenant-restriction silent break). Operator-facing; cross-links to ssl-inspection, tenant-profiles, source-ip-anchoring | [`./saas-app-quirks.md`](./saas-app-quirks.md) | draft |
 
 ## Log schemas
 
