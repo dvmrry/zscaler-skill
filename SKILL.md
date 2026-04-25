@@ -125,6 +125,8 @@ If the question shape isn't here, start with `references/shared/policy-evaluatio
 
 **For breadth questions** ("does Zscaler have a product for X?", "what is Risk360?", "is AppProtection part of ZPA?", "what's the difference between Cloud Connector and Posture Control?"), start with [`references/_portfolio-map.md`](references/_portfolio-map.md) — single-page index of every Zscaler product with deep-dive / awareness / out-of-scope tier. Tells the skill what coverage depth to claim before answering.
 
+**For prerequisite-knowledge questions** ("what's a proxy?", "what's the difference between SAML and OIDC?", "what does zero trust actually mean?", "how does NAT work?"), start with [`references/_primer/`](references/_primer/) — five primer docs covering generic networking, forwarding paradigms, zero-trust philosophy, identity protocols, and the Zscaler platform shape. Use this when the asker is non-networking-background or when you need to set up conceptual scaffolding before diving into a product-specific answer.
+
 **Before quoting any reference summary, check `references/_clarifications.md` for the question's domain** — `zia-*`, `zpa-*`, `shared-*`, `log-*`. Summaries distil the doc; clarifications flag where the doc's cheerful prose hides an unresolved ambiguity. Cite the clarification ID in your answer when one applies and adjust confidence accordingly.
 
 ## Answer format
