@@ -153,7 +153,26 @@ An **Extranet Location Type** groups locations assigned to a specific extranet (
 
 6. **`Location Type` selection auto-populates predefined Dynamic Groups at write time.** Creating a location/sublocation with `Location Type = Workload traffic` silently adds it to the **Workload Traffic Group** at creation time — no explicit group-membership choice required. Same for `Corporate user traffic` (→ Corporate User Traffic Group), `Guest Wi-Fi traffic`, `IoT traffic`, `Server traffic`. An admin creating a sublocation for Cloud Connector workloads doesn't see this happen explicitly — it's a write-time side effect — and immediately becomes subject to all policies scoped to that predefined group. Always check predefined-group memberships of newly-created locations before considering them "policy-isolated." Source: *Configuring Dynamic Location Groups* lines 18–21.
 
-7. **`tz` field strips `THE_` prefix on read but requires it on write.** API returns timezone enum values like `NETHERLANDS_EUROPE_AMSTERDAM`; `POST` / `PUT` requires the full `THE_NETHERLANDS_EUROPE_AMSTERDAM` form (the documented enum value). Same key, different value across read and write. Round-tripping a location read straight back into a write fails validation: the API rejects the unprefixed value as invalid, with no hint that "we just gave you that exact string." Verified against live tenant 2026-04-25. **Operational pattern**: when round-tripping a location, normalize the `tz` field by re-prefixing `THE_` if the read value matches a known stripped form, OR consult the documented enum list (the prefixed values are authoritative). The full set of affected timezones isn't enumerated — assume any country-prefixed timezone with a "The" article in English (Netherlands, Bahamas, Gambia, Philippines, etc.) may exhibit this. Cross-listed in [`./api.md § Read/write shape asymmetries`](./api.md).
+7. **`tz` field — read returns unprefixed; write requires `THE_` prefix for select countries.** Same key, different value across read and write. The full asymmetry is verified through a chain of vendored sources plus a reproduced workflow — see [`../_verification-protocol.md § Worked example`](../_verification-protocol.md) for the canonical demonstration of how this finding moved from tier-C operator report to tier-B verified.
+
+   **Write-side enum (tier A, direct source):**
+   - Canonical ZIA `tz` enum includes `THE_NETHERLANDS_EUROPE_AMSTERDAM` — see [`vendor/terraform-provider-zia/zia/validator.go:1402`](../../vendor/terraform-provider-zia/zia/validator.go).
+   - Country list at `validator.go:954` similarly lists `THE_NETHERLANDS` (prefixed).
+   - The `THE_` prefix applies *selectively* to country names with the English definite article "the." `NETHERLANDS_ANTILLES` (`:887`) and `NETHERLANDS_ANTILLES_AMERICA_CURACAO` (`:1316`) are unprefixed — they're a different country.
+   - The schema-level enum validator is commented out at [`resource_zia_location_management.go:89`](../../vendor/terraform-provider-zia/zia/resource_zia_location_management.go) (`// "tz": getLocationManagementTimeZones(),`); TF doesn't enforce at plan-time, but the API does at apply-time and the validator file documents the canonical write enum.
+
+   **Cross-provider validator divergence (tier A, direct source):** [`vendor/terraform-provider-ztc/ztc/validator.go:24`](../../vendor/terraform-provider-ztc/ztc/validator.go) uses the unprefixed `NETHERLANDS_EUROPE_AMSTERDAM` for the same country — a real ZIA-vs-ZTC validator drift. The same logical timezone has different write-side enum spellings depending on which provider you go through.
+
+   **Read-side stripping (tier B, reproducible chain):** the API's `GET /locations` response for a Netherlands-located tenant returns `tz` as `NETHERLANDS_EUROPE_AMSTERDAM` (no `THE_` prefix). Evidence chain:
+   1. Python SDK is a pass-through for `tz` — [`vendor/zscaler-sdk-python/zscaler/zia/models/location_management.py:43`](../../vendor/zscaler-sdk-python/zscaler/zia/models/location_management.py): `self.tz = config["tz"] if "tz" in config else None`. No normalization in the SDK between HTTP receipt and model construction.
+   2. Operator workflow: Python read → YAML emit → Terraform apply against the same field fails with API rejection of the unprefixed value (canonical write form per the validator).
+   3. Conclusion: since the SDK passes through verbatim and TF/the API reject the unprefixed value as invalid, the API itself must be returning the unprefixed value in the read response — there is no intermediate transformation that could plausibly strip the prefix.
+
+   **Operational pattern:** when round-tripping a location through a Python-emitted YAML → Terraform pipeline (or any read-mutate-write flow), normalize the `tz` field by re-prefixing `THE_` if the read value matches a country in the documented prefixed-form list at `validator.go:1402–1465`. Better: maintain a small mapping function in your tooling that translates read-side values to their canonical write-side enum.
+
+   **What's NOT verified** (still tier-C, tracked as a candidate): whether other "the"-article countries (Bahamas, Gambia, Philippines, etc.) exhibit the same read-vs-write asymmetry on `tz`. The verified data point is Netherlands specifically; extrapolation to other countries is reasonable inference but not source-confirmed. Treat extension to other countries as tier-D inference until a second country is reproducibly observed.
+
+   Cross-listed in [`./api.md § Read/write shape asymmetries`](./api.md).
 
 ## Cross-links
 

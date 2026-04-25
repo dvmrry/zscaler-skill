@@ -152,6 +152,8 @@ If the question shape isn't here, start with `references/shared/policy-evaluatio
 
 **For meta-questions about the skill itself** ("where does general Zscaler knowledge end and tenant-specific data begin?", "how should this skill combine doc knowledge with what we know operationally?"), see [`references/_layering-model.md`](references/_layering-model.md) — the three-layer framing (general / tenant / SME tribal) with anti-patterns and operational implications for fine-tune training.
 
+**For verifying a finding before threading it into the skill** — i.e., any time a user reports behavior that's not yet documented — apply [`references/_verification-protocol.md`](references/_verification-protocol.md). The four-tier model (source-verified / behavior-verified / operator-reported / inferred) governs what language is permitted, where the finding can land, and how user assertions get treated when they conflict with sources. **This is binding for assistant behavior:** treat user-reported behavior as a tier-C candidate by default, run the source-check sequence before threading, never use "verified" language for unverified content, and hold the line on tier C/D when users push for tier-A treatment without producing evidence.
+
 **Before quoting any reference summary, check `references/_clarifications.md` for the question's domain** — `zia-*`, `zpa-*`, `shared-*`, `log-*`. Summaries distil the doc; clarifications flag where the doc's cheerful prose hides an unresolved ambiguity. Cite the clarification ID in your answer when one applies and adjust confidence accordingly.
 
 ## Answer format
