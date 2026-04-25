@@ -32,6 +32,7 @@ Questions that land here: "how do I create API client credentials?", "why is ste
 | API Clients — OneAPI OAuth 2.0 flow, API client creation, roles and scopes, access tokens, revocation | [`./api-clients.md`](./api-clients.md) | draft |
 | Step-Up Authentication — Authentication Levels (hierarchical tree, 32 max, depth 4), ZIA/ZPA integration via access policies, OIDC-only constraint, validity inversion gotcha | [`./step-up-authentication.md`](./step-up-authentication.md) | draft |
 | API surface — `client.zid.*` methods, Python vs Go SDK parity, wire format | [`./api.md`](./api.md) | draft |
+| **Snapshot schema (anticipatory)** — anticipated `snapshot/zidentity/*.json` shapes for users / groups / api-clients / resource-servers; array-of-one-page wrap, pagination quirks, secret-material-never-returned | [`./snapshot-schema.md`](./snapshot-schema.md) | draft |
 
 ## What this hub does NOT cover yet
 

@@ -24,6 +24,7 @@ Entry point for Zscaler Private Access (ZPA) questions — application segments,
 | **Privileged Remote Access (PRA)** — clientless RDP/SSH/VNC gateway, credential pooling (3 credential types, immutable protocol), approval workflow (requester → approver → time-bounded), capabilities policy, session recording with 6-state lifecycle | [`./privileged-remote-access.md`](./privileged-remote-access.md) | draft |
 | **AppProtection** (formerly Inspection) — inline WAF/IPS for ZPA-protected apps, 6 control categories (OWASP CRS 4.8 / ThreatLabZ / Active Directory Kerberos+SMB+LDAP / API / WebSocket / Custom), three-tier policy model (Controls → Profiles → Rules), Paranoia Levels 1-4, default `OWASP Top-10 for Visibility` profile, LSS log stream | [`./appprotection.md`](./appprotection.md) | draft |
 | ZPA API — endpoints, authentication, response shapes | [`./api.md`](./api.md) | draft |
+| **Snapshot schema** — what's in `snapshot/zpa/*.json`, list-wrapping, ruleOrder-as-string, embedded-objects pattern, common jq queries | [`./snapshot-schema.md`](./snapshot-schema.md) | draft |
 
 ## Log schemas
 

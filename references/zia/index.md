@@ -29,6 +29,7 @@ Entry point for Zscaler Internet Access (ZIA) questions. Pick the topic that mat
 | **Bandwidth Control** — Bandwidth Classes + rules, contention-driven enforcement, per-location toggle, 245-class / 8-with-domains / 25K-domain caps, orphan-class default-rule inheritance, sublocation-isn't-isolation gotcha | [`./bandwidth-control.md`](./bandwidth-control.md) | draft |
 | **Content inspection extras — FTP / File Type / SSH** — FTP Control (Firewall-module, passive-only, FTP-over-HTTP default-deny), File Type Control (Web-module, extension + MIME + archive + active-content, 400MB scan cap), SSH (no content inspection — L4-only; PRA is the answer) | [`./content-inspection-extras.md`](./content-inspection-extras.md) | draft |
 | ZIA API — endpoints, authentication, response shapes relevant to this skill | [`./api.md`](./api.md) | draft |
+| **Snapshot schema** — what's in `snapshot/zia/*.json`, top-level shapes, common jq queries, wire-format gotchas | [`./snapshot-schema.md`](./snapshot-schema.md) | draft |
 
 ## Log schemas
 

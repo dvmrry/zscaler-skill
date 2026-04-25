@@ -29,6 +29,7 @@ Almost every ZIA or ZPA answer leans on ZCC implicitly. "User X is blocked" migh
 | Entitlements — which users/groups are entitled to ZPA and ZDX (`zpa_enable_for_all` trump card, ZDX location dual-toggle) | [`./entitlements.md`](./entitlements.md) | draft |
 | Z-Tunnel 1.0 vs 2.0 — CONNECT-proxy vs DTLS/TLS packet tunnel, single-IP NAT requirement, GRE-incompatibility, 4-layer bypass architecture | [`./z-tunnel.md`](./z-tunnel.md) | draft |
 | ZCC API — SDK surface, endpoint prefixes, wire-format keys (camelCase), method summary | [`./api.md`](./api.md) | draft |
+| **Snapshot schema** — what's in `snapshot/zcc/*.json`, mixed-case WebPolicy quirks, CSV-in-string fields, integer-coded enums (`zcc-01` through `zcc-06` territory), common jq queries | [`./snapshot-schema.md`](./snapshot-schema.md) | draft |
 
 ## What this hub does NOT cover yet
 
