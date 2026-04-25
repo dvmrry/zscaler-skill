@@ -882,7 +882,7 @@ When a forwarding-profile action has `systemProxy=true` with `systemProxyData` s
 
 **Resolves with**: lab test OR zscaler doc. **Status**: partially resolved (2026-04-24).
 
-**Partial answer (2026-04-24)**: The *Best Practices for Adding Bypasses for Z-Tunnel 2.0* help article (`vendor/zscaler-help/best-practices-adding-bypasses-z-tunnel-2.0.md`) documents two 3.8+ Windows flags — `Redirect Web Traffic to Zscaler Client Connector Listening Proxy` and `Use Z-Tunnel 2.0 for Proxied Web Traffic` — as the officially-supported way to combine system-proxy-style routing with Z-Tunnel 2.0. The truth table for their interaction is captured in [`../zcc/z-tunnel.md § Domain-based bypasses`](../zcc/z-tunnel.md). SDK fields: `redirect_web_traffic` and `use_tunnel2_for_proxied_web_traffic` on `ForwardingProfileActions`.
+**Partial answer (2026-04-24)**: The *Best Practices for Adding Bypasses for Z-Tunnel 2.0* help article (`vendor/zscaler-help/best-practices-adding-bypasses-z-tunnel-2.0.md`) documents two 3.8+ Windows flags — `Redirect Web Traffic to Zscaler Client Connector Listening Proxy` and `Use Z-Tunnel 2.0 for Proxied Web Traffic` — as the officially-supported way to combine system-proxy-style routing with Z-Tunnel 2.0. The truth table for their interaction is captured in [`./zcc/z-tunnel.md § Domain-based bypasses`](./zcc/z-tunnel.md). SDK fields: `redirect_web_traffic` and `use_tunnel2_for_proxied_web_traffic` on `ForwardingProfileActions`.
 
 Key interaction surfaced by the article: `Use Z-Tunnel 2.0 for Proxied Web Traffic` applies **only to the default return statement in the App Profile PAC**. Traffic matching a specific PAC statement that routes to a particular Service Edge silently uses Z-Tunnel 1.0, regardless of the flag state.
 
