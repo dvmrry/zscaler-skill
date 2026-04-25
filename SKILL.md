@@ -120,6 +120,8 @@ Go straight to the reference file that covers the question shape. Only read more
 
 If the question shape isn't here, start with `references/shared/policy-evaluation.md` and follow its cross-links.
 
+**For breadth questions** ("does Zscaler have a product for X?", "what is Risk360?", "is AppProtection part of ZPA?", "what's the difference between Cloud Connector and Posture Control?"), start with [`references/_portfolio-map.md`](references/_portfolio-map.md) — single-page index of every Zscaler product with deep-dive / awareness / out-of-scope tier. Tells the skill what coverage depth to claim before answering.
+
 **Before quoting any reference summary, check `references/_clarifications.md` for the question's domain** — `zia-*`, `zpa-*`, `shared-*`, `log-*`. Summaries distil the doc; clarifications flag where the doc's cheerful prose hides an unresolved ambiguity. Cite the clarification ID in your answer when one applies and adjust confidence accordingly.
 
 ## Answer format
