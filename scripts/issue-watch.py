@@ -163,16 +163,22 @@ def find_sticky_issue(
         r.raise_for_status()
         return r.json()
     if label:
+        # state=open means closing the sticky issue acts as a kill switch:
+        # next run won't find it, and (with --bootstrap-if-missing) creates a
+        # fresh one. Without state=open, closing wouldn't actually disable —
+        # PATCH works on closed issues, so we'd silently keep editing a
+        # closed issue's body forever. UX-driven choice.
         r = client.get(
             f"{GITHUB_API}/repos/{target_repo}/issues",
-            params={"labels": label, "state": "all", "per_page": "10"},
+            params={"labels": label, "state": "open", "per_page": "10"},
         )
         r.raise_for_status()
         # Filter out PRs (the issues endpoint returns both)
         issues = [i for i in r.json() if "pull_request" not in i]
         if len(issues) > 1:
             raise ValueError(
-                f"Multiple issues found with label '{label}'; specify --sticky-issue NUMBER"
+                f"Multiple open issues found with label '{label}'; "
+                f"specify --sticky-issue NUMBER or close the duplicates"
             )
         return issues[0] if issues else None
     return None
