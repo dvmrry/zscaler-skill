@@ -48,6 +48,8 @@ The eight core products operators interact with daily. Each has a dedicated `ref
 | **Cloud & Branch Connector (ZTW / ZTC / CBC)** | VM-based traffic forwarding for cloud workloads (AWS / Azure / GCP) and branch offices. Cloud Connector Groups, traffic forwarding, gateway failover. **Five marketing names for the same product family.** | [`cloud-connector/index.md`](./cloud-connector/index.md) |
 | **ZWA — Workflow Automation** | DLP incident lifecycle management. Incident triage, workflows, ticketing/notification integrations. Downstream of ZIA DLP. | [`zwa/index.md`](./zwa/index.md) |
 | **Zscaler Deception** | Active-defense threat detection via decoys (fake servers, AD objects, endpoints, cloud assets). Detects post-breach lateral movement / APTs / ransomware. Integrates with ZPA via Zero Trust Network decoys. | [`deception/index.md`](./deception/index.md) |
+| **AppProtection** (ZPA) | Inline WAF/IPS for ZPA-protected applications. OWASP CRS, ThreatLabZ, Active Directory protocol controls (Kerberos/SMB/LDAP), API, WebSocket. Bundled into ZPA (mostly); Browser Protection tier-gated. Was previously called "Inspection" in ZPA. | [`zpa/appprotection.md`](./zpa/appprotection.md) |
+| **Risk360** | Cyber risk quantification framework. Monte Carlo financial-loss estimation. 115-140+ factors across 4 attack stages, 4 entities, MITRE/NIST/SEC framework mapping. CISO/board audience. Paid add-on under Security Operations tier. | [`risk360/index.md`](./risk360/index.md) |
 
 ## Tier 2 — Awareness only (no deep-dive yet)
 
@@ -55,11 +57,11 @@ Products Zscaler actively markets that we recognize and can describe but haven't
 
 ### Inside the existing scope (high relevance — fill priority)
 
-#### AppProtection
-ZPA-bundled web application firewall + identity-based attack defense. Inspects traffic to ZPA-protected applications for OWASP Top 10 vulnerabilities, LDAP / Kerberos enumeration, Active Directory attack patterns, insider-threat behaviors. **Bundled into ZPA, not a separate license** — operators with ZPA Business or Transformation tiers may already have it. Not deep-dived; surprising omission given our ZPA depth. **Top fill priority.**
+#### ~~AppProtection~~ — promoted to deep-dive 2026-04-24
+Now in Tier 1 — see [`./zpa/appprotection.md`](./zpa/appprotection.md). Inline WAF/IPS engine inside the ZPA data path. 6 control categories (OWASP CRS 4.8, ThreatLabZ, Active Directory Kerberos+SMB+LDAP, API, WebSocket, custom HTTP/WebSocket). Three-tier policy model. Bundled with ZPA; Browser Protection appears tier-gated. Was previously called "Inspection" — historical references to `zpn_inspection_profile_id` etc. point at AppProtection.
 
-#### Risk360
-Cyber risk quantification dashboard. Aggregates data from ZIA, ZPA, DLP, ThreatLabz, plus 115+ external risk factors. Uses Monte Carlo financial modeling to produce business-risk scores. Separate license. CISOs and risk executives ask about it directly. Not deep-dived; **high fill priority** for chatbot articulateness with executive audiences.
+#### ~~Risk360~~ — promoted to deep-dive 2026-04-24
+Now in Tier 1 — see [`./risk360/index.md`](./risk360/index.md). Cyber risk quantification framework. Monte Carlo financial-loss simulation 1000x/day across 4 scenarios (inherent / residual / 30-day / peer). 115-140+ factors across 4 attack stages × 4 entities, mapped to MITRE ATT&CK / NIST CSF / SEC S-K 106(b). Paid add-on under Security Operations tier. CISO/board audience.
 
 #### ITDR (Identity Threat Detection & Response)
 Marketed as **Zscaler Identity Protection**. Detects credential theft, privilege escalation, DCSync, Kerberoasting, and risky identity configurations on the endpoint. Integrated into the ZCC agent. Distinct from ZIdentity (which is the IdP layer); ITDR sits on top to detect identity attacks in flight. Not deep-dived; **fill priority** because identity attacks are a core zero-trust concern.
@@ -123,8 +125,8 @@ Never pretend deep-dive coverage exists where it doesn't. Confidence drop is hon
 
 ## Coverage statistics (as of 2026-04-24)
 
-- **Deep-dive products:** 9 (after Deception promoted from awareness)
-- **Awareness-only products:** 11 (Tier 2)
+- **Deep-dive products:** 11 (after Deception, AppProtection, Risk360 promoted from awareness)
+- **Awareness-only products:** 9 (Tier 2)
 - **Out-of-scope products:** 5+ (Tier 3 — exact count drifts as Zscaler rebrands and acquires)
 - **Architectural pillars named:** 4 (ZTE, Data Fabric, Agentic SecOps, plus the customer-segment "Zero Trust for X" framing)
 
