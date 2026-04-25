@@ -18,7 +18,7 @@ author-status: draft
 
 The ZCC **Web Policy** object (called **App Profile** in the ZCC admin portal UI) is the on-endpoint policy that controls ZCC's own behavior — PAC URLs, which Forwarding Profile to use for ZIA/ZPA, whether ZCC installs the SSL root cert, uninstall-protection passwords, per-app bypasses, platform-specific settings, and disaster-recovery fallback behavior. It is **not** ZIA's URL filtering policy; those are different products living in different places. An operator asking "why is the user prompted for a password when uninstalling ZCC" or "why is ZCC using a specific PAC URL" or "which forwarding profile is this user getting?" lands here.
 
-**Naming note**: `WebPolicy` is the SDK / API name (wire path: `/zcc/papi/public/v1/webPolicy/...`). **App Profile** is the admin-portal UI name for the same object. When an admin says "the user's App Profile" or "edit the Windows app profile rule," they mean a Web Policy entry scoped to those users/that platform. See [`clarification zcc-07`](../_clarifications.md#zcc-07-forwarding-profile-assignment-to-users-devices).
+**Naming note**: `WebPolicy` is the SDK / API name (wire path: `/zcc/papi/public/v1/webPolicy/...`). **App Profile** is the admin-portal UI name for the same object. When an admin says "the user's App Profile" or "edit the Windows app profile rule," they mean a Web Policy entry scoped to those users/that platform. See [`clarification zcc-07`](../_clarifications.md#zcc-07-forwarding-profile-assignment-to-usersdevices).
 
 ## Summary
 
@@ -49,7 +49,7 @@ From `zscaler/zcc/models/webpolicy.py`:
   - `group_all` — applies to all groups (shortcut)
   - `enable_device_groups` — whether device-group scoping is in force
   - `bypass_app_ids` / `bypass_custom_app_ids` / `app_identity_names` / `app_service_ids` / `app_service_names` — exception lists that remove traffic from ZCC's scope (e.g. for specific apps that should bypass ZCC)
-- **`forwarding_profile_id`** — the Forwarding Profile this Web Policy's users get. **This is the assignment link** for which profile each user/device uses; it ties Web Policy scope → Forwarding Profile. Partially answers [`clarification zcc-07`](../_clarifications.md#zcc-07-forwarding-profile-assignment-mechanism) — the assignment is NOT a separate App Profile object; it's a field on Web Policy.
+- **`forwarding_profile_id`** — the Forwarding Profile this Web Policy's users get. **This is the assignment link** for which profile each user/device uses; it ties Web Policy scope → Forwarding Profile. Partially answers [`clarification zcc-07`](../_clarifications.md#zcc-07-forwarding-profile-assignment-to-usersdevices) — the assignment is NOT a separate App Profile object; it's a field on Web Policy.
 - **`zia_posture_config_id`** — ZIA device-posture config reference. Cross-product hook for posture-gated access.
 
 ### Top-level ZCC behavior knobs

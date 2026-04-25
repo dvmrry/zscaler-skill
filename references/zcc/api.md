@@ -128,4 +128,4 @@ No `add_forwarding_profile` in the current SDK — profiles are created via a di
 
 See also `../_clarifications.md` entries `zcc-01` through `zcc-06` — enum values on key fields are all inferred from field names and not validated by the SDK.
 
-- How are forwarding profiles assigned to users/devices? The SDK has `list_by_company` but no assignment API surface. Likely handled via ZCC App Profiles (not exposed under `client.zcc` at all). Track as [`clarification zcc-07`](../_clarifications.md#zcc-07-forwarding-profile-assignment-mechanism).
+- How are forwarding profiles assigned to users/devices? The SDK has `list_by_company` but no assignment API surface. Likely handled via ZCC App Profiles (not exposed under `client.zcc` at all). Track as [`clarification zcc-07`](../_clarifications.md#zcc-07-forwarding-profile-assignment-to-usersdevices).

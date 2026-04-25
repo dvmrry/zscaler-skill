@@ -4,7 +4,7 @@ topic: "shared-policy-evaluation"
 title: "Zscaler policy evaluation — shared mental model"
 content-type: reasoning
 last-verified: "2026-04-23"
-confidence: medium-high
+confidence: medium
 source-tier: doc
 sources:
   - "https://help.zscaler.com/zia/about-policy-enforcement"

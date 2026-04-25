@@ -4,7 +4,7 @@ topic: "terraform-provider"
 title: "Zscaler Terraform providers (ZIA + ZPA)"
 content-type: reference
 last-verified: "2026-04-23"
-confidence: medium-high
+confidence: medium
 source-tier: mixed
 sources:
   - "https://registry.terraform.io/providers/zscaler/zia/latest/docs"

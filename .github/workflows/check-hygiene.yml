@@ -1,0 +1,46 @@
+name: Doc hygiene
+
+# Runs `scripts/check-hygiene.py`:
+#   - Frontmatter validation
+#   - Anchor resolution (cross-doc and same-doc)
+#   - Resolved-clarification propagation (advisory)
+#   - Eval-doc cross-reference
+#
+# Errors fail the build; warnings are advisory and don't block.
+#
+# Triggers:
+#   - PRs touching references/, evals/, or the script itself
+#   - Pushes to main on the same paths (catches direct-merge regressions)
+#   - Weekly Monday cron (catches drift from upstream PRs / external edits)
+#   - workflow_dispatch for manual runs
+
+on:
+  pull_request:
+    paths:
+      - 'references/**'
+      - 'evals/**'
+      - 'scripts/check-hygiene.py'
+  push:
+    branches: [main]
+    paths:
+      - 'references/**'
+      - 'evals/**'
+      - 'scripts/check-hygiene.py'
+  schedule:
+    # Mondays 13:00 UTC — aligns with issue-watch + Renovate cadence
+    - cron: '0 13 * * 1'
+  workflow_dispatch:
+
+jobs:
+  hygiene:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v8
+
+      - name: Run hygiene checks
+        run: ./scripts/check-hygiene.py

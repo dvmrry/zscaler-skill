@@ -79,7 +79,7 @@ Each app entry also has a server-assigned **`val`** (numeric internal identifier
 
 ## Precedence rule with URL filtering
 
-This is the primary integration question. **The precedence mechanics below are deterministic — answer CAC-vs-URL-Filtering cascading questions at `Confidence: high`** even though this file's frontmatter is `medium` (the medium hedge covers app-identification mechanics in [`clarification zia-09`](../_clarifications.md#zia-09-cac-app-identification-mechanics), not the precedence rules). Behavior by the four cases:
+This is the primary integration question. **The precedence mechanics below are deterministic — answer CAC-vs-URL-Filtering cascading questions at `Confidence: high`** even though this file's frontmatter is `medium` (the medium hedge covers app-identification mechanics in [`clarification zia-09`](../_clarifications.md#zia-09-cac-app-identity-when-url-maps-to-multiple-apps), not the precedence rules). Behavior by the four cases:
 
 | URL Filtering says | CAC says | Result (default, no cascading) | Result (cascading enabled) |
 |---|---|---|---|

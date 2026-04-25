@@ -4,7 +4,7 @@ topic: "zpa-api"
 title: "ZPA API surface"
 content-type: reference
 last-verified: "2026-04-23"
-confidence: medium-high
+confidence: medium
 source-tier: code
 sources:
   - "vendor/zscaler-sdk-python/README.md"
@@ -265,7 +265,7 @@ Cross-cutting hub for fields where `GET` and `POST`/`PUT` disagree on shape, val
 | Asymmetry | Topical home | Severity |
 |---|---|---|
 | **`clientless_app_ids` key-presence vs truthiness on Application Segments.** A standard segment's `GET` includes `clientless_app_ids: null`. On `PUT`, you must **omit the key entirely** — including it with `None` triggers a `BROWSER_ACCESS` segment lookup that fails with "No matching clientless App found." Same key, presence-vs-absence asymmetry across read and write. | [`./app-segments.md § Edge cases`](./app-segments.md) | High — common round-trip pattern; failure mode is confusing |
-| **LSS `source_log_type` aliases.** SDK normalizes 8 human-readable aliases (`user_activity`, `browser_access`, ...) on read against the API's wire values (`zpn_trans_log`, `zpn_http_trans_log`, ...). Code that reads via SDK and writes via raw HTTP (or vice versa) must translate. | [`#lss`](#lss) (this doc) | Medium — only bites mixed-toolchain callers |
+| **LSS `source_log_type` aliases.** SDK normalizes 8 human-readable aliases (`user_activity`, `browser_access`, ...) on read against the API's wire values (`zpn_trans_log`, `zpn_http_trans_log`, ...). Code that reads via SDK and writes via raw HTTP (or vice versa) must translate. | [§ LSS (Log Streaming Service) config](#lss-log-streaming-service-config) (this doc) | Medium — only bites mixed-toolchain callers |
 | **Provisioning key `association_type` — resource accepts more types than data source.** `data_source_zpa_provisioning_key.go:102–104` accepts `[CONNECTOR_GRP, SERVICE_EDGE_GRP]` (description: "supported values are CONNECTOR_GRP and SERVICE_EDGE_GRP"); `resource_zpa_provisioning_key.go:131` accepts those plus `[EXPORTER_GRP, NP_ASSISTANT_GRP, SITE_CONTROLLER_GRP]`. Implication: a provisioning key created via TF resource for `EXPORTER_GRP` cannot be looked up via the TF data source by association_type — the data source rejects the type at validation. Operators creating non-standard provisioning keys should use direct ID lookup, not type-based search. Surfaced by `scripts/find-asymmetries.py` Pass 1 (intra-provider). | [`./app-connector.md § Provisioning Keys`](./app-connector.md) | Low — only affects EXPORTER / NP_ASSISTANT / SITE_CONTROLLER use cases |
 
 **Adding entries here:** when a new asymmetry is documented in a topical doc, add a one-line cross-link row above. Do not duplicate the detail.

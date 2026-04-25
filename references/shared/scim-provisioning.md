@@ -150,7 +150,7 @@ From *About SCIM* (ZPA):
 | "User deleted in Okta but still in ZPA." | ZPA SCIM expects `active=false` to delete. Verify IdP is sending that. | [ZPA SCIM attributes](#zpa-scim-attributes) |
 | "User disabled in Entra ID but still showing as active in ZIA." | ZIA SCIM uses `active=false` to disable (not delete). IdP must actually send `active=false`, not just delete from the SCIM group. | Same |
 | "New user has no groups in ZPA." | `displayName` → Zscaler Group matching. If IdP sends group `displayName` that doesn't match ZPA's group records, sync doesn't link. | Attribute mapping |
-| "SCIM sync error about username mismatch." | ZPA requires SCIM `userName` to match SAML `nameID` — the IdP might be sending different values | [Cross-product constraint](#key-zpa-vs-zia-differences) |
+| "SCIM sync error about username mismatch." | ZPA requires SCIM `userName` to match SAML `nameID` — the IdP might be sending different values | [Cross-product constraint](#summary) |
 | "Okta-to-ZPA sync shows no users initially." | `PROVISION_OUT_OF_SYNC_USERS` flag not enabled in Okta | [Okta-specific gotcha](#okta-specific-gotcha-zpa) |
 | "Python SDK can't create ZIA users." | No Python SDK SCIM surface for ZIA. Use Go SDK or direct HTTP. | [Cross-SDK parity](#cross-sdk-parity) |
 | "User exceeded a group limit." | ZIA: 128 groups/user max. IdP-side group sprawl. | ZIA mechanics |
