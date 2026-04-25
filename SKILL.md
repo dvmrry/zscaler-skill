@@ -127,6 +127,8 @@ If the question shape isn't here, start with `references/shared/policy-evaluatio
 
 **For prerequisite-knowledge questions** ("what's a proxy?", "what's the difference between SAML and OIDC?", "what does zero trust actually mean?", "how does NAT work?"), start with [`references/_primer/`](references/_primer/) — five primer docs covering generic networking, forwarding paradigms, zero-trust philosophy, identity protocols, and the Zscaler platform shape. Use this when the asker is non-networking-background or when you need to set up conceptual scaffolding before diving into a product-specific answer.
 
+**For meta-questions about the skill itself** ("where does general Zscaler knowledge end and tenant-specific data begin?", "how should this skill combine doc knowledge with what we know operationally?"), see [`references/_layering-model.md`](references/_layering-model.md) — the three-layer framing (general / tenant / SME tribal) with anti-patterns and operational implications for fine-tune training.
+
 **Before quoting any reference summary, check `references/_clarifications.md` for the question's domain** — `zia-*`, `zpa-*`, `shared-*`, `log-*`. Summaries distil the doc; clarifications flag where the doc's cheerful prose hides an unresolved ambiguity. Cite the clarification ID in your answer when one applies and adjust confidence accordingly.
 
 ## Answer format
