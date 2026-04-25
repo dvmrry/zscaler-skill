@@ -152,6 +152,40 @@ From *Understanding Source IP Anchoring Direct*: when ZIA is in disaster recover
 
 **When DR ends**, the configurations must be reverted manually — not automatic. Operator runbook should include "revert SIPA Direct config" as a post-DR step.
 
+## Forwarding Control rule schema for SIPA / dedicated-IP
+
+The ZIA Forwarding Control rule's `forward_method` enum (`zia_forwarding_control_rule` resource) accepts these values:
+
+| `forward_method` | Use case |
+|---|---|
+| `DIRECT` | Send to internet directly (egress from PSE) |
+| `PROXYCHAIN` | Forward to upstream proxy (legacy / partner-proxy chains) |
+| `ZPA` | Forward to ZPA — the SIPA path. Requires `zpa_app_segments` referencing a SIPA-flagged segment + a ZPA gateway. |
+| `ENATDEDIP` | Forward through a **Dedicated IP gateway** — the dedicated-IP / customer-controlled-egress variant. Requires the `dedicated_ip_gateway` block referencing a `data.zia_dedicated_ip_proxy` data source. |
+
+The `ENATDEDIP` value was added to the TF provider's allowed-enum set in **v4.7.4** (closed in upstream `terraform-provider-zia` issue #515) — earlier versions rejected it at validation. The `dedicated_ip_gateway` block + `zia_dedicated_ip_proxy` data source landed in **v4.7.9**:
+
+```hcl
+data "zia_dedicated_ip_proxy" "this" {
+  name = "GW01"
+}
+
+resource "zia_forwarding_control_rule" "this" {
+  forward_method     = "ENATDEDIP"
+  src_ips            = ["192.168.200.200"]
+  dest_addresses     = ["192.168.255.1"]
+  dest_ip_categories = ["ZSPROXY_IPS", "CUSTOM_01"]
+  dedicated_ip_gateway {
+    id   = data.zia_dedicated_ip_proxy.this.id
+    name = data.zia_dedicated_ip_proxy.this.name
+  }
+}
+```
+
+**Licensing note:** Dedicated IP is a separate ZIA SKU. The API returns `INVALID_INPUT_ARGUMENT: "Dedicated IP Gateway is required when forwarding method is Dedicated IP"` if the tenant is unlicensed — the maintainer's framing is "this is a licensing issue, not a Terraform issue." Skill should flag this when an operator hits the 400 with `forward_method = "ENATDEDIP"`.
+
+This is **distinct from SIPA**: SIPA hides traffic behind a customer-controlled App Connector IP (typically a customer VPC IP); ENATDEDIP routes through a Zscaler-provisioned dedicated egress gateway with a dedicated public IP. Both solve "I need a stable customer-attributable egress IP" but differ on where the IP lives (customer infra vs Zscaler infra).
+
 ## Mutually-exclusive features
 
 SIPA cannot coexist with several ZPA segment features. From `references/zpa/app-segments.md`:

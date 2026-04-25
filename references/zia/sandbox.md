@@ -126,6 +126,18 @@ File stuck in quarantine?
 └─ Persistent after verdict? → PSE cache propagation lag; support ticket if persistent
 ```
 
+## Default rule order is `127`, NOT `-1` — Sandbox is the outlier
+
+Most ZIA rule types return their default rule with `order = -1` (a sentinel meaning "always last, can't be reordered before"). **Sandbox returns its default rule with `order = 127`** — a real number, not a sentinel. From upstream `zscaler/terraform-provider-zia` issue #405 (closed; tracked under engineering ticket `BUG-208047`):
+
+- The default Sandbox rule is named `Default BA Rule` and is returned by `GET /sandboxRules` with `order = 127`.
+- TF / API operators creating new Sandbox rules with order 1–4 expect the default to occupy `-1` and a clear gap before that. Instead, the API tries to fit new rules around the literal `127` value, which causes ordering chaos for tenants with fewer than 127 rules total.
+- **Operational pattern**: when modeling Sandbox rules in code, treat `127` as the default rule's reserved slot. Don't try to set a custom rule to `order = 127` (collides with default); don't try to set `order > 127` (the API rejects); leave `order ≤ 126` for custom rules.
+- **Symptom**: a Terraform plan that worked yesterday suddenly wants to renumber every rule because the default rule's `127` order changed how the diff calculates positions.
+- **Workaround until BUG-208047 ships**: keep custom rule orders contiguous starting at 1, expect the default at 127, and don't import the default rule into TF state (it's immutable in effect; the `Default BA Rule` create attempt returns `DUPLICATE_ITEM`).
+
+This default-order anomaly is **not documented** in Zscaler's help portal at capture date; it's purely an API behavior visible only when you query the rules collection. Cross-link to [`zia-XX`](../_clarifications.md) if a clarification entry is added.
+
 ## Sandbox Rule API — programmatic control of first-time-file behavior
 
 Beyond the analysis / report layer, Sandbox has a full **rule CRUD surface** the earlier doc treated as console-only. The Go SDK (`vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_rules/sandbox_rules.go`) exposes a `SandboxRules` object with standard scope fields (Locations, Groups, Departments, Users, Device Groups) plus Sandbox-specific behaviors:

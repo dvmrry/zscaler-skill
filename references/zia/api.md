@@ -93,6 +93,44 @@ result, response, error = client.zia.url_filtering_rules.list_rules()
 
 Client-side filtering via JMESPath: `response.search("<expression>")` returns matching subset.
 
+### Why this pattern matters — exceptions are NOT raised by default
+
+The Python SDK does **not** raise on errors; it returns them in the third tuple slot. From upstream `zscaler/zscaler-sdk-python` issue #297 (open as of capture date) — the maintainer's framing:
+
+> Every endpoint repeats `try / except Exception as error: return (None, response, error)` — exceptions can slip by unnoticed unless developers manually check `err` every single time.
+
+This pattern was carried over from the Go SDK's `(val, err)` convention. Implications for callers (and especially scaffold scripts):
+
+- **Don't use `try/except` to handle SDK errors** — they won't fire. Check `err is not None` after every call.
+- **Mock testing must emit `(data, response, error)` tuples**, not raise. A mock that raises won't reflect actual SDK behavior.
+- **Pattern that fails silently:** `users = client.zia.users.list_users()` — `users` is now a tuple, not a list. Iterating it gives back `(data, response, error)` which is rarely what the caller wanted. Always destructure.
+- **Recommended caller wrapper** for terseness:
+  ```python
+  def call(method, *args, **kwargs):
+      data, resp, err = method(*args, **kwargs)
+      if err: raise RuntimeError(f"{method.__qualname__} failed: {err}")
+      return data
+  ```
+  This restores Pythonic exception semantics for callers who want them.
+
+Issue #297 proposes restructuring the SDK to raise; not yet implemented as of v2.0.0.
+
+### Pagination has had recurring bugs — handle defensively
+
+From upstream issues #197 and #272 (both closed), pagination has had two separate "doesn't return all data" bugs. Pattern to use, as of v2.0.0:
+
+```python
+records, resp, err = client.zia.url_categories.list_categories()
+if err: raise ...
+all_records = list(records)
+while resp.has_next():
+    next_records, resp, err = resp.next()
+    if err: raise ...
+    all_records.extend(next_records)
+```
+
+`scripts/snapshot-refresh.py` uses this pattern. Custom callers should not assume the first call returns the full collection; always check `resp.has_next()` even if you expect a small dataset.
+
 ## Activation lifecycle
 
 From `vendor/zscaler-sdk-python/zscaler/zia/activate.py` and *Configuring URL Categories Using API* p.1:

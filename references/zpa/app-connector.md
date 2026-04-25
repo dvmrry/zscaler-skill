@@ -187,6 +187,22 @@ The SDK does **not** expose:
 - **App Connector VM sizing** depends on concurrent-user count, app throughput, and inspection feature set (Double Encryption, AppProtection add overhead). Zscaler publishes sizing guidance in their reference architecture PDFs; not captured in depth here.
 - **App Connector Group must associate with both a Server Group AND a provisioning key** to serve any traffic. A group with no Server Group association silently fails to route traffic — the admin console doesn't flag the partial config as invalid. The same applies to network reachability: only associate Connector Groups with applications the connectors can actually reach. Source: *About Connector Groups* lines 16-17.
 
+## Service Edge Group `service_edges` block — undocumented operational requirement
+
+The same group/registration model applies to **Private Service Edges** (PSEs) via `zpa_service_edge_group`. The `service_edges` block on this resource is documented as **optional** in the Terraform registry, but **in practice it is required** if your tenant has any Service Edges actually attached to the group. Per upstream `zscaler/terraform-provider-zpa` issue #550 (closed in v4.1.3, took 27 comments to root-cause):
+
+- **Symptom:** Terraform `apply` repeatedly tries to remove Service Edges from the group on every run, even though plan output shows "no changes." After upgrading the provider past v4.0.9, drift detection started picking up the omission.
+- **Root cause:** the API returns the Service Edges currently attached to the group; if your HCL doesn't declare them in a `service_edges { id = [...] }` block, TF reads the API response, sees a populated list, sees an empty desired-state list, and tries to detach them.
+- **Why this is operationally awkward:** Service Edges register *to* a group via provisioning key (deployed VM → key → registration). The PSE's UID is **not visible in the admin portal at registration time**; operators must use the API or `terraform import` to retrieve it before they can write the `service_edges` block. The TF documentation suggests the block is for advanced use only — it's actually required to prevent drift.
+- **Workflow that works:**
+  1. Deploy PSE VM, apply provisioning key, start services.
+  2. Use the ZPA API (`GET /serviceEdge`) or `terraform plan` drift output to capture the new PSE's UID.
+  3. Add the UID to the `service_edges { id = [...] }` block in the group resource.
+  4. Subsequent `apply`s remain stable.
+- **Provider versions affected:** v4.0.9 through v4.1.2 had drift-detection bugs around dynamic blocks for this resource. v4.1.3 stabilized. Operators on older provider versions should expect this drift behavior.
+
+The same pattern likely applies to App Connector Groups when an `app_connector_groups` block is omitted but the group has registered connectors — though this is not documented in the issue thread.
+
 ## Logging — LSS retransmit window is shorter than NSS
 
 ZPA's Log Streaming Service (LSS) is the equivalent of ZIA's NSS for Private Access logs, but with **stricter retransmit semantics** that catch operators off-guard:
