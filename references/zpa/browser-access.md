@@ -5,6 +5,7 @@ title: "Browser Access — clientless ZPA via a web browser"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: high
+source-tier: mixed
 sources:
   - "vendor/zscaler-help/about-browser-access.md"
   - "vendor/zscaler-help/using-wildcard-certificates-browser-access-applications.md"

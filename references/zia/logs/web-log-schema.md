@@ -5,6 +5,7 @@ title: "ZIA web log schema (NSS Feed Output Format: Web Logs)"
 content-type: reference
 last-verified: "2026-04-23"
 confidence: high
+source-tier: doc
 sources:
   - "https://help.zscaler.com/zia/nss-feed-output-format-web-logs"
   - "vendor/zscaler-help/nss-web-logs.csv"

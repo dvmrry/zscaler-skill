@@ -5,6 +5,7 @@ title: "ZPA App Connector — VM architecture, groups, provisioning keys, softwa
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: high
+source-tier: doc
 sources:
   - "https://help.zscaler.com/zpa/about-connectors"
   - "vendor/zscaler-help/about-app-connectors.md"

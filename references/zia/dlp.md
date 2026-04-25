@@ -5,6 +5,7 @@ title: "ZIA Data Loss Prevention — dictionaries, engines, policy rules"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: high
+source-tier: doc
 sources:
   - "https://help.zscaler.com/zia/about-dlp-engines"
   - "vendor/zscaler-help/about-dlp-engines.md"

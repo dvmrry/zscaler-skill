@@ -5,6 +5,7 @@ title: "PAC files — the forwarding layer that touches every product"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: high
+source-tier: doc
 sources:
   - "vendor/zscaler-help/understanding-pac-file.md"
   - "vendor/zscaler-help/about-hosted-pac-files.md"

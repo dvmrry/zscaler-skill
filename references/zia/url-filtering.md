@@ -5,6 +5,7 @@ title: "ZIA URL filtering rule precedence"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: medium
+source-tier: doc
 sources:
   - "https://help.zscaler.com/zscaler-deployments-operations/url-filtering-deployment-and-operations-guide"
   - "vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.pdf"

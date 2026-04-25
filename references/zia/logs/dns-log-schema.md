@@ -5,6 +5,7 @@ title: "ZIA DNS log schema (NSS Feed Output Format: DNS Logs)"
 content-type: reference
 last-verified: "2026-04-23"
 confidence: high
+source-tier: doc
 sources:
   - "https://help.zscaler.com/zia/nss-feed-output-format-dns-logs"
   - "vendor/zscaler-help/nss-dns-logs.csv"

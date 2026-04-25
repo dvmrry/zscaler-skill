@@ -5,6 +5,7 @@ title: "Cloud Connector traffic forwarding — rules, methods, criteria, DNS"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: high
+source-tier: doc
 sources:
   - "https://help.zscaler.com/cloud-branch-connector/configuring-traffic-forwarding-rule"
   - "vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md"

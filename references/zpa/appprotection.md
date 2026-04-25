@@ -5,6 +5,7 @@ title: "ZPA AppProtection — inline WAF/IPS for ZPA-protected apps"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: high
+source-tier: doc
 sources:
   - "vendor/zscaler-help/protecting-private-applications-zpa-appprotection.md"
   - "vendor/zscaler-help/about-appprotection-controls.md"

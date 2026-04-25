@@ -5,6 +5,7 @@ title: "ZDX overview — architecture and scoring"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: high
+source-tier: doc
 sources:
   - "https://help.zscaler.com/zdx/understanding-zdx-cloud-architecture"
   - "vendor/zscaler-help/understanding-zdx-cloud-architecture.md"

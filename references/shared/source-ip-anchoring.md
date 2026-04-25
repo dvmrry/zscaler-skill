@@ -5,6 +5,7 @@ title: "Source IP Anchoring (SIPA) — preserve organization-controlled source I
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: high
+source-tier: doc
 sources:
   - "https://help.zscaler.com/zia/understanding-source-ip-anchoring"
   - "vendor/zscaler-help/understanding-source-ip-anchoring.md"

@@ -5,6 +5,7 @@ title: "Locations, sublocations, and Location Groups"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: high
+source-tier: doc
 sources:
   - "vendor/zscaler-help/about-location-groups.md"
   - "vendor/zscaler-help/understanding-sublocations.md"

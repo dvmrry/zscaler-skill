@@ -5,6 +5,7 @@ title: "ZDX Diagnostics Sessions (deeptraces) and Alerts"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: high
+source-tier: mixed
 sources:
   - "https://help.zscaler.com/zdx/understanding-diagnostics-session-status"
   - "vendor/zscaler-help/understanding-diagnostics-session-status.md"

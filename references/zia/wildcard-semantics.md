@@ -5,6 +5,7 @@ title: "ZIA URL pattern and wildcard matching"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: high
+source-tier: doc
 sources:
   - "https://help.zscaler.com/zia/url-format-guidelines"
   - "vendor/zscaler-help/url-format-guidelines.md"

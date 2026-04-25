@@ -5,6 +5,7 @@ title: "Cloud Connector API — Go SDK + Terraform provider"
 content-type: reference
 last-verified: "2026-04-24"
 confidence: medium
+source-tier: mixed
 sources:
   - "https://help.zscaler.com/cloud-branch-connector/configuring-cloud-provisioning-template"
   - "vendor/zscaler-help/cbc-configuring-cloud-provisioning-template.md"

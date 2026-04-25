@@ -5,6 +5,7 @@ title: "ZIA Cloud App Control and URL filtering interaction"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: medium
+source-tier: doc
 sources:
   - "https://help.zscaler.com/zscaler-deployments-operations/cloud-app-control-deployment-and-operations-guide"
   - "vendor/zscaler-help/Cloud_App_Control_Deployment_and_Operations_Guide.pdf"

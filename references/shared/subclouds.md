@@ -5,6 +5,7 @@ title: "Subclouds — restricting which Service Edges handle tenant traffic"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: high
+source-tier: doc
 sources:
   - "vendor/zscaler-help/understanding-subclouds.md"
 author-status: draft

@@ -5,6 +5,7 @@ title: "FTP Control, File Type Control, and SSH handling"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: high
+source-tier: doc
 sources:
   - "vendor/zscaler-help/about-ftp-control.md"
   - "vendor/zscaler-help/about-file-type-control.md"

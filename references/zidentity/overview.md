@@ -5,6 +5,7 @@ title: "ZIdentity overview — unified identity across Zscaler services"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: high
+source-tier: doc
 sources:
   - "https://help.zscaler.com/zidentity/what-zidentity"
   - "vendor/zscaler-help/what-zidentity.md"

@@ -5,6 +5,7 @@ title: "ZIA SSL/TLS inspection — pipeline position and policy semantics"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: high
+source-tier: doc
 sources:
   - "https://help.zscaler.com/zia/about-policy-enforcement"
   - "vendor/zscaler-help/Understanding_Policy_Enforcement.pdf"

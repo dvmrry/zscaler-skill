@@ -5,6 +5,7 @@ title: "Z-Tunnel 1.0 vs 2.0 — architecture, deployment, and bypass semantics"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: high
+source-tier: doc
 sources:
   - "https://help.zscaler.com/zscaler-client-connector/about-z-tunnel-1.0-z-tunnel-2.0"
   - "vendor/zscaler-help/about-z-tunnel-1.0-z-tunnel-2.0.md"

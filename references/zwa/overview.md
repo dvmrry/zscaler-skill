@@ -5,6 +5,7 @@ title: "ZWA overview — incidents, workflows, templates"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: high
+source-tier: doc
 sources:
   - "https://help.zscaler.com/workflow-automation/what-workflow-automation"
   - "vendor/zscaler-help/what-workflow-automation.md"

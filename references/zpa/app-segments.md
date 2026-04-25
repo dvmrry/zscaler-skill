@@ -5,6 +5,7 @@ title: "ZPA application segment matching"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: high
+source-tier: mixed
 sources:
   - "https://help.zscaler.com/zpa/configuring-defined-application-segments"
   - "vendor/zscaler-help/Configuring_Defined_Application_Segments.pdf"

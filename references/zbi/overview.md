@@ -5,6 +5,7 @@ title: "ZBI overview — architecture, traffic flow, rendering modes"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: high
+source-tier: doc
 sources:
   - "https://help.zscaler.com/zero-trust-browser/what-is-zero-trust-browser"
   - "vendor/zscaler-help/what-is-zero-trust-browser.md"

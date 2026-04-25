@@ -5,6 +5,7 @@ title: "Activation gates — ZIA + CBC have them, others don't"
 content-type: reference
 last-verified: "2026-04-24"
 confidence: high
+source-tier: doc
 sources:
   - "vendor/zscaler-help/Configuring_URL_Categories_Using_API.pdf (p.1, activation instruction)"
   - "vendor/zscaler-help/automate-zscaler/api-reference-zia-sample-endpoints.md"
@@ -125,15 +126,6 @@ When a tenant reports "I changed the rule and it's not taking effect," the MCP s
 3. If `PENDING` — changes are staged but not live. Activation hasn't been triggered (or failed).
 4. If the tenant uses Terraform: check whether `zia_activation_status` / `ztc_activation_status` was applied after the last policy change.
 5. If the tenant uses direct console / API: confirm the admin clicked "Activate" or called the activate endpoint.
-
-## Troubleshooting pattern (from MCP server)
-
-When a tenant reports "I changed the rule and it's not taking effect," the MCP skill `skills/cross-product/troubleshoot-user-connectivity/` explicitly includes an activation-status check as a pre-step. Before blaming rule order, policy evaluation, or SSL bypass:
-
-1. `GET /status` — is the tenant in `PENDING` state?
-2. If yes — changes are staged but not live. Activation hasn't been triggered (or failed).
-3. If the tenant uses Terraform: check whether `zia_activation_status` was applied after the last policy change.
-4. If the tenant uses direct console / API: confirm the admin clicked "Activate" or called `POST /status/activate`.
 
 ## Failure modes
 

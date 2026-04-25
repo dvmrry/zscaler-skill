@@ -5,6 +5,7 @@ title: "ZIdentity API — SDK surface, Python/Go parity, wire format"
 content-type: reference
 last-verified: "2026-04-24"
 confidence: medium
+source-tier: mixed
 sources:
   - "https://help.zscaler.com/zidentity/understanding-zidentity-apis"
   - "vendor/zscaler-help/understanding-zidentity-apis.md"

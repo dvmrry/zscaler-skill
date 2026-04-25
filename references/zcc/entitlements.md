@@ -5,6 +5,7 @@ title: "ZCC entitlements — which users/groups get ZPA and ZDX"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: medium
+source-tier: code
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py"
   - "vendor/zscaler-sdk-python/zscaler/zcc/models/zdxgroupentitlements.py"

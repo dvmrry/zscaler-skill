@@ -5,6 +5,7 @@ title: "Zscaler terminology — marketing names, legacy names, log field names"
 content-type: reference
 last-verified: "2026-04-24"
 confidence: high
+source-tier: doc
 sources:
   - "vendor/zscaler-help/Understanding_User_Activity_Log_Fields.pdf (ClientZEN/ConnectorZEN field names)"
   - "vendor/zscaler-help/understanding-zscaler-cloud-architecture.md"

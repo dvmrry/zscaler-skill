@@ -5,6 +5,7 @@ title: "Zscaler Deception — architecture, decoys, ZPA integration"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: medium
+source-tier: doc
 sources:
   - "vendor/zscaler-help/what-is-zscaler-deception.md"
   - "vendor/zscaler-help/about-deception-strategy.md"

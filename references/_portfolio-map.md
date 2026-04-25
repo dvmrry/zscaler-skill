@@ -5,6 +5,7 @@ title: "Zscaler product portfolio map"
 content-type: reference
 last-verified: "2026-04-24"
 confidence: medium
+source-tier: mixed
 sources:
   - "https://www.zscaler.com/products-and-solutions"
   - "vendor/zscaler-help/automate-zscaler/getting-started.md (OneAPI 7-product list)"

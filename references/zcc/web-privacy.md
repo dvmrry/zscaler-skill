@@ -5,6 +5,7 @@ title: "ZCC web privacy — telemetry and log-collection policy"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: medium
+source-tier: code
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zcc/models/webprivacy.py"
   - "vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py"

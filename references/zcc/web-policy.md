@@ -5,6 +5,7 @@ title: "ZCC web policy — on-device policy and per-platform overrides"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: medium
+source-tier: mixed
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py"
   - "vendor/zscaler-sdk-python/zscaler/zcc/web_policy.py"

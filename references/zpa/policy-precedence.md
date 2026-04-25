@@ -5,6 +5,7 @@ title: "ZPA access policy precedence"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: high
+source-tier: doc
 sources:
   - "https://help.zscaler.com/zpa/about-policies"
   - "vendor/zscaler-help/About_Policies.pdf"

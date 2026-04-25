@@ -5,6 +5,7 @@ title: "ZCC devices — inventory, lifecycle, and cleanup"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: medium
+source-tier: code
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py"
   - "vendor/zscaler-sdk-python/zscaler/zcc/devices.py"

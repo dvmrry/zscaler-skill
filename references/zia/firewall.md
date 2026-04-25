@@ -5,6 +5,7 @@ title: "ZIA Firewall Control — Filtering, NAT, DNS, IPS"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: high
+source-tier: mixed
 sources:
   - "vendor/zscaler-help/about-ips-control.md"
   - "vendor/zscaler-help/configuring-firewall-policies.md"

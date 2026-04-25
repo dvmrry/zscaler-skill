@@ -5,6 +5,7 @@ title: "When and how to consult logs"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: medium
+source-tier: mixed
 sources:
   - "references/zia/logs/web-log-schema.md"
   - "references/zia/logs/firewall-log-schema.md"

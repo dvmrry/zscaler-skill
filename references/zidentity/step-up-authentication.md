@@ -5,6 +5,7 @@ title: "ZIdentity Step-Up Authentication — authentication levels, ZIA/ZPA inte
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: high
+source-tier: doc
 sources:
   - "https://help.zscaler.com/zidentity/understanding-step-up-authentication"
   - "vendor/zscaler-help/understanding-step-up-authentication-zidentity.md"

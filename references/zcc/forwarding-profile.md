@@ -5,6 +5,7 @@ title: "ZCC forwarding profile — how ZCC decides where to send traffic"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: medium
+source-tier: mixed
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py"
   - "vendor/zscaler-sdk-python/zscaler/zcc/forwarding_profile.py"

@@ -5,6 +5,7 @@ title: "SPL patterns for Zscaler log questions"
 content-type: reference
 last-verified: "2026-04-24"
 confidence: medium
+source-tier: mixed
 sources:
   - "references/zia/logs/web-log-schema.md"
   - "references/zia/logs/firewall-log-schema.md"

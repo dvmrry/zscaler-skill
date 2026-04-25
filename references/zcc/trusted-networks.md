@@ -5,6 +5,7 @@ title: "ZCC trusted networks — detection criteria and evaluation"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: medium
+source-tier: code
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zcc/models/trustednetworks.py"
   - "vendor/zscaler-sdk-python/zscaler/zcc/trusted_networks.py"

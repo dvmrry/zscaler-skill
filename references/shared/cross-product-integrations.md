@@ -5,6 +5,7 @@ title: "Cross-product integrations — where ZIA, ZPA, and ZCC reach into each o
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: high
+source-tier: mixed
 sources:
   - "references/zia/ssl-inspection.md"
   - "references/zia/cloud-app-control.md"

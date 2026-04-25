@@ -5,6 +5,7 @@ title: "Zscaler cloud architecture — Central Authority, Service Edges, BC Clou
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: high
+source-tier: doc
 sources:
   - "https://help.zscaler.com/zia/understanding-zscaler-cloud-architecture"
   - "vendor/zscaler-help/understanding-zscaler-cloud-architecture.md"

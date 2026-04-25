@@ -5,6 +5,7 @@ title: "OneAPI — unified API gateway, auth flows, rate limits, error model"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: high
+source-tier: doc
 sources:
   - "vendor/zscaler-help/automate-zscaler/getting-started.md"
   - "vendor/zscaler-help/automate-zscaler/guides-rate-limiting.md"

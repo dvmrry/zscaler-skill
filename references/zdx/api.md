@@ -5,6 +5,7 @@ title: "ZDX API — SDK surface and endpoint summary"
 content-type: reference
 last-verified: "2026-04-24"
 confidence: medium
+source-tier: mixed
 sources:
   - "https://help.zscaler.com/legacy-apis/understanding-zdx-api"
   - "vendor/zscaler-help/understanding-zdx-api.md"

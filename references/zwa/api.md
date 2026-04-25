@@ -5,6 +5,7 @@ title: "ZWA API — incident search, evidence, audit logs"
 content-type: reference
 last-verified: "2026-04-24"
 confidence: medium
+source-tier: mixed
 sources:
   - "https://help.zscaler.com/legacy-apis/dlp-incidents-workflow-automation-api"
   - "vendor/zscaler-help/dlp-incidents-workflow-automation-api.md"

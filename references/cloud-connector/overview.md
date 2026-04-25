@@ -5,6 +5,7 @@ title: "Cloud Connector overview — architecture, groups, HA, data plane"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: high
+source-tier: doc
 sources:
   - "https://help.zscaler.com/cloud-branch-connector/what-zscaler-cloud-connector"
   - "vendor/zscaler-help/what-zscaler-cloud-connector.md"

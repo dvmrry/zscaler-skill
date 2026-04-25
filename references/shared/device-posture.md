@@ -5,6 +5,7 @@ title: "Device Posture — signals, evaluation, and policy consumption"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: high
+source-tier: doc
 sources:
   - "vendor/zscaler-help/about-device-posture-profiles.md"
   - "vendor/zscaler-help/configuring-device-posture-profiles.md"

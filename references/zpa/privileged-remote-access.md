@@ -5,6 +5,7 @@ title: "Privileged Remote Access (PRA) — clientless RDP/SSH/VNC"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: medium
+source-tier: mixed
 sources:
   - "vendor/zscaler-help/privileged-remote-access-captures.md"
   - "vendor/zscaler-sdk-python/zscaler/zpa/pra_*.py"

@@ -5,6 +5,7 @@ title: "ZPA access log schema (LSS User Activity log fields)"
 content-type: reference
 last-verified: "2026-04-23"
 confidence: high
+source-tier: doc
 sources:
   - "https://help.zscaler.com/zpa/understanding-user-activity-log-fields"
   - "vendor/zscaler-help/Understanding_User_Activity_Log_Fields.pdf"

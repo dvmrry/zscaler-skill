@@ -5,6 +5,7 @@ title: "Admin RBAC — ZIA, ZPA, ZIdentity, and the cross-product federation sto
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: high
+source-tier: doc
 sources:
   - "vendor/zscaler-help/admin-rbac-captures.md"
 author-status: draft

@@ -5,6 +5,7 @@ title: "ZIA API surface"
 content-type: reference
 last-verified: "2026-04-23"
 confidence: medium-high
+source-tier: mixed
 sources:
   - "https://help.zscaler.com/zia/configuring-url-categories-using-api"
   - "vendor/zscaler-help/Configuring_URL_Categories_Using_API.pdf"

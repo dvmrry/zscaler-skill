@@ -5,6 +5,7 @@ title: "ZCC API surface — endpoints, wire format, SDK methods"
 content-type: reference
 last-verified: "2026-04-24"
 confidence: medium
+source-tier: code
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zcc/"
   - "vendor/zscaler-sdk-python/docsrc/zs/zcc/"

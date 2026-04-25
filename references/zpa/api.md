@@ -5,6 +5,7 @@ title: "ZPA API surface"
 content-type: reference
 last-verified: "2026-04-23"
 confidence: medium-high
+source-tier: code
 sources:
   - "vendor/zscaler-sdk-python/README.md"
   - "vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py"

@@ -5,6 +5,7 @@ title: "ZIdentity API Clients — OneAPI OAuth 2.0 authentication"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: high
+source-tier: doc
 sources:
   - "https://help.zscaler.com/zidentity/about-api-clients"
   - "vendor/zscaler-help/zidentity-about-api-clients.md"

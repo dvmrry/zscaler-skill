@@ -5,6 +5,7 @@ title: "ZIA Bandwidth Control"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: high
+source-tier: doc
 sources:
   - "vendor/zscaler-help/about-bandwidth-control.md"
   - "vendor/zscaler-help/adding-bandwidth-classes.md"

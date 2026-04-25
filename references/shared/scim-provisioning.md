@@ -5,6 +5,7 @@ title: "SCIM provisioning — user/group lifecycle across ZIA, ZPA, ZIdentity"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: high
+source-tier: mixed
 sources:
   - "https://help.zscaler.com/zia/understanding-scim"
   - "vendor/zscaler-help/understanding-scim-zia.md"
