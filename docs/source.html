@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Source — Zscaler Skill</title>
+<style>
+  :root {
+    --ink: #1a1814;
+    --ink-2: #4a4640;
+    --ink-3: #8a8680;
+    --ink-ghost: #b8b3aa;
+    --paper: #f6f2e8;
+    --paper-deep: #efeadc;
+    --paper-card: #f0eadc;
+    --accent: #8a3a1f;
+    --accent-ink: #6e2d18;
+    --rule: #d8d0c0;
+    --warn: #8a3a1f;
+  }
+  @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;1,8..60,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--paper); color: var(--ink); font-family: 'Source Serif 4', Georgia, serif; }
+  body { margin: 0; }
+
+  .topbar {
+    display: flex; align-items: center; gap: 0.75rem;
+    padding: 0.6rem 1.5rem;
+    border-bottom: 1px solid var(--rule);
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
+    font-size: 0.78rem; color: var(--ink-2);
+    background: var(--paper);
+  }
+  .topbar .brand {
+    font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+    font-size: 0.7rem; color: var(--ink); text-decoration: none;
+  }
+  .topbar .sep { color: var(--ink-ghost); }
+  .topbar .crumbs a { color: var(--ink-2); text-decoration: none; }
+  .topbar .crumbs a:hover { color: var(--accent); }
+  .topbar .right {
+    margin-left: auto;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem;
+    color: var(--ink-3); letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .topbar .right a { color: var(--ink-3); text-decoration: none; }
+  .topbar .right a:hover { color: var(--accent); }
+
+  .page {
+    max-width: 48rem; margin: 0 auto;
+    padding: 3rem 2rem 6rem;
+  }
+
+  .source-banner {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    margin-bottom: 1.5rem; padding: 0.4rem 0.75rem;
+    border: 1px solid var(--rule); border-radius: 2px;
+    background: var(--paper-deep);
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem;
+    color: var(--ink-3); letter-spacing: 0.04em;
+  }
+  .source-banner strong { color: var(--ink); text-transform: uppercase; letter-spacing: 0.08em; }
+  .source-banner code { color: var(--ink-2); }
+  .source-banner a { color: var(--ink-3); text-decoration: none; border-bottom: 1px dotted var(--ink-ghost); }
+  .source-banner a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .meta {
+    margin-bottom: 2rem; padding: 0.85rem 1.1rem;
+    background: var(--paper-deep);
+    border-left: 3px solid var(--ink-3);
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem;
+    color: var(--ink-2); line-height: 1.7;
+  }
+  .meta strong { color: var(--ink); font-weight: 500; }
+  .meta .meta-row { display: block; }
+  .meta .meta-divider { display: inline-block; margin: 0 0.5rem; color: var(--rule); }
+  .meta .meta-sources { margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--rule); }
+  .meta a { color: var(--ink-3); text-decoration: none; }
+  .meta a:hover { color: var(--accent); }
+  .meta.hidden { display: none; }
+
+  .content h1 { font-size: 2rem; font-weight: 300; line-height: 1.2; margin: 0 0 1.25rem; letter-spacing: -0.01em; }
+  .content h2 { font-size: 1.3rem; font-weight: 500; line-height: 1.3; margin: 2.5rem 0 0.75rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--rule); }
+  .content h3 { font-size: 1.05rem; font-weight: 500; margin: 1.75rem 0 0.5rem; }
+  .content h4 { font-size: 0.92rem; font-weight: 600; margin: 1.25rem 0 0.4rem; font-family: 'IBM Plex Sans', sans-serif; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-2); }
+  .content p { margin: 0 0 1rem; line-height: 1.65; }
+  .content ul, .content ol { margin: 0 0 1rem; padding-left: 1.4rem; line-height: 1.6; }
+  .content li { margin: 0.25rem 0; }
+  .content li > p { margin: 0.25rem 0; }
+  .content code {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.86em;
+    background: rgba(0,0,0,0.05); padding: 0.05em 0.35em; border-radius: 2px;
+  }
+  .content pre {
+    background: var(--paper-deep); padding: 1rem 1.25rem;
+    border-left: 3px solid var(--rule); overflow-x: auto;
+    font-size: 0.82rem; line-height: 1.55;
+    margin: 1.25rem 0;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .content pre code { background: none; padding: 0; font-size: inherit; }
+  .content table {
+    width: 100%; border-collapse: collapse;
+    margin: 1.25rem 0; font-size: 0.88rem;
+    font-family: 'IBM Plex Sans', sans-serif;
+  }
+  .content th, .content td {
+    padding: 0.55rem 0.75rem;
+    text-align: left; vertical-align: top;
+    border-bottom: 1px solid var(--rule);
+  }
+  .content th {
+    background: var(--paper-deep); font-weight: 500;
+    font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.04em;
+    color: var(--ink-2);
+  }
+  .content blockquote {
+    margin: 1rem 0; padding: 0.5rem 1rem;
+    border-left: 3px solid var(--accent);
+    background: var(--paper-deep);
+    color: var(--ink-2); font-style: italic;
+  }
+  .content a {
+    color: var(--accent); text-decoration: underline;
+    text-decoration-thickness: 1px; text-underline-offset: 2px;
+  }
+  .content a:hover { color: var(--accent-ink); }
+  .content hr { border: 0; border-top: 1px solid var(--rule); margin: 2rem 0; }
+
+  .status { color: var(--ink-3); font-family: 'IBM Plex Mono', monospace; font-size: 0.85rem; }
+  .status.error { color: var(--warn); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="brand" href="index.html">Zscaler Skill</a>
+  <span class="sep">·</span>
+  <span class="crumbs" id="crumbs">Source</span>
+  <span class="right" id="github-link"></span>
+</div>
+
+<main class="page">
+  <div class="source-banner" id="source-banner">
+    <strong>Source</strong>
+    <span>·</span>
+    <span>rendered from <code id="banner-path">…</code></span>
+  </div>
+
+  <div class="meta hidden" id="meta"></div>
+
+  <article class="content" id="content">
+    <p class="status">Loading…</p>
+  </article>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+<script src="nav.js"></script>
+<script>
+(function () {
+  const REPO = 'dvmrry/zscaler-skill';
+  const BRANCH = 'main';
+  const RAW = `https://raw.githubusercontent.com/${REPO}/${BRANCH}`;
+  const VIEW = `https://github.com/${REPO}/blob/${BRANCH}`;
+
+  const params = new URLSearchParams(location.search);
+  const rawParam = (params.get('p') || '').trim().replace(/^\/+|\/+$/g, '');
+
+  // Build the candidate URLs to try, in order. We accept three shapes for ?p=:
+  //   ?p=zia/url-filtering  → references/zia/url-filtering.md
+  //   ?p=zia                → references/zia/index.md, then references/zia.md
+  //   ?p=                   → references/_template.md as a default landing? no — show index of references
+  const candidates = [];
+  let displayPath;
+
+  if (!rawParam) {
+    // Default landing: the portfolio map is the natural "everything" entry point.
+    candidates.push(`${RAW}/references/_portfolio-map.md`);
+    displayPath = 'references/_portfolio-map.md';
+  } else if (rawParam.endsWith('.md')) {
+    candidates.push(`${RAW}/references/${rawParam}`);
+    displayPath = `references/${rawParam}`;
+  } else {
+    candidates.push(`${RAW}/references/${rawParam}.md`);
+    candidates.push(`${RAW}/references/${rawParam}/index.md`);
+    displayPath = `references/${rawParam}.md`;
+  }
+
+  document.getElementById('banner-path').textContent = displayPath;
+
+  // Crumbs
+  renderCrumbs(rawParam);
+
+  // Fetch the first candidate that exists
+  fetchFirst(candidates).then(({ url, text }) => {
+    if (!text) {
+      showError(`Could not load source. Tried:\n${candidates.join('\n')}`);
+      return;
+    }
+    const fetchedRel = url.replace(`${RAW}/`, '');
+    document.getElementById('banner-path').textContent = fetchedRel;
+    setGithubLink(fetchedRel);
+
+    const { fm, body } = parseFrontmatter(text);
+    if (fm.title) document.title = `${fm.title} — Source`;
+    renderMeta(fm);
+    renderBody(body, dirOf(fetchedRel.replace(/^references\//, '')));
+  }).catch(err => {
+    showError(`Error loading source: ${err.message}`);
+  });
+
+  async function fetchFirst(urls) {
+    for (const u of urls) {
+      try {
+        const r = await fetch(u);
+        if (r.ok) return { url: u, text: await r.text() };
+      } catch (_) { /* try next */ }
+    }
+    return { url: null, text: null };
+  }
+
+  function dirOf(relPath) {
+    // relPath e.g. "zia/url-filtering.md" or "zia/index.md" → "zia"
+    // "_template.md" → ""
+    const idx = relPath.lastIndexOf('/');
+    return idx === -1 ? '' : relPath.slice(0, idx);
+  }
+
+  function parseFrontmatter(text) {
+    if (!text.startsWith('---\n') && !text.startsWith('---\r\n')) {
+      return { fm: {}, body: text };
+    }
+    const m = text.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
+    if (!m) return { fm: {}, body: text };
+    const fm = parseSimpleYaml(m[1]);
+    return { fm, body: m[2] };
+  }
+
+  function parseSimpleYaml(text) {
+    const out = {};
+    let currentKey = null;
+    for (const rawLine of text.split('\n')) {
+      const line = rawLine.replace(/\r$/, '');
+      if (!line.trim() || line.trim().startsWith('#')) continue;
+      const list = line.match(/^\s+-\s+(.+)$/);
+      if (list && currentKey) {
+        if (!Array.isArray(out[currentKey])) out[currentKey] = [];
+        out[currentKey].push(stripQuotes(list[1].trim()));
+        continue;
+      }
+      const kv = line.match(/^([A-Za-z][A-Za-z0-9_-]*)\s*:\s*(.*)$/);
+      if (kv) {
+        currentKey = kv[1];
+        const val = kv[2].trim();
+        out[currentKey] = val === '' ? '' : stripQuotes(val);
+      }
+    }
+    return out;
+  }
+
+  function stripQuotes(s) { return s.replace(/^["']|["']$/g, ''); }
+
+  function renderCrumbs(p) {
+    const el = document.getElementById('crumbs');
+    if (!p) { el.textContent = 'Source'; return; }
+    const parts = p.split('/');
+    const links = parts.map((seg, i) => {
+      const sub = parts.slice(0, i + 1).join('/');
+      const isLast = i === parts.length - 1;
+      if (isLast) return `<span style="color: var(--ink);">${escapeHtml(seg)}</span>`;
+      return `<a href="?p=${encodeURIComponent(sub)}">${escapeHtml(seg)}</a>`;
+    });
+    el.innerHTML = `<a href="?p=">Source</a>` + ' › ' + links.join(' › ');
+  }
+
+  function setGithubLink(rel) {
+    const el = document.getElementById('github-link');
+    el.innerHTML = `<a href="${VIEW}/${rel}" target="_blank" rel="noopener">View on GitHub ↗</a>`;
+  }
+
+  function renderMeta(fm) {
+    const el = document.getElementById('meta');
+    if (!fm || Object.keys(fm).length === 0) { el.classList.add('hidden'); return; }
+    const fields = [];
+    if (fm['last-verified']) fields.push(`<strong>Verified</strong> ${escapeHtml(fm['last-verified'])}`);
+    if (fm.confidence) fields.push(`<strong>Confidence</strong> ${escapeHtml(fm.confidence)}`);
+    if (fm['source-tier']) fields.push(`<strong>Tier</strong> ${escapeHtml(fm['source-tier'])}`);
+    if (fm['content-type']) fields.push(`<strong>Type</strong> ${escapeHtml(fm['content-type'])}`);
+    if (fm['author-status']) fields.push(`<strong>Status</strong> ${escapeHtml(fm['author-status'])}`);
+
+    let html = '';
+    if (fields.length) {
+      html += `<span class="meta-row">${fields.join('<span class="meta-divider">·</span>')}</span>`;
+    }
+    const sources = (fm.sources || []).filter(s => typeof s === 'string' && s.startsWith('http'));
+    if (sources.length) {
+      const links = sources.map(s => `<a href="${escapeAttr(s)}" target="_blank" rel="noopener">${escapeHtml(shortenUrl(s))}</a>`).join('<br>');
+      html += `<div class="meta-sources"><strong>Sources</strong><br>${links}</div>`;
+    }
+    if (!html) { el.classList.add('hidden'); return; }
+    el.innerHTML = html;
+    el.classList.remove('hidden');
+  }
+
+  function shortenUrl(u) {
+    try { const x = new URL(u); return x.hostname + x.pathname; } catch { return u; }
+  }
+
+  function renderBody(md, currentDir) {
+    // Walk tokens to rewrite .md links in href values, and to fix relative anchors.
+    marked.use({
+      walkTokens(token) {
+        if ((token.type === 'link' || token.type === 'image') && token.href) {
+          token.href = rewriteHref(token.href, currentDir);
+        }
+      },
+    });
+    const html = marked.parse(md);
+    document.getElementById('content').innerHTML = html;
+  }
+
+  function rewriteHref(href, currentDir) {
+    if (/^(https?:|mailto:|tel:|#|data:)/i.test(href)) return href;
+    if (href.startsWith('/')) return href;
+    // Match .md or .md#anchor
+    const m = href.match(/^(.+?)\.md(#.*)?$/);
+    if (!m) return href;
+    const target = resolvePath(currentDir, m[1]);
+    const anchor = m[2] || '';
+    return `?p=${encodeURIComponent(target)}${anchor}`;
+  }
+
+  function resolvePath(base, rel) {
+    const baseSegs = base ? base.split('/').filter(Boolean) : [];
+    const relSegs = rel.split('/').filter(s => s !== '');
+    const segs = [...baseSegs];
+    for (const s of relSegs) {
+      if (s === '.') continue;
+      if (s === '..') segs.pop();
+      else segs.push(s);
+    }
+    return segs.join('/');
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+  function escapeAttr(s) { return escapeHtml(s); }
+
+  function showError(msg) {
+    const el = document.getElementById('content');
+    el.innerHTML = `<p class="status error">${escapeHtml(msg)}</p>`;
+  }
+})();
+</script>
+
+</body>
+</html>

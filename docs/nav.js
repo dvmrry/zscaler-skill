@@ -3,13 +3,16 @@
 // within the current section (only when the current section has 2+ pages).
 // Path-aware so it works whether the page is at the docs/ root or one
 // level down in a section subdir.
+//
+// "Source" sub-row links point at source.html?p=<path>, which renders
+// the underlying markdown directly from the references/ tree.
 (function () {
   const sections = [
     {
       key: 'overview',
       label: 'Overview',
       href: 'index.html',
-      match: [/^\/?$/, /index\.html$/, /\/docs\/?$/],
+      match: [/^\/?$/, /\/index\.html$/, /\/docs\/?$/],
       children: [],
     },
     {
@@ -26,36 +29,45 @@
       key: 'zia',
       label: 'ZIA',
       href: 'zia/',
-      match: [/\/zia\//, /\/zia\/?$/],
+      match: [/\/zia\//, /\/zia\/?$/, /source\.html\?.*p=zia(\/|$)/],
       children: [
-        { href: 'zia/',            label: 'Overview',          match: [/\/zia\/(index\.html)?$/] },
-        { href: 'zia/reference.html',  label: 'Reference',     match: [/zia\/reference/] },
+        { href: 'zia/',                label: 'Overview',          match: [/\/zia\/(index\.html)?$/] },
+        { href: 'zia/reference.html',  label: 'Reference',         match: [/zia\/reference/] },
         { href: 'zia/forwarding.html', label: 'Traffic Forwarding', match: [/zia\/forwarding/] },
+        { href: 'source.html?p=zia',   label: 'Source',            match: [/source\.html\?.*p=zia(\/|$)/], external: 'source' },
       ],
     },
     {
       key: 'zpa',
       label: 'ZPA',
       href: 'zpa/',
-      match: [/\/zpa\//, /\/zpa\/?$/],
-      children: [],
+      match: [/\/zpa\//, /\/zpa\/?$/, /source\.html\?.*p=zpa(\/|$)/],
+      children: [
+        { href: 'zpa/',              label: 'Reference', match: [/\/zpa\//, /\/zpa\/?$/] },
+        { href: 'source.html?p=zpa', label: 'Source',    match: [/source\.html\?.*p=zpa(\/|$)/], external: 'source' },
+      ],
     },
     {
       key: 'cloud-connector',
       label: 'Cloud Connector',
       href: 'cloud-connector/',
-      match: [/cloud-connector/],
-      children: [],
+      match: [/cloud-connector\//, /source\.html\?.*p=cloud-connector(\/|$)/],
+      children: [
+        { href: 'cloud-connector/',              label: 'Reference', match: [/cloud-connector\//] },
+        { href: 'source.html?p=cloud-connector', label: 'Source',    match: [/source\.html\?.*p=cloud-connector(\/|$)/], external: 'source' },
+      ],
     },
   ];
 
-  // depth: 0 if at docs/ root (index.html, readers-guide.html, onboarding.html),
+  // depth: 0 if at docs/ root (index.html, readers-guide.html, onboarding.html, source.html),
   // 1 if in a subdir (zia/*, zpa/*, cloud-connector/*).
   const path = location.pathname;
+  const search = location.search;
+  const pathAndSearch = path + search;
   const depth = /\/(zia|zpa|cloud-connector)\//.test(path) ? 1 : 0;
   const prefix = depth === 1 ? '../' : '';
 
-  const currentSection = sections.find(s => s.match.some(re => re.test(path)));
+  const currentSection = sections.find(s => s.match.some(re => re.test(pathAndSearch)));
 
   const css = `
     #site-nav { position: sticky; top: 0; z-index: 200; background: #f6f2e8; border-bottom: 1px solid #d8d0c0; }
@@ -123,7 +135,8 @@
   row1.appendChild(topLinks);
   nav.appendChild(row1);
 
-  // Sub-row only when the current section has 2+ children.
+  // Sub-row whenever the current section has 2+ children (every section
+  // with content does now, since each adds a "Source" link).
   if (currentSection && currentSection.children.length >= 2) {
     const row2 = document.createElement('div');
     row2.className = 'sn-row sn-row--sub';
@@ -131,7 +144,7 @@
     subLinks.className = 'sn-links';
     currentSection.children.forEach(function (page) {
       const a = document.createElement('a');
-      const isActive = page.match.some(re => re.test(path));
+      const isActive = page.match.some(re => re.test(pathAndSearch));
       a.className = 'sn-link' + (isActive ? ' active' : '');
       a.href = prefix + page.href;
       a.textContent = page.label;
