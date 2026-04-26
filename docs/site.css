@@ -1211,19 +1211,113 @@ body.reading { font-size: 19px; line-height: 1.65; }
 }
 
 /* ──────────────────────────────────────────────────────────────────
-   Rail toggle — body.no-rail collapses the contextual rail across
-   every page archetype. Toggle button lives in nav.js's sticky bar
-   and persists state in localStorage.
+   Left sidebar — shared file-tree navigation injected into every
+   page by left-sidebar.js. Fixed-positioned, full viewport height
+   below the (also fixed) #site-nav. Body has padding-top to clear
+   the nav and padding-left to clear the sidebar.
+
+   Right-side TOCs (.doc .nav, .reading-rail) are independent of
+   this rail and are not affected by the toggle.
    ────────────────────────────────────────────────────────────────── */
 
-/* Reference docs */
-body.no-rail .doc {
-  grid-template-columns: minmax(0, 1fr);
-}
-body.no-rail .doc .nav { display: none; }
+:root { --left-rail-width: 280px; }
 
-/* Reader's Guide */
-body.reading.no-rail .reading-layout {
-  grid-template-columns: minmax(0, var(--measure));
+body.has-left-rail { padding-left: var(--left-rail-width); }
+body.has-left-rail.no-rail { padding-left: 0; }
+body.no-rail .left-sidebar { display: none; }
+
+.left-sidebar {
+  position: fixed;
+  top: var(--site-nav-height, 70px);
+  left: 0;
+  width: var(--left-rail-width);
+  height: calc(100vh - var(--site-nav-height, 70px));
+  background: var(--paper-deep);
+  border-right: 1px solid var(--rule);
+  overflow-y: auto;
+  z-index: 90;
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
 }
-body.reading.no-rail .reading-rail { display: none; }
+.left-sidebar .ls-search {
+  position: sticky; top: 0; z-index: 2;
+  padding: 1.25rem 1.5rem 0.65rem;
+  background: var(--paper-deep);
+  border-bottom: 1px solid var(--rule);
+}
+.left-sidebar .ls-search input {
+  width: 100%; padding: 0.4rem 0.6rem;
+  font-family: var(--font-sans); font-size: 0.78rem;
+  background: var(--paper); color: var(--ink);
+  border: 1px solid var(--rule); border-radius: 2px;
+  -webkit-appearance: none; appearance: none;
+}
+.left-sidebar .ls-search input:focus { outline: none; border-color: var(--accent); }
+.left-sidebar .ls-search-status {
+  margin-top: 0.4rem;
+  font-family: var(--font-mono); font-size: 0.62rem;
+  letter-spacing: 0.04em; color: var(--ink-3);
+  min-height: 0.9rem;
+}
+
+.left-sidebar .ls-tree { padding: 0 0 3rem; }
+.left-sidebar ul { list-style: none; margin: 0; padding: 0; }
+.left-sidebar .ls-group + .ls-group { border-top: 1px solid var(--rule-soft); }
+.left-sidebar .ls-group-head {
+  display: flex; align-items: center; gap: 0.5rem;
+  width: 100%;
+  padding: 0.55rem 1.5rem;
+  background: transparent;
+  border: 0; cursor: pointer;
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: 0.66rem; font-weight: 500;
+  text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--ink-3);
+  transition: color 0.1s, background 0.1s;
+}
+.left-sidebar .ls-group-head:hover { color: var(--ink); background: var(--paper-card); }
+.left-sidebar .ls-group-caret {
+  display: inline-block; width: 0.7rem;
+  color: var(--ink-3); font-size: 0.7rem; line-height: 1;
+  transition: transform 0.15s;
+}
+.left-sidebar .ls-group.ls-open .ls-group-caret { transform: rotate(90deg); }
+.left-sidebar .ls-group-label { flex: 1; }
+.left-sidebar .ls-group-count { font-size: 0.6rem; color: var(--ink-ghost); font-weight: 400; }
+.left-sidebar .ls-group-list {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.2s ease;
+}
+.left-sidebar .ls-group.ls-open .ls-group-list {
+  max-height: 100vh;
+  padding-bottom: 0.4rem;
+}
+.left-sidebar .ls-group li.no-match { display: none; }
+.left-sidebar .ls-group.no-match { display: none; }
+
+.left-sidebar a {
+  display: block;
+  padding: 0.25rem 1.5rem;
+  color: var(--ink-2); text-decoration: none;
+  line-height: 1.35;
+  border-left: 2px solid transparent;
+  transition: color 0.1s, background 0.1s;
+}
+.left-sidebar a:hover { color: var(--ink); background: var(--paper-card); }
+.left-sidebar a.active {
+  color: var(--accent); background: var(--paper);
+  border-left-color: var(--accent);
+  font-weight: 500;
+}
+.left-sidebar .ls-status {
+  padding: 1rem 1.5rem;
+  color: var(--ink-3); font-size: 0.74rem;
+  font-family: var(--font-mono);
+}
+
+@media (max-width: 720px) {
+  body.has-left-rail { padding-left: 0; }
+  .left-sidebar { display: none; }
+}

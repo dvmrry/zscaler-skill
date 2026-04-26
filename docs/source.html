@@ -48,15 +48,14 @@
   .topbar .right a:hover { color: var(--accent); }
 
   .layout {
-    display: grid;
-    grid-template-columns: 280px minmax(0, 1fr);
-    gap: 0;
     min-height: calc(100vh - 38px);
   }
-  body.no-rail .layout { grid-template-columns: minmax(0, 1fr); }
-  body.no-rail .sidebar { display: none; }
 
+  /* Legacy inline-sidebar styles retained for backward compatibility
+     while the markup is removed. The shared left-sidebar.js renders
+     into <aside class="left-sidebar"> instead. */
   .sidebar {
+    display: none;
     border-right: 1px solid var(--rule);
     background: var(--paper-deep);
     overflow-y: auto;
@@ -267,16 +266,6 @@
 </div>
 
 <div class="layout">
-  <aside class="sidebar" id="sidebar" aria-label="Source navigation">
-    <div class="sb-search">
-      <input type="search" id="sb-search-input" placeholder="Search references" autocomplete="off" spellcheck="false">
-      <div class="sb-search-status" id="sb-search-status"></div>
-    </div>
-    <div id="sb-tree">
-      <p class="sb-status">Loading file list…</p>
-    </div>
-  </aside>
-
   <main class="page">
     <div class="source-banner" id="source-banner">
       <strong>Source</strong>
@@ -293,7 +282,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
-<script src="nav.js?v=8"></script>
+<script src="nav.js?v=13"></script>
 <script>
 (function () {
   const REPO = 'dvmrry/zscaler-skill';
@@ -352,11 +341,10 @@
   document.title = titleFromSlug(rawParam) + ' — Source';
   renderCrumbs(rawParam);
 
-  // Kick off the file-tree fetch in parallel with the markdown fetch.
-  loadTree().then(renderSidebar).catch(err => {
-    document.getElementById('sidebar').innerHTML =
-      `<p class="sb-status">Could not load file list.<br><small>${escapeHtml(err.message)}</small></p>`;
-  });
+  // The file-tree sidebar is provided by the shared left-sidebar.js
+  // (auto-loaded by nav.js). The legacy renderSidebar / loadTree
+  // functions in this file are unused; left for now but safe to delete
+  // in a follow-up.
 
   fetchFirst(candidates).then(({ url, text }) => {
     if (!text) {

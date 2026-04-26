@@ -65,7 +65,6 @@
   ];
 
   const RAIL_STATE_KEY = 'zskill:rail-hidden';
-  const RAIL_SELECTORS = '.doc .nav, .reading-rail, .sidebar';
 
   // depth: 0 if at docs/ root (index.html, readers-guide.html, onboarding.html, source.html),
   // 1 if in a subdir (zia/*, zpa/*, cloud-connector/*).
@@ -82,7 +81,8 @@
   if (safeRead(RAIL_STATE_KEY) === 'yes') document.body.classList.add('no-rail');
 
   const css = `
-    #site-nav { position: sticky; top: 0; z-index: 200; background: #f6f2e8; border-bottom: 1px solid #d8d0c0; }
+    #site-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; background: #f6f2e8; border-bottom: 1px solid #d8d0c0; }
+    body { padding-top: var(--site-nav-height, 70px); }
     #site-nav .sn-row {
       display: flex; align-items: center;
       height: 38px; padding: 0 1.5rem;
@@ -117,7 +117,7 @@
       font-weight: 500;
     }
     #site-rail-toggle {
-      display: none;
+      display: inline-flex;
       align-items: center; justify-content: center;
       width: 28px; height: 28px;
       margin-right: 0.75rem; padding: 0;
@@ -129,7 +129,6 @@
       cursor: pointer;
       transition: background 0.1s, color 0.1s;
     }
-    body[data-has-rail] #site-rail-toggle { display: inline-flex; }
     #site-rail-toggle:hover { background: #efeadc; color: #1a1814; }
     #site-rail-toggle[aria-pressed="true"] {
       background: #efeadc; color: #8a3a1f;
@@ -221,6 +220,15 @@
 
   document.body.prepend(nav);
 
+  // Set --site-nav-height so the sidebar and body padding-top can
+  // align under the fixed nav. Recompute on resize.
+  function syncNavHeight() {
+    const h = nav.getBoundingClientRect().height;
+    document.documentElement.style.setProperty('--site-nav-height', h + 'px');
+  }
+  syncNavHeight();
+  window.addEventListener('resize', syncNavHeight, { passive: true });
+
   // Back-to-top button.
   const toTop = document.createElement('a');
   toTop.id = 'site-to-top';
@@ -241,21 +249,13 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 
-  // Detect a contextual rail in the DOM and surface the toggle button
-  // only on pages where it's meaningful. Run once after DOMContentLoaded
-  // so dynamically-rendered rails (e.g., source.html sidebar) are seen.
-  function detectRail() {
-    if (document.querySelector(RAIL_SELECTORS)) {
-      document.body.setAttribute('data-has-rail', '');
-    }
-  }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', detectRail);
-  } else {
-    detectRail();
-  }
-  // Recheck on load — source.html renders its sidebar after fetch.
-  window.addEventListener('load', detectRail);
+  // Auto-load the shared left-sidebar (file-tree navigation). Always
+  // loaded — every page gets the sidebar, and the rail toggle hides
+  // it when desired.
+  const sidebarScript = document.createElement('script');
+  sidebarScript.src = prefix + 'left-sidebar.js?v=1';
+  sidebarScript.async = true;
+  document.body.appendChild(sidebarScript);
 
   function safeRead(k) {
     try { return localStorage.getItem(k); } catch (_) { return null; }
