@@ -19,27 +19,26 @@ When your fork's `iac/` is populated, agents will treat it as **production truth
 
 ## Suggested structure
 
-Tool-priority order: **Terraform first, CloudFormation as fallback.** Bicep and ARM aren't included by default — Zscaler doesn't publish first-party Bicep/ARM templates, and CloudFormation covers AWS deployments where TF isn't available. Add other tools if your fork uses them.
+The upstream skill scaffolds **`terraform/` only** — Terraform is the default IaC tool here, matching how Zscaler publishes their reference modules. If your fork uses other tools (CloudFormation, Pulumi, Ansible, OpenTofu, etc.), add directories as needed:
 
 ```
 iac/
 ├── terraform/         ← TF modules + configs (no .tfstate; manage state separately)
-├── cloudformation/    ← CFN templates if your AWS deployments use CFN over TF
+├── cloudformation/    ← if you use CFN for AWS deployments — fork-add as needed
+├── pulumi/            ← fork-add if applicable
 └── INDEX.md           ← optional: point agents at your structure
 ```
 
-If your IaC is **bundled by Zscaler product** rather than by tool (e.g., all-ZIA together regardless of TF vs CFN), organize that way and ignore the per-tool directories:
+If your IaC is **bundled by Zscaler product** rather than by tool (e.g., all-ZIA together regardless of TF vs anything else), organize that way and ignore the per-tool directories:
 
 ```
 iac/
 ├── zia/
-│   ├── terraform/
-│   └── ...
+│   └── terraform/
 ├── zpa/
 │   └── terraform/
 ├── cloud-connector/
-│   ├── terraform/
-│   └── cloudformation/
+│   └── terraform/
 └── ...
 ```
 
