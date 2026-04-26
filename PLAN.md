@@ -2,7 +2,7 @@
 
 **Purpose of this file:** crash-recovery artifact. If the session dies, read this to know what the project is, what's been done, and what's next without reconstructing from a 99MB transcript.
 
-Last updated: 2026-04-24 (seventh pass — architectural components build-out: PAC / Locations / Device Posture / Firewall / Browser Access / PRA / Subclouds / NSS).
+Last updated: 2026-04-26 (capture-driven build-out — sitemap audit, 2 capture rounds totaling ~150 pages, 19 new reference docs, iac/ extension point scaffolded).
 
 ## TL;DR for new fork admins
 
@@ -500,6 +500,107 @@ When OpenAPI/Swagger specs become available (either from `automate.zscaler.com` 
 - Pre-populates snapshot-schema reasoning before first fork-admin run.
 - Closes ZCC enum clarifications (`zcc-01` through `zcc-04`, `zcc-06`) if the spec annotates enums.
 - Tightens `references/zia/api.md`, `references/zpa/api.md`, `references/zcc/api.md` beyond SDK-derived knowledge.
+
+## Capture-driven build-out — 2026-04-25 / 26 (rounds 10–14)
+
+The 2026-04-24 close-out called the build "materially complete." Subsequent sessions surfaced that we'd been working from a small fraction of Zscaler's published help-portal content. A sitemap probe of `help.zscaler.com` returned **3,960 URLs**; we had ~176 captures vendored — under 5%. Five rounds of work followed.
+
+### Round 10 — ZIA / ZPA fundamentals + T2 fill-ins ✅ DONE (2026-04-25)
+
+Subagent-drafted reasoning docs for fundamental primitives that were referenced inline but lacked dedicated homes:
+
+- `references/zpa/segment-server-groups.md` — ZPA's two grouping primitives (policy-scoping vs traffic-delivery)
+- `references/zia/forwarding-control.md` — Forwarding Control + SIPA cross-product routing
+- `references/zia/authentication.md` — auth gate, SAML/Hosted DB/Kerberos, frequency model, Surrogate IP
+- `references/zia/tenant-profiles.md` — SaaS tenant restriction (M365 corporate-only access)
+
+Plus portfolio-map T2 fill-ins: CTEM, Business Continuity Cloud (own entry vs. buried in Resilience), Managed Threat Hunting, CASB disambiguation.
+
+### Round 11 — Cloud Connector + SSL deepening + reference-IaC framing ✅ DONE (2026-04-25)
+
+- `references/cloud-connector/azure-deployment.md` — Marketplace, dual-NIC, Standard ILB, NAT GW per AZ, VMSS + Function App orphan cleanup
+- `references/zia/ssl-inspection.md` — extended with per-connection-CA mechanics, trust store deployment table (Firefox/Python/npm/git/Java/Docker/ChromeOS), CDN bypass anti-pattern, bypass-rule hygiene; Duo Desktop added to cert-pinned list
+- `references/zia/saas-app-quirks.md` — root-cause catalog (cert pinning, custom truststores, auth-bypass, source-IP/CA, CDN, QUIC, tenant-restriction silent break)
+- `references/zcc/azure-vm-deployment.md` — ZCC inside AVD / Windows 365 Cloud PCs (multi-session unsupported, Azure Fabric IP bypass, IMDS migration July 2025)
+- `references/zcc/z-tunnel.md` — APNs/FCM mobile push bypass section
+- `references/zia/private-service-edge.md` — ZIA on-prem cluster architecture
+- `references/zia/proxy-mode.md` — Explicit vs Transparent destination resolution
+- `references/shared/cloud-architecture.md` — added MCLS sub-section + provisioning-scope statement + policy-follows-user
+
+### Round 12 — Postman drift fixes + iac/ scaffolding + customer-language sweep ✅ DONE (2026-04-26)
+
+- Cross-checked SDK-derived API claims against the published Postman collection. Five small drift fixes applied across `url-filtering.md` (added `userRiskScoreLevels` + `workloadGroups`), `forwarding-control.md` (`zpaBrokerRule`), `ssl-inspection.md` (`accessControl` + `showEUN/showEUNATP` casing), `segment-server-groups.md` (Python SDK Server Group `servers[]` gap), `traffic-forwarding-methods.md` (added `CN`/`XAUTH` VPN credential types).
+- **iac/** scaffolding for fork-private production IaC (Terraform-only by default; fork can add other tools as needed). README explains routing precedence: `iac/` is production truth; `vendor/` IaC is reference implementation.
+- **Reference-IaC vs production-IaC** distinction encoded — Azure CC doc audited to soften "required" claims to "reference pattern." Future per-cloud docs follow this pattern from the start.
+- Customer-language sweep — fixed AI Security + portfolio-map miscoloring of skill-users as "customers." Most usage was Zscaler-domain terminology and stayed.
+
+### Round 13 — Capture sweep + reference doc updates ✅ DONE (2026-04-26)
+
+**Capture round 1: 30 Cloud/Branch Connector pages** (AWS deployment, foundational concepts, Branch Connector specifics, ops).
+
+**Reference docs from capture findings:**
+
+- `references/cloud-connector/aws-deployment.md` — parallel structure to Azure deployment doc
+- `references/cloud-connector/aws-workload-discovery.md` — IAM trust setup (External ID + Trusted Account ID), EventBridge metadata pipeline, `zs:namespace` VPC tag for overlapping CIDRs
+- `references/cloud-connector/dns-subsystem.md` — DNS Gateways + DNS Policies + Log & Control Forwarding (three subsystems)
+- `references/cloud-connector/upgrade-and-credential-rotation.md` — Sunday-midnight-local upgrade cadence, zsroot rotation procedure, OS-image vs package distinction
+- `references/cloud-connector/forwarding.md` — extended with predefined-rule gateway-mode gating + AWS GWLB vs ENI distinction
+
+**Capture round 2: ~115 pages across 4 sections** (ZSDK 30, ZCC 24, Legacy APIs 25, ZIA/ZPA gap-fills 19). 309 vendored captures total (was ~176 at session start).
+
+### Round 14 — Capture-driven reference docs + help-portal gap fills + scope hardening ✅ DONE (2026-04-26)
+
+**New reference docs from round-13 captures:**
+
+- `references/zcc/device-posture.md` — ZCC-side posture mechanics (15-min cadence, Linux cert paths, per-OS support)
+- `references/zcc/install-parameters.md` — Windows / macOS / iOS / Android install-time parameter reference (~30 documented Windows flags including STRICTENFORCEMENT / POLICYTOKEN / MTAUTHREQUIRED / BCP / LWF triad)
+- `references/zia/dns-control.md` — three predefined rules, DoH handling, DNS tunnel detection, NROD 2–36 hour latency
+- `references/zia/workload-groups.md` — sourced from SDK + TF (help portal page broken)
+- `references/zpa/microtenants.md` — multi-org isolation, microtenantId propagation, admin-password-shown-once gotcha
+- `references/zcc/forwarding-profile.md` — extended with failure taxonomy + version-specific overrides (4.4+ Win / 4.5+ Win / 4.6+/4.8+ macOS)
+
+**Help-portal-gap fills (404s and SPA reroutes — sourced from SDK + TF):**
+
+- `references/zpa/posture-profiles.md` — ZPA policy-side consumer of ZCC posture signals (`posture_udid` is the policy `lhs`, not `id`)
+- `references/zpa/trusted-networks.md` — distinct from ZCC trusted-networks; read-only data source only; PSE Groups bind via this
+- `references/zpa/public-service-edges.md` — Zscaler-managed default ZPA SE
+- `references/zpa/emergency-access.md` — Okta-only IdP + email OTP, time-bounded
+- `references/zpa/log-receivers.md` — LSS configuration primitive (9 streamable types of 16 exposed)
+- `references/shared/scim-provisioning.md` — added ZPA SCIM Groups section
+
+**Portfolio map** — added ZSDK as Tier 2a (mobile SDK for consumer apps; shares App Connector + PSE infra with ZPA but runs on dedicated `admin.zsdkone.net` cloud). Coverage: T2a 4 → 5; total portfolio 32 → 33.
+
+**SKILL.md** — added "Recognizing a deferred topic from frontmatter" section + explicit "topics this skill cannot answer without tenant access" list. Defensive — agents read frontmatter signals before answering with high confidence.
+
+### State summary post-round-14
+
+- **~80 reference docs** across 14 product directories (was ~55 at the seventh-pass close)
+- **309 vendored help captures** + 11 PDFs (was ~176 at session start)
+- **All Zscaler-marketed products** at appropriate tier (T1 with operational depth: 9; T2a with reasoning content: 5; T2b with paragraph awareness: 19+)
+- **Help-portal gaps** documented (5 ZPA pages 404 / SPA-broken; sourced from SDK + TF)
+- **Reference-IaC vs production-IaC** distinction codified; `iac/` extension point scaffolded for fork-private deployments
+- **Verification protocol** applied: explicit Tier A/B/C/D labels; `source-tier: code` for SDK-only docs; `confidence: medium` where SDK-only
+
+### Pending after round 14
+
+**Tenant-blocked (no change from earlier passes):**
+- Snapshot schema docs
+- 5 scaffold scripts validation
+- 6 lab-test clarifications
+- Simulator validation against real logs
+- Tier C items needing live API confirmation (`tz`/`country` write behavior, `showEUN`/`showEUNATP` casing, etc.)
+
+**Skipped per fork-team policy:**
+- SaaS Security Report doc (T2 + no API ⇒ doesn't earn reference depth even when small-scoped)
+- Legacy auth consolidation (overlaps with `oneapi.md` + runbooks)
+- MCP conversion / wiki rendering / forum harvesting / etc. — explicitly decided against
+
+**Discoveries during the sweep:**
+- ZSDK is a different product than initially assumed (mobile SDK for consumer apps, not a Zscaler-API SDK)
+- Python SDK Server Group model omits `servers[]` (TF carries it correctly)
+- Python SDK has trailing-tab typo in `rootCert` key for posture profiles
+- ZIA `showEUN`/`showEUNATP` wire-casing asymmetry (mixed-case on read, uppercase on write — unverified)
+- 5 ZPA help-portal pages confirmed 404 / SPA-broken (Zscaler doc gaps, not ours)
 
 ## Crash-recovery hints
 

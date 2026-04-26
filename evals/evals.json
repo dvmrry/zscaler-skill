@@ -28,8 +28,8 @@
     },
     {
       "id": 2,
-      "prompt": "I have two URL filtering rules that both match the same request — one is a Block rule lower in the order, one is an Allow rule higher up. Which one wins and why?",
-      "expected_output": "ZIA URL filtering rules evaluate top-down in ascending order; the first match wins. So the Allow rule at higher order (lower order number) fires first and blocks the Block rule from ever running. The answer should also mention that 'matching' has two layers — category resolution (specificity-wins across custom categories) happens before rule evaluation, so a rule with a wildcard category can silently lose to a lower-priority rule whose custom category has a more-specific exact entry for the URL.",
+      "prompt": "I have two URL filtering rules that both match the same request \u2014 one is a Block rule lower in the order, one is an Allow rule higher up. Which one wins and why?",
+      "expected_output": "ZIA URL filtering rules evaluate top-down in ascending order; the first match wins. So the Allow rule at higher order (lower order number) fires first and blocks the Block rule from ever running. The answer should also mention that 'matching' has two layers \u2014 category resolution (specificity-wins across custom categories) happens before rule evaluation, so a rule with a wildcard category can silently lose to a lower-priority rule whose custom category has a more-specific exact entry for the URL.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
@@ -51,7 +51,7 @@
     {
       "id": 3,
       "prompt": "If I configure a URL filtering rule matching *.example.com, does it match example.com itself? What about foo.bar.example.com? And does the wildcard care about the scheme (https:// vs http://)?",
-      "expected_output": "Asterisks are not a valid Zscaler wildcard — the leading-period form `.example.com` is. `.example.com` matches the bare domain, any subdomain up to 5 levels deep, plus implicit right-side path/port/query matching. Scheme is stripped at configuration and ignored at match time — http:// and https:// both match. `foo.bar.example.com` matches (2 levels, well within 5). The 5-level cap is a non-obvious gotcha worth flagging. An operator report contradicts the doc on asterisk behavior — see clarification zia-15.",
+      "expected_output": "Asterisks are not a valid Zscaler wildcard \u2014 the leading-period form `.example.com` is. `.example.com` matches the bare domain, any subdomain up to 5 levels deep, plus implicit right-side path/port/query matching. Scheme is stripped at configuration and ignored at match time \u2014 http:// and https:// both match. `foo.bar.example.com` matches (2 levels, well within 5). The 5-level cap is a non-obvious gotcha worth flagging. An operator report contradicts the doc on asterisk behavior \u2014 see clarification zia-15.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
@@ -74,7 +74,7 @@
     {
       "id": 4,
       "prompt": "For an HTTPS request to a site we want to block by URL category, does SSL inspection happen before or after the URL filtering decision? Does the answer change if the URL is in a do-not-inspect category?",
-      "expected_output": "Firewall module runs first. Then web module evaluates in two passes for HTTPS: a CONNECT/SNI pass on the destination domain (URL Filtering + CAC + ATP known-bad URLs + Bandwidth run here, on domain only), then the SSL Inspection policy decides whether to decrypt, then — only if decrypted — a full-URL pass where the same policy modules re-evaluate with full URL path, method, and body. So URL filtering can block pre-decrypt on the domain even when SSL isn't decrypting. For Do Not Inspect: two sub-variants exist — 'Evaluate Other Policies' still runs the SNI-level URL Filtering check; 'Bypass Other Policies' short-circuits the entire policy chain. An operator who uses Bypass Other Policies expecting URL filtering to still fire will get a silent miss.",
+      "expected_output": "Firewall module runs first. Then web module evaluates in two passes for HTTPS: a CONNECT/SNI pass on the destination domain (URL Filtering + CAC + ATP known-bad URLs + Bandwidth run here, on domain only), then the SSL Inspection policy decides whether to decrypt, then \u2014 only if decrypted \u2014 a full-URL pass where the same policy modules re-evaluate with full URL path, method, and body. So URL filtering can block pre-decrypt on the domain even when SSL isn't decrypting. For Do Not Inspect: two sub-variants exist \u2014 'Evaluate Other Policies' still runs the SNI-level URL Filtering check; 'Bypass Other Policies' short-circuits the entire policy chain. An operator who uses Bypass Other Policies expecting URL filtering to still fire will get a silent miss.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
@@ -97,7 +97,7 @@
     {
       "id": 5,
       "prompt": "URL filtering says Block on a site, but cloud app control explicitly Allows the specific SaaS app hosted at that URL. What actually happens to the request?",
-      "expected_output": "Cloud App Control evaluates before URL Filtering by default. A CAC Allow for the app short-circuits URL Filtering entirely — the Block rule never fires — so the user accesses the app. This default can be overridden with the Advanced-Settings 'Allow Cascading to URL Filtering' toggle, which makes URL Filtering re-evaluate after a CAC Allow. If cascading is on, the Block rule fires and the user is blocked. Cascading is Allow-path-only: a CAC Block always wins regardless of cascading. Per-rule `cascading_enabled` toggle also exists for individual CAC rules when the global toggle is off.",
+      "expected_output": "Cloud App Control evaluates before URL Filtering by default. A CAC Allow for the app short-circuits URL Filtering entirely \u2014 the Block rule never fires \u2014 so the user accesses the app. This default can be overridden with the Advanced-Settings 'Allow Cascading to URL Filtering' toggle, which makes URL Filtering re-evaluate after a CAC Allow. If cascading is on, the Block rule fires and the user is blocked. Cascading is Allow-path-only: a CAC Block always wins regardless of cascading. Per-rule `cascading_enabled` toggle also exists for individual CAC rules when the global toggle is off.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
@@ -119,7 +119,7 @@
     {
       "id": 6,
       "prompt": "In ZPA, I have two application segments and both of them claim *.internal.corp. How does the policy engine pick which segment handles an incoming request to foo.internal.corp?",
-      "expected_output": "Zscaler Client Connector picks the most-specific matching segment on the client side before ZPA sees the request. For two overlapping wildcard segments (both `*.internal.corp`), specificity ranks strictly on the FQDN — neither is more specific, so the tie-break falls through to configuration semantics. Under the default `EXCLUSIVE` match style, ZPA rejects creating two same-domain segments with conflicting Multimatch settings at save time (clarification zpa-03). If both segments legitimately cover the same FQDN with the same Multimatch style, the engine picks one deterministically — lab-test territory (clarification zpa-04). Critical operational fact: if the selected segment doesn't cover the destination port, ZCC drops the connection — it does NOT fall back to a less-specific segment. Bypass setting can override: if one segment has Bypass = Always, it takes priority regardless of specificity.",
+      "expected_output": "Zscaler Client Connector picks the most-specific matching segment on the client side before ZPA sees the request. For two overlapping wildcard segments (both `*.internal.corp`), specificity ranks strictly on the FQDN \u2014 neither is more specific, so the tie-break falls through to configuration semantics. Under the default `EXCLUSIVE` match style, ZPA rejects creating two same-domain segments with conflicting Multimatch settings at save time (clarification zpa-03). If both segments legitimately cover the same FQDN with the same Multimatch style, the engine picks one deterministically \u2014 lab-test territory (clarification zpa-04). Critical operational fact: if the selected segment doesn't cover the destination port, ZCC drops the connection \u2014 it does NOT fall back to a less-specific segment. Bypass setting can override: if one segment has Bypass = Always, it takes priority regardless of specificity.",
       "tenant_data_required": false,
       "expected_confidence": "medium",
       "assertions": [
@@ -142,7 +142,7 @@
     {
       "id": 7,
       "prompt": "A user on our corporate network can reach a URL that our ZIA URL Filter rule is supposed to block. Remote users on home WiFi get blocked correctly for the same URL. Why is the corporate-network user bypassing the block?",
-      "expected_output": "The user's active ZCC forwarding profile likely has `actionType: NONE` on the TRUSTED branch. When set, ZCC bypasses ZIA entirely for traffic on trusted networks — ZIA's URL Filter rules never see that traffic, so they can't block it. The remote user's UNTRUSTED branch probably has `actionType: TUNNEL` or equivalent, which forwards through ZIA where the URL Filter rule fires as expected. Diagnose by inspecting the Forwarding Profile's per-branch action and checking whether the TrustedNetwork criteria are broad enough that home networks might also match (footgun).",
+      "expected_output": "The user's active ZCC forwarding profile likely has `actionType: NONE` on the TRUSTED branch. When set, ZCC bypasses ZIA entirely for traffic on trusted networks \u2014 ZIA's URL Filter rules never see that traffic, so they can't block it. The remote user's UNTRUSTED branch probably has `actionType: TUNNEL` or equivalent, which forwards through ZIA where the URL Filter rule fires as expected. Diagnose by inspecting the Forwarding Profile's per-branch action and checking whether the TrustedNetwork criteria are broad enough that home networks might also match (footgun).",
       "tenant_data_required": false,
       "expected_confidence": "medium",
       "assertions": [
@@ -162,7 +162,7 @@
     {
       "id": 8,
       "prompt": "We migrated to Z-Tunnel 2.0 but dashboards show most users still connecting via Z-Tunnel 1.0. What's the most likely cause?",
-      "expected_output": "Z-Tunnel 2.0 requires the device's network to provide a **single-IP NAT** — all connections from one device must egress through the same NAT IP. When different connections land on different public IPs (multi-NAT, carrier-grade NAT without session-stickiness, some corporate networks), Z-Tunnel 2.0's control and data connections reach different Public Service Edges, the 2.0 handshake fails, and ZCC silently falls back to Z-Tunnel 1.0. The user sees a working tunnel — just not the one they configured. Verify the NAT path is single-IP for the affected users. GRE-tunneled traffic is also incompatible with Z-Tunnel 2.0 and should not be routed through it.",
+      "expected_output": "Z-Tunnel 2.0 requires the device's network to provide a **single-IP NAT** \u2014 all connections from one device must egress through the same NAT IP. When different connections land on different public IPs (multi-NAT, carrier-grade NAT without session-stickiness, some corporate networks), Z-Tunnel 2.0's control and data connections reach different Public Service Edges, the 2.0 handshake fails, and ZCC silently falls back to Z-Tunnel 1.0. The user sees a working tunnel \u2014 just not the one they configured. Verify the NAT path is single-IP for the affected users. GRE-tunneled traffic is also incompatible with Z-Tunnel 2.0 and should not be routed through it.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
@@ -182,7 +182,7 @@
     {
       "id": 9,
       "prompt": "ZDX is reporting our user's score as 38 but they say everything is fine. Is ZDX broken?",
-      "expected_output": "ZDX Score is not an average — it's computed **lowest-value-wins within each time window**. Probes fire every 5 minutes; the lowest value in each hour becomes the hourly score; those roll up (via lowest-value-again or averaged-lowest-per-user depending on scope) into the displayed number. A user who has mostly-fine sessions with one bad 5-minute sample per hour gets a low score even if their subjective experience is mostly good. 38 is in the Okay bucket (34-65), not Poor (0-33). Check the underlying metrics — Page Fetch Time trend, Cloud Path hop-by-hop latency, and device health — rather than reacting to the score alone. Starting a Diagnostics Session on the affected device gets 1-minute-resolution data for deeper investigation.",
+      "expected_output": "ZDX Score is not an average \u2014 it's computed **lowest-value-wins within each time window**. Probes fire every 5 minutes; the lowest value in each hour becomes the hourly score; those roll up (via lowest-value-again or averaged-lowest-per-user depending on scope) into the displayed number. A user who has mostly-fine sessions with one bad 5-minute sample per hour gets a low score even if their subjective experience is mostly good. 38 is in the Okay bucket (34-65), not Poor (0-33). Check the underlying metrics \u2014 Page Fetch Time trend, Cloud Path hop-by-hop latency, and device health \u2014 rather than reacting to the score alone. Starting a Diagnostics Session on the affected device gets 1-minute-resolution data for deeper investigation.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
@@ -202,7 +202,7 @@
     {
       "id": 10,
       "prompt": "I have a URL Filter rule with action Isolate targeting the Miscellaneous or Unknown category. SSL Inspection has a Do-Not-Inspect rule for that category. Users are reaching sites in the category directly without an isolated browser. Why isn't the Isolate action firing?",
-      "expected_output": "The Isolate action requires SSL Inspection to decrypt the HTTPS request in order to inject a 302 redirect pointing at the isolation profile URL. When SSL is bypassed for the category, ZIA can only match at the SNI layer pre-decrypt — URL Filter evaluation still happens (SNI is the URL for matching purposes), but the action that would fire a 302 redirect can't execute because there's no HTTP-layer request to intercept. The user's connection proceeds to the destination without isolation. Fix: remove the SSL bypass for the category, or narrow the bypass so it doesn't cover URLs the Isolate rule targets. This is part of the general SSL-bypass-as-cross-policy-gate pattern — DLP, Sandbox, Malware Protection, and Isolate all silently degrade when SSL is bypassed for the affected traffic.",
+      "expected_output": "The Isolate action requires SSL Inspection to decrypt the HTTPS request in order to inject a 302 redirect pointing at the isolation profile URL. When SSL is bypassed for the category, ZIA can only match at the SNI layer pre-decrypt \u2014 URL Filter evaluation still happens (SNI is the URL for matching purposes), but the action that would fire a 302 redirect can't execute because there's no HTTP-layer request to intercept. The user's connection proceeds to the destination without isolation. Fix: remove the SSL bypass for the category, or narrow the bypass so it doesn't cover URLs the Isolate rule targets. This is part of the general SSL-bypass-as-cross-policy-gate pattern \u2014 DLP, Sandbox, Malware Protection, and Isolate all silently degrade when SSL is bypassed for the affected traffic.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
@@ -222,8 +222,8 @@
     },
     {
       "id": 11,
-      "prompt": "Our Conditional Access rule in ZIA URL Filtering matches traffic but no MFA prompt ever appears — users just get access denied. What should we check first?",
-      "expected_output": "Two silent-miss causes, both common. (1) **Step-up authentication is OIDC-only.** If the tenant's ZIdentity IdP integration is SAML-based, Conditional Access rules match but no step-up MFA prompt can be delivered — the rule's step-up action silently fails and the user sees deny. Migrate to OIDC IdP integration to enable step-up. (2) **Step-up prompts are delivered via Zscaler Client Connector.** Users on GRE/IPSec/PAC (non-ZCC) forwarding paths can't receive the prompt — ZCC is the only channel that carries the step-up challenge. Users on those forwarding paths hitting a Conditional rule will see deny without a prompt. Diagnosis order: IdP integration type first (SAML vs OIDC), then forwarding path (ZCC vs GRE/IPSec). Both constraints apply to ZPA's Require Approval action too.",
+      "prompt": "Our Conditional Access rule in ZIA URL Filtering matches traffic but no MFA prompt ever appears \u2014 users just get access denied. What should we check first?",
+      "expected_output": "Two silent-miss causes, both common. (1) **Step-up authentication is OIDC-only.** If the tenant's ZIdentity IdP integration is SAML-based, Conditional Access rules match but no step-up MFA prompt can be delivered \u2014 the rule's step-up action silently fails and the user sees deny. Migrate to OIDC IdP integration to enable step-up. (2) **Step-up prompts are delivered via Zscaler Client Connector.** Users on GRE/IPSec/PAC (non-ZCC) forwarding paths can't receive the prompt \u2014 ZCC is the only channel that carries the step-up challenge. Users on those forwarding paths hitting a Conditional rule will see deny without a prompt. Diagnosis order: IdP integration type first (SAML vs OIDC), then forwarding path (ZCC vs GRE/IPSec). Both constraints apply to ZPA's Require Approval action too.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
@@ -243,7 +243,7 @@
     {
       "id": 12,
       "prompt": "I'm configuring an Authentication Level tree in ZIdentity. Parent AL1 is password-only with 8-hour validity. Child AL2 is password+TOTP with 1-hour validity. The system rejects the save with a validation error on the validity period. Why?",
-      "expected_output": "ZIdentity's Authentication Level rule is counter-intuitive: **parent validity must be LESS THAN child validity**. AL1 at 8 hours means AL2 must have validity >= 8 hours — likely 24 hours for a stronger-assurance child. The tree semantic is that a higher-assurance authentication demonstrates more about the user's identity and therefore persists longer; the parent's validity is the weakest guarantee in the branch and has to be the shortest. Most admins get this wrong on first attempt because the intuitive model is 'stronger auth → shorter session' (more sensitive = more frequent re-auth). ZIdentity enforces the opposite at save time. Flip the validities — AL1=8h (or less), AL2=24h (or more) — and the save will succeed.",
+      "expected_output": "ZIdentity's Authentication Level rule is counter-intuitive: **parent validity must be LESS THAN child validity**. AL1 at 8 hours means AL2 must have validity >= 8 hours \u2014 likely 24 hours for a stronger-assurance child. The tree semantic is that a higher-assurance authentication demonstrates more about the user's identity and therefore persists longer; the parent's validity is the weakest guarantee in the branch and has to be the shortest. Most admins get this wrong on first attempt because the intuitive model is 'stronger auth \u2192 shorter session' (more sensitive = more frequent re-auth). ZIdentity enforces the opposite at save time. Flip the validities \u2014 AL1=8h (or less), AL2=24h (or more) \u2014 and the save will succeed.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
@@ -262,7 +262,7 @@
     {
       "id": 13,
       "prompt": "We deployed Cloud Connector in AWS yesterday. Today some workloads can't reach the internet at all. Admin dashboard shows one of our configured gateways is unhealthy. What's the most likely explanation?",
-      "expected_output": "Cloud Connector's default is **fail-close**: when all gateways are unreachable, internet-bound workload traffic is dropped, not bypassed. This is the opposite of the typical enterprise 'fail-open = broken access' intuition. The failover path is primary → secondary → tertiary (tertiary is automatic even if only two gateways were configured), with ~30-second failover between them. If workloads are failing completely, check whether secondary and tertiary gateways are also unhealthy (not just primary). Alternatively, the tenant might be configured fail-open but a specific rule is still blocking the traffic. If operational posture prefers availability over inspection during outages, flip to fail-open explicitly. Note that fail-open means traffic egresses direct, skipping Zscaler entirely — a security trade-off the tenant has to accept.",
+      "expected_output": "Cloud Connector's default is **fail-close**: when all gateways are unreachable, internet-bound workload traffic is dropped, not bypassed. This is the opposite of the typical enterprise 'fail-open = broken access' intuition. The failover path is primary \u2192 secondary \u2192 tertiary (tertiary is automatic even if only two gateways were configured), with ~30-second failover between them. If workloads are failing completely, check whether secondary and tertiary gateways are also unhealthy (not just primary). Alternatively, the tenant might be configured fail-open but a specific rule is still blocking the traffic. If operational posture prefers availability over inspection during outages, flip to fail-open explicitly. Note that fail-open means traffic egresses direct, skipping Zscaler entirely \u2014 a security trade-off the tenant has to accept.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
@@ -282,7 +282,7 @@
     {
       "id": 14,
       "prompt": "Our ZIA DLP policy shows a violation in Web Insights logs, but no incident appears in Workflow Automation for that event. Where should I diagnose first?",
-      "expected_output": "The DLP-incident pipeline is a dependency chain: (1) SSL Inspection decrypts the traffic — DLP engines can't see content without decrypt; (2) ZIA DLP rule is configured and enabled — without a matching rule there's no detection; (3) ZIA→ZWA integration is enabled on the tenant — without it, ZIA detects but doesn't forward to ZWA; (4) ZWA ingestion is working — rare infrastructure issue; (5) Workflow mapping matches the incident's attributes — if not, incident appears in ZWA but no workflow fires. Since the Web Insights log shows the violation, steps 1 and 2 are confirmed fine. Diagnose step 3 next: verify ZIA→ZWA integration is enabled. Don't skip ahead to workflow mappings — the incident needs to reach ZWA first before workflow mapping can fire.",
+      "expected_output": "The DLP-incident pipeline is a dependency chain: (1) SSL Inspection decrypts the traffic \u2014 DLP engines can't see content without decrypt; (2) ZIA DLP rule is configured and enabled \u2014 without a matching rule there's no detection; (3) ZIA\u2192ZWA integration is enabled on the tenant \u2014 without it, ZIA detects but doesn't forward to ZWA; (4) ZWA ingestion is working \u2014 rare infrastructure issue; (5) Workflow mapping matches the incident's attributes \u2014 if not, incident appears in ZWA but no workflow fires. Since the Web Insights log shows the violation, steps 1 and 2 are confirmed fine. Diagnose step 3 next: verify ZIA\u2192ZWA integration is enabled. Don't skip ahead to workflow mappings \u2014 the incident needs to reach ZWA first before workflow mapping can fire.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
@@ -297,6 +297,116 @@
       "must_not_say": [
         "Check ZWA workflow mappings first",
         "ZWA ingests all ZIA security events automatically"
+      ]
+    },
+    {
+      "id": 15,
+      "prompt": "An app developer on our team asked about deploying ZSDK on their iOS app. Is that the same thing as ZCC, and does it use the same Service Edges?",
+      "expected_output": "ZSDK and ZCC are different products. ZCC (Zscaler Client Connector) is the endpoint agent installed on user devices for enterprise zero-trust connectivity. ZSDK is a mobile SDK that app developers embed into their own consumer-facing iOS/Android apps \u2014 end users never install a separate Zscaler agent. Important architectural detail: ZSDK shares App Connector + Private Service Edge infrastructure with ZPA (same underlying broker model), but runs on a dedicated multi-tenant cloud at admin.zsdkone.net, not the same control plane as ZPA. So 'same Service Edges' in the architectural sense (same software stack), but a separate cloud instance.",
+      "tenant_data_required": false,
+      "expected_confidence": "high",
+      "assertions": [
+        "different products",
+        "embed",
+        "consumer",
+        "admin.zsdkone.net",
+        "shared infrastructure"
+      ],
+      "must_cite_files": [
+        "references/_portfolio-map.md"
+      ],
+      "must_not_say": [
+        "ZSDK is just ZCC for mobile",
+        "ZSDK uses the same cloud as ZPA",
+        "ZSDK is an admin tool"
+      ]
+    },
+    {
+      "id": 16,
+      "prompt": "We're setting up a ZPA Microtenant for a new business unit. The admin asked us to send the admin password \u2014 they need it for a Terraform pipeline. We created the Microtenant a week ago. How do we recover the password?",
+      "expected_output": "You can't. The admin password for a ZPA Microtenant is shown ONCE at creation time and cannot be retrieved later \u2014 Zscaler doesn't store it in a recoverable form on the admin side after creation. If you didn't capture it then, the only path forward is to delete the Microtenant and recreate it (which will require re-creating any Microtenant-scoped App Segments, Server Groups, etc. that were tied to it via microtenantId). Going forward: when creating a Microtenant, the password must be captured from the creation response immediately and stored securely (vault / secrets manager) \u2014 there's no API to retrieve it after the fact.",
+      "tenant_data_required": false,
+      "expected_confidence": "high",
+      "assertions": [
+        "shown once",
+        "cannot be retrieved",
+        "recreate",
+        "secrets manager"
+      ],
+      "must_cite_files": [
+        "references/zpa/microtenants.md"
+      ],
+      "must_not_say": [
+        "password reset via the admin console",
+        "Zscaler Support can recover it",
+        "API endpoint for password retrieval"
+      ]
+    },
+    {
+      "id": 17,
+      "prompt": "Our Cloud Connector deployment in Azure uses a single-NIC VM (not Zscaler's published Terraform module \u2014 we built our own with one NIC for management AND service traffic). It mostly works but we're seeing intermittent failures. The skill says dual-NIC is required. Is our deployment wrong?",
+      "expected_output": "The skill says Zscaler's reference Terraform module deploys with two NICs (management primary + service with IP forwarding enabled). That's a reference implementation \u2014 one valid pattern, not specification. The runtime requirement of the Cloud Connector VM image vs. enforced convention of the reference module isn't separately documented by Zscaler. Your single-NIC deployment may or may not be supported at the runtime level; the failures you're seeing could be related but aren't proof either way. Diagnostic path: (1) check whether the symptoms correlate with management traffic (heartbeat / control plane) vs service traffic (workload egress) \u2014 that's the symptom dual-NIC separation prevents; (2) compare your deployment against `iac/` for any deviations beyond NIC count; (3) consider opening a Zscaler Support case to confirm runtime support for single-NIC. Don't assume your deployment is wrong because it diverges from Zscaler's reference; do verify it's runtime-supported before committing further to the pattern.",
+      "tenant_data_required": false,
+      "expected_confidence": "medium",
+      "assertions": [
+        "reference implementation",
+        "not specification",
+        "verify",
+        "Zscaler Support"
+      ],
+      "must_cite_files": [
+        "references/cloud-connector/azure-deployment.md"
+      ],
+      "must_not_say": [
+        "Your deployment is definitively wrong",
+        "Single-NIC is impossible",
+        "Zscaler doesn't support custom deployments"
+      ]
+    },
+    {
+      "id": 18,
+      "prompt": "We enabled Tenant Profiles to block personal Microsoft 365 accounts. We tested with a personal email and it still works fine \u2014 the user can sign in to consumer Microsoft 365 from a corporate device. Tenant Profile is configured correctly per the help docs. What's wrong?",
+      "expected_output": "Most likely: the SSL Inspection rule that's supposed to inspect login.microsoftonline.com traffic for tenant restriction is firing AFTER (lower priority than) the M365 One-Click bypass rule, OR the predefined Microsoft 365 Click-to-Run rule (which uses 'Do Not Inspect + Bypass Other Policies'). Tenant restriction works by injecting the Restrict-Access-To-Tenants HTTP header into the login flow \u2014 that requires SSL inspection to actually decrypt the traffic. If a bypass rule fires first for that domain, ZIA never gets to inspect the login flow, the header never gets injected, and tenant restriction silently does nothing \u2014 no error, no log, just personal accounts working as if unrestricted. Diagnostic: check SSL Inspection rule order. The Microsoft Login Services rule must beat any M365 One-Click bypass / Click-to-Run bypass in evaluation order. Also verify ms_login_services_tr_v2 protocol flag is correct for your tenant's Entra version.",
+      "tenant_data_required": false,
+      "expected_confidence": "high",
+      "assertions": [
+        "rule order",
+        "SSL inspection",
+        "header injection",
+        "silently",
+        "bypass"
+      ],
+      "must_cite_files": [
+        "references/zia/tenant-profiles.md",
+        "references/zia/saas-app-quirks.md"
+      ],
+      "must_not_say": [
+        "Tenant Profiles don't work for M365",
+        "This is a known Microsoft bug",
+        "Reconfigure the Tenant Profile object"
+      ]
+    },
+    {
+      "id": 19,
+      "prompt": "Our ZPA Access Policy has a posture criterion. The policy isn't matching even though we know the user's device meets the posture requirements. We checked the Posture Profile object in ZPA \u2014 looks correct. What are we missing?",
+      "expected_output": "Two-layer issue worth checking: ZPA Posture Profiles are the policy-side consumer of posture signals; ZCC is the evaluation layer that produces the signals. (1) Verify ZCC actually evaluated posture on the device \u2014 ZCC posture eval runs every 15 minutes by default (configurable in 4.4+ Windows). If the user's posture state recently changed, the next eval cycle hasn't run. (2) Verify the policy criterion uses `posture_udid` as the lhs, NOT the Posture Profile's `id`. Common configuration mistake: using id makes the criterion silently never match. The TF provider validates this at plan time; manual API edits or older state can carry the wrong value. (3) Check whether the posture check itself failed (e.g., unreadable cert path on Linux fails closed by default) \u2014 a 'fails closed' state means ZCC reports the device as failing posture even when other signals look fine. Diagnostic: check ZCC's local posture state for the device, then verify the policy's lhs/rhs values against `posture_udid`/`true` semantics.",
+      "tenant_data_required": false,
+      "expected_confidence": "high",
+      "assertions": [
+        "posture_udid",
+        "not id",
+        "two-layer",
+        "15 minutes",
+        "ZCC evaluates"
+      ],
+      "must_cite_files": [
+        "references/zpa/posture-profiles.md",
+        "references/zcc/device-posture.md"
+      ],
+      "must_not_say": [
+        "Posture is a single layer in ZPA",
+        "ZPA evaluates posture independently",
+        "Use the Posture Profile id in the policy lhs"
       ]
     }
   ]
