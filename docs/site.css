@@ -1,0 +1,101 @@
+/* docs/site.css
+   Shared design tokens, base styles, and hub-page utility classes for
+   the Zscaler skill docs site. Every HTML page imports this; per-page
+   <style> blocks layer on top for layout-specific rules.
+
+   When adding a token, prefer adding it here so per-page overrides
+   stay trivial. The reference docs (docs/zia/*.html, docs/zpa/*.html,
+   docs/cloud-connector/*.html) currently keep their own complete
+   stylesheets — they reference these tokens implicitly by value, but
+   are not yet migrated to import this sheet. */
+
+:root {
+  /* Ink (foreground, ordered darkest → lightest) */
+  --ink:        #1a1814;
+  --ink-2:      #4a4640;
+  --ink-3:      #8a8680;
+  --ink-ghost:  #b8b3aa;
+
+  /* Paper (background, ordered base → deepest) */
+  --paper:      #f6f2e8;
+  --paper-deep: #efeadc;
+  --paper-card: #f0eadc;
+
+  /* Accents */
+  --accent:     #8a3a1f;
+  --accent-ink: #6e2d18;
+
+  /* Structural */
+  --rule:       #d8d0c0;
+  --warn:       #8a3a1f;
+
+  /* Typography */
+  --font-serif: 'Source Serif 4', 'Iowan Old Style', Georgia, serif;
+  --font-sans:  'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  --font-mono:  'IBM Plex Mono', 'JetBrains Mono', monospace;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;1,8..60,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { background: var(--paper); color: var(--ink); font-family: var(--font-serif); }
+body { margin: 0; }
+
+/* ──────────────────────────────────────────────────────────────────
+   Hub layout — single-column landing pages (the homepage and each
+   product section's index.html). Wrap body content in
+     <div class="hub-page"> … </div>
+   and use plain <header>/<h1>/<footer>/<nav class="docs"> tags inside.
+   ────────────────────────────────────────────────────────────────── */
+.hub-page { max-width: 680px; margin: 0 auto; padding: 80px 32px 120px; }
+.hub-page > header { border-bottom: 1px solid var(--rule); padding-bottom: 40px; margin-bottom: 56px; }
+.hub-page .eyebrow {
+  display: block; margin-bottom: 16px;
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--ink-3);
+}
+.hub-page .eyebrow a { color: inherit; text-decoration: none; }
+.hub-page .eyebrow a:hover { color: var(--accent); }
+.hub-page h1 {
+  font-size: clamp(28px, 5vw, 40px);
+  font-weight: 300; line-height: 1.15; letter-spacing: -0.02em;
+}
+.hub-page h1 em { font-style: italic; }
+.hub-page .subtitle {
+  margin-top: 16px;
+  font-family: var(--font-sans); font-size: 15px;
+  color: var(--ink-2); line-height: 1.5;
+}
+
+.hub-page nav.docs { display: flex; flex-direction: column; gap: 2px; }
+.hub-page .doc-link {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 24px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--rule);
+  text-decoration: none;
+  color: inherit;
+}
+.hub-page .doc-link:hover .doc-title { color: var(--accent); }
+.hub-page .doc-title {
+  font-size: 20px; font-weight: 400; line-height: 1.3;
+  transition: color 0.1s;
+}
+.hub-page .doc-meta {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--ink-3); white-space: nowrap;
+}
+.hub-page .doc-desc {
+  margin-top: 6px;
+  font-family: var(--font-sans); font-size: 13px;
+  color: var(--ink-3); line-height: 1.4;
+}
+
+.hub-page > footer {
+  margin-top: 80px;
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--ink-3); letter-spacing: 0.06em;
+}
