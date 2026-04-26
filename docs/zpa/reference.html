@@ -1,0 +1,1532 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ZPA · Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,500;8..60,600;8..60,700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #1a1814;
+    --ink-soft:   #4a463f;
+    --ink-faint:  #8a857c;
+    --ink-ghost:  #b5b0a4;
+    --rule:       #d8d3c7;
+    --rule-soft:  #ece8de;
+    --paper:      #f6f2e8;
+    --paper-deep: #efe9da;
+    --paper-card: #fbf8ef;
+    --accent:     #8a3a1f;
+    --accent-ink: #5e2814;
+    --accent-soft:#c08a6a;
+    --warn:       #a05a1c;
+    --highlight:  #f5e6c8;
+
+    --col-margin: 16rem;     /* left margin for marginalia */
+    --col-body:   48rem;     /* main body column */
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  html { background: var(--paper); }
+  body {
+    font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--ink);
+    background: var(--paper);
+    font-feature-settings: "kern", "liga", "onum";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* ───── Top bar ───── */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule);
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    color: var(--ink-faint);
+  }
+  .topbar .brand {
+    color: var(--ink);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+  }
+  .topbar .sep { color: var(--ink-ghost); }
+  .topbar .crumbs a {
+    color: var(--ink-soft);
+    text-decoration: none;
+  }
+  .topbar .crumbs a:hover { color: var(--accent); }
+  .topbar .right {
+    margin-left: auto;
+    display: flex;
+    gap: 1.5rem;
+    color: var(--ink-faint);
+  }
+  .topbar .right span strong {
+    color: var(--ink);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-weight: 600;
+    font-size: 0.66rem;
+    margin-right: 0.4rem;
+  }
+
+  /* ───── Two-column reference layout ───── */
+  .doc {
+    display: grid;
+    grid-template-columns: var(--col-margin) minmax(0, var(--col-body)) 1fr;
+    gap: 2.5rem;
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 4rem 2rem 8rem;
+  }
+  .nav {
+    grid-column: 1;
+    position: sticky;
+    top: 5rem;
+    align-self: start;
+    max-height: calc(100vh - 7rem);
+    overflow-y: auto;
+    padding-right: 1rem;
+    border-right: 1px solid var(--rule-soft);
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.78rem;
+  }
+  .nav h4 {
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0 0 0.6rem;
+  }
+  .nav h4:not(:first-child) { margin-top: 1.75rem; }
+  .nav ol, .nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .nav li { margin: 0; }
+  .nav a {
+    display: block;
+    padding: 0.18rem 0;
+    color: var(--ink-soft);
+    text-decoration: none;
+    border-left: 1px solid transparent;
+    padding-left: 0.6rem;
+    margin-left: -0.6rem;
+    transition: color 0.12s, border-color 0.12s;
+    line-height: 1.35;
+  }
+  .nav a:hover { color: var(--ink); }
+  .nav a.active {
+    color: var(--accent);
+    border-left-color: var(--accent);
+    font-weight: 500;
+  }
+  .nav .sub {
+    padding-left: 1rem;
+    font-size: 0.74rem;
+    color: var(--ink-faint);
+  }
+  .nav .sub a { padding-left: 0.6rem; }
+
+  .body { grid-column: 2; min-width: 0; }
+  .margin-rail {
+    grid-column: 3;
+    position: relative;
+    min-width: 0;
+  }
+
+  /* ───── Document head ───── */
+  .doc-head {
+    border-top: 2px solid var(--ink);
+    padding-top: 1.25rem;
+    margin-bottom: 3rem;
+  }
+  .doc-head .kicker {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+  }
+  .doc-head h1 {
+    font-family: "Source Serif 4", serif;
+    font-weight: 400;
+    font-size: clamp(2rem, 4vw, 2.75rem);
+    line-height: 1.1;
+    letter-spacing: -0.012em;
+    margin: 0 0 0.5rem;
+  }
+  .doc-head .lede {
+    font-family: "Source Serif 4", serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 1.1rem;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    margin: 0 0 1.75rem;
+    max-width: 36rem;
+    text-wrap: pretty;
+  }
+  .doc-head .frontmatter {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    column-gap: 1.5rem;
+    row-gap: 0.5rem;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding: 1rem 0;
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+  }
+  .doc-head .frontmatter dt {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 0.66rem;
+    color: var(--ink-faint);
+    padding-top: 0.15rem;
+  }
+  .doc-head .frontmatter dd {
+    margin: 0;
+    color: var(--ink);
+  }
+  .doc-head .frontmatter code {
+    font-size: 0.78rem;
+  }
+
+  /* ───── Section 0: at a glance ───── */
+  .glance {
+    margin: 0 0 4rem;
+    padding: 1.5rem 0;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .glance h2 {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0 0 1rem;
+  }
+  .glance ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .glance li {
+    padding: 0.5rem 0;
+    border-bottom: 1px dotted var(--rule);
+    display: grid;
+    grid-template-columns: 9rem 1fr;
+    gap: 1rem;
+    font-size: 0.95rem;
+  }
+  .glance li:last-child { border-bottom: none; }
+  .glance .key {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    padding-top: 0.18rem;
+  }
+
+  /* ───── Section heads ───── */
+  .section {
+    margin-top: 5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--ink);
+    scroll-margin-top: 5rem;
+  }
+  .section-num {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    color: var(--ink-faint);
+    margin-bottom: 0.75rem;
+  }
+  .section h2 {
+    font-family: "Source Serif 4", serif;
+    font-weight: 500;
+    font-size: 1.7rem;
+    line-height: 1.15;
+    letter-spacing: -0.008em;
+    margin: 0 0 0.75rem;
+    text-wrap: balance;
+  }
+  .section .standfirst {
+    font-family: "Source Serif 4", serif;
+    font-style: italic;
+    font-size: 1.02rem;
+    color: var(--ink-soft);
+    margin: 0 0 2rem;
+    max-width: 34rem;
+    text-wrap: pretty;
+  }
+  .subsection {
+    margin-top: 2.5rem;
+    scroll-margin-top: 5rem;
+  }
+  .subsection h3 {
+    font-family: "Source Serif 4", serif;
+    font-weight: 600;
+    font-size: 1.18rem;
+    line-height: 1.25;
+    margin: 0 0 0.75rem;
+    letter-spacing: -0.005em;
+  }
+  .subsection h4 {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 1.75rem 0 0.5rem;
+  }
+
+  /* ───── Body ───── */
+  p { margin: 0 0 1.1rem; text-wrap: pretty; hyphens: auto; }
+  em { font-style: italic; }
+  strong { font-weight: 600; color: var(--ink); }
+
+  .body p, .body li { font-size: 1rem; line-height: 1.6; }
+
+  /* Code & monospace */
+  code, .mono {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.85em;
+    color: var(--accent-ink);
+    background: var(--paper-deep);
+    padding: 0.05em 0.32em;
+    border-radius: 2px;
+  }
+  pre {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.78rem;
+    line-height: 1.55;
+    background: var(--paper-card);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent);
+    padding: 1rem 1.25rem;
+    margin: 1.25rem 0;
+    overflow-x: auto;
+    color: var(--ink);
+    border-radius: 2px;
+  }
+  pre code {
+    background: none;
+    color: inherit;
+    padding: 0;
+    border-radius: 0;
+    font-size: inherit;
+  }
+
+  /* Inline definitions */
+  .term {
+    font-family: "Source Serif 4", serif;
+    font-style: italic;
+    font-weight: 500;
+    color: var(--accent-ink);
+  }
+
+  /* ───── Definition list (inline glossary) ───── */
+  .deflist {
+    margin: 1.25rem 0;
+    border-top: 1px solid var(--rule);
+  }
+  .deflist > div {
+    display: grid;
+    grid-template-columns: 11rem 1fr;
+    gap: 1.5rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--rule-soft);
+    font-size: 0.95rem;
+  }
+  .deflist dt {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.78rem;
+    color: var(--accent-ink);
+    padding-top: 0.1rem;
+    word-break: break-word;
+  }
+  .deflist dd { margin: 0; color: var(--ink); line-height: 1.5; }
+  .deflist dd .meta {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.72rem;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-left: 0.4rem;
+  }
+
+  /* ───── Tables ───── */
+  table.tbl {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    font-size: 0.92rem;
+    border-top: 2px solid var(--ink);
+    border-bottom: 1px solid var(--ink);
+  }
+  table.tbl th {
+    text-align: left;
+    font-family: "IBM Plex Sans", sans-serif;
+    font-weight: 600;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    padding: 0.6rem 0.75rem 0.6rem 0;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: bottom;
+  }
+  table.tbl td {
+    padding: 0.7rem 0.75rem 0.7rem 0;
+    border-bottom: 1px solid var(--rule-soft);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  table.tbl tr:last-child td { border-bottom: none; }
+  table.tbl td:first-child, table.tbl th:first-child { padding-left: 0; }
+  table.tbl td:last-child, table.tbl th:last-child { padding-right: 0; }
+  table.tbl code { font-size: 0.82em; }
+
+  /* Specifically: rules-table style */
+  table.rules td:first-child {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.8rem;
+    color: var(--accent-ink);
+    white-space: nowrap;
+    width: 11rem;
+  }
+
+  /* ───── Callouts ───── */
+  .note, .warn, .tip {
+    margin: 1.5rem 0;
+    padding: 0.9rem 1.1rem 0.9rem 1.25rem;
+    border-left: 3px solid var(--ink-faint);
+    background: var(--paper-card);
+    font-size: 0.93rem;
+    line-height: 1.55;
+  }
+  .note { border-left-color: var(--ink-soft); }
+  .warn { border-left-color: var(--warn); }
+  .tip  { border-left-color: var(--accent); }
+  .note .label, .warn .label, .tip .label {
+    display: block;
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    margin-bottom: 0.35rem;
+  }
+  .note .label { color: var(--ink-soft); }
+  .warn .label { color: var(--warn); }
+  .tip  .label { color: var(--accent); }
+
+  /* ───── Step / flow blocks ───── */
+  .steps {
+    margin: 1.5rem 0;
+    counter-reset: step;
+    border-top: 1px solid var(--rule);
+  }
+  .steps > .step {
+    counter-increment: step;
+    display: grid;
+    grid-template-columns: 2.25rem 1fr;
+    gap: 1rem;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--rule-soft);
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+  .steps > .step::before {
+    content: counter(step, decimal-leading-zero);
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.78rem;
+    color: var(--accent);
+    padding-top: 0.18rem;
+  }
+  .steps > .step .head {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-weight: 600;
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+    margin-right: 0.5rem;
+  }
+
+  /* ───── Marginalia ───── */
+  .margin-rail .margin-note {
+    position: absolute;
+    width: 100%;
+    max-width: 18rem;
+    padding: 0 0 0 1.5rem;
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.76rem;
+    line-height: 1.45;
+    color: var(--ink-soft);
+    border-left: 1px solid var(--accent-soft);
+  }
+  .margin-rail .margin-note .label {
+    display: block;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.3rem;
+  }
+  .margin-rail .margin-note code {
+    font-size: 0.74rem;
+  }
+
+  /* Inline marginalia inside body, used at narrow widths */
+  .body .inline-margin {
+    display: none;
+    margin: 1.25rem 0;
+    padding: 0.6rem 0 0.6rem 1rem;
+    border-left: 1px solid var(--accent-soft);
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+  }
+  .body .inline-margin .label {
+    display: block;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.25rem;
+  }
+
+  /* ───── Tag pills ───── */
+  .pill {
+    display: inline-block;
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.18rem 0.5rem;
+    border-radius: 2px;
+    background: var(--paper-deep);
+    color: var(--ink-soft);
+    border: 1px solid var(--rule);
+    vertical-align: 1px;
+  }
+  .pill.warn { color: var(--warn); border-color: #d8b896; background: #f5e8d4; }
+  .pill.accent { color: var(--accent); border-color: #d6b8a0; background: #f4e4d4; }
+
+  /* ───── Footer ───── */
+  .docfoot {
+    margin-top: 6rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--ink);
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+  }
+  .docfoot .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .docfoot .links a {
+    color: var(--ink-soft);
+    text-decoration: none;
+    border-bottom: 1px solid var(--rule);
+  }
+  .docfoot .links a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ───── Diagram ───── */
+  .diagram {
+    margin: 2rem 0;
+    padding: 1.5rem 1rem;
+    border: 1px solid var(--rule);
+    background: var(--paper-card);
+    border-radius: 2px;
+  }
+  .diagram svg { display: block; max-width: 100%; height: auto; margin: 0 auto; }
+  .diagram .cap {
+    margin-top: 1rem;
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.72rem;
+    color: var(--ink-faint);
+    text-align: center;
+  }
+  .diagram .cap strong {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-weight: 600;
+    font-size: 0.66rem;
+    color: var(--ink);
+    margin-right: 0.5rem;
+  }
+
+  /* ───── Responsive ───── */
+  @media (max-width: 1100px) {
+    :root { --col-margin: 11rem; }
+    .doc { grid-template-columns: var(--col-margin) minmax(0, 1fr); gap: 2rem; }
+    .margin-rail { display: none; }
+    .body .inline-margin { display: block; }
+  }
+  @media (max-width: 780px) {
+    .doc { grid-template-columns: 1fr; padding: 2rem 1.25rem 5rem; }
+    .nav { display: none; }
+    .doc-head h1 { font-size: 1.75rem; }
+    .deflist > div { grid-template-columns: 1fr; gap: 0.25rem; }
+    table.tbl { font-size: 0.86rem; }
+    table.rules td:first-child { width: auto; white-space: normal; }
+    .glance li { grid-template-columns: 1fr; gap: 0.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="brand" href="../index.html" style="text-decoration:none;color:inherit;">Zscaler Skill</a>
+  <span class="sep">·</span>
+  <span class="crumbs">
+    <a href="../readers-guide.html">Reader's Guide</a>
+    <span class="sep"> › </span>
+    <a href="#">References</a>
+    <span class="sep"> › </span>
+    <span style="color: var(--ink);">ZPA</span>
+  </span>
+  <span class="right">
+    <span><strong>Tier</strong>Doc + SDK</span>
+    <span><strong>Confidence</strong>High</span>
+    <span><strong>Verified</strong>2026-04-24</span>
+  </span>
+</div>
+
+<div class="doc">
+
+  <!-- ────────── Side nav ────────── -->
+  <nav class="nav" id="nav">
+    <h4>On this page</h4>
+    <ul>
+      <li><a href="#glance">At a glance</a></li>
+      <li><a href="#evaluation">Evaluation order</a></li>
+    </ul>
+
+    <h4>Application segments</h4>
+    <ul>
+      <li><a href="#seg-anatomy">Segment anatomy</a></li>
+      <li><a href="#seg-specificity">Specificity-wins</a></li>
+      <li><a href="#seg-multimatch">Multimatch</a></li>
+      <li><a href="#seg-bypass">Bypass precedence</a></li>
+      <li><a href="#seg-edges">Edge cases &amp; quirks</a></li>
+    </ul>
+
+    <h4>Access policy</h4>
+    <ul>
+      <li><a href="#pol-criteria">Criteria &amp; operators</a></li>
+      <li><a href="#pol-actions">Rule actions</a></li>
+      <li><a href="#pol-order">Order &amp; first-match</a></li>
+      <li><a href="#pol-families">Policy families</a></li>
+      <li><a href="#pol-edges">Edge cases &amp; quirks</a></li>
+    </ul>
+
+    <h4>App Connector</h4>
+    <ul>
+      <li><a href="#ac-model">Architecture &amp; placement</a></li>
+      <li><a href="#ac-keys">Provisioning keys</a></li>
+      <li><a href="#ac-updates">Software updates</a></li>
+      <li><a href="#ac-edges">Edge cases &amp; quirks</a></li>
+    </ul>
+
+    <h4>Reference</h4>
+    <ul>
+      <li><a href="#ref-questions">Common question shapes</a></li>
+      <li><a href="#ref-clarifications">Open clarifications</a></li>
+      <li><a href="#ref-sources">Sources</a></li>
+    </ul>
+  </nav>
+
+  <!-- ────────── Body ────────── -->
+  <main class="body">
+
+    <!-- ───── Doc head ───── -->
+    <header class="doc-head">
+      <div class="kicker">Reference · ZPA · Application segments, policy, App Connector</div>
+      <h1>Zscaler Private Access</h1>
+      <p class="lede">How a request reaches an internal application — segment selection, access-policy evaluation, App Connector mechanics. Lookup-shaped reference; not a tutorial.</p>
+      <dl class="frontmatter">
+        <dt>Product</dt><dd><code>zpa</code></dd>
+        <dt>Topics</dt><dd>app-segments · access-policy · app-connector · multimatch · provisioning-keys</dd>
+        <dt>Source tier</dt><dd>Help-doc verified, SDK / Terraform cross-referenced, MCP-skill annotated</dd>
+        <dt>Read first</dt><dd><a href="../readers-guide.html" style="color: var(--accent-ink);">A Reader's Guide to the Zero Trust Exchange</a> &nbsp;— ch. V covers ZPA in narrative form</dd>
+        <dt>Read after</dt><dd><code>references/zpa/snapshot-schema</code> · <code>references/zpa/logs/access-log-schema</code> · <code>references/shared/policy-evaluation</code></dd>
+      </dl>
+    </header>
+
+    <!-- ───── At a glance ───── -->
+    <section class="glance" id="glance">
+      <h2>At a glance</h2>
+      <ul>
+        <li><span class="key">Default deny</span><span>No matching access-policy rule = blocked. Opposite of ZIA URL Filtering's default-allow.</span></li>
+        <li><span class="key">Two-stage match</span><span>Segment selection runs client-side in ZCC. Policy evaluation runs in ZPA. Both must allow.</span></li>
+        <li><span class="key">Specificity wins</span><span>Most-specific FQDN selects the segment. Specificity ranks on domain only — port narrowness doesn't count.</span></li>
+        <li><span class="key">Top-down rules</span><span>First-match-wins. Order matters. Once a rule fires, evaluation stops.</span></li>
+        <li><span class="key">Outbound only</span><span>App Connectors dial out. Never accept inbound. No public endpoint to expose.</span></li>
+        <li><span class="key">Group everything</span><span>App Connector Groups bind to Server Groups bind to Segments. Upgrades, capacity, and policy all key off groups.</span></li>
+      </ul>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!-- ─────── Evaluation order ─────── -->
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <section class="section" id="evaluation">
+      <div class="section-num">§ 0 · Evaluation order</div>
+      <h2>How a ZPA request is decided</h2>
+      <p class="standfirst">Four families of policy run in a fixed order against every connection. Operator misconfigurations almost always trace to mistaking which family is firing.</p>
+
+      <div class="diagram">
+        <svg viewBox="0 0 720 220" role="img" aria-label="ZPA evaluation pipeline">
+          <defs>
+            <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M0,0 L10,5 L0,10 z" fill="#4a463f"/>
+            </marker>
+          </defs>
+          <!-- Track -->
+          <line x1="40" y1="110" x2="690" y2="110" stroke="#d8d3c7" stroke-width="1"/>
+          <!-- Stage boxes -->
+          <g font-family="IBM Plex Sans, sans-serif" font-size="9" fill="#1a1814">
+            <!-- ZCC: segment select -->
+            <rect x="40" y="70" width="120" height="80" fill="#fbf8ef" stroke="#1a1814" stroke-width="0.75"/>
+            <text x="100" y="60" text-anchor="middle" fill="#8a3a1f" font-weight="600" letter-spacing="1.5">ZCC</text>
+            <text x="100" y="98" text-anchor="middle" font-family="Source Serif 4, serif" font-size="11" font-style="italic">Segment</text>
+            <text x="100" y="113" text-anchor="middle" font-family="Source Serif 4, serif" font-size="11" font-style="italic">selection</text>
+            <text x="100" y="135" text-anchor="middle" font-size="8" fill="#8a857c">most-specific FQDN</text>
+            <!-- Forwarding -->
+            <rect x="180" y="70" width="120" height="80" fill="#fbf8ef" stroke="#1a1814" stroke-width="0.75"/>
+            <text x="240" y="60" text-anchor="middle" fill="#8a3a1f" font-weight="600" letter-spacing="1.5">ZPA</text>
+            <text x="240" y="98" text-anchor="middle" font-family="Source Serif 4, serif" font-size="11" font-style="italic">Forwarding</text>
+            <text x="240" y="113" text-anchor="middle" font-family="Source Serif 4, serif" font-size="11" font-style="italic">policy</text>
+            <text x="240" y="135" text-anchor="middle" font-size="8" fill="#8a857c">INTERCEPT / BYPASS</text>
+            <!-- Access -->
+            <rect x="320" y="70" width="120" height="80" fill="#efe9da" stroke="#1a1814" stroke-width="0.75"/>
+            <text x="380" y="60" text-anchor="middle" fill="#8a3a1f" font-weight="600" letter-spacing="1.5">ZPA</text>
+            <text x="380" y="98" text-anchor="middle" font-family="Source Serif 4, serif" font-size="11" font-style="italic">Access policy</text>
+            <text x="380" y="135" text-anchor="middle" font-size="8" fill="#8a857c">ALLOW / DENY</text>
+            <!-- Timeout -->
+            <rect x="460" y="70" width="100" height="80" fill="#fbf8ef" stroke="#1a1814" stroke-width="0.75"/>
+            <text x="510" y="60" text-anchor="middle" fill="#8a3a1f" font-weight="600" letter-spacing="1.5">ZPA</text>
+            <text x="510" y="98" text-anchor="middle" font-family="Source Serif 4, serif" font-size="11" font-style="italic">Timeout</text>
+            <text x="510" y="135" text-anchor="middle" font-size="8" fill="#8a857c">re-auth window</text>
+            <!-- Inspection -->
+            <rect x="580" y="70" width="110" height="80" fill="#fbf8ef" stroke="#1a1814" stroke-width="0.75"/>
+            <text x="635" y="60" text-anchor="middle" fill="#8a3a1f" font-weight="600" letter-spacing="1.5">ZPA</text>
+            <text x="635" y="98" text-anchor="middle" font-family="Source Serif 4, serif" font-size="11" font-style="italic">Inspection</text>
+            <text x="635" y="113" text-anchor="middle" font-family="Source Serif 4, serif" font-size="11" font-style="italic">(AppProtection)</text>
+            <text x="635" y="135" text-anchor="middle" font-size="8" fill="#8a857c">INSPECT / BYPASS</text>
+          </g>
+          <!-- Arrows -->
+          <line x1="160" y1="110" x2="180" y2="110" stroke="#4a463f" stroke-width="0.75" marker-end="url(#ar)"/>
+          <line x1="300" y1="110" x2="320" y2="110" stroke="#4a463f" stroke-width="0.75" marker-end="url(#ar)"/>
+          <line x1="440" y1="110" x2="460" y2="110" stroke="#4a463f" stroke-width="0.75" marker-end="url(#ar)"/>
+          <line x1="560" y1="110" x2="580" y2="110" stroke="#4a463f" stroke-width="0.75" marker-end="url(#ar)"/>
+          <!-- Labels above -->
+          <text x="100" y="190" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="8" fill="#8a857c" letter-spacing="1.5">CLIENT</text>
+          <text x="430" y="190" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="8" fill="#8a857c" letter-spacing="1.5">CLOUD POLICY</text>
+          <text x="635" y="190" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="8" fill="#8a857c" letter-spacing="1.5">DATA-PLANE</text>
+        </svg>
+        <p class="cap"><strong>Fig. 1</strong>The order is fixed. A bypass at any earlier stage skips the ones to its right.</p>
+      </div>
+
+      <p>The two stages that decide whether traffic reaches an app at all are <strong>Forwarding</strong> (does ZPA handle this traffic?) and <strong>Access</strong> (is this user allowed?). The two narrower stages — Timeout and Inspection — refine an already-allowed session.</p>
+
+      <div class="warn">
+        <span class="label">Common misconfiguration</span>
+        Mixing Forwarding <code>BYPASS</code> with Access <code>DENY</code> for the same app. The DENY never fires because forwarding bypassed ZPA first; users still reach the app directly through their default route.
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!-- ─────── Application Segments ─────── -->
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <section class="section" id="segments">
+      <div class="section-num">§ 1 · Application segments</div>
+      <h2>Application segments</h2>
+      <p class="standfirst">A segment is a named bundle of FQDNs and ports plus the App Connector group that fronts them. The unit of application-scoping that everything else hangs off.</p>
+
+      <div class="subsection" id="seg-anatomy">
+        <h3>Segment anatomy</h3>
+        <p>Core fields, abridged from <em>Configuring Defined Application Segments</em>:</p>
+
+        <table class="tbl">
+          <thead>
+            <tr><th>Field</th><th>Meaning</th><th></th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>domain_names</code></td><td>FQDN, IP, local domain, or wildcard (<code>*.acme.com</code>). Hyphenated ranges not allowed.</td><td></td></tr>
+            <tr><td><code>tcp_port_ranges</code><br><code>udp_port_ranges</code></td><td>Ports the segment covers. Two wire formats coexist (string list + <code>{from,to}</code> dict); SDK emits both.</td><td></td></tr>
+            <tr><td><code>segment_group_id</code></td><td>The Segment Group the segment belongs to (policy-scoping primitive).</td><td></td></tr>
+            <tr><td><code>server_groups</code></td><td>Server groups hosting the apps. The segment → server group → connector group chain.</td><td></td></tr>
+            <tr><td><code>bypass_type</code></td><td><code>NEVER</code> (default), <code>ALWAYS</code>, <code>ON_NET</code>. The third value is undocumented in most help articles but valid at the API.</td><td><span class="pill">SDK</span></td></tr>
+            <tr><td><code>match_style</code></td><td><code>EXCLUSIVE</code> (default) or <code>INCLUSIVE</code> (Multimatch).</td><td></td></tr>
+            <tr><td><code>health_reporting</code></td><td><code>ON_ACCESS</code>, <code>CONTINUOUS</code>, or <code>NONE</code>. <code>CONTINUOUS</code> blocked if any app is bare <code>*</code> or &gt;10 ports.</td><td></td></tr>
+            <tr><td><code>icmp_access_type</code></td><td><code>PING_TRACEROUTING</code>, <code>PING</code>, <code>NONE</code>. Default <code>NONE</code>.</td><td></td></tr>
+            <tr><td><code>tcp_keep_alive</code></td><td>String enum <code>"0"</code> / <code>"1"</code> — not boolean. Wire-format quirk.</td><td><span class="pill warn">gotcha</span></td></tr>
+            <tr><td><code>select_connector_close_to_app</code></td><td>Connector-proximity routing. <strong>Immutable</strong> — toggling on an existing segment destroys and recreates it.</td><td><span class="pill warn">ForceNew</span></td></tr>
+            <tr><td><code>inspect_traffic_with_zia</code></td><td>ZIA inline inspection on ZPA traffic. The ZPA-side toggle of the SIPA / cross-product flow.</td><td></td></tr>
+            <tr><td><code>read_only</code> · <code>zscaler_managed</code> · <code>restriction_type</code></td><td>Server-assigned governance flags. Treat as immutable for skill answers.</td><td><span class="pill">SDK</span></td></tr>
+          </tbody>
+        </table>
+
+        <h4>Defaults that surprise</h4>
+        <p><code>enabled</code> defaults to <code>True</code> on newly-constructed segment objects in the SDK. A caller who forgets to set it ends up with a live segment, not a draft. When auditing &ldquo;why is this segment active?&rdquo;, do not assume the author explicitly turned it on.</p>
+
+        <div class="tip">
+          <span class="label">Wildcard domains</span>
+          A bare <code>*</code> wildcard must be the only application in its segment, and requires Zscaler Support approval. <code>CONTINUOUS</code> health reporting is also disallowed when any app is a bare <code>*</code> wildcard.
+        </div>
+
+        <h4>Go-SDK-only fields</h4>
+        <p>These appear on segments in snapshot JSON but the Python SDK doesn't model them. Callers writing wire-level requests (Go SDK or HTTP) can set them; Python callers can only read them.</p>
+        <div class="deflist">
+          <div><dt>bypassOnReauth</dt><dd>Whether the segment bypasses ZPA on session re-authentication. Operationally significant — affects hybrid on-net/off-net users who re-auth mid-session.</dd></div>
+          <div><dt>extranetEnabled</dt><dd>Extranet access toggle.</dd></div>
+          <div><dt>apiProtectionEnabled<br>autoAppProtectEnabled<br>adpEnabled</dt><dd>AppProtection and Application Data Protection-related flags.</dd></div>
+          <div><dt>weightedLoadBalancing</dt><dd>Weighted balancing across App Connectors instead of the default strategy.</dd></div>
+          <div><dt>fqdnDnsCheck<br>healthCheckType</dt><dd>FQDN DNS-resolution health check; finer-grained health-check strategies beyond <code>health_reporting</code>.</dd></div>
+          <div><dt>policyStyle</dt><dd>Finer-grained policy-style selector (undocumented enum).</dd></div>
+          <div><dt>zpnerId</dt><dd>Zscaler-internal reference identifier.</dd></div>
+        </div>
+
+        <h4>Cross-microtenant Move and Share</h4>
+        <p>Two operations move or share segments across microtenant boundaries — both Go-SDK only.</p>
+        <ul>
+          <li><code>AppSegmentMicrotenantMove</code> &mdash; <code>POST .../application/{id}/move</code></li>
+          <li><code>AppSegmentMicrotenantShare</code> &mdash; <code>PUT .../application/{id}/share</code></li>
+        </ul>
+        <p>An operator asking &ldquo;how do I move a segment to a different microtenant programmatically&rdquo; needs the Go SDK or direct HTTP — Python has no equivalent.</p>
+      </div>
+
+      <!-- ───── Specificity ───── -->
+      <div class="subsection" id="seg-specificity">
+        <h3>Specificity-wins, and the carved-out wildcard</h3>
+        <p>When two or more application segments cover the same destination address, ZCC picks the more specific one. <em>Specificity ranks strictly on FQDN dimension</em>:</p>
+
+        <pre><code>server1.db.hr.acme.com  >  *.db.hr.acme.com  >  *.hr.acme.com  >  *.acme.com  >  *.com</code></pre>
+
+        <p>IP equivalent: <code>/32</code> host beats <code>/24</code> subnet. <strong>Port narrowness does not enter specificity.</strong></p>
+
+        <p>The consequence is the most common ZPA footgun:</p>
+
+        <div class="warn">
+          <span class="label">The carved-out default</span>
+          Configuring a specific-FQDN segment <strong>removes that FQDN from any overlapping wildcard segment entirely.</strong> If the user's request matches a port the specific segment doesn't cover, ZCC <em>does not fall back</em> to the less-specific wildcard — it bypasses ZPA and sends the traffic direct.
+        </div>
+
+        <h4>Worked example — the port-mismatch footgun</h4>
+        <p>Two segments cover <code>www.example.com</code>:</p>
+        <table class="tbl">
+          <thead><tr><th>Segment</th><th>Domain</th><th>Ports</th></tr></thead>
+          <tbody>
+            <tr><td><strong>A</strong></td><td><code>*.example.com</code></td><td>TCP 1–65535, UDP 1–65535</td></tr>
+            <tr><td><strong>B</strong></td><td><code>www.example.com</code></td><td>TCP 8843</td></tr>
+          </tbody>
+        </table>
+        <p>User requests <code>www.example.com:80</code>:</p>
+        <div class="steps">
+          <div class="step"><div><span class="head">Most specific.</span>Segment B wins (<code>www.example.com</code> beats <code>*.example.com</code>).</div></div>
+          <div class="step"><div><span class="head">Port mismatch.</span>Segment B's port list does not include 80.</div></div>
+          <div class="step"><div><span class="head">Bypass — not fallback.</span>ZCC drops the connection request to ZPA. Segment A is not consulted.</div></div>
+          <div class="step"><div><span class="head">Resolution.</span>Open TCP 80 on Segment B, OR enable Multimatch on the wildcard so it catches ports the specific segment doesn't cover.</div></div>
+        </div>
+
+        <p class="inline-margin"><span class="label">Where the traffic goes</span>The help docs phrase this two ways: &ldquo;ZCC bypasses ZPA and sends traffic directly&rdquo; and &ldquo;the connection is dropped by ZPA.&rdquo; Same event — ZPA is out of the path. Whether the request succeeds against the destination, hits a perimeter firewall, or fails to resolve depends on the client's forwarding profile and network egress, none of which is ZPA's concern.</p>
+      </div>
+
+      <!-- ───── Multimatch ───── -->
+      <div class="subsection" id="seg-multimatch">
+        <h3>Multimatch (INCLUSIVE mode)</h3>
+        <p>Multimatch lifts the carve-out: a segment with <code>match_style = INCLUSIVE</code> allows a request to match multiple segments simultaneously. The wildcard segment then catches ports the specific segment doesn't cover.</p>
+
+        <h4>Validated at config time, not traffic time</h4>
+        <p>ZPA evaluates Multimatch across all segments containing overlapping domains <em>when an admin enables or disables it</em>. If a domain appears in multiple segments with different Multimatch settings, the change is rejected at save. <strong>You cannot get into a mixed-style state.</strong></p>
+
+        <h4>The specificity stack</h4>
+        <p>Multimatch is itself ordered by specificity. As soon as a segment in the stack has Multimatch <em>disabled</em>, the descent stops. Example for <code>server1.db.hr.acme.com</code>:</p>
+
+        <table class="tbl">
+          <thead><tr><th>Segment</th><th>Multimatch</th><th>Matches?</th></tr></thead>
+          <tbody>
+            <tr><td><code>*.db.hr.acme.com</code></td><td>Enabled</td><td>Yes</td></tr>
+            <tr><td><code>*.ui.hr.acme.com</code></td><td>Disabled</td><td>No (irrelevant — different domain)</td></tr>
+            <tr><td><code>*.hr.acme.com</code></td><td>Enabled</td><td>Yes</td></tr>
+            <tr><td><code>*.acme.com</code></td><td>Disabled</td><td><strong>No — descent stops here</strong></td></tr>
+          </tbody>
+        </table>
+
+        <h4>Disallowed combinations</h4>
+        <p>Multimatch must be disabled if the segment uses any of:</p>
+        <ul>
+          <li>Browser Access</li>
+          <li>AppProtection</li>
+          <li>Privileged Remote Access</li>
+          <li>Double Encryption</li>
+          <li>ZIA inline inspection (<code>inspect_traffic_with_zia</code>)</li>
+          <li>Source IP Anchor (SIPA)</li>
+        </ul>
+        <p>And if Multimatch is enabled, <code>health_reporting</code> can only be <code>ON_ACCESS</code> or <code>NONE</code> — not <code>CONTINUOUS</code>.</p>
+
+        <h4>Connector and client requirements</h4>
+        <ul>
+          <li>App Connectors / Private Service Edges on <strong>24.298.1+</strong></li>
+          <li>ZCC: Windows 4.6.0.282+ or 4.7.0.88+; macOS 4.5.2.98+; iOS 4.4.1+ (with &ldquo;Use Tunnel SDK Version 4.3 or above&rdquo;); Android 3.10+; Linux 4.2+</li>
+        </ul>
+      </div>
+
+      <!-- ───── Bypass precedence ───── -->
+      <div class="subsection" id="seg-bypass">
+        <h3>Bypass precedence</h3>
+        <p>The Bypass setting on a segment outranks both client forwarding policy and the specificity tie-break:</p>
+        <div class="deflist">
+          <div><dt>Bypass = Always</dt><dd>If any segment covering the destination has <code>bypass_type = ALWAYS</code>, that segment wins. Traffic forwards direct, does not enter ZPA. Overrides specificity-wins and forwarding-policy rules.</dd></div>
+          <div><dt>Bypass = On Net</dt><dd>Bypass only when the user is on the corporate network. Undocumented in most help articles; valid at the API.</dd></div>
+          <div><dt>Bypass = Never</dt><dd>Default. Specificity-wins and forwarding policy decide.</dd></div>
+        </div>
+      </div>
+
+      <!-- ───── Edge cases ───── -->
+      <div class="subsection" id="seg-edges">
+        <h3>Edge cases &amp; quirks</h3>
+
+        <div class="deflist">
+          <div>
+            <dt>ICMP asymmetric aggregation</dt>
+            <dd>If ICMP is enabled on one segment for an app and disabled on another segment for the same app, ZCC considers ICMP <em>enabled</em> and forwards. Cross-segment ICMP is OR-aggregated, not most-specific-wins.</dd>
+          </div>
+          <div>
+            <dt>IdP overlap</dt>
+            <dd>An IdP defined as an application must have Authentication Timeout = Never. If the IdP domain overlaps with an app-discovery domain, you must bypass the IdP domain in ZPA to avoid re-auth failure loops.</dd>
+          </div>
+          <div>
+            <dt>CNAME on macOS / iOS</dt>
+            <dd><code>is_cname_enabled</code> controls CNAME DNS records from App Connectors to ZCC. Not applicable to Browser Access. Best practice: <em>disable</em> on macOS / iOS when the app is accessed by CNAME.</dd>
+          </div>
+          <div>
+            <dt>Browser Access constraints</dt>
+            <dd>Port range must include the BA-specified port. TCP ports only.</dd>
+          </div>
+          <div>
+            <dt>Double Encryption mutex</dt>
+            <dd>Cannot combine with Browser Access or Source IP Anchoring on the same segment.</dd>
+          </div>
+          <div>
+            <dt>SIPA cross-product gate</dt>
+            <dd>Source IP Anchor on a segment opts into the SIPA flow — ZIA-inspected traffic forwards to this segment's App Connector so the destination sees a customer-controlled IP. Mutex with Browser Access, Double Encryption, and Multimatch on the same segment. Also: <strong>only SIPA-enabled segments appear in ZIA's <code>zpa_app_segments</code> SSL-inspection-rule selector</strong> — non-SIPA segments are invisible to it.</dd>
+          </div>
+          <div>
+            <dt>Python SDK <code>clientless_app_ids</code> hazard</dt>
+            <dd>The SDK checks <code>if "clientless_app_ids" in body:</code>, not <code>if body.get("clientless_app_ids"):</code>. Including <code>clientless_app_ids: None</code> in the body triggers a Browser-Access lookup, which fails with &ldquo;No matching clientless App found&rdquo; for a standard segment. Omit the key entirely; passing <code>None</code> is not equivalent. Affects both create and update paths.</dd>
+          </div>
+          <div>
+            <dt>Same-FQDN, same-Bypass tie-break</dt>
+            <dd>Two segments with identical <code>domain_names</code> and same Multimatch / Bypass settings: behavior is <em>not documented</em>. Save-time validation likely blocks the configuration. If both saved anyway (older rules, or save-time validator bypassed), ZCC picks one deterministically per session — but which one is unspecified. <span class="pill">clarification zpa-04</span></dd>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!-- ─────── Access policy ─────── -->
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <section class="section" id="policy">
+      <div class="section-num">§ 2 · Access policy</div>
+      <h2>Access policy precedence</h2>
+      <p class="standfirst">Top-down, first-match-wins. The first rule whose criteria all evaluate true fires. No matching rule = blocked.</p>
+
+      <div class="note">
+        <span class="label">From <em>About Access Policy</em></span>
+        <em>&ldquo;Private Access evaluates access policy rules using the most specific application segment and a top-down, first-match principle.&rdquo;</em>
+      </div>
+
+      <p>This decomposes into two ordered stages: <strong>segment selection</strong> (covered above, runs in ZCC) picks the segment; <strong>policy evaluation</strong> (runs in ZPA) walks the rule list top-down against rules referencing that segment, directly or via a Segment Group.</p>
+
+      <div class="subsection" id="pol-criteria">
+        <h3>Criteria</h3>
+        <p>Available criteria on a rule:</p>
+        <table class="tbl">
+          <thead><tr><th>Criterion</th><th>What it evaluates</th></tr></thead>
+          <tbody>
+            <tr><td>Application Segments</td><td>Specific segments the rule applies to.</td></tr>
+            <tr><td>Segment Groups</td><td>Groups of segments the rule applies to.</td></tr>
+            <tr><td>Client Types</td><td>ZCC, ZCC for VDI, ZCC Partner, Branch Connector, Cloud Connector, Machine Tunnel, Web Browser, Internet &amp; SaaS Service Edge, Extranet.</td></tr>
+            <tr><td>Posture Profiles</td><td>Device posture checks reported by ZCC. <code>POSTURE</code> condition's <code>rhs</code> is the <code>posture_udid</code>, not the profile name or ID.</td></tr>
+            <tr><td>Trusted Networks</td><td>Trusted-network state from ZCC.</td></tr>
+            <tr><td>Locations · Branch Connector · Cloud Connector Groups · Machine Groups</td><td>Network-grouping criteria.</td></tr>
+            <tr><td>Country Codes</td><td>Country of the user's IP. <strong>Uses the last NATed layer-3 public IP</strong>, not the user's original IP — relevant for SIPA / multi-hop / Cloud Connector cases.</td></tr>
+            <tr><td>Platforms</td><td>Windows, macOS, Linux, Android. RHS is string <code>"true"</code>/<code>"false"</code>, not boolean — wire-format quirk.</td></tr>
+            <tr><td>SAML / SCIM / SCIM Group</td><td>IdP attributes. Use <code>entry_values</code> with <code>{lhs, rhs}</code> pairs, not <code>values</code>.</td></tr>
+            <tr><td>Risk Scores</td><td>External risk source (e.g., Internet &amp; SaaS). The cross-product hook bringing ZIA browsing-risk data into ZPA decisions.</td></tr>
+            <tr><td>Chrome Enterprise Browser · Workload Groups · Extranet</td><td>Less common scoping criteria.</td></tr>
+          </tbody>
+        </table>
+
+        <h4>Boolean operators</h4>
+        <div class="deflist">
+          <div><dt>Within one criterion</dt><dd>Multiple values are <strong>OR</strong>ed. <code>Sales OR QA Site OR Internal Services</code>.</dd></div>
+          <div><dt>App Segments vs Segment Groups</dt><dd><strong>OR</strong>ed. A user matching either branch satisfies the app-scope.</dd></div>
+          <div><dt>Across distinct criteria</dt><dd><strong>AND</strong>ed. SAML ∧ Country ∧ Client Type all required.</dd></div>
+          <div><dt>Operands within one block</dt><dd>OR. Mixed types allowed: SAML user OR SCIM_GROUP membership in one block.</dd></div>
+          <div><dt>Multiple condition blocks</dt><dd>AND. Block 1 ∧ Block 2 ∧ Block 3.</dd></div>
+        </div>
+
+        <p>So a rule structurally looks like:</p>
+        <pre><code>(app_segments OR segment_groups)  AND
+(saml_attrs)                       AND
+(countries)                        AND
+(client_types)                     AND
+...</code></pre>
+      </div>
+
+      <div class="subsection" id="pol-actions">
+        <h3>Rule actions</h3>
+        <p>The authoritative list lives in <em>Configuring Access Policies</em>; <em>About Access Policy</em> uses informal aliases. Prefer the former:</p>
+
+        <table class="tbl">
+          <thead><tr><th>Action</th><th>Meaning</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td><code>Allow Access</code></td><td>Allow access to applications.</td><td>Default action.</td></tr>
+            <tr><td><code>Block Access</code></td><td>Block access.</td><td>Optional <em>Pop-Up Message to User</em>. Visible only on Block; ZCC v4.7+ Windows only.</td></tr>
+            <tr><td><code>Conditional Access</code></td><td>Step-up authentication. Forces additional auth match before granting access.</td><td>Requires ZIdentity. <strong>OIDC IdP only</strong> — SAML doesn't support step-up.</td></tr>
+            <tr><td><code>Allow with Privileged Approval</code></td><td>Checkbox on Allow rules. Routes through PRA approval workflow.</td><td>For PRA-enabled segments. Contact Zscaler Support for setup.</td></tr>
+          </tbody>
+        </table>
+
+        <p class="inline-margin"><span class="label">Terminology drift</span><em>About Access Policy</em> calls one of these &ldquo;Require Approval.&rdquo; That's an informal name for either Conditional Access or Allow with Privileged Approval — not a separate action. <span class="pill">clarification zpa-06</span></p>
+      </div>
+
+      <div class="subsection" id="pol-order">
+        <h3>Order &amp; first-match</h3>
+
+        <p>Rules evaluate top-down. The first one whose criteria all match fires; the rest are skipped. This is the source of nearly all &ldquo;why isn't my block rule blocking&rdquo; tickets.</p>
+
+        <h4>Conflicting-rule examples</h4>
+        <table class="tbl rules">
+          <thead><tr><th>Order</th><th>Rule</th><th>Effect on Sales user</th></tr></thead>
+          <tbody>
+            <tr><td>Rule 1</td><td>Allow any user → any app</td><td><strong>Allowed</strong> — fires first</td></tr>
+            <tr><td>Rule 2</td><td>Block Sales → any app</td><td>Skipped</td></tr>
+          </tbody>
+        </table>
+        <p>Sales is <em>not</em> blocked. Fix: reorder so the Block rule comes before the broad Allow.</p>
+
+        <table class="tbl rules">
+          <thead><tr><th>Order</th><th>Rule</th><th>Effect on Marketing user</th></tr></thead>
+          <tbody>
+            <tr><td>Rule 1</td><td>Allow Marketing → all apps</td><td><strong>Allowed</strong> — fires first</td></tr>
+            <tr><td>Rule 2</td><td>Deny Marketing → Operations Apps</td><td>Skipped</td></tr>
+          </tbody>
+        </table>
+        <p>Marketing still has access. Same fix.</p>
+
+        <h4>Under Multimatch</h4>
+        <p>Multiple segments match the same request. Their rules are interleaved into the same top-down evaluation. A block on the more-specific segment can fire before an allow on the wildcard, even when the wildcard rule appears later. Worked example from <em>Using Application Segment Multimatch</em>:</p>
+
+        <p>Segments: <code>Wildcard_AS</code> (<code>*.example.com</code>, TCP 1–52 + 54–65535, MM on) and <code>Server1_AS</code> (<code>server1.example.com</code>, TCP 443 + 3389, MM on).</p>
+
+        <table class="tbl rules">
+          <thead><tr><th>Order</th><th>Rule</th><th></th></tr></thead>
+          <tbody>
+            <tr><td>Rule 1</td><td>Allow <code>Server1_AS</code> for Admin_Grp</td><td></td></tr>
+            <tr><td>Rule 2</td><td>Block <code>Server1_AS</code> for All</td><td></td></tr>
+            <tr><td>Rule 3</td><td>Allow <code>Wildcard_AS</code> for All</td><td></td></tr>
+          </tbody>
+        </table>
+
+        <table class="tbl">
+          <thead><tr><th>User</th><th>Request</th><th>Matched rule</th></tr></thead>
+          <tbody>
+            <tr><td>user1 (Admin)</td><td><code>server1.example.com:3389</code></td><td>Rule 1 (Allow)</td></tr>
+            <tr><td>user1</td><td><code>server1.example.com:443</code></td><td>Rule 1 (Allow)</td></tr>
+            <tr><td>user1</td><td><code>server1.example.com:22</code></td><td>Rule 3 (Allow Wildcard)</td></tr>
+            <tr><td>user3 (IT)</td><td><code>server1.example.com:443</code></td><td><strong>Rule 2 (Block)</strong></td></tr>
+          </tbody>
+        </table>
+
+        <h4>Programmatic reordering</h4>
+        <p>Two Go-SDK endpoints; Python lacks both:</p>
+        <div class="deflist">
+          <div><dt>Reorder</dt><dd><code>PUT .../rule/{id}/reorder/{newOrder}</code> &mdash; move a single rule.</dd></div>
+          <div><dt>BulkReorder</dt><dd>Accepts a full ordered rule-ID list and applies the entire reordering atomically. Useful after imports or large refactors.</dd></div>
+        </div>
+
+        <h4>Hidden rules at the top</h4>
+        <div class="warn">
+          <span class="label">Deception rules occupy <code>rule_order = 1</code></span>
+          If Zscaler Deception is enabled in the tenant, an immutable Deception rule sits at order 1 — invisible to the admin console as editable, but the API includes it in order calculations. TF-managed rules must start at <code>rule_order = 2</code> and stay sequential. Gaps in <code>rule_order</code> cause Terraform to reorder unpredictably (issue #166, fixed v2.3.1).
+        </div>
+      </div>
+
+      <div class="subsection" id="pol-families">
+        <h3>The four policy families</h3>
+
+        <div class="deflist">
+          <div>
+            <dt>Forwarding Policy</dt>
+            <dd>Decides whether ZPA handles the traffic at all. <code>BYPASS</code> sends direct, skipping access-policy entirely. <code>INTERCEPT</code> keeps it on ZPA. <code>INTERCEPT_ACCESSIBLE</code> is a hybrid — route through ZPA only if reachable via App Connectors; otherwise direct. <strong>Empty conditions list = global rule.</strong></dd>
+          </div>
+          <div>
+            <dt>Access Policy</dt>
+            <dd>Allow / Deny / Conditional Access / Allow-with-Privileged-Approval. Only evaluates if Forwarding kept traffic on ZPA. <strong>Empty conditions list = allow all to all apps.</strong></dd>
+          </div>
+          <div>
+            <dt>Timeout Policy</dt>
+            <dd>Independent of Allow/Deny — governs session re-auth timing. Action: <code>RE_AUTH</code>. Defaults: 2 days session, 10 minutes idle. Values are strings: <code>"N Minutes"</code>, <code>"N Hours"</code>, <code>"N Days"</code>, <code>"Never"</code>. Restricted condition subset — <code>COUNTRY_CODE</code>, <code>TRUSTED_NETWORK</code>, <code>CLIENT_TYPE</code> are not supported.</dd>
+          </div>
+          <div>
+            <dt>Inspection Policy (v2)</dt>
+            <dd><code>INSPECT</code> or <code>BYPASS_INSPECT</code>. Controls whether AppProtection inline inspection runs. Has its own narrower condition set, distinct from access/forwarding.</dd>
+          </div>
+        </div>
+
+        <h4>Re-auth fields and ForceNew</h4>
+        <p>Two distinct timeout fields on access rules. <strong>Both are <code>ForceNew</code>:</strong> changing either on an existing rule requires destroy-recreate at the API. The rule is deleted and re-created, which can shuffle order and cause transient policy gaps. Plan changes for maintenance windows.</p>
+        <div class="deflist">
+          <div><dt>reauth_timeout</dt><dd>Session duration before full re-auth. Default <code>None</code> → tenant global applies.</dd></div>
+          <div><dt>reauth_idle_timeout</dt><dd>Idle duration before re-auth. Default <code>None</code> → tenant global applies.</dd></div>
+        </div>
+
+        <h4>Action-specific profiles, conditionally relevant</h4>
+        <p>Two profile fields are only meaningful with specific actions; <strong>the SDK does not validate the cross-field dependency</strong>:</p>
+        <div class="deflist">
+          <div><dt>zpn_isolation_profile_id</dt><dd>Only relevant when <code>action = ISOLATE</code>. References a ZPA isolation profile (Turbo Mode, copy/paste allow, region, etc.).</dd></div>
+          <div><dt>zpn_inspection_profile_id<br>zpn_inspection_profile_name</dt><dd>Only relevant when <code>action = INSPECT</code>.</dd></div>
+        </div>
+        <p>Setting an irrelevant profile passes silently; the API's behavior in that case is unstated. Debugging &ldquo;why isn't my isolation profile applying&rdquo; → verify the action actually is <code>ISOLATE</code>.</p>
+      </div>
+
+      <div class="subsection" id="pol-edges">
+        <h3>Edge cases &amp; quirks</h3>
+        <div class="deflist">
+          <div>
+            <dt>SCIM sync timing</dt>
+            <dd>After enabling SCIM, ZPA checks the SCIM database to allow/block. <strong>Enabling SCIM policies before sync completes denies unrecognised users by default.</strong> Wait 48 hours minimum after enabling SCIM (sometimes up to a week) before activating SCIM-criterion policies.</dd>
+          </div>
+          <div>
+            <dt>Country criterion under SIPA</dt>
+            <dd>Country is the <em>last NATed public IP's</em> country. For SIPA traffic, that's the ZIA Public Service Edge's country, not the user's. Country-scoped ZPA rules misfire for SIPA users.</dd>
+          </div>
+          <div>
+            <dt>Deception policy ordering</dt>
+            <dd>Regular rules must have order &gt; Deception rules. Copy/edit/delete are disabled on Deception-configured rules — they are managed from the Deception Admin Portal, not the ZPA console. Editing out-of-band desynchronises Deception's view; an attacker's activity then shows up as a normal admin audit event instead of triggering a Deception alert. <span class="pill">clarification zpa-07 (resolved)</span></dd>
+          </div>
+          <div>
+            <dt>Default block</dt>
+            <dd>No matching rule = blocked. Until you configure rules for applications, users are blocked from accessing any applications or segment groups.</dd>
+          </div>
+          <div>
+            <dt><code>devicePostureFailureNotificationEnabled</code></dt>
+            <dd>Controls user notifications on posture-based denials. Wire/snapshot key is camelCase; Python SDK exposes it snake-cased. Operators querying snapshot JSON must use camelCase.</dd>
+          </div>
+          <div>
+            <dt><code>rule_order</code> vs <code>priority</code></dt>
+            <dd>Different fields. <code>rule_order</code> controls evaluation position. <code>priority</code> is metadata, sometimes used by the admin console for grouping. Setting them inconsistently doesn't error but confuses readers — keep them aligned (<code>rule_order = N, priority = N</code>).</dd>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!-- ─────── App Connector ─────── -->
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <section class="section" id="connector">
+      <div class="section-num">§ 3 · App Connector</div>
+      <h2>App Connector</h2>
+      <p class="standfirst">The VM at the application end of every ZPA flow. Outbound-only; receives requests from a ZPA Service Edge, forwards them to the actual app, streams responses back.</p>
+
+      <div class="subsection" id="ac-model">
+        <h3>Architecture &amp; placement</h3>
+
+        <div class="deflist">
+          <div><dt>Outbound only</dt><dd>Never accepts inbound from the internet. The structural property that makes ZPA safe to deploy without exposing internal apps.</dd></div>
+          <div><dt>Typical placement</dt><dd>DMZ, or any segment with connectivity to both the apps and the ZPA cloud. Data centre, cloud VPC, branch with on-prem apps.</dd></div>
+          <div><dt>Always active in groups</dt><dd>All connectors in a group serve traffic simultaneously. No active/passive. ZPA selects the closest one per request based on user location and connector-to-app latency.</dd></div>
+          <div><dt>Independent enrolment</dt><dd>Connectors never communicate with each other. Each enrols separately via provisioning key + TLS client cert.</dd></div>
+          <div><dt>Sizing</dt><dd>N+1 redundancy. Adding connectors to a group increases capacity. Sizing depends on concurrent users, app throughput, and inspection feature set (Double Encryption, AppProtection add overhead).</dd></div>
+        </div>
+
+        <h4>The grouping chain</h4>
+        <pre><code>App Segment  →  Server Group  →  App Connector Group  →  App Connectors (N)
+                                                          (each with own cert)</code></pre>
+        <p>Same App Connector Group can serve many segments. Provisioning key determines group assignment at enrolment.</p>
+
+        <div class="warn">
+          <span class="label">Silent partial-config failure</span>
+          An App Connector Group with no Server Group association routes no traffic — and the admin console doesn't flag the partial config as invalid. Same applies to network reachability: only associate groups with apps the connectors can actually reach.
+        </div>
+      </div>
+
+      <div class="subsection" id="ac-keys">
+        <h3>Provisioning keys</h3>
+
+        <p>A long pipe-delimited string that functions as the shared-secret credential for connector enrolment.</p>
+        <pre><code>1|api.private.zscaler.com|68F0AOEgpcG8McLmwdborq2m6v2A5oNEpSztJ/...(payload)...</code></pre>
+
+        <div class="deflist">
+          <div><dt>Bound to one group</dt><dd>Each key enrols connectors into a single App Connector Group. Cross-group moves require re-enrolment with a different key.</dd></div>
+          <div><dt>Reuse-count tracked</dt><dd>Set <em>Maximum Reuse of Provisioning Key</em> at creation. ZPA tracks utilisation; when count hits max, key stops working for new enrolments.</dd></div>
+          <div><dt>Multiple keys per group</dt><dd>Useful for separating deployment pipelines (prod vs DR) so utilisation logs differentiate.</dd></div>
+          <div><dt>Treat as a secret</dt><dd>If <em>View or Export Provisioning Key After Creation</em> was disabled at creation, the key is never retrievable. Backup must exist externally (vault) or generate a new key.</dd></div>
+        </div>
+
+        <div class="warn">
+          <span class="label">The #1 enrolment failure</span>
+          Provisioning-key utilisation count hitting its max. Symptoms: new connectors fail to enrol; existing ones keep working. Diagnostic: check the key's utilisation count against its configured max.
+        </div>
+
+        <h4>Enrolment failure log signature</h4>
+        <p>An exact paste of this in a support ticket narrows diagnosis to &ldquo;key wrong, truncated, or utilisation-exhausted&rdquo;:</p>
+        <pre><code>notice:Checking Enrollment
+notice:No valid certificate. Attempting to enroll
+notice:Enroll: Connecting to api.private.zscaler.com via co2br.prod.zpath.net.
+error:Login request failed - http status(401) nonce(&lt;3|api.private.zscaler.com|0/Z6lDT...&gt;) fingerprint(&lt;oXaN4RRiMc...&gt;)
+notice:Certificate enrollment failed.</code></pre>
+
+        <h4>TF data-source asymmetry</h4>
+        <p>The TF resource accepts five <code>association_type</code> values; the matching data source accepts only two. Operators creating keys for the &ldquo;extended&rdquo; types (<code>EXPORTER_GRP</code>, <code>NP_ASSISTANT_GRP</code>, <code>SITE_CONTROLLER_GRP</code>) must look up by ID, not by association-type-plus-name through the data source. Auto-discovery tooling will silently miss these keys.</p>
+      </div>
+
+      <div class="subsection" id="ac-updates">
+        <h3>Software updates</h3>
+
+        <div class="deflist">
+          <div><dt>Group-level scheduling</dt><dd>Admin specifies day + time at the App Connector Group level.</dd></div>
+          <div><dt>4-hour rolling window</dt><dd>ZPA picks one connector at a time, upgrades it (restart + reconnect), then the next. The group stays available because only one is down at a time.</dd></div>
+          <div><dt>Window is not extendable</dt><dd>Groups too large to finish in 4 hours stagger across multiple nights. Pick upgrade nights carefully.</dd></div>
+          <div><dt>Failed updates retry next window</dt><dd>Until every connector is on target version.</dd></div>
+          <div><dt>Self-upgrade on first boot</dt><dd>Starting with App Connector 24.650.4+, a version check runs on initial connection. Freshly-deployed connectors may self-upgrade before the scheduled window.</dd></div>
+        </div>
+
+        <table class="tbl">
+          <thead><tr><th>Status</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>Scheduled</code></td><td>In queue for next periodic update window. Hover shows scheduled version + 4-hour window.</td></tr>
+            <tr><td><code>Success</code></td><td>On target version.</td></tr>
+            <tr><td><code>Failure</code></td><td>Update attempted and failed. Restart the VM. Retries next window.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="note">
+          <span class="label">OS updates are the customer's job</span>
+          Zscaler doesn't patch the underlying kernel/distribution. App Connector software is designed to be host-OS-update compatible, but a long-running VM with un-patched OS is a common audit finding.
+        </div>
+      </div>
+
+      <div class="subsection" id="ac-edges">
+        <h3>Edge cases &amp; quirks</h3>
+
+        <div class="deflist">
+          <div>
+            <dt>VM-cloning fingerprint collision</dt>
+            <dd>Cloning a VM template without unique re-enrolment leaves all clones sharing a hardware fingerprint. ZPA detects the collision and disables all but one. Remedy: re-enrol each clone with a unique fingerprint.</dd>
+          </div>
+          <div>
+            <dt>Latency-based selection isn't pure geo</dt>
+            <dd>ZPA uses continuous app-to-connector RTT measurements, not static geography. A connector that's geographically far but has a fast link to the app can be preferred. Counter-intuitive for operators expecting purely geographic routing.</dd>
+          </div>
+          <div>
+            <dt>Trailing whitespace in copied keys</dt>
+            <dd>Keys copied from the portal UI can silently include trailing whitespace. Pasting into a deployment template fails enrolment with the 401 above. Trim whitespace.</dd>
+          </div>
+          <div>
+            <dt>Private Service Edge <code>service_edges</code> drift</dt>
+            <dd>The <code>service_edges</code> block on <code>zpa_service_edge_group</code> is documented as optional but is <strong>required</strong> if any Service Edges actually attached to the group. Omitting it makes TF try to detach them on every apply. PSE UID isn't visible in the portal at registration — capture it via API or <code>terraform import</code>, then add to the block. Provider versions v4.0.9–v4.1.2 had drift bugs; v4.1.3 stabilised.</dd>
+          </div>
+          <div>
+            <dt>LSS retransmit window is shorter than NSS</dt>
+            <dd>Connectivity gap between Private Access and the App Connector → LSS retransmits at most <strong>15 minutes</strong>, and delivery is not guaranteed. Connectivity gap between App Connector and SIEM → no retransmit at all (audit logs excepted). Operators familiar with NSS's 60-minute opt-in recovery often assume LSS matches; it doesn't. A 30-minute App Connector outage = roughly 15 minutes permanent log gap.</dd>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!-- ─────── Common questions ─────── -->
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <section class="section" id="ref-questions">
+      <div class="section-num">§ 4 · Triage</div>
+      <h2>Common question shapes</h2>
+      <p class="standfirst">Where to start when an operator describes a symptom.</p>
+
+      <table class="tbl">
+        <thead><tr><th>Symptom</th><th>Likely cause</th><th>Start here</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>&ldquo;Why is this user reaching app X directly, not through ZPA?&rdquo;</td>
+            <td>Specificity-wins carve-out: a more-specific segment covers X but doesn't cover the requested port. ZCC drops to direct.</td>
+            <td><a href="#seg-specificity">§1 Specificity-wins</a></td>
+          </tr>
+          <tr>
+            <td>&ldquo;Block rule isn't blocking.&rdquo;</td>
+            <td>An earlier Allow rule fires first.</td>
+            <td><a href="#pol-order">§2 Order &amp; first-match</a></td>
+          </tr>
+          <tr>
+            <td>&ldquo;Block rule isn't blocking, but no Allow rule above it covers this user.&rdquo;</td>
+            <td>Forwarding Policy <code>BYPASS</code> ran first; access policy never evaluated.</td>
+            <td><a href="#evaluation">§0 Evaluation order</a></td>
+          </tr>
+          <tr>
+            <td>&ldquo;New App Connectors won't enrol; old ones still work.&rdquo;</td>
+            <td>Provisioning-key utilisation count exhausted, OR key copied with trailing whitespace.</td>
+            <td><a href="#ac-keys">§3 Provisioning keys</a></td>
+          </tr>
+          <tr>
+            <td>&ldquo;Multiple connectors disabled after VM clone.&rdquo;</td>
+            <td>Hardware-fingerprint collision from template-based deploy.</td>
+            <td><a href="#ac-edges">§3 Edge cases</a></td>
+          </tr>
+          <tr>
+            <td>&ldquo;TF keeps trying to reorder rules.&rdquo;</td>
+            <td>Gaps in <code>rule_order</code>, OR Deception is enabled and a hidden rule occupies order 1.</td>
+            <td><a href="#pol-order">§2 Order &amp; first-match</a></td>
+          </tr>
+          <tr>
+            <td>&ldquo;Country-scoped policy denies users in the wrong country.&rdquo;</td>
+            <td>Country uses the last NATed public IP. SIPA, Cloud Connector, multi-hop change which IP is last.</td>
+            <td><a href="#pol-edges">§2 Edge cases</a></td>
+          </tr>
+          <tr>
+            <td>&ldquo;Conditional Access action does nothing.&rdquo;</td>
+            <td>SAML IdP. Step-up requires OIDC.</td>
+            <td><a href="#pol-actions">§2 Rule actions</a></td>
+          </tr>
+          <tr>
+            <td>&ldquo;Multimatch save is rejected.&rdquo;</td>
+            <td>Overlapping domain in another segment with the opposite Multimatch setting. ZPA validates at config time.</td>
+            <td><a href="#seg-multimatch">§1 Multimatch</a></td>
+          </tr>
+          <tr>
+            <td>&ldquo;SCIM-scoped rule is denying everyone.&rdquo;</td>
+            <td>SCIM sync incomplete; ZPA falls back to deny for unrecognised users. Wait 48h after enabling.</td>
+            <td><a href="#pol-edges">§2 Edge cases</a></td>
+          </tr>
+          <tr>
+            <td>&ldquo;LSS log gap during connector outage is bigger than expected.&rdquo;</td>
+            <td>15-minute retransmit cap (vs NSS's 60-minute).</td>
+            <td><a href="#ac-edges">§3 Edge cases</a></td>
+          </tr>
+          <tr>
+            <td>&ldquo;Python SDK update on a standard segment fails with &lsquo;No matching clientless App found.&rsquo;&rdquo;</td>
+            <td>Body included <code>clientless_app_ids: None</code>. Key-presence-sensitive, not truthiness-sensitive.</td>
+            <td><a href="#seg-edges">§1 Edge cases</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!-- ─────── Open clarifications ─────── -->
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <section class="section" id="ref-clarifications">
+      <div class="section-num">§ 5 · Clarifications</div>
+      <h2>Open clarifications</h2>
+      <p class="standfirst">Questions where the doc-tier evidence ran out and the working answer is partial. Cite these IDs in answers that depend on them.</p>
+
+      <table class="tbl">
+        <thead><tr><th>ID</th><th>Question</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>zpa-04</code></td>
+            <td>Same-FQDN, same-Bypass tie-break — runtime behavior when two segments are truly equivalent.</td>
+            <td><span class="pill warn">Open</span></td>
+          </tr>
+          <tr>
+            <td><code>zpa-06</code></td>
+            <td>Alias mapping for &ldquo;Require Approval&rdquo; vs &ldquo;Conditional Access&rdquo; vs &ldquo;Allow with Privileged Approval.&rdquo;</td>
+            <td><span class="pill warn">Partially resolved</span></td>
+          </tr>
+          <tr>
+            <td><code>zpa-02</code></td>
+            <td>&ldquo;More granular&rdquo; — ranks on FQDN dimension, not port narrowness.</td>
+            <td><span class="pill">Resolved</span></td>
+          </tr>
+          <tr>
+            <td><code>zpa-03</code></td>
+            <td>Multimatch mixed-style — rejected at config time, not reconciled at traffic time.</td>
+            <td><span class="pill">Resolved</span></td>
+          </tr>
+          <tr>
+            <td><code>zpa-05</code></td>
+            <td>&ldquo;No match in segment&rdquo; — specifically port mismatch; no fallback to less-specific segment.</td>
+            <td><span class="pill">Resolved</span></td>
+          </tr>
+          <tr>
+            <td><code>zpa-07</code></td>
+            <td>Deception policy ordering — must precede regular rules; managed out-of-band.</td>
+            <td><span class="pill">Resolved</span></td>
+          </tr>
+          <tr>
+            <td><code>zpa-08</code></td>
+            <td>&ldquo;When both FQDNs are equal&rdquo; phrasing — top-down ranking when two rules would both match.</td>
+            <td><span class="pill">Resolved</span></td>
+          </tr>
+          <tr>
+            <td><code>—</code></td>
+            <td>App Connector cert validity window; max connectors per group; latency-probe cadence.</td>
+            <td><span class="pill warn">Not captured</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!-- ─────── Sources ─────── -->
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <section class="section" id="ref-sources">
+      <div class="section-num">§ 6 · Sources</div>
+      <h2>Sources</h2>
+      <p class="standfirst">Doc-tier where available, SDK / Terraform when the help portal is silent, MCP-skill annotations for the operational gotchas.</p>
+
+      <h4>Help articles</h4>
+      <ul>
+        <li>Configuring Defined Application Segments</li>
+        <li>About Application Access — Understanding Application Access</li>
+        <li>Using Application Segment Multimatch</li>
+        <li>About Policies</li>
+        <li>About Access Policy</li>
+        <li>Configuring Access Policies</li>
+        <li>Access Policy Configuration Examples</li>
+        <li>Access Policy Deployment and Operations Guide</li>
+        <li>About App Connectors</li>
+        <li>About Connector Provisioning Keys</li>
+        <li>Understanding Connector Software Updates</li>
+        <li>About Connector Groups</li>
+      </ul>
+
+      <h4>SDK &amp; Terraform</h4>
+      <ul>
+        <li><code>zscaler-sdk-python/zscaler/zpa/models/application_segment.py</code></li>
+        <li><code>zscaler-sdk-python/zscaler/zpa/models/policyset_controller_v2.py</code></li>
+        <li><code>zscaler-sdk-go/zscaler/zpa/services/applicationsegment/</code></li>
+        <li><code>zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/</code></li>
+        <li><code>zscaler-sdk-go/zscaler/zpa/services/appconnectorgroup/</code></li>
+        <li><code>terraform-provider-zpa/zpa/resource_zpa_application_segment.go</code></li>
+        <li><code>terraform-provider-zpa/zpa/resource_zpa_provisioning_key.go</code></li>
+      </ul>
+
+      <h4>Upstream issues referenced</h4>
+      <ul>
+        <li><code>zscaler/zaler-mcp-server #50</code> — <code>clientless_app_ids: None</code> hazard (closed 2026-04-21)</li>
+        <li><code>zscaler/terraform-provider-zpa #166</code> — <code>rule_order</code> + Deception interaction (closed, fixed v2.3.1)</li>
+        <li><code>zscaler/terraform-provider-zpa #550</code> — Service Edge Group <code>service_edges</code> drift (closed, stabilised v4.1.3)</li>
+      </ul>
+    </section>
+
+    <!-- ─────── Footer ─────── -->
+    <footer class="docfoot">
+      <div class="links">
+        <a href="../readers-guide.html">← A Reader's Guide to the Zero Trust Exchange</a>
+        <a href="#glance">↑ Top</a>
+      </div>
+      <p>Reference document. Last verified 2026-04-24. Confidence: high. Source tier: doc + SDK + MCP-skill.</p>
+      <p>Cite open clarifications by ID when an answer depends on them. Lab-test before publishing answers that hinge on <code>zpa-04</code>.</p>
+    </footer>
+
+  </main>
+
+  <!-- ────────── Margin rail ────────── -->
+  <aside class="margin-rail" id="rail">
+    <!-- positioned via JS so notes line up with their anchors -->
+  </aside>
+
+</div>
+
+<script>
+  // ───── Margin notes: positioned next to anchor elements in the body ─────
+  const notes = [
+    { anchor: 'glance', label: 'Reading order', html: 'This document reads straight through, but most readers arrive from a search and need only one section. The TOC on the left is the primary navigation; the Triage table at <a href="#ref-questions" style="color:var(--accent-ink)">§4</a> is the secondary entry point.' },
+    { anchor: 'evaluation', label: 'The mental shortcut', html: 'Forwarding decides <em>whether</em>. Access decides <em>who</em>. Timeout decides <em>how long</em>. Inspection decides <em>what to look at</em>. In that order.' },
+    { anchor: 'seg-anatomy', label: 'Where to find these', html: 'Most fields live in the admin console under <em>Application Segments → Configure</em>. The SDK-only fields are visible in snapshot JSON exported via <code>scripts/snapshot.py</code>.' },
+    { anchor: 'seg-specificity', label: 'Why this is the #1 footgun', html: 'The common expectation: &ldquo;wildcard catches everything specific segments don&rsquo;t cover.&rdquo; That is wrong by default. The wildcard is <em>carved out</em> the moment a specific segment exists.' },
+    { anchor: 'seg-multimatch', label: 'Why config-time validation matters', html: 'There&rsquo;s no traffic-time reconciliation. ZPA refuses to allow the ambiguous state in the first place — eliminates a class of incident, at the cost of some flexibility.' },
+    { anchor: 'pol-criteria', label: 'AND vs OR is the #1 confusion', html: 'A rule with three condition blocks each containing two values is <code>(a OR b) AND (c OR d) AND (e OR f)</code>. Six values, four operators, one decision.' },
+    { anchor: 'pol-order', label: 'The reorder-after-import workflow', html: 'Use Go SDK <code>BulkReorder</code> for atomic large reorderings. Python callers fall back to per-rule edits, which leaves a gap each time.' },
+    { anchor: 'ac-model', label: 'Why &ldquo;outbound only&rdquo; matters', html: 'It is the structural reason ZPA can claim &ldquo;internal apps are not exposed.&rdquo; Anything that breaks the outbound-only property — public listener, port-forward, NAT rule — breaks the security model.' },
+    { anchor: 'ac-keys', label: 'Treat like SSH host keys', html: 'Long, opaque, sensitive, regenerable but not retrievable after the fact. The same operational hygiene applies — use a vault, rotate occasionally, watch the utilisation count.' },
+    { anchor: 'ac-updates', label: 'Plan around the 4-hour window', html: 'For groups bigger than what 4 hours can serially upgrade, schedule across multiple nights. The portal will not warn that the window is too small.' },
+  ];
+
+  function positionNotes() {
+    const rail = document.getElementById('rail');
+    if (!rail || rail.offsetParent === null) return; // hidden at narrow widths
+    rail.innerHTML = '';
+    const railRect = rail.getBoundingClientRect();
+    const railTop = window.scrollY + railRect.top;
+    notes.forEach(n => {
+      const target = document.getElementById(n.anchor);
+      if (!target) return;
+      const tRect = target.getBoundingClientRect();
+      const top = window.scrollY + tRect.top - railTop;
+      const div = document.createElement('div');
+      div.className = 'margin-note';
+      div.style.top = top + 'px';
+      div.innerHTML = '<span class="label">' + n.label + '</span>' + n.html;
+      rail.appendChild(div);
+    });
+    // ensure rail is at least as tall as needed
+    const last = rail.lastElementChild;
+    if (last) {
+      rail.style.minHeight = (last.offsetTop + last.offsetHeight + 100) + 'px';
+    }
+  }
+  window.addEventListener('load', positionNotes);
+  window.addEventListener('resize', positionNotes);
+
+  // ───── Scrollspy ─────
+  const navLinks = Array.from(document.querySelectorAll('#nav a[href^="#"]'));
+  const sections = navLinks
+    .map(a => document.getElementById(a.getAttribute('href').slice(1)))
+    .filter(Boolean);
+
+  function spy() {
+    const y = window.scrollY + 120;
+    let active = sections[0];
+    for (const s of sections) {
+      if (s.offsetTop <= y) active = s;
+      else break;
+    }
+    navLinks.forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + (active && active.id));
+    });
+  }
+  window.addEventListener('scroll', spy, { passive: true });
+  window.addEventListener('load', spy);
+</script>
+<script src="../nav.js"></script>
+
+</body>
+</html>

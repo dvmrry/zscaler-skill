@@ -189,6 +189,10 @@
 
   document.getElementById('banner-path').textContent = displayPath;
 
+  // Pre-set <title> from the slug so the tab/window has useful context
+  // immediately, before the network fetch resolves.
+  document.title = titleFromSlug(rawParam) + ' — Source';
+
   // Crumbs
   renderCrumbs(rawParam);
 
@@ -341,6 +345,14 @@
       else segs.push(s);
     }
     return segs.join('/');
+  }
+
+  function titleFromSlug(slug) {
+    if (!slug) return 'Source';
+    const last = slug.split('/').pop().replace(/\.md$/, '');
+    if (!last) return slug;
+    // Convert kebab/snake_case → Title Case so the tab title is readable.
+    return last.replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
   }
 
   function escapeHtml(s) {

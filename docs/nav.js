@@ -43,8 +43,9 @@
       href: 'zpa/',
       match: [/\/zpa\//, /\/zpa\/?$/, /source\.html\?.*p=zpa(\/|$)/],
       children: [
-        { href: 'zpa/',              label: 'Reference', match: [/\/zpa\//, /\/zpa\/?$/] },
-        { href: 'source.html?p=zpa', label: 'Source',    match: [/source\.html\?.*p=zpa(\/|$)/], external: 'source' },
+        { href: 'zpa/',                label: 'Overview',  match: [/\/zpa\/(index\.html)?$/] },
+        { href: 'zpa/reference.html',  label: 'Reference', match: [/zpa\/reference/] },
+        { href: 'source.html?p=zpa',   label: 'Source',    match: [/source\.html\?.*p=zpa(\/|$)/], external: 'source' },
       ],
     },
     {
@@ -53,8 +54,9 @@
       href: 'cloud-connector/',
       match: [/cloud-connector\//, /source\.html\?.*p=cloud-connector(\/|$)/],
       children: [
-        { href: 'cloud-connector/',              label: 'Reference', match: [/cloud-connector\//] },
-        { href: 'source.html?p=cloud-connector', label: 'Source',    match: [/source\.html\?.*p=cloud-connector(\/|$)/], external: 'source' },
+        { href: 'cloud-connector/',                  label: 'Overview',  match: [/cloud-connector\/(index\.html)?$/] },
+        { href: 'cloud-connector/reference.html',    label: 'Reference', match: [/cloud-connector\/reference/] },
+        { href: 'source.html?p=cloud-connector',     label: 'Source',    match: [/source\.html\?.*p=cloud-connector(\/|$)/], external: 'source' },
       ],
     },
   ];
