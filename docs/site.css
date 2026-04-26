@@ -1,33 +1,51 @@
 /* docs/site.css
-   Shared design tokens, base styles, and hub-page utility classes for
-   the Zscaler skill docs site. Every HTML page imports this; per-page
-   <style> blocks layer on top for layout-specific rules.
+   Unified design system for the Zscaler skill docs site.
 
-   When adding a token, prefer adding it here so per-page overrides
-   stay trivial. The reference docs (docs/zia/*.html, docs/zpa/*.html,
-   docs/cloud-connector/*.html) currently keep their own complete
-   stylesheets — they reference these tokens implicitly by value, but
-   are not yet migrated to import this sheet. */
+   Every HTML page imports this. There are three page archetypes:
+
+     1. Hub pages       (.hub-page)        — homepage, section index pages
+     2. Reference docs  (.doc / .topbar)   — synthesized HTML references
+     3. Source view     (docs/source.html) — owns its own CSS for the
+                                              file-tree sidebar
+
+   Drawer (site-drawer.js) and back-to-top (nav.js) styles are injected
+   at runtime, not from this sheet. Per-page <style> blocks should be
+   used only for genuinely page-specific overrides.
+
+   Token names from earlier drafts are preserved as aliases:
+     --ink-soft  → --ink-2
+     --ink-faint → --ink-3
+   so existing inline references keep resolving while we migrate.
+   ────────────────────────────────────────────────────────────────── */
 
 :root {
-  /* Ink (foreground, ordered darkest → lightest) */
+  /* Ink (foreground) */
   --ink:        #1a1814;
-  --ink-2:      #4a4640;
-  --ink-3:      #8a8680;
-  --ink-ghost:  #b8b3aa;
+  --ink-2:      #4a463f;
+  --ink-3:      #8a857c;
+  --ink-ghost:  #b5b0a4;
+  --ink-soft:   #4a463f;  /* alias for --ink-2 */
+  --ink-faint:  #8a857c;  /* alias for --ink-3 */
 
-  /* Paper (background, ordered base → deepest) */
+  /* Paper (background) */
   --paper:      #f6f2e8;
-  --paper-deep: #efeadc;
-  --paper-card: #f0eadc;
+  --paper-deep: #efe9da;
+  --paper-card: #fbf8ef;
 
-  /* Accents */
+  /* Accent */
   --accent:     #8a3a1f;
-  --accent-ink: #6e2d18;
+  --accent-ink: #5e2814;
+  --accent-soft:#c08a6a;
 
   /* Structural */
-  --rule:       #d8d0c0;
-  --warn:       #8a3a1f;
+  --rule:       #d8d3c7;
+  --rule-soft:  #ece8de;
+  --warn:       #a05a1c;
+  --highlight:  #f5e6c8;
+
+  /* Layout */
+  --col-margin: 16rem;
+  --col-body:   48rem;
 
   /* Typography */
   --font-serif: 'Source Serif 4', 'Iowan Old Style', Georgia, serif;
@@ -35,11 +53,527 @@
   --font-mono:  'IBM Plex Mono', 'JetBrains Mono', monospace;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;1,8..60,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,500;8..60,600;8..60,700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { background: var(--paper); color: var(--ink); font-family: var(--font-serif); }
-body { margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+html { background: var(--paper); }
+body {
+  font-family: var(--font-serif);
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--ink);
+  background: var(--paper);
+  font-feature-settings: "kern", "liga", "onum";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Topbar — sticky breadcrumb bar above reference docs and the
+   source view.
+   ────────────────────────────────────────────────────────────────── */
+.topbar {
+  position: sticky; top: 0; z-index: 50;
+  background: var(--paper); border-bottom: 1px solid var(--rule);
+  padding: 0.75rem 1.5rem;
+  display: flex; align-items: center; gap: 1.5rem;
+  font-family: var(--font-sans);
+  font-size: 0.72rem; letter-spacing: 0.06em;
+  color: var(--ink-3);
+}
+.topbar .brand {
+  color: var(--ink); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.16em;
+  text-decoration: none;
+}
+.topbar .sep { color: var(--ink-ghost); }
+.topbar .crumbs a { color: var(--ink-2); text-decoration: none; }
+.topbar .crumbs a:hover { color: var(--accent); }
+.topbar .right {
+  margin-left: auto;
+  display: flex; gap: 1.5rem;
+  color: var(--ink-3);
+}
+.topbar .right span strong {
+  color: var(--ink); text-transform: uppercase; letter-spacing: 0.14em;
+  font-weight: 600; font-size: 0.66rem; margin-right: 0.4rem;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Reference doc layout — three-column grid with margin notes on
+   the left, body content in the middle, table-of-contents nav on
+   the right. All children are pinned to row 1 so DOM order doesn't
+   trigger grid auto-flow row-wrapping.
+   ────────────────────────────────────────────────────────────────── */
+.doc {
+  display: grid;
+  grid-template-columns: var(--col-margin) minmax(0, var(--col-body)) var(--col-margin);
+  gap: 2.5rem;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 4rem 2rem 8rem;
+}
+.doc .nav {
+  grid-column: 3; grid-row: 1;
+  position: sticky;
+  top: 5rem;
+  align-self: start;
+  max-height: calc(100vh - 7rem);
+  overflow-y: auto;
+  padding-left: 1rem;
+  border-left: 1px solid var(--rule-soft);
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+}
+.doc .nav h4 {
+  font-size: 0.66rem; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--ink-3);
+  margin: 0 0 0.6rem;
+}
+.doc .nav h4:not(:first-child) { margin-top: 1.75rem; }
+.doc .nav ol, .doc .nav ul { list-style: none; padding: 0; margin: 0; }
+.doc .nav li { margin: 0; }
+.doc .nav a {
+  display: block;
+  padding: 0.18rem 0;
+  color: var(--ink-2);
+  text-decoration: none;
+  border-left: 1px solid transparent;
+  padding-left: 0.6rem;
+  margin-left: -0.6rem;
+  transition: color 0.12s, border-color 0.12s;
+  line-height: 1.35;
+}
+.doc .nav a:hover { color: var(--ink); }
+.doc .nav a.active {
+  color: var(--accent);
+  border-left-color: var(--accent);
+  font-weight: 500;
+}
+.doc .nav .nav-group {
+  font-size: 0.62rem; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--ink-ghost);
+  margin: 1.2rem 0 0.3rem;
+}
+.doc .nav .sub {
+  padding-left: 1rem;
+  font-size: 0.74rem;
+  color: var(--ink-3);
+}
+.doc .nav .sub a { padding-left: 0.6rem; }
+
+.doc .body {
+  grid-column: 2; grid-row: 1;
+  min-width: 0;
+}
+
+.doc .margin-rail,
+.doc #rail {
+  grid-column: 1; grid-row: 1;
+  position: relative;
+  min-width: 0;
+}
+
+/* Document head — kicker, title, lede, frontmatter block */
+.doc-head {
+  border-top: 2px solid var(--ink);
+  padding-top: 1.25rem;
+  margin-bottom: 3rem;
+}
+.doc-head .kicker {
+  font-family: var(--font-mono);
+  font-size: 0.7rem; letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+}
+.doc-head h1 {
+  font-family: var(--font-serif); font-weight: 400;
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  line-height: 1.1; letter-spacing: -0.012em;
+  margin: 0 0 0.5rem;
+}
+.doc-head .lede {
+  font-family: var(--font-serif); font-style: italic; font-weight: 300;
+  font-size: 1.1rem; line-height: 1.5;
+  color: var(--ink-2);
+  margin: 0 0 1.75rem; max-width: 36rem;
+  text-wrap: pretty;
+}
+.doc-head .frontmatter {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  column-gap: 1.5rem; row-gap: 0.5rem;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  padding: 1rem 0;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  color: var(--ink-2);
+}
+.doc-head .frontmatter dt {
+  font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.12em; font-size: 0.66rem;
+  color: var(--ink-3);
+  padding-top: 0.15rem;
+}
+.doc-head .frontmatter dd { margin: 0; color: var(--ink); }
+.doc-head .frontmatter code { font-size: 0.78rem; }
+
+/* At-a-glance summary block */
+.glance {
+  margin: 0 0 4rem;
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+.glance h2 {
+  font-family: var(--font-sans);
+  font-size: 0.66rem; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--ink-3);
+  margin: 0 0 1rem;
+  border: 0; padding: 0;  /* override section h2 */
+}
+.glance ul { list-style: none; padding: 0; margin: 0; }
+.glance li {
+  padding: 0.5rem 0;
+  border-bottom: 1px dotted var(--rule);
+  display: grid;
+  grid-template-columns: 9rem 1fr;
+  gap: 1rem;
+  font-size: 0.95rem;
+}
+.glance li:last-child { border-bottom: none; }
+.glance .key {
+  font-family: var(--font-sans);
+  font-size: 0.7rem; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--accent);
+  padding-top: 0.18rem;
+}
+
+/* Top-level sections */
+.section {
+  margin-top: 5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--ink);
+  scroll-margin-top: 5rem;
+}
+.section-num {
+  font-family: var(--font-mono);
+  font-size: 0.7rem; letter-spacing: 0.18em;
+  color: var(--ink-3);
+  margin-bottom: 0.75rem;
+}
+.section h2 {
+  font-family: var(--font-serif); font-weight: 500;
+  font-size: 1.7rem; line-height: 1.15; letter-spacing: -0.008em;
+  margin: 0 0 0.75rem;
+  text-wrap: balance;
+}
+.section .standfirst {
+  font-family: var(--font-serif); font-style: italic;
+  font-size: 1.02rem;
+  color: var(--ink-2);
+  margin: 0 0 2rem;
+  max-width: 34rem;
+  text-wrap: pretty;
+}
+
+.subsection { margin-top: 2.5rem; scroll-margin-top: 5rem; }
+.subsection h3 {
+  font-family: var(--font-serif); font-weight: 600;
+  font-size: 1.18rem; line-height: 1.25; letter-spacing: -0.005em;
+  margin: 0 0 0.75rem;
+}
+.subsection h4 {
+  font-family: var(--font-sans);
+  font-size: 0.7rem; font-weight: 600;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--ink-3);
+  margin: 1.75rem 0 0.5rem;
+}
+
+/* Body typography */
+.doc p { margin: 0 0 1.1rem; text-wrap: pretty; hyphens: auto; }
+.doc em { font-style: italic; }
+.doc strong { font-weight: 600; color: var(--ink); }
+.doc .body p, .doc .body li { font-size: 1rem; line-height: 1.6; }
+
+.doc code, .doc .mono {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  color: var(--accent-ink);
+  background: var(--paper-deep);
+  padding: 0.05em 0.32em;
+  border-radius: 2px;
+}
+.doc pre {
+  font-family: var(--font-mono);
+  font-size: 0.78rem; line-height: 1.55;
+  background: var(--paper-card);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--accent);
+  padding: 1rem 1.25rem;
+  margin: 1.25rem 0;
+  overflow-x: auto;
+  color: var(--ink);
+  border-radius: 2px;
+}
+.doc pre code {
+  background: none; color: inherit; padding: 0;
+  border-radius: 0; font-size: inherit;
+}
+.doc .term {
+  font-family: var(--font-serif); font-style: italic;
+  font-weight: 500; color: var(--accent-ink);
+}
+
+/* Definition list */
+.deflist {
+  margin: 1.25rem 0;
+  border-top: 1px solid var(--rule);
+}
+.deflist > div {
+  display: grid;
+  grid-template-columns: 11rem 1fr;
+  gap: 1.5rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--rule-soft);
+  font-size: 0.95rem;
+}
+.deflist dt {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--accent-ink);
+  padding-top: 0.1rem;
+  word-break: break-word;
+}
+.deflist dd { margin: 0; color: var(--ink); line-height: 1.5; }
+.deflist dd .meta {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  color: var(--ink-3);
+  text-transform: uppercase; letter-spacing: 0.1em;
+  margin-left: 0.4rem;
+}
+
+/* Tables */
+table.tbl {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.92rem;
+  border-top: 2px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+}
+table.tbl th {
+  text-align: left;
+  font-family: var(--font-sans); font-weight: 600;
+  font-size: 0.7rem; letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  padding: 0.6rem 0.75rem 0.6rem 0;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: bottom;
+}
+table.tbl td {
+  padding: 0.7rem 0.75rem 0.7rem 0;
+  border-bottom: 1px solid var(--rule-soft);
+  vertical-align: top;
+  line-height: 1.5;
+}
+table.tbl tr:last-child td { border-bottom: none; }
+table.tbl td:first-child, table.tbl th:first-child { padding-left: 0; }
+table.tbl td:last-child, table.tbl th:last-child { padding-right: 0; }
+table.tbl code { font-size: 0.82em; }
+table.rules td:first-child {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--accent-ink);
+  white-space: nowrap;
+  width: 11rem;
+}
+
+/* Callouts — body flows as one block; the icon-equivalent is the
+   left border colour. Earlier versions used display:grid which split
+   inline <code> elements onto their own grid cells. */
+.note, .warn, .tip {
+  margin: 1.5rem 0;
+  padding: 0.9rem 1.1rem 0.9rem 1.25rem;
+  border-left: 3px solid var(--ink-3);
+  background: var(--paper-card);
+  font-size: 0.93rem;
+  line-height: 1.55;
+}
+.note { border-left-color: var(--ink-2); }
+.warn { border-left-color: var(--warn); }
+.tip  { border-left-color: var(--accent); }
+.note .label, .warn .label, .tip .label {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 0.66rem; font-weight: 600;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  margin-bottom: 0.35rem;
+}
+.note .label { color: var(--ink-2); }
+.warn .label { color: var(--warn); }
+.tip  .label { color: var(--accent); }
+
+/* Steps */
+.steps {
+  margin: 1.5rem 0;
+  counter-reset: step;
+  border-top: 1px solid var(--rule);
+}
+.steps > .step {
+  counter-increment: step;
+  display: grid;
+  grid-template-columns: 2.25rem 1fr;
+  gap: 1rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--rule-soft);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+.steps > .step::before {
+  content: counter(step, decimal-leading-zero);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--accent);
+  padding-top: 0.18rem;
+}
+.steps > .step .head {
+  font-family: var(--font-sans); font-weight: 600;
+  font-size: 0.78rem; letter-spacing: 0.04em;
+  color: var(--ink);
+  margin-right: 0.5rem;
+}
+
+/* Margin notes — absolutely positioned via JS within .margin-rail. */
+.doc .margin-rail .margin-note {
+  position: absolute;
+  width: 100%;
+  max-width: 18rem;
+  padding: 0 0 0 1.5rem;
+  font-family: var(--font-sans);
+  font-size: 0.76rem; line-height: 1.45;
+  color: var(--ink-2);
+  border-left: 1px solid var(--accent-soft);
+}
+.doc .margin-rail .margin-note .label {
+  display: block;
+  font-size: 0.62rem; font-weight: 600;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.3rem;
+}
+.doc .margin-rail .margin-note code { font-size: 0.74rem; }
+
+.doc .body .inline-margin {
+  display: none;  /* shown only at responsive widths */
+  margin: 1.25rem 0;
+  padding: 0.6rem 0 0.6rem 1rem;
+  border-left: 1px solid var(--accent-soft);
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  color: var(--ink-2);
+}
+.doc .body .inline-margin .label {
+  display: block;
+  font-size: 0.62rem; font-weight: 600;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.25rem;
+}
+
+/* Status pills */
+.pill {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: 0.65rem; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 0.18rem 0.5rem;
+  border-radius: 2px;
+  background: var(--paper-deep);
+  color: var(--ink-2);
+  border: 1px solid var(--rule);
+  vertical-align: 1px;
+}
+.pill.warn { color: var(--warn); border-color: #d8b896; background: #f5e8d4; }
+.pill.accent { color: var(--accent); border-color: #d6b8a0; background: #f4e4d4; }
+
+/* SVG / ASCII diagrams */
+.diagram {
+  margin: 2rem 0;
+  padding: 1.5rem 1rem;
+  border: 1px solid var(--rule);
+  background: var(--paper-card);
+  border-radius: 2px;
+}
+.diagram svg { display: block; max-width: 100%; height: auto; margin: 0 auto; }
+.diagram .cap {
+  margin-top: 1rem;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  color: var(--ink-3);
+  text-align: center;
+}
+.diagram .cap strong {
+  text-transform: uppercase; letter-spacing: 0.12em;
+  font-weight: 600; font-size: 0.66rem;
+  color: var(--ink);
+  margin-right: 0.5rem;
+}
+
+/* Document footer */
+.docfoot {
+  margin-top: 6rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--ink);
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  color: var(--ink-3);
+}
+.docfoot .links {
+  display: flex; flex-wrap: wrap; gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+.docfoot .links a {
+  color: var(--ink-2); text-decoration: none;
+  border-bottom: 1px solid var(--rule);
+}
+.docfoot .links a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* Reference-doc responsive */
+@media (max-width: 1100px) {
+  :root { --col-margin: 11rem; }
+  .doc {
+    grid-template-columns: minmax(0, 1fr) var(--col-margin);
+    gap: 2rem;
+  }
+  .doc .nav {
+    grid-column: 2; grid-row: 1;
+    border-left: 1px solid var(--rule-soft);
+    padding-left: 1rem;
+  }
+  .doc .body { grid-column: 1; grid-row: 1; }
+  .doc .margin-rail, .doc #rail { display: none; }
+  .doc .body .inline-margin { display: block; }
+}
+@media (max-width: 780px) {
+  .doc { grid-template-columns: 1fr; padding: 2rem 1.25rem 5rem; }
+  .doc .nav { display: none; }
+  .doc-head h1 { font-size: 1.75rem; }
+  .deflist > div { grid-template-columns: 1fr; gap: 0.25rem; }
+  table.tbl { font-size: 0.86rem; }
+  table.rules td:first-child { width: auto; white-space: normal; }
+  .glance li { grid-template-columns: 1fr; gap: 0.25rem; }
+}
 
 /* ──────────────────────────────────────────────────────────────────
    Hub layout — single-column landing pages (the homepage and each
@@ -100,8 +634,7 @@ body { margin: 0; }
   color: var(--ink-3); letter-spacing: 0.06em;
 }
 
-/* Topic list — added by hub-topics.js when <body data-hub-group="..."> is set.
-   Two-column compact grid below the main .doc-link cards. */
+/* Topic list — added by hub-topics.js when <body data-hub-group="..."> is set. */
 .hub-page .topic-list-section {
   margin-top: 56px;
   padding-top: 32px;
