@@ -202,6 +202,37 @@ These fields have conflicting type or name information across sources. Flag thes
 | `tcpKeepAlive` | `<integer>` (type hint only — Postman doesn't show real value) | `"0"` / `"1"` string-as-bool (TF `:228-230`) | Is the wire value a quoted string or a bare integer? |
 | `configSpace` | `DEFAULT` / `SIEM` seen in sub-objects | `DEFAULT` / `MICROTENANT` at segment top level | Is `SIEM` valid at segment top level, or only in serverGroups/appResource embeds? |
 
+⚠️ ZPA verification deferred — ZPA OAuth keys unavailable at time of ZIA verification pass (2026-04-26). Run the queries below when keys are available.
+
+#### Verification commands
+
+If you have a populated `snapshot/zpa/app-segments.json`, run these jq queries and record the output:
+
+```bash
+# 1. tcpKeepAlive type — quoted string ("0") or bare integer (0)?
+jq '.list[0].tcpKeepAlive' snapshot/zpa/app-segments.json
+
+# 2. configSpace at segment top level — what values appear?
+jq '[.list[].configSpace] | unique' snapshot/zpa/app-segments.json
+
+# 3. configSpace in embedded serverGroups — what values appear there?
+jq '[.list[].serverGroups[]?.configSpace] | unique' snapshot/zpa/app-segments.json
+```
+
+If running live against the API instead:
+
+```bash
+# Fetch one page (requires TOKEN and CUSTOMER_ID env vars)
+curl -s "https://api.zsapi.net/zpa/mgmtconfig/v1/admin/customers/${CUSTOMER_ID}/application?pagesize=5" \
+  -H "Authorization: Bearer ${TOKEN}" \
+  | jq '.list[] | {name, tcpKeepAlive, configSpace, sgConfigSpace: [.serverGroups[]?.configSpace] | unique}'
+```
+
+Expected answers to record:
+- `tcpKeepAlive` output should be either `"0"` (string) or `0` (integer) — the quotes matter.
+- `configSpace` at top level should enumerate all observed values (likely just `"DEFAULT"`, or possibly `"MICROTENANT"` for microtenant-scoped segments, or `"SIEM"` if that appears).
+- Once confirmed, update the JSON example above and remove the discrepancy row.
+
 Resolved discrepancies (confirmed from Postman GET response body):
 - **`ipAnchored`** is the correct wire field name for SIPA. `sourceIpAnchored` does NOT appear in GET responses. SDK/TF uses snake_case `source_ip_anchored` which maps to `ipAnchored` on the wire, not `sourceIpAnchored`.
 - **Pagination wrapper** has all four fields: `currentCount`, `totalCount`, `totalPages`, `list`.

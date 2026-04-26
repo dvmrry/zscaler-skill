@@ -34,8 +34,10 @@ Plus `snapshot/_manifest.json` with timestamps and per-resource counts (manifest
 
 - **camelCase JSON keys.** All ZIA API responses use camelCase (`urlFilterRulesCount`, not `url_filter_rules_count`).
 - **The Python SDK exposes snake_case** Python attribute names and translates internally. Tooling reading JSON directly (e.g., `jq` queries) must use the **camelCase** wire keys, not snake_case.
-- **IDs are integers**, not strings. `id: 12345`, not `id: "12345"`.
-- **Embedded ID-references** for cross-resource pointers: when a rule references a URL category, the JSON usually carries `{ id: 12345, name: "Custom_Engineering" }` rather than just an ID. Lets you understand structure without joining tables.
+- **Rule IDs are integers** (`id: 12345`) in url-filtering-rules and ssl-inspection-rules. Different from ZPA where all IDs are strings.
+- **URL category IDs are strings** — predefined categories use a code like `"OTHER_ADULT_MATERIAL"`; custom categories use `"CUSTOM_89"` (string, not integer). Do not assume numeric.
+- **`urlCategories` in rules is an array of strings**, not objects. `["OTHER_ADULT_MATERIAL", "CUSTOM_89"]`, not `[{id, name}]`. Confirmed from tenant data.
+- **Flat arrays, not paginated wrappers.** Both url-categories and url-filtering-rules return bare arrays (`type: "array"`), not the `{list, totalCount, totalPages}` wrapper ZPA uses.
 - **Nested arrays of objects** are common. Don't expect flat structures.
 - **`null` vs missing fields.** SDK's `if "key" in config` patterns mean an absent key gets a Python `None`. JSON snapshots usually have all fields with `null` rather than omitting — but verify.
 - **Read-only metadata fields** like `lastModifiedTime` (epoch seconds) and `lastModifiedBy: { id, name }` accompany most resources.
@@ -49,9 +51,9 @@ API: `GET /zia/api/v1/urlCategories`
 ```json
 [
   {
-    "id": "MUSIC",                    // category code (predefined) or numeric ID (custom)
-    "configuredName": "Music",        // display name
-    "superCategory": "ENTERTAINMENT_AND_RECREATION",
+    "id": "OTHER_ADULT_MATERIAL",     // always a STRING — predefined = category code, custom = "CUSTOM_89"
+    "configuredName": "Other Adult Material",
+    "superCategory": "ADULT_MATERIAL",
     "customCategory": false,
     "description": "...",
     "type": "URL_CATEGORY",           // or TLD_CATEGORY / ALL
@@ -75,12 +77,7 @@ API: `GET /zia/api/v1/urlCategories`
       }
     ],
 
-    "urlKeywordCounts": {
-      "totalUrlCount": 0,
-      "retainParentUrlCount": 0,
-      "totalKeywordCount": 0,
-      "retainParentKeywordCount": 0
-    },
+    // urlKeywordCounts does NOT exist in actual API responses — SDK-only artifact
     "editable": true,
     "lastModifiedTime": 1735689600,   // epoch seconds
     "lastModifiedBy": { "id": 1, "name": "admin@example.zscalertwo.net" }
@@ -139,9 +136,9 @@ API: `GET /zia/api/v1/urlFilteringRules`
     "timeWindows": [],
     "locationGroups": [],
 
-    // Match criteria
-    "urlCategories": [],              // primary URL category criteria (OR)
-    "urlCategories2": [],             // secondary (AND with urlCategories — see url-filtering.md)
+    // Match criteria — urlCategories is an array of STRINGS, not objects
+    "urlCategories": ["OTHER_ADULT_MATERIAL", "CUSTOM_89"],  // string category IDs (confirmed)
+    // urlCategories2 does NOT appear in real responses (count: 0) — likely write-only or deprecated
     "requestMethods": [],
     "userAgentTypes": [],
     "userRiskScoreLevels": [],
@@ -295,7 +292,7 @@ API: `GET /zia/api/v1/sslInspectionRules` (Postman: 23 ZIA folders / Security Po
         "http2Enabled": false         // wire is camelCase — http2Enabled, NOT http2_enabled
       },
 
-      "doNotDecryptSubActions": {     // present when type=DO_NOT_DECRYPT
+      "doNotDecryptSubActions": {     // confirmed present for all DO_NOT_DECRYPT rules
         "bypassOtherPolicies": false,
         "serverCertificates": "ALLOW",
         "minTlsVersion": "..."
@@ -358,36 +355,66 @@ Cross-links: [`./ssl-inspection.md`](./ssl-inspection.md), [`./url-filtering.md 
 
 API: `GET /zia/api/v1/advancedSettings`
 
-**Shape:** single object (NOT an array). Tenant-wide settings.
+**Shape:** single object (NOT an array). 58 fields confirmed from tenant data.
 
 ```json
 {
+  // General
   "logInternalIp": false,
-  "cascadeUrlFiltering": true,        // toggle for URL Filter cascading default
-  "enableAdminRankAccess": false,     // admin-rank-as-gate enabled?
+  "cascadeUrlFiltering": true,        // URL Filter cascading default
+  "enableAdminRankAccess": false,
   "uiSessionTimeout": 1800,
+  "sslSessionTimeout": 1800,          // SSL session cache TTL
   "ecsForAllEnabled": false,
   "dynamicUserRiskEnabled": false,
   "preferSniOverConnHost": false,
   "sipaXffHeaderEnabled": false,      // see references/shared/source-ip-anchoring.md
+  "enableEvaluatePolicyOnGlobalSSLBypass": false,  // capital SSL — url-filtering.md security toggle
+  "enableOffice365": false,
 
-  // Many more boolean toggles — see SDK model
-  "enableEvaluatePolicyOnGlobalSslBypass": false,  // url-filtering.md security toggle
-  "enableOffice365": false,           // M365 One-Click — disables SSL bypass
-  "enableMsftO365": false,
-  "enableZoom": false,                // UCaaS One-Click toggles
-  "enableLogmein": false,
-  "enableRingcentral": false,
-  "enableWebex": false,
-  "enableTalkdesk": false,
+  // Auth bypass arrays (each: list of {id, name} objects or strings — verify shape)
+  "authBypassApps": [],
+  "authBypassUrlCategories": [],
+  "authBypassUrls": [],
+  "basicBypassApps": [],
+  "basicBypassUrlCategories": [],
+  "digestAuthBypassApps": [],
+  "digestAuthBypassUrlCategories": [],
+  "digestAuthBypassUrls": [],
+  "kerberosBypassApps": [],
+  "kerberosBypassUrlCategories": [],
+  "kerberosBypassUrls": [],
 
-  "blockSkype": false,
-  "blockUdpAndIcmpForBypassUrl": false
-  // ... 20+ additional boolean settings
+  // Block / security controls
+  "blockConnectHostSniMismatch": false,
+  "blockDomainFrontingApps": [],
+  "blockDomainFrontingOnHostHeader": false,
+  "blockHttpTunnelOnNonHttpPorts": false,
+  "blockNonCompliantHttpRequestOnHttpPorts": false,
+  "blockNonHttpOnHttpPortEnabled": false,
+  "trackHttpTunnelOnHttpPorts": false,
+
+  // Transparent proxy / DNS
+  "enableDnsResolutionOnTransparentProxy": false,
+  "enableIPv6DnsOptimizationOnAllTransparentProxy": false,
+  "enableIPv6DnsResolutionOnTransparentProxy": false,
+
+  // Traffic policy
+  "enablePolicyForUnauthenticatedTraffic": false,
+  "enforceGeoMappingForWindowsApp": false,
+  "http2NonbrowserTrafficEnabled": false,
+  "sipaSsoOptimizationByConnApp": false,  // SIPA SSO optimization per connector app
+  "sslOptimizationRequestUrlCategories": [],
+  "zscalerClientConnector1AndPacRoadWarriorInFirewall": false,
+
+  // ... additional boolean fields (58 total confirmed)
 }
 ```
 
-Full SDK model: `vendor/zscaler-sdk-python/zscaler/zia/models/advanced_settings.py`. ~50+ tenant-wide flags.
+Full SDK model: `vendor/zscaler-sdk-python/zscaler/zia/models/advanced_settings.py`. 58 fields confirmed from tenant data.
+
+**Fields documented in prior schema that do NOT exist in real responses** (removed above):
+`enableMsftO365`, `enableZoom`, `enableLogmein`, `enableRingcentral`, `enableWebex`, `enableTalkdesk`, `blockSkype`, `blockUdpAndIcmpForBypassUrl` — these UCaaS One-Click toggles are not present in the Z2 tenant. May be tier-dependent or moved to separate endpoints.
 
 ### Common jq queries
 
@@ -426,6 +453,59 @@ Resources `snapshot-refresh.py` doesn't currently dump that you might want to ex
 | NSS feeds | `/nssFeeds` | Log-streaming config |
 
 Adding any of these requires updating `scripts/snapshot-refresh.py`'s ZIA resource list. SDK methods are documented in `vendor/zscaler-sdk-python/zscaler/zia/`.
+
+## ⚠️ Verification needed — ZIA schema written from SDK only
+
+Unlike ZPA (where the Postman collection has 76KB+ request/response bodies), the ZIA Postman collection has no detailed schemas (all request bodies under 2KB). This entire document was derived from SDK model classes and the TF provider — no wire-format cross-reference exists. A real tenant run is the only way to validate.
+
+### Priority verification queries
+
+Run these against a populated `snapshot/zia/` or live API and record what diverges from the examples above:
+
+```bash
+# 1. url-categories.json — is id a string code ("MUSIC") for predefined, or always numeric?
+jq '[.[] | {id: .id, idType: (.id | type), custom: .customCategory}] | group_by(.idType) | map({type: .[0].idType, count: length, example: .[0].id})' snapshot/zia/url-categories.json
+
+# 2. url-categories.json — does urlKeywordCounts appear, and what is its shape?
+jq '.[0] | {hasUrlKeywordCounts: has("urlKeywordCounts"), val: .urlKeywordCounts}' snapshot/zia/url-categories.json
+
+# 3. url-filtering-rules.json — what does a populated urlCategories entry look like?
+# (doc shows [] — does it contain id+name objects or just IDs or just names?)
+jq '.[] | select((.urlCategories | length) > 0) | {name, urlCategoriesSample: .urlCategories[:2]}' snapshot/zia/url-filtering-rules.json | head -30
+
+# 4. url-filtering-rules.json — does urlCategories2 actually appear in real rules?
+jq '[.[] | select(has("urlCategories2"))] | length' snapshot/zia/url-filtering-rules.json
+
+# 5. ssl-inspection-rules.json — does the nested action.decryptSubActions shape exist?
+jq '.[] | select(.action.type == "DECRYPT") | {name, hasDecryptSubActions: (.action | has("decryptSubActions")), subActions: .action.decryptSubActions}' snapshot/zia/ssl-inspection-rules.json | head -20
+
+# 6. ssl-inspection-rules.json — does doNotDecryptSubActions appear for DO_NOT_DECRYPT rules?
+jq '.[] | select(.action.type == "DO_NOT_DECRYPT") | {name, hasDoNotDecrypt: (.action | has("doNotDecryptSubActions"))}' snapshot/zia/ssl-inspection-rules.json
+
+# 7. advanced-settings.json — how many fields are there actually? (doc says 50+)
+jq 'keys | length' snapshot/zia/advanced-settings.json
+
+# 8. Are all ZIA IDs integers (not strings)?
+jq '[.[] | .id | type] | unique' snapshot/zia/url-filtering-rules.json
+jq '[.[] | .id | type] | unique' snapshot/zia/ssl-inspection-rules.json
+
+# 9. Does url-categories return unpaginated (one flat array) or wrapped?
+jq 'type' snapshot/zia/url-categories.json   # expect "array", not "object"
+jq 'type' snapshot/zia/url-filtering-rules.json  # expect "array"
+```
+
+**Resolved from tenant verification (2026-04-26):**
+- ✅ url-categories `id` is always a **string** — predefined = category code (`"OTHER_ADULT_MATERIAL"`), custom = `"CUSTOM_89"`. Not integer.
+- ✅ `urlCategories` in rules is an **array of strings**, not `{id, name}` objects.
+- ✅ `urlCategories2` does **not** appear in real responses — write-only or deprecated. Removed from schema.
+- ✅ `urlKeywordCounts` does **not** exist in real responses — SDK artifact. Removed from schema.
+- ✅ `decryptSubActions` structure confirmed correct.
+- ✅ `doNotDecryptSubActions` confirmed present for all DO_NOT_DECRYPT rules.
+- ✅ Pagination: both url-categories and url-filtering-rules return flat arrays, not ZPA-style wrapped responses.
+- ✅ Rule IDs (url-filtering, ssl-inspection) are integers. url-category IDs are strings.
+
+**Resolved (2026-04-26):**
+- ✅ `advanced-settings.json` — 58 fields, single object shape confirmed. Schema updated with ~20 previously-undocumented fields. 8 SDK-phantom fields removed (UCaaS One-Click toggles not present in Z2 tenant — may be tier-dependent). Case fix: `enableEvaluatePolicyOnGlobalSSLBypass` (capital SSL).
 
 ## Wire-format gotchas
 
