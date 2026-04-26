@@ -3,6 +3,7 @@
   const pages = [
     { href: 'index.html',        label: 'Overview',       match: [/\/$/, /index\.html$/] },
     { href: 'readers-guide.html', label: "Reader's Guide", match: [/readers-guide/] },
+    { href: 'zia-reference.html', label: 'ZIA Reference',  match: [/zia-reference/] },
     { href: 'zpa-reference.html', label: 'ZPA Reference',  match: [/zpa-reference/] },
     { href: 'onboarding.html',   label: 'Deck',           match: [/onboarding/] },
   ];

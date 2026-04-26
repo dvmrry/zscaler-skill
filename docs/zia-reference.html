@@ -1,0 +1,791 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ZIA · Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,500;8..60,600;8..60,700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #1a1814;
+    --ink-soft:   #4a463f;
+    --ink-faint:  #8a857c;
+    --ink-ghost:  #b5b0a4;
+    --rule:       #d8d3c7;
+    --rule-soft:  #ece8de;
+    --paper:      #f6f2e8;
+    --paper-deep: #efe9da;
+    --paper-card: #fbf8ef;
+    --accent:     #8a3a1f;
+    --accent-ink: #5e2814;
+    --accent-soft:#c08a6a;
+    --warn:       #a05a1c;
+    --highlight:  #f5e6c8;
+
+    --col-margin: 16rem;
+    --col-body:   48rem;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  html { background: var(--paper); }
+  body {
+    font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--ink);
+    background: var(--paper);
+    font-feature-settings: "kern", "liga", "onum";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* ── Topbar ── */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: var(--paper); border-bottom: 1px solid var(--rule);
+    padding: 0.75rem 1.5rem;
+    display: flex; align-items: center; gap: 1.5rem;
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.72rem; letter-spacing: 0.06em; color: var(--ink-faint);
+  }
+  .topbar .brand { color: var(--ink); font-weight: 600; text-transform: uppercase; letter-spacing: 0.16em; text-decoration: none; }
+  .topbar .sep { color: var(--ink-ghost); }
+  .topbar .crumbs a { color: var(--ink-soft); text-decoration: none; }
+  .topbar .crumbs a:hover { color: var(--accent); }
+  .topbar .right { margin-left: auto; display: flex; gap: 1.5rem; color: var(--ink-faint); }
+  .topbar .right span strong { color: var(--ink); text-transform: uppercase; letter-spacing: 0.14em; font-weight: 600; font-size: 0.66rem; margin-right: 0.4rem; }
+
+  /* ── Two-column layout ── */
+  .doc {
+    display: grid;
+    grid-template-columns: var(--col-margin) minmax(0, var(--col-body)) 1fr;
+    max-width: 84rem;
+    margin: 0 auto;
+  }
+
+  /* ── Left nav ── */
+  .nav {
+    grid-column: 1;
+    position: sticky; top: 38px; /* below topbar */
+    height: calc(100vh - 38px);
+    overflow-y: auto; padding: 2.5rem 1.5rem 2.5rem 2rem;
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.78rem; border-right: 1px solid var(--rule-soft);
+    scrollbar-width: thin; scrollbar-color: var(--rule) transparent;
+  }
+  .nav h4 { font-size: 0.62rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-faint); margin: 0 0 1rem; }
+  .nav ul { list-style: none; margin: 0; padding: 0; }
+  .nav li { margin: 0; }
+  .nav a { display: block; padding: 0.22rem 0; color: var(--ink-soft); text-decoration: none; transition: color 0.1s; }
+  .nav a:hover { color: var(--accent); }
+  .nav a.active { color: var(--accent); font-weight: 500; }
+  .nav .nav-group { font-size: 0.62rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-ghost); margin: 1.2rem 0 0.3rem; }
+
+  /* ── Body ── */
+  .body {
+    grid-column: 2; min-width: 0;
+    padding: 3rem 3rem 8rem 3rem;
+  }
+
+  /* ── Marginalia rail ── */
+  #rail {
+    grid-column: 3; position: relative;
+  }
+  .margin-note {
+    position: absolute; left: 1.5rem;
+    width: 13rem;
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.72rem; line-height: 1.45;
+    color: var(--ink-faint);
+  }
+  .margin-note strong { display: block; font-size: 0.62rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-ghost); margin-bottom: 0.3rem; }
+  .margin-note code { font-family: "IBM Plex Mono", monospace; font-size: 0.85em; color: var(--ink-soft); }
+  .margin-note a { color: var(--accent-soft); text-decoration: none; }
+  .margin-note a:hover { color: var(--accent); }
+
+  /* ── Typography ── */
+  h2 {
+    font-size: 1.7rem; font-weight: 300; line-height: 1.2;
+    letter-spacing: -0.02em; color: var(--ink);
+    margin: 3.5rem 0 0.25rem; padding-top: 1rem;
+    border-top: 2px solid var(--ink);
+  }
+  h2:first-child { margin-top: 0; border-top: none; }
+  h3 {
+    font-size: 1.05rem; font-weight: 600; font-family: "IBM Plex Sans", sans-serif;
+    color: var(--ink); margin: 2.5rem 0 0.6rem; letter-spacing: -0.01em;
+  }
+  h4 { font-size: 0.78rem; font-weight: 600; font-family: "IBM Plex Sans", sans-serif; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-faint); margin: 1.8rem 0 0.5rem; }
+  p { margin: 0 0 1rem; max-width: 36rem; }
+  p + p { margin-top: 0; }
+  code {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.85em;
+    background: var(--paper-deep); padding: 0.1em 0.35em; border-radius: 3px;
+    color: var(--ink-soft);
+  }
+  a { color: var(--accent); }
+
+  /* ── Standfirst ── */
+  .standfirst {
+    font-size: 1.05rem; font-weight: 300; line-height: 1.5;
+    color: var(--ink-soft); margin: 0 0 2rem; max-width: 38rem;
+  }
+
+  /* ── Section intro ── */
+  .section-intro {
+    font-size: 0.92rem; color: var(--ink-soft); max-width: 34rem;
+    margin: 0 0 1.5rem; line-height: 1.55;
+  }
+
+  /* ── Tables ── */
+  .tbl-wrap { overflow-x: auto; margin: 1.5rem 0 2rem; }
+  .tbl {
+    width: 100%; border-collapse: collapse;
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.84rem; line-height: 1.4;
+  }
+  .tbl th {
+    text-align: left; padding: 0.5rem 0.75rem;
+    font-size: 0.65rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink-faint); border-bottom: 1px solid var(--rule);
+    white-space: nowrap;
+  }
+  .tbl td {
+    padding: 0.65rem 0.75rem; border-bottom: 1px solid var(--rule-soft);
+    vertical-align: top;
+  }
+  .tbl tr:last-child td { border-bottom: none; }
+  .tbl td code { font-size: 0.82em; }
+  .tbl td:first-child { font-family: "IBM Plex Mono", monospace; font-size: 0.82rem; color: var(--ink); white-space: nowrap; }
+  .tbl tr:hover td { background: var(--paper-deep); }
+
+  /* ── Pipeline diagram ── */
+  .pipeline {
+    display: flex; align-items: stretch; gap: 0;
+    margin: 1.5rem 0 2rem; overflow-x: auto;
+  }
+  .pl-stage {
+    flex: 1; min-width: 100px;
+    padding: 1rem 0.75rem; border: 1px solid var(--rule);
+    background: var(--paper-card); position: relative;
+  }
+  .pl-stage + .pl-stage { border-left: none; }
+  .pl-stage.accent { background: var(--highlight); border-color: var(--accent-soft); }
+  .pl-stage .pl-num {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.65rem;
+    color: var(--ink-ghost); letter-spacing: 0.06em; margin-bottom: 0.4rem;
+  }
+  .pl-stage .pl-name {
+    font-family: "IBM Plex Sans", sans-serif; font-size: 0.78rem; font-weight: 600;
+    color: var(--ink); margin-bottom: 0.3rem;
+  }
+  .pl-stage .pl-detail {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.65rem;
+    color: var(--ink-faint); line-height: 1.5;
+  }
+  .pl-arrow {
+    display: flex; align-items: center; padding: 0 0.2rem;
+    color: var(--ink-ghost); font-size: 0.8rem; flex-shrink: 0;
+  }
+
+  /* ── Callouts ── */
+  .warn, .note, .tip {
+    padding: 0.85rem 1rem; border-radius: 3px;
+    margin: 1.25rem 0; font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.84rem; line-height: 1.45;
+    display: grid; grid-template-columns: auto 1fr; gap: 0.5rem 0.75rem;
+    max-width: 36rem;
+  }
+  .warn { background: #fdf0e0; border-left: 3px solid var(--warn); }
+  .note { background: var(--paper-deep); border-left: 3px solid var(--rule); }
+  .tip  { background: #edf5ed; border-left: 3px solid #5a8a5a; }
+  .warn::before { content: "⚠"; color: var(--warn); }
+  .note::before { content: "→"; color: var(--ink-ghost); }
+  .tip::before  { content: "✓"; color: #5a8a5a; }
+  .warn code, .note code, .tip code { background: rgba(0,0,0,0.06); }
+
+  /* ── Status pills ── */
+  .pill {
+    display: inline-block; padding: 0.1em 0.5em; border-radius: 2px;
+    font-family: "IBM Plex Mono", monospace; font-size: 0.72rem;
+    font-weight: 500; letter-spacing: 0.04em; vertical-align: middle;
+  }
+  .pill-open    { background: #fde8d0; color: #7a3a0c; }
+  .pill-partial { background: var(--highlight); color: var(--accent-ink); }
+  .pill-resolved{ background: #e8f0e8; color: #2a5a2a; }
+
+  /* ── Responsive ── */
+  @media (max-width: 1100px) {
+    .doc { grid-template-columns: var(--col-margin) 1fr; }
+    #rail { display: none; }
+  }
+  @media (max-width: 780px) {
+    .doc { grid-template-columns: 1fr; }
+    .nav { display: none; }
+    .body { padding: 2rem 1.25rem 5rem; }
+  }
+
+  @media print {
+    .topbar, .nav, #rail { display: none; }
+    .doc { display: block; }
+    .body { padding: 0; }
+    h2 { page-break-before: always; margin-top: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="brand" href="index.html" style="text-decoration:none;color:inherit;">Zscaler Skill</a>
+  <span class="sep">·</span>
+  <span class="crumbs">
+    <a href="readers-guide.html">Reader's Guide</a>
+    <span class="sep"> › </span>
+    <a href="#">References</a>
+    <span class="sep"> › </span>
+    <span style="color: var(--ink);">ZIA</span>
+  </span>
+  <span class="right">
+    <span><strong>Tier</strong>Doc + SDK</span>
+    <span><strong>Confidence</strong>High</span>
+    <span><strong>Verified</strong>2026-04-24</span>
+  </span>
+</div>
+
+<div class="doc">
+
+  <!-- ── Left nav ── -->
+  <nav class="nav" id="nav">
+    <h4>On this page</h4>
+    <ul>
+      <li><a href="#glance">At a glance</a></li>
+      <li class="nav-group">URL Filtering</li>
+      <li><a href="#uf-anatomy">Rule anatomy</a></li>
+      <li><a href="#uf-categories">Category resolution</a></li>
+      <li><a href="#uf-rank">Admin Rank &amp; Cascading</a></li>
+      <li><a href="#uf-edges">Edges &amp; gotchas</a></li>
+      <li class="nav-group">SSL Inspection</li>
+      <li><a href="#ssl-model">Two-pass model</a></li>
+      <li><a href="#ssl-anatomy">Rule anatomy</a></li>
+      <li><a href="#ssl-bypass">Decrypt vs bypass</a></li>
+      <li><a href="#ssl-edges">Edges &amp; gotchas</a></li>
+      <li class="nav-group">Evaluation Order</li>
+      <li><a href="#pol-pipeline">Full pipeline</a></li>
+      <li><a href="#pol-interactions">Module interactions</a></li>
+      <li><a href="#pol-triage">Triage table</a></li>
+      <li class="nav-group">Reference</li>
+      <li><a href="#ref-clarifications">Open clarifications</a></li>
+      <li><a href="#ref-sources">Sources</a></li>
+    </ul>
+  </nav>
+
+  <!-- ── Body ── -->
+  <div class="body">
+
+    <!-- § At a glance -->
+    <section id="glance">
+      <p class="standfirst">ZIA is a cloud-delivered inline proxy with default-allow posture. Traffic passes through a staged pipeline — Firewall, then a two-pass Web module bracketing an SSL Inspection decision. This reference covers the three modules where misconfiguration most concentrates: URL Filtering, SSL Inspection, and the evaluation order that connects them.</p>
+
+      <h4>Default posture</h4>
+      <p>ZIA's terminal behavior at every policy stage is allow. Traffic that matches no URL Filtering rule, no CAC rule, and no Firewall rule passes. This is the exact inversion of ZPA's default-deny and is the root cause of a recurring class of over-permissive configuration.</p>
+
+      <h4>The pipeline at a glance</h4>
+      <div class="pipeline">
+        <div class="pl-stage">
+          <div class="pl-num">01</div>
+          <div class="pl-name">Firewall</div>
+          <div class="pl-detail">IP/port rules<br>DNS Control<br>IPS (L4)</div>
+        </div>
+        <div class="pl-arrow">→</div>
+        <div class="pl-stage">
+          <div class="pl-num">02 · SNI pass</div>
+          <div class="pl-name">Web module</div>
+          <div class="pl-detail">ATP<br>CAC<br>URL Filtering<br>Bandwidth</div>
+        </div>
+        <div class="pl-arrow">→</div>
+        <div class="pl-stage accent">
+          <div class="pl-num">03</div>
+          <div class="pl-name">SSL Inspection</div>
+          <div class="pl-detail">Decrypt / Do Not Inspect<br>Bypass vs Evaluate</div>
+        </div>
+        <div class="pl-arrow">→</div>
+        <div class="pl-stage">
+          <div class="pl-num">04 · Full-URL pass</div>
+          <div class="pl-name">Web module</div>
+          <div class="pl-detail">CAC → URL Filtering<br>DLP · Sandbox<br>Malware · IPS (L7)</div>
+        </div>
+        <div class="pl-arrow">→</div>
+        <div class="pl-stage">
+          <div class="pl-num">05</div>
+          <div class="pl-name">Allow / Block</div>
+          <div class="pl-detail">Default: allow<br>if no rule matched</div>
+        </div>
+      </div>
+
+      <p>Stage 03 is the pivot. "Do Not Inspect + Bypass Other Policies" exits the pipeline at stage 03 — stages 04 never runs. "Do Not Inspect + Evaluate Other Policies" allows stage 04 to run at SNI-level fidelity (no post-decrypt content). Only the Decrypt path enables DLP, Sandbox, Malware, and content-based IPS at stage 04.</p>
+    </section>
+
+    <!-- ──────────────────────────────────────────── -->
+    <h2 id="url-filtering">URL Filtering</h2>
+
+    <!-- § Rule anatomy -->
+    <section id="uf-anatomy">
+      <h3>Rule anatomy</h3>
+      <p class="section-intro">URL Filtering rules evaluate ascending by <code>order</code> (first-match-wins). The rule list terminates with a predefined default rule that allows all unmatched traffic. Every rule carries a <code>rank</code> (1–7) that is stamped at creation and controls which admins can edit it — this is distinct from <code>order</code>.</p>
+
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>Field</th><th>Type</th><th>Controls</th><th>Gotcha</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>id</td><td>integer</td><td>Unique rule identifier</td><td>Integer — unlike URL-category IDs, which are strings</td></tr>
+            <tr><td>order</td><td>integer</td><td>Evaluation position; first-match-wins ascending</td><td>Not the same as <code>rank</code>; the two are independent</td></tr>
+            <tr><td>rank</td><td>integer (1–7)</td><td>Admin rank gate — who can create or edit this rule</td><td>Higher rank = constrained to appear earlier in order; <code>enableAdminRankAccess</code> must be on in Advanced Settings</td></tr>
+            <tr><td>state</td><td>string enum</td><td><code>ENABLED</code> or <code>DISABLED</code></td><td>Disabled rules skip evaluation but retain their order slot — position is occupied</td></tr>
+            <tr><td>action</td><td>string enum</td><td><code>ALLOW</code>, <code>CAUTION</code>, <code>BLOCK</code>, <code>ISOLATE</code>, <code>ICAP_RESPONSE_MODE</code></td><td><code>ISOLATE</code> requires Zero Trust Browser; <code>ICAP_RESPONSE_MODE</code> appears on tenants with ICAP integration</td></tr>
+            <tr><td>urlCategories</td><td>array of strings</td><td>Category codes matched by this rule (e.g. <code>"OTHER_ADULT_MATERIAL"</code>, <code>"CUSTOM_89"</code>)</td><td>Always strings in real API responses — not <code>{id, name}</code> objects</td></tr>
+            <tr><td>urlCategories2</td><td>array of strings</td><td>AND operator: URL must match both categories simultaneously</td><td>Does not appear in real API responses (verified Z2 tenant — count 0). Likely write-only or deprecated</td></tr>
+            <tr><td>protocols</td><td>array of strings</td><td><code>HTTPS_RULE</code>, <code>HTTP_RULE</code>, <code>FTP_RULE</code>, etc.</td><td>Rules using Protocol criterion only evaluate at the post-decrypt (full-URL) pass — silently don't fire if SSL is not inspecting</td></tr>
+            <tr><td>requestMethods</td><td>array</td><td>HTTP methods (<code>GET</code>, <code>POST</code>, etc.)</td><td>Post-decrypt only — same silent-no-fire risk as protocols</td></tr>
+            <tr><td>blockOverride</td><td>boolean</td><td>Permits user to self-override a Block action</td><td>Silently ignored unless <code>action = BLOCK</code>; most common "why doesn't override work?" root cause</td></tr>
+            <tr><td>overrideUsers / overrideGroups</td><td>array of objects</td><td>Who can invoke the block override</td><td>Requires both <code>blockOverride = true</code> AND <code>action = BLOCK</code></td></tr>
+            <tr><td>ciparule</td><td>boolean</td><td>CIPA compliance mode for this rule</td><td>Exclusive of four Advanced Settings: <code>enableNewlyRegisteredDomains</code>, <code>considerEmbeddedSites</code>, <code>enforceSafeSearch</code>, <code>enableDynamicContentCat</code> — SDK raises ValueError; console shows warning only</td></tr>
+            <tr><td>enforceTimeValidity</td><td>boolean</td><td>Enables time-window enforcement</td><td>Must be <code>true</code> for <code>validityStartTime</code> / <code>validityEndTime</code> to take effect</td></tr>
+            <tr><td>predefined</td><td>boolean</td><td>Server-set marker for built-in rules</td><td>Cannot delete via API; edit requires admin rank ≥ rule rank</td></tr>
+            <tr><td>userRiskScoreLevels</td><td>array</td><td>Risk-score scoping: <code>LOW</code>, <code>MEDIUM</code>, <code>HIGH</code>, <code>CRITICAL</code></td><td>Distinct from <code>userRiskProfile</code> reference; not covered in help-portal docs</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="warn">The <code>requestMethods</code> and <code>protocols</code> criteria only evaluate at the post-decrypt (full-URL) pass. If SSL Inspection is not decrypting a transaction — either because no rule matches "Decrypt" or because the SSL rule says "Do Not Inspect" — these criteria silently do not fire. No error. No log entry indicating the criterion was skipped.</div>
+    </section>
+
+    <!-- § Category resolution -->
+    <section id="uf-categories">
+      <h3>Category resolution and wildcard semantics</h3>
+      <p class="section-intro">URL-to-category assignment happens before any rule evaluates, by a specificity-wins lookup across all custom categories. Rule order does not affect which category a URL lands in — only which rule fires after the category is resolved.</p>
+
+      <h4>Wildcard forms</h4>
+      <p><strong>Leading-period form</strong> (<code>.example.com</code>) is the only valid wildcard. It matches the bare domain, any subdomain up to 5 levels deep, and any path under any of those (implicit right wildcard).</p>
+      <p><strong><code>*.example.com</code> and <code>*example.com</code> are explicitly documented as invalid.</strong> The admin console may accept asterisk entries without error — verified operator report (2026-04-23) — but what is actually stored or matched is unverified. Treat asterisk entries as broken; translate to leading-period form before saving.</p>
+
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr><th>Entry form</th><th>Matches</th><th>Does not match</th></tr></thead>
+          <tbody>
+            <tr><td>.example.com</td><td><code>example.com</code>, <code>www.example.com</code>, <code>a.b.example.com</code> (up to 5 sub-levels)</td><td><code>a.b.c.d.e.f.example.com</code> (>5 levels)</td></tr>
+            <tr><td>example.com</td><td><code>example.com</code>, <code>example.com/anything</code></td><td><code>www.example.com</code>, <code>sub.example.com</code></td></tr>
+            <tr><td>example.com/resources/</td><td>All descendants of <code>/resources/</code></td><td><code>example.com/resources</code> (no trailing slash = exact path match)</td></tr>
+            <tr><td>.example.com<br>(leading period)</td><td>Matches up to 5 subdomain levels from the entry point</td><td>Deeper than 5 levels — add exact entries for deep subdomains</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>Specificity order for category resolution</h4>
+      <p>When a URL matches entries in multiple custom categories, the most specific entry across all categories wins — regardless of which rule references which category:</p>
+      <ol style="font-family:'IBM Plex Sans',sans-serif;font-size:0.9rem;line-height:1.6;max-width:34rem;margin:0 0 1rem;padding-left:1.5rem;">
+        <li>Exact: <code>atlanta.example.com</code></li>
+        <li>Leading-period subdomain: <code>.atlanta.example.com</code></li>
+        <li>Leading-period parent: <code>.example.com</code></li>
+      </ol>
+
+      <div class="note">A URL assigned to Category B by a more-specific entry will trigger the Category B rule — even if a Category A rule (referencing a broader entry) is higher in the rule list. Category assignment is not a property of rule order.</div>
+
+      <h4>Additional category gotchas</h4>
+      <p><strong>Keywords match the entire URI.</strong> A keyword like <code>gambling</code> in a custom category matches <code>www.google.com/search?q=gambling</code> — the entire URI, not just the hostname. Test keyword categories against search engine queries before deploying.</p>
+      <p><strong>TLD-only blocking requires a separate category type.</strong> Regular custom categories reject <code>.gov</code>, <code>.io</code>, etc. as invalid. Use <code>type = "TLD_CATEGORY"</code> with entries in <code>dbCategorizedUrls</code>, not <code>urls</code>. This type is not surfaced in the admin console.</p>
+      <p><strong>Regex patterns are API-only.</strong> <code>regexPatterns</code> and <code>regexPatternsRetainingParentCategory</code> are writable on custom categories via API/SDK — not visible in the console. A category with entries that don't match documented formats likely contains regex patterns.</p>
+      <p><strong>Bulk URL add is all-or-nothing.</strong> If any single entry in a batch update is invalid format, the entire batch is rejected. Validate all entries pre-submission in automation.</p>
+    </section>
+
+    <!-- § Admin Rank & Cascading -->
+    <section id="uf-rank">
+      <h3>Admin Rank and Cascading</h3>
+
+      <h4>Admin Rank</h4>
+      <p>Admin Rank (1–7) is assigned to each admin and stamped on each rule at creation. Two effects:</p>
+      <ol style="font-family:'IBM Plex Sans',sans-serif;font-size:0.9rem;line-height:1.6;max-width:34rem;margin:0 0 1rem;padding-left:1.5rem;">
+        <li><strong>Edit gate:</strong> an admin can only create or modify rules whose <code>rank</code> ≤ their own rank. A rank-5 admin cannot touch a rank-7 rule.</li>
+        <li><strong>Order constraint:</strong> higher-rank rules are constrained to appear before lower-rank rules in the evaluation order. Rank-7 rules must precede rank-5 rules.</li>
+      </ol>
+      <p>Admin Rank is a tenant-wide toggle: <code>enableAdminRankAccess</code> in <code>advanced-settings.json</code>. When off, rank constraints on ordering are relaxed and the edit gate does not apply.</p>
+      <p>The <code>rank</code> field in snapshot JSON is the rule's stamped rank; <code>order</code> is its evaluation position. These are separate integers — <code>rank</code> does not determine <code>order</code> directly, only constrains the valid range of <code>order</code> values the rule can occupy.</p>
+
+      <h4>Cascading to URL Filtering</h4>
+      <p>Cloud App Control (CAC) evaluates before URL Filtering. A CAC rule that <em>allows</em> a transaction short-circuits URL Filtering by default — URL Filtering never runs. The Cascading flag reverses this for Allow paths:</p>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr><th>Setting</th><th>Effect</th></tr></thead>
+          <tbody>
+            <tr><td>Tenant-wide <code>cascadeUrlFiltering = false</code> (default)</td><td>CAC Allow → URL Filtering does not run</td></tr>
+            <tr><td>Tenant-wide <code>cascadeUrlFiltering = true</code></td><td>CAC Allow → URL Filtering evaluates and can block</td></tr>
+            <tr><td>Per-rule <code>cascadingEnabled = true</code> on a CAC rule</td><td>URL Filtering evaluates after that specific rule's Allow action, regardless of tenant-wide setting</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>CAC Block is irreversible regardless of cascading — a CAC block ends the transaction unconditionally. "No matching CAC rule" (CAC default Allow-All) routes to URL Filtering normally — the CAC default is not an explicit CAC Allow and does not trigger the short-circuit.</p>
+    </section>
+
+    <!-- § URL Filtering edges -->
+    <section id="uf-edges">
+      <h3>Edges and gotchas</h3>
+
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr><th>Scenario</th><th>Behavior</th></tr></thead>
+          <tbody>
+            <tr><td>URL Filtering rule on SSL-bypassed traffic (Evaluate Other Policies)</td><td>Domain-level pass runs; post-decrypt pass does not. Path-dependent rules, <code>requestMethods</code>, and <code>protocols</code> criteria silently don't fire.</td></tr>
+            <tr><td>URL Filtering rule on SSL-bypassed traffic (Bypass Other Policies)</td><td>Neither pass runs. No URL Filtering at all.</td></tr>
+            <tr><td>Global SSL bypass list</td><td>By default, URL Filtering does not evaluate on globally-bypassed traffic. Enable <code>enableEvaluatePolicyOnGlobalSSLBypass</code> in Advanced Settings to change. First thing to check when "rule didn't fire on bypassed traffic."</td></tr>
+            <tr><td>Disabled rule</td><td>Skipped during evaluation but retains its order slot. Order 5 is occupied by a disabled rule; the next active rule has order 6.</td></tr>
+            <tr><td>Same-specificity collision</td><td>When two custom categories each contain the same URL at equal specificity, which category wins for policy assignment is indeterminate. Open clarification <code>zia-02</code>.</td></tr>
+            <tr><td>3xx redirect on AI/ML-categorized site</td><td>With AI/ML categorization enabled, a site responding with 3xx is allowed and the redirect is followed regardless of a configured block on the categorized destination.</td></tr>
+            <tr><td>NROD classification latency</td><td>Newly Registered and Observed Domains take 2–36 hours from registration to NROD classification. Rules using NROD as a criterion have a coverage gap during this window.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────────────────── -->
+    <h2 id="ssl-inspection">SSL Inspection</h2>
+
+    <!-- § Two-pass model -->
+    <section id="ssl-model">
+      <h3>The two-pass model</h3>
+      <p class="section-intro">SSL Inspection does not wrap URL Filtering — it sits between URL Filtering's two evaluation passes. The common question "does SSL happen before or after URL Filtering?" requires a three-stage answer.</p>
+
+      <ol style="font-family:'IBM Plex Sans',sans-serif;font-size:0.9rem;line-height:1.7;max-width:36rem;margin:0 0 1.5rem;padding-left:1.5rem;">
+        <li><strong>SNI pass (stage 02):</strong> URL Filtering evaluates on the destination domain — from the CONNECT header (explicit proxy) or SNI (transparent). A Block rule here ends the connection before the TLS handshake. ATP, CAC, URL Filtering, and Bandwidth run.</li>
+        <li><strong>SSL decision (stage 03):</strong> SSL Inspection policy evaluates. Outcome: Decrypt, Do Not Inspect (Evaluate), Do Not Inspect (Bypass), or Block.</li>
+        <li><strong>Full-URL pass (stage 04, Decrypt path only):</strong> URL Filtering evaluates again on the complete URL, method, headers, and body. DLP, Sandbox, Malware, File Type, and content-based IPS run. CAC can identify specific apps (e.g., <code>docs.google.com</code> vs <code>drive.google.com</code>).</li>
+      </ol>
+
+      <p>Zscaler acts as a short-lived intermediate CA at stage 03. On decrypt, the Public Service Edge issues an ephemeral per-connection certificate signed by the configured intermediate CA. Two options: the default Zscaler-managed CA, or a customer's own PKI intermediate (requires additional subscription). Traffic content is processed in-memory — never written to disk.</p>
+
+      <div class="warn">QUIC (HTTP/3) bypasses TLS inspection — it uses UDP and skips the TCP handshake that interception depends on. Recommended mitigation: block QUIC at the firewall, forcing browsers to fall back to TCP/TLS. Without this, users on HTTP/3-capable browsers will have all HTTPS to QUIC-supporting destinations pass uninspected.</div>
+    </section>
+
+    <!-- § SSL rule anatomy -->
+    <section id="ssl-anatomy">
+      <h3>Rule anatomy</h3>
+      <p class="section-intro">SSL Inspection rules evaluate ascending by <code>order</code> (first-match-wins). Hard cap: 245 custom rules + 10 predefined = 255 total. This cap is not raisable via support request. Rule names are capped at 31 characters — lower than most ZIA policy types.</p>
+
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr><th>Field</th><th>Type</th><th>Controls</th><th>Gotcha</th></tr></thead>
+          <tbody>
+            <tr><td>id</td><td>integer</td><td>Unique rule identifier</td><td>Integer (not string)</td></tr>
+            <tr><td>order</td><td>integer</td><td>Evaluation position</td><td>Separate from <code>rank</code></td></tr>
+            <tr><td>rank</td><td>integer (1–7)</td><td>Admin rank gate</td><td>Same mechanic as URL Filtering</td></tr>
+            <tr><td>state</td><td>string enum</td><td><code>ENABLED</code> or <code>DISABLED</code></td><td>Disabled rules retain their order slot</td></tr>
+            <tr><td>predefined</td><td>boolean</td><td>Built-in rule marker</td><td>Cannot delete via API; moving requires support ticket</td></tr>
+            <tr><td>defaultRule</td><td>boolean</td><td>Catch-all terminal rule ("Inspect All" — Decrypt)</td><td>Cannot delete; always last. Use update, not delete.</td></tr>
+            <tr><td>accessControl</td><td>string</td><td>System-managed permissions on predefined rules</td><td>Read-only — strip from PUT payloads or the update is rejected</td></tr>
+            <tr><td>action.type</td><td>string enum</td><td><code>DECRYPT</code>, <code>DO_NOT_DECRYPT</code>, <code>BLOCK</code></td><td>Top-level action; the Evaluate/Bypass distinction lives in a nested sub-field</td></tr>
+            <tr><td>action.doNotDecryptSubActions<br>.bypassOtherPolicies</td><td>boolean</td><td><code>true</code> = Bypass Other Policies; <code>false</code> = Evaluate Other Policies</td><td>The most consequential boolean in the policy. <code>true</code> kills URL Filtering + CAC + all content inspection at stage 04.</td></tr>
+            <tr><td>action.decryptSubActions<br>.minClientTlsVersion</td><td>string</td><td>Minimum TLS version client → PSE</td><td>Independent of <code>minServerTlsVersion</code> — these are not a single floor</td></tr>
+            <tr><td>action.decryptSubActions<br>.minServerTlsVersion</td><td>string</td><td>Minimum TLS version PSE → origin</td><td>Set independently from client minimum</td></tr>
+            <tr><td>action.decryptSubActions<br>.blockUndecryptTraffic</td><td>boolean</td><td>Block if traffic can't be decrypted (mutual TLS, non-standard crypto)</td><td>Off by default; recommend enabling on Inspect rules</td></tr>
+            <tr><td>action.decryptSubActions<br>.http2Enabled</td><td>boolean</td><td>Enable HTTP/2 inspection</td><td>Falls back to HTTP/1.1 if Bandwidth Control is also enabled for that location</td></tr>
+            <tr><td>action.decryptSubActions<br>.blockSslTrafficWithNoSniEnabled</td><td>boolean</td><td>Block handshakes without SNI in Client Hello</td><td>Off by default</td></tr>
+            <tr><td>action.decryptSubActions<br>.serverCertificates</td><td>string enum</td><td><code>ALLOW</code>, <code>BLOCK</code>, <code>PASSTHROUGH</code> on untrusted server certs</td><td>Leading Practices recommends <code>BLOCK</code> on Inspect rules</td></tr>
+            <tr><td>platforms</td><td>array of string enum</td><td><code>SCAN_IOS</code>, <code>SCAN_ANDROID</code>, <code>SCAN_MACOS</code>, <code>SCAN_WINDOWS</code>, <code>SCAN_LINUX</code>, <code>NO_CLIENT_CONNECTOR</code></td><td><code>NO_CLIENT_CONNECTOR</code> matches traffic not forwarded via ZCC — SSL-Inspection-specific criterion</td></tr>
+            <tr><td>destIpGroups</td><td>array</td><td>Destination IP group criterion</td><td>Ignored when SNI is present in the HTTPS Client Hello — effectively only matches the rare SNI-absent edge case</td></tr>
+            <tr><td>zpaAppSegments</td><td>array</td><td>ZIA → ZPA cross-product reference (SIPA-enabled segments only)</td><td>Only segments with Source IP Anchor enabled appear; max 255</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- § Decrypt vs bypass -->
+    <section id="ssl-bypass">
+      <h3>Decrypt vs bypass paths</h3>
+      <p class="section-intro">The most consequential decision in SSL Inspection is not <em>which</em> traffic to decrypt but which variant of "Do Not Inspect" to use. The two variants have radically different downstream effects.</p>
+
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr><th>Action</th><th>Stage 04 (full-URL pass)</th><th>DLP / Sandbox / Malware</th><th>CAC post-decrypt</th><th>URL Filtering (full-URL)</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Decrypt</strong></td><td>Runs</td><td>Run</td><td>Runs</td><td>Runs</td></tr>
+            <tr><td><strong>Do Not Inspect<br>+ Evaluate Other Policies</strong></td><td>Runs at SNI fidelity only</td><td>Do not run</td><td>SNI-level only</td><td>Domain-level only</td></tr>
+            <tr><td><strong>Do Not Inspect<br>+ Bypass Other Policies</strong></td><td>Does not run</td><td>Do not run</td><td>Does not run</td><td>Does not run</td></tr>
+            <tr><td><strong>Block</strong></td><td>Connection terminated</td><td>—</td><td>—</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="warn">The predefined Zscaler Recommended Exemptions rule uses "Evaluate Other Policies." The predefined Microsoft 365 Click-to-Run rule uses "Bypass Other Policies." Operators who copy the wrong predefined rule as a template replicate the wrong variant silently. Always check <code>action.doNotDecryptSubActions.bypassOtherPolicies</code> when cloning a Do Not Inspect rule.</div>
+
+      <h4>What Do Not Inspect (Evaluate) still covers</h4>
+      <p>At stage 02 (SNI pass), URL Filtering and ATP can still block based on the destination domain before the SSL decision fires. A URL Filtering Block on a known-bad hostname works even with "Evaluate Other Policies" — the block fires at stage 02 before stage 03 makes the SSL decision. The SNI-pass block is TCP-level (before decryption) — it closes the CONNECT tunnel or sends a TCP reset.</p>
+
+      <h4>Transparent vs explicit forwarding changes what SSL rules can match</h4>
+      <p>In explicit proxy mode (PAC/ZCC), SSL rules evaluate on SNI only. In transparent mode (GRE/IPSec), SSL rules evaluate on SNI <em>and</em> destination IP. An SSL Do Not Inspect rule scoped to "Miscellaneous or Unknown" under transparent forwarding silently exempts nearly all traffic — most public IPs are categorized as Miscellaneous. The same rule under explicit forwarding only affects the small subset of HTTPS destinations with no SNI.</p>
+    </section>
+
+    <!-- § SSL edges -->
+    <section id="ssl-edges">
+      <h3>Edges and gotchas</h3>
+
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr><th>Scenario</th><th>Behavior</th></tr></thead>
+          <tbody>
+            <tr><td>255-rule cap reached</td><td>Hard limit, not raisable. Must consolidate via destination groups. Plan for this before per-app exemption rules proliferate.</td></tr>
+            <tr><td>Rule name exceeds 31 characters</td><td>Fails at save. Automation generating descriptive rule names from app metadata must truncate before write.</td></tr>
+            <tr><td>IP-group-scoped rule on modern HTTPS</td><td>Silently doesn't fire — modern clients send SNI, and IP group criterion is ignored when SNI is present.</td></tr>
+            <tr><td>CONNECT User-Agent criterion</td><td>SSL-Inspection-specific criterion that only fires in explicit proxy mode. Silent no-match on transparent forwarding.</td></tr>
+            <tr><td>UCaaS One-Click / Microsoft 365 One-Click (Advanced Settings)</td><td>These tenant-wide toggles automatically disable SSL inspection for entire vendor domains, reducing CAC identification to SNI-level only for those vendors.</td></tr>
+            <tr><td><code>showEUN</code> / <code>showEUNATP</code> field casing</td><td>Python SDK emits <code>showEUNATP</code> (uppercase) on writes; API may return <code>showEunatp</code> (mixed) on reads. Use uppercase on writes; tolerate mixed on reads.</td></tr>
+            <tr><td><code>accessControl</code> in predefined rule PUT</td><td>Strip this field from PUT payloads when reordering predefined rules — it's read-only and causes rejection if included.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────────────────── -->
+    <h2 id="policy-order">Policy Evaluation Order</h2>
+
+    <!-- § Full pipeline -->
+    <section id="pol-pipeline">
+      <h3>Full pipeline</h3>
+      <p class="section-intro">The complete ZIA evaluation order for outbound HTTPS, from connection attempt to allow/block. A block at any step halts that pass — subsequent steps do not run.</p>
+
+      <h4>Stage 01 — Firewall module</h4>
+      <p>All web traffic passes through the Firewall module first. IP/port rules, DNS Control, and L4 IPS. A Firewall Allow does not grant a web-module pass — both layers must independently not-block. A Firewall Block is unconditional regardless of what web policy would do.</p>
+      <p>DNS Control is inside the Firewall umbrella. Traffic from locations not onboarded to firewall forwarding never reaches the DNS Control engine — the rule list looks correct but the engine is bypassed silently.</p>
+
+      <h4>Stage 02 — Web module, SNI pass</h4>
+      <p>Evaluates on the destination domain from the CONNECT header (explicit) or SNI (transparent). Four modules run in this order:</p>
+      <ol style="font-family:'IBM Plex Sans',sans-serif;font-size:0.9rem;line-height:1.7;max-width:34rem;margin:0 0 1rem;padding-left:1.5rem;">
+        <li>Known Malicious URLs (ATP)</li>
+        <li>Cloud App Control</li>
+        <li>URL Filtering</li>
+        <li>Bandwidth Control</li>
+      </ol>
+      <p>DLP, Sandbox, Malware, File Type, Browser Control, Country Blocking, and content-based IPS are deferred to stage 04.</p>
+
+      <h4>Stage 03 — SSL Inspection decision</h4>
+      <p>SSL policy evaluates. Outcome: Decrypt → stage 04 runs. Do Not Inspect (Evaluate) → stage 04 runs at SNI fidelity. Do Not Inspect (Bypass) → pipeline exits here. Block → connection terminated.</p>
+
+      <h4>Stage 04 — Web module, full-URL pass (Decrypt path only)</h4>
+      <p>Three sub-phases:</p>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr><th>Sub-phase</th><th>Order within phase</th></tr></thead>
+          <tbody>
+            <tr><td>GET phase</td><td>Custom Malicious URLs → Cloud App Control → URL Filtering → Security Exceptions → Browser Control → Country Blocking → IPS (L7) → Suspicious Content → P2P → Bandwidth</td></tr>
+            <tr><td>POST phase</td><td>GET phase order + Malware → File Type → DLP</td></tr>
+            <tr><td>Response phase</td><td>Sandbox → AI/ML Content Categorization</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>IPS (L7 / signature-based) is step 6 of 9 in the GET phase — this is why content-based IPS requires decryption. URL Filtering is step 3.</p>
+
+      <div class="note">DNS Control fires on the DNS query before the HTTP request exists. It is not part of stages 01–04 in the web pipeline — it's a parallel module in the Firewall umbrella that runs at DNS resolution time. A URL Filtering block on <code>badsite.com</code> does not prevent DNS resolution; a DNS Control block prevents resolution and therefore access. Full enforcement requires both.</div>
+    </section>
+
+    <!-- § Module interactions -->
+    <section id="pol-interactions">
+      <h3>Module interactions</h3>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr><th>Modules</th><th>Interaction</th></tr></thead>
+          <tbody>
+            <tr><td>URL Filtering × SSL Inspection</td><td>Stage 02 URL Filtering (domain-level) can block before SSL decides. "Bypass Other Policies" removes stage 04 URL Filtering entirely. "Evaluate Other Policies" allows stage 04 at SNI fidelity only.</td></tr>
+            <tr><td>CAC × URL Filtering</td><td>CAC Allow with <code>cascadingEnabled = false</code> prevents URL Filtering from running at all for that transaction. "No CAC match" routes to URL Filtering normally — the CAC default Allow-All is not an explicit Allow and does not trigger the short-circuit.</td></tr>
+            <tr><td>CAC × SSL Inspection</td><td>Post-decrypt CAC app identification (e.g., distinguishing Docs from Drive) requires the Decrypt path. UCaaS/Microsoft 365 One-Click toggles auto-bypass SSL for entire vendor domains, reducing CAC to SNI-level.</td></tr>
+            <tr><td>SSL Inspection × content engines</td><td>DLP, Sandbox, Malware, File Type, Inline CASB, and content-based IPS are all gated by the Decrypt path. No decrypt = none of these modules fire on HTTPS.</td></tr>
+            <tr><td>DNS Control × URL Filtering</td><td>Parallel modules at different protocol layers. DNS fires on DNS queries; URL Filtering fires on HTTP requests. Both required for full domain enforcement.</td></tr>
+            <tr><td>DNS Control × SSL Inspection</td><td>DNS over HTTPS (DoH) flows require SSL Inspection over the DoH provider domain for DNS Control to see the inner DNS query. Without decryption, DoH is opaque to the DNS Control engine.</td></tr>
+            <tr><td>Firewall × Web module</td><td>Firewall Allow does not override a web block. Both layers independently must not-block. Firewall is the outer gate; the web module is the inner gate.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>Advanced Settings fields that affect evaluation</h4>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr><th>Field (<code>advanced-settings.json</code>)</th><th>Effect</th></tr></thead>
+          <tbody>
+            <tr><td>cascadeUrlFiltering</td><td>Tenant-wide toggle: if <code>true</code>, URL Filtering evaluates after CAC Allow. Wire: camelCase.</td></tr>
+            <tr><td>enableAdminRankAccess</td><td>If <code>false</code>, rank constraints on rule ordering are relaxed.</td></tr>
+            <tr><td>enableEvaluatePolicyOnGlobalSSLBypass</td><td>If <code>false</code> (default), URL Filtering does not run on global-SSL-bypass traffic.</td></tr>
+            <tr><td>blockConnectHostSniMismatch</td><td>Block when CONNECT hostname and SNI don't match (domain fronting detection).</td></tr>
+            <tr><td>preferSniOverConnHost</td><td>Prefer SNI over CONNECT header for policy evaluation in explicit mode.</td></tr>
+            <tr><td>zscalerClientConnector1AndPacRoadWarriorInFirewall</td><td>Required for Z-Tunnel 1.0 / PAC traffic to be subject to Firewall rules.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- § Triage table -->
+    <section id="pol-triage">
+      <h3>Triage table</h3>
+      <p class="section-intro">Symptom-first. Find the scenario, check the corresponding module.</p>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr><th>Symptom</th><th>Module(s) to check</th><th>What to look at</th></tr></thead>
+          <tbody>
+            <tr><td>URL Filtering rule didn't fire on HTTPS traffic</td><td>SSL Inspection</td><td>Check if SSL action is "Bypass Other Policies" — kills stage 04 entirely. Check <code>enableEvaluatePolicyOnGlobalSSLBypass</code> if traffic is on global bypass list.</td></tr>
+            <tr><td>URL Filtering rule using Request Method didn't fire</td><td>SSL Inspection</td><td><code>requestMethods</code> is post-decrypt only. Traffic must be decrypted for the criterion to evaluate. No error if it doesn't fire.</td></tr>
+            <tr><td>Malware/DLP not catching content over HTTPS</td><td>SSL Inspection</td><td>Must be on Decrypt path. Check SSL rule action — Do Not Inspect (either variant) disables content engines.</td></tr>
+            <tr><td>CAC allows traffic that URL Filtering should block</td><td>URL Filtering / CAC Cascading</td><td>Check <code>cascadingEnabled</code> on the CAC rule and <code>cascadeUrlFiltering</code> in Advanced Settings. CAC Allow short-circuits URL Filtering by default.</td></tr>
+            <tr><td>URL Filtering rule fires on Google search but not on destination</td><td>URL Filtering — keyword matching</td><td>A keyword in the custom category matched the search query URI. Keywords match the entire URI, not just the hostname.</td></tr>
+            <tr><td>SSL Do Not Inspect rule is exempting far more traffic than expected</td><td>SSL Inspection — transparent mode</td><td>A rule scoped to "Miscellaneous or Unknown" under transparent forwarding covers nearly all public IPs. Scope to specific categories or destination groups instead.</td></tr>
+            <tr><td>DNS Control rules not firing for a location</td><td>DNS Control / Firewall</td><td>DNS Control requires the location to be onboarded to Firewall forwarding. Check location configuration.</td></tr>
+            <tr><td>HTTPS traffic bypasses all inspection for specific vendor</td><td>Advanced Settings — UCaaS / M365 One-Click</td><td>UCaaS One-Click and Microsoft 365 One-Click auto-bypass SSL for entire vendor domains. Check Advanced Settings toggles.</td></tr>
+            <tr><td>Block override not working</td><td>URL Filtering — blockOverride</td><td>Requires both <code>blockOverride = true</code> AND <code>action = BLOCK</code>. Common to have one without the other.</td></tr>
+            <tr><td>URL rule didn't fire on traffic known to be SSL-bypassed via global bypass list</td><td>URL Filtering / Advanced Settings</td><td><code>enableEvaluatePolicyOnGlobalSSLBypass</code> is <code>false</code> by default. URL Filtering is suppressed on globally-bypassed traffic unless this flag is enabled.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────────────────── -->
+    <h2 id="reference">Reference</h2>
+
+    <!-- § Open clarifications -->
+    <section id="ref-clarifications">
+      <h3>Open clarifications</h3>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr><th>ID</th><th>Claim</th><th>Status</th><th>Note</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>zia-02</td>
+              <td>Same-specificity collision in custom category resolution</td>
+              <td><span class="pill pill-open">Open</span></td>
+              <td>When two custom categories contain the same URL at equal specificity, which category wins for policy assignment is undocumented. Behavior may be insertion-order-dependent.</td>
+            </tr>
+            <tr>
+              <td>zia-04</td>
+              <td>NROD propagation lag upper bound</td>
+              <td><span class="pill pill-partial">Partial</span></td>
+              <td>"Within hours" documented; exact upper bound (36 hours per operator experience) not confirmed against Zscaler sources.</td>
+            </tr>
+            <tr>
+              <td>zia-11</td>
+              <td>Behavior when user switches between transparent and explicit forwarding mid-session</td>
+              <td><span class="pill pill-open">Open</span></td>
+              <td>Session continuity and policy re-evaluation behavior on forwarding-mode switch is not documented.</td>
+            </tr>
+            <tr>
+              <td>zia-12</td>
+              <td>URL Filtering default rule behavior under "Do Not Inspect + Evaluate Other Policies"</td>
+              <td><span class="pill pill-partial">Partial</span></td>
+              <td>Whether the default URL Filtering catch-all allow fires at stage 04 when SSL says "Evaluate Other Policies" but no URL Filtering rule matches is partially resolved. Edge case at the intersection of SSL bypass and default-allow still open.</td>
+            </tr>
+            <tr>
+              <td>zia-14</td>
+              <td>5-level subdomain cap inclusivity</td>
+              <td><span class="pill pill-open">Open</span></td>
+              <td>Whether <code>.example.com</code> matches exactly 5 subdomain levels (inclusive) or fewer than 5 (exclusive of the 5th) is ambiguous in documentation.</td>
+            </tr>
+            <tr>
+              <td>zia-15</td>
+              <td>Admin console accepts <code>*.example.com</code> without error</td>
+              <td><span class="pill pill-open">Open</span></td>
+              <td>Operator report (2026-04-23): console saves asterisk-form entries without error despite docs marking them invalid. What is stored or matched is unverified. Treat as broken; use leading-period form.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- § Sources -->
+    <section id="ref-sources">
+      <h3>Sources</h3>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr><th>Source</th><th>Layer</th></tr></thead>
+          <tbody>
+            <tr><td>references/zia/url-filtering.md</td><td>Layer 1 · doc + SDK</td></tr>
+            <tr><td>references/zia/ssl-inspection.md</td><td>Layer 1 · doc + SDK</td></tr>
+            <tr><td>references/zia/cloud-app-control.md</td><td>Layer 1 · doc</td></tr>
+            <tr><td>references/zia/wildcard-semantics.md</td><td>Layer 1 · doc</td></tr>
+            <tr><td>references/zia/snapshot-schema.md § urlFilteringRules, § sslInspectionRules</td><td>Layer 1 · code (SDK + TF)</td></tr>
+            <tr><td>references/zia/index.md</td><td>Layer 1 · doc</td></tr>
+            <tr><td>vendor/zscaler-help/ — Understanding Policy Enforcement</td><td>Layer 1 · doc (Zscaler)</td></tr>
+            <tr><td>vendor/zscaler-help/ — Configuring the URL Filtering Policy</td><td>Layer 1 · doc (Zscaler)</td></tr>
+            <tr><td>vendor/zscaler-help/ — Configuring SSL/TLS Inspection Policy</td><td>Layer 1 · doc (Zscaler)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div><!-- /.body -->
+
+  <div id="rail" class="rail"></div>
+
+</div><!-- /.doc -->
+
+<script>
+  // ── Margin notes ──
+  const notes = [
+    { anchor: 'glance',          label: 'Default-allow vs default-deny',  html: 'ZPA blocks anything not in an explicit segment + policy. ZIA allows anything not in an explicit block rule. The same question ("will this traffic pass?") gets opposite default answers from each product.' },
+    { anchor: 'uf-anatomy',      label: 'rank ≠ order',                   html: '<code>order</code> is the evaluation position. <code>rank</code> is the admin edit gate and the constraint on what range of positions the rule can occupy. A rank-7 rule can be at order 1 or order 50 — rank constrains the boundary, not the slot.' },
+    { anchor: 'uf-categories',   label: 'Category first, rule second',    html: 'URL-to-category assignment is a pre-pass that runs before any rule evaluates. A URL assigned to Category B by a specific entry will trigger the Category B rule — even if a Category A rule is higher in the list.' },
+    { anchor: 'uf-rank',         label: 'CAC default is not an explicit Allow', html: '"No matching CAC rule" routes normally to URL Filtering. The CAC default Allow-All is not an explicit Allow action and does not trigger the short-circuit that skips URL Filtering. Only a matched CAC rule with an Allow action does.' },
+    { anchor: 'ssl-model',       label: 'In-memory only',                 html: 'ZIA\'s SSL interception is in-memory per connection. Traffic content is never written to disk by the PSE. The ephemeral per-connection certificate is issued by the configured intermediate CA and discarded after the session.' },
+    { anchor: 'ssl-bypass',      label: 'The predefined rule trap',       html: 'Zscaler Recommended Exemptions uses "Evaluate Other Policies." Microsoft 365 Click-to-Run uses "Bypass Other Policies." Cloning the wrong one as a template replicates the wrong variant silently — always check <code>bypassOtherPolicies</code> before cloning.' },
+    { anchor: 'pol-pipeline',    label: 'Firewall Allow ≠ Web pass',      html: 'A Firewall Allow rule that permits Box.net does not override a Web module block on Box.net. Both layers independently must not-block the traffic. The Firewall is the outer gate; the Web module is the inner gate.' },
+    { anchor: 'pol-interactions',label: 'DNS is not in the web pipeline', html: 'DNS Control fires at DNS resolution time, before the HTTP request exists. URL Filtering fires on the HTTP request. A URL Filtering block on a domain does not prevent DNS resolution. Both modules must block for complete enforcement.' },
+  ];
+
+  function positionNotes() {
+    const rail = document.getElementById('rail');
+    if (!rail || rail.offsetParent === null) return;
+    rail.innerHTML = '';
+    const railRect = rail.getBoundingClientRect();
+    const bodyEl = document.querySelector('.body');
+    if (!bodyEl) return;
+    const bodyTop = bodyEl.getBoundingClientRect().top + window.scrollY;
+
+    notes.forEach(function(n) {
+      const anchor = document.getElementById(n.anchor);
+      if (!anchor) return;
+      const anchorTop = anchor.getBoundingClientRect().top + window.scrollY;
+      const note = document.createElement('div');
+      note.className = 'margin-note';
+      note.style.top = (anchorTop - bodyTop + 4) + 'px';
+      note.innerHTML = '<strong>' + n.label + '</strong>' + n.html;
+      rail.appendChild(note);
+    });
+  }
+
+  window.addEventListener('load', positionNotes);
+  window.addEventListener('resize', positionNotes);
+</script>
+
+<script>
+  // ── Scrollspy ──
+  function spy() {
+    const anchors = Array.from(document.querySelectorAll('.body section[id], .body h2[id]'));
+    const navLinks = document.querySelectorAll('.nav a');
+    const scrollY = window.scrollY + 100;
+
+    let current = '';
+    anchors.forEach(function(el) {
+      if (el.offsetTop <= scrollY) current = el.id;
+    });
+
+    navLinks.forEach(function(a) {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
+  }
+
+  window.addEventListener('scroll', spy, { passive: true });
+  window.addEventListener('load', spy);
+</script>
+
+<script src="nav.js"></script>
+</body>
+</html>
