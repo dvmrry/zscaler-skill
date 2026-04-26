@@ -27,6 +27,8 @@ Entry point for Zscaler Private Access (ZPA) questions — application segments,
 | ZPA API — endpoints, authentication, response shapes | [`./api.md`](./api.md) | draft |
 | **Snapshot schema** — what's in `snapshot/zpa/*.json`, list-wrapping, ruleOrder-as-string, embedded-objects pattern, common jq queries | [`./snapshot-schema.md`](./snapshot-schema.md) | draft |
 | **Microtenants** — multi-org isolation within a single ZPA tenant; `microtenantId` propagates onto App Segments / Server Groups / Segment Groups / Connector Groups / Service Edge Groups; admin password shown ONCE at creation; disable triggers re-auth; SharedMicrotenantDetails for cross-Microtenant App Segment sharing | [`./microtenants.md`](./microtenants.md) | draft |
+| **Posture Profiles** — ZPA policy-side consumer of ZCC posture signals; read-only from operator (Zscaler-provisioned); `posture_udid` is the policy `lhs` not `id` (TF plan-time validation); SDK + TF-derived (help portal 404). Tier source: code | [`./posture-profiles.md`](./posture-profiles.md) | draft |
+| **Trusted Networks** — ZPA policy primitive (distinct from ZCC trusted-network detection); read-only data source only (no TF resource); policy condition uses `networkId` as `lhs`; v2 schema drops `rhs=false`; PSE Groups bind via `trusted_networks` list. SDK + TF-derived (help portal 404) | [`./trusted-networks.md`](./trusted-networks.md) | draft |
 
 ## Log schemas
 

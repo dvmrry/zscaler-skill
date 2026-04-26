@@ -3,7 +3,7 @@ product: shared
 topic: "scim-provisioning"
 title: "SCIM provisioning — user/group lifecycle across ZIA, ZPA, ZIdentity"
 content-type: reasoning
-last-verified: "2026-04-24"
+last-verified: "2026-04-26"
 confidence: high
 source-tier: mixed
 sources:
@@ -106,6 +106,30 @@ From *About SCIM* (ZPA):
 - **`active=false` deletes the user in ZPA, disables in ZIA.** A SCIM client sending `active=false` expects "disabled" semantics on ZIA and gets "deleted" semantics on ZPA. If the IdP reactivates the user later, ZIA flips back instantly; ZPA requires re-provisioning (recreating) the user.
 - **ZPA uses `names.givenName` (plural)** vs ZIA's `name.givenName` (singular). A SCIM client writing both products must handle the attribute-name difference or the data won't sync correctly.
 - **ZPA SCIM Attributes page is read-only** — no custom attributes. ZIA is similarly constrained but the attribute surface is larger.
+
+### ZPA SCIM Groups (sourced from SDK; help portal page broken)
+
+**The Zscaler help-portal page for ZPA SCIM Groups is SPA-broken** as of April 2026 — it reroutes to unrelated content. This section is sourced from `vendor/zscaler-sdk-python/zscaler/zpa/scim_groups.py` + `vendor/zscaler-sdk-python/zscaler/zpa/models/scim_groups.py`. Confidence: medium.
+
+ZPA SCIM Groups are **read-only views** of the groups your IdP synchronizes via SCIM. The SDK exposes:
+
+- `list_scim_groups(idp_id, query_params)` — paginated list per IdP (default page size 20, max 500). Supports search by name, time-range filtering.
+- `get_scim_group(scim_group_id)` — single group by Zscaler-generated UUID.
+
+Key fields on the `SCIMGroup` model:
+- `id` (Zscaler UUID — opaque)
+- `name`, `idp_id`, `idp_name` (which IdP it came from)
+- `creation_time`, `modified_time`
+- `internal_id` (separate from `id`; relationship not documented in SDK source)
+
+**Operational implications:**
+
+- **Provisioning is IdP-driven, not Zscaler-side.** You can't create / delete / rename SCIM Groups directly via the ZPA API; the IdP's SCIM client does that based on group changes in the IdP. ZPA mirrors what the IdP sends.
+- **Multiple IdPs per tenant** — each `idp_id` maintains its own SCIM Group namespace; group names can collide across IdPs.
+- **SCIM Groups are referenced by Access Policy criteria** — Access Policy rules can scope by SCIM Group membership (operator filter `EQUALS scim_group <id>`).
+- **`active=false` semantics on the user side delete the user**, but on the group side what happens when an IdP removes a member or deletes the group entirely isn't documented in the SDK source — Tier D inference: the membership disappears but the SCIM Group object may persist until the IdP's next sync removes it.
+
+For the cross-product attribute mapping (which fields on user records sync across), see § ZPA SCIM attributes above. SCIM Groups carry only the group-identity surface, not user attributes.
 
 ### Authentication for SCIM clients
 
