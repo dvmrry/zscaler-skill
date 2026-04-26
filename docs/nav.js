@@ -21,9 +21,10 @@
     {
       key: 'welcome',
       label: 'Welcome',
-      href: 'readers-guide.html',
-      match: [/readers-guide/, /onboarding/, /source\.html\?.*p=_primer/],
+      href: 'welcome/',
+      match: [/\/welcome\//, /readers-guide/, /onboarding/, /source\.html\?.*p=_primer/],
       children: [
+        { href: 'welcome/',               label: 'Overview',       match: [/\/welcome\/(index\.html)?$/] },
         { href: 'readers-guide.html',     label: "Reader's Guide", match: [/readers-guide/] },
         { href: 'onboarding.html',        label: 'Deck',           match: [/onboarding/] },
         { href: 'source.html?p=_primer',  label: 'Source',         match: [/source\.html\?.*p=_primer/] },
@@ -72,7 +73,7 @@
   const path = location.pathname;
   const search = location.search;
   const pathAndSearch = path + search;
-  const depth = /\/(zia|zpa|cloud-connector)\//.test(path) ? 1 : 0;
+  const depth = /\/(zia|zpa|cloud-connector|welcome)\//.test(path) ? 1 : 0;
   const prefix = depth === 1 ? '../' : '';
 
   const currentSection = sections.find(s => s.match.some(re => re.test(pathAndSearch)));
