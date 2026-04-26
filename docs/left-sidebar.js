@@ -311,12 +311,25 @@
 
   // ── Helpers ───────────────────────────────────────────────────────
 
+  // Returns the slug of the file the user is currently viewing (for
+  // active-link highlighting and to decide which group to expand).
+  // On source.html, that's the ?p= param; on a hub or article page,
+  // it's derived from the URL section.
   function currentSourceSlug() {
     const onSource = /source\.html$/.test(location.pathname);
-    if (!onSource) return null;
-    const p = (new URLSearchParams(location.search).get('p') || '').trim()
-      .replace(/^\/+|\/+$/g, '').replace(/\.md$/, '');
-    return p || '_portfolio-map';
+    if (onSource) {
+      const p = (new URLSearchParams(location.search).get('p') || '').trim()
+        .replace(/^\/+|\/+$/g, '').replace(/\.md$/, '');
+      return p || '_portfolio-map';
+    }
+    // On non-source pages, infer the section from the URL path.
+    const m = location.pathname.match(/\/(zia|zpa|cloud-connector|zcc|zdx|zidentity|zbi|zwa|zms|ai-security|risk360|deception|shared|_primer)(?:\/|$)/);
+    if (m) return m[1];
+    // Reader's guide and onboarding live under Welcome → expand the
+    // _primer group since those primers are conceptually part of the
+    // welcome cluster.
+    if (/(readers-guide|onboarding)\.html$/.test(location.pathname)) return '_primer';
+    return null;
   }
 
   function prettify(s) {

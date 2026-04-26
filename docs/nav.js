@@ -22,10 +22,11 @@
       key: 'welcome',
       label: 'Welcome',
       href: 'readers-guide.html',
-      match: [/readers-guide/, /onboarding/],
+      match: [/readers-guide/, /onboarding/, /source\.html\?.*p=_primer/],
       children: [
-        { href: 'readers-guide.html', label: "Reader's Guide", match: [/readers-guide/] },
-        { href: 'onboarding.html',    label: 'Deck',           match: [/onboarding/] },
+        { href: 'readers-guide.html',     label: "Reader's Guide", match: [/readers-guide/] },
+        { href: 'onboarding.html',        label: 'Deck',           match: [/onboarding/] },
+        { href: 'source.html?p=_primer',  label: 'Source',         match: [/source\.html\?.*p=_primer/] },
       ],
     },
     {
@@ -253,7 +254,7 @@
   // loaded — every page gets the sidebar, and the rail toggle hides
   // it when desired.
   const sidebarScript = document.createElement('script');
-  sidebarScript.src = prefix + 'left-sidebar.js?v=1';
+  sidebarScript.src = prefix + 'left-sidebar.js?v=2';
   sidebarScript.async = true;
   document.body.appendChild(sidebarScript);
 
