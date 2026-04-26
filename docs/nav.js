@@ -4,8 +4,11 @@
 // Path-aware so it works whether the page is at the docs/ root or one
 // level down in a section subdir.
 //
-// "Source" sub-row links point at source.html?p=<path>, which renders
-// the underlying markdown directly from the references/ tree.
+// Also injects a rail-toggle button (default off → rail visible) and a
+// back-to-top button. The drawer (site-drawer.js) is no longer loaded —
+// each page's contextual rail (TOC on reference docs, chapter list on
+// the reader's guide, file tree on source.html) is the navigation
+// surface, hideable on demand.
 (function () {
   const sections = [
     {
@@ -61,6 +64,9 @@
     },
   ];
 
+  const RAIL_STATE_KEY = 'zskill:rail-hidden';
+  const RAIL_SELECTORS = '.doc .nav, .reading-rail, .sidebar';
+
   // depth: 0 if at docs/ root (index.html, readers-guide.html, onboarding.html, source.html),
   // 1 if in a subdir (zia/*, zpa/*, cloud-connector/*).
   const path = location.pathname;
@@ -70,6 +76,10 @@
   const prefix = depth === 1 ? '../' : '';
 
   const currentSection = sections.find(s => s.match.some(re => re.test(pathAndSearch)));
+
+  // Apply persisted rail state synchronously, before first paint, so we
+  // don't get a flash of visible rail before it hides.
+  if (safeRead(RAIL_STATE_KEY) === 'yes') document.body.classList.add('no-rail');
 
   const css = `
     #site-nav { position: sticky; top: 0; z-index: 200; background: #f6f2e8; border-bottom: 1px solid #d8d0c0; }
@@ -106,6 +116,25 @@
       border-bottom-color: #8a3a1f;
       font-weight: 500;
     }
+    #site-rail-toggle {
+      display: none;
+      align-items: center; justify-content: center;
+      width: 28px; height: 28px;
+      margin-right: 0.75rem; padding: 0;
+      background: transparent;
+      border: 1px solid transparent; border-radius: 3px;
+      color: #6a655d;
+      font-family: 'IBM Plex Sans', system-ui, sans-serif;
+      font-size: 14px; line-height: 1;
+      cursor: pointer;
+      transition: background 0.1s, color 0.1s;
+    }
+    body[data-has-rail] #site-rail-toggle { display: inline-flex; }
+    #site-rail-toggle:hover { background: #efeadc; color: #1a1814; }
+    #site-rail-toggle[aria-pressed="true"] {
+      background: #efeadc; color: #8a3a1f;
+      border-color: #d8d0c0;
+    }
     #site-to-top {
       position: fixed; bottom: 1.25rem; right: 1.25rem; z-index: 250;
       width: 36px; height: 36px; line-height: 32px;
@@ -132,6 +161,28 @@
   const row1 = document.createElement('div');
   row1.className = 'sn-row';
 
+  // Rail toggle — first item in row 1, before brand. Hidden by CSS
+  // when the body doesn't carry data-has-rail (set below if a rail is
+  // detected in the DOM).
+  const railToggle = document.createElement('button');
+  railToggle.id = 'site-rail-toggle';
+  railToggle.type = 'button';
+  railToggle.setAttribute('aria-label', 'Toggle sidebar');
+  railToggle.textContent = '◧';
+  syncToggleState();
+  railToggle.addEventListener('click', function () {
+    const hidden = document.body.classList.toggle('no-rail');
+    safeWrite(RAIL_STATE_KEY, hidden ? 'yes' : 'no');
+    syncToggleState();
+  });
+  row1.appendChild(railToggle);
+
+  function syncToggleState() {
+    const hidden = document.body.classList.contains('no-rail');
+    railToggle.setAttribute('aria-pressed', hidden ? 'true' : 'false');
+    railToggle.title = hidden ? 'Show sidebar' : 'Hide sidebar';
+  }
+
   const brand = document.createElement('a');
   brand.className = 'sn-brand';
   brand.href = prefix + 'index.html';
@@ -150,8 +201,7 @@
   row1.appendChild(topLinks);
   nav.appendChild(row1);
 
-  // Sub-row whenever the current section has 2+ children (every section
-  // with content does now, since each adds a "Source" link).
+  // Sub-row whenever the current section has 2+ children.
   if (currentSection && currentSection.children.length >= 2) {
     const row2 = document.createElement('div');
     row2.className = 'sn-row sn-row--sub';
@@ -171,10 +221,7 @@
 
   document.body.prepend(nav);
 
-  // Back-to-top button — fades in once you've scrolled past the fold.
-  // Inserted on every page that loads nav.js. Hidden in scroll-less
-  // contexts (e.g., the deck) by virtue of always being below the
-  // visibility threshold.
+  // Back-to-top button.
   const toTop = document.createElement('a');
   toTop.id = 'site-to-top';
   toTop.href = '#top';
@@ -194,11 +241,26 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 
-  // Auto-load the site drawer (shared file-tree navigation). Loaded
-  // here instead of via per-page <script> tags so a single update to
-  // nav.js / site-drawer.js propagates everywhere.
-  const drawerScript = document.createElement('script');
-  drawerScript.src = prefix + 'site-drawer.js?v=3';
-  drawerScript.async = true;
-  document.body.appendChild(drawerScript);
+  // Detect a contextual rail in the DOM and surface the toggle button
+  // only on pages where it's meaningful. Run once after DOMContentLoaded
+  // so dynamically-rendered rails (e.g., source.html sidebar) are seen.
+  function detectRail() {
+    if (document.querySelector(RAIL_SELECTORS)) {
+      document.body.setAttribute('data-has-rail', '');
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', detectRail);
+  } else {
+    detectRail();
+  }
+  // Recheck on load — source.html renders its sidebar after fetch.
+  window.addEventListener('load', detectRail);
+
+  function safeRead(k) {
+    try { return localStorage.getItem(k); } catch (_) { return null; }
+  }
+  function safeWrite(k, v) {
+    try { localStorage.setItem(k, v); } catch (_) {}
+  }
 })();

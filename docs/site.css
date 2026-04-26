@@ -830,7 +830,7 @@ body.reading { font-size: 19px; line-height: 1.65; }
 .reading .toc li:first-child { border-top: 1px solid var(--rule); }
 .reading .toc a {
   display: grid;
-  grid-template-columns: 2.5rem 1fr auto;
+  grid-template-columns: 1fr auto;
   gap: 1rem;
   align-items: baseline;
   color: var(--ink); text-decoration: none;
@@ -838,13 +838,6 @@ body.reading { font-size: 19px; line-height: 1.65; }
   transition: color 0.15s;
 }
 .reading .toc a:hover { color: var(--accent); }
-.reading .toc a::before {
-  content: counter(chapter, upper-roman);
-  font-family: var(--font-mono);
-  font-size: 0.78rem; letter-spacing: 0.05em;
-  color: var(--ink-3);
-  padding-top: 0.15rem;
-}
 .reading .toc-chapter { font-family: var(--font-serif); font-weight: 400; text-wrap: balance; }
 .reading .toc-time {
   font-family: var(--font-sans); font-size: 0.72rem;
@@ -1136,38 +1129,26 @@ body.reading { font-size: 19px; line-height: 1.65; }
 }
 .reading .reading-rail ol {
   list-style: none; padding: 0; margin: 0;
-  counter-reset: rail-ch;
 }
 .reading .reading-rail li {
-  counter-increment: rail-ch;
-  margin: 0 0 0.55rem;
+  margin: 0 0 0.45rem;
   line-height: 1.4;
 }
 .reading .reading-rail li.rail-li-deck {
-  counter-increment: none;
   margin-bottom: 1rem; padding-bottom: 0.85rem;
   border-bottom: 1px solid var(--rule);
 }
 .reading .reading-rail a {
-  display: grid;
-  grid-template-columns: 1.6rem 1fr;
-  gap: 0.5rem;
+  display: block;
   color: var(--ink-2); text-decoration: none;
-  transition: color 0.15s;
+  border-left: 1px solid transparent;
+  padding-left: 0.6rem; margin-left: -0.6rem;
+  transition: color 0.15s, border-color 0.15s;
 }
-.reading .reading-rail a:hover { color: var(--accent); }
-.reading .reading-rail a.active { color: var(--accent); font-weight: 500; }
-.reading .reading-rail li:not(.rail-li-deck) a::before {
-  content: counter(rail-ch, upper-roman);
-  font-family: var(--font-mono);
-  font-size: 0.66rem; letter-spacing: 0.05em;
-  color: var(--ink-3);
-  padding-top: 0.05rem;
-}
-.reading .reading-rail li.rail-li-deck a::before {
-  content: "•";
-  color: var(--ink-3);
-  text-align: center;
+.reading .reading-rail a:hover { color: var(--ink); }
+.reading .reading-rail a.active {
+  color: var(--accent); border-left-color: var(--accent);
+  font-weight: 500;
 }
 
 /* Embedded deck */
@@ -1234,3 +1215,28 @@ body.reading { font-size: 19px; line-height: 1.65; }
   .reading .glossary dt { padding-top: 1rem; }
   .reading .glossary dt:first-child { padding-top: 0; }
 }
+
+/* ──────────────────────────────────────────────────────────────────
+   Rail toggle — body.no-rail collapses the contextual rail across
+   every page archetype. Toggle button lives in nav.js's sticky bar
+   and persists state in localStorage.
+   ────────────────────────────────────────────────────────────────── */
+
+/* Reference docs */
+body.no-rail .doc {
+  grid-template-columns: var(--col-margin) minmax(0, 1fr);
+}
+body.no-rail .doc .nav { display: none; }
+
+@media (max-width: 1100px) {
+  body.no-rail .doc {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  body.no-rail .doc .body { grid-column: 1; }
+}
+
+/* Reader's Guide */
+body.no-rail .reading .reading-layout {
+  grid-template-columns: minmax(0, var(--measure));
+}
+body.no-rail .reading .reading-rail { display: none; }
