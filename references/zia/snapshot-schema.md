@@ -427,6 +427,53 @@ Resources `snapshot-refresh.py` doesn't currently dump that you might want to ex
 
 Adding any of these requires updating `scripts/snapshot-refresh.py`'s ZIA resource list. SDK methods are documented in `vendor/zscaler-sdk-python/zscaler/zia/`.
 
+## ⚠️ Verification needed — ZIA schema written from SDK only
+
+Unlike ZPA (where the Postman collection has 76KB+ request/response bodies), the ZIA Postman collection has no detailed schemas (all request bodies under 2KB). This entire document was derived from SDK model classes and the TF provider — no wire-format cross-reference exists. A real tenant run is the only way to validate.
+
+### Priority verification queries
+
+Run these against a populated `snapshot/zia/` or live API and record what diverges from the examples above:
+
+```bash
+# 1. url-categories.json — is id a string code ("MUSIC") for predefined, or always numeric?
+jq '[.[] | {id: .id, idType: (.id | type), custom: .customCategory}] | group_by(.idType) | map({type: .[0].idType, count: length, example: .[0].id})' snapshot/zia/url-categories.json
+
+# 2. url-categories.json — does urlKeywordCounts appear, and what is its shape?
+jq '.[0] | {hasUrlKeywordCounts: has("urlKeywordCounts"), val: .urlKeywordCounts}' snapshot/zia/url-categories.json
+
+# 3. url-filtering-rules.json — what does a populated urlCategories entry look like?
+# (doc shows [] — does it contain id+name objects or just IDs or just names?)
+jq '.[] | select((.urlCategories | length) > 0) | {name, urlCategoriesSample: .urlCategories[:2]}' snapshot/zia/url-filtering-rules.json | head -30
+
+# 4. url-filtering-rules.json — does urlCategories2 actually appear in real rules?
+jq '[.[] | select(has("urlCategories2"))] | length' snapshot/zia/url-filtering-rules.json
+
+# 5. ssl-inspection-rules.json — does the nested action.decryptSubActions shape exist?
+jq '.[] | select(.action.type == "DECRYPT") | {name, hasDecryptSubActions: (.action | has("decryptSubActions")), subActions: .action.decryptSubActions}' snapshot/zia/ssl-inspection-rules.json | head -20
+
+# 6. ssl-inspection-rules.json — does doNotDecryptSubActions appear for DO_NOT_DECRYPT rules?
+jq '.[] | select(.action.type == "DO_NOT_DECRYPT") | {name, hasDoNotDecrypt: (.action | has("doNotDecryptSubActions"))}' snapshot/zia/ssl-inspection-rules.json
+
+# 7. advanced-settings.json — how many fields are there actually? (doc says 50+)
+jq 'keys | length' snapshot/zia/advanced-settings.json
+
+# 8. Are all ZIA IDs integers (not strings)?
+jq '[.[] | .id | type] | unique' snapshot/zia/url-filtering-rules.json
+jq '[.[] | .id | type] | unique' snapshot/zia/ssl-inspection-rules.json
+
+# 9. Does url-categories return unpaginated (one flat array) or wrapped?
+jq 'type' snapshot/zia/url-categories.json   # expect "array", not "object"
+jq 'type' snapshot/zia/url-filtering-rules.json  # expect "array"
+```
+
+**Key unknowns to resolve:**
+- `id` type in url-categories for predefined categories: string code (`"MUSIC"`) or integer?
+- `urlCategories` content in url-filtering-rules: `[{id, name}]` objects, or just `["MUSIC"]` strings, or just `[12345]` integers?
+- `urlCategories2` field: does it exist in real responses, or is it a write-only field?
+- `action.decryptSubActions` / `action.doNotDecryptSubActions` nesting: present in real responses or flattened differently?
+- Total field count in `advanced-settings.json` — document any fields not listed above.
+
 ## Wire-format gotchas
 
 1. **camelCase, always.** ZIA's wire format is camelCase. The SDK exposes snake_case Python; tooling reading JSON directly must use camelCase.
