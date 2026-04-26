@@ -106,6 +106,19 @@
       border-bottom-color: #8a3a1f;
       font-weight: 500;
     }
+    #site-to-top {
+      position: fixed; bottom: 1.25rem; right: 1.25rem; z-index: 250;
+      width: 36px; height: 36px; line-height: 32px;
+      text-align: center; font-size: 16px;
+      background: #f6f2e8; border: 1px solid #d8d0c0; border-radius: 50%;
+      color: #4a4640; text-decoration: none;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s ease, color 0.1s, transform 0.1s;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+      font-family: 'IBM Plex Sans', system-ui, sans-serif;
+    }
+    #site-to-top.visible { opacity: 1; pointer-events: auto; }
+    #site-to-top:hover { color: #8a3a1f; transform: translateY(-1px); }
   `;
 
   const style = document.createElement('style');
@@ -157,4 +170,27 @@
   }
 
   document.body.prepend(nav);
+
+  // Back-to-top button — fades in once you've scrolled past the fold.
+  // Inserted on every page that loads nav.js. Hidden in scroll-less
+  // contexts (e.g., the deck) by virtue of always being below the
+  // visibility threshold.
+  const toTop = document.createElement('a');
+  toTop.id = 'site-to-top';
+  toTop.href = '#top';
+  toTop.setAttribute('aria-label', 'Back to top');
+  toTop.textContent = '↑';
+  document.body.appendChild(toTop);
+
+  function onScroll() {
+    if (window.scrollY > 400) toTop.classList.add('visible');
+    else toTop.classList.remove('visible');
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  toTop.addEventListener('click', function (e) {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
 })();
