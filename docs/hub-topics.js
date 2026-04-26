@@ -67,8 +67,8 @@
       `<a href="../source.html?p=${encodePath(it.slug)}">${it.label}</a>`
     ).join('');
     section.innerHTML =
-      '<h3 class="topic-list-heading">Source</h3>' +
-      '<p class="topic-list-desc">Each link below renders the underlying markdown directly via the Source view.</p>' +
+      '<h3 class="topic-list-heading">Documents</h3>' +
+      '<p class="topic-list-desc">Each link below renders the underlying markdown directly.</p>' +
       '<div class="topic-list">' + links + '</div>';
 
     docsNav.parentNode.insertBefore(section, docsNav.nextSibling);

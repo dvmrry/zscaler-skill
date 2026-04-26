@@ -13,7 +13,7 @@
   const sections = [
     {
       key: 'overview',
-      label: 'Overview',
+      label: 'Index',
       href: 'index.html',
       match: [/^\/?$/, /\/index\.html$/, /\/docs\/?$/],
       children: [],
@@ -24,10 +24,10 @@
       href: 'welcome/',
       match: [/\/welcome\//, /readers-guide/, /onboarding/, /source\.html\?.*p=_primer/],
       children: [
-        { href: 'welcome/',               label: 'Overview',       match: [/\/welcome\/(index\.html)?$/] },
+        { href: 'welcome/',               label: 'Index',          match: [/\/welcome\/(index\.html)?$/] },
         { href: 'readers-guide.html',     label: "Reader's Guide", match: [/readers-guide/] },
-        { href: 'onboarding.html',        label: 'Deck',           match: [/onboarding/] },
-        { href: 'source.html?p=_primer',  label: 'Source',         match: [/source\.html\?.*p=_primer/] },
+        { href: 'onboarding.html',        label: 'Slideshow',      match: [/onboarding/] },
+        { href: 'source.html?p=_primer',  label: 'Documents',      match: [/source\.html\?.*p=_primer/] },
       ],
     },
     {
@@ -36,10 +36,10 @@
       href: 'zia/',
       match: [/\/zia\//, /\/zia\/?$/, /source\.html\?.*p=zia(\/|$)/],
       children: [
-        { href: 'zia/',                label: 'Overview',          match: [/\/zia\/(index\.html)?$/] },
-        { href: 'zia/reference.html',  label: 'Reference',         match: [/zia\/reference/] },
+        { href: 'zia/',                label: 'Index',              match: [/\/zia\/(index\.html)?$/] },
+        { href: 'zia/reference.html',  label: 'Reference',          match: [/zia\/reference/] },
         { href: 'zia/forwarding.html', label: 'Traffic Forwarding', match: [/zia\/forwarding/] },
-        { href: 'source.html?p=zia',   label: 'Source',            match: [/source\.html\?.*p=zia(\/|$)/], external: 'source' },
+        { href: 'source.html?p=zia',   label: 'Documents',          match: [/source\.html\?.*p=zia(\/|$)/], external: 'source' },
       ],
     },
     {
@@ -48,9 +48,9 @@
       href: 'zpa/',
       match: [/\/zpa\//, /\/zpa\/?$/, /source\.html\?.*p=zpa(\/|$)/],
       children: [
-        { href: 'zpa/',                label: 'Overview',  match: [/\/zpa\/(index\.html)?$/] },
+        { href: 'zpa/',                label: 'Index',     match: [/\/zpa\/(index\.html)?$/] },
         { href: 'zpa/reference.html',  label: 'Reference', match: [/zpa\/reference/] },
-        { href: 'source.html?p=zpa',   label: 'Source',    match: [/source\.html\?.*p=zpa(\/|$)/], external: 'source' },
+        { href: 'source.html?p=zpa',   label: 'Documents', match: [/source\.html\?.*p=zpa(\/|$)/], external: 'source' },
       ],
     },
     {
@@ -59,9 +59,9 @@
       href: 'cloud-connector/',
       match: [/cloud-connector\//, /source\.html\?.*p=cloud-connector(\/|$)/],
       children: [
-        { href: 'cloud-connector/',                  label: 'Overview',  match: [/cloud-connector\/(index\.html)?$/] },
+        { href: 'cloud-connector/',                  label: 'Index',     match: [/cloud-connector\/(index\.html)?$/] },
         { href: 'cloud-connector/reference.html',    label: 'Reference', match: [/cloud-connector\/reference/] },
-        { href: 'source.html?p=cloud-connector',     label: 'Source',    match: [/source\.html\?.*p=cloud-connector(\/|$)/], external: 'source' },
+        { href: 'source.html?p=cloud-connector',     label: 'Documents', match: [/source\.html\?.*p=cloud-connector(\/|$)/], external: 'source' },
       ],
     },
   ];
