@@ -3,7 +3,7 @@ product: shared
 topic: "zscaler-cloud-architecture"
 title: "Zscaler cloud architecture — Central Authority, Service Edges, BC Cloud, tunnel model"
 content-type: reasoning
-last-verified: "2026-04-24"
+last-verified: "2026-04-25"
 confidence: high
 source-tier: doc
 sources:
@@ -13,6 +13,8 @@ sources:
   - "vendor/zscaler-help/understanding-private-access-architecture.md"
   - "https://help.zscaler.com/zia/understanding-business-continuity-cloud-components"
   - "vendor/zscaler-help/understanding-business-continuity-cloud-components.md"
+  - "https://help.zscaler.com/zia/understanding-multi-cluster-load-sharing"
+  - "vendor/zscaler-help/understanding-multi-cluster-load-sharing.md"
   - "https://help.zscaler.com/legacy-apis/activation"
   - "vendor/zscaler-help/zia-activation.md"
   - "vendor/zscaler-sdk-python/zscaler/zia/activate.py"
@@ -35,6 +37,8 @@ Each Zscaler cloud is a self-contained deployment (`zscaler.net`, `zscalertwo.ne
 - **Support systems** — Sandbox servers, PAC file servers, Admin Console, Log Routers.
 
 ZIA and ZPA are separate services running on **separate multi-tenant infrastructure** (ZPA was built "from the ground up" to be isolated from ZIA per the ZPA architecture doc). A tenant using both services has separate CA, Service Edge, and LSS/Nanolog instances per product, linked via the shared Zscaler PKI and Zscaler Identity layer.
+
+**Provisioning scope** (from *Understanding the Zscaler Cloud Architecture*): an organization is provisioned on **one cloud only**, and all of that org's traffic is processed by that cloud. There is no cross-cloud failover at the tenant level — failover within a cloud is handled by Service Edge active-active load balancing, and catastrophic-cloud failure is handled by the [Business Continuity Cloud](#business-continuity-cloud).
 
 ## Mechanics
 
@@ -83,6 +87,17 @@ Three form factors, same software stack:
 - **No data written to disk** on the Service Edge.
 - Logs are compressed, tokenized, and exported over TLS to Log Routers, which write to the Nanolog cluster for that tenant's geography.
 - **Active-active load balancing** worldwide; CA monitors health.
+- **Policy follows the user.** When a user moves locations, the new Public Service Edge downloads the appropriate policy from the CA — there's no "wrong edge holding stale policy" failure mode for a moved user. (Zscaler's "advanced geo-IP resolution" routes traffic to the nearest edge; the algorithm itself isn't customer-documented.)
+
+#### Multi-Cluster Load Sharing (MCLS)
+
+A Public Service Edge data center is not necessarily a single cluster — Zscaler deploys multiple clusters from different network address blocks behind a shared VIP. MCLS lets traffic to that VIP enter any cluster's load balancers, and any LB can forward to any service node in any participating cluster.
+
+The operational consequence: **Zscaler can add capacity to existing VIPs without forcing customers to migrate GRE tunnels.** A customer's GRE tunnel terminates at a VIP; new clusters joining behind that VIP just expand the pool. The customer sees no change.
+
+Per-cloud MCLS configuration data is published at `config.zscaler.com/<cloud>/cenr` (e.g., `config.zscaler.com/zscalertwo.net/cenr`). Rollout is infrastructure-schedule-driven, not per-org opt-in. Source: *Understanding Multi-Cluster Load Sharing*. Tier A.
+
+**Note:** the MCLS capture covers GRE tunnel behavior. IPSec / Z-Tunnel 2.0 behavior under MCLS isn't explicitly documented — assume similar but verify if it matters.
 
 **ZPA-specific function**: Service Edges create and manage M-Tunnels (Microtunnels) end-to-end between ZCC and App Connectors (see [Z-Tunnel vs M-Tunnel](#z-tunnel-vs-m-tunnel) below).
 
@@ -118,7 +133,7 @@ From *Understanding the Business Continuity Cloud Components*, a **Zscaler-manag
 1. **Private Policy Cache** — integrated into ZIA Private Service Edges. Continuously syncs tenant config from the public cloud during normal operations. During BC mode, serves as the primary control path, applying the last-known-good policy.
 2. **Private PAC Servers** — host tenant PAC files. Redirect client traffic to the BC cloud via geo-aware PAC files during failover.
 
-Both are deployed in **redundant pairs per BC Cloud site**.
+Both are deployed in **redundant pairs per BC Cloud site**. **ZCC connects to the nearest BC Cloud based on its source IP / location** — geo-aware failover at the client side, not just at the data center.
 
 **Key constraints worth knowing:**
 
