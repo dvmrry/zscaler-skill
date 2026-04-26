@@ -70,16 +70,48 @@
     top: 0;
     max-height: 100vh;
   }
-  .sidebar h3 {
+  .sidebar ul { list-style: none; margin: 0; padding: 0; }
+
+  /* Collapsible group — header is a button that toggles the
+     visibility of its child <ul>. Default closed; the current
+     section's group is auto-opened on render. */
+  .sb-group + .sb-group { border-top: 1px solid var(--rule-soft); }
+  .sb-group-head {
+    display: flex; align-items: center; gap: 0.5rem;
+    width: 100%;
+    padding: 0.55rem 1.5rem;
+    background: transparent;
+    border: 0; border-radius: 0;
+    cursor: pointer;
+    text-align: left;
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.66rem; font-weight: 500;
     text-transform: uppercase; letter-spacing: 0.12em;
     color: var(--ink-3);
-    padding: 0.6rem 1.5rem 0.4rem;
-    margin-top: 0.5rem;
+    transition: color 0.1s, background 0.1s;
   }
-  .sidebar h3:first-of-type { margin-top: 0; }
-  .sidebar ul { list-style: none; margin: 0 0 0.4rem; padding: 0; }
+  .sb-group-head:hover { color: var(--ink); background: var(--paper-card); }
+  .sb-group-caret {
+    display: inline-block; width: 0.7rem;
+    color: var(--ink-3); font-size: 0.7rem; line-height: 1;
+    transition: transform 0.15s;
+  }
+  .sb-group.sb-open .sb-group-caret { transform: rotate(90deg); }
+  .sb-group-label { flex: 1; }
+  .sb-group-count {
+    font-size: 0.6rem;
+    color: var(--ink-ghost);
+    font-weight: 400;
+  }
+  .sb-group-list {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.2s ease;
+  }
+  .sb-group.sb-open .sb-group-list {
+    max-height: 100vh;
+    padding-bottom: 0.4rem;
+  }
   .sidebar a {
     display: block;
     padding: 0.25rem 1.5rem;
@@ -475,15 +507,19 @@
     // Active path: drop .md and the references/ prefix to compare with `?p=` slugs.
     const currentSlug = currentSlugFromUrl();
 
+    // Determine the current section group (e.g. "zia", "cloud-connector")
+    // so we can auto-expand only that group on first render.
+    const currentGroup = currentSlug.includes('/') ? currentSlug.split('/')[0] : null;
+
     const html = [];
 
     if (topLevel.length) {
-      html.push(`<h3>References</h3><ul>`);
-      for (const f of topLevel) {
-        const slug = f.path.replace(/\.md$/, '');
-        html.push(renderSidebarItem(slug, f.label, currentSlug, f.path));
-      }
-      html.push(`</ul>`);
+      const expanded = currentGroup === null;
+      html.push(renderGroup('_top', 'References', topLevel.map(f => ({
+        slug: f.path.replace(/\.md$/, ''),
+        label: f.label,
+        path: f.path,
+      })), currentSlug, expanded));
     }
 
     const orderedKeys = [
@@ -493,17 +529,44 @@
 
     for (const key of orderedKeys) {
       const label = GROUP_LABELS[key] || prettify(key);
-      html.push(`<h3>${escapeHtml(label)}</h3><ul>`);
-      for (const f of groups[key]) {
-        const slug = f.path.replace(/\.md$/, '').replace(/\/index$/, '');
-        const displayLabel = f.path.endsWith('/index.md') ? 'Overview' : f.label;
-        html.push(renderSidebarItem(slug, displayLabel, currentSlug, f.path));
-      }
-      html.push(`</ul>`);
+      const items = groups[key].map(f => ({
+        slug: f.path.replace(/\.md$/, '').replace(/\/index$/, ''),
+        label: f.path.endsWith('/index.md') ? 'Overview' : f.label,
+        path: f.path,
+      }));
+      html.push(renderGroup(key, label, items, currentSlug, key === currentGroup));
     }
 
     document.getElementById('sb-tree').innerHTML = html.join('');
+    setupGroupToggle();
     setupSearch(entries);
+  }
+
+  function renderGroup(key, label, items, currentSlug, expanded) {
+    const cls = 'sb-group' + (expanded ? ' sb-open' : '');
+    const out = [`<div class="${cls}" data-group="${escapeHtml(key)}">`];
+    out.push(`<button class="sb-group-head" type="button" aria-expanded="${expanded}">`);
+    out.push(`<span class="sb-group-caret" aria-hidden="true">▸</span>`);
+    out.push(`<span class="sb-group-label">${escapeHtml(label)}</span>`);
+    out.push(`<span class="sb-group-count">${items.length}</span>`);
+    out.push(`</button>`);
+    out.push(`<ul class="sb-group-list">`);
+    for (const it of items) {
+      out.push(renderSidebarItem(it.slug, it.label, currentSlug, it.path));
+    }
+    out.push(`</ul></div>`);
+    return out.join('');
+  }
+
+  function setupGroupToggle() {
+    const groups = document.querySelectorAll('.sb-group');
+    groups.forEach(g => {
+      const head = g.querySelector('.sb-group-head');
+      head.addEventListener('click', () => {
+        const open = g.classList.toggle('sb-open');
+        head.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+    });
   }
 
   function renderSidebarItem(slug, label, currentSlug, path) {
