@@ -71,6 +71,18 @@ If empty, say so explicitly (see **When to decline**) and still answer the gener
 
 `logs/` is a separate cache for log-query results (gitignored; populated by `scripts/splunk-query.sh`). Logs are a validation layer, not a primary source — see **When to consult logs** below.
 
+## Reference IaC vs production IaC
+
+The skill ships with **Zscaler's reference IaC** under `vendor/terraform-provider-{zia,zpa,ztc}/` — those are the canonical Zscaler-published Terraform providers. They show one valid way to deploy each resource and are authoritative for what fields the API accepts and what shapes Zscaler considers idiomatic. **They are reference implementations, not specification.** A different working IaC implementation isn't wrong.
+
+If a fork has populated `iac/` (empty in upstream), treat that as **production truth** for "how is X actually deployed in our environment" questions. The reference IaC under `vendor/` remains useful for "what's possible" / "what fields exist" / "what defaults Zscaler ships." Where the two diverge for a specific deployment, prefer `iac/` for env-specific answers and cite the reference for context.
+
+```bash
+ls -A iac/ | grep -v '^\.gitkeep$'   # check before assuming reference IaC reflects this fork's deployment
+```
+
+See [`iac/README.md`](iac/README.md) for the precedence rules and structure.
+
 ## Question routing
 
 Go straight to the reference file that covers the question shape. Only read more than one if the question genuinely spans them.

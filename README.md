@@ -204,6 +204,7 @@ vendor/                    upstream sources as git submodules (SDKs, TF provider
 scripts/                   operational tooling (URL lookup, access check, SSL audit, etc.)
 evals/                     canonical Q→A test prompts with structured assertions
 snapshot/                  tenant config dumps — empty upstream, populated per-fork
+iac/                       production IaC (TF / CFN) — empty upstream, populated per-fork; takes precedence over reference IaC under vendor/ for env-specific questions. See iac/README.md
 ```
 
 Every reference file carries YAML front-matter (`product`, `topic`, `content-type`, `last-verified`, `confidence`, `source-tier`, `sources`, `author-status`). See [`references/_template.md`](./references/_template.md).

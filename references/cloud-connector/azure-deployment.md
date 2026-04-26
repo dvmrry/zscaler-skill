@@ -3,7 +3,7 @@ product: ztw
 topic: "azure-deployment"
 title: "Cloud Connector on Azure — deployment shape, NIC model, scaling, HA"
 content-type: reasoning
-last-verified: "2026-04-25"
+last-verified: "2026-04-26"
 confidence: high
 source-tier: mixed
 sources:
@@ -21,7 +21,7 @@ author-status: draft
 
 The Azure-specific deployment of [Cloud Connector](./overview.md). For the cloud-agnostic architecture (CC Groups, forwarding rules, HA concept), start with [`./overview.md`](./overview.md). This doc captures the Azure-specific NIC model, networking requirements, VMSS scaling, and the gotchas that bite Azure deployments specifically.
 
-The canonical source for nearly every Tier A claim below is **Zscaler's first-party Terraform module repository** (`github.com/zscaler/terraform-azurerm-cloud-connector-modules`). When the module code and a help-portal article disagree, the module is authoritative — it's what actually deploys.
+> **Reference IaC vs production IaC.** Most claims below are derived from **Zscaler's published Terraform modules** at `github.com/zscaler/terraform-azurerm-cloud-connector-modules`. Those modules are **reference implementations** — one valid way to deploy, what Zscaler considers idiomatic. They are *not* product specification. The runtime requirements of the Cloud Connector VM image vs. the patterns Zscaler's TF chooses to enforce aren't separately documented; where the distinction matters, this doc tries to flag it. A different working IaC implementation (yours, or another vendor's) isn't wrong because it diverges from the reference. **Fork agents:** if `iac/` is populated for this fork, treat it as production truth and use this doc for context, not as the deployment spec.
 
 ## Marketplace listing and image terms
 
@@ -42,18 +42,20 @@ Skipping this produces an ARM-level error, not a Zscaler error — easy to misdi
 
 The Zscaler-published Terraform repo ships **9 deployment scenarios** ranging from greenfield single-CC POV to brownfield VMSS with BYO VNet/RG/NSG. ARM templates exist as a Marketplace-wizard path but are not separately published as a standalone repo. **No Bicep templates** are published by Zscaler — defer to TF or ARM.
 
-## Dual-NIC architecture (load-bearing)
+## Dual-NIC architecture (reference pattern)
 
-Azure Cloud Connector requires **two NICs per VM**, in a fixed order:
+Zscaler's reference TF deploys Azure Cloud Connector with **two NICs per VM** in a fixed order:
 
 | NIC | Subnet | IP Forwarding | Notes |
 |---|---|---|---|
 | #0 (primary) — Management | `mgmt-subnet` | **Disabled** | SSH (TCP 22), ICMP, ZIA support tunnel |
 | #1 — Service / Forwarding | `service-subnet` | **Enabled** | Workload traffic, attaches to LB backend pool, accelerated networking on |
 
-Ordering is enforced by the module: "the ordering of `network_interface_ids` associated to the `azurerm_linux_virtual_machine` are #1/first 'Management'." Swapping subnet IDs in module variables produces VMs that fail at boot — the CC expects management traffic on the first interface.
+The reference module enforces this ordering: *"the ordering of `network_interface_ids` associated to the `azurerm_linux_virtual_machine` are #1/first 'Management'."* The TF module's documentation states the CC expects management traffic on the first interface — swapping subnet IDs produces VMs that fail at boot in the reference deployment shape.
 
-There is **no single-NIC deployment path** for Azure Cloud Connector. The "single-arm" framing in some general Zscaler material refers to the forwarding topology in other cloud products and does not apply to Azure.
+Whether this is a hard runtime requirement of the CC VM image vs. an enforced convention of the reference TF isn't separately documented by Zscaler. Treat the dual-NIC pattern as load-bearing for any deployment derived from the reference module; a custom deployment that differs may or may not work and would need to be validated.
+
+The reference module does not provide a single-NIC deployment path. The "single-arm" framing in some general Zscaler material refers to forwarding topology in other cloud products and does not apply to Azure CC's reference deployment shape.
 
 ## Provisioning URL handoff
 
@@ -107,11 +109,13 @@ Two NSGs are deployed — one per NIC:
 
 The Service NSG's permissive `VirtualNetwork` inbound implicitly covers Azure Load Balancer health probe traffic. **No explicit rules for Azure Fabric IPs** (`168.63.129.16`, `169.254.169.254`) — Cloud Connector relies on standard Azure platform reachability for IMDS and DHCP. This is different from ZCC, which actively tunnels and needs explicit Fabric IP bypass.
 
-## Load Balancer
+## Load Balancer (reference defaults)
 
-| Setting | Value |
+The reference TF deploys an Azure Standard ILB with the following defaults:
+
+| Setting | Reference value |
 |---|---|
-| SKU | **Azure Standard ILB** (Basic SKU not referenced anywhere) |
+| SKU | Standard ILB (Basic SKU is not referenced; runtime support not separately confirmed) |
 | Probe protocol/port | HTTP on TCP 50000 |
 | Probe path | `/cchealth` |
 | Probe interval | 15 seconds |
@@ -119,20 +123,22 @@ The Service NSG's permissive `VirtualNetwork` inbound implicitly covers Azure Lo
 | Successes to recovery | 1 |
 | Distribution | `Default` (5-tuple hash) |
 
-CC responds `200 OK` when healthy, `503` or no response when unhealthy.
+The CC instances respond `200 OK` when healthy, `503` or no response when unhealthy. The probe path + port are runtime endpoints CC exposes; the rest are LB-side configuration choices the reference module makes (and that you can override in your own deployment if you have reason to).
 
-## NAT Gateway
+## NAT Gateway (reference pattern)
 
-A **NAT Gateway with a dedicated Public IP** is required per CC service subnet for egress to ZIA Public Service Edges. The NAT Gateway's public IP is the egress source IP that ZIA sees — it should be registered/allowed at the ZIA tenant where appropriate.
+The reference TF deploys a NAT Gateway with a dedicated Public IP per CC service subnet for egress to ZIA Public Service Edges. The NAT Gateway's public IP becomes the egress source IP that ZIA sees — register/allow it at the ZIA tenant where appropriate.
 
-For multi-AZ deployments, **one NAT Gateway per availability zone** is the Zscaler recommendation. Azure NAT Gateways are zone-specific; a single NAT GW shared across AZs is a single point of AZ failure for egress.
+For multi-AZ deployments, **one NAT Gateway per availability zone** is Zscaler's recommendation in the reference architecture. Azure NAT Gateways are zone-specific; a shared NAT GW across AZs is a single point of AZ failure for egress. Whether you can deploy without a NAT Gateway at all (e.g., using direct public IPs on the VMs, or routing through Azure Firewall) isn't covered by the reference module — alternatives may be possible but aren't validated by Zscaler's published patterns.
 
 ## VMSS autoscaling
 
-**Enablement is gated** — the help docs explicitly require contacting Zscaler Support to enable VMSS in the provisioning template UI:
+**Tenant-side enablement is gated** by Zscaler Support — the help docs explicitly require this for the provisioning template UI:
 > "To enable Auto Scaling, VMSS, or a MIG with autoscaling, contact Zscaler Support."
 
-| Setting | Value |
+The reference TF deploys VMSS with the following defaults (all tunable in your own deployment):
+
+| Setting | Reference default |
 |---|---|
 | Orchestration mode | Flexible |
 | Default instances | 2 |
@@ -151,14 +157,16 @@ VMSS deployments include a **mandatory Azure Function App** with two functions:
 
 ## HA model in Azure
 
-| Layer | Recommendation |
-|---|---|
-| CC instances | Minimum **2 per AZ across at least 2 AZs** (4 total) |
-| Load balancer | Standard ILB, 15s probe |
-| Tunnel failover (CC → ZIA) | ~30 seconds on primary tunnel failure; primary/secondary/tertiary gateway selection is automatic by geolocation |
-| Default behavior on full ZIA unreachability | **Fail-close** (drop) — switchable to fail-open |
-| NAT Gateway | One per AZ |
-| Upgrade window | Configurable per CC Group (Admin Console); maintains redundancy during upgrade |
+The reference TF + Zscaler's published HA guidance recommend:
+
+| Layer | Reference recommendation | Notes |
+|---|---|---|
+| CC instances | 2 per AZ across at least 2 AZs (4 total) | Zscaler's stated minimum for production HA — not enforced by the runtime |
+| Load balancer | Standard ILB, 15s probe | Reference module setting |
+| Tunnel failover (CC → ZIA) | ~30 seconds on primary tunnel failure | Runtime behavior; primary/secondary/tertiary gateway selection is automatic by geolocation |
+| Default behavior on full ZIA unreachability | Fail-close (drop) — switchable to fail-open | Runtime behavior, not IaC-derived |
+| NAT Gateway | One per AZ | Reference recommendation per the Azure NAT Gateway zone-pinning model |
+| Upgrade window | Configurable per CC Group (Admin Console) | Maintains redundancy during upgrade — Zscaler-managed |
 
 ## Common failure modes
 
