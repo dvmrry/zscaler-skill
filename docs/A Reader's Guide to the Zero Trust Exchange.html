@@ -1,0 +1,994 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Reader's Guide to the Zero Trust Exchange</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,500;8..60,600;8..60,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #1a1814;
+    --ink-soft:   #4a463f;
+    --ink-faint:  #8a857c;
+    --rule:       #d8d3c7;
+    --rule-soft:  #ece8de;
+    --paper:      #f6f2e8;
+    --paper-deep: #efe9da;
+    --accent:     #8a3a1f;   /* burnt sienna — sparing */
+    --accent-ink: #5e2814;
+    --highlight:  #f5e6c8;
+    --measure:    34rem;
+    --measure-wide: 46rem;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  html { background: var(--paper); }
+  body {
+    font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+    font-size: 19px;
+    line-height: 1.65;
+    color: var(--ink);
+    background: var(--paper);
+    font-feature-settings: "kern", "liga", "onum";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* ───── Layout ───── */
+  .page {
+    max-width: var(--measure);
+    margin: 0 auto;
+    padding: 7rem 1.5rem 10rem;
+  }
+  .page--wide { max-width: var(--measure-wide); }
+
+  /* ───── Masthead ───── */
+  .masthead {
+    text-align: left;
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 2rem;
+    margin-bottom: 4rem;
+  }
+  .masthead .eyebrow {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 1.25rem;
+  }
+  .masthead h1 {
+    font-family: "Source Serif 4", serif;
+    font-weight: 400;
+    font-size: clamp(2.25rem, 5vw, 3.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    margin: 0 0 0.6rem;
+    text-wrap: balance;
+  }
+  .masthead .subtitle {
+    font-family: "Source Serif 4", serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 1.25rem;
+    color: var(--ink-soft);
+    margin: 0 0 2rem;
+    line-height: 1.4;
+    text-wrap: pretty;
+  }
+  .masthead .meta {
+    display: flex;
+    gap: 2.5rem 2.5rem;
+    flex-wrap: wrap;
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.04em;
+  }
+  .masthead .meta > div {
+    display: flex;
+    flex-direction: column;
+    min-width: 8rem;
+  }
+  .masthead .meta strong {
+    color: var(--ink);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    white-space: nowrap;
+  }
+
+  /* ───── Front matter ───── */
+  .front-matter {
+    margin: 4rem 0 5rem;
+    padding: 2rem 0;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .front-matter h2 {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0 0 1.5rem;
+  }
+  .front-matter p {
+    font-family: "Source Serif 4", serif;
+    font-style: italic;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    margin: 0;
+    text-wrap: pretty;
+  }
+
+  /* ───── Table of contents ───── */
+  .toc { margin: 5rem 0 6rem; }
+  .toc-title {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0 0 2rem;
+  }
+  .toc ol {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    counter-reset: chapter;
+  }
+  .toc li {
+    counter-increment: chapter;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .toc li:first-child { border-top: 1px solid var(--rule); }
+  .toc a {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr auto;
+    gap: 1rem;
+    align-items: baseline;
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 1.1rem;
+    transition: color 0.15s;
+  }
+  .toc a:hover { color: var(--accent); }
+  .toc a::before {
+    content: counter(chapter, upper-roman);
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.05em;
+    padding-top: 0.15rem;
+  }
+  .toc-chapter {
+    font-family: "Source Serif 4", serif;
+    font-weight: 400;
+    text-wrap: balance;
+  }
+  .toc-time {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.72rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+  /* ───── Chapters ───── */
+  .chapter {
+    margin-top: 8rem;
+    padding-top: 2rem;
+  }
+  .chapter-head {
+    margin-bottom: 4rem;
+    border-top: 1px solid var(--ink);
+    padding-top: 1.5rem;
+  }
+  .chapter-num {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+  .chapter-head h2 {
+    font-family: "Source Serif 4", serif;
+    font-weight: 400;
+    font-size: clamp(1.75rem, 3.4vw, 2.5rem);
+    line-height: 1.1;
+    letter-spacing: -0.012em;
+    margin: 0 0 1rem;
+    text-wrap: balance;
+  }
+  .chapter-head .standfirst {
+    font-family: "Source Serif 4", serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 1.15rem;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    margin: 0;
+    max-width: 32rem;
+    text-wrap: pretty;
+  }
+
+  /* ───── Body ───── */
+  .chapter p {
+    margin: 0 0 1.4rem;
+    text-wrap: pretty;
+    hyphens: auto;
+  }
+  .chapter p:first-of-type::first-line {
+    font-variant: small-caps;
+    letter-spacing: 0.04em;
+  }
+  .chapter h3 {
+    font-family: "Source Serif 4", serif;
+    font-weight: 600;
+    font-size: 1.25rem;
+    line-height: 1.3;
+    margin: 3rem 0 1rem;
+    letter-spacing: -0.005em;
+  }
+  .chapter h4 {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 2.5rem 0 0.75rem;
+  }
+
+  em { font-style: italic; }
+  strong { font-weight: 600; color: var(--ink); }
+
+  /* Inline emphasis */
+  .term {
+    font-family: "Source Serif 4", serif;
+    font-style: italic;
+    font-weight: 500;
+    color: var(--accent-ink);
+  }
+  code, .mono {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.86em;
+    color: var(--accent-ink);
+    background: var(--paper-deep);
+    padding: 0.05em 0.35em;
+    border-radius: 2px;
+  }
+
+  /* ───── Pull quote ───── */
+  .pull {
+    margin: 3.5rem -1rem;
+    padding: 2.5rem 1rem 2.5rem;
+    border-top: 1px solid var(--ink);
+    border-bottom: 1px solid var(--ink);
+    font-family: "Source Serif 4", serif;
+    font-weight: 300;
+    font-style: italic;
+    font-size: clamp(1.4rem, 2.6vw, 1.8rem);
+    line-height: 1.35;
+    color: var(--ink);
+    text-align: left;
+    text-wrap: balance;
+  }
+  .pull-attr {
+    display: block;
+    margin-top: 1rem;
+    font-family: "IBM Plex Sans", sans-serif;
+    font-style: normal;
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  /* ───── Drop cap ───── */
+  .dropcap::first-letter {
+    font-family: "Source Serif 4", serif;
+    font-weight: 400;
+    font-size: 4.6em;
+    line-height: 0.85;
+    float: left;
+    padding: 0.08em 0.12em 0 0;
+    color: var(--ink);
+  }
+
+  /* ───── Marginalia / footnote-style asides ───── */
+  .aside {
+    border-left: 2px solid var(--accent);
+    padding: 0.25rem 0 0.25rem 1.25rem;
+    margin: 2.5rem 0;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+  .aside .label {
+    display: block;
+    font-family: "IBM Plex Sans", sans-serif;
+    font-style: normal;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.4rem;
+  }
+
+  /* ───── Compare table ───── */
+  .compare {
+    margin: 2.5rem 0;
+    border-top: 1px solid var(--ink);
+    border-bottom: 1px solid var(--ink);
+  }
+  .compare-head {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--rule);
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .compare-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--rule-soft);
+    font-size: 0.96rem;
+    line-height: 1.5;
+  }
+  .compare-row:last-child { border-bottom: none; }
+  .compare-row > div:first-child { color: var(--ink-soft); }
+  .compare-row > div:last-child { color: var(--ink); font-weight: 500; }
+
+  /* ───── Numbered flow ───── */
+  .flow {
+    margin: 2.5rem 0;
+    counter-reset: step;
+  }
+  .flow-step {
+    counter-increment: step;
+    display: grid;
+    grid-template-columns: 2rem 1fr;
+    gap: 1.25rem;
+    padding: 1.25rem 0;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .flow-step:first-child { border-top: 1px solid var(--rule); }
+  .flow-step::before {
+    content: counter(step, decimal-leading-zero);
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.78rem;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+    padding-top: 0.2rem;
+  }
+  .flow-step .step-title {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0 0 0.4rem;
+  }
+  .flow-step p {
+    margin: 0;
+    font-size: 0.96rem;
+    line-height: 1.55;
+  }
+
+  /* ───── Section break ───── */
+  .ornament {
+    text-align: center;
+    margin: 3.5rem 0;
+    font-family: "Source Serif 4", serif;
+    font-size: 1.3rem;
+    color: var(--ink-faint);
+    letter-spacing: 1.5em;
+    padding-left: 1.5em;
+  }
+
+  /* ───── Diagram (sparing, considered) ───── */
+  .diagram {
+    margin: 3rem 0;
+    padding: 2.5rem 1.5rem;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .diagram-caption {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.72rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.06em;
+    margin-top: 1.25rem;
+    text-align: center;
+    font-style: italic;
+  }
+  .diagram-caption strong {
+    font-style: normal;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--ink);
+    font-size: 0.7rem;
+    margin-right: 0.5rem;
+  }
+  .diagram svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+
+  /* ───── Glossary ───── */
+  .glossary {
+    margin: 3rem 0;
+    padding-top: 2rem;
+    border-top: 1px solid var(--ink);
+  }
+  .glossary h3 {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0 0 1.5rem;
+  }
+  .glossary dl {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 1rem 2rem;
+    margin: 0;
+  }
+  .glossary dt {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--accent-ink);
+    padding-top: 0.1rem;
+  }
+  .glossary dd {
+    margin: 0;
+    font-size: 0.96rem;
+    line-height: 1.55;
+    color: var(--ink-soft);
+  }
+
+  /* ───── End matter ───── */
+  .colophon {
+    margin-top: 8rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--ink);
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.78rem;
+    line-height: 1.6;
+    color: var(--ink-faint);
+    text-align: center;
+  }
+  .colophon .ornament-small {
+    font-family: "Source Serif 4", serif;
+    font-size: 1rem;
+    letter-spacing: 1.5em;
+    padding-left: 1.5em;
+    margin-bottom: 1.5rem;
+  }
+  .colophon p { margin: 0.4rem 0; }
+
+  /* ───── Reading progress ───── */
+  .progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 2px;
+    background: var(--accent);
+    width: 0%;
+    z-index: 100;
+    transition: width 0.1s linear;
+  }
+
+  /* ───── Print ───── */
+  @media print {
+    body { font-size: 11pt; }
+    .progress { display: none; }
+    .chapter { page-break-before: always; margin-top: 0; }
+    .pull { page-break-inside: avoid; }
+  }
+
+  @media (max-width: 600px) {
+    .page { padding: 4rem 1.25rem 6rem; }
+    .compare-head, .compare-row {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+    }
+    .glossary dl {
+      grid-template-columns: 1fr;
+      gap: 0.4rem 0;
+    }
+    .glossary dt { padding-top: 1rem; }
+    .glossary dt:first-child { padding-top: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<div class="page">
+
+  <!-- ────────── Masthead ────────── -->
+  <header class="masthead">
+    <div class="eyebrow">A Reading Path · Chapter One of the Skill</div>
+    <h1>A Reader's Guide<br>to the Zero Trust Exchange</h1>
+    <p class="subtitle">An editorial introduction to Zscaler — what it is, what problem it solves, and how its parts fit together. Begin here before any product‑specific reference.</p>
+    <div class="meta">
+      <div><strong>Path</strong>Curated · 6 chapters</div>
+      <div><strong>Reading time</strong>≈ 28 minutes</div>
+      <div><strong>Level</strong>Overview</div>
+      <div><strong>Prerequisites</strong>None</div>
+    </div>
+  </header>
+
+  <!-- ────────── Front matter / preface ────────── -->
+  <section class="front-matter">
+    <h2>A note to the reader</h2>
+    <p>This guide is the conceptual entry point to a larger body of reference material. It is meant to be read in order, in one or two sittings, before the reference docs make sense. Each chapter ends where the next begins; the references take over once the model is in place. Read slowly. The vocabulary matters.</p>
+  </section>
+
+  <!-- ────────── TOC ────────── -->
+  <nav class="toc">
+    <h2 class="toc-title">Contents</h2>
+    <ol>
+      <li><a href="#ch1"><span class="toc-chapter">The castle and the moat, and why it stopped working</span><span class="toc-time">4 min</span></a></li>
+      <li><a href="#ch2"><span class="toc-chapter">Zero trust, in three sentences and three principles</span><span class="toc-time">4 min</span></a></li>
+      <li><a href="#ch3"><span class="toc-chapter">The Zero Trust Exchange — what is actually running</span><span class="toc-time">6 min</span></a></li>
+      <li><a href="#ch4"><span class="toc-chapter">ZIA — outbound traffic, inspected at the edge</span><span class="toc-time">4 min</span></a></li>
+      <li><a href="#ch5"><span class="toc-chapter">ZPA — inbound access, without a network</span><span class="toc-time">5 min</span></a></li>
+      <li><a href="#ch6"><span class="toc-chapter">A single request, traced end to end</span><span class="toc-time">5 min</span></a></li>
+    </ol>
+  </nav>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- ─────── Chapter I ─────── -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <article class="chapter" id="ch1">
+    <header class="chapter-head">
+      <div class="chapter-num">Chapter I</div>
+      <h2>The castle and the moat, and why it stopped working</h2>
+      <p class="standfirst">For thirty years, network security looked like medieval fortification. Then the apps left the castle — and so did the people.</p>
+    </header>
+
+    <p class="dropcap">There is a useful, almost too‑neat metaphor that everyone in security uses, and it is worth starting with because it explains the shape of every product that comes after. The metaphor is the castle and the moat. A company built a strong outer wall — a firewall, a VPN concentrator, a demilitarised zone — and once you were inside the wall, you were trusted. Applications inside assumed the requester was authenticated by virtue of being on the inside. The network <em>was</em> the security boundary.</p>
+
+    <p>This worked beautifully for a particular set of conditions: everyone worked in offices, applications lived in corporate data centres, and laptops never left the building. It was a comfortable model. It rewarded investment in <em>perimeter</em>: thicker walls, deeper moats, fewer drawbridges.</p>
+
+    <p>And then four things happened in the same decade.</p>
+
+    <h3>Four things that broke the perimeter</h3>
+
+    <p>Applications moved to SaaS. Salesforce, Workday, Office 365, Slack — the most important business systems no longer lived inside any wall. There was no perimeter to put them behind, because the vendor's perimeter was the vendor's problem.</p>
+
+    <p>Users went mobile. Laptops on hotel Wi‑Fi shouldn't be trusted automatically — but a VPN that pretends the laptop is "inside the office" implies exactly that.</p>
+
+    <p>Insider threats became prominent. One compromised user inside the perimeter, intentionally or otherwise, meant full access. The wall was strong against outsiders and useless against credentials phished out of an employee.</p>
+
+    <p>And lateral movement became the standard attack pattern. Modern intrusions don't break the wall; they enter through a single weak machine — a contractor's laptop, an unpatched server — and then pivot through the trusted internal network, which is, by design, friendly.</p>
+
+    <div class="aside">
+      <span class="label">An observation</span>
+      The perimeter never actually disappeared. What disappeared was the <em>singular</em> perimeter. Zero trust is not the absence of walls — it's walls at every door instead of one wall around the kingdom.
+    </div>
+
+    <p>By the late 2010s, the castle‑and‑moat model was producing an industry of well‑armoured organisations being thoroughly compromised through their own front gates. Something had to give. What gave was the assumption that the network is the security boundary.</p>
+  </article>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- ─────── Chapter II ─────── -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <article class="chapter" id="ch2">
+    <header class="chapter-head">
+      <div class="chapter-num">Chapter II</div>
+      <h2>Zero trust, in three sentences and three principles</h2>
+      <p class="standfirst">A philosophy more than an architecture. But every Zscaler product is a coordinated attempt to implement it.</p>
+    </header>
+
+    <p class="dropcap">The phrase is unfortunate. <em>Zero trust</em> sounds like an absence; it is in fact a presence — the presence of explicit verification at every hop, instead of inherited trust from a prior one. Three sentences capture the whole idea.</p>
+
+    <div class="pull">
+      Trust nothing implicitly. Verify every connection. Authorise per resource, never per network.
+      <span class="pull-attr">— The zero‑trust posture, compressed</span>
+    </div>
+
+    <p>From those three sentences fall three operating principles, which the rest of this guide depends on:</p>
+
+    <h3>Verify explicitly</h3>
+    <p>Every connection authenticates and authorises against the user's identity, the device's posture, and the request's context. There is no shortcut for being on the inside of a firewall. Identity is asked at the door of every room, not just the front gate.</p>
+
+    <h3>Apply least privilege</h3>
+    <p>A user gets access to <em>specific applications</em> they are authorised for — not "the network." Knowing that someone can reach a jump host does not imply they can ping every other server in the data centre. The unit of access is the application, not the subnet.</p>
+
+    <h3>Assume breach</h3>
+    <p>Build the architecture as though the attacker is already somewhere inside. Limit blast radius through segmentation. Detect lateral movement. Rotate credentials. Record sessions. Make the inside as suspicious as the outside, because in any honest accounting, it already is.</p>
+
+    <div class="compare">
+      <div class="compare-head">
+        <div>Castle and moat</div>
+        <div>Zero trust</div>
+      </div>
+      <div class="compare-row">
+        <div>User connects to corporate VPN, gains network‑level access</div>
+        <div>User authenticates per‑app, gets app‑specific tunnel</div>
+      </div>
+      <div class="compare-row">
+        <div>Internal apps trust the network they're on</div>
+        <div>Apps require valid identity, device, and posture for every request</div>
+      </div>
+      <div class="compare-row">
+        <div>One firewall is the security boundary</div>
+        <div>Security is enforced at every connection</div>
+      </div>
+      <div class="compare-row">
+        <div>A compromised insider has wide access</div>
+        <div>A compromised insider has access to only what their identity allows</div>
+      </div>
+      <div class="compare-row">
+        <div>Lateral movement uses the internal network</div>
+        <div>Lateral movement is gated by per‑resource policy</div>
+      </div>
+    </div>
+
+    <h3>What zero trust is not</h3>
+    <p>It is not a single product. It is an architecture; vendors implement it differently. It is not the literal absence of trust — it is <em>verified</em> trust per connection. It is not impossible to bypass; misconfigured policies have escape hatches, and the implementation always matters more than the label. And it is not just for remote work — zero trust applies inside the office, inside the data centre, between cloud workloads. Remote access without a VPN is one application of zero trust. It is not the whole of it.</p>
+
+    <div class="ornament">·&nbsp;·&nbsp;·</div>
+  </article>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- ─────── Chapter III ─────── -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <article class="chapter" id="ch3">
+    <header class="chapter-head">
+      <div class="chapter-num">Chapter III</div>
+      <h2>The Zero Trust Exchange — what is actually running</h2>
+      <p class="standfirst">Stripped of marketing, Zscaler is a globally distributed proxy fleet sitting in front of every connection your users and workloads make. Here is what is in the cloud.</p>
+    </header>
+
+    <p class="dropcap">Zscaler markets its platform as the <em>Zero Trust Exchange</em>, and the name does real work. <em>Exchange</em> is the right word: every connection from a Zscaler‑protected user, device, or workload flows <em>through</em> the cloud first, gets inspected and policy‑applied, and is then forwarded on to its destination. It is not a tunnel from A to B with security bolted on; it is an explicit, mediated handover. Traffic enters Zscaler, Zscaler decides what to do with it, and only then does it leave.</p>
+
+    <p>The Exchange is the platform layer on which every product sits. It replaces, conceptually, three older categories of equipment:</p>
+
+    <p><em>Web gateways and firewalls</em>, for outbound traffic to the internet. <em>VPN concentrators</em>, for inbound access from users to private apps. And <em>inline appliances</em> — the boxes that did inspection, filtering, and DLP in a corporate data centre. All three move out of the customer's racks and into Zscaler's data centres.</p>
+
+    <h3>The control plane and the data plane</h3>
+
+    <p>The cloud splits cleanly into two halves, which is worth holding onto because most operational questions resolve to one or the other.</p>
+
+    <p>The <span class="term">Central Authority</span> is the control plane — the brain. It holds the authoritative copy of every customer's configuration and policy. It distributes that policy, plus threat‑intelligence and URL‑classification feeds, down to the data plane. It accepts admin API traffic. It monitors the health of the rest of the cloud. It does not — this is important — process customer traffic. Customer packets never pass through the Central Authority.</p>
+
+    <p>The <span class="term">Service Edges</span> are the data plane — the muscle. They are the proxies that customer traffic actually flows through. They terminate the customer's tunnel, inspect the traffic, apply policy, and forward it on. They come in three form factors with the same software stack: <em>Public</em> (operated by Zscaler, multi‑tenant, the default), <em>Private</em> (Zscaler‑managed hardware on the customer's premises), and <em>Virtual</em> (customer‑operated VMs).</p>
+
+    <div class="aside">
+      <span class="label">A useful split</span>
+      Control plane questions ("why isn't my policy taking effect?") and data plane questions ("why is this connection slow?") almost never have the same answer. Knowing which half you are looking at is the start of every diagnosis.
+    </div>
+
+    <h3>A diagram, used once</h3>
+
+    <div class="diagram">
+      <svg viewBox="0 0 640 320" role="img" aria-label="Diagram of the Zero Trust Exchange">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="#4a463f"/>
+          </marker>
+        </defs>
+        <!-- Cloud box -->
+        <rect x="160" y="60" width="320" height="200" fill="none" stroke="#1a1814" stroke-width="1"/>
+        <text x="320" y="48" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="10" letter-spacing="2" fill="#8a857c">ZERO TRUST EXCHANGE</text>
+
+        <!-- Inner: control plane -->
+        <line x1="160" y1="125" x2="480" y2="125" stroke="#d8d3c7" stroke-width="1" stroke-dasharray="3,3"/>
+        <text x="175" y="92" font-family="IBM Plex Sans, sans-serif" font-size="9" letter-spacing="1.5" fill="#8a857c">CONTROL PLANE</text>
+        <text x="320" y="108" text-anchor="middle" font-family="Source Serif 4, serif" font-style="italic" font-size="13" fill="#1a1814">Central Authority — policy, identity, feeds</text>
+
+        <!-- Inner: data plane -->
+        <text x="175" y="148" font-family="IBM Plex Sans, sans-serif" font-size="9" letter-spacing="1.5" fill="#8a857c">DATA PLANE</text>
+        <rect x="190" y="165" width="120" height="70" fill="#efe9da" stroke="#1a1814" stroke-width="0.75"/>
+        <text x="250" y="195" text-anchor="middle" font-family="Source Serif 4, serif" font-size="13" fill="#1a1814">Service Edge</text>
+        <text x="250" y="213" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="10" fill="#4a463f">ZIA · outbound</text>
+        <rect x="330" y="165" width="120" height="70" fill="#efe9da" stroke="#1a1814" stroke-width="0.75"/>
+        <text x="390" y="195" text-anchor="middle" font-family="Source Serif 4, serif" font-size="13" fill="#1a1814">Service Edge</text>
+        <text x="390" y="213" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="10" fill="#4a463f">ZPA · inbound</text>
+
+        <!-- Left side: sources -->
+        <text x="80" y="115" text-anchor="middle" font-family="Source Serif 4, serif" font-size="12" fill="#1a1814">User devices</text>
+        <text x="80" y="170" text-anchor="middle" font-family="Source Serif 4, serif" font-size="12" fill="#1a1814">Branch offices</text>
+        <text x="80" y="225" text-anchor="middle" font-family="Source Serif 4, serif" font-size="12" fill="#1a1814">Cloud workloads</text>
+        <line x1="135" y1="115" x2="190" y2="180" stroke="#4a463f" stroke-width="0.75" marker-end="url(#arrow)"/>
+        <line x1="135" y1="170" x2="190" y2="195" stroke="#4a463f" stroke-width="0.75" marker-end="url(#arrow)"/>
+        <line x1="135" y1="225" x2="190" y2="220" stroke="#4a463f" stroke-width="0.75" marker-end="url(#arrow)"/>
+
+        <!-- Right side: destinations -->
+        <text x="560" y="170" text-anchor="middle" font-family="Source Serif 4, serif" font-size="12" fill="#1a1814">Internet · SaaS</text>
+        <text x="560" y="225" text-anchor="middle" font-family="Source Serif 4, serif" font-size="12" fill="#1a1814">Private apps</text>
+        <line x1="450" y1="195" x2="505" y2="170" stroke="#4a463f" stroke-width="0.75" marker-end="url(#arrow)"/>
+        <line x1="450" y1="220" x2="505" y2="220" stroke="#4a463f" stroke-width="0.75" marker-end="url(#arrow)"/>
+
+        <text x="320" y="285" text-anchor="middle" font-family="Source Serif 4, serif" font-style="italic" font-size="11" fill="#8a857c">All traffic mediated. Inspection happens inside the box.</text>
+      </svg>
+      <p class="diagram-caption"><strong>Figure I</strong>The Exchange as a mediated handover. Sources on the left, destinations on the right; everything in between is policy.</p>
+    </div>
+
+    <h3>The fact that does the most explanatory work</h3>
+
+    <p>It is worth stating once, plainly, because it explains nearly everything that follows: <strong>ZIA and ZPA are separate services running on separate multi‑tenant infrastructure.</strong> They share the Exchange brand, but a tenant who buys both gets two Central Authorities, two sets of Service Edges, two log streams. They are linked through the shared identity layer and the shared certificate authority — but they are not one service.</p>
+
+    <p>This is the cause of a great deal of operator confusion, and the source of most of the cross‑product subtleties documented later. The two halves of Zscaler — <em>outbound to the internet</em> and <em>inbound to private apps</em> — were built independently, and the seams are real.</p>
+
+    <p>This is also why this guide treats them as two separate chapters. They are.</p>
+
+    <div class="ornament">·&nbsp;·&nbsp;·</div>
+  </article>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- ─────── Chapter IV ─────── -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <article class="chapter" id="ch4">
+    <header class="chapter-head">
+      <div class="chapter-num">Chapter IV</div>
+      <h2>ZIA — outbound traffic, inspected at the edge</h2>
+      <p class="standfirst">The first half of the Exchange. A cloud‑hosted secure web gateway, sitting between every user and the internet they are trying to reach.</p>
+    </header>
+
+    <p class="dropcap">If a user opens a browser and types in a URL, ZIA is the product that decides what happens next. It is, in the unromantic technical sense, a cloud‑hosted proxy. Every web request from a Zscaler‑protected device flows to a Public Service Edge — the nearest one, geographically — and that Service Edge is given the chance to inspect, modify, allow, block, or redirect the request before any of it reaches the actual internet.</p>
+
+    <p>The product's job is to replace what used to be a stack of appliances in a corporate data centre with a single, globally distributed inspection point. The boxes it replaces are familiar: secure web gateways, URL filters, SSL inspection appliances, sandbox detonation boxes, DLP appliances, content‑inspection appliances, IPS sensors. ZIA collapses them into modules running on the same edge.</p>
+
+    <h3>What is happening inside an inspection</h3>
+
+    <p>For an inspected HTTPS request, the Service Edge runs an ordered set of checks. The order matters; precedence is the source of most operator surprise. In rough sequence:</p>
+
+    <div class="flow">
+      <div class="flow-step">
+        <div>
+          <p class="step-title">Forwarding &amp; firewall</p>
+          <p>Layer‑3/4 firewall rules, NAT, DNS control. Network‑app identification fires here. A blocked IP never reaches the web modules.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div>
+          <p class="step-title">SSL inspection</p>
+          <p>The pre‑decrypt pass. URL filtering and cloud‑app control evaluate against the SNI and IP, before any decryption.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div>
+          <p class="step-title">Decryption</p>
+          <p>If the policy says inspect, the connection is decrypted. The Service Edge mints its own certificate to the client and proxies the upstream TLS session itself.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div>
+          <p class="step-title">URL filtering &amp; cloud‑app control, again</p>
+          <p>The post‑decrypt pass. The full URL — path, parameters — is now visible. Most categorisation decisions are finalised here.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div>
+          <p class="step-title">Content inspection</p>
+          <p>DLP scans for sensitive data leaving. Sandbox detonates suspicious files. Malware and ATP modules examine payload reputation. File‑type controls enforce upload and download policy.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div>
+          <p class="step-title">Forward upstream</p>
+          <p>The request is re‑encrypted and sent on to its destination. The response flows back through the same set of modules in reverse.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="aside">
+      <span class="label">A common misconception</span>
+      "URL filtering happens before SSL inspection." It does — but it also happens <em>after</em>. Inspected HTTPS is evaluated twice, once on the SNI and once on the full URL. A rule that fires on one pass may not fire on the other. This is the single most useful thing to remember when a URL filter result surprises you.
+    </div>
+
+    <h3>Why this is the boring, good architecture</h3>
+
+    <p>Putting this work in the cloud is unglamorous, and that is its strength. The same policy applies whether the user is in an office, a hotel, or a coffee shop — the perimeter follows the user. The threat‑intel feeds update once and propagate to every Service Edge globally. The customer never patches a sandbox box at 2 a.m. The model is monotonous and that is the point: <em>the same inspection, every time, everywhere</em>.</p>
+
+    <p>The data plane is hardened in unsurprising ways. The TCP stack runs in user mode for multi‑tenant isolation. Customer traffic never leaves the Service Edge — it is not forwarded to another Zscaler component. Nothing is written to disk. Logs are compressed, tokenised, and exported over TLS to a separate log infrastructure (the Nanolog cluster) that does not see the traffic itself.</p>
+
+    <h3>Where ZIA ends</h3>
+
+    <p>ZIA's remit ends at the public internet. It is the product for "the user is reaching out." The moment the destination is a private application — something inside a customer's data centre, or an internal AWS VPC — the question changes. A different product picks it up. That is the next chapter.</p>
+
+    <div class="ornament">·&nbsp;·&nbsp;·</div>
+  </article>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- ─────── Chapter V ─────── -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <article class="chapter" id="ch5">
+    <header class="chapter-head">
+      <div class="chapter-num">Chapter V</div>
+      <h2>ZPA — inbound access, without a network</h2>
+      <p class="standfirst">The second half of the Exchange. The product that is replacing the corporate VPN — and not by being a better VPN.</p>
+    </header>
+
+    <p class="dropcap">A VPN's defining property is that it joins your laptop to a network. Once you are on, you are <em>on</em> — you can reach every IP that has been routed across the link, whether you have any business reaching it or not. This is convenient. It is also, after thirty years of phished credentials and lateral movement, the single largest source of preventable corporate intrusions.</p>
+
+    <p>ZPA's pitch is simple and almost philosophically different: <em>do not put the user on a network at all</em>. Connect them, instead, only to the specific applications they are authorised to reach — one application at a time, each one its own policy decision, none of them implying access to anything else.</p>
+
+    <h3>How that is actually done</h3>
+
+    <p>The mechanism is more elegant than it sounds. A small piece of software runs inside the customer's network — the <span class="term">App Connector</span>. It does not accept incoming connections; instead, it dials <em>outbound</em> to the Zscaler cloud and holds that connection open. There is no inbound port to expose, no firewall hole to drill, no public endpoint for an attacker to find.</p>
+
+    <p>When a user wants to reach an internal application, the request goes to ZPA. ZPA evaluates the access policy: is this user, on this device, in this posture, allowed to reach this application right now? If yes, ZPA stitches together two halves of an end‑to‑end channel — the user's tunnel from their device, and the App Connector's tunnel from inside the network — and the application traffic flows through both. If no, the user does not even learn that the application exists.</p>
+
+    <p>The application's real IP address is never returned to the user's device. DNS resolves to a synthetic IP that exists only inside ZPA's tunnel. From the network's perspective, the application is not reachable at all; from the user's perspective, the application is reachable on demand. Both are simultaneously true.</p>
+
+    <div class="pull">
+      The user is never on the network. The network is never reachable. Access exists only at the moment of policy approval, for the duration of one application session.
+      <span class="pull-attr">— ZPA in one paragraph</span>
+    </div>
+
+    <h3>What gets evaluated, and when</h3>
+
+    <p>The access policy is the heart of the product. For every connection request, ZPA evaluates a tuple — identity, device posture, location, time of day, the application being reached — and produces an allow or deny. Identity comes from the upstream identity provider, federated through ZIdentity. Posture comes from the endpoint agent. Location and time are obvious. The application is the thing being asked for.</p>
+
+    <p>Layered on top of this access decision are two narrower layers. <span class="term">AppProtection</span> is an inline web application firewall: even authorised traffic to an authorised app is examined for application‑layer attacks — OWASP categories, attempts on Active Directory protocols, web‑shell signatures. Authentication, in zero‑trust thinking, is not unconditional trust. <span class="term">Privileged Remote Access</span> (PRA) extends this further to the most sensitive sessions — RDP, SSH, VNC — adding approval workflows, credential pooling, and full session recording. The principle is the same: even administrators do not get implicit trust.</p>
+
+    <h3>The architectural difference from ZIA</h3>
+
+    <p>ZPA is built on the same Service Edge fabric as ZIA, but with two structurally different decisions worth flagging.</p>
+
+    <p>The Central Authority for ZPA is <em>active‑active</em> — geographically distributed nodes all servicing requests in parallel. ZIA's CA is active‑passive, one writer at a time. This shows up operationally as faster propagation in ZPA than in ZIA: configuration changes in ZPA take effect on write, with no separate activation step. ZIA still has a staging gate.</p>
+
+    <p>And the data path is genuinely end‑to‑end through the cloud. ZIA inspects, then forwards to the public internet. ZPA stitches a tunnel from the user's device, through a Service Edge, through an App Connector, to the application — the entire path is mediated by Zscaler. The application is, in the most literal sense, never exposed to the network the user is on.</p>
+
+    <div class="ornament">·&nbsp;·&nbsp;·</div>
+  </article>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- ─────── Chapter VI ─────── -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <article class="chapter" id="ch6">
+    <header class="chapter-head">
+      <div class="chapter-num">Chapter VI</div>
+      <h2>A single request, traced end to end</h2>
+      <p class="standfirst">It helps to watch one request travel the whole pipeline. The pieces fit together more easily once you have seen them in motion.</p>
+    </header>
+
+    <p class="dropcap">Imagine an employee on a corporate laptop, at home, opening a browser and typing in the URL of an internal HR application — something that lives inside the company's data centre, behind no public DNS, on no routable address. What follows is what happens, in order, between the keystroke and the page load.</p>
+
+    <div class="flow">
+      <div class="flow-step">
+        <div>
+          <p class="step-title">Identity is established</p>
+          <p>The endpoint agent on the laptop has already authenticated the user against the identity layer. A token is in hand. The user is, formally, who they claim to be.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div>
+          <p class="step-title">Device posture is taken</p>
+          <p>The agent inspects the device — disk encryption on, antivirus running, OS patch level current — and produces a posture profile that will travel with the request.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div>
+          <p class="step-title">DNS returns a synthetic address</p>
+          <p>The browser asks for the HR app's hostname. DNS, intercepted locally by the agent, returns a synthetic IP that exists only inside the ZPA tunnel — not the application's real address.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div>
+          <p class="step-title">The connection enters the Exchange</p>
+          <p>The browser opens a connection to the synthetic IP. The agent routes that connection through the user tunnel to the nearest Service Edge.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div>
+          <p class="step-title">Access policy evaluates</p>
+          <p>The Service Edge checks: this identity, this device posture, this location, this time of day, this application. Allow or deny. If deny, the connection terminates here and the user never learns the application was real.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div>
+          <p class="step-title">AppProtection inspects</p>
+          <p>If allowed, the application‑layer firewall examines the request for attack patterns — OWASP categories, protocol abuse, anomalies. The traffic is passed, blocked, or flagged.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div>
+          <p class="step-title">The far end of the tunnel opens</p>
+          <p>The Service Edge stitches its connection to the App Connector inside the company's data centre. The App Connector — which has been holding an outbound connection open the whole time — accepts the request.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div>
+          <p class="step-title">The App Connector reaches the app</p>
+          <p>Inside the data centre, the App Connector makes a normal connection to the actual HR application's real IP. The response begins to flow back through the same path, in reverse.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div>
+          <p class="step-title">The session is recorded</p>
+          <p>Every step has emitted a log line. They flow to the streaming layer, into the customer's SIEM, where they will be available for audit, alerting, and correlation.</p>
+        </div>
+      </div>
+    </div>
+
+    <p>Each of those nine steps is a verification gate. None of them assume trust based on the previous one. The user authenticated in step one is checked again against device posture in step five. The traffic that passed access policy in step five is inspected again at the application layer in step six. Even at the far end, the App Connector does not <em>trust</em> the request — it simply forwards it, having no way to act on it independently.</p>
+
+    <p>This is what zero trust looks like in motion. Not a single wall. Not a single decision. Many small verifications, one after another, each one cheap, each one mandatory, each one logged.</p>
+
+    <h3>Where to read next</h3>
+
+    <p>This is the end of the editorial path. From here, the reading is reference.</p>
+
+    <p>For the broader product map — the eight other Zscaler products that surround ZIA and ZPA — open the platform shape primer. For the precedence rules that govern how a URL filter rule actually wins or loses, open the URL filtering reference. For how an internal application becomes addressable at all, open the app segments reference. The skill knows where you are and is prepared to take you the rest of the way.</p>
+
+    <p>You should now be able to read those reference docs without confusion. That was the whole purpose of this guide.</p>
+
+    <div class="glossary">
+      <h3>A short glossary</h3>
+      <dl>
+        <dt>ZTE</dt>
+        <dd>Zero Trust Exchange — Zscaler's name for the unified cloud platform. Not a product itself; the layer all products live on.</dd>
+        <dt>ZIA</dt>
+        <dd>Internet &amp; SaaS. The outbound half — proxy and inspection for user‑to‑internet traffic.</dd>
+        <dt>ZPA</dt>
+        <dd>Private Access. The inbound half — zero‑trust application access, the VPN replacement.</dd>
+        <dt>ZCC</dt>
+        <dd>Client Connector. The endpoint agent that decides where a device's traffic goes.</dd>
+        <dt>Service Edge</dt>
+        <dd>A data‑plane proxy in the Zscaler cloud. Public, Private, or Virtual — same software, three places it can run.</dd>
+        <dt>Central Authority</dt>
+        <dd>The control‑plane brain. Holds policy and configuration; never sees customer traffic.</dd>
+        <dt>App Connector</dt>
+        <dd>The piece of software inside a customer's environment that ZPA reaches private apps through. Always dials outbound.</dd>
+        <dt>Synthetic IP</dt>
+        <dd>The address a ZPA‑protected app appears to live at, on the user's device. Only meaningful inside the tunnel.</dd>
+      </dl>
+    </div>
+  </article>
+
+  <!-- ────────── Colophon ────────── -->
+  <footer class="colophon">
+    <div class="ornament-small">·&nbsp;·&nbsp;·</div>
+    <p>An editorial reading path of the Zscaler skill.</p>
+    <p>Set in Source Serif 4 and IBM Plex. Six chapters, in sequence.</p>
+    <p style="margin-top: 1.5rem;">Continue with the reference docs · or read the next path: <em>ZCC, ZDX, and the rest of the platform</em>.</p>
+  </footer>
+
+</div>
+
+<script>
+  // Reading progress bar
+  const progress = document.getElementById('progress');
+  function updateProgress() {
+    const h = document.documentElement;
+    const scrolled = (h.scrollTop) / (h.scrollHeight - h.clientHeight);
+    progress.style.width = (Math.max(0, Math.min(1, scrolled)) * 100) + '%';
+  }
+  window.addEventListener('scroll', updateProgress, { passive: true });
+  updateProgress();
+</script>
+
+</body>
+</html>

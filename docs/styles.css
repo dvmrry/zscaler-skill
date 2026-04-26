@@ -1,0 +1,330 @@
+/* ============================================================
+   Zscaler Onboarding Deck — base styles
+   Three visual directions toggled via [data-direction]:
+     "editorial"   — serif headlines, book-like, generous whitespace
+     "technical"   — Linear/Stripe-style, monospace accents, denser
+     "diagrammatic"— minimal type, large diagrams, sparse
+   ============================================================ */
+
+:root {
+  /* Type stacks */
+  --font-sans: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-serif: "Source Serif 4", "Source Serif Pro", "Iowan Old Style", "Apple Garamond", Georgia, serif;
+  --font-mono: "JetBrains Mono", "SF Mono", "Menlo", monospace;
+
+  /* Warm-neutral palette */
+  --paper: #f5f2ec;        /* warm off-white */
+  --paper-2: #ebe6dc;      /* slightly darker for sections */
+  --ink: #1a1a1a;          /* near-black */
+  --ink-2: #3a3733;        /* secondary text */
+  --ink-3: #6a655d;        /* tertiary / labels */
+  --rule: #c9c2b3;         /* hairline rules */
+  --rule-soft: #ddd6c7;
+
+  /* Single accent — clay-orange, oklch-balanced */
+  --accent: oklch(0.62 0.14 45);
+  --accent-soft: oklch(0.62 0.14 45 / 0.12);
+  --accent-ink: oklch(0.30 0.08 45);
+
+  /* Cool neutral support */
+  --cool: oklch(0.45 0.04 240);
+
+  /* Slide grid */
+  --pad-x: 96px;
+  --pad-y: 80px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  color: var(--ink);
+  background: #0a0a0a;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+deck-stage > section {
+  background: var(--paper);
+  color: var(--ink);
+  padding: var(--pad-y) var(--pad-x);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ==============================================================
+   Direction: editorial (default)
+   ============================================================== */
+
+[data-direction="editorial"] .eyebrow,
+[data-direction="editorial"] .slide-num,
+[data-direction="editorial"] .label {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+[data-direction="editorial"] h1,
+[data-direction="editorial"] h2,
+[data-direction="editorial"] .display {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.05;
+}
+
+[data-direction="editorial"] h1 { font-size: 96px; }
+[data-direction="editorial"] h2 { font-size: 64px; }
+[data-direction="editorial"] .display { font-size: 120px; }
+
+[data-direction="editorial"] p,
+[data-direction="editorial"] li {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  line-height: 1.45;
+  color: var(--ink-2);
+  text-wrap: pretty;
+}
+
+[data-direction="editorial"] .body-sans {
+  font-family: var(--font-sans);
+}
+
+/* ==============================================================
+   Direction: technical
+   ============================================================== */
+
+[data-direction="technical"] .eyebrow,
+[data-direction="technical"] .slide-num,
+[data-direction="technical"] .label {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+[data-direction="technical"] h1,
+[data-direction="technical"] h2,
+[data-direction="technical"] .display {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.0;
+}
+
+[data-direction="technical"] h1 { font-size: 88px; }
+[data-direction="technical"] h2 { font-size: 56px; }
+[data-direction="technical"] .display { font-size: 112px; font-weight: 700; }
+
+[data-direction="technical"] p,
+[data-direction="technical"] li {
+  font-family: var(--font-sans);
+  font-size: 24px;
+  line-height: 1.45;
+  color: var(--ink-2);
+  text-wrap: pretty;
+}
+
+[data-direction="technical"] code,
+[data-direction="technical"] .mono {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+}
+
+/* ==============================================================
+   Direction: diagrammatic
+   ============================================================== */
+
+[data-direction="diagrammatic"] .eyebrow,
+[data-direction="diagrammatic"] .slide-num,
+[data-direction="diagrammatic"] .label {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+[data-direction="diagrammatic"] h1,
+[data-direction="diagrammatic"] h2,
+[data-direction="diagrammatic"] .display {
+  font-family: var(--font-sans);
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  line-height: 0.98;
+}
+
+[data-direction="diagrammatic"] h1 { font-size: 104px; }
+[data-direction="diagrammatic"] h2 { font-size: 72px; }
+[data-direction="diagrammatic"] .display { font-size: 144px; font-weight: 200; }
+
+[data-direction="diagrammatic"] p,
+[data-direction="diagrammatic"] li {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: 26px;
+  line-height: 1.4;
+  color: var(--ink-2);
+  text-wrap: pretty;
+}
+
+/* ==============================================================
+   Slide chrome
+   ============================================================== */
+
+.slide-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 64px;
+}
+
+.slide-footer {
+  position: absolute;
+  bottom: 32px;
+  left: var(--pad-x);
+  right: var(--pad-x);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  border-top: 1px solid var(--rule);
+  padding-top: 16px;
+}
+
+[data-direction="technical"] .slide-footer,
+[data-direction="diagrammatic"] .slide-footer {
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.slide-footer .l, .slide-footer .r { display: flex; gap: 32px; }
+
+/* ==============================================================
+   Section starters — use accent paper
+   ============================================================== */
+
+section.dark {
+  background: #1a1814;
+  color: var(--paper);
+}
+section.dark .eyebrow,
+section.dark .slide-num,
+section.dark .label,
+section.dark .slide-footer {
+  color: #8a8378;
+  border-color: #3a3733;
+}
+section.dark p, section.dark li { color: #c9c2b3; }
+section.dark .rule { background: #3a3733; }
+
+section.accent-bg {
+  background: oklch(0.62 0.14 45);
+  color: var(--paper);
+}
+section.accent-bg .eyebrow,
+section.accent-bg .slide-num,
+section.accent-bg .label,
+section.accent-bg .slide-footer {
+  color: rgba(255,255,255,0.65);
+  border-color: rgba(255,255,255,0.25);
+}
+section.accent-bg p, section.accent-bg li { color: rgba(255,255,255,0.92); }
+
+/* ==============================================================
+   Utility
+   ============================================================== */
+
+.rule { height: 1px; background: var(--rule); width: 100%; }
+.rule-soft { height: 1px; background: var(--rule-soft); width: 100%; }
+.rule-thick { height: 3px; background: var(--ink); width: 64px; }
+
+.accent-text { color: var(--accent); }
+.accent-bg-soft { background: var(--accent-soft); }
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+[data-direction="technical"] .tag,
+[data-direction="diagrammatic"] .tag {
+  font-family: var(--font-mono);
+  border-radius: 4px;
+}
+
+/* Tier dots */
+.dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ink-3);
+  margin-right: 8px;
+  vertical-align: middle;
+}
+.dot.t1 { background: var(--accent); }
+.dot.t2 { background: var(--cool); opacity: 0.7; }
+.dot.t3 { background: var(--ink-3); opacity: 0.4; }
+
+/* Two-column body */
+.col-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  flex: 1;
+}
+.col-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 48px;
+  flex: 1;
+}
+
+/* Pull-quote */
+.pull-quote {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 56px;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  text-wrap: balance;
+  max-width: 1500px;
+}
+
+[data-direction="technical"] .pull-quote {
+  font-family: var(--font-sans);
+  font-style: normal;
+  font-weight: 500;
+  font-size: 52px;
+}
+
+/* Print: one slide per page (deck-stage handles main scaling) */
+@media print {
+  body { background: white; }
+}

@@ -1,0 +1,2153 @@
+<!DOCTYPE html><html lang="en"><head>
+
+
+<meta charset="UTF-8">
+<title>Zscaler — Onboarding</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Source+Serif+4:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+
+<script src="deck-stage.js"></script>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="application/json" id="speaker-notes">
+[
+  "Welcome. We'll do this in three moves. First, what Zscaler actually IS at the platform level. Second, the product portfolio at a glance. Third, the mechanics of how a request actually flows. Total ~25 minutes, leave time for questions.",
+
+  "One sentence to anchor everything. Zscaler is the cloud sitting between your users and everything they want to reach — internet, SaaS, and private apps. Every connection goes through their cloud first. That's it. Everything else is detail.",
+
+  "The mental shift is smaller than it looks: the cloud is the new DMZ. That gateway lives in Zscaler's network and serves every user globally. The piece that's genuinely new is the private-access half (ZPA) — that's the VPN replacement.",
+
+  "Three concrete things Zscaler replaces. We're not adding a fourth tool to a stack — we're collapsing three categories into one cloud. The pitch is consolidation, not expansion.",
+
+  "The Zero Trust Exchange. This is the marketing umbrella you'll hear constantly. Not a product — the platform layer all products live on. Three things to remember: globally distributed, policy-unified, and it's what customers actually buy.",
+
+  "Quick zero-trust refresher because the products only make sense in this frame. Castle-and-moat broke when apps left the data center and users left the office. Zero trust says: verify every connection, least privilege per resource, assume breach.",
+
+  "The product portfolio. Looks like a lot of acronyms. The trick: most are organized around 'where in the traffic flow does this sit?' We have nine products with deep operational depth, five with extended awareness, and a long tail of adjacent stuff. Don't memorize — recognize.",
+
+  "The four products that do 95% of the work. ZIA for outbound, ZPA for inbound, ZCC on the endpoint, ZIdentity underneath. If you understand these four, you understand Zscaler.",
+
+  "ZIA in one slide. The cloud-delivered SWG. URL filtering, SSL inspection, DLP, sandbox, malware/ATP, firewall — the standard inline web-security categories, delivered from Zscaler's global edge instead of an on-prem appliance.",
+
+  "ZPA in one slide. The replacement for VPN. Users authenticate per-app, not per-network. Each app is its own segment with its own policy. Traffic flows through ZPA's cloud to App Connectors deployed in your environment.",
+
+  "ZCC and ZIdentity. The endpoint agent decides where traffic goes. The identity layer authenticates everyone. These two are the foundation under everything else.",
+
+  "How a request actually flows. End-to-end for a user opening Salesforce: ZCC → Z-Tunnel → ZIA pipeline → internet. This is the diagram to keep in your head.",
+
+  "And the inbound version: same shape, different destination. User opens an internal app, ZCC routes through ZPA, policy evaluates, App Connector reaches the actual app inside your environment.",
+
+  "Policy evaluation — the thing that bites everyone. ZIA defaults to ALLOW; ZPA defaults to BLOCK. This single asymmetry is the most common source of wrong intuitive answers. Memorize it.",
+
+  "ZIA web module pipeline. First-match-blocks. CAC before URL Filter. Cascading flag flips the allow path. SSL inspection is a two-pass affair. Don't internalize all of it today — internalize that there's an ORDER and it matters.",
+
+  "Specialized products you should recognize but won't use day one. ZDX for experience monitoring. ZBI for browser isolation. ZWA for DLP incident workflow. AppProtection for inline WAF. Risk360 and Deception sit further out. Tier 2 stuff is everything else — be aware, don't go deep.",
+
+  "What you should do this week. Get a tenant login. Read the primer. Walk one URL through ZIA in the admin console. Walk one app through ZPA. Find a colleague who's been here a year and ask them what bit them last quarter.",
+
+  "Recap and questions. Three things to remember: (1) ZTE is the platform, products are layers on it; (2) ZIA outbound, ZPA inbound, ZCC endpoint, ZIdentity underneath; (3) defaults differ — ZIA allow, ZPA block. Everything else you'll learn by encountering it."
+]
+</script>
+
+<style>
+  /* Inline slide-specific tweaks (kept here so the slide markup is self-contained) */
+  .hero {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .hero .meta {
+    display: flex;
+    gap: 24px;
+    margin-top: 48px;
+    align-items: center;
+  }
+  .hero .meta .rule { width: 80px; }
+
+  .toc {
+    display: grid;
+    grid-template-columns: 80px 1fr 200px;
+    gap: 24px;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--rule-soft);
+    align-items: baseline;
+  }
+  .toc .num {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--ink-3);
+  }
+  .toc .ti {
+    font-size: 32px;
+    line-height: 1.2;
+  }
+  [data-direction="editorial"] .toc .ti { font-family: var(--font-serif); }
+  [data-direction="technical"] .toc .ti,
+  [data-direction="diagrammatic"] .toc .ti { font-family: var(--font-sans); font-weight: 500; }
+  .toc .sub {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    color: var(--ink-3);
+    text-align: right;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* Stat block */
+  .stat-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 64px;
+    margin-top: 48px;
+  }
+  .stat .n {
+    font-size: 96px;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+  }
+  [data-direction="editorial"] .stat .n { font-family: var(--font-serif); }
+  [data-direction="technical"] .stat .n { font-family: var(--font-sans); font-weight: 600; }
+  [data-direction="diagrammatic"] .stat .n { font-family: var(--font-sans); font-weight: 200; font-size: 128px; }
+  .stat .lbl {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-top: 12px;
+    border-top: 1px solid var(--rule);
+    padding-top: 12px;
+  }
+
+  /* Diagram primitives */
+  .diagram { font-family: var(--font-mono); font-size: 18px; line-height: 1.4; color: var(--ink-2); }
+
+  .flow {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    width: 100%;
+    margin: 32px 0;
+  }
+  .flow-node {
+    flex: 1;
+    border: 1px solid var(--rule);
+    background: var(--paper-2);
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 120px;
+  }
+  .flow-node.accent { background: var(--accent); color: white; border-color: var(--accent); }
+  .flow-node.accent .lbl, .flow-node.accent .desc { color: rgba(255,255,255,0.85); }
+  .flow-node .ttl {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 18px;
+    letter-spacing: -0.01em;
+    margin-bottom: 4px;
+  }
+  .flow-node .desc {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--ink-3);
+    line-height: 1.3;
+  }
+  .flow-arrow {
+    width: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink-3);
+    font-family: var(--font-mono);
+    font-size: 20px;
+  }
+
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 32px;
+  }
+  .product-card {
+    border: 1px solid var(--rule);
+    padding: 20px;
+    background: rgba(255,255,255,0.4);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 140px;
+  }
+  .product-card.t1 { border-left: 3px solid var(--accent); }
+  .product-card.t2 { border-left: 3px solid var(--cool); opacity: 0.92; }
+  .product-card .code {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .product-card .name {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 18px;
+    letter-spacing: -0.01em;
+  }
+  .product-card .what {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--ink-2);
+    line-height: 1.35;
+    margin: 0;
+  }
+
+  /* Pipeline list (for ZIA web module) */
+  .pipeline {
+    counter-reset: pipe;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 24px;
+    margin-top: 24px;
+  }
+  .pipeline .step {
+    counter-increment: pipe;
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    align-items: baseline;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--rule-soft);
+    font-family: var(--font-sans);
+    font-size: 18px;
+    color: var(--ink-2);
+  }
+  .pipeline .step::before {
+    content: counter(pipe, decimal-leading-zero);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink-3);
+    letter-spacing: 0.05em;
+  }
+  .pipeline .step.hi { color: var(--ink); font-weight: 500; }
+
+  /* Compare table */
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0;
+    margin-top: 32px;
+    border-top: 1px solid var(--rule);
+  }
+  .compare > div {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--rule-soft);
+    border-right: 1px solid var(--rule-soft);
+    font-family: var(--font-sans);
+    font-size: 18px;
+    color: var(--ink-2);
+  }
+  .compare > div:nth-child(3n) { border-right: 0; }
+  .compare > .h {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    background: var(--paper-2);
+  }
+  .compare > .row-lbl {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--ink-3);
+    letter-spacing: 0.02em;
+  }
+  .compare .accent-cell { color: var(--accent); font-weight: 600; }
+
+  /* Big number on dark */
+  section.dark .display-num {
+    font-family: var(--font-serif);
+    font-weight: 300;
+    font-size: 240px;
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+    color: var(--paper);
+  }
+  [data-direction="technical"] section.dark .display-num,
+  [data-direction="diagrammatic"] section.dark .display-num {
+    font-family: var(--font-sans);
+    font-weight: 200;
+  }
+
+  /* Action checklist */
+  .checklist {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 64px;
+    margin-top: 32px;
+  }
+  .checklist .ck {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: 16px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--rule-soft);
+    align-items: baseline;
+  }
+  .checklist .ck .marker {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--accent);
+  }
+  .checklist .ck .t {
+    font-family: var(--font-sans);
+    font-weight: 500;
+    font-size: 22px;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .checklist .ck .d {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    color: var(--ink-3);
+    line-height: 1.4;
+  }
+  [data-direction="editorial"] .checklist .ck .t { font-family: var(--font-serif); font-weight: 400; font-size: 26px; }
+
+  /* Three takeaways */
+  .takeaways {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 32px;
+    margin-top: 48px;
+  }
+  .takeaway {
+    border-top: 3px solid var(--accent);
+    padding-top: 24px;
+  }
+  .takeaway .n {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+  .takeaway .t {
+    font-size: 32px;
+    line-height: 1.15;
+    margin: 12px 0;
+    color: var(--ink);
+    text-wrap: balance;
+  }
+  [data-direction="editorial"] .takeaway .t { font-family: var(--font-serif); }
+  .takeaway .d {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    color: var(--ink-3);
+    line-height: 1.45;
+  }
+
+  /* Big quote slide */
+  .quote-slide {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .quote-attrib {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-top: 32px;
+  }
+
+  /* Layered architecture diagram */
+  .layers {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 24px;
+  }
+  .layer {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 24px;
+    padding: 24px;
+    border: 1px solid var(--rule);
+    background: rgba(255,255,255,0.4);
+    align-items: center;
+  }
+  .layer .role {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .layer .role .nm { display: block; font-size: 22px; color: var(--ink); font-family: var(--font-sans); font-weight: 600; text-transform: none; letter-spacing: -0.01em; margin-top: 4px; }
+  .layer .desc {
+    font-family: var(--font-sans);
+    font-size: 18px;
+    color: var(--ink-2);
+    line-height: 1.4;
+  }
+  .layer.foundation { background: var(--accent-soft); border-color: var(--accent); }
+
+  /* Question slide TOC strikethrough */
+  .toc-active { background: var(--ink); color: var(--paper); margin: 0 calc(var(--pad-x) * -1); padding: 24px var(--pad-x); border-bottom: 0; }
+  .toc-active .num, .toc-active .sub { color: rgba(255,255,255,0.6); }
+  .toc-active .ti { color: var(--paper); }
+</style>
+<style id="deck-stage-print-page">@page { size: 1920px 1080px; margin: 0; } @media print { html, body { margin: 0 !important; padding: 0 !important; background: none !important; overflow: visible !important; height: auto !important; } * { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }</style><script>"use strict";
+
+var _jsxFileName = "/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx";
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+// tweaks-panel.jsx
+// Reusable Tweaks shell + form-control helpers.
+//
+// Owns the host protocol (listens for __activate_edit_mode / __deactivate_edit_mode,
+// posts __edit_mode_available / __edit_mode_set_keys / __edit_mode_dismissed) so
+// individual prototypes don't re-roll it. Ships a consistent set of controls so you
+// don't hand-draw <input type="range">, segmented radios, steppers, etc.
+//
+// Usage (in an HTML file that loads React + Babel):
+//
+//   const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+//     "primaryColor": "#D97757",
+//     "fontSize": 16,
+//     "density": "regular",
+//     "dark": false
+//   }/*EDITMODE-END*/;
+//
+//   function App() {
+//     const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+//     return (
+//       <div style={{ fontSize: t.fontSize, color: t.primaryColor }}>
+//         Hello
+//         <TweaksPanel>
+//           <TweakSection label="Typography" />
+//           <TweakSlider label="Font size" value={t.fontSize} min={10} max={32} unit="px"
+//                        onChange={(v) => setTweak('fontSize', v)} />
+//           <TweakRadio  label="Density" value={t.density}
+//                        options={['compact', 'regular', 'comfy']}
+//                        onChange={(v) => setTweak('density', v)} />
+//           <TweakSection label="Theme" />
+//           <TweakColor  label="Primary" value={t.primaryColor}
+//                        onChange={(v) => setTweak('primaryColor', v)} />
+//           <TweakToggle label="Dark mode" value={t.dark}
+//                        onChange={(v) => setTweak('dark', v)} />
+//         </TweaksPanel>
+//       </div>
+//     );
+//   }
+//
+// ─────────────────────────────────────────────────────────────────────────────
+
+var __TWEAKS_STYLE = "\n  .twk-panel{position:fixed;right:16px;bottom:16px;z-index:2147483646;width:280px;\n    max-height:calc(100vh - 32px);display:flex;flex-direction:column;\n    background:rgba(250,249,247,.78);color:#29261b;\n    -webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);\n    border:.5px solid rgba(255,255,255,.6);border-radius:14px;\n    box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 12px 40px rgba(0,0,0,.18);\n    font:11.5px/1.4 ui-sans-serif,system-ui,-apple-system,sans-serif;overflow:hidden}\n  .twk-hd{display:flex;align-items:center;justify-content:space-between;\n    padding:10px 8px 10px 14px;cursor:move;user-select:none}\n  .twk-hd b{font-size:12px;font-weight:600;letter-spacing:.01em}\n  .twk-x{appearance:none;border:0;background:transparent;color:rgba(41,38,27,.55);\n    width:22px;height:22px;border-radius:6px;cursor:default;font-size:13px;line-height:1}\n  .twk-x:hover{background:rgba(0,0,0,.06);color:#29261b}\n  .twk-body{padding:2px 14px 14px;display:flex;flex-direction:column;gap:10px;\n    overflow-y:auto;overflow-x:hidden;min-height:0;\n    scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.15) transparent}\n  .twk-body::-webkit-scrollbar{width:8px}\n  .twk-body::-webkit-scrollbar-track{background:transparent;margin:2px}\n  .twk-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:4px;\n    border:2px solid transparent;background-clip:content-box}\n  .twk-body::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.25);\n    border:2px solid transparent;background-clip:content-box}\n  .twk-row{display:flex;flex-direction:column;gap:5px}\n  .twk-row-h{flex-direction:row;align-items:center;justify-content:space-between;gap:10px}\n  .twk-lbl{display:flex;justify-content:space-between;align-items:baseline;\n    color:rgba(41,38,27,.72)}\n  .twk-lbl>span:first-child{font-weight:500}\n  .twk-val{color:rgba(41,38,27,.5);font-variant-numeric:tabular-nums}\n\n  .twk-sect{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;\n    color:rgba(41,38,27,.45);padding:10px 0 0}\n  .twk-sect:first-child{padding-top:0}\n\n  .twk-field{appearance:none;width:100%;height:26px;padding:0 8px;\n    border:.5px solid rgba(0,0,0,.1);border-radius:7px;\n    background:rgba(255,255,255,.6);color:inherit;font:inherit;outline:none}\n  .twk-field:focus{border-color:rgba(0,0,0,.25);background:rgba(255,255,255,.85)}\n  select.twk-field{padding-right:22px;\n    background-image:url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='rgba(0,0,0,.5)' d='M0 0h10L5 6z'/></svg>\");\n    background-repeat:no-repeat;background-position:right 8px center}\n\n  .twk-slider{appearance:none;-webkit-appearance:none;width:100%;height:4px;margin:6px 0;\n    border-radius:999px;background:rgba(0,0,0,.12);outline:none}\n  .twk-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;\n    width:14px;height:14px;border-radius:50%;background:#fff;\n    border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}\n  .twk-slider::-moz-range-thumb{width:14px;height:14px;border-radius:50%;\n    background:#fff;border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}\n\n  .twk-seg{position:relative;display:flex;padding:2px;border-radius:8px;\n    background:rgba(0,0,0,.06);user-select:none}\n  .twk-seg-thumb{position:absolute;top:2px;bottom:2px;border-radius:6px;\n    background:rgba(255,255,255,.9);box-shadow:0 1px 2px rgba(0,0,0,.12);\n    transition:left .15s cubic-bezier(.3,.7,.4,1),width .15s}\n  .twk-seg.dragging .twk-seg-thumb{transition:none}\n  .twk-seg button{appearance:none;position:relative;z-index:1;flex:1;border:0;\n    background:transparent;color:inherit;font:inherit;font-weight:500;min-height:22px;\n    border-radius:6px;cursor:default;padding:4px 6px;line-height:1.2;\n    overflow-wrap:anywhere}\n\n  .twk-toggle{position:relative;width:32px;height:18px;border:0;border-radius:999px;\n    background:rgba(0,0,0,.15);transition:background .15s;cursor:default;padding:0}\n  .twk-toggle[data-on=\"1\"]{background:#34c759}\n  .twk-toggle i{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;\n    background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}\n  .twk-toggle[data-on=\"1\"] i{transform:translateX(14px)}\n\n  .twk-num{display:flex;align-items:center;height:26px;padding:0 0 0 8px;\n    border:.5px solid rgba(0,0,0,.1);border-radius:7px;background:rgba(255,255,255,.6)}\n  .twk-num-lbl{font-weight:500;color:rgba(41,38,27,.6);cursor:ew-resize;\n    user-select:none;padding-right:8px}\n  .twk-num input{flex:1;min-width:0;height:100%;border:0;background:transparent;\n    font:inherit;font-variant-numeric:tabular-nums;text-align:right;padding:0 8px 0 0;\n    outline:none;color:inherit;-moz-appearance:textfield}\n  .twk-num input::-webkit-inner-spin-button,.twk-num input::-webkit-outer-spin-button{\n    -webkit-appearance:none;margin:0}\n  .twk-num-unit{padding-right:8px;color:rgba(41,38,27,.45)}\n\n  .twk-btn{appearance:none;height:26px;padding:0 12px;border:0;border-radius:7px;\n    background:rgba(0,0,0,.78);color:#fff;font:inherit;font-weight:500;cursor:default}\n  .twk-btn:hover{background:rgba(0,0,0,.88)}\n  .twk-btn.secondary{background:rgba(0,0,0,.06);color:inherit}\n  .twk-btn.secondary:hover{background:rgba(0,0,0,.1)}\n\n  .twk-swatch{appearance:none;-webkit-appearance:none;width:56px;height:22px;\n    border:.5px solid rgba(0,0,0,.1);border-radius:6px;padding:0;cursor:default;\n    background:transparent;flex-shrink:0}\n  .twk-swatch::-webkit-color-swatch-wrapper{padding:0}\n  .twk-swatch::-webkit-color-swatch{border:0;border-radius:5.5px}\n  .twk-swatch::-moz-color-swatch{border:0;border-radius:5.5px}\n";
+
+// ── useTweaks ───────────────────────────────────────────────────────────────
+// Single source of truth for tweak values. setTweak persists via the host
+// (__edit_mode_set_keys → host rewrites the EDITMODE block on disk).
+function useTweaks(defaults) {
+  var _React$useState = React.useState(defaults),
+    _React$useState2 = _slicedToArray(_React$useState, 2),
+    values = _React$useState2[0],
+    setValues = _React$useState2[1];
+  // Accepts either setTweak('key', value) or setTweak({ key: value, ... }) so a
+  // useState-style call doesn't write a "[object Object]" key into the persisted
+  // JSON block.
+  var setTweak = React.useCallback(function (keyOrEdits, val) {
+    var edits = _typeof(keyOrEdits) === 'object' && keyOrEdits !== null ? keyOrEdits : _defineProperty({}, keyOrEdits, val);
+    setValues(function (prev) {
+      return _objectSpread(_objectSpread({}, prev), edits);
+    });
+    window.parent.postMessage({
+      type: '__edit_mode_set_keys',
+      edits: edits
+    }, '*');
+  }, []);
+  return [values, setTweak];
+}
+
+// ── TweaksPanel ─────────────────────────────────────────────────────────────
+// Floating shell. Registers the protocol listener BEFORE announcing
+// availability — if the announce ran first, the host's activate could land
+// before our handler exists and the toolbar toggle would silently no-op.
+// The close button posts __edit_mode_dismissed so the host's toolbar toggle
+// flips off in lockstep; the host echoes __deactivate_edit_mode back which
+// is what actually hides the panel.
+function TweaksPanel(_ref2) {
+  var _ref2$title = _ref2.title,
+    title = _ref2$title === void 0 ? 'Tweaks' : _ref2$title,
+    children = _ref2.children;
+  var _React$useState3 = React.useState(false),
+    _React$useState4 = _slicedToArray(_React$useState3, 2),
+    open = _React$useState4[0],
+    setOpen = _React$useState4[1];
+  var dragRef = React.useRef(null);
+  var offsetRef = React.useRef({
+    x: 16,
+    y: 16
+  });
+  var PAD = 16;
+  var clampToViewport = React.useCallback(function () {
+    var panel = dragRef.current;
+    if (!panel) return;
+    var w = panel.offsetWidth,
+      h = panel.offsetHeight;
+    var maxRight = Math.max(PAD, window.innerWidth - w - PAD);
+    var maxBottom = Math.max(PAD, window.innerHeight - h - PAD);
+    offsetRef.current = {
+      x: Math.min(maxRight, Math.max(PAD, offsetRef.current.x)),
+      y: Math.min(maxBottom, Math.max(PAD, offsetRef.current.y))
+    };
+    panel.style.right = offsetRef.current.x + 'px';
+    panel.style.bottom = offsetRef.current.y + 'px';
+  }, []);
+  React.useEffect(function () {
+    if (!open) return;
+    clampToViewport();
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', clampToViewport);
+      return function () {
+        return window.removeEventListener('resize', clampToViewport);
+      };
+    }
+    var ro = new ResizeObserver(clampToViewport);
+    ro.observe(document.documentElement);
+    return function () {
+      return ro.disconnect();
+    };
+  }, [open, clampToViewport]);
+  React.useEffect(function () {
+    var onMsg = function onMsg(e) {
+      var _e$data;
+      var t = e === null || e === void 0 || (_e$data = e.data) === null || _e$data === void 0 ? void 0 : _e$data.type;
+      if (t === '__activate_edit_mode') setOpen(true);else if (t === '__deactivate_edit_mode') setOpen(false);
+    };
+    window.addEventListener('message', onMsg);
+    window.parent.postMessage({
+      type: '__edit_mode_available'
+    }, '*');
+    return function () {
+      return window.removeEventListener('message', onMsg);
+    };
+  }, []);
+  var dismiss = function dismiss() {
+    setOpen(false);
+    window.parent.postMessage({
+      type: '__edit_mode_dismissed'
+    }, '*');
+  };
+  var onDragStart = function onDragStart(e) {
+    var panel = dragRef.current;
+    if (!panel) return;
+    var r = panel.getBoundingClientRect();
+    var sx = e.clientX,
+      sy = e.clientY;
+    var startRight = window.innerWidth - r.right;
+    var startBottom = window.innerHeight - r.bottom;
+    var move = function move(ev) {
+      offsetRef.current = {
+        x: startRight - (ev.clientX - sx),
+        y: startBottom - (ev.clientY - sy)
+      };
+      clampToViewport();
+    };
+    var _up = function up() {
+      window.removeEventListener('mousemove', move);
+      window.removeEventListener('mouseup', _up);
+    };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', _up);
+  };
+  if (!open) return null;
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("style", {
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 233,
+      columnNumber: 7
+    },
+    "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:11293:233:7"
+  }, __TWEAKS_STYLE), /*#__PURE__*/React.createElement("div", {
+    ref: dragRef,
+    className: "twk-panel",
+    style: {
+      right: offsetRef.current.x,
+      bottom: offsetRef.current.y
+    },
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 234,
+      columnNumber: 7
+    },
+    "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:11331:234:7"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "twk-hd",
+    onMouseDown: onDragStart,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 236,
+      columnNumber: 9
+    },
+    "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:11460:236:9"
+  }, /*#__PURE__*/React.createElement("b", {
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 237,
+      columnNumber: 11
+    },
+    "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:11521:237:11"
+  }, title), /*#__PURE__*/React.createElement("button", {
+    className: "twk-x",
+    "aria-label": "Close tweaks",
+    onMouseDown: function onMouseDown(e) {
+      return e.stopPropagation();
+    },
+    onClick: dismiss,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 238,
+      columnNumber: 11
+    },
+    "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:11546:238:11"
+  }, "\u2715")), /*#__PURE__*/React.createElement("div", {
+    className: "twk-body",
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 242,
+      columnNumber: 9
+    },
+    "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:11727:242:9"
+  }, children)));
+}
+
+// ── Layout helpers ──────────────────────────────────────────────────────────
+
+function TweakSection(_ref3) {
+  var label = _ref3.label,
+    children = _ref3.children;
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "twk-sect",
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 253,
+      columnNumber: 7
+    },
+    "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:11949:253:7"
+  }, label), children);
+}
+function TweakRow(_ref4) {
+  var label = _ref4.label,
+    value = _ref4.value,
+    children = _ref4.children,
+    _ref4$inline = _ref4.inline,
+    inline = _ref4$inline === void 0 ? false : _ref4$inline;
+  return /*#__PURE__*/React.createElement("div", {
+    className: inline ? 'twk-row twk-row-h' : 'twk-row',
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 261,
+      columnNumber: 5
+    },
+    "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:12101:261:5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "twk-lbl",
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 262,
+      columnNumber: 7
+    },
+    "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:12166:262:7"
+  }, /*#__PURE__*/React.createElement("span", {
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 263,
+      columnNumber: 9
+    },
+    "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:12200:263:9"
+  }, label), value != null && /*#__PURE__*/React.createElement("span", {
+    className: "twk-val",
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 264,
+      columnNumber: 27
+    },
+    "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:12247:264:27"
+  }, value)), children);
+}
+
+// ── Controls ────────────────────────────────────────────────────────────────
+
+function TweakSlider(_ref5) {
+  var label = _ref5.label,
+    value = _ref5.value,
+    _ref5$min = _ref5.min,
+    min = _ref5$min === void 0 ? 0 : _ref5$min,
+    _ref5$max = _ref5.max,
+    max = _ref5$max === void 0 ? 100 : _ref5$max,
+    _ref5$step = _ref5.step,
+    step = _ref5$step === void 0 ? 1 : _ref5$step,
+    _ref5$unit = _ref5.unit,
+    unit = _ref5$unit === void 0 ? '' : _ref5$unit,
+    _onChange = _ref5.onChange;
+  return /*#__PURE__*/React.createElement(TweakRow, {
+    label: label,
+    value: "".concat(value).concat(unit),
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 275,
+      columnNumber: 5
+    },
+    "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:12526:275:5"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "range",
+    className: "twk-slider",
+    min: min,
+    max: max,
+    step: step,
+    value: value,
+    onChange: function onChange(e) {
+      return _onChange(Number(e.target.value));
+    },
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 276,
+      columnNumber: 7
+    },
+    "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:12583:276:7"
+  }));
+}
+function TweakToggle(_ref6) {
+  var label = _ref6.label,
+    value = _ref6.value,
+    onChange = _ref6.onChange;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "twk-row twk-row-h",
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 284,
+      columnNumber: 5
+    },
+    "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:12829:284:5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "twk-lbl",
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 285,
+      columnNumber: 7
+    },
+    "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:12871:285:7"
+  }, /*#__PURE__*/React.createElement("span", {
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 285,
+      columnNumber: 32
+    },
+    "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:12896:285:32"
+  }, label)), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "twk-toggle",
+    "data-on": value ? '1' : '0',
+    role: "switch",
+    "aria-checked": !!value,
+    onClick: function onClick() {
+      return onChange(!value);
+    },
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 286,
+      columnNumber: 7
+    },
+    "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:12929:286:7"
+  }, /*#__PURE__*/React.createElement("i", {
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 288,
+      columnNumber: 48
+    },
+    "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:13100:288:48"
+  })));
+}
+function TweakRadio(_ref7) {
+  var label = _ref7.label,
+    value = _ref7.value,
+    options = _ref7.options,
+    onChange = _ref7.onChange;
+  var trackRef = React.useRef(null);
+  var _React$useState5 = React.useState(false),
+    _React$useState6 = _slicedToArray(_React$useState5, 2),
+    dragging = _React$useState6[0],
+    setDragging = _React$useState6[1];
+  var opts = options.map(function (o) {
+    return _typeof(o) === 'object' ? o : {
+      value: o,
+      label: o
+    };
+  });
+  var idx = Math.max(0, opts.findIndex(function (o) {
+    return o.value === value;
+  }));
+  var n = opts.length;
+
+  // The active value is read by pointer-move handlers attached for the lifetime
+  // of a drag — ref it so a stale closure doesn't fire onChange for every move.
+  var valueRef = React.useRef(value);
+  valueRef.current = value;
+  var segAt = function segAt(clientX) {
+    var r = trackRef.current.getBoundingClientRect();
+    var inner = r.width - 4;
+    var i = Math.floor((clientX - r.left - 2) / inner * n);
+    return opts[Math.max(0, Math.min(n - 1, i))].value;
+  };
+  var onPointerDown = function onPointerDown(e) {
+    setDragging(true);
+    var v0 = segAt(e.clientX);
+    if (v0 !== valueRef.current) onChange(v0);
+    var move = function move(ev) {
+      if (!trackRef.current) return;
+      var v = segAt(ev.clientX);
+      if (v !== valueRef.current) onChange(v);
+    };
+    var _up2 = function up() {
+      setDragging(false);
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', _up2);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', _up2);
+  };
+  return /*#__PURE__*/React.createElement(TweakRow, {
+    label: label,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 331,
+      columnNumber: 5
+    },
+    "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:14516:331:5"
+  }, /*#__PURE__*/React.createElement("div", {
+    ref: trackRef,
+    role: "radiogroup",
+    onPointerDown: onPointerDown,
+    className: dragging ? 'twk-seg dragging' : 'twk-seg',
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 332,
+      columnNumber: 7
+    },
+    "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:14547:332:7"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "twk-seg-thumb",
+    style: {
+      left: "calc(2px + ".concat(idx, " * (100% - 4px) / ").concat(n, ")"),
+      width: "calc((100% - 4px) / ".concat(n, ")")
+    },
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 334,
+      columnNumber: 9
+    },
+    "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:14689:334:9"
+  }), opts.map(function (o) {
+    return /*#__PURE__*/React.createElement("button", {
+      key: o.value,
+      type: "button",
+      role: "radio",
+      "aria-checked": o.value === value,
+      __source: {
+        fileName: _jsxFileName,
+        lineNumber: 338,
+        columnNumber: 11
+      },
+      "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:14892:338:11"
+    }, o.label);
+  })));
+}
+function TweakSelect(_ref8) {
+  var label = _ref8.label,
+    value = _ref8.value,
+    options = _ref8.options,
+    _onChange2 = _ref8.onChange;
+  return /*#__PURE__*/React.createElement(TweakRow, {
+    label: label,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 349,
+      columnNumber: 5
+    },
+    "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:15141:349:5"
+  }, /*#__PURE__*/React.createElement("select", {
+    className: "twk-field",
+    value: value,
+    onChange: function onChange(e) {
+      return _onChange2(e.target.value);
+    },
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 350,
+      columnNumber: 7
+    },
+    "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:15172:350:7"
+  }, options.map(function (o) {
+    var v = _typeof(o) === 'object' ? o.value : o;
+    var l = _typeof(o) === 'object' ? o.label : o;
+    return /*#__PURE__*/React.createElement("option", {
+      key: v,
+      value: v,
+      __source: {
+        fileName: _jsxFileName,
+        lineNumber: 354,
+        columnNumber: 18
+      },
+      "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:15421:354:18"
+    }, l);
+  })));
+}
+function TweakText(_ref9) {
+  var label = _ref9.label,
+    value = _ref9.value,
+    placeholder = _ref9.placeholder,
+    _onChange3 = _ref9.onChange;
+  return /*#__PURE__*/React.createElement(TweakRow, {
+    label: label,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 363,
+      columnNumber: 5
+    },
+    "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:15590:363:5"
+  }, /*#__PURE__*/React.createElement("input", {
+    className: "twk-field",
+    type: "text",
+    value: value,
+    placeholder: placeholder,
+    onChange: function onChange(e) {
+      return _onChange3(e.target.value);
+    },
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 364,
+      columnNumber: 7
+    },
+    "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:15621:364:7"
+  }));
+}
+function TweakNumber(_ref0) {
+  var label = _ref0.label,
+    value = _ref0.value,
+    min = _ref0.min,
+    max = _ref0.max,
+    _ref0$step = _ref0.step,
+    step = _ref0$step === void 0 ? 1 : _ref0$step,
+    _ref0$unit = _ref0.unit,
+    unit = _ref0$unit === void 0 ? '' : _ref0$unit,
+    _onChange4 = _ref0.onChange;
+  var clamp = function clamp(n) {
+    if (min != null && n < min) return min;
+    if (max != null && n > max) return max;
+    return n;
+  };
+  var startRef = React.useRef({
+    x: 0,
+    val: 0
+  });
+  var onScrubStart = function onScrubStart(e) {
+    e.preventDefault();
+    startRef.current = {
+      x: e.clientX,
+      val: value
+    };
+    var decimals = (String(step).split('.')[1] || '').length;
+    var move = function move(ev) {
+      var dx = ev.clientX - startRef.current.x;
+      var raw = startRef.current.val + dx * step;
+      var snapped = Math.round(raw / step) * step;
+      _onChange4(clamp(Number(snapped.toFixed(decimals))));
+    };
+    var _up3 = function up() {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', _up3);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', _up3);
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    className: "twk-num",
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 395,
+      columnNumber: 5
+    },
+    "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:16722:395:5"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "twk-num-lbl",
+    onPointerDown: onScrubStart,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 396,
+      columnNumber: 7
+    },
+    "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:16754:396:7"
+  }, label), /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    value: value,
+    min: min,
+    max: max,
+    step: step,
+    onChange: function onChange(e) {
+      return _onChange4(clamp(Number(e.target.value)));
+    },
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 397,
+      columnNumber: 7
+    },
+    "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:16834:397:7"
+  }), unit && /*#__PURE__*/React.createElement("span", {
+    className: "twk-num-unit",
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 399,
+      columnNumber: 16
+    },
+    "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:16990:399:16"
+  }, unit));
+}
+function TweakColor(_ref1) {
+  var label = _ref1.label,
+    value = _ref1.value,
+    _onChange5 = _ref1.onChange;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "twk-row twk-row-h",
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 406,
+      columnNumber: 5
+    },
+    "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:17120:406:5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "twk-lbl",
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 407,
+      columnNumber: 7
+    },
+    "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:17162:407:7"
+  }, /*#__PURE__*/React.createElement("span", {
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 407,
+      columnNumber: 32
+    },
+    "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:17187:407:32"
+  }, label)), /*#__PURE__*/React.createElement("input", {
+    type: "color",
+    className: "twk-swatch",
+    value: value,
+    onChange: function onChange(e) {
+      return _onChange5(e.target.value);
+    },
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 408,
+      columnNumber: 7
+    },
+    "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:17220:408:7"
+  }));
+}
+function TweakButton(_ref10) {
+  var label = _ref10.label,
+    onClick = _ref10.onClick,
+    _ref10$secondary = _ref10.secondary,
+    secondary = _ref10$secondary === void 0 ? false : _ref10$secondary;
+  return /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: secondary ? 'twk-btn secondary' : 'twk-btn',
+    onClick: onClick,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 416,
+      columnNumber: 5
+    },
+    "data-om-id": "jsx:/https:/fe514746-d2b4-482c-9b3a-792e5196c4a5.claudeusercontent.com/v1/design/projects/fe514746-d2b4-482c-9b3a-792e5196c4a5/serve/tweaks-panel.jsx:17432:416:5"
+  }, label);
+}
+Object.assign(window, {
+  useTweaks: useTweaks,
+  TweaksPanel: TweaksPanel,
+  TweakSection: TweakSection,
+  TweakRow: TweakRow,
+  TweakSlider: TweakSlider,
+  TweakToggle: TweakToggle,
+  TweakRadio: TweakRadio,
+  TweakSelect: TweakSelect,
+  TweakText: TweakText,
+  TweakNumber: TweakNumber,
+  TweakColor: TweakColor,
+  TweakButton: TweakButton
+});
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfX1RXRUFLU19TVFlMRSIsInVzZVR3ZWFrcyIsImRlZmF1bHRzIiwiX1JlYWN0JHVzZVN0YXRlIiwiUmVhY3QiLCJ1c2VTdGF0ZSIsIl9SZWFjdCR1c2VTdGF0ZTIiLCJfc2xpY2VkVG9BcnJheSIsInZhbHVlcyIsInNldFZhbHVlcyIsInNldFR3ZWFrIiwidXNlQ2FsbGJhY2siLCJrZXlPckVkaXRzIiwidmFsIiwiZWRpdHMiLCJfdHlwZW9mIiwiX2RlZmluZVByb3BlcnR5IiwicHJldiIsIl9vYmplY3RTcHJlYWQiLCJ3aW5kb3ciLCJwYXJlbnQiLCJwb3N0TWVzc2FnZSIsInR5cGUiLCJUd2Vha3NQYW5lbCIsIl9yZWYyIiwiX3JlZjIkdGl0bGUiLCJ0aXRsZSIsImNoaWxkcmVuIiwiX1JlYWN0JHVzZVN0YXRlMyIsIl9SZWFjdCR1c2VTdGF0ZTQiLCJvcGVuIiwic2V0T3BlbiIsImRyYWdSZWYiLCJ1c2VSZWYiLCJvZmZzZXRSZWYiLCJ4IiwieSIsIlBBRCIsImNsYW1wVG9WaWV3cG9ydCIsInBhbmVsIiwiY3VycmVudCIsInciLCJvZmZzZXRXaWR0aCIsImgiLCJvZmZzZXRIZWlnaHQiLCJtYXhSaWdodCIsIk1hdGgiLCJtYXgiLCJpbm5lcldpZHRoIiwibWF4Qm90dG9tIiwiaW5uZXJIZWlnaHQiLCJtaW4iLCJzdHlsZSIsInJpZ2h0IiwiYm90dG9tIiwidXNlRWZmZWN0IiwiUmVzaXplT2JzZXJ2ZXIiLCJhZGRFdmVudExpc3RlbmVyIiwicmVtb3ZlRXZlbnRMaXN0ZW5lciIsInJvIiwib2JzZXJ2ZSIsImRvY3VtZW50IiwiZG9jdW1lbnRFbGVtZW50IiwiZGlzY29ubmVjdCIsIm9uTXNnIiwiZSIsIl9lJGRhdGEiLCJ0IiwiZGF0YSIsImRpc21pc3MiLCJvbkRyYWdTdGFydCIsInIiLCJnZXRCb3VuZGluZ0NsaWVudFJlY3QiLCJzeCIsImNsaWVudFgiLCJzeSIsImNsaWVudFkiLCJzdGFydFJpZ2h0Iiwic3RhcnRCb3R0b20iLCJtb3ZlIiwiZXYiLCJ1cCIsImNyZWF0ZUVsZW1lbnQiLCJGcmFnbWVudCIsIl9fc291cmNlIiwiZmlsZU5hbWUiLCJfanN4RmlsZU5hbWUiLCJsaW5lTnVtYmVyIiwiY29sdW1uTnVtYmVyIiwicmVmIiwiY2xhc3NOYW1lIiwib25Nb3VzZURvd24iLCJzdG9wUHJvcGFnYXRpb24iLCJvbkNsaWNrIiwiVHdlYWtTZWN0aW9uIiwiX3JlZjMiLCJsYWJlbCIsIlR3ZWFrUm93IiwiX3JlZjQiLCJ2YWx1ZSIsIl9yZWY0JGlubGluZSIsImlubGluZSIsIlR3ZWFrU2xpZGVyIiwiX3JlZjUiLCJfcmVmNSRtaW4iLCJfcmVmNSRtYXgiLCJfcmVmNSRzdGVwIiwic3RlcCIsIl9yZWY1JHVuaXQiLCJ1bml0Iiwib25DaGFuZ2UiLCJjb25jYXQiLCJOdW1iZXIiLCJ0YXJnZXQiLCJUd2Vha1RvZ2dsZSIsIl9yZWY2Iiwicm9sZSIsIlR3ZWFrUmFkaW8iLCJfcmVmNyIsIm9wdGlvbnMiLCJ0cmFja1JlZiIsIl9SZWFjdCR1c2VTdGF0ZTUiLCJfUmVhY3QkdXNlU3RhdGU2IiwiZHJhZ2dpbmciLCJzZXREcmFnZ2luZyIsIm9wdHMiLCJtYXAiLCJvIiwiaWR4IiwiZmluZEluZGV4IiwibiIsImxlbmd0aCIsInZhbHVlUmVmIiwic2VnQXQiLCJpbm5lciIsIndpZHRoIiwiaSIsImZsb29yIiwibGVmdCIsIm9uUG9pbnRlckRvd24iLCJ2MCIsInYiLCJrZXkiLCJUd2Vha1NlbGVjdCIsIl9yZWY4IiwibCIsIlR3ZWFrVGV4dCIsIl9yZWY5IiwicGxhY2Vob2xkZXIiLCJUd2Vha051bWJlciIsIl9yZWYwIiwiX3JlZjAkc3RlcCIsIl9yZWYwJHVuaXQiLCJjbGFtcCIsInN0YXJ0UmVmIiwib25TY3J1YlN0YXJ0IiwicHJldmVudERlZmF1bHQiLCJkZWNpbWFscyIsIlN0cmluZyIsInNwbGl0IiwiZHgiLCJyYXciLCJzbmFwcGVkIiwicm91bmQiLCJ0b0ZpeGVkIiwiVHdlYWtDb2xvciIsIl9yZWYxIiwiVHdlYWtCdXR0b24iLCJfcmVmMTAiLCJfcmVmMTAkc2Vjb25kYXJ5Iiwic2Vjb25kYXJ5IiwiT2JqZWN0IiwiYXNzaWduIl0sInNvdXJjZXMiOlsiaHR0cHM6Ly9mZTUxNDc0Ni1kMmI0LTQ4MmMtOWIzYS03OTJlNTE5NmM0YTUuY2xhdWRldXNlcmNvbnRlbnQuY29tL3YxL2Rlc2lnbi9wcm9qZWN0cy9mZTUxNDc0Ni1kMmI0LTQ4MmMtOWIzYS03OTJlNTE5NmM0YTUvc2VydmUvdHdlYWtzLXBhbmVsLmpzeCJdLCJzb3VyY2VzQ29udGVudCI6WyJcbi8vIHR3ZWFrcy1wYW5lbC5qc3hcbi8vIFJldXNhYmxlIFR3ZWFrcyBzaGVsbCArIGZvcm0tY29udHJvbCBoZWxwZXJzLlxuLy9cbi8vIE93bnMgdGhlIGhvc3QgcHJvdG9jb2wgKGxpc3RlbnMgZm9yIF9fYWN0aXZhdGVfZWRpdF9tb2RlIC8gX19kZWFjdGl2YXRlX2VkaXRfbW9kZSxcbi8vIHBvc3RzIF9fZWRpdF9tb2RlX2F2YWlsYWJsZSAvIF9fZWRpdF9tb2RlX3NldF9rZXlzIC8gX19lZGl0X21vZGVfZGlzbWlzc2VkKSBzb1xuLy8gaW5kaXZpZHVhbCBwcm90b3R5cGVzIGRvbid0IHJlLXJvbGwgaXQuIFNoaXBzIGEgY29uc2lzdGVudCBzZXQgb2YgY29udHJvbHMgc28geW91XG4vLyBkb24ndCBoYW5kLWRyYXcgPGlucHV0IHR5cGU9XCJyYW5nZVwiPiwgc2VnbWVudGVkIHJhZGlvcywgc3RlcHBlcnMsIGV0Yy5cbi8vXG4vLyBVc2FnZSAoaW4gYW4gSFRNTCBmaWxlIHRoYXQgbG9hZHMgUmVhY3QgKyBCYWJlbCk6XG4vL1xuLy8gICBjb25zdCBUV0VBS19ERUZBVUxUUyA9IC8qRURJVE1PREUtQkVHSU4qL3tcbi8vICAgICBcInByaW1hcnlDb2xvclwiOiBcIiNEOTc3NTdcIixcbi8vICAgICBcImZvbnRTaXplXCI6IDE2LFxuLy8gICAgIFwiZGVuc2l0eVwiOiBcInJlZ3VsYXJcIixcbi8vICAgICBcImRhcmtcIjogZmFsc2Vcbi8vICAgfS8qRURJVE1PREUtRU5EKi87XG4vL1xuLy8gICBmdW5jdGlvbiBBcHAoKSB7XG4vLyAgICAgY29uc3QgW3QsIHNldFR3ZWFrXSA9IHVzZVR3ZWFrcyhUV0VBS19ERUZBVUxUUyk7XG4vLyAgICAgcmV0dXJuIChcbi8vICAgICAgIDxkaXYgc3R5bGU9e3sgZm9udFNpemU6IHQuZm9udFNpemUsIGNvbG9yOiB0LnByaW1hcnlDb2xvciB9fT5cbi8vICAgICAgICAgSGVsbG9cbi8vICAgICAgICAgPFR3ZWFrc1BhbmVsPlxuLy8gICAgICAgICAgIDxUd2Vha1NlY3Rpb24gbGFiZWw9XCJUeXBvZ3JhcGh5XCIgLz5cbi8vICAgICAgICAgICA8VHdlYWtTbGlkZXIgbGFiZWw9XCJGb250IHNpemVcIiB2YWx1ZT17dC5mb250U2l6ZX0gbWluPXsxMH0gbWF4PXszMn0gdW5pdD1cInB4XCJcbi8vICAgICAgICAgICAgICAgICAgICAgICAgb25DaGFuZ2U9eyh2KSA9PiBzZXRUd2VhaygnZm9udFNpemUnLCB2KX0gLz5cbi8vICAgICAgICAgICA8VHdlYWtSYWRpbyAgbGFiZWw9XCJEZW5zaXR5XCIgdmFsdWU9e3QuZGVuc2l0eX1cbi8vICAgICAgICAgICAgICAgICAgICAgICAgb3B0aW9ucz17Wydjb21wYWN0JywgJ3JlZ3VsYXInLCAnY29tZnknXX1cbi8vICAgICAgICAgICAgICAgICAgICAgICAgb25DaGFuZ2U9eyh2KSA9PiBzZXRUd2VhaygnZGVuc2l0eScsIHYpfSAvPlxuLy8gICAgICAgICAgIDxUd2Vha1NlY3Rpb24gbGFiZWw9XCJUaGVtZVwiIC8+XG4vLyAgICAgICAgICAgPFR3ZWFrQ29sb3IgIGxhYmVsPVwiUHJpbWFyeVwiIHZhbHVlPXt0LnByaW1hcnlDb2xvcn1cbi8vICAgICAgICAgICAgICAgICAgICAgICAgb25DaGFuZ2U9eyh2KSA9PiBzZXRUd2VhaygncHJpbWFyeUNvbG9yJywgdil9IC8+XG4vLyAgICAgICAgICAgPFR3ZWFrVG9nZ2xlIGxhYmVsPVwiRGFyayBtb2RlXCIgdmFsdWU9e3QuZGFya31cbi8vICAgICAgICAgICAgICAgICAgICAgICAgb25DaGFuZ2U9eyh2KSA9PiBzZXRUd2VhaygnZGFyaycsIHYpfSAvPlxuLy8gICAgICAgICA8L1R3ZWFrc1BhbmVsPlxuLy8gICAgICAgPC9kaXY+XG4vLyAgICAgKTtcbi8vICAgfVxuLy9cbi8vIOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgFxuXG5jb25zdCBfX1RXRUFLU19TVFlMRSA9IGBcbiAgLnR3ay1wYW5lbHtwb3NpdGlvbjpmaXhlZDtyaWdodDoxNnB4O2JvdHRvbToxNnB4O3otaW5kZXg6MjE0NzQ4MzY0Njt3aWR0aDoyODBweDtcbiAgICBtYXgtaGVpZ2h0OmNhbGMoMTAwdmggLSAzMnB4KTtkaXNwbGF5OmZsZXg7ZmxleC1kaXJlY3Rpb246Y29sdW1uO1xuICAgIGJhY2tncm91bmQ6cmdiYSgyNTAsMjQ5LDI0NywuNzgpO2NvbG9yOiMyOTI2MWI7XG4gICAgLXdlYmtpdC1iYWNrZHJvcC1maWx0ZXI6Ymx1cigyNHB4KSBzYXR1cmF0ZSgxNjAlKTtiYWNrZHJvcC1maWx0ZXI6Ymx1cigyNHB4KSBzYXR1cmF0ZSgxNjAlKTtcbiAgICBib3JkZXI6LjVweCBzb2xpZCByZ2JhKDI1NSwyNTUsMjU1LC42KTtib3JkZXItcmFkaXVzOjE0cHg7XG4gICAgYm94LXNoYWRvdzowIDFweCAwIHJnYmEoMjU1LDI1NSwyNTUsLjUpIGluc2V0LDAgMTJweCA0MHB4IHJnYmEoMCwwLDAsLjE4KTtcbiAgICBmb250OjExLjVweC8xLjQgdWktc2Fucy1zZXJpZixzeXN0ZW0tdWksLWFwcGxlLXN5c3RlbSxzYW5zLXNlcmlmO292ZXJmbG93OmhpZGRlbn1cbiAgLnR3ay1oZHtkaXNwbGF5OmZsZXg7YWxpZ24taXRlbXM6Y2VudGVyO2p1c3RpZnktY29udGVudDpzcGFjZS1iZXR3ZWVuO1xuICAgIHBhZGRpbmc6MTBweCA4cHggMTBweCAxNHB4O2N1cnNvcjptb3ZlO3VzZXItc2VsZWN0Om5vbmV9XG4gIC50d2staGQgYntmb250LXNpemU6MTJweDtmb250LXdlaWdodDo2MDA7bGV0dGVyLXNwYWNpbmc6LjAxZW19XG4gIC50d2steHthcHBlYXJhbmNlOm5vbmU7Ym9yZGVyOjA7YmFja2dyb3VuZDp0cmFuc3BhcmVudDtjb2xvcjpyZ2JhKDQxLDM4LDI3LC41NSk7XG4gICAgd2lkdGg6MjJweDtoZWlnaHQ6MjJweDtib3JkZXItcmFkaXVzOjZweDtjdXJzb3I6ZGVmYXVsdDtmb250LXNpemU6MTNweDtsaW5lLWhlaWdodDoxfVxuICAudHdrLXg6aG92ZXJ7YmFja2dyb3VuZDpyZ2JhKDAsMCwwLC4wNik7Y29sb3I6IzI5MjYxYn1cbiAgLnR3ay1ib2R5e3BhZGRpbmc6MnB4IDE0cHggMTRweDtkaXNwbGF5OmZsZXg7ZmxleC1kaXJlY3Rpb246Y29sdW1uO2dhcDoxMHB4O1xuICAgIG92ZXJmbG93LXk6YXV0bztvdmVyZmxvdy14OmhpZGRlbjttaW4taGVpZ2h0OjA7XG4gICAgc2Nyb2xsYmFyLXdpZHRoOnRoaW47c2Nyb2xsYmFyLWNvbG9yOnJnYmEoMCwwLDAsLjE1KSB0cmFuc3BhcmVudH1cbiAgLnR3ay1ib2R5Ojotd2Via2l0LXNjcm9sbGJhcnt3aWR0aDo4cHh9XG4gIC50d2stYm9keTo6LXdlYmtpdC1zY3JvbGxiYXItdHJhY2t7YmFja2dyb3VuZDp0cmFuc3BhcmVudDttYXJnaW46MnB4fVxuICAudHdrLWJvZHk6Oi13ZWJraXQtc2Nyb2xsYmFyLXRodW1ie2JhY2tncm91bmQ6cmdiYSgwLDAsMCwuMTUpO2JvcmRlci1yYWRpdXM6NHB4O1xuICAgIGJvcmRlcjoycHggc29saWQgdHJhbnNwYXJlbnQ7YmFja2dyb3VuZC1jbGlwOmNvbnRlbnQtYm94fVxuICAudHdrLWJvZHk6Oi13ZWJraXQtc2Nyb2xsYmFyLXRodW1iOmhvdmVye2JhY2tncm91bmQ6cmdiYSgwLDAsMCwuMjUpO1xuICAgIGJvcmRlcjoycHggc29saWQgdHJhbnNwYXJlbnQ7YmFja2dyb3VuZC1jbGlwOmNvbnRlbnQtYm94fVxuICAudHdrLXJvd3tkaXNwbGF5OmZsZXg7ZmxleC1kaXJlY3Rpb246Y29sdW1uO2dhcDo1cHh9XG4gIC50d2stcm93LWh7ZmxleC1kaXJlY3Rpb246cm93O2FsaWduLWl0ZW1zOmNlbnRlcjtqdXN0aWZ5LWNvbnRlbnQ6c3BhY2UtYmV0d2VlbjtnYXA6MTBweH1cbiAgLnR3ay1sYmx7ZGlzcGxheTpmbGV4O2p1c3RpZnktY29udGVudDpzcGFjZS1iZXR3ZWVuO2FsaWduLWl0ZW1zOmJhc2VsaW5lO1xuICAgIGNvbG9yOnJnYmEoNDEsMzgsMjcsLjcyKX1cbiAgLnR3ay1sYmw+c3BhbjpmaXJzdC1jaGlsZHtmb250LXdlaWdodDo1MDB9XG4gIC50d2stdmFse2NvbG9yOnJnYmEoNDEsMzgsMjcsLjUpO2ZvbnQtdmFyaWFudC1udW1lcmljOnRhYnVsYXItbnVtc31cblxuICAudHdrLXNlY3R7Zm9udC1zaXplOjEwcHg7Zm9udC13ZWlnaHQ6NjAwO2xldHRlci1zcGFjaW5nOi4wNmVtO3RleHQtdHJhbnNmb3JtOnVwcGVyY2FzZTtcbiAgICBjb2xvcjpyZ2JhKDQxLDM4LDI3LC40NSk7cGFkZGluZzoxMHB4IDAgMH1cbiAgLnR3ay1zZWN0OmZpcnN0LWNoaWxke3BhZGRpbmctdG9wOjB9XG5cbiAgLnR3ay1maWVsZHthcHBlYXJhbmNlOm5vbmU7d2lkdGg6MTAwJTtoZWlnaHQ6MjZweDtwYWRkaW5nOjAgOHB4O1xuICAgIGJvcmRlcjouNXB4IHNvbGlkIHJnYmEoMCwwLDAsLjEpO2JvcmRlci1yYWRpdXM6N3B4O1xuICAgIGJhY2tncm91bmQ6cmdiYSgyNTUsMjU1LDI1NSwuNik7Y29sb3I6aW5oZXJpdDtmb250OmluaGVyaXQ7b3V0bGluZTpub25lfVxuICAudHdrLWZpZWxkOmZvY3Vze2JvcmRlci1jb2xvcjpyZ2JhKDAsMCwwLC4yNSk7YmFja2dyb3VuZDpyZ2JhKDI1NSwyNTUsMjU1LC44NSl9XG4gIHNlbGVjdC50d2stZmllbGR7cGFkZGluZy1yaWdodDoyMnB4O1xuICAgIGJhY2tncm91bmQtaW1hZ2U6dXJsKFwiZGF0YTppbWFnZS9zdmcreG1sO3V0ZjgsPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxMCcgaGVpZ2h0PSc2JyB2aWV3Qm94PScwIDAgMTAgNic+PHBhdGggZmlsbD0ncmdiYSgwLDAsMCwuNSknIGQ9J00wIDBoMTBMNSA2eicvPjwvc3ZnPlwiKTtcbiAgICBiYWNrZ3JvdW5kLXJlcGVhdDpuby1yZXBlYXQ7YmFja2dyb3VuZC1wb3NpdGlvbjpyaWdodCA4cHggY2VudGVyfVxuXG4gIC50d2stc2xpZGVye2FwcGVhcmFuY2U6bm9uZTstd2Via2l0LWFwcGVhcmFuY2U6bm9uZTt3aWR0aDoxMDAlO2hlaWdodDo0cHg7bWFyZ2luOjZweCAwO1xuICAgIGJvcmRlci1yYWRpdXM6OTk5cHg7YmFja2dyb3VuZDpyZ2JhKDAsMCwwLC4xMik7b3V0bGluZTpub25lfVxuICAudHdrLXNsaWRlcjo6LXdlYmtpdC1zbGlkZXItdGh1bWJ7LXdlYmtpdC1hcHBlYXJhbmNlOm5vbmU7YXBwZWFyYW5jZTpub25lO1xuICAgIHdpZHRoOjE0cHg7aGVpZ2h0OjE0cHg7Ym9yZGVyLXJhZGl1czo1MCU7YmFja2dyb3VuZDojZmZmO1xuICAgIGJvcmRlcjouNXB4IHNvbGlkIHJnYmEoMCwwLDAsLjEyKTtib3gtc2hhZG93OjAgMXB4IDNweCByZ2JhKDAsMCwwLC4yKTtjdXJzb3I6ZGVmYXVsdH1cbiAgLnR3ay1zbGlkZXI6Oi1tb3otcmFuZ2UtdGh1bWJ7d2lkdGg6MTRweDtoZWlnaHQ6MTRweDtib3JkZXItcmFkaXVzOjUwJTtcbiAgICBiYWNrZ3JvdW5kOiNmZmY7Ym9yZGVyOi41cHggc29saWQgcmdiYSgwLDAsMCwuMTIpO2JveC1zaGFkb3c6MCAxcHggM3B4IHJnYmEoMCwwLDAsLjIpO2N1cnNvcjpkZWZhdWx0fVxuXG4gIC50d2stc2Vne3Bvc2l0aW9uOnJlbGF0aXZlO2Rpc3BsYXk6ZmxleDtwYWRkaW5nOjJweDtib3JkZXItcmFkaXVzOjhweDtcbiAgICBiYWNrZ3JvdW5kOnJnYmEoMCwwLDAsLjA2KTt1c2VyLXNlbGVjdDpub25lfVxuICAudHdrLXNlZy10aHVtYntwb3NpdGlvbjphYnNvbHV0ZTt0b3A6MnB4O2JvdHRvbToycHg7Ym9yZGVyLXJhZGl1czo2cHg7XG4gICAgYmFja2dyb3VuZDpyZ2JhKDI1NSwyNTUsMjU1LC45KTtib3gtc2hhZG93OjAgMXB4IDJweCByZ2JhKDAsMCwwLC4xMik7XG4gICAgdHJhbnNpdGlvbjpsZWZ0IC4xNXMgY3ViaWMtYmV6aWVyKC4zLC43LC40LDEpLHdpZHRoIC4xNXN9XG4gIC50d2stc2VnLmRyYWdnaW5nIC50d2stc2VnLXRodW1ie3RyYW5zaXRpb246bm9uZX1cbiAgLnR3ay1zZWcgYnV0dG9ue2FwcGVhcmFuY2U6bm9uZTtwb3NpdGlvbjpyZWxhdGl2ZTt6LWluZGV4OjE7ZmxleDoxO2JvcmRlcjowO1xuICAgIGJhY2tncm91bmQ6dHJhbnNwYXJlbnQ7Y29sb3I6aW5oZXJpdDtmb250OmluaGVyaXQ7Zm9udC13ZWlnaHQ6NTAwO21pbi1oZWlnaHQ6MjJweDtcbiAgICBib3JkZXItcmFkaXVzOjZweDtjdXJzb3I6ZGVmYXVsdDtwYWRkaW5nOjRweCA2cHg7bGluZS1oZWlnaHQ6MS4yO1xuICAgIG92ZXJmbG93LXdyYXA6YW55d2hlcmV9XG5cbiAgLnR3ay10b2dnbGV7cG9zaXRpb246cmVsYXRpdmU7d2lkdGg6MzJweDtoZWlnaHQ6MThweDtib3JkZXI6MDtib3JkZXItcmFkaXVzOjk5OXB4O1xuICAgIGJhY2tncm91bmQ6cmdiYSgwLDAsMCwuMTUpO3RyYW5zaXRpb246YmFja2dyb3VuZCAuMTVzO2N1cnNvcjpkZWZhdWx0O3BhZGRpbmc6MH1cbiAgLnR3ay10b2dnbGVbZGF0YS1vbj1cIjFcIl17YmFja2dyb3VuZDojMzRjNzU5fVxuICAudHdrLXRvZ2dsZSBpe3Bvc2l0aW9uOmFic29sdXRlO3RvcDoycHg7bGVmdDoycHg7d2lkdGg6MTRweDtoZWlnaHQ6MTRweDtib3JkZXItcmFkaXVzOjUwJTtcbiAgICBiYWNrZ3JvdW5kOiNmZmY7Ym94LXNoYWRvdzowIDFweCAycHggcmdiYSgwLDAsMCwuMjUpO3RyYW5zaXRpb246dHJhbnNmb3JtIC4xNXN9XG4gIC50d2stdG9nZ2xlW2RhdGEtb249XCIxXCJdIGl7dHJhbnNmb3JtOnRyYW5zbGF0ZVgoMTRweCl9XG5cbiAgLnR3ay1udW17ZGlzcGxheTpmbGV4O2FsaWduLWl0ZW1zOmNlbnRlcjtoZWlnaHQ6MjZweDtwYWRkaW5nOjAgMCAwIDhweDtcbiAgICBib3JkZXI6LjVweCBzb2xpZCByZ2JhKDAsMCwwLC4xKTtib3JkZXItcmFkaXVzOjdweDtiYWNrZ3JvdW5kOnJnYmEoMjU1LDI1NSwyNTUsLjYpfVxuICAudHdrLW51bS1sYmx7Zm9udC13ZWlnaHQ6NTAwO2NvbG9yOnJnYmEoNDEsMzgsMjcsLjYpO2N1cnNvcjpldy1yZXNpemU7XG4gICAgdXNlci1zZWxlY3Q6bm9uZTtwYWRkaW5nLXJpZ2h0OjhweH1cbiAgLnR3ay1udW0gaW5wdXR7ZmxleDoxO21pbi13aWR0aDowO2hlaWdodDoxMDAlO2JvcmRlcjowO2JhY2tncm91bmQ6dHJhbnNwYXJlbnQ7XG4gICAgZm9udDppbmhlcml0O2ZvbnQtdmFyaWFudC1udW1lcmljOnRhYnVsYXItbnVtczt0ZXh0LWFsaWduOnJpZ2h0O3BhZGRpbmc6MCA4cHggMCAwO1xuICAgIG91dGxpbmU6bm9uZTtjb2xvcjppbmhlcml0Oy1tb3otYXBwZWFyYW5jZTp0ZXh0ZmllbGR9XG4gIC50d2stbnVtIGlucHV0Ojotd2Via2l0LWlubmVyLXNwaW4tYnV0dG9uLC50d2stbnVtIGlucHV0Ojotd2Via2l0LW91dGVyLXNwaW4tYnV0dG9ue1xuICAgIC13ZWJraXQtYXBwZWFyYW5jZTpub25lO21hcmdpbjowfVxuICAudHdrLW51bS11bml0e3BhZGRpbmctcmlnaHQ6OHB4O2NvbG9yOnJnYmEoNDEsMzgsMjcsLjQ1KX1cblxuICAudHdrLWJ0bnthcHBlYXJhbmNlOm5vbmU7aGVpZ2h0OjI2cHg7cGFkZGluZzowIDEycHg7Ym9yZGVyOjA7Ym9yZGVyLXJhZGl1czo3cHg7XG4gICAgYmFja2dyb3VuZDpyZ2JhKDAsMCwwLC43OCk7Y29sb3I6I2ZmZjtmb250OmluaGVyaXQ7Zm9udC13ZWlnaHQ6NTAwO2N1cnNvcjpkZWZhdWx0fVxuICAudHdrLWJ0bjpob3ZlcntiYWNrZ3JvdW5kOnJnYmEoMCwwLDAsLjg4KX1cbiAgLnR3ay1idG4uc2Vjb25kYXJ5e2JhY2tncm91bmQ6cmdiYSgwLDAsMCwuMDYpO2NvbG9yOmluaGVyaXR9XG4gIC50d2stYnRuLnNlY29uZGFyeTpob3ZlcntiYWNrZ3JvdW5kOnJnYmEoMCwwLDAsLjEpfVxuXG4gIC50d2stc3dhdGNoe2FwcGVhcmFuY2U6bm9uZTstd2Via2l0LWFwcGVhcmFuY2U6bm9uZTt3aWR0aDo1NnB4O2hlaWdodDoyMnB4O1xuICAgIGJvcmRlcjouNXB4IHNvbGlkIHJnYmEoMCwwLDAsLjEpO2JvcmRlci1yYWRpdXM6NnB4O3BhZGRpbmc6MDtjdXJzb3I6ZGVmYXVsdDtcbiAgICBiYWNrZ3JvdW5kOnRyYW5zcGFyZW50O2ZsZXgtc2hyaW5rOjB9XG4gIC50d2stc3dhdGNoOjotd2Via2l0LWNvbG9yLXN3YXRjaC13cmFwcGVye3BhZGRpbmc6MH1cbiAgLnR3ay1zd2F0Y2g6Oi13ZWJraXQtY29sb3Itc3dhdGNoe2JvcmRlcjowO2JvcmRlci1yYWRpdXM6NS41cHh9XG4gIC50d2stc3dhdGNoOjotbW96LWNvbG9yLXN3YXRjaHtib3JkZXI6MDtib3JkZXItcmFkaXVzOjUuNXB4fVxuYDtcblxuLy8g4pSA4pSAIHVzZVR3ZWFrcyDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIBcbi8vIFNpbmdsZSBzb3VyY2Ugb2YgdHJ1dGggZm9yIHR3ZWFrIHZhbHVlcy4gc2V0VHdlYWsgcGVyc2lzdHMgdmlhIHRoZSBob3N0XG4vLyAoX19lZGl0X21vZGVfc2V0X2tleXMg4oaSIGhvc3QgcmV3cml0ZXMgdGhlIEVESVRNT0RFIGJsb2NrIG9uIGRpc2spLlxuZnVuY3Rpb24gdXNlVHdlYWtzKGRlZmF1bHRzKSB7XG4gIGNvbnN0IFt2YWx1ZXMsIHNldFZhbHVlc10gPSBSZWFjdC51c2VTdGF0ZShkZWZhdWx0cyk7XG4gIC8vIEFjY2VwdHMgZWl0aGVyIHNldFR3ZWFrKCdrZXknLCB2YWx1ZSkgb3Igc2V0VHdlYWsoeyBrZXk6IHZhbHVlLCAuLi4gfSkgc28gYVxuICAvLyB1c2VTdGF0ZS1zdHlsZSBjYWxsIGRvZXNuJ3Qgd3JpdGUgYSBcIltvYmplY3QgT2JqZWN0XVwiIGtleSBpbnRvIHRoZSBwZXJzaXN0ZWRcbiAgLy8gSlNPTiBibG9jay5cbiAgY29uc3Qgc2V0VHdlYWsgPSBSZWFjdC51c2VDYWxsYmFjaygoa2V5T3JFZGl0cywgdmFsKSA9PiB7XG4gICAgY29uc3QgZWRpdHMgPSB0eXBlb2Yga2V5T3JFZGl0cyA9PT0gJ29iamVjdCcgJiYga2V5T3JFZGl0cyAhPT0gbnVsbFxuICAgICAgPyBrZXlPckVkaXRzIDogeyBba2V5T3JFZGl0c106IHZhbCB9O1xuICAgIHNldFZhbHVlcygocHJldikgPT4gKHsgLi4ucHJldiwgLi4uZWRpdHMgfSkpO1xuICAgIHdpbmRvdy5wYXJlbnQucG9zdE1lc3NhZ2UoeyB0eXBlOiAnX19lZGl0X21vZGVfc2V0X2tleXMnLCBlZGl0cyB9LCAnKicpO1xuICB9LCBbXSk7XG4gIHJldHVybiBbdmFsdWVzLCBzZXRUd2Vha107XG59XG5cbi8vIOKUgOKUgCBUd2Vha3NQYW5lbCDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIBcbi8vIEZsb2F0aW5nIHNoZWxsLiBSZWdpc3RlcnMgdGhlIHByb3RvY29sIGxpc3RlbmVyIEJFRk9SRSBhbm5vdW5jaW5nXG4vLyBhdmFpbGFiaWxpdHkg4oCUIGlmIHRoZSBhbm5vdW5jZSByYW4gZmlyc3QsIHRoZSBob3N0J3MgYWN0aXZhdGUgY291bGQgbGFuZFxuLy8gYmVmb3JlIG91ciBoYW5kbGVyIGV4aXN0cyBhbmQgdGhlIHRvb2xiYXIgdG9nZ2xlIHdvdWxkIHNpbGVudGx5IG5vLW9wLlxuLy8gVGhlIGNsb3NlIGJ1dHRvbiBwb3N0cyBfX2VkaXRfbW9kZV9kaXNtaXNzZWQgc28gdGhlIGhvc3QncyB0b29sYmFyIHRvZ2dsZVxuLy8gZmxpcHMgb2ZmIGluIGxvY2tzdGVwOyB0aGUgaG9zdCBlY2hvZXMgX19kZWFjdGl2YXRlX2VkaXRfbW9kZSBiYWNrIHdoaWNoXG4vLyBpcyB3aGF0IGFjdHVhbGx5IGhpZGVzIHRoZSBwYW5lbC5cbmZ1bmN0aW9uIFR3ZWFrc1BhbmVsKHsgdGl0bGUgPSAnVHdlYWtzJywgY2hpbGRyZW4gfSkge1xuICBjb25zdCBbb3Blbiwgc2V0T3Blbl0gPSBSZWFjdC51c2VTdGF0ZShmYWxzZSk7XG4gIGNvbnN0IGRyYWdSZWYgPSBSZWFjdC51c2VSZWYobnVsbCk7XG4gIGNvbnN0IG9mZnNldFJlZiA9IFJlYWN0LnVzZVJlZih7IHg6IDE2LCB5OiAxNiB9KTtcbiAgY29uc3QgUEFEID0gMTY7XG5cbiAgY29uc3QgY2xhbXBUb1ZpZXdwb3J0ID0gUmVhY3QudXNlQ2FsbGJhY2soKCkgPT4ge1xuICAgIGNvbnN0IHBhbmVsID0gZHJhZ1JlZi5jdXJyZW50O1xuICAgIGlmICghcGFuZWwpIHJldHVybjtcbiAgICBjb25zdCB3ID0gcGFuZWwub2Zmc2V0V2lkdGgsIGggPSBwYW5lbC5vZmZzZXRIZWlnaHQ7XG4gICAgY29uc3QgbWF4UmlnaHQgPSBNYXRoLm1heChQQUQsIHdpbmRvdy5pbm5lcldpZHRoIC0gdyAtIFBBRCk7XG4gICAgY29uc3QgbWF4Qm90dG9tID0gTWF0aC5tYXgoUEFELCB3aW5kb3cuaW5uZXJIZWlnaHQgLSBoIC0gUEFEKTtcbiAgICBvZmZzZXRSZWYuY3VycmVudCA9IHtcbiAgICAgIHg6IE1hdGgubWluKG1heFJpZ2h0LCBNYXRoLm1heChQQUQsIG9mZnNldFJlZi5jdXJyZW50LngpKSxcbiAgICAgIHk6IE1hdGgubWluKG1heEJvdHRvbSwgTWF0aC5tYXgoUEFELCBvZmZzZXRSZWYuY3VycmVudC55KSksXG4gICAgfTtcbiAgICBwYW5lbC5zdHlsZS5yaWdodCA9IG9mZnNldFJlZi5jdXJyZW50LnggKyAncHgnO1xuICAgIHBhbmVsLnN0eWxlLmJvdHRvbSA9IG9mZnNldFJlZi5jdXJyZW50LnkgKyAncHgnO1xuICB9LCBbXSk7XG5cbiAgUmVhY3QudXNlRWZmZWN0KCgpID0+IHtcbiAgICBpZiAoIW9wZW4pIHJldHVybjtcbiAgICBjbGFtcFRvVmlld3BvcnQoKTtcbiAgICBpZiAodHlwZW9mIFJlc2l6ZU9ic2VydmVyID09PSAndW5kZWZpbmVkJykge1xuICAgICAgd2luZG93LmFkZEV2ZW50TGlzdGVuZXIoJ3Jlc2l6ZScsIGNsYW1wVG9WaWV3cG9ydCk7XG4gICAgICByZXR1cm4gKCkgPT4gd2luZG93LnJlbW92ZUV2ZW50TGlzdGVuZXIoJ3Jlc2l6ZScsIGNsYW1wVG9WaWV3cG9ydCk7XG4gICAgfVxuICAgIGNvbnN0IHJvID0gbmV3IFJlc2l6ZU9ic2VydmVyKGNsYW1wVG9WaWV3cG9ydCk7XG4gICAgcm8ub2JzZXJ2ZShkb2N1bWVudC5kb2N1bWVudEVsZW1lbnQpO1xuICAgIHJldHVybiAoKSA9PiByby5kaXNjb25uZWN0KCk7XG4gIH0sIFtvcGVuLCBjbGFtcFRvVmlld3BvcnRdKTtcblxuICBSZWFjdC51c2VFZmZlY3QoKCkgPT4ge1xuICAgIGNvbnN0IG9uTXNnID0gKGUpID0+IHtcbiAgICAgIGNvbnN0IHQgPSBlPy5kYXRhPy50eXBlO1xuICAgICAgaWYgKHQgPT09ICdfX2FjdGl2YXRlX2VkaXRfbW9kZScpIHNldE9wZW4odHJ1ZSk7XG4gICAgICBlbHNlIGlmICh0ID09PSAnX19kZWFjdGl2YXRlX2VkaXRfbW9kZScpIHNldE9wZW4oZmFsc2UpO1xuICAgIH07XG4gICAgd2luZG93LmFkZEV2ZW50TGlzdGVuZXIoJ21lc3NhZ2UnLCBvbk1zZyk7XG4gICAgd2luZG93LnBhcmVudC5wb3N0TWVzc2FnZSh7IHR5cGU6ICdfX2VkaXRfbW9kZV9hdmFpbGFibGUnIH0sICcqJyk7XG4gICAgcmV0dXJuICgpID0+IHdpbmRvdy5yZW1vdmVFdmVudExpc3RlbmVyKCdtZXNzYWdlJywgb25Nc2cpO1xuICB9LCBbXSk7XG5cbiAgY29uc3QgZGlzbWlzcyA9ICgpID0+IHtcbiAgICBzZXRPcGVuKGZhbHNlKTtcbiAgICB3aW5kb3cucGFyZW50LnBvc3RNZXNzYWdlKHsgdHlwZTogJ19fZWRpdF9tb2RlX2Rpc21pc3NlZCcgfSwgJyonKTtcbiAgfTtcblxuICBjb25zdCBvbkRyYWdTdGFydCA9IChlKSA9PiB7XG4gICAgY29uc3QgcGFuZWwgPSBkcmFnUmVmLmN1cnJlbnQ7XG4gICAgaWYgKCFwYW5lbCkgcmV0dXJuO1xuICAgIGNvbnN0IHIgPSBwYW5lbC5nZXRCb3VuZGluZ0NsaWVudFJlY3QoKTtcbiAgICBjb25zdCBzeCA9IGUuY2xpZW50WCwgc3kgPSBlLmNsaWVudFk7XG4gICAgY29uc3Qgc3RhcnRSaWdodCA9IHdpbmRvdy5pbm5lcldpZHRoIC0gci5yaWdodDtcbiAgICBjb25zdCBzdGFydEJvdHRvbSA9IHdpbmRvdy5pbm5lckhlaWdodCAtIHIuYm90dG9tO1xuICAgIGNvbnN0IG1vdmUgPSAoZXYpID0+IHtcbiAgICAgIG9mZnNldFJlZi5jdXJyZW50ID0ge1xuICAgICAgICB4OiBzdGFydFJpZ2h0IC0gKGV2LmNsaWVudFggLSBzeCksXG4gICAgICAgIHk6IHN0YXJ0Qm90dG9tIC0gKGV2LmNsaWVudFkgLSBzeSksXG4gICAgICB9O1xuICAgICAgY2xhbXBUb1ZpZXdwb3J0KCk7XG4gICAgfTtcbiAgICBjb25zdCB1cCA9ICgpID0+IHtcbiAgICAgIHdpbmRvdy5yZW1vdmVFdmVudExpc3RlbmVyKCdtb3VzZW1vdmUnLCBtb3ZlKTtcbiAgICAgIHdpbmRvdy5yZW1vdmVFdmVudExpc3RlbmVyKCdtb3VzZXVwJywgdXApO1xuICAgIH07XG4gICAgd2luZG93LmFkZEV2ZW50TGlzdGVuZXIoJ21vdXNlbW92ZScsIG1vdmUpO1xuICAgIHdpbmRvdy5hZGRFdmVudExpc3RlbmVyKCdtb3VzZXVwJywgdXApO1xuICB9O1xuXG4gIGlmICghb3BlbikgcmV0dXJuIG51bGw7XG4gIHJldHVybiAoXG4gICAgPD5cbiAgICAgIDxzdHlsZT57X19UV0VBS1NfU1RZTEV9PC9zdHlsZT5cbiAgICAgIDxkaXYgcmVmPXtkcmFnUmVmfSBjbGFzc05hbWU9XCJ0d2stcGFuZWxcIlxuICAgICAgICAgICBzdHlsZT17eyByaWdodDogb2Zmc2V0UmVmLmN1cnJlbnQueCwgYm90dG9tOiBvZmZzZXRSZWYuY3VycmVudC55IH19PlxuICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInR3ay1oZFwiIG9uTW91c2VEb3duPXtvbkRyYWdTdGFydH0+XG4gICAgICAgICAgPGI+e3RpdGxlfTwvYj5cbiAgICAgICAgICA8YnV0dG9uIGNsYXNzTmFtZT1cInR3ay14XCIgYXJpYS1sYWJlbD1cIkNsb3NlIHR3ZWFrc1wiXG4gICAgICAgICAgICAgICAgICBvbk1vdXNlRG93bj17KGUpID0+IGUuc3RvcFByb3BhZ2F0aW9uKCl9XG4gICAgICAgICAgICAgICAgICBvbkNsaWNrPXtkaXNtaXNzfT7inJU8L2J1dHRvbj5cbiAgICAgICAgPC9kaXY+XG4gICAgICAgIDxkaXYgY2xhc3NOYW1lPVwidHdrLWJvZHlcIj57Y2hpbGRyZW59PC9kaXY+XG4gICAgICA8L2Rpdj5cbiAgICA8Lz5cbiAgKTtcbn1cblxuLy8g4pSA4pSAIExheW91dCBoZWxwZXJzIOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgFxuXG5mdW5jdGlvbiBUd2Vha1NlY3Rpb24oeyBsYWJlbCwgY2hpbGRyZW4gfSkge1xuICByZXR1cm4gKFxuICAgIDw+XG4gICAgICA8ZGl2IGNsYXNzTmFtZT1cInR3ay1zZWN0XCI+e2xhYmVsfTwvZGl2PlxuICAgICAge2NoaWxkcmVufVxuICAgIDwvPlxuICApO1xufVxuXG5mdW5jdGlvbiBUd2Vha1Jvdyh7IGxhYmVsLCB2YWx1ZSwgY2hpbGRyZW4sIGlubGluZSA9IGZhbHNlIH0pIHtcbiAgcmV0dXJuIChcbiAgICA8ZGl2IGNsYXNzTmFtZT17aW5saW5lID8gJ3R3ay1yb3cgdHdrLXJvdy1oJyA6ICd0d2stcm93J30+XG4gICAgICA8ZGl2IGNsYXNzTmFtZT1cInR3ay1sYmxcIj5cbiAgICAgICAgPHNwYW4+e2xhYmVsfTwvc3Bhbj5cbiAgICAgICAge3ZhbHVlICE9IG51bGwgJiYgPHNwYW4gY2xhc3NOYW1lPVwidHdrLXZhbFwiPnt2YWx1ZX08L3NwYW4+fVxuICAgICAgPC9kaXY+XG4gICAgICB7Y2hpbGRyZW59XG4gICAgPC9kaXY+XG4gICk7XG59XG5cbi8vIOKUgOKUgCBDb250cm9scyDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIBcblxuZnVuY3Rpb24gVHdlYWtTbGlkZXIoeyBsYWJlbCwgdmFsdWUsIG1pbiA9IDAsIG1heCA9IDEwMCwgc3RlcCA9IDEsIHVuaXQgPSAnJywgb25DaGFuZ2UgfSkge1xuICByZXR1cm4gKFxuICAgIDxUd2Vha1JvdyBsYWJlbD17bGFiZWx9IHZhbHVlPXtgJHt2YWx1ZX0ke3VuaXR9YH0+XG4gICAgICA8aW5wdXQgdHlwZT1cInJhbmdlXCIgY2xhc3NOYW1lPVwidHdrLXNsaWRlclwiIG1pbj17bWlufSBtYXg9e21heH0gc3RlcD17c3RlcH1cbiAgICAgICAgICAgICB2YWx1ZT17dmFsdWV9IG9uQ2hhbmdlPXsoZSkgPT4gb25DaGFuZ2UoTnVtYmVyKGUudGFyZ2V0LnZhbHVlKSl9IC8+XG4gICAgPC9Ud2Vha1Jvdz5cbiAgKTtcbn1cblxuZnVuY3Rpb24gVHdlYWtUb2dnbGUoeyBsYWJlbCwgdmFsdWUsIG9uQ2hhbmdlIH0pIHtcbiAgcmV0dXJuIChcbiAgICA8ZGl2IGNsYXNzTmFtZT1cInR3ay1yb3cgdHdrLXJvdy1oXCI+XG4gICAgICA8ZGl2IGNsYXNzTmFtZT1cInR3ay1sYmxcIj48c3Bhbj57bGFiZWx9PC9zcGFuPjwvZGl2PlxuICAgICAgPGJ1dHRvbiB0eXBlPVwiYnV0dG9uXCIgY2xhc3NOYW1lPVwidHdrLXRvZ2dsZVwiIGRhdGEtb249e3ZhbHVlID8gJzEnIDogJzAnfVxuICAgICAgICAgICAgICByb2xlPVwic3dpdGNoXCIgYXJpYS1jaGVja2VkPXshIXZhbHVlfVxuICAgICAgICAgICAgICBvbkNsaWNrPXsoKSA9PiBvbkNoYW5nZSghdmFsdWUpfT48aSAvPjwvYnV0dG9uPlxuICAgIDwvZGl2PlxuICApO1xufVxuXG5mdW5jdGlvbiBUd2Vha1JhZGlvKHsgbGFiZWwsIHZhbHVlLCBvcHRpb25zLCBvbkNoYW5nZSB9KSB7XG4gIGNvbnN0IHRyYWNrUmVmID0gUmVhY3QudXNlUmVmKG51bGwpO1xuICBjb25zdCBbZHJhZ2dpbmcsIHNldERyYWdnaW5nXSA9IFJlYWN0LnVzZVN0YXRlKGZhbHNlKTtcbiAgY29uc3Qgb3B0cyA9IG9wdGlvbnMubWFwKChvKSA9PiAodHlwZW9mIG8gPT09ICdvYmplY3QnID8gbyA6IHsgdmFsdWU6IG8sIGxhYmVsOiBvIH0pKTtcbiAgY29uc3QgaWR4ID0gTWF0aC5tYXgoMCwgb3B0cy5maW5kSW5kZXgoKG8pID0+IG8udmFsdWUgPT09IHZhbHVlKSk7XG4gIGNvbnN0IG4gPSBvcHRzLmxlbmd0aDtcblxuICAvLyBUaGUgYWN0aXZlIHZhbHVlIGlzIHJlYWQgYnkgcG9pbnRlci1tb3ZlIGhhbmRsZXJzIGF0dGFjaGVkIGZvciB0aGUgbGlmZXRpbWVcbiAgLy8gb2YgYSBkcmFnIOKAlCByZWYgaXQgc28gYSBzdGFsZSBjbG9zdXJlIGRvZXNuJ3QgZmlyZSBvbkNoYW5nZSBmb3IgZXZlcnkgbW92ZS5cbiAgY29uc3QgdmFsdWVSZWYgPSBSZWFjdC51c2VSZWYodmFsdWUpO1xuICB2YWx1ZVJlZi5jdXJyZW50ID0gdmFsdWU7XG5cbiAgY29uc3Qgc2VnQXQgPSAoY2xpZW50WCkgPT4ge1xuICAgIGNvbnN0IHIgPSB0cmFja1JlZi5jdXJyZW50LmdldEJvdW5kaW5nQ2xpZW50UmVjdCgpO1xuICAgIGNvbnN0IGlubmVyID0gci53aWR0aCAtIDQ7XG4gICAgY29uc3QgaSA9IE1hdGguZmxvb3IoKChjbGllbnRYIC0gci5sZWZ0IC0gMikgLyBpbm5lcikgKiBuKTtcbiAgICByZXR1cm4gb3B0c1tNYXRoLm1heCgwLCBNYXRoLm1pbihuIC0gMSwgaSkpXS52YWx1ZTtcbiAgfTtcblxuICBjb25zdCBvblBvaW50ZXJEb3duID0gKGUpID0+IHtcbiAgICBzZXREcmFnZ2luZyh0cnVlKTtcbiAgICBjb25zdCB2MCA9IHNlZ0F0KGUuY2xpZW50WCk7XG4gICAgaWYgKHYwICE9PSB2YWx1ZVJlZi5jdXJyZW50KSBvbkNoYW5nZSh2MCk7XG4gICAgY29uc3QgbW92ZSA9IChldikgPT4ge1xuICAgICAgaWYgKCF0cmFja1JlZi5jdXJyZW50KSByZXR1cm47XG4gICAgICBjb25zdCB2ID0gc2VnQXQoZXYuY2xpZW50WCk7XG4gICAgICBpZiAodiAhPT0gdmFsdWVSZWYuY3VycmVudCkgb25DaGFuZ2Uodik7XG4gICAgfTtcbiAgICBjb25zdCB1cCA9ICgpID0+IHtcbiAgICAgIHNldERyYWdnaW5nKGZhbHNlKTtcbiAgICAgIHdpbmRvdy5yZW1vdmVFdmVudExpc3RlbmVyKCdwb2ludGVybW92ZScsIG1vdmUpO1xuICAgICAgd2luZG93LnJlbW92ZUV2ZW50TGlzdGVuZXIoJ3BvaW50ZXJ1cCcsIHVwKTtcbiAgICB9O1xuICAgIHdpbmRvdy5hZGRFdmVudExpc3RlbmVyKCdwb2ludGVybW92ZScsIG1vdmUpO1xuICAgIHdpbmRvdy5hZGRFdmVudExpc3RlbmVyKCdwb2ludGVydXAnLCB1cCk7XG4gIH07XG5cbiAgcmV0dXJuIChcbiAgICA8VHdlYWtSb3cgbGFiZWw9e2xhYmVsfT5cbiAgICAgIDxkaXYgcmVmPXt0cmFja1JlZn0gcm9sZT1cInJhZGlvZ3JvdXBcIiBvblBvaW50ZXJEb3duPXtvblBvaW50ZXJEb3dufVxuICAgICAgICAgICBjbGFzc05hbWU9e2RyYWdnaW5nID8gJ3R3ay1zZWcgZHJhZ2dpbmcnIDogJ3R3ay1zZWcnfT5cbiAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJ0d2stc2VnLXRodW1iXCJcbiAgICAgICAgICAgICBzdHlsZT17eyBsZWZ0OiBgY2FsYygycHggKyAke2lkeH0gKiAoMTAwJSAtIDRweCkgLyAke259KWAsXG4gICAgICAgICAgICAgICAgICAgICAgd2lkdGg6IGBjYWxjKCgxMDAlIC0gNHB4KSAvICR7bn0pYCB9fSAvPlxuICAgICAgICB7b3B0cy5tYXAoKG8pID0+IChcbiAgICAgICAgICA8YnV0dG9uIGtleT17by52YWx1ZX0gdHlwZT1cImJ1dHRvblwiIHJvbGU9XCJyYWRpb1wiIGFyaWEtY2hlY2tlZD17by52YWx1ZSA9PT0gdmFsdWV9PlxuICAgICAgICAgICAge28ubGFiZWx9XG4gICAgICAgICAgPC9idXR0b24+XG4gICAgICAgICkpfVxuICAgICAgPC9kaXY+XG4gICAgPC9Ud2Vha1Jvdz5cbiAgKTtcbn1cblxuZnVuY3Rpb24gVHdlYWtTZWxlY3QoeyBsYWJlbCwgdmFsdWUsIG9wdGlvbnMsIG9uQ2hhbmdlIH0pIHtcbiAgcmV0dXJuIChcbiAgICA8VHdlYWtSb3cgbGFiZWw9e2xhYmVsfT5cbiAgICAgIDxzZWxlY3QgY2xhc3NOYW1lPVwidHdrLWZpZWxkXCIgdmFsdWU9e3ZhbHVlfSBvbkNoYW5nZT17KGUpID0+IG9uQ2hhbmdlKGUudGFyZ2V0LnZhbHVlKX0+XG4gICAgICAgIHtvcHRpb25zLm1hcCgobykgPT4ge1xuICAgICAgICAgIGNvbnN0IHYgPSB0eXBlb2YgbyA9PT0gJ29iamVjdCcgPyBvLnZhbHVlIDogbztcbiAgICAgICAgICBjb25zdCBsID0gdHlwZW9mIG8gPT09ICdvYmplY3QnID8gby5sYWJlbCA6IG87XG4gICAgICAgICAgcmV0dXJuIDxvcHRpb24ga2V5PXt2fSB2YWx1ZT17dn0+e2x9PC9vcHRpb24+O1xuICAgICAgICB9KX1cbiAgICAgIDwvc2VsZWN0PlxuICAgIDwvVHdlYWtSb3c+XG4gICk7XG59XG5cbmZ1bmN0aW9uIFR3ZWFrVGV4dCh7IGxhYmVsLCB2YWx1ZSwgcGxhY2Vob2xkZXIsIG9uQ2hhbmdlIH0pIHtcbiAgcmV0dXJuIChcbiAgICA8VHdlYWtSb3cgbGFiZWw9e2xhYmVsfT5cbiAgICAgIDxpbnB1dCBjbGFzc05hbWU9XCJ0d2stZmllbGRcIiB0eXBlPVwidGV4dFwiIHZhbHVlPXt2YWx1ZX0gcGxhY2Vob2xkZXI9e3BsYWNlaG9sZGVyfVxuICAgICAgICAgICAgIG9uQ2hhbmdlPXsoZSkgPT4gb25DaGFuZ2UoZS50YXJnZXQudmFsdWUpfSAvPlxuICAgIDwvVHdlYWtSb3c+XG4gICk7XG59XG5cbmZ1bmN0aW9uIFR3ZWFrTnVtYmVyKHsgbGFiZWwsIHZhbHVlLCBtaW4sIG1heCwgc3RlcCA9IDEsIHVuaXQgPSAnJywgb25DaGFuZ2UgfSkge1xuICBjb25zdCBjbGFtcCA9IChuKSA9PiB7XG4gICAgaWYgKG1pbiAhPSBudWxsICYmIG4gPCBtaW4pIHJldHVybiBtaW47XG4gICAgaWYgKG1heCAhPSBudWxsICYmIG4gPiBtYXgpIHJldHVybiBtYXg7XG4gICAgcmV0dXJuIG47XG4gIH07XG4gIGNvbnN0IHN0YXJ0UmVmID0gUmVhY3QudXNlUmVmKHsgeDogMCwgdmFsOiAwIH0pO1xuICBjb25zdCBvblNjcnViU3RhcnQgPSAoZSkgPT4ge1xuICAgIGUucHJldmVudERlZmF1bHQoKTtcbiAgICBzdGFydFJlZi5jdXJyZW50ID0geyB4OiBlLmNsaWVudFgsIHZhbDogdmFsdWUgfTtcbiAgICBjb25zdCBkZWNpbWFscyA9IChTdHJpbmcoc3RlcCkuc3BsaXQoJy4nKVsxXSB8fCAnJykubGVuZ3RoO1xuICAgIGNvbnN0IG1vdmUgPSAoZXYpID0+IHtcbiAgICAgIGNvbnN0IGR4ID0gZXYuY2xpZW50WCAtIHN0YXJ0UmVmLmN1cnJlbnQueDtcbiAgICAgIGNvbnN0IHJhdyA9IHN0YXJ0UmVmLmN1cnJlbnQudmFsICsgZHggKiBzdGVwO1xuICAgICAgY29uc3Qgc25hcHBlZCA9IE1hdGgucm91bmQocmF3IC8gc3RlcCkgKiBzdGVwO1xuICAgICAgb25DaGFuZ2UoY2xhbXAoTnVtYmVyKHNuYXBwZWQudG9GaXhlZChkZWNpbWFscykpKSk7XG4gICAgfTtcbiAgICBjb25zdCB1cCA9ICgpID0+IHtcbiAgICAgIHdpbmRvdy5yZW1vdmVFdmVudExpc3RlbmVyKCdwb2ludGVybW92ZScsIG1vdmUpO1xuICAgICAgd2luZG93LnJlbW92ZUV2ZW50TGlzdGVuZXIoJ3BvaW50ZXJ1cCcsIHVwKTtcbiAgICB9O1xuICAgIHdpbmRvdy5hZGRFdmVudExpc3RlbmVyKCdwb2ludGVybW92ZScsIG1vdmUpO1xuICAgIHdpbmRvdy5hZGRFdmVudExpc3RlbmVyKCdwb2ludGVydXAnLCB1cCk7XG4gIH07XG4gIHJldHVybiAoXG4gICAgPGRpdiBjbGFzc05hbWU9XCJ0d2stbnVtXCI+XG4gICAgICA8c3BhbiBjbGFzc05hbWU9XCJ0d2stbnVtLWxibFwiIG9uUG9pbnRlckRvd249e29uU2NydWJTdGFydH0+e2xhYmVsfTwvc3Bhbj5cbiAgICAgIDxpbnB1dCB0eXBlPVwibnVtYmVyXCIgdmFsdWU9e3ZhbHVlfSBtaW49e21pbn0gbWF4PXttYXh9IHN0ZXA9e3N0ZXB9XG4gICAgICAgICAgICAgb25DaGFuZ2U9eyhlKSA9PiBvbkNoYW5nZShjbGFtcChOdW1iZXIoZS50YXJnZXQudmFsdWUpKSl9IC8+XG4gICAgICB7dW5pdCAmJiA8c3BhbiBjbGFzc05hbWU9XCJ0d2stbnVtLXVuaXRcIj57dW5pdH08L3NwYW4+fVxuICAgIDwvZGl2PlxuICApO1xufVxuXG5mdW5jdGlvbiBUd2Vha0NvbG9yKHsgbGFiZWwsIHZhbHVlLCBvbkNoYW5nZSB9KSB7XG4gIHJldHVybiAoXG4gICAgPGRpdiBjbGFzc05hbWU9XCJ0d2stcm93IHR3ay1yb3ctaFwiPlxuICAgICAgPGRpdiBjbGFzc05hbWU9XCJ0d2stbGJsXCI+PHNwYW4+e2xhYmVsfTwvc3Bhbj48L2Rpdj5cbiAgICAgIDxpbnB1dCB0eXBlPVwiY29sb3JcIiBjbGFzc05hbWU9XCJ0d2stc3dhdGNoXCIgdmFsdWU9e3ZhbHVlfVxuICAgICAgICAgICAgIG9uQ2hhbmdlPXsoZSkgPT4gb25DaGFuZ2UoZS50YXJnZXQudmFsdWUpfSAvPlxuICAgIDwvZGl2PlxuICApO1xufVxuXG5mdW5jdGlvbiBUd2Vha0J1dHRvbih7IGxhYmVsLCBvbkNsaWNrLCBzZWNvbmRhcnkgPSBmYWxzZSB9KSB7XG4gIHJldHVybiAoXG4gICAgPGJ1dHRvbiB0eXBlPVwiYnV0dG9uXCIgY2xhc3NOYW1lPXtzZWNvbmRhcnkgPyAndHdrLWJ0biBzZWNvbmRhcnknIDogJ3R3ay1idG4nfVxuICAgICAgICAgICAgb25DbGljaz17b25DbGlja30+e2xhYmVsfTwvYnV0dG9uPlxuICApO1xufVxuXG5PYmplY3QuYXNzaWduKHdpbmRvdywge1xuICB1c2VUd2Vha3MsIFR3ZWFrc1BhbmVsLCBUd2Vha1NlY3Rpb24sIFR3ZWFrUm93LFxuICBUd2Vha1NsaWRlciwgVHdlYWtUb2dnbGUsIFR3ZWFrUmFkaW8sIFR3ZWFrU2VsZWN0LFxuICBUd2Vha1RleHQsIFR3ZWFrTnVtYmVyLCBUd2Vha0NvbG9yLCBUd2Vha0J1dHRvbixcbn0pO1xuIl0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTs7QUFFQSxJQUFNQSxjQUFjLHV0TEEyRm5COztBQUVEO0FBQ0E7QUFDQTtBQUNBLFNBQVNDLFNBQVNBLENBQUNDLFFBQVEsRUFBRTtFQUMzQixJQUFBQyxlQUFBLEdBQTRCQyxLQUFLLENBQUNDLFFBQVEsQ0FBQ0gsUUFBUSxDQUFDO0lBQUFJLGdCQUFBLEdBQUFDLGNBQUEsQ0FBQUosZUFBQTtJQUE3Q0ssTUFBTSxHQUFBRixnQkFBQTtJQUFFRyxTQUFTLEdBQUFILGdCQUFBO0VBQ3hCO0VBQ0E7RUFDQTtFQUNBLElBQU1JLFFBQVEsR0FBR04sS0FBSyxDQUFDTyxXQUFXLENBQUMsVUFBQ0MsVUFBVSxFQUFFQyxHQUFHLEVBQUs7SUFDdEQsSUFBTUMsS0FBSyxHQUFHQyxPQUFBLENBQU9ILFVBQVUsTUFBSyxRQUFRLElBQUlBLFVBQVUsS0FBSyxJQUFJLEdBQy9EQSxVQUFVLEdBQUFJLGVBQUEsS0FBTUosVUFB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</script><script>"use strict";
+
+var _jsxFileName = "/Inline Babel script";
+function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+var _React = React,
+  useEffect = _React.useEffect;
+var TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "direction": "editorial"
+} /*EDITMODE-END*/;
+function ZscalerTweaks() {
+  var _useTweaks = useTweaks(TWEAK_DEFAULTS),
+    _useTweaks2 = _slicedToArray(_useTweaks, 2),
+    tweaks = _useTweaks2[0],
+    setTweak = _useTweaks2[1];
+  useEffect(function () {
+    document.body.setAttribute("data-direction", tweaks.direction);
+  }, [tweaks.direction]);
+  return /*#__PURE__*/React.createElement(TweaksPanel, {
+    title: "Tweaks",
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 16,
+      columnNumber: 7
+    },
+    "data-om-id": "jsx:/Inline Babel script:357:16:7"
+  }, /*#__PURE__*/React.createElement(TweakSection, {
+    title: "Visual direction",
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 17,
+      columnNumber: 9
+    },
+    "data-om-id": "jsx:/Inline Babel script:394:17:9"
+  }, /*#__PURE__*/React.createElement(TweakRadio, {
+    value: tweaks.direction,
+    onChange: function onChange(v) {
+      return setTweak("direction", v);
+    },
+    options: [{
+      value: "editorial",
+      label: "Editorial"
+    }, {
+      value: "technical",
+      label: "Technical"
+    }, {
+      value: "diagrammatic",
+      label: "Diagrammatic"
+    }],
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 18,
+      columnNumber: 11
+    },
+    "data-om-id": "jsx:/Inline Babel script:444:18:11"
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "#6a655d",
+      marginTop: 8,
+      lineHeight: 1.4,
+      fontFamily: "JetBrains Mono, monospace"
+    },
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 27,
+      columnNumber: 11
+    },
+    "data-om-id": "jsx:/Inline Babel script:787:27:11"
+  }, tweaks.direction === "editorial" && "Serif headlines · book-like · generous whitespace. Default · serious, readable, works for most rooms.", tweaks.direction === "technical" && "Sans-serif · monospace accents · denser. Linear/Stripe vibe.", tweaks.direction === "diagrammatic" && "Sparse · large display type · minimal chrome.")));
+}
+var root = document.createElement("div");
+document.body.appendChild(root);
+ReactDOM.createRoot(root).render(/*#__PURE__*/React.createElement(ZscalerTweaks, {
+  __source: {
+    fileName: _jsxFileName,
+    lineNumber: 39,
+    columnNumber: 36
+  },
+  "data-om-id": "jsx:/Inline Babel script:1453:39:36"
+}));
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfUmVhY3QiLCJSZWFjdCIsInVzZUVmZmVjdCIsIlRXRUFLX0RFRkFVTFRTIiwiWnNjYWxlclR3ZWFrcyIsIl91c2VUd2Vha3MiLCJ1c2VUd2Vha3MiLCJfdXNlVHdlYWtzMiIsIl9zbGljZWRUb0FycmF5IiwidHdlYWtzIiwic2V0VHdlYWsiLCJkb2N1bWVudCIsImJvZHkiLCJzZXRBdHRyaWJ1dGUiLCJkaXJlY3Rpb24iLCJjcmVhdGVFbGVtZW50IiwiVHdlYWtzUGFuZWwiLCJ0aXRsZSIsIl9fc291cmNlIiwiZmlsZU5hbWUiLCJfanN4RmlsZU5hbWUiLCJsaW5lTnVtYmVyIiwiY29sdW1uTnVtYmVyIiwiVHdlYWtTZWN0aW9uIiwiVHdlYWtSYWRpbyIsInZhbHVlIiwib25DaGFuZ2UiLCJ2Iiwib3B0aW9ucyIsImxhYmVsIiwic3R5bGUiLCJmb250U2l6ZSIsImNvbG9yIiwibWFyZ2luVG9wIiwibGluZUhlaWdodCIsImZvbnRGYW1pbHkiLCJyb290IiwiYXBwZW5kQ2hpbGQiLCJSZWFjdERPTSIsImNyZWF0ZVJvb3QiLCJyZW5kZXIiXSwic291cmNlcyI6WyJJbmxpbmUgQmFiZWwgc2NyaXB0Il0sInNvdXJjZXNDb250ZW50IjpbIlxuICBjb25zdCB7IHVzZUVmZmVjdCB9ID0gUmVhY3Q7XG5cbiAgY29uc3QgVFdFQUtfREVGQVVMVFMgPSAvKkVESVRNT0RFLUJFR0lOKi97XG4gICAgXCJkaXJlY3Rpb25cIjogXCJlZGl0b3JpYWxcIlxuICB9LypFRElUTU9ERS1FTkQqLztcblxuICBmdW5jdGlvbiBac2NhbGVyVHdlYWtzKCkge1xuICAgIGNvbnN0IFt0d2Vha3MsIHNldFR3ZWFrXSA9IHVzZVR3ZWFrcyhUV0VBS19ERUZBVUxUUyk7XG5cbiAgICB1c2VFZmZlY3QoKCkgPT4ge1xuICAgICAgZG9jdW1lbnQuYm9keS5zZXRBdHRyaWJ1dGUoXCJkYXRhLWRpcmVjdGlvblwiLCB0d2Vha3MuZGlyZWN0aW9uKTtcbiAgICB9LCBbdHdlYWtzLmRpcmVjdGlvbl0pO1xuXG4gICAgcmV0dXJuIChcbiAgICAgIDxUd2Vha3NQYW5lbCB0aXRsZT1cIlR3ZWFrc1wiPlxuICAgICAgICA8VHdlYWtTZWN0aW9uIHRpdGxlPVwiVmlzdWFsIGRpcmVjdGlvblwiPlxuICAgICAgICAgIDxUd2Vha1JhZGlvXG4gICAgICAgICAgICB2YWx1ZT17dHdlYWtzLmRpcmVjdGlvbn1cbiAgICAgICAgICAgIG9uQ2hhbmdlPXt2ID0+IHNldFR3ZWFrKFwiZGlyZWN0aW9uXCIsIHYpfVxuICAgICAgICAgICAgb3B0aW9ucz17W1xuICAgICAgICAgICAgICB7IHZhbHVlOiBcImVkaXRvcmlhbFwiLCBsYWJlbDogXCJFZGl0b3JpYWxcIiB9LFxuICAgICAgICAgICAgICB7IHZhbHVlOiBcInRlY2huaWNhbFwiLCBsYWJlbDogXCJUZWNobmljYWxcIiB9LFxuICAgICAgICAgICAgICB7IHZhbHVlOiBcImRpYWdyYW1tYXRpY1wiLCBsYWJlbDogXCJEaWFncmFtbWF0aWNcIiB9LFxuICAgICAgICAgICAgXX1cbiAgICAgICAgICAvPlxuICAgICAgICAgIDxkaXYgc3R5bGU9e3sgZm9udFNpemU6IDExLCBjb2xvcjogXCIjNmE2NTVkXCIsIG1hcmdpblRvcDogOCwgbGluZUhlaWdodDogMS40LCBmb250RmFtaWx5OiBcIkpldEJyYWlucyBNb25vLCBtb25vc3BhY2VcIiB9fT5cbiAgICAgICAgICAgIHt0d2Vha3MuZGlyZWN0aW9uID09PSBcImVkaXRvcmlhbFwiICYmIFwiU2VyaWYgaGVhZGxpbmVzIMK3IGJvb2stbGlrZSDCtyBnZW5lcm91cyB3aGl0ZXNwYWNlLiBEZWZhdWx0IGZvciB0aGUgU3IgRGlyZWN0b3IgYXVkaWVuY2UuXCJ9XG4gICAgICAgICAgICB7dHdlYWtzLmRpcmVjdGlvbiA9PT0gXCJ0ZWNobmljYWxcIiAmJiBcIlNhbnMtc2VyaWYgwrcgbW9ub3NwYWNlIGFjY2VudHMgwrcgZGVuc2VyLiBMaW5lYXIvU3RyaXBlIHZpYmUuXCJ9XG4gICAgICAgICAgICB7dHdlYWtzLmRpcmVjdGlvbiA9PT0gXCJkaWFncmFtbWF0aWNcIiAmJiBcIlNwYXJzZSDCtyBsYXJnZSBkaXNwbGF5IHR5cGUgwrcgbWluaW1hbCBjaHJvbWUuXCJ9XG4gICAgICAgICAgPC9kaXY+XG4gICAgICAgIDwvVHdlYWtTZWN0aW9uPlxuICAgICAgPC9Ud2Vha3NQYW5lbD5cbiAgICApO1xuICB9XG5cbiAgY29uc3Qgcm9vdCA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoXCJkaXZcIik7XG4gIGRvY3VtZW50LmJvZHkuYXBwZW5kQ2hpbGQocm9vdCk7XG4gIFJlYWN0RE9NLmNyZWF0ZVJvb3Qocm9vdCkucmVuZGVyKDxac2NhbGVyVHdlYWtzIC8+KTtcbiJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7O0FBQ0UsSUFBQUEsTUFBQSxHQUFzQkMsS0FBSztFQUFuQkMsU0FBUyxHQUFBRixNQUFBLENBQVRFLFNBQVM7QUFFakIsSUFBTUMsY0FBYyxHQUFHLGtCQUFrQjtFQUN2QyxXQUFXLEVBQUU7QUFDZixDQUFDO0FBRUQsU0FBU0MsYUFBYUEsQ0FBQSxFQUFHO0VBQ3ZCLElBQUFDLFVBQUEsR0FBMkJDLFNBQVMsQ0FBQ0gsY0FBYyxDQUFDO0lBQUFJLFdBQUEsR0FBQUMsY0FBQSxDQUFBSCxVQUFBO0lBQTdDSSxNQUFNLEdBQUFGLFdBQUE7SUFBRUcsUUFBUSxHQUFBSCxXQUFBO0VBRXZCTCxTQUFTLENBQUMsWUFBTTtJQUNkUyxRQUFRLENBQUNDLElBQUksQ0FBQ0MsWUFBWSxDQUFDLGdCQUFnQixFQUFFSixNQUFNLENBQUNLLFNBQVMsQ0FBQztFQUNoRSxDQUFDLEVBQUUsQ0FBQ0wsTUFBTSxDQUFDSyxTQUFTLENBQUMsQ0FBQztFQUV0QixvQkFDRWIsS0FBQSxDQUFBYyxhQUFBLENBQUNDLFdBQVc7SUFBQ0MsS0FBSyxFQUFDLFFBQVE7SUFBQUMsUUFBQTtNQUFBQyxRQUFBLEVBQUFDLFlBQUE7TUFBQUMsVUFBQTtNQUFBQyxZQUFBO0lBQUE7SUFBQTtFQUFBLGdCQUN6QnJCLEtBQUEsQ0FBQWMsYUFBQSxDQUFDUSxZQUFZO0lBQUNOLEtBQUssRUFBQyxrQkFBa0I7SUFBQUMsUUFBQTtNQUFBQyxRQUFBLEVBQUFDLFlBQUE7TUFBQUMsVUFBQTtNQUFBQyxZQUFBO0lBQUE7SUFBQTtFQUFBLGdCQUNwQ3JCLEtBQUEsQ0FBQWMsYUFBQSxDQUFDUyxVQUFVO0lBQ1RDLEtBQUssRUFBRWhCLE1BQU0sQ0FBQ0ssU0FBVTtJQUN4QlksUUFBUSxFQUFFLFNBQVZBLFFBQVFBLENBQUVDLENBQUM7TUFBQSxPQUFJakIsUUFBUSxDQUFDLFdBQVcsRUFBRWlCLENBQUMsQ0FBQztJQUFBLENBQUM7SUFDeENDLE9BQU8sRUFBRSxDQUNQO01BQUVILEtBQUssRUFBRSxXQUFXO01BQUVJLEtBQUssRUFBRTtJQUFZLENBQUMsRUFDMUM7TUFBRUosS0FBSyxFQUFFLFdBQVc7TUFBRUksS0FBSyxFQUFFO0lBQVksQ0FBQyxFQUMxQztNQUFFSixLQUFLLEVBQUUsY0FBYztNQUFFSSxLQUFLLEVBQUU7SUFBZSxDQUFDLENBQ2hEO0lBQUFYLFFBQUE7TUFBQUMsUUFBQSxFQUFBQyxZQUFBO01BQUFDLFVBQUE7TUFBQUMsWUFBQTtJQUFBO0lBQUE7RUFBQSxDQUNILENBQUMsZUFDRnJCLEtBQUEsQ0FBQWMsYUFBQTtJQUFLZSxLQUFLLEVBQUU7TUFBRUMsUUFBUSxFQUFFLEVBQUU7TUFBRUMsS0FBSyxFQUFFLFNBQVM7TUFBRUMsU0FBUyxFQUFFLENBQUM7TUFBRUMsVUFBVSxFQUFFLEdBQUc7TUFBRUMsVUFBVSxFQUFFO0lBQTRCLENBQUU7SUFBQWpCLFFBQUE7TUFBQUMsUUFBQSxFQUFBQyxZQUFBO01BQUFDLFVBQUE7TUFBQUMsWUFBQTtJQUFBO0lBQUE7RUFBQSxHQUNwSGIsTUFBTSxDQUFDSyxTQUFTLEtBQUssV0FBVyxJQUFJLDBGQUEwRixFQUM5SEwsTUFBTSxDQUFDSyxTQUFTLEtBQUssV0FBVyxJQUFJLDhEQUE4RCxFQUNsR0wsTUFBTSxDQUFDSyxTQUFTLEtBQUssY0FBYyxJQUFJLCtDQUNyQyxDQUNPLENBQ0gsQ0FBQztBQUVsQjtBQUVBLElBQU1zQixJQUFJLEdBQUd6QixRQUFRLENBQUNJLGFBQWEsQ0FBQyxLQUFLLENBQUM7QUFDMUNKLFFBQVEsQ0FBQ0MsSUFBSSxDQUFDeUIsV0FBVyxDQUFDRCxJQUFJLENBQUM7QUFDL0JFLFFBQVEsQ0FBQ0MsVUFBVSxDQUFDSCxJQUFJLENBQUMsQ0FBQ0ksTUFBTSxjQUFDdkMsS0FBQSxDQUFBYyxhQUFBLENBQUNYLGFBQWE7RUFBQWMsUUFBQTtJQUFBQyxRQUFBLEVBQUFDLFlBQUE7SUFBQUMsVUFBQTtJQUFBQyxZQUFBO0VBQUE7RUFBQTtBQUFBLENBQUUsQ0FBQyxDQUFDIiwiaWdub3JlTGlzdCI6W119</script></head>
+
+<body data-direction="editorial" style="cursor: crosshair; font-size: 10px;" data-cc-id="cc-1">
+
+<deck-stage>
+
+  <!-- 01 — Title -->
+  <section data-screen-label="01 Title" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="0">
+    <div class="slide-header">
+      <span class="eyebrow">Onboarding · Q2 2026</span>
+      <span class="eyebrow">Zscaler — the whole platform on one page</span>
+    </div>
+
+    <div class="hero">
+      <span class="eyebrow" style="margin-bottom: 32px;">An orientation</span>
+      <h1 style="margin: 0;">What is<br>Zscaler,<br>actually.</h1>
+      <div class="meta">
+        <div class="rule rule-thick"></div>
+        <span class="eyebrow">For new joiners — IC + leadership track</span>
+      </div>
+    </div>
+
+    <div class="slide-footer">
+      <span class="l">Internal · onboarding</span>
+      <span class="r">01 / 18</span>
+    </div>
+  </section>
+
+  <!-- 02 — Plain-English -->
+  <section data-screen-label="02 In one sentence" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="1">
+    <div class="slide-header">
+      <span class="eyebrow">01 — In plain English</span>
+      <span class="eyebrow">02 / 18</span>
+    </div>
+
+    <div class="hero">
+      <p class="pull-quote">
+        Zscaler is the cloud that sits between your users and everything they want to reach — the internet, SaaS apps, and your own private apps. Every connection goes through it first.
+      </p>
+      <p style="margin-top: 48px; color: var(--ink-3); font-size: 22px;">
+        Everything else on the next 16 slides is a detail of <em>how</em> that happens, <em>which</em> traffic, and <em>what gets inspected</em> along the way.
+      </p>
+    </div>
+  </section>
+
+  <!-- 03 — What it replaces -->
+  <section data-screen-label="03 What it replaces" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="2">
+    <div class="slide-header">
+      <span class="eyebrow">02 — Why it exists</span>
+      <span class="eyebrow">03 / 18</span>
+    </div>
+
+    <div style="display: flex; flex-direction: column; flex: 1; justify-content: center;">
+      <h2 style="margin: 0 0 32px 0;">It collapses three categories<br>of legacy infrastructure.</h2>
+
+      <div class="layers">
+        <div class="layer">
+          <div class="role"><span>Replaces</span><span class="nm">Web gateways &amp; firewalls</span></div>
+          <div class="desc">Outbound user-to-internet inspection moves from on-prem appliances to a globally distributed cloud edge.</div>
+        </div>
+        <div class="layer">
+          <div class="role"><span>Replaces</span><span class="nm">VPN concentrators</span></div>
+          <div class="desc">Users authenticate per-app instead of per-network. No more “on the VPN, on the LAN.”</div>
+        </div>
+        <div class="layer">
+          <div class="role"><span>Replaces</span><span class="nm">Inline inspection appliances</span></div>
+          <div class="desc">DLP, sandbox, IPS, malware scanners, isolation — consolidated into the same cloud pipeline.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide-footer">
+      <span class="l">Three boxes → one cloud</span>
+      <span class="r">03 / 18</span>
+    </div>
+  </section>
+
+  <!-- 04 — TOC -->
+  <section data-screen-label="04 Roadmap" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="3">
+    <div class="slide-header">
+      <span class="eyebrow">Roadmap for the next 25 minutes</span>
+      <span class="eyebrow">04 / 18</span>
+    </div>
+
+    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+      <div class="toc">
+        <span class="num">PART 1</span>
+        <span class="ti">The platform — Zero Trust Exchange and the architectural frame.</span>
+        <span class="sub">Slides 05–06</span>
+      </div>
+      <div class="toc">
+        <span class="num">PART 2</span>
+        <span class="ti">The portfolio — the four products that do 95% of the work, then everything else.</span>
+        <span class="sub">Slides 07–11</span>
+      </div>
+      <div class="toc">
+        <span class="num">PART 3</span>
+        <span class="ti">The mechanics — how a request actually flows, and how policy is decided.</span>
+        <span class="sub">Slides 12–16</span>
+      </div>
+      <div class="toc">
+        <span class="num">PART 4</span>
+        <span class="ti">What to do this week, and three things to walk away with.</span>
+        <span class="sub">Slides 17–18</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 — Zero Trust Exchange -->
+  <section data-screen-label="05 Zero Trust Exchange" class="dark" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="4">
+    <div class="slide-header">
+      <span class="eyebrow">Part 1 · The platform</span>
+      <span class="eyebrow">05 / 18</span>
+    </div>
+
+    <div style="display: flex; flex: 1; gap: 64px; align-items: center;">
+      <div style="flex: 1;">
+        <span class="eyebrow" style="display: block; margin-bottom: 24px;">The marketing umbrella you'll hear constantly</span>
+        <h2 style="margin: 0 0 32px 0; color: var(--paper);">Zero Trust Exchange.<br><span style="opacity: 0.5;">Not a product. The platform.</span></h2>
+
+        <div style="display: flex; flex-direction: column; gap: 20px; max-width: 760px;">
+          <div style="display: grid; grid-template-columns: 32px 1fr; gap: 16px;">
+            <span class="label" style="color: var(--accent); font-family: var(--font-mono);">01</span>
+            <p style="margin: 0;">Globally distributed. Public Service Edges in dozens of data centers worldwide; users hit the nearest one.</p>
+          </div>
+          <div style="display: grid; grid-template-columns: 32px 1fr; gap: 16px;">
+            <span class="label" style="color: var(--accent); font-family: var(--font-mono);">02</span>
+            <p style="margin: 0;">Policy-unified. One policy can reference identity, device, location, app — regardless of which product enforces it.</p>
+          </div>
+          <div style="display: grid; grid-template-columns: 32px 1fr; gap: 16px;">
+            <span class="label" style="color: var(--accent); font-family: var(--font-mono);">03</span>
+            <p style="margin: 0;">It's the thing customers buy. When someone says “we use Zscaler,” they mean “we route traffic through ZTE.”</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="flex: 1; display: flex; flex-direction: column; gap: 32px; align-items: center;">
+        <div style="font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.5);">Mental model</div>
+        <svg viewBox="0 0 480 380" style="width: 100%; max-width: 520px;" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="dots" x="0" y="0" width="8" height="8" patternUnits="userSpaceOnUse">
+              <circle cx="1" cy="1" r="0.6" fill="rgba(255,255,255,0.18)"></circle>
+            </pattern>
+          </defs>
+          <!-- Cloud (big oval) -->
+          <ellipse cx="240" cy="190" rx="200" ry="120" fill="url(#dots)" stroke="oklch(0.62 0.14 45)" stroke-width="1.5"></ellipse>
+          <text x="240" y="100" text-anchor="middle" fill="oklch(0.62 0.14 45)" font-family="JetBrains Mono, monospace" font-size="13" letter-spacing="0.1em">ZERO TRUST EXCHANGE</text>
+          <!-- Inner products -->
+          <text x="160" y="180" fill="#f5f2ec" font-family="Inter, sans-serif" font-size="16" font-weight="600">ZIA</text>
+          <text x="160" y="200" fill="rgba(245,242,236,0.55)" font-family="Inter, sans-serif" font-size="11">outbound</text>
+          <text x="240" y="180" fill="#f5f2ec" font-family="Inter, sans-serif" font-size="16" font-weight="600" text-anchor="middle">ZPA</text>
+          <text x="240" y="200" fill="rgba(245,242,236,0.55)" font-family="Inter, sans-serif" font-size="11" text-anchor="middle">private</text>
+          <text x="320" y="180" fill="#f5f2ec" font-family="Inter, sans-serif" font-size="16" font-weight="600">ZDX</text>
+          <text x="320" y="200" fill="rgba(245,242,236,0.55)" font-family="Inter, sans-serif" font-size="11">monitor</text>
+          <text x="240" y="240" fill="rgba(245,242,236,0.4)" font-family="Inter, sans-serif" font-size="11" text-anchor="middle">+ DLP, sandbox, ATP, ZBI …</text>
+          <!-- Left: users -->
+          <text x="40" y="180" fill="rgba(245,242,236,0.7)" font-family="JetBrains Mono, monospace" font-size="11">users</text>
+          <text x="40" y="200" fill="rgba(245,242,236,0.7)" font-family="JetBrains Mono, monospace" font-size="11">branches</text>
+          <text x="40" y="220" fill="rgba(245,242,236,0.7)" font-family="JetBrains Mono, monospace" font-size="11">workloads</text>
+          <line x1="80" y1="195" x2="40" y2="195" stroke="rgba(245,242,236,0.3)" stroke-width="1"></line>
+          <line x1="80" y1="195" x2="55" y2="180" stroke="rgba(245,242,236,0.3)" stroke-width="1"></line>
+          <line x1="80" y1="195" x2="55" y2="210" stroke="rgba(245,242,236,0.3)" stroke-width="1"></line>
+          <!-- Right: dest -->
+          <text x="470" y="180" text-anchor="end" fill="rgba(245,242,236,0.7)" font-family="JetBrains Mono, monospace" font-size="11">internet</text>
+          <text x="470" y="200" text-anchor="end" fill="rgba(245,242,236,0.7)" font-family="JetBrains Mono, monospace" font-size="11">SaaS</text>
+          <text x="470" y="220" text-anchor="end" fill="rgba(245,242,236,0.7)" font-family="JetBrains Mono, monospace" font-size="11">private apps</text>
+          <line x1="400" y1="195" x2="430" y2="195" stroke="rgba(245,242,236,0.3)" stroke-width="1"></line>
+        </svg>
+      </div>
+    </div>
+
+    <div class="slide-footer">
+      <span class="l">Zero Trust Exchange · ZTE</span>
+      <span class="r">05 / 18</span>
+    </div>
+  </section>
+
+  <!-- 06 — Zero trust principles -->
+  <section data-screen-label="06 Zero trust shift" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="5">
+    <div class="slide-header">
+      <span class="eyebrow">Part 1 · The platform</span>
+      <span class="eyebrow">06 / 18</span>
+    </div>
+
+    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+      <h2 style="margin: 0 0 16px 0;">From castle &amp; moat<br>to verified-per-connection.</h2>
+      <p style="max-width: 1200px; margin-bottom: 48px;">
+        The architectural shift the entire portfolio implements — and the frame that makes each product decision legible.
+      </p>
+
+      <div class="compare">
+        <div class="h">Castle &amp; moat</div>
+        <div class="h">Zero trust</div>
+        <div class="h row-lbl" style="text-transform: none; letter-spacing: 0;">Where it shows up in Zscaler</div>
+
+        <div>VPN gives network-level access</div>
+        <div class="accent-cell">Authenticate per-app, per-request</div>
+        <div class="row-lbl">ZPA · segments &amp; access policy</div>
+
+        <div>Internal apps trust the LAN</div>
+        <div class="accent-cell">Trust verified every connection</div>
+        <div class="row-lbl">ZIdentity · device posture · ZCC</div>
+
+        <div>Inside the perimeter = safe</div>
+        <div class="accent-cell">Assume breach; inspect everywhere</div>
+        <div class="row-lbl">ZIA pipeline · AppProtection · Deception</div>
+
+        <div>One firewall is the boundary</div>
+        <div class="accent-cell">Boundary at every resource</div>
+        <div class="row-lbl">ZPA app segments · ZMS microseg</div>
+      </div>
+    </div>
+
+    <div class="slide-footer">
+      <span class="l">Zero trust · mental model</span>
+      <span class="r">06 / 18</span>
+    </div>
+  </section>
+
+  <!-- 07 — Portfolio map -->
+  <section data-screen-label="07 Portfolio map" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="6">
+    <div class="slide-header">
+      <span class="eyebrow">Part 2 · The portfolio</span>
+      <span class="eyebrow">07 / 18</span>
+    </div>
+
+    <div style="flex: 1; display: flex; flex-direction: column;">
+      <h2 style="margin: 0 0 8px 0;">~33 products. Don't memorize.</h2>
+      <p style="max-width: 1100px; margin-bottom: 16px;">Recognize the names; know which ones we go deep on. Most of the suite is organized around <em>where in the traffic flow</em> the product sits.</p>
+
+      <div style="display: flex; gap: 24px; margin: 8px 0 16px 0; font-family: var(--font-sans); font-size: 13px; color: var(--ink-3);">
+        <span><span class="dot t1"></span>Tier&nbsp;1 — deep operational coverage (9)</span>
+        <span><span class="dot t2"></span>Tier&nbsp;2 — awareness only (~24)</span>
+      </div>
+
+      <div class="product-grid">
+        <div class="product-card t1"><span class="code">T1 · Outbound</span><span class="name">ZIA</span><p class="what">Internet &amp; SaaS — the secure web gateway in the cloud.</p></div>
+        <div class="product-card t1"><span class="code">T1 · Inbound</span><span class="name">ZPA</span><p class="what">Private Access. VPN replacement; per-app zero trust.</p></div>
+        <div class="product-card t1"><span class="code">T1 · Endpoint</span><span class="name">ZCC</span><p class="what">Client Connector. The agent that decides where traffic goes.</p></div>
+        <div class="product-card t1"><span class="code">T1 · Identity</span><span class="name">ZIdentity</span><p class="what">Unified identity, SSO, OneAPI auth. Underneath everything.</p></div>
+
+        <div class="product-card t1"><span class="code">T1 · Monitor</span><span class="name">ZDX</span><p class="what">Digital Experience monitoring. Probes, ZDX score, deeptraces.</p></div>
+        <div class="product-card t1"><span class="code">T1 · Isolation</span><span class="name">ZBI</span><p class="what">Cloud Browser Isolation. Risky URLs render remotely.</p></div>
+        <div class="product-card t1"><span class="code">T1 · Workload</span><span class="name">CBC / ZTW</span><p class="what">Cloud &amp; Branch Connector. Forwarding for cloud + branches.</p></div>
+        <div class="product-card t1"><span class="code">T1 · DLP ops</span><span class="name">ZWA</span><p class="what">Workflow Automation. Manages DLP incidents from ZIA.</p></div>
+
+        <div class="product-card t2"><span class="code">T2a · Detection</span><span class="name">Deception</span><p class="what">Decoys catch lateral movement. Post-breach signal.</p></div>
+        <div class="product-card t2"><span class="code">T2a · Risk</span><span class="name">Risk360</span><p class="what">Cyber-risk quantification. CISO/board dashboards.</p></div>
+        <div class="product-card t2"><span class="code">T2a · AI</span><span class="name">AI Guard / Guardrails</span><p class="what">Prompt-injection &amp; LLM data-leak controls.</p></div>
+        <div class="product-card t2"><span class="code">T2a · East-west</span><span class="name">ZMS</span><p class="what">Workload microsegmentation. Server-to-server policy.</p></div>
+      </div>
+
+      <p style="font-family: var(--font-sans); font-size: 14px; color: var(--ink-3); margin-top: 16px;">
+        <span class="mono" style="font-family: var(--font-mono);">… plus ~20 Tier-2b products with paragraph-level awareness:</span>
+        ITDR, DSPM, EASM, UVM, AEM, CTEM, Posture Control, Resilience, Business Continuity Cloud, Zscaler Cellular, Copilot Data Protection, Red Canary MDR, Managed Threat Hunting, ZTE for B2B, ZINS, Federal Cloud variants …
+      </p>
+    </div>
+
+    <div class="slide-footer">
+      <span class="l">Portfolio at a glance</span>
+      <span class="r">07 / 18</span>
+    </div>
+  </section>
+
+  <!-- 08 — The four core products -->
+  <section data-screen-label="08 The core four" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="7">
+    <div class="slide-header">
+      <span class="eyebrow">Part 2 · The portfolio</span>
+      <span class="eyebrow">08 / 18</span>
+    </div>
+
+    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+      <span class="eyebrow" style="margin-bottom: 16px;">If you only remember four</span>
+      <h2 style="margin: 0 0 32px 0;">These four products do<br>nearly everything.</h2>
+
+      <div class="layers">
+        <div class="layer">
+          <div class="role"><span>Outbound traffic</span><span class="nm">ZIA</span></div>
+          <div class="desc">Inspects user → internet/SaaS. URL filter, SSL inspection, DLP, sandbox, malware/ATP, firewall. “The cloud SWG.”</div>
+        </div>
+        <div class="layer">
+          <div class="role"><span>Inbound traffic</span><span class="nm">ZPA</span></div>
+          <div class="desc">User → private app, no VPN. Per-app authentication; App Connectors deployed inside customer networks.</div>
+        </div>
+        <div class="layer">
+          <div class="role"><span>Endpoint forwarding</span><span class="nm">ZCC</span></div>
+          <div class="desc">The agent on the laptop. Decides per-destination: ZIA, ZPA, direct, or bypass. Trusted-network detection, posture.</div>
+        </div>
+        <div class="layer foundation">
+          <div class="role" style="color: var(--accent-ink);"><span>Underneath all of it</span><span class="nm" style="color: var(--ink);">ZIdentity</span></div>
+          <div class="desc" style="color: var(--ink);">Federates upstream IdPs (Okta, Entra). Issues identity to every other product. OneAPI OAuth for programmatic access.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide-footer">
+      <span class="l">95% of the surface area</span>
+      <span class="r">08 / 18</span>
+    </div>
+  </section>
+
+  <!-- 09 — ZIA detail -->
+  <section data-screen-label="09 ZIA" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="8">
+    <div class="slide-header">
+      <span class="eyebrow">Part 2 · Deep dive · 1 of 2</span>
+      <span class="eyebrow">09 / 18</span>
+    </div>
+
+    <div style="flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 64px;">
+      <div style="display: flex; flex-direction: column; justify-content: center;">
+        <span class="eyebrow accent-text" style="margin-bottom: 16px;">Internet &amp; SaaS</span>
+        <h2 style="margin: 0 0 24px 0;">ZIA</h2>
+        <p style="max-width: 600px;">The cloud-delivered Secure Web Gateway. Same inspection categories as a traditional on-prem SWG — URL filtering, SSL inspection, DLP, sandbox — delivered from Zscaler's global edge rather than an appliance in a data center.</p>
+        <p style="max-width: 600px; margin-top: 16px; font-family: var(--font-sans); font-size: 18px; color: var(--ink-3);">
+          <span class="mono" style="font-family: var(--font-mono);">DEFAULT — allow if no rule matches.</span>
+        </p>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 0; justify-content: center;">
+        <div class="eyebrow" style="margin-bottom: 16px;">Inspection capabilities</div>
+        <div style="border-top: 1px solid var(--rule);">
+          <div style="padding: 14px 0; border-bottom: 1px solid var(--rule-soft); display: flex; justify-content: space-between; font-family: var(--font-sans); font-size: 19px;"><span>URL Filtering</span><span style="font-family: var(--font-mono); font-size: 13px; color: var(--ink-3);">142+ categories</span></div>
+          <div style="padding: 14px 0; border-bottom: 1px solid var(--rule-soft); display: flex; justify-content: space-between; font-family: var(--font-sans); font-size: 19px;"><span>SSL Inspection</span><span style="font-family: var(--font-mono); font-size: 13px; color: var(--ink-3);">decrypt &amp; rescan</span></div>
+          <div style="padding: 14px 0; border-bottom: 1px solid var(--rule-soft); display: flex; justify-content: space-between; font-family: var(--font-sans); font-size: 19px;"><span>Cloud App Control</span><span style="font-family: var(--font-mono); font-size: 13px; color: var(--ink-3);">SaaS-aware</span></div>
+          <div style="padding: 14px 0; border-bottom: 1px solid var(--rule-soft); display: flex; justify-content: space-between; font-family: var(--font-sans); font-size: 19px;"><span>Data Loss Prevention</span><span style="font-family: var(--font-mono); font-size: 13px; color: var(--ink-3);">inline DLP</span></div>
+          <div style="padding: 14px 0; border-bottom: 1px solid var(--rule-soft); display: flex; justify-content: space-between; font-family: var(--font-sans); font-size: 19px;"><span>Sandbox</span><span style="font-family: var(--font-mono); font-size: 13px; color: var(--ink-3);">file detonation</span></div>
+          <div style="padding: 14px 0; border-bottom: 1px solid var(--rule-soft); display: flex; justify-content: space-between; font-family: var(--font-sans); font-size: 19px;"><span>Malware &amp; ATP</span><span style="font-family: var(--font-mono); font-size: 13px; color: var(--ink-3);">no API surface</span></div>
+          <div style="padding: 14px 0; border-bottom: 1px solid var(--rule-soft); display: flex; justify-content: space-between; font-family: var(--font-sans); font-size: 19px;"><span>Firewall &amp; IPS</span><span style="font-family: var(--font-mono); font-size: 13px; color: var(--ink-3);">L3-L7</span></div>
+          <div style="padding: 14px 0; display: flex; justify-content: space-between; font-family: var(--font-sans); font-size: 19px;"><span>Bandwidth, file-type, FTP</span><span style="font-family: var(--font-mono); font-size: 13px; color: var(--ink-3);">policy controls</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide-footer">
+      <span class="l">ZIA · outbound web &amp; SaaS</span>
+      <span class="r">09 / 18</span>
+    </div>
+  </section>
+
+  <!-- 10 — ZPA detail -->
+  <section data-screen-label="10 ZPA" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="9" data-deck-active="">
+    <div class="slide-header">
+      <span class="eyebrow">Part 2 · Deep dive · 2 of 2</span>
+      <span class="eyebrow">10 / 18</span>
+    </div>
+
+    <div style="flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 64px;">
+      <div style="display: flex; flex-direction: column; justify-content: center;">
+        <span class="eyebrow accent-text" style="margin-bottom: 16px;">Private Access</span>
+        <h2 style="margin: 0 0 24px 0;">ZPA</h2>
+        <p style="max-width: 600px;">Replaces VPN. Users authenticate per-app, not per-network. Each app is its own segment with its own access policy. Most-specific FQDN wins; top-down first-match.</p>
+        <p style="max-width: 600px; margin-top: 16px; font-family: var(--font-sans); font-size: 18px; color: var(--ink-3);">
+          <span class="mono" style="font-family: var(--font-mono);">DEFAULT — block if no rule matches.</span>
+          <br><span style="color: var(--accent);">Note the asymmetry with ZIA.</span>
+        </p>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 24px; justify-content: center;">
+        <div class="eyebrow" style="margin-bottom: 4px;">How a ZPA app gets reached</div>
+
+        <svg viewBox="0 0 480 300" style="width: 100%;" xmlns="http://www.w3.org/2000/svg">
+          <!-- User -->
+          <rect x="10" y="130" width="80" height="40" fill="none" stroke="#3a3733" stroke-width="1.5"></rect>
+          <text x="50" y="155" text-anchor="middle" font-family="Inter, sans-serif" font-size="13" fill="#1a1a1a">User</text>
+          <text x="50" y="190" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#6a655d">+ ZCC</text>
+
+          <!-- ZPA cloud -->
+          <ellipse cx="240" cy="150" rx="110" ry="60" fill="oklch(0.62 0.14 45 / 0.12)" stroke="oklch(0.62 0.14 45)" stroke-width="1.5"></ellipse>
+          <text x="240" y="135" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="oklch(0.30 0.08 45)" letter-spacing="0.08em">ZPA CLOUD</text>
+          <text x="240" y="158" text-anchor="middle" font-family="Inter, sans-serif" font-size="13" font-weight="500" fill="#1a1a1a">Access policy eval</text>
+          <text x="240" y="178" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" fill="#6a655d">identity · posture · location</text>
+
+          <!-- Connector -->
+          <rect x="380" y="130" width="90" height="40" fill="none" stroke="#3a3733" stroke-width="1.5"></rect>
+          <text x="425" y="155" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#1a1a1a">App Connector</text>
+
+          <!-- Inside customer net -->
+          <rect x="350" y="200" width="120" height="80" fill="none" stroke="#c9c2b3" stroke-width="1" stroke-dasharray="4 3"></rect>
+          <text x="410" y="225" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#6a655d" letter-spacing="0.08em">CUSTOMER NETWORK</text>
+          <text x="410" y="250" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#1a1a1a">hr.internal.example.com</text>
+          <text x="410" y="268" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" fill="#6a655d">private app</text>
+
+          <!-- Arrows -->
+          <line x1="90" y1="150" x2="125" y2="150" stroke="#3a3733" stroke-width="1.5" marker-end="url(#arrow)"></line>
+          <line x1="350" y1="150" x2="380" y2="150" stroke="#3a3733" stroke-width="1.5" marker-end="url(#arrow)"></line>
+          <line x1="425" y1="170" x2="425" y2="195" stroke="#3a3733" stroke-width="1.5" marker-end="url(#arrow)"></line>
+
+          <text x="107" y="142" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6a655d">µtunnel</text>
+          <text x="365" y="142" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6a655d">outbound</text>
+
+          <defs>
+            <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L7,4 L0,8 z" fill="#3a3733"></path>
+            </marker>
+          </defs>
+        </svg>
+
+        <p style="font-family: var(--font-sans); font-size: 14px; color: var(--ink-3); margin: 0;">
+          <span class="mono" style="font-family: var(--font-mono);">No inbound port. No DMZ.</span>
+          The connector dials <em>out</em> to the ZPA cloud; users never reach the customer network directly.
+        </p>
+      </div>
+    </div>
+
+    <div class="slide-footer">
+      <span class="l">ZPA · private application access</span>
+      <span class="r">10 / 18</span>
+    </div>
+  </section>
+
+  <!-- 11 — ZCC + ZIdentity -->
+  <section data-screen-label="11 ZCC and ZIdentity" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="10">
+    <div class="slide-header">
+      <span class="eyebrow">Part 2 · Foundations</span>
+      <span class="eyebrow">11 / 18</span>
+    </div>
+
+    <div style="flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 80px;">
+      <div style="display: flex; flex-direction: column; justify-content: center;">
+        <span class="eyebrow accent-text" style="margin-bottom: 16px;">On every laptop</span>
+        <h2 style="margin: 0 0 24px 0;">ZCC.</h2>
+        <p>The endpoint agent. A forwarding profile decides per destination:</p>
+        <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 12px; font-family: var(--font-sans); font-size: 18px;">
+          <div style="display: grid; grid-template-columns: 140px 1fr; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--rule-soft);"><span class="mono" style="font-family: var(--font-mono); color: var(--accent);">→ ZIA</span><span style="color: var(--ink-2);">Web traffic, via Z-Tunnel.</span></div>
+          <div style="display: grid; grid-template-columns: 140px 1fr; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--rule-soft);"><span class="mono" style="font-family: var(--font-mono); color: var(--accent);">→ ZPA</span><span style="color: var(--ink-2);">Private apps, via Microtunnel.</span></div>
+          <div style="display: grid; grid-template-columns: 140px 1fr; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--rule-soft);"><span class="mono" style="font-family: var(--font-mono); color: var(--ink-3);">→ direct</span><span style="color: var(--ink-2);">Trusted networks; bypass list.</span></div>
+        </div>
+        <p style="margin-top: 24px; font-size: 18px; color: var(--ink-3); font-family: var(--font-sans);">Also handles device posture, captive-portal detection, and trusted-network signals fed into ZIA + ZPA policy.</p>
+      </div>
+
+      <div style="display: flex; flex-direction: column; justify-content: center;">
+        <span class="eyebrow accent-text" style="margin-bottom: 16px;">The substrate</span>
+        <h2 style="margin: 0 0 24px 0;">ZIdentity.</h2>
+        <p>Federates upstream IdPs — Okta, Entra, Ping — and issues identity to every other Zscaler product.</p>
+        <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 12px; font-family: var(--font-sans); font-size: 18px;">
+          <div style="display: grid; grid-template-columns: 1fr; gap: 4px; padding: 12px 0; border-bottom: 1px solid var(--rule-soft);"><span style="font-weight: 500;">SSO &amp; step-up auth</span><span style="font-size: 14px; color: var(--ink-3);">SAML / OIDC for users; re-verify across trust boundaries.</span></div>
+          <div style="display: grid; grid-template-columns: 1fr; gap: 4px; padding: 12px 0; border-bottom: 1px solid var(--rule-soft);"><span style="font-weight: 500;">OneAPI OAuth</span><span style="font-size: 14px; color: var(--ink-3);">Programmatic auth across ZIA/ZPA/ZCC/ZDX/ZBI APIs.</span></div>
+          <div style="display: grid; grid-template-columns: 1fr; gap: 4px; padding: 12px 0; border-bottom: 1px solid var(--rule-soft);"><span style="font-weight: 500;">Admin RBAC</span><span style="font-size: 14px; color: var(--ink-3);">Federated entitlements across product admin consoles.</span></div>
+        </div>
+        <p style="margin-top: 24px; font-size: 18px; color: var(--ink-3); font-family: var(--font-sans);">Without ZIdentity, none of the products know <em>who</em> is making the request.</p>
+      </div>
+    </div>
+
+    <div class="slide-footer">
+      <span class="l">ZCC · ZIdentity</span>
+      <span class="r">11 / 18</span>
+    </div>
+  </section>
+
+  <!-- 12 — A request flow (outbound) -->
+  <section data-screen-label="12 Request flow outbound" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="11">
+    <div class="slide-header">
+      <span class="eyebrow">Part 3 · Mechanics</span>
+      <span class="eyebrow">12 / 18</span>
+    </div>
+
+    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+      <span class="eyebrow" style="margin-bottom: 16px;">A user opens Salesforce</span>
+      <h2 style="margin: 0 0 32px 0;">The outbound flow.</h2>
+
+      <div class="flow">
+        <div class="flow-node">
+          <span class="ttl">Laptop</span>
+          <span class="desc">ZCC running</span>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">
+          <span class="ttl">Forwarding profile</span>
+          <span class="desc">Untrusted net · web → ZIA</span>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">
+          <span class="ttl">Z-Tunnel</span>
+          <span class="desc">to nearest PSE (Public Service Edge)</span>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node accent">
+          <span class="ttl">ZIA pipeline</span>
+          <span class="desc">SSL → URL → CAC → DLP</span>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">
+          <span class="ttl">Salesforce</span>
+          <span class="desc">re-encrypted egress</span>
+        </div>
+      </div>
+
+      <div style="margin-top: 32px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 0;">
+        <div style="border-top: 1px solid var(--rule); padding: 12px 16px 0; font-family: var(--font-mono); font-size: 12px; color: var(--ink-3);">01</div>
+        <div style="border-top: 1px solid var(--rule); padding: 12px 16px 0; font-family: var(--font-mono); font-size: 12px; color: var(--ink-3);">02</div>
+        <div style="border-top: 1px solid var(--rule); padding: 12px 16px 0; font-family: var(--font-mono); font-size: 12px; color: var(--ink-3);">03</div>
+        <div style="border-top: 3px solid var(--accent); padding: 12px 16px 0; font-family: var(--font-mono); font-size: 12px; color: var(--accent);">04 — the interesting bit</div>
+        <div style="border-top: 1px solid var(--rule); padding: 12px 16px 0; font-family: var(--font-mono); font-size: 12px; color: var(--ink-3);">05</div>
+      </div>
+
+      <p style="margin-top: 32px; font-family: var(--font-sans); font-size: 18px; color: var(--ink-3); max-width: 1300px;">
+        Every event in step 04 logs to NSS/LSS (Nanolog/Log Streaming Service) streams → SIEM. Inspection happens at the closest PSE, not at HQ.
+      </p>
+    </div>
+
+    <div class="slide-footer">
+      <span class="l">Outbound · ZCC → ZIA → internet</span>
+      <span class="r">12 / 18</span>
+    </div>
+  </section>
+
+  <!-- 13 — Inbound request flow -->
+  <section data-screen-label="13 Request flow inbound" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="12">
+    <div class="slide-header">
+      <span class="eyebrow">Part 3 · Mechanics</span>
+      <span class="eyebrow">13 / 18</span>
+    </div>
+
+    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+      <span class="eyebrow" style="margin-bottom: 16px;">Same user, internal HR app</span>
+      <h2 style="margin: 0 0 32px 0;">The inbound flow.</h2>
+
+      <div class="flow">
+        <div class="flow-node">
+          <span class="ttl">Laptop</span>
+          <span class="desc">opens hr.internal…</span>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">
+          <span class="ttl">DNS</span>
+          <span class="desc">returns ZPA Synthetic IP</span>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node accent">
+          <span class="ttl">ZPA cloud</span>
+          <span class="desc">access policy eval</span>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">
+          <span class="ttl">App Connector</span>
+          <span class="desc">in customer net</span>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">
+          <span class="ttl">HR app</span>
+          <span class="desc">private destination</span>
+        </div>
+      </div>
+
+      <div class="col-3" style="margin-top: 48px;">
+        <div>
+          <span class="eyebrow accent-text">No VPN</span>
+          <p style="margin-top: 12px; font-size: 18px;">User never sees the corporate LAN. No network-level access.</p>
+        </div>
+        <div>
+          <span class="eyebrow accent-text">Most-specific wins</span>
+          <p style="margin-top: 12px; font-size: 18px;">Segments resolve client-side. Specific FQDNs carve out from wildcards.</p>
+        </div>
+        <div>
+          <span class="eyebrow accent-text">Default block</span>
+          <p style="margin-top: 12px; font-size: 18px;">No access policy match = denied. Opposite of ZIA.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide-footer">
+      <span class="l">Inbound · ZCC → ZPA → private app</span>
+      <span class="r">13 / 18</span>
+    </div>
+  </section>
+
+  <!-- 14 — Default asymmetry quote -->
+  <section data-screen-label="14 The asymmetry" class="dark" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="13">
+    <div class="slide-header">
+      <span class="eyebrow">Part 3 · The single most important thing</span>
+      <span class="eyebrow">14 / 18</span>
+    </div>
+
+    <div class="quote-slide">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center;">
+        <div>
+          <span class="eyebrow accent-text" style="margin-bottom: 24px; display: block;">Memorize this asymmetry</span>
+          <p class="pull-quote" style="color: var(--paper);">
+            ZIA defaults to <span style="color: oklch(0.78 0.14 45);">allow.</span><br>
+            ZPA defaults to <span style="color: oklch(0.78 0.14 45);">block.</span>
+          </p>
+          <p class="quote-attrib">Source — Zscaler help docs, internal policy-evaluation reference</p>
+        </div>
+        <div style="font-family: var(--font-mono); font-size: 16px; color: rgba(245,242,236,0.7); line-height: 1.7;">
+          <div style="margin-bottom: 24px; color: rgba(245,242,236,0.5); font-size: 12px; letter-spacing: 0.08em;">CONSEQUENCE</div>
+          <div>Web traffic with no rule match → <span style="color: oklch(0.78 0.14 45);">user reaches the site</span>.</div>
+          <div style="margin-top: 16px;">Private app with no rule match → <span style="color: oklch(0.78 0.14 45);">user is denied</span>.</div>
+          <div style="margin-top: 24px; color: rgba(245,242,236,0.5);">"Why can't anyone reach the new internal tool?"<br>— usually means no ZPA rule was added.</div>
+          <div style="margin-top: 16px; color: rgba(245,242,236,0.5);">"Why is malicious-looking-domain.xyz reachable?"<br>— usually means it didn't match a block rule.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide-footer">
+      <span class="l">The single most common source of wrong intuitive answers</span>
+      <span class="r">14 / 18</span>
+    </div>
+  </section>
+
+  <!-- 15 — ZIA pipeline -->
+  <section data-screen-label="15 ZIA web pipeline" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="14">
+    <div class="slide-header">
+      <span class="eyebrow">Part 3 · ZIA evaluation order</span>
+      <span class="eyebrow">15 / 18</span>
+    </div>
+
+    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+      <h2 style="margin: 0 0 16px 0;">Web module pipeline.</h2>
+      <p style="max-width: 1200px;">
+        Within the ZIA web module, policies evaluate <em>in order</em>. The first violation halts the pass — rules below never run. Don't internalize the full list today; internalize that the order matters and CAC sits before URL Filtering.
+      </p>
+
+      <div class="pipeline">
+        <div class="step hi">Custom Malicious URLs <span style="color: var(--ink-3); font-family: var(--font-mono); font-size: 13px; margin-left: 8px;">ATP</span></div>
+        <div class="step hi">Cloud App Control <span style="color: var(--accent); font-family: var(--font-mono); font-size: 13px; margin-left: 8px;">precedes URL filter</span></div>
+        <div class="step hi">URL Filtering <span style="color: var(--ink-3); font-family: var(--font-mono); font-size: 13px; margin-left: 8px;">cascading flag flips allow path</span></div>
+        <div class="step">Security Exceptions</div>
+        <div class="step">Browser Control</div>
+        <div class="step">Country-Based Blocking</div>
+        <div class="step">IPS Signature Detection</div>
+        <div class="step">Suspicious Content Protection</div>
+        <div class="step">P2P Control</div>
+        <div class="step">Bandwidth Control</div>
+      </div>
+
+      <p style="margin-top: 32px; font-family: var(--font-sans); font-size: 16px; color: var(--ink-3); max-width: 1300px;">
+        <span class="mono" style="font-family: var(--font-mono); color: var(--accent);">+ HTTPS two-pass:</span>
+        SNI/CONNECT pass uses domain-only (Malicious URLs → CAC → URL Filter → Bandwidth). SSL Inspection then decides Inspect / Bypass. If decrypted, the full pipeline runs again with URL path + headers + body visible. POST adds DLP, Malware, File Type. Response adds Sandbox.
+      </p>
+    </div>
+
+    <div class="slide-footer">
+      <span class="l">ZIA web module · first-violation halts</span>
+      <span class="r">15 / 18</span>
+    </div>
+  </section>
+
+  <!-- 16 — Specialized products -->
+  <section data-screen-label="16 Specialized products" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="15">
+    <div class="slide-header">
+      <span class="eyebrow">Part 2 · Specialized layers</span>
+      <span class="eyebrow">16 / 18</span>
+    </div>
+
+    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+      <h2 style="margin: 0 0 32px 0;">Specialized products you'll<br>encounter, but won't run day one.</h2>
+
+      <div class="col-2">
+        <div>
+          <div style="border-top: 1px solid var(--rule); padding: 16px 0; border-bottom: 1px solid var(--rule-soft);">
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <span style="font-family: var(--font-sans); font-weight: 600; font-size: 22px;">ZDX</span>
+              <span class="mono" style="font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); letter-spacing: 0.05em;">EXPERIENCE</span>
+            </div>
+            <p style="margin: 8px 0 0 0; font-size: 16px; color: var(--ink-3);">User-experience monitoring. Probes, ZDX score, deeptraces. The "is the user's day actually working?" product.</p>
+          </div>
+          <div style="padding: 16px 0; border-bottom: 1px solid var(--rule-soft);">
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <span style="font-family: var(--font-sans); font-weight: 600; font-size: 22px;">ZBI</span>
+              <span class="mono" style="font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); letter-spacing: 0.05em;">ISOLATION</span>
+            </div>
+            <p style="margin: 8px 0 0 0; font-size: 16px; color: var(--ink-3);">Cloud Browser Isolation. Risky URLs render in Zscaler's cloud; pixels stream to the browser. Triggered by URL Filter or Smart Browser Isolation.</p>
+          </div>
+          <div style="padding: 16px 0; border-bottom: 1px solid var(--rule-soft);">
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <span style="font-family: var(--font-sans); font-weight: 600; font-size: 22px;">ZWA</span>
+              <span class="mono" style="font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); letter-spacing: 0.05em;">DLP OPS</span>
+            </div>
+            <p style="margin: 8px 0 0 0; font-size: 16px; color: var(--ink-3);">Workflow Automation. Manages ZIA-DLP incidents. Auto-close, auto-notify, auto-escalate; ServiceNow / Slack hooks.</p>
+          </div>
+          <div style="padding: 16px 0;">
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <span style="font-family: var(--font-sans); font-weight: 600; font-size: 22px;">AppProtection</span>
+              <span class="mono" style="font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); letter-spacing: 0.05em;">WAF/IPS</span>
+            </div>
+            <p style="margin: 8px 0 0 0; font-size: 16px; color: var(--ink-3);">Inline WAF for ZPA. OWASP CRS, ThreatLabZ, AD-protocol controls. Lives inside ZPA.</p>
+          </div>
+        </div>
+
+        <div>
+          <div style="border-top: 1px solid var(--rule); padding: 16px 0; border-bottom: 1px solid var(--rule-soft);">
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <span style="font-family: var(--font-sans); font-weight: 600; font-size: 22px;">CBC / ZTW</span>
+              <span class="mono" style="font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); letter-spacing: 0.05em;">CLOUD &amp; BRANCH</span>
+            </div>
+            <p style="margin: 8px 0 0 0; font-size: 16px; color: var(--ink-3);">VM-based forwarding for cloud workloads (AWS / Azure / GCP) and branch offices. ZCC's equivalent for non-user traffic.</p>
+          </div>
+          <div style="padding: 16px 0; border-bottom: 1px solid var(--rule-soft);">
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <span style="font-family: var(--font-sans); font-weight: 600; font-size: 22px;">Risk360</span>
+              <span class="mono" style="font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); letter-spacing: 0.05em;">QUANTIFICATION</span>
+            </div>
+            <p style="margin: 8px 0 0 0; font-size: 16px; color: var(--ink-3);">Cyber-risk dashboard. Monte Carlo financial-loss simulation. CISO/board audience — expect to see this in leadership reviews.</p>
+          </div>
+          <div style="padding: 16px 0; border-bottom: 1px solid var(--rule-soft);">
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <span style="font-family: var(--font-sans); font-weight: 600; font-size: 22px;">Deception</span>
+              <span class="mono" style="font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); letter-spacing: 0.05em;">ACTIVE DEFENSE</span>
+            </div>
+            <p style="margin: 8px 0 0 0; font-size: 16px; color: var(--ink-3);">Decoys catch lateral movement. Any interaction = breach signal. Integrates with ZPA via Zero Trust Network decoys.</p>
+          </div>
+          <div style="padding: 16px 0;">
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <span style="font-family: var(--font-sans); font-weight: 600; font-size: 22px;">AI Guard</span>
+              <span class="mono" style="font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); letter-spacing: 0.05em;">LLM SECURITY</span>
+            </div>
+            <p style="margin: 8px 0 0 0; font-size: 16px; color: var(--ink-3);">Prompt-injection, jailbreak, sensitive-data detection on LLM traffic. 15 detector categories. Layers on top of ZIA GenAI URL Filter.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide-footer">
+      <span class="l">Recognize, don't memorize</span>
+      <span class="r">16 / 18</span>
+    </div>
+  </section>
+
+  <!-- 17 — What to do this week -->
+  <section data-screen-label="17 This week" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="16">
+    <div class="slide-header">
+      <span class="eyebrow">Part 4 · Action</span>
+      <span class="eyebrow">17 / 18</span>
+    </div>
+
+    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+      <span class="eyebrow accent-text" style="margin-bottom: 16px;">Onboarding checklist</span>
+      <h2 style="margin: 0 0 16px 0;">What to do this week.</h2>
+      <p style="max-width: 1100px;">Not theoretical. Concrete actions to make the platform real before you're in the deep end on a real incident.</p>
+
+      <div class="checklist">
+        <div class="ck">
+          <span class="marker">01</span>
+          <div>
+            <div class="t">Get a tenant login &amp; reset to read-only</div>
+            <div class="d">Through ZIdentity. Read-only RBAC scope. You can break less than you think with read-only, but no need to test that today.</div>
+          </div>
+        </div>
+        <div class="ck">
+          <span class="marker">02</span>
+          <div>
+            <div class="t">Walk one URL through ZIA in the admin console</div>
+            <div class="d">Pick any domain. Look at: which categories cover it, which URL Filter rule matches, what action fires, whether SSL inspects.</div>
+          </div>
+        </div>
+        <div class="ck">
+          <span class="marker">03</span>
+          <div>
+            <div class="t">Walk one app through ZPA</div>
+            <div class="d">Pick an internal app. Look at: app segment, segment group, server group, which connector group serves it, which access policies reference it.</div>
+          </div>
+        </div>
+        <div class="ck">
+          <span class="marker">04</span>
+          <div>
+            <div class="t">Read the primer + portfolio-map references</div>
+            <div class="d"><span class="mono" style="font-family: var(--font-mono); font-size: 14px;">references/_primer/</span> and <span class="mono" style="font-family: var(--font-mono); font-size: 14px;">_portfolio-map.md</span>. ~45 minutes total.</div>
+          </div>
+        </div>
+        <div class="ck">
+          <span class="marker">05</span>
+          <div>
+            <div class="t">Find a colleague with battle scars — ask what bit them last quarter</div>
+            <div class="d">Tribal knowledge. The reference docs cover the mechanics; the war stories cover what actually goes wrong.</div>
+          </div>
+        </div>
+        <div class="ck">
+          <span class="marker">06</span>
+          <div>
+            <div class="t">Ask one stupid question in #zscaler this week</div>
+            <div class="d">It won't be stupid. The asymmetries (default-allow vs default-block, CAC-vs-URL-filter) bite everyone.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide-footer">
+      <span class="l">Onboarding · week one</span>
+      <span class="r">17 / 18</span>
+    </div>
+  </section>
+
+  <!-- 18 — Three takeaways -->
+  <section data-screen-label="18 Takeaways" class="accent-bg" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="17">
+    <div class="slide-header">
+      <span class="eyebrow">Recap</span>
+      <span class="eyebrow">18 / 18</span>
+    </div>
+
+    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+      <h2 style="margin: 0 0 24px 0; color: white;">Three things to walk away with.</h2>
+
+      <div class="takeaways">
+        <div class="takeaway" style="border-color: rgba(255,255,255,0.6);">
+          <span class="n" style="color: rgba(255,255,255,0.7);">01</span>
+          <p class="t" style="color: white; font-family: var(--font-serif);">ZTE is the platform; products are layers on it.</p>
+          <p class="d" style="color: rgba(255,255,255,0.85);">When someone says "we use Zscaler," they mean they route traffic through the Zero Trust Exchange.</p>
+        </div>
+        <div class="takeaway" style="border-color: rgba(255,255,255,0.6);">
+          <span class="n" style="color: rgba(255,255,255,0.7);">02</span>
+          <p class="t" style="color: white; font-family: var(--font-serif);">ZIA outbound, ZPA inbound, ZCC endpoint, ZIdentity underneath.</p>
+          <p class="d" style="color: rgba(255,255,255,0.85);">Four products do 95% of the work. Everything else is recognized but not deeply learned on day one.</p>
+        </div>
+        <div class="takeaway" style="border-color: rgba(255,255,255,0.6);">
+          <span class="n" style="color: rgba(255,255,255,0.7);">03</span>
+          <p class="t" style="color: white; font-family: var(--font-serif);">Defaults differ — ZIA allows, ZPA blocks.</p>
+          <p class="d" style="color: rgba(255,255,255,0.85);">The single most common source of wrong intuitive answers. Memorize the asymmetry.</p>
+        </div>
+      </div>
+
+      <div style="margin-top: 80px; display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 24px;">
+        <span style="font-family: var(--font-sans); font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.6);">Questions</span>
+        <span style="font-family: var(--font-sans); font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.6);">Onboarding · Q2 2026</span>
+      </div>
+    </div>
+  </section>
+
+</deck-stage>
+
+<!-- Tweaks panel -->
+<script type="text/babel" src="tweaks-panel.jsx" data-plugins="transform-react-jsx-source,om-src-id" data-filename="tweaks-panel.jsx"></script>
+<script type="text/babel" data-plugins="transform-react-jsx-source,om-src-id" data-filename="inline-1">
+  const { useEffect } = React;
+
+  const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+    "direction": "editorial"
+  }/*EDITMODE-END*/;
+
+  function ZscalerTweaks() {
+    const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
+
+    useEffect(() => {
+      document.body.setAttribute("data-direction", tweaks.direction);
+    }, [tweaks.direction]);
+
+    return (
+      <TweaksPanel title="Tweaks">
+        <TweakSection title="Visual direction">
+          <TweakRadio
+            value={tweaks.direction}
+            onChange={v => setTweak("direction", v)}
+            options={[
+              { value: "editorial", label: "Editorial" },
+              { value: "technical", label: "Technical" },
+              { value: "diagrammatic", label: "Diagrammatic" },
+            ]}
+          />
+          <div style={{ fontSize: 11, color: "#6a655d", marginTop: 8, lineHeight: 1.4, fontFamily: "JetBrains Mono, monospace" }}>
+            {tweaks.direction === "editorial" && "Serif headlines · book-like · generous whitespace. Default · serious, readable, works for most rooms."}
+            {tweaks.direction === "technical" && "Sans-serif · monospace accents · denser. Linear/Stripe vibe."}
+            {tweaks.direction === "diagrammatic" && "Sparse · large display type · minimal chrome."}
+          </div>
+        </TweakSection>
+      </TweaksPanel>
+    );
+  }
+
+  const root = document.createElement("div");
+  document.body.appendChild(root);
+  ReactDOM.createRoot(root).render(<ZscalerTweaks />);
+</script>
+
+
+
+<div><style>
+  .twk-panel{position:fixed;right:16px;bottom:16px;z-index:2147483646;width:280px;
+    max-height:calc(100vh - 32px);display:flex;flex-direction:column;
+    background:rgba(250,249,247,.78);color:#29261b;
+    -webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);
+    border:.5px solid rgba(255,255,255,.6);border-radius:14px;
+    box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 12px 40px rgba(0,0,0,.18);
+    font:11.5px/1.4 ui-sans-serif,system-ui,-apple-system,sans-serif;overflow:hidden}
+  .twk-hd{display:flex;align-items:center;justify-content:space-between;
+    padding:10px 8px 10px 14px;cursor:move;user-select:none}
+  .twk-hd b{font-size:12px;font-weight:600;letter-spacing:.01em}
+  .twk-x{appearance:none;border:0;background:transparent;color:rgba(41,38,27,.55);
+    width:22px;height:22px;border-radius:6px;cursor:default;font-size:13px;line-height:1}
+  .twk-x:hover{background:rgba(0,0,0,.06);color:#29261b}
+  .twk-body{padding:2px 14px 14px;display:flex;flex-direction:column;gap:10px;
+    overflow-y:auto;overflow-x:hidden;min-height:0;
+    scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.15) transparent}
+  .twk-body::-webkit-scrollbar{width:8px}
+  .twk-body::-webkit-scrollbar-track{background:transparent;margin:2px}
+  .twk-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:4px;
+    border:2px solid transparent;background-clip:content-box}
+  .twk-body::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.25);
+    border:2px solid transparent;background-clip:content-box}
+  .twk-row{display:flex;flex-direction:column;gap:5px}
+  .twk-row-h{flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
+  .twk-lbl{display:flex;justify-content:space-between;align-items:baseline;
+    color:rgba(41,38,27,.72)}
+  .twk-lbl>span:first-child{font-weight:500}
+  .twk-val{color:rgba(41,38,27,.5);font-variant-numeric:tabular-nums}
+
+  .twk-sect{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    color:rgba(41,38,27,.45);padding:10px 0 0}
+  .twk-sect:first-child{padding-top:0}
+
+  .twk-field{appearance:none;width:100%;height:26px;padding:0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;
+    background:rgba(255,255,255,.6);color:inherit;font:inherit;outline:none}
+  .twk-field:focus{border-color:rgba(0,0,0,.25);background:rgba(255,255,255,.85)}
+  select.twk-field{padding-right:22px;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='rgba(0,0,0,.5)' d='M0 0h10L5 6z'/></svg>");
+    background-repeat:no-repeat;background-position:right 8px center}
+
+  .twk-slider{appearance:none;-webkit-appearance:none;width:100%;height:4px;margin:6px 0;
+    border-radius:999px;background:rgba(0,0,0,.12);outline:none}
+  .twk-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
+    width:14px;height:14px;border-radius:50%;background:#fff;
+    border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+  .twk-slider::-moz-range-thumb{width:14px;height:14px;border-radius:50%;
+    background:#fff;border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+
+  .twk-seg{position:relative;display:flex;padding:2px;border-radius:8px;
+    background:rgba(0,0,0,.06);user-select:none}
+  .twk-seg-thumb{position:absolute;top:2px;bottom:2px;border-radius:6px;
+    background:rgba(255,255,255,.9);box-shadow:0 1px 2px rgba(0,0,0,.12);
+    transition:left .15s cubic-bezier(.3,.7,.4,1),width .15s}
+  .twk-seg.dragging .twk-seg-thumb{transition:none}
+  .twk-seg button{appearance:none;position:relative;z-index:1;flex:1;border:0;
+    background:transparent;color:inherit;font:inherit;font-weight:500;min-height:22px;
+    border-radius:6px;cursor:default;padding:4px 6px;line-height:1.2;
+    overflow-wrap:anywhere}
+
+  .twk-toggle{position:relative;width:32px;height:18px;border:0;border-radius:999px;
+    background:rgba(0,0,0,.15);transition:background .15s;cursor:default;padding:0}
+  .twk-toggle[data-on="1"]{background:#34c759}
+  .twk-toggle i{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;
+    background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
+  .twk-toggle[data-on="1"] i{transform:translateX(14px)}
+
+  .twk-num{display:flex;align-items:center;height:26px;padding:0 0 0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;background:rgba(255,255,255,.6)}
+  .twk-num-lbl{font-weight:500;color:rgba(41,38,27,.6);cursor:ew-resize;
+    user-select:none;padding-right:8px}
+  .twk-num input{flex:1;min-width:0;height:100%;border:0;background:transparent;
+    font:inherit;font-variant-numeric:tabular-nums;text-align:right;padding:0 8px 0 0;
+    outline:none;color:inherit;-moz-appearance:textfield}
+  .twk-num input::-webkit-inner-spin-button,.twk-num input::-webkit-outer-spin-button{
+    -webkit-appearance:none;margin:0}
+  .twk-num-unit{padding-right:8px;color:rgba(41,38,27,.45)}
+
+  .twk-btn{appearance:none;height:26px;padding:0 12px;border:0;border-radius:7px;
+    background:rgba(0,0,0,.78);color:#fff;font:inherit;font-weight:500;cursor:default}
+  .twk-btn:hover{background:rgba(0,0,0,.88)}
+  .twk-btn.secondary{background:rgba(0,0,0,.06);color:inherit}
+  .twk-btn.secondary:hover{background:rgba(0,0,0,.1)}
+
+  .twk-swatch{appearance:none;-webkit-appearance:none;width:56px;height:22px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:6px;padding:0;cursor:default;
+    background:transparent;flex-shrink:0}
+  .twk-swatch::-webkit-color-swatch-wrapper{padding:0}
+  .twk-swatch::-webkit-color-swatch{border:0;border-radius:5.5px}
+  .twk-swatch::-moz-color-swatch{border:0;border-radius:5.5px}
+</style><div class="twk-panel" style="right: 16px; bottom: 16px;"><div class="twk-hd"><b>Tweaks</b><button class="twk-x" aria-label="Close tweaks">✕</button></div><div class="twk-body"><div class="twk-sect"></div><div class="twk-row"><div class="twk-lbl"><span></span></div><div role="radiogroup" class="twk-seg"><div class="twk-seg-thumb" style="left: calc(0% + 2px); width: calc(33.3333% - 1.33333px);"></div><button type="button" role="radio" aria-checked="true">Editorial</button><button type="button" role="radio" aria-checked="false">Technical</button><button type="button" role="radio" aria-checked="false">Diagrammatic</button></div></div><div style="font-size: 11px; color: rgb(106, 101, 93); margin-top: 8px; line-height: 1.4; font-family: JetBrains Mono, monospace;">Serif headlines · book-like · generous whitespace. Default · serious, readable, works for most rooms.</div></div></div></div></body></html>
