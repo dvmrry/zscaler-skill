@@ -236,6 +236,30 @@ When you do query, cite the SPL pattern by name from [`references/shared/splunk-
 
 Do not guess precedence, matching semantics, or evaluation order from first principles. These are exactly the places Zscaler's real behavior diverges from intuition — wrong confident answers here are the failure mode this skill exists to prevent.
 
+## Recognizing a deferred topic from frontmatter
+
+Before answering with high confidence, check the relevant reference doc's frontmatter:
+
+| Frontmatter signal | What it means | What to do |
+|---|---|---|
+| `confidence: low` or `medium` | Doc author flagged uncertainty | Lead the answer with the same confidence; cite what's solid, flag what's not |
+| `source-tier: code` | Sourced from SDK / TF only (help-portal page broken or non-existent) | Answer to the SDK shape; note that runtime behavior may differ; recommend tenant verification |
+| `author-status: stub` | TODO headings only, no body | Don't answer from the doc; use the headings to describe what would be covered and decline the substantive answer |
+| Doc cross-links a clarification ID (`zia-03`, `zpa-04`, etc.) | Known unresolved gap | Cite the ID and answer within the gap's bounds |
+| Doc opens with a "tenant access required" note | Lab test or live-API verification needed | Answer general case; refuse tenant-specific without `snapshot/` |
+
+**Topics this skill cannot answer without tenant access** (load-bearing list — when asked about these without `snapshot/` populated, decline with a pointer rather than guess):
+
+- The `tz` / `country` write-side current behavior on ZIA Location Management (read returns unprefixed; write accepted-form is unverified post-API change)
+- Whether VMSS upgrade window behavior on Cloud Connector matches the documented Sunday-midnight-local pattern in *your* deployment
+- Whether the Python SDK Server Group `servers[]` model gap affects you (TF works fine; Python explicit-server-mode does not)
+- Default zsroot password for new Cloud Connector / Branch Connector deployments
+- Whether the ZIA `showEunatp` wire-casing asymmetry (mixed-case on read, uppercase on write) is current API behavior
+- Specific cipher / TLS-version posture Zscaler presents at the SSL inspection edge
+- Anything labeled `confidence: medium` + `source-tier: code` where the SDK is the only source — runtime divergence is possible
+
+This list expands as the skill grows; `references/_clarifications.md` is the canonical index. When in doubt, prefer "I don't know without your tenant" over a confident guess.
+
 ## Known open questions
 
 [`references/_clarifications.md`](references/_clarifications.md) is the canonical index of unresolved questions across the skill — each with a stable ID (`zia-03`, `shared-02`, etc.), what resolves it, and which reference doc raised it. When a user's question overlaps a known gap, cite the ID and be explicit that the answer is bounded by that gap.
