@@ -202,6 +202,8 @@ These fields have conflicting type or name information across sources. Flag thes
 | `tcpKeepAlive` | `<integer>` (type hint only — Postman doesn't show real value) | `"0"` / `"1"` string-as-bool (TF `:228-230`) | Is the wire value a quoted string or a bare integer? |
 | `configSpace` | `DEFAULT` / `SIEM` seen in sub-objects | `DEFAULT` / `MICROTENANT` at segment top level | Is `SIEM` valid at segment top level, or only in serverGroups/appResource embeds? |
 
+⚠️ ZPA verification deferred — ZPA OAuth keys unavailable at time of ZIA verification pass (2026-04-26). Run the queries below when keys are available.
+
 #### Verification commands
 
 If you have a populated `snapshot/zpa/app-segments.json`, run these jq queries and record the output:
