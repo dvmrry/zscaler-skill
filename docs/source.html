@@ -47,9 +47,64 @@
   .topbar .right a { color: var(--ink-3); text-decoration: none; }
   .topbar .right a:hover { color: var(--accent); }
 
+  .layout {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr);
+    gap: 0;
+    min-height: calc(100vh - 38px);
+  }
+
+  .sidebar {
+    border-right: 1px solid var(--rule);
+    background: var(--paper-deep);
+    overflow-y: auto;
+    padding: 1.5rem 0 3rem;
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
+    font-size: 0.82rem;
+    /* Sticky height — accounts for the 38px topbar above. The sub-nav
+       bar (also 32px) is added on top dynamically by nav.js. */
+    position: sticky;
+    align-self: start;
+    top: 0;
+    max-height: 100vh;
+  }
+  .sidebar h3 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.66rem; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--ink-3);
+    padding: 0.6rem 1.5rem 0.4rem;
+    margin-top: 0.5rem;
+  }
+  .sidebar h3:first-of-type { margin-top: 0; }
+  .sidebar ul { list-style: none; margin: 0 0 0.4rem; padding: 0; }
+  .sidebar a {
+    display: block;
+    padding: 0.25rem 1.5rem;
+    color: var(--ink-2); text-decoration: none;
+    line-height: 1.35;
+    border-left: 2px solid transparent;
+    transition: color 0.1s, background 0.1s;
+  }
+  .sidebar a:hover {
+    color: var(--ink); background: var(--paper-card);
+  }
+  .sidebar a.active {
+    color: var(--accent); background: var(--paper);
+    border-left-color: var(--accent);
+    font-weight: 500;
+  }
+  .sidebar .sb-status {
+    padding: 1rem 1.5rem;
+    color: var(--ink-3); font-size: 0.74rem;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
   .page {
-    max-width: 48rem; margin: 0 auto;
+    max-width: 48rem;
+    margin: 0 auto;
     padding: 3rem 2rem 6rem;
+    width: 100%;
   }
 
   .source-banner {
@@ -62,8 +117,6 @@
   }
   .source-banner strong { color: var(--ink); text-transform: uppercase; letter-spacing: 0.08em; }
   .source-banner code { color: var(--ink-2); }
-  .source-banner a { color: var(--ink-3); text-decoration: none; border-bottom: 1px dotted var(--ink-ghost); }
-  .source-banner a:hover { color: var(--accent); border-bottom-color: var(--accent); }
 
   .meta {
     margin-bottom: 2rem; padding: 0.85rem 1.1rem;
@@ -130,6 +183,15 @@
 
   .status { color: var(--ink-3); font-family: 'IBM Plex Mono', monospace; font-size: 0.85rem; }
   .status.error { color: var(--warn); }
+
+  @media (max-width: 880px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar {
+      position: static; max-height: none;
+      border-right: 0; border-bottom: 1px solid var(--rule);
+    }
+    .page { padding: 2rem 1.5rem 4rem; }
+  }
 </style>
 </head>
 <body>
@@ -141,19 +203,25 @@
   <span class="right" id="github-link"></span>
 </div>
 
-<main class="page">
-  <div class="source-banner" id="source-banner">
-    <strong>Source</strong>
-    <span>·</span>
-    <span>rendered from <code id="banner-path">…</code></span>
-  </div>
+<div class="layout">
+  <aside class="sidebar" id="sidebar" aria-label="Source navigation">
+    <p class="sb-status">Loading file list…</p>
+  </aside>
 
-  <div class="meta hidden" id="meta"></div>
+  <main class="page">
+    <div class="source-banner" id="source-banner">
+      <strong>Source</strong>
+      <span>·</span>
+      <span>rendered from <code id="banner-path">…</code></span>
+    </div>
 
-  <article class="content" id="content">
-    <p class="status">Loading…</p>
-  </article>
-</main>
+    <div class="meta hidden" id="meta"></div>
+
+    <article class="content" id="content">
+      <p class="status">Loading…</p>
+    </article>
+  </main>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
 <script src="nav.js"></script>
@@ -163,19 +231,43 @@
   const BRANCH = 'main';
   const RAW = `https://raw.githubusercontent.com/${REPO}/${BRANCH}`;
   const VIEW = `https://github.com/${REPO}/blob/${BRANCH}`;
+  const TREE_API = `https://api.github.com/repos/${REPO}/git/trees/${BRANCH}?recursive=1`;
+  const TREE_CACHE_KEY = 'zskill:ref-tree:v1';
+  const TREE_CACHE_TTL = 1000 * 60 * 30; // 30 min
+
+  // Friendly labels for the top-level groups in references/.
+  const GROUP_LABELS = {
+    'zia': 'ZIA',
+    'zpa': 'ZPA',
+    'zcc': 'ZCC',
+    'zdx': 'ZDX',
+    'zbi': 'ZBI',
+    'zms': 'ZMS',
+    'zwa': 'ZWA',
+    'zidentity': 'ZIdentity',
+    'cloud-connector': 'Cloud Connector',
+    'shared': 'Shared',
+    'ai-security': 'AI Security',
+    'risk360': 'Risk360',
+    'deception': 'Deception',
+    '_primer': 'Primer',
+  };
+  // Order in which groups appear in the sidebar.
+  const GROUP_ORDER = [
+    'zia', 'zpa', 'cloud-connector',
+    'zcc', 'zdx', 'zidentity',
+    'zbi', 'zwa', 'zms',
+    'ai-security', 'risk360', 'deception',
+    'shared', '_primer',
+  ];
 
   const params = new URLSearchParams(location.search);
   const rawParam = (params.get('p') || '').trim().replace(/^\/+|\/+$/g, '');
 
-  // Build the candidate URLs to try, in order. We accept three shapes for ?p=:
-  //   ?p=zia/url-filtering  → references/zia/url-filtering.md
-  //   ?p=zia                → references/zia/index.md, then references/zia.md
-  //   ?p=                   → references/_template.md as a default landing? no — show index of references
   const candidates = [];
   let displayPath;
 
   if (!rawParam) {
-    // Default landing: the portfolio map is the natural "everything" entry point.
     candidates.push(`${RAW}/references/_portfolio-map.md`);
     displayPath = 'references/_portfolio-map.md';
   } else if (rawParam.endsWith('.md')) {
@@ -188,15 +280,15 @@
   }
 
   document.getElementById('banner-path').textContent = displayPath;
-
-  // Pre-set <title> from the slug so the tab/window has useful context
-  // immediately, before the network fetch resolves.
   document.title = titleFromSlug(rawParam) + ' — Source';
-
-  // Crumbs
   renderCrumbs(rawParam);
 
-  // Fetch the first candidate that exists
+  // Kick off the file-tree fetch in parallel with the markdown fetch.
+  loadTree().then(renderSidebar).catch(err => {
+    document.getElementById('sidebar').innerHTML =
+      `<p class="sb-status">Could not load file list.<br><small>${escapeHtml(err.message)}</small></p>`;
+  });
+
   fetchFirst(candidates).then(({ url, text }) => {
     if (!text) {
       showError(`Could not load source. Tried:\n${candidates.join('\n')}`);
@@ -214,6 +306,8 @@
     showError(`Error loading source: ${err.message}`);
   });
 
+  // ── Markdown loading ──────────────────────────────────────────────
+
   async function fetchFirst(urls) {
     for (const u of urls) {
       try {
@@ -225,8 +319,6 @@
   }
 
   function dirOf(relPath) {
-    // relPath e.g. "zia/url-filtering.md" or "zia/index.md" → "zia"
-    // "_template.md" → ""
     const idx = relPath.lastIndexOf('/');
     return idx === -1 ? '' : relPath.slice(0, idx);
   }
@@ -237,8 +329,7 @@
     }
     const m = text.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
     if (!m) return { fm: {}, body: text };
-    const fm = parseSimpleYaml(m[1]);
-    return { fm, body: m[2] };
+    return { fm: parseSimpleYaml(m[1]), body: m[2] };
   }
 
   function parseSimpleYaml(text) {
@@ -257,13 +348,134 @@
       if (kv) {
         currentKey = kv[1];
         const val = kv[2].trim();
-        out[currentKey] = val === '' ? '' : stripQuotes(val);
+        if (val === '') out[currentKey] = '';
+        else if (val === '[]') out[currentKey] = [];
+        else if (val === '{}') out[currentKey] = {};
+        else out[currentKey] = stripQuotes(val);
       }
     }
     return out;
   }
 
   function stripQuotes(s) { return s.replace(/^["']|["']$/g, ''); }
+
+  // ── Tree / sidebar ────────────────────────────────────────────────
+
+  async function loadTree() {
+    const cached = readCachedTree();
+    if (cached) return cached;
+    const r = await fetch(TREE_API, { headers: { 'Accept': 'application/vnd.github+json' } });
+    if (!r.ok) throw new Error(`tree API ${r.status}`);
+    const data = await r.json();
+    const entries = (data.tree || [])
+      .filter(e => e.type === 'blob' && e.path.startsWith('references/') && e.path.endsWith('.md'))
+      .map(e => e.path.slice('references/'.length));
+    try {
+      localStorage.setItem(TREE_CACHE_KEY, JSON.stringify({ ts: Date.now(), entries }));
+    } catch (_) { /* ignore quota */ }
+    return entries;
+  }
+
+  function readCachedTree() {
+    try {
+      const raw = localStorage.getItem(TREE_CACHE_KEY);
+      if (!raw) return null;
+      const { ts, entries } = JSON.parse(raw);
+      if (Date.now() - ts > TREE_CACHE_TTL) return null;
+      return entries;
+    } catch (_) { return null; }
+  }
+
+  function renderSidebar(entries) {
+    if (!entries || !entries.length) {
+      document.getElementById('sidebar').innerHTML =
+        '<p class="sb-status">No reference files found.</p>';
+      return;
+    }
+
+    // Group entries: top-level files vs subdir files. Skip *.md inside
+    // _primer when we want; show them under Primer.
+    const groups = {};   // groupKey → [ {path, label} ]
+    const topLevel = []; // files directly under references/
+
+    for (const path of entries) {
+      const parts = path.split('/');
+      if (parts.length === 1) {
+        topLevel.push({ path, label: prettify(parts[0].replace(/\.md$/, '')) });
+      } else {
+        const group = parts[0];
+        if (!groups[group]) groups[group] = [];
+        const fileLabel = parts.slice(1).join('/').replace(/\.md$/, '');
+        groups[group].push({ path, label: prettify(fileLabel) });
+      }
+    }
+
+    // Sort each group: index first, then alpha by label.
+    for (const k of Object.keys(groups)) {
+      groups[k].sort((a, b) => {
+        if (a.path.endsWith('/index.md')) return -1;
+        if (b.path.endsWith('/index.md')) return 1;
+        return a.label.localeCompare(b.label);
+      });
+    }
+    topLevel.sort((a, b) => a.label.localeCompare(b.label));
+
+    // Active path: drop .md and the references/ prefix to compare with `?p=` slugs.
+    const currentSlug = currentSlugFromUrl();
+
+    const html = [];
+
+    if (topLevel.length) {
+      html.push(`<h3>References</h3><ul>`);
+      for (const f of topLevel) {
+        const slug = f.path.replace(/\.md$/, '');
+        html.push(renderSidebarItem(slug, f.label, currentSlug));
+      }
+      html.push(`</ul>`);
+    }
+
+    const orderedKeys = [
+      ...GROUP_ORDER.filter(k => groups[k]),
+      ...Object.keys(groups).filter(k => !GROUP_ORDER.includes(k)).sort(),
+    ];
+
+    for (const key of orderedKeys) {
+      const label = GROUP_LABELS[key] || prettify(key);
+      html.push(`<h3>${escapeHtml(label)}</h3><ul>`);
+      for (const f of groups[key]) {
+        const slug = f.path.replace(/\.md$/, '').replace(/\/index$/, '');
+        // For index.md we still want a clean label like "Overview"
+        const displayLabel = f.path.endsWith('/index.md') ? 'Overview' : f.label;
+        html.push(renderSidebarItem(slug, displayLabel, currentSlug));
+      }
+      html.push(`</ul>`);
+    }
+
+    document.getElementById('sidebar').innerHTML = html.join('');
+  }
+
+  function renderSidebarItem(slug, label, currentSlug) {
+    const isActive = slug === currentSlug;
+    const cls = isActive ? ' class="active"' : '';
+    return `<li><a href="?p=${encodePath(slug)}"${cls}>${escapeHtml(label)}</a></li>`;
+  }
+
+  function currentSlugFromUrl() {
+    const p = (new URLSearchParams(location.search).get('p') || '').trim()
+      .replace(/^\/+|\/+$/g, '').replace(/\.md$/, '');
+    if (!p) return '_portfolio-map';
+    return p;
+  }
+
+  function prettify(s) {
+    return s.replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  }
+
+  function encodePath(p) {
+    return p.split('/').map(encodeURIComponent).join('/');
+  }
+
+  // ── UI bits ───────────────────────────────────────────────────────
 
   function renderCrumbs(p) {
     const el = document.getElementById('crumbs');
@@ -273,7 +485,7 @@
       const sub = parts.slice(0, i + 1).join('/');
       const isLast = i === parts.length - 1;
       if (isLast) return `<span style="color: var(--ink);">${escapeHtml(seg)}</span>`;
-      return `<a href="?p=${encodeURIComponent(sub)}">${escapeHtml(seg)}</a>`;
+      return `<a href="?p=${encodePath(sub)}">${escapeHtml(seg)}</a>`;
     });
     el.innerHTML = `<a href="?p=">Source</a>` + ' › ' + links.join(' › ');
   }
@@ -297,7 +509,8 @@
     if (fields.length) {
       html += `<span class="meta-row">${fields.join('<span class="meta-divider">·</span>')}</span>`;
     }
-    const sources = (fm.sources || []).filter(s => typeof s === 'string' && s.startsWith('http'));
+    const sourcesRaw = Array.isArray(fm.sources) ? fm.sources : [];
+    const sources = sourcesRaw.filter(s => typeof s === 'string' && s.startsWith('http'));
     if (sources.length) {
       const links = sources.map(s => `<a href="${escapeAttr(s)}" target="_blank" rel="noopener">${escapeHtml(shortenUrl(s))}</a>`).join('<br>');
       html += `<div class="meta-sources"><strong>Sources</strong><br>${links}</div>`;
@@ -312,7 +525,6 @@
   }
 
   function renderBody(md, currentDir) {
-    // Walk tokens to rewrite .md links in href values, and to fix relative anchors.
     marked.use({
       walkTokens(token) {
         if ((token.type === 'link' || token.type === 'image') && token.href) {
@@ -327,12 +539,11 @@
   function rewriteHref(href, currentDir) {
     if (/^(https?:|mailto:|tel:|#|data:)/i.test(href)) return href;
     if (href.startsWith('/')) return href;
-    // Match .md or .md#anchor
     const m = href.match(/^(.+?)\.md(#.*)?$/);
     if (!m) return href;
     const target = resolvePath(currentDir, m[1]);
     const anchor = m[2] || '';
-    return `?p=${encodeURIComponent(target)}${anchor}`;
+    return `?p=${encodePath(target)}${anchor}`;
   }
 
   function resolvePath(base, rel) {
@@ -351,7 +562,6 @@
     if (!slug) return 'Source';
     const last = slug.split('/').pop().replace(/\.md$/, '');
     if (!last) return slug;
-    // Convert kebab/snake_case → Title Case so the tab title is readable.
     return last.replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
   }
 
