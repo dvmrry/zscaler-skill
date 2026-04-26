@@ -74,6 +74,9 @@ Family includes AI Guard (15 detector categories: prompt injection, jailbreak, t
 #### ZMS — Zscaler Microsegmentation
 East-west / workload-to-workload policy via host-installed agents (Win/Linux), AI-powered policy recommendations on a 14-day rolling telemetry window, local OS enforcement (Windows Filtering Platform / Linux nftables). Positioned as a ZPA add-on. Reasoning doc: [`./zms/overview.md`](./zms/overview.md). No SDK module; portal-only configuration. Captures: `vendor/zscaler-help/microsegmentation-marketing.md`, `zero-trust-microsegmentation-marketing.md`, `what-is-microsegmentation-zpa.md`.
 
+#### ZSDK — Zscaler SDK for Mobile Apps
+**Different product than ZCC.** ZSDK is a **mobile SDK (iOS/Android) for consumer-facing apps** — app developers embed it into their own mobile app's source code so end users get zero-trust connectivity to back-end services without installing any separate Zscaler agent. Access tokens (JWTs) validate user identity; mTLS microtunnels route traffic to back-end APIs and services hidden behind App Connectors. Shares App Connector + Private Service Edge infrastructure with ZPA but runs on a **dedicated multi-tenant cloud at `admin.zsdkone.net`**. Browser Access (limited availability) extends ZPA-style clientless web-app access to ZSDK-protected apps without requiring SDK integration — auth via IdP JWT in any browser. Configuration is portal-based; no first-party Zscaler API SDK for managing ZSDK config (the SDK *is* the product). Tier 2a not because it lacks substance — 30 pages of help-portal content captured — but because it doesn't fit the "zscaler-sdk-* / terraform-provider-*" management surface this skill primarily targets. Captures under `vendor/zscaler-help/zsdk-*.md`.
+
 ### Tier 2b — Awareness only (one-paragraph treatment)
 
 Products described conceptually here. Operators asking get the paragraph; deep technical questions redirect to Zscaler docs / TAM / Support.
@@ -174,15 +177,15 @@ The Tier 2a vs Tier 2b distinction matters: Tier 2a products have substantial re
 
 Never pretend deep-dive coverage exists where it doesn't. Confidence drop is honest signal — but **always be articulate about every Zscaler-marketed product**. The chatbot-foundation goal requires breadth of awareness, not just operational depth on the products we use.
 
-## Coverage statistics (as of 2026-04-25)
+## Coverage statistics (as of 2026-04-26)
 
 - **Tier 1 — Deep-dive products (with API/SDK):** 9 (ZIA, ZPA, ZCC, ZDX, ZBI, ZIdentity, Cloud Connector, ZWA, AppProtection)
-- **Tier 2a — Extended awareness (reasoning doc exists, no API):** 4 (Deception, Risk360, AI Security family, ZMS)
+- **Tier 2a — Extended awareness (substantial captures, no managed-API surface):** 5 (Deception, Risk360, AI Security family, ZMS, ZSDK)
 - **Tier 2b — Awareness only (paragraph here):** ~19 (ITDR, Resilience, Business Continuity Cloud, DSPM, Asset Exposure Mgmt, UVM, CTEM, Cloud Protection / ZTC, Posture Control, Zscaler Cellular, Microsoft Copilot Data Protection, Red Canary MDR, Managed Threat Hunting, ZTE for B2B, ZINS, EASM, Federal Cloud variants, etc.) plus a CASB disambiguation entry (CASB is delivered via ZIA + DSPM/SaaS Security, not a standalone product)
 - **Tier 3 — Truly out-of-scope:** 0 (currently empty; reserved for deprecated / internal / unshipped)
 - **Architectural pillars named:** 4 (ZTE, Data Fabric, Agentic SecOps, plus the customer-segment "Zero Trust for X" framing)
 
-Total Zscaler portfolio: roughly 32 distinct products + 4 architectural pillars at this date. We have full operational depth on 9, expanded reasoning on 4 more (13 with reasoning content total), are at-minimum aware of all the rest, deliberately ignore none.
+Total Zscaler portfolio: roughly 33 distinct products + 4 architectural pillars at this date. We have full operational depth on 9, expanded captures + awareness on 5 more (14 with substantial content total), are at-minimum aware of all the rest, deliberately ignore none.
 
 ## Maintenance
 
