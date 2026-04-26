@@ -508,8 +508,12 @@
     const currentSlug = currentSlugFromUrl();
 
     // Determine the current section group (e.g. "zia", "cloud-connector")
-    // so we can auto-expand only that group on first render.
-    const currentGroup = currentSlug.includes('/') ? currentSlug.split('/')[0] : null;
+    // so we can auto-expand only that group on first render. Works for
+    // both section-index slugs ("zia") and deeper file slugs
+    // ("zia/url-filtering"); top-level files keep the References group
+    // expanded.
+    const slugFirstSeg = currentSlug.split('/')[0];
+    const currentGroup = groups[slugFirstSeg] ? slugFirstSeg : null;
 
     const html = [];
 
