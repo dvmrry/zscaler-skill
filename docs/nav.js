@@ -16,8 +16,8 @@
       children: [],
     },
     {
-      key: 'guides',
-      label: 'Guides',
+      key: 'welcome',
+      label: 'Welcome',
       href: 'readers-guide.html',
       match: [/readers-guide/, /onboarding/],
       children: [

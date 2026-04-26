@@ -511,6 +511,141 @@
     .pull { page-break-inside: avoid; }
   }
 
+  /* ───── Reading layout: sticky chapter rail beside the page ───── */
+  .reading-layout {
+    max-width: 84rem;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: grid;
+    grid-template-columns: 13rem minmax(0, 52rem);
+    justify-content: center;
+    gap: 4rem;
+    align-items: start;
+  }
+  .reading-layout .page {
+    max-width: none;
+    margin: 0;
+    padding: 7rem 0 10rem;
+  }
+  .reading-rail {
+    position: sticky;
+    top: 1.5rem;
+    align-self: start;
+    margin-top: 9rem;
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    max-height: calc(100vh - 3rem);
+    overflow-y: auto;
+  }
+  .reading-rail .rail-title {
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0 0 1rem;
+  }
+  .reading-rail ol {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    counter-reset: rail-ch;
+  }
+  .reading-rail li {
+    counter-increment: rail-ch;
+    margin: 0 0 0.55rem;
+    line-height: 1.4;
+  }
+  .reading-rail li.rail-li-deck { counter-increment: none; margin-bottom: 1rem; padding-bottom: 0.85rem; border-bottom: 1px solid var(--rule); }
+  .reading-rail a {
+    display: grid;
+    grid-template-columns: 1.6rem 1fr;
+    gap: 0.5rem;
+    color: var(--ink-soft);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .reading-rail a:hover { color: var(--accent); }
+  .reading-rail a.active { color: var(--accent); font-weight: 500; }
+  .reading-rail li:not(.rail-li-deck) a::before {
+    content: counter(rail-ch, upper-roman);
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.66rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.05em;
+    padding-top: 0.05rem;
+  }
+  .reading-rail li.rail-li-deck a::before {
+    content: "•";
+    color: var(--ink-faint);
+    text-align: center;
+  }
+
+  /* ───── Embedded deck ───── */
+  .deck-embed {
+    margin: 5rem 0;
+    padding: 2.5rem 0;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .deck-embed .section-label {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0 0 1rem;
+  }
+  .deck-embed .lede {
+    font-family: "Source Serif 4", serif;
+    font-style: italic;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    margin: 0 0 1.75rem;
+    text-wrap: pretty;
+  }
+  .deck-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+    background: var(--paper-deep);
+  }
+  .deck-frame iframe { width: 100%; height: 100%; border: 0; display: block; }
+  .deck-link {
+    margin: 1.25rem 0 0;
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.85rem;
+  }
+  .deck-link a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid var(--accent);
+    padding-bottom: 1px;
+  }
+  .deck-link a:hover { color: var(--accent-ink); border-bottom-color: var(--accent-ink); }
+
+  @media (max-width: 980px) {
+    .reading-layout {
+      display: block;
+      max-width: var(--measure);
+    }
+    .reading-rail {
+      position: static;
+      margin-top: 4rem;
+      max-height: none;
+      overflow: visible;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--rule);
+    }
+    .reading-layout .page { padding: 4rem 0 6rem; }
+  }
+
   @media (max-width: 600px) {
     .page { padding: 4rem 1.25rem 6rem; }
     .compare-head, .compare-row {
@@ -529,6 +664,21 @@
 <body>
 
 <div class="progress" id="progress"></div>
+
+<div class="reading-layout">
+
+<aside class="reading-rail" aria-label="Chapter navigation">
+  <h3 class="rail-title">Contents</h3>
+  <ol>
+    <li class="rail-li-deck"><a href="#deck">The Deck</a></li>
+    <li><a href="#ch1">The castle and the moat</a></li>
+    <li><a href="#ch2">Zero trust, three principles</a></li>
+    <li><a href="#ch3">The Zero Trust Exchange</a></li>
+    <li><a href="#ch4">ZIA — outbound traffic</a></li>
+    <li><a href="#ch5">ZPA — inbound access</a></li>
+    <li><a href="#ch6">A request, end to end</a></li>
+  </ol>
+</aside>
 
 <div class="page">
 
@@ -549,6 +699,16 @@
   <section class="front-matter">
     <h2>A note to the reader</h2>
     <p>This guide is the conceptual entry point to a larger body of reference material. It is meant to be read in order, in one or two sittings, before the reference docs make sense. Each chapter ends where the next begins; the references take over once the model is in place. Read slowly. The vocabulary matters.</p>
+  </section>
+
+  <!-- ────────── Deck embed ────────── -->
+  <section class="deck-embed" id="deck">
+    <h2 class="section-label">The Deck — visual overview</h2>
+    <p class="lede">An eighteen‑slide companion that walks the same arc — portfolio, Zero Trust Exchange, ZIA and ZPA mechanics — in presentation form. Useful as a quick visual orientation, or open alongside the chapters.</p>
+    <div class="deck-frame">
+      <iframe src="onboarding.html" allowfullscreen title="Zscaler Onboarding deck" loading="lazy"></iframe>
+    </div>
+    <p class="deck-link"><a href="onboarding.html">Open the deck in fullscreen →</a></p>
   </section>
 
   <!-- ────────── TOC ────────── -->
@@ -978,6 +1138,8 @@
 
 </div>
 
+</div><!-- /.reading-layout -->
+
 <script>
   // Reading progress bar
   const progress = document.getElementById('progress');
@@ -988,6 +1150,22 @@
   }
   window.addEventListener('scroll', updateProgress, { passive: true });
   updateProgress();
+
+  // Scrollspy: highlight the rail link for the chapter currently in view
+  const railLinks = Array.from(document.querySelectorAll('.reading-rail a'));
+  const targets = railLinks
+    .map(a => ({ a, el: document.querySelector(a.getAttribute('href')) }))
+    .filter(t => t.el);
+  function updateRail() {
+    const top = window.scrollY + 120;
+    let active = targets[0];
+    for (const t of targets) {
+      if (t.el.offsetTop <= top) active = t;
+    }
+    railLinks.forEach(a => a.classList.toggle('active', active && a === active.a));
+  }
+  window.addEventListener('scroll', updateRail, { passive: true });
+  updateRail();
 </script>
 <script src="nav.js"></script>
 
