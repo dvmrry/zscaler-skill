@@ -4,7 +4,9 @@
     { href: 'index.html',        label: 'Overview',       match: [/\/$/, /index\.html$/] },
     { href: 'readers-guide.html', label: "Reader's Guide", match: [/readers-guide/] },
     { href: 'zia-reference.html', label: 'ZIA Reference',  match: [/zia-reference/] },
+    { href: 'zia-forwarding.html', label: 'ZIA Forwarding', match: [/zia-forwarding/] },
     { href: 'zpa-reference.html', label: 'ZPA Reference',  match: [/zpa-reference/] },
+    { href: 'cloud-connector.html', label: 'Cloud Connector', match: [/cloud-connector/] },
     { href: 'onboarding.html',   label: 'Deck',           match: [/onboarding/] },
   ];
 
