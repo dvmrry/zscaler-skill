@@ -355,36 +355,66 @@ Cross-links: [`./ssl-inspection.md`](./ssl-inspection.md), [`./url-filtering.md 
 
 API: `GET /zia/api/v1/advancedSettings`
 
-**Shape:** single object (NOT an array). Tenant-wide settings. ⚠️ Not yet verified against real tenant data — `snapshot-refresh.py` may not dump this in all configurations.
+**Shape:** single object (NOT an array). 58 fields confirmed from tenant data.
 
 ```json
 {
+  // General
   "logInternalIp": false,
-  "cascadeUrlFiltering": true,        // toggle for URL Filter cascading default
-  "enableAdminRankAccess": false,     // admin-rank-as-gate enabled?
+  "cascadeUrlFiltering": true,        // URL Filter cascading default
+  "enableAdminRankAccess": false,
   "uiSessionTimeout": 1800,
+  "sslSessionTimeout": 1800,          // SSL session cache TTL
   "ecsForAllEnabled": false,
   "dynamicUserRiskEnabled": false,
   "preferSniOverConnHost": false,
   "sipaXffHeaderEnabled": false,      // see references/shared/source-ip-anchoring.md
+  "enableEvaluatePolicyOnGlobalSSLBypass": false,  // capital SSL — url-filtering.md security toggle
+  "enableOffice365": false,
 
-  // Many more boolean toggles — see SDK model
-  "enableEvaluatePolicyOnGlobalSslBypass": false,  // url-filtering.md security toggle
-  "enableOffice365": false,           // M365 One-Click — disables SSL bypass
-  "enableMsftO365": false,
-  "enableZoom": false,                // UCaaS One-Click toggles
-  "enableLogmein": false,
-  "enableRingcentral": false,
-  "enableWebex": false,
-  "enableTalkdesk": false,
+  // Auth bypass arrays (each: list of {id, name} objects or strings — verify shape)
+  "authBypassApps": [],
+  "authBypassUrlCategories": [],
+  "authBypassUrls": [],
+  "basicBypassApps": [],
+  "basicBypassUrlCategories": [],
+  "digestAuthBypassApps": [],
+  "digestAuthBypassUrlCategories": [],
+  "digestAuthBypassUrls": [],
+  "kerberosBypassApps": [],
+  "kerberosBypassUrlCategories": [],
+  "kerberosBypassUrls": [],
 
-  "blockSkype": false,
-  "blockUdpAndIcmpForBypassUrl": false
-  // ... 20+ additional boolean settings
+  // Block / security controls
+  "blockConnectHostSniMismatch": false,
+  "blockDomainFrontingApps": [],
+  "blockDomainFrontingOnHostHeader": false,
+  "blockHttpTunnelOnNonHttpPorts": false,
+  "blockNonCompliantHttpRequestOnHttpPorts": false,
+  "blockNonHttpOnHttpPortEnabled": false,
+  "trackHttpTunnelOnHttpPorts": false,
+
+  // Transparent proxy / DNS
+  "enableDnsResolutionOnTransparentProxy": false,
+  "enableIPv6DnsOptimizationOnAllTransparentProxy": false,
+  "enableIPv6DnsResolutionOnTransparentProxy": false,
+
+  // Traffic policy
+  "enablePolicyForUnauthenticatedTraffic": false,
+  "enforceGeoMappingForWindowsApp": false,
+  "http2NonbrowserTrafficEnabled": false,
+  "sipaSsoOptimizationByConnApp": false,  // SIPA SSO optimization per connector app
+  "sslOptimizationRequestUrlCategories": [],
+  "zscalerClientConnector1AndPacRoadWarriorInFirewall": false,
+
+  // ... additional boolean fields (58 total confirmed)
 }
 ```
 
-Full SDK model: `vendor/zscaler-sdk-python/zscaler/zia/models/advanced_settings.py`. ~50+ tenant-wide flags.
+Full SDK model: `vendor/zscaler-sdk-python/zscaler/zia/models/advanced_settings.py`. 58 fields confirmed from tenant data.
+
+**Fields documented in prior schema that do NOT exist in real responses** (removed above):
+`enableMsftO365`, `enableZoom`, `enableLogmein`, `enableRingcentral`, `enableWebex`, `enableTalkdesk`, `blockSkype`, `blockUdpAndIcmpForBypassUrl` — these UCaaS One-Click toggles are not present in the Z2 tenant. May be tier-dependent or moved to separate endpoints.
 
 ### Common jq queries
 
@@ -474,8 +504,8 @@ jq 'type' snapshot/zia/url-filtering-rules.json  # expect "array"
 - ✅ Pagination: both url-categories and url-filtering-rules return flat arrays, not ZPA-style wrapped responses.
 - ✅ Rule IDs (url-filtering, ssl-inspection) are integers. url-category IDs are strings.
 
-**Still open:**
-- `advanced-settings.json` — not in the Z2 tenant dump, couldn't verify field list.
+**Resolved (2026-04-26):**
+- ✅ `advanced-settings.json` — 58 fields, single object shape confirmed. Schema updated with ~20 previously-undocumented fields. 8 SDK-phantom fields removed (UCaaS One-Click toggles not present in Z2 tenant — may be tier-dependent). Case fix: `enableEvaluatePolicyOnGlobalSSLBypass` (capital SSL).
 
 ## Wire-format gotchas
 
