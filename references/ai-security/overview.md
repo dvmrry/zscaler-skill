@@ -127,20 +127,20 @@ No deeper material captured. Treat as awareness-only within the deep-dive — re
 
 ## Edge cases / gotchas
 
-1. **"AI Guard" vs "AI Guardrails" is a naming inconsistency, not a product split.** Customers will use either name. Skill should accept both as equivalent.
+1. **"AI Guard" vs "AI Guardrails" is a naming inconsistency, not a product split.** Operators will use either name. Skill should accept both as equivalent.
 2. **AI Guard is not in any SDK.** Configuration is portal-only. Don't suggest `client.aiguard.*` Python or `client.zaiguard.*` Go — neither exists.
-3. **DaaS mode bypasses Zscaler's inline path entirely.** A customer deploying DaaS mode does NOT need ZIA inline; it's an application-layer integration. This breaks the "Zscaler is always inline" mental model. Conversely, a tenant with proxy-mode AI Guard does need SSL inspection on LLM traffic.
+3. **DaaS mode bypasses Zscaler's inline path entirely.** A tenant deploying DaaS mode does NOT need ZIA inline; it's an application-layer integration. This breaks the "Zscaler is always inline" mental model. Conversely, a tenant with proxy-mode AI Guard does need SSL inspection on LLM traffic.
 4. **Pricing/packaging not captured.** AI Guard appears separately licensed but the SKU / tier mapping isn't in the captures. Treat licensing questions as unanswered.
-5. **The "15 detectors" figure is from one capture.** Zscaler may add detectors over time. Don't quote the exact count if a customer signals it might be stale; instead say "15+ as of 2026-04 capture".
+5. **The "15 detectors" figure is from one capture.** Zscaler may add detectors over time. Don't quote the exact count if the operator signals it might be stale; instead say "15+ as of 2026-04 capture".
 6. **Refusal Detection exists specifically because over-blocking is itself an attack vector.** A jailbreak prompt that *causes* a model to refuse can be used to lock legitimate users out. AI Guard flags excessive refusals as a *signal*, not just a behavior — different mental model from typical content filters.
-7. **Categories like Finance Advice / Legal Advice are *blockers*, not classifiers.** They don't tag the prompt; they refuse it. Important for customers who want soft-routing (route legal questions to a different model) — AI Guard isn't that; it's enforce/block.
-8. **Brand / competitor detection is a content-policy enforcement layer.** This is unusual for a security product (normally a marketing-ops concern). Customers asking "can AI Guard prevent my chatbot from saying nice things about $competitor?" — answer is yes, that's a documented use case.
+7. **Categories like Finance Advice / Legal Advice are *blockers*, not classifiers.** They don't tag the prompt; they refuse it. Important for operators who want soft-routing (route legal questions to a different model) — AI Guard isn't that; it's enforce/block.
+8. **Brand / competitor detection is a content-policy enforcement layer.** This is unusual for a security product (normally a marketing-ops concern). Operators asking "can AI Guard prevent my chatbot from saying nice things about $competitor?" — answer is yes, that's a documented use case.
 
 ## Open questions
 
 - **Token / call accounting** — AI Guard inline mode adds GPU inference per request; how is that billed? Per-call, per-token, flat-rate per seat? Not in captures.
 - **Latency budget** — what does a typical inline-mode prompt round-trip look like added to LLM provider latency? No data.
-- **Custom detector authoring** — can customers add their own intent classifiers, or are the 15 categories fixed? Not in captures.
+- **Custom detector authoring** — can operators add their own intent classifiers, or are the 15 categories fixed? Not in captures.
 - **Logging / SIEM integration** — does AI Guard feed NSS / Cloud NSS / LSS, or its own dedicated log stream? Not captured. Cross-reference [`../shared/nss-architecture.md`](../shared/nss-architecture.md) when this is resolved.
 - **Provider compatibility for proxy mode** — which LLM providers' endpoints are auto-recognized? Captures mention "must add LLM provider" only for proxy mode without enumerating supported providers.
 - **AI Red Teaming integration with AI Guard** — does AI Red Teaming output configure AI Guard rules automatically (probe found a jailbreak → AI Guard blocks it next time)? Captures imply but don't confirm.

@@ -76,7 +76,7 @@ East-west / workload-to-workload policy via host-installed agents (Win/Linux), A
 
 ### Tier 2b — Awareness only (one-paragraph treatment)
 
-Products described conceptually here. Customers asking get the paragraph; deep technical questions redirect to Zscaler docs / TAM / Support.
+Products described conceptually here. Operators asking get the paragraph; deep technical questions redirect to Zscaler docs / TAM / Support.
 
 #### ITDR — Identity Threat Detection & Response
 Marketed as **Zscaler Identity Protection**. Real-time detection and response for identity-based attacks: DCSync, DCShadow, kerberoasting, LDAP enumeration, credential theft, privilege escalation, lateral movement. Built into the ZCC agent (no separate VM); integrates natively with ZPA for real-time threat containment, plus SIEM and EDR for SOC workflows. Provides unified identity risk scoring with MITRE ATT&CK mapping; surfaces risky configurations (shared/stale passwords, unconstrained delegation) and exposed endpoint credentials. Distinct from **ZIdentity** (which is the IdP / authentication layer); ITDR sits on top to detect compromise in flight. **Fill priority** because identity attacks are central to modern zero-trust threat models — 75% of 2023 access attacks were malware-free per CrowdStrike (cited by Zscaler). Capture: `vendor/zscaler-help/itdr-zscaler-identity-protection-marketing.md`. No public SDK / TF surface — portal + ZCC agent.
