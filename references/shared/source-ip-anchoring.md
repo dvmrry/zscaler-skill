@@ -43,6 +43,8 @@ Legacy applications, regulatory SaaS services, and most notably **Microsoft 365 
 
 SIPA solves this by sending the "last hop" through a customer-deployed App Connector VM whose IP is under customer control.
 
+**For Microsoft 365 specifically, SIPA only needs to cover the *initial login* traffic** (`login.microsoftonline.com`, `login.windows.net`, `login.microsoft.com`). After successful authentication, subsequent app traffic uses an authenticated token — the destination no longer needs to validate source IP. This means the SIPA-routed App Segment can be scoped narrowly to just the login domains, keeping App Connector load minimal and avoiding unnecessary latency on the high-volume post-auth traffic. Source: *Source IP Anchoring Configuration Guide for Microsoft 365 Conditional Access* (`vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`).
+
 ## Mechanics
 
 ### Traffic flow
