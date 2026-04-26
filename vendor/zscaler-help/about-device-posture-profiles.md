@@ -1,45 +1,63 @@
 # About Device Posture Profiles
 
 **Source:** https://help.zscaler.com/zscaler-client-connector/about-device-posture-profiles
-**Captured:** 2026-04-24 via Playwright MCP.
+**Captured:** 2026-04-26 via Playwright MCP (innerText extraction of <article>).
 
 ---
 
-The **Device Posture profile** is a set of criteria evaluated on devices. You can configure policies in both Internet & SaaS and Private Access based on the outcome of this evaluation. For example, if you specify a file path in a device posture profile, the user has access to the application only if the user's system has the specified file.
+Zscaler Client Connector Help 
+Device Posture Profiles 
+About Device Posture Profiles
+Client Connector
+About Device Posture Profiles
+Ask Zscaler
 
-## Benefits
+Watch a video on Device Posture Profiles.
 
-- Determine access to corporate resources and public applications based on device posture.
-- Ensure a minimum security level is present on the device before allowing access.
+The Device Posture profile is a set of criteria evaluated on devices. You can configure policies in both Internet & SaaS and Private Access based on the outcome of this evaluation. For example, if you specify a file path in a device posture profile, the user has access to the application if the user's system has the file specified in the posture profile.
 
-Posture profiles are defined in the **Device Posture** section. They must be configured in the Zscaler Admin Console. They are consumed by:
+Device posture profiles provide the following benefits and allow you to:
 
-- Private Access **Access Policies**.
-- Internet & SaaS **Posture Profile Trust Levels**.
+Determine access to corporate resources and public applications based on the device posture you set.
+Ensure a minimum security level is present on the device before allowing access.
 
-Each posture profile has its own set of criteria. See *Configuring Device Posture Profiles* for each posture type.
+You can define posture profiles in the Device Posture section. You must configure these device posture profiles in the Zscaler Admin Console. You can use posture profiles when configuring access policies and when adding posture profile trust levels for Internet & SaaS.
 
-## Device Posture Evaluation
+Each posture profile has its own set criteria. To learn more about each posture type, see Configuring Device Posture Profiles.
 
-Zscaler Client Connector evaluates device posture profiles **every 15 minutes** by default. **New connections** are established based on updated security postures. **Existing connections are not affected** by updates to security postures.
+Device Posture Evaluation
 
-For Zscaler Client Connector version 4.4+ for Windows, you can configure evaluation frequency.
+Zscaler Client Connector evaluates device posture profiles every 15 minutes. New connections are established based on updated security postures. Existing connections are not affected by updates to security postures.
 
-### Events that trigger a posture evaluation
+For Zscaler Client Connector version 4.4 and later for Windows, you can configure how often Zscaler Client Connector evaluates the device posture profile. To learn more, see Configuring Device Posture Profiles.
 
-- The Zscaler service restarts.
-- A device **reboots**.
-- A device **joins a network**.
-- A device **comes out of hibernation**.
-- A device **moves from non-domain-joined to domain-joined**.
-- A device **moves from Wi-Fi to Ethernet**.
-- A device **changes Wi-Fi networks**.
+The following network changes can trigger a device posture evaluation:
 
-## Device Posture page (Policies > Common Configuration > Resources > Device Posture)
+The Zscaler service restarts
+A device:
+Reboots
+Joins a network
+Comes out of hibernation
+Moves from non-domain joined to domain-joined
+Moves from a Wi-Fi connection to an Ethernet connection
+Changes Wi-Fi networks
+About the Device Posture Page
 
-- Add a device posture profile.
-- Search profiles.
-- View a list of all configured profiles.
-- Create a custom view.
-- Edit a profile.
-- Delete a profile.
+On the Device Posture page (Policies > Common Configuration > Resources > Device Posture), you can do the following:
+
+Add a device posture profile.
+Search for a device posture profile.
+View a list of all configured device posture profiles.
+Create a custom view of the Device Posture page.
+Edit a device posture profile.
+Delete a device posture profile.
+Was this article helpful? Click an icon below to submit feedback.
+Related Articles
+ 
+About Device Posture Profiles
+Configuring Device Posture Profiles
+Configuring the Client Certificate Posture Check for Linux
+Searching for a Device Posture Profile
+About Internet & SaaS Posture Profiles
+Adding Internet & SaaS Posture Profiles
+Searching for an Internet & SaaS Posture Profile
