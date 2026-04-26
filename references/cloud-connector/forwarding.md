@@ -99,6 +99,24 @@ Traffic is discarded. No forwarding; workload sees connection failure. Used for 
 
 Not available on Branch Connector. Forwards traffic locally within the Cloud Connector's own network context — used for cloud-to-cloud workload communication where the destination is reachable via local cloud networking but still needs local inspection. Semantics not fully documented in captured material.
 
+### Predefined rules and gateway-mode gating
+
+Per `vendor/zscaler-help/cbc-about-traffic-forwarding.md`, two predefined rules ship with every CC group:
+
+- **Direct for Zscaler Cloud Endpoints** — sends Zscaler control-plane traffic direct (e.g., the CC's own connectivity to ZIA peer discovery). Always present, gateway-mode-only.
+- **WAN/LAN Destinations Group** — predefined destination set used by gateway-mode forwarding rules.
+
+**Both predefined rules are gateway-mode-only and license-gated.** A non-gateway-mode CC won't see them; a tenant without the relevant license tier won't be able to enable them. This matters for CC groups that operate in non-gateway mode (e.g., simpler workload-to-internet forwarding without ZIA inspection).
+
+### AWS-specific: GWLB vs ENI endpoint selection
+
+Per `vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-amazon-web-services.md` and `cbc-zero-trust-security-aws-workloads-zscaler-cloud-connector.md`, AWS deployments choose between two traffic-redirect mechanisms:
+
+- **Gateway Load Balancer (GWLB)** — preferred for multi-VPC fleets where AWS GWLB handles transparent traffic insertion. Spoke VPCs route via VPC Endpoint to a Gateway Load Balancer pointed at the CC ENI.
+- **ENI / route-table modification** — direct route-table updates pointing 0.0.0.0/0 (or specific CIDRs) at the CC's service ENI. Simpler for single-VPC deployments; doesn't scale well across many spoke VPCs.
+
+This is an AWS-specific topology choice with no Azure equivalent (Azure deployments use UDRs to ILB frontend). Choice impacts blast radius of route changes, multi-AZ failover behavior, and how new spoke VPCs onboard. See [`./aws-deployment.md`](./aws-deployment.md) for the full deployment context.
+
 ### Rule evaluation order
 
 First-match-wins top-down, same as ZIA URL Filter. Disabled rules skip without losing position.
