@@ -198,7 +198,7 @@
   // here instead of via per-page <script> tags so a single update to
   // nav.js / site-drawer.js propagates everywhere.
   const drawerScript = document.createElement('script');
-  drawerScript.src = prefix + 'site-drawer.js';
+  drawerScript.src = prefix + 'site-drawer.js?v=2';
   drawerScript.async = true;
   document.body.appendChild(drawerScript);
 })();
