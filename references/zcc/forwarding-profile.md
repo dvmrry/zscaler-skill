@@ -257,3 +257,4 @@ This is a **third tunnel configuration mode** alongside the traditional two-tunn
 - Where ZIA picks up after ZCC has decided to forward — [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md)
 - ZPA client-side segment matching (runs on ZCC) — [`../zpa/app-segments.md`](../zpa/app-segments.md)
 - Cross-product policy evaluation — [`../shared/policy-evaluation.md`](../shared/policy-evaluation.md)
+- Wire-format schema for `snapshot/zcc/forwarding-profiles.json` (jq queries, profile-ID join to web-policy) — [`./snapshot-schema.md`](./snapshot-schema.md)

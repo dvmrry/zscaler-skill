@@ -127,7 +127,7 @@ Currently Layer 2 is a known gap because the public skill ships an empty `snapsh
 
 1. The skill should **read snapshot/ first** for any tenant-specific question — `SKILL.md` already includes a "Check for a snapshot first" preamble.
 2. Reasoning docs cite `snapshot/<product>/<resource>.json` paths inline (we do this today as aspirational citations; they become real once the file populates).
-3. **Schema docs** (`references/zia/snapshot-schema.md`, etc.) are deferred until first-tenant-run — the help-doc layer describes Zscaler-API response shapes, but the actual snapshot JSON shape needs to be sampled from real output before we write schema reasoning docs. See `PLAN.md § 4. Snapshot schema docs`.
+3. **Schema docs** (`references/zia/snapshot-schema.md`, `references/zpa/snapshot-schema.md`, `references/zcc/snapshot-schema.md`, `references/zidentity/snapshot-schema.md`) are **written** (drafted from Postman collection + SDK + TF provider; confidence: medium). Validate and bump to `high` after a real fork-admin run produces tenant output. The resource-level reasoning docs now cross-link to them.
 
 ## Where SME knowledge will eventually intersect
 

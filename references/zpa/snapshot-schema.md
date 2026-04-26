@@ -56,8 +56,9 @@ API: `GET /zpa/mgmtconfig/v1/admin/customers/{customerId}/application`
 
 ```json
 {
-  "totalCount": "350",
-  "totalPages": "4",
+  "currentCount": "<long>",               // items in this page
+  "totalCount": "<long>",                 // total items across all pages
+  "totalPages": "<integer>",
   "list": [
     {
       "id": "216196257331358000",         // string
@@ -68,7 +69,7 @@ API: `GET /zpa/mgmtconfig/v1/admin/customers/{customerId}/application`
       "modifiedTime": "...",
       "modifiedBy": "...",
 
-      // The segment-group binding
+      // Segment-group binding
       "segmentGroupId": "216196257331358001",
       "segmentGroupName": "Engineering",
 
@@ -76,49 +77,106 @@ API: `GET /zpa/mgmtconfig/v1/admin/customers/{customerId}/application`
       "domainNames": ["wiki.internal", "*.wiki.internal"],
       "fqdnDnsCheck": true,
 
-      // Port ranges — DUAL FORMAT
-      "tcpPortRanges": ["443", "443"],     // pairs format: [from, to, from, to, ...]
-      "tcpPortRange": [                    // OR object format
+      // Port ranges — DUAL FORMAT (both present simultaneously)
+      "tcpPortRanges": ["443", "443"],     // flat pairs: [from, to, from, to, ...]
+      "tcpPortRange": [                    // object format
         { "from": "443", "to": "443" }
       ],
       "udpPortRanges": [],
       "udpPortRange": [],
 
-      // Cross-product hooks
-      "inspectTrafficWithZia": false,      // ZIA→ZPA forwarding
-      "useInDrMode": false,                // SIPA Direct (DR)
+      // Protocol filters (layer-4 protocol allowlist within port range)
+      "tcpProtocols": [],                  // e.g. ["LDAP", "SMB"] — empty = all TCP
+      "udpProtocols": [],
 
-      // Match modes
+      // Cross-product hooks
+      "inspectTrafficWithZia": false,      // ZIA inline inspection of ZPA traffic
+      "useInDrMode": false,                // SIPA Direct / DR mode
+
+      // Match and bypass modes
       "bypassType": "NEVER",               // NEVER, ALWAYS, ON_NET
       "bypassOnReauth": false,
-      "icmpAccessType": "PING",            // PING / NONE
-      "tcpKeepAlive": "0",                 // string-as-bool: "0" or "1"
-      "selectConnectorCloseToApp": false,  // ForceNew in TF
+      "matchStyle": "EXCLUSIVE",           // EXCLUSIVE (default) or INCLUSIVE (Multimatch)
+      "icmpAccessType": "PING",            // PING, PING_TRACEROUTING, NONE
+      "tcpKeepAlive": "0",                 // ⚠️ SEE DISCREPANCY NOTE — string-as-bool per TF, integer per Postman
+      "selectConnectorCloseToApp": false,  // ForceNew in TF — destroy-recreate on change
       "isCnameEnabled": true,
-      "doubleEncrypt": false,              // mutually-exclusive with Browser Access / SIPA
+      "doubleEncrypt": false,
 
-      // Access type variants — Browser Access / PRA / AppProtection
-      "clientlessApps": [],                // Browser Access apps in this segment
-      "praApps": [],                       // Privileged Remote Access consoles
-      "inspectionApps": [],                // AppProtection-enabled apps
+      // AppProtection / ADP flags
+      "adpEnabled": false,                 // Application Data Protection
+      "apiProtectionEnabled": false,       // API protection (AppProtection inline WAF)
+      "autoAppProtectEnabled": false,      // auto-enroll in AppProtection
+
+      // DR / completeness
+      "isIncompleteDRConfig": false,       // true if DR config references are missing
+      "weightedLoadBalancing": false,      // weighted connector selection instead of default strategy
+
+      // Access type variants — shapes documented in sub-type section below
+      "clientlessApps": [],                // Browser Access apps; see sub-type schema
+      "praApps": [],                       // PRA consoles; see sub-type schema
+      "inspectionApps": [],                // AppProtection apps; see sub-type schema
+
+      // Unified app config object (write path for BA/PRA/Inspect in one call)
+      "commonAppsDto": {
+        "appsConfig": [],                  // see sub-type schema
+        "deletedBaApps": [],               // IDs of BA apps removed in this update
+        "deletedInspectApps": [],
+        "deletedPraApps": []
+      },
 
       // Server / connector binding
       "serverGroups": [
-        { "id": "...", "name": "...", "configSpace": "DEFAULT" }
+        {
+          "id": "...",
+          "name": "...",
+          "configSpace": "DEFAULT",        // DEFAULT or SIEM
+          "enabled": true,
+          "dynamicDiscovery": false,
+          "weight": 0                      // for weighted load balancing
+        }
       ],
 
-      // SAML / SCIM / posture cross-criteria
-      "configSpace": "DEFAULT",            // or MICROTENANT
-      "sourceIpAnchored": false,           // SIPA flag — see references/shared/source-ip-anchoring.md
+      // Config scope
+      "configSpace": "DEFAULT",            // DEFAULT, MICROTENANT, or SIEM
+      "ipAnchored": false,                 // SIPA flag — confirmed wire name (NOT sourceIpAnchored)
 
       // Microtenant
       "microtenantId": null,
       "microtenantName": null,
+      "sharedMicrotenantDetails": {
+        "sharedFromMicrotenant": { "id": null, "name": null },
+        "sharedToMicrotenants": []         // [{id, name}] list
+      },
 
       // Health
-      "healthCheckType": "DEFAULT",
-      "healthReporting": "ON_ACCESS",
-      "passiveHealthEnabled": true
+      "healthCheckType": "DEFAULT",        // DEFAULT, NONE
+      "healthReporting": "ON_ACCESS",      // ON_ACCESS, CONTINUOUS, NONE
+      "passiveHealthEnabled": true,
+      "appRecommendationId": null,
+      "defaultIdleTimeout": null,
+      "defaultMaxAge": null,
+
+      // Inconsistency tracking — populated when referenced resources are missing/deleted
+      "inconsistentConfigDetails": {
+        "application": [],                 // [{name, reason}] — broken app references
+        "segmentGroup": [],
+        "appConnectorGroup": [],
+        "baCertificate": [],
+        "branchConnectorGroup": [],
+        "cloudConnectorGroup": [],
+        "idp": [],
+        "location": [],
+        "machineGroup": [],
+        "postureProfile": [],
+        "samlAttributes": [],
+        "scimAttributes": [],
+        "serverGroup": [],
+        "sraApplication": [],
+        "trustedNetwork": [],
+        "userPortal": [],
+        "workloadTagGroup": []
+      }
     }
   ]
 }
@@ -127,11 +185,136 @@ API: `GET /zpa/mgmtconfig/v1/admin/customers/{customerId}/application`
 Key fields with rule-evaluation impact:
 - `domainNames` — controls FQDN match (specificity-wins per `app-segments.md`)
 - `bypassType` — `NEVER` / `ALWAYS` / `ON_NET`. Cross-evaluation with Multimatch.
+- `matchStyle` — `EXCLUSIVE` (default) or `INCLUSIVE` (Multimatch). Must be consistent across overlapping segments.
 - `inspectTrafficWithZia` — opts segment into ZIA-content-inspection of ZPA traffic.
-- `sourceIpAnchored` — opts segment into SIPA flow.
+- `ipAnchored` — SIPA flag (confirmed wire field name; SDK/TF uses `source_ip_anchored` which maps to `ipAnchored` on the wire).
 - `clientlessApps` — Browser Access apps; mutually exclusive with SIPA/Double-Encrypt/Multimatch.
 - `praApps` — PRA consoles; mutually exclusive with Multimatch.
 - `inspectionApps` — AppProtection apps; mutually exclusive with Multimatch.
+- `inconsistentConfigDetails` — non-empty arrays indicate orphaned references (deleted IdP, missing cert, etc.). A segment with non-empty entries here may behave unexpectedly.
+
+### ⚠️ Discrepancies — needs tenant verification
+
+These fields have conflicting type or name information across sources. Flag these for the verifying agent:
+
+| Field | Postman says | TF provider / snapshot-schema says | Verify |
+|---|---|---|---|
+| `tcpKeepAlive` | `<integer>` (type hint only — Postman doesn't show real value) | `"0"` / `"1"` string-as-bool (TF `:228-230`) | Is the wire value a quoted string or a bare integer? |
+| `configSpace` | `DEFAULT` / `SIEM` seen in sub-objects | `DEFAULT` / `MICROTENANT` at segment top level | Is `SIEM` valid at segment top level, or only in serverGroups/appResource embeds? |
+
+Resolved discrepancies (confirmed from Postman GET response body):
+- **`ipAnchored`** is the correct wire field name for SIPA. `sourceIpAnchored` does NOT appear in GET responses. SDK/TF uses snake_case `source_ip_anchored` which maps to `ipAnchored` on the wire, not `sourceIpAnchored`.
+- **Pagination wrapper** has all four fields: `currentCount`, `totalCount`, `totalPages`, `list`.
+
+### Sub-type schemas
+
+#### `clientlessApps[]` — Browser Access apps
+
+Each entry in a Browser Access segment:
+
+```json
+{
+  "id": "<long>",
+  "name": "...",
+  "domain": "portal.example.com",          // the BA FQDN
+  "applicationPort": 443,
+  "applicationProtocol": "HTTPS",          // HTTPS, HTTP, RDP, SSH
+  "certificateId": "<long>",
+  "certificateName": "...",
+  "cname": "...",
+  "path": "/",
+  "localDomain": "...",
+  "description": "...",
+  "enabled": true,
+  "hidden": false,
+  "portal": false,
+  "trustUntrustedCert": false,
+  "allowOptions": false,
+  "microtenantId": null,
+  "microtenantName": null,
+  "appId": "<long>",                       // back-reference to parent segment
+  "appResource": { /* full segment object — same shape as top-level */ },
+  "inconsistentConfigDetails": { /* same 17-array shape as top-level */ }
+}
+```
+
+#### `inspectionApps[]` — AppProtection apps
+
+```json
+{
+  "id": "<long>",
+  "name": "...",
+  "domain": "api.example.com",
+  "applicationPort": 443,
+  "applicationProtocol": "AUTO",           // AUTO, HTTPS, HTTP
+  "protocols": ["LDAP", "KERBEROS"],       // layer-7 protocol hints for inspection
+  "certificateId": "<long>",
+  "certificateName": "...",
+  "description": "...",
+  "enabled": true,
+  "trustUntrustedCert": false,
+  "microtenantId": null,
+  "microtenantName": null,
+  "appId": "<long>",
+  "appResource": { /* full segment object */ },
+  "inconsistentConfigDetails": { /* 17-array shape */ }
+}
+```
+
+#### `praApps[]` — Privileged Remote Access consoles
+
+```json
+{
+  "id": "<long>",
+  "name": "...",
+  "domain": "rdp-target.example.com",
+  "applicationPort": 3389,
+  "applicationProtocol": "RDP",            // RDP, SSH, HTTPS, VNC
+  "connectionSecurity": "VM_CONNECT",      // VM_CONNECT, TLS
+  "certificateId": "<long>",
+  "certificateName": "...",
+  "description": "...",
+  "enabled": true,
+  "hidden": false,
+  "microtenantId": null,
+  "microtenantName": null,
+  "appId": "<long>",
+  "appResource": { /* full segment object */ },
+  "inconsistentConfigDetails": { /* 17-array shape */ }
+}
+```
+
+#### `commonAppsDto.appsConfig[]` — unified write-path for all app types
+
+Used when creating/updating BA, PRA, and AppProtection apps in a single API call. `appTypes[]` discriminates which variant each entry configures:
+
+```json
+{
+  "name": "...",
+  "domain": "...",
+  "applicationPort": 443,
+  "applicationProtocol": "HTTPS",
+  "connectionSecurity": "TLS",             // PRA only
+  "protocols": [],                         // AppProtection only
+  "appTypes": ["SECURE_REMOTE_ACCESS"],    // BA: "BROWSER_ACCESS", PRA: "SECURE_REMOTE_ACCESS", Inspect: "INSPECT"
+  "baAppId": null,                         // set if updating existing BA app
+  "praAppId": null,                        // set if updating existing PRA app
+  "inspectAppId": null,                    // set if updating existing Inspect app
+  "certificateId": null,
+  "certificateName": null,
+  "cname": null,
+  "path": "/",
+  "localDomain": null,
+  "description": null,
+  "enabled": true,
+  "hidden": false,
+  "portal": false,
+  "allowOptions": false,
+  "trustUntrustedCert": false,
+  "adpEnabled": false,
+  "appId": null                            // parent segment ID
+}
+```
 
 ### Common jq queries
 
@@ -140,18 +323,27 @@ Key fields with rule-evaluation impact:
 jq '.list[] | {name, domains: .domainNames, bypass: .bypassType}' snapshot/zpa/app-segments.json
 
 # Segments with Browser Access enabled
-jq '.list[] | select((.clientlessApps | length) > 0) | {name, ba_apps: .clientlessApps[].name}' snapshot/zpa/app-segments.json
+jq '.list[] | select((.clientlessApps | length) > 0) | {name, ba_apps: [.clientlessApps[].name]}' snapshot/zpa/app-segments.json
 
-# Segments with SIPA enabled
-jq '.list[] | select(.sourceIpAnchored == true) | .name' snapshot/zpa/app-segments.json
+# Segments with SIPA enabled (confirmed wire field name: ipAnchored)
+jq '.list[] | select(.ipAnchored == true) | .name' snapshot/zpa/app-segments.json
 
 # Segments with PRA consoles
-jq '.list[] | select((.praApps | length) > 0) | {name, pra_consoles: .praApps[].name}' snapshot/zpa/app-segments.json
+jq '.list[] | select((.praApps | length) > 0) | {name, pra_consoles: [.praApps[].name]}' snapshot/zpa/app-segments.json
 
 # Segments with AppProtection enabled
-jq '.list[] | select((.inspectionApps | length) > 0) | {name, app_protection: .inspectionApps[].name}' snapshot/zpa/app-segments.json
+jq '.list[] | select((.inspectionApps | length) > 0) | {name, inspection_apps: [.inspectionApps[].name]}' snapshot/zpa/app-segments.json
 
-# Find segments matching an FQDN (specificity check)
+# Segments with inconsistency warnings (orphaned references)
+jq '.list[] | select(.inconsistentConfigDetails | to_entries | any(.value | length > 0)) | {name, issues: [.inconsistentConfigDetails | to_entries[] | select(.value | length > 0) | .key]}' snapshot/zpa/app-segments.json
+
+# Segments using weighted load balancing
+jq '.list[] | select(.weightedLoadBalancing == true) | .name' snapshot/zpa/app-segments.json
+
+# Segments in Multimatch (INCLUSIVE) mode
+jq '.list[] | select(.matchStyle == "INCLUSIVE") | .name' snapshot/zpa/app-segments.json
+
+# Find segments matching an FQDN
 jq --arg fqdn "wiki.internal" '.list[] | select(.domainNames | any(test($fqdn))) | {name, domains: .domainNames, bypass: .bypassType}' snapshot/zpa/app-segments.json
 ```
 

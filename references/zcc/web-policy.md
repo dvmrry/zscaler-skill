@@ -118,3 +118,4 @@ From `zscaler/zcc/web_policy.py`, all methods hang off `client.zcc.web_policy`:
 - Trusted Networks (distinct from On-Net policy) — [`./trusted-networks.md`](./trusted-networks.md)
 - ZCC API / wire format — [`./api.md`](./api.md)
 - ZIA device posture (cross-product hook via `zia_posture_config_id`) — not yet written up; tenant-specific
+- Wire-format schema for `snapshot/zcc/web-policy.json` (int-enum semantics, CSV-in-string fields, jq queries) — [`./snapshot-schema.md`](./snapshot-schema.md)

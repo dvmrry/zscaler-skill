@@ -253,3 +253,4 @@ Resolved while writing this doc:
 - Application segment matching (the stage that runs *before* access policy) — [`./app-segments.md`](./app-segments.md)
 - LSS access log schema — for observational validation of which rule matched — [`./logs/access-log-schema.md`](./logs/access-log-schema.md) — the `Policy` field carries the fired rule name.
 - Cross-product policy evaluation mental model — [`../shared/policy-evaluation.md`](../shared/policy-evaluation.md)
+- Wire-format schema for `snapshot/zpa/access-policy-rules.json` (ruleOrder-as-string, operand tree, 19-value objectType enum) — [`./snapshot-schema.md`](./snapshot-schema.md)

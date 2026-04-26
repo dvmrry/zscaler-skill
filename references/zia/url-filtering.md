@@ -231,3 +231,4 @@ Resolved while writing this doc:
 - SSL inspection interaction — [`./ssl-inspection.md`](./ssl-inspection.md)
 - Cross-product policy evaluation model — [`../shared/policy-evaluation.md`](../shared/policy-evaluation.md)
 - Log-based validation of a precedence claim (see SPL pattern `rule-hit-history`) — [`../shared/splunk-queries.md`](../shared/splunk-queries.md)
+- Wire-format schema for `snapshot/zia/url-filtering-rules.json` (rank ordering, action enum, jq queries) — [`./snapshot-schema.md`](./snapshot-schema.md)
