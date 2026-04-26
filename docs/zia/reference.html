@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ZIA · Reference</title>
-<link rel="stylesheet" href="../site.css?v=9">
+<link rel="stylesheet" href="../site.css?v=10">
 </head>
 <body>
 
@@ -510,29 +510,19 @@
     { anchor: 'pol-interactions',label: 'DNS is not in the web pipeline', html: 'DNS Control fires at DNS resolution time, before the HTTP request exists. URL Filtering fires on the HTTP request. A URL Filtering block on a domain does not prevent DNS resolution. Both modules must block for complete enforcement.' },
   ];
 
-  function positionNotes() {
-    const rail = document.getElementById('rail');
-    if (!rail || rail.offsetParent === null) return;
-    rail.innerHTML = '';
-    const railRect = rail.getBoundingClientRect();
-    const bodyEl = document.querySelector('.body');
-    if (!bodyEl) return;
-    const bodyTop = bodyEl.getBoundingClientRect().top + window.scrollY;
-
-    notes.forEach(function(n) {
-      const anchor = document.getElementById(n.anchor);
-      if (!anchor) return;
-      const anchorTop = anchor.getBoundingClientRect().top + window.scrollY;
-      const note = document.createElement('div');
-      note.className = 'margin-note';
-      note.style.top = (anchorTop - bodyTop + 4) + 'px';
-      note.innerHTML = '<strong>' + n.label + '</strong>' + n.html;
-      rail.appendChild(note);
+  function insertNotes() {
+    notes.forEach(function (n) {
+      const target = document.getElementById(n.anchor);
+      if (!target) return;
+      const next = target.nextElementSibling;
+      if (next && next.classList && next.classList.contains('inline-margin')) return;
+      const div = document.createElement('div');
+      div.className = 'inline-margin';
+      div.innerHTML = '<span class="label">' + n.label + '</span>' + n.html;
+      target.parentNode.insertBefore(div, target.nextSibling);
     });
   }
-
-  window.addEventListener('load', positionNotes);
-  window.addEventListener('resize', positionNotes);
+  window.addEventListener('DOMContentLoaded', insertNotes);
 </script>
 
 <script>
