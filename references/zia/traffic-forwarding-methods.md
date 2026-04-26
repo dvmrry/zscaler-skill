@@ -120,14 +120,18 @@ IPsec adds encryption overhead vs GRE. Use IPsec when:
 
 ### The VPN credential object — separate from the Location
 
-IPsec in ZIA uses a **VPN credentials object** (`TrafficVPNCredentials`) that is provisioned independently of the Location and then attached to it. Two credential types:
+IPsec in ZIA uses a **VPN credentials object** (`TrafficVPNCredentials`) that is provisioned independently of the Location and then attached to it. The `type` enum (per `traffic_vpn_credentials.py:46`) accepts four values:
 
-| Type | Identifier | IP requirement |
-|---|---|---|
-| `IP` | Source IP address | Static IP required; IP is the IKE peer identifier |
-| `UFQDN` | FQDN string (e.g., `branch@corp.example.com`) | No static IP required; FQDN is the IKE identifier |
+| Type | Identifier | IP requirement | Notes |
+|---|---|---|---|
+| `IP` | Source IP address | Static IP required; IP is the IKE peer identifier | Standard IPsec branch tunnel |
+| `UFQDN` | FQDN string (e.g., `branch@corp.example.com`) | No static IP required; FQDN is the IKE identifier | Dynamic-IP branch tunnel |
+| `CN` | X.509 Common Name | Cert-based identifier | Less common; legacy / cert-based deployments |
+| `XAUTH` | XAUTH challenge identifier | — | Legacy; appears in pre-modern-IKEv2 deployments |
 
-The credential carries the `pre_shared_key` (PSK) for IKEv1/IKEv2 PSK-based authentication. Certificate-based auth is not surfaced as a field in the SDK's Python model or TF schema — this is inferred from the type constraint (only `IP` and `UFQDN` are valid `type` values, and both use PSK). **IPsec certificate-based auth specifics are not confirmed by any vendored capture; Zscaler-authored IPsec configuration guides would supplement this.**
+`IP` and `UFQDN` are the standard production types. `CN` and `XAUTH` exist at the API level — operators may see them in snapshot JSON for legacy tenants but they're not the recommended path for new deployments. The Zscaler-authored deployment guides focus on `IP` and `UFQDN`.
+
+The credential carries the `pre_shared_key` (PSK) for IKEv1/IKEv2 PSK-based authentication. Certificate-based auth via the `CN` type is implied but specifics are not confirmed by any vendored capture; Zscaler-authored IPsec configuration guides would supplement this.
 
 Key SDK constraints (sourced from `traffic_vpn_credentials.py` and TF resource):
 - `type` and `fqdn`/`ip_address` are **immutable after creation** — changing either requires deleting and recreating the credential.

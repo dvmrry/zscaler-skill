@@ -135,6 +135,8 @@ A forwarding rule with `forward_method = ZPA` requires both `zpa_gateway` and `z
 
 **Auto ZPA Gateway:** A predefined gateway named `Auto ZPA Gateway` exists in every tenant. It cannot be deleted (Tier A — `validatePredefinedObject` in Go source). Its behavior and linkage to ZPA are managed by Zscaler; it is not operator-configurable.
 
+**`zpaBrokerRule` field on the wire:** the SDK model carries a `zpaBrokerRule` field on `ForwardingControlRule` (`forwarding_control_policy.py:52`). Related to ZPA broker integration. Will appear in snapshot JSON; not operator-configurable through the standard rule schema.
+
 ## Rule criteria
 
 Forwarding Control rules share the standard ZIA rule-criteria model. From the TF schema and Python SDK (Tier A):

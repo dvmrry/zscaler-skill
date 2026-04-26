@@ -98,6 +98,9 @@ Source (Tier A): `resource_zpa_server_group.go`... correction — `resource_zpa_
 **7. An App Segment can reference multiple Server Groups.**
 Source (Tier A): `application_segment.py` `add_segment` accepts `server_group_ids` as a list, transformed to `serverGroups: [{id: ...}, ...]`. The TF resource reflects this as a list type. Multiple Server Groups on one App Segment enables weighted load balancing — each group can carry a `weight` and `passive` flag via `update_weighted_lb_config`. Without explicit weighted LB config, behavior across multiple Server Groups is unspecified in source code (Tier D: likely round-robin or first-match, but unconfirmed).
 
+**8. Python SDK Server Group model omits `servers[]`.**
+Source (Tier A): `vendor/zscaler-sdk-python/zscaler/zpa/models/server_group.py` does not include a `servers` field. The model carries `applications`, `appConnectorGroups`, and the dynamicDiscovery flag, but explicit-server mode requires constructing the `servers` list manually — `request_format()` won't serialize it because the model doesn't know about it. The TF provider Go schema *does* model `servers`, so TF-managed deployments work fine. Python SDK callers using explicit-server mode must bypass `request_format()` and assemble the JSON body directly. Operationally: prefer dynamic discovery when using the Python SDK; use TF for explicit-server requirements.
+
 ## Cross-links
 
 - App Segments — domain names, port ranges, Multimatch INCLUSIVE/EXCLUSIVE, specificity matching: [`./app-segments.md`](./app-segments.md)

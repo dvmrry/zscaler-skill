@@ -178,6 +178,10 @@ Three top-level action types — `DECRYPT`, `DO_NOT_DECRYPT`, and `BLOCK`. The G
 
 Both `default_rule` (bool) and `predefined` (bool) are first-class SSL-rule fields. Built-in rules (Zscaler Recommended Exemptions, Microsoft 365 Click-to-Run, IoT Classifications) carry `predefined=true`; the terminal Inspect-All rule carries `default_rule=true`. Both are server-set and **echoed back on PUT** — don't strip them when updating rules programmatically. (`zscaler/zia/models/ssl_inspection_rules.py:123-125,208`.)
 
+**`accessControl` field** is read-only on predefined rules (`zscaler/zia/models/ssl_inspection_rules.py:51`; called out in TF provider CLAUDE.md as a strip-on-reorder field). It surfaces system-managed access permissions and should be treated as opaque on PUT — strip from update payloads when reordering predefined rules to avoid validation rejection.
+
+**Wire-casing ambiguity on `showEUN` / `showEUNATP`** — the Python SDK's `Action.request_format()` emits these uppercase, but the init code accepts mixed-case aliases (`show_eun`, `showEun`, `showEUN`, `showEunatp`). This suggests the API may **return** `showEunatp` on reads and **expect** `showEUNATP` on writes — a read/write asymmetry similar to the `tz` field in locations. Not currently confirmed against a live API. Use uppercase on writes; tolerate mixed-case on reads.
+
 ## Trust mechanics — what Zscaler presents to clients
 
 When inspecting, **the ZIA Public Service Edge acts as a short-lived intermediate CA** — it issues a per-connection certificate on demand for the requested application and signs it with the configured intermediate CA. (*Leading Practices Guide*, p.33.) The client receives a fresh leaf cert per session, signed by Zscaler's CA, valid for the destination's hostname/SAN. There is no long-lived "Zscaler-as-the-server" cert; each connection gets its own ephemeral leaf.

@@ -77,6 +77,11 @@ Protocols (AND) User Agent (AND) [Device Groups (OR) Devices] (AND) Device Trust
 - **Multiple URL Categories fields AND together.** You can add a second URL Categories field (`urlCategories2` at the API level) to require a URL to be in both categories simultaneously — useful for "Social Networking AND Gambling" style narrow targeting. Docs list the two fields without naming the operator; the SDK makes the AND semantic explicit (`zscaler/zia/url_filtering.py:204-205`). An operator who expects OR (the more common default) gets surprisingly narrow matches. See [`./api.md § URL Filtering rules`](./api.md#url-filtering-rules).
 - Locations and Location Groups OR together when set. If a location isn't in the selected location group, both need to match independently.
 
+**Extra SDK-visible criteria fields** not covered by the help-portal docs but visible in the API:
+
+- **`userRiskScoreLevels`** (`zscaler/zia/models/url_filtering_rules.py:79-81`) — list of enum values for user-risk-score-based rule scoping. Distinct from the `userRiskProfile` reference; this field gates rule match by current risk-score level (e.g., `LOW`/`MEDIUM`/`HIGH`/`CRITICAL`). Will appear in snapshot JSON for tenants using risk-based policy.
+- **`workloadGroups`** — present in the model + `reformat_params` list (`url_filtering.py:43`); referenced by ID. Workload Groups are a separate ZIA primitive; rules can scope by them. No dedicated reference doc yet.
+
 ### Actions
 
 Five user-configurable actions, per *Configuring the URL Filtering Policy* pp.10–14:
