@@ -193,4 +193,12 @@
     e.preventDefault();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
+
+  // Auto-load the site drawer (shared file-tree navigation). Loaded
+  // here instead of via per-page <script> tags so a single update to
+  // nav.js / site-drawer.js propagates everywhere.
+  const drawerScript = document.createElement('script');
+  drawerScript.src = prefix + 'site-drawer.js';
+  drawerScript.async = true;
+  document.body.appendChild(drawerScript);
 })();
