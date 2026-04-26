@@ -31,6 +31,8 @@ Almost every ZIA or ZPA answer leans on ZCC implicitly. "User X is blocked" migh
 | ZCC API — SDK surface, endpoint prefixes, wire-format keys (camelCase), method summary | [`./api.md`](./api.md) | draft |
 | **Snapshot schema** — what's in `snapshot/zcc/*.json`, mixed-case WebPolicy quirks, CSV-in-string fields, integer-coded enums (`zcc-01` through `zcc-06` territory), common jq queries | [`./snapshot-schema.md`](./snapshot-schema.md) | draft |
 | **Azure VM deployment** — ZCC inside AVD session hosts / Windows 365 Cloud PCs; multi-session limit; Azure Fabric IP bypass (`168.63.129.16`/`169.254.169.254`); IMDS migration (July 2025); Z-Tunnel 1.0 vs 2.0 RDP semantics; ZCC 4.3.2+ predefined Windows 365/AVD bypass | [`./azure-vm-deployment.md`](./azure-vm-deployment.md) | draft |
+| **Device posture profiles** — ZCC-side check types, 15-min eval cadence (configurable in 4.4+ Windows), Linux client cert paths, per-OS support matrix, profile assignment to forwarding/access policies | [`./device-posture.md`](./device-posture.md) | draft |
+| **Install-time parameters** — Windows / macOS / iOS / Android parameter reference; STRICTENFORCEMENT / POLICYTOKEN / MTAUTHREQUIRED / BCP / LWF driver flags; reinstall-required vs runtime-tunable; fail-close lockout gotchas | [`./install-parameters.md`](./install-parameters.md) | draft |
 
 ## What this hub does NOT cover yet
 

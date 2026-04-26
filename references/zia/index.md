@@ -37,6 +37,8 @@ Entry point for Zscaler Internet Access (ZIA) questions. Pick the topic that mat
 | ZIA API — endpoints, authentication, response shapes relevant to this skill | [`./api.md`](./api.md) | draft |
 | **Snapshot schema** — what's in `snapshot/zia/*.json`, top-level shapes, common jq queries, wire-format gotchas | [`./snapshot-schema.md`](./snapshot-schema.md) | draft |
 | **SaaS app + browser quirks** — root-cause catalog (cert pinning / CA-bundle pinning / auth-bypass / source-IP+CA / CDN bypass anti-pattern / QUIC / tenant-restriction silent break). Operator-facing; cross-links to ssl-inspection, tenant-profiles, source-ip-anchoring | [`./saas-app-quirks.md`](./saas-app-quirks.md) | draft |
+| **DNS Control** — separate policy module inside Firewall; three predefined rules (UCaaS One Click + ZPA Resolver for Locations + ZPA Resolver for Road Warrior with rule-order requirement); DoH handling; DNS tunnel detection; NROD 2–36 hour categorization latency | [`./dns-control.md`](./dns-control.md) | draft |
+| **Workload Groups** — policy-scoping primitive used by URL Filtering / Firewall / SSL Inspection / DLP / Traffic Capture rules; tag-based expression model (`tagType` + `operator` + tag key/value); SDK + TF-derived (help portal page non-functional) | [`./workload-groups.md`](./workload-groups.md) | draft |
 
 ## Log schemas
 

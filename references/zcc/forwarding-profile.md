@@ -160,6 +160,28 @@ A separate `FailOpenPolicy` object lives at the company level (one per tenant), 
 
 **Captive portal settings were migrated from tenant-global to App Profile scope** per the ZCC release notes and the *About Zscaler Client Connector App Profiles* help article. Older tenants may still have the setting at the Client Connector Support page (global); newer tenants configure it per App Profile (== per Web Policy). The FailOpenPolicy object this doc describes is the cross-tenant/global shape; per-profile captive-portal overrides live on the Web Policy's platform sub-policies (see [`./web-policy.md`](./web-policy.md)). When answering "why did this user get captive-portal-blocked and that user didn't on the same network", the answer is likely per-profile configuration, not the tenant-global FailOpenPolicy.
 
+### Failure taxonomy and version-specific overrides
+
+The *About Forwarding Profiles* and *Configuring Fail-Open Settings* help captures (`vendor/zscaler-help/about-forwarding-profiles.md`, `configuring-fail-open-settings-zscaler-client-connector.md`) document the failure taxonomy ZCC actually distinguishes — which matters because the FailOpenPolicy fields above interact with each scenario differently:
+
+| Failure condition | What ZCC does | Configurable via |
+|---|---|---|
+| **Captive portal detected** | Disables web security for `captivePortalWebSecDisableMinutes`; user completes portal auth; re-enforces | App Profile (newer tenants) or tenant-global FailOpenPolicy |
+| **Tunnel establishment timeout** | Retries `tunnelFailureRetryCount` times, then applies fail-open | FailOpenPolicy (`tunnelFailureRetryCount`, `enableFailOpen`) |
+| **Z-Tunnel mid-session failure** | Falls back per `tunnel2FallbackType` (Z-Tunnel 2.0 → 1.0 / direct / drop) — see [`./z-tunnel.md`](./z-tunnel.md) | Forwarding profile per-network-type action |
+| **PAC proxy unreachable** | If `enableWebSecOnProxyUnreachable=true`, web security still attempts via fallback; otherwise falls open or blocks per master toggle | FailOpenPolicy |
+| **ZIA Service Edge unreachable** | Failover to secondary edge automatic; if all edges unreachable, fail-open path engages | Tunnel-level + FailOpenPolicy |
+| **Trusted-network detection mismatch** | Switches active branch (trusted ↔ untrusted ↔ VPN-trusted) | `trustedNetworks` config; see [`./trusted-networks.md`](./trusted-networks.md) |
+
+**Version-specific behavior** (Tier A from the captures):
+
+- **Windows 4.5+** — additional fail-close enforcement options exposed for STRICTENFORCEMENT mode (see [`./install-parameters.md`](./install-parameters.md))
+- **macOS 4.6+** — captive portal detection improvements; per-app-profile overrides
+- **macOS 4.8+** — additional unified-tunnel handling; updated Z-Tunnel 2.0 fallback semantics
+- **Windows 4.4+** — device posture cadence configurable from default 15 minutes
+
+The captures don't enumerate every flag's introduction version; treat the above as the operationally-known cutoffs and verify against your tenant's deployed ZCC version when behavior diverges from the documented model.
+
 ## Fields Python SDK doesn't expose (Go-SDK-only)
 
 Cross-SDK audit (2026-04-24) against `vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go:36-135` surfaced fields the Python SDK doesn't model. These fields exist on the wire and are settable via direct API call or Go SDK:
