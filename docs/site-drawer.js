@@ -51,24 +51,26 @@
         transition: background 0.1s, color 0.1s;
       }
       #site-drawer-toggle:hover { background: #efeadc; color: #1a1814; }
-      #site-drawer-backdrop {
-        position: fixed; inset: 0; z-index: 300;
-        background: rgba(20, 16, 12, 0.32);
-        opacity: 0; pointer-events: none;
-        transition: opacity 0.2s ease;
-      }
-      #site-drawer-backdrop.open { opacity: 1; pointer-events: auto; }
       #site-drawer {
         position: fixed; top: 0; left: 0; bottom: 0;
         width: 320px; max-width: 80vw; z-index: 310;
         background: #f6f2e8;
         border-right: 1px solid #d8d0c0;
-        box-shadow: 0 0 24px rgba(0, 0, 0, 0.06);
         transform: translateX(-100%);
         transition: transform 0.22s ease;
         display: flex; flex-direction: column;
       }
       #site-drawer.open { transform: translateX(0); }
+      /* When the drawer is open, shift the entire document content
+         right by the drawer's width so nothing is occluded. */
+      body.drawer-open { padding-left: 320px; }
+      body { transition: padding 0.22s ease; }
+      @media (max-width: 720px) {
+        /* On very narrow viewports the drawer covers most of the
+           page anyway — fall back to overlay behaviour. */
+        body.drawer-open { padding-left: 0; }
+        #site-drawer { box-shadow: 0 0 24px rgba(0, 0, 0, 0.12); }
+      }
       .sd-header {
         display: flex; justify-content: space-between; align-items: center;
         padding: 0.75rem 1.25rem;
@@ -138,9 +140,6 @@
   }
 
   function createDrawer() {
-    const backdrop = document.createElement('div');
-    backdrop.id = 'site-drawer-backdrop';
-
     const drawer = document.createElement('aside');
     drawer.id = 'site-drawer';
     drawer.setAttribute('aria-label', 'Reference file tree');
@@ -159,10 +158,8 @@
     `;
 
     document.body.appendChild(drawer);
-    document.body.appendChild(backdrop);
 
     drawer.querySelector('.sd-close').addEventListener('click', close);
-    backdrop.addEventListener('click', close);
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape' && drawer.classList.contains('open')) close();
     });
@@ -170,20 +167,20 @@
     function open() {
       drawer.classList.add('open');
       drawer.setAttribute('aria-hidden', 'false');
-      backdrop.classList.add('open');
+      document.body.classList.add('drawer-open');
       try { localStorage.setItem(STATE_KEY, 'open'); } catch (_) {}
     }
     function close() {
       drawer.classList.remove('open');
       drawer.setAttribute('aria-hidden', 'true');
-      backdrop.classList.remove('open');
+      document.body.classList.remove('drawer-open');
       try { localStorage.setItem(STATE_KEY, 'closed'); } catch (_) {}
     }
     function toggle() {
       if (drawer.classList.contains('open')) close(); else open();
     }
 
-    return { drawer, backdrop, open, close, toggle };
+    return { drawer, open, close, toggle };
   }
 
   function wireToggleButton(els) {
