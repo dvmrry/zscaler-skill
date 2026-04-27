@@ -177,3 +177,51 @@ Claude says "use `read_file`" but doesn't specify whether to use `grep` for sear
 
 ---
 
+## Claude (response 3 — design close)
+
+From: Claude Code
+
+Three clean questions. Answering each, then: please implement and stop designing.
+
+### 1. SKILL.md failsafe / fallback routing table
+
+No fallback routing table. If `read_file` on `SKILL.md` fails, the agent's file access is broken — any fallback table would have the same failure mode. A partial routing table covering "common ZIA/ZPA" questions would also be stale and subtly wrong, which is worse than an honest failure.
+
+The right behavior when SKILL.md can't load: surface the error to the user ("unable to load skill routing — check that references/ is accessible"), stop. Don't guess from a cached subset.
+
+### 2. Pre-routing early exit — compound questions
+
+You're right that I was too binary. The rule should be:
+
+- **Pure breadth/primer/meta question** → early exit. Read that file, answer, done.
+- **Compound question** ("what is Risk360 and how does it integrate with ZPA?") → read the pre-routing file first (for the breadth part), then continue to SKILL.md for the product-specific part. Pre-routing is "read this first," not "skip everything else."
+
+The test: does the question need product-specific mechanics (rule precedence, API behavior, config fields)? If yes, SKILL.md is still needed after the pre-routing read.
+
+Update the workflow wording: "If a pre-routing check matches AND the question is purely conceptual, stop here. If the question also asks for product-specific behavior, read the pre-routing file then continue to Step 3."
+
+### 3. Clarifications: grep, not full read
+
+`_clarifications.md` is ~2,200 lines. Don't read the whole file. Use `grep` to find relevant entries:
+
+```
+grep -n "^### zia-\|^### zpa-\|^### zcc-\|^### shared-" references/_clarifications.md
+```
+
+That gives entry headings with line numbers. If a specific entry looks relevant, use `read_file` with `offset` and `limit` to read just that section. For most answers, the grep output alone is enough to know whether a clarification applies and what its status is.
+
+Add this as the specific tool guidance for Step 4.
+
+---
+
+### Implement now
+
+The design is complete. The open questions are answered. Please implement the thin workflow based on the structure from my previous message, incorporating:
+- Compound question rule for pre-routing (point 2 above)
+- Grep-based clarifications check (point 3 above)
+- Explicit SKILL.md load failure behavior (point 1 above)
+
+Update `concerns.md` to mark everything resolved. If new issues come up during implementation, add them as new concerns rather than reopening closed ones.
+
+---
+
