@@ -77,6 +77,8 @@ If the question is a **meta-question about the skill**:
 
 Use `read_file` to read `SKILL.md`. Follow its Question Routing table to identify the correct reference file(s). Use `read_file` to load those files.
 
+**If the question is about SDK or Terraform configuration:** Also use `read_file` to load `references/shared/terminology.md` to get field name mappings (e.g., `source_ip_anchor` for SIPA, `app_segment_group` for ASG). This ensures accurate field name references in configuration answers.
+
 **If SKILL.md fails to load:** Surface the error to the user ("unable to load skill routing — check that references/ is accessible") and stop. Do not guess from a cached subset.
 
 **If no match in SKILL.md:** Use `read_file` to load `references/_portfolio-map.md` and ask one clarifying question to narrow down the product domain.

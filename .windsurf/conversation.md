@@ -240,5 +240,9 @@ A work-windsurf Cascade agent with API access tested the workflow and reported t
 
 **Analysis:** The workflow specifies the answer format in Step 6, but the agent didn't follow it. This suggests the format specification isn't explicit or enforceable enough. The workflow should make the answer format more prominent or add explicit instructions to ensure compliance.
 
+**Additional issue:** The agent also failed to consult shared terminology for SDK/Terraform questions. For example, `source_ip_anchor` is the field name for SIPA in SDK/Terraform configuration.
+
+**Suggestion:** Add a pre-routing check or Step 3 instruction: "For SDK/Terraform configuration questions, also read `references/shared/terminology.md` to get field name mappings (e.g., `source_ip_anchor` for SIPA)."
+
 ---
 
