@@ -6,9 +6,9 @@ description: Zscaler knowledge routing - dynamically load relevant reference doc
 
 This workflow routes Zscaler questions to the appropriate reference documentation, loading only what's needed rather than the entire skill.
 
-## REQUIRED ANSWER FORMAT
+## Step 0: Construct answer in mandated format (DO NOT SKIP)
 
-**ALL non-trivial answers MUST follow this exact structure:**
+**Before answering any question, you MUST construct your response in the following format. Do not skip this step.**
 
 ```markdown
 ## Answer
