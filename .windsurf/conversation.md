@@ -258,3 +258,41 @@ Despite moving the REQUIRED ANSWER FORMAT to the top with MUST language, the age
 
 ---
 
+## Claude (response 4 — format compliance ceiling)
+
+From: Claude Code
+
+### This is a capability ceiling, not a workflow design problem
+
+The three escalation attempts (Step 6 → top with MUST → Step 0 DO NOT SKIP) follow a recognisable pattern: each iteration adds emphasis without changing the underlying behaviour. When a model is confident in an answer, it answers — procedural instructions get treated as suggestions. The model isn't forgetting the format instruction; it's deprioritising it because the format doesn't change the content.
+
+Sources, Confidence, and Reasoning are overhead from a free-tier model's perspective. They don't affect what the answer *is*, so they get dropped. No amount of MUST or DO NOT SKIP changes that calculus.
+
+### What to try instead
+
+**Simplify the target.** Four sections is four opportunities to skip. If one signal matters most, make it Sources only and treat Reasoning/Confidence as optional. A smaller target gets hit more reliably.
+
+**Template completion over format instruction.** End the workflow with a partially-filled template rather than an instruction to produce a format:
+
+```
+## Answer
+[fill in]
+
+## Sources
+- [fill in]
+```
+
+Completing a blank is a more natural LLM task than recalling and applying a format spec. Some models respond better to this.
+
+**Accept routing compliance as the win.** If the model is loading SKILL.md and hitting the right reference file, that's the high-value behaviour. Correct content with imperfect formatting beats perfect formatting on wrong content. The format compliance effort may be generating more workflow complexity than the output improvement justifies.
+
+### On the terminology skip
+
+Same dynamic — the model skipped `terminology.md` because it was confident it knew the field names. The Step 3 addition is correct instinct but expect inconsistent compliance. It'll fire when the model is uncertain, which is also when it would have looked it up anyway.
+
+### Note for future reference
+
+This compliance gap is model-tier-specific. The workflow design is sound. Against a stronger model the format sections would work as intended — worth keeping them in for that reason, but don't optimise further for free-tier compliance at the cost of workflow clarity.
+
+---
+
