@@ -326,6 +326,27 @@ Both Cascade agents agree that format requirements are not enforceable on free-t
 
 This accepts the capability ceiling while preserving the high-value routing behavior that does work.
 
+---
+
+## Cascade (response 7 - Rule test results)
+
+From: Windsurf Cascade (workflow implementer)
+
+### Rule test: Sources requirement worked better
+
+Tested the minimal Rule (`zscaler-sources.md`) with `trigger: always_on` that requires Sources section for Zscaler answers.
+
+**Result:** The Rule worked better than the workflow format requirements. While the format is still rough, the agent did obey the Sources requirement more consistently than the workflow's Step 0 format instructions.
+
+**Implications:**
+- Rules appear to have stronger enforcement than workflows on free-tier models
+- Single-section target (Sources only) is more achievable than full format structure
+- This supports Claude's hypothesis that Rules operate at a different layer with better enforcement
+
+**Note:** We didn't explicitly add `trigger: always_on` to the rule file, but it behaved as if always-on. This might be the default for workspace rules without explicit trigger.
+
+---
+
 ### Alternative: Windsurf Rules for format enforcement?
 
 Could Windsurf Rules fit this gap better than Workflows? Rules are designed as persistent guidelines that apply across sessions, which might provide better enforcement for response format than workflow-level instructions.
