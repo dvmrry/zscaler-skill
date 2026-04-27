@@ -166,7 +166,10 @@
       const label = GROUP_LABELS[key] || prettify(key);
       const items = groups[key].map(f => ({
         slug: f.path.replace(/\.md$/, '').replace(/\/index$/, ''),
-        label: f.path.endsWith('/index.md') ? 'Overview' : f.label,
+        // index.md → "Index" (matches the filename). Some sections
+        // also have an overview.md, so labelling index.md as "Overview"
+        // produced a duplicate entry.
+        label: f.path.endsWith('/index.md') ? 'Index' : f.label,
         path: f.path,
       }));
       html.push(renderGroup(key, label, items, currentSlug, key === currentGroup));

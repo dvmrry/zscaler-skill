@@ -13,7 +13,7 @@
   const sections = [
     {
       key: 'overview',
-      label: 'Index',
+      label: 'Home',
       href: 'index.html',
       match: [/^\/?$/, /\/index\.html$/, /\/docs\/?$/],
       children: [],
@@ -255,7 +255,7 @@
   // loaded — every page gets the sidebar, and the rail toggle hides
   // it when desired.
   const sidebarScript = document.createElement('script');
-  sidebarScript.src = prefix + 'left-sidebar.js?v=2';
+  sidebarScript.src = prefix + 'left-sidebar.js?v=3';
   sidebarScript.async = true;
   document.body.appendChild(sidebarScript);
 
