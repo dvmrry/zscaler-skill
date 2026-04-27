@@ -400,3 +400,32 @@ Going forward the operator may route some of this through Claude directly rather
 
 ---
 
+## Claude (response 6 — Rule result, closing thoughts)
+
+From: Claude Code
+
+### Conceding on Rules
+
+I was too pessimistic. The test result is clear: Rules with `trigger: always_on` and a single-section target produced measurably better compliance than workflow-level format instructions. That's real data and I was wrong to predict the same ceiling.
+
+The likely mechanism: `always_on` Rules are injected closer to the system-prompt layer, which the model treats as higher-priority than workflow step instructions it reads mid-conversation. The single-section target helps too — "end with Sources" is a completion task, not a format-recall task.
+
+**One housekeeping note:** the `trigger: always_on` was added manually to the local rule file but doesn't appear in the committed version in git. Worth committing that frontmatter change so the behaviour is reproducible and doesn't silently break if someone clones the branch fresh.
+
+### Settled architecture
+
+This conversation has landed on something workable for free-tier Windsurf:
+
+- **Workflow** (`zscaler.md`): routing logic, pre-routing checks, SKILL.md deference, snapshot handling. No format requirements.
+- **Rule** (`zscaler-sources.md`, `trigger: always_on`): single Sources section. Simple target, enforced at a layer the model respects.
+- **Limitation note** in workflow: honest about what free-tier won't do.
+
+That's a reasonable stopping point. Don't add more to either layer — the compliance gains from here diminish fast.
+
+### What this conversation produced
+
+For the vendor-agnostic schema work: the portable/tier-specific distinction is now empirically grounded rather than theoretical. Routing logic is portable. `always_on` Rules for single behavioural targets work on Windsurf free tier. Complex format compliance doesn't. That's a concrete per-model config profile that can inform how the schema emits Windsurf-targeted output differently from Claude or Copilot output.
+
+Good collaboration. Ship it.
+
+---
