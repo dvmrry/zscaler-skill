@@ -6,36 +6,7 @@ description: Zscaler knowledge routing - dynamically load relevant reference doc
 
 This workflow routes Zscaler questions to the appropriate reference documentation, loading only what's needed rather than the entire skill.
 
-## Step 0: Construct answer in mandated format (DO NOT SKIP)
-
-**Before answering any question, you MUST construct your response in the following format. Do not skip this step.**
-
-```markdown
-## Answer
-<direct answer in 1–3 sentences; lead with the conclusion>
-
-## Reasoning
-<why, citing the specific mechanics — rule order, match type, evaluation stage>
-
-## Sources
-- references/zia/url-filtering.md (§ section you used)
-- references/zpa/app-segments.md (§ section you used)
-- references/shared/policy-evaluation.md (§ section you used)
-- snapshot/zia/url-filtering-rules.json (rule IDs 42, 47 — only if snapshot was consulted)
-
-## Confidence
-high | medium | low — <one-line reason; e.g. "stub reference, inferred from Zscaler KB">
-```
-
-**For trivial factual questions** ("what's a URL category?"), you can drop Reasoning and Confidence, but you MUST include Sources.
-
-**When sources disagree:**
-1. Report `Confidence: medium` at most, sometimes `low` depending on severity
-2. Cite both sources in the `## Sources` section
-3. Name the divergence explicitly in `## Reasoning`
-4. If the divergence overlaps an open clarification in `references/_clarifications.md`, cite the clarification ID
-
----
+**Note:** This workflow targets routing compliance — loading the correct reference files via SKILL.md. Free-tier Windsurf agents may produce free-form answers without structured Sources/Reasoning/Confidence sections. That's acceptable. Correct content from the right source beats formatted content from memory.
 
 ## Step 1: Snapshot check
 
