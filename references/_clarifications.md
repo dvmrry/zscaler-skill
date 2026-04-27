@@ -101,6 +101,7 @@ Skim this before reading the full entries.
 | [`shared-04`](#shared-04-snapshot-auth-pattern) | Credentials via env vars; no `.env` convention |
 | [`shared-05`](#shared-05-snapshot-format) | Raw JSON per resource; no paraphrasing |
 | [`zpa-07`](#zpa-07-deception-policy-order-interaction) | Deception = separate Zscaler product; rules must fire before normal access rules to intercept attacker traffic to decoys |
+| [`zpa-15`](#zpa-15-machine-groups-file-path-correction) | Machine groups misclassified as ZIA in coverage audit — file moved to `references/zpa/machine-groups.md` |
 
 ### Partially resolved
 
@@ -121,7 +122,7 @@ Skim this before reading the full entries.
 
 ### Open
 
-`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zpa-04`, `log-03`, `shared-06`.
+`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-45`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `log-03`, `shared-06`, `shared-07`–`shared-16`, `zcc-08`–`zcc-75`.
 
 Partial / SDK-mined (resolved via code read or help-doc capture; full lab confirmation pending): `zcc-01`, `zcc-02`, `zcc-03`, `zcc-04`, `zcc-05`, `zcc-06`, `zcc-07`, **`log-04`** (field name + illustrative values confirmed via `web-log-schema.md`; full enum of `ruletype` / `reason` values still needs a tenant export). All six ZCC enum clarifications had their **datatype** (int vs string) resolved by the Go SDK cross-check on 2026-04-24; the integer-to-meaning mapping remains open for `zcc-01` through `zcc-04` and `zcc-06`.
 
@@ -981,6 +982,1254 @@ Possible explanations:
 2. **Profile validator is stale** and needs to be updated to accept API_PREDEFINED.
 
 **Resolves with**: lab test creating an `API_PREDEFINED` custom control and attempting to attach it to an inspection profile via the TF resource. If the API rejects it, explanation 1 holds; if accepted, the profile validator is stale. **Status**: open candidate. Threading deferred until lab confirms.
+
+---
+
+### zia-16 — Sublocation count cap per parent
+
+*Origin: `references/zia/sublocations.md` § Open questions*
+
+Whether a maximum number of sublocations per parent location is enforced by the API. No limit is documented in the vendor help doc, SDK source, or Terraform provider source.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (Ranges & Limitations for locations) OR lab test
+
+---
+
+### zia-17 — Sublocation name uniqueness scope
+
+*Origin: `references/zia/sublocations.md` § Open questions*
+
+Whether sublocation names must be unique within their parent location or across the entire ZIA tenant. No explicit statement found in any available vendor source.
+
+**Status**: open
+**Resolves with**: lab test (create two sublocations with the same name under different parents; observe whether the API rejects the second)
+
+---
+
+### zia-18 — Parent location deletion behavior with sublocations
+
+*Origin: `references/zia/sublocations.md` § Open questions*
+
+Whether the API blocks deletion of a parent location that has active sublocations, cascade-deletes them, or returns an error. Not documented in `understanding-sublocations.md`, SDK delete method, or Terraform provider.
+
+**Status**: open
+**Resolves with**: lab test
+
+---
+
+### zia-19 — Sublocation reparenting via `parent_id` update
+
+*Origin: `references/zia/sublocations.md` § Open questions*
+
+Whether the API enforces preconditions when a sublocation is promoted to top-level (removing its `parent_id`) — e.g., whether it blocks promotion if the location already has its own sublocations, given the 2-level depth limit.
+
+**Status**: open
+**Resolves with**: lab test
+
+---
+
+### zia-20 — Explicit depth-limit prohibition text
+
+*Origin: `references/zia/sublocations.md` § Open questions*
+
+Available vendor sources show only 2-level hierarchy examples; no explicit vendor statement prohibiting sublocations from themselves having sublocations was found. Matters for operators expecting a 3-level hierarchy.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (Ranges & Limitations for locations)
+
+---
+
+### zia-21 — Time interval DST handling
+
+*Origin: `references/zia/time-intervals.md` § Open questions*
+
+Whether `startTime`/`endTime` minute-offset values are evaluated against the location's configured timezone with DST applied (so a 9:00 AM rule stays at 9:00 AM local time year-round), or against a fixed UTC offset. Not documented in any available vendor source.
+
+**Status**: open
+**Resolves with**: lab test (set an interval at a DST boundary; observe behavior before/after transition) OR support ticket
+
+---
+
+### zia-22 — Tenant cap on `/timeIntervals` objects
+
+*Origin: `references/zia/time-intervals.md` § Open questions*
+
+Whether a maximum count of user-created time interval objects exists at the tenant level. No limit stated in the help portal, SDK source, or Terraform provider.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (Ranges & Limitations for policy objects)
+
+---
+
+### zia-23 — Terraform `zia_time_interval` resource
+
+*Origin: `references/zia/time-intervals.md` § Open questions*
+
+No `zia_time_interval` resource block exists in the ZIA Terraform provider. Whether this surface is planned, intentionally excluded, or available only via the ZIA API is not confirmed from available provider source.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (provider changelog or GitHub issues for terraform-provider-zia)
+
+---
+
+### zia-24 — Midnight-spanning time intervals
+
+*Origin: `references/zia/time-intervals.md` § Open questions*
+
+Whether `endTime < startTime` is accepted by the API to represent windows that cross midnight (e.g., 11 PM to 1 AM), or whether two separate objects are required. The Go SDK struct uses plain `int` with no visible constraint.
+
+**Status**: open
+**Resolves with**: lab test
+
+---
+
+### zia-25 — Predefined objects in `/timeIntervals`
+
+*Origin: `references/zia/time-intervals.md` § Open questions*
+
+Whether fixed predefined time interval objects (analogous to the `/timeWindows` catalog's "Work hours" and "Weekends" entries) also exist in the `/timeIntervals` endpoint, or whether `/timeIntervals` is entirely user-managed.
+
+**Status**: open
+**Resolves with**: tenant snapshot (list `/timeIntervals` on a fresh or known-clean tenant)
+
+---
+
+### zia-26 — Rule label names in audit log entries
+
+*Origin: `references/zia/rule-labels.md` § Open questions*
+
+Whether label names appear in ZIA admin audit log entries for rule create/update operations. Vendor help and SDK sources describe labels as UI/API metadata only; no audit log schema including label names was found in reviewed sources.
+
+**Status**: open
+**Resolves with**: tenant snapshot (inspect audit log entries for a rule update that adds a label)
+
+---
+
+### zia-27 — Rule label name field constraints
+
+*Origin: `references/zia/rule-labels.md` § Open questions*
+
+Character-set restrictions and maximum length on the `name` field. Not documented in the SDK model, vendor help, or Terraform provider source; the TF doc only marks the field as Required (String).
+
+**Status**: open
+**Resolves with**: lab test OR zscaler doc not yet read (Ranges & Limitations)
+
+---
+
+### zia-28 — Rule label name uniqueness enforcement
+
+*Origin: `references/zia/rule-labels.md` § Open questions*
+
+Whether `name` must be unique within a ZIA tenant and whether the API rejects duplicate names on create. Not confirmed from available sources.
+
+**Status**: open
+**Resolves with**: lab test
+
+---
+
+### zia-29 — Rule label `description` maximum length
+
+*Origin: `references/zia/rule-labels.md` § Open questions*
+
+Maximum allowed length for the `description` field. Not documented in the SDK model, vendor help, or Terraform provider source.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (Ranges & Limitations) OR lab test
+
+---
+
+### zia-30 — Rule label "duplicate" action semantics
+
+*Origin: `references/zia/rule-labels.md` § Open questions*
+
+The vendor help page lists "duplicate" as an action on the Rule Labels admin console page but does not describe what it copies — whether it duplicates label metadata only (a new unassociated label) or also copies all label-to-rule associations.
+
+**Status**: open
+**Resolves with**: lab test (duplicate a label with known rule associations; inspect both the new label and the original rules)
+
+---
+
+### zia-31 — `rule_label` filter on non-firewall endpoints
+
+*Origin: `references/zia/rule-labels.md` § Open questions*
+
+The `rule_label` query parameter is confirmed on `FirewallPolicyAPI.list_rules`. Whether equivalent filtering is available on other policy rule list endpoints (URL Filtering, Cloud App Control, etc.) is not confirmed.
+
+**Status**: open
+**Resolves with**: code read (inspect each policy list endpoint in the SDK for a `rule_label` parameter)
+
+---
+
+### zia-32 — Tenant cap on rule labels
+
+*Origin: `references/zia/rule-labels.md` § Open questions*
+
+Whether a documented maximum count of rule labels per ZIA tenant exists. Not found in vendor help or any SDK source.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (Ranges & Limitations)
+
+---
+
+### zia-33 — VSE cluster upgrade sequencing
+
+*Origin: `references/zia/vse-clusters.md` § Open questions*
+
+Whether maintenance-window auto-upgrades within a VSE cluster are applied as a rolling sequence (one VM at a time, preserving cluster capacity) or simultaneously across all member VMs. The vendor cluster doc describes auto-upgrade at the VM level but does not address cluster-level sequencing.
+
+**Status**: open
+**Resolves with**: operator experience OR support ticket
+
+---
+
+### zia-34 — VSE cluster VM drain-before-removal
+
+*Origin: `references/zia/vse-clusters.md` § Open questions*
+
+Whether removing a VM from an active VSE cluster gracefully drains in-flight connections before it leaves the LB pool, or resets sessions immediately. Not described in either VSE vendor doc.
+
+**Status**: open
+**Resolves with**: operator experience OR lab test
+
+---
+
+### zia-35 — VSE cluster log entry granularity
+
+*Origin: `references/zia/vse-clusters.md` § Open questions*
+
+Whether NSS/Admin Console analytics log entries for VSE cluster traffic carry a VM-level identifier, a cluster-level identifier, or both. Not addressed in the VSE cluster or VSE VM vendor docs.
+
+**Status**: open
+**Resolves with**: tenant snapshot (inspect NSS log entries for traffic routed through a VSE cluster) OR operator experience
+
+---
+
+### zia-36 — VSE cluster-scoped vs VM-scoped settings boundary
+
+*Origin: `references/zia/vse-clusters.md` § Open questions*
+
+Which policy settings are pushed cluster-scoped versus which require per-VM configuration. The Admin Console cluster page shows name, status, members, cluster IP, and IPSec termination settings but does not distinguish scope.
+
+**Status**: open
+**Resolves with**: operator experience OR zscaler doc not yet read
+
+---
+
+### zia-37 — VSE NAT topology support
+
+*Origin: `references/zia/vse-clusters.md` § Open questions*
+
+Whether 1:1 static NAT to public IPs is supported for VSE VMs in cluster mode, and whether the IPv6-in-NAT restriction that applies to PSE clusters also applies to VSE. VSE firewall/connectivity docs reference outbound connectivity but do not address inbound NAT topology.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR support ticket
+
+---
+
+### zia-38 — Public-cloud VSE cluster object semantics
+
+*Origin: `references/zia/vse-clusters.md` § Open questions*
+
+On Azure, AWS, and GCP, whether the Admin Console VSE Cluster object is a purely cosmetic grouping or carries behavioral configuration beyond what the cloud-native LB enforces. Not addressed in available sources.
+
+**Status**: open
+**Resolves with**: operator experience OR zscaler doc not yet read
+
+---
+
+### zia-39 — SCIM unknown `department` string handling
+
+*Origin: `references/zia/scim-provisioning.md` § Open questions*
+
+When ZIA receives a `department` attribute via SCIM that does not match any existing ZIA department object by name — whether ZIA auto-creates a new department object, silently drops the association, or returns an error to the IdP. Not described in `understanding-scim-zia.md` or any reviewed source.
+
+**Status**: open
+**Resolves with**: lab test OR support ticket
+**Blocks**: accurate characterization of SCIM provisioning failure modes for the `department` attribute
+
+---
+
+### zia-40 — SCIM `active=false` session-kill semantics
+
+*Origin: `references/zia/scim-provisioning.md` § Open questions*
+
+Whether `active=false` sent via SCIM immediately terminates active ZIA proxy sessions for the user, or only blocks future authentications (next connect/reauthentication). The vendor doc states `active=false` disables the user but does not describe session-kill semantics.
+
+**Status**: open
+**Resolves with**: lab test
+
+---
+
+### zia-41 — ZIA SCIM endpoint rate limits
+
+*Origin: `references/zia/scim-provisioning.md` § Open questions*
+
+Whether ZIA SCIM endpoints (`/Users`, `/Groups`, `/Bulk`) have distinct rate limits from the general ZIA API rate limits (20 GET/10s, 10 write/10s per Go SDK). No SCIM-specific rate limit guidance is published in available vendor sources.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR support ticket
+
+---
+
+### zia-42 — SCIM tenant-level object caps
+
+*Origin: `references/zia/scim-provisioning.md` § Open questions*
+
+Whether tenant-level caps exist on the number of SCIM-provisioned users and groups, distinct from the 128 groups/user-membership cap. Not stated in `understanding-scim-zia.md`; no Ranges & Limitations reference for SCIM object counts reviewed.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (Ranges & Limitations)
+
+---
+
+### zia-43 — Per-IdP `department` attribute mapping behavior
+
+*Origin: `references/zia/scim-provisioning.md` § Open questions*
+
+How Entra ID, Okta, PingFederate, and Google Workspace each map or omit the Enterprise User `department` field by default in their SCIM integrations with ZIA. Covered in per-IdP configuration guides referenced by the ZIA vendor doc but those guides were not captured.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (per-IdP SCIM setup articles for ZIA)
+
+---
+
+### zia-44 — ZIA SCIM sync log visibility
+
+*Origin: `references/zia/scim-provisioning.md` § Open questions*
+
+Whether the ZIA admin console has a SCIM Sync Logs page analogous to the ZPA "About SCIM Sync Logs" article. The ZIA vendor doc's related-articles section lists config and API articles but no dedicated sync log article for ZIA.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read
+
+---
+
+### zia-45 — Per-IdP SCIM push cadence
+
+*Origin: `references/zia/scim-provisioning.md` § Open questions*
+
+The exact sync frequency per IdP (Okta event-triggered vs scheduled batch, Entra ID provisioning cycle timings) for ZIA SCIM provisioning. IdP-controlled behavior not consolidated in any Zscaler vendor source.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (per-IdP SCIM configuration guides) — the IdP documentation is authoritative for cadence behavior
+
+---
+
+### zpa-11 — Machine group creation endpoint
+
+*Origin: `references/zpa/machine-groups.md` § Open questions*
+
+Whether a direct POST `/machineGroup` endpoint exists. Both SDKs expose only read operations; the vendor help doc implies groups are created through Admin Console provisioning key management and enrollment, with no API-level create operation confirmed.
+
+**Status**: open
+**Resolves with**: code read (check ZPA API reference for a POST `/machineGroup` path) OR operator experience
+
+---
+
+### zpa-12 — Machine group matching criteria
+
+*Origin: `references/zpa/machine-groups.md` § Open questions*
+
+Whether the machine group definition carries any matching criteria beyond provisioning key linkage — e.g., hostname pattern, OS type, or certificate subject on the group object itself. The Python and Go SDK models show no such fields; the vendor doc does not describe group-level matching attributes.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR operator experience
+
+---
+
+### zpa-13 — `MACHINE_GRP` in user-session access rules
+
+*Origin: `references/zpa/machine-groups.md` § Open questions*
+
+Whether `MACHINE_GRP` can scope user-session ZPA access rules (not just machine-tunnel rules). The vendor doc focuses exclusively on the machine tunnel use case. Not confirmed or denied in reviewed sources.
+
+**Status**: open
+**Resolves with**: lab test (create an access rule with `MACHINE_GRP` operand and attempt to match a user-session connection)
+
+---
+
+### zpa-14 — Machine group capacity limits
+
+*Origin: `references/zpa/machine-groups.md` § Open questions*
+
+Capacity limits: machine groups per tenant, provisioning keys per group, and enrolled machines per group. No limit figures found in vendor help doc, SDK, or Terraform provider source.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (Ranges & Limitations for ZPA) OR support ticket
+
+---
+
+### zpa-15 — Machine groups file path correction
+
+*Origin: `references/zpa/machine-groups.md` § classification*
+
+The coverage audit (`_archive/audits/2026-04-26.md`) listed machine groups under "ZIA uncovered." All sources confirm this is a ZPA construct: vendor URL is `help.zscaler.com/zpa/about-machine-groups`; all SDK and Terraform artifacts are ZPA-only.
+
+**Status**: resolved — 2026-04-27
+
+**Answer**: The file was moved from `references/zia/machine-groups.md` to `references/zpa/machine-groups.md` with frontmatter corrected to `product: zpa`. The audit entry was updated to reflect this. Machine groups are a ZPA construct exclusively.
+
+---
+
+### shared-07 — MCLS session-level stickiness
+
+*Origin: `references/shared/multi-cluster-load-sharing.md` § Session affinity*
+
+Whether the MCLS VIP pool provides per-flow stickiness (all packets of a single TCP flow land on the same service node), or whether a single flow can be distributed across nodes in different clusters. Impacts DLP large-object scanning and file reassembly accuracy.
+
+**Status**: open
+**Resolves with**: operator experience OR support ticket
+
+---
+
+### shared-08 — MCLS cross-cluster auth state replication
+
+*Origin: `references/shared/multi-cluster-load-sharing.md` § Identity caching*
+
+When a user authenticated at one service node is subsequently routed to a node in a different cluster within the MCLS pool, whether the CA re-query is transparent (no user re-prompt) or triggers a visible re-authentication event. Likely varies by auth method (IP surrogacy, cookie, Kerberos, SAML).
+
+**Status**: open
+**Resolves with**: operator experience OR support ticket
+
+---
+
+### shared-09 — MCLS VIP failure detection timeout
+
+*Origin: `references/shared/multi-cluster-load-sharing.md` § Failure modes*
+
+How long a ZCC or router-terminated GRE/IPSec tunnel takes to detect a full datacenter VIP failure before triggering failover or re-resolution. Not documented in MCLS or architecture vendor sources.
+
+**Status**: open
+**Resolves with**: operator experience OR support ticket
+**Blocks**: accurate failover SLA documentation for MCLS deployments
+
+---
+
+### shared-10 — Z-Tunnel 2.0 interaction with MCLS
+
+*Origin: `references/shared/multi-cluster-load-sharing.md` § Traffic distribution*
+
+The MCLS documentation lists VPN VIPs but does not specify Z-Tunnel 2.0 explicitly. Whether Z-Tunnel 2.0 stateful TLS multiplexing interacts differently with cross-cluster LB forwarding compared to GRE/IPSec is unconfirmed.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR operator experience
+
+---
+
+### shared-11 — Government cloud MCLS topology
+
+*Origin: `references/shared/multi-cluster-load-sharing.md` § Constraints*
+
+Whether `zscalergov` and `zspreview` clouds operate an equivalent MCLS model or a different cluster topology. Not documented in available sources.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR support ticket
+
+---
+
+### shared-12 — Azure AD CA IP evaluation frequency
+
+*Origin: `references/shared/m365-conditional-access.md` § Open questions*
+
+Whether Azure AD Conditional Access re-evaluates source IP on every HTTP request or only at token-issuance time. The SIPA config guide states post-auth traffic uses a token and "does not require being redirected through Source IP Anchoring," implying token-based evaluation, but the exact CA re-evaluation model is Microsoft's documentation responsibility.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (Microsoft Entra ID / Azure AD CA documentation) — Microsoft-side behavior
+
+---
+
+### shared-13 — Azure AD CAE interaction with SIPA
+
+*Origin: `references/shared/m365-conditional-access.md` § Open questions*
+
+Whether Azure AD Continuous Access Evaluation (CAE) in tenants with IP-binding policies imposes more-frequent re-authentication and what the implications are for SIPA-anchored connections. Not addressed in any Zscaler vendor source reviewed.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (Microsoft CAE documentation + Zscaler SIPA guidance)
+
+---
+
+### shared-14 — SIPA fallback when all connectors are unhealthy
+
+*Origin: `references/shared/m365-conditional-access.md` § Open questions*
+
+Whether the predefined `Fallback mode of ZPA Forwarding` ZIA forwarding rule routes SIPA-destined M365 traffic to PSE egress or drops it when all connectors in the designated SIPA connector group are unhealthy. The predefined rule exists (see `references/zia/forwarding-control.md`) but its exact fallback action for SIPA traffic is not source-confirmed.
+
+**Status**: open
+**Resolves with**: lab test OR operator experience
+**Blocks**: accurate disaster-recovery documentation for SIPA deployments
+
+---
+
+### shared-15 — App Connector public IP sync to Azure AD Named Locations
+
+*Origin: `references/shared/m365-conditional-access.md` § Open questions*
+
+Whether an automated mechanism exists (Zscaler-provided or third-party) to sync App Connector public IPs with Azure AD Named Locations when connector IPs change. Available vendor sources state this as operator responsibility only; no automation is documented.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR operator experience
+
+---
+
+### shared-16 — Azure AD Named Locations IP range cap
+
+*Origin: `references/shared/m365-conditional-access.md` § Open questions*
+
+The maximum number of IP ranges supported per Azure AD Named Location object. This is a Microsoft constraint, not Zscaler's, and was not captured in available sources.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (Microsoft Entra ID Named Locations documentation) — Microsoft-side constraint
+
+---
+
+### zcc-08 — ZCC 429 response body shape
+
+*Origin: `references/zcc/api-rate-limits.md` § Open questions*
+
+The exact JSON body shape of ZCC 429 responses — whether the body contains a `message`, `code`, or `Retry-After` field. The vendor doc (`legacy-understanding-rate-limiting-zcc.md`) describes only the `X-Rate-Limit-Retry-After-Seconds` header; response body is not documented.
+
+**Status**: open
+**Resolves with**: lab test (trigger a rate limit; inspect the response body)
+
+---
+
+### zcc-09 — Download endpoint rate limit pool scope
+
+*Origin: `references/zcc/api-rate-limits.md` § Open questions*
+
+Whether the 3 calls/day cap for download endpoints (`/downloadDevices`, `/downloadServiceStatus`, `/downloadDisableReasons`) is a combined pool across all three or a per-endpoint cap of 3 each. The vendor doc describes "3 API calls per day" for the group; the Python SDK comment implies per-endpoint; the scoping is not authoritatively confirmed.
+
+**Status**: open
+**Resolves with**: lab test OR support ticket
+
+---
+
+### zcc-10 — `X-Rate-Limit-Remaining` header presence on 2xx responses
+
+*Origin: `references/zcc/api-rate-limits.md` § Open questions*
+
+Whether `X-Rate-Limit-Remaining` is present on every ZCC response (proactive header) or only on 429 responses. The vendor doc describes the header in the context of rate-limit enforcement but does not state whether it appears on all 2xx responses.
+
+**Status**: open
+**Resolves with**: lab test
+
+---
+
+### zcc-11 — `/forceRemoveDevices` UDID batch size cap
+
+*Origin: `references/zcc/api-rate-limits.md` § Open questions*
+
+The maximum number of UDIDs accepted per `/forceRemoveDevices` or `/removeDevices` call. Not documented in the vendor help or SDK source; the SDK accepts an arbitrary list with no visible client-side cap.
+
+**Status**: open
+**Resolves with**: lab test OR zscaler doc not yet read
+
+---
+
+### zcc-12 — `RequestExecutor` ZCC rate-limit retry behavior
+
+*Origin: `references/zcc/api-rate-limits.md` § Open questions*
+
+Whether the `RequestExecutor` (shared OneAPI SDK transport) automatically reads and honors `X-Rate-Limit-Retry-After-Seconds` on the modern ZCC API path, or whether only `LegacyZCCClientHelper` implements the retry behavior. Not confirmed from available SDK source.
+
+**Status**: open
+**Resolves with**: code read (inspect `RequestExecutor` in the Python SDK for rate-limit header handling)
+
+---
+
+### zcc-13 — Rate limit bucket scope: per-IP vs per-credential
+
+*Origin: `references/zcc/api-rate-limits.md` § Open questions*
+
+Whether the 100 calls/hour limit applies per IP address only, or also per API credential pair — i.e., whether two different API keys from the same IP share the same bucket or maintain separate budgets. The vendor doc states "per IP address" with no mention of per-credential sub-buckets.
+
+**Status**: open
+**Resolves with**: lab test OR support ticket
+
+---
+
+### zcc-14 — macOS preference domain for ZCC managed preferences
+
+*Origin: `references/zcc/macos-install-customization.md` § Open questions*
+
+The exact preference domain for ZCC managed preferences (the CFBundleIdentifier string used in MDM `PayloadType` or a Jamf plist). The primary vendor doc ("Customizing ZCC with Install Options for macOS") redirected at capture time; the domain was not confirmed in the fallback source.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (primary macOS customization article or current Zscaler Jamf/Intune deployment guide)
+
+---
+
+### zcc-15 — System Extension profile timing on macOS
+
+*Origin: `references/zcc/macos-install-customization.md` § Open questions*
+
+Whether a reboot is required if a System Extension MDM profile arrives after the ZCC package install (rather than before or simultaneously). macOS behavior varies by version; not confirmed in captured sources.
+
+**Status**: open
+**Resolves with**: lab test OR operator experience
+
+---
+
+### zcc-16 — ZCC macOS uninstall script path
+
+*Origin: `references/zcc/macos-install-customization.md` § Open questions*
+
+The exact path to the Zscaler-provided uninstall script on macOS. The primary vendor doc was unavailable at capture time; path is typically inside the app bundle but not confirmed from available sources.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR operator experience
+
+---
+
+### zcc-17 — `launchTray = 0` vs system extension activation
+
+*Origin: `references/zcc/macos-install-customization.md` § Open questions*
+
+Whether `launchTray = 0` prevents only the tray UI (menu bar icon) or also prevents system extension activation and tunnel establishment. Not disambiguated in the parameters vendor doc.
+
+**Status**: open
+**Resolves with**: lab test OR zscaler doc not yet read
+
+---
+
+### zcc-18 — App Store ZCC MDM managed preferences
+
+*Origin: `references/zcc/macos-install-customization.md` § Open questions*
+
+Whether the App Store-distributed ZCC build accepts managed preferences via MDM (plist/managed-app-config) the same way as the `.pkg` build. Not addressed in captured vendor sources.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR operator experience
+
+---
+
+### zcc-19 — ZCC Team ID and System Extension bundle identifier
+
+*Origin: `references/zcc/macos-install-customization.md` § Open questions*
+
+The current Team ID and System Extension bundle identifier for the ZCC release in use. Version-specific; must be obtained from the installed package or current Zscaler Jamf/Intune deployment guide.
+
+**Status**: open
+**Resolves with**: operator experience (inspect installed package) OR zscaler doc not yet read (current deployment guide)
+
+---
+
+### zcc-20 — Full Disk Access PPPC requirement scope
+
+*Origin: `references/zcc/macos-install-customization.md` § Open questions*
+
+Whether Full Disk Access via PPPC (Privacy Preferences Policy Control) is required for all ZCC features or only for specific features such as endpoint DLP and certain posture checks. Not enumerated in captured vendor sources.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (macOS deployment guide)
+
+---
+
+### zcc-21 — Minimum supported macOS version
+
+*Origin: `references/zcc/macos-install-customization.md` § Open questions*
+
+An explicit vendor statement of the minimum supported macOS version for ZCC. Not found in captured vendor sources.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (ZCC release notes or system requirements article)
+
+---
+
+### zcc-22 — macOS update channel plist key
+
+*Origin: `references/zcc/macos-install-customization.md` § Open questions*
+
+Whether a portal-side plist key controls which macOS ZCC update channel (stable vs. early-access ring) is applied to a device. Not found in captured vendor sources.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read
+
+---
+
+### zcc-23 — System Extension behavior after `launchTray = 0` on macOS 13+
+
+*Origin: `references/zcc/macos-install-customization.md` § Open questions*
+
+The confirmed behavior of the ZCC System Extension after `launchTray = 0` on macOS 13+ with Login Items management restrictions, which can suppress system extensions at MDM policy boundaries. Not addressed in the vendor parameters doc.
+
+**Status**: open
+**Resolves with**: lab test (deploy with `launchTray = 0` on macOS 13+; verify tunnel state independently of UI presence) OR operator experience
+
+---
+
+### zcc-24 — Notification Templates schema and options
+
+*Origin: `references/zcc/end-user-notifications.md` § Open questions*
+
+The field schema for Notification Templates — supported languages, branding/customization options, and whether templates can be scoped per App Profile. The vendor help doc references "Configuring Notification Templates for Zscaler Client Connector" as a related article, but that article was not captured.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read ("Configuring Notification Templates for Zscaler Client Connector")
+
+---
+
+### zcc-25 — Per-App-Profile ZPA reauthentication interval override
+
+*Origin: `references/zcc/end-user-notifications.md` § Open questions*
+
+Whether the global "Show ZPA Reauthentication Notifications Every (In Minutes)" setting can be overridden per App Profile / Web Policy. Not found in the Web Policy SDK model fields or vendor App Profile help doc.
+
+**Status**: open
+**Resolves with**: code read (inspect WebPolicy SDK model for a reauthentication-interval field) OR lab test
+
+---
+
+### zcc-26 — AUP multi-language support
+
+*Origin: `references/zcc/end-user-notifications.md` § Open questions*
+
+Whether the ZCC AUP tab supports per-locale templates or only a single HTML blob. Not described in `configuring-acceptable-use-policy-zscaler-app.md`; the Notification Templates doc (not yet captured) may address this.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (Notification Templates doc)
+
+---
+
+### zcc-27 — Posture-failure OS-level notification
+
+*Origin: `references/zcc/end-user-notifications.md` § Open questions*
+
+Whether ZCC emits a distinct OS-level toast notification when a device posture check fails, or only updates in-app status. Not described in the vendor notification doc; posture failure is not listed as a toast trigger in reviewed sources.
+
+**Status**: open
+**Resolves with**: lab test (trigger a posture failure; observe OS notification center) OR zscaler doc not yet read
+
+---
+
+### zcc-28 — Certificate trust failure notification type
+
+*Origin: `references/zcc/end-user-notifications.md` § Open questions*
+
+Whether ZCC emits a ZCC-level OS toast or only a macOS/Windows system-level certificate error dialog when a certificate cannot be trusted. The event type is listed in the vendor notification overview but the exact UX is not confirmed.
+
+**Status**: open
+**Resolves with**: lab test OR operator experience
+
+---
+
+### zcc-29 — Notification delivery logging
+
+*Origin: `references/zcc/end-user-notifications.md` § Open questions*
+
+Whether "notification shown," "user dismissed," or "AUP acknowledged" events appear in any Zscaler cloud log feed (ZIA analytics, ZPA analytics, ZCC audit, NSS). Not addressed in any reviewed vendor source.
+
+**Status**: open
+**Resolves with**: tenant snapshot (inspect available log feeds for notification events) OR operator experience
+
+---
+
+### zcc-30 — Notification Templates localization fallback
+
+*Origin: `references/zcc/end-user-notifications.md` § Open questions*
+
+What language ZCC falls back to if no Notification Template matches the user's OS locale. Requires the Notification Templates doc (not yet captured).
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (Notification Templates doc)
+
+---
+
+### zcc-31 — Linux ZCC desktop notification support
+
+*Origin: `references/zcc/end-user-notifications.md` § Open questions*
+
+Whether ZCC on Linux emits OS-level desktop notifications (e.g., via libnotify / D-Bus), or only updates in-app status. Linux platform is referenced in Web Policy sub-policies but not addressed in the notification framework section.
+
+**Status**: open
+**Resolves with**: lab test (install ZCC on Ubuntu/RHEL; trigger a notification event) OR operator experience
+
+---
+
+### zcc-32 — ChromeOS notification behavior
+
+*Origin: `references/zcc/end-user-notifications.md` § Open questions*
+
+Whether ZCC on ChromeOS surfaces OS-level notifications and whether the Android notification framework applies. The vendor notification doc explicitly names only iOS and Android as unsupported, leaving ChromeOS status ambiguous.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR operator experience
+
+---
+
+### zcc-33 — App Supportability API endpoint
+
+*Origin: `references/zcc/support-options.md` § Open questions*
+
+The underlying API endpoint path and request schema for the four App Supportability toggles (Enable Support Access, Admin Email, Zscaler Ticket Submission, Hide Logging Control). The vendor help doc describes the UI flow only; no SDK service module was found for this surface in either Python or Go SDKs.
+
+**Status**: open
+**Resolves with**: code read (grep ZCC API reference for a supportability endpoint) OR zscaler doc not yet read
+
+---
+
+### zcc-34 — App Supportability default toggle states
+
+*Origin: `references/zcc/support-options.md` § Open questions*
+
+Whether "Enable Support Access" and "Hide Logging Control" are on or off for a newly provisioned tenant. The vendor doc describes configuration steps, not explicit default values; defaults were inferred but not confirmed.
+
+**Status**: open
+**Resolves with**: tenant snapshot (new tenant or factory-reset App Supportability config) OR operator experience
+
+---
+
+### zcc-35 — Mobile platform password gate field availability
+
+*Origin: `references/zcc/support-options.md` § Open questions*
+
+Whether `disable_password` appears in `iosPolicy` and `androidPolicy` sub-policy objects or only `logout_password` on mobile platforms. Available sources detail desktop sub-policies; mobile field enumeration is incomplete in reviewed sources.
+
+**Status**: open
+**Resolves with**: code read (inspect iOS/Android sub-policy SDK model fields)
+
+---
+
+### zcc-36 — Diagnostic bundle contents
+
+*Origin: `references/zcc/support-options.md` § Open questions*
+
+The specific files, directories, and log types included in the encrypted diagnostic bundle submitted via Report an Issue. The vendor doc states the bundle contains encrypted logs but does not enumerate contents; PII scope and redaction behavior are not documented.
+
+**Status**: open
+**Resolves with**: lab test (submit a Report an Issue bundle; inspect if decryptable) OR zscaler doc not yet read
+**Blocks**: accurate PII/data-handling guidance for support bundle submissions
+
+---
+
+### zcc-37 — Diagnostic bundle local staging path
+
+*Origin: `references/zcc/support-options.md` § Open questions*
+
+Whether ZCC stages the diagnostic bundle to a predictable local temp directory before uploading. Relevant to DLP controls that scan outbound email attachments.
+
+**Status**: open
+**Resolves with**: lab test OR operator experience
+
+---
+
+### zcc-38 — Admin event log for Report an Issue submissions
+
+*Origin: `references/zcc/support-options.md` § Open questions*
+
+Whether ZCC logs the time, device, and user when a Report an Issue form is submitted in any admin-side audit log, separately from the email delivery receipt. No admin-side submission log found in reviewed sources.
+
+**Status**: open
+**Resolves with**: tenant snapshot (inspect ZCC portal audit log after a Report an Issue submission)
+
+---
+
+### zcc-39 — ZCC Firefox integration on Linux
+
+*Origin: `references/zcc/firefox-integration.md` § Open questions*
+
+Whether ZCC Firefox integration applies to Linux at all. The vendor doc mentions only "macOS and Windows devices." Linux Firefox snap isolation on Ubuntu adds further complexity.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR operator experience
+
+---
+
+### zcc-40 — `security.enterprise_roots.enabled` and ZCC certificate trust
+
+*Origin: `references/zcc/firefox-integration.md` § Open questions*
+
+Whether ZCC's Firefox integration sets `security.enterprise_roots.enabled` (causing Firefox to inherit the OS certificate store), or whether certificate trust for ZCC's SSL Inspection CA requires a separate enterprise policy step.
+
+**Status**: open
+**Resolves with**: lab test (inspect Firefox preference state after enabling ZCC integration) OR operator experience
+
+---
+
+### zcc-41 — Exact Firefox preference keys ZCC writes
+
+*Origin: `references/zcc/firefox-integration.md` § Open questions*
+
+Which Firefox preference keys ZCC sets (e.g., `network.proxy.type`, `network.proxy.autoconfig_url`), and whether settings are delivered via a preference file write, `policies.json`, the Firefox preference API, or another mechanism. The vendor doc states only that ZCC "enables the Use system proxy settings feature in Firefox."
+
+**Status**: open
+**Resolves with**: lab test (inspect Firefox profile directory before and after enabling ZCC integration)
+
+---
+
+### zcc-42 — Firefox settings persistence across major version upgrades
+
+*Origin: `references/zcc/firefox-integration.md` § Open questions*
+
+Whether settings pushed by ZCC's Firefox integration mechanism survive a Firefox major-version update, or whether ZCC must re-apply them after each upgrade. Not addressed in available vendor sources; known risk with `prefs.js`-based settings.
+
+**Status**: open
+**Resolves with**: lab test OR operator experience
+
+---
+
+### zcc-43 — Firefox integration ZCC version scope
+
+*Origin: `references/zcc/firefox-integration.md` § Open questions*
+
+Whether Firefox integration behavior is consistent across ZCC 4.x releases, or whether specific ZCC versions introduced changes to the integration mechanism. No version-specific notes in the vendor doc.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (ZCC release notes) OR operator experience
+
+---
+
+### zcc-44 — AUP re-display on message change
+
+*Origin: `references/zcc/acceptable-use-policy.md` § Open questions*
+
+Whether updating the AUP message text in the portal causes ZCC to re-display the AUP to users who have already accepted, independently of the configured frequency setting. The vendor source describes frequency as the only display trigger; policy-change-triggered re-prompt is not mentioned.
+
+**Status**: open
+**Resolves with**: lab test OR zscaler doc not yet read
+
+---
+
+### zcc-45 — AUP Decline button behavior
+
+*Origin: `references/zcc/acceptable-use-policy.md` § Open questions*
+
+Whether the ZCC AUP screen includes a Decline button, and what happens if the user declines (tunnel blocked, logout forced, or nothing). The vendor source describes the screen as a gate users "must accept" but does not mention a decline path.
+
+**Status**: open
+**Resolves with**: lab test OR zscaler doc not yet read
+
+---
+
+### zcc-46 — AUP external URL redirect support
+
+*Origin: `references/zcc/acceptable-use-policy.md` § Open questions*
+
+Whether the AUP message field supports a URL redirect to an external policy page, or whether all content must be embedded in the HTML field in the ZCC Portal.
+
+**Status**: open
+**Resolves with**: lab test OR zscaler doc not yet read
+
+---
+
+### zcc-47 — AUP signature or checkbox confirmation variant
+
+*Origin: `references/zcc/acceptable-use-policy.md` § Open questions*
+
+Whether ZCC supports a signature-capture or checkbox-confirmation variant of the AUP rather than a simple Accept button. Not described in available vendor sources.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR lab test
+
+---
+
+### zcc-48 — AUP Accept-only vs Accept-and-Decline
+
+*Origin: `references/zcc/acceptable-use-policy.md` § Open questions*
+
+Whether the AUP can be configured to show both Accept and Decline as user choices, or whether it is Accept-only. Vendor source framing implies Accept-only; not explicitly confirmed.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR lab test
+
+---
+
+### zcc-49 — Minimum ZCC agent version for AUP display
+
+*Origin: `references/zcc/acceptable-use-policy.md` § Open questions*
+
+The minimum ZCC agent version required to display the AUP, and whether older agent versions silently skip the AUP or generate an error. Not documented in the vendor source or install-parameters docs.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (ZCC release notes)
+
+---
+
+### zcc-50 — AUP tab suppression when Notification Templates are active
+
+*Origin: `references/zcc/acceptable-use-policy.md` § Open questions*
+
+Whether the AUP Settings tab is suppressed when the tenant uses Notification Templates — analogous to the End User Notifications tab being hidden in that mode. The vendor source documents Notifications tab suppression but does not address the AUP tab specifically.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR lab test (enable Notification Templates; verify AUP tab visibility)
+
+---
+
+### zcc-51 — AUP accept/decline event logging
+
+*Origin: `references/zcc/acceptable-use-policy.md` § Open questions*
+
+Whether ZCC logs individual user AUP accept/decline events in the ZCC portal audit log, ZIA NSS streams, or elsewhere. Not described in the AUP vendor source or shared audit-logs reference.
+
+**Status**: open
+**Resolves with**: tenant snapshot (inspect available log feeds for AUP acknowledgment events) OR operator experience
+
+---
+
+### zcc-52 — ZCC AUP single-language-only message
+
+*Origin: `references/zcc/acceptable-use-policy.md` § Open questions*
+
+Whether ZCC can display the AUP in the user's device locale, or whether only a single-language message is supported. The AUP message field has no documented locale-variant mechanism. Overlaps with `zcc-26`.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (Notification Templates doc)
+
+---
+
+### zcc-53 — ZCC AUP HTML field size limit
+
+*Origin: `references/zcc/acceptable-use-policy.md` § Open questions*
+
+The confirmed message size limit for the ZCC AUP HTML field. The ZIA ranges-and-limitations doc records 15K–30K bytes for notification/AUP messages in a ZIA context; direct applicability to ZCC AUP is not explicitly confirmed.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (ZCC Ranges & Limitations) OR lab test
+
+---
+
+### zcc-54 — AUP behavior in machine-tunnel and kiosk scenarios
+
+*Origin: `references/zcc/acceptable-use-policy.md` § Open questions*
+
+Whether the AUP is shown before user login in machine-tunnel mode, and whether kiosk or shared-device deployments can bypass the AUP. Not documented in the AUP vendor source or install-parameters docs.
+
+**Status**: open
+**Resolves with**: lab test OR zscaler doc not yet read
+
+---
+
+### zcc-55 — AUP config change propagation cadence
+
+*Origin: `references/zcc/acceptable-use-policy.md` § Open questions*
+
+Whether changes to AUP frequency or message content take effect immediately on the next user connect, or only after the agent's next policy refresh cycle (normally on logout/restart).
+
+**Status**: open
+**Resolves with**: lab test OR operator experience
+
+---
+
+### zcc-56 — Default `logMode` for a new App Profile
+
+*Origin: `references/zcc/user-logging-controls.md` § Open questions*
+
+The out-of-box default log mode (Info, Warn, or another level) when a new App Profile is created in the ZCC Portal. The vendor help doc describes available log modes but does not state the factory default; the SDK model carries the field without a default annotation.
+
+**Status**: open
+**Resolves with**: tenant snapshot (create a fresh App Profile; inspect `logMode` value) OR operator experience
+
+---
+
+### zcc-57 — `logLevel` vs `logMode` distinction
+
+*Origin: `references/zcc/user-logging-controls.md` § Open questions*
+
+Whether `logLevel` and `logMode` on the `WebPolicy` object are the same concept with different naming conventions at API vs UI layers, or represent independent configuration dimensions. Both fields exist on the model; vendor help uses "log mode" only.
+
+**Status**: open
+**Resolves with**: code read (inspect WebPolicy model + portal behavior) OR lab test
+
+---
+
+### zcc-58 — `logFileSize` values and rotation semantics
+
+*Origin: `references/zcc/user-logging-controls.md` § Open questions*
+
+The exact units (bytes vs MB), allowed range, default value, and rotation behavior for the `logFileSize` field on `WebPolicy`. The field is untyped in the model; no enumeration of allowed values or rotation behavior was found.
+
+**Status**: open
+**Resolves with**: code read (inspect Go SDK for validation or enum) OR lab test
+
+---
+
+### zcc-59 — `enable_auto_log_snippet` field semantics
+
+*Origin: `references/zcc/user-logging-controls.md` § Open questions*
+
+The `enable_auto_log_snippet` parameter appears on `set_web_privacy_info` in the SDK service file but is absent from the `WebPrivacy` model class; its function is not described in any reviewed source.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR code read (search across SDK for usages of this parameter)
+
+---
+
+### zcc-60 — Per-platform ZCC log file paths
+
+*Origin: `references/zcc/user-logging-controls.md` § Open questions*
+
+The filesystem paths where ZCC writes log files on Windows, macOS, Linux, Android, and iOS. The vendor doc mentions that "Show/Hide Logs" reveals the path to the user but provides no canonical path table. Overlaps with `zcc-68`.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR operator experience
+
+---
+
+### zcc-61 — Windows Event Log integration
+
+*Origin: `references/zcc/user-logging-controls.md` § Open questions*
+
+Whether ZCC writes events to the Windows Application or System event log in addition to its own log file, and if so which Event IDs it uses. The `WindowsPolicy.flow_logger_config` SDK field hints at a Windows-specific logging subsystem but its relationship to Windows Event Log is not described. Overlaps with `zcc-69`.
+
+**Status**: open
+**Resolves with**: lab test (install ZCC on Windows; inspect Event Viewer) OR operator experience
+
+---
+
+### zcc-62 — macOS Unified Log subsystem for ZCC
+
+*Origin: `references/zcc/user-logging-controls.md` § Open questions*
+
+Whether ZCC emits entries to OSLog (subsystem identifier, category) in addition to its own log files on macOS. Not addressed in macOS vendor docs or the SDK model. Overlaps with `zcc-70`.
+
+**Status**: open
+**Resolves with**: lab test (`log stream --predicate 'subsystem contains "zscaler"'` with ZCC installed)
+
+---
+
+### zcc-63 — Linux syslog/journald integration
+
+*Origin: `references/zcc/user-logging-controls.md` § Open questions*
+
+Whether ZCC on Linux writes to the system journal (journald), and if so what facility/priority it uses. The `LinuxPolicy` SDK model has no log-configuration fields; Linux-specific logging behavior is not documented.
+
+**Status**: open
+**Resolves with**: lab test (install ZCC on Linux; inspect `journalctl` output)
+
+---
+
+### zcc-64 — iOS log access limitations
+
+*Origin: `references/zcc/user-logging-controls.md` § Open questions*
+
+Whether iOS platform sandboxing restricts ZCC from exposing a user-accessible log view, and what the actual iOS-specific capabilities are under the App Supportability toggle. No iOS-specific log caveats found in vendor help.
+
+**Status**: open
+**Resolves with**: lab test (iOS device) OR zscaler doc not yet read (iOS-specific ZCC deployment guide)
+
+---
+
+### zcc-65 — Diagnostic bundle file inventory
+
+*Origin: `references/zcc/user-logging-controls.md` § Open questions*
+
+Specific files included in the ZIP produced by "Export Logs" and in the encrypted bundle sent via "Report an Issue"; whether the bundle includes OS network configuration, driver info, or other artifacts beyond ZCC log files. Overlaps with `zcc-36`.
+
+**Status**: open
+**Resolves with**: lab test (export logs; inspect ZIP contents)
+
+---
+
+### zcc-66 — In-UI log viewer vs exported ZIP consistency
+
+*Origin: `references/zcc/user-logging-controls.md` § Open questions*
+
+Whether the in-app log view and the exported ZIP always reflect the same content, or whether the viewer applies session/mode filters that exclude older rotated log data present in the ZIP.
+
+**Status**: open
+**Resolves with**: lab test
+
+---
+
+### zcc-67 — ZIA URL visibility in ZCC log files
+
+*Origin: `references/zcc/user-logging-controls.md` § Open questions*
+
+Whether ZCC operational logs at any verbosity level include URL paths (not just hostnames/IPs), and whether this depends on forwarding mode (PAC vs tunnel). Inferred that ZCC is transport-layer and does not log URL paths, but not explicitly confirmed.
+
+**Status**: open
+**Resolves with**: lab test OR operator experience
+
+---
+
+### zcc-68 — ZCC log file paths (Windows and macOS)
+
+*Origin: `references/zcc/troubleshooting.md` § Open questions*
+
+The exact ZCC log file paths on Windows (`%ProgramData%\Zscaler\logs\`) and macOS (`/Library/Application Support/Zscaler/logs/`). Paths are consistent with packaging conventions and community reports but not explicitly stated in captured vendor help sources. Overlaps with `zcc-60`.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR operator experience
+
+---
+
+### zcc-69 — Windows Event Log source name for ZCC
+
+*Origin: `references/zcc/troubleshooting.md` § Open questions*
+
+Whether the Windows Event Log source name for ZCC events is "Zscaler", "ZscalerApp", or another string. Not documented in captured vendor sources. Overlaps with `zcc-61`.
+
+**Status**: open
+**Resolves with**: lab test (inspect Event Viewer source names with ZCC installed)
+
+---
+
+### zcc-70 — macOS Unified Log subsystem identifier
+
+*Origin: `references/zcc/troubleshooting.md` § Open questions*
+
+Whether the macOS Unified Log subsystem identifier for ZCC is `com.zscaler` or another string. Derived from standard macOS bundle ID conventions; not confirmed in any captured vendor source. Overlaps with `zcc-62`.
+
+**Status**: open
+**Resolves with**: lab test (`log stream --predicate 'subsystem contains "zscaler"'`)
+
+---
+
+### zcc-71 — Android logcat tag for ZCC
+
+*Origin: `references/zcc/troubleshooting.md` § Open questions*
+
+Whether the Android logcat tag for ZCC events is "ZscalerApp" or another string. Not confirmed in captured vendor sources.
+
+**Status**: open
+**Resolves with**: lab test (Android device with ZCC installed; `adb logcat | grep -i zscaler`)
+
+---
+
+### zcc-72 — "Fetch Logs" admin permission requirement
+
+*Origin: `references/zcc/troubleshooting.md` § Open questions*
+
+Whether the "Fetch Logs" action on the ZCC Portal Enrolled Devices Device Details page requires a specific admin role permission beyond read access. Not documented in the app-supportability vendor source.
+
+**Status**: open
+**Resolves with**: lab test (attempt "Fetch Logs" with a read-only admin) OR zscaler doc not yet read
+
+---
+
+### zcc-73 — HTTP 500 labeled "Not Implemented" in ZCC API reference
+
+*Origin: `references/zcc/troubleshooting.md` § Open questions*
+
+The `legacy-about-error-codes-zcc.md` vendor doc maps HTTP 500 to "Not Implemented." The conventional HTTP status for "Not Implemented" is 501. Whether this reflects an intentional API distinction from standard HTTP 500 (Internal Server Error) or is a documentation error is not clarified.
+
+**Status**: open
+**Resolves with**: support ticket OR operator experience (observe live ZCC 500 responses)
+
+---
+
+### zcc-74 — HTTP 503 on ZCC portal API
+
+*Origin: `references/zcc/troubleshooting.md` § Open questions*
+
+Whether HTTP 503 is returned by the ZCC portal API during maintenance windows. 503 is documented in the ZIA/ZPA legacy API reference but not in the ZCC-specific API reference; applicability to the ZCC portal API is inferred from shared platform behavior.
+
+**Status**: open
+**Resolves with**: operator experience OR support ticket
+
+---
+
+### zcc-75 — macOS Network Extension denial error code
+
+*Origin: `references/zcc/troubleshooting.md` § Open questions*
+
+Whether a macOS user denial of the ZCC Network Extension (in System Settings → Privacy & Security) surfaces a specific ZCC error code or admin-visible alert in the ZCC Portal or audit log. Not described in captured vendor sources.
+
+**Status**: open
+**Resolves with**: lab test (deny Network Extension on macOS; observe ZCC error state and portal visibility) OR zscaler doc not yet read
 
 ---
 

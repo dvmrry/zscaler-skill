@@ -80,7 +80,7 @@ For comparison:
 - ZPA returns a JSON body with `content-type`, `date`, and `retry-after` on 429.
 - Cloud & Branch Connector returns `{ "message": "Rate Limit (1/SECOND) exceeded", "Retry-After": "0 seconds" }`.
 
-The ZCC 429 body shape is unconfirmed from available sources. Callers should parse the `X-Rate-Limit-Retry-After-Seconds` header for the wait signal rather than relying on a body field. See `references/_clarifications-sweep-2026-04.md § Deferred — ZCC API rate limits` for the outstanding question.
+The ZCC 429 body shape is unconfirmed from available sources. Callers should parse the `X-Rate-Limit-Retry-After-Seconds` header for the wait signal rather than relying on a body field. See [`_clarifications.md` `zcc-08`](../_clarifications.md#zcc-08--zcc-429-response-body-shape) for the outstanding question.
 
 ## 5. Retry strategy
 
@@ -103,7 +103,7 @@ Source: `references/zcc/sdk.md § Client construction — Python`; `references/z
 
 The modern OneAPI client path uses the shared `RequestExecutor` from the Python SDK. Whether the `RequestExecutor` automatically honors `X-Rate-Limit-Retry-After-Seconds` headers from ZCC responses is not confirmed from available sources. The `RequestExecutor` is documented to handle retry logic centrally for ZIA and ZPA; ZCC-specific behavior in the modern path is unconfirmed.
 
-See `references/zcc/sdk.md § Open questions` (Q6) and `references/_clarifications-sweep-2026-04.md § Deferred — ZCC API rate limits`.
+See `references/zcc/sdk.md § Open questions` (Q6) and [`_clarifications.md` `zcc-12`](../_clarifications.md#zcc-12--requestexecutor-zcc-rate-limit-retry-behavior).
 
 ### Recommended retry pattern for direct HTTP callers
 

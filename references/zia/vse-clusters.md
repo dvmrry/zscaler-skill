@@ -192,7 +192,7 @@ The two constructs are not in competition; they apply to different deployment sc
 
 ## Deferred items
 
-The following items could not be sourced from the available vendor documents. They are registered in [`../_clarifications-sweep-2026-04.md`](../_clarifications-sweep-2026-04.md) under "Deferred — VSE clusters":
+The following items could not be sourced from the available vendor documents. Registered in [`_clarifications.md`](../_clarifications.md) as `zia-33` through `zia-38`:
 
 1. **Cluster-level upgrade orchestration** — whether maintenance-window upgrades within a cluster are rolled sequentially (one VM at a time, preserving capacity) or applied simultaneously. The vendor VSE cluster doc does not describe rolling upgrade behavior.
 

@@ -255,17 +255,15 @@ The API/SDK `parent_id` field is writable on update. Setting `parent_id = 0` on 
 
 ## Deferred items
 
-The following questions could not be resolved from available vendor sources. Registered in [`/references/_clarifications-sweep-2026-04.md`](../_clarifications-sweep-2026-04.md) under "Deferred — ZIA sublocations".
+The following questions could not be resolved from available vendor sources. Registered in [`_clarifications.md`](../_clarifications.md).
 
-**Deferred — ZIA sublocations**
-
-| # | Question | Why unresolved |
-|---|---|---|
-| sub-01 | Maximum number of sublocations per parent location | No limit documented in vendor help doc, SDK source, or TF provider source |
-| sub-02 | Naming uniqueness scope — per-parent or tenant-global | Not explicitly stated in any available vendor source |
-| sub-03 | Parent deletion behavior — whether the API blocks deletion of a parent location that has sublocations, or cascade-deletes them, or returns an error | Not documented in `understanding-sublocations.md`, SDK delete method, or TF provider |
-| sub-04 | Sublocation promotion/demotion via `parent_id` update — whether the API enforces preconditions (e.g., no existing sublocations before demotion to child) | Not documented in available sources |
-| sub-05 | Depth limit — explicit vendor statement confirming sublocations cannot themselves have sublocations | Available sources show only 2-level examples; no explicit prohibition text found |
+| Clarification ID | Question |
+|---|---|
+| [`zia-16`](../_clarifications.md#zia-16--sublocation-count-cap-per-parent) | Maximum number of sublocations per parent location |
+| [`zia-17`](../_clarifications.md#zia-17--sublocation-name-uniqueness-scope) | Naming uniqueness scope — per-parent or tenant-global |
+| [`zia-18`](../_clarifications.md#zia-18--parent-location-deletion-behavior-with-sublocations) | Parent deletion behavior when sublocations exist (block, cascade-delete, or error) |
+| [`zia-19`](../_clarifications.md#zia-19--sublocation-reparenting-via-parent_id-update) | Sublocation promotion/demotion via `parent_id` update — API preconditions |
+| [`zia-20`](../_clarifications.md#zia-20--explicit-depth-limit-prohibition-text) | Explicit vendor statement confirming sublocations cannot have their own sublocations |
 
 ---
 
