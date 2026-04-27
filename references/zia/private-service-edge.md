@@ -3,8 +3,8 @@ product: zia
 topic: "private-service-edge"
 title: "ZIA Private Service Edge — on-prem cluster architecture and deployment"
 content-type: reasoning
-last-verified: "2026-04-25"
-confidence: high
+last-verified: "2026-04-26"
+confidence: medium
 source-tier: doc
 sources:
   - "vendor/zscaler-help/understanding-private-service-edge-internet-saas.md"
@@ -72,7 +72,6 @@ VSE is the software form factor: a Zscaler OS VM running on customer-operated in
 
 - **Customer-managed**: Zscaler Cloud Ops does not access or monitor VSEs. Auto-upgrades run during published maintenance windows without operator or Zscaler intervention.
 - **Lower throughput ceiling**: 600 Mbps per VM (ESXi with SSL acceleration card); scale horizontally with multi-VM clusters (up to 16 VMs on ESXi/Hyper-V; native clustering not available on Azure/AWS/GCP — use cloud-native LBs instead).
-- **Source IP Anchoring (SIPA) is not supported** on VSEs. If SIPA is a requirement, physical PSE is required.
 - Minimum 2 VSE instances for N+1 production redundancy (same principle as PSE clusters).
 
 VSE is the right choice when the organization controls its own virtualization infrastructure and either (a) public-cloud-deployed or (b) prefers not to rack dedicated Zscaler hardware.
@@ -140,8 +139,6 @@ The **PSE Health Dashboard** (the primary operational monitoring surface for PSE
 5. **Location → cluster mapping is manual, not automatic.** See open-proxy risk above. This is the most operationally dangerous step in a PSE deployment.
 
 6. **PSE Health Dashboard requires ZDX.** Plan the monitoring stack accordingly; a PSE cluster without ZDX has no dedicated health dashboard.
-
-7. **SIPA is not supported on VSE.** Organizations needing source-IP anchoring must use hardware PSE, not VSE.
 
 ## Cross-links
 
