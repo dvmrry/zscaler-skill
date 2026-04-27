@@ -27,3 +27,19 @@ Windsurf automatically discovers workflows from multiple locations to provide fl
 - **Current workspace and sub-directories**: All `.windsurf/workflows/` directories within your current workspace and its sub-directories
 - **Git repository structure**: For git repositories, Windsurf also searches up to the git root directory to find workflows in parent directories
 - **Multiple workspace support**: When multiple folders are open in the same workspace, workflows are deduplicated and displayed with the shortest relative path
+
+### Workflow Storage Locations
+
+Workflows can be stored in any of these locations:
+
+- `.windsurf/workflows/` in your current workspace directory
+- `.windsurf/workflows/` in any sub-directory of your workspace
+- `.windsurf/workflows/` in parent directories up to the git root (for git repositories)
+
+When you create a new workflow, it will be saved in the `.windsurf/workflows/` directory of your current workspace, not necessarily at the git root.
+
+**Workflow files are limited to 12,000 characters each.**
+
+### Generate a Workflow with Cascade
+
+You can also ask Cascade to generate Workflows for you! This works particularly well for Workflows involving a series of steps in a particular CLI tool.
