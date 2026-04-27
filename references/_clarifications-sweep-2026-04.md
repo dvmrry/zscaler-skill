@@ -21,6 +21,20 @@ place; this report summarises findings and outstanding gaps.
 
 ---
 
+## Deferred — multi-cluster load sharing
+
+Questions from `references/shared/multi-cluster-load-sharing.md` that could not be resolved from available vendor sources (`vendor/zscaler-help/understanding-multi-cluster-load-sharing.md`, `understanding-zscaler-cloud-architecture.md`, `about-public-service-edges-internet-saas.md`, `understanding-business-continuity-cloud-components.md`).
+
+| # | Question | Context |
+|---|----------|---------|
+| MCLS-01 | **Session-level stickiness within an MCLS VIP pool.** Does the LB provide per-flow stickiness (all packets of a single TCP flow land on the same service node), or can a single flow be distributed across nodes in different clusters? Impacts DLP large-object scanning and file reassembly. | Section 5 — Session affinity |
+| MCLS-02 | **Auth state replication across clusters.** When a user authenticated at one service node is subsequently routed to a node in a different cluster within the pool, is the re-query to the CA transparent (no user re-prompt) or does it trigger a visible re-authentication event? Depends on auth method (IP surrogacy, cookie, Kerberos, SAML). | Section 8 — Identity caching |
+| MCLS-03 | **Client-side detection timeout for VIP failure (GRE/IPSec).** How long does a ZCC or router-terminated GRE/IPSec tunnel take to detect a full DC VIP failure before triggering failover or re-resolution? Not documented in MCLS or architecture vendor sources. | Section 7 — Failure modes |
+| MCLS-04 | **Z-Tunnel 2.0 behavior under MCLS.** The MCLS table shows VPN VIPs but does not specify Z-Tunnel 2.0 explicitly. Whether Z-Tunnel 2.0 stateful TLS multiplexing interacts differently with cross-cluster LB forwarding is unconfirmed. | Section 3 — Traffic distribution |
+| MCLS-05 | **Government cloud (zscalergov / zspreview) MCLS topology.** Whether these clouds operate an equivalent MCLS model or a different cluster topology is not documented in available sources. | Section 12 — Constraints |
+
+---
+
 ## Per-document summary
 
 ### `references/zcc/sdk.md` (4 of 6 resolved)
@@ -191,6 +205,109 @@ place; this report summarises findings and outstanding gaps.
 7. **`dns_gatways.py` filename typo** (`references/zia/sdk.md`): Missing `e`. Accessor in `ZIAService` masks the typo from callers.
 
 8. **`get_group(group_id: int)` type annotation bug** (`references/zidentity/sdk.md`): ZIdentity IDs are strings; `int` annotation is incorrect.
+
+---
+
+## Deferred — ZIA sublocations
+
+Added 2026-04-27 from `references/zia/sublocations.md` authoring pass.
+
+| # | Question | Why unresolved |
+|---|---|---|
+| sub-01 | Maximum number of sublocations per parent location | No limit documented in vendor help doc, SDK source, or TF provider source |
+| sub-02 | Naming uniqueness scope — per-parent or tenant-global | Not explicitly stated in any available vendor source |
+| sub-03 | Parent deletion behavior — whether the API blocks deletion of a parent location that has sublocations, cascade-deletes them, or returns an error | Not documented in `understanding-sublocations.md`, SDK delete method, or TF provider |
+| sub-04 | Sublocation promotion/demotion via `parent_id` update — whether the API enforces preconditions (e.g., no existing sublocations before demotion to child) | Not documented in available sources |
+| sub-05 | Depth limit — explicit vendor statement confirming sublocations cannot themselves have sublocations | Available sources show only 2-level examples; no explicit prohibition text found |
+
+---
+
+## Deferred — M365 SIPA CA
+
+Added 2026-04-27 from `references/shared/m365-conditional-access.md` authoring pass.
+
+| # | Question | Why unresolved |
+|---|---|---|
+| m365-01 | Azure AD Conditional Access IP evaluation frequency — whether CA re-evaluates source IP on every HTTP request or only at token-issuance time | Azure AD-side behavior; not described in Zscaler vendor docs. The SIPA config guide states post-auth traffic uses a token and "does not require being redirected through Source IP Anchoring" (implying token-based, not per-request), but the exact CA evaluation model is Microsoft's documentation responsibility |
+| m365-02 | Azure AD Continuous Access Evaluation (CAE) interaction — whether CAE-enabled tenants with IP-binding policies impose re-authentication more frequently and what the SIPA implications are | Not addressed in any Zscaler vendor source reviewed |
+| m365-03 | ZPA fallback behavior when all SIPA connector group connectors are unhealthy — whether the predefined `Fallback mode of ZPA Forwarding` ZIA rule routes traffic to PSE egress or drops it | The predefined rule exists (`references/zia/forwarding-control.md`) but its exact fallback action for SIPA-destined traffic is not source-confirmed |
+| m365-04 | Whether an automated mechanism exists (Zscaler or third-party) to sync App Connector public IPs with Azure AD Named Locations on IP change | Not documented in any vendor source reviewed; stated as operator responsibility in this doc |
+| m365-05 | Named Locations maximum IP range count in Azure AD | Microsoft's constraint, not Zscaler's; not captured in available sources |
+
+---
+
+## Deferred — ZIA time intervals
+
+Added 2026-04-27 from `references/zia/time-intervals.md` authoring pass.
+
+| # | Question | Why unresolved |
+|---|---|---|
+| ti-01 | DST handling for `startTime`/`endTime` minute-offsets — whether values are evaluated against the location's timezone with DST applied, or a fixed UTC offset | Not documented in any available vendor source; requires live API testing or Zscaler confirmation |
+| ti-02 | Tenant-level cap on user-created time interval objects | No maximum count documented in help portal, SDK source, or Terraform provider |
+| ti-03 | Terraform managed resource — no `zia_time_interval` resource block exists in the TF provider; whether one is planned or intentionally excluded | Not confirmed from available provider source |
+| ti-04 | Midnight-spanning intervals — whether `endTime` < `startTime` is accepted for windows that cross midnight, or whether two objects are required | Not documented in available sources; Go struct uses plain `int` with no visible constraint |
+| ti-05 | Predefined time intervals in `/timeIntervals` catalog — whether fixed objects (analogous to the `/timeWindows` predefined "Work hours" / "Weekends" entries) also exist in the `/timeIntervals` endpoint | Not confirmed from available sources |
+
+---
+
+## Deferred — ZPA machine groups
+
+Added 2026-04-27 from `references/zia/machine-groups.md` authoring pass.
+
+| # | Question | Why unresolved |
+|---|---|---|
+| mg-01 | Whether a direct POST `/machineGroup` endpoint exists | Both SDKs expose only read operations; help doc implies Admin Console creation + provisioning enrollment; no POST endpoint confirmed |
+| mg-02 | Whether the machine group definition carries any matching criteria beyond provisioning key linkage (hostname pattern, OS type, certificate subject on the group object itself) | Python SDK model and Go SDK struct show no such fields; help doc does not describe group-level matching attributes |
+| mg-03 | Whether `MACHINE_GRP` can scope user-session ZPA access rules (not just machine-tunnel rules) | Not confirmed or denied in reviewed sources; the vendor doc focuses on machine tunnel use case only |
+| mg-04 | Capacity limits — machine groups per tenant, provisioning keys per group, enrolled machines per group | No limit figures found in vendor help doc, SDK, or TF provider source |
+| mg-05 | Product classification — `references/zia/machine-groups.md` file path is incorrect; all sources confirm this is a ZPA construct (`/zpa/about-machine-groups` URL; ZPA-only SDK and TF artifacts); `_coverage-audit-2026-04.md` line 70 mis-labels it as "ZIA"; correct path is `references/zpa/machine-groups.md` |
+
+---
+
+## Deferred — ZIA rule labels
+
+Added 2026-04-27 from `references/zia/rule-labels.md` authoring pass.
+
+| ID | Question | Why unresolved |
+|---|---|---|
+| rl-01 | Do label names appear in ZIA admin audit log entries for rule create/update operations? | Vendor help and SDK sources describe labels as UI/API metadata only; no audit log schema including label names was found in reviewed sources |
+| rl-02 | Are there character-set restrictions or maximum length constraints on the `name` field? | Not documented in SDK model, vendor help, or TF provider source; TF doc only states the field is Required (String) |
+| rl-03 | Is the `name` field unique within a ZIA tenant? Does the API reject duplicate names on create? | Uniqueness enforcement not confirmed from available sources |
+| rl-04 | What is the maximum allowed `description` length? | Not documented in SDK model, vendor help, or TF provider source |
+| rl-05 | Does the "duplicate" action on the Rule Labels admin console page copy label-to-rule associations, or produce a fresh unassociated label? | The vendor help page lists "duplicate" as an available action but does not describe its semantics |
+| rl-06 | Is label-based filtering (`rule_label` query param) available on rule list endpoints beyond firewall filtering? | Only `FirewallPolicyAPI.list_rules` was confirmed to accept `rule_label`; other policy rule list endpoints not confirmed |
+| rl-07 | Is there a documented cap on the total number of rule labels per tenant? | Not found in vendor help or any SDK source |
+
+---
+
+## Deferred — VSE clusters
+
+Added 2026-04-27 from `references/zia/vse-clusters.md` authoring pass.
+
+| # | Question | Why unresolved |
+|---|---|---|
+| vse-cl-01 | Cluster-level upgrade orchestration — whether maintenance-window auto-upgrades within a VSE cluster are applied as a rolling sequence (one VM at a time, preserving capacity) or simultaneously across all VMs | The vendor cluster doc (`about-virtual-service-edge-clusters-internet-saas.md`) describes auto-upgrade at the VM level but does not address cluster-level sequencing |
+| vse-cl-02 | VM drain-before-removal — whether removing a VM from an active cluster gracefully drains in-flight connections before it leaves the LB pool, or resets sessions immediately | Not described in either VSE vendor doc |
+| vse-cl-03 | Log entry VM vs cluster identifier — whether NSS or Admin Console analytics log entries carry a VM-level identifier, a cluster-level identifier, or both for VSE cluster traffic | Not addressed in the VSE cluster or VSE VM vendor docs |
+| vse-cl-04 | Cluster-scoped vs VM-scoped settings boundary — the Admin Console cluster page lists name, status, members, cluster IP, and IPSec termination but does not enumerate which policy settings are pushed cluster-scoped vs which require per-VM configuration | Not broken out in available vendor sources |
+| vse-cl-05 | VSE NAT topology support — whether 1:1 static NAT to public IPs is supported for VSE VMs, and whether the IPv6-in-NAT restriction that applies to PSE clusters also applies to VSE | VSE firewall/connectivity docs reference outbound connectivity but do not address inbound NAT topology the way the PSE doc does |
+| vse-cl-06 | Public cloud cluster object semantics (Azure/AWS/GCP) — whether the Admin Console VSE Cluster object on cloud platforms is a purely cosmetic grouping or carries behavioral configuration beyond what the cloud-native LB enforces | Not addressed in available sources |
+
+---
+
+## Deferred — ZIA SCIM nuances
+
+Added 2026-04-27 from `references/zia/scim-provisioning.md` authoring pass.
+
+| # | Question | Why unresolved |
+|---|---|---|
+| zia-scim-01 | Exact behavior when ZIA receives a `department` string via SCIM that does not match any existing ZIA department object by name — whether ZIA creates a new department object, silently drops the association, or raises an error | Not described in `vendor/zscaler-help/understanding-scim-zia.md` or any reviewed source; attribute mapping table only states the mapping exists, not the error path |
+| zia-scim-02 | Whether `active=false` sent via SCIM immediately terminates active ZIA proxy sessions for that user, or only blocks future authentications | The ZIA vendor doc states `active=false` disables the user but does not describe session-kill semantics |
+| zia-scim-03 | SCIM-specific rate limits on ZIA SCIM endpoints (`/Users`, `/Groups`, `/Bulk`) — whether these differ from the general ZIA API rate limits (20 GET/10s, 10 write/10s per Go SDK) | Not published in available vendor sources; general API rate limits apply per Go SDK CLAUDE.md but SCIM-specific guidance is absent |
+| zia-scim-04 | Maximum number of SCIM-provisioned users and groups per ZIA tenant — whether tenant-level caps exist distinct from the 128 groups/user membership cap | Not stated in `vendor/zscaler-help/understanding-scim-zia.md`; no Ranges and Limitations reference for SCIM object counts reviewed |
+| zia-scim-05 | Per-IdP attribute mapping quirks for the Enterprise User SCIM extension — specifically how Entra ID, Okta, PingFederate, and Google Workspace each map or omit the `department` field by default | Covered in per-IdP configuration guides referenced by the ZIA vendor doc but those guides are not captured in available vendor sources |
+| zia-scim-06 | Whether the ZIA admin console surfaces SCIM sync errors visibly (beyond the provisioning logs in the IdP) — specifically whether ZIA has a SCIM Sync Logs page analogous to the ZPA-referenced "About SCIM Sync Logs" article | The ZIA vendor doc related-articles section lists "Configuring SCIM" and "SCIM API Examples" but no dedicated sync log article; ZPA vendor doc lists "About SCIM Sync Logs" as a related article — ZIA equivalent not confirmed |
+| zia-scim-07 | Exact sync cadence / push frequency per IdP (Okta event-triggered vs scheduled batch, Entra ID provisioning cycle) for ZIA SCIM | IdP-controlled; not consolidated in any Zscaler vendor source reviewed |
 
 ---
 
