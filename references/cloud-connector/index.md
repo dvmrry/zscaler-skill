@@ -53,6 +53,7 @@ Branch Connector is the same idea for physical branch locations — an on-prem v
 | **AWS workload discovery** — Account trust setup (External ID + Trusted Account ID + IAM role assumption), permission states, EventBridge metadata pipeline, AWS Account Groups, sublocation scopes, `zs:namespace` VPC tag for overlapping CIDRs | [`./aws-workload-discovery.md`](./aws-workload-discovery.md) | draft |
 | **DNS subsystems** — three distinct components: DNS Gateways (resolver pairs), DNS Policies (DoH, tunnel detection, response rewriting), Log & Control Forwarding (telemetry routing); subsystem interactions and failure modes | [`./dns-subsystem.md`](./dns-subsystem.md) | draft |
 | **Upgrades + credential rotation** — Sunday midnight local upgrade cadence (2-hour stagger, OS-image vs package distinction), zsroot rotation procedure (CC vs BC), combined sequencing for in-place vs re-deploy windows | [`./upgrade-and-credential-rotation.md`](./upgrade-and-credential-rotation.md) | draft |
+| **Supported regions** — AWS (16 ZTG regions enumerated), Azure (all commercial regions; China via Terraform), GCP (supported at product level; region list unconfirmed); cross-region topology tradeoffs; open questions register | [`./regions.md`](./regions.md) | draft |
 
 ## Scope
 
@@ -72,7 +73,7 @@ Not in scope (explicitly deferred):
 - **Branch Connector zero-trust appliance specifics** — referenced in the shared help section but not deeply covered here. The configuration model is similar to Cloud Connector; Branch-specific details (hardware, zero-touch provisioning) are operational and vendor-specific.
 - **Per-cloud deployment guides** — Azure is now covered at [`./azure-deployment.md`](./azure-deployment.md). AWS CloudFormation and GCP templates remain deferred; reference architecture PDFs exist under `help.zscaler.com/downloads/cloud-branch-connector/reference-architecture/`.
 - **VMSS / ASG / MIG operational tuning** — help articles cover this; captured at architecture level only.
-- **Zscaler Zero Trust SD-WAN** — related newer product (Zero Trust Branch) that overlaps Branch Connector. Not covered.
+- **Zscaler Zero Trust SD-WAN** — now covered at [`./zero-trust-sdwan.md`](./zero-trust-sdwan.md). Covers positioning vs traditional SD-WAN, Cloud/Branch Connector roles, capabilities and limits, vendor comparison by axis, and operational gotchas.
 
 ## When the question spans Cloud Connector + another product
 
