@@ -2,7 +2,9 @@
 
 Notes and concerns about the Zscaler workflow implementation from a Windsurf Cascade agent perspective.
 
-## Identified Issues
+**Status:** All concerns resolved through conversation with Claude Code. See `.windsurf/conversation.md` for full discussion.
+
+## Identified Issues (RESOLVED)
 
 ### 1. Step 1 vs Step 5 redundancy ~~RESOLVED~~
 - Step 1 checks if `snapshot/` has data
@@ -96,16 +98,25 @@ Based on Windsurf documentation (see `.windsurf/docs/workflows.md` and `.windsur
 
 The workflow shim we created is essentially trying to replicate what Skills do natively with progressive disclosure.
 
-## Additional Fixes Applied
+## Additional Fixes Applied (RESOLVED)
 
 ### Terraform File Bug ~~RESOLVED~~
 - The routing table contained a hallucinated file: `references/terraform.md` (does not exist)
-- **Fix:** Split into three product-specific rows:
-  - ZIA Terraform → `references/zia/terraform.md`
-  - ZPA Terraform → `references/zpa/terraform.md`
-  - Cloud Connector Terraform → `references/cloud-connector/terraform.md`
+- **Fix:** Removed routing table entirely; workflow now loads SKILL.md which has correct product-specific Terraform references
 
 ### Workflow Simplification ~~RESOLVED~~
 - The workflow was re-implementing the full routing table from SKILL.md, which would drift out of sync
-- **Fix:** Made workflow thin - added Step 3 to load and follow SKILL.md for detailed routing
-- Workflow now focuses on: snapshot checks, pre-routing breadth/primer/meta checks, and deferring to SKILL.md for product-specific routing
+- **Fix:** Made workflow truly thin - removed duplicate routing table, workflow now loads SKILL.md for all product-specific routing
+- Workflow now focuses on: snapshot checks, pre-routing breadth/primer/meta checks (with compound question handling), and deferring to SKILL.md
+
+### Compound Question Handling ~~RESOLVED~~
+- Pre-routing checks were binary (early exit or continue)
+- **Fix:** Added compound question rule: if pre-routing matches AND question is purely conceptual, stop; if question also needs product-specific behavior, read pre-routing file then continue to SKILL.md
+
+### Clarifications Check Optimization ~~RESOLVED~~
+- Clarifications check was unclear on tool usage
+- **Fix:** Use `grep` to find relevant entries by domain, then optionally `read_file` with offset/limit for specific sections
+
+### SKILL.md Failure Handling ~~RESOLVED~~
+- No fallback behavior if SKILL.md fails to load
+- **Fix:** Surface error to user and stop; do not guess from cached subset

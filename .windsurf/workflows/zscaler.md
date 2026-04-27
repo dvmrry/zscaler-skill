@@ -6,7 +6,7 @@ description: Zscaler knowledge routing - dynamically load relevant reference doc
 
 This workflow routes Zscaler questions to the appropriate reference documentation, loading only what's needed rather than the entire skill.
 
-## Step 1: Check for tenant-specific data
+## Step 1: Snapshot check
 
 Before answering tenant-specific questions, check whether `snapshot/` has data:
 
@@ -22,116 +22,53 @@ Also check if `iac/` has production IaC (different from reference IaC under `ven
 ls -A iac/ | grep -v '^\.gitkeep$'
 ```
 
-## Step 2: Route based on question shape
+Store: `iac_available: yes/no`.
 
-First, check these three pre-routing conditions BEFORE the product routing table:
+## Step 2: Pre-routing (check these FIRST — early exit if purely conceptual)
 
-1. **Breadth questions** ("does Zscaler have a product for X?", "what is Risk360?", "is AppProtection part of ZPA?") → `references/_portfolio-map.md`
-2. **Prerequisite-knowledge questions** ("what's a proxy?", "what's the difference between SAML and OIDC?", "what does zero trust actually mean?") → `references/_primer/index.md`
-3. **Meta-questions about the skill itself** → `references/_layering-model.md`
+If the question is a **breadth question** ("does Zscaler have a product for X?", "what is Risk360?", "is AppProtection part of ZPA?"):
+- Use `read_file` to load `references/_portfolio-map.md`
+- If the question is purely conceptual (no product-specific mechanics needed), answer and stop here
+- If the question also asks for product-specific behavior (e.g., "what is Risk360 and how does it integrate with ZPA?"), read the pre-routing file then continue to Step 3
 
-If none of the above apply, use the product routing table below. Read the appropriate reference file based on the user's question. Start with ONLY the most relevant file - don't read multiple unless the question genuinely spans domains (i.e., two or more products are clearly named).
+If the question is a **prerequisite-knowledge question** ("what's a proxy?", "how does SAML work?", "what is zero trust?"):
+- Use `read_file` to load `references/_primer/index.md`
+- If the question is purely conceptual, answer and stop here
+- If the question also asks for product-specific behavior, read the pre-routing file then continue to Step 3
 
-| Question shape | Read this file |
-|---|---|
-| Is URL X in a category? Is it blocked/allowed? (no CAC mentioned) | `references/zia/url-filtering.md` |
-| Question mentions Cloud App Control rule (CAC) | `references/zia/cloud-app-control.md` first, then `url-filtering.md` if needed |
-| Why does rule A beat rule B? Why didn't a disabled/higher-order rule fire? | `references/zia/url-filtering.md` |
-| How do wildcards match (`*.foo.com` vs `.foo.com` vs `foo.com`)? | `references/zia/wildcard-semantics.md` |
-| Does SSL inspection happen before or after X? | `references/zia/ssl-inspection.md` |
-| Cloud app control vs URL filtering interaction | `references/zia/cloud-app-control.md` |
-| Why wasn't this file sandboxed / caught by Sandbox? | `references/zia/sandbox.md` |
-| "Why was this blocked?" and it's NOT URL Filter / CAC / SSL / Firewall | `references/zia/malware-and-atp.md` |
-| DLP / data loss prevention / "why didn't DLP catch this?" | `references/zia/dlp.md` |
-| ZPA app-segment matching (esp. overlapping wildcard segments) | `references/zpa/app-segments.md` |
-| ZPA App Connector enrollment / provisioning / health | `references/zpa/app-connector.md` |
-| SCIM provisioning / automated user-group lifecycle | `references/shared/scim-provisioning.md` |
-| ZPA policy precedence | `references/zpa/policy-precedence.md` |
-| "Why didn't ZIA see this traffic?" / ZCC forwarding-profile questions | `references/zcc/forwarding-profile.md` |
-| Trusted-network detection / "Why is my user classified as untrusted?" | `references/zcc/trusted-networks.md` |
-| ZPA TRUSTED_NETWORK access-policy condition not firing | Start at `references/zcc/forwarding-profile.md` (sendTrustedNetworkResultToZpa toggle) |
-| Which forwarding profile / web policy does this user get? | `references/zcc/web-policy.md` |
-| ZCC telemetry / log-collection / packet-capture policy | `references/zcc/web-privacy.md` |
-| ZCC device inventory / force-remove / VM-cloning fingerprint | `references/zcc/devices.md` |
-| "User can't reach ZPA" / "ZDX has no data for this user" | `references/zcc/entitlements.md` |
-| Z-Tunnel 1.0 vs 2.0 / "why isn't this non-web traffic tunneling" | `references/zcc/z-tunnel.md` |
-| Cross-product mental model ("how does policy evaluation work in general?") | `references/shared/policy-evaluation.md` |
-| Activation - "I changed a ZIA rule; why isn't it taking effect?" | `references/shared/activation.md` |
-| Source IP Anchoring (SIPA) | `references/shared/source-ip-anchoring.md` |
-| Terminology translation ("what's a ZEN?" / "PSEN" / "Z-App") | `references/shared/terminology.md` |
-| "What does Zscaler actually run?" / Central Authority / Service Edge types | `references/shared/cloud-architecture.md` |
-| PAC files - `${GATEWAY}` / Kerberos-PAC / custom PAC upload | `references/shared/pac-files.md` |
-| ZIA Locations, sublocations, Location Groups | `references/zia/locations.md` |
-| Device Posture - posture profiles / evaluation cadence | `references/shared/device-posture.md` |
-| ZIA Firewall Control - "why was this blocked and it's not a URL Filter rule?" | `references/zia/firewall.md` |
-| ZPA Browser Access - contractor access without ZCC | `references/zpa/browser-access.md` |
-| ZPA Privileged Remote Access (PRA) - RDP / SSH / VNC / jump host | `references/zpa/privileged-remote-access.md` |
-| Subclouds - "why is my traffic going to the wrong region" | `references/shared/subclouds.md` |
-| NSS / Cloud NSS / log streaming / "why did my SIEM miss logs" | `references/shared/nss-architecture.md` |
-| ZIA Bandwidth Control - bandwidth classes / contention enforcement | `references/zia/bandwidth-control.md` |
-| FTP / File Type / SSH - content inspection beyond URL/CAC/DLP | `references/zia/content-inspection-extras.md` |
-| Admin RBAC / admin users / roles / scopes / audit | `references/shared/admin-rbac.md` |
-| OneAPI / "how do I authenticate to Zscaler APIs?" / token endpoint | `references/shared/oneapi.md` |
-| Question spans ZIA + ZPA, or ZCC + a server product | `references/shared/cross-product-integrations.md` |
-| "Why is this user's app slow?" / ZDX Score / probes / diagnostic sessions | `references/zdx/overview.md` for Score model; `references/zdx/probes.md` for measurement |
-| ZDX API / SDK methods | `references/zdx/api.md` |
-| Cloud Browser Isolation / Zero Trust Browser / ZBI / URL Filter `Isolate` action | `references/zbi/overview.md` for architecture; `references/zbi/policy-integration.md` for profiles |
-| ZIdentity / "what is ZIdentity?" / SAML vs OIDC / MFA | `references/zidentity/overview.md` |
-| OneAPI authentication / API client creation | `references/zidentity/api-clients.md` |
-| Step-up authentication / Conditional Access / Authentication Levels | `references/zidentity/step-up-authentication.md` |
-| ZIdentity API / SCIM-like user provisioning | `references/zidentity/api.md` |
-| Cloud Connector / Branch Connector / "why isn't my AWS/Azure/GCP workload reaching Zscaler?" | `references/cloud-connector/overview.md` |
-| Cloud Connector traffic forwarding rules | `references/cloud-connector/forwarding.md` |
-| Cloud Connector API / SDK / Terraform | `references/cloud-connector/api.md` |
-| "What happens to DLP incidents after detection?" / Workflow Automation / ZWA | `references/zwa/overview.md` |
-| ZWA API / incident search / evidence retrieval | `references/zwa/api.md` |
-| Zscaler Deception / decoys / honeypots / "what is Deception?" | `references/deception/overview.md` |
-| ZPA AppProtection / ZPA Inspection / WAF for private apps | `references/zpa/appprotection.md` |
-| Risk360 / cyber risk quantification / Monte Carlo / CISO board reporting | `references/risk360/overview.md` |
-| AI Security family / AI Guard / AI Guardrails / prompt injection / LLM guardrails | `references/ai-security/overview.md` |
-| ZMS / Zscaler Microsegmentation / east-west traffic / workload-to-workflow policy | `references/zms/overview.md` |
-| ZIA API endpoint or response shape | `references/zia/api.md` |
-| ZPA API endpoint or response shape | `references/zpa/api.md` |
-| ZCC API endpoint or response shape | `references/zcc/api.md` |
-| ZIA Terraform provider resource or schema | `references/zia/terraform.md` |
-| ZPA Terraform provider resource or schema | `references/zpa/terraform.md` |
-| Cloud Connector Terraform provider resource or schema | `references/cloud-connector/terraform.md` |
-| ZIA web log fields / what NSS reports | `references/zia/logs/web-log-schema.md` |
-| ZIA firewall log fields | `references/zia/logs/firewall-log-schema.md` |
-| ZIA DNS log fields | `references/zia/logs/dns-log-schema.md` |
-| ZPA LSS access log fields | `references/zpa/logs/access-log-schema.md` |
-| SPL patterns / "how do I query for X?" | `references/shared/splunk-queries.md` |
-| "should I check logs here?" / validation guidance | `references/shared/log-correlation.md` |
+If the question is a **meta-question about the skill**:
+- Use `read_file` to load `references/_layering-model.md`
+- Answer and stop here
 
-**If nothing in the routing table matches**, default to `references/_portfolio-map.md` and ask one clarifying question to narrow down the product domain.
+**Test for purely conceptual:** Does the question need product-specific mechanics (rule precedence, API behavior, config fields)? If yes, continue to Step 3. If no, stop here.
 
-**For AI agents needing diagnostic functions**:
-- Prefer `references/_agent-patterns.md` over prose runbooks - contains typed Python functions for diagnostic/recovery flows
+## Step 3: Load SKILL.md for product-specific routing
 
-**For "would this URL be blocked?" questions**:
-- Use the policy simulator at `references/_policy-simulation.md` - pure-function ZIA URL filter evaluator
+Use `read_file` to read `SKILL.md`. Follow its Question Routing table to identify the correct reference file(s). Use `read_file` to load those files.
 
-**For actionable / procedural questions** ("which auth path should I use?", "how do I detect if this is a gov cloud?", troubleshooting 401/rate-limit/activation):
-- Start at `references/_runbooks.md` - authentication selection decision tree, diagnostic procedures, troubleshooting flows
+**If SKILL.md fails to load:** Surface the error to the user ("unable to load skill routing — check that references/ is accessible") and stop. Do not guess from a cached subset.
 
-**For verifying findings before threading into the skill**:
-- Apply `references/_verification-protocol.md` - four-tier model (source-verified / behavior-verified / operator-reported / inferred)
-
-## Step 3: Load SKILL.md for detailed routing
-
-For detailed question routing beyond the pre-routing checks above, load and follow `SKILL.md`. The skill contains the authoritative routing table and will be kept in sync with reference doc changes. This workflow provides explicit `/zscaler` invocation and snapshot checks; the skill handles the heavy lifting of product-specific routing.
+**If no match in SKILL.md:** Use `read_file` to load `references/_portfolio-map.md` and ask one clarifying question to narrow down the product domain.
 
 ## Step 4: Check clarifications
 
-Before quoting any reference summary, check `references/_clarifications.md` for the question's domain (zia-*, zpa-*, shared-*, log-*). Clarifications flag where the doc's cheerful prose hides an unresolved ambiguity. Cite the clarification ID in your answer when one applies.
+Use `grep` to find relevant clarification entries:
 
-## Step 5: Consult snapshot if available (conditional)
+```bash
+grep -n "^### zia-\|^### zpa-\|^### zcc-\|^### shared-" references/_clarifications.md
+```
+
+This gives entry headings with line numbers. If a specific entry looks relevant, use `read_file` with `offset` and `limit` to read just that section. For most answers, the grep output alone is enough to know whether a clarification applies and what its status is.
+
+Cite any relevant clarification IDs in your answer.
+
+## Step 5: Consult snapshot (conditional)
 
 **IF** `snapshot_available: yes` (from Step 1) AND the question is tenant-specific (e.g., "is reddit.com in a URL category in OUR tenant?"):
-- Read the relevant JSON file (e.g., `snapshot/zia/url-categories.json`, `snapshot/zia/url-filtering-rules.json`, `snapshot/zpa/app-segments.json`)
+- Use `read_file` on the relevant snapshot JSON (e.g., `snapshot/zia/url-categories.json`, `snapshot/zia/url-filtering-rules.json`, `snapshot/zpa/app-segments.json`)
 - Cite the specific rule IDs you used
 
-**ELSE**: Skip this step.
+**ELSE:** Skip this step.
 
 ## Step 6: Format the answer
 
@@ -146,6 +83,8 @@ Return non-trivial answers in this structure:
 
 ## Sources
 - references/zia/url-filtering.md (§ section you used)
+- references/zpa/app-segments.md (§ section you used)
+- references/shared/policy-evaluation.md (§ section you used)
 - snapshot/zia/url-filtering-rules.json (rule IDs 42, 47 — only if snapshot was consulted)
 
 ## Confidence
