@@ -62,14 +62,14 @@
       { href: 'onboarding.html',        label: 'Slideshow' },
     ],
     'zia': [
-      { href: 'zia/reference.html',     label: 'Reference' },
+      { href: 'zia/reference.html',     label: 'Guide' },
       { href: 'zia/forwarding.html',    label: 'Traffic Forwarding' },
     ],
     'zpa': [
-      { href: 'zpa/reference.html',     label: 'Reference' },
+      { href: 'zpa/reference.html',     label: 'Guide' },
     ],
     'cloud-connector': [
-      { href: 'cloud-connector/reference.html', label: 'Reference' },
+      { href: 'cloud-connector/reference.html', label: 'Guide' },
     ],
   };
 

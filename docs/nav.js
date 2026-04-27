@@ -37,7 +37,7 @@
       match: [/\/zia\//, /\/zia\/?$/, /source\.html\?.*p=zia(\/|$)/],
       children: [
         { href: 'zia/',                label: 'Index',              match: [/\/zia\/(index\.html)?$/] },
-        { href: 'zia/reference.html',  label: 'Reference',          match: [/zia\/reference/] },
+        { href: 'zia/reference.html',  label: 'Guide',          match: [/zia\/reference/] },
         { href: 'zia/forwarding.html', label: 'Traffic Forwarding', match: [/zia\/forwarding/] },
         { href: 'source.html?p=zia',   label: 'Documents',          match: [/source\.html\?.*p=zia(\/|$)/], external: 'source' },
       ],
@@ -49,7 +49,7 @@
       match: [/\/zpa\//, /\/zpa\/?$/, /source\.html\?.*p=zpa(\/|$)/],
       children: [
         { href: 'zpa/',                label: 'Index',     match: [/\/zpa\/(index\.html)?$/] },
-        { href: 'zpa/reference.html',  label: 'Reference', match: [/zpa\/reference/] },
+        { href: 'zpa/reference.html',  label: 'Guide', match: [/zpa\/reference/] },
         { href: 'source.html?p=zpa',   label: 'Documents', match: [/source\.html\?.*p=zpa(\/|$)/], external: 'source' },
       ],
     },
@@ -60,7 +60,7 @@
       match: [/cloud-connector\//, /source\.html\?.*p=cloud-connector(\/|$)/],
       children: [
         { href: 'cloud-connector/',                  label: 'Index',     match: [/cloud-connector\/(index\.html)?$/] },
-        { href: 'cloud-connector/reference.html',    label: 'Reference', match: [/cloud-connector\/reference/] },
+        { href: 'cloud-connector/reference.html',    label: 'Guide', match: [/cloud-connector\/reference/] },
         { href: 'source.html?p=cloud-connector',     label: 'Documents', match: [/source\.html\?.*p=cloud-connector(\/|$)/], external: 'source' },
       ],
     },
@@ -255,7 +255,7 @@
   // loaded — every page gets the sidebar, and the rail toggle hides
   // it when desired.
   const sidebarScript = document.createElement('script');
-  sidebarScript.src = prefix + 'left-sidebar.js?v=4';
+  sidebarScript.src = prefix + 'left-sidebar.js?v=5';
   sidebarScript.async = true;
   document.body.appendChild(sidebarScript);
 
