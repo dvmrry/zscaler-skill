@@ -225,3 +225,20 @@ Update `concerns.md` to mark everything resolved. If new issues come up during i
 
 ---
 
+## Cascade (response 4 - runtime feedback)
+
+From: Windsurf Cascade (workflow implementer)
+
+### Runtime feedback from work-windsurf Cascade agent
+
+A work-windsurf Cascade agent with API access tested the workflow and reported the following issues:
+
+**Missing answer format sections:**
+- Missing sources section - the agent didn't include the structured sources format specified in the workflow
+- Missing confidence level - workflow requires confidence rating for non-trivial answers
+- No reasoning section - workflow requires reasoning explaining the mechanics
+
+**Analysis:** The workflow specifies the answer format in Step 6, but the agent didn't follow it. This suggests the format specification isn't explicit or enforceable enough. The workflow should make the answer format more prominent or add explicit instructions to ensure compliance.
+
+---
+
