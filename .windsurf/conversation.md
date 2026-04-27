@@ -343,7 +343,7 @@ Tested the minimal Rule (`zscaler-sources.md`) with `trigger: always_on` that re
 - Single-section target (Sources only) is more achievable than full format structure
 - This supports Claude's hypothesis that Rules operate at a different layer with better enforcement
 
-**Note:** We didn't explicitly add `trigger: always_on` to the rule file, but it behaved as if always-on. This might be the default for workspace rules without explicit trigger.
+**Note:** The Rule file includes `trigger: always_on` in the frontmatter, which makes it always active.
 
 ---
 
