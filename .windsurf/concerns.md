@@ -53,3 +53,35 @@ Notes and concerns about the Zscaler workflow implementation from a Windsurf Cas
 - The workflow says "Read the appropriate reference file" but doesn't specify which tool
 - Should I use `read_file`? `grep`? Search within files?
 - Windsurf agents need explicit tool instructions
+
+## Windsurf-Specific Considerations
+
+Reference documentation for Windsurf workflows and skills is available locally in `.windsurf/docs/`:
+- `.windsurf/docs/workflows.md` - Workflow specification and usage
+- `.windsurf/docs/skills.md` - Skills specification and progressive disclosure
+
+### Skill vs Workflow Decision
+
+Based on Windsurf documentation (see `.windsurf/docs/workflows.md` and `.windsurf/docs/skills.md`):
+
+**Workflows:**
+- Structured sequences of steps
+- Saved as markdown in `.windsurf/workflows/`
+- Invoked via `/[workflow-name]`
+- Sequential step execution
+- Can call other workflows
+
+**Skills:**
+- Bundle supporting files (scripts, templates, checklists)
+- Use **progressive disclosure** - only name/description shown by default
+- Full content loaded only when invoked or @mentioned
+- Keeps context window lean
+- Better for complex multi-step tasks with supporting resources
+
+**Recommendation:** The Zscaler skill might work better as a **Skill** rather than a Workflow because:
+- It has 100+ reference files in `references/`
+- It needs progressive disclosure (only load relevant files based on question)
+- It's meant to be invoked when Zscaler topics come up
+- The current SKILL.md already follows the agentskills.io specification
+
+The workflow shim we created is essentially trying to replicate what Skills do natively with progressive disclosure.
