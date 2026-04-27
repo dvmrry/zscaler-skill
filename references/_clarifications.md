@@ -42,15 +42,36 @@ IDs are stable forever. If an entry is resolved, it stays here with its answer �
 - `code read` — SDK or TF provider source resolves it
 - `design decision` — not a Zscaler fact question; something we need to choose
 
+## Entry shape
+
+Each entry follows this template. Body is narrative — the existing zia-01 entry is a good model.
+
+```
+### <area>-<num> — <short title>
+
+*Origin: `references/<path>.md` § Open questions*
+
+<one-paragraph statement of the question>
+
+**Status**: <open | investigating | resolved | wontfix> [— last updated YYYY-MM-DD]
+**Resolves with**: <evidence type from the list above>
+**Blocks**: <what's blocked or unknowable until resolved> [optional]
+
+[Body — what's been established, sources checked, partial findings, prior sweeps]
+
+[For resolved: **Answer**: paragraph with sources cited]
+```
+
 ## Workflow for adding a new entry
 
 1. Writing a reference doc, you hit a question the sources don't answer.
 2. Add it to your doc's **Open questions** section with a one-line summary.
-3. Add the full entry here with a new stable ID.
+3. Add the full entry here with a new stable ID, following the entry template above.
 4. Link both ways:
    - Your doc: `See [clarification zia-07](../_clarifications.md#zia-07).`
    - This file: `*Origin: references/<product>/<topic>.md § Open questions*` (placeholder path — substitute the real one)
-5. When resolving an entry, update the `Status:` line and add an `Answer:` paragraph. Don't delete.
+5. **When resolving**: fold the answer into the relevant reference doc body (that's where it's useful), update the doc's `last-verified` date, then delete the entry from this register. Git history preserves it.
+   - **Grandfather rule**: existing pre-2026-04-27 resolved entries (`zia-01`, `zia-03`, `zia-05`–`zia-07`, `zia-10`, `zia-13`, `zpa-02`, `zpa-03`, `zpa-05`–`zpa-08`, `shared-01`–`shared-05`) stay where they are; this policy applies to entries resolved on or after 2026-04-27.
 
 ---
 
