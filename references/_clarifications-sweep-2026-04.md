@@ -311,6 +311,40 @@ Added 2026-04-27 from `references/zia/scim-provisioning.md` authoring pass.
 
 ---
 
+## Deferred — ZCC API rate limits
+
+Added 2026-04-27 from `references/zcc/api-rate-limits.md` authoring pass.
+
+| # | Question | Why unresolved |
+|---|---|---|
+| zcc-rl-01 | Exact JSON body shape of ZCC 429 responses — whether the body contains a `message`, `code`, or `Retry-After` field | Not documented in `vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md`; the vendor doc only describes the `X-Rate-Limit-Retry-After-Seconds` header, not the response body |
+| zcc-rl-02 | Whether the 3 calls/day cap for download endpoints is a combined pool across all three endpoints or a per-endpoint cap of 3 | The vendor doc states "3 API calls per day" for the group; the Python SDK comment describes them as individually capped; the exact scoping (combined vs per-endpoint) is not confirmed by a single authoritative statement |
+| zcc-rl-03 | Whether `X-Rate-Limit-Remaining` is present on every ZCC response (proactive header) or only on 429 responses | The vendor doc describes headers in the context of rate-limit enforcement but does not explicitly state whether they appear on all 2xx responses |
+| zcc-rl-04 | Maximum number of UDIDs accepted per `/forceRemoveDevices` or `/removeDevices` call | Not documented in the vendor help or SDK source; the SDK accepts an arbitrary list with no visible client-side cap |
+| zcc-rl-05 | Whether the `RequestExecutor` (shared OneAPI SDK transport) automatically reads and honors `X-Rate-Limit-Retry-After-Seconds` on the modern ZCC path, or whether only `LegacyZCCClientHelper` implements this retry behavior | Not confirmed from available SDK source; Q6 in `references/zcc/sdk.md § Open questions` notes this as unresolved |
+| zcc-rl-06 | Whether the 100 calls/hour limit is strictly per IP address or also per API credential pair (i.e., two different API keys from the same IP share the same bucket or maintain separate budgets) | Vendor doc states "per IP address" with no mention of per-credential sub-buckets; the combined behavior of multiple credentials on the same IP is not confirmed |
+
+---
+
+## Deferred — ZCC macOS install
+
+Added 2026-04-27 from `references/zcc/macos-install-customization.md` authoring pass.
+
+| ID | Claim requiring confirmation | Source gap |
+|---|---|---|
+| macos-01 | The preference domain for ZCC managed preferences is `com.zscaler.zclient` | Primary vendor doc ("Customizing ZCC with Install Options for macOS") redirected at capture time; exact preference domain not confirmed |
+| macos-02 | ZCC `.pkg` post-install behavior when System Extension profile arrives after package install (whether a reboot is needed) | Not confirmed in captured sources; macOS behavior varies by version |
+| macos-03 | Exact path to the Zscaler-provided uninstall script on macOS | Primary vendor doc unavailable; uninstall script path is typically inside the app bundle but not confirmed |
+| macos-04 | Whether `launchTray = 0` prevents only the UI or also prevents system extension activation | Not disambiguated in the parameters vendor doc |
+| macos-05 | App Store-distributed ZCC plist/MDM managed-app-config support — whether App Store build accepts managed preferences the same way as the `.pkg` build | Not addressed in captured vendor sources |
+| macos-06 | Exact Team ID and System Extension bundle identifier for current ZCC release | Version-specific; must be obtained from installed package or current Zscaler Jamf/Intune deployment guide |
+| macos-07 | Whether Full Disk Access via PPPC is required for all ZCC features or only for endpoint DLP and specific posture checks | Not enumerated in captured vendor sources |
+| macos-08 | Minimum supported macOS version (explicit statement) | Not found in captured vendor sources |
+| macos-09 | Whether a portal-side plist key controls the macOS update channel (e.g., stable vs. early-access) | Not found in captured vendor sources |
+| macos-10 | Confirmed behavior of ZCC System Extension after `launchTray = 0` on macOS 13+ with Login Items restrictions | Not addressed in vendor parameters doc |
+
+---
+
 ## Remaining gaps requiring live API or external docs
 
 - ZCC `web_privacy` return type
@@ -333,3 +367,109 @@ Added 2026-04-27 from `references/zia/scim-provisioning.md` authoring pass.
 - Cloud Connector TF: auth restriction, `wan_selection`, `subcloud_*` fields, provider version
 - ZWA: Action/Module enumerations, retention, SIEM streaming, `changeNote` semantics
 - Shared: ZIdentity/ZCC/ZTW/ZDX audit APIs, ZWA retention, unified audit bus
+
+---
+
+## Deferred — ZCC end-user notifications
+
+Added 2026-04-27 from `references/zcc/end-user-notifications.md` authoring pass.
+
+| # | Question | Why unresolved |
+|---|---|---|
+| zen-01 | Notification Templates — field schema, supported languages, branding options, whether templates can be scoped per App Profile | The vendor help doc references "Configuring Notification Templates for Zscaler Client Connector" as a related article, but that article was not captured in available vendor sources |
+| zen-02 | Per-App-Profile ZPA reauthentication interval override — whether the global "Show ZPA Reauthentication Notifications Every (In Minutes)" setting can be overridden per App Profile / Web Policy | Not found in Web Policy SDK model fields or vendor App Profile help doc |
+| zen-03 | AUP multi-language support — whether the AUP tab supports per-locale templates or only a single HTML blob | Not described in `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md`; the Notification Templates doc (not captured) may address this |
+| zen-04 | Posture-failure notification — whether ZCC emits a distinct OS-level toast notification when a device posture check fails, or only updates in-app status | Not described in the vendor notification doc; posture failure behavior in ZCC is not covered as a toast trigger in reviewed sources |
+| zen-05 | Certificate trust failure notification — whether ZCC emits a ZCC-level OS toast or only a macOS/Windows system-level certificate error dialog when a cert cannot be trusted | Not addressed in the vendor notification doc; the event type is listed in vendor notification overview but behavior is not confirmed in reviewed sources |
+| zen-06 | Notification delivery logging — whether "notification shown", "user dismissed", or "AUP acknowledged" events appear in any Zscaler cloud log feed (ZIA analytics, ZPA analytics, ZCC audit, NSS) | Not addressed in any reviewed vendor source; local ZCC diagnostic logs likely capture this but cloud-side visibility is not confirmed |
+| zen-07 | Notification Templates localization fallback — what language ZCC falls back to if no template matches the user's OS locale | Not confirmed from reviewed sources; requires Notification Templates doc capture |
+| zen-08 | Linux notification behavior — whether ZCC on Linux emits any OS-level desktop notifications (e.g., via libnotify / D-Bus), or only updates in-app status | Not addressed in the vendor notification doc; Linux platform is referenced in Web Policy sub-policies but not in the notification framework section |
+| zen-09 | ChromeOS notification behavior — whether ZCC on ChromeOS surfaces OS-level notifications and whether the Android notification framework applies | The install parameters doc covers Android/ChromeOS together but the notification framework exclusions in the vendor doc only explicitly name iOS and Android as unsupported; ChromeOS status is ambiguous |
+
+---
+
+## Deferred — ZCC support options
+
+Added 2026-04-27 from `references/zcc/support-options.md` authoring pass.
+
+| # | Question | Why unresolved |
+|---|---|---|
+| supp-01 | App Supportability API endpoint path — the vendor help doc describes the UI flow (Administration > Client Connector Support > App Supportability) but does not publish the underlying API endpoint path or request schema for the four toggles (Enable Support Access, Admin Email, Zscaler Ticket Submission, Hide Logging Control). Neither the Python SDK nor the Go SDK exposes a named service module for this surface. | No SDK source found; endpoint not published in available vendor docs |
+| supp-02 | Default states for App Supportability toggles — whether "Enable Support Access" and "Hide Logging Control" are on or off for a newly provisioned tenant is inferred from the configuration steps described in the vendor doc, not explicitly stated | Vendor doc describes configuration steps, not explicit default values |
+| supp-03 | Mobile platform (iOS, Android) exact password gate field availability — whether `disable_password` appears in iosPolicy and androidPolicy sub-policy objects or only `logout_password` | Available sources describe desktop platform sub-policies in detail; mobile sub-policy field enumeration is incomplete in reviewed sources |
+| supp-04 | Diagnostic bundle contents — specific files, directories, and log types included in the encrypted bundle submitted via Report an Issue | Vendor doc states the bundle is encrypted logs but does not enumerate contents; PII scope (specific fields, redaction behavior) is not documented |
+| supp-05 | Bundle storage path on endpoint before upload — whether ZCC stages the bundle to a local temp directory before attaching it, and whether that staging path is predictable (relevant to DLP controls scanning outbound email attachments) | Not described in available vendor sources |
+| supp-06 | Admin-side event log for Report an Issue submissions — whether ZCC logs the time, device, and user when a Report an Issue form is submitted, separately from the email delivery receipt | No admin-side submission log found in reviewed sources; shared audit-logs.md confirms no ZCC audit API package found in either SDK |
+
+---
+
+## Deferred — ZCC Firefox integration
+
+Added 2026-04-27 from `references/zcc/firefox-integration.md` authoring pass.
+
+| # | Question | Why unresolved |
+|---|---|---|
+| ff-01 | Linux support — whether ZCC Firefox integration applies to Linux at all | The vendor doc (`configuring-firefox-integration-zscaler-client-connector.md`) mentions only "macOS and Windows devices" without addressing Linux; Firefox snap isolation on Ubuntu adds further complexity |
+| ff-02 | `security.enterprise_roots.enabled` — whether ZCC's integration mechanism sets this preference (causing Firefox to inherit the OS certificate store) or whether certificate trust requires a separate enterprise policy action | The vendor doc states certificate installation is a manual step if integration is disabled, but does not describe the cert-trust mechanism when integration is enabled |
+| ff-03 | Exact Firefox preference keys ZCC writes — whether ZCC sets `network.proxy.type`, `network.proxy.autoconfig_url`, or another key set; and whether it is delivered via a preference file write, `policies.json`, the Firefox preference API, or another mechanism | Not described in the vendor doc; the doc states only that ZCC "enables the Use system proxy settings feature in Firefox" |
+| ff-04 | Persistence across Firefox major version upgrades — whether settings pushed by ZCC's integration mechanism survive a Firefox major-version update, or whether ZCC must re-apply them after each upgrade | Not addressed in available vendor sources; known risk with `prefs.js`-based settings generally |
+| ff-05 | ZCC version scope — whether Firefox integration behavior is consistent across ZCC 4.x releases or whether specific ZCC versions introduced changes to the integration mechanism | No version-specific notes in the vendor doc |
+
+---
+
+## Deferred — ZCC AUP page
+
+Added 2026-04-27 from `references/zcc/acceptable-use-policy.md` authoring pass.
+
+| # | Question | Why unresolved |
+|---|---|---|
+| zcc-aup-01 | Whether updating the AUP message text in the portal causes ZCC to re-display the AUP to users who have already accepted, independently of the frequency setting | The vendor source describes frequency as the only display trigger; policy-change-triggered re-prompt is not mentioned |
+| zcc-aup-02 | Whether the ZCC AUP screen includes a Decline button, and what happens if the user declines (tunnel blocked, logout forced, or nothing) | The vendor source describes the screen as a gate users "must accept" but does not mention a decline action |
+| zcc-aup-03 | Whether the AUP message field supports a URL redirect to an external policy page, or whether all content must be embedded in the HTML field | Not described in the vendor source; only the HTML content field and image support are documented |
+| zcc-aup-04 | Whether ZCC supports a signature-capture or checkbox-confirmation variant of the AUP (vs. a simple Accept button) | Not described in available vendor sources |
+| zcc-aup-05 | Whether the AUP can be configured to show both Accept and Decline as user choices, or whether it is Accept-only | Not documented; framing in vendor source implies Accept-only |
+| zcc-aup-06 | Minimum ZCC agent version required to display the AUP, and whether older agent versions silently skip the AUP or generate an error | Not documented in the vendor source or in the install-parameters docs |
+| zcc-aup-07 | Whether the AUP Settings tab is suppressed when the tenant uses Notification Templates (analogous to the End User Notifications tab being hidden in that mode) | The vendor source describes the End User Notifications tab being hidden when Notification Templates are in use, but does not address the AUP tab specifically |
+| zcc-aup-08 | Whether ZCC logs individual user AUP accept/decline events — in the ZCC portal audit log, in ZIA NSS streams, or elsewhere | Not described in the AUP vendor source or in the shared audit-logs reference |
+| zcc-aup-09 | Multi-language support — whether ZCC can display the AUP in the user's device locale, or whether only a single-language message is supported | Not described; the AUP message is a single HTML field with no documented locale variant mechanism |
+| zcc-aup-10 | Confirmed message size limit for the ZCC AUP HTML field | The ZIA ranges-and-limitations doc records 15K–30K bytes for notification/AUP messages in a ZIA context; applicability to ZCC AUP not explicitly confirmed |
+| zcc-aup-11 | Behavior in machine tunnel and kiosk scenarios — whether the AUP is shown before user login (machine tunnel), and whether kiosk/shared-device deployments can bypass the AUP | Not documented in the AUP vendor source or in the install-parameters docs |
+| zcc-aup-12 | Whether a change to AUP frequency or message in the ZCC Portal takes effect immediately on the next user connect, or only after the next agent policy refresh cycle | The agent downloads app profile changes on logout/restart; whether AUP notification config follows the same cadence or updates server-side on demand is not confirmed |
+
+---
+
+## Deferred — ZCC user logging controls
+
+Added 2026-04-27 from `references/zcc/user-logging-controls.md` authoring pass.
+
+| # | Question | Why unresolved |
+|---|---|---|
+| ulc-01 | Default `logMode` for a newly created App Profile — whether Info, Warn, or another mode is the out-of-box default when an App Profile is created in the ZCC Portal | Vendor help doc describes available log modes but does not state the factory default; SDK model carries the field without a default value annotation |
+| ulc-02 | `logLevel` vs `logMode` distinction — whether `logLevel` and `logMode` on the `WebPolicy` object are the same concept with different naming conventions at API vs UI layers, or represent independent configuration dimensions | Both fields exist on the `WebPolicy` model; vendor help doc uses "log mode" only; SDK field names suggest a possible distinction but semantics are not documented in available sources |
+| ulc-03 | `logFileSize` values and rotation semantics — the exact units (bytes, MB), allowed range, default value, and whether ZCC keeps multiple rotated archives or overwrites in place | The `WebPolicy` model carries `logFileSize` as an untyped field; no enumeration of allowed values or rotation behavior found in vendor help or SDK source |
+| ulc-04 | `enable_auto_log_snippet` field — present as a parameter on `set_web_privacy_info` in the SDK service file but absent from the `WebPrivacy` model class; function not described in any reviewed source | Discovered as a service-file parameter without a model mapping; vendor doc does not mention it |
+| ulc-05 | Per-platform log path defaults — the filesystem paths where ZCC writes log files on Windows, macOS, Linux, Android, and iOS are not enumerated in available vendor sources | Help doc mentions "Show/Hide Logs" reveals the path to the user; no canonical path table found |
+| ulc-06 | Windows Event Log integration — whether ZCC writes any events to the Windows Application or System event log in addition to its own log file, and if so which Event IDs | `WindowsPolicy.flow_logger_config` field on the SDK model hints at a Windows-specific logging subsystem; relationship to Windows Event Log not described in available sources |
+| ulc-07 | macOS Unified Log integration — whether ZCC emits entries to OSLog (subsystem identifier, category) in addition to its own log files | Not addressed in macOS vendor docs or SDK model |
+| ulc-08 | Linux syslog/journald integration — whether ZCC on Linux writes to the system journal, and if so what facility/priority it uses | `LinuxPolicy` SDK model has no log-configuration fields; Linux-specific logging behavior not documented in reviewed sources |
+| ulc-09 | iOS log access limitations — whether iOS platform sandboxing restricts ZCC from exposing a user-accessible log view, and what the actual iOS-specific capabilities are under the App Supportability toggle | No iOS-specific log caveats in vendor help; iOS platform constraints on background log access are significant |
+| ulc-10 | Diagnostic bundle file inventory — specific files included in the ZIP produced by "Export Logs" and in the encrypted bundle sent via "Report an Issue"; whether the bundle includes OS network configuration, driver info, or other artifacts beyond ZCC log files | Vendor doc states bundle is encrypted logs; specific file inventory not enumerated (overlaps with supp-04) |
+| ulc-11 | In-UI log viewer vs diagnostic bundle consistency — whether the in-app log view and the exported ZIP always reflect the same content, or whether the viewer applies session/mode filters that exclude older rotated log data present in the ZIP | Not addressed in available sources |
+| ulc-12 | ZIA-side URL visibility in ZCC log files — whether ZCC operational logs at any verbosity level include URL paths (not just hostnames/IPs), and whether this depends on forwarding mode (PAC vs tunnel) | Inferred that ZCC is transport-layer and does not log URL paths, but not explicitly confirmed |
+
+---
+
+## Deferred — ZCC troubleshooting
+
+Added 2026-04-27 from `references/zcc/troubleshooting.md` authoring pass.
+
+| ID | Claim requiring confirmation | Source gap |
+|---|---|---|
+| zcc-ts-01 | Exact ZCC log file paths on Windows (`%ProgramData%\Zscaler\logs\`) and macOS (`/Library/Application Support/Zscaler/logs/`) | Paths are consistent with packaging conventions and community reports but not explicitly stated in captured vendor help sources (ulc-05 from the user-logging-controls sweep also covers this) |
+| zcc-ts-02 | Windows Event Log source name for ZCC events — whether source name is "Zscaler", "ZscalerApp", or another string | Not documented in captured vendor sources; overlaps with ulc-06 |
+| zcc-ts-03 | macOS Unified Log subsystem identifier for ZCC (`com.zscaler`) | Not confirmed in any captured vendor source; derived from standard macOS bundle ID conventions; overlaps with ulc-07 |
+| zcc-ts-04 | Android logcat tag for ZCC events — whether it is "ZscalerApp" or another tag | Not confirmed in captured vendor sources; overlaps with ulc-09 context for Android |
+| zcc-ts-05 | Whether "Fetch Logs" on the ZCC Portal Enrolled Devices Device Details page requires a specific admin role permission beyond read access | Not documented in the app-supportability vendor source |
+| zcc-ts-06 | HTTP 500 labeled "Not Implemented" in `legacy-about-error-codes-zcc.md` — whether this reflects an intentional API distinction from the conventional HTTP 500 (Internal Server Error) or is a documentation error | The conventional HTTP status for "Not Implemented" is 501; the vendor doc maps 500 to "Not Implemented"; no clarifying explanation given |
+| zcc-ts-07 | Whether HTTP 503 is returned by the ZCC portal API during maintenance (503 is documented in the ZIA/ZPA legacy API reference but not in the ZCC-specific API reference) | Applicability of 503 to ZCC portal API is inferred from shared platform behavior; not explicitly confirmed for ZCC |
+| zcc-ts-08 | Whether a macOS user denial of the ZCC Network Extension (in System Settings → Privacy & Security) surfaces a specific ZCC error code or admin-visible alert | Not described in captured vendor sources |
