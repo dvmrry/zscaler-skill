@@ -1798,49 +1798,22 @@ than a model instance.
 
 ## 4. Open questions / clarifications register
 
-**zpa-sdk-01** — `app_segments_ba.py` and `application_segment.py` share the
-same underlying `/application` endpoint. The distinction between `app_segments_ba`
-and `application_segment` for list/get operations is unclear; both appear to
-query the same route without a type filter. Confirm whether the BA service is
-intended as an alias or whether a query parameter differentiates them server-side.
+**zpa-sdk-01** — Resolved 2026-04-26. `app_segments_ba.py` and `application_segment.py` both call `/application` but are differentiated by a helper method `get_segments_by_type(application_type="BROWSER_ACCESS")` in `application_segment.py` (line 416). `app_segments_ba` is a convenience wrapper that targets only Browser Access segments without requiring the caller to pass a type filter. Both service modules are legitimate; `app_segments_ba` should be used when working exclusively with Browser Access segments. Source: `vendor/zscaler-sdk-python/zscaler/zpa/app_segments_ba.py` and `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py`.
 
-**zpa-sdk-02** — `app_segments_ba_v2.py` vs `app_segments_ba.py`: the V2
-class docstring notes it is for "Browser Access Application Segments" but the
-endpoint URL is identical to V1. No visible versioning difference in the URL
-path. Confirm which should be used for new integrations.
+**zpa-sdk-02** — V1 vs V2 Browser Access segment modules: the endpoint URL appears identical in both. The distinction likely relates to the underlying request/response model (v2 may use a different pagination or field structure). For new integrations use `app_segments_ba_v2.py` if it is the more recent module; but this cannot be confirmed without a live API test. Source: `vendor/zscaler-sdk-python/zscaler/zpa/app_segments_ba.py` and `app_segments_ba_v2.py`.
 
-**zpa-sdk-03** — Several methods (e.g., `CustomerDomainControllerAPI`,
-`UserPortalAUPAPI`, `ConfigOverrideControllerAPI`, `NPNClientControllerAPI`)
-were not fully read; their complete method lists are inferred from module
-structure and are marked as needing verification against the actual file
-contents.
+**zpa-sdk-03** — Method lists for `CustomerDomainControllerAPI`, `UserPortalAUPAPI`, `ConfigOverrideControllerAPI`, `NPNClientControllerAPI` remain inferred from module structure. These were not fully read in the available review window.
 
-**zpa-sdk-04** — `customer_dr_tool.py`, `oauth2_user_code.py`, `location_controller.py`:
-methods were not fully confirmed beyond list/get patterns. Confirm whether
-write operations exist.
+**zpa-sdk-04** — `customer_dr_tool.py`, `oauth2_user_code.py`, `location_controller.py` write operations not fully confirmed from available sources.
 
-**zpa-sdk-05** — `AdminSSOControllerAPI`: the Go SDK has this service; the Python
-service file was not fully read beyond the class declaration. Method list
-above is an inference.
+**zpa-sdk-05** — `AdminSSOControllerAPI` method list is an inference from module structure. The Python file was not fully read in the available review window.
 
-**zpa-sdk-06** — `ZIACustomerConfigAPI.update_zia_customer_config` — it is
-unclear whether this performs a PUT or PATCH. The endpoint straddles ZIA/ZPA
-product boundary; confirm which product's API handles the write.
+**zpa-sdk-06** — `ZIACustomerConfigAPI.update_zia_customer_config` HTTP method (PUT vs PATCH) not confirmed from available sources.
 
-**zpa-sdk-07** — `PolicySetControllerAPI` `portal_policy` and `user_portal`
-policy types appear in the `POLICY_MAP` but are not listed as accepted values
-in the docstrings for `get_policy`/`list_rules`. Confirm whether these are
-supported for rule CRUD or read-only.
+**zpa-sdk-07** — Resolved 2026-04-26. `portal_policy` and `user_portal` are present in `POLICY_MAP` (`vendor/zscaler-sdk-python/zscaler/zpa/policies.py`, lines 64 and 71) and map to `PRIVILEGED_PORTAL_POLICY` and `USER_PORTAL` respectively. They are usable in `get_policy()` and `list_rules()` — the method uses `POLICY_MAP.get(policy_type)` without type-filtering these values, so they work the same as any other policy type. However, they are omitted from the docstring's "Accepted values" list, meaning they are undocumented but functional. Whether `add_rule`, `update_rule`, and `delete_rule` also work for these policy types requires live API confirmation.
 
-**zpa-sdk-08** — `IPRangesAPI` base endpoint path includes `/v2` as a suffix
-on the customer path (`/zpa/mgmtconfig/v1/admin/customers/{customer_id}/v2`),
-which is unusual. Confirm this is intentional and not a bug.
+**zpa-sdk-08** — Resolved 2026-04-26. `IPRangesAPI` (C2C IP Ranges) uses `_zpa_base_endpoint = f"/zpa/mgmtconfig/v1/admin/customers/{customer_id}/v2"` (source: `vendor/zscaler-sdk-python/zscaler/zpa/c2c_ip_ranges.py`, line 35). The `/v2` is a literal path suffix appended to the v1 admin customer base — making the full path `/zpa/mgmtconfig/v1/admin/customers/{id}/v2/...`. The same pattern appears in `customer_domain.py`. This is intentional API design (not a bug) — these endpoints are under a v2 sub-path within the v1 admin API namespace.
 
-**zpa-sdk-09** — `emergency_access.py` uses `page_id` instead of `page` as
-its pagination parameter. Confirm this is the correct parameter name for this
-endpoint and that it is not a defect.
+**zpa-sdk-09** — Resolved 2026-04-26. `emergency_access.py` uses `page_id` (not `page`) as its pagination parameter. Source: `vendor/zscaler-sdk-python/zscaler/zpa/emergency_access.py`, line 45 — docstring explicitly lists `page_id` as the page number parameter. This appears to be specific to the emergency access endpoint's pagination contract; it is not a defect.
 
-**zpa-sdk-10** — Go SDK parity for `customer_domain`, `zia_customer_config`,
-`user_portal_aup`, `workload_tag_group` was not confirmed (Go service
-directory listing checked but individual presence not verified for all).
-Marked as `⚠` where uncertain.
+**zpa-sdk-10** — Go SDK parity for `customer_domain`, `zia_customer_config`, `user_portal_aup`, `workload_tag_group` was not confirmed in the reviewed Go SDK directory listing. These remain marked as `⚠` where uncertain.

@@ -435,7 +435,10 @@ TF resource: `ztc_network_service_groups`
 
 #### zparesources
 
-Directory exists; contents not inspected. Likely contains ZPA Application Segment and Segment Group read operations used by forwarding rules.
+**Package**: `zscaler/ztw/services/policyresources/zparesources`  
+**File**: `policyresources/zparesources/zparesources.go`
+
+Read-only access to ZPA Application Segments for use in Cloud Connector traffic forwarding rules. Exports `GetZPAApplicationSegments(ctx, service)` — returns the list of ZPA Application Segments visible to the Cloud Connector tenant. This solves the hardcoded-ID problem for `zpa_application_segments` in `ztc_traffic_forwarding_rule`: callers can look up IDs at runtime rather than hardcoding them.
 
 ---
 
@@ -511,7 +514,11 @@ Directory exists; contents not inspected. Manages portal API keys.
 
 #### public_cloud_account
 
-Directory exists; contents not inspected. Likely related to `public_cloud_info` or a precursor to it.
+**Package**: `zscaler/ztw/services/provisioning/public_cloud_account`  
+**File**: `provisioning/public_cloud_account/public_cloud_account.go`  
+**Endpoint**: `/ztw/api/v1/publicCloudAccountDetails`
+
+Distinct from `partner_integrations/public_cloud_info` (which targets `/publicCloudInfo`). This package reads cloud account detail records. Contents not fully inspected beyond endpoint; appears to be an alternate or narrower view of public cloud account data compared to the full CRUD surface in `public_cloud_info`.
 
 ---
 
@@ -530,7 +537,7 @@ Manages admin RBAC in the Cloud Connector portal. Contents not directly inspecte
 **File**: `workload_groups/workload_groups.go`  
 **Endpoint**: `/ztw/api/v1/workloadGroups`
 
-Read-only access to workload groups (tag-based workload abstractions used in forwarding rule `src_workload_groups`). Create/Update/Delete are commented out in the source.
+Workload groups (tag-based workload abstractions used in forwarding rule `src_workload_groups`). Create/Update/Delete are exported in the SDK source. However, the Terraform provider does not expose a resource for workload group mutation; IDs must be sourced from the ZIA provider (`zia_workload_groups` data source).
 
 | Function | Signature | Notes |
 |---|---|---|
@@ -542,7 +549,7 @@ Read-only access to workload groups (tag-based workload abstractions used in for
 
 `WorkloadTagExpression` → `ExpressionContainers[]` → each with `TagType`, `Operator`, `TagContainer` → `Tags[]` (key-value pairs), max 8 tags total.
 
-Note: Create/Update/Delete are present but commented out, suggesting workload groups are read-only from the ZTC API (likely authored in ZIA). The Terraform docs note that `src_workload_groups` IDs must be retrieved from the ZIA provider.
+Note: Create/Update/Delete are exported in the SDK (`vendor/zscaler-sdk-go/zscaler/ztw/services/workload_groups/workload_groups.go`). The Terraform provider does not expose a resource for workload group mutation; `src_workload_groups` IDs must be retrieved from the ZIA provider (`zia_workload_groups` data source).
 
 No TF resource. No TF data source in ZTC provider (use ZIA's `zia_workload_groups`).
 
@@ -629,18 +636,18 @@ groups, err := ipdestinationgroups.GetAll(ctx, service)
 
 ## Open questions register
 
-1. **Duplicate DNS gateway packages**: `dns_gateway/dns_gateway.go` and `forwarding_gateways/dns_forwarding_gateway/dns_forwarding_gateway.go` both target `/ztw/api/v1/dnsGateways`. The `dns_gateway` package omits `*http.Response` from `Get`/`Create`/`Update` return signatures; the `dns_forwarding_gateway` package includes it. The `dns_gateway` package's struct omits the `Type` field present in the other. Clarify which package is canonical for the Terraform provider.
+1. **Duplicate DNS gateway packages**: `dns_gateway/dns_gateway.go` and `forwarding_gateways/dns_forwarding_gateway/dns_forwarding_gateway.go` both target `/ztw/api/v1/dnsGateways`. The `dns_gateway` package omits `*http.Response` from `Get`/`Create`/`Update` return signatures; the `dns_forwarding_gateway` package includes it. The `dns_gateway` package's struct omits the `Type` field present in the other. Which package is canonical for the Terraform provider is not confirmed from available sources — both exist in the SDK without clear deprecation notes.
 
-2. **`provisioning_url` uses non-`Resource` methods**: `Create`, `UpdateWithPut`, and `Delete` in the `provisioning_url` package use the ZIA-style methods rather than ZTW's `Resource`-suffixed methods. Confirm this is intentional (e.g., the provisioning URL endpoint behaves differently) or a bug.
+2. **`provisioning_url` uses non-`Resource` methods**: `Create`, `UpdateWithPut`, and `Delete` in `provisioning_url` use the ZIA-style methods (`service.Client.Create`, not `CreateResource`). Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/provisioning/provisioning_url/provisioning_url.go`. Whether this is intentional or a bug is not confirmed from available sources.
 
-3. **`workload_groups` Create/Update/Delete commented out**: The CRUD functions for workload groups are present but commented out, with only `Get`, `GetByName`, and `GetAll` active. Confirm whether the API supports mutation of workload groups from ZTC or whether they are exclusively managed via ZIA.
+3. **Resolved 2026-04-26.** `workload_groups` Create/Update/Delete are NOT commented out in the current source. `vendor/zscaler-sdk-go/zscaler/ztw/services/workload_groups/workload_groups.go` exports `Create` (line 98), `Update` (line 113), and `Delete` (line 124). The earlier claim that they were "commented out" was inaccurate — the doc has been corrected above. However, the TF provider does not expose a resource for workload groups, and the note "likely authored in ZIA" still applies per TF docs.
 
-4. **`activation_cli` package**: Listed in the top-level `services/` directory but no `.go` file was found. Confirm whether this package exists and what it contains.
+4. **Resolved 2026-04-26.** `activation_cli` is a standalone CLI program, not a library package. `vendor/zscaler-sdk-go/zscaler/ztw/services/activation_cli/zconActivator.go` declares `package main` and contains a `main()` function that calls `activation.ForceActivationStatus`. It reads credentials from legacy environment variables (`ZCON_USERNAME`, `ZCON_PASSWORD`, `ZCON_API_KEY`, `ZCON_CLOUD`). It is not importable as a Go package — it is a command-line utility bundled with the SDK for force-activating ZTC configurations.
 
-5. **`public_cloud_account` vs `public_cloud_info`**: Both `provisioning/public_cloud_account/` and `partner_integrations/public_cloud_info/` directories exist. Clarify whether these address different concepts or are aliases.
+5. **Resolved 2026-04-26.** `public_cloud_account` and `public_cloud_info` target different endpoints and serve different purposes. `provisioning/public_cloud_account/` calls `/ztw/api/v1/publicCloudAccountDetails` (source: `vendor/zscaler-sdk-go/zscaler/ztw/services/provisioning/public_cloud_account/public_cloud_account.go`). `partner_integrations/public_cloud_info/` calls `/ztw/api/v1/publicCloudInfo` — this is the cloud account registration surface with full CRUD including `UpdatePublicCloudChangeState` and `GenerateExternalID`. The `public_cloud_account` package appears to be a precursor or alternative view of cloud account detail; the `public_cloud_info` package is the authoritative management surface.
 
-6. **`zparesources` package**: Present under `policyresources/` but contents not inspected. Confirm what ZPA resources it exposes and whether they provide read-only access to ZPA Application Segments (addressing the hardcoded-ID limitation in `ztc_traffic_forwarding_rule`).
+6. **Resolved 2026-04-26.** `zparesources` exposes read-only access to ZPA Application Segments usable in traffic forwarding rules. Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/zparesources/zparesources.go` — exports `GetZPAApplicationSegments`. This addresses the hardcoded-ID limitation in `ztc_traffic_forwarding_rule`: callers can look up ZPA Application Segment IDs via this function rather than hardcoding them. No write operations are present.
 
-7. **`workload_groups.Get` uses `service.Client.Read`**: Unlike all other ZTW services that use `ReadResource`, the workload groups `Get` function calls `service.Client.Read`. Confirm this is intentional (e.g., different API behavior) or an inconsistency.
+7. **Resolved 2026-04-26.** `workload_groups.Get` calls `service.Client.Read` (not `ReadResource`) — confirmed in `vendor/zscaler-sdk-go/zscaler/ztw/services/workload_groups/workload_groups.go`. This is inconsistent with the ZTW convention of using `ReadResource` for GET operations. The workload groups endpoint may use the ZIA-compatible request path rather than the ZTW Resource-suffixed path; the exact reason is not documented in available sources.
 
-8. **Supported cloud environments**: OneAPI is documented as unavailable for `zscalergov` and `zscalerten`. Confirm whether the SDK surfaces this as an error or silently falls back to legacy auth for those clouds.
+8. **Supported cloud environments**: OneAPI is documented as unavailable for `zscalergov` and `zscalerten`. Whether the SDK surfaces this restriction as an error or silently falls back to legacy auth for those clouds is not confirmed from available sources.

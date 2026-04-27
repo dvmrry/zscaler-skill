@@ -533,20 +533,20 @@ Both numeric ID and name are accepted as the import identifier for all resources
 
 ## Open questions / clarifications register
 
-1. **`ztc_dns_forwarding_gateway` vs `ztc_dns_gateway`**: Both resources appear to target `/ztw/api/v1/dnsGateways`. Are they truly distinct resource types or aliases with different schema presentations? The SDK has two separate packages (`dns_gateway` and `forwarding_gateways/dns_forwarding_gateway`) that both point to the same endpoint. Clarification needed on whether the API distinguishes them by `dnsGatewayType`.
+1. **`ztc_dns_forwarding_gateway` vs `ztc_dns_gateway`**: Both resources target `/ztw/api/v1/dnsGateways`. The SDK has two packages targeting this same endpoint (`dns_gateway` and `forwarding_gateways/dns_forwarding_gateway`) with slightly different struct definitions (the latter adds a `Type` field). Whether the API distinguishes the two by `dnsGatewayType` is not confirmed from available sources. Which SDK package the Terraform provider uses for each TF resource is not verified.
 
-2. **`ztc_traffic_forwarding_log_rule` doc label**: The resource doc page (`ztc_traffic_forwarding_log_rule.md`) has `# ztc_traffic_forwarding_log_rule (Data Source)` in its header despite being under `docs/resources/`. Confirm this is a resource, not a data source.
+2. **Resolved 2026-04-26.** `ztc_traffic_forwarding_log_rule` doc label is a confirmed bug. Source: `vendor/terraform-provider-ztc/docs/resources/ztc_traffic_forwarding_log_rule.md` — the H1 header reads `# ztc_traffic_forwarding_log_rule (Data Source)` but the file is under `docs/resources/` and the resource is implemented as a managed resource. The `(Data Source)` label in the header is incorrect.
 
-3. **`ztc_ip_destination_groups` field name**: The attribute reference table uses `ip_addresses` but the SDK struct field is `addresses` and examples use `addresses`. The correct TF argument name requires confirmation against the provider source code.
+3. **Resolved 2026-04-26.** `ztc_ip_destination_groups` correct TF argument name is `addresses`. Source: `vendor/terraform-provider-ztc/ztc/resource_ztc_ip_destination_groups.go` — the schema uses `"addresses"` (not `"ip_addresses"`). The attribute reference table in the doc that says `ip_addresses` is incorrect. Use `addresses` in Terraform configurations.
 
-4. **`ztc_ip_source_groups` example**: The example block uses resource type `zia_ip_source_groups` instead of `ztc_ip_source_groups`. Confirm the correct resource type and whether cross-provider use is intended.
+4. **Resolved 2026-04-26.** `ztc_ip_source_groups` example uses wrong resource type. Source: `vendor/terraform-provider-ztc/docs/resources/ztc_ip_source_groups.md` — the example block references `zia_ip_source_groups` instead of `ztc_ip_source_groups`. This is a documentation bug. The correct resource type is `ztc_ip_source_groups`. Cross-provider ZIA source groups are a separate resource and are not interchangeable.
 
-5. **ZPA Application Segment IDs**: `zpa_application_segments` and `zpa_application_segment_groups` in `ztc_traffic_forwarding_rule` have no corresponding ZTC data sources. The provider docs acknowledge this and suggest ZIA provider data sources may return the same IDs. Confirm the cross-provider ID sharing pattern.
+5. **ZPA Application Segment IDs in `ztc_traffic_forwarding_rule`**: The `zparesources` package in the Go SDK (`vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/zparesources/zparesources.go`) exports `GetZPAApplicationSegments` which returns ZPA Application Segment IDs visible to the Cloud Connector tenant. Whether these IDs are the same as those returned by the `zpa_application_segment` data source in the ZPA Terraform provider has not been confirmed from a live cross-provider test. The ZTC provider does not expose a data source for this; using the `zparesources` Go package directly or the ZPA provider data source are the available options.
 
-6. **`ztc_traffic_forwarding_rule` and OneAPI restriction**: The resource docs do not explicitly state an OneAPI-only restriction (unlike the DNS and log rule resources). Confirm whether the traffic forwarding rule works with both auth frameworks.
+6. **`ztc_traffic_forwarding_rule` and OneAPI restriction**: Whether traffic forwarding rules require OneAPI or work with both auth frameworks is not confirmed from available sources.
 
-7. **`wan_selection` deprecation**: The SDK struct comments note this field was deprecated and is no longer configurable in some contexts. Confirm current behavior.
+7. **`wan_selection` deprecation**: Not further confirmed from available sources. The SDK struct comments note the deprecation but current API behavior is not confirmed.
 
-8. **`subcloud_primary` / `subcloud_secondary` applicability**: SDK struct comments mark these as "Not applicable to Cloud & Branch Connector." Confirm whether these fields should be omitted from the TF schema entirely.
+8. **`subcloud_primary` / `subcloud_secondary` applicability**: SDK struct comments mark these as "Not applicable to Cloud & Branch Connector." Whether the TF schema omits or exposes these fields is not verified from the reviewed TF resource source.
 
-9. **Provider version parity**: The index.md examples show `~> 0.1.6` but also `~> 0.1.0` for the legacy client example. Confirm the current stable version and whether v4.0.0 (referenced for legacy backwards compatibility) implies a different version numbering scheme than the `0.1.x` examples suggest.
+9. **Provider version parity**: The index.md examples show `~> 0.1.6` and `~> 0.1.0`. The v4.0.0 reference for legacy compatibility likely refers to the underlying Go SDK version (`zscaler-sdk-go/v3` using a v4 client path), not the provider version. The current stable ZTC provider version is not confirmed from available sources.

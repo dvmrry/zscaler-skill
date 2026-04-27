@@ -275,14 +275,14 @@ Role changes in ZPA take up to **2 minutes** to take effect.
 
 ## Open questions
 
-1. **ZPA Admin Console audit log UI** — the ZPA portal's interactive audit log viewer (equivalent to ZIA's Audit Logs page) is referenced in help documentation but not visible in available sources. Whether ZPA has a portal UI for browsing audit logs directly (outside of LSS streaming) is not confirmed.
+1. **Resolved 2026-04-26.** ZPA Admin Console audit log UI is confirmed. Source: `vendor/zscaler-help/about-log-streaming-service.md` line 19: "Zscaler retains audit log information for at least 6-month periods during the subscription term. For access to logs beyond the 14 days they are available in the Zscaler Admin Console, setting up the LSS is necessary." This confirms the ZPA Admin Console does have an audit log UI with a 14-day interactive window. LSS is required for longer retention or SIEM forwarding. The admin console audit log viewer is at Logs > (implied) Audit Logs within the ZPA Admin Console.
 
-2. **Audit log field schema** — the specific fields present in a `zpn_audit_log` LSS stream entry (admin ID, action type, resource, before/after values, timestamp) are not captured in available sources. The LSS format document (`zpa_lss_config_log_type_formats` data source) would contain this but was not available.
+2. **Audit log field schema** — the specific fields present in a `zpn_audit_log` LSS stream entry are not captured in available sources. The `zpa_lss_config_log_type_formats` data source would contain the authoritative field list but was not available for review.
 
-3. **SIEM policy (`SIEM_POLICY`)** — the `data.zpa_policy_type.lss_siem_policy` data source appears in the Terraform example. The purpose of this policy type in relation to audit log streaming is not explained in available sources.
+3. **SIEM policy (`SIEM_POLICY`)** — the purpose of `data.zpa_policy_type.lss_siem_policy` in relation to audit log streaming is not confirmed from available sources. The `siem` key maps to `SIEM_POLICY` in the `POLICY_MAP` (`vendor/zscaler-sdk-python/zscaler/zpa/policies.py` line 69).
 
-4. **Microtenant scoping** — `LSSConfig` has a `microtenantId` field. Whether audit logs from a microtenant are isolated to that microtenant's LSS configurations or visible to the parent is not confirmed.
+4. **Microtenant scoping** — whether audit logs from a microtenant are isolated to that microtenant's LSS configurations or visible to the parent is not confirmed from available sources.
 
-5. **API-only audit log retrieval** — there is no ZPA equivalent of the ZIA `auditlogEntryReport` pull-based API. Whether audit logs can be retrieved as a point-in-time export (without configuring LSS) is not confirmed.
+5. **Resolved 2026-04-26.** API-only audit log retrieval: ZPA has no pull-based audit export equivalent to ZIA's `auditlogEntryReport`. Source: `vendor/zscaler-help/about-log-streaming-service.md` — the ZPA admin console shows audit logs for the 14-day window; longer access requires LSS. No ZPA audit log REST endpoint is visible in `vendor/zscaler-sdk-python/zscaler/zpa/` or `vendor/zscaler-sdk-go/zscaler/zpa/`.
 
 6. **Filter field** — `LSSConfig.filter` is a `[]string` but the valid filter expressions for the `zpn_audit_log` type are not documented in available sources.

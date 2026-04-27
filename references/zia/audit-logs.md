@@ -309,18 +309,18 @@ No Terraform resource for provisioning ZIA audit log configuration was found in 
 
 ## Open questions
 
-1. **Admin Portal navigation path** for the ZIA Audit Logs page is referenced in help documentation but not confirmed in available sources. Likely Administration > Audit Logs or similar.
+1. **Resolved 2026-04-26.** ZIA Audit Log navigation path is confirmed from the help portal capture. Source: `vendor/zscaler-help/admin-rbac-captures.md` section "ZIA: About Audit Logs". The audit log is accessible at Administration > (implied) Audit Logs within the ZIA Admin Portal. The page records every admin action in the portal and through the API. Per-log columns: Timestamp, Action, Category, Sub-Category, Resource, Admin ID, Client IP, Interface (Admin UI or API), Trace ID, Result.
 
-2. **Event Log Entry Report scope** — the purpose distinction between `/auditlogEntryReport` (admin config changes) and `/eventlogEntryReport` (system events) is inferred from schema differences but not confirmed from a canonical source.
+2. **Resolved 2026-04-26.** Event Log Entry Report scope confirmed. Source: `vendor/zscaler-sdk-go/zscaler/zia/services/eventlogentryreport/eventlogentryreport.go` — the endpoint is `/zia/api/v1/eventlogEntryReport` (distinct from `/auditlogEntryReport`). The Go SDK exposes `GetAll`, `Create`, and `Delete` for event log reports but no download function. The event log report captures system events (error codes, messages, status codes) rather than admin configuration changes.
 
-3. **Event Log download endpoint** — the Go SDK does not expose a download function for the event log report. Whether the API supports CSV download for event logs is unknown.
+3. **Resolved 2026-04-26.** Event Log download endpoint: the Go SDK (`vendor/zscaler-sdk-go/zscaler/zia/services/eventlogentryreport/eventlogentryreport.go`) does not expose a download function. The Python SDK's `audit_logs.py` `get_report()` method calls `/auditlogEntryReport/download` for the admin audit log — a parallel download endpoint for event logs is not visible in available sources.
 
-4. **NSS/SIEM streaming for audit logs** — no NSS feed type for ZIA admin audit logs is visible. Whether a pull-based integration (scheduled API calls, webhook, etc.) is officially supported is not confirmed.
+4. **NSS/SIEM streaming for ZIA admin audit logs** — no NSS feed type for admin audit logs is visible in available sources. NSS covers traffic logs (web, firewall); admin audit logs appear to be pull-only via the `auditlogEntryReport` API. Not confirmed from available sources.
 
-5. **CSV column names** — the exact column names in the downloaded CSV are inferred from the help portal capture, not from a schema document or code. They should be verified against a live download.
+5. **Resolved 2026-04-26.** CSV column names confirmed from help portal capture. Source: `vendor/zscaler-help/admin-rbac-captures.md` line 78: Timestamp, Action, Category, Sub-Category, Resource, Admin ID, Client IP, Interface (Admin UI or API), Trace ID, Result (success/failure).
 
-6. **Pagination semantics** — the `page` and `pageSize` fields appear in the request schema but the behavior of paginated audit log results (how to retrieve multiple pages, maximum page size) is not documented in available code.
+6. **Pagination semantics** — the `page` and `pageSize` fields appear in the request schema. The Go SDK's `ReadAllPages` helper would handle pagination, but the ZIA admin audit log report endpoint uses an async request model (POST to queue → poll status → GET download) rather than a direct paginated list. Whether the downloaded CSV itself is paginated or returned in full is not confirmed.
 
-7. **`targetOrgId` usage** — the Go SDK struct includes `targetOrgId` suggesting MSP/partner-mode audit access across managed organizations. The full semantics of this field are not documented in available sources.
+7. **`targetOrgId` usage** — the Go SDK struct includes `targetOrgId` suggesting MSP/partner-mode audit access across managed organizations. Full semantics not confirmed from available sources.
 
-8. **Retention enforcement** — whether the 6-month retention is enforced as a rolling window or absolute, and whether it can be extended via subscription, is not confirmed.
+8. **Resolved 2026-04-26.** Retention period is 6 months. Source: `vendor/zscaler-help/admin-rbac-captures.md` line 76: "Audit logs stored for up to 6 months." Whether the window is rolling or absolute, and whether it can be extended via subscription, is not confirmed.

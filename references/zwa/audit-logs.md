@@ -212,16 +212,16 @@ No streaming destination mechanism (equivalent to ZIA NSS or ZPA LSS) is documen
 
 ## Open questions
 
-1. **Python model field gap** — the Python `Logs` model only exposes `action`, `module`, and `resource`. The Go `AuditLog` struct also has `changedAt`, `changedBy`, `oldRowJson`, `newRowJson`, and `changeNote`. Whether the Python model is incomplete or the Python API response genuinely omits these fields is not confirmed.
+1. **Resolved 2026-04-26.** Python model field gap confirmed. Source: `vendor/zscaler-sdk-python/zscaler/zwa/models/audit_logs.py` — the `Logs` model class only has `action`, `module`, and `resource`. The Go `AuditLog` struct (`vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go`) also has `changedAt`, `changedBy`, `oldRowJson`, `newRowJson`, and `changeNote`. The Python model is incomplete relative to the Go struct. Whether the Python API response genuinely omits these fields or the model just fails to map them cannot be confirmed without a live API test.
 
 2. **Supported `Action` values** — the full set of valid action strings (e.g., `CREATE`, `UPDATE`, `DELETE`, `LOGIN`) for the `Action` field filter is not documented in available sources.
 
 3. **Supported `Module` values** — the full set of module names is not documented. Only DLP-related module names are implied by the surrounding code context.
 
-4. **Retention** — the retention period for ZWA customer audit logs is not documented in available sources.
+4. **Retention** — the retention period for ZWA customer audit logs is not documented in available sources. See `references/shared/audit-logs.md` for cross-product retention context.
 
-5. **SIEM integration** — whether ZWA audit logs can be forwarded to a SIEM via streaming (push-based) or only retrieved via pull (API) is not confirmed.
+5. **SIEM integration** — whether ZWA audit logs can be forwarded to a SIEM via streaming (push-based) or only retrieved via pull (API) is not confirmed from available sources.
 
-6. **`changeNote` usage** — the `changeNote` field is present in the Go model but not mentioned in the Python docstring. Whether this field is admin-supplied or system-generated is not confirmed.
+6. **`changeNote` usage** — the `changeNote` field is present in the Go model but not mentioned in the Python docstring. Whether this field is admin-supplied or system-generated is not confirmed from available sources.
 
-7. **API version** — the base path is `/zwa/dlp/v1/customer/audit`. Whether a v2 exists or is planned is unknown.
+7. **API version** — the base path is `/zwa/dlp/v1/customer/audit`. Whether a v2 exists or is planned is not confirmed from available sources.

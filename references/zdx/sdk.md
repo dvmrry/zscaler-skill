@@ -306,12 +306,14 @@ The ZDX Score is a 0–100 composite quality indicator. It is the primary metric
 
 ## Open questions
 
-1. `SnapshotAPI.share_snapshot` has no corresponding implementation in the Go SDK directory. Whether this endpoint exists in the Go SDK under a different path, or is Python-only, is unclear.
+<!-- Resolved clarifications 2026-04-26 -->
+
+**Q1 — Resolved 2026-04-26.** `SnapshotAPI.share_snapshot` has no corresponding implementation in the Go SDK. A search of `vendor/zscaler-sdk-go/zscaler/zdx/services/` found no `snapshot` package or file. The snapshot endpoint (`POST /zdx/v1/snapshot/alert`) is Python-only in the available vendor sources.
 
 2. The `@zdx_params` decorator's handling of `expiry` in `share_snapshot` routes the value through `query_params` rather than the request body, then the method extracts it back into the body. This is inconsistent with how the expiry field would be sent in a direct API call, and may produce unexpected behavior if other `query_params` are also present.
 
-3. The `get_analysis` return type is a raw dict rather than a typed model object (`DeviceApplicationAnalysis`), unlike `start_analysis`. This inconsistency means callers of `get_analysis` must know the response field names without IDE assistance.
+**Q3 — Resolved 2026-04-26.** `get_analysis` intentionally returns a raw dict. The source (`vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py`, line 616) wraps the body with `self.form_response_body(response.get_body())` and returns a list containing that dict. `start_analysis` (line 563–568) does use `DeviceApplicationAnalysis` as the model. The inconsistency is confirmed in the source: `get_analysis` has no typed model wrapper. Callers must access fields by key name.
 
 4. ZDX cursor-based pagination requires callers to implement their own loop. The Go SDK has no centralized `ReadAllPages` for ZDX either. It is unknown whether Zscaler plans to add pagination helpers for ZDX, or whether the cursor tokens are expected to be managed by each caller.
 
-5. `list_softwares` does not accept a time range parameter (`since`), despite applying `@zdx_params`. Whether the software inventory endpoint supports time filtering via the API is unclear.
+**Q5 — Partially resolved 2026-04-26.** `list_softwares` applies the `@zdx_params` decorator (`vendor/zscaler-sdk-python/zscaler/zdx/inventory.py`, line 33), which converts `since` → `from`/`to` epoch pair. So the decorator is applied and the `since` param is translated if provided. Whether the API itself honors the time-range filter for the inventory endpoint is not confirmed from source code alone — the decorator attaches it, but server-side support still needs hands-on verification.
