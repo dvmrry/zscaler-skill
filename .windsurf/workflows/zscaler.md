@@ -14,7 +14,7 @@ Before answering tenant-specific questions, check whether `snapshot/` has data:
 ls -A snapshot/ | grep -v '^\.gitkeep$'
 ```
 
-If empty, note this explicitly - you can answer general behavior questions but not tenant-specific lookups.
+Store the result as a mental flag: `snapshot_available: yes/no`. If empty, note this explicitly - you can answer general behavior questions but not tenant-specific lookups.
 
 Also check if `iac/` has production IaC (different from reference IaC under `vendor/`):
 
@@ -24,7 +24,13 @@ ls -A iac/ | grep -v '^\.gitkeep$'
 
 ## Step 2: Route based on question shape
 
-Read the appropriate reference file based on the user's question. Start with ONLY the most relevant file - don't read multiple unless the question genuinely spans domains.
+First, check these three pre-routing conditions BEFORE the product routing table:
+
+1. **Breadth questions** ("does Zscaler have a product for X?", "what is Risk360?", "is AppProtection part of ZPA?") → `references/_portfolio-map.md`
+2. **Prerequisite-knowledge questions** ("what's a proxy?", "what's the difference between SAML and OIDC?", "what does zero trust actually mean?") → `references/_primer/index.md`
+3. **Meta-questions about the skill itself** → `references/_layering-model.md`
+
+If none of the above apply, use the product routing table below. Read the appropriate reference file based on the user's question. Start with ONLY the most relevant file - don't read multiple unless the question genuinely spans domains (i.e., two or more products are clearly named).
 
 | Question shape | Read this file |
 |---|---|
@@ -87,7 +93,9 @@ Read the appropriate reference file based on the user's question. Start with ONL
 | ZIA API endpoint or response shape | `references/zia/api.md` |
 | ZPA API endpoint or response shape | `references/zpa/api.md` |
 | ZCC API endpoint or response shape | `references/zcc/api.md` |
-| Terraform provider resource or schema | `references/terraform.md` |
+| ZIA Terraform provider resource or schema | `references/zia/terraform.md` |
+| ZPA Terraform provider resource or schema | `references/zpa/terraform.md` |
+| Cloud Connector Terraform provider resource or schema | `references/cloud-connector/terraform.md` |
 | ZIA web log fields / what NSS reports | `references/zia/logs/web-log-schema.md` |
 | ZIA firewall log fields | `references/zia/logs/firewall-log-schema.md` |
 | ZIA DNS log fields | `references/zia/logs/dns-log-schema.md` |
@@ -95,16 +103,7 @@ Read the appropriate reference file based on the user's question. Start with ONL
 | SPL patterns / "how do I query for X?" | `references/shared/splunk-queries.md` |
 | "should I check logs here?" / validation guidance | `references/shared/log-correlation.md` |
 
-## Step 3: Handle special routing cases
-
-**For breadth questions** ("does Zscaler have a product for X?", "what is Risk360?", "is AppProtection part of ZPA?"):
-- Start with `references/_portfolio-map.md` - single-page index of every Zscaler product with coverage depth
-
-**For prerequisite-knowledge questions** ("what's a proxy?", "what's the difference between SAML and OIDC?", "what does zero trust actually mean?"):
-- Start with `references/_primer/` - five primer docs covering generic networking, forwarding paradigms, zero-trust philosophy, identity protocols, and Zscaler platform shape
-
-**For meta-questions about the skill itself**:
-- See `references/_layering-model.md` - the three-layer framing (general / tenant / SME tribal)
+**If nothing in the routing table matches**, default to `references/_portfolio-map.md` and ask one clarifying question to narrow down the product domain.
 
 **For AI agents needing diagnostic functions**:
 - Prefer `references/_agent-patterns.md` over prose runbooks - contains typed Python functions for diagnostic/recovery flows
@@ -118,15 +117,21 @@ Read the appropriate reference file based on the user's question. Start with ONL
 **For verifying findings before threading into the skill**:
 - Apply `references/_verification-protocol.md` - four-tier model (source-verified / behavior-verified / operator-reported / inferred)
 
+## Step 3: Load SKILL.md for detailed routing
+
+For detailed question routing beyond the pre-routing checks above, load and follow `SKILL.md`. The skill contains the authoritative routing table and will be kept in sync with reference doc changes. This workflow provides explicit `/zscaler` invocation and snapshot checks; the skill handles the heavy lifting of product-specific routing.
+
 ## Step 4: Check clarifications
 
 Before quoting any reference summary, check `references/_clarifications.md` for the question's domain (zia-*, zpa-*, shared-*, log-*). Clarifications flag where the doc's cheerful prose hides an unresolved ambiguity. Cite the clarification ID in your answer when one applies.
 
-## Step 5: Consult snapshot if available
+## Step 5: Consult snapshot if available (conditional)
 
-If the question is tenant-specific (e.g., "is reddit.com in a URL category in OUR tenant?") and `snapshot/` is populated:
+**IF** `snapshot_available: yes` (from Step 1) AND the question is tenant-specific (e.g., "is reddit.com in a URL category in OUR tenant?"):
 - Read the relevant JSON file (e.g., `snapshot/zia/url-categories.json`, `snapshot/zia/url-filtering-rules.json`, `snapshot/zpa/app-segments.json`)
 - Cite the specific rule IDs you used
+
+**ELSE**: Skip this step.
 
 ## Step 6: Format the answer
 
