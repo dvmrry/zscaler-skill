@@ -255,7 +255,7 @@
   // loaded — every page gets the sidebar, and the rail toggle hides
   // it when desired.
   const sidebarScript = document.createElement('script');
-  sidebarScript.src = prefix + 'left-sidebar.js?v=3';
+  sidebarScript.src = prefix + 'left-sidebar.js?v=4';
   sidebarScript.async = true;
   document.body.appendChild(sidebarScript);
 

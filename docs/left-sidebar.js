@@ -20,33 +20,58 @@
   const TREE_CACHE_TTL = 1000 * 60 * 30;
   const CONTENT_KEY_PREFIX = 'zskill:content:v1:';
 
+  // Hub display labels. Some references/ folders correspond to a hub
+  // (welcome, zia, zpa, cloud-connector); others are standalone product
+  // sections that don't yet have articles.
   const GROUP_LABELS = {
+    '_primer': 'Welcome',
     'zia': 'ZIA',
     'zpa': 'ZPA',
+    'cloud-connector': 'Cloud Connector',
     'zcc': 'ZCC',
     'zdx': 'ZDX',
     'zbi': 'ZBI',
     'zms': 'ZMS',
     'zwa': 'ZWA',
     'zidentity': 'ZIdentity',
-    'cloud-connector': 'Cloud Connector',
     'shared': 'Shared',
     'ai-security': 'AI Security',
     'risk360': 'Risk360',
     'deception': 'Deception',
-    '_primer': 'Primer',
   };
   const GROUP_ORDER = [
+    '_primer',  // Welcome
     'zia', 'zpa', 'cloud-connector',
     'zcc', 'zdx', 'zidentity',
     'zbi', 'zwa', 'zms',
     'ai-security', 'risk360', 'deception',
-    'shared', '_primer',
+    'shared',
   ];
 
   // Resolve relative path so file links work from any page.
-  const PREFIX = /\/(zia|zpa|cloud-connector)\//.test(location.pathname) ? '../' : '';
+  const PREFIX = /\/(zia|zpa|cloud-connector|welcome)\//.test(location.pathname) ? '../' : '';
   const SOURCE_URL = PREFIX + 'source.html';
+
+  // Curated articles per hub. The .md docs in the references/<group>/
+  // folder are the Documents half; these arrays are the Articles half.
+  // Keys match the references/ folder. Entries' href is relative to
+  // the docs/ root — PREFIX handles path resolution.
+  const ARTICLES_BY_GROUP = {
+    '_primer': [
+      { href: 'readers-guide.html',     label: "Reader's Guide" },
+      { href: 'onboarding.html',        label: 'Slideshow' },
+    ],
+    'zia': [
+      { href: 'zia/reference.html',     label: 'Reference' },
+      { href: 'zia/forwarding.html',    label: 'Traffic Forwarding' },
+    ],
+    'zpa': [
+      { href: 'zpa/reference.html',     label: 'Reference' },
+    ],
+    'cloud-connector': [
+      { href: 'cloud-connector/reference.html', label: 'Reference' },
+    ],
+  };
 
   let treeShas = (() => {
     try { return JSON.parse(localStorage.getItem(TREE_CACHE_KEY + ':shas') || '{}'); }
@@ -145,6 +170,8 @@
     const currentSlug = currentSourceSlug();
     const slugFirstSeg = currentSlug ? currentSlug.split('/')[0] : null;
     const currentGroup = (slugFirstSeg && groups[slugFirstSeg]) ? slugFirstSeg : null;
+    const currentSub = currentSubContext();
+    const currentArticleHref = currentArticlePath();
 
     const html = [];
 
@@ -154,7 +181,7 @@
         label: f.label,
         path: f.path,
       }));
-      html.push(renderGroup('_top', 'References', items, currentSlug, currentGroup === null));
+      html.push(renderGroup('_top', 'References', null, items, currentSlug, currentArticleHref, currentSub, currentGroup === null));
     }
 
     const orderedKeys = [
@@ -164,7 +191,7 @@
 
     for (const key of orderedKeys) {
       const label = GROUP_LABELS[key] || prettify(key);
-      const items = groups[key].map(f => ({
+      const docs = groups[key].map(f => ({
         slug: f.path.replace(/\.md$/, '').replace(/\/index$/, ''),
         // index.md → "Index" (matches the filename). Some sections
         // also have an overview.md, so labelling index.md as "Overview"
@@ -172,7 +199,8 @@
         label: f.path.endsWith('/index.md') ? 'Index' : f.label,
         path: f.path,
       }));
-      html.push(renderGroup(key, label, items, currentSlug, key === currentGroup));
+      const articles = ARTICLES_BY_GROUP[key] || null;
+      html.push(renderGroup(key, label, articles, docs, currentSlug, currentArticleHref, currentSub, key === currentGroup));
     }
 
     document.getElementById('ls-tree').innerHTML = html.join('');
@@ -180,20 +208,59 @@
     setupSearch(entries);
   }
 
-  function renderGroup(key, label, items, currentSlug, expanded) {
+  // Render a hub group. If the group has articles, render two
+  // collapsible sub-groups (Articles + Documents). Otherwise render
+  // a flat list of docs. Only the currently-relevant sub-group
+  // auto-expands.
+  function renderGroup(key, label, articles, docs, currentSlug, currentArticleHref, currentSub, expanded) {
     const cls = 'ls-group' + (expanded ? ' ls-open' : '');
     const out = [`<div class="${cls}" data-group="${escapeHtml(key)}">`];
+    const totalCount = (articles ? articles.length : 0) + docs.length;
     out.push(`<button class="ls-group-head" type="button" aria-expanded="${expanded}">`);
     out.push(`<span class="ls-group-caret" aria-hidden="true">▸</span>`);
     out.push(`<span class="ls-group-label">${escapeHtml(label)}</span>`);
-    out.push(`<span class="ls-group-count">${items.length}</span>`);
+    out.push(`<span class="ls-group-count">${totalCount}</span>`);
     out.push(`</button>`);
-    out.push(`<ul class="ls-group-list">`);
-    for (const it of items) {
-      out.push(renderItem(it.slug, it.label, currentSlug, it.path));
+    out.push(`<div class="ls-group-list">`);
+
+    if (articles && articles.length) {
+      const subOpen = expanded && currentSub === 'articles';
+      out.push(renderSubgroup('articles', 'Articles', subOpen,
+        articles.map(a => renderArticleItem(a.href, a.label, currentArticleHref))));
+      const docsSubOpen = expanded && currentSub !== 'articles';
+      out.push(renderSubgroup('documents', 'Documents', docsSubOpen,
+        docs.map(d => renderItem(d.slug, d.label, currentSlug, d.path))));
+    } else {
+      // No articles → flat list of doc items, no sub-headers.
+      out.push(`<ul class="ls-flat-list">`);
+      for (const d of docs) out.push(renderItem(d.slug, d.label, currentSlug, d.path));
+      out.push(`</ul>`);
     }
-    out.push(`</ul></div>`);
+
+    out.push(`</div></div>`);
     return out.join('');
+  }
+
+  function renderSubgroup(kind, label, expanded, itemHtml) {
+    const cls = 'ls-sub' + (expanded ? ' ls-sub-open' : '');
+    return [
+      `<div class="${cls}" data-sub="${kind}">`,
+      `<button class="ls-sub-head" type="button" aria-expanded="${expanded}">`,
+      `<span class="ls-sub-caret" aria-hidden="true">▸</span>`,
+      `<span class="ls-sub-label">${escapeHtml(label)}</span>`,
+      `<span class="ls-sub-count">${itemHtml.length}</span>`,
+      `</button>`,
+      `<ul class="ls-sub-list">`,
+      itemHtml.join(''),
+      `</ul>`,
+      `</div>`,
+    ].join('');
+  }
+
+  function renderArticleItem(href, label, currentArticleHref) {
+    const isActive = currentArticleHref === href;
+    const cls = isActive ? ' class="active"' : '';
+    return `<li><a href="${PREFIX}${href}"${cls}>${escapeHtml(label)}</a></li>`;
   }
 
   function renderItem(slug, label, currentSlug, path) {
@@ -208,6 +275,14 @@
       const head = g.querySelector('.ls-group-head');
       head.addEventListener('click', () => {
         const open = g.classList.toggle('ls-open');
+        head.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+    });
+    document.querySelectorAll('#ls-tree .ls-sub').forEach(s => {
+      const head = s.querySelector('.ls-sub-head');
+      head.addEventListener('click', e => {
+        e.stopPropagation();  // don't bubble up and toggle the parent group
+        const open = s.classList.toggle('ls-sub-open');
         head.setAttribute('aria-expanded', open ? 'true' : 'false');
       });
     });
@@ -263,33 +338,47 @@
       const q = input.value.trim().toLowerCase();
       const links = document.querySelectorAll('#ls-tree li a');
       const groups = document.querySelectorAll('#ls-tree .ls-group');
+      const subs = document.querySelectorAll('#ls-tree .ls-sub');
 
       if (!q) {
         links.forEach(a => a.parentElement.classList.remove('no-match'));
         groups.forEach(g => g.classList.remove('no-match'));
-        // Keep the current section expanded; collapse others.
+        subs.forEach(s => s.classList.remove('no-match'));
+        // Reset to default: only current section open, with the
+        // current sub-context (articles/documents) inside it.
+        const cur = getCurrentGroup();
+        const curSub = currentSubContext();
         groups.forEach(g => {
           const head = g.querySelector('.ls-group-head');
-          if (g.dataset.group !== getCurrentGroup()) {
-            g.classList.remove('ls-open');
-            if (head) head.setAttribute('aria-expanded', 'false');
-          }
+          const isCurrent = g.dataset.group === cur;
+          g.classList.toggle('ls-open', isCurrent);
+          if (head) head.setAttribute('aria-expanded', isCurrent ? 'true' : 'false');
+        });
+        subs.forEach(s => {
+          const head = s.querySelector('.ls-sub-head');
+          const parentIsCurrent = s.closest('.ls-group')?.dataset.group === cur;
+          const open = parentIsCurrent && s.dataset.sub === curSub;
+          s.classList.toggle('ls-sub-open', open);
+          if (head) head.setAttribute('aria-expanded', open ? 'true' : 'false');
         });
         return;
       }
 
       const visibleGroups = new Set();
+      const visibleSubs = new Set();
       links.forEach(a => {
         const path = a.dataset.path;
         const labelText = a.textContent.toLowerCase();
         const titleMatch = labelText.includes(q);
-        const body = contentCache[path];
+        const body = path && contentCache[path];
         const contentMatch = body !== undefined && body.includes(q);
         const matches = titleMatch || contentMatch;
         a.parentElement.classList.toggle('no-match', !matches);
         if (matches) {
           const group = a.closest('.ls-group');
+          const sub = a.closest('.ls-sub');
           if (group) visibleGroups.add(group);
+          if (sub) visibleSubs.add(sub);
         }
       });
       groups.forEach(g => {
@@ -298,6 +387,15 @@
         if (visible) {
           g.classList.add('ls-open');
           const head = g.querySelector('.ls-group-head');
+          if (head) head.setAttribute('aria-expanded', 'true');
+        }
+      });
+      subs.forEach(s => {
+        const visible = visibleSubs.has(s);
+        s.classList.toggle('no-match', !visible);
+        if (visible) {
+          s.classList.add('ls-sub-open');
+          const head = s.querySelector('.ls-sub-head');
           if (head) head.setAttribute('aria-expanded', 'true');
         }
       });
@@ -313,6 +411,25 @@
   }
 
   // ── Helpers ───────────────────────────────────────────────────────
+
+  // Are we currently looking at an article (curated HTML) or a
+  // document (rendered markdown)? Drives which sub-group auto-opens.
+  function currentSubContext() {
+    if (/source\.html$/.test(location.pathname)) return 'documents';
+    return 'articles';  // anything else (hub, reference doc, readers-guide, deck) is article-side
+  }
+
+  // Returns the relative href of the article the user is on, normalised
+  // to match ARTICLES_BY_GROUP entries (e.g. "zia/reference.html").
+  // Null on hub pages or source.html.
+  function currentArticlePath() {
+    const p = location.pathname;
+    const m = p.match(/\/(zia|zpa|cloud-connector|welcome)\/([^/]+\.html)$/);
+    if (m && m[2] !== 'index.html') return `${m[1]}/${m[2]}`;
+    if (/\/readers-guide\.html$/.test(p)) return 'readers-guide.html';
+    if (/\/onboarding\.html$/.test(p))    return 'onboarding.html';
+    return null;
+  }
 
   // Returns the slug of the file the user is currently viewing (for
   // active-link highlighting and to decide which group to expand).
