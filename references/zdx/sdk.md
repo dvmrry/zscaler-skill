@@ -3,7 +3,7 @@ product: zdx
 topic: zdx-sdk
 title: "ZDX SDK reference — Python and Go service catalog"
 content-type: reference
-last-verified: 2026-04-26
+last-verified: "2026-04-26"
 confidence: medium
 source-tier: code
 sources:

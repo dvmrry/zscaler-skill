@@ -3,7 +3,7 @@ product: cloud-connector
 topic: cc-source-ip-groups
 title: "Cloud Connector Source IP Groups — primitives and policy use"
 content-type: reference
-last-verified: 2026-04-27
+last-verified: "2026-04-27"
 confidence: medium
 source-tier: doc
 sources:

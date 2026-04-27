@@ -54,6 +54,11 @@ Branch Connector is the same idea for physical branch locations — an on-prem v
 | **DNS subsystems** — three distinct components: DNS Gateways (resolver pairs), DNS Policies (DoH, tunnel detection, response rewriting), Log & Control Forwarding (telemetry routing); subsystem interactions and failure modes | [`./dns-subsystem.md`](./dns-subsystem.md) | draft |
 | **Upgrades + credential rotation** — Sunday midnight local upgrade cadence (2-hour stagger, OS-image vs package distinction), zsroot rotation procedure (CC vs BC), combined sequencing for in-place vs re-deploy windows | [`./upgrade-and-credential-rotation.md`](./upgrade-and-credential-rotation.md) | draft |
 | **Supported regions** — AWS (16 ZTG regions enumerated), Azure (all commercial regions; China via Terraform), GCP (supported at product level; region list unconfirmed); cross-region topology tradeoffs; open questions register | [`./regions.md`](./regions.md) | draft |
+| **Insights & monitoring** — health metrics, traffic visibility, operational dashboards; what signals are available; latency and throughput reporting | [`./insights-monitoring.md`](./insights-monitoring.md) | draft |
+| **NSS Virtual Appliance** — NSS VA deployment alongside Cloud Connector; log forwarding configuration; NSS VA vs Cloud NSS for workload log egress | [`./nss-va.md`](./nss-va.md) | draft |
+| **Source IP Groups** — network-primitive building blocks for traffic-forwarding rule match criteria; group types and usage | [`./source-ip-groups.md`](./source-ip-groups.md) | draft |
+| **SDK** — Go SDK (`client.ztw.*`) and Terraform (`ztc_*`) surface; Python SDK absence; method-to-resource mapping | [`./sdk.md`](./sdk.md) | draft |
+| **Terraform** — `ztc_*` resource catalog; provider configuration; activation behavior | [`./terraform.md`](./terraform.md) | draft |
 
 ## Scope
 

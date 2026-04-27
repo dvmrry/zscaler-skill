@@ -32,6 +32,10 @@ Docs under `references/shared/` are **not tied to a single Zscaler product**. Th
 | **OneAPI** — unified gateway (`api.zsapi.net`), three coexisting auth flows (OneAPI OAuth + ZDX legacy + ZCC legacy), `audience=https://api.zscaler.com` is REQUIRED, per-product rate limits + headers (different names per product), HTTP status codes, read-only mode, ZIA+CBC activation gate, Postman-collection-as-only-machine-readable-API-surface (no Swagger published) | [`./oneapi.md`](./oneapi.md) | draft |
 | Log-correlation guidance — when to consult logs vs rely on config, cross-product correlation patterns | [`./log-correlation.md`](./log-correlation.md) | draft |
 | SPL query patterns — canonical SPL snippets for Zscaler log analysis | [`./splunk-queries.md`](./splunk-queries.md) | draft |
+| **Analytics GraphQL API** — ZDX trends and SaaS Security reports via GraphQL; query shape; authentication; pagination | [`./analytics-graphql.md`](./analytics-graphql.md) | draft |
+| **Cross-product audit logs** — audit-log framework across ZIA, ZPA, ZDX; field alignment; retention periods by product; query approach | [`./audit-logs.md`](./audit-logs.md) | draft |
+| **M365 Conditional Access via SIPA** — IP-based Conditional Access policy with Zscaler egress anchoring; setup pattern; limitations and failure modes | [`./m365-conditional-access.md`](./m365-conditional-access.md) | draft |
+| **Multi-cluster load sharing** — ZIA policy enforcement and traffic distribution across data center clusters; failover semantics; cluster selection | [`./multi-cluster-load-sharing.md`](./multi-cluster-load-sharing.md) | draft |
 
 ## When to start here vs a product directory
 

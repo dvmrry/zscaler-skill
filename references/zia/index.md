@@ -39,6 +39,16 @@ Entry point for Zscaler Internet Access (ZIA) questions. Pick the topic that mat
 | **SaaS app + browser quirks** — root-cause catalog (cert pinning / CA-bundle pinning / auth-bypass / source-IP+CA / CDN bypass anti-pattern / QUIC / tenant-restriction silent break). Operator-facing; cross-links to ssl-inspection, tenant-profiles, source-ip-anchoring | [`./saas-app-quirks.md`](./saas-app-quirks.md) | draft |
 | **DNS Control** — separate policy module inside Firewall; three predefined rules (UCaaS One Click + ZPA Resolver for Locations + ZPA Resolver for Road Warrior with rule-order requirement); DoH handling; DNS tunnel detection; NROD 2–36 hour categorization latency | [`./dns-control.md`](./dns-control.md) | draft |
 | **Workload Groups** — policy-scoping primitive used by URL Filtering / Firewall / SSL Inspection / DLP / Traffic Capture rules; tag-based expression model (`tagType` + `operator` + tag key/value); SDK + TF-derived (help portal page non-functional) | [`./workload-groups.md`](./workload-groups.md) | draft |
+| **Sublocations** — subdivisions of Locations; own bandwidth/auth settings; the `other` sublocation for uncategorized IPs; XFF header inheritance; sublocation count limits | [`./sublocations.md`](./sublocations.md) | draft |
+| **Time intervals** — reusable schedule objects referenced in URL Filtering / Firewall rules; granularity, overlap handling, timezone behavior | [`./time-intervals.md`](./time-intervals.md) | draft |
+| **Rule labels** — tagging construct for policy rule organization and API filtering; no effect on rule evaluation order; label-to-rule relationship | [`./rule-labels.md`](./rule-labels.md) | draft |
+| **VSE clusters** — Virtual Service Edge HA grouping; cluster membership; traffic distribution across VSE VMs; failover behavior | [`./vse-clusters.md`](./vse-clusters.md) | draft |
+| **IoT Report** — device-type classification and traffic visibility; IoT policy scoping; predefined IoT location groups | [`./iot-report.md`](./iot-report.md) | draft |
+| **API CASB** — out-of-band SaaS app scanning via OAuth/API (not inline); Insights logs; SaaS Security Posture; distinct from inline SSL-inspection CASB path | [`./api-casb.md`](./api-casb.md) | draft |
+| **SCIM provisioning** — ZIA-specific SCIM behavior; group-to-department mapping; attribute constraints; SCIM endpoint differences from ZPA | [`./scim-provisioning.md`](./scim-provisioning.md) | draft |
+| **Admin audit logs** — ZIA admin change events; 6-month retention; available fields; query approach | [`./audit-logs.md`](./audit-logs.md) | draft |
+| **ZIA SDK** — service and method catalog (`client.zia.*`); Python and Go coverage; pagination helpers; activation wrappers | [`./sdk.md`](./sdk.md) | draft |
+| **ZIA Terraform** — `zia_*` resource catalog; provider configuration; activation hook; known resource gaps | [`./terraform.md`](./terraform.md) | draft |
 
 ## Log schemas
 

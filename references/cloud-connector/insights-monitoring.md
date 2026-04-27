@@ -3,7 +3,7 @@ product: cloud-connector
 topic: cc-insights-monitoring
 title: "Cloud Connector Insights & monitoring — health, traffic, operational metrics"
 content-type: reference
-last-verified: 2026-04-27
+last-verified: "2026-04-27"
 confidence: medium
 source-tier: doc
 sources:

@@ -32,6 +32,15 @@ Entry point for Zscaler Private Access (ZPA) questions — application segments,
 | **Public Service Edges** — Zscaler-managed ZPA service edge (operator-invisible most of the time); SDK exposes CRUD but update/delete only meaningful for Private SE instances; read-only via TF data source. Distinguished from Private/Cloud-Connector-deployed SEs. SDK-derived (help portal 404) | [`./public-service-edges.md`](./public-service-edges.md) | draft |
 | **Emergency Access** — time-bounded out-of-band ZPA access via Okta-only IdP + email OTP; users live in Okta (not ZPA); destroy = deactivate (not delete); `email_id` is ForceNew; hidden inside Microtenants when Privileged Approvals disabled. Limited Availability — Zscaler Support to enable | [`./emergency-access.md`](./emergency-access.md) | draft |
 | **Log Receivers (LSS configuration)** — SDK + TF surface for the LSS config primitive; 9 accepted `source_log_type` codes (16 log types exposed but only 9 streamable); 5 log types reject status-code filters; per-log-type policy `object_type` differences; no TLS cert/CA field. SDK + TF-derived (help portal 404) | [`./log-receivers.md`](./log-receivers.md) | draft |
+| **Machine Tunnels** — pre-authentication ZPA access; device-identity-based policy before user login; ZCC machine tunnel enrollment; AD/LDAP reachability prerequisite | [`./machine-tunnels.md`](./machine-tunnels.md) | draft |
+| **Machine Groups** — enrollment-driven device grouping consumed by Machine Tunnel policy; ZCC enrollment attributes used for group membership | [`./machine-groups.md`](./machine-groups.md) | draft |
+| **Private Service Edges** — on-prem ZPA Service Edge deployment; cluster architecture; brokering private app access without sending traffic through Zscaler cloud | [`./private-service-edges.md`](./private-service-edges.md) | draft |
+| **Segment Groups** — policy-scoping primitive grouping App Segments; semantics, membership, and how Access Policy rules reference them | [`./segment-groups.md`](./segment-groups.md) | draft |
+| **SCIM policy mapping** — how SCIM / IdP group attributes map to ZPA access policy conditions; `lhs`/`rhs` attribute references; group-membership evaluation | [`./scim-policy-mapping.md`](./scim-policy-mapping.md) | draft |
+| **ZPA SDK** — service and method catalog (`client.zpa.*`); Python and Go coverage; method-to-endpoint mapping | [`./sdk.md`](./sdk.md) | draft |
+| **ZPA Terraform** — `zpa_*` resource catalog; provider configuration; known quirks (ruleOrder-as-string, embedded-object gotchas) | [`./terraform.md`](./terraform.md) | draft |
+| **Troubleshooting** — access verification workflow; common failure signals (policy miss, connector down, segment mismatch, DNS resolution); diagnostic signal sources | [`./troubleshooting.md`](./troubleshooting.md) | draft |
+| **Admin audit logs** — ZPA admin change events; retention; available fields; cross-product correlation | [`./audit-logs.md`](./audit-logs.md) | draft |
 
 ## Log schemas
 

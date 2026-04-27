@@ -3,7 +3,7 @@ product: zia
 topic: zia-iot-report
 title: "ZIA IoT Report — device visibility, classification, policy"
 content-type: reference
-last-verified: 2026-04-27
+last-verified: "2026-04-27"
 confidence: medium
 source-tier: doc
 sources:

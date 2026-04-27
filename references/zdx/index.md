@@ -25,6 +25,7 @@ ZIA/ZPA/ZCC answers are about policy precedence and configuration — "what will
 | Probes — Web probes vs Cloud Path probes, what each measures, probe-criteria AND/OR logic | [`./probes.md`](./probes.md) | draft |
 | Diagnostics Sessions and Alerts — on-demand deep-investigation workflow (SDK calls these "deeptraces"; help site calls them Diagnostics Sessions), alert status lifecycle | [`./diagnostics-and-alerts.md`](./diagnostics-and-alerts.md) | draft |
 | ZDX API — SDK surface under `client.zdx.*`, wire terminology ("deeptrace" ≠ "Diagnostics Session") | [`./api.md`](./api.md) | draft |
+| **ZDX SDK** — Python and Go service catalog (`client.zdx.*`); method summary; "deeptrace" terminology map | [`./sdk.md`](./sdk.md) | draft |
 
 ## Terminology watchout
 

@@ -3,7 +3,7 @@ product: cloud-connector
 topic: cc-zero-trust-sdwan
 title: "Zero Trust SD-WAN — Zscaler's SD-WAN positioning and Cloud Connector role"
 content-type: reference
-last-verified: 2026-04-27
+last-verified: "2026-04-27"
 confidence: medium
 source-tier: doc
 sources:

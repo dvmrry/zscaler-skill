@@ -33,6 +33,15 @@ Almost every ZIA or ZPA answer leans on ZCC implicitly. "User X is blocked" migh
 | **Azure VM deployment** — ZCC inside AVD session hosts / Windows 365 Cloud PCs; multi-session limit; Azure Fabric IP bypass (`168.63.129.16`/`169.254.169.254`); IMDS migration (July 2025); Z-Tunnel 1.0 vs 2.0 RDP semantics; ZCC 4.3.2+ predefined Windows 365/AVD bypass | [`./azure-vm-deployment.md`](./azure-vm-deployment.md) | draft |
 | **Device posture profiles** — ZCC-side check types, 15-min eval cadence (configurable in 4.4+ Windows), Linux client cert paths, per-OS support matrix, profile assignment to forwarding/access policies | [`./device-posture.md`](./device-posture.md) | draft |
 | **Install-time parameters** — Windows / macOS / iOS / Android parameter reference; STRICTENFORCEMENT / POLICYTOKEN / MTAUTHREQUIRED / BCP / LWF driver flags; reinstall-required vs runtime-tunable; fail-close lockout gotchas | [`./install-parameters.md`](./install-parameters.md) | draft |
+| **macOS install customization** — silent `.pkg` deployment, MDM managed-preferences, plist keys, PPPC/TCC profiles, System Extension pre-approval, System Extension vs kernel extension model, post-install gotchas | [`./macos-install-customization.md`](./macos-install-customization.md) | draft |
+| **Firefox integration** — why Firefox needs separate handling (its own proxy store), enable/disable toggle location, Windows+macOS support, excluded variants (MS Store / Dev Preview), cert-trust gap, Z-Tunnel 1.0 vs 2.0 interaction | [`./firefox-integration.md`](./firefox-integration.md) | draft |
+| **Acceptable Use Policy** — in-app AUP consent prompt; enable/disable toggle; portal location; per-platform behavior; user interaction flow | [`./acceptable-use-policy.md`](./acceptable-use-policy.md) | draft |
+| **End-user notifications** — block pages, ZCC in-app alerts, system tray messages; customization options; notification types by trigger | [`./end-user-notifications.md`](./end-user-notifications.md) | draft |
+| **User logging controls** — what end users can see and suppress in ZCC client logs; log export; privacy toggle interaction | [`./user-logging-controls.md`](./user-logging-controls.md) | draft |
+| **Support options** — built-in diagnostics, feedback submission, self-service controls available to end users; Send Feedback log packaging | [`./support-options.md`](./support-options.md) | draft |
+| **Troubleshooting** — error codes, common failure modes (tunnel down, enrollment failure, proxy bypass), diagnostic workflow | [`./troubleshooting.md`](./troubleshooting.md) | draft |
+| **ZCC SDK** — Python and Go service catalog (`client.zcc.*`); method summary; legacy vs OneAPI auth paths; rate-limit client behavior | [`./sdk.md`](./sdk.md) | draft |
+| **API rate limits** — 100 calls/hour general cap, 3 calls/day download endpoints, `X-Rate-Limit-*` headers, retry semantics, bulk UDID batching, pagination discipline | [`./api-rate-limits.md`](./api-rate-limits.md) | draft |
 
 ## What this hub does NOT cover yet
 

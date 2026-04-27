@@ -3,7 +3,7 @@ product: zia
 topic: zia-sdk
 title: "ZIA SDK — service and method catalog"
 content-type: reference
-last-verified: 2026-04-26
+last-verified: "2026-04-26"
 confidence: medium
 source-tier: code
 sources:
