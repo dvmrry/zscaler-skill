@@ -300,12 +300,20 @@ body {
 }
 
 /* Body typography */
-.doc p { margin: 0 0 1.1rem; text-wrap: pretty; hyphens: auto; }
-.doc em { font-style: italic; }
-.doc strong { font-weight: 600; color: var(--ink); }
-.doc .body p, .doc .body li { font-size: 1rem; line-height: 1.6; }
+/* Body prose — applied to article bodies (.doc .body) and to
+   rendered markdown (.content in source.html). Both render long-form
+   prose; this ruleset is the shared typographic voice. Article-only
+   structure (.doc-head, .glance, .section, .deflist, .inline-margin,
+   .docfoot, .pipeline) layers on top and is article-specific. */
+.doc p,
+.content p { margin: 0 0 1.1rem; text-wrap: pretty; hyphens: auto; }
+.doc em, .content em { font-style: italic; }
+.doc strong, .content strong { font-weight: 600; color: var(--ink); }
+.doc .body p, .doc .body li,
+.content p, .content li { font-size: 1rem; line-height: 1.6; }
 
-.doc code, .doc .mono {
+.doc code, .doc .mono,
+.content code {
   font-family: var(--font-mono);
   font-size: 0.85em;
   color: var(--accent-ink);
@@ -313,7 +321,8 @@ body {
   padding: 0.05em 0.32em;
   border-radius: 2px;
 }
-.doc pre {
+.doc pre,
+.content pre {
   font-family: var(--font-mono);
   font-size: 0.78rem; line-height: 1.55;
   background: var(--paper-card);
@@ -325,10 +334,83 @@ body {
   color: var(--ink);
   border-radius: 2px;
 }
-.doc pre code {
+.doc pre code,
+.content pre code {
   background: none; color: inherit; padding: 0;
   border-radius: 0; font-size: inherit;
 }
+
+/* Markdown-only headings — articles wrap their headings in
+   .doc-head / .section / .subsection structures with their own
+   styling. Markdown renders bare h1/h2/h3/h4 from #/##/###/####
+   and needs its own rules. The shapes below match the article
+   aesthetic so the two surfaces feel like one family. */
+.content h1 {
+  font-family: var(--font-serif); font-weight: 400;
+  font-size: clamp(2rem, 4vw, 2.5rem);
+  line-height: 1.1; letter-spacing: -0.012em;
+  margin: 0 0 0.75rem;
+}
+.content h2 {
+  font-family: var(--font-serif); font-weight: 500;
+  font-size: 1.6rem; line-height: 1.15; letter-spacing: -0.008em;
+  margin: 3rem 0 0.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--ink);
+}
+.content h2:first-child,
+.content > h2:first-of-type { margin-top: 0; padding-top: 0; border-top: 0; }
+.content h3 {
+  font-family: var(--font-serif); font-weight: 600;
+  font-size: 1.18rem; line-height: 1.25; letter-spacing: -0.005em;
+  margin: 2rem 0 0.75rem;
+}
+.content h4 {
+  font-family: var(--font-sans);
+  font-size: 0.7rem; font-weight: 600;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--ink-3);
+  margin: 1.5rem 0 0.5rem;
+}
+.content ul, .content ol { margin: 0 0 1rem; padding-left: 1.4rem; }
+.content li > p { margin: 0.25rem 0; }
+.content blockquote {
+  margin: 1.5rem 0; padding: 0.5rem 0 0.5rem 1.25rem;
+  border-left: 3px solid var(--accent);
+  color: var(--ink-2); font-style: italic;
+}
+.content blockquote p { margin: 0 0 0.5rem; }
+.content blockquote p:last-child { margin: 0; }
+.content table {
+  width: 100%; border-collapse: collapse;
+  margin: 1.5rem 0; font-size: 0.92rem;
+  font-family: var(--font-sans);
+  border-top: 2px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+}
+.content th {
+  text-align: left; font-weight: 600;
+  font-size: 0.7rem; letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  padding: 0.6rem 0.75rem 0.6rem 0;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: bottom;
+}
+.content td {
+  padding: 0.7rem 0.75rem 0.7rem 0;
+  border-bottom: 1px solid var(--rule-soft);
+  vertical-align: top; line-height: 1.5;
+}
+.content tr:last-child td { border-bottom: none; }
+.content td:first-child, .content th:first-child { padding-left: 0; }
+.content td:last-child, .content th:last-child { padding-right: 0; }
+.content a {
+  color: var(--accent); text-decoration: none;
+  border-bottom: 1px solid var(--accent-soft);
+}
+.content a:hover { color: var(--accent-ink); border-bottom-color: var(--accent-ink); }
+.content hr { border: 0; border-top: 1px solid var(--rule); margin: 2rem 0; }
 .doc .term {
   font-family: var(--font-serif); font-style: italic;
   font-weight: 500; color: var(--accent-ink);
