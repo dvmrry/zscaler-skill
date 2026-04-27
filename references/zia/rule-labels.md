@@ -330,13 +330,13 @@ registered as deferred questions in [`_clarifications.md`](../_clarifications.md
 
 | Clarification ID | Question |
 |---|---|
-| [`zia-26`](../_clarifications.md#zia-26--rule-label-names-in-audit-log-entries) | Do label names appear in ZIA admin audit log entries for rule create/update operations? |
-| [`zia-27`](../_clarifications.md#zia-27--rule-label-name-field-constraints) | Are there character-set restrictions or maximum length constraints on the `name` field? |
-| [`zia-28`](../_clarifications.md#zia-28--rule-label-name-uniqueness-enforcement) | Is the `name` field unique within a ZIA tenant? Does the API reject duplicate names on create? |
-| [`zia-29`](../_clarifications.md#zia-29--rule-label-description-maximum-length) | What is the maximum allowed `description` length? |
-| [`zia-30`](../_clarifications.md#zia-30--rule-label-duplicate-action-semantics) | Does the "duplicate" action in the admin console copy label-to-rule associations, or create a fresh unassociated label copy? |
-| [`zia-31`](../_clarifications.md#zia-31--rule_label-filter-on-non-firewall-endpoints) | Is label-based filtering (`rule_label` query param) available on rule list endpoints other than firewall filtering? |
-| [`zia-32`](../_clarifications.md#zia-32--tenant-cap-on-rule-labels) | Is there a documented cap on the total number of rule labels per tenant? |
+| [`zia-26`](../_clarifications.md#zia-26-rule-label-names-in-audit-log-entries) | Do label names appear in ZIA admin audit log entries for rule create/update operations? |
+| [`zia-27`](../_clarifications.md#zia-27-rule-label-name-field-constraints) | Are there character-set restrictions or maximum length constraints on the `name` field? |
+| [`zia-28`](../_clarifications.md#zia-28-rule-label-name-uniqueness-enforcement) | Is the `name` field unique within a ZIA tenant? Does the API reject duplicate names on create? |
+| [`zia-29`](../_clarifications.md#zia-29-rule-label-description-maximum-length) | What is the maximum allowed `description` length? |
+| [`zia-30`](../_clarifications.md#zia-30-rule-label-duplicate-action-semantics) | Does the "duplicate" action in the admin console copy label-to-rule associations, or create a fresh unassociated label copy? |
+| [`zia-31`](../_clarifications.md#zia-31-rule_label-filter-on-non-firewall-endpoints) | Is label-based filtering (`rule_label` query param) available on rule list endpoints other than firewall filtering? |
+| [`zia-32`](../_clarifications.md#zia-32-tenant-cap-on-rule-labels) | Is there a documented cap on the total number of rule labels per tenant? |
 
 ---
 

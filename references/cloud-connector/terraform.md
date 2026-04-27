@@ -11,6 +11,7 @@ sources:
   - vendor/terraform-provider-ztc/docs/resources/
   - vendor/terraform-provider-ztc/docs/data-sources/
   - vendor/terraform-provider-ztc/README.md
+author-status: draft
 ---
 
 # Cloud Connector Terraform provider

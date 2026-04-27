@@ -406,9 +406,15 @@ def check_evals() -> list[Finding]:
 # ----- runner / rendering -----
 
 
+SKIP_DIR_NAMES = {"_archive"}
+
+
 def run_all_checks() -> list[Finding]:
     findings: list[Finding] = []
-    md_files = sorted(REFS.rglob("*.md"))
+    md_files = sorted(
+        p for p in REFS.rglob("*.md")
+        if not any(part in SKIP_DIR_NAMES for part in p.relative_to(REFS).parts)
+    )
 
     for path in md_files:
         findings.extend(check_frontmatter(path))

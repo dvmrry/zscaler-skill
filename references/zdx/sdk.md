@@ -9,6 +9,7 @@ source-tier: code
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zdx/"
   - "vendor/zscaler-sdk-go/zscaler/zdx/services/"
+author-status: draft
 ---
 
 # ZDX SDK reference

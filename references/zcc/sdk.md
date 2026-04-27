@@ -9,6 +9,7 @@ source-tier: code
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zcc/"
   - "vendor/zscaler-sdk-go/zscaler/zcc/services/"
+author-status: draft
 ---
 
 # ZCC SDK reference

@@ -259,11 +259,11 @@ The following questions could not be resolved from available vendor sources. Reg
 
 | Clarification ID | Question |
 |---|---|
-| [`zia-16`](../_clarifications.md#zia-16--sublocation-count-cap-per-parent) | Maximum number of sublocations per parent location |
-| [`zia-17`](../_clarifications.md#zia-17--sublocation-name-uniqueness-scope) | Naming uniqueness scope — per-parent or tenant-global |
-| [`zia-18`](../_clarifications.md#zia-18--parent-location-deletion-behavior-with-sublocations) | Parent deletion behavior when sublocations exist (block, cascade-delete, or error) |
-| [`zia-19`](../_clarifications.md#zia-19--sublocation-reparenting-via-parent_id-update) | Sublocation promotion/demotion via `parent_id` update — API preconditions |
-| [`zia-20`](../_clarifications.md#zia-20--explicit-depth-limit-prohibition-text) | Explicit vendor statement confirming sublocations cannot have their own sublocations |
+| [`zia-16`](../_clarifications.md#zia-16-sublocation-count-cap-per-parent) | Maximum number of sublocations per parent location |
+| [`zia-17`](../_clarifications.md#zia-17-sublocation-name-uniqueness-scope) | Naming uniqueness scope — per-parent or tenant-global |
+| [`zia-18`](../_clarifications.md#zia-18-parent-location-deletion-behavior-with-sublocations) | Parent deletion behavior when sublocations exist (block, cascade-delete, or error) |
+| [`zia-19`](../_clarifications.md#zia-19-sublocation-reparenting-via-parent_id-update) | Sublocation promotion/demotion via `parent_id` update — API preconditions |
+| [`zia-20`](../_clarifications.md#zia-20-explicit-depth-limit-prohibition-text) | Explicit vendor statement confirming sublocations cannot have their own sublocations |
 
 ---
 

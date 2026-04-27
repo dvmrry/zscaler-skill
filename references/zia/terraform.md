@@ -5,7 +5,7 @@ title: "ZIA Terraform provider resource catalog"
 content-type: reference
 last-verified: "2026-04-26"
 confidence: medium
-source-tier: vendor
+source-tier: doc
 sources:
   - "vendor/terraform-provider-zia/docs/index.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_activation_status.md"

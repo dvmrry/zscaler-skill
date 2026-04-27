@@ -281,7 +281,7 @@ For cross-platform machine tunnel configuration, see the ZPA admin documentation
 | System Extension blocked — MDM profile arrived after extension loaded | Same as above; profile was deployed correctly but timing was wrong | Re-push the profile; on some macOS versions a reboot is required after profile arrival for the extension to reload cleanly |
 | PPPC missing — Full Disk Access denied | Endpoint DLP or certain device posture checks silently fail; no user prompt on lockdown devices | Deploy PPPC profile before or simultaneously with the ZCC package |
 | TCC prompts at runtime | User sees repeated permission dialogs for microphone, camera, contacts (if ZCC triggers these paths) | Extend the PPPC profile to cover the additional TCC categories ZCC requests |
-| `policyToken` + `strictEnforcement` — wrong or expired token | All internet traffic blocked immediately after install; device cannot reach IdP to fix | Reinstall with a corrected `policyToken`; validate token in a test deployment before fleet rollout. See [`./install-parameters.md` — POLICYTOKEN gotcha](./install-parameters.md#policytoken--strictenforcement--fail-close-if-misconfigured) |
+| `policyToken` + `strictEnforcement` — wrong or expired token | All internet traffic blocked immediately after install; device cannot reach IdP to fix | Reinstall with a corrected `policyToken`; validate token in a test deployment before fleet rollout. See [`./install-parameters.md` — POLICYTOKEN gotcha](./install-parameters.md#policytoken-strictenforcement-fail-close-if-misconfigured) |
 | Apple silicon (M-series) — architecture mismatch | If a non-universal binary or x86_64-only `.pkg` is deployed, ZCC fails to run or runs under Rosetta 2 with degraded performance | Confirm the downloaded `.pkg` is a Universal Binary (contains both x86_64 and arm64 slices) before fleet deployment. Device `zapp_arch` reported as `arm64` in ZCC Portal device inventory indicates M-series hardware |
 | `launchTray = 0` — services do not start | Policy enforcement does not begin until user manually opens ZCC or reboots | Use default `launchTray = 1` for production deployments; reserve `0` only for staged rollouts where deliberate deferral is intended |
 | `userDomain` contains wrong domain | ZCC enrollment page fails or routes to wrong IdP; SAML NameID mismatch | The value must exactly match the domain present in the SAML NameID field — confirm with the IdP administrator |
@@ -335,16 +335,16 @@ Items registered in [`_clarifications.md`](../_clarifications.md) as `zcc-14` th
 
 | Clarification ID | Claim requiring confirmation |
 |---|---|
-| [`zcc-14`](../_clarifications.md#zcc-14--macos-preference-domain-for-zcc-managed-preferences) | The preference domain for ZCC managed preferences (`com.zscaler.zclient` or similar) |
-| [`zcc-15`](../_clarifications.md#zcc-15--system-extension-profile-timing-on-macos) | ZCC `.pkg` post-install behavior when System Extension profile arrives after package install |
-| [`zcc-16`](../_clarifications.md#zcc-16--zcc-macos-uninstall-script-path) | Exact path to the Zscaler-provided uninstall script on macOS |
-| [`zcc-17`](../_clarifications.md#zcc-17--launchtray--0-vs-system-extension-activation) | Whether `launchTray = 0` prevents only the UI or also prevents system extension activation |
-| [`zcc-18`](../_clarifications.md#zcc-18--app-store-zcc-mdm-managed-preferences) | App Store-distributed ZCC plist/MDM managed-app-config support |
-| [`zcc-19`](../_clarifications.md#zcc-19--zcc-team-id-and-system-extension-bundle-identifier) | Exact Team ID and System Extension bundle identifier for current ZCC release |
-| [`zcc-20`](../_clarifications.md#zcc-20--full-disk-access-pppc-requirement-scope) | Whether Full Disk Access via PPPC is required for all features or only DLP/posture |
-| [`zcc-21`](../_clarifications.md#zcc-21--minimum-supported-macos-version) | Minimum supported macOS version (explicit statement) |
-| [`zcc-22`](../_clarifications.md#zcc-22--macos-update-channel-plist-key) | Whether a portal-side plist key controls the macOS update channel |
-| [`zcc-23`](../_clarifications.md#zcc-23--system-extension-behavior-after-launchtray--0-on-macos-13) | ZCC System Extension behavior after `launchTray = 0` on macOS 13+ with Login Items restrictions |
+| [`zcc-14`](../_clarifications.md#zcc-14-macos-preference-domain-for-zcc-managed-preferences) | The preference domain for ZCC managed preferences (`com.zscaler.zclient` or similar) |
+| [`zcc-15`](../_clarifications.md#zcc-15-system-extension-profile-timing-on-macos) | ZCC `.pkg` post-install behavior when System Extension profile arrives after package install |
+| [`zcc-16`](../_clarifications.md#zcc-16-zcc-macos-uninstall-script-path) | Exact path to the Zscaler-provided uninstall script on macOS |
+| [`zcc-17`](../_clarifications.md#zcc-17-launchtray-0-vs-system-extension-activation) | Whether `launchTray = 0` prevents only the UI or also prevents system extension activation |
+| [`zcc-18`](../_clarifications.md#zcc-18-app-store-zcc-mdm-managed-preferences) | App Store-distributed ZCC plist/MDM managed-app-config support |
+| [`zcc-19`](../_clarifications.md#zcc-19-zcc-team-id-and-system-extension-bundle-identifier) | Exact Team ID and System Extension bundle identifier for current ZCC release |
+| [`zcc-20`](../_clarifications.md#zcc-20-full-disk-access-pppc-requirement-scope) | Whether Full Disk Access via PPPC is required for all features or only DLP/posture |
+| [`zcc-21`](../_clarifications.md#zcc-21-minimum-supported-macos-version) | Minimum supported macOS version (explicit statement) |
+| [`zcc-22`](../_clarifications.md#zcc-22-macos-update-channel-plist-key) | Whether a portal-side plist key controls the macOS update channel |
+| [`zcc-23`](../_clarifications.md#zcc-23-system-extension-behavior-after-launchtray-0-on-macos-13) | ZCC System Extension behavior after `launchTray = 0` on macOS 13+ with Login Items restrictions |
 
 ---
 

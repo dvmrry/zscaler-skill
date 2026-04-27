@@ -10,6 +10,7 @@ sources:
   - vendor/zscaler-sdk-go/zscaler/ztw/services/
   - vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go
   - vendor/zscaler-sdk-go/CLAUDE.md
+author-status: draft
 ---
 
 # Cloud Connector Go SDK — service catalog

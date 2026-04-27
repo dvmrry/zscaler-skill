@@ -9,6 +9,7 @@ source-tier: code
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zid/"
   - "vendor/zscaler-sdk-go/zscaler/zid/services/"
+author-status: draft
 ---
 
 # ZIdentity SDK reference
