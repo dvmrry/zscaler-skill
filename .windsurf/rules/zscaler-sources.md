@@ -8,17 +8,17 @@ description: Structured answer format for Zscaler questions
 When answering a Zscaler question after invoking `/zscaler`, complete this template:
 
 ## Answer
-[1–3 sentences. Lead with the conclusion.]
+<direct answer in 1–3 sentences; lead with the conclusion>
 
 ## Reasoning
-[Cite the specific mechanics — rule order, match type, evaluation stage, etc.]
+<why, citing the specific mechanics — rule order, match type, evaluation stage>
 
 ## Sources
 - `path/to/reference.md` (§ Section name)
 - `snapshot/path.json` (rule IDs N, M — only when snapshot consulted)
 
 ## Confidence
-[high | medium | low] — [one-line reason]
+high | medium | low — <one-line reason; e.g. "stub reference, inferred from Zscaler KB">
 
 ---
 
