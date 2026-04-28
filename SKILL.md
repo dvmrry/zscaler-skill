@@ -180,17 +180,17 @@ Return every non-trivial answer in this shape. It keeps answers grounded, makes 
 
 ```markdown
 ## Answer
-<direct answer in 1–3 sentences; lead with the conclusion>
+[direct answer in 1–3 sentences; lead with the conclusion]
 
 ## Reasoning
-<why, citing the specific mechanics — rule order, match type, evaluation stage>
+[why, citing the specific mechanics — rule order, match type, evaluation stage]
 
 ## Sources
 - references/zia/url-filtering.md (§ section you used)
 - snapshot/zia/url-filtering-rules.json (rule IDs 42, 47 — only if snapshot was consulted)
 
 ## Confidence
-high | medium | low — <one-line reason; e.g. "stub reference, inferred from Zscaler KB">
+high | medium | low — [one-line reason; e.g. "stub reference, inferred from Zscaler KB"]
 ```
 
 For trivial factual questions ("what's a URL category?") you can drop Reasoning and Confidence, but keep Sources.
