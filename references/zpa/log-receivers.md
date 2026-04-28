@@ -1,12 +1,13 @@
 ---
 product: zpa
 topic: "log-receivers"
-title: "ZPA Log Receivers — LSS configuration primitive (sourced from SDK / TF; help portal gap)"
+title: "ZPA Log Receivers — LSS configuration and architecture"
 content-type: reasoning
-last-verified: "2026-04-26"
+last-verified: "2026-04-28"
 confidence: medium
-source-tier: code
+source-tier: mixed
 sources:
+  - "vendor/zscaler-help/about-log-streaming-service.md"
   - "vendor/zscaler-sdk-python/zscaler/zpa/lss.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py"
   - "vendor/terraform-provider-zpa/zpa/resource_zpa_lss_config_controller.go"
@@ -15,13 +16,15 @@ sources:
 author-status: draft
 ---
 
-# ZPA Log Receivers — LSS configuration primitive
+# ZPA Log Receivers — LSS configuration and architecture
 
-> **Source gap — help portal non-functional.** As of April 2026, the Zscaler help-portal page for ZPA Log Receivers / LSS configuration returns 404. This document is sourced entirely from the Python SDK (`lss.py`, `models/lss.py`) and the Terraform provider (`resource_zpa_lss_config_controller.go`, `validator.go`, `data_source_zpa_lss_config_log_types_formats.go`). Treat all field-level detail as **confidence: medium** — no authoritative help-portal description could be cross-checked.
+## What the Log Streaming Service is
 
-## What a Log Receiver is
+The Log Streaming Service (LSS) is ZPA's mechanism for forwarding operational logs to external destinations — SIEMs, log aggregators, cloud storage. It is distinct from ZIA's Nanolog Streaming Service (NSS) and operates on a different architecture. (Tier A — vendor/zscaler-help/about-log-streaming-service.md: "While the LSS is used to capture log data about App Connectors and users in Private Access using a log receiver, the Nanolog Streaming Service (NSS) resides in Internet & SaaS (ZIA).")
 
-A **Log Receiver** (API resource type: `lssConfig`) is the LSS configuration primitive that defines *where* ZPA log traffic goes: the TCP/TLS endpoint, the log type it carries, the output format, and optional filter conditions. It is operator-created and operator-managed — distinct from the log records themselves.
+A **Log Receiver** (`lssConfig` in the API) is the operator-created configuration object that defines where log traffic goes: the TCP/TLS endpoint, the log type it carries, the output format, and optional filter conditions.
+
+**Cloud log retention:** Zscaler retains User Activity, User Status, and App Connector log information for rolling periods of at least 14 days during the subscription term. Audit log information is retained for at least 6-month periods. (Tier A — vendor/zscaler-help/about-log-streaming-service.md.) For access to logs beyond these retention windows, LSS is required.
 
 Three related concepts that are NOT this doc:
 
@@ -31,9 +34,21 @@ Three related concepts that are NOT this doc:
 | Cross-product log-egress architecture (NSS, VM vs Cloud) | [`../shared/nss-architecture.md`](../shared/nss-architecture.md) |
 | Where logs originate (App Connectors) | [`./app-connector.md`](./app-connector.md) |
 
-LSS is a **ZPA-specific streaming layer** — it is not NSS, does not share configuration with ZIA feeds, and runs a different retry/recovery model (15-minute retransmit window vs NSS's opt-in 60 minutes; see `nss-architecture.md § ZPA LSS retransmit window`).
+## LSS architecture
 
-## Configuration shape
+LSS is deployed using two components: a log receiver and an App Connector. (Tier A — vendor/zscaler-help/about-log-streaming-service.md: "LSS resides in the Zero Trust Exchange (ZTE) and initiates a log stream through a Public Service Edge for Private Access. The App Connector resides in your company's enterprise environment. It receives the log stream and then forwards it to a log receiver.")
+
+The data flow:
+```
+ZPA cloud (ZTE) ──► Public Service Edge ──► App Connector ──► Log Receiver (SIEM/syslog endpoint)
+```
+
+The App Connector acts as a log forwarder: it receives the log stream from ZPA's cloud infrastructure and forwards it to the configured receiver endpoint. This means:
+- App Connectors must be deployed before configuring log receivers.
+- The log receiver endpoint must be reachable from the App Connector's network, not from the internet.
+- Log receiver capacity limits are determined by the App Connector's throughput and network path, not by a Zscaler-side quota.
+
+## Log receiver configuration shape
 
 A Log Receiver object has three top-level blocks.
 
@@ -45,7 +60,7 @@ A Log Receiver object has three top-level blocks.
 | `lss_port` | `lssPort` | `lss_port` | TCP port. Required. String type on the wire. |
 | `use_tls` | `useTls` | `use_tls` | Boolean. Enables TLS on the log stream. Default `false`. |
 | `source_log_type` | `sourceLogType` | `source_log_type` | Internal log type code (see table below). Required. |
-| `format` | `format` | `format` | The log stream content template string (see Formats below). Required. |
+| `format` | `format` | `format` | The log stream content template string. Required. |
 | `filter` | `filter` | `filter` | List of session status code strings to exclude. Log-type dependent. |
 | `enabled` | `enabled` | `enabled` | Boolean. Default `true`. |
 | `name` | `name` | `name` | Human-readable label. Required. |
@@ -62,27 +77,43 @@ An optional policy rule that gates which sessions/events are forwarded. Uses the
 
 ## Log types
 
-The Python SDK `source_log_map` (8 human-readable keys) and the TF data source `data_source_zpa_lss_config_log_types_formats.go` (16 `zpn_*` internal codes) together define the full set. The help-portal access-log schema doc identifies 12 canonical LSS types; the additional entries in the TF data source (`zpn_smb_inspection_log`, `zpn_ldap_inspection_log`, `zpn_krb_inspection_log`, `zpn_auth_log_1id`, `zpn_sitec_*`, `zms_flow_log`) are extended/preview types not covered in vendored schema docs.
+The Python SDK `source_log_map` and the TF data source `data_source_zpa_lss_config_log_types_formats.go` define the full set. (Tier A — vendor/zscaler-help/about-log-streaming-service.md confirms 12 log types.)
 
-| Internal code | Human label (Python SDK / validator) |
-|---|---|
-| `zpn_trans_log` | User Activity |
-| `zpn_auth_log` | User Status |
-| `zpn_ast_auth_log` | App Connector Status |
-| `zpn_ast_comprehensive_stats` | App Connector Metrics |
-| `zpn_http_trans_log` | Browser Access |
-| `zpn_audit_log` | Audit Logs |
-| `zpn_sys_auth_log` | Private Service Edge Status |
-| `zpn_pbroker_comprehensive_stats` | Private Service Edge Metrics |
-| `zpn_waf_http_exchanges_log` | AppProtection (Web Inspection) |
+| Internal code | Human label | Notes |
+|---|---|---|
+| `zpn_trans_log` | User Activity | Per-connection records; the primary "access log" stream. See [`./logs/access-log-schema.md`](./logs/access-log-schema.md). |
+| `zpn_auth_log` | User Status | User auth/enrollment events. |
+| `zpn_ast_auth_log` | App Connector Status | Connector availability and connection to ZPA. |
+| `zpn_ast_comprehensive_stats` | App Connector Metrics | Per-connector telemetry and metrics. |
+| `zpn_http_trans_log` | Browser Access | HTTP log records for Browser Access sessions. |
+| `zpn_audit_log` | Audit Logs | Admin Console session and change history. |
+| `zpn_sys_auth_log` | Private Service Edge Status | PSE availability and connection events. |
+| `zpn_pbroker_comprehensive_stats` | Private Service Edge Metrics | PSE telemetry. |
+| `zpn_waf_http_exchanges_log` | AppProtection (Web Inspection) | App Protection policy activity. |
+| (extended) | Microsegmentation | Microsegmentation Flow activity. (Tier A — vendor help doc.) |
+| (extended) | Private Cloud Controller Metrics | Private Cloud Controller telemetry. |
+| (extended) | Private Cloud Controller Status | Private Cloud Controller availability. |
 
-The TF `resource_zpa_lss_config_controller.go` `ValidateFunc` accepts 9 codes (the above minus `zpn_smb_inspection_log` and others). The extended codes in the log-type-formats data source appear to be fetchable for format lookups but not yet accepted on receiver `source_log_type`.
+The Python SDK `source_log_map` maps 8 human-readable keys; the TF data source and vendor help doc enumerate additional types. Extended types (`zpn_smb_inspection_log`, `zpn_ldap_inspection_log`, `zpn_krb_inspection_log`) appear in the TF data source for format lookups but may not be accepted on receiver `source_log_type` in all tenants.
 
 ## Output formats
 
 The API exposes pre-configured format templates per log type, retrievable via `GET /lssConfig/logType/formats`. Each log type supports **csv**, **json**, and **tsv** variants. The Python SDK defaults to `csv` when no `log_stream_content` override is provided; the TF provider requires the operator to supply the format string explicitly (typically fetched via the `zpa_lss_config_log_type_formats` data source).
 
-Custom log stream content can be supplied as a raw template string, overriding the built-in format.
+Custom log stream content can be supplied as a raw template string, overriding the built-in format. See [`./logs/access-log-schema.md`](./logs/access-log-schema.md) for the field reference and format specifiers (`%s{Field}`, `%d{Field}`, `%j{Field}`, etc.).
+
+## Delivery guarantee model
+
+(Tier A — vendor/zscaler-help/about-log-streaming-service.md.)
+
+**At-least-once with a 15-minute retransmit window:**
+- The LSS does not transmit any log data generated during a connection loss between ZPA and the App Connectors.
+- After the connection is restored, LSS can retransmit the last **15 minutes** of log data. Delivery of that data is not guaranteed.
+- With the exception of audit log data, the LSS does not transmit any log data generated during a connection loss between the App Connector and the SIEM.
+
+This is **not** a guaranteed-delivery system. A sustained connector outage (>15 minutes) creates a permanent log gap. Audit logs receive special handling — the help doc implies audit logs may have a different (better) recovery path, but the exact mechanism is not detailed in available sources.
+
+The 15-minute window is shorter than the ZIA NSS opt-in 60-minute recovery window. Plan monitoring and alerting accordingly.
 
 ## Filtering criteria
 
@@ -101,19 +132,22 @@ The following log types explicitly **do not support** status-code filters: Brows
 - `zpn_auth_log` — `IDP`, `SAML`, `SCIM`, `SCIM_GROUP`, `CLIENT_TYPE`
 - Other log types — policy rule filtering is not validated/supported in the TF provider
 
-## Operational gotchas
+## TLS certificate handling
 
-**1. TLS: no cert pinning surface in SDK.** The `use_tls` flag enables TLS on the outbound stream but no CA certificate or peer verification field is exposed in the SDK or TF schema. TLS trust is handled at the ZPA infrastructure layer; operators cannot pin a specific CA via the Log Receiver object. Confirm with Zscaler support if mutual TLS is required.
+(Tier A — vendor/zscaler-help/about-log-streaming-service.md.)
 
-**2. Retransmit window is 15 minutes, not 60.** On App Connector connectivity loss, LSS can retransmit at most the last 15 minutes of logs after reconnection — and delivery is not guaranteed. This is shorter than the NSS opt-in 60-minute recovery window. A sustained connector outage creates a permanent log gap (see `nss-architecture.md § ZPA LSS retransmit window`).
+LSS supports mutual TLS encryption between the log receiver and the App Connector. TLS requirements:
 
-**3. `source_log_type` is mutable but changes the format contract.** The Python SDK `update_lss_config` accepts `source_log_type` as a keyword arg and will re-fetch the format template for the new type. Changing the log type on an existing receiver without also updating the `format` string produces a mismatch: the receiver streams data in the new type's schema but the SIEM parser still expects the old format. Update both atomically.
+**Log receiver requirements:**
+- Supports TLS communication.
+- Has a client certificate for mutual TLS that uses a public root CA.
+- Must validate the chain of trust to the App Connector's enrollment certificate — add the App Connector's enrollment certificate to the log receiver's trust store.
 
-**4. Multi-receiver fan-out.** There is no single-receiver fan-out — each Log Receiver streams to exactly one `(lssHost, lssPort)` target. To send the same log type to two SIEMs, create two Log Receiver objects with identical configurations targeting different endpoints. Both objects consume connector resources independently.
+**App Connector behavior:**
+- Automatically receives a root certificate during deployment.
+- Trusts log receiver certificates signed by global public root CAs, or signed by custom root CAs used as the App Connector's enrollment certificate.
 
-**5. Connector group affinity is required for log sourcing.** If `connector_groups` is empty, the receiver has no source connectors and will emit nothing. The Python SDK `add_lss_config` accepts `app_connector_group_ids=None` without error, but the resulting receiver is non-functional until connector groups are added.
-
-**6. Filter codes are log-type-specific and validated at plan time.** Passing a status code from one log type's filter list to a receiver configured for a different log type fails at TF plan time via `validateLSSConfigControllerFilters`. The valid status codes are available via `GET /lssConfig/statusCodes` (Python: `zpa.lss.get_status_codes(log_type=<type>)`).
+The `use_tls` flag in the log receiver config enables TLS on the outbound stream. No CA certificate or peer verification field is exposed in the SDK or TF schema — TLS trust configuration happens outside the Log Receiver object. There is no SDK surface for pinning a specific CA via the Log Receiver object configuration.
 
 ## API endpoints
 
@@ -128,8 +162,43 @@ The following log types explicitly **do not support** status-code filters: Brows
 | Get status codes | `GET` | `/zpa/mgmtconfig/v2/admin/lssConfig/statusCodes` |
 | Get client types | `GET` | `/zpa/mgmtconfig/v2/admin/lssConfig/customers/{customerId}/clientTypes` |
 
+**SDK service** (`client.zpa.lss`): `list_configs`, `get_config`, `add_lss_config`, `update_lss_config`, `delete_lss_config`, `get_log_formats`, `get_client_types`, `get_status_codes`. Uses the v2 endpoint `/zpa/mgmtconfig/v2/admin/customers/{customer_id}/lssConfig`. (Tier A — sdk.md §2.22.)
+
+`add_lss_config` signature: `(lss_host, lss_port, name, source_log_type, app_connector_group_ids=None, enabled=True, source_log_format="csv", use_tls=False, **kwargs)`.
+
+## Operational gotchas
+
+**1. Connector groups required for log sourcing.**
+If `connector_groups` is empty, the receiver has no source connectors and will emit nothing. The Python SDK `add_lss_config` accepts `app_connector_group_ids=None` without error, but the resulting receiver is non-functional until connector groups are added.
+
+**2. Retransmit window is 15 minutes.**
+A sustained connector outage creates a permanent log gap. This is shorter than the NSS opt-in 60-minute recovery window. Plan alert thresholds and SIEM parsing for gaps.
+
+**3. `source_log_type` changes require format string update.**
+The Python SDK `update_lss_config` accepts `source_log_type` and will re-fetch the format template for the new type. Changing the log type on an existing receiver without also updating the `format` string produces a mismatch: the receiver streams data in the new type's schema but the SIEM parser still expects the old format. Update both atomically.
+
+**4. Multi-receiver fan-out creates resource duplication.**
+There is no single-receiver fan-out. Each Log Receiver streams to exactly one `(lssHost, lssPort)` target. To send the same log type to two SIEMs, create two Log Receiver objects with identical configurations targeting different endpoints. Both objects consume connector resources independently.
+
+**5. Filter codes are log-type-specific and validated at plan time.**
+Passing a status code from one log type's filter list to a receiver configured for a different log type fails at TF plan time via `validateLSSConfigControllerFilters`. The valid status codes are available via `GET /lssConfig/statusCodes` (Python: `zpa.lss.get_status_codes(log_type=<type>)`).
+
+**6. Log receiver endpoint must be reachable from App Connector network.**
+The SIEM or log receiver is targeted by the App Connector, not by Zscaler's cloud. The endpoint must be accessible from wherever the App Connector runs — typically inside the corporate network or a cloud VPC. Internet-exposed SIEM endpoints work if the App Connector has outbound internet access.
+
+**7. Deception-configured receivers are read-only.**
+If a log receiver is configured using Zscaler Deception, the copy, edit, and delete options are unavailable in the Admin Console. (Tier A — vendor/zscaler-help/about-log-streaming-service.md.)
+
+**8. Receiver capacity limits.**
+The help doc does not publish explicit per-receiver throughput limits. Capacity is constrained by App Connector CPU/network and the log receiver's ingestion capacity. High-volume tenants (many users, dense access patterns) may need to distribute log types across multiple receivers or increase App Connector resources.
+
+## Admin Console
+
+Logs > Log Streaming > Log Receivers. Per-receiver columns: Name, Domain Name or IP Address, TCP Port, TLS Encryption, Log Type. Supports copy (clone configuration), edit, delete. (Tier A — vendor/zscaler-help/about-log-streaming-service.md.)
+
 ## Cross-links
 
 - Log record field schemas (what's in each log type) — [`./logs/access-log-schema.md`](./logs/access-log-schema.md)
 - Cross-product log-egress architecture (NSS vs LSS, retry behavior) — [`../shared/nss-architecture.md`](../shared/nss-architecture.md)
 - App Connectors (where ZPA logs originate) — [`./app-connector.md`](./app-connector.md)
+- LSSConfigControllerAPI in SDK catalog — [`./sdk.md`](./sdk.md) §2.22

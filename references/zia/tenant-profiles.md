@@ -3,7 +3,7 @@ product: zia
 topic: "tenant-profiles"
 title: "Tenant Profiles — SaaS tenant restriction (corporate-only access)"
 content-type: reasoning
-last-verified: "2026-04-25"
+last-verified: "2026-04-28"
 confidence: medium
 source-tier: mixed
 sources:
@@ -20,11 +20,17 @@ author-status: draft
 
 A **Tenant Profile** is a named object that identifies a specific corporate tenant of a SaaS application. It gives Cloud App Control (CAC) the information it needs to distinguish "user signing into the company's Microsoft 365 tenant" from "user signing into a personal or third-party Microsoft 365 tenant" — even though both transactions go to the same Microsoft endpoints. Without a Tenant Profile, CAC can only act on the application as a whole; with one, it can scope a rule to the corporate tenant and allow/block everything else.
 
-The feature has two moving parts: the Tenant Profile itself (Administration > Tenant Profiles), and a CAC rule that references it as a criterion.
+The feature has two moving parts: the Tenant Profile itself (Administration > Tenant Profiles), and a CAC rule that references it as a criterion. (Tier A — vendor/zscaler-help/about-tenant-profiles.md.)
+
+## What tenant profiles are — ZIA sub-tenant/MSP context
+
+Despite the name "tenant profile," this feature is **not** about sub-tenants or MSP configuration in the ZIA management plane. It is about SaaS application tenant restriction — controlling which SaaS tenants (e.g., which Microsoft 365 directory) users can sign into while going through ZIA inspection.
+
+Tenant Profiles belong to the ZIA **Tenant Restriction** capability, not to any ZIA multi-tenancy or MSP scoping feature. They appear under Administration > Tenant Profiles and are applied via Cloud App Control policy rules.
 
 ## Supported applications
 
-Tier A — from `vendor/zscaler-sdk-python/zscaler/zia/tenancy_restriction_profile.py:149` (`app_type` enum):
+Tier A — vendor/zscaler-help/adding-tenant-profiles.md lists 13 applications by display name; the SDK `app_type` enum has 16 entries:
 
 ```
 YOUTUBE, GOOGLE, MSLOGINSERVICES, SLACK, BOX, FACEBOOK, AWS, DROPBOX,
@@ -32,7 +38,7 @@ WEBEX_LOGIN_SERVICES, AMAZON_S3, ZOHO_LOGIN_SERVICES, GOOGLE_CLOUD_PLATFORM,
 ZOOM, IBMSMARTCLOUD, GITHUB, CHATGPT_AI
 ```
 
-16 app types via the SDK. The help article (`adding-tenant-profiles.md`) lists 13 by display name (omits Box, Facebook, Amazon S3). The SDK enum is the authoritative count.
+The help article lists: YouTube, Google Apps, Microsoft Login Services, Slack, Amazon Web Services, Dropbox, Webex Login Services, Zoho Login Services, Google Cloud Platform, Zoom, IBM SmartCloud, GitHub, ChatGPT. The SDK enum is the authoritative count.
 
 ## How a Tenant Profile is constructed
 
@@ -83,18 +89,41 @@ A CAC rule can reference a Tenant Profile as a criterion. When it does, the rule
 
 **YouTube and AWS are exceptions** (Tier A, help doc): for these two apps, subsequent policies continue to be evaluated, so allowing the corporate tenant does not implicitly block others. An explicit block rule is required for other-tenant traffic to YouTube or AWS.
 
+## How tenant profiles interact with policy inheritance
+
+Tenant Profiles are referenced in CAC rules. CAC rules in ZIA inherit the standard ZIA policy evaluation model — rules are evaluated top-to-bottom, first match wins (with the YouTube/AWS exceptions above). Tenant Profile criteria compose with other rule criteria (user, department, location, URL category) using AND logic within a rule.
+
+A Tenant Profile set on one CAC rule does not affect other rules. If a tenant profile is deleted, CAC rules referencing it may behave unexpectedly — the profile reference becomes stale. ZIA does not prevent deletion of profiles referenced by active rules.
+
 ## Header-injection mechanic
 
 Tenant restriction works at the protocol level by injecting HTTP request headers that the SaaS vendor reads server-side to enforce tenant access.
 
-- For Microsoft 365 (per Microsoft's documented tenant restriction mechanism, not sourced from vendored captures): `Restrict-Access-To-Tenants` carries the allowed tenant IDs; `Restrict-Access-Context` carries the directory ID. These headers cause Microsoft's authentication endpoints to reject sign-in attempts targeting other tenants.
-- For Google Workspace (per Google's documented mechanism, not sourced from vendored captures): `X-GoogApps-Allowed-Domains` lists the allowed Workspace domains. Google's authentication flow rejects sign-in to accounts outside those domains.
+- For Microsoft 365: `Restrict-Access-To-Tenants` carries the allowed tenant IDs; `Restrict-Access-Context` carries the directory ID. These headers cause Microsoft's authentication endpoints to reject sign-in attempts targeting other tenants.
+- For Google Workspace: `X-GoogApps-Allowed-Domains` lists the allowed Workspace domains. Google's authentication flow rejects sign-in to accounts outside those domains.
 
-**This injection requires SSL inspection.** The traffic between the user's browser and the SaaS vendor's auth endpoint is TLS-encrypted. ZIA must terminate and re-encrypt (inspect) the TLS session to insert headers into the plaintext request before re-encrypting and forwarding. If SSL inspection is bypassed for Office 365 (e.g., via the M365 One-Click bypass, which disables SSL interception for all Office 365 destinations), tenant restriction headers cannot be injected and the feature silently stops working. See `adding-tenant-profiles.md`:
+**This injection requires SSL inspection.** The traffic between the user's browser and the SaaS vendor's auth endpoint is TLS-encrypted. ZIA must terminate and re-encrypt (inspect) the TLS session to insert headers into the plaintext request before re-encrypting and forwarding. If SSL inspection is bypassed for Office 365 (e.g., via the M365 One-Click bypass), tenant restriction headers cannot be injected and the feature silently stops working. (Tier A — vendor/zscaler-help/adding-tenant-profiles.md: "Ensure to select these cloud applications as a criterion in an SSL Inspection rule if their tenant profiles are associated with a cloud application rule.")
 
-> "Ensure to select these cloud applications as a criterion in an SSL Inspection rule if their tenant profiles are associated with a cloud application rule."
+SSL Inspection rule ordering for O365: the SSL Inspection rule selecting Microsoft Login Services must have a **higher rule order** (evaluated earlier) than the Office 365 One-Click Rule. (Tier A — vendor/zscaler-help/adding-tenant-profiles.md.)
 
-Specifically for Office 365, the SSL Inspection rule selecting Microsoft Login Services must have a **higher rule order** (evaluated earlier) than the Office 365 One-Click Rule, so it fires before the bypass takes effect.
+## API surface
+
+**Endpoint:** `GET/POST/PUT/DELETE /zia/api/v1/tenancyRestrictionProfile`. Source: `tenancy_restriction_profile.py:63`.
+
+**SDK service** (`client.zia.tenancy_restriction_profile`):
+
+| Method | Signature | Notes |
+|---|---|---|
+| `list_profiles` | `(query_params=None) -> APIResult[List]` | Lists all profiles |
+| `get_profile` | `(profile_id) -> APIResult` | Get by ID |
+| `add_profile` | `(**kwargs) -> APIResult` | Create |
+| `update_profile` | `(profile_id, **kwargs) -> APIResult` | Update |
+| `delete_profile` | `(profile_id) -> APIResult` | Delete |
+| `list_app_item_count` | `(app_type, item_type) -> APIResult` | Count items in use per type — useful for capacity checks |
+
+The `list_app_item_count` helper at `/tenancyRestrictionProfile/app-item-count/{app_type}/{item_type}` returns how many items of a given type are already in use across profiles, useful for capacity checks.
+
+**Terraform resource:** `zia_tenant_restriction_profile`. All profile fields map directly to Terraform schema attributes; no computed-only fields except `id`/`profile_id` and `last_modified_time`/`last_modified_user_id` (data source only).
 
 ## Gotchas
 
@@ -119,11 +148,8 @@ As noted above, these two apps don't inherit an implicit "block everything else"
 **7. Per-category rule cap applies.**
 Tenant restriction profiles are referenced in CAC rules. The 127-rules-per-category cap (extendable to 2,048 via support) applies to those rules like any other CAC rule. In orgs with fine-grained departmental CAC rules, the cap can be relevant.
 
-## API surface
-
-Endpoint: `GET/POST/PUT/DELETE /zia/api/v1/tenancyRestrictionProfile`. Source: `tenancy_restriction_profile.py:63`. The `list_app_item_count` helper at `/tenancyRestrictionProfile/app-item-count/{app_type}/{item_type}` returns how many items of a given type are already in use across profiles, useful for capacity checks.
-
-The Terraform resource is `zia_tenant_restriction_profile`. All profile fields map directly to Terraform schema attributes; no computed-only fields except `id`/`profile_id` and `last_modified_time`/`last_modified_user_id` (data source only).
+**8. Profile deletion does not cascade to CAC rules.**
+Deleting a Tenant Profile that is referenced by an active CAC rule leaves a stale reference. ZIA does not prevent this operation or warn about dependent rules. Audit dependent CAC rules before deleting a profile.
 
 ## Cross-links
 

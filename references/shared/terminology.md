@@ -3,7 +3,7 @@ product: shared
 topic: "terminology"
 title: "Zscaler terminology — marketing names, legacy names, log field names"
 content-type: reference
-last-verified: "2026-04-24"
+last-verified: "2026-04-28"
 confidence: high
 source-tier: doc
 sources:
@@ -72,6 +72,18 @@ Zscaler has renamed several core components over time without fully purging the 
 | Zscaler Incident Receiver | ZIR | — | Zscaler-native destination for outbound email policy rule content. ICAP transport; also one-way. |
 | Cloud-to-Cloud Incident Forwarding | C2C | — | Forwards DLP incident metadata + evidence directly to customer public-cloud storage (S3, Azure Blob, etc.). The feed ZWA reads from. |
 | LWF Driver | (same) | `enableLWFDriver` flag on Forwarding Profile | Windows Lightweight Filter — low-level packet interception driver |
+| AI Guard | (same) | Help URL: `ai-guard/` | LLM runtime protection (prompt injection, jailbreak, sensitive-data detectors). 15 detector categories. Deployment modes: Proxy, DaaS, OnPrem. See `references/ai-security/ai-guard.md`. |
+| Breach Predictor | (same) | Help URL: `breach-predictor/` | Predictive threat intelligence — AI-driven breach probability scoring based on telemetry. See `references/breach-predictor/`. |
+| SOC Workbench | Zscaler SOC Workbench | Help URL: `soc-workbench/` | Unified alert/incident triage workspace in the Security Operations platform. Shares Data Fabric + AnySource connectors with AEM/UVM. See `references/soc-workbench/`. |
+| Asset Exposure Management (AEM) | (same) | Help URL: `aem/` | Asset inventory, coverage gap analysis, CMDB hygiene. Part of the Exposure Management suite alongside UVM, Risk360, EASM, Deception. See `references/aem/`. |
+| Unified Vulnerability Management (UVM) | (same) | Help URL: `uvm/` | Vulnerability aggregation and prioritization. AnySource connector accepts flat-file/webhook inputs. See `references/uvm/`. |
+| Identity Protection (ITDR) | Zscaler Identity Protection, ITDR | Help URL: `identity-protection/` | Real-time identity threat detection and response — DCSync, Kerberoasting, credential theft. Distinct from ZIdentity (IdP layer). See `references/identity-protection/`. |
+| Data Security Posture Management (DSPM) | (same) | Help URL: `dspm/` | Agentless at-rest data security for IaaS/SaaS. Distinct from ZIA DLP (in-motion). See `references/dspm/`. |
+| Zero Trust Branch | (same) | Help URL: `zero-trust-branch/` | SD-WAN + device segmentation for branch offices via ZTB appliances. See `references/zero-trust-branch/`. |
+| Zero Trust Browser | Cloud Browser Isolation, Zscaler Isolation | Help URL: `zero-trust-browser/` | Remote browser isolation. **Marketing name.** The same product is called ZBI (Zscaler Browser Isolation) in older docs; SDK module is `zbi`. See `references/zbi/` and `references/zero-trust-browser/`. |
+| Zscaler Cellular | (same) | Help URL: `zscaler-cellular/` | SIM-based ZIA enforcement for IoT/OT cellular devices. IMEI/IMSI-based policy. No on-device software required. GA August 2025. See `references/zscaler-cellular/`. |
+| Business Insights | Zscaler Business Insights | Help URL: `business-insights/` | SaaS spend analytics and workplace utilization reporting. Requires ZIA. No API surface. See `references/business-insights/`. |
+| Unified (Experience Center) | Zscaler Experience Center | Help URL: `unified/` | Unified admin console across all Zscaler products. Includes Copilot AI assistant. Replaces per-product admin portals progressively. See `references/unified/`. |
 | Zscaler Internet Access (ZIA) | Internet & SaaS (ZIA) is the newer rename; legacy was just "ZIA" | — | Internet security product line |
 | Zscaler Private Access (ZPA) | (same) | — | Private app access product line |
 | Zero Trust Exchange (ZTE) | — | — | Umbrella platform concept spanning ZIA/ZPA/ZDX |
@@ -103,10 +115,16 @@ When an operator says *"the PSEN in Frankfurt"*, they mean a specific **instance
 
 ## Cross-links
 
-- Components and cloud architecture — `vendor/zscaler-help/understanding-zscaler-cloud-architecture.md`
-- Service Edge form factors (Public / Private / Virtual) — `vendor/zscaler-help/about-public-service-edges-internet-saas.md`, `understanding-private-service-edge-internet-saas.md`, `about-virtual-service-edges-internet-saas.md`
-- ZPA App Connector — `vendor/zscaler-help/about-app-connectors.md`
-- Z-Tunnel (passing mention only, no standalone doc) — `vendor/zscaler-help/what-is-zscaler-client-connector.md`
+- Cloud architecture and Service Edge form factors — [`./cloud-architecture.md`](./cloud-architecture.md)
+- GRE tunnels — [`./gre-tunnels.md`](./gre-tunnels.md)
+- Z-Tunnel 1.0 vs 2.0 — [`./z-tunnel.md`](./z-tunnel.md)
+- ZPA Public / Private / Virtual Service Edges — [`../zpa/public-service-edges.md`](../zpa/public-service-edges.md)
+- ZCC forwarding profiles — [`../zcc/forwarding-profile.md`](../zcc/forwarding-profile.md)
+- Source IP Anchoring (SIPA) — [`./source-ip-anchoring.md`](./source-ip-anchoring.md)
+- ZIdentity (API clients, step-up auth) — [`../zidentity/overview.md`](../zidentity/overview.md)
+- Cloud Connector — [`../cloud-connector/overview.md`](../cloud-connector/overview.md)
+- ZBI (Zero Trust Browser / Cloud Browser Isolation) — [`../zbi/`](../zbi/)
+- Workflow Automation (ZWA) — [`../workflow-automation/overview.md`](../workflow-automation/overview.md)
 
 ## Open questions (terminology-adjacent)
 
