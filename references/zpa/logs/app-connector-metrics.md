@@ -263,6 +263,9 @@ index=$INDEX_ZPA_METRICS TargetCount>0 earliest=-1h
 
 - ZPA User Activity log schema (connection-level records; the `Connector` join key) — [`./access-log-schema.md`](./access-log-schema.md)
 - ZPA User Status log schema (authentication and posture state) — [`./user-status-log-schema.md`](./user-status-log-schema.md)
+- ZPA App Connector Status log schema (connector session lifecycle events; same `Connector` join key) — [`./app-connector-status.md`](./app-connector-status.md)
+- ZPA Private Service Edge Metrics log schema (analogous metrics for Private Service Edge nodes) — [`./private-service-edge-metrics.md`](./private-service-edge-metrics.md)
+- ZPA Private Cloud Controller Metrics log schema (analogous metrics for Private Cloud Controller nodes) — [`./private-cloud-controller-metrics.md`](./private-cloud-controller-metrics.md)
 - SPL patterns including app-connector-metrics sections — [`../../shared/splunk-queries.md`](../../shared/splunk-queries.md)
 
 ## Open questions

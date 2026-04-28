@@ -240,6 +240,11 @@ Cross-check `PosturesMiss` values against the policy configured under **Policy >
 
 - User Activity log schema (per-connection records) — [`./access-log-schema.md`](./access-log-schema.md)
 - App Connector Metrics log schema (connector health) — [`./app-connector-metrics.md`](./app-connector-metrics.md)
+- ZPA App Connector Status log schema (connector session lifecycle; `Connector` join key) — [`./app-connector-status.md`](./app-connector-status.md)
+- ZPA Browser Access log schema (clientless access; `NameID` vs `Username` identity difference) — [`./browser-access-log-schema.md`](./browser-access-log-schema.md)
+- ZPA Private Service Edge Status log schema (PSE session events) — [`./private-service-edge-status.md`](./private-service-edge-status.md)
+- ZPA Private Cloud Controller Status log schema (PCC session events) — [`./private-cloud-controller-status.md`](./private-cloud-controller-status.md)
+- ZPA Microsegmentation Flow log schema (east-west traffic enforcement) — [`./microsegmentation-flow-log-schema.md`](./microsegmentation-flow-log-schema.md)
 - SPL patterns including user-status sections — [`../../shared/splunk-queries.md`](../../shared/splunk-queries.md)
 - ZPA device posture reference — [`../device-posture.md`](../device-posture.md)
 - ZCC log schema (client-side counterpart) — [`../../zcc/logs/zcc-log-schema.md`](../../zcc/logs/zcc-log-schema.md)
