@@ -81,7 +81,7 @@ Experience Center itself is an admin console, not an API product. The underlying
 
 ## Key operational notes
 
-- Experience Center requires ZIdentity (Zscaler's IdP/SSO product) for authentication in the new unified model.
+- Experience Center is designed to work with ZIdentity (Zscaler's IdP/SSO product) for the unified identity layer; the specific authentication requirement for Experience Center itself is not explicitly stated in vendor sources (Tier A — vendor/zscaler-help/unified-what-zscaler-experience-center.md).
 - Tenants upgrading from legacy separate portals to Experience Center go through a documented migration path ("Upgrading to Zscaler Experience Center").
 - The /unified help path covers the onboarding getting-started journey, not just the console UI itself.
 

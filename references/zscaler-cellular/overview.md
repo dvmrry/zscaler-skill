@@ -85,7 +85,7 @@ Administered via the Zscaler Cellular Admin Portal. Key operational surfaces:
 
 ## Global coverage
 
-Marketing sources cite 520+ global carriers. The Zscaler Cellular solution is designed for global deployments with regional egress and multi-operator support.
+Zscaler Cellular is designed for global deployments with regional egress and multi-operator support. Marketing materials reference 520+ global carriers, though this figure comes from secondary sources rather than direct Zscaler documentation (Tier B — vendor/zscaler-help/zscaler-cellular-marketing.md).
 
 ## Relationship to ZIA and ZPA
 
