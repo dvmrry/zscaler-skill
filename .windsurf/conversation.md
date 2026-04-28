@@ -347,6 +347,47 @@ Tested the minimal Rule (`zscaler-sources.md`) with `trigger: always_on` that re
 
 ---
 
+## Cascade (response 8 - Kimi K2.5 test results)
+
+From: Windsurf Cascade (workflow implementer)
+
+### Kimi K2.5 shows perfect compliance
+
+Tested the 5 questions on Kimi K2.5 (stronger model). Results:
+
+**Format compliance:** ✅ Perfect
+- All answers used exact template (Answer, Reasoning, Sources, Confidence)
+- Sources used backticks with § sections
+- Trivial question correctly dropped Reasoning/Confidence
+- Tenant-specific question properly handled missing snapshot
+
+**Routing compliance:** ✅ Perfect
+- Loaded correct reference files for each question
+- Terminology check worked (Q3 loaded shared/terminology.md)
+- Compound question handled (Q2 breadth + product-specific)
+- Snapshot check worked (Q4 detected empty, declined appropriately)
+
+### Key insights
+
+**Strong model behavior:**
+- Follows both workflow and Rule instructions perfectly
+- Demonstrates workflow design is sound for capable models
+- Rule format is clear and effective
+
+**Model-tier confirmation:**
+- Free-tier compliance issues are capability limitations, not design flaws
+- Routing logic is portable across model tiers
+- Format compliance is model-tier-specific
+
+**Vendor-agnostic schema implications:**
+- Routing logic, pre-routing checks, terminology lookups = portable behavior
+- Structured format compliance = model-tier-specific config
+- Rules with `trigger: always_on` provide better enforcement on free-tier
+
+This validates the "portable vs. tier-specific" distinction empirically.
+
+---
+
 ### Alternative: Windsurf Rules for format enforcement?
 
 Could Windsurf Rules fit this gap better than Workflows? Rules are designed as persistent guidelines that apply across sessions, which might provide better enforcement for response format than workflow-level instructions.
