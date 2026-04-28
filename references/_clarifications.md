@@ -114,15 +114,9 @@ Skim this before reading the full entries.
 | [`log-01`](#log-01-nss-feed-format-versions) | NSS feed format versions | Exact field-presence differences between CSV/JSON/TSV output templates |
 | [`log-02`](#log-02-cloud-nss-vs-legacy-nss-divergence) | Cloud NSS vs legacy NSS divergence | Both source from the same Nanolog — field content parity expected; branching most likely needed for format (Cloud NSS recommends JSON) and per-instance feed-count limits, not field presence |
 
-### Investigating
-
-| ID | Title |
-|---|---|
-| [`zpa-01`](#zpa-01-multi-segment-match-representation-in-lss) | Multi-segment match representation in LSS — schema shape suggests one record per segment; comma-concatenated ConnectionID hints at multi-attempt encoding |
-
 ### Open
 
-`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-45`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `log-03`, `shared-06`, `shared-07`–`shared-16`, `zcc-08`–`zcc-75`.
+`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-45`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `log-03`, `shared-06`, `shared-07`–`shared-16`, `zcc-08`–`zcc-75`.
 
 Partial / SDK-mined (resolved via code read or help-doc capture; full lab confirmation pending): `zcc-01`, `zcc-02`, `zcc-03`, `zcc-04`, `zcc-05`, `zcc-06`, `zcc-07`, **`log-04`** (field name + illustrative values confirmed via `web-log-schema.md`; full enum of `ruletype` / `reason` values still needs a tenant export). All six ZCC enum clarifications had their **datatype** (int vs string) resolved by the Go SDK cross-check on 2026-04-24; the integer-to-meaning mapping remains open for `zcc-01` through `zcc-04` and `zcc-06`.
 
@@ -574,17 +568,17 @@ Since both decompress/detokenize the same Nanolog records, **field content is eq
 
 When a ZPA client resolves to multiple application segments in sequence (e.g., failover, or a sequence of probes), how is that represented in LSS output? One record per segment, a single record with multiple segment IDs, or something else?
 
-**Resolves with**: zscaler doc not yet read (Understanding User Activity Log Fields — now vendored at `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.pdf`, so this is ready to resolve in the next derivation pass). **Status**: investigating (material available).
+**Resolves with**: operator experience OR lab test. **Status**: open — 2026-04-28.
 
-**Doc sweep 2026-04-23** (partial): Confirmed schema shape from *Understanding User Activity Log Fields* (`vendor/zscaler-help/Understanding_User_Activity_Log_Fields.pdf`). Key observations, not a full resolution:
+**Doc sweep 2026-04-23** (partial): Confirmed schema shape from *Understanding User Activity Log Fields* (`vendor/zscaler-help/Understanding_User_Activity_Log_Fields.pdf`). Key observations:
 
 - Fields like `Application`, `AppGroup`, `Policy`, `Server`, `ServerIP`, `ServerPort`, and timestamps are **singular per record** — no array-valued segment list. This makes "single record with multiple segment IDs" structurally unlikely.
 - The example record in the doc's preamble shows `ConnectionID` as a **comma-concatenated pair** (e.g., `SqyZIMkg0JTj7EABsvwA,Q+EjXGdrvbF2lPiBbedm`) where the first part matches `SessionID` exactly. This hints that `ConnectionID` may encode `<SessionID>,<attempt-or-subconnection>` when a TLS session spans multiple ZPA connections — but the field description just says "The application connection ID" without elaboration.
 - `SessionID` is documented as "The TLS session ID." So: multiple `ConnectionID` values under the same `SessionID` is plausibly how sequential connection attempts within a session are tied together.
 
-**Most-defensible inference** (not yet confirmed by an unambiguous doc statement): multi-segment failover/probe sequences generate **one LSS record per segment attempt**, with records tied together by shared `SessionID` and distinguished by distinct `ConnectionID` suffixes. Correlation via `SessionID` would then group a multi-segment sequence back into a logical session.
+**Doc sweep 2026-04-28**: Reviewed *Understanding User Status Log Fields* PDF, *Understanding the Log Stream Content Format* PDF, and `about-log-streaming-service.md`. None contain an explicit statement about record granularity for multi-segment failover sequences. Available vendored material is exhausted on this question.
 
-Remains in Investigating until either (a) a doc explicitly states record granularity (check `Understanding User Status Log Fields`, or the LSS sections of NSS/LSS deployment docs), or (b) an operator confirms in practice.
+**Most-defensible inference** (not yet confirmed by an unambiguous doc statement): multi-segment failover/probe sequences generate **one LSS record per segment attempt**, with records tied together by shared `SessionID` and distinguished by distinct `ConnectionID` suffixes. Correlation via `SessionID` would then group a multi-segment sequence back into a logical session. Requires operator confirmation on a real tenant.
 
 ---
 
