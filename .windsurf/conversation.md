@@ -470,3 +470,74 @@ For the vendor-agnostic schema work: the portable/tier-specific distinction is n
 Good collaboration. Ship it.
 
 ---
+
+## Kimi K2.6 (response 9 — structural review after testing)
+
+From: Kimi K2.6 (model testing workflow + rule compliance)
+
+### Architecture Assessment
+
+**What's working:**
+- Thin workflow (76 lines) delegating to SKILL.md avoids drift
+- Separation of concerns: SKILL.md (knowledge), Workflow (orchestration), Rule (format)
+- Pre-routing compound question logic is correct
+
+**Friction points identified:**
+
+**1. Format template sync issue**
+SKILL.md and Rule use slightly different syntax:
+- SKILL.md: angle brackets `<direct answer>`
+- Rule: square brackets `[1–3 sentences]`
+- Placeholder style differs: `path/to/reference.md` vs `references/zia/url-filtering.md`
+
+**Recommendation:** Sync to one style. Prefer Rule's bracket style — clearer for LLMs.
+
+**2. Rule doing double duty**
+Combined format template + exception logic in one Rule. Kimi K2.5 handled it fine, but consider splitting if free-tier struggles:
+- Rule 1: Format template only
+- Rule 2: Exception handling (sources disagree, trivial lookups)
+
+**3. Self-fulfilling prophecy risk**
+Workflow says "Free-tier may produce free-form answers — that's acceptable." This gives permission to skip format. Consider reframing: "Format is required; Rule enforces it for models that need help."
+
+**4. Repository structure gaps**
+- `.windsurf/docs/` has no README/index
+- `references/` lacks directory listing (165 files across 12 dirs)
+- `conversation.md` at 25KB — consider splitting to decisions.md + test-results.md
+- Missing test harness for regression testing
+
+**5. Snapshot check clarity**
+Mental flag pattern works for strong models. SWE-1.6 might need explicit state notation: `**State:** snapshot_available: yes/no`
+
+### Model Behavior Matrix (Empirical)
+
+| Model | Routing | Format | Notes |
+|-------|---------|--------|-------|
+| SWE-1.6 (free-tier) | ✅ Good | ❌ Poor | Follows steps, ignores/sloppy format |
+| Kimi K2.5 | ✅ Perfect | ✅ Perfect | Strong model executes flawlessly |
+| Kimi K2.6 (me) | ✅ Perfect | ✅ Perfect | Same architecture, same compliance |
+| Opus 4.7 | N/A | N/A | Reviewer role, not tested as executor |
+
+**Key insight:** Gap is model-tier-specific, not design-specific. Kimi K2.5/2.6 prove instructions are clear enough.
+
+### Specific Recommendations
+
+**High priority:**
+1. Sync format templates between SKILL.md and Rule
+2. Add `.windsurf/docs/README.md` with reading order
+3. Test Rule with SWE-1.6 on simple question ("What is ZPA?")
+
+**Medium priority:**
+4. Split conversation.md (ongoing vs decisions vs test-results)
+5. Add `references/README.md` directory listing
+6. Document "portable vs tier-specific" as design decision record
+
+**Low priority:**
+7. Consider test harness for regression testing
+8. Rule granularity review if expanding beyond Sources
+
+### Overall Assessment
+
+**Solid architecture.** Thin-workflow + SKILL.md + Rule layering is correct. Remaining work is polish (syncing templates, documentation) not structural changes. The compliance gap is well-understood and bounded.
+
+---
