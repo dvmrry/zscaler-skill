@@ -1,0 +1,284 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e7]:
+      - link "Zscaler logo" [ref=e9] [cursor=pointer]:
+        - /url: /
+        - img "Zscaler logo" [ref=e10]
+      - generic [ref=e34]:
+        - generic [ref=e35]:
+          - generic [ref=e38]:
+            - generic [ref=e39]:
+              - text: 
+              - combobox [ref=e41]:
+                - textbox "Search" [ref=e42] [cursor=pointer]:
+                  - /placeholder: How can the documentation help?
+            - generic "checkbox dropdown" [ref=e44]:
+              - button "ZIdentity " [ref=e46] [cursor=pointer]
+          - button "Select application language, currently selected English " [ref=e48] [cursor=pointer]:
+            - img [ref=e49]
+            - generic "Select application language, currently selected English" [ref=e51]: EN
+            - text: 
+        - button [ref=e52] [cursor=pointer]:
+          - img [ref=e53]
+    - generic [ref=e56]:
+      - list [ref=e60]:
+        - listitem [ref=e61]:
+          - generic [ref=e62]:
+            - button "icon-doc.svg Documentation" [ref=e63] [cursor=pointer]:
+              - img "icon-doc.svg" [ref=e65]
+              - generic [ref=e66]: Documentation
+            - generic [ref=e68]:
+              - button "icon-unified.svg Getting Started with Zscaler" [ref=e70] [cursor=pointer]:
+                - img "icon-unified.svg" [ref=e72]
+                - generic [ref=e73]: Getting Started with Zscaler
+              - button "icon-zia.svg Internet & SaaS (ZIA)" [ref=e75] [cursor=pointer]:
+                - img "icon-zia.svg" [ref=e77]
+                - generic [ref=e78]: Internet & SaaS (ZIA)
+              - button "icon-zpa.svg Private Access (ZPA)" [ref=e80] [cursor=pointer]:
+                - img "icon-zpa.svg" [ref=e82]
+                - generic [ref=e83]: Private Access (ZPA)
+              - button "icon-zdx.svg Digital Experience Monitoring (ZDX)" [ref=e85] [cursor=pointer]:
+                - img "icon-zdx.svg" [ref=e87]
+                - generic [ref=e88]: Digital Experience Monitoring (ZDX)
+              - button "icon-zws.svg Workflow Automation" [ref=e90] [cursor=pointer]:
+                - img "icon-zws.svg" [ref=e92]
+                - generic [ref=e93]: Workflow Automation
+              - button "icon-ai-guard.svg AI Guard" [ref=e95] [cursor=pointer]:
+                - img "icon-ai-guard.svg" [ref=e97]
+                - generic [ref=e98]: AI Guard
+              - button "icon-dspm.svg Data Security Posture Management (DSPM)" [ref=e100] [cursor=pointer]:
+                - img "icon-dspm.svg" [ref=e102]
+                - generic [ref=e103]: Data Security Posture Management (DSPM)
+              - generic [ref=e105]:
+                - button "icon-zscaler-connectors.svg Zscaler Connectors " [ref=e106] [cursor=pointer]:
+                  - img "icon-zscaler-connectors.svg" [ref=e108]
+                  - generic [ref=e109]: Zscaler Connectors
+                  - generic [ref=e110]: 
+                - button [ref=e112] [cursor=pointer]:
+                  - img [ref=e114]
+                  - generic [ref=e115]: Client Connector
+                - button [ref=e117] [cursor=pointer]:
+                  - img [ref=e119]
+                  - generic [ref=e120]: Cloud & Branch Connector
+                - button [ref=e122] [cursor=pointer]:
+                  - img [ref=e124]
+                  - generic [ref=e125]: Zscaler Cellular
+                - button [ref=e127] [cursor=pointer]:
+                  - img [ref=e129]
+                  - generic [ref=e130]: Zero Trust Branch
+              - generic [ref=e132]:
+                - button "icon_sop.svg Security Operations Platform " [ref=e133] [cursor=pointer]:
+                  - img "icon_sop.svg" [ref=e135]
+                  - generic [ref=e136]: Security Operations Platform
+                  - generic [ref=e137]: 
+                - button [ref=e139] [cursor=pointer]:
+                  - img [ref=e141]
+                  - generic [ref=e142]: Unified Vulnerability Management (UVM)
+                - button [ref=e144] [cursor=pointer]:
+                  - img [ref=e146]
+                  - generic [ref=e147]: Asset Exposure Management
+                - button [ref=e149] [cursor=pointer]:
+                  - img [ref=e151]
+                  - generic [ref=e152]: External Attack Surface Management
+                - button [ref=e154] [cursor=pointer]:
+                  - img [ref=e156]
+                  - generic [ref=e157]: SOC Workbench
+                - button [ref=e159] [cursor=pointer]:
+                  - img [ref=e161]
+                  - generic [ref=e162]: Deception
+                - button [ref=e164] [cursor=pointer]:
+                  - img [ref=e166]
+                  - generic [ref=e167]: Identity Protection
+                - button [ref=e169] [cursor=pointer]:
+                  - img [ref=e171]
+                  - generic [ref=e172]: Breach Predictor
+              - button "icon-isolation.svg Zero Trust Browser" [ref=e174] [cursor=pointer]:
+                - img "icon-isolation.svg" [ref=e176]
+                - generic [ref=e177]: Zero Trust Browser
+              - button "icon-risk360.svg Risk360" [ref=e179] [cursor=pointer]:
+                - img "icon-risk360.svg" [ref=e181]
+                - generic [ref=e182]: Risk360
+              - button "icon-bi.svg Business Insights" [ref=e184] [cursor=pointer]:
+                - img "icon-bi.svg" [ref=e186]
+                - generic [ref=e187]: Business Insights
+              - button "icon-zslogin.svg ZIdentity" [ref=e189] [cursor=pointer]:
+                - img "icon-zslogin.svg" [ref=e191]
+                - generic [ref=e192]: ZIdentity
+              - generic [ref=e194]:
+                - button "icon-display-code.svg Developer Center " [ref=e195] [cursor=pointer]:
+                  - img "icon-display-code.svg" [ref=e197]
+                  - generic [ref=e198]: Developer Center
+                  - generic [ref=e199]: 
+                - button [ref=e201] [cursor=pointer]:
+                  - img [ref=e203]
+                  - generic [ref=e204]: Zscaler Analytics
+                - button [ref=e206] [cursor=pointer]:
+                  - img [ref=e208]
+                  - generic [ref=e209]: Zscaler SDK for Mobile Apps
+                - button [ref=e211] [cursor=pointer]:
+                  - img [ref=e213]
+                  - generic [ref=e214]: Legacy Zscaler APIs
+              - generic [ref=e216]:
+                - button "icon-zscaler-legacy.svg Zscaler Legacy " [ref=e217] [cursor=pointer]:
+                  - img "icon-zscaler-legacy.svg" [ref=e219]
+                  - generic [ref=e220]: Zscaler Legacy
+                  - generic [ref=e221]: 
+                - button [ref=e223] [cursor=pointer]:
+                  - img [ref=e225]
+                  - generic [ref=e226]: ITDR
+                - button [ref=e228] [cursor=pointer]:
+                  - img [ref=e230]
+                  - generic [ref=e231]: Posture Control (ZPC)
+                - button [ref=e233] [cursor=pointer]:
+                  - img [ref=e235]
+                  - generic [ref=e236]: "Legacy UI: Internet & SaaS (ZIA)"
+                - button [ref=e238] [cursor=pointer]:
+                  - img [ref=e240]
+                  - generic [ref=e241]: "Legacy UI: Private Access (ZPA)"
+                - button [ref=e243] [cursor=pointer]:
+                  - img [ref=e245]
+                  - generic [ref=e246]: "Legacy UI: Digital Experience Monitoring (ZDX)"
+                - button [ref=e248] [cursor=pointer]:
+                  - img [ref=e250]
+                  - generic [ref=e251]: "Legacy UI: Workflow Automation"
+                - button [ref=e253] [cursor=pointer]:
+                  - img [ref=e255]
+                  - generic [ref=e256]: "Legacy UI: Data Security Posture Management (DSPM)"
+                - button [ref=e258] [cursor=pointer]:
+                  - img [ref=e260]
+                  - generic [ref=e261]: "Legacy UI: Zscaler Client Connector"
+                - button [ref=e263] [cursor=pointer]:
+                  - img [ref=e265]
+                  - generic [ref=e266]: "Legacy UI: Cloud & Branch Connector"
+                - button [ref=e268] [cursor=pointer]:
+                  - img [ref=e270]
+                  - generic [ref=e271]: "Legacy UI: Zscaler Cellular"
+                - button [ref=e273] [cursor=pointer]:
+                  - img [ref=e275]
+                  - generic [ref=e276]: "Legacy UI: Zero Trust Branch"
+                - button [ref=e278] [cursor=pointer]:
+                  - img [ref=e280]
+                  - generic [ref=e281]: "Legacy UI: Zero Trust Browser"
+                - button [ref=e283] [cursor=pointer]:
+                  - img [ref=e285]
+                  - generic [ref=e286]: "Legacy UI: Risk360 Advanced"
+                - button [ref=e288] [cursor=pointer]:
+                  - img [ref=e290]
+                  - generic [ref=e291]: "Legacy UI: ZIdentity"
+              - button "icon-fair-use-customer-data.svg Logs & Fair Use" [ref=e293] [cursor=pointer]:
+                - img "icon-fair-use-customer-data.svg" [ref=e295]
+                - generic [ref=e296]: Logs & Fair Use
+              - button "icon-zscaler-troubleshooting-runbooks.svg Zscaler Support Troubleshooting Runbooks" [ref=e298] [cursor=pointer]:
+                - img "icon-zscaler-troubleshooting-runbooks.svg" [ref=e300]
+                - generic [ref=e301]: Zscaler Support Troubleshooting Runbooks
+              - button "icon-zscaler-deployments-operations.svg Zscaler Deployments & Operations" [ref=e303] [cursor=pointer]:
+                - img "icon-zscaler-deployments-operations.svg" [ref=e305]
+                - generic [ref=e306]: Zscaler Deployments & Operations
+              - button "icon-ztp.svg Zscaler Technology Partners" [ref=e308] [cursor=pointer]:
+                - img "icon-ztp.svg" [ref=e310]
+                - generic [ref=e311]: Zscaler Technology Partners
+              - button "icon-cust.svg Product Usage Guidelines & Policies" [ref=e313] [cursor=pointer]:
+                - img "icon-cust.svg" [ref=e315]
+                - generic [ref=e316]: Product Usage Guidelines & Policies
+              - button "icon-release-notes.svg Release Notes" [ref=e318] [cursor=pointer]:
+                - img "icon-release-notes.svg" [ref=e320]
+                - generic [ref=e321]: Release Notes
+        - listitem [ref=e322]:
+          - generic [ref=e323]:
+            - button "icon-cust.svg Support" [ref=e324] [cursor=pointer]:
+              - img "icon-cust.svg" [ref=e326]
+              - generic [ref=e327]: Support
+            - button [ref=e330] [cursor=pointer]:
+              - img [ref=e332]
+              - generic [ref=e333]: Contact Support
+            - button [ref=e335] [cursor=pointer]:
+              - img [ref=e337]
+              - generic [ref=e338]: Support Offerings
+        - listitem [ref=e339]:
+          - generic [ref=e340]:
+            - button "icon-advisory-info.svg Services" [ref=e341] [cursor=pointer]:
+              - img "icon-advisory-info.svg" [ref=e343]
+              - generic [ref=e344]: Services
+            - button [ref=e347] [cursor=pointer]:
+              - img [ref=e349]
+              - generic [ref=e350]: Deployment Services
+            - button [ref=e352] [cursor=pointer]:
+              - img [ref=e354]
+              - generic [ref=e355]: Zscaler Threat Hunting Service
+            - button [ref=e357] [cursor=pointer]:
+              - img [ref=e359]
+              - generic [ref=e360]: Services Credits
+            - button [ref=e362] [cursor=pointer]:
+              - img [ref=e364]
+              - generic [ref=e365]: Staff Augmentation
+            - button [ref=e367] [cursor=pointer]:
+              - img [ref=e369]
+              - generic [ref=e370]: Custom SOW
+        - listitem [ref=e371] [cursor=pointer]:
+          - button "icon-cert.svg Training & Certification" [ref=e372]:
+            - img "icon-cert.svg" [ref=e374]
+            - generic [ref=e375]: Training & Certification
+        - listitem [ref=e376] [cursor=pointer]:
+          - button "icon-tools.svg Tools" [ref=e377]:
+            - img "icon-tools.svg" [ref=e379]
+            - generic [ref=e380]: Tools
+      - generic [ref=e384]:
+        - generic [ref=e385]:
+          - img "icon-zslogin.svg" [ref=e387]
+          - heading "ZIdentity Help" [level=3] [ref=e388]
+        - paragraph
+        - generic [ref=e389]:
+          - generic [ref=e390] [cursor=pointer]:
+            - button "Expand All" [ref=e391]: 
+            - button "pdf icon" [ref=e392]:
+              - img "file-pdf-icon" [ref=e393]
+          - list [ref=e394]:
+            - listitem [ref=e395]:
+              - link "Link opens to /zidentity/what-zidentity" [ref=e396] [cursor=pointer]:
+                - /url: /zidentity/what-zidentity
+                - img [ref=e397]
+                - generic "What Is ZIdentity?" [ref=e399]
+            - listitem [ref=e400]:
+              - link "Link opens to /zidentity/step-step-configuration-guide-zidentity" [ref=e401] [cursor=pointer]:
+                - /url: /zidentity/step-step-configuration-guide-zidentity
+                - img [ref=e402]
+                - generic "Step-by-Step Configuration Guide for ZIdentity" [ref=e404]
+            - listitem [ref=e405]:
+              - link "Link opens to /zidentity/migrating-zscaler-service-admins-zidentity" [ref=e406] [cursor=pointer]:
+                - /url: /zidentity/migrating-zscaler-service-admins-zidentity
+                - img [ref=e407]
+                - generic "Migrating Zscaler Service Admins to ZIdentity" [ref=e409]
+            - listitem [ref=e410]:
+              - link "Link opens to /zidentity/upgrading-to-experience-center" [ref=e411] [cursor=pointer]:
+                - /url: /zidentity/upgrading-to-experience-center
+                - generic [ref=e412]: NEW
+                - img [ref=e413]
+                - generic "Upgrading to Experience Center" [ref=e415]
+          - list [ref=e416]:
+            - listitem [ref=e417]:
+              - button " Administration" [ref=e418] [cursor=pointer]:
+                - generic [ref=e419]: 
+                - generic [ref=e420]: Administration
+            - listitem [ref=e421]:
+              - button " Authentication" [ref=e422] [cursor=pointer]:
+                - generic [ref=e423]: 
+                - generic [ref=e424]: Authentication
+            - listitem [ref=e425]:
+              - button " Integration" [ref=e426] [cursor=pointer]:
+                - generic [ref=e427]: 
+                - generic [ref=e428]: Integration
+            - listitem [ref=e429]:
+              - button " Policies" [ref=e430] [cursor=pointer]:
+                - generic [ref=e431]: 
+                - generic [ref=e432]: Policies
+            - listitem [ref=e433]:
+              - button " Audit Logs" [ref=e434] [cursor=pointer]:
+                - generic [ref=e435]: 
+                - generic [ref=e436]: Audit Logs
+    - contentinfo [ref=e27]:
+      - generic [ref=e29]:
+        - generic [ref=e30]: Copyright ©2007 - 2026 Zscaler Inc. All rights reserved.
+        - link "Legal Notices in footer (Link opens in a new tab)" [ref=e32] [cursor=pointer]:
+          - /url: /legal
+          - text: Legal Notices
+  - generic: Manage Cookie Preferences

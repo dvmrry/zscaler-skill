@@ -12,7 +12,10 @@ sources:
   - "vendor/zscaler-help/nss-web-logs.csv"
   - "vendor/zscaler-help/nss-firewall-logs.csv"
   - "vendor/zscaler-help/nss-dns-logs.csv"
+  - "vendor/zscaler-help/about-nss-feeds.md"
+  - "vendor/zscaler-help/about-nss-servers.md"
 author-status: draft
+last-verified: "2026-04-28"
 ---
 
 # Nanolog Streaming Service (NSS) architecture
@@ -138,6 +141,103 @@ Operators asking about NSS usually mean the export direction; NSS Collector is a
 | Format options | Customizable | Customizable; JSON recommended |
 | Subscription | Separate from Cloud NSS | Separate from VM-based |
 | Monitoring | Customer-operated | CloudOps 24/7 |
+
+---
+
+## NSS feeds — configuration objects
+
+An NSS feed is the configuration object that specifies **which data** from the Nanolog stream is sent to a SIEM, and in what format. Feeds are attached to NSS servers (VM-based) or are Cloud NSS feeds (Zscaler-hosted).
+
+### Feed types
+
+| Feed type | Log content | Available on |
+|---|---|---|
+| **Web feed** | HTTP/HTTPS transactions (web proxy logs) | VM-based NSS, Cloud NSS |
+| **Firewall feed** | Firewall session logs, IPS events, NAT events | VM-based NSS, Cloud NSS |
+| **DNS feed** | DNS query/response logs | VM-based NSS (via Firewall subscription) |
+| **Tunnel feed** | GRE/IPSec tunnel events | VM-based NSS (via Firewall subscription) |
+| **MCAS feed** | Microsoft Cloud App Security integration feed | VM-based NSS |
+| **Real-time alert feed** | Alerts for NSS connectivity monitoring | VM-based NSS |
+
+DNS and tunnel logs flow through the Firewall NSS subscription on VM-based NSS. The Cloud NSS "Firewall" subscription covers all firewall-module records including DNS (Tier A — vendor/zscaler-help/about-nss-feeds.md).
+
+### Feed configuration objects
+
+Each NSS feed configures (Tier A — vendor/zscaler-help/about-nss-feeds.md):
+
+| Component | Description |
+|---|---|
+| **Feed Name** | Identifier for the feed in the admin console |
+| **NSS Server** | Which NSS VM instance this feed is attached to (VM-based only) |
+| **Status** | Enabled / Disabled |
+| **Log Filter** | Which log type (Web, Firewall, etc.) and filter criteria (by user, department, location, client, threat category, etc.) |
+| **Feed Output Format** | The template for how records are formatted — CSV field list, TSV, JSON, or custom string with field placeholders |
+| **Duplicate Logs** | How aggressively to retry sending logs to SIEM on connection failure (VM-based only) |
+| **Time Zone** | Timestamp zone for emitted records |
+
+### Filter criteria per feed
+
+Filters run at the NSS after detokenization, before format conversion. Filtered-out records are never sent to the SIEM — they are dropped permanently from that feed's stream. Filters do not affect the Nanolog original.
+
+Per-feed filter caps (from Ranges & Limitations):
+
+- Users, Departments, Locations, Clients, Threat Names: **1,024 entries each**
+
+Filter criteria are additive per field (OR within a field; AND across fields). A feed filtering on "Location = HQ AND Threat = Malware" emits records that match both conditions.
+
+### Feed output formats
+
+ZIA NSS supports the following output format types:
+
+| Format | Notes |
+|---|---|
+| **CSV** | Comma-separated field list; configurable field order; standard for on-prem SIEM |
+| **TSV** | Tab-separated variant |
+| **JSON** | Recommended for Cloud NSS; preserves type information; easier CIM mapping |
+| **Custom** | Arbitrary string template with `%field_name%` or `{field_name}` placeholders |
+
+The specific output fields available per log type are documented in the feed format guide (`vendor/zscaler-help/General_Guidelines_for_NSS_Feeds_and_Feed_Formats.pdf`) and in the vendored CSV schemas (`nss-web-logs.csv`, `nss-firewall-logs.csv`, `nss-dns-logs.csv`).
+
+### NSS servers — portal representation
+
+An NSS server in the ZIA Admin Console is the configuration record for a deployed NSS VM. After creating the record, Zscaler issues a client TLS certificate and private key for installation on the NSS VM; the certificate authenticates the VM to the Nanolog stream (Tier A — vendor/zscaler-help/about-nss-servers.md).
+
+Navigation: **Administration > Nanolog Streaming Service** (NSS Servers page)
+
+Per-server operations:
+- Add an NSS server record
+- Deploy an NSS virtual appliance (link to deployment guide)
+- Download MIB files (for SNMP monitoring of NSS health)
+- View server name, type, status, health state, SSL certificate download
+
+Per-server feed limits: **16 feeds per NSS server**, split as **8 Web feeds** and **8 Firewall feeds** maximum. This limit is a performance ceiling, not an arbitrary policy — feeding more than 8 of either type per server is unsupported (Tier A — vendor/zscaler-help/about-nss-feeds.md, vendor/zscaler-help/about-nss-servers.md).
+
+### Cloud NSS feeds
+
+Cloud NSS feeds are configured from the same NSS Feeds page but do not require an NSS VM. They are:
+
+- Created as a separate object type ("Add a Cloud NSS feed") from the NSS Feeds page
+- Limited to **1 feed per ZIA log type per Cloud NSS instance**
+- Pushed from the Zscaler cloud as HTTPS POSTs to a customer-configured SIEM endpoint
+- Monitored by Zscaler CloudOps rather than requiring customer-operated VM monitoring
+
+Cloud NSS and VM-based NSS are separate SKUs and require separate subscriptions.
+
+### Portal navigation for feeds
+
+NSS Feeds page: **Logs > Log Streaming > Internet Log Streaming - Nanolog Streaming Service**
+
+Operations available from this page:
+- Add a TCP NSS feed (VM-based)
+- Add an MCAS NSS feed
+- Add a Cloud NSS feed
+- Add an NSS Collector server
+- Search for an NSS feed
+- View feed list with: Feed Overview, Log Filter, Feed Output Format, Feed Attributes
+- Edit existing feeds
+- Add an NSS server (shortcut from this page)
+
+---
 
 ## Log schemas emitted
 

@@ -28,7 +28,7 @@
     'zia': 'ZIA',
     'zpa': 'ZPA',
     'cloud-connector': 'Cloud Connector',
-    'zcc': 'ZCC',
+    'zcc': 'Zscaler Client Connector',
     'zdx': 'ZDX',
     'zbi': 'ZBI',
     'zms': 'ZMS',
@@ -36,15 +36,38 @@
     'zidentity': 'ZIdentity',
     'shared': 'Shared',
     'ai-security': 'AI Security',
+    'ai-guard': 'AI Guard',
     'risk360': 'Risk360',
     'deception': 'Deception',
+    'breach-predictor': 'Breach Predictor',
+    'soc-workbench': 'SOC Workbench',
+    'business-insights': 'Business Insights',
+    'unified': 'Unified (Experience Center)',
+    'zero-trust-branch': 'Zero Trust Branch',
+    'aem': 'Asset Exposure Management',
+    'identity-protection': 'Identity Protection (ITDR)',
+    'dspm': 'Data Security Posture Management',
+    'uvm': 'Unified Vulnerability Management',
+    'zero-trust-browser': 'Zero Trust Browser',
+    'zscaler-cellular': 'Zscaler Cellular',
+    'workflow-automation': 'Workflow Automation',
   };
   const GROUP_ORDER = [
     '_primer',  // Welcome
+    // Tier 1 — core products
     'zia', 'zpa', 'cloud-connector',
     'zcc', 'zdx', 'zidentity',
     'zbi', 'zwa', 'zms',
-    'ai-security', 'risk360', 'deception',
+    // Security & AI
+    'ai-security', 'ai-guard', 'risk360', 'deception',
+    'breach-predictor', 'soc-workbench',
+    'identity-protection',
+    // Data & Exposure
+    'dspm', 'uvm', 'aem',
+    // Platform & Connectivity
+    'unified', 'zero-trust-branch', 'zero-trust-browser',
+    'zscaler-cellular', 'workflow-automation',
+    'business-insights',
     'shared',
   ];
 

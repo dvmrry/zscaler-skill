@@ -2,117 +2,209 @@
 product: zidentity
 topic: "zidentity-overview"
 title: "ZIdentity overview — unified identity across Zscaler services"
-content-type: reasoning
-last-verified: "2026-04-24"
+content-type: reference
+last-verified: "2026-04-28"
 confidence: high
 source-tier: doc
 sources:
   - "https://help.zscaler.com/zidentity/what-zidentity"
   - "vendor/zscaler-help/what-zidentity.md"
+  - "vendor/zscaler-help/understanding-zidentity-apis.md"
+  - "vendor/zscaler-help/understanding-step-up-authentication-zidentity.md"
+  - "vendor/zscaler-help/understanding-step-up-authentication.md"
 author-status: draft
 ---
 
 # ZIdentity overview
 
-Zscaler's unified identity service. Centralizes user authentication, directory management, and entitlement assignment across ZIA, ZPA, ZDX, ZCC, and ZBI. Replaces per-product auth configs (ZIA API keys, ZPA separate credentials) with a single ZIdentity tenant that everyone logs into.
+ZIdentity is Zscaler's unified identity platform. It is the IdP and authorization server layer for the entire Zscaler product suite, centralizing user authentication, MFA, directory management, and entitlement assignment across ZIA, ZPA, ZDX, ZCC, and ZBI. It replaces per-product authentication configurations — ZIA API keys, ZPA separate credentials, per-product SAML setups — with a single tenant that all users and administrators authenticate through.
 
-## Summary
+---
 
-- **Single sign-on across subscribed Zscaler services.** One login credential; all subscribed services (ZIA, ZPA, ZDX, ZCC, etc.) accessible without separate passwords.
-- **Multi-factor authentication required by default.** MFA is enabled out of the box; Zscaler recommends keeping it on. Supported second factors: password + SMS OTP / email OTP / TOTP (Google Authenticator) / FIDO.
-- **User directory options**: manage users directly in ZIdentity, or sync from an external IdP via **SAML JIT (just-in-time)** or **SCIM**.
-- **Admin access controls**: source-IP restriction, admin role management, audit reports for config changes.
-- **IdP integration**: SAML (legacy) or OIDC (for step-up auth support). OIDC integrations unlock the [Step-Up Authentication](./step-up-authentication.md) feature; SAML integrations do not.
+## 1. Role in the platform
 
-## Mechanics
+### 1.1 ZIdentity as the IdP layer
 
-### User provisioning paths
+ZIdentity is the **Identity Provider (IdP) layer** for all Zscaler services. Prior to ZIdentity, each product maintained its own authentication surface: ZIA used API key plus obfuscated timestamp auth, ZPA used separate admin portal credentials, and admin SSO was product-specific. ZIdentity replaces all of this with:
 
-From *What Is ZIdentity?*:
+- A single login credential that spans subscribed services (ZIA, ZPA, ZDX, ZCC, ZBI).
+- A single admin console authentication surface (Experience Center / unified admin console).
+- A unified OAuth 2.0 authorization server for machine-to-machine API access (OneAPI).
 
-> You can use the ZIdentity service to enroll users to your subscribed Zscaler services using the ZIdentity user database. This mitigates the time-consuming effort of creating a separate user database in each Zscaler service to provision users.
+ZIdentity is not optional. Even tenants using only a single product (e.g., ZIA only) authenticate through ZIdentity. The product-specific auth paths exist in legacy form for backward compatibility but are superseded.
 
-Three ways to populate the user directory:
+### 1.2 Relationship to ZIA and ZPA authentication flows
 
-1. **Direct creation in ZIdentity** — create users manually via admin portal or via ZIdentity API (`POST /users`). Simplest; no external IdP needed.
-2. **SAML just-in-time (JIT) provisioning** — user record is created when a user first authenticates via the SAML IdP. Lazy; no user exists until they log in.
-3. **SCIM provisioning** — external IdP pushes user/group changes to ZIdentity proactively. Users exist in ZIdentity before first login; groups, attributes, and deprovisioning are all kept in sync.
+**ZIA** — user traffic authentication (web proxy auth, user identification) continues to use ZIA-configured methods (Surrogate IP, Cookie-based auth, SAML, Kerberos). ZIdentity is the admin authentication layer for ZIA, not the end-user traffic authentication layer. Exception: ZIA URL filtering Conditional Access rules (which trigger step-up) integrate with ZIdentity at the policy enforcement level.
 
-**Operational trade-off**: JIT is simpler but users you've never-login-tested aren't in the directory, so you can't pre-configure per-user ZIA/ZPA policy before they authenticate. SCIM is more robust for large-org onboarding and termination workflows.
+**ZPA** — end-user authentication to ZPA apps goes through the configured IdP (SAML or OIDC), which may be ZIdentity itself or an external IdP federated through ZIdentity. ZPA admin authentication uses ZIdentity. ZPA access policy step-up authentication requires ZIdentity as the OIDC authority (see §5).
 
-### Authentication factors
+**Products that use ZIdentity vs standalone SAML:**
 
-Per *What Is ZIdentity?*:
-
-- Password
-- Password + **SMS one-time password (OTP)**
-- Password + **email OTP**
-- Password + **TOTP** (Google Authenticator / equivalent)
-- Password + **FIDO** (hardware security keys, platform authenticators)
-
-**MFA is on by default.** A tenant explicitly has to disable MFA (against Zscaler's recommendation) to allow password-only auth. The per-MFA-method configuration pages ("Configuring MFA Types") are operational and not captured here.
-
-### Identity provider (IdP) integration
-
-ZIdentity supports two IdP integration protocols:
-
-| Protocol | Use case | Step-up auth support |
+| Authentication path | ZIdentity involved? | Notes |
 |---|---|---|
-| **SAML** | Traditional enterprise SSO; works with any SAML 2.0 IdP | **No** |
-| **OIDC** | Modern OAuth-based SSO | **Yes** — required for step-up |
+| Admin portal login (all products) | Yes — always | ZIdentity is the admin auth surface |
+| OneAPI machine auth (SDK/Terraform) | Yes — always | OAuth 2.0 client credentials through ZIdentity |
+| ZPA end-user SAML (legacy IdP) | Indirectly — ZIdentity may federate to external IdP | ZIdentity can act as SP toward enterprise IdP |
+| ZIA end-user traffic auth | No — ZIA-native | Surrogate IP, cookie, Kerberos managed inside ZIA |
+| Step-up auth (ZIA/ZPA policy) | Yes — required | ZIdentity is the step-up authority; OIDC-only |
 
-**Critical constraint**: step-up authentication (see [`./step-up-authentication.md`](./step-up-authentication.md)) is **OIDC-only**. If the tenant uses a SAML-only IdP integration and any ZIA or ZPA rule depends on Conditional Access / Require Approval, those rules silently won't escalate. Migrating from SAML to OIDC is a prerequisite for step-up.
+### 1.3 Experience Center / unified admin console
 
-**Vendor-specific help articles exist for**:
+The **Experience Center** is Zscaler's unified admin console that spans all Zscaler products. Administrators authenticate to Experience Center through ZIdentity. A single ZIdentity admin credential grants access to every product the admin is entitled to — ZIA, ZPA, ZDX, ZCC — within the same browser session, with RBAC scoping determining which product panels are visible and editable.
 
-- Microsoft Entra ID (Azure AD)
-- Microsoft AD FS
-- Okta
-- Other SAML 2.0 / OIDC providers
+Before Experience Center, admins maintained separate login sessions per product. ZIdentity SSO across the console eliminates this; the session token from ZIdentity is presented to each product's backend as proof of authentication.
 
-Not captured in detail here — each has its own Zscaler help article with step-by-step config.
+---
 
-### Admin controls
+## 2. User directory
 
-- **IP-based admin access restriction**: limit admin portal access to specific source IPs. Tenant-level setting.
-- **Admin role management**: RBAC within ZIdentity for delegating portal access without handing over full admin.
-- **Audit reports**: configuration-change log. Shows what admin changed what setting, when.
+### 2.1 Provisioning paths
 
-### Relationship to OneAPI
+Three ways to populate the ZIdentity user directory:
 
-**ZIdentity is the authorization server for OneAPI**. API clients authenticate to ZIdentity via OAuth 2.0 client credentials flow; ZIdentity issues access tokens that the OneAPI gateway validates. See [`./api-clients.md`](./api-clients.md) for the flow and the API client object model.
+1. **Direct creation** — users created manually via the admin portal or via ZIdentity API (`POST /ziam/admin/api/v1/users`). Simplest; no external IdP required.
+2. **SAML JIT (just-in-time)** — user record is created the first time the user authenticates via a SAML IdP. Lazy provisioning; users don't exist in ZIdentity until they log in.
+3. **SCIM provisioning** — an external IdP pushes user and group changes to ZIdentity proactively. Users, groups, attributes, and deprovisioning events are all kept in sync. Users exist in ZIdentity before first login.
 
-The env var `ZSCALER_VANITY_DOMAIN` (used in every script and SDK call) points at the tenant's ZIdentity instance — typically in the form `<vanity>.zslogin.net` or similar.
+**Trade-offs:** JIT is simpler operationally but means users who have never logged in don't appear in ZPA/ZIA policy dropdowns. SCIM is required for any workflow that needs users pre-provisioned (e.g., pre-assigning ZPA segments to new joiners before their first login day) or that needs reliable deprovisioning.
 
-### Cross-product user / group / department / location sync
+### 2.2 Cross-product user data propagation
 
-ZIdentity is the **source of truth** for user, group, department, and location data across ZIA, ZPA, ZDX, ZBI. The other products pull from ZIdentity at regular sync intervals (not real-time). Implications:
+ZIdentity is the **source of truth** for user, group, department, and location data across ZIA, ZPA, ZDX, and ZBI. The other products pull from ZIdentity at regular sync intervals. This means:
 
-- **New user added in ZIdentity**: won't immediately appear in ZIA/ZPA policy dropdowns — expect minutes-to-hours propagation.
-- **User removed from a group in ZIdentity**: existing ZPA sessions may retain access until the next sync + their session timeout.
-- **Renamed department**: old department name may persist in ZIA/ZPA logs for already-enforced policies until resync.
+- A new user added in ZIdentity will not immediately appear in ZIA/ZPA policy dropdowns — expect minutes-to-hours propagation.
+- A user removed from a group in ZIdentity may retain ZPA access until the next sync plus their current session timeout expires.
+- Renamed departments may persist in ZIA/ZPA logs under the old name for already-enforced policies until resync.
 
-This is the pattern referenced in [`../zdx/overview.md`](../zdx/overview.md) where ZDX pulls users/departments/locations from the ZTE. The sync is ZIdentity-outbound to each product, not the reverse.
+### 2.3 Migration from legacy admin accounts
 
-## Edge cases
+Tenants migrating from per-product admin accounts to ZIdentity follow a one-way migration:
 
-- **Single-service tenant**: even if you only use ZIA (no ZPA/ZDX/etc.), ZIdentity is still the auth layer — you can't opt out.
-- **Tenant on a single cloud for multiple organizations**: ZIdentity supports multi-org-single-login patterns; one user credential can access multiple orgs they're entitled to.
-- **MFA "required by default" can be turned off**: tenants can disable MFA. Audit-finding: tenants with MFA disabled should be flagged as a security posture regression.
-- **SAML IdP + step-up auth expectation**: a tenant that sets up Conditional Access rules in ZIA URL Filter expecting step-up prompts, but has a SAML-only IdP integration, will see rules that never produce the expected prompt. Switching the IdP integration to OIDC is required.
-- **Legacy auth coexistence**: tenants not yet migrated to ZIdentity still use the product-specific auth paths (ZIA API keys + obfuscated timestamps, ZPA separate credentials). See [`../zia/api.md § Authentication`](../zia/api.md) for the legacy path, which is still supported but superseded.
+1. ZIdentity tenant is provisioned and linked to the Zscaler subscription.
+2. Existing per-product admin accounts are mapped or recreated in ZIdentity.
+3. The per-product auth paths (ZIA admin portal with separate credentials, ZPA separate login) are deprecated and eventually disabled.
 
-## Open questions
+During the migration window, both paths coexist. After migration, all admin access flows through ZIdentity; legacy credentials stop working.
 
-- Exact sync cadence for user/group data from ZIdentity to other products — not documented.
-- Whether SCIM deprovisioning propagates immediately to other products or waits for the next sync.
-- Where the per-tenant MFA-required default can be disabled (admin portal path not captured).
+---
+
+## 3. Authentication factors
+
+MFA is **enabled by default**. Tenants can disable it (against Zscaler's recommendation), but audit tooling should flag tenants with MFA disabled as a posture regression.
+
+Supported second factors (Tier A — vendor doc):
+
+| Factor | Notes |
+|---|---|
+| Password only | Baseline; MFA off |
+| Password + SMS OTP | One-time password via SMS |
+| Password + email OTP | One-time password via email |
+| Password + TOTP | Google Authenticator / compatible TOTP app |
+| Password + FIDO | Hardware security keys, platform authenticators (e.g., Touch ID) |
+
+---
+
+## 4. IdP integration
+
+ZIdentity supports two integration protocols for external IdPs:
+
+| Protocol | Step-up auth support | Notes |
+|---|---|---|
+| **SAML 2.0** | No | Works with any SAML 2.0 compliant IdP (Okta, Entra, ADFS, Ping, etc.) |
+| **OIDC** | Yes — required | Modern OAuth-based SSO; prerequisite for step-up authentication |
+
+**Critical constraint (Tier A — vendor doc):** Step-up authentication is OIDC-only. A tenant with a SAML-only IdP integration that configures Conditional Access rules in ZIA URL Filtering or ZPA access policy expecting step-up prompts will see those rules silently fail to escalate. Switching from SAML to OIDC IdP integration is a prerequisite for step-up.
+
+Vendor-specific help exists for: Microsoft Entra ID (Azure AD), Microsoft AD FS, Okta, and generic SAML 2.0/OIDC providers.
+
+---
+
+## 5. Step-up authentication
+
+Step-up authentication allows ZIA or ZPA policy rules to demand a higher authentication assurance level before granting access to a specific resource. It is configured in ZIdentity and enforced by ZIA/ZPA at policy evaluation time.
+
+### 5.1 What it is
+
+Step-up authentication uses **authentication levels (AL1–AL4)** representing increasing authentication strength, where higher levels provide stronger assurance. A user who authenticated at a lower level (e.g., password-only = AL1) may be forced to reauthenticate with MFA (e.g., TOTP = AL2 or FIDO = AL3) when attempting to reach a resource that requires the higher level.
+
+This is distinct from standard MFA at login time. Step-up is **triggered on resource access**, not at login, and only for resources configured to require it.
+
+### 5.2 When it triggers
+
+Step-up triggers when all of the following are true (Tier A — vendor doc):
+
+- The accessing resource (ZIA URL category policy action or ZPA access policy) is configured with a Require Authentication Level condition.
+- The user's current authentication level (recorded in their ZIdentity session token) is below the required level.
+- The IdP integration is OIDC (not SAML).
+
+Common trigger scenarios:
+- **Sensitive resource access** — financial systems, M&A data, privileged admin consoles.
+- **Risk signal detection** — unusual device, unrecognized location, behavior anomaly.
+- **Regulatory compliance** — resources requiring MFA-backed access to satisfy audit requirements.
+
+### 5.3 Step-up flow
+
+1. User logs in to ZIdentity with standard credentials (e.g., password → AL1).
+2. User accesses an application. ZIA or ZPA evaluates access policy.
+3. Policy finds a Require Authentication Level condition that the user's current AL does not satisfy.
+4. ZIdentity prompts the user to reauthenticate, typically via ZCC or browser redirect, with the required higher factor (e.g., TOTP for AL2, FIDO for AL3).
+5. On successful reauthentication, ZIdentity upgrades the session's recorded AL.
+6. The access policy re-evaluates and grants access.
+
+### 5.4 How it's configured
+
+Configuration lives in ZIdentity admin portal under Authentication. The operator:
+
+1. Defines authentication levels (AL1–AL4) and maps MFA methods to each level.
+2. Configures Authentication Session settings (session duration, when step-up is forgotten).
+3. In ZPA access policy or ZIA URL filtering, applies a Conditional Access / Require Authentication Level action to the relevant rule.
+
+The ZPA SDK exposes a read-only surface for step-up auth levels (`client.zpa.stepup_auth_level.get_step_up_auth_levels()`). The level definitions themselves are portal-configured in ZIdentity, not via the ZPA API.
+
+---
+
+## 6. ZIdentity as the OneAPI authorization server
+
+ZIdentity is the **OAuth 2.0 authorization server** for all OneAPI-based API access. The flow:
+
+1. An API client (created in ZIdentity admin portal) is issued a `client_id` and `client_secret` (or private key for JWT auth).
+2. The SDK/script exchanges these credentials at `https://<vanity>.zslogin.net/oauth2/v1/token` for a bearer access token.
+3. The access token is presented as `Authorization: Bearer <token>` on all OneAPI requests.
+4. ZIdentity validates the token and enforces the scopes associated with the API client.
+
+The `ZSCALER_VANITY_DOMAIN` environment variable (used in every SDK call) is the tenant's ZIdentity vanity domain — typically in the form `<tenant>` and resolved to `<tenant>.zslogin.net`.
+
+Government clouds (`zscalergov`, `zscalerten`, ZPA GOV, GOVUS) are not supported on OneAPI; those tenants use legacy per-product auth.
+
+---
+
+## 7. Admin controls
+
+- **IP-based admin access restriction** — limit admin portal access to specific source IP ranges. Tenant-level setting in ZIdentity.
+- **Admin role management** — RBAC within ZIdentity for delegating portal access without granting full admin.
+- **Audit reports** — configuration-change log; shows what admin changed what setting and when.
+- **API Client Access Policy** — controls which API clients are permitted to call which scopes. Enforced by ZIdentity at token issuance.
+
+---
+
+## 8. Edge cases and gotchas
+
+- **Single-service tenant:** even if only ZIA is subscribed, ZIdentity is the auth layer. It cannot be opted out of.
+- **SAML + step-up expectation mismatch:** a tenant with a SAML IdP integration that configures Conditional Access rules expecting step-up prompts will see those rules silently not escalate. OIDC is required.
+- **Sync lag:** users added via SCIM or ZIdentity API do not immediately propagate to ZIA/ZPA policy. Expect minutes-to-hours propagation delay.
+- **SCIM deprovisioning propagation cadence:** whether SCIM deprovisioning propagates immediately to ZIA/ZPA or waits for the next sync is not documented. Treat as sync-cadence-bounded, not instant.
+- **MFA "required by default" can be disabled:** tenants with MFA disabled should be flagged as a posture regression in security audits.
+- **Legacy auth coexistence during migration:** tenants not yet migrated to ZIdentity still use product-specific auth paths. See [`../zia/api.md`](../zia/api.md) for the legacy ZIA path.
+
+---
 
 ## Cross-links
 
-- API Clients (the OneAPI authentication surface) — [`./api-clients.md`](./api-clients.md)
-- Step-Up Authentication (Conditional Access mechanics) — [`./step-up-authentication.md`](./step-up-authentication.md)
-- API surface — [`./api.md`](./api.md)
+- API surface overview — [`./api.md`](./api.md)
+- API client types, scopes, and OneAPI auth flow — [`./sdk.md`](./sdk.md)
+- Step-up authentication detail — [`./step-up-authentication.md`](./step-up-authentication.md)
+- ZPA step-up auth level SDK object — [`../zpa/sdk.md §2.62 StepUpAuthLevelAPI`](../zpa/sdk.md)
 - Cross-product integration hooks — [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md)
 - ZIA URL Filtering Conditional action — [`../zia/url-filtering.md`](../zia/url-filtering.md)
-- ZPA Require Approval action — [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md)
+- ZPA Require Approval / Conditional Access — [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md)

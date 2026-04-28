@@ -14,7 +14,16 @@ sources:
   - "vendor/zscaler-help/automate-zscaler/api-authentication-overview.md"
   - "vendor/zscaler-help/automate-zscaler/postman-collection-note.md"
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
+  - "vendor/zscaler-help/legacy-api-authentication.md"
+  - "vendor/zscaler-help/legacy-getting-started-zia-api.md"
+  - "vendor/zscaler-help/legacy-getting-started-zpa-api.md"
+  - "vendor/zscaler-help/legacy-managing-cloud-service-api-key.md"
+  - "vendor/zscaler-help/legacy-securing-zia-apis-oauth-2.0.md"
+  - "vendor/zscaler-help/legacy-understanding-zia-api.md"
+  - "vendor/zscaler-help/legacy-understanding-zpa-api.md"
+  - "vendor/zscaler-help/legacy-api-rate-limit-summary.md"
 author-status: draft
+last-verified: "2026-04-28"
 ---
 
 # OneAPI — unified API gateway, auth flows, rate limits, error model
@@ -420,6 +429,131 @@ For the legacy auth path, set `ZSCALER_USE_LEGACY=true` and product-specific env
 7. **`409 EDIT_LOCK_NOT_AVAILABLE` is concurrent edits, not auth.** First-time encounters often misdiagnose this as an auth problem. Serialize writers.
 
 8. **Token TTL is tenant-configurable.** Default is typically 3600 seconds but admins can shorten it for security or lengthen it for operational convenience. Don't assume 3600 in code — read `expires_in` from the response.
+
+---
+
+## Legacy Authentication
+
+Legacy authentication covers the pre-OneAPI, pre-ZIdentity API auth patterns for ZIA and ZPA. These paths remain in active use for gov-cloud tenants, pre-ZIdentity tenants, and code written before OneAPI shipped.
+
+The table above (§ Authentication mechanisms) summarizes the five auth paths. This section provides operational detail for the two legacy paths most commonly needed: ZIA legacy and ZPA legacy.
+
+### When legacy auth is required
+
+- **Gov clouds**: ZIA/ZCC tenants on `zscalergov` / `zscalerten`; ZPA tenants on `GOV` / `GOVUS` clouds do not support OneAPI (Tier A — vendor/zscaler-help/legacy-getting-started-zia-api.md).
+- **Pre-ZIdentity tenants**: Enterprises that have not migrated to ZIdentity remain on legacy auth indefinitely — migration is opt-in.
+- **ZDX**: Never migrated to OneAPI; always requires its own legacy SHA256-signed token flow.
+- **Legacy automation code**: Existing scripts targeting the product-specific legacy APIs.
+
+OneAPI and legacy auth can coexist on a ZIdentity-enabled tenant during the migration transition period. Do not assume legacy creds are inactive just because the tenant has ZIdentity enabled.
+
+### ZIA legacy — session-based cookie auth
+
+ZIA's legacy API uses a session cookie (`JSESSIONID`) obtained from `POST /api/v1/authenticatedSession`. The tenant API key is obfuscated with a timestamp before submission; the raw key is never sent on the wire (Tier A — vendor/zscaler-help/legacy-api-authentication.md).
+
+**Session lifecycle:**
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `POST` | `/api/v1/authenticatedSession` | Create session; returns `JSESSIONID` cookie |
+| `GET` | `/api/v1/authenticatedSession` | Check if current session exists and is valid |
+| `DELETE` | `/api/v1/authenticatedSession` | End session (logout) |
+
+Request body for `POST`:
+
+```json
+{
+  "apiKey":    "<obfuscated-key>",
+  "username":  "admin@example.com",
+  "password":  "<password>",
+  "timestamp": "<unix-epoch-ms>"
+}
+```
+
+The `apiKey` field is **not** the raw key from the ZIA Admin Console — it is derived from the raw key + current timestamp using the obfuscation algorithm documented in the OneAPI auth section above and implemented in `vendor/zscaler-sdk-python/zscaler/utils.py:obfuscate_api_key`. Submitting the raw key here fails with 401.
+
+Successful response returns `JSESSIONID` in a Set-Cookie header and a JSON body:
+
+```json
+{
+  "authType": "ADMIN_LOGIN",
+  "obfuscateApiKey": false,
+  "passwordExpiryTime": 0,
+  "passwordExpiryDays": 0
+}
+```
+
+The `JSESSIONID` cookie must be included in all subsequent ZIA legacy API calls. Sessions expire after the configured tenant timeout; each new session requires a fresh obfuscation calculation (the obfuscated key is single-use per timestamp).
+
+**ZIA API key management:** An organization has exactly one cloud service API key. Keys are provisioned by Zscaler, displayed in the ZIA Admin Console at Administration > API Key Management. The key can be regenerated (which invalidates all sessions using the old key) but not rotated without human action. A key disabled by Zscaler (due to over-quota or ToS violation) cannot be re-enabled without contacting Support (Tier A — vendor/zscaler-help/legacy-managing-cloud-service-api-key.md).
+
+**ZIA APIs covered by legacy auth:** The cloud service API exposes the full ZIA feature set programmatically: URL Filtering, SSL Inspection, Firewall Policy, DLP, DNS Control, Location Management, Admin & Role Management, NSS (Cloud Nanolog Streaming), and approximately 40 other feature areas. Availability requires an API subscription (contact Zscaler Support to enable) (Tier A — vendor/zscaler-help/legacy-understanding-zia-api.md).
+
+A separate **Sandbox Submission API** uses a different credential (API token, not API key) and supports up to 100 files/day for behavioral analysis (400 MB max per file). A **3rd-Party App Governance API** uses its own API key issued by Zscaler account team. Neither of these uses `JSESSIONID` (Tier A — vendor/zscaler-help/legacy-getting-started-zia-api.md).
+
+### ZIA legacy — OAuth 2.0 integration (external IdP, not ZIdentity)
+
+ZIA supports a legacy OAuth 2.0 path via **external** identity providers (PingFederate, Okta, Microsoft Entra ID). This is distinct from OneAPI OAuth 2.0 via ZIdentity. Key differences:
+
+- Authorization server is an external provider, not ZIdentity.
+- JWT scope claim format: `<Zscaler Cloud Name>::<Org ID>::<API Role>` — distinct from OneAPI's `audience=https://api.zscaler.com`.
+- API Roles (not admin roles) are created in the ZIA Admin Console and assigned to client applications via the external OAuth provider.
+- API operations authenticated via this path generate an auto-created Admin ID in audit logs: `oauth-<rolename>$@<orgid>.<cloud_domain>`.
+
+This path offers granular access control (API roles scope permissions to specific endpoint categories) and avoids embedding admin credentials in client applications (Tier A — vendor/zscaler-help/legacy-securing-zia-apis-oauth-2.0.md).
+
+Zscaler recommends the OneAPI OAuth 2.0 path (via ZIdentity) for new integrations. The legacy OAuth 2.0 path via external IdP predates ZIdentity and requires the external IdP to be configured separately.
+
+### ZPA legacy — Client ID + Secret + customer ID
+
+ZPA's pre-ZIdentity auth uses client credentials issued in the ZPA Admin Portal (Administration > API Key Management). Only admins with the API Key Management role can create keys (Tier A — vendor/zscaler-help/legacy-getting-started-zpa-api.md).
+
+Auth endpoint and base URL vary by ZPA cloud. The customer ID (numeric ZPA tenant identifier, visible in the admin console URL) is embedded in all subsequent API call paths: `/mgmtconfig/v1/admin/customers/{customerId}/...`.
+
+ZPA legacy returns a Bearer token with approximately 1-hour TTL. Unlike ZIA, there is no session cookie — the token is sent as `Authorization: Bearer <token>` on subsequent calls.
+
+**ZPA legacy APIs covered:** The ZPA API gives programmatic access to the full ZPA feature set: Application Segments, Segment Groups, App Connectors, Access Policies, SAML Attributes, SCIM, LSS, Microtenants, Privileged Remote Access, Posture Profiles, Trusted Networks, Enrollment Certificates, Isolation Profiles, and approximately 40 other feature areas (Tier A — vendor/zscaler-help/legacy-understanding-zpa-api.md).
+
+Note: ZPA's API documentation is not published on help.zscaler.com. The Postman collection in `vendor/zscaler-api-specs/oneapi-postman-collection.json` is the only machine-readable ZPA API surface Zscaler publishes.
+
+### Legacy vs OneAPI — comparison
+
+| Dimension | Legacy ZIA | Legacy ZPA | OneAPI (ZIdentity) |
+|---|---|---|---|
+| Auth token type | Session cookie (`JSESSIONID`) | Bearer token (~1 hr TTL) | OAuth 2.0 Bearer token |
+| Credential type | API key (obfuscated) + username/password | Client ID + Client Secret | Client ID + Client Secret (or JWT) |
+| Key source | ZIA Admin Console (one per org) | ZPA Admin Portal (multiple keys) | ZIdentity API client |
+| Key management | Manual; single key per org; Support required to re-enable | Multiple keys; managed in ZPA portal | ZIdentity console; supports JWKS URL rotation |
+| Scope control | Admin role on the user account | Admin role on the ZPA admin | API scope (`audience` + ZIdentity API client permissions) |
+| Gov cloud support | Required for ZIA gov clouds | Required for ZPA `GOV`/`GOVUS` | Not supported on gov clouds |
+| Rate limit model | Weight-based (GET 2/sec 1000/hr, POST/PUT 1/sec 400/hr, DELETE 1/min 4/hr) | Per-IP (20 GET / 10 write per 10 sec) | Same per-product limits apply |
+| Activation required | Yes — `POST /status/activate` | No | Yes (ZIA/CBC) / No (ZPA, ZCC, others) |
+
+### ZIA legacy rate limits
+
+The ZIA legacy API uses the same weight-based rate limit model as OneAPI ZIA. Per the rate limit summary (Tier A — vendor/zscaler-help/legacy-api-rate-limit-summary.md):
+
+- **GET (Light)**: 2 req/sec and 1,000 req/hr
+- **POST/PUT (Medium)**: 1 req/sec and 400 req/hr
+- **DELETE (Heavy)**: 1 req/min and 4 req/hr
+
+The `/authenticatedSession` endpoint itself has GET/POST at 2/sec and 1,000/hr, and DELETE at 2/sec and 1,000/hr. Rate limit headers on ZIA legacy responses: `x-ratelimit-limit`, `x-ratelimit-remaining`, `x-ratelimit-reset`.
+
+A downloadable ZIA Cloud Service Postman collection is available from Zscaler's help portal (not vendored here; see vendor/zscaler-help/legacy-api-rate-limit-summary.md for the download path).
+
+### Migration path to OneAPI
+
+Migration steps at a high level:
+
+1. Enable ZIdentity on the tenant (Zscaler-assisted).
+2. Create API clients in ZIdentity with appropriate scopes.
+3. Update automation to use `POST <vanity>.zslogin.net/oauth2/v1/token` with `audience=https://api.zscaler.com` and `grant_type=client_credentials`.
+4. Replace `JSESSIONID` cookie / Bearer-token patterns with `Authorization: Bearer <oneapi_token>`.
+5. Retire legacy API key credentials after confirming OneAPI path is stable.
+
+During transition, both auth paths can coexist on a ZIdentity-enabled tenant. The activation requirement (`POST /status/activate`) is unchanged between legacy and OneAPI for ZIA and CBC.
+
+---
 
 ## Cross-links
 
