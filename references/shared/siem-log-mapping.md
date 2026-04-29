@@ -104,11 +104,12 @@ ZIA Nanolog Streaming Service (NSS) feeds carry transaction-level events from th
 | Splunk | Common patterns: `nss-tunnel`, `zscaler-tunnel`, `zia-tunnel`. Not part of the TA default sourcetypes |
 | Sentinel/Chronicle/Elastic/Sumo | Typically not pre-defined in vendor data connectors; most tenants treat as a custom feed |
 
-### ZIA Inline CASB / SaaS Security (NSS)
+### ZIA SaaS Security / CASB (Cloud NSS)
 
-- **Carries**: CASB / DLP / SaaS Security events — sanctioned vs. unsanctioned SaaS use, DLP triggers, file-share events
-- **Schema**: ❌ **not yet documented** in this repo. Tracked as a coverage gap. (May overlap partially with Web NSS for inline CASB; out-of-band CASB is a distinct API-driven feed.)
+- **Carries**: SaaS Security events — file scans (data at rest), share events, DLP triggers, Shadow IT discovery for API-integrated SaaS apps. Organized by application category (Collaboration / CRM / Email / File / Gen AI / ITSM / Public Cloud Storage / Repository) with per-category column sets.
+- **Schema**: [`../zia/logs/casb-log-schema.md`](../zia/logs/casb-log-schema.md) (⚠️ partial — structural facts confirmed; per-category field-level detail open as a coverage gap)
 - **Catalog placeholder**: `$INDEX_ZIA_CASB`; generic `zia-casb`
+- **Note**: Distinct from inline CASB (which lands in the **Web NSS** feed via the Cloud Application section — see `web-log-schema.md`). Investigations may need both feeds.
 - **Common SIEM landing spots**:
 
 | SIEM | Pattern |
@@ -259,7 +260,7 @@ Schemas not yet documented in this repo, surfaced by the catalog:
 | Gap | Likely shape |
 |---|---|
 | ZIA Tunnel NSS schema | Z-Tunnel / GRE / IPsec session events |
-| ZIA CASB / SaaS Security NSS schema | Inline CASB events; out-of-band CASB API events (separate) |
+| ZIA CASB / SaaS Security NSS schema (per-category column detail) | Eight per-category sub-schemas referenced in [`../zia/logs/casb-log-schema.md`](../zia/logs/casb-log-schema.md); structural model documented, per-category fields pending vendor capture |
 | ZPA Audit LSS schema | Admin actions, configuration changes, SAML / auth audit events |
 
 These are tracked as next deliverables after this catalog is validated.
