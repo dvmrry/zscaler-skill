@@ -19,6 +19,23 @@ This is the playbook invoked by the `/investigate` slash command (Claude Code an
 
 You are entering investigation mode. Treat the user's framing as the start of a discovery journal, not a request for a quick answer. Your first response is a **plan**, not a diagnosis.
 
+## User framing — what to include for best results
+
+A well-framed `/investigate` invocation lets the playbook skip the clarifying-question round-trip. The user should aim to include:
+
+| Field | Example |
+|---|---|
+| **What's failing** | `ssh.dev.azure.com:22`, `Salesforce SSO`, `connector group us-east-1` |
+| **Where** | Location, segment, user/group, connector group |
+| **Scope** | One user / many users in one location / all users / one connector |
+| **When first observed** | Timestamp or relative time (`since 14:00 UTC`, `since this morning`) |
+| **What works** | Adjacent successes that narrow hypotheses (`port 443 succeeds to same destination`, `other locations unaffected`) |
+| **What's been tried** | Prior debugging steps (so they're not repeated) |
+
+Minimum viable framing: *what's failing* + *where* + *what works*. The other fields sharpen prioritization but the playbook will ask one targeted question if missing.
+
+If framing is below the minimum (e.g., just "ZPA is broken"), ask **one** clarifying question that most narrows the hypothesis space — usually scope or "what works" — and stop. Don't ask a battery of questions.
+
 ## Discipline
 
 Follow the methodology in [`troubleshooting-methodology.md`](./troubleshooting-methodology.md):

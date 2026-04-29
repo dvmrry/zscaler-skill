@@ -1,6 +1,6 @@
 ---
-description: Start an evidence-based troubleshooting investigation
-argument-hint: [issue description in natural language]
+description: Start an evidence-based troubleshooting investigation. Best framing includes what's failing, where (location/segment/user), scope (one user vs. many), when first observed, and what works (adjacent successes that narrow hypotheses).
+argument-hint: [what fails] from [where], [scope], since [when], [what works]
 ---
 
 Load and follow the playbook at @references/shared/investigate-prompt.md.
