@@ -205,3 +205,14 @@ No push-based streaming documented. Integration requires periodic POST calls to 
 8. **ZWA retention** — the ZWA audit log retention period is not documented in available sources. No retention field or constant found in `vendor/zscaler-sdk-python/zscaler/zwa/` or `vendor/zscaler-sdk-go/zscaler/zwa/`.
 
 9. **Unified audit bus** — whether Zscaler is building a unified admin audit log surface across products is not visible from available SDK sources. The current architecture is per-product (ZIA async report, ZPA LSS streaming, ZWA POST-filter pull) with no cross-product aggregation point.
+
+## Cross-links
+
+- ZIA admin audit logs (per-product detail) — [`../zia/audit-logs.md`](../zia/audit-logs.md)
+- ZPA admin audit logs (per-product detail) — [`../zpa/audit-logs.md`](../zpa/audit-logs.md)
+- ZWA customer audit logs (per-product detail) — [`../zwa/audit-logs.md`](../zwa/audit-logs.md)
+- Admin RBAC (cross-product role model that audit logs record actions against) — [`./admin-rbac.md`](./admin-rbac.md)
+- Log export architecture (where each log type comes from, NSS vs. LSS) — [`./log-export-architecture.md`](./log-export-architecture.md)
+- SIEM log mapping (which Zscaler log types land where in your SIEM) — [`./siem-log-mapping.md`](./siem-log-mapping.md)
+- Splunk SPL pattern catalog — [`./splunk-queries.md`](./splunk-queries.md)
+- Shared index — [`./index.md`](./index.md)

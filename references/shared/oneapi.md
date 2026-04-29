@@ -3,7 +3,7 @@ product: shared
 topic: "oneapi"
 title: "OneAPI — unified API gateway, auth flows, rate limits, error model"
 content-type: reasoning
-last-verified: "2026-04-24"
+last-verified: "2026-04-28"
 confidence: high
 source-tier: doc
 sources:
@@ -23,7 +23,6 @@ sources:
   - "vendor/zscaler-help/legacy-understanding-zpa-api.md"
   - "vendor/zscaler-help/legacy-api-rate-limit-summary.md"
 author-status: draft
-last-verified: "2026-04-28"
 ---
 
 # OneAPI — unified API gateway, auth flows, rate limits, error model

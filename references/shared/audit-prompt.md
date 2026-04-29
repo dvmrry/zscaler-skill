@@ -175,15 +175,13 @@ Cross-reference `_clarifications.md` § "Status summary" to detect stale items. 
 
 Severity: `Medium` for stale open questions; `Low` for "open questions" section that should be removed entirely if empty.
 
-**Inline caveats can substitute for an `## Open questions` section.** A `confidence: medium` file is *not* obligated to have a dedicated `## Open questions` section if the body acknowledges gaps in place. For example:
+**Inline caveats can substitute for an `## Open questions` section.** A `confidence: medium` file is *not* obligated to have a dedicated `## Open questions` section if the body acknowledges gaps in place. Examples of valid inline caveats:
 
-> "Per-category column detail is partial in this skill kit — see [Open questions](#open-questions) for the gap and how to close it."
+- "Per-category column detail is partial in this skill kit — see the Open questions section for the gap and how to close it." *(inline pointer to a section that does exist further down)*
+- "Treat all rows in this section as `❓ unverified` until cross-checked against the per-category column documentation." *(in-place qualifier; no separate section needed)*
+- "Schemas vary by TA version; the table below assumes TA ≥ 4.0 — confirm against your tenant's installed version." *(scope-narrowing caveat)*
 
-OR an inline mention:
-
-> "Treat all rows in this section as `❓ unverified` until cross-checked against the per-category column documentation."
-
-Both are acceptable. Flag only when (a) there are clear gaps AND (b) neither inline caveats nor an Open questions section acknowledges them. A `confidence: medium` file with neither is a real finding; a `confidence: medium` file that explicitly calls out its uncertainty inline is fine.
+Flag only when (a) there are clear gaps AND (b) neither inline caveats nor an Open questions section acknowledges them. A `confidence: medium` file with neither is a real finding; a `confidence: medium` file that explicitly calls out its uncertainty inline is fine.
 
 ### 4. Output the audit register
 

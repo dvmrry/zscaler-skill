@@ -8,6 +8,10 @@ confidence: high
 source-tier: practice
 sources:
   - "references/shared/troubleshooting-methodology.md"
+  - "references/shared/siem-emission-discipline.md"
+  - "references/shared/siem-log-mapping.md"
+  - "references/shared/splunk-queries.md"
+  - "references/shared/tenant-schema-derivation.md"
 author-status: draft
 ---
 
@@ -154,6 +158,16 @@ Stop and escalate (with a handoff summary per the methodology doc) when:
 ## Handoff format
 
 When the investigation pauses or hands off to another agent/person, output the handoff format from the methodology doc: confirmed facts, open questions, current root cause hypothesis, next steps, what tools/access you had vs. didn't.
+
+## Cross-links
+
+- [`troubleshooting-methodology.md`](./troubleshooting-methodology.md) — discovery journal, claim status, anti-patterns
+- [`siem-emission-discipline.md`](./siem-emission-discipline.md) — agent execution modes, public/private boundary
+- [`siem-log-mapping.md`](./siem-log-mapping.md) — Zscaler log type catalog
+- [`splunk-queries.md`](./splunk-queries.md) — Splunk SPL pattern catalog
+- [`tenant-schema-derivation.md`](./tenant-schema-derivation.md) — canonical vs. tenant schemas, derivation recipes
+- [`audit-prompt.md`](./audit-prompt.md) — `/z-audit` playbook (checklist-driven sibling)
+- [`architect-prompt.md`](./architect-prompt.md) — `/z-architect` playbook (design-driven sibling)
 
 ---
 

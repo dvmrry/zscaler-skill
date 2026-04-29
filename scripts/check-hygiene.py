@@ -69,9 +69,12 @@ REQUIRED_FRONTMATTER = [
     "author-status",
 ]
 ALLOWED_CONFIDENCE = {"high", "medium", "low"}
-ALLOWED_CONTENT_TYPE = {"reasoning", "reference", "primer"}
+# "prompt" is the slash-command playbook content type (e.g. references/shared/audit-prompt.md)
+ALLOWED_CONTENT_TYPE = {"reasoning", "reference", "primer", "prompt"}
 ALLOWED_AUTHOR_STATUS = {"stub", "draft", "reviewed"}
-ALLOWED_SOURCE_TIER = {"doc", "code", "mixed"}
+# "practice" = derived from internal experience / methodology rather than external docs/code.
+# "vendor" = extracted from vendor SDK/Postman source (used by *-postman-schemas.md).
+ALLOWED_SOURCE_TIER = {"doc", "code", "mixed", "practice", "vendor"}
 
 FRONTMATTER_RE = re.compile(r"^---\n(.*?)\n---", re.DOTALL)
 LINK_RE = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
