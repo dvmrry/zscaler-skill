@@ -2,7 +2,7 @@
 description: Start an evidence-based troubleshooting investigation. For best results, the user's framing should include what fails, where (location/segment/user), scope, when first observed, and what works (adjacent successes).
 ---
 
-# /investigate
+# /z-investigate
 
 Load and follow the playbook at `references/shared/investigate-prompt.md` (relative to the Zscaler skill repo root). Read it now before responding.
 

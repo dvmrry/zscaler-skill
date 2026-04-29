@@ -614,7 +614,7 @@ Notes:
 
 - SIEM-generic emission discipline (modes, public/private boundary, placeholders) — [`./siem-emission-discipline.md`](./siem-emission-discipline.md)
 - SIEM-generic log type catalog (sourcetype patterns per Zscaler log type) — [`./siem-log-mapping.md`](./siem-log-mapping.md)
-- `/investigate` slash command playbook (emits queries from this catalog) — [`./investigate-prompt.md`](./investigate-prompt.md)
+- `/z-investigate` slash command playbook (emits queries from this catalog) — [`./investigate-prompt.md`](./investigate-prompt.md)
 - Troubleshooting methodology (discovery journal, claim discipline) — [`./troubleshooting-methodology.md`](./troubleshooting-methodology.md)
 - When to query logs — [`./log-correlation.md`](./log-correlation.md)
 - Log export architecture (where each log type comes from) — [`./log-export-architecture.md`](./log-export-architecture.md)

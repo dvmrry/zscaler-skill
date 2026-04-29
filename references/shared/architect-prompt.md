@@ -15,7 +15,7 @@ author-status: draft
 
 # Architect — capacity & scaling playbook (lite)
 
-This is the playbook invoked by the `/architect` slash command (Claude Code and Windsurf). Current shape is **capacity** — sizing, scaling, and structural risk review, config-first with metrics-augmentation when available. Future subtypes (topology, migration, cost) sketched at the end.
+This is the playbook invoked by the `/z-architect` slash command (Claude Code and Windsurf). Current shape is **capacity** — sizing, scaling, and structural risk review, config-first with metrics-augmentation when available. Future subtypes (topology, migration, cost) sketched at the end.
 
 ## Mode
 
@@ -25,7 +25,7 @@ You do not make changes. You read config, read metrics (when available), reason 
 
 ## User framing — what to include for best results
 
-A good `/architect` invocation includes a **scope** and ideally a **scaling context**. Examples:
+A good `/z-architect` invocation includes a **scope** and ideally a **scaling context**. Examples:
 
 | Field | Example |
 |---|---|
@@ -183,9 +183,9 @@ After the first response, continue the architect cycle by:
 
 Sketches for later expansion (not active in this command):
 
-- `/architect topology <scope>` — regional distribution, multi-cluster, failover paths, latency-domain analysis
-- `/architect migration <scope>` — workload migration planning (cloud, region, product like ZIA → SIPA)
-- `/architect cost <scope>` — efficiency / right-sizing review; over-provisioned components, license utilization
+- `/z-architect topology <scope>` — regional distribution, multi-cluster, failover paths, latency-domain analysis
+- `/z-architect migration <scope>` — workload migration planning (cloud, region, product like ZIA → SIPA)
+- `/z-architect cost <scope>` — efficiency / right-sizing review; over-provisioned components, license utilization
 
 When added, this becomes the **capacity** branch. Methodology stays; per-subtype playbook diverges in checks and evidence sources.
 
@@ -194,8 +194,8 @@ When added, this becomes the **capacity** branch. Methodology stays; per-subtype
 - [`architect-methodology.md`](./architect-methodology.md) — register format, risk scale, confidence levels, status lifecycle
 - [`troubleshooting-methodology.md`](./troubleshooting-methodology.md) — investigation discipline (sibling)
 - [`audit-methodology.md`](./audit-methodology.md) — audit discipline (sibling)
-- [`investigate-prompt.md`](./investigate-prompt.md) — `/investigate` playbook
-- [`audit-prompt.md`](./audit-prompt.md) — `/audit` playbook
+- [`investigate-prompt.md`](./investigate-prompt.md) — `/z-investigate` playbook
+- [`audit-prompt.md`](./audit-prompt.md) — `/z-audit` playbook
 - [`siem-emission-discipline.md`](./siem-emission-discipline.md) — modes and rules for SIEM data access
 - [`splunk-queries.md`](./splunk-queries.md) — Splunk patterns for connector / PSE / PCC utilization
 - ZPA App Connector Metrics schema — [`../zpa/logs/app-connector-metrics.md`](../zpa/logs/app-connector-metrics.md)

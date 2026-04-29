@@ -270,7 +270,7 @@ These are tracked as next deliverables after this catalog is validated.
 - [`tenant-schema-derivation.md`](./tenant-schema-derivation.md) — canonical-vs-tenant distinction, derivation recipes per SIEM, storage template
 - [`siem-emission-discipline.md`](./siem-emission-discipline.md) — agent execution modes, public/private boundary, where user plumbing lives
 - [`splunk-queries.md`](./splunk-queries.md) — Splunk-specific SPL pattern catalog
-- [`investigate-prompt.md`](./investigate-prompt.md) — `/investigate` slash command playbook
+- [`investigate-prompt.md`](./investigate-prompt.md) — `/z-investigate` slash command playbook
 - [`troubleshooting-methodology.md`](./troubleshooting-methodology.md) — discovery journal, claim status
 - ZIA log schemas — [`../zia/logs/`](../zia/logs/)
 - ZPA log schemas — [`../zpa/logs/`](../zpa/logs/)

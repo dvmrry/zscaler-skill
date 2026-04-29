@@ -13,7 +13,7 @@ author-status: draft
 
 # Investigate — evidence-based troubleshooting playbook
 
-This is the playbook invoked by the `/investigate` slash command (Claude Code and Windsurf). It establishes investigation mode for a Zscaler troubleshooting task: discovery journal, citation discipline, hypothesis prioritization, anti-fabrication.
+This is the playbook invoked by the `/z-investigate` slash command (Claude Code and Windsurf). It establishes investigation mode for a Zscaler troubleshooting task: discovery journal, citation discipline, hypothesis prioritization, anti-fabrication.
 
 ## Mode
 
@@ -21,7 +21,7 @@ You are entering investigation mode. Treat the user's framing as the start of a 
 
 ## User framing — what to include for best results
 
-A well-framed `/investigate` invocation lets the playbook skip the clarifying-question round-trip. The user should aim to include:
+A well-framed `/z-investigate` invocation lets the playbook skip the clarifying-question round-trip. The user should aim to include:
 
 | Field | Example |
 |---|---|

@@ -2,7 +2,7 @@
 description: Run an editorial / structural audit of skill kit references. Mechanical lint via existing CI scripts, plus agent-driven editorial pass (voice, structural shape, confidence calibration, content/frontmatter agreement, cross-link reciprocity, dangling concepts, open-question hygiene).
 ---
 
-# /audit
+# /z-audit
 
 Load and follow the playbook at `references/shared/audit-prompt.md` (relative to the Zscaler skill repo root). Read it now before responding.
 

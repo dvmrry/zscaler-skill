@@ -218,5 +218,5 @@ NEXT STEPS:
 
 - [`troubleshooting-methodology.md`](./troubleshooting-methodology.md) — parallel discipline (hypothesis-driven)
 - [`audit-methodology.md`](./audit-methodology.md) — parallel discipline (checklist-driven)
-- [`architect-prompt.md`](./architect-prompt.md) — `/architect` slash command playbook
+- [`architect-prompt.md`](./architect-prompt.md) — `/z-architect` slash command playbook
 - [`siem-emission-discipline.md`](./siem-emission-discipline.md) — applies when architect queries SIEMs for utilization

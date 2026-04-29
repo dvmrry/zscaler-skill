@@ -72,4 +72,4 @@ The public skill kit assumes Zscaler-published schemas only. The private side (t
 - [`siem-log-mapping.md`](./siem-log-mapping.md) — catalog of Zscaler log types and how they typically land per SIEM
 - [`splunk-queries.md`](./splunk-queries.md) — Splunk-specific SPL pattern catalog
 - [`troubleshooting-methodology.md`](./troubleshooting-methodology.md) — discovery journal, claim status, anti-patterns
-- [`investigate-prompt.md`](./investigate-prompt.md) — `/investigate` slash command playbook
+- [`investigate-prompt.md`](./investigate-prompt.md) — `/z-investigate` slash command playbook

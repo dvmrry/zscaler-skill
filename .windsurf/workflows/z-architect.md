@@ -2,7 +2,7 @@
 description: Run a capacity / scaling architecture review. Config-first, metrics-augmented when available. Outputs a recommendation register with risk and confidence calibrated to evidence quality.
 ---
 
-# /architect
+# /z-architect
 
 Load and follow the playbook at `references/shared/architect-prompt.md` (relative to the Zscaler skill repo root). Read it now before responding.
 

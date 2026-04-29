@@ -17,7 +17,7 @@ author-status: draft
 
 # Audit — editorial / structural lint playbook
 
-This is the playbook invoked by the `/audit` slash command (Claude Code and Windsurf). Current shape is **lint** — editorial / structural review of skill kit references. Future subtypes (policy, access, coverage, config, activity) will branch from a parameterized `/audit <subtype>` invocation; for now, `/audit` is lint-only.
+This is the playbook invoked by the `/z-audit` slash command (Claude Code and Windsurf). Current shape is **lint** — editorial / structural review of skill kit references. Future subtypes (policy, access, coverage, config, activity) will branch from a parameterized `/z-audit <subtype>` invocation; for now, `/z-audit` is lint-only.
 
 ## Mode
 
@@ -27,7 +27,7 @@ The mechanical lint pipeline (`scripts/check-hygiene.py`, `check-citations.sh`, 
 
 ## User framing — what to include for best results
 
-A good `/audit` invocation includes a **scope**. The scope can be:
+A good `/z-audit` invocation includes a **scope**. The scope can be:
 
 | Field | Example |
 |---|---|
@@ -204,11 +204,11 @@ Do not mark the overall audit `Complete` until every finding has a non-`Open` st
 
 Sketches for later expansion (not active in this command):
 
-- `/audit policy <scope>` — policy rule hygiene (dead rules, scope conflicts, default-allow leaks, missing posture, rule-order issues)
-- `/audit access <scope>` — admin RBAC review (least-privilege violations, stale admins, role bloat, audit-log evidence)
-- `/audit coverage <scope>` — observability / log coverage (NSS/LSS feed health, gap detection vs. `siem-log-mapping.md`)
-- `/audit config <scope>` — tenant configuration drift / best-practice review
-- `/audit activity <scope>` — admin audit log review (unusual changes, after-hours activity)
+- `/z-audit policy <scope>` — policy rule hygiene (dead rules, scope conflicts, default-allow leaks, missing posture, rule-order issues)
+- `/z-audit access <scope>` — admin RBAC review (least-privilege violations, stale admins, role bloat, audit-log evidence)
+- `/z-audit coverage <scope>` — observability / log coverage (NSS/LSS feed health, gap detection vs. `siem-log-mapping.md`)
+- `/z-audit config <scope>` — tenant configuration drift / best-practice review
+- `/z-audit activity <scope>` — admin audit log review (unusual changes, after-hours activity)
 
 When these are added, this prompt becomes the **lint** branch of a subtype-parameterized command. The methodology in `audit-methodology.md` and the register format are reused; the per-subtype playbook diverges only in checks and evidence sources.
 
@@ -216,6 +216,6 @@ When these are added, this prompt becomes the **lint** branch of a subtype-param
 
 - [`audit-methodology.md`](./audit-methodology.md) — register format, severity, status lifecycle, anti-patterns
 - [`troubleshooting-methodology.md`](./troubleshooting-methodology.md) — parallel discipline for investigations
-- [`investigate-prompt.md`](./investigate-prompt.md) — `/investigate` playbook (the hypothesis-driven sibling)
+- [`investigate-prompt.md`](./investigate-prompt.md) — `/z-investigate` playbook (the hypothesis-driven sibling)
 - Mechanical CI scripts — `scripts/check-hygiene.py`, `scripts/check-citations.sh`, `scripts/check-staleness.sh`, `scripts/check-doc-links.py`
 - Clarifications register — `references/_clarifications.md`
