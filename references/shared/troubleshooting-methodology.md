@@ -163,19 +163,162 @@ Do not use "Resolved" for the overall issue until root cause is confirmed AND yo
 - If the investigation spans hours, note when you're switching between data sources or time windows
 - Example: "Claim confirmed at 14:35 UTC; connector restarted at 15:00; need to verify if behavior changed post-restart"
 
-## Cross-referencing the references
+## Tool selection guidance
 
-Use the discovery journal to point to relevant reference docs and to call out gaps:
+Different claims require different evidence sources. Use this decision tree to avoid wasting time on unavailable data:
+
+| Claim type | Best tool | Alternatives | Avoid |
+|---|---|---|---|
+| Connector health | LSS `/lssConfig/userActivity` (InternalReason, ConnectorStatus) | Direct ZPA API `/connector/{id}/health` if exposed | Looking at overall connector count (won't show health) |
+| Policy matches this location? | ZPA API `/policySet/rules` + inspect adminScopes | ZPA portal policy UI | Assuming from success of other locations |
+| Session failed at assignment? | LSS User Activity with SessionID, InternalReason, ConnectorAssignmentReason | ZPA API with session ID filter if available | Generic "connection failed" logs |
+| Destination firewall blocking? | Manual SSH/curl from connector IP to destination | NSS logs (shows dropped packets) | Absence of evidence (may be silently dropped) |
+| Policy syntax/scope error? | references/zpa/policy-precedence.md + ZPA API policy dump | ZPA portal, audit logs | Trial and error |
+| Traffic forwarding path | ZPA API `/application` (segment config) + LSS (what actually happened) | references/zpa/policy-precedence.md | Assumption based on one successful session |
+
+## Hypothesis prioritization
+
+When multiple root causes are possible, investigate in this order (most likely first):
+
+1. **Configuration — the simplest cause**
+   - Policy scope doesn't include location/user/device
+   - Segment doesn't exist or is disabled
+   - Connector group is disabled
+   - Check via: ZPA API + references/zpa/policy-precedence.md
+
+2. **Connector health — single point of failure**
+   - Connector offline, unhealthy, or overloaded
+   - Connector can't reach destination (firewall, network path)
+   - Check via: LSS `/lssConfig/userActivity` (InternalReason field), direct health API if available
+
+3. **Destination-side — outside your control but worth confirming**
+   - Destination firewall/ACL blocking source IP
+   - Destination service down or not listening
+   - Check via: manual test from connector IP (requires connector access or test tool)
+
+4. **Policy evaluation edge case — the hard one**
+   - Policy matched but contradicted by another rule
+   - Multimatch behavior or rule order issues
+   - Posture or SAML attribute mismatch
+   - Check via: deep policy comparison in ZPA API, cross-reference with references/zpa/policy-precedence.md
+
+**Why this order:** Configuration issues are easiest to spot and fix. Connector issues affect many sessions at once (easier to pattern-match). Destination issues are infrastructure, not Zscaler. Policy edge cases require deep knowledge and lots of data.
+
+## Escalation criteria
+
+Stop investigating and escalate when:
+
+| Criterion | Action |
+|---|---|
+| Need direct connector SSH/health API access (not available to you) | Escalate to ops/connector owner. Provide: connector ID, failing destination, LSS session ID showing failure |
+| Need destination-side firewall/service logs | Escalate to destination owner. Provide: source IP (connector IP from LSS), destination, port, session timestamp, "connection rejected or timeout" |
+| Confirmed Zscaler bug (claim is well-documented, source is API response or LSS, and behavior contradicts docs) | File Zscaler support ticket. Include: full discovery journal, affected customer/tenant ID, reproduction steps, version info |
+| Missing tooling (e.g., LSS doesn't expose the field you need to confirm a claim) | Document the gap in the journal. Note: "InternalReason field shows X, but port-level health is not available in LSS. Need direct API or support to confirm port 22 health." Move to "requires escalation." |
+| Investigation has taken >30 minutes and you're still in "Open" status on the main claim | Step back. Review the journal. Are you investigating the right thing? Are you asking for evidence that doesn't exist? Escalate with what you have. |
+
+## Quick reference summary
+
+## Discovery journal template (blank)
+
+Copy and paste this to start a new investigation:
 
 ```
-Claim: Policy scope includes Location X
-Source: references/zpa/policy-precedence.md (scope evaluation order) + direct API check showing Location X in segment's adminScopes
-Status: Confirmed
+ISSUE: [One-sentence description]
+STATUS: [Open/Investigating]
+TIMESTAMP: [When investigation started]
 
-Gap: references/zpa/troubleshooting.md doesn't explain port-level filtering or per-port health checks; need to consult LSS documentation or API schema
+| Claim | Source | Status | Timestamp | Notes |
+|---|---|---|---|---|
+| | | | | |
+| | | | | |
+| | | | | |
+
+ROOT CAUSE HYPOTHESIS (current):
+[What you think is happening]
+
+NEXT STEPS:
+[What to investigate next]
 ```
 
-This helps future readers understand both what was investigated and what tooling/docs were insufficient.
+---
+
+When handing off or summarizing findings:
+
+**Format:**
+```
+ISSUE: [One-sentence description]
+STATUS: [Confirmed / Unconfirmed / Escalated]
+
+CONFIRMED FACTS:
+- [Claim + source]
+- [Claim + source]
+
+OPEN QUESTIONS:
+- [Claim with "Open" status + why it matters]
+
+ROOT CAUSE (if found):
+- [Confirmed cause + evidence]
+- [Why other hypotheses were ruled out]
+
+NEXT STEPS:
+- [What to investigate if continuing]
+- [Who to escalate to and why]
+```
+
+**Example:**
+```
+ISSUE: User in Location A cannot SSH to internal server via SIPA, but can browse HTTPS apps
+STATUS: Escalated
+
+CONFIRMED FACTS:
+- SIPA policy allows Location A (ZPA API /policySet/rules confirms)
+- Connector group is healthy and online (LSS reports no InternalReason errors)
+- Port 443 succeeds, port 22 fails from same location (ZPA API session logs)
+- Other users in Location A can reach other port 22 destinations (manual test successful)
+
+OPEN QUESTIONS:
+- Is this specific server blocking port 22 from connector IP? (requires server-side firewall check)
+- Is connector filtering port 22 outbound? (requires connector health API access)
+
+ROOT CAUSE: Likely destination firewall or connector port-level filtering, not Zscaler policy
+
+NEXT STEPS:
+- Have ops check connector outbound ACLs for port 22
+- Have server owner check firewall rules against connector IP ranges
+```
+
+## Collaboration handoff
+
+When passing findings to another person or agent:
+
+**Include:**
+1. **Full discovery journal** (even if it's long) — the other person needs to see your reasoning
+2. **Status summary** (quick reference above) — they need the executive summary
+3. **Source accessibility** — note if you had access to LSS, API, portals, or if you had to infer from limited data
+4. **Unknowns explicitly** — "we couldn't investigate X because [reason]" is better than leaving them guessing
+
+**Format for handoff:**
+```
+[Quick reference summary]
+
+---
+
+FULL DISCOVERY JOURNAL:
+[Full journal with all claims, sources, statuses]
+
+---
+
+NOTES FOR NEXT PERSON:
+- Had access to: ZPA API, references, LSS (basic queries only)
+- Did NOT have access to: connector SSH, destination firewall logs, support escalation
+- This investigation took [X] time; recommend [next tool or escalation path]
+```
+
+**What NOT to do:**
+- Don't summarize away the sources ("It's probably X")
+- Don't drop the failed hypotheses (they explain why you ruled things out)
+- Don't say "need more data" without specifying what data and why
+- Don't hand off with Open status on the main claim unless you clearly state why it stayed open
 
 ## When the journal prevents issues
 
