@@ -216,9 +216,14 @@ Sketches for later expansion (not active in this command):
 
 When added, this becomes the **capacity** branch. Methodology stays; per-subtype playbook diverges in checks and evidence sources.
 
+## Query bundles
+
+When the same scaling concern comes up repeatedly, capture the verified query sequence as a **bundle** — a named, ordered list of queries with decision logic mapping results to recommendation entries (risk + confidence). See [`architect-bundles.md`](./architect-bundles.md) for the template and the public/private boundary (verified bundles can ship; speculative ones stay private). Consult locally-available bundles before generating recommendations from scratch.
+
 ## Cross-links
 
 - [`architect-methodology.md`](./architect-methodology.md) — register format, risk scale, confidence levels, status lifecycle
+- [`architect-bundles.md`](./architect-bundles.md) — query bundle template (verified sequences for common scaling concerns)
 - [`troubleshooting-methodology.md`](./troubleshooting-methodology.md) — investigation discipline (sibling)
 - [`audit-methodology.md`](./audit-methodology.md) — audit discipline (sibling)
 - [`investigate-prompt.md`](./investigate-prompt.md) — `/z-investigate` playbook

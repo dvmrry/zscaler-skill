@@ -159,9 +159,14 @@ Stop and escalate (with a handoff summary per the methodology doc) when:
 
 When the investigation pauses or hands off to another agent/person, output the handoff format from the methodology doc: confirmed facts, open questions, current root cause hypothesis, next steps, what tools/access you had vs. didn't.
 
+## Query bundles
+
+When the same hypothesis comes up repeatedly, capture the verified query sequence as a **bundle** — a named, ordered list of queries with decision logic mapping results to claim statuses. See [`investigation-bundles.md`](./investigation-bundles.md) for the template and the public/private boundary (verified bundles can ship; speculative ones stay private). The agent should consult locally-available bundles before reasoning queries from scratch.
+
 ## Cross-links
 
 - [`troubleshooting-methodology.md`](./troubleshooting-methodology.md) — discovery journal, claim status, anti-patterns
+- [`investigation-bundles.md`](./investigation-bundles.md) — query bundle template (verified sequences for common hypotheses)
 - [`siem-emission-discipline.md`](./siem-emission-discipline.md) — agent execution modes, public/private boundary
 - [`siem-log-mapping.md`](./siem-log-mapping.md) — Zscaler log type catalog
 - [`splunk-queries.md`](./splunk-queries.md) — Splunk SPL pattern catalog
