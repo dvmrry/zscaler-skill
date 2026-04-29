@@ -118,7 +118,34 @@ Before any utilization analysis, walk the config for structural issues. Common p
 - **Version drift** — connectors / PSEs running mixed versions across a group
 - **Topology vs. user population** — region with significant user base served by remote PSE/connector; cross-region forwarding paths with no local fallback
 
-Each finding becomes a `Proposed` recommendation. Confidence is `Medium` for config-only (or `High` if the issue is unambiguous and risk is critical).
+Each finding becomes a `Proposed` recommendation. Confidence is calibrated per [Confidence calibration](#confidence-calibration) below.
+
+#### When config access is limited
+
+If you don't have direct API / SDK access and the user hasn't pasted a dump:
+
+- **Reason from typical Zscaler architectural patterns** — the structural issues above are visible from a verbal description (e.g., "we have one App Connector Group serving us-east-1" → SPOF flag is justified)
+- **Cite ZPA / ZIA best practices and references as evidence** — e.g., `references/zpa/app-connector.md`, `references/zpa/app-segments.md`
+- **Flag explicitly that recommendations are pattern-based**, not specific-config-based. Default confidence `Medium`; `Low` for speculative pattern reasoning with no tenant context
+- **Ask the user to confirm specifics** when a recommendation hinges on them — e.g., "this depends on whether ACG-east currently has 1 or 2 connectors; can you confirm?"
+
+The methodology's "silent extrapolation" anti-pattern applies: never claim a specific config exists without evidence. Reason from "this is a common pattern that, if present, would be a problem."
+
+#### Confidence calibration
+
+Default `Medium` for config-only recommendations. Two cases justify a bump:
+
+**Bump to `High`** when the structural issue is **unambiguous and config-evident**:
+- Single-connector App Connector Group serving multi-segment failover (textbook SPOF)
+- App Connector Group with zero active connectors
+- LSS feed for a critical observability stream completely absent (e.g., audit logs disabled in production)
+- Critical version skew with known interop issues
+
+**Stay at `Medium`** for pattern-matching: "this *could* be undersized," "this *might* have skew."
+
+**Drop to `Low`** for speculative future-load reasoning with no current baseline ("3× growth means add 3× connectors" without baseline metrics is a guess).
+
+The `High` bump prevents architect timidity about clear SPOFs while keeping pattern-matching honest.
 
 ### 4. Metrics-augmented review (if data is available)
 

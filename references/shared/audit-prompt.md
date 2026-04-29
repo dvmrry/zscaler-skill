@@ -79,6 +79,8 @@ Invoke the existing CI scripts against the scope. Capture output verbatim. Each 
 
 Treat the script output as **Tier A evidence** — deterministic, mechanical, not subject to debate. Quote relevant output lines in the finding's Source field.
 
+**If a script can't run** (missing dependency, environment issue, permission error): capture the failure verbatim, open an `Info` finding citing the script and error, and continue the editorial pass without that script's output. Do not block on mechanical-check unavailability — the editorial layer carries weight on its own.
+
 ### 3. Editorial pass — the seven checks
 
 Apply each check below across the scope. Every finding cites a file:line or cross-file comparison.
@@ -117,6 +119,13 @@ For each in-scope reference, read frontmatter `confidence` and `sources`. Apply:
 
 Severity: `High` for inflated confidence with no remediation path; `Medium` for honest-but-thin medium claims; `Low` for missing "Open questions" alone.
 
+**Index / curator files are a special case.** A pure index file (e.g., `references/shared/index.md`) whose body is a curated list of pointers to other references doesn't have "external sources" the same way a content file does — its sources *are* the child references. For an index file, accept any of:
+- `sources:` empty AND a body composed of cross-links to listed children, OR
+- `sources:` populated with the child reference paths, OR
+- A note in the body explaining the curation pattern
+
+Flag only if confidence is `high` AND neither of the above is satisfied. A reasonable downgrade is `confidence: medium` with a note that the file is an index.
+
 #### d. Content / frontmatter agreement
 
 Does the body match what frontmatter promises?
@@ -133,7 +142,18 @@ Sample bidirectional links. If A cross-links B for a concept, B should cross-lin
 - A schema cross-links a query catalog; query catalog doesn't link back
 - A reference doc cross-links a methodology doc; methodology doesn't reference the example
 
-Severity: `Medium`. Document the asymmetry; reciprocity isn't always required (e.g., a methodology doc shouldn't list every consumer), so use judgment.
+**When reciprocity is required** (flag if missing):
+- Two siblings in the same conceptual layer (e.g., `splunk-queries.md` ↔ `siem-log-mapping.md`) — both should reference each other
+- A schema and its primary query catalog (e.g., `web-log-schema.md` ↔ `splunk-queries.md`)
+- A playbook and the methodology it follows (e.g., `investigate-prompt.md` ↔ `troubleshooting-methodology.md`)
+- A canonical reference and its catalog entry (e.g., `casb-log-schema.md` ↔ `siem-log-mapping.md`)
+
+**When reciprocity is NOT required** (don't flag):
+- A methodology / shared discipline doc doesn't need to list every consumer (one-to-many fan-out)
+- An overview / portfolio doc references children that don't need to point back at the overview
+- A vendor source (`vendor/zscaler-help/*.md`) doesn't need to reference the kit reference that cites it
+
+Severity: `Medium` when required-and-missing; do not open a finding when reciprocity is in the "not required" bucket.
 
 #### f. Dangling concepts
 
@@ -154,6 +174,16 @@ For each in-scope file with an `## Open questions` section:
 Cross-reference `_clarifications.md` § "Status summary" to detect stale items. `check-hygiene.py` already does part of this; flag what it doesn't catch (e.g., a question that's resolved but the file's open-questions text doesn't reflect the resolution).
 
 Severity: `Medium` for stale open questions; `Low` for "open questions" section that should be removed entirely if empty.
+
+**Inline caveats can substitute for an `## Open questions` section.** A `confidence: medium` file is *not* obligated to have a dedicated `## Open questions` section if the body acknowledges gaps in place. For example:
+
+> "Per-category column detail is partial in this skill kit — see [Open questions](#open-questions) for the gap and how to close it."
+
+OR an inline mention:
+
+> "Treat all rows in this section as `❓ unverified` until cross-checked against the per-category column documentation."
+
+Both are acceptable. Flag only when (a) there are clear gaps AND (b) neither inline caveats nor an Open questions section acknowledges them. A `confidence: medium` file with neither is a real finding; a `confidence: medium` file that explicitly calls out its uncertainty inline is fine.
 
 ### 4. Output the audit register
 
