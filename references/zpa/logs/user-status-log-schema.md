@@ -246,7 +246,7 @@ Cross-check `PosturesMiss` values against the policy configured under **Policy >
 - ZPA Private Cloud Controller Status log schema (PCC session events) — [`./private-cloud-controller-status.md`](./private-cloud-controller-status.md)
 - ZPA Microsegmentation Flow log schema (east-west traffic enforcement) — [`./microsegmentation-flow-log-schema.md`](./microsegmentation-flow-log-schema.md)
 - SPL patterns including user-status sections — [`../../shared/splunk-queries.md`](../../shared/splunk-queries.md)
-- ZPA device posture reference — [`../device-posture.md`](../device-posture.md)
+- Cross-product device posture reference — [`../../shared/device-posture.md`](../../shared/device-posture.md)
 - ZCC log schema (client-side counterpart) — [`../../zcc/logs/zcc-log-schema.md`](../../zcc/logs/zcc-log-schema.md)
 
 ## Open questions

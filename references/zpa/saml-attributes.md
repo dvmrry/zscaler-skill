@@ -161,4 +161,4 @@ Organizations with multiple IdP configurations (e.g., primary IdP for employees,
 - ZPA SDK (Python/Go) — [`./sdk.md`](./sdk.md)
 - ZPA API surface — [`./api.md`](./api.md)
 - ZPA LSS log streaming (where SAML attributes can gate streaming criteria) — [`./log-receivers.md`](./log-receivers.md)
-- ZIdentity (replaces SAML attributes page for ZIdentity-subscribed tenants) — [`../shared/scim-policy-mapping.md`](../shared/scim-policy-mapping.md)
+- ZPA SCIM policy mapping (ZIdentity replaces this page for ZIdentity-subscribed tenants) — [`./scim-policy-mapping.md`](./scim-policy-mapping.md)
