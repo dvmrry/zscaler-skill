@@ -21,6 +21,12 @@ The bridge between Zscaler log streams (universal, defined by Zscaler) and where
 - Which schema file documents its fields and value types
 - What naming conventions are common across SIEMs
 
+## Canonical vs. tenant — the catalog covers one half
+
+This catalog is **canonical** — the Zscaler-published view of each log type and its schema. The complementary artifact is the **tenant schema**: an empirical dump of what's actually in your SIEM after parsing / TA / aliases (e.g., a Splunk `fieldsummary` against your sourcetype). Tenant schemas are private and live in your fork / CLAUDE.md / memory.
+
+A good investigation cross-references both: canonical for "what fields could exist + what they mean," tenant for "what's actually queryable in this environment right now." See [`tenant-schema-derivation.md`](./tenant-schema-derivation.md) for the canonical-vs-tenant distinction, derivation recipes per SIEM (Splunk fieldsummary, Sentinel getschema, Elastic field_caps, etc.), and a storage template.
+
 ## How this is structured
 
 Each Zscaler log type has one entry with:
@@ -260,6 +266,7 @@ These are tracked as next deliverables after this catalog is validated.
 
 ## Cross-links
 
+- [`tenant-schema-derivation.md`](./tenant-schema-derivation.md) — canonical-vs-tenant distinction, derivation recipes per SIEM, storage template
 - [`siem-emission-discipline.md`](./siem-emission-discipline.md) — agent execution modes, public/private boundary, where user plumbing lives
 - [`splunk-queries.md`](./splunk-queries.md) — Splunk-specific SPL pattern catalog
 - [`investigate-prompt.md`](./investigate-prompt.md) — `/investigate` slash command playbook

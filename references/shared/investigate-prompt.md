@@ -134,6 +134,13 @@ When emitting a query for any SIEM:
 
 7. **Handoffs don't change claim status.** Switching between agent-direct and user-handoff (in either direction) is normal. A claim's status reflects evidence quality, not who gathered it.
 
+8. **Cross-reference canonical and tenant schemas when both are available.** Canonical schemas under `references/{zia,zpa,zcc}/logs/` document what fields *could* exist per Zscaler — types, enums, semantic meaning. A tenant schema (if the user has generated one and stored it in CLAUDE.md / memory) documents what's *actually* extracted in their SIEM after TA / parser / pipeline processing. Confirm a canonical field is present in the tenant view before relying on it. Mismatches are findings:
+   - Canonical field missing from tenant → TA not installed, sourcetype misconfigured, or Zscaler-Support-enablement-required (e.g., `clt_sport`, `srv_dport`, `dlprulename`)
+   - Tenant field not in canonical → custom enrichment, local extraction, or TA CIM alias
+   - Values diverge from canonical enums → stale TA version or out-of-band transformation
+
+   See [`tenant-schema-derivation.md`](./tenant-schema-derivation.md) for the derivation recipes per SIEM and the storage template.
+
 See [`siem-emission-discipline.md`](./siem-emission-discipline.md) for the full framework and [`siem-log-mapping.md`](./siem-log-mapping.md) for the Zscaler log type catalog.
 
 ## Escalation
