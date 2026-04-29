@@ -73,9 +73,14 @@ Invoke the existing CI scripts against the scope. Capture output verbatim. Each 
 # Stale last-verified dates (90-day default)
 ./scripts/check-staleness.sh
 
+# Reference files with no inbound links (orphans)
+./scripts/check-orphans.py
+
 # HTML doc link integrity (if scope touches docs/)
 ./scripts/check-doc-links.py
 ```
+
+`check-orphans.py` emits files that no other markdown link, backticked path, or directory reference points at. Treat orphans as `Medium` severity by default — readers can't discover them without knowing the path. Bump to `High` if the file is a substantive product overview / schema reference. The script exempts `_archive/**` (intentionally not linked).
 
 Treat the script output as **Tier A evidence** — deterministic, mechanical, not subject to debate. Quote relevant output lines in the finding's Source field.
 

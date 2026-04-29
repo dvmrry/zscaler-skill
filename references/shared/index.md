@@ -36,6 +36,7 @@ Docs under `references/shared/` are **not tied to a single Zscaler product**. Th
 | **Cross-product audit logs** — audit-log framework across ZIA, ZPA, ZDX; field alignment; retention periods by product; query approach | [`./audit-logs.md`](./audit-logs.md) | draft |
 | **M365 Conditional Access via SIPA** — IP-based Conditional Access policy with Zscaler egress anchoring; setup pattern; limitations and failure modes | [`./m365-conditional-access.md`](./m365-conditional-access.md) | draft |
 | **Multi-cluster load sharing** — ZIA policy enforcement and traffic distribution across data center clusters; failover semantics; cluster selection | [`./multi-cluster-load-sharing.md`](./multi-cluster-load-sharing.md) | draft |
+| **Zscaler SDK landscape** — Python and Go SDK structure across products, client construction, auth flows, common patterns | [`./zsdk.md`](./zsdk.md) | draft |
 
 ## When to start here vs a product directory
 

@@ -50,6 +50,16 @@ Entry point for Zscaler Private Access (ZPA) questions — application segments,
 
 For SPL patterns see [`../shared/splunk-queries.md`](../shared/splunk-queries.md); for when to query see [`../shared/log-correlation.md`](../shared/log-correlation.md).
 
+## API schema references
+
+Field-and-endpoint-level catalogs derived from Zscaler SDKs and Postman collections.
+
+| Schema | File | Status |
+|---|---|---|
+| API endpoint inventory — full ZPA REST endpoint catalog with request/response shapes | [`./api-schemas.md`](./api-schemas.md) | draft |
+| Postman-collection-derived schemas — extracted struct shapes and parameter types from the ZPA Postman collection | [`./api-postman-schemas.md`](./api-postman-schemas.md) | draft |
+| SAML attribute reference — attributes available for ZPA policy criteria and how they're sourced from the IdP | [`./saml-attributes.md`](./saml-attributes.md) | draft |
+
 ## When the question spans multiple topics
 
 Start at [`../shared/policy-evaluation.md`](../shared/policy-evaluation.md) for the cross-feature mental model, then descend into the specific topic file.

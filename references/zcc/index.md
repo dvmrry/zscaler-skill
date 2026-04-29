@@ -42,6 +42,8 @@ Almost every ZIA or ZPA answer leans on ZCC implicitly. "User X is blocked" migh
 | **Troubleshooting** — error codes, common failure modes (tunnel down, enrollment failure, proxy bypass), diagnostic workflow | [`./troubleshooting.md`](./troubleshooting.md) | draft |
 | **ZCC SDK** — Python and Go service catalog (`client.zcc.*`); method summary; legacy vs OneAPI auth paths; rate-limit client behavior | [`./sdk.md`](./sdk.md) | draft |
 | **API rate limits** — 100 calls/hour general cap, 3 calls/day download endpoints, `X-Rate-Limit-*` headers, retry semantics, bulk UDID batching, pagination discipline | [`./api-rate-limits.md`](./api-rate-limits.md) | draft |
+| **API schemas** — full ZCC REST endpoint catalog with request/response shapes derived from the SDK | [`./api-schemas.md`](./api-schemas.md) | draft |
+| **SSL inspection (ZCC)** — client-side SSL trust / inspection behavior, certificate handling on the device | [`./ssl-inspection-zcc.md`](./ssl-inspection-zcc.md) | draft |
 
 ## What this hub does NOT cover yet
 

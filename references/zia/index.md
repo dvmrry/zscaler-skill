@@ -62,6 +62,15 @@ Field-level reference for ZIA log streams. Derived directly from Zscaler's publi
 
 For SPL patterns scoped to Zscaler questions, see [`../shared/splunk-queries.md`](../shared/splunk-queries.md). For *when* to query logs at all, see [`../shared/log-correlation.md`](../shared/log-correlation.md).
 
+## API schema references
+
+Field-and-endpoint-level catalogs derived from Zscaler SDKs and Postman collections.
+
+| Schema | File | Status |
+|---|---|---|
+| API endpoint inventory — full ZIA REST endpoint catalog with request/response shapes | [`./api-schemas.md`](./api-schemas.md) | draft |
+| Postman-collection-derived schemas — extracted struct shapes and parameter types from the OneAPI Postman collection | [`./api-postman-schemas.md`](./api-postman-schemas.md) | draft |
+
 ## When the question spans multiple topics
 
 Start at [`../shared/policy-evaluation.md`](../shared/policy-evaluation.md) for the cross-feature mental model, then descend into the specific topic file.

@@ -1,15 +1,13 @@
 name: Doc hygiene
 
-# Runs `scripts/check-hygiene.py`:
-#   - Frontmatter validation
-#   - Anchor resolution (cross-doc and same-doc)
-#   - Resolved-clarification propagation (advisory)
-#   - Eval-doc cross-reference
+# Runs the doc-hygiene check suite:
+#   - check-hygiene.py: frontmatter, anchors, clarification propagation, evals
+#   - check-orphans.py: reference files with no inbound links from anywhere
 #
 # Errors fail the build; warnings are advisory and don't block.
 #
 # Triggers:
-#   - PRs touching references/, evals/, or the script itself
+#   - PRs touching references/, evals/, or the scripts themselves
 #   - Pushes to main on the same paths (catches direct-merge regressions)
 #   - Weekly Monday cron (catches drift from upstream PRs / external edits)
 #   - workflow_dispatch for manual runs
@@ -20,12 +18,14 @@ on:
       - 'references/**'
       - 'evals/**'
       - 'scripts/check-hygiene.py'
+      - 'scripts/check-orphans.py'
   push:
     branches: [main]
     paths:
       - 'references/**'
       - 'evals/**'
       - 'scripts/check-hygiene.py'
+      - 'scripts/check-orphans.py'
   schedule:
     # Mondays 13:00 UTC — aligns with issue-watch + Renovate cadence
     - cron: '0 13 * * 1'
@@ -46,3 +46,6 @@ jobs:
 
       - name: Run hygiene checks
         run: ./scripts/check-hygiene.py
+
+      - name: Check for orphan reference files
+        run: ./scripts/check-orphans.py
