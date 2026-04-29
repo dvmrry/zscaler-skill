@@ -30,48 +30,15 @@ The patterns use **NSS-native field names** as documented in the Zscaler log sch
 - `$URL`, `$HOSTNAME`, `$USER`, `$CATEGORY` — user-supplied parameters for a given question.
 - Default time window `earliest=-30d`. Shorten to `-7d` / `-24h` for pushback-triggered validation to cut query latency.
 
-## Operating discipline (public skill)
+## Operating discipline
 
-This file is part of a public skill kit. The catalog supports two execution modes — agent-direct and user-handoff — and the discipline is the same in both.
+This catalog operates under the SIEM-generic emission discipline in [`siem-emission-discipline.md`](./siem-emission-discipline.md) — execution modes (agent-direct / user-handoff / coworking), placeholder-plumbing rule, Zscaler-published-fields-only rule, where user plumbing lives, and what stays private. Read that doc for the full framework; the Splunk specifics below are concrete instances of those generic rules.
 
-### Execution modes
+**Splunk-specific instances:**
 
-The agent driving `/investigate` (or any other flow) may or may not have Splunk API access. Both modes are supported and can interleave within a single investigation:
-
-| Mode | Who runs the query | Where results enter the journal |
-|---|---|---|
-| **Agent-direct** | Agent runs via Splunk API / `splunk-sdk-python` / configured tool | Agent captures results inline as a `Confirmed (medium\|high)` claim, query as source |
-| **User-handoff** | Agent emits query template; user runs it in their Splunk; pastes result back | User (or agent on next turn) captures pasted results as a `Confirmed (medium)` claim, query + result rows as source |
-| **Coworking** | Mix — agent runs cheap exploratory queries, user runs ones requiring tenant-specific scopes or sensitive data | Same journal; each claim notes who executed |
-
-The journal is the shared artifact. A handoff between agent and user (in either direction) doesn't change claim status — only fresh evidence (or system change) does.
-
-### Universal rules (both modes)
-
-1. **Plumbing is placeholder in the catalog.** All `index=`, `sourcetype=`, and field-alias values in this file are env-var placeholders (`$INDEX_ZIA_WEB`, etc.) or `<your_*>` markers. Actual index/sourcetype names are per-tenant and must never appear in this repo. At execution time, the agent (or user) substitutes from local config.
-
-2. **Field names are Zscaler-published only.** Every field used in this catalog traces back to an NSS or LSS schema reference cited in the frontmatter. Customer-renamed fields, custom TA enrichments, and any fields produced by an internal/private log generator do not appear here. If a user has renamed fields locally, they remap at run time, not in the catalog.
-
-3. **Cite patterns by name, not by inlining.** When the agent emits a query as an evidence source, reference the pattern (e.g., "use `§ rule-hit-history` from `references/shared/splunk-queries.md`") rather than reproducing the SPL. The catalog stays the single source of truth.
-
-4. **Cite the schema for any field used.** E.g., `references/zpa/logs/access-log-schema.md` for `InternalReason`, `references/zia/logs/web-log-schema.md` for `urlcategory`. Keeps results reproducible and prevents field-name drift.
-
-### Where user plumbing lives
-
-When the agent has access to per-tenant Splunk plumbing, it substitutes; otherwise it emits placeholders with a one-line "fill these in" note. Storage options for user plumbing (in order of automation):
-
-- **CLAUDE.md** at project or user level — e.g., `My Splunk plumbing: index=zscaler_prod, sourcetypes are zscalernss-web / zscalerlss-zpa`. Auto-loaded; agent picks up immediately.
-- **Auto-memory** — same content, persists across sessions.
-- **A private fork's local config** that overrides the placeholder env vars at run time (see [`./splunk-queries.md#tenant-portable-index-naming`](#tenant-portable-index-naming)).
-
-### What stays private
-
-- Per-tenant index / sourcetype / field-alias values
-- Internally-generated synthetic logs and the generators that produce them
-- Custom TA enrichments, lookup tables, or Splunk apps
-- Anything from an internal log pipeline that diverges from the Zscaler-published schemas
-
-The public catalog assumes Zscaler-published schemas only. The private side (your fork, your CLAUDE.md, your synthetic data) holds the rest.
+- **Plumbing placeholders** — env vars `$INDEX_ZIA_WEB`, `$INDEX_ZIA_FW`, `$INDEX_ZIA_DNS`, `$INDEX_ZPA`, `$INDEX_ZPA_STATUS`, `$INDEX_ZPA_METRICS`, `$INDEX_ZDX`. See [Tenant-portable index naming](#tenant-portable-index-naming) for the full list and substitution mechanics.
+- **TA-default sourcetypes** — `zscalernss-web`, `zscalernss-fw`, `zscalernss-dns`, `zscalernss-alerts`. See [Zscaler Technology Add-on for Splunk](#zscaler-technology-add-on-for-splunk-ta) for the CIM mapping.
+- **Tenant sourcetype mapping** — Splunk sourcetype patterns are documented per Zscaler log type in [`siem-log-mapping.md`](./siem-log-mapping.md). The user's actual sourcetypes go in CLAUDE.md / memory / private config, never in this catalog.
 
 ## Patterns
 
@@ -645,6 +612,8 @@ Notes:
 
 ## Cross-links
 
+- SIEM-generic emission discipline (modes, public/private boundary, placeholders) — [`./siem-emission-discipline.md`](./siem-emission-discipline.md)
+- SIEM-generic log type catalog (sourcetype patterns per Zscaler log type) — [`./siem-log-mapping.md`](./siem-log-mapping.md)
 - `/investigate` slash command playbook (emits queries from this catalog) — [`./investigate-prompt.md`](./investigate-prompt.md)
 - Troubleshooting methodology (discovery journal, claim discipline) — [`./troubleshooting-methodology.md`](./troubleshooting-methodology.md)
 - When to query logs — [`./log-correlation.md`](./log-correlation.md)

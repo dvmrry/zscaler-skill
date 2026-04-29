@@ -107,32 +107,34 @@ Do not declare `Resolved` for the overall issue until:
 1. Root cause is confirmed (`Confirmed (high)`)
 2. You can explain why the other hypotheses were ruled out
 
-## Splunk query emission
+## SIEM query emission
 
-You may or may not have Splunk API access. Both modes are supported and can interleave within a single investigation:
+You may or may not have direct API access to the user's SIEM (Splunk, Sentinel, Chronicle, Elastic, Sumo, etc.). The full execution-mode framework and discipline live in [`siem-emission-discipline.md`](./siem-emission-discipline.md). Quick reference:
 
-- **Agent-direct** — you have Splunk API access (`splunk-sdk-python` or equivalent). Run queries yourself; capture results inline.
-- **User-handoff** — no API access, or the query needs scopes/data only the user can run. Emit the query as an evidence-source plan; the user runs it in their Splunk and pastes results back.
-- **Coworking** — common case: you run cheap exploratory queries, the user runs ones requiring tenant-specific scopes or sensitive data. The journal is the shared artifact; each claim notes who executed.
+- **Agent-direct** — you have SIEM API access; run queries yourself, capture results inline.
+- **User-handoff** — emit the query as an evidence-source plan; the user runs it and pastes results back.
+- **Coworking** — common case; mix of both, journal is the shared artifact.
 
-In all three modes, the discipline is the same:
+When emitting a query for any SIEM:
 
-1. **Cite a pattern from the catalog.** Reference a named pattern in [`splunk-queries.md`](./splunk-queries.md) by section name (e.g., "use `§ rule-hit-history`") rather than freelancing SPL. The catalog is the single source of truth.
+1. **Identify the Zscaler log type** the investigation needs. [`siem-log-mapping.md`](./siem-log-mapping.md) is the catalog — each Zscaler log type, its schema file, and common SIEM landing patterns (Splunk sourcetype, Sentinel table, Chronicle log type, Elastic index pattern, Sumo source category).
 
-2. **Use placeholder plumbing.** All `index=` / `sourcetype=` values are env-var placeholders (`$INDEX_ZIA_WEB`, etc.) or `<your_*>` markers in the catalog — never literal index/sourcetype names. At execution time, substitute from local config (see step 4); when emitting for user-handoff, leave the placeholders with a fill-in note.
+2. **Cite a pattern from the SIEM-specific catalog.** For Splunk, reference a named pattern in [`splunk-queries.md`](./splunk-queries.md) (e.g., "use `§ rule-hit-history`"). For other SIEMs, cite the relevant catalog when one exists; otherwise emit a query against the schema and note "no catalog yet for this SIEM" so the pattern can be added.
 
-3. **Use only Zscaler-published field names.** Cite the schema reference for any field used (e.g., `references/zia/logs/web-log-schema.md` for `urlcategory`, `references/zpa/logs/access-log-schema.md` for `InternalReason`). Do not invent or rename fields.
+3. **Use placeholder plumbing.** Index / sourcetype / table / index-pattern / source-category values are env-var placeholders or `<your_*>` markers in the catalogs — never literal tenant values. Preserve when emitting.
 
-4. **Substitute user plumbing if available.** If the user has Splunk plumbing in CLAUDE.md, project config, or memory, substitute it into the placeholders before running (agent-direct) or emitting (user-handoff). Otherwise emit placeholders with a one-line note: "fill in your `index=` and `sourcetype=` — see your Splunk admin or run `| metadata type=sourcetypes | search totalCount > 0` to discover."
+4. **Use only Zscaler-published field names.** Cite the schema reference for any field used (e.g., `references/zia/logs/web-log-schema.md` for `urlcategory`, `references/zpa/logs/access-log-schema.md` for `InternalReason`). Do not invent or rename fields.
 
-5. **Treat the query as a plan until results exist.**
+5. **Substitute user plumbing if available.** If the user has SIEM plumbing in CLAUDE.md, project config, or memory, substitute it into the placeholders before running (agent-direct) or emitting (user-handoff). Otherwise emit placeholders with a one-line "fill these in" note appropriate to their SIEM (Splunk: `| metadata type=sourcetypes`; Sentinel: list available tables; etc.).
+
+6. **Treat the query as a plan until results exist.**
    - **Agent-direct**: after running, capture results as a `Confirmed (medium)` or `(high)` claim with the query as source.
    - **User-handoff**: until the user reports back, the claim stays `Open (likely)` or `Open (uncertain)`. When results arrive, capture them as `Confirmed (medium)` with the query + result rows as source.
    - **Either mode**: if the underlying system changed between query time and now (connector restart, policy update, re-auth), mark the claim `Stale` and re-run.
 
-6. **Handoffs don't change claim status.** Switching between agent-direct and user-handoff (in either direction) is normal. A claim's status reflects evidence quality, not who gathered it.
+7. **Handoffs don't change claim status.** Switching between agent-direct and user-handoff (in either direction) is normal. A claim's status reflects evidence quality, not who gathered it.
 
-See [`splunk-queries.md`](./splunk-queries.md#operating-discipline-public-skill) for the full discipline (execution modes, public/private boundary, where user plumbing lives).
+See [`siem-emission-discipline.md`](./siem-emission-discipline.md) for the full framework and [`siem-log-mapping.md`](./siem-log-mapping.md) for the Zscaler log type catalog.
 
 ## Escalation
 
