@@ -31,7 +31,7 @@ For each claim or finding, document:
 |---|---|
 | **Claim** | One-sentence hypothesis or observation (e.g., "Connector health check is failing") |
 | **Source(s)** | Exact reference(s): file path + line number, API query + result, LSS field + value, or direct query output |
-| **Status** | `Open` (still investigating), `Confirmed` (evidence supports), `Ruled out` (contradicted or disproven), `Resolved` (root cause found) |
+| **Status** | See [Status values](#status-values) below — captures both the state of the claim and your confidence in the evidence |
 | **Timestamp** | When discovered (helps track investigation timeline) |
 | **Notes** | Any caveats or metadata (e.g., "only saw this in Location A", "absent on 3 of 5 connectors") |
 
@@ -122,6 +122,25 @@ Likely cause: Connector health check or port-specific filtering (see Claims 3–
 Next steps: Pull LSS data with [InternalReason, ConnectorID, DestinationPort] fields; if unavailable, use direct API health endpoint
 ```
 
+### ❌ Confirmation bias — only looking for evidence that supports the current hypothesis
+
+Once you've settled on a leading root cause, it's tempting to keep gathering sources that reinforce it. That's not investigation — that's prosecution.
+
+```
+Hypothesis: Connector health is degraded
+(spent 20 minutes pulling more LSS health metrics, all consistent with degraded health)
+Status: Confirmed
+```
+Better:
+```
+Hypothesis: Connector health is degraded
+Confirming evidence: LSS InternalReason = CONNECTOR_UNHEALTHY (12 sessions)
+Contradicting evidence sought: Same connectors are passing health checks for port 443 traffic in the same window — if connector were broadly degraded, 443 should fail too
+Status: Open (likely) — health is degraded for port 22 specifically, not globally. Investigate port-specific health checks before promoting to Confirmed.
+```
+
+If you've been investigating the same hypothesis for 20+ minutes and haven't actively sought evidence that would falsify it, you're in confirmation-bias territory. Step back. Ask: what would I expect to see if this hypothesis were wrong? Then go look for that.
+
 ### ❌ Context loss between claims
 ```
 Claim 1: Connectors are healthy (from API)
@@ -150,18 +169,48 @@ Possible resolution: Health status is aggregated/generic; port 22 may have a spe
 - **Direct query/test**: "Ran `curl -v https://ssh.dev.azure.com:22 --connect-timeout 5` from connector IP, got TCP timeout"
 - **Absence with qualification**: "Checked [specific fields] in LSS, no records found for this scenario" (not just "didn't see it")
 
-### When to mark status
-- **Open**: hypothesis is under investigation; evidence is incomplete or ambiguous
-- **Confirmed**: evidence directly supports the claim
-- **Ruled out**: evidence contradicts or logic eliminates this possibility
-- **Resolved**: root cause identified and verified; action taken or documented
+### Status values
 
-Do not use "Resolved" for the overall issue until root cause is confirmed AND you can explain why previous hypotheses were ruled out.
+Real investigations live in the gray. Use these values to capture both the state of a claim and your confidence in the underlying evidence.
+
+| Status | When to use |
+|---|---|
+| **Open (likely)** | Leading hypothesis with partial evidence; still investigating but pointing this direction |
+| **Open (uncertain)** | Multiple competing hypotheses; need more data before any one is leading |
+| **Confirmed (high)** | Multiple independent sources align; evidence is direct and strong |
+| **Confirmed (medium)** | Single high-quality source, OR multiple sources that share an upstream dependency (could fail together) |
+| **Ruled out** | Evidence contradicts the claim, or logic eliminates the possibility |
+| **Stale** | Evidence was valid when gathered, but the underlying system changed afterward (connector restart, policy update, user re-auth, etc.). Needs re-verification, not just re-citation |
+| **Resolved** | Root cause identified AND verified; action taken or documented |
+
+Do not use "Resolved" for the overall issue until the root cause is confirmed AND you can explain why previous hypotheses were ruled out. Be honest about confidence: inflating "Confirmed (medium)" to "Confirmed (high)" is the same failure mode as premature closure.
 
 ### Timeline awareness
 - Issues that appear location-specific, time-specific, or intermittent need temporal metadata (when first observed, frequency, affected locations)
 - If the investigation spans hours, note when you're switching between data sources or time windows
 - Example: "Claim confirmed at 14:35 UTC; connector restarted at 15:00; need to verify if behavior changed post-restart"
+
+### Evidence staleness
+
+Evidence has a half-life. When the underlying system changes, claims based on pre-change data become stale — not wrong, but no longer load-bearing.
+
+Mark a claim `Stale` (and re-investigate before relying on it) when any of these happen after the evidence was gathered:
+
+- Connector restart, redeploy, or version change
+- Policy update, segment edit, or connector group membership change
+- User re-auth, posture change, or device certificate rotation
+- IdP/SAML attribute change
+- Destination-side firewall/ACL update or service restart
+
+Stale claims need fresh evidence, not just a re-citation of the old source. "I checked LSS at 14:35" doesn't carry forward across a 15:00 connector restart.
+
+### Journal scalability
+
+For investigations spanning more than ~30 minutes or ~10 claims, the active table gets unwieldy. Keep it readable:
+
+- **Archive ruled-out claims** into a "Dismissed hypotheses" section once you've moved on. They stay in the journal (so handoff can see your reasoning), but they don't crowd the active table.
+- **Promote the leading hypothesis** to the top so anyone reading the journal sees the current state immediately.
+- **Date-stamp section breaks** when the investigation pauses and resumes — the gap matters for staleness.
 
 ## Tool selection guidance
 
