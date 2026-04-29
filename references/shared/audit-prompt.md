@@ -219,12 +219,13 @@ NEXT STEPS:
 
 After the first response, continue the audit by:
 
+- **Surfacing Criticals first** — before triaging Medium/High, explicitly list any `Critical` findings and ask the user how they'd like to proceed. Don't bury Criticals under a Medium/High triage queue or implicitly defer them. If the user explicitly defers, mark them `Acknowledged` with rationale; if they say "fix later," confirm what "later" means and don't claim audit progress until it happens.
 - **Triaging findings** with the user — confirm severity, accept some as `Acceptable`, defer others as `Acknowledged`
 - **Verifying remediations** — when the user reports a fix, re-read the file or re-run the relevant check before marking `Resolved`
 - **Adding findings** as new evidence emerges (e.g., follow-up checks that surface during remediation)
 - **Closing the audit** when all findings are `Resolved`, `Acceptable`, `Acknowledged`, or `Wontfix` — output the final handoff per methodology
 
-Do not mark the overall audit `Complete` until every finding has a non-`Open` status.
+Do not mark the overall audit `Complete` until every finding has a non-`Open` status. **Specifically, do not declare a cycle "done" or pivot to fresh work while any `Critical` finding is still `Open` — promote it to `Acknowledged` with explicit deferral rationale or action it.**
 
 ## What this command will NOT do
 
