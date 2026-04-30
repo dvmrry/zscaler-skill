@@ -44,9 +44,13 @@ These are load-bearing facts that survive whether or not the corresponding refer
 > **Halts at:** Checkpoint 1
 > **Side effects:** none — no file loads in this step
 
-Read the framing. Compose the output block by filling in the bracketed fields. Use the **Framing → file mapping** to populate `PROPOSED LOADS`. Use the **Snapshot enumeration** procedure to list per-cloud config files individually.
+Read the framing. Compose the data blocks below by filling in the bracketed fields. Use the **Framing → file mapping** to populate `PROPOSED LOADS`. Use the **Snapshot enumeration** procedure to list per-cloud config files individually.
 
-#### Output template
+Your response prints two **data code blocks** followed by **plain-prose clarifications** and the checkpoint. Code blocks contain data only — never prompts.
+
+#### Output: data block 1 (PARSED FRAMING)
+
+Print verbatim, with bracketed fields filled in:
 
 ```
 PARSED FRAMING:
@@ -55,11 +59,13 @@ PARSED FRAMING:
   Products / features:    <comma-separated, or "none">
   Scope:                  <one user / many / all / unclear>
   Recency:                <when first observed, or "not specified">
+```
 
-CLARIFICATIONS NEEDED (at least one — see rules below):
-  - <assumption-confirmation question 1>
-  - <additional questions if framing has gaps>
+#### Output: data block 2 (PROPOSED LOADS)
 
+Print verbatim, with the bracketed lines expanded into specific paths:
+
+```
 PROPOSED LOADS (will load in Step 2 — do NOT load now):
   - references/shared/investigate-prompt.md
   - references/shared/troubleshooting-methodology.md
@@ -67,15 +73,22 @@ PROPOSED LOADS (will load in Step 2 — do NOT load now):
   - <each file enumerated from _data/snapshot/<cloud>/ — see Snapshot enumeration>
 ```
 
-#### CLARIFICATIONS NEEDED — always populate
+#### Output: plain-prose clarifications (after the data blocks, before the checkpoint)
 
-This block is **never empty**. Even when the framing seems fully specified, you have made assumptions worth confirming. List at least one assumption-confirmation question framed as: *"I assumed `<X>` — confirm or correct?"* Examples:
+After printing the two data blocks, print your clarifying questions as **plain markdown prose** — not inside a code block. This is content the user reads and responds to, not data they parse. Format:
+
+> **Before I proceed, please confirm these assumptions** (at least one, always populated):
+>
+> 1. I assumed `<specific assumption>` — confirm or correct?
+> 2. *(additional questions if framing has gaps)*
+
+Even when the framing seems fully specified, you have made assumptions worth confirming. Frame each as *"I assumed `<X>` — confirm or correct?"* Example shapes:
 
 - *"I assumed the tenant is on zs3 based on the API base URL — confirm?"*
 - *"I assumed this affects only one user (the one named in the framing) — confirm scope?"*
-- *"I assumed 'reachability' means TCP-level reachability rather than DNS resolution — confirm?"*
+- *"I assumed 'reachability' means TCP-level reachability rather than DNS resolution — confirm semantics?"*
 
-Surfacing assumptions here lets the user catch wrong assumptions before they propagate into hypotheses. If you genuinely cannot identify any assumption, say so explicitly: *"No assumptions identified beyond what the framing states verbatim — please confirm framing is complete."*
+If you genuinely cannot identify any assumption, write: *"No assumptions identified beyond what the framing states verbatim — please confirm framing is complete."* Do not skip this section.
 
 #### Snapshot enumeration (when tenant cloud is specified)
 
