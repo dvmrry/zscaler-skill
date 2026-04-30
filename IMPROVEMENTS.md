@@ -115,16 +115,27 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 - **Cost**: medium (needs source verification — what IS the canonical enum list?)
 - **Notes**: gap in our SSL inspection coverage. Defer until a content cycle on SSL inspection rules; not blocking. The `wontfix` close on the upstream issue means the divergence is permanent and worth documenting precisely *because* it traps users.
 
-### Primer files: `confidence: high` with empty `sources`
+### First verified bundle from production
 
 - **Status**: Proposed
-- **Origin**: 2026-04-30 — surfaced during `_meta/` consolidation hygiene check; affects 5 files: `_meta/primer/zero-trust.md`, `networking-basics.md`, `identity-saml-oidc.md`, `proxy-vs-gateway-vs-tunnel.md`, `zscaler-platform-shape.md`
-- **Impact**: hygiene check warns; readers can't trace high-confidence claims to citations; calibration is technically inflated
-- **Cost**: low (per-file decision)
-- **Notes**: three plausible fixes:
-  - **Populate sources** with general references (RFCs, well-known networking texts, Zscaler positioning docs) — content is largely synthesis of common knowledge, so sources would be foundational rather than vendor-specific
-  - **Downgrade to `confidence: medium`** with a note acknowledging the synthesis-of-common-knowledge nature
-  - **Add a `check-hygiene.py` exemption** for primer files (similar to the index-file exemption pattern in `audit-prompt.md`) — primers are educational synthesis, not vendor claims
+- **Origin**: 2026-04-30 — bundle templates landed; speculative content is explicitly excluded from public skill per the verification-gating rule
+- **Impact**: validates that the bundle template format works against real evidence; produces the first canonical example others can pattern-match against
+- **Cost**: variable — depends on the production scenario; capturing should be cheap (template is in place) but the underlying investigation/audit determines the work
+- **Notes**: when the first real production investigation or audit happens (a `/z-investigate` or `/z-audit` cycle that runs against actual tenant data, not template-mode), capture it as the first verified bundle in `references/shared/investigation-bundles.md` (or `architect-bundles.md`). Use it to: (a) confirm the template's required fields are right, (b) confirm the verification-gating language works as a discipline, (c) seed the public bundle library with one canonical example. Do NOT manufacture speculative bundles to fill the template — that defeats the verification-gating principle the templates are built around.
+
+### `simulate-policy.py` snapshot path uses old per-product convention
+
+- **Status**: Proposed
+- **Origin**: 2026-04-30 — flagged when documenting the per-cloud subdir convention in `_data/README.md`
+- **Impact**: script hardcodes `_data/snapshot/zia/url-filtering-rules.json` (per-product top-level), but documented convention is `_data/snapshot/<cloud>/<product>/...` (per-cloud, since each tenant lives on a specific Zscaler cloud)
+- **Cost**: low — accept cloud as arg or read from `ZSCALER_CLOUD` env (already an SDK convention, see `references/shared/oneapi.md`); update the path construction
+- **Notes**: do this when `simulate-policy.py` is next touched; not blocking. May affect other snapshot-reading scripts similarly — sweep `scripts/*.py` for hardcoded `_data/snapshot/<product>/` patterns at the same time.
+
+### Primer files: `confidence: high` with empty `sources` ✅ RESOLVED 2026-04-30
+
+- **Status**: Resolved (hygiene exemption added)
+- **Origin**: 2026-04-30 — surfaced during `_meta/` consolidation hygiene check; affected 5 files: `_meta/primer/zero-trust.md`, `networking-basics.md`, `identity-saml-oidc.md`, `proxy-vs-gateway-vs-tunnel.md`, `zscaler-platform-shape.md`
+- **Resolution**: added the third option (hygiene exemption). The existing aggregator exemption checked for a `_`-prefixed direct parent dir; updated to check any `_`-prefixed ancestor under `references/`, which now correctly catches `_meta/primer/*` (one level deeper after the consolidation). Primers are educational synthesis of common knowledge — high confidence is about quality of synthesis, not external citation density. Documented in `references/_meta/README.md` § Conventions.
 
 ### Tenant-side bundle storage convention
 

@@ -221,14 +221,19 @@ def check_frontmatter(path: Path) -> list[Finding]:
 
     # The high-confidence-with-empty-sources warning skips aggregator-style
     # docs: index.md hubs (sources are the docs they link to, not external
-    # citations); _-prefixed meta-docs (_clarifications.md, _portfolio-map.md,
-    # _verification-protocol.md, _layering-model.md); and content inside
-    # _-prefixed directories (e.g., _primer/ educational material — the
-    # docs are inherently illustrative, not source-derived).
+    # citations); meta-docs under references/_meta/ (clarifications,
+    # portfolio-map, verification-protocol, layering-model, etc.); primer
+    # educational material under references/_meta/primer/ (inherently
+    # illustrative synthesis, not source-derived); archived content under
+    # references/_meta/archive/. Any path whose references/-relative
+    # ancestry includes a `_`-prefixed dir counts as meta.
+    try:
+        rel_parts = path.relative_to(REFS).parts
+    except ValueError:
+        rel_parts = ()
     is_aggregator = (
         path.name == "index.md"
-        or path.name.startswith("_")
-        or path.parent.name.startswith("_")
+        or any(part.startswith("_") for part in rel_parts)
     )
     if (
         not is_aggregator

@@ -1,3 +1,14 @@
+---
+product: shared
+topic: "evals-index"
+title: "Eval suite — behavioral specifications + runner usage"
+content-type: reference
+last-verified: "2026-04-30"
+confidence: high
+sources: []
+author-status: draft
+---
+
 # Eval suite — `evals.json`
 
 Hand-written behavioral specifications: 19 entries shaped as `{prompt, expected_output, assertions, must_cite_files, must_not_say, expected_confidence, tenant_data_required}`. Captures concrete examples of "what a correct answer looks like" for the skill across URL filtering, ZPA segments, ZCC forwarding, SSL inspection, and other Tier 1 areas.
