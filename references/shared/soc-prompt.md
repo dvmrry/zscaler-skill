@@ -58,6 +58,20 @@ Follow the audit register format and severity / status enums from [`audit-method
 
 The discipline around evidence sourcing follows [`troubleshooting-methodology.md`](./troubleshooting-methodology.md) — disk first (`_data/snapshot/<cloud>/`, `_data/incidents/<operative>/evidence/`), then SIEM, then live API, then portal as last resort. See [`./investigate-prompt.md § Step 4`](./investigate-prompt.md) for the full preference ladder.
 
+## Fit check — do this before First response
+
+Before parsing scope and threat model, verify the framing fits the SOC posture persona. If the framing's dominant markers point at another command, output a redirect suggestion and **stop** — do not proceed with the rest of this playbook. Full rubric: [`../_meta/command-routing.md`](../_meta/command-routing.md).
+
+| If the framing has... | Suggest |
+|---|---|
+| An active symptom ("user can't reach", "X is failing", "since 14:00") | `/z-investigate` |
+| Capacity / scaling words (growth, scale to, Nx, size, headroom, by Q<n>) | `/z-architect` |
+| Lint / hygiene words (audit references, file paths to .md, consistency, frontmatter) | `/z-audit` |
+
+SOC framing has: a **scope** (admin RBAC, URL filtering, telemetry coverage, app segment, the whole tenant) and posture / control / threat-model vocabulary ("RBAC", "least-privilege", "bypass exposure", "DLP gap", "after-hours admin activity", "control coverage"). If the framing is clearly an active investigation (symptom + scope + recency) or a capacity question, output: *"Your framing looks like a `<other-persona>` task: `<one-line reason citing the markers>`. Re-invoke as `/z-<other-persona>`?"* — and stop.
+
+If markers are mixed, default to proceeding here but flag the alternative in your first response.
+
 ## First response
 
 When invoked, your first response must do these five things, in order:

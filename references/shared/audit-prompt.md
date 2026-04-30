@@ -51,6 +51,20 @@ Follow the audit register format and severity scale in [`audit-methodology.md`](
 - Findings outside scope go in Notes or "Out-of-scope observations," not silently dropped or chased
 - Never edit files mid-audit unless explicitly asked
 
+## Fit check — do this before First response
+
+Before parsing the scope, verify the framing fits the audit (lint) persona. If the framing's dominant markers point at another command, output a redirect suggestion and **stop** — do not proceed with the rest of this playbook. Full rubric: [`../_meta/command-routing.md`](../_meta/command-routing.md).
+
+| If the framing has... | Suggest |
+|---|---|
+| An active symptom ("X is failing", "users can't reach", "since 14:00") with a tenant scope | `/z-investigate` |
+| Capacity / scaling words (growth, scale to, Nx, size, headroom, by Q<n>) | `/z-architect` |
+| Posture / threat-model words (RBAC, least-privilege, bypass exposure, telemetry coverage, DLP gap, admin activity, threat model) | `/z-soc` |
+
+Audit framing has: a **lint scope** — files, directories, `recent`, or a topic keyword (e.g., `splunk`) — and structural / hygiene focus ("consistency", "frontmatter", "links", "orphans"). If the framing is clearly tenant-shaped (live system + symptom OR posture / capacity question), output: *"Your framing looks like a `<other-persona>` task: `<one-line reason citing the markers>`. Re-invoke as `/z-<other-persona>`?"* — and stop.
+
+If markers are mixed, default to proceeding here but flag the alternative in your first response.
+
 ## First response
 
 When invoked, your first response must do these four things, in order:

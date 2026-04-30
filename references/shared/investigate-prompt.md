@@ -51,6 +51,20 @@ Follow the methodology in [`troubleshooting-methodology.md`](./troubleshooting-m
 - 20+ minutes on one hypothesis without seeking falsifying evidence = confirmation bias; step back and ask "what would I expect to see if this hypothesis were wrong?"
 - Do not pivot between hypotheses without explaining why the previous one is ruled out
 
+## Fit check — do this before First response
+
+Before parsing the framing, verify it fits the investigation persona. If the framing's dominant markers point at another command, output a redirect suggestion and **stop** — do not proceed with the rest of this playbook. Full rubric: [`../_meta/command-routing.md`](../_meta/command-routing.md).
+
+| If the framing has... | Suggest |
+|---|---|
+| Posture / threat-model words (RBAC, least-privilege, bypass exposure, telemetry coverage, DLP gap, admin activity, threat model) **with no active symptom** | `/z-soc` |
+| Capacity / scaling words (growth, scale to, Nx, size, headroom, by Q<n>, add region) | `/z-architect` |
+| Lint / hygiene words (audit references, file paths to .md, consistency, frontmatter, orphans, links) | `/z-audit` |
+
+Investigation framing has: a **symptom** ("X is failing", "users can't reach Y"), a **scope** ("for user Z", "since 14:00 UTC"), and ideally **adjacent successes** ("port 443 still works"). If those are absent and the markers above dominate, output: *"Your framing looks like a `<other-persona>` task: `<one-line reason citing the markers>`. Re-invoke as `/z-<other-persona>`?"* — and stop.
+
+If markers are mixed (e.g., "connector group disconnected, should we add capacity?" = symptom + capacity), default to `/z-investigate` first (RCA the symptom; architect follows after) but **flag the alternative** in your first response so the user can switch.
+
 ## First response
 
 When invoked, your first response must do these six things, in order:

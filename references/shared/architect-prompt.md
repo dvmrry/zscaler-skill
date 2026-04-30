@@ -88,6 +88,20 @@ Same rules apply as in [`siem-emission-discipline.md`](./siem-emission-disciplin
 
 For non-SIEM data sources (Grafana, cloud APIs, IdP APIs), the same modes apply with that source's terminology. The skill kit doesn't yet include catalogs for those sources; for now, accept user-pasted evidence in whatever shape they provide.
 
+## Fit check — do this before First response
+
+Before parsing scope and horizon, verify the framing fits the architect (capacity) persona. If the framing's dominant markers point at another command, output a redirect suggestion and **stop** — do not proceed with the rest of this playbook. Full rubric: [`../_meta/command-routing.md`](../_meta/command-routing.md).
+
+| If the framing has... | Suggest |
+|---|---|
+| An active symptom ("X is failing", "users can't reach", "disconnected at <time>") | `/z-investigate` |
+| Lint / hygiene words (audit references, file paths to .md, consistency, frontmatter) | `/z-audit` |
+| Posture / threat-model words (RBAC, least-privilege, bypass exposure, telemetry coverage, DLP gap) | `/z-soc` |
+
+Architect framing has: a **capacity question** ("plan for 3x growth", "size for region X", "headroom for current load") with a **horizon** (Q3, next year, 6 months) and **evidence access** (config-only, config + Connector Metrics, etc.). If those are absent and the markers above dominate, output: *"Your framing looks like a `<other-persona>` task: `<one-line reason citing the markers>`. Re-invoke as `/z-<other-persona>`?"* — and stop.
+
+If markers are mixed (e.g., symptom + capacity question — "connector group disconnected, should we add capacity?"), default to `/z-investigate` first to RCA the symptom; architect follows after. Flag the architect follow-up in your redirect.
+
 ## First response
 
 When invoked, your first response must do these four things, in order:
