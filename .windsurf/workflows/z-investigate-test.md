@@ -12,6 +12,16 @@ If the prior step's output is missing or incomplete, do not start the next step 
 
 ---
 
+## Critical constraints (apply during all steps, regardless of which references load)
+
+These are load-bearing facts that survive whether or not the corresponding reference file ends up in PROPOSED LOADS. Internalize them before any reasoning. **If you find yourself reasoning against any of these, stop — you are off-track.**
+
+- **ZENs / Public Service Edges / brokers are Zscaler-managed cloud infrastructure.** Tenants cannot configure them, select them, or modify them. Do NOT search tenant snapshots (`_data/snapshot/...`) for ZEN configuration — there is none to find. ZEN values in logs are diagnostic (*which* Zscaler-operated edge handled this session), not actionable. The customer-controlled equivalents are **App Connectors** (`Connector`, `ConnectorIP`, `ConnectorPort` fields). If a hypothesis depends on tenant-side ZEN configuration, it is invalid — discard and re-frame.
+- **Connector eligibility gates session assignment in ZPA.** Connectors are filtered by `CONNECTED` status + target reachability (`AliveTargetCount` includes the target) + group association (Server Group → App Connector Group) BEFORE latency-based selection picks among survivors. An LSS record with an empty `Connector` field means no connector was assigned — eligibility filtering rejected every candidate. Do not hypothesize about the connector-to-app hop in that case; the fix is on the eligibility side.
+- **Tenant snapshots are the canonical "what's actually configured" source.** When the framing names a cloud, enumerate `_data/snapshot/<cloud>/` recursively; do not propose live API calls for config the snapshot already has. (See Snapshot enumeration in Step 1.)
+
+---
+
 ## Step 1 — Parse framing (input: user's chat message)
 
 Read the user's framing from the chat. **Output** this block, filling in the bracketed fields. Do not load any files in this step.
