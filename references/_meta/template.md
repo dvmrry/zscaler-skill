@@ -11,6 +11,8 @@ author-status: stub | draft | reviewed
 
 # Title
 
+> Authoring a new reference file? Skim [`./README.md`](./README.md) first — it covers the `_meta/` vs. product-content boundary and the conventions that gate this template.
+
 ## Field conventions
 
 - **product** — `zia`, `zpa`, or `shared` (cross-product material).
