@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Zscaler skill kit — internal overview</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Source+Serif+4:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+
+<script src="deck-stage.js"></script>
+
+<script type="application/json" id="speaker-notes">
+[
+  "Today's a cursory overview. Six slides, then a live demo against the zs3 ZIA + ZPA API dump. The thesis to anchor everything: this is a knowledge base AND an agent scaffold. Both audiences are first-class. Engineers browse it directly to learn how Zscaler works. Agents consume the same files as their discipline when troubleshooting. Same content, same citations, same rigor — two consumers. Total ~15 minutes plus demo.",
+
+  "One sentence to anchor everything: this serves both engineers and agents. Engineers read references/ as a curated knowledge base — the same way you'd hit a wiki to learn URL filtering or ZPA segments. Agents read the same files via tool calls when working a ticket. Same content. The discipline that makes the content reliable for human readers also makes it reliable for agent reasoning. We're not building 'AI tells you stuff.' We're building one source of truth that both populations consume.",
+
+  "Four pillars hold the kit together — and each serves both audiences. KNOWLEDGE: ~220 curated reference files plus pinned upstream vendor sources. Engineers browse them. Agents cite from them. DISCIPLINE: methodology docs that define how to investigate / audit / propose. Engineers read for guidance. Agents follow as procedure. WORKFLOWS: three slash commands — primarily agent surfaces, but the playbook content is reference-grade for any engineer wanting to understand the methodology. TOOLING: CI hygiene ensures the kit is reliable for human readers AND agent reasoning. Same pipeline guards both consumers.",
+
+  "The principle that ties it all together: every soft rule has a hard pairing. We don't write a Python script for every guideline — that would be brittle. We pair each soft guideline with a check that verifies it. Status enum is soft; enum validation is hard. Citation-required is soft; the hygiene script that flags missing sources is hard. Verified-bundle-only is soft; the verification-field gating is hard. This is what makes the content trustworthy for engineers reading it directly AND reliable for agents citing it.",
+
+  "Live demo. Three quick walkthroughs against real zs3 data. First: /z-investigate against a recent ticket — watch it produce a discovery journal, prioritize hypotheses, name evidence sources, and crucially — every claim points at a reference file an engineer could open and read. Second: hygiene pipeline — intentionally break a citation, watch CI catch it, fix it. Third: eval suite — list a behavioral spec, validate a sample response. Each shows a different facet: structured procedure / CI rigor / behavior testing.",
+
+  "Where this is headed. First verified bundle from production — when a real investigation lands, capture it as the canonical example. Schema-validated structured output to make registers machine-checkable for agents AND human-readable for engineers reviewing them. Eval coverage as a freshness signal. The /z-audit subtype expansion when we have evidence of a second use case. Big picture: the kit gets stronger every cycle for both audiences. The MD-level question worth asking: what's the next workflow worth scaffolding this way — and which knowledge gap should the references/ side close first?"
+]
+</script>
+
+<style>
+  /* Slide-local layout. Heavily borrows from onboarding.html's primitives. */
+
+  .hero {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .hero .meta {
+    display: flex;
+    gap: 24px;
+    margin-top: 48px;
+    align-items: center;
+  }
+  .hero .meta .rule { width: 80px; }
+
+  .toc {
+    display: grid;
+    grid-template-columns: 80px 1fr 200px;
+    gap: 24px;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--rule-soft);
+    align-items: baseline;
+  }
+  .toc .num { font-family: var(--font-mono); font-size: 14px; color: var(--ink-3); }
+  .toc .ti { font-size: 32px; line-height: 1.2; font-family: var(--font-serif); }
+  .toc .sub {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    color: var(--ink-3);
+    text-align: right;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .layers { display: flex; flex-direction: column; gap: 0; }
+  .layer {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 32px;
+    padding: 28px 0;
+    border-bottom: 1px solid var(--rule-soft);
+    align-items: baseline;
+  }
+  .layer:last-child { border-bottom: none; }
+  .layer .role { display: flex; flex-direction: column; gap: 6px; }
+  .layer .role span:first-child {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .layer .role .nm {
+    font-family: var(--font-serif);
+    font-size: 28px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .layer .desc { font-size: 18px; line-height: 1.5; color: var(--ink-2); }
+
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0;
+    border-top: 1px solid var(--rule);
+  }
+  .compare > div {
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--rule-soft);
+    border-right: 1px solid var(--rule-soft);
+    font-family: var(--font-sans);
+    font-size: 17px;
+    line-height: 1.4;
+  }
+  .compare > div:nth-child(3n) { border-right: none; }
+  .compare .h {
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    background: var(--paper-deep);
+  }
+  .compare .accent-cell { color: var(--accent-ink); font-weight: 500; }
+  .compare .row-lbl {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--ink-3);
+  }
+
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 48px;
+    margin-top: 32px;
+  }
+  .stat .n {
+    font-family: var(--font-serif);
+    font-size: 80px;
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+  .stat .lbl {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-top: 12px;
+    border-top: 1px solid var(--rule);
+    padding-top: 12px;
+  }
+
+  .pull-quote {
+    font-family: var(--font-serif);
+    font-size: 40px;
+    line-height: 1.3;
+    color: var(--ink);
+    max-width: 1100px;
+    font-style: italic;
+    font-weight: 400;
+  }
+  .pull-quote em { font-style: normal; color: var(--accent-ink); }
+
+  .demo-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .demo-row {
+    display: grid;
+    grid-template-columns: 100px 1fr 220px;
+    gap: 32px;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--rule-soft);
+    align-items: baseline;
+  }
+  .demo-row .lbl {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+  .demo-row .ti { font-size: 24px; line-height: 1.3; color: var(--ink); }
+  .demo-row .sub { font-family: var(--font-sans); font-size: 13px; color: var(--ink-3); text-align: right; }
+</style>
+</head>
+<body>
+
+<!-- 01 — Title -->
+<section data-screen-label="01 Title" data-deck-slide="0">
+  <div class="slide-header">
+    <span class="eyebrow">Internal preview · Q2 2026</span>
+    <span class="eyebrow">The Zscaler skill kit</span>
+  </div>
+
+  <div class="hero">
+    <span class="eyebrow" style="margin-bottom: 32px;">A KB for engineers · scaffolding for agents</span>
+    <h1 style="margin: 0;">One source of<br>truth. Two<br>audiences.</h1>
+    <div class="meta">
+      <div class="rule rule-thick"></div>
+      <span class="eyebrow">Curated Zscaler knowledge — for humans and agents alike</span>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <span class="l">Internal · MD overview</span>
+    <span class="r">01 / 06</span>
+  </div>
+</section>
+
+<!-- 02 — Thesis -->
+<section data-screen-label="02 Thesis" data-deck-slide="1">
+  <div class="slide-header">
+    <span class="eyebrow">01 — The thesis</span>
+    <span class="eyebrow">02 / 06</span>
+  </div>
+
+  <div class="hero">
+    <p class="pull-quote">
+      <em>A knowledge base AND an agent scaffold.</em><br>
+      Engineers read it directly to learn how Zscaler works.<br>
+      Agents cite from the same files when troubleshooting.<br>
+      Same content. Same citations. Same hygiene.
+    </p>
+    <p style="margin-top: 48px; color: var(--ink-3); font-size: 20px; max-width: 1000px;">
+      Both audiences are first-class. The references an engineer browses to understand URL filtering are the same files an agent cites in a discovery journal. The discipline that makes content trustworthy for human readers also makes it reliable for agent reasoning. <em style="font-style: normal; color: var(--ink-2);">Not 'AI tells you stuff' — one source of truth, two consumers.</em>
+    </p>
+  </div>
+
+  <div class="slide-footer">
+    <span class="l">Scaffolding, not magic</span>
+    <span class="r">02 / 06</span>
+  </div>
+</section>
+
+<!-- 03 — What's in the kit -->
+<section data-screen-label="03 Four pillars" data-deck-slide="2">
+  <div class="slide-header">
+    <span class="eyebrow">02 — What's in it</span>
+    <span class="eyebrow">03 / 06</span>
+  </div>
+
+  <div style="display: flex; flex-direction: column; flex: 1; justify-content: center;">
+    <h2 style="margin: 0 0 16px 0;">Four pillars. Both audiences.</h2>
+    <p style="max-width: 1100px; margin-bottom: 32px; color: var(--ink-2);">
+      Engineers consume directly — read references, follow methodology docs, run scripts. Agents consume the same content via tool calls. Same files. Same single source of truth.
+    </p>
+
+    <div class="layers">
+      <div class="layer">
+        <div class="role"><span>The pinned bibliography</span><span class="nm">Knowledge</span></div>
+        <div class="desc">~220 curated reference files plus vendored upstream sources (SDK, Terraform, Postman, help docs) as pinned bibliography. <em style="font-style: normal; color: var(--accent-ink);">Engineers</em> browse via the docs site or directly in the repo. <em style="font-style: normal; color: var(--accent-ink);">Agents</em> cite the same files in their discovery journals.</div>
+      </div>
+      <div class="layer">
+        <div class="role"><span>How work actually happens</span><span class="nm">Discipline</span></div>
+        <div class="desc">Methodology docs for investigation / audit / architect — citation-anchored, status-enumed, verification-gated. <em style="font-style: normal; color: var(--accent-ink);">Engineers</em> read them as work guidance. <em style="font-style: normal; color: var(--accent-ink);">Agents</em> follow them as procedure.</div>
+      </div>
+      <div class="layer">
+        <div class="role"><span>Structured procedures</span><span class="nm">Workflows</span></div>
+        <div class="desc">Three slash commands — <span style="font-family: var(--font-mono);">/z-investigate</span>, <span style="font-family: var(--font-mono);">/z-audit</span>, <span style="font-family: var(--font-mono);">/z-architect</span> — emit registers (journal / findings / recommendations). Primarily an <em style="font-style: normal; color: var(--accent-ink);">agent</em> surface, but the playbook content is reference-grade for any <em style="font-style: normal; color: var(--accent-ink);">engineer</em> wanting to understand the methodology.</div>
+      </div>
+      <div class="layer">
+        <div class="role"><span>Operator-grade quality</span><span class="nm">Tooling</span></div>
+        <div class="desc">Five hygiene checks in CI. Eval suite of 19 behavioral specs. Vendor-drift detection. Scrape freshness. The pipeline ensures the kit is reliable for <em style="font-style: normal; color: var(--accent-ink);">both</em> human readers and agent reasoning — same checks, same standards.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <span class="l">Engineers consume directly · Agents consume via tool calls · Same content</span>
+    <span class="r">03 / 06</span>
+  </div>
+</section>
+
+<!-- 04 — The discipline -->
+<section data-screen-label="04 Soft + hard pairings" data-deck-slide="3">
+  <div class="slide-header">
+    <span class="eyebrow">03 — The principle that ties it together</span>
+    <span class="eyebrow">04 / 06</span>
+  </div>
+
+  <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+    <h2 style="margin: 0 0 16px 0;">Every soft rule has a hard pairing.</h2>
+    <p style="max-width: 1100px; margin-bottom: 40px; color: var(--ink-2);">
+      We don't script every guideline — that's brittle. We pair each soft rule with a check that verifies it. <em style="font-style: normal; color: var(--ink);">This is what makes the content trustworthy for engineers reading it directly AND reliable for agents citing it.</em> Same discipline guards both consumers.
+    </p>
+
+    <div class="compare">
+      <div class="h">Soft guideline</div>
+      <div class="h">Hard check</div>
+      <div class="h row-lbl" style="text-transform: none; letter-spacing: 0;">Where it lives</div>
+
+      <div>Every claim has a source</div>
+      <div class="accent-cell">Hygiene script flags missing citations</div>
+      <div class="row-lbl">check-citations.sh · check-hygiene.py</div>
+
+      <div>Status enums (Open / Confirmed / Stale / …)</div>
+      <div class="accent-cell">Enum validation on frontmatter</div>
+      <div class="row-lbl">check-hygiene.py · methodology docs</div>
+
+      <div>Confidence calibration (high needs sources)</div>
+      <div class="accent-cell">High-confidence-empty-sources warning</div>
+      <div class="row-lbl">check-hygiene.py · audit-prompt.md</div>
+
+      <div>Vendor sources stay pinned</div>
+      <div class="accent-cell">Submodule SHA drift detection</div>
+      <div class="row-lbl">check-vendor-drift.py · verified-against</div>
+
+      <div>Bundles must be verified before shipping</div>
+      <div class="accent-cell">Required verification field gates publication</div>
+      <div class="row-lbl">investigation-bundles.md · architect-bundles.md</div>
+
+      <div>Tenant data stays private</div>
+      <div class="accent-cell">Placeholder plumbing in all public catalogs</div>
+      <div class="row-lbl">siem-emission-discipline.md · _data/</div>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <span class="l">Soft guidelines + hard checks → predictable behavior</span>
+    <span class="r">04 / 06</span>
+  </div>
+</section>
+
+<!-- 05 — Demo -->
+<section data-screen-label="05 Demo" data-deck-slide="4">
+  <div class="slide-header">
+    <span class="eyebrow">04 — Live walkthrough</span>
+    <span class="eyebrow">05 / 06</span>
+  </div>
+
+  <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+    <h2 style="margin: 0 0 16px 0;">Three demos against real zs3 data.</h2>
+    <p style="max-width: 1100px; margin-bottom: 40px; color: var(--ink-2);">
+      Each demonstrates a different facet of the kit. ZIA + ZPA API config from production; placeholder plumbing for everything that touches identifiable data on screen.
+    </p>
+
+    <div class="demo-list">
+      <div class="demo-row">
+        <span class="lbl">DEMO 1</span>
+        <span class="ti"><span style="font-family: var(--font-mono); color: var(--accent-ink);">/z-investigate</span> against a recent ticket — discovery journal, prioritized hypotheses, named evidence sources, citation-anchored claims.</span>
+        <span class="sub">Structured procedure</span>
+      </div>
+      <div class="demo-row">
+        <span class="lbl">DEMO 2</span>
+        <span class="ti">Hygiene pipeline catching real rot — break a citation intentionally, watch CI flag it, fix and re-verify.</span>
+        <span class="sub">CI-grade rigor</span>
+      </div>
+      <div class="demo-row">
+        <span class="lbl">DEMO 3</span>
+        <span class="ti">Eval suite end-to-end — list a behavioral spec, run the prompt manually, validate the response against assertions / citations / traps.</span>
+        <span class="sub">Behavior testing</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <span class="l">Real zs3 ZIA + ZPA · placeholder plumbing on screen</span>
+    <span class="r">05 / 06</span>
+  </div>
+</section>
+
+<!-- 06 — Where it's headed -->
+<section data-screen-label="06 Roadmap" data-deck-slide="5">
+  <div class="slide-header">
+    <span class="eyebrow">05 — Where it's headed</span>
+    <span class="eyebrow">06 / 06</span>
+  </div>
+
+  <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+    <h2 style="margin: 0 0 16px 0;">Roadmap &amp; what's next.</h2>
+    <p style="max-width: 1100px; margin-bottom: 32px; color: var(--ink-2);">
+      Tracked in <span style="font-family: var(--font-mono); color: var(--ink);">IMPROVEMENTS.md</span>. The kit gets stronger every cycle — the discipline compounds.
+    </p>
+
+    <div class="layers">
+      <div class="layer">
+        <div class="role"><span>Validates the template</span><span class="nm">First production-verified bundle</span></div>
+        <div class="desc">When a real investigation or scaling review lands, capture it as the canonical bundle. Use it to confirm the template format works against real evidence — not to manufacture speculative content.</div>
+      </div>
+      <div class="layer">
+        <div class="role"><span>Cross-agent determinism</span><span class="nm">Schema-validated structured output</span></div>
+        <div class="desc">Registers (discovery journal, audit findings, recommendations) currently emit Markdown. Pair with a JSON sidecar that scripts can validate. Same content, machine-checkable.</div>
+      </div>
+      <div class="layer">
+        <div class="role"><span>When subtype #2 lands</span><span class="nm">Subtype-parameterize <span style="font-family: var(--font-mono); font-weight: 400;">/z-audit</span></span></div>
+        <div class="desc">Today's audit is the lint flavor. Policy, access, coverage, and config subtypes are sketched. Activate the second one when there's a real use case — auto-detect-from-scope vs. explicit subtype arg.</div>
+      </div>
+      <div class="layer">
+        <div class="role"><span>Two questions worth asking</span><span class="nm">What's next for each audience?</span></div>
+        <div class="desc">For <em style="font-style: normal; color: var(--accent-ink);">agents</em>: each new <span style="font-family: var(--font-mono);">/z-*</span> command bottles operator expertise. What's the next workflow worth scaffolding? For <em style="font-style: normal; color: var(--accent-ink);">engineers</em>: which knowledge gap should the references/ side close first — what do you find yourself re-explaining most?</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <span class="l">The kit gets stronger every cycle · for both audiences</span>
+    <span class="r">06 / 06</span>
+  </div>
+</section>
+
+</body>
+</html>
