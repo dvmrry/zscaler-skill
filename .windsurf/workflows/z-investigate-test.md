@@ -31,7 +31,25 @@ PROPOSED LOADS (will load in Step 2 — do NOT load now):
 - references/shared/investigate-prompt.md
 - references/shared/troubleshooting-methodology.md
 - <product references from the mapping table below that match Products / features>
-- <_data/snapshot/<cloud>/ if cloud is specified>
+- <every file enumerated under _data/snapshot/<cloud>/ — see "Snapshot enumeration" below for how to list them>
+```
+
+### Snapshot enumeration (if tenant cloud is specified)
+
+When the framing names a tenant cloud (zs1 / zs2 / zs3 / etc.), you must enumerate `_data/snapshot/<cloud>/` **recursively** and add each individual file path to PROPOSED LOADS — not the directory path itself.
+
+- Use a **recursive** listing: `find _data/snapshot/<cloud>/ -type f`, or `ls -R _data/snapshot/<cloud>/`, or your file-list tool's recursive option. A non-recursive `ls` will only show top-level subdirectories (e.g., `zia/`, `zpa/`) and miss the actual files inside them.
+- The directory typically has nested per-product subdirs (`zia/`, `zpa/`, `zdx/`, etc.). Descend into every one.
+- Add **each individual file path** to PROPOSED LOADS, one per line. Do NOT abbreviate as a directory.
+- If `_data/snapshot/<cloud>/` doesn't exist or is empty, also try the fork-specific layout `_data/<cloud>/` (some forks omit the `snapshot/` prefix). If both are empty, list `_data/snapshot/ — empty` in PROPOSED LOADS so the user knows the snapshot is missing rather than that you skipped it.
+
+Example PROPOSED LOADS additions (snapshot section) when cloud = zs3:
+
+```
+- _data/snapshot/zs3/zia/url-filtering-rules.json
+- _data/snapshot/zs3/zia/access-policies.json
+- _data/snapshot/zs3/zpa/connector-groups.json
+- _data/snapshot/zs3/zpa/segments.json
 ```
 
 ### Framing → file mapping (use this to compose PROPOSED LOADS)
