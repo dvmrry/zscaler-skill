@@ -227,6 +227,10 @@ After the first response, continue the audit by:
 
 Do not mark the overall audit `Complete` until every finding has a non-`Open` status. **Specifically, do not declare a cycle "done" or pivot to fresh work while any `Critical` finding is still `Open` — promote it to `Acknowledged` with explicit deferral rationale or action it.**
 
+## Incident-driven audits
+
+Most audits are routine / scheduled. Some are **triggered by an incident** — a hygiene-failure investigation surfaces "what else might be wrong?" and the natural follow-up is an audit pass. When that happens, the audit register can be saved alongside the incident journal at `_data/incidents/<slug>/audit.md` (rather than as ephemeral chat output). See [`../../_data/incidents/README.md`](../../_data/incidents/README.md) for the convention. Incident artifacts are gitignored by default (private posture); audits-as-incident-artifacts inherit the same.
+
 ## What this command will NOT do
 
 - **Does not edit files.** It produces findings; remediation is a separate action.

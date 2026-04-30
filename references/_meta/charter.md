@@ -93,6 +93,7 @@ Maintaining the kit follows the same rigor it asks operators to follow.
 - **Feature branches for non-trivial changes.** Trivial changes (typos, README tweaks, one-line fixes) can go direct-to-main. Anything more — new playbook, structural sweep, schema change — uses a feature branch and a PR. The PR is a self-review checkpoint, not bureaucracy.
 - **Nothing red ever sits as HEAD of `main`.** If hygiene breaks, the next commit fixes it before further work proceeds. The `Doc hygiene` badge in the README is the public health indicator.
 - **The kit dogfoods its own discipline.** When the kit's own state is in question — broken citations, orphan files, schema drift — `/z-investigate`, `/z-audit`, and `/z-architect` apply to the kit itself, not just to Zscaler tenants.
+- **Incidents become artifacts.** Production breaks, regressions, hygiene failures, or other reactive triages with consequences worth remembering get saved at `_data/incidents/<YYYY-MM-DD>-<slug>/` per the convention in [`../../_data/incidents/README.md`](../../_data/incidents/README.md). Journal / timeline / postmortem are the analytical layer; raw artifacts go in `evidence/` (gitignored by default). The whole incident tree is private-by-default; engineers explicitly opt-in to publish.
 
 ## 7. When to refuse
 

@@ -45,6 +45,14 @@ Each tenant lives on a specific Zscaler cloud (zs1, zs2, zs3, zspreview, zscaler
 
 **Note on path conventions in scripts**: existing scripts (e.g., `simulate-policy.py`) reference paths like `_data/snapshot/zia/url-filtering-rules.json` — that's per-product, NOT per-cloud. Real-fork operators using the per-cloud convention should adjust those paths to `_data/snapshot/<cloud>/<product>/...` or similar in their fork.
 
+### `_data/incidents/`
+
+**Incident artifacts and post-mortems.** Each incident gets its own dir: `<YYYY-MM-DD>-<slug>/` containing `journal.md` (the discovery journal from `/z-investigate`), `timeline.md` (chronological events), `postmortem.md` (root cause + lessons), and `evidence/` (raw artifacts — CI logs, command output, API dumps; gitignored by default).
+
+**Default-private posture**: `_data/incidents/*` is gitignored except for `README.md` and `.gitkeep`. Engineers explicitly opt-in to publish a kit-internal incident by adding `!`-overrides per-incident. Internal forks are expected to override the gitignore so incident artifacts can be committed there for institutional memory.
+
+See [`./incidents/README.md`](./incidents/README.md) for the full convention.
+
 ## Privacy
 
 Everything under `_data/` (other than `iac/README.md` and `.gitkeep` files) is gitignored by default. Forks that want to commit `iac/` content do so deliberately by adjusting `.gitignore`. **Tenant snapshots and operational logs should generally not be committed**, even to private forks, unless the org has explicit guidance otherwise (see `iac/README.md` § Sanitization).

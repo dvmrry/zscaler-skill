@@ -159,6 +159,23 @@ Stop and escalate (with a handoff summary per the methodology doc) when:
 
 When the investigation pauses or hands off to another agent/person, output the handoff format from the methodology doc: confirmed facts, open questions, current root cause hypothesis, next steps, what tools/access you had vs. didn't.
 
+## Saving as an incident artifact
+
+When this investigation is an **incident** — a production break, regression, hygiene failure, or other reactive triage with consequences worth remembering — the journal becomes a saved artifact rather than ephemeral chat output.
+
+The convention lives at [`../../_data/incidents/README.md`](../../_data/incidents/README.md). Concretely, when finishing an incident-shaped investigation:
+
+1. Pick a slug: `<YYYY-MM-DD>-<short-descriptive-slug>` (kebab-case, recognizable from a directory listing six months later)
+2. Save the journal to `_data/incidents/<slug>/journal.md` — include claims, status, sources, timestamps, the resolution at the bottom
+3. Author `_data/incidents/<slug>/timeline.md` from the chat history + commit log — chronological events, ISO-8601 timestamps
+4. Author `_data/incidents/<slug>/postmortem.md` after the dust settles (within ~24h while context is fresh) — root cause, why-not-caught-earlier, what changed, lessons, follow-ups
+
+Raw artifacts that the journal cites (CI logs, command output, API dumps, screenshots) go in `_data/incidents/<slug>/evidence/` — gitignored by default per the privacy posture in the README.
+
+The whole `_data/incidents/<slug>/` tree is gitignored by default (private posture); engineers explicitly opt-in to publish a kit-internal incident by adding `!`-overrides per-incident. So an incident journal stays local-only unless deliberately published.
+
+If the investigation is NOT incident-shaped — exploratory, hypothesis-driven, no production stakes — there's no need to save the artifact. Chat-ephemeral is fine.
+
 ## Query bundles
 
 When the same hypothesis comes up repeatedly, capture the verified query sequence as a **bundle** — a named, ordered list of queries with decision logic mapping results to claim statuses. See [`investigation-bundles.md`](./investigation-bundles.md) for the template and the public/private boundary (verified bundles can ship; speculative ones stay private). The agent should consult locally-available bundles before reasoning queries from scratch.
