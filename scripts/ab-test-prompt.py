@@ -1,4 +1,8 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --quiet --script
+# /// script
+# requires-python = ">=3.10"
+# dependencies = []
+# ///
 """
 A/B test scaffold for prompt/context changes using Claude subagents.
 

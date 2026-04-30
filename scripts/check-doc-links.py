@@ -1,4 +1,8 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --quiet --script
+# /// script
+# requires-python = ">=3.10"
+# dependencies = []
+# ///
 """check-doc-links.py — verify internal hrefs and asset paths in docs/.
 
 Walks every HTML file under docs/, extracts each href and src value,

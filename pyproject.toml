@@ -1,0 +1,43 @@
+[project]
+name = "zscaler-skill"
+version = "0.0.0"
+description = "Zscaler skill kit — references, scripts, evals, and tooling for AI-assisted Zscaler operations"
+requires-python = ">=3.10"
+
+# This package isn't intended to be `pip install`ed. It's a kit, not a library.
+# This pyproject.toml exists for two reasons:
+#
+# 1. Aggregated visibility of the third-party Python deps the kit's scripts use.
+#    Each script also self-declares its deps via PEP 723 inline metadata
+#    (https://peps.python.org/pep-0723/) — see the `# /// script` block at the
+#    top of each `scripts/*.py` file. uv resolves those at run time. The list
+#    below mirrors the union of those declarations for discoverability.
+#
+# 2. `uv sync --extra scripts` lets contributors install all script deps once
+#    rather than letting uv resolve per-script on first run.
+#
+# To run any script: `./scripts/<name>.py` — uv reads the inline metadata,
+# resolves and caches deps, runs the script. No project-level install needed.
+
+[project.optional-dependencies]
+scripts = [
+    # Frontmatter parsing (check-hygiene.py, check-vendor-drift.py)
+    "pyyaml>=6",
+
+    # SDK-calling scripts (access-check, connector-health, sandbox-check,
+    # snapshot-refresh, ssl-audit, url-lookup, zpa-app-check)
+    "zscaler-sdk-python>=1.7",
+
+    # Async HTTP for upstream issue polling (issue-watch.py)
+    "httpx>=0.27",
+
+    # Skill PDF rendering (render-skill-pdf.py)
+    "markdown>=3.5",
+    "pymdown-extensions>=10",
+]
+
+# Some scripts are stdlib-only (deps = [] in their PEP 723 block):
+# ab-test-prompt, check-doc-links, check-orphans, check-scrape-freshness,
+# diagnose-tenant, find-asymmetries, run-evals, simulate-policy.
+# They use the uv-script shebang for consistency, not because they need
+# external deps.
