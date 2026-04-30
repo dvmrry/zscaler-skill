@@ -174,9 +174,66 @@ Source (Tier A): `resource_zpa_segment_group.go` `resourceSegmentGroupDelete` ca
 
 Source (Tier A): `application_segment.py` `add_segment` accepts `server_group_ids` as a list, transformed to `serverGroups: [{id: ...}, ...]`. Multiple Server Groups on one App Segment enables weighted load balancing — each group can carry a `weight` and `passive` flag via `update_weighted_lb_config`. Without explicit weighted LB config, behavior across multiple Server Groups is unspecified in source code (Tier D: likely round-robin or first-match, but unconfirmed).
 
+## Verifying the segment → server group → connector chain (snapshot recipe)
+
+A common investigation hypothesis: *"The App Segment exists and is correctly configured, but the Server Group → App Connector Group association is broken or empty."* Use this recipe to verify against snapshot JSON dumps without needing live API access.
+
+### What to check, in order
+
+The chain has four hops, each verifiable against snapshot data. Walk them in order — a break at any hop ends traffic delivery for the segment, so finding one explains the symptom and rules out hops further down.
+
+| # | Check | Snapshot file (typical) | JSON path to inspect |
+|---|---|---|---|
+| 1 | App Segment exists and matches the destination | `_data/snapshot/<cloud>/zpa/application-segments.json` | `[*]` where `domainNames[]` includes `<destination>` AND `tcpPortRanges[]` covers `<port>` |
+| 2 | App Segment references at least one Server Group | same file as 1 | `[*].serverGroups[].id` is non-empty |
+| 3 | Each referenced Server Group has at least one App Connector Group | `_data/snapshot/<cloud>/zpa/server-groups.json` | for each id from hop 2: `appConnectorGroups[]` is non-empty |
+| 4 | Each referenced App Connector Group has at least one CONNECTED connector | `_data/snapshot/<cloud>/zpa/app-connectors.json` (or per-connector status feed) | filter `appConnectorGroupId == <id from hop 3>` AND `connectionStatus == "CONNECTED"`, count > 0 |
+
+### Mapping findings to hypothesis status
+
+- **Hop 1 fails** (segment doesn't match destination/port) → hypothesis "segment doesn't exist or is misconfigured" is `Confirmed (high)` if snapshot is current.
+- **Hop 2 fails** (segment has empty `serverGroups[]`) → "segment has no server group assigned" is `Confirmed (high)`. Usually a config error during creation.
+- **Hop 3 fails** (server group has empty `appConnectorGroups[]`) → "server group has no connector group" is `Confirmed (high)`. The ZPA API rejects this on creation, but it can occur after a connector group is deleted out from under the server group (see "Removing a Connector Group from a Server Group" above).
+- **Hop 4 fails** (connector group has zero `CONNECTED` connectors) → "all connectors disconnected for serving group" is `Confirmed (medium)` from snapshot alone. Snapshots may be stale; cross-reference live connector health (LSS App Connector Status, or live API) before promoting to `Confirmed (high)`.
+- **All four hops pass** → the chain is correctly configured. Move to runtime hypotheses (target reachability per [`./logs/app-connector-metrics.md`](./logs/app-connector-metrics.md) `AliveTargetCount`, policy evaluation per [`./policy-precedence.md`](./policy-precedence.md), ZPA Service Edge selection).
+
+### Worked example
+
+Hypothesis: *"SIPA app segment exists but Server Group → App Connector Group association is missing or incorrect."*
+
+Snapshot files referenced: `_data/snapshot/zs3/zpa/application-segments.json` and `_data/snapshot/zs3/zpa/server-groups.json`.
+
+```bash
+# Hop 1+2: find the segment for ssh.dev.azure.com:22 and list its server groups
+jq '.[] | select(.domainNames | index("ssh.dev.azure.com")) |
+       {name, serverGroups: [.serverGroups[].id]}' \
+  _data/snapshot/zs3/zpa/application-segments.json
+
+# Hop 3: for each server group ID returned above, list appConnectorGroups
+jq --arg id "<server-group-id>" '.[] | select(.id == $id) |
+       {name, appConnectorGroups: [.appConnectorGroups[].id]}' \
+  _data/snapshot/zs3/zpa/server-groups.json
+
+# Hop 4: for each connector group ID, count CONNECTED connectors
+jq --arg gid "<connector-group-id>" '
+  [.[] | select(.appConnectorGroupId == $gid and .connectionStatus == "CONNECTED")]
+   | length' \
+  _data/snapshot/zs3/zpa/app-connectors.json
+```
+
+If any hop returns an empty list or zero, that's the broken hop and the corresponding hypothesis is `Confirmed`.
+
+### Edge cases for the chain
+
+- **Multiple Server Groups on one segment.** A segment can carry multiple `serverGroups[]`. Each is independent — at least one must satisfy hops 3 and 4 for the segment to deliver traffic. If one is healthy and another is broken, weighted load balancing decides which connectors are tried first. See [Multiple Server Groups on one App Segment](#multiple-server-groups-on-one-app-segment) above.
+- **Connector group fronting an unreachable target.** Hops 3 and 4 can pass while traffic still fails. That's a runtime hypothesis (target reachability), not a chain hypothesis — see [`./logs/app-connector-metrics.md`](./logs/app-connector-metrics.md) for `AliveTargetCount` semantics and [`./app-connector.md § How sessions are assigned to App Connectors`](./app-connector.md#how-sessions-are-assigned-to-app-connectors) for the eligibility-then-selection model.
+- **Snapshot freshness.** The chain's hop 4 reflects connector state at snapshot time. A connector that was `CONNECTED` then may have flipped `DISCONNECTED` since. Always note the snapshot timestamp in the journal when citing this evidence; cross-reference live status if available.
+- **Microtenant scoping.** If the tenant uses microtenants, the snapshot may be scoped per microtenant. A segment in microtenant A with a server group in microtenant B is a config error worth flagging.
+
 ## Cross-links
 
 - App Segments — domain names, port ranges, Multimatch INCLUSIVE/EXCLUSIVE, specificity matching: [`./app-segments.md`](./app-segments.md)
 - App Connectors and Connector Groups — VM model, provisioning keys, groups: [`./app-connector.md`](./app-connector.md)
+- App Connector Metrics — `AliveTargetCount`, runtime reachability: [`./logs/app-connector-metrics.md`](./logs/app-connector-metrics.md)
 - Policy rules that consume Segment Groups: [`./policy-precedence.md`](./policy-precedence.md)
 - SDK service catalog (SegmentGroupsAPI §2.34, ServerGroupsAPI §2.35): [`./sdk.md`](./sdk.md)

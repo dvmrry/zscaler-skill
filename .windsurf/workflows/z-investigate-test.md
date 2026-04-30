@@ -132,9 +132,9 @@ Multiple rows may match a single framing — **add every matching row** to PROPO
 | SIPA, Source IP Anchoring | `references/shared/source-ip-anchoring.md` |
 | App Connector, connector health, connector flap, connector status, connector assignment, health check, health probe, target reachability, eligibility filter, connector selection | `references/zpa/app-connector.md` |
 | App Connector Metrics, AliveTargetCount, TargetCount, health reporting cadence, ON_ACCESS, CONTINUOUS | `references/zpa/logs/app-connector-metrics.md` |
-| ZPA segment, app segment, application segment, segment scope, `health_reporting` setting | `references/zpa/app-segments.md` |
+| ZPA segment, app segment, application segment, segment scope, `health_reporting` setting, SIPA segment | `references/zpa/app-segments.md` AND `references/zpa/segment-server-groups.md` (the segment→server-group→connector chain spans both) |
 | ZPA policy, access policy, policy precedence, policy evaluation | `references/zpa/policy-precedence.md` |
-| Server group | `references/zpa/segment-server-groups.md` |
+| Server group, server-group → connector-group association | `references/zpa/segment-server-groups.md` |
 | ZIA URL filtering, URL category, allow rule, block rule | `references/zia/url-filtering.md` |
 | SSL inspection, TLS inspection, inspection bypass | `references/zia/ssl-inspection.md` |
 | ZCC, Zscaler Client Connector, Z-Tunnel, forwarding profile | `references/zcc/index.md` |
@@ -196,14 +196,58 @@ End your response with **literally** this section:
 
 ---
 
-## 📓 Step 3 — Generate discovery journal
+## 📓 Step 3 — Generate discovery journal AND save to disk
 
 > **Input:** user-confirmed `LOADED` block from Step 2 + the actual file content read in Step 2
-> **Output:** a discovery journal table per the playbook
-> **Halts at:** end of first response (further turns continue investigation)
+> **Output:** a discovery journal table (in chat) + the same journal written to disk
+> **Halts at:** Checkpoint 3 (after journal output + save)
+> **Side effects:** writes / updates `_data/incidents/<slug>/journal.md` via your file-write tool
 
 **Precondition:** Step 2's `LOADED` block was produced AND the user replied with explicit confirmation. If either is missing, halt with `Prior step not confirmed — cannot proceed to Step 3` and re-run the missing step.
 
-Now follow the **First Response procedure in `references/shared/investigate-prompt.md`** (loaded in Step 2). Generate the discovery journal table per its format. Every claim must cite a source from the `LOADED` block.
+#### 3A — Generate the journal
 
-**The first response is a plan, not a diagnosis.** Do not investigate yet — establish the hypothesis space and named evidence sources first. Subsequent turns continue the investigation.
+Follow the **First Response procedure in `references/shared/investigate-prompt.md`** (loaded in Step 2). Generate the discovery journal table per its format. Every claim must cite a source from the `LOADED` block.
+
+#### 3B — Save the journal to disk (always; do not ask permission)
+
+After generating the journal in chat, **immediately use your file-write tool** to save the same journal to `_data/incidents/<slug>/journal.md`. This save is unconditional — it is not a yes/no question for the user. Do NOT ask permission to write the file; do NOT defer the save to a later turn.
+
+**Slug selection:**
+
+- If the user's framing referenced an existing path (e.g., `_data/incidents/test-foo/`), use that slug — write to its `journal.md`.
+- If `_data/incidents/<some-existing-slug>/` already has a `journal.md` whose ISSUE matches this investigation, this is a continuation — update that file in place.
+- Otherwise mint a fresh slug: `<YYYY-MM-DD>-<short-kebab-descriptor>` (e.g., `2026-04-30-ssh-azure-port-22`). Create the directory.
+
+**Subsequent turns** update the same file in place — do not create a new file each turn.
+
+#### 🛑 Checkpoint 3 — Awaiting user direction (do not investigate further yet)
+
+After printing the journal AND saving to disk, end your response with **literally** this section:
+
+> **✋ Checkpoint 3 — journal generated and saved.** First response is a plan, not a diagnosis. Reply with one of:
+>
+> - `go` (or `yes` / `proceed`) — investigate the highest-priority Open hypothesis next
+> - `focus: <hypothesis #>` — investigate that hypothesis specifically
+> - `rule out: <hypothesis #>` — explain why it's already ruled out (with evidence)
+> - `add hypothesis: <description>` — I'll add it to the journal
+> - `pause` — stop here; the journal is saved for resumption later
+
+**Do NOT continue investigating.** Do NOT rule out hypotheses on your own past the initial first-response analysis. Do NOT roll through `Open` claims to produce a final root cause. Wait for the user to direct the next step.
+
+---
+
+## 🔁 Subsequent turns — repeat Checkpoint 3 every turn
+
+After Step 3's first journal output, **every** subsequent turn in this investigation follows the same per-turn cadence — the halt-and-ask pattern is **recursive**, not one-shot. Apply this on turn 2, turn 3, turn N, until the user marks the investigation complete.
+
+#### Per-turn cadence (do all four, in order, then halt)
+
+1. **Read user direction.** The user replied to the previous Checkpoint 3 with `go` / `focus: <H#>` / `rule out: <H#>` / `add hypothesis: <X>` / `pause`. Parse it. If it's `pause`, halt without further work — the journal stays saved.
+2. **Perform exactly ONE investigation action.** Read one source, run one query, evaluate one piece of evidence. **Do NOT** batch multiple hypothesis investigations into one turn. **Do NOT** rule out a hypothesis you weren't directed to investigate.
+3. **Update the journal.** Print the updated journal table in chat (with claim status changes, new evidence, dismissed hypotheses if any). Then **immediately save the updated journal** to `_data/incidents/<slug>/journal.md` using your file-write tool — same path as Step 3B, no permission asked.
+4. **Halt with Checkpoint 3.** End your response with the same `✋ Checkpoint 3` menu (using the verbs that fit the current state — e.g., if all hypotheses except one are ruled out, the menu can name the remaining one as the next focus). Wait for the user.
+
+**This cadence applies until the user explicitly closes the investigation** with `pause` or `done` (a status of `Resolved` on the root cause claim with the user's confirmation that the resolution holds). Until then, every response is one action + journal update + halt — never a rolling investigation that resolves multiple hypotheses without user direction.
+
+If you find yourself about to write a response that ① touches more than one hypothesis OR ② omits the journal save OR ③ omits the Checkpoint 3 halt, **stop**. You are off-cadence. Reset to the four-step structure above.
