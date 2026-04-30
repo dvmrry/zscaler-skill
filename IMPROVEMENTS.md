@@ -63,8 +63,11 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 
   **Claude-specific (or hard cross-agent):**
 
-  - **Memory-as-constraint** — Claude Code's auto-memory is CC-specific; Windsurf has memory but different semantics (separate persistence layer). A "must cite which memory entries informed this decision" pattern works under CC but doesn't port directly. If we lean into this, the kit splits between cross-agent core and CC-flavored extensions.
   - **Subagent / multi-agent rubric review** — Claude's Agent tool is Claude-specific. Windsurf workflows can't invoke other workflows (per `windsurf-runtime-notes.md`). Producer-reviewer pairs work under CC; not portable. Could still be a CC-mode-only enhancement, but explicitly scoped.
+
+  **Not a determinism pattern (don't pursue as one):**
+
+  - **Memory-as-constraint** — initially listed here, then ruled out. Memory (CC auto-memory, Windsurf memory) is a soft continuity signal, not a deterministic constraint: compaction can summarize-away specific entries, cross-session reads are optional, and unlike every other soft guideline in this list there's no introspectable hard check ("did the agent actually read memory entry X?" isn't verifiable from outside the agent). Useful for carrying user preferences across sessions (the `feedback_*` and `project_*` memory types) but not for enforcing discipline in the kit itself. Mentioned here so we don't accidentally re-propose it.
 
   **Action triggers**: promote individual patterns to their own IMPROVEMENTS.md items when there's a real reason to build them. Don't speculatively build — the framing is the contribution; individual investments need their own justification.
 
