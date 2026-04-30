@@ -182,6 +182,30 @@ ZPA is deny-by-default — there is no "default-allow shadow." The hypothesis sp
 ```
 Product defaults and architectural assumptions (deny-by-default vs. allow-by-default, per-app vs. per-segment, IdP-claim vs. SCIM-claim) shape which hypotheses are even plausible. A hypothesis built on the wrong product mental model wastes the whole investigation.
 
+### ❌ Investigating from scratch when prior evidence already exists
+
+```
+User: "ZPA connectors keep flapping in us-east-1."
+Agent: "Let me hypothesize causes and propose investigation steps..."
+(no check of _data/incidents/, no check for an evidence/ folder
+the user may have already populated, no glance at _data/snapshot/)
+```
+Better:
+```
+Agent first: ls _data/incidents/ → finds 2026-03-12-us-east-1-connector-flap/
+Reads journal.md → prior investigation ruled out network blocking
+and confirmed VM-cloning fingerprint collision as root cause.
+Reads evidence/ → contains the LSS query that surfaced the pattern.
+
+Hypothesis 1 (carried forward from prior journal, status Stale):
+  VM-cloning fingerprint collision.
+  Source: _data/incidents/2026-03-12-us-east-1-connector-flap/journal.md
+  claim 4. Re-verify against current AppConnectorMetrics.
+
+Hypothesis 2 (new): ...
+```
+Reusing prior work isn't optional. Stale evidence is still evidence — it tells you which hypotheses were already explored and how. Never silently re-investigate a `Ruled out` claim from a prior journal without explaining why the prior reasoning no longer applies. Cite the prior file path in the source field of any reused claim.
+
 ### ❌ Carrying user framing claims unverified into hypotheses
 
 ```

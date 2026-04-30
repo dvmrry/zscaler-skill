@@ -63,13 +63,22 @@ If location, time, or scope is ambiguous, ask **one** targeted clarifying questi
 
 ### 2. Ground before you reason
 
-Three checks before generating hypotheses. Skipping any of these produces output that's confidently wrong:
+Four checks before generating hypotheses. Skipping any of these produces output that's confidently wrong:
 
 **a. Read source schemas for the data you'll analyze.** If the framing involves logs (LSS / NSS / audit / SIEM), find the schema file under `references/{zia,zpa,zcc}/logs/<name>-schema.md` and read it before reasoning over field values. Field names look self-evident but aren't (`action`, `reason`, `status` mean different things across log types); sample values mislead without the enum / type / semantic notes.
 
 **b. Read the canonical product / feature reference.** If the framing names a Zscaler product or feature (ZPA segment, ZIA URL category, ZDX probe, ZCC posture profile), read the relevant `references/<product>/<feature>.md` before forming a hypothesis. Product defaults (ZIA allow-by-default vs ZPA deny-by-default) and architectural assumptions (single connector vs cluster, app-segment scope vs server-group, IdP-provided vs SCIM-provided attributes) change which hypotheses are plausible. A hypothesis built on the wrong product mental model wastes the whole investigation.
 
 **c. Verify framing claims against evidence.** Treat causal claims in the framing — "connector is degraded", "rule fired but allowed traffic", "segment matched", "SAML attribute X is missing" — as `Open (uncertain)` until verified, not as background facts. Before any framing claim becomes load-bearing in a hypothesis, identify the evidence that would confirm it and check. Users describe symptoms accurately but mis-attribute causes; carrying the user's mis-attribution into your hypotheses produces a confident wrong answer. If verification isn't possible in the current execution mode, the claim stays `Open (uncertain)` and the journal records what evidence would resolve it.
+
+**d. Check existing evidence and prior investigations.** Before generating hypotheses from scratch, scan what's already on disk:
+
+- **Prior journals** — `ls _data/incidents/` and read any `journal.md` whose slug overlaps the current framing. A prior investigation may have already ruled out hypotheses you'd otherwise re-test, confirmed a root cause that still applies, or captured a useful evidence pattern. Reuse — don't re-derive. Cite the prior journal path in the source field of any reused claim.
+- **Current incident's `evidence/` directory** — if `_data/incidents/<current-slug>/evidence/` already exists and has files, read them before asking the user what to investigate. The user may have placed CI logs, API dumps, or screenshots there that already carry the answer. The same applies to evidence files attached to the current chat (paste-ins, file uploads).
+- **Tenant snapshot** — `_data/snapshot/<cloud>/` holds offline tenant config dumps when populated. Reading the snapshot is far cheaper than re-querying the API and avoids "current state vs. state at time of incident" drift.
+- **Script logs** — `_data/logs/` holds dumped output from kit scripts (issue-watch, find-asymmetries, hygiene digests). Relevant if the framing involves a recent kit-script run.
+
+**Stale evidence is still evidence.** A prior `Resolved` finding from a journal six months old isn't automatically valid today, but it tells you which hypotheses were already explored and what evidence shape resolved them. Promote prior findings to `Confirmed (medium)` only if the current evidence still supports them; otherwise mark them `Stale` and re-verify. Never silently re-investigate a hypothesis that a prior journal documented as `Ruled out` without explaining why the prior reasoning no longer applies.
 
 ### 3. Generate initial hypotheses
 
