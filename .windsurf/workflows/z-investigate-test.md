@@ -56,33 +56,59 @@ PARSED FRAMING:
   Scope:                  <one user / many / all / unclear>
   Recency:                <when first observed, or "not specified">
 
-CLARIFICATIONS NEEDED:
-  - <one targeted question if framing is below minimum; otherwise "none">
+CLARIFICATIONS NEEDED (at least one — see rules below):
+  - <assumption-confirmation question 1>
+  - <additional questions if framing has gaps>
 
 PROPOSED LOADS (will load in Step 2 — do NOT load now):
   - references/shared/investigate-prompt.md
   - references/shared/troubleshooting-methodology.md
   - <product references from the mapping table that match Products / features>
-  - <each file enumerated from _data/snapshot/<cloud>/ recursively>
+  - <each file enumerated from _data/snapshot/<cloud>/ — see Snapshot enumeration>
 ```
+
+#### CLARIFICATIONS NEEDED — always populate
+
+This block is **never empty**. Even when the framing seems fully specified, you have made assumptions worth confirming. List at least one assumption-confirmation question framed as: *"I assumed `<X>` — confirm or correct?"* Examples:
+
+- *"I assumed the tenant is on zs3 based on the API base URL — confirm?"*
+- *"I assumed this affects only one user (the one named in the framing) — confirm scope?"*
+- *"I assumed 'reachability' means TCP-level reachability rather than DNS resolution — confirm?"*
+
+Surfacing assumptions here lets the user catch wrong assumptions before they propagate into hypotheses. If you genuinely cannot identify any assumption, say so explicitly: *"No assumptions identified beyond what the framing states verbatim — please confirm framing is complete."*
 
 #### Snapshot enumeration (when tenant cloud is specified)
 
-You must enumerate `_data/snapshot/<cloud>/` **recursively** and add each individual file path to PROPOSED LOADS — not the directory path itself.
+You must run a **recursive** listing of `_data/snapshot/<cloud>/` and **paste the actual command output** into PROPOSED LOADS. Do NOT report empty without showing the command result.
 
-- Use a **recursive** listing: `find _data/snapshot/<cloud>/ -type f`, `ls -R _data/snapshot/<cloud>/`, or your file-list tool's recursive option. A non-recursive `ls` only shows top-level subdirectories (`zia/`, `zpa/`, etc.) and misses the actual files inside them.
-- The directory typically has nested per-product subdirs (`zia/`, `zpa/`, `zdx/`). Descend into every one.
-- Add **each individual file path**, one per line. Do NOT abbreviate as a directory.
-- If `_data/snapshot/<cloud>/` doesn't exist or is empty, also check the fork-specific layout `_data/<cloud>/`. If both are empty, list `_data/snapshot/ — empty` so the user knows the snapshot is missing rather than that you skipped it.
+Required: run one of these and capture output verbatim:
 
-Example for `cloud = zs3`:
+- `find _data/snapshot/<cloud>/ -type f` (preferred — flat list of files only)
+- `ls -R _data/snapshot/<cloud>/`
+- your file-list tool's recursive option
+
+Format your output as:
 
 ```
+Snapshot enumeration (find _data/snapshot/zs3/ -type f):
   - _data/snapshot/zs3/zia/url-filtering-rules.json
   - _data/snapshot/zs3/zia/access-policies.json
   - _data/snapshot/zs3/zpa/connector-groups.json
   - _data/snapshot/zs3/zpa/segments.json
 ```
+
+If the command genuinely returns no files, output the empty result explicitly:
+
+```
+Snapshot enumeration (find _data/snapshot/zs3/ -type f): no files returned.
+Also tried: find _data/zs3/ -type f → no files returned.
+```
+
+This makes the difference between "I checked and it's empty" and "I didn't check and assumed empty" visible to the user.
+
+- The directory typically has nested per-product subdirs (`zia/`, `zpa/`, `zdx/`). The recursive command finds all nested files automatically; a non-recursive `ls` only shows the top-level subdir names and is **wrong** for this purpose.
+- Add each file in the find output to PROPOSED LOADS individually — not the directory path.
+- If `_data/snapshot/<cloud>/` returns nothing, also try the fork-specific layout `_data/<cloud>/` (some forks omit the `snapshot/` prefix). Show both attempts in your output if both are empty.
 
 #### Framing → file mapping
 
@@ -108,18 +134,14 @@ Multiple rows may match a single framing — **add every matching row** to PROPO
 
 #### 🛑 Checkpoint 1 — Awaiting user confirmation
 
-After printing the PARSED FRAMING block, end your response with **literally** this menu:
+After printing the PARSED FRAMING block, end your response with **literally** this section:
 
-```
-─────────────────────────────────────────────────────────
-  ✋ CHECKPOINT 1 — Awaiting your input. Reply with one of:
-
-    go / yes / proceed   →  Step 2 loads the proposed files
-    correct: <field>     →  I'll revise PARSED FRAMING + PROPOSED LOADS
-    add: <path or note>  →  I'll fold the addition into PROPOSED LOADS
-    clarify: <question>  →  I'll respond before continuing
-─────────────────────────────────────────────────────────
-```
+> **✋ Checkpoint 1 — awaiting your input.** Reply with one of:
+>
+> - `go` (or `yes` / `proceed`) — load the proposed files and continue to Step 2
+> - `correct: <field>` — I'll revise PARSED FRAMING + PROPOSED LOADS
+> - `add: <path or note>` — I'll fold the addition into PROPOSED LOADS
+> - `clarify: <question>` — I'll answer before continuing
 
 **Do not load any files. Do not generate hypotheses. Do not output a journal. Do not run Step 2.** Wait for the user to reply. If they reply with a correction or addition, redo Step 1 with the change and re-prompt.
 
@@ -148,18 +170,14 @@ If any load fails (file not found, permission denied, parse error), mark it with
 
 #### 🛑 Checkpoint 2 — Awaiting user confirmation
 
-End your response with **literally** this menu:
+End your response with **literally** this section:
 
-```
-─────────────────────────────────────────────────────────
-  ✋ CHECKPOINT 2 — Awaiting your input. Reply with one of:
-
-    go / yes / proceed   →  Step 3 generates the discovery journal
-    add: <path>          →  I'll load the additional file before journal
-    redirect: <focus>    →  I'll bias the journal toward what you specify
-    skip: <path>         →  I'll exclude it from the journal's evidence
-─────────────────────────────────────────────────────────
-```
+> **✋ Checkpoint 2 — awaiting your input.** Reply with one of:
+>
+> - `go` (or `yes` / `proceed`) — generate the discovery journal in Step 3
+> - `add: <path>` — I'll load the additional file before generating the journal
+> - `redirect: <focus>` — I'll bias the journal toward what you specify
+> - `skip: <path>` — I'll exclude it from the journal's evidence
 
 **Do not output a journal. Do not generate hypotheses. Do not run Step 3.** Wait for explicit user reply.
 
