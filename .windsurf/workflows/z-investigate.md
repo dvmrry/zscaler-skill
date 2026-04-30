@@ -51,12 +51,14 @@ Before continuing to Step 2, mentally answer:
 
 ### 2B. Product / feature references (load every row whose framing matches what you identified in Step 1)
 
+**Multiple rows may match a single framing. Load every matching row — not just the first one.** A framing that mentions both "App Connector" and "segment" must load BOTH the connector reference AND the segment reference. Stopping after one match is a procedure violation.
+
 | If the framing mentions... | Use your file-read tool to load |
 |---|---|
 | SIPA, Source IP Anchoring | `references/shared/source-ip-anchoring.md` |
-| App Connector, connector health, connector flap, connector status, connector assignment | `references/zpa/app-connector.md` |
-| App Connector Metrics, AliveTargetCount, TargetCount | `references/zpa/logs/app-connector-metrics.md` |
-| ZPA segment, app segment, application segment, segment scope | `references/zpa/app-segments.md` |
+| App Connector, connector health, connector flap, connector status, connector assignment, health check, health checks, health probe, reachability probe, target reachability, eligibility filter, connector selection | `references/zpa/app-connector.md` |
+| App Connector Metrics, AliveTargetCount, TargetCount, health reporting cadence, ON_ACCESS, CONTINUOUS | `references/zpa/logs/app-connector-metrics.md` |
+| ZPA segment, app segment, application segment, segment scope, `health_reporting` setting | `references/zpa/app-segments.md` |
 | ZPA policy, access policy, policy precedence, policy evaluation | `references/zpa/policy-precedence.md` |
 | Server group | `references/zpa/segment-server-groups.md` |
 | ZIA URL filtering, URL category, allow rule, block rule | `references/zia/url-filtering.md` |
