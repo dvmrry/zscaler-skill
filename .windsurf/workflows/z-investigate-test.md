@@ -6,9 +6,24 @@ description: "[A/B TEST VARIANT] Experimental copy of /z-investigate for iterati
 
 ## Procedure model
 
-This workflow has three sequential steps. **Each step's input is the prior step's confirmed output.** You cannot run a step without the prior step's output AND explicit user confirmation. At each checkpoint, halt and wait for the user to confirm — do not assume confirmation, do not improvise past a checkpoint, do not run a step without the input it depends on.
+This workflow has three sequential steps. **Each step's input is the prior step's confirmed output.** You cannot run a step without the prior step's output AND explicit user confirmation. At each checkpoint, halt and wait for the user — do not assume confirmation, do not improvise past a checkpoint, do not run a step without the input it depends on.
 
-If the prior step's output is missing or incomplete, do not start the next step — output "Prior step not confirmed" and ask the user what to do.
+If the prior step's output is missing or incomplete, do not start the next step — output `Prior step not confirmed` and ask the user what to do.
+
+---
+
+## Interaction posture
+
+User pushback during this workflow is **content, not emotion.** When the user says "no", "that's wrong", "you missed X", "don't do Y", or pushes back on a load / claim / hypothesis — treat it as debug feedback about the procedure, not as a signal of frustration with you.
+
+- ❌ Do **not** apologize, soften, or frame your next response around "I see you're frustrated".
+- ❌ Do **not** abandon prior reasoning unless the user has supplied evidence that changes it.
+- ❌ Do **not** spiral into over-cautious / over-correcting / over-apologetic responses.
+- ❌ Do **not** infer the user's emotional state at all — that interpretation is out of scope.
+- ✅ **Do** acknowledge the specific point in one line, update the affected claim or load, and continue.
+- ✅ **Do** hold a position when you have evidence; if the user disagrees, ask what evidence updates it.
+
+Pushback is part of investigation. The user is debugging the procedure with you — corrections are how the work gets done, not a problem you need to manage.
 
 ---
 
@@ -22,49 +37,58 @@ These are load-bearing facts that survive whether or not the corresponding refer
 
 ---
 
-## Step 1 — Parse framing (input: user's chat message)
+## 📋 Step 1 — Parse framing
 
-Read the user's framing from the chat. **Output** this block, filling in the bracketed fields. Do not load any files in this step.
+> **Input:** the user's framing in chat (next message)
+> **Output:** a `PARSED FRAMING` block (template below)
+> **Halts at:** Checkpoint 1
+> **Side effects:** none — no file loads in this step
+
+Read the framing. Compose the output block by filling in the bracketed fields. Use the **Framing → file mapping** to populate `PROPOSED LOADS`. Use the **Snapshot enumeration** procedure to list per-cloud config files individually.
+
+#### Output template
 
 ```
 PARSED FRAMING:
-- Symptom: <what's failing>
-- Tenant cloud: <zs1/zs2/zs3 or "not specified">
-- Products / features mentioned: <comma-separated, or "none">
-- Scope: <one user / many / all / unclear>
-- Recency: <when first observed, or "not specified">
+  Symptom:                <what's failing>
+  Tenant cloud:           <zs1/zs2/zs3 or "not specified">
+  Products / features:    <comma-separated, or "none">
+  Scope:                  <one user / many / all / unclear>
+  Recency:                <when first observed, or "not specified">
 
 CLARIFICATIONS NEEDED:
-- <one targeted question, if framing is below minimum; otherwise "none">
+  - <one targeted question if framing is below minimum; otherwise "none">
 
 PROPOSED LOADS (will load in Step 2 — do NOT load now):
-- references/shared/investigate-prompt.md
-- references/shared/troubleshooting-methodology.md
-- <product references from the mapping table below that match Products / features>
-- <every file enumerated under _data/snapshot/<cloud>/ — see "Snapshot enumeration" below for how to list them>
+  - references/shared/investigate-prompt.md
+  - references/shared/troubleshooting-methodology.md
+  - <product references from the mapping table that match Products / features>
+  - <each file enumerated from _data/snapshot/<cloud>/ recursively>
 ```
 
-### Snapshot enumeration (if tenant cloud is specified)
+#### Snapshot enumeration (when tenant cloud is specified)
 
-When the framing names a tenant cloud (zs1 / zs2 / zs3 / etc.), you must enumerate `_data/snapshot/<cloud>/` **recursively** and add each individual file path to PROPOSED LOADS — not the directory path itself.
+You must enumerate `_data/snapshot/<cloud>/` **recursively** and add each individual file path to PROPOSED LOADS — not the directory path itself.
 
-- Use a **recursive** listing: `find _data/snapshot/<cloud>/ -type f`, or `ls -R _data/snapshot/<cloud>/`, or your file-list tool's recursive option. A non-recursive `ls` will only show top-level subdirectories (e.g., `zia/`, `zpa/`) and miss the actual files inside them.
-- The directory typically has nested per-product subdirs (`zia/`, `zpa/`, `zdx/`, etc.). Descend into every one.
-- Add **each individual file path** to PROPOSED LOADS, one per line. Do NOT abbreviate as a directory.
-- If `_data/snapshot/<cloud>/` doesn't exist or is empty, also try the fork-specific layout `_data/<cloud>/` (some forks omit the `snapshot/` prefix). If both are empty, list `_data/snapshot/ — empty` in PROPOSED LOADS so the user knows the snapshot is missing rather than that you skipped it.
+- Use a **recursive** listing: `find _data/snapshot/<cloud>/ -type f`, `ls -R _data/snapshot/<cloud>/`, or your file-list tool's recursive option. A non-recursive `ls` only shows top-level subdirectories (`zia/`, `zpa/`, etc.) and misses the actual files inside them.
+- The directory typically has nested per-product subdirs (`zia/`, `zpa/`, `zdx/`). Descend into every one.
+- Add **each individual file path**, one per line. Do NOT abbreviate as a directory.
+- If `_data/snapshot/<cloud>/` doesn't exist or is empty, also check the fork-specific layout `_data/<cloud>/`. If both are empty, list `_data/snapshot/ — empty` so the user knows the snapshot is missing rather than that you skipped it.
 
-Example PROPOSED LOADS additions (snapshot section) when cloud = zs3:
+Example for `cloud = zs3`:
 
 ```
-- _data/snapshot/zs3/zia/url-filtering-rules.json
-- _data/snapshot/zs3/zia/access-policies.json
-- _data/snapshot/zs3/zpa/connector-groups.json
-- _data/snapshot/zs3/zpa/segments.json
+  - _data/snapshot/zs3/zia/url-filtering-rules.json
+  - _data/snapshot/zs3/zia/access-policies.json
+  - _data/snapshot/zs3/zpa/connector-groups.json
+  - _data/snapshot/zs3/zpa/segments.json
 ```
 
-### Framing → file mapping (use this to compose PROPOSED LOADS)
+#### Framing → file mapping
 
-| If the framing mentions... | Add to PROPOSED LOADS |
+Multiple rows may match a single framing — **add every matching row** to PROPOSED LOADS, not just the first.
+
+| If the framing mentions… | Add to PROPOSED LOADS |
 |---|---|
 | SIPA, Source IP Anchoring | `references/shared/source-ip-anchoring.md` |
 | App Connector, connector health, connector flap, connector status, connector assignment, health check, health probe, target reachability, eligibility filter, connector selection | `references/zpa/app-connector.md` |
@@ -80,53 +104,75 @@ Example PROPOSED LOADS additions (snapshot section) when cloud = zs3:
 | Cloud Connector, Branch Connector | `references/cloud-connector/index.md` |
 | ZDX probe, deeptrace, Cloud Path | `references/zdx/index.md` |
 | ZIdentity, OneAPI, Authentication Level, step-up auth | `references/zidentity/index.md` |
-| LSS / NSS log fields, log schema | the matching schema under `references/{zia,zpa,zcc}/logs/` |
+| LSS / NSS log fields, log schema | matching schema under `references/{zia,zpa,zcc}/logs/` |
 
-Multiple rows may match a single framing. Add every matching row.
+#### 🛑 Checkpoint 1 — Awaiting user confirmation
 
-### 🛑 Checkpoint 1 — halt and wait
-
-After printing the PARSED FRAMING / CLARIFICATIONS / PROPOSED LOADS block, end your response with literally this line:
+After printing the PARSED FRAMING block, end your response with **literally** this menu:
 
 ```
-Awaiting confirmation. Reply "go" to load the proposed files, or correct any field above and I'll revise.
+─────────────────────────────────────────────────────────
+  ✋ CHECKPOINT 1 — Awaiting your input. Reply with one of:
+
+    go / yes / proceed   →  Step 2 loads the proposed files
+    correct: <field>     →  I'll revise PARSED FRAMING + PROPOSED LOADS
+    add: <path or note>  →  I'll fold the addition into PROPOSED LOADS
+    clarify: <question>  →  I'll respond before continuing
+─────────────────────────────────────────────────────────
 ```
 
-**Do not load any files. Do not generate hypotheses. Do not output a journal. Do not run Step 2.** Wait for the user to reply with one of: `go`, `yes`, `proceed`, `confirm`. If the user replies with corrections instead, re-do Step 1 incorporating them and ask for confirmation again.
+**Do not load any files. Do not generate hypotheses. Do not output a journal. Do not run Step 2.** Wait for the user to reply. If they reply with a correction or addition, redo Step 1 with the change and re-prompt.
 
 ---
 
-## Step 2 — Load files (input: user-confirmed PROPOSED LOADS from Step 1)
+## 📂 Step 2 — Load files
 
-**Precondition:** Step 1's PROPOSED LOADS block was produced AND the user replied with explicit confirmation. If either is missing, halt with "Prior step not confirmed — cannot proceed to Step 2" and re-run Step 1.
+> **Input:** user-confirmed `PROPOSED LOADS` from Step 1
+> **Output:** a `LOADED` block listing every file actually read
+> **Halts at:** Checkpoint 2
+> **Side effects:** invokes the file-read tool once per path in PROPOSED LOADS
 
-For each file in the confirmed PROPOSED LOADS list, use your file-read tool to load it. After all loads complete, output:
+**Precondition:** Step 1's `PROPOSED LOADS` block was produced AND the user replied with explicit confirmation. If either is missing, halt with `Prior step not confirmed — cannot proceed to Step 2` and re-run Step 1.
+
+For each file in the confirmed PROPOSED LOADS, **use your file-read tool** to load it. After all loads complete, output:
 
 ```
 LOADED:
-- <path 1>
-- <path 2>
-- ...
+  ✓ <path 1>
+  ✓ <path 2>
+  ✗ <path 3>  (FAILED: <reason>)
+  ...
 ```
 
-If any load fails (file not found, permission denied), include it in the LOADED list with a `(FAILED: <reason>)` suffix and continue with the rest.
+If any load fails (file not found, permission denied, parse error), mark it with `✗` and the reason; continue with the remaining loads. Do NOT skip a file silently.
 
-### 🛑 Checkpoint 2 — halt and wait
+#### 🛑 Checkpoint 2 — Awaiting user confirmation
 
-End your response with literally this line:
+End your response with **literally** this menu:
 
 ```
-All files loaded. Reply "go" to proceed to the discovery journal, or tell me what to load next / differently.
+─────────────────────────────────────────────────────────
+  ✋ CHECKPOINT 2 — Awaiting your input. Reply with one of:
+
+    go / yes / proceed   →  Step 3 generates the discovery journal
+    add: <path>          →  I'll load the additional file before journal
+    redirect: <focus>    →  I'll bias the journal toward what you specify
+    skip: <path>         →  I'll exclude it from the journal's evidence
+─────────────────────────────────────────────────────────
 ```
 
-**Do not output a journal. Do not generate hypotheses. Do not run Step 3.** Wait for the user to reply with explicit confirmation.
+**Do not output a journal. Do not generate hypotheses. Do not run Step 3.** Wait for explicit user reply.
 
 ---
 
-## Step 3 — Output discovery journal (input: confirmed LOADED content from Step 2)
+## 📓 Step 3 — Generate discovery journal
 
-**Precondition:** Step 2's LOADED list was produced AND the user replied with explicit confirmation. If either is missing, halt with "Prior step not confirmed — cannot proceed to Step 3."
+> **Input:** user-confirmed `LOADED` block from Step 2 + the actual file content read in Step 2
+> **Output:** a discovery journal table per the playbook
+> **Halts at:** end of first response (further turns continue investigation)
 
-Now follow the playbook's First Response procedure (you loaded `references/shared/investigate-prompt.md` in Step 2). Generate the discovery journal table per its format. Every claim must cite a source from the LOADED list.
+**Precondition:** Step 2's `LOADED` block was produced AND the user replied with explicit confirmation. If either is missing, halt with `Prior step not confirmed — cannot proceed to Step 3` and re-run the missing step.
 
-The first response is a plan, not a diagnosis. Do not investigate yet.
+Now follow the **First Response procedure in `references/shared/investigate-prompt.md`** (loaded in Step 2). Generate the discovery journal table per its format. Every claim must cite a source from the `LOADED` block.
+
+**The first response is a plan, not a diagnosis.** Do not investigate yet — establish the hypothesis space and named evidence sources first. Subsequent turns continue the investigation.
