@@ -182,29 +182,32 @@ ZPA is deny-by-default — there is no "default-allow shadow." The hypothesis sp
 ```
 Product defaults and architectural assumptions (deny-by-default vs. allow-by-default, per-app vs. per-segment, IdP-claim vs. SCIM-claim) shape which hypotheses are even plausible. A hypothesis built on the wrong product mental model wastes the whole investigation.
 
-### ❌ Investigating from scratch when prior evidence already exists
+### ❌ Reasoning from scratch when the user already placed evidence in the operative directory
 
 ```
-User: "ZPA connectors keep flapping in us-east-1."
+User: "/z-investigate connector flap in _data/incidents/test-flap/"
 Agent: "Let me hypothesize causes and propose investigation steps..."
-(no check of _data/incidents/, no check for an evidence/ folder
-the user may have already populated, no glance at _data/snapshot/)
+(no read of _data/incidents/test-flap/evidence/, no check of
+_data/snapshot/<cloud>/ for the relevant tenant config dump,
+no read of an existing journal.md the user may already have
+seeded in that directory)
 ```
 Better:
 ```
-Agent first: ls _data/incidents/ → finds 2026-03-12-us-east-1-connector-flap/
-Reads journal.md → prior investigation ruled out network blocking
-and confirmed VM-cloning fingerprint collision as root cause.
-Reads evidence/ → contains the LSS query that surfaced the pattern.
+Agent first reads:
+  _data/incidents/test-flap/evidence/  — finds connector-status.json
+  _data/incidents/test-flap/journal.md — finds existing claims
+                                         (or none, if fresh)
+  _data/snapshot/<cloud>/                — finds connector-groups.json
 
-Hypothesis 1 (carried forward from prior journal, status Stale):
-  VM-cloning fingerprint collision.
-  Source: _data/incidents/2026-03-12-us-east-1-connector-flap/journal.md
-  claim 4. Re-verify against current AppConnectorMetrics.
+Hypothesis 1: Connector group reachability
+  Source: _data/snapshot/<cloud>/connector-groups.json line 47 —
+          group's last-seen timestamp is 14h old.
+  Status: Confirmed (medium)
 
-Hypothesis 2 (new): ...
+Hypothesis 2: ...
 ```
-Reusing prior work isn't optional. Stale evidence is still evidence — it tells you which hypotheses were already explored and how. Never silently re-investigate a `Ruled out` claim from a prior journal without explaining why the prior reasoning no longer applies. Cite the prior file path in the source field of any reused claim.
+The operative directory is wherever the user pointed `/z-investigate`. Read its `evidence/` and `journal.md` first; the user may have already provided the answer or seeded prior claims that are the starting state of the investigation. Then read tenant config from `_data/snapshot/<cloud>/`. Do not browse sibling incident directories — that's a separate discipline that isn't refined enough yet.
 
 ### ❌ Carrying user framing claims unverified into hypotheses
 

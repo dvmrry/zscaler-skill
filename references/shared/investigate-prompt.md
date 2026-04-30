@@ -71,14 +71,14 @@ Four checks before generating hypotheses. Skipping any of these produces output 
 
 **c. Verify framing claims against evidence.** Treat causal claims in the framing — "connector is degraded", "rule fired but allowed traffic", "segment matched", "SAML attribute X is missing" — as `Open (uncertain)` until verified, not as background facts. Before any framing claim becomes load-bearing in a hypothesis, identify the evidence that would confirm it and check. Users describe symptoms accurately but mis-attribute causes; carrying the user's mis-attribution into your hypotheses produces a confident wrong answer. If verification isn't possible in the current execution mode, the claim stays `Open (uncertain)` and the journal records what evidence would resolve it.
 
-**d. Check existing evidence and prior investigations.** Before generating hypotheses from scratch, scan what's already on disk:
+**d. Check existing evidence the user has placed on disk.** Before generating hypotheses from scratch, read the inputs the user has already set up:
 
-- **Prior journals** — `ls _data/incidents/` and read any `journal.md` whose slug overlaps the current framing. A prior investigation may have already ruled out hypotheses you'd otherwise re-test, confirmed a root cause that still applies, or captured a useful evidence pattern. Reuse — don't re-derive. Cite the prior journal path in the source field of any reused claim.
-- **Current incident's `evidence/` directory** — if `_data/incidents/<current-slug>/evidence/` already exists and has files, read them before asking the user what to investigate. The user may have placed CI logs, API dumps, or screenshots there that already carry the answer. The same applies to evidence files attached to the current chat (paste-ins, file uploads).
-- **Tenant snapshot** — `_data/snapshot/<cloud>/` holds offline tenant config dumps when populated. Reading the snapshot is far cheaper than re-querying the API and avoids "current state vs. state at time of incident" drift.
+- **User-pointed path takes priority.** If the framing contains a path or slug (e.g., `_data/incidents/test-foo/`, `2026-04-30-ci-silent-failures`), that directory is the operative artifact — read its `journal.md` (if any) and `evidence/*` first. The user is telling you where the work lives; respect the pointer instead of creating a sibling. This directory is also the save target for Step 6.
+- **Current incident's `evidence/` directory** — if `_data/incidents/<operative-slug>/evidence/` exists and has files, read them before asking the user what to investigate. The user may have placed CI logs, API dumps, or screenshots there that already carry the answer. The same applies to evidence files attached to the current chat (paste-ins, file uploads).
+- **Tenant API data / config snapshots** — `_data/snapshot/<cloud>/` (e.g., `_data/snapshot/zs2/`, `_data/snapshot/zs3/`) is the canonical location for offline dumps of API-derived tenant config: URL filtering rules, access policies, segments, connector groups. **Always `ls _data/snapshot/` and read any per-cloud subdir whose cloud matches the framing's tenant** — this is the cheapest source of "what's actually configured" and avoids the state drift between API query time and now. The cloud is inferable from the tenant's API base URL (`zsapi.zscaler.net` ⇒ `zs1`, `zsapi.zscalerthree.net` ⇒ `zs3`, etc. — see [`../shared/cloud-architecture.md`](../shared/cloud-architecture.md) if unfamiliar). Forks may use a slightly different layout (e.g., `_data/<cloud>/` directly without the `snapshot/` prefix); if the canonical path is empty, scan `_data/` for any per-cloud subdir before assuming no snapshot exists.
 - **Script logs** — `_data/logs/` holds dumped output from kit scripts (issue-watch, find-asymmetries, hygiene digests). Relevant if the framing involves a recent kit-script run.
 
-**Stale evidence is still evidence.** A prior `Resolved` finding from a journal six months old isn't automatically valid today, but it tells you which hypotheses were already explored and what evidence shape resolved them. Promote prior findings to `Confirmed (medium)` only if the current evidence still supports them; otherwise mark them `Stale` and re-verify. Never silently re-investigate a hypothesis that a prior journal documented as `Ruled out` without explaining why the prior reasoning no longer applies.
+**Do not browse sibling incident directories.** Unless the user explicitly points at a specific incident directory, do not `ls _data/incidents/`, do not read any other incident's `journal.md`, and do not surface "this looks similar to a prior incident" to the user. Cross-pollinating findings between investigations contaminates evidence and produces false confidence; the discipline for safely re-using prior journals isn't refined enough yet. Stay scoped to the operative directory the user named (or a fresh slug if none was named).
 
 ### 3. Generate initial hypotheses
 
@@ -99,12 +99,19 @@ Render the discovery journal with hypotheses as `Open (likely)` or `Open (uncert
 
 ### 6. Save the journal to disk
 
-After rendering in chat, write the same journal to `_data/incidents/<YYYY-MM-DD>-<slug>/journal.md`. **This save is unconditional** — every `/z-investigate` invocation persists its journal, regardless of whether the investigation later turns out to be an incident or stays exploratory. Subsequent turns update the same file in place.
+After rendering in chat, write the same journal to `_data/incidents/<slug>/journal.md`. **This save is unconditional** — every `/z-investigate` invocation persists its journal, regardless of whether the investigation later turns out to be an incident or stays exploratory. Subsequent turns update the same file in place.
 
-- **Slug**: short kebab-case descriptor of what's failing — recognizable from a directory listing six months later. Examples: `ssh-azure-port-22`, `salesforce-sso-loop`, `connector-group-us-east-1-disconnected`.
-- **Date**: today's date in UTC, ISO format (`YYYY-MM-DD`).
-- **Path**: `_data/incidents/<YYYY-MM-DD>-<slug>/journal.md` — create the directory if it doesn't exist.
-- **Privacy**: `_data/incidents/*` is gitignored by default, so the journal stays local-only unless the engineer explicitly opts in to publish it.
+**Path selection — check before minting a new slug:**
+
+1. **User named a path or slug in the framing** → use that directory. If the framing contains a path like `_data/incidents/test-foo/` or `2026-04-30-ci-silent-failures`, treat it as the operative directory. Do not create a sibling with a fresh slug — the user is pointing you at the artifact they want updated.
+2. **The directory already exists with a `journal.md`** → this is a continuation, not a new investigation. Read the existing journal, treat its claims as the starting state, and update in place. Don't overwrite — preserve prior claim history (use `Stale` / `Ruled out` to retire entries, not deletion).
+3. **No path given and no obvious match in `_data/incidents/`** (Step 2d's scan should have flagged any match) → mint a new slug: `<YYYY-MM-DD>-<short-kebab-descriptor>`. Date is today in UTC; slug is recognizable from a directory listing six months later. Examples: `ssh-azure-port-22`, `salesforce-sso-loop`, `connector-group-us-east-1-disconnected`. Create the directory.
+
+**Path conventions:**
+
+- The journal lives at `_data/incidents/<slug>/journal.md`.
+- `_data/incidents/*` is gitignored by default, so the journal stays local-only unless the engineer explicitly opts in to publish it.
+- If the user's named path doesn't start with `_data/incidents/` (e.g., they pointed at a path elsewhere in the tree), respect their pointer but flag the deviation in your reply — they may have a reason (a fork's internal convention) or it may be a typo worth confirming.
 
 `_data/incidents/` is the kit's umbrella home for any saved `/z-investigate` artifact — the name reflects that incidents are the most common shape, not that every saved investigation must be one. If the investigation turns out to be incident-shaped (production break, regression, hygiene failure), the same directory becomes the home for `timeline.md` + `postmortem.md` + `evidence/` per § "Saving as an incident artifact." If it stays exploratory, only `journal.md` exists in the directory — that's fine.
 
