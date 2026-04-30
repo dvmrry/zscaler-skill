@@ -133,10 +133,36 @@ From *Understanding the Private Access Architecture* (captured earlier, see [`..
 
 App Connectors surface health metrics that the ZPA admin console displays and that streaming log fields (per `Understanding_App_Connector_Metrics_Log_Fields.pdf`) carry. Relevant:
 
-- **`CONNECTED` / `DISCONNECTED` / other runtime statuses** — visible per connector.
+- **`CONNECTED` / `DISCONNECTED` / other runtime statuses** — visible per connector. The connector reports status via its M-Tunnel control channel to a Public/Private Service Edge; loss of that channel is what flips the status.
+- **Active connections to Service Edges** — `ActiveConnectionsToPublicSE` / `ActiveConnectionsToPrivateSE` in App Connector Metrics indicate how many M-Tunnels the connector currently holds open to ZPA infrastructure. Zero active connections to either ⇒ connector is effectively offline regardless of VM uptime.
+- **Per-segment target reachability** — driven by the segment's `health_reporting` setting (`NONE` / `ON_ACCESS` / `CONTINUOUS`). Surfaced in App Connector Metrics as `TargetCount` (configured) vs `AliveTargetCount` (currently reachable from this connector's network position). `AliveTargetCount < TargetCount` means some configured targets are not reachable from this connector right now.
 - **Current software version vs target version** — version-lag indicator.
 - **Certificate expiry** — cert validity window. Connectors don't auto-rotate certs; if a cert approaches expiry, re-enrollment is required.
 - **VM-cloning fingerprint issue** — when a VM template is used to deploy multiple App Connectors without unique re-enrollment, all clones share a hardware fingerprint. ZPA detects the collision and disables all but one. The remedy is re-enrollment with unique fingerprints per clone. `scripts/connector-health.py` surfaces this pattern as a suspected cause when `last_upgrade_time` is significantly older than the group's peers.
+
+### How sessions are assigned to App Connectors
+
+Connector **health and target reachability gate eligibility** for session assignment. ZPA's connector-selection step happens in two phases — eligibility filtering, then latency-based selection — and the metrics surfaced above are the inputs to the eligibility phase.
+
+**Phase 1 — eligibility filter (a connector must pass all of these to be a candidate):**
+
+1. Connector is a member of an App Connector Group that's associated with the Server Group referenced by the matching Application Segment. (Configuration-time linkage; see [`./app-segments.md § Mechanics`](./app-segments.md).)
+2. Connector reports `CONNECTED` to a Service Edge — i.e., has an active M-Tunnel control channel.
+3. Connector's recent reachability probe shows the target is alive. The probe cadence depends on the segment's `health_reporting`: `NONE` = probe only at access time; `ON_ACCESS` = probe at access, cache result; `CONTINUOUS` = probe on a regular cadence regardless of access. The `AliveTargetCount` field in App Connector Metrics is the LSS-visible output of this probing.
+
+**Phase 2 — selection from surviving candidates**: ZPA picks by app-to-connector latency from continuous Zscaler-side measurements (not static geography). A geographically distant but low-latency connector can be preferred over a closer high-latency one. If `select_connector_close_to_app = false` is set on a Server Group, selection is round-robin instead of latency-based.
+
+**Operational consequence**: a sick connector or a connector that currently cannot reach the target is **filtered out before assignment** — a session never tries to use a known-bad connector and fail at the app-server hop. The failure modes split cleanly:
+
+| Symptom | What happened | Where to look |
+|---|---|---|
+| LSS `ConnectionStatus = Close`, **no `Connector` populated**, no policy block in `Policy` | Eligibility filter rejected every candidate — no connector was assigned | All connectors `DISCONNECTED`? Server Group → App Connector Group association missing or pointing at the wrong group? `health_reporting` set to `NONE` for a segment whose targets are intermittently reachable? `AliveTargetCount = 0` across the group? |
+| LSS `ConnectionStatus = Close`, `Connector` populated, high `ConnectionSetupTime`, connector-side `InternalReason` | Eligible at assignment, target failed during the connection attempt (race with a state change, transient network gap, app-server flap) | App Connector logs for that target; `AliveTargetCount` over time |
+| LSS `ConnectionStatus = Open` / `Active` but elevated `ConnectionSetupTime` / `ServerSetupTime` | Eligible and assigned, just slow | Latency between connector and app; `select_connector_close_to_app` setting; whether closer connectors should be added to the group |
+
+**Common weak-model mistake**: hypothesizing "the assigned connector tried to reach the app and failed" without first checking whether a connector was assigned at all. If the `Connector` field is empty, no connector was assigned — meaning eligibility filtering rejected every candidate, and the fix is on the eligibility side (group association, connector status, target reachability, `health_reporting` configuration), not the connector-to-app hop.
+
+**Confidence note**: the inputs to eligibility (`CONNECTED` status, target reachability, group association) are documented; the exact internal ordering of the filter and the algorithm Zscaler uses to combine inputs are not publicly published. Treat the two-phase model as the operational principle, not as a verbatim algorithm.
 
 ### API surface
 

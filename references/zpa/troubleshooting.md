@@ -128,11 +128,18 @@ Every ZPA access request traverses the following path. Failures can occur at eac
 User device (ZCC)
   └─ [Z-Tunnel / Microtunnel → ZPA Public or Private Service Edge]
        └─ [Central Authority: policy evaluation — Access Policy, Timeout Policy]
-            └─ [App Connector Group selection → App Connector]
-                 └─ [TCP/TLS connection → Application Server]
+            └─ [App Connector Group selection]
+                 ├─ Phase 1: eligibility filter (CONNECTED status,
+                 │           target reachability via AliveTargetCount,
+                 │           Server Group → Connector Group association)
+                 └─ Phase 2: latency-based selection from survivors
+                      └─ [Selected App Connector]
+                           └─ [TCP/TLS connection → Application Server]
 ```
 
 A failure or misconfiguration at any layer produces a distinct evidence pattern. The decision tree in section 1 maps symptoms to layers; section 4 provides step-by-step verification for each layer.
+
+**Eligibility-vs-selection distinction**: connector health and target reachability gate eligibility *before* a connector is ever picked. An LSS record with `ConnectionStatus = Close` and an **empty `Connector` field** means eligibility filtering rejected every candidate — no connector was assigned, so there's no connector-to-app hop to investigate. Hypotheses like "the assigned connector tried to reach the app and failed" don't apply to this evidence pattern; the fix is on the eligibility side. See [`./app-connector.md § How sessions are assigned to App Connectors`](./app-connector.md#how-sessions-are-assigned-to-app-connectors).
 
 ---
 

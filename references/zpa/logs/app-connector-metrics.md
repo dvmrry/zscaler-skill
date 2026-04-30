@@ -107,6 +107,8 @@ Note: `CPUUtilization` is the **maximum** over the past 5 minutes, not the avera
 
 `AliveTargetCount < TargetCount` is a health signal — some configured targets are unreachable from this connector's network position.
 
+This field is **also a session-assignment input**, not just a passive health metric. ZPA uses target-reachability state to filter connector eligibility *before* assigning a session — a connector whose `AliveTargetCount` doesn't include the requested target is not selected, even if it's `CONNECTED` and otherwise healthy. See [`../app-connector.md § How sessions are assigned to App Connectors`](../app-connector.md#how-sessions-are-assigned-to-app-connectors) for the two-phase eligibility-then-selection model.
+
 ### M-Tunnel connections to Service Edges
 
 | Field | Description | Format specifiers |
