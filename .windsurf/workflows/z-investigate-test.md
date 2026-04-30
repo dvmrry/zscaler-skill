@@ -59,7 +59,10 @@ PARSED FRAMING:
   Products / features:    <comma-separated, or "none">
   Scope:                  <one user / many / all / unclear>
   Recency:                <when first observed, or "not specified">
+  Working directory:      <absolute path of repo root, or "unknown — needs user confirmation">
 ```
+
+The `Working directory` field is the absolute path the workflow's relative paths (`references/...`, `_data/incidents/...`) resolve against. Infer from the workspace context if you can; if you cannot determine it confidently, set it to `unknown` — that triggers a required clarification (see below). Do **not** guess; do **not** assume `.` will resolve correctly at file-write time.
 
 #### Output: data block 2 (PROPOSED LOADS)
 
@@ -89,6 +92,8 @@ Even when the framing seems fully specified, you have made assumptions worth con
 - *"I assumed 'reachability' means TCP-level reachability rather than DNS resolution — confirm semantics?"*
 
 If you genuinely cannot identify any assumption, write: *"No assumptions identified beyond what the framing states verbatim — please confirm framing is complete."* Do not skip this section.
+
+**If `Working directory` is `unknown`** in the PARSED FRAMING block, you **must** include this exact clarification first: *"I cannot determine the absolute path of `_data/incidents/` from the current workspace context — please provide the absolute path of the repo root before I proceed. Without it I cannot save the journal in Step 3."* This is non-optional — the save step depends on this being resolved before it runs.
 
 #### Snapshot enumeration (when tenant cloud is specified)
 
@@ -211,7 +216,13 @@ Follow the **First Response procedure in `references/shared/investigate-prompt.m
 
 #### 3B — Save the journal to disk (always; do not ask permission)
 
-After generating the journal in chat, **immediately use your file-write tool** to save the same journal to `_data/incidents/<slug>/journal.md`. This save is unconditional — it is not a yes/no question for the user. Do NOT ask permission to write the file; do NOT defer the save to a later turn.
+After generating the journal in chat, **immediately use your file-write tool** to save the same journal to `<working-directory>/_data/incidents/<slug>/journal.md`. This save is unconditional — it is not a yes/no question for the user. Do NOT ask permission to write the file; do NOT defer the save to a later turn.
+
+**Precondition — working directory must be known.** Before invoking the file-write tool, verify the `Working directory` field from PARSED FRAMING is an absolute path (not `unknown`, not a relative path). If it is `unknown` or unresolved, **halt** with:
+
+> `Cannot save journal — working directory unknown. Reply with the absolute path of the repo root (e.g., /Users/<you>/src/gh/<org>/zscaler-skill) and I will retry the save.`
+
+Do NOT attempt the save against a relative path that may resolve nowhere; do NOT silently skip the save and continue. The save is part of Step 3 — without it, Step 3 is incomplete and Checkpoint 3 cannot fire.
 
 **Slug selection:**
 
@@ -219,7 +230,7 @@ After generating the journal in chat, **immediately use your file-write tool** t
 - If `_data/incidents/<some-existing-slug>/` already has a `journal.md` whose ISSUE matches this investigation, this is a continuation — update that file in place.
 - Otherwise mint a fresh slug: `<YYYY-MM-DD>-<short-kebab-descriptor>` (e.g., `2026-04-30-ssh-azure-port-22`). Create the directory.
 
-**Subsequent turns** update the same file in place — do not create a new file each turn.
+**Subsequent turns** update the same file in place — do not create a new file each turn. The working directory established at Step 1 carries forward; do not re-resolve it on subsequent turns.
 
 #### 🛑 Checkpoint 3 — Awaiting user direction (do not investigate further yet)
 
