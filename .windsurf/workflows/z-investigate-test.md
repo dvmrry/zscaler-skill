@@ -27,6 +27,19 @@ Pushback is part of investigation. The user is debugging the procedure with you 
 
 ---
 
+## Context budget — load tight, expand on demand
+
+Your context window is **~200k tokens**. The kit's references and tenant snapshots can easily exceed that if you load everything available. Discipline:
+
+- **Load the playbook + methodology + framing-matched product references** in Step 2A/2B (always).
+- **Load only the snapshot files relevant to the framing's products** in Step 2C — not every file the enumeration returns. Use the selection rules in Snapshot enumeration § Stage 2.
+- **Defer the rest to on-demand.** A hypothesis later in the investigation can `add:` a file at any Checkpoint. On-demand is cheaper than pre-loading "just in case."
+- **Snapshot files are usually larger than reference docs.** A single tenant policy dump can be multi-MB. Be selective.
+
+If you find yourself proposing ten or more files in PROPOSED LOADS, pause — you are likely over-loading. Trim to what matches the framing; the rest can be added on demand.
+
+---
+
 ## Critical constraints (apply during all steps, regardless of which references load)
 
 These are load-bearing facts that survive whether or not the corresponding reference file ends up in PROPOSED LOADS. Internalize them before any reasoning. **If you find yourself reasoning against any of these, stop — you are off-track.**
@@ -97,11 +110,13 @@ If you genuinely cannot identify any assumption, write: *"No assumptions identif
 
 #### Snapshot enumeration (when tenant cloud is specified)
 
-You must run a **recursive** listing of `_data/snapshot/<cloud>/` and **paste the actual command output** into PROPOSED LOADS. Do NOT report empty without showing the command result.
+Snapshot files can be large (multi-MB JSON each); loading everything blows the context budget. Use a **two-stage** approach:
 
-Required: run one of these and capture output verbatim:
+**Stage 1 — enumerate (no content load).** Run a recursive listing and paste the file paths verbatim. This costs ~one line per file, not the file content.
 
-- `find _data/snapshot/<cloud>/ -type f` (preferred — flat list of files only)
+Run one of:
+
+- `find _data/snapshot/<cloud>/ -type f` (preferred)
 - `ls -R _data/snapshot/<cloud>/`
 - your file-list tool's recursive option
 
@@ -111,22 +126,49 @@ Format your output as:
 Snapshot enumeration (find _data/snapshot/zs3/ -type f):
   - _data/snapshot/zs3/zia/url-filtering-rules.json
   - _data/snapshot/zs3/zia/access-policies.json
+  - _data/snapshot/zs3/zia/dlp-rules.json
   - _data/snapshot/zs3/zpa/connector-groups.json
   - _data/snapshot/zs3/zpa/segments.json
+  - _data/snapshot/zs3/zpa/policies.json
+  ... <every file the recursive listing returned>
 ```
 
-If the command genuinely returns no files, output the empty result explicitly:
+If the recursive listing genuinely returns no files, show both the canonical and fork-specific path attempts:
 
 ```
 Snapshot enumeration (find _data/snapshot/zs3/ -type f): no files returned.
 Also tried: find _data/zs3/ -type f → no files returned.
 ```
 
-This makes the difference between "I checked and it's empty" and "I didn't check and assumed empty" visible to the user.
+**Stage 2 — select relevant subset for PROPOSED LOADS.** From the enumerated file list, pick **only the files relevant to the framing's `Products / features`** — not the whole list. Loading every snapshot file is overzealous and blows the context budget.
 
-- The directory typically has nested per-product subdirs (`zia/`, `zpa/`, `zdx/`). The recursive command finds all nested files automatically; a non-recursive `ls` only shows the top-level subdir names and is **wrong** for this purpose.
-- Add each file in the find output to PROPOSED LOADS individually — not the directory path.
-- If `_data/snapshot/<cloud>/` returns nothing, also try the fork-specific layout `_data/<cloud>/` (some forks omit the `snapshot/` prefix). Show both attempts in your output if both are empty.
+Selection rules:
+
+| If `Products / features` includes... | Add to PROPOSED LOADS from snapshot |
+|---|---|
+| ZPA segment, app segment, SIPA | `<cloud>/zpa/application-segments.json` (or similarly named), `<cloud>/zpa/segments.json` |
+| Server group, connector group | `<cloud>/zpa/server-groups.json`, `<cloud>/zpa/connector-groups.json` (or `app-connector-groups.json`) |
+| App Connector, connector health | `<cloud>/zpa/app-connectors.json` (or `connectors.json`) |
+| ZPA policy, access policy | `<cloud>/zpa/policies.json` (or `access-policies.json`, `policy-rules.json`) |
+| ZIA URL filtering | `<cloud>/zia/url-filtering-rules.json`, `<cloud>/zia/url-categories.json` if present |
+| SSL inspection | `<cloud>/zia/ssl-inspection.json` (or similarly named) |
+| DLP | `<cloud>/zia/dlp-rules.json`, `<cloud>/zia/dlp-dictionaries.json` |
+| ZCC | `<cloud>/zcc/forwarding-profiles.json`, `<cloud>/zcc/app-profiles.json` |
+| Anything else / unsure | the file whose name most closely matches the product, or load nothing in this category and add it on-demand later |
+
+If a hypothesis later in the investigation needs a snapshot file you didn't select up-front, **load it then** — `add: <path>` at any Checkpoint will fold the missing file in. On-demand loading keeps the initial context budget tight.
+
+**Output format in PROPOSED LOADS:** include only the selected subset, not the full enumeration. Use the enumeration output above as the **inventory** the user can see; the PROPOSED LOADS list is the **action plan** for what gets loaded in Step 2.
+
+Example for a SIPA-segment investigation on zs3:
+
+```
+PROPOSED LOADS — snapshot subset (selected from enumeration above):
+  - _data/snapshot/zs3/zpa/application-segments.json    (matches "SIPA segment")
+  - _data/snapshot/zs3/zpa/server-groups.json           (matches "server group")
+  - _data/snapshot/zs3/zpa/connector-groups.json        (matches "connector group")
+  Skipped 8 other files in enumeration as unrelated to framing — load on-demand if needed.
+```
 
 #### Framing → file mapping
 
