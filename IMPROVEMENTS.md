@@ -99,6 +99,22 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 - **Cost**: variable (per-bundle effort, depends on verification access)
 - **Notes**: templates at `references/shared/investigation-bundles.md` and `architect-bundles.md`. Public skill kit should ship only verified bundles; speculative ones stay in private fork. The first ones are most likely to come from real production tickets.
 
+### SDK quirk note: `cloud_firewall_nw_service` `isNameL10nTag` deserialization
+
+- **Status**: Proposed (low priority)
+- **Origin**: 2026-04-30 — issue-watch digest #5; upstream `zscaler-sdk-python#492`
+- **Impact**: small caveat in `zia/sdk.md` or `zia/api.md` noting that `cloud_firewall.list_network_services_lite()` returns `isNameL10nTag` as `None` per the closed-but-acknowledged SDK bug
+- **Cost**: low (one-line note + verified-against bump)
+- **Notes**: field itself is documented in `references/zia/api-schemas.md` (lines 114, 505, 1901, 1928). The SDK isn't reading it correctly. Worth a "known SDK quirk" note when a related ref is next touched.
+
+### SSL inspection rule cloud-app enum mapping
+
+- **Status**: Proposed (deferred — content gap, not a fix)
+- **Origin**: 2026-04-30 — issue-watch digest #5; upstream `zscaler-mcp-server#56` (closed wontfix)
+- **Impact**: documenting the divergence between cloud app catalog naming/IDs and SSL inspection rule enum strings (e.g., catalog "Sharepoint Online" id=655377 vs. SSL inspection enum `ONEDRIVE` / `ONEDRIVE_PERSONAL`)
+- **Cost**: medium (needs source verification — what IS the canonical enum list?)
+- **Notes**: gap in our SSL inspection coverage. Defer until a content cycle on SSL inspection rules; not blocking. The `wontfix` close on the upstream issue means the divergence is permanent and worth documenting precisely *because* it traps users.
+
 ### Tenant-side bundle storage convention
 
 - **Status**: Proposed
