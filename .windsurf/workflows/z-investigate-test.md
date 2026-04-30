@@ -109,6 +109,12 @@ If you genuinely cannot identify any assumption, write: *"No assumptions identif
 
 **If `Working directory` is `unknown`** in the PARSED FRAMING block, you **must** include this exact clarification first: *"I cannot determine the absolute path of `_data/incidents/` from the current workspace context — please provide the absolute path of the repo root before I proceed. Without it I cannot save the journal in Step 3."* This is non-optional — the save step depends on this being resolved before it runs.
 
+**Always include a log-collection clarification.** Investigations frequently hinge on log evidence (LSS / NSS / SIEM exports, packet captures, CLI output). The user may have already collected logs and placed them somewhere — or may not have. You cannot know without asking. Ask explicitly:
+
+> *"Have any logs (LSS / NSS / Splunk / Sentinel exports, packet captures, command output) already been collected for this issue? If yes, where are they (path, paste, or evidence directory)? If no, I'll plan queries to collect what's needed during investigation."*
+
+This question is mandatory regardless of framing detail. Logs already on disk should be loaded; logs the user can paste should be requested; logs that need to be collected should be planned for in Step 3's evidence-source naming. Skipping this question is what causes the agent to plan queries for data the user already has, OR to miss inline-pasted logs the user expected to be used.
+
 > **Note:** snapshot enumeration and selection used to live here; moved to Step 2B after docs load. Docs tell the agent which snapshot files are entry points and which links of the chain matter — selecting without docs in context produces uninformed bulk loads.
 
 #### Framing → file mapping
@@ -163,30 +169,54 @@ Step 2 has four sub-steps. **Do them in order — docs first, then snapshot.** D
 
 For each file in the confirmed PROPOSED LOADS (playbook + methodology + product references), **use your file-read tool** to load it. Read the content; do not just enumerate.
 
-#### 2B — Enumerate the snapshot directory (only after 2A completes)
+#### 2B — Enumerate the snapshot directory AND existing evidence (only after 2A completes)
 
-If `Tenant cloud` was specified in PARSED FRAMING, run a **recursive** listing of `_data/snapshot/<cloud>/` (or `_data/<cloud>/` for the fork-specific layout). Paste the file paths verbatim:
+Two enumerations happen at this step. Both are recursive listings; both paste output verbatim. Show your command output regardless of result.
+
+**2B.1 — Snapshot.** If `Tenant cloud` was specified in PARSED FRAMING, run a recursive listing of `_data/snapshot/<cloud>/` (or `_data/<cloud>/` for the fork-specific layout):
 
 ```
 Snapshot enumeration (find _data/snapshot/zs3/ -type f):
   - _data/snapshot/zs3/zia/url-filtering-rules.json
-  - _data/snapshot/zs3/zia/access-policies.json
   - _data/snapshot/zs3/zpa/segments.json
   - _data/snapshot/zs3/zpa/server-groups.json
-  - _data/snapshot/zs3/zpa/connector-groups.json
   ... <every file the recursive listing returned>
 ```
 
-Required commands (use one): `find _data/snapshot/<cloud>/ -type f`, `ls -R _data/snapshot/<cloud>/`, or your file-list tool's recursive option. Do NOT report empty without showing the actual command output. If both canonical and fork-specific paths are empty, show both attempts:
+Required commands (use one): `find _data/snapshot/<cloud>/ -type f`, `ls -R _data/snapshot/<cloud>/`, or your file-list tool's recursive option. If both canonical and fork-specific paths are empty, show both attempts:
 
 ```
 Snapshot enumeration (find _data/snapshot/zs3/ -type f): no files returned.
 Also tried: find _data/zs3/ -type f → no files returned.
 ```
 
-#### 2C — Select ONE entry-point file per product (docs-informed)
+**2B.2 — Existing evidence (log files, prior captures).** Logs the user may have already collected typically live in either:
 
-Now that docs are loaded, use them along with the entry-point rules below to pick a single starting file per product. Bulk-loading every snapshot file for a product blows the context budget; chain-traverse the rest on demand.
+- `_data/incidents/<slug>/evidence/` — if the framing referenced a slug, or one already exists for this investigation
+- A user-named directory inside or alongside the working directory
+
+Run a recursive listing of any candidate evidence directory and paste output:
+
+```
+Evidence enumeration (find <working-dir>/_data/incidents/<slug>/evidence/ -type f):
+  - .../evidence/lss-userstatus-2026-04-30T14-30Z.csv
+  - .../evidence/connector-status-2026-04-30T14-32Z.json
+  - .../evidence/MANIFEST.md
+```
+
+If the user's clarification about pre-existing logs (from Step 1) named a different path, enumerate that path too. If no evidence directory exists or the paths are empty, show the empty result:
+
+```
+Evidence enumeration (find <working-dir>/_data/incidents/<slug>/evidence/ -type f): no files returned.
+```
+
+Files found in evidence enumeration are candidate loads — they get included in 2C/2D selection alongside snapshot entry points.
+
+#### 2C — Select snapshot entry points + relevant evidence files (docs-informed)
+
+Now that docs are loaded, use them along with the entry-point rules below to pick a single starting snapshot file per product. Bulk-loading every snapshot file for a product blows the context budget; chain-traverse the rest on demand.
+
+**Snapshot entry points (one per product mentioned in framing):**
 
 | If `Products / features` includes... | Single entry-point file |
 |---|---|
@@ -199,11 +229,13 @@ Now that docs are loaded, use them along with the entry-point rules below to pic
 
 If the docs you loaded in 2A name a more specific entry point than the table suggests, prefer the docs' guidance — they are more current.
 
+**Existing evidence files (from 2B.2 enumeration):** include every log / capture / dump the user identified as relevant in their Step 1 clarification reply, plus any `MANIFEST.md` files in the evidence directories. These are direct evidence — load them all (small files, high relevance). If the evidence directory has many large files (e.g., a packet capture > 100MB), preview the manifest first and load specific files based on what the user named or what the docs say is relevant.
+
 #### 2D — Load the selected snapshot files (entry points only)
 
 Use your file-read tool to load each entry-point file selected in 2C. **Do not load other snapshot files at this step**; chain-traversal on subsequent turns will load deeper links as needed.
 
-After all loads complete (docs from 2A + snapshot entry points from 2D), output the consolidated LOADED block:
+After all loads complete (docs from 2A + snapshot entry points + existing evidence from 2D), output the consolidated LOADED block:
 
 ```
 LOADED:
@@ -217,8 +249,13 @@ LOADED:
       server-groups.json (after segment IDs identified)
       connector-groups.json (after server-group IDs identified)
       app-connectors.json (after connector-group IDs identified)
+  Existing evidence (from operative incident dir):
+    ✓ _data/incidents/<slug>/evidence/MANIFEST.md
+    ✓ _data/incidents/<slug>/evidence/<log file 1>
+    ✓ _data/incidents/<slug>/evidence/<log file 2>
   Skipped (in enumeration but not loaded):
-    <count> files unrelated to framing — load on-demand if a hypothesis needs them
+    <count> snapshot files unrelated to framing — load on-demand
+    <count> evidence files not specified by user — load on-demand if relevant
 ```
 
 If any load fails, mark it with `✗ (FAILED: <reason>)` and continue with the rest. Do NOT skip a file silently.
