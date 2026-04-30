@@ -235,7 +235,7 @@ TF equivalent: `zia_url_filtering_rules` resource. See `vendor/terraform-provide
 - **`size_quota` range: `10–100,000` KB** (`IntBetween(10, 100000)` at `:241`). Same rejection pattern as `time_quota`.
 - **TF action enum** (4 values): `BLOCK`, `CAUTION`, `ALLOW`, `ISOLATE` (`:270-275`). Note this is narrower than the SDK enum (which also lists `ANY`, `NONE`, `ICAP_RESPONSE`) — the TF provider restricts to user-configurable values.
 - **`description` max length: 10,240 characters** (`StringLenBetween(0, 10240)` at `:197`).
-- **`description` diffs suppressed via `noChangeInMultiLineText`** — the API normalizes whitespace / line endings. A plan-time diff in `description` that "looks right" is probably a whitespace-only delta the server rewrote. See [`../terraform.md § Schema patterns worth knowing`](../terraform.md#schema-patterns-worth-knowing).
+- **`description` diffs suppressed via `noChangeInMultiLineText`** — the API normalizes whitespace / line endings. A plan-time diff in `description` that "looks right" is probably a whitespace-only delta the server rewrote. See [`../shared/terraform.md § Schema patterns worth knowing`](../shared/terraform.md#schema-patterns-worth-knowing).
 
 ### Cloud App Control rules
 

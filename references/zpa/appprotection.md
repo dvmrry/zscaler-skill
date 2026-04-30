@@ -237,6 +237,6 @@ Specific tier names (Business / Transformation / Workplace+) and what each unloc
 - Multimatch ↔ AppProtection mutual exclusion: [`./app-segments.md`](./app-segments.md) (existing reference architecture quote)
 - ZPA Access Policy as the precedent for AppProtection criteria cloning: [`./policy-precedence.md`](./policy-precedence.md)
 - LSS log streaming layer (AppProtection log type): [`./logs/access-log-schema.md`](./logs/access-log-schema.md)
-- Terraform `zpa_inspection_*` resources: [`../terraform.md`](../terraform.md) (legacy naming)
+- Terraform `zpa_inspection_*` resources: [`../shared/terraform.md`](../shared/terraform.md) (legacy naming)
 - Cross-product integrations (where AppProtection sits relative to ZIA / ZCC / Deception): [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md)
 - Portfolio map: [`../_portfolio-map.md`](../_portfolio-map.md)

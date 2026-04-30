@@ -209,4 +209,4 @@ The Standard-tier 10-rule Firewall Filtering cap is the most operationally conse
 - SPL pattern for firewall-vs-web-module block discrimination: [`../shared/splunk-queries.md § firewall-vs-web-module-block`](../shared/splunk-queries.md).
 - ATP evaluation order: [`./malware-and-atp.md`](./malware-and-atp.md).
 - Z-Tunnel 1.0 / PAC forwarding gating: [`../zcc/z-tunnel.md`](../zcc/z-tunnel.md).
-- Terraform firewall resources: [`../terraform.md`](../terraform.md).
+- Terraform firewall resources: [`../shared/terraform.md`](../shared/terraform.md).

@@ -103,7 +103,7 @@ Translation: **UI features visible in the Zscaler Admin Console may not be manag
 ### NSS feed config (ZIA — log streaming)
 
 - `zia_cloud_nss_feed` — Cloud NSS feed definition
-- Fields map to NSS format specifiers documented in [`./zia/logs/web-log-schema.md`](./zia/logs/web-log-schema.md) / firewall / dns
+- Fields map to NSS format specifiers documented in [`../zia/logs/web-log-schema.md`](../zia/logs/web-log-schema.md) / firewall / dns
 
 ### Application Segments (ZPA)
 
@@ -111,7 +111,7 @@ Translation: **UI features visible in the Zscaler Admin Console may not be manag
 - `zpa_application_segment_browser_access` — Browser Access variant
 - `zpa_application_segment_inspection` — AppProtection variant
 - `zpa_application_segment_pra` — Privileged Remote Access variant
-- `zpa_application_segment_multimatch_bulk` — bulk Multimatch INCLUSIVE/EXCLUSIVE updates (see [`./zpa/app-segments.md`](./zpa/app-segments.md))
+- `zpa_application_segment_multimatch_bulk` — bulk Multimatch INCLUSIVE/EXCLUSIVE updates (see [`../zpa/app-segments.md`](../zpa/app-segments.md))
 - `zpa_application_segment_weightedlb_config` — load-balancing config
 
 ### Segment Groups / Server Groups / App Connectors (ZPA)
@@ -128,7 +128,7 @@ Translation: **UI features visible in the Zscaler Admin Console may not be manag
 
 ### LSS / log streaming (ZPA)
 
-Per-log-type resources mirror the log templates documented in [`./zpa/logs/access-log-schema.md`](./zpa/logs/access-log-schema.md):
+Per-log-type resources mirror the log templates documented in [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md):
 
 | TF Resource | Log Type |
 |---|---|
@@ -212,7 +212,7 @@ Some mutual-exclusions live in resource `Create` / `Update` functions rather tha
 
 ## Cross-links
 
-- ZIA API structure (auth, activation, endpoint catalog) — [`./zia/api.md`](./zia/api.md)
-- ZPA API structure — [`./zpa/api.md`](./zpa/api.md)
-- URL filtering behavior — [`./zia/url-filtering.md`](./zia/url-filtering.md)
-- ZPA app segments — [`./zpa/app-segments.md`](./zpa/app-segments.md)
+- ZIA API structure (auth, activation, endpoint catalog) — [`../zia/api.md`](../zia/api.md)
+- ZPA API structure — [`../zpa/api.md`](../zpa/api.md)
+- URL filtering behavior — [`../zia/url-filtering.md`](../zia/url-filtering.md)
+- ZPA app segments — [`../zpa/app-segments.md`](../zpa/app-segments.md)

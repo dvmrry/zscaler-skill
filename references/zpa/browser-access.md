@@ -250,5 +250,5 @@ Key Terraform constraints:
 - PRA for non-HTTP protocols (RDP/SSH/VNC/console) — [`./privileged-remote-access.md`](./privileged-remote-access.md)
 - Mutual-exclusion with SIPA — [`../shared/source-ip-anchoring.md`](../shared/source-ip-anchoring.md)
 - Timeout policies driving BA reauth — [`./policy-precedence.md § Timeout policies`](./policy-precedence.md)
-- Terraform resource — [`../terraform.md`](../terraform.md) `§zpa_application_segment_browser_access`
+- Terraform resource — [`../shared/terraform.md`](../shared/terraform.md) `§zpa_application_segment_browser_access`
 - SDK method catalog for BA segments — [`./sdk.md §2.3 ApplicationSegmentBAAPI`](./sdk.md) and [`./sdk.md §2.4 AppSegmentsBAV2API`](./sdk.md)

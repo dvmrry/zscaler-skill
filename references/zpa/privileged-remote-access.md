@@ -151,6 +151,6 @@ These are policy objects, not per-session flags — the same capability set appl
 
 - App segment variant config: [`./app-segments.md § Multimatch constraint`](./app-segments.md).
 - Policy evaluation order for PRA access rules: [`./policy-precedence.md`](./policy-precedence.md).
-- Terraform `zpa_application_segment_pra` schema: [`../terraform.md`](../terraform.md).
+- Terraform `zpa_application_segment_pra` schema: [`../shared/terraform.md`](../shared/terraform.md).
 - Alternative clientless path (web apps only): [`./browser-access.md`](./browser-access.md).
 - Device Posture on PRA clientless paths: posture does not evaluate — see [`../shared/device-posture.md`](../shared/device-posture.md) for when posture applies.
