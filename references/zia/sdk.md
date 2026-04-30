@@ -3,7 +3,10 @@ product: zia
 topic: zia-sdk
 title: "ZIA SDK — service and method catalog"
 content-type: reference
-last-verified: "2026-04-26"
+last-verified: "2026-04-30"
+verified-against:
+  vendor/zscaler-sdk-python: 89a07941
+  vendor/zscaler-sdk-go: b14f8696
 confidence: medium
 source-tier: code
 sources:
@@ -1112,7 +1115,7 @@ Notable kwargs include `auth_bypass_urls`, `kerberos_bypass_urls`, `enable_offic
 | `update_pac_file` | `(pac_id: int, **kwargs)` | PUT `/pacFiles/{id}`. |
 | `delete_pac_file` | `(pac_id: int)` | DELETE `/pacFiles/{id}`. |
 | `validate_pac_file` | `(**kwargs) -> APIResult[PacFileValidationResponse]` | POST `/pacFiles/validate`. |
-| `clone_pac_file` | `(pac_id: int)` | POST `/pacFiles/{id}/clone`. |
+| `clone_pac_file` | `(pac_id, pac_version, pac_content, pac_version_status, pac_verification_status="VERIFY_NOERR", pac_commit_message="", delete_version=None)` | POST `/pacFiles/{pacId}/version/{clonedPacVersion}` — branches a new version inside an existing PAC file parent. **Strict signature** (not `**kwargs`) to prevent the misleading 400 RESOURCE_NOT_FOUND trap caused by sending parent-level fields (name/description/domain/etc.) in the body. Parent identity is fixed by `pac_id` in the path. Must be made against COMMITTED state — call `client.zia.activate.activate()` after creating the parent before cloning, otherwise the parent isn't yet visible and the clone returns 400 RESOURCE_NOT_FOUND. |
 
 **Go parity:** Yes (`pacfiles/`)
 
