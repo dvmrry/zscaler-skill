@@ -16,13 +16,14 @@ The user's framing follows this command in the chat. Read it now. Before loading
 
 SOC framing has: a **scope** (admin RBAC, URL filtering, telemetry coverage, app segment, the whole tenant) and posture / control / threat-model vocabulary ("RBAC", "least-privilege", "bypass exposure", "DLP gap", "after-hours admin activity", "control coverage"). If the framing is clearly an active investigation (symptom + scope + recency) or a capacity question, output: *"Your framing looks like a `<other-persona>` task: `<one-line reason citing the markers>`. Re-invoke as `/z-<other-persona>`?"* — and stop.
 
-If markers are mixed, proceed here but **flag the alternative** in your first response. Then continue to the read step below.
+If markers are mixed, proceed here but **flag the alternative** in your first response. Then continue to the required reads below.
 
-Full classification rubric: `references/_meta/command-routing.md`.
+## Required reads — do these now, in order
 
-## Load the playbook
+1. **Use your file-read tool to load `references/shared/soc-prompt.md`.** This is the playbook. It carries the First Response procedure, the five subtype check-sets, and the posture register format.
+2. **Use your file-read tool to load `references/shared/audit-methodology.md`.** This is the shared methodology (used by both `/z-audit` and `/z-soc`). It carries the discipline the playbook depends on — register format, severity scale, status lifecycle, anti-patterns.
 
-**Use your file-read tool now to load `references/shared/soc-prompt.md`** (path is relative to the Zscaler skill repo root). Then follow the playbook contained in that file. Do not respond until you have loaded the playbook.
+Both paths are relative to the Zscaler skill repo root. **Do not respond until both files are loaded.** Then follow the playbook's First Response procedure with the methodology already in context.
 
 ## Best framing for the user's input
 
@@ -38,5 +39,3 @@ The user's SOC review scope follows this command in the chat. Parse scope and su
 Save the register to `_data/incidents/<slug>/posture.md` per Step 5. For routine (non-incident-driven) reviews use slug `<YYYY-MM-DD>-soc-<scope-descriptor>`.
 
 Do not change tenant state — propose only. If scope is ambiguous, ask one targeted clarifying question.
-
-Cross-reference: `references/shared/audit-methodology.md` for register format, severity scale, and status lifecycle (shared with `/z-audit`) — load it via your file-read tool when the playbook references it.

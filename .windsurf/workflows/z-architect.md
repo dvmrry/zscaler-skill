@@ -18,11 +18,12 @@ Architect framing has: a **capacity question** ("plan for 3x growth", "size for 
 
 If markers are mixed (e.g., symptom + capacity question — "connector group disconnected, should we add capacity?"), redirect to `/z-investigate` first to RCA the symptom; architect follows after. Note this in the redirect.
 
-Full classification rubric: `references/_meta/command-routing.md`.
+## Required reads — do these now, in order
 
-## Load the playbook
+1. **Use your file-read tool to load `references/shared/architect-prompt.md`.** This is the playbook. It carries the First Response procedure, evidence-mapping logic, and recommendation register format.
+2. **Use your file-read tool to load `references/shared/architect-methodology.md`.** This is the methodology. It carries the discipline the playbook depends on — register format, risk scale, confidence levels, status lifecycle.
 
-**Use your file-read tool now to load `references/shared/architect-prompt.md`** (path is relative to the Zscaler skill repo root). Then follow the playbook contained in that file. Do not respond until you have loaded the playbook.
+Both paths are relative to the Zscaler skill repo root. **Do not respond until both files are loaded.** Then follow the playbook's First Response procedure with the methodology already in context.
 
 ## Best framing for the user's input
 
@@ -37,5 +38,3 @@ Minimum viable: scope + a one-line context. The playbook will ask for evidence l
 The user's architect scope follows this command in the chat. Map evidence layers, run a config-first review, layer utilization analysis if metrics are available, and output the recommendation register grouped by risk.
 
 Do not change tenant state — architect proposes, user decides. If scope or evidence access is unclear, ask one targeted clarifying question.
-
-Cross-reference: `references/shared/architect-methodology.md` for register format, risk scale, confidence levels, and status lifecycle — load it via your file-read tool when the playbook references it.
