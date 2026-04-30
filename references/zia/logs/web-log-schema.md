@@ -32,6 +32,8 @@ One record = one HTTP or HTTPS transaction observed by a ZIA Public Service Edge
 
 Both are given in the tables below. Fields marked "*NSS-only*" in the rightmost column do not appear in the Insights UI.
 
+**Public Service Edge fields are diagnostic, not configurable.** Public Service Edge (legacy name **Public ZEN**, **Zscaler Enforcement Node**) is Zscaler-managed cloud infrastructure. Where edge-related values surface in this schema (e.g., `proxyip`, `clusterName`, `trafficredirectmethod`'s edge-side semantics), they reflect *which Zscaler-operated edge handled the transaction*, not a tenant setting. Tenants do not configure Public Service Edge identity, selection, capacity, or routing. Hypotheses like "the wrong edge was selected" don't belong in a tenant-driven investigation; the corresponding action is a Zscaler support ticket. Tenant-configurable forwarding control surfaces in `trafficredirectmethod` values (`GRE`, `IPSEC`, `PAC`, `Zscaler Client Connector`, etc.) — those reflect tenant-owned forwarding configuration, distinct from edge selection. See [`../../shared/terminology.md`](../../shared/terminology.md) for the operator/tenant boundary across edge form factors.
+
 ## Field inventory
 
 ### Date/Time

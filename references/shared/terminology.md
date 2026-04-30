@@ -24,9 +24,9 @@ Zscaler has renamed several core components over time without fully purging the 
 
 | Current (help-site / marketing) | Legacy | Log-field / hostname form | What it is |
 |---|---|---|---|
-| Public Service Edge for Internet & SaaS | Public ZEN, Public Zscaler Enforcement Node, **PZEN** | `ClientZEN`, `ConnectorZEN` fields; values like `broker1b.pdx2`, `zs2-fra1a` | Zscaler-cloud gateway that inspects ZIA traffic |
-| Private Service Edge for Internet & SaaS | Private ZEN, **PZEN** (same abbrev as Public!), **PSEN** (Private Service Edge Node, instance-level) | Same `*ZEN` fields; per-instance hostname | Zscaler-managed hardware/VM on customer premises |
-| Virtual Service Edge for Internet & SaaS | Virtual ZEN, **VZEN**, **VSEN** (Virtual Service Edge Node, per-VM instance) | Same `*ZEN` fields | Customer-operated VM form of Private Service Edge |
+| Public Service Edge for Internet & SaaS | Public ZEN, Public Zscaler Enforcement Node, **PZEN** | `ClientZEN`, `ConnectorZEN` fields; values like `broker1b.pdx2`, `zs2-fra1a` | Zscaler-cloud gateway that inspects ZIA traffic. **Tenant control: none.** Zscaler operates the hardware, selects the edge, manages capacity and software. Tenants observe ZEN values in logs but cannot configure them. |
+| Private Service Edge for Internet & SaaS | Private ZEN, **PZEN** (same abbrev as Public!), **PSEN** (Private Service Edge Node, instance-level) | Same `*ZEN` fields; per-instance hostname | Zscaler-managed hardware/VM on customer premises. **Tenant control: hosting only.** Customer racks the appliance / runs the VM; Zscaler Cloud Ops manages the software, upgrades, and policy distribution. |
+| Virtual Service Edge for Internet & SaaS | Virtual ZEN, **VZEN**, **VSEN** (Virtual Service Edge Node, per-VM instance) | Same `*ZEN` fields | Customer-operated VM form of Private Service Edge. **Tenant control: VM lifecycle.** Customer operates the VM (deploy, sizing, OS); Zscaler-supported software, Zscaler-managed policy. |
 | Zscaler Private Access (ZPA) Public Service Edge | ZPA broker | "broker" is the canonical on-wire term | ZPA side's equivalent of a ZIA Public Service Edge |
 | Zscaler Private Access (ZPA) Private Service Edge | Private broker, ZPA PSE | n/a | Single-tenant ZPA broker at customer premise |
 | App Connector | ZPA connector, **ZAC** (Zscaler App Connector) | `Connector`, `ConnectorZEN`, `ConnectorIP`, `ConnectorPort` fields | Outbound-only bridge between customer apps and ZPA cloud |

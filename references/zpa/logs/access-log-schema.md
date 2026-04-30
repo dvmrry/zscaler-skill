@@ -30,6 +30,19 @@ From *Understanding the Log Stream Content Format*, p.1, LSS emits twelve log ty
 
 This doc documents the **User Activity** log type — per-connection records that carry the application segment, access policy, and App Connector outcome. Other types are referenced at the bottom.
 
+## ZEN / Service Edge fields are diagnostic, not configurable
+
+Many fields in this schema are prefixed `ZEN` or named `*ZEN*` (e.g., `ClientZEN`, `ConnectorZEN`, `ConnectorZENSetupTime`, `ZENBytesRxClient`, all the `TimestampZEN*` fields). **ZEN** = legacy name for **Zscaler Enforcement Node**, current marketing name **Public Service Edge** — Zscaler-managed cloud infrastructure.
+
+**Tenants do not configure ZENs.** ZEN identity, selection, capacity, geographic placement, and routing are all controlled by Zscaler Cloud Operations. ZEN values in logs are **observed**, not **set**: which Public Service Edge handled the session is the answer to a question, not a knob the tenant can turn.
+
+When investigating, treat `ZEN` fields as:
+
+- **Diagnostic** — "which edge processed this?" Useful for correlating with Zscaler-side outages, regional latency, or support tickets.
+- **Not actionable from the tenant side** — hypotheses like "the wrong ZEN was selected" or "we need to reconfigure ZEN X" don't belong in a tenant-driven investigation. The corresponding action is opening a Zscaler support ticket, not editing tenant config.
+
+The customer-controlled equivalents are **App Connector** (`Connector`, `ConnectorIP`, `ConnectorPort` fields) — those are tenant-deployed and tenant-configured. See [`../../shared/terminology.md`](../../shared/terminology.md) for the rename history and the operator/tenant boundary across all edge form factors.
+
 ## Log Stream Content Format specifications
 
 Per *Understanding the Log Stream Content Format*, pp.1–3, each field in an LSS template is referenced with a format specifier:
