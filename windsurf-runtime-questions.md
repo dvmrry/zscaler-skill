@@ -1,7 +1,8 @@
-# Windsurf runtime — open questions
+# Windsurf runtime — questions and answers
 
-**Status**: open — awaiting answers from the work framework agent.
+**Status**: resolved — work framework agent answered all six.
 **Last updated**: 2026-04-29
+**Permanent reference**: see [`references/shared/windsurf-runtime-notes.md`](references/shared/windsurf-runtime-notes.md) for the conventions distilled from these answers.
 
 ## Context
 
@@ -25,7 +26,7 @@ If the latter, we may need to be more explicit in the workflow body — e.g., ex
 
 **Answer**:
 
-_(awaiting)_
+The Windsurf runtime does **not** automatically resolve and inline file-path references. The model must make explicit tool calls to load referenced files. → Workflow bodies should explicitly direct the model to use its read tool.
 
 ---
 
@@ -39,7 +40,7 @@ This affects how we structure workflow bodies — placeholder substitution vs. "
 
 **Answer**:
 
-_(awaiting)_
+Windsurf does **not** have `$ARGUMENTS`-style substitution. User input arrives as the next chat turn. → Workflow bodies must use the "user's input follows in the chat" framing; no placeholder syntax.
 
 ---
 
@@ -57,7 +58,7 @@ We'd like to align our workflows to whatever Windsurf is already optimized to co
 
 **Answer**:
 
-_(awaiting)_
+Windsurf parses YAML frontmatter fields like `description` for display, but does not have special reserved keywords. There is no strict ordering convention for sections inside a workflow body. → Our existing structure (numbered steps, status enums, "will NOT do" sections) is up to us; Windsurf doesn't impose conventions to align with.
 
 ---
 
@@ -69,7 +70,7 @@ If supported, what's the syntax / mechanism?
 
 **Answer**:
 
-_(awaiting)_
+Workflows **cannot** directly invoke other workflows. Sub-workflows must be inlined or referenced via file paths (which the model then loads). → Mechanical-checks-style steps stay inlined in the calling workflow; we can't compose workflow chains.
 
 ---
 
@@ -85,7 +86,11 @@ Windsurf supports several persistence / loading mechanisms — `.windsurf/workfl
 
 **Answer**:
 
-_(awaiting)_
+- Rules in `.windsurf/rules/` are always loaded into context.
+- Workflows are always available as slash commands.
+- Memory is a separate persistence layer.
+
+→ `.windsurf/rules/` is the analog of CLAUDE.md (auto-loaded global context); use sparingly to avoid context bloat. Workflows are on-demand. Memory is separate from both.
 
 ---
 
@@ -97,7 +102,7 @@ This came up because the user is currently routed to SWE-1.6 and our `/z-investi
 
 **Answer**:
 
-_(awaiting)_
+Model pinning is a session-level setting, not workflow-level. Workflows cannot pin to specific models. → The user controls model selection at session start; the workflow body has to work for whatever model is currently active. Tightening for the weaker model (explicit steps, enums, "will NOT do" sections) is the right move since the strong-model session won't be hurt by it.
 
 ---
 

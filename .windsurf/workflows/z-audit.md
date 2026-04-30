@@ -4,7 +4,7 @@ description: Run an editorial / structural audit of skill kit references. Mechan
 
 # /z-audit
 
-Load and follow the playbook at `references/shared/audit-prompt.md` (relative to the Zscaler skill repo root). Read it now before responding.
+**Use your file-read tool now to load `references/shared/audit-prompt.md`** (path is relative to the Zscaler skill repo root). Then follow the playbook contained in that file. Do not respond until you have loaded the playbook.
 
 ## Best framing for the user's input
 
@@ -22,4 +22,4 @@ The user's audit scope follows this command in the chat. Parse it, run the mecha
 
 Do not edit files mid-audit — produce findings only. If scope is ambiguous, ask one targeted clarifying question.
 
-Cross-reference: `references/shared/audit-methodology.md` for register format, severity scale, and status lifecycle.
+Cross-reference: `references/shared/audit-methodology.md` for register format, severity scale, and status lifecycle — load it via your file-read tool when the playbook references it.

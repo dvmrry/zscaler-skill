@@ -4,7 +4,7 @@ description: Run a capacity / scaling architecture review. Config-first, metrics
 
 # /z-architect
 
-Load and follow the playbook at `references/shared/architect-prompt.md` (relative to the Zscaler skill repo root). Read it now before responding.
+**Use your file-read tool now to load `references/shared/architect-prompt.md`** (path is relative to the Zscaler skill repo root). Then follow the playbook contained in that file. Do not respond until you have loaded the playbook.
 
 ## Best framing for the user's input
 
@@ -20,4 +20,4 @@ The user's architect scope follows this command in the chat. Map evidence layers
 
 Do not change tenant state — architect proposes, user decides. If scope or evidence access is unclear, ask one targeted clarifying question.
 
-Cross-reference: `references/shared/architect-methodology.md` for register format, risk scale, confidence levels, and status lifecycle.
+Cross-reference: `references/shared/architect-methodology.md` for register format, risk scale, confidence levels, and status lifecycle — load it via your file-read tool when the playbook references it.

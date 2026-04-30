@@ -4,7 +4,7 @@ description: Start an evidence-based troubleshooting investigation. For best res
 
 # /z-investigate
 
-Load and follow the playbook at `references/shared/investigate-prompt.md` (relative to the Zscaler skill repo root). Read it now before responding.
+**Use your file-read tool now to load `references/shared/investigate-prompt.md`** (path is relative to the Zscaler skill repo root). Then follow the playbook contained in that file. Do not respond until you have loaded the playbook.
 
 ## Best framing for the user's input
 
@@ -22,4 +22,4 @@ The user's investigation framing follows this command in the chat. Parse it into
 
 Do not investigate yet — establish the plan first. If location, time, or scope is ambiguous, ask one targeted clarifying question.
 
-Cross-reference: `references/shared/troubleshooting-methodology.md` for the full discipline (status values, anti-patterns, escalation criteria).
+Cross-reference: `references/shared/troubleshooting-methodology.md` for the full discipline (status values, anti-patterns, escalation criteria) — load it via your file-read tool when the playbook references it.
