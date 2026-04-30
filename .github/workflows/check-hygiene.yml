@@ -1,16 +1,20 @@
 name: Doc hygiene
 
 # Runs the doc-hygiene check suite:
-#   - check-hygiene.py:    frontmatter, anchors, clarification propagation, evals
-#   - check-citations.sh:  markdown link path resolution in references/**
-#   - check-doc-links.py:  HTML link / asset path resolution in docs/**
-#   - check-orphans.py:    reference files with no inbound links from anywhere
+#   - check-hygiene.py:          frontmatter, anchors, clarification propagation, evals
+#   - check-citations.sh:        markdown link path resolution in references/**
+#   - check-doc-links.py:        HTML link / asset path resolution in docs/**
+#   - check-orphans.py:          reference files with no inbound links from anywhere
+#   - check-vendor-drift.py:     refs whose cited vendor sources may have drifted
+#                                (advisory — exits 1 only on confirmed file changes)
+#   - check-scrape-freshness.py: stale Zscaler help-article scrapes
+#                                (advisory — exit 0 unless --strict)
 #
 # Errors fail the build; warnings are advisory and don't block.
 #
 # Triggers:
-#   - PRs touching references/, evals/, docs/, or the scripts themselves
-#   - Pushes to main on the same paths (catches direct-merge regressions)
+#   - PRs touching references/, evals/, docs/, vendor submodules, or the scripts
+#   - Pushes to main on the same paths
 #   - Weekly Monday cron (catches drift from upstream PRs / external edits)
 #   - workflow_dispatch for manual runs
 
@@ -20,20 +24,28 @@ on:
       - 'references/**'
       - 'evals/**'
       - 'docs/**'
+      - '.gitmodules'
+      - 'vendor/**'
       - 'scripts/check-hygiene.py'
       - 'scripts/check-citations.sh'
       - 'scripts/check-doc-links.py'
       - 'scripts/check-orphans.py'
+      - 'scripts/check-vendor-drift.py'
+      - 'scripts/check-scrape-freshness.py'
   push:
     branches: [main]
     paths:
       - 'references/**'
       - 'evals/**'
       - 'docs/**'
+      - '.gitmodules'
+      - 'vendor/**'
       - 'scripts/check-hygiene.py'
       - 'scripts/check-citations.sh'
       - 'scripts/check-doc-links.py'
       - 'scripts/check-orphans.py'
+      - 'scripts/check-vendor-drift.py'
+      - 'scripts/check-scrape-freshness.py'
   schedule:
     # Mondays 13:00 UTC — aligns with issue-watch + Renovate cadence
     - cron: '0 13 * * 1'
@@ -63,3 +75,13 @@ jobs:
 
       - name: Check for orphan reference files
         run: ./scripts/check-orphans.py
+
+      - name: Check for vendor-source drift
+        # Submodules are not initialized in CI by default; init them so the
+        # script can read submodule SHAs and compute file diffs.
+        run: |
+          git submodule update --init --recursive
+          ./scripts/check-vendor-drift.py
+
+      - name: Check Zscaler help-article scrape freshness (advisory)
+        run: ./scripts/check-scrape-freshness.py
