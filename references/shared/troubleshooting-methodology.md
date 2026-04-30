@@ -155,6 +155,52 @@ Contradiction: If connectors are healthy, why did assignment fail?
 Possible resolution: Health status is aggregated/generic; port 22 may have a specific health check that fails even if overall health is OK. Need port-level health telemetry.
 ```
 
+### ❌ Reasoning over field values without reading the schema
+
+```
+LSS field `Action = 0` — that means the rule allowed the traffic.
+(no schema consulted; `0` is being interpreted by analogy from another log type)
+```
+Better:
+```
+Before reasoning: read references/zia/logs/web-log-schema.md for `action` enum.
+Schema says: `action` for ZIA web logs is a string ("Allowed" / "Blocked"), not an integer. Numeric `0` would not appear in this field — investigate why the value looks numeric (parsing issue? wrong log type? TA version mismatch?).
+```
+Field names look self-evident but rarely are. `action`, `reason`, `status`, `result` mean different things across ZIA / ZPA / ZDX / ZCC log types. Read the schema before any claim built on a field value becomes load-bearing.
+
+### ❌ Hypothesizing without grounding in product architecture
+
+```
+Issue: ZPA segment isn't matching for user X.
+Hypothesis: Default-allow policy is shadowing the segment match.
+(no reference to ZPA's deny-by-default model; analyzing as if ZIA semantics apply)
+```
+Better:
+```
+Before hypothesizing: read references/zpa/policy-evaluation.md (or equivalent feature reference).
+ZPA is deny-by-default — there is no "default-allow shadow." The hypothesis space is: (a) segment doesn't include this user's IdP attributes, (b) connector group isn't reachable from user's location, (c) rule ordering with a higher-priority deny, (d) posture / timeout / SAML attribute drift.
+```
+Product defaults and architectural assumptions (deny-by-default vs. allow-by-default, per-app vs. per-segment, IdP-claim vs. SCIM-claim) shape which hypotheses are even plausible. A hypothesis built on the wrong product mental model wastes the whole investigation.
+
+### ❌ Carrying user framing claims unverified into hypotheses
+
+```
+User: "The connector is degraded and the rule fired but allowed traffic anyway."
+Hypothesis 1: Connector degradation is causing partial policy enforcement.
+Hypothesis 2: The fired rule has a permit action shadowing a deny.
+(both hypotheses build on the user's causal claims as if they were verified)
+```
+Better:
+```
+Framing claims, treated as Open (uncertain) until verified:
+- Claim A: Connector is degraded — Source: pending. Will check LSS HealthStatus / API connector health endpoint.
+- Claim B: Rule X fired — Source: pending. Will check policy evaluation log / LSS for the matching rule ID.
+- Claim C: Traffic was allowed despite the rule — Source: pending. Will reconcile with web/access log action field.
+
+Until A/B/C are verified, hypotheses are framed as conditional ("if A, then…"); not load-bearing.
+```
+Users describe symptoms accurately but mis-attribute causes. "The connector is degraded" is often a guess based on the symptom; carrying it forward as a fact produces a confident wrong answer. Verify framing claims before they anchor reasoning, or mark them `Open (uncertain)` and identify the evidence that would resolve them.
+
 ## Practical guidelines
 
 ### When to open a claim

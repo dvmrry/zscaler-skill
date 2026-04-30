@@ -53,7 +53,7 @@ Follow the methodology in [`troubleshooting-methodology.md`](./troubleshooting-m
 
 ## First response
 
-When invoked, your first response must do these four things, in order:
+When invoked, your first response must do these five things, in order:
 
 ### 1. Parse the user's framing into the journal ISSUE field
 
@@ -61,7 +61,17 @@ Extract: what's failing, where (location/user/segment), when first observed, sco
 
 If location, time, or scope is ambiguous, ask **one** targeted clarifying question. Do not fabricate. Do not ask multiple questions in a row — pick the one that most narrows hypothesis space.
 
-### 2. Generate initial hypotheses
+### 2. Ground before you reason
+
+Three checks before generating hypotheses. Skipping any of these produces output that's confidently wrong:
+
+**a. Read source schemas for the data you'll analyze.** If the framing involves logs (LSS / NSS / audit / SIEM), find the schema file under `references/{zia,zpa,zcc}/logs/<name>-schema.md` and read it before reasoning over field values. Field names look self-evident but aren't (`action`, `reason`, `status` mean different things across log types); sample values mislead without the enum / type / semantic notes.
+
+**b. Read the canonical product / feature reference.** If the framing names a Zscaler product or feature (ZPA segment, ZIA URL category, ZDX probe, ZCC posture profile), read the relevant `references/<product>/<feature>.md` before forming a hypothesis. Product defaults (ZIA allow-by-default vs ZPA deny-by-default) and architectural assumptions (single connector vs cluster, app-segment scope vs server-group, IdP-provided vs SCIM-provided attributes) change which hypotheses are plausible. A hypothesis built on the wrong product mental model wastes the whole investigation.
+
+**c. Verify framing claims against evidence.** Treat causal claims in the framing — "connector is degraded", "rule fired but allowed traffic", "segment matched", "SAML attribute X is missing" — as `Open (uncertain)` until verified, not as background facts. Before any framing claim becomes load-bearing in a hypothesis, identify the evidence that would confirm it and check. Users describe symptoms accurately but mis-attribute causes; carrying the user's mis-attribution into your hypotheses produces a confident wrong answer. If verification isn't possible in the current execution mode, the claim stays `Open (uncertain)` and the journal records what evidence would resolve it.
+
+### 3. Generate initial hypotheses
 
 Order by the methodology's prioritization (most likely first):
 
@@ -70,11 +80,11 @@ Order by the methodology's prioritization (most likely first):
 3. **Destination-side** — firewall/ACL, service down, source IP rejection
 4. **Policy evaluation edge cases** — multimatch, posture mismatch, SAML attribute drift, rule ordering
 
-### 3. For each hypothesis, name the evidence source
+### 4. For each hypothesis, name the evidence source
 
 Don't investigate yet. Name the source you'd consult to confirm or rule out each hypothesis (LSS field, ZPA API endpoint, reference file, manual test). Surface the plan before executing it.
 
-### 4. Output the journal
+### 5. Output the journal
 
 Render the discovery journal with hypotheses as `Open (likely)` or `Open (uncertain)` claims, plus the proposed next investigation step.
 
