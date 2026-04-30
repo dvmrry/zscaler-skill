@@ -32,8 +32,8 @@ This repo is designed to be **forked privately to run against a real tenant**. T
 | File | What it is |
 |---|---|
 | `SKILL.md` | Anthropic-canonical skill entrypoint — extensive question-routing table |
-| `references/_clarifications.md` | **Canonical index** of open/partial/resolved ambiguities with sources. Status summary near the top is the quick-scan view (18 resolved / 6 partial / 1 investigating / 7 open as of 2026-04-24). |
-| `references/zia/*.md`, `references/zpa/*.md`, `references/zcc/*.md`, `references/zdx/*.md`, `references/zbi/*.md`, `references/zidentity/*.md`, `references/cloud-connector/*.md`, `references/zwa/*.md`, `references/shared/*.md` | Distilled reference docs; each cites vendored sources and links to `_clarifications.md` by ID |
+| `references/_meta/clarifications.md` | **Canonical index** of open/partial/resolved ambiguities with sources. Status summary near the top is the quick-scan view (18 resolved / 6 partial / 1 investigating / 7 open as of 2026-04-24). |
+| `references/zia/*.md`, `references/zpa/*.md`, `references/zcc/*.md`, `references/zdx/*.md`, `references/zbi/*.md`, `references/zidentity/*.md`, `references/cloud-connector/*.md`, `references/zwa/*.md`, `references/shared/*.md` | Distilled reference docs; each cites vendored sources and links to `_meta/clarifications.md` by ID |
 | `vendor/zscaler-help/README.md` | Drop convention, workflow, refresh instructions for the pinned bibliography |
 | `vendor/zscaler-help/*.pdf`, `vendor/zscaler-help/*.md` | Pinned bibliography — every reference doc cites something here |
 | `scripts/url-lookup.py`, `scripts/snapshot-refresh.py`, `scripts/splunk-query.sh` | Tooling scaffolds (Python via `uv run --script`). `snapshot-refresh.py` covers ZIA + ZPA + ZCC. |
@@ -47,7 +47,7 @@ This repo is designed to be **forked privately to run against a real tenant**. T
 - Vendor pile now 27 PDFs + 6 markdown captures, 100% cited.
 
 ### 2. Open-clarifications sweep ✅ MATERIALLY DONE (2026-04-23)
-- **18 fully resolved** (see `_clarifications.md § Resolved`). After 2026-04-24 cleanup pass: added `shared-01`, `shared-02`, `shared-04`, `shared-05` (design decisions codified), and `zpa-07` (Deception docs captured).
+- **18 fully resolved** (see `_meta/clarifications.md § Resolved`). After 2026-04-24 cleanup pass: added `shared-01`, `shared-02`, `shared-04`, `shared-05` (design decisions codified), and `zpa-07` (Deception docs captured).
 - **6 partially resolved** — each with doc-backed answer plus a narrow gap that needs lab/operator data.
 - **1 investigating** (`zpa-01` — schema shape evidence, awaiting doc or lab confirmation).
 - **7 remain open** — 6 lab-testable (see §Pending lab tests below), 1 NSS-timezone-multi-region (`log-03`, technically lab-testable).
@@ -109,7 +109,7 @@ Product scope extended from ZIA+ZPA to ZIA+ZPA+ZCC after QA review surfaced that
   - `devices.md` — (second pass) inventory, Device state fields, remove vs force-remove, VM-cloning fingerprint pattern, device cleanup, CSV downloads
   - `entitlements.md` — (second pass) ZPA and ZDX group entitlements; `zpa_enable_for_all` trump card, Machine Tunnel gating, ZDX `collect_zdx_location` dual-source
 - **SKILL.md updated:** scope description mentions ZCC; routing table adds three ZCC rows and a ZCC API row; "out of scope" note refined to list what's still out (ZDX, ZIdentity, ZMS, ZINS, EASM).
-- **`_clarifications.md`:** added 7 new entries `zcc-01` through `zcc-07` covering enum values the SDK doesn't validate (condition_type, network_type, action_type, primary_transport) plus systemProxyData precedence and forwarding-profile assignment mechanism.
+- **`_meta/clarifications.md`:** added 7 new entries `zcc-01` through `zcc-07` covering enum values the SDK doesn't validate (condition_type, network_type, action_type, primary_transport) plus systemProxyData precedence and forwarding-profile assignment mechanism.
 - **Snapshot scope gap closed (second pass 2026-04-24):** `scripts/snapshot-refresh.py` now dumps ZCC (forwarding-profiles, trusted-networks, fail-open-policy, web-policy) under `snapshot/zcc/`. New `--zcc-only` flag mirrors `--zia-only` / `--zpa-only`. First fork-admin run will resolve enum clarifications `zcc-01` through `zcc-04` and `zcc-06` via observed values.
 
 Remaining ZCC areas **not written up**: ZCC admin users / roles / secrets (`client.zcc.admin_user`, `client.zcc.secrets`, `client.zcc.company`) — rarely relevant to policy-reasoning questions; captive-portal detection deep-dive (covered at feature level in forwarding-profile.md, but exact heuristics not documented); Z-Tunnel 1.0 vs 2.0 protocol internals (not customer-documented).
@@ -181,7 +181,7 @@ Ranked by ease + value:
 
 ## Next buildout phase — architectural gaps and scope expansions
 
-Organized by what a future session (or fork admin) would tackle next. Each entry notes what it is, why it matters, what resolving it would require, and rough effort. Cross-link to `_clarifications.md` where a specific behavior question is already tracked by ID; most of these are broader than any single clarification.
+Organized by what a future session (or fork admin) would tackle next. Each entry notes what it is, why it matters, what resolving it would require, and rough effort. Cross-link to `_meta/clarifications.md` where a specific behavior question is already tracked by ID; most of these are broader than any single clarification.
 
 ### Cross-SDK validation sweep — ✅ DONE (2026-04-24)
 
@@ -208,7 +208,7 @@ These live inside what we've already declared "covered" but where the docs still
 | **App Profile assignment (`zcc-07`)** | "Which forwarding profile does user X actually get?" Right now the skill can describe profile semantics but can't answer this from API data. | (a) Check for SDK version bump that adds App Profiles surface, (b) direct HTTP discovery against undocumented endpoints, (c) admin-portal walkthrough as the documented flow (accept "console-only" as the answer). | Medium effort; (c) is cheap and probably enough |
 | **systemProxyData precedence (`zcc-05`)** | "Does ZCC honor the system proxy when `actionType: TUNNEL` is also set?" Cascade order between ZCC-native forwarding and OS-level proxy isn't documented. | Lab test: populate both on a profile, observe with Wireshark. | Low effort once a lab endpoint exists |
 | **Captive-portal detection deep-dive** | ~~Currently covered as a FailOpenPolicy setting. Operational questions — "why did the grace period expire before I finished auth?" "how does ZCC detect the portal?" — need a dedicated doc.~~ **Partially done (2026-04-24).** Captured `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md` which confirms captive-portal settings moved from global to App Profile scope. Threaded into `references/zcc/forwarding-profile.md`. Remaining gap: the actual detection heuristics (which HTTP probes ZCC uses, timing of state transitions) — no public doc found. | | Partially done |
-| **Malware Protection / ATP console-only diagnosis workflow** | ~~Skill currently says "no API, use the console." That's correct but not helpful.~~ **DONE (2026-04-24).** Wrote `references/zia/malware-and-atp.md` covering both policies' mechanics, category shape, Page Risk scoring, Blocked Malicious URLs, AI/ML recategorization, security-exceptions bypass behavior, and the Security-Dashboard → Web-Insights → category-based-remediation workflow. Opened [`clarification log-04`](references/_clarifications.md#log-04-mp-atp-blocked-policy-type-log-field) for the exact `blockedpolicytype` field name + enum (first tenant Web Insights export closes it). | | Done |
+| **Malware Protection / ATP console-only diagnosis workflow** | ~~Skill currently says "no API, use the console." That's correct but not helpful.~~ **DONE (2026-04-24).** Wrote `references/zia/malware-and-atp.md` covering both policies' mechanics, category shape, Page Risk scoring, Blocked Malicious URLs, AI/ML recategorization, security-exceptions bypass behavior, and the Security-Dashboard → Web-Insights → category-based-remediation workflow. Opened [`clarification log-04`](references/_meta/clarifications.md#log-04-mp-atp-blocked-policy-type-log-field) for the exact `blockedpolicytype` field name + enum (first tenant Web Insights export closes it). | | Done |
 | **ZCC deferred areas: web_policy, web_privacy, devices, entitlements** | ~~On-device URL filtering (distinct from ZIA URL filtering). Telemetry-collection policy. Device lifecycle (force-remove, inventory). Service entitlements (who gets ZPA/ZDX/Endpoint DLP). All SDK-surface-present, not written up.~~ **DONE (2026-04-24, second pass).** Wrote `web-policy.md`, `web-privacy.md`, `devices.md`, `entitlements.md`. Side effect: resolved `zcc-07` partially by discovering `WebPolicy.forwarding_profile_id` is the assignment mechanism. | | Done |
 | **ZCC snapshot extension** | ~~`snapshot-refresh.py` doesn't dump ZCC. 10-line fix documented in `references/zcc/api.md § Snapshotting ZCC configuration`.~~ **DONE (2026-04-24).** `snapshot-refresh.py` now has `refresh_zcc()` covering forwarding-profiles, trusted-networks, fail-open-policy, and web-policy. New `--zcc-only` flag. | | Done |
 
@@ -250,7 +250,7 @@ Three items from the lower-ROI refinement list:
 
 Three refinements the user picked from a larger list: (1) clarifications resolution pass; (2) Go SDK reasoning-doc sweep for ZIA/ZPA (parallel to the earlier cross-SDK sweep that only hit api.md files); (3) dedicated DLP reference doc to consolidate scattered mentions.
 
-- **Clarifications resolution pass** — reviewed all Open and Partial entries in `_clarifications.md`. Net result: no new closures (remaining items are truly tenant/lab-blocked). Incidentally closed the Sandbox-quota open bullet in `sandbox.md` using Go SDK `RatingQuota` struct (time-bounded report-retrieval count, not byte volume).
+- **Clarifications resolution pass** — reviewed all Open and Partial entries in `_meta/clarifications.md`. Net result: no new closures (remaining items are truly tenant/lab-blocked). Incidentally closed the Sandbox-quota open bullet in `sandbox.md` using Go SDK `RatingQuota` struct (time-bounded report-retrieval count, not byte volume).
 - **Go SDK reasoning-doc sweep** — Sonnet subagent compared Python-SDK-derived reasoning docs against Go SDK typed structs. 4 blockers + 8 fixes surfaced and threaded:
   - BLOCKERS: `ssl-inspection.md` missing `BLOCK` action type and its validation constraints; `ssl-inspection.md` using Python snake_case (`http2_enabled`) for fields that are camelCase on the wire (`http2Enabled`); `url-filtering.md` prescribing a non-existent `patternsRetainingParentCategoryCount` field; `policy-precedence.md` using snake_case `device_posture_failure_notification_enabled` for a camelCase wire field.
   - FIXES: `sandbox.md` missing the full Sandbox Rule API (FirstTimeOperation enum, ML/threat-score actions, cross-product `ZPAAppSegments`) plus the `Discan` out-of-band inspection API; `url-filtering.md` missing 12 GenAI per-LLM-vendor prompt-tracking flags (DeepSeek, Grok, Mistral, Claude, Grammarly, etc.); `app-segments.md` missing 10 Go-SDK-only fields (notably `bypassOnReauth`) and cross-microtenant Move/Share ops; `policy-precedence.md` missing `Reorder` / `BulkReorder` APIs for programmatic rule-order changes; `cloud-app-control.md` missing `Actions []string` slice semantics, `CreateDuplicate` method, `AllAvailableActions` lookup.
@@ -279,7 +279,7 @@ Three refinements the user picked from a larger list: (1) clarifications resolut
 After the product-scope build-out closed at ZWA, ran a consolidation pass covering three strands at once:
 
 - **QA sweep** via a Sonnet subagent against the expanded 8-product scope (first attempt drifted off-script; retry with a tighter prompt produced a clean ~500-word report). Findings:
-  1. One dead link — `references/zia/foo.md` cited in `_clarifications.md` workflow-template section. Fixed by replacing with `<product>/<topic>.md` placeholder.
+  1. One dead link — `references/zia/foo.md` cited in `_meta/clarifications.md` workflow-template section. Fixed by replacing with `<product>/<topic>.md` placeholder.
   2. Two unrouted shared docs — `references/shared/activation.md` and `references/shared/terminology.md` existed but weren't in SKILL.md's routing table. Added routing rows for both.
   3. `references/shared/` had no `index.md`. Created one listing all 7 shared docs plus guidance on when to start there vs in a product directory.
   4. Three cross-product consistency checks (step-up-is-OIDC-only; SSL-decrypt-required-for-content-based-security-features; Cloud-Connector-fails-close-by-default) all passed — no contradictions across products.
@@ -604,6 +604,6 @@ Plus portfolio-map T2 fill-ins: CTEM, Business Continuity Cloud (own entry vs. b
 
 ## Crash-recovery hints
 
-- **Resuming the `_clarifications.md` flow:** read Status summary at top → pick a Partial or Open → check origin reference doc for context → look in `vendor/zscaler-help/` for a candidate article → grep with `uv run --with pypdf …` (see transcripts for pattern).
+- **Resuming the `_meta/clarifications.md` flow:** read Status summary at top → pick a Partial or Open → check origin reference doc for context → look in `vendor/zscaler-help/` for a candidate article → grep with `uv run --with pypdf …` (see transcripts for pattern).
 - **Resuming Playwright captures:** existing captures live as `vendor/zscaler-help/<slug>.md` with frontmatter attribution. Pattern: navigate → wait 2.5s → expand accordion buttons (`aria-expanded="false"`) → `document.querySelector('article').innerText`.
 - **Fork portability:** the skill is designed to be forked privately and run against a real tenant. Avoid prompts or scripts that depend on Claude Code-specific tooling; keep the skill runnable by whatever agent harness a fork uses.

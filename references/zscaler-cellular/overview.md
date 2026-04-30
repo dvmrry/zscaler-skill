@@ -128,4 +128,4 @@ GA August 2025. Listed under "Zscaler Connectors" in the help portal product nav
 - ZIA (policy enforcement for Cellular-forwarded internet traffic): [`../zia/index.md`](../zia/index.md)
 - ZPA (private app access for Cellular-connected devices): [`../zpa/index.md`](../zpa/index.md)
 - Zero Trust Branch (alternative for branch/factory IoT via appliance, not SIM): [`../zero-trust-branch/overview.md`](../zero-trust-branch/overview.md)
-- Portfolio map: [`../_portfolio-map.md`](../_portfolio-map.md)
+- Portfolio map: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)

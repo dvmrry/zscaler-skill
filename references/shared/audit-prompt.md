@@ -80,7 +80,7 @@ Invoke the existing CI scripts against the scope. Capture output verbatim. Each 
 ./scripts/check-doc-links.py
 ```
 
-`check-orphans.py` emits files that no other markdown link, backticked path, or directory reference points at. Treat orphans as `Medium` severity by default — readers can't discover them without knowing the path. Bump to `High` if the file is a substantive product overview / schema reference. The script exempts `_archive/**` (intentionally not linked).
+`check-orphans.py` emits files that no other markdown link, backticked path, or directory reference points at. Treat orphans as `Medium` severity by default — readers can't discover them without knowing the path. Bump to `High` if the file is a substantive product overview / schema reference. The script exempts `_meta/archive/**` (intentionally not linked).
 
 Treat the script output as **Tier A evidence** — deterministic, mechanical, not subject to debate. Quote relevant output lines in the finding's Source field.
 
@@ -172,11 +172,11 @@ Severity: `Medium` for first-reference dangling; `Low` for repeat usage in the s
 #### g. Open-questions hygiene
 
 For each in-scope file with an `## Open questions` section:
-- Are listed open questions tracked in `_clarifications.md`?
+- Are listed open questions tracked in `_meta/clarifications.md`?
 - Are any of them stale — i.e., resolved elsewhere in the kit but not propagated back here?
 - Is the section a real list of open items, or has it become a stale dumping ground?
 
-Cross-reference `_clarifications.md` § "Status summary" to detect stale items. `check-hygiene.py` already does part of this; flag what it doesn't catch (e.g., a question that's resolved but the file's open-questions text doesn't reflect the resolution).
+Cross-reference `_meta/clarifications.md` § "Status summary" to detect stale items. `check-hygiene.py` already does part of this; flag what it doesn't catch (e.g., a question that's resolved but the file's open-questions text doesn't reflect the resolution).
 
 Severity: `Medium` for stale open questions; `Low` for "open questions" section that should be removed entirely if empty.
 
@@ -252,4 +252,4 @@ When these are added, this prompt becomes the **lint** branch of a subtype-param
 - [`troubleshooting-methodology.md`](./troubleshooting-methodology.md) — parallel discipline for investigations
 - [`investigate-prompt.md`](./investigate-prompt.md) — `/z-investigate` playbook (the hypothesis-driven sibling)
 - Mechanical CI scripts — `scripts/check-hygiene.py`, `scripts/check-citations.sh`, `scripts/check-staleness.sh`, `scripts/check-doc-links.py`
-- Clarifications register — `references/_clarifications.md`
+- Clarifications register — `references/_meta/clarifications.md`

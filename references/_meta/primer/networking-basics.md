@@ -215,4 +215,4 @@ Zscaler operators mix these depending on user / device / location. The choice is
 - Zero-trust mental model: [`./zero-trust.md`](./zero-trust.md)
 - Identity / SAML / OIDC: [`./identity-saml-oidc.md`](./identity-saml-oidc.md)
 - The Zscaler product platform: [`./zscaler-platform-shape.md`](./zscaler-platform-shape.md)
-- For depth on a specific product, start at [`../_portfolio-map.md`](../_portfolio-map.md).
+- For depth on a specific product, start at [`../portfolio-map.md`](../portfolio-map.md).

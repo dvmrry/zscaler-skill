@@ -2,7 +2,7 @@
 
 **Status**: resolved — work framework agent answered all six.
 **Last updated**: 2026-04-29
-**Permanent reference**: see [`../shared/windsurf-runtime-notes.md`](../shared/windsurf-runtime-notes.md) for the conventions distilled from these answers.
+**Permanent reference**: see [`../../shared/windsurf-runtime-notes.md`](../../shared/windsurf-runtime-notes.md) for the conventions distilled from these answers.
 
 ## Context
 

@@ -271,4 +271,4 @@ Zscaler documents device classification based on traffic profiles. The specifics
 - Traffic forwarding rules — full five-method reference: [`./forwarding.md`](./forwarding.md)
 - Cloud Connector and Branch Connector naming disambiguation: [`./index.md`](./index.md)
 - ZPA App Connectors (required for branch-to-branch private-app access): [`../zpa/app-segments.md`](../zpa/app-segments.md)
-- Portfolio context — where Zero Trust SD-WAN fits in the Zscaler product map: [`../_portfolio-map.md`](../_portfolio-map.md) § Cloud & Branch Connector (Tier 1)
+- Portfolio context — where Zero Trust SD-WAN fits in the Zscaler product map: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md) § Cloud & Branch Connector (Tier 1)

@@ -251,4 +251,4 @@ The following items are referenced structurally in the help docs but not fully c
 - Cloud-agnostic architecture: [`./overview.md`](./overview.md)
 - AWS CC VM deployment: [`./aws-deployment.md`](./aws-deployment.md) (parallel doc — link assumed)
 - Forwarding rules + methods: [`./forwarding.md`](./forwarding.md)
-- Portfolio context: [`../_portfolio-map.md`](../_portfolio-map.md)
+- Portfolio context: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)

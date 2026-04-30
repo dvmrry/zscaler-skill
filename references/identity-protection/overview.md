@@ -130,4 +130,4 @@ The help portal documents "Triggering Report Export Through an API" as a SecOps 
 - SOC Workbench (alert/incident response, integrates identity signals): [`../soc-workbench/overview.md`](../soc-workbench/overview.md)
 - ZCC (required sensor for detection capabilities): [`../zcc/index.md`](../zcc/index.md)
 - ZPA (enforcement target for identity-based access blocking): [`../zpa/index.md`](../zpa/index.md)
-- Portfolio map: [`../_portfolio-map.md`](../_portfolio-map.md)
+- Portfolio map: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)

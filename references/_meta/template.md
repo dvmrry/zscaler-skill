@@ -47,14 +47,14 @@ Not every file needs every section. **Edge cases** is the one that justifies thi
 When you can't answer something from the sources, don't fabricate a guess. Record it in two places:
 
 1. **This file's Open questions section** — one-line summary, linked to the canonical ID below.
-2. **[`_clarifications.md`](./_clarifications.md)** — the full entry with a stable ID (`zia-XX`, `zpa-XX`, `log-XX`, `shared-XX`), what kind of evidence resolves it, and its status.
+2. **[`clarifications.md`](clarifications.md)** — the full entry with a stable ID (`zia-XX`, `zpa-XX`, `log-XX`, `shared-XX`), what kind of evidence resolves it, and its status.
 
 Cross-link both ways. In your doc:
 
 ```markdown
 ## Open questions
 
-- Does `*.example.com` match `example.com` itself? See [clarification zia-03](../_clarifications.md#zia-03).
+- Does `*.example.com` match `example.com` itself? See [clarification zia-03](.clarifications.md#zia-03).
 ```
 
-When `_clarifications.md` later gets an answer, the `Status:` line there changes to `resolved` with the answer inline — at which point you can fold the answer back into the relevant section of your reference doc and remove the Open question bullet (but leave the clarification entry for history).
+When `clarifications.md` later gets an answer, the `Status:` line there changes to `resolved` with the answer inline — at which point you can fold the answer back into the relevant section of your reference doc and remove the Open question bullet (but leave the clarification entry for history).

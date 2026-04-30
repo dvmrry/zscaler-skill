@@ -149,8 +149,8 @@ Once log data is available (per the `references/shared/log-correlation.md` decis
 
 - Source: `scripts/policy_simulator.py` (canonical implementation)
 - Runnable CLI: `scripts/simulate-policy.py`
-- Underlying URL filter logic: [`./zia/url-filtering.md`](./zia/url-filtering.md)
-- Wildcard semantics (URL → category resolution): [`./zia/wildcard-semantics.md`](./zia/wildcard-semantics.md)
-- Snapshot format: [`./zia/snapshot-schema.md`](./zia/snapshot-schema.md)
-- Why-was-this-blocked runbook: [`./_runbooks.md § Troubleshooting flows § TS-2`](./_runbooks.md)
-- Log correlation (validation against actual traffic): [`./shared/log-correlation.md`](./shared/log-correlation.md)
+- Underlying URL filter logic: [`../zia/url-filtering.md`](../zia/url-filtering.md)
+- Wildcard semantics (URL → category resolution): [`../zia/wildcard-semantics.md`](../zia/wildcard-semantics.md)
+- Snapshot format: [`../zia/snapshot-schema.md`](../zia/snapshot-schema.md)
+- Why-was-this-blocked runbook: [`runbooks.md § Troubleshooting flows § TS-2`](runbooks.md)
+- Log correlation (validation against actual traffic): [`../shared/log-correlation.md`](../shared/log-correlation.md)

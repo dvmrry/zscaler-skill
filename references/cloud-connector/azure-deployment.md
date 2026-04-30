@@ -198,4 +198,4 @@ ExpressRoute / VPN Gateway coexistence and Azure Route Server interaction remain
 - Cloud-agnostic architecture: [`./overview.md`](./overview.md)
 - Forwarding rules + methods: [`./forwarding.md`](./forwarding.md)
 - API + Terraform surface: [`./api.md`](./api.md)
-- Portfolio context: [`../_portfolio-map.md`](../_portfolio-map.md)
+- Portfolio context: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)

@@ -154,4 +154,4 @@ Administered via the Zscaler SecOps portal. SSO support: Entra ID, Okta, PingOne
 - AEM (asset exposure management, same SecOps platform, asset-centric view): [`../aem/overview.md`](../aem/overview.md)
 - SOC Workbench (alert/incident triage, same SecOps platform): [`../soc-workbench/overview.md`](../soc-workbench/overview.md)
 - Risk360 (financial risk quantification using vulnerability context): [`../risk360/overview.md`](../risk360/overview.md)
-- Portfolio map: [`../_portfolio-map.md`](../_portfolio-map.md)
+- Portfolio map: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)

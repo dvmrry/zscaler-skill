@@ -18,7 +18,7 @@ author-status: draft
 
 The ZCC **Web Policy** object (called **App Profile** in the ZCC admin portal UI) is the on-endpoint policy that controls ZCC's own behavior — PAC URLs, which Forwarding Profile to use for ZIA/ZPA, whether ZCC installs the SSL root cert, uninstall-protection passwords, per-app bypasses, platform-specific settings, and disaster-recovery fallback behavior. It is **not** ZIA's URL filtering policy; those are different products in different places.
 
-**Naming note**: `WebPolicy` is the SDK/API name (wire path: `/zcc/papi/public/v1/webPolicy/...`). **App Profile** is the admin-portal UI name for the same object. When an admin says "the user's App Profile" or "edit the Windows app profile rule," they mean a Web Policy entry scoped to those users/that platform. See [`clarification zcc-07`](../_clarifications.md#zcc-07-forwarding-profile-assignment-to-usersdevices).
+**Naming note**: `WebPolicy` is the SDK/API name (wire path: `/zcc/papi/public/v1/webPolicy/...`). **App Profile** is the admin-portal UI name for the same object. When an admin says "the user's App Profile" or "edit the Windows app profile rule," they mean a Web Policy entry scoped to those users/that platform. See [`clarification zcc-07`](../_meta/clarifications.md#zcc-07-forwarding-profile-assignment-to-usersdevices).
 
 ---
 

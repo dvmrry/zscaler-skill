@@ -68,7 +68,7 @@ Each entry follows this template. Body is narrative — the existing zia-01 entr
 2. Add it to your doc's **Open questions** section with a one-line summary.
 3. Add the full entry here with a new stable ID, following the entry template above.
 4. Link both ways:
-   - Your doc: `See [clarification zia-07](../_clarifications.md#zia-07).`
+   - Your doc: `See [clarification zia-07](.clarifications.md#zia-07).`
    - This file: `*Origin: references/<product>/<topic>.md § Open questions*` (placeholder path — substitute the real one)
 5. **When resolving**: fold the answer into the relevant reference doc body (that's where it's useful), update the doc's `last-verified` date, then delete the entry from this register. Git history preserves it.
    - **Grandfather rule**: existing pre-2026-04-27 resolved entries (`zia-01`, `zia-03`, `zia-05`–`zia-07`, `zia-10`, `zia-13`, `zpa-02`, `zpa-03`, `zpa-05`–`zpa-08`, `shared-01`–`shared-05`) stay where they are; this policy applies to entries resolved on or after 2026-04-27.
@@ -898,7 +898,7 @@ When a forwarding-profile action has `systemProxy=true` with `systemProxyData` s
 
 **Resolves with**: lab test OR zscaler doc. **Status**: partially resolved (2026-04-24).
 
-**Partial answer (2026-04-24)**: The *Best Practices for Adding Bypasses for Z-Tunnel 2.0* help article (`vendor/zscaler-help/best-practices-adding-bypasses-z-tunnel-2.0.md`) documents two 3.8+ Windows flags — `Redirect Web Traffic to Zscaler Client Connector Listening Proxy` and `Use Z-Tunnel 2.0 for Proxied Web Traffic` — as the officially-supported way to combine system-proxy-style routing with Z-Tunnel 2.0. The truth table for their interaction is captured in [`./zcc/z-tunnel.md § Domain-based bypasses`](./zcc/z-tunnel.md). SDK fields: `redirect_web_traffic` and `use_tunnel2_for_proxied_web_traffic` on `ForwardingProfileActions`.
+**Partial answer (2026-04-24)**: The *Best Practices for Adding Bypasses for Z-Tunnel 2.0* help article (`vendor/zscaler-help/best-practices-adding-bypasses-z-tunnel-2.0.md`) documents two 3.8+ Windows flags — `Redirect Web Traffic to Zscaler Client Connector Listening Proxy` and `Use Z-Tunnel 2.0 for Proxied Web Traffic` — as the officially-supported way to combine system-proxy-style routing with Z-Tunnel 2.0. The truth table for their interaction is captured in [`../zcc/z-tunnel.md § Domain-based bypasses`](../zcc/z-tunnel.md). SDK fields: `redirect_web_traffic` and `use_tunnel2_for_proxied_web_traffic` on `ForwardingProfileActions`.
 
 Key interaction surfaced by the article: `Use Z-Tunnel 2.0 for Proxied Web Traffic` applies **only to the default return statement in the App Profile PAC**. Traffic matching a specific PAC statement that routes to a particular Service Edge silently uses Z-Tunnel 1.0, regardless of the flag state.
 
@@ -1358,7 +1358,7 @@ Capacity limits: machine groups per tenant, provisioning keys per group, and enr
 
 *Origin: `references/zpa/machine-groups.md` § classification*
 
-The coverage audit (`_archive/audits/2026-04-26.md`) listed machine groups under "ZIA uncovered." All sources confirm this is a ZPA construct: vendor URL is `help.zscaler.com/zpa/about-machine-groups`; all SDK and Terraform artifacts are ZPA-only.
+The coverage audit (`archive/audits/2026-04-26.md`) listed machine groups under "ZIA uncovered." All sources confirm this is a ZPA construct: vendor URL is `help.zscaler.com/zpa/about-machine-groups`; all SDK and Terraform artifacts are ZPA-only.
 
 **Status**: resolved — 2026-04-27
 
@@ -2229,4 +2229,4 @@ Whether a macOS user denial of the ZCC Network Extension (in System Settings →
 
 ## Resolved entries
 
-See the **Status summary** near the top of this file for the list. Entries stay in their original positions above with `Status: resolved` and the answer inline, so anchor links (`../_clarifications.md#zia-03` etc.) resolve regardless of resolution state.
+See the **Status summary** near the top of this file for the list. Entries stay in their original positions above with `Status: resolved` and the answer inline, so anchor links (`.clarifications.md#zia-03` etc.) resolve regardless of resolution state.

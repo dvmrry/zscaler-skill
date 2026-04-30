@@ -37,7 +37,7 @@ The skill should treat questions about "AI security in the Zscaler stack" as a l
 - **Start in [`../zia/url-filtering.md`](../zia/url-filtering.md)** for: "how does Zscaler block ChatGPT?" — the URL Filter GenAI categories handle category-level blocking before AI Guard's content layer fires.
 - **Start in [`../zia/dlp.md`](../zia/dlp.md)** for: "how does Zscaler stop sensitive data going into LLM prompts?" — DLP prompt scanning is the existing capability; AI Guard *adds to* it, not replaces.
 - **Start in [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md)** for: "I configured AI Guard inline and it's not catching anything" — most likely SSL bypass on the LLM provider domain.
-- **Start in [`../_portfolio-map.md`](../_portfolio-map.md)** for: "is AI Security in scope for this skill?" — coverage tier check.
+- **Start in [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)** for: "is AI Security in scope for this skill?" — coverage tier check.
 
 ## Coverage gaps (deferred)
 

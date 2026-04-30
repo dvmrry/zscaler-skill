@@ -267,4 +267,4 @@ Users can disable ZPA reauthentication notifications from within the ZCC client.
 
 ## Deferred items
 
-Unsourceable claims registered in [`_clarifications.md`](../_clarifications.md) as `zcc-24` through `zcc-32`.
+Unsourceable claims registered in [`_meta/clarifications.md`](../_meta/clarifications.md) as `zcc-24` through `zcc-32`.

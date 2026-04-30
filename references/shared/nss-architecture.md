@@ -288,4 +288,4 @@ See terminology: [`./terminology.md § NSS vs LSS`](./terminology.md) (add if no
 - Log-correlation guidance: [`./log-correlation.md`](./log-correlation.md).
 - Cloud architecture (where Nanolog fits): [`./cloud-architecture.md`](./cloud-architecture.md).
 - ZPA LSS (different streaming layer): [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md).
-- Clarifications on NSS: [`log-01`](../_clarifications.md#log-01-nss-feed-format-versions), [`log-02`](../_clarifications.md#log-02-cloud-nss-vs-legacy-nss-divergence).
+- Clarifications on NSS: [`log-01`](../_meta/clarifications.md#log-01-nss-feed-format-versions), [`log-02`](../_meta/clarifications.md#log-02-cloud-nss-vs-legacy-nss-divergence).

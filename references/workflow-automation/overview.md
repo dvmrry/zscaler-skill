@@ -131,4 +131,4 @@ No dedicated Workflow Automation REST API reference was found in available help 
 
 - ZIA DLP (source of incidents that Workflow Automation processes): [`../zia/dlp.md`](../zia/dlp.md)
 - ZIA NSS (log streaming; separate from incident management): [`../zia/index.md`](../zia/index.md)
-- Portfolio map: [`../_portfolio-map.md`](../_portfolio-map.md)
+- Portfolio map: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)

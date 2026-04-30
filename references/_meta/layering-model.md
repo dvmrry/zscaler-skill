@@ -77,7 +77,7 @@ The skill answers questions by combining three distinct **knowledge layers**. Ea
 **Update cadence:** continuous and informal. Post-mortems, support cases, on-call hand-offs.
 
 **Where it goes to be useful:**
-- **As clarifications**: if SME knowledge contradicts or extends doc content, file a `_clarifications.md` entry. Tribal knowledge becomes citable claim-with-context.
+- **As clarifications**: if SME knowledge contradicts or extends doc content, file a `clarifications.md` entry. Tribal knowledge becomes citable claim-with-context.
 - **As operator-confirmed answers**: when the skill answers a question and the SME validates ("we've seen exactly this; the answer above is right"), that's tribal-knowledge-validated content. Mark in the answer's confidence rationale.
 - **As future fine-tune training data**: the goal of this skill is partly to externalize tribal knowledge so it survives team turnover. Capturing tribal knowledge as `references/` content over time is a deliberate transfer.
 
@@ -119,7 +119,7 @@ Cited sources in the answer should attribute by layer:
 - **Treating Layer 2 inferences as Layer 1 facts.** "This tenant doesn't have Multimatch enabled" is a Layer 2 fact. "Zscaler doesn't support Multimatch" is a Layer 1 falsehood derived from over-generalizing.
 - **Treating Layer 3 as Layer 1.** "Our team has never seen X happen" is Layer 3 (absence of tribal evidence). "Zscaler doesn't do X" is a Layer 1 claim that requires Zscaler documentation. They're not the same.
 - **Citing Layer 1 when Layer 2 is required.** "ZIA blocks Social Networking by default" is wrong as a Layer 1 claim. Default policy varies; your tenant's default is in `snapshot/zia/url-filtering-rules.json`, not in the help docs.
-- **Letting Layer 3 quietly override Layer 1.** If tribal knowledge contradicts Zscaler docs, that's a clarification ("Zscaler docs say X but our experience is Y") — file it in `_clarifications.md` rather than just trusting the tribe.
+- **Letting Layer 3 quietly override Layer 1.** If tribal knowledge contradicts Zscaler docs, that's a clarification ("Zscaler docs say X but our experience is Y") — file it in `clarifications.md` rather than just trusting the tribe.
 
 ## Where tenant-data layering will eventually intersect the skill
 
@@ -133,7 +133,7 @@ Currently Layer 2 is a known gap because the public skill ships an empty `snapsh
 
 Two paths in:
 
-1. **Clarifications**: an SME sees a Layer 1 claim that's wrong or incomplete. File a `_clarifications.md` entry naming the discrepancy. Future re-validation pass picks it up. Stable IDs let the SME's contribution be cited.
+1. **Clarifications**: an SME sees a Layer 1 claim that's wrong or incomplete. File a `clarifications.md` entry naming the discrepancy. Future re-validation pass picks it up. Stable IDs let the SME's contribution be cited.
 2. **Direct doc edits**: an SME refines a `references/**/*.md` doc with experiential knowledge, citing it explicitly ("From operator experience: Y typically happens when X" with `confidence: medium` and a comment about source). Layer 3 → Layer 1 promotion via deliberate authoring.
 
 The skill handles Layer 3 cleanly only when it's been **promoted** to Layer 1 with attribution. Pure tribal knowledge floating in chat or runbooks isn't accessible to the skill.
@@ -149,9 +149,9 @@ When training data flows from this skill into a fine-tuned model on RockAI:
 
 ## Cross-links
 
-- The `sources:` array in each reference doc — explicit per-claim attribution. See `_template.md`.
+- The `sources:` array in each reference doc — explicit per-claim attribution. See `template.md`.
 - `source-tier:` field — added across 65 docs in the 2026-04-24 labeling pass.
 - `confidence:` field — Layer 1 content carries an honest confidence label.
-- `_clarifications.md` — the canonical place tribal knowledge gets promoted to Layer 1.
+- `clarifications.md` — the canonical place tribal knowledge gets promoted to Layer 1.
 - `PLAN.md § 4. Snapshot schema docs` — Layer 2 schema deferral rationale.
 - `README.md § Fork-admin first-run walkthrough` — how a fork-team operationalizes Layer 2 in their environment.

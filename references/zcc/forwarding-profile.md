@@ -67,7 +67,7 @@ From `zscaler/zcc/models/forwardingprofile.py`, the top-level fields on a `Forwa
 | `trusted_networks` | `trustedNetworks` | (String list; likely the resolved names of the referenced TrustedNetworks for display — redundant with IDs at the API level.) |
 | `predefined_tn_all` | `predefinedTnAll` | Boolean; shortcut that treats any of a pre-defined set of trusted networks as a match. |
 | `predefined_trusted_networks` | `predefinedTrustedNetworks` | The resolved set behind the above shortcut. |
-| `condition_type` | `conditionType` | How trusted-criteria combine (AND vs OR across the inline fields + referenced TrustedNetworks). Enum values not documented in SDK; see [`clarification zcc-01`](../_clarifications.md#zcc-01-forwardingprofile-condition_type-enum). |
+| `condition_type` | `conditionType` | How trusted-criteria combine (AND vs OR across the inline fields + referenced TrustedNetworks). Enum values not documented in SDK; see [`clarification zcc-01`](../_meta/clarifications.md#zcc-01-forwardingprofile-condition_type-enum). |
 | `evaluate_trusted_network` | `evaluateTrustedNetwork` | Master toggle — if false, trusted-network evaluation is skipped entirely and only the Untrusted action branch applies. |
 | `skip_trusted_criteria_match` | `skipTrustedCriteriaMatch` | Bypass criteria evaluation (forces a specific branch). Mutually-exclusive relationship with `evaluate_trusted_network` not confirmed; see `zcc-01`. |
 | `enable_lwf_driver` | `enableLWFDriver` | Windows Lightweight Filter driver mode — affects how ZCC intercepts traffic on Windows. |
@@ -77,9 +77,9 @@ From `zscaler/zcc/models/forwardingprofile.py`, the top-level fields on a `Forwa
 
 ### ForwardingProfileActions — ZIA actions per network type
 
-Each item in `forwardingProfileActions` is keyed by `networkType` — the classification this action block applies to. Typical values include `TRUSTED`, `UNTRUSTED` (and likely `CAPTIVE_PORTAL` / `VPN_TRUSTED_NETWORK` / similar — the enum isn't documented in the SDK; see [`clarification zcc-02`](../_clarifications.md#zcc-02-forwardingprofile-actions-network_type-enum)).
+Each item in `forwardingProfileActions` is keyed by `networkType` — the classification this action block applies to. Typical values include `TRUSTED`, `UNTRUSTED` (and likely `CAPTIVE_PORTAL` / `VPN_TRUSTED_NETWORK` / similar — the enum isn't documented in the SDK; see [`clarification zcc-02`](../_meta/clarifications.md#zcc-02-forwardingprofile-actions-network_type-enum)).
 
-The `actionType` field within the block decides what happens to Internet traffic on that network. Known values from field names and typical ZCC semantics: `NONE` (send direct, skip ZIA), `PAC` (honor a PAC file), `ENFORCE_POLICIES` / `TUNNEL` (send through Z-Tunnel for ZIA inspection). The exact enum list is not documented in the SDK code; see [`clarification zcc-03`](../_clarifications.md#zcc-03-forwardingprofile-action_type-enum).
+The `actionType` field within the block decides what happens to Internet traffic on that network. Known values from field names and typical ZCC semantics: `NONE` (send direct, skip ZIA), `PAC` (honor a PAC file), `ENFORCE_POLICIES` / `TUNNEL` (send through Z-Tunnel for ZIA inspection). The exact enum list is not documented in the SDK code; see [`clarification zcc-03`](../_meta/clarifications.md#zcc-03-forwardingprofile-action_type-enum).
 
 **If `actionType: NONE` is configured on the Trusted branch, ZCC bypasses ZIA entirely on trusted networks.** This is the single most common "why didn't ZIA see this traffic?" finding. A tenant that adds a TrustedNetwork for a user's home Wi-Fi (accidentally or deliberately) effectively exempts that user from ZIA inspection while at home.
 
@@ -242,11 +242,11 @@ This is a **third tunnel configuration mode** alongside the traditional two-tunn
 
 ## Open questions
 
-- `condition_type` enum values and AND/OR semantics on the profile — [clarification `zcc-01`](../_clarifications.md#zcc-01-forwardingprofile-condition_type-enum).
-- `network_type` enum values on action blocks (TRUSTED / UNTRUSTED / ?) — [clarification `zcc-02`](../_clarifications.md#zcc-02-forwardingprofile-actions-network_type-enum).
-- `action_type` enum values (NONE / TUNNEL / PAC / ENFORCE_POLICIES / ?) — [clarification `zcc-03`](../_clarifications.md#zcc-03-forwardingprofile-action_type-enum).
-- `primary_transport` enum values (ZTUNNEL / DTLS / TLS / ?) — [clarification `zcc-04`](../_clarifications.md#zcc-04-forwardingprofile-primary_transport-enum).
-- Precedence when `systemProxyData` and native forwarding actions both specify a path — [clarification `zcc-05`](../_clarifications.md#zcc-05-systemproxydata-vs-native-forwarding-action-precedence).
+- `condition_type` enum values and AND/OR semantics on the profile — [clarification `zcc-01`](../_meta/clarifications.md#zcc-01-forwardingprofile-condition_type-enum).
+- `network_type` enum values on action blocks (TRUSTED / UNTRUSTED / ?) — [clarification `zcc-02`](../_meta/clarifications.md#zcc-02-forwardingprofile-actions-network_type-enum).
+- `action_type` enum values (NONE / TUNNEL / PAC / ENFORCE_POLICIES / ?) — [clarification `zcc-03`](../_meta/clarifications.md#zcc-03-forwardingprofile-action_type-enum).
+- `primary_transport` enum values (ZTUNNEL / DTLS / TLS / ?) — [clarification `zcc-04`](../_meta/clarifications.md#zcc-04-forwardingprofile-primary_transport-enum).
+- Precedence when `systemProxyData` and native forwarding actions both specify a path — [clarification `zcc-05`](../_meta/clarifications.md#zcc-05-systemproxydata-vs-native-forwarding-action-precedence).
 
 ## Cross-links
 

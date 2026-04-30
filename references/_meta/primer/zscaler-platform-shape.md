@@ -14,7 +14,7 @@ audience: "non-networking professional who needs to orient on Zscaler quickly"
 
 A "you are here" map of the Zscaler product family. After reading this, you should be able to recognize the major products by name, know what problem each solves, and understand how they fit together.
 
-This is a primer — high-level only. For depth, see [`../_portfolio-map.md`](../_portfolio-map.md) (single-page index of every Zscaler product) and individual product directories.
+This is a primer — high-level only. For depth, see [`../portfolio-map.md`](../portfolio-map.md) (single-page index of every Zscaler product) and individual product directories.
 
 ## The big picture
 
@@ -180,7 +180,7 @@ These exist; the skill recognizes them but doesn't go deep. Recognize the names 
 - **Resilience** — auto failover (Business+ tiers)
 - **Federal Cloud variants** — `zscalergov`, `zscalerten`, ZPA GOV/GOVUS
 
-For each: check [`../_portfolio-map.md`](../_portfolio-map.md) before assuming.
+For each: check [`../portfolio-map.md`](../portfolio-map.md) before assuming.
 
 ## What you should be able to do after this primer
 
@@ -194,10 +194,10 @@ For depth on any single product, descend into its `references/<product>/` direct
 
 ## Cross-links
 
-- Single-page portfolio index: [`../_portfolio-map.md`](../_portfolio-map.md)
-- Routing for any question: [`../../SKILL.md`](../../SKILL.md)
-- Cross-product integration catalog: [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md)
-- Cloud architecture detail: [`../shared/cloud-architecture.md`](../shared/cloud-architecture.md)
+- Single-page portfolio index: [`../portfolio-map.md`](../portfolio-map.md)
+- Routing for any question: [`../../../SKILL.md`](../../../SKILL.md)
+- Cross-product integration catalog: [`../../shared/cross-product-integrations.md`](../../shared/cross-product-integrations.md)
+- Cloud architecture detail: [`../../shared/cloud-architecture.md`](../../shared/cloud-architecture.md)
 - Other primers in this directory:
   - [`./networking-basics.md`](./networking-basics.md)
   - [`./proxy-vs-gateway-vs-tunnel.md`](./proxy-vs-gateway-vs-tunnel.md)

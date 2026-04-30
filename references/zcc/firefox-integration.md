@@ -69,7 +69,7 @@ Firefox integration is supported on Windows and macOS. When the toggle is enable
 
 The vendor doc does not mention Linux. Firefox integration support on Linux is not confirmed from available Zscaler help sources.
 
-See [`_clarifications.md` `zcc-39`](../_clarifications.md#zcc-39-zcc-firefox-integration-on-linux) for the open question on Linux scope.
+See [`_meta/clarifications.md` `zcc-39`](../_meta/clarifications.md#zcc-39-zcc-firefox-integration-on-linux) for the open question on Linux scope.
 
 ### Excluded Firefox variants
 
@@ -250,7 +250,7 @@ The following aspects of Firefox integration are not confirmed from available Zs
 - Whether the integration survives Firefox major version upgrades without a ZCC re-push or MDM policy re-application
 - Whether Firefox integration behavior differs between ZCC 4.x and earlier releases
 
-See [`_clarifications.md`](../_clarifications.md) `zcc-39` through `zcc-43`.
+See [`_meta/clarifications.md`](../_meta/clarifications.md) `zcc-39` through `zcc-43`.
 
 ---
 

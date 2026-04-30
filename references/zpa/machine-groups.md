@@ -30,7 +30,7 @@ author-status: draft
 
 # ZPA Machine Groups
 
-> **Product note:** Machine Groups are a ZPA-only construct. The vendor help article lives at `help.zscaler.com/zpa/about-machine-groups`; all SDK/Terraform artifacts (`zscaler-sdk-python/zscaler/zpa/machine_groups.py`, `zscaler-sdk-go/zscaler/zpa/services/machinegroup/`, `terraform-provider-zpa`) are under the ZPA surface. There is no Machine Groups entity in ZIA. The April 2026 coverage audit (`_archive/audits/2026-04-26.md` line 70) mis-classified this as a ZIA gap; this doc lives under ZPA where it belongs.
+> **Product note:** Machine Groups are a ZPA-only construct. The vendor help article lives at `help.zscaler.com/zpa/about-machine-groups`; all SDK/Terraform artifacts (`zscaler-sdk-python/zscaler/zpa/machine_groups.py`, `zscaler-sdk-go/zscaler/zpa/services/machinegroup/`, `terraform-provider-zpa`) are under the ZPA surface. There is no Machine Groups entity in ZIA. The April 2026 coverage audit (`_meta/archive/audits/2026-04-26.md` line 70) mis-classified this as a ZIA gap; this doc lives under ZPA where it belongs.
 
 ---
 
@@ -279,17 +279,17 @@ Machine group API calls require the standard ZPA microtenant filter parameter. I
 
 ## Deferred open questions
 
-Open questions registered in [`_clarifications.md`](../_clarifications.md):
+Open questions registered in [`_meta/clarifications.md`](../_meta/clarifications.md):
 
-1. [`zpa-11`](../_clarifications.md#zpa-11-machine-group-creation-endpoint) — **Whether a direct POST `/machineGroup` endpoint exists** — both SDKs expose only read operations. The documentation implies groups are created in the Admin Console and populated via provisioning enrollment.
+1. [`zpa-11`](../_meta/clarifications.md#zpa-11-machine-group-creation-endpoint) — **Whether a direct POST `/machineGroup` endpoint exists** — both SDKs expose only read operations. The documentation implies groups are created in the Admin Console and populated via provisioning enrollment.
 
-2. [`zpa-12`](../_clarifications.md#zpa-12-machine-group-matching-criteria) — **What the machine group's matching criteria are, beyond provisioning key enrollment** — the vendor doc describes groups as provisioning-key-linked. Whether the API returns additional matching criteria (hostname pattern, OS type, certificate subject) is not confirmed.
+2. [`zpa-12`](../_meta/clarifications.md#zpa-12-machine-group-matching-criteria) — **What the machine group's matching criteria are, beyond provisioning key enrollment** — the vendor doc describes groups as provisioning-key-linked. Whether the API returns additional matching criteria (hostname pattern, OS type, certificate subject) is not confirmed.
 
-3. [`zpa-13`](../_clarifications.md#zpa-13-machine_grp-in-user-session-access-rules) — **Machine group capability in non-machine-tunnel contexts** — whether machine groups can also scope user-session ZPA policy is not explicitly confirmed or denied in the reviewed sources.
+3. [`zpa-13`](../_meta/clarifications.md#zpa-13-machine_grp-in-user-session-access-rules) — **Machine group capability in non-machine-tunnel contexts** — whether machine groups can also scope user-session ZPA policy is not explicitly confirmed or denied in the reviewed sources.
 
-4. [`zpa-14`](../_clarifications.md#zpa-14-machine-group-capacity-limits) — **Limits on machine groups per tenant, provisioning keys per group, or enrolled machines per group** — no capacity/limit figures found in reviewed sources.
+4. [`zpa-14`](../_meta/clarifications.md#zpa-14-machine-group-capacity-limits) — **Limits on machine groups per tenant, provisioning keys per group, or enrolled machines per group** — no capacity/limit figures found in reviewed sources.
 
-5. [`zpa-15`](../_clarifications.md#zpa-15-machine-groups-file-path-correction) — **Product path mis-classification** — *resolved 2026-04-27.* The file was moved from `references/zia/machine-groups.md` to `references/zpa/machine-groups.md`; the coverage audit entry was corrected.
+5. [`zpa-15`](../_meta/clarifications.md#zpa-15-machine-groups-file-path-correction) — **Product path mis-classification** — *resolved 2026-04-27.* The file was moved from `references/zia/machine-groups.md` to `references/zpa/machine-groups.md`; the coverage audit entry was corrected.
 
 ---
 

@@ -353,7 +353,7 @@ Python-only modules the Go SDK doesn't carry (mostly newer features or SDK-lag n
 
 ## Common SDK patterns
 
-The most-used call patterns inline. For full method signatures see `vendor/zscaler-sdk-python/zscaler/zia/`. For the procedural decision tree on auth selection, see [`../_runbooks.md § Authentication selection`](../_runbooks.md).
+The most-used call patterns inline. For full method signatures see `vendor/zscaler-sdk-python/zscaler/zia/`. For the procedural decision tree on auth selection, see [`../_meta/runbooks.md § Authentication selection`](../_meta/runbooks.md).
 
 ```python
 from zscaler import ZscalerClient
@@ -407,7 +407,7 @@ def call(method, *args, **kwargs):
 # Usage: rules = call(client.zia.url_filtering_rules.list_rules)
 ```
 
-For troubleshooting these patterns when something goes wrong, see [`../_runbooks.md § Troubleshooting flows`](../_runbooks.md).
+For troubleshooting these patterns when something goes wrong, see [`../_meta/runbooks.md § Troubleshooting flows`](../_meta/runbooks.md).
 
 ## Read/write shape asymmetries
 
@@ -416,7 +416,7 @@ Cross-cutting hub for fields where `GET` and `POST`/`PUT` disagree on shape, val
 | Asymmetry | Topical home | Severity |
 |---|---|---|
 | **Sandbox default rule `order` is `127` on read; cannot be written as `127` (collides with default → `DUPLICATE_ITEM`).** Other ZIA rule types use `-1` as the default sentinel; sandbox is the outlier. Engineering tracks as `BUG-208047`. | [`./sandbox.md § Default rule order is 127, NOT -1`](./sandbox.md) | High — silently breaks rule-ordering math |
-| **Location Management `tz` and `country` fields — read returns unprefixed; write-side current state TF-version-dependent.** ZIA API recently changed to return `NETHERLANDS_EUROPE_AMSTERDAM` (was `THE_NETHERLANDS_EUROPE_AMSTERDAM`). Confirmed by tf-zia#562 + v4.7.18 changelog ("align with recent API changes"). v4.7.18+ removes TF schema validation; whether the API accepts both forms or only one on write is not source-verified — three scenarios remain plausible. See [`../_verification-protocol.md § Worked example`](../_verification-protocol.md) for full evolution. | [`./locations.md § Edge cases (tz prefix)`](./locations.md) | High pre-v4.7.18; uncertain post-v4.7.18 (API behavior unverified) |
+| **Location Management `tz` and `country` fields — read returns unprefixed; write-side current state TF-version-dependent.** ZIA API recently changed to return `NETHERLANDS_EUROPE_AMSTERDAM` (was `THE_NETHERLANDS_EUROPE_AMSTERDAM`). Confirmed by tf-zia#562 + v4.7.18 changelog ("align with recent API changes"). v4.7.18+ removes TF schema validation; whether the API accepts both forms or only one on write is not source-verified — three scenarios remain plausible. See [`../_meta/verification-protocol.md § Worked example`](../_meta/verification-protocol.md) for full evolution. | [`./locations.md § Edge cases (tz prefix)`](./locations.md) | High pre-v4.7.18; uncertain post-v4.7.18 (API behavior unverified) |
 | **URL Filter rule `description` whitespace and line endings normalized server-side.** What you `PUT` is not what `GET` returns; naive equality checks on round-trip falsely report drift. | [`#sdk-response-shape`](#sdk-response-shape) (this doc, in pattern callout) | Low — cosmetic but confuses diffs |
 | **User Management `auth_methods` — TF resource validator stricter than Go SDK / API.** TF data source `data_source_zia_user_management_users.go:98–99` accepts `[BASIC, DIGEST]`; TF resource `resource_zia_user_management_users.go:86` accepts only `[BASIC]`. Go SDK at `zscaler-sdk-go/zscaler/zia/services/usermanagement/users/users.go:105` validates `BASIC`-or-`DIGEST` (matching the API). DIGEST users created via portal or legacy API are readable via the data source but cannot be created or updated via the TF resource. **TF provider bug, not an API asymmetry.** Surfaced by `scripts/find-asymmetries.py` Pass 1 (intra-provider). | (TF-provider-level; no topical doc) | Medium — TF-only constraint; bypass via Go SDK or direct HTTP |
 

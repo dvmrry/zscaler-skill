@@ -121,4 +121,4 @@ A manufacturing site with 50 IoT sensors, 10 OT machines, 20 employee workstatio
 - ZIA (applies internet and SaaS policies to ZTB-forwarded traffic): [`../zia/index.md`](../zia/index.md)
 - ZPA (applies private access policies to ZTB-forwarded traffic): [`../zpa/index.md`](../zpa/index.md)
 - Cloud Connector (alternative for cloud workload connectivity; different use case): [`../cloud-connector/index.md`](../cloud-connector/index.md)
-- Portfolio map: [`../_portfolio-map.md`](../_portfolio-map.md)
+- Portfolio map: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)

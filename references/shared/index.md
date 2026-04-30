@@ -44,6 +44,6 @@ Docs under `references/shared/` are **not tied to a single Zscaler product**. Th
 - **Start in a product directory** (`references/zia/`, `references/zpa/`, etc.) when the question names a specific feature of one product.
 - **Start in `cross-product-integrations.md`** when the question smells multi-product — "traffic hit ZIA then ZPA, something's weird" or "why didn't this feature work across products?"
 
-## What the `_clarifications.md` at the parent level is for
+## What the `_meta/clarifications.md` at the parent level is for
 
-`references/_clarifications.md` is the canonical index of open and resolved questions across the skill — each with a stable ID (`zia-03`, `shared-02`, etc.) that reference docs cross-link to. Skim it when reading any doc that cites a clarification; answer confidence should match the current status.
+`references/_meta/clarifications.md` is the canonical index of open and resolved questions across the skill — each with a stable ID (`zia-03`, `shared-02`, etc.) that reference docs cross-link to. Skim it when reading any doc that cites a clarification; answer confidence should match the current status.

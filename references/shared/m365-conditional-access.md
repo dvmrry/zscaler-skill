@@ -83,7 +83,7 @@ ZIA's DNS Control rules must return ZPA Synthetic IPs for the sign-in FQDNs so t
 
 ### What Azure AD evaluates
 
-Azure AD Conditional Access evaluates the source IP at the time of each authentication request — specifically, the IP of the HTTP client making the `/authorize` and `/token` requests to the identity platform endpoints. In the SIPA pattern, that IP is the ZPA App Connector's public egress IP. The Named Locations entry in Azure AD must contain exactly this IP or CIDR range. (Tier A — pattern derivable from vendor docs; Azure AD CA evaluation mechanics are Microsoft's, not Zscaler's — see "Deferred" note in `references/_clarifications.md`.)
+Azure AD Conditional Access evaluates the source IP at the time of each authentication request — specifically, the IP of the HTTP client making the `/authorize` and `/token` requests to the identity platform endpoints. In the SIPA pattern, that IP is the ZPA App Connector's public egress IP. The Named Locations entry in Azure AD must contain exactly this IP or CIDR range. (Tier A — pattern derivable from vendor docs; Azure AD CA evaluation mechanics are Microsoft's, not Zscaler's — see "Deferred" note in `references/_meta/clarifications.md`.)
 
 ---
 

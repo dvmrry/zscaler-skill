@@ -131,7 +131,7 @@ OneAPI uses this. The dance:
 5. When token expires, repeat from step 2
 ```
 
-The `audience` parameter is **REQUIRED** for OneAPI — `audience=https://api.zscaler.com`. Forgetting it causes 401 errors with otherwise-valid credentials. See [`../shared/oneapi.md`](../shared/oneapi.md).
+The `audience` parameter is **REQUIRED** for OneAPI — `audience=https://api.zscaler.com`. Forgetting it causes 401 errors with otherwise-valid credentials. See [`../../shared/oneapi.md`](../../shared/oneapi.md).
 
 ## SCIM — provisioning, not authentication
 
@@ -214,9 +214,9 @@ This makes ZIdentity a **federation hub** — one upstream IdP can serve all of 
 
 ## Cross-links
 
-- ZIdentity overview: [`../zidentity/overview.md`](../zidentity/overview.md)
-- Step-up authentication: [`../zidentity/step-up-authentication.md`](../zidentity/step-up-authentication.md)
-- API client (OAuth client credentials): [`../zidentity/api-clients.md`](../zidentity/api-clients.md)
-- OneAPI gateway and audience parameter: [`../shared/oneapi.md`](../shared/oneapi.md)
-- SCIM provisioning: [`../shared/scim-provisioning.md`](../shared/scim-provisioning.md)
+- ZIdentity overview: [`../../zidentity/overview.md`](../../zidentity/overview.md)
+- Step-up authentication: [`../../zidentity/step-up-authentication.md`](../../zidentity/step-up-authentication.md)
+- API client (OAuth client credentials): [`../../zidentity/api-clients.md`](../../zidentity/api-clients.md)
+- OneAPI gateway and audience parameter: [`../../shared/oneapi.md`](../../shared/oneapi.md)
+- SCIM provisioning: [`../../shared/scim-provisioning.md`](../../shared/scim-provisioning.md)
 - Zero-trust mental model: [`./zero-trust.md`](./zero-trust.md)

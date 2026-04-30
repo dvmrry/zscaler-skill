@@ -54,8 +54,8 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parent.parent
 REFS = REPO_ROOT / "references"
 EVALS = REPO_ROOT / "evals" / "evals.json"
-CLARIFICATIONS = REFS / "_clarifications.md"
-TEMPLATE = REFS / "_template.md"
+CLARIFICATIONS = REFS / "_meta" / "clarifications.md"
+TEMPLATE = REFS / "_meta" / "template.md"
 DIGEST_DEFAULT = REPO_ROOT / "logs" / "hygiene-digest.md"
 
 REQUIRED_FRONTMATTER = [
@@ -316,7 +316,7 @@ def check_clarification_propagation(path: Path, resolved_ids: set[str]) -> list[
     findings: list[Finding] = []
     if not resolved_ids:
         return findings
-    if path.name == "_clarifications.md":
+    if path.name == "clarifications.md" and path.parent.name == "_meta":
         return findings
     content = path.read_text(encoding="utf-8", errors="replace")
     # Find "## Open questions" section in the body
@@ -409,7 +409,7 @@ def check_evals() -> list[Finding]:
 # ----- runner / rendering -----
 
 
-SKIP_DIR_NAMES = {"_archive"}
+SKIP_DIR_NAMES = {"archive"}  # under _meta/ post-2026-04-30 reorg
 
 
 def run_all_checks() -> list[Finding]:

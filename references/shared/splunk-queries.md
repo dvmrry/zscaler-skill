@@ -131,7 +131,7 @@ index=$INDEX_ZPA Host=$HOSTNAME earliest=-24h
 | where ConnectionStatus!="Active"
 ```
 
-If `$HOSTNAME` doesn't appear at all, combine with local packet capture or client-side logs; see [clarification `zpa-05`](../_clarifications.md#zpa-05-no-match-in-segment-criteria) for the full diagnostic tree.
+If `$HOSTNAME` doesn't appear at all, combine with local packet capture or client-side logs; see [clarification `zpa-05`](../_meta/clarifications.md#zpa-05-no-match-in-segment-criteria) for the full diagnostic tree.
 
 ### `config-reality-drift`
 
@@ -175,7 +175,7 @@ SPL patterns parameterize the index on env vars so a fork can drop in non-defaul
 - `SPLUNK_INDEX_ZIA_DNS` — ZIA DNS logs (default: `zscaler_dns`)
 - `SPLUNK_INDEX_ZPA` — ZPA LSS logs (default: `zscaler_zpa`)
 
-The defaults match Zscaler's Splunk Technology Add-on out-of-the-box configuration. Tenants using custom index naming set the relevant env vars; `scripts/splunk-query.sh` substitutes them into the pattern at run time. See [`shared-01`](../_clarifications.md#shared-01-spl-index-naming-portability) for the rationale.
+The defaults match Zscaler's Splunk Technology Add-on out-of-the-box configuration. Tenants using custom index naming set the relevant env vars; `scripts/splunk-query.sh` substitutes them into the pattern at run time. See [`shared-01`](../_meta/clarifications.md#shared-01-spl-index-naming-portability) for the rationale.
 
 ### `zcc-device-correlate`
 
@@ -440,7 +440,7 @@ Whether ZPA User Status and App Connector Metrics land in the same index as User
 
 ## Open questions
 
-- Whether field extractions differ between Zscaler TA and a hand-configured feed — see [clarification `log-01`](../_clarifications.md#log-01-nss-feed-format-versions) (partially resolved)
+- Whether field extractions differ between Zscaler TA and a hand-configured feed — see [clarification `log-01`](../_meta/clarifications.md#log-01-nss-feed-format-versions) (partially resolved)
 - `ssl_decrypt` vs `ssldecrypted` field aliasing under the Zscaler TA — depends on the TA version; pattern above uses the NSS-native name.
 - ZDX-to-Splunk export path is not natively offered by Zscaler as of last verification — ZDX data requires a custom pipeline via the ZDX API. The `zdx-score-trend` and `zdx-probe-failures-correlation` patterns are architecture-dependent and should be treated as aspirational until ZDX export is confirmed in the tenant.
 

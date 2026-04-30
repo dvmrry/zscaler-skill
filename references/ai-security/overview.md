@@ -148,7 +148,7 @@ No deeper material captured. Treat as awareness-only within the deep-dive — re
 ## Cross-links
 
 - Skill index: [`./index.md`](./index.md)
-- Portfolio map (where AI Security sits in the Zscaler portfolio): [`../_portfolio-map.md`](../_portfolio-map.md)
+- Portfolio map (where AI Security sits in the Zscaler portfolio): [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)
 - ZIA URL Filtering (GenAI categories that pre-classify AI traffic): [`../zia/url-filtering.md`](../zia/url-filtering.md)
 - ZIA DLP (prompt scanning before AI Guard inspection): [`../zia/dlp.md`](../zia/dlp.md)
 - SSL inspection (required for AI Guard inline mode): [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md)

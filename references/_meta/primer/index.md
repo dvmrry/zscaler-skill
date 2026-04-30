@@ -45,7 +45,7 @@ These docs are **prerequisite, not Zscaler depth**. For depth on any specific Zs
 3. `zero-trust.md` — get the philosophy
 4. `identity-saml-oidc.md` — get the auth model
 5. `zscaler-platform-shape.md` — orient on the product line
-6. From there, the routing in [`../../SKILL.md`](../../SKILL.md) takes over.
+6. From there, the routing in [`../../../SKILL.md`](../../../SKILL.md) takes over.
 
 ## What this primer is NOT
 
@@ -55,6 +55,6 @@ These docs are **prerequisite, not Zscaler depth**. For depth on any specific Zs
 
 ## Cross-links
 
-- Single-page Zscaler portfolio index: [`../_portfolio-map.md`](../_portfolio-map.md)
-- Skill routing for specific questions: [`../../SKILL.md`](../../SKILL.md)
-- Open / partial / resolved clarifications across the skill: [`../_clarifications.md`](../_clarifications.md)
+- Single-page Zscaler portfolio index: [`../portfolio-map.md`](../portfolio-map.md)
+- Skill routing for specific questions: [`../../../SKILL.md`](../../../SKILL.md)
+- Open / partial / resolved clarifications across the skill: [`../clarifications.md`](../clarifications.md)

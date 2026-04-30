@@ -135,4 +135,4 @@ No dedicated Zero Trust Browser REST API was found in available sources. Configu
 - ZIA URL filtering (primary isolation trigger): [`../zia/url-filtering.md`](../zia/url-filtering.md)
 - ZPA (private app isolation use case): [`../zpa/index.md`](../zpa/index.md)
 - Zscaler Sandbox (file analysis integration): [`../zia/sandbox.md`](../zia/sandbox.md)
-- Portfolio map: [`../_portfolio-map.md`](../_portfolio-map.md)
+- Portfolio map: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)

@@ -112,4 +112,4 @@ Role-based access control with system roles and custom roles. User roles, conten
 - UVM (vulnerability management, shares SecOps platform): [`../uvm/overview.md`](../uvm/overview.md)
 - Identity Protection (identity threat detection, shares SecOps platform): [`../identity-protection/overview.md`](../identity-protection/overview.md)
 - Breach Predictor (predictive threat intelligence): [`../breach-predictor/overview.md`](../breach-predictor/overview.md)
-- Portfolio map: [`../_portfolio-map.md`](../_portfolio-map.md)
+- Portfolio map: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)

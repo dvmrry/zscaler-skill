@@ -124,7 +124,7 @@ The captured material does not confirm this interpretation. Treat the second mod
 ## Cross-links
 
 - Skill index: [`./index.md`](./index.md)
-- Portfolio map (where ZMS sits): [`../_portfolio-map.md`](../_portfolio-map.md)
+- Portfolio map (where ZMS sits): [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)
 - ZPA app-segments (the north-south analog): [`../zpa/app-segments.md`](../zpa/app-segments.md)
 - Cloud Connector (workload north-south traffic — distinct from ZMS east-west): [`../cloud-connector/overview.md`](../cloud-connector/overview.md)
 - Cross-product integrations (where ZMS↔ZPA hook should live): [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md)

@@ -58,7 +58,7 @@ Browsers and OSes can be told "use proxy X for HTTP/HTTPS traffic." Three common
 
 ### Where Zscaler uses it
 
-- **PAC files** are a major Zscaler forwarding option for browser traffic. Default Zscaler PACs (`recommended.pac`, `proxy.pac`, `mobile_proxy.pac`, `kerberos.pac`) are hosted by Zscaler with auto-substituted Service Edge IPs. See [`../shared/pac-files.md`](../shared/pac-files.md).
+- **PAC files** are a major Zscaler forwarding option for browser traffic. Default Zscaler PACs (`recommended.pac`, `proxy.pac`, `mobile_proxy.pac`, `kerberos.pac`) are hosted by Zscaler with auto-substituted Service Edge IPs. See [`../../shared/pac-files.md`](../../shared/pac-files.md).
 - **ZIA Public Service Edges (PSEs)** function as proxies for traffic forwarded to them — they parse HTTP, do URL filtering, do SSL inspection, etc.
 
 ## Tunnel — packet-level encapsulation
@@ -154,7 +154,7 @@ A typical large enterprise deployment uses **all three paradigms simultaneously*
 | Browser-only access for contractors | PAC file → Zscaler PSE (or Browser Access for ZPA-protected apps) |
 | Specific apps requiring direct internet | Direct-route / bypass list in ZCC config |
 
-ZCC's **forwarding profile** is what decides which paradigm applies in which situation — Trusted Networks (skip tunnel, use PAC), Untrusted Networks (Z-Tunnel), captive portal (grace period), etc. See [`../zcc/forwarding-profile.md`](../zcc/forwarding-profile.md).
+ZCC's **forwarding profile** is what decides which paradigm applies in which situation — Trusted Networks (skip tunnel, use PAC), Untrusted Networks (Z-Tunnel), captive portal (grace period), etc. See [`../../zcc/forwarding-profile.md`](../../zcc/forwarding-profile.md).
 
 ## Mental model — the layer-of-abstraction view
 
@@ -189,8 +189,8 @@ A proxy understands the most about your traffic (knows the URL, the headers, the
 ## Cross-links
 
 - Networking basics (TCP/IP/ports/DNS): [`./networking-basics.md`](./networking-basics.md)
-- ZCC forwarding profile decisions: [`../zcc/forwarding-profile.md`](../zcc/forwarding-profile.md)
-- Z-Tunnel 1.0 vs 2.0 details: [`../zcc/z-tunnel.md`](../zcc/z-tunnel.md)
-- PAC files: [`../shared/pac-files.md`](../shared/pac-files.md)
-- Cloud Connector as inline gateway for workloads: [`../cloud-connector/overview.md`](../cloud-connector/overview.md)
+- ZCC forwarding profile decisions: [`../../zcc/forwarding-profile.md`](../../zcc/forwarding-profile.md)
+- Z-Tunnel 1.0 vs 2.0 details: [`../../zcc/z-tunnel.md`](../../zcc/z-tunnel.md)
+- PAC files: [`../../shared/pac-files.md`](../../shared/pac-files.md)
+- Cloud Connector as inline gateway for workloads: [`../../cloud-connector/overview.md`](../../cloud-connector/overview.md)
 - Zero-trust mental model (different lens, same architecture): [`./zero-trust.md`](./zero-trust.md)

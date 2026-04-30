@@ -312,6 +312,6 @@ And these require specific SSL Inspection state:
 
 ## Open questions
 
-- NSS feed format versions — [clarification `log-01`](../../_clarifications.md#log-01-nss-feed-format-versions)
-- Cloud NSS vs legacy NSS divergence — [clarification `log-02`](../../_clarifications.md#log-02-cloud-nss-vs-legacy-nss-divergence)
-- Timestamp timezone handling across feeds / regions — [clarification `log-03`](../../_clarifications.md#log-03-timestamp-timezone-handling)
+- NSS feed format versions — [clarification `log-01`](../../_meta/clarifications.md#log-01-nss-feed-format-versions)
+- Cloud NSS vs legacy NSS divergence — [clarification `log-02`](../../_meta/clarifications.md#log-02-cloud-nss-vs-legacy-nss-divergence)
+- Timestamp timezone handling across feeds / regions — [clarification `log-03`](../../_meta/clarifications.md#log-03-timestamp-timezone-handling)

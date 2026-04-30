@@ -37,7 +37,7 @@ ZMS is also the only Zscaler product (alongside Cloud Connector with VMs) where 
 - **Start here** for: "what is ZMS?" / "how does microsegmentation work in Zscaler?" / "what's the difference between ZPA and ZMS?" / "can ZMS replace our datacenter firewalls?"
 - **Start in [`../zpa/app-segments.md`](../zpa/app-segments.md)** for: "how do I segment access to my private app?" — that's a north-south question, ZPA territory.
 - **Start in [`../cloud-connector/overview.md`](../cloud-connector/overview.md)** for: "how do my AWS workloads send traffic through Zscaler?" — that's north-south workload traffic, Cloud Connector territory.
-- **Start in [`../_portfolio-map.md`](../_portfolio-map.md)** for: "is ZMS in scope for this skill?" — coverage tier check.
+- **Start in [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)** for: "is ZMS in scope for this skill?" — coverage tier check.
 - **Recognize ZMS aliases** — "Zscaler Microsegmentation", "Zero Trust Microsegmentation", "ZMS", "ZPA microsegmentation" all map to this product.
 
 ## Coverage gaps (deferred)

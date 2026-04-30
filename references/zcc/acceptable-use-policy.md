@@ -45,7 +45,7 @@ The ZCC AUP frequency is configured as a single tenant-wide setting. The availab
 
 When Custom is selected, an additional field "Custom Days" becomes visible in the portal. Valid range: 1 to 180 days (Tier A — vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md).
 
-The vendor source does not document a "per policy change" trigger — that is, the AUP does not automatically re-prompt when the AUP message text is updated. The frequency setting alone controls display cadence. See deferred item `zcc-44` in `references/_clarifications.md`.
+The vendor source does not document a "per policy change" trigger — that is, the AUP does not automatically re-prompt when the AUP message text is updated. The frequency setting alone controls display cadence. See deferred item `zcc-44` in `references/_meta/clarifications.md`.
 
 ---
 
@@ -66,7 +66,7 @@ The AUP message field accepts static HTML markup. Dynamic scripting is not docum
 
 ### Fields not documented in vendor source
 
-The following fields that commonly appear in AUP systems are not described in the vendor source for the ZCC AUP: custom URL redirect (e.g., "read the full policy at this URL"), signature capture, accept-only vs. accept/decline toggle, and per-language variants. See deferred items `zcc-45` through `zcc-48` in `references/_clarifications.md`.
+The following fields that commonly appear in AUP systems are not described in the vendor source for the ZCC AUP: custom URL redirect (e.g., "read the full policy at this URL"), signature capture, accept-only vs. accept/decline toggle, and per-language variants. See deferred items `zcc-45` through `zcc-48` in `references/_meta/clarifications.md`.
 
 ---
 

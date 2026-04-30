@@ -260,7 +260,7 @@ Python-only modules the Go SDK doesn't carry (some of these are Python's way of 
 
 ## Common SDK patterns
 
-The most-used call patterns inline. For full method signatures see `vendor/zscaler-sdk-python/zscaler/zpa/`. For the procedural auth-selection decision tree, see [`../_runbooks.md § Authentication selection`](../_runbooks.md).
+The most-used call patterns inline. For full method signatures see `vendor/zscaler-sdk-python/zscaler/zpa/`. For the procedural auth-selection decision tree, see [`../_meta/runbooks.md § Authentication selection`](../_meta/runbooks.md).
 
 ```python
 from zscaler import ZscalerClient
@@ -322,7 +322,7 @@ def call(method, *args, **kwargs):
 
 **No activation step** — ZPA propagates writes immediately (distinct from ZIA's saved-but-not-live model). See [`../shared/activation.md`](../shared/activation.md) for the cross-product activation-model comparison.
 
-For troubleshooting these patterns, see [`../_runbooks.md § Troubleshooting flows`](../_runbooks.md).
+For troubleshooting these patterns, see [`../_meta/runbooks.md § Troubleshooting flows`](../_meta/runbooks.md).
 
 ## Read/write shape asymmetries
 

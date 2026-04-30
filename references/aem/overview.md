@@ -112,4 +112,4 @@ The help portal documents "Triggering Report Export Through an API" as a capabil
 - UVM (vulnerability management, same SecOps platform): [`../uvm/overview.md`](../uvm/overview.md)
 - SOC Workbench (alert/incident triage, same SecOps platform): [`../soc-workbench/overview.md`](../soc-workbench/overview.md)
 - Identity Protection (identity risk, same SecOps platform): [`../identity-protection/overview.md`](../identity-protection/overview.md)
-- Portfolio map: [`../_portfolio-map.md`](../_portfolio-map.md)
+- Portfolio map: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)

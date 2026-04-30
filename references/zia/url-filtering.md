@@ -187,7 +187,7 @@ Scenario: two URL filtering rules both could match a request for `www.example.co
 - **Rule 10:** URL Categories = `Social Networking` (predefined), Action = Block.
 - **Rule 20:** URL Categories = custom category "Corp Exceptions" containing `.example.com` (wildcard), Action = Allow.
 
-Predefined-vs-custom is governed by the **Retain Parent Category** setting on the custom-category entry — see [clarification `zia-01`](../_clarifications.md#zia-01-predefined-vs-custom-category-specificity) for sources and detail. The outcome branches on per-entry tenant config, so the prescribed answer exercises SKILL.md's "When to decline" doctrine on the config side rather than the doc side: state the deterministic mechanics, name the config lookup needed to pick a branch, and if no snapshot is available, decline to pick.
+Predefined-vs-custom is governed by the **Retain Parent Category** setting on the custom-category entry — see [clarification `zia-01`](../_meta/clarifications.md#zia-01-predefined-vs-custom-category-specificity) for sources and detail. The outcome branches on per-entry tenant config, so the prescribed answer exercises SKILL.md's "When to decline" doctrine on the config side rather than the doc side: state the deterministic mechanics, name the config lookup needed to pick a branch, and if no snapshot is available, decline to pick.
 
 The agent's prescribed answer:
 
@@ -198,7 +198,7 @@ The agent's prescribed answer:
 >
 > **Reasoning:** *About URL Categories* p.19 describes the Retain Parent Category toggle. *URL Filtering Deployment and Operations Guide* p.4 confirms the rule-order behavior explicitly for the Retain-Parent case ("check the rule order to make sure that another rule does not block access to this URL first"). Cross-custom specificity (which doesn't apply here — only one custom is involved) is a separate mechanism.
 >
-> **Sources:** `references/zia/url-filtering.md § The specificity rule`, [`references/_clarifications.md#zia-01`](../_clarifications.md#zia-01-predefined-vs-custom-category-specificity).
+> **Sources:** `references/zia/url-filtering.md § The specificity rule`, [`references/_meta/clarifications.md#zia-01`](../_meta/clarifications.md#zia-01-predefined-vs-custom-category-specificity).
 >
 > **Confidence:** high on mechanics; without a tenant snapshot, low on which branch applies.
 >
@@ -215,14 +215,14 @@ Result: **moving the entry from wildcard to exact-match in a lower-priority rule
 
 ## Open questions
 
-Each links to the canonical entry in [`../_clarifications.md`](../_clarifications.md) for full context and status.
+Each links to the canonical entry in [`../_meta/clarifications.md`](../_meta/clarifications.md) for full context and status.
 
-- Same-specificity collision across custom categories — [clarification `zia-02`](../_clarifications.md#zia-02-same-specificity-custom-category-collision)
-- NROD propagation lag, upper-bound precision — [clarification `zia-04`](../_clarifications.md#zia-04-nrod-propagation-lag) *(partial: "within hours of going live" doc'd)*
+- Same-specificity collision across custom categories — [clarification `zia-02`](../_meta/clarifications.md#zia-02-same-specificity-custom-category-collision)
+- NROD propagation lag, upper-bound precision — [clarification `zia-04`](../_meta/clarifications.md#zia-04-nrod-propagation-lag) *(partial: "within hours of going live" doc'd)*
 
 Resolved while writing this doc:
 
-- Wildcard tokenization (`.example.com` vs `*.example.com` vs bare) — [clarification `zia-03`](../_clarifications.md#zia-03-wildcard-tokenization) — resolved: leading-period form is the documented wildcard; asterisks are invalid (see [`./wildcard-semantics.md`](./wildcard-semantics.md)).
+- Wildcard tokenization (`.example.com` vs `*.example.com` vs bare) — [clarification `zia-03`](../_meta/clarifications.md#zia-03-wildcard-tokenization) — resolved: leading-period form is the documented wildcard; asterisks are invalid (see [`./wildcard-semantics.md`](./wildcard-semantics.md)).
 
 ## Cross-links
 

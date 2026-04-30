@@ -38,7 +38,7 @@ Other Zscaler products are operational; Risk360 is **strategic / governance-tier
 - **Start here** for "what is Risk360?", "how does Zscaler quantify cyber risk in dollars?", "how does Risk360 integrate with our SEC compliance reporting?", "what's the Monte Carlo simulation about?"
 - **Start in [`../zia/`](../zia/) or [`../zpa/`](../zpa/)** for the underlying telemetry sources Risk360 ingests.
 - **Start in [`../shared/admin-rbac.md`](../shared/admin-rbac.md)** for Risk360's distinct RBAC surface.
-- **Start in [`../_portfolio-map.md`](../_portfolio-map.md)** for "is Risk360 in scope?" — coverage tier check.
+- **Start in [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)** for "is Risk360 in scope?" — coverage tier check.
 
 ## Coverage gaps (deferred)
 

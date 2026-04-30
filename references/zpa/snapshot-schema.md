@@ -574,7 +574,7 @@ Key evaluation properties:
 - **`operator: AND`** at rule level (across condition groups).
 - **`operator: OR` or `AND`** within each condition's operand list.
 - **Default action when no rule matches: BLOCK** (ZPA's opposite-of-ZIA default — see [`./policy-precedence.md`](./policy-precedence.md)).
-- **`deceptionPolicy: true`** marks rules managed by Zscaler Deception (see [clarification `zpa-07`](../_clarifications.md#zpa-07-deception-policy-order-interaction)).
+- **`deceptionPolicy: true`** marks rules managed by Zscaler Deception (see [clarification `zpa-07`](../_meta/clarifications.md#zpa-07-deception-policy-order-interaction)).
 - **`predefined: true`** rules can't be edited normally (read-only).
 
 ### Common jq queries
@@ -658,4 +658,4 @@ The Postman collection has 36 ZPA controllers. Extending `snapshot-refresh.py` t
 - [`./policy-precedence.md`](./policy-precedence.md) — policy evaluation
 - [`./browser-access.md`](./browser-access.md), [`./privileged-remote-access.md`](./privileged-remote-access.md), [`./appprotection.md`](./appprotection.md) — segment variants
 - [`../shared/source-ip-anchoring.md`](../shared/source-ip-anchoring.md) — SIPA flag interpretation
-- [`../_layering-model.md`](../_layering-model.md) — how snapshot data layers onto general docs
+- [`../_meta/layering-model.md`](../_meta/layering-model.md) — how snapshot data layers onto general docs

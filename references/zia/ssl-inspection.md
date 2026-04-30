@@ -359,10 +359,10 @@ The "before or after" question in Q4 resolves to: **URL Filtering evaluates twic
 
 ## Open questions
 
-- Transparent vs explicit forwarding edge cases when a user mixes modes — [clarification `zia-11`](../_clarifications.md#zia-11-transparent-vs-explicit-forwarding-mixed-mode)
-- Exact behavior of SSL decision on the URL filtering default rule — if SSL says "Do Not Inspect + Evaluate Other Policies" and URL filtering has no matching rule, does the default URL-filtering action still fire? — [clarification `zia-12`](../_clarifications.md#zia-12-ssl-bypass-interaction-with-url-filtering-default-rule) (partially resolved by Policy Enforcement doc; edge case still open)
+- Transparent vs explicit forwarding edge cases when a user mixes modes — [clarification `zia-11`](../_meta/clarifications.md#zia-11-transparent-vs-explicit-forwarding-mixed-mode)
+- Exact behavior of SSL decision on the URL filtering default rule — if SSL says "Do Not Inspect + Evaluate Other Policies" and URL filtering has no matching rule, does the default URL-filtering action still fire? — [clarification `zia-12`](../_meta/clarifications.md#zia-12-ssl-bypass-interaction-with-url-filtering-default-rule) (partially resolved by Policy Enforcement doc; edge case still open)
 
-Resolved while writing this doc: pipeline-order explicit sourcing (see [clarification `zia-13`](../_clarifications.md#zia-13-explicit-pipeline-order-sourcing) — marked resolved with answer from `Understanding_Policy_Enforcement.pdf`).
+Resolved while writing this doc: pipeline-order explicit sourcing (see [clarification `zia-13`](../_meta/clarifications.md#zia-13-explicit-pipeline-order-sourcing) — marked resolved with answer from `Understanding_Policy_Enforcement.pdf`).
 
 ## Cross-links
 

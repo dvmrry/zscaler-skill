@@ -113,4 +113,4 @@ Business Insights is a separate SKU from ZIA. Specific pricing tiers are not pub
 
 - ZIA (source of network traffic data that Business Insights analyzes): [`../zia/index.md`](../zia/index.md)
 - ZCC (required for workplace utilization feature): [`../zcc/index.md`](../zcc/index.md)
-- Portfolio map: [`../_portfolio-map.md`](../_portfolio-map.md)
+- Portfolio map: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)

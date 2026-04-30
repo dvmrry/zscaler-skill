@@ -366,7 +366,7 @@ cadence rather than rule activation windows.
 
 ## Deferred questions
 
-See also [`_clarifications.md`](../_clarifications.md) — `zia-21` through `zia-25`.
+See also [`_meta/clarifications.md`](../_meta/clarifications.md) — `zia-21` through `zia-25`.
 
 1. **DST handling.** Whether `startTime`/`endTime` minute-offsets are evaluated against
    the location's timezone with DST adjustments applied, or against a fixed UTC offset,

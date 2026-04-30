@@ -154,7 +154,7 @@ So overlapping segments do **not** fall through to less-specific segments by def
 Both products share:
 
 - **First-match-by-rule-order semantics** within a policy layer. ZIA (*Configuring the URL Filtering Policy* p.3): "The evaluation of the policy rules stops at the first match." ZPA (*About Access Policy* p.1): "top-down, first-match principle."
-- **Disabled rules retain their order position.** Documented for ZIA (*Configuring the URL Filtering Policy* p.3). ZPA-equivalent behavior is not explicitly stated in the vendored material — see [clarification `shared-06`](../_clarifications.md#shared-06-zpa-disabled-rule-semantics).
+- **Disabled rules retain their order position.** Documented for ZIA (*Configuring the URL Filtering Policy* p.3). ZPA-equivalent behavior is not explicitly stated in the vendored material — see [clarification `shared-06`](../_meta/clarifications.md#shared-06-zpa-disabled-rule-semantics).
 - **Specificity plays a role in category/segment resolution.** ZIA custom category specificity (*URL Filtering Deployment and Operations Guide* p.2): "More specific custom category entries always take precedence." ZPA segment specificity (*Understanding Application Access* p.1 + *Using Application Segment Multimatch* p.9): most-specific FQDN wins.
 
 ## Where the products genuinely differ
@@ -173,7 +173,7 @@ Beyond the default-allow vs default-block split:
 
 ## Open questions
 
-- ZPA disabled-rule semantics (parity with ZIA unclear from docs) — [clarification `shared-06`](../_clarifications.md#shared-06-zpa-disabled-rule-semantics)
+- ZPA disabled-rule semantics (parity with ZIA unclear from docs) — [clarification `shared-06`](../_meta/clarifications.md#shared-06-zpa-disabled-rule-semantics)
 - Policy Evaluation Order article (referenced but not vendored) — would further strengthen both ZIA and ZPA pipeline claims. (Note: `zpa-08` "When both FQDNs are equal" is resolved via *About Policies*; the standalone article is what's un-vendored here.)
 
 ## Cross-links

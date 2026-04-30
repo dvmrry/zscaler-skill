@@ -198,4 +198,4 @@ Not vendored: Audit Logs, App Connector Status, Browser Access, Microsegmentatio
 
 ## Open questions
 
-- Multi-segment match representation in LSS — [clarification `zpa-01`](../../_clarifications.md#zpa-01-multi-segment-match-representation-in-lss)
+- Multi-segment match representation in LSS — [clarification `zpa-01`](../../_meta/clarifications.md#zpa-01-multi-segment-match-representation-in-lss)

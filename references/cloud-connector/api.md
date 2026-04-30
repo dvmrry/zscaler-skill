@@ -190,7 +190,7 @@ def call(method, *args, **kwargs):
     return data
 ```
 
-For troubleshooting these patterns, see [`../_runbooks.md § Troubleshooting flows`](../_runbooks.md).
+For troubleshooting these patterns, see [`../_meta/runbooks.md § Troubleshooting flows`](../_meta/runbooks.md).
 
 ## Snapshotting Cloud Connector config
 

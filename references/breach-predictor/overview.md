@@ -130,4 +130,4 @@ These products are licensed separately and can be combined. Their shared data fa
 - SecOps platform overview (AEM, UVM, Identity Protection, SOC Workbench share a platform): [`../aem/overview.md`](../aem/overview.md), [`../uvm/overview.md`](../uvm/overview.md)
 - Identity Protection (related detection surface): [`../identity-protection/overview.md`](../identity-protection/overview.md)
 - Risk360 (financial risk quantification; different audience): [`../risk360/overview.md`](../risk360/overview.md)
-- Portfolio map: [`../_portfolio-map.md`](../_portfolio-map.md)
+- Portfolio map: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)

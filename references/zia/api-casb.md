@@ -19,7 +19,7 @@ sources:
   - "vendor/terraform-provider-zia/docs/resources/zia_casb_malware_rules.md"
   - "vendor/terraform-provider-zia/docs/data-sources/zia_casb_tenant.md"
   - "vendor/terraform-provider-zia/docs/data-sources/zia_casb_email_label.md"
-  - "vendor/terraform-provider-zia/docs/data-sources/zia_casb_tombstone_template.md"
+  - "vendor/terraform-provider-zia/docs/data-sources/zia_casb_tombstone_meta/template.md"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/saas_security_api/saas_security_api.go"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/saas_security_api/casb_dlp_rules/casb_dlp_rules.go"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/saas_security_api/casb_malware_rules/casb_malware_rules.go"

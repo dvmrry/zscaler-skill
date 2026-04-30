@@ -20,13 +20,13 @@ Run:
     ./scripts/check-orphans.py --json      # machine-readable JSON output
     ./scripts/check-orphans.py --strict    # exit 1 even on exempt orphans
 
-Exemptions (default): files under `_archive/**` and the `_template.md` file.
+Exemptions (default): files under `_meta/archive/**` and the `_meta/template.md` file.
 
 Detection heuristics:
 
   1. Markdown link to .md file:        `](path/to/file.md)` or `](#anchor)`
   2. Backticked path:                  `` `references/foo/bar.md` ``
-  3. Directory reference (whole dir):  `references/_primer/` → marks every
+  3. Directory reference (whole dir):  `references/_meta/primer/` → marks every
                                         .md file in that directory as linked
   4. Frontmatter `sources:` paths:     handled the same as backticked paths
 
@@ -46,8 +46,8 @@ REFS = REPO_ROOT / "references"
 
 # Files / patterns excluded from the "candidate orphan" set
 EXEMPT_PATTERNS = [
-    "_archive/**",      # archived content; intentional dead-end
-    "_template.md",     # frontmatter template; not real content
+    "_meta/archive/**",      # archived content; intentional dead-end
+    "_meta/template.md",     # frontmatter template; not real content
 ]
 
 # Markdown link to a .md target (with optional anchor): `](path.md)` or `](path.md#anchor)`

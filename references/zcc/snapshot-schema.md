@@ -316,5 +316,5 @@ Adding them requires extending `scripts/snapshot-refresh.py`'s ZCC resource list
 - [`./forwarding-profile.md`](./forwarding-profile.md) — forwarding-profile reasoning
 - [`./trusted-networks.md`](./trusted-networks.md) — trusted-network reasoning
 - [`./web-policy.md`](./web-policy.md) — WebPolicy reasoning + forwarding-profile-id link
-- [`../_clarifications.md`](../_clarifications.md) — ZCC enum clarifications (zcc-01 through zcc-07)
-- [`../_layering-model.md`](../_layering-model.md) — how snapshot data layers onto general docs
+- [`../_meta/clarifications.md`](../_meta/clarifications.md) — ZCC enum clarifications (zcc-01 through zcc-07)
+- [`../_meta/layering-model.md`](../_meta/layering-model.md) — how snapshot data layers onto general docs

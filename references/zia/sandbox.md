@@ -136,7 +136,7 @@ Most ZIA rule types return their default rule with `order = -1` (a sentinel mean
 - **Symptom**: a Terraform plan that worked yesterday suddenly wants to renumber every rule because the default rule's `127` order changed how the diff calculates positions.
 - **Workaround until BUG-208047 ships**: keep custom rule orders contiguous starting at 1, expect the default at 127, and don't import the default rule into TF state (it's immutable in effect; the `Default BA Rule` create attempt returns `DUPLICATE_ITEM`).
 
-This default-order anomaly is **not documented** in Zscaler's help portal at capture date; it's purely an API behavior visible only when you query the rules collection. Cross-link to [`zia-XX`](../_clarifications.md) if a clarification entry is added.
+This default-order anomaly is **not documented** in Zscaler's help portal at capture date; it's purely an API behavior visible only when you query the rules collection. Cross-link to [`zia-XX`](../_meta/clarifications.md) if a clarification entry is added.
 
 ## Sandbox Rule API — programmatic control of first-time-file behavior
 

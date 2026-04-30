@@ -304,4 +304,4 @@ The full ZIdentity API surface is in Postman's `ZIdentity` folder (4 sub-folders
 - [`./api-clients.md`](./api-clients.md) — API Client object model
 - [`../shared/scim-provisioning.md`](../shared/scim-provisioning.md) — cross-product user/group lifecycle
 - [`../shared/admin-rbac.md`](../shared/admin-rbac.md) — federated admin model
-- [`../_layering-model.md`](../_layering-model.md) — how snapshot data layers onto general docs
+- [`../_meta/layering-model.md`](../_meta/layering-model.md) — how snapshot data layers onto general docs

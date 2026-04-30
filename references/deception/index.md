@@ -27,7 +27,7 @@ Deception is **distinct from every other Zscaler product** in posture: where ZIA
 
 Where it shows up in skill answers:
 
-- **ZPA access policy ordering** — Deception-configured access rules must evaluate before regular ZPA rules to intercept attacker traffic to decoys. See [`../zpa/policy-precedence.md § Order and editing constraints`](../zpa/policy-precedence.md) and [clarification `zpa-07`](../_clarifications.md#zpa-07-deception-policy-order-interaction).
+- **ZPA access policy ordering** — Deception-configured access rules must evaluate before regular ZPA rules to intercept attacker traffic to decoys. See [`../zpa/policy-precedence.md § Order and editing constraints`](../zpa/policy-precedence.md) and [clarification `zpa-07`](../_meta/clarifications.md#zpa-07-deception-policy-order-interaction).
 - **ZPA App Connectors** — Deception integrates with ZPA via dedicated App Connectors that route attacker traffic to ZTN (Zero Trust Network) decoys.
 - **Cross-product hooks** — referenced in [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md).
 
@@ -35,7 +35,7 @@ Where it shows up in skill answers:
 
 - **Start here** for "what is Deception?", "how do decoys work?", "should we deploy Deception?", "how does Deception integrate with ZPA?"
 - **Start in [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md)** for "why are Deception access rules ordered first?" — the policy-evaluation answer.
-- **Start in [`../_portfolio-map.md`](../_portfolio-map.md)** for "is Deception in scope for this skill?" — coverage tier check.
+- **Start in [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)** for "is Deception in scope for this skill?" — coverage tier check.
 
 ## Coverage gaps (deferred)
 

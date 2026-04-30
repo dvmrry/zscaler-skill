@@ -132,4 +132,4 @@ Both use the same Zscaler DLP classification engines/dictionaries, so findings a
 
 - ZIA DLP (data-in-motion control; uses same DLP engines): [`../zia/dlp.md`](../zia/dlp.md)
 - AEM (asset exposure, SecOps platform): [`../aem/overview.md`](../aem/overview.md)
-- Portfolio map: [`../_portfolio-map.md`](../_portfolio-map.md)
+- Portfolio map: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)

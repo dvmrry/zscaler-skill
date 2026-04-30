@@ -75,7 +75,7 @@ Do not pass empty strings vs. null interchangeably — the SDK surfaces both as 
 
 The `condition_type` field decides whether ZCC requires **all** configured criteria to match (AND — strict) or **any** one of them (OR — permissive).
 
-**Critical type note**: The Go SDK (`vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network/trusted_network.go:28`) confirms this field is `int` on the wire, not a string. The Python SDK passes kwargs through without type enforcement — sending a string like `"AND"` will be accepted by the Python SDK but may fail at the API layer. Send the integer code. **The specific integer-to-meaning mapping is not enumerated in either SDK** — see [`clarification zcc-06`](../_clarifications.md#zcc-06-trustednetwork-condition_type-enum). Lab-test against a real tenant to determine which int maps to AND vs OR.
+**Critical type note**: The Go SDK (`vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network/trusted_network.go:28`) confirms this field is `int` on the wire, not a string. The Python SDK passes kwargs through without type enforcement — sending a string like `"AND"` will be accepted by the Python SDK but may fail at the API layer. Send the integer code. **The specific integer-to-meaning mapping is not enumerated in either SDK** — see [`clarification zcc-06`](../_meta/clarifications.md#zcc-06-trustednetwork-condition_type-enum). Lab-test against a real tenant to determine which int maps to AND vs OR.
 
 **Operationally this is the critical field.**
 
@@ -248,7 +248,7 @@ From `vendor/zscaler-sdk-python/zscaler/zcc/trusted_networks.py` (Tier B — SDK
 
 ## Open questions
 
-- `condition_type` enum values and AND/OR semantics within a TrustedNetwork — [clarification `zcc-06`](../_clarifications.md#zcc-06-trustednetwork-condition_type-enum).
+- `condition_type` enum values and AND/OR semantics within a TrustedNetwork — [clarification `zcc-06`](../_meta/clarifications.md#zcc-06-trustednetwork-condition_type-enum).
 - Whether trusted-network evaluation is stateful across network transitions (does ZCC debounce rapid changes? cache the previous result?) — not surfaced by SDK.
 - Precedence when multiple TrustedNetworks referenced by a single Forwarding Profile both partially match — not documented.
 

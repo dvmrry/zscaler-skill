@@ -171,7 +171,7 @@ Policy changes propagate to enrolled devices on the next ZCC restart or user log
 
 The vendor documentation does not describe an audit trail for user-invoked support actions (Report an Issue submissions, log exports). The ZCC admin portal does expose the Enrolled Devices view with device-level details, and the Fetch Logs action is admin-initiated rather than user-initiated.
 
-For admin-side audit coverage of configuration changes to the App Supportability settings themselves, ZCC does not have a documented admin audit log API in available sources. The shared audit log reference (`references/shared/audit-logs.md`) confirms that no ZCC audit API package was found in either SDK. [Source: references/_clarifications.md — shared/audit-logs.md findings]
+For admin-side audit coverage of configuration changes to the App Supportability settings themselves, ZCC does not have a documented admin audit log API in available sources. The shared audit log reference (`references/shared/audit-logs.md`) confirms that no ZCC audit API package was found in either SDK. [Source: references/_meta/clarifications.md — shared/audit-logs.md findings]
 
 The `download_disable_reasons` endpoint (`GET /downloadDisableReasons`, available via the Python SDK `devices.download_disable_reasons()`) provides a CSV export of reasons users gave when disabling ZCC. This is the closest available admin-side visibility into user-initiated disable events. [Source: references/zcc/sdk.md]
 

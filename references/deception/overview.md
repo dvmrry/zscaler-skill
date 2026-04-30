@@ -85,7 +85,7 @@ How it works:
 3. Attacker traffic destined for the decoy hits the App Connector, which routes to the Deception cloud infrastructure.
 4. Deception captures the interaction, generates a high-fidelity alert.
 
-**Key access-policy property:** Deception-configured access rules must have **lower rule order numbers than regular ZPA access rules** (i.e., evaluate first). This is because ZPA is first-match-wins — if a regular rule matched attacker traffic first, the decoy would never get the connection. See [`../zpa/policy-precedence.md § Order and editing constraints`](../zpa/policy-precedence.md) and [`zpa-07`](../_clarifications.md#zpa-07-deception-policy-order-interaction).
+**Key access-policy property:** Deception-configured access rules must have **lower rule order numbers than regular ZPA access rules** (i.e., evaluate first). This is because ZPA is first-match-wins — if a regular rule matched attacker traffic first, the decoy would never get the connection. See [`../zpa/policy-precedence.md § Order and editing constraints`](../zpa/policy-precedence.md) and [`zpa-07`](../_meta/clarifications.md#zpa-07-deception-policy-order-interaction).
 
 These rules are also **read-only from the ZPA console** (cannot be copied, edited, or deleted via ZPA UI / API). They're managed by the Deception Admin Portal as a separate product surface; editing them out-of-band would desynchronize Deception's view of decoys and let attacker activity show up as a normal admin audit event instead of triggering a Deception alert.
 
@@ -178,7 +178,7 @@ If your tenant has Deception licensed and integrated with ZPA:
 
 - **"What is Zscaler Deception?"** → active defense via decoys; lateral-movement detection; low FP rate.
 - **"Is Deception part of ZPA?"** → No, it's a separate product. It integrates with ZPA via ZTN decoys but is standalone.
-- **"Why are there ZPA access rules I can't edit?"** → Deception is licensed and integrated; those rules are managed by the Deception Admin Portal. See [`zpa-07`](../_clarifications.md#zpa-07-deception-policy-order-interaction).
+- **"Why are there ZPA access rules I can't edit?"** → Deception is licensed and integrated; those rules are managed by the Deception Admin Portal. See [`zpa-07`](../_meta/clarifications.md#zpa-07-deception-policy-order-interaction).
 - **"Does Deception work without ZPA?"** → Yes. Network / AD / Endpoint / Cloud decoys deploy via Decoy Connector or endpoint agents. ZTN decoys specifically require ZPA.
 - **"What's the difference between Deception and Sandbox?"** → Sandbox detonates suspicious files at the perimeter. Deception detects post-breach activity inside the network. Complementary, not overlapping.
 - **"How does Deception integrate with our SIEM?"** → Via the Deception Admin Portal's log export. Specifics not in current captures; refer to TAM.
@@ -186,7 +186,7 @@ If your tenant has Deception licensed and integrated with ZPA:
 ## Cross-links
 
 - ZPA policy-precedence interaction (Deception rules ordered first): [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md)
-- Clarification on Deception access-rule constraints: [`zpa-07`](../_clarifications.md#zpa-07-deception-policy-order-interaction)
+- Clarification on Deception access-rule constraints: [`zpa-07`](../_meta/clarifications.md#zpa-07-deception-policy-order-interaction)
 - Cross-product integration catalog: [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md)
-- Portfolio map (where Deception sits in the product family): [`../_portfolio-map.md`](../_portfolio-map.md)
+- Portfolio map (where Deception sits in the product family): [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)
 - Source captures: [`../../vendor/zscaler-help/what-is-zscaler-deception.md`](../../vendor/zscaler-help/what-is-zscaler-deception.md), [`../../vendor/zscaler-help/about-deception-strategy.md`](../../vendor/zscaler-help/about-deception-strategy.md), [`../../vendor/zscaler-help/about-zpa-app-connectors-deception.md`](../../vendor/zscaler-help/about-zpa-app-connectors-deception.md)

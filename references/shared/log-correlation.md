@@ -301,9 +301,9 @@ LSS traffic uses mTLS between App Connector and the log receiver. The App Connec
 
 ## Open questions
 
-- Exact ZIA NSS vs Cloud NSS field-level differences (if any) — [clarification `log-02`](../_clarifications.md#log-02-cloud-nss-vs-legacy-nss-divergence)
-- NSS feed format version behavior (whether format versions affect field availability) — [clarification `log-01`](../_clarifications.md#log-01-nss-feed-format-versions)
-- Timestamp timezone handling across feeds and regions — [clarification `log-03`](../_clarifications.md#log-03-timestamp-timezone-handling)
+- Exact ZIA NSS vs Cloud NSS field-level differences (if any) — [clarification `log-02`](../_meta/clarifications.md#log-02-cloud-nss-vs-legacy-nss-divergence)
+- NSS feed format version behavior (whether format versions affect field availability) — [clarification `log-01`](../_meta/clarifications.md#log-01-nss-feed-format-versions)
+- Timestamp timezone handling across feeds and regions — [clarification `log-03`](../_meta/clarifications.md#log-03-timestamp-timezone-handling)
 - Whether ZPA LSS User Activity carries a field that directly maps to ZIA `%d{recordid}` (no evidence it does; cross-product record ID correlation is a gap)
 
 ## Cross-links

@@ -124,4 +124,4 @@ For operators asking "how do I control GenAI app usage across the org" → ZIA. 
 - ZIA AI app controls (network-level AI app visibility and access): [`../zia/index.md`](../zia/index.md)
 - ZIA DLP (data-in-motion sensitive data protection): [`../zia/dlp.md`](../zia/dlp.md)
 - AI Guard is in the ai-security reference directory alongside: [`./index.md`](./index.md), [`./overview.md`](./overview.md)
-- Portfolio map: [`../_portfolio-map.md`](../_portfolio-map.md)
+- Portfolio map: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)

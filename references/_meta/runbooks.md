@@ -8,7 +8,7 @@ confidence: high
 source-tier: mixed
 sources:
   - "references/shared/oneapi.md"
-  - "references/_verification-protocol.md"
+  - "references/verification-protocol.md"
   - "vendor/zscaler-sdk-python/zscaler/utils.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/legacy.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/legacy.py"
@@ -73,7 +73,7 @@ Even on a commercial cloud, OneAPI requires a ZIdentity API client to be created
 
 **Multi-product scripts touching ZDX:** must always implement ZDX-legacy alongside whatever else, since ZDX never migrated.
 
-See [`./shared/oneapi.md § Authentication mechanisms`](./shared/oneapi.md) for the full per-mechanism details, including the obfuscation algorithm for ZIA legacy and the SHA256 flow for ZDX legacy.
+See [`../shared/oneapi.md § Authentication mechanisms`](../shared/oneapi.md) for the full per-mechanism details, including the obfuscation algorithm for ZIA legacy and the SHA256 flow for ZDX legacy.
 
 ---
 
@@ -401,7 +401,7 @@ Reversibility differs sharply by product. Pick the right pattern for the product
 | Product | Reversibility model | Rollback window | Pattern |
 |---|---|---|---|
 | **ZIA** | **Staged via activation gate** (changes are saved-but-not-live until activate) | Until you call `/zia/api/v1/status/activate` | Make changes, snapshot, **revert before activating** if needed. The activation gate IS the rollback window. |
-| **ZTW (Cloud Connector)** | Staged (ZIA-style activation gate, plus `forceActivate` escape hatch) | Until `activate` (or `forceActivate`) | Same as ZIA. `forceActivate` is last-resort and bypasses validation — see [`../cloud-connector/api.md § Activation`](./cloud-connector/api.md). |
+| **ZTW (Cloud Connector)** | Staged (ZIA-style activation gate, plus `forceActivate` escape hatch) | Until `activate` (or `forceActivate`) | Same as ZIA. `forceActivate` is last-resort and bypasses validation — see [`.../cloud-connector/api.md § Activation`](../cloud-connector/api.md). |
 | **ZPA** | **Propagate on write** (no activation gate; changes are live immediately) | None — change is live as soon as the API returns 200 | **Snapshot-before-change**, manual revert. Atomic operations only safe at the per-resource level. |
 | **ZCC** | Propagate on write (web policy / forwarding profile changes apply on next ZCC agent check-in, but the API write is immediate) | None for the API; agent re-pulls on next check-in (Forwarding Profile / Trusted Network changes) or logout/restart (App Profile / Web Policy changes) | Snapshot-before-change. Plan for grace window before agents notice. |
 | **ZBI** | Propagate on write | None | Snapshot-before-change. |
@@ -498,12 +498,12 @@ Some changes can't be rolled back even with the patterns above:
 - **Test on a non-production tenant first if available.** A dev / sandbox tenant lets you exercise the activation gate without production-impact risk.
 - **For ZPA, plan the maintenance window.** Propagate-on-write means risky changes affect users immediately. Schedule them.
 
-For the simulator-based pattern of "validate the change before applying," see [`./_policy-simulation.md § Change validation`](./_policy-simulation.md).
+For the simulator-based pattern of "validate the change before applying," see [`policy-simulation.md § Change validation`](policy-simulation.md).
 
 ## Cross-links
 
-- Authentication mechanisms (full reference, not runbook): [`./shared/oneapi.md § Authentication mechanisms`](./shared/oneapi.md)
-- Read/write asymmetries (referenced from TS-6): [`./zia/api.md § Read/write shape asymmetries`](./zia/api.md), [`./zpa/api.md § Read/write shape asymmetries`](./zpa/api.md)
-- Activation gate: [`./shared/activation.md`](./shared/activation.md)
-- Verification protocol (when adding new runbooks here): [`./_verification-protocol.md`](./_verification-protocol.md)
-- Tier model (where this doc fits — meta level alongside the protocol): [`./_layering-model.md`](./_layering-model.md)
+- Authentication mechanisms (full reference, not runbook): [`../shared/oneapi.md § Authentication mechanisms`](../shared/oneapi.md)
+- Read/write asymmetries (referenced from TS-6): [`../zia/api.md § Read/write shape asymmetries`](../zia/api.md), [`../zpa/api.md § Read/write shape asymmetries`](../zpa/api.md)
+- Activation gate: [`../shared/activation.md`](../shared/activation.md)
+- Verification protocol (when adding new runbooks here): [`verification-protocol.md`](verification-protocol.md)
+- Tier model (where this doc fits — meta level alongside the protocol): [`layering-model.md`](layering-model.md)

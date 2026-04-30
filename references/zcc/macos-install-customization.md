@@ -331,20 +331,20 @@ ZCC may write its own log files to a location under `/var/log/` or under the app
 
 ## 15. Deferred — ZCC macOS install
 
-Items registered in [`_clarifications.md`](../_clarifications.md) as `zcc-14` through `zcc-23`.
+Items registered in [`_meta/clarifications.md`](../_meta/clarifications.md) as `zcc-14` through `zcc-23`.
 
 | Clarification ID | Claim requiring confirmation |
 |---|---|
-| [`zcc-14`](../_clarifications.md#zcc-14-macos-preference-domain-for-zcc-managed-preferences) | The preference domain for ZCC managed preferences (`com.zscaler.zclient` or similar) |
-| [`zcc-15`](../_clarifications.md#zcc-15-system-extension-profile-timing-on-macos) | ZCC `.pkg` post-install behavior when System Extension profile arrives after package install |
-| [`zcc-16`](../_clarifications.md#zcc-16-zcc-macos-uninstall-script-path) | Exact path to the Zscaler-provided uninstall script on macOS |
-| [`zcc-17`](../_clarifications.md#zcc-17-launchtray-0-vs-system-extension-activation) | Whether `launchTray = 0` prevents only the UI or also prevents system extension activation |
-| [`zcc-18`](../_clarifications.md#zcc-18-app-store-zcc-mdm-managed-preferences) | App Store-distributed ZCC plist/MDM managed-app-config support |
-| [`zcc-19`](../_clarifications.md#zcc-19-zcc-team-id-and-system-extension-bundle-identifier) | Exact Team ID and System Extension bundle identifier for current ZCC release |
-| [`zcc-20`](../_clarifications.md#zcc-20-full-disk-access-pppc-requirement-scope) | Whether Full Disk Access via PPPC is required for all features or only DLP/posture |
-| [`zcc-21`](../_clarifications.md#zcc-21-minimum-supported-macos-version) | Minimum supported macOS version (explicit statement) |
-| [`zcc-22`](../_clarifications.md#zcc-22-macos-update-channel-plist-key) | Whether a portal-side plist key controls the macOS update channel |
-| [`zcc-23`](../_clarifications.md#zcc-23-system-extension-behavior-after-launchtray-0-on-macos-13) | ZCC System Extension behavior after `launchTray = 0` on macOS 13+ with Login Items restrictions |
+| [`zcc-14`](../_meta/clarifications.md#zcc-14-macos-preference-domain-for-zcc-managed-preferences) | The preference domain for ZCC managed preferences (`com.zscaler.zclient` or similar) |
+| [`zcc-15`](../_meta/clarifications.md#zcc-15-system-extension-profile-timing-on-macos) | ZCC `.pkg` post-install behavior when System Extension profile arrives after package install |
+| [`zcc-16`](../_meta/clarifications.md#zcc-16-zcc-macos-uninstall-script-path) | Exact path to the Zscaler-provided uninstall script on macOS |
+| [`zcc-17`](../_meta/clarifications.md#zcc-17-launchtray-0-vs-system-extension-activation) | Whether `launchTray = 0` prevents only the UI or also prevents system extension activation |
+| [`zcc-18`](../_meta/clarifications.md#zcc-18-app-store-zcc-mdm-managed-preferences) | App Store-distributed ZCC plist/MDM managed-app-config support |
+| [`zcc-19`](../_meta/clarifications.md#zcc-19-zcc-team-id-and-system-extension-bundle-identifier) | Exact Team ID and System Extension bundle identifier for current ZCC release |
+| [`zcc-20`](../_meta/clarifications.md#zcc-20-full-disk-access-pppc-requirement-scope) | Whether Full Disk Access via PPPC is required for all features or only DLP/posture |
+| [`zcc-21`](../_meta/clarifications.md#zcc-21-minimum-supported-macos-version) | Minimum supported macOS version (explicit statement) |
+| [`zcc-22`](../_meta/clarifications.md#zcc-22-macos-update-channel-plist-key) | Whether a portal-side plist key controls the macOS update channel |
+| [`zcc-23`](../_meta/clarifications.md#zcc-23-system-extension-behavior-after-launchtray-0-on-macos-13) | ZCC System Extension behavior after `launchTray = 0` on macOS 13+ with Login Items restrictions |
 
 ---
 

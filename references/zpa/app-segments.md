@@ -257,8 +257,8 @@ Scenario from eval Q6: two segments with **identical** `domain_names = ["*.inter
 
 The guard rails:
 
-1. **Save-time validation likely blocks it.** *Using Application Segment Multimatch* p.1 says overlapping domains with mixed Multimatch settings are rejected. Two EXCLUSIVE segments with identical FQDNs hit the same save-time check per [`clarification zpa-03`](../_clarifications.md#zpa-03-multimatch-mixed-style-evaluation). If the tenant managed to save both, one of the Multimatch/save-time rules was bypassed or is newer than the segments.
-2. **If both saved anyway**, the runtime tie-break is **not documented** — this is [`clarification zpa-04`](../_clarifications.md#zpa-04-same-fqdn-same-bypass-tie-break). Operator-observed behavior: ZCC picks one deterministically per session, but which one is unspecified.
+1. **Save-time validation likely blocks it.** *Using Application Segment Multimatch* p.1 says overlapping domains with mixed Multimatch settings are rejected. Two EXCLUSIVE segments with identical FQDNs hit the same save-time check per [`clarification zpa-03`](../_meta/clarifications.md#zpa-03-multimatch-mixed-style-evaluation). If the tenant managed to save both, one of the Multimatch/save-time rules was bypassed or is newer than the segments.
+2. **If both saved anyway**, the runtime tie-break is **not documented** — this is [`clarification zpa-04`](../_meta/clarifications.md#zpa-04-same-fqdn-same-bypass-tie-break). Operator-observed behavior: ZCC picks one deterministically per session, but which one is unspecified.
 3. **Bypass overrides specificity.** If one segment has `bypass_type = Always`, that segment wins regardless of the specificity tie — per p.12 above.
 4. **Port-mismatch behavior still applies** inside the chosen segment: if the picked segment's ports don't cover the request, traffic drops/bypasses; it does not fall back to the other tied segment.
 
@@ -266,13 +266,13 @@ The guard rails:
 
 ## Open questions
 
-- Same-FQDN, same-Bypass-setting tie-break — [clarification `zpa-04`](../_clarifications.md#zpa-04-same-fqdn-same-bypass-tie-break) (still open)
+- Same-FQDN, same-Bypass-setting tie-break — [clarification `zpa-04`](../_meta/clarifications.md#zpa-04-same-fqdn-same-bypass-tie-break) (still open)
 
-Resolved while writing this doc (answers preserved in `_clarifications.md`):
+Resolved while writing this doc (answers preserved in `_meta/clarifications.md`):
 
-- "More granular" definition — [clarification `zpa-02`](../_clarifications.md#zpa-02-zpa-more-granular-definition) — most-specific FQDN wins, strictly on domain dimension.
-- Multimatch mixed-style evaluation — [clarification `zpa-03`](../_clarifications.md#zpa-03-multimatch-mixed-style-evaluation) — rejected at config time, not reconciled at traffic time.
-- "No match in segment" criteria — [clarification `zpa-05`](../_clarifications.md#zpa-05-no-match-in-segment-criteria) — specifically port mismatch; client drops the connection, no fallback to less-specific segment.
+- "More granular" definition — [clarification `zpa-02`](../_meta/clarifications.md#zpa-02-zpa-more-granular-definition) — most-specific FQDN wins, strictly on domain dimension.
+- Multimatch mixed-style evaluation — [clarification `zpa-03`](../_meta/clarifications.md#zpa-03-multimatch-mixed-style-evaluation) — rejected at config time, not reconciled at traffic time.
+- "No match in segment" criteria — [clarification `zpa-05`](../_meta/clarifications.md#zpa-05-no-match-in-segment-criteria) — specifically port mismatch; client drops the connection, no fallback to less-specific segment.
 
 ## Cross-links
 

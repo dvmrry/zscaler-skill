@@ -5,7 +5,7 @@ title: "Coverage audit template"
 
 # Coverage audit — YYYY-MM-DD
 
-Each audit follows this fixed structure so consecutive audits are diff-able. Copy this file to `_archive/audits/YYYY-MM-DD.md` and fill in.
+Each audit follows this fixed structure so consecutive audits are diff-able. Copy this file to `archive/audits/YYYY-MM-DD.md` and fill in.
 
 ## 1. Header
 

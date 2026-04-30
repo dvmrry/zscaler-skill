@@ -140,7 +140,7 @@ When threading a new finding, prefer to:
 
 - Add the citation chain inline at the finding (`source: vendor/.../file.go:NNN`) so future readers can re-check.
 - Mark tier-C bullets explicitly: "**Operator-reported, not source-verified:** ..."
-- Use the `_clarifications.md` system for tier-C candidates that warrant tracking until reproduction.
+- Use the `clarifications.md` system for tier-C candidates that warrant tracking until reproduction.
 
 ## Worked example — the `tz` finding (2026-04-25)
 
@@ -261,14 +261,14 @@ The threaded text was revised again to:
 This file is the canonical reference. It should be:
 
 - Cited from `SKILL.md` as a behavior binding for the assistant.
-- Linked from `_template.md` so contributors writing new docs see it.
-- Cited from `_clarifications.md` as the standard governing how clarifications get resolved (tier A or B sources move them to "resolved" status; tier C single-operator reports keep them open as candidates).
+- Linked from `template.md` so contributors writing new docs see it.
+- Cited from `clarifications.md` as the standard governing how clarifications get resolved (tier A or B sources move them to "resolved" status; tier C single-operator reports keep them open as candidates).
 
 If the protocol itself needs to evolve (e.g., adding a new tier or refining the source-check sequence), the change is itself a process decision — discuss explicitly, don't drift silently.
 
 ## Cross-links
 
-- Knowledge layering (general / tenant / SME tribal): [`./_layering-model.md`](./_layering-model.md)
-- Open candidates / reproduction-pending findings: [`./_clarifications.md`](./_clarifications.md)
+- Knowledge layering (general / tenant / SME tribal): [`layering-model.md`](layering-model.md)
+- Open candidates / reproduction-pending findings: [`clarifications.md`](clarifications.md)
 - Detection automation surfacing tier-C candidates: `scripts/find-asymmetries.py`
-- Doc front-matter conventions: [`./_template.md`](./_template.md)
+- Doc front-matter conventions: [`template.md`](template.md)

@@ -114,7 +114,7 @@ No `add_forwarding_profile` in the current SDK — profiles are created via a di
 
 ## Common SDK patterns
 
-The most-used call patterns inline. For full method signatures see `vendor/zscaler-sdk-python/zscaler/zcc/`. For auth-selection decision tree, see [`../_runbooks.md § Authentication selection`](../_runbooks.md).
+The most-used call patterns inline. For full method signatures see `vendor/zscaler-sdk-python/zscaler/zcc/`. For auth-selection decision tree, see [`../_meta/runbooks.md § Authentication selection`](../_meta/runbooks.md).
 
 ```python
 from zscaler import ZscalerClient
@@ -154,7 +154,7 @@ def call(method, *args, **kwargs):
     return data
 ```
 
-For troubleshooting these patterns, see [`../_runbooks.md § Troubleshooting flows`](../_runbooks.md).
+For troubleshooting these patterns, see [`../_meta/runbooks.md § Troubleshooting flows`](../_meta/runbooks.md).
 
 ## Snapshotting ZCC configuration
 
@@ -170,6 +170,6 @@ For troubleshooting these patterns, see [`../_runbooks.md § Troubleshooting flo
 
 ## Open questions
 
-See also `../_clarifications.md` entries `zcc-01` through `zcc-06` — enum values on key fields are all inferred from field names and not validated by the SDK.
+See also `../_meta/clarifications.md` entries `zcc-01` through `zcc-06` — enum values on key fields are all inferred from field names and not validated by the SDK.
 
-- How are forwarding profiles assigned to users/devices? The SDK has `list_by_company` but no assignment API surface. Likely handled via ZCC App Profiles (not exposed under `client.zcc` at all). Track as [`clarification zcc-07`](../_clarifications.md#zcc-07-forwarding-profile-assignment-to-usersdevices).
+- How are forwarding profiles assigned to users/devices? The SDK has `list_by_company` but no assignment API surface. Likely handled via ZCC App Profiles (not exposed under `client.zcc` at all). Track as [`clarification zcc-07`](../_meta/clarifications.md#zcc-07-forwarding-profile-assignment-to-usersdevices).

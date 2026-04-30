@@ -222,4 +222,4 @@ The ASG help article's numeric scaling defaults (min instances, max instances, C
 - Forwarding rules + methods: [`./forwarding.md`](./forwarding.md)
 - API + Terraform surface: [`./api.md`](./api.md)
 - Azure deployment (parallel doc): [`./azure-deployment.md`](./azure-deployment.md)
-- Portfolio context: [`../_portfolio-map.md`](../_portfolio-map.md)
+- Portfolio context: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)

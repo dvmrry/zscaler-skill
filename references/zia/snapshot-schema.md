@@ -103,7 +103,7 @@ jq '.[] | select((.keywordsRetainingParentCategory | length) > 0 or (.regexPatte
 jq --arg url "example.com" '.[] | select(.urls | index($url) or .dbCategorizedUrls | index($url)) | .configuredName' snapshot/zia/url-categories.json
 ```
 
-Cross-links: [`./url-filtering.md`](./url-filtering.md), [`./wildcard-semantics.md`](./wildcard-semantics.md), [clarification `zia-01`](../_clarifications.md#zia-01-predefined-vs-custom-category-specificity).
+Cross-links: [`./url-filtering.md`](./url-filtering.md), [`./wildcard-semantics.md`](./wildcard-semantics.md), [clarification `zia-01`](../_meta/clarifications.md#zia-01-predefined-vs-custom-category-specificity).
 
 ## `url-filtering-rules.json`
 
@@ -530,4 +530,4 @@ jq 'type' snapshot/zia/url-filtering-rules.json  # expect "array"
 - [`./cloud-app-control.md`](./cloud-app-control.md) — CAC reasoning
 - [`./ssl-inspection.md`](./ssl-inspection.md) — SSL inspection reasoning
 - [`./locations.md`](./locations.md) — Location / Location Group container types referenced in rules
-- [`../_layering-model.md`](../_layering-model.md) — how snapshot data layers onto general docs
+- [`../_meta/layering-model.md`](../_meta/layering-model.md) — how snapshot data layers onto general docs

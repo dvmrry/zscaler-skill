@@ -69,7 +69,7 @@ In the forwarding profile's per-network-type action (see [`./forwarding-profile.
 - **Network-type action**: Tunnel.
 - **Tunnel Version**: explicit selection of 1.0 or 2.0.
 
-These map to the SDK's `ForwardingProfileActions` object: `primary_transport` controls the transport preference (ZTUNNEL = 2.0, others likely DTLS / TLS markers for 1.0), `enable_packet_tunnel` toggles the packet-tunnel capability, and `tunnel2_fallback` configures the fallback behavior when 2.0 fails. See [`clarification zcc-04`](../_clarifications.md#zcc-04-forwardingprofile-primary_transport-enum) for the enum string specifics — first tenant snapshot will surface the observed values.
+These map to the SDK's `ForwardingProfileActions` object: `primary_transport` controls the transport preference (ZTUNNEL = 2.0, others likely DTLS / TLS markers for 1.0), `enable_packet_tunnel` toggles the packet-tunnel capability, and `tunnel2_fallback` configures the fallback behavior when 2.0 fails. See [`clarification zcc-04`](../_meta/clarifications.md#zcc-04-forwardingprofile-primary_transport-enum) for the enum string specifics — first tenant snapshot will surface the observed values.
 
 The typical best-practice config (from the 5-phase deployment guide): set all three network-type branches (On-Trusted Network, VPN-Trusted Network, Off-Trusted Network) to "Same as On-Trusted Network" during initial testing; diversify per branch only after a 1-2 week observation window.
 
@@ -132,7 +132,7 @@ Truth table for the two 3.8+ flags, from the Bypasses article:
 | Disabled | Enabled | System-proxy-aware: via listening proxy → Z-Tunnel 2.0. No system proxy: direct to Z-Tunnel 2.0 | Z-Tunnel 2.0 |
 | Enabled | Enabled | Forwarded to listening proxy, tunneled via **Z-Tunnel 2.0** | Z-Tunnel 2.0 |
 
-This truth table **partially resolves [`clarification zcc-05`](../_clarifications.md#zcc-05-systemproxydata-vs-native-forwarding-action-precedence)** for the `redirectWebTraffic` / `useTunnel2ForProxiedWebTraffic` interaction. The broader `systemProxyData` precedence question (OS-level proxy settings vs native forwarding actions) is a related but separate concern.
+This truth table **partially resolves [`clarification zcc-05`](../_meta/clarifications.md#zcc-05-systemproxydata-vs-native-forwarding-action-precedence)** for the `redirectWebTraffic` / `useTunnel2ForProxiedWebTraffic` interaction. The broader `systemProxyData` precedence question (OS-level proxy settings vs native forwarding actions) is a related but separate concern.
 
 ### Migration and fallback behavior
 

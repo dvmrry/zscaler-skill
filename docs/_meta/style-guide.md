@@ -57,7 +57,7 @@ Single-column landing. Used by the homepage and each product section's `index.ht
     </header>
 
     <nav class="docs">
-      <a class="doc-link" href="reference.html">
+      <a class="doc-link" href="guide.html">
         <div>
           <div class="doc-title">Title</div>
           <div class="doc-desc">One short sentence describing the page.</div>
@@ -78,9 +78,9 @@ Single-column landing. Used by the homepage and each product section's `index.ht
 
 ### 2. Reference doc
 
-Dense, scannable. Used for `zia/reference.html`, `zia/forwarding.html`, `zpa/reference.html`, `cloud-connector/reference.html`. Three-column grid: sticky sidebar nav (left), main body (center, ~48rem), margin-note rail (right). Plus topbar with breadcrumbs above and a triage table + open-clarifications register at the bottom.
+Dense, scannable. Used for `zia/guide.html`, `zia/forwarding.html`, `zpa/guide.html`, `cloud-connector/guide.html`. Three-column grid: sticky sidebar nav (left), main body (center, ~48rem), margin-note rail (right). Plus topbar with breadcrumbs above and a triage table + open-clarifications register at the bottom.
 
-These docs are not yet migrated to import `site.css`; they each have their own complete stylesheet. When generating a new reference doc, copy the structure of `cloud-connector/reference.html` (the most recent and cleanest example) and reuse its CSS verbatim. Sections to include:
+These docs are not yet migrated to import `site.css`; they each have their own complete stylesheet. When generating a new reference doc, copy the structure of `cloud-connector/guide.html` (the most recent and cleanest example) and reuse its CSS verbatim. Sections to include:
 
 - Topbar with breadcrumbs (`Zscaler Skill › <Group> › <Doc>`)
 - "At a glance" summary block (`#glance`)
@@ -150,3 +150,18 @@ When asked to add new content, choose the surface deliberately:
 | Slide-style overview | Add to `onboarding.html` (rarer) |
 
 Default to a markdown file in `references/` unless the content shape genuinely calls for a curated HTML synthesis.
+
+## File-naming semantics across layers
+
+The kit uses parallel naming conventions across `references/` (markdown source) and `docs/` (rendered HTML). Use the same name for the same conceptual role:
+
+| Filename | Role | `references/<product>/` | `docs/<product>/` |
+|---|---|---|---|
+| `index.{md,html}` | **Hub / portal** — topic catalog, navigation, "what's not covered" | Topics table linking to feature files | Doc-link cards linking to other pages |
+| `overview.{md,html}` | **Narrative framing** — what is this product, when does it apply, how does it relate to others | 100–150 lines of positioning | Optional — short explainer page |
+| `guide.html` | **Comprehensive editorial reference** — multi-feature rollup in prose form | n/a (refs uses per-feature files) | 500–900+ lines of dense scannable reference |
+| `<feature>.md` | **Per-feature reference** | Granular, one feature per file | n/a (rolled up into guide.html) |
+
+Single-file products (currently 12 of them — `aem`, `breach-predictor`, `business-insights`, `dspm`, `identity-protection`, `soc-workbench`, `unified`, `uvm`, `workflow-automation`, `zero-trust-branch`, `zero-trust-browser`, `zscaler-cellular`) use `overview.md` only. **Promotion rule**: when a product grows past one file's worth of content, add `index.md` as the hub (catalog) and demote `overview.md` to a narrative chapter linked from the index.
+
+`reference.html` (the previous name for `guide.html`) was renamed in 2026-04-30 because "reference" overlaps semantically with `references/` itself, while `guide` reads more naturally for the comprehensive editorial role.

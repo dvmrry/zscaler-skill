@@ -141,5 +141,5 @@ For a non-networking person joining a Zscaler-using team: the conceptual shift i
 - Forwarding paradigms (which transport zero-trust traffic uses): [`./proxy-vs-gateway-vs-tunnel.md`](./proxy-vs-gateway-vs-tunnel.md)
 - Identity primer: [`./identity-saml-oidc.md`](./identity-saml-oidc.md)
 - Zscaler platform shape: [`./zscaler-platform-shape.md`](./zscaler-platform-shape.md)
-- Cross-product integrations (zero-trust hooks across the suite): [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md)
-- Policy evaluation patterns (zero trust in practice): [`../shared/policy-evaluation.md`](../shared/policy-evaluation.md)
+- Cross-product integrations (zero-trust hooks across the suite): [`../../shared/cross-product-integrations.md`](../../shared/cross-product-integrations.md)
+- Policy evaluation patterns (zero trust in practice): [`../../shared/policy-evaluation.md`](../../shared/policy-evaluation.md)

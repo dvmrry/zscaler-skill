@@ -128,4 +128,4 @@ Operators building automation against ZIA or ZPA should use the cloud-specific A
 - ZIA (the primary internet security product managed via Experience Center): [`../zia/index.md`](../zia/index.md)
 - ZPA (private access product): [`../zpa/index.md`](../zpa/index.md)
 - ZIdentity (authentication for Experience Center): [`../zidentity/index.md`](../zidentity/index.md)
-- Portfolio map: [`../_portfolio-map.md`](../_portfolio-map.md)
+- Portfolio map: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)

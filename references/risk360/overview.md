@@ -265,5 +265,5 @@ Useful negative space:
 
 - Underlying data sources: [`../zia/index.md`](../zia/index.md), [`../zpa/index.md`](../zpa/index.md), [`../zia/dlp.md`](../zia/dlp.md)
 - Risk360 admin RBAC vs other Zscaler admin systems: [`../shared/admin-rbac.md`](../shared/admin-rbac.md)
-- Portfolio positioning: [`../_portfolio-map.md`](../_portfolio-map.md)
+- Portfolio positioning: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)
 - Cross-product integrations (where Risk360 sits): [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md)

@@ -10,7 +10,7 @@ sources:
   - "scripts/agent_patterns.py"
   - "scripts/diagnose-tenant.py"
   - "references/shared/oneapi.md"
-  - "references/_runbooks.md"
+  - "references/runbooks.md"
 author-status: reviewed
 ---
 
@@ -18,7 +18,7 @@ author-status: reviewed
 
 The rest of the skill is **descriptive** (how Zscaler behaves) and **procedural** (what steps a human operator takes). This doc is **executable**: typed Python functions an AI agent can lift verbatim into a tool environment, or import from `scripts/agent_patterns.py`.
 
-The runbook (`_runbooks.md`) is the human-shaped layer; this is the agent-shaped layer. They cover the same ground from different angles.
+The runbook (`runbooks.md`) is the human-shaped layer; this is the agent-shaped layer. They cover the same ground from different angles.
 
 ## How to consume this
 
@@ -230,7 +230,7 @@ def enumerate_endpoints(client):
 
 ```python
 def interpret_error(status_code, body=None):
-    """Map a Zscaler API error to a recovery action. See _runbooks.md § Troubleshooting flows for context."""
+    """Map a Zscaler API error to a recovery action. See runbooks.md § Troubleshooting flows for context."""
     body_dict = {}
     if isinstance(body, dict):
         body_dict = body
@@ -339,6 +339,6 @@ The runnable CLI `scripts/diagnose-tenant.py` is the consumer reference — it p
 
 - Module source: `scripts/agent_patterns.py` (canonical implementation)
 - Runnable CLI: `scripts/diagnose-tenant.py`
-- Human-readable runbooks: [`./_runbooks.md`](./_runbooks.md)
-- Auth framework reference: [`./shared/oneapi.md`](./shared/oneapi.md)
-- Verification protocol (when adding new patterns): [`./_verification-protocol.md`](./_verification-protocol.md)
+- Human-readable runbooks: [`runbooks.md`](runbooks.md)
+- Auth framework reference: [`../shared/oneapi.md`](../shared/oneapi.md)
+- Verification protocol (when adding new patterns): [`verification-protocol.md`](verification-protocol.md)

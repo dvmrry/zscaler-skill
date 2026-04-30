@@ -22,12 +22,12 @@
       key: 'welcome',
       label: 'Welcome',
       href: 'welcome/',
-      match: [/\/welcome\//, /readers-guide/, /onboarding/, /source\.html\?.*p=_primer/],
+      match: [/\/welcome\//, /readers-guide/, /onboarding/, /source\.html\?.*p=_meta/primer/],
       children: [
         { href: 'welcome/',               label: 'Index',          match: [/\/welcome\/(index\.html)?$/] },
         { href: 'readers-guide.html',     label: "Reader's Guide", match: [/readers-guide/] },
         { href: 'onboarding.html',        label: 'Slideshow',      match: [/onboarding/] },
-        { href: 'source.html?p=_primer',  label: 'Documents',      match: [/source\.html\?.*p=_primer/] },
+        { href: 'source.html?p=_primer',  label: 'Documents',      match: [/source\.html\?.*p=_meta/primer/] },
       ],
     },
     {
@@ -37,7 +37,7 @@
       match: [/\/zia\//, /\/zia\/?$/, /source\.html\?.*p=zia(\/|$)/],
       children: [
         { href: 'zia/',                label: 'Index',              match: [/\/zia\/(index\.html)?$/] },
-        { href: 'zia/reference.html',  label: 'Guide',          match: [/zia\/reference/] },
+        { href: 'zia/guide.html',  label: 'Guide',          match: [/zia\/guide/] },
         { href: 'zia/forwarding.html', label: 'Traffic Forwarding', match: [/zia\/forwarding/] },
         { href: 'source.html?p=zia',   label: 'Documents',          match: [/source\.html\?.*p=zia(\/|$)/], external: 'source' },
       ],
@@ -49,7 +49,7 @@
       match: [/\/zpa\//, /\/zpa\/?$/, /source\.html\?.*p=zpa(\/|$)/],
       children: [
         { href: 'zpa/',                label: 'Index',     match: [/\/zpa\/(index\.html)?$/] },
-        { href: 'zpa/reference.html',  label: 'Guide', match: [/zpa\/reference/] },
+        { href: 'zpa/guide.html',  label: 'Guide', match: [/zpa\/guide/] },
         { href: 'source.html?p=zpa',   label: 'Documents', match: [/source\.html\?.*p=zpa(\/|$)/], external: 'source' },
       ],
     },
@@ -60,7 +60,7 @@
       match: [/cloud-connector\//, /source\.html\?.*p=cloud-connector(\/|$)/],
       children: [
         { href: 'cloud-connector/',                  label: 'Index',     match: [/cloud-connector\/(index\.html)?$/] },
-        { href: 'cloud-connector/reference.html',    label: 'Guide', match: [/cloud-connector\/reference/] },
+        { href: 'cloud-connector/guide.html',    label: 'Guide', match: [/cloud-connector\/guide/] },
         { href: 'source.html?p=cloud-connector',     label: 'Documents', match: [/source\.html\?.*p=cloud-connector(\/|$)/], external: 'source' },
       ],
     },
