@@ -43,6 +43,15 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 
 ## Proposed
 
+### Auto-fix agent for hygiene failures (Claude-specific)
+
+- **Status**: Proposed (the dogfood endgame for closing the action loop on CI failures)
+- **Origin**: 2026-04-30 — discussion of how to close the loop after the 10-consecutive-CI-failure incident. Pre-push hook + branch protection cover the "human-in-the-loop with safety net" case; this is the "kit maintains itself" extension.
+- **Impact**: when hygiene fails (e.g., post-merge regression on main, or a hard-to-reproduce Renovate-driven drift), a workflow triggers a Claude Code session with the kit + the failure log loaded. The session runs `/z-charter` to internalize discipline, runs `/z-investigate hygiene failure on <commit>` to diagnose, proposes fixes, opens a PR. Engineer reviews and merges. The kit's whole point — scaffolding agents to operate — gets dogfooded on the kit itself.
+- **Cost**: medium-to-high. Needs a workflow that calls Claude (via the GitHub action — anthropic/claude-code-action or equivalent), passes the failure context, and lets the agent push to a fix branch. Plus charter / playbook content to handle "self-maintenance" as a recognized workflow shape.
+- **Notes**: Claude-specific by design (uses Agent tool, CC's slash command surface). Not a cross-agent pattern. Conceptually the right "endgame" for closing the action loop, but real cost — defer until the manual loop (pre-push + branch protection + status badge + occasional manual `/z-investigate` on failures) demonstrably becomes a bottleneck. Until then, manual is fine.
+- **Charter integration**: when this lands, the charter's § 6 (workflow discipline) gets a sub-section "self-maintenance via /z-investigate"; principle 7 (when to refuse) gets clarified to specifically allow the auto-fix flow vs. forbidding speculative agent-generated content.
+
 ### Close the `source.html?p=...` validation gap
 
 - **Status**: Proposed
