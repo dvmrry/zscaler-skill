@@ -43,6 +43,16 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 
 ## Proposed
 
+### Internal-fork override pattern for `_data/incidents/`
+
+- **Status**: Proposed
+- **Origin**: 2026-04-30 — when establishing the default-private posture for incident artifacts. Public skill kit gitignores the per-incident dirs; internal fork should override.
+- **Impact**: lets the internal/production fork commit incident artifacts for institutional memory (journals, timelines, postmortems become a queryable history) while the public skill kit stays private-by-default. Without the override, every internal-fork operator has to remember to `git add -f` per-incident or maintain their own gitignore patches.
+- **Cost**: low. Two plausible mechanisms:
+  - Internal fork maintains its own `.gitignore` rules in `.git/info/exclude` (per-clone, not committed) — simplest but doesn't survive re-cloning
+  - Internal fork commits an alternate `.gitignore.internal` and switches via `git config core.excludesfile` — survives cloning but adds setup ceremony
+- **Notes**: the public-vs-private fork divergence is already a documented pattern in the kit (see `.gitignore` line 2: "The private internal fork overrides this to commit snapshot/ and logs/ contents"). Incidents inherit the same shape. When the internal fork actually goes through a real production incident, that's the moment to formalize the override mechanism.
+
 ### Auto-fix agent for hygiene failures (Claude-specific)
 
 - **Status**: Proposed (the dogfood endgame for closing the action loop on CI failures)
