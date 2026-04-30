@@ -21,6 +21,7 @@ Anything under `references/_meta/` is kit-internal. Anything else under `referen
 
 | Path | Purpose |
 |---|---|
+| [`charter.md`](./charter.md) | Standing principles for engineers and agents — public/private boundary, verification discipline, calibration norms, workflow discipline, when to refuse. Loaded explicitly via `/z-charter` in CC at the start of maintenance work; not auto-loaded. |
 | [`agent-patterns.md`](./agent-patterns.md) | Reusable patterns agents apply across the kit (read this, then a question, etc.) |
 | [`archive/`](./archive/) | Superseded / historical content kept for reference. Exempt from orphan checks; intentional dead-ends. |
 | [`clarifications.md`](./clarifications.md) | The canonical register of open + resolved questions across the kit. Each gets a stable ID (`zia-03`, `shared-02`, etc.) referenced from topical docs. |

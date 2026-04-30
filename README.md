@@ -33,6 +33,14 @@ git submodule update --init --recursive
 
 The `vendor/` tree holds upstream Zscaler sources as git submodules. Without them, reference docs that cite `vendor/zscaler-sdk-python/...` or `vendor/terraform-provider-zia/...` point to nothing.
 
+**Activate the pre-push hook** so hygiene runs locally before any push:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+The hook (`.githooks/pre-push`) runs the same five checks CI does. Failures block the push; bypass with `git push --no-verify` if you really need to. CI on `main` is branch-protected — pushes that fail hygiene won't land regardless. See [the kit charter](./references/_meta/charter.md) § Workflow discipline for the full rationale.
+
 ### 2. Read `PLAN.md`
 
 [`PLAN.md`](./PLAN.md) is the crash-recovery and onboarding artifact. It lists:
