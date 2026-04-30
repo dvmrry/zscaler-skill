@@ -1,6 +1,6 @@
 ---
 product: zpa
-topic: "logs/private-service-edge-metrics"
+topic: "_data/logs/private-service-edge-metrics"
 title: "ZPA LSS Private Service Edge Metrics log — field reference"
 content-type: reference
 last-verified: "2026-04-28"

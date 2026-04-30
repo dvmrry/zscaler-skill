@@ -115,6 +115,17 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 - **Cost**: medium (needs source verification — what IS the canonical enum list?)
 - **Notes**: gap in our SSL inspection coverage. Defer until a content cycle on SSL inspection rules; not blocking. The `wontfix` close on the upstream issue means the divergence is permanent and worth documenting precisely *because* it traps users.
 
+### Primer files: `confidence: high` with empty `sources`
+
+- **Status**: Proposed
+- **Origin**: 2026-04-30 — surfaced during `_meta/` consolidation hygiene check; affects 5 files: `_meta/primer/zero-trust.md`, `networking-basics.md`, `identity-saml-oidc.md`, `proxy-vs-gateway-vs-tunnel.md`, `zscaler-platform-shape.md`
+- **Impact**: hygiene check warns; readers can't trace high-confidence claims to citations; calibration is technically inflated
+- **Cost**: low (per-file decision)
+- **Notes**: three plausible fixes:
+  - **Populate sources** with general references (RFCs, well-known networking texts, Zscaler positioning docs) — content is largely synthesis of common knowledge, so sources would be foundational rather than vendor-specific
+  - **Downgrade to `confidence: medium`** with a note acknowledging the synthesis-of-common-knowledge nature
+  - **Add a `check-hygiene.py` exemption** for primer files (similar to the index-file exemption pattern in `audit-prompt.md`) — primers are educational synthesis, not vendor claims
+
 ### Tenant-side bundle storage convention
 
 - **Status**: Proposed

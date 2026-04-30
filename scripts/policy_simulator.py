@@ -282,8 +282,8 @@ def simulate_url_filter(
 
     Args:
       request                 : URLFilterRequest with the URL and (optional) user/loc/etc.
-      snapshot_rules          : list of URL filter rule dicts (from snapshot/zia/url-filtering-rules.json)
-      snapshot_categories     : list of URL category dicts (from snapshot/zia/url-categories.json)
+      snapshot_rules          : list of URL filter rule dicts (from _data/snapshot/zia/url-filtering-rules.json)
+      snapshot_categories     : list of URL category dicts (from _data/snapshot/zia/url-categories.json)
                                 If None, category resolution is skipped — rules with no
                                 urlCategories criterion can still match; rules requiring
                                 a category are skipped with a 'no category data' note.

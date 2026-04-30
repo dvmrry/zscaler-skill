@@ -1,6 +1,6 @@
 ---
 product: zpa
-topic: "logs/private-service-edge-status"
+topic: "_data/logs/private-service-edge-status"
 title: "ZPA LSS Private Service Edge Status log — field reference"
 content-type: reference
 last-verified: "2026-04-28"

@@ -45,9 +45,9 @@ The skill answers questions by combining three distinct **knowledge layers**. Ea
 **What it is:** how a specific tenant has Zscaler configured. Different per fork; never committed upstream.
 
 **Where it lives:**
-- `snapshot/zia/*.json`, `snapshot/zpa/*.json`, `snapshot/zcc/*.json` — config dumps from the API.
-- `snapshot/_manifest.json` — timestamps and per-resource counts.
-- (Future) per-tenant operational logs in `logs/` (gitignored).
+- `_data/snapshot/zia/*.json`, `_data/snapshot/zpa/*.json`, `_data/snapshot/zcc/*.json` — config dumps from the API.
+- `_data/snapshot/_manifest.json` — timestamps and per-resource counts.
+- (Future) per-tenant operational logs in `_data/logs/` (gitignored).
 
 **Authority pattern:** sourced from real tenant API. Authoritative for "what does this tenant actually have configured." Stale within hours-to-days depending on tenant change rate.
 
@@ -58,7 +58,7 @@ The skill answers questions by combining three distinct **knowledge layers**. Ea
 
 **Update cadence:** per-fork. Run `scripts/snapshot-refresh.py` when needed; cron weekly is reasonable for stable tenants. Log queries are on-demand.
 
-**Critical property:** **never committed to the public upstream.** Tenant data lives in private forks. The public repo's `snapshot/` ships with `.gitkeep` only.
+**Critical property:** **never committed to the public upstream.** Tenant data lives in private forks. The public repo's `_data/snapshot/` ships with `.gitkeep` only.
 
 ### Layer 3 — SME tribal knowledge
 
@@ -88,7 +88,7 @@ When answering a question, the skill should combine layers explicitly:
 ```
 Layer 1 (general)
    ↓
-Layer 2 (tenant config) — applied IF snapshot/ is populated
+Layer 2 (tenant config) — applied IF _data/snapshot/ is populated
    ↓
 Layer 3 (tribal knowledge) — applied IF the SME has weighed in
    ↓
@@ -100,7 +100,7 @@ Cited sources in the answer should attribute by layer:
 ```
 ## Sources
 - references/zia/url-filtering.md § Rule precedence (Layer 1: general)
-- snapshot/zia/url-filtering-rules.json rule 47 (Layer 2: this tenant)
+- _data/snapshot/zia/url-filtering-rules.json rule 47 (Layer 2: this tenant)
 - SME-confirmed via @alice (Layer 3: tribal knowledge — incident #2348 runbook)
 ```
 
@@ -108,7 +108,7 @@ Cited sources in the answer should attribute by layer:
 
 | Scenario | Skill behavior |
 |---|---|
-| Layer 1 only (no snapshot, no SME input) | General answer with appropriate confidence. Note the limitation: "I can describe how this works in Zscaler generally; for your tenant specifically, populate `snapshot/` and re-ask." |
+| Layer 1 only (no snapshot, no SME input) | General answer with appropriate confidence. Note the limitation: "I can describe how this works in Zscaler generally; for your tenant specifically, populate `_data/snapshot/` and re-ask." |
 | Layer 1 + Layer 2 | Combined answer. Distinguish "Zscaler does X" from "your tenant has Y configured." |
 | Layer 1 + Layer 3 | Combined answer. Tribal knowledge typically refines or extends Layer 1. |
 | Layer 2 + Layer 3 without Layer 1 | Rare — usually means a question that's purely tenant-specific. Still answer but note no general framing. |
@@ -118,15 +118,15 @@ Cited sources in the answer should attribute by layer:
 
 - **Treating Layer 2 inferences as Layer 1 facts.** "This tenant doesn't have Multimatch enabled" is a Layer 2 fact. "Zscaler doesn't support Multimatch" is a Layer 1 falsehood derived from over-generalizing.
 - **Treating Layer 3 as Layer 1.** "Our team has never seen X happen" is Layer 3 (absence of tribal evidence). "Zscaler doesn't do X" is a Layer 1 claim that requires Zscaler documentation. They're not the same.
-- **Citing Layer 1 when Layer 2 is required.** "ZIA blocks Social Networking by default" is wrong as a Layer 1 claim. Default policy varies; your tenant's default is in `snapshot/zia/url-filtering-rules.json`, not in the help docs.
+- **Citing Layer 1 when Layer 2 is required.** "ZIA blocks Social Networking by default" is wrong as a Layer 1 claim. Default policy varies; your tenant's default is in `_data/snapshot/zia/url-filtering-rules.json`, not in the help docs.
 - **Letting Layer 3 quietly override Layer 1.** If tribal knowledge contradicts Zscaler docs, that's a clarification ("Zscaler docs say X but our experience is Y") — file it in `clarifications.md` rather than just trusting the tribe.
 
 ## Where tenant-data layering will eventually intersect the skill
 
-Currently Layer 2 is a known gap because the public skill ships an empty `snapshot/`. When a fork populates real tenant data:
+Currently Layer 2 is a known gap because the public skill ships an empty `_data/snapshot/`. When a fork populates real tenant data:
 
-1. The skill should **read snapshot/ first** for any tenant-specific question — `SKILL.md` already includes a "Check for a snapshot first" preamble.
-2. Reasoning docs cite `snapshot/<product>/<resource>.json` paths inline (we do this today as aspirational citations; they become real once the file populates).
+1. The skill should **read _data/snapshot/ first** for any tenant-specific question — `SKILL.md` already includes a "Check for a snapshot first" preamble.
+2. Reasoning docs cite `_data/snapshot/<product>/<resource>.json` paths inline (we do this today as aspirational citations; they become real once the file populates).
 3. **Schema docs** (`references/zia/snapshot-schema.md`, `references/zpa/snapshot-schema.md`, `references/zcc/snapshot-schema.md`, `references/zidentity/snapshot-schema.md`) are **written** (drafted from Postman collection + SDK + TF provider; confidence: medium). Validate and bump to `high` after a real fork-admin run produces tenant output. The resource-level reasoning docs now cross-link to them.
 
 ## Where SME knowledge will eventually intersect

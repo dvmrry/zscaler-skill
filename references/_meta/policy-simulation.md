@@ -114,7 +114,7 @@ print(result.summary())
 ./scripts/simulate-policy.py --url https://x.com --json                 # machine output
 ```
 
-Requires `snapshot/zia/url-filtering-rules.json` + `snapshot/zia/url-categories.json`. Run `./scripts/snapshot-refresh.py --zia-only` first.
+Requires `_data/snapshot/zia/url-filtering-rules.json` + `_data/snapshot/zia/url-categories.json`. Run `./scripts/snapshot-refresh.py --zia-only` first.
 
 ## Single-URL before/after primitive
 

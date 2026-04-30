@@ -24,7 +24,7 @@ author-status: draft
 
 This doc covers the AWS account-level integration that feeds tag-based policy and workload visibility into Cloud Connector. It is **not** about deploying the Cloud Connector VMs themselves — that's `./aws-deployment.md`. Workload discovery is a separate data-plane concern: it gives Zscaler read access to your AWS account so that policies can reference workload identity (tags, VPC IDs, security groups) rather than raw IP addresses.
 
-> **Reference IaC vs production IaC.** Where CloudFormation or Terraform is mentioned below, references are to **Zscaler's published example templates** — reference implementations illustrating one valid onboarding path. They are not product specification. Runtime requirements and reference defaults are not always separately documented; this doc flags the distinction where it matters. **Fork agents:** if `iac/` is populated for this fork, treat it as production truth. Use this doc for context and reasoning, not as a deployment spec.
+> **Reference IaC vs production IaC.** Where CloudFormation or Terraform is mentioned below, references are to **Zscaler's published example templates** — reference implementations illustrating one valid onboarding path. They are not product specification. Runtime requirements and reference defaults are not always separately documented; this doc flags the distinction where it matters. **Fork agents:** if `_data/iac/` is populated for this fork, treat it as production truth. Use this doc for context and reasoning, not as a deployment spec.
 
 > **Feature gating.** AWS partner integrations (workload discovery) must be enabled by Zscaler Support before the Partner Integrations menu is visible. Do not assume it is on by default.
 

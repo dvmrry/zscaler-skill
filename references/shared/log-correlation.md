@@ -27,7 +27,7 @@ This document covers the shared fields across ZIA log streams (web, firewall, DN
 
 Logs are a **validation layer**, not the primary source. The default answer sequence is:
 
-1. **Config answer first.** Derive the expected answer from `snapshot/` + `references/` docs with appropriate confidence.
+1. **Config answer first.** Derive the expected answer from `_data/snapshot/` + `references/` docs with appropriate confidence.
 2. **Validate with logs only when triggered** by user pushback, ambiguous config, an inherently observational question, or suspected config/reality drift.
 3. **Report drift explicitly.** If logs contradict config, that is the high-signal finding.
 

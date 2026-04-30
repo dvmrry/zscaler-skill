@@ -1,6 +1,6 @@
 ---
 product: zpa
-topic: "logs/private-cloud-controller-metrics"
+topic: "_data/logs/private-cloud-controller-metrics"
 title: "ZPA LSS Private Cloud Controller Metrics log — field reference"
 content-type: reference
 last-verified: "2026-04-28"

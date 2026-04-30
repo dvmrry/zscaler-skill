@@ -127,12 +127,12 @@ See [`../shared/oneapi.md § Authentication mechanisms`](../shared/oneapi.md) fo
 
 ### Diagnostic 4 — Is my snapshot data current?
 
-**Why you need this:** scripts derive answers from `snapshot/` JSON. If snapshot is stale or empty, answers can be wrong.
+**Why you need this:** scripts derive answers from `_data/snapshot/` JSON. If snapshot is stale or empty, answers can be wrong.
 
 **Procedure:**
 
-1. `ls snapshot/zia/ snapshot/zpa/ snapshot/zcc/` — if directories are empty (only `.gitkeep`), no snapshot exists.
-2. `cat snapshot/_manifest.json` — inspect timestamps. Fields older than the last tenant config change are stale.
+1. `ls _data/snapshot/zia/ _data/snapshot/zpa/ _data/snapshot/zcc/` — if directories are empty (only `.gitkeep`), no snapshot exists.
+2. `cat _data/snapshot/_manifest.json` — inspect timestamps. Fields older than the last tenant config change are stale.
 3. Re-run `./scripts/snapshot-refresh.py` to update.
 
 If snapshot is empty (upstream skill default), the skill should DECLINE tenant-specific questions per the SKILL.md "When to decline" rules. This is a feature, not a bug — it prevents the skill from confabulating tenant data.
@@ -221,7 +221,7 @@ Start
 │  └─ See TS-5 below.
 │
 └─ Per-resource failures (some succeed, some don't)?
-   └─ Look at logs/snapshot-refresh.log; failures prefixed with `!`.
+   └─ Look at _data/logs/snapshot-refresh.log; failures prefixed with `!`.
       `-` prefix = SDK doesn't expose that resource (e.g., older SDK version).
 ```
 

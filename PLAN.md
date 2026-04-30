@@ -2,7 +2,7 @@
 
 **Purpose of this file:** crash-recovery artifact. If the session dies, read this to know what the project is, what's been done, and what's next without reconstructing from a 99MB transcript.
 
-Last updated: 2026-04-26 (capture-driven build-out — sitemap audit, 2 capture rounds totaling ~150 pages, 19 new reference docs, iac/ extension point scaffolded).
+Last updated: 2026-04-26 (capture-driven build-out — sitemap audit, 2 capture rounds totaling ~150 pages, 19 new reference docs, _data/iac/ extension point scaffolded).
 
 ## TL;DR for new fork admins
 
@@ -10,7 +10,7 @@ If you just forked this and are here because [`README.md`](./README.md) step 2 s
 
 1. **The skill is feature-complete as a knowledge/reasoning artifact.** All `references/` docs are drafted and cited; `SKILL.md` routes to them; `evals/evals.json` exercises them. You can hand the skill to Claude and get useful answers about Zscaler policy evaluation today, with no further work.
 2. **Scope: eight products + architectural layer.** Products covered: ZIA, ZPA, ZCC (Client Connector), ZDX (Digital Experience), ZBI (Cloud Browser Isolation), ZIdentity (unified auth + OneAPI + step-up), Cloud & Branch Connector (ZTW/ZTC/CBC), ZWA (Workflow Automation — DLP incidents). Architectural layer covered: policy evaluation, cloud architecture (Central Authority + Service Edges + BC Cloud), SIPA, SCIM, PAC files, Locations/sublocations/Location Groups, Device Posture, Firewall Control (Filtering/NAT/DNS/IPS), Browser Access, Privileged Remote Access, Subclouds, NSS architecture. **Out of scope:** ZMS, ZINS, EASM, ZAI Guard (vendored in SDKs, not written up), Federal Cloud (deferred — tenant signal pending).
-3. **`snapshot/` is empty on purpose.** The public repo ships it empty so the fork doesn't inherit somebody else's tenant data. Run `scripts/snapshot-refresh.py` once your credentials are set up (README step 5) and commit the output to your internal fork. Script now dumps ZIA + ZPA + ZCC (use `--zia-only` / `--zpa-only` / `--zcc-only` to scope). Without a snapshot, the skill falls back to general answers for tenant-specific questions — still useful, just hedged.
+3. **`_data/snapshot/` is empty on purpose.** The public repo ships it empty so the fork doesn't inherit somebody else's tenant data. Run `scripts/snapshot-refresh.py` once your credentials are set up (README step 5) and commit the output to your internal fork. Script now dumps ZIA + ZPA + ZCC (use `--zia-only` / `--zpa-only` / `--zcc-only` to scope). Without a snapshot, the skill falls back to general answers for tenant-specific questions — still useful, just hedged.
 4. **5 of 8 scripts are scaffolds, not functional code.** Only `url-lookup.py` and `snapshot-refresh.py` are complete end-to-end. The other five (`access-check.py`, `ssl-audit.py`, `sandbox-check.py`, `connector-health.py`, `zpa-app-check.py`) have docstrings, argument parsing, auth wiring, and logical structure but leave TODOs where live-API response shape needs confirmation. First-run-against-real-tenant is where those TODOs become tractable.
 5. **Known API / documentation blind spots** — all have operator-level workarounds documented:
    - **Malware Protection and ATP block diagnosis** — no API, console-only (workflow codified in `references/zia/malware-and-atp.md`).
@@ -25,7 +25,7 @@ If you just forked this and are here because [`README.md`](./README.md) step 2 s
 
 Build a Claude skill that lets engineers and non-technical users ask questions about the user's Zscaler environment and get usable, sourced, confidence-scored answers across the full product suite — ZIA, ZPA, ZCC, ZDX, ZBI, ZIdentity, Cloud & Branch Connector, ZWA — plus the cross-cutting architectural concerns (policy evaluation, cloud architecture, PAC, Locations, Device Posture, Firewall, SIPA, SCIM, Subclouds, NSS, Browser Access, PRA). The skill's distinguishing value is **codified reasoning** about rule precedence, wildcard semantics, SSL inspection ordering, policy evaluation, and cross-product interactions — because Zscaler's own docs + MCP tools don't codify this, and raw LLMs hallucinate on precedence questions.
 
-This repo is designed to be **forked privately to run against a real tenant**. The public upstream ships empty `snapshot/` and `logs/` directories; private forks populate them with tenant-specific data that never flows back upstream. Design decisions favor concrete operator workflows over general reusability — the pattern works best when one team owns the fork and can pin it to their environment.
+This repo is designed to be **forked privately to run against a real tenant**. The public upstream ships empty `_data/snapshot/` and `_data/logs/` directories; private forks populate them with tenant-specific data that never flows back upstream. Design decisions favor concrete operator workflows over general reusability — the pattern works best when one team owns the fork and can pin it to their environment.
 
 ## Durable state pointers (read these first)
 
@@ -38,7 +38,7 @@ This repo is designed to be **forked privately to run against a real tenant**. T
 | `vendor/zscaler-help/*.pdf`, `vendor/zscaler-help/*.md` | Pinned bibliography — every reference doc cites something here |
 | `scripts/url-lookup.py`, `scripts/snapshot-refresh.py`, `scripts/splunk-query.sh` | Tooling scaffolds (Python via `uv run --script`). `snapshot-refresh.py` covers ZIA + ZPA + ZCC. |
 | `evals/evals.json` | Skill eval prompts (14 canonical Q→A prompts with structured assertions, must_cite_files, must_not_say traps) |
-| `snapshot/` | Where tenant snapshot JSON lands after fork (currently empty + `.gitkeep`) |
+| `_data/snapshot/` | Where tenant snapshot JSON lands after fork (currently empty + `.gitkeep`) |
 
 ## 7-step roadmap — state
 
@@ -110,7 +110,7 @@ Product scope extended from ZIA+ZPA to ZIA+ZPA+ZCC after QA review surfaced that
   - `entitlements.md` — (second pass) ZPA and ZDX group entitlements; `zpa_enable_for_all` trump card, Machine Tunnel gating, ZDX `collect_zdx_location` dual-source
 - **SKILL.md updated:** scope description mentions ZCC; routing table adds three ZCC rows and a ZCC API row; "out of scope" note refined to list what's still out (ZDX, ZIdentity, ZMS, ZINS, EASM).
 - **`_meta/clarifications.md`:** added 7 new entries `zcc-01` through `zcc-07` covering enum values the SDK doesn't validate (condition_type, network_type, action_type, primary_transport) plus systemProxyData precedence and forwarding-profile assignment mechanism.
-- **Snapshot scope gap closed (second pass 2026-04-24):** `scripts/snapshot-refresh.py` now dumps ZCC (forwarding-profiles, trusted-networks, fail-open-policy, web-policy) under `snapshot/zcc/`. New `--zcc-only` flag mirrors `--zia-only` / `--zpa-only`. First fork-admin run will resolve enum clarifications `zcc-01` through `zcc-04` and `zcc-06` via observed values.
+- **Snapshot scope gap closed (second pass 2026-04-24):** `scripts/snapshot-refresh.py` now dumps ZCC (forwarding-profiles, trusted-networks, fail-open-policy, web-policy) under `_data/snapshot/zcc/`. New `--zcc-only` flag mirrors `--zia-only` / `--zpa-only`. First fork-admin run will resolve enum clarifications `zcc-01` through `zcc-04` and `zcc-06` via observed values.
 
 Remaining ZCC areas **not written up**: ZCC admin users / roles / secrets (`client.zcc.admin_user`, `client.zcc.secrets`, `client.zcc.company`) — rarely relevant to policy-reasoning questions; captive-portal detection deep-dive (covered at feature level in forwarding-profile.md, but exact heuristics not documented); Z-Tunnel 1.0 vs 2.0 protocol internals (not customer-documented).
 
@@ -120,7 +120,7 @@ Remaining ZCC areas **not written up**: ZCC admin users / roles / secrets (`clie
   - `must_cite_files` — reference files the answer must cite
   - `must_not_say` — common wrong-answer traps (e.g., "Allow always wins over Block", "asterisks work in Zscaler", "URL filtering only runs after SSL decrypt")
   - `expected_confidence` — "high" (deterministic from docs) / "medium" (needs snapshot) / "low" (declines without data)
-  - `tenant_data_required` — signals the harness whether to expect a decline-with-pointers when `snapshot/` is empty
+  - `tenant_data_required` — signals the harness whether to expect a decline-with-pointers when `_data/snapshot/` is empty
   - Top-level `schema_notes` explains the format to any future reader.
 - **`README.md` rewritten** as a fork-admin onboarding walkthrough:
   - 7-step first-run path: clone → read PLAN.md → install skill → set up creds → first snapshot → try a script → run evals
@@ -527,10 +527,10 @@ Plus portfolio-map T2 fill-ins: CTEM, Business Continuity Cloud (own entry vs. b
 - `references/zia/proxy-mode.md` — Explicit vs Transparent destination resolution
 - `references/shared/cloud-architecture.md` — added MCLS sub-section + provisioning-scope statement + policy-follows-user
 
-### Round 12 — Postman drift fixes + iac/ scaffolding + customer-language sweep ✅ DONE (2026-04-26)
+### Round 12 — Postman drift fixes + _data/iac/ scaffolding + customer-language sweep ✅ DONE (2026-04-26)
 
 - Cross-checked SDK-derived API claims against the published Postman collection. Five small drift fixes applied across `url-filtering.md` (added `userRiskScoreLevels` + `workloadGroups`), `forwarding-control.md` (`zpaBrokerRule`), `ssl-inspection.md` (`accessControl` + `showEUN/showEUNATP` casing), `segment-server-groups.md` (Python SDK Server Group `servers[]` gap), `traffic-forwarding-methods.md` (added `CN`/`XAUTH` VPN credential types).
-- **iac/** scaffolding for fork-private production IaC (Terraform-only by default; fork can add other tools as needed). README explains routing precedence: `iac/` is production truth; `vendor/` IaC is reference implementation.
+- **_data/iac/** scaffolding for fork-private production IaC (Terraform-only by default; fork can add other tools as needed). README explains routing precedence: `_data/iac/` is production truth; `vendor/` IaC is reference implementation.
 - **Reference-IaC vs production-IaC** distinction encoded — Azure CC doc audited to soften "required" claims to "reference pattern." Future per-cloud docs follow this pattern from the start.
 - Customer-language sweep — fixed AI Security + portfolio-map miscoloring of skill-users as "customers." Most usage was Zscaler-domain terminology and stayed.
 
@@ -578,7 +578,7 @@ Plus portfolio-map T2 fill-ins: CTEM, Business Continuity Cloud (own entry vs. b
 - **309 vendored help captures** + 11 PDFs (was ~176 at session start)
 - **All Zscaler-marketed products** at appropriate tier (T1 with operational depth: 9; T2a with reasoning content: 5; T2b with paragraph awareness: 19+)
 - **Help-portal gaps** documented (5 ZPA pages 404 / SPA-broken; sourced from SDK + TF)
-- **Reference-IaC vs production-IaC** distinction codified; `iac/` extension point scaffolded for fork-private deployments
+- **Reference-IaC vs production-IaC** distinction codified; `_data/iac/` extension point scaffolded for fork-private deployments
 - **Verification protocol** applied: explicit Tier A/B/C/D labels; `source-tier: code` for SDK-only docs; `confidence: medium` where SDK-only
 
 ### Pending after round 14

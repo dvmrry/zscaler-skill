@@ -101,7 +101,7 @@ See [`references/zia/api.md § Authentication`](./references/zia/api.md) for the
 ./scripts/snapshot-refresh.py --zcc-only     # just ZCC
 ```
 
-Writes to `snapshot/zia/*.json`, `snapshot/zpa/*.json`, and `snapshot/zcc/*.json` plus a `_manifest.json` with timestamps and per-resource counts. The public upstream repo keeps `snapshot/` empty via `.gitkeep` — **your fork is expected to commit real snapshots.** The skill cites `snapshot/` when answering tenant-specific questions; without it, most tenant-specific answers revert to "I can't verify, here's the general mechanism."
+Writes to `_data/snapshot/zia/*.json`, `_data/snapshot/zpa/*.json`, and `_data/snapshot/zcc/*.json` plus a `_manifest.json` with timestamps and per-resource counts. The public upstream repo keeps `_data/snapshot/` empty via `.gitkeep` — **your fork is expected to commit real snapshots.** The skill cites `_data/snapshot/` when answering tenant-specific questions; without it, most tenant-specific answers revert to "I can't verify, here's the general mechanism."
 
 ### 6. Try an operational script
 
@@ -140,19 +140,19 @@ Each script's header comment carries a **Status** line — `functional`, `scaffo
 | Script | Status | Question it answers | Notes |
 |---|---|---|---|
 | `scripts/url-lookup.py <url>` | functional | Which URL categories cover this URL, and which rules reference those categories? | Implements MCP `investigate-url` workflow. |
-| `scripts/snapshot-refresh.py` | functional | Bulk dump ZIA + ZPA + ZCC config to `snapshot/` | Foundation for all tenant-specific skill answers. Dumps ZIA (URL categories, URL-filter rules, CAC rules, SSL-inspection rules, advanced settings), ZPA (app-segments, segment groups, server groups, access policies), and ZCC (forwarding profiles, trusted networks, fail-open policies, web policies). `--zia-only` / `--zpa-only` / `--zcc-only` flags limit scope. |
+| `scripts/snapshot-refresh.py` | functional | Bulk dump ZIA + ZPA + ZCC config to `_data/snapshot/` | Foundation for all tenant-specific skill answers. Dumps ZIA (URL categories, URL-filter rules, CAC rules, SSL-inspection rules, advanced settings), ZPA (app-segments, segment groups, server groups, access policies), and ZCC (forwarding profiles, trusted networks, fail-open policies, web policies). `--zia-only` / `--zpa-only` / `--zcc-only` flags limit scope. |
 | `scripts/access-check.py --user X <url>` | scaffold | Can user X access URL, and which policy layer decides? | Walks SSL → URL Filter → CAC → DLP → Firewall. Flags DLP-not-effective under SSL bypass. Pre-checks activation status. TODOs where per-layer SDK response traversal needs real tenant output to confirm. |
 | `scripts/ssl-audit.py` | scaffold | Which SSL Inspection rules are bypassing what, with what risk? | CRITICAL/HIGH/MEDIUM/LOW classification per `ssl-inspection.md` rubric. `--min-risk`, `--forwarding`, `--with-dlp` flags. |
 | `scripts/sandbox-check.py --md5 <hash> --url <url>` | scaffold | Why was this file blocked / unanalyzed / stuck in quarantine? | Detects static-analysis fast-path, SSL-bypass-prevents-Sandbox, Basic-vs-Advanced tier mismatch. Surfaces the "Malware Protection / ATP have no API" limit. |
 | `scripts/connector-health.py [--group <name>]` | scaffold | Is connector group X healthy? | Checks provisioning-key exhaustion (#1 enrollment failure), runtime status, version lag, cert expiry. |
 | `scripts/zpa-app-check.py --fqdn <fqdn>` | scaffold | Is this app properly onboarded in ZPA end-to-end? | Validates segment → server group → connector group → access policy chain. Flags port-mismatch-as-dropped. |
-| `scripts/find-asymmetries.py` | functional | What candidate API mismatches sit in the schemas (read/write asymmetries, cross-provider validator drift, intra-resource enum collisions, server-assigned fields)? | Passes 1 + 2 implemented. Pass 1: TF validator extraction across `terraform-provider-{zia,zpa,ztc}` (inline + map + slice patterns) plus within-validator near-duplicate detection. Pass 2: Postman request body vs response example field-path diff. Outputs candidates to `logs/asymmetry-candidates.md` for human triage. Passes 3–5 (fuzzy field-name match, TF git history, Python SDK enum extraction) documented inline as future work. |
+| `scripts/find-asymmetries.py` | functional | What candidate API mismatches sit in the schemas (read/write asymmetries, cross-provider validator drift, intra-resource enum collisions, server-assigned fields)? | Passes 1 + 2 implemented. Pass 1: TF validator extraction across `terraform-provider-{zia,zpa,ztc}` (inline + map + slice patterns) plus within-validator near-duplicate detection. Pass 2: Postman request body vs response example field-path diff. Outputs candidates to `_data/logs/asymmetry-candidates.md` for human triage. Passes 3–5 (fuzzy field-name match, TF git history, Python SDK enum extraction) documented inline as future work. |
 | `scripts/check-hygiene.py` | functional | Are docs internally consistent — frontmatter valid, anchors resolve, evals cite real files, resolved clarifications propagated? | Bundled hygiene checker. Four passes: (1) frontmatter validation (required fields, allowed enum values, ISO date format, sources required at high confidence except for aggregator/`_*` meta-docs); (2) anchor resolution (`[text](path#anchor)` and same-file `[text](#anchor)` both verified against target headings via GFM-anchor algorithm); (3) resolved-clarification propagation (warns when an Open questions section still lists a clarification that's now marked resolved in `_meta/clarifications.md`); (4) eval `must_cite_files` paths. Errors fail CI; warnings advisory. Run on every PR + weekly via `.github/workflows/check-hygiene.yml`. `--digest` flag writes a markdown digest for sticky-issue integration. |
 | `scripts/agent_patterns.py` | functional (module, not a CLI) | Importable Python module with typed functions for the 5 diagnostic patterns: `detect_cloud()`, `is_gov_cloud()`, `detect_auth_framework()`, `smoke_test_creds()`, `enumerate_endpoints()`, `interpret_error()`, plus composite `diagnose_tenant()`. AI-agent-shaped: typed, dependency-free, copy-pasteable. Documented in `references/_meta/agent-patterns.md`. |
 | `scripts/diagnose-tenant.py` | functional | Reads env + optional admin URL, runs all five diagnostics, emits text or JSON. `--smoke` runs a credential smoke test against a chosen product; `--enumerate` lists available SDK endpoints. Worked-example consumer of `agent_patterns.py`. |
 | `scripts/policy_simulator.py` | functional (module, not a CLI) | Importable Python module: pure-function ZIA URL filter evaluator. `simulate_url_filter(request, rules, categories)` returns a `SimulationResult` with the matched rule, action, resolved category, and full per-rule evaluation trace. `diff_simulations(before, after)` is a single-URL before/after primitive (not a PR-level harness — see `_meta/policy-simulation.md` for why that's deferred). Models rule order, disabled-rule-holds-slot, leading-period wildcard category resolution, and basic criteria filtering. Documented gaps (CAC, DLP, two-pass SSL, full specificity-wins) in `references/_meta/policy-simulation.md`. |
-| `scripts/simulate-policy.py --url <url>` | functional | Would this URL be blocked, and which rule fires? | Runnable CLI consuming `policy_simulator.py`. Reads `snapshot/zia/url-filtering-rules.json` + `url-categories.json`. Flags: `--user-email`, `--department`, `--location`, `--include-disabled` (what-if mode), `--json`. Prints matched rule + reasoning trace. Use for first-pass single-URL intuition; verify against logs once available. |
-| `scripts/issue-watch.py` | functional | What's new in upstream Zscaler GitHub issues since I last looked? | Walks 7 vendored upstream repos via the public GitHub REST API. Two modes. **Local** (default): compares against `logs/issue-watch-state.json`, writes digest to `logs/issues-new.md`. **Sticky-issue** (`--sticky-label LABEL` or `--sticky-issue NUMBER`): finds an existing GitHub issue and rewrites its body with the latest digest each run; state lives in an HTML-comment marker embedded in the issue body, no separate state file. The repo ships a GH Actions workflow at `.github/workflows/issue-watch.yml` that runs sticky mode weekly. First run defaults to a 30-day lookback. Works unauthenticated at 60 req/hr; honors `GITHUB_TOKEN` for higher rate (Actions provides 1000/hr automatically). |
+| `scripts/simulate-policy.py --url <url>` | functional | Would this URL be blocked, and which rule fires? | Runnable CLI consuming `policy_simulator.py`. Reads `_data/snapshot/zia/url-filtering-rules.json` + `url-categories.json`. Flags: `--user-email`, `--department`, `--location`, `--include-disabled` (what-if mode), `--json`. Prints matched rule + reasoning trace. Use for first-pass single-URL intuition; verify against logs once available. |
+| `scripts/issue-watch.py` | functional | What's new in upstream Zscaler GitHub issues since I last looked? | Walks 7 vendored upstream repos via the public GitHub REST API. Two modes. **Local** (default): compares against `_data/logs/issue-watch-state.json`, writes digest to `_data/logs/issues-new.md`. **Sticky-issue** (`--sticky-label LABEL` or `--sticky-issue NUMBER`): finds an existing GitHub issue and rewrites its body with the latest digest each run; state lives in an HTML-comment marker embedded in the issue body, no separate state file. The repo ships a GH Actions workflow at `.github/workflows/issue-watch.yml` that runs sticky mode weekly. First run defaults to a 30-day lookback. Works unauthenticated at 60 req/hr; honors `GITHUB_TOKEN` for higher rate (Actions provides 1000/hr automatically). |
 | `scripts/splunk-query.sh <spl>` | stub | Run an SPL query against Zscaler logs | Placeholder; implement for your SIEM. |
 
 All Python scripts accept `--json` for machine-readable output where appropriate.
@@ -164,13 +164,13 @@ A successful run against a small tenant looks like:
 ```
 $ ./scripts/snapshot-refresh.py --zia-only
 zia:
-  ✓ url-categories: 142 records → snapshot/zia/url-categories.json
-  ✓ url-filtering-rules: 37 records → snapshot/zia/url-filtering-rules.json
-  ✓ cloud-app-control-rules: 12 records → snapshot/zia/cloud-app-control-rules.json
-  ✓ ssl-inspection-rules: 8 records → snapshot/zia/ssl-inspection-rules.json
-  ✓ advanced-settings: 1 records → snapshot/zia/advanced-settings.json
+  ✓ url-categories: 142 records → _data/snapshot/zia/url-categories.json
+  ✓ url-filtering-rules: 37 records → _data/snapshot/zia/url-filtering-rules.json
+  ✓ cloud-app-control-rules: 12 records → _data/snapshot/zia/cloud-app-control-rules.json
+  ✓ ssl-inspection-rules: 8 records → _data/snapshot/zia/ssl-inspection-rules.json
+  ✓ advanced-settings: 1 records → _data/snapshot/zia/advanced-settings.json
 
-manifest → snapshot/_manifest.json
+manifest → _data/snapshot/_manifest.json
 ```
 
 Lines prefixed `!` indicate a per-resource fetch failure (the run continues). Lines prefixed `-` indicate the SDK surface for that resource wasn't found (likely an SDK version lag) — those don't block the rest of the run.
@@ -203,8 +203,8 @@ vendor/                    upstream sources as git submodules (SDKs, TF provider
     zscaler-help/          Zscaler help-site PDFs + Playwright-captured markdown (pinned bibliography)
 scripts/                   operational tooling (URL lookup, access check, SSL audit, etc.)
 evals/                     canonical Q→A test prompts with structured assertions
-snapshot/                  tenant config dumps — empty upstream, populated per-fork
-iac/                       production IaC — empty upstream, populated per-fork; takes precedence over reference IaC under vendor/ for env-specific questions. Terraform-only by default; fork-add other tools as needed. See iac/README.md
+_data/snapshot/                  tenant config dumps — empty upstream, populated per-fork
+_data/iac/                       production IaC — empty upstream, populated per-fork; takes precedence over reference IaC under vendor/ for env-specific questions. Terraform-only by default; fork-add other tools as needed. See _data/iac/README.md
 ```
 
 Every reference file carries YAML front-matter (`product`, `topic`, `content-type`, `last-verified`, `confidence`, `source-tier`, `sources`, `author-status`). See [`references/_meta/template.md`](./references/_meta/template.md).
@@ -217,7 +217,7 @@ Every reference file carries YAML front-matter (`product`, `topic`, `content-typ
 
 Triage workflow: comment on the sticky issue to record decisions for individual surfaced items. Past digests live in the issue's edit history (accessible via the GitHub UI). Manual runs via the Actions tab's "Run workflow" button (workflow_dispatch).
 
-To run locally instead (for ad-hoc checks or while developing the script), invoke without flags — it falls back to file-based output at `logs/issues-new.md`.
+To run locally instead (for ad-hoc checks or while developing the script), invoke without flags — it falls back to file-based output at `_data/logs/issues-new.md`.
 
 ## Submodule management
 
@@ -240,7 +240,7 @@ Expect to do this periodically — upstream SDK / TF provider releases add new r
 
 ## Testing the skill
 
-`evals/evals.json` has the canonical prompts with structured assertions. The format is compatible with Anthropic's `skill-creator` eval harness (runs each prompt with and without the skill loaded, diffs the outputs). For tenant-specific prompts (e.g., eval #1), `tenant_data_required: true` signals that the harness should expect a decline-with-helpful-pointers when `snapshot/` is empty.
+`evals/evals.json` has the canonical prompts with structured assertions. The format is compatible with Anthropic's `skill-creator` eval harness (runs each prompt with and without the skill loaded, diffs the outputs). For tenant-specific prompts (e.g., eval #1), `tenant_data_required: true` signals that the harness should expect a decline-with-helpful-pointers when `_data/snapshot/` is empty.
 
 ## Known gaps (read before filing issues)
 

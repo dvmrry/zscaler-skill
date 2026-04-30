@@ -5,7 +5,7 @@
 # ///
 """simulate-policy.py — runnable CLI for the policy simulator.
 
-Loads ZIA URL filter rules + categories from snapshot/zia/, simulates a
+Loads ZIA URL filter rules + categories from _data/snapshot/zia/, simulates a
 request, and emits the matched rule + reasoning trace. Useful for "would
 this URL be blocked?" / "what-if I change rule N?" questions.
 
@@ -15,7 +15,7 @@ Run:
     ./scripts/simulate-policy.py --url https://x.com --include-disabled    # what-if mode
     ./scripts/simulate-policy.py --url https://x.com --json                 # machine-readable
 
-Requires snapshot/zia/url-filtering-rules.json and url-categories.json to
+Requires _data/snapshot/zia/url-filtering-rules.json and url-categories.json to
 exist. If empty, run `./scripts/snapshot-refresh.py --zia-only` first.
 """
 
@@ -31,8 +31,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import policy_simulator as ps
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-SNAPSHOT_RULES = REPO_ROOT / "snapshot" / "zia" / "url-filtering-rules.json"
-SNAPSHOT_CATS = REPO_ROOT / "snapshot" / "zia" / "url-categories.json"
+SNAPSHOT_RULES = REPO_ROOT / "_data" / "snapshot" / "zia" / "url-filtering-rules.json"
+SNAPSHOT_CATS = REPO_ROOT / "_data" / "snapshot" / "zia" / "url-categories.json"
 
 
 def load_snapshot() -> tuple[list[dict], list[dict]]:

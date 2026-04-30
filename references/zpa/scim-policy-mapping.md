@@ -205,7 +205,7 @@ The Go SDK's `list_scim_groups` / `GetAllByIdpId` supports an `all_entries` para
 
 ### Group ID vs. group name in policy
 
-Policy rules store the Zscaler numeric `id` of the SCIM group, not the display name. The API and policy snapshots show the numeric ID. When reading a policy snapshot (e.g., `snapshot/zpa/access-policy-rules.json`), resolving group IDs to display names requires a separate call to the SCIM group API. Automation that reads policy rules and reports on them in human-readable form must implement this join.
+Policy rules store the Zscaler numeric `id` of the SCIM group, not the display name. The API and policy snapshots show the numeric ID. When reading a policy snapshot (e.g., `_data/snapshot/zpa/access-policy-rules.json`), resolving group IDs to display names requires a separate call to the SCIM group API. Automation that reads policy rules and reports on them in human-readable form must implement this join.
 
 ### SCIM policy requires `enable_scim_based_policy`
 

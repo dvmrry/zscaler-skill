@@ -44,6 +44,6 @@ echo "  would use: vendor/splunk-sdk-python via uv run (TBD)" >&2
 # TODO: read the named pattern from references/shared/splunk-queries.md
 # TODO: substitute $VARS from args and env
 # TODO: submit via splunk-sdk-python, stream JSON to stdout
-# TODO: cache to logs/<pattern-name>-<timestamp>.json for reproducibility
+# TODO: cache to _data/logs/<pattern-name>-<timestamp>.json for reproducibility
 
 exit 0

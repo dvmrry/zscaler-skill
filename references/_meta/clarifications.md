@@ -750,7 +750,7 @@ We've said logs are a "validation layer" but haven't set an SLO: at what point d
 
 **Answer**: **The skill does not auto-query logs.** All log-validation is an explicit operator action, surfaced as a ready-to-run SPL snippet the user can paste. The skill's default loop is:
 
-1. Answer the question from `references/` + `snapshot/` (config-derived reasoning).
+1. Answer the question from `references/` + `_data/snapshot/` (config-derived reasoning).
 2. Note where logs would validate or contradict the config-level answer, and emit the SPL query that would do so.
 3. Only if the user explicitly asks ("run it", "what do the logs show?") does a script invocation happen — and even then it's the operator running `scripts/splunk-query.sh`, not the skill auto-executing.
 
@@ -776,7 +776,7 @@ Real implementations of the refresh / lookup / splunk-query scripts would need a
 **Answer**: Python via `uv run --script` shebang, using the vendored `zscaler-sdk-python`. Implemented:
 
 - `scripts/url-lookup.py` — mirrors the `investigate-url` workflow from `vendor/zscaler-mcp-server/commands/investigate-url.md`.
-- `scripts/snapshot-refresh.py` — dumps ZIA + ZPA config to `snapshot/<product>/*.json` with `--zia-only` / `--zpa-only` flags and a `_manifest.json`.
+- `scripts/snapshot-refresh.py` — dumps ZIA + ZPA config to `_data/snapshot/<product>/*.json` with `--zia-only` / `--zpa-only` flags and a `_manifest.json`.
 - `scripts/splunk-query.sh` — kept as bash stub (Splunk SDK is Python but the Splunk path is not the critical one and the bash stub matches the legacy pattern).
 
 ---
@@ -797,7 +797,7 @@ Rationale for env vars over alternatives:
 - **No bundled secrets-manager integration** — 1Password (`op read "op://..."`), Vault, AWS Secrets Manager, etc. are fine upstream of the shell. The scripts only consume env vars; how those get populated is the operator's choice. Example pattern for a fork: `eval "$(op read 'op://private/zscaler/.envrc')" && ./scripts/snapshot-refresh.py`.
 - **Env vars are what the SDK already expects** — the `zscaler-sdk-python` OneAPI path reads these by default. Forcing a custom config layer would duplicate SDK conventions.
 
-Affects: `.gitignore` correctly excludes `snapshot/`, `logs/`, and local-scratch paths but not `.env` (no `.env` is ever created by the skill). Script headers document the 4 required env vars in block comments. No onboarding-doc change needed beyond what's already in README step 4.
+Affects: `.gitignore` correctly excludes `_data/snapshot/`, `_data/logs/`, and local-scratch paths but not `.env` (no `.env` is ever created by the skill). Script headers document the 4 required env vars in block comments. No onboarding-doc change needed beyond what's already in README step 4.
 
 ---
 
@@ -809,12 +809,12 @@ Raw JSON dumps from the API are cheap to produce and `jq`-friendly but noisy for
 
 **Status**: resolved (2026-04-24).
 
-**Answer**: **Raw JSON** as shipped by `snapshot-refresh.py` today — one file per resource under `snapshot/<product>/<resource>.json`, plus a `_manifest.json` capturing timestamp + per-resource counts. Wire format (camelCase for ZIA, mixed for ZPA) is preserved as-is; no paraphrasing pass.
+**Answer**: **Raw JSON** as shipped by `snapshot-refresh.py` today — one file per resource under `_data/snapshot/<product>/<resource>.json`, plus a `_manifest.json` capturing timestamp + per-resource counts. Wire format (camelCase for ZIA, mixed for ZPA) is preserved as-is; no paraphrasing pass.
 
 Rationale:
 
 - **Faithfulness over friendliness.** Paraphrased markdown risks going stale against API changes or drifting from the SDK's model. Raw JSON is source-of-truth; any transformation is downstream.
-- **`jq`-first access.** Skill answers that need tenant data read JSON directly (`jq '.[] | select(.name == "X")' snapshot/zia/url-categories.json`) or via small Python helpers in the scripts. Claude handles JSON well enough that noisy fields aren't a blocker.
+- **`jq`-first access.** Skill answers that need tenant data read JSON directly (`jq '.[] | select(.name == "X")' _data/snapshot/zia/url-categories.json`) or via small Python helpers in the scripts. Claude handles JSON well enough that noisy fields aren't a blocker.
 - **Model consumption concerns are real but bounded.** The scripts are selective — `url-lookup.py` extracts only the fields relevant to the question, doesn't pass the full JSON blob to the model. Reasoning docs under `references/` carry the narrative; snapshot answers "what does this tenant actually have configured" in raw form.
 - **Deferred `snapshot-schema.md` docs** are the answer to "noisy for model consumption" — once the first fork-admin run produces real output, write camelCase-key tables and jq cheatsheets per-product (tracked in PLAN.md § 4).
 

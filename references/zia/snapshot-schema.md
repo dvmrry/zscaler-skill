@@ -1,7 +1,7 @@
 ---
 product: zia
 topic: "snapshot-schema"
-title: "ZIA snapshot/ schema — what's in the JSON, how to read it"
+title: "ZIA _data/snapshot/ schema — what's in the JSON, how to read it"
 content-type: reference
 last-verified: "2026-04-24"
 confidence: medium
@@ -14,21 +14,21 @@ sources:
 author-status: draft
 ---
 
-# ZIA snapshot/ schema
+# ZIA _data/snapshot/ schema
 
-Operational reference for the JSON files `scripts/snapshot-refresh.py` writes under `snapshot/zia/`. Pre-written from SDK model classes (`vendor/zscaler-sdk-python/zscaler/zia/models/`) + Postman API surface + Terraform provider schema + existing reasoning docs. Once a real fork-admin run produces tenant data, validate this doc against actual JSON and bump confidence to `high`.
+Operational reference for the JSON files `scripts/snapshot-refresh.py` writes under `_data/snapshot/zia/`. Pre-written from SDK model classes (`vendor/zscaler-sdk-python/zscaler/zia/models/`) + Postman API surface + Terraform provider schema + existing reasoning docs. Once a real fork-admin run produces tenant data, validate this doc against actual JSON and bump confidence to `high`.
 
 ## Files written by `--zia-only`
 
 ```
-snapshot/zia/url-categories.json
-snapshot/zia/url-filtering-rules.json
-snapshot/zia/cloud-app-control-rules.json
-snapshot/zia/ssl-inspection-rules.json
-snapshot/zia/advanced-settings.json
+_data/snapshot/zia/url-categories.json
+_data/snapshot/zia/url-filtering-rules.json
+_data/snapshot/zia/cloud-app-control-rules.json
+_data/snapshot/zia/ssl-inspection-rules.json
+_data/snapshot/zia/advanced-settings.json
 ```
 
-Plus `snapshot/_manifest.json` with timestamps and per-resource counts (manifest format documented in `scripts/snapshot-refresh.py` itself).
+Plus `_data/snapshot/_manifest.json` with timestamps and per-resource counts (manifest format documented in `scripts/snapshot-refresh.py` itself).
 
 ## Wire-format conventions for ZIA
 
@@ -91,16 +91,16 @@ Full SDK model: `vendor/zscaler-sdk-python/zscaler/zia/models/urlcategory.py`.
 
 ```bash
 # All custom categories
-jq '[.[] | select(.customCategory == true)] | .[].configuredName' snapshot/zia/url-categories.json
+jq '[.[] | select(.customCategory == true)] | .[].configuredName' _data/snapshot/zia/url-categories.json
 
 # Categories using regex matching
-jq '[.[] | select(.urlType == "REGEX")] | .[] | {name: .configuredName, patterns: .regexPatterns}' snapshot/zia/url-categories.json
+jq '[.[] | select(.urlType == "REGEX")] | .[] | {name: .configuredName, patterns: .regexPatterns}' _data/snapshot/zia/url-categories.json
 
 # All entries that retain parent category (zia-01 mechanic)
-jq '.[] | select((.keywordsRetainingParentCategory | length) > 0 or (.regexPatternsRetainingParentCategory | length) > 0) | .configuredName' snapshot/zia/url-categories.json
+jq '.[] | select((.keywordsRetainingParentCategory | length) > 0 or (.regexPatternsRetainingParentCategory | length) > 0) | .configuredName' _data/snapshot/zia/url-categories.json
 
 # Find which custom category contains a specific URL
-jq --arg url "example.com" '.[] | select(.urls | index($url) or .dbCategorizedUrls | index($url)) | .configuredName' snapshot/zia/url-categories.json
+jq --arg url "example.com" '.[] | select(.urls | index($url) or .dbCategorizedUrls | index($url)) | .configuredName' _data/snapshot/zia/url-categories.json
 ```
 
 Cross-links: [`./url-filtering.md`](./url-filtering.md), [`./wildcard-semantics.md`](./wildcard-semantics.md), [clarification `zia-01`](../_meta/clarifications.md#zia-01-predefined-vs-custom-category-specificity).
@@ -176,19 +176,19 @@ Full SDK model: `vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rule
 
 ```bash
 # Rules in evaluation order
-jq 'sort_by(.order) | .[] | {order, name, action, state}' snapshot/zia/url-filtering-rules.json
+jq 'sort_by(.order) | .[] | {order, name, action, state}' _data/snapshot/zia/url-filtering-rules.json
 
 # Disabled rules (still hold their order slot — see url-filtering.md)
-jq '[.[] | select(.state == "DISABLED")] | .[] | .name' snapshot/zia/url-filtering-rules.json
+jq '[.[] | select(.state == "DISABLED")] | .[] | .name' _data/snapshot/zia/url-filtering-rules.json
 
 # Rules referencing a specific URL category
-jq --arg cat "Custom_Engineering" '.[] | select(.urlCategories | index($cat) or .urlCategories2 | index($cat)) | .name' snapshot/zia/url-filtering-rules.json
+jq --arg cat "Custom_Engineering" '.[] | select(.urlCategories | index($cat) or .urlCategories2 | index($cat)) | .name' _data/snapshot/zia/url-filtering-rules.json
 
 # Rules with block-override allowed (and who)
-jq '.[] | select(.blockOverride == true) | {name, overrideUsers: [.overrideUsers[].name], overrideGroups: [.overrideGroups[].name]}' snapshot/zia/url-filtering-rules.json
+jq '.[] | select(.blockOverride == true) | {name, overrideUsers: [.overrideUsers[].name], overrideGroups: [.overrideGroups[].name]}' _data/snapshot/zia/url-filtering-rules.json
 
 # Rules scoped by location group
-jq '[.[] | select((.locationGroups | length) > 0)] | .[] | {name, groups: [.locationGroups[].name]}' snapshot/zia/url-filtering-rules.json
+jq '[.[] | select((.locationGroups | length) > 0)] | .[] | {name, groups: [.locationGroups[].name]}' _data/snapshot/zia/url-filtering-rules.json
 ```
 
 Cross-links: [`./url-filtering.md`](./url-filtering.md), [`./locations.md`](./locations.md).
@@ -246,13 +246,13 @@ Full SDK model: `vendor/zscaler-sdk-python/zscaler/zia/models/cloud_app_policy.p
 
 ```bash
 # Group rules by type — see what cloud-app categories you're filtering
-jq 'group_by(.type) | map({type: .[0].type, rule_count: length})' snapshot/zia/cloud-app-control-rules.json
+jq 'group_by(.type) | map({type: .[0].type, rule_count: length})' _data/snapshot/zia/cloud-app-control-rules.json
 
 # Find rules with cascading off (cascading-disabled rules cause CAC-vs-URL-Filter conflicts)
-jq '.[] | select(.cascadingEnabled == false) | {name, type, actions}' snapshot/zia/cloud-app-control-rules.json
+jq '.[] | select(.cascadingEnabled == false) | {name, type, actions}' _data/snapshot/zia/cloud-app-control-rules.json
 
 # Rules with multiple actions
-jq '.[] | select((.actions | length) > 1) | {name, actions}' snapshot/zia/cloud-app-control-rules.json
+jq '.[] | select((.actions | length) > 1) | {name, actions}' _data/snapshot/zia/cloud-app-control-rules.json
 ```
 
 Cross-links: [`./cloud-app-control.md`](./cloud-app-control.md).
@@ -337,16 +337,16 @@ Full SDK model: `vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rul
 
 ```bash
 # All Do-Not-Decrypt rules — the bypass set
-jq '.[] | select(.action.type == "DO_NOT_DECRYPT") | {name, urlCategories: [.urlCategories[].id]}' snapshot/zia/ssl-inspection-rules.json
+jq '.[] | select(.action.type == "DO_NOT_DECRYPT") | {name, urlCategories: [.urlCategories[].id]}' _data/snapshot/zia/ssl-inspection-rules.json
 
 # Predefined rules (cannot be deleted via API)
-jq '.[] | select(.predefined == true) | {name, action: .action.type}' snapshot/zia/ssl-inspection-rules.json
+jq '.[] | select(.predefined == true) | {name, action: .action.type}' _data/snapshot/zia/ssl-inspection-rules.json
 
 # Rules referencing ZPA app segments (cross-product SIPA hook)
-jq '.[] | select((.zpaAppSegments | length) > 0) | {name, zpa: [.zpaAppSegments[].name]}' snapshot/zia/ssl-inspection-rules.json
+jq '.[] | select((.zpaAppSegments | length) > 0) | {name, zpa: [.zpaAppSegments[].name]}' _data/snapshot/zia/ssl-inspection-rules.json
 
 # Rules with bypassOtherPolicies (skip downstream content inspection)
-jq '.[] | select(.action.doNotDecryptSubActions.bypassOtherPolicies == true) | .name' snapshot/zia/ssl-inspection-rules.json
+jq '.[] | select(.action.doNotDecryptSubActions.bypassOtherPolicies == true) | .name' _data/snapshot/zia/ssl-inspection-rules.json
 ```
 
 Cross-links: [`./ssl-inspection.md`](./ssl-inspection.md), [`./url-filtering.md § Rule order`](./url-filtering.md), [`../shared/source-ip-anchoring.md`](../shared/source-ip-anchoring.md) (for `zpaAppSegments`).
@@ -420,13 +420,13 @@ Full SDK model: `vendor/zscaler-sdk-python/zscaler/zia/models/advanced_settings.
 
 ```bash
 # Show all enabled (true) advanced settings
-jq 'to_entries | map(select(.value == true)) | from_entries' snapshot/zia/advanced-settings.json
+jq 'to_entries | map(select(.value == true)) | from_entries' _data/snapshot/zia/advanced-settings.json
 
 # Check One-Click bypass states
-jq '{office365: .enableOffice365, m365: .enableMsftO365, zoom: .enableZoom, webex: .enableWebex}' snapshot/zia/advanced-settings.json
+jq '{office365: .enableOffice365, m365: .enableMsftO365, zoom: .enableZoom, webex: .enableWebex}' _data/snapshot/zia/advanced-settings.json
 
 # Cascading-URL-filtering toggle (affects rule semantics)
-jq '.cascadeUrlFiltering' snapshot/zia/advanced-settings.json
+jq '.cascadeUrlFiltering' _data/snapshot/zia/advanced-settings.json
 ```
 
 Cross-links: [`./url-filtering.md § cascading`](./url-filtering.md), [`./cloud-app-control.md § Microsoft 365 One-Click`](./cloud-app-control.md).
@@ -460,38 +460,38 @@ Unlike ZPA (where the Postman collection has 76KB+ request/response bodies), the
 
 ### Priority verification queries
 
-Run these against a populated `snapshot/zia/` or live API and record what diverges from the examples above:
+Run these against a populated `_data/snapshot/zia/` or live API and record what diverges from the examples above:
 
 ```bash
 # 1. url-categories.json — is id a string code ("MUSIC") for predefined, or always numeric?
-jq '[.[] | {id: .id, idType: (.id | type), custom: .customCategory}] | group_by(.idType) | map({type: .[0].idType, count: length, example: .[0].id})' snapshot/zia/url-categories.json
+jq '[.[] | {id: .id, idType: (.id | type), custom: .customCategory}] | group_by(.idType) | map({type: .[0].idType, count: length, example: .[0].id})' _data/snapshot/zia/url-categories.json
 
 # 2. url-categories.json — does urlKeywordCounts appear, and what is its shape?
-jq '.[0] | {hasUrlKeywordCounts: has("urlKeywordCounts"), val: .urlKeywordCounts}' snapshot/zia/url-categories.json
+jq '.[0] | {hasUrlKeywordCounts: has("urlKeywordCounts"), val: .urlKeywordCounts}' _data/snapshot/zia/url-categories.json
 
 # 3. url-filtering-rules.json — what does a populated urlCategories entry look like?
 # (doc shows [] — does it contain id+name objects or just IDs or just names?)
-jq '.[] | select((.urlCategories | length) > 0) | {name, urlCategoriesSample: .urlCategories[:2]}' snapshot/zia/url-filtering-rules.json | head -30
+jq '.[] | select((.urlCategories | length) > 0) | {name, urlCategoriesSample: .urlCategories[:2]}' _data/snapshot/zia/url-filtering-rules.json | head -30
 
 # 4. url-filtering-rules.json — does urlCategories2 actually appear in real rules?
-jq '[.[] | select(has("urlCategories2"))] | length' snapshot/zia/url-filtering-rules.json
+jq '[.[] | select(has("urlCategories2"))] | length' _data/snapshot/zia/url-filtering-rules.json
 
 # 5. ssl-inspection-rules.json — does the nested action.decryptSubActions shape exist?
-jq '.[] | select(.action.type == "DECRYPT") | {name, hasDecryptSubActions: (.action | has("decryptSubActions")), subActions: .action.decryptSubActions}' snapshot/zia/ssl-inspection-rules.json | head -20
+jq '.[] | select(.action.type == "DECRYPT") | {name, hasDecryptSubActions: (.action | has("decryptSubActions")), subActions: .action.decryptSubActions}' _data/snapshot/zia/ssl-inspection-rules.json | head -20
 
 # 6. ssl-inspection-rules.json — does doNotDecryptSubActions appear for DO_NOT_DECRYPT rules?
-jq '.[] | select(.action.type == "DO_NOT_DECRYPT") | {name, hasDoNotDecrypt: (.action | has("doNotDecryptSubActions"))}' snapshot/zia/ssl-inspection-rules.json
+jq '.[] | select(.action.type == "DO_NOT_DECRYPT") | {name, hasDoNotDecrypt: (.action | has("doNotDecryptSubActions"))}' _data/snapshot/zia/ssl-inspection-rules.json
 
 # 7. advanced-settings.json — how many fields are there actually? (doc says 50+)
-jq 'keys | length' snapshot/zia/advanced-settings.json
+jq 'keys | length' _data/snapshot/zia/advanced-settings.json
 
 # 8. Are all ZIA IDs integers (not strings)?
-jq '[.[] | .id | type] | unique' snapshot/zia/url-filtering-rules.json
-jq '[.[] | .id | type] | unique' snapshot/zia/ssl-inspection-rules.json
+jq '[.[] | .id | type] | unique' _data/snapshot/zia/url-filtering-rules.json
+jq '[.[] | .id | type] | unique' _data/snapshot/zia/ssl-inspection-rules.json
 
 # 9. Does url-categories return unpaginated (one flat array) or wrapped?
-jq 'type' snapshot/zia/url-categories.json   # expect "array", not "object"
-jq 'type' snapshot/zia/url-filtering-rules.json  # expect "array"
+jq 'type' _data/snapshot/zia/url-categories.json   # expect "array", not "object"
+jq 'type' _data/snapshot/zia/url-filtering-rules.json  # expect "array"
 ```
 
 **Resolved from tenant verification (2026-04-26):**

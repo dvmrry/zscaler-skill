@@ -1,6 +1,6 @@
 ---
 product: zpa
-topic: "logs/private-cloud-controller-status"
+topic: "_data/logs/private-cloud-controller-status"
 title: "ZPA LSS Private Cloud Controller Status log — field reference"
 content-type: reference
 last-verified: "2026-04-28"

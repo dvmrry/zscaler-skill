@@ -370,4 +370,4 @@ Resolved while writing this doc: pipeline-order explicit sourcing (see [clarific
 - Cloud App Control (evaluated after SSL in the pipeline) — [`./cloud-app-control.md`](./cloud-app-control.md)
 - Cross-product policy evaluation model — [`../shared/policy-evaluation.md`](../shared/policy-evaluation.md)
 - SPL pattern for observing what SSL decision actually fired — `ssl-inspection-observed` in [`../shared/splunk-queries.md`](../shared/splunk-queries.md)
-- Wire-format schema for `snapshot/zia/ssl-inspection-rules.json` (platform enum, action object shape, jq queries) — [`./snapshot-schema.md`](./snapshot-schema.md)
+- Wire-format schema for `_data/snapshot/zia/ssl-inspection-rules.json` (platform enum, action object shape, jq queries) — [`./snapshot-schema.md`](./snapshot-schema.md)

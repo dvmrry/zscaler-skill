@@ -1,7 +1,7 @@
 ---
 product: zidentity
 topic: "snapshot-schema"
-title: "ZIdentity snapshot/ schema — what's in the JSON, how to read it"
+title: "ZIdentity _data/snapshot/ schema — what's in the JSON, how to read it"
 content-type: reference
 last-verified: "2026-04-24"
 confidence: medium
@@ -12,17 +12,17 @@ sources:
 author-status: draft
 ---
 
-# ZIdentity snapshot/ schema
+# ZIdentity _data/snapshot/ schema
 
 Operational reference for ZIdentity resource shapes. ZIdentity is **not currently in `scripts/snapshot-refresh.py`** — this doc describes the resource shapes you'd get if extended to dump them, drawn from the Postman collection (which has rich ZIdentity response samples — 26 of them).
 
 When extending `snapshot-refresh.py` for ZIdentity, anticipated outputs:
 
 ```
-snapshot/zidentity/users.json
-snapshot/zidentity/groups.json
-snapshot/zidentity/api-clients.json
-snapshot/zidentity/resource-servers.json
+_data/snapshot/zidentity/users.json
+_data/snapshot/zidentity/groups.json
+_data/snapshot/zidentity/api-clients.json
+_data/snapshot/zidentity/resource-servers.json
 ```
 
 ## Wire-format conventions for ZIdentity
@@ -102,16 +102,16 @@ API: `GET /ziam/admin/api/v1/users`
 
 ```bash
 # All users (records flattened from page wrapper)
-jq '.[0].records[] | {displayName, loginName, status, idp: .idp.name}' snapshot/zidentity/users.json
+jq '.[0].records[] | {displayName, loginName, status, idp: .idp.name}' _data/snapshot/zidentity/users.json
 
 # Disabled users
-jq '.[0].records[] | select(.status == false) | .loginName' snapshot/zidentity/users.json
+jq '.[0].records[] | select(.status == false) | .loginName' _data/snapshot/zidentity/users.json
 
 # Users by IdP
-jq '.[0].records | group_by(.idp.name) | map({idp: .[0].idp.name, count: length})' snapshot/zidentity/users.json
+jq '.[0].records | group_by(.idp.name) | map({idp: .[0].idp.name, count: length})' _data/snapshot/zidentity/users.json
 
 # Users with a specific custom attribute
-jq '.[0].records[] | select(.customAttrsInfo.costCenter == "ENG-1") | .loginName' snapshot/zidentity/users.json
+jq '.[0].records[] | select(.customAttrsInfo.costCenter == "ENG-1") | .loginName' _data/snapshot/zidentity/users.json
 ```
 
 ## `groups.json`
@@ -138,13 +138,13 @@ Group memberships are accessed via `GET /groups/{id}/members` — separate endpo
 
 ```bash
 # All groups by membership count
-jq '.[0].records | sort_by(.memberCount) | reverse | .[] | {name: .displayName, count: .memberCount}' snapshot/zidentity/groups.json
+jq '.[0].records | sort_by(.memberCount) | reverse | .[] | {name: .displayName, count: .memberCount}' _data/snapshot/zidentity/groups.json
 
 # Groups from a specific IdP
-jq '.[0].records[] | select(.idp.name == "Okta-Production") | .displayName' snapshot/zidentity/groups.json
+jq '.[0].records[] | select(.idp.name == "Okta-Production") | .displayName' _data/snapshot/zidentity/groups.json
 
 # Empty groups (no members — possible orphans)
-jq '.[0].records[] | select(.memberCount == 0) | .name' snapshot/zidentity/groups.json
+jq '.[0].records[] | select(.memberCount == 0) | .name' _data/snapshot/zidentity/groups.json
 ```
 
 ## `api-clients.json`
@@ -205,16 +205,16 @@ API: `GET /ziam/admin/api/v1/api-clients`
 
 ```bash
 # API clients with their secret metadata
-jq '.[0].records[] | {name, status, secrets: ([.clientAuthentication.secrets[] | {id, age_days: ((now - .createdAt) / 86400 | round)}])}' snapshot/zidentity/api-clients.json
+jq '.[0].records[] | {name, status, secrets: ([.clientAuthentication.secrets[] | {id, age_days: ((now - .createdAt) / 86400 | round)}])}' _data/snapshot/zidentity/api-clients.json
 
 # Inactive clients
-jq '.[0].records[] | select(.status == false) | .name' snapshot/zidentity/api-clients.json
+jq '.[0].records[] | select(.status == false) | .name' _data/snapshot/zidentity/api-clients.json
 
 # Clients with old secrets (>180 days) — rotation candidates
-jq --argjson cutoff "$(date -v-180d +%s)" '.[0].records[] | select(.clientAuthentication.secrets[]?.createdAt < $cutoff) | .name' snapshot/zidentity/api-clients.json
+jq --argjson cutoff "$(date -v-180d +%s)" '.[0].records[] | select(.clientAuthentication.secrets[]?.createdAt < $cutoff) | .name' _data/snapshot/zidentity/api-clients.json
 
 # Clients using JWT auth (better security than client_secret)
-jq '.[0].records[] | select(.clientAuthentication.authType != "SECRET") | {name, auth: .clientAuthentication.authType}' snapshot/zidentity/api-clients.json
+jq '.[0].records[] | select(.clientAuthentication.authType != "SECRET") | {name, auth: .clientAuthentication.authType}' _data/snapshot/zidentity/api-clients.json
 ```
 
 ## `resource-servers.json`
@@ -256,13 +256,13 @@ Resource Servers are the OAuth-defined services that API Clients can be scoped t
 
 ```bash
 # All resource servers + scope counts
-jq '.[0].records[] | {name, scope_count: (.scopes | length), role_count: (.roles | length)}' snapshot/zidentity/resource-servers.json
+jq '.[0].records[] | {name, scope_count: (.scopes | length), role_count: (.roles | length)}' _data/snapshot/zidentity/resource-servers.json
 
 # All scopes for a specific product
-jq '.[0].records[] | select(.name | test("ZIA")) | .scopes[] | .name' snapshot/zidentity/resource-servers.json
+jq '.[0].records[] | select(.name | test("ZIA")) | .scopes[] | .name' _data/snapshot/zidentity/resource-servers.json
 
 # Roles available across products
-jq '.[0].records[] | {product: .name, roles: [.roles[].name]}' snapshot/zidentity/resource-servers.json
+jq '.[0].records[] | {product: .name, roles: [.roles[].name]}' _data/snapshot/zidentity/resource-servers.json
 ```
 
 ## What's NOT in the snapshot (resources to consider adding)

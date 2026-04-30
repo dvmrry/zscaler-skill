@@ -10,8 +10,8 @@ Status: functional. Two output modes:
   Local mode (default)
     Walks the seven vendored upstream repos via the public GitHub REST API.
     Compares against last-seen timestamps per repo (saved to
-    logs/issue-watch-state.json). Outputs new and updated issues to
-    logs/issues-new.md for human triage. Both files live in logs/
+    _data/logs/issue-watch-state.json). Outputs new and updated issues to
+    _data/logs/issues-new.md for human triage. Both files live in _data/logs/
     (gitignored upstream — populated per-fork).
 
   Sticky-issue mode (CI-friendly)
@@ -42,7 +42,7 @@ Authentication:
 
 Manual review workflow:
     1. Run script (or let CI run it).
-    2. Open logs/issues-new.md (local) or the sticky issue (CI).
+    2. Open _data/logs/issues-new.md (local) or the sticky issue (CI).
     3. For each surfaced issue: source-check + thread per
        references/_verification-protocol.md, or skip if not behavioral.
     4. Comment on the sticky issue (if used) to record the triage decision.
@@ -60,8 +60,8 @@ from pathlib import Path
 import httpx
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-STATE_FILE = REPO_ROOT / "logs" / "issue-watch-state.json"
-OUTPUT = REPO_ROOT / "logs" / "issues-new.md"
+STATE_FILE = REPO_ROOT / "_data" / "logs" / "issue-watch-state.json"
+OUTPUT = REPO_ROOT / "_data" / "logs" / "issues-new.md"
 
 REPOS = [
     "zscaler/zscaler-sdk-python",

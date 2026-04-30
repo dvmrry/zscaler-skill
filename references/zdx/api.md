@@ -146,10 +146,10 @@ See [`../shared/oneapi.md § Three authentication mechanisms`](../shared/oneapi.
 
 `scripts/snapshot-refresh.py` doesn't yet dump ZDX. Adding it would mean:
 
-- `client.zdx.apps.list_apps` → `snapshot/zdx/apps.json`
-- `client.zdx.devices.list_devices` → `snapshot/zdx/devices.json`
-- `client.zdx.alerts.list_ongoing` + `list_historical` → `snapshot/zdx/alerts-ongoing.json` + `snapshot/zdx/alerts-historical.json`
-- `client.zdx.inventory.list_softwares` → `snapshot/zdx/software-inventory.json`
+- `client.zdx.apps.list_apps` → `_data/snapshot/zdx/apps.json`
+- `client.zdx.devices.list_devices` → `_data/snapshot/zdx/devices.json`
+- `client.zdx.alerts.list_ongoing` + `list_historical` → `_data/snapshot/zdx/alerts-ongoing.json` + `_data/snapshot/zdx/alerts-historical.json`
+- `client.zdx.inventory.list_softwares` → `_data/snapshot/zdx/software-inventory.json`
 
 **Caveat**: ZDX data is fundamentally time-series — a single snapshot captures a point-in-time view of what ZDX currently reports. Unlike ZIA/ZPA config (which changes slowly), ZDX metrics update every 5 minutes. A snapshot is useful for "what's the current state?" but not for historical analysis — use the time-range query params on live API calls for that.
 

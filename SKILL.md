@@ -57,31 +57,31 @@ This skill encodes **how Zscaler actually behaves** — rule precedence, wildcar
 Two kinds of question this skill handles:
 
 - **General behavior** — "how do wildcards match?", "what happens when URL filtering and cloud app control both apply?". Answerable anywhere, sourced from `references/`.
-- **Tenant-specific lookups** — "is `reddit.com` in a URL category in *our* tenant?". Requires a `snapshot/` populated by the refresh scripts. The public upstream repo ships empty; tenant snapshots live only in private forks.
+- **Tenant-specific lookups** — "is `reddit.com` in a URL category in *our* tenant?". Requires a `_data/snapshot/` populated by the refresh scripts. The public upstream repo ships empty; tenant snapshots live only in private forks.
 
 ## Check for a snapshot first
 
-Before answering tenant-specific questions, check whether `snapshot/` (config) has anything beyond `.gitkeep`:
+Before answering tenant-specific questions, check whether `_data/snapshot/` (config) has anything beyond `.gitkeep`:
 
 ```bash
-ls -A snapshot/ | grep -v '^\.gitkeep$'
+ls -A _data/snapshot/ | grep -v '^\.gitkeep$'
 ```
 
-If empty, say so explicitly (see **When to decline**) and still answer the general case where possible. If populated, read the relevant JSON (`snapshot/zia/url-categories.json`, `snapshot/zia/url-filtering-rules.json`, `snapshot/zpa/app-segments.json`, etc.) and cite the specific rule IDs you used.
+If empty, say so explicitly (see **When to decline**) and still answer the general case where possible. If populated, read the relevant JSON (`_data/snapshot/zia/url-categories.json`, `_data/snapshot/zia/url-filtering-rules.json`, `_data/snapshot/zpa/app-segments.json`, etc.) and cite the specific rule IDs you used.
 
-`logs/` is a separate cache for log-query results (gitignored; populated by `scripts/splunk-query.sh`). Logs are a validation layer, not a primary source — see **When to consult logs** below.
+`_data/logs/` is a separate cache for log-query results (gitignored; populated by `scripts/splunk-query.sh`). Logs are a validation layer, not a primary source — see **When to consult logs** below.
 
 ## Reference IaC vs production IaC
 
 The skill ships with **Zscaler's reference IaC** under `vendor/terraform-provider-{zia,zpa,ztc}/` — those are the canonical Zscaler-published Terraform providers. They show one valid way to deploy each resource and are authoritative for what fields the API accepts and what shapes Zscaler considers idiomatic. **They are reference implementations, not specification.** A different working IaC implementation isn't wrong.
 
-If a fork has populated `iac/` (empty in upstream), treat that as **production truth** for "how is X actually deployed in our environment" questions. The reference IaC under `vendor/` remains useful for "what's possible" / "what fields exist" / "what defaults Zscaler ships." Where the two diverge for a specific deployment, prefer `iac/` for env-specific answers and cite the reference for context.
+If a fork has populated `_data/iac/` (empty in upstream), treat that as **production truth** for "how is X actually deployed in our environment" questions. The reference IaC under `vendor/` remains useful for "what's possible" / "what fields exist" / "what defaults Zscaler ships." Where the two diverge for a specific deployment, prefer `_data/iac/` for env-specific answers and cite the reference for context.
 
 ```bash
-ls -A iac/ | grep -v '^\.gitkeep$'   # check before assuming reference IaC reflects this fork's deployment
+ls -A _data/iac/ | grep -v '^\.gitkeep$'   # check before assuming reference IaC reflects this fork's deployment
 ```
 
-See [`iac/README.md`](iac/README.md) for the precedence rules and structure.
+See [`_data/iac/README.md`](_data/iac/README.md) for the precedence rules and structure.
 
 ## Question routing
 
@@ -187,7 +187,7 @@ Return every non-trivial answer in this shape. It keeps answers grounded, makes 
 
 ## Sources
 - references/zia/url-filtering.md (§ section you used)
-- snapshot/zia/url-filtering-rules.json (rule IDs 42, 47 — only if snapshot was consulted)
+- _data/snapshot/zia/url-filtering-rules.json (rule IDs 42, 47 — only if snapshot was consulted)
 
 ## Confidence
 high | medium | low — <one-line reason; e.g. "stub reference, inferred from Zscaler KB">
@@ -210,7 +210,7 @@ A claim derived by **inference** — extrapolating a stated rule beyond its docu
 
 ## When to consult logs
 
-Default: answer from config (`snapshot/`) and reference docs. Logs are the **validation layer**, not the first stop — they add latency and cost.
+Default: answer from config (`_data/snapshot/`) and reference docs. Logs are the **validation layer**, not the first stop — they add latency and cost.
 
 Consult logs when **any** of:
 
@@ -246,9 +246,9 @@ Before answering with high confidence, check the relevant reference doc's frontm
 | `source-tier: code` | Sourced from SDK / TF only (help-portal page broken or non-existent) | Answer to the SDK shape; note that runtime behavior may differ; recommend tenant verification |
 | `author-status: stub` | TODO headings only, no body | Don't answer from the doc; use the headings to describe what would be covered and decline the substantive answer |
 | Doc cross-links a clarification ID (`zia-03`, `zpa-04`, etc.) | Known unresolved gap | Cite the ID and answer within the gap's bounds |
-| Doc opens with a "tenant access required" note | Lab test or live-API verification needed | Answer general case; refuse tenant-specific without `snapshot/` |
+| Doc opens with a "tenant access required" note | Lab test or live-API verification needed | Answer general case; refuse tenant-specific without `_data/snapshot/` |
 
-**Topics this skill cannot answer without tenant access** (load-bearing list — when asked about these without `snapshot/` populated, decline with a pointer rather than guess):
+**Topics this skill cannot answer without tenant access** (load-bearing list — when asked about these without `_data/snapshot/` populated, decline with a pointer rather than guess):
 
 - The `tz` / `country` write-side current behavior on ZIA Location Management (read returns unprefixed; write accepted-form is unverified post-API change)
 - Whether VMSS upgrade window behavior on Cloud Connector matches the documented Sunday-midnight-local pattern in *your* deployment

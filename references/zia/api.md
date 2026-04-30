@@ -477,7 +477,7 @@ Data sources mirror many of these (see `vendor/terraform-provider-zia/docs/data-
 Both scripts use `zscaler-sdk-python` via a `uv run`–style self-contained shebang. Env-var setup per this doc's **Authentication** section.
 
 - **`scripts/url-lookup.py <url>`** — implements the `investigate-url` workflow (adapted from `vendor/zscaler-mcp-server/commands/investigate-url.md`). Calls `client.zia.url_categories.lookup([url])` to classify the URL, then `client.zia.url_filtering.list_rules()` to enumerate rules referencing the resulting category. Reports rule order, action, scope, and enabled state.
-- **`scripts/snapshot-refresh.py [--zia-only | --zpa-only]`** — bulk-dumps ZIA `url_categories.list_categories`, `url_filtering.list_rules`, `cloudappcontrol.list_rules`, `advanced_settings.get_advanced_settings` to `snapshot/zia/*.json`, plus ZPA equivalents to `snapshot/zpa/*.json`. Writes `snapshot/_manifest.json` with fetch timestamps and per-resource counts. Handles SDK pagination via `resp.has_next()` / `resp.next()`.
+- **`scripts/snapshot-refresh.py [--zia-only | --zpa-only]`** — bulk-dumps ZIA `url_categories.list_categories`, `url_filtering.list_rules`, `cloudappcontrol.list_rules`, `advanced_settings.get_advanced_settings` to `_data/snapshot/zia/*.json`, plus ZPA equivalents to `_data/snapshot/zpa/*.json`. Writes `_data/snapshot/_manifest.json` with fetch timestamps and per-resource counts. Handles SDK pagination via `resp.has_next()` / `resp.next()`.
 
 These scripts are the authored implementation of the stubs referenced by the skill's *Check for a snapshot first* section in `SKILL.md`.
 

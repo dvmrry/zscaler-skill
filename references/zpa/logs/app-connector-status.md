@@ -1,6 +1,6 @@
 ---
 product: zpa
-topic: "logs/app-connector-status"
+topic: "_data/logs/app-connector-status"
 title: "ZPA LSS App Connector Status log — field reference"
 content-type: reference
 last-verified: "2026-04-28"

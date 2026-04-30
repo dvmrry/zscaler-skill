@@ -117,7 +117,7 @@ For a claim about API behavior:
 4. **Postman collection** — `vendor/zscaler-api-specs/oneapi-postman-collection.json` (request/response examples).
 5. **Vendored help captures** — `vendor/zscaler-help/*.md` (text matches).
 6. **Upstream issues** — `gh issue list --repo zscaler/<repo> --search "<term>"` for already-discussed problems.
-7. **`scripts/find-asymmetries.py` output** — `logs/asymmetry-candidates.md` for cross-source mismatches the script already surfaced.
+7. **`scripts/find-asymmetries.py` output** — `_data/logs/asymmetry-candidates.md` for cross-source mismatches the script already surfaced.
 
 If steps 1–7 yield nothing, the claim stays tier C.
 

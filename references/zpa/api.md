@@ -363,7 +363,7 @@ Several ZPA resources accept a microtenant scope. Per `vendor/zscaler-sdk-python
 
 ## Scripts in this repo that use these endpoints
 
-- **`scripts/snapshot-refresh.py [--zpa-only]`** — dumps ZPA `application_segment.list_segments`, `segment_groups.list_groups`, `server_groups.list_groups`, and `policies.list_rules` to `snapshot/zpa/*.json`. Uses the same `ZscalerClient` authentication documented here; see `references/zia/api.md` for the full env-var list (shared between products under OneAPI). Handles SDK pagination via `resp.has_next()` / `resp.next()`.
+- **`scripts/snapshot-refresh.py [--zpa-only]`** — dumps ZPA `application_segment.list_segments`, `segment_groups.list_groups`, `server_groups.list_groups`, and `policies.list_rules` to `_data/snapshot/zpa/*.json`. Uses the same `ZscalerClient` authentication documented here; see `references/zia/api.md` for the full env-var list (shared between products under OneAPI). Handles SDK pagination via `resp.has_next()` / `resp.next()`.
 
 ## Cross-links
 

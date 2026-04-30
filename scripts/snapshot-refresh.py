@@ -3,13 +3,13 @@
 # requires-python = ">=3.10"
 # dependencies = ["zscaler-sdk-python>=1.7"]
 # ///
-"""snapshot-refresh.py — dump ZIA and ZPA configuration to snapshot/ as JSON.
+"""snapshot-refresh.py — dump ZIA and ZPA configuration to _data/snapshot/ as JSON.
 
 Status: FUNCTIONAL. End-to-end against a live OneAPI tenant. Resources the
 current SDK doesn't expose are skipped with a `- <name>: service 'X' not on
 client; skipping` line — the rest of the run continues.
 
-The snapshot/ directory is the tenant-state side of this skill. It's gitignored
+The _data/snapshot/ directory is the tenant-state side of this skill. It's gitignored
 in the public upstream repo and committed in the private internal fork. Scripts
 consuming the snapshot (e.g. url-lookup.py, skill reference docs) treat these
 JSON files as the current config-of-record.
@@ -25,20 +25,20 @@ Usage:
   ./scripts/snapshot-refresh.py --zcc-only
 
 Writes to:
-  snapshot/zia/url-categories.json
-  snapshot/zia/url-filtering-rules.json
-  snapshot/zia/cloud-app-control-rules.json
-  snapshot/zia/ssl-inspection-rules.json
-  snapshot/zia/advanced-settings.json
-  snapshot/zpa/app-segments.json
-  snapshot/zpa/segment-groups.json
-  snapshot/zpa/server-groups.json
-  snapshot/zpa/access-policy-rules.json
-  snapshot/zcc/forwarding-profiles.json
-  snapshot/zcc/trusted-networks.json
-  snapshot/zcc/fail-open-policy.json
-  snapshot/zcc/web-policy.json
-  snapshot/_manifest.json   (fetch timestamps, counts, script version)
+  _data/snapshot/zia/url-categories.json
+  _data/snapshot/zia/url-filtering-rules.json
+  _data/snapshot/zia/cloud-app-control-rules.json
+  _data/snapshot/zia/ssl-inspection-rules.json
+  _data/snapshot/zia/advanced-settings.json
+  _data/snapshot/zpa/app-segments.json
+  _data/snapshot/zpa/segment-groups.json
+  _data/snapshot/zpa/server-groups.json
+  _data/snapshot/zpa/access-policy-rules.json
+  _data/snapshot/zcc/forwarding-profiles.json
+  _data/snapshot/zcc/trusted-networks.json
+  _data/snapshot/zcc/fail-open-policy.json
+  _data/snapshot/zcc/web-policy.json
+  _data/snapshot/_manifest.json   (fetch timestamps, counts, script version)
 
 Each dump is a straight JSON serialization of the SDK's list response. Schema
 versioning is informal — the files' contents change when Zscaler changes the
@@ -57,7 +57,7 @@ from typing import Any, Callable
 
 
 REQUIRED_ENV = ("ZSCALER_CLIENT_ID", "ZSCALER_VANITY_DOMAIN")
-SNAPSHOT_DIR = Path(__file__).resolve().parent.parent / "snapshot"
+SNAPSHOT_DIR = Path(__file__).resolve().parent.parent / "_data" / "snapshot"
 SCRIPT_VERSION = "0.1"
 
 

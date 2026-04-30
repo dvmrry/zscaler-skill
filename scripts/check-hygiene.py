@@ -33,7 +33,7 @@ Exit code: 0 if no errors (warnings still pass); 1 if any errors.
 
 Run:
     ./scripts/check-hygiene.py                    # console output, exit code drives CI
-    ./scripts/check-hygiene.py --digest           # also writes logs/hygiene-digest.md
+    ./scripts/check-hygiene.py --digest           # also writes _data/logs/hygiene-digest.md
     ./scripts/check-hygiene.py --strict           # warnings become errors
 
 Designed for both PR-time CI (fail builds with errors) and weekly
@@ -56,7 +56,7 @@ REFS = REPO_ROOT / "references"
 EVALS = REPO_ROOT / "evals" / "evals.json"
 CLARIFICATIONS = REFS / "_meta" / "clarifications.md"
 TEMPLATE = REFS / "_meta" / "template.md"
-DIGEST_DEFAULT = REPO_ROOT / "logs" / "hygiene-digest.md"
+DIGEST_DEFAULT = REPO_ROOT / "_data" / "logs" / "hygiene-digest.md"
 
 REQUIRED_FRONTMATTER = [
     "product",

@@ -1,7 +1,7 @@
 ---
 product: zpa
 topic: "snapshot-schema"
-title: "ZPA snapshot/ schema — what's in the JSON, how to read it"
+title: "ZPA _data/snapshot/ schema — what's in the JSON, how to read it"
 content-type: reference
 last-verified: "2026-04-24"
 confidence: medium
@@ -14,20 +14,20 @@ sources:
 author-status: draft
 ---
 
-# ZPA snapshot/ schema
+# ZPA _data/snapshot/ schema
 
-Operational reference for the JSON files `scripts/snapshot-refresh.py` writes under `snapshot/zpa/`. Pre-written from the Postman collection (which has rich response samples for ZPA) + SDK source + Terraform provider schema. Once a fork-admin run produces tenant data, validate this doc against actual JSON and bump confidence to `high`.
+Operational reference for the JSON files `scripts/snapshot-refresh.py` writes under `_data/snapshot/zpa/`. Pre-written from the Postman collection (which has rich response samples for ZPA) + SDK source + Terraform provider schema. Once a fork-admin run produces tenant data, validate this doc against actual JSON and bump confidence to `high`.
 
 ## Files written by `--zpa-only`
 
 ```
-snapshot/zpa/app-segments.json
-snapshot/zpa/segment-groups.json
-snapshot/zpa/server-groups.json
-snapshot/zpa/access-policy-rules.json
+_data/snapshot/zpa/app-segments.json
+_data/snapshot/zpa/segment-groups.json
+_data/snapshot/zpa/server-groups.json
+_data/snapshot/zpa/access-policy-rules.json
 ```
 
-Plus `snapshot/_manifest.json` with timestamps and per-resource counts.
+Plus `_data/snapshot/_manifest.json` with timestamps and per-resource counts.
 
 ## Wire-format conventions for ZPA
 
@@ -206,17 +206,17 @@ These fields have conflicting type or name information across sources. Flag thes
 
 #### Verification commands
 
-If you have a populated `snapshot/zpa/app-segments.json`, run these jq queries and record the output:
+If you have a populated `_data/snapshot/zpa/app-segments.json`, run these jq queries and record the output:
 
 ```bash
 # 1. tcpKeepAlive type — quoted string ("0") or bare integer (0)?
-jq '.list[0].tcpKeepAlive' snapshot/zpa/app-segments.json
+jq '.list[0].tcpKeepAlive' _data/snapshot/zpa/app-segments.json
 
 # 2. configSpace at segment top level — what values appear?
-jq '[.list[].configSpace] | unique' snapshot/zpa/app-segments.json
+jq '[.list[].configSpace] | unique' _data/snapshot/zpa/app-segments.json
 
 # 3. configSpace in embedded serverGroups — what values appear there?
-jq '[.list[].serverGroups[]?.configSpace] | unique' snapshot/zpa/app-segments.json
+jq '[.list[].serverGroups[]?.configSpace] | unique' _data/snapshot/zpa/app-segments.json
 ```
 
 If running live against the API instead:
@@ -351,31 +351,31 @@ Used when creating/updating BA, PRA, and AppProtection apps in a single API call
 
 ```bash
 # All app segments by name
-jq '.list[] | {name, domains: .domainNames, bypass: .bypassType}' snapshot/zpa/app-segments.json
+jq '.list[] | {name, domains: .domainNames, bypass: .bypassType}' _data/snapshot/zpa/app-segments.json
 
 # Segments with Browser Access enabled
-jq '.list[] | select((.clientlessApps | length) > 0) | {name, ba_apps: [.clientlessApps[].name]}' snapshot/zpa/app-segments.json
+jq '.list[] | select((.clientlessApps | length) > 0) | {name, ba_apps: [.clientlessApps[].name]}' _data/snapshot/zpa/app-segments.json
 
 # Segments with SIPA enabled (confirmed wire field name: ipAnchored)
-jq '.list[] | select(.ipAnchored == true) | .name' snapshot/zpa/app-segments.json
+jq '.list[] | select(.ipAnchored == true) | .name' _data/snapshot/zpa/app-segments.json
 
 # Segments with PRA consoles
-jq '.list[] | select((.praApps | length) > 0) | {name, pra_consoles: [.praApps[].name]}' snapshot/zpa/app-segments.json
+jq '.list[] | select((.praApps | length) > 0) | {name, pra_consoles: [.praApps[].name]}' _data/snapshot/zpa/app-segments.json
 
 # Segments with AppProtection enabled
-jq '.list[] | select((.inspectionApps | length) > 0) | {name, inspection_apps: [.inspectionApps[].name]}' snapshot/zpa/app-segments.json
+jq '.list[] | select((.inspectionApps | length) > 0) | {name, inspection_apps: [.inspectionApps[].name]}' _data/snapshot/zpa/app-segments.json
 
 # Segments with inconsistency warnings (orphaned references)
-jq '.list[] | select(.inconsistentConfigDetails | to_entries | any(.value | length > 0)) | {name, issues: [.inconsistentConfigDetails | to_entries[] | select(.value | length > 0) | .key]}' snapshot/zpa/app-segments.json
+jq '.list[] | select(.inconsistentConfigDetails | to_entries | any(.value | length > 0)) | {name, issues: [.inconsistentConfigDetails | to_entries[] | select(.value | length > 0) | .key]}' _data/snapshot/zpa/app-segments.json
 
 # Segments using weighted load balancing
-jq '.list[] | select(.weightedLoadBalancing == true) | .name' snapshot/zpa/app-segments.json
+jq '.list[] | select(.weightedLoadBalancing == true) | .name' _data/snapshot/zpa/app-segments.json
 
 # Segments in Multimatch (INCLUSIVE) mode
-jq '.list[] | select(.matchStyle == "INCLUSIVE") | .name' snapshot/zpa/app-segments.json
+jq '.list[] | select(.matchStyle == "INCLUSIVE") | .name' _data/snapshot/zpa/app-segments.json
 
 # Find segments matching an FQDN
-jq --arg fqdn "wiki.internal" '.list[] | select(.domainNames | any(test($fqdn))) | {name, domains: .domainNames, bypass: .bypassType}' snapshot/zpa/app-segments.json
+jq --arg fqdn "wiki.internal" '.list[] | select(.domainNames | any(test($fqdn))) | {name, domains: .domainNames, bypass: .bypassType}' _data/snapshot/zpa/app-segments.json
 ```
 
 Cross-links: [`./app-segments.md`](./app-segments.md), [`./browser-access.md`](./browser-access.md), [`./privileged-remote-access.md`](./privileged-remote-access.md), [`./appprotection.md`](./appprotection.md), [`../shared/source-ip-anchoring.md`](../shared/source-ip-anchoring.md).
@@ -424,13 +424,13 @@ Each segment group **embeds full application objects**, not just IDs — so `app
 
 ```bash
 # Segment groups by app count
-jq '.list | sort_by(.applications | length) | reverse | .[] | {name, app_count: (.applications | length)}' snapshot/zpa/segment-groups.json
+jq '.list | sort_by(.applications | length) | reverse | .[] | {name, app_count: (.applications | length)}' _data/snapshot/zpa/segment-groups.json
 
 # Find which segment group an app lives in
-jq --arg app "wiki.internal" '.list[] | select(.applications | any(.name == $app)) | {sg: .name, app: .applications[] | select(.name == $app) | .id}' snapshot/zpa/segment-groups.json
+jq --arg app "wiki.internal" '.list[] | select(.applications | any(.name == $app)) | {sg: .name, app: .applications[] | select(.name == $app) | .id}' _data/snapshot/zpa/segment-groups.json
 
 # Disabled segment groups (entire group disabled)
-jq '.list[] | select(.enabled == false) | .name' snapshot/zpa/segment-groups.json
+jq '.list[] | select(.enabled == false) | .name' _data/snapshot/zpa/segment-groups.json
 ```
 
 ## `server-groups.json`
@@ -488,13 +488,13 @@ API: `GET /zpa/mgmtconfig/v1/admin/customers/{customerId}/serverGroup`
 
 ```bash
 # Server groups by mode
-jq '.list | group_by(.dynamicDiscovery) | map({mode: .[0].dynamicDiscovery, count: length})' snapshot/zpa/server-groups.json
+jq '.list | group_by(.dynamicDiscovery) | map({mode: .[0].dynamicDiscovery, count: length})' _data/snapshot/zpa/server-groups.json
 
 # Static server groups + their server count
-jq '.list[] | select(.dynamicDiscovery == false) | {name, server_count: (.servers | length)}' snapshot/zpa/server-groups.json
+jq '.list[] | select(.dynamicDiscovery == false) | {name, server_count: (.servers | length)}' _data/snapshot/zpa/server-groups.json
 
 # Server groups not bound to any connector (orphaned)
-jq '.list[] | select((.appConnectorGroups | length) == 0) | .name' snapshot/zpa/server-groups.json
+jq '.list[] | select((.appConnectorGroups | length) == 0) | .name' _data/snapshot/zpa/server-groups.json
 ```
 
 ## `access-policy-rules.json`
@@ -581,19 +581,19 @@ Key evaluation properties:
 
 ```bash
 # Rules in evaluation order (numeric sort)
-jq '.list | sort_by(.ruleOrder | tonumber) | .[] | {order: .ruleOrder, name, action}' snapshot/zpa/access-policy-rules.json
+jq '.list | sort_by(.ruleOrder | tonumber) | .[] | {order: .ruleOrder, name, action}' _data/snapshot/zpa/access-policy-rules.json
 
 # Find rules referencing a specific app segment
-jq --arg appid "216196257331358000" '.list[] | select(.conditions[]?.operands[]? | select(.objectType == "APP" and (.values | index($appid)))) | .name' snapshot/zpa/access-policy-rules.json
+jq --arg appid "216196257331358000" '.list[] | select(.conditions[]?.operands[]? | select(.objectType == "APP" and (.values | index($appid)))) | .name' _data/snapshot/zpa/access-policy-rules.json
 
 # Deception-managed rules (read-only by ZPA admins)
-jq '.list[] | select(.deceptionPolicy == true) | {order: .ruleOrder, name}' snapshot/zpa/access-policy-rules.json
+jq '.list[] | select(.deceptionPolicy == true) | {order: .ruleOrder, name}' _data/snapshot/zpa/access-policy-rules.json
 
 # Rules using device posture criteria
-jq '.list[] | select(.conditions[]?.operands[]? | .objectType == "POSTURE") | {name, posture_count: ([.conditions[].operands[] | select(.objectType == "POSTURE")] | length)}' snapshot/zpa/access-policy-rules.json
+jq '.list[] | select(.conditions[]?.operands[]? | .objectType == "POSTURE") | {name, posture_count: ([.conditions[].operands[] | select(.objectType == "POSTURE")] | length)}' _data/snapshot/zpa/access-policy-rules.json
 
 # Step-up auth rules (Conditional Access via REQUIRE_APPROVAL)
-jq '.list[] | select(.action == "REQUIRE_APPROVAL") | .name' snapshot/zpa/access-policy-rules.json
+jq '.list[] | select(.action == "REQUIRE_APPROVAL") | .name' _data/snapshot/zpa/access-policy-rules.json
 ```
 
 Cross-links: [`./policy-precedence.md`](./policy-precedence.md), [`./app-segments.md`](./app-segments.md), [`./privileged-remote-access.md`](./privileged-remote-access.md), [`./appprotection.md`](./appprotection.md).

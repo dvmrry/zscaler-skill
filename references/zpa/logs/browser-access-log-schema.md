@@ -1,6 +1,6 @@
 ---
 product: zpa
-topic: "logs/browser-access-log-schema"
+topic: "_data/logs/browser-access-log-schema"
 title: "ZPA LSS Browser Access log — field reference"
 content-type: reference
 last-verified: "2026-04-28"

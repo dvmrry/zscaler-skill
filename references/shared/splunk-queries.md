@@ -72,7 +72,7 @@ index=$INDEX_ZIA_WEB (url=$URL OR host=$HOSTNAME) earliest=-7d
 | sort -count
 ```
 
-Pair with config: the rule-list from `snapshot/zia/url-filtering-rules.json` gives the ordered evaluation list. The Splunk output shows which one *actually* fired — divergence from expected-first-match is the signal.
+Pair with config: the rule-list from `_data/snapshot/zia/url-filtering-rules.json` gives the ordered evaluation list. The Splunk output shows which one *actually* fired — divergence from expected-first-match is the signal.
 
 ### `ssl-inspection-observed`
 

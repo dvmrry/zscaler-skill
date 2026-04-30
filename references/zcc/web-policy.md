@@ -203,7 +203,7 @@ User / Device
 
 A user can only have one active Web Policy (first-match-wins by `rule_order`). That Web Policy points to exactly one Forwarding Profile. Changing `forwarding_profile_id` on the Web Policy changes which traffic behavior the user gets — but only on their next ZCC login/restart.
 
-**A Web Policy can reference a Forwarding Profile ID that does not exist** — the relationship is FK-shaped but not enforced at write time. `snapshot/zcc/web-policy.json` joined with `snapshot/zcc/forwarding-profiles.json` via ID is the way to detect orphaned references.
+**A Web Policy can reference a Forwarding Profile ID that does not exist** — the relationship is FK-shaped but not enforced at write time. `_data/snapshot/zcc/web-policy.json` joined with `_data/snapshot/zcc/forwarding-profiles.json` via ID is the way to detect orphaned references.
 
 ---
 
@@ -239,4 +239,4 @@ From `vendor/zscaler-sdk-python/zscaler/zcc/web_policy.py` (Tier B — SDK/TF), 
 - Web Privacy (log collection; ZDX location; separate from App Profile) — [`./web-privacy.md`](./web-privacy.md)
 - ZCC API surface — [`./api.md`](./api.md)
 - ZIA device posture (cross-product hook via `zia_posture_config_id`) — not yet written up
-- Wire-format schema for `snapshot/zcc/web-policy.json` — [`./snapshot-schema.md`](./snapshot-schema.md)
+- Wire-format schema for `_data/snapshot/zcc/web-policy.json` — [`./snapshot-schema.md`](./snapshot-schema.md)
