@@ -43,6 +43,14 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 
 ## Proposed
 
+### Close the `source.html?p=...` validation gap
+
+- **Status**: Proposed
+- **Origin**: 2026-04-30 — surfaced when the welcome hub had a stale `?p=_primer` link that broke silently after the `_meta/` consolidation
+- **Impact**: `check-doc-links.py` explicitly skips `?p=` source-viewer routes (per its own line 10 docstring); broken query-param paths into `source.html` go undetected
+- **Cost**: low (small extension to `check-doc-links.py` that knows how to resolve `?p=<path>` against `references/<path>` on disk)
+- **Notes**: source.html resolves `?p=zia/url-filtering` to `references/zia/url-filtering.md`. The validation logic is the same path-resolution against the filesystem; the script just needs to recognize `?p=` query strings and apply it. Adds maybe 15 lines to `check-doc-links.py`. Worth doing because hub pages rely heavily on this routing.
+
 ### Determinism beyond scripts — soft-to-hard pairings
 
 - **Status**: Proposed (framing exercise; individual patterns can be promoted as separate items)

@@ -1,5 +1,7 @@
 # zscaler-skill
 
+[![Doc hygiene](https://github.com/dvmrry/zscaler-skill/actions/workflows/check-hygiene.yml/badge.svg)](https://github.com/dvmrry/zscaler-skill/actions/workflows/check-hygiene.yml)
+
 A Claude skill for reasoning about Zscaler environments — full operational depth (SDK / TF / OneAPI surface) on ZIA, ZPA, ZCC, ZDX, ZBI, ZIdentity, Cloud & Branch Connector, ZWA, and ZPA AppProtection; extended awareness (reasoning docs, no SDK) on Deception, Risk360, the AI Security family (AI Guard / AI Guardrails / AI Red Teaming), and ZMS (workload microsegmentation); plus paragraph-level awareness of the broader portfolio (ZINS, EASM, Federal Cloud, ITDR, DSPM, Posture Control) — covering the policy evaluation, rule precedence, and cross-product interactions that raw LLMs hallucinate on.
 
 ## What this is

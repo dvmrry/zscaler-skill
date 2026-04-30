@@ -56,8 +56,16 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      issues: write   # for the sticky-issue surface step at the end
     steps:
       - uses: actions/checkout@v6
+
+      - name: Initialize submodules
+        # Vendor submodules are referenced by ref-doc citations
+        # (e.g. references/zia/locations.md → ../../vendor/...) and by
+        # check-vendor-drift.py. CI doesn't init submodules by default;
+        # do it once up front so every check below can see them.
+        run: git submodule update --init --recursive
 
       - name: Set up uv
         # setup-uv does not ship a `v8` major-version tag — only specific
@@ -77,11 +85,71 @@ jobs:
         run: ./scripts/check-orphans.py
 
       - name: Check for vendor-source drift
-        # Submodules are not initialized in CI by default; init them so the
-        # script can read submodule SHAs and compute file diffs.
-        run: |
-          git submodule update --init --recursive
-          ./scripts/check-vendor-drift.py
+        run: ./scripts/check-vendor-drift.py
 
       - name: Check Zscaler help-article scrape freshness (advisory)
         run: ./scripts/check-scrape-freshness.py
+
+      - name: Surface workflow failure as a GitHub issue
+        # Creates or updates a sticky issue when this workflow fails on
+        # main. Without this, hygiene failures sit silently in Actions
+        # for cycles before anyone notices (cf. 2026-04-30: 10 consecutive
+        # failures on main went unobserved).
+        if: failure() && github.event_name != 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = 'Doc hygiene workflow failed on main';
+            const body = `The \`Doc hygiene\` workflow failed on commit \`${context.sha}\`.\n\n` +
+                         `**Run**: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}\n` +
+                         `**Trigger**: ${context.eventName}\n\n` +
+                         `Investigate the failed step and either fix the underlying issue or update the relevant check. ` +
+                         `When the next workflow run on main passes, this issue gets auto-closed by the same step.`;
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'hygiene-failure',
+            });
+            if (issues.length > 0) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issues[0].number,
+                body: body,
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: body,
+                labels: ['hygiene-failure'],
+              });
+            }
+
+      - name: Auto-close hygiene-failure issue when workflow passes on main
+        if: success() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'hygiene-failure',
+            });
+            for (const issue of issues) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: `Workflow passing again on \`${context.sha}\`. Closing.`,
+              });
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                state: 'closed',
+              });
+            }
