@@ -53,7 +53,7 @@ Follow the methodology in [`troubleshooting-methodology.md`](./troubleshooting-m
 
 ## First response
 
-When invoked, your first response must do these five things, in order:
+When invoked, your first response must do these six things, in order:
 
 ### 1. Parse the user's framing into the journal ISSUE field
 
@@ -87,6 +87,19 @@ Don't investigate yet. Name the source you'd consult to confirm or rule out each
 ### 5. Output the journal
 
 Render the discovery journal with hypotheses as `Open (likely)` or `Open (uncertain)` claims, plus the proposed next investigation step.
+
+### 6. Save the journal to disk
+
+After rendering in chat, write the same journal to `_data/incidents/<YYYY-MM-DD>-<slug>/journal.md`. **This save is unconditional** — every `/z-investigate` invocation persists its journal, regardless of whether the investigation later turns out to be an incident or stays exploratory. Subsequent turns update the same file in place.
+
+- **Slug**: short kebab-case descriptor of what's failing — recognizable from a directory listing six months later. Examples: `ssh-azure-port-22`, `salesforce-sso-loop`, `connector-group-us-east-1-disconnected`.
+- **Date**: today's date in UTC, ISO format (`YYYY-MM-DD`).
+- **Path**: `_data/incidents/<YYYY-MM-DD>-<slug>/journal.md` — create the directory if it doesn't exist.
+- **Privacy**: `_data/incidents/*` is gitignored by default, so the journal stays local-only unless the engineer explicitly opts in to publish it.
+
+`_data/incidents/` is the kit's umbrella home for any saved `/z-investigate` artifact — the name reflects that incidents are the most common shape, not that every saved investigation must be one. If the investigation turns out to be incident-shaped (production break, regression, hygiene failure), the same directory becomes the home for `timeline.md` + `postmortem.md` + `evidence/` per § "Saving as an incident artifact." If it stays exploratory, only `journal.md` exists in the directory — that's fine.
+
+If the user explicitly indicates they don't want a save (e.g., "don't save this, just answering a quick question"), skip step 6 and note the skip in your reply. Otherwise save by default.
 
 ## Journal template
 
@@ -171,18 +184,17 @@ When the investigation pauses or hands off to another agent/person, output the h
 
 ## Saving as an incident artifact
 
-When this investigation is an **incident** — a production break, regression, hygiene failure, or other reactive triage with consequences worth remembering — the journal becomes a saved artifact rather than ephemeral chat output.
+The journal itself is always saved per Step 6 above. This section covers the **incident-shape add-ons** — `timeline.md`, `postmortem.md`, and `evidence/` — that are written *in addition to* the journal when an investigation turns out to be an incident.
 
-The convention lives at [`../../_data/incidents/README.md`](../../_data/incidents/README.md). Concretely, when finishing an incident-shaped investigation:
+When this investigation is an **incident** — a production break, regression, hygiene failure, or other reactive triage with consequences worth remembering — author the additional artifacts alongside the journal in the same `_data/incidents/<YYYY-MM-DD>-<slug>/` directory:
 
-1. Pick a slug: `<YYYY-MM-DD>-<short-descriptive-slug>` (kebab-case, recognizable from a directory listing six months later)
-2. Save the journal to `_data/incidents/<slug>/journal.md` — include claims, status, sources, timestamps, the resolution at the bottom
-3. Author `_data/incidents/<slug>/timeline.md` from the chat history + commit log — chronological events, ISO-8601 timestamps
-4. Author `_data/incidents/<slug>/postmortem.md` after the dust settles (within ~24h while context is fresh) — root cause, why-not-caught-earlier, what changed, lessons, follow-ups
-
-Raw artifacts that the journal cites (CI logs, command output, API dumps, screenshots) go in `_data/incidents/<slug>/evidence/` — gitignored by default per the privacy posture in the README.
+1. **`timeline.md`** — author from the chat history + commit log; chronological events with ISO-8601 timestamps. Short — a glance gives the shape.
+2. **`postmortem.md`** — author after the dust settles (within ~24h while context is fresh): root cause, why-not-caught-earlier, what changed, lessons, follow-ups. Blameless and brief.
+3. **`evidence/`** — raw artifacts that the journal cites (CI logs, command output, API dumps, screenshots). Gitignored by default per the privacy posture in [`../../_data/incidents/README.md`](../../_data/incidents/README.md).
 
 The whole `_data/incidents/<slug>/` tree is gitignored by default (private posture); engineers explicitly opt-in to publish a kit-internal incident by adding `!`-overrides per-incident. So an incident journal stays local-only unless deliberately published.
+
+If the investigation stays exploratory (no production stakes, no consequences worth remembering), the directory just contains `journal.md` — that's the expected and correct shape. Don't author a postmortem for a "how does X work?" exploration.
 
 If the investigation is NOT incident-shaped — exploratory, hypothesis-driven, no production stakes — there's no need to save the artifact. Chat-ephemeral is fine.
 

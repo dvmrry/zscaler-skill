@@ -72,15 +72,28 @@ The README itself is always tracked — it documents the convention.
 
 [`2026-04-30-ci-silent-failures/`](./2026-04-30-ci-silent-failures/) — the first incident captured under this convention. Use as a template for future incidents.
 
-## How an incident gets opened
+## How investigations land here
 
-1. The break is noticed (often via the `Doc hygiene` badge in README, or a manual review of CI history)
-2. Engineer or agent runs `/z-investigate <framing>` to produce the journal
-3. As fixes land, journal claims update with status changes
-4. Once the incident is resolved, journal is saved to `_data/incidents/<date>-<slug>/journal.md`
-5. Timeline gets written from commit history + chat record
-6. Postmortem gets written within ~24h while context is fresh
-7. `IMPROVEMENTS.md` gets follow-up entries for any deferred work
+Every `/z-investigate` invocation saves a `journal.md` in this directory by default — the playbook's First Response procedure persists the journal at first render and updates it in place as the investigation progresses. `_data/incidents/` is the kit's umbrella home for any saved investigation artifact; the name reflects that incidents are the most common shape, not that every saved investigation must be one.
+
+**Routine flow (most investigations):**
+
+1. Engineer or agent runs `/z-investigate <framing>`
+2. Agent picks a slug (`<YYYY-MM-DD>-<short-descriptive-slug>`) and writes `journal.md` at first response
+3. Subsequent turns update `journal.md` in place — claims promote/dismiss, statuses change
+4. When the investigation closes (resolved, parked, or escalated), the journal is the saved artifact
+
+For **exploratory investigations** that aren't incidents, only `journal.md` exists in the directory — that's the expected and correct shape. Don't author timeline / postmortem for a "how does X work?" exploration.
+
+**Incident flow (production break, regression, hygiene failure):**
+
+1–4 as above, plus:
+5. Author `timeline.md` from commit history + chat record
+6. Author `postmortem.md` within ~24h while context is fresh
+7. Capture cited raw artifacts under `evidence/` (gitignored by default)
+8. `IMPROVEMENTS.md` gets follow-up entries for any deferred work
+
+Privacy is unchanged across both flows: `_data/incidents/*` is gitignored by default, so journals stay local until the engineer explicitly opts in to publish.
 
 ## Cross-links
 
