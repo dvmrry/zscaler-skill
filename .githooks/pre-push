@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# pre-push — run the hygiene suite locally before allowing a push.
+#
+# Catches failures BEFORE they hit main. Same checks CI runs, in the
+# same order. Bypass with `git push --no-verify` if you need to (e.g.,
+# pushing a known-broken WIP branch); the CI workflow remains the
+# backstop.
+#
+# Activate once per clone:
+#   git config core.hooksPath .githooks
+
+set -e
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "$REPO_ROOT"
+
+echo "▸ pre-push: running hygiene suite (5 checks)..."
+echo
+
+failed=0
+
+run() {
+  local label="$1"
+  local cmd="$2"
+  echo "  ▸ $label"
+  if ! eval "$cmd" > /tmp/pre-push-output.txt 2>&1; then
+    echo "    ✗ FAILED"
+    cat /tmp/pre-push-output.txt | sed 's/^/      /'
+    failed=1
+  else
+    # Show last line only on success — keeps output tight
+    tail -1 /tmp/pre-push-output.txt | sed 's/^/      /'
+  fi
+}
+
+run "check-hygiene"          "./scripts/check-hygiene.py"
+run "check-citations"        "./scripts/check-citations.sh"
+run "check-doc-links"        "./scripts/check-doc-links.py"
+run "check-orphans"          "./scripts/check-orphans.py"
+run "check-vendor-drift"     "./scripts/check-vendor-drift.py"
+run "check-scrape-freshness" "./scripts/check-scrape-freshness.py"
+
+echo
+if [ $failed -ne 0 ]; then
+  echo "✗ pre-push: hygiene failed — push blocked."
+  echo "  Fix the issues above and retry, or override with:"
+  echo "    git push --no-verify"
+  exit 1
+fi
+echo "✓ pre-push: all checks pass."
+exit 0
