@@ -37,7 +37,7 @@ The places intuition fails. This is the high-value section.
 Concrete scenario with inputs → outputs. Ideally paired with an eval prompt.
 
 ## Open questions
-Things that need verification; link them to `evals/` entries if you add them.
+Things that need verification; link them to `references/_meta/evals/` entries if you add them.
 ```
 
 Not every file needs every section. **Edge cases** is the one that justifies this skill existing — don't skip it.

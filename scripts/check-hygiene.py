@@ -53,7 +53,7 @@ import yaml
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 REFS = REPO_ROOT / "references"
-EVALS = REPO_ROOT / "evals" / "evals.json"
+EVALS = REPO_ROOT / "references" / "_meta" / "evals" / "evals.json"
 CLARIFICATIONS = REFS / "_meta" / "clarifications.md"
 TEMPLATE = REFS / "_meta" / "template.md"
 DIGEST_DEFAULT = REPO_ROOT / "_data" / "logs" / "hygiene-digest.md"

@@ -82,7 +82,6 @@ This is also why bundles (per [`investigation-bundles.md`](./investigation-bundl
 
 ## Cross-links
 
-- [`../_meta/archive/windsurf-runtime-questions-2026-04.md`](../_meta/archive/windsurf-runtime-questions-2026-04.md) — original questions and inline answers (historical record)
 - Windsurf workflow files — `.windsurf/workflows/z-investigate.md`, `z-audit.md`, `z-architect.md`
 - Claude Code parallels — `.claude/commands/z-investigate.md`, `z-audit.md`, `z-architect.md`
 - [`siem-emission-discipline.md`](./siem-emission-discipline.md) — the broader "agent-direct vs. user-handoff vs. coworking" framework these workflows operate under

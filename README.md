@@ -6,7 +6,7 @@ A Claude skill for reasoning about Zscaler environments — full operational dep
 
 A knowledge skill that helps engineers and non-technical users answer questions about Zscaler — from simple lookups ("is this URL covered by a category?") to subtle reasoning ("why does rule A beat rule B, and does SSL inspection happen before or after?") to portfolio breadth ("what is Risk360?", "does Zscaler do microsegmentation?"). The core value is **codified behavior** — rule precedence, wildcard semantics, policy evaluation order, product-fit framing — not API access. An agent with the API but without this knowledge will answer confidently and wrong.
 
-Follows the [Anthropic skill conventions](https://github.com/anthropics/skills) — `SKILL.md` at the root, progressive disclosure through `references/`, helper scripts in `scripts/`, and test prompts in `evals/`.
+Follows the [Anthropic skill conventions](https://github.com/anthropics/skills) — `SKILL.md` at the root, progressive disclosure through `references/`, helper scripts in `scripts/`, and test prompts in `references/_meta/evals/`.
 
 ## Fork-admin first-run walkthrough
 
@@ -125,11 +125,11 @@ Full inventory under [Helper scripts](#helper-scripts) below.
 ```bash
 # Uses Anthropic's skill-creator harness (if available) to run each prompt
 # with and without the skill loaded, and diff the outputs.
-# evals/evals.json contains 14 canonical Q→A prompts with structured assertions.
-cat evals/evals.json | jq '.evals[] | {id, prompt}'
+# references/_meta/evals/evals.json contains 14 canonical Q→A prompts with structured assertions.
+cat references/_meta/evals/evals.json | jq '.evals[] | {id, prompt}'
 ```
 
-Each eval entry now includes `assertions`, `must_cite_files`, `must_not_say`, and `expected_confidence` to let an eval harness grade structurally, not just on prose. See `evals/evals.json § schema_notes` for the format.
+Each eval entry now includes `assertions`, `must_cite_files`, `must_not_say`, and `expected_confidence` to let an eval harness grade structurally, not just on prose. See `references/_meta/evals/evals.json § schema_notes` for the format.
 
 ## Helper scripts
 
@@ -202,7 +202,7 @@ references/                lazy-loaded reference docs
 vendor/                    upstream sources as git submodules (SDKs, TF providers, MCP server)
     zscaler-help/          Zscaler help-site PDFs + Playwright-captured markdown (pinned bibliography)
 scripts/                   operational tooling (URL lookup, access check, SSL audit, etc.)
-evals/                     canonical Q→A test prompts with structured assertions
+references/_meta/evals/                     canonical Q→A test prompts with structured assertions
 _data/snapshot/                  tenant config dumps — empty upstream, populated per-fork
 _data/iac/                       production IaC — empty upstream, populated per-fork; takes precedence over reference IaC under vendor/ for env-specific questions. Terraform-only by default; fork-add other tools as needed. See _data/iac/README.md
 ```
@@ -211,7 +211,7 @@ Every reference file carries YAML front-matter (`product`, `topic`, `content-typ
 
 ## Automation
 
-`.github/workflows/check-hygiene.yml` runs `scripts/check-hygiene.py` on every PR touching `references/`, `evals/`, or the script itself, plus on the same Monday 13:00 UTC cadence below. Errors fail CI; warnings are advisory. Catches frontmatter drift, broken anchors, eval-doc desync, and resolved-clarification propagation gaps.
+`.github/workflows/check-hygiene.yml` runs `scripts/check-hygiene.py` on every PR touching `references/`, `references/_meta/evals/`, or the script itself, plus on the same Monday 13:00 UTC cadence below. Errors fail CI; warnings are advisory. Catches frontmatter drift, broken anchors, eval-doc desync, and resolved-clarification propagation gaps.
 
 `.github/workflows/issue-watch.yml` runs `scripts/issue-watch.py` in **sticky-issue mode** every Monday at 13:00 UTC. The first run creates a sticky issue (label `issue-watch-digest`) and seeds it with a 30-day-lookback digest of upstream Zscaler GitHub issues. Each subsequent run rewrites the body in place with the latest digest; the sticky issue's `last_check` HTML-comment marker carries state so no Actions cache or `state.json` is needed.
 
@@ -240,7 +240,7 @@ Expect to do this periodically — upstream SDK / TF provider releases add new r
 
 ## Testing the skill
 
-`evals/evals.json` has the canonical prompts with structured assertions. The format is compatible with Anthropic's `skill-creator` eval harness (runs each prompt with and without the skill loaded, diffs the outputs). For tenant-specific prompts (e.g., eval #1), `tenant_data_required: true` signals that the harness should expect a decline-with-helpful-pointers when `_data/snapshot/` is empty.
+`references/_meta/evals/evals.json` has the canonical prompts with structured assertions. The format is compatible with Anthropic's `skill-creator` eval harness (runs each prompt with and without the skill loaded, diffs the outputs). For tenant-specific prompts (e.g., eval #1), `tenant_data_required: true` signals that the harness should expect a decline-with-helpful-pointers when `_data/snapshot/` is empty.
 
 ## Known gaps (read before filing issues)
 

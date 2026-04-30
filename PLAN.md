@@ -8,7 +8,7 @@ Last updated: 2026-04-26 (capture-driven build-out — sitemap audit, 2 capture 
 
 If you just forked this and are here because [`README.md`](./README.md) step 2 said to read PLAN.md, the parts you actually need to know:
 
-1. **The skill is feature-complete as a knowledge/reasoning artifact.** All `references/` docs are drafted and cited; `SKILL.md` routes to them; `evals/evals.json` exercises them. You can hand the skill to Claude and get useful answers about Zscaler policy evaluation today, with no further work.
+1. **The skill is feature-complete as a knowledge/reasoning artifact.** All `references/` docs are drafted and cited; `SKILL.md` routes to them; `references/_meta/evals/evals.json` exercises them. You can hand the skill to Claude and get useful answers about Zscaler policy evaluation today, with no further work.
 2. **Scope: eight products + architectural layer.** Products covered: ZIA, ZPA, ZCC (Client Connector), ZDX (Digital Experience), ZBI (Cloud Browser Isolation), ZIdentity (unified auth + OneAPI + step-up), Cloud & Branch Connector (ZTW/ZTC/CBC), ZWA (Workflow Automation — DLP incidents). Architectural layer covered: policy evaluation, cloud architecture (Central Authority + Service Edges + BC Cloud), SIPA, SCIM, PAC files, Locations/sublocations/Location Groups, Device Posture, Firewall Control (Filtering/NAT/DNS/IPS), Browser Access, Privileged Remote Access, Subclouds, NSS architecture. **Out of scope:** ZMS, ZINS, EASM, ZAI Guard (vendored in SDKs, not written up), Federal Cloud (deferred — tenant signal pending).
 3. **`_data/snapshot/` is empty on purpose.** The public repo ships it empty so the fork doesn't inherit somebody else's tenant data. Run `scripts/snapshot-refresh.py` once your credentials are set up (README step 5) and commit the output to your internal fork. Script now dumps ZIA + ZPA + ZCC (use `--zia-only` / `--zpa-only` / `--zcc-only` to scope). Without a snapshot, the skill falls back to general answers for tenant-specific questions — still useful, just hedged.
 4. **5 of 8 scripts are scaffolds, not functional code.** Only `url-lookup.py` and `snapshot-refresh.py` are complete end-to-end. The other five (`access-check.py`, `ssl-audit.py`, `sandbox-check.py`, `connector-health.py`, `zpa-app-check.py`) have docstrings, argument parsing, auth wiring, and logical structure but leave TODOs where live-API response shape needs confirmation. First-run-against-real-tenant is where those TODOs become tractable.
@@ -37,7 +37,7 @@ This repo is designed to be **forked privately to run against a real tenant**. T
 | `vendor/zscaler-help/README.md` | Drop convention, workflow, refresh instructions for the pinned bibliography |
 | `vendor/zscaler-help/*.pdf`, `vendor/zscaler-help/*.md` | Pinned bibliography — every reference doc cites something here |
 | `scripts/url-lookup.py`, `scripts/snapshot-refresh.py`, `scripts/splunk-query.sh` | Tooling scaffolds (Python via `uv run --script`). `snapshot-refresh.py` covers ZIA + ZPA + ZCC. |
-| `evals/evals.json` | Skill eval prompts (14 canonical Q→A prompts with structured assertions, must_cite_files, must_not_say traps) |
+| `references/_meta/evals/evals.json` | Skill eval prompts (14 canonical Q→A prompts with structured assertions, must_cite_files, must_not_say traps) |
 | `_data/snapshot/` | Where tenant snapshot JSON lands after fork (currently empty + `.gitkeep`) |
 
 ## 7-step roadmap — state
@@ -115,7 +115,7 @@ Product scope extended from ZIA+ZPA to ZIA+ZPA+ZCC after QA review surfaced that
 Remaining ZCC areas **not written up**: ZCC admin users / roles / secrets (`client.zcc.admin_user`, `client.zcc.secrets`, `client.zcc.company`) — rarely relevant to policy-reasoning questions; captive-portal detection deep-dive (covered at feature level in forwarding-profile.md, but exact heuristics not documented); Z-Tunnel 1.0 vs 2.0 protocol internals (not customer-documented).
 
 ### 7. Eval assertions + README update ✅ DONE (2026-04-23)
-- **`evals/evals.json` upgraded** from narrative `expected_output` to structured eval entries. Each of the 6 canonical prompts now includes:
+- **`references/_meta/evals/evals.json` upgraded** from narrative `expected_output` to structured eval entries. Each of the 6 canonical prompts now includes:
   - `assertions` — substring checks the response must contain
   - `must_cite_files` — reference files the answer must cite
   - `must_not_say` — common wrong-answer traps (e.g., "Allow always wins over Block", "asterisks work in Zscaler", "URL filtering only runs after SSL decrypt")
@@ -283,7 +283,7 @@ After the product-scope build-out closed at ZWA, ran a consolidation pass coveri
   2. Two unrouted shared docs — `references/shared/activation.md` and `references/shared/terminology.md` existed but weren't in SKILL.md's routing table. Added routing rows for both.
   3. `references/shared/` had no `index.md`. Created one listing all 7 shared docs plus guidance on when to start there vs in a product directory.
   4. Three cross-product consistency checks (step-up-is-OIDC-only; SSL-decrypt-required-for-content-based-security-features; Cloud-Connector-fails-close-by-default) all passed — no contradictions across products.
-- **evals extension** — extended `evals/evals.json` from 6 to 14 canonical prompts. 8 new prompts cover: ZCC forwarding-profile trusted-network bypass (#7), Z-Tunnel 2.0 single-IP-NAT requirement (#8), ZDX lowest-value-wins score aggregation (#9), ZBI Isolate+SSL-bypass interaction (#10), ZIdentity Conditional Access OIDC-only + ZCC-required (#11), Authentication Level validity inversion (#12), Cloud Connector fail-close default (#13), ZWA DLP incident diagnostic chain (#14). Each carries structured assertions, must_cite_files, must_not_say traps, and expected_confidence consistent with the existing schema.
+- **evals extension** — extended `references/_meta/evals/evals.json` from 6 to 14 canonical prompts. 8 new prompts cover: ZCC forwarding-profile trusted-network bypass (#7), Z-Tunnel 2.0 single-IP-NAT requirement (#8), ZDX lowest-value-wins score aggregation (#9), ZBI Isolate+SSL-bypass interaction (#10), ZIdentity Conditional Access OIDC-only + ZCC-required (#11), Authentication Level validity inversion (#12), Cloud Connector fail-close default (#13), ZWA DLP incident diagnostic chain (#14). Each carries structured assertions, must_cite_files, must_not_say traps, and expected_confidence consistent with the existing schema.
 - **Doc maintenance**:
   - 5-level wildcard "gotcha" elevation — added a **"Surprises worth flagging first"** section at the top of `wildcard-semantics.md` covering the 5-level cap, asterisk-not-valid, and specificity-wins-across-categories. Cross-linked from `url-filtering.md § The specificity rule`.
   - Duplicate refarch PDF — **deferred** (requires user confirmation per PLAN contract; hashes differ even though content is reportedly ~95% identical). Left in place.

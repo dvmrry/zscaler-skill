@@ -79,7 +79,7 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 
 - **Status**: Proposed
 - **Origin**: 2026-04-30 (gap analysis)
-- **Impact**: warn when a `confidence: high` ref has no corresponding entry in `evals/evals.json`
+- **Impact**: warn when a `confidence: high` ref has no corresponding entry in `references/_meta/evals/evals.json`
 - **Cost**: low (extend `check-hygiene.py`)
 - **Notes**: soft warning, not error. Useful indicator that a high-confidence claim isn't actually exercised by eval coverage.
 
