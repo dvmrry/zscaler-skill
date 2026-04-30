@@ -140,34 +140,46 @@ Snapshot enumeration (find _data/snapshot/zs3/ -type f): no files returned.
 Also tried: find _data/zs3/ -type f → no files returned.
 ```
 
-**Stage 2 — select relevant subset for PROPOSED LOADS.** From the enumerated file list, pick **only the files relevant to the framing's `Products / features`** — not the whole list. Loading every snapshot file is overzealous and blows the context budget.
+**Stage 2 — select ONE entry-point file per product mentioned in the framing.** Bulk-loading every snapshot file for a product (e.g., framing says "ZPA" → load segments + server-groups + connector-groups + policies + ...) blows the context budget. Instead, pick the single file that's the natural starting point for the investigation; chain-traverse the rest on demand.
 
-Selection rules:
+Entry-point rules — one file per product, not the whole product:
 
-| If `Products / features` includes... | Add to PROPOSED LOADS from snapshot |
+| If `Products / features` includes... | Single entry-point file for PROPOSED LOADS |
 |---|---|
-| ZPA segment, app segment, SIPA | `<cloud>/zpa/application-segments.json` (or similarly named), `<cloud>/zpa/segments.json` |
-| Server group, connector group | `<cloud>/zpa/server-groups.json`, `<cloud>/zpa/connector-groups.json` (or `app-connector-groups.json`) |
-| App Connector, connector health | `<cloud>/zpa/app-connectors.json` (or `connectors.json`) |
-| ZPA policy, access policy | `<cloud>/zpa/policies.json` (or `access-policies.json`, `policy-rules.json`) |
-| ZIA URL filtering | `<cloud>/zia/url-filtering-rules.json`, `<cloud>/zia/url-categories.json` if present |
-| SSL inspection | `<cloud>/zia/ssl-inspection.json` (or similarly named) |
-| DLP | `<cloud>/zia/dlp-rules.json`, `<cloud>/zia/dlp-dictionaries.json` |
-| ZCC | `<cloud>/zcc/forwarding-profiles.json`, `<cloud>/zcc/app-profiles.json` |
-| Anything else / unsure | the file whose name most closely matches the product, or load nothing in this category and add it on-demand later |
+| Anything ZPA-related (segment, server group, connector, policy, SIPA) | `<cloud>/zpa/application-segments.json` (or `segments.json`) — segments are the natural entry; server-groups / connector-groups / policies load on demand after segment IDs are identified |
+| Anything ZIA URL-filtering related | `<cloud>/zia/url-filtering-rules.json` — categories, advanced policy, etc. on demand |
+| Anything ZIA SSL-inspection related | `<cloud>/zia/ssl-inspection-rules.json` (or similarly named) |
+| Anything ZIA DLP related | `<cloud>/zia/dlp-rules.json` — dictionaries, engines on demand |
+| Anything ZCC-related (forwarding, app profiles, posture) | `<cloud>/zcc/forwarding-profiles.json` (or whichever profile file most closely matches the framing) |
+| Anything else / unsure | one file whose name most closely matches the central concept; or load nothing in this category, add on-demand later |
 
-If a hypothesis later in the investigation needs a snapshot file you didn't select up-front, **load it then** — `add: <path>` at any Checkpoint will fold the missing file in. On-demand loading keeps the initial context budget tight.
+#### Chain-traversal pattern (load down the chain on demand)
 
-**Output format in PROPOSED LOADS:** include only the selected subset, not the full enumeration. Use the enumeration output above as the **inventory** the user can see; the PROPOSED LOADS list is the **action plan** for what gets loaded in Step 2.
+After Step 2 loads the entry-point file, the investigation traverses the chain by reading IDs from one file and `add: <next-file>`-ing the next file's relevant subset at the next Checkpoint. Example chain for a ZPA segment investigation:
+
+1. Step 2 loads `application-segments.json` (entry point)
+2. Step 3 reads it, identifies the relevant segment, finds the `serverGroups[].id` references
+3. At Checkpoint 3, the agent can `add: <cloud>/zpa/server-groups.json` (or specific server-group IDs from a per-record snapshot if available) — only the next link in the chain
+4. Next turn reads server-groups, finds `appConnectorGroups[].id` references
+5. `add: <cloud>/zpa/connector-groups.json` → next turn
+6. And so on, until the chain is fully walked OR a hypothesis is confirmed and further loads aren't needed
+
+Each load brings exactly the next link in. **Bulk pre-loading is the failure mode this design avoids.**
+
+If a hypothesis later in the investigation needs a snapshot file you didn't select up-front, `add: <path>` at any Checkpoint folds it in. On-demand loading keeps the context budget bounded by what the investigation actually traverses, not by what *might* be relevant.
+
+**Output format in PROPOSED LOADS:** include only the entry-point file(s), not the full enumeration. Use the enumeration output above as the **inventory** the user can see; PROPOSED LOADS is the **minimal action plan** for what Step 2 loads.
 
 Example for a SIPA-segment investigation on zs3:
 
 ```
-PROPOSED LOADS — snapshot subset (selected from enumeration above):
-  - _data/snapshot/zs3/zpa/application-segments.json    (matches "SIPA segment")
-  - _data/snapshot/zs3/zpa/server-groups.json           (matches "server group")
-  - _data/snapshot/zs3/zpa/connector-groups.json        (matches "connector group")
-  Skipped 8 other files in enumeration as unrelated to framing — load on-demand if needed.
+PROPOSED LOADS — snapshot subset (one entry point per product):
+  - _data/snapshot/zs3/zpa/application-segments.json    (entry point for ZPA chain)
+  Will load on-demand as chain is traversed:
+    server-groups.json (after segment IDs identified)
+    connector-groups.json (after server-group IDs identified)
+    app-connectors.json (after connector-group IDs identified)
+  Skipped 8 unrelated files in enumeration.
 ```
 
 #### Framing → file mapping
