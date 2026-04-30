@@ -17,7 +17,7 @@ author-status: draft
 
 # Audit — editorial / structural lint playbook
 
-This is the playbook invoked by the `/z-audit` slash command (Claude Code and Windsurf). Current shape is **lint** — editorial / structural review of skill kit references. Future subtypes (policy, access, coverage, config, activity) will branch from a parameterized `/z-audit <subtype>` invocation; for now, `/z-audit` is lint-only.
+This is the playbook invoked by the `/z-audit` slash command (Claude Code and Windsurf). The shape is **lint** — editorial / structural / hygiene review of references and tenant configuration. Posture-shaped review (RBAC least-privilege, telemetry coverage, threat-model-anchored findings) lives in the sibling `/z-soc` command — see [`./soc-prompt.md`](./soc-prompt.md).
 
 ## Mode
 
@@ -240,15 +240,26 @@ Most audits are routine / scheduled. Some are **triggered by an incident** — a
 
 ## Future subtypes
 
-Sketches for later expansion (not active in this command):
+Sketches for later expansion (not active in this command). Audit subtypes stay lint-shaped — consistency, dead refs, unused values, missing rationale. Posture-shaped review (defensibility, threat-model anchoring, blast radius) lives under `/z-soc`.
 
-- `/z-audit policy <scope>` — policy rule hygiene (dead rules, scope conflicts, default-allow leaks, missing posture, rule-order issues)
-- `/z-audit access <scope>` — admin RBAC review (least-privilege violations, stale admins, role bloat, audit-log evidence)
-- `/z-audit coverage <scope>` — observability / log coverage (NSS/LSS feed health, gap detection vs. `siem-log-mapping.md`)
-- `/z-audit config <scope>` — tenant configuration drift / best-practice review
-- `/z-audit activity <scope>` — admin audit log review (unusual changes, after-hours activity)
+**Lint subtypes (audit, future):**
 
-When these are added, this prompt becomes the **lint** branch of a subtype-parameterized command. The methodology in `audit-methodology.md` and the register format are reused; the per-subtype playbook diverges only in checks and evidence sources.
+- `/z-audit tenant-config <scope>` — tenant configuration lint: orphan segments (no Server Group, no policy reference), disabled rules with no rationale comment, unused URL categories, dead app segments (no servers attached), DLP dictionaries with no rule using them, redundant time intervals, stale department / location objects
+- `/z-audit refs <scope>` — reference-doc lint beyond what mechanical CI catches (current default; what this playbook does today)
+
+**Posture subtypes — moved to `/z-soc`:**
+
+| Was sketched as | Now lives at |
+|---|---|
+| `/z-audit policy` (default-allow leaks, missing posture, scope conflicts) | `/z-soc` subtype `policy` |
+| `/z-audit access` (RBAC least-privilege, stale admins, role bloat) | `/z-soc` subtype `access` |
+| `/z-audit coverage` (NSS/LSS feed health, telemetry gap detection) | `/z-soc` subtype `coverage` |
+| `/z-audit activity` (admin audit log review, after-hours activity) | `/z-soc` subtype `activity` |
+| `/z-audit config` (tenant config drift, best-practice review — posture half) | `/z-soc` subtype `config` |
+
+The `config` subtype split: posture-shaped checks (inspection bypasses, default-action review, DLP coverage gaps) went to `/z-soc`; lint-shaped checks (disabled-without-rationale, orphan objects, dead refs) stay here under `tenant-config`.
+
+When the lint subtypes are added, this prompt becomes the **kit-meta lint** branch of a parameterized command. The methodology in `audit-methodology.md` and the register format are reused across audit and SOC; the per-subtype playbook diverges only in checks and evidence sources.
 
 ## Cross-links
 

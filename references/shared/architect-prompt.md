@@ -228,6 +228,7 @@ When the same scaling concern comes up repeatedly, capture the verified query se
 - [`audit-methodology.md`](./audit-methodology.md) — audit discipline (sibling)
 - [`investigate-prompt.md`](./investigate-prompt.md) — `/z-investigate` playbook
 - [`audit-prompt.md`](./audit-prompt.md) — `/z-audit` playbook
+- [`soc-prompt.md`](./soc-prompt.md) — `/z-soc` playbook (security-posture sibling)
 - [`siem-emission-discipline.md`](./siem-emission-discipline.md) — modes and rules for SIEM data access
 - [`splunk-queries.md`](./splunk-queries.md) — Splunk patterns for connector / PSE / PCC utilization
 - ZPA App Connector Metrics schema — [`../zpa/logs/app-connector-metrics.md`](../zpa/logs/app-connector-metrics.md)

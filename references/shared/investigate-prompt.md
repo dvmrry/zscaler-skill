@@ -240,6 +240,7 @@ When the same hypothesis comes up repeatedly, capture the verified query sequenc
 - [`splunk-queries.md`](./splunk-queries.md) — Splunk SPL pattern catalog
 - [`tenant-schema-derivation.md`](./tenant-schema-derivation.md) — canonical vs. tenant schemas, derivation recipes
 - [`audit-prompt.md`](./audit-prompt.md) — `/z-audit` playbook (checklist-driven sibling)
+- [`soc-prompt.md`](./soc-prompt.md) — `/z-soc` playbook (security-posture sibling)
 - [`architect-prompt.md`](./architect-prompt.md) — `/z-architect` playbook (design-driven sibling)
 
 ---
