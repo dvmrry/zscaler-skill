@@ -50,6 +50,45 @@ The journal/evidence relationship matters: **journal claims cite evidence files;
 
 Why gitignored by default: raw artifacts often contain things — IPs, hostnames, user IDs, full timestamps with context — that would be redacted in the journal/timeline/postmortem but appear unredacted in the source. Default-private avoids the "we forgot to scrub one file" failure mode.
 
+#### Evidence file naming
+
+SIEM exports default to opaque filenames — Splunk's CSV download names look like `splunk_search_results_2026-04-30_14-30-15.csv`, with no clue to the query that produced them. The exported file usually doesn't carry the query inside it either. Once the file lands on disk, context is lost.
+
+**At save time, rename to `<source>-<topic>-<YYYY-MM-DDTHH-MMZ>.<ext>`.** The pattern:
+
+- `<source>` — `splunk`, `sentinel`, `elastic`, `sumo`, `zpa-api`, `zia-api`, `zdx-api`, `zcc-api`, `cli`, `screenshot`
+- `<topic>` — short kebab-case descriptor of what was queried: `lss-connector-health`, `web-log-rule-hit`, `connector-groups-list`
+- ISO 8601 UTC timestamp with hyphens for filesystem safety (`:` is not portable in filenames)
+
+Examples:
+
+- `splunk-lss-connector-health-2026-04-30T14-30Z.csv`
+- `zpa-api-connector-groups-2026-04-30T14-32Z.json`
+- `sentinel-zia-rule-hits-2026-04-30T14-45Z.csv`
+- `screenshot-portal-segment-config-2026-04-30T15-00Z.png`
+
+#### `evidence/MANIFEST.md`
+
+Because the rename alone doesn't carry the query, every evidence directory should have a `MANIFEST.md` that captures the source query and what each file is. The agent writes a row at save time; future readers (human or agent) read the manifest first when entering the directory.
+
+Format — markdown table, append-only:
+
+```markdown
+# evidence/ manifest
+
+Each row: one evidence file, its source query, and what it captures. Append at save; never silently overwrite.
+
+| File | Source | Query / parameters | What it captures | Captured at |
+|---|---|---|---|---|
+| `splunk-lss-connector-health-2026-04-30T14-30Z.csv` | Splunk | `index=$INDEX_ZPA sourcetype=zpa-lss-userstatus earliest=-2h \| stats count by ConnectionStatus, ConnectorID` | Connector health status counts for the incident window | 2026-04-30T14:30Z |
+| `zpa-api-connector-groups-2026-04-30T14-32Z.json` | ZPA API | `GET /mgmtconfig/v1/admin/customers/{customerId}/appConnectorGroup` | Full list of App Connector Groups | 2026-04-30T14:32Z |
+| `screenshot-portal-segment-config-2026-04-30T15-00Z.png` | ZPA admin portal | `Resource Management > Application Management > Application Segments > "salesforce-prod"` | Segment config snapshot at investigation time | 2026-04-30T15:00Z |
+```
+
+The query / parameters column is the load-bearing field — it's the only thing that lets a future reader (or the agent in a later turn) understand what the file actually represents. Empty = file is opaque. If the user pastes results into chat without the query, the agent should ask for or reconstruct the query before saving.
+
+When the agent saves an evidence file, it does both: write the file with the renamed path AND append a row to `MANIFEST.md`. When the agent reads `evidence/`, it reads `MANIFEST.md` first.
+
 ## Privacy posture
 
 Three categories:

@@ -91,7 +91,20 @@ Order by the methodology's prioritization (most likely first):
 
 ### 4. For each hypothesis, name the evidence source
 
-Don't investigate yet. Name the source you'd consult to confirm or rule out each hypothesis (LSS field, ZPA API endpoint, reference file, manual test). Surface the plan before executing it.
+Don't investigate yet. Name the source you'd consult to confirm or rule out each hypothesis. Surface the plan before executing it.
+
+**Source preference order — disk first, queries last.** The default failure mode is jumping straight to "let me write you a Splunk query" or "let me query the ZPA API" when the answer is already on disk. Walk this ladder in order; only step down to a higher-numbered tier when the lower one doesn't carry the answer:
+
+1. **Operative directory** — `_data/incidents/<operative-slug>/evidence/` (read `MANIFEST.md` first to see what's already captured) and the existing `journal.md` claims. The user may have already provided the answer; reading it costs nothing.
+2. **Tenant snapshot** — `_data/snapshot/<cloud>/` (or fork-specific `_data/<cloud>/`). API-derived config dumps for the tenant: connector groups, segments, rules, profiles. **This is the canonical source for "what's actually configured"** — use it before any live API call. Snapshots can be stale; if state-drift matters for the question, refresh the snapshot via `scripts/snapshot-refresh.py` or its fork-equivalent — don't bypass to a one-off API call.
+3. **Script logs** — `_data/logs/`. Recent script output (issue-watch digests, find-asymmetries, hygiene digests, connector-health output).
+4. **SIEM** — Splunk / Sentinel / Elastic / Sumo / Chronicle. Use only when the question is about **runtime / log-flow data** (transactions, sessions, events) rather than configuration. Per-SIEM emission discipline lives in [`./siem-emission-discipline.md`](./siem-emission-discipline.md).
+5. **Live API** — only when both the snapshot doesn't have the answer and the question requires *now-state* (in-flight session counts, current connector status, etc.). When you do call an API, save the response to `evidence/` per the manifest convention so the next investigation can use it from disk.
+6. **Portal / admin console** — last resort, manual lookup. Cite the navigation path in the source field; if the result is informative enough to keep, screenshot to `evidence/` with a manifest entry.
+
+If the answer is on disk (tier 1–3), the source field is the file path and you can skip directly to verification — no SIEM/API/portal call needed. Calling out to a SIEM or API when `_data/` has the answer wastes the user's tokens and risks state drift between query time and what's already captured.
+
+Files added to `evidence/` follow the naming and manifest convention in [`../../_data/incidents/README.md § evidence/`](../../_data/incidents/README.md). Both the rename and the manifest row are written at save time, in the same step.
 
 ### 5. Output the journal
 
