@@ -43,6 +43,31 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 
 ## Proposed
 
+### Determinism beyond scripts — soft-to-hard pairings
+
+- **Status**: Proposed (framing exercise; individual patterns can be promoted as separate items)
+- **Origin**: 2026-04-30 — design discussion on "non-scripted but deterministic" agent guidelines
+- **Impact**: names the design space between hard scripts and loose agent prompts. Gives a vocabulary for which improvements buy script-level determinism without writing a Python check per every rule.
+- **Cost**: variable per pattern; the framing itself is free, individual implementations vary
+- **Notes**: The principle: **every "soft" guideline can be paired with a "hard" check that gates or verifies it.** The kit has been moving in this direction without naming the pattern. Examples already in place: status enum (soft) ↔ enum-validation in `check-hygiene.py` (hard); confidence calibration rules (soft) ↔ frontmatter validator that checks high-confidence-with-empty-sources (hard); bundle templates with `verification:` field (soft) ↔ could be paired with script that validates the field cites a real ticket / lab session / vendor doc (hard, not yet built).
+
+  Patterns we haven't yet exploited, ordered roughly by leverage:
+
+  **Cross-agent (works under Claude Code, Windsurf, and future agents loading the skill kit):**
+
+  - **Schema-validated structured output for registers** — discovery journal / audit register / recommendation register currently emit Markdown tables. Could ALSO emit a JSON/YAML sidecar matching a schema. Hybrid keeps human-readable Markdown while making the register machine-checkable. Lowest cost, highest leverage of the cross-agent set.
+  - **Pre-flight checks that gate generation** — hygiene runs after edits land. A pre-flight rubric ("before writing, check N invariants against existing state") moves determinism earlier. Closer to a type-check than a test-run.
+  - **Decision-tree DSL for bundles** — bundles are free Markdown today. A small YAML schema (`if: <cond>; then: <action>; else: <next>`) lets scripts validate every branch has a mapped action and every termination condition is covered. Natural next step after structured registers.
+  - **Self-evaluation rubrics at end-of-step** — each playbook ends with "before declaring done, fill in this YAML checklist." The checklist is deterministic structure even when the answers are agent-generated.
+  - **Tool-call-anchored claims** — every claim in a register must trace to a specific tool invocation (read / bash / web). Auditable; "the system can verify" rather than "the agent says it cited." Depends on the agent's tool model, but most agents expose read/bash/web in similar shapes.
+
+  **Claude-specific (or hard cross-agent):**
+
+  - **Memory-as-constraint** — Claude Code's auto-memory is CC-specific; Windsurf has memory but different semantics (separate persistence layer). A "must cite which memory entries informed this decision" pattern works under CC but doesn't port directly. If we lean into this, the kit splits between cross-agent core and CC-flavored extensions.
+  - **Subagent / multi-agent rubric review** — Claude's Agent tool is Claude-specific. Windsurf workflows can't invoke other workflows (per `windsurf-runtime-notes.md`). Producer-reviewer pairs work under CC; not portable. Could still be a CC-mode-only enhancement, but explicitly scoped.
+
+  **Action triggers**: promote individual patterns to their own IMPROVEMENTS.md items when there's a real reason to build them. Don't speculatively build — the framing is the contribution; individual investments need their own justification.
+
 ### URL content drift detection
 
 - **Status**: Proposed
