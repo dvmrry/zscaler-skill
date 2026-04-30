@@ -63,11 +63,31 @@ If location, time, or scope is ambiguous, ask **one** targeted clarifying questi
 
 ### 2. Ground before you reason
 
-Four checks before generating hypotheses. Skipping any of these produces output that's confidently wrong:
+Four read-tool calls before generating hypotheses. Skipping any of these produces output that's confidently wrong. **Use your file-read tool for every load below — do not summarize from memory or skip based on perceived relevance.**
 
-**a. Read source schemas for the data you'll analyze.** If the framing involves logs (LSS / NSS / audit / SIEM), find the schema file under `references/{zia,zpa,zcc}/logs/<name>-schema.md` and read it before reasoning over field values. Field names look self-evident but aren't (`action`, `reason`, `status` mean different things across log types); sample values mislead without the enum / type / semantic notes.
+**a. Use your file-read tool to load the relevant log schema.** If the framing involves logs (LSS / NSS / audit / SIEM), load the schema file under `references/{zia,zpa,zcc}/logs/<name>-schema.md` before reasoning over field values. Field names look self-evident but aren't (`action`, `reason`, `status` mean different things across log types); sample values mislead without the enum / type / semantic notes. If you don't know which schema applies, use your file-read tool to load `references/<product>/index.md` first and find it from there.
 
-**b. Read the canonical product / feature reference.** If the framing names a Zscaler product or feature (ZPA segment, ZIA URL category, ZDX probe, ZCC posture profile), read the relevant `references/<product>/<feature>.md` before forming a hypothesis. Product defaults (ZIA allow-by-default vs ZPA deny-by-default) and architectural assumptions (single connector vs cluster, app-segment scope vs server-group, IdP-provided vs SCIM-provided attributes) change which hypotheses are plausible. A hypothesis built on the wrong product mental model wastes the whole investigation.
+**b. Use your file-read tool to load the canonical product / feature reference.** If the framing names a Zscaler product or feature, load the relevant reference before forming a hypothesis. Use this mapping — load every file matching the framing's vocabulary:
+
+| Framing mentions... | Load via file-read tool |
+|---|---|
+| SIPA, Source IP Anchoring | `references/shared/source-ip-anchoring.md` |
+| App Connector, connector health, connector flap, connector status, connector assignment | `references/zpa/app-connector.md` |
+| App Connector Metrics, AliveTargetCount, TargetCount | `references/zpa/logs/app-connector-metrics.md` |
+| ZPA segment, app segment, application segment, segment scope | `references/zpa/app-segments.md` |
+| ZPA policy evaluation, access policy, policy precedence | `references/zpa/policy-precedence.md` |
+| Server group | `references/zpa/segment-server-groups.md` |
+| ZIA URL filtering, URL category, allow / block rule | `references/zia/url-filtering.md` |
+| SSL inspection, TLS inspection, inspection bypass | `references/zia/ssl-inspection.md` |
+| ZCC, Zscaler Client Connector, Z-Tunnel, forwarding profile | start at `references/zcc/index.md` |
+| Service Edge, ZEN, broker, Public Service Edge | `references/shared/cloud-architecture.md` and `references/shared/terminology.md` |
+| Private Service Edge, PSE, PSEN | `references/zia/private-service-edge.md` |
+| Cloud Connector, Branch Connector | `references/cloud-connector/index.md` |
+| ZDX probe, deeptrace, Cloud Path | start at `references/zdx/index.md` |
+| ZIdentity, OneAPI, Authentication Level, step-up auth | start at `references/zidentity/index.md` |
+| Anything else, or unsure | load `references/<product>/index.md` to find the specific file, then load the file |
+
+Product defaults (ZIA allow-by-default vs ZPA deny-by-default) and architectural assumptions (single connector vs cluster, app-segment scope vs server-group, IdP-provided vs SCIM-provided attributes) change which hypotheses are plausible. A hypothesis built on the wrong product mental model wastes the whole investigation.
 
 **c. Verify framing claims against evidence.** Treat causal claims in the framing — "connector is degraded", "rule fired but allowed traffic", "segment matched", "SAML attribute X is missing" — as `Open (uncertain)` until verified, not as background facts. Before any framing claim becomes load-bearing in a hypothesis, identify the evidence that would confirm it and check. Users describe symptoms accurately but mis-attribute causes; carrying the user's mis-attribution into your hypotheses produces a confident wrong answer. If verification isn't possible in the current execution mode, the claim stays `Open (uncertain)` and the journal records what evidence would resolve it.
 
@@ -79,6 +99,18 @@ Four checks before generating hypotheses. Skipping any of these produces output 
 - **Script logs** — `_data/logs/` holds dumped output from kit scripts (issue-watch, find-asymmetries, hygiene digests). Relevant if the framing involves a recent kit-script run.
 
 **Do not browse sibling incident directories.** Unless the user explicitly points at a specific incident directory, do not `ls _data/incidents/`, do not read any other incident's `journal.md`, and do not surface "this looks similar to a prior incident" to the user. Cross-pollinating findings between investigations contaminates evidence and produces false confidence; the discipline for safely re-using prior journals isn't refined enough yet. Stay scoped to the operative directory the user named (or a fresh slug if none was named).
+
+**Output: grounding files loaded.** Your first response **must include** a `Grounding files loaded:` line that lists every file you read in this step (one path per line). Example:
+
+```
+Grounding files loaded:
+  - references/shared/source-ip-anchoring.md
+  - references/zpa/app-connector.md
+  - references/zpa/logs/access-log-schema.md
+  - _data/snapshot/zs3/url-filtering-rules.json
+```
+
+If you loaded zero grounding files, state explicitly: `Grounding files loaded: none — proceeding from memory`. This makes skipped grounding visible to the user immediately so they can intervene before hypothesis generation amplifies the gap.
 
 ### 3. Generate initial hypotheses
 
@@ -93,7 +125,7 @@ Order by the methodology's prioritization (most likely first):
 
 Don't investigate yet. Name the source you'd consult to confirm or rule out each hypothesis. Surface the plan before executing it.
 
-**Source preference order — disk first, queries last.** The default failure mode is jumping straight to "let me write you a Splunk query" or "let me query the ZPA API" when the answer is already on disk. Walk this ladder in order; only step down to a higher-numbered tier when the lower one doesn't carry the answer:
+**Source preference order — per hypothesis, disk before queries.** For each hypothesis you generated in Step 3, walk this ladder to pick the cheapest evidence source that can confirm or rule out *that specific hypothesis*. The ladder applies **per-hypothesis** — it is NOT a global stop condition. Finding evidence on disk for hypothesis #1 does not mean you skip naming sources for hypotheses #2, #3, #4. **Every hypothesis must have a named evidence source.**
 
 1. **Operative directory** — `_data/incidents/<operative-slug>/evidence/` (read `MANIFEST.md` first to see what's already captured) and the existing `journal.md` claims. The user may have already provided the answer; reading it costs nothing.
 2. **Tenant snapshot** — `_data/snapshot/<cloud>/` (or fork-specific `_data/<cloud>/`). API-derived config dumps for the tenant: connector groups, segments, rules, profiles. **This is the canonical source for "what's actually configured"** — use it before any live API call. Snapshots can be stale; if state-drift matters for the question, refresh the snapshot via `scripts/snapshot-refresh.py` or its fork-equivalent — don't bypass to a one-off API call.
@@ -102,7 +134,19 @@ Don't investigate yet. Name the source you'd consult to confirm or rule out each
 5. **Live API** — only when both the snapshot doesn't have the answer and the question requires *now-state* (in-flight session counts, current connector status, etc.). When you do call an API, save the response to `evidence/` per the manifest convention so the next investigation can use it from disk.
 6. **Portal / admin console** — last resort, manual lookup. Cite the navigation path in the source field; if the result is informative enough to keep, screenshot to `evidence/` with a manifest entry.
 
-If the answer is on disk (tier 1–3), the source field is the file path and you can skip directly to verification — no SIEM/API/portal call needed. Calling out to a SIEM or API when `_data/` has the answer wastes the user's tokens and risks state drift between query time and what's already captured.
+How to apply, per hypothesis:
+
+- Find the lowest-numbered tier that has the relevant evidence for **this** hypothesis.
+- Cite that file path / query as the source for that hypothesis.
+- Then move to the next hypothesis and walk the ladder again. **Do not stop investigation just because one source had data; do not declare the investigation complete after reading one file.**
+
+What this rule does NOT do:
+
+- Does not replace Step 2 grounding. Schemas and product references still apply regardless of where evidence ultimately lives.
+- Does not gate hypothesis generation. Generate the full hypothesis set in Step 3 first; THEN walk the ladder per hypothesis.
+- Does not mean "if a snapshot exists, you're done." The snapshot answers some questions; the journal still needs hypotheses, evidence-per-hypothesis, and verification.
+
+The point of disk-first is **avoiding redundant queries**, not stopping investigation early. Calling out to a SIEM / API / portal when `_data/` has the answer wastes the user's tokens; treating a single on-disk file as the answer to the entire investigation is the opposite failure — confidence without coverage.
 
 Files added to `evidence/` follow the naming and manifest convention in [`../../_data/incidents/README.md § evidence/`](../../_data/incidents/README.md). Both the rename and the manifest row are written at save time, in the same step.
 
