@@ -4,7 +4,12 @@ description: Start an evidence-based troubleshooting investigation. For best res
 
 # /z-investigate
 
-**Use your file-read tool now to load `references/shared/investigate-prompt.md`** (path is relative to the Zscaler skill repo root). Then follow the playbook contained in that file. Do not respond until you have loaded the playbook.
+## Required reads — do these now, in order
+
+1. **Use your file-read tool to load `references/shared/investigate-prompt.md`.** This is the playbook. It carries the First Response procedure, status enums, and output format.
+2. **Use your file-read tool to load `references/shared/troubleshooting-methodology.md`.** This is the methodology. It carries the discipline the playbook depends on — confidence-tiered claim status, anti-patterns, escalation criteria.
+
+Both paths are relative to the Zscaler skill repo root. **Do not respond until both files are loaded.** Then follow the playbook's First Response procedure with the methodology already in context.
 
 ## Best framing for the user's input
 
@@ -21,5 +26,3 @@ Minimum viable: *what fails* + *where* + *what works*. If below minimum, ask one
 The user's investigation framing follows this command in the chat. Parse it into a discovery journal ISSUE field, generate prioritized hypotheses with named evidence sources, and output the initial journal table.
 
 Do not investigate yet — establish the plan first. If location, time, or scope is ambiguous, ask one targeted clarifying question.
-
-Cross-reference: `references/shared/troubleshooting-methodology.md` for the full discipline (status values, anti-patterns, escalation criteria) — load it via your file-read tool when the playbook references it.

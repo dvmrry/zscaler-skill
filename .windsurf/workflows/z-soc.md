@@ -4,7 +4,12 @@ description: Run a SOC / security-posture review of tenant configuration, teleme
 
 # /z-soc
 
-**Use your file-read tool now to load `references/shared/soc-prompt.md`** (path is relative to the Zscaler skill repo root). Then follow the playbook contained in that file. Do not respond until you have loaded the playbook.
+## Required reads — do these now, in order
+
+1. **Use your file-read tool to load `references/shared/soc-prompt.md`.** This is the playbook. It carries the First Response procedure, the five subtype check-sets, and the posture register format.
+2. **Use your file-read tool to load `references/shared/audit-methodology.md`.** This is the shared methodology (used by both `/z-audit` and `/z-soc`). It carries the discipline the playbook depends on — register format, severity scale, status lifecycle, anti-patterns.
+
+Both paths are relative to the Zscaler skill repo root. **Do not respond until both files are loaded.** Then follow the playbook's First Response procedure with the methodology already in context.
 
 ## Best framing for the user's input
 
@@ -20,5 +25,3 @@ The user's SOC review scope follows this command in the chat. Parse scope and su
 Save the register to `_data/incidents/<slug>/posture.md` per Step 5. For routine (non-incident-driven) reviews use slug `<YYYY-MM-DD>-soc-<scope-descriptor>`.
 
 Do not change tenant state — propose only. If scope is ambiguous, ask one targeted clarifying question.
-
-Cross-reference: `references/shared/audit-methodology.md` for register format, severity scale, and status lifecycle (shared with `/z-audit`) — load it via your file-read tool when the playbook references it.
