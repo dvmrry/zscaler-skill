@@ -244,7 +244,7 @@ If the docs you loaded in 2A name a more specific entry point than the table sug
 
 **Existing evidence files (from 2B.2 enumeration):** include every log / capture / dump the user identified as relevant in their Step 1 clarification reply, plus any `MANIFEST.md` files in the evidence directories. These are direct evidence — load them all (small files, high relevance).
 
-**Large-file handling — grep instead of full-read for files > 25 MB.** Some evidence files (raw LSS exports, packet captures, multi-day Splunk dumps) can be hundreds of MB; loading whole either fails the file-read tool or consumes the whole context window. Before adding such a file to the load plan, check its size (`ls -lh <path>`). If > 25 MB, do NOT load the whole file — instead:
+**Large-file handling — search instead of full-read for files > 100 MB.** Some evidence files (raw LSS exports, packet captures, multi-day Splunk dumps) can be hundreds of MB; loading whole either fails the file-read tool or consumes the whole context window. Before adding such a file to the load plan, check its size (`ls -lh <path>`). If > 100 MB, do NOT load the whole file — instead use a targeted search:
 
 - **Default grep patterns: the `User-flagged specifics` from PARSED FRAMING.** Backticked tokens the user supplied are the canonical pattern source — no inference required. If `User-flagged specifics` is `none`, derive patterns from the framing's other fields (Symptom, Products, Recency window, etc.).
 - Plan to use `grep -C 5 '<pattern>' <file>` (with `-C N` for context lines) at load time instead of full read. Capture grep output as the loaded content for that file. If multiple patterns apply, pipe them: `grep -C 5 -E '<pattern1>|<pattern2>' <file>`.
@@ -262,7 +262,40 @@ If you can't derive grep patterns from the framing, halt and ask the user before
 
 Use your file-read tool to load each entry-point file selected in 2C. **Do not load other snapshot files at this step**; chain-traversal on subsequent turns will load deeper links as needed.
 
-After all loads complete (docs from 2A + snapshot entry points + existing evidence from 2D), output the consolidated LOADED block:
+After all loads complete (docs from 2A + snapshot entry points + existing evidence from 2D), output the consolidated LOADED block (template below).
+
+#### 2E — Search User-flagged specifics across loaded content
+
+For each token in the `User-flagged specifics` field of PARSED FRAMING, run a search across every file in the LOADED block. This grounds the agent in *where* each user-supplied identifier actually appears — a literal lookup, not a paraphrased one.
+
+**Tool choice by file type:**
+
+- **JSON files** (snapshot dumps): use `jq` to find where the token appears in the structure, since plain grep can miss values in nested objects.
+  ```bash
+  jq --arg q "<token>" 'paths(strings | test($q; "i")) | join(".")' <file>.json
+  ```
+  Returns JSON paths where the token appears.
+- **Plaintext / CSV / log files** (evidence, methodology docs): use `grep -F -n` for line-anchored matches.
+  ```bash
+  grep -F -n "<token>" <file>
+  ```
+
+Surface results in a `GREP RESULTS` block before Step 3:
+
+```
+GREP RESULTS — User-flagged specifics in loaded content:
+  `BLK Cloud ZPA Global`:
+    _data/snapshot/zs3/zpa/server-groups.json: .[3].name, .[3].applications[2].serverGroups[0].name
+    references/zpa/segment-server-groups.md:138
+  `WARNING: connection failed`:
+    (no matches in loaded content — would need additional logs)
+```
+
+If a User-flagged specific has zero matches across loaded content, that's a finding worth noting — either the token isn't in the loaded data (need on-demand `add:` of additional files) or the token doesn't appear anywhere in scope.
+
+If `User-flagged specifics` is `none` in PARSED FRAMING, skip 2E.
+
+#### LOADED block (output of 2D)
 
 ```
 LOADED:
