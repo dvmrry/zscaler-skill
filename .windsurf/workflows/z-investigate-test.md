@@ -53,6 +53,18 @@ Load-bearing facts. If you find yourself reasoning against either, stop — you 
 
 Every turn's response must follow the per-step template literally. Each turn opens with a step banner, contains data blocks + checkpoint menu, and ends with a fixed end-marker. **Do NOT add prose between sections, decorative headers, or summary commentary outside the template.** The template IS the response.
 
+### Rendering convention — what's a code block vs plain text
+
+In each step's template below, the outer ` ``` ` fences are **just for rendering this spec doc** — they're not literal output. When you produce a turn, render each section per this convention:
+
+- **Banner lines** (`═══ STEP N — ... ═══`) → **plain text**, NOT inside a code block.
+- **Data blocks** (`PARSED FRAMING`, `PROPOSED LOADS`, `LOADED`, `GREP RESULTS`) → **fenced code blocks** (` ``` ` … ` ``` `). Data is structured for parsing; code blocks preserve formatting and signal "this is data, not prose."
+- **Journal table** (Step 3) → **markdown table syntax**, NOT inside a code block. Tables only render as tables outside code fences.
+- **Checkpoint menu** → **plain text** with the `═══ CHECKPOINT N — AWAITING USER ═══` line and bulleted options. Not in a code block (so the menu is readable, not monospace).
+- **End-marker** (`═══════════════════════════════════════`) → **plain text** as the final line.
+
+The rule of thumb: if Windsurf's chat needs to render it as a table or bulleted menu, plain markdown. If it's structured data the user reads field-by-field (or jq parses), fenced code block.
+
 ### Step 1 turn
 
 ```
