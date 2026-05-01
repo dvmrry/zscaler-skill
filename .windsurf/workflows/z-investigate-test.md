@@ -247,11 +247,28 @@ SELECTED (entry points + evidence — files 2D will load):
 
 **Verification rule.** Every path in SELECTED must appear in the 2B enumeration above (snapshot enumeration OR evidence enumeration). If a path you want to select is not in the enumeration, that's a procedure violation — halt and re-run enumeration. Do not load files that aren't enumerated.
 
+#### 🛑 Checkpoint 2A — Awaiting user approval of the selection plan
+
+This is **the** load-bearing halt. It separates **planning** (2A docs, 2B enumeration, 2C selection) from **loading** (2D file-read calls). The agent CANNOT proceed to file-read calls without the user's explicit reply — the next turn must contain user input by structure, not by promise.
+
+After printing the SELECTED block + verification rule above, end your response with **literally** this section:
+
+> **✋ Checkpoint 2A — awaiting your input.** SELECTED is the plan; 2D will load these files only after you reply.
+>
+> - `go` (or `yes` / `proceed`) — run 2D file-read calls for the SELECTED list
+> - `add: <path>` — add a file to SELECTED before 2D runs (must be in 2B enumeration)
+> - `skip: <path>` — remove a file from SELECTED before 2D runs
+> - `redo enum` — re-run 2B enumeration (e.g., if you suspect list_dir falsely returned empty and shell `find` wasn't used)
+
+**Do NOT call the file-read tool. Do NOT generate the LOADED block. Do NOT proceed to Step 3.** Wait for explicit user reply. Loading without user `go` is a procedure violation; the user must see and approve the plan.
+
 #### 2D — Load the selected snapshot + evidence files
+
+**Precondition:** 2C's SELECTED block was produced AND the user replied to Checkpoint 2A with explicit confirmation. If either is missing, halt with `Cannot run 2D — Checkpoint 2A not confirmed` and re-run the missing step.
 
 Use your file-read tool to load **exactly** the files listed in 2C's SELECTED block — no more, no fewer. **Do not load files that aren't in SELECTED**; chain-traversal on subsequent turns will load deeper links as needed via `add: <path>` at Checkpoint 3.
 
-If during loading you realize an additional file is needed, do NOT load it on your own — halt at Checkpoint 2 and let the user direct via `add:`.
+If during loading you realize an additional file is needed, do NOT load it on your own — halt at Checkpoint 2B and let the user direct via `add:`.
 
 After all loads complete (docs from 2A + snapshot entry points + existing evidence from 2D), output the consolidated LOADED block:
 
@@ -291,11 +308,11 @@ After Step 2D loads the entry-point file(s), the investigation traverses the cha
 
 Each load brings exactly the next link in. **Bulk pre-loading is the failure mode this design avoids.**
 
-#### 🛑 Checkpoint 2 — Awaiting user confirmation
+#### 🛑 Checkpoint 2B — Awaiting user confirmation before journal
 
 End your response with **literally** this section:
 
-> **✋ Checkpoint 2 — awaiting your input.** Reply with one of:
+> **✋ Checkpoint 2B — awaiting your input.** Files are loaded; ready to generate the journal.
 >
 > - `go` (or `yes` / `proceed`) — generate the discovery journal in Step 3
 > - `add: <path>` — I'll load the additional file before generating the journal
