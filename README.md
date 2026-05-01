@@ -39,7 +39,7 @@ The `vendor/` tree holds upstream Zscaler sources as git submodules. Without the
 git config core.hooksPath .githooks
 ```
 
-The hook (`.githooks/pre-push`) runs the same five checks CI does. Failures block the push; bypass with `git push --no-verify` if you really need to. CI on `main` is branch-protected — pushes that fail hygiene won't land regardless. See [the kit charter](./references/_meta/charter.md) § Workflow discipline for the full rationale.
+The hook (`.githooks/pre-push`) runs the same five checks CI does. Failures block the push; bypass with `git push --no-verify` if you really need to. CI on `main` is branch-protected — pushes that fail hygiene won't land regardless.
 
 ### 2. Read `PLAN.md`
 

@@ -105,7 +105,7 @@ The README itself is always tracked — it documents the convention.
 
 - Directory names use ISO date prefix for chronological sort
 - Slugs are kebab-case, descriptive enough to scan
-- Cross-link incidents from related references when the lessons are load-bearing for future readers (e.g., a CI incident that informs the discipline in [`../../references/_meta/charter.md`](../../references/_meta/charter.md) § 6 should get a back-link there)
+- Cross-link incidents from related references when the lessons are load-bearing for future readers (e.g., a CI incident that surfaces a workflow-discipline gap should get a back-link from the relevant methodology / playbook doc)
 
 ## Canonical example
 
@@ -136,7 +136,6 @@ Privacy is unchanged across both flows: `_data/incidents/*` is gitignored by def
 
 ## Cross-links
 
-- [`../../references/_meta/charter.md`](../../references/_meta/charter.md) § 6 (Workflow discipline — including self-maintenance via `/z-investigate`)
 - [`../../references/shared/troubleshooting-methodology.md`](../../references/shared/troubleshooting-methodology.md) — discovery journal format
 - [`../../references/shared/audit-methodology.md`](../../references/shared/audit-methodology.md) — register format if a post-incident audit is warranted
 - [`../../IMPROVEMENTS.md`](../../IMPROVEMENTS.md) — kit-level backlog where follow-ups land
