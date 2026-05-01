@@ -172,19 +172,17 @@ For each file in the confirmed PROPOSED LOADS (playbook + methodology + product 
 
 Two enumerations happen at this step. Both are recursive listings; both paste output verbatim. Show your command output regardless of result.
 
-**2B.1 — Snapshot.** Tenant snapshots are the canonical source for "what's actually configured" — do not propose live API calls for config the snapshot already has. If `Tenant cloud` was specified in PARSED FRAMING, run a recursive listing of `_data/snapshot/<cloud>/` (or `_data/<cloud>/` for the fork-specific layout). **Print every path the command returns — no truncation, no `...`, no abbreviation.** The enumeration block must be a complete, exhaustive list:
+**2B.1 — Snapshot.** Tenant snapshots are the canonical source for "what's actually configured" — do not propose live API calls for config the snapshot already has. If `Tenant cloud` was specified in PARSED FRAMING, run a recursive listing of `_data/snapshot/<cloud>/` (or `_data/<cloud>/` for the fork-specific layout):
 
 ```
 Snapshot enumeration (find _data/snapshot/zs3/ -type f):
   - _data/snapshot/zs3/zia/url-filtering-rules.json
   - _data/snapshot/zs3/zpa/segments.json
   - _data/snapshot/zs3/zpa/server-groups.json
-  <every file the recursive listing returned, listed in full>
+  ... <every file the recursive listing returned>
 ```
 
-**Tool choice — required fallback to shell on empty result.** You may start with `list_dir` / your file-list tool's recursive option, BUT: `_data/snapshot/*` is gitignored, and tools that respect `.gitignore` (including `list_dir` in many workspaces) return empty even when files exist. If the initial listing returns **zero files**, you MUST run shell `find _data/snapshot/<cloud>/ -type f` as verification before treating the directory as empty. A genuine "no files" result requires shell-`find` confirmation. The same fallback applies to `ls -R` only if it was run via shell rather than a gitignore-respecting wrapper.
-
-If both canonical and fork-specific paths are empty per shell `find`, show both attempts:
+Required commands (use one): `find _data/snapshot/<cloud>/ -type f`, `ls -R _data/snapshot/<cloud>/`, or your file-list tool's recursive option. If both canonical and fork-specific paths are empty, show both attempts:
 
 ```
 Snapshot enumeration (find _data/snapshot/zs3/ -type f): no files returned.
@@ -205,9 +203,7 @@ Evidence enumeration (find <working-dir>/_data/incidents/<slug>/evidence/ -type 
   - .../evidence/MANIFEST.md
 ```
 
-If the user's clarification about pre-existing logs (from Step 1) named a different path, enumerate that path too. **Same fallback rule as 2B.1**: `_data/incidents/*/evidence/` is gitignored by default — if `list_dir` or a file-list tool returns zero files, run shell `find` as verification before treating the directory as empty.
-
-If no evidence directory exists or the paths are empty per shell `find`, show the empty result:
+If the user's clarification about pre-existing logs (from Step 1) named a different path, enumerate that path too. If no evidence directory exists or the paths are empty, show the empty result:
 
 ```
 Evidence enumeration (find <working-dir>/_data/incidents/<slug>/evidence/ -type f): no files returned.
@@ -216,8 +212,6 @@ Evidence enumeration (find <working-dir>/_data/incidents/<slug>/evidence/ -type 
 Files found in evidence enumeration are candidate loads — they get included in 2C/2D selection alongside snapshot entry points.
 
 #### 2C — Select snapshot entry points + relevant evidence files (docs-informed)
-
-2C is **selection only — no file loads happen here**. Loads run in 2D after the SELECTED block is printed. Do not conflate the two.
 
 Now that docs are loaded, use them along with the entry-point rules below to pick a single starting snapshot file per product. Bulk-loading every snapshot file for a product blows the context budget; chain-traverse the rest on demand.
 
@@ -234,41 +228,11 @@ Now that docs are loaded, use them along with the entry-point rules below to pic
 
 If the docs you loaded in 2A name a more specific entry point than the table suggests, prefer the docs' guidance — they are more current.
 
-**Existing evidence files (from 2B.2 enumeration):** include every log / capture / dump the user identified as relevant in their Step 1 clarification reply, plus any `MANIFEST.md` files in the evidence directories. These are direct evidence — small files, high relevance. If the evidence directory has many large files (e.g., a packet capture > 100MB), preview the manifest first and select specific files based on what the user named or what the docs say is relevant.
+**Existing evidence files (from 2B.2 enumeration):** include every log / capture / dump the user identified as relevant in their Step 1 clarification reply, plus any `MANIFEST.md` files in the evidence directories. These are direct evidence — load them all (small files, high relevance). If the evidence directory has many large files (e.g., a packet capture > 100MB), preview the manifest first and load specific files based on what the user named or what the docs say is relevant.
 
-**Output the SELECTED block before 2D loads.** The block lists every file 2D will read, with a one-line reason. The user reads this block to verify the selection plan; 2D only runs against this list.
+#### 2D — Load the selected snapshot files (entry points only)
 
-```
-SELECTED (entry points + evidence — files 2D will load):
-  - _data/snapshot/zs3/zpa/application-segments.json   reason: ZPA chain entry point (segment is the natural start)
-  - _data/incidents/<slug>/evidence/MANIFEST.md         reason: catalog of pre-collected evidence
-  - _data/incidents/<slug>/evidence/<log file>          reason: user-identified pre-collected log
-```
-
-**Verification rule.** Every path in SELECTED must appear in the 2B enumeration above (snapshot enumeration OR evidence enumeration). If a path you want to select is not in the enumeration, that's a procedure violation — halt and re-run enumeration. Do not load files that aren't enumerated.
-
-#### 🛑 Checkpoint 2A — Awaiting user approval of the selection plan
-
-This is **the** load-bearing halt. It separates **planning** (2A docs, 2B enumeration, 2C selection) from **loading** (2D file-read calls). The agent CANNOT proceed to file-read calls without the user's explicit reply — the next turn must contain user input by structure, not by promise.
-
-After printing the SELECTED block + verification rule above, end your response with **literally** this section:
-
-> **✋ Checkpoint 2A — awaiting your input.** SELECTED is the plan; 2D will load these files only after you reply.
->
-> - `go` (or `yes` / `proceed`) — run 2D file-read calls for the SELECTED list
-> - `add: <path>` — add a file to SELECTED before 2D runs (must be in 2B enumeration)
-> - `skip: <path>` — remove a file from SELECTED before 2D runs
-> - `redo enum` — re-run 2B enumeration (e.g., if you suspect list_dir falsely returned empty and shell `find` wasn't used)
-
-**Do NOT call the file-read tool. Do NOT generate the LOADED block. Do NOT proceed to Step 3.** Wait for explicit user reply. Loading without user `go` is a procedure violation; the user must see and approve the plan.
-
-#### 2D — Load the selected snapshot + evidence files
-
-**Precondition:** 2C's SELECTED block was produced AND the user replied to Checkpoint 2A with explicit confirmation. If either is missing, halt with `Cannot run 2D — Checkpoint 2A not confirmed` and re-run the missing step.
-
-Use your file-read tool to load **exactly** the files listed in 2C's SELECTED block — no more, no fewer. **Do not load files that aren't in SELECTED**; chain-traversal on subsequent turns will load deeper links as needed via `add: <path>` at Checkpoint 3.
-
-If during loading you realize an additional file is needed, do NOT load it on your own — halt at Checkpoint 2B and let the user direct via `add:`.
+Use your file-read tool to load each entry-point file selected in 2C. **Do not load other snapshot files at this step**; chain-traversal on subsequent turns will load deeper links as needed.
 
 After all loads complete (docs from 2A + snapshot entry points + existing evidence from 2D), output the consolidated LOADED block:
 
@@ -308,11 +272,11 @@ After Step 2D loads the entry-point file(s), the investigation traverses the cha
 
 Each load brings exactly the next link in. **Bulk pre-loading is the failure mode this design avoids.**
 
-#### 🛑 Checkpoint 2B — Awaiting user confirmation before journal
+#### 🛑 Checkpoint 2 — Awaiting user confirmation
 
 End your response with **literally** this section:
 
-> **✋ Checkpoint 2B — awaiting your input.** Files are loaded; ready to generate the journal.
+> **✋ Checkpoint 2 — awaiting your input.** Reply with one of:
 >
 > - `go` (or `yes` / `proceed`) — generate the discovery journal in Step 3
 > - `add: <path>` — I'll load the additional file before generating the journal
