@@ -1,8 +1,8 @@
 ---
-description: "[A/B TEST VARIANT] Experimental copy of /z-investigate for iterating on doc-load reliability. Use this for testing changes; production version remains /z-investigate."
+description: "Identify the issue — parse framing, ground the agent in kit content + tenant snapshot, generate a discovery journal with prioritized hypotheses and named evidence sources. Per-turn structured output with halt-and-wait checkpoints. Designed for procedure-following models (SWE-1.5+, Haiku+)."
 ---
 
-# /z-investigate-test
+# /z-identify
 
 ## Procedure model
 
@@ -91,6 +91,8 @@ CLARIFICATIONS:
   1. I assumed <X> — confirm or correct?
   2. ...
 
+JOURNAL CREATED: <working-dir>/_data/incidents/<slug>/journal.md
+
 ```
 ═══ CHECKPOINT 1 — AWAITING USER ═══
   go               — load proposed files (run Step 2)
@@ -101,7 +103,7 @@ CLARIFICATIONS:
 ```
 ````
 
-Four code blocks per Step 1 turn: (1) step banner, (2) PARSED FRAMING, (3) PROPOSED LOADS, (4) checkpoint section. CLARIFICATIONS sits between blocks 3 and 4 as plain markdown.
+Four code blocks per Step 1 turn: (1) step banner, (2) PARSED FRAMING, (3) PROPOSED LOADS, (4) checkpoint section. CLARIFICATIONS and JOURNAL CREATED sit between blocks 3 and 4 as plain markdown.
 
 Step 2 has the same shape with LOADED and GREP RESULTS data blocks instead of PARSED FRAMING / PROPOSED LOADS. Step 3 has the step banner + journal-table-as-plain-markdown + ROOT CAUSE / NEXT STEP / JOURNAL SAVED lines + checkpoint section code block.
 
@@ -307,6 +309,60 @@ Multiple rows may match a single framing — **add every matching row** to PROPO
 | ZDX probe, deeptrace, Cloud Path | `references/zdx/index.md` |
 | ZIdentity, OneAPI, Authentication Level, step-up auth | `references/zidentity/index.md` |
 | LSS / NSS log fields, log schema | matching schema under `references/{zia,zpa,zcc}/logs/` |
+
+#### Early-journal creation — write the stub before Checkpoint 1
+
+After composing the PARSED FRAMING and PROPOSED LOADS blocks, **immediately use your file-write tool** to create a stub journal at `<working-directory>/_data/incidents/<slug>/journal.md`. **Do this before the Checkpoint 1 halt.** The artifact must exist on disk from Step 1 onward — even a template-with-only-the-framing is correct shape. Subsequent steps update this file in place; they do not create it.
+
+**Slug selection** (same logic as Step 3B's save):
+
+- If the framing contains an existing path or slug, use that directory.
+- If `_data/incidents/<some-existing-slug>/` already has a `journal.md` whose ISSUE matches, this is a continuation — update that file.
+- Otherwise mint a fresh slug: `<YYYY-MM-DD>-<short-kebab-descriptor>`. Create the directory.
+
+**Stub content:**
+
+```markdown
+# Discovery Journal — <Symptom from PARSED FRAMING>
+
+ISSUE: <one-sentence symptom>
+STATUS: Investigating
+TIMESTAMP: <ISO 8601 UTC>
+WORKING DIRECTORY: <path>
+
+## Framing
+
+| Field | Value |
+|---|---|
+| Symptom | <PARSED FRAMING.Symptom> |
+| Tenant cloud | <PARSED FRAMING.Tenant cloud> |
+| Products / features | <PARSED FRAMING.Products / features> |
+| Scope | <PARSED FRAMING.Scope> |
+| Recency | <PARSED FRAMING.Recency> |
+| User-flagged specifics | <PARSED FRAMING.User-flagged specifics> |
+
+## Proposed Loads
+
+(See PROPOSED LOADS block; Step 2 will mark which were actually loaded.)
+
+## Claims
+
+(Hypotheses populated in Step 3.)
+
+## Resolution
+
+Pending.
+```
+
+**Why early creation matters.** The agent sometimes skips the save action if it begins troubleshooting without first writing the journal. Creating the stub at Step 1 guarantees a permanent artifact exists from the moment the framing is parsed — even if subsequent steps drift or skip, the framing record is preserved on disk.
+
+**Working directory precondition still applies.** If `Working directory` is `unknown`, halt at Checkpoint 1 with the standard "I cannot determine the absolute path..." clarification before writing. The stub cannot be created without a known absolute path.
+
+**Add to Step 1's output template** a `JOURNAL CREATED:` line right before the Checkpoint 1 menu, listing the path written:
+
+```
+JOURNAL CREATED: <working-dir>/_data/incidents/<slug>/journal.md
+```
 
 #### 🛑 Checkpoint 1 — Awaiting user confirmation
 
