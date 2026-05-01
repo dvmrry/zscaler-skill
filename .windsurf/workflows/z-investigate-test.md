@@ -172,14 +172,14 @@ For each file in the confirmed PROPOSED LOADS (playbook + methodology + product 
 
 Two enumerations happen at this step. Both are recursive listings; both paste output verbatim. Show your command output regardless of result.
 
-**2B.1 — Snapshot.** Tenant snapshots are the canonical source for "what's actually configured" — do not propose live API calls for config the snapshot already has. If `Tenant cloud` was specified in PARSED FRAMING, run a recursive listing of `_data/snapshot/<cloud>/` (or `_data/<cloud>/` for the fork-specific layout):
+**2B.1 — Snapshot.** Tenant snapshots are the canonical source for "what's actually configured" — do not propose live API calls for config the snapshot already has. If `Tenant cloud` was specified in PARSED FRAMING, run a recursive listing of `_data/snapshot/<cloud>/` (or `_data/<cloud>/` for the fork-specific layout). **Print every path the command returns — no truncation, no `...`, no abbreviation.** The enumeration block must be a complete, exhaustive list:
 
 ```
 Snapshot enumeration (find _data/snapshot/zs3/ -type f):
   - _data/snapshot/zs3/zia/url-filtering-rules.json
   - _data/snapshot/zs3/zpa/segments.json
   - _data/snapshot/zs3/zpa/server-groups.json
-  ... <every file the recursive listing returned>
+  <every file the recursive listing returned, listed in full>
 ```
 
 Required commands (use one): `find _data/snapshot/<cloud>/ -type f`, `ls -R _data/snapshot/<cloud>/`, or your file-list tool's recursive option. If both canonical and fork-specific paths are empty, show both attempts:
@@ -213,6 +213,8 @@ Files found in evidence enumeration are candidate loads — they get included in
 
 #### 2C — Select snapshot entry points + relevant evidence files (docs-informed)
 
+2C is **selection only — no file loads happen here**. Loads run in 2D after the SELECTED block is printed. Do not conflate the two.
+
 Now that docs are loaded, use them along with the entry-point rules below to pick a single starting snapshot file per product. Bulk-loading every snapshot file for a product blows the context budget; chain-traverse the rest on demand.
 
 **Snapshot entry points (one per product mentioned in framing):**
@@ -228,11 +230,24 @@ Now that docs are loaded, use them along with the entry-point rules below to pic
 
 If the docs you loaded in 2A name a more specific entry point than the table suggests, prefer the docs' guidance — they are more current.
 
-**Existing evidence files (from 2B.2 enumeration):** include every log / capture / dump the user identified as relevant in their Step 1 clarification reply, plus any `MANIFEST.md` files in the evidence directories. These are direct evidence — load them all (small files, high relevance). If the evidence directory has many large files (e.g., a packet capture > 100MB), preview the manifest first and load specific files based on what the user named or what the docs say is relevant.
+**Existing evidence files (from 2B.2 enumeration):** include every log / capture / dump the user identified as relevant in their Step 1 clarification reply, plus any `MANIFEST.md` files in the evidence directories. These are direct evidence — small files, high relevance. If the evidence directory has many large files (e.g., a packet capture > 100MB), preview the manifest first and select specific files based on what the user named or what the docs say is relevant.
 
-#### 2D — Load the selected snapshot files (entry points only)
+**Output the SELECTED block before 2D loads.** The block lists every file 2D will read, with a one-line reason. The user reads this block to verify the selection plan; 2D only runs against this list.
 
-Use your file-read tool to load each entry-point file selected in 2C. **Do not load other snapshot files at this step**; chain-traversal on subsequent turns will load deeper links as needed.
+```
+SELECTED (entry points + evidence — files 2D will load):
+  - _data/snapshot/zs3/zpa/application-segments.json   reason: ZPA chain entry point (segment is the natural start)
+  - _data/incidents/<slug>/evidence/MANIFEST.md         reason: catalog of pre-collected evidence
+  - _data/incidents/<slug>/evidence/<log file>          reason: user-identified pre-collected log
+```
+
+**Verification rule.** Every path in SELECTED must appear in the 2B enumeration above (snapshot enumeration OR evidence enumeration). If a path you want to select is not in the enumeration, that's a procedure violation — halt and re-run enumeration. Do not load files that aren't enumerated.
+
+#### 2D — Load the selected snapshot + evidence files
+
+Use your file-read tool to load **exactly** the files listed in 2C's SELECTED block — no more, no fewer. **Do not load files that aren't in SELECTED**; chain-traversal on subsequent turns will load deeper links as needed via `add: <path>` at Checkpoint 3.
+
+If during loading you realize an additional file is needed, do NOT load it on your own — halt at Checkpoint 2 and let the user direct via `add:`.
 
 After all loads complete (docs from 2A + snapshot entry points + existing evidence from 2D), output the consolidated LOADED block:
 
