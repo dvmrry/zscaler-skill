@@ -300,6 +300,18 @@ After Step 2D loads the entry-point file(s), the investigation traverses the cha
 
 Each load brings exactly the next link in. **Bulk pre-loading is the failure mode this design avoids.**
 
+**JSON traversal — use `jq` for nested objects, not plain grep.** Snapshot files are JSON with nested arrays and objects (e.g., `serverGroups[].id` inside a segment record, `appConnectorGroups[].id` inside a server-group record). Plain `grep` only matches text on a single line and will miss IDs nested two or more levels deep. When walking cross-references between snapshot files, use `jq`:
+
+```bash
+# Get serverGroup IDs for a specific segment
+jq '.[] | select(.name == "salesforce-prod") | .serverGroups[].id' application-segments.json
+
+# Get appConnectorGroup IDs for a specific server group
+jq --arg id "<sg-id>" '.[] | select(.id == $id) | .appConnectorGroups[].id' server-groups.json
+```
+
+Plain `grep` is fine for scanning a JSON file for a known literal token (a hostname, a username) — but for navigating object structure, `jq` is the correct tool.
+
 #### 🛑 Checkpoint 2 — Awaiting user confirmation
 
 End your response with **literally** this section:
