@@ -52,11 +52,11 @@ Load-bearing facts. If you find yourself reasoning against either, stop — you 
 ## 📋 Step 1 — Parse framing
 
 > **Input:** the user's framing in chat (next message)
-> **Output:** a `PARSED FRAMING` block (template below)
+> **Output:** a `PARSED FRAMING` block + a `PROPOSED LOADS` block (templates below)
 > **Halts at:** Checkpoint 1
-> **Side effects:** none — no file loads in this step
+> **In context at this step:** the workflow body (this file) + the user's framing message. No `file-read` tool invocations happen here; actual file loads run in Step 2.
 
-Read the framing. Compose the data blocks below by filling in the bracketed fields. Use the **Framing → file mapping** to populate `PROPOSED LOADS`. Use the **Snapshot enumeration** procedure to list per-cloud config files individually.
+Read the framing. Compose the data blocks below by filling in the bracketed fields. Use the **Framing → file mapping** to populate `PROPOSED LOADS`. Snapshot enumeration runs in Step 2B after docs are loaded — do not enumerate the snapshot here.
 
 Your response prints two **data code blocks** followed by **plain-prose clarifications** and the checkpoint. Code blocks contain data only — never prompts.
 
