@@ -159,6 +159,8 @@ Same template as Step 3 with updated journal table. Banner reads `═══ INVE
 > **Halts at:** Checkpoint 1
 > **Side effects:** none — no file loads in this step
 
+**Your turn output must follow the Step 1 template defined in § Per-turn output format above. Do not deviate.** No ad-lib prose between sections, no decorative headers, no summary commentary outside the template. Use the template's banner, data blocks, clarifications, checkpoint menu, and end-marker exactly.
+
 Read the framing. Compose the data blocks below by filling in the bracketed fields. Use the **Framing → file mapping** to populate `PROPOSED LOADS`. Use the **Snapshot enumeration** procedure to list per-cloud config files individually.
 
 Your response prints two **data code blocks** followed by **plain-prose clarifications** and the checkpoint. Code blocks contain data only — never prompts.
@@ -275,6 +277,8 @@ After printing the PARSED FRAMING block, end your response with **literally** th
 > **Output:** a `LOADED` block listing every file actually read
 > **Halts at:** Checkpoint 2
 > **Side effects:** invokes the file-read tool once per path in PROPOSED LOADS
+
+**Your turn output must follow the Step 2 template defined in § Per-turn output format above. Do not deviate.** Use the template's banner, LOADED block, GREP RESULTS block, checkpoint menu, and end-marker exactly. No ad-lib prose between sections.
 
 **Precondition:** Step 1's `PROPOSED LOADS` block was produced AND the user replied with explicit confirmation. If either is missing, halt with `Prior step not confirmed — cannot proceed to Step 2` and re-run Step 1.
 
@@ -479,6 +483,8 @@ End your response with **literally** this section:
 > **Output:** a discovery journal table (in chat) + the same journal written to disk
 > **Halts at:** Checkpoint 3 (after journal output + save)
 > **Side effects:** writes / updates `_data/incidents/<slug>/journal.md` via your file-write tool
+
+**Your turn output must follow the Step 3 template defined in § Per-turn output format above. Do not deviate.** Use the template's banner, journal table, ROOT CAUSE HYPOTHESIS / NEXT STEP / JOURNAL SAVED lines, checkpoint menu, and end-marker exactly. No ad-lib prose between sections.
 
 **Precondition:** Step 2's `LOADED` block was produced AND the user replied with explicit confirmation. If either is missing, halt with `Prior step not confirmed — cannot proceed to Step 3` and re-run the missing step.
 
