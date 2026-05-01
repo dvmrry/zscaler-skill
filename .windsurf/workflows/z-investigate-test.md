@@ -364,7 +364,16 @@ If you can't derive grep patterns from the framing, halt and ask the user before
 
 #### 2D — Load the selected snapshot files (entry points only)
 
-Use your file-read tool to load each entry-point file selected in 2C. **Do not load other snapshot files at this step**; chain-traversal on subsequent turns will load deeper links as needed.
+Use your **file-read tool** to load each entry-point file selected in 2C. **Do not load other snapshot files at this step**; chain-traversal on subsequent turns will load deeper links as needed.
+
+**JSON files under the 100 MB threshold get full file-read, NOT jq queries.** Loading is ingestion (full content into context); jq is for *searching* already-loaded content (Step 2E) or for working around files too big to load whole (large-file handling above). Do not substitute jq queries for file-read on normal-size JSON files — the agent must have full file content in context for hypothesis grounding.
+
+Reserve `jq` for:
+- **Step 2E** — querying loaded JSON for where User-flagged specifics appear in the structure
+- **Chain-traversal** — extracting IDs from one loaded file to identify the next file to `add:`
+- **Large-file handling** — files > 100 MB where full read isn't viable
+
+Plain `grep` follows the same rule: it's for searching loaded content or large-file extraction, not for substituting file-read on normal-size files.
 
 After all loads complete (docs from 2A + snapshot entry points + existing evidence from 2D), output the consolidated LOADED block (template below).
 
