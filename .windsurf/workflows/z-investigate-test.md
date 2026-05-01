@@ -71,9 +71,22 @@ PARSED FRAMING:
   Scope:                  <one user / many / all / unclear>
   Recency:                <when first observed, or "not specified">
   Working directory:      <absolute path of repo root, or "unknown — needs user confirmation">
+  User-flagged specifics: <every backticked token from the framing, verbatim, comma-separated; or "none">
 ```
 
 The `Working directory` field is the absolute path the workflow's relative paths (`references/...`, `_data/incidents/...`) resolve against. Infer from the workspace context if you can; if you cannot determine it confidently, set it to `unknown` — that triggers a required clarification (see below). Do **not** guess; do **not** assume `.` will resolve correctly at file-write time.
+
+The `User-flagged specifics` field captures **every backticked token from the user's framing, verbatim, in their original casing.** Backticks in framing are the user's signal for *"this is a literal identifier, do not paraphrase or generalize."* Examples:
+
+- Framing: *"App Connector showing `WARNING: connection failed` in logs"* → User-flagged specifics: `WARNING: connection failed`
+- Framing: *"user `jdoe@example.com` can't reach `salesforce-prod` — segment `BLK Cloud ZPA Global` is involved"* → User-flagged specifics: `jdoe@example.com`, `salesforce-prod`, `BLK Cloud ZPA Global`
+
+These tokens have **two downstream uses**:
+
+1. They are load-bearing identifiers that must appear in your hypothesis sources where applicable. Do not paraphrase them away (`WARNING: connection failed` does not become "an error" — it stays the literal string).
+2. For any **large evidence file** that needs grep handling (see § Large-file handling below), these tokens are the **default grep patterns**. No inference required.
+
+If the framing has no backticked tokens, set the field to `none`.
 
 **Important — load order in Step 2:** docs first, then snapshot. PROPOSED LOADS at this step lists **only** the reference docs (playbook + methodology + product references). Snapshot enumeration and selection happen in Step 2 *after* the docs are loaded — the docs tell the agent which snapshot files matter (entry points, the chain to traverse), so deciding that without docs in context produces uninformed selection.
 
@@ -233,8 +246,8 @@ If the docs you loaded in 2A name a more specific entry point than the table sug
 
 **Large-file handling — grep instead of full-read for files > 25 MB.** Some evidence files (raw LSS exports, packet captures, multi-day Splunk dumps) can be hundreds of MB; loading whole either fails the file-read tool or consumes the whole context window. Before adding such a file to the load plan, check its size (`ls -lh <path>`). If > 25 MB, do NOT load the whole file — instead:
 
-- Identify grep patterns from the framing's specifics: usernames, destination FQDN, source IP, timestamp window, error / status codes, segment names. Whatever uniquely identifies the events in scope.
-- Plan to use `grep -C 5 '<pattern>' <file>` (with `-C N` for context lines) at load time instead of full read. Capture grep output as the loaded content for that file.
+- **Default grep patterns: the `User-flagged specifics` from PARSED FRAMING.** Backticked tokens the user supplied are the canonical pattern source — no inference required. If `User-flagged specifics` is `none`, derive patterns from the framing's other fields (Symptom, Products, Recency window, etc.).
+- Plan to use `grep -C 5 '<pattern>' <file>` (with `-C N` for context lines) at load time instead of full read. Capture grep output as the loaded content for that file. If multiple patterns apply, pipe them: `grep -C 5 -E '<pattern1>|<pattern2>' <file>`.
 - In 2C's SELECTED block, mark these explicitly:
 
 ```
