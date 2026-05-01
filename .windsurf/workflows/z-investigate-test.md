@@ -40,11 +40,115 @@ If you find yourself proposing ten or more files in PROPOSED LOADS, pause — yo
 
 ---
 
-## Critical constraint
+## Critical constraints (apply during all steps)
 
-Load-bearing fact. If you find yourself reasoning against this, stop — you are off-track.
+Load-bearing facts. If you find yourself reasoning against either, stop — you are off-track.
 
+- ZENs are Zscaler-managed cloud infrastructure — tenants don't configure them. Hypotheses depending on tenant-side ZEN config are invalid.
 - ZPA session assignment is gated by connector eligibility (`CONNECTED` status + target reachability via `AliveTargetCount` + group association). An empty `Connector` field in LSS means no connector was assigned — the fix is on the eligibility side, not the connector-to-app hop.
+
+---
+
+## Per-turn output format (applies to every turn)
+
+Every turn's response must follow the per-step template literally. Each turn opens with a step banner, contains data blocks + checkpoint menu, and ends with a fixed end-marker. **Do NOT add prose between sections, decorative headers, or summary commentary outside the template.** The template IS the response.
+
+### Step 1 turn
+
+```
+═══ STEP 1 — PARSE FRAMING ═══
+
+PARSED FRAMING:
+  Symptom:                <what's failing>
+  Tenant cloud:           <zs1/zs2/zs3 or "not specified">
+  Products / features:    <comma-separated, or "none">
+  Scope:                  <one user / many / all / unclear>
+  Recency:                <when first observed, or "not specified">
+  Working directory:      <absolute path of repo root, or "unknown — needs user confirmation">
+  User-flagged specifics: <every backticked token from framing, verbatim, comma-separated; or "none">
+
+PROPOSED LOADS (Step 2A — docs only):
+  - references/shared/investigate-prompt.md
+  - references/shared/troubleshooting-methodology.md
+  - <product references from the framing→file mapping that match>
+
+CLARIFICATIONS:
+  1. I assumed <X> — confirm or correct?
+  2. <additional questions if framing has gaps; mandatory log-collection question; mandatory working-directory question if "unknown">
+
+═══ CHECKPOINT 1 — AWAITING USER ═══
+  go               — load proposed files (run Step 2)
+  correct: <field> — revise PARSED FRAMING + PROPOSED LOADS
+  add: <path>      — add a file to PROPOSED LOADS
+  clarify: <q>     — answer before continuing
+═══════════════════════════════════════
+```
+
+### Step 2 turn
+
+```
+═══ STEP 2 — LOAD FILES ═══
+
+LOADED:
+  Docs:
+    ✓ <file>
+  Snapshot entry points:
+    ✓ <file>
+    Will load on-demand: <list of chain-traversal candidates>
+  Existing evidence:
+    ✓ <file>
+  Skipped:
+    <count> snapshot files unrelated to framing — load on-demand
+    <count> evidence files not specified by user — load on-demand if relevant
+
+GREP RESULTS — User-flagged specifics:
+  In LOADED content:
+    `<token>`: <file:line> or <jq path>
+  Elsewhere in kit (consider `add:` to bring into context):
+    `<token>`: <file:line>
+  Empty matches:
+    `<token>`: no match in loaded content or kit-wide — outside scope or undocumented
+
+═══ CHECKPOINT 2 — AWAITING USER ═══
+  go                — generate the discovery journal (run Step 3)
+  add: <path>       — load the additional file before journal
+  redirect: <focus> — bias the journal toward what you specify
+  skip: <path>      — exclude from the journal's evidence
+═══════════════════════════════════════
+```
+
+### Step 3 turn
+
+```
+═══ STEP 3 — DISCOVERY JOURNAL ═══
+
+ISSUE: <one-sentence description>
+STATUS: Investigating
+TIMESTAMP: <ISO 8601 UTC>
+
+| Claim | Source | Status | Timestamp | Notes |
+|---|---|---|---|---|
+| <hypothesis> | <file:line or query> | <Open (likely) / Open (uncertain) / Confirmed (medium) / Confirmed (high) / Ruled out / Stale> | <now> | <scope or qualifier> |
+| ... | ... | ... | ... | ... |
+
+ROOT CAUSE HYPOTHESIS: <leading hypothesis, or "no leader yet — investigating in priority order">
+
+NEXT STEP: <single next investigation step — which source to consult, what field to check>
+
+JOURNAL SAVED: <working-dir>/_data/incidents/<slug>/journal.md
+
+═══ CHECKPOINT 3 — AWAITING USER ═══
+  go                            — investigate the highest-priority Open hypothesis
+  focus: <H#>                   — investigate that hypothesis specifically
+  rule out: <H#>                — explain why it's already ruled out (with evidence)
+  add hypothesis: <description> — fold into the journal
+  pause                         — stop here; journal saved for resumption
+═══════════════════════════════════════
+```
+
+### Subsequent turns (after Step 3, during investigation)
+
+Same template as Step 3 with updated journal table. Banner reads `═══ INVESTIGATION TURN — UPDATED JOURNAL ═══`. End-marker is identical. One investigation action per turn (per § Subsequent turns below).
 
 ---
 
