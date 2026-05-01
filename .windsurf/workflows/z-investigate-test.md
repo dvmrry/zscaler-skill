@@ -40,11 +40,10 @@ If you find yourself proposing ten or more files in PROPOSED LOADS, pause — yo
 
 ---
 
-## Critical constraints (apply during all steps)
+## Critical constraint
 
-Load-bearing facts. If you find yourself reasoning against either, stop — you are off-track.
+Load-bearing fact. If you find yourself reasoning against this, stop — you are off-track.
 
-- ZENs are Zscaler-managed cloud infrastructure — tenants don't configure them. Hypotheses depending on tenant-side ZEN config are invalid.
 - ZPA session assignment is gated by connector eligibility — an empty `Connector` field in LSS means no connector was assigned; the fix is on the eligibility side, not the connector-to-app hop.
 
 ---
@@ -213,18 +212,20 @@ Files found in evidence enumeration are candidate loads — they get included in
 
 #### 2C — Select snapshot entry points + relevant evidence files (docs-informed)
 
-Now that docs are loaded, use them along with the entry-point rules below to pick a single starting snapshot file per product. Bulk-loading every snapshot file for a product blows the context budget; chain-traverse the rest on demand.
+Now that docs are loaded, use them along with the entry-point rules below to pick the snapshot files most relevant to the framing. **Cap: up to 5 snapshot files total across all products** (down from "one per product" — the prior single-entry rule was too restrictive). Chain-traversal still applies for files beyond that cap.
 
-**Snapshot entry points (one per product mentioned in framing):**
+**Snapshot entry points — recommended starting files per product:**
 
-| If `Products / features` includes... | Single entry-point file |
+| If `Products / features` includes... | Recommended starting file(s) |
 |---|---|
-| Anything ZPA-related (segment, server group, connector, policy, SIPA) | `<cloud>/zpa/application-segments.json` (or `segments.json`) — segments are the natural entry; server-groups / connector-groups / policies load on demand |
-| Anything ZIA URL-filtering related | `<cloud>/zia/url-filtering-rules.json` — categories, advanced policy on demand |
+| Anything ZPA-related (segment, server group, connector, policy, SIPA) | `<cloud>/zpa/application-segments.json` is the natural entry; for a chain investigation, also load `server-groups.json` and `connector-groups.json` if within the 5-file cap |
+| Anything ZIA URL-filtering related | `<cloud>/zia/url-filtering-rules.json` — categories on demand if not within cap |
 | Anything ZIA SSL-inspection related | `<cloud>/zia/ssl-inspection-rules.json` (or similarly named) |
-| Anything ZIA DLP related | `<cloud>/zia/dlp-rules.json` — dictionaries, engines on demand |
+| Anything ZIA DLP related | `<cloud>/zia/dlp-rules.json` — dictionaries / engines on demand if not within cap |
 | Anything ZCC-related (forwarding, app profiles, posture) | `<cloud>/zcc/forwarding-profiles.json` (or whichever profile file most closely matches) |
 | Anything else / unsure | one file whose name most closely matches the central concept; or skip and add on-demand |
+
+**5-file cap rationale.** Loading the natural starting file plus 1-2 directly-related files (e.g., for ZPA: segments + server-groups + connector-groups) gives the agent enough chain context to reason holistically without forcing chain-traversal on simple investigations. Cap prevents bulk-loading that produced earlier overload. If 5 files isn't enough for a multi-product framing, the chain-traversal pattern still applies — `add: <path>` at Checkpoint 2 brings in additional files.
 
 If the docs you loaded in 2A name a more specific entry point than the table suggests, prefer the docs' guidance — they are more current.
 
