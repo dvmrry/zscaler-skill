@@ -22,12 +22,12 @@
       key: 'welcome',
       label: 'Welcome',
       href: 'welcome/',
-      match: [/\/welcome\//, /readers-guide/, /onboarding/, /source\.html\?.*p=_meta/primer/],
+      match: [/\/welcome\//, /readers-guide/, /onboarding/, /source\.html\?.*p=_meta\/primer/],
       children: [
-        { href: 'welcome/',               label: 'Index',          match: [/\/welcome\/(index\.html)?$/] },
-        { href: 'readers-guide.html',     label: "Reader's Guide", match: [/readers-guide/] },
-        { href: 'onboarding.html',        label: 'Slideshow',      match: [/onboarding/] },
-        { href: 'source.html?p=_primer',  label: 'Documents',      match: [/source\.html\?.*p=_meta/primer/] },
+        { href: 'welcome/',                       label: 'Index',          match: [/\/welcome\/(index\.html)?$/] },
+        { href: 'readers-guide.html',             label: "Reader's Guide", match: [/readers-guide/] },
+        { href: 'onboarding.html',                label: 'Slideshow',      match: [/onboarding/] },
+        { href: 'source.html?p=_meta/primer',     label: 'Documents',      match: [/source\.html\?.*p=_meta\/primer/] },
       ],
     },
     {
