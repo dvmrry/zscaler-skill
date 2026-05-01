@@ -177,7 +177,7 @@ Hypothesis: Default-allow policy is shadowing the segment match.
 ```
 Better:
 ```
-Before hypothesizing: read references/zpa/policy-evaluation.md (or equivalent feature reference).
+Before hypothesizing: read references/zpa/policy-precedence.md (or equivalent feature reference).
 ZPA is deny-by-default — there is no "default-allow shadow." The hypothesis space is: (a) segment doesn't include this user's IdP attributes, (b) connector group isn't reachable from user's location, (c) rule ordering with a higher-priority deny, (d) posture / timeout / SAML attribute drift.
 ```
 Product defaults and architectural assumptions (deny-by-default vs. allow-by-default, per-app vs. per-segment, IdP-claim vs. SCIM-claim) shape which hypotheses are even plausible. A hypothesis built on the wrong product mental model wastes the whole investigation.

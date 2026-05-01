@@ -205,7 +205,7 @@ Zscaler operators mix these depending on user / device / location. The choice is
 
 ## What this primer is NOT
 
-- Not a Zscaler-specific reference. For that, see `references/_portfolio-map.md` and the per-product directories.
+- Not a Zscaler-specific reference. For that, see `references/_meta/portfolio-map.md` and the per-product directories.
 - Not exhaustive networking knowledge — it covers the slice of networking the skill assumes. Real networking involves routing protocols, congestion control, queueing theory, etc.
 - Not a security primer — security concepts (zero-trust, identity, threat models) are covered in companion primers.
 

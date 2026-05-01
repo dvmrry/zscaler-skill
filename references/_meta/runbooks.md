@@ -8,7 +8,7 @@ confidence: high
 source-tier: mixed
 sources:
   - "references/shared/oneapi.md"
-  - "references/verification-protocol.md"
+  - "references/_meta/verification-protocol.md"
   - "vendor/zscaler-sdk-python/zscaler/utils.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/legacy.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/legacy.py"

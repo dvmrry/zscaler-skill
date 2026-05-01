@@ -10,7 +10,7 @@ sources:
   - "scripts/agent_patterns.py"
   - "scripts/diagnose-tenant.py"
   - "references/shared/oneapi.md"
-  - "references/runbooks.md"
+  - "references/_meta/runbooks.md"
 author-status: reviewed
 ---
 
