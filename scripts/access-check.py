@@ -116,7 +116,7 @@ def check_activation(client: Any) -> None:
     if err:
         print(f"WARN: could not fetch activation status: {err}", file=sys.stderr)
         return
-    # Response shape TBD against live tenant — log whatever we get.
+    # TODO: confirm response shape against live tenant — for now, log whatever we get.
     state = getattr(status, "status", None) or (
         status.get("status") if isinstance(status, dict) else None
     )

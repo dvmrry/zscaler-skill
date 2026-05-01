@@ -39,7 +39,7 @@ PATTERN="$1"; shift
 echo "splunk-query.sh: stub — not implemented." >&2
 echo "  pattern: ${PATTERN}" >&2
 echo "  args: $*" >&2
-echo "  would use: vendor/splunk-sdk-python via uv run (TBD)" >&2
+echo "  would use: vendor/splunk-sdk-python via uv run (TODO)" >&2
 
 # TODO: read the named pattern from references/shared/splunk-queries.md
 # TODO: substitute $VARS from args and env
