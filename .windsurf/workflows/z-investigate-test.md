@@ -182,7 +182,9 @@ Snapshot enumeration (find _data/snapshot/zs3/ -type f):
   <every file the recursive listing returned, listed in full>
 ```
 
-Required commands (use one): `find _data/snapshot/<cloud>/ -type f`, `ls -R _data/snapshot/<cloud>/`, or your file-list tool's recursive option. If both canonical and fork-specific paths are empty, show both attempts:
+**Tool choice — required fallback to shell on empty result.** You may start with `list_dir` / your file-list tool's recursive option, BUT: `_data/snapshot/*` is gitignored, and tools that respect `.gitignore` (including `list_dir` in many workspaces) return empty even when files exist. If the initial listing returns **zero files**, you MUST run shell `find _data/snapshot/<cloud>/ -type f` as verification before treating the directory as empty. A genuine "no files" result requires shell-`find` confirmation. The same fallback applies to `ls -R` only if it was run via shell rather than a gitignore-respecting wrapper.
+
+If both canonical and fork-specific paths are empty per shell `find`, show both attempts:
 
 ```
 Snapshot enumeration (find _data/snapshot/zs3/ -type f): no files returned.
@@ -203,7 +205,9 @@ Evidence enumeration (find <working-dir>/_data/incidents/<slug>/evidence/ -type 
   - .../evidence/MANIFEST.md
 ```
 
-If the user's clarification about pre-existing logs (from Step 1) named a different path, enumerate that path too. If no evidence directory exists or the paths are empty, show the empty result:
+If the user's clarification about pre-existing logs (from Step 1) named a different path, enumerate that path too. **Same fallback rule as 2B.1**: `_data/incidents/*/evidence/` is gitignored by default — if `list_dir` or a file-list tool returns zero files, run shell `find` as verification before treating the directory as empty.
+
+If no evidence directory exists or the paths are empty per shell `find`, show the empty result:
 
 ```
 Evidence enumeration (find <working-dir>/_data/incidents/<slug>/evidence/ -type f): no files returned.
