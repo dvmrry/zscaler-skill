@@ -137,13 +137,13 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 - **Cost**: low (extend `check-hygiene.py`)
 - **Notes**: soft warning, not error. Useful indicator that a high-confidence claim isn't actually exercised by eval coverage.
 
-### Subtype-parameterize `/z-audit`
+### Subtype-parameterize `/z-audit` (lint subtypes only)
 
-- **Status**: Proposed (deferred until subtype #2 exists)
-- **Origin**: 2026-04-29 (during command rename discussion)
-- **Impact**: turn `/z-audit` from "lint flavor" into a parameterized command (`/z-audit lint`, `/z-audit policy`, `/z-audit access`, etc.)
-- **Cost**: low (rename existing playbook to `audit-lint-prompt.md`, add subtype routing in playbook body) — but the *real* cost is building the subtype playbooks, each of which is ~200 lines
-- **Notes**: see `audit-prompt.md` future-subtypes section. Decision point: when adding subtype #2 (probably `policy`), choose between auto-detect-from-scope vs. explicit-subtype-arg
+- **Status**: Proposed (most original subtypes moved to `/z-soc` instead)
+- **Origin**: 2026-04-29 (command rename discussion); partially redirected 2026-04-30 when `/z-soc` was created and absorbed the posture-shaped subtypes
+- **Impact**: split `/z-audit` into lint-shape subtypes — `/z-audit refs` (current default — kit reference doc lint) and `/z-audit tenant-config` (tenant config lint: orphan segments, disabled rules without rationale, unused URL categories, dead refs in tenant config). The originally-planned posture / access / coverage / activity subtypes are now `/z-soc` subtypes, not audit.
+- **Cost**: low to add `tenant-config` subtype playbook content (~100-150 lines) and parameterize the entry point. Auto-detect-from-scope or explicit-subtype-arg remains the design choice.
+- **Notes**: see `audit-prompt.md` § Future subtypes for the partition between audit (lint-shape) and `/z-soc` (posture-shape). Audit's role is hygiene; `/z-soc` is defensibility.
 
 ### Verified bundle library
 
