@@ -229,7 +229,21 @@ Now that docs are loaded, use them along with the entry-point rules below to pic
 
 If the docs you loaded in 2A name a more specific entry point than the table suggests, prefer the docs' guidance — they are more current.
 
-**Existing evidence files (from 2B.2 enumeration):** include every log / capture / dump the user identified as relevant in their Step 1 clarification reply, plus any `MANIFEST.md` files in the evidence directories. These are direct evidence — load them all (small files, high relevance). If the evidence directory has many large files (e.g., a packet capture > 100MB), preview the manifest first and load specific files based on what the user named or what the docs say is relevant.
+**Existing evidence files (from 2B.2 enumeration):** include every log / capture / dump the user identified as relevant in their Step 1 clarification reply, plus any `MANIFEST.md` files in the evidence directories. These are direct evidence — load them all (small files, high relevance).
+
+**Large-file handling — grep instead of full-read for files > 25 MB.** Some evidence files (raw LSS exports, packet captures, multi-day Splunk dumps) can be hundreds of MB; loading whole either fails the file-read tool or consumes the whole context window. Before adding such a file to the load plan, check its size (`ls -lh <path>`). If > 25 MB, do NOT load the whole file — instead:
+
+- Identify grep patterns from the framing's specifics: usernames, destination FQDN, source IP, timestamp window, error / status codes, segment names. Whatever uniquely identifies the events in scope.
+- Plan to use `grep -C 5 '<pattern>' <file>` (with `-C N` for context lines) at load time instead of full read. Capture grep output as the loaded content for that file.
+- In 2C's SELECTED block, mark these explicitly:
+
+```
+SELECTED:
+  - <small file>           (full read)
+  - <large log — 225MB>    (grep: '<pattern1>' '<pattern2>'  — file too large for full read)
+```
+
+If you can't derive grep patterns from the framing, halt and ask the user before 2D — *"<file> is <size>; what should I grep for?"* — rather than skipping the file or loading it blind.
 
 #### 2D — Load the selected snapshot files (entry points only)
 
