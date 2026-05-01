@@ -171,8 +171,6 @@ Same template as Step 3 with updated journal table. Banner reads `═══ INVE
 > **Halts at:** Checkpoint 1
 > **Side effects:** none — no file loads in this step
 
-**Your turn output must follow the Step 1 template defined in § Per-turn output format above. Do not deviate.** No ad-lib prose between sections, no decorative headers, no summary commentary outside the template. Use the template's banner, data blocks, clarifications, checkpoint menu, and end-marker exactly.
-
 Read the framing. Compose the data blocks below by filling in the bracketed fields. Use the **Framing → file mapping** to populate `PROPOSED LOADS`. Use the **Snapshot enumeration** procedure to list per-cloud config files individually.
 
 Your response prints two **data code blocks** followed by **plain-prose clarifications** and the checkpoint. Code blocks contain data only — never prompts.
@@ -290,8 +288,6 @@ After printing the PARSED FRAMING block, end your response with **literally** th
 > **Halts at:** Checkpoint 2
 > **Side effects:** invokes the file-read tool once per path in PROPOSED LOADS
 
-**Your turn output must follow the Step 2 template defined in § Per-turn output format above. Do not deviate.** Use the template's banner, LOADED block, GREP RESULTS block, checkpoint menu, and end-marker exactly. No ad-lib prose between sections.
-
 **Precondition:** Step 1's `PROPOSED LOADS` block was produced AND the user replied with explicit confirmation. If either is missing, halt with `Prior step not confirmed — cannot proceed to Step 2` and re-run Step 1.
 
 Step 2 has four sub-steps. **Do them in order — docs first, then snapshot.** Docs in context inform which snapshot files matter; selecting snapshot files without docs loaded produces uninformed bulk loads.
@@ -380,16 +376,7 @@ If you can't derive grep patterns from the framing, halt and ask the user before
 
 #### 2D — Load the selected snapshot files (entry points only)
 
-Use your **file-read tool** to load each entry-point file selected in 2C. **Do not load other snapshot files at this step**; chain-traversal on subsequent turns will load deeper links as needed.
-
-**JSON files under the 100 MB threshold get full file-read, NOT jq queries.** Loading is ingestion (full content into context); jq is for *searching* already-loaded content (Step 2E) or for working around files too big to load whole (large-file handling above). Do not substitute jq queries for file-read on normal-size JSON files — the agent must have full file content in context for hypothesis grounding.
-
-Reserve `jq` for:
-- **Step 2E** — querying loaded JSON for where User-flagged specifics appear in the structure
-- **Chain-traversal** — extracting IDs from one loaded file to identify the next file to `add:`
-- **Large-file handling** — files > 100 MB where full read isn't viable
-
-Plain `grep` follows the same rule: it's for searching loaded content or large-file extraction, not for substituting file-read on normal-size files.
+Use your file-read tool to load each entry-point file selected in 2C. **Do not load other snapshot files at this step**; chain-traversal on subsequent turns will load deeper links as needed.
 
 After all loads complete (docs from 2A + snapshot entry points + existing evidence from 2D), output the consolidated LOADED block (template below).
 
@@ -421,26 +408,6 @@ GREP RESULTS — User-flagged specifics in loaded content:
 ```
 
 If a User-flagged specific has zero matches across loaded content, that's a finding worth noting — either the token isn't in the loaded data (need on-demand `add:` of additional files) or the token doesn't appear anywhere in scope.
-
-**When the search finds matches in unloaded files, propose loading them automatically.** A backticked token is a load-bearing identifier; if it's documented in `references/` or `vendor/` but the relevant file isn't in LOADED, the agent must surface those files as recommended `add:` candidates rather than passively noting them. Add a `RECOMMENDED ADDITIONAL LOADS` section to the GREP RESULTS block when applicable:
-
-```
-GREP RESULTS — User-flagged specifics:
-  In LOADED content:
-    `BLK Cloud ZPA Global`:
-      _data/snapshot/zs3/zpa/server-groups.json: .[3].name
-  Elsewhere in kit (matches in unloaded files):
-    `NO_CONNECTOR_AVAILABLE`:
-      vendor/terraform-provider-zpa/zpa/validator.go:58
-      vendor/zscaler-sdk-go/.../lssconfigcontroller/...:105
-      references/shared/troubleshooting-methodology.md:52, 448
-
-RECOMMENDED ADDITIONAL LOADS (apply via `add:` at Checkpoint 2):
-  - vendor/terraform-provider-zpa/zpa/validator.go    (LSS reason code enum source)
-  - references/shared/troubleshooting-methodology.md  (named cause discussion)
-```
-
-The Checkpoint 2 menu's `add:` option is the explicit user-controlled mechanism for accepting these. Do not silently load — surface the recommendation and let the user `go` or `add: <path>` per their judgment. But always make the recommendation visible; never list "matches in unloaded files" without also pointing at which files would be worth loading.
 
 If `User-flagged specifics` is `none` in PARSED FRAMING, skip 2E.
 
@@ -515,8 +482,6 @@ End your response with **literally** this section:
 > **Output:** a discovery journal table (in chat) + the same journal written to disk
 > **Halts at:** Checkpoint 3 (after journal output + save)
 > **Side effects:** writes / updates `_data/incidents/<slug>/journal.md` via your file-write tool
-
-**Your turn output must follow the Step 3 template defined in § Per-turn output format above. Do not deviate.** Use the template's banner, journal table, ROOT CAUSE HYPOTHESIS / NEXT STEP / JOURNAL SAVED lines, checkpoint menu, and end-marker exactly. No ad-lib prose between sections.
 
 **Precondition:** Step 2's `LOADED` block was produced AND the user replied with explicit confirmation. If either is missing, halt with `Prior step not confirmed — cannot proceed to Step 3` and re-run the missing step.
 
