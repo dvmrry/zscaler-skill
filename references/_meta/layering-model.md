@@ -28,7 +28,7 @@ The skill answers questions by combining three distinct **knowledge layers**. Ea
 - `vendor/zscaler-sdk-{python,go}/` — SDK source.
 - `vendor/terraform-provider-{zia,zpa,ztc}/` — TF provider schemas.
 - `vendor/zscaler-api-specs/` — Postman collection.
-- `references/_primer/` — prerequisite networking + identity knowledge.
+- `references/_meta/primer/` — prerequisite networking + identity knowledge.
 
 **Authority pattern:** sourced from Zscaler-published material. Confidence label per doc; source-tier indicates the type of source (`doc` / `code` / `mixed`).
 

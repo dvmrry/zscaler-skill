@@ -161,7 +161,7 @@ Some concerns aren't tied to one product but cut across all of them:
 - **Source IP Anchoring (SIPA)** — keeps customer-controlled IPs visible to destinations through Zscaler.
 - **Device Posture** — cross-product (ZCC evaluates, ZPA + ZIA consume).
 
-Each has a doc under `references/shared/` or `references/_primer/`.
+Each has a doc under `references/shared/` or `references/_meta/primer/`.
 
 ## Out-of-scope products to recognize but not deep-dive
 

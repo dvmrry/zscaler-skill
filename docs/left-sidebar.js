@@ -24,7 +24,7 @@
   // (welcome, zia, zpa, cloud-connector); others are standalone product
   // sections that don't yet have articles.
   const GROUP_LABELS = {
-    '_primer': 'Welcome',
+    '_meta': 'Meta',
     'zia': 'ZIA',
     'zpa': 'ZPA',
     'cloud-connector': 'Cloud Connector',
@@ -53,7 +53,7 @@
     'workflow-automation': 'Workflow Automation',
   };
   const GROUP_ORDER = [
-    '_primer',  // Welcome
+    '_meta',  // Welcome / kit-meta docs (primer, agent-patterns, layering-model, etc.)
     // Tier 1 — core products
     'zia', 'zpa', 'cloud-connector',
     'zcc', 'zdx', 'zidentity',
@@ -350,12 +350,12 @@
       return p || '_portfolio-map';
     }
     // On non-source pages, infer the section from the URL path.
-    const m = location.pathname.match(/\/(zia|zpa|cloud-connector|zcc|zdx|zidentity|zbi|zwa|zms|ai-security|risk360|deception|shared|_primer)(?:\/|$)/);
+    const m = location.pathname.match(/\/(zia|zpa|cloud-connector|zcc|zdx|zidentity|zbi|zwa|zms|ai-security|risk360|deception|shared|_meta)(?:\/|$)/);
     if (m) return m[1];
     // Reader's guide and onboarding live under Welcome → expand the
-    // _primer group since those primers are conceptually part of the
+    // _meta group since those primers are conceptually part of the
     // welcome cluster.
-    if (/(readers-guide|onboarding)\.html$/.test(location.pathname)) return '_primer';
+    if (/(readers-guide|onboarding)\.html$/.test(location.pathname)) return '_meta';
     return null;
   }
 
