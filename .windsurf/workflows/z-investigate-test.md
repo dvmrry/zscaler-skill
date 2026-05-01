@@ -55,15 +55,49 @@ Every turn's response must follow the per-step template literally. Each turn ope
 
 ### Rendering convention — what's a code block vs plain text
 
-In each step's template below, the outer ` ``` ` fences are **just for rendering this spec doc** — they're not literal output. When you produce a turn, render each section per this convention:
+The template specs below show entire turns wrapped in a single outer ` ``` ` fence — that fence is **just markup for this spec doc** so it renders as a unit. **The outer fence is NOT in your output.** Inside your turn, individual sections render differently — most data sections need their OWN ` ``` ` fences (one pair per data block):
 
-- **Banner lines** (`═══ STEP N — ... ═══`) → **plain text**, NOT inside a code block.
-- **Data blocks** (`PARSED FRAMING`, `PROPOSED LOADS`, `LOADED`, `GREP RESULTS`) → **fenced code blocks** (` ``` ` … ` ``` `). Data is structured for parsing; code blocks preserve formatting and signal "this is data, not prose."
-- **Journal table** (Step 3) → **markdown table syntax**, NOT inside a code block. Tables only render as tables outside code fences.
-- **Checkpoint menu** → **plain text** with the `═══ CHECKPOINT N — AWAITING USER ═══` line and bulleted options. Not in a code block (so the menu is readable, not monospace).
-- **End-marker** (`═══════════════════════════════════════`) → **plain text** as the final line.
+| Section type | Output format | Example marker |
+|---|---|---|
+| Banner line | plain text (no fence) | `═══ STEP 1 — PARSE FRAMING ═══` |
+| `PARSED FRAMING` data block | wrap in own ` ``` ` fence | open with ` ``` ` , close with ` ``` ` |
+| `PROPOSED LOADS` data block | wrap in own ` ``` ` fence | open / close ` ``` ` |
+| `LOADED` data block | wrap in own ` ``` ` fence | open / close ` ``` ` |
+| `GREP RESULTS` data block | wrap in own ` ``` ` fence | open / close ` ``` ` |
+| Journal table (Step 3) | markdown table syntax — **NO fence** (tables only render outside fences) | `\| Claim \| Source \| ...` |
+| `CLARIFICATIONS` block | plain text bulleted | numbered list |
+| Checkpoint menu | plain text bulleted | `═══ CHECKPOINT N — AWAITING USER ═══` then bullets |
+| End-marker | plain text | `═══════════════════════════════════════` |
 
-The rule of thumb: if Windsurf's chat needs to render it as a table or bulleted menu, plain markdown. If it's structured data the user reads field-by-field (or jq parses), fenced code block.
+So a typical Step 1 turn looks like (line-by-line, "literal output"):
+
+```
+═══ STEP 1 — PARSE FRAMING ═══
+
+```
+PARSED FRAMING:
+  Symptom: ...
+  ...
+```
+
+```
+PROPOSED LOADS (Step 2A — docs only):
+  - ...
+```
+
+CLARIFICATIONS:
+  1. ...
+
+═══ CHECKPOINT 1 — AWAITING USER ═══
+  go               — ...
+  correct: <field> — ...
+  ...
+═══════════════════════════════════════
+```
+
+Each ` ``` ` shown above IS literal in your output. The agent emits two open-fence and two close-fence markers (one pair around PARSED FRAMING, one pair around PROPOSED LOADS), with banners/menus as plain text between them.
+
+The rule of thumb: if Windsurf's chat needs to render it as a table or bulleted menu, plain markdown. If it's structured data the user reads field-by-field (or jq parses), fenced code block — and you must emit the fence markers explicitly.
 
 ### Step 1 turn
 
