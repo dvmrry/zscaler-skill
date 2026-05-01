@@ -422,6 +422,26 @@ GREP RESULTS — User-flagged specifics in loaded content:
 
 If a User-flagged specific has zero matches across loaded content, that's a finding worth noting — either the token isn't in the loaded data (need on-demand `add:` of additional files) or the token doesn't appear anywhere in scope.
 
+**When the search finds matches in unloaded files, propose loading them automatically.** A backticked token is a load-bearing identifier; if it's documented in `references/` or `vendor/` but the relevant file isn't in LOADED, the agent must surface those files as recommended `add:` candidates rather than passively noting them. Add a `RECOMMENDED ADDITIONAL LOADS` section to the GREP RESULTS block when applicable:
+
+```
+GREP RESULTS — User-flagged specifics:
+  In LOADED content:
+    `BLK Cloud ZPA Global`:
+      _data/snapshot/zs3/zpa/server-groups.json: .[3].name
+  Elsewhere in kit (matches in unloaded files):
+    `NO_CONNECTOR_AVAILABLE`:
+      vendor/terraform-provider-zpa/zpa/validator.go:58
+      vendor/zscaler-sdk-go/.../lssconfigcontroller/...:105
+      references/shared/troubleshooting-methodology.md:52, 448
+
+RECOMMENDED ADDITIONAL LOADS (apply via `add:` at Checkpoint 2):
+  - vendor/terraform-provider-zpa/zpa/validator.go    (LSS reason code enum source)
+  - references/shared/troubleshooting-methodology.md  (named cause discussion)
+```
+
+The Checkpoint 2 menu's `add:` option is the explicit user-controlled mechanism for accepting these. Do not silently load — surface the recommendation and let the user `go` or `add: <path>` per their judgment. But always make the recommendation visible; never list "matches in unloaded files" without also pointing at which files would be worth loading.
+
 If `User-flagged specifics` is `none` in PARSED FRAMING, skip 2E.
 
 #### LOADED block (output of 2D)
