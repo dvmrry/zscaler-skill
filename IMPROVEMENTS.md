@@ -61,6 +61,15 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 - **Cost**: medium-to-high. Needs a workflow that calls Claude (via the GitHub action — anthropic/claude-code-action or equivalent), passes the failure context, and lets the agent push to a fix branch. Plus playbook content to handle "self-maintenance" as a recognized workflow shape.
 - **Notes**: Claude-specific by design (uses Agent tool, CC's slash command surface). Not a cross-agent pattern. Conceptually the right "endgame" for closing the action loop, but real cost — defer until the manual loop (pre-push + branch protection + status badge + occasional manual `/z-investigate` on failures) demonstrably becomes a bottleneck. Until then, manual is fine.
 
+### Per-claim citation discipline — script + audit pass
+
+- **Status**: Proposed (real gap; needs real attention)
+- **Origin**: 2026-05-01 — surfaced when sampling reference files to spot-check citation density. `app-connector.md`: 14 vendor refs in body but only 1 file:line citation and 2 inline `(Source:)` patterns; `troubleshooting-methodology.md`: only 1 source in frontmatter for a `confidence: high` doc; many ZIA files use `Tier A/B/C/D` markers, others don't. Pattern across the kit is uneven.
+- **Impact**: the methodology says *"every claim has a source"*, but `check-hygiene.py` and `check-citations.sh` validate structure (frontmatter parses, citation paths resolve, dates are current) — they don't validate semantic completeness (does each body claim have an inline source). So claims slip through uncited. The kit's "soft + hard pairings" principle is unfulfilled here: the soft rule has no working hard check.
+- **Proposed mitigation**: paragraph-level citation script that splits body into paragraphs (blank-line separated), counts paragraphs with at least one citation marker (`Tier A/B/C/D`, `(Source:)`, `file:line`, `https://help.zscaler`, markdown link to `vendor/` or `references/`), and flags files below ~80% citation coverage. Imperfect — false positives on transition / setup paragraphs without claims; can't distinguish load-bearing from stylistic. But surfaces the obvious "long doc, few citations" cases for human audit.
+- **Cost**: low to write the script (~50-100 lines Python). Real cost is the audit pass to bring flagged files up to standard — could be days of work depending on how many files fall below the threshold.
+- **Notes**: real reference work cites per claim, sometimes per sentence. The kit currently relies on frontmatter `sources:` declarations to "cover" the body, which is a softer form of citation than the methodology asks for. Not blocking the alpha; not something to defer indefinitely either. When this lands, expect a sweep PR per-product (zia, zpa, etc.) bringing citation density up to standard.
+
 ### Close the `source.html?p=...` validation gap
 
 - **Status**: Proposed
