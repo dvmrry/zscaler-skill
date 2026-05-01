@@ -44,7 +44,7 @@ If you find yourself proposing ten or more files in PROPOSED LOADS, pause — yo
 
 Load-bearing fact. If you find yourself reasoning against this, stop — you are off-track.
 
-- ZPA session assignment is gated by connector eligibility — an empty `Connector` field in LSS means no connector was assigned; the fix is on the eligibility side, not the connector-to-app hop.
+- ZPA session assignment is gated by connector eligibility (`CONNECTED` status + target reachability via `AliveTargetCount` + group association). An empty `Connector` field in LSS means no connector was assigned — the fix is on the eligibility side, not the connector-to-app hop.
 
 ---
 
