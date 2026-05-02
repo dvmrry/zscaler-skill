@@ -131,24 +131,22 @@ There is no ZCC Terraform provider in the vendor sources. SSL inspection configu
 
 ## Diagnosing "browser shows the original cert, not Zscaler's intermediate"
 
-A common symptom is "the browser shows the destination's original certificate, not the Zscaler intermediate — SSL inspection isn't happening." Three distinct root causes, only one of which is actually a ZCC SSL-inspection misconfiguration:
+The symptom is "the browser shows the destination's original certificate, not the Zscaler intermediate — SSL inspection isn't happening." Two well-documented root causes plus the cert-install case:
 
 1. **Traffic is bypassing ZIA entirely** — if the user's Forwarding Profile sends traffic direct on this network type (e.g., `actionType = NONE` on the active branch, see [`./forwarding-profile.md`](./forwarding-profile.md)), or if the destination is in the App Profile's VPN Gateway Bypass / Destination Exclusions list (see [`./z-tunnel.md`](./z-tunnel.md) § Bypass semantics), ZIA never sees the traffic and no inspection happens. **The original cert is correct in this case** — there is no Zscaler interception. Check forwarding-profile actions and bypass lists first, before suspecting SSL config.
 
-2. **QUIC / HTTP3 traffic** — Safari (and Chrome to a lesser extent) uses QUIC over UDP 443 for many destinations. ZIA's forward proxy operates on TCP — **QUIC traffic skips ZIA proxy inspection entirely**, even when the user is on a network that should otherwise tunnel through ZIA. Result: no ZIA logs for the request, original destination cert visible, Cloud App Control / URL Filtering rules don't fire. The lever is `dropQuicTraffic` in PolicyExtension (`webpolicy.py:417`) or a Cloud Firewall rule blocking UDP 443 — see [`./forwarding-profile.md § QUIC / HTTP3 traffic bypasses`](./forwarding-profile.md). **This is increasingly the answer when a "browser-specific" SSL inspection failure is reported** — Safari is the most common trigger because of its aggressive QUIC defaults.
+2. **The destination is in ZIA's Do Not Inspect SSL category** — managed in ZIA SSL inspection policy, not ZCC. Banking, healthcare, and certain SaaS categories are commonly in Do-Not-Inspect lists. ZIA still sees and logs the connection (so logs *do* exist) but doesn't decrypt — original cert is preserved. See `references/zia/ssl-inspection.md`.
 
-3. **The destination is in ZIA's Do Not Inspect SSL category** — managed in ZIA SSL inspection policy, not ZCC. Banking, healthcare, and certain SaaS categories are commonly in Do-Not-Inspect lists. ZIA still sees and logs the connection (so logs *do* exist, unlike the QUIC case) but doesn't decrypt — original cert is preserved. See `references/zia/ssl-inspection.md`.
-
-Diagnostic flow:
+Diagnostic flow for these cases:
 
 | ZIA logs present? | Original cert visible? | Likely cause |
 |---|---|---|
-| No | Yes | **Traffic bypassing ZIA** — check Forwarding Profile actions, App Profile bypasses, or QUIC (UDP 443) routing |
+| No | Yes | **Traffic bypassing ZIA** — check Forwarding Profile actions and App Profile bypasses |
 | Yes (with TLS handshake details but no decrypt) | Yes | Destination in ZIA Do-Not-Inspect category — by design |
 | Yes, with decrypted URL detail | No (Zscaler intermediate visible) | SSL inspection working as intended |
 | Yes, with decrypted URL detail | Yes (browser cert error) | Cert install gap — Zscaler CA not in OS/browser trust store; check the per-platform App Profile `install_ssl_certs` (or `installCerts`) field per [§ Certificate trust by platform](#certificate-trust-by-platform) |
 
-The "no logs + original cert" combination is the QUIC bypass case in roughly all observed instances on Safari/macOS. Confirm before suspecting cert config.
+A third hypothesis — that QUIC / HTTP3 traffic bypasses ZIA proxy inspection in WebKit-class browsers — is **operator-reported but unverified** and tracked as an open item below rather than promoted to diagnostic guidance.
 
 ---
 
@@ -173,6 +171,7 @@ The primary vendor source for ZCC-side SSL inspection configuration (`help.zscal
 - Whether ZCC supports inline SSL inspection (acting as a local proxy) or only defers to ZIA cloud inspection — **unanswered**. ZCC's `redirectWebTraffic` and listening-proxy behavior in Z-Tunnel 2.0 (see [`./z-tunnel.md`](./z-tunnel.md)) operate at the tunnel/forwarding layer; whether they perform any inspection or just forwarding remains undocumented.
 - Per-app SSL bypass at the ZCC level (vs ZIA policy-level bypass) — **partially answered**. ZCC App Profile has `bypass_app_ids`, `bypass_custom_app_ids`, `app_identity_names`, `app_service_ids` fields (see [`./web-policy.md § App bypass fields`](./web-policy.md)) that exclude apps from ZCC interception entirely — those apps don't enter the Z-Tunnel and therefore don't reach ZIA inspection. Whether there's a separate "ZCC SSL bypass" mechanism distinct from this app-level bypass is undocumented.
 - iOS cert install via MDM — what specific MDM payload type and CA identifier does Zscaler recommend? Not in the captured sources.
+- **WebKit-class browsers ignoring SSL inspection in some tenant configs** — operator-reported scenario (2026-05-01): copilot.microsoft.com → m365.cloud.microsoft redirect rule fires on Chrome and Edge but not Safari on the same machine; no ZIA logs for the Safari traffic; original Microsoft cert visible; same machine works fine on a different ZPA tenant. Hypothesised root cause is QUIC / HTTP3 bypass (Safari uses UDP 443 aggressively; ZIA forward proxy is TCP-only) but this hypothesis was not verified before site visit. The `dropQuicTraffic` field in `PolicyExtension` (`webpolicy.py:417`) and Cloud Firewall rules blocking UDP 443 are candidate levers, neither tested. Resolution requires a tenant-side test once onsite. **Do not treat the QUIC hypothesis as documented behavior until verified.**
 
 ---
 
