@@ -4,7 +4,7 @@ topic: "zcc-z-tunnel"
 title: "Z-Tunnel 1.0 vs 2.0 — architecture, deployment, and bypass semantics"
 content-type: reasoning
 last-verified: "2026-05-01"
-confidence: high
+confidence: medium
 source-tier: doc
 sources:
   - "https://help.zscaler.com/zscaler-client-connector/about-z-tunnel-1.0-z-tunnel-2.0"
@@ -31,7 +31,7 @@ Two very different tunneling architectures:
 |---|---|---|
 | Transport model | HTTP CONNECT-request-based proxy | DTLS or TLS packet tunnel |
 | Scope of traffic carried | Proxy-aware traffic, or port 80/443 only | **All ports and protocols** |
-| Driver requirement | Packet Filter driver | Packet Filter driver |
+| Driver requirement | Packet Filter driver (`about-z-tunnel-1.0-z-tunnel-2.0.md:21`) | Packet Filter driver (`about-z-tunnel-1.0-z-tunnel-2.0.md:21`) |
 | Fallback behavior | N/A (the fallback target) | Falls back to 1.0 on tunnel failure |
 | Primary use case today | Legacy tenants, GRE-adjacent offices, specific-PAC-routed traffic | Default for new deployments |
 | Bypass location | App-profile PAC | **VPN Gateway Bypasses + Destination Exclusions/Inclusions + Port-based + Domain-based (PAC)** — fundamentally different |
@@ -49,14 +49,15 @@ From the *About Z-Tunnel 1.0 & Z-Tunnel 2.0* help article (`about-z-tunnel-1.0-z
 Key implications:
 
 - **HTTP/HTTPS only** (proxy-aware + 80/443). UDP, non-web TCP, ICMP, etc. are not carried by 1.0 — they either pass direct or are blocked at the local firewall, depending on policy.
-- A CONNECT-based tunnel is compatible with enterprise network-layer proxies and appliances that understand HTTP proxies. Easier to thread through existing infrastructure.
+- Z-Tunnel 1.0 still requires the **packet filter driver** to be enabled on the endpoint (`about-z-tunnel-1.0-z-tunnel-2.0.md:21`) — the driver intercepts traffic at the kernel layer; the CONNECT-proxy framing is what happens above the driver, not a replacement for it. A reader expecting "1.0 is just a userspace proxy, no driver needed" will be wrong.
+- The CONNECT format above the driver makes 1.0 compatible with enterprise network-layer proxies and appliances that understand HTTP proxies. Easier to thread through existing infrastructure than 2.0's packet tunnel.
 - Not suitable for applications that use non-standard ports or protocols (many SaaS desktop clients, voice apps, some gaming traffic). Those get bypassed if not explicitly covered.
 
 ### Z-Tunnel 2.0 architecture
 
 > Z-Tunnel 2.0 has a tunneling architecture that uses DTLS or TLS to send packets to the Zscaler service. Because of this, Z-Tunnel 2.0 is capable of sending all ports and protocols. (`about-z-tunnel-1.0-z-tunnel-2.0.md:29`)
 
-- **DTLS or TLS** — the help article names both transports without stating a precedence order (`about-z-tunnel-1.0-z-tunnel-2.0.md:29`). The `allow_tls_fallback` flag on forwarding profile actions (`forwarding-profile.md § ForwardingProfileActions`) implies DTLS is preferred with TLS as fallback, but this ordering is **inferred from the flag name**, not stated in the help docs. Treat as Confidence: medium.
+> ⚠️ **DTLS-primary / TLS-fallback ordering is INFERRED, not documented.** The help article names both transports together at line 29 without precedence language. The `allow_tls_fallback` flag on forwarding profile actions implies DTLS is preferred with TLS as fallback, but this ordering is **derived from the flag name only** — no captured help article confirms it. **Confidence: medium.** When a customer reports Z-Tunnel 2.0 transport failures and asks "is it DTLS first?", say so explicitly.
 - Packet-level tunnel carries **all** IP protocols — UDP, non-standard TCP ports, ICMP, etc. The whole endpoint's traffic can be covered.
 - Requires NAT with single egress IP per device (strict requirement, not a soft recommendation).
 - **Do not route Z-Tunnel 2.0 through GRE tunnels.** Double-encapsulation causes performance issues. Workarounds: (a) configure the forwarding profile to fall back to Z-Tunnel 1.0 when Trusted Network Criteria are met (keeping the corporate-LAN flow on the simpler 1.0), or (b) add a policy-based route on the upstream router that excludes Z-Tunnel 2.0 traffic from the GRE tunnel.

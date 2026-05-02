@@ -74,7 +74,7 @@ Do not pass empty strings vs. null interchangeably — the SDK surfaces both as 
 
 ## `condition_type` — how criteria combine
 
-The `condition_type` field decides whether ZCC requires **all** configured criteria to match (AND — strict) or **any** one of them (OR — permissive).
+The `condition_type` field on a TrustedNetwork decides whether ZCC requires **all** configured criteria within this TrustedNetwork to match (AND — strict) or **any** one of them (OR — permissive). **Distinct from the `conditionType` field on `ForwardingProfile`** — that one combines the profile's inline criteria with its referenced TrustedNetworks at a higher level. See [`./forwarding-profile.md § The profile object`](./forwarding-profile.md). The two fields share a wire name but operate at different levels of the criteria tree.
 
 **Critical type note**: The Go SDK (`trusted_network.go:22`) declares this field as `int` with no `omitempty` — zero is a valid wire value. **The Python client docstring (`trusted_networks.py:102`) incorrectly documents it as `condition_type (str):`** — this is a bug in the Python docs. The Python model (`trustednetworks.py:39`) reads it as untyped `Any` (`config["conditionType"]`) so doesn't enforce either. The Go struct is the ground-truth wire definition: send `int`, not string. **The specific integer-to-meaning mapping is not enumerated in either SDK** — see [`clarification zcc-06`](../_meta/clarifications.md#zcc-06-trustednetwork-condition_type-enum). Lab-test against a real tenant to determine which int maps to AND vs OR.
 
@@ -158,16 +158,14 @@ condition_type = AND
 
 ```
 trusted_egress_ips = 203.0.113.10, 203.0.113.11
-condition_type = AND (only criterion)
 ```
 
-Reliable for offices with stable NAT egress. Fails for home users behind carrier-grade NAT or dynamic ISP IPs.
+Reliable for offices with stable NAT egress. Fails for home users behind carrier-grade NAT or dynamic ISP IPs. With a single criterion, AND vs OR is semantically identical.
 
 ### Weak single-criterion (Wi-Fi SSID only)
 
 ```
 ssids = Corp-WiFi
-condition_type = AND (only criterion)
 ```
 
 Weak alone — SSIDs are trivially forged. Use as a sub-criterion within an AND alongside DHCP or gateway checks.
@@ -249,9 +247,9 @@ Query params for `list_by_company`: `page` (int), `page_size` (int), `search` (s
 
 **Response envelope**: The list endpoint wraps results under `trustedNetworkContracts`, not at the top-level array. The Go SDK unwraps it via `TrustedNetworksResponse.TrustedNetworkContracts []TrustedNetwork` (`trusted_network.go:38–41`); the Python SDK unwraps it at `trusted_networks.py:86`: `trusted_networks = response_body.get("trustedNetworkContracts", [])`. Any custom lister (snapshot-refresh.py or similar) must unwrap this key.
 
-**Create doesn't return the new object**: POST `/create` returns only `{success, errorCode}` — not the created TrustedNetwork (`trusted_network.go:47–50`). The Go SDK works around this by retrying `GetTrustedNetworkByName` up to 6 times with 2-second delays after create (`trusted_network.go:154–166`). The Python SDK doesn't implement this retry — callers using the Python SDK must re-fetch manually after create.
+**Create doesn't return the new object**: POST `/create` returns only `{success, errorCode}` — not the created TrustedNetwork. Documented in the Go SDK comment block at `trusted_network.go:43–46` ("The contract (id, networkName, etc.) is not returned; resolve the resource via `GetTrustedNetworkByName` after create"); struct definition at `trusted_network.go:47–50`. The Go SDK works around this by retrying `GetTrustedNetworkByName` up to 6 times with 2-second delays after create (`trusted_network.go:154–166`). The Python SDK doesn't implement this retry — callers using the Python SDK must re-fetch manually after create.
 
-**Update requires ID on the request body**: PUT `/edit` validates that `id` is non-empty before sending (`trusted_network.go:179–181`). Omitting the ID returns an error. The Python SDK (`trusted_networks.py:165`) passes kwargs through without this guard — callers must include `id` themselves.
+**Update requires ID on the request body**: PUT `/edit` validates that `id` is non-empty before sending (`trusted_network.go:179–181`). Omitting the ID returns an error. The Python SDK passes kwargs straight to the request body via `body.update(kwargs)` (`trusted_networks.py:201`) without checking for `id` — callers must include `id` themselves or the API will reject the call without a clear client-side error.
 
 **Error code semantics**: The mutation response treats `errorCode = "0"` as success; any other non-empty string is a failure (`trusted_network.go:53`). Don't test `errorCode` for truthiness alone — `"0"` is truthy in Python but means success.
 
