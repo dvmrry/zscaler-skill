@@ -3,7 +3,7 @@ product: zcc
 topic: "zcc-z-tunnel"
 title: "Z-Tunnel 1.0 vs 2.0 — architecture, deployment, and bypass semantics"
 content-type: reasoning
-last-verified: "2026-04-24"
+last-verified: "2026-05-01"
 confidence: high
 source-tier: doc
 sources:
@@ -36,13 +36,13 @@ Two very different tunneling architectures:
 | Primary use case today | Legacy tenants, GRE-adjacent offices, specific-PAC-routed traffic | Default for new deployments |
 | Bypass location | App-profile PAC | **VPN Gateway Bypasses + Destination Exclusions/Inclusions + Port-based + Domain-based (PAC)** — fundamentally different |
 
-Z-Tunnel 2.0 requires a **single-IP NAT** — all connections from one device must egress through the same NAT IP. Otherwise control and data connections can land on different Public Service Edges, Z-Tunnel 2.0 fails to establish, and falls back to Z-Tunnel 1.0 silently. This is the #1 misconfiguration when a tenant reports "we deployed 2.0 but users keep running on 1.0."
+Z-Tunnel 2.0 requires a **single-IP NAT** — all connections from one device must egress through the same NAT IP. Otherwise control and data connections can land on different Public Service Edges, Z-Tunnel 2.0 fails to establish, and falls back to Z-Tunnel 1.0 silently (`about-z-tunnel-1.0-z-tunnel-2.0.md:27`). This is the #1 misconfiguration when a tenant reports "we deployed 2.0 but users keep running on 1.0."
 
 ## Mechanics
 
 ### Z-Tunnel 1.0 architecture
 
-From the *About Z-Tunnel 1.0 & Z-Tunnel 2.0* help article:
+From the *About Z-Tunnel 1.0 & Z-Tunnel 2.0* help article (`about-z-tunnel-1.0-z-tunnel-2.0.md:19`):
 
 > Z-Tunnel 1.0 forwards traffic to the Zscaler cloud via CONNECT requests, much like a traditional proxy. Z-Tunnel 1.0 sends all proxy-aware traffic or port 80/443 traffic to the Zscaler service, depending on the forwarding profile configuration.
 
@@ -54,9 +54,9 @@ Key implications:
 
 ### Z-Tunnel 2.0 architecture
 
-> Z-Tunnel 2.0 has a tunneling architecture that uses DTLS or TLS to send packets to the Zscaler service. Because of this, Z-Tunnel 2.0 is capable of sending all ports and protocols.
+> Z-Tunnel 2.0 has a tunneling architecture that uses DTLS or TLS to send packets to the Zscaler service. Because of this, Z-Tunnel 2.0 is capable of sending all ports and protocols. (`about-z-tunnel-1.0-z-tunnel-2.0.md:29`)
 
-- **DTLS primary, TLS fallback** (the `allow_tls_fallback` flag on forwarding profile actions controls this — see [`./forwarding-profile.md § ForwardingProfileActions`](./forwarding-profile.md)).
+- **DTLS or TLS** — the help article names both transports without stating a precedence order (`about-z-tunnel-1.0-z-tunnel-2.0.md:29`). The `allow_tls_fallback` flag on forwarding profile actions (`forwarding-profile.md § ForwardingProfileActions`) implies DTLS is preferred with TLS as fallback, but this ordering is **inferred from the flag name**, not stated in the help docs. Treat as Confidence: medium.
 - Packet-level tunnel carries **all** IP protocols — UDP, non-standard TCP ports, ICMP, etc. The whole endpoint's traffic can be covered.
 - Requires NAT with single egress IP per device (strict requirement, not a soft recommendation).
 - **Do not route Z-Tunnel 2.0 through GRE tunnels.** Double-encapsulation causes performance issues. Workarounds: (a) configure the forwarding profile to fall back to Z-Tunnel 1.0 when Trusted Network Criteria are met (keeping the corporate-LAN flow on the simpler 1.0), or (b) add a policy-based route on the upstream router that excludes Z-Tunnel 2.0 traffic from the GRE tunnel.
@@ -86,7 +86,7 @@ Field: "Hostname or IP Address Bypass for VPN Gateway" on the App Profile.
 - Accepts IPs, subnets, or FQDNs.
 - When configured, the endpoint's kernel filter **ignores matching traffic entirely** — it never reaches ZCC's processing pipeline. Maximum-speed bypass.
 - FQDN entries are DNS-resolved by ZCC at bypass-evaluation time, adding DNS-resolution steps. A hostname with volatile IPs (CDN, CGN) creates ongoing DNS-resolution churn.
-- **Highest priority over all other bypass types.** If an IP is in VPN Gateway Bypasses and also in Destination Exclusions, VPN Gateway wins.
+- **Highest priority over all other bypass types.** If an IP is in VPN Gateway Bypasses and also in Destination Exclusions, VPN Gateway wins. (`best-practices-adding-bypasses-z-tunnel-2.0.md:25`)
 
 #### 2. Destination Exclusions and Inclusions (subnet-based)
 
@@ -124,7 +124,7 @@ Needed because domain-name apps (CDN-fronted SaaS like `*.salesforce.com`) can't
 - **Redirect Web Traffic to Zscaler Client Connector Listening Proxy** — TCP 80/443 traffic goes through ZCC's local listening proxy; other ports/protocols go direct to 2.0. The bypass rules in the app-profile PAC apply to the listening proxy's traffic — no forwarding-profile PAC needed.
 - **Use Z-Tunnel 2.0 for Proxied Web Traffic** — web traffic arriving at the listening proxy is tunneled via 2.0 protocol. **Only applies to the PAC's default return statement**; traffic matching a specific PAC statement that routes to a particular Service Edge silently uses Z-Tunnel 1.0. This is the subtle interaction that the PAC author needs to know about.
 
-Truth table for the two 3.8+ flags, from the Bypasses article:
+Truth table for the two 3.8+ flags (`best-practices-adding-bypasses-z-tunnel-2.0.md:129–135`):
 
 | `Redirect Web Traffic to ZCC Listening Proxy` | `Use Z-Tunnel 2.0 for Proxied Web Traffic` | Web traffic | Non-web traffic |
 |---|---|---|---|
@@ -139,23 +139,23 @@ This truth table **partially resolves [`clarification zcc-05`](../_meta/clarific
 From the Migration article:
 
 - **Tunnel mode and driver are per-forwarding-profile.** Tenants can run Z-Tunnel 1.0 and 2.0 simultaneously by maintaining two forwarding profiles scoped to different user/device groups.
-- **Z-Tunnel 2.0 → 1.0 fallback is automatic.** When 2.0 can't establish (single-IP NAT failure, Service Edge split-landing, etc.), ZCC falls back to 1.0 on the same connection attempt. `tunnel2_fallback` on the `ForwardingProfileActions` controls whether fallback is allowed at all.
-- **Phased rollout pattern** (recommended by Zscaler): (1) create test group + test forwarding profile + test app profile; (2) block ICMP as a baseline test for 2.0 covering non-web traffic; (3) exclude internal network ranges via Destination Exclusions; (4) 1-2 weeks observation; (5) batch rollout in 100-200-user increments.
+- **Z-Tunnel 2.0 → 1.0 fallback is automatic.** When 2.0 can't establish (single-IP NAT failure, Service Edge split-landing, etc.), ZCC falls back to 1.0 on the same connection attempt (`about-z-tunnel-1.0-z-tunnel-2.0.md:27`). `tunnel2_fallback` on the `ForwardingProfileActions` controls whether fallback is allowed at all.
+- **Phased rollout pattern** (recommended by Zscaler): (1) create test group + test forwarding profile + test app profile; (2) block ICMP as a baseline test for 2.0 covering non-web traffic; (3) exclude internal network ranges via Destination Exclusions; (4) 1-2 weeks observation; (5) batch rollout in 100-200-user increments (`best-practices-deploying-z-tunnel-2.0.md:104`, `migrating-z-tunnel-1.0-z-tunnel-2.0.md:132`).
 
 ### 5-Phase deployment checklist
 
 Codified from the Deployment Best Practices article for quick reference in skill answers:
 
-| Phase | Step |
-|---|---|
-| 1 | Create a test user group (synced between ZIA User Management and ZCC Directory Sync) |
-| 1 | Create a new forwarding profile — `Tunnel Driver Type: Packet Filter-Based`, `On-Trusted Network: Tunnel`, `Tunnel Version: Z-Tunnel 2.0`, VPN-Trusted and Off-Trusted set to "Same as On-Trusted" |
-| 1 | Create a new app profile — `Rule Order: 1`, enable `Install Zscaler SSL Certificate`, link to the test forwarding profile, scope to the test user group |
-| 1 | Assign a supported ZCC version to the test users via App Store app-update config |
-| 2 | Initial ICMP test — ping baseline, create firewall rule to block ICMP, verify block |
-| 3 | Exclude internal network ranges via IPv4/IPv6 Exclusion list on app profile |
-| 4 | 1-2 week observation window — top business-application testing |
-| 5 | Batch rollout in 100-200-user increments, with business-app verification per batch |
+| Phase | Step | Source |
+|---|---|---|
+| 1 | Create a test user group (synced between ZIA User Management and ZCC Directory Sync) | `best-practices-deploying-z-tunnel-2.0.md:19` |
+| 1 | Create a new forwarding profile — `Tunnel Driver Type: Packet Filter-Based`, `On-Trusted Network: Tunnel`, `Tunnel Version: Z-Tunnel 2.0`, VPN-Trusted and Off-Trusted set to "Same as On-Trusted" | `best-practices-deploying-z-tunnel-2.0.md:19` |
+| 1 | Create a new app profile — `Rule Order: 1`, enable `Install Zscaler SSL Certificate`, link to the test forwarding profile, scope to the test user group | `best-practices-deploying-z-tunnel-2.0.md:19` |
+| 1 | Assign a supported ZCC version to the test users via App Store app-update config | `best-practices-deploying-z-tunnel-2.0.md:19` |
+| 2 | Initial ICMP test — ping baseline, create firewall rule to block ICMP, verify block | `best-practices-deploying-z-tunnel-2.0.md:73` |
+| 3 | Exclude internal network ranges via IPv4/IPv6 Exclusion list on app profile | `best-practices-deploying-z-tunnel-2.0.md:85` |
+| 4 | 1-2 week observation window — top business-application testing | `best-practices-deploying-z-tunnel-2.0.md:92` |
+| 5 | Batch rollout in 100-200-user increments, with business-app verification per batch | `best-practices-deploying-z-tunnel-2.0.md:102,104` |
 
 ## Edge cases
 
@@ -174,7 +174,7 @@ When Destination Exclusions and Inclusions overlap on Z-Tunnel 2.0, resolution i
 2. **If same netmask, more specific by field count wins.** Port > protocol > subnet — a rule that specifies (subnet, protocol, port) wins over one that specifies (subnet, protocol) wins over one that specifies (subnet) only.
 3. **If identical specificity, INCLUSION wins over EXCLUSION.**
 
-Source: *Best Practices for Adding Bypasses for Z-Tunnel 2.0* lines 43–49.
+Source: `best-practices-adding-bypasses-z-tunnel-2.0.md:43–49`.
 
 Operators debugging "why is this destination tunneled when I excluded it" should walk the priority order top-to-bottom — usually a more-specific inclusion is winning.
 
@@ -189,7 +189,7 @@ Operators debugging "why is this destination tunneled when I excluded it" should
 
 **Critical**: do not add network bypasses to the Z-Tunnel 2.0 app profile's PAC file expecting them to take effect — they don't. Z-Tunnel 2.0 ignores PAC-based network bypasses (PAC is still consulted for proxy-routing decisions but not for tunnel-bypass decisions). An operator migrating a 1.0 deployment to 2.0 by copying PAC bypasses gets no bypass effect on 2.0 traffic.
 
-Source: *Best Practices for Adding Bypasses for Z-Tunnel 2.0* lines 19–20.
+Source: `best-practices-adding-bypasses-z-tunnel-2.0.md:19`.
 
 ## Mobile push notifications — required bypass for any push-MFA app
 
@@ -219,7 +219,7 @@ Mitigation options for GRE-deployed offices:
 1. **Configure forwarding profile to fall back to Z-Tunnel 1.0 when Trusted Network Criteria are met.** On-LAN users (already inside the GRE pipe to the perimeter) use 1.0; remote users get 2.0.
 2. **Configure a policy-based route to exclude Z-Tunnel 2.0 traffic from the GRE tunnel.** Z-Tunnel 2.0 takes a separate egress path, GRE handles only non-Zscaler traffic.
 
-Either works; the GRE-as-default with no exclusion strategy is the failure mode. Source: *Best Practices for Deploying Z-Tunnel 2.0* lines 43–46.
+Either works; the GRE-as-default with no exclusion strategy is the failure mode. Source: `best-practices-deploying-z-tunnel-2.0.md:43–46`.
 
 ## Open questions
 
