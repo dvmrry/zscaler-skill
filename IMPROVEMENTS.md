@@ -149,10 +149,10 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 ### Subtype-parameterize `/z-audit` (lint subtypes only)
 
 - **Status**: Proposed (most original subtypes moved to `/z-soc` instead)
-- **Origin**: 2026-04-29 (command rename discussion); partially redirected 2026-04-30 when `/z-soc` was created and absorbed the posture-shaped subtypes
-- **Impact**: split `/z-audit` into lint-shape subtypes — `/z-audit refs` (current default — kit reference doc lint) and `/z-audit tenant-config` (tenant config lint: orphan segments, disabled rules without rationale, unused URL categories, dead refs in tenant config). The originally-planned posture / access / coverage / activity subtypes are now `/z-soc` subtypes, not audit.
+- **Origin**: 2026-04-29 (command rename discussion); partially redirected 2026-04-30 when `/z-soc` was created and absorbed the posture-shaped subtypes; clarified 2026-05-01 — the **original intent** of `/z-audit` was tenant-config lint (audit the API dump in `_data/snapshot/` for misconfig / drift / dead rules). The kit-doc lint role that shipped is a divergence from intent. The earlier "charter" rabbit hole was an attempt to fabricate meta-purpose around the wrong shipped scope instead of naming the gap.
+- **Impact**: split `/z-audit` into lint-shape subtypes — `/z-audit refs` (current default — kit reference doc lint) and `/z-audit tenant-config` (the **originally-intended scope**: orphan segments, disabled rules without rationale, unused URL categories, dead refs in tenant config). The originally-planned posture / access / coverage / activity subtypes are now `/z-soc` subtypes, not audit.
 - **Cost**: low to add `tenant-config` subtype playbook content (~100-150 lines) and parameterize the entry point. Auto-detect-from-scope or explicit-subtype-arg remains the design choice.
-- **Notes**: see `audit-prompt.md` § Future subtypes for the partition between audit (lint-shape) and `/z-soc` (posture-shape). Audit's role is hygiene; `/z-soc` is defensibility.
+- **Notes**: see `audit-prompt.md` § Future subtypes for the partition between audit (lint-shape) and `/z-soc` (posture-shape). Audit's role is hygiene; `/z-soc` is defensibility. **Pre-alpha team-share**: the misalignment is documented but not fixed — team will hit this and the friction tells us whether a rename, a subtype split, or repurposing is the right call.
 
 ### Verified bundle library
 
