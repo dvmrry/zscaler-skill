@@ -3,12 +3,13 @@ product: zcc
 topic: "zcc-trusted-networks"
 title: "ZCC trusted networks — detection criteria and evaluation"
 content-type: reference
-last-verified: "2026-04-28"
+last-verified: "2026-05-01"
 confidence: medium
 source-tier: mixed
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zcc/models/trustednetworks.py"
   - "vendor/zscaler-sdk-python/zscaler/zcc/trusted_networks.py"
+  - "vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network/trusted_network.go"
   - "vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md"
 author-status: draft
 ---
@@ -31,23 +32,23 @@ Trusted networks are conditions under which ZCC changes its forwarding behavior.
 
 ## Detection methods — all TrustedNetwork criteria fields
 
-From `vendor/zscaler-sdk-python/zscaler/zcc/models/trustednetworks.py` (Tier B — SDK/TF):
+From `vendor/zscaler-sdk-python/zscaler/zcc/models/trustednetworks.py` (lines 37–53) and confirmed against `vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network/trusted_network.go` (lines 18–35):
 
-| Python field | Wire key | Meaning | Format |
-|---|---|---|---|
-| `dns_servers` | `dnsServers` | Active DNS servers must include one of these IPs. | CSV string: `'10.11.12.13, 10.11.12.14'` |
-| `dns_search_domains` | `dnsSearchDomains` | DNS search domain suffix must include one of these. | CSV string |
-| `hostnames` | `hostnames` | Hostnames the endpoint should be able to resolve as proof-of-network. | CSV string |
-| `resolved_ips_for_hostname` | `resolvedIpsForHostname` | When the hostnames above resolve, the IPs must be in this list. Guards against DNS hijack. | CSV string |
-| `ssids` | `ssids` | Active Wi-Fi SSID must be one of these. Applies only to Wi-Fi-connected clients. | CSV string |
-| `trusted_dhcp_servers` | `trustedDhcpServers` | DHCP server that handed out the current lease must be one of these IPs. | CSV string |
-| `trusted_gateways` | `trustedGateways` | Active default gateway must be one of these IPs. | CSV string |
-| `trusted_subnets` | `trustedSubnets` | Endpoint's current IP must fall within one of these CIDRs. | CSV string of CIDRs |
-| `trusted_egress_ips` | `trustedEgressIps` | Endpoint's observed egress IP (the public IP the network NATs to) must be one of these. Requires ZCC to probe and learn the egress IP via a Zscaler service probe. | CSV string |
+| Python field | Wire key | Meaning | Format | Go type |
+|---|---|---|---|---|
+| `dns_servers` | `dnsServers` | Active DNS servers must include one of these IPs. | CSV string (e.g., `'10.11.12.13, 10.11.12.14'` — `trusted_networks.py:127`) | `string` |
+| `dns_search_domains` | `dnsSearchDomains` | DNS search domain suffix must include one of these. | CSV string (`trusted_networks.py:128`) | `string` |
+| `hostnames` | `hostnames` | Hostnames the endpoint should be able to resolve as proof-of-network. | CSV string | `string` |
+| `resolved_ips_for_hostname` | `resolvedIpsForHostname` | When the hostnames above resolve, the IPs must be in this list. Guards against DNS hijack. | CSV string | `string` |
+| `ssids` | `ssids` | Active Wi-Fi SSID must be one of these. Applies only to Wi-Fi-connected clients. | CSV string | `string`, **`omitempty` in Go** (`trusted_network.go:31`) |
+| `trusted_dhcp_servers` | `trustedDhcpServers` | DHCP server that handed out the current lease must be one of these IPs. | CSV string | `string` |
+| `trusted_gateways` | `trustedGateways` | Active default gateway must be one of these IPs. | CSV string | `string` |
+| `trusted_subnets` | `trustedSubnets` | Endpoint's current IP must fall within one of these CIDRs. | CSV string of CIDRs | `string` |
+| `trusted_egress_ips` | `trustedEgressIps` | Endpoint's observed egress IP (the public IP the network NATs to) must be one of these. Requires ZCC to probe and learn the egress IP via a Zscaler service probe. | CSV string | `string`, **`omitempty` in Go** (`trusted_network.go:33`) |
 
 ### The CSV-string wire format
 
-All criteria fields are comma-separated strings on the wire, **not JSON arrays**. This is a wire-format quirk specific to TrustedNetwork objects. Callers writing API payloads must serialize criteria as comma-separated strings. Consumers parsing snapshot JSON must split on `,` and trim whitespace per field.
+All criteria fields are comma-separated strings on the wire, **not JSON arrays**. This is a wire-format quirk specific to TrustedNetwork objects. Callers writing API payloads must serialize criteria as comma-separated strings. Consumers parsing snapshot JSON must split on `,` and trim whitespace per field. Confirmed in Python SDK examples: `trusted_networks.py:127–132` shows `dns_servers='10.11.12.13, 10.11.12.14'`, `dns_search_domains='network1.acme.com, network2.acme.com'`, and empty criteria as `''` (empty string) not `None`.
 
 ### Criterion field truthiness
 
@@ -75,7 +76,7 @@ Do not pass empty strings vs. null interchangeably — the SDK surfaces both as 
 
 The `condition_type` field decides whether ZCC requires **all** configured criteria to match (AND — strict) or **any** one of them (OR — permissive).
 
-**Critical type note**: The Go SDK (`vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network/trusted_network.go:28`) confirms this field is `int` on the wire, not a string. The Python SDK passes kwargs through without type enforcement — sending a string like `"AND"` will be accepted by the Python SDK but may fail at the API layer. Send the integer code. **The specific integer-to-meaning mapping is not enumerated in either SDK** — see [`clarification zcc-06`](../_meta/clarifications.md#zcc-06-trustednetwork-condition_type-enum). Lab-test against a real tenant to determine which int maps to AND vs OR.
+**Critical type note**: The Go SDK (`trusted_network.go:22`) declares this field as `int` with no `omitempty` — zero is a valid wire value. **The Python client docstring (`trusted_networks.py:102`) incorrectly documents it as `condition_type (str):`** — this is a bug in the Python docs. The Python model (`trustednetworks.py:39`) reads it as untyped `Any` (`config["conditionType"]`) so doesn't enforce either. The Go struct is the ground-truth wire definition: send `int`, not string. **The specific integer-to-meaning mapping is not enumerated in either SDK** — see [`clarification zcc-06`](../_meta/clarifications.md#zcc-06-trustednetwork-condition_type-enum). Lab-test against a real tenant to determine which int maps to AND vs OR.
 
 **Operationally this is the critical field.**
 
@@ -99,7 +100,7 @@ ZCC detects network change
                             └── ZPA action: Tunnel / None
 ```
 
-The Forwarding Profile also recognizes VPN-Trusted and Split VPN-Trusted network types, which are detected independently of TrustedNetwork criteria objects (via VPN interface detection). See [`./forwarding-profiles.md`](./forwarding-profiles.md) for the full network type taxonomy.
+The Forwarding Profile also recognizes VPN-Trusted and Split VPN-Trusted network types, which are detected independently of TrustedNetwork criteria objects (via VPN interface detection). See [`./forwarding-profile.md`](./forwarding-profile.md) for the full network type taxonomy.
 
 **`evaluate_trusted_network = false` is the master off switch.** If false on the Forwarding Profile, trusted-network evaluation is skipped entirely and ZCC always behaves as if on an untrusted network. A tenant where all users appear to be treated as untrusted even on corporate LAN should check this flag on their Forwarding Profile first.
 
@@ -233,16 +234,30 @@ ZCC probes for egress IP after network bring-up. Immediately after network estab
 
 ### API surface
 
-From `vendor/zscaler-sdk-python/zscaler/zcc/trusted_networks.py` (Tier B — SDK/TF), all methods on `client.zcc.trusted_networks`:
+From `vendor/zscaler-sdk-python/zscaler/zcc/trusted_networks.py` and confirmed against `vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network/trusted_network.go`, all methods on `client.zcc.trusted_networks`:
 
-| Method | HTTP | Path | Notes |
+| Method | HTTP | Path | Source lines |
 |---|---|---|---|
-| `list_by_company(query_params={})` | GET | `/zcc/papi/public/v1/webTrustedNetwork/listByCompany` | Response body has the list nested under `trustedNetworkContracts` — **not** the outer array. Query params: `page`, `page_size`, `search`. |
-| `add_trusted_network(**kwargs)` | POST | `/zcc/papi/public/v1/webTrustedNetwork/create` | Create a new TrustedNetwork. |
-| `update_trusted_network(**kwargs)` | PUT | `/zcc/papi/public/v1/webTrustedNetwork/edit` | Update an existing TrustedNetwork. |
-| `delete_trusted_network(network_id)` | DELETE | `/zcc/papi/public/v1/webTrustedNetwork/{id}/delete` | Delete by integer ID. |
+| `list_by_company(query_params={})` | GET | `/zcc/papi/public/v1/webTrustedNetwork/listByCompany` | `trusted_networks.py:64–68`, `trusted_network.go:60` |
+| `add_trusted_network(**kwargs)` | POST | `/zcc/papi/public/v1/webTrustedNetwork/create` | `trusted_networks.py:138–142`, `trusted_network.go:143` |
+| `update_trusted_network(**kwargs)` | PUT | `/zcc/papi/public/v1/webTrustedNetwork/edit` | `trusted_networks.py:194–198`, `trusted_network.go:183` |
+| `delete_trusted_network(network_id)` | DELETE | `/zcc/papi/public/v1/webTrustedNetwork/{id}/delete` | `trusted_networks.py:236–239`, `trusted_network.go:210` |
 
-**Wire format gotcha**: The list endpoint wraps results under `trustedNetworkContracts`, not at the top-level array. Any custom lister (snapshot-refresh.py or similar) must unwrap this key.
+Query params for `list_by_company`: `page` (int), `page_size` (int), `search` (str) — `trusted_networks.py:32`.
+
+### API gotchas
+
+**Response envelope**: The list endpoint wraps results under `trustedNetworkContracts`, not at the top-level array. The Go SDK unwraps it via `TrustedNetworksResponse.TrustedNetworkContracts []TrustedNetwork` (`trusted_network.go:38–41`); the Python SDK unwraps it at `trusted_networks.py:86`: `trusted_networks = response_body.get("trustedNetworkContracts", [])`. Any custom lister (snapshot-refresh.py or similar) must unwrap this key.
+
+**Create doesn't return the new object**: POST `/create` returns only `{success, errorCode}` — not the created TrustedNetwork (`trusted_network.go:47–50`). The Go SDK works around this by retrying `GetTrustedNetworkByName` up to 6 times with 2-second delays after create (`trusted_network.go:154–166`). The Python SDK doesn't implement this retry — callers using the Python SDK must re-fetch manually after create.
+
+**Update requires ID on the request body**: PUT `/edit` validates that `id` is non-empty before sending (`trusted_network.go:179–181`). Omitting the ID returns an error. The Python SDK (`trusted_networks.py:165`) passes kwargs through without this guard — callers must include `id` themselves.
+
+**Error code semantics**: The mutation response treats `errorCode = "0"` as success; any other non-empty string is a failure (`trusted_network.go:53`). Don't test `errorCode` for truthiness alone — `"0"` is truthy in Python but means success.
+
+**`omitempty` divergence between Go and Python**: `ssids` and `trustedEgressIps` have `omitempty` in the Go struct (`trusted_network.go:31, 33`) — they are omitted from the JSON payload when empty. The Python `request_format()` (`trustednetworks.py:73–98`) always serializes all 17 fields, including empty strings. If the API behaves differently depending on field presence vs. empty-string, this divergence could cause unexpected behavior in Python-written payloads. Treat this as unverified until confirmed against a live tenant.
+
+**Pagination for name/ID lookups**: The Go SDK uses a hard-coded `pageSize = 1000` (`trusted_network.go:88`) when scanning by name, stopping when the page returns fewer than 1000 results (`trusted_network.go:103`). Tenants with more than 1000 TrustedNetworks (unusual but possible for very large deployments) would need multi-page handling.
 
 ---
 
