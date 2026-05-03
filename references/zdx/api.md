@@ -3,12 +3,14 @@ product: zdx
 topic: "zdx-api"
 title: "ZDX API — SDK surface and endpoint summary"
 content-type: reference
-last-verified: "2026-04-24"
+last-verified: "2026-05-03"
 confidence: medium
 source-tier: mixed
 sources:
   - "https://help.zscaler.com/legacy-apis/understanding-zdx-api"
   - "vendor/zscaler-help/understanding-zdx-api.md"
+  - "vendor/zscaler-help/automate-zscaler/api-authentication-overview.md"
+  - "vendor/zscaler-help/automate-zscaler/api-reference-zdx-overview.md"
   - "vendor/zscaler-sdk-python/zscaler/zdx/"
 author-status: draft
 ---
@@ -122,7 +124,7 @@ Content-Type: application/json
 Mechanics:
 
 - `key_secret` is the SHA256 hex digest of `<secret_key>:<timestamp>` (literal colon-concatenation).
-- **Requests are rejected if more than 15 minutes have elapsed** between the supplied `timestamp` and ZDX's clock. Clock drift on the calling host is the most common cause of unexpected auth failure here.
+- **Requests are rejected if more than 15 minutes have elapsed** between the supplied `timestamp` and ZDX's clock (`vendor/zscaler-help/automate-zscaler/api-authentication-overview.md:54`, `vendor/zscaler-help/automate-zscaler/api-reference-zdx-overview.md:27`).
 - Returned token is valid for **3600 seconds**.
 
 The Python SDK's `vendor/zscaler-sdk-python/zscaler/zdx/legacy.py` implements this flow. Hand-written callers (curl, Postman without the helper) must produce the SHA256 themselves.

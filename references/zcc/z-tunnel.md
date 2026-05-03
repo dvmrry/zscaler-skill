@@ -21,7 +21,7 @@ author-status: draft
 
 # Z-Tunnel 1.0 vs 2.0 — architecture, deployment, and bypass semantics
 
-The **tunnel** between Zscaler Client Connector and the Public Service Edge. Choice of 1.0 vs 2.0 is made per-forwarding-profile (per-network-type) and has structural consequences: Z-Tunnel 1.0 is a HTTP CONNECT-based proxy (web traffic only); Z-Tunnel 2.0 is a DTLS/TLS packet tunnel (all ports and protocols). Questions about transport failures, bypass behavior, or "why did this specific traffic not tunnel" almost always land here.
+The **tunnel** between Zscaler Client Connector and the Public Service Edge. Choice of 1.0 vs 2.0 is made per-forwarding-profile (per-network-type) and has structural consequences: Z-Tunnel 1.0 is a HTTP CONNECT-based proxy (web traffic only); Z-Tunnel 2.0 is a DTLS/TLS packet tunnel (all ports and protocols). This is the relevant reference for transport failures, bypass behavior, and "why did this specific traffic not tunnel" questions.
 
 ## Summary
 

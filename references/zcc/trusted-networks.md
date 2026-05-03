@@ -106,7 +106,7 @@ The Forwarding Profile also recognizes VPN-Trusted and Split VPN-Trusted network
 
 ### Effect on split tunneling
 
-When ZCC's Forwarding Profile has `actionType = NONE` (bypass ZIA) on the On-Trusted branch, the device is effectively on a split-traffic configuration while on the corporate network — ZCC forwards ZPA traffic through the microtunnel but sends internet traffic direct. This is the intended design for offices with on-prem internet gateways; it is also the most common cause of "traffic bypassed ZIA inspection" findings when trusted-network criteria are misconfigured.
+When ZCC's Forwarding Profile has `actionType = NONE` (bypass ZIA) on the On-Trusted branch, the device is effectively on a split-traffic configuration while on the corporate network — ZCC forwards ZPA traffic through the microtunnel but sends internet traffic direct. This is the intended design for offices with on-prem internet gateways. It also means that a misconfigured or over-broad trusted-network criterion silently moves users to the bypass branch, producing "traffic bypassed ZIA inspection" findings even though no policy was changed.
 
 ---
 

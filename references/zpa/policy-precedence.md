@@ -234,7 +234,7 @@ This is the #1 most-confused aspect of ZPA policy authoring per the MCP skill au
 - **Operands within a single block are ORed**: within Block 1, `user A OR user B OR group C`.
 - **Mixed object types within a block**: `SAML` and `SCIM_GROUP` can share a block (ORed together) to say "this specific user OR anyone in this group."
 - **PLATFORM condition wire format**: the RHS is the string `"true"` / `"false"`, not a boolean. Consistent with `tcp_keep_alive` quirk on app segments.
-- **RISK_FACTOR_TYPE condition is the cross-product hook**: it pulls ZIA user risk scoring into ZPA access decisions. If a tenant asks "how can ZPA access decisions react to user browsing risk?", the answer is a RISK_FACTOR_TYPE condition referencing ZIA-computed risk tiers.
+- **RISK_FACTOR_TYPE condition is the cross-product hook**: it pulls ZIA user risk scoring into ZPA access decisions. To make a ZPA access decision react to user browsing risk, use a RISK_FACTOR_TYPE condition referencing ZIA-computed risk tiers.
 - **POSTURE condition RHS**: `posture_udid` from the profile object, not the profile name or ID. Easy to get wrong.
 
 These semantics apply identically across Access, Forwarding, and Timeout policies — but the Inspection policy (v2) has its own narrower condition set.

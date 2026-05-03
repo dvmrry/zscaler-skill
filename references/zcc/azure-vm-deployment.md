@@ -32,7 +32,7 @@ Both are distinct from [Cloud Connector on Azure](../cloud-connector/azure-deplo
 
 **No Azure Marketplace VM image for ZCC exists.** The Marketplace lists Cloud Connector, ZPA App Connector, ZIA Service Edge VMs, and a "Zscaler for Users" billing entitlement — none of these is a deployable ZCC VM. ZCC is always installed *into* an existing VM via Intune, baked into a custom image, or via MSI silent install. When operators say "ZCC on Azure VM," they mean ZCC inside an AVD session host or a Windows 365 Cloud PC.
 
-**For forwarding cloud-workload traffic** (servers, containers, no end-user session): the answer is Cloud Connector, not ZCC. See [`../cloud-connector/azure-deployment.md`](../cloud-connector/azure-deployment.md).
+**For forwarding cloud-workload traffic** (servers, containers, no end-user session): use Cloud Connector, not ZCC. See [`../cloud-connector/azure-deployment.md`](../cloud-connector/azure-deployment.md).
 
 ---
 

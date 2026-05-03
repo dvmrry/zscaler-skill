@@ -155,7 +155,7 @@ A limited-scope ZBI subscription that only lets the tenant isolate the **Miscell
 - Read-Only Isolation (can disable)
 - Region Selection
 
-**Operational implication**: a tenant on the M&U tier asking "why can't I allow copy/paste on my isolation profile?" — the answer is subscription, not configuration. Upgrading to full ZBI access unlocks the remaining fields.
+**Operational implication**: a tenant on the M&U tier asking "why can't I allow copy/paste on my isolation profile?" is hitting a subscription limit, not a configuration error. Upgrading to full ZBI access unlocks the remaining fields.
 
 ### ZBI SDK surface
 

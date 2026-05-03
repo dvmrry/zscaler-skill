@@ -98,7 +98,7 @@ Defines, per network type (On-Trusted, Off-Trusted, VPN-Trusted, Split VPN-Trust
 - **IPv6 handling**: Drop or pass IPv6 traffic
 - **MTU settings**: Path MTU discovery, ZCC virtual adapter MTU
 
-A common trusted-network pattern: set the On-Trusted action to "bypass ZIA" (`actionType = NONE`) for users on the corporate LAN that has its own perimeter controls, while keeping Off-Trusted set to Z-Tunnel. **This is the most common cause of traffic bypassing ZIA inspection** — a misconfigured or over-broad trusted-network criterion silently moves users to the bypass branch.
+A common trusted-network pattern: set the On-Trusted action to "bypass ZIA" (`actionType = NONE`) for users on the corporate LAN that has its own perimeter controls, while keeping Off-Trusted set to Z-Tunnel. **A misconfigured or over-broad trusted-network criterion silently moves users to the bypass branch**, producing unintended ZIA-inspection bypass without any policy change.
 
 ### Forwarding Profile Action for Private Access
 
