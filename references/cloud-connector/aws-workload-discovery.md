@@ -3,7 +3,7 @@ product: ztw
 topic: "aws-workload-discovery"
 title: "AWS workload discovery — account trust, EventBridge, namespace tagging"
 content-type: reasoning
-last-verified: "2026-04-26"
+last-verified: "2026-05-03"
 confidence: high
 source-tier: doc
 sources:
@@ -180,7 +180,7 @@ Four scope types exist:
 | Account | Yes |
 | Namespace | Yes |
 
-**VPC Endpoint scope is the only type that does not require workload discovery.** This is the operationally significant split: if an operator needs sublocation-level policy differentiation but has not (or cannot) onboard workload discovery, VPC Endpoint scope is the only available path.
+**VPC Endpoint scope is the only type that does not require workload discovery** (`cbc-using-sublocation-scopes-group-cloud-connector-workloads-amazon-web.md:21`). The other three scope types — VPC, Account, and Namespace — all require workload discovery to be configured.
 
 All sublocations within a location must use the same scoping strategy — scope only, scope + IP range, or IP range only. You cannot mix strategies across sublocations within a location. A scope can be added to an existing IP-range-only sublocation after the fact.
 
