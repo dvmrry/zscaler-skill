@@ -1,4 +1,4 @@
-# `scripts/` — kit tooling
+# `scripts/` — skill tooling
 
 All Python scripts use [uv](https://docs.astral.sh/uv/) with [PEP 723 inline script metadata](https://peps.python.org/pep-0723/). Each script declares its own deps in a `# /// script` block at the top of the file; uv resolves and caches them on first run. No project-level install needed.
 

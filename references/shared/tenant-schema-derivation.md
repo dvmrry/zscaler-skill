@@ -346,6 +346,6 @@ Redact. The tenant schema is for confirming "what's queryable in this environmen
 - [`siem-log-mapping.md`](./siem-log-mapping.md) — canonical log type catalog (the reference side of the canonical/tenant pair)
 - [`siem-emission-discipline.md`](./siem-emission-discipline.md) — public/private boundary, where user plumbing lives
 - [`splunk-queries.md`](./splunk-queries.md) — Splunk SPL pattern catalog; includes Zscaler TA CIM mapping table
-- [`investigate-prompt.md`](./investigate-prompt.md) — `/z-investigate` slash command playbook
+- [`investigate-prompt.md`](./investigate-prompt.md) — `/z-investigator` slash command playbook
 - ZIA log schemas (canonical) — [`../zia/logs/`](../zia/logs/)
 - ZPA log schemas (canonical) — [`../zpa/logs/`](../zpa/logs/)

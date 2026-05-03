@@ -1,5 +1,5 @@
 ---
-description: Run a SOC / security-posture review of tenant configuration, telemetry, or access state. Posture-driven (vs. /z-audit lint or /z-investigate hypothesis). Outputs a posture register with severity calibrated to security impact.
+description: Run a SOC / security-posture review of tenant configuration, telemetry, or access state. Posture-driven (vs. /z-auditor lint or /z-investigator hypothesis). Outputs a posture register with severity calibrated to security impact.
 argument-hint: [scope] — e.g., "ZPA admin RBAC", "ZIA URL filtering rules, threat model: data exfil", "telemetry coverage, subtype: coverage"
 ---
 

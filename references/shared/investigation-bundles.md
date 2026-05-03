@@ -15,21 +15,21 @@ author-status: draft
 
 # Investigation query bundles — template
 
-A **query bundle** is a named, ordered sequence of queries (API calls, SPL patterns, manual tests) that the `/z-investigate` agent runs against a specific hypothesis to confirm or rule it out. Bundles encode the steps an experienced analyst would take, with decision logic mapping results to journal claim statuses.
+A **query bundle** is a named, ordered sequence of queries (API calls, SPL patterns, manual tests) that the `/z-investigator` agent runs against a specific hypothesis to confirm or rule it out. Bundles encode the steps an experienced analyst would take, with decision logic mapping results to journal claim statuses.
 
 ## Why this file ships empty
 
 Bundles are only useful when they're **verified**. Wrong queries, wrong thresholds, or wrong decision logic misleads investigations in ways that are hard to catch downstream. A bundle invented without ground truth — without a real ticket worked through, a lab tenant reproduction, or a Zscaler vendor doc prescribing the exact sequence — produces plausible-looking content that can be subtly wrong.
 
-This file ships the template only. The public skill kit does not include bundle content authored without verification.
+This file ships the template only. The public skill does not include bundle content authored without verification.
 
 ## Where bundles live
 
 | Location | Use when |
 |---|---|
-| **Private fork** of this skill kit | Bundles specific to your tenant / SIEM plumbing / internal ticketing |
+| **Private fork** of this skill | Bundles specific to your tenant / SIEM plumbing / internal ticketing |
 | **CLAUDE.md** (project or user level) | A short bundle the agent can pick up automatically every session |
-| **`_local-bundles/`** (gitignored directory) | Larger bundle collections kept alongside the kit but not committed |
+| **`_local-bundles/`** (gitignored directory) | Larger bundle collections kept alongside the skill but not committed |
 | **PR back to this repo** | A bundle that generalizes — placeholder plumbing only, queries derived from Zscaler-published surfaces, verification cited |
 
 The same public/private boundary as tenant schemas (per [`tenant-schema-derivation.md`](./tenant-schema-derivation.md)) and Splunk plumbing (per [`siem-emission-discipline.md`](./siem-emission-discipline.md)).
@@ -156,7 +156,7 @@ Document it explicitly. Silent dependencies cause confused investigations when t
 
 ## Cross-links
 
-- [`investigate-prompt.md`](./investigate-prompt.md) — `/z-investigate` playbook (where bundles get invoked)
+- [`investigate-prompt.md`](./investigate-prompt.md) — `/z-investigator` playbook (where bundles get invoked)
 - [`troubleshooting-methodology.md`](./troubleshooting-methodology.md) — discovery journal, claim status, severity scale
 - [`siem-emission-discipline.md`](./siem-emission-discipline.md) — execution modes, placeholder plumbing, public/private boundary
 - [`splunk-queries.md`](./splunk-queries.md) — named SPL patterns to reference from inside bundles

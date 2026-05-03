@@ -1,6 +1,6 @@
 # `_data/` — fork-customization and runtime data
 
-Single home for everything that becomes per-fork or per-tenant. The kit-internal docs (methodologies, playbooks, registers) live under `references/_meta/`; runtime data (tenant snapshots, script outputs, fork-specific IaC) lives here.
+Single home for everything that becomes per-fork or per-tenant. The skill-internal docs (methodologies, playbooks, registers) live under `references/_meta/`; runtime data (tenant snapshots, script outputs, fork-specific IaC) lives here.
 
 ## Subdirectories
 
@@ -47,9 +47,9 @@ Each tenant lives on a specific Zscaler cloud (zs1, zs2, zs3, zspreview, zscaler
 
 ### `_data/incidents/`
 
-**Incident artifacts and post-mortems.** Each incident gets its own dir: `<YYYY-MM-DD>-<slug>/` containing `journal.md` (the discovery journal from `/z-investigate`), `timeline.md` (chronological events), `postmortem.md` (root cause + lessons), and `evidence/` (raw artifacts — CI logs, command output, API dumps; gitignored by default).
+**Incident artifacts and post-mortems.** Each incident gets its own dir: `<YYYY-MM-DD>-<slug>/` containing `journal.md` (the discovery journal from `/z-investigator`), `timeline.md` (chronological events), `postmortem.md` (root cause + lessons), and `evidence/` (raw artifacts — CI logs, command output, API dumps; gitignored by default).
 
-**Default-private posture**: `_data/incidents/*` is gitignored except for `README.md` and `.gitkeep`. Engineers explicitly opt-in to publish a kit-internal incident by adding `!`-overrides per-incident. Internal forks are expected to override the gitignore so incident artifacts can be committed there for institutional memory.
+**Default-private posture**: `_data/incidents/*` is gitignored except for `README.md` and `.gitkeep`. Engineers explicitly opt-in to publish a skill-internal incident by adding `!`-overrides per-incident. Internal forks are expected to override the gitignore so incident artifacts can be committed there for institutional memory.
 
 See [`./incidents/README.md`](./incidents/README.md) for the full convention.
 

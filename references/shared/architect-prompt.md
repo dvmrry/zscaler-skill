@@ -86,7 +86,7 @@ For each evidence layer, you operate in one of three modes — and they can inte
 
 Same rules apply as in [`siem-emission-discipline.md`](./siem-emission-discipline.md): placeholder plumbing in any emitted query, vendor-published field names only, claim status reflects evidence quality not who fetched it.
 
-For non-SIEM data sources (Grafana, cloud APIs, IdP APIs), the same modes apply with that source's terminology. The skill kit doesn't yet include catalogs for those sources; for now, accept user-pasted evidence in whatever shape they provide.
+For non-SIEM data sources (Grafana, cloud APIs, IdP APIs), the same modes apply with that source's terminology. The skill doesn't yet include catalogs for those sources; for now, accept user-pasted evidence in whatever shape they provide.
 
 ## First response
 
@@ -226,8 +226,8 @@ When the same scaling concern comes up repeatedly, capture the verified query se
 - [`architect-bundles.md`](./architect-bundles.md) — query bundle template (verified sequences for common scaling concerns)
 - [`troubleshooting-methodology.md`](./troubleshooting-methodology.md) — investigation discipline (sibling)
 - [`audit-methodology.md`](./audit-methodology.md) — audit discipline (sibling)
-- [`investigate-prompt.md`](./investigate-prompt.md) — `/z-investigate` playbook
-- [`audit-prompt.md`](./audit-prompt.md) — `/z-audit` playbook
+- [`investigate-prompt.md`](./investigate-prompt.md) — `/z-investigator` playbook
+- [`audit-prompt.md`](./audit-prompt.md) — `/z-auditor` playbook
 - [`soc-prompt.md`](./soc-prompt.md) — `/z-soc` playbook (security-posture sibling)
 - [`siem-emission-discipline.md`](./siem-emission-discipline.md) — modes and rules for SIEM data access
 - [`splunk-queries.md`](./splunk-queries.md) — Splunk patterns for connector / PSE / PCC utilization

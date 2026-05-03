@@ -153,7 +153,7 @@ Default to a markdown file in `references/` unless the content shape genuinely c
 
 ## File-naming semantics across layers
 
-The kit uses parallel naming conventions across `references/` (markdown source) and `docs/` (rendered HTML). Use the same name for the same conceptual role:
+The skill uses parallel naming conventions across `references/` (markdown source) and `docs/` (rendered HTML). Use the same name for the same conceptual role:
 
 | Filename | Role | `references/<product>/` | `docs/<product>/` |
 |---|---|---|---|

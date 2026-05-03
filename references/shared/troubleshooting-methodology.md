@@ -185,7 +185,7 @@ Product defaults and architectural assumptions (deny-by-default vs. allow-by-def
 ### ❌ Reasoning from scratch when the user already placed evidence in the operative directory
 
 ```
-User: "/z-investigate connector flap in _data/incidents/test-flap/"
+User: "/z-investigator connector flap in _data/incidents/test-flap/"
 Agent: "Let me hypothesize causes and propose investigation steps..."
 (no read of _data/incidents/test-flap/evidence/, no check of
 _data/snapshot/<cloud>/ for the relevant tenant config dump,
@@ -207,7 +207,7 @@ Hypothesis 1: Connector group reachability
 
 Hypothesis 2: ...
 ```
-The operative directory is wherever the user pointed `/z-investigate`. Read its `evidence/` and `journal.md` first; the user may have already provided the answer or seeded prior claims that are the starting state of the investigation. Then read tenant config from `_data/snapshot/<cloud>/`. Do not browse sibling incident directories — that's a separate discipline that isn't refined enough yet.
+The operative directory is wherever the user pointed `/z-investigator`. Read its `evidence/` and `journal.md` first; the user may have already provided the answer or seeded prior claims that are the starting state of the investigation. Then read tenant config from `_data/snapshot/<cloud>/`. Do not browse sibling incident directories — that's a separate discipline that isn't refined enough yet.
 
 ### ❌ Carrying user framing claims unverified into hypotheses
 

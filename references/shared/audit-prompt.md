@@ -17,7 +17,7 @@ author-status: draft
 
 # Audit — editorial / structural lint playbook
 
-This is the playbook invoked by the `/z-audit` slash command (Claude Code and Windsurf). The shape is **lint** — editorial / structural / hygiene review of references and tenant configuration. Posture-shaped review (RBAC least-privilege, telemetry coverage, threat-model-anchored findings) lives in the sibling `/z-soc` command — see [`./soc-prompt.md`](./soc-prompt.md).
+This is the playbook invoked by the `/z-auditor` slash command (Claude Code and Windsurf). The shape is **lint** — editorial / structural / hygiene review of references and tenant configuration. Posture-shaped review (RBAC least-privilege, telemetry coverage, threat-model-anchored findings) lives in the sibling `/z-soc` command — see [`./soc-prompt.md`](./soc-prompt.md).
 
 ## Mode
 
@@ -29,7 +29,7 @@ Your value-add is the **editorial** layer CI can't catch: voice, structural shap
 
 ## User framing — what to include for best results
 
-A good `/z-audit` invocation includes a **scope**. The scope can be:
+A good `/z-auditor` invocation includes a **scope**. The scope can be:
 
 | Field | Example |
 |---|---|
@@ -105,7 +105,7 @@ Severity: usually `Low` (style) unless variance changes meaning (e.g., a mismatc
 
 #### b. Structural shape
 
-Reference files in this kit follow a shape: frontmatter → title → intro → sections → cross-links → (optional) open questions. Check the in-scope files for:
+Reference files in this skill follow a shape: frontmatter → title → intro → sections → cross-links → (optional) open questions. Check the in-scope files for:
 - Missing frontmatter or required fields
 - No title `# H1` matching frontmatter
 - No intro paragraph between title and first `##`
@@ -158,7 +158,7 @@ Sample bidirectional links. If A cross-links B for a concept, B should cross-lin
 **When reciprocity is NOT required** (don't flag):
 - A methodology / shared discipline doc doesn't need to list every consumer (one-to-many fan-out)
 - An overview / portfolio doc references children that don't need to point back at the overview
-- A vendor source (`vendor/zscaler-help/*.md`) doesn't need to reference the kit reference that cites it
+- A vendor source (`vendor/zscaler-help/*.md`) doesn't need to reference the skill reference that cites it
 
 Severity: `Medium` when required-and-missing; do not open a finding when reciprocity is in the "not required" bucket.
 
@@ -175,7 +175,7 @@ Severity: `Medium` for first-reference dangling; `Low` for repeat usage in the s
 
 For each in-scope file with an `## Open questions` section:
 - Are listed open questions tracked in `_meta/clarifications.md`?
-- Are any of them stale — i.e., resolved elsewhere in the kit but not propagated back here?
+- Are any of them stale — i.e., resolved elsewhere in the skill but not propagated back here?
 - Is the section a real list of open items, or has it become a stale dumping ground?
 
 Cross-reference `_meta/clarifications.md` § "Status summary" to detect stale items. `check-hygiene.py` already does part of this; flag what it doesn't catch (e.g., a question that's resolved but the file's open-questions text doesn't reflect the resolution).
@@ -184,7 +184,7 @@ Severity: `Medium` for stale open questions; `Low` for "open questions" section 
 
 **Inline caveats can substitute for an `## Open questions` section.** A `confidence: medium` file is *not* obligated to have a dedicated `## Open questions` section if the body acknowledges gaps in place. Examples of valid inline caveats:
 
-- "Per-category column detail is partial in this skill kit — see the Open questions section for the gap and how to close it." *(inline pointer to a section that does exist further down)*
+- "Per-category column detail is partial in this skill — see the Open questions section for the gap and how to close it." *(inline pointer to a section that does exist further down)*
 - "Treat all rows in this section as `❓ unverified` until cross-checked against the per-category column documentation." *(in-place qualifier; no separate section needed)*
 - "Schemas vary by TA version; the table below assumes TA ≥ 4.0 — confirm against your tenant's installed version." *(scope-narrowing caveat)*
 
@@ -260,27 +260,27 @@ Sketches for later expansion (not active in this command). Audit subtypes stay l
 
 **Lint subtypes (audit, future):**
 
-- `/z-audit tenant-config <scope>` — tenant configuration lint: orphan segments (no Server Group, no policy reference), disabled rules with no rationale comment, unused URL categories, dead app segments (no servers attached), DLP dictionaries with no rule using them, redundant time intervals, stale department / location objects
-- `/z-audit refs <scope>` — reference-doc lint beyond what mechanical CI catches (current default; what this playbook does today)
+- `/z-auditor tenant-config <scope>` — tenant configuration lint: orphan segments (no Server Group, no policy reference), disabled rules with no rationale comment, unused URL categories, dead app segments (no servers attached), DLP dictionaries with no rule using them, redundant time intervals, stale department / location objects
+- `/z-auditor refs <scope>` — reference-doc lint beyond what mechanical CI catches (current default; what this playbook does today)
 
 **Posture subtypes — moved to `/z-soc`:**
 
 | Was sketched as | Now lives at |
 |---|---|
-| `/z-audit policy` (default-allow leaks, missing posture, scope conflicts) | `/z-soc` subtype `policy` |
-| `/z-audit access` (RBAC least-privilege, stale admins, role bloat) | `/z-soc` subtype `access` |
-| `/z-audit coverage` (NSS/LSS feed health, telemetry gap detection) | `/z-soc` subtype `coverage` |
-| `/z-audit activity` (admin audit log review, after-hours activity) | `/z-soc` subtype `activity` |
-| `/z-audit config` (tenant config drift, best-practice review — posture half) | `/z-soc` subtype `config` |
+| `/z-auditor policy` (default-allow leaks, missing posture, scope conflicts) | `/z-soc` subtype `policy` |
+| `/z-auditor access` (RBAC least-privilege, stale admins, role bloat) | `/z-soc` subtype `access` |
+| `/z-auditor coverage` (NSS/LSS feed health, telemetry gap detection) | `/z-soc` subtype `coverage` |
+| `/z-auditor activity` (admin audit log review, after-hours activity) | `/z-soc` subtype `activity` |
+| `/z-auditor config` (tenant config drift, best-practice review — posture half) | `/z-soc` subtype `config` |
 
 The `config` subtype split: posture-shaped checks (inspection bypasses, default-action review, DLP coverage gaps) went to `/z-soc`; lint-shaped checks (disabled-without-rationale, orphan objects, dead refs) stay here under `tenant-config`.
 
-When the lint subtypes are added, this prompt becomes the **kit-meta lint** branch of a parameterized command. The methodology in `audit-methodology.md` and the register format are reused across audit and SOC; the per-subtype playbook diverges only in checks and evidence sources.
+When the lint subtypes are added, this prompt becomes the **skill-meta lint** branch of a parameterized command. The methodology in `audit-methodology.md` and the register format are reused across audit and SOC; the per-subtype playbook diverges only in checks and evidence sources.
 
 ## Cross-links
 
 - [`audit-methodology.md`](./audit-methodology.md) — register format, severity, status lifecycle, anti-patterns
 - [`troubleshooting-methodology.md`](./troubleshooting-methodology.md) — parallel discipline for investigations
-- [`investigate-prompt.md`](./investigate-prompt.md) — `/z-investigate` playbook (the hypothesis-driven sibling)
+- [`investigate-prompt.md`](./investigate-prompt.md) — `/z-investigator` playbook (the hypothesis-driven sibling)
 - Mechanical CI scripts — `scripts/check-hygiene.py`, `scripts/check-citations.sh`, `scripts/check-staleness.sh`, `scripts/check-doc-links.py`
 - Clarifications register — `references/_meta/clarifications.md`

@@ -214,7 +214,7 @@ This is a meaningful gap — the two SDKs are managing different aspects of the 
 |---|---|
 | `truncateLargeUDPDNSResponse` | Truncate large UDP DNS responses (avoids EDNS buffer overflow issues). Note: Python SNAKE_CASE_KEYS bug — listed there but actually emits camelCase. |
 | `purgeKerberosPreferredDCCache` | Force ZCC to clear its cached preferred domain controller. Resolves stale KDC issues after network topology changes. Same SNAKE_CASE_KEYS bug. |
-| `dropQuicTraffic` | Drop QUIC (UDP 443) traffic at ZCC. Field exists in PolicyExtension (`webpolicy.py:417`); per-tenant operational effect on browser TCP fallback is operator-reported and not verified in this kit. |
+| `dropQuicTraffic` | Drop QUIC (UDP 443) traffic at ZCC. Field exists in PolicyExtension (`webpolicy.py:417`); per-tenant operational effect on browser TCP fallback is operator-reported and not verified in this skill. |
 | `enableAntiTampering` / `overrideATCmdByPolicy` / `reactivateAntiTamperingTime` | Anti-tampering controls — prevent users from killing/modifying the ZCC process. (`webpolicy.py:411–415`) |
 | `enforceSplitDNS` | Force split DNS handling. (`webpolicy.py:416`) |
 | `enableFlowBasedTunnel` | Flow-based tunnel mode (alternative to packet-based). (`webpolicy.py:468`) |

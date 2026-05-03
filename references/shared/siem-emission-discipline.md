@@ -30,7 +30,7 @@ The discovery journal (per [`troubleshooting-methodology.md`](./troubleshooting-
 
 ## Universal rules (all modes, all SIEMs)
 
-1. **Plumbing is placeholder in public catalogs.** All log-destination identifiers (`index=` / `sourcetype=` for Splunk; table names for Sentinel/Chronicle; index patterns for Elastic; source categories for Sumo; etc.) are env-var placeholders or `<your_*>` markers in the public skill kit. Actual per-tenant values must never appear in this repo. At execution time, the agent (or user) substitutes from local config.
+1. **Plumbing is placeholder in public catalogs.** All log-destination identifiers (`index=` / `sourcetype=` for Splunk; table names for Sentinel/Chronicle; index patterns for Elastic; source categories for Sumo; etc.) are env-var placeholders or `<your_*>` markers in the public skill. Actual per-tenant values must never appear in this repo. At execution time, the agent (or user) substitutes from local config.
 
 2. **Field names are Zscaler-published only.** Every field used in queries traces back to an NSS or LSS schema reference under `references/{zia,zpa,zcc}/logs/`. Customer-renamed fields, custom enrichments, internal log-generator fields, and TA-specific aliases beyond the documented CIM mappings do not appear in public queries. If a tenant has renamed fields locally, they remap at run time, not in the catalog.
 
@@ -57,7 +57,7 @@ The catalog placeholder names (e.g., `$INDEX_ZIA_WEB`, `<zia-web-log-destination
 
 ## What stays private
 
-Out of scope for this public skill kit; lives in the user's private side:
+Out of scope for this public skill; lives in the user's private side:
 
 - Per-tenant index / table / sourcetype / source-category / log-type-name values
 - Internally-generated synthetic logs and the generators that produce them
@@ -65,11 +65,11 @@ Out of scope for this public skill kit; lives in the user's private side:
 - Anything from an internal log pipeline that diverges from Zscaler-published schemas
 - Specific tenant identifiers (customer ID, cloud name, etc.) appearing in stored queries
 
-The public skill kit assumes Zscaler-published schemas only. The private side (the user's fork, CLAUDE.md, synthetic data, custom enrichments) holds the rest.
+The public skill assumes Zscaler-published schemas only. The private side (the user's fork, CLAUDE.md, synthetic data, custom enrichments) holds the rest.
 
 ## Cross-links
 
 - [`siem-log-mapping.md`](./siem-log-mapping.md) — catalog of Zscaler log types and how they typically land per SIEM
 - [`splunk-queries.md`](./splunk-queries.md) — Splunk-specific SPL pattern catalog
 - [`troubleshooting-methodology.md`](./troubleshooting-methodology.md) — discovery journal, claim status, anti-patterns
-- [`investigate-prompt.md`](./investigate-prompt.md) — `/z-investigate` slash command playbook
+- [`investigate-prompt.md`](./investigate-prompt.md) — `/z-investigator` slash command playbook

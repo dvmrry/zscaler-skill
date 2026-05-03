@@ -1,7 +1,7 @@
 ---
 product: shared
 topic: "meta-index"
-title: "references/_meta/ — kit-internal documentation"
+title: "references/_meta/ — skill-internal documentation"
 content-type: reference
 last-verified: "2026-04-30"
 confidence: high
@@ -9,23 +9,23 @@ sources: []
 author-status: draft
 ---
 
-# `references/_meta/` — kit-internal documentation
+# `references/_meta/` — skill-internal documentation
 
-Single home for everything that documents *the kit itself* — methodology, conventions, registers, archives — distinct from the kit's *content* (Zscaler product references) which lives in sibling product directories.
+Single home for everything that documents *the skill itself* — methodology, conventions, registers, archives — distinct from the skill's *content* (Zscaler product references) which lives in sibling product directories.
 
 ## Single rule
 
-Anything under `references/_meta/` is kit-internal. Anything else under `references/` is product content.
+Anything under `references/_meta/` is skill-internal. Anything else under `references/` is product content.
 
 ## What's here
 
 | Path | Purpose |
 |---|---|
-| [`agent-patterns.md`](./agent-patterns.md) | Reusable patterns agents apply across the kit (read this, then a question, etc.) |
+| [`agent-patterns.md`](./agent-patterns.md) | Reusable patterns agents apply across the skill (read this, then a question, etc.) |
 | [`archive/`](./archive/) | Superseded / historical content kept for reference. Exempt from orphan checks; intentional dead-ends. |
-| [`clarifications.md`](./clarifications.md) | The canonical register of open + resolved questions across the kit. Each gets a stable ID (`zia-03`, `shared-02`, etc.) referenced from topical docs. |
+| [`clarifications.md`](./clarifications.md) | The canonical register of open + resolved questions across the skill. Each gets a stable ID (`zia-03`, `shared-02`, etc.) referenced from topical docs. |
 | [`evals/evals.json`](./evals/evals.json) | 19 hand-written behavioral evals — prompt + expected output + assertions + must-cite + must-not-say. See [`evals/README.md`](./evals/README.md) and `scripts/run-evals.py`. |
-| [`layering-model.md`](./layering-model.md) | The skill kit's mental layering model — what's vendor truth vs. derived vs. opinionated. |
+| [`layering-model.md`](./layering-model.md) | The skill's mental layering model — what's vendor truth vs. derived vs. opinionated. |
 | [`policy-simulation.md`](./policy-simulation.md) | Notes on the policy-simulation reasoning approach used by the simulate scripts. |
 | [`portfolio-map.md`](./portfolio-map.md) | Top-level catalog of every Zscaler product with depth tier (deep-dive / awareness / out-of-scope). Entry point for "does Zscaler have a product for X?" questions. |
 | [`primer/`](./primer/) | Foundational educational material — networking basics, identity, zero-trust philosophy, Zscaler platform shape. Synthesis docs, not vendor-sourced; cite-light by design. |
@@ -43,5 +43,5 @@ Anything under `references/_meta/` is kit-internal. Anything else under `referen
 ## Cross-links
 
 - [`../../docs/_meta/style-guide.md`](../../docs/_meta/style-guide.md) — parallel meta dir for the docs/ side; covers visual design / page archetypes / file-naming semantics
-- [`../../IMPROVEMENTS.md`](../../IMPROVEMENTS.md) — kit-level backlog and proposed work
+- [`../../IMPROVEMENTS.md`](../../IMPROVEMENTS.md) — skill-level backlog and proposed work
 - [`../shared/`](../shared/) — cross-product reference content (NOT meta; these are real product references that span products)

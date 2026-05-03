@@ -1,9 +1,9 @@
 ---
-description: Start an evidence-based troubleshooting investigation — parse framing, ground in kit content + tenant snapshot, generate a discovery journal with prioritized hypotheses and named evidence sources. Per-turn structured output with halt-and-wait checkpoints. Designed for procedure-following models (SWE-1.5+, Haiku+, Sonnet, Opus).
+description: Start an evidence-based troubleshooting investigation — parse framing, ground in skill content + tenant snapshot, generate a discovery journal with prioritized hypotheses and named evidence sources. Per-turn structured output with halt-and-wait checkpoints. Designed for procedure-following models (SWE-1.5+, Haiku+, Sonnet, Opus).
 argument-hint: [what fails] in [where], [scope], since [when]; backtick `<literal-token>` any user-flagged specifics
 ---
 
-Load and follow the workflow at @.windsurf/workflows/z-investigate.md.
+Load and follow the workflow at @.windsurf/workflows/z-investigator.md.
 
 The user's framing:
 

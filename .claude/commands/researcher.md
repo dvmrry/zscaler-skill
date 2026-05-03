@@ -1,9 +1,9 @@
 ---
-description: Expand a Zscaler skill kit reference doc with citation-backed content. Three-step procedure (parse → extract → write+verify) with halt-and-wait checkpoints. Spawns memory-isolated subagents for each phase to prevent conversation-context contamination of reference docs.
+description: Expand a Zscaler skill reference doc with citation-backed content. Three-step procedure (parse → extract → write+verify) with halt-and-wait checkpoints. Spawns memory-isolated subagents for each phase to prevent conversation-context contamination of reference docs.
 argument-hint: <target-file-path> [scope: whole-file|section <name>|add <topic>]
 ---
 
-# /z-research
+# /researcher
 
 Expand a reference doc by mining vendor sources, writing citation-backed content, and verifying the output against the source-of-truth extraction. Designed to prevent the failure mode where in-flight troubleshooting hypotheses get promoted to documented behavior in reference docs.
 

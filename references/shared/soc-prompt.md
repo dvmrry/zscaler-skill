@@ -16,16 +16,16 @@ author-status: draft
 
 # SOC — security posture review playbook
 
-This is the playbook invoked by the `/z-soc` slash command. SOC engineer persona: examine tenant Zscaler configuration, telemetry, and access state through a security-posture lens. Sibling to `/z-audit` (linter / hygiene), `/z-investigate` (hypothesis-driven troubleshooting), and `/z-architect` (capacity / scaling design).
+This is the playbook invoked by the `/z-soc` slash command. SOC engineer persona: examine tenant Zscaler configuration, telemetry, and access state through a security-posture lens. Sibling to `/z-auditor` (linter / hygiene), `/z-investigator` (hypothesis-driven troubleshooting), and `/z-architect` (capacity / scaling design).
 
 The split:
 
-- `/z-audit` asks: **is this consistent and well-formed?** (dead refs, disabled-without-rationale rules, orphan segments, unused URL categories, frontmatter / structural lint)
+- `/z-auditor` asks: **is this consistent and well-formed?** (dead refs, disabled-without-rationale rules, orphan segments, unused URL categories, frontmatter / structural lint)
 - `/z-soc` asks: **is this defensible?** (control coverage, blast radius, telemetry visibility, RBAC least-privilege, inspection scope, detection completeness)
-- `/z-investigate` asks: **why is this broken?** (hypothesis-driven, given a symptom)
+- `/z-investigator` asks: **why is this broken?** (hypothesis-driven, given a symptom)
 - `/z-architect` asks: **will this scale?** (capacity, growth, topology)
 
-A SOC review may surface a concern that warrants a `/z-investigate` follow-up to verify exploitability or active exploitation. A SOC finding is "this is exposed"; an investigation finding is "this is being exploited."
+A SOC review may surface a concern that warrants a `/z-investigator` follow-up to verify exploitability or active exploitation. A SOC finding is "this is exposed"; an investigation finding is "this is being exploited."
 
 ## Mode
 
@@ -70,7 +70,7 @@ If scope is ambiguous or absent, ask one clarifying question.
 
 ### 2. Ground before you reason
 
-Same a/b/c/d as `/z-investigate` (see [`./investigate-prompt.md § Step 2`](./investigate-prompt.md)):
+Same a/b/c/d as `/z-investigator` (see [`./investigate-prompt.md § Step 2`](./investigate-prompt.md)):
 
 - **a.** Read source schemas for any logs / config files you'll analyze
 - **b.** Read the canonical product / feature reference for any Zscaler component in scope
@@ -91,7 +91,7 @@ Render the register grouped by severity, highest first. Use the format below.
 
 ### 5. Save the register to disk
 
-Same convention as `/z-investigate` Step 6: write to `_data/incidents/<slug>/posture.md`. Path selection logic identical — user-pointed path takes priority; existing dir + `posture.md` is a continuation; fresh slug otherwise. Save unconditionally unless the user opts out.
+Same convention as `/z-investigator` Step 6: write to `_data/incidents/<slug>/posture.md`. Path selection logic identical — user-pointed path takes priority; existing dir + `posture.md` is a continuation; fresh slug otherwise. Save unconditionally unless the user opts out.
 
 For routine (non-incident-driven) SOC reviews, slug pattern: `<YYYY-MM-DD>-soc-<scope-descriptor>` (e.g., `2026-04-30-soc-zpa-admin-rbac`, `2026-04-30-soc-zia-url-filtering-bypass`).
 
@@ -130,7 +130,7 @@ OUT-OF-SCOPE OBSERVATIONS:
 
 NEXT STEPS:
 - Triage findings ≥ Medium with the user
-- For exploitability questions on High/Critical findings, hand off to /z-investigate
+- For exploitability questions on High/Critical findings, hand off to /z-investigator
 - Re-run posture check after remediation to verify
 ```
 
@@ -170,7 +170,7 @@ Check-set:
 - **NSS feed health** — every ZIA log type (web, firewall, DNS, IPS, alerts, audit) is enabled and arriving in SIEM.
 - **Sourcetype enablement** — any expected sourcetype missing from SIEM per [`./siem-log-mapping.md`](./siem-log-mapping.md). Use [`./tenant-schema-derivation.md`](./tenant-schema-derivation.md) to confirm tenant view matches canonical schema.
 - **Field-level coverage** — TA-required fields actually present in tenant view (e.g., `clt_sport`, `srv_dport`, `dlprulename` per ZIA web log notes).
-- **Detection coverage** — does the SIEM have queries / alerts for the kit's known posture concerns? Cross-reference [`./splunk-queries.md`](./splunk-queries.md) for the pattern catalog.
+- **Detection coverage** — does the SIEM have queries / alerts for the skill's known posture concerns? Cross-reference [`./splunk-queries.md`](./splunk-queries.md) for the pattern catalog.
 - **Audit log retention** — tenant retention setting matches IR / compliance policy.
 
 ### Subtype: config posture
@@ -193,7 +193,7 @@ Check-set:
 - **Privileged-session anomalies** — admin login from new countries, unusual ASNs, repeated failures preceding success.
 - **Audit log tampering signals** — gaps in audit log timestamps, unexpected retention changes, suspicious deletes of audit-config entries.
 
-This subtype is **detection-shaped**, closer to IR / threat-hunting than configuration review. Findings here often warrant immediate `/z-investigate` follow-up.
+This subtype is **detection-shaped**, closer to IR / threat-hunting than configuration review. Findings here often warrant immediate `/z-investigator` follow-up.
 
 ## Subsequent turns
 
@@ -219,14 +219,14 @@ For routine posture reviews with no incident shape, only `posture.md` exists in 
 - **Does not bypass evidence requirements.** Every finding cites a source. "An attacker would …" is not a source unless backed by an actual configuration or telemetry observation.
 - **Does not introduce speculative findings.** Posture findings require a control / config / telemetry observation. Hypothesized "what if" scenarios go in Notes, not the register.
 - **Does not chase out-of-scope work.** Out-of-scope observations are noted; new review cycles are separate.
-- **Does not pretend to be an IR responder.** When findings cross into active-incident territory, hand off to `/z-investigate` and (if real) the engineer's IR process — don't try to triage exploitation in a posture review.
+- **Does not pretend to be an IR responder.** When findings cross into active-incident territory, hand off to `/z-investigator` and (if real) the engineer's IR process — don't try to triage exploitation in a posture review.
 
 ## Cross-links
 
-- [`audit-methodology.md`](./audit-methodology.md) — register format, severity, status lifecycle (shared with `/z-audit`)
+- [`audit-methodology.md`](./audit-methodology.md) — register format, severity, status lifecycle (shared with `/z-auditor`)
 - [`troubleshooting-methodology.md`](./troubleshooting-methodology.md) — evidence discipline, claim status (used in subsequent investigation handoffs)
-- [`investigate-prompt.md`](./investigate-prompt.md) — `/z-investigate` (hypothesis-driven sibling)
-- [`audit-prompt.md`](./audit-prompt.md) — `/z-audit` (linter sibling)
+- [`investigate-prompt.md`](./investigate-prompt.md) — `/z-investigator` (hypothesis-driven sibling)
+- [`audit-prompt.md`](./audit-prompt.md) — `/z-auditor` (linter sibling)
 - [`architect-prompt.md`](./architect-prompt.md) — `/z-architect` (capacity sibling)
 - [`siem-log-mapping.md`](./siem-log-mapping.md) — Zscaler log type catalog (used in coverage subtype)
 - [`siem-emission-discipline.md`](./siem-emission-discipline.md) — SIEM execution modes

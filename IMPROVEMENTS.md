@@ -1,6 +1,6 @@
 # Improvements backlog
 
-Open work items for the skill kit. Triage by impact + cost; promote items to **In progress** when active, then to **Resolved** / **Wontfix** / **Deferred** with a one-line note when status changes.
+Open work items for the skill. Triage by impact + cost; promote items to **In progress** when active, then to **Resolved** / **Wontfix** / **Deferred** with a one-line note when status changes.
 
 This is a planning document, not a verification register — for evidence-based open questions about Zscaler concepts, use [`references/_meta/clarifications.md`](references/_meta/clarifications.md).
 
@@ -46,29 +46,29 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 ### Internal-fork override pattern for `_data/incidents/`
 
 - **Status**: Proposed
-- **Origin**: 2026-04-30 — when establishing the default-private posture for incident artifacts. Public skill kit gitignores the per-incident dirs; internal fork should override.
-- **Impact**: lets the internal/production fork commit incident artifacts for institutional memory (journals, timelines, postmortems become a queryable history) while the public skill kit stays private-by-default. Without the override, every internal-fork operator has to remember to `git add -f` per-incident or maintain their own gitignore patches.
+- **Origin**: 2026-04-30 — when establishing the default-private posture for incident artifacts. Public skill gitignores the per-incident dirs; internal fork should override.
+- **Impact**: lets the internal/production fork commit incident artifacts for institutional memory (journals, timelines, postmortems become a queryable history) while the public skill stays private-by-default. Without the override, every internal-fork operator has to remember to `git add -f` per-incident or maintain their own gitignore patches.
 - **Cost**: low. Two plausible mechanisms:
   - Internal fork maintains its own `.gitignore` rules in `.git/info/exclude` (per-clone, not committed) — simplest but doesn't survive re-cloning
   - Internal fork commits an alternate `.gitignore.internal` and switches via `git config core.excludesfile` — survives cloning but adds setup ceremony
-- **Notes**: the public-vs-private fork divergence is already a documented pattern in the kit (see `.gitignore` line 2: "The private internal fork overrides this to commit snapshot/ and logs/ contents"). Incidents inherit the same shape. When the internal fork actually goes through a real production incident, that's the moment to formalize the override mechanism.
+- **Notes**: the public-vs-private fork divergence is already a documented pattern in the skill (see `.gitignore` line 2: "The private internal fork overrides this to commit snapshot/ and logs/ contents"). Incidents inherit the same shape. When the internal fork actually goes through a real production incident, that's the moment to formalize the override mechanism.
 
 ### Auto-fix agent for hygiene failures (Claude-specific)
 
 - **Status**: Proposed (the dogfood endgame for closing the action loop on CI failures)
-- **Origin**: 2026-04-30 — discussion of how to close the loop after the 10-consecutive-CI-failure incident. Pre-push hook + branch protection cover the "human-in-the-loop with safety net" case; this is the "kit maintains itself" extension.
-- **Impact**: when hygiene fails (e.g., post-merge regression on main, or a hard-to-reproduce Renovate-driven drift), a workflow triggers a Claude Code session with the kit + the failure log loaded. The session runs `/z-investigate hygiene failure on <commit>` to diagnose, proposes fixes, opens a PR. Engineer reviews and merges. The kit's whole point — scaffolding agents to operate — gets dogfooded on the kit itself.
+- **Origin**: 2026-04-30 — discussion of how to close the loop after the 10-consecutive-CI-failure incident. Pre-push hook + branch protection cover the "human-in-the-loop with safety net" case; this is the "skill maintains itself" extension.
+- **Impact**: when hygiene fails (e.g., post-merge regression on main, or a hard-to-reproduce Renovate-driven drift), a workflow triggers a Claude Code session with the skill + the failure log loaded. The session runs `/z-investigator hygiene failure on <commit>` to diagnose, proposes fixes, opens a PR. Engineer reviews and merges. The skill's whole point — scaffolding agents to operate — gets dogfooded on the skill itself.
 - **Cost**: medium-to-high. Needs a workflow that calls Claude (via the GitHub action — anthropic/claude-code-action or equivalent), passes the failure context, and lets the agent push to a fix branch. Plus playbook content to handle "self-maintenance" as a recognized workflow shape.
-- **Notes**: Claude-specific by design (uses Agent tool, CC's slash command surface). Not a cross-agent pattern. Conceptually the right "endgame" for closing the action loop, but real cost — defer until the manual loop (pre-push + branch protection + status badge + occasional manual `/z-investigate` on failures) demonstrably becomes a bottleneck. Until then, manual is fine.
+- **Notes**: Claude-specific by design (uses Agent tool, CC's slash command surface). Not a cross-agent pattern. Conceptually the right "endgame" for closing the action loop, but real cost — defer until the manual loop (pre-push + branch protection + status badge + occasional manual `/z-investigator` on failures) demonstrably becomes a bottleneck. Until then, manual is fine.
 
 ### Per-claim citation discipline — script + audit pass
 
 - **Status**: Proposed (real gap; needs real attention)
-- **Origin**: 2026-05-01 — surfaced when sampling reference files to spot-check citation density. `app-connector.md`: 14 vendor refs in body but only 1 file:line citation and 2 inline `(Source:)` patterns; `troubleshooting-methodology.md`: only 1 source in frontmatter for a `confidence: high` doc; many ZIA files use `Tier A/B/C/D` markers, others don't. Pattern across the kit is uneven.
-- **Impact**: the methodology says *"every claim has a source"*, but `check-hygiene.py` and `check-citations.sh` validate structure (frontmatter parses, citation paths resolve, dates are current) — they don't validate semantic completeness (does each body claim have an inline source). So claims slip through uncited. The kit's "soft + hard pairings" principle is unfulfilled here: the soft rule has no working hard check.
+- **Origin**: 2026-05-01 — surfaced when sampling reference files to spot-check citation density. `app-connector.md`: 14 vendor refs in body but only 1 file:line citation and 2 inline `(Source:)` patterns; `troubleshooting-methodology.md`: only 1 source in frontmatter for a `confidence: high` doc; many ZIA files use `Tier A/B/C/D` markers, others don't. Pattern across the skill is uneven.
+- **Impact**: the methodology says *"every claim has a source"*, but `check-hygiene.py` and `check-citations.sh` validate structure (frontmatter parses, citation paths resolve, dates are current) — they don't validate semantic completeness (does each body claim have an inline source). So claims slip through uncited. The skill's "soft + hard pairings" principle is unfulfilled here: the soft rule has no working hard check.
 - **Proposed mitigation**: paragraph-level citation script that splits body into paragraphs (blank-line separated), counts paragraphs with at least one citation marker (`Tier A/B/C/D`, `(Source:)`, `file:line`, `https://help.zscaler`, markdown link to `vendor/` or `references/`), and flags files below ~80% citation coverage. Imperfect — false positives on transition / setup paragraphs without claims; can't distinguish load-bearing from stylistic. But surfaces the obvious "long doc, few citations" cases for human audit.
 - **Cost**: low to write the script (~50-100 lines Python). Real cost is the audit pass to bring flagged files up to standard — could be days of work depending on how many files fall below the threshold.
-- **Notes**: real reference work cites per claim, sometimes per sentence. The kit currently relies on frontmatter `sources:` declarations to "cover" the body, which is a softer form of citation than the methodology asks for. Not blocking the alpha; not something to defer indefinitely either. When this lands, expect a sweep PR per-product (zia, zpa, etc.) bringing citation density up to standard.
+- **Notes**: real reference work cites per claim, sometimes per sentence. The skill currently relies on frontmatter `sources:` declarations to "cover" the body, which is a softer form of citation than the methodology asks for. Not blocking the alpha; not something to defer indefinitely either. When this lands, expect a sweep PR per-product (zia, zpa, etc.) bringing citation density up to standard.
 
 ### Close the `source.html?p=...` validation gap
 
@@ -84,11 +84,11 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 - **Origin**: 2026-04-30 — design discussion on "non-scripted but deterministic" agent guidelines
 - **Impact**: names the design space between hard scripts and loose agent prompts. Gives a vocabulary for which improvements buy script-level determinism without writing a Python check per every rule.
 - **Cost**: variable per pattern; the framing itself is free, individual implementations vary
-- **Notes**: The principle: **every "soft" guideline can be paired with a "hard" check that gates or verifies it.** The kit has been moving in this direction without naming the pattern. Examples already in place: status enum (soft) ↔ enum-validation in `check-hygiene.py` (hard); confidence calibration rules (soft) ↔ frontmatter validator that checks high-confidence-with-empty-sources (hard); bundle templates with `verification:` field (soft) ↔ could be paired with script that validates the field cites a real ticket / lab session / vendor doc (hard, not yet built).
+- **Notes**: The principle: **every "soft" guideline can be paired with a "hard" check that gates or verifies it.** The skill has been moving in this direction without naming the pattern. Examples already in place: status enum (soft) ↔ enum-validation in `check-hygiene.py` (hard); confidence calibration rules (soft) ↔ frontmatter validator that checks high-confidence-with-empty-sources (hard); bundle templates with `verification:` field (soft) ↔ could be paired with script that validates the field cites a real ticket / lab session / vendor doc (hard, not yet built).
 
   Patterns we haven't yet exploited, ordered roughly by leverage:
 
-  **Cross-agent (works under Claude Code, Windsurf, and future agents loading the skill kit):**
+  **Cross-agent (works under Claude Code, Windsurf, and future agents loading the skill):**
 
   - **Schema-validated structured output for registers** — discovery journal / audit register / recommendation register currently emit Markdown tables. Could ALSO emit a JSON/YAML sidecar matching a schema. Hybrid keeps human-readable Markdown while making the register machine-checkable. Lowest cost, highest leverage of the cross-agent set.
   - **Pre-flight checks that gate generation** — hygiene runs after edits land. A pre-flight rubric ("before writing, check N invariants against existing state") moves determinism earlier. Closer to a type-check than a test-run.
@@ -102,7 +102,7 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 
   **Not a determinism pattern (don't pursue as one):**
 
-  - **Memory-as-constraint** — initially listed here, then ruled out. Memory (CC auto-memory, Windsurf memory) is a soft continuity signal, not a deterministic constraint: compaction can summarize-away specific entries, cross-session reads are optional, and unlike every other soft guideline in this list there's no introspectable hard check ("did the agent actually read memory entry X?" isn't verifiable from outside the agent). Useful for carrying user preferences across sessions (the `feedback_*` and `project_*` memory types) but not for enforcing discipline in the kit itself. Mentioned here so we don't accidentally re-propose it.
+  - **Memory-as-constraint** — initially listed here, then ruled out. Memory (CC auto-memory, Windsurf memory) is a soft continuity signal, not a deterministic constraint: compaction can summarize-away specific entries, cross-session reads are optional, and unlike every other soft guideline in this list there's no introspectable hard check ("did the agent actually read memory entry X?" isn't verifiable from outside the agent). Useful for carrying user preferences across sessions (the `feedback_*` and `project_*` memory types) but not for enforcing discipline in the skill itself. Mentioned here so we don't accidentally re-propose it.
 
   **Action triggers**: promote individual patterns to their own IMPROVEMENTS.md items when there's a real reason to build them. Don't speculatively build — the framing is the contribution; individual investments need their own justification.
 
@@ -146,11 +146,11 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 - **Cost**: low (extend `check-hygiene.py`)
 - **Notes**: soft warning, not error. Useful indicator that a high-confidence claim isn't actually exercised by eval coverage.
 
-### Subtype-parameterize `/z-audit` (lint subtypes only)
+### Subtype-parameterize `/z-auditor` (lint subtypes only)
 
 - **Status**: Proposed (most original subtypes moved to `/z-soc` instead)
-- **Origin**: 2026-04-29 (command rename discussion); partially redirected 2026-04-30 when `/z-soc` was created and absorbed the posture-shaped subtypes; clarified 2026-05-01 — the **original intent** of `/z-audit` was tenant-config lint (audit the API dump in `_data/snapshot/` for misconfig / drift / dead rules). The kit-doc lint role that shipped is a divergence from intent. The earlier "charter" rabbit hole was an attempt to fabricate meta-purpose around the wrong shipped scope instead of naming the gap.
-- **Impact**: split `/z-audit` into lint-shape subtypes — `/z-audit refs` (current default — kit reference doc lint) and `/z-audit tenant-config` (the **originally-intended scope**: orphan segments, disabled rules without rationale, unused URL categories, dead refs in tenant config). The originally-planned posture / access / coverage / activity subtypes are now `/z-soc` subtypes, not audit.
+- **Origin**: 2026-04-29 (command rename discussion); partially redirected 2026-04-30 when `/z-soc` was created and absorbed the posture-shaped subtypes; clarified 2026-05-01 — the **original intent** of `/z-auditor` was tenant-config lint (audit the API dump in `_data/snapshot/` for misconfig / drift / dead rules). The skill-doc lint role that shipped is a divergence from intent. The earlier "charter" rabbit hole was an attempt to fabricate meta-purpose around the wrong shipped scope instead of naming the gap.
+- **Impact**: split `/z-auditor` into lint-shape subtypes — `/z-auditor refs` (current default — reference doc lint) and `/z-auditor tenant-config` (the **originally-intended scope**: orphan segments, disabled rules without rationale, unused URL categories, dead refs in tenant config). The originally-planned posture / access / coverage / activity subtypes are now `/z-soc` subtypes, not audit.
 - **Cost**: low to add `tenant-config` subtype playbook content (~100-150 lines) and parameterize the entry point. Auto-detect-from-scope or explicit-subtype-arg remains the design choice.
 - **Notes**: see `audit-prompt.md` § Future subtypes for the partition between audit (lint-shape) and `/z-soc` (posture-shape). Audit's role is hygiene; `/z-soc` is defensibility. **Pre-alpha team-share**: the misalignment is documented but not fixed — team will hit this and the friction tells us whether a rename, a subtype split, or repurposing is the right call.
 
@@ -160,7 +160,7 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 - **Origin**: 2026-04-29 (bundle template work)
 - **Impact**: as real investigations / scaling reviews land, capture the verified query sequences as bundles
 - **Cost**: variable (per-bundle effort, depends on verification access)
-- **Notes**: templates at `references/shared/investigation-bundles.md` and `architect-bundles.md`. Public skill kit should ship only verified bundles; speculative ones stay in private fork. The first ones are most likely to come from real production tickets.
+- **Notes**: templates at `references/shared/investigation-bundles.md` and `architect-bundles.md`. Public skill should ship only verified bundles; speculative ones stay in private fork. The first ones are most likely to come from real production tickets.
 
 ### SDK quirk note: `cloud_firewall_nw_service` `isNameL10nTag` deserialization
 
@@ -184,7 +184,7 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 - **Origin**: 2026-04-30 — bundle templates landed; speculative content is explicitly excluded from public skill per the verification-gating rule
 - **Impact**: validates that the bundle template format works against real evidence; produces the first canonical example others can pattern-match against
 - **Cost**: variable — depends on the production scenario; capturing should be cheap (template is in place) but the underlying investigation/audit determines the work
-- **Notes**: when the first real production investigation or audit happens (a `/z-investigate` or `/z-audit` cycle that runs against actual tenant data, not template-mode), capture it as the first verified bundle in `references/shared/investigation-bundles.md` (or `architect-bundles.md`). Use it to: (a) confirm the template's required fields are right, (b) confirm the verification-gating language works as a discipline, (c) seed the public bundle library with one canonical example. Do NOT manufacture speculative bundles to fill the template — that defeats the verification-gating principle the templates are built around.
+- **Notes**: when the first real production investigation or audit happens (a `/z-investigator` or `/z-auditor` cycle that runs against actual tenant data, not template-mode), capture it as the first verified bundle in `references/shared/investigation-bundles.md` (or `architect-bundles.md`). Use it to: (a) confirm the template's required fields are right, (b) confirm the verification-gating language works as a discipline, (c) seed the public bundle library with one canonical example. Do NOT manufacture speculative bundles to fill the template — that defeats the verification-gating principle the templates are built around.
 
 ### `simulate-policy.py` snapshot path uses old per-product convention
 
@@ -204,7 +204,7 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 
 - **Status**: Proposed
 - **Origin**: 2026-04-29 (bundle template work)
-- **Impact**: documented `_local-bundles/` directory pattern (gitignored) for users to keep tenant-specific bundles alongside the kit
+- **Impact**: documented `_local-bundles/` directory pattern (gitignored) for users to keep tenant-specific bundles alongside the skill
 - **Cost**: low (add to `.gitignore`, document in bundle template)
 - **Notes**: minor housekeeping; do when first user adopts the bundle pattern
 
@@ -225,6 +225,6 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 ## Cross-links
 
 - [`references/_meta/clarifications.md`](references/_meta/clarifications.md) — evidence-based open questions about Zscaler concepts (separate from this planning doc)
-- [`PLAN.md`](PLAN.md) — original kit-building plan
+- [`PLAN.md`](PLAN.md) — original skill-building plan
 - [`SKILL.md`](SKILL.md) — skill-routing entry point
 - `scripts/check-*.py` / `check-*.sh` — the hygiene check suite that some of these items extend

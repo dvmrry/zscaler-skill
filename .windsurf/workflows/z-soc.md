@@ -1,5 +1,5 @@
 ---
-description: Run a SOC / security-posture review of tenant configuration, telemetry, or access state. Posture-driven (vs. /z-audit lint or /z-investigate hypothesis). Outputs a posture register with severity calibrated to security impact.
+description: Run a SOC / security-posture review of tenant configuration, telemetry, or access state. Posture-driven (vs. /z-auditor lint or /z-investigator hypothesis). Outputs a posture register with severity calibrated to security impact.
 ---
 
 # /z-soc
@@ -7,7 +7,7 @@ description: Run a SOC / security-posture review of tenant configuration, teleme
 ## Required reads — do these now, in order
 
 1. **Use your file-read tool to load `references/shared/soc-prompt.md`.** This is the playbook. It carries the First Response procedure, the five subtype check-sets, and the posture register format.
-2. **Use your file-read tool to load `references/shared/audit-methodology.md`.** This is the shared methodology (used by both `/z-audit` and `/z-soc`). It carries the discipline the playbook depends on — register format, severity scale, status lifecycle, anti-patterns.
+2. **Use your file-read tool to load `references/shared/audit-methodology.md`.** This is the shared methodology (used by both `/z-auditor` and `/z-soc`). It carries the discipline the playbook depends on — register format, severity scale, status lifecycle, anti-patterns.
 
 Both paths are relative to the Zscaler skill repo root. **Do not respond until both files are loaded.** Then follow the playbook's First Response procedure with the methodology already in context.
 

@@ -1,8 +1,8 @@
 ---
-description: Run an editorial / structural audit of skill kit references. Mechanical lint via existing CI scripts, plus agent-driven editorial pass (voice, structural shape, confidence calibration, content/frontmatter agreement, cross-link reciprocity, dangling concepts, open-question hygiene, citation discipline).
+description: Run an editorial / structural audit of skill references. Mechanical lint via existing CI scripts, plus agent-driven editorial pass (voice, structural shape, confidence calibration, content/frontmatter agreement, cross-link reciprocity, dangling concepts, open-question hygiene, citation discipline).
 ---
 
-# /z-audit
+# /z-auditor
 
 ## Required reads — do these now, in order
 

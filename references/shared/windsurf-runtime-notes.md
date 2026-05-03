@@ -44,7 +44,7 @@ $ARGUMENTS
 
 Parse the scope, ...
 
-# Windsurf (.windsurf/workflows/z-audit.md)
+# Windsurf (.windsurf/workflows/z-auditor.md)
 The user's audit scope follows this command in the chat. Parse it, ...
 ```
 
@@ -58,7 +58,7 @@ The runtime parses YAML frontmatter (notably `description`) for display purposes
 
 There is no workflow-to-workflow chaining. Sub-workflows must be inlined into the calling workflow body, OR referenced via file path (with the model loading the referenced file via its read tool, per the first rule above).
 
-**Implication**: composability is "load this file" not "invoke this workflow." `/z-audit`'s mechanical-checks step stays inlined; we don't try to factor it into a separate `z-mechanical-checks` workflow.
+**Implication**: composability is "load this file" not "invoke this workflow." `/z-auditor`'s mechanical-checks step stays inlined; we don't try to factor it into a separate `z-mechanical-checks` workflow.
 
 ## Rules are always loaded; workflows are slash commands; memory is separate
 
@@ -70,7 +70,7 @@ Three persistence / loading mechanisms in Windsurf:
 | `.windsurf/workflows/*.md` | On-demand (slash commands) | Invokable procedures — analog of `.claude/commands/` |
 | Memory | Persistence layer separate from both | Cross-session state |
 
-**Implication for `.windsurf/rules/`**: use sparingly. Anything in rules adds to every session's context budget. Reserve rules for high-leverage facts that genuinely apply to every conversation in this repo (e.g., "this is a Zscaler skill kit; canonical references live under `references/`; never commit tenant-specific identifiers").
+**Implication for `.windsurf/rules/`**: use sparingly. Anything in rules adds to every session's context budget. Reserve rules for high-leverage facts that genuinely apply to every conversation in this repo (e.g., "this is a Zscaler skill; canonical references live under `references/`; never commit tenant-specific identifiers").
 
 ## Model pinning is session-level, not workflow-level
 
@@ -82,6 +82,6 @@ This is also why bundles (per [`investigation-bundles.md`](./investigation-bundl
 
 ## Cross-links
 
-- Windsurf workflow files — `.windsurf/workflows/z-investigate.md`, `z-audit.md`, `z-architect.md`
-- Claude Code parallels — `.claude/commands/z-investigate.md`, `z-audit.md`, `z-architect.md`
+- Windsurf workflow files — `.windsurf/workflows/z-investigator.md`, `z-audit.md`, `z-architect.md`
+- Claude Code parallels — `.claude/commands/z-investigator.md`, `z-audit.md`, `z-architect.md`
 - [`siem-emission-discipline.md`](./siem-emission-discipline.md) — the broader "agent-direct vs. user-handoff vs. coworking" framework these workflows operate under

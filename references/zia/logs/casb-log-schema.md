@@ -20,7 +20,7 @@ author-status: draft
 
 The CASB log feed for ZIA is a **Cloud NSS** feed type (not a traditional VM-based NSS feed). It carries SaaS Security events — file scanning, sharing, DLP triggers, and Shadow IT discovery for SaaS applications integrated via the Zscaler SaaS Connector / API CASB layer.
 
-**Confidence is medium**, not high: structural facts (Cloud NSS feed, per-app-category column sets, Insights UI organization) are confirmed from Zscaler help articles. **Per-category field-level detail is partial** in this skill kit — the full per-category column lists live behind sub-pages of the Zscaler help portal that aren't yet captured under `vendor/zscaler-help/`. See [Open questions](#open-questions) for the gap and how to close it.
+**Confidence is medium**, not high: structural facts (Cloud NSS feed, per-app-category column sets, Insights UI organization) are confirmed from Zscaler help articles. **Per-category field-level detail is partial** in this skill — the full per-category column lists live behind sub-pages of the Zscaler help portal that aren't yet captured under `vendor/zscaler-help/`. See [Open questions](#open-questions) for the gap and how to close it.
 
 ## What a record is
 

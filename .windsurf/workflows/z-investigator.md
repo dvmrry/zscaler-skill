@@ -1,8 +1,8 @@
 ---
-description: "Start an evidence-based troubleshooting investigation — parse framing, ground in kit content + tenant snapshot, generate a discovery journal with prioritized hypotheses and named evidence sources. Per-turn structured output with halt-and-wait checkpoints. Designed for procedure-following models (SWE-1.5+, Haiku+)."
+description: "Start an evidence-based troubleshooting investigation — parse framing, ground in skill content + tenant snapshot, generate a discovery journal with prioritized hypotheses and named evidence sources. Per-turn structured output with halt-and-wait checkpoints. Designed for procedure-following models (SWE-1.5+, Haiku+)."
 ---
 
-# /z-investigate
+# /z-investigator
 
 ## Procedure model
 
@@ -14,7 +14,7 @@ If the prior step's output is missing or incomplete, do not start the next step 
 
 ## Context budget — load tight, expand on demand
 
-Your context window is **~200k tokens**. The kit's references and tenant snapshots can easily exceed that if you load everything available. Discipline:
+Your context window is **~200k tokens**. The skill's references and tenant snapshots can easily exceed that if you load everything available. Discipline:
 
 - **Load the playbook + methodology + framing-matched product references** in Step 2A/2B (always).
 - **Load only the snapshot files relevant to the framing's products** in Step 2C — not every file the enumeration returns. Use the selection rules in Snapshot enumeration § Stage 2.
@@ -145,10 +145,10 @@ LOADED:
 GREP RESULTS — User-flagged specifics:
   In LOADED content:
     `<token>`: <file:line> or <jq path>
-  Elsewhere in kit (consider `add:` to bring into context):
+  Elsewhere in the skill (consider `add:` to bring into context):
     `<token>`: <file:line>
   Empty matches:
-    `<token>`: no match in loaded content or kit-wide — outside scope or undocumented
+    `<token>`: no match in loaded content or skill-wide — outside scope or undocumented
 
 ═══ CHECKPOINT 2 — AWAITING USER ═══
   go                — generate the discovery journal (run Step 3)

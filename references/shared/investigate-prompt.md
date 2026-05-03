@@ -17,7 +17,7 @@ author-status: draft
 
 # Investigate — evidence-based troubleshooting playbook
 
-This is the playbook invoked by the `/z-investigate` slash command (Claude Code and Windsurf). It establishes investigation mode for a Zscaler troubleshooting task: discovery journal, citation discipline, hypothesis prioritization, anti-fabrication.
+This is the playbook invoked by the `/z-investigator` slash command (Claude Code and Windsurf). It establishes investigation mode for a Zscaler troubleshooting task: discovery journal, citation discipline, hypothesis prioritization, anti-fabrication.
 
 ## Mode
 
@@ -25,7 +25,7 @@ You are entering investigation mode. Treat the user's framing as the start of a 
 
 ## User framing — what to include for best results
 
-A well-framed `/z-investigate` invocation lets the playbook skip the clarifying-question round-trip. The user should aim to include:
+A well-framed `/z-investigator` invocation lets the playbook skip the clarifying-question round-trip. The user should aim to include:
 
 | Field | Example |
 |---|---|
@@ -96,7 +96,7 @@ Product defaults (ZIA allow-by-default vs ZPA deny-by-default) and architectural
 - **User-pointed path takes priority.** If the framing contains a path or slug (e.g., `_data/incidents/test-foo/`, `2026-04-30-ci-silent-failures`), that directory is the operative artifact — read its `journal.md` (if any) and `evidence/*` first. The user is telling you where the work lives; respect the pointer instead of creating a sibling. This directory is also the save target for Step 6.
 - **Current incident's `evidence/` directory** — if `_data/incidents/<operative-slug>/evidence/` exists and has files, read them before asking the user what to investigate. The user may have placed CI logs, API dumps, or screenshots there that already carry the answer. The same applies to evidence files attached to the current chat (paste-ins, file uploads).
 - **Tenant API data / config snapshots** — `_data/snapshot/<cloud>/` (e.g., `_data/snapshot/zs2/`, `_data/snapshot/zs3/`) is the canonical location for offline dumps of API-derived tenant config: URL filtering rules, access policies, segments, connector groups. **Always `ls _data/snapshot/` and read any per-cloud subdir whose cloud matches the framing's tenant** — this is the cheapest source of "what's actually configured" and avoids the state drift between API query time and now. The cloud is inferable from the tenant's API base URL (`zsapi.zscaler.net` ⇒ `zs1`, `zsapi.zscalerthree.net` ⇒ `zs3`, etc. — see [`../shared/cloud-architecture.md`](../shared/cloud-architecture.md) if unfamiliar). Forks may use a slightly different layout (e.g., `_data/<cloud>/` directly without the `snapshot/` prefix); if the canonical path is empty, scan `_data/` for any per-cloud subdir before assuming no snapshot exists.
-- **Script logs** — `_data/logs/` holds dumped output from kit scripts (issue-watch, find-asymmetries, hygiene digests). Relevant if the framing involves a recent kit-script run.
+- **Script logs** — `_data/logs/` holds dumped output from skill scripts (issue-watch, find-asymmetries, hygiene digests). Relevant if the framing involves a recent skill-script run.
 
 **Do not browse sibling incident directories.** Unless the user explicitly points at a specific incident directory, do not `ls _data/incidents/`, do not read any other incident's `journal.md`, and do not surface "this looks similar to a prior incident" to the user. Cross-pollinating findings between investigations contaminates evidence and produces false confidence; the discipline for safely re-using prior journals isn't refined enough yet. Stay scoped to the operative directory the user named (or a fresh slug if none was named).
 
@@ -156,7 +156,7 @@ Render the discovery journal with hypotheses as `Open (likely)` or `Open (uncert
 
 ### 6. Save the journal to disk
 
-After rendering in chat, write the same journal to `_data/incidents/<slug>/journal.md`. **This save is unconditional** — every `/z-investigate` invocation persists its journal, regardless of whether the investigation later turns out to be an incident or stays exploratory. Subsequent turns update the same file in place.
+After rendering in chat, write the same journal to `_data/incidents/<slug>/journal.md`. **This save is unconditional** — every `/z-investigator` invocation persists its journal, regardless of whether the investigation later turns out to be an incident or stays exploratory. Subsequent turns update the same file in place.
 
 **Path selection — check before minting a new slug:**
 
@@ -170,7 +170,7 @@ After rendering in chat, write the same journal to `_data/incidents/<slug>/journ
 - `_data/incidents/*` is gitignored by default, so the journal stays local-only unless the engineer explicitly opts in to publish it.
 - If the user's named path doesn't start with `_data/incidents/` (e.g., they pointed at a path elsewhere in the tree), respect their pointer but flag the deviation in your reply — they may have a reason (a fork's internal convention) or it may be a typo worth confirming.
 
-`_data/incidents/` is the kit's umbrella home for any saved `/z-investigate` artifact — the name reflects that incidents are the most common shape, not that every saved investigation must be one. If the investigation turns out to be incident-shaped (production break, regression, hygiene failure), the same directory becomes the home for `timeline.md` + `postmortem.md` + `evidence/` per § "Saving as an incident artifact." If it stays exploratory, only `journal.md` exists in the directory — that's fine.
+`_data/incidents/` is the skill's umbrella home for any saved `/z-investigator` artifact — the name reflects that incidents are the most common shape, not that every saved investigation must be one. If the investigation turns out to be incident-shaped (production break, regression, hygiene failure), the same directory becomes the home for `timeline.md` + `postmortem.md` + `evidence/` per § "Saving as an incident artifact." If it stays exploratory, only `journal.md` exists in the directory — that's fine.
 
 If the user explicitly indicates they don't want a save (e.g., "don't save this, just answering a quick question"), skip step 6 and note the skip in your reply. Otherwise save by default.
 
@@ -265,7 +265,7 @@ When this investigation is an **incident** — a production break, regression, h
 2. **`postmortem.md`** — author after the dust settles (within ~24h while context is fresh): root cause, why-not-caught-earlier, what changed, lessons, follow-ups. Blameless and brief.
 3. **`evidence/`** — raw artifacts that the journal cites (CI logs, command output, API dumps, screenshots). Gitignored by default per the privacy posture in [`../../_data/incidents/README.md`](../../_data/incidents/README.md).
 
-The whole `_data/incidents/<slug>/` tree is gitignored by default (private posture); engineers explicitly opt-in to publish a kit-internal incident by adding `!`-overrides per-incident. So an incident journal stays local-only unless deliberately published.
+The whole `_data/incidents/<slug>/` tree is gitignored by default (private posture); engineers explicitly opt-in to publish a skill-internal incident by adding `!`-overrides per-incident. So an incident journal stays local-only unless deliberately published.
 
 If the investigation stays exploratory (no production stakes, no consequences worth remembering), the directory just contains `journal.md` — that's the expected and correct shape. Don't author a postmortem for a "how does X work?" exploration.
 
@@ -283,7 +283,7 @@ When the same hypothesis comes up repeatedly, capture the verified query sequenc
 - [`siem-log-mapping.md`](./siem-log-mapping.md) — Zscaler log type catalog
 - [`splunk-queries.md`](./splunk-queries.md) — Splunk SPL pattern catalog
 - [`tenant-schema-derivation.md`](./tenant-schema-derivation.md) — canonical vs. tenant schemas, derivation recipes
-- [`audit-prompt.md`](./audit-prompt.md) — `/z-audit` playbook (checklist-driven sibling)
+- [`audit-prompt.md`](./audit-prompt.md) — `/z-auditor` playbook (checklist-driven sibling)
 - [`soc-prompt.md`](./soc-prompt.md) — `/z-soc` playbook (security-posture sibling)
 - [`architect-prompt.md`](./architect-prompt.md) — `/z-architect` playbook (design-driven sibling)
 

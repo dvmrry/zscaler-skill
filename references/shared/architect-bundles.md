@@ -21,7 +21,7 @@ A **query bundle** is a named, ordered sequence of queries (Zscaler API calls, S
 
 Bundles are only useful when they're **verified**. Wrong queries, wrong thresholds, or wrong decision logic produces architectural recommendations that are confidently wrong — exactly the failure mode the architect methodology is designed to prevent.
 
-This file ships the template only. The public skill kit does not include bundle content authored without verification.
+This file ships the template only. The public skill does not include bundle content authored without verification.
 
 ## Where bundles live
 
@@ -31,7 +31,7 @@ Same boundary as investigation bundles:
 |---|---|
 | **Private fork** | Bundles tied to your tenant's specific config patterns, deployment topology, or scaling decisions |
 | **CLAUDE.md** | A short bundle the agent picks up automatically per session |
-| **`_local-bundles/`** (gitignored) | Larger collections kept alongside the kit |
+| **`_local-bundles/`** (gitignored) | Larger collections kept alongside the skill |
 | **PR back to this repo** | A bundle that generalizes — placeholder plumbing, Zscaler-published surfaces, verification cited |
 
 ## Template
@@ -172,4 +172,4 @@ Document it explicitly. Silent assumptions cause incorrect recommendations.
 - [`architect-methodology.md`](./architect-methodology.md) — recommendation register, risk scale, confidence calibration, status lifecycle
 - [`siem-emission-discipline.md`](./siem-emission-discipline.md) — execution modes, placeholder plumbing, public/private boundary
 - [`splunk-queries.md`](./splunk-queries.md) — named SPL patterns to reference from inside bundles
-- [`investigation-bundles.md`](./investigation-bundles.md) — parallel template for `/z-investigate` query bundles
+- [`investigation-bundles.md`](./investigation-bundles.md) — parallel template for `/z-investigator` query bundles

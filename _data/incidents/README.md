@@ -1,8 +1,8 @@
 # `_data/incidents/` — incident artifacts and post-mortems
 
-Structured location for incident-investigation artifacts. Captures what happened, what we did, and what changed because of it. The kit dogfoods its own discipline — when something breaks (CI silently failing, schema drift across a Renovate bump, a deployment regression, a tenant-side operational issue), the resulting artifact lives here under the same standards we apply to Zscaler-tenant investigations.
+Structured location for incident-investigation artifacts. Captures what happened, what we did, and what changed because of it. The skill dogfoods its own discipline — when something breaks (CI silently failing, schema drift across a Renovate bump, a deployment regression, a tenant-side operational issue), the resulting artifact lives here under the same standards we apply to Zscaler-tenant investigations.
 
-Lives under `_data/` (rather than `references/_meta/`) because incidents typically contain context-specific data — real CI logs, real timestamps, real commit hashes, sometimes tenant identifiers. The `_data/` private-by-default posture is the right home; engineers commit kit-internal incidents that have no sensitive data, and add `.gitignore` rules for tenant-side incident dirs that need full privacy.
+Lives under `_data/` (rather than `references/_meta/`) because incidents typically contain context-specific data — real CI logs, real timestamps, real commit hashes, sometimes tenant identifiers. The `_data/` private-by-default posture is the right home; engineers commit skill-internal incidents that have no sensitive data, and add `.gitignore` rules for tenant-side incident dirs that need full privacy.
 
 ## Per-incident structure
 
@@ -10,7 +10,7 @@ Each incident gets its own directory: `<YYYY-MM-DD>-<short-slug>/`. The slug is 
 
 ```
 2026-04-30-ci-silent-failures/
-├── journal.md       — the discovery journal from /z-investigate
+├── journal.md       — the discovery journal from /z-investigator
 ├── timeline.md      — chronological order of events
 ├── postmortem.md    — root cause, lessons, what changed, follow-ups
 └── evidence/            — raw artifacts (CI logs, command output, screenshots)
@@ -21,7 +21,7 @@ Each incident gets its own directory: `<YYYY-MM-DD>-<short-slug>/`. The slug is 
 
 ### `journal.md`
 
-Generated from `/z-investigate <framing>` and the subsequent triage. Follows the discovery-journal format from [`../../references/shared/troubleshooting-methodology.md`](../../references/shared/troubleshooting-methodology.md): claims with sources, status, timestamps. Confidence-tiered status enums (`Open (likely)` / `Confirmed (medium)` / `Ruled out` / `Stale` / `Resolved`).
+Generated from `/z-investigator <framing>` and the subsequent triage. Follows the discovery-journal format from [`../../references/shared/troubleshooting-methodology.md`](../../references/shared/troubleshooting-methodology.md): claims with sources, status, timestamps. Confidence-tiered status enums (`Open (likely)` / `Confirmed (medium)` / `Ruled out` / `Stale` / `Resolved`).
 
 Capture the journal **as it was during the investigation**, not a cleaned-up retrospective. The reasoning trail matters more than the final answer; readers want to see how hypotheses were prioritized and ruled out.
 
@@ -36,7 +36,7 @@ Written **after** the dust settles, not during. Sections:
 - **Summary** — one paragraph; what happened, what was the impact, what changed
 - **Root cause** — confirmed cause(s); cite the journal claims that established them
 - **Why it wasn't caught earlier** — the systemic angle; what was the silent gap?
-- **What changed** — every concrete kit edit attributable to this incident, with commit refs
+- **What changed** — every concrete edit attributable to this incident, with commit refs
 - **Lessons** — generalized takeaways usable for future investigations
 - **Follow-ups** — open work spawned by this; cross-link to `IMPROVEMENTS.md` entries
 
@@ -95,7 +95,7 @@ Three categories:
 
 | Content | Default | Override |
 |---|---|---|
-| Kit-internal incident artifacts (no tenant data — e.g., today's CI silent-failure incident) | **Tracked publicly** | Add `.gitignore` rule per-incident if you change your mind |
+| Skill-internal incident artifacts (no tenant data — e.g., today's CI silent-failure incident) | **Tracked publicly** | Add `.gitignore` rule per-incident if you change your mind |
 | Tenant-side incident artifacts (Zscaler operational issues with real tenant identifiers) | **Tracked, but redact tenant-specifics** OR add to `.gitignore` to keep fully private | Per fork policy |
 | `evidence/` raw artifacts | **Gitignored** | Add `!` override per-file when safe |
 
@@ -113,11 +113,11 @@ The README itself is always tracked — it documents the convention.
 
 ## How investigations land here
 
-Every `/z-investigate` invocation saves a `journal.md` in this directory by default — the playbook's First Response procedure persists the journal at first render and updates it in place as the investigation progresses. `_data/incidents/` is the kit's umbrella home for any saved investigation artifact; the name reflects that incidents are the most common shape, not that every saved investigation must be one.
+Every `/z-investigator` invocation saves a `journal.md` in this directory by default — the playbook's First Response procedure persists the journal at first render and updates it in place as the investigation progresses. `_data/incidents/` is the skill's umbrella home for any saved investigation artifact; the name reflects that incidents are the most common shape, not that every saved investigation must be one.
 
 **Routine flow (most investigations):**
 
-1. Engineer or agent runs `/z-investigate <framing>`
+1. Engineer or agent runs `/z-investigator <framing>`
 2. Agent picks a slug (`<YYYY-MM-DD>-<short-descriptive-slug>`) and writes `journal.md` at first response
 3. Subsequent turns update `journal.md` in place — claims promote/dismiss, statuses change
 4. When the investigation closes (resolved, parked, or escalated), the journal is the saved artifact
@@ -138,5 +138,5 @@ Privacy is unchanged across both flows: `_data/incidents/*` is gitignored by def
 
 - [`../../references/shared/troubleshooting-methodology.md`](../../references/shared/troubleshooting-methodology.md) — discovery journal format
 - [`../../references/shared/audit-methodology.md`](../../references/shared/audit-methodology.md) — register format if a post-incident audit is warranted
-- [`../../IMPROVEMENTS.md`](../../IMPROVEMENTS.md) — kit-level backlog where follow-ups land
+- [`../../IMPROVEMENTS.md`](../../IMPROVEMENTS.md) — skill-level backlog where follow-ups land
 - [`../README.md`](../README.md) — `_data/` directory convention overview

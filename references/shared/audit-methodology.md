@@ -14,7 +14,7 @@ author-status: draft
 
 # Audit methodology — evidence-based finding discipline
 
-A framework for systematic, citation-heavy audits of the skill kit (or, later, a Zscaler tenant). Parallel to [`troubleshooting-methodology.md`](./troubleshooting-methodology.md) — same anti-fabrication and citation discipline, different shape.
+A framework for systematic, citation-heavy audits of the skill (or, later, a Zscaler tenant). Parallel to [`troubleshooting-methodology.md`](./troubleshooting-methodology.md) — same anti-fabrication and citation discipline, different shape.
 
 **Investigation** is hypothesis-driven (something's broken; find why). **Audit** is checklist-driven (review state against a standard; surface findings).
 
@@ -210,6 +210,6 @@ NEXT STEPS:
 ## Cross-links
 
 - [`troubleshooting-methodology.md`](./troubleshooting-methodology.md) — parallel discipline for hypothesis-driven investigations
-- [`audit-prompt.md`](./audit-prompt.md) — `/z-audit` slash command playbook (lint flavor)
+- [`audit-prompt.md`](./audit-prompt.md) — `/z-auditor` slash command playbook (lint flavor)
 - [`siem-emission-discipline.md`](./siem-emission-discipline.md) — applies when audits query SIEMs (future audit subtypes)
 - Mechanical CI scripts: `scripts/check-hygiene.py`, `scripts/check-citations.sh`, `scripts/check-staleness.sh`, `scripts/check-doc-links.py`
