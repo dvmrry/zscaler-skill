@@ -1,0 +1,634 @@
+                                    LEGACY ZSCALER APIS : CONFIGURING URL CATEGORIES USING API
+
+
+
+
+Configuring URL Categories Using API
+
+Predefined and custom URL categories provide a way to classify URLs for your organization. URL
+categories are primarily used in URL Filtering policy rules, and are useful when blocking or allowing
+web traffic. TLD categories are URL categories that allow you to group together top-level domains
+(TLDs). TLD categories are used in URL Filtering  policies to control access to domains for a
+specific country, or to block access to TLDs that might be used solely for malicious purposes. You
+can configure and manage URL and TLD categories using the cloud service API. For detailed
+information about the API endpoints, see URL Categories in the API Reference.
+You can easily manage custom URL category updates using the Bulk URL Upload tool. To learn more,
+see About Bulk URL Upload Tool.
+The following sections explain the various operations that you can perform using URL Categories
+endpoints, along with examples.
+
+     After making any configuration changes, ensure that you activate them by sending a POST
+ 
+     request to /status.
+
+
+Getting Information about URL and TLD Categories
+To retrieve information for all predefined and custom URL categories, send a GET request to
+/urlCategories. For example, in Python:
+
+ conn.request("GET", "/api/v1/urlCategories", headers=headers)
+
+
+Using the customOnly parameter, you can filter the information to retrieve only custom URL
+categories. For example:
+
+ conn.request("GET", "/api/v1/urlCategories?customOnly=true", headers=headers)
+
+
+To retrieve information about TLD categories, send a GET request to /urlCategories with the type
+parameter set to TLD_CATEGORY. For example:
+
+ conn.request("GET", "/api/v1/urlCategories?type=TLD_CATEGORY", headers=headers)
+
+
+If you only want a list of URL category IDs and names, send a GET request to
+/urlCategories/lite .
+
+
+
+
+                                                                            ©2026 Zscaler, Inc. All rights reserved.   1
+                                   LEGACY ZSCALER APIS : CONFIGURING URL CATEGORIES USING API
+
+
+
+
+Adding Custom URL and TLD Categories
+To add a custom URL category:
+Send a POST request to /urlCategories by including all of the proper key-value pairs in the Body.
+The following information is required: configuredName, urls or keywords, and superCategory.
+Optionally, you can specify other details, such as dbCategorizedUrls,
+keywordsRetainingParentCategory, etc. that are applicable to URL categories.
+
+ See an example request to add a custom URL category and its response.
+
+  In the following example, a POST request is sent to /urlCategories to add a new custom URL
+  category:
+
+   import http.client
+       import json
+       conn = http.client.HTTPSConnection("HOSTNAME")
+       payload = json.dumps({
+          "configuredName": "Vlogs",
+          "superCategory": "ENTERTAINMENT",
+          "keywords": [
+            "vlog"
+          ],
+          "urls": [
+            "livejournal.com"
+          ]
+       })
+       headers = {
+          'Content-Type': 'application/json',
+          'Cookie': 'JSESSIONID=xxxxxx'
+       }
+       conn.request("POST", "/api/v1/urlCategories", payload, headers)
+       res = conn.getresponse()
+       data = res.read()
+       print(data.decode("utf-8"))
+
+
+  The response would look similar to the following example:
+
+   {
+            "id": "CUSTOM_16",
+            "configuredName": "Vlogs",
+            "superCategory": "ENTERTAINMENT",
+            "keywords": [
+                "vlog"
+            ],
+            "keywordsRetainingParentCategory": [],
+            "urls": [
+                "livejournal.com"
+
+
+                                                                        ©2026 Zscaler, Inc. All rights reserved.   2
+                                   LEGACY ZSCALER APIS : CONFIGURING URL CATEGORIES USING API
+
+
+
+
+            ],
+            "dbCategorizedUrls": [],
+            "customCategory": true,
+            "editable": true,
+            "description": "CUSTOM_16_DESC",
+            "type": "URL_CATEGORY",
+            "val": 143,
+            "customUrlsCount": 1,
+            "urlsRetainingParentCategoryCount": 0,
+            "customIpRangesCount": 0,
+            "ipRangesRetainingParentCategoryCount": 0
+        }
+
+
+
+
+To add a custom TLD category:
+Send a POST request to /urlCategories by including all of the proper key-value pairs in the Body.
+The following information is required: type, configuredName, superCategory, and urls.
+Optionally, you can specify description and scopes that are applicable to TLD categories.
+ See an example request to add a custom TLD category and its response.
+
+  In the following example, a POST request is sent to /urlCategories to add a new custom TLD
+  category.
+
+   import http.client
+       import json
+       conn = http.client.HTTPSConnection("HOSTNAME")
+       payload = json.dumps({
+         "type": "TLD_CATEGORY",
+         "configuredName": "Sample TLD Category",
+         "superCategory": "USER_DEFINED",
+         "urls": [
+           ".academy"
+         ],
+         "scopes": [
+           {
+             "Type": "ORGANIZATION"
+           },
+           {
+             "Type": "DEPARTMENT",
+             "ScopeEntities": [
+               {
+                 "id": 73965,
+                 "name": "Training"
+               }
+             ]
+           }
+
+
+                                                                        ©2026 Zscaler, Inc. All rights reserved.   3
+                                 LEGACY ZSCALER APIS : CONFIGURING URL CATEGORIES USING API
+
+
+
+
+        ]
+     })
+     headers = {
+        'Content-Type': 'application/json',
+        'Cookie': 'JSESSIONID=xxxxxx'
+     }
+     conn.request("POST", "/api/v1/urlCategories", payload, headers)
+     res = conn.getresponse()
+     data = res.read()
+     print(data.decode("utf-8"))
+
+
+The response would look similar to the following example:
+
+ {
+          "id": "CUSTOM_10",
+          "configuredName": "Sample TLD Category",
+          "superCategory": "USER_DEFINED",
+          "keywords": [],
+          "keywordsRetainingParentCategory": [],
+          "urls": [
+              ".academy"
+          ],
+          "dbCategorizedUrls": [],
+          "customCategory": true,
+          "scopes": [
+              {
+                  "Type": "ORGANIZATION"
+              },
+              {
+                  "Type": "DEPARTMENT",
+                  "ScopeEntities": [
+                      {
+                          "id": 73965,
+                          "name": "Training"
+                      }
+                  ]
+              }
+          ],
+          "editable": true,
+          "description": "CUSTOM_10_DESC",
+          "type": "TLD_CATEGORY",
+          "val": 137,
+          "customUrlsCount": 1,
+          "urlsRetainingParentCategoryCount": 0,
+          "customIpRangesCount": 0,
+          "ipRangesRetainingParentCategoryCount": 0
+     }
+
+
+
+
+                                                                ©2026 Zscaler, Inc. All rights reserved.   4
+                                   LEGACY ZSCALER APIS : CONFIGURING URL CATEGORIES USING API
+
+
+
+
+   If the admin scope Type is not specified within the request Body, then it is set to ANY by
+  default and any admin can manage the custom URL category. To learn more, see the
+   Understanding RBAC and Admin Scope for Custom URL Categories section of this article.
+
+
+Understanding RBAC and Admin Scope for Custom URL Categories
+With role-based administration, an admin’s scope specifies which areas of the organization they can
+manage in the ZIA Admin Portal. To learn more, see About Admin Scope.
+Using the cloud service API, you can retrieve the admin scope information for a custom URL category
+by sending a GET request to /urlCategories?customOnly=true. The admin scope is included in
+the response only if it's set to a Type other than ANY (i.e., ORGANIZATION, DEPARTMENT,
+LOCATION, LOCATION_GROUP).
+ See an example request with admin scope specified.
+
+   {
+            "id": "CUSTOM_02",
+            "configuredName": "demo",
+            "superCategory": "USER_DEFINED",
+            "urls": [
+                "abc.com"
+            ],
+            "dbCategorizedUrls": [],
+            "customCategory": true,
+            "scopes": [
+                {
+                    "Type": "ORGANIZATION"
+                },
+                {
+                    "Type": "DEPARTMENT",
+                    "ScopeEntities": [
+                        {
+                            "id": 363517,
+                            "name": "Service Admin"
+                        }
+                    ]
+                }
+            ],
+            "editable": true,
+            "val": 129
+        }
+
+
+
+
+                                                                         ©2026 Zscaler, Inc. All rights reserved.   5
+                                   LEGACY ZSCALER APIS : CONFIGURING URL CATEGORIES USING API
+
+
+
+
+  If editable is set to true, then admins with the proper admin scope are able to edit the custom
+  URL category. An admin without this permission has read-only access.
+
+
+
+   As a best practice, you should always send a GET request before a PUT request to
+   /urlCategories/{categoryId}. This helps avoid potentially missing updates between
+ 
+   GET and PUT calls as well as ensure that you do not accidentally overwrite the admin scope
+   for an existing custom URL category.
+
+
+Updating URL and TLD Categories
+You can update URL categories (predefined or custom) and TLD categories by sending a PUT
+request to /urlCategories/{categoryId}. However, the attributes that you can modify using this
+request vary between URL and TLD categories.
+To update a URL or TLD category:
+  1. (Optional) Get information about the category you want to modify by sending a GET request to
+     /urlCategories or /urlCategories/lite with the right attributes set. To learn more, see
+     the Getting Information About URL and TLD Categories. Sending a GET request before a PUT
+     request to /urlCategories/{categoryId} helps avoid potentially missing updates between
+     GET and PUT calls as well as ensure that you do not accidentally overwrite any information for
+     an existing custom URL category.
+  2. Modify the category's information by sending a PUT request to
+     /urlCategories/{categoryId} and including all of the proper key-value pairs in the Body.
+
+
+        When modifying custom URL categories, you must specify the configuredName and
+       superCategory information in the request Body. These fields are not required for
+        predefined URL categories. For custom TLD categories, configuredName is required.
+
+The list of URLs, IP addresses, or TLDs passed in the PUT request replaces the current list in the
+category. If you want to add or remove URLs, IP addresses, or TLDs within a category, include the
+action parameter and specify the value as ADD_TO_LIST or REMOVE_FROM_LIST, as explained in the
+following sections.
+
+
+
+
+                                                                          ©2026 Zscaler, Inc. All rights reserved.   6
+                                  LEGACY ZSCALER APIS : CONFIGURING URL CATEGORIES USING API
+
+
+
+
+   Zscaler recommends always using the ADD_TO_LIST and REMOVE_TO_LIST parameters as a
+   best practice when adding or removing URLs, IP addresses, or TLDs from a category. Using
+ 
+   these parameters with your PUT request ensures that you obtain the best response times for
+   your API calls.
+
+Adding and Removing URLs or IP Addresses within a URL Category
+To add or remove a URL or an IP address from a category, send a PUT request to
+/urlCategories/{categoryId} with the action parameter set to ADD_TO_LIST or
+REMOVE_FROM_LIST and include all of the proper key-value pairs in the request Body. If you are
+modifying a custom URL category, this request must additionally specify the configuredName and
+superCategory information in the request Body.
+
+ See an example request to add URLs and IP addresses to a predefined URL category and its
+
+  response.
+  In the following example, a PUT request is sent to /urlCategories/MUSIC?
+  action=ADD_TO_LIST in order to add sampletest5.com, 192.168.1.1, and test5.com to the
+  predefined MUSIC category:
+
+   import http.client
+       import json
+       conn = http.client.HTTPSConnection("HOSTNAME")
+       payload = {
+       "superCategory": "ENTERTAINMENT_AND_RECREATION",
+           "urls":[
+               "sampletest5.com",
+               "192.168.1.1"
+           ],
+           "dbCategorizedUrls":[
+               "test5.com"
+           ]
+       }
+       headers = {
+           'content-type': "application/json",
+           'cache-control': "no-cache",
+           'cookie': "JSESSIONID=xxxxxxx"
+           }
+       conn.request("PUT", "/api/v1/urlCategories/MUSIC?action=ADD_TO_LIST", json.dumps(p
+   ayload), headers)
+       res = conn.getresponse()
+       data = res.read()
+       print(data.decode("utf-8"))
+
+
+
+
+                                                                       ©2026 Zscaler, Inc. All rights reserved.   7
+                                  LEGACY ZSCALER APIS : CONFIGURING URL CATEGORIES USING API
+
+
+
+
+ The response would look similar to the following example:
+
+   {
+           "id": "MUSIC",
+           "urls": [
+               "sampletest5.com",
+               "sampletest4.com",
+               "192.168.1.1"
+           ],
+           "dbCategorizedUrls": [
+               "test4.com",
+               "test5.com"
+           ],
+           "customCategory": false,
+           "editable": true,
+           "description": "MUSIC_DESC",
+           "val": 24
+       }
+
+
+
+       You can add IPv6 addresses (e.g., 2041:0000:140f:0000:0000:0000:875b:131b or
+   
+       2041:0000:140f::875b:131b) to a category.
+
+
+ See an example request to remove URLs and IP addresses from a custom URL category and its
+
+ response.
+ In the following example, a PUT request is sent to /urlCategories/CUSTOM_05?
+ action=REMOVE_FROM_LIST in order to remove example.com and 192.168.1.3 from the
+ CUSTOM_05 category:
+
+   import http.client
+       import json
+       conn = http.client.HTTPSConnection("HOSTNAME")
+       payload = json.dumps({
+          "configuredName": "Popular Media",
+          "superCategory":"NEWS_AND_MEDIA",
+          "urls": [
+            "example.com",
+            "192.168.1.3"
+          ]
+       })
+       headers = {
+          'content-type': 'application/json',
+          'cache-control': "no-cache",
+          'cookie': 'JSESSIONID=xxxxxxx'
+          }
+       conn.request("PUT", "/api/v1/urlCategories/CUSTOM_05?action=REMOVE_FROM_LIST", pay
+
+                                                                     ©2026 Zscaler, Inc. All rights reserved.   8
+                                     LEGACY ZSCALER APIS : CONFIGURING URL CATEGORIES USING API
+
+
+
+
+    load, headers)
+        res = conn.getresponse()
+        data = res.read()
+        print(data.decode("utf-8"))
+
+
+
+So, the response would look similar to the following example:
+
+    {
+              "id": "CUSTOM_05",
+              "configuredName": "Popular Media",
+              "keywords": [],
+              "keywordsRetainingParentCategory": [],
+              "urls": [
+                  "192.168.1.2",
+                  "sample.com"
+              ],
+              "dbCategorizedUrls": [],
+              "customCategory": true,
+              "editable": true,
+              "description": "CUSTOM_05_DESC",
+              "type": "URL_CATEGORY",
+              "val": 132,
+              "customUrlsCount": 2,
+              "urlsRetainingParentCategoryCount": 0,
+              "customIpRangesCount": 0,
+              "ipRangesRetainingParentCategoryCount": 0
+        }
+
+
+
+        You can remove IPv6 addresses (e.g., 2041:0000:140f:0000:0000:0000:875b:131b or
+    
+        2041:0000:140f::875b:131b) from a category.
+
+
+
+
+            The action parameter is only applicable to URLs or IP addresses. If a category has any
+            existing keywords, then the keywords must be sent in the request payload.
+            When adding URLs to a URL category, if a single URL uses an invalid format, the request
+            is rejected and produces an error code. A valid URL must meet the following
+            requirements:
+                 The URL must use a standard URI format.
+                  The URL length cannot exceed 1024 characters.
+                  The URL cannot contain non-ASCII characters.
+                  The domain name before the colon (:) cannot exceed 255 characters.
+
+                                                                           ©2026 Zscaler, Inc. All rights reserved.   9
+                                   LEGACY ZSCALER APIS : CONFIGURING URL CATEGORIES USING API
+
+
+
+
+               The domain name between periods (.) cannot exceed 63 characters.
+
+Adding and Removing Top-level Domains within a TLD Category
+To add or remove TLDs from a custom TLD category, send a PUT request to
+/urlCategories/{categoryId} with the action parameter set to ADD_TO_LIST or
+REMOVE_FROM_LIST and include all of the proper key-value pairs in the request Body. You must also
+specify the configuredName information in the request Body.
+ See an example request to add TLDs to a TLD category and its response.
+
+  In the following example, a PUT request is sent to /urlCategories/CUSTOM_10?
+  action=ADD_TO_LIST to add .com and .net to a TLD category:
+
+   import http.client
+       import json
+       conn = http.client.HTTPSConnection("HOSTNAME")
+       payload = {
+       "superCategory": "USER_DEFINED",
+           "urls":[
+               ".com", ".net"
+           ],
+       }
+       headers = {
+           'content-type': "application/json",
+           'cache-control': "no-cache",
+           'cookie': "JSESSIONID=xxxxxxx"
+           }
+       conn.request("PUT", "/api/v1/urlCategories/CUSTOM_10?action=ADD_TO_LIST", json.dum
+   ps(payload), headers)
+       res = conn.getresponse()
+       data = res.read()
+       print(data.decode("utf-8"))
+
+
+  The response would look similar to the following example:
+
+   {
+            "id": "CUSTOM_10",
+            "configuredName": "Sample TLD Category",
+            "superCategory": "USER_DEFINED",
+            "keywords": [],
+            "keywordsRetainingParentCategory": [],
+            "urls": [
+                ".academy", ".net", ".com"
+            ],
+            "dbCategorizedUrls": [],
+            "customCategory": true,
+
+
+                                                                        ©2026 Zscaler, Inc. All rights reserved.   10
+                                   LEGACY ZSCALER APIS : CONFIGURING URL CATEGORIES USING API
+
+
+
+
+            "scopes": [
+                {
+                    "Type": "ORGANIZATION"
+                },
+                {
+                    "Type": "DEPARTMENT",
+                    "ScopeEntities": [
+                        {
+                            "id": 73965,
+                            "name": "Training"
+                        }
+                    ]
+                }
+            ],
+            "editable": true,
+            "description": "CUSTOM_10_DESC",
+            "type": "TLD_CATEGORY",
+            "val": 137,
+            "customUrlsCount": 3,
+            "urlsRetainingParentCategoryCount": 0,
+            "customIpRangesCount": 0,
+            "ipRangesRetainingParentCategoryCount": 0
+        }
+
+
+
+
+Deleting Custom URL and TLD Categories
+You can delete custom URL and TLD categories, but predefined URL categories cannot be deleted. If
+the custom category you are trying to delete is being used by a URL policy or NSS feed, the request
+fails.
+To delete a custom URL or TLD category, send a DELETE request to
+/urlCategories/{categoryId}.
+
+
+Looking Up the Category for a URL
+To determine the categories to which a URL belongs, send a POST request to /urlLookup with the
+URLs in the request Body. You can look up to 100 URLs maximum per request, and a URL cannot
+exceed 1024 characters.
+
+     Custom URL classification is not returned by this request. Any URLs that are not categorized
+ 
+     under a predefined URL category returns a value of MISCELLANEOUS_OR_UNKNOWN.
+
+
+
+
+                                                                          ©2026 Zscaler, Inc. All rights reserved.   11
+                                   LEGACY ZSCALER APIS : CONFIGURING URL CATEGORIES USING API
+
+
+
+
+The /urlLookup endpoint returns a field called SecurityAlert whose possible values include, but
+are not limited to, the following:
+     OTHER_THREAT
+     PHISHING
+     BOTNET
+     MALWARE_SITE
+     P2P
+     UNAUTHORIZED_COMMUNICATION
+     XSS
+     BROWSER_EXPLOIT
+     SUSPICIOUS_DESTINATION
+     SPYWARE_OR_ADWARE
+     WEB_SPAM
+     PAGE_RISK_INDEX
+
+You can download a complete URL category list, which includes all predefined URL classes, super
+categories, and categories:  Download
+
+To learn more, see About URL Categories.
+
+Determining the Custom URL Quota
+You can add up to 25K custom URLs (across all categories), and up to 64 custom categories. You
+can add up to 30 keywords per category, and up to 1,000 across all categories. To learn more, see
+Ranges & Limitations.
+If you have reached the maximum number of custom URLs for your organization, you get the
+following 400 error code response when you try to add another URL:
+
+ An organization can have a maximum of 25000 custom URLs. Currently {Custom URL Quota} ar
+ e already provisioned for this organization.
+
+
+For example:
+
+ An organization can have a maximum of 25000 custom URLs. Currently 1020 are already prov
+ isioned for this organization.
+
+
+To avoid this message, check your organization's custom URL quota by sending a GET request to
+/urlCategories/urlQuota. The response includes how many unique URLs are already provisioned
+and how many URLs you can still create.
+
+                                                                         ©2026 Zscaler, Inc. All rights reserved.   12
+

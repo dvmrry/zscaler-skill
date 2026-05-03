@@ -1,0 +1,567 @@
+                                    PRIVATE ACCESS (ZPA) : USING APPLICATION SEGMENT MULTIMATCH
+
+
+
+
+Private Access (ZPA)
+Using Application Segment Multimatch
+Multimatch allows an application request to match multiple application segments. When a user tries to
+access a private application without Multimatch, a request is mapped to an application segment. After
+the application is mapped to an application segment, the policy search is performed, and the request is
+either allowed or blocked based on the policy configuration.
+Private Access (ZPA) evaluates Multimatch across all application segments that include the same
+applications. When an administrator enables or disables Multimatch for an application segment, Private
+Access checks all other application segments that contains any overlapping domains to determine
+whether the change is allowed. If a domain is found in multiple application segments with different
+Multimatch settings, there is a conflict and the application segment cannot be updated.
+To learn more, see About Access Policy and Configuring Access Policies.
+
+Prerequisites
+To use application segment Multimatch, ensure the following:
+     App Connectors or Private Service Edges for Private Access are upgraded to version 24.298.1 or
+     later.
+     Zscaler Client Connector is upgraded to the following versions per OS:
+            Windows versions:
+                 4.7.0.88 or later
+                 4.6.0.282 or later
+            macOS versions: 4.5.2.98 or later
+            iOS version 4.4.1 or later
+            To use the Private Access Multimatch feature for iOS applications, you must enable the Use
+            Tunnel SDK Version 4.3 or above setting in the Zscaler Admin Console.
+
+
+
+
+                                                                           ©2026 Zscaler, Inc. All rights reserved.   1
+                                     PRIVATE ACCESS (ZPA) : USING APPLICATION SEGMENT MULTIMATCH
+
+
+
+
+          Android version: 3.10 or later
+          Linux version: 4.2 or later
+
+Using Multimatch
+By default, after a specific FQDN is configured in an application segment, the destination is removed
+from the wildcard application segment. The default behavior can cause unwanted access failure due to
+the destination matching a more specific application segment that does not have the UDP or TCP ports
+defined. Multimatch allows admins to create new application segments without the risk of unwanted
+access failure if a user attempts to access a FQDN with undefined ports. After Multimatch is enabled,
+the wildcard application segment catches all UDP or TCP ports that are not configured in the more
+specific application segment. When you have decided what application segments you want matched,
+you can enable Multimatch for that application segment. To learn more, see Configuring Defined
+Application Segments.
+
+   Multimatch must be disabled if the configuration contains applications using the Access Type of
+   Browser Access, AppProtection, or Privileged Remote Access. Additionally, Multimatch must be
+  disabled if the configuration contains applications using Double Encryption, Inspect Traffic with
+   Internet & SaaS (ZIA), and Source IP Anchor. To learn more, see Configuring Defined Application
+   Segments.
+
+Multimatch Validation for Application Segments
+
+                                                                          ©2026 Zscaler, Inc. All rights reserved.   2
+                                    PRIVATE ACCESS (ZPA) : USING APPLICATION SEGMENT MULTIMATCH
+
+
+
+
+When Multimatch is enabled, a Multimatch Validation window appears for you to review any impacted
+application segments and conflicting features. If there is a conflicting feature, a warning appears.
+
+
+
+
+Depending on the application segments selected, you can resolve the issue by doing one of the
+following:
+     Edit an application segment and disable unsupported features.
+     Review conflicting features in a local Microtenant and select the checkboxes that appear.
+     Contact the default administrator when Multimatch includes the default application segment.
+     Cancel and disable Multimatch if an application segment belongs to another local tenant.
+
+Exact Match vs. Multimatch
+There are two application match behaviors available in Private Access: Exact Match and Multimatch.
+Exact match is the default behavior.
+
+About Exact Match
+The default behavior of Private Access is to perform an exact match of applications. If two or more
+application segments cover the same destination address, Zscaler Client Connector attempts to match
+
+
+                                                                          ©2026 Zscaler, Inc. All rights reserved.   3
+                                       PRIVATE ACCESS (ZPA) : USING APPLICATION SEGMENT MULTIMATCH
+
+
+
+
+traffic to the more granular application segment. Consider the following example of two application
+segments with the overlapping domain name example.com:
+    Example: Exact Match
+
+     If a user attempts to access server1.example.com on TCP port 3389, the destination address maps
+     to the more specific application segment, which is Server1_AS. However, the Server1_AS
+     application segment does not have TCP port 3389 configured, resulting in failed access.
+
+      Application Segment
+      Name                       Application               Protocol                    Ports
+      Wildcard_AS                *.example.com             TCP, UDP                    1 to 52, 54 to 65535
+      Server1_AS                 server1.example.com       TCP                         443
+
+     In this scenario, the attempt to access server1.example.com on TCP port 3389 is dropped at the
+     client level, traffic is not sent to the Private Access cloud, and logs aren't visible in the diagnostics.
+     After a specific FQDN (Fully Qualified Domain Name) has been configured in an application
+     segment, it is removed from the wildcard application segment by default. Even though
+     server1.example.com is part of the Wildcard_AS application segment for the *example.com
+     application on the TCP port range of 54 to 65535, this access does not match the Wildcard_AS
+     application segment. To fix this, TCP port 3389 must be configured for the Server1_AS application
+     segment, or Multimatch can be enabled. Enabling Multimatch changes the behavior of the
+     wildcard application segment, and catches access to ports that have not been defined in the more
+     specific FQDN application segment.
+
+
+
+About Multimatch
+The following examples illustrate how applications are mapped to application segments, as well as how
+policy execution works when Multimatch is enabled or not enabled on application segments.
+    Multiple application segment matches
+
+     The primary use for Multimatch is when there are multiple possible application segment matches.
+     The following tables show application segment configuration, the policy configuration, and how
+     they match up.
+
+
+
+
+                                                                                ©2026 Zscaler, Inc. All rights reserved.   4
+                              PRIVATE ACCESS (ZPA) : USING APPLICATION SEGMENT MULTIMATCH
+
+
+
+
+Application Segment Configuration
+Application
+Segment Name       Application          Protocol          Ports                   Multimatch
+                                                          1 to 52, 54 to
+Wildcard_AS        *.example.com        TCP, UDP                                  Enabled
+                                                          65535
+
+                   server1.example.
+Server1_AS                              TCP               443, 3389               Enabled
+                   com
+
+
+Access Policy Configuration
+                   Access Policy        Application
+#                  Name                 Segment Name      Policy Action           User Group
+                   Allow
+1                  Server1_AS for       Server1_AS        Allow                   Admin_Grp
+                   Admin
+
+                   Allow
+2                  Wildcard_AS for      Wildcard_AS       Allow                   All
+                   All
+
+
+Application Match and Policy Search Results
+                                          Matched       Matched                           Matched
+                                          Application   Application                       Policy
+                           FQDN:          Segment       Segment     Matched               Number
+                           Protocol &     with          without     Policy with           without
+User          Group        Port           Multimatch    Multimatch Multimatch             Multimatch
+
+                                       Wildcard_A                                         Allow
+                           server1.exa                                 Allow
+                                       S                                                  Server1_AS
+user1         Admin_Grp    mple.com:                    Server1_AS     Server_AS
+                                                                                          for Admin
+                           TCP+3389 Server1_AS                         for All (#1)
+                                                                                          (#1)
+user2         IT_Grp       server1.exa Wildcard_A       Server1_AS     Allow              No policy
+                           mple.com: S                                 Wildcard_A         match.
+
+                                                                     ©2026 Zscaler, Inc. All rights reserved.   5
+                            PRIVATE ACCESS (ZPA) : USING APPLICATION SEGMENT MULTIMATCH
+
+
+
+
+Application Match and Policy Search Results
+                                       Matched       Matched                           Matched
+                                       Application   Application                       Policy
+                          FQDN:        Segment       Segment     Matched               Number
+                          Protocol &   with          without     Policy with           without
+User         Group        Port         Multimatch    Multimatch Multimatch             Multimatch
+                          TCP+3389      Server1_AS                  S for All          Blocked by
+                                                                    (#2)               implicit
+                                                                                       default
+                                                                                       block
+                                                                                       policy.
+                                                                    Allow              Traffic is
+                          server1.exa
+                                      Wildcard_A                    Wildcard_A         dropped at
+user1        Admin_Grp    mple.com:                  N/A
+                                      S                             S for All          the client
+                          TCP+22
+                                                                    (#2)               level
+                                                                    Allow              Traffic is
+                          server1.exa
+                                      Wildcard_A                    Wildcard_A         dropped at
+user2        IT_Grp       mple.com:                  N/A
+                                      S                             S for All          the client
+                          TCP+22
+                                                                    (#2)               level
+                                                                    Allow              Traffic is
+                          server1.exa
+                                      Wildcard_A                    Wildcard_A         dropped at
+user3        IT_Grp       mple.com:                  N/A
+                                      S                             S for All          the client
+                          TCP+80
+                                                                    (#2)               level
+                                                                                       No policy
+                                                                                       match.
+                                      Wildcard_A                    Allow
+                          server1.exa                                                  Blocked by
+                                      S                             Wildcard_A
+user3        IT_Grp       mple.com:                  Server1_AS                        implicit
+                                                                    S for All
+                          TCP+443     Server1_AS                                       default
+                                                                    (#2)
+                                                                                       block
+                                                                                       policy.
+
+
+
+
+                                                                  ©2026 Zscaler, Inc. All rights reserved.   6
+                                   PRIVATE ACCESS (ZPA) : USING APPLICATION SEGMENT MULTIMATCH
+
+
+
+
+     Traffic that is dropped at the client level means that traffic matches the hostname, but it
+     does not match the protocol and port. In this condition, traffic is not sent to the cloud for
+    further processing. This means that policy evaluation does not occur, and the user is not
+     able to access the application segment. In this case, traffic is not visible in the Private
+     Access diagnostics.
+
+
+ Behavior after inserting a block rule
+
+ The following table shows how the policy search results change by inserting a block policy in the
+ rule set.
+
+   Application Segment Configuration
+   Application
+   Segment Name        Application         Protocol            Ports                  Multimatch
+                                                               1 to 52, 54 to
+   Wildcard_AS         *.example.com       TCP, UDP                                   Enabled
+                                                               65535
+                       server1.example.
+   Server1_AS                              TCP                 443, 3389              Enabled
+                       com
+
+   Access Policy Configuration
+                       Access Policy       Application
+   #                   Name                Segment Name        Policy Action          User Group
+                       Allow
+   1                   Server1_AS for      Server1_AS          Allow                  Admin_Grp
+                       Admin
+                       Block
+   2                   Server1_AS for      Server1_AS          Block                  All
+                       All
+                       Allow
+   3                   Wildcard_AS for     Wildcard_AS         Allow                  All
+                       All
+
+
+
+
+                                                                         ©2026 Zscaler, Inc. All rights reserved.   7
+                            PRIVATE ACCESS (ZPA) : USING APPLICATION SEGMENT MULTIMATCH
+
+
+
+
+Application Match and Access Policy Search Results
+                                       Matched       Matched        Matched             Matched
+                                       Application   Application    Policy              Policy
+                          FQDN:        Segment       Segment        Number              Number
+                          Protocol &   with          without        with                without
+User        Group         Port         Multimatch    Multimatch     Multimatch          Multimatch
+
+                                      Wildcard_A                     Allow              Allow
+                          server1.exa
+                                      S                              Server1_AS         Server1_AS
+user1        Admin_Grp    mple.com:                  Server1_AS
+                                                                     for Admin          for Admin
+                          TCP+3389 Server1_AS
+                                                                     (#1)               (#1)
+
+                                      Wildcard_A                     Allow              Allow
+                          server1.exa                                Server1_AS         Server1_AS
+                                      S              Server1_AS
+user1        Admin_Grp    mple.com:                                  for Admin          for Admin
+                          TCP+443     Server1_AS                     (#1)               (#1)
+
+                                                                     Allow              Traffic is
+                          server1.exa
+                                      Wildcard_A                     Wildcard_A         dropped at
+user1        Admin_Grp    mple.com:                  N/A
+                                      S                              S for All          the client
+                          TCP+22
+                                                                     (#3)               level
+
+                                                                     Allow              Traffic is
+                          server1.exa
+                                      Wildcard_A                     Wildcard_A         dropped at
+user2        IT_Grp       mple.com:                  N/A
+                                      S                              S for All          the client
+                          TCP+22
+                                                                     (#3)               level
+
+                                                                     Allow              Traffic is
+                          server1.exa
+                                      Wildcard_A                     Wildcard_A         dropped at
+user3        IT_Grp       mple.com:                  N/A
+                                      S                              S for All          the client
+                          TCP+80
+                                                                     (#3)               level
+
+                          server1.exa Wildcard_A                     Block
+                                                                                        Block1_AS
+user3        IT_Grp       mple.com: S                Server1_AS      Server1_AS
+                                                                                        for All (#2)
+                          TCP+443     Server1_AS                     for All (#2)
+
+
+
+
+                                                                   ©2026 Zscaler, Inc. All rights reserved.   8
+                                     PRIVATE ACCESS (ZPA) : USING APPLICATION SEGMENT MULTIMATCH
+
+
+
+
+         Traffic that is dropped at the client level means that traffic matches the hostname, but it
+         does not match the protocol and port. In this condition, traffic is not sent to the cloud for
+        further processing. This means that policy evaluation does not occur, and the user is not
+         able to access the application segment. In this case, traffic is not visible in the Private
+         Access diagnostics.
+
+
+
+Matched vs. Not Matched
+Multiple matches apply to applications from most specific to least specific. As soon as an application is
+encountered that does not support Multimatch, the multimatching stops. The following examples show
+each possible outcome for matched and not matched results:
+    Example 1
+
+      Application Match
+                                                         Requested Domain
+      Application               Multimatch               server1.db.hr.compan       server2.ui.hr.compan
+                                                         y.com                      y.com
+      *.db.hr.company.com       Enabled                  Matched                    Not matched
+      *.ui.hr.company.com       Disabled                 Not matched                Matched
+      *.hr.company.com          Enabled                  Matched                    Not matched
+      *.company.com             Disabled                 Not matched                Not matched
+
+
+    Example 2
+
+      Application Match
+                                                                          Requested Domain
+      Application                         Multimatch
+                                                                          server1.db.hr.company.com
+      server1.db.hr.company.com           Enabled                         Matched
+      *.db.hr.company.com                 Enabled                         Matched
+      *.hr.company.com                    Enabled                         Matched
+
+
+                                                                             ©2026 Zscaler, Inc. All rights reserved.   9
+                                    PRIVATE ACCESS (ZPA) : USING APPLICATION SEGMENT MULTIMATCH
+
+
+
+
+      Application Match
+      *.company.com                      Disabled                       Not matched
+      *.com                              Enabled                        Not matched
+
+
+    Example 3
+
+      Application Match
+                                                       Requested Domain
+      Application              Multimatch              server1.db.hr.compan       server2.db.hr.compa
+                                                       y.com                      ny.com
+      server1.db.hr.compan
+                               Disabled                Matched                    Not matched
+      y.com
+      *.db.hr.company.com      Enabled                 Not matched                Matched
+      *.hr.company.com         Enabled                 Not matched                Matched
+      *.company.com            Disabled                Not matched                Not matched
+
+
+    Example 4
+
+      Application Match
+                                                                        Requested Domain
+      Application                        Multimatch
+                                                                        server2.ui.hr.company.com
+      server2.ui.hr.company.com          Enabled                        Matched
+      *.ui.hr.company.com                Disabled                       Not matched
+      *.hr.company.com                   Enabled                        Not matched
+      *.company.com                      Disabled                       Not matched
+
+
+
+About IP Address- and IP Subnet-Based Multimatch
+Even with an IP address, the default behavior of Private Access is to perform an exact match of
+applications. If two or more application segments cover the same destination address, Zscaler Client
+
+                                                                           ©2026 Zscaler, Inc. All rights reserved.   10
+                                     PRIVATE ACCESS (ZPA) : USING APPLICATION SEGMENT MULTIMATCH
+
+
+
+
+Connector attempts to match traffic to the more granular application segment. Consider the following
+examples of two application segments with overlapping IP addresses:
+    Example: IP-Based Exact Match
+
+
+      Application              Applications              Protocol                    Port
+      Subnet_AS                10.0.0.0/24               TCP, UDP                    1 to 52, 54 to 65535
+      IPaddress_AS             10.0.0.1/32               TCP                         443
+
+                          Access Policy       Application
+      Rule Number         Name                Segment               User Group              Action
+                          Allow User A to
+      1                   access              IPaddress_AS          User A                  Allow
+                          IPaddress_AS
+                          Allow Everyone
+      2                   to access           Subnet_AS             All                     Allow
+                          Subnet_AS
+
+     In this scenario, the host at IP address 10.0.0.1 is contained within the IPaddress_AS application
+     segment. If user B tries to access 10.0.0.1 on TCP port 443, they match the implicit block rule. User
+     B does not match with rule number 1 because it is restricted to only User A. User B also does not
+     match with rule number 2 even though it is for everyone, because the moment the IP address is
+     created, the 10.0.0.1/32 host is carved out of Subnet_AS 10.0.0.0/24.
+
+    Example: IP-Based Multimatch
+
+     The primary use for Multimatch is when there are multiple possible application segment matches.
+     The following tables show application segment configuration, the policy configuration, and how
+     they match up.
+
+      Application Segment Configuration
+      Application
+      Segment Name        Application         Protocol              Port                    Multimatch
+                                                                    1 to 52, 54 to
+      Subnet_AS           10.0.0.0/24         TCP, UDP                                      Enabled
+                                                                    65535
+
+
+                                                                              ©2026 Zscaler, Inc. All rights reserved.   11
+                                  PRIVATE ACCESS (ZPA) : USING APPLICATION SEGMENT MULTIMATCH
+
+
+
+
+Application Segment Configuration
+Application
+Segment Name        Application           Protocol         Port                    Multimatch
+IPAddress_AS        10.0.0.1/32           TCP              443, 3389               Enabled
+
+Application Match and Policy Search Results
+                    Access Policy         Application
+#                   Name                  Segment Name     Policy Action           User Group
+                    Allow
+1                   IPAddress_AS          IPAddress_AS     Allow                   Admin_Grp
+                    for Admin
+                    Allow Subnet_AS
+2                                         Subnet_AS        Allow                   All
+                    for All
+
+Application Match and Policy Search Results
+                                        Matched          Matched
+                                        Application      Application                       Matched
+                            IP Address: Segment          Segment     Matched               Policy
+                            Protocol & with              without     Policy with           without
+User           Group        Port        Multimatch       Multimatch Multimatch             Multimatch
+
+                                            Subnet_AS                   Allow              Allow
+                            10.0.0.1:TC                  IPAddress_     IPAddress_         IPAddress_
+user1          Admin_Grp                    IPAddress_
+                            P+3389                       AS             AS for             AS for
+                                            AS
+                                                                        Admin (#1)         Admin (#1)
+                                                                                           No policy
+                                                                                           match.
+                                            Subnet_AS
+                                                                        Allow              Blocked by
+                            10.0.0.1:TC                  IPAddress_
+user2          IT_Grp                       IPAddress_                  Subnet_AS          implicit
+                            P+3389                       AS
+                                            AS                          for All (#2)       default
+                                                                                           block
+                                                                                           policy.
+
+
+                                                                      ©2026 Zscaler, Inc. All rights reserved.   12
+                              PRIVATE ACCESS (ZPA) : USING APPLICATION SEGMENT MULTIMATCH
+
+
+
+
+Application Match and Policy Search Results
+                                        Matched          Matched
+                                        Application      Application                       Matched
+                            IP Address: Segment          Segment     Matched               Policy
+                            Protocol & with              without     Policy with           without
+User         Group          Port        Multimatch       Multimatch Multimatch             Multimatch
+                                                                                           Traffic is
+                                                                        Allow
+                            10.0.0.1:TC                                                    dropped at
+user1         Admin_Grp                    Subnet_AS     N/A            Subnet_AS
+                            P+22                                                           the client
+                                                                        for All (#2)
+                                                                                           level
+                                                                                           Traffic is
+                                                                        Allow
+                            10.0.0.1:TC                                                    dropped at
+user2         IT_Grp                       Subnet_AS     N/A            Subnet_AS
+                            P+22                                                           the client
+                                                                        for All (#2)
+                                                                                           level
+                                                                                           Traffic is
+                                                                        Allow
+                            10.0.0.1:TC                                                    dropped at
+user3         IT_Grp                       Subnet_AS     N/A            Subnet_AS
+                            P+80                                                           the client
+                                                                        for All (#2)
+                                                                                           level
+                                                                                           No policy
+                                                                                           match.
+                                           Subnet_AS
+                                                                        Allow              Blocked by
+                            10.0.0.1:TC                  IPAddress_
+user3         IT_Grp                       IPAddress_                   Subnet_AS          implicit
+                            P+443                        AS
+                                           AS                           for All (#2)       default
+                                                                                           block
+                                                                                           policy.
+
+
+  Traffic that is dropped at the client level means that traffic matches the IP address, but it
+  does not match the protocol and port. In this condition, traffic is not sent to the cloud for
+ further processing. This means that policy evaluation does not occur, and the user is not
+  able to access the application segment. In this case, traffic is not visible in the Private
+  Access diagnostics.
+
+
+
+
+                                                                      ©2026 Zscaler, Inc. All rights reserved.   13
+

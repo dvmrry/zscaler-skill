@@ -8,7 +8,7 @@ confidence: high
 source-tier: doc
 sources:
   - "vendor/zscaler-help/understanding-nanolog-streaming-service.md"
-  - "vendor/zscaler-help/General_Guidelines_for_NSS_Feeds_and_Feed_Formats.pdf"
+  - "vendor/zscaler-help/General_Guidelines_for_NSS_Feeds_and_Feed_Formats.txt"
   - "vendor/zscaler-help/nss-web-logs.csv"
   - "vendor/zscaler-help/nss-firewall-logs.csv"
   - "vendor/zscaler-help/nss-dns-logs.csv"
@@ -196,7 +196,7 @@ ZIA NSS supports the following output format types:
 | **JSON** | Recommended for Cloud NSS; preserves type information; easier CIM mapping |
 | **Custom** | Arbitrary string template with `%field_name%` or `{field_name}` placeholders |
 
-The specific output fields available per log type are documented in the feed format guide (`vendor/zscaler-help/General_Guidelines_for_NSS_Feeds_and_Feed_Formats.pdf`) and in the vendored CSV schemas (`nss-web-logs.csv`, `nss-firewall-logs.csv`, `nss-dns-logs.csv`).
+The specific output fields available per log type are documented in the feed format guide (`vendor/zscaler-help/General_Guidelines_for_NSS_Feeds_and_Feed_Formats.txt`) and in the vendored CSV schemas (`nss-web-logs.csv`, `nss-firewall-logs.csv`, `nss-dns-logs.csv`).
 
 ### NSS servers — portal representation
 

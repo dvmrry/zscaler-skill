@@ -7,9 +7,9 @@ last-verified: "2026-04-25"
 confidence: high
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/ZIA_SSL_Inspection_Leading_Practices_Guide.pdf"
-  - "vendor/zscaler-help/Best_Practices_for_Testing_and_Rolling_Out_SSL_TLS_Inspection.pdf"
-  - "vendor/zscaler-help/SSL_Inspection_Deployment_and_Operations_Guide.pdf"
+  - "vendor/zscaler-help/ZIA_SSL_Inspection_Leading_Practices_Guide.txt"
+  - "vendor/zscaler-help/Best_Practices_for_Testing_and_Rolling_Out_SSL_TLS_Inspection.txt"
+  - "vendor/zscaler-help/SSL_Inspection_Deployment_and_Operations_Guide.txt"
   - "vendor/zscaler-help/about-tenant-profiles.md"
   - "vendor/zscaler-help/adding-tenant-profiles.md"
   - "vendor/zscaler-help/configuring-source-ip-anchoring.md"

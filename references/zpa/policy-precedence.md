@@ -8,17 +8,17 @@ confidence: high
 source-tier: doc
 sources:
   - "https://help.zscaler.com/zpa/about-policies"
-  - "vendor/zscaler-help/About_Policies.pdf"
+  - "vendor/zscaler-help/About_Policies.txt"
   - "https://help.zscaler.com/zpa/about-access-policy"
-  - "vendor/zscaler-help/About_Access_Policy.pdf"
+  - "vendor/zscaler-help/About_Access_Policy.txt"
   - "https://help.zscaler.com/zpa/configuring-access-policies"
-  - "vendor/zscaler-help/Configuring_Access_Policies.pdf"
+  - "vendor/zscaler-help/Configuring_Access_Policies.txt"
   - "https://help.zscaler.com/zpa/access-policy-configuration-examples"
-  - "vendor/zscaler-help/Access_Policy_Configuration_Examples.pdf"
+  - "vendor/zscaler-help/Access_Policy_Configuration_Examples.txt"
   - "https://help.zscaler.com/zscaler-deployments-operations/access-policy-deployment-and-operations-guide"
-  - "vendor/zscaler-help/Access_Policy_Deployment_and_Operations_Guide.pdf"
+  - "vendor/zscaler-help/Access_Policy_Deployment_and_Operations_Guide.txt"
   - "https://help.zscaler.com/zpa/using-app-segment-multimatch"
-  - "vendor/zscaler-help/Using_Application_Segment_Multimatch.pdf"
+  - "vendor/zscaler-help/Using_Application_Segment_Multimatch.txt"
 author-status: draft
 ---
 

@@ -134,7 +134,7 @@ If a URL matches both a predefined category (e.g., Social Networking) and a cust
 
 **Answer**: The "both categories" premise is governed by the **Retain Parent Category** setting on each custom-category entry, which controls whether adding a URL to a custom category removes it from its predefined classification.
 
-From *About URL Categories* (`vendor/zscaler-help/About_URL_Categories.pdf`) p.19:
+From *About URL Categories* (`vendor/zscaler-help/About_URL_Categories.txt`) p.19:
 
 > If you manually add a URL or subdomain to an existing super category, category, or custom category, you can also specify whether you want it to retain its original parent category. For example, if you manually add www.google.com to a User-Defined category, you can specify whether you want google.com also to retain its original Web Search category.
 
@@ -143,7 +143,7 @@ Two cases:
 - **Retain Parent Category OFF** (default behavior for manually-added URLs in most contexts): the URL is removed from its original predefined classification and belongs *only* to the custom category. Rules against the predefined category do not match. Rules against the custom category do.
 - **Retain Parent Category ON**: the URL belongs to **both** the custom and its original predefined category simultaneously. Rules against either can match → **rule order decides** which fires (same first-match-wins principle that governs rule evaluation generally).
 
-*URL Filtering Deployment and Operations Guide* (`vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.pdf`) p.4 confirms the rule-order behavior for the Retain-Parent case explicitly:
+*URL Filtering Deployment and Operations Guide* (`vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt`) p.4 confirms the rule-order behavior for the Retain-Parent case explicitly:
 
 > Wrong category is shown on the blocked page: Check logs to see which category is logged for the transaction. Is the URL in question added to a custom category? If the site is added in the Retaining Parent category, check the rule order to make sure that another rule does not block access to this URL first.
 
@@ -197,11 +197,11 @@ How long after a URL is first observed does Newly Registered and Observed Domain
 
 **Status**: partially resolved (2026-04-23).
 
-**Answer**: Zscaler publishes the propagation-lag ceiling as "within hours of going live." From *Configuring Advanced Policy Settings* (`vendor/zscaler-help/Configuring_Advanced_Policy_Settings.pdf`) p.1, describing the Enable Suspicious New Domains Lookup toggle:
+**Answer**: Zscaler publishes the propagation-lag ceiling as "within hours of going live." From *Configuring Advanced Policy Settings* (`vendor/zscaler-help/Configuring_Advanced_Policy_Settings.txt`) p.1, describing the Enable Suspicious New Domains Lookup toggle:
 
 > Enable this option to provide advanced protection to users against the newly registered and observed domains that are **identified within hours of going live**. This feature also identifies newly revived domains. These domains are often considered potentially malicious until they are well-known or categorized. Identifying them improves the overall security posture. This feature is a prerequisite for using the Newly Registered and Observed Domains and Newly Revived Domains URL categories in a policy rule.
 
-Context from *About URL Categories* (`vendor/zscaler-help/About_URL_Categories.pdf`) p.9:
+Context from *About URL Categories* (`vendor/zscaler-help/About_URL_Categories.txt`) p.9:
 
 > Sites whose domains were created in the last 30 days and are currently not categorized by Zscaler. ... To determine if a Miscellaneous or Unknown URL belongs in the Newly Registered and Observed Domain (NROD) category, when a URL is found in the Miscellaneous or Unknown category, it is checked against Zscaler's NROD database. If there's a match, the URL is categorized as a Newly Registered and Observed Domain.
 
@@ -226,7 +226,7 @@ Admin rank gates what order values a rule can have. Can two rules at different a
 
 **Answer**: Admin rank is a structural precedence guarantee, not a tiebreaker layered on top of rule order. The question's premise (two rules at different admin ranks with the same numerical order) is effectively neutralized by the doc's behavior guarantee.
 
-From *Configuring the URL Filtering Policy* (`vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.pdf`) p.3:
+From *Configuring the URL Filtering Policy* (`vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt`) p.3:
 
 > **Edit Rule Order**: Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on), and the rule order reflects this rule's place in the order. You can change the value, but if you've enabled Admin Rank, your assigned admin rank determines the rule order values you can select.
 >
@@ -257,7 +257,7 @@ From *Adding an Instant Messaging Rule for Cloud App Control* (`vendor/zscaler-h
 
 > **Rule Status**: An enabled rule is actively enforced. A disabled rule is not actively enforced but does not lose its place in the rule order. The service skips it and moves to the next rule.
 
-This matches *Configuring the URL Filtering Policy* (`Configuring_the_URL_Filtering_Policy.pdf`) p.3 word-for-word. CAC-Rule-Status-parity-with-URL-Filtering is now directly documented, not inferred.
+This matches *Configuring the URL Filtering Policy* (`Configuring_the_URL_Filtering_Policy.txt`) p.3 word-for-word. CAC-Rule-Status-parity-with-URL-Filtering is now directly documented, not inferred.
 
 Corroborating facts:
 
@@ -429,7 +429,7 @@ Under transparent forwarding, SSL Inspection policies evaluate on both SNI and d
 
 **Answer (partial)**: Policy evaluation is **deterministic per traffic path, not per user**. A connection is evaluated based on the forwarding method it used — that much is already captured in `zia-13`. The Leading Practices Guide treats this as a design point to plan around, not a hidden gotcha:
 
-From *ZIA SSL Inspection Leading Practices Guide* (`vendor/zscaler-help/ZIA_SSL_Inspection_Leading_Practices_Guide.pdf`) p.14:
+From *ZIA SSL Inspection Leading Practices Guide* (`vendor/zscaler-help/ZIA_SSL_Inspection_Leading_Practices_Guide.txt`) p.14:
 
 > You can only use user attributes if the traffic forwarded to Zscaler is from the Zscaler Client Connector (preferred) or if you enable Enforce Surrogate IP and properly work for traffic flowing through GRE or IPSec tunnels to Zscaler. Without Zscaler Client Connector or Surrogate IP, the service cannot identify the user (before inspection) to properly apply user-based policies and determine if inspection is desired. Device Groups (OS Type). You can only identify device groups if the traffic is forwarded to Zscaler via the Zscaler Client Connector.
 
@@ -490,7 +490,7 @@ Our three drafts asserted the pipeline is SSL Inspection → URL Filtering → C
 
 **Status**: resolved (2026-04-23).
 
-**Answer** (from *Understanding Policy Enforcement*, `vendor/zscaler-help/Understanding_Policy_Enforcement.pdf`, pp.1–13; canonical URL https://help.zscaler.com/zia/about-policy-enforcement):
+**Answer** (from *Understanding Policy Enforcement*, `vendor/zscaler-help/Understanding_Policy_Enforcement.txt`, pp.1–13; canonical URL https://help.zscaler.com/zia/about-policy-enforcement):
 
 The actual flow is more nuanced than the simpler SSL→URL→CAC framing:
 
@@ -513,7 +513,7 @@ Zscaler publishes NSS output in multiple formats. Whether field presence and nam
 
 **Status**: partially resolved (2026-04-23).
 
-**Answer**: From *General Guidelines for NSS Feeds and Feed Formats* (`vendor/zscaler-help/General_Guidelines_for_NSS_Feeds_and_Feed_Formats.pdf`) pp.1–4:
+**Answer**: From *General Guidelines for NSS Feeds and Feed Formats* (`vendor/zscaler-help/General_Guidelines_for_NSS_Feeds_and_Feed_Formats.txt`) pp.1–4:
 
 - Field names are the same across output types — the guidelines confirm a unified format-specifier system (`%s{}`, `%d{}`, `%x{}`) used across all output formats.
 - The article lists **ten NSS feed types** (Web, Firewall, DNS, Tunnel, SaaS Security, SaaS Security Activity, Admin Audit, Endpoint DLP, Email DLP, Sandbox Verdict) but we've only vendored three of those field CSVs (Web, Firewall, DNS).
@@ -570,7 +570,7 @@ When a ZPA client resolves to multiple application segments in sequence (e.g., f
 
 **Resolves with**: operator experience OR lab test. **Status**: open — 2026-04-28.
 
-**Doc sweep 2026-04-23** (partial): Confirmed schema shape from *Understanding User Activity Log Fields* (`vendor/zscaler-help/Understanding_User_Activity_Log_Fields.pdf`). Key observations:
+**Doc sweep 2026-04-23** (partial): Confirmed schema shape from *Understanding User Activity Log Fields* (`vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`). Key observations:
 
 - Fields like `Application`, `AppGroup`, `Policy`, `Server`, `ServerIP`, `ServerPort`, and timestamps are **singular per record** — no array-valued segment list. This makes "single record with multiple segment IDs" structurally unlikely.
 - The example record in the doc's preamble shows `ConnectionID` as a **comma-concatenated pair** (e.g., `SqyZIMkg0JTj7EABsvwA,Q+EjXGdrvbF2lPiBbedm`) where the first part matches `SessionID` exactly. This hints that `ConnectionID` may encode `<SessionID>,<attempt-or-subconnection>` when a TLS session spans multiple ZPA connections — but the field description just says "The application connection ID" without elaboration.
@@ -590,7 +590,7 @@ When a ZPA client resolves to multiple application segments in sequence (e.g., f
 
 **Status**: resolved (2026-04-23).
 
-**Answer**: From *Understanding Application Access* (`vendor/zscaler-help/Understanding_Application_Access.pdf`) p.1 and *Using Application Segment Multimatch* (`vendor/zscaler-help/Using_Application_Segment_Multimatch.pdf`) p.9: "more granular" means **most-specific FQDN wins** among overlapping segments. The Multimatch article's Example 1 (p.9) shows the specificity stack explicitly: `server1.db.hr.company.com` > `*.db.hr.company.com` > `*.hr.company.com` > `*.company.com` > `*.com`. IP-subnet equivalent (p.10): `/32` host > `/24` subnet. Note the specificity comparison is strictly on the **domain/address** dimension; port-range narrowness does not enter the "granularity" judgment.
+**Answer**: From *Understanding Application Access* (`vendor/zscaler-help/Understanding_Application_Access.txt`) p.1 and *Using Application Segment Multimatch* (`vendor/zscaler-help/Using_Application_Segment_Multimatch.txt`) p.9: "more granular" means **most-specific FQDN wins** among overlapping segments. The Multimatch article's Example 1 (p.9) shows the specificity stack explicitly: `server1.db.hr.company.com` > `*.db.hr.company.com` > `*.hr.company.com` > `*.company.com` > `*.com`. IP-subnet equivalent (p.10): `/32` host > `/24` subnet. Note the specificity comparison is strictly on the **domain/address** dimension; port-range narrowness does not enter the "granularity" judgment.
 
 ---
 
@@ -602,7 +602,7 @@ If two overlapping segments set different Multimatch styles on the same domain-s
 
 **Status**: resolved (2026-04-23).
 
-**Answer**: From *Using Application Segment Multimatch* (`vendor/zscaler-help/Using_Application_Segment_Multimatch.pdf`) p.1:
+**Answer**: From *Using Application Segment Multimatch* (`vendor/zscaler-help/Using_Application_Segment_Multimatch.txt`) p.1:
 
 > Private Access (ZPA) evaluates Multimatch across all application segments that include the same applications. When an administrator enables or disables Multimatch for an application segment, Private Access checks all other application segments that contains any overlapping domains to determine whether the change is allowed. If a domain is found in multiple application segments with different Multimatch settings, there is a conflict and the application segment cannot be updated.
 
@@ -628,7 +628,7 @@ What does "no match in this application segment" mean precisely — port mismatc
 
 **Status**: resolved (2026-04-23).
 
-**Answer**: From *Understanding Application Access* (`vendor/zscaler-help/Understanding_Application_Access.pdf`) p.1, the "no match" case is specifically the **destination port** not being configured in the selected (most-granular) segment:
+**Answer**: From *Understanding Application Access* (`vendor/zscaler-help/Understanding_Application_Access.txt`) p.1, the "no match" case is specifically the **destination port** not being configured in the selected (most-granular) segment:
 
 > If two or more application segments cover the same destination address, Zscaler Client Connector attempts to match traffic to the more granular application segment. If there is no match in this application segment for the destination port, Zscaler Client Connector bypasses ZPA and sends traffic directly.
 
@@ -648,7 +648,7 @@ Note: other failure modes (segment disabled, server group unavailable, connector
 
 **Status**: resolved (2026-04-23).
 
-**Answer**: From *Configuring Access Policies* (`vendor/zscaler-help/Configuring_Access_Policies.pdf`) p.3 and *Understanding Step-Up Authentication* (`vendor/zscaler-help/understanding-step-up-authentication.md`):
+**Answer**: From *Configuring Access Policies* (`vendor/zscaler-help/Configuring_Access_Policies.txt`) p.3 and *Understanding Step-Up Authentication* (`vendor/zscaler-help/understanding-step-up-authentication.md`):
 
 The rule action is actually called **Conditional Access** in the Configuring Access Policies doc. "Require Approval" in About Access Policy is informal terminology for the same thing. Mechanics:
 
@@ -695,7 +695,7 @@ So: "Require Approval" = "Conditional Access" = ZIdentity step-up authentication
 
 **Status**: clarified by *About Policies* / Policy Evaluation Order section (2026-04-23), though the Deployment Guide's example remains oddly phrased.
 
-**Answer**: *About Policies* (`vendor/zscaler-help/About_Policies.pdf`) p.2 is the authoritative statement. The "Policy Evaluation Order" section:
+**Answer**: *About Policies* (`vendor/zscaler-help/About_Policies.txt`) p.2 is the authoritative statement. The "Policy Evaluation Order" section:
 
 > Private Access evaluates policy rules using the most specific application segment and a top-down, first-match principle. For example, when a user requests a specific application, Private Access starts evaluating all of your configured policies, starting with the first rule in a set of policy rules. As soon as it finds a policy that matches the criteria that was specified in a rule, it enforces that policy rule and disregards all other rules that follow, including any potentially conflicting rules.
 

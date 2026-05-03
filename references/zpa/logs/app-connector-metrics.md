@@ -8,9 +8,9 @@ confidence: high
 source-tier: doc
 sources:
   - "https://help.zscaler.com/zpa/about-app-connector-metrics-log-fields"
-  - "vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.pdf"
+  - "vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt"
   - "https://help.zscaler.com/zpa/understanding-log-stream-content-format"
-  - "vendor/zscaler-help/Understanding_the_Log_Stream_Content_Format.pdf"
+  - "vendor/zscaler-help/Understanding_the_Log_Stream_Content_Format.txt"
 author-status: draft
 ---
 

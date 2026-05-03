@@ -8,19 +8,19 @@ confidence: medium
 source-tier: doc
 sources:
   - "https://help.zscaler.com/zia/about-policy-enforcement"
-  - "vendor/zscaler-help/Understanding_Policy_Enforcement.pdf"
+  - "vendor/zscaler-help/Understanding_Policy_Enforcement.txt"
   - "https://help.zscaler.com/zia/configuring-url-filtering-policy"
-  - "vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.pdf"
+  - "vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt"
   - "https://help.zscaler.com/zpa/about-access-policy"
-  - "vendor/zscaler-help/About_Access_Policy.pdf"
+  - "vendor/zscaler-help/About_Access_Policy.txt"
   - "https://help.zscaler.com/zscaler-deployments-operations/access-policy-deployment-and-operations-guide"
-  - "vendor/zscaler-help/Access_Policy_Deployment_and_Operations_Guide.pdf"
+  - "vendor/zscaler-help/Access_Policy_Deployment_and_Operations_Guide.txt"
   - "https://help.zscaler.com/zpa/configuring-defined-application-segments"
-  - "vendor/zscaler-help/Configuring_Defined_Application_Segments.pdf"
+  - "vendor/zscaler-help/Configuring_Defined_Application_Segments.txt"
   - "https://help.zscaler.com/zpa/about-policies"
-  - "vendor/zscaler-help/About_Policies.pdf"
+  - "vendor/zscaler-help/About_Policies.txt"
   - "https://help.zscaler.com/zpa/configuring-access-policies"
-  - "vendor/zscaler-help/Configuring_Access_Policies.pdf"
+  - "vendor/zscaler-help/Configuring_Access_Policies.txt"
 author-status: draft
 ---
 

@@ -10,9 +10,9 @@ sources:
   - "https://help.zscaler.com/zia/url-format-guidelines"
   - "vendor/zscaler-help/url-format-guidelines.md"
   - "https://help.zscaler.com/zia/about-url-categories"
-  - "vendor/zscaler-help/About_URL_Categories.pdf"
+  - "vendor/zscaler-help/About_URL_Categories.txt"
   - "https://help.zscaler.com/zscaler-deployments-operations/url-filtering-deployment-and-operations-guide"
-  - "vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.pdf"
+  - "vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt"
 author-status: draft
 ---
 
@@ -194,4 +194,4 @@ Resolved while writing this doc:
 
 - URL filtering rule precedence (specificity rule quoted from this doc) — [`./url-filtering.md`](./url-filtering.md)
 - About URL Categories (classes, super categories, custom categories) — cited in [`./url-filtering.md`](./url-filtering.md) § Category Resolution
-- Custom URL Categories via API — `vendor/zscaler-help/Configuring_URL_Categories_Using_API.pdf` (cited in [`./api.md`](./api.md) when authored)
+- Custom URL Categories via API — `vendor/zscaler-help/Configuring_URL_Categories_Using_API.txt` (cited in [`./api.md`](./api.md) when authored)

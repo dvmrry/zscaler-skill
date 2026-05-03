@@ -15,7 +15,7 @@ sources:
   - "vendor/zscaler-help/configuring-dlp-policy-rules-content-inspection.md"
   - "https://help.zscaler.com/zia/understanding-predefined-dlp-dictionaries"
   - "vendor/zscaler-help/understanding-predefined-dlp-dictionaries.md"
-  - "vendor/zscaler-help/Understanding_Policy_Enforcement.pdf"
+  - "vendor/zscaler-help/Understanding_Policy_Enforcement.txt"
 author-status: draft
 ---
 

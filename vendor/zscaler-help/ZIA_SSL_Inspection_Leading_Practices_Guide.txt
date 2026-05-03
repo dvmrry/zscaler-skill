@@ -1,0 +1,1123 @@
+              ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+Zscaler Deployments & Operations
+ZIA SSL Inspection Leading Practices Guide
+The Zscaler Internet Access (ZIA) Secure Sockets Layer (SSL) Inspection Leading Practices Guide
+provides a set of best practices for configuring and deploying ZIA SSL inspection in an organization's
+network environment.
+Encrypting communications helps maintain the privacy and security of information passed between
+sender and receiver communications. SSL, and its successor Transport Layer Security (TLS), are
+protocols designed for the privacy and security of internet services. While these protocols do a great
+job of keeping information private from prying eyes, these security tools also conceal threats to the
+user, device, and organization. This is where the inspection of SSL and TLS encrypted traffic becomes a
+necessity.
+Inspecting encrypted SSL and TLS traffic, SSL Inspection is done by Zscaler’s Zero Trust Exchange
+(ZTE) at scale, allowing organizations to control risk and enforce policy. Enabling SSL Inspection is a
+required first step towards:
+     Controlling risk
+          Inspect Traffic (malware, data loss)
+          Adaptive control
+     Enforcing policy
+          Per session policy decision and enforcement
+     Allowing, blocking, and restricting tenants
+
+
+
+
+                                                                             ©2026 Zscaler, Inc. All rights reserved.   1
+              ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+Traffic Inspection Strategy
+Inspect as much traffic as possible and understand how to properly handle uninspected traffic as part
+of a Zero Trust strategy. First, implement a traffic inspection policy, and then expand inspection to
+additional URL categories.
+Zscaler recommends inspecting as much traffic as possible, but 100% traffic inspection is typically not
+feasible due to legal liability, regulatory concerns, Sarbanes-Oxley Act (SOX), personal identifying
+
+                                                                           ©2026 Zscaler, Inc. All rights reserved.   2
+              ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+information (PII), and other issues. Zscaler often sees companies achieve a 60–70 percent SSL
+inspection rate. The key for any organization is understanding why something is or isn’t inspected. ZIA
+makes it easy to understand SSL transactions and make policies around SSL inspection.
+
+Why Inspect?
+With more than 90% of global traffic encrypted, most threats are passed within encryption and are
+invisible without implementing inline SSL inspection.
+
+
+
+
+Zscaler’s in-house security research team, ThreatLabZ, created The State of Encrypted Attacks,
+2023 , a whitepaper that reviews security threat trends for the first 9 months of 2021.
+
+What Can’t Be Inspected
+SSL inspection requires that the endpoints trust the certificate presented by the inspecting service. You
+must install a certificate onto each endpoint to build this trust. As such, inspection is not possible on
+devices that cannot reasonably install the certificate (e.g., IoT/OT, BYOD, guest networks, etc.).
+Some vendors and developers have implemented coding techniques commonly referred to as
+certificate pinning (see Certificate Pinning or Hard-Coded Certificates) that work to prevent Man-in-
+the-Middle (MiTM) inspection. As such, Zscaler cannot inspect SSL traffic from sites or applications
+that use certificate pinning (e.g., Apple, many Microsoft 365 apps, Adobe, Cisco WebEx, Dropbox app,
+etc.).
+
+                                                                            ©2026 Zscaler, Inc. All rights reserved.   3
+              ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+Finally, Zscaler cannot inspect sites and applications that use client-authentication certificates or use
+unsupported ciphers.
+
+What Commonly Isn’t Inspected
+Certain services currently posing little to no security risk are commonly not inspected. Examples
+include conferencing and communication systems (Teams, Zoom, etc.). Additionally, SSL inspection
+exempts URL categories that have legal or regulatory concerns. The most common are Health and
+Finance sites. Discuss sites that raise legal or regulatory concerns with HR, councils, or legal experts for
+local privacy laws.
+
+Tools Dependent On SSL Inspection
+Many of Zscaler’s ZTE security features require SSL inspection to work on encrypted transactions. The
+features that depend on SSL inspection are:
+     Anti-Virus/Malware
+     Cloud Sandbox
+     Advanced Threat Prevention
+     Isolation
+     Data Loss Prevention (DLP)
+     File Type Control
+     Inline CASB
+     Intrusion Prevention System (IPS)
+
+
+
+
+                                                                              ©2026 Zscaler, Inc. All rights reserved.   4
+              ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+Zscaler must see the contents of transactions to effectively block malware, manage data loss, and
+protect users. While Zscaler can still protect traffic with Zero Trust strategies without SSL inspection,
+organizations miss out on the full benefit of many Zscaler security features if they don’t employ SSL
+inspection.
+
+Deploying SSL Inspection
+The following sections describe considerations when deploying SSL inspection.
+
+
+                                                                              ©2026 Zscaler, Inc. All rights reserved.   5
+              ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+Stakeholders
+Work with internal stakeholders (i.e., executives, legal teams, human resources, etc.) to align SSL
+inspection requirements and to establish consensus on the need for change. Stakeholders must
+understand SSL inspection benefits and the risks of not implementing SSL inspection. Without SSL
+inspection, the organization can’t ensure that encrypted traffic is free from the threat of malicious
+content coming inbound or sensitive data moving outbound. Consult and inform your stakeholders
+during all phases of SSL inspection rollout because they are crucial for successfully implementing SSL
+inspection.
+To learn more, see Encryption, Privacy, & Data Protection: A Balancing Act  and Understanding
+Secure Sockets Layer (SSL).
+
+Compliance Documentation and Communication
+Implementing SSL inspection is a technical initiative, but it also requires preparing the organization for
+the change. Typically, organizations must update computer usage policies, acceptable use agreements,
+and other internal documentation related to IT systems. In some regions and countries, SSL inspection
+requires the involvement of workers’ councils and unions.
+
+Root Certificate
+You must decide between using the Zscaler Central Authority (CA) or your own existing CA with Zscaler
+as an intermediate CA. Using your existing CA requires an additional Zscaler subscription.
+Either way, you must identify how to get the certificate deployed to all necessary devices and handle
+adding the custom certificate to an Application-Specific Trust Store. Adding the customer certificate is
+required as some applications do not leverage the system’s built-in certificate store. This is often found
+with software development tools and custom applications. To learn more, see Adding Custom
+Certificate to an Application-Specific Trust Store and Choosing A Certificate for SSL Inspection.
+
+Deployment Guide
+You must ensure that your organization continues to operate without interruption while you roll out SSL
+inspection. Zscaler recommends starting your inspection rollout with a limited group of users and
+policies from various departments or business units and expanding as your policy becomes more
+robust. This method allows you to learn as you deploy with minimal disruption. Follow the general
+guidance provided to maximize your chances of success.
+  1. Complete all prerequisites.
+  2. Deploy the selected Root CA Certificate  (in phases if necessary).
+
+                                                                             ©2026 Zscaler, Inc. All rights reserved.   6
+              ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+  3. Stage inspection policy for the pilot.
+
+Building Policy
+The following provides a general template for policy building:
+  1. Build using a granular, rule-based engine that includes:
+        a. User, Group, and Department.
+        b. URL Category and Cloud Apps.
+        c. Location and Location Group.
+  2. Avoid breaking cert-pinned apps, including client OS, user agents, etc.
+  3. Enforce secure TLS usage:
+        a. Minimum TLS versions.
+        b. Certificate validation/revocation.
+  4. Inspect OneDrive, SharePoint, etc., but exclude Click-to-Run from Microsoft 365.
+
+
+
+
+                                                                          ©2026 Zscaler, Inc. All rights reserved.   7
+ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+                                                  ©2026 Zscaler, Inc. All rights reserved.   8
+                ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+Initial Policies
+To set up initial policies:
+   1. Go to Policy > URL & Cloud App Control.
+   2. Enable the Microsoft-Recommended One Click Office 365 Configuration policy. This policy is a set
+      of rules made in consultation with Microsoft to provide the best experience for Microsoft 365.
+      Additionally, these rules are automatically updated if Microsoft makes a change. To learn more,
+      see Best Practices for Implementing Access to Microsoft 365 with Zscaler .
+
+
+
+
+   3. Go to Policy > SSL Inspection.
+   4. Build rules that align closely with the following Leading Practices examples. The following table
+      provides rule examples. To learn more, see Configuring SSL Inspection Policy.
+
+       Rule                     Name/Purpose             Criteria                   Actions
+       1                        Zscaler                  N/A                        Do Not Inspect
+                                Recommended
+                                                                                           Evaluate Other
+                                Exemption Rule
+                                                                                           Policies
+                                                                                           Show End User
+                                                                                           Notifications:
+                                                                                           Disabled
+                                                                                           Untrusted
+                                                                                           Server
+                                                                                           Certificates:
+                                                                                           Block
+
+
+                                                                             ©2026 Zscaler, Inc. All rights reserved.   9
+       ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+Rule                 Name/Purpose           Criteria                  Actions
+                                                                             Online
+                                                                             Certificate
+                                                                             Status Protocol
+                                                                             (OCSP)
+                                                                             Revocation
+                                                                             Check: Enabled
+                                                                             Minimum TLS
+                                                                             Version: TLS 1.0
+
+                                                                      Inspect
+                                                                             Untrusted
+                                                                             Server
+                                                                             Certificates:
+                                           Cloud Applications:
+                                                                             Block
+                                           OneDrive, SharePoint,
+                                                                             OCSP
+                                           Microsoft Login
+                                                                             Revocation
+                     Inspect Rule for      Services
+                                                                             Check: Enabled
+                     OneDrive, SharePoint, (Disabled to start, or
+2                                                                            Block
+                     and Microsoft Login   set criteria to include
+                                                                             Undecryptable
+                     Services              empty group or
+                                                                             Traffic: Disabled
+                                           sublocation not to
+                                                                             Minimum Client
+                                           impact traffic
+                                                                             TLS Version:
+                                           immediately.)
+                                                                             TLS 1.2
+                                                                             Minimum Server
+                                                                             TLS Version:
+                                                                             TLS 1.2
+
+                     Zscaler Microsoft 365
+                     Click-to-Run
+                     (Policy > URL & Cloud                            Do Not Inspect
+3                                          N/A
+                     App Control >                                    Bypass Other Policies
+                     Advanced Policy
+                     Settings)
+
+
+
+                                                               ©2026 Zscaler, Inc. All rights reserved.   10
+           ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+Rule                     Name/Purpose           Criteria                   Actions
+                                                                           Do Not Inspect
+                                                                                  Evaluate Other
+                                                                                  Policies
+                                                                                  Show End User
+                                                                                  Notifications:
+                         Custom Microsoft
+                                                                                  Disabled
+                         365 Exemption
+                                                URL Category:                     Untrusted
+                         (For more granular
+3 (alt.)                                        Microsoft 365                     Server
+                         control of Microsoft
+                                                Optimize                          Certificates:
+                         365 traffic
+                                                                                  Block
+                         inspection.)
+                                                                                  OCSP
+                                                                                  Revocation
+                                                                                  Check: Enabled
+                                                                                  Minimum TLS
+                                                                                  Version: TLS 1.0
+
+                                                                           Do Not Inspect
+                                                                                  Evaluate Other
+                                                                                  Policies
+                                                                                  Show End User
+                                                                                  Notifications:
+                                                                                  Disabled
+                                                                                  Untrusted
+                         Global Destination-    URL Category &
+4                                                                                 Server
+                         Based Exemptions       Cloud Application
+                                                                                  Certificates:
+                                                                                  Block
+                                                                                  OCSP
+                                                                                  Revocation
+                                                                                  Check: Enabled
+                                                                                  Minimum TLS
+                                                                                  Version: TLS 1.2
+
+5+                       Global Source-Based    Locations and              Do Not Inspect
+                         Exemptions             Location Groups;
+
+                                                                    ©2026 Zscaler, Inc. All rights reserved.   11
+       ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+Rule                 Name/Purpose           Criteria                 Actions
+                     (Repeat as necessary   and/or Groups and               Evaluate Other
+                     for Locations,         Departments;                    Policies
+                     Groups, Devices,       and/or Device Groups            Show End User
+                     etc.)                                                  Notifications:
+                                                                            Disabled
+                                                                            Untrusted
+                                                                            Server
+                                                                            Certificates:
+                                                                            Block
+                                                                            OCSP
+                                                                            Revocation
+                                                                            Check: Enabled
+                                                                            Minimum TLS
+                                                                            Version: TLS 1.2
+
+                                                                     Do Not Inspect
+                                                                            Evaluate Other
+                                                                            Policies
+                                                                            Show End User
+                                            Criteria as necessary           Notifications:
+                                            to ensure specific              Disabled
+                     Specific Exemption
+                                            source and                      Untrusted
+                     Rules
+6+                                          destination exemption           Server
+                     (Granular by source
+                                            needs are met                   Certificates:
+                     and destination.)
+                                            without being                   Block
+                                            excessive.                      OCSP
+                                                                            Revocation
+                                                                            Check: Enabled
+                                                                            Minimum TLS
+                                                                            Version: TLS 1.2
+
+7                    Inspect All            Any/Any/Any              Inspect
+                                            (Inspecting
+                                                                            Untrusted
+                                            everything not
+                                                                            Server
+
+                                                              ©2026 Zscaler, Inc. All rights reserved.   12
+           ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+ Rule                    Name/Purpose             Criteria                  Actions
+                                                  exempted                         Certificates:
+                                                  previously.)                     Block
+                                                                                   OCSP
+                                                                                   Revocation
+                                                                                   Check: Enabled
+                                                                                   Block
+                                                                                   Undecryptable
+                                                                                   Traffic: Enabled
+                                                                                   Minimum Client
+                                                                                   TLS Version:
+                                                                                   TLS 1.2
+                                                                                   Minimum Server
+                                                                                   TLS Version:
+                                                                                   TLS 1.2
+
+                                                                            Do Not Inspect
+ Default                 Default Rule             N/A                       Evaluate other
+                                                                            policies.
+
+The following list and image show what a rule set looks like in ZIA:
+  1. Zscaler Recommended Exemptions.
+  2. Inspection of OneDrive and SharePoint (select only those currently getting inspected in your
+     phase; they might require multiple policies).
+  3. Microsoft 365 Click-to-Run exemption.
+  4. Destination-based exemptions (e.g., Health, Finance, Custom Lists, and Cloud Applications).
+  5. Source-based exemptions (don’t inspect if traffic is from these sources). You can add a rule
+     to inspect any Zscaler Client Connector device before this exemption.
+  6. Specific exemptions by source and destination.
+  7. New default. Inspect everything not exempted. During pilot rounds, you can select specific
+     groups as opt-in to inspect instead of everyone.
+
+
+
+
+                                                                     ©2026 Zscaler, Inc. All rights reserved.   13
+           ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+5. Consider the following when building policy:
+       User Attributes (Group/Department). You can only use user attributes if the traffic forwarded
+       to Zscaler is from the Zscaler Client Connector (preferred) or if you enable Enforce Surrogate
+       IP and properly work for traffic flowing through GRE or IPSec tunnels to Zscaler.
+
+       Without Zscaler Client Connector or Surrogate IP, the service cannot identify the user (before
+       inspection) to properly apply user-based policies and determine if inspection is desired.
+       Device Groups (OS Type). You can only identify device groups if the traffic is forwarded to
+       Zscaler via the Zscaler Client Connector.
+
+
+                                                                        ©2026 Zscaler, Inc. All rights reserved.   14
+             ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+         Location Groups. Use location groups whenever possible to more easily manage and
+         maintain a list of locations to be inspected (name as Locations_SSL) and not inspected
+         (name as Locations_NoSSL), and applied to a policy as appropriate. When adding new
+         locations, add them to the proper location group to automatically apply all relevant policies,
+         instead of updating all policies individually.
+
+ 6. Communicate with pilot users.
+ 7. Plan your user pilot and make adjustments:
+       a. Modify your policies to meet the needs of new pilot testers during each phase. As testers
+          continue their work, collect their feedback and adjust policy as necessary to account for any
+          situations where critical applications or services are broken by inspection. When necessary,
+          create and adjust SSL inspection policies to include bypass rules for specific applications,
+          custom categories, locations, or other use cases. Use an FQDN or domains, and avoid
+          exclusion based on IP addresses.
+       b. Properly investigate, understand, and document the reasons for bypassing each application
+          or service. The documentation assists in ongoing operations and maintenance of policies. To
+          learn more, see Handling Exceptions.
+       c. Repeat pilot steps as necessary to cover all the initially planned criteria and phases, and to
+          include those discovered during the pilots.
+ 8. Expand deployment: Expand your policy configuration to include all the leading practice policy
+    configurations needed to cover your successfully tested use cases. Enable inspection for more
+    locations, user groups, destinations, and devices as appropriate. Investigate any reported issues,
+    and document and maintain your exceptions to keep the business moving forward.
+ 9. Measure and report. In the ZIA Admin Portal, view the overall inspected traffic percentage by
+    going to Analytics > Security Audit Report > Traffic Inspection.
+10. Select the Click here link to see the SSL Inspection policy.
+
+
+
+
+                                                                            ©2026 Zscaler, Inc. All rights reserved.   15
+             ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+11. (Optional) View Interactive Reports for Traffic Distribution by Protocol, which include:
+         Traffic by protocol
+         Threats by protocol
+         Sandbox threats
+         Top applications by protocol
+
+
+
+
+                                                                            ©2026 Zscaler, Inc. All rights reserved.   16
+            ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+12. View Interactive Reports for SSL Traffic Overview, which include:
+         Top ciphers
+         SSL/TLS versions
+
+
+
+
+                                                                        ©2026 Zscaler, Inc. All rights reserved.   17
+            ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+13. View Web Insights Filtered by HTTPS, which include:
+        Threat categories
+        File types
+        Threat names
+        (HTTPS = Inspected traffic)
+
+
+
+
+                                                              ©2026 Zscaler, Inc. All rights reserved.   18
+            ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+14. Continue to identify additional use cases and work through necessary testing to attain the
+    organization’s goals. Inspect as much of the SSL/TLS encrypted traffic as possible.
+15. Leverage web insights with the filter Client SSL Handshake Failure Reason to identify transactions
+    that failed SSL inspection.
+
+
+
+
+                                                                          ©2026 Zscaler, Inc. All rights reserved.   19
+              ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+     The following is an example of a log file:
+
+
+
+
+Deployment Checklist
+Zscaler recommends downloading the ZIA SSL Inspection Leading Practices Checklist to help plan and
+implement ZIA SSL Inspection:  Download PDF
+
+Considerations
+Review the following considerations when deploying SSL inspection.
+
+
+                                                                        ©2026 Zscaler, Inc. All rights reserved.   20
+              ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+Policy Guidelines
+Zscaler recommends an SSL inspection policy set that makes granular exemptions as necessary, with a
+default Inspect action on any remaining traffic. Consider the following when setting SSL inspection
+policy:
+     Build with the intention of Opt-Out in mind. Set your final policy to inspect everything not explicitly
+     exempted previously. Any new groups, applications, categories, or locations are automatically
+     inspected until configured otherwise.
+     Reference Groups instead of Users. When you must set a policy for specific users, it’s easier to
+     use Groups. Groups help make policies easier to manage by keeping the identity provider (IdP) as
+     the source of truth on membership and policy.
+     Simple is generally better. A straightforward policy configuration is easier for admins to understand
+     and maintain. If granular policies are necessary, keep the number below 10 (unless the
+     environment specifically calls for more complexity).
+     Rule order matters. Rules are evaluated in a top-down, first-match style. If you need something
+     inspected that is otherwise exempted, build an inspection rule before the exemption rule. For
+     example, if you must inspect all devices actively running Zscaler Client Connector, even if they are
+     coming from locations that should not be inspected, build one rule to inspect the Device Groups
+     running Zscaler Client Connector and then another rule to exempt the locations or location group
+     as necessary.
+     Avoid Bypass Other Policies for any custom exemption rules. This feature bypasses the SSL
+     inspection engines, the URL Filtering policies, and Cloud App Control policies. Any traffic matching
+     the criteria isn’t access controlled later, even if it is policy-dictated.
+     Test Pilot and Production phases granularly. You can deploy SSL inspection by more than just user
+     groups and locations. Using URL categories is usually less disruptive to production environments.
+     Test inspection for categories that are less business-critical before moving to the more critical
+     ones to help validate that inspection works while reducing the risk of production issues. To learn
+     more, see Best Practices: Testing and Rolling Out SSL Inspection.
+
+Handling Exceptions
+In rare cases, SSL inspection might cause applications not to function as expected or at all. This
+prevents the traffic inspection from clearing the application traffic as safe. The most common reasons
+for decryption failures and inability to inspect are:
+     Expired or incorrect certificate for the site or application.
+     Certificate pinning by an application or a website. To learn more, see Certificate Pinning or Hard-
+     Coded Certificates.
+
+                                                                              ©2026 Zscaler, Inc. All rights reserved.   21
+               ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+     Traffic using a protocol that the ZIA Public Service Edge doesn’t understand and cannot decrypt.
+
+In almost all cases, Zscaler recommends dropping traffic that cannot be inspected. If the organization
+legitimately needs the traffic, the user must submit a help ticket to request access.
+Expired or Incorrect Certificates
+When a certificate is expired or incorrect, allowing users to proceed and access the application risks
+the user visiting a malicious site. Legitimate sites, barring unforeseen issues, keep their certificates up-
+to-date. While users might be inconvenienced by an inaccessible site or application, prioritize their
+safety and that of the organization.
+A certificate’s components must be correct and match the server information. If a failure occurs, you
+can choose to Allow, Caution, or Block the connection. Zscaler recommends blocking access until the
+certificate issue is addressed on the server side.
+Zscaler also supports Online Certificate Status Protocol (OCSP) revocation checks. When enabled, the
+ZIA Public Service Edge checks the revocation status of the certificate. It makes this check even if the
+certificate is correct in all other aspects. If the issuing CA revokes the certificate, the ZIA Public Service
+Edge treats the certificate as an untrusted certificate. The same action you choose for failed trust
+certificates applies to an OCSP failure.
+Zscaler recommends that you drop all traffic associated with bad certificates and enable OCSP for all
+inspection rules.
+Certificate Pinning or Hard-Coded Certificates
+Certificate pinning, or hard-coded certificates, is another type of exemption. These are based on the
+client application, not the server. Certificate pinning is different from HTTP Public Key Pinning (HPKP).
+In certificate pinning, the application is hard-coded with a server certificate and treats any other
+certificate as invalid. This prevents MiTM attacks, but it also prevents trusted MiTM.
+This method is common with iOS and Android applications, which can make it more difficult to manage
+those environments.
+The industry is deprecating certificate pinning due to certificate issues causing a loss of access.
+Application vendors, as with public CAs, are moving to shorter lifetimes for their intermediate CAs.
+Those developers who persist with certificate pinning are raising the cost of certificate maintenance
+and risking users losing connection with their service.
+Replace the application or bypass the traffic if you encounter certificate pinning. Bypass the traffic only
+if the application is of such high value to the organization that it’s worth the risks associated with not
+inspecting the application traffic. Otherwise, deny the traffic.
+                                                                                ©2026 Zscaler, Inc. All rights reserved.   22
+              ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+Additionally, it might be worthwhile to reach out to the application vendor and inquire as to why they
+have adopted certificate pinning. Ask them to discontinue the practice for the sake of customer
+security.
+Many trusted teams are advising against certificate pinning. To learn more, refer to the Sectigo blog
+post .
+Undecryptable Traffic
+The ZIA Public Service Edge can decrypt most publicly documented encryption methods. Be suspicious
+of any traffic that you can’t decrypt. While it’s possible that Zscaler is unable to decrypt a particular
+protocol, it is more likely that the protocol is broken, not secure, and should not be used. For more
+information, see Supported Cipher Suites in SSL Inspection.
+Sites also sometimes use custom encryption protocols. Most often, this happens with nation-state
+actors using custom encryption due to classified communications. Those protocols are considered state
+secrets and are not available to Zscaler. It is rare to see custom encryption schemes if you are not a
+government employee or contractor. Block this traffic in most cases. If you use one of these protocols in
+your organization, you must bypass that traffic.
+Zscaler recommends blocking undecryptable traffic unless your organization has a specific use case
+for communication.
+Bypassing Inspection
+Zscaler strongly recommends that you inspect all traffic and place a bypass only in controlled and
+understood exceptions. Bypass inspection of traffic in specific circumstances. Choose to bypass traffic
+only after consulting your legal counsel for the impacted region. In general, bypasses are applicable
+only for specific functions such as:
+     Banking and finance destinations.
+     Healthcare destinations.
+     Business functions that require the use of undecryptable traffic.
+     Business functions that require the use of certificate-pinned sites or applications.
+     Applications, such as certain parts of Microsoft 365, that have issues when inspected.
+
+When creating inspection bypasses, try to keep the following guidance in mind:
+     Zscaler recommends creating at least one URL category or IP and FQDN Destination Group
+     specific to managing SSL exceptions.
+     Avoid creating bypasses to resolve access issues without proper investigation and understanding.
+     Avoid adding major domains to the list (Alexa top 100). Common exemptions to avoid are:
+
+
+                                                                             ©2026 Zscaler, Inc. All rights reserved.   23
+              ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+          (.s3).amazonaws.com
+          (.blob.core).windows.net
+          .cloudfront.net
+          Similar major content delivery networks (CDNs)
+     These are destinations where any subscriber can get their own file storage subdomain. Exempting
+     these domains from inspection means no inspection occurs for any AWS S3 or Azure Blob storage
+     account and should not be exempted without serious consideration.
+     Avoid adding IP addresses in favor of FQDNs or domains.
+     Avoid trying to manage domains if a matching Cloud Application exists.
+     While adding domains, try adding the most specific domains in the bypass instead of wildcards
+     (i.e., add corp.safemarch.com and eng.safemarch.com instead of .safemarch.com).
+     Do not add file paths or anything other than the FQDN (i.e., safemarch.com/games/), as anything
+     beyond the domain is not visible without first inspecting the communication.
+     Document your entries within your documentation system for future reference during the audit and
+     review.
+     Except for compliance and privacy reasons, ensure you understand why you need a bypass (open
+     a ticket with your vendor or partner).
+
+QUIC Protocol
+Google developed the Quick UDP Internet Connections (QUIC) protocol to speed up internet
+connectivity on its browsers and devices. This is accomplished by skipping the TCP handshake and
+using UDP instead. However, Zscaler’s TLS/SSL inspection relies on TCP session information, so
+Zscaler recommends blocking Google QUIC.
+When blocked, the browser or device falls back on TCP connections. Zscaler’s firewall and Zscaler
+Client Connector both support blocking QUIC connections. You can also block this protocol using
+conventional branch office firewalls if needed. To learn more, see Managing the QUIC Protocol.
+Custom Trust Stores
+Every OS has a default system root CA certificate store. Some applications host their own certificate
+trust store and might also need to be updated. Firefox, Python, and Dev environments are common
+examples. For SSL inspection to work, the certificate chain must be pre-deployed, which means some
+of these environments need direct intervention to be compatible.
+Zscaler recommends handling the applications with custom trust stores by installing the Zscaler root
+cert (or custom intermediate cert) into the application’s cert store. This is done manually or
+automatically via a tool like Microsoft System Center Configuration Manager (SCCM).
+
+
+                                                                           ©2026 Zscaler, Inc. All rights reserved.   24
+              ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+You can also disable cert validation, which Zscaler recommends only for short terms and testing.
+Alternatively, you can exempt the traffic from developer users (which is less desirable) from SSL
+inspection. You can also exempt the destination domains to which these apps connect. To learn more,
+see Developer Environments.
+Additionally, ChromeOS devices use Custom Trust Stores. ChromeOS doesn’t trust any managed or
+user-installed certificates for OS-level communications. As such, you can only inspect user traffic, and
+you must exempt the traffic between the device and Google’s ChromeOS services. Put the list of
+required exemptions by domain into a custom URL category and then bypass the custom URL category
+from inspection. To learn more, refer to the Google Help Center . Also, for instructions on deploying
+custom certificate to ChromeOS devices, refer to the Google Help Center .
+To learn more, see Adding Custom Certificates to an Application-Specific Trust Store.
+Developer Environments
+Development teams often represent a challenge to organizational security models. Developers often
+need direct internet access to their customer-facing applications, especially if they still use certificate
+pinning. Developers must ensure their applications function as expected, the certificates are correct,
+etc. Development environments might also have local development resources that include custom DNS
+and mail servers.
+Work with your development teams to understand their workflow. Development teams are ideal
+candidates for their own department or group label. You can exempt their workloads from inspection,
+allowing for development and testing. However, it should be clear that this is a risk to the organization.
+Have a plan to limit devices in a developer test lab from accessing or being accessed by the rest of the
+organization.
+Work to create a set of URLs that support their development. If you allow your developer teams to
+deploy resources, consider using wildcard certificates to bypass specified sites not only from
+inspection but from any bandwidth constraints.
+For all other traffic, your developers should have the same policies as others in the organization. Order
+the development-specific rules higher in the list than the general employee rules to ensure that the rules
+for general users don’t interfere with permissions for developers.
+Mobile Devices (iOS/Android/ChromeOS)
+Installing the certificate on mobile devices requires Mobile Device Management (MDM) and is also
+commonly the best way to deploy the Zscaler Client Connector application.
+
+
+
+                                                                              ©2026 Zscaler, Inc. All rights reserved.   25
+              ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+Inspection for all traffic is not always possible. To learn more, see Certificate Pinning or Hard-coded
+Certificates and Custom Trust Stores to understand further.
+Handling Servers
+Enforcing SSL inspection for servers can be challenging, depending on the environment, management
+schema, and services used. Due to the potential complexity, server networks are typically excluded
+from the initial SSL inspection projects and are deployed when production user inspection is mostly
+completed.
+Regarding servers, the primary challenge is getting the root CA certificate installed on the host
+machines, as well as any containers and applications which make use of Custom Trust Stores. To learn
+more, see Custom Trust Stores.
+Zscaler recommends restricting server access to explicitly permitted destinations and blocking all other
+access, as this can greatly assist in reducing risk of non-inspection until or after inspection is enabled.
+BYOD and Guest Networks
+BYOD and guest network traffic are generally impossible to inspect because the Root CA Certificate
+cannot be installed on these devices. Ensure any BYOD and guest networks are completely segmented
+away from your organization’s network with no chance of accessing anything other than the internet.
+IoT Devices
+Internet of Things (IoT) devices are in a similar state to BYOD and guest networks. While you might be
+able to manage and configure them, most of them don’t accept modifications to the certificate trust
+store. If your devices are compatible, then inspection might still be possible, though it is likely that a
+custom policy is required along with the creation of one or more sublocations specific to these nodes.
+Minimum Protocol Versions (TLS Version Enforcement)
+ZIA supports many protocols and ciphers when inspecting TLS/SSL. As you use inspection, the ZIA
+service reports on which protocols and ciphers are used by your clients and infrastructure. To learn
+more, see Supported Cipher Suites in SSL Inspection.
+Zscaler recommends initially allowing all supported protocols and ciphers to minimize user disruption.
+During this time, you can discover what is in use on your network and which services or platforms still
+use legacy encryption. Using the provided dashboards, you can discover which applications use legacy
+security and move to strengthen your requirements for connections.
+The ZIA Admin Portal supports a display of the versions of TLS and SSL used in your organization.
+Using this information, you can upgrade or disable services still tied to legacy encryption suites. Zscaler
+recommends blocking all TLS versions earlier than 1.2, including any legacy SSL services.
+
+                                                                              ©2026 Zscaler, Inc. All rights reserved.   26
+              ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+Planning Guidance: Pilot to Production
+A comprehensive pilot makes expansion fairly straightforward. If the pilot covers enough business units
+and use cases, then expanding to more users is generally not too challenging. It all comes down to
+planning, communication, and execution. The next sections cover some of the necessary decisions and
+provide baseline recommendations to get you successfully through your pilot phases and into
+production.
+
+Pilot Planning
+A project as significant as SSL inspection must begin with careful planning and multiple rounds of
+piloting before an organization can confidently push out to the entire environment. For piloting, Zscaler
+recommends starting with identifying the use cases you want to cover, then selecting who is included in
+each use case, what traffic is inspection, and planning the stages, timing, and success criteria for each.
+Identifying Use Cases
+Use case identification is done by considering the environment. The best way to assemble this list is by
+thinking about where your users and traffic live. Consider these pieces:
+     Are all users working remotely, or are they in the office?
+     Is the Zscaler Client Connector installed on your workstations?
+     Is there a mobile device fleet (Android and iOS) to be protected?
+     Are there critical services that must be tightly controlled?
+     Who has access to the most sensitive services or information?
+     What kind of compliance requirements must be met?
+     What are the servers allowed to communicate with externally?
+
+Let the answers to these questions guide you toward the sources (users, servers, devices, etc.) that
+need protection, as well as how their traffic communicates with Zscaler.
+User Selection
+Understanding the use cases in your environment leads you to align users (both pilot and production) to
+each use case. For each of your use cases, select users to act as a pilot group. Which users make good
+pilot testers?
+The first users to onboard in the pilot group must understand that they might experience some issues
+and disruptions. Select a group of users that can handle interruptions. You don’t want to include users
+at a critical time of year in either their product development or regulatory calendars. While you can
+rapidly roll back changes to policy, try to avoid that scenario. Select a minimally vulnerable group and
+ensure that you have that group’s full cooperation before starting the pilot program.
+
+                                                                             ©2026 Zscaler, Inc. All rights reserved.   27
+              ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+Don't include IT or development staff in the pilot group because IT and development users often try to
+work around issues before reporting them. Additionally, their work often entails operating in an
+environment that does not match that of the average user. Ensure the pilot group consists of a diverse
+set of average users in an office location, business unit, or small region. The more job functions this
+group performs, the more applications will be tested and the more notifications you’ll receive. You also
+want feedback on your notification copy to see if it’s clearly conveying the required information and the
+escalation process for resolving issues.
+Ensure that your pilot group knows how the escalation process works. Ideally, have a representative of
+your security or IT team offer a presentation about inspection and escalation and perhaps be available
+for real-time communication should an issue arise. Make sure that you have someone in place to make
+real-time changes or implement a quick rollback of policy. Zscaler makes it simple to roll back policy
+quickly, and direct communication with your security team is vital for the successful support of the pilot.
+The pilot group must be identified by the policy engine so that the appropriate rules are applied. There
+are several options for you to select from depending on your needs, including user and location options.
+When you start your policy selections, you will likely expand the policy to apply to more users. You
+might rewrite the policy as you learn more about your users and application needs. When you are
+building out policies for long-term use:
+     If you have a policy that applies to many of your users no matter where they are, focus on the user
+     selection criteria via group.
+     If the policy is only relevant based on location, such as required by a government mandate,
+     choose the location selection criteria. You might also have criteria that apply only when users are
+     in a particular location.
+
+After your pilot group is onboard and operational, you can start to roll out an inspection to the rest of
+your organization. Plan for this rollout to move quickly, region by region, until all your users are
+inspected.
+Traffic Selection
+After designating users for your use cases, the next step is identifying what traffic to inspect. This is
+based on a selection of one or more source-based criteria as well as the selection of destination-based
+criteria. Doing this helps to define inspected traffic versus not-inspected traffic, either during the pilot
+phase or throughout the entire process.
+For source-based criteria, consider what you know of the use case along with how policy can be built to
+explicitly target the sources:
+
+
+                                                                               ©2026 Zscaler, Inc. All rights reserved.   28
+              ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+     By user group or department (e.g., Operations, Sales, HR, Finance, etc.).
+     By location or network (e.g., sublocation, remote workers, HQ, branch sites, building floors).
+     By device type or purpose:
+          Windows, macOS, mobile OS, servers, kiosks, or IoT
+          Running Zscaler Client Connector or not.
+
+Consider if you need to separate employees, contractors, servers, kiosks, executives, developers, etc.,
+into different policy sets or phases.
+With the source in mind, consider which destinations to select for inspection. Will you:
+     Inspect all destination URL categories and Cloud applications? What about categories discussed
+     with your stakeholders regarding a sensitive and private nature (e.g., PII or health) or if categories
+     might need to be exempted for legal reasons (e.g., finance, government)?
+     Take a phased approach to select groups of URL categories per phase?
+          Start with destinations least likely to impact your business.
+          Start with those most likely to be risky.
+          Start with the largest (or lowest) by volume.
+
+After understanding the source and destination criteria, consider which traffic should not be inspected.
+How should you construct a policy to ensure that this traffic is excluded for each of your use cases
+without overlapping other scenarios where the traffic should be inspected?
+Perhaps the most common approach is to target all users running Zscaler Client Connector while in a
+remote worker (i.e., not on your trusted networks) state and then expand to cover Zscaler Client
+Connector users from any location. Eventually, this covers systems without Zscaler Client Connector
+that do have the certificate. Begin by inspecting URL categories less likely to impact business, and
+steadily inspect more categories as you receive feedback and gain confidence. To learn more, see
+Deploying SSL Inspection.
+Example Scenario
+In the following scenario, the setup inspects all traffic from only Zscaler Client Connector users from
+location HQ (except for the Finance and Health categories), Microsoft 365 traffic (but do inspect
+OneDrive and SharePoint), and Zoom Cloud application traffic.
+The following policy rules are built in the simplest way while permitting for more scenarios to be added
+later:
+     Rule 1: Inspect if Cloud App is OneDrive or SharePoint, Device Group is Android, iOS, Windows, or
+     macOS, and the Location is HQ.
+
+                                                                              ©2026 Zscaler, Inc. All rights reserved.   29
+              ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+     Rule 2: Exempt Microsoft 365 traffic via Click-to-Run.
+     Rule 3: Exempt URL categories Finance or Health, or the Cloud application is Zoom.
+     Rule 4: Exempt if Device Group is No Client Connector for Location HQ.
+     Rule 5: Inspect all traffic from location HQ.
+
+You now have a policy that inspects only the target traffic and are prepared to build on this policy as you
+expand the deployment. To make things even easier to manage, you could use location groups to apply
+a similar policy:
+     Build a Location Group that is only inspected when users run Zscaler Client Connector (e.g.,
+     Locations_SSL_CltConEnforce and add HQ and any other locations to this group).
+     Modify the rules where you have referenced Location equals HQ and instead select the
+     Locations_SSL_CltConEnforce for your Location Group criteria.
+     Any new locations that follow the same schema need only be added to the proper Location Group,
+     and policy is applied as appropriate.
+
+You can also build a Location Group where all traffic is inspected (not just Zscaler Client Connector) and
+name it Locations_SSL, and a Location Group for any of your locations not yet in scope or never to be
+inspected, called Locations_NoSSL. Build a policy using these Location Groups as necessary, and the
+new location policies become a matter of assigning the location to the proper group.
+Timing and Success Criteria
+It’s a challenge to plan the timing of the project and its phases. Ideally, you want to move quickly to
+ensure your environment is protected from threats immediately. However, you must also give adequate
+time for testing, feedback, and learning at each stage.
+Organizations that prioritize and understand the importance of SSL inspection can reasonably expect
+successful deployment of SSL inspection to most of their use cases within 45–90 days (although this
+timing depends on the environment’s size, complexity, and distance along their Zero Trust journey).
+The timing of the project should consider the phases and use cases. Some of the most common
+considerations when building project timing are:
+     Deploy to remote users before on-premises?
+     Complete workstations before mobile devices?
+     Order by the operating system?
+     Deployed by Zscaler Client Connector status?
+     Mission critical first or last?
+     When to address compliance requirements?
+     When to do servers, kiosks, and/or IoT?
+
+                                                                             ©2026 Zscaler, Inc. All rights reserved.   30
+               ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+Set realistic schedules to permit adequate time for testing, feedback, and learning at each stage. Do not
+be afraid to move to expanded deployment in any use cases you have successfully tested, even if other
+use cases are still being explored. Expand where and when you are comfortable, making certain not to
+overlap into spaces not yet ready for production. As you expand into production, if significant issues are
+reported, be prepared to roll back a bit and consider the new scenarios to investigate and test.
+Establish success criteria in the planning phase for pilot stages and production state.
+Pilot criteria might be something like:
+     Tested with 10 users for 5 business days.
+     Addressed reported issues within two hours.
+     Received fewer than three issue reports in the last two days of testing.
+
+The idea is to keep it simple. Test some percentage of the use case base (i.e., 1–5 percent) for a set
+amount of time to give you confidence across most applications and services. Keep track of how many
+issues are reported for the test duration, along with how long it takes the team to investigate and
+resolve them. Monitor if the number of reported issues reduces dramatically (or stops) within the last
+small portion of the test window. If users are functional, reported issues are addressed, and things look
+good, then you can reasonably expect a production expansion in this use case to be similar.
+Project success criteria are different. Base them on your discovered use cases, the expected
+percentage of traffic represented by these use cases, and what traffic is not covered under the project.
+Project success criteria might look like this:
+     ≥90% of the user base has traffic inspection enabled in some form.
+     Reported issues below one per 100 users per day.
+     ≥65% of all encrypted traffic is being inspected.
+
+An expectation of a majority of the user base being inspected, reported issues being relatively low, and
+having a target for overall inspection is a reasonable way to judge success. You could expand upon this
+and report the additional threats detected with the added visibility of SSL inspection to the environment.
+Remember, the goal is to inspect as much encrypted web traffic as possible. There must be a baseline
+of what is acceptable to the organization as a percentage of total traffic inspected–knowing that some
+traffic can’t be inspected.
+If an environment has 15% uninspectable destinations (certificate pinned, much of it Microsoft 365,
+other desired or necessary exemptions), along with 20% uninspectable sources (guest network, IoT,
+anything not in scope), then expect that 35% of traffic is not inspectable, and 65% is the absolute
+maximum inspectable traffic.
+
+                                                                                ©2026 Zscaler, Inc. All rights reserved.   31
+               ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+Communication
+Communication is key. You must let your users know changes are coming, typically with your updated
+Acceptable Use Policy, and give the users guidance on how to report any issues they might experience.
+Review and evaluate feedback, lessons learned, and results at each stage. Share updates and reports
+with the key stakeholders to keep them informed and focused on the need and benefits of the project.
+
+Risk Tolerance and Acceptance Plans
+If you can’t inspect traffic, what criteria does the organization set to determine if the risk is acceptable?
+Will the traffic be permitted or blocked? Negotiate this guidance with stakeholders during the planning
+stage, as it will become necessary to act quickly on established plans when investigating and resolving
+reported issues.
+Important considerations:
+     Zscaler cannot see inside uninspected traffic, meaning any embedded threats (inbound or
+     outbound) are not detected.
+     Determine under what circumstances traffic is exempted from inspection and communications
+     permitted:
+           Destinations exempted by privacy and legal requirements.
+           Business critical services (and what determines business critical status).
+           Connections to partners or vendors.
+           Low-risk destinations (and what determines low risk).
+     How to handle undecryptable traffic.
+     How to handle revoked certificates.
+     How to handle untrusted server certificates.
+     Is there a minimum TLS version, and what should be done with exceptions?
+     Is policy set globally or for some grouping (user, location, network, device, etc.)?
+
+Establish your guidance early, and continue to update as you learn more about your environment and
+the services that require exception handling.
+
+Root Certificates
+Certificates play a critical role in securing web applications by confirming the validity of the
+applications. A user’s device trusts the certificate because of a chain of trust link showing the server
+certificate’s relationship to a trusted certificate authority. The information contained in the certificate
+allows for the setup of secure connections with TLS/SSL using public-key encryption.
+
+                                                                                ©2026 Zscaler, Inc. All rights reserved.   32
+              ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+In ZIA, the Central Authority is a private CA, acting as both root and intermediate CA for the ZIA service
+or as an intermediate to your private CA. The Central Authority authorizes the ZIA Public Service Edges
+to act as intermediate CAs, issuing certificates to end users for their requested destinations.
+Generally, preventing interception is what you want. Having a third party be able to impersonate a
+legitimate service with a valid certificate allows the impersonator to see into the transactions. When a
+legitimate TLS/SSL inspection occurs, impersonating all the destinations a user wants to visit is exactly
+what happens. The ZIA proxy must sit in the traffic flow and must present itself as the legitimate service
+the user is attempting to achieve.
+To do this, the ZIA Public Service Edge acts as a short-lived intermediate CA. As a user requests a
+connection, the ZIA Public Service Edge issues certificates on demand for the application. From the
+browser’s point of view, the ZIA Public Service Edge certificate is valid for the destination. This is
+because the user or administrator imported the ZIA Public Service Edge trust chain into the device’s
+certificate store.
+Zscaler provides two options for root CA certificates: using your own certificate authority or leveraging
+Zscaler’s CA. From a functional standpoint, the two options are equivalent, but there are differences in
+the deployment of the root CA. The option you choose depends on your current infrastructure. If you
+already have your own CA infrastructure in place, you might prefer to use your own certificates. Your
+client machines are already preloaded with your root CA certificate, and they can begin to use the ZIA
+service immediately without additional certificate installations in the client certificate store. To learn
+more, see Safeguarding SSL Keys.
+If you don’t have a robust CA practice in place already, or don’t want to make Zscaler an intermediate
+CA to your organization, Zscaler’s CA is the best choice. Zscaler CA is a private CA. You must install
+Zscaler’s root CA in your machines’ certificate stores to deploy the Zscaler Root CA certificate.
+Using your existing CA is an additional subscription with Zscaler.
+
+Building an Inspection Policy
+Understanding the process of creating an SSL Inspection policy is crucial for proper implementation and
+ongoing operations of an inspection program. Fortunately, policy creation is fairly straightforward and
+similar to policy creation in other areas of ZIA.
+  1. Add an SSL Inspection Rule by going to Policy > SSL Inspection.
+  2. Select your Rule Order and enter the Rule Name.
+
+
+
+
+                                                                              ©2026 Zscaler, Inc. All rights reserved.   33
+           ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+3. Select your criteria (e.g., Cloud Applications, OneDrive, and SharePoint Online).
+
+
+
+
+4. Select any additional criteria (e.g., for Device Groups, select each OS running Zscaler Client
+   Connector).
+
+
+
+
+                                                                          ©2026 Zscaler, Inc. All rights reserved.   34
+           ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+5. Select your action and desired configuration.
+
+
+
+
+                                                             ©2026 Zscaler, Inc. All rights reserved.   35
+             ZSCALER DEPLOYMENTS & OPERATIONS : ZIA SSL INSPECTION LEADING PRACTICES GUIDE
+
+
+
+
+  6. Save and Review Rule. Rule order matters.
+
+
+
+
+To learn more, see Configuring SSL Inspection Policy .
+
+
+
+
+                                                               ©2026 Zscaler, Inc. All rights reserved.   36
+

@@ -8,7 +8,7 @@ confidence: medium
 source-tier: mixed
 sources:
   - "https://help.zscaler.com/zia/configuring-url-categories-using-api"
-  - "vendor/zscaler-help/Configuring_URL_Categories_Using_API.pdf"
+  - "vendor/zscaler-help/Configuring_URL_Categories_Using_API.txt"
   - "vendor/zscaler-sdk-python/README.md"
   - "vendor/zscaler-sdk-python/zscaler/zia/activate.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py"

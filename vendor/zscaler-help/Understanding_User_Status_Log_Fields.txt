@@ -1,0 +1,317 @@
+                                     PRIVATE ACCESS (ZPA) : UNDERSTANDING USER STATUS LOG FIELDS
+
+
+
+
+Private Access (ZPA)
+Understanding User Status Log Fields
+The Log Streaming Service (LSS) can send User Status log information to any third-party log analytics
+tool. By default, the User Status log type includes the fields listed in the following table for each log
+template (i.e., CSV, JSON, TSV). While configuring your log receiver, you can edit the default log stream
+content to capture only specific fields, and create a custom log template.
+    View an example User Status log.
+
+         {"LogTimestamp": "Fri May 31 17:34:48 2019","Customer": "ANZ Team/zdemo in beta","User
+         name": "ZPA LSS Client","SessionID": "cKgzUERSLl09Y+ytH8v5","SessionStatus": "ZPN_STAT
+         US_AUTHENTICATED","Version": "19.12.0-36-g87dad18","ZEN": "broker1b.pdx2","Certificate
+         CN": "slogger1b.pdx2.zpabeta.net","PrivateIP": "","PublicIP": "34.216.108.5","Latitud
+         e": 45.000000,"Longitude": -119.000000,"CountryCode": "US","TimestampAuthentication":
+         "2019-05-29T21:18:38.000Z","TimestampUnAuthentication": "","TotalBytesRx": 31274866,"T
+         otalBytesTx": 25424152,"Idp": "Example IDP Config","Hostname": "DESKTOP-2K299HC","Plat
+         form": "windows","ClientType": "zpn_client_type_zapp","TrustedNetworks": "TN1_stc1","T
+         rustedNetworksNames": "145248739466947538","SAMLAttributes": "myname:jdoe,myemail:jdoe
+         @zscaler.com","PosturesHit": "sm-posture1,sm-posture2","PosturesMisses": "sm-posture1
+         1,sm-posture12","ZENLatitude": 47.000000,"ZENLongitude": -122.000000,"ZENCountryCode":
+         "", "FQDNRegistered": "0","FQDNRegisteredError": "","City": "San Jose", "MicroTenantI
+         D": "145257480799129312"}
+
+
+
+
+The following table includes descriptions and supported field format specifications for each field within
+the template. To learn more about the format specifications listed for each field, including examples,
+see Understanding the Log Stream Content Format.
+
+                                                                        Supported Field Format
+ Field                              Description                         Specifications
+                                                                             %[OPT]s
+                                    The timestamp when the log               %[OPT]j
+ LogTimestamp
+                                    was generated                            %[OPT]J
+
+                                                                             %[OPT]s
+                                                                             %[OPT]j
+ Customer                           The customer name                        %[OPT]J
+                                                                             %[OPT]o
+
+
+                                                                             ©2026 Zscaler, Inc. All rights reserved.   1
+                PRIVATE ACCESS (ZPA) : UNDERSTANDING USER STATUS LOG FIELDS
+
+
+
+
+                                                 Supported Field Format
+Field           Description                      Specifications
+                                                     %[OPT]s
+                                                     %[OPT]j
+Username        The user name                        %[OPT]J
+                                                     %[OPT]o
+
+                                                     %[OPT]s
+                                                     %[OPT]j
+SessionID       The TLS session ID                   %[OPT]J
+                                                     %[OPT]o
+
+                The status of the session. The
+                expected values for this field
+                are:
+                     ZPN_STATUS_AUTHENTIC
+                     ATED: The user
+                     successfully
+                     authenticated in Private
+                     Access                          %[OPT]s
+                     ZPN_STATUS_AUTH_FAIL            %[OPT]j
+SessionStatus        ED: The user failed to          %[OPT]J
+                     authenticate in Private         %[OPT]o
+                     Access
+                     ZPN_STATUS_DISCONNE
+                     CTED: The user
+                     connected from a Public
+                     Service Edge for Private
+                     Access or a Private
+                     Service Edge for Private
+                     Access
+
+Version         The Zscaler Client Connector         %[OPT]s
+                version                              %[OPT]j
+                                                     %[OPT]J
+
+                                                     ©2026 Zscaler, Inc. All rights reserved.   2
+                PRIVATE ACCESS (ZPA) : UNDERSTANDING USER STATUS LOG FIELDS
+
+
+
+
+                                                  Supported Field Format
+Field           Description                       Specifications
+                                                      %[OPT]o
+
+                                                      %[OPT]s
+                The Public Service Edge that          %[OPT]j
+ZEN                                                   %[OPT]J
+                was selected for the connection
+                                                      %[OPT]o
+
+                                                      %[OPT]s
+                                                      %[OPT]j
+CertificateCN   The certificate common name           %[OPT]J
+                                                      %[OPT]o
+
+                                                      %[OPT]s
+                The private IP address of             %[OPT]j
+PrivateIP                                             %[OPT]J
+                Zscaler Client Connector
+                                                      %[OPT]o
+
+                                                      %[OPT]s
+                The public IP address of              %[OPT]j
+PublicIP                                              %[OPT]J
+                Zscaler Client Connector
+                                                      %[OPT]o
+
+                The latitude coordinate of the        %[OPT]f
+Latitude        Zscaler Client Connector              %[OPT]o
+                location
+                The longitude coordinate of the       %[OPT]f
+Longitude       Zscaler Client Connector              %[OPT]o
+                location
+                                                      %[OPT]s
+                The country code of the               %[OPT]j
+CountryCode     Zscaler Client Connector              %[OPT]J
+                location                              %[OPT]o
+
+
+
+                                                      ©2026 Zscaler, Inc. All rights reserved.   3
+                            PRIVATE ACCESS (ZPA) : UNDERSTANDING USER STATUS LOG FIELDS
+
+
+
+
+                                                              Supported Field Format
+Field                       Description                       Specifications
+
+                            Timestamp in microseconds             %[OPT]s
+TimestampAuthentication     when Zscaler Client Connector         %[OPT]j
+                            was authenticated                     %[OPT]J
+
+                            Timestamp in microseconds             %[OPT]s
+TimestampUnAuthentication   when Zscaler Client Connector         %[OPT]j
+                            was unauthenticated                   %[OPT]J
+
+                                                                  %[OPT]d
+                                                                  %[OPT]x
+TotalBytesRx                The total bytes received              %[OPT]f
+                                                                  %[OPT]o
+
+                                                                  %[OPT]d
+                                                                  %[OPT]x
+TotalBytesTx                The total bytes transmitted           %[OPT]f
+                                                                  %[OPT]o
+
+                                                                  %[OPT]s
+                            The name of the identity              %[OPT]j
+Idp                         provider (IdP) as configured in       %[OPT]J
+                            the Zscaler Admin Console             %[OPT]o
+
+                                                                  %[OPT]s
+                            The name of the device as             %[OPT]j
+Hostname                    reported by Zscaler Client            %[OPT]J
+                            Connector                             %[OPT]o
+
+                                                                  %[OPT]s
+                            The platform on the device as         %[OPT]j
+Platform                    reported by Zscaler Client            %[OPT]J
+                            Connector                             %[OPT]o
+
+
+
+                                                                  ©2026 Zscaler, Inc. All rights reserved.   4
+                       PRIVATE ACCESS (ZPA) : UNDERSTANDING USER STATUS LOG FIELDS
+
+
+
+
+                                                          Supported Field Format
+Field                  Description                        Specifications
+                                                              %[OPT]s
+                       The client type for the request        %[OPT]j
+ClientType             (i.e., Zscaler Client Connector,       %[OPT]J
+                       ZPA LSS, or Web Browser)               %[OPT]o
+
+                       The unique IDs for the trusted         %[OPT]s
+                       networks that Zscaler Client           %[OPT]j
+TrustedNetworks                                               %[OPT]J
+                       Connector has determined for
+                       this device                            %[OPT]o
+
+                       The names for the trusted              %[OPT]s
+                       networks that Zscaler Client           %[OPT]j
+TrustedNetworksNames                                          %[OPT]J
+                       Connector has determined for
+                       this device                            %[OPT]o
+
+                                                              %[OPT]s
+                       The list of SAML attributes            %[OPT]j
+SAMLAttributes
+                       reported by the IdP                    %[OPT]J
+
+                                                              %[OPT]s
+                       The posture profiles that              %[OPT]j
+PosturesHit            Zscaler Client Connector               %[OPT]J
+                       verified for this device               %[OPT]o
+
+                                                              %[OPT]s
+                       The posture profiles that              %[OPT]j
+PosturesMiss           Zscaler Client Connector failed        %[OPT]J
+                       to verify for this device              %[OPT]o
+
+                       The latitude coordinates for the       %[OPT]f
+ZENLatitude                                                   %[OPT]o
+                       Public Service Edge
+
+
+
+
+                                                              ©2026 Zscaler, Inc. All rights reserved.   5
+                      PRIVATE ACCESS (ZPA) : UNDERSTANDING USER STATUS LOG FIELDS
+
+
+
+
+                                                         Supported Field Format
+Field                 Description                        Specifications
+
+                      The longitude coordinates for          %[OPT]f
+ZENLongitude                                                 %[OPT]o
+                      the Public Service Edge
+
+                                                             %[OPT]s
+                      The country code for the Public        %[OPT]j
+ZENCountryCode                                               %[OPT]J
+                      Service Edge
+                                                             %[OPT]o
+
+                      The status of the hostname for
+                      the client-to-client connection.       %[OPT]s
+FQDNRegistered
+                      The expected values for this
+                      field are true or false.
+FQDNRegisteredError   The status of the registered           %[OPT]s
+                      hostname. The expected value
+                      if the hostname matches the
+                      regular expression is
+                      FQDN_MATCH. The expected
+                      values if the hostname does not
+                      match the regular expression
+                      are:
+                           FQDN_NO_MATCH: The
+                           hostname does not match
+                           with the configured
+                           regular expression
+                           FQDN_BAD_SCHEMA:
+                           Client-to-client
+                           communication is disabled
+                           for the Public Service
+                           Edge
+                           FQDN_BAD_REGEX: The
+                           configured regular
+                           expression in the Zscaler
+
+
+                                                             ©2026 Zscaler, Inc. All rights reserved.   6
+                PRIVATE ACCESS (ZPA) : UNDERSTANDING USER STATUS LOG FIELDS
+
+
+
+
+                                                   Supported Field Format
+Field           Description                        Specifications
+                     Admin Console is
+                     incorrect
+                     FQDN_TOO_MANY_REGEX
+                     : Invalid regular
+                     expression configuration
+                     due to multiple configured
+                     regular expressions
+                     FQDN_NO_ENTRIES: Your
+                     admin has not configured
+                     a regular expression in the
+                     Zscaler Admin Console
+                     FQDN_EMPTY: The FQDN
+                     received from the Zscaler
+                     Client Connector is null or
+                     empty
+                     BROKER_NOT_ENABLED:
+                     Client-to-client
+                     communication is disabled
+                     for the Public Service
+                     Edge
+                     CUSTOMER_NOT_ENABLE
+                     D: Client-to-client
+                     communication is disabled
+                     for the current customer
+
+                                                       %[OPT]s
+City            The city of the client                 %[OPT]j
+
+                The Microtenant ID of the user         %[OPT]s
+MicroTenantID                                          %[OPT]j
+                accessing the application
+
+
+
+
+                                                       ©2026 Zscaler, Inc. All rights reserved.   7
+

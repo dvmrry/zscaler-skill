@@ -8,19 +8,19 @@ confidence: high
 source-tier: doc
 sources:
   - "https://help.zscaler.com/zia/about-policy-enforcement"
-  - "vendor/zscaler-help/Understanding_Policy_Enforcement.pdf"
+  - "vendor/zscaler-help/Understanding_Policy_Enforcement.txt"
   - "https://help.zscaler.com/zia/configuring-ssltls-inspection-policy"
   - "vendor/zscaler-help/configuring-ssl-tls-inspection-policy.md"
   - "https://help.zscaler.com/zscaler-deployments-operations/ssl-inspection-deployment-and-operations-guide"
-  - "vendor/zscaler-help/SSL_Inspection_Deployment_and_Operations_Guide.pdf"
+  - "vendor/zscaler-help/SSL_Inspection_Deployment_and_Operations_Guide.txt"
   - "https://help.zscaler.com/zscaler-deployments-operations/zia-ssl-inspection-leading-practices-guide"
-  - "vendor/zscaler-help/ZIA_SSL_Inspection_Leading_Practices_Guide.pdf"
+  - "vendor/zscaler-help/ZIA_SSL_Inspection_Leading_Practices_Guide.txt"
   - "https://help.zscaler.com/zia/best-practices-testing-and-rolling-out-ssltls-inspection"
-  - "vendor/zscaler-help/Best_Practices_for_Testing_and_Rolling_Out_SSL_TLS_Inspection.pdf"
+  - "vendor/zscaler-help/Best_Practices_for_Testing_and_Rolling_Out_SSL_TLS_Inspection.txt"
   - "https://help.zscaler.com/zia/about-ssl-tls-inspection-policy"
-  - "vendor/zscaler-help/About_SSL_TLS_Inspection_Policy.pdf"
+  - "vendor/zscaler-help/About_SSL_TLS_Inspection_Policy.txt"
   - "https://help.zscaler.com/zia/configuring-url-filtering-policy"
-  - "vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.pdf"
+  - "vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt"
   - "https://duo.com/docs/duo-desktop"
   - "https://help.duo.com/s/article/9585"
 author-status: draft
@@ -362,7 +362,7 @@ The "before or after" question in Q4 resolves to: **URL Filtering evaluates twic
 - Transparent vs explicit forwarding edge cases when a user mixes modes — [clarification `zia-11`](../_meta/clarifications.md#zia-11-transparent-vs-explicit-forwarding-mixed-mode)
 - Exact behavior of SSL decision on the URL filtering default rule — if SSL says "Do Not Inspect + Evaluate Other Policies" and URL filtering has no matching rule, does the default URL-filtering action still fire? — [clarification `zia-12`](../_meta/clarifications.md#zia-12-ssl-bypass-interaction-with-url-filtering-default-rule) (partially resolved by Policy Enforcement doc; edge case still open)
 
-Resolved while writing this doc: pipeline-order explicit sourcing (see [clarification `zia-13`](../_meta/clarifications.md#zia-13-explicit-pipeline-order-sourcing) — marked resolved with answer from `Understanding_Policy_Enforcement.pdf`).
+Resolved while writing this doc: pipeline-order explicit sourcing (see [clarification `zia-13`](../_meta/clarifications.md#zia-13-explicit-pipeline-order-sourcing) — marked resolved with answer from `Understanding_Policy_Enforcement.txt`).
 
 ## Cross-links
 

@@ -8,17 +8,17 @@ confidence: medium
 source-tier: doc
 sources:
   - "https://help.zscaler.com/zscaler-deployments-operations/url-filtering-deployment-and-operations-guide"
-  - "vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.pdf"
+  - "vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt"
   - "https://help.zscaler.com/zia/configuring-url-filtering-policy"
-  - "vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.pdf"
+  - "vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt"
   - "https://help.zscaler.com/zia/recommended-url-cloud-app-control-policy"
-  - "vendor/zscaler-help/Recommended_URL_&_Cloud_App_Control_Policy.pdf"
+  - "vendor/zscaler-help/Recommended_URL_&_Cloud_App_Control_Policy.txt"
   - "https://help.zscaler.com/zia/configuring-advanced-url-policy-settings"
-  - "vendor/zscaler-help/Configuring_Advanced_Policy_Settings.pdf"
+  - "vendor/zscaler-help/Configuring_Advanced_Policy_Settings.txt"
   - "https://help.zscaler.com/zia/about-url-categories"
-  - "vendor/zscaler-help/About_URL_Categories.pdf"
+  - "vendor/zscaler-help/About_URL_Categories.txt"
   - "https://help.zscaler.com/zia/about-policy-enforcement"
-  - "vendor/zscaler-help/Understanding_Policy_Enforcement.pdf"
+  - "vendor/zscaler-help/Understanding_Policy_Enforcement.txt"
 author-status: draft
 ---
 

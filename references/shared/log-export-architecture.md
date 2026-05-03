@@ -9,8 +9,8 @@ source-tier: doc
 sources:
   - "vendor/zscaler-help/understanding-nanolog-streaming-service.md"
   - "vendor/zscaler-help/about-cloud-nss-feeds.md"
-  - "vendor/zscaler-help/General_Guidelines_for_NSS_Feeds_and_Feed_Formats.pdf"
-  - "vendor/zscaler-help/Understanding_the_Log_Stream_Content_Format.pdf"
+  - "vendor/zscaler-help/General_Guidelines_for_NSS_Feeds_and_Feed_Formats.txt"
+  - "vendor/zscaler-help/Understanding_the_Log_Stream_Content_Format.txt"
   - "references/shared/nss-architecture.md"
   - "references/zcc/logs/zcc-log-schema.md"
   - "references/cloud-connector/logs/log-schema.md"
@@ -225,7 +225,7 @@ ZCC logs are transport-layer; ZIA logs are application-layer. This split is a co
 | DLP event | No | ZIA Web: `dlpdict`, `dlpeng` |
 | ZPA application access (per-session) | No | ZPA User Activity: `Application`, `ConnectionStatus` |
 
-A user who reports "ZCC is blocking my site" is almost always misattributing a ZIA cloud block to ZCC. The block decision lives in ZIA web logs, not ZCC logs. For URL-level investigation, always use ZIA NSS web logs.
+When a user reports "ZCC is blocking my site," the block decision likely lives in ZIA web logs rather than ZCC logs — ZCC logs are transport-layer (per the table above) and do not record per-URL policy actions. For URL-level investigation, use ZIA NSS web logs.
 
 ZCC device identity surfaces indirectly in ZIA NSS web logs via `deviceowner` (device's registered owner) and `ztunnelversion` — these fields carry device context without requiring ZCC log export.
 

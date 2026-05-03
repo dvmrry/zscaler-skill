@@ -165,7 +165,7 @@ The per-category column sets and filter sets are referenced in `vendor/zscaler-h
    - Repository Columns / Filters
 2. Confirm whether the NSS feed format follows the same `%s{...}` / `%d{...}` specifier convention as Web/Firewall/DNS, or uses JSON-native field names (Cloud NSS supports JSON output).
 3. Identify the per-record category discriminator field (likely `appclass`).
-4. Cross-check against the Cloud NSS feed schema in `General_Guidelines_for_NSS_Feeds_and_Feed_Formats.pdf` (vendor PDF — extraction needed).
+4. Cross-check against the Cloud NSS feed schema in `General_Guidelines_for_NSS_Feeds_and_Feed_Formats.txt` (vendor PDF — extraction needed).
 
 This is tracked as a coverage gap; see also [`../../shared/siem-log-mapping.md`](../../shared/siem-log-mapping.md) under "ZIA Inline CASB / SaaS Security (NSS)".
 

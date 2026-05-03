@@ -1,0 +1,132 @@
+                         PRIVATE ACCESS (ZPA) : UNDERSTANDING THE LOG STREAM CONTENT FORMAT
+
+
+
+
+Private Access (ZPA)
+Understanding the Log Stream Content
+Format
+The following information includes specifications and guidelines about the log field format that is used
+by these log types:
+     Audit Logs
+     App Connector Metrics
+     App Connector Status
+     Browser Access
+     Microsegmentation Flow
+     Private Cloud Controller Metrics
+     Private Cloud Controller Status
+     Private Service Edge Metrics
+     Private Service Edge Status
+     User Activity
+     User Status
+     Web Inspection
+
+While configuring your log receiver, you can edit the default Log Stream Content to include customized
+log fields. For example, when configuring your log receiver using the App Connector Status log type,
+the ConnectionLogType field can be added as a custom log field to distinguish between AppProtection
+and event logs. The expected values for this field are event_log and inspection_log. The supported
+log field format specification must be included (i.e., %[OPT]s, %[OPT]j, %[OPT]J, %[OPT]d, %[OPT]x,
+%[OPT]f, %[OPT]o).
+
+Log Field Format Specifications
+The field format string contains arbitrary text with the following escape formats, where [OPT] is an
+optional field that determines the width/precision of the style, implemented by printf. You can also
+specify the padding if you want constant width strings. For example:
+     %d{LogTimestamp:hh}:%d{LogTimestamp:mm}:%d{LogTimestamp:ss} would appear as
+     21:5:0
+     %02d{LogTimestamp:hh}:%02d{LogTimestamp:mm}:%02d{LogTimestamp:ss} would appear
+     as 21:05:00
+
+
+                                                                             ©2026 Zscaler, Inc. All rights reserved.   1
+                         PRIVATE ACCESS (ZPA) : UNDERSTANDING THE LOG STREAM CONTENT FORMAT
+
+
+
+
+The <field_name> in the following table is substituted by the corresponding value when the log receiver
+sends logs to the SIEM.
+
+ Field Format Specification                          Description
+                                                     Displays the field as a string. For example, User
+                                                     is %s{user_id}, and time is
+ %[OPT]s{<field_name>}                               %s{startrx_us:iso8601} would appear as
+                                                     User is john.doe, and time is 2017-09-
+                                                     05T09:44:06.363Z.
+
+                                                     Displays the LogTimestamp field as a string. You
+                                                     can use the following special characters for
+                                                     timestamps (in epoch):
+                                                          us = microseconds (0 to 999999)
+                                                          ms = milliseconds (0 to 999)
+                                                          ss = seconds (0 to 59)
+                                                          mm = minutes (0 to 59)
+                                                          hh = hours (0 to 23)
+                                                          dd = day of month (1 to 31)
+                                                          mth = month of year (1 to 12)
+ %[OPT]s{LogTimestamp:<field_name>}                       mon = name of month (3 characters)
+                                                          yyy = year (3 digits)
+                                                          day = day of week (3 characters)
+                                                          time = example: Thu Sep 6 22:55:48 2012
+                                                          iso8601 = example: 2017-09-
+                                                          05T09:44:06.363Z
+                                                          epoch = epoch in seconds
+                                                          epoch_ms = epoch in milliseconds
+                                                          epoch_us = epoch in microseconds
+
+                                                     For example, %s{LogTimestamp:time} would
+                                                     appear as Mon Sep 10 10:50:46 2012
+
+                                                     Displays the field as a JSON string with quotation
+ %[OPT]j{<field_name>}
+                                                     marks
+
+
+
+
+                                                                           ©2026 Zscaler, Inc. All rights reserved.   2
+                         PRIVATE ACCESS (ZPA) : UNDERSTANDING THE LOG STREAM CONTENT FORMAT
+
+
+
+
+ Field Format Specification                          Description
+                                                     Displays the field as a JSON string without
+ %[OPT]J{<field_name>}
+                                                     quotation marks
+ %[OPT]d{<field_name>}                               Displays the field in decimal integer format
+                                                     Displays the field as a number in hexadecimal
+ %[OPT]x{<field_name>}
+                                                     (base-16) format
+ %[OPT]f{<field_name>}                               Displays the field as a float
+                                                     Displays the field in a 256-bit (64 character)
+                                                     one-way hashed (obfuscated) form. If you want
+ %[OPT]o{<field_name>}
+                                                     a smaller obfuscation string, you can use
+                                                     precision limiting.
+
+
+Log Field Format Guidelines
+The applicability of the following log field format guidelines and recommendations might vary based on
+the capabilities of your SIEM:
+     Fields must be in the order you want them to appear in the output. If your SIEM can support it,
+     consider using name-value pairs. Some SIEMs, such as Splunk, can automatically parse name-
+     value formats and auto-detect field names regardless of the order. To learn more about third-party
+     SIEM integrations, see Private Access and Splunk Deployment Guide and the Zscaler and Splunk
+     Deployment Guide.
+     Field names are case sensitive.
+     The following special characters can be used generate control outputs:
+           \t = tab
+           \n = newline
+           \r = carriage return
+     The default Log Stream Content automatically adds a newline (\n) character after the last field. If
+     you have modified the content, you must append at least one newline character after the last field.
+     Optionally, you can include static text strings in the output. For example, User is %s{user_id},
+     and time is %s{LogTimestamp:time} GMT would appear as User is john.doe, and time
+     is Mon Sep 10 10:50:46 2012 GMT
+
+
+
+
+                                                                            ©2026 Zscaler, Inc. All rights reserved.   3
+

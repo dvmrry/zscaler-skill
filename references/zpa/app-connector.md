@@ -15,7 +15,7 @@ sources:
   - "vendor/zscaler-help/understanding-connector-software-updates.md"
   - "https://help.zscaler.com/zpa/about-connector-groups"
   - "vendor/zscaler-help/zpa-about-connector-groups.md"
-  - "vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.pdf"
+  - "vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt"
   - "vendor/zscaler-help/understanding-private-access-architecture.md"
 author-status: draft
 ---
@@ -131,7 +131,7 @@ From *Understanding the Private Access Architecture* (captured earlier, see [`..
 
 ### Health reporting and metrics
 
-App Connectors surface health metrics that the ZPA admin console displays and that streaming log fields (per `Understanding_App_Connector_Metrics_Log_Fields.pdf`) carry. Relevant:
+App Connectors surface health metrics that the ZPA admin console displays and that streaming log fields (per `Understanding_App_Connector_Metrics_Log_Fields.txt`) carry. Relevant:
 
 - **`CONNECTED` / `DISCONNECTED` / other runtime statuses** — visible per connector. The connector reports status via its M-Tunnel control channel to a Public/Private Service Edge; loss of that channel is what flips the status.
 - **Active connections to Service Edges** — `ActiveConnectionsToPublicSE` / `ActiveConnectionsToPrivateSE` in App Connector Metrics indicate how many M-Tunnels the connector currently holds open to ZPA infrastructure. Zero active connections to either ⇒ connector is effectively offline regardless of VM uptime.
@@ -198,7 +198,7 @@ The SDK does **not** expose:
 |---|---|---|
 | "Our new App Connectors won't enroll." | Provisioning key utilization count exhausted, or key copied wrong | [Provisioning Keys](#provisioning-keys) |
 | "App Connector shows Failure status after upgrade." | Update failed; restart the VM. If still failing, escalate. | [Software updates](#software-updates) |
-| "Connector says DISCONNECTED even though the VM is running." | Certificate expired (if connector has been running >cert validity), or outbound firewall blocking cloud reach | Health metrics fields per `Understanding_App_Connector_Metrics_Log_Fields.pdf` |
+| "Connector says DISCONNECTED even though the VM is running." | Certificate expired (if connector has been running >cert validity), or outbound firewall blocking cloud reach | Health metrics fields per `Understanding_App_Connector_Metrics_Log_Fields.txt` |
 | "Users hit wrong App Connector for an app." | Geo-proximity-based selection — add connectors closer to users, or configure segment affinity | Selection logic per *About App Connectors* |
 | "Multiple connectors disabled after VM clone." | Hardware-fingerprint collision from template-based deployment | Re-enroll each clone with unique fingerprint |
 | "Cloned connector still enrolled, original disabled." | Fingerprint collision — ZPA keeps one, disables others | Same |

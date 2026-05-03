@@ -1,0 +1,147 @@
+        ZSCALER DEPLOYMENTS & OPERATIONS : URL FILTERING DEPLOYMENT AND OPERATIONS GUIDE
+
+
+
+
+Zscaler Deployments & Operations
+URL Filtering Deployment and Operations Guide
+This guide describes the benefits of using URL filtering and the steps necessary for configuring Zscaler
+Internet Access (ZIA) to add URL filtering to your security posture. To learn more, see About URL
+Filtering.
+You can define a filtering policy that restricts or prevents access to websites based on criteria such as
+URL categories, users, groups, departments, locations, and time intervals.
+
+Value of Deploying URL Filtering
+Using URL Filtering provides the following benefits:
+     Limits exposure to certain types of web content.
+     Controls access privileges for your users.
+     Defines access to custom allowlists and denylists.
+
+Deployment Phase
+The deployment phase includes the process of initially setting up and integrating Zscaler solutions into
+an existing network infrastructure. During the deployment phase, you configure ZIA URL filtering to
+meet the needs of your infrastructure. The following sections discuss steps to deploy ZIA URL filtering.
+
+Prerequisites
+All ZIA editions include URL filtering features. To learn more, see Zscaler Pricing & Plans .
+
+Deployment Steps
+The following steps explain how to deploy URL Filtering:
+  1. Determine if ZIA should cascade to URL filtering policies after it has already processed your Cloud
+     App Control policies.
+  2. Decide which destinations (i.e., single websites or whole URL categories) should receive
+     restrictions through URL filtering policies.
+  3. Decide on a filtering concept:
+           Should the last default rule in your rule set block or allow access to web content? The Zscaler
+           default policy allows access. To learn more about the default Zscaler policy and policy
+           execution, see Configuring the URL Filtering Policy.
+
+                                                                             ©2026 Zscaler, Inc. All rights reserved.   1
+        ZSCALER DEPLOYMENTS & OPERATIONS : URL FILTERING DEPLOYMENT AND OPERATIONS GUIDE
+
+
+
+
+          Which admins, and their admin ranks, are responsible for policy creation?
+          What is the rule order?
+          What criteria limits access to web content? You can define individual sets of criterion per
+          rule.
+          Are custom URL categories needed for specific destinations (e.g., partner sites).
+  4. Determine which advanced policy settings to enable and disable.
+  5. Configure your URL filtering policies.
+
+Considerations
+Review the following considerations:
+     By default, the Cloud App Control policy takes precedence over the URL filtering policy. To learn
+     more, see Configuring the URL Filtering Policy.
+     Cloud App Control policies are better suited to control access to specific web applications (e.g.,
+     Meta, Google Drive, GitHub) compared to URL filtering rules.
+     When routing Microsoft 365 traffic through the Zscaler cloud, consider enabling the Microsoft One
+     Click Options to apply policies to traffic that meets Microsoft’s recommendations automatically.
+     ZIA might not enforce rules based on certain criteria if you don’t enable SSL inspection or use the
+     Zscaler Client Connector.
+     If you only want safe-for-work content served on supported search engines, enable Enforce
+     SafeSearch.
+
+       You must have SSL Inspection enabled in order to enable Enforce SafeSearch.
+
+     URL filtering rules are applied on a first-match basis. To learn more, see URL Filtering Policy and
+     Advanced URL Policy Settings.
+     Consider how to treat miscellaneous URL categories. Blocking access to URLs in the
+     miscellaneous category might impact your users' experience if they can’t access these sites until
+     the URL is categorized .
+     Consider enabling AI/ML-based content categorization. AI/ML content categorization dynamically
+     vets unknown websites by analyzing their content.
+     Consider creating additional security policies (e.g., Sandbox, File Type Control, Firewall) even after
+     limiting access through URL filtering rules.
+     More specific custom category entries always take precedence. URL filtering rules aren’t applied
+     to a category with a wildcard if the destination is defined more specifically in another category.
+
+
+
+                                                                             ©2026 Zscaler, Inc. All rights reserved.   2
+        ZSCALER DEPLOYMENTS & OPERATIONS : URL FILTERING DEPLOYMENT AND OPERATIONS GUIDE
+
+
+
+
+     For example, the first rule CUSTOM_C1 contains .example.com and the second rule CUSTOM_C2
+     contains www.example.com. When accessing www.example.com, the CUSTOM_C1 policy isn’t
+     applied because CUSTOM_C2 is more specific (even though CUSTOM_C1 is higher in the rule
+     order).
+
+Operations Phase
+This section describes common practices used to operate Zscaler solutions when integrated with your
+environment. During the operations phase, you can monitor and tune ZIA URL filtering to meet your
+infrastructure needs.
+
+Prerequisites
+For URL Filtering operation, complete the following prerequisites:
+     Document if the Allow Cascading to URL Filtering option is enabled to understand the rule
+     evaluation flow better. This option is located under Advanced Web App Control Options.
+     Make sure the operations team has access to the authorization concept.
+     Add informative descriptions to your URL filtering rules.
+     Agree upon standard operating procedures (SOPs) to add/delete/edit URL filtering rules.
+     Agree upon SOPs to add/delete/edit custom URL categories used in your URL policies.
+
+Common Troubleshooting Tips
+The following list describes common issues related to URL filtering operation:
+     Rules with Request Method or Protocol criteria are not processed as expected: Check if SSL
+     inspection is applied to these transactions. Zscaler might not determine certain criteria if sites are
+     uninspected.
+     Rule processing for a site is unexpected: The category check shows it as
+     MISCELLANEOUS_OR_UNKNOWN, but other rules apply. Check if AI/ML categorization is enabled.
+     This feature automatically assigns certain categories to uncategorized sites.
+     Allowlist category rule is not applied to certain sites: Check custom categories for more specific
+     entries.
+     Website only partially loads, so certain site elements are missing even though access should be
+     allowed: Background elements can be loaded from other sites that could be blocked by your
+     policies. Check the headers for blocked content.
+     Applications show TLS error messages: Try turning off SSL inspection for URLs used by this
+     application, since certain applications use certificate pinning and do not function properly if they
+     are not served the original certificate.
+
+                                                                             ©2026 Zscaler, Inc. All rights reserved.   3
+        ZSCALER DEPLOYMENTS & OPERATIONS : URL FILTERING DEPLOYMENT AND OPERATIONS GUIDE
+
+
+
+
+     Wrong category is shown on the blocked page: Check logs to see which category is logged for the
+     transaction. Is the URL in question added to a custom category? If the site is added in the
+     Retaining Parent category, check the rule order to make sure that another rule does not block
+     access to this URL first.
+
+Deployment and Operations Checklist
+Zscaler recommends downloading the URL Filtering Deployment and Operations Checklist to help plan
+and implement ZIA URL filtering:  Download PDF
+
+Additional Information
+For more URL Filtering information and troubleshooting instructions, see the Zscaler Support Portal 
+and the Zscaler Zenith Community .
+
+
+
+
+                                                                          ©2026 Zscaler, Inc. All rights reserved.   4
+

@@ -1,0 +1,105 @@
+                                          PRIVATE ACCESS (ZPA) : UNDERSTANDING APPLICATION ACCESS
+
+
+
+
+Private Access (ZPA)
+Understanding Application Access
+There are two ways to provide access to applications, through an application definition or by application
+discovery.
+
+About Application Definitions
+When configuring defined application segments, you can define individual applications to change their
+settings (e.g., Double Encryption, Health Reporting, etc.) or configure different access policies for them.
+For example, if you want to allow only specific users access to the application
+marketing.safemarch.com and allow another group of users to access sales.safemarch.com, you can
+explicitly define each application. You can then configure policies referencing those applications
+individually. When configuring two or more application segments, ensure that there is no conflict in
+destination ports.
+    Example of conflicting application segments
+
+     If two or more application segments cover the same destination address, Zscaler Client Connector
+     attempts to match traffic to the more granular application segment. If there is no match in this
+     application segment for the destination port, Zscaler Client Connector bypasses ZPA and sends
+     traffic directly. Consider the following configuration as an example of two conflicting application
+     segments.
+            Application Segment 1
+                 FQDN: *.example.com
+                 Ports: TCP 1-65535 UDP 1-65535
+            Application Segment 2
+                 FQDN: www.example.com
+                 Ports: TCP 8843
+     If a user navigates to www.example.com:80, the request resolves to the more specific FQDN in
+     Application Segment 2, but fails at the closed port 80. Zscaler Client Connector does not forward
+     traffic to Application Segment 1 and the client connection request is dropped by ZPA. This can be
+     resolved by ensuring ports are properly configured to allow access. For example:
+          Application Segment 1
+               FQDN: *.example.com
+               Ports: TCP 1-65535 udp 1-65535
+
+
+                                                                             ©2026 Zscaler, Inc. All rights reserved.   1
+                                         PRIVATE ACCESS (ZPA) : UNDERSTANDING APPLICATION ACCESS
+
+
+
+
+          Application Segment 2
+               FQDN: www.example.com
+               Ports: TCP 80
+
+
+Defining an Application
+To define an application within an application segment, you must enter one or more of the following:
+     FQDN (e.g., marketing.safemarch.com)
+
+
+
+
+     Local domain name (e.g., directory.safemarch.local)
+
+
+
+
+     IP address (e.g., 10.66.67.142)
+
+
+
+
+                                                                           ©2026 Zscaler, Inc. All rights reserved.   2
+                                PRIVATE ACCESS (ZPA) : UNDERSTANDING APPLICATION ACCESS
+
+
+
+
+Wildcard domain (e.g., *.safemarch.com)
+
+
+
+
+Wildcard only (e.g., *)
+
+
+
+
+                                                            ©2026 Zscaler, Inc. All rights reserved.   3
+                                         PRIVATE ACCESS (ZPA) : UNDERSTANDING APPLICATION ACCESS
+
+
+
+
+          Defining an application with a wildcard only requires approval from Zscaler, and it is not
+      
+          available for application discovery. Contact Zscaler Support for more information.
+
+You can also configure FQDNs or domain names and IP subnets to enable application discovery.
+
+     For applications that users access using only the hostname (e.g., DFS), ensure that you
+ 
+     configure DNS search domains so ZPA automatically adds the search domain to the hostname.
+
+
+
+
+                                                                            ©2026 Zscaler, Inc. All rights reserved.   4
+

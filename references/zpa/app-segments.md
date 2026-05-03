@@ -8,13 +8,13 @@ confidence: high
 source-tier: mixed
 sources:
   - "https://help.zscaler.com/zpa/configuring-defined-application-segments"
-  - "vendor/zscaler-help/Configuring_Defined_Application_Segments.pdf"
+  - "vendor/zscaler-help/Configuring_Defined_Application_Segments.txt"
   - "https://help.zscaler.com/zpa/about-application-access"
-  - "vendor/zscaler-help/Understanding_Application_Access.pdf"
+  - "vendor/zscaler-help/Understanding_Application_Access.txt"
   - "https://help.zscaler.com/zpa/using-app-segment-multimatch"
-  - "vendor/zscaler-help/Using_Application_Segment_Multimatch.pdf"
+  - "vendor/zscaler-help/Using_Application_Segment_Multimatch.txt"
   - "https://www.zscaler.com/resources/reference-architectures"
-  - "vendor/zscaler-help/zpa-user-to-app-segmentation-refarch.pdf"
+  - "vendor/zscaler-help/zpa-user-to-app-segmentation-refarch.txt"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_application_segment.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_application_segment_multimatch_bulk.md"
 author-status: draft

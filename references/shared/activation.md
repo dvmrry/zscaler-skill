@@ -7,7 +7,7 @@ last-verified: "2026-04-24"
 confidence: high
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/Configuring_URL_Categories_Using_API.pdf (p.1, activation instruction)"
+  - "vendor/zscaler-help/Configuring_URL_Categories_Using_API.txt (p.1, activation instruction)"
   - "vendor/zscaler-help/automate-zscaler/api-reference-zia-sample-endpoints.md"
   - "vendor/zscaler-help/automate-zscaler/getting-started.md"
   - "vendor/zscaler-help/automate-zscaler/api-endpoint-catalog.md"

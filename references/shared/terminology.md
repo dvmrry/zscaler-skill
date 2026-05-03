@@ -7,7 +7,7 @@ last-verified: "2026-04-28"
 confidence: high
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/Understanding_User_Activity_Log_Fields.pdf (ClientZEN/ConnectorZEN field names)"
+  - "vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt (ClientZEN/ConnectorZEN field names)"
   - "vendor/zscaler-help/understanding-zscaler-cloud-architecture.md"
   - "vendor/zscaler-help/understanding-private-service-edge-internet-saas.md"
   - "vendor/zscaler-help/about-virtual-service-edges-internet-saas.md"

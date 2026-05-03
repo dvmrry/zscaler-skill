@@ -9,7 +9,7 @@ source-tier: doc
 sources:
   - "vendor/zscaler-mcp-server/commands/investigate-sandbox.md"
   - "vendor/zscaler-mcp-server/skills/zia/investigate-sandbox/SKILL.md"
-  - "vendor/zscaler-help/ZIA_SSL_Inspection_Leading_Practices_Guide.pdf (SSL-as-prerequisite)"
+  - "vendor/zscaler-help/ZIA_SSL_Inspection_Leading_Practices_Guide.txt (SSL-as-prerequisite)"
   - "https://help.zscaler.com/zia/about-sandbox"
 author-status: draft
 ---
