@@ -21,23 +21,7 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 
 ## In progress
 
-### Submodule drift detection
-
-- **Status**: In progress (initial script landed in commit-pending)
-- **Origin**: 2026-04-30 — PR #4 (Renovate vendor submodule bump) surfaced no automated way to flag refs whose cited sources may have drifted
-- **Impact**: refs with `verified-against` frontmatter get drift flagging on every submodule bump; HIGH priority when a cited file actually changed, LOW priority for unrelated submodule churn
-- **Cost**: low (script + optional frontmatter field + CI integration)
-- **Notes**: `scripts/check-vendor-drift.py`. Adoption is gradual — refs add `verified-against` at next verification cycle. CI is advisory until enough refs have the field; can promote to strict (`--strict`) once coverage is broad
-- **Next step**: backfill `verified-against` on the `confidence: high` refs that cite vendor/ paths
-
-### Help-article scrape freshness
-
-- **Status**: In progress (initial script landed in commit-pending)
-- **Origin**: 2026-04-30 — `vendor/zscaler-help/*.md` captures have timestamps but no automated check
-- **Impact**: stale scrapes flagged as advisory; refs citing them inherit known staleness rather than silent inheritance
-- **Cost**: low
-- **Notes**: `scripts/check-scrape-freshness.py`. Default 90-day threshold. 8 scrapes have no `**Captured:**` marker — backfill or note as intentional
-- **Next step**: backfill `**Captured:**` markers on the 8 unmarked scrapes
+(none)
 
 ---
 
@@ -212,7 +196,17 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 
 ## Resolved
 
-(none yet — items move here after fix lands and is verified)
+### Submodule drift detection ✅ RESOLVED 2026-05-03
+
+- **Status**: Resolved (script landed; high-confidence backfill complete)
+- **Origin**: 2026-04-30 — PR #4 (Renovate vendor submodule bump) surfaced no automated way to flag refs whose cited sources may have drifted
+- **Resolution**: `scripts/check-vendor-drift.py` shipped. Backfilled `verified-against:` (full 40-char SHAs) on 18 `confidence: high` refs that cite vendor/ paths. 23 ref+submodule pairs now verified-and-current. Medium/low-confidence refs (123 unverified pairs remaining) are out of scope for this item — adoption can continue at each ref's next real verification cycle.
+
+### Help-article scrape freshness ✅ RESOLVED 2026-05-03
+
+- **Status**: Resolved
+- **Origin**: 2026-04-30 — `vendor/zscaler-help/*.md` captures have timestamps but no automated check
+- **Resolution**: `scripts/check-scrape-freshness.py` shipped (90-day threshold, advisory). Backfilled canonical `**Captured:** YYYY-MM-DD` markers on the 8 unmarked scrapes (7 log-field scrapes were using a non-canonical `Fetched:` marker; postman-collection-note used `**Captured reference:**`). README files now excluded from the script. 310/310 scrapes within threshold.
 
 ---
 
