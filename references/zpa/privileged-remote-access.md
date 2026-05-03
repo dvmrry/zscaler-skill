@@ -3,7 +3,7 @@ product: zpa
 topic: "privileged-remote-access"
 title: "Privileged Remote Access (PRA) — clientless RDP/SSH/VNC"
 content-type: reasoning
-last-verified: "2026-04-24"
+last-verified: "2026-05-03"
 confidence: medium
 source-tier: mixed
 sources:
@@ -27,7 +27,7 @@ PRA is ZPA's privileged-access product surface: a clientless gateway that proxie
 | Jump-host / bastion with full audit trail | **PRA** |
 | Emergency admin break-glass with oversight | **PRA** |
 
-PRA is the answer whenever audit / approval / credential-pool / recording is required — those features do not exist in base ZPA.
+Session recording, approval workflow, and credential pooling are documented as PRA features (`privileged-remote-access-captures.md:31-43, :55-61, :75-94`) and are implemented by dedicated PRA-specific API surfaces (`pra_approval.py:26`, `pra_credential_pool.py:25`). The Terraform PRA segment resource is hardcoded to `app_types = "SECURE_REMOTE_ACCESS"` (`resource_zpa_application_segment_pra.go:589`), distinct from the standard application-segment resource.
 
 ## Architecture
 
@@ -146,6 +146,10 @@ These are policy objects, not per-session flags — the same capability set appl
 - "Where are recordings stored, and who can play them back?" → server-side; admins with Session Recording Full Access role.
 - "Can we require 2-of-N approval?" → not natively documented; approvals are 1-approver-approves model.
 - "Does PRA work without ZCC?" → yes, clientless — that's the main value prop. The user only needs a browser that can handle the Privileged Portal (HTML5-based session).
+
+## Open questions
+
+- **Are session recording, approval workflow, and credential pooling formally absent from base (non-PRA) ZPA?** The captured help articles, Python SDK, and Terraform provider all document these features as PRA-specific constructs but none of those sources directly states they are unavailable in standard ZPA. The dedicated PRA SDK modules and the `SECURE_REMOTE_ACCESS`-only `app_types` enum on the PRA segment resource are strong implicit evidence, but a direct source statement would be needed to assert the negative.
 
 ## Cross-links
 
