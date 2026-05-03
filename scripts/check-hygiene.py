@@ -29,6 +29,11 @@ Runs four checks in a single pass:
        `evals/evals.json` `must_cite_files` paths are verified to exist.
        Catches evals that reference renamed / deleted reference docs.
 
+  5. Eval coverage (advisory)
+       Every `confidence: high` non-aggregator ref should be cited by at
+       least one entry in evals.json. Emits a single summary warning by
+       default; use --strict to surface per-file warnings.
+
 Exit code: 0 if no errors (warnings still pass); 1 if any errors.
 
 Run:
@@ -411,13 +416,79 @@ def check_evals() -> list[Finding]:
     return findings
 
 
+# ----- check 5: eval coverage (advisory) -----
+
+
+def check_eval_coverage(md_files: list[Path], strict: bool) -> list[Finding]:
+    """Warn when confidence:high non-aggregator refs aren't cited by any eval."""
+    findings: list[Finding] = []
+    if not EVALS.exists():
+        return findings
+    try:
+        with EVALS.open(encoding="utf-8") as f:
+            data = json.load(f)
+    except json.JSONDecodeError:
+        return findings  # check_evals already reports the parse error
+
+    cited: set[str] = set()
+    for entry in data.get("evals", []):
+        for cite in entry.get("must_cite_files", []) or []:
+            cited.add(cite)
+
+    uncovered: list[Path] = []
+    for path in md_files:
+        if path.name == "index.md":
+            continue
+        try:
+            rel_parts = path.relative_to(REFS).parts
+        except ValueError:
+            continue
+        if any(part.startswith("_") for part in rel_parts):
+            continue
+        content = path.read_text(encoding="utf-8", errors="replace")
+        fm, _ = extract_frontmatter(content)
+        if not fm or fm.get("confidence") != "high":
+            continue
+        rel = str(path.relative_to(REPO_ROOT))
+        if rel not in cited:
+            uncovered.append(path)
+
+    if not uncovered:
+        return findings
+
+    if strict:
+        for p in uncovered:
+            findings.append(
+                Finding(
+                    "warning",
+                    p,
+                    "eval-coverage",
+                    "confidence: high but not cited by any eval in evals.json",
+                )
+            )
+    else:
+        # Single summary finding pointing at evals.json.
+        sample = ", ".join(str(p.relative_to(REPO_ROOT)) for p in uncovered[:3])
+        more = "" if len(uncovered) <= 3 else f" (+{len(uncovered) - 3} more — run --strict for the full list)"
+        findings.append(
+            Finding(
+                "warning",
+                EVALS,
+                "eval-coverage",
+                f"{len(uncovered)} confidence: high refs lack eval coverage: {sample}{more}",
+            )
+        )
+
+    return findings
+
+
 # ----- runner / rendering -----
 
 
 SKIP_DIR_NAMES = {"archive"}  # under _meta/ post-2026-04-30 reorg
 
 
-def run_all_checks() -> list[Finding]:
+def run_all_checks(strict: bool = False) -> list[Finding]:
     findings: list[Finding] = []
     md_files = sorted(
         p for p in REFS.rglob("*.md")
@@ -433,6 +504,7 @@ def run_all_checks() -> list[Finding]:
         findings.extend(check_clarification_propagation(path, resolved))
 
     findings.extend(check_evals())
+    findings.extend(check_eval_coverage(md_files, strict=strict))
 
     return findings
 
@@ -532,7 +604,7 @@ def main():
     )
     args = parser.parse_args()
 
-    findings = run_all_checks()
+    findings = run_all_checks(strict=args.strict)
     print(render_text(findings))
 
     write_digest = args.digest or (args.digest_path != DIGEST_DEFAULT)

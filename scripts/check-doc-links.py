@@ -7,8 +7,13 @@
 
 Walks every HTML file under docs/, extracts each href and src value,
 filters to relative paths (skipping http://, https://, mailto:, tel:,
-data:, anchors, and ?p= source-viewer slugs), resolves each to a
-filesystem path, and reports anything that doesn't exist.
+data:, anchors), resolves each to a filesystem path, and reports
+anything that doesn't exist.
+
+Also validates `source.html?p=<slug>` query strings: each slug must
+resolve to `references/<slug>.md` or `references/<slug>/` on disk.
+The source viewer renders `?p=<slug>` against that lookup, so a
+broken slug means a 404 in the viewer.
 
 Exit 1 on any broken link. Designed to be cheap to run before commit:
 
@@ -26,6 +31,7 @@ from urllib.parse import urlparse, unquote
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DOCS_ROOT = REPO_ROOT / "docs"
+REFS_ROOT = REPO_ROOT / "references"
 
 # Capture href="..." and src="..." values. Single-quote variants are
 # rare in our HTML but supported for safety.
@@ -46,22 +52,41 @@ def is_skippable(target: str) -> bool:
     return False
 
 
-def resolve(html_file: Path, target: str) -> tuple[Path, str]:
-    """Return (resolved_path, fragment) for a relative link.
+def resolve(html_file: Path, target: str) -> tuple[Path, str, str]:
+    """Return (resolved_path, fragment, query) for a relative link.
 
     Strips ?query and #fragment before resolving against the directory
-    containing html_file. The fragment is returned alongside so the
-    caller can decide whether to verify in-file anchors (we don't).
+    containing html_file. The fragment and raw query are returned so
+    the caller can decide whether to verify in-file anchors (we don't)
+    or source-viewer ?p= slugs (we do).
     """
     parsed = urlparse(target)
     path = unquote(parsed.path)
     if path == "":
         # e.g. "?p=zia" — no path component; resolves to the file itself.
-        return html_file, parsed.fragment
+        return html_file, parsed.fragment, parsed.query
 
     base = html_file.parent
     candidate = (base / path).resolve()
-    return candidate, parsed.fragment
+    return candidate, parsed.fragment, parsed.query
+
+
+def resolve_p_slug(slug: str) -> Path | None:
+    """Return the references/ path that source.html would render for ?p=<slug>,
+    or None if it doesn't resolve.
+
+    source.html maps ?p=<slug> to references/<slug>.md (file) or
+    references/<slug>/ (directory).
+    """
+    if not slug:
+        return REFS_ROOT  # ?p= alone renders the references root
+    md = REFS_ROOT / f"{slug}.md"
+    if md.exists():
+        return md
+    dir_path = REFS_ROOT / slug
+    if dir_path.is_dir():
+        return dir_path
+    return None
 
 
 def find_html(root: Path) -> list[Path]:
@@ -88,7 +113,15 @@ def check_file(html_file: Path, broken: list[tuple[Path, int, str, Path]]) -> No
             if is_skippable(target):
                 continue
 
-            resolved, _ = resolve(html_file, target)
+            resolved, _, query = resolve(html_file, target)
+
+            # source.html?p=<slug> — validate slug against references/.
+            if query and resolved.name == "source.html":
+                params = dict(p.split("=", 1) for p in query.split("&") if "=" in p)
+                slug = unquote(params.get("p", ""))
+                if "p" in params and resolve_p_slug(slug) is None:
+                    broken.append((html_file, line_idx, target, REFS_ROOT / slug))
+                    continue
 
             # If the resolved path is a directory, accept index.html inside.
             if resolved.is_dir():

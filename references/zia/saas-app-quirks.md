@@ -68,7 +68,7 @@ Some auth flows require post-decrypt access for tenant-restriction or MFA valida
 
 ## 4. Source IP and Conditional Access — the SIPA dependency
 
-When Microsoft Entra (or any IdP) enforces **named-location** Conditional Access — "only allow sign-ins from corporate IP ranges" — ZIA's shared Public Service Edge IPs fail the location check. Operators see CA blocks against M365 / SaaS apps from authenticated users.
+When Microsoft Entra (or any IdP) enforces **named-location** Conditional Access — "only allow sign-ins from corporate IP ranges" — ZIA's shared Public Service Edge IPs fail the location check, producing CA blocks against M365 / SaaS apps for authenticated users.
 
 **Two paths exist** (paths documented at `help.zscaler.com/zia/source-ip-anchoring-configuration-guide-microsoft-365-conditional-access`):
 

@@ -54,13 +54,6 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 - **Cost**: low to write the script (~50-100 lines Python). Real cost is the audit pass to bring flagged files up to standard — could be days of work depending on how many files fall below the threshold.
 - **Notes**: real reference work cites per claim, sometimes per sentence. The skill currently relies on frontmatter `sources:` declarations to "cover" the body, which is a softer form of citation than the methodology asks for. Not blocking the alpha; not something to defer indefinitely either. When this lands, expect a sweep PR per-product (zia, zpa, etc.) bringing citation density up to standard.
 
-### Close the `source.html?p=...` validation gap
-
-- **Status**: Proposed
-- **Origin**: 2026-04-30 — surfaced when the welcome hub had a stale `?p=_primer` link that broke silently after the `_meta/` consolidation
-- **Impact**: `check-doc-links.py` explicitly skips `?p=` source-viewer routes (per its own line 10 docstring); broken query-param paths into `source.html` go undetected
-- **Cost**: low (small extension to `check-doc-links.py` that knows how to resolve `?p=<path>` against `references/<path>` on disk)
-- **Notes**: source.html resolves `?p=zia/url-filtering` to `references/zia/url-filtering.md`. The validation logic is the same path-resolution against the filesystem; the script just needs to recognize `?p=` query strings and apply it. Adds maybe 15 lines to `check-doc-links.py`. Worth doing because hub pages rely heavily on this routing.
 
 ### Determinism beyond scripts — soft-to-hard pairings
 
@@ -106,13 +99,6 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 - **Cost**: medium (schema + audit-workflow change)
 - **Notes**: defer until we have evidence of refs going stale on a subset of sources. Current single `last-verified` is a weak claim but adequate for most refs.
 
-### External-doc heading / anchor drift
-
-- **Status**: Proposed
-- **Origin**: 2026-04-30 (gap analysis)
-- **Impact**: extend anchor checking to cited vendor/ markdown files, not just in-repo files
-- **Cost**: low (extend `check-hygiene.py` anchor-resolution logic)
-- **Notes**: `check-hygiene.py` currently catches in-repo anchor rot via the `[text](path#anchor)` pattern. Extend to follow vendor/ paths and check anchors there.
 
 ### Postman / API-spec drift detection
 
@@ -122,13 +108,6 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 - **Cost**: medium-high (need JSON diff tooling)
 - **Notes**: depends on how often the api-specs submodule actually changes. Until then, `check-vendor-drift.py` already flags whole-file touches.
 
-### Eval coverage as a freshness signal
-
-- **Status**: Proposed
-- **Origin**: 2026-04-30 (gap analysis)
-- **Impact**: warn when a `confidence: high` ref has no corresponding entry in `references/_meta/evals/evals.json`
-- **Cost**: low (extend `check-hygiene.py`)
-- **Notes**: soft warning, not error. Useful indicator that a high-confidence claim isn't actually exercised by eval coverage.
 
 ### Subtype-parameterize `/z-auditor` (lint subtypes only)
 
@@ -207,6 +186,24 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 - **Status**: Resolved
 - **Origin**: 2026-04-30 — `vendor/zscaler-help/*.md` captures have timestamps but no automated check
 - **Resolution**: `scripts/check-scrape-freshness.py` shipped (90-day threshold, advisory). Backfilled canonical `**Captured:** YYYY-MM-DD` markers on the 8 unmarked scrapes (7 log-field scrapes were using a non-canonical `Fetched:` marker; postman-collection-note used `**Captured reference:**`). README files now excluded from the script. 310/310 scrapes within threshold.
+
+### `source.html?p=...` validation gap ✅ RESOLVED 2026-05-03
+
+- **Status**: Resolved
+- **Origin**: 2026-04-30 — welcome hub had a stale `?p=_primer` link that broke silently after the `_meta/` consolidation
+- **Resolution**: extended `check-doc-links.py` to parse `?p=<slug>` query strings on `source.html` hrefs and verify the slug resolves to `references/<slug>.md` or `references/<slug>/`. Smoke-tested by deliberately breaking a slug and confirming the script catches it. All 13 HTML files now pass.
+
+### External-doc heading / anchor drift ✅ RESOLVED 2026-05-03
+
+- **Status**: Resolved (no-op — already covered)
+- **Origin**: 2026-04-30 (gap analysis)
+- **Resolution**: investigated and confirmed the existing `check_anchors` in `check-hygiene.py` already resolves vendor/ paths via standard relative-path resolution. Verified by writing a test ref with a markdown link to a real vendor heading + a deliberately-broken vendor anchor; the broken anchor was caught. The IMPROVEMENTS notes had been stale on this — the work was already done.
+
+### Eval coverage as a freshness signal ✅ RESOLVED 2026-05-03
+
+- **Status**: Resolved
+- **Origin**: 2026-04-30 (gap analysis)
+- **Resolution**: added check 5 to `check-hygiene.py` — surfaces `confidence: high` non-aggregator refs not cited by any eval in `evals.json`. Default mode emits a single summary warning with sample paths; `--strict` mode emits per-file warnings. Current state: 13/87 high-confidence refs covered (74 uncovered). Authors decide which to address; the count is the actionable signal.
 
 ---
 

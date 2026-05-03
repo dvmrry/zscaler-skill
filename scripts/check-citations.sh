@@ -213,8 +213,13 @@ while IFS= read -r file; do
         function check_paragraph(    p) {
             if (paragraph == "") return
             p = tolower(paragraph)
-            # Inference patterns — editorial / unsourced framing
-            if (p !~ /operationally significant|most common cause|most common (root )?cause|in roughly all|in nearly all|in nearly every|almost always|almost never|the answer when|the answer is|increasingly the (cause|answer)|we observed|we have observed|operators (report|consistently)|the lever for|by far the/) return
+            # Inference patterns — editorial / unsourced framing.
+            # Tightened 2026-05-03 to drop operational-routing false positives:
+            # "the answer is X", "the answer when ...", "almost always" (often
+            # meta-doc navigation), "increasingly the cause/answer" (same family).
+            # Operators-report tightened to non-"-ing" forms only — "operators reporting
+            # X should Y" is diagnostic preamble, not an unsourced claim.
+            if (p !~ /operationally significant|most common cause|most common (root )?cause|in roughly all|in nearly all|in nearly every|almost never|we observed|we have observed|operators (consistently )?(report|see)[[:space:]]|the lever for|by far the/) return
             # Citation markers — vendor path, file:line, "Tier X", clarification ID, "line N"
             if (paragraph ~ /vendor\/[a-zA-Z0-9_.-]+\/|[a-zA-Z0-9_-]+\.(py|go|sh|md):[0-9]+|Tier [A-D]\b|clarification [a-zA-Z]+-[0-9]+|\(line[s]? [0-9]+|see (also )?[`\[]/) return
             # Snippet — first 140 chars
