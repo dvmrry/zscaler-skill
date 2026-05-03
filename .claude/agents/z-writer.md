@@ -59,6 +59,9 @@ For each edit you're about to make:
 1. Identify the specific extraction-report finding that backs it. Cite the report section.
 2. If you can't identify a backing finding, the edit doesn't go to the body. Either route to Open questions or skip.
 3. If the report says X but the existing file says Y, prefer the report (the source-of-truth) and note the contradiction in your output summary.
+4. **Spot-check the citation against the actual source.** Before writing a claim like "X is true (`vendor/foo.py:42`)", use Read to look at line 42 of `vendor/foo.py` and confirm the claim is actually stated there. If the cited line doesn't say what the report claims, do NOT write the claim into the body — flag the discrepancy in your output summary instead. This catches the failure mode where the extraction report mis-cited or paraphrased beyond what the source says. Treat the report as authoritative for *what to claim*, but the source itself is authoritative for *whether the claim is real*.
+
+This input-verification step is narrowly scoped: read the cited line(s) only. Do NOT go beyond the report to find new sources, propose alternative phrasings the report didn't suggest, or synthesize from broader source context. The rule remains "the report is your only source for body content" — you're verifying the report's citations are accurate, not expanding the input.
 
 ## Output
 
@@ -69,5 +72,6 @@ Apply edits via the Edit tool to the target file. Then output a structured summa
 3. **Routed to Open questions** — list of items from the routing list (and any you encountered while writing) that landed in Open questions instead of body
 4. **Existing claims contradicted by report** — claims in the original file that the extraction report contradicts; you've revised them, flag for the user's review
 5. **Items requested but not written** — anything in the calling prompt that the extraction report didn't back, and you didn't write because of the hard rule
+6. **Citation discrepancies caught at spot-check** — claims where the extraction report's citation didn't match what the actual cited source line says. List them so the user can re-run extraction or decide manually.
 
 Be terse but complete. Your summary is what the verifier will audit against.
