@@ -183,7 +183,7 @@ From *Understanding the Private Access Architecture* § Communication Between Co
 Operational implications:
 
 - **Cert expiry is real**: App Connector and ZCC certs have finite validity. `scripts/connector-health.py` surfaces this as a common operational failure mode.
-- **Trust-chain failures** on a Service Edge rejecting a connection are almost always cert-chain issues (missing intermediate, expired leaf, bad system clock) — not policy.
+- **Trust-chain failures** on a Service Edge rejecting a connection point at cert-chain issues (missing intermediate, expired leaf, bad system clock) rather than policy — Service Edge connections rely on mutually-pinned TLS (`understanding-private-access-architecture.md:102`), so chain validation operates before policy evaluation.
 - **Cross-tenant leakage is structurally prevented** by the per-tenant CA signing scope. A compromised tenant cert cannot authenticate against another tenant's infrastructure.
 
 ## Admin console and support systems

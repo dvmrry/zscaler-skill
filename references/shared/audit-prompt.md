@@ -23,7 +23,9 @@ This is the playbook invoked by the `/z-audit` slash command (Claude Code and Wi
 
 You are entering audit mode. Your job is to **read** files in the scope and produce an audit register of findings — you are not editing files unless explicitly directed. Treat the audit as a code review without write access.
 
-The mechanical lint pipeline (`scripts/check-hygiene.py`, `check-citations.sh`, `check-staleness.sh`, `check-doc-links.py`) catches frontmatter / link / date errors deterministically. Your value-add is the **editorial** layer CI can't catch: voice, structural shape, confidence calibration, content/frontmatter agreement, cross-link reciprocity, dangling concepts, open-question hygiene.
+The mechanical lint pipeline (`scripts/check-hygiene.py`, `check-citations.sh`, `check-staleness.sh`, `check-doc-links.py`) catches frontmatter / link / date errors deterministically, **and now also catches inference-shaped claims without an in-paragraph citation** (`check-citations.sh` § Inference-without-citation). Treat each of those hits as a finding candidate to triage — most are real (unsourced editorial framing), some are false positives in operational-routing or empirical-context paragraphs that the script's pattern-match can't distinguish.
+
+Your value-add is the **editorial** layer CI can't catch: voice, structural shape, confidence calibration, content/frontmatter agreement, cross-link reciprocity, dangling concepts, open-question hygiene, **and the subtler citation discipline cases the inference-pattern script doesn't match** (claims that read as fact but aren't framed with one of the script's known phrases).
 
 ## User framing — what to include for best results
 
@@ -86,7 +88,7 @@ Treat the script output as **Tier A evidence** — deterministic, mechanical, no
 
 **If a script can't run** (missing dependency, environment issue, permission error): capture the failure verbatim, open an `Info` finding citing the script and error, and continue the editorial pass without that script's output. Do not block on mechanical-check unavailability — the editorial layer carries weight on its own.
 
-### 3. Editorial pass — the seven checks
+### 3. Editorial pass — the eight checks
 
 Apply each check below across the scope. Every finding cites a file:line or cross-file comparison.
 
@@ -187,6 +189,20 @@ Severity: `Medium` for stale open questions; `Low` for "open questions" section 
 - "Schemas vary by TA version; the table below assumes TA ≥ 4.0 — confirm against your tenant's installed version." *(scope-narrowing caveat)*
 
 Flag only when (a) there are clear gaps AND (b) neither inline caveats nor an Open questions section acknowledges them. A `confidence: medium` file with neither is a real finding; a `confidence: medium` file that explicitly calls out its uncertainty inline is fine.
+
+#### h. Citation discipline (script-complementary)
+
+`check-citations.sh` flags paragraphs containing inference-shaped phrases (`most common cause`, `almost always`, `the answer is`, `operationally significant`, `operators report`, etc.) that lack an in-paragraph citation. Walk those hits first — most are real findings.
+
+Then look for what the script can't match: claims that **read as documented behavior** but lack any source citation, even though they don't use the script's known phrases. Examples:
+
+- A specific behavior described as fact (e.g., "the connector retries every 30 seconds") without a vendor source citation
+- Numeric specifics (timeouts, limits, version floors) stated without a source
+- Cross-product interaction claims that don't use inference phrases but assert specific behavior
+
+Severity: `High` for fact-shaped claims with no source backing (especially numeric or behavioral specifics); `Medium` for general framings that read as inference; `Low` for cosmetic citation gaps.
+
+For script false positives (the paragraph is actually well-cited overall, or it's operational routing language not a behavior claim), record as Notes / out-of-scope rather than findings — but flag the pattern if it suggests the script's regex needs tuning.
 
 ### 4. Output the audit register
 

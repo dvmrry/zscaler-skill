@@ -155,7 +155,7 @@ Both actions delegate auth-challenge presentation to ZIdentity. A tenant without
 
 - **Workload traffic fails to reach internet**: check Cloud Connector rule matching (Direct exemption above an intended ZIA rule?) AND ZIA gateway health (primary/secondary/tertiary chain).
 - **Workload-to-workload ZPA access fails**: diagnose in layers. Cloud Connector ZPA enrollment → ZPA Access Policy for the destination → App Connector on the destination side. Multi-product chain.
-- **Cloud provider metadata service (169.254.169.254) breaks**: almost always a missing Direct-method rule for that endpoint. Workloads requesting cloud IAM tokens fail until exempted.
+- **Cloud provider metadata service (169.254.169.254) breaks**: check for a missing Direct-method rule for that endpoint. Workloads requesting cloud IAM tokens fail until the metadata IP is exempted via a Direct rule.
 - **Activation gate differs from ZPA**: Cloud Connector uses a ZIA-style activation gate (staged pending until explicit activate). An admin changing both a Cloud Connector rule and a ZPA rule sees ZPA propagate immediately, Cloud Connector wait for activation. See [`./activation.md`](./activation.md).
 
 ### ZIA DLP → ZWA (incident lifecycle)
@@ -298,7 +298,7 @@ ZDX's analytics layer is Microsoft-hosted (Azure Data Explorer / ADX) — an ext
 
 ## Common cross-product question shapes
 
-Routing hints for question patterns that often hit these hooks. Use this section to pre-empt "I asked about ZIA but the answer is really about ZPA/ZCC."
+Routing hints for question patterns that often hit these hooks. Use this section to pre-empt cases where a question framed around one product actually resolves to behavior in another (ZIA vs ZPA vs ZCC).
 
 | Question | Likely cross-product hook | Check first |
 |---|---|---|

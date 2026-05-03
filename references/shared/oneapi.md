@@ -165,7 +165,7 @@ Properties:
 
 Returned: a session cookie (`JSESSIONID`) used on subsequent calls. Sessions expire after the configured timeout — re-auth is required, with a fresh obfuscation each time. The SDK handles this automatically; hand-coded clients must re-obfuscate before each new session.
 
-**Why this matters:** the algorithm is publicly known but not centrally documented in Zscaler's help portal — the SDK source is the canonical reference. Hand-rolling ZIA legacy auth without consulting the SDK is the most common cause of "401 with valid creds" debugging on the legacy path.
+**Why this matters:** the algorithm is publicly known but not centrally documented in Zscaler's help portal — the SDK source is the canonical reference. Hand-coded clients implementing ZIA legacy auth without referencing the SDK risk obfuscation drift; the SDK's `legacy.py` is the authoritative reference implementation.
 
 ### ZPA legacy — Client ID + Client Secret + customer ID
 

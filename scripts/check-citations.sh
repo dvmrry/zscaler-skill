@@ -1,17 +1,23 @@
 #!/usr/bin/env bash
-# check-citations.sh — verify citations in references/**/*.md resolve.
+# check-citations.sh — verify citations in references/**/*.md resolve,
+# and flag inference-shaped paragraphs that lack a citation.
 #
 # Status: functional.
 #
-# Walks every reference doc, extracts markdown-formatted links, and verifies:
-#   - Relative paths (./foo.md, ../bar/baz.md) resolve to existing files
-#   - URLs (http/https) return successful responses (HEAD request)
+# Two checks:
+#   1. Path/URL resolution — every markdown link target resolves to a file
+#      or returns a successful HTTP response.
+#   2. Inference-without-citation — paragraphs containing editorial /
+#      inferential phrases (e.g., "the most common cause", "in roughly
+#      all cases", "operationally significant") must have a citation
+#      somewhere in the same paragraph. Hits without a citation get
+#      flagged.
 #
 # Usage:
 #   ./scripts/check-citations.sh                  # paths only (fast, offline)
 #   ./scripts/check-citations.sh --check-urls     # also HEAD URLs (slow, online)
 #
-# Exit code: 0 if all citations resolve, 1 if any broken.
+# Exit code: 0 if all checks pass, 1 if any broken.
 #
 # Limitations:
 #   - Only handles markdown link syntax [text](target). Reference-style
@@ -19,6 +25,9 @@
 #   - Skips citations inside code-fenced blocks (best-effort).
 #   - URL HEAD requests with 5-second timeout. Slow / paywalled sites
 #     may false-positive.
+#   - Paragraphs inside "Open questions" / "Open items" sections are
+#     exempted from the inference check — those sections are explicitly
+#     for unverified content.
 
 set -uo pipefail  # NOT -e: we want to continue on errors
 
@@ -125,7 +134,111 @@ fi
 
 if [[ ${#BROKEN_PATHS[@]} -eq 0 && ${#BROKEN_URLS[@]} -eq 0 ]]; then
     echo "✓ All citations resolve."
-    exit 0
+else
+    EXIT_CODE=1
 fi
 
-exit 1
+# ---------------------------------------------------------------------------
+# Check 2: inference-without-citation
+# ---------------------------------------------------------------------------
+#
+# For each .md file under references/, walk paragraphs (blank-line-separated)
+# and flag any paragraph that:
+#   (a) contains an inference-shaped phrase, AND
+#   (b) does NOT contain a citation marker in the same paragraph.
+#
+# Skips:
+#   - Code blocks (handled by awk state machine)
+#   - Frontmatter (between --- markers at top of file)
+#   - Paragraphs inside "## Open questions" or "## Open items" sections
+#     (those are explicitly for unverified content)
+
+echo ""
+echo "Checking for inference-without-citation in references/**/*.md"
+
+INFERENCE_HITS=()
+
+while IFS= read -r file; do
+    rel_file="${file#${REPO_ROOT}/}"
+
+    # Skip navigation files, primer (foundational-explanation) docs, and
+    # the audit playbook itself (which enumerates the inference patterns
+    # as examples — it's a meta-doc about the check, not a content claim).
+    case "${rel_file}" in
+        */index.md|references/_meta/primer/*) continue ;;
+        references/shared/audit-prompt.md|references/shared/audit-methodology.md) continue ;;
+    esac
+
+    # awk script: paragraph-level scan with section/frontmatter/code-block awareness.
+    # Output format: <line_number>:<snippet>
+    output=$(awk '
+        BEGIN {
+            paragraph = ""; paragraph_start = 0
+            in_frontmatter = 0; in_code = 0; in_open_section = 0
+            frontmatter_seen = 0
+        }
+        # Frontmatter detection: --- at line 1 opens; next --- closes.
+        /^---$/ {
+            if (NR == 1) { in_frontmatter = 1; next }
+            if (in_frontmatter) { in_frontmatter = 0; next }
+        }
+        in_frontmatter { next }
+        # Code block detection
+        /^```/ { in_code = !in_code; next }
+        in_code { next }
+        # Section header detection — entering Open questions/items toggles on,
+        # any other ## heading toggles off.
+        /^## / {
+            if (tolower($0) ~ /open questions|open items/) {
+                in_open_section = 1
+            } else {
+                in_open_section = 0
+            }
+            paragraph = ""; next
+        }
+        in_open_section { next }
+        # Blank line — flush paragraph
+        /^[[:space:]]*$/ {
+            check_paragraph()
+            paragraph = ""; paragraph_start = 0
+            next
+        }
+        # Accumulate non-blank lines into the current paragraph
+        {
+            if (paragraph_start == 0) paragraph_start = NR
+            paragraph = paragraph " " $0
+        }
+        END { check_paragraph() }
+
+        function check_paragraph(    p) {
+            if (paragraph == "") return
+            p = tolower(paragraph)
+            # Inference patterns — editorial / unsourced framing
+            if (p !~ /operationally significant|most common cause|most common (root )?cause|in roughly all|in nearly all|in nearly every|almost always|almost never|the answer when|the answer is|increasingly the (cause|answer)|we observed|we have observed|operators (report|consistently)|the lever for|by far the/) return
+            # Citation markers — vendor path, file:line, "Tier X", clarification ID, "line N"
+            if (paragraph ~ /vendor\/[a-zA-Z0-9_.-]+\/|[a-zA-Z0-9_-]+\.(py|go|sh|md):[0-9]+|Tier [A-D]\b|clarification [a-zA-Z]+-[0-9]+|\(line[s]? [0-9]+|see (also )?[`\[]/) return
+            # Snippet — first 140 chars
+            snippet = paragraph
+            gsub(/^[[:space:]]+/, "", snippet)
+            if (length(snippet) > 140) snippet = substr(snippet, 1, 140) "…"
+            print paragraph_start ":" snippet
+        }
+    ' "${file}")
+
+    if [[ -n "${output}" ]]; then
+        while IFS= read -r line; do
+            INFERENCE_HITS+=("${rel_file}:${line}")
+        done <<< "${output}"
+    fi
+done < <(find "${REFS_DIR}" -name '*.md' -type f)
+
+if [[ ${#INFERENCE_HITS[@]} -gt 0 ]]; then
+    echo "✗ Inference-without-citation (${#INFERENCE_HITS[@]}):"
+    printf '  %s\n' "${INFERENCE_HITS[@]}"
+    echo ""
+    EXIT_CODE=1
+else
+    echo "✓ No inference-without-citation paragraphs."
+fi
+
+exit "${EXIT_CODE:-0}"
