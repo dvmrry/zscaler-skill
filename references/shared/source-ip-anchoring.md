@@ -3,7 +3,7 @@ product: shared
 topic: "source-ip-anchoring"
 title: "Source IP Anchoring (SIPA) — preserve organization-controlled source IP via ZPA App Connector"
 content-type: reasoning
-last-verified: "2026-04-24"
+last-verified: "2026-05-03"
 confidence: high
 source-tier: doc
 sources:
@@ -250,6 +250,50 @@ When SIPA traffic appears to exit with the wrong source IP (Zscaler PSE IP visib
 6. **Verify DNS routing** — the client's DNS is going through Zscaler, so the ZPA Synthetic IPs get returned.
 7. **Verify Z-Tunnel 1.0 compatibility toggle** (if any users are on Z-Tunnel 1.0): `Enable Firewall for Z-Tunnel 1.0 and PAC Road Warriors` is on.
 8. **If ZIA is under disaster recovery**: flip to SIPA Direct config; otherwise SIPA stops working during the DR window.
+
+## Surrogate IP for fixed-site deployments — distinct from SIPA-via-ZPA
+
+**Surrogate IP** is a separate ZIA feature whose name overlaps with Source IP Anchoring but solves a different problem. SIPA changes the **destination-visible egress IP** by routing through a ZPA App Connector. Surrogate IP, by contrast, maps **internal private IPs to authenticated users** so ZIA can apply user-scoped policy to traffic that the user's session can't directly authenticate.
+
+Surrogate IP is a feature within ZIA that maps private IP addresses to authenticated users. This feature allows you to apply policies assigned to a user when that user's traffic cannot be authenticated (`Traffic_Forwarding_in_ZIA_Reference_Architecture.txt:1136`).
+
+### What Surrogate IP solves
+
+Without Surrogate IP, the following categories of traffic fall back to location-level policy because they can't be authenticated to a user (`Traffic_Forwarding_in_ZIA_Reference_Architecture.txt:1140`):
+
+- Web applications without cookies (e.g., Google Earth).
+- HTTPS sessions chosen not to be decrypted.
+- Transactions originating from unknown user agents.
+
+### How the mapping works
+
+When a user authenticates to ZIA, the service makes note of the private IP address in use. Any other traffic that ZIA sees coming from the same private IP address is mapped to the user and their applied policies (`Traffic_Forwarding_in_ZIA_Reference_Architecture.txt:1146`).
+
+Users can have multiple private IP addresses mapped to them at the same time, such as a laptop and smartphone (`Traffic_Forwarding_in_ZIA_Reference_Architecture.txt:1147`).
+
+The mapping expires when (`Traffic_Forwarding_in_ZIA_Reference_Architecture.txt:1191`):
+
+- The user logs out.
+- The idle timeout fires.
+- A new user authenticates from the same IP.
+
+### Five-minute lockout on rapid user collision
+
+If ZIA sees different users log in and send traffic from the same IP address within one minute, Surrogate IP is **disabled for 5 minutes** (`Traffic_Forwarding_in_ZIA_Reference_Architecture.txt:1202`). During the lockout, all traffic is assigned that location's policies instead of their more specific policies that would be assigned to the user. This only applies to traffic that cannot be authenticated (`Traffic_Forwarding_in_ZIA_Reference_Architecture.txt:1203`).
+
+### NAT incompatibility
+
+NAT cannot be used with Surrogate IP, as all users look like they are using the same IP address (`Traffic_Forwarding_in_ZIA_Reference_Architecture.txt:1204`).
+
+### Requirements
+
+To use Surrogate IP, the location must use either GRE or IPSec without NAT, or have a dedicated proxy port subscription. The location must also have authentication enabled (`Traffic_Forwarding_in_ZIA_Reference_Architecture.txt:1199`).
+
+### Recommendation
+
+Zscaler recommends enabling Surrogate IP for all fixed site locations (`Traffic_Forwarding_in_ZIA_Reference_Architecture.txt:1208`).
+
+For dedicated proxy ports (a related fixed-site / remote-user forwarding option that interacts with Surrogate IP), see [`../zia/forwarding-control.md § Dedicated proxy ports`](../zia/forwarding-control.md).
 
 ## Open questions
 

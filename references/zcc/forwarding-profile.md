@@ -3,7 +3,7 @@ product: zcc
 topic: "zcc-forwarding-profile"
 title: "ZCC forwarding profile — how ZCC decides where to send traffic"
 content-type: reasoning
-last-verified: "2026-05-01"
+last-verified: "2026-05-03"
 confidence: medium
 source-tier: mixed
 sources:
@@ -179,6 +179,23 @@ Per the model, ZCC uses three kinds of trusted-criteria input:
 How these combine: `condition_type` controls AND vs OR across the pieces (`forwarding_profile.go:22`). The enum isn't documented in the SDK — see `zcc-01`. Likely values: AND (all criteria must match), OR (any matches), or possibly `TRUSTED_CRITERIA_AND` / `TRUSTED_CRITERIA_OR` style strings. Lab-test at first tenant onboarding.
 
 **`evaluate_trusted_network` is the master switch** (`forwarding_profile.go:40`). If false, the TRUSTED branch of both action lists never fires; ZCC behaves as if always on an untrusted network. A tenant that sees "all my users are treated as untrusted even on corporate LAN" should check this flag first.
+
+### Vendor recommendation framing for the four detection options
+
+The Traffic Forwarding RefArch surfaces user-facing labels and a recommendation for the four detection options ZCC exposes (`Traffic_Forwarding_in_ZIA_Reference_Architecture.txt:1370`):
+
+| Option | Vendor label | Behavior |
+|---|---|---|
+| DNS Server | **(recommended)** | IPs of internal corporate DNS servers; ZCC verifies at least one is reachable. |
+| DNS Search Domains | **(recommended)** | Search domain compared to the active adapter's. |
+| Hostname and IP | — | Hostname plus expected resolved IPs on the corporate network. |
+| Pre-Defined Trusted Networks | — | Mutually exclusive with the other three; sole criterion when used. |
+
+For options 1–3, match logic is configurable as ANY or ALL. Pre-Defined Trusted Networks is a single-criterion mode and cannot be combined with the other three (`Traffic_Forwarding_in_ZIA_Reference_Architecture.txt:1370`).
+
+Zscaler recommends using DNS Server and/or DNS Search Domains for detecting trusted networks. These are the most static checks possible. Combining them gives you the most assurance of being on a trusted network (`Traffic_Forwarding_in_ZIA_Reference_Architecture.txt:1390`).
+
+The RefArch framing also describes the master behavior: ZCC contains a feature called trusted network detection. You configure the software to understand when it is on one of your organization's network segments and disable itself (`Traffic_Forwarding_in_ZIA_Reference_Architecture.txt:1358`). When the software detects that it is not connected to a trusted network segment, it automatically tries to connect to the nearest ZIA Service Edge (`Traffic_Forwarding_in_ZIA_Reference_Architecture.txt:1360`).
 
 ### Fail-open policy — what happens when the cloud is unreachable
 

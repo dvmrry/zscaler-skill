@@ -3,7 +3,7 @@ product: shared
 topic: "zscaler-cloud-architecture"
 title: "Zscaler cloud architecture — Central Authority, Service Edges, BC Cloud, tunnel model"
 content-type: reasoning
-last-verified: "2026-04-25"
+last-verified: "2026-05-03"
 confidence: high
 source-tier: doc
 sources:
@@ -18,6 +18,7 @@ sources:
   - "https://help.zscaler.com/legacy-apis/activation"
   - "vendor/zscaler-help/zia-activation.md"
   - "vendor/zscaler-sdk-python/zscaler/zia/activate.py"
+  - "vendor/zscaler-help/Traffic_Forwarding_in_ZIA_Reference_Architecture.txt"
 author-status: draft
 ---
 
@@ -79,6 +80,8 @@ Three form factors, same software stack:
 | Public Service Edge (PSE) | Zscaler | Zscaler-hosted, multi-tenant | Default for user traffic |
 | Private Service Edge (PSEN instance-level) | Zscaler-managed hardware, customer-hosted | On-premises, single-tenant | On-prem traffic inspection (compliance, latency) |
 | Virtual Service Edge (VSE/VSEN instance-level) | Customer-operated VM, Zscaler-supported | Customer infrastructure, single-tenant | Same as Private but software-based |
+
+**VSE forwarding-method constraint:** the ZIA Virtual Service Edge does not support termination of IPSec connections. If your organization is using a ZIA Virtual Service Edge, you need to build tunnels using GRE or the Zscaler Client Connector software (`Traffic_Forwarding_in_ZIA_Reference_Architecture.txt:969`). See [`./ipsec-tunnels.md § Virtual Service Edge does not terminate IPSec`](./ipsec-tunnels.md) for the constraint and the GRE / ZCC alternatives.
 
 **Data-plane properties** (from ZIA architecture doc):
 
@@ -224,5 +227,6 @@ The platform is built so that **data plane (Service Edges) can run on cached sta
 - Terminology (ZEN↔Service Edge renames, Z-App↔ZCC, etc.) — [`./terminology.md`](./terminology.md)
 - Z-Tunnel 1.0 vs 2.0 (customer-facing tunnel mechanics) — [`../zcc/z-tunnel.md`](../zcc/z-tunnel.md)
 - ZCC fail-open (the client-side last-resort when cloud is unreachable) — [`../zcc/forwarding-profile.md`](../zcc/forwarding-profile.md)
+- IPSec tunnels — VSE forwarding-method constraint, cipher suites, NAT-T — [`./ipsec-tunnels.md`](./ipsec-tunnels.md)
 - Sandbox servers (one of the support systems mentioned here) — [`../zia/sandbox.md`](../zia/sandbox.md)
 - Nanolog / NSS log streaming — `vendor/zscaler-help/understanding-nanolog-streaming-service.md`

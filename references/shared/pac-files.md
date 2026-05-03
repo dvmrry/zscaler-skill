@@ -3,7 +3,7 @@ product: shared
 topic: "pac-files"
 title: "PAC files — the forwarding layer that touches every product"
 content-type: reasoning
-last-verified: "2026-04-28"
+last-verified: "2026-05-03"
 confidence: high
 source-tier: doc
 sources:
@@ -133,6 +133,16 @@ PAC file status values:
 - `Error-Accepted` — has errors; admin accepted and saved with errors at verification time
 
 **PAC changes are immediate.** The moment you save a new PAC version as "currently deployed," all browsers fetching that URL get the new content on their next refresh cycle. No staged-vs-live gate. Test on a local machine and in a canary group first. Zscaler highly recommends saving a copy of the current PAC before applying changes. (Tier A — vendor/zscaler-help/using-custom-pac-file-forward-traffic-zia.md.)
+
+### Obfuscate URL — strongly recommended
+
+The final piece of deploying a custom PAC file is obfuscating the URL of the PAC file. Because this file must be made public for your users' machines to access, anyone who has the URL can access the content. This can contain information you don't want to be public (`Traffic_Forwarding_in_ZIA_Reference_Architecture.txt:1557`).
+
+The ZIA Admin Portal generates a URL for your use when you enable **Obfuscate URL** (`Traffic_Forwarding_in_ZIA_Reference_Architecture.txt:1559`).
+
+**Zscaler strongly recommends enabling Obfuscate URL** (`Traffic_Forwarding_in_ZIA_Reference_Architecture.txt:1560`).
+
+**Caveat**: when you enable obfuscation, you need to update your client machines to the new URL location. Until that occurs, your users use the default system PAC file. This can lead to issues with accessing resources until the client device is updated (`Traffic_Forwarding_in_ZIA_Reference_Architecture.txt:1563`).
 
 ## The Kerberos PAC file vs standard PAC
 

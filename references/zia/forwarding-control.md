@@ -3,7 +3,7 @@ product: zia
 topic: "forwarding-control"
 title: "Forwarding Control + Source IP Anchoring (SIPA) — egress routing decisions"
 content-type: reasoning
-last-verified: "2026-04-25"
+last-verified: "2026-05-03"
 confidence: medium
 source-tier: mixed
 sources:
@@ -175,6 +175,34 @@ Both must be enabled and ordered correctly: Road Warrior rule must have higher r
 6. **SIPA user-based policy and ZPA Access Policy don't mix.** If SIPA traffic is user-scoped in ZIA, do not add user-based SAML/SCIM criteria in the ZPA Access Policy for those same segments — it creates conflicting identity evaluation across products. (Tier A — *Configuring Source IP Anchoring* help doc.)
 
 7. **GetAll vs GetByID bug in ZPA Gateway reads.** The TF provider's Read function explicitly fetches all gateways and filters client-side rather than calling GetByID, with an inline comment noting "API bug where Get by ID returns incorrect app segments." (Tier A — TF Go source.) This means `terraform import` uses a GetAll scan, not a direct lookup.
+
+## Dedicated proxy ports
+
+Zscaler supports dedicated proxy ports. In this model, your internet gateway or SD-WAN device forwards user traffic to a specific port number assigned to your organization (`Traffic_Forwarding_in_ZIA_Reference_Architecture.txt:1090`).
+
+This is an additional subscription service available from Zscaler, and is only recommended when your gateway device is not capable of providing GRE or IPSec tunnels (`Traffic_Forwarding_in_ZIA_Reference_Architecture.txt:1091`).
+
+### Authentication requirement
+
+Because anyone can send traffic to a dedicated proxy port, Zscaler requires that your users authenticate to prevent misuse of the system (`Traffic_Forwarding_in_ZIA_Reference_Architecture.txt:1110`).
+
+For remote users, they need to use a PAC file to access proxy ports. A more robust method for remote users is to deploy Zscaler Client Connector to your remote stations (`Traffic_Forwarding_in_ZIA_Reference_Architecture.txt:1111`).
+
+### Configuration
+
+Configuration of dedicated proxy ports is handled on the Location Management page of the ZIA Admin Portal. You add your assigned port(s) and select the **Enforce authentication** checkbox (`Traffic_Forwarding_in_ZIA_Reference_Architecture.txt:1114`).
+
+Zscaler recommends enabling Surrogate IP on proxy ports and for remote users (`Traffic_Forwarding_in_ZIA_Reference_Architecture.txt:1115`).
+
+Required configuration (`Traffic_Forwarding_in_ZIA_Reference_Architecture.txt:1118`):
+
+| Setting | Required value |
+|---|---|
+| NAT | Disabled |
+| Surrogate IP | Enabled |
+| Authentication | Enabled |
+
+For Surrogate IP mechanics and the related five-minute lockout behavior, see [`../shared/source-ip-anchoring.md § Surrogate IP for fixed-site deployments`](../shared/source-ip-anchoring.md).
 
 ## Cross-links
 
