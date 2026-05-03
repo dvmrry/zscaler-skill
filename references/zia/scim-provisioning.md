@@ -3,7 +3,7 @@ product: zia
 topic: scim-provisioning
 title: "ZIA SCIM Provisioning — group-to-department mapping, attribute constraints, ZIA-specific behavior"
 content-type: reasoning
-last-verified: "2026-04-27"
+last-verified: "2026-05-03"
 confidence: medium
 source-tier: doc
 sources:
@@ -81,7 +81,7 @@ Custom SCIM attributes beyond the documented mapping are not persisted in ZIA. Z
 
 ## 3. ZIA group vs. department — the SCIM mapping distinction
 
-This is the most operationally significant difference between ZIA and ZPA SCIM behavior.
+ZIA's SCIM mapping splits group membership and department into two separate ZIA object types: SCIM groups land in a ZIA group object, and the Enterprise User `department` attribute populates a separate ZIA department object on the user record. ZPA's SCIM mapping carries `department` as a user attribute rather than as a separate object, and ZPA exposes SCIM groups via the `SCIM_GROUP` policy operand (see [`../zpa/scim-policy-mapping.md`](../zpa/scim-policy-mapping.md)).
 
 ### How ZIA represents group and department
 
