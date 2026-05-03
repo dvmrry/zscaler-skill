@@ -86,6 +86,8 @@ author-status: draft
 
 Complete catalog of the 71 resources and corresponding data sources in the `zscaler/zia` Terraform provider (registry source `zscaler/zia`, v4.x). Resources are grouped by ZIA functional area. Every resource requires activation to take effect; see the [Activation lifecycle](#activation-lifecycle) section.
 
+> **For HCL authoring guidance** — best practices, decision tables, anti-patterns, CI/CD with the activation step, secret hygiene — see Zscaler's official skill bundle, vendored at [`vendor/zscaler-terraform-skills/skills/zia-skill/`](../../vendor/zscaler-terraform-skills/skills/zia-skill/) (upstream: `zscaler/zscaler-terraform-skills`, MIT). This doc covers the resource catalog and provider internals; their skill covers how to *write* HCL against the catalog.
+
 ## Provider overview
 
 The provider wraps the ZIA REST API via `zscaler-sdk-go/v3` and implements the `terraform-plugin-sdk/v2` pattern. The registry source is `zscaler/zia`.

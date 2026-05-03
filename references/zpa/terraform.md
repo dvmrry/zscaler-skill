@@ -83,6 +83,8 @@ author-status: draft
 
 Complete listing of every Terraform resource and data source in the `zscaler/zpa` provider, grouped by functional area. Derived from provider doc files in `vendor/terraform-provider-zpa/docs/`. Policy v1/v2 API distinctions, gotchas, and known open questions are noted throughout.
 
+> **For HCL authoring guidance** — best practices, decision tables, anti-patterns, CI/CD with the activation step, secret hygiene — see Zscaler's official skill bundle, vendored at [`vendor/zscaler-terraform-skills/skills/zpa-skill/`](../../vendor/zscaler-terraform-skills/skills/zpa-skill/) (upstream: `zscaler/zscaler-terraform-skills`, MIT). This doc covers the resource catalog and provider internals; their skill covers how to *write* HCL against the catalog.
+
 ---
 
 ## Provider overview

@@ -16,6 +16,8 @@ author-status: draft
 
 # Cloud Connector Terraform provider
 
+> **For HCL authoring guidance** — best practices, decision tables, anti-patterns, CI/CD with the activation step, secret hygiene — see Zscaler's official skill bundle, vendored at [`vendor/zscaler-terraform-skills/skills/ztc-skill/`](../../vendor/zscaler-terraform-skills/skills/ztc-skill/) (upstream: `zscaler/zscaler-terraform-skills`, MIT). The upstream skill uses Zscaler's "ZTC" naming for the provider; this doc covers the same provider as our Cloud Connector resource catalog and provider internals — their skill covers how to *write* HCL against the catalog.
+
 ## Provider overview
 
 **Registry source**: `zscaler/ztc`  
