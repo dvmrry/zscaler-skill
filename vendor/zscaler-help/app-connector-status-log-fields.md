@@ -1,7 +1,7 @@
 # Understanding App Connector Status Log Fields
 
-Source: https://help.zscaler.com/zpa/understanding-app-connector-status-log-fields
-Fetched: 2026-04-28
+**Source:** https://help.zscaler.com/zpa/understanding-app-connector-status-log-fields
+**Captured:** 2026-04-28 via Playwright MCP.
 
 The Log Streaming Service (LSS) can send App Connector Status log information to any third-party log analytics tool. By default, the App Connector Status log type includes the fields listed in the following table for each log template (i.e., CSV, JSON, TSV). While configuring your log receiver, you can edit the default log stream content to capture only specific fields, and create a custom log template. For example, you can add the `ConnectionLogType` field as a custom log field to distinguish between AppProtection and event logs. The expected values for this field are `event_log` and `inspection_log`. The supported log field format specification must be included (i.e., %[OPT]s, %[OPT]j, %[OPT]J, %[OPT]d, %[OPT]x, %[OPT]f, %[OPT]o).
 

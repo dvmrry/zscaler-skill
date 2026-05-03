@@ -1,7 +1,7 @@
 # Understanding Private Cloud Controller Status Log Fields
 
-Source: https://help.zscaler.com/zpa/understanding-private-cloud-controller-status-log-fields
-Fetched: 2026-04-28
+**Source:** https://help.zscaler.com/zpa/understanding-private-cloud-controller-status-log-fields
+**Captured:** 2026-04-28 via Playwright MCP.
 
 The Log Streaming Service (LSS) can send Private Cloud Controller Status log information to any third-party log analytics tool. By default, the Private Cloud Controller Status log type includes the fields listed in the following table for each log template (i.e., CSV, JSON, TSV). While configuring your log receiver, you can edit the default log stream content to capture only specific fields, and create a custom log template. The supported log field format specification must be included (i.e., %[OPT]s, %[OPT]j, %[OPT]J, %[OPT]d, %[OPT]x, %[OPT]f, %[OPT]o).
 

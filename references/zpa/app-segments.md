@@ -4,6 +4,8 @@ topic: "zpa-app-segments"
 title: "ZPA application segment matching"
 content-type: reasoning
 last-verified: "2026-04-24"
+verified-against:
+  vendor/terraform-provider-zpa: a3c845f3366cc2267e1b244f9968e727c92bad3d
 confidence: high
 source-tier: mixed
 sources:

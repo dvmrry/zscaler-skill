@@ -4,6 +4,8 @@ topic: "scim-provisioning"
 title: "SCIM provisioning — user/group lifecycle across ZIA, ZPA, ZIdentity"
 content-type: reasoning
 last-verified: "2026-04-26"
+verified-against:
+  vendor/zscaler-sdk-go: b14f8696c5008f8ea6ea6025b0c691835d9373b4
 confidence: high
 source-tier: mixed
 sources:

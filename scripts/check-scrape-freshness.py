@@ -61,6 +61,8 @@ def main() -> int:
     no_marker: list[str] = []
 
     for path in scrapes:
+        if path.name == "README.md":
+            continue
         try:
             text = path.read_text(errors="ignore")
         except Exception:

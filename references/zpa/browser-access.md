@@ -4,6 +4,9 @@ topic: "browser-access"
 title: "Browser Access — clientless ZPA via a web browser"
 content-type: reference
 last-verified: "2026-04-28"
+verified-against:
+  vendor/terraform-provider-zpa: a3c845f3366cc2267e1b244f9968e727c92bad3d
+  vendor/zscaler-sdk-python: 89a079411689fb4c6495ff6d95c619679318fbd1
 confidence: high
 source-tier: mixed
 sources:

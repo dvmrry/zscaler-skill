@@ -4,6 +4,8 @@ topic: "aws-deployment"
 title: "Cloud Connector on AWS — deployment shape, ENI model, scaling, HA"
 content-type: reasoning
 last-verified: "2026-04-26"
+verified-against:
+  vendor/terraform-provider-ztc: 92f2d7c686b53c7bb5421d07581de9ae90be136b
 confidence: high
 source-tier: doc
 sources:

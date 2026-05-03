@@ -1,7 +1,7 @@
 # Understanding Microsegmentation Flow Log Fields
 
-Source: https://help.zscaler.com/zpa/understanding-microsegmentation-flow-log-fields
-Fetched: 2026-04-28
+**Source:** https://help.zscaler.com/zpa/understanding-microsegmentation-flow-log-fields
+**Captured:** 2026-04-28 via Playwright MCP.
 
 The Log Streaming Service (LSS) can send Microsegmentation network flow log information to any third-party log analytics tool. By default, the Microsegmentation network flow log type includes the fields listed in the following table for each log template (i.e., CSV, JSON, TSV). While configuring your log receiver, you can edit the default log stream content to capture only specific fields, and create a custom log template.
 

@@ -4,6 +4,8 @@ topic: "legacy-endpoints"
 title: "ZIA legacy API endpoint reference"
 content-type: reference
 last-verified: "2026-04-28"
+verified-against:
+  vendor/zscaler-sdk-go: b14f8696c5008f8ea6ea6025b0c691835d9373b4
 confidence: high
 source-tier: code
 sources:

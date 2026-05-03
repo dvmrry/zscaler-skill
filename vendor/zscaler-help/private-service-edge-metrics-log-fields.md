@@ -1,7 +1,7 @@
 # Understanding Private Service Edge Metrics Log Fields
 
-Source: https://help.zscaler.com/zpa/understanding-private-service-edge-metrics-log-fields
-Fetched: 2026-04-28
+**Source:** https://help.zscaler.com/zpa/understanding-private-service-edge-metrics-log-fields
+**Captured:** 2026-04-28 via Playwright MCP.
 
 The Log Streaming Service (LSS) can send Private Service Edge Metrics log information to any third-party log analytics tool. By default, the Private Service Edge Metrics log type includes the fields listed in the following table for each log template (i.e., CSV, JSON, TSV). While configuring your log receiver, you can edit the default log stream content to capture only specific fields, and create a custom log template.
 

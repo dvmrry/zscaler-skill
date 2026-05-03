@@ -4,6 +4,9 @@ topic: "firewall"
 title: "ZIA Firewall Control — Filtering, NAT, DNS, IPS"
 content-type: reasoning
 last-verified: "2026-04-24"
+verified-against:
+  vendor/terraform-provider-zia: 99c2c86f9614433b3793057c9888696c0737d9c4
+  vendor/zscaler-sdk-python: 89a079411689fb4c6495ff6d95c619679318fbd1
 confidence: high
 source-tier: mixed
 sources:
