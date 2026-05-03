@@ -18,6 +18,7 @@ sources:
   - "vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md"
   - "vendor/zscaler-help/what-is-zscaler-client-connector.md"
   - "vendor/zscaler-help/choosing-traffic-forwarding-methods.md"
+  - "vendor/zscaler-help/Traffic_Forwarding_in_ZIA_Reference_Architecture.txt"
 author-status: draft
 ---
 

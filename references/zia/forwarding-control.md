@@ -15,6 +15,7 @@ sources:
   - "vendor/zscaler-help/understanding-source-ip-anchoring-direct.md"
   - "vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_rule.go"
   - "vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_zpa_gateway.go"
+  - "vendor/zscaler-help/Traffic_Forwarding_in_ZIA_Reference_Architecture.txt"
 author-status: draft
 ---
 

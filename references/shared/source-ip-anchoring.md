@@ -16,6 +16,7 @@ sources:
   - "https://help.zscaler.com/zia/configuring-forwarding-policies-source-ip-anchoring-using-zpa"
   - "vendor/zscaler-help/configuring-forwarding-policies-source-ip-anchoring-using-zpa.md"
   - "vendor/zscaler-help/About_Access_Policy.txt"
+  - "vendor/zscaler-help/Traffic_Forwarding_in_ZIA_Reference_Architecture.txt"
 author-status: draft
 ---
 

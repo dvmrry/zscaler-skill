@@ -9,6 +9,7 @@ source-tier: mixed
 sources:
   - "https://help.zscaler.com/zscaler-client-connector/configuring-zscaler-client-connector-microsoft-365-cloud-pcs"
   - "https://help.zscaler.com/downloads/zscaler-technology-partners/cloud/zscaler-and-azure-traffic-forwarding-deployment-guide/Zscaler-Azure-Traffic-Forwarding-Deployment-Guide-FINAL.pdf"
+  - "vendor/zscaler-help/Zscaler_Azure_Traffic_Forwarding_Deployment_Guide.txt"
   - "https://learn.microsoft.com/en-us/azure/virtual-desktop/azurecommunicationips"
   - "vendor/zscaler-help/about-z-tunnel-1.0-z-tunnel-2.0.md"
   - "vendor/zscaler-help/about-machine-tunnels.md"

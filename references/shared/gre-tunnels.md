@@ -13,6 +13,7 @@ sources:
   - "vendor/zscaler-help/gre-deployment-scenarios.md"
   - "https://help.zscaler.com/zia/best-practices-deploying-gre-tunnels"
   - "vendor/zscaler-help/best-practices-deploying-gre-tunnels.md"
+  - "vendor/zscaler-help/Traffic_Forwarding_in_ZIA_Reference_Architecture.txt"
 author-status: draft
 ---
 

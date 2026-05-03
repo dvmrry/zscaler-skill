@@ -15,6 +15,7 @@ sources:
   - "vendor/zscaler-help/using-custom-pac-file-forward-traffic-zia.md"
   - "vendor/zscaler-help/url-format-guidelines.md"
   - "vendor/zscaler-help/understanding-subclouds.md"
+  - "vendor/zscaler-help/Traffic_Forwarding_in_ZIA_Reference_Architecture.txt"
 author-status: draft
 ---
 
