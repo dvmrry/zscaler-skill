@@ -27,6 +27,27 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 
 ## Proposed
 
+### Portfolio-map + tier schema cleanup (from 2026-05-04 grill audit)
+
+- **Status**: Proposed
+- **Origin**: 2026-05-04 — `_data/grills/2026-05-04-whole-repo-grill.md` audit found drift between `references/_meta/portfolio-map.md` and the filesystem, plus a tier schema (T1/T2a/T2b/T3) that conflated structural axes (has-API) with coverage-depth axes (file count). Schema flattens to T1-T5 with API/IaC + content-depth as joint criteria.
+- **Impact**: clearer claim per product about what the skill can/can't answer. Removes duplicate dirs (citation-discipline failure: two confidence:high docs of same product). Brings 4 orphaned product dirs into portfolio-map enumeration. Demotes ZBI/ZWA to T2 to stop overpromising depth.
+- **Cost**: low-medium. Three concrete actions, sized in hours:
+  - **A. Consolidate duplicate dirs.** Delete `references/workflow-automation/` (canonical = `zwa`); delete `references/zero-trust-browser/` (canonical = `zbi`). Add marketing-name → canonical-name aliases in portfolio-map so search resolves correctly.
+  - **B. Fold 4 orphaned dirs into portfolio-map T3.** `breach-predictor`, `business-insights`, `soc-workbench`, `zero-trust-branch` — each has substantive 100+ line overview.md but isn't enumerated in portfolio-map.
+  - **C. Apply tier reshuffle.** Update portfolio-map and SKILL.md tier enumerations: T1/T2a/T2b/T3 → T1/T2/T3/T4/T5 (flat numeric, no alpha-suffix sub-tiers). Move ZBI / ZWA from T1 → T2. Remove AppProtection from T1 row in portfolio-map (it's a ZPA sub-component, not its own product). CASB stays as disambiguation entry outside the tier system. Architectural pillars (ZTE, Data Fabric, Agentic SecOps) stay outside the tier system.
+- **Final tier schema:**
+
+  | Tier | Criterion | Members |
+  |---|---|---|
+  | **T1** | Core product. Deep multi-component coverage (multiple sub-pages per product). | ZIA, ZPA, ZCC, ZIdentity, Cloud Connector, ZDX (borderline — observability layer, not access path) |
+  | **T2** | Programmable but shallow — may not match a single T1 sub-component's depth | ZBI, ZWA |
+  | **T3** | No API/IaC. Reasoning content (architecture, behavior, gotchas) exists | Deception, Risk360, AI Security, ZMS, AEM, DSPM, ITDR, UVM, Zscaler Cellular, Experience Center, Breach Predictor, Business Insights, SOC Workbench, Zero Trust Branch |
+  | **T4** | Paragraph in portfolio-map only — low awareness | Resilience, BCC, CTEM, Cloud Protection, Posture Control, M365 Copilot, Red Canary MDR, MTH, B2B |
+  | **T5** | Deprecated / historical / unreleased — not currently worth investment, watched for promotion | empty |
+
+- **Notes**: ZIdentity and ZDX are T1 with coverage gaps (7 files each — core but under-documented; the schema accepts under-coverage at T1 if the product is core). AppProtection enumeration in portfolio-map needs to move from its own T1 row to inside the ZPA section. The full audit + schema rationale is captured in `_data/grills/2026-05-04-whole-repo-grill.md`.
+
 ### Token-budget hygiene check (from zscaler-terraform-skills observation)
 
 - **Status**: Proposed
