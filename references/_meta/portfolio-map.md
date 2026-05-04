@@ -62,6 +62,7 @@ The skill uses SDK namespace names (ZIA, ZPA, ZWA, etc.) as canonical reference 
 - **"Digital Experience"** = **ZDX**. SDK namespace is `zdx`.
 - **"Client Connector"** = **ZCC**. SDK namespace is `zcc`.
 - **"Cloud / Branch Connector" / "ZTW" / "ZTC" / "CBC"** all map to the same product family — canonical reference is `references/cloud-connector/`. SDK namespace is `ztw`.
+- **"Zero Trust Browser" / "ZTB" / "Zscaler Isolation" (legacy) / "Cloud Browser Isolation"** are all marketing names for **ZBI**. Canonical reference is `references/zbi/`. SDK module is `zbi` (Python `zscaler/zia/cloud_browser_isolation.py` and Go `zscaler/zpa/services/cloudbrowserisolation/*`). ZTB is the current marketing abbreviation.
 
 ## Tier 2 — Awareness (no SDK / TF / API exposure)
 

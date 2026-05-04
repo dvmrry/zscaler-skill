@@ -13,15 +13,16 @@ author-status: draft
 
 Entry point for browser-isolation questions. ZBI renders web pages on an ephemeral **cloud-hosted browser** and streams the result to the user's native browser, so HTML/CSS/JS never reach the endpoint. Used for high-risk categories (Miscellaneous & Unknown, new domains) and for sensitive internal apps accessed by unmanaged devices.
 
-## Naming — three current aliases, one product
+## Naming — multiple aliases, one product
 
-The product has been renamed twice. Operators use all three names interchangeably in tickets, runbooks, and admin consoles:
+The product has been renamed twice. Operators use all of these names interchangeably in tickets, runbooks, and admin consoles:
 
-- **Zero Trust Browser** (current marketing, newer admin UI sections)
+- **Zero Trust Browser / ZTB** (current marketing, newer admin UI sections — "ZTB" is the current-marketing abbreviation)
 - **Cloud Browser Isolation (CBI)** (URL path / original marketing; still used in ZIA admin console references and URL Filter `Isolate` action)
+- **ZBI** (Zscaler Browser Isolation — the SDK module name; survives all the rebrandings)
 - **Zscaler Isolation** (legacy name — what some help-article URLs still use)
 
-The Zscaler SDK module is named `zbi` — the initialism survives regardless of which marketing name is current. When answering a question, translate whichever term the user used to all three so they recognize the answer.
+The Zscaler SDK module is named `zbi` — the initialism survives regardless of which marketing name is current. When answering a question, translate whichever term the user used to the others so they recognize the answer.
 
 ## Topics
 

@@ -3,7 +3,7 @@ product: zbi
 topic: "zbi-overview"
 title: "ZBI overview — architecture, traffic flow, rendering modes"
 content-type: reasoning
-last-verified: "2026-04-24"
+last-verified: "2026-05-04"
 confidence: high
 source-tier: doc
 sources:
@@ -127,6 +127,40 @@ ZBI doesn't have its own policy engine in the ZIA/ZPA sense. It composes with ex
 - **ZPA Isolation Policy** — how ZPA decides to route private-app access to ZBI. See [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md).
 - **Isolation profile** — tenant-configured object that specifies *how* the isolated session behaves (Turbo Mode, copy/paste allow, file-transfer allow, print, read-only, region, etc.). Different profiles can apply to different URL Filter rules or different ZPA Isolation rules. See [`./policy-integration.md`](./policy-integration.md).
 
+## Use cases
+
+Common ZIA-triggered isolation patterns (URL Filter `Isolate` action):
+
+- Uncategorized or risky websites
+- Miscellaneous & Unknown category (the limited-tier subscription path)
+- Newly registered domains and other high-risk categories
+- BYOD / unmanaged-device user policies
+
+**ZPA-routed isolation — BYOD framing.** ZPA can send private-app traffic through ZBI so users access internal web apps in an isolated session, with no private-app content reaching the device directly. Concrete framing: **secure SaaS and internal app access from unmanaged devices without requiring ZCC enrollment.** The unmanaged endpoint never touches HTML/CSS/JS or private-app DNS.
+
+## What ZBI is not
+
+Boundary disclaimers that come up in scoping conversations:
+
+- **Not a VPN.** Traffic still routes through ZIA / ZPA for inspection — ZBI is layered *on top of* the existing forward-proxy or ZTNA path, not a replacement.
+- **Not a VDI.** Only the browser session is isolated. The local device OS and applications are unchanged; ZBI is not a remote desktop.
+- **Not a clientless-VPN replacement.** ZPA-routed isolation enables private-app access from unmanaged devices, but ZPA itself (App Connectors, segmentation, policy) is still required underneath — ZBI doesn't supply the connectivity layer on its own.
+
+## API surface
+
+**No dedicated ZBI / Zero Trust Browser REST API.** Configuration is primarily portal-managed via the Zscaler Admin Console — isolation profiles, regions, profile-level controls (clipboard / upload / download / print / read-only), Turbo Mode toggle. The ZIA API includes URL Filtering rule configuration that can reference an isolation profile (indirect access — you can wire the `Isolate` action and reference profile names via API, but the profile object itself is portal-configured). The Python SDK exposes `zscaler/zia/cloud_browser_isolation.py` (a thin surface) and the Go SDK has `zscaler/zpa/services/cloudbrowserisolation/*`; treat these as supplementary to portal config rather than a full management surface. **Caveat for users expecting a programmable surface:** if a question presupposes "configure isolation profiles via API" the honest answer is "portal."
+
+## Light mentions (one-line each)
+
+Features captured in vendor docs but not deep-dived here. Skill should recognize the names and route to vendor docs / TAM for depth:
+
+- **Language translation** — translate isolated web content within the session.
+- **Mobile support** — isolation experience on mobile devices (iOS / Android browsers).
+- **Debug mode** — admin troubleshooting capability surfaced in the isolation session.
+- **Multiple simultaneous sessions** — a user can have multiple isolated sessions open at once (different profiles / different URLs).
+- **Votiro CDR integration** — third-party content-disarm-and-reconstruction integration for files passing through isolation. Not deep-dived; see `understanding-votiro-integration-isolation` help article.
+- **Sandbox + Isolation integration** — isolated file downloads can be routed to Zscaler Sandbox for malware analysis before delivery.
+
 ## Edge cases
 
 - **URL Filter rule with `Isolate` action requires SSL Inspection for HTTPS** — to generate the 302 redirect at all. A site matching the rule but falling under an SSL bypass for that category silently won't be isolated.
@@ -135,6 +169,8 @@ ZBI doesn't have its own policy engine in the ZIA/ZPA sense. It composes with ex
 - **Smart Browser Isolation auto-creates an SSL Inspection rule.** When you enable Smart Isolation, ZIA silently adds a decrypt rule for suspicious websites. Operators auditing SSL Inspection rule count are often surprised. See [`./policy-integration.md`](./policy-integration.md).
 - **Isolation containers run in specific Zscaler data centers.** Region selection on the isolation profile controls which region hosts the container. Data-residency reviewers should know containers can be confined to specific regions; the default is "All."
 - **The cloud browser's egress is a Zscaler-owned IP, not the user's egress IP.** Destinations that geolocate by source IP see the user as being "wherever the container is," not where the user is. This is occasionally user-visible ("why am I seeing the US homepage when I'm in Germany?") and is inherent to the architecture.
+- **The isolation profile URL is publicly routable, not a private endpoint.** It's a Zscaler-managed URL on the public internet; the endpoint follows the `302` redirect to that URL to reach the cloud browser. **DNS resolution of the isolation profile URL must not be blocked at the endpoint** — a strict outbound DNS allowlist that drops the isolation hostname will silently break isolation. Operationally surfaces as "the redirect happens, then the page never loads."
+- **Air-gap is a prevention control, not a detection control.** Because active web content (HTML/CSS/JS) never reaches the endpoint, a malicious page rendered inside the container cannot exploit the user's machine — but the malicious page also won't surface in endpoint-visibility tooling as "blocked." Detection of the page being malicious is downstream of the cloud-browser-egress leg (URL Filter / Sandbox / ATP on the second PSE traversal). Don't expect isolation to *flag* the bad content; expect it to *prevent reach*.
 
 ## Open questions
 
