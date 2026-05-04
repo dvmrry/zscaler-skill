@@ -52,6 +52,17 @@ Each has SDK / TF / OneAPI exposure and a dedicated `references/<product>/` dire
 | **ZWA — Workflow Automation** | DLP incident lifecycle management. Incident triage, workflows, ticketing/notification integrations. Downstream of ZIA DLP. | [`zwa/index.md`](../zwa/index.md) | Python `zscaler/zwa/` + Go `zscaler/zwa/` |
 | **AppProtection** (ZPA) | Inline WAF/IPS for ZPA-protected applications. OWASP CRS, ThreatLabZ, Active Directory protocol controls (Kerberos/SMB/LDAP), API, WebSocket. Bundled into ZPA (mostly); Browser Protection tier-gated. Was previously called "Inspection" in ZPA. | [`zpa/appprotection.md`](../zpa/appprotection.md) | Lives inside ZPA SDKs — `zpa/app_protection.py` (Python) + `zpa/services/app_protection/` (Go) + `zpa_inspection_*` TF resources |
 
+### Marketing-name aliases (Tier 1)
+
+The skill uses SDK namespace names (ZIA, ZPA, ZWA, etc.) as canonical reference paths under `references/<product>/`. Marketing names that map to the same product:
+
+- **"Workflow Automation"** is the marketing name for **ZWA**. Both refer to the same product; canonical reference is `references/zwa/`. (Help portal URL path also still uses `workflow-automation/`, and Zscaler help nav surfaces "Workflow Automation" as the product label — but the SDK / TF / OneAPI scope name is `zwa`, which is what this skill uses.)
+- **"Internet & SaaS"** = **ZIA**. SDK namespace is `zia`.
+- **"Private Access"** = **ZPA**. SDK namespace is `zpa`.
+- **"Digital Experience"** = **ZDX**. SDK namespace is `zdx`.
+- **"Client Connector"** = **ZCC**. SDK namespace is `zcc`.
+- **"Cloud / Branch Connector" / "ZTW" / "ZTC" / "CBC"** all map to the same product family — canonical reference is `references/cloud-connector/`. SDK namespace is `ztw`.
+
 ## Tier 2 — Awareness (no SDK / TF / API exposure)
 
 Products Zscaler markets that have **no programmable surface** in the SDKs or TF providers (portal-only configuration). Skill recognizes and describes them but does not claim API-level operational depth.

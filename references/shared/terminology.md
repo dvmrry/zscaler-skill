@@ -124,7 +124,7 @@ When an operator says *"the PSEN in Frankfurt"*, they mean a specific **instance
 - ZIdentity (API clients, step-up auth) — [`../zidentity/overview.md`](../zidentity/overview.md)
 - Cloud Connector — [`../cloud-connector/overview.md`](../cloud-connector/overview.md)
 - ZBI (Zero Trust Browser / Cloud Browser Isolation) — [`../zbi/`](../zbi/)
-- Workflow Automation (ZWA) — [`../workflow-automation/overview.md`](../workflow-automation/overview.md)
+- Workflow Automation (ZWA) — [`../zwa/overview.md`](../zwa/overview.md)
 
 ## Open questions (terminology-adjacent)
 

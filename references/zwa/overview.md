@@ -3,7 +3,7 @@ product: zwa
 topic: "zwa-overview"
 title: "ZWA overview — incidents, workflows, templates"
 content-type: reasoning
-last-verified: "2026-04-24"
+last-verified: "2026-05-04"
 confidence: high
 source-tier: doc
 sources:
@@ -27,6 +27,9 @@ How Workflow Automation turns raw ZIA DLP detections into trackable incidents, a
 - **Workflow** = a sequence of remediation actions that fires when an incident matches a **workflow mapping**. Can be predefined (from a template) or custom.
 - **Workflow Template** = one of 9 Zscaler-provided workflow patterns (auto-close, auto-create-ticket, auto-notify, auto-escalate, and variants).
 - **Workflow Mapping** = the link between incident attributes and a workflow. "When an incident has attributes X, Y, Z → fire workflow A."
+- **Incident Group Mapping** = a *named concept distinct from Workflow Mapping* — rules that automatically assign incoming incidents to incident groups based on attributes (vs. a Workflow Mapping, which fires a remediation workflow).
+- **Duplicate Incidents** = a *named concept* in ZWA — detection and handling of repeated incidents arising from the same activity (deduplication semantics for noise reduction).
+- **Approvers** = designated escalation recipients beyond the manager chain. If a user has no manager in the directory, escalation falls back to a configured approver.
 
 Two remediation modes:
 
@@ -34,6 +37,16 @@ Two remediation modes:
 2. **Automated** — workflows run the same actions without admin intervention when mappings match.
 
 Users, managers, and approvers **respond to workflow-generated notifications identically to manually-triggered ones** — the end-user experience is the same whether a human or an automated workflow initiated the notification.
+
+## What ZWA is not
+
+Boundary disclaimers — what operators sometimes assume ZWA does, but doesn't:
+
+- **Not a SOAR platform.** ZWA is DLP-incident-specific, not a general security orchestration product. No arbitrary playbook engine, no integrations beyond the named ticketing/notification channels.
+- **Not a ZPA workflow tool.** ZPA has its own policy management; ZWA is **ZIA DLP only**. Operators asking about ZPA access automation should look elsewhere.
+- **Not an email security tool.** Slack / Teams / email notifications are *delivery channels for DLP incident notifications*, not inbound email security or anti-phishing.
+- **Not a SIEM integration layer.** For log forwarding to SIEM, use ZIA NSS (Network Security Services) or log streaming — not ZWA.
+- **Not an automation surface for non-DLP ZIA events.** ZWA does not handle ZIA threat events, web filtering blocks, sandbox detections, or any other Zscaler product's alerts — strictly ZIA DLP incidents.
 
 ## Mechanics
 
@@ -115,6 +128,10 @@ From *Understanding Workflows in Workflow Automation*:
 - Resolution label (for auto-close variants)
 - Ticketing integration (for auto-create-tickets)
 
+> **Operational note — wait periods are configured in seconds.** This is an unusual unit for incident-response timing (most products use minutes/hours). Worth flagging when operators configure response windows: a "30" in the wait field is 30 seconds, not 30 minutes. Easy misconfiguration trap.
+
+> **Concurrent vs. sequential escalation — distinct operational behaviors.** The `Auto Notify User and Concurrently Escalate` template fires the user notification AND the manager/approver escalation **in parallel**, with no wait for user response. The `Auto Notify User and Escalate` template (without "Concurrently") instead waits the configured response window before escalating. Choose concurrent for high-severity incidents where manager awareness is required regardless of user response; choose sequential for lower-severity cases where the user should get a chance to self-remediate first.
+
 **Custom workflows**: admins can build workflows that don't use a template — pick any combination of actions + steps. Used for edge-case remediation patterns the templates don't cover.
 
 ### Workflow mappings — the trigger model
@@ -156,6 +173,19 @@ From *What Is Workflow Automation?*:
 > Workflow Automation provides the capability to group individual incidents into incident groups and assign priorities to those incident groups. These incident groups can then be assigned to different admins.
 
 Use case: during a large DLP event (departing employee, mass accidental disclosure), admins can batch-group dozens of incidents, assign priority, and route ownership — then triage in one workflow-queue view rather than per-incident.
+
+### RBAC — roles within ZWA
+
+ZWA has its own RBAC surface, with four named role types:
+
+| Role | What they do |
+|---|---|
+| **Governance admins** | Manage workflows, configure mappings, view all incidents, and own the ZWA configuration surface. |
+| **Approvers** | Designated recipients for escalated incidents. Can approve or reject the proposed remediation. Used by `Auto Escalate` and the *Concurrently / sequentially escalate* templates when a user's manager isn't available in the directory. |
+| **Integration users** | System accounts for ticketing-system integration (ServiceNow / Jira). Used by the `Auto Create Tickets` workflow template. |
+| **User roles** | Regular end-users who *receive* notifications and can respond / justify their action that triggered the DLP incident. |
+
+**Important caveat — RBAC inheritance.** Per `vendor/zscaler-help/what-workflow-automation.md`, ZWA RBAC is **managed within ZWA, not inherited from ZIA admin roles** — i.e., a ZIA admin doesn't automatically get ZWA permissions. *(Source: workflow-automation/overview.md as merged 2026-05-04; not independently confirmed against current ZWA admin help docs — verify before relying for tenant-config decisions.)*
 
 ## Dependencies — what ZWA needs upstream
 

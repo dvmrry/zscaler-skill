@@ -71,6 +71,8 @@ Standard OneAPI conventions: JSON request/response, camelCase keys. Endpoint pre
 
 The help article *DLP Incidents (Workflow Automation API)* lives at `help.zscaler.com/legacy-apis/dlp-incidents-workflow-automation-api` — it's a Swagger-UI-style reference with endpoint listings. The article is ~32k chars (from capture); full endpoint schemas are there for operators who need wire-level detail.
 
+> **Caveat — legacy vs. current API surface.** The help portal still ships a "Legacy UI: Workflow Automation" entry whose API doc lives under `/legacy-apis/`, while the current-generation surface documented above (the `/zwa/api/v1/` endpoints exposed via the Python and Go SDK service layers) is what new integrations should target. Treat the SDK source as ground truth for current-gen endpoint paths and method shapes; the legacy-UI API doc may describe a parallel-but-different surface that's not the SDK target. If you find a discrepancy between this doc and the legacy help article, the SDK wins.
+
 ## Sensitive data considerations
 
 **`get_incident_evidence` returns the actual matched content** — the exact text/payload that tripped the DLP rule. Callers should:
