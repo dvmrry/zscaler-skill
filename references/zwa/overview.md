@@ -29,7 +29,7 @@ How Workflow Automation turns raw ZIA DLP detections into trackable incidents, a
 - **Workflow Mapping** = the link between incident attributes and a workflow. "When an incident has attributes X, Y, Z → fire workflow A."
 - **Incident Group Mapping** = a *named concept distinct from Workflow Mapping* — rules that automatically assign incoming incidents to incident groups based on attributes (vs. a Workflow Mapping, which fires a remediation workflow).
 - **Duplicate Incidents** = a *named concept* in ZWA — detection and handling of repeated incidents arising from the same activity (deduplication semantics for noise reduction).
-- **Approvers** = designated escalation recipients beyond the manager chain. If a user has no manager in the directory, escalation falls back to a configured approver.
+- **Approvers** = designated escalation recipients beyond the manager chain. If a user has no manager in the directory, escalation falls back to a configured approver. (See § RBAC for the role-level treatment.)
 
 Two remediation modes:
 
