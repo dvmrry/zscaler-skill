@@ -27,6 +27,22 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 
 ## Proposed
 
+### Token-budget hygiene check (from zscaler-terraform-skills observation)
+
+- **Status**: Proposed
+- **Origin**: 2026-05-03 — observed in `vendor/zscaler-terraform-skills`. Their authoring conventions cap `SKILL.md` at 300 lines and reference subsections at 400 tokens (~1,600 chars), enforced via `make check-line-counts`.
+- **Impact**: would surface oversized refs for compression. Not biting today (our `SKILL.md` is 265 lines, under their ceiling), but some of our refs run long (e.g., `references/zia/terraform.md` at 1,347 lines).
+- **Cost**: low. Extend `check-hygiene.py` with a per-file line-count threshold (warn on `>N lines`) and optionally a per-section token estimate.
+- **Notes**: not actionable until we observe a retrieval/comprehension issue tied to ref size. File so we have the lever ready if that day comes.
+
+### Test the decision-table-first authoring pattern on a Windsurf workflow
+
+- **Status**: Proposed (experiment, not commitment)
+- **Origin**: 2026-05-03 — observed in `vendor/zscaler-terraform-skills`. Their authoring rules optimize for **retrieval economics**: SKILL.md + on-demand reference subsection per query.
+- **Impact**: Their loading pattern matches Windsurf workflows better than Claude Code commands. CC commands load once at invocation and stay in context for the whole session — retrieval-economics doesn't apply. Windsurf workflows load per-trigger, closer to retrieval-on-demand.
+- **Cost**: low. Pick one Windsurf workflow (e.g., `.windsurf/workflows/z-investigator.md`), rewrite structurally per their pattern (decision tables before prose, ❌/✅ rules), observe whether the agent's behavior actually differs.
+- **Notes**: speculative refactor — no observed failure mode forces it. Worth running once just as an experiment to see whether the pattern pays off in our agent's behavior. Don't sweep across all workflows preemptively.
+
 ### Internal-fork override pattern for `_data/incidents/`
 
 - **Status**: Proposed
