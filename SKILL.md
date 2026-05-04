@@ -2,23 +2,28 @@
 name: zscaler
 description: >
   Answer questions about the Zscaler portfolio — full operational depth
-  (Tier 1, with SDK / TF / OneAPI exposure) on ZIA, ZPA (including
-  AppProtection inline WAF/IPS and Browser Access), ZCC (Client
-  Connector), ZDX (Digital Experience), ZBI (Zero Trust Browser /
-  Cloud Browser Isolation), ZIdentity (unified identity + OneAPI
-  authentication + step-up auth), Cloud & Branch Connector (ZTW/ZTC —
-  VM-based traffic forwarding for cloud workloads and branch offices),
-  and ZWA (Workflow Automation — DLP incident lifecycle); plus
-  extended awareness with reasoning docs (Tier 2a, portal-only / no
-  SDK) on Deception (decoys/honeypots for post-perimeter detection),
-  Risk360 (cyber risk quantification / Monte Carlo / CISO board
-  reporting), the AI Security family (AI Guard runtime guardrails for
-  LLM prompt-injection / jailbreak / sensitive-data / toxicity /
-  refusal detection plus AI Red Teaming / AI Guardrails / four-pillar
-  governance), and ZMS (workload microsegmentation east-west,
-  host-agent + WFP/nftables enforcement); plus paragraph-level
-  awareness (Tier 2b) of ZINS (shadow-IT NSS Collector), EASM,
-  Federal Cloud variants, ITDR, DSPM, Posture Control, and others. Covers URL category
+  (T1, with SDK / TF / OneAPI exposure) on ZIA, ZPA (including
+  AppProtection inline WAF/IPS sub-component and Browser Access), ZCC
+  (Client Connector), ZDX (Digital Experience — T1 borderline,
+  observability layer per 2026-05-04 verification gate), ZIdentity
+  (unified identity + OneAPI authentication + step-up auth), and
+  Cloud & Branch Connector (ZTW/ZTC — VM-based traffic forwarding for
+  cloud workloads and branch offices); programmable-but-shallow (T2)
+  on ZBI (Zero Trust Browser / Cloud Browser Isolation) and ZWA
+  (Workflow Automation — DLP incident lifecycle); plus extended
+  awareness with reasoning docs (T3, portal-only / no SDK) on
+  Deception (decoys/honeypots for post-perimeter detection), Risk360
+  (cyber risk quantification / Monte Carlo / CISO board reporting),
+  the AI Security family (AI Guard runtime guardrails for LLM
+  prompt-injection / jailbreak / sensitive-data / toxicity / refusal
+  detection plus AI Red Teaming / AI Guardrails / four-pillar
+  governance), ZMS (workload microsegmentation east-west, host-agent
+  + WFP/nftables enforcement), ZSDK, AEM, DSPM, ITDR, UVM, Zscaler
+  Cellular, Experience Center, Breach Predictor, Business Insights,
+  SOC Workbench, and Zero Trust Branch; plus paragraph-level
+  awareness (T4) of Resilience, BCC, CTEM, Cloud Protection, Posture
+  Control, M365 Copilot, Red Canary MDR, MTH, B2B, ZINS (shadow-IT
+  NSS Collector), EASM, and Federal Cloud variants. Covers URL category
   coverage, URL filtering rule precedence, wildcard matching semantics,
   SSL inspection ordering, cloud app control interaction with URL
   filtering, DLP three-layer model, sandbox / malware / ATP, firewall
@@ -228,11 +233,12 @@ When you do query, cite the SPL pattern by name from [`references/shared/splunk-
 - **Tenant state needed, snapshot empty** — say so directly, point to `scripts/snapshot-refresh.py`, and still answer the general case if there is one.
 - **Relevant reference is still a stub** (`author-status: stub`, no body yet) — say the skill hasn't written this down yet, describe what you know from the file's TODO headings, and mark **Confidence: low**.
 - **Question maps to a known open clarification** — if a reference doc cross-links an entry in [`references/_meta/clarifications.md`](references/_meta/clarifications.md) that covers the user's question, cite the clarification ID (e.g. "this hits `zia-03` — wildcard tokenization is unresolved in our public material"), answer what you can, and flag the gap rather than hallucinating the rest.
-- **Tier 1 — operational deep-dive (SDK / TF / API exposure)** — ZIA, ZPA (including AppProtection and Browser Access), ZCC (forwarding profiles, trusted networks, fail-open), ZDX (score, probes, diagnostic sessions, alerts), ZBI (Cloud Browser Isolation / Zero Trust Browser — architecture, policy integration, isolation profiles), ZIdentity (unified identity, OneAPI auth, step-up authentication), Cloud & Branch Connector (ZTW/ZTC — Cloud Connector VM architecture, traffic forwarding rules, SDK/TF surface), and ZWA (Workflow Automation — DLP incident lifecycle). Answer with full confidence and cite specific reference sections including API endpoints, rule semantics, and policy evaluation order.
-- **Tier 2a — extended awareness (reasoning doc exists, no SDK / portal-only)** — Deception, Risk360, AI Security family (AI Guard / AI Guardrails / AI Red Teaming), and ZMS (microsegmentation). The reasoning docs at [`references/deception/`](references/deception/), [`references/risk360/`](references/risk360/), [`references/ai-security/`](references/ai-security/), and [`references/zms/`](references/zms/) cover architecture, capabilities, and edge cases — but **none of these products are configurable via SDK / TF**. Answer at confidence: medium and **explicitly note "portal-only configuration, no SDK module"**. Do NOT fabricate field names, API endpoints, or programmatic config patterns. Concepts and behaviors yes; API specifics no.
-- **Tier 2b — awareness routing (paragraph in portfolio map)** — for ZINS (shadow-IT NSS Collector), EASM, Federal Cloud variants (`zscalergov`, `zscalerten`, ZPA GOV/GOVUS), ITDR, Resilience, DSPM, Posture Control, or any other Zscaler-marketed product not in the Tier 1 / Tier 2a lists, start at [`references/_meta/portfolio-map.md`](references/_meta/portfolio-map.md) for the one-paragraph framing. Give the conceptual answer and point to the Zscaler help site / TAM for operational depth — do NOT fabricate API details or rule behaviors. Confidence: medium at most.
-- **Tier 3 truly out of scope** — currently empty. Reserved for deprecated / internal / unshipped products. If a user question lands here, decline outright.
-- **Partial scope within Tier 1** — ZCC device-posture rules and on-device web policy are partially in scope (see [`references/zcc/index.md`](references/zcc/index.md) for gaps). ZDX's application-specific call-quality integrations (Microsoft Teams, Zoom deep-dives) are partially in scope — [`references/zdx/index.md`](references/zdx/index.md) lists the gaps. ZBI's Votiro CDR integration, Sandbox+Isolation, Local Browser Rendering, and end-user UX features are partially in scope — [`references/zbi/index.md`](references/zbi/index.md) lists the gaps. ZIdentity's IdP-specific configurations (Entra, AD FS, Okta) and MFA method configs are partially in scope — [`references/zidentity/index.md`](references/zidentity/index.md) lists the gaps.
+- **T1 — operational deep-dive (SDK / TF / API + multi-component coverage)** — ZIA, ZPA (including AppProtection inline WAF/IPS sub-component and Browser Access), ZCC (forwarding profiles, trusted networks, fail-open), ZIdentity (unified identity, OneAPI auth, step-up authentication), Cloud & Branch Connector (ZTW/ZTC — Cloud Connector VM architecture, traffic forwarding rules, SDK/TF surface), and ZDX (score, probes, diagnostic sessions, alerts — **T1 borderline: observability layer rather than enforcement, per 2026-05-04 verification gate**). Answer with full confidence and cite specific reference sections including API endpoints, rule semantics, and policy evaluation order.
+- **T2 — programmable but shallow (SDK / API exposure, narrow surface)** — ZBI (Cloud Browser Isolation / Zero Trust Browser — architecture, policy integration, isolation profiles) and ZWA (Workflow Automation — DLP incident lifecycle). Reference docs cover the SDK surface, but coverage is thin compared to T1. Answer at confidence: medium-to-high for documented surface; flag gaps explicitly when the question pushes beyond what the reference covers.
+- **T3 — extended awareness, no SDK (reasoning doc or portfolio-map entry, portal-only)** — Deception, Risk360, AI Security family (AI Guard / AI Guardrails / AI Red Teaming), ZMS (microsegmentation), ZSDK, AEM, DSPM, ITDR, UVM, Zscaler Cellular, Experience Center, Breach Predictor, Business Insights, SOC Workbench, and Zero Trust Branch. The reasoning docs at [`references/deception/`](references/deception/), [`references/risk360/`](references/risk360/), [`references/ai-security/`](references/ai-security/), and [`references/zms/`](references/zms/) cover architecture, capabilities, and edge cases for those four; the rest are portfolio-map entries only. **None of these products are configurable via SDK / TF.** Answer at confidence: medium and **explicitly note "portal-only configuration, no SDK module"**. Do NOT fabricate field names, API endpoints, or programmatic config patterns. Concepts and behaviors yes; API specifics no.
+- **T4 — paragraph-only routing (one-paragraph framing in portfolio map)** — Resilience, BCC, CTEM, Cloud Protection, Posture Control, M365 Copilot, Red Canary MDR, MTH, B2B, ZINS (shadow-IT NSS Collector), EASM, Federal Cloud variants (`zscalergov`, `zscalerten`, ZPA GOV/GOVUS), or any other Zscaler-marketed product not in the T1 / T2 / T3 lists. Start at [`references/_meta/portfolio-map.md`](references/_meta/portfolio-map.md) for the one-paragraph framing. Give the conceptual answer and point to the Zscaler help site / TAM for operational depth — do NOT fabricate API details or rule behaviors. Confidence: medium at most.
+- **T5 — truly out of scope** — currently empty. Reserved for deprecated / internal / unshipped products. If a user question lands here, decline outright.
+- **Partial scope within T1** — ZCC device-posture rules and on-device web policy are partially in scope (see [`references/zcc/index.md`](references/zcc/index.md) for gaps). ZDX's application-specific call-quality integrations (Microsoft Teams, Zoom deep-dives) are partially in scope — [`references/zdx/index.md`](references/zdx/index.md) lists the gaps. ZIdentity's IdP-specific configurations (Entra, AD FS, Okta) and MFA method configs are partially in scope — [`references/zidentity/index.md`](references/zidentity/index.md) lists the gaps. (Note: ZBI moved to T2; see [`references/zbi/index.md`](references/zbi/index.md) for that product's documented gaps including Votiro CDR integration, Sandbox+Isolation, Local Browser Rendering, and end-user UX features.)
 
 Do not guess precedence, matching semantics, or evaluation order from first principles. These are exactly the places Zscaler's real behavior diverges from intuition — wrong confident answers here are the failure mode this skill exists to prevent.
 
