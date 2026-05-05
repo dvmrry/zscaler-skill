@@ -3,9 +3,12 @@ product: zpa
 topic: "zpa-app-connector"
 title: "ZPA App Connector — VM architecture, groups, provisioning keys, software updates"
 content-type: reasoning
-last-verified: "2026-04-24"
+last-verified: "2026-05-05"
 confidence: high
 source-tier: doc
+verified-against:
+  vendor/terraform-aws-zpa-app-connector-modules: afea191a839ecd8bb153bdaed3a5dad17cf1a54b
+  vendor/terraform-azurerm-zpa-app-connector-modules: 4b9faa39bdf06a7aaec8729d7966e9e8f0d9fc03
 sources:
   - "https://help.zscaler.com/zpa/about-connectors"
   - "vendor/zscaler-help/about-app-connectors.md"
@@ -17,6 +20,23 @@ sources:
   - "vendor/zscaler-help/zpa-about-connector-groups.md"
   - "vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt"
   - "vendor/zscaler-help/understanding-private-access-architecture.md"
+  - "vendor/terraform-aws-zpa-app-connector-modules/README.md"
+  - "vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zsac-acvm-aws/variables.tf"
+  - "vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zsac-asg-aws/variables.tf"
+  - "vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zsac-asg-aws/main.tf"
+  - "vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zsac-sg-aws/main.tf"
+  - "vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zsac-iam-aws/main.tf"
+  - "vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zpa-app-connector-group/variables.tf"
+  - "vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zpa-provisioning-key/variables.tf"
+  - "vendor/terraform-aws-zpa-app-connector-modules/examples/README.md"
+  - "vendor/terraform-azurerm-zpa-app-connector-modules/README.md"
+  - "vendor/terraform-azurerm-zpa-app-connector-modules/modules/terraform-zsac-acvm-azure/variables.tf"
+  - "vendor/terraform-azurerm-zpa-app-connector-modules/modules/terraform-zsac-acvmss-azure/variables.tf"
+  - "vendor/terraform-azurerm-zpa-app-connector-modules/modules/terraform-zsac-acvmss-azure/main.tf"
+  - "vendor/terraform-azurerm-zpa-app-connector-modules/modules/terraform-zsac-nsg-azure/main.tf"
+  - "vendor/terraform-azurerm-zpa-app-connector-modules/modules/terraform-zpa-app-connector-group/variables.tf"
+  - "vendor/terraform-azurerm-zpa-app-connector-modules/modules/terraform-zpa-provisioning-key/variables.tf"
+  - "vendor/terraform-azurerm-zpa-app-connector-modules/examples/README.md"
 author-status: draft
 ---
 
@@ -57,7 +77,9 @@ App Connector Groups are the policy, upgrade, and capacity unit. Per *About App 
 
 - **Every App Connector belongs to exactly one group.** Provisioning key determines group assignment at enrollment time.
 - **ZPA Application Segments reference Server Groups, which reference App Connector Groups.** The indirection is intentional — the same App Connector Group can serve many segments.
-- **Scheduled upgrade windows** apply at the group level (see below).
+- **Scheduled upgrade windows** apply at the group level (see below). The Terraform module defaults to `SUNDAY` at `66600` seconds (18:30 UTC) (`vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zpa-app-connector-group/variables.tf:39-49`).
+- **DNS query type** defaults to `IPV4_IPV6`; valid values are `IPV4_IPV6`, `IPV4`, `IPV6` (`vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zpa-app-connector-group/variables.tf:72-85`).
+- **Version profile** defaults to `override_version_profile=true`, `version_profile_id=0` (Default track) (`vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zpa-app-connector-group/variables.tf:51-70`).
 - **Latitude/longitude coordinates** on the group tell ZPA where the group is physically, for nearest-connector selection.
 - **`-el8` version tracks** and `ip_anchor_type` enum fields surface in the SDK (`vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorgroup/`) — relevant when auditing group config.
 
@@ -98,6 +120,42 @@ A literal copy of this error in a support ticket narrows diagnosis to "key is wr
 **Zscaler Deception / Zscaler-managed keys** — if a provisioning key is Deception-configured or Zscaler-managed, Edit and Delete options are unavailable. Audit tooling should skip these.
 
 **`association_type` write-vs-read schema asymmetry.** The TF resource accepts five association types (`CONNECTOR_GRP, SERVICE_EDGE_GRP, EXPORTER_GRP, NP_ASSISTANT_GRP, SITE_CONTROLLER_GRP` per `resource_zpa_provisioning_key.go:131`) but the matching data source accepts only two (`CONNECTOR_GRP, SERVICE_EDGE_GRP` per `data_source_zpa_provisioning_key.go:102`). Operators creating provisioning keys for the three "extended" types must look up by ID rather than association_type-plus-name through the data source. The data source's own description explicitly says "supported values are CONNECTOR_GRP and SERVICE_EDGE_GRP" — this is by design at the TF layer, not a stale validator. Implication: tooling that auto-discovers provisioning keys via the data source will silently miss keys for the three extended types. Cross-listed in [`./api.md § Read/write shape asymmetries`](./api.md).
+
+**Provisioning key validation asymmetry between AWS and Azure Terraform modules.** The AWS App Connector Terraform module hard-validates `provisioning_key_association_type` to `CONNECTOR_GRP` only — the validation block rejects any other value at plan time (`vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zpa-provisioning-key/variables.tf:26-36`). The Azure module accepts both `CONNECTOR_GRP` and `SERVICE_EDGE_GRP` (`vendor/terraform-azurerm-zpa-app-connector-modules/modules/terraform-zpa-provisioning-key/variables.tf:29-40`). Practical consequence: a `SERVICE_EDGE_GRP` key cannot be created via the AWS module — operators must use the ZPA API directly or the raw `zscaler/terraform-provider-zpa` resource. The same key *can* be created via the Azure module. Operators who are scripting provisioning key creation cross-cloud should branch on the target cloud or use the API layer uniformly.
+
+### Reference deployment examples
+
+Zscaler publishes reference Terraform configurations in two vendor-maintained repositories. As of module versions AWS v1.4.0 / Azure v1.1.0, all App Connectors are deployed on RHEL 9 (`vendor/terraform-aws-zpa-app-connector-modules/README.md:19`; `vendor/terraform-azurerm-zpa-app-connector-modules/README.md:19`).
+
+**AWS examples** (`vendor/terraform-aws-zpa-app-connector-modules/examples/`):
+
+| Example | Type | Description |
+|---|---|---|
+| `base` | Greenfield | VPC + NAT gateway + bastion host — networking foundation only, no App Connectors |
+| `base_ac` | Greenfield | `base` + 2 standalone App Connectors (1 per AZ); default `m5.large` (`vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zsac-acvm-aws/variables.tf:37`), `ac_count=1` per module call |
+| `base_ac_asg` | Greenfield | `base` + Auto Scaling Group; defaults: `min_size=2`, `max_size=4`, target CPU 50% (`vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zsac-asg-aws/variables.tf:113-184`) |
+| `ac` | Brownfield | 2 standalone App Connectors deployed into existing VPC/subnets |
+| `ac_asg` | Brownfield | ASG-based App Connectors deployed into existing infrastructure |
+
+**Azure examples** (`vendor/terraform-azurerm-zpa-app-connector-modules/examples/`):
+
+| Example | Type | Description |
+|---|---|---|
+| `base` | Greenfield | VNet + NAT gateway + bastion host — networking foundation only, no App Connectors |
+| `base_ac` | Greenfield | `base` + 2 standalone App Connectors in an availability set (or zones if `zones_enabled=true`); default `Standard_D4s_v5` (`vendor/terraform-azurerm-zpa-app-connector-modules/modules/terraform-zsac-acvm-azure/variables.tf:48`), `ac_count=1` per module call (valid range 1–250 per `:101`) |
+| `base_ac_vmss` | Greenfield | `base` + VMSS; defaults: `vmss_default_acs=2`, `vmss_min_acs=2`, `vmss_max_acs=10`, scale-out at 70% CPU / scale-in at 50%, 5-min evaluation, 15-min cooldown (`vendor/terraform-azurerm-zpa-app-connector-modules/modules/terraform-zsac-acvmss-azure/variables.tf:153-217`) |
+| `ac` | Brownfield | 2 standalone App Connectors deployed into existing VNet/subnets |
+| `ac_vmss` | Brownfield | VMSS-based App Connectors deployed into existing infrastructure |
+
+**Security group / NSG defaults across all examples:**
+
+- AWS: egress unrestricted (all protocols / all ports / `0.0.0.0/0`); ingress SSH (port 22 TCP) from VPC CIDR only (`vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zsac-sg-aws/main.tf:18-46`).
+- Azure: inbound SSH (port 22 TCP) and ICMP from `VirtualNetwork` scope only; outbound unrestricted (`vendor/terraform-azurerm-zpa-app-connector-modules/modules/terraform-zsac-nsg-azure/main.tf:10-44`).
+
+**Hardening defaults:**
+
+- AWS: IMDSv2 enforced (`imdsv2_enabled=true`) on both standalone and ASG launch templates (`vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zsac-acvm-aws/variables.tf:92-96`); EBS encrypted by default with AWS-managed keys (`vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zsac-asg-aws/variables.tf:40-50`); IAM AssumeRole principal is `ec2.amazonaws.com` (`vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zsac-iam-aws/main.tf:8-19`).
+- Azure: OS disk hardcoded to `Premium_LRS` storage with `ReadWrite` caching (`vendor/terraform-azurerm-zpa-app-connector-modules/modules/terraform-zsac-acvmss-azure/main.tf:44-47`); marketplace image — publisher `zscaler`, offer `zscaler-private-access`, SKU `zpa-con-azure`, version `latest` (`vendor/terraform-azurerm-zpa-app-connector-modules/modules/terraform-zsac-acvm-azure/variables.tf:72-94`).
 
 ### Software updates
 
