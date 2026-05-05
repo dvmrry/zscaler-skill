@@ -97,11 +97,11 @@ All endpoints require a time-range filter; if omitted, the last 2 hours are used
 | GET | `/zdx/v1/apps/{app_id}` | Get application info including ZDX score, most impacted region, total users | `get_app()` | `GetApp()` | `apps.py:113`, `applications.go:53` |
 | GET | `/zdx/v1/apps/{app_id}/score` | Get the ZDX score trend for a specified application | `get_app_score()` | `GetAppScores()` | `apps.py:173`, `application_score_metrics.go:18` |
 | GET | `/zdx/v1/apps/{app_id}/metrics` | Get metric trend (PFT, DNS, Availability) for a specified application | `get_app_metrics()` | `GetAppMetrics()` | `apps.py:242`, `application_score_metrics.go:45` |
-| GET | `/zdx/v1/devices/{device_id}/apps` | List all active applications for a device with ZDX score | `get_device_apps()` | — | `devices.py:194` |
-| GET | `/zdx/v1/devices/{device_id}/apps/{app_id}` | Get a single application for a device, including ZDX score trend | `get_device_app()` | — | `devices.py:258` |
+| GET | `/zdx/v1/devices/{device_id}/apps` | List all active applications for a device with ZDX score | `get_device_apps()` | `GetDeviceAllApps()` | `devices.py:194`, `device_apps.go:34` |
+| GET | `/zdx/v1/devices/{device_id}/apps/{app_id}` | Get a single application for a device, including ZDX score trend | `get_device_app()` | `GetDeviceApp()` | `devices.py:258`, `device_apps.go:23` |
 | GET | `/zdx/v1/apps/{app_id}/users` | List users and devices for an application, filterable by `score_bucket` (poor/okay/good) | `list_app_users()` | — | `apps.py:319` |
 
-Go SDK does not expose `get_device_apps`, `get_device_app`, or `list_app_users` equivalents in the reviewed source.
+Go SDK does not expose a `list_app_users` equivalent in the reviewed source. Device-level Go equivalents exist at `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_apps.go:23,34` (`GetDeviceApp`, `GetDeviceAllApps`).
 
 ## Field tables
 
@@ -194,7 +194,7 @@ Python also exposes a `score_bucket` filter on `list_app_users()` (values: `poor
 
 **Python `MostImpactedRegion` is narrower than Go**: The Python `common.MostImpactedRegion` model has only `id` and `country`; the Go `MostImpactedRegion` struct has `id`, `city`, `region`, `country`, `geo_type`. (`common.py:257-258`, `applications.go:25-29`)
 
-**Device-level endpoints**: Python SDK exposes `get_device_apps()` and `get_device_app()` for per-device application scores; Go SDK has no direct equivalents in the reviewed source. (`devices.py:194`, `devices.py:258`)
+**Device-level endpoints**: both SDKs expose per-device application score endpoints — Python `get_device_apps()` / `get_device_app()` (`devices.py:194`, `devices.py:258`) and Go `GetDeviceAllApps()` / `GetDeviceApp()` (`device_apps.go:34`, `device_apps.go:23`).
 
 ## Edge cases and gotchas
 
