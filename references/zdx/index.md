@@ -3,7 +3,7 @@ product: zdx
 topic: "zdx-index"
 title: "ZDX reference hub"
 content-type: reference
-last-verified: "2026-04-24"
+last-verified: "2026-05-05"
 confidence: medium
 sources: []
 author-status: draft
@@ -22,6 +22,12 @@ ZIA/ZPA/ZCC answers are about policy precedence and configuration — "what will
 | Topic | File | Status |
 |---|---|---|
 | Architecture and ZDX Score — components (CA, TPG, ZCC client-side), the 0-100 score, how scores aggregate across users/apps/locations | [`./overview.md`](./overview.md) | draft |
+| **ZDX Score** — 0-100 score model deep-dive: PFT input, regional baseline (7-day rolling), 5-minute probe cadence, lowest-value-wins hourly rollup, score-retrieval API endpoints | [`./score.md`](./score.md) | draft |
+| **Cloud architecture** — Central Authority, ZCC, TPG (multi-tenant RESTful gateway), ADX storage, Admin Portal; 20-minute reporting delay; OAuth 2.0 auth distinct from ZIdentity OneAPI | [`./cloud-architecture.md`](./cloud-architecture.md) | draft |
+| **Applications** — pre-defined apps (Zoom, Box, Salesforce, ServiceNow, M365), classification, read-only API surface, MostImpactedRegion field asymmetry between Python and Go | [`./applications.md`](./applications.md) | draft |
+| **Devices** — device inventory, hardware/network/software fields, Wi-Fi-specific Go-only fields (`wifi_adapter`, `ssid`, `bssid`), `os_build` Python-only | [`./devices.md`](./devices.md) | draft |
+| **Reports** — umbrella over apps/devices/users (NOT an aggregation engine); call-quality-metrics (Microsoft Teams/Zoom), top-processes, deeptrace endpoints | [`./reports.md`](./reports.md) | draft |
+| **Administration** — SDK is misnamed: it's read-only filter helpers (departments + locations lookup), NOT admin user management | [`./administration.md`](./administration.md) | draft |
 | Probes — Web probes vs Cloud Path probes, what each measures, probe-criteria AND/OR logic | [`./probes.md`](./probes.md) | draft |
 | Diagnostics Sessions and Alerts — on-demand deep-investigation workflow (SDK calls these "deeptraces"; help site calls them Diagnostics Sessions), alert status lifecycle | [`./diagnostics-and-alerts.md`](./diagnostics-and-alerts.md) | draft |
 | ZDX API — SDK surface under `client.zdx.*`, wire terminology ("deeptrace" ≠ "Diagnostics Session") | [`./api.md`](./api.md) | draft |
@@ -36,7 +42,6 @@ ZIA/ZPA/ZCC answers are about policy precedence and configuration — "what will
 
 ## What this hub does NOT cover
 
-- **Application-specific call-quality deep-dives** (Microsoft Teams / Zoom integrations). These exist as dedicated help articles but aren't written up here yet; follow-up if operator questions land on call-quality specifics.
 - **Zscaler Hosted Probes** (server-side probe configuration for apps users don't directly access). Mentioned in `about-probes.md` but not deep-dived.
 - **Service Desk / RBAC roles** for ZDX admin delegation.
 - **Adaptive Mode** probing — referenced in help articles as a dynamic probe-frequency adjustment mechanism; not yet codified.

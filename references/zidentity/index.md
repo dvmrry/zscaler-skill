@@ -3,7 +3,7 @@ product: zidentity
 topic: "zidentity-index"
 title: "ZIdentity reference hub"
 content-type: reference
-last-verified: "2026-04-24"
+last-verified: "2026-05-05"
 confidence: high
 sources: []
 author-status: draft
@@ -31,6 +31,11 @@ Questions that land here: "how do I create API client credentials?", "why is ste
 | Overview — what ZIdentity is, MFA defaults, SAML JIT vs SCIM provisioning, admin access controls | [`./overview.md`](./overview.md) | draft |
 | API Clients — OneAPI OAuth 2.0 flow, API client creation, roles and scopes, access tokens, revocation | [`./api-clients.md`](./api-clients.md) | draft |
 | Step-Up Authentication — Authentication Levels (hierarchical tree, 32 max, depth 4), ZIA/ZPA integration via access policies, OIDC-only constraint, validity inversion gotcha | [`./step-up-authentication.md`](./step-up-authentication.md) | draft |
+| **Admin RBAC** — 4 system roles (Super Admin / View Only Admin / User Admin / CXO Insight User), 25+ modules with 4 permission levels, federation: identity in ZIdentity, role assignment in Zscaler Admin Console | [`./admin-rbac.md`](./admin-rbac.md) | draft |
+| **Users** — full CRUD users API, 17 fields, 8 filter params, IdP-sourced (SCIM) vs ZIdentity-internal users distinguished by `source` field | [`./users.md`](./users.md) | draft |
+| **Groups** — full CRUD on groups, dual `is_dynamic_group`/`dynamic_group` flags, group-as-policy-principal cross-product semantics, six membership-mutation operations | [`./groups.md`](./groups.md) | draft |
+| **Resource servers** — read-only OAuth resource registry, service-grouped scopes (no scope mutation API), OneAPI client linkage via `clientResources` field | [`./resource-servers.md`](./resource-servers.md) | draft |
+| **User entitlements** — read-only admin & service entitlement query API, observed role+scope values from test fixtures, Python-wraps-vs-Go-slice return divergence | [`./user-entitlements.md`](./user-entitlements.md) | draft |
 | API surface — `client.zid.*` methods, Python vs Go SDK parity, wire format | [`./api.md`](./api.md) | draft |
 | **Snapshot schema (anticipatory)** — anticipated `_data/snapshot/zidentity/*.json` shapes for users / groups / api-clients / resource-servers; array-of-one-page wrap, pagination quirks, secret-material-never-returned | [`./snapshot-schema.md`](./snapshot-schema.md) | draft |
 | **ZIdentity SDK** — Python and Go service catalog (`client.zid.*`); method summary; parity gaps between language SDKs | [`./sdk.md`](./sdk.md) | draft |
@@ -40,7 +45,6 @@ Questions that land here: "how do I create API client credentials?", "why is ste
 - **Identity provider integration specifics** (Microsoft Entra ID, AD FS, Okta, Ping, etc.) — each has its own help article. Referenced but not captured.
 - **MFA method configuration** (SMS OTP, email OTP, TOTP via Google Authenticator, FIDO) — feature-enumeration level is in `overview.md`; per-method config is deferred.
 - **Device token authentication** — ZCC-specific auth flow.
-- **Admin role management** (RBAC within ZIdentity itself) — separate from user authentication.
 - **Audit logs for ZIdentity configuration changes** — tracked; deferred.
 - **Migration from legacy auth** — the "Migrating Zscaler Service Admins to ZIdentity" flow is operational, not reasoning-focused.
 

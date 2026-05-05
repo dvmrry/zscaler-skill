@@ -191,6 +191,16 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 
 ## Resolved
 
+### ZDX + ZIdentity reference flesh-out ✅ RESOLVED 2026-05-05
+
+- **Status**: Resolved
+- **Origin**: 2026-05-04 — `_data/grills/2026-05-04-whole-repo-grill.md` flagged ZDX (7 refs) and ZIdentity (7 refs) as the two T1 products with thinnest reference coverage. Plan at `_data/grills/plans/2026-05-04-zdx-zidentity-fleshout.md`.
+- **Resolution**: executed via per-task extract → z-writer → verify pipeline on branch `zdx-zidentity-fleshout`. 11 new citation-backed reference docs + index updates:
+  - **ZDX** (6 new refs, count now 13): `score.md` (`282acc8`), `cloud-architecture.md` (`5cd62b0`), `applications.md` (`3179b61`), `devices.md` (`f0f2514`), `reports.md` (`80df83e`), `administration.md` (`59f4211`); `score.md` follow-up correction at `7dd5637`
+  - **ZIdentity** (5 new refs, count now 12): `admin-rbac.md` (`c345082`), `users.md` (`90a30cf`), `groups.md` (`0a3ca6e`), `resource-servers.md` (`bb2c505`), `user-entitlements.md` (`03c9dd1`)
+- **Outcomes**: ZDX coverage gaps closed for score model, cloud architecture, applications, devices, reports, and the misleadingly-named administration SDK (read-only filter helpers only). ZIdentity coverage gaps closed for admin RBAC (4 system roles + 25-module permission matrix), users CRUD (17 fields + IdP-source distinction), groups (dynamic vs static + group-as-policy-principal), resource servers (read-only OAuth registry), and user entitlements (read-only admin/service entitlement query API). Pipeline caught ~10 extraction errors in flight (line-number imprecision, false "no Go equivalent" claims, struct-field-vs-function-body confusions); each was fixed before commit. Hygiene clean across all 6 checks.
+- **Followups (non-blocking)**: 11 new `confidence: high` refs added without eval coverage (warning count up by 11 as predicted in the plan); evals are out of scope for this work. Some open questions surfaced in individual refs (e.g., `Entitlement.scope` field semantics, dynamic-group dual-flag behavior, IdP-sourced user mutation rules) — captured in each ref's "Open questions" section for future verification.
+
 ### Portfolio-map + tier schema cleanup ✅ RESOLVED 2026-05-04
 
 - **Status**: Resolved
