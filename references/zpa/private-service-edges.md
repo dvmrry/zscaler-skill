@@ -3,9 +3,12 @@ product: zpa
 topic: "zpa-private-service-edges"
 title: "ZPA Private Service Edges — on-prem brokering for private app access"
 content-type: reference
-last-verified: "2026-04-27"
+last-verified: "2026-05-05"
 confidence: medium
 source-tier: doc
+verified-against:
+  vendor/terraform-aws-zpa-private-service-edge-modules: 281208029caac90939ab0b8b335342f5cb39fe4d
+  vendor/terraform-azurerm-zpa-private-service-edge-modules: 7c64477411d028ee67c47d58c1cde872d469ec44
 sources:
   - "vendor/zscaler-help/about-private-service-edges.md"
   - "vendor/zscaler-help/about-private-service-edge-groups.md"
@@ -21,6 +24,18 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zpa/private_cloud_group.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/private_cloud_controller.py"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/serviceedgegroup/zpa_service_edge_group.go"
+  - "vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf"
+  - "vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-asg-aws/variables.tf"
+  - "vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-asg-aws/main.tf"
+  - "vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-psevm-aws/variables.tf"
+  - "vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-sg-aws/main.tf"
+  - "vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-iam-aws/main.tf"
+  - "vendor/terraform-aws-zpa-private-service-edge-modules/examples/README.md"
+  - "vendor/terraform-aws-zpa-private-service-edge-modules/README.md"
+  - "vendor/terraform-azurerm-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf"
+  - "vendor/terraform-azurerm-zpa-private-service-edge-modules/modules/terraform-zpse-vm-azure/variables.tf"
+  - "vendor/terraform-azurerm-zpa-private-service-edge-modules/examples/README.md"
+  - "vendor/terraform-azurerm-zpa-private-service-edge-modules/README.md"
 author-status: draft
 ---
 
@@ -164,16 +179,18 @@ Three Terraform resources are relevant:
 
 | Argument | Purpose |
 |---|---|
-| `enabled` | Enable/disable the group. Default: `true`. |
-| `is_public` | Allow remote users outside trusted networks to reach this PSE group. Requires the PSE to be reachable via a public IP. Default: `false`. |
+| `enabled` | Enable/disable the group. Default: `true`. (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:142`) |
+| `is_public` | Allow remote users outside trusted networks to reach this PSE group. Requires the PSE to be reachable via a public IP. Default: `false`. (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:144`) |
 | `trusted_networks` | Trusted Network objects whose users are preferentially routed to this PSE group. |
-| `grace_distance_enabled` | Allow this PSE group to override a closer Public SE when the PSE is within `grace_distance_value` of the user. |
-| `grace_distance_value` | Distance threshold (miles or km, per `grace_distance_value_unit`) within which the PSE overrides a Public SE. |
-| `use_in_dr_mode` | Designate this group for disaster recovery only — held in reserve. |
-| `upgrade_day` / `upgrade_time_in_secs` | Maintenance window for software updates. |
-| `version_profile_name` / `version_profile_id` | Software release track: `Default`, `Previous Default`, `New Release`, or EL8 variants. |
+| `grace_distance_enabled` | Allow this PSE group to override a closer Public SE when the PSE is within `grace_distance_value` of the user. (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:146`) |
+| `grace_distance_value` | Distance threshold (miles or km, per `grace_distance_value_unit`) within which the PSE overrides a Public SE. (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:147`) |
+| `use_in_dr_mode` | Designate this group for disaster recovery only — held in reserve. (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:164`) |
+| `upgrade_day` / `upgrade_time_in_secs` | Maintenance window for software updates. Default: `SUNDAY` / `66600` (18:30 UTC). (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:162-163`) |
+| `version_profile_name` / `version_profile_id` | Software release track: `Default`, `Previous Default`, `New Release`, or EL8 variants. (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:152-160`) |
 | `enrollment_cert_id` + `user_codes` | OAuth2 enrollment path — provide the enrollment cert and the user codes displayed on the PSE VMs after boot to complete enrollment via Terraform. |
-| `microtenant_id` | Scope to a microtenant (requires microtenant license). |
+| `microtenant_id` | Scope to a microtenant (requires microtenant license). (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:165`) |
+
+> **Module coverage gap — `grace_distance_*` and `use_in_dr_mode`**: These are valid provider arguments (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:146-148, :164`) but are **absent from both the AWS and Azure reference module wrappers** (`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf:1-83`; `vendor/terraform-azurerm-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf:1-83`). Operators using those modules who need grace distance or DR mode must extend the module or switch to the raw `zpa_service_edge_group` resource directly.
 
 The `service_edges` block within `zpa_service_edge_group` is deprecated and scheduled for removal. PSE membership is managed externally (via provisioning key enrollment), not by Terraform. Omit this block in new configurations.
 
@@ -228,6 +245,79 @@ resource "zpa_lss_config_controller" "pse_status_logs" {
   }
 }
 ```
+
+### Reference deployment examples
+
+The vendor repos ship ready-to-run example configurations. Summaries below; see `examples/README.md` in each repo for full usage instructions.
+
+**AWS** (`vendor/terraform-aws-zpa-private-service-edge-modules/examples/README.md:46-78`):
+
+| Example | Type | Description |
+|---|---|---|
+| `base` | Greenfield | VPC + subnets + IGW + NAT Gateway + bastion host; no PSEs deployed |
+| `base_pse` | Greenfield | `base` + 2 PSE VMs (1 per AZ), each egressing through the AZ-local NAT Gateway |
+| `base_pse_asg` | Greenfield | `base` + PSE Auto Scaling Group (min 2 / max 4 by default) |
+| `pse` | Brownfield | 2 PSE VMs in an existing or new VPC; supports BYO VPC/subnets/IGW/NAT/IAM/SG |
+| `pse_asg` | Brownfield | ASG variant of `pse`; same BYO options |
+
+**Azure** (`vendor/terraform-azurerm-zpa-private-service-edge-modules/examples/README.md:48-84`):
+
+| Example | Type | Description |
+|---|---|---|
+| `base` | Greenfield | Resource Group + VNet + bastion subnet; no PSEs deployed |
+| `base_pse` | Greenfield | `base` + 1 or more PSE VMs in an availability set (or zones if supported); count controlled by `pse_count` |
+| `pse` | Brownfield | PSE VM(s) in an existing or new VNet; supports BYO Resource Group/VNet/subnets/PIP/NAT GW |
+
+**AWS vs Azure scaling asymmetry**: The AWS modules include a native Auto Scaling Group (`terraform-zspse-asg-aws`) with target-tracking autoscaling (default min 2 / max 4, CPU target 50%) (`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-asg-aws/variables.tf:66-76, :134-138`). The Azure modules have **no VMSS or equivalent autoscaling construct** — the only multi-VM mechanism is the manual `pse_count` variable (default 1, max 250) (`vendor/terraform-azurerm-zpa-private-service-edge-modules/modules/terraform-zpse-vm-azure/variables.tf:87-94`). Azure PSE scale-out requires re-running Terraform with an updated `pse_count`, not policy-driven autoscaling.
+
+### Module defaults and instance types
+
+The `terraform-zpa-service-edge-group` module wrapper (identical in both the AWS and Azure repos) applies these defaults (`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf:12-83`; `vendor/terraform-azurerm-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf:12-83`):
+
+| Variable | Default | Provider field |
+|---|---|---|
+| `pse_group_enabled` | `true` | `enabled` |
+| `pse_is_public` | `false` | `is_public` |
+| `pse_group_upgrade_day` | `SUNDAY` | `upgrade_day` |
+| `pse_group_upgrade_time_in_secs` | `66600` (18:30 UTC) | `upgrade_time_in_secs` |
+| `pse_group_version_profile_id` | `2` (New Release) | `version_profile_id` |
+| `pse_group_override_version_profile` | `false` | `override_version_profile` |
+
+**AWS PSE VM** (`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-psevm-aws/variables.tf:34-47`):
+- Default instance type: `m5.large`
+- Approved types: `t3.xlarge`, `m5.large`, `m5.xlarge`, `m5.2xlarge`, `m5.4xlarge`
+- EBS: `gp3`, encrypted; IMDSv2 enforced
+
+**Azure PSE VM** (`vendor/terraform-azurerm-zpa-private-service-edge-modules/modules/terraform-zpse-vm-azure/variables.tf:45-95`):
+- Default instance size: `Standard_D2s_v3`
+- Approved sizes: `Standard_D2s_v3`, `Standard_D4s_v3` (only 2 SKUs validated)
+- Image: RedHat / `rh-rhel` / `rh-rhel9` (latest)
+- `zones_enabled` defaults to `false`
+
+**AWS ASG defaults** (`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-asg-aws/variables.tf:66-138`; `vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-asg-aws/main.tf:84, 92-101`):
+
+| Parameter | Default |
+|---|---|
+| `min_size` | `2` |
+| `max_size` | `4` |
+| `health_check_grace_period` | `300` s |
+| `health_check_type` | `EC2` |
+| `target_tracking_metric` | `ASGAverageCPUUtilization` |
+| `target_cpu_util_value` | `50` % |
+| `warm_pool_enabled` | `false` |
+
+Enabled CloudWatch metrics (8): GroupDesiredCapacity, GroupInServiceInstances, GroupMaxSize, GroupMinSize, GroupPendingInstances, GroupStandbyInstances, GroupTerminatingInstances, GroupTotalInstances (`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-asg-aws/main.tf:92-101`).
+
+### IAM and security groups (AWS)
+
+The `terraform-zspse-iam-aws` module creates an `aws_iam_role` with an `ec2.amazonaws.com` assume-role trust and an instance profile (`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-iam-aws/main.tf:8-46`). No IAM policies are attached — operators must attach any additional policies required for the PSE VM to access other AWS services.
+
+The `terraform-zspse-sg-aws` module creates three inbound security group rules (`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-sg-aws/main.tf:42-73`):
+- SSH TCP/22 from VPC CIDR
+- HTTPS TCP/443 from VPC CIDR (or `0.0.0.0/0` when `associate_public_ip_address = true`)
+- HTTPS UDP/443 from VPC CIDR (or `0.0.0.0/0` when public)
+
+This is consistent with the gotcha documented above that ZPA Z-Tunnel traffic uses port 443 TCP and optionally UDP/443 for DTLS.
 
 ### Python SDK methods
 
