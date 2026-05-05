@@ -141,14 +141,6 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 - **Cost**: variable (per-bundle effort, depends on verification access)
 - **Notes**: templates at `references/shared/investigation-bundles.md` and `architect-bundles.md`. Public skill should ship only verified bundles; speculative ones stay in private fork. The first ones are most likely to come from real production tickets.
 
-### SDK quirk note: `cloud_firewall_nw_service` `isNameL10nTag` deserialization
-
-- **Status**: Proposed (low priority)
-- **Origin**: 2026-04-30 — issue-watch digest #5; upstream `zscaler-sdk-python#492`
-- **Impact**: small caveat in `zia/sdk.md` or `zia/api.md` noting that `cloud_firewall.list_network_services_lite()` returns `isNameL10nTag` as `None` per the closed-but-acknowledged SDK bug
-- **Cost**: low (one-line note + verified-against bump)
-- **Notes**: field itself is documented in `references/zia/api-schemas.md` (lines 114, 505, 1901, 1928). The SDK isn't reading it correctly. Worth a "known SDK quirk" note when a related ref is next touched.
-
 ### SSL inspection rule cloud-app enum mapping
 
 - **Status**: Proposed (deferred — content gap, not a fix)
@@ -190,6 +182,12 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 ---
 
 ## Resolved
+
+### SDK quirk note: `cloud_firewall_nw_service` `isNameL10nTag` deserialization ✅ RESOLVED 2026-05-05
+
+- **Status**: Resolved (note added; upstream already fixed)
+- **Origin**: 2026-04-30 — issue-watch digest #5; upstream `zscaler-sdk-python#492`
+- **Resolution**: Added historical-quirk paragraph after the FirewallResourcesAPI table in `references/zia/sdk.md`. **Surprise finding**: upstream PR #493 already closed the issue in SDK release 1.9.22 (April 23, 2026) — the fix replaced `pydash.strings.camel_case` with the SDK's own `to_lower_camel_case` helper in `APIClient.form_response_body()` and was applied centrally, so it affects every OneAPI endpoint with camelCase keys having digit/letter boundaries (e.g. `isNameL10nTag`, `ipV6Enabled`). The note now scopes the bug to SDK versions older than 1.9.22 and points to upgrade as the remediation. `verified-against:` bump deferred — would require a real re-verification pass against `vendor/zscaler-sdk-python` 197867f, which is more than a one-line note's worth of work.
 
 ### ZDX + ZIdentity reference flesh-out ✅ RESOLVED 2026-05-05
 
