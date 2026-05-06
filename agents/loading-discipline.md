@@ -47,7 +47,7 @@ If none of these fit cleanly, prefer silence over inventing a new label. Out-of-
 
 ## Tool preference
 
-Stage announcements describe actions performed via the host runtime's built-in tools, not shell exec. Use the IDE's read tool (Claude Code: `Read`; Cascade: file-read) to load files, the IDE's grep/search tool (Claude Code: `Grep`; Cascade: file-search) to scan directories, and the IDE's glob tool when discovering paths. Built-in tools render in the IDE's tool view, fit the runtime's permission model, and avoid unnecessary shell prompts. Reach for shell exec only when the operation is genuinely shell-shaped: chained pipes, sub-shell behavior, script invocation, or a command that cannot be expressed through the built-in API.
+Stage announcements describe actions performed via the host runtime's built-in tools, not shell exec. Use the runtime's built-in read tool to load files, its grep/search tool to scan text, and its glob/find tool when discovering paths by pattern. Built-in tools render in the IDE's tool view, fit the runtime's permission model, and avoid unnecessary shell prompts. Reach for shell exec only when the operation is genuinely shell-shaped: chained pipes, sub-shell behavior, script invocation, or a command that cannot be expressed through the built-in API.
 
 ## When to announce
 
