@@ -1,6 +1,7 @@
 ---
 role: architect
 artifact: prompt
+eval-shape: architect-first-turn
 title: "Architect — capacity & scaling playbook (lite)"
 content-type: prompt
 last-verified: "2026-04-29"

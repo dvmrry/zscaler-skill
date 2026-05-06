@@ -1,0 +1,57 @@
+{
+  "$schema": "workflow-evals/v1",
+  "description": "Static workflow-discipline assertions per agent role. Each schema defines markers that the role's prompt.md and/or its runtime adapters must contain (must_contain) or must avoid (must_not_contain). The check is static — it scans file content, not agent runtime output. The contract: if these markers are present in the prompt/adapter source, an agent following the source is structurally inclined toward the desired first-turn shape. Dynamic eval (actually running the agent and inspecting output) is a separate future concern; this file defines the shape declarations that dynamic eval would also use.",
+  "schemas": {
+    "investigator-first-turn": {
+      "description": "Investigator first turn: parse framing, propose loads, halt at checkpoint, do not diagnose.",
+      "must_contain_in_prompt": [
+        "discovery journal",
+        "first response is a **plan**, not a diagnosis",
+        "Grounding files loaded:"
+      ],
+      "must_not_contain_in_prompt": [
+        "root cause is",
+        "the likely cause is"
+      ],
+      "must_reference_paths": [
+        "agents/investigator/methodology.md"
+      ]
+    },
+    "architect-first-turn": {
+      "description": "Architect first turn: produce recommendation register, propose changes only (no tenant mutation), calibrate confidence to evidence layer.",
+      "must_contain_in_prompt": [
+        "recommendation register",
+        "Do not change tenant state",
+        "evidence"
+      ],
+      "must_not_contain_in_prompt": [],
+      "must_reference_paths": [
+        "agents/architect/methodology.md"
+      ]
+    },
+    "auditor-first-turn": {
+      "description": "Auditor first turn: produce audit register from read-only review; do not edit files mid-audit.",
+      "must_contain_in_prompt": [
+        "audit register",
+        "you are not editing files",
+        "severity"
+      ],
+      "must_not_contain_in_prompt": [],
+      "must_reference_paths": [
+        "agents/auditor/methodology.md"
+      ]
+    },
+    "soc-first-turn": {
+      "description": "SOC first turn: produce posture register; threat-model context required for High/Critical findings.",
+      "must_contain_in_prompt": [
+        "posture register",
+        "threat model",
+        "severity"
+      ],
+      "must_not_contain_in_prompt": [],
+      "must_reference_paths": [
+        "agents/auditor/methodology.md"
+      ]
+    }
+  }
+}

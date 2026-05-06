@@ -1,6 +1,7 @@
 ---
 role: auditor
 artifact: prompt
+eval-shape: auditor-first-turn
 title: "Audit — editorial / structural lint playbook"
 content-type: prompt
 last-verified: "2026-04-29"

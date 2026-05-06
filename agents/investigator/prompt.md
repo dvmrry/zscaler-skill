@@ -1,6 +1,7 @@
 ---
 role: investigator
 artifact: prompt
+eval-shape: investigator-first-turn
 title: "Investigate — evidence-based troubleshooting playbook"
 content-type: prompt
 last-verified: "2026-04-29"

@@ -1,6 +1,7 @@
 ---
 role: soc
 artifact: prompt
+eval-shape: soc-first-turn
 title: "SOC — security posture review playbook"
 content-type: prompt
 last-verified: "2026-04-30"
