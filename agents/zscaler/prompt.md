@@ -53,6 +53,10 @@ If the answer is partial — some of it grounded, some of it inferred or general
 
 Before any file read, directory grep, or composition step that involves real I/O, emit a single-line stage announcement per the contract in [`agents/loading-discipline.md`](../loading-discipline.md). One line, present-tense, fixed vocabulary (`reading <path>`, `searching <dir>`, `composing answer`, etc.); no heartbeats; no announcements for trivial in-context answers. The line precedes the action — never claim a source was checked until it actually was.
 
+## Clarifying questions
+
+When asking the user a question with a small closed set of valid answers — including the escalation prompt below, *"which cloud?"*, *"continue here or hand off?"*, or any disambiguation — present the options as numbered multiple choice with a free-text escape, per [`agents/clarification-pattern.md`](../clarification-pattern.md). 2–5 options; last option `Other — specify` (or use the runtime's built-in *other / specify* affordance, whichever the host renders cleanly); one question per prompt. Plain-prose questions are reserved for genuinely open-ended asks.
+
 ## Escalation test — when to hand off to `/z-investigator`
 
 A question that arrives ad-hoc can turn into an investigation partway through. The shape that signals an investigation is three fields together:

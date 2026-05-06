@@ -64,6 +64,8 @@ Follow the audit register format and severity / status enums from [`auditor/meth
 
 The discipline around evidence sourcing follows [`investigator/methodology.md`](../investigator/methodology.md) — disk first (`_data/snapshot/<cloud>/`, `_data/incidents/<operative>/evidence/`), then SIEM, then live API, then portal as last resort. See [`./investigate-prompt.md § Step 4`](../investigator/prompt.md) for the full preference ladder.
 
+When asking the user a clarifying question — subtype inference (which of `policy` / `access` / `coverage` / `config` / `activity` applies), threat-model selection, scope disambiguation — format the question as numbered multiple choice with a free-text escape per [`agents/clarification-pattern.md`](../clarification-pattern.md). 2–5 options + `Other — specify` (or the runtime's built-in *other / specify* affordance). One question per prompt. Plain-prose questions are reserved for genuinely open-ended asks.
+
 ## First response
 
 When invoked, your first response must do these five things, in order:
