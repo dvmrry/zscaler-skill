@@ -116,7 +116,7 @@ Skim this before reading the full entries.
 
 ### Open
 
-`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-45`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-19`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `zcc-08`–`zcc-75`.
+`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-45`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-19`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `shared-20`–`shared-22`, `zcc-08`–`zcc-75`.
 
 Partial / SDK-mined (resolved via code read or help-doc capture; full lab confirmation pending): `zcc-01`, `zcc-02`, `zcc-03`, `zcc-04`, `zcc-05`, `zcc-06`, `zcc-07`, **`log-04`** (field name + illustrative values confirmed via `web-log-schema.md`; full enum of `ruletype` / `reason` values still needs a tenant export). All six ZCC enum clarifications had their **datatype** (int vs string) resolved by the Go SDK cross-check on 2026-04-24; the integer-to-meaning mapping remains open for `zcc-01` through `zcc-04` and `zcc-06`.
 
@@ -2017,6 +2017,57 @@ So the request blocks until the user completes the higher-AL authentication. The
 5. **Chunked transfer encoding** — does DLP accumulate chunks for full-payload analysis or scan per-chunk?
 
 **Resolves the rest with**: vendor doc (likely lives in help articles not yet captured) or controlled lab tests with known-payload WebSocket non-Copilot, HTTP/2 multi-stream, and gRPC traffic. **Status**: partially resolved — 2026-05-06.
+
+---
+
+### shared-20 — Cross-PSE session state on customer-side LB failover (GRE source IP change mid-session)
+
+*Origin: chain-coverage soft-test 2026-05-06 — Cloud Connector + 185.x GRE + customer F5 geo-LB walkthrough*
+
+When customer-side architecture introduces multiple GRE-source-IP egress paths (e.g., F5 BIG-IP geo-LB fronting two routers, each terminating its own GRE tunnel to ZIA), a mid-session failover from Router A to Router B changes the GRE source IP that ZIA sees. The skill has good coverage of the building blocks but no single ref addresses the **session-state implications across PSEs** when this happens. Specifically:
+
+1. **Surrogate IP binding survival** — `surrogate_ip` binding is per-(PSE, source-IP) tuple. When the source IP changes, what happens to the existing binding? Is it invalidated immediately on the original PSE? Does the new PSE see a "new user" until re-auth?
+2. **Cross-PSE session continuity** — if Router A's primary GRE goes to PSE-DC-A and Router B's goes to PSE-DC-B, a mid-stream failover lands the next packet at a different Service Edge. Does the original PSE's TCP/policy state replicate to the new PSE, or does the session effectively reset from ZIA's perspective?
+3. **Long-lived flow handling** — for a stateful client (HTTP/2 multi-stream, WebSocket, gRPC streaming) in flight when failover happens, what behavior does the user perceive? Cleanly reset, silent drop, or continuation if the client tolerates source-IP changes?
+4. **Interaction with `shared-07` / `shared-08` / `shared-09`** — those clarifications cover MCLS (multi-cluster within a DC); this is the *cross-DC* failover case driven by customer-side LB topology, which MCLS doesn't address.
+
+This is the canonical "HA-on-HA stacking" question: customer's HA design (F5 + redundant routers) interacts with Zscaler's HA design (multi-PSE / per-DC GRE VIPs) in ways neither side documents.
+
+**Resolves with**: lab test driving deliberate mid-session F5 failover with active flows (long curl, persistent SSH, WebSocket app) and observing the ZIA-side behavior — re-auth, session reset, or continuation. Plus vendor doc on cross-PSE state replication. **Status**: open — 2026-05-06.
+
+---
+
+### shared-21 — Anonymous-workload identity treatment at the Service Edge (Cloud Connector flow)
+
+*Origin: chain-coverage soft-test 2026-05-06 — Cloud Connector flow walkthrough*
+
+`references/zia/workload-groups.md` documents Workload Groups as the policy-scope primitive for Cloud Connector traffic — workload-tag-based attribution replaces the user-identity-based attribution that ZCC traffic carries. But the **Service Edge ingress behavior for traffic without a user identity** is not laid out:
+
+1. **Auth gate behavior** — `zia/authentication.md` says auth runs before all other policies. For a workload session arriving via CC's GRE/IPSec tunnel with no user identity to authenticate, does the auth gate skip (workload tag is sufficient), block (non-browser UA fails SAML), or apply a different mechanism? Per-location `auth_required` setting on the CC-fronted location should make this configurable but the actual handling isn't documented.
+2. **Surrogate IP behavior on workload IPs** — does a CC-fronted location with `surrogate_ip = true` bind workload identity to source IP? If multiple workloads share a CC's NAT IP, is the binding shared (correct for traffic-volume attribution but wrong for per-workload policy)?
+3. **Auth-frequency setting interaction** — workload sessions are typically long-lived (microservice keepalives, persistent connections). What does `MONTHLY_COOKIE` or `ALWAYS` mean for a session that has no user-side cookie?
+4. **NSS feed identity-field population** — the `cloud-connector/logs/log-schema.md` ref lists fields like `login`, `dept`, `deviceowner`, `devicehostname` from the ZIA firewall log schema. For workload traffic with no user identity, are these fields empty, populated with a workload-derived value, or populated with a tag-derived stub?
+
+This matters operationally because operators investigating "why is workload X being blocked by ZIA" need to know whether the blocking subsystem evaluated a user-identity-scoped rule that didn't match (because workloads have no user) or a workload-group-scoped rule (which should match).
+
+**Resolves with**: tenant lab walkthrough — deploy a CC, send known workload traffic, observe: (a) auth gate behavior at the per-location setting, (b) NSS feed field population for the workload session, (c) whether Surrogate IP fires. Plus vendor doc consolidating workload identity semantics (the skill currently has it spread across `zia/workload-groups.md` + `zia/authentication.md` + `zia/locations.md`). **Status**: open — 2026-05-06.
+
+---
+
+### shared-22 — Cross-DC log correlation for sessions spanning multiple PSEs
+
+*Origin: chain-coverage soft-test 2026-05-06 — F5 geo-LB walkthrough surfaced multi-DC session traversal*
+
+`references/shared/log-correlation.md` documents joining ZIA web/firewall/DNS logs to ZPA LSS using `epochtime` + `login` (or `Username`) within a tolerance window, and identifies `zpa_app_seg_name` as the highest-fidelity ZIA→ZPA join field for SIPA. It does **not** address the case where a single user's traffic, within one logical session, lands on **multiple PSEs in different datacenters** (driven by customer-side LB failover, mobile users moving between Wi-Fi networks, or BGP-induced VIP changes). Specific gaps:
+
+1. **PSE-discriminator field** — the `datacenter` field exists in all ZIA NSS feeds, but is it the correlation key for "same user, different DC, same logical session"? Or does the customer SIEM need to reconstruct logical sessions by user + time-window across multiple `datacenter` values?
+2. **`recordid` scope** — is `recordid` globally unique across all PSEs (so deduplication across feeds is safe), or per-PSE (so the same `recordid` could appear in two records from different DCs)?
+3. **Session-ID-equivalent** — ZIA web logs have no documented session ID; firewall logs have aggregation flags but no session ID either. For "trace this user's full activity across a 30-second F5-failover window" the join key set is unclear.
+4. **Cross-PSE Surrogate IP gap** — if Surrogate IP binding doesn't replicate cross-PSE (per `shared-20`), a logical session could appear as two different "users" in the logs after failover (the original IP-bound identity, then anonymous/re-auth on the new PSE).
+
+For SOC analysts reconstructing user activity during incident response, this gap means investigations spanning multiple PSEs may silently undercount or mis-attribute activity unless the SIEM reconstruction logic explicitly handles cross-DC session bridging.
+
+**Resolves with**: tenant lab — drive a deliberate multi-PSE session (e.g., force trusted-network transition or simulate F5 failover), capture NSS feeds from both PSEs, attempt reconstruction. Plus vendor doc on per-record uniqueness guarantees for `recordid`. **Status**: open — 2026-05-06.
 
 ---
 
