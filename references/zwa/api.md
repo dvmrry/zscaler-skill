@@ -3,13 +3,17 @@ product: zwa
 topic: "zwa-api"
 title: "ZWA API — incident search, evidence, audit logs"
 content-type: reference
-last-verified: "2026-04-24"
-confidence: medium
+last-verified: "2026-05-06"
+confidence: high
 source-tier: mixed
 sources:
   - "https://help.zscaler.com/legacy-apis/dlp-incidents-workflow-automation-api"
   - "vendor/zscaler-help/dlp-incidents-workflow-automation-api.md"
-  - "vendor/zscaler-sdk-python/zscaler/zwa/"
+  - "https://help.zscaler.com/legacy-apis/api-authentication-workflow-automation-api"
+  - "vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md"
+  - "vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py"
+  - "vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py"
+  - "vendor/zscaler-sdk-python/zscaler/zwa/zwa_service.py"
   - "vendor/zscaler-sdk-go/zscaler/zwa/services/"
 author-status: draft
 ---
@@ -61,17 +65,30 @@ Both cover the same audit log feed — who changed what workflow, when, etc.
 
 ## Authentication
 
+### OneAPI (current path)
+
 Standard OneAPI OAuth 2.0 via ZIdentity — same env vars as other products (`ZSCALER_CLIENT_ID`, `ZSCALER_CLIENT_SECRET` or `ZSCALER_PRIVATE_KEY`, `ZSCALER_VANITY_DOMAIN`). API client must have ZWA scope granted in the ZIdentity portal; without it, calls return 403.
+
+### Legacy (pre-ZIdentity tenants)
+
+For tenants that haven't migrated to ZIdentity, ZWA exposes a legacy API-key flow at `POST /v1/auth/api-key/token` (`vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md:8`):
+
+- **Body**: `{"key_id": "string", "key_secret": "string"}` (`legacy-api-authentication-workflow-automation-api.md:14-17`)
+- **Response (201)**: `{"token": "...", "token_type": "...", "expires_in": <int>}` — the `token` value goes into the `Bearer` header on subsequent requests (`legacy-api-authentication-workflow-automation-api.md:10, 24-28`)
+- **Response (401)**: authorization failure (`legacy-api-authentication-workflow-automation-api.md:29`)
+- Tokens expire per `expires_in`; clients must handle refresh (`legacy-api-authentication-workflow-automation-api.md:37`)
+
+The legacy auth uses an API key ID + secret pair, not username/password/session cookie like ZIA legacy (`legacy-api-authentication-workflow-automation-api.md:35`). New integrations should use OneAPI; treat this section as a fallback for tenants pre-migration.
 
 ## Wire format
 
-Standard OneAPI conventions: JSON request/response, camelCase keys. Endpoint prefix is likely `/zwa/api/v1/` (not explicitly captured; check SDK source for exact paths).
+Standard OneAPI conventions: JSON request/response, camelCase keys. Endpoint prefix is `/zwa/dlp/v1/` for both incidents and audit logs (`vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py:36`, `vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py:30`). Specific paths: `/zwa/dlp/v1/incidents/search` (`dlp_incidents.py:422`), `/zwa/dlp/v1/incidents/{id}/incident-groups/search` (`dlp_incidents.py:470`), `/zwa/dlp/v1/customer/audit` (`audit_logs.py:108`).
 
 ## Legacy API reference
 
 The help article *DLP Incidents (Workflow Automation API)* lives at `help.zscaler.com/legacy-apis/dlp-incidents-workflow-automation-api` — it's a Swagger-UI-style reference with endpoint listings. The article is ~32k chars (from capture); full endpoint schemas are there for operators who need wire-level detail.
 
-> **Caveat — legacy vs. current API surface.** The help portal still ships a "Legacy UI: Workflow Automation" entry whose API doc lives under `/legacy-apis/`, while the current-generation surface documented above (the `/zwa/api/v1/` endpoints exposed via the Python and Go SDK service layers) is what new integrations should target. Treat the SDK source as ground truth for current-gen endpoint paths and method shapes; the legacy-UI API doc may describe a parallel-but-different surface that's not the SDK target. If you find a discrepancy between this doc and the legacy help article, the SDK wins.
+> **Caveat — legacy vs. current API surface.** The help portal still ships a "Legacy UI: Workflow Automation" entry whose API doc lives under `/legacy-apis/`, while the current-generation surface documented above (the `/zwa/dlp/v1/` endpoints exposed via the Python and Go SDK service layers) is what new integrations should target. Treat the SDK source as ground truth for current-gen endpoint paths and method shapes; the legacy-UI API doc may describe a parallel-but-different surface that's not the SDK target. If you find a discrepancy between this doc and the legacy help article, the SDK wins.
 
 ## Sensitive data considerations
 
