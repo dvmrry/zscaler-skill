@@ -41,10 +41,11 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parent.parent
 AGENTS = REPO_ROOT / "agents"
 EVALS_FILE = REPO_ROOT / "references" / "_meta" / "evals" / "workflow-evals.json"
-ADAPTER_DIRS = [
-    REPO_ROOT / ".windsurf" / "workflows",
-    REPO_ROOT / ".claude" / "commands",
-]
+ADAPTER_KIND_TO_DIR = {
+    "windsurf": REPO_ROOT / ".windsurf" / "workflows",
+    "claude": REPO_ROOT / ".claude" / "commands",
+}
+DEFAULT_ADAPTER_KINDS = ["windsurf", "claude"]
 
 FRONTMATTER_RE = re.compile(r"^---\n(.*?)\n---", re.DOTALL)
 
@@ -104,11 +105,35 @@ def check_prompt(prompt: Path, schemas: dict) -> list[Finding]:
     schema = schemas[shape_name]
     body = body_after_frontmatter(prompt)
 
-    # Collect adapter content for must_reference_paths checks
-    role = prompt.parent.name
+    # Determine role + which adapter runtimes this prompt expects.
+    # Prefer frontmatter `role:`; fall back to parent dir name for the
+    # legacy agents/{role}/prompt.md case.
+    role = fm.get("role", prompt.parent.name)
+    adapter_kinds = fm.get("adapters", DEFAULT_ADAPTER_KINDS)
+    if not isinstance(adapter_kinds, list):
+        findings.append(
+            Finding(
+                "error",
+                prompt,
+                shape_name,
+                f"adapters: must be a list, got {type(adapter_kinds).__name__}",
+            )
+        )
+        return findings
+
     adapter_contents: list[str] = []
-    for adir in ADAPTER_DIRS:
-        adapter = adir / f"z-{role}.md"
+    for kind in adapter_kinds:
+        if kind not in ADAPTER_KIND_TO_DIR:
+            findings.append(
+                Finding(
+                    "error",
+                    prompt,
+                    shape_name,
+                    f"unknown adapter kind: {kind!r} (expected one of {sorted(ADAPTER_KIND_TO_DIR)})",
+                )
+            )
+            continue
+        adapter = ADAPTER_KIND_TO_DIR[kind] / f"z-{role}.md"
         if adapter.exists():
             adapter_contents.append(adapter.read_text(encoding="utf-8", errors="replace"))
     combined = body + "\n" + "\n".join(adapter_contents)
@@ -153,11 +178,18 @@ def main() -> int:
     schemas = load_schemas()
     findings: list[Finding] = []
 
-    if not AGENTS.exists():
-        print("agents/ not present — nothing to check")
+    prompts: list[Path] = []
+    if AGENTS.exists():
+        prompts.extend(AGENTS.rglob("prompt.md"))
+    zscaler_md = REPO_ROOT / "zscaler.md"
+    if zscaler_md.exists():
+        prompts.append(zscaler_md)
+
+    if not prompts:
+        print("no eval-shape-bearing prompts found — nothing to check")
         return 0
 
-    for prompt in sorted(AGENTS.rglob("prompt.md")):
+    for prompt in sorted(prompts):
         findings.extend(check_prompt(prompt, schemas))
 
     if not findings:

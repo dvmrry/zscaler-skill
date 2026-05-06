@@ -10,6 +10,19 @@ A knowledge skill that helps engineers and non-technical users answer questions 
 
 Follows the [Anthropic skill conventions](https://github.com/anthropics/skills) — `SKILL.md` at the root, progressive disclosure through `references/`, helper scripts in `scripts/`, and test prompts in `references/_meta/evals/`.
 
+## Entry points
+
+Two surfaces, picked by the shape of your question.
+
+- **`@zscaler`** — ad-hoc grounded Q&A. Type `@zsca<tab>` (Claude Code) or `@file:zscaler<tab>` (Windsurf/Cascade) and ask. Use this for definitions, "is X allowed in our tenant", "what does the destination see", "how does this work" — anything that isn't an investigation or structured review. The prompt is at [`zscaler.md`](./zscaler.md) at the repo root.
+- **Procedural roles** — slash commands when the task has discipline:
+  - `/z-investigator` — evidence-based troubleshooting; produces a discovery journal
+  - `/z-architect` — capacity / scaling review; produces a recommendation register
+  - `/z-auditor` — editorial / structural skill audit; produces an audit register
+  - `/z-soc` — security-posture review; produces a posture register
+
+Default to `@zscaler`. The procedural roles are escalations from it — `@zscaler` will suggest one when the question's shape demands it.
+
 ## Fork-admin first-run walkthrough
 
 If you just forked this privately for your own tenant and this is your first time setting it up, follow this path.
