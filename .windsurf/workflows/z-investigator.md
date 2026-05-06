@@ -115,6 +115,7 @@ PROPOSED LOADS (Step 2A — docs only):
   - agents/investigator/bundles.md
   - agents/siem-emission-discipline.md
   - agents/tenant-schema-derivation.md
+  - agents/loading-discipline.md
   - <product references from the framing→file mapping that match>
 
 CLARIFICATIONS:

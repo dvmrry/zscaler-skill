@@ -18,6 +18,7 @@ dependencies:
   - "bundles.md"
   - "../siem-emission-discipline.md"
   - "../tenant-schema-derivation.md"
+  - "../loading-discipline.md"
 author-status: draft
 ---
 

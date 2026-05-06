@@ -12,7 +12,8 @@ sources:
   - "references/shared/terminology.md"
   - "references/shared/cloud-architecture.md"
   - "agents/siem-emission-discipline.md"
-dependencies: []
+dependencies:
+  - "../loading-discipline.md"
 adapters: [root]
 author-status: draft
 ---
