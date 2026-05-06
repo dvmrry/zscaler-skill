@@ -3,7 +3,7 @@ product: zbi
 topic: "zbi-index"
 title: "ZBI (Zero Trust Browser / Cloud Browser Isolation) reference hub"
 content-type: reference
-last-verified: "2026-04-24"
+last-verified: "2026-05-06"
 confidence: high
 sources: []
 author-status: draft
@@ -30,6 +30,7 @@ The Zscaler SDK module is named `zbi` — the initialism survives regardless of 
 |---|---|---|
 | Overview — traffic flow, container model, Turbo Mode vs pixel streaming, architecture components | [`./overview.md`](./overview.md) | draft |
 | Policy integration — how ZIA URL Filter `Isolate` action, ZPA Isolation Policy, and Smart Browser Isolation compose; isolation profiles; subscription tiers | [`./policy-integration.md`](./policy-integration.md) | draft |
+| **API surface** — Python (`client.zia.cloud_browser_isolation` + `client.zpa.cbi_*`) and Go (`zpa/services/cloudbrowserisolation/*`) SDK methods; the ZIA/ZPA accessor split; CBI Profile + Banner + Certificate + Region CRUD; full SecurityControls / UserExperience field reference; singular-vs-plural endpoint quirks | [`./api.md`](./api.md) | draft |
 
 ## Scope
 
