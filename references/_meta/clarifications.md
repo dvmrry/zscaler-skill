@@ -120,6 +120,8 @@ Skim this before reading the full entries.
 
 Partial / SDK-mined (resolved via code read or help-doc capture; full lab confirmation pending): `zcc-01`, `zcc-02`, `zcc-03`, `zcc-04`, `zcc-05`, `zcc-06`, `zcc-07`, **`log-04`** (field name + illustrative values confirmed via `web-log-schema.md`; full enum of `ruletype` / `reason` values still needs a tenant export). All six ZCC enum clarifications had their **datatype** (int vs string) resolved by the Go SDK cross-check on 2026-04-24; the integer-to-meaning mapping remains open for `zcc-01` through `zcc-04` and `zcc-06`.
 
+`shared-17`, `shared-18`, `shared-19` — partially resolved by 2026-05-06 doc sweep. Each has substantial existing-doc backing (Service Edge re-evaluation triggers; ZIA auth-frequency + surrogate-IP TTL fields and dependency rules; QUIC handling with ZTunnel-mode interaction, HTTP/2 enable toggle + Bandwidth Control fallback, WebSocket DLP Copilot-only carveout). The remaining sub-questions are narrower: selection-signal weighting, surrogate IP clock anchor, ZIdentity step-up sync/async timing, HTTP/2 per-stream re-evaluation, WebSocket non-DLP inspection coverage.
+
 ---
 
 ## Entries
@@ -1890,6 +1892,113 @@ The maximum number of IP ranges supported per Azure AD Named Location object. Th
 
 **Status**: open
 **Resolves with**: zscaler doc not yet read (Microsoft Entra ID Named Locations documentation) — Microsoft-side constraint
+
+---
+
+### shared-17 — Public Service Edge selection algorithm
+
+*Origin: chain-coverage review 2026-05-06 — request flow phase 3 (ZCC tunnel → Service Edge selection)*
+
+When a ZCC client establishes its tunnel, it connects to "the nearest Public Service Edge" — but the actual selection signals are not laid out in any captured Zscaler documentation. Operators investigating routing surprises ("traffic landing on a far-away Service Edge despite a closer one being available") need to know:
+
+1. **Selection signals** — Anycast-based BGP, geo-IP lookup of the ZCC client public IP, latency probing from ZCC, datacenter exclusion lists, tenant-pinned-cloud assignments, or some combination?
+2. **Failover behavior** when the selected Service Edge is unhealthy or congested — automatic re-selection? How fast? Cached for some duration?
+3. **Manual override hierarchy** — admin-pinned Service Edge in App Profile / Forwarding Profile vs ZCC's auto-selection; what wins?
+4. **Subcloud interaction** — for tenants assigned to a specific subcloud (e.g., `zscloud.net` vs `zscaler.net`), does selection happen within the subcloud's edge set only, or can ZCC fall back to a parent-cloud edge?
+5. **Government cloud / Air-gapped cloud restrictions** — `zscalergov` and `zscalerten` likely have stricter edge-set boundaries; not documented.
+
+This affects two operational questions: "why is user X's traffic on Service Edge Y instead of Z?" and "what happens when the customer's preferred edge is in a known outage?".
+
+**Doc sweep 2026-05-06** (partial resolution):
+
+- `vendor/zscaler-help/what-is-zscaler-client-connector.md` § Service Edge Selection and Re-evaluation: ZCC "regularly checks whether the current Public Service Edge is still optimal." Triggers documented: regular intervals (duration unspecified), network change (e.g., user moves Wi-Fi), app or device restart. Override options exist (specifics not extracted).
+- `references/shared/cloud-architecture.md` explicitly states: "Zscaler's 'advanced geo-IP resolution' routes traffic to the nearest edge; the algorithm itself isn't customer-documented." This is the architectural confirmation that the gap is real and Zscaler-side rather than a doc-capture miss.
+- `vendor/zscaler-help/zscaler-resilience-marketing.md` mentions "dynamic service edge selection and customer-controlled data center exclusion" as the brownout/blackout mitigation — confirming both autonomous selection and a customer-override mechanism (DC exclusion) exist, but doesn't specify either.
+
+**Resolved by sweep**: trigger events that cause re-evaluation; existence of both autonomous and customer-override paths.
+
+**Still open after sweep**:
+
+- Specific selection signals (Anycast vs latency probe vs geo-IP — likely a combination but unweighted)
+- Re-evaluation interval duration
+- Failover timing on edge unhealth
+- DC exclusion mechanics — admin-portal location? Per-tenant or per-app-profile?
+- Subcloud and gov cloud edge-set boundaries
+
+**Resolves the rest with**: vendor doc on the selection algorithm or lab observation across forced failure scenarios. **Status**: partially resolved — 2026-05-06.
+
+---
+
+### shared-18 — End-to-end authentication timeline across the request chain
+
+*Origin: chain-coverage review 2026-05-06 — request flow phase 4 (Service Edge ingress + auth)*
+
+The skill has individual refs covering pieces of the auth timeline (`zia/authentication.md` for the auth gate and frequency model, `zia/locations.md` for surrogate IP, `shared/oneapi.md` for OAuth, ZIdentity refs for step-up) but no consolidated walk-through of when each event fires across a request's lifetime.
+
+**Doc sweep 2026-05-06** (partial resolution):
+
+`references/zia/authentication.md` already covers more than the original framing assumed:
+
+- **Auth-frequency enum is fully documented** with cookie semantics: `ALWAYS` (per browser session, cookie discarded at close), `DAILY_COOKIE` (1 day), `WEEKLY_COOKIE`, `MONTHLY_COOKIE`, `CUSTOM_FREQUENCY` (1–180 days via `authCustomFrequency`). Cited from `authentication_settings.py:41-42, 243`.
+- **Surrogate IP TTL fields documented**: `idle_time_in_minutes` (TTL for IP-to-user binding), `surrogate_refresh_time_in_minutes` (revalidation interval), `surrogate_refresh_time_unit` (`MINUTE` / `HOUR` / `DAY`), `surrogate_ip_enforced_for_known_browsers` (force browsers to also re-auth via cookie).
+- **Dependency rules** enforced at TF plan time: `surrogate_ip = true` requires `idle_time_in_minutes > 0` AND `auth_required = true`; `surrogate_ip_enforced_for_known_browsers = true` requires `surrogate_ip = true`.
+- **Cookie lifetime applies only to browser flows**: non-browser UAs can't follow SAML redirects; alternative paths (Kerberos, no-auth locations, pre-auth proxy) documented.
+
+**Resolved by existing refs**: auth-frequency enum and clock semantics (cookie expiry-based), surrogate IP TTL field names and dependency rules, browser-vs-non-browser flow split.
+
+**Still open after sweep**:
+
+1. **Surrogate IP `idle_time_in_minutes` clock anchor** — does the idle clock start at last activity (so any traffic from the IP within the window resets it), at first auth, or at some other event? Field name implies idle-based, but unconfirmed.
+2. **ZIdentity step-up trigger timing** — synchronous vs asynchronous when a mid-session request matches a `Conditional` URL Filter rule. (Significant for "why did the user see a step-up prompt right now" tickets.)
+3. **Cookie/token/IP auth-source decision tree** — when the Service Edge has multiple usable auth sources for the same request (ZCC tunnel auth + surrogate IP + SAML cookie), the precedence isn't documented.
+4. **Re-auth on traffic-forwarding-method transitions** — ZCC moving on-trusted → off-trusted mid-session: does existing auth state survive?
+
+**Resolves the rest with**: scripted reproduction (force trusted-network transition mid-session, force ZIdentity step-up, observe), or vendor support thread. **Status**: partially resolved — 2026-05-06.
+
+---
+
+### shared-19 — Modern HTTP response-side re-evaluation (HTTP/2, WebSocket, HTTP/3, streaming RPC)
+
+*Origin: chain-coverage review 2026-05-06 — request flow phase 9 (response path)*
+
+`shared/policy-evaluation.md` documents the ZIA web module pipeline order for HTTP GET, POST, and Response (per *Understanding Policy Enforcement* pp.3–9). The pipeline order assumes a classical request/response model. Modern HTTP behaviors are partially documented across multiple refs but not consolidated.
+
+**Doc sweep 2026-05-06** (substantial partial resolution):
+
+**HTTP/3 / QUIC** — `references/zia/saas-app-quirks.md` § 6 has the canonical answer:
+
+- ZIA's TLS inspection relies on TCP session state.
+- Under explicit-proxy forwarding, QUIC bypasses the proxy entirely.
+- Z-Tunnel-mode interaction:
+  - **Z-Tunnel 2.0** (packet-tunnel) captures UDP 443 — QUIC is intercepted at the tunnel layer.
+  - **Z-Tunnel 1.0** (HTTP CONNECT) does not capture UDP — QUIC traffic egresses outside the tunnel.
+- Zscaler's recommendation: **block QUIC at the firewall** so browsers fall back to TCP/TLS (which can then be inspected). Cited from *Leading Practices Guide* p.24, *CAC Deployment Guide* troubleshooting section, and `references/zia/ssl-inspection.md`.
+
+**HTTP/2** — `references/zia/ssl-inspection.md` documents:
+
+- **Per-rule `http2Enabled` toggle** on the SSL Inspection rule controls whether HTTP/2 inspection is enabled.
+- **Falls back to HTTP/1.1 for locations where Bandwidth Control is also enabled**, even if HTTP/2 is on in the SSL/TLS rule. Concrete operational gotcha.
+- Inspection capability exists; per-stream re-evaluation behavior not stated.
+
+**WebSocket** — `references/zia/dlp.md` § 5 has a sharply-scoped answer:
+
+- **WebSocket DLP inspection is Microsoft-Copilot-only.** The WebSocket protocol option for DLP inspection works exclusively for Microsoft Copilot. Adding WebSocket as a protocol expecting it to cover other WebSocket-heavy apps (Slack, Figma, Linear, Notion) yields **zero coverage** for those apps. WebSocket SSL/TLS DLP is similarly Copilot-only. Cited from *Configuring DLP Policy Rules and Content Inspection* line 166.
+
+**Resolved by sweep**:
+
+- QUIC handling end-to-end (recommendation: block at firewall; ZTunnel-mode interaction)
+- HTTP/2 enable toggle + Bandwidth Control fallback gotcha
+- WebSocket DLP scope (Copilot-only) — answers "does DLP see Slack/Figma WebSocket traffic" with a defensible "no"
+
+**Still open after sweep**:
+
+1. **HTTP/2 per-stream inspection** — when `http2Enabled=true`, is each stream re-evaluated against the response pipeline independently, or is the connection inspected once at upgrade? HPACK header decompression behavior at inspection time also unstated.
+2. **WebSocket inspection beyond DLP** — DLP is Copilot-only, but does URL Filter, Cloud App Control, Sandbox, or Malware Protection apply to WebSocket frames for *any* app? Or is the entire WebSocket pipeline post-upgrade L4-byte-forwarding except for the Copilot-DLP carveout?
+3. **gRPC / streaming RPC** — gRPC runs over HTTP/2 with binary protobuf framing. DLP-scannable? Treated as opaque bytes? No captured doc addresses this.
+4. **Server-Sent Events** (`text/event-stream`) — re-evaluated per event or one-time at connection?
+5. **Chunked transfer encoding** — does DLP accumulate chunks for full-payload analysis or scan per-chunk?
+
+**Resolves the rest with**: vendor doc (likely lives in help articles not yet captured) or controlled lab tests with known-payload WebSocket non-Copilot, HTTP/2 multi-stream, and gRPC traffic. **Status**: partially resolved — 2026-05-06.
 
 ---
 
