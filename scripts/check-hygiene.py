@@ -223,11 +223,6 @@ def check_frontmatter(path: Path) -> list[Finding]:
             required = REQUIRED_FRONTMATTER_AGENTS_ROLE
         else:
             required = REQUIRED_FRONTMATTER_AGENTS_CROSSCUT
-    elif path == REPO_ROOT / "zscaler":
-        # Repo-root ad-hoc surface (extensionless so `@zscaler` autocompletes
-        # cleanly in Cascade and Claude Code). Identity convention is
-        # role + artifact, same shape as agents/{role}/prompt.md.
-        required = REQUIRED_FRONTMATTER_AGENTS_ROLE
     else:
         required = REQUIRED_FRONTMATTER
 
@@ -559,8 +554,24 @@ ADAPTER_DIRS = [
 ADAPTER_KIND_TO_DIR = {
     "windsurf": REPO_ROOT / ".windsurf" / "workflows",
     "claude": REPO_ROOT / ".claude" / "commands",
+    # `root` is for ad-hoc surfaces invoked via @<role> — the file lives
+    # extensionless at REPO_ROOT/<role>, not under a kind-specific dir
+    # with a `z-` prefix. See adapter_path() for filename derivation.
+    "root": REPO_ROOT,
 }
 DEFAULT_ADAPTER_KINDS = ["windsurf", "claude"]
+
+
+def adapter_path(kind: str, role: str) -> Path:
+    """Derive the adapter file path for a (kind, role) pair.
+
+    `windsurf` and `claude` use the convention `{dir}/z-{role}.md`.
+    `root` uses extensionless `REPO_ROOT/{role}` so `@<role>` autocompletes
+    cleanly without a `.md` tail.
+    """
+    if kind == "root":
+        return REPO_ROOT / role
+    return ADAPTER_KIND_TO_DIR[kind] / f"z-{role}.md"
 
 
 def check_agent_dependencies(path: Path) -> list[Finding]:
@@ -700,7 +711,7 @@ def check_adapter_coverage() -> list[Finding]:
                 )
                 continue
 
-            adapter = ADAPTER_KIND_TO_DIR[kind] / f"z-{role}.md"
+            adapter = adapter_path(kind, role)
             if not adapter.exists():
                 findings.append(
                     Finding(
@@ -767,11 +778,6 @@ def run_all_checks(strict: bool = False) -> list[Finding]:
         + [
             p for p in AGENTS.rglob("*.md") if AGENTS.exists()
         ]
-        + (
-            [REPO_ROOT / "zscaler"]
-            if (REPO_ROOT / "zscaler").exists()
-            else []
-        )
     )
 
     for path in md_files:

@@ -44,8 +44,23 @@ EVALS_FILE = REPO_ROOT / "references" / "_meta" / "evals" / "workflow-evals.json
 ADAPTER_KIND_TO_DIR = {
     "windsurf": REPO_ROOT / ".windsurf" / "workflows",
     "claude": REPO_ROOT / ".claude" / "commands",
+    # `root` is for ad-hoc surfaces invoked via @<role> — the file lives
+    # extensionless at REPO_ROOT/<role>, not under a kind-specific dir
+    # with a `z-` prefix. See adapter_path() for filename derivation.
+    "root": REPO_ROOT,
 }
 DEFAULT_ADAPTER_KINDS = ["windsurf", "claude"]
+
+
+def adapter_path(kind: str, role: str) -> Path:
+    """Derive the adapter file path for a (kind, role) pair.
+
+    Mirrors check-hygiene.py's adapter_path() — `windsurf` and `claude`
+    use `{dir}/z-{role}.md`; `root` uses extensionless `REPO_ROOT/{role}`.
+    """
+    if kind == "root":
+        return REPO_ROOT / role
+    return ADAPTER_KIND_TO_DIR[kind] / f"z-{role}.md"
 
 FRONTMATTER_RE = re.compile(r"^---\n(.*?)\n---", re.DOTALL)
 
@@ -133,7 +148,7 @@ def check_prompt(prompt: Path, schemas: dict) -> list[Finding]:
                 )
             )
             continue
-        adapter = ADAPTER_KIND_TO_DIR[kind] / f"z-{role}.md"
+        adapter = adapter_path(kind, role)
         if adapter.exists():
             adapter_contents.append(adapter.read_text(encoding="utf-8", errors="replace"))
     combined = body + "\n" + "\n".join(adapter_contents)
@@ -178,18 +193,11 @@ def main() -> int:
     schemas = load_schemas()
     findings: list[Finding] = []
 
-    prompts: list[Path] = []
-    if AGENTS.exists():
-        prompts.extend(AGENTS.rglob("prompt.md"))
-    zscaler_prompt = REPO_ROOT / "zscaler"
-    if zscaler_prompt.exists():
-        prompts.append(zscaler_prompt)
-
-    if not prompts:
-        print("no eval-shape-bearing prompts found — nothing to check")
+    if not AGENTS.exists():
+        print("agents/ not present — nothing to check")
         return 0
 
-    for prompt in sorted(prompts):
+    for prompt in sorted(AGENTS.rglob("prompt.md")):
         findings.extend(check_prompt(prompt, schemas))
 
     if not findings:
