@@ -120,7 +120,7 @@ Skim this before reading the full entries.
 
 Partial / SDK-mined (resolved via code read or help-doc capture; full lab confirmation pending): `zcc-01`, `zcc-02`, `zcc-03`, `zcc-04`, `zcc-05`, `zcc-06`, `zcc-07`, **`log-04`** (field name + illustrative values confirmed via `web-log-schema.md`; full enum of `ruletype` / `reason` values still needs a tenant export). All six ZCC enum clarifications had their **datatype** (int vs string) resolved by the Go SDK cross-check on 2026-04-24; the integer-to-meaning mapping remains open for `zcc-01` through `zcc-04` and `zcc-06`.
 
-`shared-17`, `shared-18`, `shared-19` — partially resolved by 2026-05-06 doc sweep. Each has substantial existing-doc backing (Service Edge re-evaluation triggers; ZIA auth-frequency + surrogate-IP TTL fields and dependency rules; QUIC handling with ZTunnel-mode interaction, HTTP/2 enable toggle + Bandwidth Control fallback, WebSocket DLP Copilot-only carveout). The remaining sub-questions are narrower: selection-signal weighting, surrogate IP clock anchor, ZIdentity step-up sync/async timing, HTTP/2 per-stream re-evaluation, WebSocket non-DLP inspection coverage.
+`shared-17`, `shared-18`, `shared-19` — partially resolved by 2026-05-06 doc sweep (refined further the same day). Existing-doc backing now covers: Service Edge re-evaluation triggers + **subcloud override mechanics fully resolved** via `references/shared/subclouds.md`; ZIA auth-frequency + surrogate-IP TTL fields and dependency rules + **ZIdentity step-up timing fully resolved** as synchronous via `vendor/zscaler-help/understanding-step-up-authentication-zidentity.md`; QUIC handling with ZTunnel-mode interaction, HTTP/2 enable toggle + Bandwidth Control fallback, WebSocket DLP Copilot-only carveout. The remaining sub-questions narrowed substantially: selection-signal weighting and DC-exclusion mechanics (shared-17), surrogate IP clock anchor + auth-source decision tree + trusted-network-transition behavior (shared-18), HTTP/2 per-stream re-evaluation + WebSocket non-DLP inspection coverage + gRPC/SSE/chunked behavior (shared-19).
 
 ---
 
@@ -1914,18 +1914,29 @@ This affects two operational questions: "why is user X's traffic on Service Edge
 - `vendor/zscaler-help/what-is-zscaler-client-connector.md` § Service Edge Selection and Re-evaluation: ZCC "regularly checks whether the current Public Service Edge is still optimal." Triggers documented: regular intervals (duration unspecified), network change (e.g., user moves Wi-Fi), app or device restart. Override options exist (specifics not extracted).
 - `references/shared/cloud-architecture.md` explicitly states: "Zscaler's 'advanced geo-IP resolution' routes traffic to the nearest edge; the algorithm itself isn't customer-documented." This is the architectural confirmation that the gap is real and Zscaler-side rather than a doc-capture miss.
 - `vendor/zscaler-help/zscaler-resilience-marketing.md` mentions "dynamic service edge selection and customer-controlled data center exclusion" as the brownout/blackout mitigation — confirming both autonomous selection and a customer-override mechanism (DC exclusion) exist, but doesn't specify either.
+- **Subcloud interaction is fully resolved** by `references/shared/subclouds.md` (Tier A, sourced from `vendor/zscaler-help/understanding-subclouds.md`):
+  - **Default Zscaler PSE selection is geolocation-based** — explicit statement in `subclouds.md`.
+  - **Subclouds OVERRIDE default geolocation selection entirely** — they restrict the eligible edge set to a named subset; geolocation no longer applies once a subcloud is in effect.
+  - **Constraint**: a subcloud cannot consist of PSEs in a single data center (≥ 2 DCs required for availability).
+  - **Mechanism**: clients resolve subcloud-qualified hosted-PAC variables (e.g., `gateway.subcloud.zscaler.net`) — there is no "preferred region" toggle separate from the subcloud abstraction.
+  - **Reasons**: GDPR/data-residency, private-DC-enforcement, surcharge-region opt-in.
 
-**Resolved by sweep**: trigger events that cause re-evaluation; existence of both autonomous and customer-override paths.
+**Resolved by sweep**:
+
+- Trigger events that cause re-evaluation (regular intervals + network change + app/device restart).
+- Existence of both autonomous and customer-override paths.
+- **Subcloud-vs-default behavior** — subclouds REPLACE default geolocation selection within the subcloud's edge set; not a tie-break, not a preference, full override.
+- Subcloud minimum-DC constraint (≥ 2 DCs).
 
 **Still open after sweep**:
 
-- Specific selection signals (Anycast vs latency probe vs geo-IP — likely a combination but unweighted)
-- Re-evaluation interval duration
-- Failover timing on edge unhealth
-- DC exclusion mechanics — admin-portal location? Per-tenant or per-app-profile?
-- Subcloud and gov cloud edge-set boundaries
+- Specific selection signals within the eligible edge set (Anycast vs latency probe vs geo-IP — likely a combination but unweighted).
+- Re-evaluation interval duration.
+- Failover timing on edge unhealth.
+- DC-exclusion mechanism details — admin-portal location, per-tenant or per-app-profile, interaction with subclouds.
+- Government cloud (`zscalergov`, `zscalerten`) edge-set restrictions — likely stricter than commercial subcloud rules but unverified.
 
-**Resolves the rest with**: vendor doc on the selection algorithm or lab observation across forced failure scenarios. **Status**: partially resolved — 2026-05-06.
+**Resolves the rest with**: vendor doc on the selection algorithm and DC-exclusion mechanism, or lab observation across forced failure scenarios. **Status**: partially resolved — 2026-05-06.
 
 ---
 
@@ -1946,14 +1957,21 @@ The skill has individual refs covering pieces of the auth timeline (`zia/authent
 
 **Resolved by existing refs**: auth-frequency enum and clock semantics (cookie expiry-based), surrogate IP TTL field names and dependency rules, browser-vs-non-browser flow split.
 
+**Step-up timing — resolved 2026-05-06** by `vendor/zscaler-help/understanding-step-up-authentication-zidentity.md`:
+
+The step-up flow is **synchronous on the access attempt**:
+
+> When the user attempts to access a high-sensitivity resource (as defined by policies in Internet & SaaS or Private Access), ZIdentity checks the required authentication level. If the user's current authentication level is insufficient (e.g., they logged in with a basic password), ZIdentity prompts the user to reauthenticate, typically using MFA via Zscaler Client Connector. After the user successfully authenticates with the required level, access is granted.
+
+So the request blocks until the user completes the higher-AL authentication. The flow: user attempts access → ZIdentity AL check → if insufficient → prompt via ZCC → user MFA → access granted. Constraint: **OIDC-only** (SAML IdPs do not support step-up). The cross-link in `references/zidentity/step-up-authentication.md` already captures this; updated this clarification to point at the full vendor source.
+
 **Still open after sweep**:
 
 1. **Surrogate IP `idle_time_in_minutes` clock anchor** — does the idle clock start at last activity (so any traffic from the IP within the window resets it), at first auth, or at some other event? Field name implies idle-based, but unconfirmed.
-2. **ZIdentity step-up trigger timing** — synchronous vs asynchronous when a mid-session request matches a `Conditional` URL Filter rule. (Significant for "why did the user see a step-up prompt right now" tickets.)
-3. **Cookie/token/IP auth-source decision tree** — when the Service Edge has multiple usable auth sources for the same request (ZCC tunnel auth + surrogate IP + SAML cookie), the precedence isn't documented.
-4. **Re-auth on traffic-forwarding-method transitions** — ZCC moving on-trusted → off-trusted mid-session: does existing auth state survive?
+2. **Cookie/token/IP auth-source decision tree** — when the Service Edge has multiple usable auth sources for the same request (ZCC tunnel auth + surrogate IP + SAML cookie), the precedence isn't documented.
+3. **Re-auth on traffic-forwarding-method transitions** — ZCC moving on-trusted → off-trusted mid-session: does existing auth state survive?
 
-**Resolves the rest with**: scripted reproduction (force trusted-network transition mid-session, force ZIdentity step-up, observe), or vendor support thread. **Status**: partially resolved — 2026-05-06.
+**Resolves the rest with**: scripted reproduction (force trusted-network transition mid-session, observe whether re-auth fires; load-test surrogate IP at varying activity intervals to confirm idle-clock semantics), or vendor support thread. **Status**: partially resolved — 2026-05-06 (step-up timing now resolved; auth-source decision tree and trusted-network-transition behavior remain).
 
 ---
 
