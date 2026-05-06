@@ -4,6 +4,22 @@ description: "Start an evidence-based troubleshooting investigation — parse fr
 
 # /z-investigator
 
+## Required reads — do these now, in order
+
+<!-- adapter-deps:start -->
+1. **Use your file-read tool to load `agents/investigator/prompt.md`.** Canonical playbook — First Response procedure, evidence discipline, hypothesis register format.
+2. **Use your file-read tool to load `agents/investigator/methodology.md`.** Discovery journal discipline, claim status, anti-patterns.
+3. **Use your file-read tool to load `agents/investigator/bundles.md`.** Query bundle template for repeated investigation patterns.
+4. **Use your file-read tool to load `agents/siem-emission-discipline.md`.** SIEM emission modes, public/private boundary.
+5. **Use your file-read tool to load `agents/tenant-schema-derivation.md`.** Canonical-vs-tenant schema derivation.
+6. **Use your file-read tool to load `agents/loading-discipline.md`.** Stage announcements for I/O-driven pauses.
+7. **Use your file-read tool to load `agents/clarification-pattern.md`.** Multiple-choice with free-text escape for closed-set decisions.
+<!-- adapter-deps:end -->
+
+All paths are relative to the Zscaler skill repo root. **Do not respond until all files are loaded.** Then follow the per-step procedure below.
+
+---
+
 ## Procedure model
 
 This workflow has three sequential steps. **Each step's input is the prior step's confirmed output.** You cannot run a step without the prior step's output AND explicit user confirmation. At each checkpoint, halt and wait for the user — do not assume confirmation, do not improvise past a checkpoint, do not run a step without the input it depends on.
@@ -96,10 +112,14 @@ Rule of thumb: if it would lose meaning or readability outside monospace (banner
 
 ### Step 1 turn
 
-<!-- adapter-deps:start -->
+The literal output structure (outer 4-backtick fence is just spec markup so the inner fences display; do NOT emit the outer fence in your turn — emit the inner fences and plain-markdown sections as shown):
+
+````
 ```
 ═══ STEP 1 — PARSE FRAMING ═══
+```
 
+```
 PARSED FRAMING:
   Symptom:                <what's failing>
   Tenant cloud:           <zs1/zs2/zs3 or "not specified">
@@ -108,7 +128,9 @@ PARSED FRAMING:
   Recency:                <when first observed, or "not specified">
   Working directory:      <absolute path of repo root, or "unknown — needs user confirmation">
   User-flagged specifics: <every backticked token from framing, verbatim, comma-separated; or "none">
+```
 
+```
 PROPOSED LOADS (Step 2A — docs only):
   - agents/investigator/prompt.md
   - agents/investigator/methodology.md
@@ -118,11 +140,15 @@ PROPOSED LOADS (Step 2A — docs only):
   - agents/loading-discipline.md
   - agents/clarification-pattern.md
   - <product references from the framing→file mapping that match>
+```
 
 CLARIFICATIONS:
   1. I assumed <X> — confirm or correct?
   2. <additional questions if framing has gaps; mandatory log-collection question; mandatory working-directory question if "unknown">
 
+JOURNAL CREATED: <working-dir>/_data/incidents/<slug>/journal.md
+
+```
 ═══ CHECKPOINT 1 — AWAITING USER ═══
   go               — load proposed files (run Step 2)
   correct: <field> — revise PARSED FRAMING + PROPOSED LOADS
@@ -130,7 +156,7 @@ CLARIFICATIONS:
   clarify: <q>     — answer before continuing
 ═══════════════════════════════════════
 ```
-<!-- adapter-deps:end -->
+````
 
 ### Step 2 turn
 
