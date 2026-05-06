@@ -116,7 +116,7 @@ Skim this before reading the full entries.
 
 ### Open
 
-`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-45`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-19`, `log-03`, `log-05`–`log-17`, `shared-06`, `shared-07`–`shared-16`, `zcc-08`–`zcc-75`.
+`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-45`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-19`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `zcc-08`–`zcc-75`.
 
 Partial / SDK-mined (resolved via code read or help-doc capture; full lab confirmation pending): `zcc-01`, `zcc-02`, `zcc-03`, `zcc-04`, `zcc-05`, `zcc-06`, `zcc-07`, **`log-04`** (field name + illustrative values confirmed via `web-log-schema.md`; full enum of `ruletype` / `reason` values still needs a tenant export). All six ZCC enum clarifications had their **datatype** (int vs string) resolved by the Go SDK cross-check on 2026-04-24; the integer-to-meaning mapping remains open for `zcc-01` through `zcc-04` and `zcc-06`.
 
@@ -1092,6 +1092,104 @@ ZIA SaaS Security / API CASB logs are organized into eight application categorie
 This is high-leverage because every parser of this feed must know the discriminator before extracting category-specific fields. Without it, a SIEM parser either has to (a) try every possible field name and accept many empties, or (b) infer category from `appname` via lookup table — which becomes stale as new SaaS apps are added.
 
 **Resolves with**: tenant CASB feed sample (one record from each category) plus vendor confirmation of the discriminator field name. The eight per-category column captures already noted in `casb-log-schema.md` Open questions are the prerequisite material. **Status**: open — 2026-05-06.
+
+---
+
+### log-18 — Microseg `EnforcementReason` × `EnforcementAction` × `EnforcementDisposition` triple semantics
+
+*Origin: `references/zpa/logs/microsegmentation-flow-log-schema.md` § What the spec underspecifies*
+
+The ZPA Microsegmentation Flow log carries three enforcement-related fields, each with explicit enums:
+
+- `EnforcementReason`: `POLICY_DISABLED`, `RULE`, `NO_POLICY_EXISTS`, `FORCED`
+- `EnforcementAction`: `ALLOW`, `BLOCK`, `SIMBLOCK`
+- `EnforcementDisposition`: `UNKNOWN`, `CONNECTED`, `REJECTED`, `DROPPED`
+
+The individual enums are documented but the **combinations** are not. Specific gaps:
+
+1. `EnforcementReason=POLICY_DISABLED` + `EnforcementAction=BLOCK` + `EnforcementDisposition=CONNECTED` — does this mean monitor-mode-block-would-have-fired-but-allowed? Or different combination of states?
+2. `EnforcementReason=NO_POLICY_EXISTS` + `EnforcementDisposition=DROPPED` — implicit-deny default behavior, or dropped for an unrelated reason (network failure, host firewall, etc.)?
+3. `EnforcementAction=SIMBLOCK` paired with `EnforcementDisposition=DROPPED` or `REJECTED` — when does this happen? SIMBLOCK should imply CONNECTED.
+4. Does `EnforcementDisposition=UNKNOWN` indicate a transient/incomplete record, or a specific operational state?
+5. **Aggregation interaction**: when multiple connections sharing a 4-tuple aggregate (per `SourcePorts` field), do all aggregated connections need to share the same `EnforcementAction` to be aggregated into one record, or can mixed-disposition connections appear?
+
+For SIEM rules detecting "what was actually blocked" vs "what would have been blocked in enforce mode," the safest filter is unclear without disambiguating these combinations.
+
+**Resolves with**: tenant test in monitor mode with deliberately-triggered block-eligible flows; observe field combinations across `EnforcementReason × EnforcementAction × EnforcementDisposition`. Plus vendor doc confirming the meaning of each combination. **Status**: open — 2026-05-06.
+
+---
+
+### log-19 — User Status record granularity and byte counter timing
+
+*Origin: `references/zpa/logs/user-status-log-schema.md` § What the spec underspecifies*
+
+ZPA User Status logs carry `SessionStatus` with three values (`ZPN_STATUS_AUTHENTICATED`, `ZPN_STATUS_AUTH_FAILED`, `ZPN_STATUS_DISCONNECTED`) and per-session byte counters (`TotalBytesRx` / `TotalBytesTx`). The vendor docs don't state:
+
+1. **Record granularity per session lifecycle** — does each session generate one record per status (so a normal login-then-logout produces an AUTHENTICATED record AND a DISCONNECTED record) or one consolidated record with status reflecting the latest state? This determines whether SIEM dashboards counting "authenticated sessions" should match `SessionStatus=AUTHENTICATED` exactly, or should deduplicate by SessionID.
+2. **Byte counter population timing** — `TotalBytesRx` / `TotalBytesTx` description says "Total bytes received during the session" but doesn't say when the values are populated. Only on DISCONNECTED records (final tallies)? On every record (running totals at time of emission)? On periodic emissions during the session?
+3. **`TimestampUnAuthentication` on AUTHENTICATED records** — populated only on DISCONNECTED records (= disconnect time), or always present (e.g., as expected-expiry on AUTHENTICATED)?
+4. **AUTH_FAILED record byte counters** — does an AUTH_FAILED record have `TotalBytes*` populated (likely zero), or are those fields absent?
+
+**Resolves with**: tenant LSS receiver capture across a known session lifecycle (login → activity → idle → logout) with timestamps; observe per-session record cardinality and field population at each event. **Status**: open — 2026-05-06.
+
+---
+
+### log-20 — Browser Access `ConnectionStatus` / `ConnectionReason` enum completeness
+
+*Origin: `references/zpa/logs/browser-access-log-schema.md` § What the spec underspecifies*
+
+ZPA Browser Access logs have:
+
+- `ConnectionStatus` — example value `SUCCESS`, the existing ref lists `SUCCESS` and `FAILED` as illustrative
+- `ConnectionReason` — described as "Internal reason code when a connection fails or is blocked," no example values
+
+Neither field's full enum is documented. SIEM rules that route on specific failure types (auth failures, backend unreachable, policy block, certificate validation failure, idle timeout) need the full enum to filter precisely. Without it, alert rules either match too broadly (any non-SUCCESS) or risk missing valid failure modes.
+
+Cross-link: byte-counter perspective and compression questions filed for ZIA web logs ([`log-09`](#log-09--byte-counter-perspective-and-compressionconnect-semantics)) and ZPA User Activity logs ([`zpa-17`](#zpa-17--delta-vs-total-byte-counter-reset-semantics)) likely apply here too.
+
+**Resolves with**: tenant test triggering varied failure conditions (intentionally-bad backend, intentionally-blocked-by-policy URL, intentionally-expired session, intentionally-failed-cert backend) and observe `ConnectionStatus` / `ConnectionReason` value combinations. Plus vendor doc on the full enum. **Status**: open — 2026-05-06.
+
+---
+
+### log-21 — ZCC `log_level` vs `log_mode` relationship
+
+*Origin: `references/zcc/logs/zcc-log-schema.md` § SDK and API surface for log configuration*
+
+The ZCC `WebPolicy` (App Profile) SDK object exposes two seemingly-related but-undocumented-in-relationship fields:
+
+- `log_level` (wire key `logLevel`) — described as "Log level at the policy layer"
+- `log_mode` (wire key `logMode`) — accepts `Error`, `Warn`, `Info`, `Debug`
+
+The ref body explicitly flags this: "Relationship to `logMode` not fully resolved — may be the same concept with different naming across API/UI layers." The SDK source doesn't clarify, the help portal docs don't clarify either. Possible interpretations:
+
+1. **Same concept, different name**: `logLevel` is API-side legacy and `logMode` is UI-aligned current. Setting one mirrors the other; the API accepts both for backward compatibility.
+2. **Distinct settings with composition**: `logLevel` controls some subset (e.g., authentication subsystem only) while `logMode` controls another (e.g., everything else). Combined effect is intersection / union / max.
+3. **Layered**: `logLevel` is a coarse cap (e.g., max verbosity allowed by App Privacy controls), `logMode` is the active value.
+
+This affects automation that tries to set ZCC to a specific verbosity programmatically — operators need to know whether to set both, just one, or one specific to UI vs API path.
+
+**Resolves with**: SDK behavior test — set `logLevel` and `logMode` to different values, observe what ZCC actually logs at, plus what the App Profile UI displays. Plus vendor SDK clarification. **Status**: open — 2026-05-06.
+
+---
+
+### log-22 — Cloud Connector `Status` flags and `UpgradeStatus` codes
+
+*Origin: `references/cloud-connector/logs/log-schema.md` § SDK/API state fields*
+
+The Go SDK `ECVMs` struct (`vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go`) exposes per-VM observability fields including:
+
+- `Status []string` — "Per-VM status flags" — slice of strings, but enum/value space undocumented
+- `UpgradeStatus int` — "Current upgrade state (0 = current; non-zero = in-progress or failed; exact codes undocumented)"
+
+For monitoring automation polling these fields, enum semantics matter:
+
+1. **`Status` flag set** — what flags exist? Are they health flags (`HEALTHY`, `DEGRADED`), tunnel flags (`ZIA_OK`, `ZPA_OK`), upgrade flags (`UPGRADING`), or a mix? Are flags additive (multiple coexist on a healthy VM) or mutually exclusive?
+2. **`UpgradeStatus` int → meaning** — `0` = current, but what do `1`, `2`, `3`, etc. represent? In-progress, failed, rollback-in-progress, requires-manual-action? Without the mapping, alerting on non-zero is too broad to be actionable.
+3. **Relationship to `OperationalStatus`** — `OperationalStatus` is `Active` / `Inactive` / `Disabled`. How does that interact with the `Status` flags? E.g., is `Active` + `Status=[DEGRADED]` a valid combination?
+
+For SIEM dashboards correlating CC health to traffic anomalies, knowing what each status code means is essential. Without it, dashboards either alert on every non-zero (noisy) or alert on nothing (missed signals).
+
+**Resolves with**: SDK behavior observation across known CC states (healthy, mid-upgrade, post-upgrade-failure) plus vendor doc on the value spaces. **Status**: open — 2026-05-06.
 
 ---
 

@@ -3,7 +3,7 @@ product: zpa
 topic: "_data/logs/microsegmentation-flow-log-schema"
 title: "ZPA LSS Microsegmentation Flow log — field reference"
 content-type: reference
-last-verified: "2026-04-28"
+last-verified: "2026-05-06"
 confidence: high
 source-tier: doc
 sources:
@@ -104,6 +104,24 @@ index=$INDEX_ZPA_MICROSEG EnforcementAction=SIMBLOCK earliest=-7d
 | sort -sim_blocked
 | rename sim_blocked as "Would-Be Blocks"
 ```
+
+## What the spec underspecifies — don't infer
+
+The three enforcement-related fields (`EnforcementReason`, `EnforcementAction`, `EnforcementDisposition`) each have explicit enums, but the **combinations** across the three are not documented. An operator (or agent) reading a record where all three populate has to infer what the combination means, and the inference can be wrong.
+
+Examples of combinations the spec doesn't disambiguate:
+
+- `EnforcementReason=POLICY_DISABLED` + `EnforcementAction=BLOCK` + `EnforcementDisposition=CONNECTED` — does this mean "policy is in monitor mode, the matched rule says BLOCK, but because monitor mode the flow was allowed"? Or something else?
+- `EnforcementReason=NO_POLICY_EXISTS` + `EnforcementDisposition=DROPPED` — implicit-deny default? Or unrelated drop reason (network failure, host firewall)?
+- `EnforcementAction=SIMBLOCK` + `EnforcementDisposition=CONNECTED` — both describe a "would-be block in simulation mode" but is `SIMBLOCK` ever paired with `DROPPED`/`REJECTED`? If so, when?
+
+Plus the relationship between aggregated flows and these fields is unclear: when multiple connections share a 4-tuple and aggregate (per `SourcePorts` field description), do all aggregated connections need to share the same `EnforcementAction` to be aggregated, or can mixed-disposition connections appear in one record?
+
+See [`log-18`](../../_meta/clarifications.md#log-18--microseg-enforcementreason-action-disposition-triple-semantics).
+
+## Open questions
+
+- `EnforcementReason` × `EnforcementAction` × `EnforcementDisposition` triple combination semantics — [clarification `log-18`](../../_meta/clarifications.md#log-18--microseg-enforcementreason-action-disposition-triple-semantics)
 
 ## Cross-links
 

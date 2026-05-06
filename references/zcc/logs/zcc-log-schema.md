@@ -3,7 +3,7 @@ product: zcc
 topic: "zcc-log-schema"
 title: "ZCC diagnostic and activity log schema — local endpoint logs"
 content-type: reference
-last-verified: "2026-04-28"
+last-verified: "2026-05-06"
 confidence: medium
 source-tier: doc
 sources:
@@ -195,6 +195,22 @@ On ZCC before 2.1.2 (Windows/macOS): exported logs are always encrypted; users c
 ZCC logs connection-level events. ZIA NSS logs transaction-level events. A single ZCC "tunnel established" log entry may correspond to 50+ ZIA web transaction records (one per HTTP/2 stream). Investigating a user complaint using only ZCC logs produces a dramatically less granular picture than the ZIA NSS feed. Always pull the ZIA-side logs for URL-level investigation.
 
 ---
+
+## Open questions
+
+The ref body already flags several Tier B/C/D items honestly. The most material item not yet tracked as a clarification:
+
+- `log_level` (`logLevel`) vs `log_mode` (`logMode`) — the SDK exposes both; their relationship is unresolved (same concept renamed across API/UI layers, or distinct settings with different effects). [Clarification `log-21`](../../_meta/clarifications.md#log-21--zcc-log_level-vs-log_mode-relationship).
+
+Other items the ref body flags but does not file as clarifications (lighter-weight, not formally tracked):
+
+- Default `logFileSize` and rotation count not in available captures
+- Platform-specific log file paths (Windows / macOS / Linux) not documented
+- `WindowsPolicy.flowLoggerConfig` relationship to main operational log not confirmed
+- macOS Unified Logging (OSLog) integration not confirmed
+- Linux journald/syslog integration not confirmed
+
+Promote any of the above to formal clarifications if they begin gating real work.
 
 ## Cross-links
 

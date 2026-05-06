@@ -3,7 +3,7 @@ product: zpa
 topic: "_data/logs/browser-access-log-schema"
 title: "ZPA LSS Browser Access log — field reference"
 content-type: reference
-last-verified: "2026-04-28"
+last-verified: "2026-05-06"
 confidence: high
 source-tier: doc
 sources:
@@ -141,6 +141,21 @@ index=$INDEX_ZPA_BA earliest=-30m
 | sort -count
 | table Host status_class count pct
 ```
+
+## What the spec underspecifies — don't infer
+
+Two fields where the example value gives a hint at the enum but the full set is undocumented:
+
+- **`ConnectionStatus`** — example shows `SUCCESS`, the doc lists `SUCCESS, FAILED` as illustrative. The full enum (intermediate states like in-progress, timeout, redirect, partial-success) is not stated.
+- **`ConnectionReason`** — described as "Internal reason code when a connection fails or is blocked" with no example values. For SIEM rules routing on specific failure types (auth failures vs backend unreachable vs policy-block), the full enum is necessary.
+
+See [`log-20`](../../_meta/clarifications.md#log-20--browser-access-connectionstatus--connectionreason-enum-completeness).
+
+The byte-counter and SSL-decryption-perspective questions documented for ZPA User Activity logs ([`zpa-17`](../../_meta/clarifications.md#zpa-17--delta-vs-total-byte-counter-reset-semantics)) and ZIA web logs ([`log-09`](../../_meta/clarifications.md#log-09--byte-counter-perspective-and-compressionconnect-semantics)) likely apply here too — `RequestSize` / `ResponseSize` measurement point and compression handling are not specified.
+
+## Open questions
+
+- `ConnectionStatus` and `ConnectionReason` enum completeness — [clarification `log-20`](../../_meta/clarifications.md#log-20--browser-access-connectionstatus--connectionreason-enum-completeness)
 
 ## Cross-links
 

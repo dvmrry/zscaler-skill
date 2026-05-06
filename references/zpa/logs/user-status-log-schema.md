@@ -3,7 +3,7 @@ product: zpa
 topic: "zpa-user-status-log-schema"
 title: "ZPA User Status log schema (LSS User Status log fields)"
 content-type: reference
-last-verified: "2026-04-28"
+last-verified: "2026-05-06"
 confidence: high
 source-tier: doc
 sources:
@@ -249,7 +249,20 @@ Cross-check `PosturesMiss` values against the policy configured under **Policy >
 - Cross-product device posture reference — [`../../shared/device-posture.md`](../../shared/device-posture.md)
 - ZCC log schema (client-side counterpart) — [`../../zcc/logs/zcc-log-schema.md`](../../zcc/logs/zcc-log-schema.md)
 
+## What the spec underspecifies — don't infer
+
+`SessionStatus` has three explicit enum values (`ZPN_STATUS_AUTHENTICATED`, `ZPN_STATUS_AUTH_FAILED`, `ZPN_STATUS_DISCONNECTED`) but the spec doesn't state:
+
+1. **Record granularity per session** — does each session generate one record per status (so a normal session emits an AUTHENTICATED record on auth, then a separate DISCONNECTED record on logout) or one consolidated record per session (status reflects the latest state at the time of the record)?
+2. **`TotalBytesRx` / `TotalBytesTx` timing** — when are byte counters populated? Only on `DISCONNECTED` records (final tallies)? On every status record (running totals)? On periodic emissions during the session?
+3. **`TimestampUnAuthentication` semantics on AUTHENTICATED records** — populated only on disconnect, or always present (e.g., at expected session expiry)?
+
+Operators correlating session lifecycle from these logs can readily mis-infer record cardinality (e.g., assume one record per session when actually multiple are emitted, leading to over-counting).
+
+See [`log-19`](../../_meta/clarifications.md#log-19--user-status-record-granularity-and-byte-counter-timing).
+
 ## Open questions
 
+- `SessionStatus` record granularity and byte counter timing — [clarification `log-19`](../../_meta/clarifications.md#log-19--user-status-record-granularity-and-byte-counter-timing)
 - Whether `$INDEX_ZPA_STATUS` and `$INDEX_ZPA` are always separate in practice, or whether LSS receivers commonly co-index all LSS log types — depends on customer LSS receiver deployment.
 - The exact `SessionStatus` values when a ZPA Private Service Edge (PSE) terminates a session vs. a Public Service Edge — the PDF description uses "Public Service Edge or Private Service Edge" without distinguishing the value.

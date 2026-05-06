@@ -3,7 +3,7 @@ product: cloud-connector
 topic: "cc-log-schema"
 title: "Cloud Connector log fields and access methods"
 content-type: reference
-last-verified: "2026-04-28"
+last-verified: "2026-05-06"
 confidence: medium
 source-tier: doc
 sources:
@@ -267,6 +267,24 @@ If the Log & Control Forwarding gateway becomes unreachable, CC continues forwar
 The NSS firewall log aggregation behavior applies to CC session logs. When sessions are aggregated (`%s{aggregate} = Yes`), client source port, server port, and IP values reflect only the **last session** in the aggregate. Per-session detail is lost. For investigations requiring per-connection granularity, use shorter time windows to reduce aggregation.
 
 ---
+
+## Open questions
+
+CC NSS feed uses the ZIA firewall log schema, so the firewall clarifications apply transitively:
+
+- Aggregate session semantics — [clarification `log-11`](../../_meta/clarifications.md#log-11--firewall-aggregate-session-semantics)
+- `action` precedence across FW + IPS + DNAT — [clarification `log-12`](../../_meta/clarifications.md#log-12--firewall-action-precedence-across-fw-ips-dnat)
+- `nwapp` vs `nwsvc` relationship — [clarification `log-13`](../../_meta/clarifications.md#log-13--firewall-nwapp-vs-nwsvc-relationship)
+
+CC-specific gaps in the SDK state surface (`ECVMs`):
+
+- `Status []string` per-VM flag enum and `UpgradeStatus` int code mapping — both are SDK-readable but the value spaces are not documented in available captures. [Clarification `log-22`](../../_meta/clarifications.md#log-22--cloud-connector-status-flags-and-upgradestatus-codes).
+
+Other items the ref body flags but does not file as formal clarifications:
+
+- No raw log download API for Insights data confirmed (Tier D — absence of evidence)
+- Tunnel Insights metrics (DPD / Received / Sent bytes) — no NSS feed equivalent confirmed; whether the byte counts in Tunnel Insights match `inbytes`/`outbytes` from NSS-firewall records for the same sessions is unverified
+- Insights session/DNS/tunnel time-window aggregation behavior at multi-day scale (UI says aggregates per day, exact semantics undocumented)
 
 ## Cross-links
 
