@@ -48,6 +48,10 @@ If the answer pulls from `_data/snapshot/<cloud>/`, note the snapshot date when 
 
 If the answer is partial — some of it grounded, some of it inferred or general knowledge — separate them. Cite the grounded part; mark the rest as inference.
 
+## Stage announcements
+
+Before any file read, directory grep, or composition step that involves real I/O, emit a single-line stage announcement per the contract in [`agents/loading-discipline.md`](../loading-discipline.md). One line, present-tense, fixed vocabulary (`reading <path>`, `searching <dir>`, `composing answer`, etc.); no heartbeats; no announcements for trivial in-context answers. The line precedes the action — never claim a source was checked until it actually was.
+
 ## Escalation test — when to hand off to `/z-investigator`
 
 A question that arrives ad-hoc can turn into an investigation partway through. The shape that signals an investigation is three fields together:
