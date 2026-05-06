@@ -116,6 +116,7 @@ PROPOSED LOADS (Step 2A — docs only):
   - agents/siem-emission-discipline.md
   - agents/tenant-schema-derivation.md
   - agents/loading-discipline.md
+  - agents/clarification-pattern.md
   - <product references from the framing→file mapping that match>
 
 CLARIFICATIONS:

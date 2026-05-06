@@ -10,6 +10,7 @@ Before the first response, also load each of its declared dependencies:
 - `agents/auditor/methodology.md` — register format, severity scale, status lifecycle (shared with `/z-auditor`)
 - `agents/investigator/methodology.md` — evidence discipline, claim status (used in subsequent investigation handoffs)
 - `agents/siem-emission-discipline.md` — SIEM emission modes, public/private boundary
+- `agents/clarification-pattern.md` — multiple-choice with free-text escape for closed-set decisions (subtype selection, etc.)
 <!-- adapter-deps:end -->
 
 The user's SOC review scope:

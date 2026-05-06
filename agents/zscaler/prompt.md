@@ -14,6 +14,7 @@ sources:
   - "agents/siem-emission-discipline.md"
 dependencies:
   - "../loading-discipline.md"
+  - "../clarification-pattern.md"
 adapters: [root]
 author-status: draft
 ---

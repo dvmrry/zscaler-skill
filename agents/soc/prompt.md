@@ -16,6 +16,7 @@ dependencies:
   - "../auditor/methodology.md"
   - "../investigator/methodology.md"
   - "../siem-emission-discipline.md"
+  - "../clarification-pattern.md"
 author-status: draft
 ---
 

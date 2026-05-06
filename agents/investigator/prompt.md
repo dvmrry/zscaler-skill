@@ -19,6 +19,7 @@ dependencies:
   - "../siem-emission-discipline.md"
   - "../tenant-schema-derivation.md"
   - "../loading-discipline.md"
+  - "../clarification-pattern.md"
 author-status: draft
 ---
 

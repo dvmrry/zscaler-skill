@@ -12,6 +12,7 @@ Before the first response, also load each of its declared dependencies:
 - `agents/siem-emission-discipline.md` — SIEM emission modes, public/private boundary
 - `agents/tenant-schema-derivation.md` — canonical-vs-tenant schema derivation
 - `agents/loading-discipline.md` — stage announcements for I/O-driven pauses
+- `agents/clarification-pattern.md` — multiple-choice with free-text escape for assumption confirmations
 <!-- adapter-deps:end -->
 
 The user's framing:
