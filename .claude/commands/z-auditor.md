@@ -3,10 +3,12 @@ description: Run an editorial / structural audit of skill references. Mechanical
 argument-hint: [scope: directory, file, "." for whole repo, or topic keyword]
 ---
 
+<!-- adapter-deps:start -->
 Load and follow the playbook at @agents/auditor/prompt.md.
 
 Before the first response, also load its declared dependency:
 - `agents/auditor/methodology.md` — register format, severity scale, status lifecycle, anti-patterns
+<!-- adapter-deps:end -->
 
 The user's audit scope:
 

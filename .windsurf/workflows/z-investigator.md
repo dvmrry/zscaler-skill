@@ -96,6 +96,7 @@ Rule of thumb: if it would lose meaning or readability outside monospace (banner
 
 ### Step 1 turn
 
+<!-- adapter-deps:start -->
 ```
 ═══ STEP 1 — PARSE FRAMING ═══
 
@@ -127,6 +128,7 @@ CLARIFICATIONS:
   clarify: <q>     — answer before continuing
 ═══════════════════════════════════════
 ```
+<!-- adapter-deps:end -->
 
 ### Step 2 turn
 

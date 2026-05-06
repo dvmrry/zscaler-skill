@@ -5,13 +5,13 @@
 # ///
 """check-hygiene.py — bundled doc-hygiene checks for the skill.
 
-Runs four checks in a single pass:
+Runs six checks in a single pass:
 
   1. Frontmatter validation
-       Required fields, allowed enum values for confidence / source-tier /
-       content-type / author-status, ISO date format on last-verified,
-       sources non-empty when confidence is high and author-status is
-       draft/reviewed.
+       Required fields (different shape for references/ vs agents/ paths),
+       allowed enum values for confidence / source-tier / content-type /
+       author-status, ISO date format on last-verified, sources non-empty
+       when confidence is high and author-status is draft/reviewed.
 
   2. Anchor resolution
        Markdown links of the form `[text](path#anchor)` (or same-file
@@ -19,20 +19,32 @@ Runs four checks in a single pass:
        Catches cross-link rot from rename / heading edits. Path resolution
        is best-effort; check-citations.sh covers raw path failures.
 
-  3. Resolved-clarification propagation
+  3. Agent dependency contract
+       For each file under agents/ that declares a `dependencies:` list in
+       frontmatter, every entry must resolve to an existing path. For each
+       agents/{role}/prompt.md, locate runtime adapters under
+       .windsurf/workflows/ and .claude/commands/; the adapter must
+       reference the prompt path and mention each dependency the prompt
+       declares.
+
+  4. Resolved-clarification propagation
        Resolved clarifications (per `_clarifications.md` § Status summary
        § Resolved) are flagged if they still appear in any topical doc's
        `## Open questions` section. Surfaces incomplete propagation of
        resolutions back to source docs.
 
-  4. Eval-doc cross-reference
+  5. Eval-doc cross-reference
        `evals/evals.json` `must_cite_files` paths are verified to exist.
        Catches evals that reference renamed / deleted reference docs.
 
-  5. Eval coverage (advisory)
+  6. Eval coverage (advisory)
        Every `confidence: high` non-aggregator ref should be cited by at
        least one entry in evals.json. Emits a single summary warning by
        default; use --strict to surface per-file warnings.
+
+Workflow-shape evals (whether agent prompts contain the discipline markers
+declared by their `eval-shape: ...` frontmatter) are validated separately
+by `check-workflow-evals.py`; that step runs from the same CI workflow.
 
 Exit code: 0 if no errors (warnings still pass); 1 if any errors.
 
@@ -539,6 +551,11 @@ ADAPTER_DIRS = [
     REPO_ROOT / ".windsurf" / "workflows",
     REPO_ROOT / ".claude" / "commands",
 ]
+ADAPTER_KIND_TO_DIR = {
+    "windsurf": REPO_ROOT / ".windsurf" / "workflows",
+    "claude": REPO_ROOT / ".claude" / "commands",
+}
+DEFAULT_ADAPTER_KINDS = ["windsurf", "claude"]
 
 
 def check_agent_dependencies(path: Path) -> list[Finding]:
@@ -595,12 +612,30 @@ def check_agent_dependencies(path: Path) -> list[Finding]:
     return findings
 
 
+ADAPTER_DEPS_BLOCK_RE = re.compile(
+    r"<!--\s*adapter-deps:start\s*-->(.*?)<!--\s*adapter-deps:end\s*-->",
+    re.DOTALL,
+)
+
+
 def check_adapter_coverage() -> list[Finding]:
-    """For each role prompt at agents/{role}/prompt.md, find adapters at
-    {.windsurf/workflows,.claude/commands}/z-{role}.md and validate:
-      - error: adapter exists but doesn't mention agents/{role}/prompt.md
-      - warning: adapter exists but doesn't mention each direct dependency
-        path declared in the prompt's frontmatter
+    """For each role prompt at agents/{role}/prompt.md:
+
+    1. Determine the expected adapter runtimes from the prompt's
+       `adapters:` frontmatter (defaults to ["windsurf", "claude"];
+       set `adapters: []` to opt out entirely, or e.g.
+       `adapters: [windsurf]` for a single-runtime role).
+    2. For each declared runtime, locate the adapter file and:
+         - error if the adapter is missing
+         - error if the adapter has no <!-- adapter-deps:start --> ...
+           <!-- adapter-deps:end --> block
+         - error if the deps block doesn't reference the prompt path
+         - error if the deps block doesn't mention each direct dependency
+           path declared in the prompt's frontmatter
+
+    Scoping the path checks to a marker-bounded block prevents
+    false-positive matches against unrelated path mentions in the adapter
+    body (e.g., template content showing what the agent should output).
     """
     findings: list[Finding] = []
     if not AGENTS.exists():
@@ -613,9 +648,27 @@ def check_adapter_coverage() -> list[Finding]:
         if not prompt.exists():
             continue
 
-        # Collect prompt's direct dependencies (resolved paths, repo-relative)
         prompt_content = prompt.read_text(encoding="utf-8", errors="replace")
         prompt_fm, _ = extract_frontmatter(prompt_content)
+
+        # Determine which adapter runtimes this role expects.
+        if prompt_fm and "adapters" in prompt_fm:
+            declared = prompt_fm["adapters"]
+            if not isinstance(declared, list):
+                findings.append(
+                    Finding(
+                        "error",
+                        prompt,
+                        "agent-dependencies",
+                        f"adapters: must be a list, got {type(declared).__name__}",
+                    )
+                )
+                continue
+            expected_kinds = [k for k in declared if isinstance(k, str)]
+        else:
+            expected_kinds = list(DEFAULT_ADAPTER_KINDS)
+
+        # Collect prompt's direct dependencies (resolved paths, repo-relative)
         prompt_deps: list[str] = []
         if prompt_fm and isinstance(prompt_fm.get("dependencies"), list):
             for dep in prompt_fm["dependencies"]:
@@ -630,34 +683,63 @@ def check_adapter_coverage() -> list[Finding]:
 
         prompt_rel = str(prompt.relative_to(REPO_ROOT))
 
-        for adapter_dir in ADAPTER_DIRS:
-            adapter = adapter_dir / f"z-{role}.md"
-            if not adapter.exists():
+        for kind in expected_kinds:
+            if kind not in ADAPTER_KIND_TO_DIR:
+                findings.append(
+                    Finding(
+                        "error",
+                        prompt,
+                        "agent-dependencies",
+                        f"unknown adapter kind in adapters: {kind!r} (expected one of {sorted(ADAPTER_KIND_TO_DIR)})",
+                    )
+                )
                 continue
-            adapter_content = adapter.read_text(encoding="utf-8", errors="replace")
 
-            # Error: adapter must reference the prompt
-            if prompt_rel not in adapter_content:
+            adapter = ADAPTER_KIND_TO_DIR[kind] / f"z-{role}.md"
+            if not adapter.exists():
+                findings.append(
+                    Finding(
+                        "error",
+                        prompt,
+                        "agent-dependencies",
+                        f"declared adapter missing: {kind} → {adapter.relative_to(REPO_ROOT)}",
+                    )
+                )
+                continue
+
+            adapter_content = adapter.read_text(encoding="utf-8", errors="replace")
+            block_match = ADAPTER_DEPS_BLOCK_RE.search(adapter_content)
+            if not block_match:
                 findings.append(
                     Finding(
                         "error",
                         adapter,
                         "agent-dependencies",
-                        f"adapter does not reference {prompt_rel}",
+                        "adapter missing <!-- adapter-deps:start --> / <!-- adapter-deps:end --> markers; the dep-load section must be explicitly bounded so the contract is checkable",
+                    )
+                )
+                continue
+
+            deps_block = block_match.group(1)
+
+            if prompt_rel not in deps_block:
+                findings.append(
+                    Finding(
+                        "error",
+                        adapter,
+                        "agent-dependencies",
+                        f"deps block does not reference {prompt_rel}",
                     )
                 )
 
-            # Error: adapter must mention each direct dep path declared by
-            # the prompt's frontmatter. (Promoted from warning to error in
-            # Phase 3 once all adapters were slimmed to satisfy the contract.)
             for dep_rel in prompt_deps:
-                if dep_rel not in adapter_content:
+                if dep_rel not in deps_block:
                     findings.append(
                         Finding(
                             "error",
                             adapter,
                             "agent-dependencies",
-                            f"adapter does not mention prompt dependency {dep_rel}",
+                            f"deps block does not mention prompt dependency {dep_rel}",
                         )
                     )
 

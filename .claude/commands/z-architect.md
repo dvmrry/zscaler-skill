@@ -3,12 +3,14 @@ description: Run a capacity / scaling architecture review. Config-first, metrics
 argument-hint: [scope] — e.g., "App Connector Group us-east-1, planning 3x growth by Q3, Splunk has Connector Metrics"
 ---
 
+<!-- adapter-deps:start -->
 Load and follow the playbook at @agents/architect/prompt.md.
 
 Before the first response, also load each of its declared dependencies:
 - `agents/architect/methodology.md` — recommendation register format, risk scale, confidence calibration, status lifecycle
 - `agents/architect/bundles.md` — query bundle template
 - `agents/siem-emission-discipline.md` — SIEM emission modes, public/private boundary
+<!-- adapter-deps:end -->
 
 The user's architect scope and context:
 

@@ -6,10 +6,12 @@ description: Run a SOC / security-posture review of tenant configuration, teleme
 
 ## Required reads — do these now, in order
 
+<!-- adapter-deps:start -->
 1. **Use your file-read tool to load `agents/soc/prompt.md`.** This is the playbook. It carries the First Response procedure, the five subtype check-sets, and the posture register format.
 2. **Use your file-read tool to load `agents/auditor/methodology.md`.** Shared methodology (also used by `/z-auditor`). Carries register format, severity scale, status lifecycle, anti-patterns.
 3. **Use your file-read tool to load `agents/investigator/methodology.md`.** Evidence discipline, claim status — relevant when SOC findings hand off to investigation.
 4. **Use your file-read tool to load `agents/siem-emission-discipline.md`.** SIEM emission modes, public/private boundary, placeholder plumbing.
+<!-- adapter-deps:end -->
 
 All paths are relative to the Zscaler skill repo root. **Do not respond until all files are loaded.** Then follow the playbook's First Response procedure with the supporting context already loaded.
 

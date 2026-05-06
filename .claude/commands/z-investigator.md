@@ -3,6 +3,7 @@ description: Start an evidence-based troubleshooting investigation — parse fra
 argument-hint: [what fails] in [where], [scope], since [when]; backtick `<literal-token>` any user-flagged specifics
 ---
 
+<!-- adapter-deps:start -->
 Load and follow the playbook at @agents/investigator/prompt.md.
 
 Before the first response, also load each of its declared dependencies:
@@ -10,6 +11,7 @@ Before the first response, also load each of its declared dependencies:
 - `agents/investigator/bundles.md` — query bundle template
 - `agents/siem-emission-discipline.md` — SIEM emission modes, public/private boundary
 - `agents/tenant-schema-derivation.md` — canonical-vs-tenant schema derivation
+<!-- adapter-deps:end -->
 
 The user's framing:
 
