@@ -116,7 +116,7 @@ Skim this before reading the full entries.
 
 ### Open
 
-`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-45`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `log-03`, `shared-06`, `shared-07`–`shared-16`, `zcc-08`–`zcc-75`.
+`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-45`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-19`, `log-03`, `shared-06`, `shared-07`–`shared-16`, `zcc-08`–`zcc-75`.
 
 Partial / SDK-mined (resolved via code read or help-doc capture; full lab confirmation pending): `zcc-01`, `zcc-02`, `zcc-03`, `zcc-04`, `zcc-05`, `zcc-06`, `zcc-07`, **`log-04`** (field name + illustrative values confirmed via `web-log-schema.md`; full enum of `ruletype` / `reason` values still needs a tenant export). All six ZCC enum clarifications had their **datatype** (int vs string) resolved by the Go SDK cross-check on 2026-04-24; the integer-to-meaning mapping remains open for `zcc-01` through `zcc-04` and `zcc-06`.
 
@@ -1363,6 +1363,70 @@ The coverage audit (`archive/audits/2026-04-26.md`) listed machine groups under 
 **Status**: resolved — 2026-04-27
 
 **Answer**: The file was moved from `references/zia/machine-groups.md` to `references/zpa/machine-groups.md` with frontmatter corrected to `product: zpa`. The audit entry was updated to reflect this. Machine groups are a ZPA construct exclusively.
+
+---
+
+### zpa-16 — `ConnectionStatus` `Active` emission cadence on long-lived sessions
+
+*Origin: `references/zpa/logs/access-log-schema.md` § State machine and timing*
+
+ZPA LSS User Activity logs document `ConnectionStatus` values `Open`, `Close`, `Active` (per `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`) but don't state what triggers an `Active` record on a long-lived connection. The delta-byte counter wording "since the last transaction log" implies multiple records per long connection, but the boundary trigger (time interval, byte volume threshold, segment change, other) is not specified.
+
+**Resolves with**: lab test on a long-lived ZPA session (e.g., SSH tunnel sustained for hours) with LSS receiving — observe `Active` record cadence and what events correlate with each emission. Or vendor support thread.
+
+**Status**: open — 2026-05-06.
+
+---
+
+### zpa-17 — Delta vs total byte counter reset semantics
+
+*Origin: `references/zpa/logs/access-log-schema.md` § State machine and timing*
+
+The User Activity log has two byte-counter families per direction: delta (`ZENBytesRxClient`, `ZENBytesTxClient`, `ZENBytesRxConnector`, `ZENBytesTxConnector` — described as "since the last transaction log") and total (`ZENTotalBytesRxClient` etc. — described as "Total bytes received/transmitted"). The vendor PDF doesn't state:
+
+1. Whether the delta counters reset to zero at every `Active` record, or only at some other boundary
+2. Whether `ZENTotalBytes*` is the running total since `ConnectionStatus=Open` or since some other anchor (session start, protocol handshake, etc.)
+3. What happens to the delta counter on the final `ConnectionStatus=Close` record (final segment of usage, or zero?)
+
+**Resolves with**: lab test correlating a known-volume payload (e.g., scripted upload of N MB) against successive log records. Or vendor doc clarification.
+
+**Status**: open — 2026-05-06.
+
+---
+
+### zpa-18 — Timing phase ordering and overlap
+
+*Origin: `references/zpa/logs/access-log-schema.md` § State machine and timing*
+
+The User Activity log carries six µs-precision timing fields covering connection establishment: `AppLearnTime`, `CAProcessingTime`, `PolicyProcessingTime`, `ConnectorZENSetupTime`, `ConnectionSetupTime`, `ServerSetupTime`. The vendor PDF defines each individually but does not show ordering or overlap:
+
+- Are these strictly sequential phases (so they can be summed for total establishment latency)?
+- Or do some overlap (e.g., `PolicyProcessingTime` happens during `CAProcessingTime`)?
+- Is `ConnectionSetupTime` ("App Connector to process notification ... and set up the connection to the application server") a superset that includes `ServerSetupTime` ("set up the connection at the server"), or are they disjoint?
+
+The Timestamp* fields (`TimestampCATx`, `TimestampCARx`, `TimestampAppLearnStart`, `TimestampConnectorZENSetupComplete`, etc.) reconstruct part of the sequence but don't fully disambiguate scope of each *Time field.
+
+**Resolves with**: vendor doc explicitly sequencing the phases, or correlated lab measurement using the Timestamp* boundaries to derive each Time field's actual coverage.
+
+**Status**: open — 2026-05-06.
+
+---
+
+### zpa-19 — `ServerSetupTime` scope (TCP only vs TLS end-to-end)
+
+*Origin: `references/zpa/logs/access-log-schema.md` § State machine and timing*
+
+`ServerSetupTime` is described as "Time in µs to set up the connection at the server." The wording is ambiguous between:
+
+1. **TCP three-way handshake only** between App Connector and the application server (~1 RTT)
+2. **TCP + TLS handshake** end-to-end if the application uses TLS (~3 RTT)
+3. **TCP + TLS + first application-protocol exchange** (e.g., HTTP/1.1 first request-response or HTTP/2 SETTINGS exchange)
+
+This affects how operators interpret the field for latency budgeting and how it composes with `ConnectionSetupTime` (see `zpa-18`). Affects RDP/SSH/HTTPS apps differently from plain TCP apps.
+
+**Resolves with**: vendor doc, or lab measurement comparing `ServerSetupTime` against externally-measured TCP handshake duration on a non-TLS app vs TLS app.
+
+**Status**: open — 2026-05-06.
 
 ---
 

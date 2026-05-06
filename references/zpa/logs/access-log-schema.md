@@ -3,7 +3,7 @@ product: zpa
 topic: "zpa-access-log-schema"
 title: "ZPA access log schema (LSS User Activity log fields)"
 content-type: reference
-last-verified: "2026-04-23"
+last-verified: "2026-05-06"
 confidence: high
 source-tier: doc
 sources:
@@ -81,8 +81,8 @@ Per *Understanding User Activity Log Fields*, pp.2–14. The rightmost column li
 
 | Field | Description | Supported format specifiers |
 |---|---|---|
-| `Username` | Username as entered into Zscaler Client Connector | `s`, `j`, `J`, `o` |
-| `Idp` | Identity provider name as configured in the Zscaler Admin Console | `s`, `j`, `J`, `o` |
+| `Username` | Username as entered into Zscaler Client Connector. **In most IdP configurations this is the user's email address** (per `user-status-log-schema.md:94`). **Shared join key with User Status logs** (`user-status-log-schema.md:175`) — correlate per-user activity across the two log types via this field. The full IdP attribute bag is exposed in User Status logs as `SAMLAttributes`, not in User Activity. | `s`, `j`, `J`, `o` |
+| `Idp` | Identity provider name as configured in the Zscaler Admin Console. Same field exists in User Status logs and reflects the IdP that authenticated the session. | `s`, `j`, `J`, `o` |
 | `Hostname` | Device name as reported by Zscaler Client Connector. **Only provides valid values for Zscaler Client Connector and machine tunnel client types.** | `s`, `j`, `J`, `o` |
 | `Platform` | Platform on the device (e.g., Windows) | `s`, `j`, `J`, `o` |
 | `ClientPublicIP` | Public IP address of Zscaler Client Connector | `s`, `j`, `J`, `o` |
@@ -194,6 +194,12 @@ Per pp.7–9. Populated only when the session involves Privileged Remote Access:
 | `PRASharedMode` | `Monitor`, `Control` |
 | `PRASharedUserList` | Users the PRA session was shared with |
 
+## State machine and timing — what the spec doesn't say
+
+The vendor PDF lists `ConnectionStatus` values, the `*SetupTime` fields, and the delta-vs-total byte counters individually but doesn't specify how they fit together for long-lived connections or what each timing phase actually covers. Operators reading the field list should not assume more than the spec gives. Five specific gaps are tracked as Open questions below — each is the kind of thing a tenant-side lab test (or vendor support thread) could resolve, but no captured Zscaler doc currently states the answer.
+
+The wording "since the last transaction log" on the delta byte counters (`ZENBytesRxClient` etc., per *Understanding User Activity Log Fields* p.13–14) **strongly implies** that long-lived connections emit multiple records during their lifetime with delta byte counts between successive records — but the trigger (time interval, byte threshold, segment change, other) is not stated. Don't budget operational decisions on a specific cadence without confirming.
+
 ## Other LSS log types
 
 Separate schemas; each documented on its own help article. Vendored PDFs we have:
@@ -212,3 +218,7 @@ Not vendored: Audit Logs, App Connector Status, Browser Access, Microsegmentatio
 ## Open questions
 
 - Multi-segment match representation in LSS — [clarification `zpa-01`](../../_meta/clarifications.md#zpa-01-multi-segment-match-representation-in-lss)
+- `ConnectionStatus` `Active` emission cadence on long-lived sessions — [clarification `zpa-16`](../../_meta/clarifications.md#zpa-16--connectionstatus-active-emission-cadence-on-long-lived-sessions)
+- Delta vs total byte counter reset semantics tied to `ConnectionStatus` transitions — [clarification `zpa-17`](../../_meta/clarifications.md#zpa-17--delta-vs-total-byte-counter-reset-semantics)
+- Timing phase ordering and whether `*SetupTime` fields are sequential, overlapping, or partially nested — [clarification `zpa-18`](../../_meta/clarifications.md#zpa-18--timing-phase-ordering-and-overlap)
+- `ServerSetupTime` scope — TCP handshake only, or end-to-end including TLS — [clarification `zpa-19`](../../_meta/clarifications.md#zpa-19--serversetuptime-scope-tcp-only-vs-tls-end-to-end)
