@@ -3,7 +3,7 @@ product: zia
 topic: "zia-web-log-schema"
 title: "ZIA web log schema (NSS Feed Output Format: Web Logs)"
 content-type: reference
-last-verified: "2026-04-23"
+last-verified: "2026-05-06"
 confidence: high
 source-tier: doc
 sources:
@@ -305,6 +305,17 @@ And these require specific SSL Inspection state:
 
 - `%s{df_hostname}` (domain-fronted SNI) — "TLS Inspection must be enabled for this field to be populated."
 
+## What the spec underspecifies — don't infer
+
+Some field descriptions in the vendor CSV give a one-line definition and a couple of example values without specifying the underlying semantics. An agent (or an operator) reading these can plausibly invent meaning that turns out to be wrong. The fields below are explicitly flagged: **treat as ambiguous until the linked clarification is resolved by lab test or vendor confirmation**. Do not pattern-match, build alerts, or draw conclusions on these without verification.
+
+- **`action`** — CSV lists examples `Allowed`, `Blocked`, but real tenant logs commonly show `Cautioned`, `Allowed (Cached)`, `Blocked (Inline)`, etc. The CSV doesn't enumerate the full set, doesn't state which subsystem (URL Filter, ATP, DLP, Sandbox, File Type Control, Cloud App Control) fills the field when multiple weigh in, or whether the value reflects the first block (early-stop) or the final outcome. See [`log-05`](../../_meta/clarifications.md#log-05--action-enum-completeness-and-multi-subsystem-precedence).
+- **`reason`** — CSV examples are sentence-shaped (`Virus/Spyware/Malware Blocked`, `This page is unsafe (high PageRisk index)`). Whether this is a stable enum, a templated string, or free-text generated per-incident is not specified. Do not regex-match this field across tenants without testing. See [`log-06`](../../_meta/clarifications.md#log-06--reason-field-structure-enum-vs-templated-text).
+- **`urlclass`** vs **`urlsupercat`** vs **`urlcat`** — three URL category fields with overlapping examples. The hierarchical relationship (is `urlcat` always a member of `urlsupercat`? does `urlclass` aggregate at a higher level?) is not stated, nor is multi-category URL behavior (does the field show one, the primary, or all matched). See [`log-07`](../../_meta/clarifications.md#log-07--urlcat-urlsupercat-urlclass-relationship-and-multi-category-urls).
+- **`riskscore`** — described as "Page Risk Index score of the destination URL. Range 0–100." Which subsystem produces the score (URL Filter's static rep only, or ATP / Sandbox / multiple combined) is not stated. `threatseverity` is *deterministically derived* from `riskscore` per the CSV bucket boundaries, but `riskscore` itself is opaque on lineage. See [`log-08`](../../_meta/clarifications.md#log-08--riskscore-source-and-combined-subsystem-behavior).
+- **`reqsize`**, **`respsize`**, **`totalsize`**, **`reqdatasize`**, **`respdatasize`** — described as bytes counts but the measurement point (client-side wire, service-edge post-decryption, post-decompression) and CONNECT-method handling (CONNECT request itself vs tunneled bytes counted separately) are not stated. Operators sizing bandwidth or compliance-counting bytes need this resolved. See [`log-09`](../../_meta/clarifications.md#log-09--byte-counter-perspective-and-compressionconnect-semantics).
+- **`prompt_req`** — "The prompt entered by the user in the generative AI application." Whether the full prompt is logged, truncated at some byte limit, or sensitive-data-stripped before logging is not specified — compliance-critical for tenants on GenAI-aware policies. See [`log-10`](../../_meta/clarifications.md#log-10--prompt_req-content-scope-truncation-and-sanitization).
+
 ## Cross-links
 
 - SPL patterns that query these fields — [`../../shared/splunk-queries.md`](../../shared/splunk-queries.md)
@@ -317,3 +328,9 @@ And these require specific SSL Inspection state:
 - NSS feed format versions — [clarification `log-01`](../../_meta/clarifications.md#log-01-nss-feed-format-versions)
 - Cloud NSS vs legacy NSS divergence — [clarification `log-02`](../../_meta/clarifications.md#log-02-cloud-nss-vs-legacy-nss-divergence)
 - Timestamp timezone handling across feeds / regions — [clarification `log-03`](../../_meta/clarifications.md#log-03-timestamp-timezone-handling)
+- `action` enum completeness and multi-subsystem precedence — [clarification `log-05`](../../_meta/clarifications.md#log-05--action-enum-completeness-and-multi-subsystem-precedence)
+- `reason` field structure (enum vs templated text) — [clarification `log-06`](../../_meta/clarifications.md#log-06--reason-field-structure-enum-vs-templated-text)
+- `urlcat` / `urlsupercat` / `urlclass` relationship and multi-category URLs — [clarification `log-07`](../../_meta/clarifications.md#log-07--urlcat-urlsupercat-urlclass-relationship-and-multi-category-urls)
+- `riskscore` source and combined-subsystem behavior — [clarification `log-08`](../../_meta/clarifications.md#log-08--riskscore-source-and-combined-subsystem-behavior)
+- Byte counter perspective and compression / CONNECT semantics — [clarification `log-09`](../../_meta/clarifications.md#log-09--byte-counter-perspective-and-compressionconnect-semantics)
+- `prompt_req` content scope, truncation, and sanitization — [clarification `log-10`](../../_meta/clarifications.md#log-10--prompt_req-content-scope-truncation-and-sanitization)

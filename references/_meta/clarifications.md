@@ -116,7 +116,7 @@ Skim this before reading the full entries.
 
 ### Open
 
-`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-45`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-19`, `log-03`, `shared-06`, `shared-07`–`shared-16`, `zcc-08`–`zcc-75`.
+`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-45`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-19`, `log-03`, `log-05`–`log-10`, `shared-06`, `shared-07`–`shared-16`, `zcc-08`–`zcc-75`.
 
 Partial / SDK-mined (resolved via code read or help-doc capture; full lab confirmation pending): `zcc-01`, `zcc-02`, `zcc-03`, `zcc-04`, `zcc-05`, `zcc-06`, `zcc-07`, **`log-04`** (field name + illustrative values confirmed via `web-log-schema.md`; full enum of `ruletype` / `reason` values still needs a tenant export). All six ZCC enum clarifications had their **datatype** (int vs string) resolved by the Go SDK cross-check on 2026-04-24; the integer-to-meaning mapping remains open for `zcc-01` through `zcc-04` and `zcc-06`.
 
@@ -839,6 +839,117 @@ Malware Protection and Advanced Threat Protection blocks have no public API surf
 **Key property**: `ruletype` and `rulelabel` are **Block-only**. An Allow rule firing produces no value for these fields. Operators filtering logs for "which policy blocked this" should filter on `ruletype` non-null.
 
 **Still open**: the full enum of `ruletype` values (the examples above are illustrative, not exhaustive) and the full enum of `reason` sub-categories. A first fork-admin tenant export with at least one MP and one ATP block confirms the complete list.
+
+---
+
+### log-05 — `action` enum completeness and multi-subsystem precedence
+
+*Origin: `references/zia/logs/web-log-schema.md` § What the spec underspecifies*
+
+The NSS web-log CSV (`vendor/zscaler-help/nss-web-logs.csv`) lists `%s{action}` example values as `Allowed, Blocked` — but real tenant logs commonly contain values like `Cautioned`, `Allowed (Cached)`, `Blocked (Inline)`, etc. The CSV doesn't:
+
+1. Enumerate the full set of possible `action` values.
+2. State which subsystem (URL Filter, ATP, DLP, Sandbox, File Type Control, Cloud App Control, Bandwidth Control) populates the field when multiple subsystems weigh in on the same transaction.
+3. Specify whether the value reflects the *first* block (early-stop / first-fired) or the *final* outcome after all subsystems evaluated.
+
+This is high-leverage because operators (and agents) will pattern-match `action == "Blocked"` for security analytics; if some block conditions surface as `Cautioned` or as a different value, dashboards undercount.
+
+**Resolves with**: tenant-export sample of ~1k records spanning a deliberately-triggered mix of URL/DLP/ATP/Sandbox blocks, plus vendor confirmation of the precedence rule. **Status**: open — 2026-05-06.
+
+---
+
+### log-06 — `reason` field structure (enum vs templated text)
+
+*Origin: `references/zia/logs/web-log-schema.md` § What the spec underspecifies*
+
+The CSV describes `%s{reason}` as "The action taken and the policy applied, if the transaction was blocked," with examples like `Virus/Spyware/Malware Blocked`, `Not allowed to browse this category`, `This page is unsafe (high PageRisk index)`. These examples are sentence-shaped, not enum-shaped. The CSV does not state:
+
+1. Whether `reason` is a stable enum (finite, versioned set of strings) or a templated string assembled per-incident.
+2. Whether the wording is consistent across cloud generations (zscaler.net vs zscalerten vs zscaler.gov) and across SKUs.
+3. Whether localization / regional language affects the value.
+
+Operators frequently regex-match `reason` for SIEM enrichment and alert routing — fragile if the strings are templated rather than enumerated.
+
+**Resolves with**: cross-tenant sample comparing `reason` values for the same trigger across two tenants on different cloud generations + a vendor statement on stability. **Status**: open — 2026-05-06.
+
+---
+
+### log-07 — `urlcat` / `urlsupercat` / `urlclass` relationship and multi-category URLs
+
+*Origin: `references/zia/logs/web-log-schema.md` § What the spec underspecifies*
+
+The NSS web-log CSV documents three URL category fields with overlapping examples:
+
+- `%s{urlclass}` — examples: `Bandwidth Loss`, `General Surfing`, `Privacy Risk`
+- `%s{urlsupercat}` — examples: `Entertainment/Recreation`, `Travel`, `Security`
+- `%s{urlcat}` — examples: `Entertainment`, `Adult Themes`, `Games`, `Spyware Callback`
+
+The CSV doesn't define:
+
+1. The hierarchy — is `urlcat` always a member of `urlsupercat`, or are they orthogonal axes? Does `urlclass` aggregate at a still-higher level (a risk-bucketing roll-up across many supercats)?
+2. Multi-category URL behavior — for a URL that matches multiple categories (e.g., a news site with embedded ads → News + Advertisement), do the fields show one (which?), the primary, or all matched as a delimited list?
+3. Whether Advanced Threat categories appear in `urlcat`, `urlsupercat`, both, or a different field.
+
+Cross-link: the `categories` skill content under `references/zia/url-filtering.md` covers the configuration side but doesn't translate to log-field semantics.
+
+**Resolves with**: tenant export with 50+ varied URLs spanning known multi-category sites, plus vendor doc on the hierarchy. **Status**: open — 2026-05-06.
+
+---
+
+### log-08 — `riskscore` source and combined-subsystem behavior
+
+*Origin: `references/zia/logs/web-log-schema.md` § What the spec underspecifies*
+
+The CSV defines `%d{riskscore}` as "Page Risk Index score of the destination URL. Range 0–100." `%s{threatseverity}` is deterministically derived from `riskscore` (Critical 90–100, High 75–89, Medium 46–74, Low 1–45, None 0). The CSV doesn't state:
+
+1. Which subsystem produces the score — URL Filter's static reputation only? Or does ATP / Sandbox / behavioral engines contribute (and if so, how is the combined score computed)?
+2. Whether the score reflects the URL's reputation alone (URL→score) or the full transaction context (URL + payload + sandbox verdict).
+3. How `riskscore` relates to `app_risk_score` (cloud app Risk Index, 1–5 scale, separately documented).
+
+This matters because agents and operators may infer "score 75 → ATP/sandbox detected something" when in fact `riskscore` may be URL-Filter-only and the ATP/Sandbox findings live in `threatname` / `malwarecat` / `malwareclass` instead.
+
+**Resolves with**: deliberate-trigger tenant test (e.g., access a known clean-but-newly-registered domain, then a known-malware URL, then a Sandbox-quarantined file) and observe `riskscore` values vs simultaneous `threatname` / `malwarecat` populations. **Status**: open — 2026-05-06.
+
+---
+
+### log-09 — Byte counter perspective and compression/CONNECT semantics
+
+*Origin: `references/zia/logs/web-log-schema.md` § What the spec underspecifies*
+
+The CSV defines a byte-counter family for HTTP transactions:
+
+- `%d{reqdatasize}`, `%d{reqhdrsize}`, `%d{reqsize}` (= data + headers)
+- `%d{respdatasize}`, `%d{resphdrsize}`, `%d{respsize}`
+- `%d{totalsize}`
+
+Plus throttle-size pair `%d{throttlereqsize}` / `%d{throttlerespsize}` and the SSL-related fields don't address compression. The CSV doesn't state:
+
+1. Measurement point — bytes as observed at the client wire, at the Service Edge before decryption, after decryption, or at the destination?
+2. Compression handling — for HTTP `Content-Encoding: gzip` responses, does `respdatasize` count compressed bytes (network-actual) or decompressed bytes (semantic)?
+3. CONNECT method handling — for HTTPS tunneled via CONNECT, does `reqsize` count the CONNECT request itself, or the tunneled application bytes too? If the latter, how does it interact with `ssldecrypted=No` (where Zscaler can't see the inner content)?
+4. Truncation thresholds — large transactions exceeding some size cap might be truncated; CSV doesn't say.
+
+Operators sizing bandwidth, building cost models, or doing compliance byte-counting need this. Agents asked "how much data did user X exfiltrate" will assume one interpretation and may be wrong.
+
+**Resolves with**: known-payload upload test (script `dd if=/dev/urandom bs=1M count=10 | curl …`) compared to the resulting log record across plain HTTP, gzipped HTTP, and HTTPS-with-decrypt and HTTPS-without-decrypt scenarios. **Status**: open — 2026-05-06.
+
+---
+
+### log-10 — `prompt_req` content scope, truncation, and sanitization
+
+*Origin: `references/zia/logs/web-log-schema.md` § What the spec underspecifies*
+
+The CSV defines `%s{prompt_req}` as "The prompt entered by the user in the generative AI application" (Insights name: `Prompt`). The example field is empty. Compliance-critical questions the CSV doesn't answer:
+
+1. Is the *full* user prompt logged, or truncated at some byte/char limit?
+2. Is the prompt sanitized before logging — sensitive-data stripped (PII, secrets, password-shaped strings), DLP-redacted, or left raw?
+3. Does logging happen for all GenAI applications detected by Cloud App Control, or only for applications matched by a specific GenAI policy rule?
+4. What's the storage retention for `prompt_req` content — does it follow standard log retention or have separate handling given the potentially-sensitive content?
+5. Is the response from the GenAI app logged in a separate field, or only the prompt?
+
+Tenants on regulated industries (healthcare, finance, defense) need to know exactly what GenAI prompt content lands in NSS feeds before they enable GenAI policy. Agents asked "do we have visibility into AI prompts users send?" may answer yes/no without flagging the truncation/sanitization gaps.
+
+**Resolves with**: vendor doc on GenAI logging configuration + tenant test with a long prompt containing distinct markers at start, middle, end to detect truncation/redaction. **Status**: open — 2026-05-06.
 
 ---
 
