@@ -530,6 +530,139 @@ def check_eval_coverage(md_files: list[Path], strict: bool) -> list[Finding]:
     return findings
 
 
+# ----- check 6: agent dependency contract -----
+
+
+# Adapter directories that should reference the agent role prompts.
+# Pattern: agents/{role}/prompt.md ↔ {adapter_dir}/z-{role}.md
+ADAPTER_DIRS = [
+    REPO_ROOT / ".windsurf" / "workflows",
+    REPO_ROOT / ".claude" / "commands",
+]
+
+
+def check_agent_dependencies(path: Path) -> list[Finding]:
+    """Validate frontmatter `dependencies:` paths exist relative to the
+    declaring file. Only applies to files under agents/."""
+    findings: list[Finding] = []
+    try:
+        path.relative_to(AGENTS)
+    except ValueError:
+        return findings
+
+    content = path.read_text(encoding="utf-8", errors="replace")
+    fm, _ = extract_frontmatter(content)
+    if not fm:
+        return findings
+
+    deps = fm.get("dependencies")
+    if not deps:
+        return findings
+    if not isinstance(deps, list):
+        findings.append(
+            Finding(
+                "error",
+                path,
+                "agent-dependencies",
+                f"dependencies: must be a list, got {type(deps).__name__}",
+            )
+        )
+        return findings
+
+    for dep in deps:
+        if not isinstance(dep, str):
+            findings.append(
+                Finding(
+                    "error",
+                    path,
+                    "agent-dependencies",
+                    f"dependencies entry must be a string, got {type(dep).__name__}: {dep!r}",
+                )
+            )
+            continue
+        # Resolve relative to the declaring file
+        resolved = (path.parent / dep).resolve()
+        if not resolved.exists():
+            findings.append(
+                Finding(
+                    "error",
+                    path,
+                    "agent-dependencies",
+                    f"declared dependency does not resolve: {dep!r} → {resolved}",
+                )
+            )
+
+    return findings
+
+
+def check_adapter_coverage() -> list[Finding]:
+    """For each role prompt at agents/{role}/prompt.md, find adapters at
+    {.windsurf/workflows,.claude/commands}/z-{role}.md and validate:
+      - error: adapter exists but doesn't mention agents/{role}/prompt.md
+      - warning: adapter exists but doesn't mention each direct dependency
+        path declared in the prompt's frontmatter
+    """
+    findings: list[Finding] = []
+    if not AGENTS.exists():
+        return findings
+
+    role_dirs = [d for d in AGENTS.iterdir() if d.is_dir() and not d.name.startswith("_")]
+    for role_dir in role_dirs:
+        role = role_dir.name
+        prompt = role_dir / "prompt.md"
+        if not prompt.exists():
+            continue
+
+        # Collect prompt's direct dependencies (resolved paths, repo-relative)
+        prompt_content = prompt.read_text(encoding="utf-8", errors="replace")
+        prompt_fm, _ = extract_frontmatter(prompt_content)
+        prompt_deps: list[str] = []
+        if prompt_fm and isinstance(prompt_fm.get("dependencies"), list):
+            for dep in prompt_fm["dependencies"]:
+                if not isinstance(dep, str):
+                    continue
+                resolved = (prompt.parent / dep).resolve()
+                try:
+                    rel = resolved.relative_to(REPO_ROOT)
+                    prompt_deps.append(str(rel))
+                except ValueError:
+                    continue
+
+        prompt_rel = str(prompt.relative_to(REPO_ROOT))
+
+        for adapter_dir in ADAPTER_DIRS:
+            adapter = adapter_dir / f"z-{role}.md"
+            if not adapter.exists():
+                continue
+            adapter_content = adapter.read_text(encoding="utf-8", errors="replace")
+
+            # Error: adapter must reference the prompt
+            if prompt_rel not in adapter_content:
+                findings.append(
+                    Finding(
+                        "error",
+                        adapter,
+                        "agent-dependencies",
+                        f"adapter does not reference {prompt_rel}",
+                    )
+                )
+
+            # Warning: adapter should mention each direct dep path
+            # (Phase 2 starts as warning; promote to error after adapter slim.)
+            for dep_rel in prompt_deps:
+                if dep_rel not in adapter_content:
+                    findings.append(
+                        Finding(
+                            "warning",
+                            adapter,
+                            "agent-dependencies",
+                            f"adapter does not mention prompt dependency {dep_rel}",
+                        )
+                    )
+
+    return findings
+
+
 # ----- runner / rendering -----
 
 
@@ -551,6 +684,7 @@ def run_all_checks(strict: bool = False) -> list[Finding]:
     for path in md_files:
         findings.extend(check_frontmatter(path))
         findings.extend(check_anchors(path))
+        findings.extend(check_agent_dependencies(path))
 
     resolved = parse_resolved_clarifications()
     for path in md_files:
@@ -558,6 +692,7 @@ def run_all_checks(strict: bool = False) -> list[Finding]:
 
     findings.extend(check_evals())
     findings.extend(check_eval_coverage(md_files, strict=strict))
+    findings.extend(check_adapter_coverage())
 
     return findings
 

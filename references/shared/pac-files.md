@@ -273,13 +273,13 @@ PAC files are a browser-era specification, but enterprise apps increasingly run 
 
 (Tier C — synthesized from widely-documented client-library behavior; not Zscaler-specific. Behavior in fast-evolving runtimes may shift.)
 
-**Operational implication:** if your environment routes browser traffic via PAC but workloads (CI/CD agents, scripts, containerized services) need to traverse the same Zscaler proxy, those workloads need either explicit proxy configuration or Cloud Connector deployment instead. PAC-only environments leak workload traffic around Zscaler. Filed as [`shared-26`](../_meta/clarifications.md#shared-26-non-browser-http-client-pac-support-matrix-zscaler-side-recommendations) for whether Zscaler has formal recommendations on this.
+**Operational implication:** if your environment routes browser traffic via PAC but workloads (CI/CD agents, scripts, containerized services) need to traverse the same Zscaler proxy, those workloads need either explicit proxy configuration or Cloud Connector deployment instead. PAC-only environments leak workload traffic around Zscaler. Filed as [`shared-26`](../_meta/clarifications.md#shared-26-non-browser-http-client-pac-support-zscaler-side-recommendations) for whether Zscaler has formal recommendations on this.
 
 ## PAC + IPv6
 
 The standard PAC `isInNet` function is **IPv4-only**. The IPv6-aware extension `isInNetEx(host, "fe80::/10")` exists but support varies across browsers (Tier B — Mozilla PAC documentation). Modern Chrome and Firefox support `isInNetEx`; older / niche browsers may not.
 
-**Vendor coverage gap on Zscaler PAC + IPv6:** captured Zscaler PAC docs do not specify whether Zscaler-hosted PAC variables (`${GATEWAY}`, etc.) ever resolve to IPv6 addresses, whether IPv6 traffic is forwarded via PAC at all, or what the recommended IPv6-bypass pattern is for private IPv6 ranges. Filed as [`shared-27`](../_meta/clarifications.md#shared-27-zscaler-pac--ipv6-handling). (Tier D.)
+**Vendor coverage gap on Zscaler PAC + IPv6:** captured Zscaler PAC docs do not specify whether Zscaler-hosted PAC variables (`${GATEWAY}`, etc.) ever resolve to IPv6 addresses, whether IPv6 traffic is forwarded via PAC at all, or what the recommended IPv6-bypass pattern is for private IPv6 ranges. Filed as [`shared-27`](../_meta/clarifications.md#shared-27-zscaler-pac-ipv6-handling). (Tier D.)
 
 For dual-stack environments, the operationally-conservative pattern is to bypass IPv6 to DIRECT until Zscaler IPv6 PAC behavior is confirmed:
 
