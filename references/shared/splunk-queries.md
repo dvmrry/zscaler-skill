@@ -3,7 +3,7 @@ product: shared
 topic: "splunk-queries"
 title: "SPL patterns for Zscaler log questions"
 content-type: reference
-last-verified: "2026-04-24"
+last-verified: "2026-05-06"
 confidence: medium
 source-tier: mixed
 sources:
@@ -29,6 +29,18 @@ The patterns use **NSS-native field names** as documented in the Zscaler log sch
 - `$INDEX_ZIA_WEB` / `$INDEX_ZIA_FW` / `$INDEX_ZIA_DNS` / `$INDEX_ZPA` — the Splunk indexes receiving each log stream. Tenant-specific; read from env vars at query time — see **Tenant-portable index naming** below.
 - `$URL`, `$HOSTNAME`, `$USER`, `$CATEGORY` — user-supplied parameters for a given question.
 - Default time window `earliest=-30d`. Shorten to `-7d` / `-24h` for pushback-triggered validation to cut query latency.
+
+## Field-semantics caveat for query authors
+
+Many of the patterns below filter on field values that look obvious by name (`action`, `riskscore`, `aggregate`, `urlcat`, `reqaction`, `EnforcementDisposition`, …) but carry undocumented semantics that can produce surprising query results. Before deploying a pattern in production:
+
+- Check the **source schema ref's "What the spec underspecifies" section** for the field you're filtering on. Each schema ref points at formal clarifications under `log-05` through `log-22`, `zpa-01`, and `zpa-16`–`19` in [`../_meta/clarifications.md`](../_meta/clarifications.md).
+- **Don't assume action enums are exhaustive.** Patterns matching `action="Blocked"` may miss `Cautioned`, `Allowed (Cached)`, etc. — see [`log-05`](../_meta/clarifications.md#log-05--action-enum-completeness-and-multi-subsystem-precedence) and [`log-12`](../_meta/clarifications.md#log-12--firewall-action-precedence-across-fw-ips-dnat).
+- **Aggregated firewall sessions hide per-session detail.** Patterns that count distinct source IPs from firewall logs may undercount when aggregation fires — see [`log-11`](../_meta/clarifications.md#log-11--firewall-aggregate-session-semantics).
+- **DNS `res` field carries IPs OR sentinel strings.** Patterns regex-matching dotted-quad on this field will silently miss `EMPTY_RESP` and other sentinel responses — see [`log-15`](../_meta/clarifications.md#log-15--dns-res-field-overloading-ip-vs-sentinel-string).
+- **Long-lived ZPA sessions emit multiple records.** Per-session aggregations using `ConnectionStatus=Close` only will undercount byte volumes for sessions that emit `Active` records during their lifetime — see [`zpa-16`](../_meta/clarifications.md#zpa-16--connectionstatus-active-emission-cadence-on-long-lived-sessions) and [`zpa-17`](../_meta/clarifications.md#zpa-17--delta-vs-total-byte-counter-reset-semantics).
+
+If a pattern's correctness depends on a clarification still being open, prefer adding a comment to the pattern citing the clarification ID rather than removing the pattern — operators can run it with awareness of the gap.
 
 ## Operating discipline
 
@@ -440,9 +452,20 @@ Whether ZPA User Status and App Connector Metrics land in the same index as User
 
 ## Open questions
 
+Pattern-correctness questions:
+
 - Whether field extractions differ between Zscaler TA and a hand-configured feed — see [clarification `log-01`](../_meta/clarifications.md#log-01-nss-feed-format-versions) (partially resolved)
 - `ssl_decrypt` vs `ssldecrypted` field aliasing under the Zscaler TA — depends on the TA version; pattern above uses the NSS-native name.
 - ZDX-to-Splunk export path is not natively offered by Zscaler as of last verification — ZDX data requires a custom pipeline via the ZDX API. The `zdx-score-trend` and `zdx-probe-failures-correlation` patterns are architecture-dependent and should be treated as aspirational until ZDX export is confirmed in the tenant.
+
+Per-field ambiguities affecting pattern semantics — high-impact ones for SPL authoring (full set indexed in [`./log-correlation.md § Open questions`](./log-correlation.md#open-questions) and per-schema refs):
+
+- Action enum completeness and multi-subsystem precedence (web, firewall) — [`log-05`](../_meta/clarifications.md#log-05--action-enum-completeness-and-multi-subsystem-precedence), [`log-12`](../_meta/clarifications.md#log-12--firewall-action-precedence-across-fw-ips-dnat)
+- Firewall aggregation effect on per-session SPL aggregations — [`log-11`](../_meta/clarifications.md#log-11--firewall-aggregate-session-semantics)
+- DNS `res` field overloading (IP vs sentinel string) — [`log-15`](../_meta/clarifications.md#log-15--dns-res-field-overloading-ip-vs-sentinel-string)
+- ZPA long-lived session record cardinality (affects byte-volume queries) — [`zpa-16`](../_meta/clarifications.md#zpa-16--connectionstatus-active-emission-cadence-on-long-lived-sessions), [`zpa-17`](../_meta/clarifications.md#zpa-17--delta-vs-total-byte-counter-reset-semantics)
+- ZPA User Status record granularity (affects session-counting queries) — [`log-19`](../_meta/clarifications.md#log-19--user-status-record-granularity-and-byte-counter-timing)
+- Microseg `EnforcementReason × Action × Disposition` triple combinations (affects "what was actually blocked vs would-have-been-blocked" queries) — [`log-18`](../_meta/clarifications.md#log-18--microseg-enforcementreason-action-disposition-triple-semantics)
 
 ## ZCC correlation patterns
 

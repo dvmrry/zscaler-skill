@@ -3,7 +3,7 @@ product: shared
 topic: "log-correlation"
 title: "Cross-product log correlation — ZIA, ZPA, ZCC join fields and patterns"
 content-type: reference
-last-verified: "2026-04-28"
+last-verified: "2026-05-06"
 confidence: medium
 source-tier: mixed
 sources:
@@ -81,6 +81,10 @@ LSS retention: Zscaler retains User Activity, User Status, and App Connector log
 ZCC does not produce a SIEM-streamable log feed equivalent to NSS or LSS. ZCC writes operational logs to the endpoint device. These cover tunnel events, auth events, posture checks, and forwarding decisions — not individual web transactions (that is ZIA-side). Administrators access ZCC logs via the ZCC Portal diagnostic bundle or user-exported ZIP. See [`../zcc/logs/zcc-log-schema.md`](../zcc/logs/zcc-log-schema.md) and [`../zcc/user-logging-controls.md`](../zcc/user-logging-controls.md).
 
 ---
+
+## Field-semantics caveat
+
+Several frequently-used log fields have semantics that the vendor schemas don't fully specify (action enum precedence, byte-counter perspective, aggregation triggers, identity-field provenance, etc.). Each per-schema ref now carries a "What the spec underspecifies" section listing the specific fields and linking to formal clarifications. Before building correlation rules or alerting on field values, **check the source schema ref's Open questions section** for the field you're using — values that look obvious by name (`action`, `riskscore`, `reqsize`, `aggregate`, `Username`, `ConnectionStatus`, …) frequently carry undocumented caveats. The clarifications are tracked in [`../_meta/clarifications.md`](../_meta/clarifications.md) under `log-05` through `log-22`, `zpa-01`, and `zpa-16`–`19`.
 
 ## Shared fields across ZIA web, firewall, and DNS logs
 
@@ -179,7 +183,7 @@ For exhaustive field lists, see the per-schema reference docs. Below are the key
 | Forwarding | `%s{rdr_rulename}`, `%s{fwd_gw_name}`, `%s{zpa_app_seg_name}` |
 | Aggregation | `%s{aggregate}`, `%d{numsessions}`, `%d{avgduration}` |
 
-**Firewall-specific aggregation**: the ZIA firewall module can aggregate multiple sessions into a single log record. The fields `%s{aggregate}`, `%d{numsessions}`, and `%d{avgduration}` indicate this. Per-session detail is lost when aggregation fires — client source port, server port, and IP values in aggregated records reflect the **last session** in the aggregate, not a summary.
+**Firewall-specific aggregation**: the ZIA firewall module can aggregate multiple sessions into a single log record. The fields `%s{aggregate}`, `%d{numsessions}`, and `%d{avgduration}` indicate this. Per-session detail is lost when aggregation fires — client source port, server port, and IP values in aggregated records reflect the **last session** in the aggregate, not a summary. **What triggers aggregation** (timeout / volume / hop / rule-defined), how byte counters (`inbytes`/`outbytes`/`durationms`) behave on aggregates, and why `srcip_country` drops on allowed aggregates are all undocumented — see [clarification `log-11`](../_meta/clarifications.md#log-11--firewall-aggregate-session-semantics).
 
 ### ZIA DNS log — key fields
 
@@ -301,10 +305,23 @@ LSS traffic uses mTLS between App Connector and the log receiver. The App Connec
 
 ## Open questions
 
+Cross-feed correlation infrastructure questions:
+
 - Exact ZIA NSS vs Cloud NSS field-level differences (if any) — [clarification `log-02`](../_meta/clarifications.md#log-02-cloud-nss-vs-legacy-nss-divergence)
 - NSS feed format version behavior (whether format versions affect field availability) — [clarification `log-01`](../_meta/clarifications.md#log-01-nss-feed-format-versions)
 - Timestamp timezone handling across feeds and regions — [clarification `log-03`](../_meta/clarifications.md#log-03-timestamp-timezone-handling)
 - Whether ZPA LSS User Activity carries a field that directly maps to ZIA `%d{recordid}` (no evidence it does; cross-product record ID correlation is a gap)
+
+Per-field ambiguities relevant to correlation queries — see the linked schema ref's "What the spec underspecifies" section for the full set, but high-impact ones for correlation work include:
+
+- ZIA web `action` precedence + multi-subsystem behavior — [clarification `log-05`](../_meta/clarifications.md#log-05--action-enum-completeness-and-multi-subsystem-precedence)
+- ZIA firewall aggregation triggers and byte-counter behavior on aggregates — [clarification `log-11`](../_meta/clarifications.md#log-11--firewall-aggregate-session-semantics)
+- ZIA firewall `action` precedence (FW + IPS + DNAT) — [clarification `log-12`](../_meta/clarifications.md#log-12--firewall-action-precedence-across-fw-ips-dnat)
+- ZIA DNS `reqaction` / `resaction` cumulative vs alternative — [clarification `log-14`](../_meta/clarifications.md#log-14--dns-reqaction-resaction-enum-and-cumulative-vs-alternative-semantics)
+- ZIA DNS `res` field overloading (IP vs sentinel) — [clarification `log-15`](../_meta/clarifications.md#log-15--dns-res-field-overloading-ip-vs-sentinel-string)
+- ZPA `ConnectionStatus` Active emission cadence on long-lived sessions — [clarification `zpa-16`](../_meta/clarifications.md#zpa-16--connectionstatus-active-emission-cadence-on-long-lived-sessions)
+- ZPA delta vs total byte-counter reset semantics — [clarification `zpa-17`](../_meta/clarifications.md#zpa-17--delta-vs-total-byte-counter-reset-semantics)
+- ZPA User Status record granularity and byte counter timing — [clarification `log-19`](../_meta/clarifications.md#log-19--user-status-record-granularity-and-byte-counter-timing)
 
 ## Cross-links
 
