@@ -1,5 +1,4 @@
 ---
-product: shared
 topic: "siem-emission-discipline"
 title: "SIEM emission discipline — agent execution modes, public/private boundary"
 content-type: reference
@@ -7,14 +6,16 @@ last-verified: "2026-04-29"
 confidence: high
 source-tier: practice
 sources:
-  - "references/shared/troubleshooting-methodology.md"
+  - "agents/investigator/methodology.md"
   - "references/shared/splunk-queries.md"
+dependencies:
+  - "investigator/methodology.md"
 author-status: draft
 ---
 
 # SIEM emission discipline
 
-How the agent emits queries against any SIEM (Splunk, Sentinel, Chronicle, Elastic, Sumo, etc.) when investigating Zscaler issues. Generic — applies regardless of the SIEM's query language or table model. SIEM-specific catalogs (e.g., [`splunk-queries.md`](./splunk-queries.md)) reference this doc rather than duplicating it.
+How the agent emits queries against any SIEM (Splunk, Sentinel, Chronicle, Elastic, Sumo, etc.) when investigating Zscaler issues. Generic — applies regardless of the SIEM's query language or table model. SIEM-specific catalogs (e.g., [`splunk-queries.md`](../references/shared/splunk-queries.md)) reference this doc rather than duplicating it.
 
 ## Execution modes
 
@@ -26,7 +27,7 @@ The agent driving an investigation may or may not have direct API access to the 
 | **User-handoff** | Agent emits query template; user runs it in their SIEM; pastes result back | User (or agent on next turn) captures pasted results as a `Confirmed (medium)` claim, query + result rows as source |
 | **Coworking** | Mix — agent runs cheap exploratory queries, user runs ones requiring tenant-specific scopes or sensitive data | Same journal; each claim notes who executed |
 
-The discovery journal (per [`troubleshooting-methodology.md`](./troubleshooting-methodology.md)) is the shared artifact. A handoff between agent and user (in either direction) doesn't change claim status — only fresh evidence (or system change) does.
+The discovery journal (per [`investigator/methodology.md`](./investigator/methodology.md)) is the shared artifact. A handoff between agent and user (in either direction) doesn't change claim status — only fresh evidence (or system change) does.
 
 ## Universal rules (all modes, all SIEMs)
 
@@ -53,7 +54,7 @@ When the agent has access to per-tenant SIEM plumbing, it substitutes the placeh
 - **Auto-memory** — same content, persists across sessions.
 - **A private fork's local config** that overrides placeholder env vars at run time.
 
-The catalog placeholder names (e.g., `$INDEX_ZIA_WEB`, `<zia-web-log-destination>`) are documented per SIEM in the relevant catalog and in [`siem-log-mapping.md`](./siem-log-mapping.md).
+The catalog placeholder names (e.g., `$INDEX_ZIA_WEB`, `<zia-web-log-destination>`) are documented per SIEM in the relevant catalog and in [`siem-log-mapping.md`](../references/shared/siem-log-mapping.md).
 
 ## What stays private
 
@@ -69,7 +70,7 @@ The public skill assumes Zscaler-published schemas only. The private side (the u
 
 ## Cross-links
 
-- [`siem-log-mapping.md`](./siem-log-mapping.md) — catalog of Zscaler log types and how they typically land per SIEM
-- [`splunk-queries.md`](./splunk-queries.md) — Splunk-specific SPL pattern catalog
-- [`troubleshooting-methodology.md`](./troubleshooting-methodology.md) — discovery journal, claim status, anti-patterns
-- [`investigate-prompt.md`](./investigate-prompt.md) — `/z-investigator` slash command playbook
+- [`siem-log-mapping.md`](../references/shared/siem-log-mapping.md) — catalog of Zscaler log types and how they typically land per SIEM
+- [`splunk-queries.md`](../references/shared/splunk-queries.md) — Splunk-specific SPL pattern catalog
+- [`investigator/methodology.md`](./investigator/methodology.md) — discovery journal, claim status, anti-patterns
+- [`investigator/prompt.md`](./investigator/prompt.md) — `/z-investigator` slash command playbook

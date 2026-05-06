@@ -1,5 +1,4 @@
 ---
-product: shared
 topic: "tenant-schema-derivation"
 title: "Canonical vs. tenant schemas — derivation recipes per SIEM"
 content-type: reference
@@ -36,7 +35,7 @@ These are not redundant. They're complementary. The canonical answers "what *sho
 - **Tenant only** — rare; usually means you're looking at an unfamiliar index without a Zscaler reference. Resolve by identifying which canonical log type it maps to.
 - **Both** (preferred) — cross-validate. Canonical says field exists; tenant confirms it's extracted with non-zero data and the values match the canonical examples. Mismatch is a finding:
   - Field in canonical, missing in tenant → TA not installed, sourcetype misconfigured, or Zscaler Support-enablement required (e.g., `%d{clt_sport}`, `%d{srv_dport}`, `%s{dlprulename}`)
-  - Field in tenant, not in canonical → custom enrichment, local extraction, or possibly a CIM alias added by the TA (check the TA mapping table in [`splunk-queries.md`](./splunk-queries.md))
+  - Field in tenant, not in canonical → custom enrichment, local extraction, or possibly a CIM alias added by the TA (check the TA mapping table in [`splunk-queries.md`](../references/shared/splunk-queries.md))
   - Values in tenant don't match canonical enums → tenant has stale TA version or out-of-band data transformation
 
 ## Recipes — derive a tenant schema per SIEM
@@ -343,9 +342,9 @@ Redact. The tenant schema is for confirming "what's queryable in this environmen
 
 ## Cross-links
 
-- [`siem-log-mapping.md`](./siem-log-mapping.md) — canonical log type catalog (the reference side of the canonical/tenant pair)
+- [`siem-log-mapping.md`](../references/shared/siem-log-mapping.md) — canonical log type catalog (the reference side of the canonical/tenant pair)
 - [`siem-emission-discipline.md`](./siem-emission-discipline.md) — public/private boundary, where user plumbing lives
-- [`splunk-queries.md`](./splunk-queries.md) — Splunk SPL pattern catalog; includes Zscaler TA CIM mapping table
-- [`investigate-prompt.md`](./investigate-prompt.md) — `/z-investigator` slash command playbook
-- ZIA log schemas (canonical) — [`../zia/logs/`](../zia/logs/)
-- ZPA log schemas (canonical) — [`../zpa/logs/`](../zpa/logs/)
+- [`splunk-queries.md`](../references/shared/splunk-queries.md) — Splunk SPL pattern catalog; includes Zscaler TA CIM mapping table
+- [`investigator/prompt.md`](./investigator/prompt.md) — `/z-investigator` slash command playbook
+- ZIA log schemas (canonical) — [`../references/zia/logs/`](../references/zia/logs/)
+- ZPA log schemas (canonical) — [`../references/zpa/logs/`](../references/zpa/logs/)

@@ -1,20 +1,23 @@
 ---
-product: shared
-topic: "architect-methodology"
+role: architect
+artifact: methodology
 title: "Architect methodology — evidence-based recommendation discipline"
 content-type: reference
 last-verified: "2026-04-29"
 confidence: high
 source-tier: practice
 sources:
-  - "references/shared/troubleshooting-methodology.md (parallel discipline)"
-  - "references/shared/audit-methodology.md (parallel discipline)"
+  - "agents/investigator/methodology.md (parallel discipline)"
+  - "agents/auditor/methodology.md (parallel discipline)"
+dependencies:
+  - "../investigator/methodology.md"
+  - "../auditor/methodology.md"
 author-status: draft
 ---
 
 # Architect methodology — evidence-based recommendation discipline
 
-A framework for design-driven analysis: capacity, topology, scaling, migration. Parallel to [`troubleshooting-methodology.md`](./troubleshooting-methodology.md) and [`audit-methodology.md`](./audit-methodology.md) — same anti-fabrication and citation discipline, different deliverable shape.
+A framework for design-driven analysis: capacity, topology, scaling, migration. Parallel to [`investigator/methodology.md`](../investigator/methodology.md) and [`auditor/methodology.md`](../auditor/methodology.md) — same anti-fabrication and citation discipline, different deliverable shape.
 
 | Archetype | Question | Artifact |
 |---|---|---|
@@ -216,7 +219,7 @@ NEXT STEPS:
 
 ## Cross-links
 
-- [`troubleshooting-methodology.md`](./troubleshooting-methodology.md) — parallel discipline (hypothesis-driven)
-- [`audit-methodology.md`](./audit-methodology.md) — parallel discipline (checklist-driven)
-- [`architect-prompt.md`](./architect-prompt.md) — `/z-architect` slash command playbook
-- [`siem-emission-discipline.md`](./siem-emission-discipline.md) — applies when architect queries SIEMs for utilization
+- [`investigator/methodology.md`](../investigator/methodology.md) — parallel discipline (hypothesis-driven)
+- [`auditor/methodology.md`](../auditor/methodology.md) — parallel discipline (checklist-driven)
+- [`architect/prompt.md`](./prompt.md) — `/z-architect` slash command playbook
+- [`siem-emission-discipline.md`](../siem-emission-discipline.md) — applies when architect queries SIEMs for utilization

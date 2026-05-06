@@ -35,16 +35,16 @@ The patterns use **NSS-native field names** as documented in the Zscaler log sch
 Many of the patterns below filter on field values that look obvious by name (`action`, `riskscore`, `aggregate`, `urlcat`, `reqaction`, `EnforcementDisposition`, …) but carry undocumented semantics that can produce surprising query results. Before deploying a pattern in production:
 
 - Check the **source schema ref's "What the spec underspecifies" section** for the field you're filtering on. Each schema ref points at formal clarifications under `log-05` through `log-22`, `zpa-01`, and `zpa-16`–`19` in [`../_meta/clarifications.md`](../_meta/clarifications.md).
-- **Don't assume action enums are exhaustive.** Patterns matching `action="Blocked"` may miss `Cautioned`, `Allowed (Cached)`, etc. — see [`log-05`](../_meta/clarifications.md#log-05--action-enum-completeness-and-multi-subsystem-precedence) and [`log-12`](../_meta/clarifications.md#log-12--firewall-action-precedence-across-fw-ips-dnat).
-- **Aggregated firewall sessions hide per-session detail.** Patterns that count distinct source IPs from firewall logs may undercount when aggregation fires — see [`log-11`](../_meta/clarifications.md#log-11--firewall-aggregate-session-semantics).
-- **DNS `res` field carries IPs OR sentinel strings.** Patterns regex-matching dotted-quad on this field will silently miss `EMPTY_RESP` and other sentinel responses — see [`log-15`](../_meta/clarifications.md#log-15--dns-res-field-overloading-ip-vs-sentinel-string).
-- **Long-lived ZPA sessions emit multiple records.** Per-session aggregations using `ConnectionStatus=Close` only will undercount byte volumes for sessions that emit `Active` records during their lifetime — see [`zpa-16`](../_meta/clarifications.md#zpa-16--connectionstatus-active-emission-cadence-on-long-lived-sessions) and [`zpa-17`](../_meta/clarifications.md#zpa-17--delta-vs-total-byte-counter-reset-semantics).
+- **Don't assume action enums are exhaustive.** Patterns matching `action="Blocked"` may miss `Cautioned`, `Allowed (Cached)`, etc. — see [`log-05`](../_meta/clarifications.md#log-05-action-enum-completeness-and-multi-subsystem-precedence) and [`log-12`](../_meta/clarifications.md#log-12-firewall-action-precedence-across-fw-ips-dnat).
+- **Aggregated firewall sessions hide per-session detail.** Patterns that count distinct source IPs from firewall logs may undercount when aggregation fires — see [`log-11`](../_meta/clarifications.md#log-11-firewall-aggregate-session-semantics).
+- **DNS `res` field carries IPs OR sentinel strings.** Patterns regex-matching dotted-quad on this field will silently miss `EMPTY_RESP` and other sentinel responses — see [`log-15`](../_meta/clarifications.md#log-15-dns-res-field-overloading-ip-vs-sentinel-string).
+- **Long-lived ZPA sessions emit multiple records.** Per-session aggregations using `ConnectionStatus=Close` only will undercount byte volumes for sessions that emit `Active` records during their lifetime — see [`zpa-16`](../_meta/clarifications.md#zpa-16-connectionstatus-active-emission-cadence-on-long-lived-sessions) and [`zpa-17`](../_meta/clarifications.md#zpa-17-delta-vs-total-byte-counter-reset-semantics).
 
 If a pattern's correctness depends on a clarification still being open, prefer adding a comment to the pattern citing the clarification ID rather than removing the pattern — operators can run it with awareness of the gap.
 
 ## Operating discipline
 
-This catalog operates under the SIEM-generic emission discipline in [`siem-emission-discipline.md`](./siem-emission-discipline.md) — execution modes (agent-direct / user-handoff / coworking), placeholder-plumbing rule, Zscaler-published-fields-only rule, where user plumbing lives, and what stays private. Read that doc for the full framework; the Splunk specifics below are concrete instances of those generic rules.
+This catalog operates under the SIEM-generic emission discipline in [`siem-emission-discipline.md`](../../agents/siem-emission-discipline.md) — execution modes (agent-direct / user-handoff / coworking), placeholder-plumbing rule, Zscaler-published-fields-only rule, where user plumbing lives, and what stays private. Read that doc for the full framework; the Splunk specifics below are concrete instances of those generic rules.
 
 **Splunk-specific instances:**
 
@@ -460,12 +460,12 @@ Pattern-correctness questions:
 
 Per-field ambiguities affecting pattern semantics — high-impact ones for SPL authoring (full set indexed in [`./log-correlation.md § Open questions`](./log-correlation.md#open-questions) and per-schema refs):
 
-- Action enum completeness and multi-subsystem precedence (web, firewall) — [`log-05`](../_meta/clarifications.md#log-05--action-enum-completeness-and-multi-subsystem-precedence), [`log-12`](../_meta/clarifications.md#log-12--firewall-action-precedence-across-fw-ips-dnat)
-- Firewall aggregation effect on per-session SPL aggregations — [`log-11`](../_meta/clarifications.md#log-11--firewall-aggregate-session-semantics)
-- DNS `res` field overloading (IP vs sentinel string) — [`log-15`](../_meta/clarifications.md#log-15--dns-res-field-overloading-ip-vs-sentinel-string)
-- ZPA long-lived session record cardinality (affects byte-volume queries) — [`zpa-16`](../_meta/clarifications.md#zpa-16--connectionstatus-active-emission-cadence-on-long-lived-sessions), [`zpa-17`](../_meta/clarifications.md#zpa-17--delta-vs-total-byte-counter-reset-semantics)
-- ZPA User Status record granularity (affects session-counting queries) — [`log-19`](../_meta/clarifications.md#log-19--user-status-record-granularity-and-byte-counter-timing)
-- Microseg `EnforcementReason × Action × Disposition` triple combinations (affects "what was actually blocked vs would-have-been-blocked" queries) — [`log-18`](../_meta/clarifications.md#log-18--microseg-enforcementreason-action-disposition-triple-semantics)
+- Action enum completeness and multi-subsystem precedence (web, firewall) — [`log-05`](../_meta/clarifications.md#log-05-action-enum-completeness-and-multi-subsystem-precedence), [`log-12`](../_meta/clarifications.md#log-12-firewall-action-precedence-across-fw-ips-dnat)
+- Firewall aggregation effect on per-session SPL aggregations — [`log-11`](../_meta/clarifications.md#log-11-firewall-aggregate-session-semantics)
+- DNS `res` field overloading (IP vs sentinel string) — [`log-15`](../_meta/clarifications.md#log-15-dns-res-field-overloading-ip-vs-sentinel-string)
+- ZPA long-lived session record cardinality (affects byte-volume queries) — [`zpa-16`](../_meta/clarifications.md#zpa-16-connectionstatus-active-emission-cadence-on-long-lived-sessions), [`zpa-17`](../_meta/clarifications.md#zpa-17-delta-vs-total-byte-counter-reset-semantics)
+- ZPA User Status record granularity (affects session-counting queries) — [`log-19`](../_meta/clarifications.md#log-19-user-status-record-granularity-and-byte-counter-timing)
+- Microseg `EnforcementReason × Action × Disposition` triple combinations (affects "what was actually blocked vs would-have-been-blocked" queries) — [`log-18`](../_meta/clarifications.md#log-18-microseg-enforcementreason-enforcementaction-enforcementdisposition-triple-semantics)
 
 ## ZCC correlation patterns
 
@@ -635,10 +635,10 @@ Notes:
 
 ## Cross-links
 
-- SIEM-generic emission discipline (modes, public/private boundary, placeholders) — [`./siem-emission-discipline.md`](./siem-emission-discipline.md)
+- SIEM-generic emission discipline (modes, public/private boundary, placeholders) — [`../../agents/siem-emission-discipline.md`](../../agents/siem-emission-discipline.md)
 - SIEM-generic log type catalog (sourcetype patterns per Zscaler log type) — [`./siem-log-mapping.md`](./siem-log-mapping.md)
-- `/z-investigator` slash command playbook (emits queries from this catalog) — [`./investigate-prompt.md`](./investigate-prompt.md)
-- Troubleshooting methodology (discovery journal, claim discipline) — [`./troubleshooting-methodology.md`](./troubleshooting-methodology.md)
+- `/z-investigator` slash command playbook (emits queries from this catalog) — [`../../agents/investigator/prompt.md`](../../agents/investigator/prompt.md)
+- Troubleshooting methodology (discovery journal, claim discipline) — [`../../agents/investigator/methodology.md`](../../agents/investigator/methodology.md)
 - When to query logs — [`./log-correlation.md`](./log-correlation.md)
 - Log export architecture (where each log type comes from) — [`./log-export-architecture.md`](./log-export-architecture.md)
 - ZIA log schemas — [`../zia/logs/web-log-schema.md`](../zia/logs/web-log-schema.md), [`firewall-log-schema.md`](../zia/logs/firewall-log-schema.md), [`dns-log-schema.md`](../zia/logs/dns-log-schema.md)

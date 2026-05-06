@@ -183,7 +183,7 @@ For exhaustive field lists, see the per-schema reference docs. Below are the key
 | Forwarding | `%s{rdr_rulename}`, `%s{fwd_gw_name}`, `%s{zpa_app_seg_name}` |
 | Aggregation | `%s{aggregate}`, `%d{numsessions}`, `%d{avgduration}` |
 
-**Firewall-specific aggregation**: the ZIA firewall module can aggregate multiple sessions into a single log record. The fields `%s{aggregate}`, `%d{numsessions}`, and `%d{avgduration}` indicate this. Per-session detail is lost when aggregation fires — client source port, server port, and IP values in aggregated records reflect the **last session** in the aggregate, not a summary. **What triggers aggregation** (timeout / volume / hop / rule-defined), how byte counters (`inbytes`/`outbytes`/`durationms`) behave on aggregates, and why `srcip_country` drops on allowed aggregates are all undocumented — see [clarification `log-11`](../_meta/clarifications.md#log-11--firewall-aggregate-session-semantics).
+**Firewall-specific aggregation**: the ZIA firewall module can aggregate multiple sessions into a single log record. The fields `%s{aggregate}`, `%d{numsessions}`, and `%d{avgduration}` indicate this. Per-session detail is lost when aggregation fires — client source port, server port, and IP values in aggregated records reflect the **last session** in the aggregate, not a summary. **What triggers aggregation** (timeout / volume / hop / rule-defined), how byte counters (`inbytes`/`outbytes`/`durationms`) behave on aggregates, and why `srcip_country` drops on allowed aggregates are all undocumented — see [clarification `log-11`](../_meta/clarifications.md#log-11-firewall-aggregate-session-semantics).
 
 ### ZIA DNS log — key fields
 
@@ -314,14 +314,14 @@ Cross-feed correlation infrastructure questions:
 
 Per-field ambiguities relevant to correlation queries — see the linked schema ref's "What the spec underspecifies" section for the full set, but high-impact ones for correlation work include:
 
-- ZIA web `action` precedence + multi-subsystem behavior — [clarification `log-05`](../_meta/clarifications.md#log-05--action-enum-completeness-and-multi-subsystem-precedence)
-- ZIA firewall aggregation triggers and byte-counter behavior on aggregates — [clarification `log-11`](../_meta/clarifications.md#log-11--firewall-aggregate-session-semantics)
-- ZIA firewall `action` precedence (FW + IPS + DNAT) — [clarification `log-12`](../_meta/clarifications.md#log-12--firewall-action-precedence-across-fw-ips-dnat)
-- ZIA DNS `reqaction` / `resaction` cumulative vs alternative — [clarification `log-14`](../_meta/clarifications.md#log-14--dns-reqaction-resaction-enum-and-cumulative-vs-alternative-semantics)
-- ZIA DNS `res` field overloading (IP vs sentinel) — [clarification `log-15`](../_meta/clarifications.md#log-15--dns-res-field-overloading-ip-vs-sentinel-string)
-- ZPA `ConnectionStatus` Active emission cadence on long-lived sessions — [clarification `zpa-16`](../_meta/clarifications.md#zpa-16--connectionstatus-active-emission-cadence-on-long-lived-sessions)
-- ZPA delta vs total byte-counter reset semantics — [clarification `zpa-17`](../_meta/clarifications.md#zpa-17--delta-vs-total-byte-counter-reset-semantics)
-- ZPA User Status record granularity and byte counter timing — [clarification `log-19`](../_meta/clarifications.md#log-19--user-status-record-granularity-and-byte-counter-timing)
+- ZIA web `action` precedence + multi-subsystem behavior — [clarification `log-05`](../_meta/clarifications.md#log-05-action-enum-completeness-and-multi-subsystem-precedence)
+- ZIA firewall aggregation triggers and byte-counter behavior on aggregates — [clarification `log-11`](../_meta/clarifications.md#log-11-firewall-aggregate-session-semantics)
+- ZIA firewall `action` precedence (FW + IPS + DNAT) — [clarification `log-12`](../_meta/clarifications.md#log-12-firewall-action-precedence-across-fw-ips-dnat)
+- ZIA DNS `reqaction` / `resaction` cumulative vs alternative — [clarification `log-14`](../_meta/clarifications.md#log-14-dns-reqaction-resaction-enum-and-cumulative-vs-alternative-semantics)
+- ZIA DNS `res` field overloading (IP vs sentinel) — [clarification `log-15`](../_meta/clarifications.md#log-15-dns-res-field-overloading-ip-vs-sentinel-string)
+- ZPA `ConnectionStatus` Active emission cadence on long-lived sessions — [clarification `zpa-16`](../_meta/clarifications.md#zpa-16-connectionstatus-active-emission-cadence-on-long-lived-sessions)
+- ZPA delta vs total byte-counter reset semantics — [clarification `zpa-17`](../_meta/clarifications.md#zpa-17-delta-vs-total-byte-counter-reset-semantics)
+- ZPA User Status record granularity and byte counter timing — [clarification `log-19`](../_meta/clarifications.md#log-19-user-status-record-granularity-and-byte-counter-timing)
 
 ## Cross-links
 

@@ -1,17 +1,22 @@
 ---
-product: shared
-topic: "investigate-prompt"
+role: investigator
+artifact: prompt
 title: "Investigate — evidence-based troubleshooting playbook"
 content-type: prompt
 last-verified: "2026-04-29"
 confidence: high
 source-tier: practice
 sources:
-  - "references/shared/troubleshooting-methodology.md"
-  - "references/shared/siem-emission-discipline.md"
+  - "agents/investigator/methodology.md"
+  - "agents/siem-emission-discipline.md"
   - "references/shared/siem-log-mapping.md"
   - "references/shared/splunk-queries.md"
-  - "references/shared/tenant-schema-derivation.md"
+  - "agents/tenant-schema-derivation.md"
+dependencies:
+  - "methodology.md"
+  - "bundles.md"
+  - "../siem-emission-discipline.md"
+  - "../tenant-schema-derivation.md"
 author-status: draft
 ---
 
@@ -42,7 +47,7 @@ If framing is below the minimum (e.g., just "ZPA is broken"), ask **one** clarif
 
 ## Discipline
 
-Follow the methodology in [`troubleshooting-methodology.md`](./troubleshooting-methodology.md):
+Follow the methodology in [`investigator/methodology.md`](./methodology.md):
 
 - Every claim needs a source: file path + line, API call + result, LSS field + value, or direct test
 - "Absence of evidence" requires qualification — which fields, where, how recently
@@ -95,7 +100,7 @@ Product defaults (ZIA allow-by-default vs ZPA deny-by-default) and architectural
 
 - **User-pointed path takes priority.** If the framing contains a path or slug (e.g., `_data/incidents/test-foo/`, `2026-04-30-ci-silent-failures`), that directory is the operative artifact — read its `journal.md` (if any) and `evidence/*` first. The user is telling you where the work lives; respect the pointer instead of creating a sibling. This directory is also the save target for Step 6.
 - **Current incident's `evidence/` directory** — if `_data/incidents/<operative-slug>/evidence/` exists and has files, read them before asking the user what to investigate. The user may have placed CI logs, API dumps, or screenshots there that already carry the answer. The same applies to evidence files attached to the current chat (paste-ins, file uploads).
-- **Tenant API data / config snapshots** — `_data/snapshot/<cloud>/` (e.g., `_data/snapshot/zs2/`, `_data/snapshot/zs3/`) is the canonical location for offline dumps of API-derived tenant config: URL filtering rules, access policies, segments, connector groups. **Always `ls _data/snapshot/` and read any per-cloud subdir whose cloud matches the framing's tenant** — this is the cheapest source of "what's actually configured" and avoids the state drift between API query time and now. The cloud is inferable from the tenant's API base URL (`zsapi.zscaler.net` ⇒ `zs1`, `zsapi.zscalerthree.net` ⇒ `zs3`, etc. — see [`../shared/cloud-architecture.md`](../shared/cloud-architecture.md) if unfamiliar). Forks may use a slightly different layout (e.g., `_data/<cloud>/` directly without the `snapshot/` prefix); if the canonical path is empty, scan `_data/` for any per-cloud subdir before assuming no snapshot exists.
+- **Tenant API data / config snapshots** — `_data/snapshot/<cloud>/` (e.g., `_data/snapshot/zs2/`, `_data/snapshot/zs3/`) is the canonical location for offline dumps of API-derived tenant config: URL filtering rules, access policies, segments, connector groups. **Always `ls _data/snapshot/` and read any per-cloud subdir whose cloud matches the framing's tenant** — this is the cheapest source of "what's actually configured" and avoids the state drift between API query time and now. The cloud is inferable from the tenant's API base URL (`zsapi.zscaler.net` ⇒ `zs1`, `zsapi.zscalerthree.net` ⇒ `zs3`, etc. — see [`../shared/cloud-architecture.md`](../../references/shared/cloud-architecture.md) if unfamiliar). Forks may use a slightly different layout (e.g., `_data/<cloud>/` directly without the `snapshot/` prefix); if the canonical path is empty, scan `_data/` for any per-cloud subdir before assuming no snapshot exists.
 - **Script logs** — `_data/logs/` holds dumped output from skill scripts (issue-watch, find-asymmetries, hygiene digests). Relevant if the framing involves a recent skill-script run.
 
 **Do not browse sibling incident directories.** Unless the user explicitly points at a specific incident directory, do not `ls _data/incidents/`, do not read any other incident's `journal.md`, and do not surface "this looks similar to a prior incident" to the user. Cross-pollinating findings between investigations contaminates evidence and produces false confidence; the discipline for safely re-using prior journals isn't refined enough yet. Stay scoped to the operative directory the user named (or a fresh slug if none was named).
@@ -130,7 +135,7 @@ Don't investigate yet. Name the source you'd consult to confirm or rule out each
 1. **Operative directory** — `_data/incidents/<operative-slug>/evidence/` (read `MANIFEST.md` first to see what's already captured) and the existing `journal.md` claims. The user may have already provided the answer; reading it costs nothing.
 2. **Tenant snapshot** — `_data/snapshot/<cloud>/` (or fork-specific `_data/<cloud>/`). API-derived config dumps for the tenant: connector groups, segments, rules, profiles. **This is the canonical source for "what's actually configured"** — use it before any live API call. Snapshots can be stale; if state-drift matters for the question, refresh the snapshot via `scripts/snapshot-refresh.py` or its fork-equivalent — don't bypass to a one-off API call.
 3. **Script logs** — `_data/logs/`. Recent script output (issue-watch digests, find-asymmetries, hygiene digests, connector-health output).
-4. **SIEM** — Splunk / Sentinel / Elastic / Sumo / Chronicle. Use only when the question is about **runtime / log-flow data** (transactions, sessions, events) rather than configuration. Per-SIEM emission discipline lives in [`./siem-emission-discipline.md`](./siem-emission-discipline.md).
+4. **SIEM** — Splunk / Sentinel / Elastic / Sumo / Chronicle. Use only when the question is about **runtime / log-flow data** (transactions, sessions, events) rather than configuration. Per-SIEM emission discipline lives in [`./siem-emission-discipline.md`](../siem-emission-discipline.md).
 5. **Live API** — only when both the snapshot doesn't have the answer and the question requires *now-state* (in-flight session counts, current connector status, etc.). When you do call an API, save the response to `evidence/` per the manifest convention so the next investigation can use it from disk.
 6. **Portal / admin console** — last resort, manual lookup. Cite the navigation path in the source field; if the result is informative enough to keep, screenshot to `evidence/` with a manifest entry.
 
@@ -209,7 +214,7 @@ Do not declare `Resolved` for the overall issue until:
 
 ## SIEM query emission
 
-You may or may not have direct API access to the user's SIEM (Splunk, Sentinel, Chronicle, Elastic, Sumo, etc.). The full execution-mode framework and discipline live in [`siem-emission-discipline.md`](./siem-emission-discipline.md). Quick reference:
+You may or may not have direct API access to the user's SIEM (Splunk, Sentinel, Chronicle, Elastic, Sumo, etc.). The full execution-mode framework and discipline live in [`siem-emission-discipline.md`](../siem-emission-discipline.md). Quick reference:
 
 - **Agent-direct** — you have SIEM API access; run queries yourself, capture results inline.
 - **User-handoff** — emit the query as an evidence-source plan; the user runs it and pastes results back.
@@ -217,9 +222,9 @@ You may or may not have direct API access to the user's SIEM (Splunk, Sentinel, 
 
 When emitting a query for any SIEM:
 
-1. **Identify the Zscaler log type** the investigation needs. [`siem-log-mapping.md`](./siem-log-mapping.md) is the catalog — each Zscaler log type, its schema file, and common SIEM landing patterns (Splunk sourcetype, Sentinel table, Chronicle log type, Elastic index pattern, Sumo source category).
+1. **Identify the Zscaler log type** the investigation needs. [`siem-log-mapping.md`](../../references/shared/siem-log-mapping.md) is the catalog — each Zscaler log type, its schema file, and common SIEM landing patterns (Splunk sourcetype, Sentinel table, Chronicle log type, Elastic index pattern, Sumo source category).
 
-2. **Cite a pattern from the SIEM-specific catalog.** For Splunk, reference a named pattern in [`splunk-queries.md`](./splunk-queries.md) (e.g., "use `§ rule-hit-history`"). For other SIEMs, cite the relevant catalog when one exists; otherwise emit a query against the schema and note "no catalog yet for this SIEM" so the pattern can be added.
+2. **Cite a pattern from the SIEM-specific catalog.** For Splunk, reference a named pattern in [`splunk-queries.md`](../../references/shared/splunk-queries.md) (e.g., "use `§ rule-hit-history`"). For other SIEMs, cite the relevant catalog when one exists; otherwise emit a query against the schema and note "no catalog yet for this SIEM" so the pattern can be added.
 
 3. **Use placeholder plumbing.** Index / sourcetype / table / index-pattern / source-category values are env-var placeholders or `<your_*>` markers in the catalogs — never literal tenant values. Preserve when emitting.
 
@@ -239,9 +244,9 @@ When emitting a query for any SIEM:
    - Tenant field not in canonical → custom enrichment, local extraction, or TA CIM alias
    - Values diverge from canonical enums → stale TA version or out-of-band transformation
 
-   See [`tenant-schema-derivation.md`](./tenant-schema-derivation.md) for the derivation recipes per SIEM and the storage template.
+   See [`tenant-schema-derivation.md`](../tenant-schema-derivation.md) for the derivation recipes per SIEM and the storage template.
 
-See [`siem-emission-discipline.md`](./siem-emission-discipline.md) for the full framework and [`siem-log-mapping.md`](./siem-log-mapping.md) for the Zscaler log type catalog.
+See [`siem-emission-discipline.md`](../siem-emission-discipline.md) for the full framework and [`siem-log-mapping.md`](../../references/shared/siem-log-mapping.md) for the Zscaler log type catalog.
 
 ## Escalation
 
@@ -273,19 +278,19 @@ If the investigation is NOT incident-shaped — exploratory, hypothesis-driven, 
 
 ## Query bundles
 
-When the same hypothesis comes up repeatedly, capture the verified query sequence as a **bundle** — a named, ordered list of queries with decision logic mapping results to claim statuses. See [`investigation-bundles.md`](./investigation-bundles.md) for the template and the public/private boundary (verified bundles can ship; speculative ones stay private). The agent should consult locally-available bundles before reasoning queries from scratch.
+When the same hypothesis comes up repeatedly, capture the verified query sequence as a **bundle** — a named, ordered list of queries with decision logic mapping results to claim statuses. See [`investigator/bundles.md`](./bundles.md) for the template and the public/private boundary (verified bundles can ship; speculative ones stay private). The agent should consult locally-available bundles before reasoning queries from scratch.
 
 ## Cross-links
 
-- [`troubleshooting-methodology.md`](./troubleshooting-methodology.md) — discovery journal, claim status, anti-patterns
-- [`investigation-bundles.md`](./investigation-bundles.md) — query bundle template (verified sequences for common hypotheses)
-- [`siem-emission-discipline.md`](./siem-emission-discipline.md) — agent execution modes, public/private boundary
-- [`siem-log-mapping.md`](./siem-log-mapping.md) — Zscaler log type catalog
-- [`splunk-queries.md`](./splunk-queries.md) — Splunk SPL pattern catalog
-- [`tenant-schema-derivation.md`](./tenant-schema-derivation.md) — canonical vs. tenant schemas, derivation recipes
-- [`audit-prompt.md`](./audit-prompt.md) — `/z-auditor` playbook (checklist-driven sibling)
-- [`soc-prompt.md`](./soc-prompt.md) — `/z-soc` playbook (security-posture sibling)
-- [`architect-prompt.md`](./architect-prompt.md) — `/z-architect` playbook (design-driven sibling)
+- [`investigator/methodology.md`](./methodology.md) — discovery journal, claim status, anti-patterns
+- [`investigator/bundles.md`](./bundles.md) — query bundle template (verified sequences for common hypotheses)
+- [`siem-emission-discipline.md`](../siem-emission-discipline.md) — agent execution modes, public/private boundary
+- [`siem-log-mapping.md`](../../references/shared/siem-log-mapping.md) — Zscaler log type catalog
+- [`splunk-queries.md`](../../references/shared/splunk-queries.md) — Splunk SPL pattern catalog
+- [`tenant-schema-derivation.md`](../tenant-schema-derivation.md) — canonical vs. tenant schemas, derivation recipes
+- [`auditor/prompt.md`](../auditor/prompt.md) — `/z-auditor` playbook (checklist-driven sibling)
+- [`soc/prompt.md`](../soc/prompt.md) — `/z-soc` playbook (security-posture sibling)
+- [`architect/prompt.md`](../architect/prompt.md) — `/z-architect` playbook (design-driven sibling)
 
 ---
 

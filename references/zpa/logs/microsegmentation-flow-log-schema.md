@@ -117,11 +117,11 @@ Examples of combinations the spec doesn't disambiguate:
 
 Plus the relationship between aggregated flows and these fields is unclear: when multiple connections share a 4-tuple and aggregate (per `SourcePorts` field description), do all aggregated connections need to share the same `EnforcementAction` to be aggregated, or can mixed-disposition connections appear in one record?
 
-See [`log-18`](../../_meta/clarifications.md#log-18--microseg-enforcementreason-action-disposition-triple-semantics).
+See [`log-18`](../../_meta/clarifications.md#log-18-microseg-enforcementreason-enforcementaction-enforcementdisposition-triple-semantics).
 
 ## Open questions
 
-- `EnforcementReason` × `EnforcementAction` × `EnforcementDisposition` triple combination semantics — [clarification `log-18`](../../_meta/clarifications.md#log-18--microseg-enforcementreason-action-disposition-triple-semantics)
+- `EnforcementReason` × `EnforcementAction` × `EnforcementDisposition` triple combination semantics — [clarification `log-18`](../../_meta/clarifications.md#log-18-microseg-enforcementreason-enforcementaction-enforcementdisposition-triple-semantics)
 
 ## Cross-links
 

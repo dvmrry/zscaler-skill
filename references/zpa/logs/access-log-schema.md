@@ -218,7 +218,7 @@ Not vendored: Audit Logs, App Connector Status, Browser Access, Microsegmentatio
 ## Open questions
 
 - Multi-segment match representation in LSS — [clarification `zpa-01`](../../_meta/clarifications.md#zpa-01-multi-segment-match-representation-in-lss)
-- `ConnectionStatus` `Active` emission cadence on long-lived sessions — [clarification `zpa-16`](../../_meta/clarifications.md#zpa-16--connectionstatus-active-emission-cadence-on-long-lived-sessions)
-- Delta vs total byte counter reset semantics tied to `ConnectionStatus` transitions — [clarification `zpa-17`](../../_meta/clarifications.md#zpa-17--delta-vs-total-byte-counter-reset-semantics)
-- Timing phase ordering and whether `*SetupTime` fields are sequential, overlapping, or partially nested — [clarification `zpa-18`](../../_meta/clarifications.md#zpa-18--timing-phase-ordering-and-overlap)
-- `ServerSetupTime` scope — TCP handshake only, or end-to-end including TLS — [clarification `zpa-19`](../../_meta/clarifications.md#zpa-19--serversetuptime-scope-tcp-only-vs-tls-end-to-end)
+- `ConnectionStatus` `Active` emission cadence on long-lived sessions — [clarification `zpa-16`](../../_meta/clarifications.md#zpa-16-connectionstatus-active-emission-cadence-on-long-lived-sessions)
+- Delta vs total byte counter reset semantics tied to `ConnectionStatus` transitions — [clarification `zpa-17`](../../_meta/clarifications.md#zpa-17-delta-vs-total-byte-counter-reset-semantics)
+- Timing phase ordering and whether `*SetupTime` fields are sequential, overlapping, or partially nested — [clarification `zpa-18`](../../_meta/clarifications.md#zpa-18-timing-phase-ordering-and-overlap)
+- `ServerSetupTime` scope — TCP handshake only, or end-to-end including TLS — [clarification `zpa-19`](../../_meta/clarifications.md#zpa-19-serversetuptime-scope-tcp-only-vs-tls-end-to-end)

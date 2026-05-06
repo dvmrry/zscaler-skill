@@ -1,5 +1,4 @@
 ---
-product: shared
 topic: "windsurf-runtime-notes"
 title: "Windsurf runtime — conventions for workflow / rules authoring"
 content-type: reference
@@ -78,10 +77,10 @@ Workflows cannot pin to a specific model. The user's session model (e.g., SWE-1.
 
 **Implication**: design workflows for the **weakest model in routine rotation**. Tightening for SWE-1.6 (explicit numbered steps, status enums, "will NOT do" sections, gating fields) doesn't penalize stronger-model sessions — they extract the same procedural value, plus headroom — but failing to tighten penalizes weaker-model sessions immediately.
 
-This is also why bundles (per [`investigation-bundles.md`](./investigation-bundles.md), [`architect-bundles.md`](./architect-bundles.md)) matter: a verified bundle is more procedural than a playbook, leaving even less room for weak-model drift.
+This is also why bundles (per [`investigator/bundles.md`](../investigator/bundles.md), [`architect/bundles.md`](../architect/bundles.md)) matter: a verified bundle is more procedural than a playbook, leaving even less room for weak-model drift.
 
 ## Cross-links
 
 - Windsurf workflow files — `.windsurf/workflows/z-investigator.md`, `z-audit.md`, `z-architect.md`
 - Claude Code parallels — `.claude/commands/z-investigator.md`, `z-audit.md`, `z-architect.md`
-- [`siem-emission-discipline.md`](./siem-emission-discipline.md) — the broader "agent-direct vs. user-handoff vs. coworking" framework these workflows operate under
+- [`siem-emission-discipline.md`](../siem-emission-discipline.md) — the broader "agent-direct vs. user-handoff vs. coworking" framework these workflows operate under

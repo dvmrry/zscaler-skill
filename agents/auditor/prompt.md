@@ -1,23 +1,25 @@
 ---
-product: shared
-topic: "audit-prompt"
+role: auditor
+artifact: prompt
 title: "Audit — editorial / structural lint playbook"
 content-type: prompt
 last-verified: "2026-04-29"
 confidence: high
 source-tier: practice
 sources:
-  - "references/shared/audit-methodology.md"
+  - "agents/auditor/methodology.md"
   - "scripts/check-hygiene.py"
   - "scripts/check-citations.sh"
   - "scripts/check-staleness.sh"
   - "scripts/check-doc-links.py"
+dependencies:
+  - "methodology.md"
 author-status: draft
 ---
 
 # Audit — editorial / structural lint playbook
 
-This is the playbook invoked by the `/z-auditor` slash command (Claude Code and Windsurf). The shape is **lint** — editorial / structural / hygiene review of references and tenant configuration. Posture-shaped review (RBAC least-privilege, telemetry coverage, threat-model-anchored findings) lives in the sibling `/z-soc` command — see [`./soc-prompt.md`](./soc-prompt.md).
+This is the playbook invoked by the `/z-auditor` slash command (Claude Code and Windsurf). The shape is **lint** — editorial / structural / hygiene review of references and tenant configuration. Posture-shaped review (RBAC least-privilege, telemetry coverage, threat-model-anchored findings) lives in the sibling `/z-soc` command — see [`./soc-prompt.md`](../soc/prompt.md).
 
 ## Mode
 
@@ -45,7 +47,7 @@ If scope is missing or unclear, ask **one** clarifying question — don't fabric
 
 ## Discipline
 
-Follow the audit register format and severity scale in [`audit-methodology.md`](./audit-methodology.md):
+Follow the audit register format and severity scale in [`auditor/methodology.md`](./methodology.md):
 
 - Every finding cites a source (file:line, script output, cross-file comparison)
 - Use the lowest applicable severity — inflation drowns real issues
@@ -166,7 +168,7 @@ Severity: `Medium` when required-and-missing; do not open a finding when recipro
 
 Terms used in the body but never defined or linked:
 - Acronyms used without expansion on first use (`LSS`, `NSS`, `TA`, `CASB`)
-- Product/feature names without a link to the canonical reference (e.g., "ZPA App Connector" without `[link](../zpa/app-connector.md)` on first reference)
+- Product/feature names without a link to the canonical reference (e.g., "ZPA App Connector" without `[link](../../references/zpa/app-connector.md)` on first reference)
 - Field names referenced without linking to the schema doc
 
 Severity: `Medium` for first-reference dangling; `Low` for repeat usage in the same file.
@@ -279,8 +281,8 @@ When the lint subtypes are added, this prompt becomes the **skill-meta lint** br
 
 ## Cross-links
 
-- [`audit-methodology.md`](./audit-methodology.md) — register format, severity, status lifecycle, anti-patterns
-- [`troubleshooting-methodology.md`](./troubleshooting-methodology.md) — parallel discipline for investigations
-- [`investigate-prompt.md`](./investigate-prompt.md) — `/z-investigator` playbook (the hypothesis-driven sibling)
+- [`auditor/methodology.md`](./methodology.md) — register format, severity, status lifecycle, anti-patterns
+- [`investigator/methodology.md`](../investigator/methodology.md) — parallel discipline for investigations
+- [`investigator/prompt.md`](../investigator/prompt.md) — `/z-investigator` playbook (the hypothesis-driven sibling)
 - Mechanical CI scripts — `scripts/check-hygiene.py`, `scripts/check-citations.sh`, `scripts/check-staleness.sh`, `scripts/check-doc-links.py`
 - Clarifications register — `references/_meta/clarifications.md`

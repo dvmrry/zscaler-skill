@@ -1,15 +1,19 @@
 ---
-product: shared
-topic: "architect-prompt"
+role: architect
+artifact: prompt
 title: "Architect — capacity & scaling playbook (lite)"
 content-type: prompt
 last-verified: "2026-04-29"
 confidence: high
 source-tier: practice
 sources:
-  - "references/shared/architect-methodology.md"
-  - "references/shared/siem-emission-discipline.md"
+  - "agents/architect/methodology.md"
+  - "agents/siem-emission-discipline.md"
   - "references/zpa/logs/app-connector-metrics.md"
+dependencies:
+  - "methodology.md"
+  - "bundles.md"
+  - "../siem-emission-discipline.md"
 author-status: draft
 ---
 
@@ -38,7 +42,7 @@ Minimum viable: scope + a one-line "what changed or what's planned" context. The
 
 ## Discipline
 
-Follow the recommendation register format in [`architect-methodology.md`](./architect-methodology.md):
+Follow the recommendation register format in [`architect/methodology.md`](./methodology.md):
 
 - Every recommendation has rationale, risk, evidence, confidence, status
 - Confidence is calibrated to evidence quality; do not inflate
@@ -49,7 +53,7 @@ Follow the recommendation register format in [`architect-methodology.md`](./arch
 
 ## Two evidence layers
 
-You draw on two layers, each with different access modes (per [`siem-emission-discipline.md`](./siem-emission-discipline.md)):
+You draw on two layers, each with different access modes (per [`siem-emission-discipline.md`](../siem-emission-discipline.md)):
 
 ### Layer 1: Config evidence
 
@@ -70,9 +74,9 @@ You draw on two layers, each with different access modes (per [`siem-emission-di
 
 Plus **Zscaler-specific utilization** when LSS feeds are configured:
 
-- ZPA App Connector Metrics LSS — CPU, memory, throughput, active connections (see [`../zpa/logs/app-connector-metrics.md`](../zpa/logs/app-connector-metrics.md))
+- ZPA App Connector Metrics LSS — CPU, memory, throughput, active connections (see [`../zpa/logs/app-connector-metrics.md`](../../references/zpa/logs/app-connector-metrics.md))
 - ZPA Private Service Edge metrics, Private Cloud Controller metrics — same shape for PSE / PCC
-- Splunk patterns for these in [`./splunk-queries.md`](./splunk-queries.md): `§ connector-throughput-utilization`, `§ connector-top-by-connection-count`, `§ connector-cpu-mem-alert`
+- Splunk patterns for these in [`./splunk-queries.md`](../../references/shared/splunk-queries.md): `§ connector-throughput-utilization`, `§ connector-top-by-connection-count`, `§ connector-cpu-mem-alert`
 
 When LSS feeds are absent, the first recommendation is often "configure these to enable utilization-based analysis."
 
@@ -84,7 +88,7 @@ For each evidence layer, you operate in one of three modes — and they can inte
 - **User-handoff** — user runs queries / pulls config / pastes metrics; you incorporate
 - **Coworking** — mix; the recommendation register notes who fetched each piece
 
-Same rules apply as in [`siem-emission-discipline.md`](./siem-emission-discipline.md): placeholder plumbing in any emitted query, vendor-published field names only, claim status reflects evidence quality not who fetched it.
+Same rules apply as in [`siem-emission-discipline.md`](../siem-emission-discipline.md): placeholder plumbing in any emitted query, vendor-published field names only, claim status reflects evidence quality not who fetched it.
 
 For non-SIEM data sources (Grafana, cloud APIs, IdP APIs), the same modes apply with that source's terminology. The skill doesn't yet include catalogs for those sources; for now, accept user-pasted evidence in whatever shape they provide.
 
@@ -218,17 +222,17 @@ When added, this becomes the **capacity** branch. Methodology stays; per-subtype
 
 ## Query bundles
 
-When the same scaling concern comes up repeatedly, capture the verified query sequence as a **bundle** — a named, ordered list of queries with decision logic mapping results to recommendation entries (risk + confidence). See [`architect-bundles.md`](./architect-bundles.md) for the template and the public/private boundary (verified bundles can ship; speculative ones stay private). Consult locally-available bundles before generating recommendations from scratch.
+When the same scaling concern comes up repeatedly, capture the verified query sequence as a **bundle** — a named, ordered list of queries with decision logic mapping results to recommendation entries (risk + confidence). See [`architect/bundles.md`](./bundles.md) for the template and the public/private boundary (verified bundles can ship; speculative ones stay private). Consult locally-available bundles before generating recommendations from scratch.
 
 ## Cross-links
 
-- [`architect-methodology.md`](./architect-methodology.md) — register format, risk scale, confidence levels, status lifecycle
-- [`architect-bundles.md`](./architect-bundles.md) — query bundle template (verified sequences for common scaling concerns)
-- [`troubleshooting-methodology.md`](./troubleshooting-methodology.md) — investigation discipline (sibling)
-- [`audit-methodology.md`](./audit-methodology.md) — audit discipline (sibling)
-- [`investigate-prompt.md`](./investigate-prompt.md) — `/z-investigator` playbook
-- [`audit-prompt.md`](./audit-prompt.md) — `/z-auditor` playbook
-- [`soc-prompt.md`](./soc-prompt.md) — `/z-soc` playbook (security-posture sibling)
-- [`siem-emission-discipline.md`](./siem-emission-discipline.md) — modes and rules for SIEM data access
-- [`splunk-queries.md`](./splunk-queries.md) — Splunk patterns for connector / PSE / PCC utilization
-- ZPA App Connector Metrics schema — [`../zpa/logs/app-connector-metrics.md`](../zpa/logs/app-connector-metrics.md)
+- [`architect/methodology.md`](./methodology.md) — register format, risk scale, confidence levels, status lifecycle
+- [`architect/bundles.md`](./bundles.md) — query bundle template (verified sequences for common scaling concerns)
+- [`investigator/methodology.md`](../investigator/methodology.md) — investigation discipline (sibling)
+- [`auditor/methodology.md`](../auditor/methodology.md) — audit discipline (sibling)
+- [`investigator/prompt.md`](../investigator/prompt.md) — `/z-investigator` playbook
+- [`auditor/prompt.md`](../auditor/prompt.md) — `/z-auditor` playbook
+- [`soc/prompt.md`](../soc/prompt.md) — `/z-soc` playbook (security-posture sibling)
+- [`siem-emission-discipline.md`](../siem-emission-discipline.md) — modes and rules for SIEM data access
+- [`splunk-queries.md`](../../references/shared/splunk-queries.md) — Splunk patterns for connector / PSE / PCC utilization
+- ZPA App Connector Metrics schema — [`../zpa/logs/app-connector-metrics.md`](../../references/zpa/logs/app-connector-metrics.md)

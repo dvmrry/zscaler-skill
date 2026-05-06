@@ -1,16 +1,20 @@
 ---
-product: shared
-topic: "soc-prompt"
+role: soc
+artifact: prompt
 title: "SOC — security posture review playbook"
 content-type: prompt
 last-verified: "2026-04-30"
 confidence: high
 source-tier: practice
 sources:
-  - "references/shared/audit-methodology.md"
-  - "references/shared/troubleshooting-methodology.md"
+  - "agents/auditor/methodology.md"
+  - "agents/investigator/methodology.md"
   - "references/shared/siem-log-mapping.md"
-  - "references/shared/siem-emission-discipline.md"
+  - "agents/siem-emission-discipline.md"
+dependencies:
+  - "../auditor/methodology.md"
+  - "../investigator/methodology.md"
+  - "../siem-emission-discipline.md"
 author-status: draft
 ---
 
@@ -46,7 +50,7 @@ Minimum viable framing: scope + at least one subtype hint, OR scope alone (agent
 
 ## Discipline
 
-Follow the audit register format and severity / status enums from [`audit-methodology.md`](./audit-methodology.md), with SOC-specific extensions:
+Follow the audit register format and severity / status enums from [`auditor/methodology.md`](../auditor/methodology.md), with SOC-specific extensions:
 
 - Every finding cites a source: snapshot file, SIEM query result, API response, log evidence, vendor doc citation
 - Severity uses the same `Critical / High / Medium / Low / Info` enum, calibrated to **security impact if not addressed** (not editorial priority)
@@ -56,7 +60,7 @@ Follow the audit register format and severity / status enums from [`audit-method
 - Do not mark findings `Resolved` without verification (re-read the snapshot, re-run the query)
 - Findings outside scope go in Notes or "Out-of-scope observations," not silently dropped or chased
 
-The discipline around evidence sourcing follows [`troubleshooting-methodology.md`](./troubleshooting-methodology.md) — disk first (`_data/snapshot/<cloud>/`, `_data/incidents/<operative>/evidence/`), then SIEM, then live API, then portal as last resort. See [`./investigate-prompt.md § Step 4`](./investigate-prompt.md) for the full preference ladder.
+The discipline around evidence sourcing follows [`investigator/methodology.md`](../investigator/methodology.md) — disk first (`_data/snapshot/<cloud>/`, `_data/incidents/<operative>/evidence/`), then SIEM, then live API, then portal as last resort. See [`./investigate-prompt.md § Step 4`](../investigator/prompt.md) for the full preference ladder.
 
 ## First response
 
@@ -70,7 +74,7 @@ If scope is ambiguous or absent, ask one clarifying question.
 
 ### 2. Ground before you reason
 
-Same a/b/c/d as `/z-investigator` (see [`./investigate-prompt.md § Step 2`](./investigate-prompt.md)):
+Same a/b/c/d as `/z-investigator` (see [`./investigate-prompt.md § Step 2`](../investigator/prompt.md)):
 
 - **a.** Read source schemas for any logs / config files you'll analyze
 - **b.** Read the canonical product / feature reference for any Zscaler component in scope
@@ -159,18 +163,18 @@ Check-set:
 - **Stale admins** — last login > 90 days; offboarded users still active in the admin database; service accounts without rotation.
 - **Role bloat** — custom roles defined but accumulated permissions over time without periodic review.
 - **API client privilege** — OneAPI clients with broad resource-server scope; secrets last-rotated > policy threshold.
-- **Step-up auth coverage** — high-sensitivity apps / actions without Conditional Access / step-up authentication required. (ZIdentity Authentication Levels — see [`../zidentity/`](../zidentity/index.md).)
+- **Step-up auth coverage** — high-sensitivity apps / actions without Conditional Access / step-up authentication required. (ZIdentity Authentication Levels — see [`../zidentity/`](../../references/zidentity/index.md).)
 - **SAML attribute drift** — IdP-provided attributes that don't match the SCIM directory; impacts policy evaluation correctness.
 
 ### Subtype: telemetry coverage
 
 Check-set:
 
-- **LSS feed health** — every ZPA log type that should stream is streaming (User Activity, App Connector Status, Audit Logs, etc.). Cross-reference [`./siem-log-mapping.md`](./siem-log-mapping.md) for the catalog.
+- **LSS feed health** — every ZPA log type that should stream is streaming (User Activity, App Connector Status, Audit Logs, etc.). Cross-reference [`./siem-log-mapping.md`](../../references/shared/siem-log-mapping.md) for the catalog.
 - **NSS feed health** — every ZIA log type (web, firewall, DNS, IPS, alerts, audit) is enabled and arriving in SIEM.
-- **Sourcetype enablement** — any expected sourcetype missing from SIEM per [`./siem-log-mapping.md`](./siem-log-mapping.md). Use [`./tenant-schema-derivation.md`](./tenant-schema-derivation.md) to confirm tenant view matches canonical schema.
+- **Sourcetype enablement** — any expected sourcetype missing from SIEM per [`./siem-log-mapping.md`](../../references/shared/siem-log-mapping.md). Use [`./tenant-schema-derivation.md`](../tenant-schema-derivation.md) to confirm tenant view matches canonical schema.
 - **Field-level coverage** — TA-required fields actually present in tenant view (e.g., `clt_sport`, `srv_dport`, `dlprulename` per ZIA web log notes).
-- **Detection coverage** — does the SIEM have queries / alerts for the skill's known posture concerns? Cross-reference [`./splunk-queries.md`](./splunk-queries.md) for the pattern catalog.
+- **Detection coverage** — does the SIEM have queries / alerts for the skill's known posture concerns? Cross-reference [`./splunk-queries.md`](../../references/shared/splunk-queries.md) for the pattern catalog.
 - **Audit log retention** — tenant retention setting matches IR / compliance policy.
 
 ### Subtype: config posture
@@ -182,7 +186,7 @@ Check-set:
 - **Tenant default actions** — URL filtering default action, FW default action, DNS Control default action. Default-allow ⇒ posture finding.
 - **Cloud connector / segment exposure** — segments reachable from `Any` source without scope refinement; segments with broad FQDN wildcards.
 - **Posture profile freshness** — profiles last updated > N months when device fleet has changed.
-- **Subcloud restrictions** — restrictive subclouds applied where they shouldn't be (impacting BC Cloud fallback per [`./subclouds.md`](./subclouds.md)).
+- **Subcloud restrictions** — restrictive subclouds applied where they shouldn't be (impacting BC Cloud fallback per [`./subclouds.md`](../../references/shared/subclouds.md)).
 
 ### Subtype: activity / admin audit
 
@@ -223,15 +227,15 @@ For routine posture reviews with no incident shape, only `posture.md` exists in 
 
 ## Cross-links
 
-- [`audit-methodology.md`](./audit-methodology.md) — register format, severity, status lifecycle (shared with `/z-auditor`)
-- [`troubleshooting-methodology.md`](./troubleshooting-methodology.md) — evidence discipline, claim status (used in subsequent investigation handoffs)
-- [`investigate-prompt.md`](./investigate-prompt.md) — `/z-investigator` (hypothesis-driven sibling)
-- [`audit-prompt.md`](./audit-prompt.md) — `/z-auditor` (linter sibling)
-- [`architect-prompt.md`](./architect-prompt.md) — `/z-architect` (capacity sibling)
-- [`siem-log-mapping.md`](./siem-log-mapping.md) — Zscaler log type catalog (used in coverage subtype)
-- [`siem-emission-discipline.md`](./siem-emission-discipline.md) — SIEM execution modes
-- [`splunk-queries.md`](./splunk-queries.md) — Splunk pattern catalog (used in detection-coverage check)
-- [`tenant-schema-derivation.md`](./tenant-schema-derivation.md) — canonical vs. tenant schemas (used in coverage subtype)
+- [`auditor/methodology.md`](../auditor/methodology.md) — register format, severity, status lifecycle (shared with `/z-auditor`)
+- [`investigator/methodology.md`](../investigator/methodology.md) — evidence discipline, claim status (used in subsequent investigation handoffs)
+- [`investigator/prompt.md`](../investigator/prompt.md) — `/z-investigator` (hypothesis-driven sibling)
+- [`auditor/prompt.md`](../auditor/prompt.md) — `/z-auditor` (linter sibling)
+- [`architect/prompt.md`](../architect/prompt.md) — `/z-architect` (capacity sibling)
+- [`siem-log-mapping.md`](../../references/shared/siem-log-mapping.md) — Zscaler log type catalog (used in coverage subtype)
+- [`siem-emission-discipline.md`](../siem-emission-discipline.md) — SIEM execution modes
+- [`splunk-queries.md`](../../references/shared/splunk-queries.md) — Splunk pattern catalog (used in detection-coverage check)
+- [`tenant-schema-derivation.md`](../tenant-schema-derivation.md) — canonical vs. tenant schemas (used in coverage subtype)
 - [`../../_data/incidents/README.md`](../../_data/incidents/README.md) — incident artifact convention (where `posture.md` lands)
 
 ---

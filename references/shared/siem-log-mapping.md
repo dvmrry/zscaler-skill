@@ -25,7 +25,7 @@ The bridge between Zscaler log streams (universal, defined by Zscaler) and where
 
 This catalog is **canonical** — the Zscaler-published view of each log type and its schema. The complementary artifact is the **tenant schema**: an empirical dump of what's actually in your SIEM after parsing / TA / aliases (e.g., a Splunk `fieldsummary` against your sourcetype). Tenant schemas are private and live in your fork / CLAUDE.md / memory.
 
-A good investigation cross-references both: canonical for "what fields could exist + what they mean," tenant for "what's actually queryable in this environment right now." See [`tenant-schema-derivation.md`](./tenant-schema-derivation.md) for the canonical-vs-tenant distinction, derivation recipes per SIEM (Splunk fieldsummary, Sentinel getschema, Elastic field_caps, etc.), and a storage template.
+A good investigation cross-references both: canonical for "what fields could exist + what they mean," tenant for "what's actually queryable in this environment right now." See [`tenant-schema-derivation.md`](../../agents/tenant-schema-derivation.md) for the canonical-vs-tenant distinction, derivation recipes per SIEM (Splunk fieldsummary, Sentinel getschema, Elastic field_caps, etc.), and a storage template.
 
 ## How this is structured
 
@@ -37,7 +37,7 @@ Each Zscaler log type has one entry with:
 - **Catalog placeholder** — the generic name used in this catalog and in SIEM-specific query catalogs (e.g., `$INDEX_ZIA_WEB` in `splunk-queries.md`)
 - **Common SIEM landing spots** — typical naming patterns per SIEM. These are *patterns*, not your tenant's actual config.
 
-The user maps their tenant's real names to the catalog placeholders in CLAUDE.md, memory, or a private fork's config — see [`siem-emission-discipline.md`](./siem-emission-discipline.md). The public catalog never holds tenant-specific values.
+The user maps their tenant's real names to the catalog placeholders in CLAUDE.md, memory, or a private fork's config — see [`siem-emission-discipline.md`](../../agents/siem-emission-discipline.md). The public catalog never holds tenant-specific values.
 
 ### Confidence note on per-SIEM landing spots
 
@@ -267,11 +267,11 @@ These are tracked as next deliverables after this catalog is validated.
 
 ## Cross-links
 
-- [`tenant-schema-derivation.md`](./tenant-schema-derivation.md) — canonical-vs-tenant distinction, derivation recipes per SIEM, storage template
-- [`siem-emission-discipline.md`](./siem-emission-discipline.md) — agent execution modes, public/private boundary, where user plumbing lives
+- [`tenant-schema-derivation.md`](../../agents/tenant-schema-derivation.md) — canonical-vs-tenant distinction, derivation recipes per SIEM, storage template
+- [`siem-emission-discipline.md`](../../agents/siem-emission-discipline.md) — agent execution modes, public/private boundary, where user plumbing lives
 - [`splunk-queries.md`](./splunk-queries.md) — Splunk-specific SPL pattern catalog
-- [`investigate-prompt.md`](./investigate-prompt.md) — `/z-investigator` slash command playbook
-- [`troubleshooting-methodology.md`](./troubleshooting-methodology.md) — discovery journal, claim status
+- [`agents/investigator/prompt.md`](../../agents/investigator/prompt.md) — `/z-investigator` slash command playbook
+- [`agents/investigator/methodology.md`](../../agents/investigator/methodology.md) — discovery journal, claim status
 - ZIA log schemas — [`../zia/logs/`](../zia/logs/)
 - ZPA log schemas — [`../zpa/logs/`](../zpa/logs/)
 - ZCC log schema — [`../zcc/logs/zcc-log-schema.md`](../zcc/logs/zcc-log-schema.md)

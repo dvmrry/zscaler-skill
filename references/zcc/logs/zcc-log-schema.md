@@ -200,7 +200,7 @@ ZCC logs connection-level events. ZIA NSS logs transaction-level events. A singl
 
 The ref body already flags several Tier B/C/D items honestly. The most material item not yet tracked as a clarification:
 
-- `log_level` (`logLevel`) vs `log_mode` (`logMode`) — the SDK exposes both; their relationship is unresolved (same concept renamed across API/UI layers, or distinct settings with different effects). [Clarification `log-21`](../../_meta/clarifications.md#log-21--zcc-log_level-vs-log_mode-relationship).
+- `log_level` (`logLevel`) vs `log_mode` (`logMode`) — the SDK exposes both; their relationship is unresolved (same concept renamed across API/UI layers, or distinct settings with different effects). [Clarification `log-21`](../../_meta/clarifications.md#log-21-zcc-log_level-vs-log_mode-relationship).
 
 Other items the ref body flags but does not file as clarifications (lighter-weight, not formally tracked):
 

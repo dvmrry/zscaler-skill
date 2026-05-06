@@ -1,6 +1,6 @@
 ---
-product: shared
-topic: "troubleshooting-methodology"
+role: investigator
+artifact: methodology
 title: "Troubleshooting methodology — evidence-based diagnostics"
 content-type: reference
 last-verified: "2026-04-28"
@@ -455,6 +455,6 @@ Real example: During SIPA troubleshooting, forced citation uncovered a legitimat
 
 ## Cross-links
 
-- SIPA troubleshooting (example case): [`../zpa/troubleshooting.md`](../zpa/troubleshooting.md)
-- Policy evaluation (common troubleshooting target): [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md)
-- LSS and logging (evidence sources): [`../zpa/log-receivers.md`](../zpa/log-receivers.md)
+- SIPA troubleshooting (example case): [`../zpa/troubleshooting.md`](../../references/zpa/troubleshooting.md)
+- Policy evaluation (common troubleshooting target): [`../zpa/policy-precedence.md`](../../references/zpa/policy-precedence.md)
+- LSS and logging (evidence sources): [`../zpa/log-receivers.md`](../../references/zpa/log-receivers.md)

@@ -77,7 +77,7 @@ The browser is configured with a **Hosted URL** pointing at the PAC. On each fet
 
 ### PAC fetch frequency, caching, and propagation
 
-Browser PAC caching is governed by HTTP response headers (`Cache-Control`, `Expires`, `Last-Modified`, ETag). Most browsers re-evaluate their PAC every few minutes to a few hours — exact behavior is browser-specific and depends on the headers Zscaler's PAC server returns. **The specific cache headers Zscaler-hosted PAC URLs send are not captured in available vendor documentation** (Tier D). Operationally observed: PAC changes can take **minutes to ~1 hour** to fully propagate across a tenant's user base. (Tier C — operational lore consistent with browser PAC caching norms; see [`shared-24`](../_meta/clarifications.md#shared-24--zscaler-hosted-pac-cache-headers-and-client-refresh-behavior).)
+Browser PAC caching is governed by HTTP response headers (`Cache-Control`, `Expires`, `Last-Modified`, ETag). Most browsers re-evaluate their PAC every few minutes to a few hours — exact behavior is browser-specific and depends on the headers Zscaler's PAC server returns. **The specific cache headers Zscaler-hosted PAC URLs send are not captured in available vendor documentation** (Tier D). Operationally observed: PAC changes can take **minutes to ~1 hour** to fully propagate across a tenant's user base. (Tier C — operational lore consistent with browser PAC caching norms; see [`shared-24`](../_meta/clarifications.md#shared-24-zscaler-hosted-pac-cache-headers-and-client-refresh-behavior).)
 
 **Forced refresh:** Restarting the browser or clearing the PAC cache (browser-specific) forces a fresh fetch. ZCC's PAC mode behavior on PAC change is also undocumented — whether ZCC respects HTTP cache headers or polls on its own schedule is in the same clarification.
 
@@ -242,7 +242,7 @@ The unqualified `${GATEWAY}` on a subcloud tenant may resolve to geolocation-def
 
 WPAD is the standard mechanism for distributing a PAC URL to clients automatically — DNS-based (`http://wpad.<domain>/wpad.dat`) or DHCP-based (option 252). Many enterprises rely on WPAD instead of pushing the explicit PAC URL via GPO / MDM.
 
-**Vendor coverage gap:** Zscaler's available help-portal captures **do not document WPAD support, the `wpad.dat` MIME type, or DHCP option 252 patterns for Zscaler-hosted PACs**. Filed as [`shared-23`](../_meta/clarifications.md#shared-23--wpad-web-proxy-auto-discovery-support-with-zscaler-hosted-pacs). Tenants relying on WPAD typically self-host (losing variable substitution) or have configured a customer-side `wpad` DNS record returning the Zscaler-hosted PAC URL via HTTP redirect — the latter is operational lore, not vendor-documented. (Tier D.)
+**Vendor coverage gap:** Zscaler's available help-portal captures **do not document WPAD support, the `wpad.dat` MIME type, or DHCP option 252 patterns for Zscaler-hosted PACs**. Filed as [`shared-23`](../_meta/clarifications.md#shared-23-wpad-web-proxy-auto-discovery-support-with-zscaler-hosted-pacs). Tenants relying on WPAD typically self-host (losing variable substitution) or have configured a customer-side `wpad` DNS record returning the Zscaler-hosted PAC URL via HTTP redirect — the latter is operational lore, not vendor-documented. (Tier D.)
 
 If WPAD is required, the operationally common patterns are:
 
@@ -254,7 +254,7 @@ If WPAD is required, the operationally common patterns are:
 
 When a browser configured with a PAC URL forwards a request to the Zscaler PSE, the PSE applies the same authentication policy as any other forwarding method. The flow follows the model in [`../zia/authentication.md`](../zia/authentication.md): SAML SSO redirect (browser → IdP → ZIA cookie), Hosted DB (form challenge), or Kerberos (transparent ticket on port 8800 if `kerberos.pac` is in use). **Surrogate IP** (per-location TTL-bound IP-to-user binding) is the primary identity-attribution mechanism for non-browser HTTP clients on the same source IP. (Tier A — see [`../zia/authentication.md § Surrogate IP`](../zia/authentication.md).)
 
-**Vendor coverage gap on PAC-mode-specific challenge mechanics:** the precise sequence of HTTP 302 redirects, cookie-set-cookie behavior, and 407 Proxy-Authentication challenge handling for PAC-forwarded traffic vs Z-Tunnel-forwarded traffic is **not consolidated in any captured vendor doc**. The common ticket — repeated authentication challenges in PAC mode that don't occur in Z-Tunnel mode for the same user — is filed as clarification [`shared-25`](../_meta/clarifications.md#shared-25--pac-mode-authentication-handshake-specifics). (Tier D for the PAC-specific behavior; Tier A for the authentication-method enum and Surrogate IP mechanic.)
+**Vendor coverage gap on PAC-mode-specific challenge mechanics:** the precise sequence of HTTP 302 redirects, cookie-set-cookie behavior, and 407 Proxy-Authentication challenge handling for PAC-forwarded traffic vs Z-Tunnel-forwarded traffic is **not consolidated in any captured vendor doc**. The common ticket — repeated authentication challenges in PAC mode that don't occur in Z-Tunnel mode for the same user — is filed as clarification [`shared-25`](../_meta/clarifications.md#shared-25-pac-mode-authentication-handshake-specifics). (Tier D for the PAC-specific behavior; Tier A for the authentication-method enum and Surrogate IP mechanic.)
 
 ## PAC behavior with non-browser HTTP clients
 
@@ -273,13 +273,13 @@ PAC files are a browser-era specification, but enterprise apps increasingly run 
 
 (Tier C — synthesized from widely-documented client-library behavior; not Zscaler-specific. Behavior in fast-evolving runtimes may shift.)
 
-**Operational implication:** if your environment routes browser traffic via PAC but workloads (CI/CD agents, scripts, containerized services) need to traverse the same Zscaler proxy, those workloads need either explicit proxy configuration or Cloud Connector deployment instead. PAC-only environments leak workload traffic around Zscaler. Filed as [`shared-26`](../_meta/clarifications.md#shared-26--non-browser-http-client-pac-support-matrix-zscaler-side-recommendations) for whether Zscaler has formal recommendations on this.
+**Operational implication:** if your environment routes browser traffic via PAC but workloads (CI/CD agents, scripts, containerized services) need to traverse the same Zscaler proxy, those workloads need either explicit proxy configuration or Cloud Connector deployment instead. PAC-only environments leak workload traffic around Zscaler. Filed as [`shared-26`](../_meta/clarifications.md#shared-26-non-browser-http-client-pac-support-matrix-zscaler-side-recommendations) for whether Zscaler has formal recommendations on this.
 
 ## PAC + IPv6
 
 The standard PAC `isInNet` function is **IPv4-only**. The IPv6-aware extension `isInNetEx(host, "fe80::/10")` exists but support varies across browsers (Tier B — Mozilla PAC documentation). Modern Chrome and Firefox support `isInNetEx`; older / niche browsers may not.
 
-**Vendor coverage gap on Zscaler PAC + IPv6:** captured Zscaler PAC docs do not specify whether Zscaler-hosted PAC variables (`${GATEWAY}`, etc.) ever resolve to IPv6 addresses, whether IPv6 traffic is forwarded via PAC at all, or what the recommended IPv6-bypass pattern is for private IPv6 ranges. Filed as [`shared-27`](../_meta/clarifications.md#shared-27--zscaler-pac--ipv6-handling). (Tier D.)
+**Vendor coverage gap on Zscaler PAC + IPv6:** captured Zscaler PAC docs do not specify whether Zscaler-hosted PAC variables (`${GATEWAY}`, etc.) ever resolve to IPv6 addresses, whether IPv6 traffic is forwarded via PAC at all, or what the recommended IPv6-bypass pattern is for private IPv6 ranges. Filed as [`shared-27`](../_meta/clarifications.md#shared-27-zscaler-pac--ipv6-handling). (Tier D.)
 
 For dual-stack environments, the operationally-conservative pattern is to bypass IPv6 to DIRECT until Zscaler IPv6 PAC behavior is confirmed:
 

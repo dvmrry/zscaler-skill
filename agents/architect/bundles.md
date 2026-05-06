@@ -1,15 +1,19 @@
 ---
-product: shared
-topic: "architect-bundles"
+role: architect
+artifact: bundles
 title: "Architect query bundles — template + private-fork pattern"
 content-type: reference
 last-verified: "2026-04-29"
 confidence: high
 source-tier: practice
 sources:
-  - "references/shared/architect-prompt.md"
-  - "references/shared/architect-methodology.md"
-  - "references/shared/siem-emission-discipline.md"
+  - "agents/architect/prompt.md"
+  - "agents/architect/methodology.md"
+  - "agents/siem-emission-discipline.md"
+dependencies:
+  - "prompt.md"
+  - "methodology.md"
+  - "../siem-emission-discipline.md"
 author-status: draft
 ---
 
@@ -164,12 +168,12 @@ Document it explicitly. Silent assumptions cause incorrect recommendations.
 
 - Placeholder plumbing in any bundle published outside private fork
 - Tenant identifiers (real region names, real component IDs, real headcount) stay in private bundles
-- Sample utilization data quoted in examples redacted per [`tenant-schema-derivation.md`](./tenant-schema-derivation.md) redaction patterns
+- Sample utilization data quoted in examples redacted per [`tenant-schema-derivation.md`](../tenant-schema-derivation.md) redaction patterns
 
 ## Cross-links
 
-- [`architect-prompt.md`](./architect-prompt.md) — `/z-architect` playbook (where bundles get invoked)
-- [`architect-methodology.md`](./architect-methodology.md) — recommendation register, risk scale, confidence calibration, status lifecycle
-- [`siem-emission-discipline.md`](./siem-emission-discipline.md) — execution modes, placeholder plumbing, public/private boundary
-- [`splunk-queries.md`](./splunk-queries.md) — named SPL patterns to reference from inside bundles
-- [`investigation-bundles.md`](./investigation-bundles.md) — parallel template for `/z-investigator` query bundles
+- [`architect/prompt.md`](./prompt.md) — `/z-architect` playbook (where bundles get invoked)
+- [`architect/methodology.md`](./methodology.md) — recommendation register, risk scale, confidence calibration, status lifecycle
+- [`siem-emission-discipline.md`](../siem-emission-discipline.md) — execution modes, placeholder plumbing, public/private boundary
+- [`splunk-queries.md`](../../references/shared/splunk-queries.md) — named SPL patterns to reference from inside bundles
+- [`investigator/bundles.md`](../investigator/bundles.md) — parallel template for `/z-investigator` query bundles

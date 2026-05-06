@@ -259,10 +259,10 @@ Cross-check `PosturesMiss` values against the policy configured under **Policy >
 
 Operators correlating session lifecycle from these logs can readily mis-infer record cardinality (e.g., assume one record per session when actually multiple are emitted, leading to over-counting).
 
-See [`log-19`](../../_meta/clarifications.md#log-19--user-status-record-granularity-and-byte-counter-timing).
+See [`log-19`](../../_meta/clarifications.md#log-19-user-status-record-granularity-and-byte-counter-timing).
 
 ## Open questions
 
-- `SessionStatus` record granularity and byte counter timing — [clarification `log-19`](../../_meta/clarifications.md#log-19--user-status-record-granularity-and-byte-counter-timing)
+- `SessionStatus` record granularity and byte counter timing — [clarification `log-19`](../../_meta/clarifications.md#log-19-user-status-record-granularity-and-byte-counter-timing)
 - Whether `$INDEX_ZPA_STATUS` and `$INDEX_ZPA` are always separate in practice, or whether LSS receivers commonly co-index all LSS log types — depends on customer LSS receiver deployment.
 - The exact `SessionStatus` values when a ZPA Private Service Edge (PSE) terminates a session vs. a Public Service Edge — the PDF description uses "Public Service Edge or Private Service Edge" without distinguishing the value.

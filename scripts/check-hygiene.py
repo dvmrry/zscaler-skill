@@ -58,6 +58,7 @@ import yaml
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 REFS = REPO_ROOT / "references"
+AGENTS = REPO_ROOT / "agents"
 EVALS = REPO_ROOT / "references" / "_meta" / "evals" / "evals.json"
 CLARIFICATIONS = REFS / "_meta" / "clarifications.md"
 TEMPLATE = REFS / "_meta" / "template.md"
@@ -65,6 +66,28 @@ DIGEST_DEFAULT = REPO_ROOT / "_data" / "logs" / "hygiene-digest.md"
 
 REQUIRED_FRONTMATTER = [
     "product",
+    "topic",
+    "title",
+    "content-type",
+    "last-verified",
+    "confidence",
+    "sources",
+    "author-status",
+]
+# Files under agents/ use a different identity convention: role + artifact for
+# role-keyed playbooks/methodologies/bundles, or just topic for cross-cutting
+# agent infrastructure. They don't carry a product (they're product-agnostic).
+REQUIRED_FRONTMATTER_AGENTS_ROLE = [
+    "role",
+    "artifact",
+    "title",
+    "content-type",
+    "last-verified",
+    "confidence",
+    "sources",
+    "author-status",
+]
+REQUIRED_FRONTMATTER_AGENTS_CROSSCUT = [
     "topic",
     "title",
     "content-type",
@@ -170,7 +193,28 @@ def check_frontmatter(path: Path) -> list[Finding]:
         )
         return findings
 
-    for field in REQUIRED_FRONTMATTER:
+    # Pick the required-field set based on where the file lives.
+    # agents/{role}/X.md → role-keyed agent artifact (role + artifact)
+    # agents/X.md or agents/_meta/X.md → cross-cutting agent file (topic)
+    # everything else → standard product reference (product + topic)
+    try:
+        agent_rel = path.relative_to(AGENTS).parts
+    except ValueError:
+        agent_rel = None
+
+    if agent_rel is not None:
+        # Skip the agents/ index README from frontmatter id-fields check
+        # (it's a navigational hub).
+        if path.name == "README.md" and len(agent_rel) == 1:
+            required = REQUIRED_FRONTMATTER_AGENTS_CROSSCUT
+        elif len(agent_rel) >= 2 and agent_rel[0] not in {"_meta"}:
+            required = REQUIRED_FRONTMATTER_AGENTS_ROLE
+        else:
+            required = REQUIRED_FRONTMATTER_AGENTS_CROSSCUT
+    else:
+        required = REQUIRED_FRONTMATTER
+
+    for field in required:
         if field not in fm:
             findings.append(
                 Finding("error", path, "frontmatter", f"missing required field: {field}")
@@ -235,9 +279,13 @@ def check_frontmatter(path: Path) -> list[Finding]:
     try:
         rel_parts = path.relative_to(REFS).parts
     except ValueError:
-        rel_parts = ()
+        try:
+            rel_parts = path.relative_to(AGENTS).parts
+        except ValueError:
+            rel_parts = ()
     is_aggregator = (
         path.name == "index.md"
+        or path.name == "README.md"
         or any(part.startswith("_") for part in rel_parts)
     )
     if (
@@ -491,8 +539,13 @@ SKIP_DIR_NAMES = {"archive"}  # under _meta/ post-2026-04-30 reorg
 def run_all_checks(strict: bool = False) -> list[Finding]:
     findings: list[Finding] = []
     md_files = sorted(
-        p for p in REFS.rglob("*.md")
-        if not any(part in SKIP_DIR_NAMES for part in p.relative_to(REFS).parts)
+        [
+            p for p in REFS.rglob("*.md")
+            if not any(part in SKIP_DIR_NAMES for part in p.relative_to(REFS).parts)
+        ]
+        + [
+            p for p in AGENTS.rglob("*.md") if AGENTS.exists()
+        ]
     )
 
     for path in md_files:

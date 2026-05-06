@@ -272,13 +272,13 @@ The NSS firewall log aggregation behavior applies to CC session logs. When sessi
 
 CC NSS feed uses the ZIA firewall log schema, so the firewall clarifications apply transitively:
 
-- Aggregate session semantics — [clarification `log-11`](../../_meta/clarifications.md#log-11--firewall-aggregate-session-semantics)
-- `action` precedence across FW + IPS + DNAT — [clarification `log-12`](../../_meta/clarifications.md#log-12--firewall-action-precedence-across-fw-ips-dnat)
-- `nwapp` vs `nwsvc` relationship — [clarification `log-13`](../../_meta/clarifications.md#log-13--firewall-nwapp-vs-nwsvc-relationship)
+- Aggregate session semantics — [clarification `log-11`](../../_meta/clarifications.md#log-11-firewall-aggregate-session-semantics)
+- `action` precedence across FW + IPS + DNAT — [clarification `log-12`](../../_meta/clarifications.md#log-12-firewall-action-precedence-across-fw-ips-dnat)
+- `nwapp` vs `nwsvc` relationship — [clarification `log-13`](../../_meta/clarifications.md#log-13-firewall-nwapp-vs-nwsvc-relationship)
 
 CC-specific gaps in the SDK state surface (`ECVMs`):
 
-- `Status []string` per-VM flag enum and `UpgradeStatus` int code mapping — both are SDK-readable but the value spaces are not documented in available captures. [Clarification `log-22`](../../_meta/clarifications.md#log-22--cloud-connector-status-flags-and-upgradestatus-codes).
+- `Status []string` per-VM flag enum and `UpgradeStatus` int code mapping — both are SDK-readable but the value spaces are not documented in available captures. [Clarification `log-22`](../../_meta/clarifications.md#log-22-cloud-connector-status-flags-and-upgradestatus-codes).
 
 Other items the ref body flags but does not file as formal clarifications:
 

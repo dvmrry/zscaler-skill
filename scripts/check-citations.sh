@@ -33,6 +33,7 @@ set -uo pipefail  # NOT -e: we want to continue on errors
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REFS_DIR="${REPO_ROOT}/references"
+AGENTS_DIR="${REPO_ROOT}/agents"
 CHECK_URLS=""
 [[ "${1:-}" == "--check-urls" ]] && CHECK_URLS="yes"
 
@@ -70,7 +71,7 @@ print(abs_path)
 " "${file_dir}" "${rel_path}" 2>/dev/null
 }
 
-echo "Checking citations in references/**/*.md"
+echo "Checking citations in references/**/*.md and agents/**/*.md"
 [[ -z "${CHECK_URLS}" ]] && echo "(URL checks disabled — re-run with --check-urls to enable)"
 echo ""
 
@@ -114,7 +115,7 @@ while IFS= read -r file; do
             fi
         fi
     done < <(strip_code "${file}" | grep -oE '\[[^]]*\]\([^)]+\)' | sed -E 's/^\[[^]]*\]\(([^)]+)\)$/\1/')
-done < <(find "${REFS_DIR}" -name '*.md' -type f)
+done < <(find "${REFS_DIR}" "${AGENTS_DIR}" -name '*.md' -type f 2>/dev/null)
 
 echo "Paths checked: ${TOTAL_PATHS}"
 [[ -n "${CHECK_URLS}" ]] && echo "URLs checked:  ${TOTAL_URLS}"
@@ -154,7 +155,7 @@ fi
 #     (those are explicitly for unverified content)
 
 echo ""
-echo "Checking for inference-without-citation in references/**/*.md"
+echo "Checking for inference-without-citation in references/**/*.md and agents/**/*.md"
 
 INFERENCE_HITS=()
 
@@ -165,8 +166,9 @@ while IFS= read -r file; do
     # the audit playbook itself (which enumerates the inference patterns
     # as examples — it's a meta-doc about the check, not a content claim).
     case "${rel_file}" in
-        */index.md|references/_meta/primer/*) continue ;;
-        references/shared/audit-prompt.md|references/shared/audit-methodology.md) continue ;;
+        */index.md|*/README.md|references/_meta/primer/*) continue ;;
+        agents/*/prompt.md|agents/*/methodology.md|agents/*/bundles.md) continue ;;
+        agents/_meta/*) continue ;;
     esac
 
     # awk script: paragraph-level scan with section/frontmatter/code-block awareness.
@@ -235,7 +237,7 @@ while IFS= read -r file; do
             INFERENCE_HITS+=("${rel_file}:${line}")
         done <<< "${output}"
     fi
-done < <(find "${REFS_DIR}" -name '*.md' -type f)
+done < <(find "${REFS_DIR}" "${AGENTS_DIR}" -name '*.md' -type f 2>/dev/null)
 
 if [[ ${#INFERENCE_HITS[@]} -gt 0 ]]; then
     echo "✗ Inference-without-citation (${#INFERENCE_HITS[@]}):"

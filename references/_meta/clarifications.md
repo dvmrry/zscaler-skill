@@ -989,7 +989,7 @@ The CSV doesn't state:
 - When IPS surfaces a Critical-severity threat but doesn't block (detect-only mode), is `action` Allowed but `threatcat` populated? Or Blocked?
 - Is `action` the *first-fired* outcome (early-stop) or the *final* outcome after all subsystems evaluated?
 
-Same shape as [`log-05`](#log-05--action-enum-completeness-and-multi-subsystem-precedence) for web logs but with different subsystems and different field-population implications.
+Same shape as [`log-05`](#log-05-action-enum-completeness-and-multi-subsystem-precedence) for web logs but with different subsystems and different field-population implications.
 
 **Resolves with**: deliberate-trigger tenant test (FW-allow + IPS-block, DNAT + FW-block, IPS-detect-only with Allow) and observe `action` + auxiliary fields per case. **Status**: open — 2026-05-06.
 
@@ -1056,7 +1056,7 @@ The CSV doesn't:
 3. Specify what the field contains for multi-record responses (multiple A records, AAAA + A combined response). One delimited list? Just the first? An aggregate of all answer-section entries?
 4. Document how `res` interacts with `restype` — when `res` is a sentinel like `EMPTY_RESP`, is `restype` empty, the requested type, or a sentinel of its own?
 
-Cross-link: relates to [`log-14`](#log-14--dns-reqaction-resaction-enum-and-cumulative-vs-alternative-semantics) — sentinel `res` values likely correlate with specific `resaction` / `error` combinations.
+Cross-link: relates to [`log-14`](#log-14-dns-reqaction-resaction-enum-and-cumulative-vs-alternative-semantics) — sentinel `res` values likely correlate with specific `resaction` / `error` combinations.
 
 **Resolves with**: tenant export with deliberately-triggered DNS errors (NXDOMAIN, SERVFAIL, REFUSED) plus successful queries with multiple-answer responses; observe `res` field population per case. **Status**: open — 2026-05-06.
 
@@ -1147,7 +1147,7 @@ ZPA Browser Access logs have:
 
 Neither field's full enum is documented. SIEM rules that route on specific failure types (auth failures, backend unreachable, policy block, certificate validation failure, idle timeout) need the full enum to filter precisely. Without it, alert rules either match too broadly (any non-SUCCESS) or risk missing valid failure modes.
 
-Cross-link: byte-counter perspective and compression questions filed for ZIA web logs ([`log-09`](#log-09--byte-counter-perspective-and-compressionconnect-semantics)) and ZPA User Activity logs ([`zpa-17`](#zpa-17--delta-vs-total-byte-counter-reset-semantics)) likely apply here too.
+Cross-link: byte-counter perspective and compression questions filed for ZIA web logs ([`log-09`](#log-09-byte-counter-perspective-and-compressionconnect-semantics)) and ZPA User Activity logs ([`zpa-17`](#zpa-17-delta-vs-total-byte-counter-reset-semantics)) likely apply here too.
 
 **Resolves with**: tenant test triggering varied failure conditions (intentionally-bad backend, intentionally-blocked-by-policy URL, intentionally-expired session, intentionally-failed-cert backend) and observe `ConnectionStatus` / `ConnectionReason` value combinations. Plus vendor doc on the full enum. **Status**: open — 2026-05-06.
 

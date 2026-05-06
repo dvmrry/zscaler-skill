@@ -1,15 +1,19 @@
 ---
-product: shared
-topic: "investigation-bundles"
+role: investigator
+artifact: bundles
 title: "Investigation query bundles — template + private-fork pattern"
 content-type: reference
 last-verified: "2026-04-29"
 confidence: high
 source-tier: practice
 sources:
-  - "references/shared/investigate-prompt.md"
-  - "references/shared/troubleshooting-methodology.md"
-  - "references/shared/siem-emission-discipline.md"
+  - "agents/investigator/prompt.md"
+  - "agents/investigator/methodology.md"
+  - "agents/siem-emission-discipline.md"
+dependencies:
+  - "prompt.md"
+  - "methodology.md"
+  - "../siem-emission-discipline.md"
 author-status: draft
 ---
 
@@ -32,7 +36,7 @@ This file ships the template only. The public skill does not include bundle cont
 | **`_local-bundles/`** (gitignored directory) | Larger bundle collections kept alongside the skill but not committed |
 | **PR back to this repo** | A bundle that generalizes — placeholder plumbing only, queries derived from Zscaler-published surfaces, verification cited |
 
-The same public/private boundary as tenant schemas (per [`tenant-schema-derivation.md`](./tenant-schema-derivation.md)) and Splunk plumbing (per [`siem-emission-discipline.md`](./siem-emission-discipline.md)).
+The same public/private boundary as tenant schemas (per [`tenant-schema-derivation.md`](../tenant-schema-derivation.md)) and Splunk plumbing (per [`siem-emission-discipline.md`](../siem-emission-discipline.md)).
 
 ## Template
 
@@ -152,13 +156,13 @@ Document it explicitly. Silent dependencies cause confused investigations when t
 
 - Placeholder plumbing in any bundle published outside your private fork
 - Tenant identifiers (real index / sourcetype / user / hostname / ticket number) stay in private fork or local-only bundles
-- Sample results quoted in caveats / examples redacted per [`tenant-schema-derivation.md`](./tenant-schema-derivation.md) redaction patterns
+- Sample results quoted in caveats / examples redacted per [`tenant-schema-derivation.md`](../tenant-schema-derivation.md) redaction patterns
 
 ## Cross-links
 
-- [`investigate-prompt.md`](./investigate-prompt.md) — `/z-investigator` playbook (where bundles get invoked)
-- [`troubleshooting-methodology.md`](./troubleshooting-methodology.md) — discovery journal, claim status, severity scale
-- [`siem-emission-discipline.md`](./siem-emission-discipline.md) — execution modes, placeholder plumbing, public/private boundary
-- [`splunk-queries.md`](./splunk-queries.md) — named SPL patterns to reference from inside bundles
-- [`siem-log-mapping.md`](./siem-log-mapping.md) — log type catalog for picking the right Zscaler stream
-- [`architect-bundles.md`](./architect-bundles.md) — parallel template for `/z-architect` recommendation bundles
+- [`investigator/prompt.md`](./prompt.md) — `/z-investigator` playbook (where bundles get invoked)
+- [`investigator/methodology.md`](./methodology.md) — discovery journal, claim status, severity scale
+- [`siem-emission-discipline.md`](../siem-emission-discipline.md) — execution modes, placeholder plumbing, public/private boundary
+- [`splunk-queries.md`](../../references/shared/splunk-queries.md) — named SPL patterns to reference from inside bundles
+- [`siem-log-mapping.md`](../../references/shared/siem-log-mapping.md) — log type catalog for picking the right Zscaler stream
+- [`architect/bundles.md`](../architect/bundles.md) — parallel template for `/z-architect` recommendation bundles
