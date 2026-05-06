@@ -302,6 +302,67 @@ For Kerberos deployments: even if a location uses IPSec or GRE tunnels, users at
 
 For road warriors (off-network users): PAC files (via ZCC PAC mode or browser direct PAC URL) are the standard forwarding mechanism when no tunnel is active.
 
+## Cross-product PAC coordination
+
+PACs interact with sibling Zscaler products in ways that are easy to misconfigure. Three coordination points worth getting right:
+
+### PAC + ZPA application segments
+
+When a tenant runs both ZIA and ZPA, the PAC must **not** route ZPA application segment FQDNs through ZIA (unless Source IP Anchoring is intentionally configured — see below). ZPA private-app traffic is handled by ZCC's tunnel to App Connectors, not by the ZIA proxy.
+
+| ZCC mode | PAC handling for ZPA app segment FQDNs |
+|---|---|
+| Z-Tunnel mode | PAC is bypassed for traffic ZCC handles directly. ZCC intercepts ZPA app segment FQDNs at the OS network layer and routes through the ZPA tunnel. PAC routing for browser-only traffic still applies for non-ZPA destinations. |
+| PAC mode | PAC must explicitly `DIRECT` ZPA app segment FQDNs (or otherwise not return a ZIA proxy). Otherwise the browser sends ZPA-bound traffic to ZIA, where it has no destination — likely a connection failure or unexpected ZIA policy match. |
+
+**Source IP Anchoring (SIPA) — the intentional opposite case.** SIPA is the mechanism where ZIA *intentionally* forwards selected traffic through to ZPA App Connectors via a ZPA gateway, using the App Connector's IP as the egress source (`vendor/zscaler-help/configuring-source-ip-anchoring.md`, `vendor/zscaler-help/understanding-source-ip-anchoring-direct.md`). When SIPA is configured for a given application segment, the client forwarding policy explicitly routes that segment's traffic via ZIA (not via ZCC's direct ZPA tunnel) — the PAC can then send the relevant FQDNs to ZIA, and ZIA's forwarding-control rules complete the chain to ZPA. (Tier A.) The SIPA-supporting case requires `Enable Firewall for Z-Tunnel 1.0 and PAC Road Warriors` under Advanced Settings (Tier A — `vendor/zscaler-help/configuring-source-ip-anchoring.md`).
+
+**Pattern.** For a tenant running ZPA without SIPA, add a DIRECT bypass for known ZPA app segment FQDNs in the PAC before any ZIA-proxy logic. Maintain that list in lockstep with the ZPA app segment configuration — drift between the PAC's bypass list and the actual ZPA segments leads to either policy escape (ZPA-app traffic accidentally proxied through ZIA) or broken access (a new ZPA segment that the PAC still routes through ZIA).
+
+See [`../zpa/app-segments.md`](../zpa/app-segments.md) for the ZPA segment model and [`./source-ip-anchoring.md`](./source-ip-anchoring.md) for SIPA mechanics.
+
+### PAC + ZPA Browser Access
+
+ZPA Browser Access exposes internal apps to users on **public DNS** via either a customer-managed CNAME (e.g., `wiki.example.com`) or a Zscaler-managed CNAME (e.g., `wiki.example.bazscaler.net`). The browser hits a Zscaler ingress that terminates TLS using the Browser Access certificate, then mTLS-tunnels to the App Connector. (Tier A — `references/zpa/browser-access.md`.)
+
+For PAC routing: **Browser Access destinations should be `DIRECT` in the PAC**, not proxied through ZIA. The Browser Access ingress IS the proxy for that traffic — sending it through ZIA would either fail (ZIA doesn't know how to forward to a BA endpoint) or double-inspect with unintended consequences.
+
+**Pattern.** Add a DIRECT bypass for the BA FQDNs (or the Zscaler-managed CNAME pattern `*.b.zpacloud.com` if applicable to your tenant — check the actual CNAME pattern in your tenant's Browser Access page at *Policies > Access Control > Clientless > Access Methods > Browser Access*). The same lockstep maintenance concern as ZPA app segments applies — when a new BA app is configured, the PAC bypass needs to be updated.
+
+### PAC + proxy chaining
+
+When ZIA is reached through an existing on-prem proxy server (legacy proxy → ZIA), the configuration is called **proxy chaining**. Per the *Traffic Forwarding Reference Architecture* (p.39): "Proxy chaining occurs when one proxy server forwards traffic to another proxy server. In this case, your legacy on-premises server is configured to forward traffic to the ZIA Service Edge. **This is a transitional network design** until you can configure another forwarding method in your network." (Tier A.)
+
+**Two distinct flavors operators conflate:**
+
+| Flavor | Path | PAC role |
+|---|---|---|
+| **Customer's legacy proxy → ZIA** | Browser → on-prem proxy → ZIA Service Edge → destination | Browser PAC returns `PROXY <on-prem-proxy>:<port>`. The on-prem proxy is independently configured to forward upstream to ZIA. ZIA receives explicit-mode traffic via CONNECT from the on-prem proxy. (Tier B — `references/zia/proxy-mode.md` confirms ZIA receives proxy-chained traffic in explicit mode.) |
+| **ZIA → customer's downstream proxy** (`PROXYCHAIN` forwarding-control action) | Browser/ZCC → ZIA Service Edge → ZIA's `PROXYCHAIN` rule sends to a configured `proxy_gateway` → destination | Browser PAC routes traffic to ZIA normally; ZIA's forwarding-control rule does the downstream chaining. PAC has no direct role in this flavor. (Tier A — `references/zia/forwarding-control.md` documents `PROXYCHAIN` action.) |
+
+**Vendor recommendation.** Zscaler explicitly recommends proxy chaining only as a **short-term transitional solution** ("until a more robust forwarding solution can be implemented") because typical on-prem proxies only support manual failover. (Tier A — `vendor/zscaler-help/Traffic_Forwarding_in_ZIA_Reference_Architecture.txt:p.39`.) Prefer GRE / IPsec / ZCC tunnel for steady-state. See `https://help.zscaler.com/zia/configuring-proxy-chaining` for ISA / Squid configuration specifics (article not vendored).
+
+## Mobile-specific considerations
+
+Zscaler's recommendation for mobile users is **ZCC over PAC**: ZCC is the preferred forwarding mechanism for mobile users; PAC is "a last resort if Zscaler Client Connector can't be installed" (Tier A — `vendor/zscaler-help/Traffic_Forwarding_in_ZIA_Reference_Architecture.txt`, *Mobile Users - Explicit Forwarding*). Per the same source: "Zscaler Client Connector...is included in your Zscaler subscription, and is required for other Zscaler services such as ZPA and ZDX" — running mobile users on PAC alone forfeits ZPA and ZDX coverage entirely.
+
+**ZCC + captive-portal interaction.** When ZCC detects a captive portal (e.g., hotel / airport Wi-Fi), it temporarily disables itself to allow the user to authenticate to the captive portal. (Tier A — *Traffic Forwarding Reference Architecture*: "Captive portal detected – A captive portal is blocking access to the internet.") During this disabled window, PAC-mode browser traffic also bypasses Zscaler. After the captive portal authentication completes, ZCC re-establishes its tunnel.
+
+**iOS-specific PAC handling** (Tier C/D — operational lore, not in captured vendor docs):
+
+- iOS configures Wi-Fi proxy auto-config **per-network**, not system-wide. Each Wi-Fi profile carries its own PAC URL setting under *Settings > Wi-Fi > [network] > Configure Proxy > Auto*.
+- Many iOS apps (especially first-party Apple apps and apps using `URLSession` with default config) **do not honor the per-network PAC URL** — only the system Safari and apps that explicitly opt into proxy-aware HTTP libraries.
+- For tenant-wide iOS PAC distribution, MDM (Jamf, Intune, etc.) is required — push the Wi-Fi profile with the PAC URL embedded.
+- Cellular (LTE/5G) connections do NOT inherit the Wi-Fi PAC. iOS provides no system-wide PAC URL setting for cellular.
+
+**Android-specific PAC handling** (Tier C/D — operational lore, not in captured vendor docs):
+
+- Android also configures proxy **per-Wi-Fi-network**, with the same per-app honoring caveats as iOS.
+- Android's "always-on VPN" mode (relevant for ZCC-via-Android-Enterprise) intercepts traffic at the OS network layer regardless of app PAC awareness — making ZCC-on-Android-Enterprise functionally superior to PAC-only deployment for non-PAC-aware apps. (Tier B — `vendor/zscaler-help/deploying-zscaler-client-connector-google-workspace-android.md` mentions "Use as the always-on VPN app: ON".)
+- Cellular connections similarly do not inherit Wi-Fi PAC settings.
+
+For mobile populations split across managed and BYOD: managed devices via ZCC + always-on VPN profile; BYOD via PAC if MDM isn't an option, with explicit acknowledgement that non-browser apps will leak.
+
 ## Verification
 
 The ZIA Admin Portal has a **Verify PAC File** option that runs syntax validation before save. External tools like Google's `pactester` work for local verification. A PAC that fails verification can still be saved with **Error-Accepted** status — don't rely on status being `Verified` without testing. (Tier A — vendor/zscaler-help/best-practices-writing-pac-files.md.)
