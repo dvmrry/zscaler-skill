@@ -109,8 +109,11 @@ PARSED FRAMING:
   User-flagged specifics: <every backticked token from framing, verbatim, comma-separated; or "none">
 
 PROPOSED LOADS (Step 2A — docs only):
-  - references/shared/investigate-prompt.md
-  - references/shared/troubleshooting-methodology.md
+  - agents/investigator/prompt.md
+  - agents/investigator/methodology.md
+  - agents/investigator/bundles.md
+  - agents/siem-emission-discipline.md
+  - agents/tenant-schema-derivation.md
   - <product references from the framing→file mapping that match>
 
 CLARIFICATIONS:
@@ -241,8 +244,8 @@ Print verbatim, with the bracketed lines expanded into specific paths. **Snapsho
 
 ```
 PROPOSED LOADS (Step 2A — docs only; snapshot loads decided in Step 2B after docs are read):
-  - references/shared/investigate-prompt.md
-  - references/shared/troubleshooting-methodology.md
+  - agents/investigator/prompt.md
+  - agents/investigator/methodology.md
   - <product references from the mapping table that match Products / features>
 ```
 
@@ -499,8 +502,8 @@ If `User-flagged specifics` is `none` in PARSED FRAMING, skip 2E.
 ```
 LOADED:
   Docs:
-    ✓ references/shared/investigate-prompt.md
-    ✓ references/shared/troubleshooting-methodology.md
+    ✓ agents/investigator/prompt.md
+    ✓ agents/investigator/methodology.md
     ✓ <each product reference>
   Snapshot entry points (one per product):
     ✓ _data/snapshot/zs3/zpa/application-segments.json   (entry point for ZPA chain)
@@ -570,7 +573,7 @@ End your response with **literally** this section:
 
 #### 3A — Generate the journal
 
-Follow the **First Response procedure in `references/shared/investigate-prompt.md`** (loaded in Step 2). Generate the discovery journal table per its format. Every claim must cite a source from the `LOADED` block.
+Follow the **First Response procedure in `agents/investigator/prompt.md`** (loaded in Step 2). Generate the discovery journal table per its format. Every claim must cite a source from the `LOADED` block.
 
 #### 3B — Save the journal to disk (always; do not ask permission)
 

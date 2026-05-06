@@ -3,7 +3,12 @@ description: Run a SOC / security-posture review of tenant configuration, teleme
 argument-hint: [scope] — e.g., "ZPA admin RBAC", "ZIA URL filtering rules, threat model: data exfil", "telemetry coverage, subtype: coverage"
 ---
 
-Load and follow the playbook at @references/shared/soc-prompt.md.
+Load and follow the playbook at @agents/soc/prompt.md.
+
+Before the first response, also load each of its declared dependencies:
+- `agents/auditor/methodology.md` — register format, severity scale, status lifecycle (shared with `/z-auditor`)
+- `agents/investigator/methodology.md` — evidence discipline, claim status (used in subsequent investigation handoffs)
+- `agents/siem-emission-discipline.md` — SIEM emission modes, public/private boundary
 
 The user's SOC review scope:
 

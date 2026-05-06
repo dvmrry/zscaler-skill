@@ -647,13 +647,14 @@ def check_adapter_coverage() -> list[Finding]:
                     )
                 )
 
-            # Warning: adapter should mention each direct dep path
-            # (Phase 2 starts as warning; promote to error after adapter slim.)
+            # Error: adapter must mention each direct dep path declared by
+            # the prompt's frontmatter. (Promoted from warning to error in
+            # Phase 3 once all adapters were slimmed to satisfy the contract.)
             for dep_rel in prompt_deps:
                 if dep_rel not in adapter_content:
                     findings.append(
                         Finding(
-                            "warning",
+                            "error",
                             adapter,
                             "agent-dependencies",
                             f"adapter does not mention prompt dependency {dep_rel}",

@@ -3,7 +3,10 @@ description: Run an editorial / structural audit of skill references. Mechanical
 argument-hint: [scope: directory, file, "." for whole repo, or topic keyword]
 ---
 
-Load and follow the playbook at @references/shared/audit-prompt.md.
+Load and follow the playbook at @agents/auditor/prompt.md.
+
+Before the first response, also load its declared dependency:
+- `agents/auditor/methodology.md` — register format, severity scale, status lifecycle, anti-patterns
 
 The user's audit scope:
 

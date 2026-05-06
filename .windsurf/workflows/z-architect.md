@@ -6,10 +6,12 @@ description: Run a capacity / scaling architecture review. Config-first, metrics
 
 ## Required reads — do these now, in order
 
-1. **Use your file-read tool to load `references/shared/architect-prompt.md`.** This is the playbook. It carries the First Response procedure, evidence-mapping logic, and recommendation register format.
-2. **Use your file-read tool to load `references/shared/architect-methodology.md`.** This is the methodology. It carries the discipline the playbook depends on — register format, risk scale, confidence levels, status lifecycle.
+1. **Use your file-read tool to load `agents/architect/prompt.md`.** This is the playbook. It carries the First Response procedure, evidence-mapping logic, and recommendation register format.
+2. **Use your file-read tool to load `agents/architect/methodology.md`.** This is the methodology. It carries the discipline the playbook depends on — register format, risk scale, confidence levels, status lifecycle.
+3. **Use your file-read tool to load `agents/architect/bundles.md`.** Query bundle template for repeated scaling concerns.
+4. **Use your file-read tool to load `agents/siem-emission-discipline.md`.** SIEM emission modes, public/private boundary, placeholder plumbing — applies when architect queries SIEMs for utilization.
 
-Both paths are relative to the Zscaler skill repo root. **Do not respond until both files are loaded.** Then follow the playbook's First Response procedure with the methodology already in context.
+All paths are relative to the Zscaler skill repo root. **Do not respond until all files are loaded.** Then follow the playbook's First Response procedure with the methodology, bundles, and emission discipline already in context.
 
 ## Best framing for the user's input
 
