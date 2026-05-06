@@ -14,7 +14,7 @@ Follows the [Anthropic skill conventions](https://github.com/anthropics/skills) 
 
 Two surfaces, picked by the shape of your question.
 
-- **`@zscaler.md`** — ad-hoc grounded Q&A. Type `@zscaler.md` followed by your question. (`@`-autocomplete behavior varies by runtime; Cascade currently requires the full filename, Claude Code generally completes from a `@zsca` prefix.) Use this for definitions, "is X allowed in our tenant", "what does the destination see", "how does this work" — anything that isn't an investigation or structured review. The prompt is at [`zscaler.md`](./zscaler.md) at the repo root.
+- **`@zscaler`** — ad-hoc grounded Q&A. Type `@zsca<tab>` (autocompletes to `@zscaler`) followed by your question. The prompt lives at [`zscaler`](./zscaler) at the repo root with no `.md` extension, so the invocation is bare. Use this for definitions, "is X allowed in our tenant", "what does the destination see", "how does this work" — anything that isn't an investigation or structured review.
 - **Procedural roles** — slash commands when the task has discipline:
   - `/z-investigator` — evidence-based troubleshooting; produces a discovery journal
   - `/z-architect` — capacity / scaling review; produces a recommendation register

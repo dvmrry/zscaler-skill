@@ -181,9 +181,9 @@ def main() -> int:
     prompts: list[Path] = []
     if AGENTS.exists():
         prompts.extend(AGENTS.rglob("prompt.md"))
-    zscaler_md = REPO_ROOT / "zscaler.md"
-    if zscaler_md.exists():
-        prompts.append(zscaler_md)
+    zscaler_prompt = REPO_ROOT / "zscaler"
+    if zscaler_prompt.exists():
+        prompts.append(zscaler_prompt)
 
     if not prompts:
         print("no eval-shape-bearing prompts found — nothing to check")

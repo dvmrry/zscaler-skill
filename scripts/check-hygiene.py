@@ -223,9 +223,10 @@ def check_frontmatter(path: Path) -> list[Finding]:
             required = REQUIRED_FRONTMATTER_AGENTS_ROLE
         else:
             required = REQUIRED_FRONTMATTER_AGENTS_CROSSCUT
-    elif path == REPO_ROOT / "zscaler.md":
-        # Repo-root ad-hoc surface: identity convention is role + artifact,
-        # same shape as agents/{role}/prompt.md.
+    elif path == REPO_ROOT / "zscaler":
+        # Repo-root ad-hoc surface (extensionless so `@zscaler` autocompletes
+        # cleanly in Cascade and Claude Code). Identity convention is
+        # role + artifact, same shape as agents/{role}/prompt.md.
         required = REQUIRED_FRONTMATTER_AGENTS_ROLE
     else:
         required = REQUIRED_FRONTMATTER
@@ -767,8 +768,8 @@ def run_all_checks(strict: bool = False) -> list[Finding]:
             p for p in AGENTS.rglob("*.md") if AGENTS.exists()
         ]
         + (
-            [REPO_ROOT / "zscaler.md"]
-            if (REPO_ROOT / "zscaler.md").exists()
+            [REPO_ROOT / "zscaler"]
+            if (REPO_ROOT / "zscaler").exists()
             else []
         )
     )
