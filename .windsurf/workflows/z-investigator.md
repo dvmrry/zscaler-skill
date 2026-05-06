@@ -58,17 +58,17 @@ Every turn's response must follow the per-step template literally. Each turn ope
 
 The template specs below show entire turns wrapped in a single outer ` ``` ` fence — that fence is **just markup for this spec doc** so it renders as a unit. **The outer fence is NOT in your output.** Inside your turn, render each section per this rule:
 
+The convention is mechanical: structured monospace content goes in fences, everything else stays as markdown. Specifically —
+
 **In its own ` ``` ` fenced code block:**
 - Step banner (`═══ STEP N — ... ═══`)
-- `PARSED FRAMING` data block
-- `PROPOSED LOADS` data block
-- `LOADED` data block
-- `GREP RESULTS` data block
+- Structured data blocks (`PARSED FRAMING`, `PROPOSED LOADS`, `LOADED`, `GREP RESULTS`) — multi-line key/value structures
 - Checkpoint section (banner `═══ CHECKPOINT N — AWAITING USER ═══` + menu options + closing end-marker `═══════════════════════════════════════`) — all in **one** code block as a unit
 
 **Plain markdown (NO fence):**
 - `CLARIFICATIONS` block (numbered list of questions)
 - Journal table in Step 3 (markdown table syntax — only renders as a table outside fences)
+- Single-line key/value statements: `JOURNAL CREATED:`, `JOURNAL SAVED:`, `ISSUE:`, `STATUS:`, `TIMESTAMP:`, `ROOT CAUSE HYPOTHESIS:`, `NEXT STEP:`
 
 A Step 1 turn's literal output structure:
 
@@ -106,7 +106,7 @@ JOURNAL CREATED: <working-dir>/_data/incidents/<slug>/journal.md
 
 Four code blocks per Step 1 turn: (1) step banner, (2) PARSED FRAMING, (3) PROPOSED LOADS, (4) checkpoint section. CLARIFICATIONS and JOURNAL CREATED sit between blocks 3 and 4 as plain markdown.
 
-Step 2 has the same shape with LOADED and GREP RESULTS data blocks instead of PARSED FRAMING / PROPOSED LOADS. Step 3 has the step banner + journal-table-as-plain-markdown + ROOT CAUSE / NEXT STEP / JOURNAL SAVED lines + checkpoint section code block.
+Step 2 has the same four-block shape with LOADED and GREP RESULTS data blocks instead of PARSED FRAMING / PROPOSED LOADS. Step 3 has the step banner (fence) + ISSUE / STATUS / TIMESTAMP lines (plain markdown) + journal table (plain markdown) + ROOT CAUSE HYPOTHESIS / NEXT STEP / JOURNAL SAVED lines (plain markdown) + checkpoint section (fence) — two code blocks total.
 
 Rule of thumb: if it would lose meaning or readability outside monospace (banners with `═══`, structured field/value data, command menus), wrap in a fence. If it's prose for the user to read or a markdown table that must render as a table, plain markdown.
 
@@ -160,9 +160,14 @@ JOURNAL CREATED: <working-dir>/_data/incidents/<slug>/journal.md
 
 ### Step 2 turn
 
+The literal output structure (outer 4-backtick fence is just spec markup so the inner fences display; do NOT emit the outer fence in your turn — emit the inner fences as shown):
+
+````
 ```
 ═══ STEP 2 — LOAD FILES ═══
+```
 
+```
 LOADED:
   Docs:
     ✓ <file>
@@ -174,7 +179,9 @@ LOADED:
   Skipped:
     <count> snapshot files unrelated to framing — load on-demand
     <count> evidence files not specified by user — load on-demand if relevant
+```
 
+```
 GREP RESULTS — User-flagged specifics:
   In LOADED content:
     `<token>`: <file:line> or <jq path>
@@ -182,7 +189,9 @@ GREP RESULTS — User-flagged specifics:
     `<token>`: <file:line>
   Empty matches:
     `<token>`: no match in loaded content or skill-wide — outside scope or undocumented
+```
 
+```
 ═══ CHECKPOINT 2 — AWAITING USER ═══
   go                — generate the discovery journal (run Step 3)
   add: <path>       — load the additional file before journal
@@ -190,14 +199,21 @@ GREP RESULTS — User-flagged specifics:
   skip: <path>      — exclude from the journal's evidence
 ═══════════════════════════════════════
 ```
+````
 
 ### Step 3 turn
 
+The literal output structure (outer 4-backtick fence is just spec markup so the inner fences display; do NOT emit the outer fence in your turn — emit the inner fences and plain-markdown sections as shown):
+
+````
 ```
 ═══ STEP 3 — DISCOVERY JOURNAL ═══
+```
 
 ISSUE: <one-sentence description>
+
 STATUS: Investigating
+
 TIMESTAMP: <ISO 8601 UTC>
 
 | Claim | Source | Status | Timestamp | Notes |
@@ -211,6 +227,7 @@ NEXT STEP: <single next investigation step — which source to consult, what fie
 
 JOURNAL SAVED: <working-dir>/_data/incidents/<slug>/journal.md
 
+```
 ═══ CHECKPOINT 3 — AWAITING USER ═══
   go                            — investigate the highest-priority Open hypothesis
   focus: <H#>                   — investigate that hypothesis specifically
@@ -219,6 +236,7 @@ JOURNAL SAVED: <working-dir>/_data/incidents/<slug>/journal.md
   pause                         — stop here; journal saved for resumption
 ═══════════════════════════════════════
 ```
+````
 
 ### Subsequent turns (after Step 3, during investigation)
 
