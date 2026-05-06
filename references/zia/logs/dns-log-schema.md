@@ -3,7 +3,7 @@ product: zia
 topic: "zia-dns-log-schema"
 title: "ZIA DNS log schema (NSS Feed Output Format: DNS Logs)"
 content-type: reference
-last-verified: "2026-04-23"
+last-verified: "2026-05-06"
 confidence: high
 source-tier: doc
 sources:
@@ -105,6 +105,20 @@ Each field has two names: the NSS format specifier (`%s{...}` / `%d{...}`) used 
 | `%s{datacentercity}` | City where the data center is located | `Sa` | *NSS-only* |
 | `%s{datacentercountry}` | Country where the data center is located | `US` | *NSS-only* |
 
+## What the spec underspecifies — don't infer
+
+Three fields where the vendor CSV's example values are cryptic abbreviations or carry overloaded semantics. Treat as ambiguous until the linked clarifications resolve.
+
+- **`reqaction` / `resaction` enum + cumulative vs alternative semantics** — example values are `REQ_ALLOW` and `RES_BLOC` (truncated). The CSV doesn't list the full enum, doesn't expand the prefixes, and doesn't state whether both fields are populated together (so `REQ_ALLOW` + `RES_BLOC` means "request allowed but response blocked") or whether only one fires per record. See [`log-14`](../../_meta/clarifications.md#log-14--dns-reqaction-resaction-enum-and-cumulative-vs-alternative-semantics).
+- **`res` field overloading (IP vs sentinel string)** — same field carries either a resolved IP address (e.g., `192.168.2.200`) or a sentinel string (e.g., `EMPTY_RESP`). The CSV doesn't enumerate the sentinel set or specify how to distinguish IP-shaped values from sentinel strings programmatically (regex on dotted-quad? string-set membership? presence of error code in `error` field?). Pattern-matchers parsing this field need disambiguation rules. See [`log-15`](../../_meta/clarifications.md#log-15--dns-res-field-overloading-ip-vs-sentinel-string).
+- **`dnsgw_flags` semantics + failover state machine** — example values are `PRIMARY_SERVER_RESPONSE_PASS`, `SECONDARY_SERVER_RESPONSE_PASS`, `FO_DEST_PASS`, `FO_DEST_ERR`, `FO_DEST_DROP`, `None`. "FO" presumably means failover but is unstated. The CSV doesn't say whether values are mutually exclusive (one flag per record), cumulative (multiple separated by some delimiter), or hierarchical (PRIMARY first, fall back to SECONDARY, then FO_*). Plus: when does `FO_DEST_DROP` fire vs `FO_DEST_ERR`? See [`log-16`](../../_meta/clarifications.md#log-16--dns-dnsgw_flags-semantics-and-failover-state-machine).
+
+Other fields worth flagging more lightly (worth checking against vendor confirmation but lower agent-hallucination risk than the three above):
+
+- `error` (DNS error code, "usually incomplete or failed transaction") — relationship to standard DNS RCODE (NOERROR/NXDOMAIN/SERVFAIL/REFUSED) not stated; example `EMPTY_RESP` is a Zscaler-specific token, not a standard RCODE.
+- `protocol` — example values `TCP`, `UDP`, `DoH (DNS over HTTP)`. DoT (DNS over TLS) and DoQ (DNS over QUIC) handling unstated — populate this field as DoH-equivalent, distinct values, or absent?
+- `domcat` (request category) vs `respipcat` (response IP category) — when these disagree (request matches one URL category, resolved IP matches another), which one drives policy decisions and what populates which Insights filter?
+
 ## Cross-links
 
 - SPL patterns — [`../../shared/splunk-queries.md`](../../shared/splunk-queries.md)
@@ -117,3 +131,6 @@ Each field has two names: the NSS format specifier (`%s{...}` / `%d{...}`) used 
 - NSS feed format versions — [clarification `log-01`](../../_meta/clarifications.md#log-01-nss-feed-format-versions)
 - Cloud NSS vs legacy NSS divergence — [clarification `log-02`](../../_meta/clarifications.md#log-02-cloud-nss-vs-legacy-nss-divergence)
 - Timestamp timezone handling across feeds / regions — [clarification `log-03`](../../_meta/clarifications.md#log-03-timestamp-timezone-handling)
+- `reqaction` / `resaction` enum and cumulative vs alternative semantics — [clarification `log-14`](../../_meta/clarifications.md#log-14--dns-reqaction-resaction-enum-and-cumulative-vs-alternative-semantics)
+- `res` field overloading (IP vs sentinel string) — [clarification `log-15`](../../_meta/clarifications.md#log-15--dns-res-field-overloading-ip-vs-sentinel-string)
+- `dnsgw_flags` semantics and failover state machine — [clarification `log-16`](../../_meta/clarifications.md#log-16--dns-dnsgw_flags-semantics-and-failover-state-machine)

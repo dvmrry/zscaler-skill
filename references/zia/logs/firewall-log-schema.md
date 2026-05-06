@@ -3,7 +3,7 @@ product: zia
 topic: "zia-firewall-log-schema"
 title: "ZIA firewall log schema (NSS Feed Output Format: Firewall Logs)"
 content-type: reference
-last-verified: "2026-04-23"
+last-verified: "2026-05-06"
 confidence: high
 source-tier: doc
 sources:
@@ -147,6 +147,14 @@ Many fields carry the caveat "For aggregated sessions, this is the … of the la
 | `%s{fwd_gw_name}` | Name of the gateway defined in a forwarding rule | `FWD_1` | Gateway Name |
 | `%s{zpa_app_seg_name}` | Name of the ZPA application segment | `ZPA_test_app_segment` | Application Segment |
 
+## What the spec underspecifies — don't infer
+
+Three fields/topics where the vendor CSV is thin enough that an agent could plausibly invent meaning. Treat as ambiguous until the linked clarifications resolve.
+
+- **Aggregate session semantics** — eight fields carry the "Last-session value on aggregates" caveat (`csip`, `csport`, `cdip`, `cdport`, `tsip`, `sdport`, `sdip`, `ssip`, `ssport`) but the CSV never defines what triggers session aggregation (idle timeout? volume threshold? hop count? rule-defined?). Plus: how `inbytes`/`outbytes`/`durationms` behave on aggregates (sum across the aggregate, max, last only?) is not stated. `srcip_country` has the further oddity of being absent on **allowed** aggregated sessions but present on blocked — undocumented why. See [`log-11`](../../_meta/clarifications.md#log-11--firewall-aggregate-session-semantics).
+- **`action` precedence across FW + IPS + DNAT** — CSV examples are `Allowed`, `Blocked`, but the firewall pipeline involves three subsystems (FW filter, IPS, DNAT) plus implicit Allow/Block defaults. Which subsystem fills `action` when FW Allows but IPS Blocks? Or DNAT translates AND FW Blocks? Same shape as `log-05` for web logs, different subsystem mix. See [`log-12`](../../_meta/clarifications.md#log-12--firewall-action-precedence-across-fw-ips-dnat).
+- **`nwapp` vs `nwsvc`** — example values are `SSH` (for `nwapp`) and `HTTP` (for `nwsvc`). The CSV labels them "Network application" and "Network service" without stating the relationship. Are these the same value reframed differently? Different layers (L7 application vs L4 protocol/port mapping)? Always populated together or sometimes one without the other? See [`log-13`](../../_meta/clarifications.md#log-13--firewall-nwapp-vs-nwsvc-relationship).
+
 ## Cross-links
 
 - SPL patterns — [`../../shared/splunk-queries.md`](../../shared/splunk-queries.md)
@@ -158,3 +166,6 @@ Many fields carry the caveat "For aggregated sessions, this is the … of the la
 - NSS feed format versions — [clarification `log-01`](../../_meta/clarifications.md#log-01-nss-feed-format-versions)
 - Cloud NSS vs legacy NSS divergence — [clarification `log-02`](../../_meta/clarifications.md#log-02-cloud-nss-vs-legacy-nss-divergence)
 - Timestamp timezone handling across feeds / regions — [clarification `log-03`](../../_meta/clarifications.md#log-03-timestamp-timezone-handling)
+- Aggregate session semantics — [clarification `log-11`](../../_meta/clarifications.md#log-11--firewall-aggregate-session-semantics)
+- `action` precedence across FW + IPS + DNAT — [clarification `log-12`](../../_meta/clarifications.md#log-12--firewall-action-precedence-across-fw-ips-dnat)
+- `nwapp` vs `nwsvc` relationship — [clarification `log-13`](../../_meta/clarifications.md#log-13--firewall-nwapp-vs-nwsvc-relationship)

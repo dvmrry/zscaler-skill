@@ -116,7 +116,7 @@ Skim this before reading the full entries.
 
 ### Open
 
-`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-45`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-19`, `log-03`, `log-05`–`log-10`, `shared-06`, `shared-07`–`shared-16`, `zcc-08`–`zcc-75`.
+`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-45`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-19`, `log-03`, `log-05`–`log-17`, `shared-06`, `shared-07`–`shared-16`, `zcc-08`–`zcc-75`.
 
 Partial / SDK-mined (resolved via code read or help-doc capture; full lab confirmation pending): `zcc-01`, `zcc-02`, `zcc-03`, `zcc-04`, `zcc-05`, `zcc-06`, `zcc-07`, **`log-04`** (field name + illustrative values confirmed via `web-log-schema.md`; full enum of `ruletype` / `reason` values still needs a tenant export). All six ZCC enum clarifications had their **datatype** (int vs string) resolved by the Go SDK cross-check on 2026-04-24; the integer-to-meaning mapping remains open for `zcc-01` through `zcc-04` and `zcc-06`.
 
@@ -950,6 +950,148 @@ The CSV defines `%s{prompt_req}` as "The prompt entered by the user in the gener
 Tenants on regulated industries (healthcare, finance, defense) need to know exactly what GenAI prompt content lands in NSS feeds before they enable GenAI policy. Agents asked "do we have visibility into AI prompts users send?" may answer yes/no without flagging the truncation/sanitization gaps.
 
 **Resolves with**: vendor doc on GenAI logging configuration + tenant test with a long prompt containing distinct markers at start, middle, end to detect truncation/redaction. **Status**: open — 2026-05-06.
+
+---
+
+### log-11 — Firewall aggregate session semantics
+
+*Origin: `references/zia/logs/firewall-log-schema.md` § What the spec underspecifies*
+
+The ZIA Firewall NSS feed CSV (`vendor/zscaler-help/nss-firewall-logs.csv`) marks 8+ fields with the caveat "For aggregated sessions, this is the *X* of the last session in the aggregate" (`csip`, `csport`, `cdip`, `cdport`, `tsip`, `sdport`, `sdip`, `ssip`, `ssport`). The CSV documents `aggregate` as a Yes/No flag and `numsessions` as a count, but doesn't state:
+
+1. **What triggers session aggregation** — idle timeout, volume threshold, hop count, rule configuration, or some combination?
+2. **How byte counters behave on aggregates** — `inbytes` / `outbytes` / `durationms` / `avgduration` are not explicitly tagged with the "last-session" caveat. Are they sums across the aggregate, max, last-session-only, or aggregated-with-some-other-rule?
+3. **Why `srcip_country` is absent on aggregated allowed sessions but present on aggregated blocked sessions** — the CSV states this exception literally but doesn't explain it. Suggests source-country lookup happens at block time only on aggregates; not confirmed.
+4. **Whether aggregation is configurable** at the tenant or rule level, or always-on system behavior.
+
+For SIEM analytics: an aggregated record represents N sessions but exposes only one set of source/destination IPs. Counting unique source IPs from these records will undercount actual session-distinct sources by a factor proportional to aggregation rate.
+
+**Resolves with**: tenant test triggering known aggregation conditions (e.g., burst of N identical sessions to the same destination from the same source) plus vendor doc on the aggregation algorithm. **Status**: open — 2026-05-06.
+
+---
+
+### log-12 — Firewall `action` precedence across FW + IPS + DNAT
+
+*Origin: `references/zia/logs/firewall-log-schema.md` § What the spec underspecifies*
+
+The Firewall NSS log has a single `%s{action}` field with example values `Allowed`, `Blocked`, but the firewall pipeline involves three subsystems that can each block or modify a transaction:
+
+1. FW filter rules (allow/block based on 5-tuple + user/location)
+2. IPS engine (signature-based detection, separate `threatcat` / `threat_score` / `ipsrulelabel` fields)
+3. DNAT policy (separate `dnat` / `dnatrulelabel` fields)
+
+The CSV doesn't state:
+
+- When FW Allows but IPS Blocks, what's `action`? `Blocked`?
+- When DNAT translates AND FW subsequently Blocks, does the record show DNAT translation occurred? `dnat` is `Yes` even on block?
+- When IPS surfaces a Critical-severity threat but doesn't block (detect-only mode), is `action` Allowed but `threatcat` populated? Or Blocked?
+- Is `action` the *first-fired* outcome (early-stop) or the *final* outcome after all subsystems evaluated?
+
+Same shape as [`log-05`](#log-05--action-enum-completeness-and-multi-subsystem-precedence) for web logs but with different subsystems and different field-population implications.
+
+**Resolves with**: deliberate-trigger tenant test (FW-allow + IPS-block, DNAT + FW-block, IPS-detect-only with Allow) and observe `action` + auxiliary fields per case. **Status**: open — 2026-05-06.
+
+---
+
+### log-13 — Firewall `nwapp` vs `nwsvc` relationship
+
+*Origin: `references/zia/logs/firewall-log-schema.md` § What the spec underspecifies*
+
+The Firewall NSS log has two distinct fields:
+
+- `%s{nwapp}` — "Network application accessed" — example `SSH`
+- `%s{nwsvc}` — "Network service used" — example `HTTP`
+
+The CSV labels them differently but doesn't define the conceptual difference, the relationship, or the population rules. Possible interpretations the spec doesn't disambiguate:
+
+1. `nwapp` is the L7 application identification (deep packet inspection result), `nwsvc` is the L4 service identification (port-based mapping). So a session on TCP/22 carrying an SSH-disguised tunnel might show `nwsvc=SSH` (port-derived) while `nwapp=HTTP` (DPI-detected).
+2. Or vice versa.
+3. Or one of them maps to a tenant-defined service object and the other to a Zscaler-built-in classification.
+4. Are both always populated, or can one be absent? What populates them for non-IP-protocol traffic (ICMP)?
+
+Practical impact: agents asked "what application did the user access?" need to know which field is authoritative and why they might disagree.
+
+**Resolves with**: tenant export sample with deliberately ambiguous traffic (e.g., HTTP on a non-standard port, or a tunnel). Vendor doc on the firewall pipeline classification stages would also resolve it. **Status**: open — 2026-05-06.
+
+---
+
+### log-14 — DNS `reqaction` / `resaction` enum and cumulative vs alternative semantics
+
+*Origin: `references/zia/logs/dns-log-schema.md` § What the spec underspecifies*
+
+The DNS NSS feed has two action fields:
+
+- `%s{reqaction}` — "Name of the action applied to the DNS request" — example values `REQ_ALLOW`, `RES_BLOC` (truncated abbreviations)
+- `%s{resaction}` — "Name of the action applied to the DNS response" — no example
+
+The CSV doesn't:
+
+1. Enumerate the full set of values for either field.
+2. Expand the cryptic prefixes — `REQ_ALLOW` likely means request allowed, but `RES_BLOC` (note: appears as a `reqaction` example, despite the `RES_` prefix) is confusing — is it a typo in the CSV, a valid value indicating "request seen but blocked at response stage," or something else?
+3. State whether both `reqaction` and `resaction` are always populated together (so a blocked-by-response-policy DNS query would show `reqaction=REQ_ALLOW`, `resaction=RES_BLOC`), or whether only the action that actually fired populates and the other is empty.
+4. Document the relationship between these and the `%s{error}` field (e.g., does `EMPTY_RESP` in `error` correlate with a specific `resaction` value?).
+
+For SIEM rules detecting blocked DNS, the field to filter on is unclear. Filtering only on `reqaction` may miss response-stage blocks; filtering only on `resaction` may miss request-stage blocks; filtering on both may double-count.
+
+**Resolves with**: tenant test with a request-stage block rule + a response-stage block rule (e.g., block on `domcat=Adult` for request stage; block on `respipcat=Malware Sites` for response stage) and observe field population. **Status**: open — 2026-05-06.
+
+---
+
+### log-15 — DNS `res` field overloading (IP vs sentinel string)
+
+*Origin: `references/zia/logs/dns-log-schema.md` § What the spec underspecifies*
+
+The DNS NSS feed has a single `%s{res}` field labeled "Resolved IP or NAME in the DNS response," with example values `192.168.2.200`, `EMPTY_RESP`. The same field carries fundamentally different value types:
+
+1. **Resolved IP address** (IPv4 or IPv6 dotted-quad/colon-hex) — actual DNS A/AAAA response data
+2. **Resolved name** (CNAME chain target) — DNS hostname text
+3. **Sentinel string** indicating no response or an error (e.g., `EMPTY_RESP`) — Zscaler-specific tokens
+
+The CSV doesn't:
+
+1. Enumerate the sentinel-string set (only `EMPTY_RESP` is shown). What other tokens? Are they consistent across cloud generations?
+2. Specify how to programmatically distinguish the three value types — agents/parsers will likely regex on dotted-quad and assume non-matches are sentinels, but CNAME hostnames could collide with sentinel-string patterns.
+3. Specify what the field contains for multi-record responses (multiple A records, AAAA + A combined response). One delimited list? Just the first? An aggregate of all answer-section entries?
+4. Document how `res` interacts with `restype` — when `res` is a sentinel like `EMPTY_RESP`, is `restype` empty, the requested type, or a sentinel of its own?
+
+Cross-link: relates to [`log-14`](#log-14--dns-reqaction-resaction-enum-and-cumulative-vs-alternative-semantics) — sentinel `res` values likely correlate with specific `resaction` / `error` combinations.
+
+**Resolves with**: tenant export with deliberately-triggered DNS errors (NXDOMAIN, SERVFAIL, REFUSED) plus successful queries with multiple-answer responses; observe `res` field population per case. **Status**: open — 2026-05-06.
+
+---
+
+### log-16 — DNS `dnsgw_flags` semantics and failover state machine
+
+*Origin: `references/zia/logs/dns-log-schema.md` § What the spec underspecifies*
+
+The DNS NSS feed has `%s{dnsgw_flags}` labeled "Flags indicating DNS Gateway status" with example values `PRIMARY_SERVER_RESPONSE_PASS`, `SECONDARY_SERVER_RESPONSE_PASS`, `FO_DEST_PASS`, `FO_DEST_ERR`, `FO_DEST_DROP`, `None`. The CSV doesn't:
+
+1. **Expand "FO"** — presumably failover, but unstated.
+2. **State whether values are mutually exclusive** (one flag per record) or **cumulative** (multiple flags concatenated by some delimiter).
+3. **Document the failover state machine** — under what conditions does `PRIMARY_SERVER_RESPONSE_PASS` → `SECONDARY_SERVER_RESPONSE_PASS` → `FO_DEST_PASS` → `FO_DEST_ERR` → `FO_DEST_DROP` transition? Is the transition observable per-record or only across multiple records?
+4. **Distinguish `FO_DEST_ERR` from `FO_DEST_DROP`** — both seem to indicate failure but with different sub-types unstated. Configured destination unreachable vs configured destination returned an error vs configured destination policy-blocked?
+5. **Specify when `None` fires** — DNS Gateway not configured for this transaction? DNS Gateway evaluated but no flag fired? Unclear.
+
+For DNS-tunnel troubleshooting and DNS Gateway routing diagnostics, knowing what each flag actually represents is essential. Agents asked "why did this DNS query fail?" can readily invent meaning for `FO_DEST_ERR` vs `FO_DEST_DROP`.
+
+**Resolves with**: vendor doc on DNS Gateway pipeline + tenant test with a configured failover scenario (intentionally unreachable primary, intentionally policy-blocking secondary). **Status**: open — 2026-05-06.
+
+---
+
+### log-17 — CASB per-record category discriminator field
+
+*Origin: `references/zia/logs/casb-log-schema.md` § Open questions*
+
+ZIA SaaS Security / API CASB logs are organized into eight application categories (Collaboration, CRM, Email, File, Gen AI, ITSM, Public Cloud Storage, Repository), each with its own column set per the SaaS Security Insights Logs UI (`vendor/zscaler-help/about-saas-security-insights-logs.md`). All eight categories share a Cloud NSS feed instance. The CSV doesn't state:
+
+1. **Which field discriminates category-of-record** — `appclass` is a likely candidate (matches the eight-category vocabulary) but unconfirmed.
+2. **Whether category-specific fields are absent or null on out-of-category records** — e.g., does a Collaboration record have null `share_type` or omit the field entirely from the JSON output?
+3. **Whether multi-category SaaS apps** (e.g., Microsoft 365 spans Collaboration + Email + File) produce one record per category-aspect or a single record with merged fields.
+4. **Whether the discriminator is stable across cloud generations** or has changed in newer ZIA versions.
+
+This is high-leverage because every parser of this feed must know the discriminator before extracting category-specific fields. Without it, a SIEM parser either has to (a) try every possible field name and accept many empties, or (b) infer category from `appname` via lookup table — which becomes stale as new SaaS apps are added.
+
+**Resolves with**: tenant CASB feed sample (one record from each category) plus vendor confirmation of the discriminator field name. The eight per-category column captures already noted in `casb-log-schema.md` Open questions are the prerequisite material. **Status**: open — 2026-05-06.
 
 ---
 

@@ -3,7 +3,7 @@ product: zia
 topic: "zia-casb-log-schema"
 title: "ZIA SaaS Security / CASB log schema (Cloud NSS Feed: SaaS Security)"
 content-type: reference
-last-verified: "2026-04-29"
+last-verified: "2026-05-06"
 confidence: medium
 source-tier: doc
 sources:
@@ -164,10 +164,15 @@ The per-category column sets and filter sets are referenced in `vendor/zscaler-h
    - Public Cloud Storage Columns / Filters
    - Repository Columns / Filters
 2. Confirm whether the NSS feed format follows the same `%s{...}` / `%d{...}` specifier convention as Web/Firewall/DNS, or uses JSON-native field names (Cloud NSS supports JSON output).
-3. Identify the per-record category discriminator field (likely `appclass`).
+3. **Identify the per-record category discriminator field** — likely `appclass`, but unconfirmed. Filed as [`log-17`](../../_meta/clarifications.md#log-17--casb-per-record-category-discriminator-field) — high-leverage because every parser of this feed needs to know which per-category schema to apply per record before extracting other fields.
 4. Cross-check against the Cloud NSS feed schema in `General_Guidelines_for_NSS_Feeds_and_Feed_Formats.txt` (vendor PDF — extraction needed).
 
 This is tracked as a coverage gap; see also [`../../shared/siem-log-mapping.md`](../../shared/siem-log-mapping.md) under "ZIA Inline CASB / SaaS Security (NSS)".
+
+In addition to the per-category coverage gap, the cross-product clarifications already filed for Web NSS apply to CASB since CASB shares many fields with Web NSS:
+
+- `prompt_req` content scope, truncation, and sanitization (especially relevant to CASB Gen AI category) — [clarification `log-10`](../../_meta/clarifications.md#log-10--prompt_req-content-scope-truncation-and-sanitization)
+- `riskscore` source / combined-subsystem behavior (if `app_risk_score` is similarly derived) — [clarification `log-08`](../../_meta/clarifications.md#log-08--riskscore-source-and-combined-subsystem-behavior)
 
 ## Cross-links
 
