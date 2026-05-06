@@ -3,7 +3,7 @@ product: shared
 topic: "pac-files"
 title: "PAC files — the forwarding layer that touches every product"
 content-type: reasoning
-last-verified: "2026-05-03"
+last-verified: "2026-05-06"
 confidence: high
 source-tier: doc
 sources:
@@ -73,7 +73,13 @@ The browser is configured with a **Hosted URL** pointing at the PAC. On each fet
 3. Before returning the PAC body, Zscaler performs **server-side variable substitution** — inserting the current PSE IPs / FQDNs into the file.
 4. Client executes the returned JavaScript to decide routing per request.
 
-**Variable substitution only works when the PAC is Zscaler-hosted.** If you copy a PAC to your own web server, `${GATEWAY}` becomes a literal string, not an IP. Self-hosting a PAC means losing the geolocation and failover benefits.
+**Variable substitution only works when the PAC is Zscaler-hosted.** If you copy a PAC to your own web server, `${GATEWAY}` becomes a literal string, not an IP. Self-hosting a PAC means losing the geolocation and failover benefits. **Self-hosted PAC over HTTPS** also requires the browser to trust the cert chain — self-signed certs cause silent PAC fetch failure and browsers fall back to no-proxy mode (Tier B — standard browser behavior, not Zscaler-specific).
+
+### PAC fetch frequency, caching, and propagation
+
+Browser PAC caching is governed by HTTP response headers (`Cache-Control`, `Expires`, `Last-Modified`, ETag). Most browsers re-evaluate their PAC every few minutes to a few hours — exact behavior is browser-specific and depends on the headers Zscaler's PAC server returns. **The specific cache headers Zscaler-hosted PAC URLs send are not captured in available vendor documentation** (Tier D). Operationally observed: PAC changes can take **minutes to ~1 hour** to fully propagate across a tenant's user base. (Tier C — operational lore consistent with browser PAC caching norms; see [`shared-24`](../_meta/clarifications.md#shared-24--zscaler-hosted-pac-cache-headers-and-client-refresh-behavior).)
+
+**Forced refresh:** Restarting the browser or clearing the PAC cache (browser-specific) forces a fresh fetch. ZCC's PAC mode behavior on PAC change is also undocumented — whether ZCC respects HTTP cache headers or polls on its own schedule is in the same clarification.
 
 ### The Zscaler-specific variables
 
@@ -116,6 +122,10 @@ return "PROXY ${SECONDARY.GATEWAY.<Subcloud>.<Zscaler Cloud>.net_FX}:80; PROXY $
 | Non-ASCII characters | 12% of file size (binary) | n/a |
 
 10-version history enables staged rollouts — author a new version, test via a small population, promote to current. There is no native canary or percentage-rollout primitive; staging is done by pointing selected users at a versioned URL.
+
+**Rollback procedure:** the **Currently Deployed Version** field on the Hosted PAC Files page can be set to any of the 10 retained versions, making rollback a single-field change rather than a re-upload. (Tier A — `vendor/zscaler-help/about-hosted-pac-files.md`, *Currently Deployed Version*.) Combined with the immediate-propagation behavior, this is the fastest revert path when a deployed PAC breaks something.
+
+**Operational telemetry:** the Hosted PAC Files page exposes a **Number of Hits** column showing how many times each PAC was hit in the last 30 days (Tier A — `vendor/zscaler-help/about-hosted-pac-files.md`). Useful for confirming a PAC URL is actually being fetched by clients, or for detecting orphaned PAC URLs no one fetches anymore.
 
 The 12% non-ASCII cap is rarely-discussed but real: PAC files with verbose Unicode comments, non-English hostnames, or BOM markers can silently fail save validation.
 
@@ -228,6 +238,58 @@ ${GATEWAY.<Subcloud>.<Zscaler Cloud>.net}
 
 The unqualified `${GATEWAY}` on a subcloud tenant may resolve to geolocation-default PSEs that are outside the subcloud. Tenants who believe they have EU-only traffic but find US PSEs in their logs usually have an unqualified `${GATEWAY}` in their PAC. See [`./subclouds.md`](./subclouds.md) for full subcloud mechanics.
 
+## WPAD (Web Proxy Auto-Discovery)
+
+WPAD is the standard mechanism for distributing a PAC URL to clients automatically — DNS-based (`http://wpad.<domain>/wpad.dat`) or DHCP-based (option 252). Many enterprises rely on WPAD instead of pushing the explicit PAC URL via GPO / MDM.
+
+**Vendor coverage gap:** Zscaler's available help-portal captures **do not document WPAD support, the `wpad.dat` MIME type, or DHCP option 252 patterns for Zscaler-hosted PACs**. Filed as [`shared-23`](../_meta/clarifications.md#shared-23--wpad-web-proxy-auto-discovery-support-with-zscaler-hosted-pacs). Tenants relying on WPAD typically self-host (losing variable substitution) or have configured a customer-side `wpad` DNS record returning the Zscaler-hosted PAC URL via HTTP redirect — the latter is operational lore, not vendor-documented. (Tier D.)
+
+If WPAD is required, the operationally common patterns are:
+
+1. **GPO/MDM-pushed explicit PAC URL** pointing at the Zscaler-hosted PAC (preserves variable substitution; bypasses WPAD entirely)
+2. **DNS-based redirect**: customer's `wpad.<domain>` DNS record points at an internal web server that issues an HTTP 302 to the Zscaler-hosted PAC URL (preserves variable substitution since the browser ultimately fetches from Zscaler)
+3. **Self-hosted PAC at `wpad.<domain>`**: simplest but loses variable substitution and geolocation benefits
+
+## PAC mode authentication flow
+
+When a browser configured with a PAC URL forwards a request to the Zscaler PSE, the PSE applies the same authentication policy as any other forwarding method. The flow follows the model in [`../zia/authentication.md`](../zia/authentication.md): SAML SSO redirect (browser → IdP → ZIA cookie), Hosted DB (form challenge), or Kerberos (transparent ticket on port 8800 if `kerberos.pac` is in use). **Surrogate IP** (per-location TTL-bound IP-to-user binding) is the primary identity-attribution mechanism for non-browser HTTP clients on the same source IP. (Tier A — see [`../zia/authentication.md § Surrogate IP`](../zia/authentication.md).)
+
+**Vendor coverage gap on PAC-mode-specific challenge mechanics:** the precise sequence of HTTP 302 redirects, cookie-set-cookie behavior, and 407 Proxy-Authentication challenge handling for PAC-forwarded traffic vs Z-Tunnel-forwarded traffic is **not consolidated in any captured vendor doc**. The common ticket — repeated authentication challenges in PAC mode that don't occur in Z-Tunnel mode for the same user — is filed as clarification [`shared-25`](../_meta/clarifications.md#shared-25--pac-mode-authentication-handshake-specifics). (Tier D for the PAC-specific behavior; Tier A for the authentication-method enum and Surrogate IP mechanic.)
+
+## PAC behavior with non-browser HTTP clients
+
+PAC files are a browser-era specification, but enterprise apps increasingly run as non-browser HTTP clients (CLI tools, language-runtime HTTP clients, containerized workloads). PAC support varies sharply by client:
+
+| Client | Typical PAC handling |
+|---|---|
+| `curl` | No native PAC support — must explicitly set `--proxy` to the PAC's resolved proxy or use a wrapper |
+| Python `urllib` / `requests` | No native PAC support — environment variables (`HTTP_PROXY`, `HTTPS_PROXY`) only; `pypac` library exists as third-party |
+| Node.js (default agent) | No native PAC support — `proxy-agent` library implements it |
+| Java `HttpURLConnection` | Native PAC support via `ProxySelector.getDefault()` reading system PAC URL on Windows/macOS |
+| .NET `HttpClient` | Reads system PAC URL on Windows by default; Linux/macOS varies |
+| `apt`, `yum`, `dnf` | Proxy URL only — no PAC |
+| Docker daemon | Proxy URL only — no PAC |
+| Kubernetes pods | Proxy URL only — no PAC |
+
+(Tier C — synthesized from widely-documented client-library behavior; not Zscaler-specific. Behavior in fast-evolving runtimes may shift.)
+
+**Operational implication:** if your environment routes browser traffic via PAC but workloads (CI/CD agents, scripts, containerized services) need to traverse the same Zscaler proxy, those workloads need either explicit proxy configuration or Cloud Connector deployment instead. PAC-only environments leak workload traffic around Zscaler. Filed as [`shared-26`](../_meta/clarifications.md#shared-26--non-browser-http-client-pac-support-matrix-zscaler-side-recommendations) for whether Zscaler has formal recommendations on this.
+
+## PAC + IPv6
+
+The standard PAC `isInNet` function is **IPv4-only**. The IPv6-aware extension `isInNetEx(host, "fe80::/10")` exists but support varies across browsers (Tier B — Mozilla PAC documentation). Modern Chrome and Firefox support `isInNetEx`; older / niche browsers may not.
+
+**Vendor coverage gap on Zscaler PAC + IPv6:** captured Zscaler PAC docs do not specify whether Zscaler-hosted PAC variables (`${GATEWAY}`, etc.) ever resolve to IPv6 addresses, whether IPv6 traffic is forwarded via PAC at all, or what the recommended IPv6-bypass pattern is for private IPv6 ranges. Filed as [`shared-27`](../_meta/clarifications.md#shared-27--zscaler-pac--ipv6-handling). (Tier D.)
+
+For dual-stack environments, the operationally-conservative pattern is to bypass IPv6 to DIRECT until Zscaler IPv6 PAC behavior is confirmed:
+
+```javascript
+// Naive IPv6 detection — host string contains a colon
+if (host.indexOf(":") !== -1) return "DIRECT";
+```
+
+(Tier C — defensive operational pattern.)
+
 ## How ZCC uses PAC files vs GRE/IPsec locations
 
 ZCC has three forwarding action modes on a per-platform or per-policy basis: Z-Tunnel, PAC, and NONE. (Tier A — `references/zcc/forwarding-profile.md`.)
@@ -249,10 +311,14 @@ The ZIA Admin Portal has a **Verify PAC File** option that runs syntax validatio
 - **PAC changes are immediate.** No activation gate. Test on a local machine and canary group first.
 - **Browser PAC caching.** Most browsers cache the PAC for minutes to hours depending on cache headers. A PAC change can take up to an hour to fully roll out — plan maintenance windows accordingly.
 - **Self-hosted PACs lose variable substitution.** Only PACs served from the Zscaler cloud get `${GATEWAY}` etc. substituted. If policy requires self-hosting (e.g., internal-only URL), use `isInNet` logic against known PSE subnets — but this is fragile across PSE IP changes.
+- **Self-hosted HTTPS PAC must have a browser-trusted cert.** Browsers silently reject self-signed-cert PAC fetches and fall back to no-proxy mode — clients then bypass Zscaler entirely with no log signal. (Tier B — standard browser behavior.)
+- **PAC parse / runtime error → silent DIRECT fallback.** A PAC with a syntax error caught at save shows `Error-Accepted` status but still serves. Worse, a PAC that *parses* but throws a JavaScript runtime error mid-evaluation (e.g., calling `dnsResolve` on a malformed input) causes most browsers to silently bail to DIRECT for that request — the user's traffic bypasses Zscaler with no log signal at the PAC layer. (Tier B — standard PAC engine behavior, not Zscaler-specific.) **Test PACs with malformed inputs**, not just well-formed ones.
+- **VPN-masked client IP causes wrong-PSE geolocation.** When a remote user fetches the PAC URL through a corporate VPN, Zscaler's PAC server geolocates based on the VPN egress IP, not the user's actual IP. The PAC body returned references PSEs near the VPN egress, not the user. For traveling users on corporate VPN this can mean traffic round-trips an extra continent. (Tier C — operational consequence of `${GATEWAY}` server-side substitution being source-IP-driven.)
 - **Kerberos KDC proxies create auth loops.** Add explicit DIRECT bypass for KDC proxy hosts before Kerberos forwarding logic.
 - **Realm traffic must bypass Zscaler.** Don't forward traffic to AD or intranet hostnames to the PSE.
 - **Size limit is bytes, not chars.** The 256 KB limit is encoded bytes; multi-byte characters (uncommon in a PAC, but possible in comments) consume more than one byte per glyph.
 - **The 12% non-ASCII cap.** Standard ASCII-only PAC files don't hit it; PAC files mirroring documentation in non-Latin scripts can silently fail save validation.
+- **PAC isn't consulted for QUIC traffic.** Browsers bypass proxy decisions for UDP destinations, so QUIC / HTTP/3 destinations skip the PAC entirely — same effective bypass behavior as `Z-Tunnel 1.0 + QUIC`. Block QUIC at the firewall to force browsers back to TCP/TLS where PAC + SSL inspection actually fire. See [`../zia/saas-app-quirks.md § 6`](../zia/saas-app-quirks.md) for the canonical QUIC handling.
 
 ## Cross-links
 

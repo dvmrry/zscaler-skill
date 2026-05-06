@@ -116,7 +116,7 @@ Skim this before reading the full entries.
 
 ### Open
 
-`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-45`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-19`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `shared-20`–`shared-22`, `zcc-08`–`zcc-75`.
+`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-45`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-19`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `shared-20`–`shared-27`, `zcc-08`–`zcc-75`.
 
 Partial / SDK-mined (resolved via code read or help-doc capture; full lab confirmation pending): `zcc-01`, `zcc-02`, `zcc-03`, `zcc-04`, `zcc-05`, `zcc-06`, `zcc-07`, **`log-04`** (field name + illustrative values confirmed via `web-log-schema.md`; full enum of `ruletype` / `reason` values still needs a tenant export). All six ZCC enum clarifications had their **datatype** (int vs string) resolved by the Go SDK cross-check on 2026-04-24; the integer-to-meaning mapping remains open for `zcc-01` through `zcc-04` and `zcc-06`.
 
@@ -2068,6 +2068,91 @@ This matters operationally because operators investigating "why is workload X be
 For SOC analysts reconstructing user activity during incident response, this gap means investigations spanning multiple PSEs may silently undercount or mis-attribute activity unless the SIEM reconstruction logic explicitly handles cross-DC session bridging.
 
 **Resolves with**: tenant lab — drive a deliberate multi-PSE session (e.g., force trusted-network transition or simulate F5 failover), capture NSS feeds from both PSEs, attempt reconstruction. Plus vendor doc on per-record uniqueness guarantees for `recordid`. **Status**: open — 2026-05-06.
+
+---
+
+### shared-23 — WPAD (Web Proxy Auto-Discovery) support with Zscaler-hosted PACs
+
+*Origin: `references/shared/pac-files.md` § WPAD review 2026-05-06*
+
+Many enterprises rely on WPAD for automatic PAC URL distribution to clients — DNS-based (`http://wpad.<domain>/wpad.dat`) or DHCP option 252. Zscaler's available help-portal captures **do not document**:
+
+1. Whether the Zscaler-hosted PAC URL can be served at a `wpad.dat` path or with the `application/x-ns-proxy-autoconfig` MIME type that some browsers require for WPAD discovery.
+2. Whether DHCP option 252 is a supported delivery mechanism for the Zscaler-hosted PAC URL.
+3. Whether the Zscaler PAC server returns variable-substituted content when fetched as `wpad.dat` (likely yes — substitution is URL-pattern-agnostic — but unconfirmed).
+4. Whether redirect-based WPAD (customer's `wpad.<domain>` returning a 302 to the Zscaler-hosted PAC) preserves variable substitution (browser ultimately fetches from Zscaler, so probably yes — but unconfirmed).
+
+This matters because tenants relying on WPAD often default to self-hosting (which loses variable substitution and geolocation) when the Zscaler-hosted PAC URL pattern doesn't fit their WPAD infrastructure.
+
+**Resolves with**: vendor doc on WPAD compatibility or testing the documented workarounds (rename the Zscaler PAC URL to `wpad.dat` via DNS CNAME, observe browser behavior). **Status**: open — 2026-05-06.
+
+---
+
+### shared-24 — Zscaler-hosted PAC cache headers and client refresh behavior
+
+*Origin: `references/shared/pac-files.md` § PAC fetch frequency review 2026-05-06*
+
+`pac-files.md` states "PAC changes are immediate" (server-side) but acknowledges that client-side propagation is gated by browser caching. The specific behavior is undocumented:
+
+1. **Cache-Control / Expires headers** sent by the Zscaler PAC server are not in any captured doc. Operationally observed: PAC changes can take **minutes to ~1 hour** to fully roll out; the bound depends on these headers.
+2. **ZCC PAC mode refresh cadence** — when ZCC is in PAC mode (vs Z-Tunnel mode), how often does it re-fetch the PAC? Does ZCC respect HTTP cache headers like a browser, or use its own poll schedule?
+3. **Force-refresh mechanism** — is there an admin-portal action that pushes PAC re-fetch to clients (vs waiting for cache expiry)? None documented.
+4. **Versioned-URL semantics** — if a PAC is rolled back to a prior version, do clients holding the cached newer version see the rollback only after their cache expires?
+
+For incident response — "we just rolled back a bad PAC, when do we know it's actually deployed everywhere?" — current answer is "wait an hour and check Number-of-Hits." A documented refresh window would be more useful.
+
+**Resolves with**: HTTP HEAD request against a Zscaler-hosted PAC URL to inspect actual cache headers (operator-side), or vendor doc. **Status**: open — 2026-05-06.
+
+---
+
+### shared-25 — PAC-mode authentication handshake specifics
+
+*Origin: `references/shared/pac-files.md` § PAC mode authentication review 2026-05-06*
+
+The high-level auth methods (SAML SSO / Hosted DB / Kerberos) and the Surrogate IP mechanic are well-documented in `references/zia/authentication.md`. What's not documented is the **PAC-mode-specific handshake sequence**:
+
+1. **407 Proxy-Authentication challenge handling** — when a non-cookie-bearing client (curl, script, non-browser) hits the PSE via a PAC-resolved proxy, does the PSE issue a 407 challenge or a 302 SAML redirect? Browser response to each differs; non-browser HTTP clients often fail on either.
+2. **Cookie domain / scope** — the ZIA session cookie issued on SAML completion is scoped to the PSE's domain. In PAC mode (where each request hits a `PROXY h:80` resolution), how is the cookie attached to subsequent requests? Browsers handle this transparently but the cookie domain rules aren't documented.
+3. **Repeated-challenge symptom in PAC mode vs Z-Tunnel** — operators commonly report that the same user gets re-challenged for auth more frequently in PAC mode than in Z-Tunnel mode for identical traffic. The operational lore is "Surrogate IP + per-location auth-frequency works differently across the two modes" — exact mechanism unconfirmed.
+4. **Kerberos challenge port (8800) interaction with non-`kerberos.pac` PAC files** — what happens when a Kerberos-eligible user is on a PAC that returns `:80` instead of `:8800`? Silent fallback to other auth method, or block?
+
+**Resolves with**: instrumented packet capture during a fresh PAC-mode session (force re-auth scenarios), or vendor doc consolidating PAC-mode auth specifics. **Status**: open — 2026-05-06.
+
+---
+
+### shared-26 — Non-browser HTTP client PAC support — Zscaler-side recommendations
+
+*Origin: `references/shared/pac-files.md` § PAC behavior with non-browser HTTP clients review 2026-05-06*
+
+The non-browser-client PAC support matrix is well-known operationally but not Zscaler-documented:
+
+- `curl`, Python `urllib`, Node.js default agent, `apt`, `yum`, Docker, Kubernetes — none have native PAC support.
+- Java `HttpURLConnection`, .NET `HttpClient` — partial PAC support via system PAC URL on supported OSes.
+
+The skill's existing material correctly identifies Cloud Connector as the workload-traffic forwarding answer, but the **PAC-vs-CC decision boundary** for environments running both browser users and non-browser workloads is not laid out as Zscaler-side guidance. Specific gaps:
+
+1. Does Zscaler publish guidance on "for these client classes, use proxy-URL config instead of PAC" or "use Cloud Connector for workload traffic"?
+2. For environments where Cloud Connector isn't deployed but workload traffic must traverse Zscaler, is there a recommended lightweight pattern (explicit proxy URL pointing at hosted-PAC-resolved-`${GATEWAY}` IP)? Such IPs change over time as Zscaler scales — fragile.
+3. For tenants on subclouds, the workload-pinned proxy URL has to use the subcloud-qualified hostname; is there a documented pattern?
+
+**Resolves with**: vendor doc consolidating recommendations for non-browser-client traffic forwarding, or admission that PAC + workload-traffic is operationally a gap that Cloud Connector is the only Zscaler-supported answer for. **Status**: open — 2026-05-06.
+
+---
+
+### shared-27 — Zscaler PAC + IPv6 handling
+
+*Origin: `references/shared/pac-files.md` § PAC + IPv6 review 2026-05-06*
+
+The standard PAC `isInNet` is IPv4-only; the IPv6-aware `isInNetEx` extension exists but support is browser-dependent. Zscaler-side IPv6 handling in PAC is undocumented:
+
+1. **Variable substitution for IPv6** — do `${GATEWAY}` / `${SECONDARY_GATEWAY}` ever resolve to IPv6 addresses? If so, in which clouds / subclouds? If never, IPv6 traffic hitting a PAC-returned IPv4 PROXY directive will fail at the OS network layer.
+2. **PSE IPv6 endpoint availability** — do Zscaler Public Service Edges accept IPv6 ingress on the standard PAC-returned ports? `references/cloud-connector/azure-deployment.md` notes that "1:1 NAT disables IPv6" on the CC side — analogous behavior on the PSE side?
+3. **Recommended IPv6-bypass pattern** — what's the canonical PAC pattern for tenants with dual-stack networks who want IPv6 to bypass Zscaler? `if (host.indexOf(":") !== -1) return "DIRECT";` is the operationally-conservative fallback (Tier C in `pac-files.md`); a Zscaler-recommended pattern would be more authoritative.
+4. **`isInNetEx` browser support matrix** — Zscaler-side recommendations for tenants whose user populations include browsers that don't support `isInNetEx`.
+
+For tenants with growing IPv6 deployments (especially in mobile/cellular and APAC environments where IPv6 is increasingly default), this is an operational concern.
+
+**Resolves with**: vendor doc on IPv6 PAC support / PSE IPv6 ingress, or experimental verification by attempting IPv6-only PAC fetch and observing variable substitution behavior. **Status**: open — 2026-05-06.
 
 ---
 
