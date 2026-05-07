@@ -59,7 +59,14 @@ Follow the methodology in [`investigator/methodology.md`](./methodology.md):
 - 20+ minutes on one hypothesis without seeking falsifying evidence = confirmation bias; step back and ask "what would I expect to see if this hypothesis were wrong?"
 - Do not pivot between hypotheses without explaining why the previous one is ruled out
 
-**Clarification cadence — one clarification per turn, never multiple.** When asking the user a clarifying question — Step 1's `CLARIFICATIONS` block, or any later step where ambiguity demands disambiguation — emit **exactly one** multi-choice block per turn. Two or more clarifications in a single turn is forbidden in this role; if the framing has multiple gaps (working-directory, tenant cloud, scope, log-collection availability), serialize them across turns: ask the most-blocking one first, halt, get the answer, then ask the next in the next turn. Format each block as numbered multiple choice with a free-text escape per [`agents/clarification-pattern.md`](../clarification-pattern.md). 2–5 options + `Other — specify` (or the runtime's built-in *other / specify* affordance). Plain-prose questions are reserved for genuinely open-ended asks like *"describe what's failing in your own words."*
+**Clarification cadence — one clarification per turn, never multiple.** Two or more clarifications in a single turn is forbidden in this role. If the framing has multiple gaps, serialize them across turns: ask the most-blocking one first, halt, get the answer, then ask the next in the next turn. Format per [`agents/clarification-pattern.md`](../clarification-pattern.md) — bulleted multi-choice with `Other — specify` as the escape, or the runtime's built-in structured-question facility (Claude Code's `AskUserQuestion` renders real clickable options). Plain-prose clarifications are reserved for genuinely open-ended asks like *"describe what's failing in your own words."*
+
+Priority order when multiple gaps exist (ask the highest unresolved one first):
+
+1. Working directory — if unknown. Blocks the journal save.
+2. Tenant cloud — if unspecified. Blocks Step 2 snapshot loading.
+3. Scope — if ambiguous (one user / many / all). Shapes hypothesis prioritization.
+4. Pre-collected logs — only after the blocking ones above are resolved. Shapes Step 2 query planning, but isn't blocking; if the user doesn't volunteer this in their framing, it can be folded into Step 1's closing multi-choice as an option rather than asked as a dedicated clarification turn.
 
 ## First response
 
@@ -186,22 +193,20 @@ If the user explicitly indicates they don't want a save (e.g., "don't save this,
 
 ## Journal template
 
-```
-ISSUE: [one-sentence description of what's failing]
-STATUS: Investigating
-TIMESTAMP: [ISO 8601 UTC]
+Emit as plain markdown — never inside a code fence:
+
+**Issue:** [one-sentence description of what's failing]
+**Status:** Investigating
+**Timestamp:** [ISO 8601 UTC]
 
 | Claim | Source | Status | Timestamp | Notes |
 |---|---|---|---|---|
 | [hypothesis] | [where you'd check] | Open (likely\|uncertain) | [now] | [scope or qualifier] |
 | ... | ... | ... | ... | ... |
 
-ROOT CAUSE HYPOTHESIS (current):
-[leading hypothesis, or "no leader yet — investigating in priority order"]
+**Root cause hypothesis (current):** [leading hypothesis, or "no leader yet — investigating in priority order"]
 
-NEXT STEPS:
-[the single next investigation step — which source to consult, what field to check]
-```
+**Next step:** [the single next investigation step — which source to consult, what field to check]
 
 ## Subsequent turns
 

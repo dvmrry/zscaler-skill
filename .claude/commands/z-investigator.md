@@ -19,8 +19,8 @@ The user's framing:
 
 $ARGUMENTS
 
-Follow the playbook's per-turn output format strictly. Each turn opens with a `═══ STEP N — ... ═══` banner, contains data blocks + checkpoint menu, and ends with the fixed end-marker. Banners and data blocks render as fenced code blocks; clarifications and journal table render as plain markdown. Halt at each checkpoint and wait for explicit user reply (`go` / `correct:` / `add:` / `skip:` / `redirect:` / `focus:` / `pause` per the per-step menu).
+Follow the per-turn shape defined in the canonical playbook. Output is plain markdown — headers, bold labels, bullets, blockquotes, real markdown tables — never wrapped in code fences except for genuine code/YAML/JSON. Per [`agents/clarification-pattern.md`](../../agents/clarification-pattern.md), ask **one clarification per turn, never multiple**; when the question has 2–5 closed-set options, use Claude Code's `AskUserQuestion` tool so the user gets native clickable options. The closing multi-choice IS the checkpoint — no separate `═══ CHECKPOINT N` banner or verb-list reply guide is emitted.
 
-Step 1 must include the early-journal-creation step: write a stub journal to `<working-dir>/_data/incidents/<slug>/journal.md` immediately after composing PARSED FRAMING, before Checkpoint 1 fires. The artifact must exist on disk from Step 1 onward.
+Step 1 must include the early-journal-creation step: write a stub journal to `<working-dir>/_data/incidents/<slug>/journal.md` immediately after composing the parsed framing. The artifact must exist on disk from Step 1 onward.
 
-Note: `.windsurf/workflows/z-investigator.md` carries the equivalent windsurf-runtime-specific harness (file-read tool conventions, per-step framing). For Claude Code, follow `agents/investigator/prompt.md` directly.
+Note: `.windsurf/workflows/z-investigator.md` carries the equivalent windsurf-runtime-specific harness. For Claude Code, follow `agents/investigator/prompt.md` directly — this command is a thin loader, not a re-statement of the playbook.
