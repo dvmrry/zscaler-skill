@@ -143,8 +143,16 @@ PROPOSED LOADS (Step 2A — docs only):
 ```
 
 CLARIFICATIONS:
-  1. I assumed <X> — confirm or correct?
-  2. <additional questions if framing has gaps; mandatory log-collection question; mandatory working-directory question if "unknown">
+
+  Each clarification is its own multiple-choice block (per `agents/clarification-pattern.md`) — never plain prose. Use the runtime's structured-question facility when one exists; numbered text otherwise. Shape:
+
+      I assumed <X>. Confirm:
+      1. Yes — proceed with <X>
+      2. No — actually <Y>
+      3. No — actually <Z>
+      4. Other — specify
+
+  Add additional clarifications below as separate multi-choice blocks (one per axis). Mandatory clarifications when framing is incomplete: log-collection availability ("have logs already been collected? if so, where?"); working-directory path if "unknown" in PARSED FRAMING.
 
 JOURNAL CREATED: <working-dir>/_data/incidents/<slug>/journal.md
 

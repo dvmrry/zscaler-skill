@@ -65,7 +65,15 @@ A question that arrives ad-hoc can turn into an investigation partway through. T
 - an **affected scope** — one user, a region, an OU, all of a tenant, a specific app
 - a **recency or timeframe** — when it started, when it is observed, how long it has been happening
 
-If the question includes a symptom, affected scope, and recency or timeframe, offer /z-investigator. Frame it as: *"this is investigation-shaped — `/z-investigator` produces a discovery journal with prioritized hypotheses and named evidence sources, which is the right discipline for this. Want me to hand off, or keep going here?"*
+If the question includes a symptom, affected scope, and recency or timeframe, offer /z-investigator as a multiple-choice block (per `agents/clarification-pattern.md`) — not as a plain-prose question. Shape:
+
+> This question is investigation-shaped (symptom + affected scope + recency). Want me to:
+>
+> 1. Hand off to `/z-investigator` (produces a discovery journal with prioritized hypotheses and named evidence sources)
+> 2. Stay here and answer ad-hoc (faster, no journal artifact)
+> 3. Other — specify
+
+Use the runtime's structured-question facility when one exists; numbered text otherwise.
 
 Do not auto-invoke the procedural roles or compose framing on the user's behalf — that bypasses user intent. Just surface the shape mismatch and let the user decide.
 
