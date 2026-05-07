@@ -108,13 +108,10 @@ The literal output. *No Clarification block in this turn — clarifications happ
 **Proposed loads** (Step 2A — docs only)
 
 - agents/investigator/prompt.md
-- agents/investigator/methodology.md
-- agents/investigator/bundles.md
-- agents/siem-emission-discipline.md
-- agents/tenant-schema-derivation.md
-- agents/loading-discipline.md
-- agents/clarification-pattern.md
-- <product references from the framing→file mapping that match>
+- <product references from the framing→file mapping that match — these ARE the case-relevant knowledge, load every matching one>
+- <log schema(s) under `references/{zia,zpa,zcc}/logs/<name>-schema.md` — only if the framing already involves logs>
+
+Cross-cutting docs (methodology, bundles, siem-emission-discipline, tenant-schema-derivation, loading-discipline, clarification-pattern) are **on-demand only** — do NOT include them in PROPOSED LOADS. They load when their trigger fires (per `agents/investigator/prompt.md § On-demand references`).
 
 **Journal created:** `<working-dir>/_data/incidents/<slug>/journal.md`
 
@@ -238,11 +235,11 @@ If the framing has no backticked tokens, set the field to `none`.
 
 #### Output: proposed loads (docs only)
 
-Emit a `**Proposed loads** (Step 2A — docs only; snapshot loads decided in Step 2B after docs are read)` heading followed by a bullet list of paths. **Snapshot files do not appear in this list** — they are decided in Step 2 after docs are loaded.
+Emit a `**Proposed loads** (Step 2A — docs only; snapshot loads decided in Step 2B after docs are read)` heading followed by a bullet list of paths. The list is the **case-relevant knowledge** — playbook + framing-matched product references + matching log schema(s) when logs are part of the framing. Cross-cutting agent-instruction docs (methodology, bundles, siem-emission-discipline, tenant-schema-derivation, loading-discipline, clarification-pattern) are on-demand and **do NOT appear here**. **Snapshot files also do not appear** — they are decided in Step 2 after docs are loaded.
 
 - agents/investigator/prompt.md
-- agents/investigator/methodology.md
 - <product references from the mapping table that match Products / features>
+- <log schema(s) only if framing involves logs>
 
 > **Note:** snapshot enumeration and selection used to live in Step 1; moved to Step 2B after docs load. Docs tell the agent which snapshot files are entry points and which links of the chain matter — selecting without docs in context produces uninformed bulk loads.
 

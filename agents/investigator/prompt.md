@@ -37,7 +37,7 @@ Investigation is hypothesis-driven, not doc-driven. For every turn, do these in 
 
 1. **State the active hypothesis** — cite the journal claim by `# H<n>` or short tag.
 2. **Name the signal/evidence needed** to validate or invalidate it. Be specific: which field, which file, which query.
-3. **Fetch (or propose) the cheapest source** that closes the gap — operative directory → tenant snapshot → script logs → SIEM → live API → portal. One source per turn.
+3. **Fetch (or propose) the cheapest source** that closes the gap. RCA is a mismatch between **expected behavior** (product reference) and **observed reality** (tenant config, runtime signal). Source preference: product reference → tenant snapshot → operative-directory evidence → script logs → SIEM/runtime logs → live API → portal. One source per turn.
 4. **Update the journal** — move the claim's status based on what the evidence showed. `Open (likely/uncertain)` → `Confirmed (medium/high)` if validated, `Ruled out` if invalidated, `Stale` if the underlying state changed.
 5. **Pick the next hypothesis or evidence source** and surface it in `Next evidence needed` for the journal's top Open claim.
 
@@ -159,14 +159,17 @@ Order by the methodology's prioritization (most likely first):
 
 Don't investigate yet. Name the source you'd consult to confirm or rule out each hypothesis. Surface the plan before executing it.
 
-**Source preference order — per hypothesis, disk before queries.** For each hypothesis you generated in Step 3, walk this ladder to pick the cheapest evidence source that can confirm or rule out *that specific hypothesis*. The ladder applies **per-hypothesis** — it is NOT a global stop condition. Finding evidence on disk for hypothesis #1 does not mean you skip naming sources for hypotheses #2, #3, #4. **Every hypothesis must have a named evidence source.**
+**Source preference order — per hypothesis, expected-vs-observed first, queries last.** For each hypothesis you generated in Step 3, walk this ladder to pick the cheapest evidence source that can confirm or rule out *that specific hypothesis*. The ladder applies **per-hypothesis** — it is NOT a global stop condition. Finding evidence at one tier for hypothesis #1 does not mean you skip naming sources for hypotheses #2, #3, #4. **Every hypothesis must have a named evidence source.**
 
-1. **Operative directory** — `_data/incidents/<operative-slug>/evidence/` (read `MANIFEST.md` first to see what's already captured) and the existing `journal.md` claims. The user may have already provided the answer; reading it costs nothing.
-2. **Tenant snapshot** — `_data/snapshot/<cloud>/` (or fork-specific `_data/<cloud>/`). API-derived config dumps for the tenant: connector groups, segments, rules, profiles. **This is the canonical source for "what's actually configured"** — use it before any live API call. Snapshots can be stale; if state-drift matters for the question, refresh the snapshot via `scripts/snapshot-refresh.py` or its fork-equivalent — don't bypass to a one-off API call.
-3. **Script logs** — `_data/logs/`. Recent script output (issue-watch digests, find-asymmetries, hygiene digests, connector-health output).
-4. **SIEM** — Splunk / Sentinel / Elastic / Sumo / Chronicle. Use only when the question is about **runtime / log-flow data** (transactions, sessions, events) rather than configuration. Per-SIEM emission discipline lives in [`./siem-emission-discipline.md`](../siem-emission-discipline.md).
-5. **Live API** — only when both the snapshot doesn't have the answer and the question requires *now-state* (in-flight session counts, current connector status, etc.). When you do call an API, save the response to `evidence/` per the manifest convention so the next investigation can use it from disk.
-6. **Portal / admin console** — last resort, manual lookup. Cite the navigation path in the source field; if the result is informative enough to keep, screenshot to `evidence/` with a manifest entry.
+RCA is fundamentally **expected vs observed**: the product reference says what *should* happen; the snapshot / log / API says what *is* happening. The gap between them is the finding.
+
+1. **Product reference** — what's the *expected* behavior? Look at the ZIA / ZPA / ZCC / ZDX / ZIdentity / shared reference doc that covers the framing's product or feature. The framing→file mapping in Step 2b is your routing table for picking the right doc. This tier is first because it grounds *what should be true* before you check what is true. Skipping it produces hypotheses anchored in the wrong product mental model (ZIA allow-by-default vs ZPA deny-by-default; per-app vs per-segment; IdP-claim vs SCIM-claim).
+2. **Tenant snapshot** — `_data/snapshot/<cloud>/` (or fork-specific `_data/<cloud>/`). API-derived config dumps for *this* tenant: connector groups, segments, rules, profiles. **This is the canonical source for "what's actually configured"** — use it before any live API call. Snapshots can be stale; if state-drift matters for the question, refresh via `scripts/snapshot-refresh.py` or its fork-equivalent — don't bypass to a one-off API call.
+3. **Operative directory** — `_data/incidents/<operative-slug>/evidence/` (read `MANIFEST.md` first to see what's already captured) and the existing `journal.md` claims. The user may have already provided the answer; reading it costs nothing.
+4. **Script logs** — `_data/logs/`. Recent script output (issue-watch digests, find-asymmetries, hygiene digests, connector-health output).
+5. **Runtime logs / SIEM** — Splunk / Sentinel / Elastic / Sumo / Chronicle. Use only when the question is about **runtime / log-flow data** (transactions, sessions, events) rather than configuration. Per-SIEM emission discipline lives in [`../siem-emission-discipline.md`](../siem-emission-discipline.md) — load that on-demand when about to emit a query, not eagerly.
+6. **Live API** — only when both the snapshot doesn't have the answer and the question requires *now-state* (in-flight session counts, current connector status, etc.). When you do call an API, save the response to `evidence/` per the manifest convention so the next investigation can use it from disk.
+7. **Portal / admin console** — last resort, manual lookup. Cite the navigation path in the source field; if the result is informative enough to keep, screenshot to `evidence/` with a manifest entry.
 
 How to apply, per hypothesis:
 
@@ -241,41 +244,14 @@ Do not declare `Resolved` for the overall issue until:
 1. Root cause is confirmed (`Confirmed (high)`)
 2. You can explain why the other hypotheses were ruled out
 
-## SIEM query emission
+## SIEM query emission (pointer)
 
-You may or may not have direct API access to the user's SIEM (Splunk, Sentinel, Chronicle, Elastic, Sumo, etc.). The full execution-mode framework and discipline live in [`siem-emission-discipline.md`](../siem-emission-discipline.md). Quick reference:
+When you're about to emit or run a SIEM query (Splunk, Sentinel, Chronicle, Elastic, Sumo), load [`agents/siem-emission-discipline.md`](../siem-emission-discipline.md) — it owns the execution-mode framework (agent-direct vs user-handoff vs coworking), placeholder plumbing, schema cross-referencing, and pattern catalogs. The on-demand triggers are listed in § On-demand references below. Don't load it eagerly; load it at the moment you're about to emit a query, not as part of grounding.
 
-- **Agent-direct** — you have SIEM API access; run queries yourself, capture results inline.
-- **User-handoff** — emit the query as an evidence-source plan; the user runs it and pastes results back.
-- **Coworking** — common case; mix of both, journal is the shared artifact.
+Two related pointers, also on-demand:
 
-When emitting a query for any SIEM:
-
-1. **Identify the Zscaler log type** the investigation needs. [`siem-log-mapping.md`](../../references/shared/siem-log-mapping.md) is the catalog — each Zscaler log type, its schema file, and common SIEM landing patterns (Splunk sourcetype, Sentinel table, Chronicle log type, Elastic index pattern, Sumo source category).
-
-2. **Cite a pattern from the SIEM-specific catalog.** For Splunk, reference a named pattern in [`splunk-queries.md`](../../references/shared/splunk-queries.md) (e.g., "use `§ rule-hit-history`"). For other SIEMs, cite the relevant catalog when one exists; otherwise emit a query against the schema and note "no catalog yet for this SIEM" so the pattern can be added.
-
-3. **Use placeholder plumbing.** Index / sourcetype / table / index-pattern / source-category values are env-var placeholders or `<your_*>` markers in the catalogs — never literal tenant values. Preserve when emitting.
-
-4. **Use only Zscaler-published field names.** Cite the schema reference for any field used (e.g., `references/zia/logs/web-log-schema.md` for `urlcategory`, `references/zpa/logs/access-log-schema.md` for `InternalReason`). Do not invent or rename fields.
-
-5. **Substitute user plumbing if available.** If the user has SIEM plumbing in CLAUDE.md, project config, or memory, substitute it into the placeholders before running (agent-direct) or emitting (user-handoff). Otherwise emit placeholders with a one-line "fill these in" note appropriate to their SIEM (Splunk: `| metadata type=sourcetypes`; Sentinel: list available tables; etc.).
-
-6. **Treat the query as a plan until results exist.**
-   - **Agent-direct**: after running, capture results as a `Confirmed (medium)` or `(high)` claim with the query as source.
-   - **User-handoff**: until the user reports back, the claim stays `Open (likely)` or `Open (uncertain)`. When results arrive, capture them as `Confirmed (medium)` with the query + result rows as source.
-   - **Either mode**: if the underlying system changed between query time and now (connector restart, policy update, re-auth), mark the claim `Stale` and re-run.
-
-7. **Handoffs don't change claim status.** Switching between agent-direct and user-handoff (in either direction) is normal. A claim's status reflects evidence quality, not who gathered it.
-
-8. **Cross-reference canonical and tenant schemas when both are available.** Canonical schemas under `references/{zia,zpa,zcc}/logs/` document what fields *could* exist per Zscaler — types, enums, semantic meaning. A tenant schema (if the user has generated one and stored it in CLAUDE.md / memory) documents what's *actually* extracted in their SIEM after TA / parser / pipeline processing. Confirm a canonical field is present in the tenant view before relying on it. Mismatches are findings:
-   - Canonical field missing from tenant → TA not installed, sourcetype misconfigured, or Zscaler-Support-enablement-required (e.g., `clt_sport`, `srv_dport`, `dlprulename`)
-   - Tenant field not in canonical → custom enrichment, local extraction, or TA CIM alias
-   - Values diverge from canonical enums → stale TA version or out-of-band transformation
-
-   See [`tenant-schema-derivation.md`](../tenant-schema-derivation.md) for the derivation recipes per SIEM and the storage template.
-
-See [`siem-emission-discipline.md`](../siem-emission-discipline.md) for the full framework and [`siem-log-mapping.md`](../../references/shared/siem-log-mapping.md) for the Zscaler log type catalog.
+- [`references/shared/siem-log-mapping.md`](../../references/shared/siem-log-mapping.md) — Zscaler log-type → SIEM landing-pattern catalog.
+- [`references/shared/splunk-queries.md`](../../references/shared/splunk-queries.md) — Splunk SPL pattern catalog.
 
 ## Escalation
 
