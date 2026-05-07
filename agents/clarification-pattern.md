@@ -38,7 +38,7 @@ A clarification:
 
 1. Has **2–5 options**. Binary clarifications (continue here vs. hand off) are a valid use case; 3–5 is common; more than 5 is a sign the question should be split.
 2. Always provides an **escape hatch for free text** — either as the last option (`Other — specify`) or through the runtime's built-in *other / specify* affordance, whichever the host renders cleanly.
-3. Asks **one question per prompt**. Bundle two axes together and you get partial answers.
+3. **One clarification per turn — never multiple.** A turn that emits two or more clarification blocks bundles axes and gets partial answers. If multiple clarifications are needed, serialize them across turns: ask the most-blocking one first; ask the next one in the next turn after the user answers.
 4. Has options that are **short and concrete** — fragments, not sentences. The user is choosing, not reading prose.
 5. **Echoes the chosen option in the next turn.** Some runtimes hide button-clicks from the visible chat scrollback; restating the choice keeps the structured selection part of the record.
 6. Uses the **runtime's structured-question facility when one exists** (e.g., Claude Code's `AskUserQuestion`, which renders real clickable options); falls back to bulleted text otherwise. Bullets render more cleanly than numbered lists in most chat-style runtimes (e.g., Cascade) — prefer them as the default text form.

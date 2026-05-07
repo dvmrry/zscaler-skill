@@ -83,22 +83,26 @@ The literal output. The clarifications **are** the checkpoint — the user's sel
 
 **Journal created:** `<working-dir>/_data/incidents/<slug>/journal.md`
 
-**Clarifications**
+**Clarification**
 
-(Each clarification = one multi-choice block, last in the turn. Plain-prose clarifications are forbidden. Use the runtime's structured-question facility when one exists — e.g., Claude Code's `AskUserQuestion`; otherwise emit bulleted text. 1–3 blocks max; never more than one block per axis. The user's selections across these blocks are the checkpoint response — picking the affirming option = proceed; picking `Other — specify` = correct / add / clarify with free text.)
+(One clarification per turn — never multiple. Plain-prose clarifications are forbidden. Use the runtime's structured-question facility when one exists — e.g., Claude Code's `AskUserQuestion`; otherwise emit bulleted text. The user's selection IS the checkpoint response — picking the affirming option = proceed; picking `Other — specify` = correct / add / clarify with free text.)
+
+Pick the **most-blocking** clarification to ask first. Order of priority:
+
+1. Working-directory path — if `Working directory: unknown` in PARSED FRAMING. This is most-blocking because the journal save fails without it.
+2. Tenant cloud — if not specified. Blocks snapshot loading in Step 2.
+3. Scope — if ambiguous (one user vs many vs all). Shapes hypothesis prioritization.
+4. Log-collection availability — always asked at some point, lowest priority. Shapes Step 2 query planning.
+
+Subsequent clarifications (if needed) happen in subsequent turns — one block each turn, never bundled. The data blocks (PARSED FRAMING, PROPOSED LOADS, JOURNAL CREATED) are emitted once in the first turn; later clarification turns emit only the clarification block plus an updated PARSED FRAMING reflecting prior answers.
+
+Example shape (turn 1, when tenant cloud is the most-blocking unknown):
 
 I assumed the tenant cloud is `zs3` based on the API base URL. Confirm:
 - Yes — proceed with `zs3`
 - No — actually `zs1`
 - No — actually `zs2`
 - Other — specify
-
-Have logs already been collected for this issue?
-- Yes — they're at `<paste path or location>`
-- No — plan queries to collect what's needed during investigation
-- Other — specify
-
-(Mandatory if "Working directory: unknown" in PARSED FRAMING — only emit this block in that case:) What is the absolute path of the repo root? — free-text input expected.
 
 (When alternatives aren't obvious, use the minimal binary form: "- Yes — proceed / - No — specify what's actually correct". Never fall back to "I assumed X — confirm or correct?" prose form.)
 
@@ -320,9 +324,11 @@ Pending.
 
 **Add to Step 1's output template** a `**Journal created:** <path>` line right before the Checkpoint 1 menu, listing the path written. Example: `**Journal created:** <working-dir>/_data/incidents/<slug>/journal.md`
 
-#### Checkpoint 1 — clarifications act as the checkpoint
+#### Checkpoint 1 — single clarification acts as the checkpoint
 
-End your response with the **Clarifications** multi-choice blocks (per the Step 1 turn shape above). The user's selections across those blocks are the checkpoint response: picking the affirming option ("Yes — proceed with `zs3`", etc.) for every block = `go`; picking `Other — specify` on any block = correct / add / clarify with free text. Do not emit a separate `Checkpoint 1 — awaiting user` heading or reply guide — the multi-choice blocks ARE the checkpoint.
+End your response with **one** clarification multi-choice block (per the Step 1 turn shape above) — never multiple. The user's selection IS the checkpoint response: picking the affirming option ("Yes — proceed with `zs3`", etc.) = `go` for that axis; picking `Other — specify` = correct / add / clarify with free text. Do not emit a separate `Checkpoint 1 — awaiting user` heading or reply guide — the single multi-choice block IS the checkpoint.
+
+If multiple clarifications are needed (working-dir + cloud + scope + log-collection), serialize them across turns — ask the most-blocking one first, halt, get the answer, then ask the next in the next turn. Bundling two or more into one turn produces partial answers.
 
 If Step 1 produces no clarifications (rare — framing was fully specified and `Working directory` was resolvable), emit a single closing multi-choice instead so the turn still ends on a structured action surface:
 
