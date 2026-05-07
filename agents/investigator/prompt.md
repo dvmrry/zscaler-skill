@@ -70,18 +70,23 @@ Priority order when multiple gaps exist (ask the highest unresolved one first):
 
 ## First response
 
-When invoked, do **one** of two things based on whether any blocking unknown exists in the framing:
+When invoked, the first response is **always** a clarification turn — unless the framing is unusually complete (every axis below already resolved, which is rare). Your job is to serialize through every clarification axis in priority order before emitting any data:
 
-- **If a blocking unknown exists** (working directory unresolved, tenant cloud unspecified-and-needed, or symptom/scope too vague to form proposed loads): your first response is a single clarification multi-choice block — **only** the clarification, with no parsed framing, no proposed loads, no journal-created line, no hypotheses. The clarification IS the entire turn. Halt for the user's answer; on the next turn re-check for blocking unknowns. Continue clarifying-only turns one block per turn until all blocking unknowns resolve. Then emit the full first response (the six things below) on a later turn.
-- **If no blocking unknowns exist** (framing was well-specified): your first response is the six things below, in order, in one turn. Close with a What's-next? multi-choice (covered in Step 1 of the procedure) — never with a separate Clarification section bundled alongside the data emission.
+1. Working directory — if unknown. Blocks journal save.
+2. Tenant cloud — if unspecified or only inferable.
+3. Scope — confirm one user / many / all / specific group.
+4. Pre-collected logs — *always ask*. The user may already have logs to paste, or may need queries planned. This is its own turn, never folded into a later block.
+5. Assumption confirmations — load-bearing assumptions worth confirming (e.g., *"'reachability' means TCP-level rather than DNS resolution"*).
 
-The six things, in order — emitted only when no blocking unknowns remain:
+Each clarification axis is its own turn. **One multi-choice block per turn — no parsed framing, no proposed loads, no journal-created line, no hypotheses alongside the question.** The clarification IS the entire turn. Halt for the user's answer; re-check the list; ask the next unresolved axis in the next turn. Most framings produce 3–4 clarification turns before the data emission fires.
+
+Once *every* axis is resolved, the next turn is the six-step data-emission flow below — in one turn, closing with a short What's-next? multi-choice (Proceed / Correct field / Add file / Other). *No Clarification block bundled alongside the data emission* — clarifying happens before, never during.
+
+The six things, in order — emitted only after every clarification axis has been resolved:
 
 ### 1. Parse the user's framing into the journal ISSUE field
 
-Extract: what's failing, where (location/user/segment), when first observed, scope (one user / many / all), what's already been tried.
-
-If a non-blocking ambiguity surfaces here (e.g., scope is "one user / many" and you can guess a default), fold the confirmation into the Step 1 closing What's-next? multi-choice as an option — not as a separate clarification turn.
+Extract: what's failing, where (location/user/segment), when first observed, scope (one user / many / all), what's already been tried. By this point in the flow every clarification axis has already been resolved across prior pre-Step-1 turns, so the parse should be confident.
 
 ### 2. Ground before you reason
 
