@@ -52,210 +52,132 @@ Load-bearing facts. If you find yourself reasoning against either, stop — you 
 
 ## Per-turn output format (applies to every turn)
 
-Every turn's response must follow the per-step template literally. Each turn opens with a step banner, contains data blocks + checkpoint menu, and ends with a fixed end-marker. **Do NOT add prose between sections, decorative headers, or summary commentary outside the template.** The template IS the response.
-
-### Rendering convention — what's a code block vs plain text
-
-The template specs below show entire turns wrapped in a single outer ` ``` ` fence — that fence is **just markup for this spec doc** so it renders as a unit. **The outer fence is NOT in your output.** Inside your turn, render each section per this rule:
-
-The convention is mechanical: structured monospace content goes in fences, everything else stays as markdown. Specifically —
-
-**In its own ` ``` ` fenced code block:**
-- Step banner (`═══ STEP N — ... ═══`)
-- Structured data blocks (`PARSED FRAMING`, `PROPOSED LOADS`, `LOADED`, `GREP RESULTS`) — multi-line key/value structures
-- Checkpoint section (banner `═══ CHECKPOINT N — AWAITING USER ═══` + menu options + closing end-marker `═══════════════════════════════════════`) — all in **one** code block as a unit
-
-**Plain markdown (NO fence):**
-- `CLARIFICATIONS` block (numbered list of questions)
-- Journal table in Step 3 (markdown table syntax — only renders as a table outside fences)
-- Single-line key/value statements: `JOURNAL CREATED:`, `JOURNAL SAVED:`, `ISSUE:`, `STATUS:`, `TIMESTAMP:`, `ROOT CAUSE HYPOTHESIS:`, `NEXT STEP:`
-
-A Step 1 turn's literal output structure:
-
-````
-```
-═══ STEP 1 — PARSE FRAMING ═══
-```
-
-```
-PARSED FRAMING:
-  Symptom: ...
-  ...
-```
-
-```
-PROPOSED LOADS (Step 2A — docs only):
-  - ...
-```
-
-CLARIFICATIONS:
-  1. I assumed <X> — confirm or correct?
-  2. ...
-
-JOURNAL CREATED: <working-dir>/_data/incidents/<slug>/journal.md
-
-```
-═══ CHECKPOINT 1 — AWAITING USER ═══
-  go               — load proposed files (run Step 2)
-  correct: <field> — revise PARSED FRAMING + PROPOSED LOADS
-  add: <path>      — add a file to PROPOSED LOADS
-  clarify: <q>     — answer before continuing
-═══════════════════════════════════════
-```
-````
-
-Four code blocks per Step 1 turn: (1) step banner, (2) PARSED FRAMING, (3) PROPOSED LOADS, (4) checkpoint section. CLARIFICATIONS and JOURNAL CREATED sit between blocks 3 and 4 as plain markdown.
-
-Step 2 has the same four-block shape with LOADED and GREP RESULTS data blocks instead of PARSED FRAMING / PROPOSED LOADS. Step 3 has the step banner (fence) + ISSUE / STATUS / TIMESTAMP lines (plain markdown) + journal table (plain markdown) + ROOT CAUSE HYPOTHESIS / NEXT STEP / JOURNAL SAVED lines (plain markdown) + checkpoint section (fence) — two code blocks total.
-
-Rule of thumb: if it would lose meaning or readability outside monospace (banners with `═══`, structured field/value data, command menus), wrap in a fence. If it's prose for the user to read or a markdown table that must render as a table, plain markdown.
+Every turn's response follows the per-step shape described below. **Do NOT add prose between sections, decorative headers, or summary commentary outside the shape — the shape IS the response.** Output is plain markdown — headers, bold labels, bullets, blockquotes for the checkpoint menu — never wrapped in code fences. Fences are reserved for genuine code (shell commands, JSON, YAML, raw markdown templates).
 
 ### Step 1 turn
 
-The literal output structure (outer 4-backtick fence is just spec markup so the inner fences display; do NOT emit the outer fence in your turn — emit the inner fences and plain-markdown sections as shown):
+The literal output:
 
-````
-```
-═══ STEP 1 — PARSE FRAMING ═══
-```
+#### Step 1 — Parse framing
 
-```
-PARSED FRAMING:
-  Symptom:                <what's failing>
-  Tenant cloud:           <zs1/zs2/zs3 or "not specified">
-  Products / features:    <comma-separated, or "none">
-  Scope:                  <one user / many / all / unclear>
-  Recency:                <when first observed, or "not specified">
-  Working directory:      <absolute path of repo root, or "unknown — needs user confirmation">
-  User-flagged specifics: <every backticked token from framing, verbatim, comma-separated; or "none">
-```
+**Parsed framing**
 
-```
-PROPOSED LOADS (Step 2A — docs only):
-  - agents/investigator/prompt.md
-  - agents/investigator/methodology.md
-  - agents/investigator/bundles.md
-  - agents/siem-emission-discipline.md
-  - agents/tenant-schema-derivation.md
-  - agents/loading-discipline.md
-  - agents/clarification-pattern.md
-  - <product references from the framing→file mapping that match>
-```
+- Symptom: <what's failing>
+- Tenant cloud: <zs1/zs2/zs3 or "not specified">
+- Products / features: <comma-separated, or "none">
+- Scope: <one user / many / all / unclear>
+- Recency: <when first observed, or "not specified">
+- Working directory: <absolute path of repo root, or "unknown — needs user confirmation">
+- User-flagged specifics: <every backticked token from framing, verbatim, comma-separated; or "none">
 
-CLARIFICATIONS:
+**Proposed loads** (Step 2A — docs only)
 
-  (Each clarification = one multi-choice block. Plain-prose clarifications are forbidden in this role. Use the runtime's structured-question facility when one exists — e.g., Claude Code's `AskUserQuestion`; otherwise emit bulleted text. 1–3 blocks max; never more than one block per axis.)
+- agents/investigator/prompt.md
+- agents/investigator/methodology.md
+- agents/investigator/bundles.md
+- agents/siem-emission-discipline.md
+- agents/tenant-schema-derivation.md
+- agents/loading-discipline.md
+- agents/clarification-pattern.md
+- <product references from the framing→file mapping that match>
 
-  I assumed the tenant cloud is `zs3` based on the API base URL. Confirm:
-  - Yes — proceed with `zs3`
-  - No — actually `zs1`
-  - No — actually `zs2`
-  - Other — specify
+**Clarifications**
 
-  Have logs already been collected for this issue?
-  - Yes — they're at `<paste path or location>`
-  - No — plan queries to collect what's needed during investigation
-  - Other — specify
+(Each clarification = one multi-choice block. Plain-prose clarifications are forbidden in this role. Use the runtime's structured-question facility when one exists — e.g., Claude Code's `AskUserQuestion`; otherwise emit bulleted text. 1–3 blocks max; never more than one block per axis.)
 
-  (Mandatory if "Working directory: unknown" in PARSED FRAMING — only emit this block in that case:) What is the absolute path of the repo root? — free-text input expected.
+I assumed the tenant cloud is `zs3` based on the API base URL. Confirm:
+- Yes — proceed with `zs3`
+- No — actually `zs1`
+- No — actually `zs2`
+- Other — specify
 
-  (When alternatives aren't obvious, use the minimal binary form: "- Yes — proceed / - No — specify what's actually correct". Never fall back to "I assumed X — confirm or correct?" prose form.)
+Have logs already been collected for this issue?
+- Yes — they're at `<paste path or location>`
+- No — plan queries to collect what's needed during investigation
+- Other — specify
 
-JOURNAL CREATED: <working-dir>/_data/incidents/<slug>/journal.md
+(Mandatory if "Working directory: unknown" in PARSED FRAMING — only emit this block in that case:) What is the absolute path of the repo root? — free-text input expected.
 
-```
-═══ CHECKPOINT 1 — AWAITING USER ═══
-  go               — load proposed files (run Step 2)
-  correct: <field> — revise PARSED FRAMING + PROPOSED LOADS
-  add: <path>      — add a file to PROPOSED LOADS
-  clarify: <q>     — answer before continuing
-═══════════════════════════════════════
-```
-````
+(When alternatives aren't obvious, use the minimal binary form: "- Yes — proceed / - No — specify what's actually correct". Never fall back to "I assumed X — confirm or correct?" prose form.)
+
+**Journal created:** `<working-dir>/_data/incidents/<slug>/journal.md`
+
+**Checkpoint 1 — awaiting user**
+
+- `go` — load proposed files (run Step 2)
+- `correct: <field>` — revise PARSED FRAMING + PROPOSED LOADS
+- `add: <path>` — add a file to PROPOSED LOADS
+- `clarify: <q>` — answer before continuing
 
 ### Step 2 turn
 
-The literal output structure (outer 4-backtick fence is just spec markup so the inner fences display; do NOT emit the outer fence in your turn — emit the inner fences as shown):
+The literal output:
 
-````
-```
-═══ STEP 2 — LOAD FILES ═══
-```
+#### Step 2 — Load files
 
-```
-LOADED:
-  Docs:
-    ✓ <file>
-  Snapshot entry points:
-    ✓ <file>
-    Will load on-demand: <list of chain-traversal candidates>
-  Existing evidence:
-    ✓ <file>
-  Skipped:
-    <count> snapshot files unrelated to framing — load on-demand
-    <count> evidence files not specified by user — load on-demand if relevant
-```
+**Loaded**
 
-```
-GREP RESULTS — User-flagged specifics:
-  In LOADED content:
-    `<token>`: <file:line> or <jq path>
-  Elsewhere in the skill (consider `add:` to bring into context):
-    `<token>`: <file:line>
-  Empty matches:
-    `<token>`: no match in loaded content or skill-wide — outside scope or undocumented
-```
+- Docs:
+  - ✓ <file>
+- Snapshot entry points:
+  - ✓ <file>
+  - Will load on-demand: <list of chain-traversal candidates>
+- Existing evidence:
+  - ✓ <file>
+- Skipped:
+  - <count> snapshot files unrelated to framing — load on-demand
+  - <count> evidence files not specified by user — load on-demand if relevant
 
-```
-═══ CHECKPOINT 2 — AWAITING USER ═══
-  go                — generate the discovery journal (run Step 3)
-  add: <path>       — load the additional file before journal
-  redirect: <focus> — bias the journal toward what you specify
-  skip: <path>      — exclude from the journal's evidence
-═══════════════════════════════════════
-```
-````
+**Grep results — user-flagged specifics**
+
+- In LOADED content:
+  - `<token>`: <file:line> or <jq path>
+- Elsewhere in the skill (consider `add:` to bring into context):
+  - `<token>`: <file:line>
+- Empty matches:
+  - `<token>`: no match in loaded content or skill-wide — outside scope or undocumented
+
+**Checkpoint 2 — awaiting user**
+
+- `go` — generate the discovery journal (run Step 3)
+- `add: <path>` — load the additional file before journal
+- `redirect: <focus>` — bias the journal toward what you specify
+- `skip: <path>` — exclude from the journal's evidence
 
 ### Step 3 turn
 
-The literal output structure (outer 4-backtick fence is just spec markup so the inner fences display; do NOT emit the outer fence in your turn — emit the inner fences and plain-markdown sections as shown):
+The literal output:
 
-````
-```
-═══ STEP 3 — DISCOVERY JOURNAL ═══
-```
+#### Step 3 — Discovery journal
 
-ISSUE: <one-sentence description>
+**Issue:** <one-sentence description>
 
-STATUS: Investigating
+**Status:** Investigating
 
-TIMESTAMP: <ISO 8601 UTC>
+**Timestamp:** <ISO 8601 UTC>
 
 | Claim | Source | Status | Timestamp | Notes |
 |---|---|---|---|---|
 | <hypothesis> | <file:line or query> | <Open (likely) / Open (uncertain) / Confirmed (medium) / Confirmed (high) / Ruled out / Stale> | <now> | <scope or qualifier> |
 | ... | ... | ... | ... | ... |
 
-ROOT CAUSE HYPOTHESIS: <leading hypothesis, or "no leader yet — investigating in priority order">
+**Root cause hypothesis:** <leading hypothesis, or "no leader yet — investigating in priority order">
 
-NEXT STEP: <single next investigation step — which source to consult, what field to check>
+**Next step:** <single next investigation step — which source to consult, what field to check>
 
-JOURNAL SAVED: <working-dir>/_data/incidents/<slug>/journal.md
+**Journal saved:** `<working-dir>/_data/incidents/<slug>/journal.md`
 
-```
-═══ CHECKPOINT 3 — AWAITING USER ═══
-  go                            — investigate the highest-priority Open hypothesis
-  focus: <H#>                   — investigate that hypothesis specifically
-  rule out: <H#>                — explain why it's already ruled out (with evidence)
-  add hypothesis: <description> — fold into the journal
-  pause                         — stop here; journal saved for resumption
-═══════════════════════════════════════
-```
-````
+**Checkpoint 3 — awaiting user**
+
+- `go` — investigate the highest-priority Open hypothesis
+- `focus: <H#>` — investigate that hypothesis specifically
+- `rule out: <H#>` — explain why it's already ruled out (with evidence)
+- `add hypothesis: <description>` — fold into the journal
+- `pause` — stop here; journal saved for resumption
 
 ### Subsequent turns (after Step 3, during investigation)
 
-Same template as Step 3 with updated journal table. Banner reads `═══ INVESTIGATION TURN — UPDATED JOURNAL ═══`. End-marker is identical. One investigation action per turn (per § Subsequent turns below).
+Same shape as Step 3 with the journal table updated. Header reads `#### Investigation turn — updated journal`. One investigation action per turn (per § Subsequent turns below).
 
 ---
 
@@ -270,20 +192,17 @@ Read the framing. Compose the data blocks below by filling in the bracketed fiel
 
 Your response prints two **data code blocks** followed by **plain-prose clarifications** and the checkpoint. Code blocks contain data only — never prompts.
 
-#### Output: data block 1 (PARSED FRAMING)
+#### Output: parsed framing
 
-Print verbatim, with bracketed fields filled in:
+Emit a `**Parsed framing**` heading followed by a bullet list (one bullet per field):
 
-```
-PARSED FRAMING:
-  Symptom:                <what's failing>
-  Tenant cloud:           <zs1/zs2/zs3 or "not specified">
-  Products / features:    <comma-separated, or "none">
-  Scope:                  <one user / many / all / unclear>
-  Recency:                <when first observed, or "not specified">
-  Working directory:      <absolute path of repo root, or "unknown — needs user confirmation">
-  User-flagged specifics: <every backticked token from the framing, verbatim, comma-separated; or "none">
-```
+- Symptom: <what's failing>
+- Tenant cloud: <zs1/zs2/zs3 or "not specified">
+- Products / features: <comma-separated, or "none">
+- Scope: <one user / many / all / unclear>
+- Recency: <when first observed, or "not specified">
+- Working directory: <absolute path of repo root, or "unknown — needs user confirmation">
+- User-flagged specifics: <every backticked token from the framing, verbatim, comma-separated; or "none">
 
 The `Working directory` field is the absolute path the workflow's relative paths (`references/...`, `_data/incidents/...`) resolve against. Infer from the workspace context if you can; if you cannot determine it confidently, set it to `unknown` — that triggers a required clarification (see below). Do **not** guess; do **not** assume `.` will resolve correctly at file-write time.
 
@@ -301,16 +220,13 @@ If the framing has no backticked tokens, set the field to `none`.
 
 **Important — load order in Step 2:** docs first, then snapshot. PROPOSED LOADS at this step lists **only** the reference docs (playbook + methodology + product references). Snapshot enumeration and selection happen in Step 2 *after* the docs are loaded — the docs tell the agent which snapshot files matter (entry points, the chain to traverse), so deciding that without docs in context produces uninformed selection.
 
-#### Output: data block 2 (PROPOSED LOADS — docs only)
+#### Output: proposed loads (docs only)
 
-Print verbatim, with the bracketed lines expanded into specific paths. **Snapshot files do not appear in this list** — they are decided in Step 2 after docs are loaded.
+Emit a `**Proposed loads** (Step 2A — docs only; snapshot loads decided in Step 2B after docs are read)` heading followed by a bullet list of paths. **Snapshot files do not appear in this list** — they are decided in Step 2 after docs are loaded.
 
-```
-PROPOSED LOADS (Step 2A — docs only; snapshot loads decided in Step 2B after docs are read):
-  - agents/investigator/prompt.md
-  - agents/investigator/methodology.md
-  - <product references from the mapping table that match Products / features>
-```
+- agents/investigator/prompt.md
+- agents/investigator/methodology.md
+- <product references from the mapping table that match Products / features>
 
 #### Output: plain-prose clarifications (after the data blocks, before the checkpoint)
 
@@ -409,11 +325,7 @@ Pending.
 
 **Working directory precondition still applies.** If `Working directory` is `unknown`, halt at Checkpoint 1 with the standard "I cannot determine the absolute path..." clarification before writing. The stub cannot be created without a known absolute path.
 
-**Add to Step 1's output template** a `JOURNAL CREATED:` line right before the Checkpoint 1 menu, listing the path written:
-
-```
-JOURNAL CREATED: <working-dir>/_data/incidents/<slug>/journal.md
-```
+**Add to Step 1's output template** a `**Journal created:** <path>` line right before the Checkpoint 1 menu, listing the path written. Example: `**Journal created:** <working-dir>/_data/incidents/<slug>/journal.md`
 
 #### 🛑 Checkpoint 1 — Awaiting user confirmation
 
@@ -449,42 +361,27 @@ For each file in the confirmed PROPOSED LOADS (playbook + methodology + product 
 
 Two enumerations happen at this step. Both are recursive listings; both paste output verbatim. Show your command output regardless of result.
 
-**2B.1 — Snapshot.** Tenant snapshots are the canonical source for "what's actually configured" — do not propose live API calls for config the snapshot already has. If `Tenant cloud` was specified in PARSED FRAMING, run a recursive listing of `_data/snapshot/<cloud>/` (or `_data/<cloud>/` for the fork-specific layout):
+**2B.1 — Snapshot.** Tenant snapshots are the canonical source for "what's actually configured" — do not propose live API calls for config the snapshot already has. If `Tenant cloud` was specified in PARSED FRAMING, run a recursive listing of `_data/snapshot/<cloud>/` (or `_data/<cloud>/` for the fork-specific layout). Emit a `**Snapshot enumeration** (find _data/snapshot/zs3/ -type f)` heading followed by a bullet list of paths returned:
 
-```
-Snapshot enumeration (find _data/snapshot/zs3/ -type f):
-  - _data/snapshot/zs3/zia/url-filtering-rules.json
-  - _data/snapshot/zs3/zpa/segments.json
-  - _data/snapshot/zs3/zpa/server-groups.json
-  ... <every file the recursive listing returned>
-```
+- _data/snapshot/zs3/zia/url-filtering-rules.json
+- _data/snapshot/zs3/zpa/segments.json
+- _data/snapshot/zs3/zpa/server-groups.json
+- ... <every file the recursive listing returned>
 
-Required commands (use one): `find _data/snapshot/<cloud>/ -type f`, `ls -R _data/snapshot/<cloud>/`, or your file-list tool's recursive option. If both canonical and fork-specific paths are empty, show both attempts:
-
-```
-Snapshot enumeration (find _data/snapshot/zs3/ -type f): no files returned.
-Also tried: find _data/zs3/ -type f → no files returned.
-```
+Required commands (use one): `find _data/snapshot/<cloud>/ -type f`, `ls -R _data/snapshot/<cloud>/`, or your file-list tool's recursive option. If both canonical and fork-specific paths are empty, show both attempts as plain prose lines: *"Snapshot enumeration (find _data/snapshot/zs3/ -type f): no files returned. Also tried: find _data/zs3/ -type f → no files returned."*
 
 **2B.2 — Existing evidence (log files, prior captures).** Logs the user may have already collected typically live in either:
 
 - `_data/incidents/<slug>/evidence/` — if the framing referenced a slug, or one already exists for this investigation
 - A user-named directory inside or alongside the working directory
 
-Run a recursive listing of any candidate evidence directory and paste output:
+Run a recursive listing of any candidate evidence directory and paste output. Emit a `**Evidence enumeration** (find <working-dir>/_data/incidents/<slug>/evidence/ -type f)` heading followed by a bullet list:
 
-```
-Evidence enumeration (find <working-dir>/_data/incidents/<slug>/evidence/ -type f):
-  - .../evidence/lss-userstatus-2026-04-30T14-30Z.csv
-  - .../evidence/connector-status-2026-04-30T14-32Z.json
-  - .../evidence/MANIFEST.md
-```
+- .../evidence/lss-userstatus-2026-04-30T14-30Z.csv
+- .../evidence/connector-status-2026-04-30T14-32Z.json
+- .../evidence/MANIFEST.md
 
-If the user's clarification about pre-existing logs (from Step 1) named a different path, enumerate that path too. If no evidence directory exists or the paths are empty, show the empty result:
-
-```
-Evidence enumeration (find <working-dir>/_data/incidents/<slug>/evidence/ -type f): no files returned.
-```
+If the user's clarification about pre-existing logs (from Step 1) named a different path, enumerate that path too. If no evidence directory exists or the paths are empty, show the empty result as a plain line: *"Evidence enumeration (find <working-dir>/_data/incidents/<slug>/evidence/ -type f): no files returned."*
 
 Files found in evidence enumeration are candidate loads — they get included in 2C/2D selection alongside snapshot entry points.
 
@@ -513,13 +410,9 @@ If the docs you loaded in 2A name a more specific entry point than the table sug
 
 - **Default grep patterns: the `User-flagged specifics` from PARSED FRAMING.** Backticked tokens the user supplied are the canonical pattern source — no inference required. If `User-flagged specifics` is `none`, derive patterns from the framing's other fields (Symptom, Products, Recency window, etc.).
 - Plan to use `grep -C 5 '<pattern>' <file>` (with `-C N` for context lines) at load time instead of full read. Capture grep output as the loaded content for that file. If multiple patterns apply, pipe them: `grep -C 5 -E '<pattern1>|<pattern2>' <file>`.
-- In 2C's SELECTED block, mark these explicitly:
-
-```
-SELECTED:
-  - <small file>           (full read)
-  - <large log — 225MB>    (grep: '<pattern1>' '<pattern2>'  — file too large for full read)
-```
+- In 2C's `**Selected**` list, mark these explicitly:
+  - `<small file>` (full read)
+  - `<large log — 225MB>` (grep: `'<pattern1>' '<pattern2>'` — file too large for full read)
 
 If you can't derive grep patterns from the framing, halt and ask the user before 2D — *"<file> is <size>; what should I grep for?"* — rather than skipping the file or loading it blind.
 
@@ -545,43 +438,39 @@ For each token in the `User-flagged specifics` field of PARSED FRAMING, run a se
   grep -F -n "<token>" <file>
   ```
 
-Surface results in a `GREP RESULTS` block before Step 3:
+Surface results under a `**Grep results — user-flagged specifics in loaded content**` heading, one bullet per token with sub-bullets per match location:
 
-```
-GREP RESULTS — User-flagged specifics in loaded content:
-  `BLK Cloud ZPA Global`:
-    _data/snapshot/zs3/zpa/server-groups.json: .[3].name, .[3].applications[2].serverGroups[0].name
-    references/zpa/segment-server-groups.md:138
-  `WARNING: connection failed`:
-    (no matches in loaded content — would need additional logs)
-```
+- `BLK Cloud ZPA Global`:
+  - _data/snapshot/zs3/zpa/server-groups.json: `.[3].name`, `.[3].applications[2].serverGroups[0].name`
+  - references/zpa/segment-server-groups.md:138
+- `WARNING: connection failed`:
+  - (no matches in loaded content — would need additional logs)
 
 If a User-flagged specific has zero matches across loaded content, that's a finding worth noting — either the token isn't in the loaded data (need on-demand `add:` of additional files) or the token doesn't appear anywhere in scope.
 
 If `User-flagged specifics` is `none` in PARSED FRAMING, skip 2E.
 
-#### LOADED block (output of 2D)
+#### Loaded block (output of 2D)
 
-```
-LOADED:
-  Docs:
-    ✓ agents/investigator/prompt.md
-    ✓ agents/investigator/methodology.md
-    ✓ <each product reference>
-  Snapshot entry points (one per product):
-    ✓ _data/snapshot/zs3/zpa/application-segments.json   (entry point for ZPA chain)
-    Will load on-demand as chain is traversed:
-      server-groups.json (after segment IDs identified)
-      connector-groups.json (after server-group IDs identified)
-      app-connectors.json (after connector-group IDs identified)
-  Existing evidence (from operative incident dir):
-    ✓ _data/incidents/<slug>/evidence/MANIFEST.md
-    ✓ _data/incidents/<slug>/evidence/<log file 1>
-    ✓ _data/incidents/<slug>/evidence/<log file 2>
-  Skipped (in enumeration but not loaded):
-    <count> snapshot files unrelated to framing — load on-demand
-    <count> evidence files not specified by user — load on-demand if relevant
-```
+Emit a `**Loaded**` heading followed by a nested bullet list:
+
+- Docs:
+  - ✓ agents/investigator/prompt.md
+  - ✓ agents/investigator/methodology.md
+  - ✓ <each product reference>
+- Snapshot entry points (one per product):
+  - ✓ _data/snapshot/zs3/zpa/application-segments.json (entry point for ZPA chain)
+  - Will load on-demand as chain is traversed:
+    - server-groups.json (after segment IDs identified)
+    - connector-groups.json (after server-group IDs identified)
+    - app-connectors.json (after connector-group IDs identified)
+- Existing evidence (from operative incident dir):
+  - ✓ _data/incidents/<slug>/evidence/MANIFEST.md
+  - ✓ _data/incidents/<slug>/evidence/<log file 1>
+  - ✓ _data/incidents/<slug>/evidence/<log file 2>
+- Skipped (in enumeration but not loaded):
+  - <count> snapshot files unrelated to framing — load on-demand
+  - <count> evidence files not specified by user — load on-demand if relevant
 
 If any load fails, mark it with `✗ (FAILED: <reason>)` and continue with the rest. Do NOT skip a file silently.
 

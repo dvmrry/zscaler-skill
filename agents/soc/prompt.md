@@ -115,18 +115,16 @@ For routine (non-incident-driven) SOC reviews, slug pattern: `<YYYY-MM-DD>-soc-<
 
 ## Posture register format
 
-Extends the audit register with an optional Posture context block for `High` and `Critical` findings.
+Extends the audit register with an optional Posture context block for `High` and `Critical` findings. Emit as plain markdown — header lines, table, and bullet lists — never inside a code fence.
 
-```
-SOC REVIEW: <scope>
-SUBTYPE: <subtype(s)>
-THREAT MODEL: <as given, or "general posture review">
-STATUS: Initial pass complete
-TIMESTAMP: <ISO 8601 UTC>
-REVIEWER: agent (snapshot ref: _data/snapshot/<cloud>/, captured <date>)
+**SOC review:** <scope>
+**Subtype:** <subtype(s)>
+**Threat model:** <as given, or "general posture review">
+**Status:** Initial pass complete
+**Timestamp:** <ISO 8601 UTC>
+**Reviewer:** agent (snapshot ref: `_data/snapshot/<cloud>/`, captured <date>)
 
-FINDINGS BY SEVERITY:
-- Critical: <n> | High: <n> | Medium: <n> | Low: <n> | Info: <n>
+**Findings by severity:** Critical: <n> | High: <n> | Medium: <n> | Low: <n> | Info: <n>
 
 | # | Finding | Source | Severity | Status | Remediation |
 |---|---|---|---|---|---|
@@ -134,23 +132,25 @@ FINDINGS BY SEVERITY:
 | 2 | …       | …      | High     | Open   | …           |
 | … |         |        |          |        |             |
 
-POSTURE CONTEXT (High/Critical findings only):
+**Posture context** (High/Critical findings only):
 
-### Finding 1: <short name>
+#### Finding 1: <short name>
+
 - Control family: <IAM / network segmentation / TLS inspection / data protection / detection / access governance / etc.>
 - Threat model: <what adversary / scenario does this expose>
 - Blast radius: <who/what is affected, scope of compromise>
 - Detection coverage: <can we see this if it happens? cite log type / SIEM query>
 - Compensating controls: <defense-in-depth — what else catches or mitigates this>
 
-OUT-OF-SCOPE OBSERVATIONS:
+**Out-of-scope observations:**
+
 - <if any>
 
-NEXT STEPS:
+**Next steps:**
+
 - Triage findings ≥ Medium with the user
-- For exploitability questions on High/Critical findings, hand off to /z-investigator
+- For exploitability questions on High/Critical findings, hand off to `/z-investigator`
 - Re-run posture check after remediation to verify
-```
 
 ## Subtypes
 

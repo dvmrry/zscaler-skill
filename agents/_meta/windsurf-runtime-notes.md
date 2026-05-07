@@ -20,14 +20,9 @@ The Windsurf runtime does **not** automatically inline files referenced from ins
 
 **Implication**: workflow bodies should give the model a direct instruction to use its read tool. Fuzzy phrasing like "see the playbook at X" can be skipped by a weaker model (e.g., SWE-1.6); explicit phrasing like "Use the read tool to load X before responding" reliably triggers the file load.
 
-```markdown
-# Good
-Use your file-read tool to load `references/shared/investigate-prompt.md`,
-then follow its instructions.
+**Good:** *Use your file-read tool to load `references/shared/investigate-prompt.md`, then follow its instructions.*
 
-# Less good (ambiguous — runtime might or might not load; model might or might not act)
-See the playbook at `references/shared/investigate-prompt.md`.
-```
+**Less good** (ambiguous — runtime might or might not load; model might or might not act): *See the playbook at `references/shared/investigate-prompt.md`.*
 
 ## No `$ARGUMENTS`-style argument substitution
 
@@ -35,17 +30,17 @@ User input arrives as the next chat turn. There is no placeholder syntax that ge
 
 **Implication**: workflow bodies use the "user's input follows in the chat" framing. The Claude Code shim (`.claude/commands/*.md`) uses `$ARGUMENTS`; the Windsurf shim (`.windsurf/workflows/*.md`) cannot, and tells the model to read the user's framing from the next message.
 
-```markdown
-# Claude Code (.claude/commands/audit.md)
-The user's audit scope:
+**Claude Code** (`.claude/commands/audit.md`):
 
-$ARGUMENTS
+> The user's audit scope:
+>
+> `$ARGUMENTS`
+>
+> Parse the scope, ...
 
-Parse the scope, ...
+**Windsurf** (`.windsurf/workflows/z-auditor.md`):
 
-# Windsurf (.windsurf/workflows/z-auditor.md)
-The user's audit scope follows this command in the chat. Parse it, ...
-```
+> The user's audit scope follows this command in the chat. Parse it, ...
 
 ## Frontmatter is parsed for display only
 

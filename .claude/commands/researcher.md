@@ -37,7 +37,7 @@ The writer is memory-isolated by Claude Code's design — preserve that isolatio
 
 ## Per-turn output format
 
-Each turn opens with a step banner, contains data blocks + checkpoint menu, ends with the fixed end-marker. Banners and data blocks render as fenced code blocks; clarifications and summaries render as plain markdown.
+Each turn opens with a step heading and emits its data sections + checkpoint menu as plain markdown. Output is plain markdown — headers, bold labels, bullets, blockquotes — never wrapped in code fences. Fences are reserved for genuine code (shell commands, JSON, YAML).
 
 ---
 
@@ -52,23 +52,25 @@ Parse the user's request from `$ARGUMENTS`:
 
 Output:
 
-```
-═══ STEP 1 — PARSE FRAMING ═══
+#### Step 1 — Parse framing
 
-PARSED:
-  Target: references/<path>
-  Sources to mine:
-    - vendor/...
-    - vendor/...
-  Scope: <whole-file | section: NAME | add: TOPIC>
-  Open Items routing list:
-    - <item> — <one-line description>
-    - (or: none)
+**Parsed**
 
-═══ CHECKPOINT 1 — AWAITING USER ═══
-  Reply: go | correct: <field=value> | add: <source-file or routing-item> | redirect: <new-scope>
-═══════════════════════════════════════
-```
+- Target: `references/<path>`
+- Sources to mine:
+  - `vendor/...`
+  - `vendor/...`
+- Scope: <whole-file | section: NAME | add: TOPIC>
+- Open Items routing list:
+  - <item> — <one-line description>
+  - (or: none)
+
+**Checkpoint 1 — awaiting user**
+
+- `go` — proceed to Step 2
+- `correct: <field=value>` — revise PARSED
+- `add: <source-file or routing-item>` — fold the addition into PARSED
+- `redirect: <new-scope>` — re-scope before Step 2
 
 Halt. Wait for user.
 
@@ -95,26 +97,24 @@ Surface the report verbatim plus a summary block.
 
 Output:
 
-```
-═══ STEP 2 — EXTRACTION REPORT ═══
-```
+#### Step 2 — Extraction report
 
-Then plain markdown with the agent's full report.
+Plain markdown with the agent's full report, followed by:
 
-Then:
+**Summary**
 
-```
-SUMMARY:
-  Files mined: <N>
-  Citation-worthy findings: <count>
-  SDK divergences flagged: <count>
-  Contradictions vs target doc: <count>
-  Gaps surfaced: <list — these will not be written into body>
+- Files mined: <N>
+- Citation-worthy findings: <count>
+- SDK divergences flagged: <count>
+- Contradictions vs target doc: <count>
+- Gaps surfaced: <list — these will not be written into body>
 
-═══ CHECKPOINT 2 — AWAITING USER ═══
-  Reply: go | correct: <findings to fix> | add: <additional source to mine> | redirect: <re-scope>
-═══════════════════════════════════════
-```
+**Checkpoint 2 — awaiting user**
+
+- `go` — proceed to Step 3
+- `correct: <findings to fix>` — revise the report
+- `add: <additional source to mine>` — re-run with another source
+- `redirect: <re-scope>` — re-scope before Step 3
 
 Halt. Wait for user.
 
@@ -150,23 +150,18 @@ Spawn an `Explore` subagent (read-only) with a verification prompt:
 
 ### 3c — Output
 
-```
-═══ STEP 3 — WRITE + VERIFY ═══
-```
+#### Step 3 — Write + verify
 
-Then plain markdown:
+**Writer summary:** [verbatim from z-writer]
 
-**Writer summary**: [verbatim from z-writer]
+**Verifier punch list:** [verbatim from Explore verifier]
 
-**Verifier punch list**: [verbatim from Explore verifier]
+**Checkpoint 3 — awaiting user**
 
-Then:
-
-```
-═══ CHECKPOINT 3 — AWAITING USER ═══
-  Reply: commit | fix: <verifier-finding-id> | redo: <writer-pass-with-changes> | abort
-═══════════════════════════════════════
-```
+- `commit` — run hygiene and commit the changes
+- `fix: <verifier-finding-id>` — apply targeted fix
+- `redo: <writer-pass-with-changes>` — re-run writer with adjustments
+- `abort` — discard changes
 
 Halt. On `commit`, run `./scripts/check-hygiene.py` and surface any findings; if hygiene passes, generate a commit message summarizing the changes (sections changed, citations added, items routed to Open questions, contradictions resolved) and commit.
 

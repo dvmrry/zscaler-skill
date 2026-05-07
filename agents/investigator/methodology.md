@@ -38,16 +38,13 @@ For each claim or finding, document:
 ## Example workflow
 
 **Bad (premature closure, no evidence trail):**
-```
 Issue: ssh.dev.azure.com:22 fails from Location X
 Diagnosis: Connector network is blocking port 22
 Status: Closed — "other ports work, so connectors are fine"
-```
 
 (Problem: No citation. No investigation of what "other ports work" actually means. No evidence of network health.)
 
 **Good (evidence-based, falsifiable):**
-```
 Claim 1: Connector assignment fails for ssh.dev.azure.com:22 from Location X
 Source: ZPA API GET /userActivity filtered by failed sessions, Location X, destination ssh.dev.azure.com:22 → "no connector available" in status
 Status: Confirmed
@@ -75,31 +72,23 @@ Port 22 health check is failing on one or more connectors. Likely causes (in ord
 1. Connector-level firewall rule blocking 22 outbound
 2. Destination server rejecting connections from connector IP range
 3. Policy misconfiguration limiting port 22 to subset of connectors
-```
 
 (Better: each claim has a source, status, and timestamp. Pivoting between hypotheses is visible and justified by evidence gaps.)
 
 ## Anti-patterns to avoid
 
 ### ❌ Absence of evidence treated as evidence of absence
-```
 "We didn't see connector health issues in the logs, so connectors are healthy"
-```
 Better:
-```
 "Checked LSS /lssConfig/userActivity with fields [HealthStatus, InternalReason]. For connectors handling this segment, health status shows OK. However, LSS may not expose granular per-port health checks. Need to verify via direct API health endpoint if available."
-```
 
 ### ❌ Pivoting without explanation
-```
 Issue: Connector assignment fails
 First hypothesis: Network blocking
 (no evidence found)
 New hypothesis: Policy misconfiguration
 (no explanation for why network blocking was ruled out)
-```
 Better:
-```
 Hypothesis 1: Network blocking
 Source: "other ports work on same connector" from ZPA API
 Status: Ruled out — if network were blocking, all ports to that destination would fail. Port 443 succeeds, so connectivity to destination is open.
@@ -107,93 +96,69 @@ Status: Ruled out — if network were blocking, all ports to that destination wo
 Hypothesis 2: Policy misconfiguration
 Source: ZPA API GET /policySet/rules — policy for ssh.dev.azure.com includes Location X and segment includes these connectors
 Status: Open — policy allows connection. Investigating why assignment engine isn't selecting a connector.
-```
 
 ### ❌ Premature "root cause identified"
-```
 Status: Resolved
 Root cause: "Connector health check failed"
 (but no LSS data confirming this, and no investigation of why specifically port 22)
-```
 Better:
-```
 Status: Open — investigating
 Likely cause: Connector health check or port-specific filtering (see Claims 3–4 above)
 Next steps: Pull LSS data with [InternalReason, ConnectorID, DestinationPort] fields; if unavailable, use direct API health endpoint
-```
 
 ### ❌ Confirmation bias — only looking for evidence that supports the current hypothesis
 
 Once you've settled on a leading root cause, it's tempting to keep gathering sources that reinforce it. That's not investigation — that's prosecution.
 
-```
 Hypothesis: Connector health is degraded
 (spent 20 minutes pulling more LSS health metrics, all consistent with degraded health)
 Status: Confirmed
-```
 Better:
-```
 Hypothesis: Connector health is degraded
 Confirming evidence: LSS InternalReason = CONNECTOR_UNHEALTHY (12 sessions)
 Contradicting evidence sought: Same connectors are passing health checks for port 443 traffic in the same window — if connector were broadly degraded, 443 should fail too
 Status: Open (likely) — health is degraded for port 22 specifically, not globally. Investigate port-specific health checks before promoting to Confirmed.
-```
 
 If you've been investigating the same hypothesis for 20+ minutes and haven't actively sought evidence that would falsify it, you're in confirmation-bias territory. Step back. Ask: what would I expect to see if this hypothesis were wrong? Then go look for that.
 
 ### ❌ Context loss between claims
-```
 Claim 1: Connectors are healthy (from API)
 Claim 2: Connector assignment failed (from LSS)
 (no connection made between these — treated as separate issues)
-```
 Better:
-```
 Claim 1: Connectors are healthy per API
 Claim 2: Connector assignment failed for port 22 per LSS
 Contradiction: If connectors are healthy, why did assignment fail? 
 Possible resolution: Health status is aggregated/generic; port 22 may have a specific health check that fails even if overall health is OK. Need port-level health telemetry.
-```
 
 ### ❌ Reasoning over field values without reading the schema
 
-```
 LSS field `Action = 0` — that means the rule allowed the traffic.
 (no schema consulted; `0` is being interpreted by analogy from another log type)
-```
 Better:
-```
 Before reasoning: read references/zia/logs/web-log-schema.md for `action` enum.
 Schema says: `action` for ZIA web logs is a string ("Allowed" / "Blocked"), not an integer. Numeric `0` would not appear in this field — investigate why the value looks numeric (parsing issue? wrong log type? TA version mismatch?).
-```
 Field names look self-evident but rarely are. `action`, `reason`, `status`, `result` mean different things across ZIA / ZPA / ZDX / ZCC log types. Read the schema before any claim built on a field value becomes load-bearing.
 
 ### ❌ Hypothesizing without grounding in product architecture
 
-```
 Issue: ZPA segment isn't matching for user X.
 Hypothesis: Default-allow policy is shadowing the segment match.
 (no reference to ZPA's deny-by-default model; analyzing as if ZIA semantics apply)
-```
 Better:
-```
 Before hypothesizing: read references/zpa/policy-precedence.md (or equivalent feature reference).
 ZPA is deny-by-default — there is no "default-allow shadow." The hypothesis space is: (a) segment doesn't include this user's IdP attributes, (b) connector group isn't reachable from user's location, (c) rule ordering with a higher-priority deny, (d) posture / timeout / SAML attribute drift.
-```
 Product defaults and architectural assumptions (deny-by-default vs. allow-by-default, per-app vs. per-segment, IdP-claim vs. SCIM-claim) shape which hypotheses are even plausible. A hypothesis built on the wrong product mental model wastes the whole investigation.
 
 ### ❌ Reasoning from scratch when the user already placed evidence in the operative directory
 
-```
 User: "/z-investigator connector flap in _data/incidents/test-flap/"
 Agent: "Let me hypothesize causes and propose investigation steps..."
 (no read of _data/incidents/test-flap/evidence/, no check of
 _data/snapshot/<cloud>/ for the relevant tenant config dump,
 no read of an existing journal.md the user may already have
 seeded in that directory)
-```
 Better:
-```
 Agent first reads:
   _data/incidents/test-flap/evidence/  — finds connector-status.json
   _data/incidents/test-flap/journal.md — finds existing claims
@@ -206,26 +171,21 @@ Hypothesis 1: Connector group reachability
   Status: Confirmed (medium)
 
 Hypothesis 2: ...
-```
 The operative directory is wherever the user pointed `/z-investigator`. Read its `evidence/` and `journal.md` first; the user may have already provided the answer or seeded prior claims that are the starting state of the investigation. Then read tenant config from `_data/snapshot/<cloud>/`. Do not browse sibling incident directories — that's a separate discipline that isn't refined enough yet.
 
 ### ❌ Carrying user framing claims unverified into hypotheses
 
-```
 User: "The connector is degraded and the rule fired but allowed traffic anyway."
 Hypothesis 1: Connector degradation is causing partial policy enforcement.
 Hypothesis 2: The fired rule has a permit action shadowing a deny.
 (both hypotheses build on the user's causal claims as if they were verified)
-```
 Better:
-```
 Framing claims, treated as Open (uncertain) until verified:
 - Claim A: Connector is degraded — Source: pending. Will check LSS HealthStatus / API connector health endpoint.
 - Claim B: Rule X fired — Source: pending. Will check policy evaluation log / LSS for the matching rule ID.
 - Claim C: Traffic was allowed despite the rule — Source: pending. Will reconcile with web/access log action field.
 
 Until A/B/C are verified, hypotheses are framed as conditional ("if A, then…"); not load-bearing.
-```
 Users describe symptoms accurately but mis-attribute causes. "The connector is degraded" is often a guess based on the symptom; carrying it forward as a fact produces a confident wrong answer. Verify framing claims before they anchor reasoning, or mark them `Open (uncertain)` and identify the evidence that would resolve them.
 
 ## Practical guidelines
@@ -344,7 +304,6 @@ Stop investigating and escalate when:
 
 Copy and paste this to start a new investigation:
 
-```
 ISSUE: [One-sentence description]
 STATUS: [Open/Investigating]
 TIMESTAMP: [When investigation started]
@@ -360,14 +319,12 @@ ROOT CAUSE HYPOTHESIS (current):
 
 NEXT STEPS:
 [What to investigate next]
-```
 
 ---
 
 When handing off or summarizing findings:
 
 **Format:**
-```
 ISSUE: [One-sentence description]
 STATUS: [Confirmed / Unconfirmed / Escalated]
 
@@ -385,10 +342,8 @@ ROOT CAUSE (if found):
 NEXT STEPS:
 - [What to investigate if continuing]
 - [Who to escalate to and why]
-```
 
 **Example:**
-```
 ISSUE: User in Location A cannot SSH to internal server via SIPA, but can browse HTTPS apps
 STATUS: Escalated
 
@@ -407,7 +362,6 @@ ROOT CAUSE: Likely destination firewall or connector port-level filtering, not Z
 NEXT STEPS:
 - Have ops check connector outbound ACLs for port 22
 - Have server owner check firewall rules against connector IP ranges
-```
 
 ## Collaboration handoff
 
@@ -420,7 +374,6 @@ When passing findings to another person or agent:
 4. **Unknowns explicitly** — "we couldn't investigate X because [reason]" is better than leaving them guessing
 
 **Format for handoff:**
-```
 [Quick reference summary]
 
 ---
@@ -434,7 +387,6 @@ NOTES FOR NEXT PERSON:
 - Had access to: ZPA API, references, LSS (basic queries only)
 - Did NOT have access to: connector SSH, destination firewall logs, support escalation
 - This investigation took [X] time; recommend [next tool or escalation path]
-```
 
 **What NOT to do:**
 - Don't summarize away the sources ("It's probably X")

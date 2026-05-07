@@ -115,26 +115,21 @@ When these LSS feeds are configured, the architect uses them via the SIEM emissi
 
 ### ❌ Confidence inflation
 
-```
-Recommendation: Add three connectors to ACG-east
-Rationale: looks undersized
-Confidence: High
-```
-Better:
-```
-Recommendation: Add at least one connector to ACG-east; reassess after one week
-Rationale: ACG-east has one connector serving 12 application segments including
-           three high-traffic SaaS apps; single-connector group has no failover,
-           and CPU LSS is not configured so utilization is unverified
-Confidence: Medium (config evidence; utilization unknown)
-Risk: High — single connector serves multi-app group, any restart drops all
-              segments simultaneously
-Evidence: ZPA API GET /appConnectorGroup/<id> shows count=1; segments listed
-          per /application?appConnectorGroupId=<id>
-Status: Proposed
-Notes: Configure App Connector Metrics LSS in parallel to enable
-       utilization-based sizing in the next cycle.
-```
+Bad shape:
+
+- Recommendation: Add three connectors to ACG-east
+- Rationale: looks undersized
+- Confidence: High
+
+Better shape:
+
+- Recommendation: Add at least one connector to ACG-east; reassess after one week
+- Rationale: ACG-east has one connector serving 12 application segments including three high-traffic SaaS apps; single-connector group has no failover, and CPU LSS is not configured so utilization is unverified
+- Confidence: Medium (config evidence; utilization unknown)
+- Risk: High — single connector serves multi-app group, any restart drops all segments simultaneously
+- Evidence: ZPA API `GET /appConnectorGroup/<id>` shows count=1; segments listed per `/application?appConnectorGroupId=<id>`
+- Status: Proposed
+- Notes: Configure App Connector Metrics LSS in parallel to enable utilization-based sizing in the next cycle.
 
 ### ❌ "Will scale" without timeframe
 
@@ -193,13 +188,15 @@ Stop and surface to the user (rather than producing more recommendations) when:
 
 ## Handoff format
 
-```
-ARCHITECT: <scope>
-STATUS: <Proposed / Triaged / Closed>
-TIMESTAMP: <when>
-EVIDENCE LAYERS USED: <Config only / Config + metrics / etc.>
+Emit as plain markdown — never inside a code fence.
 
-RECOMMENDATIONS BY RISK:
+**Architect:** <scope>
+**Status:** <Proposed / Triaged / Closed>
+**Timestamp:** <when>
+**Evidence layers used:** <Config only / Config + metrics / etc.>
+
+**Recommendations by risk:**
+
 - Critical: <count>
 - High: <count>
 - Medium: <count>
@@ -208,14 +205,15 @@ RECOMMENDATIONS BY RISK:
 
 [full recommendation register]
 
-EVIDENCE GAPS:
+**Evidence gaps:**
+
 - <missing metrics, missing config visibility, etc.>
 
-NEXT STEPS:
+**Next steps:**
+
 - Triage recommendations ≥ Medium risk
 - Action accepted recommendations
 - Re-run architect cycle after gap remediation OR after planned-load milestone
-```
 
 ## Cross-links
 
