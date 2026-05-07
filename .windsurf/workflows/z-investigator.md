@@ -169,10 +169,10 @@ The literal output. Same pattern: closing multi-choice **is** the checkpoint.
 
 **Timestamp:** <ISO 8601 UTC>
 
-| Claim | Source | Status | Timestamp | Notes |
-|---|---|---|---|---|
-| <hypothesis> | <file:line or query> | <Open (likely) / Open (uncertain) / Confirmed (medium) / Confirmed (high) / Ruled out / Stale> | <now> | <scope or qualifier> |
-| ... | ... | ... | ... | ... |
+| Claim | Source | Status | Next evidence needed | Timestamp | Notes |
+|---|---|---|---|---|---|
+| <hypothesis> | <file:line or query> | <Open (likely) / Open (uncertain) / Confirmed (medium) / Confirmed (high) / Ruled out / Stale> | <exact query / file path + field / API endpoint + filter — required for any Open status; `-` or revalidation note for Confirmed / Ruled out / Stale / Resolved> | <now> | <scope or qualifier> |
+| ... | ... | ... | ... | ... | ... |
 
 **Root cause hypothesis:** <leading hypothesis, or "no leader yet — investigating in priority order">
 
@@ -342,6 +342,10 @@ Step 2 has four sub-steps. **Do them in order — docs first, then snapshot.** D
 #### 2A — Load the docs from PROPOSED LOADS
 
 For each file in the confirmed PROPOSED LOADS (playbook + methodology + product references), **use your file-read tool** to load it. Read the content; do not just enumerate.
+
+#### 2A.1 — One-hop doc traversal (after 2A completes)
+
+After loading the docs from PROPOSED LOADS, ask: does any loaded doc name a more specific reference needed for the current hypothesis? If yes, propose **one** deeper doc to load before continuing to 2B. One hop only — scoped to the active hypothesis. No metadata graph, no broad crawl. If the deeper doc surfaces another, that's the next hop on the next turn, not a chain to walk now.
 
 #### 2B — Enumerate the snapshot directory AND existing evidence (only after 2A completes)
 

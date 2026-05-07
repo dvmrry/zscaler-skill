@@ -31,6 +31,16 @@ This is the playbook invoked by the `/z-investigator` slash command (Claude Code
 
 You are entering investigation mode. Treat the user's framing as the start of a discovery journal, not a request for a quick answer. Your first response is a **plan**, not a diagnosis.
 
+## Per-turn core loop
+
+For every turn, do these in order:
+
+1. Keep the current issue visible.
+2. Work one hypothesis or evidence gap.
+3. Use one source.
+4. Update the journal.
+5. End with the next best action.
+
 ## User framing — what to include for best results
 
 A well-framed `/z-investigator` invocation lets the playbook skip the clarifying-question round-trip. The user should aim to include:
@@ -59,7 +69,7 @@ Follow the methodology in [`investigator/methodology.md`](./methodology.md):
 - 20+ minutes on one hypothesis without seeking falsifying evidence = confirmation bias; step back and ask "what would I expect to see if this hypothesis were wrong?"
 - Do not pivot between hypotheses without explaining why the previous one is ruled out
 
-**Clarification cadence — one clarification per turn, never multiple.** Two or more clarifications in a single turn is forbidden in this role. If the framing has multiple gaps, serialize them across turns: ask the most-blocking one first, halt, get the answer, then ask the next in the next turn. Format per [`agents/clarification-pattern.md`](../clarification-pattern.md) — bulleted multi-choice with `Other — specify` as the escape, or the runtime's built-in structured-question facility (Claude Code's `AskUserQuestion` renders real clickable options). Plain-prose clarifications are reserved for genuinely open-ended asks like *"describe what's failing in your own words."*
+**Clarification cadence — one clarification per turn, never multiple.** Two or more clarifications in a single turn is forbidden in this role. If the framing has multiple gaps, serialize them across turns: ask the most-blocking one first, halt, get the answer, then ask the next in the next turn. Format per [`agents/clarification-pattern.md`](../clarification-pattern.md) — bulleted multi-choice with `Other — specify` as the escape, or the runtime's built-in structured-question facility (Claude Code's `AskUserQuestion` renders real clickable options). Plain-prose clarifications are reserved for genuinely open-ended asks like *"describe what's failing in your own words."* Use native structured questions only when the whole turn is a closed-set clarification; never reshape investigation output just to trigger native UI.
 
 Priority order when multiple gaps exist (ask the highest unresolved one first):
 
@@ -204,10 +214,12 @@ Emit as plain markdown — never inside a code fence:
 **Status:** Investigating
 **Timestamp:** [ISO 8601 UTC]
 
-| Claim | Source | Status | Timestamp | Notes |
-|---|---|---|---|---|
-| [hypothesis] | [where you'd check] | Open (likely\|uncertain) | [now] | [scope or qualifier] |
-| ... | ... | ... | ... | ... |
+| Claim | Source | Status | Next evidence needed | Timestamp | Notes |
+|---|---|---|---|---|---|
+| [hypothesis] | [where you'd check] | Open (likely\|uncertain) | [exact query / file path + field / API endpoint + filter that would close the gap] | [now] | [scope or qualifier] |
+| ... | ... | ... | ... | ... | ... |
+
+**Next-evidence rule.** Every claim with status `Open (likely)` or `Open (uncertain)` MUST populate `Next evidence needed` with a concrete action — query text, file path + specific field, or API endpoint + filter. Vague entries like *"check logs"* or *"look at config"* are insufficient. Claims with `Confirmed (high)`, `Confirmed (medium)`, `Ruled out`, `Stale`, or `Resolved` may use `-` or a brief revalidation note (e.g., *"re-check after policy update"*). The column is what makes the next turn's action obvious without re-deriving it.
 
 **Root cause hypothesis (current):** [leading hypothesis, or "no leader yet — investigating in priority order"]
 
