@@ -201,9 +201,9 @@ Same shape as Step 3 with the journal table updated. Header reads `#### Investig
 > **Halts at:** Checkpoint 1
 > **Side effects:** none — no file loads in this step
 
-Read the framing. Compose the data blocks below by filling in the bracketed fields. Use the **Framing → file mapping** to populate `PROPOSED LOADS`. Use the **Snapshot enumeration** procedure to list per-cloud config files individually.
+Read the framing. Compose the data blocks below by filling in the bracketed fields. Use the **Framing → file mapping** to populate the proposed-loads list. Use the **Snapshot enumeration** procedure to list per-cloud config files individually.
 
-Your response prints two **data code blocks** followed by **plain-prose clarifications** and the checkpoint. Code blocks contain data only — never prompts.
+The Step 1 turn shape lives in two modes — pre-Step-1 (clarification-only, when a blocking unknown exists) and full Step 1 (data emission, after blocking unknowns are resolved). See § Per-turn output format above for the literal shapes; § Critical constraints for the cadence rule. The data-block guidance below describes what each field contains when full Step 1 fires.
 
 #### Output: parsed framing
 
@@ -241,32 +241,7 @@ Emit a `**Proposed loads** (Step 2A — docs only; snapshot loads decided in Ste
 - agents/investigator/methodology.md
 - <product references from the mapping table that match Products / features>
 
-#### Output: plain-prose clarifications (after the data blocks, before the checkpoint)
-
-After printing the two data blocks, print your clarifying questions as **plain markdown prose** — not inside a code block. This is content the user reads and responds to, not data they parse. Format:
-
-> **Before I proceed, please confirm these assumptions** (at least one, always populated):
->
-> 1. I assumed `<specific assumption>` — confirm or correct?
-> 2. *(additional questions if framing has gaps)*
-
-Even when the framing seems fully specified, you have made assumptions worth confirming. Frame each as *"I assumed `<X>` — confirm or correct?"* Example shapes:
-
-- *"I assumed the tenant is on zs3 based on the API base URL — confirm?"*
-- *"I assumed this affects only one user (the one named in the framing) — confirm scope?"*
-- *"I assumed 'reachability' means TCP-level reachability rather than DNS resolution — confirm semantics?"*
-
-If you genuinely cannot identify any assumption, write: *"No assumptions identified beyond what the framing states verbatim — please confirm framing is complete."* Do not skip this section.
-
-**If `Working directory` is `unknown`** in the PARSED FRAMING block, you **must** include this exact clarification first: *"I cannot determine the absolute path of `_data/incidents/` from the current workspace context — please provide the absolute path of the repo root before I proceed. Without it I cannot save the journal in Step 3."* This is non-optional — the save step depends on this being resolved before it runs.
-
-**Always include a log-collection clarification.** Investigations frequently hinge on log evidence (LSS / NSS / SIEM exports, packet captures, CLI output). The user may have already collected logs and placed them somewhere — or may not have. You cannot know without asking. Ask explicitly:
-
-> *"Have any logs (LSS / NSS / Splunk / Sentinel exports, packet captures, command output) already been collected for this issue? If yes, where are they (path, paste, or evidence directory)? If no, I'll plan queries to collect what's needed during investigation."*
-
-This question is mandatory regardless of framing detail. Logs already on disk should be loaded; logs the user can paste should be requested; logs that need to be collected should be planned for in Step 3's evidence-source naming. Skipping this question is what causes the agent to plan queries for data the user already has, OR to miss inline-pasted logs the user expected to be used.
-
-> **Note:** snapshot enumeration and selection used to live here; moved to Step 2B after docs load. Docs tell the agent which snapshot files are entry points and which links of the chain matter — selecting without docs in context produces uninformed bulk loads.
+> **Note:** snapshot enumeration and selection used to live in Step 1; moved to Step 2B after docs load. Docs tell the agent which snapshot files are entry points and which links of the chain matter — selecting without docs in context produces uninformed bulk loads.
 
 #### Framing → file mapping
 
