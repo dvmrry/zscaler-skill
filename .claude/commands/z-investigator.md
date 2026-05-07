@@ -4,15 +4,16 @@ argument-hint: [what fails] in [where], [scope], since [when]; backtick `<litera
 ---
 
 <!-- adapter-deps:start -->
-Load and follow the playbook at @agents/investigator/prompt.md.
+Always load:
+- `agents/investigator/prompt.md`
 
-Before the first response, also load each of its declared dependencies:
-- `agents/investigator/methodology.md` — discovery journal discipline, claim status, anti-patterns
-- `agents/investigator/bundles.md` — query bundle template
-- `agents/siem-emission-discipline.md` — SIEM emission modes, public/private boundary
-- `agents/tenant-schema-derivation.md` — canonical-vs-tenant schema derivation
-- `agents/loading-discipline.md` — stage announcements for I/O-driven pauses
-- `agents/clarification-pattern.md` — multiple-choice with free-text escape for assumption confirmations
+Available on demand. Do not load before first response unless the trigger applies:
+- `agents/investigator/methodology.md` — load when stuck, drifting, or preparing handoff.
+- `agents/investigator/bundles.md` — load when the issue matches a known repeated investigation pattern.
+- `agents/siem-emission-discipline.md` — load before emitting or running SIEM queries.
+- `agents/tenant-schema-derivation.md` — load when canonical-vs-tenant field mismatch appears.
+- `agents/loading-discipline.md` — load if stage-announcement cadence drifts.
+- `agents/clarification-pattern.md` — load if clarification format drifts.
 <!-- adapter-deps:end -->
 
 The user's framing:

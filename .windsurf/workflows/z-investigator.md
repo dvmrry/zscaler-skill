@@ -7,13 +7,16 @@ description: "Start an evidence-based troubleshooting investigation — parse fr
 ## Required reads — do these now, in order
 
 <!-- adapter-deps:start -->
-1. **Use your file-read tool to load `agents/investigator/prompt.md`.** Canonical playbook — First Response procedure, evidence discipline, hypothesis register format.
-2. **Use your file-read tool to load `agents/investigator/methodology.md`.** Discovery journal discipline, claim status, anti-patterns.
-3. **Use your file-read tool to load `agents/investigator/bundles.md`.** Query bundle template for repeated investigation patterns.
-4. **Use your file-read tool to load `agents/siem-emission-discipline.md`.** SIEM emission modes, public/private boundary.
-5. **Use your file-read tool to load `agents/tenant-schema-derivation.md`.** Canonical-vs-tenant schema derivation.
-6. **Use your file-read tool to load `agents/loading-discipline.md`.** Stage announcements for I/O-driven pauses.
-7. **Use your file-read tool to load `agents/clarification-pattern.md`.** Multiple-choice with free-text escape for closed-set decisions.
+Always load:
+- `agents/investigator/prompt.md`
+
+Available on demand. Do not load before first response unless the trigger applies:
+- `agents/investigator/methodology.md` — load when stuck, drifting, or preparing handoff.
+- `agents/investigator/bundles.md` — load when the issue matches a known repeated investigation pattern.
+- `agents/siem-emission-discipline.md` — load before emitting or running SIEM queries.
+- `agents/tenant-schema-derivation.md` — load when canonical-vs-tenant field mismatch appears.
+- `agents/loading-discipline.md` — load if stage-announcement cadence drifts.
+- `agents/clarification-pattern.md` — load if clarification format drifts.
 <!-- adapter-deps:end -->
 
 All paths are relative to the Zscaler skill repo root. **Do not respond until all files are loaded.** Then follow the per-step procedure below.
@@ -341,11 +344,7 @@ Step 2 has four sub-steps. **Do them in order — docs first, then snapshot.** D
 
 #### 2A — Load the docs from PROPOSED LOADS
 
-For each file in the confirmed PROPOSED LOADS (playbook + methodology + product references), **use your file-read tool** to load it. Read the content; do not just enumerate.
-
-#### 2A.1 — One-hop doc traversal (after 2A completes)
-
-After loading the docs from PROPOSED LOADS, ask: does any loaded doc name a more specific reference needed for the current hypothesis? If yes, propose **one** deeper doc to load before continuing to 2B. One hop only — scoped to the active hypothesis. No metadata graph, no broad crawl. If the deeper doc surfaces another, that's the next hop on the next turn, not a chain to walk now.
+For each file in the confirmed PROPOSED LOADS (playbook + framing-matched product references only), **use your file-read tool** to load it. Read the content; do not just enumerate. **Do not eagerly load the on-demand reference docs** listed in `agents/investigator/prompt.md § On-demand references` — those load only when the per-claim trigger condition fires (the `Next evidence needed` column for any Open claim names the specific doc / file / query that closes the gap, and that's when the doc gets loaded).
 
 #### 2B — Enumerate the snapshot directory AND existing evidence (only after 2A completes)
 

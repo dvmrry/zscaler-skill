@@ -33,13 +33,15 @@ You are entering investigation mode. Treat the user's framing as the start of a 
 
 ## Per-turn core loop
 
-For every turn, do these in order:
+Investigation is hypothesis-driven, not doc-driven. For every turn, do these in order:
 
-1. Keep the current issue visible.
-2. Work one hypothesis or evidence gap.
-3. Use one source.
-4. Update the journal.
-5. End with the next best action.
+1. **State the active hypothesis** — cite the journal claim by `# H<n>` or short tag.
+2. **Name the signal/evidence needed** to validate or invalidate it. Be specific: which field, which file, which query.
+3. **Fetch (or propose) the cheapest source** that closes the gap — operative directory → tenant snapshot → script logs → SIEM → live API → portal. One source per turn.
+4. **Update the journal** — move the claim's status based on what the evidence showed. `Open (likely/uncertain)` → `Confirmed (medium/high)` if validated, `Ruled out` if invalidated, `Stale` if the underlying state changed.
+5. **Pick the next hypothesis or evidence source** and surface it in `Next evidence needed` for the journal's top Open claim.
+
+The loop is recursive: every turn after the first journal output follows it. Halt-and-wait at checkpoints (per the workflow harness); within a turn, do one cycle, not many.
 
 ## User framing — what to include for best results
 
@@ -306,6 +308,17 @@ If the investigation is NOT incident-shaped — exploratory, hypothesis-driven, 
 ## Query bundles
 
 When the same hypothesis comes up repeatedly, capture the verified query sequence as a **bundle** — a named, ordered list of queries with decision logic mapping results to claim statuses. See [`investigator/bundles.md`](./bundles.md) for the template and the public/private boundary (verified bundles can ship; speculative ones stay private). The agent should consult locally-available bundles before reasoning queries from scratch.
+
+## On-demand references — load only when triggered
+
+Cross-cutting discipline docs and methodology supplements are listed as `dependencies:` in this prompt's frontmatter and referenced in the runtime adapter, but **none of them should be loaded before the first response**. They are Level-3 resources in the Anthropic Skills sense — load each only when its trigger condition applies. Always-loaded short summaries are inlined here so the active rules survive even when the full reference isn't loaded.
+
+- [`investigator/methodology.md`](./methodology.md) — discovery journal anti-patterns, handoff format, claim-status guidance, worked examples. **Load when:** investigation is stuck, drifting, preparing a handoff, resolving claim-status ambiguity, or you need anti-pattern examples.
+- [`investigator/bundles.md`](./bundles.md) — verified query sequences for common hypotheses. **Load when:** the issue matches a known repeated investigation pattern.
+- [`../siem-emission-discipline.md`](../siem-emission-discipline.md) — agent execution modes, query plumbing, public/private boundary. **Load when:** about to emit or run a SIEM query; mapping a Zscaler log type to a SIEM table / index / sourcetype.
+- [`../tenant-schema-derivation.md`](../tenant-schema-derivation.md) — canonical-vs-tenant schema reconciliation recipes per SIEM. **Load when:** canonical schema and tenant SIEM fields disagree, or deriving tenant-specific field mappings.
+- [`../loading-discipline.md`](../loading-discipline.md) — stage-announcement contract for I/O-driven pauses. **Inline summary** (always applies; load full doc only if cadence drifts): announce I/O actions before doing them — one line, fixed vocab (`reading <path>`, `searching <dir>`, `querying <name>`, `composing answer`), no heartbeats, no announcements for trivial in-context answers.
+- [`../clarification-pattern.md`](../clarification-pattern.md) — closed-set clarification format. **Inline summary** (always applies; load full doc only if format drifts): one closed-set clarification per turn; bulleted multi-choice with `Other — specify` as the escape; use Claude Code's `AskUserQuestion` when available; never reshape investigation output to trigger native UI.
 
 ## Cross-links
 
