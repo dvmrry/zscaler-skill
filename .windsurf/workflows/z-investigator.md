@@ -56,7 +56,7 @@ Every turn's response follows the per-step shape described below. **Do NOT add p
 
 ### Step 1 turn
 
-The literal output:
+The literal output. The clarifications **are** the checkpoint — the user's selections drive the next step; no separate "checkpoint" or "reply guide" section is emitted. If Step 1 produces no clarifications (rare — framing was fully specified), emit a single "What's next?" multi-choice as the closing block instead, so every turn ends on a structured action surface.
 
 #### Step 1 — Parse framing
 
@@ -81,9 +81,11 @@ The literal output:
 - agents/clarification-pattern.md
 - <product references from the framing→file mapping that match>
 
+**Journal created:** `<working-dir>/_data/incidents/<slug>/journal.md`
+
 **Clarifications**
 
-(Each clarification = one multi-choice block. Plain-prose clarifications are forbidden in this role. Use the runtime's structured-question facility when one exists — e.g., Claude Code's `AskUserQuestion`; otherwise emit bulleted text. 1–3 blocks max; never more than one block per axis.)
+(Each clarification = one multi-choice block, last in the turn. Plain-prose clarifications are forbidden. Use the runtime's structured-question facility when one exists — e.g., Claude Code's `AskUserQuestion`; otherwise emit bulleted text. 1–3 blocks max; never more than one block per axis. The user's selections across these blocks are the checkpoint response — picking the affirming option = proceed; picking `Other — specify` = correct / add / clarify with free text.)
 
 I assumed the tenant cloud is `zs3` based on the API base URL. Confirm:
 - Yes — proceed with `zs3`
@@ -100,18 +102,9 @@ Have logs already been collected for this issue?
 
 (When alternatives aren't obvious, use the minimal binary form: "- Yes — proceed / - No — specify what's actually correct". Never fall back to "I assumed X — confirm or correct?" prose form.)
 
-**Journal created:** `<working-dir>/_data/incidents/<slug>/journal.md`
-
-**Checkpoint 1 — awaiting user**
-
-- `go` — load proposed files (run Step 2)
-- `correct: <field>` — revise PARSED FRAMING + PROPOSED LOADS
-- `add: <path>` — add a file to PROPOSED LOADS
-- `clarify: <q>` — answer before continuing
-
 ### Step 2 turn
 
-The literal output:
+The literal output. Step 2 has no assumption clarifications (the data is just enumeration of what got loaded), so the closing multi-choice **is** the "What's next?" block — that's the checkpoint.
 
 #### Step 2 — Load files
 
@@ -137,16 +130,16 @@ The literal output:
 - Empty matches:
   - `<token>`: no match in loaded content or skill-wide — outside scope or undocumented
 
-**Checkpoint 2 — awaiting user**
-
-- `go` — generate the discovery journal (run Step 3)
-- `add: <path>` — load the additional file before journal
-- `redirect: <focus>` — bias the journal toward what you specify
-- `skip: <path>` — exclude from the journal's evidence
+What's next?
+- Generate the discovery journal (Step 3)
+- Add a file to the load list — specify path
+- Redirect — bias the journal toward a specific focus; specify
+- Skip a file from the journal's evidence — specify
+- Other — specify
 
 ### Step 3 turn
 
-The literal output:
+The literal output. Same pattern: closing multi-choice **is** the checkpoint.
 
 #### Step 3 — Discovery journal
 
@@ -167,17 +160,17 @@ The literal output:
 
 **Journal saved:** `<working-dir>/_data/incidents/<slug>/journal.md`
 
-**Checkpoint 3 — awaiting user**
-
-- `go` — investigate the highest-priority Open hypothesis
-- `focus: <H#>` — investigate that hypothesis specifically
-- `rule out: <H#>` — explain why it's already ruled out (with evidence)
-- `add hypothesis: <description>` — fold into the journal
-- `pause` — stop here; journal saved for resumption
+What's next?
+- Investigate the top Open hypothesis
+- Focus on a specific hypothesis — specify H#
+- Rule out a hypothesis — specify H# and the evidence
+- Add a new hypothesis — specify
+- Pause — stop here; journal saved for resumption
+- Other — specify
 
 ### Subsequent turns (after Step 3, during investigation)
 
-Same shape as Step 3 with the journal table updated. Header reads `#### Investigation turn — updated journal`. One investigation action per turn (per § Subsequent turns below).
+Same shape as Step 3 with the journal table updated. Header reads `#### Investigation turn — updated journal`. One investigation action per turn (per § Subsequent turns below). Closing "What's next?" multi-choice is the checkpoint.
 
 ---
 
@@ -327,16 +320,17 @@ Pending.
 
 **Add to Step 1's output template** a `**Journal created:** <path>` line right before the Checkpoint 1 menu, listing the path written. Example: `**Journal created:** <working-dir>/_data/incidents/<slug>/journal.md`
 
-#### 🛑 Checkpoint 1 — Awaiting user confirmation
+#### Checkpoint 1 — clarifications act as the checkpoint
 
-After printing the PARSED FRAMING block, end your response with **literally** this section:
+End your response with the **Clarifications** multi-choice blocks (per the Step 1 turn shape above). The user's selections across those blocks are the checkpoint response: picking the affirming option ("Yes — proceed with `zs3`", etc.) for every block = `go`; picking `Other — specify` on any block = correct / add / clarify with free text. Do not emit a separate `Checkpoint 1 — awaiting user` heading or reply guide — the multi-choice blocks ARE the checkpoint.
 
-> **✋ Checkpoint 1 — awaiting your input.** Reply with one of:
->
-> - `go` (or `yes` / `proceed`) — load the proposed files and continue to Step 2
-> - `correct: <field>` — I'll revise PARSED FRAMING + PROPOSED LOADS
-> - `add: <path or note>` — I'll fold the addition into PROPOSED LOADS
-> - `clarify: <question>` — I'll answer before continuing
+If Step 1 produces no clarifications (rare — framing was fully specified and `Working directory` was resolvable), emit a single closing multi-choice instead so the turn still ends on a structured action surface:
+
+What's next?
+- Proceed — load the proposed files (run Step 2)
+- Add a file to the load list — specify path
+- Correct a field in PARSED FRAMING — specify field=value
+- Other — specify
 
 **Do not load any files. Do not generate hypotheses. Do not output a journal. Do not run Step 2.** Wait for the user to reply. If they reply with a correction or addition, redo Step 1 with the change and re-prompt.
 
@@ -499,16 +493,9 @@ jq --arg id "<sg-id>" '.[] | select(.id == $id) | .appConnectorGroups[].id' serv
 
 Plain `grep` is fine for scanning a JSON file for a known literal token (a hostname, a username) — but for navigating object structure, `jq` is the correct tool.
 
-#### 🛑 Checkpoint 2 — Awaiting user confirmation
+#### Checkpoint 2 — closing multi-choice acts as the checkpoint
 
-End your response with **literally** this section:
-
-> **✋ Checkpoint 2 — awaiting your input.** Reply with one of:
->
-> - `go` (or `yes` / `proceed`) — generate the discovery journal in Step 3
-> - `add: <path>` — I'll load the additional file before generating the journal
-> - `redirect: <focus>` — I'll bias the journal toward what you specify
-> - `skip: <path>` — I'll exclude it from the journal's evidence
+End your response with the closing **What's next?** multi-choice block from the Step 2 turn shape above. The user's selection is the checkpoint response. Do not emit a separate `Checkpoint 2 — awaiting user` heading.
 
 **Do not output a journal. Do not generate hypotheses. Do not run Step 3.** Wait for explicit user reply.
 
@@ -545,33 +532,25 @@ Do NOT attempt the save against a relative path that may resolve nowhere; do NOT
 
 **Subsequent turns** update the same file in place — do not create a new file each turn. The working directory established at Step 1 carries forward; do not re-resolve it on subsequent turns.
 
-#### 🛑 Checkpoint 3 — Awaiting user direction (do not investigate further yet)
+#### Checkpoint 3 — closing multi-choice acts as the checkpoint
 
-After printing the journal AND saving to disk, end your response with **literally** this section:
-
-> **✋ Checkpoint 3 — journal generated and saved.** First response is a plan, not a diagnosis. Reply with one of:
->
-> - `go` (or `yes` / `proceed`) — investigate the highest-priority Open hypothesis next
-> - `focus: <hypothesis #>` — investigate that hypothesis specifically
-> - `rule out: <hypothesis #>` — explain why it's already ruled out (with evidence)
-> - `add hypothesis: <description>` — I'll add it to the journal
-> - `pause` — stop here; the journal is saved for resumption later
+After printing the journal AND saving to disk, end your response with the closing **What's next?** multi-choice block from the Step 3 turn shape above. First response is a plan, not a diagnosis. The user's selection is the checkpoint response.
 
 **Do NOT continue investigating.** Do NOT rule out hypotheses on your own past the initial first-response analysis. Do NOT roll through `Open` claims to produce a final root cause. Wait for the user to direct the next step.
 
 ---
 
-## 🔁 Subsequent turns — repeat Checkpoint 3 every turn
+## Subsequent turns — repeat the Step 3 cadence every turn
 
 After Step 3's first journal output, **every** subsequent turn in this investigation follows the same per-turn cadence — the halt-and-ask pattern is **recursive**, not one-shot. Apply this on turn 2, turn 3, turn N, until the user marks the investigation complete.
 
 #### Per-turn cadence (do all four, in order, then halt)
 
-1. **Read user direction.** The user replied to the previous Checkpoint 3 with `go` / `focus: <H#>` / `rule out: <H#>` / `add hypothesis: <X>` / `pause`. Parse it. If it's `pause`, halt without further work — the journal stays saved.
+1. **Read user direction.** The user replied to the previous turn's closing multi-choice. The selection (or `Other — specify` free-text) names the next action: investigate the top Open hypothesis, focus on a specific one, rule out a specific one with evidence, add a new hypothesis, or pause. Parse it. If it's `pause`, halt without further work — the journal stays saved.
 2. **Perform exactly ONE investigation action.** Read one source, run one query, evaluate one piece of evidence. **Do NOT** batch multiple hypothesis investigations into one turn. **Do NOT** rule out a hypothesis you weren't directed to investigate.
 3. **Update the journal.** Print the updated journal table in chat (with claim status changes, new evidence, dismissed hypotheses if any). Then **immediately save the updated journal** to `_data/incidents/<slug>/journal.md` using your file-write tool — same path as Step 3B, no permission asked.
-4. **Halt with Checkpoint 3.** End your response with the same `✋ Checkpoint 3` menu (using the verbs that fit the current state — e.g., if all hypotheses except one are ruled out, the menu can name the remaining one as the next focus). Wait for the user.
+4. **Halt with the closing multi-choice.** End your response with the same **What's next?** multi-choice from the Step 3 turn shape (using options that fit the current state — e.g., if all hypotheses except one are ruled out, the menu can name the remaining one as the next focus). Wait for the user.
 
 **This cadence applies until the user explicitly closes the investigation** with `pause` or `done` (a status of `Resolved` on the root cause claim with the user's confirmation that the resolution holds). Until then, every response is one action + journal update + halt — never a rolling investigation that resolves multiple hypotheses without user direction.
 
-If you find yourself about to write a response that ① touches more than one hypothesis OR ② omits the journal save OR ③ omits the Checkpoint 3 halt, **stop**. You are off-cadence. Reset to the four-step structure above.
+If you find yourself about to write a response that ① touches more than one hypothesis OR ② omits the journal save OR ③ omits the closing multi-choice halt, **stop**. You are off-cadence. Reset to the four-step structure above.
