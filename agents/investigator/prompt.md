@@ -101,7 +101,18 @@ Four read-tool calls before generating hypotheses. Skipping any of these produce
 
 **a. Use your file-read tool to load the relevant log schema.** If the framing involves logs (LSS / NSS / audit / SIEM), load the schema file under `references/{zia,zpa,zcc}/logs/<name>-schema.md` before reasoning over field values. Field names look self-evident but aren't (`action`, `reason`, `status` mean different things across log types); sample values mislead without the enum / type / semantic notes. If you don't know which schema applies, use your file-read tool to load `references/<product>/index.md` first and find it from there.
 
-**b. Use your file-read tool to load the canonical product / feature reference.** If the framing names a Zscaler product or feature, load the relevant reference before forming a hypothesis. Use this mapping — load every file matching the framing's vocabulary:
+**b. Use your file-read tool to load the canonical product / feature reference.** If the framing names a Zscaler product or feature, load the relevant reference before forming a hypothesis.
+
+**Symptom routes — check first.** Before using the keyword-based mapping below, look at `agents/investigator/routes/` for a matching symptom shape. If one matches, load the route card and use its `Load docs` + `Inspect snapshot` lists as the grounding plan, and treat its `Expected behavior anchors` as the doc sections to read first (not just the file at the file level). Route cards exist because real Zscaler troubleshooting needs *clusters* of refs read together (segment + server-group + connector chain; URL filtering + Cloud App Control; SSL inspection + bypass rules) — a single keyword match isn't usually enough. Available routes:
+
+- [`routes/zpa-connector-assignment.md`](./routes/zpa-connector-assignment.md) — connector assignment failures, empty `Connector` LSS field, "no connector available."
+- [`routes/zpa-segment-matching.md`](./routes/zpa-segment-matching.md) — segment scope, specificity, multi-segment overlap, port-mismatch.
+- [`routes/zia-url-filtering-precedence.md`](./routes/zia-url-filtering-precedence.md) — rule order, first-match, specificity gotcha, HTTPS dual-evaluation, Cloud App Control interaction.
+- [`routes/zia-ssl-inspection-bypass.md`](./routes/zia-ssl-inspection-bypass.md) — bypass scope, "Do Not Inspect" variants, cross-policy implications of bypass.
+
+The route list grows as new symptom shapes surface in real investigations — postmortems can add a card. If no route matches the framing, fall back to the keyword mapping below.
+
+**Keyword fallback — load every file matching the framing's vocabulary:**
 
 | Framing mentions... | Load via file-read tool |
 |---|---|
