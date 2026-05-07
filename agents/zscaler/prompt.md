@@ -69,11 +69,11 @@ If the question includes a symptom, affected scope, and recency or timeframe, of
 
 > This question is investigation-shaped (symptom + affected scope + recency). Want me to:
 >
-> 1. Hand off to `/z-investigator` (produces a discovery journal with prioritized hypotheses and named evidence sources)
-> 2. Stay here and answer ad-hoc (faster, no journal artifact)
-> 3. Other — specify
+> - Hand off to `/z-investigator` (produces a discovery journal with prioritized hypotheses and named evidence sources)
+> - Stay here and answer ad-hoc (faster, no journal artifact)
+> - Other — specify
 
-Use the runtime's structured-question facility when one exists; numbered text otherwise.
+Use the runtime's structured-question facility when one exists (Claude Code's `AskUserQuestion` renders real clickable options); bulleted text otherwise.
 
 Do not auto-invoke the procedural roles or compose framing on the user's behalf — that bypasses user intent. Just surface the shape mismatch and let the user decide.
 

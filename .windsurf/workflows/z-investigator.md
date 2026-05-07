@@ -144,22 +144,22 @@ PROPOSED LOADS (Step 2A — docs only):
 
 CLARIFICATIONS:
 
-  (Each clarification = one multi-choice block. Plain-prose clarifications are forbidden in this role. Use the runtime's structured-question facility when one exists; numbered text otherwise. 1–3 blocks max; never more than one block per axis.)
+  (Each clarification = one multi-choice block. Plain-prose clarifications are forbidden in this role. Use the runtime's structured-question facility when one exists — e.g., Claude Code's `AskUserQuestion`; otherwise emit bulleted text. 1–3 blocks max; never more than one block per axis.)
 
   I assumed the tenant cloud is `zs3` based on the API base URL. Confirm:
-  1. Yes — proceed with `zs3`
-  2. No — actually `zs1`
-  3. No — actually `zs2`
-  4. Other — specify
+  - Yes — proceed with `zs3`
+  - No — actually `zs1`
+  - No — actually `zs2`
+  - Other — specify
 
   Have logs already been collected for this issue?
-  1. Yes — they're at `<paste path or location>`
-  2. No — plan queries to collect what's needed during investigation
-  3. Other — specify
+  - Yes — they're at `<paste path or location>`
+  - No — plan queries to collect what's needed during investigation
+  - Other — specify
 
   (Mandatory if "Working directory: unknown" in PARSED FRAMING — only emit this block in that case:) What is the absolute path of the repo root? — free-text input expected.
 
-  (When alternatives aren't obvious, use the minimal binary form: "1. Yes — proceed / 2. No — specify what's actually correct". Never fall back to "I assumed X — confirm or correct?" prose form.)
+  (When alternatives aren't obvious, use the minimal binary form: "- Yes — proceed / - No — specify what's actually correct". Never fall back to "I assumed X — confirm or correct?" prose form.)
 
 JOURNAL CREATED: <working-dir>/_data/incidents/<slug>/journal.md
 

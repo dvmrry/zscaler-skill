@@ -36,12 +36,12 @@ Do not use it when:
 
 A clarification:
 
-1. Has **2–5 numbered options**. Binary clarifications (continue here vs. hand off) are a valid use case; 3–5 is common; more than 5 is a sign the question should be split.
-2. Always provides an **escape hatch for free text** — either as the last numbered option (`Other — specify`) or through the runtime's built-in *other / specify* affordance, whichever the host renders cleanly.
+1. Has **2–5 options**. Binary clarifications (continue here vs. hand off) are a valid use case; 3–5 is common; more than 5 is a sign the question should be split.
+2. Always provides an **escape hatch for free text** — either as the last option (`Other — specify`) or through the runtime's built-in *other / specify* affordance, whichever the host renders cleanly.
 3. Asks **one question per prompt**. Bundle two axes together and you get partial answers.
 4. Has options that are **short and concrete** — fragments, not sentences. The user is choosing, not reading prose.
 5. **Echoes the chosen option in the next turn.** Some runtimes hide button-clicks from the visible chat scrollback; restating the choice keeps the structured selection part of the record.
-6. Uses the **runtime's structured-question facility when one exists**; falls back to numbered plain text otherwise. The facility might render as buttons, a picker, or a dropdown — that's the runtime's call, not the prompt's.
+6. Uses the **runtime's structured-question facility when one exists** (e.g., Claude Code's `AskUserQuestion`, which renders real clickable options); falls back to bulleted text otherwise. Bullets render more cleanly than numbered lists in most chat-style runtimes (e.g., Cascade) — prefer them as the default text form.
 
 ## Examples
 
@@ -51,9 +51,9 @@ When a question turns investigation-shaped (symptom + affected scope + recency),
 
 > This question is investigation-shaped (symptom + affected scope + recency). Want me to:
 >
-> 1. Hand off to `/z-investigator` (produces a discovery journal with prioritized hypotheses)
-> 2. Stay here and answer ad-hoc (faster, no journal artifact)
-> 3. Other — specify
+> - Hand off to `/z-investigator` (produces a discovery journal with prioritized hypotheses)
+> - Stay here and answer ad-hoc (faster, no journal artifact)
+> - Other — specify
 
 Two structured options plus the escape. The user gets a clear pick or types their own preference.
 
@@ -63,13 +63,13 @@ When SOC scope is given without an explicit subtype, the agent infers — but sh
 
 > Which SOC subtype best matches this scope?
 >
-> 1. `policy` — policy correctness and precedence
-> 2. `access` — who-can-do-what (RBAC, admin scopes)
-> 3. `coverage` — telemetry / log coverage gaps
-> 4. `config` — hygienic / structural config issues
-> 5. Other — specify
+> - `policy` — policy correctness and precedence
+> - `access` — who-can-do-what (RBAC, admin scopes)
+> - `coverage` — telemetry / log coverage gaps
+> - `config` — hygienic / structural config issues
+> - Other — specify
 
-Four options drawn from the closed set defined in `agents/soc/prompt.md`, plus the escape. If the user picks 5, the scope is non-standard — useful signal in itself.
+Four options drawn from the closed set defined in `agents/soc/prompt.md`, plus the escape. If the user picks `Other`, the scope is non-standard — useful signal in itself.
 
 ### `/z-investigator` assumption confirmation
 
@@ -77,10 +77,10 @@ Step 1 parses the user's framing and lists assumptions to confirm. Each assumpti
 
 > I assumed the tenant cloud is `zs3` based on the API base URL. Confirm:
 >
-> 1. Yes — proceed with `zs3`
-> 2. No — actually `zs1`
-> 3. No — actually `zs2`
-> 4. Other — specify
+> - Yes — proceed with `zs3`
+> - No — actually `zs1`
+> - No — actually `zs2`
+> - Other — specify
 
 Common clouds plus escape; keep the concrete options scoped to what the framing makes plausible. Avoids ambiguity from free-text replies like *"yes that's right"* or *"no I meant the other one"*.
 
@@ -88,12 +88,12 @@ Common clouds plus escape; keep the concrete options scoped to what the framing 
 
 - ✗ **Do not use this for procedural command vocabularies.** The investigator's per-step checkpoint menu (`go` / `correct: <field>` / `add: <path>` / `clarify: <q>`) is *not* a clarification — it's a turn-control vocabulary where each token carries its own argument shape. Wrapping it as multiple-choice strips the argument slot and forces the user back into free text anyway. Procedural menus stay as text.
 - ✗ **Do not bundle questions.** *"Pick the cloud, the affected scope, and the recency"* as a single multi-axis clarification produces partial answers. Ask one axis at a time.
-- ✗ **Do not pad the option set with throwaway choices.** *"1. Yes 2. No 3. Maybe 4. Cancel 5. Other"* is fake structure — the real answer space was always 1/2 plus escape.
-- ✗ **Do not use the pattern when the answer is genuinely open-ended.** *"Describe the symptom in your own words"* is a free-text question; reframing it as `1. Connection refused 2. Slow 3. Auth error 4. Other` constrains the user worse than not asking the structured form at all.
+- ✗ **Do not pad the option set with throwaway choices.** *"Yes / No / Maybe / Cancel / Other"* is fake structure — the real answer space was always Yes/No plus escape.
+- ✗ **Do not use the pattern when the answer is genuinely open-ended.** *"Describe the symptom in your own words"* is a free-text question; reframing it as a bulleted multi-choice constrains the user worse than not asking the structured form at all.
 - ✗ **Do not promote this pattern over conversational discipline for trivial decisions.** A throwaway *"ok?"* needs no clarification at all, and certainly no menu.
 
 ## Failure modes this pattern does not solve
 
 - **Genuinely ambiguous framing.** If the user's question has no small closed set of resolutions, no clarification pattern saves you — ask an open question.
-- **Runtimes without structured-question facilities.** The fallback (numbered plain text) is functional but loses the click-vs-type UX win. Document the pattern; let the runtime do what it can.
-- **Static eval can't verify runtime application.** Whether a model actually emits a numbered list when it should isn't checkable from the prompt source — same limitation as loading-discipline.
+- **Runtimes without structured-question facilities.** Cascade currently has no documented agent-side multi-choice tool — the fallback (bulleted text) is functional but loses the click-vs-type UX win. Claude Code does have one (`AskUserQuestion`); use it where available. The pattern is documented either way; let each runtime do what it can.
+- **Static eval can't verify runtime application.** Whether a model actually emits a multi-choice block when it should isn't checkable from the prompt source — same limitation as loading-discipline.

@@ -68,13 +68,13 @@ When asking the user a clarifying question — subtype inference, threat-model s
 
 > Which SOC subtype best matches this scope?
 >
-> 1. `policy` — policy correctness and precedence
-> 2. `access` — who-can-do-what (RBAC, admin scopes)
-> 3. `coverage` — telemetry / log coverage gaps
-> 4. `config` — hygienic / structural config issues
-> 5. Other — specify
+> - `policy` — policy correctness and precedence
+> - `access` — who-can-do-what (RBAC, admin scopes)
+> - `coverage` — telemetry / log coverage gaps
+> - `config` — hygienic / structural config issues
+> - Other — specify
 
-2–5 options + `Other — specify` (or the runtime's built-in *other / specify* affordance). One question per prompt. Plain-prose questions are reserved for genuinely open-ended asks.
+2–5 options + `Other — specify` (or the runtime's built-in *other / specify* affordance — Claude Code's `AskUserQuestion` renders real clickable options). One question per prompt. Plain-prose questions are reserved for genuinely open-ended asks.
 
 ## First response
 
