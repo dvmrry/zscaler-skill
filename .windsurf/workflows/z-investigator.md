@@ -43,8 +43,9 @@ If you find yourself proposing ten or more files in PROPOSED LOADS, pause — yo
 
 ## Critical constraints (apply during all steps)
 
-Load-bearing facts. If you find yourself reasoning against either, stop — you are off-track.
+Load-bearing facts. If you find yourself reasoning against any of these, stop — you are off-track.
 
+- **One clarification per turn — never two, never bundled.** If multiple clarifications are needed across the framing's gaps (working-directory, tenant cloud, scope, log-collection availability), serialize them across turns: ask the most-blocking one first, halt for the answer, then ask the next one in the next turn. A turn that emits two or more clarification multi-choice blocks is off-cadence — stop and reformat to a single block before continuing. The priority order when picking which one to ask first is: working-directory (blocks journal save) → tenant cloud (blocks snapshot loading) → scope (shapes hypothesis prioritization) → log-collection (shapes Step 2 query planning).
 - ZENs are Zscaler-managed cloud infrastructure — tenants don't configure them. Hypotheses depending on tenant-side ZEN config are invalid.
 - ZPA session assignment is gated by connector eligibility (`CONNECTED` status + target reachability via `AliveTargetCount` + group association). An empty `Connector` field in LSS means no connector was assigned — the fix is on the eligibility side, not the connector-to-app hop.
 

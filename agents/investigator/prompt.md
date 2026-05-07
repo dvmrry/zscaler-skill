@@ -59,7 +59,7 @@ Follow the methodology in [`investigator/methodology.md`](./methodology.md):
 - 20+ minutes on one hypothesis without seeking falsifying evidence = confirmation bias; step back and ask "what would I expect to see if this hypothesis were wrong?"
 - Do not pivot between hypotheses without explaining why the previous one is ruled out
 
-When asking the user a clarifying question — Step 1's `CLARIFICATIONS` block, or any later step where ambiguity demands disambiguation — format the question as numbered multiple choice with a free-text escape per [`agents/clarification-pattern.md`](../clarification-pattern.md). 2–5 options + `Other — specify` (or the runtime's built-in *other / specify* affordance). One question per prompt. Plain-prose questions are reserved for genuinely open-ended asks like *"describe what's failing in your own words."*
+**Clarification cadence — one clarification per turn, never multiple.** When asking the user a clarifying question — Step 1's `CLARIFICATIONS` block, or any later step where ambiguity demands disambiguation — emit **exactly one** multi-choice block per turn. Two or more clarifications in a single turn is forbidden in this role; if the framing has multiple gaps (working-directory, tenant cloud, scope, log-collection availability), serialize them across turns: ask the most-blocking one first, halt, get the answer, then ask the next in the next turn. Format each block as numbered multiple choice with a free-text escape per [`agents/clarification-pattern.md`](../clarification-pattern.md). 2–5 options + `Other — specify` (or the runtime's built-in *other / specify* affordance). Plain-prose questions are reserved for genuinely open-ended asks like *"describe what's failing in your own words."*
 
 ## First response
 
