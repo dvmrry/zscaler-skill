@@ -45,7 +45,16 @@ If you find yourself proposing ten or more files in PROPOSED LOADS, pause — yo
 
 Load-bearing facts. If you find yourself reasoning against any of these, stop — you are off-track.
 
-- **One clarification per turn — never two, never bundled.** If multiple clarifications are needed across the framing's gaps (working-directory, tenant cloud, scope, log-collection availability), serialize them across turns: ask the most-blocking one first, halt for the answer, then ask the next one in the next turn. A turn that emits two or more clarification multi-choice blocks is off-cadence — stop and reformat to a single block before continuing. The priority order when picking which one to ask first is: working-directory (blocks journal save) → tenant cloud (blocks snapshot loading) → scope (shapes hypothesis prioritization) → log-collection (shapes Step 2 query planning).
+- **Step 1 has two modes — pre-Step-1 (clarification-only) and full Step 1 (data emission). Never bundle them in one turn.**
+  - **Pre-Step-1 mode** fires when the framing has any blocking unknown. The whole turn is one clarification multi-choice block — *no* parsed framing, *no* proposed loads, *no* journal-created line, *no* What's-next?. Just the question. The runtime can then render natively (Claude Code's `AskUserQuestion`, etc.) because the question is the entire turn, not one section pinned to the bottom of a data-block-laden response.
+  - After the user answers, re-check for the next blocking unknown. If any remain, ask the next one in the next turn (still pre-Step-1, still a single multi-choice per turn). Continue until all blocking unknowns are resolved.
+  - **Full Step 1 mode** fires once all blocking unknowns are resolved. Emit parsed framing + proposed loads + journal-created + closing **What's next?** multi-choice. The What's-next? IS the checkpoint and absorbs non-blocking concerns (pre-collected logs, assumption corrections, file additions) as options. *No separate Clarification block in this turn.*
+  - **Blocking unknowns** (priority order — ask the highest unresolved one first):
+    1. Working directory unknown (blocks journal save)
+    2. Tenant cloud unspecified when needed for snapshot path (blocks Step 2 snapshot loading)
+    3. Symptom or scope too vague to form useful proposed loads (blocks load planning)
+  - **Non-blocking concerns** are folded into Full Step 1's What's-next? as options — never asked as their own clarification turns: pre-collected logs availability, assumption confirmations, optional file additions.
+  - One clarification per turn applies in *every* mode and *every* step — never two, never bundled. If multiple clarifications surface mid-investigation (Step 2, Step 3), serialize them the same way.
 - ZENs are Zscaler-managed cloud infrastructure — tenants don't configure them. Hypotheses depending on tenant-side ZEN config are invalid.
 - ZPA session assignment is gated by connector eligibility (`CONNECTED` status + target reachability via `AliveTargetCount` + group association). An empty `Connector` field in LSS means no connector was assigned — the fix is on the eligibility side, not the connector-to-app hop.
 
@@ -55,20 +64,42 @@ Load-bearing facts. If you find yourself reasoning against any of these, stop �
 
 Every turn's response follows the per-step shape described below. **Do NOT add prose between sections, decorative headers, or summary commentary outside the shape — the shape IS the response.** Output is plain markdown — headers, bold labels, bullets, blockquotes for the checkpoint menu — never wrapped in code fences. Fences are reserved for genuine code (shell commands, JSON, YAML, raw markdown templates).
 
-### Step 1 turn
+### Step 1 — pre-Step-1 turn (clarification only, when a blocking unknown exists)
 
-The literal output. The clarifications **are** the checkpoint — the user's selections drive the next step; no separate "checkpoint" or "reply guide" section is emitted. If Step 1 produces no clarifications (rare — framing was fully specified), emit a single "What's next?" multi-choice as the closing block instead, so every turn ends on a structured action surface.
+When ANY blocking unknown exists at invocation time (working directory unknown, tenant cloud unspecified-and-needed, symptom/scope too vague), the entire first turn is **one** clarification multi-choice block. **No parsed framing, no proposed loads, no journal-created line, no What's-next?.** The clarification is the whole turn; the multi-choice is the checkpoint.
+
+Use Claude Code's `AskUserQuestion` if available (renders real clickable options); otherwise emit bulleted text per [`agents/clarification-pattern.md`](../../agents/clarification-pattern.md). 2–5 options + `Other — specify`. When alternatives aren't obvious, use the binary form: "- Yes — proceed / - No — specify what's actually correct."
+
+Example (working directory is the most-blocking unknown):
+
+I cannot determine the absolute path of the repo root from the current workspace context. The journal save in Step 3 needs this. What is it?
+- `/Users/<you>/src/gh/<org>/zscaler-skill` — if that's correct, confirm
+- Other — specify
+
+Example (tenant cloud is the most-blocking unknown, working dir already known):
+
+I assumed the tenant cloud is `zs3` based on the API base URL. Confirm:
+- Yes — proceed with `zs3`
+- No — actually `zs1`
+- No — actually `zs2`
+- Other — specify
+
+After the user answers, re-check for the next blocking unknown. If one remains, ask it in the next turn (still pre-Step-1, still clarification-only). Once all blocking unknowns resolve, transition to the Full Step 1 turn shape below.
+
+### Step 1 — full turn (data emission, fires only after all blocking unknowns are resolved)
+
+The literal output. *No Clarification block in this turn — clarifications happened in prior pre-Step-1 turns or aren't needed at all.* The closing What's-next? multi-choice IS the checkpoint and absorbs any non-blocking concerns as options.
 
 #### Step 1 — Parse framing
 
 **Parsed framing**
 
 - Symptom: <what's failing>
-- Tenant cloud: <zs1/zs2/zs3 or "not specified">
+- Tenant cloud: <zs1/zs2/zs3>
 - Products / features: <comma-separated, or "none">
-- Scope: <one user / many / all / unclear>
+- Scope: <one user / many / all>
 - Recency: <when first observed, or "not specified">
-- Working directory: <absolute path of repo root, or "unknown — needs user confirmation">
+- Working directory: <absolute path of repo root>
 - User-flagged specifics: <every backticked token from framing, verbatim, comma-separated; or "none">
 
 **Proposed loads** (Step 2A — docs only)
@@ -84,28 +115,12 @@ The literal output. The clarifications **are** the checkpoint — the user's sel
 
 **Journal created:** `<working-dir>/_data/incidents/<slug>/journal.md`
 
-**Clarification**
-
-(One clarification per turn — never multiple. Plain-prose clarifications are forbidden. Use the runtime's structured-question facility when one exists — e.g., Claude Code's `AskUserQuestion`; otherwise emit bulleted text. The user's selection IS the checkpoint response — picking the affirming option = proceed; picking `Other — specify` = correct / add / clarify with free text.)
-
-Pick the **most-blocking** clarification to ask first. Order of priority:
-
-1. Working-directory path — if `Working directory: unknown` in PARSED FRAMING. This is most-blocking because the journal save fails without it.
-2. Tenant cloud — if not specified. Blocks snapshot loading in Step 2.
-3. Scope — if ambiguous (one user vs many vs all). Shapes hypothesis prioritization.
-4. Log-collection availability — always asked at some point, lowest priority. Shapes Step 2 query planning.
-
-Subsequent clarifications (if needed) happen in subsequent turns — one block each turn, never bundled. The data blocks (PARSED FRAMING, PROPOSED LOADS, JOURNAL CREATED) are emitted once in the first turn; later clarification turns emit only the clarification block plus an updated PARSED FRAMING reflecting prior answers.
-
-Example shape (turn 1, when tenant cloud is the most-blocking unknown):
-
-I assumed the tenant cloud is `zs3` based on the API base URL. Confirm:
-- Yes — proceed with `zs3`
-- No — actually `zs1`
-- No — actually `zs2`
+What's next?
+- Proceed — load the proposed files (run Step 2)
+- Provide pre-collected logs — paste path or location
+- Correct a field — specify field=value
+- Add a file to the load list — specify path
 - Other — specify
-
-(When alternatives aren't obvious, use the minimal binary form: "- Yes — proceed / - No — specify what's actually correct". Never fall back to "I assumed X — confirm or correct?" prose form.)
 
 ### Step 2 turn
 
@@ -321,25 +336,20 @@ Pending.
 
 **Why early creation matters.** The agent sometimes skips the save action if it begins troubleshooting without first writing the journal. Creating the stub at Step 1 guarantees a permanent artifact exists from the moment the framing is parsed — even if subsequent steps drift or skip, the framing record is preserved on disk.
 
-**Working directory precondition still applies.** If `Working directory` is `unknown`, halt at Checkpoint 1 with the standard "I cannot determine the absolute path..." clarification before writing. The stub cannot be created without a known absolute path.
+**Working directory precondition still applies.** If `Working directory` is `unknown`, that's a blocking unknown — Step 1 enters pre-Step-1 mode and emits a single working-directory clarification (no other content) before any data emission. The stub cannot be created without a known absolute path; the journal-creation step happens only after the working-directory pre-Step-1 clarification resolves.
 
 **Add to Step 1's output template** a `**Journal created:** <path>` line right before the Checkpoint 1 menu, listing the path written. Example: `**Journal created:** <working-dir>/_data/incidents/<slug>/journal.md`
 
-#### Checkpoint 1 — single clarification acts as the checkpoint
+#### Checkpoint 1 — pre-Step-1 vs full-Step-1 ending
 
-End your response with **one** clarification multi-choice block (per the Step 1 turn shape above) — never multiple. The user's selection IS the checkpoint response: picking the affirming option ("Yes — proceed with `zs3`", etc.) = `go` for that axis; picking `Other — specify` = correct / add / clarify with free text. Do not emit a separate `Checkpoint 1 — awaiting user` heading or reply guide — the single multi-choice block IS the checkpoint.
+Step 1 has two modes (per § Critical constraints + § Step 1 — pre-Step-1 turn / Step 1 — full turn shapes above). The end of the turn depends on which mode you're in:
 
-If multiple clarifications are needed (working-dir + cloud + scope + log-collection), serialize them across turns — ask the most-blocking one first, halt, get the answer, then ask the next in the next turn. Bundling two or more into one turn produces partial answers.
+- **Pre-Step-1 mode** (a blocking unknown is unresolved): end with the single clarification multi-choice block. That block IS the entire turn — no parsed framing, no proposed loads, no journal-created line, no What's-next?. The multi-choice IS the checkpoint.
+- **Full Step 1 mode** (all blocking unknowns are resolved): end with the closing **What's next?** multi-choice. *No Clarification block in this turn.* The What's-next? IS the checkpoint and folds non-blocking concerns (pre-collected logs, assumption corrections, file additions) into its options.
 
-If Step 1 produces no clarifications (rare — framing was fully specified and `Working directory` was resolvable), emit a single closing multi-choice instead so the turn still ends on a structured action surface:
+Never bundle the two modes — i.e., never emit parsed framing + proposed loads alongside a clarification block. Pick one shape per turn based on whether any blocking unknown remains.
 
-What's next?
-- Proceed — load the proposed files (run Step 2)
-- Add a file to the load list — specify path
-- Correct a field in PARSED FRAMING — specify field=value
-- Other — specify
-
-**Do not load any files. Do not generate hypotheses. Do not output a journal. Do not run Step 2.** Wait for the user to reply. If they reply with a correction or addition, redo Step 1 with the change and re-prompt.
+**Do not load any files. Do not generate hypotheses. Do not output a journal table. Do not run Step 2.** Wait for the user's reply to whichever multi-choice block ended your turn. If the reply names a correction or addition, redo the relevant part of Step 1 (re-emit either the next pre-Step-1 clarification or a refreshed full-Step-1 turn) and re-halt.
 
 ---
 

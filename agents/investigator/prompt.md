@@ -70,13 +70,18 @@ Priority order when multiple gaps exist (ask the highest unresolved one first):
 
 ## First response
 
-When invoked, your first response must do these six things, in order:
+When invoked, do **one** of two things based on whether any blocking unknown exists in the framing:
+
+- **If a blocking unknown exists** (working directory unresolved, tenant cloud unspecified-and-needed, or symptom/scope too vague to form proposed loads): your first response is a single clarification multi-choice block — **only** the clarification, with no parsed framing, no proposed loads, no journal-created line, no hypotheses. The clarification IS the entire turn. Halt for the user's answer; on the next turn re-check for blocking unknowns. Continue clarifying-only turns one block per turn until all blocking unknowns resolve. Then emit the full first response (the six things below) on a later turn.
+- **If no blocking unknowns exist** (framing was well-specified): your first response is the six things below, in order, in one turn. Close with a What's-next? multi-choice (covered in Step 1 of the procedure) — never with a separate Clarification section bundled alongside the data emission.
+
+The six things, in order — emitted only when no blocking unknowns remain:
 
 ### 1. Parse the user's framing into the journal ISSUE field
 
 Extract: what's failing, where (location/user/segment), when first observed, scope (one user / many / all), what's already been tried.
 
-If location, time, or scope is ambiguous, ask **one** targeted clarifying question. Do not fabricate. Do not ask multiple questions in a row — pick the one that most narrows hypothesis space.
+If a non-blocking ambiguity surfaces here (e.g., scope is "one user / many" and you can guess a default), fold the confirmation into the Step 1 closing What's-next? multi-choice as an option — not as a separate clarification turn.
 
 ### 2. Ground before you reason
 
