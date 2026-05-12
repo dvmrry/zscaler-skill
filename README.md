@@ -14,6 +14,11 @@ Follows the [Anthropic skill conventions](https://github.com/anthropics/skills) 
 
 Two surfaces, picked by the shape of your question.
 
+- **Cascade always-on guidance** — Windsurf discovers the repo-root
+  [`AGENTS.md`](./AGENTS.md) as project guidance and the model-decision rule at
+  [`.windsurf/rules/zscaler.md`](./.windsurf/rules/zscaler.md) as the
+  Zscaler-topic loader. These are intentionally thin adapters that point back
+  to the canonical playbooks under `agents/`.
 - **`@zscaler`** — ad-hoc grounded Q&A. Type `@zsca<tab>` (autocompletes to `@zscaler`) followed by your question. The canonical playbook is at [`agents/zscaler/prompt.md`](./agents/zscaler/prompt.md); the repo-root [`zscaler`](./zscaler) is a thin runtime loader (extensionless so the bare invocation autocompletes). Use this for definitions, "is X allowed in our tenant", "what does the destination see", "how does this work" — anything that isn't an investigation or structured review.
 - **Procedural roles** — slash commands when the task has discipline:
   - `/z-investigator` — evidence-based troubleshooting; produces a discovery journal
