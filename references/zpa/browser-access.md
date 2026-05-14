@@ -3,10 +3,10 @@ product: zpa
 topic: "browser-access"
 title: "Browser Access — clientless ZPA via a web browser"
 content-type: reference
-last-verified: "2026-04-28"
+last-verified: "2026-05-14"
 verified-against:
   vendor/terraform-provider-zpa: a3c845f3366cc2267e1b244f9968e727c92bad3d
-  vendor/zscaler-sdk-python: 89a079411689fb4c6495ff6d95c619679318fbd1
+  vendor/zscaler-sdk-python: 44f2f8f9ec06b1998a904c3e4080a0e034a85078
 confidence: high
 source-tier: mixed
 sources:
@@ -182,6 +182,8 @@ Two SDK services cover Browser Access app segments:
 | `client.zpa.app_segments_ba_v2` | `AppSegmentsBAV2API` | `app_segments_ba_v2.py` | v2 |
 
 Both share the same underlying `/application` endpoint as the base `ApplicationSegmentAPI`, but provide a separate client object and named methods for the Browser Access context. For new integrations, prefer `app_segments_ba_v2`.
+
+As of `zscaler-sdk-python` v1.9.28, both Browser Access SDK services use `transform_common_id_fields(..., coerce_ids=False)` when shaping ID-list fields. This preserves ZPA's opaque string IDs on the wire instead of coercing numeric-looking IDs to integers.
 
 **Methods (both versions):**
 
