@@ -1,0 +1,40 @@
+name: Maintenance digest
+
+on:
+  schedule:
+    # Mondays 13:20 UTC, after Renovate / issue-watch / hygiene begin.
+    - cron: '20 13 * * 1'
+  workflow_dispatch:
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Initialize submodules
+        run: git submodule update --init --recursive
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v8.1.0
+
+      - name: Update sticky maintenance issue
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ./scripts/maintenance-digest.py \
+            --stale-days 60 \
+            --scrape-days 90 \
+            --output _data/logs/maintenance-digest.md \
+            --sticky-label maintenance-digest \
+            --bootstrap-if-missing
+          cat _data/logs/maintenance-digest.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload digest artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: maintenance-digest
+          path: _data/logs/maintenance-digest.md

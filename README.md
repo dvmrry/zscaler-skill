@@ -255,6 +255,10 @@ Every reference file carries YAML front-matter (`product`, `topic`, `content-typ
 
 Triage workflow: comment on the sticky issue to record decisions for individual surfaced items. Past digests live in the issue's edit history (accessible via the GitHub UI). Manual runs via the Actions tab's "Run workflow" button (workflow_dispatch).
 
+`.github/workflows/maintenance-digest.yml` runs `scripts/maintenance-digest.py` weekly after the main hygiene cadence. It updates a sticky issue (label `maintenance-digest`) with stale references, stale help captures, vendor drift counts, eval coverage warnings, script scaffolds, and TODO/stub inventory. This is advisory backlog generation, not a merge gate.
+
+`.github/workflows/vendor-impact.yml` runs on PRs touching `vendor/**` or `.gitmodules`. It posts or updates a PR comment with submodule commit logs and `check-vendor-drift.py` counts, runs `scripts/find-asymmetries.py`, and uploads the vendor impact summary plus asymmetry candidates as artifacts. Use this for Renovate/submodule PR triage before merging.
+
 To run locally instead (for ad-hoc checks or while developing the script), invoke without flags — it falls back to file-based output at `_data/logs/issues-new.md`.
 
 ## Submodule management
