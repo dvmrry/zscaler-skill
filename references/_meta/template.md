@@ -56,7 +56,7 @@ Cross-link both ways. In your doc:
 ```markdown
 ## Open questions
 
-- Does `*.example.com` match `example.com` itself? See [clarification zia-03](.clarifications.md#zia-03).
+- Does `*.example.com` match `example.com` itself? See [clarification zia-03](clarifications.md#zia-03-wildcard-tokenization).
 ```
 
 When `clarifications.md` later gets an answer, the `Status:` line there changes to `resolved` with the answer inline — at which point you can fold the answer back into the relevant section of your reference doc and remove the Open question bullet (but leave the clarification entry for history).

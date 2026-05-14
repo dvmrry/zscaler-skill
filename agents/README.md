@@ -15,13 +15,13 @@ author-status: draft
 
 # Agent workflows
 
-This directory holds the agent infrastructure for the skill — playbooks, methodologies, and query bundles that drive role-specific agent workflows. The directory is product-agnostic: content here defines *how* an agent operates, not *what* it knows about Zscaler products. Product knowledge lives in `references/`.
+This directory holds the agent infrastructure for the skill — playbooks, methodologies, grounding cards, and diagnostics templates that drive role-specific agent workflows. The directory is product-agnostic: content here defines *how* an agent operates, not *what* it knows about Zscaler products. Product knowledge lives in `references/`.
 
 ## Why this is separate from `references/`
 
 | Directory | Holds | Audience |
 |---|---|---|
-| `agents/` | Agent infrastructure: how to operate (playbooks, methodologies, bundles) | AI agents executing role-specific workflows |
+| `agents/` | Agent infrastructure: how to operate (playbooks, methodologies, grounding cards, diagnostics templates) | AI agents executing role-specific workflows |
 | `references/` | Product knowledge: what to know (Zscaler product docs, schemas, log refs) | Both agents (as evidence) and human readers |
 | `_data/` | Evidence and state: what exists right now (snapshots, incidents, evals) | Agents and operators investigating current state |
 | `_meta/` | Repo-level meta-documentation (clarifications, portfolio map, audits) | Maintainers and auditing agents |
@@ -32,12 +32,12 @@ The split keeps `references/` focused as a knowledge base, lets agent personas r
 
 | Role | Slash command | Artifacts | Description |
 |---|---|---|---|
-| **Investigator** | `/z-investigator` | [`prompt`](./investigator/prompt.md) · [`methodology`](./investigator/methodology.md) · [`bundles`](./investigator/bundles.md) | Evidence-based troubleshooting — discovery journal, claim status, anti-fabrication |
-| **Architect** | `/z-architect` | [`prompt`](./architect/prompt.md) · [`methodology`](./architect/methodology.md) · [`bundles`](./architect/bundles.md) | Capacity, scaling, and structural-risk review with recommendation register |
+| **Investigator** | `/z-investigator` | [`prompt`](./investigator/prompt.md) · [`methodology`](./investigator/methodology.md) · [`grounding`](./investigator/grounding/) · [`diagnostics template`](./investigator/diagnostics/template.md) | Evidence-based troubleshooting — discovery journal, claim status, anti-fabrication |
+| **Architect** | `/z-architect` | [`prompt`](./architect/prompt.md) · [`methodology`](./architect/methodology.md) · [`diagnostics template`](./architect/diagnostics/template.md) | Capacity, scaling, and structural-risk review with recommendation register |
 | **Auditor** | `/z-auditor` | [`prompt`](./auditor/prompt.md) · [`methodology`](./auditor/methodology.md) | Editorial / structural / hygiene lint of references and tenant configuration |
 | **SOC** | `/z-soc` | [`prompt`](./soc/prompt.md) | Security posture review — RBAC least-privilege, telemetry coverage, threat-model-anchored findings |
 
-Each role's `prompt.md` is the playbook the slash command activates. `methodology.md` is the discipline the playbook references. `bundles.md` (where present) holds verified query sequences for repeated investigation/recommendation patterns.
+Each role's `prompt.md` is the playbook the slash command activates. `methodology.md` is the discipline the playbook references. `grounding/` holds lightweight symptom-to-context profiles. `diagnostics/template.md` is an authoring template for verified ordered diagnostics; it is not a runtime dependency for ordinary first responses.
 
 ## Cross-cutting agent infrastructure
 
@@ -53,7 +53,7 @@ Files in `agents/` use a slightly different frontmatter shape than `references/`
 ```yaml
 ---
 role: investigator                    # role this artifact belongs to (omit for cross-cutting)
-artifact: prompt                       # prompt | methodology | bundles
+artifact: prompt                       # prompt | methodology | grounding | diagnostics-template
 title: "..."
 content-type: prompt                   # prompt | reference
 last-verified: "YYYY-MM-DD"
@@ -79,6 +79,7 @@ author-status: draft
 
 1. Create `agents/{role}/` directory with at minimum `prompt.md` (the playbook).
 2. Add `methodology.md` if the role has a distinct evidence/finding discipline; otherwise reference an existing role's methodology.
-3. Add `bundles.md` if the role accumulates reusable query sequences (template lives in `agents/investigator/bundles.md` and `agents/architect/bundles.md`).
-4. Update this README's "Available workflows" table.
-5. Wire a slash command (`.claude/commands/<role>.md` for Claude Code, `.windsurf/workflows/<role>.md` for Windsurf) that invokes the new prompt.
+3. Add `grounding/` only when the role needs symptom-to-context profiles that normal topic loading misses.
+4. Add `diagnostics/template.md` only when the role needs an authoring template for verified ordered diagnostics.
+5. Update this README's "Available workflows" table.
+6. Wire a slash command (`.claude/commands/<role>.md` for Claude Code, `.windsurf/workflows/<role>.md` for Windsurf) that invokes the new prompt.

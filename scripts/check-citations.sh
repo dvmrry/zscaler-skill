@@ -167,7 +167,7 @@ while IFS= read -r file; do
     # as examples — it's a meta-doc about the check, not a content claim).
     case "${rel_file}" in
         */index.md|*/README.md|references/_meta/primer/*) continue ;;
-        agents/*/prompt.md|agents/*/methodology.md|agents/*/bundles.md) continue ;;
+        agents/*/prompt.md|agents/*/methodology.md|agents/*/diagnostics/template.md|agents/*/grounding/template.md) continue ;;
         agents/_meta/*) continue ;;
     esac
 

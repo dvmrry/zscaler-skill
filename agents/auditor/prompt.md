@@ -20,7 +20,7 @@ author-status: draft
 
 # Audit — editorial / structural lint playbook
 
-This is the playbook invoked by the `/z-auditor` slash command (Claude Code and Windsurf). The shape is **lint** — editorial / structural / hygiene review of references and tenant configuration. Posture-shaped review (RBAC least-privilege, telemetry coverage, threat-model-anchored findings) lives in the sibling `/z-soc` command — see [`./soc-prompt.md`](../soc/prompt.md).
+This is the playbook invoked by the `/z-auditor` slash command (Claude Code and Windsurf). The shape is **lint** — editorial / structural / hygiene review of references and tenant configuration. Posture-shaped review (RBAC least-privilege, telemetry coverage, threat-model-anchored findings) lives in the sibling `/z-soc` command — see [`soc/prompt.md`](../soc/prompt.md).
 
 ## Mode
 
@@ -155,7 +155,7 @@ Sample bidirectional links. If A cross-links B for a concept, B should cross-lin
 **When reciprocity is required** (flag if missing):
 - Two siblings in the same conceptual layer (e.g., `splunk-queries.md` ↔ `siem-log-mapping.md`) — both should reference each other
 - A schema and its primary query catalog (e.g., `web-log-schema.md` ↔ `splunk-queries.md`)
-- A playbook and the methodology it follows (e.g., `investigate-prompt.md` ↔ `troubleshooting-methodology.md`)
+- A playbook and the methodology it follows (e.g., `investigator/prompt.md` ↔ `investigator/methodology.md`)
 - A canonical reference and its catalog entry (e.g., `casb-log-schema.md` ↔ `siem-log-mapping.md`)
 
 **When reciprocity is NOT required** (don't flag):
@@ -278,7 +278,7 @@ Sketches for later expansion (not active in this command). Audit subtypes stay l
 
 The `config` subtype split: posture-shaped checks (inspection bypasses, default-action review, DLP coverage gaps) went to `/z-soc`; lint-shaped checks (disabled-without-rationale, orphan objects, dead refs) stay here under `tenant-config`.
 
-When the lint subtypes are added, this prompt becomes the **skill-meta lint** branch of a parameterized command. The methodology in `audit-methodology.md` and the register format are reused across audit and SOC; the per-subtype playbook diverges only in checks and evidence sources.
+When the lint subtypes are added, this prompt becomes the **skill-meta lint** branch of a parameterized command. The methodology in `auditor/methodology.md` and the register format are reused across audit and SOC; the per-subtype playbook diverges only in checks and evidence sources.
 
 ## Cross-links
 

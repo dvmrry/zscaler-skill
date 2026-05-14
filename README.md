@@ -175,7 +175,7 @@ Each script's header comment carries a **Status** line — `functional`, `scaffo
 | `scripts/connector-health.py [--group <name>]` | scaffold | Is connector group X healthy? | Checks provisioning-key exhaustion (#1 enrollment failure), runtime status, version lag, cert expiry. |
 | `scripts/zpa-app-check.py --fqdn <fqdn>` | scaffold | Is this app properly onboarded in ZPA end-to-end? | Validates segment → server group → connector group → access policy chain. Flags port-mismatch-as-dropped. |
 | `scripts/find-asymmetries.py` | functional | What candidate API mismatches sit in the schemas (read/write asymmetries, cross-provider validator drift, intra-resource enum collisions, server-assigned fields)? | Passes 1 + 2 implemented. Pass 1: TF validator extraction across `terraform-provider-{zia,zpa,ztc}` (inline + map + slice patterns) plus within-validator near-duplicate detection. Pass 2: Postman request body vs response example field-path diff. Outputs candidates to `_data/logs/asymmetry-candidates.md` for human triage. Passes 3–5 (fuzzy field-name match, TF git history, Python SDK enum extraction) documented inline as future work. |
-| `scripts/check-hygiene.py` | functional | Are docs internally consistent — frontmatter valid, anchors resolve, evals cite real files, resolved clarifications propagated? | Bundled hygiene checker. Four passes: (1) frontmatter validation (required fields, allowed enum values, ISO date format, sources required at high confidence except for aggregator/`_*` meta-docs); (2) anchor resolution (`[text](path#anchor)` and same-file `[text](#anchor)` both verified against target headings via GFM-anchor algorithm); (3) resolved-clarification propagation (warns when an Open questions section still lists a clarification that's now marked resolved in `_meta/clarifications.md`); (4) eval `must_cite_files` paths. Errors fail CI; warnings advisory. Run on every PR + weekly via `.github/workflows/check-hygiene.yml`. `--digest` flag writes a markdown digest for sticky-issue integration. |
+| `scripts/check-hygiene.py` | functional | Are docs internally consistent — frontmatter valid, anchors resolve, evals cite real files, resolved clarifications propagated? | Bundled hygiene checker. Four passes: (1) frontmatter validation (required fields, allowed enum values, ISO date format, sources required at high confidence except for aggregator/`_*` meta-docs); (2) anchor resolution (path-plus-anchor links and same-file anchor links both verified against target headings via GFM-anchor algorithm); (3) resolved-clarification propagation (warns when an Open questions section still lists a clarification that's now marked resolved in `_meta/clarifications.md`); (4) eval `must_cite_files` paths. Errors fail CI; warnings advisory. Run on every PR + weekly via `.github/workflows/check-hygiene.yml`. `--digest` flag writes a markdown digest for sticky-issue integration. |
 | `scripts/agent_patterns.py` | functional (module, not a CLI) | Importable Python module with typed functions for the 5 diagnostic patterns: `detect_cloud()`, `is_gov_cloud()`, `detect_auth_framework()`, `smoke_test_creds()`, `enumerate_endpoints()`, `interpret_error()`, plus composite `diagnose_tenant()`. AI-agent-shaped: typed, dependency-free, copy-pasteable. Documented in `references/_meta/agent-patterns.md`. |
 | `scripts/diagnose-tenant.py` | functional | Reads env + optional admin URL, runs all five diagnostics, emits text or JSON. `--smoke` runs a credential smoke test against a chosen product; `--enumerate` lists available SDK endpoints. Worked-example consumer of `agent_patterns.py`. |
 | `scripts/policy_simulator.py` | functional (module, not a CLI) | Importable Python module: pure-function ZIA URL filter evaluator. `simulate_url_filter(request, rules, categories)` returns a `SimulationResult` with the matched rule, action, resolved category, and full per-rule evaluation trace. `diff_simulations(before, after)` is a single-URL before/after primitive (not a PR-level harness — see `_meta/policy-simulation.md` for why that's deferred). Models rule order, disabled-rule-holds-slot, leading-period wildcard category resolution, and basic criteria filtering. Documented gaps (CAC, DLP, two-pass SSL, full specificity-wins) in `references/_meta/policy-simulation.md`. |
@@ -209,7 +209,7 @@ Lines prefixed `!` indicate a per-resource fetch failure (the run continues). Li
 SKILL.md                   routing hub Claude reads on every invocation
 PLAN.md                    crash-recovery / hand-off artifact (roadmap, pending lab tests, gaps)
 references/                lazy-loaded reference docs
-    _meta/portfolio-map.md      single-page index of every Zscaler product (Tier 1 deep-dive / Tier 2 awareness / Tier 3 out-of-scope)
+    _meta/portfolio-map.md      single-page index of every Zscaler product (Tier 1 core / Tier 2 programmable-shallow / Tier 3 reasoning / Tier 4 awareness / Tier 5 out-of-scope)
     _meta/primer/               prerequisite concepts (networking, zero trust, identity, Zscaler platform shape)
     _meta/layering-model.md     three-layer framing: general docs / tenant config / SME tribal knowledge
     _meta/clarifications.md     canonical index of open / partial / resolved ambiguities
@@ -222,10 +222,20 @@ references/                lazy-loaded reference docs
     zidentity/             ZIdentity (unified auth / step-up) topics
     cloud-connector/       Cloud & Branch Connector (ZTW / ZTC / CBC) topics
     zwa/                   ZWA (Workflow Automation — DLP incidents) topics
-    deception/             [Tier 2a] Zscaler Deception — decoys, honeypots, post-perimeter detection (no SDK)
-    risk360/               [Tier 2a] Risk360 — cyber risk quantification, Monte Carlo, CISO board reporting (no SDK)
-    ai-security/           [Tier 2a] AI Security family — AI Guard / AI Guardrails / AI Red Teaming (no SDK)
-    zms/                   [Tier 2a] ZMS — Microsegmentation, workload east-west via WFP/nftables (no SDK)
+    deception/             [Tier 3] Zscaler Deception — decoys, honeypots, post-perimeter detection (no SDK)
+    risk360/               [Tier 3] Risk360 — cyber risk quantification, Monte Carlo, CISO board reporting (no SDK)
+    ai-security/           [Tier 3] AI Security family — AI Guard / AI Guardrails / AI Red Teaming (no SDK)
+    zms/                   [Tier 3] ZMS — Microsegmentation, workload east-west via WFP/nftables (no SDK)
+    identity-protection/   [Tier 3] ITDR / identity threat detection and response topics
+    dspm/                  [Tier 3] Data Security Posture Management topics
+    aem/                   [Tier 3] Advanced Email Monitoring topics
+    uvm/                   [Tier 3] Unified Vulnerability Management topics
+    zscaler-cellular/      [Tier 3] Cellular connectivity topics
+    soc-workbench/         [Tier 3] SOC Workbench topics
+    breach-predictor/      [Tier 3] Breach Predictor topics
+    business-insights/     [Tier 3] Business Insights topics
+    zero-trust-branch/     [Tier 3] Zero Trust Branch topics
+    unified/               [Tier 3] Experience Center / unified platform topics
     shared/                cross-product topics (policy evaluation, terminology, activation, SIPA, SCIM, cloud architecture, OneAPI)
 vendor/                    upstream sources as git submodules (SDKs, TF providers, MCP server)
     zscaler-help/          Zscaler help-site PDFs + Playwright-captured markdown (pinned bibliography)
@@ -277,9 +287,10 @@ Expect to do this periodically — upstream SDK / TF provider releases add new r
 - **Several clarifications remain open** because they require tenant-specific lab tests — see `PLAN.md § Pending lab tests` (6 items including ZCC int-enum semantic mappings).
 - **Snapshot schema docs deferred** — will be written against real tenant output post-fork, not inferred pre-fork. See `PLAN.md § 4. Snapshot schema docs`.
 - **Z-Tunnel wire-format internals are not customer-documented.** `references/zcc/z-tunnel.md` covers the operational layer (CONNECT-vs-DTLS, single-IP-NAT requirement, GRE incompatibility, 4-layer bypass architecture). Protocol-level questions (framing, cipher, fallback triggers) remain Zscaler Support territory.
-- **Tier 2a — extended awareness** (reasoning docs exist but no SDK / portal-only): Deception, Risk360, AI Security family, ZMS. Skill answers conceptual / architectural questions at confidence: medium and explicitly notes "no SDK / portal-only" for any API-shaped question. The "0 API exposure → Tier 2" rule was set 2026-04-25 — these products had reasoning docs written in earlier passes but lack SDK / TF surface, so they don't qualify for Tier 1 operational depth.
-- **Tier 2b — awareness only** (one-paragraph treatment in [`references/_meta/portfolio-map.md`](./references/_meta/portfolio-map.md), no deep-dive): ZINS (shadow-IT NSS Collector), EASM, Federal Cloud variants (`zscalergov`, `zscalerten`, ZPA GOV/GOVUS), plus ITDR, Resilience, DSPM, Posture Control, and others. The skill can route these, answer breadth questions, and redirect to Zscaler's help site, but won't claim operational depth.
-- **Truly out-of-scope products:** currently none — Tier 3 is reserved for deprecated / internal / unshipped products.
+- **Tier 2 — programmable but shallow coverage:** ZBI and ZWA have documented product behavior and programmable surface, but thinner operational depth than the Tier 1 policy and traffic-control planes.
+- **Tier 3 — reasoning coverage, no verified API surface:** Deception, Risk360, AI Security family, ZMS, ZSDK, ITDR / Identity Protection, DSPM, AEM, UVM, Zscaler Cellular, SOC Workbench, Breach Predictor, Business Insights, Zero Trust Branch, and Experience Center / unified topics. The skill can answer conceptual and architectural questions, but must explicitly avoid inventing SDK, Terraform, or API behavior.
+- **Tier 4 — paragraph-level awareness only:** Resilience, Business Continuity Cloud, CTEM, Cloud Protection / ZTC, Posture Control, Microsoft Copilot Data Protection, Red Canary MDR, Managed Threat Hunting, ZTE for B2B, Shadow IT / SaaS Security Report / ZINS, EASM, and Federal Cloud variants (`zscalergov`, `zscalerten`, ZPA GOV / GOVUS). The skill can route these, answer breadth questions, and redirect to Zscaler's help site, but won't claim operational depth.
+- **Tier 5 — out-of-scope products:** currently empty. Reserved for deprecated, internal, or unshipped products that should not receive skill behavior beyond a refusal / redirect.
 
 ## License
 

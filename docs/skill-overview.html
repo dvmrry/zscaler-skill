@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>The Zscaler skill kit — internal overview</title>
+<title>The Zscaler skill — internal overview</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,13 +19,13 @@
 
   "One sentence to anchor everything: this serves both engineers and agents. Engineers read references/ as a curated knowledge base — the same way you'd hit a wiki to learn URL filtering or ZPA segments. Agents read the same files via tool calls when working a ticket. Same content. The discipline that makes the content reliable for human readers also makes it reliable for agent reasoning. We're not building 'AI tells you stuff.' We're building one source of truth that both populations consume.",
 
-  "Four pillars hold the kit together — and each serves both audiences. KNOWLEDGE: ~220 curated reference files plus pinned upstream vendor sources. Engineers browse them. Agents cite from them. DISCIPLINE: methodology docs that define how to investigate / audit / propose / review-posture. Engineers read for guidance. Agents follow as procedure. WORKFLOWS: four slash commands (/z-investigate, /z-audit, /z-architect, /z-soc) — primarily agent surfaces, but the playbook content is reference-grade for any engineer wanting to understand the methodology. TOOLING: CI hygiene ensures the kit is reliable for human readers AND agent reasoning. Same pipeline guards both consumers.",
+  "Four pillars hold the skill together — and each serves both audiences. KNOWLEDGE: ~220 curated reference files plus pinned upstream vendor sources. Engineers browse them. Agents cite from them. DISCIPLINE: methodology docs that define how to investigate / audit / propose / review-posture. Engineers read for guidance. Agents follow as procedure. WORKFLOWS: four slash commands (/z-investigator, /z-auditor, /z-architect, /z-soc) — primarily agent surfaces, but the playbook content is reference-grade for any engineer wanting to understand the methodology. TOOLING: CI hygiene ensures the skill is reliable for human readers AND agent reasoning. Same pipeline guards both consumers.",
 
-  "The principle that ties it all together: every soft rule has a hard pairing. We don't write a Python script for every guideline — that would be brittle. We pair each soft guideline with a check that verifies it. Status enum is soft; enum validation is hard. Citation-required is soft; the hygiene script that flags missing sources is hard. Verified-bundle-only is soft; the verification-field gating is hard. This is what makes the content trustworthy for engineers reading it directly AND reliable for agents citing it.",
+  "The principle that ties it all together: every soft rule has a hard pairing. We don't write a Python script for every guideline — that would be brittle. We pair each soft guideline with a check that verifies it. Status enum is soft; enum validation is hard. Citation-required is soft; the hygiene script that flags missing sources is hard. Verified-diagnostic-only is soft; the verification-field gating is hard. This is what makes the content trustworthy for engineers reading it directly AND reliable for agents citing it.",
 
-  "Live demo. Three quick walkthroughs against real zs3 data. First: /z-investigate against a recent ticket — watch it produce a discovery journal, prioritize hypotheses, name evidence sources, and crucially — every claim points at a reference file an engineer could open and read. Second: hygiene pipeline — intentionally break a citation, watch CI catch it, fix it. Third: eval suite — list a behavioral spec, validate a sample response. Each shows a different facet: structured procedure / CI rigor / behavior testing.",
+  "Live demo. Three quick walkthroughs against real zs3 data. First: /z-investigator against a recent ticket — watch it produce a discovery journal, prioritize hypotheses, name evidence sources, and crucially — every claim points at a reference file an engineer could open and read. Second: hygiene pipeline — intentionally break a citation, watch CI catch it, fix it. Third: eval suite — list a behavioral spec, validate a sample response. Each shows a different facet: structured procedure / CI rigor / behavior testing.",
 
-  "Where this is headed. First verified bundle from production — when a real investigation lands, capture it as the canonical example. Schema-validated structured output to make registers machine-checkable for agents AND human-readable for engineers reviewing them. Index-driven workflow loading — workflow files today carry hardcoded trigger-phrase glossaries that duplicate what kit indexes already maintain; Phase 1 work is to swap that for index-driven loading so the agent reasons from the canonical content map. Less context cost, less drift. Big picture: the kit gets stronger every cycle for both audiences. The MD-level question worth asking: what's the next workflow worth scaffolding this way — and which knowledge gap should the references/ side close first?"
+  "Where this is headed. First verified diagnostic from production — when a real investigation lands, capture it as the canonical example. Schema-validated structured output to make registers machine-checkable for agents AND human-readable for engineers reviewing them. Index-driven workflow loading — workflow files today carry hardcoded trigger-phrase glossaries that duplicate what skill indexes already maintain; Phase 1 work is to swap that for index-driven loading so the agent reasons from the canonical content map. Less context cost, less drift. Big picture: the skill gets stronger every cycle for both audiences. The MD-level question worth asking: what's the next workflow worth scaffolding this way — and which knowledge gap should the references/ side close first?"
 ]
 </script>
 
@@ -196,7 +196,7 @@
 <section data-screen-label="01 Title" data-deck-slide="0">
   <div class="slide-header">
     <span class="eyebrow">Internal preview · Q2 2026</span>
-    <span class="eyebrow">The Zscaler skill kit</span>
+    <span class="eyebrow">The Zscaler skill</span>
   </div>
 
   <div class="hero">
@@ -239,7 +239,7 @@
   </div>
 </section>
 
-<!-- 03 — What's in the kit -->
+<!-- 03 — What's in the skill -->
 <section data-screen-label="03 Four pillars" data-deck-slide="2">
   <div class="slide-header">
     <span class="eyebrow">02 — What's in it</span>
@@ -263,11 +263,11 @@
       </div>
       <div class="layer">
         <div class="role"><span>Structured procedures</span><span class="nm">Workflows</span></div>
-        <div class="desc">Four slash commands — <span style="font-family: var(--font-mono);">/z-investigate</span>, <span style="font-family: var(--font-mono);">/z-audit</span>, <span style="font-family: var(--font-mono);">/z-architect</span>, <span style="font-family: var(--font-mono);">/z-soc</span> — emit registers (journal / findings / recommendations / posture). Primarily an <em style="font-style: normal; color: var(--accent-ink);">agent</em> surface, but the playbook content is reference-grade for any <em style="font-style: normal; color: var(--accent-ink);">engineer</em> wanting to understand the methodology.</div>
+        <div class="desc">Four slash commands — <span style="font-family: var(--font-mono);">/z-investigator</span>, <span style="font-family: var(--font-mono);">/z-auditor</span>, <span style="font-family: var(--font-mono);">/z-architect</span>, <span style="font-family: var(--font-mono);">/z-soc</span> — emit registers (journal / findings / recommendations / posture). Primarily an <em style="font-style: normal; color: var(--accent-ink);">agent</em> surface, but the playbook content is reference-grade for any <em style="font-style: normal; color: var(--accent-ink);">engineer</em> wanting to understand the methodology.</div>
       </div>
       <div class="layer">
         <div class="role"><span>Operator-grade quality</span><span class="nm">Tooling</span></div>
-        <div class="desc">Five hygiene checks in CI. Eval suite of 19 behavioral specs. Vendor-drift detection. Scrape freshness. The pipeline ensures the kit is reliable for <em style="font-style: normal; color: var(--accent-ink);">both</em> human readers and agent reasoning — same checks, same standards.</div>
+        <div class="desc">Five hygiene checks in CI. Eval suite of 19 behavioral specs. Vendor-drift detection. Scrape freshness. The pipeline ensures the skill is reliable for <em style="font-style: normal; color: var(--accent-ink);">both</em> human readers and agent reasoning — same checks, same standards.</div>
       </div>
     </div>
   </div>
@@ -306,15 +306,15 @@
 
       <div>Confidence calibration (high needs sources)</div>
       <div class="accent-cell">High-confidence-empty-sources warning</div>
-      <div class="row-lbl">check-hygiene.py · audit-prompt.md</div>
+      <div class="row-lbl">check-hygiene.py · auditor/prompt.md</div>
 
       <div>Vendor sources stay pinned</div>
       <div class="accent-cell">Submodule SHA drift detection</div>
       <div class="row-lbl">check-vendor-drift.py · verified-against</div>
 
-      <div>Bundles must be verified before shipping</div>
+      <div>Diagnostics must be verified before shipping</div>
       <div class="accent-cell">Required verification field gates publication</div>
-      <div class="row-lbl">investigation-bundles.md · architect-bundles.md</div>
+      <div class="row-lbl">diagnostics/template.md</div>
 
       <div>Tenant data stays private</div>
       <div class="accent-cell">Placeholder plumbing in all public catalogs</div>
@@ -338,13 +338,13 @@
   <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
     <h2 style="margin: 0 0 16px 0;">Three demos against real zs3 data.</h2>
     <p style="max-width: 1100px; margin-bottom: 40px; color: var(--ink-2);">
-      Each demonstrates a different facet of the kit. ZIA + ZPA API config from production; placeholder plumbing for everything that touches identifiable data on screen.
+      Each demonstrates a different facet of the skill. ZIA + ZPA API config from production; placeholder plumbing for everything that touches identifiable data on screen.
     </p>
 
     <div class="demo-list">
       <div class="demo-row">
         <span class="lbl">DEMO 1</span>
-        <span class="ti"><span style="font-family: var(--font-mono); color: var(--accent-ink);">/z-investigate</span> against a recent ticket — discovery journal, prioritized hypotheses, named evidence sources, citation-anchored claims.</span>
+        <span class="ti"><span style="font-family: var(--font-mono); color: var(--accent-ink);">/z-investigator</span> against a recent ticket — discovery journal, prioritized hypotheses, named evidence sources, citation-anchored claims.</span>
         <span class="sub">Structured procedure</span>
       </div>
       <div class="demo-row">
@@ -376,13 +376,13 @@
   <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
     <h2 style="margin: 0 0 16px 0;">Roadmap &amp; what's next.</h2>
     <p style="max-width: 1100px; margin-bottom: 32px; color: var(--ink-2);">
-      Tracked in <span style="font-family: var(--font-mono); color: var(--ink);">IMPROVEMENTS.md</span>. The kit gets stronger every cycle — the discipline compounds.
+      Tracked in <span style="font-family: var(--font-mono); color: var(--ink);">IMPROVEMENTS.md</span>. The skill gets stronger every cycle — the discipline compounds.
     </p>
 
     <div class="layers">
       <div class="layer">
-        <div class="role"><span>Validates the template</span><span class="nm">First production-verified bundle</span></div>
-        <div class="desc">When a real investigation or scaling review lands, capture it as the canonical bundle. Use it to confirm the template format works against real evidence — not to manufacture speculative content.</div>
+        <div class="role"><span>Validates the template</span><span class="nm">First production-verified diagnostic</span></div>
+        <div class="desc">When a real investigation or scaling review lands, capture it as the canonical diagnostic. Use it to confirm the template format works against real evidence — not to manufacture speculative content.</div>
       </div>
       <div class="layer">
         <div class="role"><span>Cross-agent determinism</span><span class="nm">Schema-validated structured output</span></div>
@@ -390,7 +390,7 @@
       </div>
       <div class="layer">
         <div class="role"><span>Reduce workflow drift</span><span class="nm">Index-driven workflow loading</span></div>
-        <div class="desc">Workflows today carry hardcoded glossaries of trigger phrases that duplicate what kit indexes already maintain. Phase 1 work: replace inline mapping tables with index-driven loading so agents reason from the canonical content map. Less context bloat. Fewer drift surfaces. Indexes stay the single source of truth.</div>
+        <div class="desc">Workflows today carry hardcoded glossaries of trigger phrases that duplicate what skill indexes already maintain. Phase 1 work: replace inline mapping tables with index-driven loading so agents reason from the canonical content map. Less context bloat. Fewer drift surfaces. Indexes stay the single source of truth.</div>
       </div>
       <div class="layer">
         <div class="role"><span>Two questions worth asking</span><span class="nm">What's next for each audience?</span></div>
@@ -400,7 +400,7 @@
   </div>
 
   <div class="slide-footer">
-    <span class="l">The kit gets stronger every cycle · for both audiences</span>
+    <span class="l">The skill gets stronger every cycle · for both audiences</span>
     <span class="r">06 / 06</span>
   </div>
 </section>

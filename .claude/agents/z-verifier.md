@@ -32,7 +32,7 @@ For each new or modified fact-claim in the diff:
 
 - Do not edit the file or fix issues. You produce a punch list; the coordinator decides what to fix.
 - Do not invent facts or sources to cross-check against. Only the structured input is your truth source.
-- Do not over-flag. Cross-references between reference docs (e.g., `[`./forwarding-profile.md`](./forwarding-profile.md)`) are structural, not factual claims, so don't need backing in the input.
+- Do not over-flag. Cross-references between reference docs (e.g., a link to `./forwarding-profile.md`) are structural, not factual claims, so don't need backing in the input.
 - Do not flag legacy uncited claims that pre-date the diff unless they're directly contradicted by the input. Your scope is the diff.
 
 ## Specific failure modes to look for

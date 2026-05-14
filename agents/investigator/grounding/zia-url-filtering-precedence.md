@@ -1,7 +1,7 @@
 ---
 role: investigator
-artifact: route
-title: "ZIA URL filtering precedence — investigation route card"
+artifact: grounding
+title: "ZIA URL filtering precedence — investigation grounding card"
 content-type: reference
 last-verified: "2026-05-07"
 confidence: medium

@@ -1,7 +1,7 @@
 ---
 role: investigator
-artifact: route
-title: "ZPA segment matching — investigation route card"
+artifact: grounding
+title: "ZPA segment matching — investigation grounding card"
 content-type: reference
 last-verified: "2026-05-07"
 confidence: medium

@@ -53,7 +53,7 @@
     'workflow-automation': 'Workflow Automation',
   };
   const GROUP_ORDER = [
-    '_meta',  // Welcome / kit-meta docs (primer, agent-patterns, layering-model, etc.)
+    '_meta',  // Welcome / skill-meta docs (primer, agent-patterns, layering-model, etc.)
     // Tier 1 — core products
     'zia', 'zpa', 'cloud-connector',
     'zcc', 'zdx', 'zidentity',

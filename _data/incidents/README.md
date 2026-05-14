@@ -21,7 +21,7 @@ Each incident gets its own directory: `<YYYY-MM-DD>-<short-slug>/`. The slug is 
 
 ### `journal.md`
 
-Generated from `/z-investigator <framing>` and the subsequent triage. Follows the discovery-journal format from [`../../references/shared/troubleshooting-methodology.md`](../../references/shared/troubleshooting-methodology.md): claims with sources, status, timestamps. Confidence-tiered status enums (`Open (likely)` / `Confirmed (medium)` / `Ruled out` / `Stale` / `Resolved`).
+Generated from `/z-investigator <framing>` and the subsequent triage. Follows the discovery-journal format from [`../../agents/investigator/methodology.md`](../../agents/investigator/methodology.md): claims with sources, status, timestamps. Confidence-tiered status enums (`Open (likely)` / `Confirmed (medium)` / `Ruled out` / `Stale` / `Resolved`).
 
 Capture the journal **as it was during the investigation**, not a cleaned-up retrospective. The reasoning trail matters more than the final answer; readers want to see how hypotheses were prioritized and ruled out.
 
@@ -136,7 +136,7 @@ Privacy is unchanged across both flows: `_data/incidents/*` is gitignored by def
 
 ## Cross-links
 
-- [`../../references/shared/troubleshooting-methodology.md`](../../references/shared/troubleshooting-methodology.md) — discovery journal format
-- [`../../references/shared/audit-methodology.md`](../../references/shared/audit-methodology.md) — register format if a post-incident audit is warranted
+- [`../../agents/investigator/methodology.md`](../../agents/investigator/methodology.md) — discovery journal format
+- [`../../agents/auditor/methodology.md`](../../agents/auditor/methodology.md) — register format if a post-incident audit is warranted
 - [`../../IMPROVEMENTS.md`](../../IMPROVEMENTS.md) — skill-level backlog where follow-ups land
 - [`../README.md`](../README.md) — `_data/` directory convention overview

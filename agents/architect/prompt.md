@@ -13,7 +13,6 @@ sources:
   - "references/zpa/logs/app-connector-metrics.md"
 dependencies:
   - "methodology.md"
-  - "bundles.md"
   - "../siem-emission-discipline.md"
 author-status: draft
 ---
@@ -221,14 +220,16 @@ Sketches for later expansion (not active in this command):
 
 When added, this becomes the **capacity** branch. Methodology stays; per-subtype playbook diverges in checks and evidence sources.
 
-## Query bundles
+## Diagnostics
 
-When the same scaling concern comes up repeatedly, capture the verified query sequence as a **bundle** — a named, ordered list of queries with decision logic mapping results to recommendation entries (risk + confidence). See [`architect/bundles.md`](./bundles.md) for the template and the public/private boundary (verified bundles can ship; speculative ones stay private). Consult locally-available bundles before generating recommendations from scratch.
+A diagnostic is a verified, ordered evidence sequence for a repeated scaling concern: command or query, value to inspect, decision branch, recommendation entry, risk, and confidence. The public skill currently ships only the authoring template at [`diagnostics/template.md`](./diagnostics/template.md); it does not include ready-to-run diagnostics.
+
+Do not load the diagnostics template during ordinary first response. Load it when converting a verified scaling review pattern into a reusable diagnostic, usually after a real review, lab reproduction, or vendor-prescribed sequence proves the steps.
 
 ## Cross-links
 
 - [`architect/methodology.md`](./methodology.md) — register format, risk scale, confidence levels, status lifecycle
-- [`architect/bundles.md`](./bundles.md) — query bundle template (verified sequences for common scaling concerns)
+- [`architect/diagnostics/template.md`](./diagnostics/template.md) — authoring template for verified diagnostics
 - [`investigator/methodology.md`](../investigator/methodology.md) — investigation discipline (sibling)
 - [`auditor/methodology.md`](../auditor/methodology.md) — audit discipline (sibling)
 - [`investigator/prompt.md`](../investigator/prompt.md) — `/z-investigator` playbook

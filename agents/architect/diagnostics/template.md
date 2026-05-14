@@ -1,7 +1,7 @@
 ---
 role: architect
-artifact: bundles
-title: "Architect query bundles — template + private-fork pattern"
+artifact: diagnostics-template
+title: "Architect diagnostics — template + private-fork pattern"
 content-type: reference
 last-verified: "2026-04-29"
 confidence: high
@@ -11,39 +11,39 @@ sources:
   - "agents/architect/methodology.md"
   - "agents/siem-emission-discipline.md"
 dependencies:
-  - "prompt.md"
-  - "methodology.md"
-  - "../siem-emission-discipline.md"
+  - "../prompt.md"
+  - "../methodology.md"
+  - "../../siem-emission-discipline.md"
 author-status: draft
 ---
 
-# Architect query bundles — template
+# Architect diagnostics — template
 
-A **query bundle** is a named, ordered sequence of queries (Zscaler API calls, SIEM queries, infrastructure metric pulls) that the `/z-architect` agent runs against a specific scaling concern to produce evidence-backed recommendations. Bundles encode the steps an experienced architect would take, with decision logic mapping results to recommendation register entries (risk + confidence).
+A **diagnostic** is a named, ordered sequence of queries (Zscaler API calls, SIEM queries, infrastructure metric pulls) that the `/z-architect` agent runs against a specific scaling concern to produce evidence-backed recommendations. Diagnostics encode the steps an experienced architect would take, with decision logic mapping results to recommendation register entries (risk + confidence).
 
 ## Why this file ships empty
 
-Bundles are only useful when they're **verified**. Wrong queries, wrong thresholds, or wrong decision logic produces architectural recommendations that are confidently wrong — exactly the failure mode the architect methodology is designed to prevent.
+Diagnostics are only useful when they're **verified**. Wrong queries, wrong thresholds, or wrong decision logic produces architectural recommendations that are confidently wrong — exactly the failure mode the architect methodology is designed to prevent.
 
-This file ships the template only. The public skill does not include bundle content authored without verification.
+This file ships the template only. The public skill does not include diagnostic content authored without verification.
 
-## Where bundles live
+## Where diagnostics live
 
-Same boundary as investigation bundles:
+Same boundary as investigation diagnostics:
 
 | Location | Use when |
 |---|---|
-| **Private fork** | Bundles tied to your tenant's specific config patterns, deployment topology, or scaling decisions |
-| **CLAUDE.md** | A short bundle the agent picks up automatically per session |
-| **`_local-bundles/`** (gitignored) | Larger collections kept alongside the skill |
-| **PR back to this repo** | A bundle that generalizes — placeholder plumbing, Zscaler-published surfaces, verification cited |
+| **Private fork** | Diagnostics tied to your tenant's specific config patterns, deployment topology, or scaling decisions |
+| **CLAUDE.md** | A short diagnostic the agent picks up automatically per session |
+| **`_local-diagnostics/`** (gitignored) | Larger collections kept alongside the skill |
+| **PR back to this repo** | A diagnostic that generalizes — placeholder plumbing, Zscaler-published surfaces, verification cited |
 
 ## Template
 
-Copy this block for every new bundle. Every section is required unless marked optional.
+Copy this block for every new diagnostic. Every section is required unless marked optional.
 
 ```markdown
-### `<bundle-name-slug>`
+### `<diagnostic-name-slug>`
 
 **Trigger**: which scaling concern this addresses
 (e.g., "App Connector Group sizing review" / "PSE cluster health" /
@@ -54,13 +54,13 @@ Copy this block for every new bundle. Every section is required unless marked op
 - User-handoff: yes / no — what does the user need to provide or paste?
 - Coworking: typical mix
 
-**Verification**: where and how this bundle was validated
-(e.g., "Real scaling review for tenant X on 2026-Q1 — bundle's decision
+**Verification**: where and how this diagnostic was validated
+(e.g., "Real scaling review for tenant X on 2026-Q1 — diagnostic's decision
 logic accurately predicted the recommendation that landed" OR
 "Lab tenant 'sandbox-a' on 2026-04-10 — reproduced the SPOF condition
 and confirmed each query's decision threshold")
 
-**Evidence layer**: which layer this bundle pulls from
+**Evidence layer**: which layer this diagnostic pulls from
 - Config evidence (Zscaler API / SDK / reference docs)
 - Utilization evidence (LSS / Splunk / Grafana / cloud monitoring)
 - Both (cross-layer correlation)
@@ -96,7 +96,7 @@ and confirmed each query's decision threshold")
 - LSS feed prerequisites (e.g., "requires App Connector Metrics LSS
   configured")
 - Tenant-version dependencies (e.g., "feature only in clouds X, Y")
-- Conditions where the bundle's thresholds are wrong (e.g., low-traffic
+- Conditions where the diagnostic's thresholds are wrong (e.g., low-traffic
   tenants, edge-case workloads)
 
 **Last validated**: <YYYY-MM-DD> by <author / agent>
@@ -106,7 +106,7 @@ and confirmed each query's decision threshold")
 
 ### Trigger
 
-One bundle = one scaling concern. If a bundle covers multiple concerns (sizing AND topology AND observability), split it. Each concern has its own evidence layer and its own decision logic; mixing them in one bundle obscures both.
+One diagnostic = one scaling concern. If a diagnostic covers multiple concerns (sizing AND topology AND observability), split it. Each concern has its own evidence layer and its own decision logic; mixing them in one diagnostic obscures both.
 
 Common architect concerns:
 
@@ -118,9 +118,9 @@ Common architect concerns:
 
 ### Verification (the gating field)
 
-Same standard as investigation bundles. A bundle without verification is speculation. Acceptable evidence:
+Same standard as investigation diagnostics. A diagnostic without verification is speculation. Acceptable evidence:
 
-- Real architectural review where this bundle's recommendations matched what landed
+- Real architectural review where this diagnostic's recommendations matched what landed
 - Lab tenant reproduction confirming thresholds and decision points
 - Direct mapping from a Zscaler vendor sizing doc / best-practices guide
 
@@ -132,9 +132,9 @@ Same standard as investigation bundles. A bundle without verification is specula
 
 ### Evidence layer
 
-Be explicit about which layer the bundle pulls from. This dictates:
+Be explicit about which layer the diagnostic pulls from. This dictates:
 
-- What confidence the bundle's recommendations can ship at (config-only defaults to Medium per `architect-prompt.md`)
+- What confidence the diagnostic's recommendations can ship at (config-only defaults to Medium per `architect-prompt.md`)
 - What modes are applicable (agent-direct requires API + relevant LSS; user-handoff is always available)
 - What caveats matter (LSS receiver prerequisites for utilization evidence)
 
@@ -146,11 +146,11 @@ Every possible result needs a mapped recommendation entry, with explicit risk an
 - High only for unambiguous SPOFs, zero-connector groups, critical observability absence, critical version skew with known interop issues
 - Low for speculative future-load reasoning without a current baseline
 
-A bundle that says "result is X, recommend more capacity" without quantifying risk and confidence is incomplete.
+A diagnostic that says "result is X, recommend more capacity" without quantifying risk and confidence is incomplete.
 
 ### Caveats
 
-If the bundle's recommendations only apply when:
+If the diagnostic's recommendations only apply when:
 
 - A specific LSS feed is configured
 - A particular Zscaler cloud / region / SKU is in use
@@ -162,18 +162,18 @@ Document it explicitly. Silent assumptions cause incorrect recommendations.
 
 - Slugs are lowercase, hyphenated, scoped to one concern
 - Examples: `acg-sizing-review`, `pse-cluster-health`, `lss-receiver-coverage`, `version-drift-scan`
-- Avoid tenant-specific naming; bundles should generalize
+- Avoid tenant-specific naming; diagnostics should generalize
 
 ## Privacy
 
-- Placeholder plumbing in any bundle published outside private fork
-- Tenant identifiers (real region names, real component IDs, real headcount) stay in private bundles
-- Sample utilization data quoted in examples redacted per [`tenant-schema-derivation.md`](../tenant-schema-derivation.md) redaction patterns
+- Placeholder plumbing in any diagnostic published outside private fork
+- Tenant identifiers (real region names, real component IDs, real headcount) stay in private diagnostics
+- Sample utilization data quoted in examples redacted per [`tenant-schema-derivation.md`](../../tenant-schema-derivation.md) redaction patterns
 
 ## Cross-links
 
-- [`architect/prompt.md`](./prompt.md) — `/z-architect` playbook (where bundles get invoked)
-- [`architect/methodology.md`](./methodology.md) — recommendation register, risk scale, confidence calibration, status lifecycle
-- [`siem-emission-discipline.md`](../siem-emission-discipline.md) — execution modes, placeholder plumbing, public/private boundary
-- [`splunk-queries.md`](../../references/shared/splunk-queries.md) — named SPL patterns to reference from inside bundles
-- [`investigator/bundles.md`](../investigator/bundles.md) — parallel template for `/z-investigator` query bundles
+- [`architect/prompt.md`](../prompt.md) — `/z-architect` playbook
+- [`architect/methodology.md`](../methodology.md) — recommendation register, risk scale, confidence calibration, status lifecycle
+- [`siem-emission-discipline.md`](../../siem-emission-discipline.md) — execution modes, placeholder plumbing, public/private boundary
+- [`splunk-queries.md`](../../../references/shared/splunk-queries.md) — named SPL patterns to reference from inside diagnostics
+- [`investigator/diagnostics/template.md`](../../investigator/diagnostics/template.md) — parallel template for `/z-investigator` diagnostics

@@ -85,7 +85,7 @@ Source: file is 317 lines; no Markdown anchor index near the top
 Severity: Low
 Status: Open
 Remediation: Add a "## Contents" anchor index near line 19, mirroring the
-             pattern in troubleshooting-methodology.md
+             pattern in investigator/methodology.md
 Timestamp: 2026-04-29 14:30 UTC
 Notes: file already has an "in-content" section list at line 22; could
        repurpose. Other long-form references (siem-log-mapping.md at
