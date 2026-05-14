@@ -3,9 +3,9 @@ product: zia
 topic: "firewall"
 title: "ZIA Firewall Control — Filtering, NAT, DNS, IPS"
 content-type: reasoning
-last-verified: "2026-04-24"
+last-verified: "2026-05-14"
 verified-against:
-  vendor/terraform-provider-zia: 99c2c86f9614433b3793057c9888696c0737d9c4
+  vendor/terraform-provider-zia: 5c32408c1d33da384845a040b0749c1f4f23ef61
   vendor/zscaler-sdk-python: 89a079411689fb4c6495ff6d95c619679318fbd1
 confidence: high
 source-tier: mixed
@@ -13,6 +13,7 @@ sources:
   - "vendor/zscaler-help/about-ips-control.md"
   - "vendor/zscaler-help/configuring-firewall-policies.md"
   - "vendor/terraform-provider-zia/zia/resource_firewall_filtering_rule.go"
+  - "vendor/terraform-provider-zia/docs/resources/zia_ips_signature_rules.md"
   - "vendor/zscaler-sdk-python/zscaler/zia/firewall.py"
 author-status: draft
 ---
@@ -121,6 +122,7 @@ Rule evaluation is **first-match-wins in ascending Rule Order**, with Admin Rank
 
 - **Signature source**: Zscaler's research team + industry-vendor feeds. Updated continuously by Zscaler; no operator action needed.
 - **Custom signatures**: Snort-like syntax. Uploaded as part of custom threat categories; referenced in IPS Control rules.
+- **Terraform custom signatures**: `zia_ips_signature_rules` manages custom IPS signature definitions separately from `zia_firewall_ips_rule`. The signature resource validates `rule_text` before create/update, assigns the signature to a threat category, and exposes dynamic-validation status fields. IPS policy rules then reference the relevant threat category.
 - **Protocol coverage**: HTTP, HTTPS, FTP, DNS, TCP, UDP, IP-based ports and protocols. IPS sees non-web traffic, unlike URL Filter / CAC / DLP.
 - **Default rule: BLOCK ALL**. The shipped default blocks all traffic that matches any signature — customer rules allow-list specific traffic patterns or user populations.
 - **ATP-first evaluation**: If both ATP (`references/zia/malware-and-atp.md`) and IPS Control are licensed, ATP rules evaluate **before** IPS rules. An ATP block pre-empts IPS.

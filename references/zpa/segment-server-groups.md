@@ -3,7 +3,7 @@ product: zpa
 topic: "segment-server-groups"
 title: "Segment Groups and Server Groups — ZPA's two grouping primitives"
 content-type: reasoning
-last-verified: "2026-04-28"
+last-verified: "2026-05-14"
 confidence: medium
 source-tier: mixed
 sources:
@@ -125,13 +125,13 @@ From `vendor/zscaler-sdk-python/zscaler/zpa/models/server_group.py` and `server_
 | `enabled` | `enabled` | Boolean. Default `true`. |
 | `dynamic_discovery` | `dynamicDiscovery` | Boolean. Default `true`. Controls server discovery mode. |
 | `ip_anchored` | `ipAnchored` | Boolean. Enables IP anchoring for source NAT behavior. |
-| `app_connector_group_ids` | reformatted to `appConnectorGroups: [{id}]` | Required; list of Connector Group IDs. The `add_id_groups` utility handles the reformatting. |
+| `app_connector_group_ids` | reformatted to `appConnectorGroups: [{id}]` | Required; list of Connector Group IDs. The SDK preserves ZPA's opaque string IDs on the wire. |
 | `server_ids` | reformatted to `servers: [{id}]` | Only used when `dynamicDiscovery=False`. |
 | `applications` | `applications` | Read-only list of App Segments referencing this Server Group. |
 
 **Note on `servers[]` field in Python SDK model.** The `server_group.py` model does not include a `servers` field. Explicit-server mode requires constructing the `servers` list manually — `request_format()` won't serialize it because the model doesn't know about it. The TF provider Go schema does model `servers`, so TF-managed deployments work fine. Python SDK callers using explicit-server mode must bypass `request_format()` and assemble the JSON body directly. Operationally: prefer dynamic discovery when using the Python SDK; use TF for explicit-server requirements. (Tier A — `vendor/zscaler-sdk-python/zscaler/zpa/models/server_group.py`.)
 
-**SDK service** (`client.zpa.server_groups`): `list_groups`, `get_group`, `add_group`, `update_group`, `delete_group`. `server_ids` and `app_connector_group_ids` are reformatted to nested `{"id": "..."}` structures by `add_id_groups`.
+**SDK service** (`client.zpa.server_groups`): `list_groups`, `get_group`, `add_group`, `update_group`, `delete_group`. `server_ids` and `app_connector_group_ids` are reformatted to nested `{"id": "..."}` structures by `transform_common_id_fields(..., coerce_ids=False)`, because ZPA IDs are opaque 19-digit strings and should not be coerced into integers.
 
 ## What breaks when these are misconfigured
 
@@ -157,6 +157,10 @@ Source (Tier A): `server_groups.py` `add_group` lists `app_connector_group_ids` 
 ### Dynamic discovery and explicit servers are mutually exclusive
 
 You cannot have both `dynamicDiscovery=True` and a non-empty `servers[]`. The TF provider enforces this at plan time (source: `resource_zpa_server_group.go` lines 208–215). The Python SDK `update_group` method defaults `dynamicDiscovery` to `True` if the key is absent from the body (`server_groups.py` line 276–277: `if "dynamicDiscovery" not in body: body["dynamicDiscovery"] = True`). This default can silently clear explicit server lists on an update if `dynamicDiscovery` is not explicitly passed as `False`.
+
+### Large Server Group update payloads
+
+As of `zscaler-sdk-python` v1.9.28, `server_groups.update_group()` drops the read-only `applications` association from the update payload unless the caller explicitly supplies it. Before that fix, updating a Server Group associated with many App Segments could fail with an API payload-size error because the SDK round-tripped the full `applications[]` list returned by GET. Operators using older SDK versions should either upgrade or avoid read-modify-write updates on heavily reused Server Groups.
 
 ### Removing a Connector Group from a Server Group
 

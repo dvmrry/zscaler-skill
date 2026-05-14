@@ -3,7 +3,7 @@ product: cloud-connector
 topic: cc-sdk
 title: Cloud Connector Go SDK — service catalog
 content-type: reference
-last-verified: "2026-04-26"
+last-verified: "2026-05-14"
 confidence: medium
 source-tier: code
 sources:
@@ -476,9 +476,9 @@ TF resource: `ztc_public_cloud_info`
 
 **Endpoint**: `/ztw/api/v1/accountGroups` (inferred from API docs)
 
-Read-only access to AWS account groups. Standard Get/GetByName/GetAll pattern.
+CRUD access to cloud account groups. Standard Get/GetByName/GetAll pattern plus Create/Update/Delete. The object includes `publicCloudAccounts[]` and `cloudConnectorGroups[]` associations, so this is the SDK surface behind the `ztc_account_groups` Terraform resource and data source.
 
-TF data source: `ztc_account_groups`
+TF resource/data source: `ztc_account_groups`
 
 ---
 

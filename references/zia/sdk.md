@@ -6,7 +6,7 @@ content-type: reference
 last-verified: "2026-04-30"
 verified-against:
   vendor/zscaler-sdk-python: 89a079411689fb4c6495ff6d95c619679318fbd1
-  vendor/zscaler-sdk-go: b14f8696c5008f8ea6ea6025b0c691835d9373b4
+  vendor/zscaler-sdk-go: 4b58470175a847a74a332f39b158ab2fc3a76059
 confidence: medium
 source-tier: code
 sources:
@@ -31,6 +31,7 @@ sources:
   - vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_dns.py
   - vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_ips.py
   - vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_rules.py
+  - vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go
   - vendor/zscaler-sdk-python/zscaler/zia/cloud_nss.py
   - vendor/zscaler-sdk-python/zscaler/zia/cloud_to_cloud_ir.py
   - vendor/zscaler-sdk-python/zscaler/zia/cloudappcontrol.py
@@ -879,7 +880,24 @@ Notable kwargs include `auth_bypass_urls`, `kerberos_bypass_urls`, `enable_offic
 | `update_rule` | `(rule_id: int, **kwargs)` | PUT `/firewallIpsRules/{id}`. |
 | `delete_rule` | `(rule_id: int)` | DELETE `/firewallIpsRules/{id}`. |
 
-**Go parity:** Yes (`firewallipscontrolpolicies/`)
+**Go parity:** Yes (`ips_control_policies/ips_policies/`)
+
+---
+
+### Custom IPS Signature Rules
+
+**Python SDK:** no equivalent service in `zscaler-sdk-python` as of v1.9.28.
+**Go SDK package:** `zscaler/zia/services/ips_control_policies/ips_signature_rules`
+**Purpose:** CRUD, CSV import/export, and validation for custom IPS signature definitions consumed by IPS Control rules through threat categories.
+
+| Go function | Endpoint | Notes |
+|---|---|---|
+| `Get` / `GetByName` / `GetAll` | `/zia/api/v1/ipsSignatureRules` | Read custom signature rules. |
+| `Create` / `Update` / `Delete` | `/zia/api/v1/ipsSignatureRules` | Manage custom signatures. |
+| `ValidateRuleText` | `/zia/api/v1/ipsSignatureRules/validateRuleText` | Validates Suricata/Snort-style rule text. Invalid rules surface as HTTP/API errors. |
+| import/export helpers | `/zia/api/v1/ipsSignatureRules/import`, `/export` | CSV import/export support. |
+
+**Terraform parity:** `zia_ips_signature_rules` resource and data source.
 
 ---
 
