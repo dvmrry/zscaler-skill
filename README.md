@@ -2,303 +2,121 @@
 
 [![Doc hygiene](https://github.com/dvmrry/zscaler-skill/actions/workflows/check-hygiene.yml/badge.svg)](https://github.com/dvmrry/zscaler-skill/actions/workflows/check-hygiene.yml)
 
-A Claude skill for reasoning about Zscaler environments — full operational depth (SDK / TF / OneAPI surface) on ZIA, ZPA, ZCC, ZDX, ZBI, ZIdentity, Cloud & Branch Connector, ZWA, and ZPA AppProtection; extended awareness (reasoning docs, no SDK) on Deception, Risk360, the AI Security family (AI Guard / AI Guardrails / AI Red Teaming), and ZMS (workload microsegmentation); plus paragraph-level awareness of the broader portfolio (ZINS, EASM, Federal Cloud, ITDR, DSPM, Posture Control) — covering the policy evaluation, rule precedence, and cross-product interactions that raw LLMs hallucinate on.
+A Claude skill for reasoning about Zscaler environments: ZIA, ZPA, ZCC, ZDX,
+ZBI, ZIdentity, Cloud & Branch Connector, ZWA, ZPA AppProtection, and the
+broader Zscaler portfolio.
+
+The core value is codified behavior: policy evaluation order, rule precedence,
+wildcard semantics, source confidence, product-fit framing, and cross-product
+interactions that raw LLMs often hallucinate.
 
 ## What this is
 
-A knowledge skill that helps engineers and non-technical users answer questions about Zscaler — from simple lookups ("is this URL covered by a category?") to subtle reasoning ("why does rule A beat rule B, and does SSL inspection happen before or after?") to portfolio breadth ("what is Risk360?", "does Zscaler do microsegmentation?"). The core value is **codified behavior** — rule precedence, wildcard semantics, policy evaluation order, product-fit framing — not API access. An agent with the API but without this knowledge will answer confidently and wrong.
+This repository is a knowledge skill and workflow base for grounded Zscaler
+answers. It helps an agent answer simple lookups, policy-order questions,
+tenant-specific questions backed by snapshots, and structured investigations.
+API access is useful, but it is not the point; an agent with API access and no
+behavioral model can still answer confidently and wrong.
 
-Follows the [Anthropic skill conventions](https://github.com/anthropics/skills) — `SKILL.md` at the root, progressive disclosure through `references/`, helper scripts in `scripts/`, and test prompts in `references/_meta/evals/`.
+The repo follows the [Anthropic skill conventions](https://github.com/anthropics/skills):
+`SKILL.md` at the root, progressive disclosure through `references/`, helper
+scripts in `scripts/`, and eval prompts in `references/_meta/evals/`.
 
 ## Entry points
 
-Two surfaces, picked by the shape of your question.
+Default to `@zscaler`; use procedural roles when the task has a defined output.
 
-- **Cascade always-on guidance** — Windsurf discovers the repo-root
-  [`AGENTS.md`](./AGENTS.md) as project guidance and the model-decision rule at
-  [`.windsurf/rules/zscaler.md`](./.windsurf/rules/zscaler.md) as the
-  Zscaler-topic loader. These are intentionally thin adapters that point back
-  to the canonical playbooks under `agents/`.
-- **`@zscaler`** — ad-hoc grounded Q&A. Type `@zsca<tab>` (autocompletes to `@zscaler`) followed by your question. The canonical playbook is at [`agents/zscaler/prompt.md`](./agents/zscaler/prompt.md); the repo-root [`zscaler`](./zscaler) is a thin runtime loader (extensionless so the bare invocation autocompletes). Use this for definitions, "is X allowed in our tenant", "what does the destination see", "how does this work" — anything that isn't an investigation or structured review.
-- **Procedural roles** — slash commands when the task has discipline:
-  - `/z-investigator` — evidence-based troubleshooting; produces a discovery journal
-  - `/z-architect` — capacity / scaling review; produces a recommendation register
-  - `/z-auditor` — editorial / structural skill audit; produces an audit register
-  - `/z-soc` — security-posture review; produces a posture register
+- **Cascade always-on guidance**: Windsurf discovers [`AGENTS.md`](./AGENTS.md)
+  and [`.windsurf/rules/zscaler.md`](./.windsurf/rules/zscaler.md). These are
+  thin adapters that load canonical logic under `agents/`.
+- **`@zscaler`**: ad-hoc grounded Q&A. The canonical playbook is
+  [`agents/zscaler/prompt.md`](./agents/zscaler/prompt.md); the repo-root
+  [`zscaler`](./zscaler) file is a thin runtime loader.
+- **`/z-investigator`**: evidence-based troubleshooting; produces a discovery
+  journal.
+- **`/z-architect`**: capacity and scaling review; produces a recommendation
+  register.
+- **`/z-auditor`**: editorial and structural skill audit; produces an audit
+  register.
+- **`/z-soc`**: security-posture review; produces a posture register.
 
-Default to `@zscaler`. The procedural roles are escalations from it — `@zscaler` will suggest one when the question's shape demands it.
+## Quick start
 
-## Fork-admin first-run walkthrough
-
-If you just forked this privately for your own tenant and this is your first time setting it up, follow this path.
-
-### Prerequisites
-
-- **Claude Code** — the skill is loaded by Claude Code (`claude` CLI) reading `SKILL.md`. Install per https://claude.com/claude-code if you don't have it. The skill can also be loaded by any agent harness that honors the Anthropic skill conventions, but Claude Code is what the walkthrough assumes.
-- **Python 3.10+** with [`uv`](https://docs.astral.sh/uv/) on PATH. Every script uses the uv single-file-script pattern — dependencies install on first run, no virtual-env setup needed.
-- **Git** (for submodule fetch).
-- **ZIA and ZPA admin access** (to create the API client credentials used below).
-
-### 1. Clone with submodules
+Full setup details, including ZIdentity auth, legacy auth, and snapshot
+behavior, live in [docs/getting-started.md](./docs/getting-started.md).
 
 ```bash
 git clone --recursive <fork-url> zscaler-skill
 cd zscaler-skill
 
-# or if you already cloned without --recursive:
-git submodule update --init --recursive
-```
-
-The `vendor/` tree holds upstream Zscaler sources as git submodules. Without them, reference docs that cite `vendor/zscaler-sdk-python/...` or `vendor/terraform-provider-zia/...` point to nothing.
-
-**Activate the pre-push hook** so hygiene runs locally before any push:
-
-```bash
 git config core.hooksPath .githooks
-```
-
-The hook (`.githooks/pre-push`) runs the same five checks CI does. Failures block the push; bypass with `git push --no-verify` if you really need to. CI on `main` is branch-protected — pushes that fail hygiene won't land regardless.
-
-### 2. Read `PLAN.md`
-
-[`PLAN.md`](./PLAN.md) is the crash-recovery and onboarding artifact. It lists:
-
-- The 7-step roadmap that built this skill, with per-step state (what's done, what's deferred)
-- Pending lab tests for open clarifications
-- Crash-recovery hints if an agent session dies mid-work
-
-If you need to know where the skill stands or what's safe to extend, start there.
-
-### 3. Install as a Claude skill
-
-Symlink or copy this repo into your Claude skills directory:
-
-```bash
 ln -s "$(pwd)" ~/.claude/skills/zscaler
 ```
 
-Start a Claude Code session and confirm the skill loads with `/skills`.
-
-### 4. Set up ZIA + ZPA credentials
-
-The operational scripts use `zscaler-sdk-python` via OneAPI (OAuth 2.0 via ZIdentity).
-
-**Create the API client in ZIdentity** (one-time setup, requires ZIdentity admin):
-
-1. Sign in to the ZIdentity Admin Portal at `https://admin.<your-vanity-domain>.zslogin.net` (or the gov/ten equivalent).
-2. Navigate **Integrations → API Clients → Add Client**.
-3. Grant the client scopes for ZIA (`zia.*`), ZPA (`zpa.*`), and ZCC (`zcc.*`). `snapshot-refresh.py` needs read scopes across URL categories, URL filtering, CAC, SSL inspection, advanced settings, app segments, segment groups, server groups, access policies, plus ZCC forwarding profiles, trusted networks, fail-open policies, and web policies. Grant `...:read` for each — no writes are needed. ZDX / ZBI / CBC / ZWA scopes are only needed if you extend the snapshot script to cover those products.
-4. On save, the portal shows the **Client ID** (use as `ZSCALER_CLIENT_ID`) and either a **Client Secret** (`ZSCALER_CLIENT_SECRET`) or a downloadable private key PEM (`ZSCALER_PRIVATE_KEY`, JWT auth). The secret is shown once — copy it immediately.
-5. Your **Vanity Domain** is the subdomain you use to sign in to ZIdentity — e.g. if your admin portal URL is `https://admin.acme.zslogin.net`, the vanity domain is `acme`.
-
-If the portal path above doesn't match your tenant, `vendor/zscaler-sdk-python/README.md` has the authoritative walkthrough as documented by Zscaler (the submodule is pinned and will drift; Zscaler's help site at https://help.zscaler.com/oneapi has the current live guide).
-
-**Export the env vars:**
+Create Zscaler API credentials, export the `ZSCALER_*` environment variables,
+then pull a first snapshot:
 
 ```bash
-export ZSCALER_CLIENT_ID=...        # from ZIdentity portal
-export ZSCALER_CLIENT_SECRET=...    # from ZIdentity portal (or use ZSCALER_PRIVATE_KEY for JWT)
-export ZSCALER_VANITY_DOMAIN=...    # your org's ZIdentity subdomain (e.g. "acme")
-export ZSCALER_CLOUD=...            # optional — omit for default commercial cloud
+./scripts/snapshot-refresh.py
 ```
 
-**Valid `ZSCALER_CLOUD` values** (per `vendor/zscaler-sdk-python/`):
-
-- **Commercial** (default — omit the var): `zscaler.net`, `zscalertwo.net`, `zscalerthree.net`, `zscloud.net`, `zscalerbeta.net`, `zscalerone.net` — pick the cloud your tenant was provisioned on (visible in the ZIA admin console URL, e.g. `admin.zscalertwo.net` → `zscalertwo.net`).
-- **Gov**: `zscalergov` (US Gov), `zscalerten` (US Gov 10).
-- **ZPA-only gov values** also exist (`GOV`, `GOVUS`) — use the legacy path below if your ZPA tenant uses these.
-
-> **Production note:** for production commercial-cloud tenants, leaving `ZSCALER_CLOUD` *unset* (rather than setting it to a commercial value) is the correct configuration for the activation CLI's runtime path. Per `tf-zia#552`, hard-requiring it via `getEnvVarOrFail` was a bug — the SDK's expected production behavior is empty / unset. Only set `ZSCALER_CLOUD` when running against gov clouds, beta clouds, or non-default commercial clouds where the tenant is explicitly on a non-`zscaler.net` cloud.
-
-**Legacy path** — use when your tenant is pre-ZIdentity, or a gov tenant that hasn't migrated:
+With a snapshot in place, try the public-safe operational path:
 
 ```bash
-export ZSCALER_USE_LEGACY=true
-```
-
-Legacy auth needs product-specific env vars (separate ZIA and ZPA credentials — no unified ZIdentity client). The full list is in `vendor/zscaler-sdk-python/README.md § Legacy API Framework` — at minimum, ZIA needs `ZIA_USERNAME` + `ZIA_PASSWORD` + `ZIA_API_KEY` + `ZIA_CLOUD`, and ZPA needs `ZPA_CLIENT_ID` + `ZPA_CLIENT_SECRET` + `ZPA_CUSTOMER_ID` + `ZPA_CLOUD`. If you're on legacy, the skill can still answer most of its reasoning questions from `references/` without the scripts running — credentials are only needed for tenant-specific lookups.
-
-See [`references/zia/api.md § Authentication`](./references/zia/api.md) for the Python client instantiation patterns.
-
-### 5. Pull the first snapshot
-
-```bash
-./scripts/snapshot-refresh.py                 # full ZIA + ZPA + ZCC dump
-./scripts/snapshot-refresh.py --zia-only     # just ZIA
-./scripts/snapshot-refresh.py --zpa-only     # just ZPA
-./scripts/snapshot-refresh.py --zcc-only     # just ZCC
-```
-
-Writes to `_data/snapshot/zia/*.json`, `_data/snapshot/zpa/*.json`, and `_data/snapshot/zcc/*.json` plus a `_manifest.json` with timestamps and per-resource counts. The public upstream repo keeps `_data/snapshot/` empty via `.gitkeep` — **your fork is expected to commit real snapshots.** The skill cites `_data/snapshot/` when answering tenant-specific questions; without it, most tenant-specific answers revert to "I can't verify, here's the general mechanism."
-
-### 6. Try a public-safe operational script
-
-With snapshot in place:
-
-```bash
-# "What rules reference the category this URL falls into?"
 ./scripts/url-lookup.py https://www.reddit.com
-
-# "Would this URL be blocked by the snapshot's URL Filtering rules?"
 ./scripts/simulate-policy.py --url https://www.reddit.com
 ```
 
-The public repo only treats snapshot-backed and reference-hygiene scripts as
+The public repo treats snapshot-backed scripts and reference-hygiene tooling as
 operational. Live-tenant diagnostic sketches such as `access-check.py`,
 `ssl-audit.py`, `sandbox-check.py`, `connector-health.py`, and
 `zpa-app-check.py` are private-overlay scaffolds until an adopter validates the
 SDK response shapes against their own tenant.
 
-Full inventory under [Helper scripts](#helper-scripts) below.
+## Documentation
 
-### 7. Run the evals
+- [Getting started](./docs/getting-started.md): private fork setup, credentials,
+  first snapshot, first script run.
+- [Scripts](./scripts/README.md): script inventory, support boundary,
+  dependencies, and script conventions.
+- [Maintenance](./docs/maintenance.md): CI, sticky issues, submodule updates,
+  contribution rules, testing, and known gaps.
+- [PLAN.md](./PLAN.md): crash-recovery and roadmap state.
+- [Portfolio map](./references/_meta/portfolio-map.md): coverage tiers across
+  Zscaler products.
+- [Clarifications](./references/_meta/clarifications.md): open, partial, and
+  resolved ambiguity register.
 
-```bash
-# Uses Anthropic's skill-creator harness (if available) to run each prompt
-# with and without the skill loaded, and diff the outputs.
-# references/_meta/evals/evals.json contains 14 canonical Q→A prompts with structured assertions.
-cat references/_meta/evals/evals.json | jq '.evals[] | {id, prompt}'
+## Repository map
+
+```text
+SKILL.md                 skill routing hub
+AGENTS.md                repo runtime guide for coding agents
+agents/                  canonical prompts, diagnostics, and role workflows
+references/              sourced Zscaler behavior and product references
+references/_meta/        portfolio map, clarifications, evals, templates
+scripts/                 public tooling, maintenance checks, private scaffolds
+vendor/                  pinned upstream Zscaler sources as git submodules
+_data/snapshot/          tenant config dumps; empty upstream, populated locally
+_data/iac/               tenant IaC overlay; empty upstream, populated per fork
+docs/                    project docs and rendered static docs assets
 ```
 
-Each eval entry now includes `assertions`, `must_cite_files`, `must_not_say`, and `expected_confidence` to let an eval harness grade structurally, not just on prose. See `references/_meta/evals/evals.json § schema_notes` for the format.
+Every reference file carries YAML frontmatter (`product`, `topic`,
+`content-type`, `last-verified`, `confidence`, `source-tier`, `sources`,
+`author-status`). See [`references/_meta/template.md`](./references/_meta/template.md).
 
-## Helper scripts
+## Known boundaries
 
-All scripts use the [uv single-file script](https://docs.astral.sh/uv/guides/scripts/) pattern — `#!/usr/bin/env -S uv run --quiet --script` shebang, inline dependency declarations, no virtual-env setup needed. Tenant API scripts read credentials from the env vars above.
-
-Each script's header comment carries a **Status** line — `functional`, `scaffold`, or `stub`. Functional scripts are the public support boundary. Scaffolds are design templates for private overlays: they keep argument parsing, auth wiring, and intended diagnostic flow, but exit by default because live-API response shapes have not been validated in the public repo. Stubs are placeholders.
-
-| Script | Status | Question it answers | Notes |
-|---|---|---|---|
-| `scripts/url-lookup.py <url>` | functional | Which URL categories cover this URL, and which rules reference those categories? | Implements MCP `investigate-url` workflow. |
-| `scripts/snapshot-refresh.py` | functional | Bulk dump ZIA + ZPA + ZCC config to `_data/snapshot/` | Foundation for all tenant-specific skill answers. Dumps ZIA (URL categories, URL-filter rules, CAC rules, SSL-inspection rules, advanced settings), ZPA (app-segments, segment groups, server groups, access policies), and ZCC (forwarding profiles, trusted networks, fail-open policies, web policies). `--zia-only` / `--zpa-only` / `--zcc-only` flags limit scope. |
-| `scripts/access-check.py --user X <url>` | private-overlay scaffold | Can user X access URL, and which policy layer decides? | Walks SSL → URL Filter → CAC → DLP → Firewall. Exits by default; run with `--allow-scaffold` only while validating the TODOs against a real tenant. |
-| `scripts/ssl-audit.py` | private-overlay scaffold | Which SSL Inspection rules are bypassing what, with what risk? | CRITICAL/HIGH/MEDIUM/LOW classification per `ssl-inspection.md` rubric. Exits by default until SSL-rule fields and scope resolution are tenant-validated. |
-| `scripts/sandbox-check.py --md5 <hash> --url <url>` | private-overlay scaffold | Why was this file blocked / unanalyzed / stuck in quarantine? | Sketches static-analysis fast-path, SSL-bypass-prevents-Sandbox, Basic-vs-Advanced tier mismatch, and the Malware Protection / ATP API gap. Exits by default until live response fields are validated. |
-| `scripts/connector-health.py [--group <name>]` | private-overlay scaffold | Is connector group X healthy? | Sketches provisioning-key exhaustion, runtime status, version lag, and cert expiry checks. Exits by default until ZPA connector fields are tenant-validated. |
-| `scripts/zpa-app-check.py --fqdn <fqdn>` | private-overlay scaffold | Is this app properly onboarded in ZPA end-to-end? | Sketches segment → server group → connector group → access policy validation. Exits by default until segment matching and policy-rule traversal are tenant-validated. |
-| `scripts/find-asymmetries.py` | functional | What candidate API mismatches sit in the schemas (read/write asymmetries, cross-provider validator drift, intra-resource enum collisions, server-assigned fields)? | Passes 1 + 2 implemented. Pass 1: TF validator extraction across `terraform-provider-{zia,zpa,ztc}` (inline + map + slice patterns) plus within-validator near-duplicate detection. Pass 2: Postman request body vs response example field-path diff. Outputs candidates to `_data/logs/asymmetry-candidates.md` for human triage. Passes 3–5 (fuzzy field-name match, TF git history, Python SDK enum extraction) documented inline as future work. |
-| `scripts/check-hygiene.py` | functional | Are docs internally consistent — frontmatter valid, anchors resolve, evals cite real files, resolved clarifications propagated? | Bundled hygiene checker. Four passes: (1) frontmatter validation (required fields, allowed enum values, ISO date format, sources required at high confidence except for aggregator/`_*` meta-docs); (2) anchor resolution (path-plus-anchor links and same-file anchor links both verified against target headings via GFM-anchor algorithm); (3) resolved-clarification propagation (warns when an Open questions section still lists a clarification that's now marked resolved in `_meta/clarifications.md`); (4) eval `must_cite_files` paths. Errors fail CI; warnings advisory. Run on every PR + weekly via `.github/workflows/check-hygiene.yml`. `--digest` flag writes a markdown digest for sticky-issue integration. |
-| `scripts/agent_patterns.py` | functional (module, not a CLI) | Importable Python module with typed functions for the 5 diagnostic patterns: `detect_cloud()`, `is_gov_cloud()`, `detect_auth_framework()`, `smoke_test_creds()`, `enumerate_endpoints()`, `interpret_error()`, plus composite `diagnose_tenant()`. AI-agent-shaped: typed, dependency-free, copy-pasteable. Documented in `references/_meta/agent-patterns.md`. |
-| `scripts/diagnose-tenant.py` | functional | Reads env + optional admin URL, runs all five diagnostics, emits text or JSON. `--smoke` runs a credential smoke test against a chosen product; `--enumerate` lists available SDK endpoints. Worked-example consumer of `agent_patterns.py`. |
-| `scripts/policy_simulator.py` | functional (module, not a CLI) | Importable Python module: pure-function ZIA URL filter evaluator. `simulate_url_filter(request, rules, categories)` returns a `SimulationResult` with the matched rule, action, resolved category, and full per-rule evaluation trace. `diff_simulations(before, after)` is a single-URL before/after primitive (not a PR-level harness — see `_meta/policy-simulation.md` for why that's deferred). Models rule order, disabled-rule-holds-slot, leading-period wildcard category resolution, and basic criteria filtering. Documented gaps (CAC, DLP, two-pass SSL, full specificity-wins) in `references/_meta/policy-simulation.md`. |
-| `scripts/simulate-policy.py --url <url>` | functional | Would this URL be blocked, and which rule fires? | Runnable CLI consuming `policy_simulator.py`. Reads `_data/snapshot/zia/url-filtering-rules.json` + `url-categories.json`. Flags: `--user-email`, `--department`, `--location`, `--include-disabled` (what-if mode), `--json`. Prints matched rule + reasoning trace. Use for first-pass single-URL intuition; verify against logs once available. |
-| `scripts/issue-watch.py` | functional | What's new in upstream Zscaler GitHub issues since I last looked? | Walks 7 vendored upstream repos via the public GitHub REST API. Two modes. **Local** (default): compares against `_data/logs/issue-watch-state.json`, writes digest to `_data/logs/issues-new.md`. **Sticky-issue** (`--sticky-label LABEL` or `--sticky-issue NUMBER`): finds an existing GitHub issue and rewrites its body with the latest digest each run; state lives in an HTML-comment marker embedded in the issue body, no separate state file. The repo ships a GH Actions workflow at `.github/workflows/issue-watch.yml` that runs sticky mode weekly. First run defaults to a 30-day lookback. Works unauthenticated at 60 req/hr; honors `GITHUB_TOKEN` for higher rate (Actions provides 1000/hr automatically). |
-| `scripts/splunk-query.sh <spl>` | stub | Run an SPL query against Zscaler logs | Placeholder; implement for your SIEM. |
-
-Functional Python scripts accept `--json` for machine-readable output where appropriate. Private-overlay scaffolds may define `--json`, but they do not produce trustworthy output until completed in a tenant fork.
-
-### Expected first-run output (`snapshot-refresh.py`)
-
-A successful run against a small tenant looks like:
-
-```
-$ ./scripts/snapshot-refresh.py --zia-only
-zia:
-  ✓ url-categories: 142 records → _data/snapshot/zia/url-categories.json
-  ✓ url-filtering-rules: 37 records → _data/snapshot/zia/url-filtering-rules.json
-  ✓ cloud-app-control-rules: 12 records → _data/snapshot/zia/cloud-app-control-rules.json
-  ✓ ssl-inspection-rules: 8 records → _data/snapshot/zia/ssl-inspection-rules.json
-  ✓ advanced-settings: 1 records → _data/snapshot/zia/advanced-settings.json
-
-manifest → _data/snapshot/_manifest.json
-```
-
-Lines prefixed `!` indicate a per-resource fetch failure (the run continues). Lines prefixed `-` indicate the SDK surface for that resource wasn't found (likely an SDK version lag) — those don't block the rest of the run.
-
-## Layout
-
-```
-SKILL.md                   routing hub Claude reads on every invocation
-PLAN.md                    crash-recovery / hand-off artifact (roadmap, pending lab tests, gaps)
-references/                lazy-loaded reference docs
-    _meta/portfolio-map.md      single-page index of every Zscaler product (Tier 1 core / Tier 2 programmable-shallow / Tier 3 reasoning / Tier 4 awareness / Tier 5 out-of-scope)
-    _meta/primer/               prerequisite concepts (networking, zero trust, identity, Zscaler platform shape)
-    _meta/layering-model.md     three-layer framing: general docs / tenant config / SME tribal knowledge
-    _meta/clarifications.md     canonical index of open / partial / resolved ambiguities
-    _meta/template.md           YAML front-matter template for new reference files
-    zia/                   ZIA (Internet & SaaS) topics
-    zpa/                   ZPA (Private Access), including AppProtection (inline WAF/IPS) and Browser Access
-    zcc/                   ZCC (Client Connector) topics
-    zdx/                   ZDX (Digital Experience) topics
-    zbi/                   ZBI (Cloud Browser Isolation / Zero Trust Browser) topics
-    zidentity/             ZIdentity (unified auth / step-up) topics
-    cloud-connector/       Cloud & Branch Connector (ZTW / ZTC / CBC) topics
-    zwa/                   ZWA (Workflow Automation — DLP incidents) topics
-    deception/             [Tier 3] Zscaler Deception — decoys, honeypots, post-perimeter detection (no SDK)
-    risk360/               [Tier 3] Risk360 — cyber risk quantification, Monte Carlo, CISO board reporting (no SDK)
-    ai-security/           [Tier 3] AI Security family — AI Guard / AI Guardrails / AI Red Teaming (no SDK)
-    zms/                   [Tier 3] ZMS — Microsegmentation, workload east-west via WFP/nftables (no SDK)
-    identity-protection/   [Tier 3] ITDR / identity threat detection and response topics
-    dspm/                  [Tier 3] Data Security Posture Management topics
-    aem/                   [Tier 3] Advanced Email Monitoring topics
-    uvm/                   [Tier 3] Unified Vulnerability Management topics
-    zscaler-cellular/      [Tier 3] Cellular connectivity topics
-    soc-workbench/         [Tier 3] SOC Workbench topics
-    breach-predictor/      [Tier 3] Breach Predictor topics
-    business-insights/     [Tier 3] Business Insights topics
-    zero-trust-branch/     [Tier 3] Zero Trust Branch topics
-    unified/               [Tier 3] Experience Center / unified platform topics
-    shared/                cross-product topics (policy evaluation, terminology, activation, SIPA, SCIM, cloud architecture, OneAPI)
-vendor/                    upstream sources as git submodules (SDKs, TF providers, MCP server)
-    zscaler-help/          Zscaler help-site PDFs + Playwright-captured markdown (pinned bibliography)
-scripts/                   operational tooling (URL lookup, access check, SSL audit, etc.)
-references/_meta/evals/                     canonical Q→A test prompts with structured assertions
-_data/snapshot/                  tenant config dumps — empty upstream, populated per-fork
-_data/iac/                       production IaC — empty upstream, populated per-fork; takes precedence over reference IaC under vendor/ for env-specific questions. Terraform-only by default; fork-add other tools as needed. See _data/iac/README.md
-```
-
-Every reference file carries YAML front-matter (`product`, `topic`, `content-type`, `last-verified`, `confidence`, `source-tier`, `sources`, `author-status`). See [`references/_meta/template.md`](./references/_meta/template.md).
-
-## Automation
-
-`.github/workflows/check-hygiene.yml` runs `scripts/check-hygiene.py` on every PR touching `references/`, `references/_meta/evals/`, or the script itself, plus on the same Monday 13:00 UTC cadence below. Errors fail CI; warnings are advisory. Catches frontmatter drift, broken anchors, eval-doc desync, and resolved-clarification propagation gaps.
-
-`.github/workflows/issue-watch.yml` runs `scripts/issue-watch.py` in **sticky-issue mode** every Monday at 13:00 UTC. The first run creates a sticky issue (label `issue-watch-digest`) and seeds it with a 30-day-lookback digest of upstream Zscaler GitHub issues. Each subsequent run rewrites the body in place with the latest digest; the sticky issue's `last_check` HTML-comment marker carries state so no Actions cache or `state.json` is needed.
-
-Triage workflow: comment on the sticky issue to record decisions for individual surfaced items. Past digests live in the issue's edit history (accessible via the GitHub UI). Manual runs via the Actions tab's "Run workflow" button (workflow_dispatch).
-
-`.github/workflows/maintenance-digest.yml` runs `scripts/maintenance-digest.py` weekly after the main hygiene cadence. It updates a sticky issue (label `maintenance-digest`) with stale references, stale help captures, vendor drift counts, eval coverage warnings, script scaffolds, and TODO/stub inventory. This is advisory backlog generation, not a merge gate.
-
-`.github/workflows/vendor-impact.yml` runs on PRs touching `vendor/**` or `.gitmodules`. It posts or updates a PR comment with submodule commit logs and `check-vendor-drift.py` counts, runs `scripts/find-asymmetries.py`, and uploads the vendor impact summary plus asymmetry candidates as artifacts. Use this for Renovate/submodule PR triage before merging.
-
-To run locally instead (for ad-hoc checks or while developing the script), invoke without flags — it falls back to file-based output at `_data/logs/issues-new.md`.
-
-## Submodule management
-
-To bump an individual submodule to upstream HEAD:
-
-```bash
-git submodule update --remote vendor/zscaler-sdk-python
-git add vendor/zscaler-sdk-python && git commit -m "bump sdk-python"
-```
-
-Expect to do this periodically — upstream SDK / TF provider releases add new resource types and validator enums that `references/zia/api.md` and `references/zpa/api.md` should track.
-
-## Contributing
-
-- Reference files start as `author-status: stub` with TODO headings. Pick one, fill it in, bump to `draft`, add sources.
-- Keep hand-authored reasoning (`content-type: reasoning`) separate from reproduced/paraphrased API docs (`content-type: reference`). The distinction matters for later training use.
-- When you change Zscaler behavior docs, update `last-verified` to today's date.
-- Resolving a clarification: update the entry in `references/_meta/clarifications.md` in place — set `Status: resolved`, add an `Answer:` paragraph, cite sources. Don't delete resolved entries; other docs link to them by anchor.
-- Adding a new clarification: pick the next `<area>-<num>` ID, link both ways (from the origin reference doc to the clarification, and from the clarification back to the origin).
-
-## Testing the skill
-
-`references/_meta/evals/evals.json` has the canonical prompts with structured assertions. The format is compatible with Anthropic's `skill-creator` eval harness (runs each prompt with and without the skill loaded, diffs the outputs). For tenant-specific prompts (e.g., eval #1), `tenant_data_required: true` signals that the harness should expect a decline-with-helpful-pointers when `_data/snapshot/` is empty.
-
-## Known gaps (read before filing issues)
-
-- **Malware Protection and ATP blocks have NO API coverage.** `scripts/sandbox-check.py` surfaces this explicitly. `references/zia/malware-and-atp.md` covers the operational/console-only layer; diagnosis of specific blocks still requires the ZIA Admin Console.
-- **Five live-tenant diagnostic scripts are private-overlay scaffolds.** `access-check.py`, `ssl-audit.py`, `sandbox-check.py`, `connector-health.py`, `zpa-app-check.py` preserve the intended workflow design but exit by default because the public repo cannot validate tenant-specific SDK response shapes. `url-lookup.py`, `simulate-policy.py`, and `snapshot-refresh.py` are the supported public operational path.
-- **Several clarifications remain open** because they require tenant-specific lab tests — see `PLAN.md § Pending lab tests` (6 items including ZCC int-enum semantic mappings).
-- **Snapshot schema docs deferred** — will be written against real tenant output post-fork, not inferred pre-fork. See `PLAN.md § 4. Snapshot schema docs`.
-- **Z-Tunnel wire-format internals are not customer-documented.** `references/zcc/z-tunnel.md` covers the operational layer (CONNECT-vs-DTLS, single-IP-NAT requirement, GRE incompatibility, 4-layer bypass architecture). Protocol-level questions (framing, cipher, fallback triggers) remain Zscaler Support territory.
-- **Tier 2 — programmable but shallow coverage:** ZBI and ZWA have documented product behavior and programmable surface, but thinner operational depth than the Tier 1 policy and traffic-control planes.
-- **Tier 3 — reasoning coverage, no verified API surface:** Deception, Risk360, AI Security family, ZMS, ZSDK, ITDR / Identity Protection, DSPM, AEM, UVM, Zscaler Cellular, SOC Workbench, Breach Predictor, Business Insights, Zero Trust Branch, and Experience Center / unified topics. The skill can answer conceptual and architectural questions, but must explicitly avoid inventing SDK, Terraform, or API behavior.
-- **Tier 4 — paragraph-level awareness only:** Resilience, Business Continuity Cloud, CTEM, Cloud Protection / ZTC, Posture Control, Microsoft Copilot Data Protection, Red Canary MDR, Managed Threat Hunting, ZTE for B2B, Shadow IT / SaaS Security Report / ZINS, EASM, and Federal Cloud variants (`zscalergov`, `zscalerten`, ZPA GOV / GOVUS). The skill can route these, answer breadth questions, and redirect to Zscaler's help site, but won't claim operational depth.
-- **Tier 5 — out-of-scope products:** currently empty. Reserved for deprecated, internal, or unshipped products that should not receive skill behavior beyond a refusal / redirect.
+- Malware Protection and ATP blocks have no API coverage; diagnosis of specific
+  blocks still requires the ZIA Admin Console.
+- Several clarifications remain open because they require tenant-specific lab
+  tests; see [`PLAN.md`](./PLAN.md).
+- Snapshot schema docs are deferred until real tenant output exists.
+- Z-Tunnel wire-format internals are not customer-documented.
+- Tier 3 and Tier 4 portfolio areas can be routed and explained, but the skill
+  must not invent SDK, Terraform, or API behavior for them.
 
 ## License
 
-Licensed under FSL-1.1-Apache-2.0 (Functional Source License, Apache 2.0 Future License). See [`LICENSE.md`](./LICENSE.md). Personal, internal, educational, and non-commercial use is permitted; commercial bundling into products or services that compete with this work requires a separate license. Each version converts to Apache 2.0 two years after release.
+Licensed under FSL-1.1-Apache-2.0. See [`LICENSE.md`](./LICENSE.md).
