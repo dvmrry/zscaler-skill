@@ -48,6 +48,7 @@ sources:
   - "vendor/terraform-provider-zia/docs/resources/zia_firewall_filtering_network_service_groups.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_firewall_filtering_rule.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_firewall_ips_rule.md"
+  - "vendor/terraform-provider-zia/docs/resources/zia_ips_signature_rules.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_forwarding_control_proxies.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_forwarding_control_rule.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_forwarding_control_zpa_gateway.md"
@@ -84,7 +85,7 @@ author-status: draft
 
 # ZIA Terraform provider resource catalog
 
-Complete catalog of the 71 resources and corresponding data sources in the `zscaler/zia` Terraform provider (registry source `zscaler/zia`, v4.x). Resources are grouped by ZIA functional area. Every resource requires activation to take effect; see the [Activation lifecycle](#activation-lifecycle) section.
+Complete catalog of the 72 resources and corresponding data sources in the `zscaler/zia` Terraform provider (registry source `zscaler/zia`, v4.x). Resources are grouped by ZIA functional area. Every resource requires activation to take effect; see the [Activation lifecycle](#activation-lifecycle) section.
 
 > **For HCL authoring guidance** — best practices, decision tables, anti-patterns, CI/CD with the activation step, secret hygiene — see Zscaler's official skill bundle, vendored at [`vendor/zscaler-terraform-skills/skills/zia-skill/`](../../vendor/zscaler-terraform-skills/skills/zia-skill/) (upstream: `zscaler/zscaler-terraform-skills`, MIT). This doc covers the resource catalog and provider internals; their skill covers how to *write* HCL against the catalog.
 
@@ -308,6 +309,24 @@ IPS Control policy rules that allow, block, reset, or bypass intrusion preventio
 | `threat_categories` | List(String) | Optional |
 
 Import: by numeric ID or name.
+
+### `zia_ips_signature_rules`
+
+Custom IPS signature definitions written in Suricata/Snort syntax. These are not IPS policy rules themselves; they create the custom signatures that IPS Control rules consume through the assigned threat category.
+
+| Field | Type | Notes |
+|---|---|---|
+| `name` | String | Required; up to 255 characters |
+| `rule_text` | String | Required; validated by Zscaler before create/update |
+| `enabled` | Bool | Optional; defaults to `true` |
+| `category.id` | Int | Required; threat category assigned to the signature |
+
+Gotchas:
+- The provider validates `rule_text` against `/zia/api/v1/ipsSignatureRules/validateRuleText` on create and update; invalid signatures fail before state is written.
+- Zscaler rejects common raw-Snort assumptions: Suricata variables such as `$EXTERNAL_NET` / `$HOME_NET` are not defined, `sid` values must start at `1000000`, `msg` and `sid` are required, bidirectional `<>` is unsupported, and leading whitespace before `alert` can break validation.
+- HCL heredocs are safer than double-quoted strings for signatures with embedded `msg:"..."` content, but indent-stripping heredocs can still leave leading whitespace if the closing marker is misaligned.
+
+Import: by signature ID or signature name.
 
 ### `zia_nat_control_rules`
 
@@ -1156,6 +1175,7 @@ Data sources have the same names as corresponding resources (prefix `data.zia_*`
 | `zia_firewall_filtering_rule` | Firewall filtering rule by name or ID |
 | `zia_firewall_dns_rule` | Firewall DNS Control rule by name or ID |
 | `zia_firewall_ips_rule` | Firewall IPS Control rule by name or ID |
+| `zia_ips_signature_rules` | Custom IPS signature rule by name or ID |
 | `zia_nat_control_rules` | NAT Control (DNAT) rule by name or ID |
 | `zia_firewall_filtering_destination_groups` | IP destination group by name or ID |
 | `zia_firewall_filtering_ip_source_groups` | IP source group by name or ID |

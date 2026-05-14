@@ -3,7 +3,7 @@ product: cloud-connector
 topic: cc-terraform
 title: Cloud Connector Terraform provider
 content-type: reference
-last-verified: "2026-04-26"
+last-verified: "2026-05-14"
 confidence: medium
 source-tier: code
 sources:
@@ -21,7 +21,7 @@ author-status: draft
 ## Provider overview
 
 **Registry source**: `zscaler/ztc`  
-**Current version** (from README badge / index.md examples): `~> 0.1.6`  
+**Current version** (from README badge / index.md examples): `~> 0.1.9`
 **Terraform minimum version**: 0.12.x
 
 The provider is named ZTC (Zero Trust Cloud) in Zscaler naming. It manages the Cloud & Branch Connector portal: traffic forwarding rules, DNS gateways, provisioning URLs, location templates, partner (AWS/Azure/GCP) integrations, and network policy objects.
@@ -84,7 +84,7 @@ provider "ztc" {
 
 ---
 
-## Resources (14 total)
+## Resources (15 total)
 
 ### Forwarding Gateways
 
@@ -449,6 +449,24 @@ Import: by `<PROV_URL_ID>` or `<PROV_URL_NAME>`.
 ---
 
 ### Partner Integrations
+
+#### `ztc_account_groups`
+
+Source: `docs/resources/ztc_account_groups.md`
+
+Creates and manages Account Group configurations used by Cloud Connector workload discovery. Account Groups connect discovered public cloud accounts to Cloud Connector groups.
+
+| Field | Type | Notes |
+|---|---|---|
+| `name` | String | Required; unique, 128 characters or fewer |
+| `description` | String | Optional; 512 characters or fewer |
+| `cloud_type` | String | `AWS`, `AZURE`, or `GCP`; provider docs describe AWS as the mandatory/default value |
+| `public_cloud_accounts.id` | List(Number) | Public cloud account IDs assigned to the group |
+| `cloud_connector_groups.id` | List(Number) | Cloud Connector group IDs assigned to the account group |
+
+Import: by `<GROUP_ID>` or `<GROUP_NAME>`.
+
+---
 
 #### `ztc_public_cloud_info`
 
