@@ -73,6 +73,8 @@ import os
 import sys
 from typing import Any
 
+from scaffold_guard import add_scaffold_arg, guard_scaffold
+
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
@@ -85,6 +87,7 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Emit structured JSON instead of human-readable report",
     )
+    add_scaffold_arg(p)
     return p.parse_args()
 
 
@@ -184,6 +187,11 @@ def walk_firewall(client: Any, url: str, user_ctx: dict) -> dict:
 
 def main() -> int:
     args = parse_args()
+    guard_scaffold(
+        args,
+        "scripts/access-check.py",
+        "per-layer rule traversal and identity criteria matching require live-tenant SDK response validation",
+    )
     try:
         client = build_zia_client()
     except KeyError as e:

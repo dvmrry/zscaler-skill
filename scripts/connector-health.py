@@ -69,6 +69,8 @@ import sys
 from datetime import datetime, timezone, timedelta
 from typing import Any
 
+from scaffold_guard import add_scaffold_arg, guard_scaffold
+
 
 CERT_WARN_DAYS = 30
 
@@ -77,6 +79,7 @@ def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("--group", help="Connector group name or ID (default: all groups)")
     p.add_argument("--json", action="store_true", help="Emit JSON instead of text report")
+    add_scaffold_arg(p)
     return p.parse_args()
 
 
@@ -148,6 +151,11 @@ def audit_group(client: Any, group_id: str) -> dict:
 
 def main() -> int:
     args = parse_args()
+    guard_scaffold(
+        args,
+        "scripts/connector-health.py",
+        "provisioning-key usage fields, runtime status enums, and version-lag thresholds require live-tenant SDK response validation",
+    )
     try:
         client = build_zpa_client()
     except KeyError as e:

@@ -77,6 +77,8 @@ import os
 import sys
 from typing import Any
 
+from scaffold_guard import add_scaffold_arg, guard_scaffold
+
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
@@ -85,6 +87,7 @@ def parse_args() -> argparse.Namespace:
     src.add_argument("--segment-id", help="Existing application segment ID to validate")
     p.add_argument("--port", type=int, help="Specific port to validate (default: all)")
     p.add_argument("--json", action="store_true", help="Emit JSON instead of text report")
+    add_scaffold_arg(p)
     return p.parse_args()
 
 
@@ -237,6 +240,11 @@ def build_report(args: argparse.Namespace, client: Any) -> dict:
 
 def main() -> int:
     args = parse_args()
+    guard_scaffold(
+        args,
+        "scripts/zpa-app-check.py",
+        "FQDN-to-segment filtering, port coverage parsing, and access-policy matching require live-tenant SDK response validation",
+    )
     try:
         client = build_zpa_client()
     except KeyError as e:
