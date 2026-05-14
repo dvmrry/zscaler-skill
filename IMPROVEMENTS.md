@@ -64,7 +64,7 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 ### Per-claim citation discipline — script + audit pass
 
 - **Status**: Proposed (real gap; needs real attention)
-- **Origin**: 2026-05-01 — surfaced when sampling reference files to spot-check citation density. `app-connector.md`: 14 vendor refs in body but only 1 file:line citation and 2 inline `(Source:)` patterns; `troubleshooting-methodology.md`: only 1 source in frontmatter for a `confidence: high` doc; many ZIA files use `Tier A/B/C/D` markers, others don't. Pattern across the skill is uneven.
+- **Origin**: 2026-05-01 — surfaced when sampling reference files to spot-check citation density. `app-connector.md`: 14 vendor refs in body but only 1 file:line citation and 2 inline `(Source:)` patterns; `agents/investigator/methodology.md`: only 1 source in frontmatter for a `confidence: high` doc; many ZIA files use `Tier A/B/C/D` markers, others don't. Pattern across the skill is uneven.
 - **Impact**: the methodology says *"every claim has a source"*, but `check-hygiene.py` and `check-citations.sh` validate structure (frontmatter parses, citation paths resolve, dates are current) — they don't validate semantic completeness (does each body claim have an inline source). So claims slip through uncited. The skill's "soft + hard pairings" principle is unfulfilled here: the soft rule has no working hard check.
 - **Proposed mitigation**: paragraph-level citation script that splits body into paragraphs (blank-line separated), counts paragraphs with at least one citation marker (`Tier A/B/C/D`, `(Source:)`, `file:line`, `https://help.zscaler`, markdown link to `vendor/` or `references/`), and flags files below ~80% citation coverage. Imperfect — false positives on transition / setup paragraphs without claims; can't distinguish load-bearing from stylistic. But surfaces the obvious "long doc, few citations" cases for human audit.
 - **Cost**: low to write the script (~50-100 lines Python). Real cost is the audit pass to bring flagged files up to standard — could be days of work depending on how many files fall below the threshold.
@@ -77,7 +77,7 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 - **Origin**: 2026-04-30 — design discussion on "non-scripted but deterministic" agent guidelines
 - **Impact**: names the design space between hard scripts and loose agent prompts. Gives a vocabulary for which improvements buy script-level determinism without writing a Python check per every rule.
 - **Cost**: variable per pattern; the framing itself is free, individual implementations vary
-- **Notes**: The principle: **every "soft" guideline can be paired with a "hard" check that gates or verifies it.** The skill has been moving in this direction without naming the pattern. Examples already in place: status enum (soft) ↔ enum-validation in `check-hygiene.py` (hard); confidence calibration rules (soft) ↔ frontmatter validator that checks high-confidence-with-empty-sources (hard); bundle templates with `verification:` field (soft) ↔ could be paired with script that validates the field cites a real ticket / lab session / vendor doc (hard, not yet built).
+- **Notes**: The principle: **every "soft" guideline can be paired with a "hard" check that gates or verifies it.** The skill has been moving in this direction without naming the pattern. Examples already in place: status enum (soft) ↔ enum-validation in `check-hygiene.py` (hard); confidence calibration rules (soft) ↔ frontmatter validator that checks high-confidence-with-empty-sources (hard); diagnostics templates with `verification:` field (soft) ↔ could be paired with script that validates the field cites a real ticket / lab session / vendor doc (hard, not yet built).
 
   Patterns we haven't yet exploited, ordered roughly by leverage:
 
@@ -85,7 +85,7 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 
   - **Schema-validated structured output for registers** — discovery journal / audit register / recommendation register currently emit Markdown tables. Could ALSO emit a JSON/YAML sidecar matching a schema. Hybrid keeps human-readable Markdown while making the register machine-checkable. Lowest cost, highest leverage of the cross-agent set.
   - **Pre-flight checks that gate generation** — hygiene runs after edits land. A pre-flight rubric ("before writing, check N invariants against existing state") moves determinism earlier. Closer to a type-check than a test-run.
-  - **Decision-tree DSL for bundles** — bundles are free Markdown today. A small YAML schema (`if: <cond>; then: <action>; else: <next>`) lets scripts validate every branch has a mapped action and every termination condition is covered. Natural next step after structured registers.
+  - **Decision-tree DSL for diagnostics** — diagnostics are free Markdown today. A small YAML schema (`if: <cond>; then: <action>; else: <next>`) lets scripts validate every branch has a mapped action and every termination condition is covered. Natural next step after structured registers.
   - **Self-evaluation rubrics at end-of-step** — each playbook ends with "before declaring done, fill in this YAML checklist." The checklist is deterministic structure even when the answers are agent-generated.
   - **Tool-call-anchored claims** — every claim in a register must trace to a specific tool invocation (read / bash / web). Auditable; "the system can verify" rather than "the agent says it cited." Depends on the agent's tool model, but most agents expose read/bash/web in similar shapes.
 
@@ -131,15 +131,15 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 - **Origin**: 2026-04-29 (command rename discussion); partially redirected 2026-04-30 when `/z-soc` was created and absorbed the posture-shaped subtypes; clarified 2026-05-01 — the **original intent** of `/z-auditor` was tenant-config lint (audit the API dump in `_data/snapshot/` for misconfig / drift / dead rules). The skill-doc lint role that shipped is a divergence from intent. The earlier "charter" rabbit hole was an attempt to fabricate meta-purpose around the wrong shipped scope instead of naming the gap.
 - **Impact**: split `/z-auditor` into lint-shape subtypes — `/z-auditor refs` (current default — reference doc lint) and `/z-auditor tenant-config` (the **originally-intended scope**: orphan segments, disabled rules without rationale, unused URL categories, dead refs in tenant config). The originally-planned posture / access / coverage / activity subtypes are now `/z-soc` subtypes, not audit.
 - **Cost**: low to add `tenant-config` subtype playbook content (~100-150 lines) and parameterize the entry point. Auto-detect-from-scope or explicit-subtype-arg remains the design choice.
-- **Notes**: see `audit-prompt.md` § Future subtypes for the partition between audit (lint-shape) and `/z-soc` (posture-shape). Audit's role is hygiene; `/z-soc` is defensibility. **Pre-alpha team-share**: the misalignment is documented but not fixed — team will hit this and the friction tells us whether a rename, a subtype split, or repurposing is the right call.
+- **Notes**: see `agents/auditor/prompt.md` § Future subtypes for the partition between audit (lint-shape) and `/z-soc` (posture-shape). Audit's role is hygiene; `/z-soc` is defensibility. **Pre-alpha team-share**: the misalignment is documented but not fixed — team will hit this and the friction tells us whether a rename, a subtype split, or repurposing is the right call.
 
-### Verified bundle library
+### Verified diagnostics library
 
-- **Status**: Proposed (templates landed; bundles need real ground truth)
-- **Origin**: 2026-04-29 (bundle template work)
-- **Impact**: as real investigations / scaling reviews land, capture the verified query sequences as bundles
-- **Cost**: variable (per-bundle effort, depends on verification access)
-- **Notes**: templates at `references/shared/investigation-bundles.md` and `architect-bundles.md`. Public skill should ship only verified bundles; speculative ones stay in private fork. The first ones are most likely to come from real production tickets.
+- **Status**: Proposed (templates landed; diagnostics need real ground truth)
+- **Origin**: 2026-04-29 (diagnostics template work)
+- **Impact**: as real investigations / scaling reviews land, capture the verified query sequences as diagnostics
+- **Cost**: variable (per-diagnostic effort, depends on verification access)
+- **Notes**: templates at `agents/investigator/diagnostics/template.md` and `agents/architect/diagnostics/template.md`. Public skill should ship only verified diagnostics; speculative ones stay in private fork. The first ones are most likely to come from real production tickets.
 
 ### SSL inspection rule cloud-app enum mapping
 
@@ -149,13 +149,13 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 - **Cost**: medium (needs source verification — what IS the canonical enum list?)
 - **Notes**: gap in our SSL inspection coverage. Defer until a content cycle on SSL inspection rules; not blocking. The `wontfix` close on the upstream issue means the divergence is permanent and worth documenting precisely *because* it traps users.
 
-### First verified bundle from production
+### First verified diagnostic from production
 
 - **Status**: Proposed
-- **Origin**: 2026-04-30 — bundle templates landed; speculative content is explicitly excluded from public skill per the verification-gating rule
-- **Impact**: validates that the bundle template format works against real evidence; produces the first canonical example others can pattern-match against
+- **Origin**: 2026-04-30 — diagnostics templates landed; speculative content is explicitly excluded from public skill per the verification-gating rule
+- **Impact**: validates that the diagnostics template format works against real evidence; produces the first canonical example others can pattern-match against
 - **Cost**: variable — depends on the production scenario; capturing should be cheap (template is in place) but the underlying investigation/audit determines the work
-- **Notes**: when the first real production investigation or audit happens (a `/z-investigator` or `/z-auditor` cycle that runs against actual tenant data, not template-mode), capture it as the first verified bundle in `references/shared/investigation-bundles.md` (or `architect-bundles.md`). Use it to: (a) confirm the template's required fields are right, (b) confirm the verification-gating language works as a discipline, (c) seed the public bundle library with one canonical example. Do NOT manufacture speculative bundles to fill the template — that defeats the verification-gating principle the templates are built around.
+- **Notes**: when the first real production investigation or audit happens (a `/z-investigator` or `/z-auditor` cycle that runs against actual tenant data, not template-mode), capture it as the first verified diagnostic under the relevant role's `diagnostics/` directory. Use it to: (a) confirm the template's required fields are right, (b) confirm the verification-gating language works as a discipline, (c) seed the public diagnostics library with one canonical example. Do NOT manufacture speculative diagnostics to fill the template — that defeats the verification-gating principle the templates are built around.
 
 ### `simulate-policy.py` snapshot path uses old per-product convention
 
@@ -171,13 +171,13 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 - **Origin**: 2026-04-30 — surfaced during `_meta/` consolidation hygiene check; affected 5 files: `_meta/primer/zero-trust.md`, `networking-basics.md`, `identity-saml-oidc.md`, `proxy-vs-gateway-vs-tunnel.md`, `zscaler-platform-shape.md`
 - **Resolution**: added the third option (hygiene exemption). The existing aggregator exemption checked for a `_`-prefixed direct parent dir; updated to check any `_`-prefixed ancestor under `references/`, which now correctly catches `_meta/primer/*` (one level deeper after the consolidation). Primers are educational synthesis of common knowledge — high confidence is about quality of synthesis, not external citation density. Documented in `references/_meta/README.md` § Conventions.
 
-### Tenant-side bundle storage convention
+### Tenant-side diagnostics storage convention
 
 - **Status**: Proposed
-- **Origin**: 2026-04-29 (bundle template work)
-- **Impact**: documented `_local-bundles/` directory pattern (gitignored) for users to keep tenant-specific bundles alongside the skill
-- **Cost**: low (add to `.gitignore`, document in bundle template)
-- **Notes**: minor housekeeping; do when first user adopts the bundle pattern
+- **Origin**: 2026-04-29 (diagnostics template work)
+- **Impact**: document `_local-diagnostics/` directory pattern (gitignored) for users to keep tenant-specific diagnostics alongside the skill
+- **Cost**: low (add to `.gitignore`, document in diagnostics template)
+- **Notes**: minor housekeeping; do when first user adopts the diagnostics pattern
 
 ---
 

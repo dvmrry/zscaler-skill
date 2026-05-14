@@ -15,7 +15,6 @@ sources:
   - "agents/tenant-schema-derivation.md"
 dependencies:
   - "methodology.md"
-  - "bundles.md"
   - "../siem-emission-discipline.md"
   - "../tenant-schema-derivation.md"
   - "../loading-discipline.md"
@@ -103,14 +102,14 @@ Four read-tool calls before generating hypotheses. Skipping any of these produce
 
 **b. Use your file-read tool to load the canonical product / feature reference.** If the framing names a Zscaler product or feature, load the relevant reference before forming a hypothesis.
 
-**Symptom routes — check first.** Before using the keyword-based mapping below, look at `agents/investigator/routes/` for a matching symptom shape. If one matches, load the route card and use its `Load docs` + `Inspect snapshot` lists as the grounding plan, and treat its `Expected behavior anchors` as the doc sections to read first (not just the file at the file level). Route cards exist because real Zscaler troubleshooting needs *clusters* of refs read together (segment + server-group + connector chain; URL filtering + Cloud App Control; SSL inspection + bypass rules) — a single keyword match isn't usually enough. Available routes:
+**Symptom grounding — check first.** Before using the keyword-based mapping below, look at `agents/investigator/grounding/` for a matching symptom shape. If one matches, load the grounding card and use its `Load docs` + `Inspect snapshot` lists as the grounding plan, and treat its `Expected behavior anchors` as the doc sections to read first (not just the file at the file level). Grounding cards exist because real Zscaler troubleshooting needs *clusters* of refs read together (segment + server-group + connector chain; URL filtering + Cloud App Control; SSL inspection + bypass rules) — a single keyword match isn't usually enough. Available grounding cards:
 
-- [`routes/zpa-connector-assignment.md`](./routes/zpa-connector-assignment.md) — connector assignment failures, empty `Connector` LSS field, "no connector available."
-- [`routes/zpa-segment-matching.md`](./routes/zpa-segment-matching.md) — segment scope, specificity, multi-segment overlap, port-mismatch.
-- [`routes/zia-url-filtering-precedence.md`](./routes/zia-url-filtering-precedence.md) — rule order, first-match, specificity gotcha, HTTPS dual-evaluation, Cloud App Control interaction.
-- [`routes/zia-ssl-inspection-bypass.md`](./routes/zia-ssl-inspection-bypass.md) — bypass scope, "Do Not Inspect" variants, cross-policy implications of bypass.
+- [`grounding/zpa-connector-assignment.md`](./grounding/zpa-connector-assignment.md) — connector assignment failures, empty `Connector` LSS field, "no connector available."
+- [`grounding/zpa-segment-matching.md`](./grounding/zpa-segment-matching.md) — segment scope, specificity, multi-segment overlap, port-mismatch.
+- [`grounding/zia-url-filtering-precedence.md`](./grounding/zia-url-filtering-precedence.md) — rule order, first-match, specificity gotcha, HTTPS dual-evaluation, Cloud App Control interaction.
+- [`grounding/zia-ssl-inspection-bypass.md`](./grounding/zia-ssl-inspection-bypass.md) — bypass scope, "Do Not Inspect" variants, cross-policy implications of bypass.
 
-The route list grows as new symptom shapes surface in real investigations — postmortems can add a card. If no route matches the framing, fall back to the keyword mapping below.
+The grounding list grows as new symptom shapes surface in real investigations — postmortems can add a card when normal topic loading misses a required context cluster. If no grounding card matches the framing, fall back to the keyword mapping below.
 
 **Keyword fallback — load every file matching the framing's vocabulary:**
 
@@ -292,16 +291,18 @@ If the investigation stays exploratory (no production stakes, no consequences wo
 
 If the investigation is NOT incident-shaped — exploratory, hypothesis-driven, no production stakes — there's no need to save the artifact. Chat-ephemeral is fine.
 
-## Query bundles
+## Diagnostics
 
-When the same hypothesis comes up repeatedly, capture the verified query sequence as a **bundle** — a named, ordered list of queries with decision logic mapping results to claim statuses. See [`investigator/bundles.md`](./bundles.md) for the template and the public/private boundary (verified bundles can ship; speculative ones stay private). The agent should consult locally-available bundles before reasoning queries from scratch.
+A diagnostic is a verified, ordered proof/disproof sequence for a repeated hypothesis: command or query, value to inspect, decision branch, journal status update. The public skill currently ships only the authoring template at [`diagnostics/template.md`](./diagnostics/template.md); it does not include ready-to-run diagnostics.
+
+Do not load the diagnostics template during ordinary grounding or first response. Load it when converting a verified investigation pattern into a reusable diagnostic, usually after a real ticket, lab reproduction, or vendor-prescribed sequence proves the steps.
 
 ## On-demand references — load only when triggered
 
 Cross-cutting discipline docs and methodology supplements are listed as `dependencies:` in this prompt's frontmatter and referenced in the runtime adapter, but **none of them should be loaded before the first response**. They are Level-3 resources in the Anthropic Skills sense — load each only when its trigger condition applies. Always-loaded short summaries are inlined here so the active rules survive even when the full reference isn't loaded.
 
 - [`investigator/methodology.md`](./methodology.md) — discovery journal anti-patterns, handoff format, claim-status guidance, worked examples. **Load when:** investigation is stuck, drifting, preparing a handoff, resolving claim-status ambiguity, or you need anti-pattern examples.
-- [`investigator/bundles.md`](./bundles.md) — verified query sequences for common hypotheses. **Load when:** the issue matches a known repeated investigation pattern.
+- [`investigator/diagnostics/template.md`](./diagnostics/template.md) — authoring template for reusable diagnostics. **Load when:** creating or reviewing a verified diagnostic sequence; do not load for ordinary case grounding.
 - [`../siem-emission-discipline.md`](../siem-emission-discipline.md) — agent execution modes, query plumbing, public/private boundary. **Load when:** about to emit or run a SIEM query; mapping a Zscaler log type to a SIEM table / index / sourcetype.
 - [`../tenant-schema-derivation.md`](../tenant-schema-derivation.md) — canonical-vs-tenant schema reconciliation recipes per SIEM. **Load when:** canonical schema and tenant SIEM fields disagree, or deriving tenant-specific field mappings.
 - [`../loading-discipline.md`](../loading-discipline.md) — stage-announcement contract for I/O-driven pauses. **Inline summary** (always applies; load full doc only if cadence drifts): announce I/O actions before doing them — one line, fixed vocab (`reading <path>`, `searching <dir>`, `querying <name>`, `composing answer`), no heartbeats, no announcements for trivial in-context answers.
@@ -310,7 +311,7 @@ Cross-cutting discipline docs and methodology supplements are listed as `depende
 ## Cross-links
 
 - [`investigator/methodology.md`](./methodology.md) — discovery journal, claim status, anti-patterns
-- [`investigator/bundles.md`](./bundles.md) — query bundle template (verified sequences for common hypotheses)
+- [`investigator/diagnostics/template.md`](./diagnostics/template.md) — authoring template for verified diagnostics
 - [`siem-emission-discipline.md`](../siem-emission-discipline.md) — agent execution modes, public/private boundary
 - [`siem-log-mapping.md`](../../references/shared/siem-log-mapping.md) — Zscaler log type catalog
 - [`splunk-queries.md`](../../references/shared/splunk-queries.md) — Splunk SPL pattern catalog

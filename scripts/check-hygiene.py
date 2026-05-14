@@ -87,7 +87,7 @@ REQUIRED_FRONTMATTER = [
     "author-status",
 ]
 # Files under agents/ use a different identity convention: role + artifact for
-# role-keyed playbooks/methodologies/bundles, or just topic for cross-cutting
+# role-keyed playbooks/methodologies/grounding/diagnostics, or just topic for cross-cutting
 # agent infrastructure. They don't carry a product (they're product-agnostic).
 REQUIRED_FRONTMATTER_AGENTS_ROLE = [
     "role",
@@ -109,7 +109,7 @@ REQUIRED_FRONTMATTER_AGENTS_CROSSCUT = [
     "author-status",
 ]
 ALLOWED_CONFIDENCE = {"high", "medium", "low"}
-# "prompt" is the slash-command playbook content type (e.g. references/shared/audit-prompt.md)
+# "prompt" is the slash-command playbook content type (e.g. agents/auditor/prompt.md)
 ALLOWED_CONTENT_TYPE = {"reasoning", "reference", "primer", "prompt"}
 ALLOWED_AUTHOR_STATUS = {"stub", "draft", "reviewed"}
 # "practice" = derived from internal experience / methodology rather than external docs/code.

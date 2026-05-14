@@ -1,7 +1,7 @@
 ---
 role: investigator
-artifact: route
-title: "ZIA SSL inspection bypass — investigation route card"
+artifact: grounding
+title: "ZIA SSL inspection bypass — investigation grounding card"
 content-type: reference
 last-verified: "2026-05-07"
 confidence: medium

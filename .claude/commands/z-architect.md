@@ -8,8 +8,10 @@ Load and follow the playbook at @agents/architect/prompt.md.
 
 Before the first response, also load each of its declared dependencies:
 - `agents/architect/methodology.md` — recommendation register format, risk scale, confidence calibration, status lifecycle
-- `agents/architect/bundles.md` — query bundle template
 - `agents/siem-emission-discipline.md` — SIEM emission modes, public/private boundary
+
+Available on demand:
+- `agents/architect/diagnostics/template.md` — load only when authoring or reviewing a verified reusable diagnostic.
 <!-- adapter-deps:end -->
 
 The user's architect scope and context:

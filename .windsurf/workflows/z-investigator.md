@@ -12,7 +12,7 @@ Always load:
 
 Available on demand. Do not load before first response unless the trigger applies:
 - `agents/investigator/methodology.md` — load when stuck, drifting, or preparing handoff.
-- `agents/investigator/bundles.md` — load when the issue matches a known repeated investigation pattern.
+- `agents/investigator/diagnostics/template.md` — load only when authoring or reviewing a verified reusable diagnostic.
 - `agents/siem-emission-discipline.md` — load before emitting or running SIEM queries.
 - `agents/tenant-schema-derivation.md` — load when canonical-vs-tenant field mismatch appears.
 - `agents/loading-discipline.md` — load if stage-announcement cadence drifts.
@@ -111,7 +111,7 @@ The literal output. *No Clarification block in this turn — clarifications happ
 - <product references from the framing→file mapping that match — these ARE the case-relevant knowledge, load every matching one>
 - <log schema(s) under `references/{zia,zpa,zcc}/logs/<name>-schema.md` — only if the framing already involves logs>
 
-Cross-cutting docs (methodology, bundles, siem-emission-discipline, tenant-schema-derivation, loading-discipline, clarification-pattern) are **on-demand only** — do NOT include them in PROPOSED LOADS. They load when their trigger fires (per `agents/investigator/prompt.md § On-demand references`).
+Cross-cutting docs (methodology, diagnostics template, siem-emission-discipline, tenant-schema-derivation, loading-discipline, clarification-pattern) are **on-demand only** — do NOT include them in PROPOSED LOADS. They load when their trigger fires (per `agents/investigator/prompt.md § On-demand references`).
 
 **Journal created:** `<working-dir>/_data/incidents/<slug>/journal.md`
 
@@ -235,7 +235,7 @@ If the framing has no backticked tokens, set the field to `none`.
 
 #### Output: proposed loads (docs only)
 
-Emit a `**Proposed loads** (Step 2A — docs only; snapshot loads decided in Step 2B after docs are read)` heading followed by a bullet list of paths. The list is the **case-relevant knowledge** — playbook + framing-matched product references + matching log schema(s) when logs are part of the framing. Cross-cutting agent-instruction docs (methodology, bundles, siem-emission-discipline, tenant-schema-derivation, loading-discipline, clarification-pattern) are on-demand and **do NOT appear here**. **Snapshot files also do not appear** — they are decided in Step 2 after docs are loaded.
+Emit a `**Proposed loads** (Step 2A — docs only; snapshot loads decided in Step 2B after docs are read)` heading followed by a bullet list of paths. The list is the **case-relevant knowledge** — playbook + framing-matched product references + matching log schema(s) when logs are part of the framing. Cross-cutting agent-instruction docs (methodology, diagnostics template, siem-emission-discipline, tenant-schema-derivation, loading-discipline, clarification-pattern) are on-demand and **do NOT appear here**. **Snapshot files also do not appear** — they are decided in Step 2 after docs are loaded.
 
 - agents/investigator/prompt.md
 - <product references from the mapping table that match Products / features>

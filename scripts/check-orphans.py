@@ -6,7 +6,7 @@
 """check-orphans.py — find reference docs that no other file links to.
 
 Walks every .md file under `references/` and computes whether any other file
-in the kit (other references, docs/, SKILL.md, README.md, PLAN.md) links to
+in the skill (other references, docs/, SKILL.md, README.md, PLAN.md) links to
 it via a markdown link, a backticked path, or a directory reference.
 
 Files with no inbound link are orphans — readers have no path to discover

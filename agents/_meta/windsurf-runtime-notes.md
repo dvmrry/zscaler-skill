@@ -20,9 +20,9 @@ The Windsurf runtime does **not** automatically inline files referenced from ins
 
 **Implication**: workflow bodies should give the model a direct instruction to use its read tool. Fuzzy phrasing like "see the playbook at X" can be skipped by a weaker model (e.g., SWE-1.6); explicit phrasing like "Use the read tool to load X before responding" reliably triggers the file load.
 
-**Good:** *Use your file-read tool to load `references/shared/investigate-prompt.md`, then follow its instructions.*
+**Good:** *Use your file-read tool to load `agents/investigator/prompt.md`, then follow its instructions.*
 
-**Less good** (ambiguous — runtime might or might not load; model might or might not act): *See the playbook at `references/shared/investigate-prompt.md`.*
+**Less good** (ambiguous — runtime might or might not load; model might or might not act): *See the playbook at `agents/investigator/prompt.md`.*
 
 ## No `$ARGUMENTS`-style argument substitution
 
@@ -72,10 +72,10 @@ Workflows cannot pin to a specific model. The user's session model (e.g., SWE-1.
 
 **Implication**: design workflows for the **weakest model in routine rotation**. Tightening for SWE-1.6 (explicit numbered steps, status enums, "will NOT do" sections, gating fields) doesn't penalize stronger-model sessions — they extract the same procedural value, plus headroom — but failing to tighten penalizes weaker-model sessions immediately.
 
-This is also why bundles (per [`investigator/bundles.md`](../investigator/bundles.md), [`architect/bundles.md`](../architect/bundles.md)) matter: a verified bundle is more procedural than a playbook, leaving even less room for weak-model drift.
+This is also why verified diagnostics matter: an ordered command/query → value → decision sequence leaves less room for weak-model drift than open-ended reasoning. The authoring templates live at [`investigator/diagnostics/template.md`](../investigator/diagnostics/template.md) and [`architect/diagnostics/template.md`](../architect/diagnostics/template.md), but they are only loaded when creating or reviewing reusable diagnostics.
 
 ## Cross-links
 
-- Windsurf workflow files — `.windsurf/workflows/z-investigator.md`, `z-audit.md`, `z-architect.md`
-- Claude Code parallels — `.claude/commands/z-investigator.md`, `z-audit.md`, `z-architect.md`
+- Windsurf workflow files — `.windsurf/workflows/z-investigator.md`, `z-auditor.md`, `z-architect.md`
+- Claude Code parallels — `.claude/commands/z-investigator.md`, `z-auditor.md`, `z-architect.md`
 - [`siem-emission-discipline.md`](../siem-emission-discipline.md) — the broader "agent-direct vs. user-handoff vs. coworking" framework these workflows operate under

@@ -62,7 +62,7 @@ Follow the audit register format and severity / status enums from [`auditor/meth
 - Do not mark findings `Resolved` without verification (re-read the snapshot, re-run the query)
 - Findings outside scope go in Notes or "Out-of-scope observations," not silently dropped or chased
 
-The discipline around evidence sourcing follows [`investigator/methodology.md`](../investigator/methodology.md) — disk first (`_data/snapshot/<cloud>/`, `_data/incidents/<operative>/evidence/`), then SIEM, then live API, then portal as last resort. See [`./investigate-prompt.md § Step 4`](../investigator/prompt.md) for the full preference ladder.
+The discipline around evidence sourcing follows [`investigator/methodology.md`](../investigator/methodology.md) — disk first (`_data/snapshot/<cloud>/`, `_data/incidents/<operative>/evidence/`), then SIEM, then live API, then portal as last resort. See [`investigator/prompt.md § Step 4`](../investigator/prompt.md) for the full preference ladder.
 
 When asking the user a clarifying question — subtype inference, threat-model selection, scope disambiguation — format the question as a multiple-choice block (per [`agents/clarification-pattern.md`](../clarification-pattern.md)), never plain prose. Example for subtype inference:
 
@@ -88,7 +88,7 @@ If scope is ambiguous or absent, ask one clarifying question.
 
 ### 2. Ground before you reason
 
-Same a/b/c/d as `/z-investigator` (see [`./investigate-prompt.md § Step 2`](../investigator/prompt.md)):
+Same a/b/c/d as `/z-investigator` (see [`investigator/prompt.md § Step 2`](../investigator/prompt.md)):
 
 - **a.** Read source schemas for any logs / config files you'll analyze
 - **b.** Read the canonical product / feature reference for any Zscaler component in scope

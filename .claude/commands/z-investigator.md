@@ -9,7 +9,7 @@ Always load:
 
 Available on demand. Do not load before first response unless the trigger applies:
 - `agents/investigator/methodology.md` — load when stuck, drifting, or preparing handoff.
-- `agents/investigator/bundles.md` — load when the issue matches a known repeated investigation pattern.
+- `agents/investigator/diagnostics/template.md` — load only when authoring or reviewing a verified reusable diagnostic.
 - `agents/siem-emission-discipline.md` — load before emitting or running SIEM queries.
 - `agents/tenant-schema-derivation.md` — load when canonical-vs-tenant field mismatch appears.
 - `agents/loading-discipline.md` — load if stage-announcement cadence drifts.
