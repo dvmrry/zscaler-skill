@@ -26,11 +26,11 @@ Optionally install all script deps once via `uv sync --extra scripts` (reads the
 
 | Category | Scripts |
 |---|---|
-| **Hygiene / CI** | `check-hygiene.py`, `check-citations.sh`, `check-doc-links.py`, `check-orphans.py`, `check-staleness.sh`, `check-vendor-drift.py`, `check-scrape-freshness.py` |
+| **Hygiene / CI** | `check-hygiene.py`, `check-citations.sh`, `check-doc-links.py`, `check-orphans.py`, `check-staleness.sh`, `check-vendor-drift.py`, `check-scrape-freshness.py`, `maintenance-digest.py`, `vendor-impact-summary.py` |
 | **Eval suite** | `run-evals.py` |
 | **Tenant API operations** | `access-check.py`, `connector-health.py`, `diagnose-tenant.py`, `sandbox-check.py`, `snapshot-refresh.py`, `ssl-audit.py`, `url-lookup.py`, `zpa-app-check.py` |
 | **Reasoning helpers** | `agent_patterns.py` (lib), `policy_simulator.py` (lib), `simulate-policy.py`, `ab-test-prompt.py`, `find-asymmetries.py` |
-| **Maintenance** | `issue-watch.py`, `refresh-postman.sh`, `refresh-automate-zscaler.sh`, `snapshot-refresh.py`, `splunk-query.sh` |
+| **Maintenance** | `issue-watch.py`, `maintenance-digest.py`, `vendor-impact-summary.py`, `refresh-postman.sh`, `refresh-automate-zscaler.sh`, `snapshot-refresh.py`, `splunk-query.sh` |
 | **Build** | `render-skill-pdf.py` |
 
 ## Aggregated dependencies
@@ -41,7 +41,7 @@ Currently used:
 
 - `pyyaml>=6` — frontmatter parsing
 - `zscaler-sdk-python>=1.7` — SDK-calling scripts
-- `httpx>=0.27` — async HTTP (issue-watch)
+- `httpx>=0.27` — GitHub API calls (issue-watch and maintenance digest sticky issues)
 - `markdown>=3.5`, `pymdown-extensions>=10` — PDF rendering
 
 ## When to add a new script
