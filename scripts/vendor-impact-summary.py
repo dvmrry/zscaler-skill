@@ -54,20 +54,36 @@ def submodule_logs(changes: list[tuple[str, str, str]], max_commits: int) -> lis
     return lines
 
 
-def drift_section() -> list[str]:
+def drift_section(changes: list[tuple[str, str, str]]) -> list[str]:
+    changed_submodule_paths = {path for path, _, _ in changes}
+    if not changed_submodule_paths:
+        return [
+            "No vendor submodule pointer changes detected in this PR, so vendor drift impact was skipped.",
+            "",
+        ]
+
     result = run(["./scripts/check-vendor-drift.py", "--json"])
     try:
         data = json.loads(result.stdout)
     except json.JSONDecodeError:
         return ["Could not parse `check-vendor-drift.py --json` output.", ""]
 
-    high = data.get("drifted_high_priority", [])
-    low = data.get("drifted_low_priority", [])
-    unverified = data.get("unverified", [])
+    high = [
+        item for item in data.get("drifted_high_priority", [])
+        if item.get("submodule") in changed_submodule_paths
+    ]
+    low = [
+        item for item in data.get("drifted_low_priority", [])
+        if item.get("submodule") in changed_submodule_paths
+    ]
+    unverified = [
+        item for item in data.get("unverified", [])
+        if item.get("submodule") in changed_submodule_paths
+    ]
     lines = [
         f"- High-priority cited-file drift: **{len(high)}**",
         f"- Low-priority unchanged cited-file bumps: **{len(low)}**",
-        f"- Unverified vendor-citing ref/submodule pairs: **{len(unverified)}**",
+        f"- Unverified vendor-citing ref/submodule pairs on changed submodules: **{len(unverified)}**",
         "",
     ]
     if high:
@@ -100,7 +116,7 @@ def main() -> int:
         *submodule_logs(changes, args.max_commits),
         "## Reference Drift",
         "",
-        *drift_section(),
+        *drift_section(changes),
         "## Asymmetry Candidates",
         "",
         "`scripts/find-asymmetries.py` runs in this workflow and uploads `_data/logs/asymmetry-candidates.md` as an artifact when present.",
