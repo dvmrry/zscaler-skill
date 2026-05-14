@@ -14,6 +14,11 @@ Direct invocation (uv reads the inline metadata):
 
 Optionally install all script deps once via `uv sync --extra scripts` (reads the aggregated list from the top-level `pyproject.toml`).
 
+The public support boundary is functional, snapshot-backed tooling plus
+reference hygiene. Live-tenant diagnostic scaffolds are private-overlay
+templates: they exit by default and should only be run with `--allow-scaffold`
+while finishing a tenant-specific implementation.
+
 ## Convention
 
 - **Shebang**: `#!/usr/bin/env -S uv run --quiet --script`
@@ -28,7 +33,8 @@ Optionally install all script deps once via `uv sync --extra scripts` (reads the
 |---|---|
 | **Hygiene / CI** | `check-hygiene.py`, `check-citations.sh`, `check-doc-links.py`, `check-orphans.py`, `check-staleness.sh`, `check-vendor-drift.py`, `check-scrape-freshness.py`, `maintenance-digest.py`, `vendor-impact-summary.py` |
 | **Eval suite** | `run-evals.py` |
-| **Tenant API operations** | `access-check.py`, `connector-health.py`, `diagnose-tenant.py`, `sandbox-check.py`, `snapshot-refresh.py`, `ssl-audit.py`, `url-lookup.py`, `zpa-app-check.py` |
+| **Tenant API operations** | `diagnose-tenant.py`, `snapshot-refresh.py`, `url-lookup.py` |
+| **Private-overlay scaffolds** | `access-check.py`, `connector-health.py`, `sandbox-check.py`, `ssl-audit.py`, `zpa-app-check.py` |
 | **Reasoning helpers** | `agent_patterns.py` (lib), `policy_simulator.py` (lib), `simulate-policy.py`, `ab-test-prompt.py`, `find-asymmetries.py` |
 | **Maintenance** | `issue-watch.py`, `maintenance-digest.py`, `vendor-impact-summary.py`, `refresh-postman.sh`, `refresh-automate-zscaler.sh`, `snapshot-refresh.py`, `splunk-query.sh` |
 | **Build** | `render-skill-pdf.py` |

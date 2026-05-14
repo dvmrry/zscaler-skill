@@ -131,7 +131,7 @@ See [`references/zia/api.md § Authentication`](./references/zia/api.md) for the
 
 Writes to `_data/snapshot/zia/*.json`, `_data/snapshot/zpa/*.json`, and `_data/snapshot/zcc/*.json` plus a `_manifest.json` with timestamps and per-resource counts. The public upstream repo keeps `_data/snapshot/` empty via `.gitkeep` — **your fork is expected to commit real snapshots.** The skill cites `_data/snapshot/` when answering tenant-specific questions; without it, most tenant-specific answers revert to "I can't verify, here's the general mechanism."
 
-### 6. Try an operational script
+### 6. Try a public-safe operational script
 
 With snapshot in place:
 
@@ -139,12 +139,15 @@ With snapshot in place:
 # "What rules reference the category this URL falls into?"
 ./scripts/url-lookup.py https://www.reddit.com
 
-# "What SSL bypasses are we running, and which are risky?"
-./scripts/ssl-audit.py --min-risk MEDIUM
-
-# "Can user alice@corp.example.com access hr.internal.example.com?"
-./scripts/access-check.py --user alice@corp.example.com hr.internal.example.com
+# "Would this URL be blocked by the snapshot's URL Filtering rules?"
+./scripts/simulate-policy.py --url https://www.reddit.com
 ```
+
+The public repo only treats snapshot-backed and reference-hygiene scripts as
+operational. Live-tenant diagnostic sketches such as `access-check.py`,
+`ssl-audit.py`, `sandbox-check.py`, `connector-health.py`, and
+`zpa-app-check.py` are private-overlay scaffolds until an adopter validates the
+SDK response shapes against their own tenant.
 
 Full inventory under [Helper scripts](#helper-scripts) below.
 
@@ -161,19 +164,19 @@ Each eval entry now includes `assertions`, `must_cite_files`, `must_not_say`, an
 
 ## Helper scripts
 
-All scripts use the [uv single-file script](https://docs.astral.sh/uv/guides/scripts/) pattern — `#!/usr/bin/env -S uv run --quiet --script` shebang, inline dependency declarations, no virtual-env setup needed. Each reads credentials from the env vars above.
+All scripts use the [uv single-file script](https://docs.astral.sh/uv/guides/scripts/) pattern — `#!/usr/bin/env -S uv run --quiet --script` shebang, inline dependency declarations, no virtual-env setup needed. Tenant API scripts read credentials from the env vars above.
 
-Each script's header comment carries a **Status** line — `functional`, `scaffold`, or `stub`. Scaffolds have docstrings, argument parsing, auth wiring, and logical structure in place but leave TODOs where live-API response shape needs to be confirmed against a real tenant; they won't produce useful output until the fork admin fills those in. Stubs are placeholders.
+Each script's header comment carries a **Status** line — `functional`, `scaffold`, or `stub`. Functional scripts are the public support boundary. Scaffolds are design templates for private overlays: they keep argument parsing, auth wiring, and intended diagnostic flow, but exit by default because live-API response shapes have not been validated in the public repo. Stubs are placeholders.
 
 | Script | Status | Question it answers | Notes |
 |---|---|---|---|
 | `scripts/url-lookup.py <url>` | functional | Which URL categories cover this URL, and which rules reference those categories? | Implements MCP `investigate-url` workflow. |
 | `scripts/snapshot-refresh.py` | functional | Bulk dump ZIA + ZPA + ZCC config to `_data/snapshot/` | Foundation for all tenant-specific skill answers. Dumps ZIA (URL categories, URL-filter rules, CAC rules, SSL-inspection rules, advanced settings), ZPA (app-segments, segment groups, server groups, access policies), and ZCC (forwarding profiles, trusted networks, fail-open policies, web policies). `--zia-only` / `--zpa-only` / `--zcc-only` flags limit scope. |
-| `scripts/access-check.py --user X <url>` | scaffold | Can user X access URL, and which policy layer decides? | Walks SSL → URL Filter → CAC → DLP → Firewall. Flags DLP-not-effective under SSL bypass. Pre-checks activation status. TODOs where per-layer SDK response traversal needs real tenant output to confirm. |
-| `scripts/ssl-audit.py` | scaffold | Which SSL Inspection rules are bypassing what, with what risk? | CRITICAL/HIGH/MEDIUM/LOW classification per `ssl-inspection.md` rubric. `--min-risk`, `--forwarding`, `--with-dlp` flags. |
-| `scripts/sandbox-check.py --md5 <hash> --url <url>` | scaffold | Why was this file blocked / unanalyzed / stuck in quarantine? | Detects static-analysis fast-path, SSL-bypass-prevents-Sandbox, Basic-vs-Advanced tier mismatch. Surfaces the "Malware Protection / ATP have no API" limit. |
-| `scripts/connector-health.py [--group <name>]` | scaffold | Is connector group X healthy? | Checks provisioning-key exhaustion (#1 enrollment failure), runtime status, version lag, cert expiry. |
-| `scripts/zpa-app-check.py --fqdn <fqdn>` | scaffold | Is this app properly onboarded in ZPA end-to-end? | Validates segment → server group → connector group → access policy chain. Flags port-mismatch-as-dropped. |
+| `scripts/access-check.py --user X <url>` | private-overlay scaffold | Can user X access URL, and which policy layer decides? | Walks SSL → URL Filter → CAC → DLP → Firewall. Exits by default; run with `--allow-scaffold` only while validating the TODOs against a real tenant. |
+| `scripts/ssl-audit.py` | private-overlay scaffold | Which SSL Inspection rules are bypassing what, with what risk? | CRITICAL/HIGH/MEDIUM/LOW classification per `ssl-inspection.md` rubric. Exits by default until SSL-rule fields and scope resolution are tenant-validated. |
+| `scripts/sandbox-check.py --md5 <hash> --url <url>` | private-overlay scaffold | Why was this file blocked / unanalyzed / stuck in quarantine? | Sketches static-analysis fast-path, SSL-bypass-prevents-Sandbox, Basic-vs-Advanced tier mismatch, and the Malware Protection / ATP API gap. Exits by default until live response fields are validated. |
+| `scripts/connector-health.py [--group <name>]` | private-overlay scaffold | Is connector group X healthy? | Sketches provisioning-key exhaustion, runtime status, version lag, and cert expiry checks. Exits by default until ZPA connector fields are tenant-validated. |
+| `scripts/zpa-app-check.py --fqdn <fqdn>` | private-overlay scaffold | Is this app properly onboarded in ZPA end-to-end? | Sketches segment → server group → connector group → access policy validation. Exits by default until segment matching and policy-rule traversal are tenant-validated. |
 | `scripts/find-asymmetries.py` | functional | What candidate API mismatches sit in the schemas (read/write asymmetries, cross-provider validator drift, intra-resource enum collisions, server-assigned fields)? | Passes 1 + 2 implemented. Pass 1: TF validator extraction across `terraform-provider-{zia,zpa,ztc}` (inline + map + slice patterns) plus within-validator near-duplicate detection. Pass 2: Postman request body vs response example field-path diff. Outputs candidates to `_data/logs/asymmetry-candidates.md` for human triage. Passes 3–5 (fuzzy field-name match, TF git history, Python SDK enum extraction) documented inline as future work. |
 | `scripts/check-hygiene.py` | functional | Are docs internally consistent — frontmatter valid, anchors resolve, evals cite real files, resolved clarifications propagated? | Bundled hygiene checker. Four passes: (1) frontmatter validation (required fields, allowed enum values, ISO date format, sources required at high confidence except for aggregator/`_*` meta-docs); (2) anchor resolution (path-plus-anchor links and same-file anchor links both verified against target headings via GFM-anchor algorithm); (3) resolved-clarification propagation (warns when an Open questions section still lists a clarification that's now marked resolved in `_meta/clarifications.md`); (4) eval `must_cite_files` paths. Errors fail CI; warnings advisory. Run on every PR + weekly via `.github/workflows/check-hygiene.yml`. `--digest` flag writes a markdown digest for sticky-issue integration. |
 | `scripts/agent_patterns.py` | functional (module, not a CLI) | Importable Python module with typed functions for the 5 diagnostic patterns: `detect_cloud()`, `is_gov_cloud()`, `detect_auth_framework()`, `smoke_test_creds()`, `enumerate_endpoints()`, `interpret_error()`, plus composite `diagnose_tenant()`. AI-agent-shaped: typed, dependency-free, copy-pasteable. Documented in `references/_meta/agent-patterns.md`. |
@@ -183,7 +186,7 @@ Each script's header comment carries a **Status** line — `functional`, `scaffo
 | `scripts/issue-watch.py` | functional | What's new in upstream Zscaler GitHub issues since I last looked? | Walks 7 vendored upstream repos via the public GitHub REST API. Two modes. **Local** (default): compares against `_data/logs/issue-watch-state.json`, writes digest to `_data/logs/issues-new.md`. **Sticky-issue** (`--sticky-label LABEL` or `--sticky-issue NUMBER`): finds an existing GitHub issue and rewrites its body with the latest digest each run; state lives in an HTML-comment marker embedded in the issue body, no separate state file. The repo ships a GH Actions workflow at `.github/workflows/issue-watch.yml` that runs sticky mode weekly. First run defaults to a 30-day lookback. Works unauthenticated at 60 req/hr; honors `GITHUB_TOKEN` for higher rate (Actions provides 1000/hr automatically). |
 | `scripts/splunk-query.sh <spl>` | stub | Run an SPL query against Zscaler logs | Placeholder; implement for your SIEM. |
 
-All Python scripts accept `--json` for machine-readable output where appropriate.
+Functional Python scripts accept `--json` for machine-readable output where appropriate. Private-overlay scaffolds may define `--json`, but they do not produce trustworthy output until completed in a tenant fork.
 
 ### Expected first-run output (`snapshot-refresh.py`)
 
@@ -287,7 +290,7 @@ Expect to do this periodically — upstream SDK / TF provider releases add new r
 ## Known gaps (read before filing issues)
 
 - **Malware Protection and ATP blocks have NO API coverage.** `scripts/sandbox-check.py` surfaces this explicitly. `references/zia/malware-and-atp.md` covers the operational/console-only layer; diagnosis of specific blocks still requires the ZIA Admin Console.
-- **Five operational scripts are scaffolds.** `access-check.py`, `ssl-audit.py`, `sandbox-check.py`, `connector-health.py`, `zpa-app-check.py` have auth wiring and structure but leave TODOs where SDK response shape needs confirmation against a real tenant. `url-lookup.py` and `snapshot-refresh.py` are complete end-to-end.
+- **Five live-tenant diagnostic scripts are private-overlay scaffolds.** `access-check.py`, `ssl-audit.py`, `sandbox-check.py`, `connector-health.py`, `zpa-app-check.py` preserve the intended workflow design but exit by default because the public repo cannot validate tenant-specific SDK response shapes. `url-lookup.py`, `simulate-policy.py`, and `snapshot-refresh.py` are the supported public operational path.
 - **Several clarifications remain open** because they require tenant-specific lab tests — see `PLAN.md § Pending lab tests` (6 items including ZCC int-enum semantic mappings).
 - **Snapshot schema docs deferred** — will be written against real tenant output post-fork, not inferred pre-fork. See `PLAN.md § 4. Snapshot schema docs`.
 - **Z-Tunnel wire-format internals are not customer-documented.** `references/zcc/z-tunnel.md` covers the operational layer (CONNECT-vs-DTLS, single-IP-NAT requirement, GRE incompatibility, 4-layer bypass architecture). Protocol-level questions (framing, cipher, fallback triggers) remain Zscaler Support territory.

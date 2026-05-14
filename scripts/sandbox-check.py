@@ -71,6 +71,8 @@ import os
 import sys
 from typing import Any
 
+from scaffold_guard import add_scaffold_arg, guard_scaffold
+
 
 BASIC_SANDBOX_FILE_TYPES = {".exe", ".dll", ".scr", ".ocx", ".sys", ".zip"}
 BASIC_SANDBOX_SIZE_LIMIT_BYTES = 2 * 1024 * 1024  # 2 MB
@@ -81,6 +83,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--md5", help="File MD5 hash (from ZIA Web Insights log)")
     p.add_argument("--url", help="Source URL the file was downloaded from")
     p.add_argument("--json", action="store_true", help="Emit JSON report")
+    add_scaffold_arg(p)
     args = p.parse_args()
     if not (args.md5 or args.url):
         p.error("at least one of --md5 or --url is required")
@@ -243,6 +246,11 @@ def build_diagnosis(args: argparse.Namespace, client: Any) -> dict:
 
 def main() -> int:
     args = parse_args()
+    guard_scaffold(
+        args,
+        "scripts/sandbox-check.py",
+        "Sandbox SDK methods, quota fields, and SSL-bypass correlation require live-tenant SDK response validation",
+    )
     try:
         client = build_zia_client()
     except KeyError as e:

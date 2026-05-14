@@ -73,6 +73,8 @@ import sys
 from enum import IntEnum
 from typing import Any
 
+from scaffold_guard import add_scaffold_arg, guard_scaffold
+
 
 class Risk(IntEnum):
     LOW = 1
@@ -132,6 +134,7 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Also flag DLP rules whose categories overlap a bypass (slower)",
     )
+    add_scaffold_arg(p)
     return p.parse_args()
 
 
@@ -296,6 +299,11 @@ def audit(client: Any, forwarding: str) -> list[dict]:
 
 def main() -> int:
     args = parse_args()
+    guard_scaffold(
+        args,
+        "scripts/ssl-audit.py",
+        "SSL rule response fields and scope-resolution paths require live-tenant SDK response validation",
+    )
     try:
         client = build_zia_client()
     except KeyError as e:
