@@ -39,6 +39,8 @@ Default to `@zscaler`; use procedural roles when the task has a defined output.
 - **`/z-auditor`**: editorial and structural skill audit; produces an audit
   register.
 - **`/z-soc`**: security-posture review; produces a posture register.
+- **`/z-retro`**: journal-first incident postmortem; produces a warning
+  ledger and proceed/stop decision gate.
 
 ## Quick start
 
