@@ -108,6 +108,7 @@ Four read-tool calls before generating hypotheses. Skipping any of these produce
 - [`grounding/zpa-segment-matching.md`](./grounding/zpa-segment-matching.md) — segment scope, specificity, multi-segment overlap, port-mismatch.
 - [`grounding/zia-url-filtering-precedence.md`](./grounding/zia-url-filtering-precedence.md) — rule order, first-match, specificity gotcha, HTTPS dual-evaluation, Cloud App Control interaction.
 - [`grounding/zia-ssl-inspection-bypass.md`](./grounding/zia-ssl-inspection-bypass.md) — bypass scope, "Do Not Inspect" variants, cross-policy implications of bypass.
+- [`grounding/zte-request-lifecycle.md`](./grounding/zte-request-lifecycle.md) — broad or poorly-framed symptoms; place the failure stage before loading specific cards.
 
 The grounding list grows as new symptom shapes surface in real investigations — postmortems can add a card when normal topic loading misses a required context cluster. If no grounding card matches the framing, fall back to the keyword mapping below.
 
