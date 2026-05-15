@@ -14,6 +14,7 @@ For procedural tasks, prefer the existing Windsurf workflows:
 - Security posture review: `/z-soc`
 - Capacity or scaling review: `/z-architect`
 - Skill/reference audit: `/z-auditor`
+- Incident retrospective / postmortem after a journal exists: `/z-retro`
 
 Do not answer Zscaler policy, API, log, or tenant-specific questions from
 memory. Load only the files needed for the current question. Tenant-specific

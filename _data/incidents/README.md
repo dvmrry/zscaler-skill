@@ -31,16 +31,20 @@ Chronological. ISO-8601 timestamps. One line per event. Includes detection time,
 
 ### `postmortem.md`
 
-Written **after** the dust settles, not during. Sections:
+Written **after** the dust settles, not during. The postmortem / retro is not a standalone narrative — it is a conclusion layer over `journal.md`. Every causal claim, decision point, and warning disposition in the postmortem should trace back to a journal claim, timeline entry, or evidence-manifest row. If the journal contained material warnings, the retro must explicitly say how each warning was resolved, accepted, deferred, or ruled out before recommending further forward motion. Use [`../../agents/retro/prompt.md`](../../agents/retro/prompt.md) / [`../../agents/retro/methodology.md`](../../agents/retro/methodology.md) as the executable workflow for writing or reviewing this file.
+
+Sections:
 
 - **Summary** — one paragraph; what happened, what was the impact, what changed
+- **Evidence map** — journal, timeline, evidence manifest, related commits, and PRs that support the retro
 - **Root cause** — confirmed cause(s); cite the journal claims that established them
+- **Warnings and decision gates** — material warnings raised during the journal, their disposition, and why it was safe to proceed or why work stopped
 - **Why it wasn't caught earlier** — the systemic angle; what was the silent gap?
 - **What changed** — every concrete edit attributable to this incident, with commit refs
 - **Lessons** — generalized takeaways usable for future investigations
 - **Follow-ups** — open work spawned by this; cross-link to `IMPROVEMENTS.md` entries
 
-Keep it blameless and brief. The artifact's purpose is institutional memory, not narrative.
+Keep it blameless and brief. The artifact's purpose is institutional memory, not narrative. A retro that cannot cite the journal is incomplete; a retro that ignores unresolved warnings is not a basis for pushing forward.
 
 ### `evidence/`
 
@@ -128,15 +132,17 @@ For **exploratory investigations** that aren't incidents, only `journal.md` exis
 
 1–4 as above, plus:
 5. Author `timeline.md` from commit history + chat record
-6. Author `postmortem.md` within ~24h while context is fresh
-7. Capture cited raw artifacts under `evidence/` (gitignored by default)
-8. `IMPROVEMENTS.md` gets follow-up entries for any deferred work
+6. Re-read `journal.md` and list every material warning / unresolved claim before drafting the retro
+7. Author `postmortem.md` within ~24h while context is fresh; tie each conclusion and warning disposition back to the journal
+8. Capture cited raw artifacts under `evidence/` (gitignored by default)
+9. `IMPROVEMENTS.md` gets follow-up entries for any deferred work
 
 Privacy is unchanged across both flows: `_data/incidents/*` is gitignored by default, so journals stay local until the engineer explicitly opts in to publish.
 
 ## Cross-links
 
 - [`../../agents/investigator/methodology.md`](../../agents/investigator/methodology.md) — discovery journal format
+- [`../../agents/retro/prompt.md`](../../agents/retro/prompt.md) and [`../../agents/retro/methodology.md`](../../agents/retro/methodology.md) — journal-first postmortem workflow
 - [`../../agents/auditor/methodology.md`](../../agents/auditor/methodology.md) — register format if a post-incident audit is warranted
 - [`../../IMPROVEMENTS.md`](../../IMPROVEMENTS.md) — skill-level backlog where follow-ups land
 - [`../README.md`](../README.md) — `_data/` directory convention overview

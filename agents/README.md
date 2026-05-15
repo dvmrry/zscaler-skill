@@ -2,7 +2,7 @@
 topic: "agents-index"
 title: "Agent workflows — index and conventions"
 content-type: reference
-last-verified: "2026-05-06"
+last-verified: "2026-05-14"
 confidence: high
 source-tier: practice
 sources:
@@ -10,6 +10,7 @@ sources:
   - "agents/architect/prompt.md"
   - "agents/auditor/prompt.md"
   - "agents/soc/prompt.md"
+  - "agents/retro/prompt.md"
 author-status: draft
 ---
 
@@ -36,6 +37,7 @@ The split keeps `references/` focused as a knowledge base, lets agent personas r
 | **Architect** | `/z-architect` | [`prompt`](./architect/prompt.md) · [`methodology`](./architect/methodology.md) · [`diagnostics template`](./architect/diagnostics/template.md) | Capacity, scaling, and structural-risk review with recommendation register |
 | **Auditor** | `/z-auditor` | [`prompt`](./auditor/prompt.md) · [`methodology`](./auditor/methodology.md) | Editorial / structural / hygiene lint of references and tenant configuration |
 | **SOC** | `/z-soc` | [`prompt`](./soc/prompt.md) | Security posture review — RBAC least-privilege, telemetry coverage, threat-model-anchored findings |
+| **Retro** | `/z-retro` | [`prompt`](./retro/prompt.md) · [`methodology`](./retro/methodology.md) | Journal-first incident postmortem — warning ledger, source map, proceed/stop decision gate |
 
 Each role's `prompt.md` is the playbook the slash command activates. `methodology.md` is the discipline the playbook references. `grounding/` holds lightweight symptom-to-context profiles. `diagnostics/template.md` is an authoring template for verified ordered diagnostics; it is not a runtime dependency for ordinary first responses.
 

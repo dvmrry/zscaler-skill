@@ -14,6 +14,8 @@ For Zscaler questions:
 - For security posture review, suggest `/z-soc`.
 - For capacity or scaling review, suggest `/z-architect`.
 - For skill/reference audit, suggest `/z-auditor`.
+- For incident retrospectives / postmortems after a journal exists, suggest
+  `/z-retro`.
 - Load only the files needed for the current question.
 - Tenant-specific truth lives in `_data/snapshot/` and `_data/iac/`.
 - Do not read `vendor/` unless the loaded prompt or current question
