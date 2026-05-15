@@ -98,7 +98,7 @@ agents/                  canonical prompts, diagnostics, and role workflows
 references/              sourced Zscaler behavior and product references
 references/_meta/        portfolio map, clarifications, evals, templates
 scripts/                 public tooling, maintenance checks, private scaffolds
-vendor/                  pinned upstream Zscaler sources as git submodules
+vendor/                  pinned upstream SDKs, providers, modules, and tool refs
 _data/snapshot/          tenant config dumps; empty upstream, populated locally
 _data/iac/               tenant IaC overlay; empty upstream, populated per fork
 docs/                    project docs and rendered static docs assets

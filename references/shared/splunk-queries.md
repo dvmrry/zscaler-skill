@@ -13,6 +13,8 @@ sources:
   - "references/zpa/logs/access-log-schema.md"
   - "https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference"
   - "vendor/splunk-sdk-python/README.md"
+verified-against:
+  vendor/splunk-sdk-python: d334d2da58708335def361cbbf9907844e911232
 author-status: draft
 ---
 

@@ -26,9 +26,11 @@ cd zscaler-skill
 git submodule update --init --recursive
 ```
 
-The `vendor/` tree holds upstream Zscaler sources as git submodules. Without
-them, reference docs that cite `vendor/zscaler-sdk-python/...` or
-`vendor/terraform-provider-zia/...` point to nothing.
+The `vendor/` tree holds upstream SDKs, Terraform providers, deployment
+modules, and tool references as git submodules. Without them, reference docs
+that cite paths such as `vendor/zscaler-sdk-python/...`,
+`vendor/terraform-provider-zia/...`, or `vendor/splunk-sdk-python/...` point to
+nothing.
 
 Activate the pre-push hook so hygiene runs locally before any push:
 
