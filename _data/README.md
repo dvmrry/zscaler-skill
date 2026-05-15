@@ -25,25 +25,34 @@ No subdir convention — flat. Scripts that want their own scratch namespace can
 
 ### `_data/snapshot/`
 
-**Tenant config dumps for offline analysis.** Gitignored except `.gitkeep`. Real deployments split per Zscaler cloud:
+**Tenant config dumps for offline analysis.** Gitignored except `.gitkeep`.
+The public scripts use a product-first layout:
 
 ```
 _data/snapshot/
-├── zs2/
+├── zia/
+│   ├── url-categories.json
 │   ├── url-filtering-rules.json
 │   └── ...
-├── zs3/
-│   ├── url-filtering-rules.json
+├── zpa/
+│   ├── app-segments.json
+│   ├── server-groups.json
 │   └── ...
-└── zspreview/
-    └── ...
+├── zcc/
+│   ├── forwarding-profiles.json
+│   └── ...
+└── _manifest.json
 ```
 
-Each tenant lives on a specific Zscaler cloud (zs1, zs2, zs3, zspreview, zscalergov, etc.); per-cloud subdirs prevent cross-tenant snapshot collisions when a fork serves multiple tenants. The cloud name comes from the tenant's API base URL (e.g., a tenant on `zsapi.zscaler.net` is on `zs1`; on `zsapi.zscalerthree.net` is on `zs3`).
+`scripts/snapshot-refresh.py` records the selected `ZSCALER_CLOUD` in
+`_manifest.json`; it does not create per-cloud directories.
 
 `scripts/snapshot-refresh.py` writes here. `scripts/simulate-policy.py` and other config-replay tools read from here.
 
-**Note on path conventions in scripts**: existing scripts (e.g., `simulate-policy.py`) reference paths like `_data/snapshot/zia/url-filtering-rules.json` — that's per-product, NOT per-cloud. Real-fork operators using the per-cloud convention should adjust those paths to `_data/snapshot/<cloud>/<product>/...` or similar in their fork.
+**Multi-tenant / multi-cloud forks** can add a private overlay such as
+`_data/snapshot/<tenant>/zia/...` or `_data/snapshot/<cloud>/zia/...`, but
+that is not the public repo convention. If a fork adds such an overlay, update
+its local agent prompts and scripts to match.
 
 ### `_data/incidents/`
 

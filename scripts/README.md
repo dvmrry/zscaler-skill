@@ -50,6 +50,31 @@ Currently used:
 - `httpx>=0.27` — GitHub API calls (issue-watch and maintenance digest sticky issues)
 - `markdown>=3.5`, `pymdown-extensions>=10` — PDF rendering
 
+## Expected first-run output
+
+A successful `snapshot-refresh.py` run against a small tenant looks like:
+
+```text
+$ ./scripts/snapshot-refresh.py --zia-only
+zia:
+  ✓ url-categories: 142 records -> _data/snapshot/zia/url-categories.json
+  ✓ url-filtering-rules: 37 records -> _data/snapshot/zia/url-filtering-rules.json
+  ✓ cloud-app-control-rules: 12 records -> _data/snapshot/zia/cloud-app-control-rules.json
+  ✓ ssl-inspection-rules: 8 records -> _data/snapshot/zia/ssl-inspection-rules.json
+  ✓ advanced-settings: 1 records -> _data/snapshot/zia/advanced-settings.json
+
+manifest -> _data/snapshot/_manifest.json
+```
+
+The public snapshot layout is product-first: `_data/snapshot/zia/`,
+`_data/snapshot/zpa/`, and `_data/snapshot/zcc/`. The manifest records
+`ZSCALER_CLOUD`; the public script does not partition output into per-cloud
+directories.
+
+Lines prefixed `!` indicate a per-resource fetch failure; the run continues.
+Lines prefixed `-` indicate that the SDK surface for that resource was not
+found, likely due to SDK version lag; those do not block the rest of the run.
+
 ## When to add a new script
 
 - Use the uv-script shebang
