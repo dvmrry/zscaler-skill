@@ -126,9 +126,9 @@ The following policy families accept both `SCIM_GROUP` and `SCIM` operand types.
 | Inspection Policy | `zpa_policy_inspection_rule_v2` | `INSPECT`, `BYPASS_INSPECT` | Yes | Yes | Yes |
 | Isolation Policy | `zpa_policy_isolation_rule_v2` | `ISOLATE`, `BYPASS_ISOLATE` | Yes (inferred from same pattern) | Yes (inferred) | Yes |
 
-Source: the Forwarding, Timeout, and Inspection v2 TF resource docs all show identical `SCIM_GROUP` and `SCIM` schema blocks with the same `lhs`/`rhs` entry-values semantics. The Isolation policy resource follows the same pattern in the codebase.
-
 ### Operator semantics
+
+Source: the Forwarding, Timeout, and Inspection v2 TF resource docs all show identical `SCIM_GROUP` and `SCIM` schema blocks with the same `lhs`/`rhs` entry-values semantics. The Isolation policy resource follows the same pattern in the codebase.
 
 The condition structure is shared across all policy families:
 

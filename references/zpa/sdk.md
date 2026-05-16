@@ -1798,9 +1798,13 @@ than a model instance.
 
 ## 4. Open questions / clarifications register
 
-**zpa-sdk-01** — Resolved 2026-04-26. `app_segments_ba.py` and `application_segment.py` both call `/application` but are differentiated by a helper method `get_segments_by_type(application_type="BROWSER_ACCESS")` in `application_segment.py` (line 416). `app_segments_ba` is a convenience wrapper that targets only Browser Access segments without requiring the caller to pass a type filter. Both service modules are legitimate; `app_segments_ba` should be used when working exclusively with Browser Access segments. Source: `vendor/zscaler-sdk-python/zscaler/zpa/app_segments_ba.py` and `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py`.
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/app_segments_ba.py`; `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py`.
 
-**zpa-sdk-02** — V1 vs V2 Browser Access segment modules: the endpoint URL appears identical in both. The distinction likely relates to the underlying request/response model (v2 may use a different pagination or field structure). For new integrations use `app_segments_ba_v2.py` if it is the more recent module; but this cannot be confirmed without a live API test. Source: `vendor/zscaler-sdk-python/zscaler/zpa/app_segments_ba.py` and `vendor/zscaler-sdk-python/zscaler/zpa/app_segments_ba_v2.py`.
+**zpa-sdk-01** — Resolved 2026-04-26. `app_segments_ba.py` and `application_segment.py` both call `/application` but are differentiated by a helper method `get_segments_by_type(application_type="BROWSER_ACCESS")` in `application_segment.py` (line 416). `app_segments_ba` is a convenience wrapper that targets only Browser Access segments without requiring the caller to pass a type filter. Both service modules are legitimate; `app_segments_ba` should be used when working exclusively with Browser Access segments.
+
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/app_segments_ba.py`; `vendor/zscaler-sdk-python/zscaler/zpa/app_segments_ba_v2.py`.
+
+**zpa-sdk-02** — V1 vs V2 Browser Access segment modules: the endpoint URL appears identical in both. The distinction likely relates to the underlying request/response model (v2 may use a different pagination or field structure). For new integrations use `app_segments_ba_v2.py` if it is the more recent module; but this cannot be confirmed without a live API test.
 
 **zpa-sdk-03** — Method lists for `CustomerDomainControllerAPI`, `UserPortalAUPAPI`, `ConfigOverrideControllerAPI`, `NPNClientControllerAPI` remain inferred from module structure. These were not fully read in the available review window.
 
@@ -1814,6 +1818,8 @@ than a model instance.
 
 **zpa-sdk-08** — Resolved 2026-04-26. `IPRangesAPI` (C2C IP Ranges) uses `_zpa_base_endpoint = f"/zpa/mgmtconfig/v1/admin/customers/{customer_id}/v2"` (source: `vendor/zscaler-sdk-python/zscaler/zpa/c2c_ip_ranges.py`, line 35). The `/v2` is a literal path suffix appended to the v1 admin customer base — making the full path `/zpa/mgmtconfig/v1/admin/customers/{id}/v2/...`. The same pattern appears in `customer_domain.py`. This is intentional API design (not a bug) — these endpoints are under a v2 sub-path within the v1 admin API namespace.
 
-**zpa-sdk-09** — Resolved 2026-04-26. `emergency_access.py` uses `page_id` (not `page`) as its pagination parameter. Source: `vendor/zscaler-sdk-python/zscaler/zpa/emergency_access.py`, line 45 — docstring explicitly lists `page_id` as the page number parameter. This appears to be specific to the emergency access endpoint's pagination contract; it is not a defect.
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/emergency_access.py`.
+
+**zpa-sdk-09** — Resolved 2026-04-26. `emergency_access.py` uses `page_id` (not `page`) as its pagination parameter. Line 45 docstring explicitly lists `page_id` as the page number parameter. This appears to be specific to the emergency access endpoint's pagination contract; it is not a defect.
 
 **zpa-sdk-10** — Go SDK parity for `customer_domain`, `zia_customer_config`, `user_portal_aup`, `workload_tag_group` was not confirmed in the reviewed Go SDK directory listing. These remain marked as `⚠` where uncertain.

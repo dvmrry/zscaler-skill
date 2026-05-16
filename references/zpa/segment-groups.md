@@ -178,9 +178,9 @@ Updates use v2 for the PUT (both Go SDK `UpdateV2` and Python SDK `update_group_
 | `applications[]` | array | App Segment stubs — on read, contains full segment details; on write via TF, contains only `{id}` objects |
 | `addedApps` / `deletedApps` | string | API delta fields; not user-settable directly |
 
-Source: `vendor/zscaler-sdk-go/zscaler/zpa/services/segmentgroup/zpa_segment_group.go` struct definition lines 19–36.
-
 ### Terraform resource (`zpa_segment_group`)
+
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_segment_group.md`, `vendor/terraform-provider-zpa/docs/data-sources/zpa_segment_group.md`, `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go`.
 
 ```terraform
 resource "zpa_segment_group" "example" {
@@ -214,9 +214,9 @@ terraform import zpa_segment_group.example <segment_group_id>
 terraform import zpa_segment_group.example "Sales Applications"
 ```
 
-Source: `vendor/terraform-provider-zpa/docs/resources/zpa_segment_group.md`, `vendor/terraform-provider-zpa/docs/data-sources/zpa_segment_group.md`, `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go`.
-
 ### Terraform data source (`zpa_segment_group`)
+
+Source: `vendor/terraform-provider-zpa/docs/data-sources/zpa_segment_group.md`, `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go`.
 
 ```terraform
 data "zpa_segment_group" "example" {
@@ -226,9 +226,9 @@ data "zpa_segment_group" "example" {
 
 The data source exports the full `applications[]` block (domain names, port ranges, health check type, server groups, microtenant attributes) plus `policy_migrated`, `tcp_keep_alive_enabled`, and `config_space`. Use this to reference a Segment Group created outside of TF in policy rules.
 
-Source: `vendor/terraform-provider-zpa/docs/data-sources/zpa_segment_group.md`, `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go`.
-
 ### Go SDK (`segmentgroup` package)
+
+Source: `vendor/zscaler-sdk-go/zscaler/zpa/services/segmentgroup/zpa_segment_group.go`.
 
 ```go
 import "github.com/zscaler/zscaler-sdk-go/v3/zscaler/zpa/services/segmentgroup"
@@ -244,8 +244,6 @@ segmentgroup.GetAll(ctx, service)
 ```
 
 All calls must include `common.Filter{MicroTenantID: service.MicroTenantID()}` — the helpers do this internally.
-
-Source: `vendor/zscaler-sdk-go/zscaler/zpa/services/segmentgroup/zpa_segment_group.go`.
 
 ### Python SDK (`segment_groups` module)
 
@@ -315,11 +313,11 @@ The API model carries `enabled` as a meaningful boolean. The Zscaler help docs s
 
 ### 5.6 Segment Group + microtenant scoping
 
+Source: `vendor/zscaler-help/about-microtenants.md`, `vendor/terraform-provider-zpa/docs/resources/zpa_segment_group.md`.
+
 Segment Groups are microtenant-scoped when created with a `microtenant_id`. A group created in Microtenant A is not visible to Microtenant B's admin — and cannot be referenced in Microtenant B's policy rules. The default microtenant admin can see and manage all microtenant Segment Groups. The `about-microtenants.md` help article lists "segment groups" as one of the objects that can be independently managed per microtenant.
 
 When the microtenant license is not active, `microtenant_id` on the Segment Group is ignored; the TF resource doc warns if the field is set without the feature flag.
-
-Source: `vendor/zscaler-help/about-microtenants.md`, `vendor/terraform-provider-zpa/docs/resources/zpa_segment_group.md`.
 
 ### 5.7 Zscaler Deception and Segment Groups
 
