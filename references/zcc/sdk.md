@@ -7,8 +7,10 @@ last-verified: "2026-04-26"
 confidence: medium
 source-tier: code
 sources:
-  - "vendor/zscaler-sdk-python/zscaler/zcc/"
-  - "vendor/zscaler-sdk-go/zscaler/zcc/services/"
+  - "vendor/zscaler-sdk-python/zscaler/zcc/zcc_service.py"
+  - "vendor/zscaler-sdk-python/zscaler/zcc/legacy.py"
+  - "vendor/zscaler-sdk-python/zscaler/zcc/utils.py"
+  - "vendor/zscaler-sdk-go/zscaler/zcc/services/common/common.go"
 author-status: draft
 ---
 
@@ -16,11 +18,15 @@ author-status: draft
 
 ## Overview
 
-The ZCC SDK wraps the Zscaler Client Connector portal API (`/zcc/papi/public/v1`). It covers device enrollment management, policy configuration, secrets, and administrative tasks for the Client Connector agent fleet. [Source: vendor/zscaler-sdk-python/zscaler/zcc/; vendor/zscaler-sdk-go/zscaler/zcc/services/]
+Source: vendor/zscaler-sdk-python/zscaler/zcc/zcc_service.py; vendor/zscaler-sdk-python/zscaler/zcc/legacy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/common/common.go.
+
+The ZCC SDK wraps the Zscaler Client Connector portal API (`/zcc/papi/public/v1`). It covers device enrollment management, policy configuration, secrets, and administrative tasks for the Client Connector agent fleet.
 
 ### Client construction — Python
 
-ZCC has two coexisting Python client paths. [Source: vendor/zscaler-sdk-python/zscaler/zcc/zcc_service.py; vendor/zscaler-sdk-python/zscaler/zcc/legacy.py]
+Source: vendor/zscaler-sdk-python/zscaler/zcc/zcc_service.py; vendor/zscaler-sdk-python/zscaler/zcc/legacy.py.
+
+ZCC has two coexisting Python client paths.
 
 **Modern path (OneAPI / ZIdentity auth):**
 
@@ -37,11 +43,15 @@ client = ZscalerClient(
 devices = client.zcc.devices.list_devices()
 ```
 
-The `ZCCService` class (`zscaler/zcc/zcc_service.py`) is instantiated inside `ZscalerClient` and delegates to a shared `RequestExecutor`. [Source: vendor/zscaler-sdk-python/zscaler/zcc/zcc_service.py]
+Source: vendor/zscaler-sdk-python/zscaler/zcc/zcc_service.py.
+
+The `ZCCService` class (`zscaler/zcc/zcc_service.py`) is instantiated inside `ZscalerClient` and delegates to a shared `RequestExecutor`.
 
 **Legacy path (ZCC portal token):**
 
-`LegacyZCCClientHelper` (`zscaler/zcc/legacy.py`) handles tenants that have not migrated to OneAPI. It authenticates directly against: [Source: vendor/zscaler-sdk-python/zscaler/zcc/legacy.py]
+Source: vendor/zscaler-sdk-python/zscaler/zcc/legacy.py.
+
+`LegacyZCCClientHelper` (`zscaler/zcc/legacy.py`) handles tenants that have not migrated to OneAPI. It authenticates directly against:
 
 ```
 POST https://api-mobile.<cloud>.net/papi/auth/v1/login
@@ -69,29 +79,41 @@ service, err := zscaler.NewOneAPIClient(config)
 devices, err := devices.GetAll(ctx, service, nil)
 ```
 
-Go ZCC services are package-level functions, not methods on a struct. The `NewZccRequestDo` transport method is used — callers must close `resp.Body` and decode manually. [Source: vendor/zscaler-sdk-go/zscaler/zcc/services/]
+Source: vendor/zscaler-sdk-go/zscaler/zcc/services/common/common.go; vendor/zscaler-sdk-go/zscaler/zcc/services/devices/devices.go.
+
+Go ZCC services are package-level functions, not methods on a struct. The `NewZccRequestDo` transport method is used — callers must close `resp.Body` and decode manually.
 
 ### Authentication specifics
 
-ZCC requires ZCC-scoped API credentials. When using OneAPI, the token request must include the `zcc.*` scope granted to the API client in ZIdentity. The legacy `LegacyZCCClientHelper` uses the ZCC-specific portal login, which is separate from ZIA/ZPA/ZDX authentication. The `x-partner-id` header is sent on every request when `partner_id` is configured. [Source: vendor/zscaler-sdk-python/zscaler/zcc/legacy.py; vendor/zscaler-sdk-python/zscaler/zcc/zcc_service.py]
+Source: vendor/zscaler-sdk-python/zscaler/zcc/legacy.py; vendor/zscaler-sdk-python/zscaler/zcc/zcc_service.py.
+
+ZCC requires ZCC-scoped API credentials. When using OneAPI, the token request must include the `zcc.*` scope granted to the API client in ZIdentity. The legacy `LegacyZCCClientHelper` uses the ZCC-specific portal login, which is separate from ZIA/ZPA/ZDX authentication. The `x-partner-id` header is sent on every request when `partner_id` is configured.
 
 ### Pagination — Python
 
-List endpoints accept `page` (1-indexed) and `page_size` (default 50, max 5000) as `query_params` keys. The `@zcc_param_mapper` decorator translates snake_case OS and registration type names to their numeric API equivalents before the request is sent. [Source: vendor/zscaler-sdk-python/zscaler/zcc/utils.py; vendor/zscaler-sdk-python/zscaler/zcc/]
+Source: vendor/zscaler-sdk-python/zscaler/zcc/utils.py; vendor/zscaler-sdk-python/zscaler/zcc/devices.py.
+
+List endpoints accept `page` (1-indexed) and `page_size` (default 50, max 5000) as `query_params` keys. The `@zcc_param_mapper` decorator translates snake_case OS and registration type names to their numeric API equivalents before the request is sent.
 
 The raw `response` object returned from every call supports client-side JMESPath filtering via `resp.search(expression)`.
 
 ### Pagination — Go
 
-`common.ReadAllPages[T]` in `zscaler/zcc/services/common/common.go` iterates pages automatically (default 50, max 5000) and stops when `len(pageResults) < pageSize`. JMESPath filtering is applied after aggregation via `zscaler.ApplyJMESPathFromContext`. [Source: vendor/zscaler-sdk-go/zscaler/zcc/services/common/common.go]
+Source: vendor/zscaler-sdk-go/zscaler/zcc/services/common/common.go.
+
+`common.ReadAllPages[T]` in `zscaler/zcc/services/common/common.go` iterates pages automatically (default 50, max 5000) and stops when `len(pageResults) < pageSize`. JMESPath filtering is applied after aggregation via `zscaler.ApplyJMESPathFromContext`.
 
 ### Return convention — Python
 
-Every method returns a three-tuple `(result, response, error)`. Callers should check `error` before using `result`. [Source: vendor/zscaler-sdk-python/zscaler/zcc/]
+Source: vendor/zscaler-sdk-python/zscaler/zcc/devices.py; vendor/zscaler-sdk-python/zscaler/zcc/web_policy.py; vendor/zscaler-sdk-python/zscaler/zcc/trusted_networks.py.
+
+Every method returns a three-tuple `(result, response, error)`. Callers should check `error` before using `result`.
 
 ### Parameter mapping (`@zcc_param_mapper`)
 
-The `zcc_param_mapper` decorator translates human-readable OS type strings (`"windows"`, `"macos"`, etc.) to integer codes required by the API (`3`, `4`, etc.), and registration type strings to their numeric equivalents. It also handles date-to-API-format conversion for endpoints that accept `start_date`/`end_date`. [Source: vendor/zscaler-sdk-python/zscaler/zcc/utils.py]
+Source: vendor/zscaler-sdk-python/zscaler/zcc/utils.py.
+
+The `zcc_param_mapper` decorator translates human-readable OS type strings (`"windows"`, `"macos"`, etc.) to integer codes required by the API (`3`, `4`, etc.), and registration type strings to their numeric equivalents. It also handles date-to-API-format conversion for endpoints that accept `start_date`/`end_date`.
 
 ---
 
@@ -219,7 +241,9 @@ Controls which ZDX and ZPA groups are entitled to use the Client Connector.
 **File:** `vendor/zscaler-sdk-python/zscaler/zcc/forwarding_profile.py`
 **Go package:** `vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/`
 
-Manages web forwarding profiles (PAC file / Zscaler tunnel forwarding configuration) per company. [Source: vendor/zscaler-sdk-python/zscaler/zcc/forwarding_profile.py; vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/]
+Source: vendor/zscaler-sdk-python/zscaler/zcc/forwarding_profile.py; vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go; vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile_request.go.
+
+Manages web forwarding profiles (PAC file / Zscaler tunnel forwarding configuration) per company.
 
 | Method | Signature | HTTP | Endpoint |
 |---|---|---|---|
@@ -241,7 +265,9 @@ Manages web forwarding profiles (PAC file / Zscaler tunnel forwarding configurat
 **File:** `vendor/zscaler-sdk-python/zscaler/zcc/fail_open_policy.py`
 **Go package:** `vendor/zscaler-sdk-go/zscaler/zcc/services/failopen_policy/`
 
-Controls what the agent does when the Zscaler cloud is unreachable — captive portal handling, tunnel failure behavior, and strict enforcement prompts. [Source: vendor/zscaler-sdk-python/zscaler/zcc/fail_open_policy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/failopen_policy/]
+Source: vendor/zscaler-sdk-python/zscaler/zcc/fail_open_policy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/failopen_policy/failopen_policy.go.
+
+Controls what the agent does when the Zscaler cloud is unreachable — captive portal handling, tunnel failure behavior, and strict enforcement prompts.
 
 | Method | Signature | HTTP | Endpoint |
 |---|---|---|---|
@@ -261,7 +287,9 @@ Controls what the agent does when the Zscaler cloud is unreachable — captive p
 **File:** `vendor/zscaler-sdk-python/zscaler/zcc/web_policy.py`
 **Go package:** `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/`
 
-Manages per-platform agent policy assignments (the set of policies active for each OS type). [Source: vendor/zscaler-sdk-python/zscaler/zcc/web_policy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/]
+Source: vendor/zscaler-sdk-python/zscaler/zcc/web_policy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go.
+
+Manages per-platform agent policy assignments (the set of policies active for each OS type).
 
 | Method | Signature | HTTP | Endpoint |
 |---|---|---|---|
@@ -303,7 +331,9 @@ Lists web application service definitions used by forwarding policies.
 **File:** `vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py`
 **Go package:** `vendor/zscaler-sdk-go/zscaler/zcc/services/web_privacy/`
 
-Controls which end-user and device PII the agent is permitted to collect (machine hostname, user info, ZDX location, packet capture, etc.). [Source: vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/web_privacy/]
+Source: vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/web_privacy/web_privacy.go.
+
+Controls which end-user and device PII the agent is permitted to collect (machine hostname, user info, ZDX location, packet capture, etc.).
 
 | Method | Signature | HTTP | Endpoint |
 |---|---|---|---|
@@ -323,7 +353,9 @@ Controls which end-user and device PII the agent is permitted to collect (machin
 **File:** `vendor/zscaler-sdk-python/zscaler/zcc/trusted_networks.py`
 **Go package:** `vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network/`
 
-Full CRUD for trusted network definitions — IP subnets, DNS servers, SSIDs, gateways, and DHCP servers that the agent uses to determine whether it is on a trusted network. [Source: vendor/zscaler-sdk-python/zscaler/zcc/trusted_networks.py; vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network/]
+Source: vendor/zscaler-sdk-python/zscaler/zcc/trusted_networks.py; vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network/trusted_network.go.
+
+Full CRUD for trusted network definitions — IP subnets, DNS servers, SSIDs, gateways, and DHCP servers that the agent uses to determine whether it is on a trusted network.
 
 | Method | Signature | HTTP | Endpoint |
 |---|---|---|---|
@@ -341,19 +373,21 @@ Full CRUD for trusted network definitions — IP subnets, DNS servers, SSIDs, ga
 
 ---
 
-## Go-only services (no Python equivalent)
+## Additional service parity notes
 
-The following Go packages expose functionality not present in the Python ZCC SDK:
+The following services are easy to misclassify because older captures showed them as Go-only. The current inspected Python SDK exposes the application-app surfaces through `ZCCService`; `manage_pass` remains model-only in Python.
 
-| Go package | Endpoint | Notes |
-|---|---|---|
-| `application_profiles` | `/zcc/papi/public/v1/application-profiles` | Application profiles (policy groups, device groups). Full CRUD. |
-| `custom_ip_apps` | `/zcc/papi/public/v1/custom-ip-based-apps` | Custom IP-based application definitions. |
-| `predefined_ip_apps` | `/zcc/papi/public/v1/predefined-ip-based-apps` | Predefined IP application catalog. Read-only. |
-| `process_based_apps` | `/zcc/papi/public/v1/process-based-apps` | Process-based application definitions. |
-| `manage_pass` | `/zcc/papi/public/v1/managePass` | Bulk password management (exit, logout, uninstall, per-product disable passwords). |
-| `remove_devices` | `/zcc/papi/public/v1/removeDevices` | Device removal (separate package in Go; bundled in Python `devices.py`). |
-| `download_devices` | `/zcc/papi/public/v1/downloadDevices` | CSV export (separate Go package; bundled in Python `devices.py`). |
+Source: vendor/zscaler-sdk-python/zscaler/zcc/zcc_service.py; vendor/zscaler-sdk-python/zscaler/zcc/application_profiles.py; vendor/zscaler-sdk-python/zscaler/zcc/custom_ip_base_apps.py; vendor/zscaler-sdk-python/zscaler/zcc/predefined_ip_based_apps.py; vendor/zscaler-sdk-python/zscaler/zcc/process_based_apps.py; vendor/zscaler-sdk-python/zscaler/zcc/models/manage_pass.py; vendor/zscaler-sdk-go/zscaler/zcc/services/application_profiles/application_profiles.go; vendor/zscaler-sdk-go/zscaler/zcc/services/custom_ip_apps/custom_ip_apps.go; vendor/zscaler-sdk-go/zscaler/zcc/services/predefined_ip_apps/predefined_ip_apps.go; vendor/zscaler-sdk-go/zscaler/zcc/services/process_based_apps/process_based_apps.go; vendor/zscaler-sdk-go/zscaler/zcc/services/manage_pass/manage_pass.go.
+
+| Surface | Endpoint | Python | Go | Notes |
+|---|---|---|---|---|
+| `application_profiles` | `/zcc/papi/public/v1/application-profiles` | `application_profiles.py` | `application_profiles/application_profiles.go` | Python supports list/get/update; Go supports list/get helpers. |
+| `custom_ip_apps` | `/zcc/papi/public/v1/custom-ip-based-apps` | `custom_ip_base_apps.py` | `custom_ip_apps/custom_ip_apps.go` | Read-only app catalog in inspected SDKs. |
+| `predefined_ip_apps` | `/zcc/papi/public/v1/predefined-ip-based-apps` | `predefined_ip_based_apps.py` | `predefined_ip_apps/predefined_ip_apps.go` | Read-only predefined IP application catalog. |
+| `process_based_apps` | `/zcc/papi/public/v1/process-based-apps` | `process_based_apps.py` | `process_based_apps/process_based_apps.go` | Read-only process-based application catalog. |
+| `manage_pass` | `/zcc/papi/public/v1/managePass` | Model only (`models/manage_pass.py`) | `manage_pass/manage_pass.go` | Bulk password management remains Go/direct-HTTP for writes. |
+| `remove_devices` | `/zcc/papi/public/v1/removeDevices` | `devices.py` | `remove_devices/zcc_remove_devices.go` | Device removal is a separate package in Go but bundled in Python `devices.py`. |
+| `download_devices` | `/zcc/papi/public/v1/downloadDevices` | `devices.py` | `download_devices/download_devices.go` | CSV export is a separate package in Go but bundled in Python `devices.py`. |
 
 ---
 
@@ -393,9 +427,11 @@ If `partner_id` is set, the `x-partner-id` header is included on every request i
 
 2. `get_web_privacy` returns `None` on error rather than a three-tuple, unlike every other method in the SDK. This is either an oversight or an intentional deviation. Callers must handle `None` rather than checking the third tuple element.
 
-**Q3 — Resolved 2026-04-26.** `web_policy_edit` calls `transform_common_id_fields(reformat_params, body, body)` where `reformat_params` is the global list defined in `vendor/zscaler-sdk-python/zscaler/utils.py` (lines 42–93). It converts snake_case keyword argument keys into their camelCase API equivalents for every object-reference field: `app_services → appServices`, `app_service_groups → appServiceGroups`, `devices → devices`, `device_groups → deviceGroups`, `departments → departments`, `groups → groups`, `users → users`, `labels → labels`, `locations → locations`, `location_groups → locationGroups`, `nw_services → nwServices`, `nw_service_groups → nwServiceGroups`, `src_ip_groups → srcIpGroups`, `time_windows → timeWindows`, plus ZPA-specific fields (`zpa_app_segments`, `zpa_application_segments`, `zpa_application_segment_groups`) and others. Source: `vendor/zscaler-sdk-python/zscaler/utils.py`.
+Source: vendor/zscaler-sdk-python/zscaler/utils.py.
 
-**Q4 — Resolved 2026-04-26.** Application profiles, custom IP apps, predefined IP apps, and process-based apps exist in the Go SDK (`vendor/zscaler-sdk-go/zscaler/zcc/services/application_profiles/`, `custom_ip_apps/`, `predefined_ip_apps/`, `process_based_apps/`) and have no Python equivalent. The Python ZCC service file list (`vendor/zscaler-sdk-python/zscaler/zcc/`) contains no corresponding modules, confirming these are not yet implemented in the Python SDK (not intentionally excluded).
+**Q3 — Resolved 2026-04-26.** `web_policy_edit` calls `transform_common_id_fields(reformat_params, body, body)` where `reformat_params` is the global list defined in `vendor/zscaler-sdk-python/zscaler/utils.py` (lines 42–93). It converts snake_case keyword argument keys into their camelCase API equivalents for every object-reference field: `app_services → appServices`, `app_service_groups → appServiceGroups`, `devices → devices`, `device_groups → deviceGroups`, `departments → departments`, `groups → groups`, `users → users`, `labels → labels`, `locations → locations`, `location_groups → locationGroups`, `nw_services → nwServices`, `nw_service_groups → nwServiceGroups`, `src_ip_groups → srcIpGroups`, `time_windows → timeWindows`, plus ZPA-specific fields (`zpa_app_segments`, `zpa_application_segments`, `zpa_application_segment_groups`) and others.
+
+**Q4 — Resolved 2026-05-16.** Application profiles, custom IP apps, predefined IP apps, and process-based apps are no longer Go-only in the inspected SDK snapshot. `ZCCService` exposes `application_profiles`, `custom_ip_base_apps`, `predefined_ip_based_apps`, and `process_based_apps`. Application profiles support update in Python; custom/predefined/process-based app modules expose read methods. Treat older "Go-only" notes for these services as stale.
 
 **Q5 — Resolved 2026-04-26.** The `manage_pass` endpoint is confirmed in Go at `vendor/zscaler-sdk-go/zscaler/zcc/services/manage_pass/manage_pass.go`. The `ManagePass` struct accepts: `companyId`, `deviceType`, `exitPass`, `logoutPass`, `policyName`, `uninstallPass`, `zadDisablePass`, `zdpDisablePass`, `zdxDisablePass`, `ziaDisablePass`, `zpaDisablePass`. The Python SDK has `models/manage_pass.py` with the matching model but no service module exposing the PUT call. Callers must use the Go SDK or call `POST /zcc/papi/public/v1/managePass` directly.
 
