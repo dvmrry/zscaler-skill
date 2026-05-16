@@ -22,6 +22,8 @@ ZBI has no standalone policy engine. Routing to an isolated session is decided b
 
 ## Summary
 
+Source: vendor/zscaler-help/configuring-smart-browser-isolation-policy.md; vendor/zscaler-help/zpa-about-isolation-policy.md; vendor/zscaler-help/understanding-isolation-miscellaneous-unknown-category-zia.md.
+
 Three config objects interact:
 
 1. **Isolation profile** — tenant-level configurable object. Specifies Turbo Mode, copy/paste, file transfer, print, read-only, region selection, persistent state, PAC file, watermarking, etc. Separate isolation profiles exist for ZIA and for ZPA. **Default profiles are auto-created per organization at first ZBI login.**
@@ -34,6 +36,8 @@ Subscription tiers affect what an organization can isolate:
 - **"Miscellaneous & Unknown Category" limited subscription** — can only isolate the M&U category; a preconfigured isolation profile with mostly-locked settings is auto-provisioned. The details matter for answering "why can't I configure this isolation profile the way I want?"
 
 ## Mechanics
+
+Source: vendor/zscaler-help/configuring-smart-browser-isolation-policy.md; vendor/zscaler-help/zpa-about-isolation-policy.md; vendor/zscaler-help/understanding-isolation-miscellaneous-unknown-category-zia.md.
 
 ### Isolation profiles — the shared config object
 
@@ -159,6 +163,8 @@ A limited-scope ZBI subscription that only lets the tenant isolate the **Miscell
 
 ### ZBI SDK surface
 
+Source: vendor/zscaler-sdk-python/zscaler/zbi/custom_apps.py; vendor/zscaler-sdk-python/zscaler/zbi/report_configs.py; vendor/zscaler-sdk-python/zscaler/zbi/reports.py; vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py; vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/isolationprofile/isolationprofile.go.
+
 From `vendor/zscaler-sdk-python/zscaler/zbi/`, the SDK covers:
 
 | Service | Methods | Purpose |
@@ -170,6 +176,8 @@ From `vendor/zscaler-sdk-python/zscaler/zbi/`, the SDK covers:
 **Notable absence**: the SDK does NOT expose isolation profile management, URL Filter rule Isolate action configuration, ZPA Isolation Policy management, or Smart Isolation toggles. **Policy configuration is entirely in ZIA/ZPA/ZIA-Admin-Console-only** — the `zbi` SDK module is a reporting-and-custom-apps surface, not a policy surface. Scripts that want to audit ZBI policy need to pull from ZIA's URL Filter rules and ZPA's Isolation Policy, not from `client.zbi.*`.
 
 ## Cross-product dependencies worth naming
+
+Source: vendor/zscaler-help/configuring-smart-browser-isolation-policy.md; vendor/zscaler-help/zpa-about-isolation-policy.md; vendor/zscaler-help/understanding-isolation-miscellaneous-unknown-category-zia.md.
 
 | Dependency | Direction | Failure mode |
 |---|---|---|
@@ -183,6 +191,8 @@ All of these surface in [`../shared/cross-product-integrations.md`](../shared/cr
 
 ## Edge cases
 
+Source: vendor/zscaler-help/configuring-smart-browser-isolation-policy.md; vendor/zscaler-help/zpa-about-isolation-policy.md; vendor/zscaler-help/understanding-isolation-miscellaneous-unknown-category-zia.md.
+
 - **Default rule in ZPA Isolation Policy is uneditable** — consistent with other ZPA policy families.
 - **ZPA Isolation requires an access policy AND an isolation policy** — both must evaluate favorably. A user can pass isolation policy (session gets isolated) but still fail access policy (app is unreachable) — results in "isolated session loads but the app inside is denied."
 - **Criteria use AND and OR only** on ZPA Isolation — no NOT. Contrast with ZDX's probing criteria which does use NOT.
@@ -190,6 +200,8 @@ All of these surface in [`../shared/cross-product-integrations.md`](../shared/cr
 - **Misc & Unknown tier's auto-created URL Filter rule** — enabled-by-default-for-new, disabled-by-default-for-existing. An existing tenant upgrading to the tier won't see isolation happening until an admin enables the rule.
 
 ## Open questions
+
+Source: vendor/zscaler-help/configuring-smart-browser-isolation-policy.md; vendor/zscaler-help/zpa-about-isolation-policy.md; vendor/zscaler-help/understanding-isolation-miscellaneous-unknown-category-zia.md.
 
 - Whether deleting an isolation profile that's still referenced by a rule breaks the rule silently or with an error — not documented.
 - How profile updates propagate to in-flight isolated sessions — change the profile while sessions are active: do they rebuild, finish on the old profile, or fail?

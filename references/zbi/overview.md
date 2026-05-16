@@ -11,6 +11,11 @@ sources:
   - "vendor/zscaler-help/what-is-zero-trust-browser.md"
   - "https://help.zscaler.com/zero-trust-browser/understanding-turbo-mode-isolation"
   - "vendor/zscaler-help/understanding-turbo-mode-isolation.md"
+  - "vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py"
+  - "vendor/zscaler-sdk-python/zscaler/zbi/custom_apps.py"
+  - "vendor/zscaler-sdk-python/zscaler/zbi/report_configs.py"
+  - "vendor/zscaler-sdk-python/zscaler/zbi/reports.py"
+  - "vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/isolationprofile/isolationprofile.go"
 author-status: draft
 ---
 
@@ -19,6 +24,8 @@ author-status: draft
 What ZBI actually does: render a web page on a Zscaler-hosted browser instance, then stream the rendering to the user's local browser. The user interacts with pixels (or with remotely-generated rendering instructions in Turbo Mode); the real HTML, CSS, and JavaScript never reach the endpoint.
 
 ## Summary
+
+Source: vendor/zscaler-help/what-is-zero-trust-browser.md; vendor/zscaler-help/understanding-turbo-mode-isolation.md.
 
 **The isolation container is ephemeral and cloud-resident.** Each user gets an endpoint container allocated at first isolation request; subsequent requests in the same session reuse it; the container is destroyed when the user logs out manually or after **10 minutes of idle time**.
 
@@ -32,6 +39,8 @@ What ZBI actually does: render a web page on a Zscaler-hosted browser instance, 
 Because the cloud browser's egress traffic hits a PSE too, **ZIA policies evaluate twice — once on the user's original request, and again on the cloud browser's request**. DLP, Sandbox, URL Filter, and CAC all get applied to the cloud browser's egress as well.
 
 ## Mechanics
+
+Source: vendor/zscaler-help/what-is-zero-trust-browser.md; vendor/zscaler-help/understanding-turbo-mode-isolation.md.
 
 ### Components
 
@@ -129,6 +138,8 @@ ZBI doesn't have its own policy engine in the ZIA/ZPA sense. It composes with ex
 
 ## Use cases
 
+Source: vendor/zscaler-help/what-is-zero-trust-browser.md.
+
 Common ZIA-triggered isolation patterns (URL Filter `Isolate` action):
 
 - Uncategorized or risky websites
@@ -140,6 +151,8 @@ Common ZIA-triggered isolation patterns (URL Filter `Isolate` action):
 
 ## What ZBI is not
 
+Source: vendor/zscaler-help/what-is-zero-trust-browser.md.
+
 Boundary disclaimers that come up in scoping conversations:
 
 - **Not a VPN.** Traffic still routes through ZIA / ZPA for inspection — ZBI is layered *on top of* the existing forward-proxy or ZTNA path, not a replacement.
@@ -148,9 +161,13 @@ Boundary disclaimers that come up in scoping conversations:
 
 ## API surface
 
+Source: vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py; vendor/zscaler-sdk-python/zscaler/zbi/custom_apps.py; vendor/zscaler-sdk-python/zscaler/zbi/report_configs.py; vendor/zscaler-sdk-python/zscaler/zbi/reports.py; vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/isolationprofile/isolationprofile.go.
+
 **No dedicated ZBI / Zero Trust Browser REST API.** Configuration is primarily portal-managed via the Zscaler Admin Console — isolation profiles, regions, profile-level controls (clipboard / upload / download / print / read-only), Turbo Mode toggle. The ZIA API includes URL Filtering rule configuration that can reference an isolation profile (indirect access — you can wire the `Isolate` action and reference profile names via API, but the profile object itself is portal-configured). The Python SDK exposes `zscaler/zia/cloud_browser_isolation.py` (a thin surface) and the Go SDK has `zscaler/zpa/services/cloudbrowserisolation/*`; treat these as supplementary to portal config rather than a full management surface. **Caveat for users expecting a programmable surface:** if a question presupposes "configure isolation profiles via API" the honest answer is "portal."
 
 ## Light mentions (one-line each)
+
+Source: vendor/zscaler-help/what-is-zero-trust-browser.md; vendor/zscaler-help/understanding-turbo-mode-isolation.md.
 
 Features captured in vendor docs but not deep-dived here. Skill should recognize the names and route to vendor docs / TAM for depth:
 
@@ -163,6 +180,8 @@ Features captured in vendor docs but not deep-dived here. Skill should recognize
 
 ## Edge cases
 
+Source: vendor/zscaler-help/what-is-zero-trust-browser.md; vendor/zscaler-help/understanding-turbo-mode-isolation.md.
+
 - **URL Filter rule with `Isolate` action requires SSL Inspection for HTTPS** — to generate the 302 redirect at all. A site matching the rule but falling under an SSL bypass for that category silently won't be isolated.
 - **During ZPA maintenance windows, Isolation may be unavailable.** From the ZPA Isolation help article: "If ZPA is undergoing a maintenance period, Isolation might not be available." Operator-visible failure mode.
 - **Isolated egress still hits URL Filter on the second PSE pass.** A rule that allows a destination for regular users but blocks it for isolated egress (unusual but possible) can produce "user sees rendering start, then page goes blank" — the destination loaded once, then URL Filter blocked the egress for further resources.
@@ -173,6 +192,8 @@ Features captured in vendor docs but not deep-dived here. Skill should recognize
 - **Air-gap is a prevention control, not a detection control.** Because active web content (HTML/CSS/JS) never reaches the endpoint, a malicious page rendered inside the container cannot exploit the user's machine — but the malicious page also won't surface in endpoint-visibility tooling as "blocked." Detection of the page being malicious is downstream of the cloud-browser-egress leg (URL Filter / Sandbox / ATP on the second PSE traversal). Don't expect isolation to *flag* the bad content; expect it to *prevent reach*.
 
 ## Open questions
+
+Source: vendor/zscaler-help/what-is-zero-trust-browser.md; vendor/zscaler-help/understanding-turbo-mode-isolation.md.
 
 - **Exact container-destroy latency** after the 10-minute idle threshold — is it 10:00 hard, or 10:00 + some grace? Not documented numerically.
 - **Container resource limits** (memory, CPU) — not surfaced in the customer-facing docs.
