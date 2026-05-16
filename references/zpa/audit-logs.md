@@ -18,11 +18,11 @@ author-status: draft
 
 # ZPA Admin Audit Logs
 
+Source: `vendor/zscaler-help/about-log-streaming-service.md`, `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`, `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`.
+
 ZPA records admin actions (configuration changes, admin console sessions) as audit log entries. Unlike ZIA — which has a dedicated `auditlogEntryReport` REST endpoint for pulling a report — ZPA admin audit logs are surfaced through the **Log Streaming Service (LSS)** for continuous delivery to a SIEM, and are accessible via the ZPA Admin Console for interactive review.
 
 This document covers the ZPA audit log surface. Data-plane traffic logs (user activity, user status, app connector status) also flow through LSS but are not covered here. The existing `references/zpa/api.md` covers authentication, base URL structure, and application segment/policy resources.
-
-Source: `vendor/zscaler-help/about-log-streaming-service.md`, `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`, `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`.
 
 ## What is captured
 
@@ -34,6 +34,8 @@ This includes admin login sessions and configuration changes made through the ZP
 
 ## Retention
 
+Source: `vendor/zscaler-help/about-log-streaming-service.md`.
+
 Per `vendor/zscaler-help/about-log-streaming-service.md`:
 
 > Zscaler retains audit log information for at least **6-month periods** during the subscription term.
@@ -41,8 +43,6 @@ Per `vendor/zscaler-help/about-log-streaming-service.md`:
 For audit logs beyond that 6-month window, LSS must be configured to forward logs to a SIEM or long-term storage before they age out of Zscaler's retention.
 
 For comparison: User Activity, User Status, and App Connector logs are retained for rolling periods of at least **14 days**; audit logs get the longer 6-month window.
-
-Source: `vendor/zscaler-help/about-log-streaming-service.md`.
 
 ## LSS delivery guarantee for audit logs
 
@@ -89,9 +89,9 @@ Source: `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`, `v
 
 ## Terraform: provisioning an LSS audit log receiver
 
-Resource: `zpa_lss_config_controller`
-
 Source: `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`
+
+Resource: `zpa_lss_config_controller`
 
 ```hcl
 # Retrieve the log format for audit logs
@@ -153,11 +153,11 @@ Source: `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`, `v
 
 ### LSS configuration management
 
+Source: `vendor/zscaler-sdk-go/zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go`
+
 The `lssConfig` API manages LSS receiver configurations. For audit log streaming, the key field is `sourceLogType = "zpn_audit_log"`.
 
 **API base path:** `/zpa/mgmtconfig/v2/admin/customers/{customerId}/lssConfig`
-
-Source: `vendor/zscaler-sdk-go/zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go`
 
 #### Go SDK
 

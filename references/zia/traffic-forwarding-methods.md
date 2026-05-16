@@ -25,9 +25,9 @@ author-status: draft
 
 # Traffic forwarding methods — GRE / IPsec / PAC / ZCC choice and mechanics
 
-This doc covers how traffic gets **into** ZIA from a customer location or endpoint — the ingestion layer. It does not cover Forwarding Control policy, which governs where ZIA sends traffic after inspecting it (ZPA via SIPA, DIRECT, DROP, etc.) — see [`./forwarding-control.md`](./forwarding-control.md).
+Source: `vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.md`; `vendor/zscaler-help/best-practices-deploying-gre-tunnels.md`; `vendor/zscaler-help/gre-deployment-scenarios.md`; `vendor/zscaler-help/choosing-traffic-forwarding-methods.md`; `vendor/zscaler-help/using-custom-pac-file-forward-traffic-zia.md`; `vendor/zscaler-help/about-z-tunnel-1.0-z-tunnel-2.0.md`.
 
-Source: vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.md; vendor/zscaler-help/best-practices-deploying-gre-tunnels.md; vendor/zscaler-help/gre-deployment-scenarios.md; vendor/zscaler-help/choosing-traffic-forwarding-methods.md; vendor/zscaler-help/using-custom-pac-file-forward-traffic-zia.md; vendor/zscaler-help/about-z-tunnel-1.0-z-tunnel-2.0.md.
+This doc covers how traffic gets **into** ZIA from a customer location or endpoint — the ingestion layer. It does not cover Forwarding Control policy, which governs where ZIA sends traffic after inspecting it (ZPA via SIPA, DIRECT, DROP, etc.) — see [`./forwarding-control.md`](./forwarding-control.md).
 
 ## The four methods at a glance
 

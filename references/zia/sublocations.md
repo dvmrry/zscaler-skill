@@ -192,9 +192,9 @@ The `LocationsAPI` service (`client.zia.locations`) provides:
 
 The data source `zia_sub_location_management` in the TF provider reads a sublocation by name or ID. (Tier A — `references/zia/terraform.md`)
 
-Source: `vendor/zscaler-sdk-python/zscaler/zia/locations.py`, `vendor/terraform-provider-zia/docs/resources/zia_location_management.md`.
-
 ### Terraform
+
+Source: `vendor/terraform-provider-zia/docs/resources/zia_location_management.md`.
 
 The `zia_location_management` resource manages both parent locations and sublocations. A sublocation is created by specifying `parent_id`:
 
@@ -230,8 +230,6 @@ Import by numeric ID or name:
 ```shell
 terraform import zia_location_management.corp_sublocation <sublocation_id>
 ```
-
-Source: `vendor/terraform-provider-zia/docs/resources/zia_location_management.md`.
 
 ### Parent deletion behavior
 

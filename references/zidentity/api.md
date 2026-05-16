@@ -21,7 +21,7 @@ The ZIdentity API provides programmatic access to identity lifecycle management 
 
 ZIdentity API base path: `/ziam/admin/api/v1` (Tier A — confirmed from SDK source).
 
-Source: vendor/zscaler-help/understanding-zidentity-apis.md; vendor/zscaler-help/zidentity-about-api-clients.md; vendor/zscaler-sdk-python/zscaler/zid/; vendor/zscaler-sdk-go/zscaler/zid/services/.
+Source: `vendor/zscaler-help/understanding-zidentity-apis.md`; `vendor/zscaler-help/zidentity-about-api-clients.md`; `vendor/zscaler-sdk-python/zscaler/zid/zid_service.py`; `vendor/zscaler-sdk-python/zscaler/zid/api_client.py`; `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-python/zscaler/zid/groups.py`; `vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py`; `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go`.
 
 ---
 
@@ -137,17 +137,17 @@ The `client_resources[].id` references the resource server ID in ZIdentity. The 
 
 ### 3.4 Admin portal management
 
-API client **creation** is available via the admin portal (Administration > API Configuration > OneAPI > API Clients) and also via the Python SDK `add_api_client`. On the admin portal page, each client shows: Name, Client ID, Status. Enabling, disabling, editing, and deleting are all supported from the portal. (Tier A — vendor doc, `zidentity-about-api-clients.md`).
+Source: `vendor/zscaler-help/zidentity-about-api-clients.md`; `vendor/zscaler-sdk-python/zscaler/zid/api_client.py`.
 
-Source: vendor/zscaler-help/zidentity-about-api-clients.md; vendor/zscaler-sdk-python/zscaler/zid/.
+API client **creation** is available via the admin portal (Administration > API Configuration > OneAPI > API Clients) and also via the Python SDK `add_api_client`. On the admin portal page, each client shows: Name, Client ID, Status. Enabling, disabling, editing, and deleting are all supported from the portal. (Tier A — vendor doc, `zidentity-about-api-clients.md`).
 
 ---
 
 ## 4. SDK services under `client.zid.*`
 
-The ZIdentity SDK is accessed via `client.zid.<service>`. All services use the base endpoint `/ziam/admin/api/v1`.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/zid_service.py`; `vendor/zscaler-sdk-python/zscaler/zid/api_client.py`; `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-python/zscaler/zid/groups.py`; `vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py`; `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go`.
 
-Source: vendor/zscaler-sdk-python/zscaler/zid/; vendor/zscaler-sdk-go/zscaler/zid/services/.
+The ZIdentity SDK is accessed via `client.zid.<service>`. All services use the base endpoint `/ziam/admin/api/v1`.
 
 ### 4.1 `api_client` — `APIClientAPI`
 
@@ -235,7 +235,7 @@ ZIdentity uses `offset`/`limit` pagination — distinct from ZIA (`page`/`pageSi
 Useful query params for `list_users` / `list_group_users_details`:
 `offset`, `limit`, `login_name`, `login_name[like]`, `display_name[like]`, `primary_email[like]`, `domain_name` (list), `idp_name` (list).
 
-Source: vendor/zscaler-sdk-python/zscaler/zid/; vendor/zscaler-sdk-go/zscaler/zid/services/.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-python/zscaler/zid/groups.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go`.
 
 ---
 
@@ -255,7 +255,7 @@ Rate limit specifics for ZIdentity endpoints are not documented in available SDK
 | `user_entitlement` | `get_admin_entitlement`, `get_service_entitlement` | Same | Parity |
 | `resource_servers` | Read-only (list, get) | Full CRUD | Python missing Create/Update/Delete |
 
-Source: vendor/zscaler-sdk-python/zscaler/zid/; vendor/zscaler-sdk-go/zscaler/zid/services/.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/api_client.py`; `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-python/zscaler/zid/groups.py`; `vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py`; `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go`.
 
 ---
 
