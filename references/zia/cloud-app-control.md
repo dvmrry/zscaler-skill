@@ -22,11 +22,13 @@ author-status: draft
 
 # ZIA Cloud App Control and URL filtering interaction
 
-How Cloud App Control (CAC) evaluates against SaaS / cloud application traffic, how it composes with URL Filtering, and which layer wins when the two disagree.
-
 Source: vendor/zscaler-help/Cloud_App_Control_Deployment_and_Operations_Guide.txt; vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/Recommended_URL_&_Cloud_App_Control_Policy.txt; vendor/zscaler-help/Configuring_Advanced_Policy_Settings.txt; vendor/zscaler-help/Understanding_Policy_Enforcement.txt.
 
+How Cloud App Control (CAC) evaluates against SaaS / cloud application traffic, how it composes with URL Filtering, and which layer wins when the two disagree.
+
 ## Summary
+
+Source: vendor/zscaler-help/Cloud_App_Control_Deployment_and_Operations_Guide.txt; vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/Understanding_Policy_Enforcement.txt.
 
 CAC evaluates **before** URL Filtering. For a cloud-app transaction:
 
@@ -35,8 +37,6 @@ CAC evaluates **before** URL Filtering. For a cloud-app transaction:
 - **No CAC rule matches** → URL Filtering evaluates normally. CAC is out of the picture.
 
 CAC rules match on either **Cloud Applications** (enumerated apps like Facebook, Google Drive, GitHub, ChatGPT) OR **Cloud Application Risk Profile** (not both in the same rule) combined with standard criteria (users, groups, locations, etc.). Rules evaluate **top-down, first-match-wins**, same shape as URL Filtering. The default terminal behavior is **Allow All** — absence of a matching CAC rule means "CAC says nothing; URL Filtering takes over."
-
-Source: vendor/zscaler-help/Cloud_App_Control_Deployment_and_Operations_Guide.txt; vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/Understanding_Policy_Enforcement.txt.
 
 ## Mechanics
 
@@ -63,8 +63,6 @@ From *CAC Deployment Guide*, p.3:
 
 These are **mutually exclusive per rule.** A rule selecting a Risk Profile applies to any app that matches that profile, regardless of which specific app it is.
 
-Source: vendor/zscaler-help/Cloud_App_Control_Deployment_and_Operations_Guide.txt; vendor/zscaler-help/Recommended_URL_&_Cloud_App_Control_Policy.txt.
-
 ### How CAC identifies the "cloud app" for a transaction
 
 CAC needs to decide what app a given URL corresponds to (e.g., `docs.google.com` → "Google Drive"). The mapping mechanism isn't described in the vendored docs. Plausibly: (a) Zscaler maintains an app-to-URL-pattern database, (b) SSL inspection reveals post-decrypt hints (HTTP headers, request patterns), (c) both. Post-decrypt visibility matters because many apps share hostnames — see SSL inspection interaction below.
@@ -87,6 +85,8 @@ Each app entry also has a server-assigned **`val`** (numeric internal identifier
 
 This is the primary integration question. **The precedence mechanics below are deterministic — answer CAC-vs-URL-Filtering cascading questions at `Confidence: high`** even though this file's frontmatter is `medium` (the medium hedge covers app-identification mechanics in [`clarification zia-09`](../_meta/clarifications.md#zia-09-cac-app-identity-when-url-maps-to-multiple-apps), not the precedence rules). Behavior by the four cases:
 
+Source: vendor/zscaler-help/Cloud_App_Control_Deployment_and_Operations_Guide.txt; vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/Configuring_Advanced_Policy_Settings.txt; vendor/zscaler-help/Understanding_Policy_Enforcement.txt.
+
 | URL Filtering says | CAC says | Result (default, no cascading) | Result (cascading enabled) |
 |---|---|---|---|
 | Block | Allow | **Allow** (CAC wins) | **Block** (URL Filtering evaluates after and fires) |
@@ -108,9 +108,9 @@ Cascading is a **one-way override on the Allow path only.** It does not let URL 
 
 "Allow Cascading to URL Filtering" lives under Advanced Web App Control Options (navigated from Advanced Policy Settings). Operations teams are advised to document its state, per *CAC Deployment Guide*, p.3: "Document the Allow Cascading to URL Filtering settings to understand the flow of the evaluated rules to help internal personnel and Zscaler Support troubleshoot issues."
 
-Source: vendor/zscaler-help/Cloud_App_Control_Deployment_and_Operations_Guide.txt; vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/Configuring_Advanced_Policy_Settings.txt; vendor/zscaler-help/Understanding_Policy_Enforcement.txt.
-
 ## Interaction with SSL inspection
+
+Source: vendor/zscaler-help/Cloud_App_Control_Deployment_and_Operations_Guide.txt; vendor/zscaler-help/Configuring_Advanced_Policy_Settings.txt; vendor/zscaler-help/Understanding_Policy_Enforcement.txt.
 
 CAC can't reliably identify an app if SSL is bypassed — SNI alone often doesn't disambiguate `docs.google.com` vs `mail.google.com` vs `drive.google.com` (all `*.google.com`).
 
@@ -122,8 +122,6 @@ A few settings short-circuit SSL inspection on specific cloud-app categories:
 
 Operational consequence: CAC rules for these categories are enforced against whatever app-identity information is available pre-decrypt, which is thinner than post-decrypt. See [`./ssl-inspection.md`](./ssl-inspection.md) for how SSL state drives policy fidelity generally.
 
-Source: vendor/zscaler-help/Cloud_App_Control_Deployment_and_Operations_Guide.txt; vendor/zscaler-help/Configuring_Advanced_Policy_Settings.txt; vendor/zscaler-help/Understanding_Policy_Enforcement.txt.
-
 ## API surface beyond the basics (Go SDK findings)
 
 Cross-SDK sweep (2026-04-24) surfaced details the earlier Python-SDK-derived doc missed:
@@ -133,6 +131,8 @@ Cross-SDK sweep (2026-04-24) surfaced details the earlier Python-SDK-derived doc
 - **`AllAvailableActions` API method** — queries which action values are valid for a given (rule type, cloud application) combination. Relevant when debugging "why isn't action X selectable in the console for this app?" — different cloud apps support different action sets (e.g., some apps don't support Cautious, some don't support Isolate). The API surfaces the valid combinations; the console UI is driven by this same lookup.
 
 ## Edge cases
+
+Source: vendor/zscaler-help/Cloud_App_Control_Deployment_and_Operations_Guide.txt; vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/Recommended_URL_&_Cloud_App_Control_Policy.txt; vendor/zscaler-help/Configuring_Advanced_Policy_Settings.txt; vendor/zscaler-help/ranges-limitations-zia.md.
 
 - **No custom EUNs for CAC.** "Cloud App Control policies do not support custom End User Notifications (EUNs)." (*CAC Deployment Guide*, p.3.) Blocked users see the default notification.
 - **URL Filtering-only categories.** Newly Registered and Observed Domains (NROD) "can only be used in URL Filtering rules" (*About URL Categories*, p.9). So NROD never fires in CAC evaluation — if the only rule that would catch a malicious new domain is an NROD-block rule in URL Filtering, and CAC happens to explicitly allow the app, NROD never runs (without cascading).
@@ -145,9 +145,9 @@ Cross-SDK sweep (2026-04-24) surfaced details the earlier Python-SDK-derived doc
 - **IoT predefined rules — disabled, immutable, undeletable.** Zscaler ships `Allow Unauthenticated Traffic for IoT Classifications` predefined rules for each cloud-app category. They're disabled by default. They cannot be deleted. Only `Rule Order`, `Rule Status`, `Rule Label`, and `Description` are editable — no other attributes. Operators surprised by unexplained IoT-device traffic getting allowed/blocked when they toggle these rules find they can't fully customize the rule's behavior.
 - **Per-category rule cap: 127 (→ 2,048 via support).** The Cloud App Control rule limit applies **per cloud-app category** (File Sharing, Instant Messaging, Streaming Media, etc.), not as a tenant-wide cap. A high-granularity org with many department-specific rules for one category (e.g., 130 IM rules) hits the per-category ceiling well before any global cap.
 
-Source: vendor/zscaler-help/Cloud_App_Control_Deployment_and_Operations_Guide.txt; vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/Recommended_URL_&_Cloud_App_Control_Policy.txt; vendor/zscaler-help/Configuring_Advanced_Policy_Settings.txt; vendor/zscaler-help/ranges-limitations-zia.md.
-
 ## Worked example (covers eval Q5)
+
+Source: vendor/zscaler-help/Cloud_App_Control_Deployment_and_Operations_Guide.txt; vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/Understanding_Policy_Enforcement.txt.
 
 Scenario: Your URL Filtering policy has a Block rule on the Social Networking category (which includes Facebook). Your CAC policy has an Allow rule specifically for the Facebook app, restricted to the Marketing department.
 
@@ -177,8 +177,6 @@ Case D — **cascading enabled**, CAC has an explicit Block-Facebook rule, URL F
 3. **Result: user is blocked** regardless of URL Filtering's Allow.
 
 The asymmetry matters: **cascading is a way to tighten CAC allows with URL Filtering's stricter rules**, not a way to relax CAC blocks.
-
-Source: vendor/zscaler-help/Cloud_App_Control_Deployment_and_Operations_Guide.txt; vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/Understanding_Policy_Enforcement.txt.
 
 ## Open questions
 
