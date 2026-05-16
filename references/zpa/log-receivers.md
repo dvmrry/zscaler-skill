@@ -26,6 +26,8 @@ A **Log Receiver** (`lssConfig` in the API) is the operator-created configuratio
 
 **Cloud log retention:** Zscaler retains User Activity, User Status, and App Connector log information for rolling periods of at least 14 days during the subscription term. Audit log information is retained for at least 6-month periods. (Tier A — vendor/zscaler-help/about-log-streaming-service.md.) For access to logs beyond these retention windows, LSS is required.
 
+Source: `vendor/zscaler-help/about-log-streaming-service.md`, `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`, `vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py`.
+
 Three related concepts that are NOT this doc:
 
 | Concept | Doc |
@@ -48,6 +50,8 @@ The App Connector acts as a log forwarder: it receives the log stream from ZPA's
 - The log receiver endpoint must be reachable from the App Connector's network, not from the internet.
 - Log receiver capacity limits are determined by the App Connector's throughput and network path, not by a Zscaler-side quota.
 
+Source: `vendor/zscaler-help/about-log-streaming-service.md`.
+
 ## Log receiver configuration shape
 
 A Log Receiver object has three top-level blocks.
@@ -67,13 +71,19 @@ A Log Receiver object has three top-level blocks.
 | `description` | `description` | `description` | Optional free-text. |
 | `audit_message` | `auditMessage` | `audit_message` | Computed audit field. |
 
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py`, `vendor/terraform-provider-zpa/zpa/resource_zpa_lss_config_controller.go`.
+
 ### `connector_groups` — App Connector Group affinity
 
 A list of App Connector Group IDs. Scopes which connectors participate in this log stream. The Python SDK accepts a list of group ID strings via `app_connector_group_ids`.
 
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`, `vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py`.
+
 ### `policy_rule_resource` — log filter policy
 
 An optional policy rule that gates which sessions/events are forwarded. Uses the same condition/operand structure as ZPA access policy but with a restricted set of `object_type` values (see Filtering below).
+
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py`, `vendor/terraform-provider-zpa/zpa/resource_zpa_lss_config_controller.go`.
 
 ## Log types
 
@@ -96,11 +106,15 @@ The Python SDK `source_log_map` and the TF data source `data_source_zpa_lss_conf
 
 The Python SDK `source_log_map` maps 8 human-readable keys; the TF data source and vendor help doc enumerate additional types. Extended types (`zpn_smb_inspection_log`, `zpn_ldap_inspection_log`, `zpn_krb_inspection_log`) appear in the TF data source for format lookups but may not be accepted on receiver `source_log_type` in all tenants.
 
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`, `vendor/terraform-provider-zpa/zpa/data_source_zpa_lss_config_log_types_formats.go`, `vendor/zscaler-help/about-log-streaming-service.md`.
+
 ## Output formats
 
 The API exposes pre-configured format templates per log type, retrievable via `GET /lssConfig/logType/formats`. Each log type supports **csv**, **json**, and **tsv** variants. The Python SDK defaults to `csv` when no `log_stream_content` override is provided; the TF provider requires the operator to supply the format string explicitly (typically fetched via the `zpa_lss_config_log_type_formats` data source).
 
 Custom log stream content can be supplied as a raw template string, overriding the built-in format. See [`./logs/access-log-schema.md`](./logs/access-log-schema.md) for the field reference and format specifiers (`%s{Field}`, `%d{Field}`, `%j{Field}`, etc.).
+
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`, `vendor/terraform-provider-zpa/zpa/data_source_zpa_lss_config_log_types_formats.go`, `vendor/terraform-provider-zpa/zpa/resource_zpa_lss_config_controller.go`.
 
 ## Delivery guarantee model
 
@@ -114,6 +128,8 @@ Custom log stream content can be supplied as a raw template string, overriding t
 This is **not** a guaranteed-delivery system. A sustained connector outage (>15 minutes) creates a permanent log gap. Audit logs receive special handling — the help doc implies audit logs may have a different (better) recovery path, but the exact mechanism is not detailed in available sources.
 
 The 15-minute window is shorter than the ZIA NSS opt-in 60-minute recovery window. Plan monitoring and alerting accordingly.
+
+Source: `vendor/zscaler-help/about-log-streaming-service.md`.
 
 ## Filtering criteria
 
@@ -132,6 +148,8 @@ The following log types explicitly **do not support** status-code filters: Brows
 - `zpn_auth_log` — `IDP`, `SAML`, `SCIM`, `SCIM_GROUP`, `CLIENT_TYPE`
 - Other log types — policy rule filtering is not validated/supported in the TF provider
 
+Source: `vendor/terraform-provider-zpa/zpa/validator.go`, `vendor/terraform-provider-zpa/zpa/resource_zpa_lss_config_controller.go`.
+
 ## TLS certificate handling
 
 (Tier A — vendor/zscaler-help/about-log-streaming-service.md.)
@@ -149,6 +167,8 @@ LSS supports mutual TLS encryption between the log receiver and the App Connecto
 
 The `use_tls` flag in the log receiver config enables TLS on the outbound stream. No CA certificate or peer verification field is exposed in the SDK or TF schema — TLS trust configuration happens outside the Log Receiver object. There is no SDK surface for pinning a specific CA via the Log Receiver object configuration.
 
+Source: `vendor/zscaler-help/about-log-streaming-service.md`, `vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py`, `vendor/terraform-provider-zpa/zpa/resource_zpa_lss_config_controller.go`.
+
 ## API endpoints
 
 | Operation | Method | Endpoint |
@@ -165,6 +185,8 @@ The `use_tls` flag in the log receiver config enables TLS on the outbound stream
 **SDK service** (`client.zpa.lss`): `list_configs`, `get_config`, `add_lss_config`, `update_lss_config`, `delete_lss_config`, `get_log_formats`, `get_client_types`, `get_status_codes`. Uses the v2 endpoint `/zpa/mgmtconfig/v2/admin/customers/{customer_id}/lssConfig`. (Tier A — sdk.md §2.22.)
 
 `add_lss_config` signature: `(lss_host, lss_port, name, source_log_type, app_connector_group_ids=None, enabled=True, source_log_format="csv", use_tls=False, **kwargs)`.
+
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`, `vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py`.
 
 ## Operational gotchas
 
@@ -191,6 +213,8 @@ If a log receiver is configured using Zscaler Deception, the copy, edit, and del
 
 **8. Receiver capacity limits.**
 The help doc does not publish explicit per-receiver throughput limits. Capacity is constrained by App Connector CPU/network and the log receiver's ingestion capacity. High-volume tenants (many users, dense access patterns) may need to distribute log types across multiple receivers or increase App Connector resources.
+
+Source: `vendor/zscaler-help/about-log-streaming-service.md`, `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`, `vendor/terraform-provider-zpa/zpa/validator.go`.
 
 ## Admin Console
 

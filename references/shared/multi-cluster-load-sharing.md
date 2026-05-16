@@ -24,6 +24,8 @@ Multi-cluster load sharing (MCLS) is the mechanism by which a single Virtual IP 
 
 This document covers the mechanics, policy implications, failure behavior, and operational gotchas of MCLS for ZIA tenants. For the broader cloud component model (Central Authority, Nanolog, Business Continuity Cloud), see [`./cloud-architecture.md`](./cloud-architecture.md). For the subcloud mechanism that can restrict which clusters serve a tenant, see [`./subclouds.md`](./subclouds.md). For Private Service Edge clusters — which operate outside the MCLS pool — see [`../zia/private-service-edge.md`](../zia/private-service-edge.md).
 
+Source: `vendor/zscaler-help/understanding-multi-cluster-load-sharing.md`, `vendor/zscaler-help/understanding-zscaler-cloud-architecture.md`, `vendor/zscaler-help/about-public-service-edges-internet-saas.md`.
+
 ---
 
 ## 1. Definition
@@ -43,6 +45,8 @@ Example from vendor documentation (Tier A — understanding-multi-cluster-load-s
 
 Both clusters serve the same GRE VIP (`165.225.80.36`) from different network address blocks. A customer's GRE tunnel terminating at that VIP can be served by either cluster. (Tier A — understanding-multi-cluster-load-sharing.md)
 
+Source: `vendor/zscaler-help/understanding-multi-cluster-load-sharing.md`.
+
 ---
 
 ## 2. Why multi-cluster exists
@@ -56,6 +60,8 @@ MCLS solves a capacity-scaling problem for Zscaler cloud operators, and provides
 **Latency-based routing to the nearest PoP.** Zscaler uses advanced geo-IP resolution to direct traffic to the nearest Public Service Edge for the tenant's cloud. Within the chosen data center, MCLS handles intra-DC distribution across clusters. The geo-IP routing happens before a packet reaches the VIP; MCLS handles distribution after. (Tier A — understanding-zscaler-cloud-architecture.md)
 
 **Policy follows the user.** When a user moves locations, the new Public Service Edge downloads the appropriate policy from the Central Authority. The MCLS pool does not create a "wrong cluster holding stale policy" failure mode — each cluster pulls policy per-user from the CA on first connection. (Tier A — about-public-service-edges-internet-saas.md)
+
+Source: `vendor/zscaler-help/understanding-multi-cluster-load-sharing.md`, `vendor/zscaler-help/understanding-zscaler-cloud-architecture.md`, `vendor/zscaler-help/about-public-service-edges-internet-saas.md`.
 
 ---
 
@@ -79,6 +85,8 @@ For example: `config.zscaler.com/zscalertwo.net/cenr`. The cloud name can be der
 
 **Note on IPSec / Z-Tunnel 2.0.** The vendor MCLS capture explicitly shows VPN (IPSec) VIPs in the MCLS table alongside GRE. Z-Tunnel 2.0 specific behavior under MCLS is not separately documented. The table implies IPSec tunnels participate similarly to GRE tunnels. Verify if Z-Tunnel 2.0 session semantics (stateful TLS multiplexing) interact differently with the cross-cluster forwarding path.
 
+Source: `vendor/zscaler-help/understanding-multi-cluster-load-sharing.md`.
+
 ---
 
 ## 4. Policy synchronization across clusters
@@ -97,6 +105,8 @@ The key consequence for MCLS: policy is pulled on demand, not pushed to specific
 
 **Partial-propagation behavior.** Because policy is per-user and pulled per-request, there is a window during a policy change where some users mid-session are using policy fetched before the change and new requests fetch the new policy. This is the standard ZIA eventual-consistency window. It is not specific to MCLS but is relevant when clusters are under different load: a heavily loaded cluster may serve fewer new requests in the window, extending the time before all active users in that cluster refresh their cached policy.
 
+Source: `vendor/zscaler-help/about-public-service-edges-internet-saas.md`, `vendor/zscaler-help/understanding-zscaler-cloud-architecture.md`.
+
 ---
 
 ## 5. Session affinity and stickiness
@@ -111,6 +121,8 @@ The vendor MCLS documentation describes any LB being able to forward to any serv
 
 **GRE and IPSec tunnels.** A GRE or IPSec tunnel established to a VIP is a persistent tunnel; the LB at the VIP terminates and distributes flows, not packets. Individual HTTP(S) transactions within the tunnel may be distributed across service nodes in different clusters. Session-level stickiness (if any) would operate at the tunnel-flow granularity, not at the packet level.
 
+Source: `vendor/zscaler-help/understanding-multi-cluster-load-sharing.md`, `vendor/zscaler-help/about-public-service-edges-internet-saas.md`.
+
 ---
 
 ## 6. Logging and observability
@@ -120,6 +132,8 @@ Service Edges do not store logs locally — they compress, tokenize, and export 
 Under MCLS, traffic from the same tenant may be processed by service nodes across multiple clusters. Those nodes all export to the same Log Router infrastructure, which correlates logs to the correct Nanolog cluster by tenant. From the tenant's perspective, all logs appear in a unified log store in the Admin Console and NSS streams — there is no per-cluster log partition visible to admins.
 
 **Correlation.** Log records include source information (user, location, IP) that can be used to correlate activity regardless of which cluster processed the request. The cluster or service node identity is not exposed in the standard ZIA web log schema as a customer-visible field.
+
+Source: `vendor/zscaler-help/about-public-service-edges-internet-saas.md`, `vendor/zscaler-help/understanding-zscaler-cloud-architecture.md`.
 
 ---
 
@@ -139,6 +153,8 @@ Under MCLS, traffic from the same tenant may be processed by service nodes acros
 
 **Specific timeout windows** for VIP-level detection by ZCC or GRE/IPSec tunnel endpoints are not documented in the vendor MCLS or architecture sources. This is an unresolved gap — see clarifications.
 
+Source: `vendor/zscaler-help/understanding-multi-cluster-load-sharing.md`, `vendor/zscaler-help/understanding-zscaler-cloud-architecture.md`, `vendor/zscaler-help/understanding-business-continuity-cloud-components.md`.
+
 ---
 
 ## 8. Identity and auth-state across clusters
@@ -146,6 +162,8 @@ Under MCLS, traffic from the same tenant may be processed by service nodes acros
 Policy for a user is computed by the Central Authority and distributed to Service Edges per-user on first request. When a user is routed to a different cluster within the MCLS VIP pool — whether on a new connection or as a result of LB redistribution — the new cluster's service node requests the user's policy from the CA on first connection.
 
 **Auth state replication.** The vendor documentation does not describe explicit auth-state replication between clusters at the data-plane level. The CA serves as the authoritative auth and policy source. A user who authenticated at one service node and is subsequently served by a node in a different cluster in the pool is re-authenticated by virtue of the CA issuing policy in response to the new service node's request. Whether this represents a fully transparent handoff (no re-prompt to the user) or a re-auth event depends on the auth method (IP surrogacy, cookie, Kerberos, SAML) and whether the CA's session state persists across the re-query. This is an unresolved gap — see clarifications.
+
+Source: `vendor/zscaler-help/about-public-service-edges-internet-saas.md`, `vendor/zscaler-help/understanding-zscaler-cloud-architecture.md`.
 
 ---
 
@@ -161,6 +179,8 @@ For tenants using the default ZIA egress path (`forward_method = ZIA` / no SIPA)
 - **Vendor IP allowlists.** Any third-party service that restricts access by source IP must allowlist the full set of Zscaler IP ranges for the tenant's cloud, not a single fixed range. The full IP list is available via the CENR endpoint and Zscaler's published IP range feeds.
 - **SIPA isolates egress IP from cluster selection.** Tenants with strict egress IP requirements should use SIPA or a dedicated egress method (`ENATDEDIP`). These forward methods anchor the egress IP independently of which cluster performs the inspection.
 
+Source: `vendor/zscaler-help/understanding-multi-cluster-load-sharing.md`, `vendor/zscaler-help/understanding-source-ip-anchoring.md`.
+
 ---
 
 ## 10. PSE deployments and MCLS
@@ -172,6 +192,8 @@ The MCLS pool consists exclusively of Public Service Edges operated by Zscaler. 
 Within a PSE cluster, the analogous construct is: an active-passive LB pair sharing a cluster VIP, distributing traffic to active-active service nodes. This is single-cluster redundancy, not multi-cluster load sharing. The LB uses CARP for VIP failover, and responses use Direct Server Return (DSR) — return traffic does not pass through the LB. (Tier A — references/zia/private-service-edge.md)
 
 **Traffic path under a subcloud that includes Private SEs.** A subcloud can mix Private Service Edges and Public Service Edges as preferred vs overflow. In that configuration, traffic first targets the Private SE cluster(s); if unavailable, it overflows to the Public SE members of the subcloud. The Public SE members are subject to MCLS within their respective data centers. (Tier A — references/shared/subclouds.md)
+
+Source: `vendor/zscaler-help/understanding-multi-cluster-load-sharing.md`, `vendor/zscaler-help/about-public-service-edges-internet-saas.md`.
 
 ---
 
@@ -190,6 +212,8 @@ A tenant using an unqualified `${GATEWAY}` PAC variable receives geolocation-def
 
 **Business Continuity and subclouds.** When BC mode activates, traffic routes through Zscaler's BC infrastructure regardless of subcloud configuration. BC mode bypasses both subcloud restrictions and the normal MCLS pool. (Tier A — references/shared/subclouds.md)
 
+Source: `vendor/zscaler-help/understanding-business-continuity-cloud-components.md`, `vendor/zscaler-help/understanding-multi-cluster-load-sharing.md`.
+
 ---
 
 ## 12. Constraints and known limits
@@ -203,6 +227,8 @@ A tenant using an unqualified `${GATEWAY}` PAC variable receives geolocation-def
 **Government and special clouds.** Cloud names `zscalergov` and `zspreview` are valid cloud domains in the Zscaler ecosystem (confirmed in Terraform provider sources). Whether these clouds operate an equivalent MCLS model or have different cluster topologies is not documented in the available vendor sources.
 
 **Z-Tunnel 2.0 and BC mode.** The Business Continuity Cloud supports only Z-Tunnel 1.0, PAC files, and GRE tunnels. A tenant that has migrated to Z-Tunnel 2.0 reverts to Z-Tunnel 1.0 during BC operations. This is not an MCLS constraint but is relevant when reasoning about failure cascades: a Z-Tunnel 2.0 tenant whose DC VIP becomes unreachable and triggers BC activation will experience the tunnel downgrade. (Tier A — understanding-business-continuity-cloud-components.md)
+
+Source: `vendor/zscaler-help/understanding-multi-cluster-load-sharing.md`, `vendor/zscaler-help/understanding-business-continuity-cloud-components.md`.
 
 ---
 

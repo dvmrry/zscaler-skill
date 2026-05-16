@@ -21,6 +21,8 @@ A Private Service Edge (PSE) extends the Zscaler cloud onto customer premises. S
 
 For the broader Service Edge taxonomy (Public / Private / Virtual form factors, CA connectivity model, data-plane properties), see [`../shared/cloud-architecture.md`](../shared/cloud-architecture.md). This doc covers the on-prem-specific mechanics: when to deploy, cluster design, tiers, IP/NAT constraints, PSE Groups (the ZIA construct), and the open-proxy deployment risk.
 
+Source: `vendor/zscaler-help/understanding-private-service-edge-internet-saas.md`, `vendor/zscaler-help/about-public-service-edges-internet-saas.md`, `vendor/zscaler-help/about-virtual-service-edges-internet-saas.md`.
+
 ## PSE vs cloud enforcement nodes
 
 | Dimension | Public Service Edge | Private Service Edge | Virtual Service Edge |
@@ -34,6 +36,8 @@ For the broader Service Edge taxonomy (Public / Private / Virtual form factors, 
 | IPv6 support | Yes | Yes (unless behind 1:1 NAT) | Yes |
 
 PSE is appropriate when geolocation routing is wrong for the use case (see "When PSE makes sense" below). VSE is appropriate when the organization controls its own virtualization and wants customer-managed software.
+
+Source: `vendor/zscaler-help/understanding-private-service-edge-internet-saas.md`, `vendor/zscaler-help/about-public-service-edges-internet-saas.md`, `vendor/zscaler-help/about-virtual-service-edges-internet-saas.md`.
 
 ## When PSE makes sense
 
@@ -49,6 +53,8 @@ Deploy a PSE cluster (rather than relying on Public Service Edges) when one or m
 
 The Public SE threshold (~1 Gbps download) is the sizing break-point above which a PSE cluster is required. See cluster tiers below.
 
+Source: `vendor/zscaler-help/understanding-private-service-edge-internet-saas.md`.
+
 ## Cluster architecture
 
 All PSE deployments are **N+1 redundant**. Zscaler will not support a standalone PSE. Minimum two PSEs per cluster, always. (Tier A)
@@ -59,6 +65,8 @@ Two node roles in every cluster:
 - **Service Edge instances** — active-active behind the cluster VIP. The LB distributes traffic across all healthy Service Edges; unhealthy instances are removed from the pool automatically via active health monitoring.
 
 **Direct Server Return (DSR):** response traffic does not traverse the LB on the way back. The Service Edge sends responses directly to the client. Only inbound (client → PSE) traffic passes through the LB. Firewall rules must permit asymmetric return flows: return traffic originates from service-edge IPs, not the cluster VIP. (Tier A)
+
+Source: `vendor/zscaler-help/understanding-private-service-edge-internet-saas.md`, `vendor/zscaler-help/about-private-service-edges.md`.
 
 ## Cluster tiers and throughput ceilings
 
@@ -78,9 +86,13 @@ Minimum and maximum per cluster:
 
 **Sizing rule of thumb:** upload throughput is assumed at 30% of download when unknown. Example: 1.8 Gbps download → 540 Mbps upload → 2.34 Gbps total → requires at minimum PSE 5 Integrated LB. (Tier A)
 
+Source: `vendor/zscaler-help/understanding-private-service-edge-internet-saas.md`, `vendor/zscaler-help/about-private-service-edges.md`.
+
 ## Advanced DLP PSE
 
 Customers requiring **Exact Data Match (EDM)** or **Indexed Data Match (IDM)** features get an additional hardware role: the Advanced DLP Private Service Edge. This is separate from the standard PSE instances and dedicated to EDM/IDM index hosting and matching. Deployed alongside a standard PSE cluster, not as a standalone unit. (Tier A — PSE help doc.)
+
+Source: `vendor/zscaler-help/understanding-private-service-edge-internet-saas.md`.
 
 ## Virtual Service Edge (VSE)
 
@@ -92,6 +104,8 @@ VSE is the software form factor: a Zscaler OS VM running on customer-operated in
 
 VSE is the right choice when the organization controls its own virtualization infrastructure and either (a) public-cloud-deployed or (b) prefers not to rack dedicated Zscaler hardware.
 
+Source: `vendor/zscaler-help/about-virtual-service-edges-internet-saas.md`.
+
 ## IP and NAT requirements
 
 All PSE IPs — service IPs, LB IPs, cluster VIP — **must be public IP addresses**. (Tier A)
@@ -99,6 +113,8 @@ All PSE IPs — service IPs, LB IPs, cluster VIP — **must be public IP address
 For RFC 1918 private-address environments: 1:1 static NAT to a public IP is supported, with one constraint — **IPv6 is not supported in 1:1 static NAT mode**. In a NAT deployment, each PSE private IP must have a dedicated public mapping; shared or overloaded NAT is not supported. (Tier A)
 
 Firewall must allow outbound to Zscaler cloud IPs at `config.zscaler.com/<Zscaler Cloud Name>/zia-sedge`.
+
+Source: `vendor/zscaler-help/understanding-private-service-edge-internet-saas.md`, `vendor/zscaler-help/about-private-service-edges.md`.
 
 ## PSE Groups (ZIA configuration construct)
 
@@ -129,6 +145,8 @@ PSE Groups provide the ability to:
 
 **Policy scoping:** PSE Groups are referenced in ZIA location configuration. Adding a location to a PSE cluster enables per-cluster log viewing, auth settings, IP surrogacy, XFF consumption, and location-group rule scoping. See Locations section and open-proxy risk below.
 
+Source: `vendor/zscaler-help/about-private-service-edge-groups.md`, `vendor/zscaler-help/about-private-service-edges.md`.
+
 ## Business Continuity Cloud and PSE
 
 When the Business Continuity Cloud activates (during a PSE or ZIA service outage), traffic routes through Zscaler's BC infrastructure. BC Cloud is relevant to PSE operators because PSE outages are one of the triggers. BC Cloud supports only Z-Tunnel 1.0 / PAC / GRE (not Z-Tunnel 2.0), which means a tenant relying on Z-Tunnel 2.0 with a restrictive subcloud loses both during BC activation. (Tier A — `references/shared/subclouds.md`.)
@@ -154,6 +172,8 @@ Until step 4 completes: any traffic not matching the allowlist is treated as rem
 
 **Operational rule:** every PSE location add or change requires a Zscaler Support ticket. There is no Admin Console self-service path for the CA-to-cluster mapping. Operators who skip this step or assume the mapping is automatic will create an open proxy.
 
+Source: `vendor/zscaler-help/understanding-private-service-edge-internet-saas.md`, `vendor/zscaler-help/about-private-service-edges.md`.
+
 ## SDK and API surface
 
 ZIA PSE and PSE Groups do not have a dedicated SDK service in the Python or Go ZIA SDKs as of April 2026. PSE management is primarily done via:
@@ -167,9 +187,13 @@ ZPA has a separate `ServiceEdgeGroupAPI` (`client.zpa.service_edge_group`) for Z
 
 Both products use the term "Private Service Edge" but they serve different roles in the architecture.
 
+Source: `vendor/zscaler-help/about-private-service-edges.md`, `vendor/zscaler-help/about-private-service-edge-groups.md`.
+
 ## ZDX dependency — PSE Health Dashboard
 
 The **PSE Health Dashboard** (the primary operational monitoring surface for PSE cluster health) requires a **ZDX (Zscaler Digital Experience) subscription**. It is not available to ZIA-only tenants. For tenants without ZDX, PSE monitoring falls back to Zscaler Cloud Ops telemetry and the standard ZIA Admin Console — which has no dedicated PSE health view. (Tier A — PSE help doc.)
+
+Source: `vendor/zscaler-help/understanding-private-service-edge-internet-saas.md`, `vendor/zscaler-help/about-private-service-edges.md`.
 
 ## Gotchas summary
 
@@ -188,6 +212,8 @@ The **PSE Health Dashboard** (the primary operational monitoring surface for PSE
 7. **Location of PSE Group affects country-based policy.** When a user connects to a PSE with an RFC 1918 address, the PSE Group's location (not the user's IP) determines which country-based policies apply. Location changes do not take effect for existing connections — only new connections after the change.
 
 8. **PSE Group location changes affect existing connections differently.** If the location of a PSE Group is updated, the PSE uses the old location until the next new connection. (Tier A — vendor/zscaler-help/about-private-service-edges.md.)
+
+Source: `vendor/zscaler-help/understanding-private-service-edge-internet-saas.md`, `vendor/zscaler-help/about-private-service-edges.md`, `vendor/zscaler-help/about-private-service-edge-groups.md`.
 
 ## Cross-links
 

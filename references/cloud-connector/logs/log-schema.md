@@ -25,6 +25,8 @@ This document covers what log data Cloud Connector produces, the fields availabl
 
 For monitoring dashboard fields and API state objects (health status, upgrade state, ZIA gateway, ZPA broker), see [`../insights-monitoring.md`](../insights-monitoring.md). This document focuses specifically on **log record fields**, not operational state fields.
 
+Source: `vendor/zscaler-help/cbc-about-insights.md`, `vendor/zscaler-help/cbc-accessing-cloud-branch-connector-monitoring.md`, `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md`.
+
 ---
 
 ## Log surface overview
@@ -39,6 +41,8 @@ For monitoring dashboard fields and API state objects (health status, upgrade st
 | **SDK/API state** | Go SDK `ecgroup.GetAll()`, REST API | Point-in-time | Per-VM health state |
 
 No raw log download API for Insights data was identified in available captures (Tier D — absence of evidence; see Open Questions in `../insights-monitoring.md`).
+
+Source: `vendor/zscaler-help/cbc-about-insights.md`, `vendor/zscaler-help/cbc-accessing-cloud-branch-connector-monitoring.md`, `vendor/zscaler-help/about-log-streaming-service.md`.
 
 ---
 
@@ -120,6 +124,8 @@ CC session logs streamed via NSS for Firewall carry the standard ZIA firewall lo
 
 For the full NSS firewall log schema (all fields), see [`../../zia/logs/firewall-log-schema.md`](../../zia/logs/firewall-log-schema.md). The CC session logs use the same field set.
 
+Source: `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md`, `vendor/zscaler-help/about-log-streaming-service.md`.
+
 ---
 
 ## Insights pages — UI log fields
@@ -166,6 +172,8 @@ Tunnel Insights shows ZIA and ZPA tunnel state from Cloud Connector. Metrics are
 
 Zero `Sent Bytes` on an Active CC is the primary indicator of a forwarding rule or ZIA gateway misconfiguration.
 
+Source: `vendor/zscaler-help/cbc-about-insights.md`, `vendor/zscaler-help/cbc-analyzing-branch-connector-details.md`.
+
 ---
 
 ## SDK/API state fields (per-VM monitoring)
@@ -196,6 +204,8 @@ for _, group := range groups {
 }
 ```
 
+Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go`, `vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go`.
+
 ---
 
 ## Accessing CC logs in practice
@@ -209,15 +219,21 @@ for _, group := range groups {
 
 CC session logs arrive in the SIEM in the ZIA firewall log format. Use `%s{location}` to filter to CC-specific locations and distinguish CC traffic from branch/on-prem ZIA traffic.
 
+Source: `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md`, `vendor/zscaler-help/about-log-streaming-service.md`.
+
 ### Path 2: ZIA admin console (ZIA-forwarded traffic only)
 
 Traffic that CC forwards via the ZIA forwarding method appears in ZIA's own log surfaces (ZIA Web Insights, ZIA Firewall Insights, ZIA API). Filter by the CC location in the ZIA console. This path covers only ZIA-forwarded traffic — Direct-forwarded and ZPA-forwarded traffic does not appear in ZIA logs.
 
 Cross-referencing tip: CC VMs behind cloud-provider NAT show their **NAT IP** in ZIA tunnel logs, but the SDK/console shows the **private management IP**. Use the CC group and location as the correlation key — not the IP address.
 
+Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go`, `vendor/zscaler-help/cbc-accessing-cloud-branch-connector-monitoring.md`.
+
 ### Path 3: ZTW admin console Insights pages (UI, no SIEM export)
 
 For ad-hoc investigation, the Insights pages (Session, DNS, Tunnel) are the fastest path. They support time range selection up to 92 days, chart-to-log drilldown, and multi-value filtering. No programmatic access path is confirmed for Insights data.
+
+Source: `vendor/zscaler-help/cbc-about-insights.md`, `vendor/zscaler-help/cbc-analyzing-branch-connector-details.md`.
 
 ### Path 4: Cloud-provider native monitoring (load balancer health)
 
@@ -229,6 +245,8 @@ Cloud Connector registers health with the cloud-native load balancer via HTTP he
 | Azure Load Balancer | 15 seconds | HTTP 200 on `?cchealth` | HTTP 503 or no response |
 
 `Status: Active` in the ZTW console reflects enrollment state (control channel), not load-balancer health (data plane). These can diverge during partial outages. Always check cloud-native LB health when diagnosing traffic loss.
+
+Source: `vendor/zscaler-help/cbc-accessing-cloud-branch-connector-monitoring.md`, `vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go`.
 
 ---
 
@@ -245,6 +263,8 @@ CC traffic forwarded via ZPA generates ZPA LSS User Activity records. The join i
 For Direct-forwarded traffic: no ZIA or ZPA log records exist. NSS for Firewall is the only centralized log path.
 
 See [`../../shared/log-correlation.md`](../../shared/log-correlation.md) for broader cross-product correlation patterns.
+
+Source: `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md`, `vendor/zscaler-help/about-log-streaming-service.md`.
 
 ---
 
@@ -265,6 +285,8 @@ If the Log & Control Forwarding gateway becomes unreachable, CC continues forwar
 ### Aggregated sessions lose per-connection detail
 
 The NSS firewall log aggregation behavior applies to CC session logs. When sessions are aggregated (`%s{aggregate} = Yes`), client source port, server port, and IP values reflect only the **last session** in the aggregate. Per-session detail is lost. For investigations requiring per-connection granularity, use shorter time windows to reduce aggregation.
+
+Source: `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md`, `vendor/zscaler-help/about-log-streaming-service.md`, `vendor/zscaler-help/cbc-about-insights.md`.
 
 ---
 
