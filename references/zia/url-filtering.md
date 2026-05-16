@@ -24,11 +24,13 @@ author-status: draft
 
 # ZIA URL filtering rule precedence
 
-How ZIA decides which URL filtering rule applies to a request, what wins when multiple rules match, and how URL filtering interacts with Cloud App Control.
-
 Source: vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt; vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/Recommended_URL_&_Cloud_App_Control_Policy.txt; vendor/zscaler-help/About_URL_Categories.txt; vendor/zscaler-help/Understanding_Policy_Enforcement.txt.
 
+How ZIA decides which URL filtering rule applies to a request, what wins when multiple rules match, and how URL filtering interacts with Cloud App Control.
+
 ## Summary
+
+Source: vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt; vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/Recommended_URL_&_Cloud_App_Control_Policy.txt; vendor/zscaler-help/About_URL_Categories.txt.
 
 URL filtering rules are evaluated top-down in **ascending rule order (Rule 1 before Rule 2)** and stop at the **first match**. But "matching" involves two layers you need to hold in your head at once:
 
@@ -38,8 +40,6 @@ URL filtering rules are evaluated top-down in **ascending rule order (Rule 1 bef
 A rule with a wildcard category can sit at the top of the order and still silently lose to a lower-numbered rule because a different custom category had a more-specific entry for the URL. This is the pattern that most often produces confident-but-wrong intuitive answers about precedence.
 
 Cloud App Control also gets in the way: by default, if CAC **allows** a cloud app, URL filtering does not evaluate for that transaction at all. See [Cloud App Control interaction](#cloud-app-control-interaction) below.
-
-Source: vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt; vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/Recommended_URL_&_Cloud_App_Control_Policy.txt; vendor/zscaler-help/About_URL_Categories.txt.
 
 ## Mechanics
 
@@ -69,6 +69,8 @@ Additional mechanics:
 
 ### Rule criteria logic
 
+Source: vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/Understanding_Policy_Enforcement.txt.
+
 Criteria within a single rule combine with these operators (*Configuring the URL Filtering Policy*, p.1):
 
 ```
@@ -88,9 +90,9 @@ Protocols (AND) User Agent (AND) [Device Groups (OR) Devices] (AND) Device Trust
 - **`userRiskScoreLevels`** (`zscaler/zia/models/url_filtering_rules.py:79-81`) — list of enum values for user-risk-score-based rule scoping. Distinct from the `userRiskProfile` reference; this field gates rule match by current risk-score level (e.g., `LOW`/`MEDIUM`/`HIGH`/`CRITICAL`). Will appear in snapshot JSON for tenants using risk-based policy.
 - **`workloadGroups`** — present in the model + `reformat_params` list (`url_filtering.py:43`); referenced by ID. Workload Groups are a separate ZIA primitive; rules can scope by them. No dedicated reference doc yet.
 
-Source: vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/Understanding_Policy_Enforcement.txt.
-
 ### Actions
+
+Source: vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt.
 
 Five user-configurable actions, per *Configuring the URL Filtering Policy* pp.10–14:
 
@@ -106,8 +108,6 @@ Each action has caveats around SSL Inspection and EUN settings — see `ssl-insp
 
 **Extra SDK-visible action values** (`zscaler/zia/url_filtering.py:166`): the API also accepts `ICAP_RESPONSE` (hand off to ICAP for external processing — useful when describing tenant rules authored against third-party DLP/malware scanners) and the sentinels `ANY` / `NONE`. Operators rarely configure these directly through the console, but they'll appear in snapshot JSON or API responses.
 
-Source: vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt.
-
 ### Conditional field dependencies (Block action overrides)
 
 **`block_override` + `override_users` / `override_groups` are conditional.** Setting an override list is silently ignored unless **both**:
@@ -119,13 +119,15 @@ Source: vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt.
 
 ### Custom-category regex patterns (API-only capability)
 
+Source: vendor/zscaler-help/About_URL_Categories.txt.
+
 The SDK exposes **`regexPatterns`** and **`regexPatternsRetainingParentCategory`** on custom URL categories as writeable fields (`zscaler/zia/models/urlcategory.py:43-48`). Custom categories can match URLs via regex — not just URL strings, keywords, or IP ranges.
 
 The admin console walkthrough (*About URL Categories*) doesn't surface this path; the API and TF provider do. Worth flagging when a tenant's URL-category set includes suspicious-looking entries that don't match the documented URL/keyword/IP formats — they may be regex patterns, not broken strings.
 
-Source: vendor/zscaler-help/About_URL_Categories.txt.
-
 ## The specificity rule — the non-obvious precedence gotcha
+
+Source: vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt; vendor/zscaler-help/About_URL_Categories.txt.
 
 This is the most commonly misunderstood piece of URL filtering behavior. Paired with the wildcard-matching rules — specifically the **5-level subdomain cap** and the **asterisk-is-not-valid** behavior — this is where "intuitive" answers go wrong. See [`./wildcard-semantics.md § Surprises`](./wildcard-semantics.md) for the matching-layer surprises; this section documents the rule-evaluation-layer consequence.
 
@@ -150,9 +152,9 @@ When answering a precedence question, check both layers in order:
 
 A rule with a wildcard-matching category that "should" match may silently never fire because the URL resolved to a different category in step 1.
 
-Source: vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt; vendor/zscaler-help/About_URL_Categories.txt.
-
 ## Cloud App Control interaction
+
+Source: vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/Recommended_URL_&_Cloud_App_Control_Policy.txt.
 
 By default, Cloud App Control is evaluated **before** URL filtering and, when CAC **allows** a request, URL filtering does not evaluate at all.
 
@@ -170,8 +172,6 @@ Walk-through (cascading **disabled** is the default):
 The toggle name — "Allow Cascading *to URL Filtering*" — is the literal switch: it controls only whether URL Filtering runs after a CAC Allow. The inverse ("does URL Filtering always win over CAC?") is never true.
 
 "Allow Cascading to URL Filtering" lives under Advanced Web App Control Options. See [`./cloud-app-control.md`](./cloud-app-control.md) for full treatment.
-
-Source: vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/Recommended_URL_&_Cloud_App_Control_Policy.txt.
 
 ## Edge cases
 
@@ -201,6 +201,8 @@ Source: vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt; v
 - **Adjacent Advanced Settings worth knowing.** `zveloDbLookupDisabled` (disable the Zvelo URL-classification lookup pipeline) and `enableCreativeCommonsSearchResults` (allow CC-licensed search-result tagging) are also on `URLAdvancedPolicySettings`. Neither is commonly toggled but both will appear in snapshot JSON for tenants that did.
 
 ## Worked example (covers eval Q2)
+
+Source: vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt; vendor/zscaler-help/About_URL_Categories.txt; vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt.
 
 Scenario: two URL filtering rules both could match a request for `www.example.com/path`.
 
@@ -232,8 +234,6 @@ Now change Rule 20 to reference a custom category `Corp Exceptions` containing t
 2. Rule evaluation. Rule 10 doesn't match (URL is not in its category list). Rule 20 matches → Allow.
 
 Result: **moving the entry from wildcard to exact-match in a lower-priority rule's custom category changes which rule wins, without changing any rule order.** Non-obvious; worth explaining to operators.
-
-Source: vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt; vendor/zscaler-help/About_URL_Categories.txt; vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt.
 
 ## Open questions
 
