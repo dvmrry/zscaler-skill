@@ -31,7 +31,7 @@ while finishing a tenant-specific implementation.
 
 | Category | Scripts |
 |---|---|
-| **Hygiene / CI** | `check-hygiene.py`, `check-citations.sh`, `check-doc-links.py`, `check-orphans.py`, `check-staleness.sh`, `check-vendor-drift.py`, `check-scrape-freshness.py`, `maintenance-digest.py`, `vendor-impact-summary.py` |
+| **Hygiene / CI** | `check-hygiene.py`, `check-citations.sh`, `check-citation-density.py` (density advisory; source-line audit strict in CI), `check-doc-links.py`, `check-orphans.py`, `check-staleness.sh`, `check-vendor-drift.py`, `check-scrape-freshness.py`, `maintenance-digest.py`, `vendor-impact-summary.py` |
 | **Eval suite** | `run-evals.py` |
 | **Tenant API operations** | `diagnose-tenant.py`, `snapshot-refresh.py`, `url-lookup.py` |
 | **Private-overlay scaffolds** | `access-check.py`, `connector-health.py`, `sandbox-check.py`, `ssl-audit.py`, `zpa-app-check.py` |
@@ -70,6 +70,10 @@ The public snapshot layout is product-first: `_data/snapshot/zia/`,
 `_data/snapshot/zpa/`, and `_data/snapshot/zcc/`. The manifest records
 `ZSCALER_CLOUD`; the public script does not partition output into per-cloud
 directories.
+
+`simulate-policy.py` reads the product-first layout by default. Private
+multi-cloud overlays can pass `--cloud <name>` (or set `ZSCALER_CLOUD`) to read
+`_data/snapshot/<cloud>/zia/`, with product-first fallback for public snapshots.
 
 Lines prefixed `!` indicate a per-resource fetch failure; the run continues.
 Lines prefixed `-` indicate that the SDK surface for that resource was not

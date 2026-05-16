@@ -45,6 +45,8 @@ author-status: draft
 
 ## Overview
 
+Source: `vendor/zscaler-help/about-private-service-edges.md`; `vendor/zscaler-help/understanding-private-access-architecture.md`; `vendor/zscaler-help/zsdk-about-zsdk-private-service-edges.md`
+
 A ZPA Private Service Edge (PSE) is a **single-tenant instance broker** that delivers the same ZPA session-brokering function as a ZPA Public Service Edge, but runs inside the operator's own environment — data center, private cloud, or cloud-hosted tenant VPC — rather than in a Zscaler PoP.
 
 Like its Public counterpart, a ZPA PSE manages ZPA data-plane sessions: it authenticates ZCC clients and App Connectors, enforces ZPA access policy, selects the best-path App Connector, and manages the Microtunnel (M-Tunnel) end-to-end from user to application. The PSE is not doing internet inspection (that is ZIA's domain); it is solely a ZPA session coordinator that sits between ZCC and the App Connector.
@@ -76,6 +78,8 @@ Like its Public counterpart, a ZPA PSE manages ZPA data-plane sessions: it authe
 ZPA Public Service Edges are Zscaler-operated, multi-tenant, globally distributed. They are the default path for ZPA traffic. Operators observe them in logs but cannot configure or deploy them. ZPA PSEs are operator-deployed, single-tenant, and sit in the operator's infrastructure. A ZPA tenant can use both: Public SEs for general road-warrior traffic and PSEs for specific sites, user populations, or regulated workloads. See [`./public-service-edges.md`](./public-service-edges.md) for the Public SE reference.
 
 ## Architecture
+
+Source: `vendor/zscaler-help/understanding-private-access-architecture.md`; `vendor/zscaler-help/about-private-service-edges.md`; `vendor/zscaler-help/zsdk-about-zsdk-private-service-edges.md`
 
 ### Data path
 
@@ -134,6 +138,8 @@ A PSE is not required — and adds operational overhead — in standard deployme
 
 ## Form factors and deployment
 
+Source: `vendor/zscaler-help/zsdk-deploying-zsdk-private-service-edges.md`; `vendor/terraform-aws-zpa-app-connector-modules/README.md`; `vendor/terraform-azurerm-zpa-app-connector-modules/README.md`.
+
 ### VM / virtual appliance
 
 ZPA PSEs are distributed as **virtual machine images** for deployment on enterprise hypervisors. Supported platforms include VMware (ESXi/vSphere). Cloud deployments are possible in private cloud environments that support the VM image format. Zscaler distributes the images; the operator provisions the VM and handles the enrollment step.
@@ -170,6 +176,8 @@ Enrollment is the one-time process by which a PSE obtains its identity:
 After enrollment, the PSE is bound to a single ZPA tenant. It cannot be re-enrolled without a new provisioning key. **PSE VMs must not be cloned** after enrollment — the cloned VM's hardware fingerprint will not match the enrolled certificate, and enrollment will fail.
 
 ## Configuration
+
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_private_cloud_group.md`; `vendor/terraform-aws-zpa-app-connector-modules/README.md`; `vendor/terraform-azurerm-zpa-app-connector-modules/README.md`.
 
 ### Terraform resources
 
@@ -368,6 +376,8 @@ There is no Terraform resource for ZPA PSE provisioning keys in the captured ven
 
 ## Admin Console navigation
 
+Source: `vendor/zscaler-help/about-private-service-edges.md`; `vendor/zscaler-help/about-private-service-edge-groups.md`
+
 ZPA Private Service Edges and their groups are managed under **Infrastructure > Private Access > Component**:
 
 - **Private Service Edges** — lists all enrolled and deployed PSE instances. Instances that have been added (provisioning key generated) but not yet deployed (VM not enrolled) do not appear here. From this view you can rename, enable/disable, or delete a PSE record. PSE Groups that are Zscaler-managed are read-only in this view.
@@ -376,6 +386,8 @@ ZPA Private Service Edges and their groups are managed under **Infrastructure > 
 The Auto Delete feature (configurable under Private Service Edges page settings) automatically removes PSE records that have been disconnected or disabled for a configured number of days. This helps keep the Admin Console clean in environments where PSE VMs are frequently replaced.
 
 ## Software version profiles
+
+Source: `vendor/zscaler-help/about-private-service-edge-groups.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md`
 
 Each PSE Group is assigned a **version profile** that controls which release track the PSEs in that group follow. Supported profile names:
 
@@ -391,6 +403,8 @@ Each PSE Group is assigned a **version profile** that controls which release tra
 The `el8` variants exist for environments that require OS-level compatibility with RHEL 8 or compatible distributions. Set `override_version_profile = true` in Terraform to use a profile other than the tenant's global default; otherwise the PSE Group inherits the tenant-wide version profile setting.
 
 ## Policy implications
+
+Source: `vendor/zscaler-help/understanding-private-access-architecture.md`; `vendor/zscaler-help/about-private-service-edges.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md`
 
 ### PSE selection by ZCC
 
@@ -427,6 +441,10 @@ ZPA Microtenants allow a single ZPA tenant to host logically isolated sub-tenant
 The microtenant feature requires a license. In standard single-tenant deployments, leave `microtenant_id` unset. The Go SDK requires `common.Filter{MicroTenantID: service.MicroTenantID()}` on every API call; if no microtenant is configured the value is nil and the filter is omitted from the request — no additional handling needed.
 
 ## Common gotchas
+
+Source: `vendor/zscaler-help/about-private-service-edges.md`; `vendor/zscaler-help/about-private-service-edge-groups.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md`.
+
+Note: This section summarizes the cited PSE material above.
 
 **1. PSE vs Public SE selection criteria — grace distance is required for LAN preference.**
 Without `grace_distance_enabled`, ZPA may route LAN users to a geographically close Zscaler PoP rather than to the on-prem PSE. This defeats the purpose of the PSE for latency and regulatory use cases. Always configure grace distance when deploying a PSE for on-premises users. Test from client devices on the Trusted Network to confirm PSE selection is occurring (check LSS logs for the Service Edge identity).

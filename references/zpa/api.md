@@ -23,6 +23,8 @@ API reference for the slice of ZPA this skill covers — application segments, s
 
 ## Authentication
 
+Source: `vendor/zscaler-sdk-python/README.md`
+
 Same two-framework model as ZIA — see [`../zia/api.md`](../zia/api.md#authentication-two-frameworks) for the full description. Summary:
 
 - **OneAPI** (current, OAuth 2.0 via ZIdentity): unified `ZscalerClient` exposes `.zpa` as the ZPA resource root.
@@ -32,11 +34,15 @@ ZPA-legacy auth uses a Client ID + Client Secret + customer ID issued in the ZPA
 
 ## API base structure
 
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_application_segment.md`; `vendor/zscaler-sdk-python/README.md`
+
 The ZPA API uses a customer-scoped URL pattern: most endpoints live under `/mgmtconfig/v1/admin/customers/{customerId}/...`. Example from `vendor/terraform-provider-zpa/docs/resources/zpa_application_segment.md` API reference link: `https://help.zscaler.com/zpa/configuring-application-segments-using-api`.
 
 The SDK abstracts this — you don't manually build customer-scoped URLs, but log exports, direct curl debugging, or third-party tooling will see the customerId in every path.
 
 ## SDK response shape
+
+Source: `vendor/zscaler-sdk-python/README.md`
 
 Same pattern as ZIA per SDK README:
 
@@ -53,6 +59,8 @@ Some ZPA endpoints use POST-based search semantics rather than GET for listing. 
 > Some endpoints use POST `/resource/search` with filterBy/pageBy/sortBy; use `_post_search_all_pages` or `CommonFilterSearch`.
 
 ## Endpoints and resources relevant to this skill
+
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py`; `vendor/terraform-provider-zpa/docs/resources/zpa_application_segment.md`.
 
 ### Application Segments
 
@@ -250,6 +258,8 @@ TF resources for LSS configuration (each maps to a specific log type):
 
 ## Go-SDK-only surfaces (cross-SDK audit 2026-04-24)
 
+Source: `vendor/zscaler-sdk-go/zscaler/zpa/services/`; `vendor/zscaler-sdk-python/zscaler/zpa/`
+
 Cross-check against `vendor/zscaler-sdk-go/zscaler/zpa/services/` surfaced services the Python SDK at `vendor/zscaler-sdk-python/zscaler/zpa/` doesn't expose:
 
 - **`applicationsegment_move`** / **`applicationsegment_share`** (Go) — explicit microtenant-cross-segment operations: `AppSegmentMicrotenantMove` and `AppSegmentMicrotenantShare`. Python's `application_segment` has no equivalent methods. Any tooling that needs to move application segments across microtenants or share segments between microtenant boundaries must use the Go SDK or call the API directly.
@@ -259,6 +269,8 @@ Cross-check against `vendor/zscaler-sdk-go/zscaler/zpa/services/` surfaced servi
 Python-only modules the Go SDK doesn't carry (some of these are Python's way of splitting what Go bundles; some are newer features): `tag_key`, `tag_namespace`, all five `pra_*` modules (`pra_approval`, `pra_console`, `pra_credential`, `pra_credential_pool`, `pra_portal`), and all four `cbi_*` modules (`cbi_banner`, `cbi_certificate`, `cbi_profile`, `cbi_region`). The PRA and CBI surfaces exist in Go under different paths — the module split differs rather than the API coverage.
 
 ## Common SDK patterns
+
+Source: `vendor/zscaler-sdk-python/README.md`; `vendor/zscaler-sdk-python/zscaler/zpa/`
 
 The most-used call patterns inline. For full method signatures see `vendor/zscaler-sdk-python/zscaler/zpa/`. For the procedural auth-selection decision tree, see [`../_meta/runbooks.md § Authentication selection`](../_meta/runbooks.md).
 
@@ -326,6 +338,8 @@ For troubleshooting these patterns, see [`../_meta/runbooks.md § Troubleshootin
 
 ## Read/write shape asymmetries
 
+Source: topical references linked in the table; verify against the listed vendor SDK/provider sources before adding automation.
+
 Cross-cutting hub for fields where `GET` and `POST`/`PUT` disagree on shape, value, or presence semantics. Detail lives in topical docs; this section is the discovery point for "API round-trip will bite me, where?" questions.
 
 | Asymmetry | Topical home | Severity |
@@ -338,11 +352,15 @@ Cross-cutting hub for fields where `GET` and `POST`/`PUT` disagree on shape, val
 
 ## Pagination
 
+Source: `vendor/zscaler-sdk-python/README.md`
+
 Per SDK README: built-in `resp.has_next()` / `resp.next()`. Same idiom as ZIA.
 
 For ZPA's POST-search endpoints (some list APIs use POST with `filterBy`/`pageBy`/`sortBy` in the body), use `_post_search_all_pages` or `CommonFilterSearch` per SDK README.
 
 ## JMESPath client-side filtering
+
+Source: `vendor/zscaler-sdk-python/README.md`
 
 Per SDK README, every `resp` supports `resp.search("<expression>")` for in-client JMESPath filtering/projection. Example:
 
@@ -355,13 +373,19 @@ enabled_only = resp.search("[?enabled]")
 
 ## No activation step
 
+Source: ZPA API and SDK behavior in listed vendor sources; contrast with ZIA activation docs.
+
 Unlike ZIA (which requires a separate `POST /status/activate` after changes), ZPA config changes take effect on write. This means no equivalent of ZIA's `zia_activation_status` resource is needed.
 
 ## Microtenants
 
+Source: `vendor/zscaler-sdk-python/README.md`; `vendor/zscaler-sdk-python/zscaler/zpa/`; `vendor/terraform-provider-zpa/docs/resources/zpa_application_segment.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule.md`.
+
 Several ZPA resources accept a microtenant scope. Per `vendor/zscaler-sdk-python/zscaler/zpa/microtenants.py` (SDK module listing) and the ZPA Configuring Defined Application Segments PDF p.19: "Microtenants aren't supported" for some features like Extranet settings. The microtenant context must be specified at the client level or per-request; see SDK module for the exact pattern.
 
 ## Scripts in this repo that use these endpoints
+
+Source: `scripts/snapshot-refresh.py`
 
 - **`scripts/snapshot-refresh.py [--zpa-only]`** — dumps ZPA `application_segment.list_segments`, `segment_groups.list_groups`, `server_groups.list_groups`, and `policies.list_rules` to `_data/snapshot/zpa/*.json`. Uses the same `ZscalerClient` authentication documented here; see `references/zia/api.md` for the full env-var list (shared between products under OneAPI). Handles SDK pagination via `resp.has_next()` / `resp.next()`.
 

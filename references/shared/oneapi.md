@@ -33,6 +33,8 @@ This doc consolidates **everything that's true cross-product** — the auth flow
 
 ## Public source-of-truth — `automate.zscaler.com`
 
+Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscaler-help/automate-zscaler/postman-collection-note.md`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`
+
 Zscaler maintains a public OneAPI documentation hub at `https://automate.zscaler.com/`. **No login wall.** Three top sections:
 
 - `/docs/getting-started/` — auth + onboarding
@@ -46,6 +48,10 @@ We've vendored the relevant captures under `vendor/zscaler-help/automate-zscaler
 **The Postman collection is the closest thing to a machine-readable API surface.** Vendored at `vendor/zscaler-api-specs/oneapi-postman-collection.json` (~14 MB, Postman v2.1.0 schema). 7 product folders covering every OneAPI surface — including the only ZPA documentation Zscaler publishes (web docs are absent for ZPA on automate.zscaler.com).
 
 ## Authentication mechanisms (5 paths in the wild)
+
+Source: `vendor/zscaler-help/automate-zscaler/api-authentication-overview.md`; `vendor/zscaler-help/legacy-api-authentication.md`.
+
+See also: product-specific legacy auth docs listed in frontmatter.
 
 OneAPI is the modern path. **Four legacy paths still exist** because (a) gov-cloud tenants don't have OneAPI, (b) some products were never OneAPI-migrated (ZDX, ZCC pre-OneAPI), and (c) plenty of tenants haven't migrated to ZIdentity yet. Operational reality: any code touching multiple Zscaler products today must be prepared to deal with 2–3 different auth flows.
 
@@ -228,6 +234,10 @@ The returned JWT is used as a bearer token on subsequent ZCC API calls.
 
 ## Per-product base URLs
 
+Source: `vendor/zscaler-help/automate-zscaler/guides-understanding-oneapi.md`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
+
+See also: legacy API docs listed in frontmatter.
+
 Single host, per-product paths:
 
 | Product | Base path | Full URL |
@@ -246,6 +256,8 @@ Single host, per-product paths:
 **ZPA `customerId` parameter:** ZPA endpoints under `/mgmtconfig/v1/admin/customers/{customerId}/...` require the customer ID (the ZPA tenant ID). Other products derive tenant from the auth token; ZPA additionally requires it explicitly in the URL.
 
 ## Rate limits — different model per product
+
+Source: `vendor/zscaler-help/automate-zscaler/guides-rate-limiting.md`; `vendor/zscaler-help/legacy-api-rate-limit-summary.md`
 
 Rate limits are NOT unified across products. Each product has its own model, response-header naming, and failure-payload shape. Plan multi-product automation accordingly.
 
@@ -318,6 +330,8 @@ Same Heavy/Medium/Light table as ZIA. 429 body carries `Retry-After: 0 seconds` 
 
 ## OneAPI HTTP status codes
 
+Source: `vendor/zscaler-help/automate-zscaler/guides-response-codes.md`
+
 | Code | Meaning |
 |---|---|
 | 401 | Auth token invalid, expired, or missing |
@@ -333,6 +347,8 @@ Same Heavy/Medium/Light table as ZIA. 429 body carries `Retry-After: 0 seconds` 
 Specific products may add their own codes — see product-specific `api.md` files.
 
 ## Read-only mode (ZIA scheduled maintenance)
+
+Source: `vendor/zscaler-help/automate-zscaler/guides-response-codes.md`
 
 During scheduled maintenance, ZIA returns:
 
@@ -350,6 +366,10 @@ Both the `x-zscaler-mode` header and the `STATE_READONLY` code are reliable disc
 
 ## Activation gate (ZIA + Cloud & Branch Connector only)
 
+Source: `vendor/zscaler-help/automate-zscaler/guides-understanding-oneapi.md`
+
+See also: `references/shared/activation.md`.
+
 Configuration changes for ZIA and CBC do not take effect until **explicitly activated**. The relevant endpoints:
 
 - ZIA: `POST /zia/api/v1/status/activate`
@@ -366,6 +386,8 @@ The fix is sequence: take an explicit lock, write, activate, release. Don't run 
 
 ## API client best practices
 
+Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscaler-help/automate-zscaler/guides-rate-limiting.md`; `vendor/zscaler-help/automate-zscaler/guides-response-codes.md`
+
 From the captured *Getting Started > Best Practices*:
 
 - **Adjust token lifetime** in ZIdentity to match your operational needs. Short-lived tokens limit blast radius; long-lived tokens reduce token-refresh chatter.
@@ -375,6 +397,8 @@ From the captured *Getting Started > Best Practices*:
 - **Avoid race conditions.** Don't mix UI edits with running scripts. The `409 EDIT_LOCK_NOT_AVAILABLE` is the symptom; serialize writes to avoid it.
 
 ## Postman collection coverage
+
+Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscaler-help/automate-zscaler/postman-collection-note.md`
 
 The vendored Postman collection (`vendor/zscaler-api-specs/oneapi-postman-collection.json`) covers all 7 OneAPI products:
 
@@ -396,11 +420,15 @@ The collection is named "OneAPI Copy 3" internally — Zscaler naming artifact, 
 
 ## GraphQL Analytics API
 
+Source: `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`
+
 Zscaler ships a GraphQL endpoint at `https://api.zsapi.net/zins/graphql` — beta, covers SaaS Security / Cyber Security / Zero Trust Firewall / IoT / Shadow IT / Web Traffic with strongly-typed schema and introspection. Distinct from REST endpoints; same OneAPI auth.
 
 Useful when REST pagination would be heavy or when a structured cross-domain query is needed. Not yet codified in the skill's product-specific docs — see [`vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md`](../../vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md) for capture details.
 
 ## SDK relationship
+
+Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscaler-sdk-python/README.md`; `vendor/zscaler-sdk-go/README.md`
 
 The Python SDK (`vendor/zscaler-sdk-python/`) and Go SDK (`vendor/zscaler-sdk-go/`) handle OneAPI auth internally — callers don't implement the OAuth flow. They consume:
 
@@ -412,6 +440,10 @@ The Python SDK (`vendor/zscaler-sdk-python/`) and Go SDK (`vendor/zscaler-sdk-go
 For the legacy auth path, set `ZSCALER_USE_LEGACY=true` and product-specific env vars (`ZIA_USERNAME`, `ZIA_API_KEY`, etc.). See `README.md § Set up ZIA + ZPA credentials` for the full walkthrough.
 
 ## Surprises worth flagging
+
+Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscaler-help/automate-zscaler/guides-rate-limiting.md`; `vendor/zscaler-help/automate-zscaler/guides-response-codes.md`.
+
+Note: This section summarizes the cited OneAPI mechanics above.
 
 1. **`audience=https://api.zscaler.com` is REQUIRED** on the OneAPI token request. Tokens issued without it succeed at exchange but fail at the OneAPI gateway with 401. Common debugging trap.
 
@@ -432,6 +464,10 @@ For the legacy auth path, set `ZSCALER_USE_LEGACY=true` and product-specific env
 ---
 
 ## Legacy Authentication
+
+Source: `vendor/zscaler-help/legacy-api-authentication.md`.
+
+See also: product-specific legacy auth docs listed in frontmatter.
 
 Legacy authentication covers the pre-OneAPI, pre-ZIdentity API auth patterns for ZIA and ZPA. These paths remain in active use for gov-cloud tenants, pre-ZIdentity tenants, and code written before OneAPI shipped.
 

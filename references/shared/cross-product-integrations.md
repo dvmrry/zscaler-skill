@@ -18,6 +18,19 @@ sources:
   - "references/zcc/entitlements.md"
   - "references/shared/cloud-architecture.md"
   - "references/shared/activation.md"
+  - "vendor/zscaler-help/configuring-ssl-tls-inspection-policy.md"
+  - "vendor/zscaler-help/Configuring_Defined_Application_Segments.txt"
+  - "vendor/zscaler-help/Using_Application_Segment_Multimatch.txt"
+  - "vendor/zscaler-help/understanding-source-ip-anchoring.md"
+  - "vendor/zscaler-help/configuring-source-ip-anchoring.md"
+  - "vendor/zscaler-help/configuring-forwarding-policies-source-ip-anchoring-using-zpa.md"
+  - "vendor/zscaler-help/About_Access_Policy.txt"
+  - "vendor/zscaler-help/about-forwarding-profiles.md"
+  - "vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py"
+  - "vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py"
+  - "vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py"
+  - "vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py"
+  - "vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py"
 author-status: draft
 ---
 
@@ -26,6 +39,10 @@ author-status: draft
 Where ZIA, ZPA, and ZCC reach into each other. These hooks are **where confident-but-wrong answers come from** — a skill that knows ZIA's rule precedence but not that a ZIA SSL Inspection rule can scope by a ZPA App Segment will miss the cross-product answer when it matters.
 
 ## Summary
+
+Source: vendor/zscaler-help/configuring-ssl-tls-inspection-policy.md; vendor/zscaler-help/Configuring_Defined_Application_Segments.txt; vendor/zscaler-help/Using_Application_Segment_Multimatch.txt; vendor/zscaler-help/understanding-source-ip-anchoring.md; vendor/zscaler-help/About_Access_Policy.txt; vendor/zscaler-help/about-forwarding-profiles.md; vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py; vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py; vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py.
+
+Note: This is a synthesis over product-specific references; the cited vendor and SDK paths are the underlying evidence.
 
 The Zscaler products are structurally separate (different Central Authorities, different Service Edges, different admin consoles), but configuration reaches across product boundaries in a small number of **directional hooks**. Each hook is a place where:
 
@@ -36,6 +53,8 @@ The Zscaler products are structurally separate (different Central Authorities, d
 Because the hooks live scattered across different docs, an agent answering a single-product question can miss them. This doc pulls them into one place, organized by **direction of coupling**.
 
 ## Directional hook catalog
+
+Source: vendor/zscaler-help/configuring-ssl-tls-inspection-policy.md; vendor/zscaler-help/Configuring_Defined_Application_Segments.txt; vendor/zscaler-help/Using_Application_Segment_Multimatch.txt; vendor/zscaler-help/understanding-source-ip-anchoring.md; vendor/zscaler-help/configuring-source-ip-anchoring.md; vendor/zscaler-help/configuring-forwarding-policies-source-ip-anchoring-using-zpa.md; vendor/zscaler-help/About_Access_Policy.txt; vendor/zscaler-help/about-forwarding-profiles.md; vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py; vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py; vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py; vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py; vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py; each subsection names the concrete product object or field that creates the cross-product dependency.
 
 ### ZIA → ZPA
 
@@ -298,6 +317,8 @@ ZDX's analytics layer is Microsoft-hosted (Azure Data Explorer / ADX) — an ext
 
 ## Common cross-product question shapes
 
+Source: vendor/zscaler-help/configuring-ssl-tls-inspection-policy.md; vendor/zscaler-help/Configuring_Defined_Application_Segments.txt; vendor/zscaler-help/Using_Application_Segment_Multimatch.txt; vendor/zscaler-help/understanding-source-ip-anchoring.md; vendor/zscaler-help/About_Access_Policy.txt; vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py; vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py; vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py.
+
 Routing hints for question patterns that often hit these hooks. Use this section to pre-empt cases where a question framed around one product actually resolves to behavior in another (ZIA vs ZPA vs ZCC).
 
 | Question | Likely cross-product hook | Check first |
@@ -335,6 +356,8 @@ Routing hints for question patterns that often hit these hooks. Use this section
 | "Why is a DLP incident visible in the ZWA portal but no workflow fired?" | Workflow mapping missing or doesn't match the incident's attributes | [`../zwa/overview.md § Workflow mappings`](../zwa/overview.md) |
 
 ## The recurring patterns
+
+Source: vendor/zscaler-help/configuring-ssl-tls-inspection-policy.md; vendor/zscaler-help/Configuring_Defined_Application_Segments.txt; vendor/zscaler-help/Using_Application_Segment_Multimatch.txt; vendor/zscaler-help/understanding-source-ip-anchoring.md; vendor/zscaler-help/About_Access_Policy.txt; vendor/zscaler-help/about-forwarding-profiles.md; vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py; vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py; vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py.
 
 Three themes show up across the hooks:
 

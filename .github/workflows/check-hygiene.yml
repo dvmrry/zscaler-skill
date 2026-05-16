@@ -4,6 +4,7 @@ name: Doc hygiene
 #   - check-hygiene.py:          frontmatter, anchors, clarification propagation, evals
 #   - check-citations.sh:        markdown link path resolution in references/**
 #   - check-doc-links.py:        HTML link / asset path resolution in docs/**
+#   - check-citation-density.py: local source-anchor coverage and Source: audit
 #   - check-orphans.py:          reference files with no inbound links from anywhere
 #   - check-vendor-drift.py:     refs whose cited vendor sources may have drifted
 #                                (advisory — exits 1 only on confirmed file changes)
@@ -39,6 +40,7 @@ on:
       - 'scripts/check-hygiene.py'
       - 'scripts/check-citations.sh'
       - 'scripts/check-doc-links.py'
+      - 'scripts/check-citation-density.py'
       - 'scripts/check-orphans.py'
       - 'scripts/check-vendor-drift.py'
       - 'scripts/check-scrape-freshness.py'
@@ -63,6 +65,7 @@ on:
       - 'scripts/check-hygiene.py'
       - 'scripts/check-citations.sh'
       - 'scripts/check-doc-links.py'
+      - 'scripts/check-citation-density.py'
       - 'scripts/check-orphans.py'
       - 'scripts/check-vendor-drift.py'
       - 'scripts/check-scrape-freshness.py'
@@ -102,6 +105,12 @@ jobs:
 
       - name: Check for broken HTML links in docs/
         run: ./scripts/check-doc-links.py
+
+      - name: Audit local citation/source anchors
+        # Density is advisory while the existing corpus is being backfilled.
+        # Source-line hygiene is strict: Source: must cite vendor/script/URL/
+        # clarification evidence, not internal reference docs or vague scopes.
+        run: ./scripts/check-citation-density.py --audit-sources --strict-sources --top 25
 
       - name: Check for orphan reference files
         run: ./scripts/check-orphans.py

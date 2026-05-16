@@ -27,6 +27,8 @@ AppProtection is ZPA's **inline application-layer security inspection engine** �
 
 ## Architecture
 
+Source: `vendor/zscaler-help/protecting-private-applications-zpa-appprotection.md`; `vendor/zscaler-help/about-appprotection-applications.md`; `vendor/zscaler-help/about-appprotection-policy.md`.
+
 ```
 user (browser or ZCC)
         │
@@ -54,6 +56,8 @@ ZPA App Connector ─────────► Zero Trust Exchange ───�
 
 ## The three-tier policy model
 
+Source: `vendor/zscaler-help/about-appprotection-controls.md`; `vendor/zscaler-help/about-appprotection-profiles.md`; `vendor/zscaler-help/about-appprotection-policy.md`; `vendor/zscaler-help/configuring-appprotection-policies.md`.
+
 ```
 Controls         (atomic detection units)
   │ bundled into
@@ -65,6 +69,8 @@ Policy Rules     (criteria + action + profile assignment, evaluated in order)
 ```
 
 ### Tier 1 — Controls (the detection atoms)
+
+Source: `vendor/zscaler-help/about-appprotection-controls.md`; `vendor/zscaler-help/about-active-directory-controls.md`.
 
 A Control is a single detection rule — "does this HTTP body contain SQL-injection patterns", "is this Kerberos AS-REQ from a suspicious source", etc. Each carries:
 
@@ -120,6 +126,8 @@ Output: **Active Directory Protection dashboard** in the ZPA Admin Console for i
 
 ### Tier 2 — Profiles (bundles of controls)
 
+Source: `vendor/zscaler-help/about-appprotection-profiles.md`; `vendor/zscaler-help/about-appprotection-controls.md`.
+
 A Profile is a named reusable bundle. Picks:
 
 - Which controls to include (from any of the 6 categories)
@@ -135,6 +143,8 @@ A Profile is a named reusable bundle. Picks:
 Custom profiles are clones-of-default (or built-from-scratch) where you tune controls + actions for your environment.
 
 ### Tier 3 — Policy Rules (where + how to apply)
+
+Source: `vendor/zscaler-help/about-appprotection-policy.md`; `vendor/zscaler-help/configuring-appprotection-policies.md`.
 
 Policy rules at **Policies > Cybersecurity > Inline Security > Protection Policies > AppProtection** evaluate top-to-bottom:
 
@@ -161,6 +171,8 @@ Policy rules at **Policies > Cybersecurity > Inline Security > Protection Polici
 
 ## How AppProtection relates to other ZPA features
 
+Source: `vendor/zscaler-help/protecting-private-applications-zpa-appprotection.md`; `vendor/zscaler-help/about-appprotection-applications.md`; `vendor/zscaler-help/about-appprotection-policy.md`.
+
 | Feature | Relationship |
 |---|---|
 | **Access Policy** | Independent. Access Policy decides "can this user reach this app"; AppProtection decides "is their traffic to that app malicious." Both fire on the same connection. Recommended: clone Access Policy criteria into AppProtection rules to keep them aligned. |
@@ -173,6 +185,8 @@ Policy rules at **Policies > Cybersecurity > Inline Security > Protection Polici
 
 ## Logging — LSS, not NSS
 
+Source: `vendor/zscaler-help/about-appprotection-policy.md`; `vendor/zscaler-help/protecting-private-applications-zpa-appprotection.md`.
+
 AppProtection events flow through ZPA's **Log Streaming Service (LSS)** as a dedicated log type called "AppProtection." Distinct from:
 
 - **User Activity** logs (LSS) — access decisions and connection metadata
@@ -184,6 +198,8 @@ Operational implication: **SIEM integrations standardized on NSS for ZIA must ad
 The "Understanding AppProtection Log Fields" article (referenced from the LSS overview) details the exact field set; not yet captured in this skill.
 
 ## Licensing
+
+Source: `vendor/zscaler-help/about-appprotection-policy.md`; `vendor/zscaler-help/protecting-private-applications-zpa-appprotection.md`.
 
 AppProtection appears bundled with ZPA — the default `OWASP Top-10 for Visibility` profile ships with every ZPA account, and the help docs don't gate basic AppProtection behind a separate SKU.
 
@@ -200,6 +216,8 @@ This implies **tier-gated AppProtection capabilities**:
 Specific tier names (Business / Transformation / Workplace+) and what each unlocks aren't spelled out in captured help docs. **Confirm with TAM** for actual entitlement on a given tenant.
 
 ## Surprises worth flagging
+
+Source: `vendor/zscaler-help/about-appprotection-controls.md`; `vendor/zscaler-help/about-appprotection-profiles.md`; `vendor/zscaler-help/about-appprotection-policy.md`; `vendor/zscaler-help/about-active-directory-controls.md`.
 
 1. **AppProtection was called Inspection until recently.** SDKs, Terraform resources, and older docs say "Inspection Policy", "Inspection Profile", `zpn_inspection_profile_id`. They're the same thing. A user looking at ZPA Terraform with `zpa_inspection_*` resources is configuring AppProtection.
 
@@ -222,6 +240,8 @@ Specific tier names (Business / Transformation / Workplace+) and what each unloc
 10. **OWASP CRS version migration is a deliberate operator action.** Older OWASP CRS controls don't auto-upgrade — operators must select and run the `Migrate` action. Tenants on long-running deployments may be using outdated rule sets without realizing.
 
 ## Common questions this unlocks
+
+Source: `vendor/zscaler-help/protecting-private-applications-zpa-appprotection.md`; `vendor/zscaler-help/about-appprotection-controls.md`; `vendor/zscaler-help/about-appprotection-profiles.md`; `vendor/zscaler-help/about-appprotection-policy.md`.
 
 - **"Is AppProtection part of ZPA?"** → Yes, mostly bundled; some capabilities (Browser Protection) appear tier-gated. Confirm specifics with TAM.
 - **"What's the difference between AppProtection and Inspection Policy?"** → Same product, renamed. Inspection is the old name; AppProtection is current.

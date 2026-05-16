@@ -32,7 +32,9 @@ The ZCC limits are distinct from:
 
 ZCC does not share a rate-limit pool with ZIA or ZPA. API calls to `/zia/api/v1` and `/zpa/mgmtconfig/v1` are counted separately.
 
-Source: `vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md`; `references/shared/oneapi.md § ZCC — flat tenant-wide`.
+Source: `vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md`.
+
+See also: `references/shared/oneapi.md § ZCC — flat tenant-wide`.
 
 ## 2. Endpoint-tier table
 
@@ -70,7 +72,9 @@ A header corresponding to the limit ceiling (analogous to ZIA's `x-ratelimit-lim
 
 A reset timestamp header analogous to ZIA's `x-ratelimit-reset` or ZDX's `RateLimit-Reset` (epoch seconds) is not documented for ZCC. The `X-Rate-Limit-Retry-After-Seconds` is a relative delay, not an absolute timestamp.
 
-Source: `vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md`; `references/shared/oneapi.md § Surprises worth flagging`.
+Source: `vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md`.
+
+See also: `references/shared/oneapi.md § Surprises worth flagging`.
 
 ## 4. HTTP 429 response shape
 
@@ -97,7 +101,9 @@ The Python SDK's `LegacyZCCClientHelper` (`vendor/zscaler-sdk-python/zscaler/zcc
 - **General endpoints (non-download):** Up to 3 retries on 429. The retry delay is read from the `X-Rate-Limit-Retry-After-Seconds` response header. If the header is absent, the client defaults to a 60-second wait.
 - **Download endpoints (`/downloadDevices`, `/downloadServiceStatus`, `/downloadDisableReasons`):** The client raises `ValueError` immediately on 429 for these endpoints. It does not retry. This matches the 3-calls/day hard cap behavior — a 429 on a download endpoint signals the daily quota is exhausted.
 
-Source: `references/zcc/sdk.md § Client construction — Python`; `references/zcc/sdk.md § CSV download endpoints`.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/legacy.py`.
+
+See also: `references/zcc/sdk.md § Client construction — Python`; `references/zcc/sdk.md § CSV download endpoints`.
 
 ### SDK behavior — OneAPI path (`ZCCService` / `ZscalerClient`)
 
@@ -158,7 +164,9 @@ The server-enforced limits are identical for both paths. The difference lies in 
 
 The ZCC API surface has not been fragmented between legacy and OneAPI limits — there is no documented case where a specific ZCC endpoint follows the OneAPI unified gateway limits instead of the ZCC-specific 100/hour cap. The OneAPI gateway fronts the ZCC API at `api.zsapi.net` for modern tenants, but the ZCC rate-limit model (100/hour flat) is applied at the product layer, not at the OneAPI gateway layer.
 
-Source: `references/shared/oneapi.md § ZCC — flat tenant-wide`; `references/zcc/api.md § Authentication paths — OneAPI vs ZCC legacy`.
+Source: `vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md`.
+
+See also: `references/shared/oneapi.md § ZCC — flat tenant-wide`; `references/zcc/api.md § Authentication paths — OneAPI vs ZCC legacy`.
 
 ## 8. Pagination interaction
 
@@ -178,7 +186,9 @@ With 100 calls/hour available and the maximum `page_size` of 5000, a full sync o
 
 The `list_devices` endpoint under `client.zcc.devices` filters by `os_type`, `username`, `page`, and `page_size`. Using OS-type filters to split large device lists into per-platform queries is one way to process results incrementally without exhausting the budget in a single burst.
 
-Source: `references/zcc/sdk.md § Pagination — Python`; `references/zcc/sdk.md § Pagination — Go`.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/devices.py`.
+
+See also: `references/zcc/sdk.md § Pagination — Python`; `references/zcc/sdk.md § Pagination — Go`.
 
 ## 9. Bulk operations
 
@@ -192,7 +202,9 @@ For operators removing large numbers of devices, batching UDIDs into a single `f
 
 Admin sync endpoints (`/syncZiaZdxAdminUsers`, `/syncZpaAdminUsers`) each count as one call but trigger background server-side synchronization. They do not iterate one admin user per call.
 
-Source: `references/zcc/sdk.md § devices — DevicesAPI`; `references/zcc/sdk.md § remove_devices vs force_remove_devices`.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/devices.py`.
+
+See also: `references/zcc/sdk.md § devices — DevicesAPI`; `references/zcc/sdk.md § remove_devices vs force_remove_devices`.
 
 ## 10. Common operator scenarios that hit limits
 

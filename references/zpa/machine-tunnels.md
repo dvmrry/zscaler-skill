@@ -24,6 +24,8 @@ author-status: draft
 
 ## Overview
 
+Source: `vendor/zscaler-help/about-machine-tunnels.md`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-windows.md`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.md`.
+
 A **machine tunnel** allows a Windows or macOS device to establish a ZPA connection *before* the user logs in to Zscaler Client Connector (ZCC). The tunnel runs as a machine-identity session rather than a user-identity session, so it exists even when no user is authenticated to ZCC.
 
 **Why this exists:** Enterprises relying on Active Directory for login and Group Policy require the device to reach a domain controller before Windows (or macOS) can authenticate a cached or new credential, enforce GPO, and complete logon scripts. Without a pre-authentication tunnel, the device is network-isolated from AD at exactly the moment AD connectivity is mandatory.
@@ -50,6 +52,8 @@ Key facts from the source documentation:
 
 ### Layer separation
 
+Source: `vendor/zscaler-help/about-machine-tunnels.md`; `vendor/zscaler-help/configuring-device-posture-profiles.md`.
+
 The machine tunnel involves two distinct layers that are frequently conflated:
 
 1. **Transport layer (ZCC z-tunnel)** — ZCC establishes the tunnel connection using Z-Tunnel 1.0 or 2.0 at the operating-system level before a user session exists. This is covered in [`../zcc/z-tunnel.md`](../zcc/z-tunnel.md); the present document does not repeat that content.
@@ -59,6 +63,8 @@ The machine tunnel involves two distinct layers that are frequently conflated:
 The `about-machine-tunnels.md` help article describes the ZCC Portal view (monitoring, status tracking, CSV export), which is the ZCC-side operational surface. The ZPA Admin Portal surfaces the policy-side configuration: Machine Groups, Machine Provisioning Keys, and access/forwarding policy rules that reference `Machine Tunnel` as a client type.
 
 ### Machine identity establishment
+
+Source: `vendor/zscaler-help/about-machine-tunnels.md`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-windows.md`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.md`; `vendor/zscaler-sdk-python/zscaler/zpa/machine_groups.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/machinegroup/zpa_machine_group.go`.
 
 Before a machine tunnel can be evaluated by ZPA policy, the machine must be enrolled and provisioned:
 
@@ -74,6 +80,8 @@ The flow: ZCC (using the provisioning key from the app profile) enrolls the devi
 
 ### ZPA Admin Portal
 
+Source: `vendor/zscaler-help/about-machine-tunnels.md`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-windows.md`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.md`.
+
 The admin-facing setup requires three objects, created in the ZPA Admin Portal:
 
 1. **Machine Groups** — define the set of machines eligible for machine-tunnel policy. Created under the machine groups section.
@@ -84,6 +92,8 @@ The admin-facing setup requires three objects, created in the ZPA Admin Portal:
 4. **Enable ZPA machine tunnel for all** — the global toggle enabling machine tunnels across the tenant. The original "Configuring ZPA Machine Tunnel for All" help article URL redirects as of the capture date; the exact console path for this toggle is an open question (see below).
 
 ### API / SDK
+
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/machine_groups.py`; `vendor/zscaler-sdk-python/zscaler/zpa/policies.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/machinegroup/zpa_machine_group.go`; `vendor/terraform-provider-zpa/docs/data-sources/zpa_machine_group.md`.
 
 **ZPA Management API endpoint:**
 
@@ -133,6 +143,8 @@ This is the only write operation: removing an enrolled machine tunnel device fro
 
 ### Terraform
 
+Source: `vendor/terraform-provider-zpa/docs/data-sources/zpa_machine_group.md`.
+
 There is **no `zpa_machine_group` resource** in the Terraform provider — machine groups are enrollment-driven and cannot be created via Terraform. The provider exposes only a **data source**:
 
 ```terraform
@@ -148,6 +160,8 @@ Provisioning Keys (for App Connector / Service Edge enrollment, not the machine 
 ## Policy interaction
 
 ### Client Type on Access and Forwarding Policy
+
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/policies.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/machinegroup/zpa_machine_group.go`; `vendor/terraform-provider-zpa/docs/data-sources/zpa_machine_group.md`.
 
 Machine tunnels surface in ZPA policy as the client type `zpn_client_type_machine_tunnel`. This is the primary mechanism for writing policy that applies to pre-login machine sessions and not to user sessions (or vice versa).
 
@@ -167,11 +181,15 @@ A rule that includes `zpn_client_type_machine_tunnel` in its `CLIENT_TYPE` opera
 
 ### Machine Groups as a policy criterion
 
+Source: `vendor/terraform-provider-zpa/docs/data-sources/zpa_machine_group.md`; `vendor/zscaler-sdk-python/zscaler/zpa/machine_groups.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/machinegroup/zpa_machine_group.go`.
+
 As noted in `policy-precedence.md`, `Machine Groups` is a first-class criterion on access policy rules. A rule can be scoped to a specific Machine Group, giving you the ability to grant different pre-login app access to different machine populations (e.g., laptops vs VDI vs kiosks).
 
 From the Terraform data source: machine group IDs retrieved via `data.zpa_machine_group` can be referenced directly in `zpa_policy_access_rule` resources to scope access rules to that group.
 
 ### App Segments
+
+Source: `vendor/zscaler-help/about-machine-tunnels.md`; `vendor/zscaler-sdk-python/zscaler/zpa/policies.py`.
 
 Machine tunnel sessions resolve application segments and undergo policy evaluation exactly like user sessions — using the most-specific-segment-wins matching described in [`./app-segments.md`](./app-segments.md). The segments available to a machine tunnel are constrained by whatever access policy rules match the machine tunnel client type.
 
@@ -179,13 +197,19 @@ Machine tunnel sessions resolve application segments and undergo policy evaluati
 
 ### Forwarding Policy
 
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/policies.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/machinegroup/zpa_machine_group.go`.
+
 Forwarding Policy evaluates before Access Policy (see [`./policy-precedence.md`](./policy-precedence.md)). A forwarding rule with client type `zpn_client_type_machine_tunnel` can be used to route machine-tunnel traffic to a specific Service Edge group, or to bypass ZPA entirely for certain destinations. The `zpn_client_type_machine_tunnel` value is valid in the forwarding policy's `CLIENT_TYPE` operand.
 
 ### Client Forwarding Policy
 
+Source: `vendor/zscaler-help/about-machine-tunnels.md`; `vendor/zscaler-sdk-python/zscaler/zpa/policies.py`.
+
 The Client Forwarding Policy (which decides forwarding profile and ZIA/ZPA service routing for ZCC itself) also accepts `zpn_client_type_machine_tunnel` as a valid client type in its conditions. This is used to direct machine tunnel traffic through specific Service Edges or to enforce specific forwarding behaviors for pre-login sessions distinct from post-login sessions.
 
 ### Posture profiles and machine tunnels
+
+Source: `vendor/zscaler-help/configuring-device-posture-profiles.md`; `vendor/zscaler-help/about-machine-tunnels.md`.
 
 Device Posture Profiles have an explicit **Apply to Windows Machine Tunnel** and **Apply to macOS Machine Tunnel** toggle (see `configuring-device-posture-profiles.md`). When selected, the posture type is evaluated against the pre-login machine tunnel session. When not selected, the posture check only applies to regular (post-login) ZPA and ZIA tunnels.
 
@@ -196,6 +220,8 @@ Supported posture types on the **macOS** machine tunnel: CrowdStrike ZTA Score, 
 This posture-check capability allows, for example, requiring that a domain-joined certificate exist on the device before the machine tunnel is granted access to domain controllers — enforcing machine identity at the policy level without relying solely on the machine token.
 
 ## Common gotchas
+
+Source: `vendor/zscaler-help/about-machine-tunnels.md`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-windows.md`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.md`; `vendor/zscaler-help/configuring-device-posture-profiles.md`; `vendor/zscaler-sdk-python/zscaler/zpa/policies.py`.
 
 ### GPO timing and the chicken-and-egg problem
 
@@ -226,6 +252,8 @@ The macOS machine tunnel feature is not self-serve in the ZCC Portal. It require
 The help article at `help.zscaler.com/zscaler-client-connector/configuring-zpa-machine-tunnel-all` redirected to an unrelated NSS page at the time of capture. The existence and exact console path of the "Enable ZPA Machine Tunnel for All" global toggle is therefore unconfirmed from documentation. The `about-machine-tunnels.md` article states the feature must be enabled, but does not detail the exact path. This is logged as an open question below.
 
 ## Open questions
+
+Source: clarification `zpa-20`.
 
 1. **Console path for the global "Enable ZPA Machine Tunnel for All" toggle** — the help article (`configuring-zpa-machine-tunnel-all`) has moved or been removed. The exact ZPA Admin Portal navigation path is not confirmed from current documentation. Expected location: somewhere within App Profile or ZPA Global Settings. Requires tenant-level confirmation.
 

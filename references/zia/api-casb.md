@@ -37,6 +37,8 @@ Out-of-band CASB for data at rest in sanctioned SaaS applications. Distinct from
 
 ## 1. Overview
 
+Source: `vendor/zscaler-help/about-saas-security-scan-configuration.md`; `vendor/zscaler-help/about-saas-security-report.md`; `vendor/zscaler-help/about-saas-security-insights-logs.md`
+
 ### What API CASB is
 
 API CASB (internally branded as the ZIA SaaS Security API, marketed as Zscaler CASB) connects to sanctioned SaaS applications via their native APIs — OAuth 2.0 authorization grants, service-account tokens, or equivalent — and scans content that already resides inside those applications. The scan is **out-of-band**: no user traffic passes through the ZIA proxy path. Zscaler reads objects directly from the SaaS platform's API and applies DLP and malware detection policies to the retrieved content.
@@ -79,6 +81,8 @@ The Insights Logs UI groups columns and filters into eight application categorie
 ---
 
 ## 2. Architecture
+
+Source: `vendor/zscaler-help/about-saas-security-scan-configuration.md`; `vendor/zscaler-help/about-saas-security-insights-logs.md`; `vendor/zscaler-sdk-python/zscaler/zia/saas_security_api.py`; `vendor/zscaler-sdk-python/zscaler/zia/casb_dlp_rules.py`; `vendor/terraform-provider-zia/docs/resources/zia_casb_dlp_rules.md`; `vendor/terraform-provider-zia/docs/resources/zia_casb_malware_rules.md`.
 
 ### API connectors (SaaS Application Tenants)
 
@@ -130,6 +134,8 @@ Quarantine moves a file from its original location in the SaaS platform to a des
 ---
 
 ## 3. Configuration surface
+
+Source: `vendor/zscaler-sdk-python/zscaler/zia/saas_security_api.py`; `vendor/zscaler-sdk-python/zscaler/zia/casb_dlp_rules.py`; `vendor/zscaler-sdk-go/zscaler/zia/services/saas_security_api/`; `vendor/terraform-provider-zia/docs/resources/zia_casb_dlp_rules.md`; `vendor/terraform-provider-zia/docs/resources/zia_casb_malware_rules.md`; `vendor/terraform-provider-zia/docs/data-sources/zia_casb_tenant.md`.
 
 ### Tenant connection
 
@@ -339,6 +345,8 @@ Note: `enabled=True/False` is translated to `state=ENABLED/DISABLED` automatical
 
 ## 4. SaaS Security Insights Log Schema
 
+Source: `vendor/zscaler-help/about-saas-security-insights-logs.md`; `vendor/zscaler-help/about-cloud-nss-feeds.md`
+
 Insights logs live at **Analytics > SaaS Security Insights > Logs** in the ZIA console, stored for **180 days** in Nanolog servers. They can also be streamed to a SIEM via NSS (VM-based) or Cloud NSS (one feed per log type per Cloud NSS instance). The log type in NSS feed configuration is listed as **SaaS Security**.
 
 The schema is **per-application-category**: each category (Collaboration, CRM, Email, File, Gen AI, ITSM, Public Cloud Storage, Repository) has its own column set and its own filter set in the UI. The table below documents fields that appear across categories based on the source documentation.
@@ -492,6 +500,8 @@ Both options use the Nanolog Streaming Service infrastructure. Logs are stored f
 
 ## 5. Ranges and Limits
 
+Source: `vendor/zscaler-help/ranges-limitations-zia.md`; `vendor/zscaler-sdk-python/zscaler/zia/saas_security_api.py`; `vendor/terraform-provider-zia/docs/resources/zia_casb_dlp_rules.md`; `vendor/terraform-provider-zia/docs/resources/zia_casb_malware_rules.md`.
+
 | Feature | Limit | Notes |
 |---|---|---|
 | Tenants per SaaS application | 16 | Contact support to increase |
@@ -510,6 +520,10 @@ Both options use the Nanolog Streaming Service infrastructure. Logs are stored f
 ---
 
 ## 6. Common Gotchas
+
+Source: `vendor/zscaler-help/about-saas-security-scan-configuration.md`; `vendor/zscaler-help/about-saas-security-insights-logs.md`; `vendor/zscaler-help/ranges-limitations-zia.md`.
+
+Note: This section summarizes the cited CASB/SaaS Security material above.
 
 ### Scan latency — findings are not real-time
 
@@ -550,6 +564,8 @@ Unlike inline DLP (see `references/zia/dlp.md` and `references/zia/ssl-inspectio
 ---
 
 ## 7. Open Questions
+
+Clarification status: unresolved source gaps in this document should be promoted to `references/_meta/clarifications.md` if they become cross-document blockers.
 
 | ID | Question | Gap source |
 |---|---|---|
