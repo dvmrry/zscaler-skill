@@ -41,6 +41,8 @@ egress (internet / ZPA / direct / drop)
 
 Because Forwarding Control fires after content inspection, a ZPA-forwarded flow still traverses DLP, SSL Inspection, and IPS. Forwarding Control chooses the exit ramp; it doesn't bypass the inspection pipeline before it.
 
+Source: vendor/zscaler-sdk-python/zscaler/zia/forwarding_control.py; vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_rule.go; vendor/zscaler-help/Traffic_Forwarding_in_ZIA_Reference_Architecture.txt.
+
 ## Forward methods (the `forward_method` field)
 
 From the TF provider schema and Python SDK (Tier A — both sources):
@@ -62,6 +64,8 @@ From the TF provider schema and Python SDK (Tier A — both sources):
 
 **Default when no rule matches:** traffic falls to the `ZIA` forward method — standard ZIA cloud egress. There is no implicit drop.
 
+Source: vendor/zscaler-sdk-python/zscaler/zia/forwarding_control.py; vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_rule.go.
+
 ## Predefined rules
 
 Four predefined forwarding rules ship with every ZIA tenant. The TF provider enforces that these cannot be deleted (Tier A — `validatePredefinedRules` in the Go source):
@@ -74,6 +78,8 @@ Four predefined forwarding rules ship with every ZIA tenant. The TF provider enf
 | `ZPA Pool For Stray Traffic` | Catches ZPA-destined traffic that doesn't match any configured forwarding rule. |
 
 ## Source IP Anchoring (SIPA)
+
+Source: vendor/zscaler-help/configuring-forwarding-policies-source-ip-anchoring-using-zpa.md; vendor/zscaler-help/configuring-source-ip-anchoring.md; vendor/zscaler-help/understanding-source-ip-anchoring.md; vendor/zscaler-help/understanding-source-ip-anchoring-direct.md.
 
 ### What problem it solves
 
@@ -138,6 +144,8 @@ A forwarding rule with `forward_method = ZPA` requires both `zpa_gateway` and `z
 
 **`zpaBrokerRule` field on the wire:** the SDK model carries a `zpaBrokerRule` field on `ForwardingControlRule` (`forwarding_control_policy.py:52`). Related to ZPA broker integration. Will appear in snapshot JSON; not operator-configurable through the standard rule schema.
 
+Source: vendor/zscaler-sdk-python/zscaler/zia/zpa_gateway.py; vendor/zscaler-sdk-python/zscaler/zia/forwarding_control.py; vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_zpa_gateway.go; vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_rule.go.
+
 ## Rule criteria
 
 Forwarding Control rules share the standard ZIA rule-criteria model. From the TF schema and Python SDK (Tier A):
@@ -151,6 +159,8 @@ Forwarding Control rules share the standard ZIA rule-criteria model. From the TF
 
 Rule evaluation is first-match-wins in ascending Rule Order, with Admin Rank as a structural gate — same model as URL Filtering and Firewall. See [`./url-filtering.md`](./url-filtering.md).
 
+Source: vendor/zscaler-sdk-python/zscaler/zia/forwarding_control.py; vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_rule.go.
+
 ## DNS configuration for SIPA
 
 SIPA requires matching DNS forwarding rules to function end-to-end. ZIA ships two predefined DNS Control rules (Tier A — *Configuring Source IP Anchoring* help doc):
@@ -159,6 +169,8 @@ SIPA requires matching DNS forwarding rules to function end-to-end. ZIA ships tw
 - **ZPA Resolver for Locations** — for office/tunnel users.
 
 Both must be enabled and ordered correctly: Road Warrior rule must have higher rule precedence than Locations rule. If Road Warrior is disabled, road-warrior SIPA traffic falls under the Locations rule instead of being blocked — the traffic is resolved by the wrong IP pool and not routed as intended.
+
+Source: vendor/zscaler-help/configuring-source-ip-anchoring.md; vendor/zscaler-help/configuring-forwarding-policies-source-ip-anchoring-using-zpa.md.
 
 ## Gotchas
 
@@ -175,6 +187,8 @@ Both must be enabled and ordered correctly: Road Warrior rule must have higher r
 6. **SIPA user-based policy and ZPA Access Policy don't mix.** If SIPA traffic is user-scoped in ZIA, do not add user-based SAML/SCIM criteria in the ZPA Access Policy for those same segments — it creates conflicting identity evaluation across products. (Tier A — *Configuring Source IP Anchoring* help doc.)
 
 7. **GetAll vs GetByID bug in ZPA Gateway reads.** The TF provider's Read function explicitly fetches all gateways and filters client-side rather than calling GetByID, with an inline comment noting "API bug where Get by ID returns incorrect app segments." (Tier A — TF Go source.) This means `terraform import` uses a GetAll scan, not a direct lookup.
+
+Source: vendor/zscaler-help/configuring-forwarding-policies-source-ip-anchoring-using-zpa.md; vendor/zscaler-help/configuring-source-ip-anchoring.md; vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_rule.go; vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_zpa_gateway.go.
 
 ## Dedicated proxy ports
 
@@ -203,6 +217,8 @@ Required configuration (`Traffic_Forwarding_in_ZIA_Reference_Architecture.txt:11
 | Authentication | Enabled |
 
 For Surrogate IP mechanics and the related five-minute lockout behavior, see [`../shared/source-ip-anchoring.md § Surrogate IP for fixed-site deployments`](../shared/source-ip-anchoring.md).
+
+Source: vendor/zscaler-help/Traffic_Forwarding_in_ZIA_Reference_Architecture.txt.
 
 ## Cross-links
 

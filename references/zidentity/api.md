@@ -21,6 +21,8 @@ The ZIdentity API provides programmatic access to identity lifecycle management 
 
 ZIdentity API base path: `/ziam/admin/api/v1` (Tier A — confirmed from SDK source).
 
+Source: vendor/zscaler-help/understanding-zidentity-apis.md; vendor/zscaler-help/zidentity-about-api-clients.md; vendor/zscaler-sdk-python/zscaler/zid/; vendor/zscaler-sdk-go/zscaler/zid/services/.
+
 ---
 
 ## 1. API endpoint categories
@@ -48,6 +50,8 @@ Each category has a corresponding base path:
 ---
 
 ## 2. Authentication flow for ZIdentity API access
+
+Source: vendor/zscaler-help/understanding-zidentity-apis.md; vendor/zscaler-help/zidentity-about-api-clients.md; vendor/zscaler-sdk-python/zscaler/zid/.
 
 ### 2.1 How it differs from ZIA/ZPA OneAPI
 
@@ -135,11 +139,15 @@ The `client_resources[].id` references the resource server ID in ZIdentity. The 
 
 API client **creation** is available via the admin portal (Administration > API Configuration > OneAPI > API Clients) and also via the Python SDK `add_api_client`. On the admin portal page, each client shows: Name, Client ID, Status. Enabling, disabling, editing, and deleting are all supported from the portal. (Tier A — vendor doc, `zidentity-about-api-clients.md`).
 
+Source: vendor/zscaler-help/zidentity-about-api-clients.md; vendor/zscaler-sdk-python/zscaler/zid/.
+
 ---
 
 ## 4. SDK services under `client.zid.*`
 
 The ZIdentity SDK is accessed via `client.zid.<service>`. All services use the base endpoint `/ziam/admin/api/v1`.
+
+Source: vendor/zscaler-sdk-python/zscaler/zid/; vendor/zscaler-sdk-go/zscaler/zid/services/.
 
 ### 4.1 `api_client` — `APIClientAPI`
 
@@ -227,6 +235,8 @@ ZIdentity uses `offset`/`limit` pagination — distinct from ZIA (`page`/`pageSi
 Useful query params for `list_users` / `list_group_users_details`:
 `offset`, `limit`, `login_name`, `login_name[like]`, `display_name[like]`, `primary_email[like]`, `domain_name` (list), `idp_name` (list).
 
+Source: vendor/zscaler-sdk-python/zscaler/zid/; vendor/zscaler-sdk-go/zscaler/zid/services/.
+
 ---
 
 ## 6. Rate limits
@@ -244,6 +254,8 @@ Rate limit specifics for ZIdentity endpoints are not documented in available SDK
 | `users` | Full CRUD + `list_user_group_details` | Full CRUD + `GetGroupsByUser` | Functionally equivalent |
 | `user_entitlement` | `get_admin_entitlement`, `get_service_entitlement` | Same | Parity |
 | `resource_servers` | Read-only (list, get) | Full CRUD | Python missing Create/Update/Delete |
+
+Source: vendor/zscaler-sdk-python/zscaler/zid/; vendor/zscaler-sdk-go/zscaler/zid/services/.
 
 ---
 
