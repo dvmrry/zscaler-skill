@@ -671,7 +671,9 @@ groups, err := ipdestinationgroups.GetAll(ctx, service)
 
 ## Open questions register
 
-Sources for resolved items below: `vendor/zscaler-sdk-go/zscaler/ztw/services/provisioning/provisioning_url/provisioning_url.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/zparesources/zparesources.go`.
+Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/provisioning/provisioning_url/provisioning_url.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/zparesources/zparesources.go`.
+
+Resolved items below cite the specific SDK files used for verification inline.
 
 1. **Duplicate DNS gateway packages**: `dns_gateway/dns_gateway.go` and `forwarding_gateways/dns_forwarding_gateway/dns_forwarding_gateway.go` both target `/ztw/api/v1/dnsGateways`. The `dns_gateway` package omits `*http.Response` from `Get`/`Create`/`Update` return signatures; the `dns_forwarding_gateway` package includes it. The `dns_gateway` package's struct omits the `Type` field present in the other. Which package is canonical for the Terraform provider is not confirmed from available sources — both exist in the SDK without clear deprecation notes.
 

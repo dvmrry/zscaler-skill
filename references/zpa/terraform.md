@@ -1129,7 +1129,9 @@ Most read-only data sources accept `name` or `id` and export the full resource s
 
 ## Open questions register
 
-Sources for resolved items below: `vendor/terraform-provider-zpa/zpa/resource_zpa_cloud_config.go`; `vendor/terraform-provider-zpa/docs/resources/zpa_app_connector_group.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_private_cloud_group.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_redirection_rule.md`.
+Source: `vendor/terraform-provider-zpa/zpa/resource_zpa_cloud_config.go`; `vendor/terraform-provider-zpa/docs/resources/zpa_app_connector_group.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_private_cloud_group.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_redirection_rule.md`.
+
+Resolved items below cite the specific provider files used for verification inline.
 
 1. **Resolved 2026-04-26.** `zia_cloud_domain` valid values confirmed from provider source. `validation.StringInSlice` enforces: `zscaler`, `zscloud`, `zscalerone`, `zscalertwo`, `zscalerthree`, `zscalerbeta`, `zscalergov`, `zscalerten`, `zspreview`. The provider's `StateFunc` automatically appends `.net` to the stored value (e.g., `zscloud` → `zscloud.net`) but the raw input should not include the `.net` suffix.
 

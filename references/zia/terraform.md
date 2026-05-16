@@ -1498,7 +1498,9 @@ Data sources have the same names as corresponding resources (prefix `data.zia_*`
 
 ## Open questions / clarifications register
 
-Sources for resolved items below: `vendor/terraform-provider-zia/zia/resource_zia_bandwidth_classes_file_size.go`; `vendor/terraform-provider-zia/zia/resource_zia_bandwidth_classes_web_conferencing.go`; `vendor/terraform-provider-zia/docs/resources/zia_cloud_app_control_rule.md`; `vendor/terraform-provider-zia/docs/resources/zia_dc_exclusions.md`; `vendor/terraform-provider-zia/docs/resources/zia_sub_cloud.md`; `vendor/terraform-provider-zia/zia/resource_zia_admin_roles.go`; `vendor/zscaler-help/admin-rbac-captures.md`.
+Source: `vendor/terraform-provider-zia/zia/resource_zia_bandwidth_classes_file_size.go`; `vendor/terraform-provider-zia/zia/resource_zia_bandwidth_classes_web_conferencing.go`; `vendor/terraform-provider-zia/docs/resources/zia_cloud_app_control_rule.md`; `vendor/terraform-provider-zia/docs/resources/zia_dc_exclusions.md`; `vendor/terraform-provider-zia/docs/resources/zia_sub_cloud.md`; `vendor/terraform-provider-zia/zia/resource_zia_admin_roles.go`; `vendor/zscaler-help/admin-rbac-captures.md`.
+
+Resolved items below cite the specific provider or help files used for verification inline.
 
 1. **Resolved 2026-04-26.** Complete enum lists confirmed from provider source:
    - `zia_bandwidth_classes_file_size` — `file_size` values: `FILE_5MB`, `FILE_10MB`, `FILE_50MB`, `FILE_100MB`, `FILE_250MB`, `FILE_500MB`, `FILE_1GB`.

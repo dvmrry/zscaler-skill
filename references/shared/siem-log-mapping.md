@@ -56,7 +56,7 @@ The user maps their tenant's real names to the catalog placeholders in CLAUDE.md
 
 Source: `vendor/terraform-provider-zia/docs/resources/zia_cloud_nss_feed.md`; `vendor/zscaler-sdk-python/zscaler/zia/cloud_nss.py`.
 
-Splunk landing spots are documented from the Zscaler TA (Splunkbase ID 3865) and common operator conventions. Other SIEM landing spots (Sentinel, Chronicle, Elastic, Sumo) are described conservatively — pattern-level only. Specific table names, log types, or index patterns vary by data connector / parser / agent module version, and tenants frequently customize. Treat these rows as *starting points*; the user's actual config is authoritative. Where a specific value is unverified, the row says "consult tenant data-connector / parser / agent config."
+Splunk landing spots are listed as common NSS sourcetype patterns and operator conventions, not as a guaranteed Zscaler TA contract. Other SIEM landing spots (Sentinel, Chronicle, Elastic, Sumo) are described conservatively — pattern-level only. Specific table names, log types, or index patterns vary by data connector / parser / agent module version, and tenants frequently customize. Treat these rows as *starting points*; the user's actual config is authoritative. Where a specific value is unverified, the row says "consult tenant data-connector / parser / agent config."
 
 ## ZIA — NSS feeds
 

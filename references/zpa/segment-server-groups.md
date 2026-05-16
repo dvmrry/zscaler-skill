@@ -85,7 +85,11 @@ A Segment Group is a lightweight wrapper: `id`, `name`, `description`, `enabled`
 
 **DNS search domains.** The Segment Group admin page (Resource Management > Application Management > Segment Groups) exposes a DNS search domains field. (Tier A — vendor/zscaler-help/about-segment-groups.md.) This affects how ZCC resolves short hostnames for apps in the group — adding a search domain here appends it when short names are used.
 
-**How policy rules use it:** ZPA access rules (ACCESS_POLICY, TIMEOUT_POLICY, CLIENT_FORWARDING_POLICY, INSPECTION_POLICY) scope application targeting through conditions with `objectType = APP_GROUP`. The condition's operand value is the Segment Group ID. Source (Tier A): `resource_zpa_segment_group.go` `detachSegmentGroupFromAllPolicyRules` — it scans all five policy types for `APP_GROUP` conditions referencing the group's ID before deletion.
+**How policy rules use it:** ZPA access rules (ACCESS_POLICY, TIMEOUT_POLICY, CLIENT_FORWARDING_POLICY, INSPECTION_POLICY) scope application targeting through conditions with `objectType = APP_GROUP`. The condition's operand value is the Segment Group ID.
+
+Source: `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go`.
+
+The Terraform provider's `detachSegmentGroupFromAllPolicyRules` scans all five policy types for `APP_GROUP` conditions referencing the group's ID before deletion.
 
 **The `enabled` toggle.** Disabling a Segment Group prevents policy rules scoped to it from matching, making all its App Segments effectively unreachable via those rules. (Tier D inference — not confirmed from source code alone, but consistent with the enabled/disabled semantics of all other ZPA objects.)
 
