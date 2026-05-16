@@ -1,25 +1,34 @@
 ---
 product: cloud-connector
 topic: cc-sdk
-title: Cloud Connector Go SDK — service catalog
+title: Cloud Connector SDK — service catalog
 content-type: reference
-last-verified: "2026-05-14"
-confidence: medium
+last-verified: "2026-05-16"
+confidence: high
 source-tier: code
 sources:
-  - vendor/zscaler-sdk-go/zscaler/ztw/services/
+  - vendor/zscaler-sdk-python/zscaler/ztw/ztw_service.py
+  - vendor/zscaler-sdk-python/zscaler/ztw/activation.py
+  - vendor/zscaler-sdk-python/CHANGELOG.md
   - vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go
+  - vendor/zscaler-sdk-go/zscaler/ztw/services/service.go
   - vendor/zscaler-sdk-go/zscaler/ztw/v2_config.go
+  - vendor/zscaler-sdk-go/zscaler/service.go
 author-status: draft
 ---
 
-# Cloud Connector Go SDK — service catalog
+# Cloud Connector SDK — service catalog
 
-## No Python SDK
+## Python and Go SDK coverage
 
-Cloud Connector (ZTW) is not covered by zscaler-sdk-python. The Python SDK historically lacked ZTW coverage. Do not search for a `zscaler.ztw` Python module — it does not exist. All programmatic access from Python must use the REST API directly or the Terraform provider. [Source: vendor/zscaler-sdk-python/zscaler/; vendor/zscaler-sdk-go/zscaler/ztw/services/]
+Source: `vendor/zscaler-sdk-python/zscaler/ztw/ztw_service.py`; `vendor/zscaler-sdk-python/zscaler/ztw/activation.py`; `vendor/zscaler-sdk-python/CHANGELOG.md`; `vendor/zscaler-sdk-go/zscaler/ztw/services/service.go`.
 
-The Go SDK (`github.com/zscaler/zscaler-sdk-go/v3`) is the only supported SDK path for Cloud Connector. [Source: vendor/zscaler-sdk-go/zscaler/ztw/services/]
+Cloud Connector (ZTW) is covered by both SDKs in the current capture:
+
+- Python SDK exposes `zscaler.ztw` through `ZTWService`, with accessors for activation, admin roles/users, EC groups, forwarding gateways/rules, policy resource groups, provisioning URL/API key, public cloud info, discovery service, workload groups, and related models.
+- Go SDK exposes the same product family under `github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/`.
+
+Historical note: older captures and older Python SDK versions lacked or had incomplete ZTW coverage. Do not use the old "Python has no Cloud Connector SDK" rule against the current pinned source.
 
 ---
 
@@ -73,19 +82,18 @@ github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/
 
 ```go
 import "github.com/zscaler/zscaler-sdk-go/v3/zscaler"
+import "github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw"
 
-config, err := zscaler.NewConfiguration(
-    zscaler.WithClientID("your-client-id"),
-    zscaler.WithClientSecret("your-client-secret"),
-    zscaler.WithVanityDomain("acme"),
-    zscaler.WithCloud("zscloud"),     // omit for production default
-    zscaler.WithCache(true),
-    zscaler.WithCacheTtl(10 * time.Minute),
+ztwConfig, err := ztw.NewConfiguration(
+    ztw.WithZtwUsername("admin@example.com"),
+    ztw.WithZtwPassword("password"),
+    ztw.WithZtwAPIKey("api-key"),
+    ztw.WithZtwCloud("zscaler"), // maps to https://connector.<cloud>.net/api/v1
 )
 if err != nil {
     return err
 }
-service, err := zscaler.NewOneAPIClient(config)
+service, err := zscaler.NewLegacyZtwClient(ztwConfig)
 ```
 
 Environment variables (alternative to code-level config): `ZTC_USERNAME`, `ZTC_PASSWORD`, `ZTC_API_KEY`, `ZTC_CLOUD`, plus optional `ZSCALER_PARTNER_ID`. [Source: vendor/zscaler-sdk-go/zscaler/ztw/v2_config.go]
@@ -98,7 +106,7 @@ Environment variables (alternative to code-level config): `ZTC_USERNAME`, `ZTC_P
 
 ### Function signature convention
 
-All ZTW service functions are **package-level functions** (not methods on a struct). Every function takes `ctx context.Context` as the first argument and `service *zscaler.Service` as the second. [Source: vendor/zscaler-sdk-go/zscaler/ztw/services/]
+All Go ZTW service functions are **package-level functions** (not methods on a struct). Every function takes `ctx context.Context` as the first argument and `service *zscaler.Service` as the second. [Source: vendor/zscaler-sdk-go/zscaler/ztw/services/service.go; vendor/zscaler-sdk-go/zscaler/ztw/services/activation/activation.go; vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go]
 
 ### HTTP methods
 
@@ -125,11 +133,11 @@ Some older services in the `provisioning` package use the non-`Resource` methods
 
 ### GetByName pattern
 
-All `GetByName` implementations call `ReadAllPages` to fetch all objects, then iterate with `strings.EqualFold` for case-insensitive matching. No server-side name filter is used (except `ecgroup/GetEcGroupLiteByName`, which passes `?name=<encoded>` to the lite endpoint as an optimization). [Source: vendor/zscaler-sdk-go/zscaler/ztw/services/]
+Most Go `GetByName` implementations call `ReadAllPages` to fetch all objects, then iterate with `strings.EqualFold` for case-insensitive matching. `ecgroup/GetEcGroupLiteByName` is an exception that passes `?name=<encoded>` to the lite endpoint as an optimization. [Source: vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go; vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go; vendor/zscaler-sdk-go/zscaler/ztw/services/dns_gateway/dns_gateway.go]
 
 ### ID types
 
-All ZTW IDs are `int`. Never use string IDs. [Source: vendor/zscaler-sdk-go/zscaler/ztw/services/]
+Go ZTW IDs are modeled as `int` across the inspected service structs. Do not pass string IDs to the Go surface unless a specific service proves otherwise. [Source: vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go; vendor/zscaler-sdk-go/zscaler/ztw/services/dns_gateway/dns_gateway.go; vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go]
 
 ### Activation requirement
 
@@ -254,7 +262,7 @@ TF resource: `ztc_forwarding_gateway`
 
 ### Location Management
 
-Three sub-packages under `locationmanagement/`: [Source: vendor/zscaler-sdk-go/zscaler/ztw/services/locationmanagement/]
+Three sub-packages under `locationmanagement/`: [Source: vendor/zscaler-sdk-go/zscaler/ztw/services/locationmanagement/location/location.go; vendor/zscaler-sdk-go/zscaler/ztw/services/locationmanagement/locationlite/locationlite.go; vendor/zscaler-sdk-go/zscaler/ztw/services/locationmanagement/locationtemplate/locationtemplates.go]
 
 #### location
 
