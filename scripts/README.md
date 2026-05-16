@@ -31,7 +31,7 @@ while finishing a tenant-specific implementation.
 
 | Category | Scripts |
 |---|---|
-| **Hygiene / CI** | `check-hygiene.py`, `check-citations.sh`, `check-citation-density.py` (density advisory; source-line audit strict in CI), `check-doc-links.py`, `check-orphans.py`, `check-staleness.sh`, `check-vendor-drift.py`, `check-scrape-freshness.py`, `maintenance-digest.py`, `vendor-impact-summary.py` |
+| **Hygiene / CI** | `check-hygiene.py`, `check-citations.sh`, `check-citation-density.py` (density advisory; source-line audit + citation inventory regression strict in CI), `check-doc-links.py`, `check-orphans.py`, `check-staleness.sh`, `check-vendor-drift.py`, `check-scrape-freshness.py`, `maintenance-digest.py`, `vendor-impact-summary.py` |
 | **Eval suite** | `run-evals.py` |
 | **Tenant API operations** | `diagnose-tenant.py`, `snapshot-refresh.py`, `url-lookup.py` |
 | **Private-overlay scaffolds** | `access-check.py`, `connector-health.py`, `sandbox-check.py`, `ssl-audit.py`, `zpa-app-check.py` |

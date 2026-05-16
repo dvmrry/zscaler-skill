@@ -113,6 +113,13 @@ jobs:
         # reference docs, clarification IDs, or vague scopes.
         run: ./scripts/check-citation-density.py --audit-source-quality --include-source-style --strict-sources --top 25
 
+      - name: Check citation inventory regression
+        # Fails when a file loses visible Source: coverage, cited-paragraph
+        # coverage, source-path mentions, or gains source-quality findings.
+        # Intentional citation restructures should update
+        # references/_meta/citation-inventory.json in the same PR.
+        run: ./scripts/check-citation-density.py --compare-citation-inventory references/_meta/citation-inventory.json --strict-inventory --top 25
+
       - name: Check for orphan reference files
         run: ./scripts/check-orphans.py
 
