@@ -19,11 +19,15 @@ author-status: draft
 
 # Risk360 — cyber risk quantification framework
 
+Source: `vendor/zscaler-help/what-risk360.md`; `vendor/zscaler-help/risk360-product-marketing.md`.
+
 Risk360 is a separate Zscaler SKU (paid add-on) that **quantifies organizational cyber risk in financial terms** — dollar-denominated expected loss — by analyzing Zscaler telemetry plus external sources against 115-140 predefined risk factors and running 1000 daily Monte Carlo simulations to produce loss-exceedance curves and yearly average loss figures.
 
 Distinct from every other Zscaler product in **mode**: operational products (ZIA / ZPA / ZDX / etc.) tell you what's happening with your traffic; Risk360 tells you what your *cyber risk exposure is worth in dollars* and whether your security investments are actually reducing it. Audience is CISO / board / audit-committee first; operator-level drill-down available but secondary.
 
 ## Architecture
+
+Source: `vendor/zscaler-help/what-risk360.md`; `vendor/zscaler-help/risk360-logs-retention.md`; `vendor/zscaler-help/risk360-product-marketing.md`.
 
 ```
                     ┌─────────────────────────────┐
@@ -55,6 +59,8 @@ Distinct from every other Zscaler product in **mode**: operational products (ZIA
 
 ## The four-stages-of-attack model
 
+Source: `vendor/zscaler-help/what-risk360.md`; `vendor/zscaler-help/risk360-about-dashboard.md`; `vendor/zscaler-help/risk360-about-factors.md`.
+
 Risk360 organizes everything around the **four stages of a cyberattack**:
 
 | Stage | What Risk360 measures |
@@ -68,6 +74,8 @@ The org-level risk score is an **average across these four categories**, with th
 
 ## The risk score (0-100)
 
+Source: `vendor/zscaler-help/risk360-about-dashboard.md`; `vendor/zscaler-help/risk360-about-factors.md`.
+
 | Range | Severity |
 |---|---|
 | 0–25 | Low |
@@ -78,6 +86,8 @@ The org-level risk score is an **average across these four categories**, with th
 Score weighting: factors carry different weights based on severity + frequency. Per the Dashboard doc: "an active infection is more severe than a blocked access attempt to a blocked destination" — so Risk360 weights actual breaches higher than hypothetical risks.
 
 ## Predefined risk factors (115-140+)
+
+Source: `vendor/zscaler-help/what-risk360.md`; `vendor/zscaler-help/risk360-about-factors.md`; `vendor/zscaler-help/risk360-product-marketing.md`.
 
 The factor count is **a moving target**:
 
@@ -113,6 +123,8 @@ This is critical for compliance reporting — Risk360's outputs are designed to 
 
 ## Asset-level risk (sub-org drill-down)
 
+Source: `vendor/zscaler-help/risk360-about-asset-level-risk.md`.
+
 Beyond org-level scoring, Risk360 provides **per-asset risk** scoring using **65+ indicators** in three categories:
 
 - **Pre-infection Behavior**
@@ -122,6 +134,8 @@ Beyond org-level scoring, Risk360 provides **per-asset risk** scoring using **65
 Asset-level scoring lets operators drill from "the org has a Critical risk score" → "this is driven by 5 risky assets" → "here's what's wrong with each one."
 
 ## Monte Carlo simulation — the financial-loss math
+
+Source: `vendor/zscaler-help/risk360-monte-carlo.md`; `vendor/zscaler-help/risk360-product-marketing.md`.
 
 Risk360's defining feature. The mechanics:
 
@@ -145,6 +159,8 @@ The Residual Risk scenario is the operationally important one — it shows the f
 
 ## Data sources
 
+Source: `vendor/zscaler-help/what-risk360.md`; `vendor/zscaler-help/risk360-logs-retention.md`; `vendor/zscaler-help/risk360-product-marketing.md`.
+
 | Source | Type | Coverage |
 |---|---|---|
 | **ZIA** (Internet & SaaS) | Zscaler-native | Web traffic, URL filtering, DLP, sandbox, ATP, IPS events |
@@ -158,6 +174,8 @@ The Residual Risk scenario is the operationally important one — it shows the f
 The single Zscaler vantage point is the differentiator — Zscaler's inline position across user / network / cloud / app layers means it sees real traffic, not just configurations.
 
 ## Outputs / surfaces
+
+Source: `vendor/zscaler-help/risk360-about-dashboard.md`; `vendor/zscaler-help/risk360-about-factors.md`; `vendor/zscaler-help/risk360-about-asset-level-risk.md`; `vendor/zscaler-help/risk360-monte-carlo.md`; `vendor/zscaler-help/risk360-product-marketing.md`.
 
 ### Dashboard page
 
@@ -195,6 +213,8 @@ PowerPoint export of risk findings in board-ready format. Includes financial fig
 
 ## RBAC
 
+Source: `vendor/zscaler-help/what-risk360.md`; `vendor/zscaler-help/risk360-about-dashboard.md`.
+
 Risk360 has **its own admin role surface** — separate from ZIA / ZPA / ZIdentity admin RBAC. Path: **Administration > Admin Management > Role Based Access Control > Risk360**.
 
 Per-role configurable:
@@ -209,6 +229,8 @@ The PII-obfuscation toggle is unusual — most Zscaler RBAC surfaces don't have 
 
 ## Licensing
 
+Source: `vendor/zscaler-help/risk360-logs-retention.md`; `vendor/zscaler-help/risk360-product-marketing.md`.
+
 Listed on Zscaler's pricing-and-plans page under **Security Operations** with a `$` marker (paid add-on). Two tiers visible:
 
 - **Security Operations Standard** — base Risk360 with Zscaler data
@@ -220,6 +242,8 @@ Logs retained for **up to 1 year** during subscription term.
 
 ## What Risk360 is NOT
 
+Source: `vendor/zscaler-help/what-risk360.md`; `vendor/zscaler-help/risk360-product-marketing.md`.
+
 Useful negative space:
 
 - **Not a SIEM.** It quantifies risk; it doesn't capture / store / search raw security events. Use NSS / LSS / your SIEM for those.
@@ -229,6 +253,8 @@ Useful negative space:
 - **Not a replacement for compliance documentation.** It provides framework-mapped data + SEC disclosure samples, but doesn't generate full compliance documentation autonomously.
 
 ## Surprises worth flagging
+
+Source: `vendor/zscaler-help/what-risk360.md`; `vendor/zscaler-help/risk360-about-dashboard.md`; `vendor/zscaler-help/risk360-about-factors.md`; `vendor/zscaler-help/risk360-about-asset-level-risk.md`; `vendor/zscaler-help/risk360-monte-carlo.md`; `vendor/zscaler-help/risk360-logs-retention.md`; `vendor/zscaler-help/risk360-product-marketing.md`.
 
 1. **Factor count is officially uncertain.** Different Zscaler sources cite 110+, 115, and 140+ in the same product. Treat as growing-over-time. Don't anchor a specific number.
 
@@ -251,6 +277,8 @@ Useful negative space:
 10. **The "Legacy UI: Risk360 Advanced" entry exists in the help nav.** Suggests there was an earlier Risk360 generation, now superseded. Tenants on long-term contracts may still see legacy UI; current docs target the new portal. Confirm version with TAM if questions arise.
 
 ## Common questions this unlocks
+
+Source: `vendor/zscaler-help/what-risk360.md`; `vendor/zscaler-help/risk360-monte-carlo.md`; `vendor/zscaler-help/risk360-product-marketing.md`.
 
 - **"What is Risk360?"** → Cyber risk quantification framework. Financial-loss estimation via Monte Carlo on top of Zscaler telemetry. Audience: CISO / board.
 - **"How much does Risk360 cost?"** → Paid add-on under Security Operations tier. Specific pricing requires sales conversation; not publicly disclosed.
