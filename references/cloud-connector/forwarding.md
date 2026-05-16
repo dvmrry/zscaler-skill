@@ -137,7 +137,7 @@ First-match-wins top-down, same as ZIA URL Filter. Disabled rules skip without l
 
 ### DNS forwarding gateway — separate from traffic forwarding
 
-Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/dns_gateway/`; `vendor/zscaler-sdk-go/zscaler/ztw/services/forwarding_gateways/`; `vendor/terraform-provider-ztc/docs/resources/ztc_dns_forwarding_gateway.md`; `vendor/terraform-provider-ztc/docs/resources/ztc_dns_gateway.md`.
+Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/dns_gateway/dns_gateway.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/forwarding_gateways/dns_forwarding_gateway/dns_forwarding_gateway.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/forwarding_gateways/zia_forwarding_gateway/zia_forwarding_gateway.go`; `vendor/terraform-provider-ztc/docs/resources/ztc_dns_forwarding_gateway.md`; `vendor/terraform-provider-ztc/docs/resources/ztc_dns_gateway.md`.
 
 Cloud Connector also forwards DNS queries. The DNS path is configured separately via **DNS Forwarding Gateway** rules. From the Go SDK (`ztw/services/dns_gateway/` and `ztw/services/forwarding_gateways/`) and TF provider (`resource_ztc_dns_forwarding_gateway.go`, `resource_ztc_dns_gateway.go`), DNS gateways are distinct resources with their own rule surface.
 
@@ -145,7 +145,7 @@ Cloud Connector also forwards DNS queries. The DNS path is configured separately
 
 ### Log and Control Forwarding Rule — the other rule type
 
-Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/traffic_log_rules/`.
+Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/traffic_log_rules/traffic_log_rules.go`.
 
 There's a separate rule type called **Log and Control Forwarding Rule** (Go SDK: `ztw/services/policy_management/traffic_log_rules`). Configures where Cloud Connector sends logs and control-plane events (to Nanolog / NSS / SIEM). Distinct from traffic forwarding rules — the traffic rule controls data-plane routing; the log/control rule controls observability streams.
 
