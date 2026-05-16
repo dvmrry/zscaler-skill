@@ -292,7 +292,7 @@ STYLE_SOURCE_KINDS = {
 
 SEMANTIC_SOURCE_KINDS = {
     "frontmatter-proxy-source",
-    "weak-mcp-source",
+    "source-mcp",
     "weak-test-source",
     "weak-test-source-inline",
 }
@@ -393,7 +393,7 @@ def audit_source_quality(
             if re.search(r"https?://", source_text):
                 issues.append(issue(rel, line_number, "live-url-source", line.strip()))
             if include_semantic and MCP_SOURCE_RE.search(source_text):
-                issues.append(issue(rel, line_number, "weak-mcp-source", line.strip()))
+                issues.append(issue(rel, line_number, "source-mcp", line.strip()))
             if include_semantic and FRONTMATTER_PROXY_RE.search(source_text):
                 issues.append(issue(rel, line_number, "frontmatter-proxy-source", line.strip()))
 
