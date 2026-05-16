@@ -64,6 +64,8 @@ CITATION_PATTERNS_NO_CODE = [
 @dataclass
 class FileScore:
     path: str
+    confidence: str
+    source_tier: str
     paragraphs: int
     cited: int
     direct_cited: int
@@ -133,6 +135,19 @@ def frontmatter_source_basenames(text: str) -> set[str]:
     for source in re.findall(r"(?:vendor|scripts)/[A-Za-z0-9_./-]+", match.group(1)):
         names.add(Path(source.strip("\"'")).name)
     return names
+
+
+def frontmatter_field(text: str, field: str) -> str:
+    match = FRONTMATTER_CAPTURE_RE.match(text)
+    if not match:
+        return ""
+    field_match = re.search(
+        rf"(?m)^\s*{re.escape(field)}\s*:\s*['\"]?([^'\"\n]+)['\"]?\s*$",
+        match.group(1),
+    )
+    if not field_match:
+        return ""
+    return field_match.group(1).strip()
 
 
 def audit_source_lines(path: Path) -> list[SourceIssue]:
@@ -285,6 +300,8 @@ def score_file(path: Path) -> FileScore | None:
     rel = path.relative_to(REPO_ROOT)
     return FileScore(
         path=str(rel),
+        confidence=frontmatter_field(text, "confidence") or "unknown",
+        source_tier=frontmatter_field(text, "source-tier") or "unknown",
         paragraphs=len(paragraphs),
         cited=cited,
         direct_cited=direct_cited,
@@ -370,6 +387,57 @@ def render_text(
     return "\n".join(lines).rstrip()
 
 
+def render_attention_report(
+    scores: list[FileScore],
+    threshold: float,
+    top: int,
+    min_paragraphs: int,
+    large_paragraphs: int,
+) -> str:
+    eligible = [
+        score
+        for score in scores
+        if score.paragraphs >= large_paragraphs
+        and score.density < threshold
+        and score.confidence.lower() in {"medium", "low", "unknown"}
+    ]
+    ranked = sorted(
+        eligible,
+        key=lambda s: (
+            {"low": 0, "unknown": 1, "medium": 2}.get(s.confidence.lower(), 3),
+            -s.uncited,
+            s.density,
+            s.path,
+        ),
+    )[:top]
+    lines = [
+        "Attention report",
+        "=" * 40,
+        f"Criterion: paragraphs >= {large_paragraphs}, density < {threshold:.0%}, confidence in medium/low/unknown",
+        f"General eligibility floor: {min_paragraphs} paragraphs",
+        f"Files matching attention criteria: {len(eligible)}",
+        "",
+    ]
+    if not ranked:
+        lines.append("No files match attention criteria.")
+        return "\n".join(lines)
+    for score in ranked:
+        lines.append(
+            f"{score.density:.0%} cited ({score.cited}/{score.paragraphs}), "
+            f"{score.uncited} uncited, confidence={score.confidence}, "
+            f"source-tier={score.source_tier} - {score.path}"
+        )
+        if score.inherited_cited:
+            lines.append(
+                f"  source-scope: {score.inherited_cited} inherited, "
+                f"{score.direct_cited} direct"
+            )
+        for sample in score.sample_uncited:
+            lines.append(f"  sample: {sample}")
+        lines.append("")
+    return "\n".join(lines).rstrip()
+
+
 def render_source_audit(issues: list[SourceIssue], top: int) -> str:
     by_kind: dict[str, int] = {}
     for issue in issues:
@@ -421,6 +489,17 @@ def main() -> int:
         action="store_true",
         help="Exit 1 when --audit-sources finds Source: lines that cite internal refs, vague scopes, or unresolved bare .md names",
     )
+    parser.add_argument(
+        "--attention",
+        action="store_true",
+        help="Show the high-signal audit queue: large low-density docs with medium/low/unknown confidence",
+    )
+    parser.add_argument(
+        "--large-paragraphs",
+        type=int,
+        default=36,
+        help="Paragraph floor for --attention large-doc queue (default: 36)",
+    )
     args = parser.parse_args()
 
     roots = [Path(path).resolve() for path in args.paths]
@@ -437,18 +516,49 @@ def main() -> int:
     below = [score for score in eligible if score.density < args.threshold]
 
     if args.json:
+        attention_scores = [
+            score
+            for score in scores
+            if score.paragraphs >= args.large_paragraphs
+            and score.density < args.threshold
+            and score.confidence.lower() in {"medium", "low", "unknown"}
+        ]
         payload = {
             "threshold": args.threshold,
             "min_paragraphs": args.min_paragraphs,
+            "large_paragraphs": args.large_paragraphs,
             "files_scanned": len(scores),
             "files_eligible": len(eligible),
             "files_below_threshold": len(below),
             "scores": [asdict(score) for score in sorted(scores, key=lambda s: s.path)],
+            "attention_scores": [
+                asdict(score)
+                for score in sorted(
+                    attention_scores,
+                    key=lambda s: (
+                        {"low": 0, "unknown": 1, "medium": 2}.get(s.confidence.lower(), 3),
+                        -s.uncited,
+                        s.density,
+                        s.path,
+                    ),
+                )
+            ],
             "source_issues": [asdict(issue) for issue in source_issues],
         }
         print(json.dumps(payload, indent=2))
     else:
-        print(render_text(scores, args.threshold, args.top, args.min_paragraphs))
+        if args.attention:
+            print(
+                render_attention_report(
+                    scores,
+                    args.threshold,
+                    args.top,
+                    args.min_paragraphs,
+                    args.large_paragraphs,
+                )
+            )
+        else:
+            print(render_text(scores, args.threshold, args.top, args.min_paragraphs))
         if args.audit_sources:
             print()
             print(render_source_audit(source_issues, args.top))
