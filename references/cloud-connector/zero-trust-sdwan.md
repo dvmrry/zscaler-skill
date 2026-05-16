@@ -125,6 +125,8 @@ This is application-layer steering in the sense that Zscaler can route Zoom to Z
 
 ### WAN link selection (hardware Branch Connector only)
 
+Source: vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md.
+
 For Branch Connector hardware devices deployed in **gateway mode**, traffic-forwarding rules include a **WAN Selection** field:
 
 - **None** — defer to the Traffic Distribution setting in the Branch Configuration Template.
@@ -133,9 +135,9 @@ For Branch Connector hardware devices deployed in **gateway mode**, traffic-forw
 
 This is the only documented per-link path selection capability in the help docs. It applies only to hardware Branch Connector in gateway mode; it does not apply to Cloud Connector (which has no concept of multiple physical WAN uplinks). The "best-performing" metric is not defined in the captured documentation — it is not clear from available sources whether this is measured RTT, loss, or a proprietary metric. This is an open question (see section 8).
 
-Source: vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md.
-
 ### Redundancy and HA
+
+Source: vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md; vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md.
 
 For Cloud Connector (cloud workloads):
 
@@ -149,8 +151,6 @@ For Branch Connector (branch sites):
 - **HA model not fully captured in available docs** — the help content covers hardware redundancy at a high level but does not specify failover timing or mode for physical Branch Connector appliances. The ZTE-side failover (primary/secondary gateway) is the same as Cloud Connector.
 
 ZTE PoP availability: Zscaler operates 150+ global data centers. Zero Trust Gateways (a specific Cloud Connector deployment variant) are documented as supported in 16 AWS regions as of capture date (us-east-1, us-east-2, us-west-1, us-west-2, eu-north-1, eu-central-1, eu-south-2, eu-west-1/2/3, ap-southeast-1, ap-south-1, ap-southeast-2, ca-central-1, sa-east-1, me-south-1). Additional regions require contacting Zscaler Support.
-
-Source: vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md; vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md.
 
 ### Security inspection at the ZTE
 

@@ -212,6 +212,8 @@ Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go`, `vendor
 
 ### Path 1: NSS for Firewall → SIEM (recommended for SIEM integration)
 
+Source: `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md`, `vendor/zscaler-help/about-log-streaming-service.md`.
+
 1. Subscribe to NSS for Firewall (separate entitlement).
 2. Deploy NSS virtual appliance on Azure, AWS, or vSphere (or use Cloud NSS if available for your cloud).
 3. Configure a log receiver in the ZTW admin console pointing to the NSS VA.
@@ -219,21 +221,19 @@ Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go`, `vendor
 
 CC session logs arrive in the SIEM in the ZIA firewall log format. Use `%s{location}` to filter to CC-specific locations and distinguish CC traffic from branch/on-prem ZIA traffic.
 
-Source: `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md`, `vendor/zscaler-help/about-log-streaming-service.md`.
-
 ### Path 2: ZIA admin console (ZIA-forwarded traffic only)
+
+Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go`, `vendor/zscaler-help/cbc-accessing-cloud-branch-connector-monitoring.md`.
 
 Traffic that CC forwards via the ZIA forwarding method appears in ZIA's own log surfaces (ZIA Web Insights, ZIA Firewall Insights, ZIA API). Filter by the CC location in the ZIA console. This path covers only ZIA-forwarded traffic — Direct-forwarded and ZPA-forwarded traffic does not appear in ZIA logs.
 
 Cross-referencing tip: CC VMs behind cloud-provider NAT show their **NAT IP** in ZIA tunnel logs, but the SDK/console shows the **private management IP**. Use the CC group and location as the correlation key — not the IP address.
 
-Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go`, `vendor/zscaler-help/cbc-accessing-cloud-branch-connector-monitoring.md`.
-
 ### Path 3: ZTW admin console Insights pages (UI, no SIEM export)
 
-For ad-hoc investigation, the Insights pages (Session, DNS, Tunnel) are the fastest path. They support time range selection up to 92 days, chart-to-log drilldown, and multi-value filtering. No programmatic access path is confirmed for Insights data.
-
 Source: `vendor/zscaler-help/cbc-about-insights.md`, `vendor/zscaler-help/cbc-analyzing-branch-connector-details.md`.
+
+For ad-hoc investigation, the Insights pages (Session, DNS, Tunnel) are the fastest path. They support time range selection up to 92 days, chart-to-log drilldown, and multi-value filtering. No programmatic access path is confirmed for Insights data.
 
 ### Path 4: Cloud-provider native monitoring (load balancer health)
 
