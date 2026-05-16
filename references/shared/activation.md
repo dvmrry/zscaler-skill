@@ -99,7 +99,7 @@ CBC's activation gate works the same way as ZIA's — except CBC ships **two act
 
 ## `409 EDIT_LOCK_NOT_AVAILABLE` — concurrent writes
 
-Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscaler-sdk-python/tests/unit/test_request_executor.py`; `vendor/zscaler-sdk-python/zscaler/request_executor.py`.
+Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscaler-sdk-python/zscaler/request_executor.py`.
 
 A common failure mode on both ZIA and CBC: writing config while another admin or script holds the edit lock returns:
 
