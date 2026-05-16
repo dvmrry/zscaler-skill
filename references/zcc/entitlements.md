@@ -19,9 +19,9 @@ author-status: draft
 
 # ZCC entitlements — which users/groups get ZPA and ZDX
 
-Entitlements decide, per user/group, whether ZCC enables the **ZPA** (private-app access) and **ZDX** (digital experience monitoring) services on top of its baseline ZIA functionality. Both are add-on services billed per-seat. Users who are not entitled do not get the relevant features even if the policy objects exist in the tenant.
-
 Source: vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py; vendor/zscaler-sdk-python/zscaler/zcc/models/zdxgroupentitlements.py; vendor/zscaler-sdk-python/zscaler/zcc/entitlements.py; vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go.
+
+Entitlements decide, per user/group, whether ZCC enables the **ZPA** (private-app access) and **ZDX** (digital experience monitoring) services on top of its baseline ZIA functionality. Both are add-on services billed per-seat. Users who are not entitled do not get the relevant features even if the policy objects exist in the tenant.
 
 ## What entitlements control
 
@@ -78,9 +78,9 @@ From `vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py` (lin
 
 ### The `zpa_enable_for_all` trump card
 
-Setting `zpa_enable_for_all = true` disables the effect of `group_list`. An operator adding specific groups to `group_list` while this flag is true is still entitling everyone — the narrow config is dormant. If the flag is later toggled back to false, the stale `group_list` becomes authoritative again and may entitle users who should not have access. Audit the full object on toggle changes.
-
 Source: vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py; vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go.
+
+Setting `zpa_enable_for_all = true` disables the effect of `group_list`. An operator adding specific groups to `group_list` while this flag is true is still entitling everyone — the narrow config is dormant. If the flag is later toggled back to false, the stale `group_list` becomes authoritative again and may entitle users who should not have access. Audit the full object on toggle changes.
 
 ### Machine Tunnel entitlement
 
@@ -106,11 +106,11 @@ From `vendor/zscaler-sdk-python/zscaler/zcc/models/zdxgroupentitlements.py` (lin
 
 ### `upm_enable_for_all` is the ZDX equivalent of `zpa_enable_for_all`
 
+Source: vendor/zscaler-sdk-python/zscaler/zcc/models/zdxgroupentitlements.py; vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go.
+
 Earlier versions of this doc said "no zdx_enable_for_all shortcut" — that was wrong. The field exists, just with a different name: `upmEnableForAll` (`zdxgroupentitlements.py:47`, `entitlements.go:28`). Same semantics as ZPA's `zpa_enable_for_all` — when true, `upm_group_list` and `upm_device_group_list` are ignored and ZDX is enabled tenant-wide.
 
 The naming follows the "UPM" prefix convention: UPM = User Posture Module (the ZDX endpoint component). All three of `upmEnableForAll`, `upmGroupList`, and `upmDeviceGroupList` use this prefix; the older docs referred to ZDX entitlement only via the device-group path and missed the user-group + all-users variants.
-
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/zdxgroupentitlements.py; vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go.
 
 ### The ZDX location dual-toggle
 

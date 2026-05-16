@@ -14,9 +14,9 @@ author-status: draft
 
 # ZCC forwarding profiles — portal configuration, network environments, and app profile assignment
 
-This document covers the **portal-side view** of forwarding profiles: what they are, how network environments are classified, what the key configuration sections control, and how profiles are assigned to users via app profiles. For the full SDK and wire-format detail (field-level types, integer enum values, ForwardingProfileActions structure), see [`./forwarding-profile.md`](./forwarding-profile.md).
-
 Source: vendor/zscaler-help/configuring-forwarding-profiles-zscaler-client-connector.md; vendor/zscaler-help/about-forwarding-profiles.md.
+
+This document covers the **portal-side view** of forwarding profiles: what they are, how network environments are classified, what the key configuration sections control, and how profiles are assigned to users via app profiles. For the full SDK and wire-format detail (field-level types, integer enum values, ForwardingProfileActions structure), see [`./forwarding-profile.md`](./forwarding-profile.md).
 
 ## What a forwarding profile is
 
@@ -60,11 +60,11 @@ Source: vendor/zscaler-help/about-forwarding-profiles.md.
 
 ## Configuration sections
 
+Source: vendor/zscaler-help/configuring-forwarding-profiles-zscaler-client-connector.md; vendor/zscaler-help/about-forwarding-profiles.md.
+
 Navigation: **Infrastructure > Connectors > Client > Forwarding Profile for Platforms > Add Forwarding Profile**
 
 The portal UI organizes the forwarding profile into the following sections (Tier A — vendor/zscaler-help/configuring-forwarding-profiles-zscaler-client-connector.md):
-
-Source: vendor/zscaler-help/configuring-forwarding-profiles-zscaler-client-connector.md; vendor/zscaler-help/about-forwarding-profiles.md.
 
 ### Profile Definition
 

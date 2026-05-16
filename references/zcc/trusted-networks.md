@@ -16,9 +16,9 @@ author-status: draft
 
 # ZCC trusted networks — detection criteria and evaluation
 
-A **TrustedNetwork** is a named set of criteria ZCC uses to answer the question "am I on a known corporate-trusted network right now?" The answer flows directly into the active Forwarding Profile's TRUSTED vs UNTRUSTED action branch, which in turn determines whether traffic is sent to ZIA via Z-Tunnel, bypassed, or handled via PAC.
-
 Source: vendor/zscaler-sdk-python/zscaler/zcc/models/trustednetworks.py; vendor/zscaler-sdk-python/zscaler/zcc/trusted_networks.py; vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network/trusted_network.go; vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md.
+
+A **TrustedNetwork** is a named set of criteria ZCC uses to answer the question "am I on a known corporate-trusted network right now?" The answer flows directly into the active Forwarding Profile's TRUSTED vs UNTRUSTED action branch, which in turn determines whether traffic is sent to ZIA via Z-Tunnel, bypassed, or handled via PAC.
 
 ## What trusted networks are
 
@@ -52,9 +52,9 @@ From `vendor/zscaler-sdk-python/zscaler/zcc/models/trustednetworks.py` (lines 37
 
 ### The CSV-string wire format
 
-All criteria fields are comma-separated strings on the wire, **not JSON arrays**. This is a wire-format quirk specific to TrustedNetwork objects. Callers writing API payloads must serialize criteria as comma-separated strings. Consumers parsing snapshot JSON must split on `,` and trim whitespace per field. Confirmed in Python SDK examples: `trusted_networks.py:127–132` shows `dns_servers='10.11.12.13, 10.11.12.14'`, `dns_search_domains='network1.acme.com, network2.acme.com'`, and empty criteria as `''` (empty string) not `None`.
-
 Source: vendor/zscaler-sdk-python/zscaler/zcc/models/trustednetworks.py; vendor/zscaler-sdk-python/zscaler/zcc/trusted_networks.py; vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network/trusted_network.go.
+
+All criteria fields are comma-separated strings on the wire, **not JSON arrays**. This is a wire-format quirk specific to TrustedNetwork objects. Callers writing API payloads must serialize criteria as comma-separated strings. Consumers parsing snapshot JSON must split on `,` and trim whitespace per field. Confirmed in Python SDK examples: `trusted_networks.py:127–132` shows `dns_servers='10.11.12.13, 10.11.12.14'`, `dns_search_domains='network1.acme.com, network2.acme.com'`, and empty criteria as `''` (empty string) not `None`.
 
 ### Criterion field truthiness
 
@@ -97,6 +97,8 @@ The `condition_type` field on a TrustedNetwork decides whether ZCC requires **al
 
 ## How trusted network status affects forwarding mode
 
+Source: vendor/zscaler-sdk-python/zscaler/zcc/models/trustednetworks.py; vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network/trusted_network.go; vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md.
+
 Trusted network evaluation feeds directly into the Forwarding Profile action branches. The full evaluation chain:
 
 ```
@@ -111,8 +113,6 @@ ZCC detects network change
 The Forwarding Profile also recognizes VPN-Trusted and Split VPN-Trusted network types, which are detected independently of TrustedNetwork criteria objects (via VPN interface detection). See [`./forwarding-profile.md`](./forwarding-profile.md) for the full network type taxonomy.
 
 **`evaluate_trusted_network = false` is the master off switch.** If false on the Forwarding Profile, trusted-network evaluation is skipped entirely and ZCC always behaves as if on an untrusted network. A tenant where all users appear to be treated as untrusted even on corporate LAN should check this flag on their Forwarding Profile first.
-
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/trustednetworks.py; vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network/trusted_network.go; vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md.
 
 ### Effect on split tunneling
 

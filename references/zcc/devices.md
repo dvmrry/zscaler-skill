@@ -18,9 +18,9 @@ author-status: draft
 
 # ZCC devices — inventory, lifecycle, and cleanup
 
-The Devices API surface is ZCC's per-endpoint inventory: every device that has ever registered with the tenant, its current state, last-seen time, tunnel version, and lifecycle actions (remove, force-remove, cleanup). Useful for "is this endpoint even in our inventory?", "when did it last check in?", "can we force it off the cloud?", and for compliance audits of enrolled device populations.
-
 Source: vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py; vendor/zscaler-sdk-python/zscaler/zcc/devices.py; vendor/zscaler-sdk-go/zscaler/zcc/services/devices/devices.go.
+
+The Devices API surface is ZCC's per-endpoint inventory: every device that has ever registered with the tenant, its current state, last-seen time, tunnel version, and lifecycle actions (remove, force-remove, cleanup). Useful for "is this endpoint even in our inventory?", "when did it last check in?", "can we force it off the cloud?", and for compliance audits of enrolled device populations.
 
 ---
 
@@ -93,6 +93,8 @@ Source: vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py; vendor/zscaler-
 
 ## DeviceDetails — extended per-device fields
 
+Source: vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py; vendor/zscaler-sdk-go/zscaler/zcc/services/devices/devices.go.
+
 `get_device_details()` returns a richer `DeviceDetails` object beyond the list fields. **Major Python/Go SDK divergence**: Python `DeviceDetails` (`models/devices.py:283–499`) carries ~50 fields; Go `DeviceDetails` (`devices.go:61–88`) carries only ~25. Most of the service-state and posture fields are Python-only.
 
 ### Fields present in both Python and Go DeviceDetails
@@ -127,8 +129,6 @@ Source: vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py; vendor/zscaler-
 | `zapp_arch` / `zappArch` | CPU architecture | 324 | 87 |
 
 Note: Python `DeviceDetails.__init__` uses **dual-key lookup** (snake_case OR camelCase) for these fields (`models/devices.py:299–324`) — defensive read against the API returning either form.
-
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py; vendor/zscaler-sdk-go/zscaler/zcc/services/devices/devices.go.
 
 ### Fields Python-only — absent from Go DeviceDetails
 
@@ -228,9 +228,9 @@ Source: vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py; vendor/zscaler-
 
 ## Removing devices
 
-Three related operations in the SDK:
-
 Source: vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py; vendor/zscaler-sdk-python/zscaler/zcc/devices.py.
+
+Three related operations in the SDK:
 
 ### `remove_devices` — standard deregistration
 
@@ -303,13 +303,13 @@ A Go caller that needs a different page size has no SDK lever — must use direc
 
 ### Mobile filtering and OS-type integer encoding
 
+Source: vendor/zscaler-sdk-python/zscaler/zcc/devices.py; vendor/zscaler-sdk-python/zscaler/utils.py; vendor/zscaler-sdk-go/zscaler/zcc/services/devices/devices.go.
+
 Both `os_type` (singular, `list_devices`) and `os_types` (plural list, the download endpoints) accept human-readable strings: `ios`, `android`, `windows`, `macos`, `linux`. **The Python SDK translates these to integer codes via `zcc_param_map["os"]`** (`devices.py:81–84, 163–166`) before sending — the actual wire values are integers. The mapping table lives in `zscaler/utils.py` (not vendored at the field-level here).
 
 The `@zcc_param_mapper` decorator is applied to: `download_devices`, `download_service_status`, `download_disable_reasons`, `list_devices`, `remove_devices`, `force_remove_devices`. It is **not** applied to `get_device_cleanup_info`, `update_device_cleanup_info`, `get_device_details`, or `remove_machine_tunnel` — the latter uses `convert_keys_to_camel_case` instead (`devices.py:671–672`) because its params are structural key-renames rather than enum-value translations.
 
 Direct HTTP callers must send the integer codes, not the strings. Tools writing JSON without going through the Python SDK will fail with the human-readable strings.
-
-Source: vendor/zscaler-sdk-python/zscaler/zcc/devices.py; vendor/zscaler-sdk-python/zscaler/utils.py; vendor/zscaler-sdk-go/zscaler/zcc/services/devices/devices.go.
 
 ### Registration type filter — six values, not three
 
