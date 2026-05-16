@@ -7,14 +7,20 @@ last-verified: "2026-04-26"
 confidence: medium
 source-tier: code
 sources:
-  - "vendor/zscaler-sdk-python/zscaler/zid/"
-  - "vendor/zscaler-sdk-go/zscaler/zid/services/"
+  - "vendor/zscaler-sdk-python/zscaler/zid/zid_service.py"
+  - "vendor/zscaler-sdk-python/zscaler/zid/api_client.py"
+  - "vendor/zscaler-sdk-python/zscaler/zid/groups.py"
+  - "vendor/zscaler-sdk-python/zscaler/zid/users.py"
+  - "vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py"
+  - "vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go"
 author-status: draft
 ---
 
 # ZIdentity SDK reference
 
 ## Overview
+
+Source: vendor/zscaler-sdk-python/zscaler/zid/zid_service.py; vendor/zscaler-sdk-python/zscaler/zid/api_client.py; vendor/zscaler-sdk-python/zscaler/zid/groups.py; vendor/zscaler-sdk-python/zscaler/zid/users.py; vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py; vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go.
 
 The ZIdentity SDK wraps the ZIdentity admin API (`/ziam/admin/api/v1`). It covers user directory management, group membership management, API client lifecycle management (OAuth2 clients registered in ZIdentity), resource server introspection, and per-user entitlement lookups. ZIdentity is the authentication platform underlying all OneAPI token issuance across the Zscaler portfolio.
 
@@ -38,8 +44,6 @@ users = client.zid.users.list_users()
 
 The base endpoint for all ZIdentity operations is `/ziam/admin/api/v1`.
 
-Source: `vendor/zscaler-sdk-python/zscaler/zid/`.
-
 ### Client construction — Go
 
 ```go
@@ -57,11 +61,13 @@ Go ZIdentity services use `service.Client.Read` / `service.Client.Create` / `ser
 
 ### Authentication specifics — OneAPI
 
+Source: vendor/zscaler-sdk-python/zscaler/zid/zid_service.py; vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go.
+
 ZIdentity is the token issuer for all OneAPI products. To call ZIdentity admin APIs, the calling API client must itself be a client registered in ZIdentity with appropriate ZIdentity admin scopes. The token exchange targets `https://<vanity>.zslogin.net/oauth2/v1/token`. No legacy auth path exists for the ZIdentity admin API.
 
-Source: `vendor/zscaler-sdk-python/zscaler/zid/`, `vendor/zscaler-sdk-go/zscaler/zid/services/`.
-
 ### Pagination — Python
+
+Source: vendor/zscaler-sdk-python/zscaler/zid/api_client.py; vendor/zscaler-sdk-python/zscaler/zid/groups.py; vendor/zscaler-sdk-python/zscaler/zid/users.py; vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go.
 
 All list endpoints use `offset` + `limit` pagination (not page/page_size). The response envelope contains `results_total`, `page_offset`, `page_size`, `next_link`, `prev_link`, and `records`. Default page size is 100; maximum is 1000.
 
@@ -77,8 +83,6 @@ The `PaginationQueryParams` struct provides a fluent builder: `WithNameFilter`, 
 
 Every method returns a three-tuple `(result, response, error)`. The raw `response` object supports client-side JMESPath filtering via `resp.search(expression)`.
 
-Source: `vendor/zscaler-sdk-python/zscaler/zid/`, `vendor/zscaler-sdk-go/zscaler/zid/services/`.
-
 ---
 
 ## Service catalog
@@ -89,6 +93,8 @@ Source: `vendor/zscaler-sdk-python/zscaler/zid/`, `vendor/zscaler-sdk-go/zscaler
 **Go package:** Not identified as a dedicated package in `vendor/zscaler-sdk-go/zscaler/zid/services/`.
 
 Full CRUD for OAuth2 API clients registered in ZIdentity, plus secret lifecycle management. An API client is the entity that receives `client_id` / `client_secret` credentials for OneAPI access.
+
+Source: vendor/zscaler-sdk-python/zscaler/zid/api_client.py; vendor/zscaler-sdk-python/zscaler/zid/models/api_client.py; vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go.
 
 | Method | Signature | HTTP | Endpoint |
 |---|---|---|---|
@@ -113,8 +119,6 @@ Full CRUD for OAuth2 API clients registered in ZIdentity, plus secret lifecycle 
 
 **Go parity:** ❌ No dedicated `api-clients` Go package identified in the service directory. This surface is Python-only in the SDK.
 
-Source: `vendor/zscaler-sdk-python/zscaler/zid/`, `vendor/zscaler-sdk-go/zscaler/zid/services/`.
-
 ---
 
 ### `groups` — `GroupsAPI`
@@ -123,6 +127,8 @@ Source: `vendor/zscaler-sdk-python/zscaler/zid/`, `vendor/zscaler-sdk-go/zscaler
 **Go package:** `vendor/zscaler-sdk-go/zscaler/zid/services/groups/`
 
 Full CRUD for groups, plus group membership management (add/remove/replace users, list group members).
+
+Source: vendor/zscaler-sdk-python/zscaler/zid/groups.py; vendor/zscaler-sdk-python/zscaler/zid/models/groups.py; vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go.
 
 | Method | Signature | HTTP | Endpoint |
 |---|---|---|---|
@@ -148,8 +154,6 @@ Full CRUD for groups, plus group membership management (add/remove/replace users
 
 **Go parity:** ✅ `groups.Get`, `groups.GetAll`, `groups.GetByName`, create/update/delete, `groups.GetUsers` (member list). Go `GetByName` uses `strings.Contains` partial match and returns `[]Groups`.
 
-Source: `vendor/zscaler-sdk-python/zscaler/zid/`, `vendor/zscaler-sdk-go/zscaler/zid/services/`.
-
 ---
 
 ### `users` — `UsersAPI`
@@ -158,6 +162,8 @@ Source: `vendor/zscaler-sdk-python/zscaler/zid/`, `vendor/zscaler-sdk-go/zscaler
 **Go package:** `vendor/zscaler-sdk-go/zscaler/zid/services/users/`
 
 Full CRUD for user directory records, plus per-user group membership lookup.
+
+Source: vendor/zscaler-sdk-python/zscaler/zid/users.py; vendor/zscaler-sdk-python/zscaler/zid/models/users.py; vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go.
 
 | Method | Signature | HTTP | Endpoint |
 |---|---|---|---|
@@ -176,8 +182,6 @@ Full CRUD for user directory records, plus per-user group membership lookup.
 
 **Go parity:** ✅ `users.Get`, `users.GetAll`, `users.GetByName`, create/update/delete. Go also exposes `users.GetGroupsByUser` (inverse lookup: groups a user belongs to) — Python has `list_user_group_details` at the same endpoint, so parity is functionally equivalent.
 
-Source: `vendor/zscaler-sdk-python/zscaler/zid/`, `vendor/zscaler-sdk-go/zscaler/zid/services/`.
-
 ---
 
 ### `user_entitlement` — `EntitlementAPI`
@@ -186,6 +190,8 @@ Source: `vendor/zscaler-sdk-python/zscaler/zid/`, `vendor/zscaler-sdk-go/zscaler
 **Go package:** `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/`
 
 Read-only retrieval of per-user admin and service entitlements. Entitlements define which product roles (ZIA admin, ZPA admin, ZDX admin, etc.) a user holds.
+
+Source: vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py; vendor/zscaler-sdk-python/zscaler/zid/models/user_entitlement.py; vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go.
 
 | Method | Signature | HTTP | Endpoint |
 |---|---|---|---|
@@ -200,8 +206,6 @@ Read-only retrieval of per-user admin and service entitlements. Entitlements def
 
 **Go parity:** ✅ `user_entitlement.GetAdminEntitlement`, `user_entitlement.GetServiceEntitlement`.
 
-Source: `vendor/zscaler-sdk-python/zscaler/zid/`, `vendor/zscaler-sdk-go/zscaler/zid/services/`.
-
 ---
 
 ### `resource_servers` — `ResourceServersAPI`
@@ -210,6 +214,8 @@ Source: `vendor/zscaler-sdk-python/zscaler/zid/`, `vendor/zscaler-sdk-go/zscaler
 **Go package:** `vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/`
 
 Introspection of resource server (OAuth2 protected API) registrations. Resource servers define the APIs that API clients can be granted access to, along with available scopes.
+
+Source: vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py; vendor/zscaler-sdk-python/zscaler/zid/models/resource_servers.py; vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go.
 
 | Method | Signature (Python) | HTTP | Endpoint |
 |---|---|---|---|
@@ -238,11 +244,11 @@ The `ResourceServers` Go struct includes: `ID`, `Name`, `DisplayName`, `Descript
 
 **Go parity:** ⚠ Go has full CRUD; Python is read-only. Automation that needs to create or modify resource server registrations must use the Go SDK or the direct API.
 
-Source: `vendor/zscaler-sdk-python/zscaler/zid/`, `vendor/zscaler-sdk-go/zscaler/zid/services/`.
-
 ---
 
 ## Per-product nuances
+
+Source: vendor/zscaler-sdk-python/zscaler/zid/zid_service.py; vendor/zscaler-sdk-python/zscaler/zid/api_client.py; vendor/zscaler-sdk-python/zscaler/zid/groups.py; vendor/zscaler-sdk-python/zscaler/zid/users.py; vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py; vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go.
 
 ### API client introspection surface
 
@@ -267,13 +273,9 @@ Unlike `ZCCService` and `ZDXService`, which accept a `client` object and pull `c
 
 Users and groups with `source="SCIM"` are provisioned by an external identity provider via SCIM. Directly modifying SCIM-sourced users or groups through the ZIdentity SDK may conflict with the SCIM provisioning cycle. The SDK does not enforce any guard against this; conflict resolution behavior depends on the SCIM provisioner configuration.
 
-Source: `vendor/zscaler-sdk-python/zscaler/zid/`, `vendor/zscaler-sdk-go/zscaler/zid/services/`.
-
 ### Pagination model difference from ZCC/ZIA
 
 ZIdentity uses `offset`/`limit` with `next_link`/`prev_link` cursor links in the response envelope. This differs from ZCC (`page`/`page_size`) and ZIA (`page`/`pageSize` with stop-at-shorter-page). The Python SDK returns single-page results; the `offset` param must be manually incremented to page through large sets. The Go SDK's `ReadAllPagesWithPagination` handles this automatically.
-
-Source: `vendor/zscaler-sdk-python/zscaler/zid/`, `vendor/zscaler-sdk-go/zscaler/zid/services/`.
 
 ---
 
@@ -289,6 +291,8 @@ Source: `vendor/zscaler-sdk-python/zscaler/zid/`, `vendor/zscaler-sdk-go/zscaler
 
 ## Model classes
 
+Source: vendor/zscaler-sdk-python/zscaler/zid/models/api_client.py; vendor/zscaler-sdk-python/zscaler/zid/models/groups.py; vendor/zscaler-sdk-python/zscaler/zid/models/users.py; vendor/zscaler-sdk-python/zscaler/zid/models/user_entitlement.py; vendor/zscaler-sdk-python/zscaler/zid/models/resource_servers.py; vendor/zscaler-sdk-python/zscaler/zid/models/common.py.
+
 All model classes live under `vendor/zscaler-sdk-python/zscaler/zid/models/`.
 
 | Model file | Classes | Used by |
@@ -302,13 +306,11 @@ All model classes live under `vendor/zscaler-sdk-python/zscaler/zid/models/`.
 
 `APIClients` and `Groups` and `Users` and `ResourceServers` are **envelope wrappers** — they hold `records` (a list of individual items) plus pagination metadata (`results_total`, `page_offset`, `page_size`, `next_link`, `prev_link`). `APIClientRecords`, `GroupRecord`, `UserRecord`, and `ResourceServersRecord` represent **individual items** returned by `get_*` and write operations.
 
-Source: `vendor/zscaler-sdk-python/zscaler/zid/`.
-
 ---
 
 ## Open questions
 
-1. **Resolved 2026-04-26.** The Go SDK `api-clients` package is genuinely absent from `vendor/zscaler-sdk-go/zscaler/zid/services/`. The directory contains only `common`, `groups`, `resource_servers`, `user_entitlement`, and `users`. The `api_client` service (full CRUD for OAuth2 clients, plus secret lifecycle) is Python-only in the SDK. Source: `vendor/zscaler-sdk-go/zscaler/zid/services/` directory listing.
+1. **Resolved 2026-04-26.** The Go SDK `api-clients` package is genuinely absent from the inspected Go ZIdentity service catalog. The catalog contains only `common`, `groups`, `resource_servers`, `user_entitlement`, and `users`. The `api_client` service (full CRUD for OAuth2 clients, plus secret lifecycle) is Python-only in the SDK.
 
 2. `add_api_client_secret` accepts `expires_at` as a string Unix epoch. The only example in the SDK docstring (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py`, line 458) shows `'1785643102'` (a valid future epoch timestamp). The API behavior when `expires_at` is omitted or set to a past value is not documented in the SDK source. The acceptable range for `expires_at` is not stated and cannot be confirmed from available sources.
 
