@@ -204,27 +204,6 @@ def is_attention_candidate(score: FileScore, threshold: float, large_paragraphs:
     )
 
 
-def audit_source_lines(path: Path) -> list[SourceIssue]:
-    text = path.read_text(encoding="utf-8", errors="replace")
-    source_basenames = frontmatter_source_basenames(text)
-    rel = str(path.relative_to(REPO_ROOT))
-    issues: list[SourceIssue] = []
-    for line_number, line in enumerate(text.splitlines(), start=1):
-        match = SOURCE_LINE_RE.match(line)
-        if not match:
-            continue
-        source_text = match.group(1)
-        if INTERNAL_SOURCE_RE.search(source_text):
-            issues.append(SourceIssue(rel, line_number, "internal-reference-source", line.strip()))
-        if VAGUE_SOURCE_RE.search(source_text):
-            issues.append(SourceIssue(rel, line_number, "vague-source-scope", line.strip()))
-        for md_name in BARE_MD_RE.findall(source_text):
-            if md_name not in source_basenames:
-                issues.append(SourceIssue(rel, line_number, "unresolved-bare-md-source", line.strip()))
-                break
-    return issues
-
-
 def iter_scannable_lines(text: str) -> list[tuple[int, str]]:
     lines = text.splitlines()
     out: list[tuple[int, str]] = []
@@ -549,22 +528,6 @@ def collect_scores(paths: list[Path]) -> list[FileScore]:
     return scores
 
 
-def collect_source_issues(paths: list[Path]) -> list[SourceIssue]:
-    issues: list[SourceIssue] = []
-    for root in paths:
-        if not root.exists():
-            continue
-        if root.is_file():
-            if root.suffix == ".md" and not should_skip(root):
-                issues.extend(audit_source_lines(root))
-            continue
-        for path in sorted(root.rglob("*.md")):
-            if should_skip(path):
-                continue
-            issues.extend(audit_source_lines(path))
-    return issues
-
-
 def collect_source_quality_issues(paths: list[Path], include_style: bool = False) -> list[SourceIssue]:
     issues: list[SourceIssue] = []
     for root in paths:
@@ -664,25 +627,6 @@ def render_attention_report(
     return "\n".join(lines).rstrip()
 
 
-def render_source_audit(issues: list[SourceIssue], top: int) -> str:
-    by_kind: dict[str, int] = {}
-    for issue in issues:
-        by_kind[issue.kind] = by_kind.get(issue.kind, 0) + 1
-    lines = [
-        "Source-line audit",
-        "=" * 40,
-        f"Issues found: {len(issues)}",
-    ]
-    for kind, count in sorted(by_kind.items()):
-        lines.append(f"{kind}: {count}")
-    lines.append("")
-    for issue in issues[:top]:
-        lines.append(f"{issue.path}:{issue.line}: {issue.kind}: {issue.text}")
-    if len(issues) > top:
-        lines.append(f"... {len(issues) - top} more")
-    return "\n".join(lines).rstrip()
-
-
 def render_source_quality_audit(issues: list[SourceIssue], top: int) -> str:
     by_kind: dict[str, int] = {}
     by_severity: dict[str, int] = {}
@@ -726,7 +670,7 @@ def main() -> int:
     parser.add_argument(
         "--audit-sources",
         action="store_true",
-        help="Report Source: lines that use internal references, vague frontmatter scopes, or unresolved bare .md filenames",
+        help="Alias for --audit-source-quality without source-style advisories",
     )
     parser.add_argument(
         "--audit-source-quality",
@@ -770,10 +714,9 @@ def main() -> int:
             expanded.append(root)
 
     scores = collect_scores(expanded)
-    source_issues = collect_source_issues(expanded) if args.audit_sources else []
     source_quality_issues = (
         collect_source_quality_issues(expanded, include_style=args.include_source_style)
-        if args.audit_source_quality
+        if args.audit_sources or args.audit_source_quality
         else []
     )
     eligible = [score for score in scores if score.paragraphs >= args.min_paragraphs]
@@ -803,7 +746,7 @@ def main() -> int:
                     ),
                 )
             ],
-            "source_issues": [asdict(issue) for issue in source_issues],
+            "source_issues": [asdict(issue) for issue in source_quality_issues] if args.audit_sources else [],
             "source_quality_issues": [asdict(issue) for issue in source_quality_issues],
         }
         print(json.dumps(payload, indent=2))
@@ -820,16 +763,13 @@ def main() -> int:
             )
         else:
             print(render_text(scores, args.threshold, args.top, args.min_paragraphs))
-        if args.audit_sources:
-            print()
-            print(render_source_audit(source_issues, args.top))
-        if args.audit_source_quality:
+        if args.audit_sources or args.audit_source_quality:
             print()
             print(render_source_quality_audit(source_quality_issues, args.top))
 
-    if args.strict and (below or source_issues or source_quality_issues):
+    if args.strict and (below or source_quality_issues):
         return 1
-    if args.strict_sources and (source_issues or source_quality_issues):
+    if args.strict_sources and source_quality_issues:
         return 1
     return 0
 
