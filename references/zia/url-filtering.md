@@ -5,7 +5,7 @@ title: "ZIA URL filtering rule precedence"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: medium
-source-tier: doc
+source-tier: mixed
 sources:
   - "https://help.zscaler.com/zscaler-deployments-operations/url-filtering-deployment-and-operations-guide"
   - "vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt"
@@ -19,6 +19,13 @@ sources:
   - "vendor/zscaler-help/About_URL_Categories.txt"
   - "https://help.zscaler.com/zia/about-policy-enforcement"
   - "vendor/zscaler-help/Understanding_Policy_Enforcement.txt"
+  - "vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rules.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/models/url_filter_cloud_app_settings.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/models/advanced_settings.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/models/urlcategory.py"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/urlcategories/urlcategories.go"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go"
 author-status: draft
 ---
 
@@ -69,7 +76,7 @@ Additional mechanics:
 
 ### Rule criteria logic
 
-Source: `vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt`; `vendor/zscaler-help/Understanding_Policy_Enforcement.txt`.
+Source: `vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt`; `vendor/zscaler-help/Understanding_Policy_Enforcement.txt`; `vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py`; `vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rules.py`.
 
 Criteria within a single rule combine with these operators (*Configuring the URL Filtering Policy*, p.1):
 
@@ -92,7 +99,7 @@ Protocols (AND) User Agent (AND) [Device Groups (OR) Devices] (AND) Device Trust
 
 ### Actions
 
-Source: `vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt`.
+Source: `vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt`; `vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py`.
 
 Five user-configurable actions, per *Configuring the URL Filtering Policy* pp.10–14:
 
@@ -119,7 +126,7 @@ Each action has caveats around SSL Inspection and EUN settings — see `ssl-insp
 
 ### Custom-category regex patterns (API-only capability)
 
-Source: `vendor/zscaler-help/About_URL_Categories.txt`.
+Source: `vendor/zscaler-help/About_URL_Categories.txt`; `vendor/zscaler-sdk-python/zscaler/zia/models/urlcategory.py`; `vendor/zscaler-sdk-go/zscaler/zia/services/urlcategories/urlcategories.go`.
 
 The SDK exposes **`regexPatterns`** and **`regexPatternsRetainingParentCategory`** on custom URL categories as writeable fields (`zscaler/zia/models/urlcategory.py:43-48`). Custom categories can match URLs via regex — not just URL strings, keywords, or IP ranges.
 
@@ -175,7 +182,7 @@ The toggle name — "Allow Cascading *to URL Filtering*" — is the literal swit
 
 ## Edge cases
 
-Source: `vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt`; `vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt`; `vendor/zscaler-help/Configuring_Advanced_Policy_Settings.txt`; `vendor/zscaler-help/About_URL_Categories.txt`; `vendor/zscaler-help/Recommended_URL_`&_Cloud_App_Control_Policy.txt.
+Source: `vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt`; `vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt`; `vendor/zscaler-help/Configuring_Advanced_Policy_Settings.txt`; `vendor/zscaler-help/About_URL_Categories.txt`; `vendor/zscaler-help/Recommended_URL_`&_Cloud_App_Control_Policy.txt; `vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py`; `vendor/zscaler-sdk-python/zscaler/zia/models/advanced_settings.py`; `vendor/zscaler-sdk-python/zscaler/zia/models/url_filter_cloud_app_settings.py`; `vendor/zscaler-sdk-go/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go`.
 
 - **`MISCELLANEOUS_OR_UNKNOWN` URLs.** Uncategorized URLs fall into this bucket. Blocking it can break user experience on newly-encountered legitimate sites. AI/ML Content Categorization (Advanced Policy Settings) can auto-assign predefined categories based on site content; see the list in *Recommended URL & Cloud App Control Policy* pp.1–3.
 - **Newly Registered and Observed Domains (NROD).** Subset of `MISCELLANEOUS_OR_UNKNOWN`; populated by a separate lookup. **Can only be used in URL Filtering rules.** Requires "Enable Suspicious New Domains Lookup" in Advanced Policy Settings. Also covers Newly Revived Domains (sites dormant ~10 days then reactivated).
@@ -186,8 +193,6 @@ Source: `vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt`;
   - `consider_embedded_sites`
   - `enforce_safe_search`
   - `enable_dynamic_content_cat`
-
-Source: `vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py`.
 
   Tenants running CIPA cannot simultaneously benefit from NROD lookup, embedded-site categorization, SafeSearch enforcement, or dynamic content categorization. If a question compares "CIPA-on vs CIPA-off" behavior, this matters.
 - **Silent SSL-bypass behavior.** By default, URL Filtering does NOT evaluate on traffic on the global SSL bypass list. The `enable_evaluate_policy_on_global_ssl_bypass` flag in Advanced Settings (default `false`) flips this on. If a tenant reports "URL rule didn't fire on bypassed traffic," this is the first thing to check. (`zscaler/zia/models/advanced_settings.py:44-45`.) See [`./api.md § Advanced Policy Settings`](./api.md#advanced-policy-settings).
