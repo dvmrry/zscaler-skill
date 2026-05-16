@@ -20,6 +20,8 @@ This is a cross-product concern: ZCC **evaluates**, ZPA **consumes** (Access Pol
 
 ## The three-product split
 
+Source: vendor/zscaler-help/about-device-posture-profiles.md; vendor/zscaler-help/configuring-device-posture-profiles.md.
+
 ```
 ZCC (evaluates)  →  Posture Profile evaluation every N minutes
                       ↓
@@ -37,6 +39,8 @@ ZCC (evaluates)  →  Posture Profile evaluation every N minutes
 A profile lives in **Policies > Common Configuration > Resources > Device Posture** in the admin console — defined once, referenced by both products.
 
 ## Posture types (the signals)
+
+Source: vendor/zscaler-help/about-device-posture-profiles.md; vendor/zscaler-help/configuring-device-posture-profiles.md.
 
 The full catalog of posture types, with approximate platform coverage:
 
@@ -70,6 +74,8 @@ The full catalog of posture types, with approximate platform coverage:
 
 ## Evaluation cadence
 
+Source: vendor/zscaler-help/about-device-posture-profiles.md; vendor/zscaler-help/configuring-device-posture-profiles.md.
+
 - **Default:** ZCC evaluates posture profiles every **15 minutes**.
 - **Configurable:** ZCC 4.4+ for Windows, ZCC 4.5+ for macOS — per-posture-type frequency can be set from **2 minutes (min) to 15 minutes (max)**.
 - **Immediate-on-change (override, regardless of frequency):**
@@ -95,11 +101,15 @@ Beyond the timer, ZCC re-evaluates posture on these events:
 
 ## The "existing connections are not affected" rule
 
+Source: vendor/zscaler-help/about-device-posture-profiles.md; vendor/zscaler-help/configuring-device-posture-profiles.md.
+
 Posture changes impact **new connections only**. An existing tunnel established when the device matched the profile stays up even if the profile subsequently fails — until the tunnel itself drops (app restart, network switch, reboot, etc.).
 
 **Operational implication:** posture failure doesn't retroactively revoke access. A user who passes posture, connects to a ZPA segment, then fails a posture check ten minutes later keeps the session until their ZPA app disconnects. Use ZPA's **Reauth Timeout** (see [`../zpa/policy-precedence.md § Timeout policies`](../zpa/policy-precedence.md)) to bound this — the next reauth re-evaluates posture.
 
 ## Machine Tunnel integration (the pre-login enforcement case)
+
+Source: vendor/zscaler-help/about-device-posture-profiles.md; vendor/zscaler-help/configuring-device-posture-profiles.md.
 
 ZPA can establish a **Machine Tunnel** before a user logs in — enabling pre-login scenarios like GPO application from a domain controller, login scripts that fetch from fileshares, certificate enrollment. The pre-login phase has no interactive user, so posture evaluation runs in a special mode.
 
@@ -112,9 +122,13 @@ Posture types not listed for Machine Tunnel are user-context-dependent and can't
 
 ## Partner Tenant integration (ZCC 4.6+ Windows)
 
+Source: vendor/zscaler-help/configuring-device-posture-profiles.md.
+
 **Apply when added as Partner Tenant** — when a ZCC client is added to a partner tenant (cross-tenant ZPA scenarios), posture evaluation runs in that tunnel too. Without this flag, posture only applies to the primary-tenant tunnels.
 
 ## How ZPA Access Policies consume posture
+
+Source: vendor/zscaler-help/about-device-posture-profiles.md; vendor/zscaler-help/configuring-device-posture-profiles.md.
 
 ZPA Access Policy rules (see [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md)) include a **Posture** criterion operand. Each operand references a posture profile ID plus a boolean:
 
@@ -133,9 +147,13 @@ Fallthrough ordering matters: put the strictest posture rule first, so a device 
 
 ## How ZIA consumes posture (Trust Levels)
 
+Source: vendor/zscaler-help/about-device-posture-profiles.md; vendor/zscaler-help/configuring-device-posture-profiles.md.
+
 On the ZIA side, posture profiles feed **Internet & SaaS Posture Profile Trust Levels**. Rather than being used for allow/deny decisions directly, they modulate content-inspection posture — e.g., a high-trust device gets different SSL inspection / DLP handling than an unmanaged BYOD device. See the Internet & SaaS admin docs for specifics (not yet captured in the skill).
 
 ## Surprises worth flagging
+
+Source: vendor/zscaler-help/about-device-posture-profiles.md; vendor/zscaler-help/configuring-device-posture-profiles.md.
 
 1. **Existing connections don't re-check.** A user who passes posture → connects → fails posture retains the tunnel. Don't assume posture is a real-time enforcement boundary. Bound via Reauth Timeout.
 
@@ -152,6 +170,8 @@ On the ZIA side, posture profiles feed **Internet & SaaS Posture Profile Trust L
 7. **CrowdStrike ZTA scores come from CrowdStrike, not Zscaler.** The score is injected by the Falcon agent; Zscaler reads whatever value the agent provides. Failing CrowdStrike agent = no score = score-based posture rule fails closed.
 
 ## Common operational questions
+
+Source: vendor/zscaler-help/about-device-posture-profiles.md; vendor/zscaler-help/configuring-device-posture-profiles.md.
 
 **"User X passed posture yesterday, why are they failing today?"**
 - Check evaluation frequency: 15 min default means state changes up to 15 min ago might have just propagated.
