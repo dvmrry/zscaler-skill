@@ -44,7 +44,7 @@ Source: `vendor/zscaler-help/admin-rbac-captures.md`.
 
 Audit logs are stored for up to **6 months**. This retention period applies to admin audit logs only; data-plane traffic logs have different retention governed by the NSS/Nanolog system.
 
-Source: `vendor/zscaler-help/admin-rbac-captures.md` (citing `https://help.zscaler.com/zia/about-audit-logs`).
+Source: `vendor/zscaler-help/admin-rbac-captures.md`.
 
 ## Where to read audit logs
 

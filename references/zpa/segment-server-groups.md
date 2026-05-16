@@ -170,7 +170,9 @@ Source: `vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go`,
 
 ### Server Group with no Connector Group
 
-Source (Tier A): `server_groups.py` `add_group` lists `app_connector_group_ids` as a required parameter. The TF resource does not declare `app_connector_groups` as `Required` in its schema (it is `Optional`), but the ZPA API itself will reject a Server Group with an empty `appConnectorGroups` array. A Server Group with no Connector Group is a traffic dead-end: ZPA has no connector to proxy through.
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/server_groups.py`.
+
+`add_group` lists `app_connector_group_ids` as a required parameter. The TF resource does not declare `app_connector_groups` as `Required` in its schema (it is `Optional`), but the ZPA API itself will reject a Server Group with an empty `appConnectorGroups` array. A Server Group with no Connector Group is a traffic dead-end: ZPA has no connector to proxy through.
 
 ### Dynamic discovery and explicit servers are mutually exclusive
 
@@ -186,15 +188,21 @@ Removing the last Connector Group from a Server Group leaves no valid connector 
 
 ### Deleting a Server Group silently detaches from App Segments
 
-Source (Tier A): `resource_zpa_server_group.go` `resourceServerGroupDelete` calls `detachServerGroupFromAllAppSegments` before deletion (lines 317–318). This modifies every App Segment that references the deleted Server Group — potentially leaving those App Segments with an empty `serverGroups[]`. The TF provider handles this automatically during TF-managed deletion, but a manual API deletion (via SDK or direct API call) does not guarantee equivalent cleanup.
+Source: `vendor/terraform-provider-zpa/zpa/resource_zpa_server_group.go`.
+
+`resourceServerGroupDelete` calls `detachServerGroupFromAllAppSegments` before deletion (lines 317–318). This modifies every App Segment that references the deleted Server Group — potentially leaving those App Segments with an empty `serverGroups[]`. The TF provider handles this automatically during TF-managed deletion, but a manual API deletion (via SDK or direct API call) does not guarantee equivalent cleanup.
 
 ### Deleting a Segment Group silently removes it from policy rules
 
-Source (Tier A): `resource_zpa_segment_group.go` `resourceSegmentGroupDelete` calls `detachSegmentGroupFromAllPolicyRules` before deletion (line 212). This walks all five policy types (ACCESS, TIMEOUT, SIEM, CLIENT_FORWARDING, INSPECTION) across both v1 and v2 API endpoints. TF handles this; SDK/direct API deletion does not.
+Source: `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go`.
+
+`resourceSegmentGroupDelete` calls `detachSegmentGroupFromAllPolicyRules` before deletion (line 212). This walks all five policy types (ACCESS, TIMEOUT, SIEM, CLIENT_FORWARDING, INSPECTION) across both v1 and v2 API endpoints. TF handles this; SDK/direct API deletion does not.
 
 ### Multiple Server Groups on one App Segment
 
-Source (Tier A): `application_segment.py` `add_segment` accepts `server_group_ids` as a list, transformed to `serverGroups: [{id: ...}, ...]`. Multiple Server Groups on one App Segment enables weighted load balancing — each group can carry a `weight` and `passive` flag via `update_weighted_lb_config`. Without explicit weighted LB config, behavior across multiple Server Groups is unspecified in source code (Tier D: likely round-robin or first-match, but unconfirmed).
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py`.
+
+`add_segment` accepts `server_group_ids` as a list, transformed to `serverGroups: [{id: ...}, ...]`. Multiple Server Groups on one App Segment enables weighted load balancing — each group can carry a `weight` and `passive` flag via `update_weighted_lb_config`. Without explicit weighted LB config, behavior across multiple Server Groups is unspecified in source code (Tier D: likely round-robin or first-match, but unconfirmed).
 
 Source: `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py`, `vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go`.
 

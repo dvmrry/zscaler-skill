@@ -133,7 +133,7 @@ Both `x-zscaler-mode: read-only` and `STATE_READONLY` are reliable discriminator
 
 ## Troubleshooting pattern (from MCP server)
 
-Source: `vendor/zscaler-mcp-server/commands/troubleshoot-user.md`; `vendor/zscaler-mcp-server/skills/cross-product/troubleshoot-user-connectivity/SKILL.md`; `vendor/zscaler-mcp-server/CLAUDE.md`.
+Source: `vendor/zscaler-mcp-server/commands/troubleshoot-user.md`; `vendor/zscaler-mcp-server/skills/cross-product/troubleshoot-user-connectivity/SKILL.md`.
 
 When a tenant reports "I changed the rule and it's not taking effect," the MCP skill `skills/cross-product/troubleshoot-user-connectivity/` explicitly includes an activation-status check as a pre-step. Before blaming rule order, policy evaluation, or SSL bypass:
 

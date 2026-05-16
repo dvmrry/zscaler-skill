@@ -187,7 +187,7 @@ When Destination Exclusions and Inclusions overlap on Z-Tunnel 2.0, resolution i
 2. **If same netmask, more specific by field count wins.** Port > protocol > subnet — a rule that specifies (subnet, protocol, port) wins over one that specifies (subnet, protocol) wins over one that specifies (subnet) only.
 3. **If identical specificity, INCLUSION wins over EXCLUSION.**
 
-Source: `best-practices-adding-bypasses-z-tunnel-2.0.md:43–49`.
+Source: `vendor/zscaler-help/best-practices-adding-bypasses-z-tunnel-2.0.md:43–49`.
 
 Operators debugging "why is this destination tunneled when I excluded it" should walk the priority order top-to-bottom — usually a more-specific inclusion is winning.
 
@@ -204,7 +204,7 @@ Source: vendor/zscaler-help/best-practices-adding-bypasses-z-tunnel-2.0.md.
 
 **Critical**: do not add network bypasses to the Z-Tunnel 2.0 app profile's PAC file expecting them to take effect — they don't. Z-Tunnel 2.0 ignores PAC-based network bypasses (PAC is still consulted for proxy-routing decisions but not for tunnel-bypass decisions). An operator migrating a 1.0 deployment to 2.0 by copying PAC bypasses gets no bypass effect on 2.0 traffic.
 
-Source: `best-practices-adding-bypasses-z-tunnel-2.0.md:19`.
+Source: `vendor/zscaler-help/best-practices-adding-bypasses-z-tunnel-2.0.md:19`.
 
 Source: vendor/zscaler-help/best-practices-adding-bypasses-z-tunnel-2.0.md.
 
@@ -225,7 +225,7 @@ This applies generically to any mobile push channel — not just MFA. The same b
 
 **Symptom without the bypass**: Duo Push (or equivalent) "works on cellular but not Wi-Fi." Cellular bypasses ZCC; corporate Wi-Fi has ZCC active and tunnels APNs traffic into oblivion.
 
-Sources: Apple's [APNs network requirements](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/APNSOverview.html), Duo support article 2051, Apple's MDM proxy bypass documentation. Tier A on the mechanism; Tier C on Duo-specific failure reports (community-confirmed pattern, no Zscaler-published KB specifically calling it out for Duo).
+External references: Apple's [APNs network requirements](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/APNSOverview.html), Duo support article 2051, Apple's MDM proxy bypass documentation. Tier A on the mechanism; Tier C on Duo-specific failure reports (community-confirmed pattern, no Zscaler-published KB specifically calling it out for Duo).
 
 ## Z-Tunnel 2.0 + GRE = performance degradation
 
@@ -236,7 +236,7 @@ Mitigation options for GRE-deployed offices:
 1. **Configure forwarding profile to fall back to Z-Tunnel 1.0 when Trusted Network Criteria are met.** On-LAN users (already inside the GRE pipe to the perimeter) use 1.0; remote users get 2.0.
 2. **Configure a policy-based route to exclude Z-Tunnel 2.0 traffic from the GRE tunnel.** Z-Tunnel 2.0 takes a separate egress path, GRE handles only non-Zscaler traffic.
 
-Either works; the GRE-as-default with no exclusion strategy is the failure mode. Source: `best-practices-deploying-z-tunnel-2.0.md:43–46`.
+Either works; the GRE-as-default with no exclusion strategy is the failure mode. Source: `vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md:43–46`.
 
 Source: vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md.
 

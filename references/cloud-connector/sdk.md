@@ -9,7 +9,7 @@ source-tier: code
 sources:
   - vendor/zscaler-sdk-go/zscaler/ztw/services/
   - vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go
-  - vendor/zscaler-sdk-go/CLAUDE.md
+  - vendor/zscaler-sdk-go/zscaler/ztw/v2_config.go
 author-status: draft
 ---
 
@@ -88,11 +88,11 @@ if err != nil {
 service, err := zscaler.NewOneAPIClient(config)
 ```
 
-Environment variables (alternative to code-level config): `ZSCALER_CLIENT_ID`, `ZSCALER_CLIENT_SECRET`, `ZSCALER_VANITY_DOMAIN`, `ZSCALER_CLOUD`. [Source: vendor/zscaler-sdk-go/CLAUDE.md; vendor/zscaler-sdk-go/zscaler/ztw/v2_config.go]
+Environment variables (alternative to code-level config): `ZTC_USERNAME`, `ZTC_PASSWORD`, `ZTC_API_KEY`, `ZTC_CLOUD`, plus optional `ZSCALER_PARTNER_ID`. [Source: vendor/zscaler-sdk-go/zscaler/ztw/v2_config.go]
 
 ### Authentication: OneAPI vs legacy
 
-**OneAPI** (default, v4.0.0+): OAuth 2.0 Client Credentials via ZIdentity. Token is obtained on first request and auto-refreshed on 401. Not available for `zscalergov` or `zscalerten` clouds. [Source: vendor/zscaler-sdk-go/CLAUDE.md; vendor/zscaler-sdk-go/zscaler/ztw/v2_config.go]
+**OneAPI status**: not confirmed in the vendored Go ZTW client configuration. The concrete config surface in this capture is the legacy CBC/ZTC credential set above; do not assume ZIdentity OAuth for ZTW automation unless a newer SDK or API capture documents it. [Source: vendor/zscaler-sdk-go/zscaler/ztw/v2_config.go]
 
 **Legacy CBC API**: Username/password/API-key authentication against the ZTC portal directly. Activated by setting `use_legacy_client = true` in provider config or the equivalent SDK option. The SDK maintains backwards compatibility. [Source: vendor/zscaler-sdk-go/zscaler/ztw/v2_config.go]
 

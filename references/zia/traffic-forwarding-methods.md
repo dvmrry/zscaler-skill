@@ -272,7 +272,7 @@ Source: vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.md; 
 
 ### GRE + Z-Tunnel 2.0 incompatibility
 
-Z-Tunnel 2.0 requires a NAT device that uses a **single IP for all connections from a single device**. When a site uses GRE tunnels with ECMP or multiple egress IPs, Z-Tunnel 2.0 control and data connections can land on different Service Edges — this causes Z-Tunnel 2.0 to fail and fall back to Z-Tunnel 1.0 silently. If an on-network user's ZCC is unexpectedly operating in Z-Tunnel 1.0 mode, check the NAT/ECMP configuration on the GRE egress path. Source: `about-z-tunnel-1.0-z-tunnel-2.0.md`; cross-listed in [`../zcc/z-tunnel.md`](../zcc/z-tunnel.md).
+Z-Tunnel 2.0 requires a NAT device that uses a **single IP for all connections from a single device**. When a site uses GRE tunnels with ECMP or multiple egress IPs, Z-Tunnel 2.0 control and data connections can land on different Service Edges — this causes Z-Tunnel 2.0 to fail and fall back to Z-Tunnel 1.0 silently. If an on-network user's ZCC is unexpectedly operating in Z-Tunnel 1.0 mode, check the NAT/ECMP configuration on the GRE egress path. Source: `vendor/zscaler-help/about-z-tunnel-1.0-z-tunnel-2.0.md`; cross-listed in [`../zcc/z-tunnel.md`](../zcc/z-tunnel.md).
 
 ### IPsec MTU vs GRE
 

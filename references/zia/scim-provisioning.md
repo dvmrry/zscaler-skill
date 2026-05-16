@@ -204,7 +204,7 @@ ZIA SCIM endpoints support both `PUT` (full replace) and `PATCH` (partial update
 
 ### Rate limiting
 
-ZIA API rate limits apply to SCIM endpoints. ZIA's general rate limit is 20 GET requests per 10 seconds and 10 POST/PUT/PATCH/DELETE requests per 10 seconds (from Go SDK CLAUDE.md). SCIM-specific rate limit guidance is not published in available vendor sources. The `/Bulk` endpoint is the recommended mitigation for large provisioning batches. (Tier A for general ZIA rate limits from SDK docs; SCIM-specific limits deferred — see clarifications register.)
+ZIA API rate limits apply to SCIM endpoints, but SCIM-specific rate limit guidance is not published in available vendor sources. The `/Bulk` endpoint is the recommended mitigation for large provisioning batches. Treat tenant-specific throttling behavior as deferred until confirmed against live API responses or current vendor documentation.
 
 ### Pagination cap
 

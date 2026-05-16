@@ -62,7 +62,7 @@ Azure VMs depend on link-local Fabric IPs for platform health, DHCP, DNS resolut
 | `168.63.129.16` | Azure Fabric — DHCP, DNS, health probes, Guest Agent | VPN Gateway Bypass in ZCC App Profile |
 | `169.254.169.254` | Azure Instance Metadata Service (IMDS) | VPN Gateway Bypass |
 
-**IMDS migration (Microsoft-side change)**: after **July 1, 2025**, `168.63.129.16` no longer serves IMDS — `169.254.169.254` becomes the canonical IMDS-only endpoint. Existing bypass rules that listed only `168.63.129.16` will need updating for IMDS purposes. (`168.63.129.16` still serves health probes and DHCP, so do not remove it — ensure `169.254.169.254` is also present.) Source: [Microsoft Learn — Azure Virtual Desktop required URLs](https://learn.microsoft.com/en-us/azure/virtual-desktop/azurecommunicationips).
+**IMDS migration (Microsoft-side change)**: after **July 1, 2025**, `168.63.129.16` no longer serves IMDS — `169.254.169.254` becomes the canonical IMDS-only endpoint. Existing bypass rules that listed only `168.63.129.16` will need updating for IMDS purposes. (`168.63.129.16` still serves health probes and DHCP, so do not remove it — ensure `169.254.169.254` is also present.) Microsoft reference: [Azure Virtual Desktop required URLs](https://learn.microsoft.com/en-us/azure/virtual-desktop/azurecommunicationips).
 
 Without these bypasses: Cloud PC health monitoring breaks, IMDS queries fail (which breaks Managed Identity-dependent workloads on the same VM), and Azure Guest Agent communications stall.
 

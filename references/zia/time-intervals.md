@@ -292,11 +292,11 @@ Source: `vendor/terraform-provider-zia/docs/data-sources/zia_firewall_filtering_
 
 ### Activation requirement
 
-ZIA changes are staged and only take effect after an activation call. This applies to time
-interval CRUD operations. After creating, updating, or deleting a time interval, callers
-must invoke `activation.UpdateActivationStatus` (Go SDK) or the equivalent Python method
-to commit the change. Failing to activate leaves the interval in a pending state.
-(Tier B — vendor/zscaler-sdk-go/CLAUDE.md, "ZIA/ZTW require activation" note)
+ZIA changes are generally staged and only take effect after an activation call. Treat time
+interval CRUD operations as part of that activation model unless a tenant test proves
+otherwise. After creating, updating, or deleting a time interval, callers should invoke
+the activation endpoint through the Go SDK or equivalent Python method to commit the
+change.
 
 Source: `vendor/zscaler-sdk-go/zscaler/zia/services/time_intervals/time_intervals.go`, `vendor/zscaler-sdk-python/zscaler/zia/time_intervals.py`.
 

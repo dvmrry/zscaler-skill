@@ -19,7 +19,7 @@ author-status: draft
 
 Single-page index of **every product Zscaler markets**, with depth-of-coverage in this skill marked per entry. Goal: the skill should be **articulate about everything Zscaler ships**, even where deep-dive content doesn't exist. Customers, prospects, and team members ask about the breadth; this map ensures we don't draw blanks.
 
-Source: https://www.zscaler.com/products-and-solutions; vendor/zscaler-help/automate-zscaler/getting-started.md
+Source: vendor/zscaler-help/automate-zscaler/getting-started.md; vendor/zscaler-help/zero-trust-exchange-zte-marketing.md; vendor/zscaler-help/security-operations-suite-marketing.md
 
 Five coverage tiers. API/IaC surface is the primary axis; content depth is the secondary axis:
 
@@ -216,7 +216,7 @@ Add entries here only when a product genuinely doesn't merit awareness today but
 
 When a question lands:
 
-Source: vendor/zscaler-help/automate-zscaler/getting-started.md; https://www.zscaler.com/products-and-solutions
+Source: vendor/zscaler-help/automate-zscaler/getting-started.md
 
 1. **If Tier 1** (core product, SDK / TF / API + multi-component reference coverage), route to its `references/<product>/` deep-dive and answer at full operational depth.
 2. **If Tier 2** (programmable but shallow), answer with full confidence on what's documented; explicitly flag the coverage gap when the question goes deeper than the reference content.
@@ -230,7 +230,7 @@ Never pretend deep-dive coverage exists where it doesn't. Confidence drop is hon
 
 ## Coverage statistics (as of 2026-05-04)
 
-Source: https://www.zscaler.com/products-and-solutions; vendor/zscaler-help/automate-zscaler/getting-started.md
+Source: vendor/zscaler-help/automate-zscaler/getting-started.md; vendor/zscaler-help/zero-trust-exchange-zte-marketing.md; vendor/zscaler-help/security-operations-suite-marketing.md
 
 - **Tier 1 — Core products:** 6 (ZIA, ZPA [incl AppProtection], ZCC, ZDX, ZIdentity, Cloud Connector)
 - **Tier 2 — Programmable but shallow:** 2 (ZBI, ZWA)
@@ -244,8 +244,6 @@ Total Zscaler portfolio: roughly 35 distinct products + 4 architectural pillars 
 ## Maintenance
 
 Zscaler ships rapidly — products are added, renamed, deprecated, acquired. Re-validate this map quarterly:
-
-Source: https://www.zscaler.com/products-and-solutions
 
 1. Visit `https://www.zscaler.com/products-and-solutions`
 2. Walk the product menus / categories

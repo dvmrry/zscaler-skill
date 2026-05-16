@@ -95,7 +95,9 @@ From `trusted_networks.py` and `zpa_trusted_network.go`:
 
 ## PSE Group mapping
 
-Source (Tier A): `resource_zpa_service_edge_group.go` lines 152–168. ZPA Private Service Edge (PSE) Groups carry a `trusted_networks` field — a list of Trusted Network IDs. This maps a PSE Group to specific networks: the PSE Group is associated with those trusted network identities and is preferred or exclusively used when users connect from those networks.
+Source: `vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go`.
+
+ZPA Private Service Edge (PSE) Groups carry a `trusted_networks` field — a list of Trusted Network IDs. This maps a PSE Group to specific networks: the PSE Group is associated with those trusted network identities and is preferred or exclusively used when users connect from those networks.
 
 The `publicly_accessible` field on a PSE Group controls whether the PSE is also available for users outside the mapped trusted networks. If `publicly_accessible = false`, only users whose ZCC signals an associated Trusted Network will connect through this PSE Group; remote users will connect to Public Service Edges instead. (Tier A — vendor/zscaler-help/about-private-service-edge-groups.md: "Choose if the Private Service Edge group with specific trusted networks mapping is also available publicly for all users outside of these trusted networks.")
 
@@ -117,7 +119,7 @@ rhs        = "true"                  // always "true"; "false" is accepted by v1
                                      // validators in v2 schema enforce only "true"
 ```
 
-The TF provider validates `lhs` by calling `GetByNetID` at plan time — a plan with an invalid `networkId` will fail at `terraform plan`. Source: `common.go` line 151.
+The TF provider validates `lhs` by calling `GetByNetID` at plan time — a plan with an invalid `networkId` will fail at `terraform plan`. Source: `vendor/terraform-provider-zpa/zpa/common.go` line 151.
 
 ## Interaction with ZCC trusted network detection
 

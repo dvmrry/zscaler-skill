@@ -140,7 +140,7 @@ Source: vendor/zscaler-sdk-python/zscaler/zid/users.py; vendor/zscaler-sdk-go/zs
 
 Source: vendor/zscaler-sdk-python/zscaler/zid/users.py; vendor/zscaler-sdk-python/zscaler/zid/models/users.py; vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go.
 
-Full CRUD is supported. No activation step required — changes take effect immediately. (`vendor/zscaler-sdk-go/CLAUDE.md` — ZID cloud section)
+Full CRUD is supported. No activation step is exposed for ZIdentity user writes in the SDK surface; changes are submitted directly through the ZID users service.
 
 **Creating a user**: `add_user` accepts `id` as a kwarg but the docstring example shows it as caller-supplied. It is not documented whether omitting `id` triggers server-side auto-generation. (`users.py:186`)
 
