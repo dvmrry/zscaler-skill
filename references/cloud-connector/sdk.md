@@ -96,17 +96,21 @@ if err != nil {
 service, err := zscaler.NewLegacyZtwClient(ztwConfig)
 ```
 
-Environment variables (alternative to code-level config): `ZTC_USERNAME`, `ZTC_PASSWORD`, `ZTC_API_KEY`, `ZTC_CLOUD`, plus optional `ZSCALER_PARTNER_ID`. [Source: vendor/zscaler-sdk-go/zscaler/ztw/v2_config.go]
+Source: `vendor/zscaler-sdk-go/zscaler/ztw/v2_config.go`.
+
+Environment variables (alternative to code-level config): `ZTC_USERNAME`, `ZTC_PASSWORD`, `ZTC_API_KEY`, `ZTC_CLOUD`, plus optional `ZSCALER_PARTNER_ID`.
 
 ### Authentication: OneAPI vs legacy
 
-**OneAPI status**: not confirmed in the vendored Go ZTW client configuration. The concrete config surface in this capture is the legacy CBC/ZTC credential set above; do not assume ZIdentity OAuth for ZTW automation unless a newer SDK or API capture documents it. [Source: vendor/zscaler-sdk-go/zscaler/ztw/v2_config.go]
+**OneAPI status**: not confirmed in the vendored Go ZTW client configuration. The concrete config surface in this capture is the legacy CBC/ZTC credential set above; do not assume ZIdentity OAuth for ZTW automation unless a newer SDK or API capture documents it.
 
-**Legacy CBC API**: Username/password/API-key authentication against the ZTC portal directly. Activated by setting `use_legacy_client = true` in provider config or the equivalent SDK option. The SDK maintains backwards compatibility. [Source: vendor/zscaler-sdk-go/zscaler/ztw/v2_config.go]
+**Legacy CBC API**: Username/password/API-key authentication against the ZTC portal directly. Activated by setting `use_legacy_client = true` in provider config or the equivalent SDK option. The SDK maintains backwards compatibility.
 
 ### Function signature convention
 
-All Go ZTW service functions are **package-level functions** (not methods on a struct). Every function takes `ctx context.Context` as the first argument and `service *zscaler.Service` as the second. [Source: vendor/zscaler-sdk-go/zscaler/ztw/services/service.go; vendor/zscaler-sdk-go/zscaler/ztw/services/activation/activation.go; vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go]
+Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/service.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/activation/activation.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go`.
+
+All Go ZTW service functions are **package-level functions** (not methods on a struct). Every function takes `ctx context.Context` as the first argument and `service *zscaler.Service` as the second.
 
 ### HTTP methods
 
@@ -119,7 +123,9 @@ ZTW uses a `Resource`-suffixed set of HTTP methods, distinct from ZIA's methods:
 | Update | `service.Client.UpdateWithPutResource(ctx, endpoint, body)` → `interface{}` |
 | Delete | `service.Client.DeleteResource(ctx, endpoint)` |
 
-Some older services in the `provisioning` package use the non-`Resource` methods (`service.Client.Create`, `service.Client.UpdateWithPut`, `service.Client.Delete`). This inconsistency exists in the codebase. [Source: vendor/zscaler-sdk-go/zscaler/ztw/services/provisioning/provisioning_url/provisioning_url.go]
+Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/provisioning/provisioning_url/provisioning_url.go`.
+
+Some older services in the `provisioning` package use the non-`Resource` methods (`service.Client.Create`, `service.Client.UpdateWithPut`, `service.Client.Delete`). This inconsistency exists in the codebase.
 
 ### Pagination
 
@@ -133,15 +139,21 @@ Some older services in the `provisioning` package use the non-`Resource` methods
 
 ### GetByName pattern
 
-Most Go `GetByName` implementations call `ReadAllPages` to fetch all objects, then iterate with `strings.EqualFold` for case-insensitive matching. `ecgroup/GetEcGroupLiteByName` is an exception that passes `?name=<encoded>` to the lite endpoint as an optimization. [Source: vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go; vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go; vendor/zscaler-sdk-go/zscaler/ztw/services/dns_gateway/dns_gateway.go]
+Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/dns_gateway/dns_gateway.go`.
+
+Most Go `GetByName` implementations call `ReadAllPages` to fetch all objects, then iterate with `strings.EqualFold` for case-insensitive matching. `ecgroup/GetEcGroupLiteByName` is an exception that passes `?name=<encoded>` to the lite endpoint as an optimization.
 
 ### ID types
 
-Go ZTW IDs are modeled as `int` across the inspected service structs. Do not pass string IDs to the Go surface unless a specific service proves otherwise. [Source: vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go; vendor/zscaler-sdk-go/zscaler/ztw/services/dns_gateway/dns_gateway.go; vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go]
+Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/dns_gateway/dns_gateway.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go`.
+
+Go ZTW IDs are modeled as `int` across the inspected service structs. Do not pass string IDs to the Go surface unless a specific service proves otherwise.
 
 ### Activation requirement
 
-ZTW changes are staged and do not take effect until activation is triggered. The SDK does **not** auto-activate. Callers must explicitly call `activation.UpdateActivationStatus` or `activation.ForceActivationStatus` after mutations. [Source: vendor/zscaler-sdk-go/zscaler/ztw/services/activation/activation.go]
+Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/activation/activation.go`.
+
+ZTW changes are staged and do not take effect until activation is triggered. The SDK does **not** auto-activate. Callers must explicitly call `activation.UpdateActivationStatus` or `activation.ForceActivationStatus` after mutations.
 
 ---
 
@@ -172,7 +184,9 @@ TF data source: `ztc_activation_status`
 **Package**: `zscaler/ztw/services/ecgroup`  
 **File**: `ecgroup/ecgroup.go`
 
-Manages Cloud Connector groups — the logical groupings of Cloud Connector VM instances. Read-only from this package (no `Create` or `Update`). [Source: vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go]
+Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go`.
+
+Manages Cloud Connector groups — the logical groupings of Cloud Connector VM instances. Read-only from this package (no `Create` or `Update`).
 
 | Function | Signature | API endpoint | Notes |
 |---|---|---|---|
@@ -194,7 +208,9 @@ TF data source: `ztc_edge_connector_group`
 **Package**: `zscaler/ztw/services/dns_gateway`  
 **File**: `dns_gateway/dns_gateway.go`
 
-Full CRUD for DNS gateways. Note: a second package (`forwarding_gateways/dns_forwarding_gateway`) targets the same endpoint — see open questions. [Source: vendor/zscaler-sdk-go/zscaler/ztw/services/dns_gateway/dns_gateway.go; vendor/zscaler-sdk-go/zscaler/ztw/services/forwarding_gateways/dns_forwarding_gateway/dns_forwarding_gateway.go]
+Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/dns_gateway/dns_gateway.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/forwarding_gateways/dns_forwarding_gateway/dns_forwarding_gateway.go`.
+
+Full CRUD for DNS gateways. Note: a second package (`forwarding_gateways/dns_forwarding_gateway`) targets the same endpoint — see open questions.
 
 | Function | Signature | API endpoint | Notes |
 |---|---|---|---|
@@ -262,7 +278,9 @@ TF resource: `ztc_forwarding_gateway`
 
 ### Location Management
 
-Three sub-packages under `locationmanagement/`: [Source: vendor/zscaler-sdk-go/zscaler/ztw/services/locationmanagement/location/location.go; vendor/zscaler-sdk-go/zscaler/ztw/services/locationmanagement/locationlite/locationlite.go; vendor/zscaler-sdk-go/zscaler/ztw/services/locationmanagement/locationtemplate/locationtemplates.go]
+Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/locationmanagement/location/location.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/locationmanagement/locationlite/locationlite.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/locationmanagement/locationtemplate/locationtemplates.go`.
+
+Three sub-packages under `locationmanagement/`:
 
 #### location
 
@@ -270,7 +288,9 @@ Three sub-packages under `locationmanagement/`: [Source: vendor/zscaler-sdk-go/z
 **File**: `locationmanagement/location/location.go`  
 **Endpoint**: `/ztw/api/v1/location`
 
-Full CRUD for Cloud Connector locations. [Source: vendor/zscaler-sdk-go/zscaler/ztw/services/locationmanagement/location/location.go]
+Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/locationmanagement/location/location.go`.
+
+Full CRUD for Cloud Connector locations.
 
 | Function | Signature | Notes |
 |---|---|---|
@@ -314,7 +334,9 @@ Three sub-packages under `policy_management/`:
 **File**: `policy_management/forwarding_rules/forwarding_rules.go`  
 **Endpoint**: `/ztw/api/v1/ecRules/ecRdr`
 
-Full CRUD for traffic forwarding rules. Includes an optional server-side filter on `GetAll` and a count endpoint. [Source: vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go]
+Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go`.
+
+Full CRUD for traffic forwarding rules. Includes an optional server-side filter on `GetAll` and a count endpoint.
 
 | Function | Signature | Notes |
 |---|---|---|
@@ -336,7 +358,9 @@ TF resource: `ztc_traffic_forwarding_rule`
 **File**: `policy_management/traffic_dns_rules/traffic_dns_rules.go`  
 **Endpoint**: `/ztw/api/v1/ecRules/ecDns`
 
-Full CRUD for DNS forwarding rules. [Source: vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/traffic_dns_rules/traffic_dns_rules.go]
+Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/traffic_dns_rules/traffic_dns_rules.go`.
+
+Full CRUD for DNS forwarding rules.
 
 | Function | Signature | Notes |
 |---|---|---|
@@ -358,7 +382,9 @@ TF resource: `ztc_traffic_forwarding_dns_rule`
 **File**: `policy_management/traffic_log_rules/traffic_log_rules.go`  
 **Endpoint**: `/ztw/api/v1/ecRules/self`
 
-Full CRUD for log-and-control forwarding rules. `GetEcRDRCount` is commented out in the source (not yet implemented). [Source: vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/traffic_log_rules/traffic_log_rules.go]
+Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/traffic_log_rules/traffic_log_rules.go`.
+
+Full CRUD for log-and-control forwarding rules. `GetEcRDRCount` is commented out in the source (not yet implemented).
 
 | Function | Signature | Notes |
 |---|---|---|
@@ -645,9 +671,11 @@ groups, err := ipdestinationgroups.GetAll(ctx, service)
 
 ## Open questions register
 
+Sources for resolved items below: `vendor/zscaler-sdk-go/zscaler/ztw/services/provisioning/provisioning_url/provisioning_url.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/zparesources/zparesources.go`.
+
 1. **Duplicate DNS gateway packages**: `dns_gateway/dns_gateway.go` and `forwarding_gateways/dns_forwarding_gateway/dns_forwarding_gateway.go` both target `/ztw/api/v1/dnsGateways`. The `dns_gateway` package omits `*http.Response` from `Get`/`Create`/`Update` return signatures; the `dns_forwarding_gateway` package includes it. The `dns_gateway` package's struct omits the `Type` field present in the other. Which package is canonical for the Terraform provider is not confirmed from available sources — both exist in the SDK without clear deprecation notes.
 
-2. **`provisioning_url` uses non-`Resource` methods**: `Create`, `UpdateWithPut`, and `Delete` in `provisioning_url` use the ZIA-style methods (`service.Client.Create`, not `CreateResource`). Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/provisioning/provisioning_url/provisioning_url.go`. Whether this is intentional or a bug is not confirmed from available sources.
+2. **`provisioning_url` uses non-`Resource` methods**: `Create`, `UpdateWithPut`, and `Delete` in `provisioning_url` use the ZIA-style methods (`service.Client.Create`, not `CreateResource`). Whether this is intentional or a bug is not confirmed from available sources.
 
 3. **Resolved 2026-04-26.** `workload_groups` Create/Update/Delete are NOT commented out in the current source. `vendor/zscaler-sdk-go/zscaler/ztw/services/workload_groups/workload_groups.go` exports `Create` (line 98), `Update` (line 113), and `Delete` (line 124). The earlier claim that they were "commented out" was inaccurate — the doc has been corrected above. However, the TF provider does not expose a resource for workload groups, and the note "likely authored in ZIA" still applies per TF docs.
 
@@ -655,7 +683,7 @@ groups, err := ipdestinationgroups.GetAll(ctx, service)
 
 5. **Resolved 2026-04-26.** `public_cloud_account` and `public_cloud_info` target different endpoints and serve different purposes. `provisioning/public_cloud_account/` calls `/ztw/api/v1/publicCloudAccountDetails` (source: `vendor/zscaler-sdk-go/zscaler/ztw/services/provisioning/public_cloud_account/public_cloud_account.go`). `partner_integrations/public_cloud_info/` calls `/ztw/api/v1/publicCloudInfo` — this is the cloud account registration surface with full CRUD including `UpdatePublicCloudChangeState` and `GenerateExternalID`. The `public_cloud_account` package appears to be a precursor or alternative view of cloud account detail; the `public_cloud_info` package is the authoritative management surface.
 
-6. **Resolved 2026-04-26.** `zparesources` exposes read-only access to ZPA Application Segments usable in traffic forwarding rules. Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/zparesources/zparesources.go` — exports `GetZPAApplicationSegments`. This addresses the hardcoded-ID limitation in `ztc_traffic_forwarding_rule`: callers can look up ZPA Application Segment IDs via this function rather than hardcoding them. No write operations are present.
+6. **Resolved 2026-04-26.** `zparesources` exposes read-only access to ZPA Application Segments usable in traffic forwarding rules. It exports `GetZPAApplicationSegments`. This addresses the hardcoded-ID limitation in `ztc_traffic_forwarding_rule`: callers can look up ZPA Application Segment IDs via this function rather than hardcoding them. No write operations are present.
 
 7. **Resolved 2026-04-26.** `workload_groups.Get` calls `service.Client.Read` (not `ReadResource`) — confirmed in `vendor/zscaler-sdk-go/zscaler/ztw/services/workload_groups/workload_groups.go`. This is inconsistent with the ZTW convention of using `ReadResource` for GET operations. The workload groups endpoint may use the ZIA-compatible request path rather than the ZTW Resource-suffixed path; the exact reason is not documented in available sources.
 

@@ -159,9 +159,11 @@ Source: `vendor/zscaler-help/about-ftp-control.md`; `vendor/zscaler-help/about-f
 
 5. **SSH inspection doesn't exist; PRA is the answer.** Tenants asking "how do we log SSH commands" get pointed to PRA, not to a Zscaler SSH-inspection product that doesn't exist. Worth saying plainly.
 
-6. **FTP Control is location-scoped.** FTP Control policy applies only to traffic from **defined locations**. Road-warrior users not at a known location can't use native FTP through ZIA at all — they must use FTP over HTTP via dedicated ports. The scope limitation isn't obvious from the feature name and surfaces as "FTP works in the office, not at home." Source: *About FTP Control* lines 25–28.
+Source: vendor/zscaler-help/about-ftp-control.md.
 
-7. **Non-passive FTP fails with browser alert, not silent block.** When the destination FTP server doesn't support passive mode, the ZIA service generates an alert message in the user's browser — not a silent failure or generic timeout. Help-desk tickets for "FTP browser shows weird error" usually trace to active-FTP-server attempts. Source: same article.
+6. **FTP Control is location-scoped.** FTP Control policy applies only to traffic from **defined locations**. Road-warrior users not at a known location can't use native FTP through ZIA at all — they must use FTP over HTTP via dedicated ports. The scope limitation isn't obvious from the feature name and surfaces as "FTP works in the office, not at home."
+
+7. **Non-passive FTP fails with browser alert, not silent block.** When the destination FTP server doesn't support passive mode, the ZIA service generates an alert message in the user's browser — not a silent failure or generic timeout. Help-desk tickets for "FTP browser shows weird error" usually trace to active-FTP-server attempts.
 
 ## Cross-links
 

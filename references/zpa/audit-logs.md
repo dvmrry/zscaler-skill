@@ -291,7 +291,9 @@ Source: `vendor/zscaler-help/admin-rbac-captures.md`, `vendor/zscaler-help/about
 
 ## Open questions
 
-1. **Resolved 2026-04-26.** ZPA Admin Console audit log UI is confirmed. Source: `vendor/zscaler-help/about-log-streaming-service.md` line 19: "Zscaler retains audit log information for at least 6-month periods during the subscription term. For access to logs beyond the 14 days they are available in the Zscaler Admin Console, setting up the LSS is necessary." This confirms the ZPA Admin Console does have an audit log UI with a 14-day interactive window. LSS is required for longer retention or SIEM forwarding. The admin console audit log viewer is at Logs > (implied) Audit Logs within the ZPA Admin Console.
+Source: `vendor/zscaler-help/about-log-streaming-service.md`.
+
+1. **Resolved 2026-04-26.** ZPA Admin Console audit log UI is confirmed. The Log Streaming Service source states that Zscaler retains audit log information for at least 6-month periods during the subscription term, and that access beyond the 14 days available in the Zscaler Admin Console requires setting up LSS. This confirms the ZPA Admin Console does have an audit log UI with a 14-day interactive window. LSS is required for longer retention or SIEM forwarding. The admin console audit log viewer is at Logs > (implied) Audit Logs within the ZPA Admin Console.
 
 2. **Audit log field schema** — the specific fields present in a `zpn_audit_log` LSS stream entry are not captured in available sources. The `zpa_lss_config_log_type_formats` data source would contain the authoritative field list but was not available for review.
 
@@ -299,6 +301,6 @@ Source: `vendor/zscaler-help/admin-rbac-captures.md`, `vendor/zscaler-help/about
 
 4. **Microtenant scoping** — whether audit logs from a microtenant are isolated to that microtenant's LSS configurations or visible to the parent is not confirmed from available sources.
 
-5. **Resolved 2026-04-26.** API-only audit log retrieval: ZPA has no pull-based audit export equivalent to ZIA's `auditlogEntryReport`. Source: `vendor/zscaler-help/about-log-streaming-service.md` — the ZPA admin console shows audit logs for the 14-day window; longer access requires LSS. No ZPA audit log REST endpoint is visible in `vendor/zscaler-sdk-python/zscaler/zpa/` or `vendor/zscaler-sdk-go/zscaler/zpa/`.
+5. **Resolved 2026-04-26.** API-only audit log retrieval: ZPA has no pull-based audit export equivalent to ZIA's `auditlogEntryReport`. The ZPA admin console shows audit logs for the 14-day window; longer access requires LSS. No ZPA audit log REST endpoint is visible in `vendor/zscaler-sdk-python/zscaler/zpa/` or `vendor/zscaler-sdk-go/zscaler/zpa/`.
 
 6. **Filter field** — `LSSConfig.filter` is a `[]string` but the valid filter expressions for the `zpn_audit_log` type are not documented in available sources.

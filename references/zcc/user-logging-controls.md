@@ -318,7 +318,9 @@ ZCC logs connection-level events. ZIA logs transaction-level events. A user's ZC
 
 ### App Profile update propagation
 
-App Profile changes (including `logMode`, `logLevel`, and `logFileSize` changes) propagate to connected endpoints only when the user logs out and logs back in, or when ZCC restarts. There is no real-time push to currently-connected devices. An admin who increases `logMode` to Debug during a triage window should confirm the ZCC restart has occurred before expecting Debug-level logs. Source: `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md` (referenced in [`./forwarding-profile.md`](./forwarding-profile.md)).
+Source: `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md`.
+
+App Profile changes (including `logMode`, `logLevel`, and `logFileSize` changes) propagate to connected endpoints only when the user logs out and logs back in, or when ZCC restarts. There is no real-time push to currently-connected devices. An admin who increases `logMode` to Debug during a triage window should confirm the ZCC restart has occurred before expecting Debug-level logs. See also [`./forwarding-profile.md`](./forwarding-profile.md).
 
 ### `export_logs_for_non_admin` vs App Supportability toggle
 

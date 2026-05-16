@@ -37,7 +37,7 @@ Source: `vendor/zscaler-help/about-segment-groups.md`, `vendor/zscaler-sdk-pytho
 - A named, enable/disable-able container that holds a list of App Segments.
 - The primary targeting primitive for access policy, forwarding policy, inspection policy, and timeout policy rules. Rules reference Segment Groups via the `APP_GROUP` object type in their condition operands.
 - An administrative organizing unit. Logical groupings such as "Sales Applications" or "HR Tools" make policy authoring and auditing human-readable and reduce per-segment rule proliferation.
-- A required assignment for every App Segment. The API and help portal both state: "You must place each application segment you configure into a segment group." An App Segment without a Segment Group cannot be targeted by any `APP_GROUP`-based policy rule. Source: `vendor/zscaler-help/about-segment-groups.md`.
+- A required assignment for every App Segment. The API and help portal both state: "You must place each application segment you configure into a segment group." An App Segment without a Segment Group cannot be targeted by any `APP_GROUP`-based policy rule.
 
 ### What it IS NOT
 
@@ -74,7 +74,7 @@ When you add an App Segment to a Segment Group, both the App Segment's `segment_
 
 - **At App Segment creation**: `segment_group_id` is set. If omitted in Terraform (`Optional + Computed` per TF schema for `zpa_application_segment`), TF will not error, but the segment will have no policy-targetable group.
 - **Moving a segment between groups**: reassign `segment_group_id` on the App Segment. The old group's `applications[]` automatically loses the entry; the new group gains it.
-- **Deleting a Segment Group**: the TF provider's `resourceSegmentGroupDelete` calls `detachSegmentGroupFromAllPolicyRules` first (see Section 4 below), then deletes the group. App Segments formerly in the group are not deleted, but they are effectively orphaned — their `segment_group_id` points to a now-nonexistent object. Source: `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go` lines 212–216.
+- **Deleting a Segment Group**: the TF provider's `resourceSegmentGroupDelete` calls `detachSegmentGroupFromAllPolicyRules` first (see Section 4 below), then deletes the group. App Segments formerly in the group are not deleted, but they are effectively orphaned — their `segment_group_id` points to a now-nonexistent object.
 - **API-only deletion** (SDK or direct HTTP, not via TF): does not call `detachSegmentGroupFromAllPolicyRules`. Policy rules that reference the deleted group's ID are left with stale `APP_GROUP` operands. This is a known operational hazard (see Section 6).
 
 ### A Segment Group can be empty
@@ -91,7 +91,9 @@ Source: `vendor/zscaler-help/about-segment-groups.md`, `vendor/terraform-provide
 
 Policy rules reference Segment Groups via conditions with `objectType = "APP_GROUP"`. This is the API wire-level identifier. In v1 policy rules the operand carries `lhs: "id"` and `rhs: "<segment_group_id>"`. In v2 policy rules the operand carries `objectType: "APP_GROUP"` and a `values: ["<segment_group_id>"]` array.
 
-Source: `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go` — `detachSegmentGroupFromV1Policies` filters for `op.ObjectType == "APP_GROUP" && op.LHS == "id" && op.RHS == id`, and `detachSegmentGroupFromV2Policies` filters for `strings.EqualFold(op.ObjectType, "APP_GROUP")` checking `op.Values`.
+Source: `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go`.
+
+The provider's `detachSegmentGroupFromV1Policies` filters for `op.ObjectType == "APP_GROUP" && op.LHS == "id" && op.RHS == id`, and `detachSegmentGroupFromV2Policies` filters for `strings.EqualFold(op.ObjectType, "APP_GROUP")` checking `op.Values`.
 
 ### Policy types that use Segment Groups
 
@@ -105,7 +107,7 @@ The TF provider's deletion cleanup code documents exactly which policy types sca
 | Client Forwarding Policy | `CLIENT_FORWARDING_POLICY` |
 | Inspection Policy | `INSPECTION_POLICY` |
 
-Both v1 and v2 policy API versions are searched. Source: `detachSegmentGroupFromV1Policies` and `detachSegmentGroupFromV2Policies` in `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go`.
+Both v1 and v2 policy API versions are searched.
 
 ### AND/OR semantics within a rule
 
@@ -156,7 +158,9 @@ GET/PUT/DELETE /zpa/mgmtconfig/v1/admin/customers/{customerId}/segmentGroup/{id}
 PUT /zpa/mgmtconfig/v2/admin/customers/{customerId}/segmentGroup/{id}  (update-only v2 variant)
 ```
 
-Updates use v2 for the PUT (both Go SDK `UpdateV2` and Python SDK `update_group_v2` route to the v2 endpoint). The v2 update endpoint is the current-preferred form. Source: `vendor/zscaler-sdk-go/zscaler/zpa/services/segmentgroup/zpa_segment_group.go` lines 123–130, `vendor/zscaler-sdk-python/zscaler/zpa/segment_groups.py` lines 297–310.
+Source: `vendor/zscaler-sdk-go/zscaler/zpa/services/segmentgroup/zpa_segment_group.go`; `vendor/zscaler-sdk-python/zscaler/zpa/segment_groups.py`.
+
+Updates use v2 for the PUT (both Go SDK `UpdateV2` and Python SDK `update_group_v2` route to the v2 endpoint). The v2 update endpoint is the current-preferred form.
 
 ### API model fields
 
@@ -199,9 +203,9 @@ resource "zpa_segment_group" "example" {
 | `applications` | list of `{id}` | No / Computed | TF manages via App Segment's `segment_group_id`; rarely set directly on the group resource |
 | `microtenant_id` | string | No / Computed | Requires microtenant license; can also be set via env var `ZPA_MICROTENANT_ID` |
 
-**Important**: The TF resource sends App Segment IDs as `applications: [{id: "..."}]` objects on write, but reads back full Application objects. On update, `expandSegmentGroup` only sends the `ID` field of each application, not the full segment definition. Source: `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go` lines 237–249.
+**Important**: The TF resource sends App Segment IDs as `applications: [{id: "..."}]` objects on write, but reads back full Application objects. On update, `expandSegmentGroup` only sends the `ID` field of each application, not the full segment definition.
 
-**Update uses v2 API**: `resourceSegmentGroupUpdate` calls `segmentgroup.UpdateV2`. Source: line 185.
+**Update uses v2 API**: `resourceSegmentGroupUpdate` calls `segmentgroup.UpdateV2`.
 
 **Import**: by ID or by name.
 
@@ -239,7 +243,7 @@ segmentgroup.Delete(ctx, service, id)
 segmentgroup.GetAll(ctx, service)
 ```
 
-All calls must include `common.Filter{MicroTenantID: service.MicroTenantID()}` — the helpers do this internally. Source: `vendor/zscaler-sdk-go/zscaler/zpa/services/segmentgroup/zpa_segment_group.go` lines 81–148.
+All calls must include `common.Filter{MicroTenantID: service.MicroTenantID()}` — the helpers do this internally.
 
 Source: `vendor/zscaler-sdk-go/zscaler/zpa/services/segmentgroup/zpa_segment_group.go`.
 
@@ -311,15 +315,15 @@ The API model carries `enabled` as a meaningful boolean. The Zscaler help docs s
 
 ### 5.6 Segment Group + microtenant scoping
 
-Segment Groups are microtenant-scoped when created with a `microtenant_id`. A group created in Microtenant A is not visible to Microtenant B's admin — and cannot be referenced in Microtenant B's policy rules. The default microtenant admin can see and manage all microtenant Segment Groups. The `about-microtenants.md` help article lists "segment groups" as one of the objects that can be independently managed per microtenant. Source: `vendor/zscaler-help/about-microtenants.md`.
+Segment Groups are microtenant-scoped when created with a `microtenant_id`. A group created in Microtenant A is not visible to Microtenant B's admin — and cannot be referenced in Microtenant B's policy rules. The default microtenant admin can see and manage all microtenant Segment Groups. The `about-microtenants.md` help article lists "segment groups" as one of the objects that can be independently managed per microtenant.
 
-When the microtenant license is not active, `microtenant_id` on the Segment Group is ignored (TF warns if the field is set without the feature flag). Source: TF resource doc warning at the `microtenant_id` field.
+When the microtenant license is not active, `microtenant_id` on the Segment Group is ignored; the TF resource doc warns if the field is set without the feature flag.
 
 Source: `vendor/zscaler-help/about-microtenants.md`, `vendor/terraform-provider-zpa/docs/resources/zpa_segment_group.md`.
 
 ### 5.7 Zscaler Deception and Segment Groups
 
-If a Segment Group is configured in conjunction with Zscaler Deception, the ZPA console marks it as non-editable and non-deletable ("the edit and delete options are unavailable"). These groups are managed from the Deception Admin Portal. Attempting to modify them via TF or SDK will result in an API error. Source: `vendor/zscaler-help/about-segment-groups.md`.
+If a Segment Group is configured in conjunction with Zscaler Deception, the ZPA console marks it as non-editable and non-deletable ("the edit and delete options are unavailable"). These groups are managed from the Deception Admin Portal. Attempting to modify them via TF or SDK will result in an API error.
 
 ### 5.8 `policyMigrated` flag — meaning is opaque
 

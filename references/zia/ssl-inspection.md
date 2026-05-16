@@ -350,7 +350,7 @@ Source: `vendor/zscaler-help/configuring-ssl-tls-inspection-policy.md`; `vendor/
 Source: `vendor/zscaler-help/configuring-ssl-tls-inspection-policy.md`
 
 - **255 SSL Inspection rules total** = 245 custom + 10 predefined. Tighter than DLP (1,024) and several other policy types; large enterprises with hundreds of per-application exemption rules hit this cap and need to consolidate via destination groups rather than file a support ticket. The cap is NOT raisable.
-- **Rule name max length: 31 characters.** Lower than most other ZIA policies (which allow 128+). Automation scripts that generate descriptive rule names from app metadata will silently truncate — names get rejected at rule-save time. Source: *Configuring SSL/TLS Inspection Policy* line 27.
+- **Rule name max length: 31 characters.** Lower than most other ZIA policies (which allow 128+). Automation scripts that generate descriptive rule names from app metadata will silently truncate — names get rejected at rule-save time.
 
 ## Worked example (covers eval Q4)
 
