@@ -293,8 +293,7 @@ STYLE_SOURCE_KINDS = {
 SEMANTIC_SOURCE_KINDS = {
     "frontmatter-proxy-source",
     "source-mcp",
-    "weak-test-source",
-    "weak-test-source-inline",
+    "source-test",
 }
 
 ADVISORY_SOURCE_KINDS = STYLE_SOURCE_KINDS | SEMANTIC_SOURCE_KINDS
@@ -343,7 +342,7 @@ def audit_source_quality(
         if not payloads:
             if include_semantic:
                 if TEST_SOURCE_RE.search(line):
-                    issues.append(issue(rel, line_number, "weak-test-source-inline", line.strip()))
+                    issues.append(issue(rel, line_number, "source-test", line.strip()))
                 if FRONTMATTER_PROXY_RE.search(line):
                     issues.append(issue(rel, line_number, "frontmatter-proxy-source", line.strip()))
             if line.strip():
@@ -401,7 +400,7 @@ def audit_source_quality(
                 if source_path.endswith("/") and warn_directory_sources:
                     issues.append(issue(rel, line_number, "directory-source", line.strip()))
                 if "/test" in source_path or source_path.endswith("_test.go") or "/tests/" in source_path:
-                    issues.append(issue(rel, line_number, "weak-test-source", line.strip()))
+                    issues.append(issue(rel, line_number, "source-test", line.strip()))
 
             for filename in BARE_SOURCE_FILE_RE.findall(source_text):
                 if not filename.startswith(("vendor/", "scripts/")) and not re.search(
