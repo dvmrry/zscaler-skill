@@ -27,6 +27,8 @@ author-status: draft
 
 This doc covers how traffic gets **into** ZIA from a customer location or endpoint — the ingestion layer. It does not cover Forwarding Control policy, which governs where ZIA sends traffic after inspecting it (ZPA via SIPA, DIRECT, DROP, etc.) — see [`./forwarding-control.md`](./forwarding-control.md).
 
+Source: vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.md; vendor/zscaler-help/best-practices-deploying-gre-tunnels.md; vendor/zscaler-help/gre-deployment-scenarios.md; vendor/zscaler-help/choosing-traffic-forwarding-methods.md; vendor/zscaler-help/using-custom-pac-file-forward-traffic-zia.md; vendor/zscaler-help/about-z-tunnel-1.0-z-tunnel-2.0.md.
+
 ## The four methods at a glance
 
 | Method | Termination point | Identity anchor | Typical use |
@@ -38,9 +40,13 @@ This doc covers how traffic gets **into** ZIA from a customer location or endpoi
 
 Every method ultimately surfaces inside ZIA as a **Location** (or is associated with one). The Location is the forwarding-grouping primitive that all ZIA policy rules scope by. See [`./locations.md`](./locations.md) for the full Location/Sublocation/Location Group model.
 
+Source: vendor/zscaler-help/choosing-traffic-forwarding-methods.md; vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.md; vendor/zscaler-help/using-custom-pac-file-forward-traffic-zia.md.
+
 ---
 
 ## GRE tunnel
+
+Source: vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.md; vendor/zscaler-help/best-practices-deploying-gre-tunnels.md; vendor/zscaler-help/gre-deployment-scenarios.md; vendor/zscaler-sdk-python/zscaler/zia/gre_tunnel.py; vendor/zscaler-sdk-python/zscaler/zia/traffic_static_ip.py; vendor/terraform-provider-zia/zia/resource_zia_traffic_forwarding_gre_tunnels.go; vendor/terraform-provider-zia/zia/resource_zia_traffic_forwarding_static_ips.go.
 
 ### When to use
 
@@ -110,6 +116,8 @@ Zscaler's recommended model:
 
 ## IPsec tunnel
 
+Source: vendor/zscaler-help/choosing-traffic-forwarding-methods.md; vendor/zscaler-sdk-python/zscaler/zia/traffic_vpn_credentials.py; vendor/terraform-provider-zia/zia/resource_zia_traffic_forwarding_vpn_credentials.go.
+
 ### When to use vs GRE
 
 IPsec adds encryption overhead vs GRE. Use IPsec when:
@@ -158,6 +166,8 @@ No dedicated IPsec configuration capture is vendored. The following is inferred 
 
 ## PAC file
 
+Source: vendor/zscaler-help/choosing-traffic-forwarding-methods.md; vendor/zscaler-help/using-custom-pac-file-forward-traffic-zia.md; vendor/zscaler-sdk-python/zscaler/zia/pac_files.py.
+
 ### When PAC is the right choice
 
 PAC (Proxy Auto-Config) is a JavaScript function (`FindProxyForURL`) distributed to browsers or OS proxy settings. The browser calls the PAC URL to determine per-request whether to use a proxy (Zscaler's explicit proxy gateway) or go direct. Use PAC when:
@@ -201,6 +211,8 @@ Terraform: no `resource_zia_traffic_forwarding_pac_files` resource found in the 
 ---
 
 ## ZCC (Zscaler Client Connector)
+
+Source: vendor/zscaler-help/choosing-traffic-forwarding-methods.md; vendor/zscaler-help/about-z-tunnel-1.0-z-tunnel-2.0.md.
 
 ### When ZCC is the right choice
 
@@ -250,9 +262,13 @@ Is this a fixed-location site with a router/SD-WAN that supports GRE or IPsec?
 
 Zscaler explicitly recommends combining GRE + PAC + Surrogate IP + ZCC as the full-coverage model for enterprise deployments (sourced from `understanding-generic-routing-encapsulation-gre.md`).
 
+Source: vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.md; vendor/zscaler-help/choosing-traffic-forwarding-methods.md; vendor/zscaler-help/about-z-tunnel-1.0-z-tunnel-2.0.md.
+
 ---
 
 ## Common interactions and failure modes
+
+Source: vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.md; vendor/zscaler-help/best-practices-deploying-gre-tunnels.md; vendor/zscaler-help/using-custom-pac-file-forward-traffic-zia.md; vendor/zscaler-help/about-z-tunnel-1.0-z-tunnel-2.0.md.
 
 ### GRE + Z-Tunnel 2.0 incompatibility
 
