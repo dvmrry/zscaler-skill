@@ -31,13 +31,13 @@ author-status: draft
 
 # ZIA URL filtering rule precedence
 
-Source: `vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt`; `vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt`; `vendor/zscaler-help/Recommended_URL_`&_Cloud_App_Control_Policy.txt; `vendor/zscaler-help/About_URL_Categories.txt`; `vendor/zscaler-help/Understanding_Policy_Enforcement.txt`.
+Source: `vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt`; `vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt`; `vendor/zscaler-help/Recommended_URL_&_Cloud_App_Control_Policy.txt`; `vendor/zscaler-help/About_URL_Categories.txt`; `vendor/zscaler-help/Understanding_Policy_Enforcement.txt`.
 
 How ZIA decides which URL filtering rule applies to a request, what wins when multiple rules match, and how URL filtering interacts with Cloud App Control.
 
 ## Summary
 
-Source: `vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt`; `vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt`; `vendor/zscaler-help/Recommended_URL_`&_Cloud_App_Control_Policy.txt; `vendor/zscaler-help/About_URL_Categories.txt`.
+Source: `vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt`; `vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt`; `vendor/zscaler-help/Recommended_URL_&_Cloud_App_Control_Policy.txt`; `vendor/zscaler-help/About_URL_Categories.txt`.
 
 URL filtering rules are evaluated top-down in **ascending rule order (Rule 1 before Rule 2)** and stop at the **first match**. But "matching" involves two layers you need to hold in your head at once:
 
@@ -161,7 +161,7 @@ A rule with a wildcard-matching category that "should" match may silently never 
 
 ## Cloud App Control interaction
 
-Source: `vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt`; `vendor/zscaler-help/Recommended_URL_`&_Cloud_App_Control_Policy.txt.
+Source: `vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt`; `vendor/zscaler-help/Recommended_URL_&_Cloud_App_Control_Policy.txt`.
 
 By default, Cloud App Control is evaluated **before** URL filtering and, when CAC **allows** a request, URL filtering does not evaluate at all.
 
@@ -182,7 +182,7 @@ The toggle name — "Allow Cascading *to URL Filtering*" — is the literal swit
 
 ## Edge cases
 
-Source: `vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt`; `vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt`; `vendor/zscaler-help/Configuring_Advanced_Policy_Settings.txt`; `vendor/zscaler-help/About_URL_Categories.txt`; `vendor/zscaler-help/Recommended_URL_`&_Cloud_App_Control_Policy.txt; `vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py`; `vendor/zscaler-sdk-python/zscaler/zia/models/advanced_settings.py`; `vendor/zscaler-sdk-python/zscaler/zia/models/url_filter_cloud_app_settings.py`; `vendor/zscaler-sdk-go/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go`.
+Source: `vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt`; `vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt`; `vendor/zscaler-help/Configuring_Advanced_Policy_Settings.txt`; `vendor/zscaler-help/About_URL_Categories.txt`; `vendor/zscaler-help/Recommended_URL_&_Cloud_App_Control_Policy.txt`; `vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py`; `vendor/zscaler-sdk-python/zscaler/zia/models/advanced_settings.py`; `vendor/zscaler-sdk-python/zscaler/zia/models/url_filter_cloud_app_settings.py`; `vendor/zscaler-sdk-go/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go`.
 
 - **`MISCELLANEOUS_OR_UNKNOWN` URLs.** Uncategorized URLs fall into this bucket. Blocking it can break user experience on newly-encountered legitimate sites. AI/ML Content Categorization (Advanced Policy Settings) can auto-assign predefined categories based on site content; see the list in *Recommended URL & Cloud App Control Policy* pp.1–3.
 - **Newly Registered and Observed Domains (NROD).** Subset of `MISCELLANEOUS_OR_UNKNOWN`; populated by a separate lookup. **Can only be used in URL Filtering rules.** Requires "Enable Suspicious New Domains Lookup" in Advanced Policy Settings. Also covers Newly Revived Domains (sites dormant ~10 days then reactivated).
