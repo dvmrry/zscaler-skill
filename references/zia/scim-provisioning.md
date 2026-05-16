@@ -11,19 +11,17 @@ sources:
   - "vendor/zscaler-help/about-scim-zpa.md"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_user_api.go"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_group_api.go"
-  - "references/shared/scim-provisioning.md"
-  - "references/zpa/scim-policy-mapping.md"
-  - "references/zia/sdk.md"
-  - "references/zia/firewall.md"
-  - "references/zia/url-filtering.md"
-  - "references/zia/forwarding-control.md"
-  - "references/zia/dlp.md"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/filteringrules/filteringrules.go"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/dlp/dlp_web_rules/dlp_web_rules.go"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/forwarding_control_policy/forwarding_rules/forwarding_rules.go"
+  - "vendor/zscaler-sdk-python/zscaler/zia/"
 author-status: draft
 ---
 
 # ZIA SCIM Provisioning — ZIA-specific behavior
 
-This document covers behavior specific to ZIA's SCIM ingestion: how provisioned objects land in ZIA, how SCIM groups relate to ZIA departments, which rule types can match on SCIM-derived identity, and operational constraints and gotchas that are distinct from ZPA.
+This document covers behavior specific to ZIA's SCIM ingestion: how provisioned objects land in ZIA, how SCIM groups relate to ZIA departments, which rule types can match on SCIM-derived identity, and operational constraints and gotchas that are distinct from ZPA. [Source: vendor/zscaler-help/understanding-scim-zia.md; vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_user_api.go]
 
 For protocol-level mechanics (SCIM 2.0 wire format, pagination, authentication, cross-product `active=false` semantics, Okta first-sync gotcha, Python vs Go SDK coverage), see [`../shared/scim-provisioning.md`](../shared/scim-provisioning.md). For ZPA-specific SCIM group-to-policy operand mapping, see [`../zpa/scim-policy-mapping.md`](../zpa/scim-policy-mapping.md).
 
@@ -31,13 +29,13 @@ For protocol-level mechanics (SCIM 2.0 wire format, pagination, authentication, 
 
 ## 1. Scope — what makes ZIA SCIM different from ZPA
 
-ZIA and ZPA both accept SCIM 2.0 pushes from an IdP. Their internal handling diverges in three fundamental ways:
+ZIA and ZPA both accept SCIM 2.0 pushes from an IdP. Their internal handling diverges in three fundamental ways: [Source: vendor/zscaler-help/understanding-scim-zia.md; vendor/zscaler-help/about-scim-zpa.md]
 
-**User deactivation semantics.** When an IdP sends `active=false`, ZIA *disables* the user (the account persists in the database, accessible for re-enabling). ZPA *deletes* the user. A SCIM client sending `active=false` expecting "disabled" semantics gets destructive behavior on ZPA but safe/reversible behavior on ZIA. (Tier A — `vendor/zscaler-help/about-scim-zpa.md`: "When `active=false`, Zscaler deletes this user"; `vendor/zscaler-help/understanding-scim-zia.md`: "When `active=false`, Zscaler disables this user".)
+**User deactivation semantics.** When an IdP sends `active=false`, ZIA *disables* the user (the account persists in the database, accessible for re-enabling). ZPA *deletes* the user. A SCIM client sending `active=false` expecting "disabled" semantics gets destructive behavior on ZPA but safe/reversible behavior on ZIA. [Source: vendor/zscaler-help/understanding-scim-zia.md; vendor/zscaler-help/about-scim-zpa.md]
 
-**Attribute surface.** ZIA's SCIM user schema is smaller and structured differently from ZPA's. ZIA does not expose `costCenter`, `division`, `organization`, `title`, or `userType` as first-class Zscaler fields with policy impact. ZPA supports those fields but the SCIM Attributes page in ZPA is read-only and does not allow custom attributes. ZIA is similarly constrained. (Tier A — both vendor docs.)
+**Attribute surface.** ZIA's SCIM user schema is smaller and structured differently from ZPA's. ZIA does not expose `costCenter`, `division`, `organization`, `title`, or `userType` as first-class Zscaler fields with policy impact. ZPA supports those fields but the SCIM Attributes page in ZPA is read-only and does not allow custom attributes. ZIA is similarly constrained. [Source: vendor/zscaler-help/understanding-scim-zia.md; vendor/zscaler-help/about-scim-zpa.md]
 
-**Group model.** ZPA treats SCIM groups as first-class read-only policy operands (operator filter `SCIM_GROUP` — see [`../zpa/scim-policy-mapping.md`](../zpa/scim-policy-mapping.md)). ZIA does not expose an equivalent `SCIM_GROUP` policy operand. SCIM groups land in ZIA's user database as the `groups` attribute on the user record; the `department` field is a separate object. ZIA policy rules reference users, groups, and departments — not SCIM groups as a distinct concept.
+**Group model.** ZPA treats SCIM groups as first-class read-only policy operands (operator filter `SCIM_GROUP` — see [`../zpa/scim-policy-mapping.md`](../zpa/scim-policy-mapping.md)). ZIA does not expose an equivalent `SCIM_GROUP` policy operand. SCIM groups land in ZIA's user database as the `groups` attribute on the user record; the `department` field is a separate object. ZIA policy rules reference users, groups, and departments — not SCIM groups as a distinct concept. [Source: vendor/zscaler-help/understanding-scim-zia.md; vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_user_api.go]
 
 ---
 
@@ -45,7 +43,7 @@ ZIA and ZPA both accept SCIM 2.0 pushes from an IdP. Their internal handling div
 
 ### Attribute mapping
 
-The following is the ZIA SCIM-to-Zscaler field mapping as documented by the vendor. (Tier A — `vendor/zscaler-help/understanding-scim-zia.md`.)
+The following is the ZIA SCIM-to-Zscaler field mapping as documented by the vendor. [Source: vendor/zscaler-help/understanding-scim-zia.md]
 
 | SCIM attribute | Zscaler field | Notes |
 |---|---|---|
@@ -62,26 +60,26 @@ The following is the ZIA SCIM-to-Zscaler field mapping as documented by the vend
 
 ### What the Go SDK SCIMUser struct reveals
 
-The Go SDK's `SCIMUser` struct (`vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_user_api.go`) exposes four top-level fields on a SCIM user response: `id`, `userName`, `displayName`, and `Meta`. The `department` attribute is nested under the **SCIM Enterprise User extension** schema (`urn:ietf:params:scim:schemas:extension:enterprise:2.0:User`), represented by the `EnterpriseExtension` field. (Tier A — Go SDK source.)
+The Go SDK's `SCIMUser` struct (`vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_user_api.go`) exposes four top-level fields on a SCIM user response: `id`, `userName`, `displayName`, and `Meta`. The `department` attribute is nested under the **SCIM Enterprise User extension** schema (`urn:ietf:params:scim:schemas:extension:enterprise:2.0:User`), represented by the `EnterpriseExtension` field. [Source: vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_user_api.go]
 
-This matters operationally: SCIM connectors that do not emit the Enterprise User extension will not send `department` to ZIA at all, even if they correctly send `userName`, `displayName`, and `groups`. The ZIA user record will have an empty department field, and any ZIA policy rule scoped by department will not match that user. This is one of the most common misconfigurations for tenants migrating from LDAP provisioning.
+This matters operationally: SCIM connectors that do not emit the Enterprise User extension will not send `department` to ZIA at all, even if they correctly send `userName`, `displayName`, and `groups`. The ZIA user record will have an empty department field, and any ZIA policy rule scoped by department will not match that user. This is one of the most common misconfigurations for tenants migrating from LDAP provisioning. [Source: vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_user_api.go; vendor/zscaler-help/understanding-scim-zia.md]
 
 ### Required attributes for ZIA policy evaluation
 
-The vendor doc states only `userName` is marked as a required attribute. (Tier A — `vendor/zscaler-help/understanding-scim-zia.md`: "The domain included in the username must be preregistered with Zscaler.") The domain pre-registration constraint means a SCIM push for `user@example.com` will fail if `example.com` is not registered to the ZIA tenant.
+The vendor doc states only `userName` is marked as a required attribute. The domain pre-registration constraint means a SCIM push for `user@example.com` will fail if `example.com` is not registered to the ZIA tenant. [Source: vendor/zscaler-help/understanding-scim-zia.md]
 
 For identity-aware ZIA policy to function, the following additional attributes are needed:
 
 - `groups` — required if ZIA rules will scope by group.
 - `department` (via Enterprise User extension) — required if ZIA rules will scope by department. Not sent by default by all IdPs; operators must verify the SCIM connector's attribute mapping is configured to emit the Enterprise User extension.
 
-Custom SCIM attributes beyond the documented mapping are not persisted in ZIA. ZIA does not support operator-defined custom attributes on the SCIM user object. (Tier A by inference from ZPA vendor doc's explicit statement about no custom attributes; the ZIA doc does not contradict this.)
+Custom SCIM attributes beyond the documented mapping are not persisted in ZIA. ZIA does not support operator-defined custom attributes on the SCIM user object. This is inferred from the documented ZIA mapping and the ZPA vendor doc's explicit custom-attribute limitation; the ZIA doc does not describe an operator-defined custom attribute surface. [Source: vendor/zscaler-help/understanding-scim-zia.md; vendor/zscaler-help/about-scim-zpa.md]
 
 ---
 
 ## 3. ZIA group vs. department — the SCIM mapping distinction
 
-ZIA's SCIM mapping splits group membership and department into two separate ZIA object types: SCIM groups land in a ZIA group object, and the Enterprise User `department` attribute populates a separate ZIA department object on the user record. ZPA's SCIM mapping carries `department` as a user attribute rather than as a separate object, and ZPA exposes SCIM groups via the `SCIM_GROUP` policy operand (see [`../zpa/scim-policy-mapping.md`](../zpa/scim-policy-mapping.md)).
+ZIA's SCIM mapping splits group membership and department into two separate ZIA object types: SCIM groups land in a ZIA group object, and the Enterprise User `department` attribute populates a separate ZIA department object on the user record. ZPA's SCIM mapping carries `department` as a user attribute rather than as a separate object, and ZPA exposes SCIM groups via the `SCIM_GROUP` policy operand (see [`../zpa/scim-policy-mapping.md`](../zpa/scim-policy-mapping.md)). [Source: vendor/zscaler-help/understanding-scim-zia.md; vendor/zscaler-help/about-scim-zpa.md]
 
 ### How ZIA represents group and department
 
@@ -92,37 +90,37 @@ ZIA maintains two separate identity objects in its user database:
 
 ### What SCIM sends and where it lands
 
-When an IdP sends a SCIM group via `POST /Groups` or `PUT /Groups/{id}`, ZIA stores it as a **ZIA group object** with a Zscaler-generated `id`, a `displayName`, and an `externalId`. The Go SDK `SCIMGroup` struct (`vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_group_api.go`) confirms the fields: `id` (Zscaler UUID), `displayName`, `externalId`, and `members` (list of `{value, $ref}` pairs where `value` is the Zscaler user ID). (Tier A — Go SDK source.)
+When an IdP sends a SCIM group via `POST /Groups` or `PUT /Groups/{id}`, ZIA stores it as a **ZIA group object** with a Zscaler-generated `id`, a `displayName`, and an `externalId`. The Go SDK `SCIMGroup` struct (`vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_group_api.go`) confirms the fields: `id` (Zscaler UUID), `displayName`, `externalId`, and `members` (list of `{value, $ref}` pairs where `value` is the Zscaler user ID). [Source: vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_group_api.go]
 
 When an IdP sends `department` on a user record via the SCIM Enterprise User extension, that string value maps to the user's ZIA `Department` object. ZIA matches the incoming `department` string against the name of an existing ZIA department object. If no ZIA department object with that name exists, the department association may not resolve correctly — the behavior when the department name has no matching ZIA department record is not documented in available sources (deferred — see clarifications register).
 
 ### Key distinction from ZPA
 
-ZPA exposes two distinct policy operand types for SCIM-sourced identity: `SCIM_GROUP` (membership check against a synced group object) and `SCIM` (flat string attribute match). ZIA has no equivalent `SCIM_GROUP` operand type. In ZIA, synced groups become queryable via the standard `groups` criterion on policy rules — the same object type used by manually-created groups. There is no separate "SCIM group as policy operand" concept in ZIA. (Tier A — vendor docs and SDK; Tier A — `vendor/zscaler-help/understanding-scim-zia.md` describes groups landing in the `Groups` field of the user database.)
+ZPA exposes two distinct policy operand types for SCIM-sourced identity: `SCIM_GROUP` (membership check against a synced group object) and `SCIM` (flat string attribute match). ZIA has no equivalent `SCIM_GROUP` operand type. In ZIA, synced groups become queryable via the standard `groups` criterion on policy rules — the same object type used by manually-created groups. There is no separate "SCIM group as policy operand" concept in ZIA. [Source: vendor/zscaler-help/understanding-scim-zia.md; vendor/zscaler-help/about-scim-zpa.md; vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_group_api.go]
 
 ---
 
 ## 4. Which ZIA rule types use SCIM-derived identity as a match condition
 
-ZIA policy rules reference the *resolved ZIA objects* (users, groups, departments) — not raw SCIM constructs. Because SCIM provisioning populates those ZIA objects, SCIM-provisioned identity flows into any rule type that supports user/group/department criteria.
+ZIA policy rules reference the *resolved ZIA objects* (users, groups, departments) — not raw SCIM constructs. Because SCIM provisioning populates those ZIA objects, SCIM-provisioned identity flows into any rule type that supports user/group/department criteria. [Source: vendor/zscaler-help/understanding-scim-zia.md; vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/filteringrules/filteringrules.go; vendor/zscaler-sdk-go/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go]
 
 ### Firewall Filtering (Advanced tier only)
 
-Firewall Filtering rules accept `users` (up to 4), `groups` (up to 8), and `departments` (unlimited) as criteria. These reference the ZIA user, group, and department objects respectively. A SCIM-provisioned user's group memberships and department assignment make them matchable by firewall rules without any additional configuration beyond SCIM sync being active. (Tier A — `references/zia/firewall.md`: "User, Group, Department criteria — Advanced only".)
+Firewall Filtering rules accept `users` (up to 4), `groups` (up to 8), and `departments` (unlimited) as criteria. These reference the ZIA user, group, and department objects respectively. A SCIM-provisioned user's group memberships and department assignment make them matchable by firewall rules without any additional configuration beyond SCIM sync being active. [Source: vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/filteringrules/filteringrules.go]
 
 Note: identity-aware firewall rules require the Advanced Firewall license. Basic Firewall rules can only scope by IP/port/location; they cannot reference SCIM-derived user or group identity.
 
 ### URL Filtering
 
-URL Filtering rules support `users`, `groups`, `departments`, `device_groups`, and `devices` as criteria. Users, groups, and departments populated via SCIM sync are available as criteria in URL filtering rules. The rule references the resolved ZIA object — SCIM-provisioned users are indistinguishable from manually-created users from the rule's perspective. (Tier A — `references/zia/url-filtering.md` and `references/zia/sdk.md`: `add_rule` key ID-list fields include `departments`, `groups`, `users`.)
+URL Filtering rules support `users`, `groups`, `departments`, `device_groups`, and `devices` as criteria. Users, groups, and departments populated via SCIM sync are available as criteria in URL filtering rules. The rule references the resolved ZIA object — SCIM-provisioned users are indistinguishable from manually-created users from the rule's perspective. [Source: vendor/zscaler-sdk-go/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go]
 
 ### DLP (Web DLP Rules)
 
-DLP Web Rules support `departments`, `groups`, `users`, `locations`, and `location_groups` as criteria. The same SCIM-provisioned user/group/department objects are referenced. One constraint documented in the DLP reference: a DLP rule that applies to unauthenticated traffic must set `Any` for both groups and departments — SCIM-derived group/department scoping requires authenticated user context. (Tier A — `references/zia/dlp.md`.)
+DLP Web Rules support `departments`, `groups`, `users`, `locations`, and `location_groups` as criteria. The same SCIM-provisioned user/group/department objects are referenced. One constraint documented in the DLP reference: a DLP rule that applies to unauthenticated traffic must set `Any` for both groups and departments — SCIM-derived group/department scoping requires authenticated user context. [Source: vendor/zscaler-sdk-go/zscaler/zia/services/dlp/dlp_web_rules/dlp_web_rules.go]
 
 ### Forwarding Control
 
-Forwarding Control rules support `users`, `groups`, `departments`, `device_groups`, `locations`, and `location_groups` as criteria. SCIM-provisioned identity flows into forwarding rules in the same way as other rule types. This is operationally relevant for Source IP Anchoring (SIPA) configurations where specific user groups should route through a ZPA gateway rather than default ZIA egress. (Tier A — `references/zia/forwarding-control.md`: "Identity scoping: `users`, `groups`, `departments`, `device_groups`".)
+Forwarding Control rules support `users`, `groups`, `departments`, `device_groups`, `locations`, and `location_groups` as criteria. SCIM-provisioned identity flows into forwarding rules in the same way as other rule types. This is operationally relevant for Source IP Anchoring (SIPA) configurations where specific user groups should route through a ZPA gateway rather than default ZIA egress. [Source: vendor/zscaler-sdk-go/zscaler/zia/services/forwarding_control_policy/forwarding_rules/forwarding_rules.go]
 
 ### Summary table
 
@@ -144,13 +142,13 @@ ZIA's SCIM schema exposes a documented set of attributes (section 2 above). Cust
 
 ### Group membership cap
 
-A single ZIA user cannot belong to more than 128 groups. If an IdP provisions a user with more than 128 group memberships, the behavior above that cap is not documented in available sources — the constraint is stated as a hard limit. (Tier A — `vendor/zscaler-help/understanding-scim-zia.md`: "the total number of groups associated with a single user cannot exceed 128".)
+A single ZIA user cannot belong to more than 128 groups. If an IdP provisions a user with more than 128 group memberships, the behavior above that cap is not documented in available sources — the constraint is stated as a hard limit. [Source: vendor/zscaler-help/understanding-scim-zia.md]
 
 Operationally: tenants with deep LDAP group structures or role-group sprawl in their IdP should audit group counts before enabling SCIM. An IdP-side group consolidation or scoping (provisioning only the groups ZIA actually needs for policy) is the recommended mitigation before hitting this cap.
 
 ### Multi-valued attributes
 
-The `groups` and `emails.value` attributes are multi-valued in SCIM 2.0. ZIA accepts multi-valued `groups` (up to 128 members as noted above) and `emails.value`. Other documented attributes (`userName`, `displayName`, `department`, `name.givenName`, `name.familyName`) are single-valued. (Tier A — attribute mapping table in vendor doc; Tier D inference for single-valued semantics of non-groups fields.)
+The `groups` and `emails.value` attributes are multi-valued in SCIM 2.0. ZIA accepts multi-valued `groups` (up to 128 members as noted above) and `emails.value`. Other documented attributes (`userName`, `displayName`, `department`, `name.givenName`, `name.familyName`) are single-valued. [Source: vendor/zscaler-help/understanding-scim-zia.md; vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_user_api.go]
 
 ### The `department` attribute via Enterprise User extension
 
@@ -160,17 +158,17 @@ As noted in section 2, `department` is delivered via the Enterprise User SCIM ex
 
 ## 6. Push model — IdP initiates all SCIM writes
 
-ZIA's SCIM ingestion is **push-based**: the IdP authenticates to Zscaler's SCIM endpoint and pushes user and group records. ZIA does not poll the IdP. All changes (create, update, delete, membership changes) are initiated by the IdP's SCIM connector. (Tier A — `vendor/zscaler-help/understanding-scim-zia.md`: "There are two ways you can use SCIM with the Zscaler service. Firstly, you can use custom SCIM clients to make REST API calls to Zscaler. Secondly, you can use one of the IdPs partnered with Zscaler.")
+ZIA's SCIM ingestion is **push-based**: the IdP authenticates to Zscaler's SCIM endpoint and pushes user and group records. ZIA does not poll the IdP. All changes (create, update, delete, membership changes) are initiated by the IdP's SCIM connector. [Source: vendor/zscaler-help/understanding-scim-zia.md]
 
 ### Supported connectors
 
-Zscaler publishes per-IdP SCIM configuration guides for: Microsoft Entra ID (formerly Azure Active Directory), Okta, PingFederate, PingOne, Google Workspace, AD FS (SAML only — SCIM guide not listed), OneLogin (SAML only — SCIM guide not listed), CA Single Sign-On (SAML only). Custom SCIM clients using REST API calls directly to Zscaler's SCIM endpoints are also supported. (Tier A — `vendor/zscaler-help/understanding-scim-zia.md` related articles list.)
+Zscaler publishes per-IdP SCIM configuration guides for: Microsoft Entra ID (formerly Azure Active Directory), Okta, PingFederate, PingOne, Google Workspace, AD FS (SAML only — SCIM guide not listed), OneLogin (SAML only — SCIM guide not listed), CA Single Sign-On (SAML only). Custom SCIM clients using REST API calls directly to Zscaler's SCIM endpoints are also supported. [Source: vendor/zscaler-help/understanding-scim-zia.md]
 
 Any SCIM 2.0-compliant IdP can be used, not only the listed partners (e.g., SailPoint). (Tier A — `vendor/zscaler-help/about-scim-zpa.md` states this explicitly for ZPA; ZIA doc implies same by listing a non-exhaustive set.)
 
 ### SAML prerequisite
 
-SCIM in ZIA requires SAML as the authentication method. An organization that authenticates users via a non-SAML method cannot use ZIA SCIM provisioning. (Tier A — `vendor/zscaler-help/understanding-scim-zia.md`: "SAML must be used as your authentication method to use SCIM for provisioning".)
+SCIM in ZIA requires SAML as the authentication method. An organization that authenticates users via a non-SAML method cannot use ZIA SCIM provisioning. [Source: vendor/zscaler-help/understanding-scim-zia.md]
 
 ### IdP-specific notes
 
@@ -182,11 +180,11 @@ The vendor doc calls out no ZIA-specific IdP quirks beyond the general Okta ZPA 
 
 When the IdP marks a user inactive — by sending `active=false` or by deleting the user record — ZIA's behavior differs from ZPA's:
 
-- **`active=false` → ZIA disables the user.** The user record persists. The user cannot authenticate via SAML. Policy evaluations will treat the user as inactive. No session termination is documented as occurring automatically — the user's current session may persist until it expires normally. (Tier A — `vendor/zscaler-help/understanding-scim-zia.md`. Session kill behavior on `active=false` is not stated in the vendor doc; deferred — see clarifications register.)
+- **`active=false` → ZIA disables the user.** The user record persists. The user cannot authenticate via SAML. Policy evaluations will treat the user as inactive. No session termination is documented as occurring automatically — the user's current session may persist until it expires normally. [Source: vendor/zscaler-help/understanding-scim-zia.md]
 
-- **`active=true` → ZIA re-enables the user.** Because ZIA preserves the user record on `active=false`, re-enabling is a simple attribute flip. This contrasts sharply with ZPA where `active=false` deletes the user and re-activation requires a full re-provisioning cycle.
+- **`active=true` → ZIA re-enables the user.** Because ZIA preserves the user record on `active=false`, re-enabling is a simple attribute flip. This contrasts sharply with ZPA where `active=false` deletes the user and re-activation requires a full re-provisioning cycle. [Source: vendor/zscaler-help/understanding-scim-zia.md; vendor/zscaler-help/about-scim-zpa.md]
 
-- **`DELETE /Users/{id}` → ZIA removes the user.** A hard delete via the SCIM DELETE verb removes the user record from ZIA. This is distinct from the soft-disable path above.
+- **`DELETE /Users/{id}` → ZIA removes the user.** A hard delete via the SCIM DELETE verb removes the user record from ZIA. This is distinct from the soft-disable path above. [Source: vendor/zscaler-help/understanding-scim-zia.md; vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_user_api.go]
 
 ### Why this matters in practice
 
@@ -202,7 +200,7 @@ SCIM sync in ZIA is IdP-driven. The frequency of group membership updates depend
 
 ### Idempotency
 
-ZIA SCIM endpoints support both `PUT` (full replace) and `PATCH` (partial update) for users and groups. The `/Bulk` endpoint (`POST /Bulk`) is available for high-volume provisioning operations, reducing the number of individual requests needed during large group membership changes. (Tier A — `vendor/zscaler-help/understanding-scim-zia.md` operations table.)
+ZIA SCIM endpoints support both `PUT` (full replace) and `PATCH` (partial update) for users and groups. The `/Bulk` endpoint (`POST /Bulk`) is available for high-volume provisioning operations, reducing the number of individual requests needed during large group membership changes. [Source: vendor/zscaler-help/understanding-scim-zia.md; vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_user_api.go; vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_group_api.go]
 
 ### Rate limiting
 
@@ -210,7 +208,7 @@ ZIA API rate limits apply to SCIM endpoints. ZIA's general rate limit is 20 GET 
 
 ### Pagination cap
 
-The `GET /Users` and `GET /Groups` endpoints return up to 1,000 entries per response. Use `startIndex` to paginate. The Go SDK's `GetAllUsers` and `GetAllGroups` functions use a page size of 100 via the `/.search` POST endpoint, consistent with the comment in the source: "100 // max per Zscaler SCIM API". (Tier A — Go SDK source and `vendor/zscaler-help/understanding-scim-zia.md` operations table.)
+The `GET /Users` and `GET /Groups` endpoints return up to 1,000 entries per response. Use `startIndex` to paginate. The Go SDK's `GetAllUsers` and `GetAllGroups` functions use a page size of 100 via the `/.search` POST endpoint, consistent with the comment in the source: "100 // max per Zscaler SCIM API". [Source: vendor/zscaler-help/understanding-scim-zia.md; vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_user_api.go; vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_group_api.go]
 
 ---
 
@@ -229,7 +227,7 @@ SAML attributes and SCIM attributes arrive via completely different mechanisms:
 
 Operators commonly ask why a user's group membership or department "changed in Okta but ZIA policy is still wrong." When SCIM is active, ZIA uses the SCIM-provisioned group and department values, not what's in the SAML assertion at login. If SCIM sync is delayed, ZIA policy will evaluate against stale group/department data even if the user's current SAML assertion contains updated attributes. This is the reverse of the ZPA problem where stale SCIM data can cause policy mismatches — in ZIA the same timing gap can manifest as stale department/group policy matches.
 
-The `userName` field must match the SAML `nameID` for the authentication to succeed and for ZIA to link the SAML session to the SCIM-provisioned user record. If these diverge (e.g., because a user's email address changed and only the SAML nameID was updated), the SCIM-provisioned record will not be linked to the user's session. (Tier A — `vendor/zscaler-help/understanding-scim-zia.md`: attribute mapping confirms `userName` = `login_name` = User ID used for authentication; cross-reference with ZPA doc's explicit `nameID` match requirement in `vendor/zscaler-help/about-scim-zpa.md`.)
+The `userName` field must match the SAML `nameID` for the authentication to succeed and for ZIA to link the SAML session to the SCIM-provisioned user record. If these diverge (e.g., because a user's email address changed and only the SAML nameID was updated), the SCIM-provisioned record will not be linked to the user's session. [Source: vendor/zscaler-help/understanding-scim-zia.md; vendor/zscaler-help/about-scim-zpa.md]
 
 ---
 
@@ -259,11 +257,11 @@ Custom SCIM clients authenticate to ZIA's SCIM endpoints using the same OAuth 2.
 
 ### First-time provisioning sync size
 
-For large tenants, the initial SCIM provisioning push may involve thousands of user and group records. The `/Bulk` endpoint (`POST /Bulk`) reduces round-trip overhead for large initial syncs. Operators should monitor the IdP's provisioning logs for error counts rather than treating the first sync as a fire-and-forget operation. ZIA admin console visibility into SCIM sync errors is not detailed in available vendor sources. (Tier A for Bulk endpoint existence; visibility into errors is deferred — see clarifications register.)
+For large tenants, the initial SCIM provisioning push may involve thousands of user and group records. The `/Bulk` endpoint (`POST /Bulk`) reduces round-trip overhead for large initial syncs. Operators should monitor the IdP's provisioning logs for error counts rather than treating the first sync as a fire-and-forget operation. ZIA admin console visibility into SCIM sync errors is not detailed in available vendor sources. [Source: vendor/zscaler-help/understanding-scim-zia.md]
 
 ### ZIA user database as the policy resolution layer
 
-ZIA policy rules reference ZIA user, group, and department *objects* (by their Zscaler-side integer IDs). SCIM provisioning creates and updates these objects. When a SCIM connector is configured to scope only a subset of groups or users (a common IdP setting to limit what gets pushed to a given application), groups not in scope are never created in ZIA. ZIA policy rules that reference those groups will silently never match anyone. Unlike ZPA (which surfaces this as a stale-group reference issue), ZIA's problem manifests as "the group doesn't exist in the policy dropdown at all."
+ZIA policy rules reference ZIA user, group, and department *objects* (by their Zscaler-side integer IDs). SCIM provisioning creates and updates these objects. When a SCIM connector is configured to scope only a subset of groups or users (a common IdP setting to limit what gets pushed to a given application), groups not in scope are never created in ZIA. ZIA policy rules that reference those groups will silently never match anyone. Unlike ZPA (which surfaces this as a stale-group reference issue), ZIA's problem manifests as "the group doesn't exist in the policy dropdown at all." [Source: vendor/zscaler-help/understanding-scim-zia.md; vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_group_api.go]
 
 ### Department name matching — potential silent failure
 
@@ -271,7 +269,7 @@ The `department` SCIM attribute is a string. ZIA matches it to an existing ZIA d
 
 ### `department` requires the Enterprise User SCIM extension
 
-As noted in section 2 and 5, the `department` attribute is carried in `urn:ietf:params:scim:schemas:extension:enterprise:2.0:User`. Some SCIM connectors send only the core schema (`urn:ietf:params:scim:schemas:core:2.0:User`) by default. Operators must verify their IdP's attribute mapping configuration includes the Enterprise User extension and maps the department attribute.
+As noted in section 2 and 5, the `department` attribute is carried in `urn:ietf:params:scim:schemas:extension:enterprise:2.0:User`. Some SCIM connectors send only the core schema (`urn:ietf:params:scim:schemas:core:2.0:User`) by default. Operators must verify their IdP's attribute mapping configuration includes the Enterprise User extension and maps the department attribute. [Source: vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_user_api.go]
 
 ### `active=false` does not immediately kill sessions
 
@@ -283,7 +281,7 @@ Disabling or deleting a ZIA user via SCIM removes their access going forward but
 
 ### Python SDK gap for ZIA SCIM
 
-The Python SDK has no `scim_api` module for ZIA. Programmatic SCIM operations against ZIA (user or group CRUD via the SCIM endpoints) require either the Go SDK (`vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/`) or direct HTTP. This is a notable parity gap since the Python SDK covers most other ZIA services. (Tier A — `references/shared/scim-provisioning.md § Cross-SDK parity`.)
+The Python SDK has no `scim_api` module for ZIA. Programmatic SCIM operations against ZIA (user or group CRUD via the SCIM endpoints) require either the Go SDK (`vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/`) or direct HTTP. This is a notable parity gap since the Python SDK covers most other ZIA services. [Source: vendor/zscaler-sdk-python/zscaler/zia/; vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/]
 
 ---
 
