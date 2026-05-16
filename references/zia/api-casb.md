@@ -135,7 +135,7 @@ Quarantine moves a file from its original location in the SaaS platform to a des
 
 ## 3. Configuration surface
 
-Source: `vendor/zscaler-sdk-python/zscaler/zia/saas_security_api.py`; `vendor/zscaler-sdk-python/zscaler/zia/casb_dlp_rules.py`; `vendor/zscaler-sdk-go/zscaler/zia/services/saas_security_api/`; `vendor/terraform-provider-zia/docs/resources/zia_casb_dlp_rules.md`; `vendor/terraform-provider-zia/docs/resources/zia_casb_malware_rules.md`; `vendor/terraform-provider-zia/docs/data-sources/zia_casb_tenant.md`.
+Source: `vendor/zscaler-sdk-python/zscaler/zia/saas_security_api.py`; `vendor/zscaler-sdk-python/zscaler/zia/casb_dlp_rules.py`; `vendor/zscaler-sdk-go/zscaler/zia/services/saas_security_api/saas_security_api.go`; `vendor/zscaler-sdk-go/zscaler/zia/services/saas_security_api/casb_dlp_rules/casb_dlp_rules.go`; `vendor/zscaler-sdk-go/zscaler/zia/services/saas_security_api/casb_malware_rules/casb_malware_rules.go`; `vendor/terraform-provider-zia/docs/resources/zia_casb_dlp_rules.md`; `vendor/terraform-provider-zia/docs/resources/zia_casb_malware_rules.md`; `vendor/terraform-provider-zia/docs/data-sources/zia_casb_tenant.md`.
 
 ### Tenant connection
 
