@@ -29,8 +29,6 @@ Source: vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md.
 
 Microsoft Azure AD (Entra ID) Conditional Access supports policies that gate access to M365 applications based on the source IP address of the authentication request. A typical corporate policy marks a set of organization-controlled IP ranges as a Named Location in Azure AD and then requires that users authenticate only from those locations — or applies step-up authentication (MFA) when users are outside them. Some policies outright block authentication from unknown IPs.
 
-Source: vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md.
-
 Under a normal ZIA deployment, user traffic egresses through Zscaler's shared Public Service Edge (PSE) cloud IPs. Those IPs are not the customer's Named Location IPs. Azure AD evaluates the PSE IP against the Named Locations list, finds no match, and either blocks access or forces unintended MFA step-up — even for users who are physically at a corporate location or connected to the corporate VPN.
 
 Source: vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md; vendor/zscaler-help/understanding-source-ip-anchoring.md.
@@ -228,8 +226,6 @@ The core contract of this integration is that Azure AD's Named Locations entry m
 - Cloud VM lifecycle events (instance replacement, autoscaling, re-deployment from an updated image) can cause IP reassignment if static IPs are not locked to the instance.
 - If a connector is replaced or redeployed without the same static IP assignment, the Named Locations entry becomes stale. CA policy breaks for all users until an admin updates Azure AD.
 - The `app_connector_schedule` automated deletion of inactive connectors can retire a connector VM; if the replacement VM gets a new IP, the same staleness problem occurs.
-
-Source: vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md; vendor/zscaler-help/understanding-source-ip-anchoring.md.
 
 There is no automated mechanism in ZIA, ZPA, or Azure AD that synchronizes App Connector IPs with Named Locations. This is an operator responsibility inferred from the SIPA design and the Microsoft Named Locations dependency.
 

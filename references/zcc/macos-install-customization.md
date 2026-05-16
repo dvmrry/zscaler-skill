@@ -151,8 +151,6 @@ All parameters below are sourced from the Zscaler macOS deployment-parameter tab
 | `launchTray` | Integer | `1` | `1` = ZCC starts its services and UI automatically after installation (default). `0` = ZCC does not start automatically after installation; the user must open ZCC manually, or ZCC starts automatically on the next reboot. |
 | `externalRedirect` | Integer | `0` | `1` = redirect SAML authentication to the organization's IdP through the default browser and Safari. On first redirect, the user must select "Remember Me" on the IdP login page; subsequent authentications proceed without prompts. `0` = in-app authentication flow. |
 
-Source: vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.md.
-
 **Parameter cross-reference:** For semantics shared with Windows (including `strictEnforcement` gotchas, `policyToken` lifecycle, and `externalDeviceId` version requirements), see [`./install-parameters.md`](./install-parameters.md).
 
 ---

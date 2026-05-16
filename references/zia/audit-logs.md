@@ -339,14 +339,10 @@ Source: vendor/zscaler-sdk-go/zscaler/zia/services/eventlogentryreport/eventloge
 
 4. **NSS/SIEM streaming for ZIA admin audit logs** — no NSS feed type for admin audit logs is visible in available sources. NSS covers traffic logs (web, firewall); admin audit logs appear to be pull-only via the `auditlogEntryReport` API. Not confirmed from available sources.
 
-Source: vendor/zscaler-help/admin-rbac-captures.md.
-
 5. **Resolved 2026-04-26.** CSV column names confirmed from help portal capture: Timestamp, Action, Category, Sub-Category, Resource, Admin ID, Client IP, Interface (Admin UI or API), Trace ID, Result (success/failure).
 
 6. **Pagination semantics** — the `page` and `pageSize` fields appear in the request schema. The Go SDK's `ReadAllPages` helper would handle pagination, but the ZIA admin audit log report endpoint uses an async request model (POST to queue → poll status → GET download) rather than a direct paginated list. Whether the downloaded CSV itself is paginated or returned in full is not confirmed.
 
 7. **`targetOrgId` usage** — the Go SDK struct includes `targetOrgId` suggesting MSP/partner-mode audit access across managed organizations. Full semantics not confirmed from available sources.
-
-Source: vendor/zscaler-help/admin-rbac-captures.md.
 
 8. **Resolved 2026-04-26.** Retention period is 6 months. Whether the window is rolling or absolute, and whether it can be extended via subscription, is not confirmed.

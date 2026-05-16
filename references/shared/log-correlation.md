@@ -81,8 +81,6 @@ LSS retention: Zscaler retains User Activity, User Status, and App Connector log
 
 **mTLS encryption**: LSS supports mutual TLS between the App Connector and the log receiver. The log receiver must have a certificate signed by a public root CA. The App Connector trusts public root CAs and custom CAs used as its enrollment certificate.
 
-Source: vendor/zscaler-help/about-log-streaming-service.md.
-
 **Delivery guarantee**: LSS does not guarantee delivery during a connection loss. After reconnection, it can retransmit the **last 15 minutes** of log data, but delivery of that retransmitted data is not guaranteed. Audit log data is not retransmitted after a connection loss.
 
 ### ZCC — client-side operational logs (not streamed)
@@ -339,8 +337,6 @@ LSS path: ZPA Zero Trust Exchange -> Public Service Edge -> App Connector -> log
 Two components required in the customer environment:
 - **Log receiver**: a syslog-capable host (Splunk HEC, syslog daemon, etc.) with a public-root-CA-signed certificate for mTLS.
 - **App Connector**: already deployed for ZPA application access; also handles LSS forwarding.
-
-Source: vendor/zscaler-help/about-log-streaming-service.md.
 
 LSS traffic uses mTLS between App Connector and the log receiver. The App Connector trusts public-root-CA-signed certs and any custom CA used as its enrollment CA.
 

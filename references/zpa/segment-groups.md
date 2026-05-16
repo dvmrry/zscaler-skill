@@ -279,9 +279,9 @@ Source: `vendor/zscaler-sdk-python/zscaler/zpa/segment_groups.py`.
 
 **Resource Management > Application Management > Segment Groups**
 
-From the page you can view, add, filter, edit, delete, expand rows to see member App Segments, and view a configuration graph of connected objects. The "Incomplete Configuration" icon appears next to a group with missing required fields. Source: `vendor/zscaler-help/about-segment-groups.md`.
-
 Source: `vendor/zscaler-help/about-segment-groups.md`.
+
+From the page you can view, add, filter, edit, delete, expand rows to see member App Segments, and view a configuration graph of connected objects. The "Incomplete Configuration" icon appears next to a group with missing required fields.
 
 ---
 

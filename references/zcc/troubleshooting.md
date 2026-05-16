@@ -247,6 +247,8 @@ What tunnel mode is active on this device?
 
 ### 5.1 ZCC log bundle (all platforms)
 
+Source: vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md; vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md.
+
 The primary support artifact is the encrypted log bundle sent via "Report an Issue" within ZCC.
 
 **User-initiated (preferred)**:
@@ -256,7 +258,7 @@ The primary support artifact is the encrypted log bundle sent via "Report an Iss
 3. Fill in the description and submit. An email with encrypted logs attached is sent to the admin email configured in App Supportability settings.
 4. If "Enable End User Ticket Submission to Zscaler" is enabled, a ticket is automatically opened with Zscaler Support.
 
-Only Zscaler can decrypt logs submitted through this path. Source: `vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md`.
+Only Zscaler can decrypt logs submitted through this path.
 
 **Admin-initiated log fetch** (Client Connector Portal):
 
@@ -264,7 +266,7 @@ Only Zscaler can decrypt logs submitted through this path. Source: `vendor/zscal
 2. Open the Device Details tab for the target device.
 3. Click "Fetch Logs."
 
-This pulls a log bundle from the enrolled device directly into the portal. Source: `vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md`.
+This pulls a log bundle from the enrolled device directly into the portal.
 
 **Log mode levels** (set per App Profile, or changed by user if logging controls are not hidden):
 
@@ -276,7 +278,7 @@ This pulls a log bundle from the enrolled device directly into the portal. Sourc
 | Debug | All activity useful for Zscaler Support debugging + Info conditions |
 | Verbose | All of Debug + events triggered by Firebase Push Notification or Mobile Manager flags (Android 1.5+ only) |
 
-For active troubleshooting, set log mode to Debug before reproducing the issue. Source: `vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md`.
+For active troubleshooting, set log mode to Debug before reproducing the issue.
 
 ### 5.2 Windows — OS-level logs
 
