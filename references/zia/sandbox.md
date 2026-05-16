@@ -5,7 +5,7 @@ title: "ZIA Sandbox — what gets analyzed, what blocks, and why"
 content-type: reasoning
 last-verified: "2026-04-24"
 confidence: medium
-source-tier: doc
+source-tier: mixed
 sources:
   - "vendor/zscaler-mcp-server/commands/investigate-sandbox.md"
   - "vendor/zscaler-mcp-server/skills/zia/investigate-sandbox/SKILL.md"
@@ -21,6 +21,8 @@ author-status: draft
 # ZIA Sandbox behavior
 
 The Sandbox module (Cloud Sandbox / Advanced Sandbox) subjects suspicious files to dynamic behavioral analysis before allowing or blocking them. This doc captures operational reasoning patterns distilled from the Zscaler MCP server's `investigate-sandbox` workflow — things the help site doesn't clearly enumerate.
+
+> **Source caveat:** workflow sections in this file are MCP-derived operational patterns, not direct help-portal product guarantees. Treat them as medium-confidence triage guidance unless the same section also cites Zscaler help, SDK, or Terraform provider evidence.
 
 ## What actually gets analyzed — Basic vs Advanced
 

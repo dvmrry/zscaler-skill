@@ -51,7 +51,7 @@ We've vendored the relevant captures under `vendor/zscaler-help/automate-zscaler
 
 Source: `vendor/zscaler-help/automate-zscaler/api-authentication-overview.md`; `vendor/zscaler-help/legacy-api-authentication.md`.
 
-See also: product-specific legacy auth docs listed in frontmatter.
+Related references: [`legacy-api.md`](./legacy-api.md), [`../zia/api.md`](../zia/api.md), [`../zpa/api.md`](../zpa/api.md), [`../zcc/api.md`](../zcc/api.md), and [`../zdx/api.md`](../zdx/api.md).
 
 OneAPI is the modern path. **Four legacy paths still exist** because (a) gov-cloud tenants don't have OneAPI, (b) some products were never OneAPI-migrated (ZDX, ZCC pre-OneAPI), and (c) plenty of tenants haven't migrated to ZIdentity yet. Operational reality: any code touching multiple Zscaler products today must be prepared to deal with 2–3 different auth flows.
 
@@ -236,7 +236,7 @@ The returned JWT is used as a bearer token on subsequent ZCC API calls.
 
 Source: `vendor/zscaler-help/automate-zscaler/guides-understanding-oneapi.md`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
-See also: legacy API docs listed in frontmatter.
+Related references: [`legacy-api.md`](./legacy-api.md), [`../zia/api.md`](../zia/api.md), [`../zpa/api.md`](../zpa/api.md), [`../zcc/api.md`](../zcc/api.md), and [`../zdx/api.md`](../zdx/api.md).
 
 Single host, per-product paths:
 
@@ -467,7 +467,7 @@ Note: This section summarizes the cited OneAPI mechanics above.
 
 Source: `vendor/zscaler-help/legacy-api-authentication.md`.
 
-See also: product-specific legacy auth docs listed in frontmatter.
+Related references: [`legacy-api.md`](./legacy-api.md), [`../zia/api.md`](../zia/api.md), [`../zpa/api.md`](../zpa/api.md), [`../zcc/api.md`](../zcc/api.md), and [`../zdx/api.md`](../zdx/api.md).
 
 Legacy authentication covers the pre-OneAPI, pre-ZIdentity API auth patterns for ZIA and ZPA. These paths remain in active use for gov-cloud tenants, pre-ZIdentity tenants, and code written before OneAPI shipped.
 

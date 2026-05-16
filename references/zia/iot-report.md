@@ -328,7 +328,7 @@ Same situation as Firewall. URL Filtering rules can be scoped to the IoT Traffic
 
 ## 5. Common gotchas
 
-Source: `vendor/zscaler-help/about-iot-report.md`; `vendor/zscaler-help/adding-rules-cloud-app-control-policy.md`; `vendor/zscaler-help/configuring-dynamic-location-groups.md`; `vendor/zscaler-sdk-python/zscaler/zins/iot.py`; `vendor/zscaler-mcp-server/zscaler_mcp/tools/zins/iot.py`.
+Source: `vendor/zscaler-help/about-iot-report.md`; `vendor/zscaler-help/adding-rules-cloud-app-control-policy.md`; `vendor/zscaler-help/configuring-dynamic-location-groups.md`; `vendor/zscaler-sdk-python/zscaler/zins/iot.py`.
 
 ### Classification accuracy degrades without sufficient traffic
 

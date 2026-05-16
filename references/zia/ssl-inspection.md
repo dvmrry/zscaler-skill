@@ -224,7 +224,7 @@ These ZIA security features require decrypted traffic to function at all (*Leadi
 
 Source: `vendor/zscaler-help/ZIA_SSL_Inspection_Leading_Practices_Guide.txt`; `vendor/zscaler-help/SSL_Inspection_Deployment_and_Operations_Guide.txt`.
 
-See also: Duo sources listed in frontmatter.
+Related Duo references: `https://duo.com/docs/duo-desktop` and Duo KB 9585.
 
 Even with SSL inspection enabled, certain traffic resists interception:
 
@@ -242,7 +242,7 @@ Even with SSL inspection enabled, certain traffic resists interception:
 
 Source: `vendor/zscaler-help/SSL_Inspection_Deployment_and_Operations_Guide.txt`; `vendor/zscaler-help/ZIA_SSL_Inspection_Leading_Practices_Guide.txt`.
 
-See also: Duo sources listed in frontmatter.
+Related Duo references: `https://duo.com/docs/duo-desktop` and Duo KB 9585.
 
 Beyond the OS trust store, several application classes maintain their own — installing the Zscaler root in the OS isn't enough. (*Leading Practices Guide*, pp.6, 24, 25–26; *SSL Inspection Deployment & Operations Guide*, p.2; Zscaler "SSL Inspection in Developer Environments" blog.)
 

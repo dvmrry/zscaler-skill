@@ -28,7 +28,7 @@ Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewal
 
 Splunk syntax reference: https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference.
 
-See also: Zscaler log-schema references listed in frontmatter.
+Related references: [`../zia/logs/web-log-schema.md`](../zia/logs/web-log-schema.md), [`../zia/logs/firewall-log-schema.md`](../zia/logs/firewall-log-schema.md), [`../zia/logs/dns-log-schema.md`](../zia/logs/dns-log-schema.md), and [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md).
 
 The patterns use **NSS-native field names** as documented in the Zscaler log schemas (e.g. `%s{url}` → search field `url`). If the Zscaler Technology Add-on for Splunk is installed, it aliases NSS fields to Splunk CIM-compatible names (e.g. `dest_host`, `ruleLabel`). The patterns below should still work in most deployments; if a field name doesn't match your tenant's Splunk config, check `props.conf` / `transforms.conf` in the Zscaler TA to see the exact aliasing.
 
@@ -38,7 +38,7 @@ Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewal
 
 Splunk syntax reference: https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference.
 
-See also: `agents/siem-emission-discipline.md` and Zscaler log-schema references listed in frontmatter.
+Related references: [`../../agents/siem-emission-discipline.md`](../../agents/siem-emission-discipline.md), [`../zia/logs/web-log-schema.md`](../zia/logs/web-log-schema.md), [`../zia/logs/firewall-log-schema.md`](../zia/logs/firewall-log-schema.md), [`../zia/logs/dns-log-schema.md`](../zia/logs/dns-log-schema.md), and [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md).
 
 - `$INDEX_ZIA_WEB` / `$INDEX_ZIA_FW` / `$INDEX_ZIA_DNS` / `$INDEX_ZPA` — the Splunk indexes receiving each log stream. Tenant-specific; read from env vars at query time — see **Tenant-portable index naming** below.
 - `$URL`, `$HOSTNAME`, `$USER`, `$CATEGORY` — user-supplied parameters for a given question.
@@ -46,7 +46,7 @@ See also: `agents/siem-emission-discipline.md` and Zscaler log-schema references
 
 ## Field-semantics caveat for query authors
 
-See also: Zscaler log-schema references listed in frontmatter.
+Related references: [`../zia/logs/web-log-schema.md`](../zia/logs/web-log-schema.md), [`../zia/logs/firewall-log-schema.md`](../zia/logs/firewall-log-schema.md), [`../zia/logs/dns-log-schema.md`](../zia/logs/dns-log-schema.md), and [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md).
 
 Many of the patterns below filter on field values that look obvious by name (`action`, `riskscore`, `aggregate`, `urlcat`, `reqaction`, `EnforcementDisposition`, …) but carry undocumented semantics that can produce surprising query results. Before deploying a pattern in production:
 
@@ -80,7 +80,7 @@ Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewal
 
 Splunk syntax reference: https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference.
 
-See also: Zscaler log-schema references listed in frontmatter.
+Related references: [`../zia/logs/web-log-schema.md`](../zia/logs/web-log-schema.md), [`../zia/logs/firewall-log-schema.md`](../zia/logs/firewall-log-schema.md), [`../zia/logs/dns-log-schema.md`](../zia/logs/dns-log-schema.md), and [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md).
 
 ### `url-coverage-check`
 
@@ -443,7 +443,7 @@ Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewal
 
 Splunk syntax reference: https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference.
 
-See also: Zscaler log-schema references listed in frontmatter. Splunk TA behavior is deployment-specific and should be verified in tenant Splunk config.
+Related references: [`../zia/logs/web-log-schema.md`](../zia/logs/web-log-schema.md), [`../zia/logs/firewall-log-schema.md`](../zia/logs/firewall-log-schema.md), and [`../zia/logs/dns-log-schema.md`](../zia/logs/dns-log-schema.md). Splunk TA behavior is deployment-specific and should be verified in tenant Splunk config.
 
 The **Zscaler Internet Security for Splunk** add-on (Splunk App ID: 3865, available on Splunkbase at `https://splunkbase.splunk.com/app/3865`) provides:
 
@@ -519,7 +519,7 @@ Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/Understandi
 
 Splunk syntax reference: https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference.
 
-See also: `references/shared/siem-log-mapping.md` and ZIA web-log schema references listed in frontmatter.
+Related references: [`./siem-log-mapping.md`](./siem-log-mapping.md) and [`../zia/logs/web-log-schema.md`](../zia/logs/web-log-schema.md).
 
 ZCC diagnostic logs are local to the endpoint and are not streamed to Splunk. However, ZIA web logs capture ZCC-forwarded traffic and carry device-level fields — so the SIEM-queryable view of "what was a ZCC device doing" lives entirely in ZIA NSS.
 
@@ -645,7 +645,7 @@ Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewal
 
 Splunk syntax reference: https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference.
 
-See also: Zscaler log-schema references listed in frontmatter; `references/shared/siem-log-mapping.md`.
+Related references: [`../zia/logs/web-log-schema.md`](../zia/logs/web-log-schema.md), [`../zia/logs/firewall-log-schema.md`](../zia/logs/firewall-log-schema.md), [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md), and [`./siem-log-mapping.md`](./siem-log-mapping.md).
 
 **Purpose:** Given a username and time window, reconstruct what the user was doing by pulling correlated events across ZIA Web, ZIA Firewall, and ZPA Access in a single timeline. Useful for "what happened during this 30-minute window for user X" investigations.
 
