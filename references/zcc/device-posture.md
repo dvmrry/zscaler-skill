@@ -19,11 +19,15 @@ This is the ZCC-specific implementation doc for device posture profiles. It cove
 
 ## What a device posture profile is in ZCC
 
+Source: vendor/zscaler-help/about-device-posture-profiles.md; vendor/zscaler-help/configuring-device-posture-profiles.md.
+
 A device posture profile is a named set of criteria that ZCC evaluates **on the endpoint**. The result — pass or fail — is attached to the active tunnel and surfaced to ZIA (as a Trust Level) and ZPA (as an Access Policy condition). Profiles are defined in the admin console at **Policies > Common Configuration > Resources > Device Posture**; defined once, referenced by both products.
 
 The key ZCC-specific point: ZCC is the evaluator. Neither ZPA nor ZIA independently inspect the device; they receive ZCC's reported result and act on it. This means evaluation cadence (when ZCC runs the check) and staleness (how old a result can be before it affects policy) are entirely ZCC-side concerns.
 
 ## Posture check types
+
+Source: vendor/zscaler-help/about-device-posture-profiles.md; vendor/zscaler-help/configuring-device-posture-profiles.md; vendor/zscaler-help/configuring-client-certificate-posture-check-linux.md.
 
 The full catalog of posture types ZCC supports. Not all work on all platforms — the admin console disables unsupported combinations at profile-creation time. For the per-platform compatibility matrix see [`../shared/device-posture.md § Posture types`](../shared/device-posture.md).
 
@@ -60,6 +64,8 @@ The full catalog of posture types ZCC supports. Not all work on all platforms �
 
 ## Evaluation cadence
 
+Source: vendor/zscaler-help/about-device-posture-profiles.md; vendor/zscaler-help/configuring-device-posture-profiles.md.
+
 **Default:** ZCC evaluates all posture profiles every **15 minutes**. New connections pick up the updated result; existing connections are not retroactively affected.
 
 **Configurable frequency** (per-profile, in the Frequency field):
@@ -86,6 +92,8 @@ Immediate evaluation is on by default; it can be disabled by Zscaler Support. Al
 **Operational implication of cadence:** a policy change pushed to the admin console does not take effect on already-connected devices until their next evaluation tick (up to 15 minutes), and even then only for new connections. A user who was connected before the posture policy tightened keeps their tunnel until it naturally drops. See [`../shared/device-posture.md § The "existing connections are not affected" rule`](../shared/device-posture.md) for ZPA Reauth Timeout as the bound.
 
 ## Per-OS specifics
+
+Source: vendor/zscaler-help/about-device-posture-profiles.md; vendor/zscaler-help/configuring-device-posture-profiles.md; vendor/zscaler-help/configuring-client-certificate-posture-check-linux.md.
 
 ### Linux
 
@@ -127,6 +135,8 @@ Posture support is minimal: **OS Version** and **Zscaler Client Connector Versio
 
 ## Profile assignment and consumption
 
+Source: vendor/zscaler-help/about-device-posture-profiles.md; vendor/zscaler-help/configuring-device-posture-profiles.md.
+
 Posture profiles are defined centrally and consumed in two places:
 
 1. **ZPA Access Policies** — a rule references a profile ID with a pass/fail condition. First-match-wins evaluation across rules. See [`../shared/device-posture.md § How ZPA Access Policies consume posture`](../shared/device-posture.md).
@@ -135,6 +145,8 @@ Posture profiles are defined centrally and consumed in two places:
 There is no direct link between a posture profile and a forwarding profile or web policy in the ZCC object model. The forwarding profile (see [`./forwarding-profile.md`](./forwarding-profile.md)) governs traffic routing; posture results are consumed downstream by ZPA/ZIA policy, not by the forwarding profile itself. Trusted-network evaluation (see [`./trusted-networks.md`](./trusted-networks.md)) is a separate, parallel signal.
 
 ## Failure modes
+
+Source: vendor/zscaler-help/about-device-posture-profiles.md; vendor/zscaler-help/configuring-device-posture-profiles.md; vendor/zscaler-help/configuring-client-certificate-posture-check-linux.md.
 
 **Posture evaluation failure (ZCC can't run the check):**
 If ZCC fails to evaluate a check — e.g., it can't access the registry, or the certificate path isn't readable — the result is treated as a failed posture. On Linux, a private key file with non-root-readable permissions (when Non-Exportable Private Key is enabled) explicitly triggers this: ZCC detects the permission violation and reports posture failure rather than reading the key.
