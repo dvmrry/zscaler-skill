@@ -181,6 +181,12 @@ def audit_class_for_path(path: Path, text: str) -> str:
     return "reference"
 
 
+def should_warn_directory_sources(path: Path, text: str) -> bool:
+    """Directory sources are expected in API catalog docs that inventory SDK surfaces."""
+    topic = frontmatter_field(text, "topic").strip('"').lower()
+    return not topic.endswith("-api")
+
+
 def is_attention_candidate(score: FileScore, threshold: float, large_paragraphs: int) -> bool:
     if score.audit_class not in {"reference", "reasoning"}:
         return False
@@ -275,6 +281,8 @@ def issue(rel: str, line: int, kind: str, text: str) -> SourceIssue:
 def audit_source_quality(path: Path, include_style: bool = False) -> list[SourceIssue]:
     text = path.read_text(encoding="utf-8", errors="replace")
     rel = str(path.relative_to(REPO_ROOT))
+    audit_class = audit_class_for_path(path, text)
+    warn_directory_sources = should_warn_directory_sources(path, text)
     issues: list[SourceIssue] = []
     lines = iter_scannable_lines(text)
     line_lookup = {line_number: line for line_number, line in lines}
@@ -333,7 +341,7 @@ def audit_source_quality(path: Path, include_style: bool = False) -> list[Source
                 issues.append(issue(rel, line_number, "live-url-source", line.strip()))
 
             for source_path in SOURCE_PATH_RE.findall(source_text):
-                if source_path.endswith("/"):
+                if source_path.endswith("/") and warn_directory_sources:
                     issues.append(issue(rel, line_number, "directory-source", line.strip()))
                 if "/test" in source_path or source_path.endswith("_test.go") or "/tests/" in source_path:
                     issues.append(issue(rel, line_number, "weak-test-source", line.strip()))
@@ -349,6 +357,8 @@ def audit_source_quality(path: Path, include_style: bool = False) -> list[Source
         styles = ", ".join(sorted(source_styles))
         issues.insert(0, issue(rel, 1, "mixed-source-style", f"Source styles in file: {styles}"))
     if include_style:
+        if audit_class == "schema":
+            return [source_issue for source_issue in issues if source_issue.severity == "quality"]
         return issues
     return [source_issue for source_issue in issues if source_issue.severity == "quality"]
 
