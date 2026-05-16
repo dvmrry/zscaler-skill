@@ -147,7 +147,8 @@ Once log data is available (per the `references/shared/log-correlation.md` decis
 
 ## Cross-links
 
-- Source: `scripts/policy_simulator.py` (canonical implementation)
+Source: `scripts/policy_simulator.py` (canonical implementation)
+
 - Runnable CLI: `scripts/simulate-policy.py`
 - Underlying URL filter logic: [`../zia/url-filtering.md`](../zia/url-filtering.md)
 - Wildcard semantics (URL → category resolution): [`../zia/wildcard-semantics.md`](../zia/wildcard-semantics.md)
