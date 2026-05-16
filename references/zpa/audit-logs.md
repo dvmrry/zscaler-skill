@@ -22,6 +22,8 @@ ZPA records admin actions (configuration changes, admin console sessions) as aud
 
 This document covers the ZPA audit log surface. Data-plane traffic logs (user activity, user status, app connector status) also flow through LSS but are not covered here. The existing `references/zpa/api.md` covers authentication, base URL structure, and application segment/policy resources.
 
+Source: `vendor/zscaler-help/about-log-streaming-service.md`, `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`, `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`.
+
 ## What is captured
 
 Per `vendor/zscaler-help/about-log-streaming-service.md` (sourced from `https://help.zscaler.com/zpa/about-log-streaming-service`):
@@ -40,6 +42,8 @@ For audit logs beyond that 6-month window, LSS must be configured to forward log
 
 For comparison: User Activity, User Status, and App Connector logs are retained for rolling periods of at least **14 days**; audit logs get the longer 6-month window.
 
+Source: `vendor/zscaler-help/about-log-streaming-service.md`.
+
 ## LSS delivery guarantee for audit logs
 
 Per `vendor/zscaler-help/about-log-streaming-service.md`:
@@ -47,6 +51,8 @@ Per `vendor/zscaler-help/about-log-streaming-service.md`:
 > With the **exception of audit log data**, the LSS does not transmit any log data generated during a connection loss between the App Connector and the SIEM.
 
 This means audit log data has a stronger delivery guarantee than other LSS log types. After a connection is restored, the LSS can retransmit the last 15 minutes of audit log data. The delivery of that retransmitted data is still described as "not guaranteed," but audit logs are explicitly called out as receiving special treatment during connectivity interruptions.
+
+Source: `vendor/zscaler-help/about-log-streaming-service.md`.
 
 ---
 
@@ -76,6 +82,8 @@ The `source_log_type` value for audit logs is **`zpn_audit_log`**.
 | `zpn_waf_http_exchanges_log` | ZPA App Protection |
 
 Source: `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`
+
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`, `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`, `vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py`.
 
 ---
 
@@ -136,6 +144,8 @@ resource "zpa_lss_config_controller" "lss_audit_logs" {
 | `id` | Yes | List of App Connector Group IDs that forward logs |
 
 The TLS requirement is that the log receiver's certificate must be signed by a public root CA. The App Connector automatically receives a root certificate during deployment and trusts both public and custom root CAs.
+
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`, `vendor/zscaler-help/about-log-streaming-service.md`, `vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py`.
 
 ---
 
@@ -244,6 +254,8 @@ Source: `vendor/zscaler-sdk-go/zscaler/zpa/services/lssconfigcontroller/zpa_lss_
 
 LSS configuration listing uses the ZPA standard pagination engine: `common.GetAllPagesGeneric[LSSResource]`, which reads the `totalPages` envelope and fetches all pages automatically. No special pagination handling is needed in caller code.
 
+Source: `vendor/zscaler-sdk-go/zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go`, `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`.
+
 ---
 
 ## Streaming destinations
@@ -258,6 +270,8 @@ Format is selectable: JSON, CSV, or TSV.
 
 The log receiver must expose a port reachable from the App Connector's network. Mutual TLS requires the log receiver to present a certificate signed by a public root CA.
 
+Source: `vendor/zscaler-help/about-log-streaming-service.md`, `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`.
+
 ---
 
 ## ZPA admin roles and audit access
@@ -270,6 +284,8 @@ Per `vendor/zscaler-help/admin-rbac-captures.md`, ZPA has two predefined admin r
 Custom roles can be configured with granular feature permissions. The **Log Streaming** feature permission controls access to the LSS configuration UI and API. Admins without Log Streaming permission cannot create or modify LSS receivers.
 
 Role changes in ZPA take up to **2 minutes** to take effect.
+
+Source: `vendor/zscaler-help/admin-rbac-captures.md`, `vendor/zscaler-help/about-log-streaming-service.md`.
 
 ---
 

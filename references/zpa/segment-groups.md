@@ -26,6 +26,8 @@ A Segment Group is a **policy-scoping and administrative-grouping container for 
 
 The existing [`./segment-server-groups.md`](./segment-server-groups.md) compares Segment Groups and Server Groups side-by-side at a high level. This document provides the full reference treatment for Segment Groups specifically.
 
+Source: `vendor/zscaler-help/about-segment-groups.md`, `vendor/zscaler-sdk-python/zscaler/zpa/segment_groups.py`, `vendor/zscaler-sdk-python/zscaler/zpa/models/segment_group.py`.
+
 ---
 
 ## 1. What a Segment Group IS and IS NOT
@@ -42,6 +44,8 @@ The existing [`./segment-server-groups.md`](./segment-server-groups.md) compares
 - A **Server Group** (different concept). A Server Group controls *traffic delivery* — it binds App Connector Groups to backend servers and determines which connectors proxy connections. A Segment Group controls *policy targeting*. Both objects have "Group" in their name; confusing them is the most common source of ZPA misconfiguration. Full comparison: [`./segment-server-groups.md`](./segment-server-groups.md).
 - A **Connector Group** or **Server Group**. Segment Groups have no knowledge of connectors, servers, or network topology.
 - An enforcement point. Disabling a Segment Group's `enabled` flag does not re-route or drop traffic at the connector level. Its effect is policy-layer only: an access rule whose `APP_GROUP` condition points to a disabled Segment Group's semantics at the connector level are not confirmed by source code (Tier-D: likely the rule stops matching, making the group's App Segments unreachable via that rule; this is inference, not documented API contract).
+
+Source: `vendor/zscaler-help/about-segment-groups.md`, `vendor/zscaler-help/zsdk-about-segment-groups.md`, `vendor/zscaler-sdk-go/zscaler/zpa/services/segmentgroup/zpa_segment_group.go`.
 
 ---
 
@@ -76,6 +80,8 @@ When you add an App Segment to a Segment Group, both the App Segment's `segment_
 ### A Segment Group can be empty
 
 A Segment Group with zero App Segments is valid and can be created without any `applications[]` entries. Empty groups referenced in policy rules contribute no matching scope — effectively making the rule a no-op for the `APP_GROUP` dimension.
+
+Source: `vendor/zscaler-help/about-segment-groups.md`, `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go`, `vendor/zscaler-sdk-python/zscaler/zpa/models/segment_group.py`.
 
 ---
 
@@ -135,6 +141,8 @@ Individual App Segment targeting in a rule is appropriate when:
 ### Policy evaluation order context
 
 Segment Groups participate in normal ZPA policy evaluation: first-match-wins, top-down, after segment selection has already occurred client-side. Full mechanics in [`./policy-precedence.md`](./policy-precedence.md).
+
+Source: `vendor/zscaler-help/zsdk-about-access-policy.md`, `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go`.
 
 ---
 
@@ -202,6 +210,8 @@ terraform import zpa_segment_group.example <segment_group_id>
 terraform import zpa_segment_group.example "Sales Applications"
 ```
 
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_segment_group.md`, `vendor/terraform-provider-zpa/docs/data-sources/zpa_segment_group.md`, `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go`.
+
 ### Terraform data source (`zpa_segment_group`)
 
 ```terraform
@@ -211,6 +221,8 @@ data "zpa_segment_group" "example" {
 ```
 
 The data source exports the full `applications[]` block (domain names, port ranges, health check type, server groups, microtenant attributes) plus `policy_migrated`, `tcp_keep_alive_enabled`, and `config_space`. Use this to reference a Segment Group created outside of TF in policy rules.
+
+Source: `vendor/terraform-provider-zpa/docs/data-sources/zpa_segment_group.md`, `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go`.
 
 ### Go SDK (`segmentgroup` package)
 
@@ -228,6 +240,8 @@ segmentgroup.GetAll(ctx, service)
 ```
 
 All calls must include `common.Filter{MicroTenantID: service.MicroTenantID()}` — the helpers do this internally. Source: `zpa_segment_group.go` lines 81–148.
+
+Source: `vendor/zscaler-sdk-go/zscaler/zpa/services/segmentgroup/zpa_segment_group.go`.
 
 ### Python SDK (`segment_groups` module)
 
@@ -267,6 +281,8 @@ Source: `segment_groups.py`.
 
 From the page you can view, add, filter, edit, delete, expand rows to see member App Segments, and view a configuration graph of connected objects. The "Incomplete Configuration" icon appears next to a group with missing required fields. Source: `about-segment-groups.md`.
 
+Source: `vendor/zscaler-help/about-segment-groups.md`.
+
 ---
 
 ## 5. Common gotchas
@@ -299,6 +315,8 @@ Segment Groups are microtenant-scoped when created with a `microtenant_id`. A gr
 
 When the microtenant license is not active, `microtenant_id` on the Segment Group is ignored (TF warns if the field is set without the feature flag). Source: TF resource doc warning at the `microtenant_id` field.
 
+Source: `vendor/zscaler-help/about-microtenants.md`, `vendor/terraform-provider-zpa/docs/resources/zpa_segment_group.md`.
+
 ### 5.7 Zscaler Deception and Segment Groups
 
 If a Segment Group is configured in conjunction with Zscaler Deception, the ZPA console marks it as non-editable and non-deletable ("the edit and delete options are unavailable"). These groups are managed from the Deception Admin Portal. Attempting to modify them via TF or SDK will result in an API error. Source: `about-segment-groups.md`.
@@ -306,6 +324,8 @@ If a Segment Group is configured in conjunction with Zscaler Deception, the ZPA 
 ### 5.8 `policyMigrated` flag — meaning is opaque
 
 The Segment Group model carries a `policyMigrated` bool (no `omitempty`, so it is always serialized). The field is present in both the Go SDK struct and the Python model. Its semantics are not documented in any captured help article; it appears to track whether legacy policy migration has been run on the group. Treat as read-only — do not set it programmatically.
+
+Source: `vendor/zscaler-sdk-go/zscaler/zpa/services/segmentgroup/zpa_segment_group.go`, `vendor/zscaler-sdk-python/zscaler/zpa/models/segment_group.py`.
 
 ---
 
