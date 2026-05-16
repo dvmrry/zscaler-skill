@@ -233,7 +233,7 @@ Source: vendor/zscaler-help/ranges-limitations-zia.md.
 | DLP | 1,024 (→ 2,048 via support) | |
 | All Other Policy Rules (DLP + IPS bucket) | 1,024 (→ 2,048 via support) | |
 
-The Standard-tier 10-rule Firewall Filtering cap is the most operationally consequential — almost any non-trivial deployment outgrows it immediately. Source: *Ranges and Limitations* lines 174-191.
+The Standard-tier 10-rule Firewall Filtering cap is the most operationally consequential — almost any non-trivial deployment outgrows it immediately.
 
 ## Cross-links
 

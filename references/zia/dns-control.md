@@ -166,7 +166,9 @@ Source: vendor/zscaler-help/about-dns-control.md; vendor/zscaler-help/ranges-lim
 
 4. **DoH requires SSL Inspection to be useful.** Operators who enable DoH-blocking via DNS Control but haven't ensured SSL Inspection covers DoH endpoints get false confidence — DoH flows to uninspected providers are opaque.
 
-5. **DNS Control rule limits by tier.** Essential: 64 rules. Advanced: 1,000 rules. Source: vendor/zscaler-help/ranges-limitations-zia.md.
+Source: vendor/zscaler-help/ranges-limitations-zia.md.
+
+5. **DNS Control rule limits by tier.** Essential: 64 rules. Advanced: 1,000 rules.
 
 ## Cross-links
 

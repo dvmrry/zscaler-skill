@@ -152,7 +152,7 @@ Forwarding Control rules share the standard ZIA rule-criteria model. From the TF
 
 - Identity scoping: `users`, `groups`, `departments`, `device_groups`
 - Location scoping: `locations` (up to 32), `location_groups` (up to 32)
-- Source: `src_ips`, `src_ip_groups`, `src_ipv6_groups`
+- Source IP scoping: `src_ips`, `src_ip_groups`, `src_ipv6_groups`
 - Destination: `dest_addresses`, `dest_ip_groups`, `dest_ip_categories`, `dest_countries`, `res_categories`
 - Network: `nw_services`, `nw_service_groups`, `nw_application_groups`
 - App: `zpa_app_segments` (for ZPA method), `app_service_groups`

@@ -236,9 +236,9 @@ Mitigation options for GRE-deployed offices:
 1. **Configure forwarding profile to fall back to Z-Tunnel 1.0 when Trusted Network Criteria are met.** On-LAN users (already inside the GRE pipe to the perimeter) use 1.0; remote users get 2.0.
 2. **Configure a policy-based route to exclude Z-Tunnel 2.0 traffic from the GRE tunnel.** Z-Tunnel 2.0 takes a separate egress path, GRE handles only non-Zscaler traffic.
 
-Either works; the GRE-as-default with no exclusion strategy is the failure mode. Source: `vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md:43–46`.
-
 Source: vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md.
+
+Either works; the GRE-as-default with no exclusion strategy is the failure mode.
 
 ## Open questions
 

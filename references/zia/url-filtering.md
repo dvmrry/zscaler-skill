@@ -187,7 +187,9 @@ Source: vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt; v
   - `enforce_safe_search`
   - `enable_dynamic_content_cat`
 
-  (Source: `zscaler/zia/url_filtering.py:515-527`.) Tenants running CIPA cannot simultaneously benefit from NROD lookup, embedded-site categorization, SafeSearch enforcement, or dynamic content categorization. If a question compares "CIPA-on vs CIPA-off" behavior, this matters.
+  Source: vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py.
+
+  Tenants running CIPA cannot simultaneously benefit from NROD lookup, embedded-site categorization, SafeSearch enforcement, or dynamic content categorization. If a question compares "CIPA-on vs CIPA-off" behavior, this matters.
 - **Silent SSL-bypass behavior.** By default, URL Filtering does NOT evaluate on traffic on the global SSL bypass list. The `enable_evaluate_policy_on_global_ssl_bypass` flag in Advanced Settings (default `false`) flips this on. If a tenant reports "URL rule didn't fire on bypassed traffic," this is the first thing to check. (`zscaler/zia/models/advanced_settings.py:44-45`.) See [`./api.md § Advanced Policy Settings`](./api.md#advanced-policy-settings).
 - **SSL inspection disabled ⇒ criteria don't evaluate.** Rules using Request Method, Protocol, or other HTTP-payload-dependent criteria may not fire on non-inspected HTTPS traffic. (*URL Filtering Deployment and Operations Guide*, p.3, troubleshooting.) See [`./ssl-inspection.md`](./ssl-inspection.md).
 - **Custom URL Category quotas.** 25K custom URLs/TLDs across all categories, 64 custom categories (→ 1,024 via support), 256 keywords per category (2,048 total), 2,048 keywords retaining parent category per category (2,048 total), 2,048 custom IP ranges. (*Ranges & Limitations § URL Filtering & Cloud App Control*, `vendor/zscaler-help/ranges-limitations-zia.md` — authoritative; the older per-API-doc values of "30 per category / 1,000 total" in *Configuring URL Categories Using API* p.12 are stale.)
