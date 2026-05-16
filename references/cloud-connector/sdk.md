@@ -17,9 +17,9 @@ author-status: draft
 
 ## No Python SDK
 
-Cloud Connector (ZTW) is not covered by zscaler-sdk-python. The Python SDK historically lacked ZTW coverage. Do not search for a `zscaler.ztw` Python module — it does not exist. All programmatic access from Python must use the REST API directly or the Terraform provider.
+Cloud Connector (ZTW) is not covered by zscaler-sdk-python. The Python SDK historically lacked ZTW coverage. Do not search for a `zscaler.ztw` Python module — it does not exist. All programmatic access from Python must use the REST API directly or the Terraform provider. [Source: vendor/zscaler-sdk-python/zscaler/; vendor/zscaler-sdk-go/zscaler/ztw/services/]
 
-The Go SDK (`github.com/zscaler/zscaler-sdk-go/v3`) is the only supported SDK path for Cloud Connector.
+The Go SDK (`github.com/zscaler/zscaler-sdk-go/v3`) is the only supported SDK path for Cloud Connector. [Source: vendor/zscaler-sdk-go/zscaler/ztw/services/]
 
 ---
 
@@ -88,17 +88,17 @@ if err != nil {
 service, err := zscaler.NewOneAPIClient(config)
 ```
 
-Environment variables (alternative to code-level config): `ZSCALER_CLIENT_ID`, `ZSCALER_CLIENT_SECRET`, `ZSCALER_VANITY_DOMAIN`, `ZSCALER_CLOUD`.
+Environment variables (alternative to code-level config): `ZSCALER_CLIENT_ID`, `ZSCALER_CLIENT_SECRET`, `ZSCALER_VANITY_DOMAIN`, `ZSCALER_CLOUD`. [Source: vendor/zscaler-sdk-go/CLAUDE.md; vendor/zscaler-sdk-go/zscaler/ztw/v2_config.go]
 
 ### Authentication: OneAPI vs legacy
 
-**OneAPI** (default, v4.0.0+): OAuth 2.0 Client Credentials via ZIdentity. Token is obtained on first request and auto-refreshed on 401. Not available for `zscalergov` or `zscalerten` clouds.
+**OneAPI** (default, v4.0.0+): OAuth 2.0 Client Credentials via ZIdentity. Token is obtained on first request and auto-refreshed on 401. Not available for `zscalergov` or `zscalerten` clouds. [Source: vendor/zscaler-sdk-go/CLAUDE.md; vendor/zscaler-sdk-go/zscaler/ztw/v2_config.go]
 
-**Legacy CBC API**: Username/password/API-key authentication against the ZTC portal directly. Activated by setting `use_legacy_client = true` in provider config or the equivalent SDK option. The SDK maintains backwards compatibility.
+**Legacy CBC API**: Username/password/API-key authentication against the ZTC portal directly. Activated by setting `use_legacy_client = true` in provider config or the equivalent SDK option. The SDK maintains backwards compatibility. [Source: vendor/zscaler-sdk-go/zscaler/ztw/v2_config.go]
 
 ### Function signature convention
 
-All ZTW service functions are **package-level functions** (not methods on a struct). Every function takes `ctx context.Context` as the first argument and `service *zscaler.Service` as the second.
+All ZTW service functions are **package-level functions** (not methods on a struct). Every function takes `ctx context.Context` as the first argument and `service *zscaler.Service` as the second. [Source: vendor/zscaler-sdk-go/zscaler/ztw/services/]
 
 ### HTTP methods
 
@@ -111,7 +111,7 @@ ZTW uses a `Resource`-suffixed set of HTTP methods, distinct from ZIA's methods:
 | Update | `service.Client.UpdateWithPutResource(ctx, endpoint, body)` → `interface{}` |
 | Delete | `service.Client.DeleteResource(ctx, endpoint)` |
 
-Some older services in the `provisioning` package use the non-`Resource` methods (`service.Client.Create`, `service.Client.UpdateWithPut`, `service.Client.Delete`). This inconsistency exists in the codebase.
+Some older services in the `provisioning` package use the non-`Resource` methods (`service.Client.Create`, `service.Client.UpdateWithPut`, `service.Client.Delete`). This inconsistency exists in the codebase. [Source: vendor/zscaler-sdk-go/zscaler/ztw/services/provisioning/provisioning_url/provisioning_url.go]
 
 ### Pagination
 
@@ -125,15 +125,15 @@ Some older services in the `provisioning` package use the non-`Resource` methods
 
 ### GetByName pattern
 
-All `GetByName` implementations call `ReadAllPages` to fetch all objects, then iterate with `strings.EqualFold` for case-insensitive matching. No server-side name filter is used (except `ecgroup/GetEcGroupLiteByName`, which passes `?name=<encoded>` to the lite endpoint as an optimization).
+All `GetByName` implementations call `ReadAllPages` to fetch all objects, then iterate with `strings.EqualFold` for case-insensitive matching. No server-side name filter is used (except `ecgroup/GetEcGroupLiteByName`, which passes `?name=<encoded>` to the lite endpoint as an optimization). [Source: vendor/zscaler-sdk-go/zscaler/ztw/services/]
 
 ### ID types
 
-All ZTW IDs are `int`. Never use string IDs.
+All ZTW IDs are `int`. Never use string IDs. [Source: vendor/zscaler-sdk-go/zscaler/ztw/services/]
 
 ### Activation requirement
 
-ZTW changes are staged and do not take effect until activation is triggered. The SDK does **not** auto-activate. Callers must explicitly call `activation.UpdateActivationStatus` or `activation.ForceActivationStatus` after mutations.
+ZTW changes are staged and do not take effect until activation is triggered. The SDK does **not** auto-activate. Callers must explicitly call `activation.UpdateActivationStatus` or `activation.ForceActivationStatus` after mutations. [Source: vendor/zscaler-sdk-go/zscaler/ztw/services/activation/activation.go]
 
 ---
 
@@ -164,7 +164,7 @@ TF data source: `ztc_activation_status`
 **Package**: `zscaler/ztw/services/ecgroup`  
 **File**: `ecgroup/ecgroup.go`
 
-Manages Cloud Connector groups — the logical groupings of Cloud Connector VM instances. Read-only from this package (no `Create` or `Update`).
+Manages Cloud Connector groups — the logical groupings of Cloud Connector VM instances. Read-only from this package (no `Create` or `Update`). [Source: vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go]
 
 | Function | Signature | API endpoint | Notes |
 |---|---|---|---|
@@ -186,7 +186,7 @@ TF data source: `ztc_edge_connector_group`
 **Package**: `zscaler/ztw/services/dns_gateway`  
 **File**: `dns_gateway/dns_gateway.go`
 
-Full CRUD for DNS gateways. Note: a second package (`forwarding_gateways/dns_forwarding_gateway`) targets the same endpoint — see open questions.
+Full CRUD for DNS gateways. Note: a second package (`forwarding_gateways/dns_forwarding_gateway`) targets the same endpoint — see open questions. [Source: vendor/zscaler-sdk-go/zscaler/ztw/services/dns_gateway/dns_gateway.go; vendor/zscaler-sdk-go/zscaler/ztw/services/forwarding_gateways/dns_forwarding_gateway/dns_forwarding_gateway.go]
 
 | Function | Signature | API endpoint | Notes |
 |---|---|---|---|
@@ -254,7 +254,7 @@ TF resource: `ztc_forwarding_gateway`
 
 ### Location Management
 
-Three sub-packages under `locationmanagement/`:
+Three sub-packages under `locationmanagement/`: [Source: vendor/zscaler-sdk-go/zscaler/ztw/services/locationmanagement/]
 
 #### location
 
@@ -262,7 +262,7 @@ Three sub-packages under `locationmanagement/`:
 **File**: `locationmanagement/location/location.go`  
 **Endpoint**: `/ztw/api/v1/location`
 
-Full CRUD for Cloud Connector locations.
+Full CRUD for Cloud Connector locations. [Source: vendor/zscaler-sdk-go/zscaler/ztw/services/locationmanagement/location/location.go]
 
 | Function | Signature | Notes |
 |---|---|---|
@@ -306,7 +306,7 @@ Three sub-packages under `policy_management/`:
 **File**: `policy_management/forwarding_rules/forwarding_rules.go`  
 **Endpoint**: `/ztw/api/v1/ecRules/ecRdr`
 
-Full CRUD for traffic forwarding rules. Includes an optional server-side filter on `GetAll` and a count endpoint.
+Full CRUD for traffic forwarding rules. Includes an optional server-side filter on `GetAll` and a count endpoint. [Source: vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go]
 
 | Function | Signature | Notes |
 |---|---|---|
@@ -328,7 +328,7 @@ TF resource: `ztc_traffic_forwarding_rule`
 **File**: `policy_management/traffic_dns_rules/traffic_dns_rules.go`  
 **Endpoint**: `/ztw/api/v1/ecRules/ecDns`
 
-Full CRUD for DNS forwarding rules.
+Full CRUD for DNS forwarding rules. [Source: vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/traffic_dns_rules/traffic_dns_rules.go]
 
 | Function | Signature | Notes |
 |---|---|---|
@@ -350,7 +350,7 @@ TF resource: `ztc_traffic_forwarding_dns_rule`
 **File**: `policy_management/traffic_log_rules/traffic_log_rules.go`  
 **Endpoint**: `/ztw/api/v1/ecRules/self`
 
-Full CRUD for log-and-control forwarding rules. `GetEcRDRCount` is commented out in the source (not yet implemented).
+Full CRUD for log-and-control forwarding rules. `GetEcRDRCount` is commented out in the source (not yet implemented). [Source: vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/traffic_log_rules/traffic_log_rules.go]
 
 | Function | Signature | Notes |
 |---|---|---|
