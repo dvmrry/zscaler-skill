@@ -14,6 +14,7 @@ Examples:
   ./scripts/check-citation-density.py --threshold 0.80 --top 25
   ./scripts/check-citation-density.py references agents
   ./scripts/check-citation-density.py --audit-sources
+  ./scripts/check-citation-density.py --audit-source-quality
   ./scripts/check-citation-density.py --audit-sources --strict-sources
   ./scripts/check-citation-density.py --strict
 """
@@ -42,11 +43,19 @@ SOURCE_SCOPE_RE = re.compile(
     r"(?i)(?:\b(?:source|sources|file)\b\s*:|\*\*(?:source|sources|file)\*\*)"
 )
 SOURCE_LINE_RE = re.compile(r"^\s*Source:\s*(.*)$", re.IGNORECASE)
+ALTERNATE_SOURCE_LINE_RE = re.compile(r"^\s*(?:Source\s+\([^)]*\)|Sources|Vendor source):\s*(.*)$", re.IGNORECASE)
+BRACKET_SOURCE_RE = re.compile(r"\[Source:\s*([^\]]+)\]", re.IGNORECASE)
+INLINE_SOURCE_RE = re.compile(r"\bSource:\s*(.+)", re.IGNORECASE)
+SOURCE_PATH_RE = re.compile(r"\b(?:vendor|scripts)/[A-Za-z0-9_./-]+")
 BARE_MD_RE = re.compile(r"(?<![/A-Za-z0-9_.-])([A-Za-z0-9_.-]+\.md)(?![/A-Za-z0-9_.-])")
+BARE_SOURCE_FILE_RE = re.compile(
+    r"(?<![/A-Za-z0-9_.-])([A-Za-z0-9_.-]+\.(?:md|py|go|sh|json|ya?ml))(?![/A-Za-z0-9_.-])"
+)
 INTERNAL_SOURCE_RE = re.compile(r"\b(?:references|agents)/[A-Za-z0-9_./# -]+")
 VAGUE_SOURCE_RE = re.compile(
-    r"(?i)\b(?:listed in frontmatter|sources? listed in frontmatter|sections above|same section|summary index|synthesis index)\b"
+    r"(?i)\b(?:listed in frontmatter|sources? listed in frontmatter|sections above|same section|this section|linked in (?:the )?table|topical references|listed vendor sources|summary index|synthesis index)\b"
 )
+INFERENCE_SOURCE_RE = re.compile(r"(?i)\b(?:inferred|by analogy|reconstruct(?:ed|ion)|extrapolat(?:ed|ion))\b")
 
 # Broad but intentionally transparent. This is a triage signal, not a verifier.
 CITATION_PATTERNS_RAW = [
@@ -168,6 +177,130 @@ def audit_source_lines(path: Path) -> list[SourceIssue]:
             if md_name not in source_basenames:
                 issues.append(SourceIssue(rel, line_number, "unresolved-bare-md-source", line.strip()))
                 break
+    return issues
+
+
+def iter_scannable_lines(text: str) -> list[tuple[int, str]]:
+    lines = text.splitlines()
+    out: list[tuple[int, str]] = []
+    in_fence = False
+    in_frontmatter = bool(lines and lines[0].strip() == "---")
+    for line_number, line in enumerate(lines, start=1):
+        if in_frontmatter:
+            if line_number > 1 and line.strip() == "---":
+                in_frontmatter = False
+            continue
+        if FENCE_RE.match(line):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
+        out.append((line_number, line))
+    return out
+
+
+def normalize_source_text(text: str) -> str:
+    text = text.strip()
+    text = text.removesuffix(".")
+    text = text.replace("`", "")
+    text = re.sub(r"\s+", " ", text)
+    return text.lower()
+
+
+def source_payloads(line: str) -> list[tuple[str, str]]:
+    payloads: list[tuple[str, str]] = []
+    match = SOURCE_LINE_RE.match(line)
+    if match:
+        payloads.append(("block-source", match.group(1)))
+        return payloads
+    match = ALTERNATE_SOURCE_LINE_RE.match(line)
+    if match:
+        payloads.append(("alternate-source-label", match.group(1)))
+    for match in BRACKET_SOURCE_RE.finditer(line):
+        payloads.append(("inline-source", match.group(1)))
+    if "Source:" in line and not payloads:
+        match = INLINE_SOURCE_RE.search(line)
+        if match:
+            payloads.append(("inline-source", match.group(1)))
+    return payloads
+
+
+def audit_source_quality(path: Path) -> list[SourceIssue]:
+    text = path.read_text(encoding="utf-8", errors="replace")
+    rel = str(path.relative_to(REPO_ROOT))
+    issues: list[SourceIssue] = []
+    lines = iter_scannable_lines(text)
+    line_lookup = {line_number: line for line_number, line in lines}
+    source_styles: set[str] = set()
+    section_seen_sources: dict[str, int] = {}
+
+    def next_nonblank_line(after: int) -> str:
+        for line_number, candidate in lines:
+            if line_number <= after:
+                continue
+            if candidate.strip():
+                return candidate
+        return ""
+
+    def previous_nonblank_line(before: int) -> str:
+        for line_number in range(before - 1, 0, -1):
+            candidate = line_lookup.get(line_number, "")
+            if candidate.strip():
+                return candidate
+        return ""
+
+    for line_number, line in lines:
+        if HEADING_RE.match(line):
+            section_seen_sources = {}
+            continue
+        payloads = source_payloads(line)
+        if not payloads:
+            continue
+
+        for style, source_text in payloads:
+            source_styles.add(style)
+            if style != "block-source":
+                issues.append(SourceIssue(rel, line_number, style, line.strip()))
+
+            normalized = normalize_source_text(source_text)
+            if normalized in section_seen_sources:
+                issues.append(SourceIssue(rel, line_number, "duplicate-source-line", line.strip()))
+            else:
+                section_seen_sources[normalized] = line_number
+
+            if style == "block-source":
+                prev_line = previous_nonblank_line(line_number)
+                next_line = next_nonblank_line(line_number)
+                if prev_line and not HEADING_RE.match(prev_line) and not SOURCE_LINE_RE.match(prev_line) and HEADING_RE.match(next_line):
+                    issues.append(SourceIssue(rel, line_number, "after-content-source", line.strip()))
+
+            if INTERNAL_SOURCE_RE.search(source_text):
+                issues.append(SourceIssue(rel, line_number, "internal-source", line.strip()))
+            if VAGUE_SOURCE_RE.search(source_text):
+                issues.append(SourceIssue(rel, line_number, "vague-source", line.strip()))
+            if INFERENCE_SOURCE_RE.search(source_text):
+                issues.append(SourceIssue(rel, line_number, "unsupported-inference", line.strip()))
+            if "CLAUDE.md" in source_text:
+                issues.append(SourceIssue(rel, line_number, "claude-md-source", line.strip()))
+            if re.search(r"https?://", source_text):
+                issues.append(SourceIssue(rel, line_number, "live-url-source", line.strip()))
+
+            for source_path in SOURCE_PATH_RE.findall(source_text):
+                if source_path.endswith("/"):
+                    issues.append(SourceIssue(rel, line_number, "directory-source", line.strip()))
+                if "/test" in source_path or source_path.endswith("_test.go") or "/tests/" in source_path:
+                    issues.append(SourceIssue(rel, line_number, "weak-test-source", line.strip()))
+
+            for filename in BARE_SOURCE_FILE_RE.findall(source_text):
+                if not filename.startswith(("vendor/", "scripts/")) and not re.search(
+                    rf"(?:vendor|scripts)/[A-Za-z0-9_./-]*{re.escape(filename)}", source_text
+                ):
+                    issues.append(SourceIssue(rel, line_number, "bare-filename-source", line.strip()))
+                    break
+
+    if len(source_styles) > 1:
+        styles = ", ".join(sorted(source_styles))
+        issues.insert(0, SourceIssue(rel, 1, "mixed-source-style", f"Source styles in file: {styles}"))
     return issues
 
 
@@ -349,6 +482,22 @@ def collect_source_issues(paths: list[Path]) -> list[SourceIssue]:
     return issues
 
 
+def collect_source_quality_issues(paths: list[Path]) -> list[SourceIssue]:
+    issues: list[SourceIssue] = []
+    for root in paths:
+        if not root.exists():
+            continue
+        if root.is_file():
+            if root.suffix == ".md" and not should_skip(root):
+                issues.extend(audit_source_quality(root))
+            continue
+        for path in sorted(root.rglob("*.md")):
+            if should_skip(path):
+                continue
+            issues.extend(audit_source_quality(path))
+    return issues
+
+
 def render_text(
     scores: list[FileScore],
     threshold: float,
@@ -457,6 +606,25 @@ def render_source_audit(issues: list[SourceIssue], top: int) -> str:
     return "\n".join(lines).rstrip()
 
 
+def render_source_quality_audit(issues: list[SourceIssue], top: int) -> str:
+    by_kind: dict[str, int] = {}
+    for issue in issues:
+        by_kind[issue.kind] = by_kind.get(issue.kind, 0) + 1
+    lines = [
+        "Source-quality audit",
+        "=" * 40,
+        f"Issues found: {len(issues)}",
+    ]
+    for kind, count in sorted(by_kind.items()):
+        lines.append(f"{kind}: {count}")
+    lines.append("")
+    for issue in issues[:top]:
+        lines.append(f"{issue.path}:{issue.line}: {issue.kind}: {issue.text}")
+    if len(issues) > top:
+        lines.append(f"... {len(issues) - top} more")
+    return "\n".join(lines).rstrip()
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument(
@@ -478,6 +646,11 @@ def main() -> int:
         "--audit-sources",
         action="store_true",
         help="Report Source: lines that use internal references, vague frontmatter scopes, or unresolved bare .md filenames",
+    )
+    parser.add_argument(
+        "--audit-source-quality",
+        action="store_true",
+        help="Report weak or hard-to-audit source citation styles and evidence tiers",
     )
     parser.add_argument(
         "--strict",
@@ -512,6 +685,7 @@ def main() -> int:
 
     scores = collect_scores(expanded)
     source_issues = collect_source_issues(expanded) if args.audit_sources else []
+    source_quality_issues = collect_source_quality_issues(expanded) if args.audit_source_quality else []
     eligible = [score for score in scores if score.paragraphs >= args.min_paragraphs]
     below = [score for score in eligible if score.density < args.threshold]
 
@@ -544,6 +718,7 @@ def main() -> int:
                 )
             ],
             "source_issues": [asdict(issue) for issue in source_issues],
+            "source_quality_issues": [asdict(issue) for issue in source_quality_issues],
         }
         print(json.dumps(payload, indent=2))
     else:
@@ -562,6 +737,9 @@ def main() -> int:
         if args.audit_sources:
             print()
             print(render_source_audit(source_issues, args.top))
+        if args.audit_source_quality:
+            print()
+            print(render_source_quality_audit(source_quality_issues, args.top))
 
     if args.strict and (below or source_issues):
         return 1
