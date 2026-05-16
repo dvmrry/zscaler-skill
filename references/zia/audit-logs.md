@@ -25,6 +25,8 @@ ZIA records every action performed by administrators — whether through the ZIA
 
 This document covers two ZIA audit-adjacent APIs: the **Admin Audit Log Entry Report** (the primary admin-action trail) and the **Event Log Entry Report** (system-level event recording). It also covers the **Config Audit** endpoint, which surfaces configuration-quality grading rather than change history.
 
+Source: `vendor/zscaler-help/admin-rbac-captures.md`, `vendor/zscaler-sdk-python/zscaler/zia/audit_logs.py`, `vendor/zscaler-sdk-python/zscaler/zia/system_audit.py`, `vendor/zscaler-sdk-go/zscaler/zia/services/adminauditlogs/adminauditlogs.go`, `vendor/zscaler-sdk-go/zscaler/zia/services/eventlogentryreport/eventlogentryreport.go`.
+
 ## What is captured
 
 Per `vendor/zscaler-help/admin-rbac-captures.md` (sourced from `https://help.zscaler.com/zia/about-audit-logs`):
@@ -35,6 +37,8 @@ Per `vendor/zscaler-help/admin-rbac-captures.md` (sourced from `https://help.zsc
 - Failed login attempts — if an admin account makes five unsuccessful login attempts within one minute, the account is locked for five minutes and the failed attempts are recorded.
 
 Use cases supported by the audit log: compliance demonstration, change attribution, and detection or investigation of suspicious admin activity.
+
+Source: `vendor/zscaler-help/admin-rbac-captures.md`.
 
 ## Retention
 
@@ -49,6 +53,8 @@ Source: `vendor/zscaler-help/admin-rbac-captures.md` (citing `https://help.zscal
 **API/SDK:** Programmatic access via the `auditlogEntryReport` endpoints described in this document.
 
 **NSS (streaming):** ZIA audit logs are not the same as traffic logs. The NSS streams traffic logs (web, firewall, DNS). Audit log streaming outside the API report mechanism is not confirmed in available sources — see open questions.
+
+Source: `vendor/zscaler-help/admin-rbac-captures.md`, `vendor/zscaler-help/understanding-nanolog-streaming-service.md`.
 
 ---
 
@@ -103,6 +109,8 @@ Source: `vendor/zscaler-sdk-go/zscaler/zia/services/adminauditlogs/adminauditlog
 
 The Python SDK exposes only `start_time` and `end_time` as required parameters to `create()`; additional filters from the Go struct are available via the REST API directly.
 
+Source: `vendor/zscaler-sdk-python/zscaler/zia/audit_logs.py`, `vendor/zscaler-sdk-go/zscaler/zia/services/adminauditlogs/adminauditlogs.go`.
+
 ### Status response schema (`AuditLogEntryReportTaskInfo`)
 
 | Field | Type | Description |
@@ -131,6 +139,8 @@ The report downloads as **CSV**. The Python SDK writes it as a string (`str`) an
 | Result | `Success` or `Failure` |
 
 The exact set of CSV columns in the report download is inferred from the help portal capture; the CSV header row is not confirmed from source code.
+
+Source: `vendor/zscaler-help/admin-rbac-captures.md`, `vendor/zscaler-sdk-python/zscaler/zia/audit_logs.py`, `vendor/zscaler-sdk-go/zscaler/zia/services/adminauditlogs/adminauditlogs.go`.
 
 ---
 
@@ -166,6 +176,8 @@ The Event Log Entry Report is a separate API from the Admin Audit Log. The purpo
 | DELETE | `/zia/api/v1/eventlogEntryReport` | Cancel report |
 
 Note: The Go SDK `GetAll` for event logs returns `[]EventLogEntryReportTaskInfo` (an array), whereas the admin audit log returns a single `AuditLogEntryReportTaskInfo` struct. Whether there is a download endpoint for event logs is not confirmed — the Go SDK does not expose one.
+
+Source: `vendor/zscaler-sdk-go/zscaler/zia/services/eventlogentryreport/eventlogentryreport.go`, `vendor/zscaler-help/automate-zscaler/api-endpoint-catalog.md`.
 
 ---
 
@@ -204,6 +216,8 @@ The Python SDK notes this endpoint requires `Reports` functional scope (`RBA_LIM
 Sub-objects also exist for `AuthFrequency` (`authFrequency`, `authCustomFrequency`), `IPVisibility` (`totalGreLocations`, `recommendation`, `details`, `locationsWithNat`), and `PacFile` (`totalPacFiles`, `pacWithStaticIPs`).
 
 This endpoint is **not an audit trail**; it is a best-practice compliance report against the current configuration state.
+
+Source: `vendor/zscaler-sdk-python/zscaler/zia/system_audit.py`, `vendor/zscaler-sdk-python/zscaler/zia/models/system_audit.py`.
 
 ---
 
@@ -287,6 +301,8 @@ eventlogentryreport.Delete(ctx, service)
 
 Both the audit log and event log APIs require ZIA Cloud Service API access. Per `vendor/zscaler-help/legacy-understanding-zia-api.md`, this API is availability-limited — contact Zscaler Support to enable. The admin account used must have the `Reports` functional scope to access audit log endpoints (the system audit endpoint returns `RBA_LIMITED` without it).
 
+Source: `vendor/zscaler-help/legacy-understanding-zia-api.md`, `vendor/zscaler-sdk-python/zscaler/zia/system_audit.py`.
+
 ### Activation
 
 ZIA requires explicit activation after configuration changes. Audit log queries are read-only operations and do not require activation. Canceling a report (DELETE) also does not require activation.
@@ -298,6 +314,8 @@ ZIA requires explicit activation after configuration changes. Audit log queries 
 ZIA audit logs are not available through the Nanolog Streaming Service (NSS). NSS is documented in `vendor/zscaler-help/understanding-nanolog-streaming-service.md` as handling web and firewall traffic logs, not admin audit logs.
 
 There is no NSS or Cloud NSS feed type for admin audit logs visible in available sources. The audit log API provides the only programmatic extraction mechanism. Whether a SIEM integration exists for pulling audit logs on a schedule is not covered by the available sources.
+
+Source: `vendor/zscaler-help/understanding-nanolog-streaming-service.md`, `vendor/zscaler-sdk-python/zscaler/zia/audit_logs.py`, `vendor/zscaler-sdk-go/zscaler/zia/services/adminauditlogs/adminauditlogs.go`.
 
 ---
 

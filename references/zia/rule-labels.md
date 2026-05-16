@@ -36,6 +36,8 @@ group and tag policy rules across any policy type. They are a shared configurati
 resource, created independently of any specific policy, and then referenced by individual
 rules at the time of rule configuration.
 
+Source: `vendor/zscaler-help/about-rule-labels.md`, `vendor/zscaler-sdk-python/zscaler/zia/rule_labels.py`, `vendor/zscaler-sdk-python/zscaler/zia/models/rule_labels.py`.
+
 ---
 
 ## 1. What a Rule Label Is
@@ -108,6 +110,8 @@ it accepts as filter values for the `/ruleLabels/ruleType/{rule_type}` endpoint:
 source and not documented in the vendor help portal. (Tier B —
 vendor/zscaler-sdk-python/zscaler/zia/rule_labels.py)
 
+Source: `vendor/zscaler-help/about-rule-labels.md`, `vendor/zscaler-sdk-python/zscaler/zia/rule_labels.py`, `vendor/terraform-provider-zia/docs/resources/zia_rule_labels.md`.
+
 ---
 
 ## 3. CRUD Operations
@@ -144,6 +148,8 @@ The label object has a minimal schema:
 
 The `list_labels` endpoint supports `page`, `page_size`, and `search` query parameters.
 (Tier B — vendor/zscaler-sdk-python/zscaler/zia/rule_labels.py)
+
+Source: `vendor/zscaler-sdk-python/zscaler/zia/rule_labels.py`, `vendor/zscaler-sdk-python/zscaler/zia/models/rule_labels.py`.
 
 ### 3.3 Python SDK
 
@@ -224,6 +230,8 @@ reference to it. The dependent rule must have its `labels` block cleared (and ac
 applied) before the label itself can be removed. (Tier A —
 vendor/zscaler-help/about-rule-labels.md)
 
+Source: `vendor/zscaler-help/about-rule-labels.md`, `vendor/terraform-provider-zia/docs/resources/zia_rule_labels.md`.
+
 **Activation.** ZIA requires explicit configuration activation after rule or resource
 changes. When managing rule labels alongside rules via Terraform, include
 `zia_activation_status` with `depends_on` pointing at all managed resources to trigger
@@ -245,6 +253,8 @@ The admin console Rule Labels page shows each label's **Name**, **Number of Poli
 Rules Tagged**, **Last Modified By**, **Last Modified On**, and **Description**.
 Administrators can sort on any of these columns. From this page labels can be added,
 searched, edited, duplicated, or deleted. (Tier A — vendor/zscaler-help/about-rule-labels.md)
+
+Source: `vendor/zscaler-help/about-rule-labels.md`.
 
 ### 4.2 Label-based API filtering
 
@@ -310,6 +320,8 @@ not associated with any policy rule." (Tier A — vendor/zscaler-help/about-rule
 No documented cap on the number of labels that can be assigned to a single rule, or the
 number of rules a single label can reference, was found in available sources. (Open question
 — see Section 7.)
+
+Source: `vendor/zscaler-help/about-rule-labels.md`, `vendor/zscaler-sdk-python/zscaler/zia/models/rule_labels.py`, `vendor/terraform-provider-zia/docs/resources/zia_rule_labels.md`.
 
 ---
 
