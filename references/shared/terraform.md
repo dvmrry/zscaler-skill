@@ -18,9 +18,9 @@ author-status: draft
 
 # Zscaler Terraform providers (ZIA + ZPA)
 
-The two separate Zscaler providers — `zscaler/zia` and `zscaler/zpa` — mapped to the API endpoints covered in this skill. Derived from the vendored provider repositories (`vendor/terraform-provider-zia`, `vendor/terraform-provider-zpa`).
-
 Source: vendor/terraform-provider-zia/docs/index.md; vendor/terraform-provider-zia/README.md; vendor/terraform-provider-zpa/docs/index.md; vendor/terraform-provider-zpa/README.md.
+
+The two separate Zscaler providers — `zscaler/zia` and `zscaler/zpa` — mapped to the API endpoints covered in this skill. Derived from the vendored provider repositories (`vendor/terraform-provider-zia`, `vendor/terraform-provider-zpa`).
 
 ## Provider declaration
 
@@ -63,9 +63,9 @@ Environment variables (OneAPI mode):
 | `vanity_domain` | `ZSCALER_VANITY_DOMAIN` | Organization's ZIdentity domain |
 | `zscaler_cloud` | `ZSCALER_CLOUD` | Optional; for alternative environments (e.g. `beta`) |
 
-Per index.md: "Hard-coding credentials into any Terraform configuration is not recommended, and risks secret leakage should this file be committed to public version control."
-
 Source: vendor/terraform-provider-zia/docs/index.md; vendor/terraform-provider-zpa/docs/index.md.
+
+Per index.md: "Hard-coding credentials into any Terraform configuration is not recommended, and risks secret leakage should this file be committed to public version control."
 
 ## Feature parity caveat
 
@@ -165,6 +165,8 @@ Both providers expose data sources that mirror most of their resources — see `
 
 ## Things not managed via these providers
 
+Source: vendor/terraform-provider-zia/docs/index.md; vendor/terraform-provider-zia/README.md; vendor/terraform-provider-zpa/docs/index.md; vendor/terraform-provider-zpa/README.md.
+
 From the feature-parity caveat above, plus direct observation:
 
 - **Log data** (access logs, firewall logs, DNS logs, LSS log streams) — consumed via NSS / LSS runtime, not through Terraform. Use `zia_cloud_nss_feed` / `zpa_lss_config_*` for *configuration* of the streaming, not for reading log data.
@@ -172,17 +174,15 @@ From the feature-parity caveat above, plus direct observation:
 - **Admin audit log viewing** — configuring audit streaming is TF-manageable; reading the stream is not.
 - **Deception policies** (`zpa-07`) — Zscaler Deception module resources are likely in the provider but with limited edit/copy/delete per *About Access Policy* p.6. See vendor docs for current status.
 
-Source: vendor/terraform-provider-zia/docs/index.md; vendor/terraform-provider-zia/README.md; vendor/terraform-provider-zpa/docs/index.md; vendor/terraform-provider-zpa/README.md.
-
 ## Handy companion tool
 
 `zscaler/zscaler-terraformer` (separate repo at `https://github.com/zscaler/zscaler-terraformer`) converts an existing Zscaler tenant's configuration into Terraform HCL — useful for onboarding an existing tenant into Terraform management without hand-writing every resource.
 
 ## Schema patterns worth knowing
 
-The TF providers encode API-behavior constraints that help docs and even the Python SDK don't surface. These apply broadly across resources — worth knowing before asking "why did my plan show a diff?" or "why did Terraform destroy-recreate this?".
-
 Source: vendor/terraform-provider-zia/README.md; vendor/terraform-provider-zpa/README.md.
+
+The TF providers encode API-behavior constraints that help docs and even the Python SDK don't surface. These apply broadly across resources — worth knowing before asking "why did my plan show a diff?" or "why did Terraform destroy-recreate this?".
 
 ### `DiffSuppressFunc` reveals API-side normalization
 
@@ -207,12 +207,12 @@ In many cases, the TF schema's `validation.StringInSlice([]string{...}, false)` 
 
 ### Programmatic constraints beyond schema
 
+Source: vendor/terraform-provider-zpa/README.md.
+
 Some mutual-exclusions live in resource `Create` / `Update` functions rather than in the schema — not visible from a schema dump:
 
 - **Browser Access app segments**: setting `certificate_id` while `ext_label` or `ext_domain` is configured is rejected in code (`resource_zpa_application_segment_browser_access.go:43-50`).
 - **Server Group `servers` required when `dynamic_discovery = false`** — enforced at Create/Update, not via `RequiredWith` in schema (`resource_zpa_server_group.go:214, 283-284`).
-
-Source: vendor/terraform-provider-zpa/README.md.
 
 ### Explicit schema-level mutual exclusions
 

@@ -105,13 +105,15 @@ Registration fields:
 | Authentication Type | Always "One Identity" |
 | Trust Binding | Strong or Loose (see above) |
 
-After creation, the app key must be **Published** to activate it. Once published, the key cannot be edited or deleted — only Revoked. Revoking an app key immediately invalidates all SDK tunnels for that app (Tier A — vendor/zscaler-help/zsdk-about-registered-apps.md, vendor/zscaler-help/zsdk-register-your-app.md).
+Source: `vendor/zscaler-help/zsdk-about-registered-apps.md`, `vendor/zscaler-help/zsdk-register-your-app.md`.
+
+After creation, the app key must be **Published** to activate it. Once published, the key cannot be edited or deleted — only Revoked. Revoking an app key immediately invalidates all SDK tunnels for that app.
 
 Navigation: Configuration & Control > Apps > Registered Apps
 
-Source: `vendor/zscaler-help/zsdk-about-registered-apps.md`, `vendor/zscaler-help/zsdk-register-your-app.md`.
-
 ### App Connectors and App Connector Groups
+
+Source: `vendor/zscaler-help/zsdk-about-app-connectors.md`, `vendor/zscaler-help/zsdk-understanding-zsdk-cloud-architecture.md`.
 
 App Connectors are VMs or Linux packages deployed in the customer's data center, private cloud, or public cloud (AWS EC2, etc.). They establish outbound mTLS tunnels to the ZSDK cloud.
 
@@ -122,9 +124,7 @@ Key properties:
 - Always-active; deployed in redundant pairs (App Connectors do not communicate with each other).
 - Outbound-only — no inbound ports needed.
 
-Navigation: Configuration & Control > Private Infrastructure > App Connector Management > App Connectors (Tier A — vendor/zscaler-help/zsdk-about-app-connectors.md)
-
-Source: `vendor/zscaler-help/zsdk-about-app-connectors.md`, `vendor/zscaler-help/zsdk-understanding-zsdk-cloud-architecture.md`.
+Navigation: Configuration & Control > Private Infrastructure > App Connector Management > App Connectors
 
 ### Application Segments
 
@@ -243,7 +243,9 @@ Source: `vendor/zscaler-help/zsdk-developer-reference.md`, `vendor/zscaler-help/
 
 ## Error codes
 
-### ZSDK error codes (Tier A — vendor/zscaler-help/zsdk-understanding-zsdk-error-codes.md)
+### ZSDK error codes
+
+Source: `vendor/zscaler-help/zsdk-understanding-zsdk-error-codes.md`.
 
 | Code | Name | Description |
 |---|---|---|
@@ -270,8 +272,6 @@ Source: `vendor/zscaler-help/zsdk-developer-reference.md`, `vendor/zscaler-help/
 | 9503 | tunnelAuthenticationFailed | Authentication failed due to configuration error |
 | 9504 | connectionTerminatedWhileUpgrading | Connection terminated during upgrade to Zero Trust tunnel; existing Prelogin tunnel stopped |
 | 9505 | tunnelUpgradeFailed | Upgrade to Zero Trust tunnel failed; Prelogin tunnel remains active |
-
-Source: `vendor/zscaler-help/zsdk-understanding-zsdk-error-codes.md`.
 
 ### API error codes
 

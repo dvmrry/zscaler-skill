@@ -26,11 +26,13 @@ author-status: draft
 
 # Zscaler policy evaluation — shared mental model
 
-How ZIA and ZPA structure policy evaluation, what they share, and where they diverge. Cited directly from Zscaler's authoritative documentation.
-
 Source: vendor/zscaler-help/Understanding_Policy_Enforcement.txt; vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/About_Access_Policy.txt; vendor/zscaler-help/Access_Policy_Deployment_and_Operations_Guide.txt; vendor/zscaler-help/About_Policies.txt.
 
+How ZIA and ZPA structure policy evaluation, what they share, and where they diverge. Cited directly from Zscaler's authoritative documentation.
+
 ## Summary (side-by-side)
+
+Source: vendor/zscaler-help/Understanding_Policy_Enforcement.txt; vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/About_Access_Policy.txt; vendor/zscaler-help/About_Policies.txt.
 
 | Dimension | ZIA (web traffic) | ZPA (private application access) |
 |---|---|---|
@@ -42,8 +44,6 @@ Source: vendor/zscaler-help/Understanding_Policy_Enforcement.txt; vendor/zscaler
 | **Cross-layer precedence** | Firewall→Web ordered; web module has per-method internal order; CAC-before-URL-filter with cascading flag | Segments carve out: specific FQDN removes that domain from overlapping wildcard segments by default |
 
 **ZIA default-allow vs ZPA default-block** is the single biggest cross-product difference and the most common source of wrong intuitive answers. Always confirm which product's defaults apply to a question before reasoning about rule precedence.
-
-Source: vendor/zscaler-help/Understanding_Policy_Enforcement.txt; vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/About_Access_Policy.txt; vendor/zscaler-help/About_Policies.txt.
 
 ## ZIA evaluation pipeline
 
@@ -100,6 +100,8 @@ Direct quote (*Understanding Policy Enforcement* p.13):
 
 ### CAC-vs-URL-filter cascading
 
+Source: vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/Understanding_Policy_Enforcement.txt.
+
 From *Configuring the URL Filtering Policy* p.1:
 
 > By default, the Cloud App Control policy takes precedence over the URL Filtering policy. If a user requests a cloud app that you explicitly allow with Cloud App Control policy, the service only applies the Cloud App Control policy and not the URL Filtering policy.
@@ -107,8 +109,6 @@ From *Configuring the URL Filtering Policy* p.1:
 > However, this behavior changes if you enable Allow Cascading to URL Filtering in Advanced Settings. If you do, the service applies the URL Filtering policy even if it applies a Cloud App Control policy rule allowing the transaction.
 
 Cascading flips the **allow** path only. A CAC block always wins regardless of cascading.
-
-Source: vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/Understanding_Policy_Enforcement.txt.
 
 ## ZPA evaluation pipeline
 
@@ -149,15 +149,17 @@ To reference NameID-bound value in policy criteria, configure an IdP-side user a
 
 ### Carved-out behavior on overlapping segments
 
+Source: vendor/zscaler-help/Configuring_Defined_Application_Segments.txt; vendor/zscaler-help/About_Policies.txt.
+
 From *Using Application Segment Multimatch* p.4 (cited in `../zpa/app-segments.md`):
 
 > After a specific FQDN (Fully Qualified Domain Name) has been configured in an application segment, it is removed from the wildcard application segment by default.
 
 So overlapping segments do **not** fall through to less-specific segments by default — specificity is exclusive unless Multimatch is enabled.
 
-Source: vendor/zscaler-help/Configuring_Defined_Application_Segments.txt; vendor/zscaler-help/About_Policies.txt.
-
 ## Shared patterns
+
+Source: vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt; vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/About_Access_Policy.txt; vendor/zscaler-help/About_Policies.txt; vendor/zscaler-help/Configuring_Defined_Application_Segments.txt.
 
 Both products share:
 
@@ -165,9 +167,9 @@ Both products share:
 - **Disabled rules retain their order position.** Documented for ZIA (*Configuring the URL Filtering Policy* p.3). ZPA-equivalent behavior is not explicitly stated in the vendored material — see [clarification `shared-06`](../_meta/clarifications.md#shared-06-zpa-disabled-rule-semantics).
 - **Specificity plays a role in category/segment resolution.** ZIA custom category specificity (*URL Filtering Deployment and Operations Guide* p.2): "More specific custom category entries always take precedence." ZPA segment specificity (*Understanding Application Access* p.1 + *Using Application Segment Multimatch* p.9): most-specific FQDN wins.
 
-Source: vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt; vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/About_Access_Policy.txt; vendor/zscaler-help/About_Policies.txt; vendor/zscaler-help/Configuring_Defined_Application_Segments.txt.
-
 ## Where the products genuinely differ
+
+Source: vendor/zscaler-help/Understanding_Policy_Enforcement.txt; vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/About_Access_Policy.txt; vendor/zscaler-help/About_Policies.txt; vendor/zscaler-help/Configuring_Defined_Application_Segments.txt.
 
 Beyond the default-allow vs default-block split:
 
@@ -176,14 +178,12 @@ Beyond the default-allow vs default-block split:
 - **ZIA post-decrypt visibility is optional** (controlled by the SSL Inspection policy). ZPA's segment decides the app before any TLS; the client forwards the TCP/UDP stream without needing to decrypt for policy-input purposes.
 - **ZPA evaluation is distributed** (client selects the segment before traffic reaches the cloud). ZIA evaluation is entirely at the Service Edge.
 
-Source: vendor/zscaler-help/Understanding_Policy_Enforcement.txt; vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/About_Access_Policy.txt; vendor/zscaler-help/About_Policies.txt; vendor/zscaler-help/Configuring_Defined_Application_Segments.txt.
-
 ## Edge cases spanning both products
+
+Source: vendor/zscaler-help/Configuring_Defined_Application_Segments.txt; vendor/zscaler-help/About_Access_Policy.txt; vendor/zscaler-help/Understanding_Policy_Enforcement.txt.
 
 - **Source IP Anchoring (SIPA).** ZPA application segments can enable "Inspect Traffic with ZIA" (*Configuring Defined Application Segments* p.2): "Enable to leverage single posture for securing internet or SaaS and private applications and apply Data Loss Prevention policies to the application segment you are creating." When enabled, ZPA hands internal-app traffic to ZIA for additional inspection. Country-code evaluation in ZPA then uses ZIA's public-IP (per *About Access Policy* p.2).
 - **Zscaler Client Connector is in both paths.** For endpoints with the Client Connector installed, a single forwarding profile decides ZIA vs ZPA vs direct vs bypass per destination. Both products see user identity (via Surrogate IP or Client Connector) and device posture consistently.
-
-Source: vendor/zscaler-help/Configuring_Defined_Application_Segments.txt; vendor/zscaler-help/About_Access_Policy.txt; vendor/zscaler-help/Understanding_Policy_Enforcement.txt.
 
 ## Open questions
 
