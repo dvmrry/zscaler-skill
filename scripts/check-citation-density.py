@@ -746,7 +746,7 @@ def main() -> int:
     parser.add_argument(
         "--strict-sources",
         action="store_true",
-        help="Exit 1 when --audit-sources finds Source: lines that cite internal refs, vague scopes, or unresolved bare .md names",
+        help="Exit 1 when source audits find quality or style issues",
     )
     parser.add_argument(
         "--attention",
@@ -827,9 +827,9 @@ def main() -> int:
             print()
             print(render_source_quality_audit(source_quality_issues, args.top))
 
-    if args.strict and (below or source_issues):
+    if args.strict and (below or source_issues or source_quality_issues):
         return 1
-    if args.strict_sources and source_issues:
+    if args.strict_sources and (source_issues or source_quality_issues):
         return 1
     return 0
 
