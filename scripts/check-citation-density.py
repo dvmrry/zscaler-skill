@@ -75,6 +75,8 @@ class FileScore:
     path: str
     confidence: str
     source_tier: str
+    content_type: str
+    audit_class: str
     paragraphs: int
     cited: int
     direct_cited: int
@@ -91,6 +93,7 @@ class SourceIssue:
     line: int
     kind: str
     text: str
+    severity: str = "quality"
 
 
 def strip_frontmatter(text: str) -> str:
@@ -159,6 +162,35 @@ def frontmatter_field(text: str, field: str) -> str:
     return field_match.group(1).strip()
 
 
+def audit_class_for_path(path: Path, text: str) -> str:
+    """Classify docs so density reports do not create fake remediation work."""
+    rel = path.relative_to(REPO_ROOT)
+    parts = rel.parts
+    content_type = frontmatter_field(text, "content-type").lower()
+    name = path.name
+    if name.endswith(("-schema.md", "-schemas.md", "-postman-schemas.md")):
+        return "schema"
+    if name.endswith("-template.md") or name == "template.md":
+        return "template"
+    if len(parts) >= 2 and parts[0] == "references" and parts[1] == "_meta":
+        return "meta"
+    if content_type in {"schema", "template", "meta", "process"}:
+        return content_type
+    if content_type in {"sdk", "api-inventory", "inventory"}:
+        return "inventory"
+    return "reference"
+
+
+def is_attention_candidate(score: FileScore, threshold: float, large_paragraphs: int) -> bool:
+    if score.audit_class not in {"reference", "reasoning"}:
+        return False
+    return (
+        score.paragraphs >= large_paragraphs
+        and score.density < threshold
+        and score.confidence.lower() in {"medium", "low", "unknown"}
+    )
+
+
 def audit_source_lines(path: Path) -> list[SourceIssue]:
     text = path.read_text(encoding="utf-8", errors="replace")
     source_basenames = frontmatter_source_basenames(text)
@@ -225,7 +257,22 @@ def source_payloads(line: str) -> list[tuple[str, str]]:
     return payloads
 
 
-def audit_source_quality(path: Path) -> list[SourceIssue]:
+ADVISORY_SOURCE_KINDS = {
+    "after-content-source",
+    "alternate-source-label",
+    "directory-source",
+    "duplicate-source-line",
+    "inline-source",
+    "mixed-source-style",
+}
+
+
+def issue(rel: str, line: int, kind: str, text: str) -> SourceIssue:
+    severity = "advisory" if kind in ADVISORY_SOURCE_KINDS else "quality"
+    return SourceIssue(rel, line, kind, text, severity)
+
+
+def audit_source_quality(path: Path, include_style: bool = False) -> list[SourceIssue]:
     text = path.read_text(encoding="utf-8", errors="replace")
     rel = str(path.relative_to(REPO_ROOT))
     issues: list[SourceIssue] = []
@@ -260,11 +307,11 @@ def audit_source_quality(path: Path) -> list[SourceIssue]:
         for style, source_text in payloads:
             source_styles.add(style)
             if style != "block-source":
-                issues.append(SourceIssue(rel, line_number, style, line.strip()))
+                issues.append(issue(rel, line_number, style, line.strip()))
 
             normalized = normalize_source_text(source_text)
             if normalized in section_seen_sources:
-                issues.append(SourceIssue(rel, line_number, "duplicate-source-line", line.strip()))
+                issues.append(issue(rel, line_number, "duplicate-source-line", line.strip()))
             else:
                 section_seen_sources[normalized] = line_number
 
@@ -272,36 +319,38 @@ def audit_source_quality(path: Path) -> list[SourceIssue]:
                 prev_line = previous_nonblank_line(line_number)
                 next_line = next_nonblank_line(line_number)
                 if prev_line and not HEADING_RE.match(prev_line) and not SOURCE_LINE_RE.match(prev_line) and HEADING_RE.match(next_line):
-                    issues.append(SourceIssue(rel, line_number, "after-content-source", line.strip()))
+                    issues.append(issue(rel, line_number, "after-content-source", line.strip()))
 
             if INTERNAL_SOURCE_RE.search(source_text):
-                issues.append(SourceIssue(rel, line_number, "internal-source", line.strip()))
+                issues.append(issue(rel, line_number, "internal-source", line.strip()))
             if VAGUE_SOURCE_RE.search(source_text):
-                issues.append(SourceIssue(rel, line_number, "vague-source", line.strip()))
+                issues.append(issue(rel, line_number, "vague-source", line.strip()))
             if INFERENCE_SOURCE_RE.search(source_text):
-                issues.append(SourceIssue(rel, line_number, "unsupported-inference", line.strip()))
+                issues.append(issue(rel, line_number, "unsupported-inference", line.strip()))
             if "CLAUDE.md" in source_text:
-                issues.append(SourceIssue(rel, line_number, "claude-md-source", line.strip()))
+                issues.append(issue(rel, line_number, "claude-md-source", line.strip()))
             if re.search(r"https?://", source_text):
-                issues.append(SourceIssue(rel, line_number, "live-url-source", line.strip()))
+                issues.append(issue(rel, line_number, "live-url-source", line.strip()))
 
             for source_path in SOURCE_PATH_RE.findall(source_text):
                 if source_path.endswith("/"):
-                    issues.append(SourceIssue(rel, line_number, "directory-source", line.strip()))
+                    issues.append(issue(rel, line_number, "directory-source", line.strip()))
                 if "/test" in source_path or source_path.endswith("_test.go") or "/tests/" in source_path:
-                    issues.append(SourceIssue(rel, line_number, "weak-test-source", line.strip()))
+                    issues.append(issue(rel, line_number, "weak-test-source", line.strip()))
 
             for filename in BARE_SOURCE_FILE_RE.findall(source_text):
                 if not filename.startswith(("vendor/", "scripts/")) and not re.search(
                     rf"(?:vendor|scripts)/[A-Za-z0-9_./-]*{re.escape(filename)}", source_text
                 ):
-                    issues.append(SourceIssue(rel, line_number, "bare-filename-source", line.strip()))
+                    issues.append(issue(rel, line_number, "bare-filename-source", line.strip()))
                     break
 
     if len(source_styles) > 1:
         styles = ", ".join(sorted(source_styles))
-        issues.insert(0, SourceIssue(rel, 1, "mixed-source-style", f"Source styles in file: {styles}"))
-    return issues
+        issues.insert(0, issue(rel, 1, "mixed-source-style", f"Source styles in file: {styles}"))
+    if include_style:
+        return issues
+    return [source_issue for source_issue in issues if source_issue.severity == "quality"]
 
 
 def references_frontmatter_source(paragraph: str, source_basenames: set[str]) -> bool:
@@ -435,6 +484,8 @@ def score_file(path: Path) -> FileScore | None:
         path=str(rel),
         confidence=frontmatter_field(text, "confidence") or "unknown",
         source_tier=frontmatter_field(text, "source-tier") or "unknown",
+        content_type=frontmatter_field(text, "content-type") or "unknown",
+        audit_class=audit_class_for_path(path, text),
         paragraphs=len(paragraphs),
         cited=cited,
         direct_cited=direct_cited,
@@ -482,19 +533,19 @@ def collect_source_issues(paths: list[Path]) -> list[SourceIssue]:
     return issues
 
 
-def collect_source_quality_issues(paths: list[Path]) -> list[SourceIssue]:
+def collect_source_quality_issues(paths: list[Path], include_style: bool = False) -> list[SourceIssue]:
     issues: list[SourceIssue] = []
     for root in paths:
         if not root.exists():
             continue
         if root.is_file():
             if root.suffix == ".md" and not should_skip(root):
-                issues.extend(audit_source_quality(root))
+                issues.extend(audit_source_quality(root, include_style=include_style))
             continue
         for path in sorted(root.rglob("*.md")):
             if should_skip(path):
                 continue
-            issues.extend(audit_source_quality(path))
+            issues.extend(audit_source_quality(path, include_style=include_style))
     return issues
 
 
@@ -543,13 +594,7 @@ def render_attention_report(
     min_paragraphs: int,
     large_paragraphs: int,
 ) -> str:
-    eligible = [
-        score
-        for score in scores
-        if score.paragraphs >= large_paragraphs
-        and score.density < threshold
-        and score.confidence.lower() in {"medium", "low", "unknown"}
-    ]
+    eligible = [score for score in scores if is_attention_candidate(score, threshold, large_paragraphs)]
     ranked = sorted(
         eligible,
         key=lambda s: (
@@ -574,7 +619,7 @@ def render_attention_report(
         lines.append(
             f"{score.density:.0%} cited ({score.cited}/{score.paragraphs}), "
             f"{score.uncited} uncited, confidence={score.confidence}, "
-            f"source-tier={score.source_tier} - {score.path}"
+            f"source-tier={score.source_tier}, audit-class={score.audit_class} - {score.path}"
         )
         if score.inherited_cited:
             lines.append(
@@ -608,18 +653,22 @@ def render_source_audit(issues: list[SourceIssue], top: int) -> str:
 
 def render_source_quality_audit(issues: list[SourceIssue], top: int) -> str:
     by_kind: dict[str, int] = {}
+    by_severity: dict[str, int] = {}
     for issue in issues:
         by_kind[issue.kind] = by_kind.get(issue.kind, 0) + 1
+        by_severity[issue.severity] = by_severity.get(issue.severity, 0) + 1
     lines = [
         "Source-quality audit",
         "=" * 40,
         f"Issues found: {len(issues)}",
     ]
+    for severity, count in sorted(by_severity.items()):
+        lines.append(f"{severity}: {count}")
     for kind, count in sorted(by_kind.items()):
         lines.append(f"{kind}: {count}")
     lines.append("")
     for issue in issues[:top]:
-        lines.append(f"{issue.path}:{issue.line}: {issue.kind}: {issue.text}")
+        lines.append(f"{issue.path}:{issue.line}: {issue.severity}:{issue.kind}: {issue.text}")
     if len(issues) > top:
         lines.append(f"... {len(issues) - top} more")
     return "\n".join(lines).rstrip()
@@ -650,7 +699,12 @@ def main() -> int:
     parser.add_argument(
         "--audit-source-quality",
         action="store_true",
-        help="Report weak or hard-to-audit source citation styles and evidence tiers",
+        help="Report weak or hard-to-audit source evidence. Citation placement, duplicate, and broad-scope advisories are excluded unless --include-source-style is set.",
+    )
+    parser.add_argument(
+        "--include-source-style",
+        action="store_true",
+        help="Include citation advisories such as inline, after-content, duplicate, mixed source placement, and broad directory sources.",
     )
     parser.add_argument(
         "--strict",
@@ -685,17 +739,17 @@ def main() -> int:
 
     scores = collect_scores(expanded)
     source_issues = collect_source_issues(expanded) if args.audit_sources else []
-    source_quality_issues = collect_source_quality_issues(expanded) if args.audit_source_quality else []
+    source_quality_issues = (
+        collect_source_quality_issues(expanded, include_style=args.include_source_style)
+        if args.audit_source_quality
+        else []
+    )
     eligible = [score for score in scores if score.paragraphs >= args.min_paragraphs]
     below = [score for score in eligible if score.density < args.threshold]
 
     if args.json:
         attention_scores = [
-            score
-            for score in scores
-            if score.paragraphs >= args.large_paragraphs
-            and score.density < args.threshold
-            and score.confidence.lower() in {"medium", "low", "unknown"}
+            score for score in scores if is_attention_candidate(score, args.threshold, args.large_paragraphs)
         ]
         payload = {
             "threshold": args.threshold,
