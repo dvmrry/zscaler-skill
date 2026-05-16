@@ -15,6 +15,7 @@ Examples:
   ./scripts/check-citation-density.py references agents
   ./scripts/check-citation-density.py --audit-sources
   ./scripts/check-citation-density.py --audit-source-quality
+  ./scripts/check-citation-density.py --audit-source-quality --include-semantic
   ./scripts/check-citation-density.py --citation-inventory
   ./scripts/check-citation-density.py --compare-citation-inventory references/_meta/citation-inventory.json --strict-inventory
   ./scripts/check-citation-density.py --audit-sources --strict-sources
@@ -62,6 +63,11 @@ VAGUE_SOURCE_RE = re.compile(
     r"(?i)\b(?:listed in frontmatter|sources? listed in frontmatter|sections above|same section|this section|linked in (?:the )?table|topical references|listed vendor sources|summary index|synthesis index)\b"
 )
 INFERENCE_SOURCE_RE = re.compile(r"(?i)\b(?:inferred|by analogy|reconstruct(?:ed|ion)|extrapolat(?:ed|ion))\b")
+MCP_SOURCE_RE = re.compile(r"\bvendor/zscaler-mcp-server/[A-Za-z0-9_./-]+")
+TEST_SOURCE_RE = re.compile(r"\b(?:vendor|scripts)/[A-Za-z0-9_./-]*(?:/tests?/|_test\.go|test_[A-Za-z0-9_.-]+)")
+FRONTMATTER_PROXY_RE = re.compile(
+    r"(?i)\b(?:sources? listed in frontmatter|listed in frontmatter|sources? listed above|frontmatter sources?)\b"
+)
 
 # Broad but intentionally transparent. This is a triage signal, not a verifier.
 CITATION_PATTERNS_RAW = [
@@ -275,7 +281,7 @@ def source_payloads(line: str) -> list[tuple[str, str]]:
     return payloads
 
 
-ADVISORY_SOURCE_KINDS = {
+STYLE_SOURCE_KINDS = {
     "after-content-source",
     "alternate-source-label",
     "directory-source",
@@ -284,13 +290,26 @@ ADVISORY_SOURCE_KINDS = {
     "mixed-source-style",
 }
 
+SEMANTIC_SOURCE_KINDS = {
+    "frontmatter-proxy-source",
+    "weak-mcp-source",
+    "weak-test-source",
+    "weak-test-source-inline",
+}
+
+ADVISORY_SOURCE_KINDS = STYLE_SOURCE_KINDS | SEMANTIC_SOURCE_KINDS
+
 
 def issue(rel: str, line: int, kind: str, text: str) -> SourceIssue:
     severity = "advisory" if kind in ADVISORY_SOURCE_KINDS else "quality"
     return SourceIssue(rel, line, kind, text, severity)
 
 
-def audit_source_quality(path: Path, include_style: bool = False) -> list[SourceIssue]:
+def audit_source_quality(
+    path: Path,
+    include_style: bool = False,
+    include_semantic: bool = False,
+) -> list[SourceIssue]:
     text = path.read_text(encoding="utf-8", errors="replace")
     rel = str(path.relative_to(REPO_ROOT))
     audit_class = audit_class_for_path(path, text)
@@ -322,6 +341,11 @@ def audit_source_quality(path: Path, include_style: bool = False) -> list[Source
             continue
         payloads = source_payloads(line)
         if not payloads:
+            if include_semantic:
+                if TEST_SOURCE_RE.search(line):
+                    issues.append(issue(rel, line_number, "weak-test-source-inline", line.strip()))
+                if FRONTMATTER_PROXY_RE.search(line):
+                    issues.append(issue(rel, line_number, "frontmatter-proxy-source", line.strip()))
             if line.strip():
                 previous_source_payload = ""
             continue
@@ -368,6 +392,10 @@ def audit_source_quality(path: Path, include_style: bool = False) -> list[Source
                 issues.append(issue(rel, line_number, "claude-md-source", line.strip()))
             if re.search(r"https?://", source_text):
                 issues.append(issue(rel, line_number, "live-url-source", line.strip()))
+            if include_semantic and MCP_SOURCE_RE.search(source_text):
+                issues.append(issue(rel, line_number, "weak-mcp-source", line.strip()))
+            if include_semantic and FRONTMATTER_PROXY_RE.search(source_text):
+                issues.append(issue(rel, line_number, "frontmatter-proxy-source", line.strip()))
 
             for source_path in SOURCE_PATH_RE.findall(source_text):
                 if source_path.endswith("/") and warn_directory_sources:
@@ -385,9 +413,16 @@ def audit_source_quality(path: Path, include_style: bool = False) -> list[Source
     if len(source_styles) > 1:
         styles = ", ".join(sorted(source_styles))
         issues.insert(0, issue(rel, 1, "mixed-source-style", f"Source styles in file: {styles}"))
+    visible_kinds = set()
     if include_style:
-        return issues
-    return [source_issue for source_issue in issues if source_issue.severity == "quality"]
+        visible_kinds.update(STYLE_SOURCE_KINDS)
+    if include_semantic:
+        visible_kinds.update(SEMANTIC_SOURCE_KINDS)
+    return [
+        source_issue
+        for source_issue in issues
+        if source_issue.severity == "quality" or source_issue.kind in visible_kinds
+    ]
 
 
 def references_frontmatter_source(paragraph: str, source_basenames: set[str]) -> bool:
@@ -554,19 +589,35 @@ def collect_scores(paths: list[Path]) -> list[FileScore]:
     return scores
 
 
-def collect_source_quality_issues(paths: list[Path], include_style: bool = False) -> list[SourceIssue]:
+def collect_source_quality_issues(
+    paths: list[Path],
+    include_style: bool = False,
+    include_semantic: bool = False,
+) -> list[SourceIssue]:
     issues: list[SourceIssue] = []
     for root in paths:
         if not root.exists():
             continue
         if root.is_file():
             if root.suffix == ".md" and not should_skip(root):
-                issues.extend(audit_source_quality(root, include_style=include_style))
+                issues.extend(
+                    audit_source_quality(
+                        root,
+                        include_style=include_style,
+                        include_semantic=include_semantic,
+                    )
+                )
             continue
         for path in sorted(root.rglob("*.md")):
             if should_skip(path):
                 continue
-            issues.extend(audit_source_quality(path, include_style=include_style))
+            issues.extend(
+                audit_source_quality(
+                    path,
+                    include_style=include_style,
+                    include_semantic=include_semantic,
+                )
+            )
     return issues
 
 
@@ -862,6 +913,11 @@ def main() -> int:
         help="Include citation advisories such as inline, after-content, duplicate, mixed source placement, and broad directory sources.",
     )
     parser.add_argument(
+        "--include-semantic",
+        action="store_true",
+        help="Include advisory semantic/evidence-tier heuristics such as MCP-derived or test-file evidence.",
+    )
+    parser.add_argument(
         "--strict",
         action="store_true",
         help="Exit 1 when any scanned file is below threshold",
@@ -869,7 +925,7 @@ def main() -> int:
     parser.add_argument(
         "--strict-sources",
         action="store_true",
-        help="Exit 1 when source audits find quality or style issues",
+        help="Exit 1 when source audits find any returned quality, style, or semantic issues",
     )
     parser.add_argument(
         "--attention",
@@ -897,7 +953,11 @@ def main() -> int:
         args.citation_inventory or args.write_citation_inventory or args.compare_citation_inventory
     ) else []
     source_quality_issues = (
-        collect_source_quality_issues(expanded, include_style=args.include_source_style)
+        collect_source_quality_issues(
+            expanded,
+            include_style=args.include_source_style,
+            include_semantic=args.include_semantic,
+        )
         if args.audit_sources or args.audit_source_quality
         else []
     )
