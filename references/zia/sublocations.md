@@ -22,7 +22,7 @@ author-status: draft
 
 A focused reference for the sublocation construct in ZIA. For the broader three-tier model (Location / Sublocation / Location Group), see [`./locations.md`](./locations.md). This document provides the sublocation-specific depth that `locations.md` deliberately omits.
 
-Source: `vendor/zscaler-help/understanding-sublocations.md`, `vendor/zscaler-sdk-python/zscaler/zia/locations.py`, `vendor/terraform-provider-zia/docs/resources/zia_location_management.md`.
+Source: `vendor/zscaler-help/understanding-sublocations.md`; `vendor/zscaler-sdk-python/zscaler/zia/locations.py`; `vendor/terraform-provider-zia/docs/resources/zia_location_management.md`.
 
 ---
 
@@ -66,7 +66,7 @@ A location group does not care about the parent-child structure of its members. 
 
 **The operator confusion pattern:** an admin creates a sublocation to segregate guest traffic, then creates a location group thinking it replaces or overrides the sublocation. They are additive. The sublocation controls which policy scope the traffic is evaluated against based on source IP. The location group controls which rules include or exclude that sublocation as a match criterion.
 
-Source: `vendor/zscaler-help/understanding-sublocations.md`, `vendor/zscaler-help/about-location-groups.md`.
+Source: `vendor/zscaler-help/understanding-sublocations.md`; `vendor/zscaler-help/about-location-groups.md`.
 
 ---
 
@@ -79,7 +79,7 @@ Sublocations do not inherit or extend the parent's IP range — they define an i
 - **IP address formats for sublocations:** single IP, CIDR (e.g., `10.10.33.0/24`), or range (e.g., `10.10.33.1-10.10.33.10`). Parent locations use public egress IPs; sublocations use private/internal or tunnel inner IPs. (Tier A — `vendor/zscaler-sdk-python/zscaler/zia/locations.py` — `add_location` docstring, `ip_addresses` field description for sub-locations)
 - **Gaps in coverage:** any IP that arrives from the parent's forwarding path and does not match a defined sublocation range is caught by the `other` sublocation. If IPv6 is enabled, `other6` catches unmatched IPv6 traffic.
 
-Source: `vendor/zscaler-help/understanding-sublocations.md`, `vendor/zscaler-sdk-python/zscaler/zia/locations.py`, `vendor/terraform-provider-zia/docs/resources/zia_location_management.md`.
+Source: `vendor/zscaler-help/understanding-sublocations.md`; `vendor/zscaler-sdk-python/zscaler/zia/locations.py`; `vendor/terraform-provider-zia/docs/resources/zia_location_management.md`.
 
 ---
 
@@ -95,7 +95,7 @@ Bandwidth enforcement for sublocations operates within the parent location's tot
 
 The TF resource expresses bandwidth per-sublocation using `up_bandwidth` and `dn_bandwidth` in the same `zia_location_management` resource block as the sublocation. (Tier A — `vendor/terraform-provider-zia/docs/resources/zia_location_management.md`)
 
-Source: `vendor/zscaler-help/understanding-sublocations.md`, `vendor/zscaler-sdk-python/zscaler/zia/locations.py`, `vendor/terraform-provider-zia/docs/resources/zia_location_management.md`.
+Source: `vendor/zscaler-help/understanding-sublocations.md`; `vendor/zscaler-sdk-python/zscaler/zia/locations.py`; `vendor/terraform-provider-zia/docs/resources/zia_location_management.md`.
 
 ---
 
@@ -117,7 +117,7 @@ ZIA rules that scope by "location" can reference both parent locations and sublo
 
 **Default-policy fallthrough:** when no explicit rule matches a sublocation, the rule engine falls through to the default rule for that policy module (last in the rule list, first-match-wins). This default rule applies to traffic from the sublocation the same way it applies to any other unmatched traffic. The `other` sublocation is subject to the same fallthrough — leaving `other` without an explicit policy scope means traffic from unmatched IPs gets the default policy, which may be more permissive than intended if other sublocations have been tightened.
 
-Source: `vendor/zscaler-help/understanding-sublocations.md`, `vendor/terraform-provider-zia/docs/resources/zia_location_management.md`.
+Source: `vendor/zscaler-help/understanding-sublocations.md`; `vendor/terraform-provider-zia/docs/resources/zia_location_management.md`.
 
 ---
 
@@ -142,7 +142,7 @@ Other per-location settings that can be configured independently on a sublocatio
 
 Because these settings are independent and not inherited from the parent, operators must explicitly configure each sublocation. A newly created sublocation does not automatically pick up the parent's auth, firewall, or SSL settings.
 
-Source: `vendor/zscaler-help/understanding-sublocations.md`, `vendor/zscaler-sdk-python/zscaler/zia/locations.py`, `vendor/terraform-provider-zia/docs/resources/zia_location_management.md`.
+Source: `vendor/zscaler-help/understanding-sublocations.md`; `vendor/zscaler-sdk-python/zscaler/zia/locations.py`; `vendor/terraform-provider-zia/docs/resources/zia_location_management.md`.
 
 ---
 
@@ -160,7 +160,7 @@ The sublocation can set `xff_forward_enabled` independently of its parent. A sub
 
 There is no mechanism to assign a different GRE tunnel or IPSec SA to a sublocation versus its parent. Forwarding method differentiation requires separate parent locations.
 
-Source: `vendor/zscaler-help/understanding-sublocations.md`, `vendor/zscaler-sdk-python/zscaler/zia/locations.py`.
+Source: `vendor/zscaler-help/understanding-sublocations.md`; `vendor/zscaler-sdk-python/zscaler/zia/locations.py`.
 
 ---
 
@@ -239,7 +239,7 @@ The vendor source does not explicitly document what happens to sublocations when
 
 The API/SDK `parent_id` field is writable on update. Setting `parent_id = 0` on an existing sublocation would, in principle, promote it to a parent location. Setting a non-zero `parent_id` on an existing parent location would demote it to a sublocation. Whether the API enforces constraints on this (e.g., requiring no existing sublocations before demotion) is not documented in available sources — see [Deferred items](#deferred-items).
 
-Source: `vendor/zscaler-sdk-python/zscaler/zia/locations.py`, `vendor/terraform-provider-zia/docs/resources/zia_location_management.md`.
+Source: `vendor/zscaler-sdk-python/zscaler/zia/locations.py`; `vendor/terraform-provider-zia/docs/resources/zia_location_management.md`.
 
 ---
 
@@ -271,7 +271,7 @@ Source: `vendor/zscaler-sdk-python/zscaler/zia/locations.py`, `vendor/terraform-
 
 6. **Sublocation scope fields (`sub_loc_scope`, `sub_loc_scope_values`, `sub_loc_acc_ids`) are AWS-specific.** These fields apply only to Workload traffic type sublocations whose parent locations are associated with AWS Cloud Connector groups. The `sub_loc_scope` options are: `VPC_ENDPOINT`, `VPC`, `NAMESPACE`, `ACCOUNT`. Using these fields on non-workload or non-AWS sublocations has no defined effect. (Tier A — `vendor/terraform-provider-zia/docs/resources/zia_location_management.md`)
 
-Source: `vendor/zscaler-help/understanding-sublocations.md`, `vendor/zscaler-sdk-python/zscaler/zia/locations.py`, `vendor/terraform-provider-zia/docs/resources/zia_location_management.md`.
+Source: `vendor/zscaler-help/understanding-sublocations.md`; `vendor/zscaler-sdk-python/zscaler/zia/locations.py`; `vendor/terraform-provider-zia/docs/resources/zia_location_management.md`.
 
 ---
 

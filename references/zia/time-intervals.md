@@ -55,7 +55,7 @@ documented as affecting time-interval evaluation.
 
 ## 2. Schema
 
-Source: `vendor/zscaler-sdk-python/zscaler/zia/models/time_intervals.py`, `vendor/zscaler-sdk-go/zscaler/zia/services/time_intervals/time_intervals.go`, `vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_time_windows.py`, `vendor/terraform-provider-zia/docs/data-sources/zia_firewall_filtering_time_window.md`.
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/time_intervals.py`; `vendor/zscaler-sdk-go/zscaler/zia/services/time_intervals/time_intervals.go`; `vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_time_windows.py`; `vendor/terraform-provider-zia/docs/data-sources/zia_firewall_filtering_time_window.md`.
 
 The `TimeInterval` object exposed by both SDKs has the following fields:
 
@@ -134,7 +134,7 @@ and accessed via a different endpoint.
 
 ## 3. Where time intervals are referenced
 
-Source: `vendor/zscaler-sdk-python/zscaler/zia/time_intervals.py`, `vendor/zscaler-sdk-python/zscaler/zia/models/time_intervals.py`, `vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_time_windows.py`.
+Source: `vendor/zscaler-sdk-python/zscaler/zia/time_intervals.py`; `vendor/zscaler-sdk-python/zscaler/zia/models/time_intervals.py`; `vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_time_windows.py`.
 
 The table below lists ZIA rule types that accept a `timeWindows` criterion (the shared
 field name across all rule types at the API level). The field accepts a list of
@@ -172,7 +172,7 @@ Control Policy.
 
 ### SDK field name note
 
-Source: `vendor/zscaler-sdk-python/zscaler/zia/time_intervals.py`, `vendor/zscaler-sdk-python/zscaler/zia/models/time_intervals.py`.
+Source: `vendor/zscaler-sdk-python/zscaler/zia/time_intervals.py`; `vendor/zscaler-sdk-python/zscaler/zia/models/time_intervals.py`.
 
 All rule modules that accept time references use the field name `time_windows` (Python
 snake_case) / `timeWindows` (API wire key / Go JSON tag). The Python SDK's
@@ -205,7 +205,7 @@ description; consistent with URL Filtering policy evaluation in references/zia/u
 
 ## 5. Holidays and exceptions
 
-Source: `vendor/zscaler-sdk-python/zscaler/zia/models/time_intervals.py`, `vendor/zscaler-sdk-go/zscaler/zia/services/time_intervals/time_intervals.go`.
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/time_intervals.py`; `vendor/zscaler-sdk-go/zscaler/zia/services/time_intervals/time_intervals.go`.
 
 Time interval objects have no built-in support for date-based exclusions such as public
 holidays, one-off closure days, or exceptions to the weekly recurrence. The schema
@@ -223,7 +223,7 @@ condition. There is no dedicated "holiday calendar" object in ZIA.
 
 ### Python SDK
 
-Source: `vendor/zscaler-sdk-python/zscaler/zia/time_intervals.py`, `vendor/zscaler-sdk-python/zscaler/zia/models/time_intervals.py`.
+Source: `vendor/zscaler-sdk-python/zscaler/zia/time_intervals.py`; `vendor/zscaler-sdk-python/zscaler/zia/models/time_intervals.py`.
 
 Accessor: `client.zia.time_intervals`
 
@@ -268,7 +268,7 @@ Package: `zscaler/zia/services/time_intervals`
 
 ### Terraform
 
-Source: `vendor/terraform-provider-zia/docs/data-sources/zia_firewall_filtering_time_window.md`, `vendor/zscaler-sdk-python/zscaler/zia/time_intervals.py`, `vendor/zscaler-sdk-go/zscaler/zia/services/time_intervals/time_intervals.go`.
+Source: `vendor/terraform-provider-zia/docs/data-sources/zia_firewall_filtering_time_window.md`; `vendor/zscaler-sdk-python/zscaler/zia/time_intervals.py`; `vendor/zscaler-sdk-go/zscaler/zia/services/time_intervals/time_intervals.go`.
 
 There is no managed resource (`resource` block) for time intervals in the ZIA Terraform
 provider. The Terraform provider exposes time window lookup only as a **data source** for
@@ -292,7 +292,7 @@ is added in the future, or managing them out-of-band via the API/SDK.
 
 ### Activation requirement
 
-Source: `vendor/zscaler-sdk-go/zscaler/zia/services/time_intervals/time_intervals.go`, `vendor/zscaler-sdk-python/zscaler/zia/time_intervals.py`.
+Source: `vendor/zscaler-sdk-go/zscaler/zia/services/time_intervals/time_intervals.go`; `vendor/zscaler-sdk-python/zscaler/zia/time_intervals.py`.
 
 ZIA changes are generally staged and only take effect after an activation call. Treat time
 interval CRUD operations as part of that activation model unless a tenant test proves
@@ -322,7 +322,7 @@ see different effective policy windows.
 
 ### DST behavior
 
-Source: `vendor/zscaler-help/about-time-intervals.md`, `vendor/zscaler-sdk-python/zscaler/zia/models/time_intervals.py`.
+Source: `vendor/zscaler-help/about-time-intervals.md`; `vendor/zscaler-sdk-python/zscaler/zia/models/time_intervals.py`.
 
 No vendor source documents explicit DST handling for time intervals. Whether the start/end
 minute-offset values are interpreted in the location's timezone including DST offsets, or
@@ -331,7 +331,7 @@ deferred question (see Section 8 and the clarifications file).
 
 ### Per-rule time window cap (Firewall rules)
 
-Source: `vendor/zscaler-help/about-time-intervals.md`, `vendor/zscaler-sdk-python/zscaler/zia/time_intervals.py`.
+Source: `vendor/zscaler-help/about-time-intervals.md`; `vendor/zscaler-sdk-python/zscaler/zia/time_intervals.py`.
 
 Firewall filtering rules accept a maximum of 2 time windows per rule.
 (Tier B — references/zia/firewall.md, criterion-limit table)
@@ -341,7 +341,7 @@ sources.
 
 ### Minutes-from-midnight wire format surprises
 
-Source: `vendor/zscaler-sdk-python/zscaler/zia/time_intervals.py`, `vendor/zscaler-sdk-python/zscaler/zia/models/time_intervals.py`, `vendor/zscaler-sdk-go/zscaler/zia/services/time_intervals/time_intervals.go`.
+Source: `vendor/zscaler-sdk-python/zscaler/zia/time_intervals.py`; `vendor/zscaler-sdk-python/zscaler/zia/models/time_intervals.py`; `vendor/zscaler-sdk-go/zscaler/zia/services/time_intervals/time_intervals.go`.
 
 The `startTime` and `endTime` fields accept integers (minutes from midnight), not HH:MM
 strings. Code that passes string values (e.g., `"08:00"`) will fail or produce unexpected

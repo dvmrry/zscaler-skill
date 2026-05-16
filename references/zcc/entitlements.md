@@ -19,7 +19,7 @@ author-status: draft
 
 # ZCC entitlements — which users/groups get ZPA and ZDX
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py; vendor/zscaler-sdk-python/zscaler/zcc/models/zdxgroupentitlements.py; vendor/zscaler-sdk-python/zscaler/zcc/entitlements.py; vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py`; `vendor/zscaler-sdk-python/zscaler/zcc/models/zdxgroupentitlements.py`; `vendor/zscaler-sdk-python/zscaler/zcc/entitlements.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go`.
 
 Entitlements decide, per user/group, whether ZCC enables the **ZPA** (private-app access) and **ZDX** (digital experience monitoring) services on top of its baseline ZIA functionality. Both are add-on services billed per-seat. Users who are not entitled do not get the relevant features even if the policy objects exist in the tenant.
 
@@ -34,7 +34,7 @@ ZCC's baseline capability is ZIA traffic forwarding — every enrolled user gets
 
 **ZIA is always on for enrolled users** — there is no "ZIA entitlement" object. A ZCC install that reaches the Zscaler cloud can always be inspected by ZIA policy.
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py; vendor/zscaler-sdk-python/zscaler/zcc/models/zdxgroupentitlements.py; vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py`; `vendor/zscaler-sdk-python/zscaler/zcc/models/zdxgroupentitlements.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go`.
 
 ---
 
@@ -57,7 +57,7 @@ Entitlement is **not** the same as ZPA Access Policy. An entitled user still nee
 2. Does a matching ZPA Access Policy rule exist for this user + app? If not — ZPA evaluates and denies. LSS records are generated.
 3. Is the App Connector reachable, healthy, and scoped to the segment? App Connector layer.
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py; vendor/zscaler-sdk-python/zscaler/zcc/models/zdxgroupentitlements.py; vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go; vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py`; `vendor/zscaler-sdk-python/zscaler/zcc/models/zdxgroupentitlements.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go`; `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md`.
 
 ---
 
@@ -78,7 +78,7 @@ From `vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py` (lin
 
 ### The `zpa_enable_for_all` trump card
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py; vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go`.
 
 Setting `zpa_enable_for_all = true` disables the effect of `group_list`. An operator adding specific groups to `group_list` while this flag is true is still entitling everyone — the narrow config is dormant. If the flag is later toggled back to false, the stale `group_list` becomes authoritative again and may entitle users who should not have access. Audit the full object on toggle changes.
 
@@ -86,7 +86,7 @@ Setting `zpa_enable_for_all = true` disables the effect of `group_list`. An oper
 
 Machine Tunnel — the ZPA mode where the device (not the user) establishes a tunnel, used for pre-login access to domain controllers and internal resources before the user authenticates — requires `machine_tun_enabled_for_all = true`. There is no per-group machine-tunnel entitlement at the `ZpaGroupEntitlements` level. It is an all-devices-or-none toggle here; per-device scoping is handled via Machine Groups in ZPA and the App Profile machine provisioning key. See [`./azure-vm-deployment.md`](./azure-vm-deployment.md) for the machine tunnel deployment model.
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py; vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go; vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go`; `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md`.
 
 ---
 
@@ -106,7 +106,7 @@ From `vendor/zscaler-sdk-python/zscaler/zcc/models/zdxgroupentitlements.py` (lin
 
 ### `upm_enable_for_all` is the ZDX equivalent of `zpa_enable_for_all`
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/zdxgroupentitlements.py; vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/zdxgroupentitlements.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go`.
 
 Earlier versions of this doc said "no zdx_enable_for_all shortcut" — that was wrong. The field exists, just with a different name: `upmEnableForAll` (`zdxgroupentitlements.py:47`, `entitlements.go:28`). Same semantics as ZPA's `zpa_enable_for_all` — when true, `upm_group_list` and `upm_device_group_list` are ignored and ZDX is enabled tenant-wide.
 
@@ -125,7 +125,7 @@ The naming follows the "UPM" prefix convention: UPM = User Posture Module (the Z
 
 See [`./web-privacy.md`](./web-privacy.md) for the WebPrivacy side.
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/zdxgroupentitlements.py; vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/zdxgroupentitlements.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go`.
 
 ---
 
@@ -145,7 +145,7 @@ No deep traces, no app-health metrics, no probes from this user's endpoint. The 
 
 A user can be entitled to ZPA at the entitlement level but still not get ZPA forwarding if their App Profile's Forwarding Profile has ZPA actions set to `NONE` on all network types. Entitlement opens the product; the Forwarding Profile controls the traffic path. Check both layers.
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py; vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go; vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go`; `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md`.
 
 ---
 
@@ -163,7 +163,7 @@ The App Profile (Web Policy) interacts with entitlements in the following ways (
 
 All methods on `client.zcc.entitlements`. **Endpoint URL paths and the singleton-vs-list shape differ from earlier doc claims** — this section was previously wrong on multiple counts.
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/entitlements.py; vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go; vendor/zscaler-sdk-go/zscaler/zcc/services/common/common.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/entitlements.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go`; `vendor/zscaler-sdk-go/zscaler/zcc/services/common/common.go`.
 
 | Method | HTTP | Full path | Source |
 |---|---|---|---|
@@ -215,7 +215,7 @@ For ZDX (`entitlements.go:32–38`), the same shape but the last field is `UpmEn
 
 The Python SDK reads these as plain strings, **discarding `active`, `authType`, `groupId`, `groupName`, and `zpaEnabled`/`upmEnabled` fields**. A Python caller cannot tell, from the SDK return value alone, whether a group is currently active, what its authType is, or whether ZPA is actually enabled within that group entry. Use the Go SDK or direct API calls if these fields matter.
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py; vendor/zscaler-sdk-python/zscaler/zcc/models/zdxgroupentitlements.py; vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py`; `vendor/zscaler-sdk-python/zscaler/zcc/models/zdxgroupentitlements.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go`.
 
 ---
 
@@ -248,7 +248,7 @@ ZPA de-entitlement relies on natural reconnect — there is no force-logout equi
 
 For ZDX, `logout_zcc_for_zdx_service = true` forces an immediate ZCC logout when ZDX entitlement is removed. This is the only force-logout mechanism in the entitlement model.
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py; vendor/zscaler-sdk-python/zscaler/zcc/models/zdxgroupentitlements.py; vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py`; `vendor/zscaler-sdk-python/zscaler/zcc/models/zdxgroupentitlements.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go`.
 
 ---
 
@@ -256,7 +256,7 @@ Source: vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py; ve
 
 App Profile (Web Policy) changes — including changes that affect which Forwarding Profile a user gets — propagate only on ZCC logout/restart. **Entitlement changes are not subject to this lag** — entitlement evaluation happens at the Zscaler service layer when ZCC attempts to establish a service session, not at App Profile download time. However, if an App Profile change is needed alongside an entitlement change (e.g., adding machine provisioning key while enabling `machine_tun_enabled_for_all`), the App Profile half does not take effect until next restart.
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py; vendor/zscaler-sdk-python/zscaler/zcc/models/zdxgroupentitlements.py; vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md; vendor/zscaler-help/configuring-zscaler-client-connector-app-profiles.md.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py`; `vendor/zscaler-sdk-python/zscaler/zcc/models/zdxgroupentitlements.py`; `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md`; `vendor/zscaler-help/configuring-zscaler-client-connector-app-profiles.md`.
 
 ---
 
@@ -271,7 +271,7 @@ Source: vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py; ve
 - **Python SDK group-list fields are stringly-typed**: When reading ZPA or ZDX entitlements via Python, group entries are bare strings — no per-group `active`, `authType`, `groupId`, or `*Enabled` flags. The Go SDK exposes these. A Python-only audit of "are entitled groups currently active" cannot be done from the SDK return values alone — it requires direct API access to read the structured response.
 - **`upmEnableForAll` was missing from earlier docs**: The previous version of this doc claimed there was no `zdx_enable_for_all` shortcut. There is — it's just named `upmEnableForAll` (UPM = User Posture Module). Same for `upmGroupList` (user-group entitlement, distinct from device-group). Both were documented as absent and are present in both SDKs.
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py; vendor/zscaler-sdk-python/zscaler/zcc/models/zdxgroupentitlements.py; vendor/zscaler-sdk-python/zscaler/zcc/entitlements.py; vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py`; `vendor/zscaler-sdk-python/zscaler/zcc/models/zdxgroupentitlements.py`; `vendor/zscaler-sdk-python/zscaler/zcc/entitlements.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go`.
 
 ---
 

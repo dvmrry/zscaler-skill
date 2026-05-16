@@ -119,7 +119,7 @@ rhs        = "true"                  // always "true"; "false" is accepted by v1
                                      // validators in v2 schema enforce only "true"
 ```
 
-Source: vendor/terraform-provider-zpa/zpa/common.go.
+Source: `vendor/terraform-provider-zpa/zpa/common.go`.
 
 The TF provider validates `lhs` by calling `GetByNetID` at plan time — a plan with an invalid `networkId` will fail at `terraform plan`.
 

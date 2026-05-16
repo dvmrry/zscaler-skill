@@ -26,7 +26,7 @@ For the architectural overview and score bucket definitions in narrative form, s
 
 ## Score model
 
-Source: vendor/zscaler-help/about-zdx-score.md.
+Source: `vendor/zscaler-help/about-zdx-score.md`.
 
 **Scale**: 0–100. 0 is the lowest (worst) and 100 is the highest (best). (`vendor/zscaler-help/about-zdx-score.md:19`)
 
@@ -46,7 +46,7 @@ Source: vendor/zscaler-help/about-zdx-score.md.
 
 ## Score calculation
 
-Source: vendor/zscaler-help/about-zdx-score.md; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go.
+Source: `vendor/zscaler-help/about-zdx-score.md`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go`.
 
 ### Primary input
 
@@ -67,7 +67,7 @@ The ZDX Score for applications is based primarily on the **Page Fetch Time (PFT)
 
 ## Score scopes
 
-Source: vendor/zscaler-help/about-zdx-score.md.
+Source: `vendor/zscaler-help/about-zdx-score.md`.
 
 Each scope applies the "lowest-value-wins" pattern at a different aggregation level. (`vendor/zscaler-help/about-zdx-score.md:38`)
 
@@ -95,7 +95,7 @@ A user's ZDX Score is the **lowest application score** the user experienced duri
 
 ## API endpoints
 
-Source: vendor/zscaler-sdk-python/zscaler/zdx/apps.py; vendor/zscaler-sdk-python/zscaler/zdx/devices.py; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go; vendor/zscaler-sdk-go/zscaler/zdx/services/common/common.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zdx/apps.py`; `vendor/zscaler-sdk-python/zscaler/zdx/devices.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/common/common.go`.
 
 All endpoints require a time-range filter; if omitted, the last 2 hours are used. (`vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go:17`, `vendor/zscaler-sdk-go/zscaler/zdx/services/common/common.go:17-20`)
 
@@ -113,7 +113,7 @@ Go SDK does not expose a `list_app_users` equivalent in the reviewed source. Dev
 
 ## Field tables
 
-Source: vendor/zscaler-sdk-python/zscaler/zdx/apps.py; vendor/zscaler-sdk-python/zscaler/zdx/models/applications.py; vendor/zscaler-sdk-python/zscaler/zdx/models/common.py; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go; vendor/zscaler-sdk-go/zscaler/zdx/services/common/common.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zdx/apps.py`; `vendor/zscaler-sdk-python/zscaler/zdx/models/applications.py`; `vendor/zscaler-sdk-python/zscaler/zdx/models/common.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/common/common.go`.
 
 ### Application list / score fields (`Apps` struct / `ActiveApplications` model)
 
@@ -194,7 +194,7 @@ Python also exposes a `score_bucket` filter on `list_app_users()` (values: `poor
 
 ## SDK divergences
 
-Source: vendor/zscaler-sdk-python/zscaler/zdx/apps.py; vendor/zscaler-sdk-python/zscaler/zdx/devices.py; vendor/zscaler-sdk-python/zscaler/zdx/models/applications.py; vendor/zscaler-sdk-python/zscaler/zdx/models/common.py; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_apps.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zdx/apps.py`; `vendor/zscaler-sdk-python/zscaler/zdx/devices.py`; `vendor/zscaler-sdk-python/zscaler/zdx/models/applications.py`; `vendor/zscaler-sdk-python/zscaler/zdx/models/common.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_apps.go`.
 
 **Python response wrapping**: Python SDK wraps responses in model classes (`ApplicationScore`, `ApplicationScoreTrend`, `ApplicationMetrics`) that inherit from `ZscalerObject`. (`models/applications.py:76`, `models/applications.py:180`, `models/applications.py:220`)
 
@@ -210,7 +210,7 @@ Source: vendor/zscaler-sdk-python/zscaler/zdx/apps.py; vendor/zscaler-sdk-python
 
 ## Edge cases and gotchas
 
-Source: vendor/zscaler-help/about-zdx-score.md.
+Source: `vendor/zscaler-help/about-zdx-score.md`.
 
 **Lowest-value-wins creates apparent spikes**: ZDX reports the worst case within each time window, not the average. A single bad 5-minute probe result pulls the entire hour's score down. A score jump from 90 to 40 in one hour may reflect only one poor sample, not a sustained degradation. (`vendor/zscaler-help/about-zdx-score.md:38`)
 
@@ -226,7 +226,7 @@ Source: vendor/zscaler-help/about-zdx-score.md.
 
 ## Open questions
 
-Source: vendor/zscaler-help/about-zdx-score.md; vendor/zscaler-sdk-python/zscaler/zdx/apps.py; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go.
+Source: `vendor/zscaler-help/about-zdx-score.md`; `vendor/zscaler-sdk-python/zscaler/zdx/apps.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go`.
 
 - **Exact numerical weighting between PFT and Availability** — the docs state both are inputs but do not document the weighting formula or relative weight — *unverified, requires vendor doc or lab test*
 - **Zero-value handling in the lowest-value-within-hour rollup** — unclear whether probe failures (zero or null values) are included or excluded in lowest-value selection, which materially affects how availability impacts the hourly score — *unverified, requires vendor doc or tenant-side check*

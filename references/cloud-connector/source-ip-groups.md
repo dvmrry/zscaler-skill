@@ -20,7 +20,7 @@ author-status: draft
 
 # Cloud Connector Source IP Groups — primitives and policy use
 
-Source: vendor/zscaler-help/cbc-about-source-ip-groups.md; vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md; vendor/terraform-provider-ztc/docs/resources/ztc_ip_source_groups.md; vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/ipsourcegroups/ipsourcegroups.go.
+Source: `vendor/zscaler-help/cbc-about-source-ip-groups.md`; `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`; `vendor/terraform-provider-ztc/docs/resources/ztc_ip_source_groups.md`; `vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/ipsourcegroups/ipsourcegroups.go`.
 
 Source IP Groups (also rendered as "IP Source Groups" in API/provider naming) are named,
 reusable sets of IP addresses that identify workload sources in Cloud Connector forwarding
@@ -29,7 +29,7 @@ distinct from IP Pool Groups (which are used as ZPA redirect targets in DNS rule
 
 ## Overview
 
-Source: vendor/zscaler-help/cbc-about-source-ip-groups.md; vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md.
+Source: `vendor/zscaler-help/cbc-about-source-ip-groups.md`; `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`.
 
 Source IP Groups let operators:
 
@@ -54,7 +54,7 @@ Cross-links:
 
 ## Object model
 
-Source: vendor/zscaler-help/cbc-about-source-ip-groups.md; vendor/terraform-provider-ztc/docs/resources/ztc_ip_source_groups.md; vendor/terraform-provider-ztc/ztc/resource_ztc_ip_source_groups.go; vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/ipsourcegroups/ipsourcegroups.go.
+Source: `vendor/zscaler-help/cbc-about-source-ip-groups.md`; `vendor/terraform-provider-ztc/docs/resources/ztc_ip_source_groups.md`; `vendor/terraform-provider-ztc/ztc/resource_ztc_ip_source_groups.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/ipsourcegroups/ipsourcegroups.go`.
 
 ### Fields
 
@@ -110,7 +110,7 @@ referencing is possible but requires using the ZIA provider's data source to res
 
 ## Policy interaction
 
-Source: vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md; vendor/terraform-provider-ztc/examples/ztc_traffic_forwarding_rule/basic_forward_method_zia.tf; vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go.
+Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`; `vendor/terraform-provider-ztc/examples/ztc_traffic_forwarding_rule/basic_forward_method_zia.tf`; `vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go`.
 
 ### Rule types that accept Source IP Groups as a criterion
 
@@ -175,7 +175,7 @@ in `ztc_ip_source_groups` does not specify IPv4-only; this is an open question.
 
 ## Terraform and SDK surface
 
-Source: vendor/terraform-provider-ztc/docs/resources/ztc_ip_source_groups.md; vendor/terraform-provider-ztc/docs/data-sources/ztc_ip_source_groups.md; vendor/terraform-provider-ztc/ztc/resource_ztc_ip_source_groups.go; vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/ipsourcegroups/ipsourcegroups.go.
+Source: `vendor/terraform-provider-ztc/docs/resources/ztc_ip_source_groups.md`; `vendor/terraform-provider-ztc/docs/data-sources/ztc_ip_source_groups.md`; `vendor/terraform-provider-ztc/ztc/resource_ztc_ip_source_groups.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/ipsourcegroups/ipsourcegroups.go`.
 
 ### Terraform resource: `ztc_ip_source_groups`
 
@@ -328,7 +328,7 @@ detachment step) will fail with a dependency error from the API.
 
 ## Known gotchas
 
-Source: vendor/terraform-provider-ztc/docs/resources/ztc_ip_source_groups.md; vendor/terraform-provider-ztc/examples/ztc_traffic_forwarding_rule/basic_forward_method_zia.tf; vendor/terraform-provider-ztc/ztc/resource_ztc_ip_source_groups.go; vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go.
+Source: `vendor/terraform-provider-ztc/docs/resources/ztc_ip_source_groups.md`; `vendor/terraform-provider-ztc/examples/ztc_traffic_forwarding_rule/basic_forward_method_zia.tf`; `vendor/terraform-provider-ztc/ztc/resource_ztc_ip_source_groups.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go`.
 
 ### Bug: wrong resource type in the doc example
 
@@ -410,7 +410,7 @@ activated. The provider's `ztc_activation_status` resource handles this in-plan,
 
 ## Open questions register
 
-Source: vendor/zscaler-help/cbc-about-source-ip-groups.md; vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md; vendor/terraform-provider-ztc/docs/resources/ztc_ip_source_groups.md; vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/ipsourcegroups/ipsourcegroups.go.
+Source: `vendor/zscaler-help/cbc-about-source-ip-groups.md`; `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`; `vendor/terraform-provider-ztc/docs/resources/ztc_ip_source_groups.md`; `vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/ipsourcegroups/ipsourcegroups.go`.
 
 1. **Per-group member limit**: No documented upper bound on entries per group. Confirm with
    Zscaler support whether there is a platform limit.

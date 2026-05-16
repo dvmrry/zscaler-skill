@@ -21,7 +21,7 @@ author-status: draft
 
 # Forwarding Control + Source IP Anchoring (SIPA)
 
-Source: vendor/zscaler-sdk-python/zscaler/zia/forwarding_control.py; vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_rule.go; vendor/zscaler-help/Traffic_Forwarding_in_ZIA_Reference_Architecture.txt.
+Source: `vendor/zscaler-sdk-python/zscaler/zia/forwarding_control.py`; `vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_rule.go`; `vendor/zscaler-help/Traffic_Forwarding_in_ZIA_Reference_Architecture.txt`.
 
 Forwarding Control is the ZIA policy that decides **what happens to traffic after inspection** — it governs egress routing, not content decisions. It sits at the end of the ZIA pipeline, after URL Filtering, SSL Inspection, CAC, DLP, and all other content-inspection modules have had their say. When traffic clears those gates, a Forwarding Control rule determines where it goes next.
 
@@ -45,7 +45,7 @@ Because Forwarding Control fires after content inspection, a ZPA-forwarded flow 
 
 ## Forward methods (the `forward_method` field)
 
-Source: vendor/zscaler-sdk-python/zscaler/zia/forwarding_control.py; vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_rule.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zia/forwarding_control.py`; `vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_rule.go`.
 
 From the TF provider schema and Python SDK (Tier A — both sources):
 
@@ -79,7 +79,7 @@ Four predefined forwarding rules ship with every ZIA tenant. The TF provider enf
 
 ## Source IP Anchoring (SIPA)
 
-Source: vendor/zscaler-help/configuring-forwarding-policies-source-ip-anchoring-using-zpa.md; vendor/zscaler-help/configuring-source-ip-anchoring.md; vendor/zscaler-help/understanding-source-ip-anchoring.md; vendor/zscaler-help/understanding-source-ip-anchoring-direct.md.
+Source: `vendor/zscaler-help/configuring-forwarding-policies-source-ip-anchoring-using-zpa.md`; `vendor/zscaler-help/configuring-source-ip-anchoring.md`; `vendor/zscaler-help/understanding-source-ip-anchoring.md`; `vendor/zscaler-help/understanding-source-ip-anchoring-direct.md`.
 
 ### What problem it solves
 
@@ -124,7 +124,7 @@ Revert both changes when ZIA recovers.
 
 ## ZPA Gateway — the ZIA-side cross-product handle
 
-Source: vendor/zscaler-sdk-python/zscaler/zia/zpa_gateway.py; vendor/zscaler-sdk-python/zscaler/zia/forwarding_control.py; vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_zpa_gateway.go; vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_rule.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zia/zpa_gateway.py`; `vendor/zscaler-sdk-python/zscaler/zia/forwarding_control.py`; `vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_zpa_gateway.go`; `vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_rule.go`.
 
 The ZPA Gateway is a ZIA resource that serves as the reference point connecting a Forwarding Control rule to the ZPA side. It does **not** live in ZPA Admin Portal; it is configured entirely within ZIA.
 
@@ -148,7 +148,7 @@ A forwarding rule with `forward_method = ZPA` requires both `zpa_gateway` and `z
 
 ## Rule criteria
 
-Source: vendor/zscaler-sdk-python/zscaler/zia/forwarding_control.py; vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_rule.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zia/forwarding_control.py`; `vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_rule.go`.
 
 Forwarding Control rules share the standard ZIA rule-criteria model. From the TF schema and Python SDK (Tier A):
 
@@ -163,7 +163,7 @@ Rule evaluation is first-match-wins in ascending Rule Order, with Admin Rank as 
 
 ## DNS configuration for SIPA
 
-Source: vendor/zscaler-help/configuring-source-ip-anchoring.md; vendor/zscaler-help/configuring-forwarding-policies-source-ip-anchoring-using-zpa.md.
+Source: `vendor/zscaler-help/configuring-source-ip-anchoring.md`; `vendor/zscaler-help/configuring-forwarding-policies-source-ip-anchoring-using-zpa.md`.
 
 SIPA requires matching DNS forwarding rules to function end-to-end. ZIA ships two predefined DNS Control rules (Tier A — *Configuring Source IP Anchoring* help doc):
 
@@ -174,7 +174,7 @@ Both must be enabled and ordered correctly: Road Warrior rule must have higher r
 
 ## Gotchas
 
-Source: vendor/zscaler-help/configuring-forwarding-policies-source-ip-anchoring-using-zpa.md; vendor/zscaler-help/configuring-source-ip-anchoring.md; vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_rule.go; vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_zpa_gateway.go.
+Source: `vendor/zscaler-help/configuring-forwarding-policies-source-ip-anchoring-using-zpa.md`; `vendor/zscaler-help/configuring-source-ip-anchoring.md`; `vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_rule.go`; `vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_zpa_gateway.go`.
 
 1. **ZPA Gateway health dependency.** If the ZPA Server Group referenced by the gateway has no healthy connectors, traffic matching the ZPA forwarding rule has nowhere to go. The fallback behavior is not documented in the sources reviewed — the `Fallback mode of ZPA Forwarding` predefined rule exists to catch this case, but its exact action is not source-confirmed. Treat traffic delivery as unreliable if connectors are unhealthy. (Tier D inference from predefined rule name; actual fallback semantics unverified.)
 
@@ -208,7 +208,7 @@ Configuration of dedicated proxy ports is handled on the Location Management pag
 
 Zscaler recommends enabling Surrogate IP on proxy ports and for remote users (`Traffic_Forwarding_in_ZIA_Reference_Architecture.txt:1115`).
 
-Source: vendor/zscaler-help/Traffic_Forwarding_in_ZIA_Reference_Architecture.txt.
+Source: `vendor/zscaler-help/Traffic_Forwarding_in_ZIA_Reference_Architecture.txt`.
 
 Required configuration (`Traffic_Forwarding_in_ZIA_Reference_Architecture.txt:1118`):
 

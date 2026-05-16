@@ -75,7 +75,7 @@ Pagination parameters are passed as URL query parameters on the POST request:
 
 ### Response structure
 
-Source: `vendor/zscaler-sdk-python/zscaler/zwa/models/audit_logs.py`, `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go`
+Source: `vendor/zscaler-sdk-python/zscaler/zwa/models/audit_logs.py`; `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go`.
 
 The response is an `AuditLogsResponse` envelope:
 
@@ -86,7 +86,7 @@ The response is an `AuditLogsResponse` envelope:
 
 #### Cursor fields
 
-Source: `vendor/zscaler-sdk-go/zscaler/zwa/services/common/common.go`
+Source: `vendor/zscaler-sdk-go/zscaler/zwa/services/common/common.go`.
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -98,7 +98,7 @@ Source: `vendor/zscaler-sdk-go/zscaler/zwa/services/common/common.go`
 
 #### `AuditLog` entry fields
 
-Source: `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go`
+Source: `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go`.
 
 | Field | JSON key | Type | Description |
 |-------|----------|------|-------------|
@@ -193,7 +193,7 @@ for _, log := range auditLogs {
 
 ### Pagination behavior
 
-Source: `vendor/zscaler-sdk-go/zscaler/zwa/services/common/common.go`
+Source: `vendor/zscaler-sdk-go/zscaler/zwa/services/common/common.go`.
 
 The ZWA pagination engine (`common.ReadAllPages`) uses a **cursor + total pages** model:
 
@@ -212,7 +212,7 @@ No streaming destination mechanism (equivalent to ZIA NSS or ZPA LSS) is documen
 
 ## Open questions
 
-Source: vendor/zscaler-sdk-python/zscaler/zwa/models/audit_logs.py; vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zwa/models/audit_logs.py`; `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go`.
 
 1. **Resolved 2026-04-26.** Python model field gap confirmed. The `Logs` model class only has `action`, `module`, and `resource`. The Go `AuditLog` struct also has `changedAt`, `changedBy`, `oldRowJson`, `newRowJson`, and `changeNote`. The Python model is incomplete relative to the Go struct. Whether the Python API response genuinely omits these fields or the model just fails to map them cannot be confirmed without a live API test.
 

@@ -35,7 +35,7 @@ Zscaler recommends using pre-shared keys (PSK) with long keys (`Traffic_Forwardi
 | Integrity | SHA-256 or SHA-1 | MD5 | SHA-1 | MD5 |
 | Confidentiality | AES-256 | NULL | AES-128 | NULL |
 
-Source: `Traffic_Forwarding_in_ZIA_Reference_Architecture.txt:877`.
+Source: `vendor/zscaler-help/Traffic_Forwarding_in_ZIA_Reference_Architecture.txt:877`.
 
 Phase 2 confidentiality is `NULL` because the ESP payload is already inside an authenticated, integrity-protected channel. This is the rationale Zscaler cites for disabling PFS (see below).
 

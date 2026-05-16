@@ -24,7 +24,7 @@ The Sandbox module (Cloud Sandbox / Advanced Sandbox) subjects suspicious files 
 
 ## What actually gets analyzed — Basic vs Advanced
 
-Source: vendor/zscaler-mcp-server/skills/zia/investigate-sandbox/SKILL.md; vendor/zscaler-mcp-server/commands/investigate-sandbox.md.
+Source: `vendor/zscaler-mcp-server/skills/zia/investigate-sandbox/SKILL.md`; `vendor/zscaler-mcp-server/commands/investigate-sandbox.md`.
 
 Two Sandbox tiers. The difference drives most "why wasn't this file analyzed?" questions.
 
@@ -38,7 +38,7 @@ Two Sandbox tiers. The difference drives most "why wasn't this file analyzed?" q
 
 ## Static analysis fast-path
 
-Source: vendor/zscaler-mcp-server/skills/zia/investigate-sandbox/SKILL.md.
+Source: `vendor/zscaler-mcp-server/skills/zia/investigate-sandbox/SKILL.md`.
 
 Per the MCP `investigate-sandbox` skill, for Office and PDF files, Sandbox first runs a static analysis step:
 
@@ -49,7 +49,7 @@ An operator who sees "Benign — No Active Content" in logs should not interpret
 
 ## SSL inspection as a hard prerequisite
 
-Source: vendor/zscaler-mcp-server/skills/zia/investigate-sandbox/SKILL.md; vendor/zscaler-mcp-server/commands/investigate-sandbox.md; vendor/zscaler-help/ZIA_SSL_Inspection_Leading_Practices_Guide.txt.
+Source: `vendor/zscaler-mcp-server/skills/zia/investigate-sandbox/SKILL.md`; `vendor/zscaler-mcp-server/commands/investigate-sandbox.md`; `vendor/zscaler-help/ZIA_SSL_Inspection_Leading_Practices_Guide.txt`.
 
 **Sandbox cannot see files inside HTTPS traffic that isn't decrypted.** From the *ZIA SSL Inspection Leading Practices Guide* and cross-confirmed by the MCP `investigate-sandbox` skill:
 
@@ -60,7 +60,7 @@ Source: vendor/zscaler-mcp-server/skills/zia/investigate-sandbox/SKILL.md; vendo
 
 ## Quarantine edge cases
 
-Source: vendor/zscaler-mcp-server/skills/zia/investigate-sandbox/SKILL.md.
+Source: `vendor/zscaler-mcp-server/skills/zia/investigate-sandbox/SKILL.md`.
 
 The MCP skill calls out three non-obvious quarantine scenarios:
 
@@ -91,7 +91,7 @@ After a file receives a BENIGN verdict on one Public Service Edge, other PSEs ma
 
 ## "Blocked by Sandbox" vs "Blocked by Malware Protection" vs "Blocked by ATP"
 
-Source: vendor/zscaler-mcp-server/skills/zia/investigate-sandbox/SKILL.md; vendor/zscaler-mcp-server/commands/investigate-sandbox.md.
+Source: `vendor/zscaler-mcp-server/skills/zia/investigate-sandbox/SKILL.md`; `vendor/zscaler-mcp-server/commands/investigate-sandbox.md`.
 
 The ZIA Insights log's **Blocked Policy Type** field is the discriminator. Each has dramatically different API surface:
 
@@ -105,7 +105,7 @@ If a user says "ZIA blocked my file," the first clarification to ask is which po
 
 ## A BENIGN Sandbox verdict is not a clean bill of health
 
-Source: vendor/zscaler-mcp-server/skills/zia/investigate-sandbox/SKILL.md.
+Source: `vendor/zscaler-mcp-server/skills/zia/investigate-sandbox/SKILL.md`.
 
 The Sandbox verdict covers only the Sandbox engine's analysis. A file that Sandbox cleared can still be blocked downstream by:
 
@@ -120,7 +120,7 @@ When answering "why is this file blocked when Sandbox says it's clean," the usua
 
 ## Troubleshooting decision tree (from MCP skill)
 
-Source: vendor/zscaler-mcp-server/skills/zia/investigate-sandbox/SKILL.md; vendor/zscaler-mcp-server/commands/investigate-sandbox.md.
+Source: `vendor/zscaler-mcp-server/skills/zia/investigate-sandbox/SKILL.md`; `vendor/zscaler-mcp-server/commands/investigate-sandbox.md`.
 
 ```
 File unexpectedly blocked?
@@ -146,7 +146,7 @@ File stuck in quarantine?
 
 ## Default rule order is `127`, NOT `-1` — Sandbox is the outlier
 
-Source: vendor/terraform-provider-zia/zia/resource_zia_sandbox_rules.go; vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_rules/sandbox_rules.go.
+Source: `vendor/terraform-provider-zia/zia/resource_zia_sandbox_rules.go`; `vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_rules/sandbox_rules.go`.
 
 Most ZIA rule types return their default rule with `order = -1` (a sentinel meaning "always last, can't be reordered before"). **Sandbox returns its default rule with `order = 127`** — a real number, not a sentinel. From upstream `zscaler/terraform-provider-zia` issue #405 (closed; tracked under engineering ticket `BUG-208047`):
 
@@ -160,7 +160,7 @@ This default-order anomaly is **not documented** in Zscaler's help portal at cap
 
 ## Sandbox Rule API — programmatic control of first-time-file behavior
 
-Source: vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_rules/sandbox_rules.go; vendor/terraform-provider-zia/zia/resource_zia_sandbox_rules.go.
+Source: `vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_rules/sandbox_rules.go`; `vendor/terraform-provider-zia/zia/resource_zia_sandbox_rules.go`.
 
 Beyond the analysis / report layer, Sandbox has a full **rule CRUD surface** the earlier doc treated as console-only. The Go SDK (`vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_rules/sandbox_rules.go`) exposes a `SandboxRules` object with standard scope fields (Locations, Groups, Departments, Users, Device Groups) plus Sandbox-specific behaviors:
 
@@ -178,7 +178,7 @@ Python SDK may not cover all these fields; Go SDK is authoritative for the full 
 
 ## Discan API — out-of-band instant inspection
 
-Source: vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_submission/sandbox_submission.go.
+Source: `vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_submission/sandbox_submission.go`.
 
 Separate from `SubmitFile` (which submits to Sandbox for full dynamic analysis), Go SDK exposes **`Discan`** (`sandbox_submission.go:44` — `POST /zscsb/discan`) for **real-time out-of-band file inspection** without dynamic analysis. Combines:
 
@@ -191,7 +191,7 @@ Use case: an operator wants an instant verdict on a file, doesn't want to queue 
 
 ## Open questions
 
-Source: vendor/zscaler-mcp-server/skills/zia/investigate-sandbox/SKILL.md; vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_report/sandbox_report.go; vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_rules/sandbox_rules.go.
+Source: `vendor/zscaler-mcp-server/skills/zia/investigate-sandbox/SKILL.md`; `vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_report/sandbox_report.go`; `vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_rules/sandbox_rules.go`.
 
 - **No API for Malware Protection or ATP block diagnosis** — the MCP server documents this gap explicitly. Skill should surface this limitation when users hit either policy type. Candidate for a new clarification if we find it warrants one.
 - ~~**Sandbox quota semantics** — `zia_get_sandbox_quota` exists but response schema isn't documented in the vendored MCP skill. Unclear what the units are (files/day? bytes/month?).~~ **Resolved (2026-04-24)**: Go SDK `RatingQuota` struct (`sandbox_report.go:18-25`) defines the response as `{ StartTime int, Used int, Allowed int, Scale string, Unused int }`. Quota is a **time-bounded count of report retrievals**, not bytes — `StartTime` is epoch; `Scale` is the time unit (hour/day/month/etc.); `Used`/`Allowed`/`Unused` are report-count buckets. Quota applies to the Sandbox report-fetch API, not to submission volume.

@@ -592,7 +592,7 @@ No TF resource. No TF data source in ZTC provider (use ZIA's `zia_workload_group
 
 ## Common types
 
-Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go`
+Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go`.
 
 | Type | Fields | Usage |
 |---|---|---|

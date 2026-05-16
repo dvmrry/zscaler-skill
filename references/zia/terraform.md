@@ -158,7 +158,7 @@ All rule-based resources (firewall, URL filtering, DLP, SSL inspection, sandbox,
 
 ### `zia_url_filtering_rules`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_url_filtering_rules.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_url_filtering_rules.md`.
 
 URL filtering policy rules that allow, block, caution, or isolate user web traffic by category, protocol, application, or device group.
 
@@ -176,7 +176,7 @@ Import: by numeric ID or rule name.
 
 ### `zia_url_filtering_and_cloud_app_settings`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_url_filtering_and_cloud_app_settings.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_url_filtering_and_cloud_app_settings.md`.
 
 Singleton resource for URL and Cloud App Control advanced policy settings. Manages global toggles including Office 365 integration, UCaaS breakout, and generative AI prompt logging.
 
@@ -193,7 +193,7 @@ Gotcha: Only one instance should exist per tenant. Import by the literal string 
 
 ### `zia_cloud_app_control_rule`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_cloud_app_control_rule.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_cloud_app_control_rule.md`.
 
 Cloud App Control policy rules that allow, block, or isolate access to specific cloud applications, grouped by application type.
 
@@ -210,7 +210,7 @@ Gotcha: ISOLATE actions require a CBI subscription and cannot be mixed with othe
 
 ### `zia_cloud_application_instance`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_cloud_application_instance.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_cloud_application_instance.md`.
 
 Defines cloud application tenant instances (e.g., corporate-only Slack workspace) that can be referenced in Cloud App Control rules for tenant restriction.
 
@@ -224,7 +224,7 @@ Import: by numeric ID or name.
 
 ### `zia_url_categories`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_url_categories.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_url_categories.md`.
 
 Custom URL categories that can be referenced in URL filtering rules, DLP rules, and SSL inspection rules.
 
@@ -240,7 +240,7 @@ Gotcha: A maximum of 48 custom URL categories is allowed per tenant. The `val` a
 
 ### `zia_url_categories_predefined`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_url_categories_predefined.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_url_categories_predefined.md`.
 
 Augments existing predefined URL categories by adding or removing URLs and keywords without creating a new category. Does not support create or delete; changes are incremental using `ADD_TO_LIST` or `REMOVE_FROM_LIST`.
 
@@ -254,7 +254,7 @@ Gotcha: The `description` field is not supported by the API for predefined categ
 
 ### `zia_risk_profiles`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_risk_profiles.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_risk_profiles.md`.
 
 Cloud application risk profiles that classify cloud apps by security attributes (data encryption, MFA, admin audit, etc.) for use in Cloud App Control rules.
 
@@ -268,7 +268,7 @@ Import: by numeric ID or name.
 
 ### `zia_tenant_restriction_profile`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_tenant_restriction_profile.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_tenant_restriction_profile.md`.
 
 Tenant restriction profiles that limit which organizational tenants users can access within a SaaS application.
 
@@ -287,7 +287,7 @@ Import: by numeric ID or name.
 
 ### `zia_firewall_filtering_rule`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_firewall_filtering_rule.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_firewall_filtering_rule.md`.
 
 Cloud Firewall policy rules that allow, block, or drop network traffic based on source/destination IP, port, protocol, application, user, and time.
 
@@ -303,7 +303,7 @@ Gotcha: Predefined rules cannot be destroyed. Destruction of predefined rules is
 
 ### `zia_firewall_dns_rule`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_firewall_dns_rule.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_firewall_dns_rule.md`.
 
 DNS Control policy rules that allow, block, or redirect DNS queries based on domain, category, or application.
 
@@ -319,7 +319,7 @@ Gotcha: When either `dest_ip_categories` or `res_categories` is set, both fields
 
 ### `zia_firewall_ips_rule`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_firewall_ips_rule.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_firewall_ips_rule.md`.
 
 IPS Control policy rules that allow, block, reset, or bypass intrusion prevention for traffic matching threat categories.
 
@@ -334,7 +334,7 @@ Import: by numeric ID or name.
 
 ### `zia_ips_signature_rules`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_ips_signature_rules.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_ips_signature_rules.md`.
 
 Custom IPS signature definitions written in Suricata/Snort syntax. These are not IPS policy rules themselves; they create the custom signatures that IPS Control rules consume through the assigned threat category.
 
@@ -354,7 +354,7 @@ Import: by signature ID or signature name.
 
 ### `zia_nat_control_rules`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_nat_control_rules.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_nat_control_rules.md`.
 
 DNAT (Destination NAT) rules that redirect traffic to a different IP, port, or FQDN.
 
@@ -370,7 +370,7 @@ Import: by numeric ID or name.
 
 ### `zia_firewall_filtering_destination_groups`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_firewall_filtering_destination_groups.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_firewall_filtering_destination_groups.md`.
 
 IP destination groups that classify destination IP addresses or custom URL categories for use in firewall rules.
 
@@ -385,7 +385,7 @@ Gotcha: The `ip_categories` field accepts only custom URL categories, not predef
 
 ### `zia_firewall_filtering_ip_source_groups`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_firewall_filtering_ip_source_groups.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_firewall_filtering_ip_source_groups.md`.
 
 IP source groups that classify source IP address ranges for use in firewall rules.
 
@@ -398,7 +398,7 @@ Import: by numeric ID or name.
 
 ### `zia_firewall_filtering_network_service`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_firewall_filtering_network_service.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_firewall_filtering_network_service.md`.
 
 Network service objects defining protocol and port combinations for use in firewall rules.
 
@@ -412,7 +412,7 @@ Gotcha: PREDEFINED services must be imported first using Zscaler-Terraformer; th
 
 ### `zia_firewall_filtering_network_service_groups`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_firewall_filtering_network_service_groups.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_firewall_filtering_network_service_groups.md`.
 
 Groups of network service objects for bulk reference in firewall rules.
 
@@ -425,7 +425,7 @@ Import: by numeric ID or name.
 
 ### `zia_firewall_filtering_network_application_groups`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_firewall_filtering_network_application_groups.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_firewall_filtering_network_application_groups.md`.
 
 Groups of cloud network application identifiers for firewall rule matching.
 
@@ -442,7 +442,7 @@ Import: by numeric ID or name.
 
 ### `zia_dlp_web_rules`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_dlp_web_rules.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_dlp_web_rules.md`.
 
 DLP web policy rules that inspect outbound web traffic for sensitive content and apply block, allow, quarantine, or watermark actions.
 
@@ -459,7 +459,7 @@ Gotcha: Maximum of 127 DLP web rules. URL categories must be referenced by their
 
 ### `zia_dlp_dictionaries`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_dlp_dictionaries.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_dlp_dictionaries.md`.
 
 DLP dictionaries containing phrases, patterns, EDM, or IDM entries used in DLP engines and rules.
 
@@ -474,7 +474,7 @@ Import: by numeric ID or name.
 
 ### `zia_dlp_engines`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_dlp_engines.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_dlp_engines.md`.
 
 Custom DLP engines that combine dictionaries using logical expressions to drive DLP rule matching.
 
@@ -488,7 +488,7 @@ Gotcha: POST/PUT/DELETE on custom DLP engines requires explicit enablement by Zs
 
 ### `zia_dlp_notification_templates`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_dlp_notification_templates.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_dlp_notification_templates.md`.
 
 DLP notification templates used to send email alerts to users or administrators when a DLP policy violation is detected.
 
@@ -503,7 +503,7 @@ Import: by numeric ID or name.
 
 ### `zia_casb_dlp_rules`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_casb_dlp_rules.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_casb_dlp_rules.md`.
 
 SaaS Security API (CASB) data-at-rest scanning DLP rules that inspect files stored in connected cloud applications.
 
@@ -519,7 +519,7 @@ Import: by compound key `rule_type:rule_id`.
 
 ### `zia_casb_malware_rules`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_casb_malware_rules.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_casb_malware_rules.md`.
 
 SaaS Security API (CASB) data-at-rest scanning malware detection rules that inspect files stored in connected cloud applications.
 
@@ -535,7 +535,7 @@ Import: by compound key `rule_type:rule_id`.
 
 ### `zia_email_profile`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_email_profile.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_email_profile.md`.
 
 Email recipient profiles used in DLP notification templates to define groups of email recipients for violation alerts.
 
@@ -552,7 +552,7 @@ Gotcha: This is an Early Access feature and may not be available in all tenants.
 
 ### `zia_ssl_inspection_rules`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_ssl_inspection_rules.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_ssl_inspection_rules.md`.
 
 SSL inspection policy rules that decrypt, bypass, or block HTTPS traffic based on category, application, user, or location.
 
@@ -572,7 +572,7 @@ Import: by numeric ID or name.
 
 ### `zia_sandbox_rules`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_sandbox_rules.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_sandbox_rules.md`.
 
 Sandbox policy rules that control which file types are submitted to the cloud sandbox for behavioral analysis.
 
@@ -589,7 +589,7 @@ Import: by numeric ID or name.
 
 ### `zia_sandbox_behavioral_analysis`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_sandbox_behavioral_analysis.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_sandbox_behavioral_analysis.md`.
 
 Legacy singleton resource for the sandbox MD5 hash blocklist. Manages the list of MD5 hashes that sandbox always blocks.
 
@@ -601,7 +601,7 @@ Import: by the literal string `"sandbox_settings"`. Superseded by `zia_sandbox_b
 
 ### `zia_sandbox_behavioral_analysis_v2`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_sandbox_behavioral_analysis_v2.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_sandbox_behavioral_analysis_v2.md`.
 
 New-format singleton resource for the sandbox MD5 hash list, supporting type-tagged entries.
 
@@ -613,7 +613,7 @@ Gotcha: This is an Early Access feature. It supersedes `zia_sandbox_behavioral_a
 
 ### `zia_sandbox_file_submission`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_sandbox_file_submission.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_sandbox_file_submission.md`.
 
 Submits a file to the Zscaler cloud sandbox for analysis. This resource is not a typical CRUD resource — it performs a file submission on create and has no read, update, or import.
 
@@ -631,7 +631,7 @@ Gotcha: Requires `ZSCALER_SANDBOX_TOKEN` and a Sandbox license. Not importable.
 
 ### `zia_bandwidth_control_rule`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_bandwidth_control_rule.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_bandwidth_control_rule.md`.
 
 Bandwidth control policy rules that enforce upload and download speed limits on user traffic based on application, category, or protocol.
 
@@ -648,7 +648,7 @@ Gotcha: Requires Zscaler OneAPI authentication. Not supported with the legacy AP
 
 ### `zia_bandwidth_classes`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_bandwidth_classes.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_bandwidth_classes.md`.
 
 Bandwidth class objects that group URLs, URL categories, or web applications for reference in bandwidth control rules.
 
@@ -663,7 +663,7 @@ Gotcha: Requires Zscaler OneAPI. Import by numeric ID or name.
 
 ### `zia_bandwidth_classes_file_size`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_bandwidth_classes_file_size.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_bandwidth_classes_file_size.md`.
 
 Bandwidth class objects that classify traffic by file size for use in bandwidth control rules.
 
@@ -675,7 +675,7 @@ Gotcha: Requires Zscaler OneAPI. Import by numeric ID or name.
 
 ### `zia_bandwidth_classes_web_conferencing`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_bandwidth_classes_web_conferencing.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_bandwidth_classes_web_conferencing.md`.
 
 Bandwidth class objects that classify web conferencing or VoIP application traffic for bandwidth control.
 
@@ -693,7 +693,7 @@ Gotcha: Requires Zscaler OneAPI. Import by numeric ID or name.
 
 ### `zia_file_type_control_rules`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_file_type_control_rules.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_file_type_control_rules.md`.
 
 File Type Control policy rules that allow or block file transfers based on file type and direction.
 
@@ -709,7 +709,7 @@ Import: by numeric ID or name.
 
 ### `zia_custom_file_types`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_custom_file_types.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_custom_file_types.md`.
 
 Custom file type definitions that extend the built-in file type library for use in File Type Control rules.
 
@@ -727,7 +727,7 @@ Import: by numeric ID or name.
 
 ### `zia_traffic_capture_rules`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_traffic_capture_rules.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_traffic_capture_rules.md`.
 
 Traffic capture policy rules that define which transactions are captured for security analysis, with size and sampling controls.
 
@@ -746,7 +746,7 @@ Import: by numeric ID or name.
 
 ### `zia_forwarding_control_rule`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_forwarding_control_rule.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_forwarding_control_rule.md`.
 
 Forwarding control rules that direct traffic to a specific forwarding method: ZIA cloud, a proxy, or a ZPA app segment.
 
@@ -762,7 +762,7 @@ Gotcha: When `forward_method = "ZPA"`, the provider pauses 60 seconds and retrie
 
 ### `zia_forwarding_control_zpa_gateway`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_forwarding_control_zpa_gateway.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_forwarding_control_zpa_gateway.md`.
 
 ZPA gateway objects that define which ZPA server group and application segments are used when forwarding to ZPA via Forwarding Control.
 
@@ -776,7 +776,7 @@ Gotcha: Requires a configured ZPA Terraform provider (`zpa` provider) to manage 
 
 ### `zia_forwarding_control_proxies`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_forwarding_control_proxies.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_forwarding_control_proxies.md`.
 
 Third-party proxy configuration objects used in Forwarding Control rules to chain traffic through an external proxy.
 
@@ -795,7 +795,7 @@ Import: by numeric ID or name.
 
 ### `zia_traffic_forwarding_gre_tunnel`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_traffic_forwarding_gre_tunnel.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_traffic_forwarding_gre_tunnel.md`.
 
 GRE tunnel objects that forward location traffic to Zscaler enforcement nodes.
 
@@ -810,7 +810,7 @@ Gotcha: The provider automatically queries for recommended VIP pairs if none are
 
 ### `zia_traffic_forwarding_static_ip`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_traffic_forwarding_static_ip.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_traffic_forwarding_static_ip.md`.
 
 Static IP address objects that identify a customer IP for association with locations and VPN credentials.
 
@@ -824,7 +824,7 @@ Gotcha: As of v4.6.2, geographic coordinates are auto-determined from the IP add
 
 ### `zia_traffic_forwarding_vpn_credentials`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_traffic_forwarding_vpn_credentials.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_traffic_forwarding_vpn_credentials.md`.
 
 VPN credential objects (UFQDN or IP type) used to authenticate IPSec tunnels from locations.
 
@@ -843,7 +843,7 @@ Gotcha: IP type credentials require a corresponding `zia_traffic_forwarding_stat
 
 ### `zia_location_management`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_location_management.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_location_management.md`.
 
 Location and sub-location objects that represent physical or logical network locations forwarding traffic to Zscaler.
 
@@ -863,7 +863,7 @@ Gotcha: A location must have either `ip_addresses` or `vpn_credentials` (or both
 
 ### `zia_advanced_threat_settings`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_advanced_threat_settings.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_advanced_threat_settings.md`.
 
 Singleton resource for Advanced Threat Protection (ATP) policy settings controlling block behavior for malicious content categories.
 
@@ -878,7 +878,7 @@ Import: by the literal string `"advanced_threat_settings"`.
 
 ### `zia_atp_malicious_urls`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_atp_malicious_urls.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_atp_malicious_urls.md`.
 
 Singleton resource for the ATP malicious URL denylist that blocks access to known-malicious URLs.
 
@@ -890,7 +890,7 @@ Import: by the literal string `"all_urls"`.
 
 ### `zia_atp_security_exceptions`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_atp_security_exceptions.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_atp_security_exceptions.md`.
 
 Singleton resource for the ATP security exceptions (allowlist) that bypasses ATP scanning for specific URLs.
 
@@ -902,7 +902,7 @@ Import: by the literal string `"security_exceptions"`.
 
 ### `zia_atp_malware_settings`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_atp_malware_settings.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_atp_malware_settings.md`.
 
 Singleton resource for ATP malware category block and capture toggles (virus, trojans, ransomware, spyware, etc.).
 
@@ -916,7 +916,7 @@ Import: by the literal string `"malware_settings"`.
 
 ### `zia_atp_malware_policy`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_atp_malware_policy.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_atp_malware_policy.md`.
 
 Singleton resource for ATP malware policy governing block behavior for unscannable and password-protected archive files.
 
@@ -929,7 +929,7 @@ Import: by the literal string `"malware_policy"`.
 
 ### `zia_atp_malware_inspection`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_atp_malware_inspection.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_atp_malware_inspection.md`.
 
 Singleton resource for ATP malware scan direction toggles controlling whether inbound and/or outbound traffic is inspected.
 
@@ -942,7 +942,7 @@ Import: by the literal string `"malware_inspection"`.
 
 ### `zia_atp_malware_protocols`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_atp_malware_protocols.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_atp_malware_protocols.md`.
 
 Singleton resource for ATP protocol-level malware scan toggles (HTTP, FTP, FTP-over-HTTP).
 
@@ -956,7 +956,7 @@ Import: by the literal string `"malware_protocols"`.
 
 ### `zia_mobile_malware_protection_policy`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_mobile_malware_protection_policy.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_mobile_malware_protection_policy.md`.
 
 Singleton resource for the mobile malware protection policy that controls malware block behavior for mobile app traffic.
 
@@ -972,7 +972,7 @@ Import: by the literal string `"mobile_malware_protection_policy"`.
 
 ### `zia_admin_users`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_admin_users.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_admin_users.md`.
 
 Local ZIA administrator accounts with assigned roles and scope restrictions.
 
@@ -988,7 +988,7 @@ Gotcha: The `password` attribute is write-only and is not returned by the API on
 
 ### `zia_admin_roles`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_admin_roles.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_admin_roles.md`.
 
 ZIA administrator roles defining which ZIA features the role holder can access and modify.
 
@@ -1002,7 +1002,7 @@ Gotcha: Rank 1 is most privileged. Lower-ranked admins cannot manage higher-rank
 
 ### `zia_auth_settings_urls`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_auth_settings_urls.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_auth_settings_urls.md`.
 
 Singleton resource for the cookie-based authentication exemption list — URLs in this list bypass ZIA user authentication.
 
@@ -1018,7 +1018,7 @@ Import: by the literal string `"auth_settings_urls"`.
 
 ### `zia_user_management`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_user_management.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_user_management.md`.
 
 Local ZIA user accounts that can be referenced in policies for user-based enforcement.
 
@@ -1039,7 +1039,7 @@ Gotcha: The `password` attribute is write-only and is not imported. Import by nu
 
 ### `zia_nss_server`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_nss_server.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_nss_server.md`.
 
 NSS (Nanolog Streaming Service) server objects that represent on-premises NSS appliances receiving log streams from Zscaler.
 
@@ -1053,7 +1053,7 @@ Import: by numeric ID or name.
 
 ### `zia_cloud_nss_feed`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_cloud_nss_feed.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_cloud_nss_feed.md`.
 
 Cloud NSS feed objects that stream ZIA logs directly to a SIEM or other external endpoint without an on-premises NSS appliance.
 
@@ -1073,7 +1073,7 @@ Import: by numeric ID or name.
 
 ### `zia_advanced_settings`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_advanced_settings.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_advanced_settings.md`.
 
 Singleton resource for ZIA global advanced settings. Contains approximately 50 boolean and set-based configuration fields governing inspection, caching, and platform behaviour.
 
@@ -1087,7 +1087,7 @@ Import: by the literal string `"advanced_settings"`.
 
 ### `zia_security_settings`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_security_settings.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_security_settings.md`.
 
 Singleton resource for the global URL security allowlist and denylist.
 
@@ -1100,7 +1100,7 @@ Import: by the literal string `"security_settings"`.
 
 ### `zia_browser_control_policy`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_browser_control_policy.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_browser_control_policy.md`.
 
 Singleton resource for browser control settings including plugin check frequency, browser version block lists, and Smart Browser Isolation profile assignment.
 
@@ -1114,7 +1114,7 @@ Import: by the literal string `"browser_control_policy"`.
 
 ### `zia_end_user_notification`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_end_user_notification.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_end_user_notification.md`.
 
 Singleton resource for browser-based end user notifications (EUN) displayed to users when traffic is blocked or cautioned.
 
@@ -1128,7 +1128,7 @@ Gotcha: JavaScript is not allowed in custom notification text. Import by the lit
 
 ### `zia_ftp_control_policy`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_ftp_control_policy.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_ftp_control_policy.md`.
 
 Singleton resource for FTP Control policy settings governing FTP and FTP-over-HTTP traffic.
 
@@ -1143,7 +1143,7 @@ Import: by the literal string `"ftp_control_policy"`.
 
 ### `zia_subscription_alert`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_subscription_alert.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_subscription_alert.md`.
 
 Alert subscription objects that send email notifications to specified recipients when ZIA generates system alerts.
 
@@ -1158,7 +1158,7 @@ Import: by numeric ID or email address.
 
 ### `zia_rule_labels`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_rule_labels.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_rule_labels.md`.
 
 Rule label objects used to tag and categorize rules for bulk management and reporting.
 
@@ -1171,7 +1171,7 @@ Import: by numeric ID or name.
 
 ### `zia_activation_status`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_activation_status.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_activation_status.md`.
 
 Explicit activation trigger resource. Declaring this resource with `depends_on` pointing to all other managed resources causes Terraform to activate ZIA configuration after apply completes.
 
@@ -1187,7 +1187,7 @@ Gotcha: This resource is not importable. It does not represent durable API state
 
 ### `zia_virtual_service_edge_node`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_virtual_service_edge_node.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_virtual_service_edge_node.md`.
 
 Virtual Service Edge (VZEN) node objects representing individual Zscaler service edge appliance instances.
 
@@ -1207,7 +1207,7 @@ Gotcha: `load_balancer_ip_address` is only applicable in `CLUSTER` mode. Import 
 
 ### `zia_virtual_service_edge_cluster`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_virtual_service_edge_cluster.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_virtual_service_edge_cluster.md`.
 
 Virtual Service Edge cluster objects grouping VZEN nodes for high availability.
 
@@ -1225,7 +1225,7 @@ Import: by numeric ID or name.
 
 ### `zia_workload_groups`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_workload_groups.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_workload_groups.md`.
 
 Workload group objects that classify cloud workloads by VM, VPC, ENI, subnet, or attribute tags for policy matching in Firewall, URL Filtering, and DLP rules.
 
@@ -1243,7 +1243,7 @@ Gotcha: A maximum of 8 tags can be added per workload group across all tag types
 
 ### `zia_extranet`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_extranet.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_extranet.md`.
 
 Extranet configuration objects that define DNS and IP pool settings for extending ZIA enforcement to extranet networks.
 
@@ -1257,7 +1257,7 @@ Gotcha: Early Access feature. Import by numeric ID or name.
 
 ### `zia_dc_exclusions`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_dc_exclusions.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_dc_exclusions.md`.
 
 Data center exclusion time windows that temporarily exclude specific Zscaler data centers from serving an organization's traffic.
 
@@ -1271,7 +1271,7 @@ Gotcha: Early Access feature. Import by numeric ID.
 
 ### `zia_sub_cloud`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_sub_cloud.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_sub_cloud.md`.
 
 Subcloud data center exclusion management. Controls which subclouds are excluded from forwarding for an organization.
 

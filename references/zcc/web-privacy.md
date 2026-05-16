@@ -21,7 +21,7 @@ author-status: draft
 
 ## What web privacy controls are
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/webprivacy.py; vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/web_privacy/web_privacy.go; vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md; vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webprivacy.py`; `vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_privacy/web_privacy.go`; `vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md`; `vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md`.
 
 Web privacy settings are admin-configurable limits on what ZCC logs about user activity and what it reports to the Zscaler cloud. They do not affect ZIA policy enforcement — they affect what telemetry is collected and surfaced. A tenant with strict privacy requirements (e.g., regulated industries, works councils in the EU) uses these settings to narrow the data ZCC reports, independently of whether ZIA or ZPA policy is enforced.
 
@@ -36,7 +36,7 @@ These two surfaces are separate. A privacy-forward admin must configure both.
 
 ## What ZCC sees vs what ZIA cloud logs
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/webprivacy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/web_privacy/web_privacy.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webprivacy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_privacy/web_privacy.go`.
 
 ZCC acts as a local agent that intercepts traffic before it enters the Z-Tunnel. It has access to endpoint context that ZIA cloud never sees directly:
 
@@ -57,7 +57,7 @@ The key distinction: **ZCC can suppress endpoint-context metadata** (hostname, O
 
 ## WebPrivacy SDK fields — full reference
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/webprivacy.py; vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/web_privacy/web_privacy.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webprivacy.py`; `vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_privacy/web_privacy.go`.
 
 From `vendor/zscaler-sdk-python/zscaler/zcc/models/webprivacy.py` (lines 36–82) and `vendor/zscaler-sdk-go/zscaler/zcc/services/web_privacy/web_privacy.go` (lines 17–32). **The wire type for all "boolean" fields is actually `string`** — values come across as the numeric strings `'1'` / `'0'`, not JSON booleans. The Python model types every field as `Any` (`webprivacy.py:36–52`); the Go SDK types every field as `string` (`web_privacy.go:18–31`). Treat as boolean semantically; serialize as `'1'` / `'0'` strings.
 
@@ -91,7 +91,7 @@ The object is a singleton — `get_web_privacy()` returns exactly one object (`w
 
 ## App Supportability page — logging control settings
 
-Source: vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md; vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md.
+Source: `vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md`; `vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md`.
 
 Navigation: ZCC Portal > Administration > Client Connector Support > App Supportability tab (`configuring-user-access-logging-controls-zscaler-client-connector.md` and `configuring-user-access-support-options-zscaler-client-connector.md` — both captured with full content, not SPA stubs).
 
@@ -135,7 +135,7 @@ The **Enable Support Access in Zscaler Client Connector** setting controls user 
 
 ## Log mode and App Profile relationship
 
-Source: vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md; vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md.
+Source: `vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md`; `vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md`.
 
 The App Profile (WebPolicy) sets the baseline log mode for each user population. The App Supportability toggle controls whether users can change it locally. These are independent knobs:
 
@@ -149,7 +149,7 @@ An admin who wants maximum diagnostic data without user interference sets: App P
 
 ## Interactions worth knowing
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/webprivacy.py; vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/web_privacy/web_privacy.go; vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md; vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webprivacy.py`; `vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_privacy/web_privacy.go`; `vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md`; `vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md`.
 
 ### `collect_user_info = false`
 
@@ -182,7 +182,7 @@ Web privacy settings apply from the moment they are saved forward. Historical NS
 
 ## API surface
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py; vendor/zscaler-sdk-python/zscaler/zcc/models/webprivacy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/web_privacy/web_privacy.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webprivacy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_privacy/web_privacy.go`.
 
 All methods on `client.zcc.web_privacy` from Python SDK (`web_privacy.py`) and Go SDK (`web_privacy.go`). **The API URL paths in earlier doc text were wrong** — the actual endpoints embed the verb in the path (`getWebPrivacyInfo` / `setWebPrivacyInfo`), the same pattern entitlements uses.
 
@@ -209,7 +209,7 @@ The Python docstring example at `web_privacy.py:108` passes `enable_auto_log_sni
 
 ## Privacy compliance patterns
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/webprivacy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/web_privacy/web_privacy.go; vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md; vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webprivacy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_privacy/web_privacy.go`; `vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md`; `vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md`.
 
 ### EU Works Council / GDPR-sensitive deployment
 
@@ -240,7 +240,7 @@ Typical configuration for a standard enterprise:
 
 ## Operational gotchas
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/webprivacy.py; vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/web_privacy/web_privacy.go; vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md; vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webprivacy.py`; `vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_privacy/web_privacy.go`; `vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md`; `vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md`.
 
 - **Hostname collection and device inventory**: `collect_machine_hostname = false` means the ZCC portal Enrolled Devices list may show blank or placeholder hostnames. Inventory tools that rely on hostname-enriched ZCC data (e.g., SIEM correlation) will miss this field.
 - **`WebPrivacy` vs `WebPolicy` log settings confusion**: `WebPrivacy` controls what gets collected and where it's exposed; `WebPolicy.log_level` / `log_mode` controls verbosity of ZCC's own operational logs. Distinct dimensions. An admin asking "how do I make ZCC logs more verbose for debugging" wants `WebPolicy`; an admin asking "how do I stop ZCC from reporting usernames" wants `WebPrivacy`.

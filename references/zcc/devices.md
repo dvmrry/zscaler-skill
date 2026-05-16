@@ -18,7 +18,7 @@ author-status: draft
 
 # ZCC devices — inventory, lifecycle, and cleanup
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py; vendor/zscaler-sdk-python/zscaler/zcc/devices.py; vendor/zscaler-sdk-go/zscaler/zcc/services/devices/devices.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py`; `vendor/zscaler-sdk-python/zscaler/zcc/devices.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/devices/devices.go`.
 
 The Devices API surface is ZCC's per-endpoint inventory: every device that has ever registered with the tenant, its current state, last-seen time, tunnel version, and lifecycle actions (remove, force-remove, cleanup). Useful for "is this endpoint even in our inventory?", "when did it last check in?", "can we force it off the cloud?", and for compliance audits of enrolled device populations.
 
@@ -49,7 +49,7 @@ Installation + first login
 
 **Important**: Removing a device record from the portal does NOT uninstall ZCC from the endpoint. If ZCC is still installed and comes online, it will re-register — creating a fresh record (new `udid`) and losing the history. To prevent re-registration, also revoke the user's entitlement or change group membership. See [`./entitlements.md`](./entitlements.md).
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py; vendor/zscaler-sdk-python/zscaler/zcc/devices.py; vendor/zscaler-help/configuring-automated-device-cleanup.md.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py`; `vendor/zscaler-sdk-python/zscaler/zcc/devices.py`; `vendor/zscaler-help/configuring-automated-device-cleanup.md`.
 
 ---
 
@@ -87,13 +87,13 @@ From `vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py` (Tier B — SDK/T
 
 **Mixed casing on the wire**: `registration_time`, `last_seen_time`, `config_download_time`, `download_count` are snake_case; everything else is camelCase. Tools writing raw JSON payloads must honor each field as declared in the SDK model.
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py; vendor/zscaler-sdk-go/zscaler/zcc/services/devices/devices.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/devices/devices.go`.
 
 ---
 
 ## DeviceDetails — extended per-device fields
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py; vendor/zscaler-sdk-go/zscaler/zcc/services/devices/devices.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/devices/devices.go`.
 
 `get_device_details()` returns a richer `DeviceDetails` object beyond the list fields. **Major Python/Go SDK divergence**: Python `DeviceDetails` (`models/devices.py:283–499`) carries ~50 fields; Go `DeviceDetails` (`devices.go:61–88`) carries only ~25. Most of the service-state and posture fields are Python-only.
 
@@ -186,7 +186,7 @@ Privacy implications: machine hostnames can reveal device naming conventions (as
 
 See [`./web-privacy.md`](./web-privacy.md) for the full field-level reference on both settings.
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py; vendor/zscaler-help/configuring-zscaler-client-connector-collect-hostnames.md; vendor/zscaler-help/configuring-zscaler-client-connector-collect-device-owner-information.md.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py`; `vendor/zscaler-help/configuring-zscaler-client-connector-collect-hostnames.md`; `vendor/zscaler-help/configuring-zscaler-client-connector-collect-device-owner-information.md`.
 
 ---
 
@@ -222,13 +222,13 @@ From `vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py` (Tier B — SDK/T
 
 **Cleanup affects inventory only**: Automated cleanup removes device records from the ZCC portal. It does not uninstall ZCC from the endpoint. If the machine comes back online with ZCC still installed, it will re-register — creating a new record (new `udid`).
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py; vendor/zscaler-sdk-python/zscaler/zcc/devices.py; vendor/zscaler-help/configuring-automated-device-cleanup.md.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py`; `vendor/zscaler-sdk-python/zscaler/zcc/devices.py`; `vendor/zscaler-help/configuring-automated-device-cleanup.md`.
 
 ---
 
 ## Removing devices
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py; vendor/zscaler-sdk-python/zscaler/zcc/devices.py.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py`; `vendor/zscaler-sdk-python/zscaler/zcc/devices.py`.
 
 Three related operations in the SDK:
 
@@ -269,7 +269,7 @@ Three bulk-export methods exist for ad-hoc reporting and offline analysis:
 
 The `zcc_param_mapper` decorator on `download_devices` translates Python-friendly filter kwargs into the portal's expected query-string keys. Tools writing HTTP directly need to check `vendor/zscaler-sdk-python/zscaler/utils.py` for the `zcc_param_map` mapping.
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/devices.py; vendor/zscaler-sdk-python/zscaler/utils.py.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/devices.py`; `vendor/zscaler-sdk-python/zscaler/utils.py`.
 
 ---
 
@@ -303,7 +303,7 @@ A Go caller that needs a different page size has no SDK lever — must use direc
 
 ### Mobile filtering and OS-type integer encoding
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/devices.py; vendor/zscaler-sdk-python/zscaler/utils.py; vendor/zscaler-sdk-go/zscaler/zcc/services/devices/devices.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/devices.py`; `vendor/zscaler-sdk-python/zscaler/utils.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/devices/devices.go`.
 
 Both `os_type` (singular, `list_devices`) and `os_types` (plural list, the download endpoints) accept human-readable strings: `ios`, `android`, `windows`, `macos`, `linux`. **The Python SDK translates these to integer codes via `zcc_param_map["os"]`** (`devices.py:81–84, 163–166`) before sending — the actual wire values are integers. The mapping table lives in `zscaler/utils.py` (not vendored at the field-level here).
 
@@ -340,7 +340,7 @@ These are also integer-encoded via `zcc_param_map["reg_type"]` (`devices.py:88�
 - **`device_exceed_limit` default is 16-max / no auto-removal** — the default setting allows up to 16 devices but does not auto-remove. An organization that wants to enforce single-device-per-user must contact Zscaler Support to set the minimum to 1 and then enable force-removal on exceed.
 - **`autoPurgeDays` purge is irreversible** — permanently deleted device records cannot be recovered. The purge window should be long enough for audit purposes. Set conservatively (180 days) for regulated environments.
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py; vendor/zscaler-sdk-python/zscaler/zcc/devices.py; vendor/zscaler-help/configuring-automated-device-cleanup.md.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py`; `vendor/zscaler-sdk-python/zscaler/zcc/devices.py`; `vendor/zscaler-help/configuring-automated-device-cleanup.md`.
 
 ---
 
@@ -368,7 +368,7 @@ Filter the list to mobile-only via the `os_type` / `os_types` query params on `l
 
 A common audit shape: "show me all jailbroken iOS devices that are entitled to ZPA" — combines `os_type=ios` filter on `list_devices` + `rooted` field on each device's `DeviceDetails` + ZPA entitlement check from [`./entitlements.md`](./entitlements.md). All three pieces are needed; the Devices API alone won't tell you entitlement state.
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py; vendor/zscaler-sdk-python/zscaler/zcc/devices.py; vendor/zscaler-sdk-go/zscaler/zcc/services/devices/devices.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py`; `vendor/zscaler-sdk-python/zscaler/zcc/devices.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/devices/devices.go`.
 
 ---
 

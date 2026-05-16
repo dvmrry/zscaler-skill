@@ -21,7 +21,7 @@ The ZCC **Web Policy** object (called **App Profile** in the ZCC admin portal UI
 
 **Naming note**: `WebPolicy` is the SDK/API name (wire path: `/zcc/papi/public/v1/web/policy/...` — note the slash between `web` and `policy`, confirmed in `web_policy.py:71` and `web_policy.go:14`). **App Profile** is the admin-portal UI name for the same object. When an admin says "the user's App Profile" or "edit the Windows app profile rule," they mean a Web Policy entry scoped to those users/that platform. See [`clarification zcc-07`](../_meta/clarifications.md#zcc-07-forwarding-profile-assignment-to-usersdevices).
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py; vendor/zscaler-sdk-python/zscaler/zcc/web_policy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go; vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-python/zscaler/zcc/web_policy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`; `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md`.
 
 ---
 
@@ -38,7 +38,7 @@ A Web Policy / App Profile is the central configuration object that decides what
 
 Multiple Web Policies can exist per tenant, scoped by user/group/device-group. They evaluate in rule order (first-match-wins) — the same pattern as ZIA and ZPA policies.
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go; vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`; `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md`.
 
 ---
 
@@ -60,7 +60,7 @@ ZCC Web Policy can bypass ZIA entirely (via Forwarding Profile action `NONE` on 
 
 ## WebPolicy SDK fields — top-level structure
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py; vendor/zscaler-sdk-python/zscaler/zcc/web_policy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-python/zscaler/zcc/web_policy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`.
 
 From `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py` (Tier B — SDK/TF):
 
@@ -112,7 +112,7 @@ From `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py` (Tier B — SDK
 
 Each platform has its own sub-policy block within the Web Policy. The five platforms are: `windowsPolicy`, `macPolicy`, `linuxPolicy`, `iosPolicy`, `androidPolicy`. A null sub-policy means "no platform-specific policy defined" — not "inherit defaults." Devices on an unscoped platform fall through to the tenant's default Web Policy.
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go; vendor/zscaler-help/configuring-zscaler-client-connector-app-profiles.md.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`; `vendor/zscaler-help/configuring-zscaler-client-connector-app-profiles.md`.
 
 Common fields across platforms (the wire keys vary by platform — see [§ install_ssl_certs wire-key matrix](#install_ssl_certs-wire-key-matrix) below):
 
@@ -157,7 +157,7 @@ The wire key for the SSL-cert-install field is **not consistent across platforms
 
 **Operational implication**: a tenant deploying ZCC on iOS for the first time and expecting `install_ssl_certs = true` to push certs will be surprised — the field doesn't exist on iOS. iOS cert installation is an MDM concern, not a ZCC App Profile concern.
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`.
 
 ---
 
@@ -177,7 +177,7 @@ The `onNetPolicy` sub-object controls what ZCC does when it detects it is on the
 
 When both `onNetPolicy` and Forwarding Profile trusted-network configuration are present, the order of evaluation and any override semantics are an open question.
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`.
 
 ---
 
@@ -216,7 +216,7 @@ Fields in **Python only** (`webpolicy.py:624–638`):
 
 This is a meaningful gap — the two SDKs are managing different aspects of the DR config. Lab-test which set the API actually accepts before scripting either path.
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`.
 
 ---
 
@@ -241,7 +241,7 @@ Source: vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py; vendor/zscale
 
 Most of these fields are rarely touched and need Zscaler Support context before reasoning about them.
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`.
 
 ---
 
@@ -261,7 +261,7 @@ Source: vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py; vendor/zscale
 
 An operator who pushes a critical forwarding or password policy change expecting it to take effect immediately on currently-connected devices will be surprised — those devices keep using the cached App Profile until their next ZCC restart/login event.
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go; vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`; `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md`.
 
 ---
 
@@ -283,7 +283,7 @@ A user can only have one active Web Policy (first-match-wins by `rule_order`). T
 
 **A Web Policy can reference a Forwarding Profile ID that does not exist** — the relationship is FK-shaped but not enforced at write time. `_data/snapshot/zcc/web-policy.json` joined with `_data/snapshot/zcc/forwarding-profiles.json` via ID is the way to detect orphaned references.
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`.
 
 ---
 
@@ -306,7 +306,7 @@ Query params for `list_by_company` (`web_policy.py:39–50`): `page` (int), `pag
 
 The HTTP method is `PUT`, not `POST` — earlier wording in this doc said `POST` and was wrong. Confirmed in both SDKs: Python `web_policy.py:121` and Go `web_policy.go:268`.
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/web_policy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/web_policy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`.
 
 ---
 

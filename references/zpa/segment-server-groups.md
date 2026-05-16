@@ -22,7 +22,7 @@ author-status: draft
 
 # Segment Groups and Server Groups — ZPA's two grouping primitives
 
-Source: `vendor/zscaler-help/about-segment-groups.md`, `vendor/zscaler-sdk-python/zscaler/zpa/server_groups.py`, `vendor/terraform-provider-zpa/zpa/resource_zpa_server_group.go`.
+Source: `vendor/zscaler-help/about-segment-groups.md`; `vendor/zscaler-sdk-python/zscaler/zpa/server_groups.py`; `vendor/terraform-provider-zpa/zpa/resource_zpa_server_group.go`.
 
 ZPA has two different grouping objects with similar-sounding names that serve completely different purposes. Confusing them is one of the most common sources of misconfiguration.
 
@@ -32,7 +32,7 @@ ZPA has two different grouping objects with similar-sounding names that serve co
 
 ## The object hierarchy
 
-Source: `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py`, `vendor/zscaler-sdk-python/zscaler/zpa/segment_groups.py`, `vendor/zscaler-sdk-python/zscaler/zpa/server_groups.py`.
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py`; `vendor/zscaler-sdk-python/zscaler/zpa/segment_groups.py`; `vendor/zscaler-sdk-python/zscaler/zpa/server_groups.py`.
 
 The full five-tier relationship:
 
@@ -65,7 +65,7 @@ The App Segment is the junction point: it carries both the Segment Group referen
 
 ## Why the distinction between Segment Groups and Server Groups matters for policy scoping
 
-Source: `vendor/zscaler-help/about-segment-groups.md`, `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go`.
+Source: `vendor/zscaler-help/about-segment-groups.md`; `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go`.
 
 When an access policy rule is evaluated, ZPA checks whether the user's requested application belongs to a Segment Group referenced in the rule's conditions (objectType `APP_GROUP`). The Server Group is not consulted during access policy evaluation — it is only consulted during connection brokering (connector selection, backend IP determination).
 
@@ -77,7 +77,7 @@ The "all apps in group" vs individual segment targeting question: access policy 
 
 ## Segment Group mechanics
 
-Source: `vendor/zscaler-help/about-segment-groups.md`, `vendor/zscaler-sdk-python/zscaler/zpa/models/segment_group.py`, `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go`.
+Source: `vendor/zscaler-help/about-segment-groups.md`; `vendor/zscaler-sdk-python/zscaler/zpa/models/segment_group.py`; `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go`.
 
 A Segment Group is a lightweight wrapper: `id`, `name`, `description`, `enabled`, and an `applications` list. The `applications` list is bidirectionally maintained — App Segments carry `segment_group_id` and the Segment Group carries `applications[]` listing those same App Segments. (Tier A — vendor/zscaler-help/about-segment-groups.md: "you cannot assign an application segment to multiple segment groups.")
 
@@ -93,7 +93,7 @@ A Segment Group is a lightweight wrapper: `id`, `name`, `description`, `enabled`
 
 ## SDK fields — Segment Group
 
-Source: `vendor/zscaler-sdk-python/zscaler/zpa/segment_groups.py`, `vendor/zscaler-sdk-python/zscaler/zpa/models/segment_group.py`, `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go`.
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/segment_groups.py`; `vendor/zscaler-sdk-python/zscaler/zpa/models/segment_group.py`; `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go`.
 
 From `vendor/zscaler-sdk-python/zscaler/zpa/models/segment_group.py` and `segment_groups.py`:
 
@@ -110,7 +110,7 @@ From `vendor/zscaler-sdk-python/zscaler/zpa/models/segment_group.py` and `segmen
 
 ## Server Group mechanics
 
-Source: `vendor/zscaler-sdk-python/zscaler/zpa/server_groups.py`, `vendor/zscaler-sdk-python/zscaler/zpa/models/server_group.py`, `vendor/terraform-provider-zpa/zpa/resource_zpa_server_group.go`.
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/server_groups.py`; `vendor/zscaler-sdk-python/zscaler/zpa/models/server_group.py`; `vendor/terraform-provider-zpa/zpa/resource_zpa_server_group.go`.
 
 A Server Group carries:
 - `appConnectorGroups[]` — which Connector Groups can broker connections for this group's apps. At least one is required. (Tier A: `server_groups.py` `add_group` docstring: `app_connector_group_ids` is listed as a required arg.)
@@ -127,7 +127,7 @@ A Server Group carries:
 
 ## SDK fields — Server Group
 
-Source: `vendor/zscaler-sdk-python/zscaler/zpa/server_groups.py`, `vendor/zscaler-sdk-python/zscaler/zpa/models/server_group.py`, `vendor/terraform-provider-zpa/zpa/resource_zpa_server_group.go`.
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/server_groups.py`; `vendor/zscaler-sdk-python/zscaler/zpa/models/server_group.py`; `vendor/terraform-provider-zpa/zpa/resource_zpa_server_group.go`.
 
 From `vendor/zscaler-sdk-python/zscaler/zpa/models/server_group.py` and `server_groups.py`:
 
@@ -151,7 +151,7 @@ From `vendor/zscaler-sdk-python/zscaler/zpa/models/server_group.py` and `server_
 
 ### Wrong Server Group → Connector Group assignment
 
-Source: `vendor/zscaler-sdk-python/zscaler/zpa/server_groups.py`, `vendor/zscaler-sdk-python/zscaler/zpa/servers.py`, `vendor/terraform-provider-zpa/zpa/resource_zpa_server_group.go`.
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/server_groups.py`; `vendor/zscaler-sdk-python/zscaler/zpa/servers.py`; `vendor/terraform-provider-zpa/zpa/resource_zpa_server_group.go`.
 
 The most common production issue: an App Segment references a Server Group whose `appConnectorGroups[]` contains no connectors capable of reaching the backend. Symptoms:
 
@@ -164,7 +164,7 @@ Diagnosis: check `client.zpa.server_groups.get_group(id)` to verify `appConnecto
 
 ### App Segment without a Segment Group
 
-Source: `vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go`, `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go`.
+Source: `vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go`; `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go`.
 
 TF schema marks `segment_group_id` as `Optional + Computed` (`resource_zpa_application_segment.go` line 63–67), meaning TF won't error on a missing value. However, if no Segment Group is assigned, no policy rule using `APP_GROUP` conditions can match the segment — it is inaccessible. This is the "orphan App Segment" condition: the segment exists, the API accepts it, but end users cannot reach the application because no access rule matches it. Always verify `segment_group_id` is set and that the referenced Segment Group is attached to at least one enabled access policy rule.
 
@@ -200,13 +200,13 @@ Source: `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go`.
 
 ### Multiple Server Groups on one App Segment
 
-Source: `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py`, `vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go`.
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py`; `vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go`.
 
 `add_segment` accepts `server_group_ids` as a list, transformed to `serverGroups: [{id: ...}, ...]`. Multiple Server Groups on one App Segment enables weighted load balancing — each group can carry a `weight` and `passive` flag via `update_weighted_lb_config`. Without explicit weighted LB config, behavior across multiple Server Groups is unspecified in source code (Tier D: likely round-robin or first-match, but unconfirmed).
 
 ## Verifying the segment → server group → connector chain (snapshot recipe)
 
-Source: `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py`, `vendor/zscaler-sdk-python/zscaler/zpa/server_groups.py`, `vendor/zscaler-sdk-python/zscaler/zpa/servers.py`.
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py`; `vendor/zscaler-sdk-python/zscaler/zpa/server_groups.py`; `vendor/zscaler-sdk-python/zscaler/zpa/servers.py`.
 
 A common investigation hypothesis: *"The App Segment exists and is correctly configured, but the Server Group → App Connector Group association is broken or empty."* Use this recipe to verify against snapshot JSON dumps without needing live API access.
 
@@ -257,7 +257,7 @@ If any hop returns an empty list or zero, that's the broken hop and the correspo
 
 ### Edge cases for the chain
 
-Source: `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py`, `vendor/zscaler-sdk-python/zscaler/zpa/server_groups.py`, `vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go`.
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py`; `vendor/zscaler-sdk-python/zscaler/zpa/server_groups.py`; `vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go`.
 
 - **Multiple Server Groups on one segment.** A segment can carry multiple `serverGroups[]`. Each is independent — at least one must satisfy hops 3 and 4 for the segment to deliver traffic. If one is healthy and another is broken, weighted load balancing decides which connectors are tried first. See [Multiple Server Groups on one App Segment](#multiple-server-groups-on-one-app-segment) above.
 - **Connector group fronting an unreachable target.** Hops 3 and 4 can pass while traffic still fails. That's a runtime hypothesis (target reachability), not a chain hypothesis — see [`./logs/app-connector-metrics.md`](./logs/app-connector-metrics.md) for `AliveTargetCount` semantics and [`./app-connector.md § How sessions are assigned to App Connectors`](./app-connector.md#how-sessions-are-assigned-to-app-connectors) for the eligibility-then-selection model.

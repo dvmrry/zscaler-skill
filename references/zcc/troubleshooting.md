@@ -247,7 +247,7 @@ What tunnel mode is active on this device?
 
 ### 5.1 ZCC log bundle (all platforms)
 
-Source: vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md; vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md.
+Source: `vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md`; `vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md`.
 
 The primary support artifact is the encrypted log bundle sent via "Report an Issue" within ZCC.
 

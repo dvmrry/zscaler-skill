@@ -21,7 +21,7 @@ author-status: draft
 
 ## Why Firefox requires special handling
 
-Source: vendor/zscaler-help/configuring-firefox-integration-zscaler-client-connector.md; vendor/zscaler-help/about-forwarding-profiles.md; vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md; vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py.
+Source: `vendor/zscaler-help/configuring-firefox-integration-zscaler-client-connector.md`; `vendor/zscaler-help/about-forwarding-profiles.md`; `vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`.
 
 Most browsers (Chrome, Edge, Safari) inherit proxy settings from the operating system. When ZCC sets the system proxy — either to a PAC URL or to its local listening proxy — those browsers pick up the change automatically and forward traffic through Zscaler.
 
@@ -38,7 +38,7 @@ This document covers the integration mechanism ZCC uses, per-platform behavior, 
 
 ## Integration mechanism — enabling Firefox integration in ZCC
 
-Source: vendor/zscaler-help/configuring-firefox-integration-zscaler-client-connector.md.
+Source: `vendor/zscaler-help/configuring-firefox-integration-zscaler-client-connector.md`.
 
 The Firefox integration setting is a global toggle in the ZCC portal. It is not a per-forwarding-profile setting, not a per-user group setting, and not an install-time parameter.
 
@@ -66,7 +66,7 @@ The Firefox integration setting is a global toggle in the ZCC portal. It is not 
 
 ## Per-platform behavior
 
-Source: vendor/zscaler-help/configuring-firefox-integration-zscaler-client-connector.md; clarification zcc-39.
+Source: `vendor/zscaler-help/configuring-firefox-integration-zscaler-client-connector.md`.
 
 ### Windows and macOS
 
@@ -95,7 +95,7 @@ Standard Firefox ESR and standard Firefox release channel on Windows and macOS a
 
 ## Certificate trust
 
-Source: vendor/zscaler-help/configuring-firefox-integration-zscaler-client-connector.md; vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py.
+Source: `vendor/zscaler-help/configuring-firefox-integration-zscaler-client-connector.md`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`.
 
 Firefox maintains its own certificate store, separate from the operating system trust store. On Windows and macOS, the OS trust store is used by Chrome, Edge, and Safari — but not by Firefox unless Firefox is specifically configured to trust the enterprise root.
 
@@ -115,7 +115,7 @@ The specific mechanism by which ZCC ensures Firefox's `security.enterprise_roots
 
 ## Z-Tunnel mode interaction
 
-Source: vendor/zscaler-help/about-forwarding-profiles.md; vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md; vendor/zscaler-help/configuring-firefox-integration-zscaler-client-connector.md.
+Source: `vendor/zscaler-help/about-forwarding-profiles.md`; `vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md`; `vendor/zscaler-help/configuring-firefox-integration-zscaler-client-connector.md`.
 
 ### Z-Tunnel 1.0
 
@@ -145,7 +145,7 @@ In Z-Tunnel 2.0 deployments, Firefox integration is still relevant for correct c
 
 ## PAC file delivery
 
-Source: vendor/zscaler-help/configuring-firefox-integration-zscaler-client-connector.md.
+Source: `vendor/zscaler-help/configuring-firefox-integration-zscaler-client-connector.md`.
 
 When ZCC is configured to use a PAC-based forwarding action (rather than Z-Tunnel), or when an enterprise deploys Firefox with a PAC URL explicitly, the PAC URL must reach Firefox through a mechanism that Firefox honors.
 
@@ -167,7 +167,7 @@ The PAC URL itself — when Zscaler-hosted — provides per-request geolocation-
 
 ## App Profile (Web Policy) configuration
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py; vendor/zscaler-help/configuring-firefox-integration-zscaler-client-connector.md.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-help/configuring-firefox-integration-zscaler-client-connector.md`.
 
 The ZCC Web Policy (App Profile) carries the PAC URL and forwarding profile reference that affect how ZCC forwards traffic once Firefox is proxy-aware. The relevant fields:
 
@@ -187,7 +187,7 @@ The Firefox integration toggle itself lives outside the Web Policy object — it
 
 ## ESR vs standard Firefox
 
-Source: vendor/zscaler-help/configuring-firefox-integration-zscaler-client-connector.md; clarification zcc-39.
+Source: `vendor/zscaler-help/configuring-firefox-integration-zscaler-client-connector.md`.
 
 The vendor doc does not distinguish between Firefox Extended Support Release (ESR) and the standard release channel for the purposes of Firefox integration support. Both are implicitly covered by the integration mechanism on Windows and macOS, since ZCC acts on Firefox's proxy preference store without regard to the release channel.
 
@@ -199,7 +199,7 @@ ESR-specific integration differences are not confirmed from available Zscaler ve
 
 ## Common failure modes
 
-Source: vendor/zscaler-help/configuring-firefox-integration-zscaler-client-connector.md; vendor/zscaler-help/about-forwarding-profiles.md; vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md; vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py.
+Source: `vendor/zscaler-help/configuring-firefox-integration-zscaler-client-connector.md`; `vendor/zscaler-help/about-forwarding-profiles.md`; `vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`.
 
 ### Firefox not honoring the system proxy
 

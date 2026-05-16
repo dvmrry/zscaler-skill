@@ -33,7 +33,7 @@ This doc consolidates **everything that's true cross-product** — the auth flow
 
 ## Public source-of-truth — `automate.zscaler.com`
 
-Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscaler-help/automate-zscaler/postman-collection-note.md`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`
+Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscaler-help/automate-zscaler/postman-collection-note.md`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
 Zscaler maintains a public OneAPI documentation hub at `https://automate.zscaler.com/`. **No login wall.** Three top sections:
 
@@ -257,7 +257,7 @@ Single host, per-product paths:
 
 ## Rate limits — different model per product
 
-Source: `vendor/zscaler-help/automate-zscaler/guides-rate-limiting.md`; `vendor/zscaler-help/legacy-api-rate-limit-summary.md`
+Source: `vendor/zscaler-help/automate-zscaler/guides-rate-limiting.md`; `vendor/zscaler-help/legacy-api-rate-limit-summary.md`.
 
 Rate limits are NOT unified across products. Each product has its own model, response-header naming, and failure-payload shape. Plan multi-product automation accordingly.
 
@@ -330,7 +330,7 @@ Same Heavy/Medium/Light table as ZIA. 429 body carries `Retry-After: 0 seconds` 
 
 ## OneAPI HTTP status codes
 
-Source: `vendor/zscaler-help/automate-zscaler/guides-response-codes.md`
+Source: `vendor/zscaler-help/automate-zscaler/guides-response-codes.md`.
 
 | Code | Meaning |
 |---|---|
@@ -348,7 +348,7 @@ Specific products may add their own codes — see product-specific `api.md` file
 
 ## Read-only mode (ZIA scheduled maintenance)
 
-Source: `vendor/zscaler-help/automate-zscaler/guides-response-codes.md`
+Source: `vendor/zscaler-help/automate-zscaler/guides-response-codes.md`.
 
 During scheduled maintenance, ZIA returns:
 
@@ -366,7 +366,7 @@ Both the `x-zscaler-mode` header and the `STATE_READONLY` code are reliable disc
 
 ## Activation gate (ZIA + Cloud & Branch Connector only)
 
-Source: `vendor/zscaler-help/automate-zscaler/guides-understanding-oneapi.md`
+Source: `vendor/zscaler-help/automate-zscaler/guides-understanding-oneapi.md`.
 
 See also: `references/shared/activation.md`.
 
@@ -386,7 +386,7 @@ The fix is sequence: take an explicit lock, write, activate, release. Don't run 
 
 ## API client best practices
 
-Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscaler-help/automate-zscaler/guides-rate-limiting.md`; `vendor/zscaler-help/automate-zscaler/guides-response-codes.md`
+Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscaler-help/automate-zscaler/guides-rate-limiting.md`; `vendor/zscaler-help/automate-zscaler/guides-response-codes.md`.
 
 From the captured *Getting Started > Best Practices*:
 
@@ -398,7 +398,7 @@ From the captured *Getting Started > Best Practices*:
 
 ## Postman collection coverage
 
-Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscaler-help/automate-zscaler/postman-collection-note.md`
+Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscaler-help/automate-zscaler/postman-collection-note.md`.
 
 The vendored Postman collection (`vendor/zscaler-api-specs/oneapi-postman-collection.json`) covers all 7 OneAPI products:
 
@@ -420,7 +420,7 @@ The collection is named "OneAPI Copy 3" internally — Zscaler naming artifact, 
 
 ## GraphQL Analytics API
 
-Source: `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`
+Source: `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
 Zscaler ships a GraphQL endpoint at `https://api.zsapi.net/zins/graphql` — beta, covers SaaS Security / Cyber Security / Zero Trust Firewall / IoT / Shadow IT / Web Traffic with strongly-typed schema and introspection. Distinct from REST endpoints; same OneAPI auth.
 
@@ -428,7 +428,7 @@ Useful when REST pagination would be heavy or when a structured cross-domain que
 
 ## SDK relationship
 
-Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscaler-sdk-python/README.md`; `vendor/zscaler-sdk-go/README.md`
+Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscaler-sdk-python/README.md`; `vendor/zscaler-sdk-go/README.md`.
 
 The Python SDK (`vendor/zscaler-sdk-python/`) and Go SDK (`vendor/zscaler-sdk-go/`) handle OneAPI auth internally — callers don't implement the OAuth flow. They consume:
 

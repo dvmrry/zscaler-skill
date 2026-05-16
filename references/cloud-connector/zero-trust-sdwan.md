@@ -23,7 +23,7 @@ author-status: draft
 
 What Zscaler means when it calls the product "Zero Trust SD-WAN," how Branch Connector and Cloud Connector fit into it, and where the technical substance ends and the marketing framing begins.
 
-Source: vendor/zscaler-help/cbc-what-zscaler-zero-trust-sd-wan.md; vendor/zscaler-help/what-zscaler-cloud-connector.md; vendor/zscaler-help/zero-trust-exchange-zte-marketing.md.
+Source: `vendor/zscaler-help/cbc-what-zscaler-zero-trust-sd-wan.md`; `vendor/zscaler-help/what-zscaler-cloud-connector.md`; `vendor/zscaler-help/zero-trust-exchange-zte-marketing.md`.
 
 ---
 
@@ -53,13 +53,13 @@ The "software-defined" in Zscaler's SD-WAN refers primarily to centralized polic
 
 **Where the marketing claim stretches thin.** Zscaler says Zero Trust SD-WAN "replaces" site-to-site VPNs and reduces WAN complexity, which is technically true in a narrow sense: ZPA-enrolled workloads don't need site-to-site VPN tunnels. However, the product does **not** replace the WAN transport itself, does not manage multiple physical uplinks in the way traditional SD-WAN does, and does not optimize WAN throughput. The "SD-WAN" label is primarily a category hook for buyers, not a description of WAN transport capabilities.
 
-Source: vendor/zscaler-help/cbc-what-zscaler-zero-trust-sd-wan.md; vendor/zscaler-help/what-zscaler-cloud-connector.md; vendor/zscaler-help/zero-trust-exchange-zte-marketing.md.
+Source: `vendor/zscaler-help/cbc-what-zscaler-zero-trust-sd-wan.md`; `vendor/zscaler-help/what-zscaler-cloud-connector.md`; `vendor/zscaler-help/zero-trust-exchange-zte-marketing.md`.
 
 ---
 
 ## 2. Cloud Connector and Branch Connector as the SD-WAN edge
 
-Source: vendor/zscaler-help/cbc-what-zscaler-zero-trust-sd-wan.md; vendor/zscaler-help/what-zscaler-cloud-connector.md; vendor/zscaler-help/cbc-about-traffic-forwarding.md; vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md.
+Source: `vendor/zscaler-help/cbc-what-zscaler-zero-trust-sd-wan.md`; `vendor/zscaler-help/what-zscaler-cloud-connector.md`; `vendor/zscaler-help/cbc-about-traffic-forwarding.md`; `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`.
 
 ### Form factors
 
@@ -91,13 +91,13 @@ Branch/Cloud LAN → Connector VM → ZTE (ZIA or ZPA Service Edge) → destinat
 
 The connector selects a ZTE Service Edge using geolocation (nearest PoP) by default, with optional override to pin to specific Public Service Edges, Virtual Service Edges, or sub-clouds per traffic-forwarding rule. The ZTE PoP (not the branch itself) performs security inspection, URL filtering, SSL decryption, DLP, and threat prevention. This is the "direct-to-cloud" model: branch traffic goes cloud-first, not data-center-first.
 
-Source: vendor/zscaler-help/cbc-about-traffic-forwarding.md; vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md; vendor/zscaler-help/zero-trust-exchange-zte-marketing.md.
+Source: `vendor/zscaler-help/cbc-about-traffic-forwarding.md`; `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`; `vendor/zscaler-help/zero-trust-exchange-zte-marketing.md`.
 
 ---
 
 ## 3. Capabilities
 
-Source: vendor/zscaler-help/cbc-about-traffic-forwarding.md; vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md; vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md; vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md.
+Source: `vendor/zscaler-help/cbc-about-traffic-forwarding.md`; `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`; `vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md`; `vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md`.
 
 ### Traffic forwarding — five methods
 
@@ -125,7 +125,7 @@ This is application-layer steering in the sense that Zscaler can route Zoom to Z
 
 ### WAN link selection (hardware Branch Connector only)
 
-Source: vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md.
+Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`.
 
 For Branch Connector hardware devices deployed in **gateway mode**, traffic-forwarding rules include a **WAN Selection** field:
 
@@ -137,7 +137,7 @@ This is the only documented per-link path selection capability in the help docs.
 
 ### Redundancy and HA
 
-Source: vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md; vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md.
+Source: `vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md`; `vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md`.
 
 For Cloud Connector (cloud workloads):
 
@@ -156,13 +156,13 @@ ZTE PoP availability: Zscaler operates 150+ global data centers. Zero Trust Gate
 
 All traffic forwarded to ZIA is subject to the full ZIA inspection stack at the PoP: SSL/TLS inspection, URL filtering, IPS, malware/ATP, DLP, firewall, sandboxing. Traffic forwarded to ZPA is subject to ZPA access policy (identity-aware, application-segment scoped) and optionally AppProtection (inline WAF/IPS). The branch or cloud connector itself performs no deep inspection — it is a traffic forwarder, not a security appliance. This is the key architectural difference versus traditional SD-WAN vendors that embed security at the edge.
 
-Source: vendor/zscaler-help/cbc-what-zscaler-zero-trust-sd-wan.md; vendor/zscaler-help/cbc-about-traffic-forwarding.md; vendor/zscaler-help/zero-trust-exchange-zte-marketing.md.
+Source: `vendor/zscaler-help/cbc-what-zscaler-zero-trust-sd-wan.md`; `vendor/zscaler-help/cbc-about-traffic-forwarding.md`; `vendor/zscaler-help/zero-trust-exchange-zte-marketing.md`.
 
 ---
 
 ## 4. Limits and what it explicitly is not
 
-Source: vendor/zscaler-help/cbc-what-zscaler-zero-trust-sd-wan.md; vendor/zscaler-help/what-zscaler-cloud-connector.md; vendor/zscaler-help/cbc-about-traffic-forwarding.md; vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md.
+Source: `vendor/zscaler-help/cbc-what-zscaler-zero-trust-sd-wan.md`; `vendor/zscaler-help/what-zscaler-cloud-connector.md`; `vendor/zscaler-help/cbc-about-traffic-forwarding.md`; `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`.
 
 **Not a branch-to-branch overlay.** Zero Trust SD-WAN does not create a VPN mesh or fabric between branch locations. Branch A cannot reach Branch B via a Zscaler-managed overlay; branch-to-branch traffic must hairpin through the ZTE (Branch A → ZTE → ZPA App Connector at Branch B, if ZPA is configured) or use an existing network path entirely outside Zscaler. This is a fundamental architectural difference versus Cisco Viptela SD-WAN fabrics, VMware VeloCloud mesh, or Silver Peak Unity Boost overlays.
 
@@ -222,7 +222,7 @@ Feature comparison by axis — not a scoring exercise.
 
 ## 6. Common operational gotchas
 
-Source: vendor/zscaler-help/cbc-what-zscaler-zero-trust-sd-wan.md; vendor/zscaler-help/what-zscaler-cloud-connector.md; vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md; vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md; vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md.
+Source: `vendor/zscaler-help/cbc-what-zscaler-zero-trust-sd-wan.md`; `vendor/zscaler-help/what-zscaler-cloud-connector.md`; `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`; `vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md`; `vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md`.
 
 ### Internet-only model, all traffic hairpins to ZTE
 

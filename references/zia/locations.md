@@ -141,7 +141,7 @@ An **Extranet Location Type** groups locations assigned to a specific extranet (
 
 ## Surprises worth flagging
 
-Source: vendor/zscaler-help/configuring-dynamic-location-groups.md.
+Source: `vendor/zscaler-help/configuring-dynamic-location-groups.md`.
 
 1. **A location can change policy scope without being edited.** If rules scope by dynamic Location Groups with attribute conditions, toggling the location's SSL Inspection flag from off to on can silently enroll it into a different group and a different policy. Review dynamic-group attribute conditions before changing per-location toggles.
 

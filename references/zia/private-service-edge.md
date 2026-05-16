@@ -17,7 +17,7 @@ author-status: draft
 
 # ZIA Private Service Edge — on-prem cluster architecture and deployment
 
-Source: vendor/zscaler-help/understanding-private-service-edge-internet-saas.md; vendor/zscaler-help/about-public-service-edges-internet-saas.md; vendor/zscaler-help/about-virtual-service-edges-internet-saas.md.
+Source: `vendor/zscaler-help/understanding-private-service-edge-internet-saas.md`; `vendor/zscaler-help/about-public-service-edges-internet-saas.md`; `vendor/zscaler-help/about-virtual-service-edges-internet-saas.md`.
 
 A Private Service Edge (PSE) extends the Zscaler cloud onto customer premises. Same full inspection stack as a Public Service Edge (Firewall, Sandbox, DLP, IPS), same control-plane connections (CA for auth/policy, cloud routers + Nanolog for logging), but **dedicated to a single organization's traffic and physically inside the customer's DC or DMZ**. Managed by Zscaler Cloud Operations; near-zero customer touch. Subject to Zscaler-initiated updates and maintenance. (Tier A — PSE help doc.)
 
@@ -25,7 +25,7 @@ For the broader Service Edge taxonomy (Public / Private / Virtual form factors, 
 
 ## PSE vs cloud enforcement nodes
 
-Source: vendor/zscaler-help/understanding-private-service-edge-internet-saas.md; vendor/zscaler-help/about-public-service-edges-internet-saas.md; vendor/zscaler-help/about-virtual-service-edges-internet-saas.md.
+Source: `vendor/zscaler-help/understanding-private-service-edge-internet-saas.md`; `vendor/zscaler-help/about-public-service-edges-internet-saas.md`; `vendor/zscaler-help/about-virtual-service-edges-internet-saas.md`.
 
 | Dimension | Public Service Edge | Private Service Edge | Virtual Service Edge |
 |---|---|---|---|
@@ -41,7 +41,7 @@ PSE is appropriate when geolocation routing is wrong for the use case (see "When
 
 ## When PSE makes sense
 
-Source: vendor/zscaler-help/understanding-private-service-edge-internet-saas.md.
+Source: `vendor/zscaler-help/understanding-private-service-edge-internet-saas.md`.
 
 Deploy a PSE cluster (rather than relying on Public Service Edges) when one or more of the following apply: (Tier A)
 
@@ -57,7 +57,7 @@ The Public SE threshold (~1 Gbps download) is the sizing break-point above which
 
 ## Cluster architecture
 
-Source: vendor/zscaler-help/understanding-private-service-edge-internet-saas.md; vendor/zscaler-help/about-private-service-edges.md.
+Source: `vendor/zscaler-help/understanding-private-service-edge-internet-saas.md`; `vendor/zscaler-help/about-private-service-edges.md`.
 
 All PSE deployments are **N+1 redundant**. Zscaler will not support a standalone PSE. Minimum two PSEs per cluster, always. (Tier A)
 
@@ -70,7 +70,7 @@ Two node roles in every cluster:
 
 ## Cluster tiers and throughput ceilings
 
-Source: vendor/zscaler-help/understanding-private-service-edge-internet-saas.md; vendor/zscaler-help/about-private-service-edges.md.
+Source: `vendor/zscaler-help/understanding-private-service-edge-internet-saas.md`; `vendor/zscaler-help/about-private-service-edges.md`.
 
 Three documented hardware configurations: (Tier A)
 
@@ -90,13 +90,13 @@ Minimum and maximum per cluster:
 
 ## Advanced DLP PSE
 
-Source: vendor/zscaler-help/understanding-private-service-edge-internet-saas.md.
+Source: `vendor/zscaler-help/understanding-private-service-edge-internet-saas.md`.
 
 Customers requiring **Exact Data Match (EDM)** or **Indexed Data Match (IDM)** features get an additional hardware role: the Advanced DLP Private Service Edge. This is separate from the standard PSE instances and dedicated to EDM/IDM index hosting and matching. Deployed alongside a standard PSE cluster, not as a standalone unit. (Tier A — PSE help doc.)
 
 ## Virtual Service Edge (VSE)
 
-Source: vendor/zscaler-help/about-virtual-service-edges-internet-saas.md.
+Source: `vendor/zscaler-help/about-virtual-service-edges-internet-saas.md`.
 
 VSE is the software form factor: a Zscaler OS VM running on customer-operated infrastructure. Platforms supported: VMware ESXi, Microsoft Azure, AWS EC2, Microsoft Hyper-V, Google Cloud Platform. Same control-plane connections as a physical PSE; same inspection stack. Key differences from hardware PSE: (Tier A — VSE help doc)
 
@@ -108,7 +108,7 @@ VSE is the right choice when the organization controls its own virtualization in
 
 ## IP and NAT requirements
 
-Source: vendor/zscaler-help/understanding-private-service-edge-internet-saas.md; vendor/zscaler-help/about-private-service-edges.md.
+Source: `vendor/zscaler-help/understanding-private-service-edge-internet-saas.md`; `vendor/zscaler-help/about-private-service-edges.md`.
 
 All PSE IPs — service IPs, LB IPs, cluster VIP — **must be public IP addresses**. (Tier A)
 
@@ -118,7 +118,7 @@ Firewall must allow outbound to Zscaler cloud IPs at `config.zscaler.com/<Zscale
 
 ## PSE Groups (ZIA configuration construct)
 
-Source: vendor/zscaler-help/about-private-service-edge-groups.md; vendor/zscaler-help/about-private-service-edges.md.
+Source: `vendor/zscaler-help/about-private-service-edge-groups.md`; `vendor/zscaler-help/about-private-service-edges.md`.
 
 PSE Groups organize PSEs into logical units for location policy scoping and high availability. They are a ZIA Admin Console construct distinct from the physical cluster architecture. (Tier A — vendor/zscaler-help/about-private-service-edge-groups.md.)
 
@@ -155,7 +155,7 @@ PSE deployments that need to ensure business continuity should also verify their
 
 ## Locations and the open-proxy risk
 
-Source: vendor/zscaler-help/understanding-private-service-edge-internet-saas.md; vendor/zscaler-help/about-private-service-edges.md.
+Source: `vendor/zscaler-help/understanding-private-service-edge-internet-saas.md`; `vendor/zscaler-help/about-private-service-edges.md`.
 
 Adding a **location** to a PSE cluster in the Admin Console enables per-cluster log viewing, auth settings, IP surrogacy, XFF consumption, and location-group rule scoping. See [`./locations.md`](./locations.md) for the location primitive itself.
 
@@ -176,7 +176,7 @@ Until step 4 completes: any traffic not matching the allowlist is treated as rem
 
 ## SDK and API surface
 
-Source: vendor/zscaler-help/about-private-service-edges.md; vendor/zscaler-help/about-private-service-edge-groups.md.
+Source: `vendor/zscaler-help/about-private-service-edges.md`; `vendor/zscaler-help/about-private-service-edge-groups.md`.
 
 ZIA PSE and PSE Groups do not have a dedicated SDK service in the Python or Go ZIA SDKs as of April 2026. PSE management is primarily done via:
 - The ZIA Admin Console (UI-only management for PSE provisioning)
@@ -191,13 +191,13 @@ Both products use the term "Private Service Edge" but they serve different roles
 
 ## ZDX dependency — PSE Health Dashboard
 
-Source: vendor/zscaler-help/understanding-private-service-edge-internet-saas.md; vendor/zscaler-help/about-private-service-edges.md.
+Source: `vendor/zscaler-help/understanding-private-service-edge-internet-saas.md`; `vendor/zscaler-help/about-private-service-edges.md`.
 
 The **PSE Health Dashboard** (the primary operational monitoring surface for PSE cluster health) requires a **ZDX (Zscaler Digital Experience) subscription**. It is not available to ZIA-only tenants. For tenants without ZDX, PSE monitoring falls back to Zscaler Cloud Ops telemetry and the standard ZIA Admin Console — which has no dedicated PSE health view. (Tier A — PSE help doc.)
 
 ## Gotchas summary
 
-Source: vendor/zscaler-help/understanding-private-service-edge-internet-saas.md; vendor/zscaler-help/about-private-service-edges.md; vendor/zscaler-help/about-private-service-edge-groups.md.
+Source: `vendor/zscaler-help/understanding-private-service-edge-internet-saas.md`; `vendor/zscaler-help/about-private-service-edges.md`; `vendor/zscaler-help/about-private-service-edge-groups.md`.
 
 1. **Minimum two PSEs — no standalone.** Zscaler will not support a one-node cluster. Budget for N+1 from the start.
 

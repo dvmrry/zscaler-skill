@@ -40,7 +40,7 @@ Where ZIA, ZPA, and ZCC reach into each other. These hooks are **where confident
 
 ## Summary
 
-Source: vendor/zscaler-help/configuring-ssl-tls-inspection-policy.md; vendor/zscaler-help/Configuring_Defined_Application_Segments.txt; vendor/zscaler-help/Using_Application_Segment_Multimatch.txt; vendor/zscaler-help/understanding-source-ip-anchoring.md; vendor/zscaler-help/About_Access_Policy.txt; vendor/zscaler-help/about-forwarding-profiles.md; vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py; vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py; vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py.
+Source: `vendor/zscaler-help/configuring-ssl-tls-inspection-policy.md`; `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `vendor/zscaler-help/Using_Application_Segment_Multimatch.txt`; `vendor/zscaler-help/understanding-source-ip-anchoring.md`; `vendor/zscaler-help/About_Access_Policy.txt`; `vendor/zscaler-help/about-forwarding-profiles.md`; `vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py`; `vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`.
 
 Note: This is a synthesis over product-specific references; the cited vendor and SDK paths are the underlying evidence.
 
@@ -54,7 +54,7 @@ Because the hooks live scattered across different docs, an agent answering a sin
 
 ## Directional hook catalog
 
-Source: vendor/zscaler-help/configuring-ssl-tls-inspection-policy.md; vendor/zscaler-help/Configuring_Defined_Application_Segments.txt; vendor/zscaler-help/Using_Application_Segment_Multimatch.txt; vendor/zscaler-help/understanding-source-ip-anchoring.md; vendor/zscaler-help/configuring-source-ip-anchoring.md; vendor/zscaler-help/configuring-forwarding-policies-source-ip-anchoring-using-zpa.md; vendor/zscaler-help/About_Access_Policy.txt; vendor/zscaler-help/about-forwarding-profiles.md; vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py; vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py; vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py; vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py; vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py; each subsection names the concrete product object or field that creates the cross-product dependency.
+Source: `vendor/zscaler-help/configuring-ssl-tls-inspection-policy.md`; `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `vendor/zscaler-help/Using_Application_Segment_Multimatch.txt`; `vendor/zscaler-help/understanding-source-ip-anchoring.md`; `vendor/zscaler-help/configuring-source-ip-anchoring.md`; `vendor/zscaler-help/configuring-forwarding-policies-source-ip-anchoring-using-zpa.md`; `vendor/zscaler-help/About_Access_Policy.txt`; `vendor/zscaler-help/about-forwarding-profiles.md`; `vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py`; `vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py`; `vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py`; `vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; each subsection names the concrete product object or field that creates the cross-product dependency.
 
 ### ZIA → ZPA
 
@@ -317,7 +317,7 @@ ZDX's analytics layer is Microsoft-hosted (Azure Data Explorer / ADX) — an ext
 
 ## Common cross-product question shapes
 
-Source: vendor/zscaler-help/configuring-ssl-tls-inspection-policy.md; vendor/zscaler-help/Configuring_Defined_Application_Segments.txt; vendor/zscaler-help/Using_Application_Segment_Multimatch.txt; vendor/zscaler-help/understanding-source-ip-anchoring.md; vendor/zscaler-help/About_Access_Policy.txt; vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py; vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py; vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py.
+Source: `vendor/zscaler-help/configuring-ssl-tls-inspection-policy.md`; `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `vendor/zscaler-help/Using_Application_Segment_Multimatch.txt`; `vendor/zscaler-help/understanding-source-ip-anchoring.md`; `vendor/zscaler-help/About_Access_Policy.txt`; `vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py`; `vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`.
 
 Routing hints for question patterns that often hit these hooks. Use this section to pre-empt cases where a question framed around one product actually resolves to behavior in another (ZIA vs ZPA vs ZCC).
 
@@ -357,7 +357,7 @@ Routing hints for question patterns that often hit these hooks. Use this section
 
 ## The recurring patterns
 
-Source: vendor/zscaler-help/configuring-ssl-tls-inspection-policy.md; vendor/zscaler-help/Configuring_Defined_Application_Segments.txt; vendor/zscaler-help/Using_Application_Segment_Multimatch.txt; vendor/zscaler-help/understanding-source-ip-anchoring.md; vendor/zscaler-help/About_Access_Policy.txt; vendor/zscaler-help/about-forwarding-profiles.md; vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py; vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py; vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py.
+Source: `vendor/zscaler-help/configuring-ssl-tls-inspection-policy.md`; `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `vendor/zscaler-help/Using_Application_Segment_Multimatch.txt`; `vendor/zscaler-help/understanding-source-ip-anchoring.md`; `vendor/zscaler-help/About_Access_Policy.txt`; `vendor/zscaler-help/about-forwarding-profiles.md`; `vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py`; `vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`.
 
 Three themes show up across the hooks:
 

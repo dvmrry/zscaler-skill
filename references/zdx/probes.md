@@ -20,7 +20,7 @@ Probes are the measurement primitives in ZDX. Understanding what each type measu
 
 ## Summary
 
-Source: vendor/zscaler-help/about-probes.md; vendor/zscaler-help/understanding-probing-criteria-logic.md.
+Source: `vendor/zscaler-help/about-probes.md`; `vendor/zscaler-help/understanding-probing-criteria-logic.md`.
 
 Two probe types, different measurement focus:
 
@@ -31,7 +31,7 @@ Probes target specific subsets of users via **Probing Criteria** (inclusion) and
 
 ## Mechanics
 
-Source: vendor/zscaler-help/about-probes.md.
+Source: `vendor/zscaler-help/about-probes.md`.
 
 ### Web probes
 
@@ -91,7 +91,7 @@ Metrics:
 
 ## Probing criteria — who the probe runs for
 
-Source: vendor/zscaler-help/understanding-probing-criteria-logic.md.
+Source: `vendor/zscaler-help/understanding-probing-criteria-logic.md`.
 
 Probes target users via **Probing Criteria** (inclusion) and **Exclusion Criteria**. Both filter on User, User Group, Department, Location. The two sets combine with a specific evaluation order:
 
@@ -140,7 +140,7 @@ A user in Group B, located in LA, Engineering → probed (inclusion matches, no 
 
 ## Edge cases
 
-Source: vendor/zscaler-help/about-probes.md; vendor/zscaler-help/understanding-probing-criteria-logic.md.
+Source: `vendor/zscaler-help/about-probes.md`; `vendor/zscaler-help/understanding-probing-criteria-logic.md`.
 
 - **Synthetic probe traffic shows up in ZIA logs as regular Web requests** (minus the SSL inspection detail). Operators filtering for user activity should account for probe traffic; a heuristic is to filter out requests to probe URLs that match the configured probe targets.
 - **Web probes against a URL that blocks at SNI (pre-decrypt)**: probe returns 0 availability. Since SSL inspection is skipped for probes, the block is SNI-level — which URL Filtering does pre-decrypt anyway. Probe result is accurate but potentially confusing ("I allow this URL in URL Filter but probe says unreachable" — check the SNI-level match, not the full-URL rule).
@@ -151,7 +151,7 @@ Source: vendor/zscaler-help/about-probes.md; vendor/zscaler-help/understanding-p
 
 ## Open questions
 
-Source: vendor/zscaler-help/about-probes.md; vendor/zscaler-help/understanding-probing-criteria-logic.md.
+Source: `vendor/zscaler-help/about-probes.md`; `vendor/zscaler-help/understanding-probing-criteria-logic.md`.
 
 - Exact probe frequency in Diagnostics Sessions (help doc says "updated session data every minute" but per-probe cadence during a session isn't specified) — [`./diagnostics-and-alerts.md`](./diagnostics-and-alerts.md).
 - Whether probe results are retained indefinitely or aged out, and at what granularity.

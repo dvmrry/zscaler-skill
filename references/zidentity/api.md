@@ -51,7 +51,7 @@ Each category has a corresponding base path:
 
 ## 2. Authentication flow for ZIdentity API access
 
-Source: vendor/zscaler-help/understanding-zidentity-apis.md; vendor/zscaler-help/zidentity-about-api-clients.md; vendor/zscaler-sdk-python/zscaler/zid/.
+Source: `vendor/zscaler-help/understanding-zidentity-apis.md`; `vendor/zscaler-help/zidentity-about-api-clients.md`; `vendor/zscaler-sdk-python/zscaler/zid/`.
 
 ### 2.1 How it differs from ZIA/ZPA OneAPI
 

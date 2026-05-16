@@ -16,7 +16,9 @@ author-status: draft
 
 # ZIA _data/snapshot/ schema
 
-Operational reference for the JSON files `scripts/snapshot-refresh.py` writes under `_data/snapshot/zia/`. Pre-written from SDK model classes (`vendor/zscaler-sdk-python/zscaler/zia/models/`) + Postman API surface + Terraform provider schema + existing reasoning docs. Once a real fork-admin run produces tenant data, validate this doc against actual JSON and bump confidence to `high`. [Source: vendor/zscaler-sdk-python/zscaler/zia/models/; vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/terraform-provider-zia/zia/]
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/terraform-provider-zia/zia/`.
+
+Operational reference for the JSON files `scripts/snapshot-refresh.py` writes under `_data/snapshot/zia/`. Pre-written from SDK model classes (`vendor/zscaler-sdk-python/zscaler/zia/models/`) + Postman API surface + Terraform provider schema + existing reasoning docs. Once a real fork-admin run produces tenant data, validate this doc against actual JSON and bump confidence to `high`.
 
 ## Files written by `--zia-only`
 
@@ -32,21 +34,51 @@ Plus `_data/snapshot/_manifest.json` with timestamps and per-resource counts.
 
 ## Wire-format conventions for ZIA
 
-- **camelCase JSON keys.** All ZIA API responses use camelCase (`urlFilterRulesCount`, not `url_filter_rules_count`). [Source: vendor/zscaler-sdk-python/zscaler/zia/models/; vendor/zscaler-api-specs/oneapi-postman-collection.json]
-- **The Python SDK exposes snake_case** Python attribute names and translates internally. Tooling reading JSON directly (e.g., `jq` queries) must use the **camelCase** wire keys, not snake_case. [Source: vendor/zscaler-sdk-python/zscaler/zia/models/]
-- **Rule IDs are integers** (`id: 12345`) in url-filtering-rules and ssl-inspection-rules. Different from ZPA where all IDs are strings. [Source: vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rules.py; vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py]
-- **URL category IDs are strings** — predefined categories use a code like `"OTHER_ADULT_MATERIAL"`; custom categories use `"CUSTOM_89"` (string, not integer). Do not assume numeric. [Source: vendor/zscaler-sdk-python/zscaler/zia/models/urlcategory.py]
-- **`urlCategories` in rules is an array of strings**, not objects. `["OTHER_ADULT_MATERIAL", "CUSTOM_89"]`, not `[{id, name}]`. Confirmed from tenant data. [Source: vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rules.py]
-- **Flat arrays, not paginated wrappers.** Both url-categories and url-filtering-rules return bare arrays (`type: "array"`), not the `{list, totalCount, totalPages}` wrapper ZPA uses. [Source: vendor/zscaler-sdk-python/zscaler/zia/models/urlcategory.py; vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rules.py]
-- **Nested arrays of objects** are common. Don't expect flat structures. [Source: vendor/zscaler-sdk-python/zscaler/zia/models/]
-- **`null` vs missing fields.** SDK's `if "key" in config` patterns mean an absent key gets a Python `None`. JSON snapshots usually have all fields with `null` rather than omitting — but verify. [Source: vendor/zscaler-sdk-python/zscaler/zia/models/]
-- **Read-only metadata fields** like `lastModifiedTime` (epoch seconds) and `lastModifiedBy: { id, name }` accompany most resources. [Source: vendor/zscaler-sdk-python/zscaler/zia/models/]
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
+
+- **camelCase JSON keys.** All ZIA API responses use camelCase (`urlFilterRulesCount`, not `url_filter_rules_count`).
+
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/`.
+
+- **The Python SDK exposes snake_case** Python attribute names and translates internally. Tooling reading JSON directly (e.g., `jq` queries) must use the **camelCase** wire keys, not snake_case.
+
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rules.py`; `vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py`.
+
+- **Rule IDs are integers** (`id: 12345`) in url-filtering-rules and ssl-inspection-rules. Different from ZPA where all IDs are strings.
+
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/urlcategory.py`.
+
+- **URL category IDs are strings** — predefined categories use a code like `"OTHER_ADULT_MATERIAL"`; custom categories use `"CUSTOM_89"` (string, not integer). Do not assume numeric.
+
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rules.py`.
+
+- **`urlCategories` in rules is an array of strings**, not objects. `["OTHER_ADULT_MATERIAL", "CUSTOM_89"]`, not `[{id, name}]`. Confirmed from tenant data.
+
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/urlcategory.py`; `vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rules.py`.
+
+- **Flat arrays, not paginated wrappers.** Both url-categories and url-filtering-rules return bare arrays (`type: "array"`), not the `{list, totalCount, totalPages}` wrapper ZPA uses.
+
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/`.
+
+- **Nested arrays of objects** are common. Don't expect flat structures.
+
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/`.
+
+- **`null` vs missing fields.** SDK's `if "key" in config` patterns mean an absent key gets a Python `None`. JSON snapshots usually have all fields with `null` rather than omitting — but verify.
+
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/`.
+
+- **Read-only metadata fields** like `lastModifiedTime` (epoch seconds) and `lastModifiedBy: { id, name }` accompany most resources.
 
 ## `url-categories.json`
 
-API: `GET /zia/api/v1/urlCategories` [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/zscaler-sdk-python/zscaler/zia/models/urlcategory.py]
+Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscaler-sdk-python/zscaler/zia/models/urlcategory.py`.
 
-**Shape:** array of URLCategory objects. Not paginated; whole list returned. [Source: vendor/zscaler-sdk-python/zscaler/zia/models/urlcategory.py]
+API: `GET /zia/api/v1/urlCategories`
+
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/urlcategory.py`.
+
+**Shape:** array of URLCategory objects. Not paginated; whole list returned.
 
 ```json
 [
@@ -85,7 +117,9 @@ API: `GET /zia/api/v1/urlCategories` [Source: vendor/zscaler-api-specs/oneapi-po
 ]
 ```
 
-Full SDK model: `vendor/zscaler-sdk-python/zscaler/zia/models/urlcategory.py`. [Source: vendor/zscaler-sdk-python/zscaler/zia/models/urlcategory.py]
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/urlcategory.py`.
+
+Full SDK model: `vendor/zscaler-sdk-python/zscaler/zia/models/urlcategory.py`.
 
 ### Common jq queries
 
@@ -107,9 +141,13 @@ Cross-links: [`./url-filtering.md`](./url-filtering.md), [`./wildcard-semantics.
 
 ## `url-filtering-rules.json`
 
-API: `GET /zia/api/v1/urlFilteringRules` [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rules.py]
+Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rules.py`.
 
-**Shape:** array of URL Filtering rule objects, ordered by `order` field (rule evaluation order). [Source: vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rules.py]
+API: `GET /zia/api/v1/urlFilteringRules`
+
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rules.py`.
+
+**Shape:** array of URL Filtering rule objects, ordered by `order` field (rule evaluation order).
 
 ```json
 [
@@ -170,7 +208,9 @@ API: `GET /zia/api/v1/urlFilteringRules` [Source: vendor/zscaler-api-specs/oneap
 ]
 ```
 
-Full SDK model: `vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rules.py`. [Source: vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rules.py]
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rules.py`.
+
+Full SDK model: `vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rules.py`.
 
 ### Common jq queries
 
@@ -195,9 +235,13 @@ Cross-links: [`./url-filtering.md`](./url-filtering.md), [`./locations.md`](./lo
 
 ## `cloud-app-control-rules.json`
 
-API: `GET /zia/api/v1/webApplicationRules` (Postman: 23 ZIA folders / Cloud App Control Policy) [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/zscaler-sdk-python/zscaler/zia/models/cloud_app_policy.py]
+Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscaler-sdk-python/zscaler/zia/models/cloud_app_policy.py`.
 
-**Shape:** Cloud App Control rules, organized by **rule type**. Multiple rule types exist (one per cloud-app category — Webmail, Streaming, Social, etc.). [Source: vendor/zscaler-sdk-python/zscaler/zia/models/cloud_app_policy.py]
+API: `GET /zia/api/v1/webApplicationRules` (Postman: 23 ZIA folders / Cloud App Control Policy)
+
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/cloud_app_policy.py`.
+
+**Shape:** Cloud App Control rules, organized by **rule type**. Multiple rule types exist (one per cloud-app category — Webmail, Streaming, Social, etc.).
 
 ```json
 [
@@ -238,9 +282,13 @@ API: `GET /zia/api/v1/webApplicationRules` (Postman: 23 ZIA folders / Cloud App 
 ]
 ```
 
-**`type` enum** controls per-rule action validity. The full `type` set is enumerated by `GET /zia/api/v1/webApplicationRules/ruleTypeMapping`. Per-type valid actions queryable via `GET /zia/api/v1/webApplicationRules/availableActions`. [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/zscaler-sdk-python/zscaler/zia/models/cloud_app_policy.py]
+Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscaler-sdk-python/zscaler/zia/models/cloud_app_policy.py`.
 
-Full SDK model: `vendor/zscaler-sdk-python/zscaler/zia/models/cloud_app_policy.py`. [Source: vendor/zscaler-sdk-python/zscaler/zia/models/cloud_app_policy.py]
+**`type` enum** controls per-rule action validity. The full `type` set is enumerated by `GET /zia/api/v1/webApplicationRules/ruleTypeMapping`. Per-type valid actions queryable via `GET /zia/api/v1/webApplicationRules/availableActions`.
+
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/cloud_app_policy.py`.
+
+Full SDK model: `vendor/zscaler-sdk-python/zscaler/zia/models/cloud_app_policy.py`.
 
 ### Common jq queries
 
@@ -259,9 +307,13 @@ Cross-links: [`./cloud-app-control.md`](./cloud-app-control.md).
 
 ## `ssl-inspection-rules.json`
 
-API: `GET /zia/api/v1/sslInspectionRules` (Postman: 23 ZIA folders / Security Policy Settings) [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py]
+Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py`.
 
-**Shape:** array of SSL Inspection rule objects. [Source: vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py]
+API: `GET /zia/api/v1/sslInspectionRules` (Postman: 23 ZIA folders / Security Policy Settings)
+
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py`.
+
+**Shape:** array of SSL Inspection rule objects.
 
 ```json
 [
@@ -331,7 +383,9 @@ API: `GET /zia/api/v1/sslInspectionRules` (Postman: 23 ZIA folders / Security Po
 ]
 ```
 
-Full SDK model: `vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py`. [Source: vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py]
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py`.
+
+Full SDK model: `vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py`.
 
 ### Common jq queries
 
@@ -353,9 +407,13 @@ Cross-links: [`./ssl-inspection.md`](./ssl-inspection.md), [`./url-filtering.md 
 
 ## `advanced-settings.json`
 
-API: `GET /zia/api/v1/advancedSettings` [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/zscaler-sdk-python/zscaler/zia/models/advanced_settings.py]
+Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscaler-sdk-python/zscaler/zia/models/advanced_settings.py`.
 
-**Shape:** single object (NOT an array). 58 fields confirmed from tenant data. [Source: vendor/zscaler-sdk-python/zscaler/zia/models/advanced_settings.py]
+API: `GET /zia/api/v1/advancedSettings`
+
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/advanced_settings.py`.
+
+**Shape:** single object (NOT an array). 58 fields confirmed from tenant data.
 
 ```json
 {
@@ -411,10 +469,15 @@ API: `GET /zia/api/v1/advancedSettings` [Source: vendor/zscaler-api-specs/oneapi
 }
 ```
 
-Full SDK model: `vendor/zscaler-sdk-python/zscaler/zia/models/advanced_settings.py`. 58 fields confirmed from tenant data. [Source: vendor/zscaler-sdk-python/zscaler/zia/models/advanced_settings.py]
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/advanced_settings.py`.
+
+Full SDK model: `vendor/zscaler-sdk-python/zscaler/zia/models/advanced_settings.py`. 58 fields confirmed from tenant data.
 
 **Fields documented in prior schema that do NOT exist in real responses** (removed above):
-`enableMsftO365`, `enableZoom`, `enableLogmein`, `enableRingcentral`, `enableWebex`, `enableTalkdesk`, `blockSkype`, `blockUdpAndIcmpForBypassUrl` — these UCaaS One-Click toggles are not present in the Z2 tenant. May be tier-dependent or moved to separate endpoints. [Source: vendor/zscaler-sdk-python/zscaler/zia/models/advanced_settings.py]
+
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/advanced_settings.py`.
+
+`enableMsftO365`, `enableZoom`, `enableLogmein`, `enableRingcentral`, `enableWebex`, `enableTalkdesk`, `blockSkype`, `blockUdpAndIcmpForBypassUrl` — these UCaaS One-Click toggles are not present in the Z2 tenant. May be tier-dependent or moved to separate endpoints.
 
 ### Common jq queries
 
@@ -452,15 +515,21 @@ Resources `snapshot-refresh.py` doesn't currently dump that you might want to ex
 | Admin roles | `/adminRoles` | Role definitions |
 | NSS feeds | `/nssFeeds` | Log-streaming config |
 
-Adding any of these requires updating the ZIA resource list. SDK methods are documented in `vendor/zscaler-sdk-python/zscaler/zia/`. [Source: vendor/zscaler-sdk-python/zscaler/zia/; vendor/zscaler-api-specs/oneapi-postman-collection.json]
+Source: `vendor/zscaler-sdk-python/zscaler/zia/`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
+
+Adding any of these requires updating the ZIA resource list. SDK methods are documented in `vendor/zscaler-sdk-python/zscaler/zia/`.
 
 ## ⚠️ Verification needed — ZIA schema written from SDK only
 
-Unlike ZPA (where the Postman collection has 76KB+ request/response bodies), the ZIA Postman collection has no detailed schemas (all request bodies under 2KB). This entire document was derived from SDK model classes and the TF provider — no wire-format cross-reference exists. A real tenant run is the only way to validate. [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/zscaler-sdk-python/zscaler/zia/models/; vendor/terraform-provider-zia/zia/]
+Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscaler-sdk-python/zscaler/zia/models/`; `vendor/terraform-provider-zia/zia/`.
+
+Unlike ZPA (where the Postman collection has 76KB+ request/response bodies), the ZIA Postman collection has no detailed schemas (all request bodies under 2KB). This entire document was derived from SDK model classes and the TF provider — no wire-format cross-reference exists. A real tenant run is the only way to validate.
 
 ### Priority verification queries
 
-Run these against a populated `_data/snapshot/zia/` or live API and record what diverges from the examples above. [Source: vendor/zscaler-sdk-python/zscaler/zia/models/; vendor/zscaler-api-specs/oneapi-postman-collection.json]
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
+
+Run these against a populated `_data/snapshot/zia/` or live API and record what diverges from the examples above.
 
 ```bash
 # 1. url-categories.json — is id a string code ("MUSIC") for predefined, or always numeric?
@@ -505,23 +574,40 @@ jq 'type' _data/snapshot/zia/url-filtering-rules.json  # expect "array"
 - ✅ Rule IDs (url-filtering, ssl-inspection) are integers. url-category IDs are strings.
 
 **Resolved (2026-04-26):**
-- `advanced-settings.json` — 58 fields, single object shape confirmed. Schema updated with ~20 previously-undocumented fields. 8 SDK-phantom fields removed (UCaaS One-Click toggles not present in Z2 tenant — may be tier-dependent). Case fix: `enableEvaluatePolicyOnGlobalSSLBypass` (capital SSL). [Source: vendor/zscaler-sdk-python/zscaler/zia/models/advanced_settings.py]
+
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/advanced_settings.py`.
+
+- `advanced-settings.json` — 58 fields, single object shape confirmed. Schema updated with ~20 previously-undocumented fields. 8 SDK-phantom fields removed (UCaaS One-Click toggles not present in Z2 tenant — may be tier-dependent). Case fix: `enableEvaluatePolicyOnGlobalSSLBypass` (capital SSL).
 
 ## Wire-format gotchas
 
-1. **camelCase, always.** ZIA's wire format is camelCase. The SDK exposes snake_case Python; tooling reading JSON directly must use camelCase. [Source: vendor/zscaler-sdk-python/zscaler/zia/models/]
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/`.
 
-2. **Booleans default to `false` in SDK construction.** A field absent from the API response gets `false` from the SDK. Don't trust SDK-derived structures to faithfully represent "unset" — verify against actual JSON. [Source: vendor/zscaler-sdk-python/zscaler/zia/models/]
+1. **camelCase, always.** ZIA's wire format is camelCase. The SDK exposes snake_case Python; tooling reading JSON directly must use camelCase.
 
-3. **Embedded objects are common.** Most cross-references use nested object or array shapes rather than a single scalar ID. [Source: vendor/zscaler-sdk-python/zscaler/zia/models/]
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/`.
 
-4. **`order` and `rank` differ.** `order` is rule evaluation position (first-match-wins). `rank` is admin-rank gate (which admins can edit). Don't conflate. [Source: vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rules.py; vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py]
+2. **Booleans default to `false` in SDK construction.** A field absent from the API response gets `false` from the SDK. Don't trust SDK-derived structures to faithfully represent "unset" — verify against actual JSON.
 
-5. **`state: "DISABLED"` rules retain their order slot** — they aren't skipped in numbering. See [`./url-filtering.md`](./url-filtering.md) for evaluation semantics. [Source: vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rules.py; vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py]
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/`.
 
-6. **`predefined: true` rules can't be deleted via API.** Editing requires admin rank >= predefined-rule rank. Most are admin-rank 7. [Source: vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rules.py; vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py]
+3. **Embedded objects are common.** Most cross-references use nested object or array shapes rather than a single scalar ID.
 
-7. **`defaultRule: true` (SSL Inspection) is the catch-all rule.** Always present, always last. Modify via update; can't be deleted. [Source: vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py]
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rules.py`; `vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py`.
+
+4. **`order` and `rank` differ.** `order` is rule evaluation position (first-match-wins). `rank` is admin-rank gate (which admins can edit). Don't conflate.
+
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rules.py`; `vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py`.
+
+5. **`state: "DISABLED"` rules retain their order slot** — they aren't skipped in numbering. See [`./url-filtering.md`](./url-filtering.md) for evaluation semantics.
+
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rules.py`; `vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py`.
+
+6. **`predefined: true` rules can't be deleted via API.** Editing requires admin rank >= predefined-rule rank. Most are admin-rank 7.
+
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py`.
+
+7. **`defaultRule: true` (SSL Inspection) is the catch-all rule.** Always present, always last. Modify via update; can't be deleted.
 
 ## Cross-links
 

@@ -20,7 +20,7 @@ author-status: draft
 
 # Cloud Connector supported regions — AWS / Azure / GCP coverage
 
-Source: vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md; vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-amazon-web-services.md; vendor/zscaler-help/cbc-deploying-cloud-connector-microsoft-azure.md; vendor/zscaler-help/cbc-about-cloud-connector-groups.md; vendor/zscaler-help/cbc-configuring-cloud-provisioning-template.md; vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md.
+Source: `vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md`; `vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-amazon-web-services.md`; `vendor/zscaler-help/cbc-deploying-cloud-connector-microsoft-azure.md`; `vendor/zscaler-help/cbc-about-cloud-connector-groups.md`; `vendor/zscaler-help/cbc-configuring-cloud-provisioning-template.md`; `vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md`.
 
 This document covers which cloud provider regions support Zscaler Cloud Connector (CC) deployment, the mechanism by which Cloud Connector selects Zscaler Public Service Edges, how that interacts with the concept of subclouds, and any known regional capability restrictions or gaps.
 
@@ -30,7 +30,7 @@ This document covers which cloud provider regions support Zscaler Cloud Connecto
 
 ## How Zscaler decides where to support CC
 
-Source: vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md; vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-amazon-web-services.md; vendor/zscaler-help/cbc-deploying-cloud-connector-microsoft-azure.md; vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md.
+Source: `vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md`; `vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-amazon-web-services.md`; `vendor/zscaler-help/cbc-deploying-cloud-connector-microsoft-azure.md`; `vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md`.
 
 Cloud Connector is a VM image (AMI on AWS, VM image on Azure/GCP) deployed inside the customer's own cloud account. Zscaler does not operate Cloud Connector in its own infrastructure — the customer deploys it into their VPC/VNet/VPC (Google). This means "Cloud Connector regional support" has two distinct meanings:
 
@@ -46,7 +46,7 @@ The relationship to subclouds: subclouds restrict *which PSEs handle tenant traf
 
 ## AWS region matrix
 
-Source: vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md; vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-amazon-web-services.md.
+Source: `vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md`; `vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-amazon-web-services.md`.
 
 ### Zero Trust Gateway supported regions (authoritative)
 
@@ -71,7 +71,9 @@ The help article *Supported Regions for Zero Trust Gateways* (`cbc-supported-reg
 | `sa-east-1` | South America (São Paulo) | São Paulo, Brazil |
 | `me-south-1` | Middle East (Bahrain) | Bahrain |
 
-Source: `help.zscaler.com/cloud-branch-connector/supported-regions-zero-trust-gateways`, captured 2026-04-26. The article's closing note: *"If you are interested in support for a region that is currently unavailable, contact Zscaler Support."*
+Source: `vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md`.
+
+The article's closing note says to contact Zscaler Support for unavailable regions.
 
 **16 regions** across North America (4), Europe (6), Asia-Pacific (3), Canada (1), South America (1), Middle East (1).
 
@@ -93,7 +95,7 @@ The standard CC AMI deployment (via CloudFormation or Terraform) does not have a
 
 ## Azure region matrix
 
-Source: vendor/zscaler-help/cbc-deploying-cloud-connector-microsoft-azure.md; vendor/zscaler-help/cbc-about-cloud-provisioning-templates.md.
+Source: `vendor/zscaler-help/cbc-deploying-cloud-connector-microsoft-azure.md`; `vendor/zscaler-help/cbc-about-cloud-provisioning-templates.md`.
 
 ### Marketplace availability
 
@@ -136,7 +138,7 @@ The VMSS (autoscaling) deployment on Azure requires a **Function App** for healt
 
 ## GCP region matrix
 
-Source: vendor/zscaler-help/cbc-about-cloud-connector-groups.md; vendor/zscaler-help/cbc-about-cloud-provisioning-templates.md; vendor/zscaler-help/cbc-configuring-cloud-provisioning-template.md; vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md.
+Source: `vendor/zscaler-help/cbc-about-cloud-connector-groups.md`; `vendor/zscaler-help/cbc-about-cloud-provisioning-templates.md`; `vendor/zscaler-help/cbc-configuring-cloud-provisioning-template.md`; `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`.
 
 ### Coverage status: unconfirmed
 
@@ -158,7 +160,7 @@ GCP is confirmed as a supported cloud provider for Cloud Connector at the produc
 
 ## Cross-region considerations
 
-Source: vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md; vendor/zscaler-help/cbc-understanding-namespaces-amazon-web-services-and-microsoft-azure-accounts.md; vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md.
+Source: `vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md`; `vendor/zscaler-help/cbc-understanding-namespaces-amazon-web-services-and-microsoft-azure-accounts.md`; `vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md`.
 
 ### CC placement relative to workloads
 
@@ -206,7 +208,7 @@ For the Zscaler-side tunnel: CC automatically fails over from primary to seconda
 
 ## Open questions register
 
-Source: vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md; vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-amazon-web-services.md; vendor/zscaler-help/cbc-deploying-cloud-connector-microsoft-azure.md; vendor/zscaler-help/cbc-about-cloud-provisioning-templates.md; vendor/zscaler-help/cbc-configuring-cloud-provisioning-template.md.
+Source: `vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md`; `vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-amazon-web-services.md`; `vendor/zscaler-help/cbc-deploying-cloud-connector-microsoft-azure.md`; `vendor/zscaler-help/cbc-about-cloud-provisioning-templates.md`; `vendor/zscaler-help/cbc-configuring-cloud-provisioning-template.md`.
 
 | ID | Question | Why it matters | How to resolve |
 |---|---|---|---|

@@ -28,7 +28,7 @@ How ZPA picks which application segment handles a request when two or more segme
 
 ## Summary
 
-Source: `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `vendor/zscaler-help/Understanding_Application_Access.txt`; `vendor/zscaler-help/Using_Application_Segment_Multimatch.txt`
+Source: `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `vendor/zscaler-help/Understanding_Application_Access.txt`; `vendor/zscaler-help/Using_Application_Segment_Multimatch.txt`.
 
 From *Configuring Defined Application Segments*, p.10:
 
@@ -122,7 +122,7 @@ And p.15:
 
 ## The specificity-wins rule (covers eval Q6)
 
-Source: `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `vendor/zscaler-help/Understanding_Application_Access.txt`; `vendor/zscaler-help/Using_Application_Segment_Multimatch.txt`
+Source: `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `vendor/zscaler-help/Understanding_Application_Access.txt`; `vendor/zscaler-help/Using_Application_Segment_Multimatch.txt`.
 
 From *Configuring Defined Application Segments* p.10 and *Understanding Application Access* p.1, the definitive rule:
 
@@ -218,7 +218,7 @@ Plus from *Configuring Defined Application Segments* p.16: "If Multimatch is ena
 
 ## Edge cases
 
-Source: `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `vendor/zscaler-help/Using_Application_Segment_Multimatch.txt`
+Source: `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `vendor/zscaler-help/Using_Application_Segment_Multimatch.txt`.
 
 - **ICMP asymmetric aggregation.** From p.13: "If ICMP is enabled for a specific application in an application segment and the same application is disabled for ICMP in a different application segment, then Zscaler Client Connector considers ICMP enabled for that application and forwards the ICMP request to Private Access." — Cross-segment ICMP behavior is OR-aggregated, not most-specific-wins.
 - **IdP application overlap.** From p.1: "If your IdP is defined as an application within an application segment, the Authentication Timeout for the IdP application must be set to Never. If an IdP domain overlaps with a domain configured for application discovery, you must bypass the IdP domain in Private Access (ZPA) to avoid user reauthentication failure."
@@ -231,7 +231,7 @@ Source: `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `ven
 
 ## Worked example (covers eval Q6)
 
-Source: `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `vendor/zscaler-help/Using_Application_Segment_Multimatch.txt`; clarification `zpa-03`; clarification `zpa-04`.
+Source: `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `vendor/zscaler-help/Using_Application_Segment_Multimatch.txt`.
 
 Scenario: Two application segments both cover `foo.internal.corp`, which a user requests:
 
@@ -278,13 +278,9 @@ The guard rails:
 
 ## Open questions
 
-Source: clarification `zpa-04`.
-
 - Same-FQDN, same-Bypass-setting tie-break — [clarification `zpa-04`](../_meta/clarifications.md#zpa-04-same-fqdn-same-bypass-tie-break) (still open)
 
 ## Resolved clarifications
-
-Source: clarification `zpa-02`; clarification `zpa-03`; clarification `zpa-05`.
 
 Answers preserved in `_meta/clarifications.md`:
 

@@ -108,7 +108,7 @@ GetByName(ctx context.Context, service *zscaler.Service, name string) ([]Resourc
 
 ## Postman collection endpoints
 
-Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`
+Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
 | Name | Method | Raw URL | Line |
 |---|---|---|---|
@@ -225,7 +225,7 @@ A resource server can carry multiple `ServiceScopes` entries — one per Zscaler
 
 ### Parameters relevant to resource-server endpoints
 
-Source: Python docstring `vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py:49-55`; Go `PaginationQueryParams` `vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go:32-44`
+Source: Python docstring `vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py:49-55`; Go `PaginationQueryParams` `vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go:32-44`.
 
 | Parameter | Wire key | Type | Constraint | Notes |
 |---|---|---|---|---|

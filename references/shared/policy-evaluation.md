@@ -26,13 +26,13 @@ author-status: draft
 
 # Zscaler policy evaluation — shared mental model
 
-Source: vendor/zscaler-help/Understanding_Policy_Enforcement.txt; vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/About_Access_Policy.txt; vendor/zscaler-help/Access_Policy_Deployment_and_Operations_Guide.txt; vendor/zscaler-help/About_Policies.txt.
+Source: `vendor/zscaler-help/Understanding_Policy_Enforcement.txt`; `vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt`; `vendor/zscaler-help/About_Access_Policy.txt`; `vendor/zscaler-help/Access_Policy_Deployment_and_Operations_Guide.txt`; `vendor/zscaler-help/About_Policies.txt`.
 
 How ZIA and ZPA structure policy evaluation, what they share, and where they diverge. Cited directly from Zscaler's authoritative documentation.
 
 ## Summary (side-by-side)
 
-Source: vendor/zscaler-help/Understanding_Policy_Enforcement.txt; vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/About_Access_Policy.txt; vendor/zscaler-help/About_Policies.txt.
+Source: `vendor/zscaler-help/Understanding_Policy_Enforcement.txt`; `vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt`; `vendor/zscaler-help/About_Access_Policy.txt`; `vendor/zscaler-help/About_Policies.txt`.
 
 | Dimension | ZIA (web traffic) | ZPA (private application access) |
 |---|---|---|
@@ -100,7 +100,7 @@ Direct quote (*Understanding Policy Enforcement* p.13):
 
 ### CAC-vs-URL-filter cascading
 
-Source: vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/Understanding_Policy_Enforcement.txt.
+Source: `vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt`; `vendor/zscaler-help/Understanding_Policy_Enforcement.txt`.
 
 From *Configuring the URL Filtering Policy* p.1:
 
@@ -149,7 +149,7 @@ To reference NameID-bound value in policy criteria, configure an IdP-side user a
 
 ### Carved-out behavior on overlapping segments
 
-Source: vendor/zscaler-help/Configuring_Defined_Application_Segments.txt; vendor/zscaler-help/About_Policies.txt.
+Source: `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `vendor/zscaler-help/About_Policies.txt`.
 
 From *Using Application Segment Multimatch* p.4 (cited in `../zpa/app-segments.md`):
 
@@ -159,7 +159,7 @@ So overlapping segments do **not** fall through to less-specific segments by def
 
 ## Shared patterns
 
-Source: vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt; vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/About_Access_Policy.txt; vendor/zscaler-help/About_Policies.txt; vendor/zscaler-help/Configuring_Defined_Application_Segments.txt.
+Source: `vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt`; `vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt`; `vendor/zscaler-help/About_Access_Policy.txt`; `vendor/zscaler-help/About_Policies.txt`; `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`.
 
 Both products share:
 
@@ -169,7 +169,7 @@ Both products share:
 
 ## Where the products genuinely differ
 
-Source: vendor/zscaler-help/Understanding_Policy_Enforcement.txt; vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/About_Access_Policy.txt; vendor/zscaler-help/About_Policies.txt; vendor/zscaler-help/Configuring_Defined_Application_Segments.txt.
+Source: `vendor/zscaler-help/Understanding_Policy_Enforcement.txt`; `vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt`; `vendor/zscaler-help/About_Access_Policy.txt`; `vendor/zscaler-help/About_Policies.txt`; `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`.
 
 Beyond the default-allow vs default-block split:
 
@@ -180,7 +180,7 @@ Beyond the default-allow vs default-block split:
 
 ## Edge cases spanning both products
 
-Source: vendor/zscaler-help/Configuring_Defined_Application_Segments.txt; vendor/zscaler-help/About_Access_Policy.txt; vendor/zscaler-help/Understanding_Policy_Enforcement.txt.
+Source: `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `vendor/zscaler-help/About_Access_Policy.txt`; `vendor/zscaler-help/Understanding_Policy_Enforcement.txt`.
 
 - **Source IP Anchoring (SIPA).** ZPA application segments can enable "Inspect Traffic with ZIA" (*Configuring Defined Application Segments* p.2): "Enable to leverage single posture for securing internet or SaaS and private applications and apply Data Loss Prevention policies to the application segment you are creating." When enabled, ZPA hands internal-app traffic to ZIA for additional inspection. Country-code evaluation in ZPA then uses ZIA's public-IP (per *About Access Policy* p.2).
 - **Zscaler Client Connector is in both paths.** For endpoints with the Client Connector installed, a single forwarding profile decides ZIA vs ZPA vs direct vs bypass per destination. Both products see user identity (via Surrogate IP or Client Connector) and device posture consistently.

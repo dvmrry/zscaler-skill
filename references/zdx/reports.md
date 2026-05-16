@@ -36,7 +36,7 @@ This file:
 
 ## Subsystem map
 
-Source: vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_health_metrics.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_events.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_apps.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_web_probes.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_cloudpath_probes.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/users/users.go; vendor/zscaler-sdk-python/zscaler/zdx/apps.py; vendor/zscaler-sdk-python/zscaler/zdx/devices.py; vendor/zscaler-sdk-python/zscaler/zdx/users.py.
+Source: `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_health_metrics.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_events.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_apps.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_web_probes.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_cloudpath_probes.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/users/users.go`; `vendor/zscaler-sdk-python/zscaler/zdx/apps.py`; `vendor/zscaler-sdk-python/zscaler/zdx/devices.py`; `vendor/zscaler-sdk-python/zscaler/zdx/users.py`.
 
 | Subsystem | Go path | Python class | Full documentation |
 |-----------|---------|--------------|-------------------|
@@ -119,7 +119,7 @@ Python `UsersAPI` exposes only `list_users()` and `get_user()`. (`vendor/zscaler
 
 ## New endpoints not covered in other refs
 
-Source: vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_quality_metrics.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_top_process.go; vendor/zscaler-sdk-python/zscaler/zdx/devices.py.
+Source: `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_quality_metrics.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_top_process.go`; `vendor/zscaler-sdk-python/zscaler/zdx/devices.py`.
 
 ### Call quality metrics (Microsoft Teams / Zoom)
 
@@ -183,7 +183,7 @@ For the deeptrace lifecycle (when traceIDs are created and become available), se
 
 ## What the reports service does NOT expose
 
-Source: vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_health_metrics.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_events.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_apps.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_top_process.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/users/users.go; vendor/zscaler-sdk-python/zscaler/zdx/apps.py; vendor/zscaler-sdk-python/zscaler/zdx/devices.py; vendor/zscaler-sdk-python/zscaler/zdx/users.py.
+Source: `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_health_metrics.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_events.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_apps.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_top_process.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/users/users.go`; `vendor/zscaler-sdk-python/zscaler/zdx/apps.py`; `vendor/zscaler-sdk-python/zscaler/zdx/devices.py`; `vendor/zscaler-sdk-python/zscaler/zdx/users.py`.
 
 The `reports/` umbrella has no:
 
@@ -195,7 +195,7 @@ The `reports/` umbrella has no:
 
 ## Python SDK coverage map
 
-Source: vendor/zscaler-sdk-python/zscaler/zdx/apps.py; vendor/zscaler-sdk-python/zscaler/zdx/devices.py; vendor/zscaler-sdk-python/zscaler/zdx/users.py; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zdx/apps.py`; `vendor/zscaler-sdk-python/zscaler/zdx/devices.py`; `vendor/zscaler-sdk-python/zscaler/zdx/users.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go`.
 
 | Go subsystem | Python class | Notable methods | Citation |
 |--------------|--------------|-----------------|----------|
@@ -207,7 +207,7 @@ Source: vendor/zscaler-sdk-python/zscaler/zdx/apps.py; vendor/zscaler-sdk-python
 
 ## Edge cases and SDK behavior notes
 
-Source: vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_web_probes.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/geo_locations.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/users/users.go; vendor/zscaler-sdk-python/zscaler/zdx/devices.py.
+Source: `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_web_probes.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/geo_locations.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/users/users.go`; `vendor/zscaler-sdk-python/zscaler/zdx/devices.py`.
 
 **Metric dual-unmarshalling fallback**: `GetAppScores()`, `GetAppMetrics()`, and `GetWebProbes()` in Go attempt to unmarshal the response as `[]common.Metric` first; if that fails, they retry as a single `common.Metric` and wrap it in a slice. This handles an API inconsistency where some endpoint responses return a single object instead of an array. (`application_score_metrics.go:18-35`, `device_web_probes.go:36-53`)
 
@@ -219,7 +219,7 @@ Source: vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applicat
 
 ## Gaps — what isn't there
 
-Source: vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_top_process.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/users/users.go; vendor/zscaler-sdk-python/zscaler/zdx/apps.py; vendor/zscaler-sdk-python/zscaler/zdx/devices.py; vendor/zscaler-sdk-python/zscaler/zdx/users.py.
+Source: `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_top_process.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/users/users.go`; `vendor/zscaler-sdk-python/zscaler/zdx/apps.py`; `vendor/zscaler-sdk-python/zscaler/zdx/devices.py`; `vendor/zscaler-sdk-python/zscaler/zdx/users.py`.
 
 1. **No per-user operational metrics**: User inventory (devices, geolocations, ZS locations) is available. Per-user score trends, per-user app metrics, and per-user device metrics are not exposed.
 2. **No aggregation endpoints**: No rollups, summaries, or ranked queries of any kind.

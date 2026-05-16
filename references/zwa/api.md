@@ -26,7 +26,7 @@ Narrow surface — 2 services, ~14 methods total. Both Python and Go SDKs expose
 
 ## SDK services under `client.zwa.*`
 
-Source: vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py; vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py; vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go; vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go; vendor/zscaler-sdk-go/zscaler/zwa/services/common/common.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py`; `vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py`; `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go`; `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go`; `vendor/zscaler-sdk-go/zscaler/zwa/services/common/common.go`.
 
 ### `client.zwa.dlp_incidents` (Python) / `client.zwa.dlp_incidents` (Go)
 
@@ -69,7 +69,7 @@ Both cover the same audit log feed — who changed what workflow, when, etc.
 
 ## Authentication
 
-Source: vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md; vendor/zscaler-sdk-python/zscaler/zwa/zwa_service.py.
+Source: `vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md`; `vendor/zscaler-sdk-python/zscaler/zwa/zwa_service.py`.
 
 ### OneAPI (current path)
 
@@ -88,13 +88,13 @@ The legacy auth uses an API key ID + secret pair, not username/password/session 
 
 ## Wire format
 
-Source: vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py; vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py; vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go; vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py`; `vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py`; `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go`; `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go`.
 
 Standard OneAPI conventions: JSON request/response, camelCase keys. Endpoint prefix is `/zwa/dlp/v1/` for both incidents and audit logs (`vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py:36`, `vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py:30`). Specific paths: `/zwa/dlp/v1/incidents/search` (`dlp_incidents.py:422`), `/zwa/dlp/v1/incidents/{id}/incident-groups/search` (`dlp_incidents.py:470`), `/zwa/dlp/v1/customer/audit` (`audit_logs.py:108`).
 
 ## Legacy API reference
 
-Source: vendor/zscaler-help/dlp-incidents-workflow-automation-api.md; vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md; vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py; vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go.
+Source: `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md`; `vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md`; `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py`; `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go`.
 
 The help article *DLP Incidents (Workflow Automation API)* lives at `help.zscaler.com/legacy-apis/dlp-incidents-workflow-automation-api` — it's a Swagger-UI-style reference with endpoint listings. The article is ~32k chars (from capture); full endpoint schemas are there for operators who need wire-level detail.
 
@@ -102,7 +102,7 @@ The help article *DLP Incidents (Workflow Automation API)* lives at `help.zscale
 
 ## Sensitive data considerations
 
-Source: vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py; vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py`; `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go`.
 
 **`get_incident_evidence` returns the actual matched content** — the exact text/payload that tripped the DLP rule. Callers should:
 
@@ -114,7 +114,7 @@ Source: vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py; vendor/zscaler-s
 
 ## What the API can't do
 
-Source: vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py; vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py; vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go; vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py`; `vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py`; `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go`; `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go`.
 
 Gaps that portal-only users must handle:
 
@@ -127,7 +127,7 @@ Fork teams automating ZWA should scope ambitions to incident lifecycle (search, 
 
 ## Open questions
 
-Source: vendor/zscaler-help/dlp-incidents-workflow-automation-api.md; vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py; vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py.
+Source: `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md`; `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py`; `vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py`.
 
 - Exact endpoint paths per SDK method — not captured line-by-line.
 - Rate limits on ZWA endpoints — not captured.

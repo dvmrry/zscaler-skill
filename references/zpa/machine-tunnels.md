@@ -253,8 +253,6 @@ The help article at `help.zscaler.com/zscaler-client-connector/configuring-zpa-m
 
 ## Open questions
 
-Source: clarification `zpa-20`.
-
 1. **Console path for the global "Enable ZPA Machine Tunnel for All" toggle** — the help article (`configuring-zpa-machine-tunnel-all`) has moved or been removed. The exact ZPA Admin Portal navigation path is not confirmed from current documentation. Expected location: somewhere within App Profile or ZPA Global Settings. Requires tenant-level confirmation.
 
 2. **Whether Machine Groups can be created via the ZPA Management API** — both SDKs expose only read operations on Machine Groups. The documentation implies groups are created in the Admin Portal and populated via provisioning enrollment. Whether a direct `POST /machineGroup` endpoint exists is not confirmed.

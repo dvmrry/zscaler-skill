@@ -48,7 +48,7 @@ This document does not cover ZIA-side issues except where ZIA cross-product inte
 
 ## 1. Decision tree — symptom to first signal
 
-Source: `vendor/zscaler-help/verifying-access-to-applications.md`; `vendor/zscaler-help/understanding-private-access-architecture.md`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`; `vendor/zscaler-help/Understanding_User_Status_Log_Fields.txt`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`
+Source: `vendor/zscaler-help/verifying-access-to-applications.md`; `vendor/zscaler-help/understanding-private-access-architecture.md`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`; `vendor/zscaler-help/Understanding_User_Status_Log_Fields.txt`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`.
 
 ### Symptom: "Can't reach app at all"
 
@@ -126,7 +126,7 @@ LSS App Connector Status and App Connector Metrics log types stream connector he
 
 ## 3. Architecture path summary
 
-Source: `vendor/zscaler-help/understanding-private-access-architecture.md`; `vendor/zscaler-help/about-app-connectors.md`; `vendor/zscaler-help/zpa-about-connector-groups.md`
+Source: `vendor/zscaler-help/understanding-private-access-architecture.md`; `vendor/zscaler-help/about-app-connectors.md`; `vendor/zscaler-help/zpa-about-connector-groups.md`.
 
 Every ZPA access request traverses the following path. Failures can occur at each hop.
 
@@ -354,7 +354,7 @@ Client applications that pin their server's TLS certificate reject the ZPA Servi
 
 ## 6. Read-side API and SDK calls for automated triage
 
-Source: vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py; vendor/zscaler-sdk-python/zscaler/zpa/app_connectors.py; vendor/zscaler-sdk-python/zscaler/zpa/app_connector_groups.py; vendor/zscaler-sdk-python/zscaler/zpa/posture_profiles.py; vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go; vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorcontroller/zpa_app_connector_controller.go; vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go; vendor/zscaler-sdk-go/zscaler/zpa/services/postureprofile/zpa_posture_profile.go; vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt; vendor/zscaler-help/Understanding_User_Status_Log_Fields.txt; vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt.
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py`; `vendor/zscaler-sdk-python/zscaler/zpa/app_connectors.py`; `vendor/zscaler-sdk-python/zscaler/zpa/app_connector_groups.py`; `vendor/zscaler-sdk-python/zscaler/zpa/posture_profiles.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go`; `vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorcontroller/zpa_app_connector_controller.go`; `vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go`; `vendor/zscaler-sdk-go/zscaler/zpa/services/postureprofile/zpa_posture_profile.go`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`; `vendor/zscaler-help/Understanding_User_Status_Log_Fields.txt`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`.
 
 The following calls support read-only triage automation. None of them modify ZPA configuration.
 

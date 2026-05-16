@@ -18,7 +18,7 @@ author-status: draft
 
 # ZPA Admin Audit Logs
 
-Source: `vendor/zscaler-help/about-log-streaming-service.md`, `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`, `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`.
+Source: `vendor/zscaler-help/about-log-streaming-service.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`; `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`.
 
 ZPA records admin actions (configuration changes, admin console sessions) as audit log entries. Unlike ZIA — which has a dedicated `auditlogEntryReport` REST endpoint for pulling a report — ZPA admin audit logs are surfaced through the **Log Streaming Service (LSS)** for continuous delivery to a SIEM, and are accessible via the ZPA Admin Console for interactive review.
 
@@ -81,15 +81,15 @@ The `source_log_type` value for audit logs is **`zpn_audit_log`**.
 | `zpn_pbroker_comprehensive_stats` | Private Service Edge Metrics |
 | `zpn_waf_http_exchanges_log` | ZPA App Protection |
 
-Source: `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`.
 
-Source: `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`, `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`, `vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py`.
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`; `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`; `vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py`.
 
 ---
 
 ## Terraform: provisioning an LSS audit log receiver
 
-Source: `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`.
 
 Resource: `zpa_lss_config_controller`
 
@@ -145,7 +145,7 @@ resource "zpa_lss_config_controller" "lss_audit_logs" {
 
 The TLS requirement is that the log receiver's certificate must be signed by a public root CA. The App Connector automatically receives a root certificate during deployment and trusts both public and custom root CAs.
 
-Source: `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`, `vendor/zscaler-help/about-log-streaming-service.md`, `vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py`.
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`; `vendor/zscaler-help/about-log-streaming-service.md`; `vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py`.
 
 ---
 
@@ -153,7 +153,7 @@ Source: `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`, `v
 
 ### LSS configuration management
 
-Source: `vendor/zscaler-sdk-go/zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go`
+Source: `vendor/zscaler-sdk-go/zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go`.
 
 The `lssConfig` API manages LSS receiver configurations. For audit log streaming, the key field is `sourceLogType = "zpn_audit_log"`.
 
@@ -220,7 +220,7 @@ configs, response, error = client.zpa.lss.list_configs(search="Audit")
 
 ### `LSSResource` struct (Go)
 
-Source: `vendor/zscaler-sdk-go/zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go`
+Source: `vendor/zscaler-sdk-go/zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go`.
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -254,7 +254,7 @@ Source: `vendor/zscaler-sdk-go/zscaler/zpa/services/lssconfigcontroller/zpa_lss_
 
 LSS configuration listing uses the ZPA standard pagination engine: `common.GetAllPagesGeneric[LSSResource]`, which reads the `totalPages` envelope and fetches all pages automatically. No special pagination handling is needed in caller code.
 
-Source: `vendor/zscaler-sdk-go/zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go`, `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`.
+Source: `vendor/zscaler-sdk-go/zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go`; `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`.
 
 ---
 
@@ -270,7 +270,7 @@ Format is selectable: JSON, CSV, or TSV.
 
 The log receiver must expose a port reachable from the App Connector's network. Mutual TLS requires the log receiver to present a certificate signed by a public root CA.
 
-Source: `vendor/zscaler-help/about-log-streaming-service.md`, `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`.
+Source: `vendor/zscaler-help/about-log-streaming-service.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`.
 
 ---
 
@@ -285,7 +285,7 @@ Custom roles can be configured with granular feature permissions. The **Log Stre
 
 Role changes in ZPA take up to **2 minutes** to take effect.
 
-Source: `vendor/zscaler-help/admin-rbac-captures.md`, `vendor/zscaler-help/about-log-streaming-service.md`.
+Source: `vendor/zscaler-help/admin-rbac-captures.md`; `vendor/zscaler-help/about-log-streaming-service.md`.
 
 ---
 

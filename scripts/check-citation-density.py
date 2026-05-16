@@ -47,6 +47,10 @@ ALTERNATE_SOURCE_LINE_RE = re.compile(r"^\s*(?:Source\s+\([^)]*\)|Sources|Vendor
 BRACKET_SOURCE_RE = re.compile(r"\[Source:\s*([^\]]+)\]", re.IGNORECASE)
 INLINE_SOURCE_RE = re.compile(r"\bSource:\s*(.+)", re.IGNORECASE)
 SOURCE_PATH_RE = re.compile(r"\b(?:vendor|scripts)/[A-Za-z0-9_./-]+")
+QUOTED_SOURCE_PATH_RE = re.compile(r"`(?:vendor|scripts)/[^`]+`")
+UNQUOTED_SOURCE_PATH_RE = re.compile(r"(?<!`)\b(?:vendor|scripts)/[A-Za-z0-9_./-]+")
+SOURCE_PERIOD_INSIDE_BACKTICK_RE = re.compile(r"`(?:vendor|scripts)/[^`]+\.`")
+COMMA_SOURCE_SEPARATOR_RE = re.compile(r"`\s*,\s*`")
 BARE_MD_RE = re.compile(r"(?<![/A-Za-z0-9_.-])([A-Za-z0-9_.-]+\.md)(?![/A-Za-z0-9_.-])")
 BARE_SOURCE_FILE_RE = re.compile(
     r"(?<![/A-Za-z0-9_.-])([A-Za-z0-9_.-]+\.(?:md|py|go|sh|json|ya?ml))(?![/A-Za-z0-9_.-])"
@@ -182,7 +186,10 @@ def audit_class_for_path(path: Path, text: str) -> str:
 
 
 def should_warn_directory_sources(path: Path, text: str) -> bool:
-    """Directory sources are expected in API catalog docs that inventory SDK surfaces."""
+    """Directory sources are expected in inventory docs that cover many SDK surfaces."""
+    audit_class = audit_class_for_path(path, text)
+    if audit_class in {"schema", "inventory"}:
+        return False
     topic = frontmatter_field(text, "topic").strip('"').lower()
     return not topic.endswith("-api")
 
@@ -287,7 +294,7 @@ def audit_source_quality(path: Path, include_style: bool = False) -> list[Source
     lines = iter_scannable_lines(text)
     line_lookup = {line_number: line for line_number, line in lines}
     source_styles: set[str] = set()
-    section_seen_sources: dict[str, int] = {}
+    previous_source_payload = ""
 
     def next_nonblank_line(after: int) -> str:
         for line_number, candidate in lines:
@@ -306,10 +313,12 @@ def audit_source_quality(path: Path, include_style: bool = False) -> list[Source
 
     for line_number, line in lines:
         if HEADING_RE.match(line):
-            section_seen_sources = {}
+            previous_source_payload = ""
             continue
         payloads = source_payloads(line)
         if not payloads:
+            if line.strip():
+                previous_source_payload = ""
             continue
 
         for style, source_text in payloads:
@@ -318,12 +327,27 @@ def audit_source_quality(path: Path, include_style: bool = False) -> list[Source
                 issues.append(issue(rel, line_number, style, line.strip()))
 
             normalized = normalize_source_text(source_text)
-            if normalized in section_seen_sources:
+            if normalized == previous_source_payload:
                 issues.append(issue(rel, line_number, "duplicate-source-line", line.strip()))
-            else:
-                section_seen_sources[normalized] = line_number
+            previous_source_payload = normalized
 
             if style == "block-source":
+                stripped_source = source_text.strip()
+                if not stripped_source.endswith("."):
+                    issues.append(issue(rel, line_number, "missing-source-period", line.strip()))
+                if stripped_source.endswith(".."):
+                    issues.append(issue(rel, line_number, "duplicate-source-period", line.strip()))
+                if SOURCE_PERIOD_INSIDE_BACKTICK_RE.search(source_text):
+                    issues.append(issue(rel, line_number, "source-period-inside-backtick", line.strip()))
+                if UNQUOTED_SOURCE_PATH_RE.search(source_text):
+                    issues.append(issue(rel, line_number, "unquoted-source-path", line.strip()))
+                if COMMA_SOURCE_SEPARATOR_RE.search(source_text):
+                    issues.append(issue(rel, line_number, "comma-source-separator", line.strip()))
+                if re.search(r"\bclarification\b", source_text, re.IGNORECASE):
+                    issues.append(issue(rel, line_number, "clarification-source", line.strip()))
+                if not QUOTED_SOURCE_PATH_RE.search(source_text) and not re.search(r"https?://", source_text):
+                    issues.append(issue(rel, line_number, "prose-only-source", line.strip()))
+
                 prev_line = previous_nonblank_line(line_number)
                 next_line = next_nonblank_line(line_number)
                 if prev_line and not HEADING_RE.match(prev_line) and not SOURCE_LINE_RE.match(prev_line) and HEADING_RE.match(next_line):
@@ -357,8 +381,6 @@ def audit_source_quality(path: Path, include_style: bool = False) -> list[Source
         styles = ", ".join(sorted(source_styles))
         issues.insert(0, issue(rel, 1, "mixed-source-style", f"Source styles in file: {styles}"))
     if include_style:
-        if audit_class == "schema":
-            return [source_issue for source_issue in issues if source_issue.severity == "quality"]
         return issues
     return [source_issue for source_issue in issues if source_issue.severity == "quality"]
 

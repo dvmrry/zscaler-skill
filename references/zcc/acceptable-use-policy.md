@@ -29,7 +29,7 @@ The ZCC AUP operates at the agent layer: it is shown in the ZCC application wind
 
 There is also a ZPA user portal AUP (`zpa_user_portal_aup` Terraform resource, `/userportal/aup` API endpoint), which controls the consent screen shown in the ZPA user portal web application — a third distinct construct. None of the three share configuration.
 
-Source: `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md`, `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`, `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md`.
+Source: `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md`; `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`; `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md`.
 
 ---
 
@@ -94,7 +94,7 @@ The configuring-zscaler-client-connector-app-profiles.md vendor source lists fiv
 
 Whether certain platform versions of ZCC display the AUP differently, or whether older ZCC agent versions ignore the AUP setting, is not documented in the available vendor sources. See deferred item `zcc-49`.
 
-Source: `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md`, `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md`.
+Source: `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md`; `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md`.
 
 ---
 
@@ -116,7 +116,7 @@ The End User Notifications tab (a sibling tab in the same Notifications section)
 
 The Go SDK AdminRole struct (`vendor/zscaler-sdk-go/zscaler/zcc/services/admin_roles/admin_roles.go`) includes a `ClientConnectorNotifications` permission field (`json:"clientConnectorNotifications"`). This permission controls access to the Notifications section in the ZCC Portal, which includes the AUP Settings tab. Admins without this permission cannot configure the AUP (Tier B — SDK/TF).
 
-Source: `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md`, `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`, `vendor/zscaler-sdk-go/zscaler/zcc/services/admin_roles/admin_roles.go`.
+Source: `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md`; `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`; `vendor/zscaler-sdk-go/zscaler/zcc/services/admin_roles/admin_roles.go`.
 
 ---
 
@@ -140,7 +140,7 @@ The ZPA provider has `resource_zpa_user_portal_aup.go` which manages the ZPA use
 
 The ZCC AUP is configurable only through the ZCC Portal admin console. There is no API endpoint, SDK method, or Terraform resource to read or write the ZCC AUP configuration from automation tooling. Any IaC or automation that needs to manage ZCC AUP settings must do so through the admin console UI or via direct API calls to an undocumented endpoint (if one exists — not confirmed from available sources).
 
-Source: `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md`, `vendor/zscaler-sdk-go/zscaler/zcc/services/admin_roles/admin_roles.go`.
+Source: `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md`; `vendor/zscaler-sdk-go/zscaler/zcc/services/admin_roles/admin_roles.go`.
 
 ---
 
@@ -152,7 +152,7 @@ Whether AUP accept/decline events surface in ZIA NSS streams or ZIA log analytic
 
 See deferred item `zcc-51`.
 
-Source: `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md`, `vendor/zscaler-sdk-go/zscaler/zcc/services/admin_roles/admin_roles.go`.
+Source: `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md`; `vendor/zscaler-sdk-go/zscaler/zcc/services/admin_roles/admin_roles.go`.
 
 ---
 
@@ -174,7 +174,7 @@ The ZIA ranges-and-limitations vendor doc records a limit of 15K–30K bytes for
 
 ### MDM-driven silent install does not bypass the AUP
 
-Source: `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md`, `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md`.
+Source: `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md`; `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md`.
 
 Install-time parameters control enrollment behavior (strict enforcement, tunnel mode, user domain) but do not include any parameter to disable or pre-accept the AUP. The AUP frequency and message are tenant-wide settings stored in the ZCC Portal, not install-time flags. An MDM-deployed ZCC instance will still display the AUP according to the configured frequency once the user logs in (Tier A — vendor/zscaler-help/supported-parameters-zscaler-client-connector-windows.md; vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.md; vendor/zscaler-help/supported-parameters-zscaler-client-connector-ios.md; vendor/zscaler-help/parameters-guide-zscaler-client-connector-android-and-android-chromeos.md).
 
@@ -196,7 +196,7 @@ ZCC downloads app profile changes only when users log out and back in, or restar
 
 Older ZCC agent versions may render the HTML AUP message differently or may not support all HTML tags. The vendor source does not document minimum agent version requirements for the AUP feature or for specific HTML capabilities in the message field. See deferred item `zcc-49`.
 
-Source: `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md`, `vendor/zscaler-help/ranges-limitations-zia.md`.
+Source: `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md`; `vendor/zscaler-help/ranges-limitations-zia.md`.
 
 ---
 

@@ -25,7 +25,7 @@ Distinct from — and not to be confused with:
 
 ## The two-object model
 
-Source: vendor/zscaler-help/about-bandwidth-control.md; vendor/zscaler-help/adding-bandwidth-classes.md; vendor/zscaler-help/bandwidth-control-policy-example.md.
+Source: `vendor/zscaler-help/about-bandwidth-control.md`; `vendor/zscaler-help/adding-bandwidth-classes.md`; `vendor/zscaler-help/bandwidth-control-policy-example.md`.
 
 ```
 Bandwidth Class            ← groups URL categories / cloud apps / custom domains
@@ -53,7 +53,7 @@ Rules are first-match-wins in **ascending Rule Order**. The **default rule evalu
 
 ## Limits
 
-Source: vendor/zscaler-help/adding-bandwidth-classes.md; vendor/zscaler-help/ranges-limitations-zia.md.
+Source: `vendor/zscaler-help/adding-bandwidth-classes.md`; `vendor/zscaler-help/ranges-limitations-zia.md`.
 
 | Object | Limit |
 |---|---|
@@ -66,7 +66,7 @@ The 8-classes-with-domains cap is the surprising one: you can have 245 total cla
 
 ## Default-rule behavior for orphan classes
 
-Source: vendor/zscaler-help/adding-bandwidth-classes.md.
+Source: `vendor/zscaler-help/adding-bandwidth-classes.md`.
 
 **A custom bandwidth class that isn't referenced in any location's policy rules lands in that location's default rule automatically.**
 
@@ -83,7 +83,7 @@ Audit new classes against all locations before assuming class creation alone is 
 
 ## When Bandwidth Control actually enforces
 
-Source: vendor/zscaler-help/about-bandwidth-control.md; vendor/zscaler-help/bandwidth-control-policy-example.md.
+Source: `vendor/zscaler-help/about-bandwidth-control.md`; `vendor/zscaler-help/bandwidth-control-policy-example.md`.
 
 **Enforcement is contention-driven.** Zscaler doesn't cap every flow all the time; it reacts when the pipe between the tenant location and the nearest PSE is saturated.
 
@@ -101,7 +101,7 @@ Contention patterns per the help docs:
 
 ## Location scoping and the `Enforce Bandwidth Control` toggle
 
-Source: vendor/zscaler-help/about-bandwidth-control.md; vendor/zscaler-help/bandwidth-control-policy-example.md.
+Source: `vendor/zscaler-help/about-bandwidth-control.md`; `vendor/zscaler-help/bandwidth-control-policy-example.md`.
 
 Bandwidth Control is gated per-Location. A location must have **Enforce Bandwidth Control = on** ([`./locations.md § Location`](./locations.md)) for any Bandwidth Control rule to fire for its traffic.
 
@@ -114,7 +114,7 @@ This means "I guaranteed the corporate sublocation 80%" doesn't prevent the gues
 
 ## Dashboard + reporting
 
-Source: vendor/zscaler-help/about-bandwidth-control.md.
+Source: `vendor/zscaler-help/about-bandwidth-control.md`.
 
 - **Bandwidth Control dashboard** — real-time view of per-class usage.
 - **Analytics > Interactive Reports** — standard bandwidth reports (per-class consumption over time, top consumers, contention events). Custom reports supported.
@@ -123,7 +123,7 @@ These surfaces are operator-facing; no dedicated API doc found in this capture p
 
 ## Pipeline position
 
-Source: vendor/zscaler-help/about-bandwidth-control.md.
+Source: `vendor/zscaler-help/about-bandwidth-control.md`.
 
 Bandwidth Control sits **alongside** URL Filtering / CAC / DLP / SSL Inspection in the web-module stage, not at the firewall layer. From *About Policy Enforcement* (cited in the help doc but not captured in this pass):
 
@@ -134,7 +134,7 @@ Bandwidth Control sits **alongside** URL Filtering / CAC / DLP / SSL Inspection 
 
 ## Limits (per *Ranges and Limitations*)
 
-Source: vendor/zscaler-help/ranges-limitations-zia.md.
+Source: `vendor/zscaler-help/ranges-limitations-zia.md`.
 
 | Object | Limit | Notes |
 |---|---|---|
@@ -148,7 +148,7 @@ Source: vendor/zscaler-help/ranges-limitations-zia.md.
 
 ## Surprises worth flagging
 
-Source: vendor/zscaler-help/about-bandwidth-control.md; vendor/zscaler-help/adding-bandwidth-classes.md; vendor/zscaler-help/bandwidth-control-policy-example.md; vendor/zscaler-help/ranges-limitations-zia.md.
+Source: `vendor/zscaler-help/about-bandwidth-control.md`; `vendor/zscaler-help/adding-bandwidth-classes.md`; `vendor/zscaler-help/bandwidth-control-policy-example.md`; `vendor/zscaler-help/ranges-limitations-zia.md`.
 
 1. **The "custom domains" cap is a class count, not a domain count.** You can have 24,000 domains distributed across 8 classes + thousands more classes using URL-Category matching only. Tenants hitting the 8-class cap often conflate domain count with class count.
 
@@ -166,7 +166,7 @@ Source: vendor/zscaler-help/about-bandwidth-control.md; vendor/zscaler-help/addi
 
 ## Common operational questions
 
-Source: vendor/zscaler-help/about-bandwidth-control.md; vendor/zscaler-help/adding-bandwidth-classes.md; vendor/zscaler-help/bandwidth-control-policy-example.md.
+Source: `vendor/zscaler-help/about-bandwidth-control.md`; `vendor/zscaler-help/adding-bandwidth-classes.md`; `vendor/zscaler-help/bandwidth-control-policy-example.md`.
 
 - **"Why isn't my Bandwidth Control rule firing?"** — check the location's `Enforce Bandwidth Control` toggle; check rule order (first-match-wins); confirm the class criteria actually match target traffic (URL category vs cloud app vs domain).
 - **"I created a new class but didn't add a rule — why is it capped?"** — orphan classes fall into the location's default rule; edit the class into an explicit rule or widen the default rule's allocation.

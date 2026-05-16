@@ -23,7 +23,7 @@ PRA is ZPA's privileged-access product surface: a clientless gateway that proxie
 
 ## When to use PRA vs. the alternatives
 
-Source: vendor/zscaler-help/privileged-remote-access-captures.md; vendor/zscaler-sdk-python/zscaler/zpa/pra_approval.py; vendor/zscaler-sdk-python/zscaler/zpa/pra_credential.py; vendor/zscaler-sdk-python/zscaler/zpa/pra_credential_pool.py; vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment_pra.go.
+Source: `vendor/zscaler-help/privileged-remote-access-captures.md`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_approval.py`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_credential.py`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_credential_pool.py`; `vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment_pra.go`.
 
 | Need | Tool |
 |---|---|
@@ -37,7 +37,7 @@ Session recording, approval workflow, and credential pooling are documented as P
 
 ## Architecture
 
-Source: vendor/zscaler-help/privileged-remote-access-captures.md; vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment_pra.go.
+Source: `vendor/zscaler-help/privileged-remote-access-captures.md`; `vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment_pra.go`.
 
 ```
 user browser ──(HTTPS Privileged Portal)──▶ Zscaler PRA Gateway ──(RDP/SSH/VNC via App Connector)──▶ Privileged Console
@@ -52,7 +52,7 @@ All traffic traverses ZPA's App Connector outbound mesh; no inbound ports opened
 
 ## The six policy + config objects
 
-Source: vendor/zscaler-help/privileged-remote-access-captures.md; vendor/zscaler-sdk-python/zscaler/zpa/pra_approval.py; vendor/zscaler-sdk-python/zscaler/zpa/pra_console.py; vendor/zscaler-sdk-python/zscaler/zpa/pra_credential.py; vendor/zscaler-sdk-python/zscaler/zpa/pra_credential_pool.py; vendor/zscaler-sdk-python/zscaler/zpa/pra_portal.py.
+Source: `vendor/zscaler-help/privileged-remote-access-captures.md`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_approval.py`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_console.py`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_credential.py`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_credential_pool.py`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_portal.py`.
 
 1. **Privileged Credentials** — stored creds for machine login. Three types: Username/Password (RDP, optional domain), SSH Key (username + key + optional passphrase), VNC Password. **Type is immutable** after creation.
 
@@ -68,7 +68,7 @@ Source: vendor/zscaler-help/privileged-remote-access-captures.md; vendor/zscaler
 
 ## Credential pooling — why it matters
 
-Source: vendor/zscaler-help/privileged-remote-access-captures.md; vendor/zscaler-sdk-python/zscaler/zpa/pra_credential_pool.py; vendor/zscaler-sdk-python/zscaler/zpa/pra_credential.py.
+Source: `vendor/zscaler-help/privileged-remote-access-captures.md`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_credential_pool.py`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_credential.py`.
 
 The pool model decouples users from credentials. A team of 12 DBAs shares a pool of 3 database-admin creds; when a DBA launches a session, PRA auto-logs them in with whichever pooled cred is free. The DBA **never sees the password**. When the session ends, the cred returns to the pool.
 
@@ -81,7 +81,7 @@ The pool model decouples users from credentials. A team of 12 DBAs shares a pool
 
 ## Approval workflow
 
-Source: vendor/zscaler-help/privileged-remote-access-captures.md; vendor/zscaler-sdk-python/zscaler/zpa/pra_approval.py; vendor/zscaler-sdk-python/zscaler/zpa/pra_portal.py.
+Source: `vendor/zscaler-help/privileged-remote-access-captures.md`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_approval.py`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_portal.py`.
 
 Not all PRA consoles require approval — approval is configured per-policy. For consoles that do:
 
@@ -96,7 +96,7 @@ Approval metadata: requester, console, access period, reason, status, request ti
 
 ## Session recording
 
-Source: vendor/zscaler-help/privileged-remote-access-captures.md.
+Source: `vendor/zscaler-help/privileged-remote-access-captures.md`.
 
 All PRA sessions can be recorded; recording is managed per-console.
 
@@ -119,7 +119,7 @@ All PRA sessions can be recorded; recording is managed per-console.
 
 ## ZPA application-segment integration
 
-Source: vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment_pra.go; vendor/zscaler-sdk-python/zscaler/zpa/pra_console.py.
+Source: `vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment_pra.go`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_console.py`.
 
 PRA uses a dedicated segment variant. In Terraform that's `zpa_application_segment_pra`; in the Python/Go SDKs the resource type carries `_pra` suffixes on methods.
 
@@ -131,7 +131,7 @@ Relevant integration points from `references/zpa/app-segments.md`:
 
 ## Capabilities policy (what users can actually do in-session)
 
-Source: vendor/zscaler-help/privileged-remote-access-captures.md.
+Source: `vendor/zscaler-help/privileged-remote-access-captures.md`.
 
 **Caveat:** at capture time the English Privileged Capabilities Policy help article was under maintenance. Below is reconstructed from references in other articles — re-verify before leaning on specifics.
 
@@ -147,7 +147,7 @@ These are policy objects, not per-session flags — the same capability set appl
 
 ## Operational gotchas
 
-Source: vendor/zscaler-help/privileged-remote-access-captures.md; vendor/zscaler-sdk-python/zscaler/zpa/pra_approval.py; vendor/zscaler-sdk-python/zscaler/zpa/pra_credential.py; vendor/zscaler-sdk-python/zscaler/zpa/pra_credential_pool.py; vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment_pra.go.
+Source: `vendor/zscaler-help/privileged-remote-access-captures.md`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_approval.py`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_credential.py`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_credential_pool.py`; `vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment_pra.go`.
 
 1. **Pool exhaustion = hard block, not queue.** A team that shares a pool sized to average usage will intermittently get denied at peak. Size pools for peak demand, or configure fallback consoles.
 
@@ -163,7 +163,7 @@ Source: vendor/zscaler-help/privileged-remote-access-captures.md; vendor/zscaler
 
 ## Common questions this unlocks
 
-Source: vendor/zscaler-help/privileged-remote-access-captures.md; vendor/zscaler-sdk-python/zscaler/zpa/pra_approval.py; vendor/zscaler-sdk-python/zscaler/zpa/pra_credential_pool.py; vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment_pra.go.
+Source: `vendor/zscaler-help/privileged-remote-access-captures.md`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_approval.py`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_credential_pool.py`; `vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment_pra.go`.
 
 - "How do we give contractors RDP to the bastion without them ever seeing the password?" → credential pool mapped via SCIM group.
 - "Why did my PRA session fail to start?" → check credential pool exhaustion, then access policy match, then approval status.
@@ -173,7 +173,7 @@ Source: vendor/zscaler-help/privileged-remote-access-captures.md; vendor/zscaler
 
 ## Open questions
 
-Source: vendor/zscaler-help/privileged-remote-access-captures.md; vendor/zscaler-sdk-python/zscaler/zpa/pra_approval.py; vendor/zscaler-sdk-python/zscaler/zpa/pra_credential.py; vendor/zscaler-sdk-python/zscaler/zpa/pra_credential_pool.py; vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment_pra.go.
+Source: `vendor/zscaler-help/privileged-remote-access-captures.md`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_approval.py`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_credential.py`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_credential_pool.py`; `vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment_pra.go`.
 
 - **Are session recording, approval workflow, and credential pooling formally absent from base (non-PRA) ZPA?** The captured help articles, Python SDK, and Terraform provider all document these features as PRA-specific constructs but none of those sources directly states they are unavailable in standard ZPA. The dedicated PRA SDK modules and the `SECURE_REMOTE_ACCESS`-only `app_types` enum on the PRA segment resource are strong implicit evidence, but a direct source statement would be needed to assert the negative.
 

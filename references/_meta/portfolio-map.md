@@ -19,7 +19,7 @@ author-status: draft
 
 Single-page index of **every product Zscaler markets**, with depth-of-coverage in this skill marked per entry. Goal: the skill should be **articulate about everything Zscaler ships**, even where deep-dive content doesn't exist. Customers, prospects, and team members ask about the breadth; this map ensures we don't draw blanks.
 
-Source: vendor/zscaler-help/automate-zscaler/getting-started.md; vendor/zscaler-help/zero-trust-exchange-zte-marketing.md; vendor/zscaler-help/security-operations-suite-marketing.md
+Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscaler-help/zero-trust-exchange-zte-marketing.md`; `vendor/zscaler-help/security-operations-suite-marketing.md`.
 
 Five coverage tiers. API/IaC surface is the primary axis; content depth is the secondary axis:
 
@@ -37,7 +37,7 @@ Five coverage tiers. API/IaC surface is the primary axis; content depth is the s
 
 These aren't products — they're how Zscaler markets the platform layer that ties products together. Customers reference them in conversation; the skill needs to recognize them.
 
-Source: vendor/zscaler-help/zero-trust-exchange-zte-marketing.md; vendor/zscaler-help/data-fabric-for-security-marketing.md; vendor/zscaler-help/agentic-secops-security-operations-marketing.md
+Source: `vendor/zscaler-help/zero-trust-exchange-zte-marketing.md`; `vendor/zscaler-help/data-fabric-for-security-marketing.md`; `vendor/zscaler-help/agentic-secops-security-operations-marketing.md`.
 
 | Pillar | What it names | Coverage |
 |---|---|---|
@@ -50,7 +50,7 @@ Source: vendor/zscaler-help/zero-trust-exchange-zte-marketing.md; vendor/zscaler
 
 Each has SDK / TF / OneAPI exposure AND a dedicated `references/<product>/` directory with multiple reasoning docs. Where the skill earns its depth claim.
 
-Source: vendor/zscaler-help/automate-zscaler/getting-started.md
+Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`.
 
 | Product | What it does | Deep-dive entry | API exposure |
 |---|---|---|---|
@@ -79,7 +79,7 @@ The skill uses SDK namespace names (ZIA, ZPA, etc.) as canonical reference paths
 
 Have SDK / TF surface but reference coverage is thin compared to Tier 1 (may not match a single Tier 1 sub-component's depth). Answer with full confidence on what's documented; explicitly note the coverage gap when relevant. Promotion to T1 is appropriate when reference coverage broadens to multi-component depth.
 
-Source: vendor/zscaler-help/automate-zscaler/getting-started.md
+Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`.
 
 | Product | What it does | Deep-dive entry | API exposure |
 |---|---|---|---|
@@ -95,8 +95,8 @@ Source: vendor/zscaler-help/automate-zscaler/getting-started.md
 
 No SDK / TF surface (portal-only configuration). Help-portal + marketing material has been synthesized into reasoning docs under `references/<product>/`. Skill answers conceptual questions with confidence: medium and a clear "no SDK / portal-only" caveat. **Promote to Tier 1 if Zscaler ships an SDK module** and reference coverage is multi-component; promote to Tier 2 if an SDK lands but reference coverage stays thin.
 
-Source: vendor/zscaler-help/what-is-zscaler-deception.md; vendor/zscaler-help/what-risk360.md; vendor/zscaler-help/ai-security-marketing.md; vendor/zscaler-help/microsegmentation-marketing.md; vendor/zscaler-help/zsdk-what-zscaler-sdk-mobile-apps.md; vendor/zscaler-help/itdr-what-identity-protection.md; vendor/zscaler-help/dspm-what-data-security-posture-management.md; vendor/zscaler-help/asset-exposure-management-caasm-marketing.md
-Source: vendor/zscaler-help/uvm-unified-vulnerability-management-marketing.md; vendor/zscaler-help/zscaler-cellular-marketing.md; vendor/zscaler-help/soc-what-zscaler-soc-workbench.md; vendor/zscaler-help/bp-what-zscaler-breach-predictor.md; vendor/zscaler-help/bi-what-zscaler-business-insights.md; vendor/zscaler-help/ztb-what-zero-trust-branch.md; vendor/zscaler-help/unified-what-zscaler-experience-center.md
+Source: `vendor/zscaler-help/what-is-zscaler-deception.md`; `vendor/zscaler-help/what-risk360.md`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/microsegmentation-marketing.md`; `vendor/zscaler-help/zsdk-what-zscaler-sdk-mobile-apps.md`; `vendor/zscaler-help/itdr-what-identity-protection.md`; `vendor/zscaler-help/dspm-what-data-security-posture-management.md`; `vendor/zscaler-help/asset-exposure-management-caasm-marketing.md`.
+Source: `vendor/zscaler-help/uvm-unified-vulnerability-management-marketing.md`; `vendor/zscaler-help/zscaler-cellular-marketing.md`; `vendor/zscaler-help/soc-what-zscaler-soc-workbench.md`; `vendor/zscaler-help/bp-what-zscaler-breach-predictor.md`; `vendor/zscaler-help/bi-what-zscaler-business-insights.md`; `vendor/zscaler-help/ztb-what-zero-trust-branch.md`; `vendor/zscaler-help/unified-what-zscaler-experience-center.md`.
 
 #### Zscaler Deception
 Active-defense threat detection via decoys (fake servers, AD objects, endpoints, cloud assets); detects post-breach lateral movement / APTs / ransomware; integrates with ZPA via Zero Trust Network decoys. Reasoning doc: [`../deception/overview.md`](../deception/overview.md). The only "SDK presence" is a `ZscalerDeception` permission-flag string in ZCC admin RBAC and a `deceptionSettingsOtp` settings field — neither constitutes a configuration surface. Three help-portal captures synthesized in the overview.
@@ -151,7 +151,7 @@ CASB sits outside the tier system because Zscaler markets CASB capabilities as p
 - **Inline CASB** is delivered through ZIA — Cloud App Control (CAC), Tenant Profiles, SaaS application visibility, in-line DLP for cloud apps. Configuration lives in the ZIA admin surfaces; SDK / TF coverage falls under ZIA.
 - **Out-of-band CASB** (also called API CASB / SaaS Security Posture) is delivered through DSPM / SaaS Security Report — discovery, classification, posture management against stored data and SaaS configuration.
 
-Source: vendor/zscaler-help/dspm-marketing.md; vendor/zscaler-help/shadow-it-saas-security-report-zia.md; vendor/zscaler-help/automate-zscaler/getting-started.md
+Source: `vendor/zscaler-help/dspm-marketing.md`; `vendor/zscaler-help/shadow-it-saas-security-report-zia.md`; `vendor/zscaler-help/automate-zscaler/getting-started.md`.
 
 Customers will use the term "CASB" expecting one product; the skill should recognize it and disambiguate to whichever surface they actually need (inline-policy → ZIA; data-at-rest / posture → DSPM; shadow-IT discovery → SaaS Security Report / ZINS). No dedicated `casb` namespace in any SDK — this is intentional; Zscaler's CASB story is the federation of those product surfaces.
 
@@ -159,8 +159,8 @@ Customers will use the term "CASB" expecting one product; the skill should recog
 
 No SDK, no dedicated reasoning content under `references/<product>/`. Skill recognizes and describes briefly from the paragraphs below; redirects to Zscaler help-site / TAM consultation for depth. Promote to Tier 3 by adding a reasoning doc; promote to Tier 1 / 2 if Zscaler ships an SDK module.
 
-Source: vendor/zscaler-help/zscaler-resilience-marketing.md; vendor/zscaler-help/understanding-business-continuity-cloud-components.md; vendor/zscaler-help/security-operations-suite-marketing.md; vendor/zscaler-help/microsoft-copilot-security-marketing.md; vendor/zscaler-help/zscaler-b2b-marketing.md
-Source: vendor/zscaler-help/shadow-it-saas-security-report-zia.md; vendor/zscaler-help/easm-what-is-zscaler-easm.md; vendor/zscaler-help/zscaler-government-public-sector-marketing.md; vendor/zscaler-help/agentic-secops-security-operations-marketing.md
+Source: `vendor/zscaler-help/zscaler-resilience-marketing.md`; `vendor/zscaler-help/understanding-business-continuity-cloud-components.md`; `vendor/zscaler-help/security-operations-suite-marketing.md`; `vendor/zscaler-help/microsoft-copilot-security-marketing.md`; `vendor/zscaler-help/zscaler-b2b-marketing.md`.
+Source: `vendor/zscaler-help/shadow-it-saas-security-report-zia.md`; `vendor/zscaler-help/easm-what-is-zscaler-easm.md`; `vendor/zscaler-help/zscaler-government-public-sector-marketing.md`; `vendor/zscaler-help/agentic-secops-security-operations-marketing.md`.
 
 #### Resilience
 Comprehensive cloud-resilience capability set spanning four failure tiers: minor failures (auto-remediated node/software issues), blackouts (autonomous + manual failover for localized outages), brownouts (dynamic service-edge selection + customer-controlled DC exclusion), and catastrophic events (Business Continuity Cloud — private service edges with critical-app-only restrictions during full cloud outages). Distinct from but related to **Business Continuity Cloud** (separate product, the catastrophic-tier deployment surface — adds private control plane + private service edges; covered in `references/shared/cloud-architecture.md`). Resilience as a product is the umbrella across all four tiers. Capture: `vendor/zscaler-help/zscaler-resilience-marketing.md`. No SDK / programmatic surface — operational configuration only.
@@ -216,7 +216,7 @@ Add entries here only when a product genuinely doesn't merit awareness today but
 
 When a question lands:
 
-Source: vendor/zscaler-help/automate-zscaler/getting-started.md
+Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`.
 
 1. **If Tier 1** (core product, SDK / TF / API + multi-component reference coverage), route to its `references/<product>/` deep-dive and answer at full operational depth.
 2. **If Tier 2** (programmable but shallow), answer with full confidence on what's documented; explicitly flag the coverage gap when the question goes deeper than the reference content.
@@ -230,7 +230,7 @@ Never pretend deep-dive coverage exists where it doesn't. Confidence drop is hon
 
 ## Coverage statistics (as of 2026-05-04)
 
-Source: vendor/zscaler-help/automate-zscaler/getting-started.md; vendor/zscaler-help/zero-trust-exchange-zte-marketing.md; vendor/zscaler-help/security-operations-suite-marketing.md
+Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscaler-help/zero-trust-exchange-zte-marketing.md`; `vendor/zscaler-help/security-operations-suite-marketing.md`.
 
 - **Tier 1 — Core products:** 6 (ZIA, ZPA [incl AppProtection], ZCC, ZDX, ZIdentity, Cloud Connector)
 - **Tier 2 — Programmable but shallow:** 2 (ZBI, ZWA)

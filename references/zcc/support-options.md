@@ -24,7 +24,7 @@ author-status: draft
 
 ## Definition
 
-Source: vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md.
+Source: `vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md`.
 
 Zscaler Client Connector exposes a support menu to end users through the More window and the system tray icon. Users reach these options by clicking "Report an Issue" from either surface. The admin-configurable options on this menu determine what users can do without involving IT: submit a support request, export encrypted diagnostic logs, disable or repair the agent, and view their identity. The controls are configured globally per tenant from the ZCC Portal at **Administration > Client Connector Support > App Supportability**.
 
@@ -38,13 +38,13 @@ These are distinct from:
 
 ## Configurable options
 
-Source: vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md.
+Source: `vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md`.
 
 The following options appear on the App Supportability tab of the Client Connector Support page.
 
 ### Enable Support Access in Zscaler Client Connector
 
-Source: vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md.
+Source: `vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md`.
 
 Master toggle. When enabled, users can access the "Report an Issue" form from the More window or system tray. The form submission sends an email containing the form data and an attachment of encrypted logs to the designated admin email address. Only Zscaler can decrypt those logs.
 
@@ -52,13 +52,13 @@ When this toggle is off, no "Report an Issue" option is visible to users. All ot
 
 ### Admin Email Address to Send Logs
 
-Source: vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md.
+Source: `vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md`.
 
 Required when support access is enabled. One or more email addresses (comma-separated) that receive the Report an Issue submission, including the encrypted log attachment. This is the organization's support inbox or distribution list, not Zscaler Support.
 
 ### Enable End User Ticket Submission to Zscaler
 
-Source: vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md.
+Source: `vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md`.
 
 Optional secondary action. When enabled, a support ticket is automatically opened with Zscaler Support whenever a user submits Report an Issue. Encrypted logs are attached to the Zscaler Support ticket automatically. This setting is only available when support access is enabled.
 
@@ -66,7 +66,7 @@ The two routing paths (internal admin email and Zscaler ticket) are independent:
 
 ### Hide Logging Control on Zscaler Client Connector
 
-Source: vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md.
+Source: `vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md`.
 
 When this toggle is enabled (hidden), users cannot export or clear logs, and cannot change the Log Mode that the Zscaler admin has set via App Profiles. When this toggle is disabled (visible), users can send an email copy of their Report an Issue form data along with encrypted logs from the ZCC interface.
 
@@ -74,7 +74,7 @@ Note the inverted naming: "Hide Logging Control" being enabled means the control
 
 ### Client Connector App Logs (admin-side fetch)
 
-Source: vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md.
+Source: `vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md`.
 
 Admins can fetch logs per enrolled device from the ZCC Portal at Enrolled Devices > Device Details > Fetch Logs. This is an admin-initiated action, not a user-facing option. It operates independently of whether user-facing support access is enabled.
 
@@ -82,7 +82,7 @@ Admins can fetch logs per enrolled device from the ZCC Portal at Enrolled Device
 
 ## Per-platform password gates (Web Policy / App Profile)
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/web_policy.py; vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/web_policy.py`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`.
 
 Beyond the App Supportability controls above, the Web Policy object (called App Profile in the admin UI) carries per-platform password gates for user actions that could remove or disable ZCC protection. These are configured per-platform under the per-platform sub-policy blocks and are separate from the App Supportability toggles.
 
@@ -94,11 +94,11 @@ The password fields applicable across platforms are:
 | `logout_password` | `logoutPassword` | Windows, macOS, Linux, Android, iOS | Password required for a user to log out of ZCC |
 | `uninstall_password` | `uninstallPassword` | Windows, macOS, Linux | Password required for a user to uninstall ZCC |
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`.
 
 These passwords are stored per platform sub-policy on the Web Policy object. Setting them to empty removes the gate. The passwords are not stored in plain text in snapshots — they are represented as empty strings on read and replaced on write.
 
-Source: vendor/zscaler-sdk-go/zscaler/zcc/services/manage_pass/manage_pass.go; vendor/zscaler-sdk-python/zscaler/zcc/models/manage_pass.py.
+Source: `vendor/zscaler-sdk-go/zscaler/zcc/services/manage_pass/manage_pass.go`; `vendor/zscaler-sdk-python/zscaler/zcc/models/manage_pass.py`.
 
 For bulk programmatic management, the `manage_pass` endpoint at `/zcc/papi/public/v1/managePass` (Go SDK only; no Python service module) accepts a `ManagePass` struct per `policyName` and `deviceType` with the following fields:
 
@@ -113,7 +113,7 @@ For bulk programmatic management, the `manage_pass` endpoint at `/zcc/papi/publi
 | `ZiaDisablePass` | `ziaDisablePass` | Password to disable ZIA |
 | `ZpaDisablePass` | `zpaDisablePass` | Password to disable ZPA |
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/manage_pass.py; vendor/zscaler-sdk-python/zscaler/zcc/zcc_service.py; vendor/zscaler-sdk-go/zscaler/zcc/services/manage_pass/manage_pass.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/manage_pass.py`; `vendor/zscaler-sdk-python/zscaler/zcc/zcc_service.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/manage_pass/manage_pass.go`.
 
 The Python SDK has the matching `ManagePass` model but has no service module exposing the POST call through `ZCCService`. Operators needing to manage passwords programmatically must use the Go SDK or call `POST /zcc/papi/public/v1/managePass` directly.
 
@@ -121,7 +121,7 @@ The Python SDK has the matching `ManagePass` model but has no service module exp
 
 ## Per-platform availability
 
-Source: vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md; vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py.
+Source: `vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`.
 
 The App Supportability toggles are applied at the tenant level and affect ZCC on all platforms where those UI surfaces exist. Platform-specific notes:
 
@@ -149,7 +149,7 @@ The following summarizes which options are enabled for a new tenant before any c
 | Hide Logging Control on Zscaler Client Connector | Off (logging controls are visible to users by default) |
 | Disable / logout / uninstall passwords on Web Policy | Not set (no password gate by default) |
 
-Source: vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md.
+Source: `vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md`.
 
 Defaults are inferred from the vendor documentation's description of configuration steps required to activate each option. The source does not explicitly enumerate "default state" per toggle.
 
@@ -157,7 +157,7 @@ Defaults are inferred from the vendor documentation's description of configurati
 
 ## Diagnostic bundle contents
 
-Source: vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md.
+Source: `vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md`.
 
 When a user submits Report an Issue, ZCC assembles an encrypted log bundle attached to the outbound email and (if configured) to the Zscaler Support ticket. Key characteristics:
 
@@ -166,7 +166,7 @@ When a user submits Report an Issue, ZCC assembles an encrypted log bundle attac
 - **Storage and routing**: The bundle is attached to an email sent to the configured admin inbox. If Zscaler ticket submission is enabled, the same bundle is attached to the resulting support ticket. No separate cloud-side storage of bundles is described in the vendor documentation.
 - **Admin-initiated fetch**: Admins can also trigger log collection per enrolled device from the ZCC Portal (Enrolled Devices > Device Details > Fetch Logs). This is distinct from the user-initiated bundle and does not require the user to take any action.
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py; vendor/zscaler-sdk-python/zscaler/zcc/models/webprivacy.py.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webprivacy.py`.
 
 The `export_logs_for_non_admin` flag on the `WebPrivacy` object controls whether non-admin local OS users can export ZCC's local log bundle independently. The `grant_access_to_zscaler_log_folder` flag controls whether the Zscaler log folder on the endpoint is readable by standard local users. Both default to off in enterprise tenants.
 
@@ -180,7 +180,7 @@ Specific file paths, log rotation behavior, bundle size limits, and PII content 
 
 Preventing users from disabling ZCC is achieved through two independent mechanisms:
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`.
 
 1. **Password gate on the Web Policy per-platform sub-policy**: The `disable_password` field on `windowsPolicy`, `macPolicy`, and `linuxPolicy` requires users to enter a password before the disable action completes. An empty value means no password is required.
 
@@ -188,13 +188,13 @@ Source: vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py; vendor/zscale
 
 These two mechanisms operate at different layers. A password gate blocks the ZCC UI action; anti-tampering blocks OS-level service manipulation regardless of UI. For maximum enforcement, both should be configured.
 
-Source: vendor/zscaler-sdk-go/zscaler/zcc/services/manage_pass/manage_pass.go; vendor/zscaler-sdk-python/zscaler/zcc/models/manage_pass.py.
+Source: `vendor/zscaler-sdk-go/zscaler/zcc/services/manage_pass/manage_pass.go`; `vendor/zscaler-sdk-python/zscaler/zcc/models/manage_pass.py`.
 
 Per-product disable passwords (ZIA, ZPA, ZDX, ZDP, ZAD) are managed through the `manage_pass` endpoint and are independent of the whole-agent disable password. A user with no whole-agent disable password but with a `ziaDisablePass` set must enter a password only to disable ZIA, not to disable ZPA or the agent itself.
 
 ### Password rotation
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/web_policy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/manage_pass/manage_pass.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/web_policy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/manage_pass/manage_pass.go`.
 
 Passwords on the Web Policy per-platform sub-policies are updated by editing the sub-policy object via the API and writing a new password value. The `manage_pass` endpoint similarly accepts a full replacement set of passwords per policy name and device type. There is no password history or rotation enforcement in the API; the operator supplies the new value and it takes effect immediately on next policy sync to enrolled devices.
 
@@ -204,15 +204,15 @@ Policy changes propagate to enrolled devices on the next ZCC restart or user log
 
 ## Logging and admin visibility
 
-Source: vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md.
+Source: `vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md`.
 
 The vendor documentation does not describe an audit trail for user-invoked support actions (Report an Issue submissions, log exports). The ZCC admin portal does expose the Enrolled Devices view with device-level details, and the Fetch Logs action is admin-initiated rather than user-initiated.
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/zcc_service.py; vendor/zscaler-sdk-python/zscaler/zcc/models/admin_roles.py; vendor/zscaler-sdk-python/zscaler/zcc/models/company_info.py; vendor/zscaler-sdk-go/zscaler/zcc/services/admin_roles/admin_roles.go; vendor/zscaler-sdk-go/zscaler/zcc/services/company/company.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/zcc_service.py`; `vendor/zscaler-sdk-python/zscaler/zcc/models/admin_roles.py`; `vendor/zscaler-sdk-python/zscaler/zcc/models/company_info.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/admin_roles/admin_roles.go`; `vendor/zscaler-sdk-go/zscaler/zcc/services/company/company.go`.
 
 For admin-side audit coverage of configuration changes to the App Supportability settings themselves, the SDKs expose admin role fields such as `auditLogs` / `clientConnectorSupport` and company supportability fields such as `supportEnabled`, `supportAdminEmail`, `supportTicketEnabled`, and `disableLoggingControls`. A dedicated ZCC audit-log query service is not exposed in the inspected SDK service catalogs.
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/devices.py.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/devices.py`.
 
 The `download_disable_reasons` endpoint (`GET /downloadDisableReasons`, available via the Python SDK `devices.download_disable_reasons()`) provides a CSV export of reasons users gave when disabling ZCC. This is the closest available admin-side visibility into user-initiated disable events.
 
@@ -222,13 +222,13 @@ The `download_disable_reasons` endpoint (`GET /downloadDisableReasons`, availabl
 
 ### App Supportability settings
 
-Source: vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md; vendor/zscaler-sdk-python/zscaler/zcc/company.py; vendor/zscaler-sdk-python/zscaler/zcc/models/company_info.py; vendor/zscaler-sdk-go/zscaler/zcc/services/company/company.go.
+Source: `vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md`; `vendor/zscaler-sdk-python/zscaler/zcc/company.py`; `vendor/zscaler-sdk-python/zscaler/zcc/models/company_info.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/company/company.go`.
 
 The App Supportability page toggles (support access, admin email, Zscaler ticket routing, logging control visibility) are managed through the ZCC Portal UI. The inspected SDKs model these fields on the company-info surface: Python exposes `get_company_info()` and the `CompanyInfo` model includes the support fields; Go exposes `GetCompanyInfo` / `SetCompanyInfo` against `/getCompanyInfo` and `/setCompanyInfo`. Programmatic updates should be validated against a tenant before relying on this as a stable App Supportability management path.
 
 ### Password management
 
-Source: vendor/zscaler-sdk-go/zscaler/zcc/services/manage_pass/manage_pass.go; vendor/zscaler-sdk-python/zscaler/zcc/models/manage_pass.py.
+Source: `vendor/zscaler-sdk-go/zscaler/zcc/services/manage_pass/manage_pass.go`; `vendor/zscaler-sdk-python/zscaler/zcc/models/manage_pass.py`.
 
 The `manage_pass` endpoint provides API access to per-policy per-platform per-product password management:
 
@@ -238,7 +238,7 @@ The `manage_pass` endpoint provides API access to per-policy per-platform per-pr
 
 ### Web Privacy settings
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py; vendor/zscaler-sdk-python/zscaler/zcc/models/webprivacy.py.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webprivacy.py`.
 
 `export_logs_for_non_admin` and `grant_access_to_zscaler_log_folder` are configurable via the Web Privacy API:
 
@@ -252,7 +252,7 @@ Managed through the Web Policy edit endpoint:
 - **Python SDK**: `client.zcc.web_policy.web_policy_edit(**kwargs)` — `PUT /zcc/papi/public/v1/web/policy/edit`
 - **Go SDK**: `web_policy.GetAll`, edit functions in `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/`
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/web_policy.py; vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/web_policy.py`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`.
 
 Password fields are nested inside the per-platform sub-policy objects (`windowsPolicy.disablePassword`, etc.). Changes require an activation call to take effect: `client.zcc.web_policy.activate_web_policy(device_type=..., policy_id=...)`.
 
@@ -262,7 +262,7 @@ Password fields are nested inside the per-platform sub-policy objects (`windowsP
 
 ### Diagnostic bundles and PII
 
-Source: vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md.
+Source: `vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md`.
 
 Diagnostic log bundles submitted through Report an Issue contain ZCC client logs. The vendor documentation states logs are encrypted and only Zscaler can decrypt them. Despite this encryption, the bundle may contain:
 
@@ -275,7 +275,7 @@ Admins should consider whether submitting bundles to Zscaler Support is consiste
 
 ### Web Privacy controls and PII collection scope
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/webprivacy.py.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webprivacy.py`.
 
 The `WebPrivacy` object governs what ZCC collects at the endpoint:
 
@@ -309,7 +309,7 @@ Changes to App Supportability settings, Web Policy password gates, and Web Priva
 
 ### `download_disable_reasons` rate limit
 
-Source: vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md.
+Source: `vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md`.
 
 The `GET /downloadDisableReasons` endpoint shares the 3-calls-per-day rate limit bucket with `/downloadDevices` and `/downloadServiceStatus`. Automated reporting pipelines that pull all three CSV exports daily must account for this combined limit against the 3-per-day cap per IP per organization.
 

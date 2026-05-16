@@ -32,7 +32,7 @@ How to observe the health, traffic, and operational state of deployed Cloud Conn
 
 ## 1. Overview
 
-Source: `vendor/zscaler-help/cbc-about-insights.md`; `vendor/zscaler-help/cbc-accessing-cloud-branch-connector-monitoring.md`
+Source: `vendor/zscaler-help/cbc-about-insights.md`; `vendor/zscaler-help/cbc-accessing-cloud-branch-connector-monitoring.md`.
 
 Cloud & Branch Connector exposes monitoring through two separate surface areas:
 
@@ -49,7 +49,7 @@ No dedicated CBC alerting surface (SNMP traps, email notifications, webhooks) wa
 
 ## 2. Dashboard surfaces
 
-Source: `vendor/zscaler-help/cbc-accessing-cloud-branch-connector-monitoring.md`; `vendor/zscaler-help/cbc-analyzing-branch-connector-details.md`; `vendor/zscaler-help/cbc-about-cloud-connector-groups.md`
+Source: `vendor/zscaler-help/cbc-accessing-cloud-branch-connector-monitoring.md`; `vendor/zscaler-help/cbc-analyzing-branch-connector-details.md`; `vendor/zscaler-help/cbc-about-cloud-connector-groups.md`.
 
 ### 2.1 Cloud & Branch Connector Monitoring page
 
@@ -343,7 +343,7 @@ The Session, DNS, and Tunnel Insights pages are UI-only in captured sources. No 
 
 ## 5. Alerting and integration
 
-Source: `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md`; `vendor/zscaler-help/cbc-troubleshooting-cloud-connector-microsoft-azure.md`; `vendor/zscaler-help/cbc-troubleshooting-cloud-connector-amazon-web-services.md`
+Source: `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md`; `vendor/zscaler-help/cbc-troubleshooting-cloud-connector-microsoft-azure.md`; `vendor/zscaler-help/cbc-troubleshooting-cloud-connector-amazon-web-services.md`.
 
 ### 5.1 No native CC alert surface confirmed
 

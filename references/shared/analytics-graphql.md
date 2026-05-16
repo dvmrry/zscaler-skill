@@ -27,7 +27,7 @@ The Zscaler Analytics GraphQL API (internally called **ZInsights**, path prefix 
 - **ZINS / SaaS Security Report dashboards** — CASB app usage, shadow IT app discovery, cybersecurity incidents, IoT device classification, and Zero Trust Firewall location/action aggregations as displayed in the ZIA Analytics section
 - **BI API complement** — the REST-based Business Insights API (`/bi/api/v1`) handles saved report configurations and bulk downloads; the GraphQL API handles live, parameterized, cross-domain queries against the same underlying data warehouse
 
-Source: vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md; vendor/zscaler-help/automate-zscaler/guides-analytics-api.md; vendor/zscaler-help/automate-zscaler/guides-understanding-oneapi.md; vendor/zscaler-help/automate-zscaler/api-reference-index.md; vendor/zscaler-help/about-saas-security-report.md.
+Source: `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md`; `vendor/zscaler-help/automate-zscaler/guides-analytics-api.md`; `vendor/zscaler-help/automate-zscaler/guides-understanding-oneapi.md`; `vendor/zscaler-help/automate-zscaler/api-reference-index.md`; `vendor/zscaler-help/about-saas-security-report.md`.
 
 The endpoint is listed alongside all other OneAPI products at `automate.zscaler.com` and is included in the downloadable OneAPI Postman collection.
 
@@ -54,7 +54,7 @@ Both environments accept the same request shape. Introspection (see below) is do
 
 **HTTP method:** All requests use `POST`. GraphQL queries and mutations are delivered in the request body as JSON.
 
-Source: vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md; vendor/zscaler-help/automate-zscaler/guides-analytics-api.md.
+Source: `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md`; `vendor/zscaler-help/automate-zscaler/guides-analytics-api.md`.
 
 ---
 
@@ -104,7 +104,7 @@ The API client must be registered in ZIdentity with a role that grants analytics
 
 For the full OneAPI auth flow (including private-key / JWT variant and gov-cloud limitations) see [`./oneapi.md`](./oneapi.md).
 
-Source: vendor/zscaler-help/automate-zscaler/guides-understanding-oneapi.md; vendor/zscaler-help/automate-zscaler/guides-analytics-api.md.
+Source: `vendor/zscaler-help/automate-zscaler/guides-understanding-oneapi.md`; `vendor/zscaler-help/automate-zscaler/guides-analytics-api.md`.
 
 ---
 
@@ -131,7 +131,7 @@ Key conventions:
 - **`filter_by`** accepts strongly typed filter objects (e.g., `StringFilter` with `in: [...]` for name filtering).
 - **`categorize_by`** selects the grouping dimension for certain queries (e.g., `LOCATION_ID` for cybersecurity location breakdown).
 
-Source: vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md; vendor/zscaler-help/automate-zscaler/guides-analytics-api.md.
+Source: `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md`; `vendor/zscaler-help/automate-zscaler/guides-analytics-api.md`.
 
 ---
 
@@ -194,13 +194,13 @@ query IntrospectionQuery {
 
 In Postman, point the collection variable for the ZInsights endpoint at `https://api.beta.zsapi.net/zins/graphql`, then use the schema explorer (GraphQL mode) to auto-fetch and browse the schema interactively.
 
-Source: vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md; vendor/zscaler-help/automate-zscaler/guides-analytics-api.md.
+Source: `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md`; `vendor/zscaler-help/automate-zscaler/guides-analytics-api.md`.
 
 ---
 
 ## Worked examples
 
-Source: vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md; vendor/zscaler-help/automate-zscaler/guides-analytics-api.md; vendor/zscaler-help/about-saas-security-report.md.
+Source: `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md`; `vendor/zscaler-help/automate-zscaler/guides-analytics-api.md`; `vendor/zscaler-help/about-saas-security-report.md`.
 
 ### Example 1: Web traffic protocols + threat categories (trend dashboard)
 
@@ -404,7 +404,7 @@ The Analytics GraphQL API does not implement cursor-based or offset-based pagina
 
 For use cases requiring all entries beyond a `limit` value, the approach is to omit the `limit` argument (rely on server-side default) or confirm maximum limits via introspection. The exact server-side default when `limit` is omitted is not confirmed in captured sources.
 
-Source: vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md; vendor/zscaler-help/automate-zscaler/guides-analytics-api.md.
+Source: `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md`; `vendor/zscaler-help/automate-zscaler/guides-analytics-api.md`.
 
 ---
 
@@ -449,7 +449,7 @@ OneAPI gateway-level errors (auth failure, rate limiting) follow the standard On
 
 For GraphQL-layer errors (malformed query, unknown field, type mismatch), the HTTP status is 200 and the `errors` array in the response body carries the diagnostic.
 
-Source: vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md; vendor/zscaler-help/automate-zscaler/guides-understanding-oneapi.md.
+Source: `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md`; `vendor/zscaler-help/automate-zscaler/guides-understanding-oneapi.md`.
 
 ---
 
@@ -463,7 +463,7 @@ The three analytics-adjacent APIs serve distinct use cases:
 
 **ZInsights GraphQL (`/zins/graphql`):** Aggregated trend and dashboard data. Use for live parameterized queries across web traffic, CASB, shadow IT, IoT, cybersecurity, and firewall domains. No saved-report overhead — submit a query, receive aggregated results directly.
 
-Source: vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md; vendor/zscaler-help/automate-zscaler/guides-analytics-api.md; vendor/zscaler-help/about-saas-security-report.md.
+Source: `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md`; `vendor/zscaler-help/automate-zscaler/guides-analytics-api.md`; `vendor/zscaler-help/about-saas-security-report.md`.
 
 ---
 

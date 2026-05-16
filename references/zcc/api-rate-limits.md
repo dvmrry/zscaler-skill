@@ -19,7 +19,7 @@ This document covers rate limiting for the Zscaler Client Connector (ZCC) portal
 
 ## 1. Scope
 
-Source: vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md; vendor/zscaler-sdk-python/zscaler/zcc/legacy.py.
+Source: `vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md`; `vendor/zscaler-sdk-python/zscaler/zcc/legacy.py`.
 
 These limits apply to the ZCC portal API at `/zcc/papi/public/v1`. They govern both the legacy ZCC token path (`apiKey` + `secretKey` → JWT) and the modern OneAPI path (ZIdentity OAuth 2.0 with `zcc.*` scopes). Both auth paths share the same server-enforced rate limits.
 
@@ -35,7 +35,7 @@ See also: `references/shared/oneapi.md § ZCC — flat tenant-wide`.
 
 ## 2. Endpoint-tier table
 
-Source: vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md.
+Source: `vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md`.
 
 ZCC enforces two distinct tiers. The general tier covers all endpoints not listed in the restricted tier.
 
@@ -54,7 +54,7 @@ Notes:
 
 ## 3. Rate-limit response headers
 
-Source: vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md.
+Source: `vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md`.
 
 ZCC uses a distinct header naming scheme from ZIA and ZDX. The exact header names are:
 
@@ -75,7 +75,7 @@ See also: `references/shared/oneapi.md § Surprises worth flagging`.
 
 ## 4. HTTP 429 response shape
 
-Source: vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md; vendor/zscaler-sdk-python/zscaler/zcc/legacy.py.
+Source: `vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md`; `vendor/zscaler-sdk-python/zscaler/zcc/legacy.py`.
 
 When a ZCC API call exceeds a rate limit, the server returns HTTP 429 (Too Many Requests). The vendor documentation does not publish a canonical 429 JSON body schema for the ZCC API. The `X-Rate-Limit-Retry-After-Seconds` header is present on 429 responses and gives the wait duration.
 
@@ -89,13 +89,13 @@ The ZCC 429 body shape is unconfirmed from available sources. Callers should par
 
 ### Server-recommended behavior
 
-Source: vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md.
+Source: `vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md`.
 
 The vendor documentation states: "Clients subject to rate limits must back off exponentially to proceed further." No specific base delay, multiplier, or maximum retry count is published in the ZCC rate-limit documentation.
 
 ### SDK behavior — legacy client (`LegacyZCCClientHelper`)
 
-Source: vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md; vendor/zscaler-sdk-python/zscaler/zcc/legacy.py.
+Source: `vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md`; `vendor/zscaler-sdk-python/zscaler/zcc/legacy.py`.
 
 The Python SDK's `LegacyZCCClientHelper` (`vendor/zscaler-sdk-python/zscaler/zcc/legacy.py`) implements the following retry logic:
 
@@ -106,7 +106,7 @@ See also: `references/zcc/sdk.md § Client construction — Python`; `references
 
 ### SDK behavior — OneAPI path (`ZCCService` / `ZscalerClient`)
 
-Source: vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md; vendor/zscaler-sdk-python/zscaler/zcc/legacy.py.
+Source: `vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md`; `vendor/zscaler-sdk-python/zscaler/zcc/legacy.py`.
 
 The modern OneAPI client path uses the shared `RequestExecutor` from the Python SDK. Whether the `RequestExecutor` automatically honors `X-Rate-Limit-Retry-After-Seconds` headers from ZCC responses is not confirmed from available sources. The `RequestExecutor` is documented to handle retry logic centrally for ZIA and ZPA; ZCC-specific behavior in the modern path is unconfirmed.
 
@@ -114,7 +114,7 @@ See `references/zcc/sdk.md § Open questions` (Q6) and [`_meta/clarifications.md
 
 ### Recommended retry pattern for direct HTTP callers
 
-Source: vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md; vendor/zscaler-sdk-python/zscaler/zcc/legacy.py.
+Source: `vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md`; `vendor/zscaler-sdk-python/zscaler/zcc/legacy.py`.
 
 ```
 1. Issue the API call.
@@ -138,7 +138,7 @@ Jitter prevents thundering-herd behavior when multiple automation processes hit 
 
 ### Scoping model
 
-Source: vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md.
+Source: `vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md`.
 
 The ZCC rate limit is scoped per IP address, per organization (tenant). This means:
 
@@ -148,19 +148,19 @@ The ZCC rate limit is scoped per IP address, per organization (tenant). This mea
 
 ### Window start
 
-Source: vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md.
+Source: `vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md`.
 
 The rate-limit window starts at the first API call in that window, not at the top of the hour. This means if an automation script starts at 14:47, the first 100-call window runs until approximately 15:47.
 
 ### Implication for multi-tenant operations
 
-Source: vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md.
+Source: `vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md`.
 
 MSPs or operators managing multiple tenants from a shared egress IP should be aware that each tenant has its own 100 calls/hour allocation (limits are per-org, not shared across orgs). However, the single-egress-IP model means a script that loops across tenants from the same host could inadvertently exhaust limits for an individual tenant before completing all intended operations.
 
 ## 7. ZCC API paths: legacy vs OneAPI
 
-Source: vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md; vendor/zscaler-sdk-python/zscaler/zcc/legacy.py.
+Source: `vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md`; `vendor/zscaler-sdk-python/zscaler/zcc/legacy.py`.
 
 ZCC supports two coexisting API paths, and the rate-limit contract applies to both:
 
@@ -177,7 +177,7 @@ See also: `references/shared/oneapi.md § ZCC — flat tenant-wide`; `references
 
 ## 8. Pagination interaction
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/devices.py; vendor/zscaler-sdk-python/zscaler/zcc/legacy.py.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/devices.py`; `vendor/zscaler-sdk-python/zscaler/zcc/legacy.py`.
 
 High-volume list endpoints — device inventory, admin users, web policies, trusted networks — can consume the hourly budget quickly when iterating large datasets without pagination discipline.
 
@@ -199,7 +199,7 @@ See also: `references/zcc/sdk.md § Pagination — Python`; `references/zcc/sdk.
 
 ## 9. Bulk operations
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/devices.py.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/devices.py`.
 
 ZCC does not publish a dedicated bulk endpoint with relaxed rate limits. All device management operations — individual removals, force-removals, machine tunnel removals — each count as one API call against the 100 calls/hour budget.
 
@@ -215,7 +215,7 @@ See also: `references/zcc/sdk.md § devices — DevicesAPI`; `references/zcc/sdk
 
 ## 10. Common operator scenarios that hit limits
 
-Source: vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md; vendor/zscaler-sdk-python/zscaler/zcc/devices.py.
+Source: `vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md`; `vendor/zscaler-sdk-python/zscaler/zcc/devices.py`.
 
 ### Initial sync of a large device fleet
 
@@ -239,7 +239,7 @@ Scripts that poll device connectivity or service status at sub-minute intervals 
 
 ## 11. Mitigation
 
-Source: vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md; vendor/zscaler-sdk-python/zscaler/zcc/legacy.py.
+Source: `vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md`; `vendor/zscaler-sdk-python/zscaler/zcc/legacy.py`.
 
 ### Caching
 

@@ -45,7 +45,7 @@ author-status: draft
 
 ## Overview
 
-Source: `vendor/zscaler-help/about-private-service-edges.md`; `vendor/zscaler-help/understanding-private-access-architecture.md`; `vendor/zscaler-help/zsdk-about-zsdk-private-service-edges.md`
+Source: `vendor/zscaler-help/about-private-service-edges.md`; `vendor/zscaler-help/understanding-private-access-architecture.md`; `vendor/zscaler-help/zsdk-about-zsdk-private-service-edges.md`.
 
 A ZPA Private Service Edge (PSE) is a **single-tenant instance broker** that delivers the same ZPA session-brokering function as a ZPA Public Service Edge, but runs inside the operator's own environment — data center, private cloud, or cloud-hosted tenant VPC — rather than in a Zscaler PoP.
 
@@ -79,7 +79,7 @@ ZPA Public Service Edges are Zscaler-operated, multi-tenant, globally distribute
 
 ## Architecture
 
-Source: `vendor/zscaler-help/understanding-private-access-architecture.md`; `vendor/zscaler-help/about-private-service-edges.md`; `vendor/zscaler-help/zsdk-about-zsdk-private-service-edges.md`
+Source: `vendor/zscaler-help/understanding-private-access-architecture.md`; `vendor/zscaler-help/about-private-service-edges.md`; `vendor/zscaler-help/zsdk-about-zsdk-private-service-edges.md`.
 
 ### Data path
 
@@ -376,7 +376,7 @@ There is no Terraform resource for ZPA PSE provisioning keys in the captured ven
 
 ## Admin Console navigation
 
-Source: `vendor/zscaler-help/about-private-service-edges.md`; `vendor/zscaler-help/about-private-service-edge-groups.md`
+Source: `vendor/zscaler-help/about-private-service-edges.md`; `vendor/zscaler-help/about-private-service-edge-groups.md`.
 
 ZPA Private Service Edges and their groups are managed under **Infrastructure > Private Access > Component**:
 
@@ -387,7 +387,7 @@ The Auto Delete feature (configurable under Private Service Edges page settings)
 
 ## Software version profiles
 
-Source: `vendor/zscaler-help/about-private-service-edge-groups.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md`
+Source: `vendor/zscaler-help/about-private-service-edge-groups.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md`.
 
 Each PSE Group is assigned a **version profile** that controls which release track the PSEs in that group follow. Supported profile names:
 
@@ -404,7 +404,7 @@ The `el8` variants exist for environments that require OS-level compatibility wi
 
 ## Policy implications
 
-Source: `vendor/zscaler-help/understanding-private-access-architecture.md`; `vendor/zscaler-help/about-private-service-edges.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md`
+Source: `vendor/zscaler-help/understanding-private-access-architecture.md`; `vendor/zscaler-help/about-private-service-edges.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md`.
 
 ### PSE selection by ZCC
 

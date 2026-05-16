@@ -216,8 +216,6 @@ These are configuration combinations and behaviors that silently fail or behave 
 
 ## Open questions
 
-Source: clarification `zia-20`.
-
 - **Exact confidence-score threshold semantics** for predefined dictionaries — the thresholds are tunable but the score-to-confidence mapping isn't numeric in the help docs. Needs tenant tuning based on false-positive rates.
 - **Whether MIP label matching requires Microsoft 365 integration config** on the Zscaler side, or works purely from document-metadata inspection.
 - **Evaluate All Rules mode — specific semantics** for conflicting rule actions. If Rule 1 Blocks and Rule 3 Allows the same event, and both fire under Evaluate All Rules, what's the terminal action? Not captured here; help article exists (not yet vendored).

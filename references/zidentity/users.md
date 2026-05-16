@@ -25,7 +25,7 @@ Base endpoint:
 
 ## Python SDK methods
 
-Source: vendor/zscaler-sdk-python/zscaler/zid/users.py.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/users.py`.
 
 Class `UsersAPI` in `zscaler/zid/users.py`. All methods return a 3-tuple `(result, response, error)`.
 
@@ -40,7 +40,7 @@ Class `UsersAPI` in `zscaler/zid/users.py`. All methods return a 3-tuple `(resul
 
 ## Go SDK functions
 
-Source: vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go.
+Source: `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`.
 
 Package `users` in `zscaler/zid/services/users/users.go`. All functions are package-level with `ctx context.Context, service *zscaler.Service` as first two parameters.
 
@@ -56,7 +56,7 @@ Package `users` in `zscaler/zid/services/users/users.go`. All functions are pack
 
 ## Postman collection endpoints
 
-Source: vendor/zscaler-api-specs/oneapi-postman-collection.json.
+Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
 Variable `{{ZIAMBase}}` resolves to the ZIdentity ZIAM base URL. (`vendor/zscaler-api-specs/oneapi-postman-collection.json`)
 
@@ -77,7 +77,7 @@ Variable `{{ZIAMBase}}` resolves to the ZIdentity ZIAM base URL. (`vendor/zscale
 
 ## User model fields
 
-Source: vendor/zscaler-sdk-python/zscaler/zid/models/users.py; vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go; vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/models/users.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go`.
 
 Python model: `UserRecord` in `zscaler/zid/models/users.py`. Go struct: `Users` in `zscaler/zid/services/users/users.go`.
 
@@ -117,7 +117,7 @@ The Python `Users` wrapper object (returned by `list_users`) carries pagination 
 
 ## Filter / query parameters
 
-Source: vendor/zscaler-sdk-python/zscaler/zid/users.py; vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go; vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`.
 
 `PaginationQueryParams` struct in `vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go:32`. Python docstring at `users.py:47`.
 
@@ -138,7 +138,7 @@ Source: vendor/zscaler-sdk-python/zscaler/zid/users.py; vendor/zscaler-sdk-go/zs
 
 ## CRUD notes
 
-Source: vendor/zscaler-sdk-python/zscaler/zid/users.py; vendor/zscaler-sdk-python/zscaler/zid/models/users.py; vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-python/zscaler/zid/models/users.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`.
 
 Full CRUD is supported. No activation step is exposed for ZIdentity user writes in the SDK surface; changes are submitted directly through the ZID users service.
 
@@ -150,7 +150,7 @@ Full CRUD is supported. No activation step is exposed for ZIdentity user writes 
 
 ## IdP-sourced vs ZIdentity-internal users
 
-Source: vendor/zscaler-sdk-python/zscaler/zid/models/users.py; vendor/zscaler-sdk-python/zscaler/zid/users.py; vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/models/users.py`; `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`.
 
 Both types appear in the same list endpoint. Distinguish by the `source` field: (`models/users.py:92`, `users.go:21`)
 
@@ -165,7 +165,7 @@ Filter to IdP-sourced users using the `idpname` query parameter. (`users.py:61`)
 
 ## SDK divergences
 
-Source: vendor/zscaler-sdk-python/zscaler/zid/users.py; vendor/zscaler-sdk-python/zscaler/zid/models/users.py; vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go; vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-python/zscaler/zid/models/users.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go`.
 
 | Aspect | Python | Go |
 |---|---|---|
@@ -177,7 +177,7 @@ Source: vendor/zscaler-sdk-python/zscaler/zid/users.py; vendor/zscaler-sdk-pytho
 
 ## Known bugs and edge cases
 
-Source: vendor/zscaler-sdk-python/zscaler/zid/users.py; vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`.
 
 **Go — variable-shadowing bug in `GetUsers`**: The local declaration `usersEndpoint := fmt.Sprintf(...)` on line 90 shadows the package-level `usersEndpoint` constant, making the function build the wrong path (`/admin/api/v1/users/{userID}/users`). This function is not listed in the primary CRUD surface and appears vestigial — `GetGroupsByUser` is the correct group-association function. (`users.go:88`)
 
@@ -187,7 +187,7 @@ Source: vendor/zscaler-sdk-python/zscaler/zid/users.py; vendor/zscaler-sdk-go/zs
 
 ## Gaps
 
-Source: vendor/zscaler-sdk-python/zscaler/zid/users.py; vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go; vendor/zscaler-api-specs/oneapi-postman-collection.json.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
 The following capabilities appear in the Postman collection but are absent from both SDKs:
 
@@ -203,7 +203,7 @@ Admin/service entitlements endpoints (`/users/:id/admin-entitlements`, `/users/:
 
 ## Open questions
 
-Source: vendor/zscaler-sdk-python/zscaler/zid/users.py; vendor/zscaler-api-specs/oneapi-postman-collection.json.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
 - **Omitting `id` on create** — `add_user` docstring example passes `id` explicitly; it is unverified whether omitting `id` triggers server-side auto-generation or returns an error — *unverified, requires lab test or API spec review*
 

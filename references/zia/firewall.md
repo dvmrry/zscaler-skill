@@ -25,7 +25,7 @@ ZIA's Firewall Control module handles L3/L4 flows and signature-based intrusion 
 
 ## Firewall is four policies in a trenchcoat
 
-Source: vendor/zscaler-help/configuring-firewall-policies.md; vendor/zscaler-help/about-ips-control.md.
+Source: `vendor/zscaler-help/configuring-firewall-policies.md`; `vendor/zscaler-help/about-ips-control.md`.
 
 "Firewall Control" is the umbrella for four sub-policies, each with its own rule list:
 
@@ -42,7 +42,7 @@ Each sub-policy has its own rule list, evaluated separately. A single flow trave
 
 ## Basic vs Advanced Firewall
 
-Source: vendor/zscaler-help/configuring-firewall-policies.md; vendor/zscaler-help/about-ips-control.md.
+Source: `vendor/zscaler-help/configuring-firewall-policies.md`; `vendor/zscaler-help/about-ips-control.md`.
 
 Two licensing tiers. The difference is **criterion expressiveness**, not fundamental feature presence.
 
@@ -59,7 +59,7 @@ A tenant on Basic can still run a firewall, just scoped to IP/port/location — 
 
 ## Where Firewall sits in the traffic path
 
-Source: vendor/zscaler-help/configuring-firewall-policies.md; vendor/zscaler-help/about-ips-control.md.
+Source: `vendor/zscaler-help/configuring-firewall-policies.md`; `vendor/zscaler-help/about-ips-control.md`.
 
 Firewall runs **before** web-module policies (URL Filtering, CAC, SSL Inspection, DLP). The split is documented in *Understanding Policy Enforcement* and threaded in [`./url-filtering.md`](./url-filtering.md):
 
@@ -81,7 +81,7 @@ The `firewall-vs-web-module-block` SPL pattern in [`../shared/splunk-queries.md`
 
 ## Ports Zscaler inspects by default
 
-Source: vendor/zscaler-help/configuring-firewall-policies.md; vendor/zscaler-sdk-python/zscaler/zia/firewall.py.
+Source: `vendor/zscaler-help/configuring-firewall-policies.md`; `vendor/zscaler-sdk-python/zscaler/zia/firewall.py`.
 
 | Port | Traffic |
 |---|---|
@@ -96,7 +96,7 @@ Tenants using non-default ports for these protocols must configure custom networ
 
 ## Firewall Filtering rule criteria
 
-Source: vendor/terraform-provider-zia/zia/resource_firewall_filtering_rule.go; vendor/zscaler-sdk-python/zscaler/zia/firewall.py; vendor/zscaler-help/ranges-limitations-zia.md.
+Source: `vendor/terraform-provider-zia/zia/resource_firewall_filtering_rule.go`; `vendor/zscaler-sdk-python/zscaler/zia/firewall.py`; `vendor/zscaler-help/ranges-limitations-zia.md`.
 
 From the Terraform provider schema (`resource_firewall_filtering_rule.go`) and SDK:
 
@@ -119,7 +119,7 @@ From the Terraform provider schema (`resource_firewall_filtering_rule.go`) and S
 
 ## Firewall Filtering actions
 
-Source: vendor/terraform-provider-zia/zia/resource_firewall_filtering_rule.go; vendor/zscaler-sdk-python/zscaler/zia/firewall.py.
+Source: `vendor/terraform-provider-zia/zia/resource_firewall_filtering_rule.go`; `vendor/zscaler-sdk-python/zscaler/zia/firewall.py`.
 
 | Action | Effect |
 |---|---|
@@ -133,7 +133,7 @@ Rule evaluation is **first-match-wins in ascending Rule Order**, with Admin Rank
 
 ## IPS Control specifics
 
-Source: vendor/zscaler-help/about-ips-control.md; vendor/terraform-provider-zia/docs/resources/zia_ips_signature_rules.md; vendor/zscaler-help/ranges-limitations-zia.md.
+Source: `vendor/zscaler-help/about-ips-control.md`; `vendor/terraform-provider-zia/docs/resources/zia_ips_signature_rules.md`; `vendor/zscaler-help/ranges-limitations-zia.md`.
 
 - **Signature source**: Zscaler's research team + industry-vendor feeds. Updated continuously by Zscaler; no operator action needed.
 - **Custom signatures**: Snort-like syntax. Uploaded as part of custom threat categories; referenced in IPS Control rules.
@@ -150,7 +150,7 @@ Source: vendor/zscaler-help/about-ips-control.md; vendor/terraform-provider-zia/
 
 ## NAT Control
 
-Source: vendor/zscaler-help/configuring-firewall-policies.md; vendor/zscaler-sdk-python/zscaler/zia/firewall.py.
+Source: `vendor/zscaler-help/configuring-firewall-policies.md`; `vendor/zscaler-sdk-python/zscaler/zia/firewall.py`.
 
 NAT Control rules remap addresses at the PSE level. Common uses:
 
@@ -162,7 +162,7 @@ NAT Control rules evaluate before Firewall Filtering — the rewritten addresses
 
 ## DNS Control
 
-Source: vendor/zscaler-help/configuring-firewall-policies.md; vendor/zscaler-sdk-python/zscaler/zia/firewall.py; vendor/zscaler-help/ranges-limitations-zia.md.
+Source: `vendor/zscaler-help/configuring-firewall-policies.md`; `vendor/zscaler-sdk-python/zscaler/zia/firewall.py`; `vendor/zscaler-help/ranges-limitations-zia.md`.
 
 DNS Control rules gate DNS resolution at the PSE's DNS service:
 
@@ -174,7 +174,7 @@ DNS Control is distinct from **URL Filtering** — URL Filtering applies to HTTP
 
 ## FTP Control
 
-Source: vendor/zscaler-help/configuring-firewall-policies.md.
+Source: `vendor/zscaler-help/configuring-firewall-policies.md`.
 
 Documented separately (*About FTP Control*, not captured in this pass). In outline:
 
@@ -185,7 +185,7 @@ Documented separately (*About FTP Control*, not captured in this pass). In outli
 
 ## Rule-level tuning
 
-Source: vendor/zscaler-help/configuring-firewall-policies.md; vendor/zscaler-help/about-ips-control.md; vendor/terraform-provider-zia/zia/resource_firewall_filtering_rule.go.
+Source: `vendor/zscaler-help/configuring-firewall-policies.md`; `vendor/zscaler-help/about-ips-control.md`; `vendor/terraform-provider-zia/zia/resource_firewall_filtering_rule.go`.
 
 - **Admin Rank** — visible only when Admin Ranking is enabled in Advanced Settings. Higher-rank admins can insert rules that supersede lower-rank admins' rule positioning. Same semantics as URL Filtering.
 - **Rule Labels** — grouping construct for organization. The IPS Control page offers View-by-Label in addition to View-by-Order.
@@ -193,7 +193,7 @@ Source: vendor/zscaler-help/configuring-firewall-policies.md; vendor/zscaler-hel
 
 ## Common questions this unlocks
 
-Source: vendor/zscaler-help/configuring-firewall-policies.md; vendor/zscaler-help/about-ips-control.md; vendor/terraform-provider-zia/zia/resource_firewall_filtering_rule.go.
+Source: `vendor/zscaler-help/configuring-firewall-policies.md`; `vendor/zscaler-help/about-ips-control.md`; `vendor/terraform-provider-zia/zia/resource_firewall_filtering_rule.go`.
 
 - **"Why was this TCP connection silently dropped with no RST?"** — Firewall Filtering rule with `BLOCK_DROP` action. Check `firewall-log-schema.md` fields `rulelabel` + `action`.
 - **"Why is Skype/Teams traffic being classified differently than the port suggests?"** — A rule with `EVAL_NWAPP` action triggered L7 app-id; subsequent app-identity-based rule fired.
@@ -203,7 +203,7 @@ Source: vendor/zscaler-help/configuring-firewall-policies.md; vendor/zscaler-hel
 
 ## Surprises worth flagging
 
-Source: vendor/zscaler-help/configuring-firewall-policies.md; vendor/zscaler-help/about-ips-control.md; vendor/terraform-provider-zia/zia/resource_firewall_filtering_rule.go; vendor/zscaler-help/ranges-limitations-zia.md.
+Source: `vendor/zscaler-help/configuring-firewall-policies.md`; `vendor/zscaler-help/about-ips-control.md`; `vendor/terraform-provider-zia/zia/resource_firewall_filtering_rule.go`; `vendor/zscaler-help/ranges-limitations-zia.md`.
 
 1. **IPS default is BLOCK ALL.** Turning on IPS Control without first authoring allow-rules for normal business traffic can cause wide-scale denial. Verify recommended-policy guardrails before flipping license.
 
@@ -219,7 +219,7 @@ Source: vendor/zscaler-help/configuring-firewall-policies.md; vendor/zscaler-hel
 
 ## Rule count limits
 
-Source: vendor/zscaler-help/ranges-limitations-zia.md.
+Source: `vendor/zscaler-help/ranges-limitations-zia.md`.
 
 | Policy | Limit | Notes |
 |---|---|---|

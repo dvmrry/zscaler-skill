@@ -29,7 +29,7 @@ ZIdentity is described by Zscaler as "a unified identity service for Zscaler tha
 
 ## Read-only surface
 
-Source: vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py; vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go; vendor/zscaler-api-specs/oneapi-postman-collection.json.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
 **No mutation endpoints exist.** Both SDKs expose only `Get*` functions. There are no `Create*`, `Update*`, `Assign*`, or `Delete*` methods for entitlements in either the Python or Go SDK, and the Postman collection contains only two GET items under entitlements — no POST/PUT/PATCH/DELETE variants.
 
@@ -37,7 +37,7 @@ This is by design: admin role assignment is performed through the Zscaler Admin 
 
 ## Base endpoints
 
-Source: vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py; vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go`.
 
 | SDK | Base constant | Citation |
 |---|---|---|
@@ -48,7 +48,7 @@ The Python base includes the `/ziam` prefix absent from the Go constant. The ful
 
 ## Python SDK methods
 
-Source: vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py`.
 
 Class `EntitlementAPI` in `zscaler/zid/user_entitlement.py`. All methods return a 3-tuple `(result, response, error)`.
 
@@ -63,7 +63,7 @@ Class `EntitlementAPI` in `zscaler/zid/user_entitlement.py`. All methods return 
 
 ## Go SDK functions
 
-Source: vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go.
+Source: `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go`.
 
 Package `user_entitlement` in `zscaler/zid/services/user_entitlement/user_entitlement.go`. All functions take `ctx context.Context, service *zscaler.Service, userID string`.
 
@@ -76,7 +76,7 @@ Both functions return slices directly. There is no wrapper object.
 
 ## Postman collection endpoints
 
-Source: vendor/zscaler-api-specs/oneapi-postman-collection.json.
+Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
 Variable `{{ZIAMBase}}` resolves to the ZIdentity ZIAM base URL.
 
@@ -89,7 +89,7 @@ Both entries document only `200 OK` and `401 Unauthorized`. No other response co
 
 ## Entitlement model — Python
 
-Source: vendor/zscaler-sdk-python/zscaler/zid/models/user_entitlement.py; vendor/zscaler-sdk-python/zscaler/zid/models/common.py.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/models/user_entitlement.py`; `vendor/zscaler-sdk-python/zscaler/zid/models/common.py`.
 
 ### `Entitlement` (single record)
 
@@ -143,7 +143,7 @@ Used for both individual role entries and the `scope` field.
 
 ## Entitlement model — Go
 
-Source: vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go; vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go.
+Source: `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go`.
 
 ### `Entitlements` struct
 
@@ -192,7 +192,7 @@ This struct is **declared but not returned by any public function**. `GetAdminEn
 
 ## Scope and roles deep dive
 
-Source: vendor/zscaler-sdk-python/zscaler/zid/models/user_entitlement.py; vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/models/user_entitlement.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go`.
 
 ### Scope field
 
@@ -212,7 +212,7 @@ Admin entitlements include `roles + scope + service` per record. Service entitle
 
 ## Cross-product mapping
 
-Source: vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py; vendor/zscaler-sdk-python/zscaler/zid/models/user_entitlement.py; vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go; vendor/zscaler-help/what-zidentity.md; vendor/zscaler-help/zidentity-about-api-clients.md.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py`; `vendor/zscaler-sdk-python/zscaler/zid/models/user_entitlement.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go`; `vendor/zscaler-help/what-zidentity.md`; `vendor/zscaler-help/zidentity-about-api-clients.md`.
 
 A single user can have **multiple admin entitlement records**, one per Zscaler product. The SDK return shapes support that: Go returns `[]Entitlements` from `GetAdminEntitlement`, and Python wraps a list of `Entitlement` objects in `Entitlements.entitlements`.
 
@@ -220,7 +220,7 @@ Fixture examples include `serviceName` values `ZPA`, `ZIA`, and `ZDX`; treat the
 
 ## SDK divergences
 
-Source: vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py; vendor/zscaler-sdk-python/zscaler/zid/models/user_entitlement.py; vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py`; `vendor/zscaler-sdk-python/zscaler/zid/models/user_entitlement.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go`.
 
 | Aspect | Python | Go | Citations |
 |---|---|---|---|
@@ -234,7 +234,7 @@ The Python-wraps-Go return-type divergence is the most significant practical dif
 
 ## Gaps
 
-Source: vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py; vendor/zscaler-sdk-python/zscaler/zid/models/user_entitlement.py; vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py`; `vendor/zscaler-sdk-python/zscaler/zid/models/user_entitlement.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go`.
 
 1. **No role/scope enums exported** — fixture examples include role names such as `SuperAdmin`, `Admin`, `ReadOnly`, `PolicyAdmin`, and `Auditor`, and scope names such as `Global`, `Limited`, and `AllResources`. Because these come from unit fixtures rather than exported constants, treat them as observed examples only.
 
@@ -244,7 +244,7 @@ Source: vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py; vendor/zscale
 
 ## Open questions
 
-Source: vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py; vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go`.
 
 - **`scope` field semantics** — the field is populated but no enum is documented in vendor sources. Fixture examples include `Global`, `Limited`, and `AllResources`, but the operational meaning of each scope value (e.g., what resources "Limited" restricts access to) is not stated in either SDK. — *unverified, requires vendor documentation or tenant-side check*
 

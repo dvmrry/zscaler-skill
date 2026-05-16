@@ -40,13 +40,13 @@ This doc covers how traffic gets **into** ZIA from a customer location or endpoi
 
 Every method ultimately surfaces inside ZIA as a **Location** (or is associated with one). The Location is the forwarding-grouping primitive that all ZIA policy rules scope by. See [`./locations.md`](./locations.md) for the full Location/Sublocation/Location Group model.
 
-Source: vendor/zscaler-help/choosing-traffic-forwarding-methods.md; vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.md; vendor/zscaler-help/using-custom-pac-file-forward-traffic-zia.md.
+Source: `vendor/zscaler-help/choosing-traffic-forwarding-methods.md`; `vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.md`; `vendor/zscaler-help/using-custom-pac-file-forward-traffic-zia.md`.
 
 ---
 
 ## GRE tunnel
 
-Source: vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.md; vendor/zscaler-help/best-practices-deploying-gre-tunnels.md; vendor/zscaler-help/gre-deployment-scenarios.md; vendor/zscaler-sdk-python/zscaler/zia/gre_tunnel.py; vendor/zscaler-sdk-python/zscaler/zia/traffic_static_ip.py; vendor/terraform-provider-zia/zia/resource_zia_traffic_forwarding_gre_tunnels.go; vendor/terraform-provider-zia/zia/resource_zia_traffic_forwarding_static_ips.go.
+Source: `vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.md`; `vendor/zscaler-help/best-practices-deploying-gre-tunnels.md`; `vendor/zscaler-help/gre-deployment-scenarios.md`; `vendor/zscaler-sdk-python/zscaler/zia/gre_tunnel.py`; `vendor/zscaler-sdk-python/zscaler/zia/traffic_static_ip.py`; `vendor/terraform-provider-zia/zia/resource_zia_traffic_forwarding_gre_tunnels.go`; `vendor/terraform-provider-zia/zia/resource_zia_traffic_forwarding_static_ips.go`.
 
 ### When to use
 
@@ -116,7 +116,7 @@ Zscaler's recommended model:
 
 ## IPsec tunnel
 
-Source: vendor/zscaler-help/choosing-traffic-forwarding-methods.md; vendor/zscaler-sdk-python/zscaler/zia/traffic_vpn_credentials.py; vendor/terraform-provider-zia/zia/resource_zia_traffic_forwarding_vpn_credentials.go.
+Source: `vendor/zscaler-help/choosing-traffic-forwarding-methods.md`; `vendor/zscaler-sdk-python/zscaler/zia/traffic_vpn_credentials.py`; `vendor/terraform-provider-zia/zia/resource_zia_traffic_forwarding_vpn_credentials.go`.
 
 ### When to use vs GRE
 
@@ -166,7 +166,7 @@ No dedicated IPsec configuration capture is vendored. The following is inferred 
 
 ## PAC file
 
-Source: vendor/zscaler-help/choosing-traffic-forwarding-methods.md; vendor/zscaler-help/using-custom-pac-file-forward-traffic-zia.md; vendor/zscaler-sdk-python/zscaler/zia/pac_files.py.
+Source: `vendor/zscaler-help/choosing-traffic-forwarding-methods.md`; `vendor/zscaler-help/using-custom-pac-file-forward-traffic-zia.md`; `vendor/zscaler-sdk-python/zscaler/zia/pac_files.py`.
 
 ### When PAC is the right choice
 
@@ -212,7 +212,7 @@ Terraform: no `resource_zia_traffic_forwarding_pac_files` resource found in the 
 
 ## ZCC (Zscaler Client Connector)
 
-Source: vendor/zscaler-help/choosing-traffic-forwarding-methods.md; vendor/zscaler-help/about-z-tunnel-1.0-z-tunnel-2.0.md.
+Source: `vendor/zscaler-help/choosing-traffic-forwarding-methods.md`; `vendor/zscaler-help/about-z-tunnel-1.0-z-tunnel-2.0.md`.
 
 ### When ZCC is the right choice
 
@@ -262,17 +262,17 @@ Is this a fixed-location site with a router/SD-WAN that supports GRE or IPsec?
 
 Zscaler explicitly recommends combining GRE + PAC + Surrogate IP + ZCC as the full-coverage model for enterprise deployments (sourced from `understanding-generic-routing-encapsulation-gre.md`).
 
-Source: vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.md; vendor/zscaler-help/choosing-traffic-forwarding-methods.md; vendor/zscaler-help/about-z-tunnel-1.0-z-tunnel-2.0.md.
+Source: `vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.md`; `vendor/zscaler-help/choosing-traffic-forwarding-methods.md`; `vendor/zscaler-help/about-z-tunnel-1.0-z-tunnel-2.0.md`.
 
 ---
 
 ## Common interactions and failure modes
 
-Source: vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.md; vendor/zscaler-help/best-practices-deploying-gre-tunnels.md; vendor/zscaler-help/using-custom-pac-file-forward-traffic-zia.md; vendor/zscaler-help/about-z-tunnel-1.0-z-tunnel-2.0.md.
+Source: `vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.md`; `vendor/zscaler-help/best-practices-deploying-gre-tunnels.md`; `vendor/zscaler-help/using-custom-pac-file-forward-traffic-zia.md`; `vendor/zscaler-help/about-z-tunnel-1.0-z-tunnel-2.0.md`.
 
 ### GRE + Z-Tunnel 2.0 incompatibility
 
-Source: vendor/zscaler-help/about-z-tunnel-1.0-z-tunnel-2.0.md.
+Source: `vendor/zscaler-help/about-z-tunnel-1.0-z-tunnel-2.0.md`.
 
 Z-Tunnel 2.0 requires a NAT device that uses a **single IP for all connections from a single device**. When a site uses GRE tunnels with ECMP or multiple egress IPs, Z-Tunnel 2.0 control and data connections can land on different Service Edges — this causes Z-Tunnel 2.0 to fail and fall back to Z-Tunnel 1.0 silently. If an on-network user's ZCC is unexpectedly operating in Z-Tunnel 1.0 mode, check the NAT/ECMP configuration on the GRE egress path. Cross-listed in [`../zcc/z-tunnel.md`](../zcc/z-tunnel.md).
 

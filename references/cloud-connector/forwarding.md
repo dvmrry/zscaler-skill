@@ -174,8 +174,6 @@ Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`; `vendo
 
 ## Open questions
 
-Source: clarification `cc-02`.
-
 - **Local forwarding method full semantics** — doc doesn't explain where "local" traffic goes (to an intra-Cloud-Connector module? to the same VPC's egress?). Needs clarification.
 - **Rule limits** — how many traffic forwarding rules can a tenant define? Not captured.
 - **Rule-rank-like admin ordering** — does Cloud Connector have the "admin rank gates order values" pattern that ZIA URL Filter has? Unclear.

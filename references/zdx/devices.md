@@ -26,7 +26,7 @@ Per-device application listings and per-device app score trends are documented i
 
 ## Device inventory model
 
-Source: vendor/zscaler-sdk-python/zscaler/zdx/devices.py; vendor/zscaler-sdk-python/zscaler/zdx/models/devices.py; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zdx/devices.py`; `vendor/zscaler-sdk-python/zscaler/zdx/models/devices.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go`.
 
 The device inventory is a paginated list of device metadata. Pagination uses a cursor token (`next_offset`). When `next_offset` is returned, the caller must loop manually — neither SDK auto-handles multi-page traversal. When `next_offset` becomes null the list is complete. (`vendor/zscaler-sdk-python/zscaler/zdx/devices.py:69`, `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go:81`)
 
@@ -43,7 +43,7 @@ The device inventory is a paginated list of device metadata. Pagination uses a c
 
 ## Device metadata fields
 
-Source: vendor/zscaler-sdk-python/zscaler/zdx/models/devices.py; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zdx/models/devices.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go`.
 
 ### Hardware fields
 
@@ -116,7 +116,7 @@ Device `id` is typed `str` in Python and `int` in Go. Conversion is required whe
 
 ## API endpoints
 
-Source: vendor/zscaler-sdk-python/zscaler/zdx/devices.py; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_health_metrics.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_events.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_apps.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zdx/devices.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_health_metrics.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_events.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_apps.go`.
 
 Time range defaults to the last 2 hours when no range is specified. (`vendor/zscaler-sdk-python/zscaler/zdx/devices.py:48`, `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go:78`)
 
@@ -132,7 +132,7 @@ Per-device application endpoints (`/devices/{id}/apps`, `/devices/{id}/apps/{app
 
 ## Query filter parameters
 
-Source: vendor/zscaler-sdk-python/zscaler/zdx/devices.py; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/types.go; vendor/zscaler-sdk-go/zscaler/zdx/services/common/common.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zdx/devices.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/types.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/common/common.go`.
 
 Python uses a `query_params` dict. Go uses `GetDevicesFilters` (embedding `common.GetFromToFilters`) for `GetAllDevices` and `common.GetFromToFilters` for the metric/event endpoints. (`vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/types.go:5-21`, `vendor/zscaler-sdk-go/zscaler/zdx/services/common/common.go:16-31`)
 
@@ -153,7 +153,7 @@ Python uses a `query_params` dict. Go uses `GetDevicesFilters` (embedding `commo
 
 ## Device-level health metrics
 
-Source: vendor/zscaler-sdk-python/zscaler/zdx/devices.py; vendor/zscaler-sdk-python/zscaler/zdx/models/devices.py; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_health_metrics.go; vendor/zscaler-sdk-go/zscaler/zdx/services/common/common.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zdx/devices.py`; `vendor/zscaler-sdk-python/zscaler/zdx/models/devices.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_health_metrics.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/common/common.go`.
 
 The health-metrics endpoint returns time-series metric data grouped by category.
 
@@ -181,7 +181,7 @@ CPU, Memory, Disk I/O, Network I/O, Wi-Fi, Network Bandwidth
 
 ## Device events
 
-Source: vendor/zscaler-sdk-python/zscaler/zdx/devices.py; vendor/zscaler-sdk-python/zscaler/zdx/models/devices.py; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_events.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zdx/devices.py`; `vendor/zscaler-sdk-python/zscaler/zdx/models/devices.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_events.go`.
 
 The events endpoint returns timestamped buckets of events grouped by category.
 
@@ -215,7 +215,7 @@ This is a wire-key inconsistency: Python reads the response using key `"events"`
 
 ## Geolocation handling
 
-Source: vendor/zscaler-sdk-python/zscaler/zdx/devices.py; vendor/zscaler-sdk-python/zscaler/zdx/models/devices.py; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/types.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zdx/devices.py`; `vendor/zscaler-sdk-python/zscaler/zdx/models/devices.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/types.go`.
 
 ZDX geolocation is categorical, not coordinate-based. The device inventory and detail APIs do not return latitude/longitude. Geolocation is expressed as a hierarchy: country → region → city → custom. (`vendor/zscaler-sdk-python/zscaler/zdx/models/devices.py:854`)
 
@@ -244,7 +244,7 @@ Note: Go has a `GeoLocationFilter` type defined in `types.go` but no correspondi
 
 ## SDK divergences
 
-Source: vendor/zscaler-sdk-python/zscaler/zdx/devices.py; vendor/zscaler-sdk-python/zscaler/zdx/models/devices.py; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_events.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_apps.go; vendor/zscaler-sdk-go/zscaler/zdx/services/common/common.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zdx/devices.py`; `vendor/zscaler-sdk-python/zscaler/zdx/models/devices.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_events.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_apps.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/common/common.go`.
 
 | Aspect | Python | Go | Impact |
 |--------|--------|----|----|
@@ -262,7 +262,7 @@ Source: vendor/zscaler-sdk-python/zscaler/zdx/devices.py; vendor/zscaler-sdk-pyt
 
 ## Edge cases and gotchas
 
-Source: vendor/zscaler-sdk-python/zscaler/zdx/devices.py; vendor/zscaler-sdk-python/zscaler/zdx/models/devices.py; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_events.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_apps.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/types.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zdx/devices.py`; `vendor/zscaler-sdk-python/zscaler/zdx/models/devices.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_events.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_apps.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/types.go`.
 
 **Pagination is manual**: When `next_offset` is non-null, the caller must pass it back as `offset` in the next request. Neither SDK provides a built-in loop. (`vendor/zscaler-sdk-python/zscaler/zdx/devices.py:69`, `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go:81`)
 
@@ -286,7 +286,7 @@ Source: vendor/zscaler-sdk-python/zscaler/zdx/devices.py; vendor/zscaler-sdk-pyt
 
 ## Open questions
 
-Source: vendor/zscaler-sdk-python/zscaler/zdx/devices.py; vendor/zscaler-sdk-python/zscaler/zdx/models/devices.py; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_health_metrics.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_apps.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/types.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zdx/devices.py`; `vendor/zscaler-sdk-python/zscaler/zdx/models/devices.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_health_metrics.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_apps.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/types.go`.
 
 - **`get_device_app()` response shape discrepancy** — Python returns `DeviceAppScoreTrend` (timeseries) and Go returns `*App` (single score) from the same endpoint — it is unverified which shape matches the actual API wire response — *unverified, requires lab test or vendor API doc*
 - **Wi-Fi field availability in API response** — Go exposes `wifi_adapter`/`wifi_type`/`ssid`/`channel`/`bssid` in the `Network` struct but Python does not; it is unverified whether these fields are present in the API response for all device types or only wireless-capable devices — *unverified, requires vendor doc or tenant-side check*

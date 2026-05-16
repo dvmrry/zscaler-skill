@@ -18,7 +18,7 @@ author-status: draft
 
 # Zscaler Terraform providers (ZIA + ZPA)
 
-Source: vendor/terraform-provider-zia/docs/index.md; vendor/terraform-provider-zia/README.md; vendor/terraform-provider-zpa/docs/index.md; vendor/terraform-provider-zpa/README.md.
+Source: `vendor/terraform-provider-zia/docs/index.md`; `vendor/terraform-provider-zia/README.md`; `vendor/terraform-provider-zpa/docs/index.md`; `vendor/terraform-provider-zpa/README.md`.
 
 The two separate Zscaler providers — `zscaler/zia` and `zscaler/zpa` — mapped to the API endpoints covered in this skill. Derived from the vendored provider repositories (`vendor/terraform-provider-zia`, `vendor/terraform-provider-zpa`).
 
@@ -63,7 +63,7 @@ Environment variables (OneAPI mode):
 | `vanity_domain` | `ZSCALER_VANITY_DOMAIN` | Organization's ZIdentity domain |
 | `zscaler_cloud` | `ZSCALER_CLOUD` | Optional; for alternative environments (e.g. `beta`) |
 
-Source: vendor/terraform-provider-zia/docs/index.md; vendor/terraform-provider-zpa/docs/index.md.
+Source: `vendor/terraform-provider-zia/docs/index.md`; `vendor/terraform-provider-zpa/docs/index.md`.
 
 Per index.md: "Hard-coding credentials into any Terraform configuration is not recommended, and risks secret leakage should this file be committed to public version control."
 
@@ -77,7 +77,7 @@ Translation: **UI features visible in the Zscaler Admin Console may not be manag
 
 ## Resource map by policy area
 
-Source: vendor/terraform-provider-zia/docs/index.md; vendor/terraform-provider-zia/README.md; vendor/terraform-provider-zpa/docs/index.md; vendor/terraform-provider-zpa/README.md.
+Source: `vendor/terraform-provider-zia/docs/index.md`; `vendor/terraform-provider-zia/README.md`; `vendor/terraform-provider-zpa/docs/index.md`; `vendor/terraform-provider-zpa/README.md`.
 
 ### URL Categories & URL Filtering (ZIA)
 
@@ -165,7 +165,7 @@ Both providers expose data sources that mirror most of their resources — see `
 
 ## Things not managed via these providers
 
-Source: vendor/terraform-provider-zia/docs/index.md; vendor/terraform-provider-zia/README.md; vendor/terraform-provider-zpa/docs/index.md; vendor/terraform-provider-zpa/README.md.
+Source: `vendor/terraform-provider-zia/docs/index.md`; `vendor/terraform-provider-zia/README.md`; `vendor/terraform-provider-zpa/docs/index.md`; `vendor/terraform-provider-zpa/README.md`.
 
 From the feature-parity caveat above, plus direct observation:
 
@@ -180,7 +180,7 @@ From the feature-parity caveat above, plus direct observation:
 
 ## Schema patterns worth knowing
 
-Source: vendor/terraform-provider-zia/README.md; vendor/terraform-provider-zpa/README.md.
+Source: `vendor/terraform-provider-zia/README.md`; `vendor/terraform-provider-zpa/README.md`.
 
 The TF providers encode API-behavior constraints that help docs and even the Python SDK don't surface. These apply broadly across resources — worth knowing before asking "why did my plan show a diff?" or "why did Terraform destroy-recreate this?".
 
@@ -207,7 +207,7 @@ In many cases, the TF schema's `validation.StringInSlice([]string{...}, false)` 
 
 ### Programmatic constraints beyond schema
 
-Source: vendor/terraform-provider-zpa/README.md.
+Source: `vendor/terraform-provider-zpa/README.md`.
 
 Some mutual-exclusions live in resource `Create` / `Update` functions rather than in the schema — not visible from a schema dump:
 

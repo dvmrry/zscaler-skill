@@ -20,7 +20,7 @@ author-status: draft
 
 ## Source availability note
 
-Source: vendor/zscaler-help/configuring-ssl-inspection-zscaler-client-connector.md; vendor/zscaler-help/what-is-zscaler-client-connector.md; vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go.
+Source: `vendor/zscaler-help/configuring-ssl-inspection-zscaler-client-connector.md`; `vendor/zscaler-help/what-is-zscaler-client-connector.md`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`.
 
 The primary vendor source (`vendor/zscaler-help/configuring-ssl-inspection-zscaler-client-connector.md`) redirected to an unrelated NSS-servers page during capture (line 8 of the captured file confirms the redirect, with no article content). This document records what is known from adjacent vendor sources — primarily the SDK-level App Profile fields for certificate trust — and clearly marks gaps. **Confidence remains low** for the topic as a whole. Operators needing authoritative detail should consult the ZCC help portal directly at `help.zscaler.com/zscaler-client-connector/configuring-ssl-inspection-zscaler-client-connector`.
 
@@ -38,7 +38,7 @@ What it *cannot* answer (genuine gaps):
 
 ## ZCC SSL inspection vs ZIA SSL inspection
 
-Source: vendor/zscaler-help/what-is-zscaler-client-connector.md; vendor/zscaler-help/configuring-ssl-tls-inspection-policy.md; vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go.
+Source: `vendor/zscaler-help/what-is-zscaler-client-connector.md`; `vendor/zscaler-help/configuring-ssl-tls-inspection-policy.md`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`.
 
 There are two distinct SSL inspection configurations relevant to ZCC-deployed users:
 
@@ -61,7 +61,7 @@ These are configured in the App Profile (Web Policy) per platform, not in a sepa
 
 ## Certificate trust — what ZCC configures on the endpoint
 
-Source: vendor/zscaler-help/configuring-firefox-integration-zscaler-client-connector.md; vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go.
+Source: `vendor/zscaler-help/configuring-firefox-integration-zscaler-client-connector.md`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`.
 
 For ZIA SSL inspection to work transparently to end users, the Zscaler root CA certificate must be trusted by the operating system and/or individual applications. ZCC can install this certificate automatically as part of enrollment and App Profile configuration.
 
@@ -94,7 +94,7 @@ The actual SDK fields for ZCC certificate installation, sourced directly from th
 
 ## SSL inspection bypass at the ZCC agent level
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`.
 
 Certain applications (thick clients, mobile apps, applications using certificate pinning) may break when their TLS connections are intercepted by a cloud proxy. ZCC supports per-application and per-destination bypass at the agent level:
 
@@ -107,7 +107,7 @@ The distinction from ZIA SSL inspection policy: ZIA exclusions are evaluated at 
 
 ## Platform-specific behavior
 
-Source: vendor/zscaler-help/configuring-firefox-integration-zscaler-client-connector.md; vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go.
+Source: `vendor/zscaler-help/configuring-firefox-integration-zscaler-client-connector.md`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`.
 
 SSL inspection and certificate trust behavior varies by platform due to OS differences in certificate store architecture:
 
@@ -125,7 +125,7 @@ Certificate pinning in mobile and desktop applications bypasses OS trust stores 
 
 ## SDK and API surface
 
-Source: vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`.
 
 The ZCC Python SDK (`vendor/zscaler-sdk-python/zscaler/zcc/`) does not include a dedicated SSL inspection service module. SSL-related configuration for ZCC is surfaced through:
 
@@ -145,7 +145,7 @@ There is no ZCC Terraform provider in the vendor sources. SSL inspection configu
 
 ## Diagnosing "browser shows the original cert, not Zscaler's intermediate"
 
-Source: vendor/zscaler-help/configuring-firefox-integration-zscaler-client-connector.md; vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go.
+Source: `vendor/zscaler-help/configuring-firefox-integration-zscaler-client-connector.md`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`.
 
 The symptom is "the browser shows the destination's original certificate, not the Zscaler intermediate — SSL inspection isn't happening." Two well-documented root causes plus the cert-install case:
 
@@ -168,7 +168,7 @@ A third hypothesis — that QUIC / HTTP3 traffic bypasses ZIA proxy inspection i
 
 ## Relationship to ZIA SSL inspection
 
-Source: vendor/zscaler-help/what-is-zscaler-client-connector.md; vendor/zscaler-help/configuring-ssl-tls-inspection-policy.md; vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go.
+Source: `vendor/zscaler-help/what-is-zscaler-client-connector.md`; `vendor/zscaler-help/configuring-ssl-tls-inspection-policy.md`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`.
 
 The full ZIA SSL inspection reference — covering inspection policy rules, bypass categories, certificate management, and the SSL inspection pipeline — is at `references/zia/ssl-inspection.md`. For ZCC-deployed users, the effective SSL inspection behavior is jointly determined by:
 
@@ -182,7 +182,7 @@ All three must be aligned for SSL inspection to function without end-user disrup
 
 ## Open items
 
-Source: vendor/zscaler-help/configuring-ssl-inspection-zscaler-client-connector.md; vendor/zscaler-help/configuring-firefox-integration-zscaler-client-connector.md; vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go.
+Source: `vendor/zscaler-help/configuring-ssl-inspection-zscaler-client-connector.md`; `vendor/zscaler-help/configuring-firefox-integration-zscaler-client-connector.md`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`.
 
 The primary vendor source for ZCC-side SSL inspection configuration (`help.zscaler.com/zscaler-client-connector/configuring-ssl-inspection-zscaler-client-connector`) was unavailable at time of capture. The following remain unconfirmed and require direct portal or vendor documentation review (some originally-listed items have since been answered from SDK source — see notes):
 

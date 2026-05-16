@@ -23,7 +23,7 @@ API reference for the slice of ZPA this skill covers — application segments, s
 
 ## Authentication
 
-Source: `vendor/zscaler-sdk-python/README.md`
+Source: `vendor/zscaler-sdk-python/README.md`.
 
 Same two-framework model as ZIA — see [`../zia/api.md`](../zia/api.md#authentication-two-frameworks) for the full description. Summary:
 
@@ -34,7 +34,7 @@ ZPA-legacy auth uses a Client ID + Client Secret + customer ID issued in the ZPA
 
 ## API base structure
 
-Source: `vendor/terraform-provider-zpa/docs/resources/zpa_application_segment.md`; `vendor/zscaler-sdk-python/README.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_application_segment.md`; `vendor/zscaler-sdk-python/README.md`.
 
 The ZPA API uses a customer-scoped URL pattern: most endpoints live under `/mgmtconfig/v1/admin/customers/{customerId}/...`. Example from `vendor/terraform-provider-zpa/docs/resources/zpa_application_segment.md` API reference link: `https://help.zscaler.com/zpa/configuring-application-segments-using-api`.
 
@@ -42,7 +42,7 @@ The SDK abstracts this — you don't manually build customer-scoped URLs, but lo
 
 ## SDK response shape
 
-Source: `vendor/zscaler-sdk-python/README.md`
+Source: `vendor/zscaler-sdk-python/README.md`.
 
 Same pattern as ZIA per SDK README:
 
@@ -258,7 +258,7 @@ TF resources for LSS configuration (each maps to a specific log type):
 
 ## Go-SDK-only surfaces (cross-SDK audit 2026-04-24)
 
-Source: `vendor/zscaler-sdk-go/zscaler/zpa/services/`; `vendor/zscaler-sdk-python/zscaler/zpa/`
+Source: `vendor/zscaler-sdk-go/zscaler/zpa/services/`; `vendor/zscaler-sdk-python/zscaler/zpa/`.
 
 Cross-check against `vendor/zscaler-sdk-go/zscaler/zpa/services/` surfaced services the Python SDK at `vendor/zscaler-sdk-python/zscaler/zpa/` doesn't expose:
 
@@ -270,7 +270,7 @@ Python-only modules the Go SDK doesn't carry (some of these are Python's way of 
 
 ## Common SDK patterns
 
-Source: `vendor/zscaler-sdk-python/README.md`; `vendor/zscaler-sdk-python/zscaler/zpa/`
+Source: `vendor/zscaler-sdk-python/README.md`; `vendor/zscaler-sdk-python/zscaler/zpa/`.
 
 The most-used call patterns inline. For full method signatures see `vendor/zscaler-sdk-python/zscaler/zpa/`. For the procedural auth-selection decision tree, see [`../_meta/runbooks.md § Authentication selection`](../_meta/runbooks.md).
 
@@ -352,7 +352,7 @@ Cross-cutting hub for fields where `GET` and `POST`/`PUT` disagree on shape, val
 
 ## Pagination
 
-Source: `vendor/zscaler-sdk-python/README.md`
+Source: `vendor/zscaler-sdk-python/README.md`.
 
 Per SDK README: built-in `resp.has_next()` / `resp.next()`. Same idiom as ZIA.
 
@@ -360,7 +360,7 @@ For ZPA's POST-search endpoints (some list APIs use POST with `filterBy`/`pageBy
 
 ## JMESPath client-side filtering
 
-Source: `vendor/zscaler-sdk-python/README.md`
+Source: `vendor/zscaler-sdk-python/README.md`.
 
 Per SDK README, every `resp` supports `resp.search("<expression>")` for in-client JMESPath filtering/projection. Example:
 
@@ -385,7 +385,7 @@ Several ZPA resources accept a microtenant scope. Per `vendor/zscaler-sdk-python
 
 ## Scripts in this repo that use these endpoints
 
-Source: `scripts/snapshot-refresh.py`
+Source: `scripts/snapshot-refresh.py`.
 
 - **`scripts/snapshot-refresh.py [--zpa-only]`** — dumps ZPA `application_segment.list_segments`, `segment_groups.list_groups`, `server_groups.list_groups`, and `policies.list_rules` to `_data/snapshot/zpa/*.json`. Uses the same `ZscalerClient` authentication documented here; see `references/zia/api.md` for the full env-var list (shared between products under OneAPI). Handles SDK pagination via `resp.has_next()` / `resp.next()`.
 

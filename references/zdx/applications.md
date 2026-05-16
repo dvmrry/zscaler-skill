@@ -28,7 +28,7 @@ For score model details, calculation, datapoint field shapes (`ApplicationScoreT
 
 ## Application inventory model
 
-Source: vendor/zscaler-sdk-python/zscaler/zdx/apps.py; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zdx/apps.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go`.
 
 ZDX ships with predefined applications (Zoom, Box, Salesforce, ServiceNow, and Microsoft 365 components: Teams, SharePoint Online, OneDrive for Business, Outlook). These come with pre-configured Web and Cloud Path probes. Customers can add custom applications with their own probes. Custom apps require at least one Web probe to enable monitoring; network-type custom apps need at least one Cloud Path probe instead.
 
@@ -38,7 +38,7 @@ The SDK exposes only **read** (reporting/monitoring) endpoints. Application crea
 
 ## API endpoints
 
-Source: vendor/zscaler-sdk-python/zscaler/zdx/apps.py; vendor/zscaler-sdk-python/zscaler/zdx/devices.py; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_apps.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zdx/apps.py`; `vendor/zscaler-sdk-python/zscaler/zdx/devices.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_apps.go`.
 
 Score-trend and metric-trend endpoint semantics (defaults, datapoint shapes) are documented in [`./score.md`](./score.md). The table below covers all application endpoints.
 
@@ -62,7 +62,7 @@ Score-trend and metric-trend endpoint semantics (defaults, datapoint shapes) are
 
 ## Field tables
 
-Source: vendor/zscaler-sdk-python/zscaler/zdx/models/applications.py; vendor/zscaler-sdk-python/zscaler/zdx/models/application_users.py; vendor/zscaler-sdk-python/zscaler/zdx/models/devices.py; vendor/zscaler-sdk-python/zscaler/zdx/models/common.py; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_apps.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zdx/models/applications.py`; `vendor/zscaler-sdk-python/zscaler/zdx/models/application_users.py`; `vendor/zscaler-sdk-python/zscaler/zdx/models/devices.py`; `vendor/zscaler-sdk-python/zscaler/zdx/models/common.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_apps.go`.
 
 ### Application list fields — `ActiveApplications` (Python) / `Apps` (Go)
 
@@ -151,7 +151,7 @@ See [`./score.md`](./score.md) — field tables for `ApplicationScoreTrend` / `c
 
 ## Query filter parameters
 
-Source: vendor/zscaler-sdk-python/zscaler/zdx/apps.py; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go; vendor/zscaler-sdk-go/zscaler/zdx/services/common/common.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zdx/apps.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/common/common.go`.
 
 All application endpoints accept the same `GetFromToFilters` struct (Go) / `query_params` dict (Python). If no time range is specified the endpoints default to the last 2 hours. (`vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go:17`)
 
@@ -174,7 +174,7 @@ All application endpoints accept the same `GetFromToFilters` struct (Go) / `quer
 
 ## SDK divergences
 
-Source: vendor/zscaler-sdk-python/zscaler/zdx/apps.py; vendor/zscaler-sdk-python/zscaler/zdx/models/applications.py; vendor/zscaler-sdk-python/zscaler/zdx/models/common.py; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_apps.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zdx/apps.py`; `vendor/zscaler-sdk-python/zscaler/zdx/models/applications.py`; `vendor/zscaler-sdk-python/zscaler/zdx/models/common.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_apps.go`.
 
 1. **Response wrapping**: Python wraps responses in model classes (`ActiveApplications`, `ApplicationScore`, `ApplicationScoreTrend`, `ApplicationMetrics`) that inherit from `ZscalerObject`. Go returns typed structs directly (`[]Apps`, `*Apps`, `[]common.Metric`). (`vendor/zscaler-sdk-python/zscaler/zdx/models/applications.py:23,76`, `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go:43-50`)
 
@@ -192,7 +192,7 @@ Source: vendor/zscaler-sdk-python/zscaler/zdx/apps.py; vendor/zscaler-sdk-python
 
 ## Edge cases and gotchas
 
-Source: vendor/zscaler-sdk-python/zscaler/zdx/apps.py; vendor/zscaler-sdk-python/zscaler/zdx/models/applications.py; vendor/zscaler-sdk-python/zscaler/zdx/models/application_users.py; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zdx/apps.py`; `vendor/zscaler-sdk-python/zscaler/zdx/models/applications.py`; `vendor/zscaler-sdk-python/zscaler/zdx/models/application_users.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go`.
 
 **Only active applications are returned**: List endpoints return only applications with recent ZDX score data. An application that has had no active probes during the time window will not appear — this does not mean the application is deleted. (`vendor/zscaler-sdk-python/zscaler/zdx/apps.py:38-40`)
 
@@ -208,7 +208,7 @@ Source: vendor/zscaler-sdk-python/zscaler/zdx/apps.py; vendor/zscaler-sdk-python
 
 ## Open questions
 
-Source: vendor/zscaler-sdk-python/zscaler/zdx/apps.py; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zdx/apps.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go`.
 
 - **Metric names exhaustive list** — the Python docstring documents `pft`, `dns`, `availability` for Web Probes and the Go comment references additional Cloud Path segment metrics, but neither source provides an exhaustive enumerated list of all valid `metric_name` values — *unverified, requires vendor API doc or lab test*
 - **Tenant-level application inventory** — it is unverified whether the SDK can list applications that have no recent probe data (i.e., unconfigured or inactive apps) — *unverified, requires vendor doc or tenant-side check*

@@ -37,7 +37,7 @@ Out-of-band CASB for data at rest in sanctioned SaaS applications. Distinct from
 
 ## 1. Overview
 
-Source: `vendor/zscaler-help/about-saas-security-scan-configuration.md`; `vendor/zscaler-help/about-saas-security-report.md`; `vendor/zscaler-help/about-saas-security-insights-logs.md`
+Source: `vendor/zscaler-help/about-saas-security-scan-configuration.md`; `vendor/zscaler-help/about-saas-security-report.md`; `vendor/zscaler-help/about-saas-security-insights-logs.md`.
 
 ### What API CASB is
 
@@ -345,7 +345,7 @@ Note: `enabled=True/False` is translated to `state=ENABLED/DISABLED` automatical
 
 ## 4. SaaS Security Insights Log Schema
 
-Source: `vendor/zscaler-help/about-saas-security-insights-logs.md`; `vendor/zscaler-help/about-cloud-nss-feeds.md`
+Source: `vendor/zscaler-help/about-saas-security-insights-logs.md`; `vendor/zscaler-help/about-cloud-nss-feeds.md`.
 
 Insights logs live at **Analytics > SaaS Security Insights > Logs** in the ZIA console, stored for **180 days** in Nanolog servers. They can also be streamed to a SIEM via NSS (VM-based) or Cloud NSS (one feed per log type per Cloud NSS instance). The log type in NSS feed configuration is listed as **SaaS Security**.
 

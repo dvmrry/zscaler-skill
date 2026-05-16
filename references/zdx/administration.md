@@ -19,7 +19,7 @@ author-status: draft
 
 ## Naming warning — this is not admin-user management
 
-Source: vendor/zscaler-sdk-python/zscaler/zdx/admin.py; vendor/zscaler-sdk-go/zscaler/zdx/services/administration/administration.go; vendor/zscaler-api-specs/oneapi-postman-collection.json.
+Source: `vendor/zscaler-sdk-python/zscaler/zdx/admin.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/administration/administration.go`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
 The `AdminAPI` class (Python) and the `administration` package (Go) are named misleadingly. Despite the name, this surface has **nothing to do with admin users, permissions, or tenant configuration**. It exposes only two read-only endpoints that return department and location reference data used as filter dimensions for other ZDX endpoints (scores, metrics, devices).
 
@@ -29,7 +29,7 @@ The Python docstring at `admin.py:35` compounds the confusion — it reads "Retu
 
 ## What this surface is for
 
-Source: vendor/zscaler-sdk-python/zscaler/zdx/admin.py; vendor/zscaler-sdk-go/zscaler/zdx/services/administration/administration.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zdx/admin.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/administration/administration.go`.
 
 Department and location IDs returned by these endpoints are used as filter parameters (`dept`, `loc`) in score, metrics, device, and application queries. The two methods exist to let callers enumerate valid filter values before constructing parameterized queries for other ZDX endpoints.
 
@@ -37,7 +37,7 @@ See [`./applications.md`](./applications.md), [`./devices.md`](./devices.md), an
 
 ## API endpoints
 
-Source: vendor/zscaler-sdk-python/zscaler/zdx/admin.py; vendor/zscaler-sdk-go/zscaler/zdx/services/administration/administration.go; vendor/zscaler-api-specs/oneapi-postman-collection.json.
+Source: `vendor/zscaler-sdk-python/zscaler/zdx/admin.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/administration/administration.go`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
 Both endpoints are read-only. (`vendor/zscaler-api-specs/oneapi-postman-collection.json:127206–127251`)
 
@@ -48,7 +48,7 @@ Both endpoints are read-only. (`vendor/zscaler-api-specs/oneapi-postman-collecti
 
 ## Python methods
 
-Source: vendor/zscaler-sdk-python/zscaler/zdx/admin.py; vendor/zscaler-sdk-python/zscaler/zdx/models/administration.py.
+Source: `vendor/zscaler-sdk-python/zscaler/zdx/admin.py`; `vendor/zscaler-sdk-python/zscaler/zdx/models/administration.py`.
 
 ### `list_departments(query_params=None)`
 
@@ -74,7 +74,7 @@ Returns configured Zscaler locations. Same return shape as `list_departments()` 
 
 ## Go functions
 
-Source: vendor/zscaler-sdk-go/zscaler/zdx/services/administration/administration.go.
+Source: `vendor/zscaler-sdk-go/zscaler/zdx/services/administration/administration.go`.
 
 ### `GetDepartments`
 
@@ -94,7 +94,7 @@ GetLocations(ctx context.Context, service *zscaler.Service, filters GetLocations
 
 ## Field tables
 
-Source: vendor/zscaler-sdk-python/zscaler/zdx/models/administration.py; vendor/zscaler-sdk-python/zscaler/zdx/models/common.py; vendor/zscaler-sdk-go/zscaler/zdx/services/administration/administration.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zdx/models/administration.py`; `vendor/zscaler-sdk-python/zscaler/zdx/models/common.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/administration/administration.go`.
 
 ### Python — `Administration` model
 
@@ -150,7 +150,7 @@ Both endpoints return only `{id, name}` despite the generic model name.
 
 ## Richer models in common.py (not used by AdminAPI)
 
-Source: vendor/zscaler-sdk-python/zscaler/zdx/models/administration.py; vendor/zscaler-sdk-python/zscaler/zdx/models/common.py.
+Source: `vendor/zscaler-sdk-python/zscaler/zdx/models/administration.py`; `vendor/zscaler-sdk-python/zscaler/zdx/models/common.py`.
 
 Python defines two fuller representations in `models/common.py` used by other ZDX contexts (reports, device roll-ups). These are **not** returned by `AdminAPI` — they appear in richer response payloads from device and score endpoints.
 
@@ -163,7 +163,7 @@ Python defines two fuller representations in `models/common.py` used by other ZD
 
 ## SDK divergences
 
-Source: vendor/zscaler-sdk-python/zscaler/zdx/admin.py; vendor/zscaler-sdk-python/zscaler/zdx/models/administration.py; vendor/zscaler-sdk-go/zscaler/zdx/services/administration/administration.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zdx/admin.py`; `vendor/zscaler-sdk-python/zscaler/zdx/models/administration.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/administration/administration.go`.
 
 **Time filter semantics**: Python `since` is an integer number of hours to look back; Go `From`/`To` are Unix epoch seconds. Callers must convert before constructing Go filter values. (`vendor/zscaler-sdk-python/zscaler/zdx/admin.py:40–41`, `vendor/zscaler-sdk-go/zscaler/zdx/services/administration/administration.go:26–27`)
 
@@ -173,7 +173,7 @@ Source: vendor/zscaler-sdk-python/zscaler/zdx/admin.py; vendor/zscaler-sdk-pytho
 
 ## Edge cases and gotchas
 
-Source: vendor/zscaler-sdk-python/zscaler/zdx/admin.py; vendor/zscaler-sdk-python/zscaler/zdx/models/administration.py; vendor/zscaler-sdk-python/zscaler/zdx/models/common.py; vendor/zscaler-sdk-go/zscaler/zdx/services/administration/administration.go; vendor/zscaler-api-specs/oneapi-postman-collection.json.
+Source: `vendor/zscaler-sdk-python/zscaler/zdx/admin.py`; `vendor/zscaler-sdk-python/zscaler/zdx/models/administration.py`; `vendor/zscaler-sdk-python/zscaler/zdx/models/common.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/administration/administration.go`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
 **Misleading docstring**: `list_departments()` docstring says "Returns the list of Admin Users enrolled in the Client Connector Portal." This is incorrect — it returns departments. The docstring was not updated when the method was implemented. (`vendor/zscaler-sdk-python/zscaler/zdx/admin.py:35`)
 
@@ -185,7 +185,7 @@ Source: vendor/zscaler-sdk-python/zscaler/zdx/admin.py; vendor/zscaler-sdk-pytho
 
 ## Open questions
 
-Source: vendor/zscaler-sdk-python/zscaler/zdx/admin.py; vendor/zscaler-sdk-go/zscaler/zdx/services/administration/administration.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zdx/admin.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/administration/administration.go`.
 
 - **Time filter semantics for organizational lists** — it is unclear whether the `since`/`From`+`To` filters select "departments/locations that had active devices in this window" or have some other meaning for reference data that doesn't change over time — *unverified, requires vendor doc or tenant-side check*
 - **`Q` vs `Search` on `GetLocationsFilters`** — both fields appear to filter by name or ID; whether they differ in matching behavior (exact vs partial, case sensitivity) is not documented in the source — *unverified, requires vendor doc or lab test*

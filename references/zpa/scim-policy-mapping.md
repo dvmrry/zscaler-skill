@@ -37,7 +37,7 @@ For the general SCIM provisioning lifecycle (user/group create, update, delete, 
 
 ## Overview
 
-Source: `vendor/zscaler-help/about-scim-zpa.md`; `vendor/zscaler-sdk-python/zscaler/zpa/scim_groups.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/scimgroup/zpa_scim_group.go`
+Source: `vendor/zscaler-help/about-scim-zpa.md`; `vendor/zscaler-sdk-python/zscaler/zpa/scim_groups.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/scimgroup/zpa_scim_group.go`.
 
 SCIM groups in ZPA serve a different function than in most identity systems. In ZPA, a SCIM group is not a container that grants entitlements directly — it is a **read-only label** that ZPA mirrors from an IdP and makes available as a matching criterion in policy rules. The ZPA policy engine compares a user's current group memberships (as known to ZPA from SCIM sync) against the groups referenced in a rule's conditions, then allows or denies access accordingly.
 
@@ -128,7 +128,9 @@ The following policy families accept both `SCIM_GROUP` and `SCIM` operand types.
 
 ### Operator semantics
 
-Source: the Forwarding, Timeout, and Inspection v2 TF resource docs all show identical `SCIM_GROUP` and `SCIM` schema blocks with the same `lhs`/`rhs` entry-values semantics. The Isolation policy resource follows the same pattern in the codebase.
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_policy_forwarding_rule_v2.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_timeout_rule_v2.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_inspection_rule_v2.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_isolation_rule_v2.md`.
+
+The Forwarding, Timeout, and Inspection v2 TF resource docs all show identical `SCIM_GROUP` and `SCIM` schema blocks with the same `lhs`/`rhs` entry-values semantics. The Isolation policy resource follows the same pattern in the codebase.
 
 The condition structure is shared across all policy families:
 

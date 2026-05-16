@@ -24,7 +24,7 @@ A ZPA Posture Profile is a **read-only ZPA object** that represents a device-pos
 
 The help portal page for ZPA Posture Profiles returns 404 as of April 2026. Field-level detail in §3 is sourced from SDK code; treat as **confidence: medium**. Evaluation mechanics (§1–§2) are sourced from vendor help (`about-device-posture-profiles.md`, `configuring-device-posture-profiles.md`) — **confidence: high**.
 
-Source: vendor/zscaler-sdk-python/zscaler/zpa/posture_profiles.py; vendor/zscaler-sdk-python/zscaler/zpa/models/posture_profiles.py; vendor/zscaler-sdk-go/zscaler/zpa/services/postureprofile/zpa_posture_profile.go; vendor/zscaler-help/about-device-posture-profiles.md; vendor/zscaler-help/configuring-device-posture-profiles.md.
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/posture_profiles.py`; `vendor/zscaler-sdk-python/zscaler/zpa/models/posture_profiles.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/postureprofile/zpa_posture_profile.go`; `vendor/zscaler-help/about-device-posture-profiles.md`; `vendor/zscaler-help/configuring-device-posture-profiles.md`.
 
 ---
 
@@ -114,7 +114,7 @@ Linux has additional setup requirements for the Client Certificate posture check
 
 The `non_exportable_private_key_enabled` field on the ZPA Posture Profile object (`nonExportablePrivateKeyEnabled`) reflects this configuration.
 
-Source: vendor/zscaler-help/configuring-client-certificate-posture-check-linux.md; vendor/zscaler-sdk-python/zscaler/zpa/models/posture_profiles.py; vendor/zscaler-sdk-go/zscaler/zpa/services/postureprofile/zpa_posture_profile.go.
+Source: `vendor/zscaler-help/configuring-client-certificate-posture-check-linux.md`; `vendor/zscaler-sdk-python/zscaler/zpa/models/posture_profiles.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/postureprofile/zpa_posture_profile.go`.
 
 ---
 
@@ -143,7 +143,7 @@ Fields confirmed from both SDK implementations. All fields are **read-only** —
 
 **Python SDK serialization bug:** `models/posture_profiles.py:104` serializes `rootCert` with a trailing tab character (`"rootCert\t"`). Since profiles are read-only, calling `request_format()` is low-risk in practice, but the output will have a malformed key if used in a debugging context.
 
-Source: vendor/zscaler-sdk-python/zscaler/zpa/models/posture_profiles.py; vendor/zscaler-sdk-go/zscaler/zpa/services/postureprofile/zpa_posture_profile.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/models/posture_profiles.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/postureprofile/zpa_posture_profile.go`.
 
 ---
 
@@ -158,7 +158,7 @@ Source: vendor/zscaler-sdk-python/zscaler/zpa/models/posture_profiles.py; vendor
 
 No POST, PUT, or DELETE endpoints exist. Profiles are provisioned by Zscaler, not the operator.
 
-Source: vendor/zscaler-sdk-python/zscaler/zpa/posture_profiles.py; vendor/zscaler-sdk-go/zscaler/zpa/services/postureprofile/zpa_posture_profile.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/posture_profiles.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/postureprofile/zpa_posture_profile.go`.
 
 ---
 
@@ -203,7 +203,7 @@ conditions = [
 - Forwarding Policy (`CLIENT_FORWARDING_POLICY` / v2 forwarding rules)
 - Timeout Policy — use `rhs = "false"` to target non-compliant devices with shorter session timeouts
 
-Source: vendor/terraform-provider-zpa/zpa/data_source_zpa_posture_profile.go; vendor/terraform-provider-zpa/zpa/common.go; vendor/zscaler-sdk-python/zscaler/zpa/posture_profiles.py; vendor/zscaler-sdk-go/zscaler/zpa/services/postureprofile/zpa_posture_profile.go.
+Source: `vendor/terraform-provider-zpa/zpa/data_source_zpa_posture_profile.go`; `vendor/terraform-provider-zpa/zpa/common.go`; `vendor/zscaler-sdk-python/zscaler/zpa/posture_profiles.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/postureprofile/zpa_posture_profile.go`.
 
 ---
 
@@ -215,7 +215,7 @@ Source: vendor/terraform-provider-zpa/zpa/data_source_zpa_posture_profile.go; ve
 - Network-event triggers: Zscaler service restart, device reboot, network join, hibernation exit, domain join, Wi-Fi/Ethernet switch, Wi-Fi network change.
 - **Existing connections are not affected** by posture result changes — only new connections pick up the updated result. Bound posture staleness using ZPA Reauth Timeout.
 
-Source: vendor/zscaler-help/about-device-posture-profiles.md; vendor/zscaler-help/configuring-device-posture-profiles.md.
+Source: `vendor/zscaler-help/about-device-posture-profiles.md`; `vendor/zscaler-help/configuring-device-posture-profiles.md`.
 
 ---
 
@@ -257,7 +257,7 @@ A ZPA Posture Profile appears in the API only after the corresponding ZCC Device
 
 For the full posture type catalog, platform support matrix, machine tunnel integration, and ZIA consumption via Trust Levels, see [`../shared/device-posture.md`](../shared/device-posture.md).
 
-Source: vendor/zscaler-help/about-device-posture-profiles.md; vendor/zscaler-help/configuring-device-posture-profiles.md; vendor/zscaler-sdk-python/zscaler/zpa/posture_profiles.py; vendor/zscaler-sdk-go/zscaler/zpa/services/postureprofile/zpa_posture_profile.go.
+Source: `vendor/zscaler-help/about-device-posture-profiles.md`; `vendor/zscaler-help/configuring-device-posture-profiles.md`; `vendor/zscaler-sdk-python/zscaler/zpa/posture_profiles.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/postureprofile/zpa_posture_profile.go`.
 
 ---
 

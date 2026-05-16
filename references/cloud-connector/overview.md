@@ -196,8 +196,6 @@ Source: `vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md
 
 ## Open questions
 
-Source: clarification `cc-01`.
-
 - **Exact ZTG vs Cloud Connector group type semantics** — not documented in captured articles. Likely a naming evolution; lab-test or documentation search needed.
 - **Whether Cloud Connector's `/cchealth` probe port is configurable** — the help article implies "configured during deployment" but doesn't specify range.
 - **Fail-open + fail-close toggle location** — help article mentions "customers can change this configuration" but doesn't name the admin-portal path.

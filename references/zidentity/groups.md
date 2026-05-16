@@ -25,7 +25,7 @@ Base endpoint:
 
 ## Python SDK methods
 
-Source: vendor/zscaler-sdk-python/zscaler/zid/groups.py.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/groups.py`.
 
 Class `GroupsAPI` in `zscaler/zid/groups.py`. All methods return a 3-tuple `(result, response, error)`.
 
@@ -44,7 +44,7 @@ Class `GroupsAPI` in `zscaler/zid/groups.py`. All methods return a 3-tuple `(res
 
 ## Go SDK functions
 
-Source: vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go.
+Source: `vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go`.
 
 Package `groups` in `zscaler/zid/services/groups/groups.go`. All functions are package-level with `ctx context.Context, service *zscaler.Service` as first two parameters.
 
@@ -64,7 +64,7 @@ Package `groups` in `zscaler/zid/services/groups/groups.go`. All functions are p
 
 ## Postman collection endpoints
 
-Source: vendor/zscaler-api-specs/oneapi-postman-collection.json.
+Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
 Variable `{{ZIAMBase}}` resolves to the ZIdentity ZIAM base URL. (`vendor/zscaler-api-specs/oneapi-postman-collection.json`)
 
@@ -83,7 +83,7 @@ Variable `{{ZIAMBase}}` resolves to the ZIdentity ZIAM base URL. (`vendor/zscale
 
 ## Group model fields
 
-Source: vendor/zscaler-sdk-python/zscaler/zid/models/groups.py; vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go; vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/models/groups.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go`.
 
 Python model: `GroupRecord` in `zscaler/zid/models/groups.py`. Go struct: `Groups` in `zscaler/zid/services/groups/groups.go`.
 
@@ -132,7 +132,7 @@ When a group-members response includes user data, the following fields are also 
 
 ## Filter / query parameters
 
-Source: vendor/zscaler-sdk-python/zscaler/zid/groups.py; vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go; vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/groups.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go`.
 
 ### `list_groups` / `GetAll`
 
@@ -166,7 +166,7 @@ Accepts the same user-filter parameters as the users endpoint. (`groups.py:317`)
 
 ## CRUD notes
 
-Source: vendor/zscaler-sdk-python/zscaler/zid/groups.py; vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/groups.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go`.
 
 Full CRUD is supported. No activation step is required — changes take effect immediately.
 
@@ -178,7 +178,7 @@ Full CRUD is supported. No activation step is required — changes take effect i
 
 ## Membership management
 
-Source: vendor/zscaler-sdk-python/zscaler/zid/groups.py; vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/groups.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go`.
 
 Six distinct operations cover single-user and bulk-user membership changes:
 
@@ -200,7 +200,7 @@ Both SDKs transform a flat list of IDs into the `[{"id": "..."}]` array format r
 
 ## Static vs dynamic groups
 
-Source: vendor/zscaler-sdk-python/zscaler/zid/models/groups.py; vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go; vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups_test.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/models/groups.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go`.
 
 Groups carry two boolean flags that together determine dynamic vs static classification. (`models/groups.py:88-89`, `groups.go:26-27`)
 
@@ -215,7 +215,7 @@ The integration test in `groups_test.go` sets only `DynamicGroup: true` (not `Is
 
 ## Groups as policy principals
 
-Source: vendor/zscaler-sdk-python/zscaler/zid/models/groups.py; vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/models/groups.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go`.
 
 ZIdentity groups are referenced by ID in ZIA and ZPA policy rules.
 
@@ -227,7 +227,7 @@ ZIdentity groups are referenced by ID in ZIA and ZPA policy rules.
 
 ## SDK divergences
 
-Source: vendor/zscaler-sdk-python/zscaler/zid/groups.py; vendor/zscaler-sdk-python/zscaler/zid/models/groups.py; vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go; vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/groups.py`; `vendor/zscaler-sdk-python/zscaler/zid/models/groups.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go`.
 
 | Aspect | Python | Go | Impact |
 |---|---|---|---|
@@ -239,7 +239,7 @@ Source: vendor/zscaler-sdk-python/zscaler/zid/groups.py; vendor/zscaler-sdk-pyth
 
 ## Known bugs and edge cases
 
-Source: vendor/zscaler-sdk-python/zscaler/zid/groups.py; vendor/zscaler-sdk-python/zscaler/zid/models/groups.py; vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/groups.py`; `vendor/zscaler-sdk-python/zscaler/zid/models/groups.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go`.
 
 1. **Go `Update` `groupID int` vs struct `ID string`**: The `Update` function signature accepts `groupID int` and formats the URL with `%d`, while `Get`, `Delete`, `AddUserListToGroup`, and `ReplaceUserListInGroup` all accept `groupID string`. The struct's `ID` field is also `string`. This inconsistency means callers must convert types when passing the same group ID to `Update` vs other functions. (`groups.go:112` vs `groups.go:39`, `groups.go:123`)
 
@@ -253,7 +253,7 @@ Source: vendor/zscaler-sdk-python/zscaler/zid/groups.py; vendor/zscaler-sdk-pyth
 
 ## Gaps
 
-Source: vendor/zscaler-sdk-python/zscaler/zid/groups.py; vendor/zscaler-sdk-python/zscaler/zid/models/groups.py; vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go; vendor/zscaler-api-specs/oneapi-postman-collection.json.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/groups.py`; `vendor/zscaler-sdk-python/zscaler/zid/models/groups.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
 The following capabilities are absent from both SDKs:
 
@@ -269,7 +269,7 @@ The following capabilities are absent from both SDKs:
 
 ## Open questions
 
-Source: vendor/zscaler-sdk-python/zscaler/zid/groups.py; vendor/zscaler-sdk-python/zscaler/zid/models/groups.py; vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go; vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups_test.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/groups.py`; `vendor/zscaler-sdk-python/zscaler/zid/models/groups.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go`.
 
 - **Dual-flag semantics (`isDynamicGroup` vs `dynamicGroup`)** — what the server does when the two flags disagree is undocumented; the Go test only sets `DynamicGroup: true` — *unverified, requires API spec review or lab test*
 - **Dynamic group membership mutation server behavior** — whether `add_user_to_group` on a dynamic group is rejected server-side or silently succeeds is unknown — *unverified, requires lab test*

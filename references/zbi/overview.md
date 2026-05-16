@@ -25,7 +25,7 @@ What ZBI actually does: render a web page on a Zscaler-hosted browser instance, 
 
 ## Summary
 
-Source: vendor/zscaler-help/what-is-zero-trust-browser.md; vendor/zscaler-help/understanding-turbo-mode-isolation.md.
+Source: `vendor/zscaler-help/what-is-zero-trust-browser.md`; `vendor/zscaler-help/understanding-turbo-mode-isolation.md`.
 
 **The isolation container is ephemeral and cloud-resident.** Each user gets an endpoint container allocated at first isolation request; subsequent requests in the same session reuse it; the container is destroyed when the user logs out manually or after **10 minutes of idle time**.
 
@@ -40,7 +40,7 @@ Because the cloud browser's egress traffic hits a PSE too, **ZIA policies evalua
 
 ## Mechanics
 
-Source: vendor/zscaler-help/what-is-zero-trust-browser.md; vendor/zscaler-help/understanding-turbo-mode-isolation.md.
+Source: `vendor/zscaler-help/what-is-zero-trust-browser.md`; `vendor/zscaler-help/understanding-turbo-mode-isolation.md`.
 
 ### Components
 
@@ -138,7 +138,7 @@ ZBI doesn't have its own policy engine in the ZIA/ZPA sense. It composes with ex
 
 ## Use cases
 
-Source: vendor/zscaler-help/what-is-zero-trust-browser.md.
+Source: `vendor/zscaler-help/what-is-zero-trust-browser.md`.
 
 Common ZIA-triggered isolation patterns (URL Filter `Isolate` action):
 
@@ -151,7 +151,7 @@ Common ZIA-triggered isolation patterns (URL Filter `Isolate` action):
 
 ## What ZBI is not
 
-Source: vendor/zscaler-help/what-is-zero-trust-browser.md.
+Source: `vendor/zscaler-help/what-is-zero-trust-browser.md`.
 
 Boundary disclaimers that come up in scoping conversations:
 
@@ -161,13 +161,13 @@ Boundary disclaimers that come up in scoping conversations:
 
 ## API surface
 
-Source: vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py; vendor/zscaler-sdk-python/zscaler/zbi/custom_apps.py; vendor/zscaler-sdk-python/zscaler/zbi/report_configs.py; vendor/zscaler-sdk-python/zscaler/zbi/reports.py; vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/isolationprofile/isolationprofile.go.
+Source: `vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py`; `vendor/zscaler-sdk-python/zscaler/zbi/custom_apps.py`; `vendor/zscaler-sdk-python/zscaler/zbi/report_configs.py`; `vendor/zscaler-sdk-python/zscaler/zbi/reports.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/isolationprofile/isolationprofile.go`.
 
 **No dedicated ZBI / Zero Trust Browser REST API.** Configuration is primarily portal-managed via the Zscaler Admin Console — isolation profiles, regions, profile-level controls (clipboard / upload / download / print / read-only), Turbo Mode toggle. The ZIA API includes URL Filtering rule configuration that can reference an isolation profile (indirect access — you can wire the `Isolate` action and reference profile names via API, but the profile object itself is portal-configured). The Python SDK exposes `zscaler/zia/cloud_browser_isolation.py` (a thin surface) and the Go SDK has `zscaler/zpa/services/cloudbrowserisolation/*`; treat these as supplementary to portal config rather than a full management surface. **Caveat for users expecting a programmable surface:** if a question presupposes "configure isolation profiles via API" the honest answer is "portal."
 
 ## Light mentions (one-line each)
 
-Source: vendor/zscaler-help/what-is-zero-trust-browser.md; vendor/zscaler-help/understanding-turbo-mode-isolation.md.
+Source: `vendor/zscaler-help/what-is-zero-trust-browser.md`; `vendor/zscaler-help/understanding-turbo-mode-isolation.md`.
 
 Features captured in vendor docs but not deep-dived here. Skill should recognize the names and route to vendor docs / TAM for depth:
 
@@ -180,7 +180,7 @@ Features captured in vendor docs but not deep-dived here. Skill should recognize
 
 ## Edge cases
 
-Source: vendor/zscaler-help/what-is-zero-trust-browser.md; vendor/zscaler-help/understanding-turbo-mode-isolation.md.
+Source: `vendor/zscaler-help/what-is-zero-trust-browser.md`; `vendor/zscaler-help/understanding-turbo-mode-isolation.md`.
 
 - **URL Filter rule with `Isolate` action requires SSL Inspection for HTTPS** — to generate the 302 redirect at all. A site matching the rule but falling under an SSL bypass for that category silently won't be isolated.
 - **During ZPA maintenance windows, Isolation may be unavailable.** From the ZPA Isolation help article: "If ZPA is undergoing a maintenance period, Isolation might not be available." Operator-visible failure mode.
@@ -193,7 +193,7 @@ Source: vendor/zscaler-help/what-is-zero-trust-browser.md; vendor/zscaler-help/u
 
 ## Open questions
 
-Source: vendor/zscaler-help/what-is-zero-trust-browser.md; vendor/zscaler-help/understanding-turbo-mode-isolation.md.
+Source: `vendor/zscaler-help/what-is-zero-trust-browser.md`; `vendor/zscaler-help/understanding-turbo-mode-isolation.md`.
 
 - **Exact container-destroy latency** after the 10-minute idle threshold — is it 10:00 hard, or 10:00 + some grace? Not documented numerically.
 - **Container resource limits** (memory, CPU) — not surfaced in the customer-facing docs.
