@@ -26,6 +26,8 @@ author-status: draft
 
 How ZIA decides which URL filtering rule applies to a request, what wins when multiple rules match, and how URL filtering interacts with Cloud App Control.
 
+Source: vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt; vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/Recommended_URL_&_Cloud_App_Control_Policy.txt; vendor/zscaler-help/About_URL_Categories.txt; vendor/zscaler-help/Understanding_Policy_Enforcement.txt.
+
 ## Summary
 
 URL filtering rules are evaluated top-down in **ascending rule order (Rule 1 before Rule 2)** and stop at the **first match**. But "matching" involves two layers you need to hold in your head at once:
@@ -37,7 +39,11 @@ A rule with a wildcard category can sit at the top of the order and still silent
 
 Cloud App Control also gets in the way: by default, if CAC **allows** a cloud app, URL filtering does not evaluate for that transaction at all. See [Cloud App Control interaction](#cloud-app-control-interaction) below.
 
+Source: vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt; vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/Recommended_URL_&_Cloud_App_Control_Policy.txt; vendor/zscaler-help/About_URL_Categories.txt.
+
 ## Mechanics
+
+Source: vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/Understanding_Policy_Enforcement.txt; vendor/zscaler-help/About_URL_Categories.txt.
 
 ### URL filtering evaluates twice on inspected HTTPS traffic
 
@@ -82,6 +88,8 @@ Protocols (AND) User Agent (AND) [Device Groups (OR) Devices] (AND) Device Trust
 - **`userRiskScoreLevels`** (`zscaler/zia/models/url_filtering_rules.py:79-81`) — list of enum values for user-risk-score-based rule scoping. Distinct from the `userRiskProfile` reference; this field gates rule match by current risk-score level (e.g., `LOW`/`MEDIUM`/`HIGH`/`CRITICAL`). Will appear in snapshot JSON for tenants using risk-based policy.
 - **`workloadGroups`** — present in the model + `reformat_params` list (`url_filtering.py:43`); referenced by ID. Workload Groups are a separate ZIA primitive; rules can scope by them. No dedicated reference doc yet.
 
+Source: vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/Understanding_Policy_Enforcement.txt.
+
 ### Actions
 
 Five user-configurable actions, per *Configuring the URL Filtering Policy* pp.10–14:
@@ -98,6 +106,8 @@ Each action has caveats around SSL Inspection and EUN settings — see `ssl-insp
 
 **Extra SDK-visible action values** (`zscaler/zia/url_filtering.py:166`): the API also accepts `ICAP_RESPONSE` (hand off to ICAP for external processing — useful when describing tenant rules authored against third-party DLP/malware scanners) and the sentinels `ANY` / `NONE`. Operators rarely configure these directly through the console, but they'll appear in snapshot JSON or API responses.
 
+Source: vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt.
+
 ### Conditional field dependencies (Block action overrides)
 
 **`block_override` + `override_users` / `override_groups` are conditional.** Setting an override list is silently ignored unless **both**:
@@ -112,6 +122,8 @@ Each action has caveats around SSL Inspection and EUN settings — see `ssl-insp
 The SDK exposes **`regexPatterns`** and **`regexPatternsRetainingParentCategory`** on custom URL categories as writeable fields (`zscaler/zia/models/urlcategory.py:43-48`). Custom categories can match URLs via regex — not just URL strings, keywords, or IP ranges.
 
 The admin console walkthrough (*About URL Categories*) doesn't surface this path; the API and TF provider do. Worth flagging when a tenant's URL-category set includes suspicious-looking entries that don't match the documented URL/keyword/IP formats — they may be regex patterns, not broken strings.
+
+Source: vendor/zscaler-help/About_URL_Categories.txt.
 
 ## The specificity rule — the non-obvious precedence gotcha
 
@@ -138,6 +150,8 @@ When answering a precedence question, check both layers in order:
 
 A rule with a wildcard-matching category that "should" match may silently never fire because the URL resolved to a different category in step 1.
 
+Source: vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt; vendor/zscaler-help/About_URL_Categories.txt.
+
 ## Cloud App Control interaction
 
 By default, Cloud App Control is evaluated **before** URL filtering and, when CAC **allows** a request, URL filtering does not evaluate at all.
@@ -157,7 +171,11 @@ The toggle name — "Allow Cascading *to URL Filtering*" — is the literal swit
 
 "Allow Cascading to URL Filtering" lives under Advanced Web App Control Options. See [`./cloud-app-control.md`](./cloud-app-control.md) for full treatment.
 
+Source: vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/Recommended_URL_&_Cloud_App_Control_Policy.txt.
+
 ## Edge cases
+
+Source: vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt; vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt; vendor/zscaler-help/Configuring_Advanced_Policy_Settings.txt; vendor/zscaler-help/About_URL_Categories.txt; vendor/zscaler-help/Recommended_URL_&_Cloud_App_Control_Policy.txt.
 
 - **`MISCELLANEOUS_OR_UNKNOWN` URLs.** Uncategorized URLs fall into this bucket. Blocking it can break user experience on newly-encountered legitimate sites. AI/ML Content Categorization (Advanced Policy Settings) can auto-assign predefined categories based on site content; see the list in *Recommended URL & Cloud App Control Policy* pp.1–3.
 - **Newly Registered and Observed Domains (NROD).** Subset of `MISCELLANEOUS_OR_UNKNOWN`; populated by a separate lookup. **Can only be used in URL Filtering rules.** Requires "Enable Suspicious New Domains Lookup" in Advanced Policy Settings. Also covers Newly Revived Domains (sites dormant ~10 days then reactivated).
@@ -212,6 +230,8 @@ Now change Rule 20 to reference a custom category `Corp Exceptions` containing t
 2. Rule evaluation. Rule 10 doesn't match (URL is not in its category list). Rule 20 matches → Allow.
 
 Result: **moving the entry from wildcard to exact-match in a lower-priority rule's custom category changes which rule wins, without changing any rule order.** Non-obvious; worth explaining to operators.
+
+Source: vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt; vendor/zscaler-help/About_URL_Categories.txt; vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt.
 
 ## Open questions
 
