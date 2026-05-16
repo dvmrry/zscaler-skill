@@ -174,11 +174,11 @@ The ZIA ranges-and-limitations vendor doc records a limit of 15K–30K bytes for
 
 ### MDM-driven silent install does not bypass the AUP
 
+Source: `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md`, `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md`.
+
 Install-time parameters control enrollment behavior (strict enforcement, tunnel mode, user domain) but do not include any parameter to disable or pre-accept the AUP. The AUP frequency and message are tenant-wide settings stored in the ZCC Portal, not install-time flags. An MDM-deployed ZCC instance will still display the AUP according to the configured frequency once the user logs in (Tier A — vendor/zscaler-help/supported-parameters-zscaler-client-connector-windows.md; vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.md; vendor/zscaler-help/supported-parameters-zscaler-client-connector-ios.md; vendor/zscaler-help/parameters-guide-zscaler-client-connector-android-and-android-chromeos.md).
 
 There is no documented `skipAUP`, `aupFrequency`, or equivalent install parameter on any platform.
-
-Source: `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md`, `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md`.
 
 ### Machine Tunnel and AUP
 

@@ -136,11 +136,11 @@ Source: vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-cli
 
 ### Windows
 
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py` (`WindowsPolicy.flow_logger_config`).
+
 ZCC writes logs to a local directory under the Zscaler program data path (exact default path not confirmed from available sources). The `WindowsPolicy` sub-object on `WebPolicy` includes a `flow_logger_config` field (`flowLoggerConfig`), suggesting a separate Windows-specific flow-logging subsystem exists, though its relationship to the main ZCC operational log is not documented in available sources.
 
 ZCC on Windows does not natively write to the Windows Event Log for operational entries in standard deployments. Diagnostic bundles exported via the Report an Issue form contain the ZCC log files as well as supporting system artifacts.
-
-Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py` (`WindowsPolicy.flow_logger_config`).
 
 ### macOS
 
@@ -152,9 +152,9 @@ Linux is supported as a ZCC platform. The `LinuxPolicy` sub-object on `WebPolicy
 
 ### Android
 
-The `AndroidPolicy` sub-object on `WebPolicy` includes `enable_verbose_log` (`enableVerboseLog`). This field enables the Verbose log mode on Android, which corresponds to the Verbose log mode described in the log modes table above (Firebase/Mobile Manager triggered, ZCC 1.5+). This is the only per-platform log verbosity field visible in the model.
-
 Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py` (`AndroidPolicy.enable_verbose_log`).
+
+The `AndroidPolicy` sub-object on `WebPolicy` includes `enable_verbose_log` (`enableVerboseLog`). This field enables the Verbose log mode on Android, which corresponds to the Verbose log mode described in the log modes table above (Firebase/Mobile Manager triggered, ZCC 1.5+). This is the only per-platform log verbosity field visible in the model.
 
 ### iOS
 
@@ -208,13 +208,13 @@ The `WebPolicy` object (App Profile in the admin console) carries the primary lo
 | `log_mode` | `logMode` | Log mode (Error / Warn / Info / Debug). Drives what ZCC writes locally. Users can change within this mode if controls are visible. |
 | `log_file_size` | `logFileSize` | Maximum size of the local log file before rotation. Exact units and values not enumerated in SDK. |
 
-These fields apply at the App Profile level, meaning different user groups can receive different logging configurations by assigning them to different App Profiles. See [`./web-policy.md`](./web-policy.md) for App Profile structure.
-
 Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`.
 
-**App Supportability toggle** (hide logging controls) is configured via the ZCC Portal admin console at Administration > Client Connector Support > App Supportability tab. It is tenant-wide rather than per-profile. A single toggle covers all users in the tenant.
+These fields apply at the App Profile level, meaning different user groups can receive different logging configurations by assigning them to different App Profiles. See [`./web-policy.md`](./web-policy.md) for App Profile structure.
 
 Source: `vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md`.
+
+**App Supportability toggle** (hide logging controls) is configured via the ZCC Portal admin console at Administration > Client Connector Support > App Supportability tab. It is tenant-wide rather than per-profile. A single toggle covers all users in the tenant.
 
 ### SDK access
 

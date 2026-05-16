@@ -60,9 +60,9 @@ ZCC Web Policy can bypass ZIA entirely (via Forwarding Profile action `NONE` on 
 
 ## WebPolicy SDK fields — top-level structure
 
-From `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py` (Tier B — SDK/TF):
-
 Source: vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py; vendor/zscaler-sdk-python/zscaler/zcc/web_policy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go.
+
+From `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py` (Tier B — SDK/TF):
 
 ### Scope and evaluation
 
