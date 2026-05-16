@@ -185,7 +185,9 @@ ZWA has its own RBAC surface, with four named role types:
 | **Integration users** | System accounts for ticketing-system integration (ServiceNow / Jira). Used by the `Auto Create Tickets` workflow template. |
 | **User roles** | Regular end-users who *receive* notifications and can respond / justify their action that triggered the DLP incident. |
 
-**Important caveat — RBAC inheritance.** Per `vendor/zscaler-help/what-workflow-automation.md`, ZWA RBAC is **managed within ZWA, not inherited from ZIA admin roles** — i.e., a ZIA admin doesn't automatically get ZWA permissions. *(Source: workflow-automation/overview.md as merged 2026-05-04; not independently confirmed against current ZWA admin help docs — verify before relying for tenant-config decisions.)*
+Source: vendor/zscaler-help/what-workflow-automation.md.
+
+**Important caveat — RBAC inheritance.** ZWA RBAC is **managed within ZWA, not inherited from ZIA admin roles** — i.e., a ZIA admin doesn't automatically get ZWA permissions. This was merged from `workflow-automation/overview.md` on 2026-05-04 and has not been independently confirmed against current ZWA admin help docs; verify before relying on it for tenant-configuration decisions.
 
 ## Dependencies — what ZWA needs upstream
 

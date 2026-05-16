@@ -212,7 +212,9 @@ No streaming destination mechanism (equivalent to ZIA NSS or ZPA LSS) is documen
 
 ## Open questions
 
-1. **Resolved 2026-04-26.** Python model field gap confirmed. Source: `vendor/zscaler-sdk-python/zscaler/zwa/models/audit_logs.py` — the `Logs` model class only has `action`, `module`, and `resource`. The Go `AuditLog` struct (`vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go`) also has `changedAt`, `changedBy`, `oldRowJson`, `newRowJson`, and `changeNote`. The Python model is incomplete relative to the Go struct. Whether the Python API response genuinely omits these fields or the model just fails to map them cannot be confirmed without a live API test.
+Source: vendor/zscaler-sdk-python/zscaler/zwa/models/audit_logs.py; vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go.
+
+1. **Resolved 2026-04-26.** Python model field gap confirmed. The `Logs` model class only has `action`, `module`, and `resource`. The Go `AuditLog` struct also has `changedAt`, `changedBy`, `oldRowJson`, `newRowJson`, and `changeNote`. The Python model is incomplete relative to the Go struct. Whether the Python API response genuinely omits these fields or the model just fails to map them cannot be confirmed without a live API test.
 
 2. **Supported `Action` values** — the full set of valid action strings (e.g., `CREATE`, `UPDATE`, `DELETE`, `LOGIN`) for the `Action` field filter is not documented in available sources.
 

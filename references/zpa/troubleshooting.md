@@ -354,7 +354,7 @@ Client applications that pin their server's TLS certificate reject the ZPA Servi
 
 ## 6. Read-side API and SDK calls for automated triage
 
-Source: `vendor/zscaler-sdk-python/zscaler/zpa/`; `vendor/zscaler-sdk-go/zscaler/zpa/services/`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`; `vendor/zscaler-help/Understanding_User_Status_Log_Fields.txt`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`.
+Source: vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py; vendor/zscaler-sdk-python/zscaler/zpa/app_connectors.py; vendor/zscaler-sdk-python/zscaler/zpa/app_connector_groups.py; vendor/zscaler-sdk-python/zscaler/zpa/posture_profiles.py; vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go; vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorcontroller/zpa_app_connector_controller.go; vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go; vendor/zscaler-sdk-go/zscaler/zpa/services/postureprofile/zpa_posture_profile.go; vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt; vendor/zscaler-help/Understanding_User_Status_Log_Fields.txt; vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt.
 
 The following calls support read-only triage automation. None of them modify ZPA configuration.
 

@@ -132,6 +132,8 @@ Source: `vendor/zscaler-help/about-rule-labels.md`, `vendor/zscaler-sdk-python/z
 
 ### 3.2 Request/Response Shape
 
+Source: vendor/zscaler-sdk-python/zscaler/zia/rule_labels.py; vendor/zscaler-sdk-python/zscaler/zia/models/rule_labels.py.
+
 The label object has a minimal schema:
 
 | Field | Type | Writeable | Notes |
@@ -148,8 +150,6 @@ The label object has a minimal schema:
 
 The `list_labels` endpoint supports `page`, `page_size`, and `search` query parameters.
 (Tier B — vendor/zscaler-sdk-python/zscaler/zia/rule_labels.py)
-
-Source: `vendor/zscaler-sdk-python/zscaler/zia/rule_labels.py`, `vendor/zscaler-sdk-python/zscaler/zia/models/rule_labels.py`.
 
 ### 3.3 Python SDK
 
@@ -230,7 +230,7 @@ reference to it. The dependent rule must have its `labels` block cleared (and ac
 applied) before the label itself can be removed. (Tier A —
 vendor/zscaler-help/about-rule-labels.md)
 
-Source: `vendor/zscaler-help/about-rule-labels.md`, `vendor/terraform-provider-zia/docs/resources/zia_rule_labels.md`.
+Source: vendor/zscaler-help/about-rule-labels.md; vendor/terraform-provider-zia/docs/resources/zia_rule_labels.md.
 
 **Activation.** ZIA requires explicit configuration activation after rule or resource
 changes. When managing rule labels alongside rules via Terraform, include
@@ -243,6 +243,8 @@ activation after apply. (Tier B — references/zia/terraform.md)
 
 ### 4.1 Visual grouping in the admin console
 
+Source: vendor/zscaler-help/about-rule-labels.md.
+
 The primary intended use case is visual organization: an admin assigns the same label to a
 cohesive set of rules (for example, all rules belonging to a particular department,
 regulatory scope, or location profile). The ZIA policy page collapses rules under their
@@ -253,8 +255,6 @@ The admin console Rule Labels page shows each label's **Name**, **Number of Poli
 Rules Tagged**, **Last Modified By**, **Last Modified On**, and **Description**.
 Administrators can sort on any of these columns. From this page labels can be added,
 searched, edited, duplicated, or deleted. (Tier A — vendor/zscaler-help/about-rule-labels.md)
-
-Source: `vendor/zscaler-help/about-rule-labels.md`.
 
 ### 4.2 Label-based API filtering
 
