@@ -16,9 +16,13 @@ author-status: draft
 
 # FTP Control, File Type Control, and SSH handling
 
+Source: `vendor/zscaler-help/about-ftp-control.md`; `vendor/zscaler-help/about-file-type-control.md`; `vendor/zscaler-help/about-ips-control.md`; `vendor/zscaler-help/configuring-firewall-policies.md`.
+
 Three narrow ZIA inspection surfaces that sit adjacent to the big policy modules (URL Filter, CAC, DLP, SSL Inspection, Sandbox, Malware/ATP, Firewall) but have their own rules, constraints, and evaluation quirks. This doc covers all three together because each is narrow enough on its own not to warrant a full reference doc, and they share enough pipeline context that reasoning about them in one place is cleaner.
 
 ## FTP Control
+
+Source: `vendor/zscaler-help/about-ftp-control.md`.
 
 FTP is ZIA's legacy protocol handler for file-transfer traffic. Two reasons it has its own control plane:
 
@@ -54,6 +58,8 @@ Firewall module — **Policies > Firewall > FTP Control**. Evaluates before the 
 3. **URL Filter precedence can mask FTP Control intent.** If a URL Filtering rule allows access to an FTP site but FTP Control is configured to block certain files, the URL Filter allow fires first at the URL level; FTP Control's file-type check runs downstream. Order rules accordingly.
 
 ## File Type Control
+
+Source: `vendor/zscaler-help/about-file-type-control.md`.
 
 File Type Control gates file upload/download by file shape — extension, MIME type, archive-content, active-content — before or alongside DLP content inspection. The module defaults to **allow all file types**; enforcement is opt-in via policy rules.
 
@@ -102,6 +108,8 @@ Web module — **Policies > File Type Control**. Evaluates as part of the post-S
 
 ## SSH handling
 
+Source: `vendor/zscaler-help/about-ips-control.md`; `vendor/zscaler-help/configuring-firewall-policies.md`.
+
 **SSH has no dedicated content-inspection surface in ZIA.** The help-doc search turned up no "About SSH Inspection" article, and the module structure (Firewall + Web) has no SSH-specific placeholder.
 
 ### What Zscaler does for SSH
@@ -126,6 +134,8 @@ PRA is effectively the skill's recommended pattern for any "we need oversight of
 
 ## Cross-module interaction summary
 
+Source: `vendor/zscaler-help/about-ftp-control.md`; `vendor/zscaler-help/about-file-type-control.md`; `vendor/zscaler-help/about-ips-control.md`; `vendor/zscaler-help/configuring-firewall-policies.md`.
+
 | | FTP Control | File Type Control | SSH (Firewall) |
 |---|---|---|---|
 | Module | Firewall | Web | Firewall |
@@ -136,6 +146,8 @@ PRA is effectively the skill's recommended pattern for any "we need oversight of
 | API in ZIA SDK | Yes — `client.zia.ftp_control.*` | Yes — `client.zia.file_type_control.*` | Firewall only — `client.zia.firewall.*` |
 
 ## Surprises worth flagging
+
+Source: `vendor/zscaler-help/about-ftp-control.md`; `vendor/zscaler-help/about-file-type-control.md`; `vendor/zscaler-help/configuring-firewall-policies.md`.
 
 1. **FTP over HTTP is default-deny; native FTP is default-allow.** Counterintuitive. Zscaler's reasoning: native FTP is simpler to inspect, but the default allow predates ZCC/PAC coverage. FTP-over-HTTP is the modern forwarding path and needs an explicit FTP Control policy.
 

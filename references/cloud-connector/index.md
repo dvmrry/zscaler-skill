@@ -5,15 +5,24 @@ title: "Cloud & Branch Connector reference hub"
 content-type: reference
 last-verified: "2026-04-24"
 confidence: high
-sources: []
+source-tier: mixed
+sources:
+  - "vendor/zscaler-help/what-zscaler-cloud-connector.md"
+  - "vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.md"
+  - "vendor/zscaler-sdk-go/zscaler/ztw/services/"
+  - "vendor/terraform-provider-ztc/ztc/"
 author-status: draft
 ---
 
 # Zscaler Cloud & Branch Connector reference hub
 
+Source: `vendor/zscaler-help/what-zscaler-cloud-connector.md`; `vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.md`; `vendor/zscaler-sdk-go/zscaler/ztw/services/`; `vendor/terraform-provider-ztc/ztc/`.
+
 Entry point for the Cloud Connector / Branch Connector / Zero Trust Gateway product family — Zscaler's VM-based traffic forwarder for **cloud workloads** (AWS/Azure/GCP) and **branch offices**. Extends ZIA and ZPA to workloads that aren't end-user devices (no ZCC installed).
 
 ## Naming — one product, several names
+
+Source: `vendor/zscaler-help/what-zscaler-cloud-connector.md`; `vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.md`; `vendor/zscaler-sdk-go/zscaler/ztw/services/`; `vendor/terraform-provider-ztc/ztc/`.
 
 | Name | Context |
 |---|---|
@@ -30,6 +39,8 @@ All refer to the same product suite. Operators will use whichever term comes up 
 
 ## What this product is for
 
+Source: `vendor/zscaler-help/what-zscaler-cloud-connector.md`.
+
 Cloud Connector extends ZIA and ZPA to **workloads** (servers, cloud-native applications) that can't run ZCC. From *What Is Zscaler Cloud Connector?*:
 
 > Internet & SaaS is used when a private workload is communicating to a public workload through the ZTE. Private Access is used when two private workloads are communicating with each other through the ZTE.
@@ -42,6 +53,8 @@ Two primary use cases:
 Branch Connector is the same idea for physical branch locations — an on-prem virtual-device that forwards branch traffic without deploying ZCC on every endpoint.
 
 ## Topics
+
+Source: `vendor/zscaler-help/what-zscaler-cloud-connector.md`; `vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.md`; `vendor/zscaler-sdk-go/zscaler/ztw/services/`; `vendor/terraform-provider-ztc/ztc/`.
 
 | Topic | File | Status |
 |---|---|---|
@@ -62,6 +75,8 @@ Branch Connector is the same idea for physical branch locations — an on-prem v
 
 ## Scope
 
+Source: `vendor/zscaler-help/what-zscaler-cloud-connector.md`; `vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.md`; `vendor/zscaler-sdk-go/zscaler/ztw/services/`; `vendor/terraform-provider-ztc/ztc/`.
+
 In scope:
 
 - Cloud Connector VM deployment model + Cloud Connector Groups
@@ -81,6 +96,8 @@ Not in scope (explicitly deferred):
 - **Zscaler Zero Trust SD-WAN** — now covered at [`./zero-trust-sdwan.md`](./zero-trust-sdwan.md). Covers positioning vs traditional SD-WAN, Cloud/Branch Connector roles, capabilities and limits, vendor comparison by axis, and operational gotchas.
 
 ## When the question spans Cloud Connector + another product
+
+Source: `vendor/zscaler-help/what-zscaler-cloud-connector.md`; `vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.md`.
 
 - **"Why can't my AWS server reach Slack?"** — Cloud Connector forwards to ZIA; the issue could be in Cloud Connector's traffic-forwarding rules (matching direct instead of ZIA?) or in ZIA URL Filtering / SSL Inspection after the forward. Start at [`./forwarding.md`](./forwarding.md).
 - **"Workload-to-workload access to our on-prem app is failing"** — Cloud Connector → ZPA → App Connector chain. Check Cloud Connector's ZPA enrollment first, then ZPA Application Segment + Access Policy. See [`./overview.md § Private Apps (Private Access)`](./overview.md) and cross to [`../zpa/app-segments.md`](../zpa/app-segments.md).
