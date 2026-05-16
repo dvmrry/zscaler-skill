@@ -7,8 +7,10 @@ last-verified: "2026-04-26"
 confidence: medium
 source-tier: code
 sources:
-  - "vendor/zscaler-sdk-python/zscaler/zdx/"
-  - "vendor/zscaler-sdk-go/zscaler/zdx/services/"
+  - "vendor/zscaler-sdk-python/zscaler/zdx/zdx_service.py"
+  - "vendor/zscaler-sdk-python/zscaler/zdx/legacy.py"
+  - "vendor/zscaler-sdk-go/zscaler/zdx/services/common/common.go"
+  - "vendor/zscaler-sdk-go/zscaler/zdx/services/service.go"
 author-status: draft
 ---
 
@@ -16,11 +18,11 @@ author-status: draft
 
 ## Overview
 
+Source: vendor/zscaler-sdk-python/zscaler/zdx/zdx_service.py; vendor/zscaler-sdk-python/zscaler/zdx/legacy.py; vendor/zscaler-sdk-go/zscaler/zdx/services/common/common.go; vendor/zscaler-sdk-go/zscaler/zdx/services/service.go.
+
 The ZDX SDK wraps the Zscaler Digital Experience API (`/zdx/v1`). ZDX is primarily a **read-only** API surface: application metrics, device health, alert history, and troubleshooting session management. The platform does not expose configuration write operations (probe definitions, alert rules, application configuration) via API — those are console-driven.
 
 The troubleshooting service is the exception: deep trace sessions and score analysis jobs can be started and deleted via the SDK.
-
-Source: `vendor/zscaler-sdk-python/zscaler/zdx/`, `vendor/zscaler-sdk-go/zscaler/zdx/services/`.
 
 ### Client construction — Python
 
@@ -64,7 +66,7 @@ ZDX Go services use `service.Client.NewRequestDo` (same interface as ZPA). Pagin
 
 The Go common package (`vendor/zscaler-sdk-go/zscaler/zdx/services/common/common.go`) defines `GetFromToFilters` (from/to epoch, loc, dept, geo, offset, limit, metric_name) and `Metric` / `DataPoint` types used across all metric-returning endpoints.
 
-Source: `vendor/zscaler-sdk-python/zscaler/zdx/`, `vendor/zscaler-sdk-go/zscaler/zdx/services/`.
+Source: vendor/zscaler-sdk-python/zscaler/zdx/zdx_service.py; vendor/zscaler-sdk-python/zscaler/zdx/legacy.py; vendor/zscaler-sdk-python/zscaler/zdx/models/common.py; vendor/zscaler-sdk-go/zscaler/zdx/services/common/common.go.
 
 ---
 
@@ -89,7 +91,7 @@ Read-only access to ZDX administrative configuration data: departments and locat
 
 **Go parity:** ✅ `administration.GetDepartments`, `administration.GetLocations`.
 
-Source: `vendor/zscaler-sdk-python/zscaler/zdx/`, `vendor/zscaler-sdk-go/zscaler/zdx/services/`.
+Source: vendor/zscaler-sdk-python/zscaler/zdx/admin.py; vendor/zscaler-sdk-python/zscaler/zdx/models/administration.py; vendor/zscaler-sdk-go/zscaler/zdx/services/administration/administration.go.
 
 ---
 
@@ -116,7 +118,7 @@ Retrieves ongoing and historical alert rules, alert detail, and lists of devices
 
 **Go parity:** ✅ `alerts.GetOngoingAlerts`, `alerts.GetHistoricalAlerts`, `alerts.GetAlert`, `alerts.GetAffectedDevices`.
 
-Source: `vendor/zscaler-sdk-python/zscaler/zdx/`, `vendor/zscaler-sdk-go/zscaler/zdx/services/`.
+Source: vendor/zscaler-sdk-python/zscaler/zdx/alerts.py; vendor/zscaler-sdk-python/zscaler/zdx/models/alerts.py; vendor/zscaler-sdk-go/zscaler/zdx/services/alerts/alerts.go.
 
 ---
 
@@ -145,7 +147,7 @@ Application-centric metrics: ZDX Score, score trends, aggregate metrics, and per
 
 **Go parity:** ✅ `applications.GetAllApps`, `applications.GetApp`. Score metrics are in `application_score_metrics` package.
 
-Source: `vendor/zscaler-sdk-python/zscaler/zdx/`, `vendor/zscaler-sdk-go/zscaler/zdx/services/`.
+Source: vendor/zscaler-sdk-python/zscaler/zdx/apps.py; vendor/zscaler-sdk-python/zscaler/zdx/models/applications.py; vendor/zscaler-sdk-python/zscaler/zdx/models/application_users.py; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go.
 
 ---
 
@@ -183,7 +185,7 @@ The largest service surface in ZDX. Covers per-device summary, application score
 
 **Go parity:** ✅ All methods have Go equivalents split across multiple files in `reports/devices/`: `devices.go`, `device_apps.go`, `device_web_probes.go`, `device_cloudpath_probes.go`, `device_quality_metrics.go`, `device_health_metrics.go`, `device_events.go`, `geo_locations.go`.
 
-Source: `vendor/zscaler-sdk-python/zscaler/zdx/`, `vendor/zscaler-sdk-go/zscaler/zdx/services/`.
+Source: vendor/zscaler-sdk-python/zscaler/zdx/devices.py; vendor/zscaler-sdk-python/zscaler/zdx/models/devices.py; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_apps.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_web_probes.go; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_cloudpath_probes.go.
 
 ---
 
@@ -207,7 +209,7 @@ Software inventory collection — which software versions are present across the
 
 **Go parity:** ✅ `inventory.GetAllSoftware`, `inventory.GetSoftwareKey`.
 
-Source: `vendor/zscaler-sdk-python/zscaler/zdx/`, `vendor/zscaler-sdk-go/zscaler/zdx/services/`.
+Source: vendor/zscaler-sdk-python/zscaler/zdx/inventory.py; vendor/zscaler-sdk-python/zscaler/zdx/models/software_inventory.py; vendor/zscaler-sdk-go/zscaler/zdx/services/inventory/inventory.go.
 
 ---
 
@@ -250,7 +252,7 @@ The only ZDX service with write operations. Manages deep trace sessions (packet 
 
 **Go parity:** ✅ `deeptrace.GetDeepTraces`, `deeptrace.StartDeepTrace`, `deeptrace.DeleteDeepTrace`, and sub-metric retrievers. Analysis in `analysis.StartAnalysis`.
 
-Source: `vendor/zscaler-sdk-python/zscaler/zdx/`, `vendor/zscaler-sdk-go/zscaler/zdx/services/`.
+Source: vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py; vendor/zscaler-sdk-python/zscaler/zdx/models/troubleshooting.py; vendor/zscaler-sdk-go/zscaler/zdx/services/troubleshooting/deeptrace/deeptrace.go; vendor/zscaler-sdk-go/zscaler/zdx/services/troubleshooting/analysis/analysis.go.
 
 ---
 
@@ -273,7 +275,7 @@ User-level ZDX queries. Returns active users and per-user device details.
 
 **Go parity:** ✅ `users.GetAllUsers`, `users.GetUser`.
 
-Source: `vendor/zscaler-sdk-python/zscaler/zdx/`, `vendor/zscaler-sdk-go/zscaler/zdx/services/`.
+Source: vendor/zscaler-sdk-python/zscaler/zdx/users.py; vendor/zscaler-sdk-python/zscaler/zdx/models/users.py; vendor/zscaler-sdk-go/zscaler/zdx/services/reports/users/users.go.
 
 ---
 
@@ -296,7 +298,7 @@ Generates a shareable, optionally obfuscated snapshot of ZDX alert data.
 
 **Go parity:** ❌ No equivalent found in `vendor/zscaler-sdk-go/zscaler/zdx/services/`.
 
-Source: `vendor/zscaler-sdk-python/zscaler/zdx/`, `vendor/zscaler-sdk-go/zscaler/zdx/services/`.
+Source: vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py; vendor/zscaler-sdk-python/zscaler/zdx/models/snapshot.py; vendor/zscaler-sdk-go/zscaler/zdx/services/service.go.
 
 ---
 
@@ -323,7 +325,7 @@ All metric endpoints default to the last 2 hours when no time range is specified
 
 The ZDX Score is a 0–100 composite quality indicator. It is the primary metric exposed by `apps.get_app`, `apps.get_app_score`, `devices.get_device_app`, and related endpoints. Score bucket filtering (`poor`, `okay`, `good`) is available on `apps.list_app_users`.
 
-Source: `vendor/zscaler-sdk-python/zscaler/zdx/`, `vendor/zscaler-sdk-go/zscaler/zdx/services/`.
+Source: vendor/zscaler-sdk-python/zscaler/zdx/apps.py; vendor/zscaler-sdk-python/zscaler/zdx/devices.py; vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py; vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py; vendor/zscaler-sdk-go/zscaler/zdx/services/common/common.go.
 
 ---
 
