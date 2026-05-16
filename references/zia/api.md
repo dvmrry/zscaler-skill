@@ -456,7 +456,7 @@ For troubleshooting these patterns when something goes wrong, see [`../_meta/run
 
 ## Read/write shape asymmetries
 
-Source: topical references linked in the table.
+Source: `vendor/zscaler-sdk-python/zscaler/zia/sandbox_rules.py`; `vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py`; `vendor/terraform-provider-zia/docs/resources/zia_location_management.md`; `vendor/terraform-provider-zia/docs/resources/zia_user_management.md`.
 
 Cross-cutting hub for fields where `GET` and `POST`/`PUT` disagree on shape, value, or presence semantics. Detail lives in topical docs; this section is the discovery point for "API round-trip will bite me, where?" questions.
 

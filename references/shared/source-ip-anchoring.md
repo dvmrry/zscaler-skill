@@ -38,7 +38,7 @@ Source: `vendor/zscaler-help/understanding-source-ip-anchoring.md`; `vendor/zsca
 
 ## Why SIPA exists — the use-case motivation
 
-Source: `vendor/zscaler-help/understanding-source-ip-anchoring.md`; Microsoft 365 conditional-access guide listed in this section.
+Source: `vendor/zscaler-help/understanding-source-ip-anchoring.md`; `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`.
 
 Legacy applications, regulatory SaaS services, and most notably **Microsoft 365 Conditional Access** support authentication patterns that require the destination to trust the source IP address. In a normal Zscaler deployment, traffic egresses from Zscaler's Public Service Edge IPs (shared infrastructure across many tenants). This is a problem when:
 

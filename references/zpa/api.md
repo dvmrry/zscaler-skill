@@ -338,7 +338,7 @@ For troubleshooting these patterns, see [`../_meta/runbooks.md § Troubleshootin
 
 ## Read/write shape asymmetries
 
-Source: topical references linked in the table; verify against the listed vendor SDK/provider sources before adding automation.
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py`; `vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py`; `vendor/terraform-provider-zpa/docs/resources/zpa_provisioning_key.md`; `vendor/terraform-provider-zpa/docs/data-sources/zpa_provisioning_key.md`.
 
 Cross-cutting hub for fields where `GET` and `POST`/`PUT` disagree on shape, value, or presence semantics. Detail lives in topical docs; this section is the discovery point for "API round-trip will bite me, where?" questions.
 
@@ -373,7 +373,7 @@ enabled_only = resp.search("[?enabled]")
 
 ## No activation step
 
-Source: ZPA API and SDK behavior in listed vendor sources; contrast with ZIA activation docs.
+Source: `vendor/zscaler-sdk-python/README.md`; `vendor/zscaler-sdk-python/zscaler/zia/activate.py`; `vendor/terraform-provider-zia/docs/resources/zia_activation_status.md`.
 
 Unlike ZIA (which requires a separate `POST /status/activate` after changes), ZPA config changes take effect on write. This means no equivalent of ZIA's `zia_activation_status` resource is needed.
 
