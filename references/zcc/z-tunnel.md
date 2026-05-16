@@ -23,6 +23,8 @@ author-status: draft
 
 The **tunnel** between Zscaler Client Connector and the Public Service Edge. Choice of 1.0 vs 2.0 is made per-forwarding-profile (per-network-type) and has structural consequences: Z-Tunnel 1.0 is a HTTP CONNECT-based proxy (web traffic only); Z-Tunnel 2.0 is a DTLS/TLS packet tunnel (all ports and protocols). This is the relevant reference for transport failures, bypass behavior, and "why did this specific traffic not tunnel" questions.
 
+Source: vendor/zscaler-help/about-z-tunnel-1.0-z-tunnel-2.0.md; vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md; vendor/zscaler-help/best-practices-adding-bypasses-z-tunnel-2.0.md; vendor/zscaler-help/migrating-z-tunnel-1.0-z-tunnel-2.0.md; vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py.
+
 ## Summary
 
 Two very different tunneling architectures:
@@ -38,7 +40,11 @@ Two very different tunneling architectures:
 
 Z-Tunnel 2.0 requires a **single-IP NAT** — all connections from one device must egress through the same NAT IP. Otherwise control and data connections can land on different Public Service Edges, Z-Tunnel 2.0 fails to establish, and falls back to Z-Tunnel 1.0 silently (`about-z-tunnel-1.0-z-tunnel-2.0.md:27`). This is the #1 misconfiguration when a tenant reports "we deployed 2.0 but users keep running on 1.0."
 
+Source: vendor/zscaler-help/about-z-tunnel-1.0-z-tunnel-2.0.md; vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md.
+
 ## Mechanics
+
+Source: vendor/zscaler-help/about-z-tunnel-1.0-z-tunnel-2.0.md; vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md; vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py.
 
 ### Z-Tunnel 1.0 architecture
 
@@ -135,6 +141,8 @@ Truth table for the two 3.8+ flags (`best-practices-adding-bypasses-z-tunnel-2.0
 
 This truth table **partially resolves [`clarification zcc-05`](../_meta/clarifications.md#zcc-05-systemproxydata-vs-native-forwarding-action-precedence)** for the `redirectWebTraffic` / `useTunnel2ForProxiedWebTraffic` interaction. The broader `systemProxyData` precedence question (OS-level proxy settings vs native forwarding actions) is a related but separate concern.
 
+Source: vendor/zscaler-help/best-practices-adding-bypasses-z-tunnel-2.0.md; vendor/zscaler-help/migrating-z-tunnel-1.0-z-tunnel-2.0.md; vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py.
+
 ### Migration and fallback behavior
 
 From the Migration article:
@@ -142,6 +150,8 @@ From the Migration article:
 - **Tunnel mode and driver are per-forwarding-profile.** Tenants can run Z-Tunnel 1.0 and 2.0 simultaneously by maintaining two forwarding profiles scoped to different user/device groups.
 - **Z-Tunnel 2.0 → 1.0 fallback is automatic.** When 2.0 can't establish (single-IP NAT failure, Service Edge split-landing, etc.), ZCC falls back to 1.0 on the same connection attempt (`about-z-tunnel-1.0-z-tunnel-2.0.md:27`). `tunnel2_fallback` on the `ForwardingProfileActions` controls whether fallback is allowed at all.
 - **Phased rollout pattern** (recommended by Zscaler): (1) create test group + test forwarding profile + test app profile; (2) block ICMP as a baseline test for 2.0 covering non-web traffic; (3) exclude internal network ranges via Destination Exclusions; (4) 1-2 weeks observation; (5) batch rollout in 100-200-user increments (`best-practices-deploying-z-tunnel-2.0.md:104`, `migrating-z-tunnel-1.0-z-tunnel-2.0.md:132`).
+
+Source: vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md; vendor/zscaler-help/migrating-z-tunnel-1.0-z-tunnel-2.0.md; vendor/zscaler-help/about-z-tunnel-1.0-z-tunnel-2.0.md.
 
 ### 5-Phase deployment checklist
 
@@ -167,6 +177,8 @@ Codified from the Deployment Best Practices article for quick reference in skill
 - **Packet filter driver is required for both** — Tunnel Driver Type selection of anything else (e.g. Route-Based on some legacy configs) disables Z-Tunnel 2.0 capability.
 - **Protocol internals are not fully documented.** The Zscaler help site describes what Z-Tunnel 2.0 does (DTLS/TLS, packet-level) but not the wire-format internals (framing, reconnection, keepalive mechanics). Wireshark captures against a Public Service Edge are the only way to inspect lower-level behavior — Zscaler Support engagements cover the protocol's exact shape under NDA.
 
+Source: vendor/zscaler-help/about-z-tunnel-1.0-z-tunnel-2.0.md; vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md; vendor/zscaler-help/best-practices-adding-bypasses-z-tunnel-2.0.md; vendor/zscaler-help/migrating-z-tunnel-1.0-z-tunnel-2.0.md.
+
 ## Bypass conflict resolution priority (Z-Tunnel 2.0)
 
 When Destination Exclusions and Inclusions overlap on Z-Tunnel 2.0, resolution is deterministic. Priority order:
@@ -178,6 +190,8 @@ When Destination Exclusions and Inclusions overlap on Z-Tunnel 2.0, resolution i
 Source: `best-practices-adding-bypasses-z-tunnel-2.0.md:43–49`.
 
 Operators debugging "why is this destination tunneled when I excluded it" should walk the priority order top-to-bottom — usually a more-specific inclusion is winning.
+
+Source: vendor/zscaler-help/best-practices-adding-bypasses-z-tunnel-2.0.md.
 
 ## Z-Tunnel 1.0 vs 2.0 — bypass-config incompatibility
 
@@ -191,6 +205,8 @@ Operators debugging "why is this destination tunneled when I excluded it" should
 **Critical**: do not add network bypasses to the Z-Tunnel 2.0 app profile's PAC file expecting them to take effect — they don't. Z-Tunnel 2.0 ignores PAC-based network bypasses (PAC is still consulted for proxy-routing decisions but not for tunnel-bypass decisions). An operator migrating a 1.0 deployment to 2.0 by copying PAC bypasses gets no bypass effect on 2.0 traffic.
 
 Source: `best-practices-adding-bypasses-z-tunnel-2.0.md:19`.
+
+Source: vendor/zscaler-help/best-practices-adding-bypasses-z-tunnel-2.0.md.
 
 ## Mobile push notifications — required bypass for any push-MFA app
 
@@ -221,6 +237,8 @@ Mitigation options for GRE-deployed offices:
 2. **Configure a policy-based route to exclude Z-Tunnel 2.0 traffic from the GRE tunnel.** Z-Tunnel 2.0 takes a separate egress path, GRE handles only non-Zscaler traffic.
 
 Either works; the GRE-as-default with no exclusion strategy is the failure mode. Source: `best-practices-deploying-z-tunnel-2.0.md:43–46`.
+
+Source: vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md.
 
 ## Open questions
 
