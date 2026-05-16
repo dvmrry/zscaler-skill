@@ -60,9 +60,9 @@ Source: vendor/zscaler-help/admin-rbac-captures.md; vendor/zscaler-help/understa
 
 ## API surface: Admin Audit Log Entry Report
 
-Base path: `/zia/api/v1/auditlogEntryReport`
-
 Source: vendor/zscaler-sdk-go/zscaler/zia/services/adminauditlogs/adminauditlogs.go.
+
+Base path: `/zia/api/v1/auditlogEntryReport`
 
 ### Report lifecycle
 
@@ -83,8 +83,6 @@ The Python SDK (`vendor/zscaler-sdk-python/zscaler/zia/audit_logs.py`) inserts a
 | GET | `/zia/api/v1/auditlogEntryReport` | Poll report status |
 | GET | `/zia/api/v1/auditlogEntryReport/download` | Download CSV report |
 | DELETE | `/zia/api/v1/auditlogEntryReport` | Cancel in-progress report |
-
-Source: vendor/zscaler-help/automate-zscaler/api-endpoint-catalog.md; vendor/zscaler-sdk-go/zscaler/zia/services/adminauditlogs/adminauditlogs.go.
 
 ### Request schema (`AuditLogEntryRequest`)
 
@@ -299,9 +297,9 @@ eventlogentryreport.Delete(ctx, service)
 
 ### Authentication requirement
 
-Both the audit log and event log APIs require ZIA Cloud Service API access. Per `vendor/zscaler-help/legacy-understanding-zia-api.md`, this API is availability-limited — contact Zscaler Support to enable. The admin account used must have the `Reports` functional scope to access audit log endpoints (the system audit endpoint returns `RBA_LIMITED` without it).
-
 Source: vendor/zscaler-help/legacy-understanding-zia-api.md; vendor/zscaler-sdk-python/zscaler/zia/system_audit.py.
+
+Both the audit log and event log APIs require ZIA Cloud Service API access. Per `vendor/zscaler-help/legacy-understanding-zia-api.md`, this API is availability-limited — contact Zscaler Support to enable. The admin account used must have the `Reports` functional scope to access audit log endpoints (the system audit endpoint returns `RBA_LIMITED` without it).
 
 ### Activation
 
