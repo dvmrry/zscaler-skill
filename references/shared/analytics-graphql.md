@@ -27,9 +27,9 @@ The Zscaler Analytics GraphQL API (internally called **ZInsights**, path prefix 
 - **ZINS / SaaS Security Report dashboards** — CASB app usage, shadow IT app discovery, cybersecurity incidents, IoT device classification, and Zero Trust Firewall location/action aggregations as displayed in the ZIA Analytics section
 - **BI API complement** — the REST-based Business Insights API (`/bi/api/v1`) handles saved report configurations and bulk downloads; the GraphQL API handles live, parameterized, cross-domain queries against the same underlying data warehouse
 
-The endpoint is listed alongside all other OneAPI products at `automate.zscaler.com` and is included in the downloadable OneAPI Postman collection.
-
 Source: vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md; vendor/zscaler-help/automate-zscaler/guides-analytics-api.md; vendor/zscaler-help/automate-zscaler/guides-understanding-oneapi.md; vendor/zscaler-help/automate-zscaler/api-reference-index.md; vendor/zscaler-help/about-saas-security-report.md.
+
+The endpoint is listed alongside all other OneAPI products at `automate.zscaler.com` and is included in the downloadable OneAPI Postman collection.
 
 ### Distinction from related APIs
 
