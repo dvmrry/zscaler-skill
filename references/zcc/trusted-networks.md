@@ -18,6 +18,8 @@ author-status: draft
 
 A **TrustedNetwork** is a named set of criteria ZCC uses to answer the question "am I on a known corporate-trusted network right now?" The answer flows directly into the active Forwarding Profile's TRUSTED vs UNTRUSTED action branch, which in turn determines whether traffic is sent to ZIA via Z-Tunnel, bypassed, or handled via PAC.
 
+Source: vendor/zscaler-sdk-python/zscaler/zcc/models/trustednetworks.py; vendor/zscaler-sdk-python/zscaler/zcc/trusted_networks.py; vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network/trusted_network.go; vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md.
+
 ## What trusted networks are
 
 Trusted networks are conditions under which ZCC changes its forwarding behavior. When a device's current network environment matches a TrustedNetwork's criteria, ZCC applies the "On-Trusted Network" action branch of its Forwarding Profile instead of the "Off-Trusted Network" branch. This is the mechanism that allows ZCC to, for example:
@@ -27,6 +29,8 @@ Trusted networks are conditions under which ZCC changes its forwarding behavior.
 - Apply different ZPA behaviors on corporate vs. home networks.
 
 **Trusted network detection is continuous.** ZCC re-evaluates when network conditions change — adapter up/down, DHCP renewal, SSID switch, or manual trigger. A user who moves between networks (office → coffee shop → home) flips TRUSTED ↔ UNTRUSTED multiple times per day.
+
+Source: vendor/zscaler-sdk-python/zscaler/zcc/models/trustednetworks.py; vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network/trusted_network.go; vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md.
 
 ---
 
@@ -50,6 +54,8 @@ From `vendor/zscaler-sdk-python/zscaler/zcc/models/trustednetworks.py` (lines 37
 
 All criteria fields are comma-separated strings on the wire, **not JSON arrays**. This is a wire-format quirk specific to TrustedNetwork objects. Callers writing API payloads must serialize criteria as comma-separated strings. Consumers parsing snapshot JSON must split on `,` and trim whitespace per field. Confirmed in Python SDK examples: `trusted_networks.py:127–132` shows `dns_servers='10.11.12.13, 10.11.12.14'`, `dns_search_domains='network1.acme.com, network2.acme.com'`, and empty criteria as `''` (empty string) not `None`.
 
+Source: vendor/zscaler-sdk-python/zscaler/zcc/models/trustednetworks.py; vendor/zscaler-sdk-python/zscaler/zcc/trusted_networks.py; vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network/trusted_network.go.
+
 ### Criterion field truthiness
 
 A criterion field that is null or empty is **ignored**, not treated as "match nothing." A TrustedNetwork with only `dns_servers` populated and all other fields empty will match on DNS server alone — the empty fields are irrelevant to evaluation. This matches the "unset criteria are ignored" pattern used by ZIA URL filtering rules.
@@ -69,6 +75,8 @@ Do not pass empty strings vs. null interchangeably — the SDK surfaces both as 
 | `company_id` | `companyId` | Tenant ID. |
 | `created_by` / `edited_by` | `createdBy` / `editedBy` | Admin audit fields. |
 | `condition_type` | `conditionType` | How criteria within this TrustedNetwork combine (AND vs OR). **Integer on the wire** — not a string. See below. |
+
+Source: vendor/zscaler-sdk-python/zscaler/zcc/models/trustednetworks.py; vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network/trusted_network.go.
 
 ---
 
@@ -104,6 +112,8 @@ The Forwarding Profile also recognizes VPN-Trusted and Split VPN-Trusted network
 
 **`evaluate_trusted_network = false` is the master off switch.** If false on the Forwarding Profile, trusted-network evaluation is skipped entirely and ZCC always behaves as if on an untrusted network. A tenant where all users appear to be treated as untrusted even on corporate LAN should check this flag on their Forwarding Profile first.
 
+Source: vendor/zscaler-sdk-python/zscaler/zcc/models/trustednetworks.py; vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network/trusted_network.go; vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md.
+
 ### Effect on split tunneling
 
 When ZCC's Forwarding Profile has `actionType = NONE` (bypass ZIA) on the On-Trusted branch, the device is effectively on a split-traffic configuration while on the corporate network — ZCC forwards ZPA traffic through the microtunnel but sends internet traffic direct. This is the intended design for offices with on-prem internet gateways. It also means that a misconfigured or over-broad trusted-network criterion silently moves users to the bypass branch, producing "traffic bypassed ZIA inspection" findings even though no policy was changed.
@@ -132,6 +142,8 @@ This is a common operational pattern: a tenant that has corporate offices with G
 ---
 
 ## Common trusted network patterns
+
+Source: vendor/zscaler-sdk-python/zscaler/zcc/models/trustednetworks.py; vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network/trusted_network.go; vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md.
 
 ### Corporate LAN (strongest)
 
@@ -173,6 +185,8 @@ Weak alone — SSIDs are trivially forged. Use as a sub-criterion within an AND 
 ---
 
 ## Common misconfiguration patterns
+
+Source: vendor/zscaler-sdk-python/zscaler/zcc/models/trustednetworks.py; vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network/trusted_network.go.
 
 ### Detecting the wrong DNS suffix
 
@@ -219,6 +233,8 @@ ZCC probes for egress IP after network bring-up. Immediately after network estab
 ---
 
 ## SDK fields — metadata and API
+
+Source: vendor/zscaler-sdk-python/zscaler/zcc/models/trustednetworks.py; vendor/zscaler-sdk-python/zscaler/zcc/trusted_networks.py; vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network/trusted_network.go.
 
 ### TrustedNetwork object metadata
 

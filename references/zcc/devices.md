@@ -20,6 +20,8 @@ author-status: draft
 
 The Devices API surface is ZCC's per-endpoint inventory: every device that has ever registered with the tenant, its current state, last-seen time, tunnel version, and lifecycle actions (remove, force-remove, cleanup). Useful for "is this endpoint even in our inventory?", "when did it last check in?", "can we force it off the cloud?", and for compliance audits of enrolled device populations.
 
+Source: vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py; vendor/zscaler-sdk-python/zscaler/zcc/devices.py; vendor/zscaler-sdk-go/zscaler/zcc/services/devices/devices.go.
+
 ---
 
 ## Device registration lifecycle
@@ -46,6 +48,8 @@ Installation + first login
 | Permanently deleted | Purged from inventory entirely after `autoPurgeDays` threshold | Only after device has been in Removed/Unregistered state for the configured period |
 
 **Important**: Removing a device record from the portal does NOT uninstall ZCC from the endpoint. If ZCC is still installed and comes online, it will re-register — creating a fresh record (new `udid`) and losing the history. To prevent re-registration, also revoke the user's entitlement or change group membership. See [`./entitlements.md`](./entitlements.md).
+
+Source: vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py; vendor/zscaler-sdk-python/zscaler/zcc/devices.py; vendor/zscaler-help/configuring-automated-device-cleanup.md.
 
 ---
 
@@ -82,6 +86,8 @@ From `vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py` (Tier B — SDK/T
 | `detail` | `detail` | str | Free-form detail field (semantics vary by platform/context). |
 
 **Mixed casing on the wire**: `registration_time`, `last_seen_time`, `config_download_time`, `download_count` are snake_case; everything else is camelCase. Tools writing raw JSON payloads must honor each field as declared in the SDK model.
+
+Source: vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py; vendor/zscaler-sdk-go/zscaler/zcc/services/devices/devices.go.
 
 ---
 
@@ -121,6 +127,8 @@ From `vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py` (Tier B — SDK/T
 | `zapp_arch` / `zappArch` | CPU architecture | 324 | 87 |
 
 Note: Python `DeviceDetails.__init__` uses **dual-key lookup** (snake_case OR camelCase) for these fields (`models/devices.py:299–324`) — defensive read against the API returning either form.
+
+Source: vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py; vendor/zscaler-sdk-go/zscaler/zcc/services/devices/devices.go.
 
 ### Fields Python-only — absent from Go DeviceDetails
 
@@ -178,6 +186,8 @@ Privacy implications: machine hostnames can reveal device naming conventions (as
 
 See [`./web-privacy.md`](./web-privacy.md) for the full field-level reference on both settings.
 
+Source: vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py; vendor/zscaler-help/configuring-zscaler-client-connector-collect-hostnames.md; vendor/zscaler-help/configuring-zscaler-client-connector-collect-device-owner-information.md.
+
 ---
 
 ## Automated device cleanup
@@ -212,11 +222,15 @@ From `vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py` (Tier B — SDK/T
 
 **Cleanup affects inventory only**: Automated cleanup removes device records from the ZCC portal. It does not uninstall ZCC from the endpoint. If the machine comes back online with ZCC still installed, it will re-register — creating a new record (new `udid`).
 
+Source: vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py; vendor/zscaler-sdk-python/zscaler/zcc/devices.py; vendor/zscaler-help/configuring-automated-device-cleanup.md.
+
 ---
 
 ## Removing devices
 
 Three related operations in the SDK:
+
+Source: vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py; vendor/zscaler-sdk-python/zscaler/zcc/devices.py.
 
 ### `remove_devices` — standard deregistration
 
@@ -254,6 +268,8 @@ Three bulk-export methods exist for ad-hoc reporting and offline analysis:
 | `download_disable_reasons(query_params, filename)` | When users disable ZCC (where allowed), the reasons they provided | Pairs with `WebPolicy.send_disable_service_reason` |
 
 The `zcc_param_mapper` decorator on `download_devices` translates Python-friendly filter kwargs into the portal's expected query-string keys. Tools writing HTTP directly need to check `vendor/zscaler-sdk-python/zscaler/utils.py` for the `zcc_param_map` mapping.
+
+Source: vendor/zscaler-sdk-python/zscaler/zcc/devices.py; vendor/zscaler-sdk-python/zscaler/utils.py.
 
 ---
 
@@ -293,6 +309,8 @@ The `@zcc_param_mapper` decorator is applied to: `download_devices`, `download_s
 
 Direct HTTP callers must send the integer codes, not the strings. Tools writing JSON without going through the Python SDK will fail with the human-readable strings.
 
+Source: vendor/zscaler-sdk-python/zscaler/zcc/devices.py; vendor/zscaler-sdk-python/zscaler/utils.py; vendor/zscaler-sdk-go/zscaler/zcc/services/devices/devices.go.
+
 ### Registration type filter — six values, not three
 
 `download_devices` accepts `registration_types` (list) with six valid values per `devices.py:50–52`:
@@ -322,6 +340,8 @@ These are also integer-encoded via `zcc_param_map["reg_type"]` (`devices.py:88�
 - **`device_exceed_limit` default is 16-max / no auto-removal** — the default setting allows up to 16 devices but does not auto-remove. An organization that wants to enforce single-device-per-user must contact Zscaler Support to set the minimum to 1 and then enable force-removal on exceed.
 - **`autoPurgeDays` purge is irreversible** — permanently deleted device records cannot be recovered. The purge window should be long enough for audit purposes. Set conservatively (180 days) for regulated environments.
 
+Source: vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py; vendor/zscaler-sdk-python/zscaler/zcc/devices.py; vendor/zscaler-help/configuring-automated-device-cleanup.md.
+
 ---
 
 ## Mobile-specific fields
@@ -347,6 +367,8 @@ iOS and Android devices surface fields that desktop devices don't. These appear 
 Filter the list to mobile-only via the `os_type` / `os_types` query params on `list_devices` and the download endpoints — `ios`, `android` are translated to integer codes via `zcc_param_map["os"]` per [§ Mobile filtering and OS-type integer encoding](#mobile-filtering-and-os-type-integer-encoding) above.
 
 A common audit shape: "show me all jailbroken iOS devices that are entitled to ZPA" — combines `os_type=ios` filter on `list_devices` + `rooted` field on each device's `DeviceDetails` + ZPA entitlement check from [`./entitlements.md`](./entitlements.md). All three pieces are needed; the Devices API alone won't tell you entitlement state.
+
+Source: vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py; vendor/zscaler-sdk-python/zscaler/zcc/devices.py; vendor/zscaler-sdk-go/zscaler/zcc/services/devices/devices.go.
 
 ---
 

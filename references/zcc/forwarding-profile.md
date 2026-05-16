@@ -26,6 +26,8 @@ author-status: draft
 
 The forwarding profile is **the policy object that runs on the endpoint** and decides, per packet, where to send it — into a Z-Tunnel toward a Public Service Edge (ZIA), into the ZPA Microtunnel (ZPA), into a local PAC, or direct. Misunderstanding the forwarding profile is the #1 source of "traffic bypassed Zscaler" mysteries.
 
+Source: vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py; vendor/zscaler-sdk-python/zscaler/zcc/forwarding_profile.py; vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go; vendor/zscaler-help/about-forwarding-profiles.md.
+
 ## Summary
 
 A forwarding profile describes **how ZCC should behave on different classes of network** — typically "trusted" (corporate LAN / VPN) and "untrusted" (home Wi-Fi, coffee shop) and sometimes more granular tiers. The profile object contains:
@@ -36,6 +38,8 @@ A forwarding profile describes **how ZCC should behave on different classes of n
 4. **Fail-open policy** — a separate policy object (`FailOpenPolicy`, one per company) that decides what happens when the tunnel or proxy is unreachable, or a captive portal is blocking auth.
 
 A ZCC install has **one active forwarding profile per device at any given moment**, selected by the user/device's active WebPolicy (called "App Profile" in the admin UI) via its `forwarding_profile_id` field. The active App Profile is itself selected by precedence rules across user/group/device-group scopes (see [`./web-policy.md`](./web-policy.md) for the assignment link and `about-zscaler-client-connector-app-profiles.md:15` for App Profile precedence). The "exactly one at a time" framing is a downstream consequence of the App Profile precedence rules, not a directly-cited claim.
+
+Source: vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py; vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go; vendor/zscaler-help/about-forwarding-profiles.md; vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md.
 
 ## Wire-type correction — enum fields are integer-coded, not strings
 
@@ -62,6 +66,8 @@ Plus these flags that look boolean-ish but are `int` (0/1) on the wire: `enableL
 Within `UnifiedTunnelRequest` (lines 107–124): `BlockUnreachableDomainsTraffic` and `MtuForZadapter` are also `string` on POST. `SameAsOnTrusted` is `int` with `omitempty`. This asymmetry is not surfaced in the Python SDK at all — the Python client passes kwargs through raw and relies on the API accepting the same shape in both directions, which is unverified for these fields.
 
 ## Mechanics
+
+Source: vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py; vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go; vendor/zscaler-help/about-forwarding-profiles.md; vendor/zscaler-help/Traffic_Forwarding_in_ZIA_Reference_Architecture.txt.
 
 ### Network type branches
 
@@ -143,6 +149,8 @@ Per-action sub-fields that shape the tunnel/probe behavior (field names from `fo
 | `send_all_dns_to_trusted_server` | `sendAllDNSToTrustedServer` | Forwards all DNS queries to the trusted DNS server rather than resolving normally. Go SDK only; absent from Python model. |
 | `network_type` | `networkType` | The branch this action block applies to. See [§ Network types](#network-type-branches). |
 
+Source: vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py; vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go; vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile_request.go.
+
 ### ForwardingProfileZpaActions — ZPA actions per network type
 
 Parallel structure; independent of ZIA actions. One action block per network type, keyed the same way. Notable fields (from `forwardingprofile.py:276–305` and `forwarding_profile.go`):
@@ -159,6 +167,8 @@ Parallel structure; independent of ZIA actions. One action block per network typ
 
 **Key cross-product hook: `sendTrustedNetworkResultToZpa`** (`forwardingprofile.py:303`). ZPA access-policy rules can reference a TRUSTED_NETWORK condition. The behavioral claim — that this toggle controls whether ZPA's TRUSTED_NETWORK condition fires — is **inferred from the field name**: vendor help articles do not document this hook explicitly. **Confidence: medium**. If a tenant reports "ZPA TRUSTED_NETWORK condition isn't firing," check this toggle, but verify with a tenant-side test before promising it as the cause.
 
+Source: vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py; vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go.
+
 ### The two action lists are independent
 
 A profile can set:
@@ -167,6 +177,8 @@ A profile can set:
 - `forwardingProfileZpaActions[TRUSTED].actionType = TUNNEL` (ZPA on everywhere)
 
 This means a device on a trusted corporate LAN may send Internet traffic direct while still tunneling ZPA internal apps through the ZPA cloud. Common pattern for offices with an on-prem internet gateway but no on-prem ZPA.
+
+Source: vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py; vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go; vendor/zscaler-help/about-forwarding-profiles.md.
 
 ### Trusted-network evaluation
 
@@ -179,6 +191,8 @@ Per the model, ZCC uses three kinds of trusted-criteria input:
 How these combine: `condition_type` controls AND vs OR across the pieces (`forwarding_profile.go:22`). The enum isn't documented in the SDK — see `zcc-01`. Likely values: AND (all criteria must match), OR (any matches), or possibly `TRUSTED_CRITERIA_AND` / `TRUSTED_CRITERIA_OR` style strings. Lab-test at first tenant onboarding.
 
 **`evaluate_trusted_network` is the master switch** (`forwarding_profile.go:40`). If false, the TRUSTED branch of both action lists never fires; ZCC behaves as if always on an untrusted network. A tenant that sees "all my users are treated as untrusted even on corporate LAN" should check this flag first.
+
+Source: vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py; vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go; vendor/zscaler-help/Traffic_Forwarding_in_ZIA_Reference_Architecture.txt.
 
 ### Vendor recommendation framing for the four detection options
 
@@ -217,6 +231,8 @@ A separate `FailOpenPolicy` object lives at the company level (one per tenant), 
 
 **Captive portal settings may exist at App Profile scope as well as the tenant-global FailOpenPolicy described above.** The captured help article `about-zscaler-client-connector-app-profiles.md` does not document the migration explicitly; this scope split is reported in operator discussions and ZCC release notes not vendored here. **Confidence: low** until a vendor source is captured. When answering "why did this user get captive-portal-blocked and that user didn't on the same network", check both the tenant-global FailOpenPolicy *and* per-App-Profile platform sub-policies (see [`./web-policy.md`](./web-policy.md)) — the per-profile override may be in play.
 
+Source: vendor/zscaler-sdk-python/zscaler/zcc/models/failopenpolicy.py; vendor/zscaler-sdk-python/zscaler/zcc/fail_open_policy.py; vendor/zscaler-help/about-forwarding-profiles.md; vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md.
+
 ### Failure taxonomy and version-specific overrides
 
 The *About Forwarding Profiles* capture (`vendor/zscaler-help/about-forwarding-profiles.md`) and SDK example values document the failure taxonomy ZCC actually distinguishes:
@@ -240,6 +256,8 @@ The *About Forwarding Profiles* capture (`vendor/zscaler-help/about-forwarding-p
 ## Fields Python SDK doesn't expose (Go-SDK-only)
 
 Cross-SDK audit (2026-04-24) against `vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go:36–135` surfaced fields the Python SDK doesn't model. These fields exist on the wire and are settable via direct API call or Go SDK:
+
+Source: vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py; vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go; vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile_request.go.
 
 **On `ForwardingProfile`:**
 
@@ -282,6 +300,8 @@ The Go SDK exposes a `UnifiedTunnel` sub-structure (`forwarding_profile.go:119�
 
 **Follow-up to resolve**: capture a help article specifically about Unified Tunnel if one exists. The SDK side is now known; the customer-side operational semantics need doc backing.
 
+Source: vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go; vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile_request.go.
+
 ## Edge cases
 
 - **Profile has no TRUSTED branch at all.** If `forwardingProfileActions` doesn't include an item with `networkType = TRUSTED`, ZCC has no defined behavior for the trusted branch. **Inferred** from struct shape: this likely behaves the same as `evaluate_trusted_network = false` (`forwarding_profile.go:40`), but the equivalence is not stated in any captured help article — vendor source only confirms the field exists. Lab-test before relying on the equivalence; ZCC's actual default behavior for absent action blocks could differ from the master-toggle-off path. **Confidence: low**.
@@ -293,6 +313,8 @@ The Go SDK exposes a `UnifiedTunnel` sub-structure (`forwarding_profile.go:119�
 - **Z-Tunnel 2.0 + Bandwidth Control.** Per `references/zia/ssl-inspection.md`, HTTP/2 inspection falls back to HTTP/1.1 at locations where Bandwidth Control is enabled. This is a Service-Edge-side effect but it can look like a ZCC transport issue — rule out Bandwidth Control before suspecting ZCC.
 - **System proxy integration overrides.** When `systemProxy` is enabled with `enablePAC`/`enableProxyServer` in `systemProxyData` (`forwardingprofile.py:186–187`), ZCC honors the OS-level proxy settings in addition to (or instead of) its own forwarding actions. Order of precedence is not clearly documented; treat as operator-configured-to-taste. See [`clarification zcc-05`](../_meta/clarifications.md#zcc-05-systemproxydata-vs-native-forwarding-action-precedence).
 - **IPv6 drop flags can break IPv6-only apps.** `dropIpv6Traffic`, `dropIpv6TrafficInIpv6Network`, and `dropIpv6IncludeTrafficInT2` all return as `IntOrString` (`forwarding_profile.go:63–73`); real-tenant defaults may silently drop IPv6. A user reporting "IPv6-only application fails on ZCC" should have these inspected.
+
+Source: vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py; vendor/zscaler-sdk-python/zscaler/zcc/models/failopenpolicy.py; vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go; vendor/zscaler-help/about-forwarding-profiles.md; vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md.
 
 ## Open questions
 
