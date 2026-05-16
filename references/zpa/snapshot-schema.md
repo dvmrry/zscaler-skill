@@ -16,7 +16,7 @@ author-status: draft
 
 # ZPA _data/snapshot/ schema
 
-Operational reference for the JSON files `scripts/snapshot-refresh.py` writes under `_data/snapshot/zpa/`. Pre-written from the Postman collection (which has rich response samples for ZPA) + SDK source + Terraform provider schema. Once a fork-admin run produces tenant data, validate this doc against actual JSON and bump confidence to `high`.
+Operational reference for the JSON files `scripts/snapshot-refresh.py` writes under `_data/snapshot/zpa/`. Pre-written from the Postman collection (which has rich response samples for ZPA) + SDK source + Terraform provider schema. Once a fork-admin run produces tenant data, validate this doc against actual JSON and bump confidence to `high`. [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/zscaler-sdk-python/zscaler/zpa/; vendor/terraform-provider-zpa/zpa/]
 
 ## Files written by `--zpa-only`
 
@@ -31,8 +31,8 @@ Plus `_data/snapshot/_manifest.json` with timestamps and per-resource counts.
 
 ## Wire-format conventions for ZPA
 
-- **camelCase JSON keys** (same as ZIA).
-- **IDs are STRINGS** in ZPA, not integers. `id: "12345"` (string), not `id: 12345`. Different from ZIA. Tooling that parses both products needs to handle the type difference.
+- **camelCase JSON keys** (same as ZIA). [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/zscaler-sdk-python/zscaler/zpa/]
+- **IDs are STRINGS** in ZPA, not integers. `id: "12345"` (string), not `id: 12345`. Different from ZIA. Tooling that parses both products needs to handle the type difference. [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/zscaler-sdk-python/zscaler/zpa/]
 - **List endpoints return paginated, wrapped responses**:
   ```json
   {
@@ -41,18 +41,18 @@ Plus `_data/snapshot/_manifest.json` with timestamps and per-resource counts.
     "list": [...]
   }
   ```
-  Single-resource endpoints return the bare object.
-- **`customerId` in URL path** — ZPA endpoints live under `/zpa/mgmtconfig/v1/admin/customers/{customerId}/...`. The `customerId` is the ZPA tenant ID, retrievable from ZIdentity Admin Portal > Integration > API Resources > ZPA OneAPI, or ZPA Admin Portal > Configuration & Control > Public API > API Keys.
-- **Multiple API versions**: `/mgmtconfig/v1`, `/mgmtconfig/v2` (newer policy endpoints), `/userconfig/v1` (SCIM Group Controller specifically).
-- **Pagination defaults**: `pagesize=100`, `page=1` if not specified. Max `pagesize=500`. Tooling iterating large tenants must paginate explicitly.
-- **Embedded ID-references**: ZPA frequently embeds full sub-objects rather than just IDs. An app segment's `serverGroups` is `[{ id, name, ...minimal-fields }]`, not just `["sg_id_1"]`.
-- **`enabled` defaults to `true`** on resource creation if omitted (per `app-segments.md`).
+  Single-resource endpoints return the bare object. [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json]
+- **`customerId` in URL path** — ZPA endpoints live under `/zpa/mgmtconfig/v1/admin/customers/{customerId}/...`. The `customerId` is the ZPA tenant ID, retrievable from ZIdentity Admin Portal > Integration > API Resources > ZPA OneAPI, or ZPA Admin Portal > Configuration & Control > Public API > API Keys. [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/zscaler-sdk-python/zscaler/zpa/]
+- **Multiple API versions**: `/mgmtconfig/v1`, `/mgmtconfig/v2` (newer policy endpoints), `/userconfig/v1` (SCIM Group Controller specifically). [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json]
+- **Pagination defaults**: `pagesize=100`, `page=1` if not specified. Max `pagesize=500`. Tooling iterating large tenants must paginate explicitly. [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/zscaler-sdk-python/zscaler/zpa/]
+- **Embedded ID-references**: ZPA frequently embeds full sub-objects rather than just IDs. An app segment's `serverGroups` is `[{ id, name, ...minimal-fields }]`, not just `["sg_id_1"]`. [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/zscaler-sdk-python/zscaler/zpa/]
+- **`enabled` defaults to `true`** on resource creation if omitted. See [`./app-segments.md`](./app-segments.md) for behavior context. [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/terraform-provider-zpa/zpa/]
 
 ## `app-segments.json`
 
-API: `GET /zpa/mgmtconfig/v1/admin/customers/{customerId}/application`
+API: `GET /zpa/mgmtconfig/v1/admin/customers/{customerId}/application` [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py]
 
-**Shape:** wrapped paginated response with `list` containing app segment objects.
+**Shape:** wrapped paginated response with `list` containing app segment objects. [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py]
 
 ```json
 {
@@ -182,7 +182,7 @@ API: `GET /zpa/mgmtconfig/v1/admin/customers/{customerId}/application`
 }
 ```
 
-Key fields with rule-evaluation impact:
+Key fields with rule-evaluation impact: [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/terraform-provider-zpa/zpa/]
 - `domainNames` — controls FQDN match (specificity-wins per `app-segments.md`)
 - `bypassType` — `NEVER` / `ALWAYS` / `ON_NET`. Cross-evaluation with Multimatch.
 - `matchStyle` — `EXCLUSIVE` (default) or `INCLUSIVE` (Multimatch). Must be consistent across overlapping segments.
@@ -195,7 +195,7 @@ Key fields with rule-evaluation impact:
 
 ### ⚠️ Discrepancies — needs tenant verification
 
-These fields have conflicting type or name information across sources. Flag these for the verifying agent:
+These fields have conflicting type or name information across sources. Flag these for the verifying agent: [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/terraform-provider-zpa/zpa/]
 
 | Field | Postman says | TF provider / snapshot-schema says | Verify |
 |---|---|---|---|
@@ -206,7 +206,7 @@ These fields have conflicting type or name information across sources. Flag thes
 
 #### Verification commands
 
-If you have a populated `_data/snapshot/zpa/app-segments.json`, run these jq queries and record the output:
+If you have a populated `_data/snapshot/zpa/app-segments.json`, run these jq queries and record the output. [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/terraform-provider-zpa/zpa/]
 
 ```bash
 # 1. tcpKeepAlive type — quoted string ("0") or bare integer (0)?
@@ -234,14 +234,14 @@ Expected answers to record:
 - Once confirmed, update the JSON example above and remove the discrepancy row.
 
 Resolved discrepancies (confirmed from Postman GET response body):
-- **`ipAnchored`** is the correct wire field name for SIPA. `sourceIpAnchored` does NOT appear in GET responses. SDK/TF uses snake_case `source_ip_anchored` which maps to `ipAnchored` on the wire, not `sourceIpAnchored`.
-- **Pagination wrapper** has all four fields: `currentCount`, `totalCount`, `totalPages`, `list`.
+- **`ipAnchored`** is the correct wire field name for SIPA. `sourceIpAnchored` does NOT appear in GET responses. SDK/TF uses snake_case `source_ip_anchored` which maps to `ipAnchored` on the wire, not `sourceIpAnchored`. [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/terraform-provider-zpa/zpa/]
+- **Pagination wrapper** has all four fields: `currentCount`, `totalCount`, `totalPages`, `list`. [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json]
 
 ### Sub-type schemas
 
 #### `clientlessApps[]` — Browser Access apps
 
-Each entry in a Browser Access segment:
+Each entry in a Browser Access segment: [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/zscaler-sdk-python/zscaler/zpa/]
 
 ```json
 {
@@ -317,7 +317,7 @@ Each entry in a Browser Access segment:
 
 #### `commonAppsDto.appsConfig[]` — unified write-path for all app types
 
-Used when creating/updating BA, PRA, and AppProtection apps in a single API call. `appTypes[]` discriminates which variant each entry configures:
+Used when creating/updating BA, PRA, and AppProtection apps in a single API call. `appTypes[]` discriminates which variant each entry configures: [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/zscaler-sdk-python/zscaler/zpa/]
 
 ```json
 {
@@ -382,9 +382,9 @@ Cross-links: [`./app-segments.md`](./app-segments.md), [`./browser-access.md`](.
 
 ## `segment-groups.json`
 
-API: `GET /zpa/mgmtconfig/v1/admin/customers/{customerId}/segmentGroup`
+API: `GET /zpa/mgmtconfig/v1/admin/customers/{customerId}/segmentGroup` [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/zscaler-sdk-python/zscaler/zpa/segment_group.py]
 
-**Shape:** wrapped paginated response with `list` containing segment-group objects.
+**Shape:** wrapped paginated response with `list` containing segment-group objects. [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/zscaler-sdk-python/zscaler/zpa/segment_group.py]
 
 ```json
 {
@@ -418,7 +418,7 @@ API: `GET /zpa/mgmtconfig/v1/admin/customers/{customerId}/segmentGroup`
 }
 ```
 
-Each segment group **embeds full application objects**, not just IDs — so `app-segments.json` and `segment-groups.json` have overlapping data. Operationally this means snapshot diff'ing must account for the duplication.
+Each segment group **embeds full application objects**, not just IDs — so `app-segments.json` and `segment-groups.json` have overlapping data. Operationally this means snapshot diff'ing must account for the duplication. [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/zscaler-sdk-python/zscaler/zpa/segment_group.py]
 
 ### Common jq queries
 
@@ -435,9 +435,9 @@ jq '.list[] | select(.enabled == false) | .name' _data/snapshot/zpa/segment-grou
 
 ## `server-groups.json`
 
-API: `GET /zpa/mgmtconfig/v1/admin/customers/{customerId}/serverGroup`
+API: `GET /zpa/mgmtconfig/v1/admin/customers/{customerId}/serverGroup` [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/zscaler-sdk-python/zscaler/zpa/server_group.py]
 
-**Shape:** wrapped paginated response.
+**Shape:** wrapped paginated response. [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/zscaler-sdk-python/zscaler/zpa/server_group.py]
 
 ```json
 {
@@ -482,7 +482,7 @@ API: `GET /zpa/mgmtconfig/v1/admin/customers/{customerId}/serverGroup`
 }
 ```
 
-**Constraint** (per `terraform.md` § Schema patterns): if `dynamicDiscovery == false`, then `servers` MUST be non-empty. Programmatically enforced — `apply` will fail otherwise.
+**Constraint**: if `dynamicDiscovery == false`, then `servers` MUST be non-empty. Programmatically enforced — `apply` will fail otherwise. [Source: vendor/terraform-provider-zpa/zpa/; vendor/zscaler-api-specs/oneapi-postman-collection.json]
 
 ### Common jq queries
 
@@ -499,9 +499,9 @@ jq '.list[] | select((.appConnectorGroups | length) == 0) | .name' _data/snapsho
 
 ## `access-policy-rules.json`
 
-API: `GET /zpa/mgmtconfig/v1/admin/customers/{customerId}/policySet/policyType/ACCESS_POLICY/policy`
+API: `GET /zpa/mgmtconfig/v1/admin/customers/{customerId}/policySet/policyType/ACCESS_POLICY/policy` [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/zscaler-sdk-python/zscaler/zpa/policies.py]
 
-**Shape:** wrapped paginated response. (Note: ZPA has multiple policy types — ACCESS_POLICY, TIMEOUT_POLICY, CLIENT_FORWARDING_POLICY, INSPECTION_POLICY, etc. The snapshot only dumps ACCESS_POLICY currently; extend to cover others by adding to `snapshot-refresh.py`.)
+**Shape:** wrapped paginated response. ZPA has multiple policy types — ACCESS_POLICY, TIMEOUT_POLICY, CLIENT_FORWARDING_POLICY, INSPECTION_POLICY, etc. The snapshot only dumps ACCESS_POLICY currently; extend to cover others by adding to the ZPA resource list. [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/zscaler-sdk-python/zscaler/zpa/policies.py]
 
 ```json
 {
@@ -568,7 +568,7 @@ API: `GET /zpa/mgmtconfig/v1/admin/customers/{customerId}/policySet/policyType/A
 }
 ```
 
-Key evaluation properties:
+Key evaluation properties: [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/zscaler-sdk-python/zscaler/zpa/policies.py; vendor/terraform-provider-zpa/zpa/]
 - **`ruleOrder`** is a string, not an integer. Sort numerically with `tonumber`.
 - **First-match-wins** in ascending `ruleOrder`.
 - **`operator: AND`** at rule level (across condition groups).
@@ -600,7 +600,7 @@ Cross-links: [`./policy-precedence.md`](./policy-precedence.md), [`./app-segment
 
 ## What's NOT yet in the snapshot
 
-Resources to consider extending `snapshot-refresh.py` to dump:
+Resources to consider extending the snapshot collector to dump: [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/zscaler-sdk-python/zscaler/zpa/]
 
 | Resource | API path | Why useful |
 |---|---|---|
@@ -625,31 +625,31 @@ Resources to consider extending `snapshot-refresh.py` to dump:
 | PRA portals | `/praPortal` | PRA portal inventory |
 | PRA consoles | `/praConsole` | PRA console (target) inventory |
 
-The Postman collection has 36 ZPA controllers. Extending `snapshot-refresh.py` to dump everything would be substantive but mechanical.
+The Postman collection has 36 ZPA controllers. Extending the snapshot collector to dump everything would be substantive but mechanical. [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json]
 
 ## Wire-format gotchas
 
-1. **String IDs.** Don't compare with integers. Always `==` against a string.
+1. **String IDs.** Don't compare with integers. Always `==` against a string. [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/zscaler-sdk-python/zscaler/zpa/]
 
-2. **Wrapped responses with `list`**. Most ZPA list endpoints wrap. Always do `.list[]` not `.[]`.
+2. **Wrapped responses with `list`**. Most ZPA list endpoints wrap. Always do `.list[]` not `.[]`. [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json]
 
-3. **`ruleOrder` is a string.** Numeric ordering needs `tonumber`. `sort_by(.ruleOrder)` lexically sorts and gives wrong results above 10 rules.
+3. **`ruleOrder` is a string.** Numeric ordering needs `tonumber`. `sort_by(.ruleOrder)` lexically sorts and gives wrong results above 10 rules. [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/zscaler-sdk-python/zscaler/zpa/policies.py]
 
-4. **Embedded objects, not just IDs.** Server groups embed full app objects in `applications`; segment groups embed app objects too. Snapshots are partially redundant.
+4. **Embedded objects, not just IDs.** Server groups embed full app objects in `applications`; segment groups embed app objects too. Snapshots are partially redundant. [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json]
 
-5. **`bypassType: "ON_NET"`** is valid (added per `terraform.md`); not just `NEVER` / `ALWAYS`.
+5. **`bypassType: "ON_NET"`** is valid; not just `NEVER` / `ALWAYS`. [Source: vendor/terraform-provider-zpa/zpa/; vendor/zscaler-api-specs/oneapi-postman-collection.json]
 
-6. **`tcpPortRange` vs `tcpPortRanges`**: dual format. Object array (`[{from, to}]`) vs flat pairs (`["443", "443"]`). Tooling must handle both.
+6. **`tcpPortRange` vs `tcpPortRanges`**: dual format. Object array (`[{from, to}]`) vs flat pairs (`["443", "443"]`). Tooling must handle both. [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/terraform-provider-zpa/zpa/]
 
-7. **`tcpKeepAlive: "0"` is a string-as-bool**. `"0"` = false, `"1"` = true. Same for `tcpKeepAliveEnabled` on segment groups.
+7. **`tcpKeepAlive: "0"` is a string-as-bool**. `"0"` = false, `"1"` = true. Same for `tcpKeepAliveEnabled` on segment groups. [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/terraform-provider-zpa/zpa/]
 
-8. **`selectConnectorCloseToApp` is `ForceNew`** at the Terraform layer — toggling destroys-and-recreates the segment.
+8. **`selectConnectorCloseToApp` is `ForceNew`** at the Terraform layer — toggling destroys-and-recreates the segment. [Source: vendor/terraform-provider-zpa/zpa/]
 
-9. **`reauthTimeout` / `reauthIdleTimeout` are `ForceNew`** too. Changes require destroy-recreate.
+9. **`reauthTimeout` / `reauthIdleTimeout` are `ForceNew`** too. Changes require destroy-recreate. [Source: vendor/terraform-provider-zpa/zpa/]
 
-10. **`PLATFORM` operands' `rhs` are strings, not booleans.** `rhs: "true"` / `"false"` for platform-criteria operands.
+10. **`PLATFORM` operands' `rhs` are strings, not booleans.** `rhs: "true"` / `"false"` for platform-criteria operands. [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/zscaler-sdk-python/zscaler/zpa/policies.py]
 
-11. **`predefined: true` rules can't be deleted**, similar to ZIA.
+11. **`predefined: true` rules can't be deleted**, similar to ZIA. [Source: vendor/zscaler-api-specs/oneapi-postman-collection.json; vendor/zscaler-sdk-python/zscaler/zpa/policies.py]
 
 ## Cross-links
 
