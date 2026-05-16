@@ -20,6 +20,8 @@ A VSE Cluster is the production-grade grouping construct for Virtual Service Edg
 
 For the VSE VM itself (sizing, platform support, OS hardening, inspection capabilities), see [`./private-service-edge.md § Virtual Service Edge`](./private-service-edge.md). For the broader Service Edge taxonomy — Public vs Private vs Virtual form factors, Central Authority connectivity model — see [`../shared/cloud-architecture.md`](../shared/cloud-architecture.md).
 
+Source: `vendor/zscaler-help/about-virtual-service-edge-clusters-internet-saas.md`, `vendor/zscaler-help/about-virtual-service-edges-internet-saas.md`.
+
 ## 1. Definition
 
 A VSE Cluster is an admin-defined group of VSE VM instances that share a common cluster IP address and operate as an HA pool. The cluster is the object that appears in traffic-forwarding policy; member VMs are subordinate to it. The cluster IP is the single forwarding target from clients; individual VM IPs are transparent to clients during normal operation.
@@ -28,6 +30,8 @@ The cluster construct is distinct from:
 
 - A **standalone VSE** — a single VM with no load balancer and no failover. Supported only for evaluation and test traffic, not for production. (Tier A — about-virtual-service-edge-clusters-internet-saas.md)
 - A **PSE hardware cluster** — a cluster of dedicated Zscaler-shipped appliances managed by Zscaler Cloud Operations, with different throughput ceilings and a different operator model. (Tier A — understanding-private-service-edge-internet-saas.md; see section 12 below.)
+
+Source: `vendor/zscaler-help/about-virtual-service-edge-clusters-internet-saas.md`, `vendor/zscaler-help/understanding-private-service-edge-internet-saas.md`.
 
 ## 2. Why cluster
 
@@ -38,6 +42,8 @@ Three reasons to cluster VSE instances rather than deploying standalone VMs: (Ti
 **Throughput aggregation.** Each VSE VM delivers up to 600 Mbps total throughput (on VMware ESXi with the optional SSL acceleration card). With up to 16 VMs in a cluster, aggregate throughput scales horizontally. A single-VM deployment is hard-capped at 600 Mbps; a cluster is not.
 
 **Simplified policy management.** Traffic-forwarding rules, location assignments, and auth settings are configured once at the cluster level. Adding or removing VMs does not require changes to forwarding policy; the cluster object absorbs the membership change. Managing N individual VM objects in policy would multiply the configuration surface and create drift risk.
+
+Source: `vendor/zscaler-help/about-virtual-service-edge-clusters-internet-saas.md`, `vendor/zscaler-help/about-virtual-service-edges-internet-saas.md`.
 
 ## 3. Cluster composition
 
@@ -59,6 +65,8 @@ Three reasons to cluster VSE instances rather than deploying standalone VMs: (Ti
 
 (Tier A — about-virtual-service-edges-internet-saas.md, sizing table.)
 
+Source: `vendor/zscaler-help/about-virtual-service-edge-clusters-internet-saas.md`, `vendor/zscaler-help/about-virtual-service-edges-internet-saas.md`.
+
 ## 4. Cluster vs standalone VSE
 
 | Dimension | Standalone VSE | VSE Cluster (2–16 VMs) |
@@ -70,6 +78,8 @@ Three reasons to cluster VSE instances rather than deploying standalone VMs: (Ti
 | Load balancer | Not included | Bundled in each VM |
 
 Use standalone VSE only in lab or proof-of-concept scenarios where service disruption is acceptable and user traffic is synthetic. Zscaler explicitly states that standalone mode does not support failover and is not supported for production environments with live user traffic. (Tier A — about-virtual-service-edge-clusters-internet-saas.md)
+
+Source: `vendor/zscaler-help/about-virtual-service-edge-clusters-internet-saas.md`.
 
 ## 5. Load distribution within a cluster
 
@@ -85,11 +95,15 @@ The VSE instances themselves operate in **active-active** mode. The LB fans out 
 
 **External load balancers:** Zscaler does not recommend using an external LB with VSE clusters. The bundled LB is purpose-built for this traffic pattern. If an organization must use an external LB, Zscaler provides separate guidance in the "Using an External Load Balancer with Virtual Service Edges" article. (Tier A — about-virtual-service-edge-clusters-internet-saas.md)
 
+Source: `vendor/zscaler-help/about-virtual-service-edge-clusters-internet-saas.md`.
+
 ### Public cloud (Azure / AWS / GCP) — cloud-native LB
 
 On Azure, AWS, and GCP, the native VSE cluster mode (bundled LB + shared cluster VIP) is not supported. Horizontal scale and redundancy are achieved by deploying multiple VSE VMs behind a cloud-native load balancer (Azure Load Balancer, AWS ALB/NLB, GCP Load Balancing). The cluster construct as described in the on-premises model does not apply in these environments. (Tier A — about-virtual-service-edges-internet-saas.md)
 
 In cloud environments, customers configure the cloud LB to distribute traffic across the VSE VM instances. The Zscaler Admin Console cluster object may still be used to group the VMs, but the CARP/DSR/bundled-LB mechanics documented above are exclusive to ESXi and Hyper-V deployments.
+
+Source: `vendor/zscaler-help/about-virtual-service-edges-internet-saas.md`.
 
 ## 6. Health monitoring and auto-recovery
 
@@ -103,6 +117,8 @@ No admin intervention is required for either VSE instance failure or LB active-p
 
 Note: the PSE Health Dashboard available via ZDX is specific to hardware PSE clusters and is not documented as applicable to VSE clusters. VSE health visibility relies on the Admin Console and on customer-side VM monitoring of the underlying hypervisor or cloud platform.
 
+Source: `vendor/zscaler-help/about-virtual-service-edge-clusters-internet-saas.md`, `vendor/zscaler-help/about-virtual-service-edges-internet-saas.md`, `vendor/zscaler-help/understanding-private-service-edge-internet-saas.md`.
+
 ## 7. Cluster-level configuration
 
 The VSE Cluster admin page surfaces the following per-cluster fields: (Tier A — about-virtual-service-edge-clusters-internet-saas.md)
@@ -115,11 +131,15 @@ The VSE Cluster admin page surfaces the following per-cluster fields: (Tier A �
 
 Settings that are cluster-scoped (applied uniformly across all member VMs by virtue of policy being pushed from the Central Authority) include auth policy, forwarding policy, and log forwarding. The VSE VM itself has VM-scoped items such as NTP server configuration (customer may supply NTP; if not, Zscaler uses public NTP), DNS server configuration (customer may supply DNS; if not, Zscaler uses public DNS), and network interface assignments. (Tier A — understanding-private-service-edge-internet-saas.md, by analogy; vendor VSE cluster doc does not break this out explicitly — see deferred items.)
 
+Source: `vendor/zscaler-help/about-virtual-service-edge-clusters-internet-saas.md`, `vendor/zscaler-help/understanding-private-service-edge-internet-saas.md`.
+
 ## 8. Auto-upgrade behavior
 
 VSEs are upgraded automatically during scheduled maintenance windows published in the Zscaler Trust Portal. No admin intervention and no Zscaler Cloud Operations intervention is required. VSEs are not monitored or managed by Zscaler Cloud Operations — the customer's VM infrastructure runs the upgrade process as initiated by the Zscaler software stack. (Tier A — about-virtual-service-edges-internet-saas.md)
 
 **Cluster-level upgrade orchestration:** the vendor cluster document does not describe whether upgrades within a cluster are sequenced (rolling) or simultaneous. This is a gap — see Deferred items below. In the absence of documented rolling-upgrade behavior, operators planning for maintenance windows should assume that all VMs in a cluster may upgrade during the same maintenance window, and plan capacity accordingly.
+
+Source: `vendor/zscaler-help/about-virtual-service-edges-internet-saas.md`, `vendor/zscaler-help/about-virtual-service-edge-clusters-internet-saas.md`.
 
 ## 9. IP and NAT requirements
 
@@ -131,6 +151,8 @@ VSEs are upgraded automatically during scheduled maintenance windows published i
 
 **1:1 NAT:** vendor docs for VSE do not document 1:1 static NAT support the same way the PSE docs do (PSE requires 1:1 NAT with the constraint that IPv6 is not supported in NAT mode). Whether VSE supports similar NAT topologies is not confirmed from available sources — see Deferred items.
 
+Source: `vendor/zscaler-help/about-virtual-service-edges-internet-saas.md`, `vendor/zscaler-help/understanding-private-service-edge-internet-saas.md`.
+
 ## 10. Logging and observability
 
 VSE policy and authentication follow the same model as Public Service Edges: admins define policies in the Zscaler Admin Console once; the policy applies regardless of whether a user connects to a VSE, a PSE, or a Public SE. Logs are compressed, tokenized, and transmitted from each VSE VM to the Zscaler cloud's Nanolog cluster for storage, analysis, and NSS export. (Tier A — about-virtual-service-edges-internet-saas.md)
@@ -138,6 +160,8 @@ VSE policy and authentication follow the same model as Public Service Edges: adm
 Each VSE VM transmits its own logs to the cloud; the cluster does not aggregate logs internally before transmission. From the admin console analytics perspective, logs are associated with the tenant's cloud account and can be filtered by the location bound to the cluster. Whether individual log entries carry a VM-level identifier versus a cluster-level identifier is not explicitly documented — see Deferred items.
 
 **Auth log:** the VSE VM maintains an auth log at `/var/log/auth.log` that captures authentication attempts and commands run on the appliance. This is VM-local and is not transmitted to the Zscaler cloud; customers should monitor it for unauthorized access to the VM itself. (Tier A — about-virtual-service-edges-internet-saas.md)
+
+Source: `vendor/zscaler-help/about-virtual-service-edges-internet-saas.md`.
 
 ## 11. Cluster lifecycle
 
@@ -148,6 +172,8 @@ Each VSE VM transmits its own logs to the cloud; the cluster does not aggregate 
 **Removing VMs:** reducing cluster membership by removing a VM from the cluster object redirects traffic away from that VM. Specific drain-before-removal behavior (connection graceful drain, quiesce window) is not documented in the vendor sources available — see Deferred items.
 
 **Disabling a cluster:** the status field can be set to disabled, which stops the cluster from accepting traffic, without deleting it. This is the safe path for a planned maintenance window on the entire cluster.
+
+Source: `vendor/zscaler-help/about-virtual-service-edge-clusters-internet-saas.md`.
 
 ## 12. Comparison to PSE clusters
 
@@ -168,6 +194,8 @@ Each VSE VM transmits its own logs to the cloud; the cluster does not aggregate 
 
 The CARP active-passive LB architecture and DSR mode are shared between VSE clusters and PSE clusters — both products use the same underlying LB model. The operational difference is who manages it: the customer for VSE, Zscaler Cloud Ops for PSE. (Tier A — about-virtual-service-edge-clusters-internet-saas.md; understanding-private-service-edge-internet-saas.md)
 
+Source: `vendor/zscaler-help/about-virtual-service-edge-clusters-internet-saas.md`, `vendor/zscaler-help/understanding-private-service-edge-internet-saas.md`.
+
 ## 13. Comparison to Public SE multi-cluster load sharing
 
 Public Service Edge multi-cluster load sharing (MCLS) is a Zscaler-cloud-managed mechanism that places multiple Public SE clusters — from different network address blocks — behind a shared VIP within a data center. Traffic to that VIP can be served by any participating cluster. Customers do not configure or manage MCLS; it is an infrastructure-scale capability that Zscaler adds transparently to expand Public SE capacity without migrating customer GRE tunnels. (Tier A — understanding-multi-cluster-load-sharing.md)
@@ -175,6 +203,8 @@ Public Service Edge multi-cluster load sharing (MCLS) is a Zscaler-cloud-managed
 VSE clusters are the opposite in every operational dimension: they are customer-private, customer-operated, and customer-configured. The cluster IP is owned and managed by the customer. There is no Zscaler-side orchestration of which VSE cluster serves a given request — that is determined entirely by the customer's network topology (which clients can reach which cluster IP).
 
 The two constructs are not in competition; they apply to different deployment scenarios. MCLS is relevant to understanding Public SE capacity and GRE tunnel targeting. VSE clusters are relevant when the customer is deploying on-premises or cloud-hosted VSE infrastructure.
+
+Source: `vendor/zscaler-help/understanding-multi-cluster-load-sharing.md`, `vendor/zscaler-help/about-virtual-service-edge-clusters-internet-saas.md`.
 
 ## 14. Known constraints
 
@@ -189,6 +219,8 @@ The two constructs are not in competition; they apply to different deployment sc
 **ESXi SSL acceleration card is not available on cloud platforms.** The Marvell NITROX SSL acceleration card — which raises per-VM throughput to 600 Mbps and SSL CPS to 3,500 — is only supported on VMware ESXi. On Azure, AWS, Hyper-V, and GCP, the per-VM SSL CPS is 400 and total throughput is not documented at the same ceiling. (Tier A — about-virtual-service-edges-internet-saas.md)
 
 **vMotion support requires ESXi 7.0+.** Live VM migration (vMotion) is supported only on ESXi 7.0 or later. This has implications for planned maintenance and cluster upgrade scenarios on VMware infrastructure. (Tier A — about-virtual-service-edges-internet-saas.md)
+
+Source: `vendor/zscaler-help/about-virtual-service-edge-clusters-internet-saas.md`, `vendor/zscaler-help/about-virtual-service-edges-internet-saas.md`.
 
 ## Deferred items
 

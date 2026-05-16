@@ -28,6 +28,8 @@ ZPA has two different grouping objects with similar-sounding names that serve co
 
 **Server Group** — a traffic-delivery container for backend servers. It binds a list of App Connector Groups (`appConnectorGroups`) to a set of backend endpoints (either an explicit server list or dynamically discovered servers). When ZPA brokers a connection, it selects a connector from one of the Connector Groups associated with the segment's Server Group and routes traffic to the backend servers in that group. (Tier A — vendor/zscaler-sdk-python: `server_groups.py` `add_group` docstring; `resource_zpa_server_group.go` `expandServerGroup`.)
 
+Source: `vendor/zscaler-help/about-segment-groups.md`, `vendor/zscaler-sdk-python/zscaler/zpa/server_groups.py`, `vendor/terraform-provider-zpa/zpa/resource_zpa_server_group.go`.
+
 ## The object hierarchy
 
 The full five-tier relationship:
@@ -59,6 +61,8 @@ In table form:
 
 The App Segment is the junction point: it carries both the Segment Group reference (controls policy targeting) and the Server Group reference (controls which connectors and backends handle the traffic). These are independent axes — you can change which Connector Group handles traffic by swapping Server Groups without touching any policy rules, and vice versa.
 
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py`, `vendor/zscaler-sdk-python/zscaler/zpa/segment_groups.py`, `vendor/zscaler-sdk-python/zscaler/zpa/server_groups.py`.
+
 ## Why the distinction between Segment Groups and Server Groups matters for policy scoping
 
 When an access policy rule is evaluated, ZPA checks whether the user's requested application belongs to a Segment Group referenced in the rule's conditions (objectType `APP_GROUP`). The Server Group is not consulted during access policy evaluation — it is only consulted during connection brokering (connector selection, backend IP determination).
@@ -68,6 +72,8 @@ This separation means:
 - A Segment Group with no App Segments, or App Segments not referenced in any policy rule, is effectively invisible to users — the applications exist in ZPA but no policy allows access to them.
 
 The "all apps in group" vs individual segment targeting question: access policy rules target Segment Groups, not individual App Segments. A policy rule with condition `APP_GROUP = "HR Apps Group"` matches all App Segments in that group. There is no standard policy condition that targets a single App Segment directly — the `APP` objectType in policy conditions refers to individual application objects (clientless apps for Browser Access), not standard App Segments. For standard ZPA access, the correct granularity is Segment Group → all App Segments in the group inherit the rule.
+
+Source: `vendor/zscaler-help/about-segment-groups.md`, `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go`.
 
 ## Segment Group mechanics
 
@@ -82,6 +88,8 @@ A Segment Group is a lightweight wrapper: `id`, `name`, `description`, `enabled`
 **The `enabled` toggle.** Disabling a Segment Group prevents policy rules scoped to it from matching, making all its App Segments effectively unreachable via those rules. (Tier D inference — not confirmed from source code alone, but consistent with the enabled/disabled semantics of all other ZPA objects.)
 
 **Deception integration.** If a Segment Group is configured using Zscaler Deception, the edit and delete options are unavailable in the Admin Console. (Tier A — vendor/zscaler-help/about-segment-groups.md.)
+
+Source: `vendor/zscaler-help/about-segment-groups.md`, `vendor/zscaler-sdk-python/zscaler/zpa/models/segment_group.py`, `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go`.
 
 ## SDK fields — Segment Group
 
@@ -98,6 +106,8 @@ From `vendor/zscaler-sdk-python/zscaler/zpa/models/segment_group.py` and `segmen
 
 **SDK service** (`client.zpa.segment_groups`): `list_groups`, `get_group`, `add_group`, `update_group`, `delete_group`. Uses both v1 and v2 endpoints. Delete does not automatically clean up App Segment references unless the TF provider's pre-delete hook runs.
 
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/segment_groups.py`, `vendor/zscaler-sdk-python/zscaler/zpa/models/segment_group.py`, `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go`.
+
 ## Server Group mechanics
 
 A Server Group carries:
@@ -112,6 +122,8 @@ A Server Group carries:
 **Explicit server mode (`dynamicDiscovery=False`):** Backend servers must be pre-registered as Application Server objects (`/server` endpoint, `servers.py`) and assigned to the Server Group via `server_ids`. In this mode the `servers[]` array must be non-empty.
 
 **Connector Group → Connector Group assignment.** The Server Group is the only place in the ZPA object model where the App Connector Group is bound to application traffic. This is the critical link: the Server Group determines which physical or virtual connectors proxy traffic for the App Segments that reference it.
+
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/server_groups.py`, `vendor/zscaler-sdk-python/zscaler/zpa/models/server_group.py`, `vendor/terraform-provider-zpa/zpa/resource_zpa_server_group.go`.
 
 ## SDK fields — Server Group
 
@@ -133,6 +145,8 @@ From `vendor/zscaler-sdk-python/zscaler/zpa/models/server_group.py` and `server_
 
 **SDK service** (`client.zpa.server_groups`): `list_groups`, `get_group`, `add_group`, `update_group`, `delete_group`. `server_ids` and `app_connector_group_ids` are reformatted to nested `{"id": "..."}` structures by `transform_common_id_fields(..., coerce_ids=False)`, because ZPA IDs are opaque 19-digit strings and should not be coerced into integers.
 
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/server_groups.py`, `vendor/zscaler-sdk-python/zscaler/zpa/models/server_group.py`, `vendor/terraform-provider-zpa/zpa/resource_zpa_server_group.go`.
+
 ## What breaks when these are misconfigured
 
 ### Wrong Server Group → Connector Group assignment
@@ -146,9 +160,13 @@ The most common production issue: an App Segment references a Server Group whose
 
 Diagnosis: check `client.zpa.server_groups.get_group(id)` to verify `appConnectorGroups` is populated. Then verify each Connector Group contains at least one `CONNECTED` connector (`client.zpa.app_connectors.list_connectors()` and check `connectionStatus`).
 
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/server_groups.py`, `vendor/zscaler-sdk-python/zscaler/zpa/servers.py`, `vendor/terraform-provider-zpa/zpa/resource_zpa_server_group.go`.
+
 ### App Segment without a Segment Group
 
 TF schema marks `segment_group_id` as `Optional + Computed` (`resource_zpa_application_segment.go` line 63–67), meaning TF won't error on a missing value. However, if no Segment Group is assigned, no policy rule using `APP_GROUP` conditions can match the segment — it is inaccessible. This is the "orphan App Segment" condition: the segment exists, the API accepts it, but end users cannot reach the application because no access rule matches it. Always verify `segment_group_id` is set and that the referenced Segment Group is attached to at least one enabled access policy rule.
+
+Source: `vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go`, `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go`.
 
 ### Server Group with no Connector Group
 
@@ -177,6 +195,8 @@ Source (Tier A): `resource_zpa_segment_group.go` `resourceSegmentGroupDelete` ca
 ### Multiple Server Groups on one App Segment
 
 Source (Tier A): `application_segment.py` `add_segment` accepts `server_group_ids` as a list, transformed to `serverGroups: [{id: ...}, ...]`. Multiple Server Groups on one App Segment enables weighted load balancing — each group can carry a `weight` and `passive` flag via `update_weighted_lb_config`. Without explicit weighted LB config, behavior across multiple Server Groups is unspecified in source code (Tier D: likely round-robin or first-match, but unconfirmed).
+
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py`, `vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go`.
 
 ## Verifying the segment → server group → connector chain (snapshot recipe)
 
@@ -227,12 +247,16 @@ jq --arg gid "<connector-group-id>" '
 
 If any hop returns an empty list or zero, that's the broken hop and the corresponding hypothesis is `Confirmed`.
 
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py`, `vendor/zscaler-sdk-python/zscaler/zpa/server_groups.py`, `vendor/zscaler-sdk-python/zscaler/zpa/servers.py`.
+
 ### Edge cases for the chain
 
 - **Multiple Server Groups on one segment.** A segment can carry multiple `serverGroups[]`. Each is independent — at least one must satisfy hops 3 and 4 for the segment to deliver traffic. If one is healthy and another is broken, weighted load balancing decides which connectors are tried first. See [Multiple Server Groups on one App Segment](#multiple-server-groups-on-one-app-segment) above.
 - **Connector group fronting an unreachable target.** Hops 3 and 4 can pass while traffic still fails. That's a runtime hypothesis (target reachability), not a chain hypothesis — see [`./logs/app-connector-metrics.md`](./logs/app-connector-metrics.md) for `AliveTargetCount` semantics and [`./app-connector.md § How sessions are assigned to App Connectors`](./app-connector.md#how-sessions-are-assigned-to-app-connectors) for the eligibility-then-selection model.
 - **Snapshot freshness.** The chain's hop 4 reflects connector state at snapshot time. A connector that was `CONNECTED` then may have flipped `DISCONNECTED` since. Always note the snapshot timestamp in the journal when citing this evidence; cross-reference live status if available.
 - **Microtenant scoping.** If the tenant uses microtenants, the snapshot may be scoped per microtenant. A segment in microtenant A with a server group in microtenant B is a config error worth flagging.
+
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py`, `vendor/zscaler-sdk-python/zscaler/zpa/server_groups.py`, `vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go`.
 
 ## Cross-links
 
