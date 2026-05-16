@@ -24,10 +24,14 @@ The two operator-facing workflows in ZDX beyond the dashboards: **Diagnostics Se
 
 ## Summary
 
+Source: `vendor/zscaler-help/understanding-diagnostics-session-status.md`; `vendor/zscaler-help/understanding-alert-status.md`; `vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py`; `vendor/zscaler-sdk-python/zscaler/zdx/alerts.py`.
+
 - **Diagnostics Session** — admin starts an on-demand probe campaign targeted at one device. ZCC runs intensified probes for a configured window, streams 1-minute-resolution data back to ZDX, and produces a detailed forensic report. Used for "this one user is reporting an issue and I need detail now." **The SDK/MCP term is "deeptrace"** — same thing, different vocabulary.
 - **Alerts** — rule-based notifications when configured metrics cross thresholds. Surface in ZDX dashboard, can webhook out. Alert status lifecycle captures rule changes in the audit trail.
 
 ## Mechanics
+
+Source: `vendor/zscaler-help/understanding-diagnostics-session-status.md`; `vendor/zscaler-help/understanding-alert-status.md`; `vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py`; `vendor/zscaler-sdk-python/zscaler/zdx/alerts.py`.
 
 ### Diagnostics Session status lifecycle
 
@@ -122,6 +126,8 @@ The `list_affected_devices` endpoint is the operational superpower: an alert tha
 
 ## Edge cases
 
+Source: `vendor/zscaler-help/understanding-diagnostics-session-status.md`; `vendor/zscaler-help/understanding-alert-status.md`; `vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py`; `vendor/zscaler-sdk-python/zscaler/zdx/alerts.py`.
+
 - **Session started on a newly-enrolled device**: initial probes may have no baseline to compare against. Score during the session shows raw metrics rather than a useful 0-100 number.
 - **Session across a network transition** (user disconnects from Wi-Fi, switches to LTE mid-session): data stream may show a gap. Events endpoint (`get_deeptrace_events`) correlates the gap with the network-interface change.
 - **Session started but device is on a trusted network with ZCC `actionType: NONE`**: probes still run — ZCC's probe path is independent of the forwarding-profile branch. A common operator surprise ("why does ZDX work on trusted networks when ZIA doesn't?" — because ZDX uses its own probe path, not the ZIA tunnel).
@@ -129,6 +135,8 @@ The `list_affected_devices` endpoint is the operational superpower: an alert tha
 - **Historical alerts with status `Completed by Modified Rule`**: the alert's thresholds as-displayed may be the new-rule thresholds, not the thresholds that were active when the alert fired. Treat thresholds on historical alerts as "current rule snapshot," not "as-fired."
 
 ## Open questions
+
+Source: `vendor/zscaler-help/understanding-diagnostics-session-status.md`; `vendor/zscaler-help/understanding-alert-status.md`; `vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py`; `vendor/zscaler-sdk-python/zscaler/zdx/alerts.py`.
 
 - What the configurable session duration range is (the help doc doesn't specify minimum or maximum).
 - Per-probe cadence during a session — is it still 5 minutes, or does the session intensify to faster cadence?

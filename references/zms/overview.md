@@ -24,6 +24,8 @@ author-status: draft
 
 ## Why ZMS exists alongside ZPA
 
+Source: `vendor/zscaler-help/what-is-microsegmentation-zpa.md`; `vendor/zscaler-help/microsegmentation-marketing.md`; `vendor/zscaler-help/zero-trust-microsegmentation-marketing.md`.
+
 ZPA and ZMS solve different segmentation problems:
 
 | Dimension | ZPA | ZMS |
@@ -37,6 +39,8 @@ ZPA and ZMS solve different segmentation problems:
 The clean separation: ZPA controls who can reach your apps from outside; ZMS controls which of your servers can talk to which other servers. A single environment commonly uses both — ZPA for users hitting an internal wiki, ZMS to ensure the wiki app server can only talk to its own database, not arbitrary internal services.
 
 ## Architecture
+
+Source: `vendor/zscaler-help/what-is-microsegmentation-zpa.md`.
 
 From `what-is-microsegmentation-zpa.md`:
 
@@ -63,6 +67,8 @@ The agent does **two jobs**:
 
 ## AI-powered policy recommendations
 
+Source: `vendor/zscaler-help/what-is-microsegmentation-zpa.md`; `vendor/zscaler-help/microsegmentation-marketing.md`; `vendor/zscaler-help/zero-trust-microsegmentation-marketing.md`.
+
 The selling point. From the marketing captures:
 
 - **Real-time traffic + workload telemetry** feeds the recommendation engine.
@@ -72,6 +78,8 @@ The selling point. From the marketing captures:
 This last point is the **single biggest operational gotcha** with ZMS: low-frequency legitimate flows are invisible to the recommendation engine. Don't enforce a policy generated from 14 days of observation if your environment has known monthly / quarterly batch jobs.
 
 ## Provisioning + deployment
+
+Source: `vendor/zscaler-help/what-is-microsegmentation-zpa.md`.
 
 From the help-portal capture:
 
@@ -83,6 +91,8 @@ From the help-portal capture:
 
 ## Deployment flexibility (marketing claim)
 
+Source: `vendor/zscaler-help/microsegmentation-marketing.md`; `vendor/zscaler-help/zero-trust-microsegmentation-marketing.md`.
+
 The marketing page distinguishes between "full infrastructure control" and "consume capabilities as a gateway service" deployment options. The captured material doesn't expand on what these mean concretely. Likely interpretation:
 
 - **Full infrastructure control** = customer deploys agents on their hosts, manages identity/grouping, owns enforcement.
@@ -91,6 +101,8 @@ The marketing page distinguishes between "full infrastructure control" and "cons
 The captured material does not confirm this interpretation. Treat the second mode as unclear until docs clarify.
 
 ## Edge cases / gotchas
+
+Source: `vendor/zscaler-help/what-is-microsegmentation-zpa.md`; `vendor/zscaler-help/microsegmentation-marketing.md`; `vendor/zscaler-help/zero-trust-microsegmentation-marketing.md`.
 
 1. **ZMS is not in the SDK.** Operators looking for `client.zms.*` won't find it; configuration is portal-only. This is the same pattern as AI Guard.
 2. **The 14-day telemetry window silently drops infrequent flows.** Don't mass-enforce policies generated from observation alone if your environment has known long-period workflows. Spot-check the recommendation against documented expected traffic patterns.
@@ -103,6 +115,8 @@ The captured material does not confirm this interpretation. Treat the second mod
 
 ## Where ZMS fits relative to existing skill content
 
+Source: `vendor/zscaler-help/what-is-microsegmentation-zpa.md`; `vendor/zscaler-help/microsegmentation-marketing.md`; `vendor/zscaler-help/zero-trust-microsegmentation-marketing.md`.
+
 | Existing reference | ZMS touchpoint |
 |---|---|
 | [`../zpa/app-segments.md`](../zpa/app-segments.md) | ZPA app-segments are the user→app primitive; ZMS AppZones are the workload→workload primitive. Different abstractions; both are policy targets. |
@@ -111,6 +125,8 @@ The captured material does not confirm this interpretation. Treat the second mod
 | [`../cloud-connector/forwarding.md`](../cloud-connector/forwarding.md) | Cloud Connector handles **north-south workload traffic** (workload → internet via Zscaler). ZMS handles **east-west workload traffic** (workload → workload). Operators conflating the two is a routing-question hazard. |
 
 ## Open questions
+
+Source: `vendor/zscaler-help/what-is-microsegmentation-zpa.md`; `vendor/zscaler-help/microsegmentation-marketing.md`; `vendor/zscaler-help/zero-trust-microsegmentation-marketing.md`.
 
 - **Container support** — agent-per-container vs host-agent-observing-containers?
 - **Cloud-native workload integration** — does ZMS hook into AWS Security Groups / Azure NSGs / GCP firewall rules, or does it pure-OS-level the enforcement and ignore cloud-native firewalls?

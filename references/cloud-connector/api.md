@@ -18,6 +18,8 @@ author-status: draft
 
 # Cloud Connector API surface
 
+Source: `vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.md`; `vendor/zscaler-sdk-go/zscaler/ztw/services/`; `vendor/terraform-provider-ztc/ztc/`; `vendor/zscaler-sdk-python/zscaler/ztw/`.
+
 How to manage Cloud Connector programmatically. Three programmatic paths now exist:
 
 1. **Python SDK** (added in v2.0.0, 2026-04-22) — module path `vendor/zscaler-sdk-python/zscaler/ztw/`. The Python SDK historically lacked ZTW coverage; the v2.0.0 release closed this gap. Service modules: `account_details`, `activation`, `admin_roles`, `admin_users`, `api_keys`, `ec_groups`, `forwarding_gateways`, `forwarding_rules`, `ip_destination_groups`, `ip_groups`, `ip_source_groups`, `location_management`, `location_template`, `nw_service`, `nw_service_groups`, `provisioning_url`, plus a `legacy` auth module and a `ztw_service` entry point.
@@ -27,6 +29,8 @@ How to manage Cloud Connector programmatically. Three programmatic paths now exi
 For automation that's been pinned to Python pre-v2.0.0, the historical workaround was direct HTTP via `requests` or shelling out to the Go-based Zscaler Terraformer. The v2.0.0 SDK supersedes those workarounds.
 
 ## Go SDK service surface
+
+Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/`.
 
 From `vendor/zscaler-sdk-go/zscaler/ztw/services/`:
 
@@ -49,6 +53,8 @@ From `vendor/zscaler-sdk-go/zscaler/ztw/services/`:
 **Go-SDK endpoint prefix**: cloud connector's API lives at the same OneAPI gateway as the rest of Zscaler; exact path prefix not captured here. Authentication follows the standard OneAPI OAuth 2.0 client-credentials flow via ZIdentity — same `ZSCALER_CLIENT_ID` / `ZSCALER_CLIENT_SECRET` / `ZSCALER_VANITY_DOMAIN` env vars.
 
 ## Terraform provider resources
+
+Source: `vendor/terraform-provider-ztc/ztc/`.
 
 From `vendor/terraform-provider-ztc/ztc/`:
 
@@ -77,6 +83,8 @@ Data sources (read-only lookups): parallel data sources exist for most of the ab
 
 ## Provisioning workflow
 
+Source: `vendor/zscaler-help/cbc-configuring-cloud-provisioning-template.md`.
+
 From *Configuring a Cloud Provisioning Template*:
 
 **Goal**: create a *cloud provisioning URL* that's used when deploying the Cloud Connector VM in a cloud provider. The URL carries tenant identity, group assignment, location, and VM-size configuration so the VM auto-enrolls on boot.
@@ -97,6 +105,8 @@ From *Configuring a Cloud Provisioning Template*:
 **Auto Scaling provisioning requires Zscaler Support** — enabling ASG/VMSS/MIG-autoscaling deployment isn't self-service; contact Support for entitlement.
 
 ## Activation
+
+Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscaler-help/automate-zscaler/api-endpoint-catalog.md`; `vendor/zscaler-sdk-go/zscaler/ztw/services/activation/`; `vendor/terraform-provider-ztc/ztc/`.
 
 Cloud Connector has an **activation gate** parallel to ZIA's (see [`../shared/activation.md`](../shared/activation.md) for the cross-product treatment). Config changes are pending until activated.
 
@@ -119,6 +129,8 @@ Cloud Connector has an **activation gate** parallel to ZIA's (see [`../shared/ac
 
 ## Partner integrations
 
+Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/partner_integrations/`.
+
 `ztw/services/partner_integrations/` exposes:
 
 - **AWS workload discovery** via CloudFormation template. Zscaler provides a CloudFormation stack that tags AWS workloads for visibility; the discovery data feeds into Cloud Connector's policy decisions.
@@ -127,6 +139,8 @@ Scope of "partner integrations" beyond AWS discovery isn't captured in detail. A
 
 ## Rate limiting
 
+Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscaler-help/legacy-api-response-codes-and-error-messages.md`.
+
 CBC uses the **same weight-based rate-limit model as ZIA** — Heavy (DELETE) / Medium (POST, PUT) / Light (GET). See [`../shared/oneapi.md § Cloud & Branch Connector — same as ZIA weight model`](../shared/oneapi.md) for the table. 429 response body shape:
 
 ```json
@@ -134,6 +148,8 @@ CBC uses the **same weight-based rate-limit model as ZIA** — Heavy (DELETE) / 
 ```
 
 ## Python automation
+
+Source: `vendor/zscaler-sdk-python/zscaler/ztw/`; `vendor/zscaler-sdk-python/CHANGELOG.md`.
 
 **Python SDK coverage landed in v2.0.0 (2026-04-22)** with 17 ZTW service modules: `account_details`, `activation`, `admin_roles`, `admin_users`, `api_keys`, `ec_groups`, `forwarding_gateways`, `forwarding_rules`, `ip_destination_groups`, `ip_groups`, `ip_source_groups`, `location_management`, `location_template`, `nw_service`, `nw_service_groups`, `provisioning_url`, plus `ztw_service`. The Python SDK is now at parity with Go for the most-needed surfaces.
 
@@ -145,6 +161,8 @@ Fork teams on Python SDK versions ≤ v1.9.22 historically had to:
 These workarounds are no longer required as of v2.0.0.
 
 ## Common SDK patterns
+
+Source: `vendor/zscaler-sdk-python/zscaler/ztw/`; `vendor/zscaler-sdk-go/zscaler/ztw/services/`.
 
 The most-used call patterns inline. For full method signatures see `vendor/zscaler-sdk-python/zscaler/ztw/`. Use `client.ztw.*` for all Cloud Connector operations (note: `ztw` not `cbc` — see [`./overview.md`](./overview.md) on the five-name product family).
 
@@ -194,11 +212,15 @@ For troubleshooting these patterns, see [`../_meta/runbooks.md § Troubleshootin
 
 ## Snapshotting Cloud Connector config
 
+Source: `vendor/zscaler-sdk-python/zscaler/ztw/`; `vendor/terraform-provider-ztc/ztc/`.
+
 `scripts/snapshot-refresh.py` doesn't include Cloud Connector yet. As of SDK v2.0.0, adding ZTW is now native Python — `client.ztw.ec_groups.list_groups()`, `client.ztw.forwarding_rules.list_rules()`, etc. Pre-v2.0.0 the workaround was Go SDK or Zscaler Terraformer CLI; that workaround is no longer required.
 
 Alternative: use `terraform plan -out` against the `ztc` provider and parse the plan JSON for config state. Workable; not elegant.
 
 ## Open questions
+
+Source: `vendor/zscaler-sdk-python/zscaler/ztw/`; `vendor/zscaler-sdk-go/zscaler/ztw/services/`; `vendor/terraform-provider-ztc/ztc/`; `vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.md`.
 
 - **Exact endpoint paths for each `client.ztw.*` service** — not inspected line-by-line in this pass.
 - **Rate limit specifics** — the rate-limits article exists but isn't captured.
