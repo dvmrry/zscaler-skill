@@ -514,6 +514,7 @@ test("beginTurn validates allowed actions and blocks duplicate pending turns", (
   const begun = beginTurn({ root, caseSlug, userAction: "continue-top-open" });
   assert.equal(begun.status, "pass");
   assert.ok(begun.pendingTurn.turnToken);
+  assert.equal(begun.pendingTurn.turnToken, initialized.state.nextTurnToken);
 
   assert.throws(
     () => beginTurn({ root, caseSlug, userAction: "continue-top-open" }),

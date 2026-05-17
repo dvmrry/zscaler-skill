@@ -303,7 +303,7 @@ function beginTurn(args) {
     throw new Error(`${TURN_STATE_BASENAME} journalHash does not match journal.md`);
   }
   const pendingTurn = {
-    turnToken: makeTurnToken(),
+    turnToken: state.nextTurnToken,
     userAction: args.userAction,
     journalHashBefore,
     sequence: Number(state.currentSequence) + 1,
