@@ -276,6 +276,7 @@ Multiple rows may match a single framing — **add every matching row** to PROPO
 | SIPA, Source IP Anchoring | `references/shared/source-ip-anchoring.md` |
 | App Connector, connector health, connector flap, connector status, connector assignment, health check, health probe, target reachability, eligibility filter, connector selection | `references/zpa/app-connector.md` |
 | App Connector Metrics, AliveTargetCount, TargetCount, health reporting cadence, ON_ACCESS, CONTINUOUS | `references/zpa/logs/app-connector-metrics.md` |
+| ZPA reachability, private app unreachable, app missing, application not found | `references/zpa/app-segments.md` AND `references/zpa/segment-server-groups.md` AND `references/zpa/policy-precedence.md` |
 | ZPA segment, app segment, application segment, segment scope, `health_reporting` setting, SIPA segment | `references/zpa/app-segments.md` AND `references/zpa/segment-server-groups.md` (the segment→server-group→connector chain spans both) |
 | ZPA policy, access policy, policy precedence, policy evaluation | `references/zpa/policy-precedence.md` |
 | Server group, server-group → connector-group association | `references/zpa/segment-server-groups.md` |
@@ -542,6 +543,13 @@ End your response with the closing **What's next?** multi-choice block from the 
 #### 3A — Generate the journal
 
 Follow the **First Response procedure in `agents/investigator/prompt.md`** (loaded in Step 2). Generate the discovery journal table per its format. Every claim must cite a source from the `LOADED` block.
+
+**Evidence-basis requirement:** In the `Notes` column, label each hypothesis as
+`reference-grounded`, `snapshot-grounded`, `runtime-evidence grounded`, or
+`mixed`. Use `Open (likely)` only when loaded tenant snapshot, runtime evidence,
+or user-provided evidence points toward that hypothesis. If only product
+references were loaded, use `Open (uncertain)` and state `reference-grounded
+only; no tenant snapshot or runtime evidence available`.
 
 #### 3B — Save the journal to disk (always; do not ask permission)
 

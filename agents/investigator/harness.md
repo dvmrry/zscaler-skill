@@ -463,6 +463,14 @@ Use the investigator prompt and methodology to generate the first discovery
 journal. Every hypothesis must cite loaded evidence or explicitly state what
 evidence would resolve it.
 
+Apply the evidence-basis rule from the investigator prompt: the `Notes` column
+must say whether each hypothesis is `reference-grounded`, `snapshot-grounded`,
+`runtime-evidence grounded`, or `mixed`. Use `Open (likely)` only when loaded
+tenant snapshot, runtime evidence, or user-provided evidence points toward the
+hypothesis. If the loaded set contains only product references, keep the status
+at `Open (uncertain)` and state that no tenant snapshot or runtime evidence was
+available.
+
 Do not identify a root cause in Step 3 unless the loaded evidence directly
 supports it and plausible alternatives have been ruled out.
 

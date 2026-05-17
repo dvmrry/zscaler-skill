@@ -127,9 +127,10 @@ The grounding list grows as new symptom shapes surface in real investigations �
 | Framing mentions... | Load via file-read tool |
 |---|---|
 | SIPA, Source IP Anchoring | `references/shared/source-ip-anchoring.md` |
-| App Connector, connector health, connector flap, connector status, connector assignment | `references/zpa/app-connector.md` |
+| App Connector, connector health, connector flap, connector status, connector assignment | `references/zpa/app-connector.md` and `references/zpa/segment-server-groups.md` |
 | App Connector Metrics, AliveTargetCount, TargetCount | `references/zpa/logs/app-connector-metrics.md` |
-| ZPA segment, app segment, application segment, segment scope | `references/zpa/app-segments.md` |
+| ZPA reachability, private app unreachable, app missing, application not found | `references/zpa/app-segments.md`, `references/zpa/segment-server-groups.md`, and `references/zpa/policy-precedence.md` |
+| ZPA segment, app segment, application segment, segment scope | `references/zpa/app-segments.md` and `references/zpa/segment-server-groups.md` |
 | ZPA policy evaluation, access policy, policy precedence | `references/zpa/policy-precedence.md` |
 | Server group | `references/zpa/segment-server-groups.md` |
 | ZIA URL filtering, URL category, allow / block rule | `references/zia/url-filtering.md` |
@@ -214,7 +215,7 @@ Files added to `evidence/` follow the naming and manifest convention in [`../../
 
 ### 5. Output the journal
 
-Render the discovery journal with hypotheses as `Open (likely)` or `Open (uncertain)` claims, plus the proposed next investigation step.
+Render the discovery journal with hypotheses as `Open (likely)` or `Open (uncertain)` claims, plus the proposed next investigation step. Use `Open (likely)` only when loaded tenant snapshot, runtime evidence, or user-provided evidence points toward that hypothesis. If only product references were loaded and no tenant/runtime evidence is available, use `Open (uncertain)` and state that the hypothesis is reference-grounded only.
 
 ### 6. Save the journal to disk
 
@@ -252,6 +253,12 @@ Emit as plain markdown — never inside a code fence:
 | ... | ... | ... | ... | ... | ... |
 
 **Next-evidence rule.** Every claim with status `Open (likely)` or `Open (uncertain)` MUST populate `Next evidence needed` with a concrete action — query text, file path + specific field, or API endpoint + filter. Vague entries like *"check logs"* or *"look at config"* are insufficient. Claims with `Confirmed (high)`, `Confirmed (medium)`, `Ruled out`, `Stale`, or `Resolved` may use `-` or a brief revalidation note (e.g., *"re-check after policy update"*). The column is what makes the next turn's action obvious without re-deriving it.
+
+**Evidence-basis rule.** The `Notes` column must explicitly say whether the
+hypothesis is `reference-grounded`, `snapshot-grounded`, `runtime-evidence
+grounded`, or `mixed`. If tenant snapshot or runtime evidence was unavailable,
+say so plainly; do not imply tenant-specific ZPA configuration state from
+reference docs alone.
 
 **Root cause hypothesis (current):** [leading hypothesis, or "no leader yet — investigating in priority order"]
 
