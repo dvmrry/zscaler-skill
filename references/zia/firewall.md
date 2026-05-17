@@ -3,10 +3,11 @@ product: zia
 topic: "firewall"
 title: "ZIA Firewall Control — Filtering, NAT, DNS, IPS"
 content-type: reasoning
-last-verified: "2026-05-14"
+last-verified: "2026-05-17"
 verified-against:
   vendor/terraform-provider-zia: 5c32408c1d33da384845a040b0749c1f4f23ef61
-  vendor/zscaler-sdk-python: 89a079411689fb4c6495ff6d95c619679318fbd1
+  vendor/zscaler-sdk-python: 8d054b1fdd18bcb29722b7051dc282c0d1c86be6
+  vendor/zscaler-mcp-server: 25eccadd1d476bb90cb415c468197ec0a802c8fa
 confidence: high
 source-tier: mixed
 sources:
@@ -15,6 +16,8 @@ sources:
   - "vendor/terraform-provider-zia/zia/resource_zia_firewall_filtering_rules.go"
   - "vendor/terraform-provider-zia/docs/resources/zia_ips_signature_rules.md"
   - "vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/ips_signature_rules.py"
+  - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/ips_signature_rules.py"
   - "vendor/zscaler-help/ranges-limitations-zia.md"
 author-status: draft
 ---
@@ -133,11 +136,11 @@ Rule evaluation is **first-match-wins in ascending Rule Order**, with Admin Rank
 
 ## IPS Control specifics
 
-Source: `vendor/zscaler-help/about-ips-control.md`; `vendor/terraform-provider-zia/docs/resources/zia_ips_signature_rules.md`; `vendor/zscaler-help/ranges-limitations-zia.md`.
+Source: `vendor/zscaler-help/about-ips-control.md`; `vendor/terraform-provider-zia/docs/resources/zia_ips_signature_rules.md`; `vendor/zscaler-sdk-python/zscaler/zia/ips_signature_rules.py`; `vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/ips_signature_rules.py`; `vendor/zscaler-help/ranges-limitations-zia.md`.
 
 - **Signature source**: Zscaler's research team + industry-vendor feeds. Updated continuously by Zscaler; no operator action needed.
 - **Custom signatures**: Snort-like syntax. Uploaded as part of custom threat categories; referenced in IPS Control rules.
-- **Terraform custom signatures**: `zia_ips_signature_rules` manages custom IPS signature definitions separately from `zia_firewall_ips_rule`. The signature resource validates `rule_text` before create/update, assigns the signature to a threat category, and exposes dynamic-validation status fields. IPS policy rules then reference the relevant threat category.
+- **Custom-signature automation surfaces**: Terraform `zia_ips_signature_rules`, Python SDK `client.zia.ips_signature_rules`, and MCP `zia_*_ips_signature_rule*` tools manage custom IPS signature definitions separately from `zia_firewall_ips_rule`. The signature automation surfaces validate `rule_text`, assign signatures to threat categories, and expose dynamic-validation status fields. IPS policy rules then reference the relevant threat category.
 - **Protocol coverage**: HTTP, HTTPS, FTP, DNS, TCP, UDP, IP-based ports and protocols. IPS sees non-web traffic, unlike URL Filter / CAC / DLP.
 - **Default rule: BLOCK ALL**. The shipped default blocks all traffic that matches any signature — customer rules allow-list specific traffic patterns or user populations.
 - **ATP-first evaluation**: If both ATP (`references/zia/malware-and-atp.md`) and IPS Control are licensed, ATP rules evaluate **before** IPS rules. An ATP block pre-empts IPS.

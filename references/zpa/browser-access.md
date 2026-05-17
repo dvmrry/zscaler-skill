@@ -3,10 +3,11 @@ product: zpa
 topic: "browser-access"
 title: "Browser Access — clientless ZPA via a web browser"
 content-type: reference
-last-verified: "2026-05-14"
+last-verified: "2026-05-17"
 verified-against:
   vendor/terraform-provider-zpa: a3c845f3366cc2267e1b244f9968e727c92bad3d
-  vendor/zscaler-sdk-python: 44f2f8f9ec06b1998a904c3e4080a0e034a85078
+  vendor/zscaler-sdk-python: 8d054b1fdd18bcb29722b7051dc282c0d1c86be6
+  vendor/zscaler-mcp-server: 25eccadd1d476bb90cb415c468197ec0a802c8fa
 confidence: high
 source-tier: mixed
 sources:
@@ -15,6 +16,8 @@ sources:
   - "vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment_browser_access.go"
   - "vendor/zscaler-sdk-python/zscaler/zpa/app_segments_ba.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/app_segments_ba_v2.py"
+  - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/app_segments_ba.py"
+  - "vendor/zscaler-mcp-server/skills/zpa/application_segment-ba-onboard/SKILL.md"
 author-status: draft
 ---
 
@@ -185,15 +188,15 @@ Both share the same underlying `/application` endpoint as the base `ApplicationS
 
 As of `zscaler-sdk-python` v1.9.28, both Browser Access SDK services use `transform_common_id_fields(..., coerce_ids=False)` when shaping ID-list fields. This preserves ZPA's opaque string IDs on the wire instead of coercing numeric-looking IDs to integers.
 
-**Methods (both versions):**
+The SDK v2 BA service models the per-domain Browser Access payload under `common_apps_dto.apps_config`. The Zscaler MCP server v0.12.0 added dedicated BA tools (`zpa_*_application_segment_ba`) that require `apps_config`, validate that every `apps_config[].domain` also appears in `domain_names`, and auto-inject `app_types: ["BROWSER_ACCESS"]` when missing.
 
-| Method | Notes |
-|---|---|
-| `list_segments_ba(query_params=None)` | Lists BA segments |
-| `get_segment_ba(segment_id)` | Returns single BA segment |
-| `add_segment_ba(**kwargs)` | Creates a BA segment; same required params as base segment (`name`, `domain_names`, `segment_group_id`, `server_group_ids`) plus `clientless_app_ids` |
-| `update_segment_ba(segment_id, **kwargs)` | On update, resolves `clientless_app_ids` by matching on `domain` + `app_id` against `BROWSER_ACCESS` type segments |
-| `delete_segment_ba(segment_id, force_delete=False, microtenant_id=None)` | |
+**Methods:**
+
+| Surface | Method | Notes |
+|---|---|---|
+| SDK v1 | `list_segments_ba`, `get_segment_ba`, `add_segment_ba`, `update_segment_ba`, `delete_segment_ba` | Legacy BA wrapper using `clientless_app_ids`. |
+| SDK v2 | `list_segments_ba`, `get_segment_ba`, `add_segment_ba`, `update_segment_ba`, `delete_segment_ba` | Preferred BA wrapper using `common_apps_dto.apps_config`; update auto-diffs BA apps by domain and writes `deleted_ba_apps`. |
+| MCP v0.12.0+ | `zpa_list_application_segments_ba`, `zpa_get_application_segment_ba`, `zpa_create_application_segment_ba`, `zpa_update_application_segment_ba`, `zpa_delete_application_segment_ba` | Agent-facing tools with preflight domain/protocol/certificate validation around `apps_config`. |
 
 Go SDK parity: `applicationsegmentbrowseraccess/` package.
 

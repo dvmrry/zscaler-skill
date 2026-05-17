@@ -3,7 +3,11 @@ product: zpa
 topic: "privileged-remote-access"
 title: "Privileged Remote Access (PRA) — clientless RDP/SSH/VNC"
 content-type: reasoning
-last-verified: "2026-05-03"
+last-verified: "2026-05-17"
+verified-against:
+  vendor/zscaler-sdk-python: 8d054b1fdd18bcb29722b7051dc282c0d1c86be6
+  vendor/terraform-provider-zpa: a3c845f3366cc2267e1b244f9968e727c92bad3d
+  vendor/zscaler-mcp-server: 25eccadd1d476bb90cb415c468197ec0a802c8fa
 confidence: medium
 source-tier: mixed
 sources:
@@ -14,6 +18,8 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zpa/pra_credential_pool.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/pra_portal.py"
   - "vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment_pra.go"
+  - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/app_segments_pra.py"
+  - "vendor/zscaler-mcp-server/skills/zpa/application_segment-pra-onboard/SKILL.md"
 author-status: draft
 ---
 
@@ -128,6 +134,8 @@ Relevant integration points from `references/zpa/app-segments.md`:
 - **Multimatch is not supported** on segments containing PRA-enabled applications. From the reference architecture: "Multimatch must be disabled if the configuration contains applications using the Access Type of Browser Access, AppProtection, or Privileged Remote Access."
 - **SIPA is not supported** on PRA segments — same architectural reason as Browser Access (protocol relay terminates before backend sees the packet).
 - The `VM_CONNECT` action value surfaces on PRA segments (distinct from the standard ZPA CONNECT mechanism).
+
+The Zscaler MCP server v0.12.0 added dedicated PRA app-segment tools (`zpa_*_application_segment_pra`) and an onboarding skill. Those tools model PRA-specific `common_apps_dto.apps_config` entries per RDP/SSH target, validate `application_protocol` as `RDP` or `SSH`, reject RDP-only `connection_security` on SSH entries, and preserve the SDK's `app_types: ["SECURE_REMOTE_ACCESS"]` auto-injection.
 
 ## Capabilities policy (what users can actually do in-session)
 

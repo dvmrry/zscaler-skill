@@ -3,9 +3,9 @@ product: zia
 topic: zia-sdk
 title: "ZIA SDK — service and method catalog"
 content-type: reference
-last-verified: "2026-04-30"
+last-verified: "2026-05-17"
 verified-against:
-  vendor/zscaler-sdk-python: 89a079411689fb4c6495ff6d95c619679318fbd1
+  vendor/zscaler-sdk-python: 8d054b1fdd18bcb29722b7051dc282c0d1c86be6
   vendor/zscaler-sdk-go: 4b58470175a847a74a332f39b158ab2fc3a76059
 confidence: medium
 source-tier: code
@@ -31,6 +31,7 @@ sources:
   - vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_dns.py
   - vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_ips.py
   - vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_rules.py
+  - vendor/zscaler-sdk-python/zscaler/zia/ips_signature_rules.py
   - vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go
   - vendor/zscaler-sdk-python/zscaler/zia/cloud_nss.py
   - vendor/zscaler-sdk-python/zscaler/zia/cloud_to_cloud_ir.py
@@ -247,7 +248,7 @@ Parity legend: **Yes** = Go SDK has an equivalent service directory, **Partial**
 | `update_role` | `(role_id: int, **kwargs) -> APIResult[AdminRoles]` | PUT `/adminRoles/{id}`. Same kwargs as `add_role`. |
 | `delete_role` | `(role_id: int) -> APIResult[None]` | DELETE `/adminRoles/{id}`. |
 | `get_password_expiry_settings` | `() -> APIResult[PasswordExpiry]` | GET `/passwordExpiry/settings`. Not compatible with ZIdentity tenants. |
-| `update_password_expiry_settings` | `(**kwargs) -> APIResult[PasswordExpiry]` | PUT — note: source code sends to `/cyberThreatProtection/advancedThreatSettings` endpoint, which appears to be a copy-paste bug (see open questions). Accepts `password_expiration_enabled: bool`, `password_expiry_days: int`. |
+| `update_password_expiry_settings` | `(**kwargs) -> APIResult[PasswordExpiry]` | PUT `/passwordExpiry/settings`. Accepts `password_expiration_enabled: bool`, `password_expiry_days: int`. Fixed in zscaler-sdk-python v1.9.29 after earlier versions sent the PUT to the ATP advanced-threat endpoint. |
 
 **Go parity:** Yes (`adminuserrolemgmt/`)
 
@@ -886,16 +887,19 @@ Notable kwargs include `auth_bypass_urls`, `kerberos_bypass_urls`, `enable_offic
 
 ### Custom IPS Signature Rules
 
-**Python SDK:** no equivalent service in `zscaler-sdk-python` as of v1.9.28.
+**Python SDK:** `client.zia.ips_signature_rules` (`IPSSignatureRulesAPI`, added in zscaler-sdk-python v1.9.29).
 **Go SDK package:** `zscaler/zia/services/ips_control_policies/ips_signature_rules`
 **Purpose:** CRUD, CSV import/export, and validation for custom IPS signature definitions consumed by IPS Control rules through threat categories.
 
-| Go function | Endpoint | Notes |
+| Python method / Go function | Endpoint | Notes |
 |---|---|---|
-| `Get` / `GetByName` / `GetAll` | `/zia/api/v1/ipsSignatureRules` | Read custom signature rules. |
-| `Create` / `Update` / `Delete` | `/zia/api/v1/ipsSignatureRules` | Manage custom signatures. |
-| `ValidateRuleText` | `/zia/api/v1/ipsSignatureRules/validateRuleText` | Validates Suricata/Snort-style rule text. Invalid rules surface as HTTP/API errors. |
-| import/export helpers | `/zia/api/v1/ipsSignatureRules/import`, `/export` | CSV import/export support. |
+| `list_ips_signature_rules` / `GetAll` | `/zia/api/v1/ipsSignatureRules` | Read custom signature rules. |
+| `get_ips_signature_rule` / `Get` | `/zia/api/v1/ipsSignatureRules/{id}` | Read one custom signature rule. |
+| `add_ips_signature_rule` / `Create` | `/zia/api/v1/ipsSignatureRules` | Python SDK pre-validates `rule_text` before create. |
+| `update_ips_signature_rule` / `Update` | `/zia/api/v1/ipsSignatureRules/{id}` | Python SDK pre-validates `rule_text` when supplied. |
+| `delete_ips_signature_rule` / `Delete` | `/zia/api/v1/ipsSignatureRules/{id}` | Delete custom signature rule. |
+| `validate_ips_signature_rule` / `ValidateRuleText` | `/zia/api/v1/ipsSignatureRules/validateRuleText` | Validates Suricata/Snort-style rule text. Invalid rules surface before write in the Python SDK create/update helpers. |
+| `export_custom_ips_signatures` / export helpers | `/zia/api/v1/ipsSignatureRules/export` | CSV export support. |
 
 **Terraform parity:** `zia_ips_signature_rules` resource and data source.
 
@@ -1703,7 +1707,7 @@ Source: `vendor/zscaler-sdk-python/zscaler/zia/dns_gatways.py`.
 
 Source: `vendor/zscaler-sdk-python/zscaler/zia/admin_roles.py`.
 
-**zia-sdk-04** — Resolved 2026-04-26. `AdminRolesAPI.update_password_expiry_settings` endpoint mismatch confirmed as a copy-paste bug. The docstring at line 571 shows the correct endpoint `/passwordExpiry/settings` but the implementation at line 623 sends a PUT to `/cyberThreatProtection/advancedThreatSettings`. The method is functionally broken — it updates ATP settings instead of password expiry settings.
+**zia-sdk-04** — Resolved 2026-05-17. `AdminRolesAPI.update_password_expiry_settings` endpoint mismatch was fixed in zscaler-sdk-python v1.9.29. Earlier inspected versions sent PUTs to `/cyberThreatProtection/advancedThreatSettings`; current source sends to `/passwordExpiry/settings`.
 
 Source: `vendor/zscaler-sdk-python/zscaler/zia/security_policy_settings.py`.
 
