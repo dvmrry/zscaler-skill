@@ -99,7 +99,7 @@ def resolve_skill_path(skill_file: Path, target: str) -> Path:
     return (skill_file.parent / target).resolve()
 
 
-def check_skill(skill_file: Path, findings: list[Finding]) -> str | None:
+def check_skill(skill_file: Path, findings: list[Finding], allow_smoke_tests: bool) -> str | None:
     parsed = parse_frontmatter(skill_file)
     if parsed is None:
         findings.append(Finding("error", skill_file, "missing or invalid YAML frontmatter"))
@@ -147,6 +147,8 @@ def check_skill(skill_file: Path, findings: list[Finding]) -> str | None:
 
     if is_smoke_test and "agent-skill-smoke-test: loaded" not in body:
         findings.append(Finding("error", skill_file, "smoke-test skill must define its expected marker output"))
+    if is_smoke_test and not allow_smoke_tests:
+        findings.append(Finding("warning", skill_file, "smoke-test skill is committed; remove it before release"))
 
     if not is_smoke_test and ("source of truth" not in body.lower() or "runtime" not in body.lower()):
         findings.append(Finding("warning", skill_file, "skill should state canonical-vs-runtime policy"))
@@ -192,7 +194,11 @@ def check_runtime_adapters(findings: list[Finding], strict: bool) -> None:
                     Finding(
                         severity,
                         adapter,
-                        f"runtime adapter is large ({line_count} lines); likely copied workflow logic",
+                        (
+                            f"runtime adapter is large ({line_count} lines); "
+                            "confirm it is a deliberate harness or lift the "
+                            "procedure into agents/**"
+                        ),
                     )
                 )
 
@@ -252,6 +258,11 @@ def main() -> int:
         action="store_true",
         help="treat large/stale runtime adapter findings as errors",
     )
+    parser.add_argument(
+        "--allow-smoke-tests",
+        action="store_true",
+        help="suppress warnings for intentionally committed smoke-test skills",
+    )
     args = parser.parse_args()
 
     findings: list[Finding] = []
@@ -261,7 +272,7 @@ def main() -> int:
 
     skill_names: list[str] = []
     for skill_file in skills:
-        name = check_skill(skill_file, findings)
+        name = check_skill(skill_file, findings, args.allow_smoke_tests)
         if name:
             skill_names.append(name)
 

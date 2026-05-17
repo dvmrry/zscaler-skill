@@ -41,6 +41,35 @@ Each skill should be a thin loader that:
 The skill should not copy long command bodies from `.claude/`, `.windsurf/`, or
 other runtime folders.
 
+Portable skills assume this repository layout:
+
+```text
+.agents/skills/<skill-name>/SKILL.md
+agents/<role>/prompt.md
+```
+
+Relative links from a portable skill are validated against that layout. If a
+downstream fork moves `.agents/skills/` or `agents/`, it must update the loader
+paths as part of that fork.
+
+## Harness layer
+
+Some workflows need an explicit runtime-neutral harness: checkpoint sequencing,
+halt-and-wait rules, phase output shapes, journal creation order, snapshot load
+caps, or other state-machine behavior that is more procedural than the role
+prompt itself.
+
+When that behavior is required for correctness, it belongs under `agents/**`
+next to the role prompt, not only inside one runtime adapter. Runtime adapters
+may reinforce the harness where a weaker runtime needs explicit wording, but
+the canonical contract should name the harness file that both portable skills
+and runtime adapters load.
+
+`/z-investigator` is the known hard case. Its current Windsurf workflow contains
+checkpoint discipline that the investigator prompt references as an external
+workflow harness. Until that harness is lifted into `agents/investigator/`, the
+large Windsurf file is a preserved baseline rather than accidental duplication.
+
 ## Adapter layer
 
 Runtime adapters may live under directories such as:
@@ -50,8 +79,9 @@ Runtime adapters may live under directories such as:
 - future runtime-specific directories
 
 Adapters may add runtime conveniences, such as slash-command arguments,
-clickable-question support, UI-specific wording, or local save-path details.
-They must not redefine workflow logic that belongs under `agents/**`.
+clickable-question support, UI-specific wording, local save-path details, or
+model-specific reinforcement of a canonical harness. They must not invent a
+separate workflow contract that is absent from `agents/**`.
 
 Downstream installations may generate, replace, or omit adapter files. Generated
 adapter files should not be treated as canonical source.
@@ -61,6 +91,12 @@ Some runtimes register both portable and runtime-local skills when names collide
 which makes selection ambiguous. If a downstream installation needs to generate
 runtime-local skill wrappers, use a distinct runtime/local prefix until that
 runtime can consume the portable skill directly.
+
+Some runtimes surface portable skills as slash-style commands. Do not assume
+that a `/name` entry in one runtime is equivalent to a hand-authored
+`.windsurf/workflows/name.md` or `.claude/commands/name.md` adapter. If both a
+portable skill and a runtime adapter are visible, prefer the known-good runtime
+adapter until parity has been tested.
 
 ## Migration rule
 

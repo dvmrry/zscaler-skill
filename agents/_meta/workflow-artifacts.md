@@ -62,6 +62,11 @@ _data/cases/<slug>/
     05-decision.json
 ```
 
+Long investigations may use either one evidence artifact per source
+(`04-evidence-001.json`, `04-evidence-002.json`) or a single append-only
+`04-evidence.json` array. The invariant is stable evidence IDs and checkable
+source links, not the file-count pattern.
+
 The JSON artifacts should stay language-neutral. Local validators may be
 implemented in Python, Node, shell, or another runtime appropriate for the
 installing team, but the artifact shapes should not depend on one toolchain.

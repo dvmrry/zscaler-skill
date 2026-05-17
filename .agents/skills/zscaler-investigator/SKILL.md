@@ -30,7 +30,10 @@ Load these only when their trigger applies:
 ## Runtime Policy
 
 The files above are the source of truth. Runtime-specific command files may add
-UI affordances or local save-path details, but must not redefine the workflow.
+UI affordances, local save-path details, or an explicit harness where a weaker
+runtime needs stronger checkpoint discipline.
 
-If the user invokes `/z-investigator`, treat that as an explicit request to use
-this skill.
+If a runtime has a dedicated `/z-investigator` adapter, preserve that adapter's
+behavior and let it decide whether to delegate through this skill. In runtimes
+without a dedicated adapter, an explicit `/z-investigator`-style request may be
+treated as a request to use `zscaler-investigator`.

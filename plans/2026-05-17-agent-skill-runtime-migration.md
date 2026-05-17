@@ -103,6 +103,22 @@ These files define UX and loading behavior for a specific runtime. They should
 remain thin when possible, but may need runtime-specific reinforcement when
 evidence shows the runtime requires it.
 
+### Workflow Harness
+
+A workflow harness is the checkpoint/state-machine layer that makes a role
+followable across turns: phase order, halt-and-wait behavior, output shape,
+journal creation timing, snapshot-load caps, and other anti-drift controls.
+
+This is distinct from the role prompt. A prompt can define the role and still
+depend on a harness for turn sequencing. When a harness is required for
+correctness, the canonical harness should live under `agents/**` so portable
+skills and runtime adapters can load the same contract.
+
+`/z-investigator` is the current hard case: `agents/investigator/prompt.md`
+explicitly says to halt at checkpoints "per the workflow harness", and the
+current Windsurf command contains much of that harness. That makes the large
+Windsurf file a preserved baseline, not proof of accidental duplication.
+
 ### Windsurf Skill vs Windsurf Workflow
 
 Do not conflate these:
@@ -262,11 +278,12 @@ It validates:
 - routing docs mention portable skill layer.
 - runtime-local skill collision warnings.
 - large runtime adapter warnings for known harnesses.
+- committed smoke-test skill warnings unless explicitly allowed.
 
 Current expected warning:
 
 ```text
-.windsurf/workflows/z-investigator.md: runtime adapter is large; likely copied workflow logic
+.windsurf/workflows/z-investigator.md: runtime adapter is large; confirm it is a deliberate harness or lift the procedure into agents/**
 ```
 
 This warning is useful but should not fail the first migration PR.
@@ -282,6 +299,7 @@ The migration must preserve distinctions between:
 - portable skills
 - runtime slash commands / workflow adapters
 - runtime-local skill packages
+- workflow harnesses
 - future artifact contracts
 
 The migration must not assume that a runtime's skill primitive and command
@@ -307,10 +325,13 @@ primitive are equivalent.
    other compatible runtimes.
 2. Keep `agents/**` as canonical workflow source.
 3. Keep runtime adapters thin where the runtime can handle it.
-4. Retain runtime-specific harnessing where evidence shows it is necessary.
-5. Add workflow artifacts for high-risk workflows so behavior can be validated
+4. Lift load-bearing harness behavior into `agents/**` before expecting a
+   portable skill to preserve it.
+5. Retain runtime-specific reinforcement where evidence shows a runtime needs
+   stricter wording to follow the canonical harness.
+6. Add workflow artifacts for high-risk workflows so behavior can be validated
    through structured phase outputs rather than prose compliance.
-6. Allow downstream installations to generate runtime-specific adapters without
+7. Allow downstream installations to generate runtime-specific adapters without
    creating ambiguous duplicate skill names.
 
 ## Non-Goals
@@ -450,13 +471,18 @@ Candidate must preserve:
 - one blocking clarification per turn
 - no parsed framing before blocking unknowns are resolved
 - required reads before hypotheses
+- visible stage announcement before each phase transition
+- no silent continuation after asking a blocking clarification
 - correct `_data/cases/<slug>/journal.md` handling
+- early journal stub creation when the baseline requires an on-disk artifact
 - correct `_data/snapshot/<cloud>/` handling
+- no hallucinated case slugs, snapshot paths, or evidence file paths
 - no sibling case browsing unless user points to it
 - hypothesis table with claim status and next evidence
 - halt at checkpoint
 - no unsupported RCA jump
 - no broad snapshot overloading
+- rigid output shape when the baseline defines one
 - visible grounding-files-loaded / loaded-files signal
 
 Run the same Windsurf prompt through:
@@ -532,13 +558,15 @@ developer agents.
 
 Include:
 
-- Portable skill pilot and full skill loader set.
+- Portable skill pilot. Add additional skill loaders only when their canonical
+  `agents/**/prompt.md` files exist in the same PR.
 - Runtime adapter policy docs.
 - Workflow artifact future-direction note.
 - Agent skill contract checker.
 - CI integration for the checker.
 - This plan file.
-- Canonical maintainer workflow stubs/prompts where needed.
+- Canonical maintainer workflow stubs/prompts where they are needed for any
+  loader included in the PR.
 
 Exclude:
 
@@ -561,8 +589,9 @@ Reviewers should answer these directly.
    target because it is the only mature hard case?
 3. Is the plan correct to preserve current `/z-investigator` as baseline while
    developing a parallel `z-investigator-v2` later?
-4. Should `z-investigator-v2` load canonical `agents/investigator/prompt.md`
-   directly, or route through `.agents/skills/zscaler-investigator/SKILL.md`?
+4. After the investigator harness is canonical, should `z-investigator-v2` load
+   the canonical prompt+harness directly, or route through
+   `.agents/skills/zscaler-investigator/SKILL.md`?
 5. Are the pass/fail criteria for Windsurf investigator parity sufficient?
 6. Are any important behaviors missing from the baseline preservation list?
 7. Is the `zscaler-*` skill naming vs `/z-*` command naming clear enough,
