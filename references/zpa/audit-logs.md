@@ -18,6 +18,8 @@ author-status: draft
 
 # ZPA Admin Audit Logs
 
+Source: `vendor/zscaler-help/about-log-streaming-service.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`; `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`.
+
 ZPA records admin actions (configuration changes, admin console sessions) as audit log entries. Unlike ZIA — which has a dedicated `auditlogEntryReport` REST endpoint for pulling a report — ZPA admin audit logs are surfaced through the **Log Streaming Service (LSS)** for continuous delivery to a SIEM, and are accessible via the ZPA Admin Console for interactive review.
 
 This document covers the ZPA audit log surface. Data-plane traffic logs (user activity, user status, app connector status) also flow through LSS but are not covered here. The existing `references/zpa/api.md` covers authentication, base URL structure, and application segment/policy resources.
@@ -31,6 +33,8 @@ Per `vendor/zscaler-help/about-log-streaming-service.md` (sourced from `https://
 This includes admin login sessions and configuration changes made through the ZPA Admin Console. API-driven changes are also captured, attributed to the API key or service account used.
 
 ## Retention
+
+Source: `vendor/zscaler-help/about-log-streaming-service.md`.
 
 Per `vendor/zscaler-help/about-log-streaming-service.md`:
 
@@ -47,6 +51,8 @@ Per `vendor/zscaler-help/about-log-streaming-service.md`:
 > With the **exception of audit log data**, the LSS does not transmit any log data generated during a connection loss between the App Connector and the SIEM.
 
 This means audit log data has a stronger delivery guarantee than other LSS log types. After a connection is restored, the LSS can retransmit the last 15 minutes of audit log data. The delivery of that retransmitted data is still described as "not guaranteed," but audit logs are explicitly called out as receiving special treatment during connectivity interruptions.
+
+Source: `vendor/zscaler-help/about-log-streaming-service.md`.
 
 ---
 
@@ -75,15 +81,17 @@ The `source_log_type` value for audit logs is **`zpn_audit_log`**.
 | `zpn_pbroker_comprehensive_stats` | Private Service Edge Metrics |
 | `zpn_waf_http_exchanges_log` | ZPA App Protection |
 
-Source: `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`.
+
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`; `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`; `vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py`.
 
 ---
 
 ## Terraform: provisioning an LSS audit log receiver
 
-Resource: `zpa_lss_config_controller`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`.
 
-Source: `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`
+Resource: `zpa_lss_config_controller`
 
 ```hcl
 # Retrieve the log format for audit logs
@@ -137,17 +145,19 @@ resource "zpa_lss_config_controller" "lss_audit_logs" {
 
 The TLS requirement is that the log receiver's certificate must be signed by a public root CA. The App Connector automatically receives a root certificate during deployment and trusts both public and custom root CAs.
 
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`; `vendor/zscaler-help/about-log-streaming-service.md`; `vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py`.
+
 ---
 
 ## API/SDK access patterns
 
 ### LSS configuration management
 
+Source: `vendor/zscaler-sdk-go/zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go`.
+
 The `lssConfig` API manages LSS receiver configurations. For audit log streaming, the key field is `sourceLogType = "zpn_audit_log"`.
 
 **API base path:** `/zpa/mgmtconfig/v2/admin/customers/{customerId}/lssConfig`
-
-Source: `vendor/zscaler-sdk-go/zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go`
 
 #### Go SDK
 
@@ -210,7 +220,7 @@ configs, response, error = client.zpa.lss.list_configs(search="Audit")
 
 ### `LSSResource` struct (Go)
 
-Source: `vendor/zscaler-sdk-go/zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go`
+Source: `vendor/zscaler-sdk-go/zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go`.
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -244,6 +254,8 @@ Source: `vendor/zscaler-sdk-go/zscaler/zpa/services/lssconfigcontroller/zpa_lss_
 
 LSS configuration listing uses the ZPA standard pagination engine: `common.GetAllPagesGeneric[LSSResource]`, which reads the `totalPages` envelope and fetches all pages automatically. No special pagination handling is needed in caller code.
 
+Source: `vendor/zscaler-sdk-go/zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go`; `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`.
+
 ---
 
 ## Streaming destinations
@@ -258,6 +270,8 @@ Format is selectable: JSON, CSV, or TSV.
 
 The log receiver must expose a port reachable from the App Connector's network. Mutual TLS requires the log receiver to present a certificate signed by a public root CA.
 
+Source: `vendor/zscaler-help/about-log-streaming-service.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`.
+
 ---
 
 ## ZPA admin roles and audit access
@@ -271,11 +285,15 @@ Custom roles can be configured with granular feature permissions. The **Log Stre
 
 Role changes in ZPA take up to **2 minutes** to take effect.
 
+Source: `vendor/zscaler-help/admin-rbac-captures.md`; `vendor/zscaler-help/about-log-streaming-service.md`.
+
 ---
 
 ## Open questions
 
-1. **Resolved 2026-04-26.** ZPA Admin Console audit log UI is confirmed. Source: `vendor/zscaler-help/about-log-streaming-service.md` line 19: "Zscaler retains audit log information for at least 6-month periods during the subscription term. For access to logs beyond the 14 days they are available in the Zscaler Admin Console, setting up the LSS is necessary." This confirms the ZPA Admin Console does have an audit log UI with a 14-day interactive window. LSS is required for longer retention or SIEM forwarding. The admin console audit log viewer is at Logs > (implied) Audit Logs within the ZPA Admin Console.
+Source: `vendor/zscaler-help/about-log-streaming-service.md`.
+
+1. **Resolved 2026-04-26.** ZPA Admin Console audit log UI is confirmed. The Log Streaming Service source states that Zscaler retains audit log information for at least 6-month periods during the subscription term, and that access beyond the 14 days available in the Zscaler Admin Console requires setting up LSS. This confirms the ZPA Admin Console does have an audit log UI with a 14-day interactive window. LSS is required for longer retention or SIEM forwarding. The admin console audit log viewer is at Logs > (implied) Audit Logs within the ZPA Admin Console.
 
 2. **Audit log field schema** — the specific fields present in a `zpn_audit_log` LSS stream entry are not captured in available sources. The `zpa_lss_config_log_type_formats` data source would contain the authoritative field list but was not available for review.
 
@@ -283,6 +301,6 @@ Role changes in ZPA take up to **2 minutes** to take effect.
 
 4. **Microtenant scoping** — whether audit logs from a microtenant are isolated to that microtenant's LSS configurations or visible to the parent is not confirmed from available sources.
 
-5. **Resolved 2026-04-26.** API-only audit log retrieval: ZPA has no pull-based audit export equivalent to ZIA's `auditlogEntryReport`. Source: `vendor/zscaler-help/about-log-streaming-service.md` — the ZPA admin console shows audit logs for the 14-day window; longer access requires LSS. No ZPA audit log REST endpoint is visible in `vendor/zscaler-sdk-python/zscaler/zpa/` or `vendor/zscaler-sdk-go/zscaler/zpa/`.
+5. **Resolved 2026-04-26.** API-only audit log retrieval: ZPA has no pull-based audit export equivalent to ZIA's `auditlogEntryReport`. The ZPA admin console shows audit logs for the 14-day window; longer access requires LSS. No ZPA audit log REST endpoint is visible in `vendor/zscaler-sdk-python/zscaler/zpa/` or `vendor/zscaler-sdk-go/zscaler/zpa/`.
 
 6. **Filter field** — `LSSConfig.filter` is a `[]string` but the valid filter expressions for the `zpn_audit_log` type are not documented in available sources.

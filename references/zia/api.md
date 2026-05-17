@@ -12,6 +12,13 @@ sources:
   - "vendor/zscaler-sdk-python/README.md"
   - "vendor/zscaler-sdk-python/zscaler/zia/activate.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/cloudappcontrol.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/ssl_inspection_rules.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/advanced_settings.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/cloud_nss.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/tenancy_restriction_profile.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/models/"
+  - "vendor/zscaler-help/ranges-limitations-zia.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_url_filtering_rules.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_url_categories.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_cloud_app_control_rule.md"
@@ -25,9 +32,13 @@ API reference for the slice of ZIA this skill covers — URL categories, URL fil
 
 ## Authentication — two frameworks
 
+Source: `vendor/zscaler-sdk-python/README.md`.
+
 Per `vendor/zscaler-sdk-python/README.md`, Zscaler provides two API frameworks and the SDK supports both:
 
 ### OneAPI (current — OAuth 2.0 via ZIdentity)
+
+Source: `vendor/zscaler-sdk-python/README.md`.
 
 Unified OAuth2 client covering ZIA, ZPA, ZDX, ZCC, and others with one set of credentials. Preferred for new integrations.
 
@@ -66,6 +77,8 @@ ZIA resources are accessed via `client.zia`. ZPA via `client.zpa`. ZCC via `clie
 
 ### Legacy (ZIA-specific API keys + obfuscated timestamp)
 
+Source: `vendor/zscaler-sdk-python/README.md`.
+
 For tenants not yet migrated to ZIdentity. Uses ZIA's own API-key-plus-username-password flow.
 
 Python client instantiation (per SDK README):
@@ -81,6 +94,8 @@ Legacy mode is supported by Zscaler gov clouds. New deployments should prefer On
 
 ## SDK response shape
 
+Source: `vendor/zscaler-sdk-python/README.md`.
+
 Per SDK README, every SDK method returns a 3-tuple:
 
 ```python
@@ -94,6 +109,8 @@ result, response, error = client.zia.url_filtering_rules.list_rules()
 Client-side filtering via JMESPath: `response.search("<expression>")` returns matching subset.
 
 ### Why this pattern matters — exceptions are NOT raised by default
+
+Source: `vendor/zscaler-sdk-python/README.md`; issue reference requires upstream GitHub context outside the vendored tree.
 
 The Python SDK does **not** raise on errors; it returns them in the third tuple slot. From upstream `zscaler/zscaler-sdk-python` issue #297 (open as of capture date) — the maintainer's framing:
 
@@ -117,6 +134,8 @@ Issue #297 proposes restructuring the SDK to raise; not yet implemented as of v2
 
 ### Pagination has had recurring bugs — handle defensively
 
+Source: `vendor/zscaler-sdk-python/README.md`; issue references require upstream GitHub context outside the vendored tree.
+
 From upstream issues #197, #272, and #477 (all closed), pagination has had **three separate** "doesn't return all data" bugs over time — the most recent (#477, closed 2026-04 era) was a regression from pre-1.0 versions where `list_users` / `list_groups` returned `N-1` records instead of `N` and `has_next()` returned `False` prematurely. The pattern of recurring pagination bugs is itself a signal: **don't trust pagination silently; always verify total counts on bulk operations against tenant-known sizes when possible.** Pattern to use, as of v2.0.0:
 
 ```python
@@ -133,6 +152,8 @@ while resp.has_next():
 
 ## Activation lifecycle
 
+Source: `vendor/zscaler-sdk-python/zscaler/zia/activate.py`; `vendor/zscaler-help/Configuring_URL_Categories_Using_API.txt`; `vendor/terraform-provider-zia/docs/resources/zia_activation_status.md`.
+
 From `vendor/zscaler-sdk-python/zscaler/zia/activate.py` and *Configuring URL Categories Using API* p.1:
 
 > After making any configuration changes, ensure that you activate them by sending a POST request to `/status`.
@@ -146,9 +167,13 @@ Terraform has a corresponding `zia_activation_status` resource that runs the act
 
 ## Endpoints relevant to this skill
 
+Source: `vendor/zscaler-sdk-python/zscaler/zia/`; `vendor/terraform-provider-zia/docs/resources/`.
+
 Paths on the OneAPI framework are prefixed `/zia/api/v1`. On legacy, just `/api/v1`.
 
 ### URL Categories
+
+Source: `vendor/zscaler-help/Configuring_URL_Categories_Using_API.txt`; `vendor/zscaler-help/ranges-limitations-zia.md`; `vendor/zscaler-sdk-python/zscaler/zia/models/urlcategory.py`; `vendor/terraform-provider-zia/docs/resources/zia_url_categories.md`.
 
 From *Configuring URL Categories Using API* (vendored PDF):
 
@@ -187,6 +212,8 @@ Quotas — authoritative from *Ranges & Limitations § URL Filtering & Cloud App
 - `customOnly=true` filtering is the easiest way to enumerate just tenant-authored categories via API.
 
 ### URL Filtering rules
+
+Source: `vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py`; `vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rules.py`; `vendor/terraform-provider-zia/docs/resources/zia_url_filtering_rules.md`.
 
 Endpoints follow the standard REST pattern. From `vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py` (`URLFilteringAPI` class):
 
@@ -239,6 +266,8 @@ TF equivalent: `zia_url_filtering_rules` resource. See `vendor/terraform-provide
 
 ### Cloud App Control rules
 
+Source: `vendor/zscaler-sdk-python/zscaler/zia/cloudappcontrol.py`; `vendor/zscaler-sdk-python/zscaler/zia/models/cloudappcontrol.py`; `vendor/terraform-provider-zia/docs/resources/zia_cloud_app_control_rule.md`.
+
 TF resource: `zia_cloud_app_control_rule`. Note: rule type (URL_FILTERING / CLOUD_APP_CONTROL / etc.) is part of the resource identity — you can't change rule type without recreating the rule.
 
 SDK module: `vendor/zscaler-sdk-python/zscaler/zia/cloudappcontrol.py`.
@@ -253,6 +282,8 @@ SDK module: `vendor/zscaler-sdk-python/zscaler/zia/cloudappcontrol.py`.
 - **Tenancy restriction integration** is first-class on CAC rules via `tenancy_profile_ids`, `sharing_domain_profiles`, `form_sharing_domain_profiles` — all `ResourceReference` lists. Tenant Profiles aren't a separate rule type; they attach to existing CAC rules.
 
 ### SSL Inspection rules
+
+Source: `vendor/zscaler-sdk-python/zscaler/zia/ssl_inspection_rules.py`; `vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py`; `vendor/terraform-provider-zia/docs/resources/zia_ssl_inspection_rules.md`.
 
 SDK module: `vendor/zscaler-sdk-python/zscaler/zia/ssl_inspection_rules.py`.
 
@@ -271,6 +302,8 @@ TF: `zia_ssl_inspection_rules`.
 
 ### Advanced Policy Settings
 
+Source: `vendor/zscaler-sdk-python/zscaler/zia/advanced_settings.py`; `vendor/zscaler-sdk-python/zscaler/zia/models/advanced_settings.py`.
+
 SDK module: `zscaler/zia/advanced_settings.py`. Single-resource endpoint wrapping the *Configuring Advanced Policy Settings* page.
 
 **SDK-level findings** (`zscaler/zia/models/advanced_settings.py`):
@@ -281,6 +314,8 @@ SDK module: `zscaler/zia/advanced_settings.py`. Single-resource endpoint wrappin
 - **`prefer_sni_over_conn_host`** + `block_connect_host_sni_mismatch` — separate SNI-vs-CONNECT handling toggles with their own per-app override lists (`prefer_sni_over_conn_host_apps`, `block_domain_fronting_apps`). Reveals that SNI handling + domain-fronting posture are configurable at per-app granularity, not just tenant-wide.
 
 ### Advanced URL Filter & Cloud App Settings
+
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/url_filter_cloud_app_settings.py`; `vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py`.
 
 Separate resource from Advanced Policy Settings (the console page is different too).
 
@@ -297,6 +332,8 @@ Separate resource from Advanced Policy Settings (the console page is different t
   This is a concrete API-level constraint that *Configuring Advanced Policy Settings* documents only as a warning banner. CIPA deployments must run without these four enrichments.
 
 ### Cloud NSS feeds
+
+Source: `vendor/zscaler-sdk-python/zscaler/zia/cloud_nss.py`; `vendor/zscaler-sdk-python/zscaler/zia/models/cloud_nss.py`; `vendor/terraform-provider-zia/zia/resource_zia_cloud_nss_server.go`.
 
 SDK module: `zscaler/zia/cloud_nss.py`. Corresponds to the per-log-type Cloud NSS feed creation.
 
@@ -317,6 +354,8 @@ SDK module: `zscaler/zia/cloud_nss.py`. Corresponds to the per-log-type Cloud NS
 
 ### Tenancy Restriction Profiles
 
+Source: `vendor/zscaler-sdk-python/zscaler/zia/tenancy_restriction_profile.py`; `vendor/zscaler-sdk-python/zscaler/zia/models/tenancy_restriction_profile.py`; `vendor/zscaler-help/about-tenant-profiles.md`.
+
 SDK module: `zscaler/zia/tenancy_restriction_profile.py`. Corresponds to the *Tenant Profiles* feature; see `vendor/zscaler-help/about-tenant-profiles.md` and clarification `zia-08`.
 
 **SDK-level findings** (`zscaler/zia/tenancy_restriction_profile.py`, `zscaler/zia/models/tenancy_restriction_profile.py`):
@@ -330,6 +369,8 @@ SDK module: `zscaler/zia/tenancy_restriction_profile.py`. Corresponds to the *Te
 
 ### Other resources with notable TF schema constraints
 
+Source: `vendor/terraform-provider-zia/zia/`.
+
 Not core to the skill's reasoning layer but worth knowing when reading tenant HCL or snapshots.
 
 - **VPN credentials (traffic forwarding)** — `type`, `fqdn`, `ip_address`, `pre_shared_key` are **all `ForceNew`** (`resource_zia_traffic_forwarding_vpn_credentials.go:77, 87, 93, 99`). Rotating a pre-shared key or migrating between IP and UFQDN requires **destroying and recreating** the credential — a tenant-visible disruption. The PSK is also `Sensitive` (masked in state/plan). `type` accepts only `IP` or `UFQDN` — `CN` / `DN` types that appear in some reference material are not in the TF validator.
@@ -340,6 +381,8 @@ Not core to the skill's reasoning layer but worth knowing when reading tenant HC
 - **File Type Control Rules** — `min_size` and `max_size` both `0–409,600` KB (400 MB) (`resource_zia_file_type_control_rules.go:168, 175`).
 
 ## Go-SDK-only surfaces (cross-SDK audit 2026-04-24)
+
+Source: `vendor/zscaler-sdk-go/zscaler/zia/services/`; `vendor/zscaler-sdk-python/zscaler/zia/`.
 
 Cross-check against `vendor/zscaler-sdk-go/zscaler/zia/services/` surfaced services the Python SDK at `vendor/zscaler-sdk-python/zscaler/zia/` doesn't expose. These are real ZIA API surfaces — tooling that needs them must use the Go SDK or direct HTTP calls:
 
@@ -352,6 +395,8 @@ Cross-check against `vendor/zscaler-sdk-go/zscaler/zia/services/` surfaced servi
 Python-only modules the Go SDK doesn't carry (mostly newer features or SDK-lag not yet ported): `casb_dlp_rules`, `casb_malware_rules`, `cloud_browser_isolation`, `risk_profiles`, `sub_clouds`, `proxies`, `dns_gateways`, `dedicated_ip_gateways`.
 
 ## Common SDK patterns
+
+Source: `vendor/zscaler-sdk-python/README.md`; `vendor/zscaler-sdk-python/zscaler/zia/`.
 
 The most-used call patterns inline. For full method signatures see `vendor/zscaler-sdk-python/zscaler/zia/`. For the procedural decision tree on auth selection, see [`../_meta/runbooks.md § Authentication selection`](../_meta/runbooks.md).
 
@@ -411,6 +456,8 @@ For troubleshooting these patterns when something goes wrong, see [`../_meta/run
 
 ## Read/write shape asymmetries
 
+Source: `vendor/zscaler-sdk-python/zscaler/zia/sandbox_rules.py`; `vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py`; `vendor/terraform-provider-zia/docs/resources/zia_location_management.md`; `vendor/terraform-provider-zia/docs/resources/zia_user_management.md`.
+
 Cross-cutting hub for fields where `GET` and `POST`/`PUT` disagree on shape, value, or presence semantics. Detail lives in topical docs; this section is the discovery point for "API round-trip will bite me, where?" questions.
 
 | Asymmetry | Topical home | Severity |
@@ -423,6 +470,8 @@ Cross-cutting hub for fields where `GET` and `POST`/`PUT` disagree on shape, val
 **Adding entries here:** when a new asymmetry is documented in a topical doc, add a one-line cross-link row above. Do not duplicate the detail.
 
 ## Pagination
+
+Source: `vendor/zscaler-sdk-python/README.md`.
 
 Per SDK README:
 
@@ -439,9 +488,13 @@ while resp.has_next():
 
 ## Rate limits, retries, and error handling
 
+Source: `vendor/zscaler-sdk-python/README.md`.
+
 Per SDK README, the SDK has a "custom HTTP executor with retries, caching, etc." — backoff and retry are handled internally. Explicit rate-limit values are not documented in the vendored SDK material; see Ranges & Limitations article for specifics (not vendored yet).
 
 ## Related SDK modules
+
+Source: `vendor/zscaler-sdk-python/zscaler/zia/`.
 
 Complete list of ZIA submodules available at `vendor/zscaler-sdk-python/zscaler/zia/` — relevant to this skill:
 
@@ -460,6 +513,8 @@ Complete list of ZIA submodules available at `vendor/zscaler-sdk-python/zscaler/
 
 ## Terraform resource map
 
+Source: `vendor/terraform-provider-zia/docs/resources/`; `vendor/terraform-provider-zia/docs/data-sources/`.
+
 Notable ZIA resources at `vendor/terraform-provider-zia/docs/resources/`:
 
 - `zia_activation_status` — activation trigger
@@ -473,6 +528,8 @@ Notable ZIA resources at `vendor/terraform-provider-zia/docs/resources/`:
 Data sources mirror many of these (see `vendor/terraform-provider-zia/docs/data-sources/`).
 
 ## Scripts in this repo that use these endpoints
+
+Source: `scripts/url-lookup.py`; `scripts/snapshot-refresh.py`.
 
 Both scripts use `zscaler-sdk-python` via a `uv run`–style self-contained shebang. Env-var setup per this doc's **Authentication** section.
 

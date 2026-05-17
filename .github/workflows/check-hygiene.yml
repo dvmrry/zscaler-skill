@@ -2,9 +2,11 @@ name: Doc hygiene
 
 # Runs the doc-hygiene check suite:
 #   - check-hygiene.py:          frontmatter, anchors, clarification propagation, evals
-#   - check-citations.sh:        markdown link path resolution in references/**
+#   - check-citations.sh:        markdown link path resolution in references/** and agents/**
 #   - check-doc-links.py:        HTML link / asset path resolution in docs/**
+#   - check-citation-density.py: reference source-anchor coverage and Source: audit
 #   - check-orphans.py:          reference files with no inbound links from anywhere
+#   - check-workflow-evals.py:   agent workflow eval coverage and fixture health
 #   - check-vendor-drift.py:     refs whose cited vendor sources may have drifted
 #                                (advisory — exits 1 only on confirmed file changes)
 #   - check-scrape-freshness.py: stale Zscaler help-article scrapes
@@ -39,6 +41,7 @@ on:
       - 'scripts/check-hygiene.py'
       - 'scripts/check-citations.sh'
       - 'scripts/check-doc-links.py'
+      - 'scripts/check-citation-density.py'
       - 'scripts/check-orphans.py'
       - 'scripts/check-vendor-drift.py'
       - 'scripts/check-scrape-freshness.py'
@@ -63,6 +66,7 @@ on:
       - 'scripts/check-hygiene.py'
       - 'scripts/check-citations.sh'
       - 'scripts/check-doc-links.py'
+      - 'scripts/check-citation-density.py'
       - 'scripts/check-orphans.py'
       - 'scripts/check-vendor-drift.py'
       - 'scripts/check-scrape-freshness.py'
@@ -97,11 +101,25 @@ jobs:
       - name: Run hygiene checks
         run: ./scripts/check-hygiene.py
 
-      - name: Check for broken markdown citations in references/
+      - name: Check for broken markdown citations in references/ and agents/
         run: ./scripts/check-citations.sh
 
       - name: Check for broken HTML links in docs/
         run: ./scripts/check-doc-links.py
+
+      - name: Audit local citation/source anchors
+        # Density is advisory while the existing corpus is being backfilled.
+        # Source-line hygiene is strict: canonical Source: lines must cite
+        # vendor/script/URL evidence with consistent formatting, not internal
+        # reference docs, clarification IDs, or vague scopes.
+        run: ./scripts/check-citation-density.py --audit-source-quality --include-source-style --strict-sources --top 25
+
+      - name: Check citation inventory regression
+        # Fails when a file loses visible Source: coverage, cited-paragraph
+        # coverage, source-path mentions, or gains source-quality findings.
+        # Intentional citation restructures should update
+        # references/_meta/citation-inventory.json in the same PR.
+        run: ./scripts/check-citation-density.py --compare-citation-inventory references/_meta/citation-inventory.json --strict-inventory --top 25
 
       - name: Check for orphan reference files
         run: ./scripts/check-orphans.py

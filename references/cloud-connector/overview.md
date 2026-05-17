@@ -22,6 +22,8 @@ What a Cloud Connector VM actually does, how Cloud Connector Groups scale and up
 
 ## Summary
 
+Source: `vendor/zscaler-help/what-zscaler-cloud-connector.md`; `vendor/zscaler-help/cbc-about-cloud-connector-groups.md`; `vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md`.
+
 A Cloud Connector is a **virtual machine running inside the customer's cloud account** (AWS, Azure, or GCP) that forwards cloud-workload traffic to Zscaler's ZIA and ZPA clouds. Think of it as the workload-side equivalent of ZCC — same goal (get traffic into the Zero Trust Exchange for inspection), different form factor (VM not endpoint agent).
 
 - **Multiple Cloud Connectors form a Cloud Connector Group**. Group membership is automatic on deployment (per template); the group is the policy-and-upgrade unit.
@@ -33,6 +35,8 @@ A Cloud Connector is a **virtual machine running inside the customer's cloud acc
 ## Mechanics
 
 ### Cloud Connector Group
+
+Source: `vendor/zscaler-help/cbc-about-cloud-connector-groups.md`; `vendor/zscaler-help/what-zscaler-cloud-connector.md`.
 
 From *About Cloud Connector Groups*:
 
@@ -59,6 +63,8 @@ Difference between these two is not fully documented in the captured material; f
 
 ### Autoscaling naming — cloud-provider nomenclature
 
+Source: `vendor/zscaler-help/cbc-about-cloud-connector-groups.md`; `vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md`.
+
 Same concept, three different names per cloud provider:
 
 | Cloud | Autoscaling name |
@@ -75,6 +81,8 @@ The Zscaler admin console uses "autoscaling" as a generic; enabling it requires 
 
 ### Data plane and control plane
 
+Source: `vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md`.
+
 Per *Understanding High Availability and Failover*:
 
 - **Data plane** — processes and forwards workload traffic. Outbound connections from each Cloud Connector's service interface to ZIA and ZPA Service Edges.
@@ -83,6 +91,8 @@ Per *Understanding High Availability and Failover*:
 Both planes are VM-to-ZTE, outbound-only. No inbound connection is ever made to a Cloud Connector from Zscaler's side.
 
 ### Load balancing and health checks
+
+Source: `vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md`.
 
 Zscaler integrates with the native load balancing services of each cloud provider:
 
@@ -101,6 +111,8 @@ Unhealthy Cloud Connectors are removed from rotation by the load balancer. New s
 
 ### Primary/secondary/tertiary gateway selection
 
+Source: `vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md`.
+
 Per Cloud Connector Group, traffic flows via an **active tunnel** to an ZIA/ZPA gateway:
 
 1. **Primary gateway** — active tunnel; all new sessions go here.
@@ -112,6 +124,8 @@ When the primary gateway becomes healthy again, **new sessions** route back to p
 **Geolocation-based selection** — if no specific gateways are configured, Cloud Connector uses geolocation to pick optimal Public Service Edges. Can be overridden per-rule to use specific Public Service Edges, Virtual Service Edges, or sub-clouds.
 
 ### Fail-close vs fail-open
+
+Source: `vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md`.
 
 **Default**: **fail-close**. If all configured gateways are unreachable, internet-bound workload traffic is **dropped**. Applications fail until ZTE connectivity is restored.
 
@@ -128,6 +142,8 @@ Operators configuring this should be explicit about which semantic they want.
 
 ### ZPA enrollment (workload-to-workload)
 
+Source: `vendor/zscaler-help/what-zscaler-cloud-connector.md`; `vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md`.
+
 Cloud Connectors enrolled with ZPA automatically connect to an **optimal Private Access Public Service Edge or Private Service Edge**. Similar to ZCC's ZPA microtunnel — Cloud Connector resolves the nearest ZPA edge dynamically.
 
 Private Access traffic from workloads flows:
@@ -140,6 +156,8 @@ App Connectors (ZPA's sibling outbound-only component — see [`../zpa/app-segme
 
 ## Data plane vs control plane — why it matters
 
+Source: `vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md`.
+
 Per *Understanding High Availability and Failover*:
 
 > Data plane is composed of outbound connections from the service interface of each Cloud Connector.
@@ -147,6 +165,8 @@ Per *Understanding High Availability and Failover*:
 The service interface is distinct from the management interface. A Cloud Connector can have its control plane healthy (management works, admin console shows it green) while data plane is failing (traffic isn't actually going through). This is why **health probes validate the data path**, not just VM liveness.
 
 ## Cloud Connector vs App Connector
+
+Source: `vendor/zscaler-help/what-zscaler-cloud-connector.md`; `vendor/zscaler-help/cbc-about-cloud-connector-groups.md`.
 
 Both are outbound-only Zscaler VMs. Don't confuse them.
 
@@ -163,6 +183,8 @@ Both are outbound-only Zscaler VMs. Don't confuse them.
 They **appear in the same traffic flow for workload-to-internal-app access**: Cloud Connector on the workload side, App Connector on the app side, ZPA Service Edge in the middle.
 
 ## Edge cases
+
+Source: `vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md`; `vendor/zscaler-help/cbc-about-cloud-connector-groups.md`; `vendor/zscaler-help/what-zscaler-cloud-connector.md`.
 
 - **Existing sessions fail during failover.** The ~30-second failover time applies to new-session routing; existing sessions that were on the failed Cloud Connector or gateway may time out and require retry. Applications with long-lived connections (databases, streaming) see impact.
 - **Health check customization requires Support.** Default intervals (15s Azure, 30s AWS) are "optimized." Changing them requires Zscaler Support engagement.

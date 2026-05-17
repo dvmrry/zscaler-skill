@@ -7,9 +7,6 @@ last-verified: "2026-04-26"
 confidence: medium
 source-tier: code
 sources:
-  - "references/zia/audit-logs.md"
-  - "references/zpa/audit-logs.md"
-  - "references/zwa/audit-logs.md"
   - "vendor/zscaler-help/about-log-streaming-service.md"
   - "vendor/zscaler-help/understanding-nanolog-streaming-service.md"
   - "vendor/zscaler-help/admin-rbac-captures.md"
@@ -19,11 +16,16 @@ sources:
   - "vendor/zscaler-sdk-go/zscaler/zia/services/eventlogentryreport/eventlogentryreport.go"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go"
   - "vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go"
-  - "references/shared/admin-rbac.md"
+  - "vendor/zscaler-sdk-go/zscaler/zcc/services/admin_users/admin_users.go"
+  - "vendor/zscaler-sdk-python/zscaler/zcc/zcc_service.py"
+  - "vendor/zscaler-sdk-go/zscaler/ztw/services/adminuserrolemgmt/adminusers/adminusers.go"
+  - "vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go"
 author-status: draft
 ---
 
 # Cross-product audit log framework
+
+Source: `vendor/zscaler-help/admin-rbac-captures.md`; `vendor/zscaler-help/about-log-streaming-service.md`; `vendor/zscaler-sdk-go/zscaler/zia/services/adminauditlogs/adminauditlogs.go`; `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go`.
 
 This document provides a cross-product view of the "who changed what config when" surface across the Zscaler portfolio. It identifies which products have admin audit logs, the access mechanisms available (portal, API, SDK, streaming), retention periods, and where gaps exist. Per-product detail is in the product-specific files linked below.
 
@@ -47,11 +49,15 @@ This document provides a cross-product view of the "who changed what config when
 | **Cloud Connector (ZTW)** | No admin audit log found | No | No audit API found | No | Unknown | Log and Control Forwarding policy handles traffic/control channel routing, not admin audit |
 | **ZIdentity** | Audit Logs module exists (view-only permission model) | No | Not exposed in available Go/Python SDK sources | No | Unknown | `vendor/zscaler-help/admin-rbac-captures.md` |
 
+Source: `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_events.go`.
+
 **Note on ZDX device events:** These are not admin config-change events; they record endpoint state transitions (Zscaler, hardware, software, network changes) for a specific device. They answer "what changed on this device" rather than "what did an admin change in the portal." They are included because they are the closest analog to a change audit in the ZDX surface.
 
 ---
 
 ## ZIA audit architecture
+
+Source: `vendor/zscaler-help/admin-rbac-captures.md`; `vendor/zscaler-sdk-go/zscaler/zia/services/adminauditlogs/adminauditlogs.go`; `vendor/zscaler-sdk-go/zscaler/zia/services/eventlogentryreport/eventlogentryreport.go`.
 
 ZIA has the most complete audit API:
 
@@ -60,6 +66,8 @@ ZIA has the most complete audit API:
 - **Filter dimensions**: admin name, object name, action interface (UI/API), category, subcategories, action result (success/failure), action types, client IP, time range, page/pageSize.
 - **`authType` field** in audit events distinguishes session source: standard login, SAML SSO, Zscaler Support access (full/partial/read-only), partner access, mobile app token. This enables isolation of support-access activity during change investigations.
 
+Source: `vendor/zscaler-help/admin-rbac-captures.md`.
+
 The audit log API requires the **Reports** functional scope on the admin account. The Cloud Service API must be enabled by Zscaler Support for the tenant.
 
 Full detail: [`../zia/audit-logs.md`](../zia/audit-logs.md)
@@ -67,6 +75,8 @@ Full detail: [`../zia/audit-logs.md`](../zia/audit-logs.md)
 ---
 
 ## ZPA audit architecture: LSS
+
+Source: `vendor/zscaler-help/about-log-streaming-service.md`; `vendor/zscaler-sdk-go/zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go`.
 
 ZPA routes audit logs through the Log Streaming Service (LSS) rather than a dedicated pull-based API:
 
@@ -83,6 +93,8 @@ Full detail: [`../zpa/audit-logs.md`](../zpa/audit-logs.md)
 
 ## ZWA audit architecture
 
+Source: `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go`.
+
 ZWA has a direct query API for customer audit logs:
 
 - **Access model**: POST filter with `fields` (Action, Resource, Admin, Module) and `timeRange` filters
@@ -95,6 +107,8 @@ Full detail: [`../zwa/audit-logs.md`](../zwa/audit-logs.md)
 ---
 
 ## ZDX device events (not admin audit)
+
+Source: `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_events.go`.
 
 ZDX exposes per-device event metrics at `/zdx/v1/reports/devices/{deviceId}/events`. These record endpoint-side state changes:
 
@@ -112,11 +126,11 @@ Event categories: Zscaler, Hardware, Software, and Network changes. The `Prev` a
 
 This is a device telemetry feed, not an admin audit trail. It answers "what changed on the endpoint" — useful for correlating network or software changes with degraded user experience.
 
-Source: `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_events.go`
-
 ---
 
 ## NSS vs LSS roles in audit log delivery
+
+Source: `vendor/zscaler-help/understanding-nanolog-streaming-service.md`; `vendor/zscaler-help/about-log-streaming-service.md`; `vendor/zscaler-sdk-go/zscaler/zia/services/adminauditlogs/adminauditlogs.go`; `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go`.
 
 | Mechanism | Product | What it streams | Audit log role |
 |-----------|---------|-----------------|---------------|
@@ -129,11 +143,11 @@ NSS operates in ZIA and streams traffic logs. It has no connection to admin audi
 LSS operates in ZPA and streams multiple log types including audit logs.
 There is no unified cross-product log streaming bus for admin audit logs.
 
-Source: `vendor/zscaler-help/understanding-nanolog-streaming-service.md`; `vendor/zscaler-help/about-log-streaming-service.md`
-
 ---
 
 ## ZIdentity and audit log federation
+
+Source: `vendor/zscaler-help/admin-rbac-captures.md`.
 
 ZIdentity serves as the identity plane for ZIA and ZPA in modern (OneAPI) deployments. Per `vendor/zscaler-help/admin-rbac-captures.md`:
 
@@ -141,7 +155,11 @@ ZIdentity serves as the identity plane for ZIA and ZPA in modern (OneAPI) deploy
 - The **Administrative Entitlements** module in ZIdentity controls which ZIA/ZPA products an admin can access. Changes to entitlements are presumably captured in ZIdentity's own audit log.
 - OneAPI **Trace IDs** link API calls to admin identities. When debugging cross-product "who made this call," the Trace ID is the stable correlator across ZIA, ZPA, and ZIdentity audit logs.
 
+Source: `vendor/zscaler-help/admin-rbac-captures.md`; `vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`.
+
 ZIdentity audit log field schema and API access are not exposed in available SDK sources. The ZIdentity module is present in the ZIdentity admin permission matrix as a permission-gated view, implying a portal UI but not confirming an API.
+
+Source: `vendor/zscaler-help/admin-rbac-captures.md`; `vendor/zscaler-help/about-log-streaming-service.md`.
 
 **Pre-ZIdentity (legacy) tenants** have two separate audit streams — ZIA's and ZPA's — with no shared identity correlator. Correlating admin actions across products requires matching admin names or session timestamps manually.
 
@@ -149,21 +167,29 @@ ZIdentity audit log field schema and API access are not exposed in available SDK
 
 ## Cloud & Branch Connector (ZTW) — no admin audit
 
-The Cloud & Branch Connector (ZTW) has a "Log and Control Forwarding" policy (per `vendor/zscaler-help/cbc-about-log-and-control-forwarding.md`) that controls how traffic logs and operational messages route to the Zscaler cloud. This is a data-plane forwarding policy — not an admin audit surface. It manages items such as enrollment, policy changes, software updates, and log sending through gateway routing rules.
+Source: `vendor/zscaler-help/cbc-about-log-and-control-forwarding.md`.
 
-The available ZTW SDK sources (`vendor/zscaler-sdk-go/zscaler/ztw/services/`) expose admin user and role management endpoints but no audit log query endpoints. Admin-level audit logging for Cloud Connector configuration changes is not confirmed in available sources.
+The Cloud & Branch Connector (ZTW) has a "Log and Control Forwarding" policy that controls how traffic logs and operational messages route to the Zscaler cloud. This is a data-plane forwarding policy — not an admin audit surface. It manages items such as enrollment, policy changes, software updates, and log sending through gateway routing rules.
+
+Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/adminuserrolemgmt/adminroles/adminroles.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/adminuserrolemgmt/adminusers/adminusers.go`.
+
+The available ZTW SDK sources expose admin user and role management endpoints but no audit log query endpoints. Admin-level audit logging for Cloud Connector configuration changes is not confirmed in available sources.
 
 ---
 
 ## ZCC — no admin audit found
 
-An exhaustive grep of the ZCC SDK sources (`vendor/zscaler-sdk-go/zscaler/zcc/`, `vendor/zscaler-sdk-python/zscaler/zcc/`) found only admin role and admin user management endpoints — no audit log query API. ZCC maintains a local copy of admin users synced from ZIA/ZPA/ZDX via explicit sync endpoints (`POST /zcc/papi/public/v1/sync/admins`, etc.), but no audit trail of ZCC configuration changes is visible in available sources.
+Source: `vendor/zscaler-sdk-go/zscaler/zcc/services/admin_roles/admin_roles.go`; `vendor/zscaler-sdk-go/zscaler/zcc/services/admin_users/admin_users.go`; `vendor/zscaler-sdk-python/zscaler/zcc/admin_user.py`; `vendor/zscaler-sdk-python/zscaler/zcc/zcc_service.py`.
+
+An exhaustive grep of the ZCC SDK sources found only admin role and admin user management endpoints — no audit log query API. ZCC maintains a local copy of admin users synced from ZIA/ZPA/ZDX via explicit sync endpoints (`POST /zcc/papi/public/v1/sync/admins`, etc.), but no audit trail of ZCC configuration changes is visible in available sources.
 
 ---
 
 ## SIEM integration patterns
 
 ### ZIA
+
+Source: `vendor/zscaler-sdk-go/zscaler/zia/services/adminauditlogs/adminauditlogs.go`; `vendor/zscaler-sdk-go/zscaler/zia/services/eventlogentryreport/eventlogentryreport.go`.
 
 No native push from ZIA to a SIEM for audit logs. Integration requires:
 
@@ -176,11 +202,15 @@ Given the 6-month retention, daily or weekly scheduled pulls are the practical p
 
 ### ZPA
 
+Source: `vendor/zscaler-help/about-log-streaming-service.md`; `vendor/zscaler-sdk-go/zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go`.
+
 LSS streams `zpn_audit_log` continuously to a configured SIEM log receiver. The SIEM must expose a TCP port reachable from the App Connector network. Mutual TLS is supported and the receiver certificate must be signed by a public root CA.
 
 Third-party SIEM integrations documented by Zscaler include Splunk. Other SIEMs that accept raw TCP log streams are compatible.
 
 ### ZWA
+
+Source: `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go`.
 
 No push-based streaming documented. Integration requires periodic POST calls to `/zwa/dlp/v1/customer/audit` with time range filters, followed by cursor-based pagination to retrieve all pages.
 
@@ -188,19 +218,33 @@ No push-based streaming documented. Integration requires periodic POST calls to 
 
 ## Open questions register
 
-1. **ZIdentity audit log API** — no SDK implementation found for querying ZIdentity audit logs programmatically. The `vendor/zscaler-sdk-go/zscaler/zid/services/` directory contains only `common`, `groups`, `resource_servers`, `user_entitlement`, and `users` — no audit package. Whether a REST endpoint exists is unknown.
+Source: `vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`.
 
-2. **ZIA NSS audit streaming** — NSS documentation covers only traffic logs (web, firewall). Source: `vendor/zscaler-help/about-log-streaming-service.md` confirms ZPA LSS covers "Audit Logs" but makes no mention of ZIA admin audit log streaming. ZIA admin audit logs appear to be pull-only via `auditlogEntryReport`. Not confirmed from available sources.
+1. **ZIdentity audit log API** — no SDK implementation found for querying ZIdentity audit logs programmatically. The inspected Go ZID service files cover `common`, `groups`, `resource_servers`, `user_entitlement`, and `users` — no audit package. Whether a REST endpoint exists is unknown.
 
-3. **ZCC admin audit** — no audit endpoint found in ZCC SDK. `vendor/zscaler-sdk-python/zscaler/zcc/` and `vendor/zscaler-sdk-go/zscaler/zcc/services/` do not include an audit package. Whether ZCC configuration changes are recorded elsewhere is unknown.
+Source: `vendor/zscaler-help/about-log-streaming-service.md`; `vendor/zscaler-sdk-go/zscaler/zia/services/adminauditlogs/adminauditlogs.go`.
 
-4. **ZTW admin audit** — same gap as ZCC. No audit package found in `vendor/zscaler-sdk-go/zscaler/ztw/services/`. Whether Cloud & Branch Connector admin config changes are captured in an audit trail is not confirmed.
+2. **ZIA NSS audit streaming** — NSS documentation covers only traffic logs (web, firewall). The LSS documentation confirms ZPA LSS covers "Audit Logs" but makes no mention of ZIA admin audit log streaming. ZIA admin audit logs appear to be pull-only via `auditlogEntryReport`. Not confirmed from available sources.
 
-5. **ZDX admin audit** — ZDX administration changes (departments, locations, alert thresholds) are not visibly captured in an audit log. No audit package found in `vendor/zscaler-sdk-go/zscaler/zdx/` or `vendor/zscaler-sdk-python/zscaler/zdx/`.
+Source: `vendor/zscaler-sdk-go/zscaler/zcc/services/admin_roles/admin_roles.go`; `vendor/zscaler-sdk-go/zscaler/zcc/services/admin_users/admin_users.go`; `vendor/zscaler-sdk-python/zscaler/zcc/admin_user.py`; `vendor/zscaler-sdk-python/zscaler/zcc/zcc_service.py`.
 
-6. **Cross-product trace ID** — the OneAPI Trace ID appears in ZIA audit log columns (source: `vendor/zscaler-help/admin-rbac-captures.md` line 78). Whether this Trace ID is surfaced in ZWA, ZDX, or ZCC audit contexts is not confirmed from available sources.
+3. **ZCC admin audit** — no audit endpoint found in the inspected ZCC SDK surfaces. The captured Go and Python surfaces include admin role/user and configuration resources but no audit package. Whether ZCC configuration changes are recorded elsewhere is unknown.
 
-7. **Resolved 2026-04-26.** ZPA pull-based audit export: confirmed absent. ZPA has no equivalent to the ZIA `auditlogEntryReport` API. Source: `vendor/zscaler-help/about-log-streaming-service.md` — ZPA audit logs are available in the ZPA Admin Console for 14 days and via LSS for longer retention. For tenants without App Connectors deployed, LSS cannot be used and audit logs are only accessible via the 14-day Admin Console window.
+Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/adminuserrolemgmt/adminroles/adminroles.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/adminuserrolemgmt/adminusers/adminusers.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/traffic_log_rules/traffic_log_rules.go`.
+
+4. **ZTW admin audit** — same gap as ZCC. No audit package found in the inspected Go ZTW admin and policy-management service files. Whether Cloud & Branch Connector admin config changes are captured in an audit trail is not confirmed.
+
+Source: `vendor/zscaler-sdk-go/zscaler/zdx/services/administration/administration.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_events.go`; `vendor/zscaler-sdk-python/zscaler/zdx/admin.py`; `vendor/zscaler-sdk-python/zscaler/zdx/zdx_service.py`.
+
+5. **ZDX admin audit** — ZDX administration changes (departments, locations, alert thresholds) are not visibly captured in an audit log. The inspected ZDX administration and device-events files do not expose an admin audit query surface.
+
+Source: `vendor/zscaler-help/admin-rbac-captures.md`.
+
+6. **Cross-product trace ID** — the OneAPI Trace ID appears in ZIA audit log columns. Whether this Trace ID is surfaced in ZWA, ZDX, or ZCC audit contexts is not confirmed from available sources.
+
+Source: `vendor/zscaler-help/about-log-streaming-service.md`.
+
+7. **Resolved 2026-04-26.** ZPA pull-based audit export: confirmed absent. ZPA has no equivalent to the ZIA `auditlogEntryReport` API. ZPA audit logs are available in the ZPA Admin Console for 14 days and via LSS for longer retention. For tenants without App Connectors deployed, LSS cannot be used and audit logs are only accessible via the 14-day Admin Console window.
 
 8. **ZWA retention** — the ZWA audit log retention period is not documented in available sources. No retention field or constant found in `vendor/zscaler-sdk-python/zscaler/zwa/` or `vendor/zscaler-sdk-go/zscaler/zwa/`.
 

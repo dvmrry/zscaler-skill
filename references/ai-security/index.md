@@ -5,11 +5,17 @@ title: "AI Security family reference hub"
 content-type: reference
 last-verified: "2026-04-25"
 confidence: medium
-sources: []
+source-tier: doc
+sources:
+  - "vendor/zscaler-help/ai-guard-what-is.md"
+  - "vendor/zscaler-help/ai-security-marketing.md"
+  - "vendor/zscaler-help/ai-guardrails-marketing.md"
 author-status: reviewed
 ---
 
 # AI Security reference hub
+
+Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
 
 Entry point for **Zscaler AI Security** questions — the family of products that secures enterprise AI usage, including AI Guard (runtime guardrails), AI Guardrails (marketing umbrella for the same), AI Red Teaming (vulnerability assessment for customer LLM apps), and the broader four-pillar governance framework.
 
@@ -17,11 +23,15 @@ Confidence is **medium** because all coverage is sourced from marketing material
 
 ## Topics
 
+Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
+
 | Topic | File | Status |
 |---|---|---|
 | Four-pillar framework, AI Guard 15 detectors, deployment modes (Proxy / DaaS / OnPrem), integration with ZIA URL Filter + DLP + ZBI, AI Red Teaming, edge cases | [`./overview.md`](./overview.md) | draft |
 
 ## Why AI Security matters in the suite
+
+Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
 
 AI Security is **the suite-spanning offering**, not a standalone product:
 
@@ -33,6 +43,8 @@ The skill should treat questions about "AI security in the Zscaler stack" as a l
 
 ## When to start here vs elsewhere
 
+Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
+
 - **Start here** for: "what is AI Guard?" / "what's the difference between AI Guard and AI Guardrails?" / "what are the AI Security pillars?" / "how does Zscaler protect against prompt injection?"
 - **Start in [`../zia/url-filtering.md`](../zia/url-filtering.md)** for: "how does Zscaler block ChatGPT?" — the URL Filter GenAI categories handle category-level blocking before AI Guard's content layer fires.
 - **Start in [`../zia/dlp.md`](../zia/dlp.md)** for: "how does Zscaler stop sensitive data going into LLM prompts?" — DLP prompt scanning is the existing capability; AI Guard *adds to* it, not replaces.
@@ -40,6 +52,8 @@ The skill should treat questions about "AI security in the Zscaler stack" as a l
 - **Start in [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)** for: "is AI Security in scope for this skill?" — coverage tier check.
 
 ## Coverage gaps (deferred)
+
+Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
 
 - Pricing / packaging (which AI Security capabilities bundle into which Zscaler edition).
 - Latency / performance numbers for inline mode.

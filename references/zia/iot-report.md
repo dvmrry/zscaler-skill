@@ -24,11 +24,15 @@ author-status: draft
 
 # ZIA IoT Report — device visibility, classification, policy
 
+Source: `vendor/zscaler-help/about-iot-report.md`; `vendor/zscaler-help/automate-zscaler/api-endpoint-catalog.md`; `vendor/zscaler-sdk-python/zscaler/zia/iot_report.py`; `vendor/zscaler-sdk-go/zscaler/zia/services/iotreport/iotreport.go`.
+
 The IoT Report is ZIA's passive device-discovery surface. It does not require agents or DHCP integration. It observes unauthenticated traffic flowing through Zscaler and uses an AI/ML fingerprinting engine to classify each source device into a three-level taxonomy (type → category → classification). The report is read-only from a policy perspective — no ZIA enforcement rule natively consumes IoT classification as a criteria object — but the output can drive adjacent controls indirectly through location type, location group, and Cloud App Control pre-built rules.
 
 ---
 
 ## 1. Overview
+
+Source: `vendor/zscaler-help/about-iot-report.md`.
 
 ### What the report covers
 
@@ -61,6 +65,8 @@ The report only shows data for locations where IoT discovery is explicitly enabl
 ---
 
 ## 2. Device categorization
+
+Source: `vendor/zscaler-help/about-iot-report.md`; `vendor/zscaler-sdk-python/zscaler/zia/models/iotreport.py`; `vendor/zscaler-sdk-go/zscaler/zia/services/iotreport/iotreport.go`.
 
 ### Three-level taxonomy
 
@@ -101,6 +107,8 @@ Each device record carries `flowStartTime` and `flowEndTime` in epoch seconds, m
 ---
 
 ## 3. Reporting surface
+
+Source: `vendor/zscaler-help/about-iot-report.md`; `vendor/zscaler-help/automate-zscaler/api-endpoint-catalog.md`; `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md`; `vendor/zscaler-help/automate-zscaler/guides-analytics-api.md`; `vendor/zscaler-sdk-python/zscaler/zia/iot_report.py`; `vendor/zscaler-sdk-python/zscaler/zins/iot.py`; `vendor/zscaler-sdk-go/zscaler/zia/services/iotreport/iotreport.go`.
 
 ### Console navigation
 
@@ -260,6 +268,8 @@ Returns counts and classification entries. Requires the `zins` service to be ena
 
 ## 4. Policy interaction
 
+Source: `vendor/zscaler-help/about-iot-report.md`; `vendor/zscaler-help/adding-rules-cloud-app-control-policy.md`; `vendor/zscaler-help/configuring-dynamic-location-groups.md`.
+
 ### What IoT classification cannot do (directly)
 
 IoT classification UUIDs and auto-labels from the IoT Report are **not available as matching criteria** in any ZIA policy rule type. You cannot write a Firewall Filtering rule that says "if device is IoT / classificationUuid = X, then block." The IoT Report is observation-only; its output does not propagate into the rule evaluation engine as a first-class criterion.
@@ -318,6 +328,8 @@ Same situation as Firewall. URL Filtering rules can be scoped to the IoT Traffic
 
 ## 5. Common gotchas
 
+Source: `vendor/zscaler-help/about-iot-report.md`; `vendor/zscaler-help/adding-rules-cloud-app-control-policy.md`; `vendor/zscaler-help/configuring-dynamic-location-groups.md`; `vendor/zscaler-sdk-python/zscaler/zins/iot.py`.
+
 ### Classification accuracy degrades without sufficient traffic
 
 The AI/ML engine needs enough weblog records in the observation window to form a confident classification. Devices that generate very little HTTP/HTTPS traffic (e.g., a temperature sensor that calls home once per hour) may remain Unknown or get a low-confidence classification. The 24-hour active-device window means sporadic devices appear and disappear.
@@ -349,6 +361,8 @@ The integration test for the IoT Report REST endpoints explicitly comments "may 
 ---
 
 ## 6. Open questions register
+
+Source: `vendor/zscaler-help/about-iot-report.md`; `vendor/zscaler-help/automate-zscaler/api-endpoint-catalog.md`; `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md`; `vendor/zscaler-sdk-python/zscaler/zia/iot_report.py`; `vendor/zscaler-sdk-python/zscaler/zins/iot.py`.
 
 1. **Classification taxonomy versioning.** The UUID-to-name mappings from `/iotDiscovery/deviceTypes`, `/categories`, and `/classifications` are returned dynamically. It is unclear whether UUIDs are stable across Zscaler ML model updates or whether stored UUIDs can silently become stale. If UUIDs change, any downstream automation that stores them will break silently.
 

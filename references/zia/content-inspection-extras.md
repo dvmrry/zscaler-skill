@@ -16,9 +16,13 @@ author-status: draft
 
 # FTP Control, File Type Control, and SSH handling
 
+Source: `vendor/zscaler-help/about-ftp-control.md`; `vendor/zscaler-help/about-file-type-control.md`; `vendor/zscaler-help/about-ips-control.md`; `vendor/zscaler-help/configuring-firewall-policies.md`.
+
 Three narrow ZIA inspection surfaces that sit adjacent to the big policy modules (URL Filter, CAC, DLP, SSL Inspection, Sandbox, Malware/ATP, Firewall) but have their own rules, constraints, and evaluation quirks. This doc covers all three together because each is narrow enough on its own not to warrant a full reference doc, and they share enough pipeline context that reasoning about them in one place is cleaner.
 
 ## FTP Control
+
+Source: `vendor/zscaler-help/about-ftp-control.md`.
 
 FTP is ZIA's legacy protocol handler for file-transfer traffic. Two reasons it has its own control plane:
 
@@ -54,6 +58,8 @@ Firewall module — **Policies > Firewall > FTP Control**. Evaluates before the 
 3. **URL Filter precedence can mask FTP Control intent.** If a URL Filtering rule allows access to an FTP site but FTP Control is configured to block certain files, the URL Filter allow fires first at the URL level; FTP Control's file-type check runs downstream. Order rules accordingly.
 
 ## File Type Control
+
+Source: `vendor/zscaler-help/about-file-type-control.md`.
 
 File Type Control gates file upload/download by file shape — extension, MIME type, archive-content, active-content — before or alongside DLP content inspection. The module defaults to **allow all file types**; enforcement is opt-in via policy rules.
 
@@ -102,6 +108,8 @@ Web module — **Policies > File Type Control**. Evaluates as part of the post-S
 
 ## SSH handling
 
+Source: `vendor/zscaler-help/about-ips-control.md`; `vendor/zscaler-help/configuring-firewall-policies.md`.
+
 **SSH has no dedicated content-inspection surface in ZIA.** The help-doc search turned up no "About SSH Inspection" article, and the module structure (Firewall + Web) has no SSH-specific placeholder.
 
 ### What Zscaler does for SSH
@@ -126,6 +134,8 @@ PRA is effectively the skill's recommended pattern for any "we need oversight of
 
 ## Cross-module interaction summary
 
+Source: `vendor/zscaler-help/about-ftp-control.md`; `vendor/zscaler-help/about-file-type-control.md`; `vendor/zscaler-help/about-ips-control.md`; `vendor/zscaler-help/configuring-firewall-policies.md`.
+
 | | FTP Control | File Type Control | SSH (Firewall) |
 |---|---|---|---|
 | Module | Firewall | Web | Firewall |
@@ -137,6 +147,8 @@ PRA is effectively the skill's recommended pattern for any "we need oversight of
 
 ## Surprises worth flagging
 
+Source: `vendor/zscaler-help/about-ftp-control.md`; `vendor/zscaler-help/about-file-type-control.md`; `vendor/zscaler-help/configuring-firewall-policies.md`.
+
 1. **FTP over HTTP is default-deny; native FTP is default-allow.** Counterintuitive. Zscaler's reasoning: native FTP is simpler to inspect, but the default allow predates ZCC/PAC coverage. FTP-over-HTTP is the modern forwarding path and needs an explicit FTP Control policy.
 
 2. **Active FTP doesn't work at all.** No workaround. Modern servers do passive; legacy systems needing active FTP should be fronted with a conversion proxy or replaced.
@@ -147,9 +159,11 @@ PRA is effectively the skill's recommended pattern for any "we need oversight of
 
 5. **SSH inspection doesn't exist; PRA is the answer.** Tenants asking "how do we log SSH commands" get pointed to PRA, not to a Zscaler SSH-inspection product that doesn't exist. Worth saying plainly.
 
-6. **FTP Control is location-scoped.** FTP Control policy applies only to traffic from **defined locations**. Road-warrior users not at a known location can't use native FTP through ZIA at all — they must use FTP over HTTP via dedicated ports. The scope limitation isn't obvious from the feature name and surfaces as "FTP works in the office, not at home." Source: *About FTP Control* lines 25–28.
+Source: `vendor/zscaler-help/about-ftp-control.md`.
 
-7. **Non-passive FTP fails with browser alert, not silent block.** When the destination FTP server doesn't support passive mode, the ZIA service generates an alert message in the user's browser — not a silent failure or generic timeout. Help-desk tickets for "FTP browser shows weird error" usually trace to active-FTP-server attempts. Source: same article.
+6. **FTP Control is location-scoped.** FTP Control policy applies only to traffic from **defined locations**. Road-warrior users not at a known location can't use native FTP through ZIA at all — they must use FTP over HTTP via dedicated ports. The scope limitation isn't obvious from the feature name and surfaces as "FTP works in the office, not at home."
+
+7. **Non-passive FTP fails with browser alert, not silent block.** When the destination FTP server doesn't support passive mode, the ZIA service generates an alert message in the user's browser — not a silent failure or generic timeout. Help-desk tickets for "FTP browser shows weird error" usually trace to active-FTP-server attempts.
 
 ## Cross-links
 

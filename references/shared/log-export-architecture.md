@@ -29,6 +29,8 @@ For the detailed NSS pipeline mechanics (buffer behavior, replay windows, feed-c
 
 ## Log export mechanisms by product
 
+Source: `vendor/zscaler-help/understanding-nanolog-streaming-service.md`; `vendor/zscaler-help/about-cloud-nss-feeds.md`; `vendor/zscaler-help/General_Guidelines_for_NSS_Feeds_and_Feed_Formats.txt`; `vendor/zscaler-help/Understanding_the_Log_Stream_Content_Format.txt`.
+
 | Product | Log type | Export mechanism | Format options | Retention at source | Notes |
 |---|---|---|---|---|---|
 | ZIA | Web (HTTP/HTTPS transactions) | NSS VM or Cloud NSS | CSV, TSV, JSON, custom | Nanolog retains originals; SIEM holds the customer's copy | ZCC-forwarded traffic carries device fields (`deviceowner`, `ztunnelversion`) |
@@ -47,6 +49,8 @@ For the detailed NSS pipeline mechanics (buffer behavior, replay windows, feed-c
 ---
 
 ## ZIA — NSS (VM-based)
+
+Source: `vendor/zscaler-help/understanding-nanolog-streaming-service.md`; `vendor/zscaler-help/General_Guidelines_for_NSS_Feeds_and_Feed_Formats.txt`.
 
 ### Architecture
 
@@ -102,6 +106,8 @@ For deployment: ZIA Admin Console > Administration > Nanolog Streaming Service.
 
 ## ZIA — Cloud NSS
 
+Source: `vendor/zscaler-help/about-cloud-nss-feeds.md`; `vendor/zscaler-help/General_Guidelines_for_NSS_Feeds_and_Feed_Formats.txt`.
+
 Cloud NSS is the SaaS alternative to deploying an NSS VM. Zscaler's cloud directly POSTs batches of logs to an HTTPS endpoint at the customer's SIEM — no on-prem appliance required.
 
 ### How it differs from NSS VM
@@ -145,6 +151,8 @@ Cloud NSS feeds are configured from the NSS Feeds page (Logs > Log Streaming > I
 ---
 
 ## ZPA — LSS (Log Streaming Service)
+
+Source: `vendor/zscaler-help/Understanding_the_Log_Stream_Content_Format.txt`.
 
 LSS is ZPA's log streaming layer. It is architecturally distinct from NSS — it does not go through the Nanolog cluster and is configured in the ZPA admin console, not the ZIA admin console.
 
@@ -194,6 +202,8 @@ The shorter retransmit window compared to NSS (15 min vs 60 min opt-in) is a got
 
 ## ZCC — Local diagnostic logs
 
+Source: `vendor/zscaler-help/Understanding_the_Log_Stream_Content_Format.txt`.
+
 ZCC does not stream logs to any external receiver. All ZCC operational logs are written to the endpoint device and accessed locally or via support bundle export.
 
 ### Access methods
@@ -233,6 +243,8 @@ ZCC device identity surfaces indirectly in ZIA NSS web logs via `deviceowner` (d
 
 ## Cloud Connector — NSS Firewall + Insights UI
 
+Source: `vendor/zscaler-help/understanding-nanolog-streaming-service.md`; `vendor/zscaler-help/about-cloud-nss-feeds.md`.
+
 Cloud Connector (CC, the workload proxy product — distinct from ZPA App Connectors) produces logs through two paths:
 
 ### NSS for Firewall (SIEM path)
@@ -260,6 +272,8 @@ The ZTW admin console Insights pages (Session Insights, DNS Insights, Tunnel Ins
 ---
 
 ## The "what stream has field X" quick-reference table
+
+Source: `vendor/zscaler-help/General_Guidelines_for_NSS_Feeds_and_Feed_Formats.txt`; `vendor/zscaler-help/Understanding_the_Log_Stream_Content_Format.txt`.
 
 Fields that operators commonly search for and which log stream carries them. NSS specifiers (without `%s{}` wrapper) are used for ZIA fields; ZPA uses PascalCase field names.
 
@@ -304,6 +318,8 @@ Fields that operators commonly search for and which log stream carries them. NSS
 ---
 
 ## Where to find each log type
+
+Source: `vendor/zscaler-help/understanding-nanolog-streaming-service.md`; `vendor/zscaler-help/about-cloud-nss-feeds.md`; `vendor/zscaler-help/Understanding_the_Log_Stream_Content_Format.txt`.
 
 | "I need logs for..." | Log source | Export path |
 |---|---|---|

@@ -28,6 +28,8 @@ How ZPA picks which application segment handles a request when two or more segme
 
 ## Summary
 
+Source: `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `vendor/zscaler-help/Understanding_Application_Access.txt`; `vendor/zscaler-help/Using_Application_Segment_Multimatch.txt`.
+
 From *Configuring Defined Application Segments*, p.10:
 
 > When two or more application segments cover the same destination address, Zscaler Client Connector attempts to match traffic to the more granular application segment. If there is no match in this application segment, Zscaler Client Connector bypasses Private Access and sends traffic directly.
@@ -39,6 +41,8 @@ Multimatch (opt-in) changes this: a segment in `INCLUSIVE` mode allows a request
 Separate precedence rules apply to the **Bypass** setting: if a segment containing the FQDN has `Bypass = Always`, that segment's bypass takes priority over any client forwarding policy rule.
 
 ## Mechanics
+
+Source: `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `vendor/zscaler-help/Understanding_Application_Access.txt`; `vendor/zscaler-help/Using_Application_Segment_Multimatch.txt`; `vendor/terraform-provider-zpa/docs/resources/zpa_application_segment.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_application_segment_multimatch_bulk.md`.
 
 ### What defines an application segment
 
@@ -117,6 +121,8 @@ And p.15:
 > You can't choose Continuous health reporting for applications configured with more than 10 ports or if any of the applications in the application segment are defined with only a wildcard (e.g., `*`).
 
 ## The specificity-wins rule (covers eval Q6)
+
+Source: `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `vendor/zscaler-help/Understanding_Application_Access.txt`; `vendor/zscaler-help/Using_Application_Segment_Multimatch.txt`.
 
 From *Configuring Defined Application Segments* p.10 and *Understanding Application Access* p.1, the definitive rule:
 
@@ -212,6 +218,8 @@ Plus from *Configuring Defined Application Segments* p.16: "If Multimatch is ena
 
 ## Edge cases
 
+Source: `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `vendor/zscaler-help/Using_Application_Segment_Multimatch.txt`.
+
 - **ICMP asymmetric aggregation.** From p.13: "If ICMP is enabled for a specific application in an application segment and the same application is disabled for ICMP in a different application segment, then Zscaler Client Connector considers ICMP enabled for that application and forwards the ICMP request to Private Access." — Cross-segment ICMP behavior is OR-aggregated, not most-specific-wins.
 - **IdP application overlap.** From p.1: "If your IdP is defined as an application within an application segment, the Authentication Timeout for the IdP application must be set to Never. If an IdP domain overlaps with a domain configured for application discovery, you must bypass the IdP domain in Private Access (ZPA) to avoid user reauthentication failure."
 - **CNAME propagation.** From p.16: the `is_cname_enabled` setting controls whether App Connectors return CNAME DNS records to Zscaler Client Connector. "This setting is not applicable for Browser Access applications, and Private Access functions as if the option is disabled. If Zscaler Client Connector is on a macOS or an iOS device and the application needs to be accessed by CNAME, it is best to disable this setting."
@@ -222,6 +230,8 @@ Plus from *Configuring Defined Application Segments* p.16: "If Multimatch is ena
 - **Python SDK `clientless_app_ids` is key-presence-sensitive, not truthiness-sensitive.** From upstream `zscaler/zaler-mcp-server` issue #50 (closed 2026-04-21): the underlying SDK at `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py:411` checks `if "clientless_app_ids" in body:`, not `if body.get("clientless_app_ids"):`. **Including `clientless_app_ids: None` in the request body triggers a `BROWSER_ACCESS` segment lookup**, which then fails with "No matching clientless App found" for a standard (non-Browser-Access) segment. **Implication for callers:** omit the key entirely when not creating/updating a Browser Access segment — passing `None` is NOT equivalent. Affects both `create_application_segment` and `update_application_segment` paths. Same hazard applies to anyone wrapping the SDK (MCP server hit it; custom callers will too).
 
 ## Worked example (covers eval Q6)
+
+Source: `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `vendor/zscaler-help/Using_Application_Segment_Multimatch.txt`.
 
 Scenario: Two application segments both cover `foo.internal.corp`, which a user requests:
 
@@ -270,7 +280,9 @@ The guard rails:
 
 - Same-FQDN, same-Bypass-setting tie-break — [clarification `zpa-04`](../_meta/clarifications.md#zpa-04-same-fqdn-same-bypass-tie-break) (still open)
 
-Resolved while writing this doc (answers preserved in `_meta/clarifications.md`):
+## Resolved clarifications
+
+Answers preserved in `_meta/clarifications.md`:
 
 - "More granular" definition — [clarification `zpa-02`](../_meta/clarifications.md#zpa-02-zpa-more-granular-definition) — most-specific FQDN wins, strictly on domain dimension.
 - Multimatch mixed-style evaluation — [clarification `zpa-03`](../_meta/clarifications.md#zpa-03-multimatch-mixed-style-evaluation) — rejected at config time, not reconciled at traffic time.

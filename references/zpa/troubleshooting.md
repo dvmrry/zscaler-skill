@@ -48,6 +48,8 @@ This document does not cover ZIA-side issues except where ZIA cross-product inte
 
 ## 1. Decision tree — symptom to first signal
 
+Source: `vendor/zscaler-help/verifying-access-to-applications.md`; `vendor/zscaler-help/understanding-private-access-architecture.md`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`; `vendor/zscaler-help/Understanding_User_Status_Log_Fields.txt`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`.
+
 ### Symptom: "Can't reach app at all"
 
 1. Confirm ZCC is enrolled and the Z-Tunnel is established. ZCC must show the Private Access state as active, not disconnected or in bypass.
@@ -88,6 +90,8 @@ This document does not cover ZIA-side issues except where ZIA cross-product inte
 
 ## 2. Signal sources
 
+Source: `vendor/zscaler-help/about-log-streaming-service.md`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`; `vendor/zscaler-help/Understanding_User_Status_Log_Fields.txt`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`; `vendor/zscaler-sdk-python/zscaler/zpa/app_connectors.py`; `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py`.
+
 ### 2.1 ZPA admin console
 
 | Location | Signal |
@@ -122,6 +126,8 @@ LSS App Connector Status and App Connector Metrics log types stream connector he
 
 ## 3. Architecture path summary
 
+Source: `vendor/zscaler-help/understanding-private-access-architecture.md`; `vendor/zscaler-help/about-app-connectors.md`; `vendor/zscaler-help/zpa-about-connector-groups.md`.
+
 Every ZPA access request traverses the following path. Failures can occur at each hop.
 
 ```
@@ -144,6 +150,8 @@ A failure or misconfiguration at any layer produces a distinct evidence pattern.
 ---
 
 ## 4. Specific verification steps
+
+Source: `vendor/zscaler-help/verifying-access-to-applications.md`; `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`; `vendor/zscaler-sdk-python/zscaler/zpa/app_connectors.py`; `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go`.
 
 ### 4.1 Application segment — domain and port match
 
@@ -298,6 +306,10 @@ Certificate trust failures produce different errors depending on the access meth
 
 ## 5. Common failure modes
 
+Source: `vendor/zscaler-help/verifying-access-to-applications.md`; `vendor/zscaler-help/understanding-private-access-architecture.md`; `vendor/zscaler-help/about-app-connectors.md`; `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`.
+
+Note: This section summarizes the cited ZPA access, connector, segment, posture, and log-field sources.
+
 ### 5.1 Segment not in segment group
 
 An application segment created without a segment group assignment cannot be referenced by any policy rule that addresses segment groups. If the policy rule references only segment groups (not specific segments), traffic from users matching that rule will not match the segment, and the default-block applies.
@@ -341,6 +353,8 @@ Client applications that pin their server's TLS certificate reject the ZPA Servi
 ---
 
 ## 6. Read-side API and SDK calls for automated triage
+
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py`; `vendor/zscaler-sdk-python/zscaler/zpa/app_connectors.py`; `vendor/zscaler-sdk-python/zscaler/zpa/app_connector_groups.py`; `vendor/zscaler-sdk-python/zscaler/zpa/posture_profiles.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go`; `vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorcontroller/zpa_app_connector_controller.go`; `vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go`; `vendor/zscaler-sdk-go/zscaler/zpa/services/postureprofile/zpa_posture_profile.go`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`; `vendor/zscaler-help/Understanding_User_Status_Log_Fields.txt`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`.
 
 The following calls support read-only triage automation. None of them modify ZPA configuration.
 
@@ -464,6 +478,8 @@ See [`./logs/access-log-schema.md`](./logs/access-log-schema.md) for the full fi
 ---
 
 ## 7. Open questions register
+
+Clarification status: unresolved source gaps in this document should be promoted to `references/_meta/clarifications.md` if they become cross-document blockers.
 
 - **`InternalReason` field value catalog** — the LSS User Activity log field `InternalReason` is described as "internal reason for the status of the transaction" but no public enumeration of its values is documented. Mapping specific `InternalReason` values to root causes requires empirical observation or Zscaler Support input. Treat any specific value as undocumented for purposes of automated triage.
 - **Posture result for "never evaluated" vs "failed"** — the distinction between a device that has never run a posture check and one that ran it and failed is not documented in SDK source or help articles. The policy condition `rhs = "false"` is documented to match "device failed this posture check" but the handling of "profile not evaluated" is unconfirmed. See [`./posture-profiles.md § Gotchas`](./posture-profiles.md).

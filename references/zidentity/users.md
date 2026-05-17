@@ -25,6 +25,8 @@ Base endpoint:
 
 ## Python SDK methods
 
+Source: `vendor/zscaler-sdk-python/zscaler/zid/users.py`.
+
 Class `UsersAPI` in `zscaler/zid/users.py`. All methods return a 3-tuple `(result, response, error)`.
 
 | Method | Signature | Returns | HTTP method | Endpoint | Citation |
@@ -37,6 +39,8 @@ Class `UsersAPI` in `zscaler/zid/users.py`. All methods return a 3-tuple `(resul
 | `list_user_group_details` | `list_user_group_details(user_id, query_params)` | `(List[UserRecord], response, error)` | GET | `/ziam/admin/api/v1/users/{user_id}/groups` | `users.py:333` |
 
 ## Go SDK functions
+
+Source: `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`.
 
 Package `users` in `zscaler/zid/services/users/users.go`. All functions are package-level with `ctx context.Context, service *zscaler.Service` as first two parameters.
 
@@ -51,6 +55,8 @@ Package `users` in `zscaler/zid/services/users/users.go`. All functions are pack
 | `GetGroupsByUser(ctx, service, userID, queryParams)` | `(*PaginationResponse[Groups], error)` | GET | `/admin/api/v1/users/{userID}/groups` | `users.go:129` |
 
 ## Postman collection endpoints
+
+Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
 Variable `{{ZIAMBase}}` resolves to the ZIdentity ZIAM base URL. (`vendor/zscaler-api-specs/oneapi-postman-collection.json`)
 
@@ -70,6 +76,8 @@ Variable `{{ZIAMBase}}` resolves to the ZIdentity ZIAM base URL. (`vendor/zscale
 | POST | `{{ZIAMBase}}/users/bulkDelete` | Bulk delete — **NOT in SDK** |
 
 ## User model fields
+
+Source: `vendor/zscaler-sdk-python/zscaler/zid/models/users.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go`.
 
 Python model: `UserRecord` in `zscaler/zid/models/users.py`. Go struct: `Users` in `zscaler/zid/services/users/users.go`.
 
@@ -109,6 +117,8 @@ The Python `Users` wrapper object (returned by `list_users`) carries pagination 
 
 ## Filter / query parameters
 
+Source: `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`.
+
 `PaginationQueryParams` struct in `vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go:32`. Python docstring at `users.py:47`.
 
 | Wire param | Go field | Type | Purpose | Citation |
@@ -128,7 +138,9 @@ The Python `Users` wrapper object (returned by `list_users`) carries pagination 
 
 ## CRUD notes
 
-Full CRUD is supported. No activation step required — changes take effect immediately. (`vendor/zscaler-sdk-go/CLAUDE.md` — ZID cloud section)
+Source: `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-python/zscaler/zid/models/users.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`.
+
+Full CRUD is supported. No activation step is exposed for ZIdentity user writes in the SDK surface; changes are submitted directly through the ZID users service.
 
 **Creating a user**: `add_user` accepts `id` as a kwarg but the docstring example shows it as caller-supplied. It is not documented whether omitting `id` triggers server-side auto-generation. (`users.py:186`)
 
@@ -137,6 +149,8 @@ Full CRUD is supported. No activation step required — changes take effect imme
 **Activating / deactivating**: Toggle the `status` boolean field via `update_user` / `Update`. There is no separate workflow endpoint. (`models/users.py:90`)
 
 ## IdP-sourced vs ZIdentity-internal users
+
+Source: `vendor/zscaler-sdk-python/zscaler/zid/models/users.py`; `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`.
 
 Both types appear in the same list endpoint. Distinguish by the `source` field: (`models/users.py:92`, `users.go:21`)
 
@@ -151,6 +165,8 @@ Filter to IdP-sourced users using the `idpname` query parameter. (`users.py:61`)
 
 ## SDK divergences
 
+Source: `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-python/zscaler/zid/models/users.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go`.
+
 | Aspect | Python | Go |
 |---|---|---|
 | List return type | `(Users envelope, response, error)` — pagination metadata in wrapper object | `([]Users, error)` — Go flattens to slice; metadata consumed internally |
@@ -161,6 +177,8 @@ Filter to IdP-sourced users using the `idpname` query parameter. (`users.py:61`)
 
 ## Known bugs and edge cases
 
+Source: `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`.
+
 **Go — variable-shadowing bug in `GetUsers`**: The local declaration `usersEndpoint := fmt.Sprintf(...)` on line 90 shadows the package-level `usersEndpoint` constant, making the function build the wrong path (`/admin/api/v1/users/{userID}/users`). This function is not listed in the primary CRUD surface and appears vestigial — `GetGroupsByUser` is the correct group-association function. (`users.go:88`)
 
 **Go — `GetByName` cost**: `GetByName` fetches all pages client-side and filters with `strings.Contains` on `DisplayName`. For large tenants this is expensive. Prefer server-side `displayname[like]` via `GetAll` with query params. (`users.go:53`)
@@ -168,6 +186,8 @@ Filter to IdP-sourced users using the `idpname` query parameter. (`users.py:61`)
 **Python — `list_user_group_details` return type**: Despite the function name suggesting groups, the function returns `List[UserRecord]` (not group objects). (`users.py:333`)
 
 ## Gaps
+
+Source: `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
 The following capabilities appear in the Postman collection but are absent from both SDKs:
 
@@ -182,6 +202,8 @@ The following capabilities appear in the Postman collection but are absent from 
 Admin/service entitlements endpoints (`/users/:id/admin-entitlements`, `/users/:id/service-entitlements`) are covered in [`admin-rbac.md`](./admin-rbac.md) and are not duplicated here.
 
 ## Open questions
+
+Source: `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
 - **Omitting `id` on create** — `add_user` docstring example passes `id` explicitly; it is unverified whether omitting `id` triggers server-side auto-generation or returns an error — *unverified, requires lab test or API spec review*
 

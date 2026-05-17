@@ -5,15 +5,25 @@ title: "Cloud & Branch Connector reference hub"
 content-type: reference
 last-verified: "2026-04-24"
 confidence: high
-sources: []
+source-tier: mixed
+sources:
+  - "vendor/zscaler-help/what-zscaler-cloud-connector.md"
+  - "vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.md"
+  - "vendor/zscaler-sdk-python/zscaler/ztw/ztw_service.py"
+  - "vendor/zscaler-sdk-go/zscaler/ztw/services/activation/activation.go"
+  - "vendor/terraform-provider-ztc/ztc/provider.go"
 author-status: draft
 ---
 
 # Zscaler Cloud & Branch Connector reference hub
 
+Source: `vendor/zscaler-help/what-zscaler-cloud-connector.md`; `vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.md`; `vendor/zscaler-sdk-python/zscaler/ztw/ztw_service.py`; `vendor/zscaler-sdk-go/zscaler/ztw/services/activation/activation.go`; `vendor/terraform-provider-ztc/ztc/provider.go`.
+
 Entry point for the Cloud Connector / Branch Connector / Zero Trust Gateway product family — Zscaler's VM-based traffic forwarder for **cloud workloads** (AWS/Azure/GCP) and **branch offices**. Extends ZIA and ZPA to workloads that aren't end-user devices (no ZCC installed).
 
 ## Naming — one product, several names
+
+Source: `vendor/zscaler-help/what-zscaler-cloud-connector.md`; `vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.md`; `vendor/zscaler-sdk-python/zscaler/ztw/ztw_service.py`; `vendor/zscaler-sdk-go/zscaler/ztw/services/activation/activation.go`; `vendor/terraform-provider-ztc/ztc/provider.go`.
 
 | Name | Context |
 |---|---|
@@ -26,9 +36,11 @@ Entry point for the Cloud Connector / Branch Connector / Zero Trust Gateway prod
 
 All refer to the same product suite. Operators will use whichever term comes up in their context — console, help docs, SDK, or marketing material. Translate as needed.
 
-**Python SDK has no module for this product.** Go SDK and the Zscaler Terraform provider are the two programmatic surfaces; the Python SDK at `vendor/zscaler-sdk-python/zscaler/` does not include ZTW coverage. Fork teams building Python automations for Cloud Connector must call HTTP directly or use a language-ported client.
+**Python SDK now has ZTW coverage in the current capture.** Older guidance said Python had no Cloud Connector module; that is stale. Current programmatic surfaces are the Python SDK `zscaler.ztw` service, the Go SDK `zscaler/ztw` service packages, and the Zscaler Terraform provider.
 
 ## What this product is for
+
+Source: `vendor/zscaler-help/what-zscaler-cloud-connector.md`.
 
 Cloud Connector extends ZIA and ZPA to **workloads** (servers, cloud-native applications) that can't run ZCC. From *What Is Zscaler Cloud Connector?*:
 
@@ -43,11 +55,13 @@ Branch Connector is the same idea for physical branch locations — an on-prem v
 
 ## Topics
 
+Source: `vendor/zscaler-help/what-zscaler-cloud-connector.md`; `vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.md`; `vendor/zscaler-sdk-python/zscaler/ztw/ztw_service.py`; `vendor/zscaler-sdk-go/zscaler/ztw/services/activation/activation.go`; `vendor/terraform-provider-ztc/ztc/provider.go`.
+
 | Topic | File | Status |
 |---|---|---|
 | Overview — VM architecture, Cloud Connector Groups, autoscaling (ASG/VMSS/MIG), HA model, data vs control plane | [`./overview.md`](./overview.md) | draft |
 | Traffic forwarding — the five forwarding methods (ZIA / ZPA / direct / drop / local), rule criteria, rule evaluation, DNS forwarding gateways | [`./forwarding.md`](./forwarding.md) | draft |
-| API and Terraform surface — `client.ztw.*` in Go SDK, `ztc_*` resources in TF, provisioning templates, activation | [`./api.md`](./api.md) | draft |
+| API and Terraform surface — Python `client.ztw.*`, Go `ztw/services/*`, `ztc_*` resources in TF, provisioning templates, activation | [`./api.md`](./api.md) | draft |
 | **Azure deployment** — Marketplace listing, dual-NIC architecture, Standard ILB + 15s probe, NAT Gateway per AZ, VMSS scaling + Function App orphan cleanup, HA model | [`./azure-deployment.md`](./azure-deployment.md) | draft |
 | **AWS deployment** — Marketplace listing, dual-ENI model, GWLB vs ENI endpoint patterns, ASG with custom CloudWatch CPU metrics, CloudFormation deployment flow, route-table modification post-deploy step, HA model | [`./aws-deployment.md`](./aws-deployment.md) | draft |
 | **AWS workload discovery** — Account trust setup (External ID + Trusted Account ID + IAM role assumption), permission states, EventBridge metadata pipeline, AWS Account Groups, sublocation scopes, `zs:namespace` VPC tag for overlapping CIDRs | [`./aws-workload-discovery.md`](./aws-workload-discovery.md) | draft |
@@ -57,10 +71,12 @@ Branch Connector is the same idea for physical branch locations — an on-prem v
 | **Insights & monitoring** — health metrics, traffic visibility, operational dashboards; what signals are available; latency and throughput reporting | [`./insights-monitoring.md`](./insights-monitoring.md) | draft |
 | **NSS Virtual Appliance** — NSS VA deployment alongside Cloud Connector; log forwarding configuration; NSS VA vs Cloud NSS for workload log egress | [`./nss-va.md`](./nss-va.md) | draft |
 | **Source IP Groups** — network-primitive building blocks for traffic-forwarding rule match criteria; group types and usage | [`./source-ip-groups.md`](./source-ip-groups.md) | draft |
-| **SDK** — Go SDK (`client.ztw.*`) and Terraform (`ztc_*`) surface; Python SDK absence; method-to-resource mapping | [`./sdk.md`](./sdk.md) | draft |
+| **SDK** — Python `zscaler.ztw`, Go SDK `ztw/services/*`, and Terraform (`ztc_*`) surface; method-to-resource mapping | [`./sdk.md`](./sdk.md) | draft |
 | **Terraform** — `ztc_*` resource catalog; provider configuration; activation behavior | [`./terraform.md`](./terraform.md) | draft |
 
 ## Scope
+
+Source: `vendor/zscaler-help/what-zscaler-cloud-connector.md`; `vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.md`; `vendor/zscaler-sdk-python/zscaler/ztw/ztw_service.py`; `vendor/zscaler-sdk-go/zscaler/ztw/services/activation/activation.go`; `vendor/terraform-provider-ztc/ztc/provider.go`.
 
 In scope:
 
@@ -71,7 +87,7 @@ In scope:
 - Network services + Network service groups
 - Cloud provisioning templates + autoscaling options
 - Location templates
-- Go SDK and Terraform provider surface
+- Python SDK, Go SDK, and Terraform provider surface
 
 Not in scope (explicitly deferred):
 
@@ -81,6 +97,8 @@ Not in scope (explicitly deferred):
 - **Zscaler Zero Trust SD-WAN** — now covered at [`./zero-trust-sdwan.md`](./zero-trust-sdwan.md). Covers positioning vs traditional SD-WAN, Cloud/Branch Connector roles, capabilities and limits, vendor comparison by axis, and operational gotchas.
 
 ## When the question spans Cloud Connector + another product
+
+Source: `vendor/zscaler-help/what-zscaler-cloud-connector.md`; `vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.md`.
 
 - **"Why can't my AWS server reach Slack?"** — Cloud Connector forwards to ZIA; the issue could be in Cloud Connector's traffic-forwarding rules (matching direct instead of ZIA?) or in ZIA URL Filtering / SSL Inspection after the forward. Start at [`./forwarding.md`](./forwarding.md).
 - **"Workload-to-workload access to our on-prem app is failing"** — Cloud Connector → ZPA → App Connector chain. Check Cloud Connector's ZPA enrollment first, then ZPA Application Segment + Access Policy. See [`./overview.md § Private Apps (Private Access)`](./overview.md) and cross to [`../zpa/app-segments.md`](../zpa/app-segments.md).

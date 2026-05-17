@@ -11,15 +11,14 @@ sources:
   - "vendor/zscaler-help/nss-firewall-logs.csv"
   - "vendor/zscaler-help/nss-dns-logs.csv"
   - "vendor/zscaler-help/about-log-streaming-service.md"
-  - "references/zia/logs/web-log-schema.md"
-  - "references/zia/logs/firewall-log-schema.md"
-  - "references/zia/logs/dns-log-schema.md"
-  - "references/zpa/logs/access-log-schema.md"
-  - "references/shared/splunk-queries.md"
+  - "vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt"
+  - "vendor/zscaler-help/Understanding_the_Log_Stream_Content_Format.txt"
 author-status: draft
 ---
 
 # Cross-product log correlation — ZIA, ZPA, ZCC join fields and patterns
+
+Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewall-logs.csv`; `vendor/zscaler-help/nss-dns-logs.csv`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`.
 
 This document covers the shared fields across ZIA log streams (web, firewall, DNS), the join keys that link ZIA logs to ZPA (LSS) logs and ZCC client-side events, the log streaming service architecture for each product, and practical correlation patterns for multi-product incident investigation.
 
@@ -41,7 +40,9 @@ The skill emits SPL for validation rather than auto-executing queries. The opera
 
 ### ZIA — NSS (Nanolog Streaming Service)
 
-ZIA uses NSS (Nanolog Streaming Service) to stream traffic logs from the Zscaler Nanolog to a SIEM. NSS is the authoritative log path for ZIA web, firewall, and DNS events (Tier A — vendor/zscaler-help/about-log-streaming-service.md).
+Source: `vendor/zscaler-help/about-log-streaming-service.md`; `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewall-logs.csv`; `vendor/zscaler-help/nss-dns-logs.csv`.
+
+ZIA uses NSS (Nanolog Streaming Service) to stream traffic logs from the Zscaler Nanolog to a SIEM. NSS is the authoritative log path for ZIA web, firewall, and DNS events.
 
 NSS produces three separate log streams, each with its own field schema:
 
@@ -51,13 +52,17 @@ NSS produces three separate log streams, each with its own field schema:
 | Firewall logs | NSS for Firewall | [`../zia/logs/firewall-log-schema.md`](../zia/logs/firewall-log-schema.md) |
 | DNS logs | NSS for DNS | [`../zia/logs/dns-log-schema.md`](../zia/logs/dns-log-schema.md) |
 
-NSS streams are configured per-feed with a custom format template (the `%s{field}` / `%d{field}` specifiers). The Zscaler cloud retains traffic logs for a rolling 14-day period. For retention beyond 14 days, NSS streaming to a SIEM is required (Tier A — vendor/zscaler-help/about-log-streaming-service.md).
+Source: `vendor/zscaler-help/about-log-streaming-service.md`; `vendor/zscaler-help/nss-web-logs.csv`.
+
+NSS streams are configured per-feed with a custom format template (the `%s{field}` / `%d{field}` specifiers). The Zscaler cloud retains traffic logs for a rolling 14-day period. For retention beyond 14 days, NSS streaming to a SIEM is required.
 
 **Cloud NSS vs legacy NSS:** ZIA offers both a Cloud NSS (cloud-hosted, no on-prem appliance required) and a legacy NSS (VM appliance). Both produce the same field set. Cloud NSS is the current recommended approach.
 
 ### ZPA — LSS (Log Streaming Service)
 
-ZPA uses LSS (Log Streaming Service) for its equivalent function. LSS streams through a ZPA Public Service Edge to an App Connector, which forwards to the log receiver. Twelve log types are available; the primary access log is **User Activity** (Tier A — vendor/zscaler-help/about-log-streaming-service.md):
+Source: `vendor/zscaler-help/about-log-streaming-service.md`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`; `vendor/zscaler-help/Understanding_the_Log_Stream_Content_Format.txt`.
+
+ZPA uses LSS (Log Streaming Service) for its equivalent function. LSS streams through a ZPA Public Service Edge to an App Connector, which forwards to the log receiver. Twelve log types are available; the primary access log is **User Activity**.
 
 | LSS log type | What it covers |
 |---|---|
@@ -70,13 +75,17 @@ ZPA uses LSS (Log Streaming Service) for its equivalent function. LSS streams th
 | AppProtection | AppProtection policy activity |
 | Microsegmentation | Microsegmentation flow activity |
 
-LSS retention: Zscaler retains User Activity, User Status, and App Connector logs for a rolling **14 days**. Audit logs are retained for **6 months**. For access beyond these windows, LSS streaming is required (Tier A — vendor/zscaler-help/about-log-streaming-service.md).
+Source: `vendor/zscaler-help/about-log-streaming-service.md`.
+
+LSS retention: Zscaler retains User Activity, User Status, and App Connector logs for a rolling **14 days**. Audit logs are retained for **6 months**. For access beyond these windows, LSS streaming is required.
 
 **mTLS encryption**: LSS supports mutual TLS between the App Connector and the log receiver. The log receiver must have a certificate signed by a public root CA. The App Connector trusts public root CAs and custom CAs used as its enrollment certificate.
 
-**Delivery guarantee**: LSS does not guarantee delivery during a connection loss. After reconnection, it can retransmit the **last 15 minutes** of log data, but delivery of that retransmitted data is not guaranteed. Audit log data is not retransmitted after a connection loss (Tier A — vendor/zscaler-help/about-log-streaming-service.md).
+**Delivery guarantee**: LSS does not guarantee delivery during a connection loss. After reconnection, it can retransmit the **last 15 minutes** of log data, but delivery of that retransmitted data is not guaranteed. Audit log data is not retransmitted after a connection loss.
 
 ### ZCC — client-side operational logs (not streamed)
+
+Source: `vendor/zscaler-help/about-log-streaming-service.md`.
 
 ZCC does not produce a SIEM-streamable log feed equivalent to NSS or LSS. ZCC writes operational logs to the endpoint device. These cover tunnel events, auth events, posture checks, and forwarding decisions — not individual web transactions (that is ZIA-side). Administrators access ZCC logs via the ZCC Portal diagnostic bundle or user-exported ZIP. See [`../zcc/logs/zcc-log-schema.md`](../zcc/logs/zcc-log-schema.md) and [`../zcc/user-logging-controls.md`](../zcc/user-logging-controls.md).
 
@@ -88,7 +97,9 @@ Several frequently-used log fields have semantics that the vendor schemas don't 
 
 ## Shared fields across ZIA web, firewall, and DNS logs
 
-The following fields appear in all three ZIA NSS streams with the same semantics. These are the universal ZIA correlation keys (Tier A — vendor/zscaler-help/nss-web-logs.csv; vendor/zscaler-help/nss-firewall-logs.csv; vendor/zscaler-help/nss-dns-logs.csv):
+Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewall-logs.csv`; `vendor/zscaler-help/nss-dns-logs.csv`.
+
+The following fields appear in all three ZIA NSS streams with the same semantics. These are the universal ZIA correlation keys.
 
 | Field | Web log specifier | Firewall log specifier | DNS log specifier | Description |
 |---|---|---|---|---|
@@ -118,7 +129,9 @@ The following fields appear in all three ZIA NSS streams with the same semantics
 
 ## Fields that join ZIA logs to ZPA (LSS) logs
 
-ZIA and ZPA logs share no common session or transaction ID. Correlation is done on **user identity** and **time window**, not on a shared session key (Tier B — inferred from field inventory across both schemas).
+Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewall-logs.csv`; `vendor/zscaler-help/nss-dns-logs.csv`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`.
+
+ZIA and ZPA logs share no common session or transaction ID. Correlation is done on **user identity** and **time window**, not on a shared session key. This is inferred from the field inventories across ZIA NSS and ZPA User Activity schemas.
 
 | ZIA field | ZPA LSS field | Join semantics |
 |---|---|---|
@@ -129,13 +142,19 @@ ZIA and ZPA logs share no common session or transaction ID. Correlation is done 
 | `%s{zpa_app_seg_name}` (web) | `ApplicationName` (User Activity) | When ZIA forwarding control routes a web request to ZPA via SIPA, the ZIA web log records the ZPA application segment name. This is the highest-fidelity ZIA→ZPA join field. |
 | `%s{location}` (web/fw/dns) | `ServiceEdge` (User Activity) | Approximate co-location inference — not a direct join. |
 
+Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`.
+
 **The `%s{zpa_app_seg_name}` field** on ZIA web logs is the most precise cross-product link. It appears when a ZIA forwarding control rule routes the request to a ZPA application segment (Source IP Anchoring). If this field is populated, the ZIA and ZPA logs can be correlated by matching `%s{zpa_app_seg_name}` (ZIA) to `ApplicationName` (ZPA LSS User Activity).
+
+Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewall-logs.csv`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`.
 
 **ZCC as the correlation bridge**: `%s{devicehostname}` and `%s{deviceowner}` in ZIA logs, and `Hostname` and `Username` in ZPA LSS, are both populated from ZCC client metadata. On ZCC-forwarded traffic, these fields carry consistent values that function as device-level correlation keys across the two products.
 
 ### ZPA LSS key User Activity fields for correlation
 
-From [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md):
+Source: `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`.
+
+From the ZPA User Activity log field reference:
 
 | ZPA LSS field | Description |
 |---|---|
@@ -151,6 +170,8 @@ From [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md):
 ---
 
 ## NSS field reference tables (key fields only)
+
+Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewall-logs.csv`; `vendor/zscaler-help/nss-dns-logs.csv`.
 
 For exhaustive field lists, see the per-schema reference docs. Below are the key fields by category for quick reference during SIEM query construction.
 
@@ -183,7 +204,9 @@ For exhaustive field lists, see the per-schema reference docs. Below are the key
 | Forwarding | `%s{rdr_rulename}`, `%s{fwd_gw_name}`, `%s{zpa_app_seg_name}` |
 | Aggregation | `%s{aggregate}`, `%d{numsessions}`, `%d{avgduration}` |
 
-**Firewall-specific aggregation**: the ZIA firewall module can aggregate multiple sessions into a single log record. The fields `%s{aggregate}`, `%d{numsessions}`, and `%d{avgduration}` indicate this. Per-session detail is lost when aggregation fires — client source port, server port, and IP values in aggregated records reflect the **last session** in the aggregate, not a summary. **What triggers aggregation** (timeout / volume / hop / rule-defined), how byte counters (`inbytes`/`outbytes`/`durationms`) behave on aggregates, and why `srcip_country` drops on allowed aggregates are all undocumented — see [clarification `log-11`](../_meta/clarifications.md#log-11-firewall-aggregate-session-semantics).
+Source: `vendor/zscaler-help/nss-firewall-logs.csv`.
+
+**Firewall-specific aggregation**: the ZIA firewall module can aggregate multiple sessions into a single log record. The fields `%s{aggregate}`, `%d{numsessions}`, and `%d{avgduration}` indicate this. Per-session detail is lost when aggregation fires — client source port, server port, and IP values in aggregated records reflect the **last session** in the aggregate, not a summary. What triggers aggregation, how byte counters behave on aggregates, and why `srcip_country` drops on allowed aggregates are all undocumented — see [clarification `log-11`](../_meta/clarifications.md#log-11-firewall-aggregate-session-semantics).
 
 ### ZIA DNS log — key fields
 
@@ -204,7 +227,9 @@ For exhaustive field lists, see the per-schema reference docs. Below are the key
 
 **Scenario**: a user reports being unable to access a business application. ZIA blocks the initial web connection, and separately, ZPA denies a direct access attempt. Are these the same user? The same incident?
 
-**Approach** (Tier B — synthesized from field inventory):
+Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`.
+
+**Approach**:
 
 1. Query ZIA web logs for `%s{login} = <user>` AND `%s{action} = Blocked` in the incident time window.
 2. Note the values of `%s{url}`, `%s{zpa_app_seg_name}` (if populated — indicates the destination is a ZPA segment), and `%d{epochtime}`.
@@ -228,6 +253,8 @@ index=zia sourcetype=zia_web login="user@example.com" action=Blocked
 
 **Scenario**: a ZIA DNS policy blocks the resolution of a domain. A subsequent web request to the same hostname also blocks (Zscaler returns a synthetic DNS response and then blocks the web connection). Confirm both events are from the same user and the DNS block caused the web block.
 
+Source: `vendor/zscaler-help/nss-dns-logs.csv`; `vendor/zscaler-help/nss-web-logs.csv`.
+
 **Approach**:
 
 1. Query DNS logs for `%s{reqaction} = RES_BLOC` and `%s{req}` matching the domain in the time window.
@@ -238,6 +265,8 @@ index=zia sourcetype=zia_web login="user@example.com" action=Blocked
 The DNS block will typically precede the web block by 0–2 seconds (DNS is resolved before the HTTP CONNECT or GET).
 
 ### Pattern 3: Identifying ZCC bypass events
+
+Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewall-logs.csv`.
 
 ZCC can bypass traffic when a user is on a trusted network or through explicit bypass configuration. Bypassed traffic still produces ZIA log entries but with `%d{bypassed_traffic} = 1` (web) or `%d{bypassed_session} = 1` (firewall).
 
@@ -250,6 +279,8 @@ index=zia sourcetype=zia_web bypassed_traffic=1
 A non-zero bypassed_traffic count for a user indicates ZCC is forwarding some connections outside of ZIA inspection. Cross-reference against the forwarding profile to confirm the bypass is intentional.
 
 ### Pattern 4: Identifying traffic source method
+
+Source: `vendor/zscaler-help/nss-web-logs.csv`.
 
 The `%s{trafficredirectmethod}` field in web logs identifies how traffic arrived at ZIA:
 
@@ -268,6 +299,8 @@ Filter by `trafficredirectmethod=GRE` to isolate site-based traffic. Filter by `
 
 ### Pattern 5: End-to-end request tracing across ZIA + ZPA
 
+Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`.
+
 For a request that ZIA routes to ZPA via Source IP Anchoring (SIPA):
 
 1. ZIA web log carries `%s{fwd_type} = ZPA` and `%s{zpa_app_seg_name}` = the segment name.
@@ -282,10 +315,14 @@ This is the highest-confidence ZIA→ZPA join available without a shared session
 
 ### NSS deployment (ZIA)
 
+Source: `vendor/zscaler-help/about-log-streaming-service.md`.
+
 NSS receives the Zscaler Nanolog stream and formats it as syslog or CEF for a SIEM. Two architectures:
 
 - **Cloud NSS**: hosted by Zscaler; streams directly to the SIEM over the internet. No on-prem appliance. Current recommended approach.
 - **Legacy NSS**: on-prem virtual appliance receives the stream. The NSS VM decapsulates and re-delivers to the SIEM on the local network.
+
+Source: `vendor/zscaler-help/about-log-streaming-service.md`; `vendor/zscaler-help/nss-web-logs.csv`.
 
 Both architectures produce the same `%s{...}` / `%d{...}` field output.
 
@@ -293,7 +330,9 @@ Cloud Connector uses **NSS for Firewall only** (not NSS for Web) for its log str
 
 ### LSS deployment (ZPA)
 
-LSS path: ZPA Zero Trust Exchange → Public Service Edge → App Connector → log receiver (SIEM).
+Source: `vendor/zscaler-help/about-log-streaming-service.md`.
+
+LSS path: ZPA Zero Trust Exchange -> Public Service Edge -> App Connector -> log receiver (SIEM).
 
 Two components required in the customer environment:
 - **Log receiver**: a syslog-capable host (Splunk HEC, syslog daemon, etc.) with a public-root-CA-signed certificate for mTLS.

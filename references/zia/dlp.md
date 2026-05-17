@@ -25,6 +25,8 @@ Detects sensitive data in user traffic and decides whether to allow, block, or f
 
 ## Summary
 
+Source: `vendor/zscaler-help/about-dlp-dictionaries.md`; `vendor/zscaler-help/about-dlp-engines.md`; `vendor/zscaler-help/configuring-dlp-policy-rules-content-inspection.md`; `vendor/zscaler-help/Understanding_Policy_Enforcement.txt`.
+
 Three-layer object model:
 
 1. **DLP Dictionaries** — detection primitives. Predefined (credit card numbers, SSNs, HIPAA, etc.) or custom (operator-defined patterns, phrases, Microsoft Information Protection labels, exact data matching).
@@ -40,6 +42,8 @@ Three-layer object model:
 ## Mechanics
 
 ### DLP Dictionaries
+
+Source: `vendor/zscaler-help/about-dlp-dictionaries.md`; `vendor/zscaler-help/understanding-predefined-dlp-dictionaries.md`.
 
 From *About DLP Dictionaries*:
 
@@ -60,6 +64,8 @@ Three categories:
 
 ### DLP Engines
 
+Source: `vendor/zscaler-help/about-dlp-engines.md`; `vendor/zscaler-help/about-dlp-dictionaries.md`.
+
 From *About DLP Engines*:
 
 > A DLP engine is a collection of one or more DLP dictionaries. When you define your DLP policy rules and Endpoint DLP policy rules, you must reference DLP engines, rather than DLP dictionaries.
@@ -71,6 +77,8 @@ Zscaler ships predefined engines (HIPAA, PCI, GDPR, etc.) that already combine m
 **Channels** (*About DLP Engines*): an engine can be scoped to specific channels — Network Share, Personal Cloud Storage, Printing, Removable Storage. These are the **Endpoint DLP** channels; engines scoped to them only trigger on that traffic type. Inline (web) DLP engines don't need channel scoping.
 
 ### DLP Policy Rules with Content Inspection
+
+Source: `vendor/zscaler-help/configuring-dlp-policy-rules-content-inspection.md`; `vendor/zscaler-help/Understanding_Policy_Enforcement.txt`.
 
 From *Configuring DLP Policy Rules with Content Inspection*:
 
@@ -91,6 +99,8 @@ Rule criteria:
 
 ### Content inspection limits
 
+Source: `vendor/zscaler-help/configuring-dlp-policy-rules-content-inspection.md`; `vendor/zscaler-help/about-dlp-engines.md`.
+
 **File size limits** (*Configuring DLP Policy Rules with Content Inspection* + *About DLP Engines*):
 
 - **400 MB max file size** — files larger than this aren't inspected. Applies to files inside archives as well (each archive entry checked against the 400 MB cap).
@@ -101,6 +111,8 @@ These limits affect real operational questions — "why didn't DLP catch this 50
 
 ### "Evaluate All Rules" mode
 
+Source: `vendor/zscaler-help/configuring-dlp-policy-rules-content-inspection.md`.
+
 > This article does not apply to organizations with Evaluate All Rules mode enabled.
 
 Default DLP evaluation is first-match-wins (the usual pattern). **Evaluate All Rules** is an alternative mode that runs every DLP rule against every request. Why: when you want to log ALL DLP violations for audit purposes, not just the first match. Covered in a separate help article (*Configuring DLP Policy Rules with Evaluate All Rules Mode Enabled*, not captured here).
@@ -108,6 +120,8 @@ Default DLP evaluation is first-match-wins (the usual pattern). **Evaluate All R
 Tenants in Evaluate All Rules mode have a fundamentally different DLP-rule mental model. Skill answers about DLP evaluation order must branch on this mode. If uncertain, check the tenant config or ask.
 
 ### Forwarding paths — what happens when a rule fires
+
+Source: `vendor/zscaler-help/configuring-dlp-policy-rules-content-inspection.md`.
 
 Four destinations for DLP events (from *Configuring DLP Policy Rules with Content Inspection*):
 
@@ -118,6 +132,8 @@ Four destinations for DLP events (from *Configuring DLP Policy Rules with Conten
 5. **Cloud-to-Cloud Incident Forwarding (C2C)** — forward metadata + evidence directly to the customer's public cloud storage (AWS S3, Azure Blob, etc.). No appliance to deploy. This is where **ZWA ingests its incidents** (see [`../zwa/overview.md`](../zwa/overview.md)) — ZWA reads from the C2C incident stream.
 
 ### Pipeline position
+
+Source: `vendor/zscaler-help/Understanding_Policy_Enforcement.txt`; `vendor/zscaler-help/configuring-dlp-policy-rules-content-inspection.md`.
 
 DLP evaluates in the **full-URL pass** post-decrypt (per [`./ssl-inspection.md § Pipeline position`](./ssl-inspection.md)). Specifically:
 
@@ -135,6 +151,8 @@ DLP is in the terminal tier of the full-URL pass alongside Sandbox, Malware, Fil
 
 ## Cross-product hooks
 
+Source: `vendor/zscaler-help/configuring-dlp-policy-rules-content-inspection.md`; `vendor/zscaler-help/Understanding_Policy_Enforcement.txt`.
+
 | Direction | Hook | Failure mode |
 |---|---|---|
 | Upstream ← SSL Inspection | DLP needs decrypted content | SSL bypass silently disables DLP for matching traffic |
@@ -144,6 +162,8 @@ DLP is in the terminal tier of the full-URL pass alongside Sandbox, Malware, Fil
 | Downstream → Notification templates | Email to auditor | Template must be configured separately; rule-level enablement alone doesn't produce email |
 
 ## Endpoint DLP
+
+Source: `vendor/zscaler-help/about-dlp-engines.md`; `vendor/zscaler-help/configuring-dlp-policy-rules-content-inspection.md`.
 
 The channels on an engine (Network Share, Personal Cloud Storage, Printing, Removable Storage) indicate this is **Endpoint DLP** — DLP enforced by Zscaler Client Connector on the endpoint itself, not by the Public Service Edge. Endpoint DLP is a distinct feature that uses the same dictionaries and engines but runs agent-side. Key differences:
 
@@ -156,11 +176,15 @@ Not deeply covered here; flagged for future work if operators need it.
 
 ## Outbound Email DLP
 
+Source: `vendor/zscaler-help/configuring-dlp-policy-rules-content-inspection.md`.
+
 A distinct DLP variant (*What Is Zscaler Outbound Email DLP?* — referenced but not captured). Scans outbound email at the email-gateway layer rather than web traffic. Uses the same dictionaries and engines. Zscaler Incident Receiver is specifically for outbound email policy rule content.
 
 Not deeply covered here.
 
 ## Edge cases
+
+Source: `vendor/zscaler-help/configuring-dlp-policy-rules-content-inspection.md`; `vendor/zscaler-help/about-dlp-engines.md`; `vendor/zscaler-help/Understanding_Policy_Enforcement.txt`.
 
 - **Archive inspection has a 5-level recursion limit.** Nested ZIPs beyond 5 levels aren't scanned. Separate from the 400 MB file size limit.
 - **Content beyond 100 MB of extracted text isn't scanned.** An operator reporting "DLP didn't catch content in a big document" — the content may have been past the 100 MB inspection window.
@@ -172,21 +196,23 @@ Not deeply covered here.
 
 ## Surprises worth flagging
 
+Source: `vendor/zscaler-help/configuring-dlp-policy-rules-content-inspection.md`; `vendor/zscaler-help/ranges-limitations-zia.md`.
+
 These are configuration combinations and behaviors that silently fail or behave non-obviously. Each is a real operator footgun.
 
-1. **`Inspect Downloads` does NOT apply to EDM or IDM engines.** When `Inspect Downloads` is enabled, the rule scope is silently restricted — Exact Data Match and Indexed Data Matching engines are excluded from the download direction. An operator enabling download-DLP for EDM (e.g., to catch exfiltration of exact employee records) gets no coverage. Additionally, when `Inspect Downloads` is on, you must set `Any` for URL Categories AND select at least one Cloud Application — otherwise the rule won't save. Source: *Configuring DLP Policy Rules and Content Inspection* line 169.
+1. **`Inspect Downloads` does NOT apply to EDM or IDM engines.** When `Inspect Downloads` is enabled, the rule scope is silently restricted — Exact Data Match and Indexed Data Matching engines are excluded from the download direction. An operator enabling download-DLP for EDM (e.g., to catch exfiltration of exact employee records) gets no coverage. Additionally, when `Inspect Downloads` is on, you must set `Any` for URL Categories AND select at least one Cloud Application — otherwise the rule won't save.
 
-2. **Unauthenticated traffic + group/department scope is mutually exclusive.** Any DLP rule that applies to unauthenticated traffic must set `Any` for **both** Groups AND Departments. You cannot scope an unauthenticated-DLP rule to a specific group subset — the constraint surfaces only at rule save time, not during design. Source: *Configuring DLP Policy Rules and Content Inspection* lines 136–137.
+2. **Unauthenticated traffic + group/department scope is mutually exclusive.** Any DLP rule that applies to unauthenticated traffic must set `Any` for **both** Groups AND Departments. You cannot scope an unauthenticated-DLP rule to a specific group subset — the constraint surfaces only at rule save time, not during design.
 
-3. **`Confirm` action auto-blocks on dialog timeout.** If the user-confirmation message times out without the end user taking action, the Zscaler service automatically cancels (blocks) the transaction. Operators treating Confirm as a "soft gate where the user can always justify and proceed" don't realize the fallback is hard-cancel — relevant for flaky / slow / tab-buried sessions where the dialog never gets attention. Source: *Configuring DLP Policy Rules and Content Inspection* line 184.
+3. **`Confirm` action auto-blocks on dialog timeout.** If the user-confirmation message times out without the end user taking action, the Zscaler service automatically cancels (blocks) the transaction. Operators treating Confirm as a "soft gate where the user can always justify and proceed" don't realize the fallback is hard-cancel — relevant for flaky / slow / tab-buried sessions where the dialog never gets attention.
 
-4. **Evidence files >100 MB are silently replaced with `.txt` placeholder.** DLP Incident Evidence files cap at 100 MB; larger files don't fail — they get replaced with a `.txt` placeholder containing minimal metadata. A forensics workflow expecting the actual document content for large-file violations gets nothing scrutable. Source: *Ranges and Limitations* line 49.
+4. **Evidence files >100 MB are silently replaced with `.txt` placeholder.** DLP Incident Evidence files cap at 100 MB; larger files don't fail — they get replaced with a `.txt` placeholder containing minimal metadata. A forensics workflow expecting the actual document content for large-file violations gets nothing scrutable.
 
-5. **WebSocket DLP inspection is Microsoft-Copilot-only.** The WebSocket protocol option for DLP inspection works exclusively for Microsoft Copilot. Adding WebSocket as a protocol expecting it to cover other WebSocket-heavy apps (Slack, Figma, Linear, Notion) yields zero coverage for those apps. WebSocket SSL/TLS DLP is similarly Copilot-only. Source: *Configuring DLP Policy Rules and Content Inspection* line 166.
+5. **WebSocket DLP inspection is Microsoft-Copilot-only.** The WebSocket protocol option for DLP inspection works exclusively for Microsoft Copilot. Adding WebSocket as a protocol expecting it to cover other WebSocket-heavy apps (Slack, Figma, Linear, Notion) yields zero coverage for those apps. WebSocket SSL/TLS DLP is similarly Copilot-only.
 
-6. **Zscaler-defined file types win over custom file types in evaluation order.** If both a custom file type and a Zscaler predefined type match the same file, the predefined type's rule fires. Custom file types embedded inside archive files are NOT detected at all — archive extraction surfaces only Zscaler-recognized types. Source: *Configuring DLP Policy Rules and Content Inspection* line 115.
+6. **Zscaler-defined file types win over custom file types in evaluation order.** If both a custom file type and a Zscaler predefined type match the same file, the predefined type's rule fires. Custom file types embedded inside archive files are NOT detected at all — archive extraction surfaces only Zscaler-recognized types.
 
-7. **DLP rule count cap: 1,024 (→ 2,048 via support).** Higher than several other ZIA policies. Mostly relevant to large multi-team enterprises where rule consolidation strategies hit the cap. Source: *Ranges and Limitations*.
+7. **DLP rule count cap: 1,024 (→ 2,048 via support).** Higher than several other ZIA policies. Mostly relevant to large multi-team enterprises where rule consolidation strategies hit the cap.
 
 ## Open questions
 

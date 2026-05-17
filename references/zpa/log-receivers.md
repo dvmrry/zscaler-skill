@@ -20,6 +20,8 @@ author-status: draft
 
 ## What the Log Streaming Service is
 
+Source: `vendor/zscaler-help/about-log-streaming-service.md`; `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`; `vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py`.
+
 The Log Streaming Service (LSS) is ZPA's mechanism for forwarding operational logs to external destinations — SIEMs, log aggregators, cloud storage. It is distinct from ZIA's Nanolog Streaming Service (NSS) and operates on a different architecture. (Tier A — vendor/zscaler-help/about-log-streaming-service.md: "While the LSS is used to capture log data about App Connectors and users in Private Access using a log receiver, the Nanolog Streaming Service (NSS) resides in Internet & SaaS (ZIA).")
 
 A **Log Receiver** (`lssConfig` in the API) is the operator-created configuration object that defines where log traffic goes: the TCP/TLS endpoint, the log type it carries, the output format, and optional filter conditions.
@@ -35,6 +37,8 @@ Three related concepts that are NOT this doc:
 | Where logs originate (App Connectors) | [`./app-connector.md`](./app-connector.md) |
 
 ## LSS architecture
+
+Source: `vendor/zscaler-help/about-log-streaming-service.md`.
 
 LSS is deployed using two components: a log receiver and an App Connector. (Tier A — vendor/zscaler-help/about-log-streaming-service.md: "LSS resides in the Zero Trust Exchange (ZTE) and initiates a log stream through a Public Service Edge for Private Access. The App Connector resides in your company's enterprise environment. It receives the log stream and then forwards it to a log receiver.")
 
@@ -54,6 +58,8 @@ A Log Receiver object has three top-level blocks.
 
 ### `config` — connection and stream definition
 
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py`; `vendor/terraform-provider-zpa/zpa/resource_zpa_lss_config_controller.go`.
+
 | Field (Python SDK) | Wire JSON key | TF attribute | Notes |
 |---|---|---|---|
 | `lss_host` | `lssHost` | `lss_host` | IP or hostname of the receiving SIEM / syslog endpoint. Required. |
@@ -69,13 +75,19 @@ A Log Receiver object has three top-level blocks.
 
 ### `connector_groups` — App Connector Group affinity
 
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`; `vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py`.
+
 A list of App Connector Group IDs. Scopes which connectors participate in this log stream. The Python SDK accepts a list of group ID strings via `app_connector_group_ids`.
 
 ### `policy_rule_resource` — log filter policy
 
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py`; `vendor/terraform-provider-zpa/zpa/resource_zpa_lss_config_controller.go`.
+
 An optional policy rule that gates which sessions/events are forwarded. Uses the same condition/operand structure as ZPA access policy but with a restricted set of `object_type` values (see Filtering below).
 
 ## Log types
+
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`; `vendor/terraform-provider-zpa/zpa/data_source_zpa_lss_config_log_types_formats.go`; `vendor/zscaler-help/about-log-streaming-service.md`.
 
 The Python SDK `source_log_map` and the TF data source `data_source_zpa_lss_config_log_types_formats.go` define the full set. (Tier A — vendor/zscaler-help/about-log-streaming-service.md confirms 12 log types.)
 
@@ -98,11 +110,15 @@ The Python SDK `source_log_map` maps 8 human-readable keys; the TF data source a
 
 ## Output formats
 
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`; `vendor/terraform-provider-zpa/zpa/data_source_zpa_lss_config_log_types_formats.go`; `vendor/terraform-provider-zpa/zpa/resource_zpa_lss_config_controller.go`.
+
 The API exposes pre-configured format templates per log type, retrievable via `GET /lssConfig/logType/formats`. Each log type supports **csv**, **json**, and **tsv** variants. The Python SDK defaults to `csv` when no `log_stream_content` override is provided; the TF provider requires the operator to supply the format string explicitly (typically fetched via the `zpa_lss_config_log_type_formats` data source).
 
 Custom log stream content can be supplied as a raw template string, overriding the built-in format. See [`./logs/access-log-schema.md`](./logs/access-log-schema.md) for the field reference and format specifiers (`%s{Field}`, `%d{Field}`, `%j{Field}`, etc.).
 
 ## Delivery guarantee model
+
+Source: `vendor/zscaler-help/about-log-streaming-service.md`.
 
 (Tier A — vendor/zscaler-help/about-log-streaming-service.md.)
 
@@ -116,6 +132,8 @@ This is **not** a guaranteed-delivery system. A sustained connector outage (>15 
 The 15-minute window is shorter than the ZIA NSS opt-in 60-minute recovery window. Plan monitoring and alerting accordingly.
 
 ## Filtering criteria
+
+Source: `vendor/terraform-provider-zpa/zpa/validator.go`; `vendor/terraform-provider-zpa/zpa/resource_zpa_lss_config_controller.go`.
 
 Filter behavior is log-type dependent and validated at the TF provider layer (`validator.go`).
 
@@ -133,6 +151,8 @@ The following log types explicitly **do not support** status-code filters: Brows
 - Other log types — policy rule filtering is not validated/supported in the TF provider
 
 ## TLS certificate handling
+
+Source: `vendor/zscaler-help/about-log-streaming-service.md`; `vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py`; `vendor/terraform-provider-zpa/zpa/resource_zpa_lss_config_controller.go`.
 
 (Tier A — vendor/zscaler-help/about-log-streaming-service.md.)
 
@@ -162,11 +182,15 @@ The `use_tls` flag in the log receiver config enables TLS on the outbound stream
 | Get status codes | `GET` | `/zpa/mgmtconfig/v2/admin/lssConfig/statusCodes` |
 | Get client types | `GET` | `/zpa/mgmtconfig/v2/admin/lssConfig/customers/{customerId}/clientTypes` |
 
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`; `vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py`.
+
 **SDK service** (`client.zpa.lss`): `list_configs`, `get_config`, `add_lss_config`, `update_lss_config`, `delete_lss_config`, `get_log_formats`, `get_client_types`, `get_status_codes`. Uses the v2 endpoint `/zpa/mgmtconfig/v2/admin/customers/{customer_id}/lssConfig`. (Tier A — sdk.md §2.22.)
 
 `add_lss_config` signature: `(lss_host, lss_port, name, source_log_type, app_connector_group_ids=None, enabled=True, source_log_format="csv", use_tls=False, **kwargs)`.
 
 ## Operational gotchas
+
+Source: `vendor/zscaler-help/about-log-streaming-service.md`; `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`; `vendor/terraform-provider-zpa/zpa/validator.go`.
 
 **1. Connector groups required for log sourcing.**
 If `connector_groups` is empty, the receiver has no source connectors and will emit nothing. The Python SDK `add_lss_config` accepts `app_connector_group_ids=None` without error, but the resulting receiver is non-functional until connector groups are added.

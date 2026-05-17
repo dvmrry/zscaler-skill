@@ -22,6 +22,8 @@ This document covers the CBC-specific angle of NSS: what log data Cloud Connecto
 
 ## Overview
 
+Source: `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md`; `vendor/zscaler-help/understanding-nanolog-streaming-service.md`; `vendor/zscaler-help/about-nss-servers.md`; `vendor/zscaler-help/about-cloud-nss-feeds.md`.
+
 ### What an NSS VA is in the CBC context
 
 In a Cloud Connector deployment, workload traffic is forwarded to ZIA for inspection, and the Zscaler Firewall processes that traffic. Log records — firewall session events, DNS queries, tunnel-level events — accumulate in Zscaler's Nanolog, the same central log store used by all Zscaler products. Getting those logs into a customer SIEM requires NSS: either a VM-based NSS Virtual Appliance that the customer operates, or Cloud NSS (a fully managed HTTPS push from Zscaler). This doc focuses on the VM-based path.
@@ -48,6 +50,8 @@ Cloud Connector is a workload-side VM — it intercepts and forwards traffic but
 Cloud NSS is the lower-friction path when the SIEM exposes a publicly routable HTTPS ingestion API (e.g., Splunk HEC, Sentinel HTTPS collector, Elastic). The NSS VA is appropriate when the SIEM is on-premises or behind a firewall that can accept a raw TCP connection from a VM in the cloud account but not an inbound HTTPS call from Zscaler's cloud.
 
 ## Deployment model
+
+Source: `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md`; `vendor/zscaler-help/understanding-nanolog-streaming-service.md`; `vendor/zscaler-help/about-nss-servers.md`.
 
 ### Form factor and subscription
 
@@ -83,6 +87,8 @@ The Zscaler NSS HA model for CBC follows the same pattern as ZIA NSS:
 Operators with high availability requirements should consider running two NSS VAs in separate availability zones / cloud regions and configuring two NSS server records in the admin console, each with its own set of feeds. Nanolog supports multiple concurrent connections.
 
 ## Configuration
+
+Source: `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md`; `vendor/zscaler-help/about-nss-servers.md`; `vendor/zscaler-help/about-cloud-nss-feeds.md`.
 
 ### Registering the NSS VA with the CBC tenant
 
@@ -126,6 +132,8 @@ If the SIEM is cloud-native and only exposes HTTPS ingestion, **Cloud NSS is the
 
 ## CBC log-and-control forwarding rules
 
+Source: `vendor/zscaler-help/cbc-about-log-and-control-forwarding.md`; `vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.md`.
+
 ### What they are
 
 Log and Control Forwarding Rules (Forwarding > Log and Control Forwarding) are a distinct CBC policy surface from traffic forwarding rules. They control:
@@ -167,6 +175,8 @@ First-match-wins, top-down by Rule Order. The default rule sits at the terminal 
 
 ## Common gotchas
 
+Source: `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md`; `vendor/zscaler-help/cbc-about-log-and-control-forwarding.md`; `vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.md`; `vendor/zscaler-help/understanding-nanolog-streaming-service.md`; `vendor/zscaler-help/about-nss-servers.md`; `vendor/zscaler-help/about-cloud-nss-feeds.md`.
+
 ### Clock sync (NTP)
 
 NSS VAs use TLS certificates with expiry timestamps. If the VM's clock drifts, TLS handshakes to the Nanolog fail with certificate validation errors that can look like network connectivity issues. Ensure the NSS VA and all Cloud Connector VMs are NTP-synchronized. In cloud environments, the hypervisor clock and the cloud provider's NTP endpoint (169.254.169.123 on AWS, time.windows.com on Azure) are usually sufficient. Verify NTP is not blocked by a security group or NSG rule on the VA's subnet.
@@ -203,6 +213,8 @@ Each NSS server handles up to 8 Firewall feeds. In CBC, DNS log records are in t
 If the SIEM is a cloud SaaS product with an HTTPS ingestion API, Cloud NSS (not NSS VA) is the appropriate path. A Cloud NSS for Firewall subscription covers CBC log types. No VM to operate, no certificate to manage, no egress filter to configure — Zscaler's cloud pushes to the SIEM's API endpoint. Cloud NSS has its own limitations (1 feed per log type per instance, no VM-side buffer, separate subscription SKU) documented in [`../shared/nss-architecture.md`](../shared/nss-architecture.md).
 
 ## Open questions register
+
+Source: `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md`; `vendor/zscaler-help/cbc-about-log-and-control-forwarding.md`; `vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.md`; `vendor/zscaler-help/understanding-nanolog-streaming-service.md`; `vendor/zscaler-help/about-nss-servers.md`; `vendor/zscaler-help/about-cloud-nss-feeds.md`.
 
 - **DNS log type in CBC**: Does CBC DNS (from the DNS Forwarding Gateway / DNS policy) appear under the Firewall log type in NSS, or is it a separate log type? Zscaler's generic NSS docs list DNS as a separate type, but CBC's NSS guidance only references Firewall. Need to confirm whether an NSS Firewall feed covers DNS events from Cloud Connector, or whether a separate feed (if available under the CBC subscription) is needed.
 - **NSS VA sizing numbers for CBC**: No CBC-specific sizing table is captured. The deployment guides reference Zscaler's sizing tool, but what the tool outputs for typical CC fleet sizes (50 CCs, 500 CCs) is unknown. Operators should use the deployment guide's interactive sizing before provisioning.

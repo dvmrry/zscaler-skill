@@ -100,7 +100,9 @@ A Public Service Edge data center is not necessarily a single cluster — Zscale
 
 The operational consequence: **Zscaler can add capacity to existing VIPs without forcing customers to migrate GRE tunnels.** A customer's GRE tunnel terminates at a VIP; new clusters joining behind that VIP just expand the pool. The customer sees no change.
 
-Per-cloud MCLS configuration data is published at `config.zscaler.com/<cloud>/cenr` (e.g., `config.zscaler.com/zscalertwo.net/cenr`). Rollout is infrastructure-schedule-driven, not per-org opt-in. Source: *Understanding Multi-Cluster Load Sharing*. Tier A.
+Source: `vendor/zscaler-help/understanding-multi-cluster-load-sharing.md`.
+
+Per-cloud MCLS configuration data is published at `config.zscaler.com/<cloud>/cenr` (e.g., `config.zscaler.com/zscalertwo.net/cenr`). Rollout is infrastructure-schedule-driven, not per-org opt-in.
 
 **Note:** the MCLS capture covers GRE tunnel behavior. IPSec / Z-Tunnel 2.0 behavior under MCLS isn't explicitly documented — assume similar but verify if it matters.
 

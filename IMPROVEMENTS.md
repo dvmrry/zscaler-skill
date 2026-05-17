@@ -61,12 +61,13 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 - **Cost**: medium-to-high. Needs a workflow that calls Claude (via the GitHub action — anthropic/claude-code-action or equivalent), passes the failure context, and lets the agent push to a fix branch. Plus playbook content to handle "self-maintenance" as a recognized workflow shape.
 - **Notes**: Claude-specific by design (uses Agent tool, CC's slash command surface). Not a cross-agent pattern. Conceptually the right "endgame" for closing the action loop, but real cost — defer until the manual loop (pre-push + branch protection + status badge + occasional manual `/z-investigator` on failures) demonstrably becomes a bottleneck. Until then, manual is fine.
 
-### Per-claim citation discipline — script + audit pass
+### Per-claim citation discipline — audit pass
 
 - **Status**: Proposed (real gap; needs real attention)
 - **Origin**: 2026-05-01 — surfaced when sampling reference files to spot-check citation density. `app-connector.md`: 14 vendor refs in body but only 1 file:line citation and 2 inline `(Source:)` patterns; `agents/investigator/methodology.md`: only 1 source in frontmatter for a `confidence: high` doc; many ZIA files use `Tier A/B/C/D` markers, others don't. Pattern across the skill is uneven.
 - **Impact**: the methodology says *"every claim has a source"*, but `check-hygiene.py` and `check-citations.sh` validate structure (frontmatter parses, citation paths resolve, dates are current) — they don't validate semantic completeness (does each body claim have an inline source). So claims slip through uncited. The skill's "soft + hard pairings" principle is unfulfilled here: the soft rule has no working hard check.
-- **Proposed mitigation**: paragraph-level citation script that splits body into paragraphs (blank-line separated), counts paragraphs with at least one citation marker (`Tier A/B/C/D`, `(Source:)`, `file:line`, `https://help.zscaler`, markdown link to `vendor/` or `references/`), and flags files below ~80% citation coverage. Imperfect — false positives on transition / setup paragraphs without claims; can't distinguish load-bearing from stylistic. But surfaces the obvious "long doc, few citations" cases for human audit.
+- **Current mitigation**: `scripts/check-citation-density.py` now provides an advisory ranked report. It scans `references/` by default, splits body text into paragraphs, counts paragraphs with vendor/source evidence markers (`Tier A/B/C/D`, `Source:`/`File:` markers that resolve to `vendor/` or `scripts/` paths, `vendor/...:line`, URL citations, or clarification IDs), and reports files below a configurable threshold. Internal `references/...` links are treated as cross-links, not primary source evidence. Agent runtime files can be scanned explicitly by passing `agents`.
+- **Remaining work**: run the report, tune false positives from a sampled top set, then do product-sliced human/agent audit passes. The script only identifies low-density candidates; it does not prove a paragraph's citation is correct or that an uncited paragraph contains a load-bearing claim.
 - **Cost**: low to write the script (~50-100 lines Python). Real cost is the audit pass to bring flagged files up to standard — could be days of work depending on how many files fall below the threshold.
 - **Notes**: real reference work cites per claim, sometimes per sentence. The skill currently relies on frontmatter `sources:` declarations to "cover" the body, which is a softer form of citation than the methodology asks for. Not blocking the alpha; not something to defer indefinitely either. When this lands, expect a sweep PR per-product (zia, zpa, etc.) bringing citation density up to standard.
 
@@ -159,11 +160,10 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 
 ### `simulate-policy.py` snapshot path uses old per-product convention
 
-- **Status**: Proposed
+- **Status**: In progress (implementation held for a separate PR)
 - **Origin**: 2026-04-30 — flagged when documenting the per-cloud subdir convention in `_data/README.md`
-- **Impact**: script hardcodes `_data/snapshot/zia/url-filtering-rules.json` (per-product top-level), but documented convention is `_data/snapshot/<cloud>/<product>/...` (per-cloud, since each tenant lives on a specific Zscaler cloud)
-- **Cost**: low — accept cloud as arg or read from `ZSCALER_CLOUD` env (already an SDK convention, see `references/shared/oneapi.md`); update the path construction
-- **Notes**: do this when `simulate-policy.py` is next touched; not blocking. May affect other snapshot-reading scripts similarly — sweep `scripts/*.py` for hardcoded `_data/snapshot/<product>/` patterns at the same time.
+- **Current direction**: add `--cloud` (defaulting to `ZSCALER_CLOUD`) and `--snapshot-root`, try `_data/snapshot/<cloud>/zia/` first when a cloud is provided, auto-detect a single per-cloud/private overlay when unambiguous, and fall back to the public product-first `_data/snapshot/zia/` layout.
+- **Notes**: keep this out of the citation-cleanup PR unless the script implementation is committed with it. The public docs should not claim this behavior until `scripts/simulate-policy.py` ships the matching CLI.
 
 ### Primer files: `confidence: high` with empty `sources` ✅ RESOLVED 2026-04-30
 

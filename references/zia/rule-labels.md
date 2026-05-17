@@ -36,6 +36,8 @@ group and tag policy rules across any policy type. They are a shared configurati
 resource, created independently of any specific policy, and then referenced by individual
 rules at the time of rule configuration.
 
+Source: `vendor/zscaler-help/about-rule-labels.md`; `vendor/zscaler-sdk-python/zscaler/zia/rule_labels.py`; `vendor/zscaler-sdk-python/zscaler/zia/models/rule_labels.py`.
+
 ---
 
 ## 1. What a Rule Label Is
@@ -108,6 +110,8 @@ it accepts as filter values for the `/ruleLabels/ruleType/{rule_type}` endpoint:
 source and not documented in the vendor help portal. (Tier B —
 vendor/zscaler-sdk-python/zscaler/zia/rule_labels.py)
 
+Source: `vendor/zscaler-help/about-rule-labels.md`; `vendor/zscaler-sdk-python/zscaler/zia/rule_labels.py`; `vendor/terraform-provider-zia/docs/resources/zia_rule_labels.md`.
+
 ---
 
 ## 3. CRUD Operations
@@ -127,6 +131,8 @@ vendor/zscaler-sdk-python/zscaler/zia/rule_labels.py)
 (Tier B — vendor/zscaler-sdk-python/zscaler/zia/rule_labels.py)
 
 ### 3.2 Request/Response Shape
+
+Source: `vendor/zscaler-sdk-python/zscaler/zia/rule_labels.py`; `vendor/zscaler-sdk-python/zscaler/zia/models/rule_labels.py`.
 
 The label object has a minimal schema:
 
@@ -172,7 +178,7 @@ vendor/zscaler-sdk-python/zscaler/zia/models/rule_labels.py)
 ### 3.4 Terraform
 
 Resource: `zia_rule_labels`
-Source: `vendor/terraform-provider-zia/docs/resources/zia_rule_labels.md`
+Source: `vendor/terraform-provider-zia/docs/resources/zia_rule_labels.md`.
 
 ```hcl
 resource "zia_rule_labels" "example" {
@@ -224,6 +230,8 @@ reference to it. The dependent rule must have its `labels` block cleared (and ac
 applied) before the label itself can be removed. (Tier A —
 vendor/zscaler-help/about-rule-labels.md)
 
+Source: `vendor/zscaler-help/about-rule-labels.md`; `vendor/terraform-provider-zia/docs/resources/zia_rule_labels.md`.
+
 **Activation.** ZIA requires explicit configuration activation after rule or resource
 changes. When managing rule labels alongside rules via Terraform, include
 `zia_activation_status` with `depends_on` pointing at all managed resources to trigger
@@ -234,6 +242,8 @@ activation after apply. (Tier B — references/zia/terraform.md)
 ## 4. Operational Use Patterns
 
 ### 4.1 Visual grouping in the admin console
+
+Source: `vendor/zscaler-help/about-rule-labels.md`.
 
 The primary intended use case is visual organization: an admin assigns the same label to a
 cohesive set of rules (for example, all rules belonging to a particular department,
@@ -310,6 +320,8 @@ not associated with any policy rule." (Tier A — vendor/zscaler-help/about-rule
 No documented cap on the number of labels that can be assigned to a single rule, or the
 number of rules a single label can reference, was found in available sources. (Open question
 — see Section 7.)
+
+Source: `vendor/zscaler-help/about-rule-labels.md`; `vendor/zscaler-sdk-python/zscaler/zia/models/rule_labels.py`; `vendor/terraform-provider-zia/docs/resources/zia_rule_labels.md`.
 
 ---
 

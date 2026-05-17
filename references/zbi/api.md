@@ -452,7 +452,7 @@ Neither is the same as the writable `IsolationProfile` in `cbiprofilecontroller`
 |---|---|---|---|
 | `GET` | `/zia/api/v1/browserIsolation/profiles` | `client.zia.cloud_browser_isolation.list_isolation_profiles()` | not exposed |
 
-Source: `vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py:56-60`. Returns `CBIProfile` objects with only `id`, `name`, `url`, `defaultProfile` (`vendor/zscaler-sdk-python/zscaler/zia/models/cloud_browser_isolation.py:29-38`).
+Source: `vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py:56-60`. Returns `CBIProfile` objects with only `id`; `name`; `url`; `defaultProfile` (`vendor/zscaler-sdk-python/zscaler/zia/models/cloud_browser_isolation.py:29-38`).
 
 ---
 

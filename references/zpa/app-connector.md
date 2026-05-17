@@ -48,6 +48,8 @@ Separate from ZCC's [Cloud Connector](../cloud-connector/overview.md), which is 
 
 ## Summary
 
+Source: `vendor/zscaler-help/about-app-connectors.md`; `vendor/zscaler-help/about-connector-provisioning-keys.md`; `vendor/zscaler-help/understanding-connector-software-updates.md`; `vendor/zscaler-help/zpa-about-connector-groups.md`; `vendor/zscaler-help/understanding-private-access-architecture.md`.
+
 - **Outbound-only** — does not require inbound firewall rules. This is the architectural property that makes ZPA safe to deploy against internal apps without exposing them to the internet.
 - **Typically deployed in the DMZ** or on a network segment that can reach both the internal applications AND the ZPA cloud.
 - **Always active in groups** — multiple App Connectors in the same group are all active simultaneously. No active/passive. ZPA picks the closest one per request based on user location + connector-to-app latency.
@@ -58,6 +60,8 @@ Separate from ZCC's [Cloud Connector](../cloud-connector/overview.md), which is 
 ## Mechanics
 
 ### Placement and scaling
+
+Source: `vendor/zscaler-help/about-app-connectors.md`; `vendor/zscaler-help/understanding-private-access-architecture.md`; `vendor/terraform-aws-zpa-app-connector-modules/README.md`; `vendor/terraform-azurerm-zpa-app-connector-modules/README.md`.
 
 From *About App Connectors* (`vendor/zscaler-help/about-app-connectors.md`) and *Understanding the Private Access Architecture*:
 
@@ -73,6 +77,8 @@ From *About App Connectors* (`vendor/zscaler-help/about-app-connectors.md`) and 
 
 ### App Connector Groups
 
+Source: `vendor/zscaler-help/zpa-about-connector-groups.md`; `vendor/zscaler-help/understanding-connector-software-updates.md`; `vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zpa-app-connector-group/variables.tf`; `vendor/terraform-azurerm-zpa-app-connector-modules/modules/terraform-zpa-app-connector-group/variables.tf`.
+
 App Connector Groups are the policy, upgrade, and capacity unit. Per *About App Connector Groups*:
 
 - **Every App Connector belongs to exactly one group.** Provisioning key determines group assignment at enrollment time.
@@ -86,6 +92,8 @@ App Connector Groups are the policy, upgrade, and capacity unit. Per *About App 
 Groups are the unit at which upgrades are orchestrated: when a new App Connector version is available, ZPA picks one connector in the group at random, upgrades it (restart + re-enroll), picks the next, and so on. The group stays available throughout because only one connector is down at a time.
 
 ### Provisioning Keys
+
+Source: `vendor/zscaler-help/about-connector-provisioning-keys.md`; `vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zpa-provisioning-key/variables.tf`; `vendor/terraform-azurerm-zpa-app-connector-modules/modules/terraform-zpa-provisioning-key/variables.tf`.
 
 From *About App Connector Provisioning Keys*: a long base64-ish text string that functions as the shared-secret credential for App Connector enrollment.
 
@@ -125,6 +133,8 @@ A literal copy of this error in a support ticket narrows diagnosis to "key is wr
 
 ### Reference deployment examples
 
+Source: `vendor/terraform-aws-zpa-app-connector-modules/README.md`; `vendor/terraform-aws-zpa-app-connector-modules/examples/README.md`; `vendor/terraform-azurerm-zpa-app-connector-modules/README.md`; `vendor/terraform-azurerm-zpa-app-connector-modules/examples/README.md`; `vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zsac-acvm-aws/variables.tf`; `vendor/terraform-azurerm-zpa-app-connector-modules/modules/terraform-zsac-acvm-azure/variables.tf`.
+
 Zscaler publishes reference Terraform configurations in two vendor-maintained repositories. As of module versions AWS v1.4.0 / Azure v1.1.0, all App Connectors are deployed on RHEL 9 (`vendor/terraform-aws-zpa-app-connector-modules/README.md:19`; `vendor/terraform-azurerm-zpa-app-connector-modules/README.md:19`).
 
 **AWS examples** (`vendor/terraform-aws-zpa-app-connector-modules/examples/`):
@@ -159,6 +169,8 @@ Zscaler publishes reference Terraform configurations in two vendor-maintained re
 
 ### Software updates
 
+Source: `vendor/zscaler-help/understanding-connector-software-updates.md`; `vendor/zscaler-help/zpa-about-connector-groups.md`.
+
 From *Understanding App Connector Software Updates*:
 
 - Scheduled at the App Connector Group level. Admin specifies day + time.
@@ -180,6 +192,8 @@ From *Understanding App Connector Software Updates*:
 
 ### Certificate enrollment and trust
 
+Source: `vendor/zscaler-help/about-connector-provisioning-keys.md`; `vendor/zscaler-help/understanding-private-access-architecture.md`.
+
 From *Understanding the Private Access Architecture* (captured earlier, see [`../shared/cloud-architecture.md § Certificate and PKI model`](../shared/cloud-architecture.md)):
 
 - App Connector generates a **TLS client certificate** during enrollment, signed by the tenant's ZPA CA.
@@ -188,6 +202,8 @@ From *Understanding the Private Access Architecture* (captured earlier, see [`..
 - Zscaler root-signing keys live in an **offline, air-gapped signing environment**; no online CA for root.
 
 ### Health reporting and metrics
+
+Source: `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`; `vendor/zscaler-help/about-app-connectors.md`.
 
 App Connectors surface health metrics that the ZPA admin console displays and that streaming log fields (per `Understanding_App_Connector_Metrics_Log_Fields.txt`) carry. Relevant:
 
@@ -199,6 +215,8 @@ App Connectors surface health metrics that the ZPA admin console displays and th
 - **VM-cloning fingerprint issue** — when a VM template is used to deploy multiple App Connectors without unique re-enrollment, all clones share a hardware fingerprint. ZPA detects the collision and disables all but one. The remedy is re-enrollment with unique fingerprints per clone. `scripts/connector-health.py` surfaces this pattern as a suspected cause when `last_upgrade_time` is significantly older than the group's peers.
 
 ### How sessions are assigned to App Connectors
+
+Source: `vendor/zscaler-help/about-app-connectors.md`; `vendor/zscaler-help/zpa-about-connector-groups.md`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`.
 
 Connector **health and target reachability gate eligibility** for session assignment. ZPA's connector-selection step happens in two phases — eligibility filtering, then latency-based selection — and the metrics surfaced above are the inputs to the eligibility phase.
 
@@ -224,6 +242,8 @@ Connector **health and target reachability gate eligibility** for session assign
 
 ### API surface
 
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/app_connectors.py`; `vendor/zscaler-sdk-python/zscaler/zpa/app_connector_groups.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorcontroller/zpa_app_connector_controller.go`; `vendor/terraform-provider-zpa/docs/resources/zpa_app_connector_group.md`.
+
 Python SDK: `client.zpa.app_connector_groups`, `client.zpa.app_connectors`, `client.zpa.app_connector_schedule` (scheduled upgrades). See `vendor/zscaler-sdk-python/zscaler/zpa/` for the full surface.
 
 Go SDK: `client.zpa.appconnectorcontroller`, `appconnectorgroup`, `appconnectorschedule` — parity with Python.
@@ -242,6 +262,8 @@ The SDK does **not** expose:
 
 ## Cross-product context
 
+Source: `vendor/zscaler-help/about-app-connectors.md`; `vendor/zscaler-help/understanding-private-access-architecture.md`; `vendor/terraform-aws-zpa-app-connector-modules/README.md`; `vendor/terraform-azurerm-zpa-app-connector-modules/README.md`.
+
 | Relationship | Details |
 |---|---|
 | **ZIA SSL Inspection's `zpa_app_segments` criterion** | Filters to Source-IP-Anchor-enabled segments; the App Connectors serving those segments are the termination point for SIPA traffic (see [`../shared/source-ip-anchoring.md`](../shared/source-ip-anchoring.md)). |
@@ -251,6 +273,8 @@ The SDK does **not** expose:
 | **ZCC forwarding** | ZPA access flow: ZCC → ZPA Service Edge → App Connector → app server. The App Connector is the last hop before the real app; ZCC selects the segment client-side, ZPA Service Edge authenticates and routes to the chosen App Connector. |
 
 ## Common question shapes
+
+Source: `vendor/zscaler-help/about-app-connectors.md`; `vendor/zscaler-help/about-connector-provisioning-keys.md`; `vendor/zscaler-help/understanding-connector-software-updates.md`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`.
 
 | Question | Likely cause | Start |
 |---|---|---|
@@ -265,15 +289,21 @@ The SDK does **not** expose:
 
 ## Edge cases
 
+Source: `vendor/zscaler-help/about-connector-provisioning-keys.md`; `vendor/zscaler-help/understanding-connector-software-updates.md`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`.
+
 - **4-hour upgrade window is not extendable.** Groups with too many connectors to finish in 4 hours get staggered across multiple nights. Pick upgrade nights carefully for large groups.
 - **Upgraded connector re-enrollment is transparent** — the connector resumes service on the new version without a new provisioning key. The client-cert chain survives the upgrade.
 - **"Scheduled" status locks the upgrade time** — once scheduled, the periodic-update time can't be changed for that specific connector (per help doc). Manual upgrades are still available.
 - **Provisioning keys copied from the portal UI** can silently include trailing whitespace. Operators pasting the key into a deployment template should trim whitespace; the `notice:Login request failed - http status(401)` error in the error log is the giveaway.
 - **Nearest-App-Connector selection** uses app-to-connector latency from Zscaler's continuous measurements, not static geography. A connector that's geographically far but has a fast link to the app can be preferred. Can be counter-intuitive for operators expecting pure geo-based routing.
 - **App Connector VM sizing** depends on concurrent-user count, app throughput, and inspection feature set (Double Encryption, AppProtection add overhead). Zscaler publishes sizing guidance in their reference architecture PDFs; not captured in depth here.
-- **App Connector Group must associate with both a Server Group AND a provisioning key** to serve any traffic. A group with no Server Group association silently fails to route traffic — the admin console doesn't flag the partial config as invalid. The same applies to network reachability: only associate Connector Groups with applications the connectors can actually reach. Source: *About Connector Groups* lines 16-17.
+Source: `vendor/zscaler-help/zpa-about-connector-groups.md`.
+
+- **App Connector Group must associate with both a Server Group AND a provisioning key** to serve any traffic. A group with no Server Group association silently fails to route traffic — the admin console doesn't flag the partial config as invalid. The same applies to network reachability: only associate Connector Groups with applications the connectors can actually reach.
 
 ## Service Edge Group `service_edges` block — undocumented operational requirement
+
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md`.
 
 The same group/registration model applies to **Private Service Edges** (PSEs) via `zpa_service_edge_group`. The `service_edges` block on this resource is documented as **optional** in the Terraform registry, but **in practice it is required** if your tenant has any Service Edges actually attached to the group. Per upstream `zscaler/terraform-provider-zpa` issue #550 (closed in v4.1.3, took 27 comments to root-cause):
 
@@ -291,16 +321,20 @@ The same pattern likely applies to App Connector Groups when an `app_connector_g
 
 ## Logging — LSS retransmit window is shorter than NSS
 
+Source: `vendor/zscaler-help/about-log-streaming-service.md`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`.
+
 ZPA's Log Streaming Service (LSS) is the equivalent of ZIA's NSS for Private Access logs, but with **stricter retransmit semantics** that catch operators off-guard:
 
 - **Connectivity gap between Private Access and the App Connector** → LSS can retransmit at most **the last 15 minutes** of log data after restoration, and **delivery is not guaranteed**. The 15-minute window vs. ZIA NSS's 60-minute opt-in recovery is a 4× difference.
 - **Connectivity gap between the App Connector and the SIEM** → no retransmit at all (audit logs are the exception). Logs generated during this gap are permanently lost from the SIEM stream.
 
-Implication: a 30-minute App Connector outage = roughly 15 minutes of permanent ZPA log gap, even with retransmit configured. Operators familiar with NSS's 60-minute recovery often assume LSS matches; it doesn't. Source: *About the Log Streaming Service* lines 61-62.
+Implication: a 30-minute App Connector outage = roughly 15 minutes of permanent ZPA log gap, even with retransmit configured. Operators familiar with NSS's 60-minute recovery often assume LSS matches; it doesn't.
 
 See also [`../shared/nss-architecture.md § Surprises`](../shared/nss-architecture.md) where this is cross-referenced.
 
 ## Open questions
+
+Source: `vendor/zscaler-help/about-app-connectors.md`; `vendor/zscaler-help/about-connector-provisioning-keys.md`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`.
 
 - **Exact App Connector-to-app latency probe cadence** — how frequently ZPA re-measures connector-to-app RTT. Not documented publicly; relevant for "our network path changed, how long until ZPA notices" questions.
 - **Certificate validity window** — exactly how long an App Connector cert is valid before re-enrollment is required. Not captured.

@@ -90,7 +90,7 @@ provider "ztc" {
 
 #### `ztc_forwarding_gateway`
 
-Source: `docs/resources/ztc_forwarding_gateway.md`
+Source: `vendor/terraform-provider-ztc/docs/resources/ztc_forwarding_gateway.md`.
 
 Manages ZIA forwarding gateways and log/control (ECSELF) forwarding gateways. A gateway defines primary and secondary proxy endpoints used by traffic forwarding rules.
 
@@ -117,7 +117,7 @@ Gotchas:
 
 #### `ztc_dns_forwarding_gateway`
 
-Source: `docs/resources/ztc_dns_forwarding_gateway.md`
+Source: `vendor/terraform-provider-ztc/docs/resources/ztc_dns_forwarding_gateway.md`.
 
 Manages DNS forwarding gateways used in DNS traffic forwarding rules. Two mutually exclusive configuration modes:
 
@@ -142,7 +142,7 @@ Gotchas:
 
 #### `ztc_dns_gateway`
 
-Source: `docs/resources/ztc_dns_gateway.md`
+Source: `vendor/terraform-provider-ztc/docs/resources/ztc_dns_gateway.md`.
 
 Alternative resource for DNS gateway configuration. Shares the same API endpoint as `ztc_dns_forwarding_gateway` but exposes a `dns_gateway_type` field.
 
@@ -165,7 +165,7 @@ Import: by `<GATEWAY_ID>` or `<GATEWAY_NAME>`.
 
 #### `ztc_traffic_forwarding_rule`
 
-Source: `docs/resources/ztc_traffic_forwarding_rule.md`
+Source: `vendor/terraform-provider-ztc/docs/resources/ztc_traffic_forwarding_rule.md`.
 
 The primary traffic forwarding rule. Controls how traffic is forwarded from Cloud Connector to a destination: directly, through ZIA, through ZPA, or dropped.
 
@@ -210,7 +210,7 @@ Gotchas:
 
 #### `ztc_traffic_forwarding_dns_rule`
 
-Source: `docs/resources/ztc_traffic_forwarding_dns_rule.md`
+Source: `vendor/terraform-provider-ztc/docs/resources/ztc_traffic_forwarding_dns_rule.md`.
 
 **OneAPI only.**
 
@@ -246,7 +246,7 @@ Gotchas:
 
 #### `ztc_traffic_forwarding_log_rule`
 
-Source: `docs/resources/ztc_traffic_forwarding_log_rule.md`
+Source: `vendor/terraform-provider-ztc/docs/resources/ztc_traffic_forwarding_log_rule.md`.
 
 **OneAPI only.**
 
@@ -276,7 +276,7 @@ Note: The resource doc page header incorrectly labels this as a Data Source. It 
 
 #### `ztc_ip_destination_groups`
 
-Source: `docs/resources/ztc_ip_destination_groups.md`
+Source: `vendor/terraform-provider-ztc/docs/resources/ztc_ip_destination_groups.md`.
 
 Manages IP destination groups used as match criteria in traffic forwarding and DNS rules.
 
@@ -298,7 +298,7 @@ Note: The attribute reference in the doc uses `ip_addresses` but the example and
 
 #### `ztc_ip_source_groups`
 
-Source: `docs/resources/ztc_ip_source_groups.md`
+Source: `vendor/terraform-provider-ztc/docs/resources/ztc_ip_source_groups.md`.
 
 Manages IP source groups used as source-match criteria in rules.
 
@@ -318,7 +318,7 @@ Note: The example in the doc uses the resource type `zia_ip_source_groups`, whic
 
 #### `ztc_ip_pool_groups`
 
-Source: `docs/resources/ztc_ip_pool_groups.md`
+Source: `vendor/terraform-provider-ztc/docs/resources/ztc_ip_pool_groups.md`.
 
 Manages IP pool groups. Used as ZPA IP group targets in DNS forwarding rules (`REDIR_ZPA` action).
 
@@ -336,7 +336,7 @@ Import: by `<GROUP_ID>` or `<GROUP_NAME>`.
 
 #### `ztc_network_services`
 
-Source: `docs/resources/ztc_network_services.md`
+Source: `vendor/terraform-provider-ztc/docs/resources/ztc_network_services.md`.
 
 Manages individual network service definitions (protocol + port ranges).
 
@@ -359,7 +359,7 @@ Import: by `<SERVICE_ID>` or `<SERVICE_NAME>`.
 
 #### `ztc_network_service_groups`
 
-Source: `docs/resources/ztc_network_service_groups.md`
+Source: `vendor/terraform-provider-ztc/docs/resources/ztc_network_service_groups.md`.
 
 Manages groups of network services for use in forwarding rules.
 
@@ -379,7 +379,7 @@ Import: by `<GROUP_ID>` or `<GROUP_NAME>`.
 
 #### `ztc_location_template`
 
-Source: `docs/resources/ztc_location_meta/template.md`
+Source: `vendor/terraform-provider-ztc/docs/resources/ztc_location_template.md`.
 
 Manages location templates. Templates are applied to provisioning URLs to configure the ZIA location settings that Cloud Connector locations inherit.
 
@@ -418,7 +418,7 @@ Import: by `<TEMPLATE_ID>` or `<TEMPLATE_NAME>`.
 
 #### `ztc_provisioning_url`
 
-Source: `docs/resources/ztc_provisioning_url.md`
+Source: `vendor/terraform-provider-ztc/docs/resources/ztc_provisioning_url.md`.
 
 Manages provisioning URLs. A provisioning URL encodes the bootstrap configuration that a Cloud Connector VM fetches at first boot.
 
@@ -452,7 +452,7 @@ Import: by `<PROV_URL_ID>` or `<PROV_URL_NAME>`.
 
 #### `ztc_account_groups`
 
-Source: `docs/resources/ztc_account_groups.md`
+Source: `vendor/terraform-provider-ztc/docs/resources/ztc_account_groups.md`.
 
 Creates and manages Account Group configurations used by Cloud Connector workload discovery. Account Groups connect discovered public cloud accounts to Cloud Connector groups.
 
@@ -470,7 +470,7 @@ Import: by `<GROUP_ID>` or `<GROUP_NAME>`.
 
 #### `ztc_public_cloud_info`
 
-Source: `docs/resources/ztc_public_cloud_info.md`
+Source: `vendor/terraform-provider-ztc/docs/resources/ztc_public_cloud_info.md`.
 
 Registers an AWS (or Azure/GCP) account with the Cloud Connector portal for workload discovery. Corresponds to the "Workload Discovery Settings" feature.
 
@@ -556,11 +556,13 @@ Both numeric ID and name are accepted as the import identifier for all resources
 
 1. **`ztc_dns_forwarding_gateway` vs `ztc_dns_gateway`**: Both resources target `/ztw/api/v1/dnsGateways`. The SDK has two packages targeting this same endpoint (`dns_gateway` and `forwarding_gateways/dns_forwarding_gateway`) with slightly different struct definitions (the latter adds a `Type` field). Whether the API distinguishes the two by `dnsGatewayType` is not confirmed from available sources. Which SDK package the Terraform provider uses for each TF resource is not verified.
 
-2. **Resolved 2026-04-26.** `ztc_traffic_forwarding_log_rule` doc label is a confirmed bug. Source: `vendor/terraform-provider-ztc/docs/resources/ztc_traffic_forwarding_log_rule.md` — the H1 header reads `# ztc_traffic_forwarding_log_rule (Data Source)` but the file is under `docs/resources/` and the resource is implemented as a managed resource. The `(Data Source)` label in the header is incorrect.
+Source: `vendor/terraform-provider-ztc/docs/resources/ztc_traffic_forwarding_log_rule.md`; `vendor/terraform-provider-ztc/ztc/resource_ztc_ip_destination_groups.go`; `vendor/terraform-provider-ztc/docs/resources/ztc_ip_source_groups.md`.
 
-3. **Resolved 2026-04-26.** `ztc_ip_destination_groups` correct TF argument name is `addresses`. Source: `vendor/terraform-provider-ztc/ztc/resource_ztc_ip_destination_groups.go` — the schema uses `"addresses"` (not `"ip_addresses"`). The attribute reference table in the doc that says `ip_addresses` is incorrect. Use `addresses` in Terraform configurations.
+2. **Resolved 2026-04-26.** `ztc_traffic_forwarding_log_rule` doc label is a confirmed bug. The H1 header reads `# ztc_traffic_forwarding_log_rule (Data Source)` but the file is under `vendor/terraform-provider-ztc/docs/resources/` and the resource is implemented as a managed resource. The `(Data Source)` label in the header is incorrect.
 
-4. **Resolved 2026-04-26.** `ztc_ip_source_groups` example uses wrong resource type. Source: `vendor/terraform-provider-ztc/docs/resources/ztc_ip_source_groups.md` — the example block references `zia_ip_source_groups` instead of `ztc_ip_source_groups`. This is a documentation bug. The correct resource type is `ztc_ip_source_groups`. Cross-provider ZIA source groups are a separate resource and are not interchangeable.
+3. **Resolved 2026-04-26.** `ztc_ip_destination_groups` correct TF argument name is `addresses`. The schema uses `"addresses"` (not `"ip_addresses"`). The attribute reference table in the doc that says `ip_addresses` is incorrect. Use `addresses` in Terraform configurations.
+
+4. **Resolved 2026-04-26.** `ztc_ip_source_groups` example uses wrong resource type. The example block references `zia_ip_source_groups` instead of `ztc_ip_source_groups`. This is a documentation bug. The correct resource type is `ztc_ip_source_groups`. Cross-provider ZIA source groups are a separate resource and are not interchangeable.
 
 5. **ZPA Application Segment IDs in `ztc_traffic_forwarding_rule`**: The `zparesources` package in the Go SDK (`vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/zparesources/zparesources.go`) exports `GetZPAApplicationSegments` which returns ZPA Application Segment IDs visible to the Cloud Connector tenant. Whether these IDs are the same as those returned by the `zpa_application_segment` data source in the ZPA Terraform provider has not been confirmed from a live cross-provider test. The ZTC provider does not expose a data source for this; using the `zparesources` Go package directly or the ZPA provider data source are the available options.
 

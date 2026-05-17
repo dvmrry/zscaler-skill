@@ -14,7 +14,7 @@ Plus a composite:
 
   - diagnose_tenant()           — runs all of the above in one call
 
-The companion markdown doc at references/_agent-patterns.md mirrors these
+The companion markdown doc at references/_meta/agent-patterns.md mirrors these
 functions for in-context reference. The companion CLI at
 scripts/diagnose-tenant.py pretty-prints diagnose_tenant() output.
 

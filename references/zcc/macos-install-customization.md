@@ -16,6 +16,8 @@ author-status: draft
 
 # ZCC macOS Install Customization — MDM, plist keys, .pkg flags, and silent deployment
 
+Source: `vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.md`; `vendor/zscaler-help/what-is-zscaler-client-connector.md`.
+
 This document covers macOS-specific deployment mechanics for Zscaler Client Connector (ZCC): how to deliver the `.pkg`, how to inject configuration via plist before first launch, and the system-level entitlements (Network Extension, PPPC) required for a fully unattended fleet deployment. It complements the cross-platform parameter catalog at [`./install-parameters.md`](./install-parameters.md), which documents parameter semantics shared across Windows, macOS, iOS, and Android. Duplicate parameter-semantics coverage is intentionally omitted here.
 
 ---
@@ -41,11 +43,13 @@ It does **not** cover:
 
 ## 2. Distribution channel options
 
-ZCC for macOS is distributed as a signed `.pkg` installer. The two standard delivery paths are:
+Source: `vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.md`; `vendor/zscaler-help/what-is-zscaler-client-connector.md`.
+
+ZCC for macOS is distributed as a `.pkg` installer. The two standard delivery paths are:
 
 **Direct download.** The package is downloaded from the Zscaler Client Connector Portal or from the Zscaler download portal and installed by the end user or an IT technician by double-clicking the installer or invoking it from the command line.
 
-**MDM-pushed package.** The `.pkg` is hosted on the MDM server (Jamf Pro, Microsoft Intune, Kandji, Mosyle, Workspace ONE) and pushed to enrolled endpoints. This is the standard path for fleet deployments. Plist configuration is pushed as a separate managed preference profile alongside the package, ensuring configuration is in place before ZCC first launches.
+**MDM-pushed package.** The `.pkg` is hosted on the MDM server and pushed to enrolled endpoints. This is the standard path for fleet deployments. Plist configuration is pushed as a separate managed preference profile alongside the package, ensuring configuration is in place before ZCC first launches.
 
 **App Store version.** ZCC is also available from the Mac App Store. The App Store version receives updates through App Store mechanisms rather than via the portal-controlled update channel. The App Store version does not support MDM-managed plist configuration in the same way as the `.pkg` version, and Zscaler's deployment guides for MDM configuration reference the `.pkg` path. The App Store version is documented as an alternative in the vendor help portal but deployment mechanics for App Store distribution under MDM managed-app-config are not captured in available vendor sources.
 
@@ -61,7 +65,9 @@ Zscaler does not enumerate a minimum supported macOS version in the captured ven
 
 ## 4. Required system entitlements
 
-ZCC on macOS uses two macOS system extension frameworks that must be approved by the operating system before ZCC can capture and inspect traffic. Without these approvals, ZCC installs but cannot enforce policy.
+Source: `vendor/zscaler-help/what-is-zscaler-client-connector.md`.
+
+ZCC on macOS captures web traffic at the OS level and therefore depends on macOS network-extension approval before traffic can be intercepted consistently. Without those approvals, ZCC installs but cannot reliably enforce policy.
 
 ### 4.1 Network Extension Framework — System Extension allowlist
 
@@ -101,6 +107,8 @@ A PPPC profile is delivered as a Configuration Profile with payload type `com.ap
 
 ## 5. `.pkg` installer command-line invocation
 
+Source: `vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.md`.
+
 The standard macOS installer command to silently install ZCC from the command line or an MDM script is:
 
 ```
@@ -117,13 +125,17 @@ sudo installer -pkg /path/to/ZscalerClientConnector.pkg -target /
 
 ## 6. Plist keys — preference domain and key catalog
 
+Source: `vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.md`.
+
 ZCC on macOS reads install-time configuration from a managed preferences plist pushed by MDM. The preference domain is not confirmed from available captured vendor sources; the Jamf Pro and Intune deployment guides referenced by the parameters vendor doc are not captured locally. Based on the parameter naming conventions and the standard Zscaler bundle naming pattern, the expected preference domain is `com.zscaler.zclient`, but this should be verified against the current Jamf or Intune deployment guide before deployment.
 
 The plist is typically deployed as a Custom Settings payload (`com.apple.ManagedClient.preferences`) in a Configuration Profile, targeting the relevant preference domain. MDM solutions push it as a managed preference, which means it is read-only at the endpoint and cannot be modified by the user.
 
 ### 6.1 Parameter catalog — macOS plist keys
 
-All parameters below are sourced from `vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.md`.
+Source: `vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.md`.
+
+All parameters below are sourced from the Zscaler macOS deployment-parameter table.
 
 | Key | Type | Default | Description |
 |---|---|---|---|
@@ -146,6 +158,8 @@ All parameters below are sourced from `vendor/zscaler-help/supported-parameters-
 ## 7. MDM payload examples
 
 ### 7.1 Jamf Pro — Custom Settings profile
+
+Source: `vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.md`.
 
 In Jamf Pro, ZCC configuration is deployed as a Custom Settings payload under a Configuration Profile. The preference domain must match the ZCC preference domain (confirm with current Jamf deployment guide — the domain is provisionally `com.zscaler.zclient`).
 
@@ -173,9 +187,11 @@ In Jamf Pro, ZCC configuration is deployed as a Custom Settings payload under a 
 
 This plist is uploaded to the Jamf Pro Custom Settings payload with the preference domain set to the ZCC domain. Jamf Pro converts it to a managed preference and deploys it to target devices.
 
-Jamf Pro also deploys the System Extension policy and PPPC profile as separate Configuration Profile payloads within the same or a different profile object. Zscaler publishes a Jamf Pro deployment guide (referenced by the parameters vendor doc as "Deploying Zscaler Client Connector with Jamf Pro for macOS") that provides payload-ready XML for the System Extension and PPPC components. That guide is not captured in available local sources.
+Jamf Pro also deploys the System Extension policy and PPPC profile as separate Configuration Profile payloads within the same or a different profile object. Zscaler publishes a Jamf Pro deployment guide referenced by the parameters vendor doc. That guide is not captured in available local sources.
 
 ### 7.2 Microsoft Intune — Custom Configuration Profile
+
+Source: `vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.md`.
 
 Intune delivers macOS Configuration Profiles via the Device Configuration blade. For ZCC plist configuration, the deployment type is a "Custom" profile with a property list payload. The plist content is the same XML structure as shown in the Jamf example. Intune MDM variable substitution syntax (e.g., `{{deviceid}}`) can be used in string values to populate `externalDeviceId` or `userName` dynamically.
 
@@ -183,7 +199,7 @@ The System Extension and PPPC payloads are configured under separate Intune prof
 - System Extensions: **Device Configuration > Profiles > Create profile > macOS > Templates > Extensions**.
 - PPPC: **Device Configuration > Profiles > Create profile > macOS > Templates > Privacy preferences policy control**.
 
-Intune's built-in templates for these payload types guide field entry. Zscaler publishes a dedicated "Deploying Zscaler Client Connector with Microsoft Intune for macOS" guide (referenced by the parameters vendor doc) that is not captured in available local sources.
+Intune's built-in templates for these payload types guide field entry. Zscaler publishes a dedicated "Deploying Zscaler Client Connector with Microsoft Intune for macOS" guide referenced by the parameters vendor doc; that guide is not captured in available local sources.
 
 ### 7.3 Kandji, Mosyle, and Workspace ONE
 
@@ -199,6 +215,8 @@ Zscaler does not publish dedicated deployment guides for Kandji or Mosyle in the
 
 ## 8. Silent install
 
+Source: `vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.md`; `vendor/zscaler-help/what-is-zscaler-client-connector.md`.
+
 Silent installation means no user-visible prompts during or after package installation. On macOS, full silence requires:
 
 1. **MDM-pushed package delivery.** The MDM runs the installer in the background; no Finder dialog appears.
@@ -213,11 +231,15 @@ With all five conditions met, ZCC installs, the system extension loads silently,
 
 ## 9. Auto-launch and login item
 
+Source: `vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.md`; `vendor/zscaler-help/what-is-zscaler-client-connector.md`.
+
 `launchTray` (default `1`) controls whether ZCC auto-starts after installation. On macOS 13 (Ventura) and later, background items added by installers appear in System Settings > General > Login Items & Extensions and can be toggled by users unless MDM restricts that setting. Zscaler's use of a System Extension (rather than a traditional Launch Agent or Login Item) means the network-level enforcement continues as long as the extension is approved, independent of the Login Items toggle for the UI component. The exact interaction between the `launchTray = 0` setting and the persistence of the system extension on macOS 13+ is not confirmed from available vendor sources.
 
 ---
 
 ## 10. Update channel
+
+Source: `vendor/zscaler-help/what-is-zscaler-client-connector.md`.
 
 ZCC for macOS receives updates through the Zscaler Client Connector Portal's update controls. Administrators configure the permitted version and update schedule in the ZCC Portal under App Store settings or Client Connector Portal update policy. ZCC checks for updates automatically at a cadence controlled by the portal policy and downloads and applies them silently.
 
@@ -260,11 +282,13 @@ Replace `<team-id>` and `<bundle-id>` with the ZCC-specific values. After deacti
 
 ## 12. Machine tunnel on macOS
 
-ZCC supports ZPA Machine Tunnel on both Windows and macOS. Machine Tunnel establishes a ZPA connection before any user logs in, enabling ZPA-protected resources (such as an Active Directory domain controller) to be reachable at the macOS login window.
+Source: `vendor/zscaler-help/about-machine-tunnels.md`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.md`.
+
+ZCC supports ZPA Machine Tunnel on both Windows and macOS. Machine Tunnel establishes a ZPA connection before any user logs in, enabling ZPA-protected resources to be reachable at the macOS login window.
 
 **Key differences from Windows machine tunnel:**
 
-- Machine Tunnel on macOS must be enabled by Zscaler Support. Contact Zscaler Support to activate this feature before configuring it. [Source: `vendor/zscaler-help/about-machine-tunnels.md`]
+- Machine Tunnel on macOS must be enabled by Zscaler Support. Contact Zscaler Support to activate this feature before configuring it.
 - WebView2 authentication is not supported for Machine Tunnels on any platform.
 - `policyToken` must be set (via plist/MDM) to specify the App Profile enforced before user login. The PAC file in that App Profile must bypass the IdP login page so authentication is not blocked by strict enforcement.
 - Machine Tunnel configuration also requires Machine Groups and Machine Provisioning Keys configured in the ZPA Admin Portal, and those keys added to the App Profile rules for macOS.
@@ -324,6 +348,8 @@ log stream --predicate 'subsystem == "com.apple.SystemExtensions"' --info
 These entries are useful when diagnosing a blocked or stalled extension.
 
 ### 14.4 ZCC-specific log files
+
+Source: `vendor/zscaler-help/what-is-zscaler-client-connector.md`.
 
 ZCC may write its own log files to a location under `/var/log/` or under the application support directory. The exact paths are not confirmed from available captured vendor sources. The ZCC application itself provides a "Send Feedback" and log export mechanism in the ZCC menu that packages relevant logs for support submission.
 

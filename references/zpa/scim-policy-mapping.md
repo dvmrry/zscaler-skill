@@ -37,6 +37,8 @@ For the general SCIM provisioning lifecycle (user/group create, update, delete, 
 
 ## Overview
 
+Source: `vendor/zscaler-help/about-scim-zpa.md`; `vendor/zscaler-sdk-python/zscaler/zpa/scim_groups.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/scimgroup/zpa_scim_group.go`.
+
 SCIM groups in ZPA serve a different function than in most identity systems. In ZPA, a SCIM group is not a container that grants entitlements directly — it is a **read-only label** that ZPA mirrors from an IdP and makes available as a matching criterion in policy rules. The ZPA policy engine compares a user's current group memberships (as known to ZPA from SCIM sync) against the groups referenced in a rule's conditions, then allows or denies access accordingly.
 
 ### How SCIM groups arrive in ZPA
@@ -66,6 +68,8 @@ SCIM sync cadence is controlled by the IdP, not by ZPA. The ZPA API exposes `cre
 ---
 
 ## The chain: IDP to policy decision
+
+Source: `vendor/zscaler-help/about-scim-zpa.md`; `vendor/zscaler-sdk-python/zscaler/zpa/scim_groups.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/scimgroup/zpa_scim_group.go`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_scim_group.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_scim_attribute.md`; `vendor/terraform-provider-zpa/docs/data-sources/zpa_idp_controller.md`.
 
 ### Step 1 — IdP SCIM push to ZPA SCIM endpoint
 
@@ -110,6 +114,8 @@ The evaluated operand contributes `true` or `false` to the rule's condition tree
 
 ## Policy criteria: which rule families accept SCIM_GROUP and SCIM operands
 
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_scim_group.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_scim_attribute.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_saml.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_forwarding_rule_v2.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_timeout_rule_v2.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_inspection_rule_v2.md`.
+
 The following policy families accept both `SCIM_GROUP` and `SCIM` operand types. This is confirmed from TF provider v2 resource documentation.
 
 | Policy family | TF resource (v2) | Action values | SCIM_GROUP | SCIM | SAML |
@@ -120,9 +126,11 @@ The following policy families accept both `SCIM_GROUP` and `SCIM` operand types.
 | Inspection Policy | `zpa_policy_inspection_rule_v2` | `INSPECT`, `BYPASS_INSPECT` | Yes | Yes | Yes |
 | Isolation Policy | `zpa_policy_isolation_rule_v2` | `ISOLATE`, `BYPASS_ISOLATE` | Yes (inferred from same pattern) | Yes (inferred) | Yes |
 
-Source: the Forwarding, Timeout, and Inspection v2 TF resource docs all show identical `SCIM_GROUP` and `SCIM` schema blocks with the same `lhs`/`rhs` entry-values semantics. The Isolation policy resource follows the same pattern in the codebase.
-
 ### Operator semantics
+
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_policy_forwarding_rule_v2.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_timeout_rule_v2.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_inspection_rule_v2.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_isolation_rule_v2.md`.
+
+The Forwarding, Timeout, and Inspection v2 TF resource docs all show identical `SCIM_GROUP` and `SCIM` schema blocks with the same `lhs`/`rhs` entry-values semantics. The Isolation policy resource follows the same pattern in the codebase.
 
 The condition structure is shared across all policy families:
 
@@ -154,6 +162,8 @@ For `SCIM` (flat attribute) operands, the `rhs` value must exactly match one of 
 ---
 
 ## Multiple-IDP scenarios
+
+Source: `vendor/zscaler-help/about-scim-zpa.md`; `vendor/zscaler-sdk-go/zscaler/zpa/services/idpcontroller/zpa_idp_controller.go`; `vendor/terraform-provider-zpa/docs/data-sources/zpa_idp_controller.md`; `vendor/terraform-provider-zpa/docs/data-sources/zpa_scim_groups.md`; `vendor/terraform-provider-zpa/docs/data-sources/zpa_scim_attribute_header.md`.
 
 ### Per-IDP SCIM endpoints and group namespaces
 
@@ -190,6 +200,10 @@ This also applies to `SCIM` flat attribute operands: the attribute header is sco
 ---
 
 ## Common gotchas
+
+Source: `vendor/zscaler-help/about-scim-zpa.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_scim_group.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_scim_attribute.md`; `vendor/terraform-provider-zpa/docs/data-sources/zpa_idp_controller.md`.
+
+Note: This section summarizes the cited SCIM, IdP, policy, and Terraform provider sources.
 
 ### Stale groups after IdP rename
 
@@ -234,6 +248,8 @@ From `vendor/zscaler-help/configuring-source-ip-anchoring.md`: "If Source IP Anc
 ---
 
 ## API / SDK / Terraform surface
+
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/scim_groups.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/scimgroup/zpa_scim_group.go`; `vendor/terraform-provider-zpa/docs/data-sources/zpa_scim_groups.md`; `vendor/terraform-provider-zpa/docs/data-sources/zpa_scim_attribute_header.md`.
 
 ### API endpoints
 
@@ -351,6 +367,8 @@ Note: `rhs` must exactly match a value present in `data.zpa_scim_attribute_heade
 ---
 
 ## Open questions register
+
+Clarification status: unresolved source gaps in this document should be promoted to `references/_meta/clarifications.md` if they become cross-document blockers.
 
 - **Exact behavior when `SCIM_GROUP` operand references a deleted group.** The operand is expected to never match, but the API/docs do not confirm whether ZPA surfaces an error at policy evaluation time, at rule read time, or silently passes. The `all_entries` query parameter on the SCIM group API suggests deleted groups can be retrieved — whether ZPA's policy engine uses this same store is not documented.
 

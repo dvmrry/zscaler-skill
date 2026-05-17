@@ -24,6 +24,8 @@ This document covers what **end users** can observe in their local ZCC client lo
 
 This doc is complementary to [`./web-privacy.md`](./web-privacy.md), which covers what telemetry ZCC sends to the Zscaler cloud. That doc covers *collection toward the cloud*; this doc covers *visibility to the user on the device*.
 
+Source: `vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webprivacy.py`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py`.
+
 ---
 
 ## Two-axis control model
@@ -41,7 +43,7 @@ These axes are independent. An admin can:
 - Enable both (user has full access at Debug level — typical in support triage scenarios).
 - Disable both (Error logging, controls hidden — quiet by default, no user-side investigation possible without admin escalation).
 
-Source: `vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py` (`logLevel`, `logMode`, `logFileSize` fields on `WebPolicy`).
+Source: `vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py` (`logLevel`; `logMode`; `logFileSize` fields on `WebPolicy`).
 
 ---
 
@@ -63,7 +65,9 @@ The default log mode for a new App Profile is not documented in available source
 
 **`logFileSize`** on the `WebPolicy` model controls the maximum size of the local log file. The exact values and rotation behavior are not enumerated in the SDK model — see clarifications below. When the log file reaches its size limit, ZCC rotates it, overwriting or archiving earlier entries.
 
-Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py` (`log_file_size`, `log_level`, `log_mode` fields).
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py` (`log_file_size`; `log_level`; `log_mode` fields).
+
+Source: `vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`.
 
 ---
 
@@ -104,6 +108,8 @@ Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webprivacy.py`.
 
 Note: the `web_privacy.py` SDK file's `set_web_privacy_info` method also accepts `enable_auto_log_snippet` as a parameter (observed in the SDK service file), but this field is absent from the `WebPrivacy` model class. Its function is not confirmed from available sources — see clarifications below.
 
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webprivacy.py`; `vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py`.
+
 ---
 
 ## Logged event categories
@@ -126,13 +132,15 @@ The categories above are inferred from ZCC's functional architecture; the help p
 
 ## Per-platform behavior
 
+Source: `vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`.
+
 ### Windows
+
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py` (`WindowsPolicy.flow_logger_config`).
 
 ZCC writes logs to a local directory under the Zscaler program data path (exact default path not confirmed from available sources). The `WindowsPolicy` sub-object on `WebPolicy` includes a `flow_logger_config` field (`flowLoggerConfig`), suggesting a separate Windows-specific flow-logging subsystem exists, though its relationship to the main ZCC operational log is not documented in available sources.
 
 ZCC on Windows does not natively write to the Windows Event Log for operational entries in standard deployments. Diagnostic bundles exported via the Report an Issue form contain the ZCC log files as well as supporting system artifacts.
-
-Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py` (`WindowsPolicy.flow_logger_config`).
 
 ### macOS
 
@@ -144,9 +152,9 @@ Linux is supported as a ZCC platform. The `LinuxPolicy` sub-object on `WebPolicy
 
 ### Android
 
-The `AndroidPolicy` sub-object on `WebPolicy` includes `enable_verbose_log` (`enableVerboseLog`). This field enables the Verbose log mode on Android, which corresponds to the Verbose log mode described in the log modes table above (Firebase/Mobile Manager triggered, ZCC 1.5+). This is the only per-platform log verbosity field visible in the model.
-
 Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py` (`AndroidPolicy.enable_verbose_log`).
+
+The `AndroidPolicy` sub-object on `WebPolicy` includes `enable_verbose_log` (`enableVerboseLog`). This field enables the Verbose log mode on Android, which corresponds to the Verbose log mode described in the log modes table above (Firebase/Mobile Manager triggered, ZCC 1.5+). This is the only per-platform log verbosity field visible in the model.
 
 ### iOS
 
@@ -162,6 +170,8 @@ ZCC uses two related but distinct concepts:
 
 **Log level** — the `logLevel` field on the `WebPolicy` SDK object. The relationship between `logLevel` (an API field) and `logMode` (a UI/help concept) is not fully documented in available sources. They may be the same concept with different naming conventions across API and UI layers, or they may represent distinct dimensions. See clarifications below.
 
+Source: `vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`.
+
 ---
 
 ## Diagnostic bundle vs in-UI log viewer
@@ -174,6 +184,8 @@ ZCC provides two mechanisms for log access:
 
 Key distinction: the diagnostic bundle produced at the moment of export reflects whatever has been logged on disk, which may include entries from a previous log mode (e.g., a brief Debug session followed by reversion to Info). The in-UI viewer may apply a filter that only shows the current session or the current mode. Whether the bundle and the viewer always reflect the same log content is not confirmed in available sources. See clarifications.
 
+Source: `vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webprivacy.py`.
+
 ---
 
 ## Retention and rotation
@@ -181,6 +193,8 @@ Key distinction: the diagnostic bundle produced at the moment of export reflects
 Client-side log retention is governed by `logFileSize` on the `WebPolicy` object. When the log file reaches the configured maximum size, ZCC rotates it. Specific rotation semantics — whether ZCC keeps a fixed number of rotated archives, the default file size limit, and the maximum configurable limit — are not enumerated in the SDK model or available help source. See clarifications below.
 
 The server-side data-plane logs (ZIA NSS/Nanolog, ZPA LSS) have their own retention policies independent of client-side log rotation. ZIA admin audit logs are retained for 6 months (source: `vendor/zscaler-help/admin-rbac-captures.md`). ZIA traffic data-plane logs follow NSS/Nanolog retention, which is cloud-side and not affected by ZCC client log settings.
+
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md`.
 
 ---
 
@@ -194,13 +208,13 @@ The `WebPolicy` object (App Profile in the admin console) carries the primary lo
 | `log_mode` | `logMode` | Log mode (Error / Warn / Info / Debug). Drives what ZCC writes locally. Users can change within this mode if controls are visible. |
 | `log_file_size` | `logFileSize` | Maximum size of the local log file before rotation. Exact units and values not enumerated in SDK. |
 
-These fields apply at the App Profile level, meaning different user groups can receive different logging configurations by assigning them to different App Profiles. See [`./web-policy.md`](./web-policy.md) for App Profile structure.
-
 Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`.
 
-**App Supportability toggle** (hide logging controls) is configured via the ZCC Portal admin console at Administration > Client Connector Support > App Supportability tab. It is tenant-wide rather than per-profile. A single toggle covers all users in the tenant.
+These fields apply at the App Profile level, meaning different user groups can receive different logging configurations by assigning them to different App Profiles. See [`./web-policy.md`](./web-policy.md) for App Profile structure.
 
 Source: `vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md`.
+
+**App Supportability toggle** (hide logging controls) is configured via the ZCC Portal admin console at Administration > Client Connector Support > App Supportability tab. It is tenant-wide rather than per-profile. A single toggle covers all users in the tenant.
 
 ### SDK access
 
@@ -230,9 +244,13 @@ result, response, error = client.zcc.web_privacy.set_web_privacy_info(
 
 Source: `vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py`; `vendor/zscaler-sdk-python/zscaler/zcc/web_policy.py`.
 
+Source: `vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py`.
+
 ---
 
 ## Privacy-driven suppression and compliance considerations
+
+Source: `vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webprivacy.py`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py`.
 
 ### What "hiding logging controls" does and does not do
 
@@ -278,9 +296,13 @@ ZPA LSS logs — which record application access sessions through ZPA — are si
 
 See [`../zia/api.md`](../zia/api.md) for ZIA API surface, and the ZIA logs directory (`references/zia/logs/`) for NSS/Nanolog field schemas.
 
+Source: `vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webprivacy.py`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`.
+
 ---
 
 ## Operational gotchas
+
+Source: `vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webprivacy.py`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py`.
 
 ### Disabling user-visible logging while leaving cloud logging on
 
@@ -296,7 +318,9 @@ ZCC logs connection-level events. ZIA logs transaction-level events. A user's ZC
 
 ### App Profile update propagation
 
-App Profile changes (including `logMode`, `logLevel`, and `logFileSize` changes) propagate to connected endpoints only when the user logs out and logs back in, or when ZCC restarts. There is no real-time push to currently-connected devices. An admin who increases `logMode` to Debug during a triage window should confirm the ZCC restart has occurred before expecting Debug-level logs. Source: `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md` (referenced in [`./forwarding-profile.md`](./forwarding-profile.md)).
+Source: `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md`.
+
+App Profile changes (including `logMode`, `logLevel`, and `logFileSize` changes) propagate to connected endpoints only when the user logs out and logs back in, or when ZCC restarts. There is no real-time push to currently-connected devices. An admin who increases `logMode` to Debug during a triage window should confirm the ZCC restart has occurred before expecting Debug-level logs. See also [`./forwarding-profile.md`](./forwarding-profile.md).
 
 ### `export_logs_for_non_admin` vs App Supportability toggle
 

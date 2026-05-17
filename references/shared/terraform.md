@@ -18,6 +18,8 @@ author-status: draft
 
 # Zscaler Terraform providers (ZIA + ZPA)
 
+Source: `vendor/terraform-provider-zia/docs/index.md`; `vendor/terraform-provider-zia/README.md`; `vendor/terraform-provider-zpa/docs/index.md`; `vendor/terraform-provider-zpa/README.md`.
+
 The two separate Zscaler providers — `zscaler/zia` and `zscaler/zpa` — mapped to the API endpoints covered in this skill. Derived from the vendored provider repositories (`vendor/terraform-provider-zia`, `vendor/terraform-provider-zpa`).
 
 ## Provider declaration
@@ -61,6 +63,8 @@ Environment variables (OneAPI mode):
 | `vanity_domain` | `ZSCALER_VANITY_DOMAIN` | Organization's ZIdentity domain |
 | `zscaler_cloud` | `ZSCALER_CLOUD` | Optional; for alternative environments (e.g. `beta`) |
 
+Source: `vendor/terraform-provider-zia/docs/index.md`; `vendor/terraform-provider-zpa/docs/index.md`.
+
 Per index.md: "Hard-coding credentials into any Terraform configuration is not recommended, and risks secret leakage should this file be committed to public version control."
 
 ## Feature parity caveat
@@ -72,6 +76,8 @@ From `vendor/terraform-provider-zia/docs/index.md`:
 Translation: **UI features visible in the Zscaler Admin Console may not be manageable via Terraform** until Zscaler exposes the corresponding public API. File a feature request if you hit a gap.
 
 ## Resource map by policy area
+
+Source: `vendor/terraform-provider-zia/docs/index.md`; `vendor/terraform-provider-zia/README.md`; `vendor/terraform-provider-zpa/docs/index.md`; `vendor/terraform-provider-zpa/README.md`.
 
 ### URL Categories & URL Filtering (ZIA)
 
@@ -159,6 +165,8 @@ Both providers expose data sources that mirror most of their resources — see `
 
 ## Things not managed via these providers
 
+Source: `vendor/terraform-provider-zia/docs/index.md`; `vendor/terraform-provider-zia/README.md`; `vendor/terraform-provider-zpa/docs/index.md`; `vendor/terraform-provider-zpa/README.md`.
+
 From the feature-parity caveat above, plus direct observation:
 
 - **Log data** (access logs, firewall logs, DNS logs, LSS log streams) — consumed via NSS / LSS runtime, not through Terraform. Use `zia_cloud_nss_feed` / `zpa_lss_config_*` for *configuration* of the streaming, not for reading log data.
@@ -171,6 +179,8 @@ From the feature-parity caveat above, plus direct observation:
 `zscaler/zscaler-terraformer` (separate repo at `https://github.com/zscaler/zscaler-terraformer`) converts an existing Zscaler tenant's configuration into Terraform HCL — useful for onboarding an existing tenant into Terraform management without hand-writing every resource.
 
 ## Schema patterns worth knowing
+
+Source: `vendor/terraform-provider-zia/README.md`; `vendor/terraform-provider-zpa/README.md`.
 
 The TF providers encode API-behavior constraints that help docs and even the Python SDK don't surface. These apply broadly across resources — worth knowing before asking "why did my plan show a diff?" or "why did Terraform destroy-recreate this?".
 
@@ -196,6 +206,8 @@ These fields on ZIA/ZPA resources are immutable at the API level. Changing them 
 In many cases, the TF schema's `validation.StringInSlice([]string{...}, false)` encodes a fuller enum than the help-site docs. Treat the TF validator as more authoritative when they conflict. Examples in `references/zia/api.md` and `references/zpa/api.md` per-resource sections.
 
 ### Programmatic constraints beyond schema
+
+Source: `vendor/terraform-provider-zpa/README.md`.
 
 Some mutual-exclusions live in resource `Create` / `Update` functions rather than in the schema — not visible from a schema dump:
 

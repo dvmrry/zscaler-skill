@@ -14,7 +14,7 @@ set -e
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 cd "$REPO_ROOT"
 
-echo "▸ pre-push: running hygiene suite (7 checks)..."
+echo "▸ pre-push: running hygiene suite (9 checks)..."
 echo
 
 failed=0
@@ -37,6 +37,8 @@ run "check-hygiene"          "./scripts/check-hygiene.py"
 run "check-workflow-evals"   "./scripts/check-workflow-evals.py"
 run "check-citations"        "./scripts/check-citations.sh"
 run "check-doc-links"        "./scripts/check-doc-links.py"
+run "citation-source-audit"  "./scripts/check-citation-density.py --audit-source-quality --include-source-style --strict-sources --top 25"
+run "citation-inventory"     "./scripts/check-citation-density.py --compare-citation-inventory references/_meta/citation-inventory.json --strict-inventory --top 25"
 run "check-orphans"          "./scripts/check-orphans.py"
 run "check-vendor-drift"     "./scripts/check-vendor-drift.py"
 run "check-scrape-freshness" "./scripts/check-scrape-freshness.py"

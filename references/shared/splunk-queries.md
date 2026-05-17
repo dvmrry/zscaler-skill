@@ -24,15 +24,29 @@ Named SPL patterns scoped to this skill's question shapes. Answers cite a patter
 
 ## Field-name conventions
 
+Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewall-logs.csv`; `vendor/zscaler-help/nss-dns-logs.csv`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`.
+
+Splunk syntax reference: https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference.
+
+Related references: [`../zia/logs/web-log-schema.md`](../zia/logs/web-log-schema.md), [`../zia/logs/firewall-log-schema.md`](../zia/logs/firewall-log-schema.md), [`../zia/logs/dns-log-schema.md`](../zia/logs/dns-log-schema.md), and [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md).
+
 The patterns use **NSS-native field names** as documented in the Zscaler log schemas (e.g. `%s{url}` → search field `url`). If the Zscaler Technology Add-on for Splunk is installed, it aliases NSS fields to Splunk CIM-compatible names (e.g. `dest_host`, `ruleLabel`). The patterns below should still work in most deployments; if a field name doesn't match your tenant's Splunk config, check `props.conf` / `transforms.conf` in the Zscaler TA to see the exact aliasing.
 
 ## Parameter conventions
+
+Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewall-logs.csv`; `vendor/zscaler-help/nss-dns-logs.csv`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`.
+
+Splunk syntax reference: https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference.
+
+Related references: [`../../agents/siem-emission-discipline.md`](../../agents/siem-emission-discipline.md), [`../zia/logs/web-log-schema.md`](../zia/logs/web-log-schema.md), [`../zia/logs/firewall-log-schema.md`](../zia/logs/firewall-log-schema.md), [`../zia/logs/dns-log-schema.md`](../zia/logs/dns-log-schema.md), and [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md).
 
 - `$INDEX_ZIA_WEB` / `$INDEX_ZIA_FW` / `$INDEX_ZIA_DNS` / `$INDEX_ZPA` — the Splunk indexes receiving each log stream. Tenant-specific; read from env vars at query time — see **Tenant-portable index naming** below.
 - `$URL`, `$HOSTNAME`, `$USER`, `$CATEGORY` — user-supplied parameters for a given question.
 - Default time window `earliest=-30d`. Shorten to `-7d` / `-24h` for pushback-triggered validation to cut query latency.
 
 ## Field-semantics caveat for query authors
+
+Related references: [`../zia/logs/web-log-schema.md`](../zia/logs/web-log-schema.md), [`../zia/logs/firewall-log-schema.md`](../zia/logs/firewall-log-schema.md), [`../zia/logs/dns-log-schema.md`](../zia/logs/dns-log-schema.md), and [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md).
 
 Many of the patterns below filter on field values that look obvious by name (`action`, `riskscore`, `aggregate`, `urlcat`, `reqaction`, `EnforcementDisposition`, …) but carry undocumented semantics that can produce surprising query results. Before deploying a pattern in production:
 
@@ -46,6 +60,12 @@ If a pattern's correctness depends on a clarification still being open, prefer a
 
 ## Operating discipline
 
+Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewall-logs.csv`; `vendor/zscaler-help/nss-dns-logs.csv`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`.
+
+Splunk syntax reference: https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference.
+
+See also: `agents/siem-emission-discipline.md`; `references/shared/siem-log-mapping.md`.
+
 This catalog operates under the SIEM-generic emission discipline in [`siem-emission-discipline.md`](../../agents/siem-emission-discipline.md) — execution modes (agent-direct / user-handoff / coworking), placeholder-plumbing rule, Zscaler-published-fields-only rule, where user plumbing lives, and what stays private. Read that doc for the full framework; the Splunk specifics below are concrete instances of those generic rules.
 
 **Splunk-specific instances:**
@@ -55,6 +75,12 @@ This catalog operates under the SIEM-generic emission discipline in [`siem-emiss
 - **Tenant sourcetype mapping** — Splunk sourcetype patterns are documented per Zscaler log type in [`siem-log-mapping.md`](./siem-log-mapping.md). The user's actual sourcetypes go in CLAUDE.md / memory / private config, never in this catalog.
 
 ## Patterns
+
+Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewall-logs.csv`; `vendor/zscaler-help/nss-dns-logs.csv`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`.
+
+Splunk syntax reference: https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference.
+
+Related references: [`../zia/logs/web-log-schema.md`](../zia/logs/web-log-schema.md), [`../zia/logs/firewall-log-schema.md`](../zia/logs/firewall-log-schema.md), [`../zia/logs/dns-log-schema.md`](../zia/logs/dns-log-schema.md), and [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md).
 
 ### `url-coverage-check`
 
@@ -181,6 +207,12 @@ Cross-stream query:
 The `index` column tells you which side blocked.
 
 ## Tenant-portable index naming
+
+Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewall-logs.csv`; `vendor/zscaler-help/nss-dns-logs.csv`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`.
+
+Splunk syntax reference: https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference.
+
+See also: `agents/siem-emission-discipline.md`; `references/shared/siem-log-mapping.md`.
 
 SPL patterns parameterize the index on env vars so a fork can drop in non-default index names without editing the patterns:
 
@@ -407,6 +439,12 @@ index=$INDEX_ZPA_STATUS PosturesMiss!="" earliest=-24h
 
 ## Zscaler Technology Add-on for Splunk (TA)
 
+Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewall-logs.csv`; `vendor/zscaler-help/nss-dns-logs.csv`.
+
+Splunk syntax reference: https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference.
+
+Related references: [`../zia/logs/web-log-schema.md`](../zia/logs/web-log-schema.md), [`../zia/logs/firewall-log-schema.md`](../zia/logs/firewall-log-schema.md), and [`../zia/logs/dns-log-schema.md`](../zia/logs/dns-log-schema.md). Splunk TA behavior is deployment-specific and should be verified in tenant Splunk config.
+
 The **Zscaler Internet Security for Splunk** add-on (Splunk App ID: 3865, available on Splunkbase at `https://splunkbase.splunk.com/app/3865`) provides:
 
 - **Field aliases** that map NSS-native field names to Splunk CIM (Common Information Model) names, enabling searches using CIM macros and Splunk ES correlation searches.
@@ -444,6 +482,12 @@ For ZPA LSS logs, the TA does not define a default ZPA sourcetype — ZPA LSS ar
 
 ## Tenant-portable index naming (updated)
 
+Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewall-logs.csv`; `vendor/zscaler-help/nss-dns-logs.csv`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`.
+
+Splunk syntax reference: https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference.
+
+See also: `agents/siem-emission-discipline.md`; `references/shared/siem-log-mapping.md`.
+
 In addition to the original index variables, the expanded patterns use:
 
 - `SPLUNK_INDEX_ZPA_STATUS` — ZPA User Status LSS logs (default: `zscaler_zpa_status` or co-indexed with `zscaler_zpa` depending on LSS receiver config)
@@ -470,6 +514,12 @@ Per-field ambiguities affecting pattern semantics — high-impact ones for SPL a
 - Microseg `EnforcementReason × Action × Disposition` triple combinations (affects "what was actually blocked vs would-have-been-blocked" queries) — [`log-18`](../_meta/clarifications.md#log-18-microseg-enforcementreason-enforcementaction-enforcementdisposition-triple-semantics)
 
 ## ZCC correlation patterns
+
+Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`.
+
+Splunk syntax reference: https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference.
+
+Related references: [`./siem-log-mapping.md`](./siem-log-mapping.md) and [`../zia/logs/web-log-schema.md`](../zia/logs/web-log-schema.md).
 
 ZCC diagnostic logs are local to the endpoint and are not streamed to Splunk. However, ZIA web logs capture ZCC-forwarded traffic and carry device-level fields — so the SIEM-queryable view of "what was a ZCC device doing" lives entirely in ZIA NSS.
 
@@ -537,6 +587,12 @@ index=$INDEX_ZIA_WEB earliest=-24h
 
 ## ZDX log patterns
 
+Source: `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go`.
+
+Splunk syntax reference: https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference.
+
+See also: `references/zdx/api.md`; `references/shared/siem-log-mapping.md`.
+
 ZDX does not stream to Splunk natively via NSS or LSS. ZDX data is a pull-API — metrics live in Zscaler's Azure Data Explorer backend and are retrieved via the ZDX REST API (see [`../zdx/api.md`](../zdx/api.md)). Getting ZDX data into Splunk requires one of:
 
 - The **Zscaler ZDX Add-on for Splunk** (if installed in your tenant — a separate Splunkbase add-on distinct from the ZIA/ZPA TA)
@@ -584,6 +640,12 @@ Interpretation: ZDX score drop coinciding with `ConnectionStatus!=Active` in ZPA
 ---
 
 ## Cross-stream user-session reconstruction
+
+Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewall-logs.csv`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`.
+
+Splunk syntax reference: https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference.
+
+Related references: [`../zia/logs/web-log-schema.md`](../zia/logs/web-log-schema.md), [`../zia/logs/firewall-log-schema.md`](../zia/logs/firewall-log-schema.md), [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md), and [`./siem-log-mapping.md`](./siem-log-mapping.md).
 
 **Purpose:** Given a username and time window, reconstruct what the user was doing by pulling correlated events across ZIA Web, ZIA Firewall, and ZPA Access in a single timeline. Useful for "what happened during this 30-minute window for user X" investigations.
 

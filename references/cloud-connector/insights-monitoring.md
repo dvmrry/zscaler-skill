@@ -32,6 +32,8 @@ How to observe the health, traffic, and operational state of deployed Cloud Conn
 
 ## 1. Overview
 
+Source: `vendor/zscaler-help/cbc-about-insights.md`; `vendor/zscaler-help/cbc-accessing-cloud-branch-connector-monitoring.md`.
+
 Cloud & Branch Connector exposes monitoring through two separate surface areas:
 
 | Surface | What it covers |
@@ -46,6 +48,8 @@ No dedicated CBC alerting surface (SNMP traps, email notifications, webhooks) wa
 ---
 
 ## 2. Dashboard surfaces
+
+Source: `vendor/zscaler-help/cbc-accessing-cloud-branch-connector-monitoring.md`; `vendor/zscaler-help/cbc-analyzing-branch-connector-details.md`; `vendor/zscaler-help/cbc-about-cloud-connector-groups.md`.
 
 ### 2.1 Cloud & Branch Connector Monitoring page
 
@@ -190,6 +194,8 @@ Groups can be filtered by Cloud (AWS/Azure/GCP), Group Type (Cloud Connector or 
 
 ## 3. Available metrics
 
+Source: `vendor/zscaler-help/cbc-about-insights.md`; `vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go`; `vendor/zscaler-help/cbc-troubleshooting-cloud-connector-microsoft-azure.md`; `vendor/zscaler-help/cbc-troubleshooting-cloud-connector-amazon-web-services.md`.
+
 ### 3.1 Per-VM health metrics (Monitoring table / CC Details)
 
 Available at the individual CC or BC VM level:
@@ -255,6 +261,8 @@ This is monitoring of the workload-discovery integration, not CC traffic — but
 ---
 
 ## 4. API/SDK access
+
+Source: `vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.md`; `vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/provisioning/public_cloud_account/public_cloud_account.go`; `vendor/terraform-provider-ztc/docs/data-sources/ztc_edge_connector_group.md`.
 
 No dedicated read-side "metrics" API was identified in the captured ZTW SDK surface. The ZTW API and SDK expose configuration and state objects rather than time-series metrics. The available programmatic reads for monitoring-adjacent data are:
 
@@ -335,6 +343,8 @@ The Session, DNS, and Tunnel Insights pages are UI-only in captured sources. No 
 
 ## 5. Alerting and integration
 
+Source: `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md`; `vendor/zscaler-help/cbc-troubleshooting-cloud-connector-microsoft-azure.md`; `vendor/zscaler-help/cbc-troubleshooting-cloud-connector-amazon-web-services.md`.
+
 ### 5.1 No native CC alert surface confirmed
 
 No dedicated Cloud Connector alerting mechanism (email, SNMP trap, PagerDuty webhook) was found in the captured CBC documentation. This is a documented gap. The closest equivalents:
@@ -369,6 +379,10 @@ ZDX (Zscaler Digital Experience) is cited in the product overview (Real-Time Vis
 ---
 
 ## 6. Common gotchas
+
+Source: `vendor/zscaler-help/cbc-about-insights.md`; `vendor/zscaler-help/cbc-accessing-cloud-branch-connector-monitoring.md`; `vendor/zscaler-help/cbc-analyzing-branch-connector-details.md`; `vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.md`.
+
+Note: This section summarizes the cited monitoring and API material above.
 
 ### 6.1 Status: Active ≠ load-balancer healthy
 
@@ -417,6 +431,8 @@ If the Log & Control Forwarding gateway becomes unreachable, CC continues forwar
 ---
 
 ## 8. Open questions register
+
+Clarification status: unresolved source gaps in this document should be promoted to `references/_meta/clarifications.md` if they become cross-document blockers.
 
 | # | Question | Impact |
 |---|---|---|

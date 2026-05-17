@@ -18,6 +18,8 @@ author-status: draft
 
 # Tenant Profiles — SaaS tenant restriction (corporate-only access)
 
+Source: `vendor/zscaler-help/about-tenant-profiles.md`; `vendor/zscaler-help/adding-tenant-profiles.md`.
+
 A **Tenant Profile** is a named object that identifies a specific corporate tenant of a SaaS application. It gives Cloud App Control (CAC) the information it needs to distinguish "user signing into the company's Microsoft 365 tenant" from "user signing into a personal or third-party Microsoft 365 tenant" — even though both transactions go to the same Microsoft endpoints. Without a Tenant Profile, CAC can only act on the application as a whole; with one, it can scope a rule to the corporate tenant and allow/block everything else.
 
 The feature has two moving parts: the Tenant Profile itself (Administration > Tenant Profiles), and a CAC rule that references it as a criterion. (Tier A — vendor/zscaler-help/about-tenant-profiles.md.)
@@ -30,6 +32,8 @@ Tenant Profiles belong to the ZIA **Tenant Restriction** capability, not to any 
 
 ## Supported applications
 
+Source: `vendor/zscaler-help/adding-tenant-profiles.md`; `vendor/zscaler-sdk-python/zscaler/zia/models/tenancy_restriction_profile.py`.
+
 Tier A — vendor/zscaler-help/adding-tenant-profiles.md lists 13 applications by display name; the SDK `app_type` enum has 16 entries:
 
 ```
@@ -41,6 +45,8 @@ ZOOM, IBMSMARTCLOUD, GITHUB, CHATGPT_AI
 The help article lists: YouTube, Google Apps, Microsoft Login Services, Slack, Amazon Web Services, Dropbox, Webex Login Services, Zoho Login Services, Google Cloud Platform, Zoom, IBM SmartCloud, GitHub, ChatGPT. The SDK enum is the authoritative count.
 
 ## How a Tenant Profile is constructed
+
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/tenancy_restriction_profile.py`; `vendor/terraform-provider-zia/zia/resource_zia_tenant_restriction_profile.go`.
 
 Each profile carries:
 
@@ -70,10 +76,14 @@ The full item-type enum includes `TENANT_RESTRICTION_ALLOWED_WORKSPACE_ID`, `TEN
 
 ### Microsoft-specific flags (Tier A, SDK)
 
+Source: `vendor/terraform-provider-zia/zia/resource_zia_tenant_restriction_profile.go:101-104`.
+
 - `restrict_personal_o365_domains` (bool) — blocks access from personal Microsoft Account (MSA) domains.
-- `ms_login_services_tr_v2` (bool) — selects the v2 protocol for tenant restriction. Newer Microsoft tenants use v2. If corporate tenant restriction isn't working, check this flag — a v1/v2 mismatch is a common cause. Source: `resource_zia_tenant_restriction_profile.go:101–104`.
+- `ms_login_services_tr_v2` (bool) — selects the v2 protocol for tenant restriction. Newer Microsoft tenants use v2. If corporate tenant restriction isn't working, check this flag — a v1/v2 mismatch is a common cause.
 
 ### Google-specific flags (Tier A, SDK)
+
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/tenancy_restriction_profile.py`; `vendor/terraform-provider-zia/zia/resource_zia_tenant_restriction_profile.go`.
 
 - `allow_google_consumers` (bool) — allows personal Google accounts to pass through (tenant restriction applies to Workspace, but consumer Gmail is not blocked).
 - `allow_google_visitors` (bool) — allows "visitor" sessions (Google account login flows used for external sharing).
@@ -81,21 +91,27 @@ The full item-type enum includes `TENANT_RESTRICTION_ALLOWED_WORKSPACE_ID`, `TEN
 
 ## How CAC uses Tenant Profiles
 
+Source: `vendor/zscaler-help/adding-tenant-profiles.md`.
+
 A CAC rule can reference a Tenant Profile as a criterion. When it does, the rule fires only when the user is accessing the matching SaaS tenant. The general pattern for tenant restriction:
 
 1. Create a Tenant Profile identifying the corporate tenant.
 2. Create a CAC rule: `Action = Allow`, `Tenant Profile = <corporate profile>`.
-3. Allow-for-the-corporate-tenant automatically blocks other tenants for most apps — the help article states this explicitly: "Allowing a specific tenant automatically blocks other tenants for most of the cloud applications, and subsequent policies are not evaluated." Source: `adding-tenant-profiles.md`.
+3. Allow-for-the-corporate-tenant automatically blocks other tenants for most apps — the help article states this explicitly: "Allowing a specific tenant automatically blocks other tenants for most of the cloud applications, and subsequent policies are not evaluated."
 
 **YouTube and AWS are exceptions** (Tier A, help doc): for these two apps, subsequent policies continue to be evaluated, so allowing the corporate tenant does not implicitly block others. An explicit block rule is required for other-tenant traffic to YouTube or AWS.
 
 ## How tenant profiles interact with policy inheritance
+
+Source: `vendor/zscaler-help/adding-tenant-profiles.md`; `vendor/zscaler-sdk-python/zscaler/zia/tenancy_restriction_profile.py`.
 
 Tenant Profiles are referenced in CAC rules. CAC rules in ZIA inherit the standard ZIA policy evaluation model — rules are evaluated top-to-bottom, first match wins (with the YouTube/AWS exceptions above). Tenant Profile criteria compose with other rule criteria (user, department, location, URL category) using AND logic within a rule.
 
 A Tenant Profile set on one CAC rule does not affect other rules. If a tenant profile is deleted, CAC rules referencing it may behave unexpectedly — the profile reference becomes stale. ZIA does not prevent deletion of profiles referenced by active rules.
 
 ## Header-injection mechanic
+
+Source: `vendor/zscaler-help/adding-tenant-profiles.md`.
 
 Tenant restriction works at the protocol level by injecting HTTP request headers that the SaaS vendor reads server-side to enforce tenant access.
 
@@ -108,7 +124,9 @@ SSL Inspection rule ordering for O365: the SSL Inspection rule selecting Microso
 
 ## API surface
 
-**Endpoint:** `GET/POST/PUT/DELETE /zia/api/v1/tenancyRestrictionProfile`. Source: `tenancy_restriction_profile.py:63`.
+Source: `vendor/zscaler-sdk-python/zscaler/zia/tenancy_restriction_profile.py:63`.
+
+**Endpoint:** `GET/POST/PUT/DELETE /zia/api/v1/tenancyRestrictionProfile`.
 
 **SDK service** (`client.zia.tenancy_restriction_profile`):
 
@@ -127,11 +145,15 @@ The `list_app_item_count` helper at `/tenancyRestrictionProfile/app-item-count/{
 
 ## Gotchas
 
+Source: `vendor/zscaler-help/adding-tenant-profiles.md`; `vendor/terraform-provider-zia/zia/resource_zia_tenant_restriction_profile.go`; `vendor/terraform-provider-zia/zia/data_source_zia_tenant_restriction_profile.go`.
+
 **1. SSL inspection is a hard prerequisite — and easy to silently break.**
 If SSL inspection is bypassed for the SaaS app in question (One-Click rules, URL-category bypass, or per-rule bypass), the header injection path doesn't exist. The tenant restriction CAC rule may still match the app, but it can't enforce the tenant constraint — users will reach any tenant. This fails silently; there's no error, just enforcement absence. Always verify SSL inspection is active for the login service (not just the app's content domains).
 
 **2. Login service ≠ content service — target the right app in SSL inspection.**
-For M365, the tenant-restriction header must be injected during the **login flow** (`login.microsoftonline.com`), not during content access. The SSL inspection rule must select **Microsoft Login Services** as the cloud application, not the generic "Microsoft Office 365" or "MS O365 Optimize" categories. Same applies to Google (Google Login Services) and Webex (Webex Login Services). Source: `adding-tenant-profiles.md`.
+Source: `vendor/zscaler-help/adding-tenant-profiles.md`.
+
+For M365, the tenant-restriction header must be injected during the **login flow** (`login.microsoftonline.com`), not during content access. The SSL inspection rule must select **Microsoft Login Services** as the cloud application, not the generic "Microsoft Office 365" or "MS O365 Optimize" categories. Same applies to Google (Google Login Services) and Webex (Webex Login Services).
 
 **3. Corporate tenant ID rotation.**
 If the Azure AD directory ID or Google Workspace primary domain changes (tenant migration, merger, domain rename), the Tenant Profile's `item_data_primary` becomes stale. The profile keeps matching at the rule level, but the injected header carries the old identifier and Microsoft/Google rejects or misidentifies the tenant. No Zscaler-side error is visible — audit Tenant Profile data when a tenant identity change occurs.

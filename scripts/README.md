@@ -31,12 +31,13 @@ while finishing a tenant-specific implementation.
 
 | Category | Scripts |
 |---|---|
-| **Hygiene / CI** | `check-hygiene.py`, `check-citations.sh`, `check-doc-links.py`, `check-orphans.py`, `check-staleness.sh`, `check-vendor-drift.py`, `check-scrape-freshness.py`, `maintenance-digest.py`, `vendor-impact-summary.py` |
+| **Hygiene / CI** | `check-hygiene.py`, `check-citations.sh`, `check-citation-density.py` (density advisory; source-line audit + citation inventory regression strict in CI), `check-doc-links.py`, `check-orphans.py`, `check-workflow-evals.py`, `check-vendor-drift.py`, `check-scrape-freshness.py`, `maintenance-digest.py`, `vendor-impact-summary.py` |
+| **Manual hygiene** | `check-staleness.sh` |
 | **Eval suite** | `run-evals.py` |
 | **Tenant API operations** | `diagnose-tenant.py`, `snapshot-refresh.py`, `url-lookup.py` |
 | **Private-overlay scaffolds** | `access-check.py`, `connector-health.py`, `sandbox-check.py`, `ssl-audit.py`, `zpa-app-check.py` |
-| **Reasoning helpers** | `agent_patterns.py` (lib), `policy_simulator.py` (lib), `simulate-policy.py`, `ab-test-prompt.py`, `find-asymmetries.py` |
-| **Maintenance** | `issue-watch.py`, `maintenance-digest.py`, `vendor-impact-summary.py`, `refresh-postman.sh`, `refresh-automate-zscaler.sh`, `snapshot-refresh.py`, `splunk-query.sh` |
+| **Reasoning helpers** | `agent_patterns.py` (lib), `policy_simulator.py` (lib), `simulate-policy.py`, `find-asymmetries.py`, `ab-test-prompt.py` (experimental placeholder) |
+| **Maintenance** | `issue-watch.py`, `maintenance-digest.py`, `vendor-impact-summary.py`, `refresh-postman.sh`, `refresh-automate-zscaler.sh`, `snapshot-refresh.py`, `convert-pdf-sources.sh`, `scaffold_guard.py`, `splunk-query.sh` (stub) |
 | **Build** | `render-skill-pdf.py` |
 
 ## Aggregated dependencies
@@ -70,6 +71,17 @@ The public snapshot layout is product-first: `_data/snapshot/zia/`,
 `_data/snapshot/zpa/`, and `_data/snapshot/zcc/`. The manifest records
 `ZSCALER_CLOUD`; the public script does not partition output into per-cloud
 directories.
+
+`simulate-policy.py` currently reads the product-first layout. Private
+multi-cloud overlay support is tracked separately and should not be documented
+as available until the matching CLI flags ship.
+
+When a reference doc intentionally adds, removes, or restructures visible
+`Source:` coverage, regenerate the citation inventory in the same PR:
+
+```bash
+./scripts/check-citation-density.py --write-citation-inventory references/_meta/citation-inventory.json
+```
 
 Lines prefixed `!` indicate a per-resource fetch failure; the run continues.
 Lines prefixed `-` indicate that the SDK surface for that resource was not

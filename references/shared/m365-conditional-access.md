@@ -10,13 +10,12 @@ sources:
   - "vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md"
   - "vendor/zscaler-help/understanding-source-ip-anchoring.md"
   - "vendor/zscaler-help/understanding-source-ip-anchoring-direct.md"
-  - "references/shared/source-ip-anchoring.md"
-  - "references/zia/forwarding-control.md"
-  - "references/zpa/app-connector.md"
 author-status: draft
 ---
 
 # Microsoft 365 Conditional Access via SIPA
+
+Source: `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`; `vendor/zscaler-help/understanding-source-ip-anchoring.md`.
 
 Describes the integration pattern that uses Source IP Anchoring (SIPA) to make Microsoft 365 IP-based Conditional Access policies function correctly for users routed through ZIA. Covers intent, architecture, required components, configuration sequence, failure modes, and troubleshooting.
 
@@ -26,11 +25,15 @@ For the SIPA primitive itself — what SIPA is, how it works mechanically, DNS r
 
 ## 1. Pattern intent
 
+Source: `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`.
+
 Microsoft Azure AD (Entra ID) Conditional Access supports policies that gate access to M365 applications based on the source IP address of the authentication request. A typical corporate policy marks a set of organization-controlled IP ranges as a Named Location in Azure AD and then requires that users authenticate only from those locations — or applies step-up authentication (MFA) when users are outside them. Some policies outright block authentication from unknown IPs.
 
-Under a normal ZIA deployment, user traffic egresses through Zscaler's shared Public Service Edge (PSE) cloud IPs. Those IPs are not the customer's Named Location IPs. Azure AD evaluates the PSE IP against the Named Locations list, finds no match, and either blocks access or forces unintended MFA step-up — even for users who are physically at a corporate location or connected to the corporate VPN. (Tier A — `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`)
+Under a normal ZIA deployment, user traffic egresses through Zscaler's shared Public Service Edge (PSE) cloud IPs. Those IPs are not the customer's Named Location IPs. Azure AD evaluates the PSE IP against the Named Locations list, finds no match, and either blocks access or forces unintended MFA step-up — even for users who are physically at a corporate location or connected to the corporate VPN.
 
-SIPA resolves this by routing the authentication traffic through a ZPA App Connector with a customer-controlled, stable public IP. Azure AD sees that IP, matches it against the Named Locations list, and evaluates the Conditional Access policy as intended. (Tier A — `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`)
+Source: `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`; `vendor/zscaler-help/understanding-source-ip-anchoring.md`.
+
+SIPA resolves this by routing the authentication traffic through a ZPA App Connector with a customer-controlled, stable public IP. Azure AD sees that IP, matches it against the Named Locations list, and evaluates the Conditional Access policy as intended.
 
 ### Narrow SIPA scope suffices
 
@@ -40,7 +43,9 @@ Only the initial login traffic needs to be SIPA-anchored for this pattern. After
 - `login.windows.net`
 - `login.microsoft.com`
 
-Scoping SIPA narrowly to these three FQDNs reduces App Connector load and avoids adding the latency of SIPA-routing to the high-volume post-authentication application traffic (Teams calls, SharePoint access, Exchange, etc.). (Tier A — `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`)
+Source: `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`.
+
+Scoping SIPA narrowly to these three FQDNs reduces App Connector load and avoids adding the latency of SIPA-routing to the high-volume post-authentication application traffic (Teams calls, SharePoint access, Exchange, etc.).
 
 ---
 
@@ -79,15 +84,21 @@ Scoping SIPA narrowly to these three FQDNs reduces App Connector load and avoids
 
 ### DNS resolution requirement
 
-ZIA's DNS Control rules must return ZPA Synthetic IPs for the sign-in FQDNs so that ZIA routes the traffic through the forwarding rule correctly. Without this, ZIA resolves the real Microsoft IP and traffic bypasses the SIPA forwarding rule entirely, egressing from the PSE with no anchoring. The pre-configured `ZPA Resolver for Road Warrior` and `ZPA Resolver for Locations` rules must be enabled and ordered correctly. (Tier A — `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`)
+Source: `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`.
+
+ZIA's DNS Control rules must return ZPA Synthetic IPs for the sign-in FQDNs so that ZIA routes the traffic through the forwarding rule correctly. Without this, ZIA resolves the real Microsoft IP and traffic bypasses the SIPA forwarding rule entirely, egressing from the PSE with no anchoring. The pre-configured `ZPA Resolver for Road Warrior` and `ZPA Resolver for Locations` rules must be enabled and ordered correctly.
 
 ### What Azure AD evaluates
 
-Azure AD Conditional Access evaluates the source IP at the time of each authentication request — specifically, the IP of the HTTP client making the `/authorize` and `/token` requests to the identity platform endpoints. In the SIPA pattern, that IP is the ZPA App Connector's public egress IP. The Named Locations entry in Azure AD must contain exactly this IP or CIDR range. (Tier A — pattern derivable from vendor docs; Azure AD CA evaluation mechanics are Microsoft's, not Zscaler's — see "Deferred" note in `references/_meta/clarifications.md`.)
+Source: `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`; `vendor/zscaler-help/understanding-source-ip-anchoring.md`.
+
+Azure AD Conditional Access evaluates the source IP at the time of each authentication request — specifically, the IP of the HTTP client making the `/authorize` and `/token` requests to the identity platform endpoints. In the SIPA pattern, that IP is the ZPA App Connector's public egress IP. The Named Locations entry in Azure AD must contain exactly this IP or CIDR range. Azure AD CA evaluation mechanics are Microsoft's, not Zscaler's; the Zscaler source confirms the M365 trusted-location use case and login-domain scope.
 
 ---
 
 ## 3. Required components
+
+Source: `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`; `vendor/zscaler-help/understanding-source-ip-anchoring.md`.
 
 | Component | Requirement |
 |---|---|
@@ -108,9 +119,13 @@ Azure AD Conditional Access evaluates the source IP at the time of each authenti
 
 ## 4. Configuration sequence
 
-The following sequence is extracted from the vendor configuration guide. (Tier A — `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`)
+Source: `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`.
+
+The following sequence is extracted from the vendor configuration guide.
 
 ### Step 1 — Initial ZPA Admin Portal setup (if not already done)
+
+Source: `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`.
 
 If the ZPA tenant is new or App Connectors are not yet enrolled:
 
@@ -121,6 +136,8 @@ If the ZPA tenant is new or App Connectors are not yet enrolled:
 
 ### Step 2 — ZPA: Application Segment for M365 login
 
+Source: `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`.
+
 1. Create a new Application Segment.
 2. Under Applications, add: `login.microsoftonline.com`. Optionally add `login.windows.net` and `login.microsoft.com` as additional domains.
 3. Under TCP Port Ranges, add ports `80` and `443`.
@@ -129,10 +146,14 @@ If the ZPA tenant is new or App Connectors are not yet enrolled:
 
 ### Step 3 — ZPA: Segment Group and Server Group
 
+Source: `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`.
+
 1. Create a Segment Group and add the M365 login Application Segment to it.
 2. Create or reuse a Server Group, ensuring it is associated with the App Connector Group that will serve as the SIPA egress point.
 
 ### Step 4 — ZPA: Client Forwarding Policy
+
+Source: `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`; `vendor/zscaler-help/understanding-source-ip-anchoring-direct.md`.
 
 1. Navigate to Policy > Client Forwarding Policy.
 2. Create a rule for the SIPA Segment Groups with client type = **all types except ZIA Service Edge**, Action = `Bypass ZPA`. This rule prevents ZCC from routing M365 login traffic through ZPA directly.
@@ -148,10 +169,14 @@ Rule order matters: place these rules appropriately relative to any other Client
 
 ### Step 6 — ZIA: ZPA Gateway
 
+Source: `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`.
+
 1. Navigate to the ZPA Gateway configuration in the ZIA Admin Portal.
 2. Create a ZPA Gateway that references the Server Group created in Step 3, using the ZPA external IDs.
 
 ### Step 7 — ZIA: Forwarding Control rule
+
+Source: `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`.
 
 1. Navigate to Policy > Forwarding Control.
 2. Create a forwarding rule:
@@ -161,6 +186,8 @@ Rule order matters: place these rules appropriately relative to any other Client
    - Under Forward to ZPA Gateway, select the ZPA Gateway created in Step 6.
 
 ### Step 8 — ZIA: DNS Control rules
+
+Source: `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`.
 
 1. Navigate to Policy > DNS Control.
 2. Enable the **ZPA Resolver for Locations** rule (for corporate location users).
@@ -184,6 +211,8 @@ Rule order matters: place these rules appropriately relative to any other Client
 
 ## 5. Egress IP stability requirement
 
+Source: `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`; `vendor/zscaler-help/understanding-source-ip-anchoring.md`.
+
 The core contract of this integration is that Azure AD's Named Locations entry matches the App Connector's public IP. If that IP changes, Azure AD's CA evaluation fails: the connector's traffic arrives from an unknown IP, triggering MFA step-up or block depending on the CA policy. This is a silent failure from the user's perspective — they receive an authentication prompt or block with no Zscaler-visible error.
 
 **Requirements for egress IP stability:**
@@ -198,7 +227,7 @@ The core contract of this integration is that Azure AD's Named Locations entry m
 - If a connector is replaced or redeployed without the same static IP assignment, the Named Locations entry becomes stale. CA policy breaks for all users until an admin updates Azure AD.
 - The `app_connector_schedule` automated deletion of inactive connectors can retire a connector VM; if the replacement VM gets a new IP, the same staleness problem occurs.
 
-There is no automated mechanism in ZIA, ZPA, or Azure AD that synchronizes App Connector IPs with Named Locations. This is an operator responsibility. (Tier A — pattern derivable from SIPA mechanics; no vendor doc explicitly specifies IP-change alert automation.)
+There is no automated mechanism in ZIA, ZPA, or Azure AD that synchronizes App Connector IPs with Named Locations. This is an operator responsibility inferred from the SIPA design and the Microsoft Named Locations dependency.
 
 ---
 
@@ -207,6 +236,8 @@ There is no automated mechanism in ZIA, ZPA, or Azure AD that synchronizes App C
 ### 6a. Egress IP not in Named Locations
 
 **Symptom:** Users receive MFA prompts or authentication blocks for M365 apps that previously worked, or always receive unexpected prompts.
+
+Source: `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`.
 
 **Cause:** The IP Azure AD sees does not match any Named Locations entry. This happens when:
 - The App Connector's public IP changed (instance replaced, EIP disassociated, NAT gateway re-provisioned).
@@ -220,6 +251,8 @@ There is no automated mechanism in ZIA, ZPA, or Azure AD that synchronizes App C
 
 **Cause variants:**
 
+Source: `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`.
+
 - **ZIA Forwarding Control rule not matching.** If the user, location, or device attributes do not match the rule's source criteria, the rule does not fire and traffic falls through to the default ZIA egress path (PSE IP).
 - **DNS resolution bypassed.** If the endpoint is not using ZIA's DNS resolver — for example, if the ZCC client is on Z-Tunnel 1.0 without the `Enable Firewall for Z-Tunnel 1.0 and PAC Road Warriors` setting enabled — DNS returns the real Microsoft IP and the ZIA forwarding rule does not match the traffic correctly. (Tier A — `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`)
 - **User is off-network without ZCC.** A user whose ZCC is disabled, not installed, or in bypass mode will reach M365 directly from their ISP IP, not through SIPA.
@@ -230,6 +263,8 @@ There is no automated mechanism in ZIA, ZPA, or Azure AD that synchronizes App C
 
 **Symptom:** CA authentication intermittently fails or triggers step-up MFA.
 
+Source: `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`; `vendor/zscaler-help/understanding-source-ip-anchoring.md`.
+
 **Cause:** ZPA distributes connections across all healthy connectors in a connector group. If connectors in the group have different public egress IPs, connections to M365 login will use varying source IPs. Only the IPs in the Named Locations entry pass CA evaluation cleanly; traffic from connectors with unlisted IPs fails.
 
 Mitigation: ensure all connectors designated for SIPA egress through the same IP or IP range, and that all those IPs are enumerated in Named Locations.
@@ -238,7 +273,9 @@ Mitigation: ensure all connectors designated for SIPA egress through the same IP
 
 **Symptom:** M365 login attempts fail entirely (connection errors, not CA blocks).
 
-**Cause:** If all connectors in the SIPA server group are unhealthy or disconnected, ZPA cannot forward the traffic. The ZIA predefined `Fallback mode of ZPA Forwarding` rule may route the traffic to a fallback path, but the fallback path uses PSE IPs, so CA policy evaluation changes. (Tier A — `references/zia/forwarding-control.md`; fallback semantics not source-confirmed at detail level — see deferred items.)
+Source: `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`.
+
+**Cause:** If all connectors in the SIPA server group are unhealthy or disconnected, ZPA cannot forward the traffic. The ZIA predefined `Fallback mode of ZPA Forwarding` rule may route the traffic to a fallback path, but the fallback path uses PSE IPs, so CA policy evaluation changes. The fallback detail is not source-confirmed at full behavioral depth and remains deferred.
 
 ### 6e. ZPA Client Forwarding Policy misconfiguration
 
@@ -250,7 +287,9 @@ Mitigation: ensure all connectors designated for SIPA egress through the same IP
 
 ## 7. Interaction with M365 sign-in tokens and session continuity
 
-Azure AD Conditional Access evaluates the source IP at authentication time — specifically, at the point where the user authenticates and receives an access/refresh token. After successful authentication, subsequent M365 API calls carry the token; Azure AD does not re-check the source IP on every API call. (Tier A — M365 CA sign-in evaluation model; Azure AD-side behavior, not Zscaler's. Cited from pattern described in `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md` line 17: "After successful authentication, the subsequent application traffic uses an authenticated token to access the actual application and hence does not require being redirected through Source IP Anchoring.")
+Source: `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`.
+
+Azure AD Conditional Access evaluates the source IP at authentication time — specifically, at the point where the user authenticates and receives an access/refresh token. After successful authentication, subsequent M365 API calls carry the token; Azure AD does not re-check the source IP on every API call. Azure AD-side behavior is Microsoft's, not Zscaler's; the Zscaler guide explicitly states that subsequent application traffic uses an authenticated token and does not need SIPA redirection.
 
 Implications:
 
@@ -266,30 +305,38 @@ The practical implication is that SIPA scope can safely stay narrow (login domai
 
 ### SIPA requires ZPA App Connectors or equivalent as the anchor
 
+Source: `vendor/zscaler-help/understanding-source-ip-anchoring.md`; `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`.
+
 SIPA is a forwarding-control mechanism. It requires a ZPA App Connector (customer-deployed VM enrolled in a ZPA tenant) to serve as the egress anchor. The following cannot serve as SIPA anchors:
 
-- **Zscaler Cloud Connector** — the outbound-only workload VM for cloud workloads. The forwarding method for Cloud Connector deployments is `ECZPA`, not `ZPA`. ECZPA does not implement SIPA. (Tier A — `references/zia/forwarding-control.md`)
+- **Zscaler Cloud Connector** — the outbound-only workload VM for cloud workloads. The forwarding method for Cloud Connector deployments is `ECZPA`, not `ZPA`. ECZPA does not implement SIPA.
 - **Direct internet bypass** — traffic configured with `forward_method = DIRECT` exits through PSE IPs.
-- **Dedicated IP gateway (`ENATDEDIP`)** — routes through a Zscaler-provisioned dedicated egress gateway, not a customer App Connector. While this provides a stable customer-attributable IP, it is a distinct product from SIPA and operates differently. (Tier A — `references/shared/source-ip-anchoring.md`)
+- **Dedicated IP gateway (`ENATDEDIP`)** — routes through a Zscaler-provisioned dedicated egress gateway, not a customer App Connector. While this provides a stable customer-attributable IP, it is a distinct product from SIPA and operates differently.
 - **Branch connector or SD-WAN path** — these are not SIPA egress paths.
 
 If an organization does not have ZPA App Connectors deployed, or does not hold a SIPA subscription, this pattern is not available. A `Dedicated IP (ENATDEDIP)` gateway is an alternative approach for stable IP egress but requires a separate ZIA Dedicated IP SKU.
 
 ### The SIPA subscription is separate from ZPA
 
-Deploying App Connectors for SIPA does not require a full ZPA license. The SIPA subscription permits App Connector deployment solely as SIPA egress points. Operators who encounter licensing questions or API `400` errors when configuring SIPA forwarding rules should verify that the tenant has the SIPA add-on, not just ZPA. (Tier A — `vendor/zscaler-help/understanding-source-ip-anchoring.md`)
+Source: `vendor/zscaler-help/understanding-source-ip-anchoring.md`.
+
+Deploying App Connectors for SIPA does not require a full ZPA license. The SIPA subscription permits App Connector deployment solely as SIPA egress points. Operators who encounter licensing questions or API `400` errors when configuring SIPA forwarding rules should verify that the tenant has the SIPA add-on, not just ZPA.
 
 ### Browser Access and Double Encryption are incompatible with SIPA segments
 
-A ZPA Application Segment configured with `Source IP Anchor` enabled cannot simultaneously be configured as a Browser Access segment or have Double Encryption enabled. These mutual exclusions are enforced at save time in the ZPA Admin Portal. Operators should architect segments accordingly. (Tier A — `references/shared/source-ip-anchoring.md`)
+A ZPA Application Segment configured with `Source IP Anchor` enabled cannot simultaneously be configured as a Browser Access segment or have Double Encryption enabled. These mutual exclusions are enforced at save time in the ZPA Admin Portal. Operators should architect segments accordingly. See [`./source-ip-anchoring.md`](./source-ip-anchoring.md) for the detailed primitive notes.
 
 ### Z-Tunnel 1.0 requires additional toggle
 
-For ZCC users on Z-Tunnel 1.0, SIPA forwarding only applies if `Enable Firewall for Z-Tunnel 1.0 and PAC Road Warriors` is enabled in ZIA Advanced Settings. Without this, Z-Tunnel 1.0 users bypass the Forwarding Control evaluation and SIPA does not engage. (Tier A — `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`)
+Source: `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`.
+
+For ZCC users on Z-Tunnel 1.0, SIPA forwarding only applies if `Enable Firewall for Z-Tunnel 1.0 and PAC Road Warriors` is enabled in ZIA Advanced Settings. Without this, Z-Tunnel 1.0 users bypass the Forwarding Control evaluation and SIPA does not engage.
 
 ---
 
 ## 9. Operational checklist for deployment
+
+Source: `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`; `vendor/zscaler-help/understanding-source-ip-anchoring.md`.
 
 Use this checklist before declaring the SIPA M365 CA integration production-ready.
 
@@ -327,6 +374,8 @@ Use this checklist before declaring the SIPA M365 CA integration production-read
 ---
 
 ## 10. Troubleshooting decision tree
+
+Source: `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`; `vendor/zscaler-help/understanding-source-ip-anchoring.md`.
 
 **Presenting symptom: M365 sign-in blocked or unexpected MFA for users on ZIA**
 
@@ -384,6 +433,8 @@ Is the user's ZCC connected and active?
 ```
 
 **Secondary symptom: M365 sign-in fails entirely (connection error, not auth error)**
+
+Source: `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`.
 
 Check:
 1. Are App Connectors in the SIPA connector group CONNECTED in ZPA Admin Portal?

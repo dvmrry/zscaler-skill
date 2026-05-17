@@ -18,11 +18,15 @@ author-status: draft
 
 # AI Security family — AI Guard, AI Guardrails, AI Red Teaming, governance
 
+Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
+
 Zscaler's AI Security stack is **a family, not a single product**. Marketing groups four pillars under "AI Security"; help-portal docs treat individual sub-products (AI Guard, AI Guardrails, AI Red Teaming) as discrete services. This page maps the family so the skill can route a user's question to the right component before claiming depth.
 
 **Confidence is medium** — the entire family is documented from marketing pages and one help-portal article. There is no SDK module (`zaiguard` does not exist in the Python or Go SDK as of the current pinned versions), no Terraform resource, and no captured Postman collection coverage. Operational depth questions need Zscaler docs / TAM.
 
 ## The four pillars
+
+Source: `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
 
 From the AI Security product page, Zscaler's framing covers the full enterprise-AI lifecycle:
 
@@ -36,6 +40,8 @@ From the AI Security product page, Zscaler's framing covers the full enterprise-
 The "Secure Access to AI Apps" pillar is where the existing skill already has coverage. The other three are new ground.
 
 ## AI Guard — runtime guardrails
+
+Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
 
 The flagship sub-product. **Inline content inspection for prompts and responses** to and from LLMs.
 
@@ -65,6 +71,8 @@ These are **intent-based detectors** — not pattern matches. The categories com
 
 ### Deployment modes
 
+Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
+
 Three modes, with sharply different traffic patterns:
 
 | Mode | Traffic shape | When to use |
@@ -76,6 +84,8 @@ Three modes, with sharply different traffic patterns:
 In **DaaS mode AI Guard is not inline** — the customer must wire it in at the application layer. That's a meaningful integration burden but unlocks any LLM provider (not just ones reachable via the Zscaler proxy).
 
 ### How it integrates with the existing ZIA stack
+
+Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
 
 AI Guard chains into ZIA in **proxy mode**. The traffic path looks like:
 
@@ -89,11 +99,15 @@ The existing skill coverage of GenAI URL categories (in `references/zia/url-filt
 
 ### Operational pre-reqs
 
+Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
+
 - **Inline mode requires SSL inspection** — prompt/response payloads are HTTPS to LLM providers; same SSL-inspection rule that DLP needs. SSL bypass on LLM domains kills AI Guard inline mode just like it kills DLP. Cross-link to [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md).
 - **DaaS mode requires application changes** — every prompt/response site needs API calls. Not a pure "drop in" deploy.
 - **GPU-based inference** is in Zscaler's cloud — implies non-trivial latency cost compared to a pattern-match inspector. No published latency numbers.
 
 ## AI Guardrails — marketing umbrella
+
+Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
 
 "AI Guardrails" appears on the product website but the help-portal doc that explains it is `what-ai-guard`. **AI Guardrails is the marketing name; AI Guard is the product**. Both refer to the same runtime-protection service. The Guardrails marketing emphasis adds:
 
@@ -104,6 +118,8 @@ The existing skill coverage of GenAI URL categories (in `references/zia/url-filt
 These framing differences don't appear to be feature differences. Treat the names as synonymous unless a customer / Zscaler doc explicitly distinguishes them.
 
 ## AI Red Teaming
+
+Source: `vendor/zscaler-help/ai-security-marketing.md`.
 
 Separate sub-product. **Automated vulnerability assessment for customer-deployed LLM applications**:
 
@@ -117,6 +133,8 @@ No deeper material captured. Treat as awareness-only within the deep-dive — re
 
 ## Where AI Security fits relative to existing skill content
 
+Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
+
 | Existing reference | AI Security touchpoint |
 |---|---|
 | [`../zia/url-filtering.md`](../zia/url-filtering.md) — 12 GenAI URL Filter categories | These pre-classify AI-related traffic *before* it hits AI Guard. URL Filter blocks at the category level; AI Guard does deep content inspection. |
@@ -126,6 +144,8 @@ No deeper material captured. Treat as awareness-only within the deep-dive — re
 | [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md) | AI Guard + ZIA + ZBI form a chain — should be added as a cross-product hook. |
 
 ## Edge cases / gotchas
+
+Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
 
 1. **"AI Guard" vs "AI Guardrails" is a naming inconsistency, not a product split.** Operators will use either name. Skill should accept both as equivalent.
 2. **AI Guard is not in any SDK.** Configuration is portal-only. Don't suggest `client.aiguard.*` Python or `client.zaiguard.*` Go — neither exists.
@@ -137,6 +157,8 @@ No deeper material captured. Treat as awareness-only within the deep-dive — re
 8. **Brand / competitor detection is a content-policy enforcement layer.** This is unusual for a security product (normally a marketing-ops concern). Operators asking "can AI Guard prevent my chatbot from saying nice things about $competitor?" — answer is yes, that's a documented use case.
 
 ## Open questions
+
+Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
 
 - **Token / call accounting** — AI Guard inline mode adds GPU inference per request; how is that billed? Per-call, per-token, flat-rate per seat? Not in captures.
 - **Latency budget** — what does a typical inline-mode prompt round-trip look like added to LLM provider latency? No data.

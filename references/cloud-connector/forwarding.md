@@ -18,6 +18,8 @@ How Cloud Connector decides what to do with each packet it receives. Traffic for
 
 ## Summary
 
+Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`.
+
 Five forwarding methods:
 
 | Method | What it does | When to use |
@@ -35,6 +37,8 @@ Rules are evaluated **top-down by rule order, first match wins**. Same pattern a
 ## Mechanics
 
 ### Rule structure
+
+Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`.
 
 From *Configuring Traffic Forwarding Rules*, each rule has:
 
@@ -62,6 +66,8 @@ All criteria ANDed together within a single rule. Multiple items within one crit
 - **Custom Domain Groups** — tenant-defined groups of domains.
 
 ### The five forwarding methods
+
+Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`.
 
 #### ZIA
 
@@ -101,6 +107,8 @@ Not available on Branch Connector. Forwards traffic locally within the Cloud Con
 
 ### Predefined rules and gateway-mode gating
 
+Source: `vendor/zscaler-help/cbc-about-traffic-forwarding.md`; `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`.
+
 Per `vendor/zscaler-help/cbc-about-traffic-forwarding.md`, two predefined rules ship with every CC group:
 
 - **Direct for Zscaler Cloud Endpoints** — sends Zscaler control-plane traffic direct (e.g., the CC's own connectivity to ZIA peer discovery). Always present, gateway-mode-only.
@@ -109,6 +117,8 @@ Per `vendor/zscaler-help/cbc-about-traffic-forwarding.md`, two predefined rules 
 **Both predefined rules are gateway-mode-only and license-gated.** A non-gateway-mode CC won't see them; a tenant without the relevant license tier won't be able to enable them. This matters for CC groups that operate in non-gateway mode (e.g., simpler workload-to-internet forwarding without ZIA inspection).
 
 ### AWS-specific: GWLB vs ENI endpoint selection
+
+Source: `vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-amazon-web-services.md`; `vendor/zscaler-help/cbc-zero-trust-security-aws-workloads-zscaler-cloud-connector.md`.
 
 Per `vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-amazon-web-services.md` and `cbc-zero-trust-security-aws-workloads-zscaler-cloud-connector.md`, AWS deployments choose between two traffic-redirect mechanisms:
 
@@ -119,11 +129,15 @@ This is an AWS-specific topology choice with no Azure equivalent (Azure deployme
 
 ### Rule evaluation order
 
+Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`.
+
 First-match-wins top-down, same as ZIA URL Filter. Disabled rules skip without losing position.
 
 **Default rule fires last** — the pre-provisioned "default gateway" ZIA rule sits at the terminal position. Traffic not matching any custom rule routes to ZIA via the default gateway.
 
 ### DNS forwarding gateway — separate from traffic forwarding
+
+Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/dns_gateway/dns_gateway.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/forwarding_gateways/dns_forwarding_gateway/dns_forwarding_gateway.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/forwarding_gateways/zia_forwarding_gateway/zia_forwarding_gateway.go`; `vendor/terraform-provider-ztc/docs/resources/ztc_dns_forwarding_gateway.md`; `vendor/terraform-provider-ztc/docs/resources/ztc_dns_gateway.md`.
 
 Cloud Connector also forwards DNS queries. The DNS path is configured separately via **DNS Forwarding Gateway** rules. From the Go SDK (`ztw/services/dns_gateway/` and `ztw/services/forwarding_gateways/`) and TF provider (`resource_ztc_dns_forwarding_gateway.go`, `resource_ztc_dns_gateway.go`), DNS gateways are distinct resources with their own rule surface.
 
@@ -131,11 +145,15 @@ Cloud Connector also forwards DNS queries. The DNS path is configured separately
 
 ### Log and Control Forwarding Rule — the other rule type
 
+Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/traffic_log_rules/traffic_log_rules.go`.
+
 There's a separate rule type called **Log and Control Forwarding Rule** (Go SDK: `ztw/services/policy_management/traffic_log_rules`). Configures where Cloud Connector sends logs and control-plane events (to Nanolog / NSS / SIEM). Distinct from traffic forwarding rules — the traffic rule controls data-plane routing; the log/control rule controls observability streams.
 
 Not captured in depth; referenced here so an operator asking "why aren't my Cloud Connector logs reaching our SIEM" lands in the right place: Log and Control Forwarding Rules, not traffic forwarding rules.
 
 ## Common patterns
+
+Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`; `vendor/zscaler-help/cbc-about-traffic-forwarding.md`.
 
 - **Exempt cloud metadata service**: `Rule 1 — destination 169.254.169.254, method Direct`. Prevents metadata-service calls from hitting ZIA (which would either block or add latency).
 - **Route cloud provider storage direct**: `Rule N — Application Service Group = Amazon Web Services (or Azure, GCP), method Direct`. VPC-endpoint-friendly.
@@ -144,6 +162,8 @@ Not captured in depth; referenced here so an operator asking "why aren't my Clou
 - **Default (pre-provisioned)**: `Rule 999 (terminal) — match all, method ZIA via default gateway`. Internet-bound traffic not exempted goes to ZIA.
 
 ## Edge cases
+
+Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`; `vendor/zscaler-help/cbc-about-traffic-forwarding.md`; `vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-amazon-web-services.md`.
 
 - **Rule ordering mistakes**: placing a Direct exemption rule **below** a broad ZIA rule causes the ZIA rule to match first; the exemption never fires. Same footgun as ZIA URL Filter's first-match-wins.
 - **Wildcard domain matching without DNS through Cloud Connector**: UDP and non-web traffic to wildcard destinations fails to match — Cloud Connector only sees the destination IP, not the hostname. Either route DNS through Cloud Connector, or use IP-based criteria instead of FQDN.

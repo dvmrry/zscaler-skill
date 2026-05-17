@@ -114,7 +114,9 @@ print(result.summary())
 ./scripts/simulate-policy.py --url https://x.com --json                 # machine output
 ```
 
-Requires `_data/snapshot/zia/url-filtering-rules.json` + `_data/snapshot/zia/url-categories.json`. Run `./scripts/snapshot-refresh.py --zia-only` first.
+Requires `_data/snapshot/zia/url-filtering-rules.json` +
+`_data/snapshot/zia/url-categories.json`. Run
+`./scripts/snapshot-refresh.py --zia-only` first if the snapshot is empty.
 
 ## Single-URL before/after primitive
 
@@ -147,7 +149,8 @@ Once log data is available (per the `references/shared/log-correlation.md` decis
 
 ## Cross-links
 
-- Source: `scripts/policy_simulator.py` (canonical implementation)
+Source: `scripts/policy_simulator.py` (canonical implementation).
+
 - Runnable CLI: `scripts/simulate-policy.py`
 - Underlying URL filter logic: [`../zia/url-filtering.md`](../zia/url-filtering.md)
 - Wildcard semantics (URL → category resolution): [`../zia/wildcard-semantics.md`](../zia/wildcard-semantics.md)

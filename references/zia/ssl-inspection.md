@@ -32,6 +32,8 @@ Where SSL/TLS inspection sits relative to URL filtering and Cloud App Control, h
 
 ## Summary
 
+Source: `vendor/zscaler-help/Understanding_Policy_Enforcement.txt`; `vendor/zscaler-help/ZIA_SSL_Inspection_Leading_Practices_Guide.txt`.
+
 SSL inspection sits in a **two-pass model** documented in *Understanding Policy Enforcement* (pp.11–13):
 
 1. **CONNECT/SNI-level pass** — URL Filtering, Cloud App Control, known-malicious-URL ATP check, and Bandwidth Control evaluate using only the destination domain (from the CONNECT header in explicit mode, from the SNI in transparent mode). A block at this stage ends the connection immediately — 403 for CONNECT blocks, TCP reset for SNI blocks.
@@ -47,6 +49,8 @@ So URL Filtering effectively evaluates **twice** on inspected HTTPS traffic — 
 - **Do Not Inspect + Bypass Other Policies** → short-circuits the entire policy chain. Traffic passes untouched, no SNI-level URL Filtering, no CAC, no anything. Rarely the right choice.
 
 ## Mechanics
+
+Source: `vendor/zscaler-help/Understanding_Policy_Enforcement.txt`; `vendor/zscaler-help/configuring-ssl-tls-inspection-policy.md`; `vendor/zscaler-help/ZIA_SSL_Inspection_Leading_Practices_Guide.txt`; `vendor/zscaler-help/Best_Practices_for_Testing_and_Rolling_Out_SSL_TLS_Inspection.txt`.
 
 ### Pipeline position (the corrected picture)
 
@@ -184,6 +188,8 @@ Both `default_rule` (bool) and `predefined` (bool) are first-class SSL-rule fiel
 
 ## Trust mechanics — what Zscaler presents to clients
 
+Source: `vendor/zscaler-help/ZIA_SSL_Inspection_Leading_Practices_Guide.txt`; `vendor/zscaler-help/SSL_Inspection_Deployment_and_Operations_Guide.txt`.
+
 When inspecting, **the ZIA Public Service Edge acts as a short-lived intermediate CA** — it issues a per-connection certificate on demand for the requested application and signs it with the configured intermediate CA. (*Leading Practices Guide*, p.33.) The client receives a fresh leaf cert per session, signed by Zscaler's CA, valid for the destination's hostname/SAN. There is no long-lived "Zscaler-as-the-server" cert; each connection gets its own ephemeral leaf.
 
 For this to work without browser warnings, **the signing CA must be in the client's trust store**. Two intermediate-CA options exist (*Leading Practices Guide*, pp.6, 33):
@@ -198,6 +204,8 @@ For this to work without browser warnings, **the signing CA must be in the clien
 **In-memory inspection** — *SSL Inspection Deployment & Operations Guide* p.3 states: "Web transaction content inspection takes place in memory and is never written to disk." Useful for privacy/legal objections to TLS inspection.
 
 ## What depends on SSL inspection
+
+Source: `vendor/zscaler-help/ZIA_SSL_Inspection_Leading_Practices_Guide.txt`; `vendor/zscaler-help/Understanding_Policy_Enforcement.txt`.
 
 These ZIA security features require decrypted traffic to function at all (*Leading Practices Guide*, p.4):
 
@@ -214,6 +222,10 @@ These ZIA security features require decrypted traffic to function at all (*Leadi
 
 ## What can't be inspected
 
+Source: `vendor/zscaler-help/ZIA_SSL_Inspection_Leading_Practices_Guide.txt`; `vendor/zscaler-help/SSL_Inspection_Deployment_and_Operations_Guide.txt`.
+
+Related Duo references: `https://duo.com/docs/duo-desktop` and Duo KB 9585.
+
 Even with SSL inspection enabled, certain traffic resists interception:
 
 - **Certificate-pinned apps** — application has the expected server certificate (or CA bundle) hard-coded; rejects any other cert. Two flavors:
@@ -227,6 +239,10 @@ Even with SSL inspection enabled, certain traffic resists interception:
 - **Developer environments with custom trust stores** — Python, Node, some IDEs ship their own cert stores. Need explicit cert installation or a scoped bypass. (*Leading Practices Guide*, pp.25–26.) See § Trust store deployment below for the per-toolchain catalog.
 
 ## Trust store deployment
+
+Source: `vendor/zscaler-help/SSL_Inspection_Deployment_and_Operations_Guide.txt`; `vendor/zscaler-help/ZIA_SSL_Inspection_Leading_Practices_Guide.txt`.
+
+Related Duo references: `https://duo.com/docs/duo-desktop` and Duo KB 9585.
 
 Beyond the OS trust store, several application classes maintain their own — installing the Zscaler root in the OS isn't enough. (*Leading Practices Guide*, pp.6, 24, 25–26; *SSL Inspection Deployment & Operations Guide*, p.2; Zscaler "SSL Inspection in Developer Environments" blog.)
 
@@ -252,6 +268,8 @@ Beyond the OS trust store, several application classes maintain their own — in
 
 ## SSL bypass is a cross-policy gate
 
+Source: `vendor/zscaler-help/ZIA_SSL_Inspection_Leading_Practices_Guide.txt`; `vendor/zscaler-help/Understanding_Policy_Enforcement.txt`.
+
 SSL bypass doesn't just skip TLS inspection — it **breaks or disables multiple downstream security features**. A skill answering "why wasn't this caught?" should check SSL bypass status first whenever any of the following features is involved:
 
 | Feature | Effect of SSL bypass |
@@ -266,6 +284,8 @@ SSL bypass doesn't just skip TLS inspection — it **breaks or disables multiple
 The inverse failure mode: **an SSL Inspection rule with `Do Not Inspect + Bypass Other Policies`** also skips URL Filtering and Cloud App Control. See the "Do Not Inspect variants" section above for that distinction — it's the extra-dangerous flavor.
 
 ## Bypass rule hygiene — anti-patterns
+
+Source: `vendor/zscaler-help/ZIA_SSL_Inspection_Leading_Practices_Guide.txt`; `vendor/zscaler-help/Best_Practices_for_Testing_and_Rolling_Out_SSL_TLS_Inspection.txt`.
 
 Distilled from *Leading Practices Guide* pp.23–24:
 
@@ -290,6 +310,10 @@ If a specific S3 bucket / Blob container / CloudFront distribution must be bypas
 
 ## Audit rubric for SSL bypass rules
 
+Source: `vendor/zscaler-help/Understanding_Policy_Enforcement.txt`; `vendor/zscaler-help/configuring-ssl-tls-inspection-policy.md`; `vendor/zscaler-help/ZIA_SSL_Inspection_Leading_Practices_Guide.txt`; `vendor/zscaler-help/Best_Practices_for_Testing_and_Rolling_Out_SSL_TLS_Inspection.txt`.
+
+Note: This checklist is derived from the cited SSL policy guides.
+
 Distilled from the MCP server's `commands/audit-ssl.md` and `skills/zia/audit-ssl-inspection-bypass/` reasoning. Use this when classifying a tenant's bypass rules by risk.
 
 | Risk | Indicators |
@@ -307,6 +331,8 @@ Distilled from the MCP server's `commands/audit-ssl.md` and `skills/zia/audit-ss
 
 ## Edge cases
 
+Source: `vendor/zscaler-help/configuring-ssl-tls-inspection-policy.md`; `vendor/zscaler-help/About_SSL_TLS_Inspection_Policy.txt`; `vendor/zscaler-help/ZIA_SSL_Inspection_Leading_Practices_Guide.txt`.
+
 - **Transparent-mode IP-based over-exemption.** As above — a do-not-inspect rule on Miscellaneous Or Unknown can wildcard nearly all traffic under transparent forwarding without admins realizing.
 - **Predefined exemption actions differ.** Zscaler Recommended Exemptions uses Evaluate Other Policies (URL filtering still runs); Microsoft 365 Click-to-Run uses Bypass Other Policies (URL filtering does not). Operators writing their own exemption rules often copy the pattern of whichever predefined rule they saw first, without noticing the downstream-policy difference. (*Leading Practices Guide*, pp.9–10.)
 - **TLS minimum too strict.** A legitimate partner site stuck on TLS 1.0 plus an Inspect rule requiring TLS 1.2 → the connection fails with an SSL handshake error. User sees a block. (*SSL Inspection Deployment and Operations Guide*, p.3 troubleshooting.)
@@ -321,10 +347,14 @@ Distilled from the MCP server's `commands/audit-ssl.md` and `skills/zia/audit-ss
 
 ## Limits
 
+Source: `vendor/zscaler-help/configuring-ssl-tls-inspection-policy.md`.
+
 - **255 SSL Inspection rules total** = 245 custom + 10 predefined. Tighter than DLP (1,024) and several other policy types; large enterprises with hundreds of per-application exemption rules hit this cap and need to consolidate via destination groups rather than file a support ticket. The cap is NOT raisable.
-- **Rule name max length: 31 characters.** Lower than most other ZIA policies (which allow 128+). Automation scripts that generate descriptive rule names from app metadata will silently truncate — names get rejected at rule-save time. Source: *Configuring SSL/TLS Inspection Policy* line 27.
+- **Rule name max length: 31 characters.** Lower than most other ZIA policies (which allow 128+). Automation scripts that generate descriptive rule names from app metadata will silently truncate — names get rejected at rule-save time.
 
 ## Worked example (covers eval Q4)
+
+Source: `vendor/zscaler-help/Understanding_Policy_Enforcement.txt`; `vendor/zscaler-help/ZIA_SSL_Inspection_Leading_Practices_Guide.txt`; `vendor/zscaler-help/Best_Practices_for_Testing_and_Rolling_Out_SSL_TLS_Inspection.txt`.
 
 Scenario: a user visits `https://evil.example.com`, which falls into the Miscellaneous Or Unknown category.
 
@@ -362,7 +392,11 @@ The "before or after" question in Q4 resolves to: **URL Filtering evaluates twic
 - Transparent vs explicit forwarding edge cases when a user mixes modes — [clarification `zia-11`](../_meta/clarifications.md#zia-11-transparent-vs-explicit-forwarding-mixed-mode)
 - Exact behavior of SSL decision on the URL filtering default rule — if SSL says "Do Not Inspect + Evaluate Other Policies" and URL filtering has no matching rule, does the default URL-filtering action still fire? — [clarification `zia-12`](../_meta/clarifications.md#zia-12-ssl-bypass-interaction-with-url-filtering-default-rule) (partially resolved by Policy Enforcement doc; edge case still open)
 
-Resolved while writing this doc: pipeline-order explicit sourcing (see [clarification `zia-13`](../_meta/clarifications.md#zia-13-explicit-pipeline-order-sourcing) — marked resolved with answer from `Understanding_Policy_Enforcement.txt`).
+## Resolved clarifications
+
+Source: `vendor/zscaler-help/Understanding_Policy_Enforcement.txt`.
+
+Pipeline-order explicit sourcing is resolved in [clarification `zia-13`](../_meta/clarifications.md#zia-13-explicit-pipeline-order-sourcing) with answer from `Understanding_Policy_Enforcement.txt`.
 
 ## Cross-links
 

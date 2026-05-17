@@ -32,6 +32,8 @@ author-status: draft
 
 > **Product note:** Machine Groups are a ZPA-only construct. The vendor help article lives at `help.zscaler.com/zpa/about-machine-groups`; all SDK/Terraform artifacts (`zscaler-sdk-python/zscaler/zpa/machine_groups.py`, `zscaler-sdk-go/zscaler/zpa/services/machinegroup/`, `terraform-provider-zpa`) are under the ZPA surface. There is no Machine Groups entity in ZIA. The April 2026 coverage audit (`_meta/archive/audits/2026-04-26.md` line 70) mis-classified this as a ZIA gap; this doc lives under ZPA where it belongs.
 
+Source: `vendor/zscaler-help/about-machine-groups.md`; `vendor/zscaler-sdk-python/zscaler/zpa/machine_groups.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/machinegroup/zpa_machine_group.go`.
+
 ---
 
 ## What a Machine Group is
@@ -54,6 +56,8 @@ Membership is determined by enrollment, not by hostname patterns or certificate 
 The attributes visible per enrolled machine record are: `id`, `name`, `description`, `fingerprint`, `issuedCertId`, `machineGroupId`, `machineGroupName`, `machineTokenId`, `signingCert`, `creationTime`, `modifiedTime`, `modifiedBy`. (Tier A — `vendor/zscaler-sdk-go/zscaler/zpa/services/machinegroup/zpa_machine_group.go`)
 
 There is no operator-specified hostname glob or certificate subject pattern on a machine group definition itself. Matching is token/certificate enrollment-driven. (Tier C — inferred from SDK read-only model and enrollment documentation; see Deferred questions.)
+
+Source: `vendor/zscaler-help/about-machine-groups.md`; `vendor/zscaler-sdk-go/zscaler/zpa/services/machinegroup/zpa_machine_group.go`; `vendor/terraform-provider-zpa/docs/data-sources/zpa_machine_group.md`.
 
 ---
 
@@ -117,6 +121,8 @@ Machine Groups as a criterion scope which device groups a rule applies to. The `
 
 A policy rule that includes `MACHINE_GRP` but does not include `CLIENT_TYPE` applies to both machine tunnel sessions and user sessions on matching devices. A rule that includes only `CLIENT_TYPE = zpn_client_type_machine_tunnel` applies to all machine tunnel sessions regardless of which machine group the device belongs to.
 
+Source: `vendor/zscaler-help/about-machine-groups.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_v2.md`.
+
 ---
 
 ## Lifecycle: creation, update, deletion
@@ -178,6 +184,8 @@ All calls pass `common.Filter{MicroTenantID: service.MicroTenantID()}` per ZPA S
 
 The Go SDK's `MachineGroup` struct carries a `Machines []Machines` field. Each `Machines` entry includes `ID`, `Name`, `Description`, `Fingerprint`, `IssuedCertID`, `MachineGroupID`, `MachineGroupName`, `MachineTokenID`, `ModifiedBy`, `ModifiedTime`, `MicroTenantID`, `MicroTenantName`, and `SigningCert` (map). (Tier A — `vendor/zscaler-sdk-go/zscaler/zpa/services/machinegroup/zpa_machine_group.go`)
 
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/machine_groups.py`; `vendor/zscaler-sdk-python/zscaler/zpa/models/machine_groups.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/machinegroup/zpa_machine_group.go`.
+
 **ZCC device removal:**
 
 The only write path for machine-tunnel-enrolled devices is a delete via the ZCC portal API:
@@ -235,6 +243,8 @@ resource "zpa_policy_access_rule" "machine_rule" {
 
 (Tier A — `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule.md`; `vendor/terraform-provider-zpa/docs/data-sources/zpa_machine_group.md`)
 
+Source: `vendor/terraform-provider-zpa/docs/data-sources/zpa_machine_group.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_v2.md`.
+
 ---
 
 ## Constraints and gotchas
@@ -274,6 +284,8 @@ ZIA Forwarding Control rules and ZIA Firewall rules do not accept machine groups
 ### Microtenant scoping
 
 Machine group API calls require the standard ZPA microtenant filter parameter. In the Go SDK this is `common.Filter{MicroTenantID: service.MicroTenantID()}`. In the Python SDK the `microtenant_id` query parameter maps to the `microtenantId` API parameter. The data source also exposes `microtenant_id` and `microtenant_name` on the group object. (Tier A — `vendor/zscaler-sdk-go/zscaler/zpa/services/machinegroup/zpa_machine_group.go`; `vendor/zscaler-sdk-python/zscaler/zpa/machine_groups.py`; `vendor/terraform-provider-zpa/docs/data-sources/zpa_machine_group.md`)
+
+Source: `vendor/zscaler-sdk-go/zscaler/zpa/services/machinegroup/zpa_machine_group.go`; `vendor/zscaler-sdk-python/zscaler/zpa/machine_groups.py`; `vendor/terraform-provider-zpa/docs/data-sources/zpa_machine_group.md`.
 
 ---
 

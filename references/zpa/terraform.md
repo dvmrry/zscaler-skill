@@ -28,12 +28,10 @@ sources:
   - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_config_controller.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_app_connector_metrics.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_app_connector_status.md"
-  - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_browser_access.md"
-  - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_user_activity.md"
-  - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_user_status.md"
-  - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_zpn_ast_auth_log.md"
-  - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_zpn_pbroker_comprehensive_stats.md"
-  - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_zpn_trans_log.md"
+  - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_web_browser.md"
+  - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_config_user_activity.md"
+  - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_config_user_status.md"
+  - "vendor/terraform-provider-zpa/docs/data-sources/zpa_lss_config_log_type_formats.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_pra_approval_controller.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_pra_console_controller.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_pra_credential_controller.md"
@@ -183,7 +181,7 @@ Standard application segment. The primary object used to publish internal applic
 - Removing TCP/UDP port ranges requires explicitly setting the attribute to an empty list; omitting it does not clear existing ports.
 - `tcp_port_ranges` (flat list of `"from"/"to"` pairs) is the older form; `tcp_port_range` blocks are preferred in provider v3+.
 
-Source: `zpa_application_segment.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_application_segment.md`.
 
 ---
 
@@ -207,7 +205,7 @@ Extends a standard segment with clientless (browser-based) access via a reverse-
 - `domain` in each `clientless_apps` block must appear in the parent segment's `domain_names`.
 - Removing TCP/UDP ports requires an explicit empty assignment, not omission.
 
-Source: `zpa_application_segment_browser_access.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_application_segment_browser_access.md`.
 
 ---
 
@@ -229,7 +227,7 @@ Segment that routes traffic through AppProtection (inline inspection). Inherits 
 - `certificate_id` on `apps_config` is distinct from segment-level cert fields. Providing it for HTTP causes an API error.
 - Domain/port values in `apps_config` must be consistent with the segment's own `domain_names` and port ranges.
 
-Source: `zpa_application_segment_inspection.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_application_segment_inspection.md`.
 
 ---
 
@@ -245,7 +243,7 @@ Privileged Remote Access segment. Enables RDP/SSH access via the PRA portal.
 | `application_protocol` | `RDP` or `SSH` |
 | `connection_security` | Required for RDP (`ANY`, `NLA`, `NLA_EXT`, `TLS`, `CLASSIC`). Must NOT be set for SSH. |
 
-Source: `zpa_application_segment_pra.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_application_segment_pra.md`.
 
 ---
 
@@ -255,7 +253,7 @@ Bulk setter for the multimatch (`match_style`) attribute across a list of existi
 
 **Required:** `application_ids` (list of segment IDs), `match_style` (`EXCLUSIVE` or `INCLUSIVE`).
 
-Source: `zpa_application_segment_multimatch_bulk.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_application_segment_multimatch_bulk.md`.
 
 ---
 
@@ -275,7 +273,7 @@ Configures weighted load balancing for a single application segment. Maps the se
 
 **Optional:** `weighted_load_balancing` (Boolean, enables the feature).
 
-Source: `zpa_application_segment_weightedlb_config.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_application_segment_weightedlb_config.md`.
 
 ---
 
@@ -289,7 +287,7 @@ Defines a static backend server (IP or FQDN). Only used when the server group ha
 
 **Optional:** `app_server_group_ids` (list), `enabled`, `config_space` (`DEFAULT` or `SIEM`).
 
-Source: `zpa_application_server.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_application_server.md`.
 
 ---
 
@@ -303,7 +301,7 @@ Groups application segments for policy attachment and access control.
 
 **Optional:** `description`, `enabled` (Boolean, default `true`).
 
-Source: `zpa_segment_group.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_segment_group.md`.
 
 ---
 
@@ -326,7 +324,7 @@ Associates app connectors with backend servers. All application segments referen
 - `servers` block is mandatory when `dynamic_discovery = false`; omitting it causes a plan error.
 - Extranet connectivity requires `extranet_enabled = true` at the group level before `extranet_dto` is applied.
 
-Source: `zpa_server_group.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_server_group.md`.
 
 ---
 
@@ -359,7 +357,7 @@ Logical grouping of App Connectors deployed in a location or region.
 - `tcp_quick_ack_app`, `tcp_quick_ack_assistant`, and `tcp_quick_ack_read_assistant` must all be set to the same value. Setting them inconsistently produces an API error.
 - `pra_enabled = true` is required before PRA segments can route through this group.
 
-Source: `zpa_app_connector_group.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_app_connector_group.md`.
 
 ---
 
@@ -373,7 +371,7 @@ Configures the automated cleanup schedule for offline App Connector instances.
 
 **Gotcha:** Import is not supported. This resource must be created fresh.
 
-Source: `zpa_app_connector_assistant_schedule.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_app_connector_assistant_schedule.md`.
 
 ---
 
@@ -402,7 +400,7 @@ Logical grouping of Private Service Edges (PSEs) deployed in a location.
 
 **Gotcha:** The `service_edges` block within this resource is deprecated. Manage PSE membership via the PSE device enrollment workflow, not this attribute.
 
-Source: `zpa_service_edge_group.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md`.
 
 ---
 
@@ -410,7 +408,7 @@ Source: `zpa_service_edge_group.md`
 
 Same pattern as `zpa_app_connector_assistant_schedule` but for Service Edge cleanup. No import support.
 
-Source: `zpa_service_edge_assistant_schedule.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_assistant_schedule.md`.
 
 ---
 
@@ -430,7 +428,7 @@ Generates enrollment tokens used to register App Connectors and Service Edges.
 
 **Gotcha:** `provisioning_key` is stored in Terraform state in plaintext. Use a secure remote backend (Vault, encrypted S3, Terraform Cloud with encryption) for any production deployment.
 
-Source: `zpa_provisioning_key.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_provisioning_key.md`.
 
 ---
 
@@ -446,7 +444,7 @@ Uploads a TLS certificate for use with browser-access or PRA portal domains.
 
 **Gotcha:** No import support — certificates must be re-uploaded via Terraform if the state is lost. The `cert_blob` must include both the private key and the certificate/chain in a single PEM block.
 
-Source: `zpa_ba_certificate.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_ba_certificate.md`.
 
 ---
 
@@ -464,13 +462,13 @@ Creates a child microtenant within a parent ZPA tenant.
 
 **Gotcha:** Microtenant creation requires a separate Zscaler license. Limited availability — contact Zscaler before using.
 
-Source: `zpa_microtenant_controller.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_microtenant_controller.md`.
 
 ---
 
 ### Log Streaming Service (LSS)
 
-The ZPA provider exposes a single Terraform resource type for LSS regardless of the log stream type. The eight doc files with LSS-specific names (`zpa_lss_app_connector_metrics.md`, etc.) are usage-example aliases — they all configure the same `zpa_lss_config_controller` resource with different `source_log_type` values.
+The ZPA provider exposes a single Terraform resource type for LSS regardless of the log stream type. Several LSS-specific docs (`zpa_lss_app_connector_metrics.md`, `zpa_lss_config_user_activity.md`, etc.) are usage-example aliases — they configure the same `zpa_lss_config_controller` resource with different `source_log_type` values. The provider also exposes `zpa_lss_config_log_type_formats` as the source for valid log type metadata.
 
 #### `zpa_lss_config_controller`
 
@@ -494,19 +492,19 @@ Streams ZPA log data to an external SIEM over TCP.
 
 **`source_log_type` values:**
 
-| Value | Alias doc file | Description |
+| Value | Alias or metadata source | Description |
 |---|---|---|
-| `zpn_trans_log` | `zpa_lss_user_activity.md` | Per-session user activity |
-| `zpn_auth_log` | `zpa_lss_user_status.md` | Authentication events |
-| `zpn_ast_auth_log` | `zpa_lss_zpn_ast_auth_log.md` | AST auth events |
-| `zpn_pbroker_comprehensive_stats` | `zpa_lss_zpn_pbroker_comprehensive_stats.md` | Broker stats |
-| `zpn_trans_log` (browser) | `zpa_lss_browser_access.md` | Browser access sessions |
+| `zpn_trans_log` | `zpa_lss_config_user_activity.md` | Per-session user activity |
+| `zpn_auth_log` | `zpa_lss_config_user_status.md` | Authentication events |
+| `zpn_ast_auth_log` | `zpa_lss_config_log_type_formats.md` | AST auth events |
+| `zpn_pbroker_comprehensive_stats` | `zpa_lss_config_log_type_formats.md` | Broker stats |
+| `zpn_trans_log` (browser) | `zpa_lss_web_browser.md` | Browser access sessions |
 | `zpn_sys_auth_log` | — | System auth |
-| `zpn_http_trans_log` | `zpa_lss_zpn_trans_log.md` | HTTP transactions |
+| `zpn_http_trans_log` | `zpa_lss_config_log_type_formats.md` | HTTP transactions |
 | `zpn_cnx_apps_stats` | `zpa_lss_app_connector_metrics.md` | Connector metrics |
 | (connector status) | `zpa_lss_app_connector_status.md` | Connector health status |
 
-Source: `zpa_lss_config_controller.md` (and alias docs)
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_lss_config_controller.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_lss_app_connector_metrics.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_lss_app_connector_status.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_lss_config_user_activity.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_lss_config_user_status.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_lss_web_browser.md`; `vendor/terraform-provider-zpa/docs/data-sources/zpa_lss_config_log_type_formats.md`.
 
 ---
 
@@ -524,7 +522,7 @@ Defines a single set of credentials injected by the PRA gateway.
 
 **Gotcha:** `credential_type` and its dependent fields (`password`, `private_key`, etc.) are immutable after creation. To change the type, destroy and recreate the resource.
 
-Source: `zpa_pra_credential_controller.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_pra_credential_controller.md`.
 
 ---
 
@@ -536,7 +534,7 @@ Groups multiple credentials of the same type for rotation or load distribution.
 
 **Gotcha:** `credential_type` is immutable after creation, same constraint as `zpa_pra_credential_controller`.
 
-Source: `zpa_pra_credential_pool.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_pra_credential_pool.md`.
 
 ---
 
@@ -548,7 +546,7 @@ Hosts the PRA session endpoint that end users connect to.
 
 **Optional:** `certificate_id` (omit for Zscaler-managed cert), `description`, `enabled`, `user_notification`, `user_notification_enabled`, `ext_label`, `ext_domain`, `ext_domain_name`, `ext_domain_translation`, `user_portal_gid`, `approval_reviewers` (list of approver email addresses).
 
-Source: `zpa_pra_portal_controller.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_pra_portal_controller.md`.
 
 ---
 
@@ -562,7 +560,7 @@ Configures a named PRA console that links a PRA application (from a segment's `a
 
 **Optional:** `description`, `enabled`, `icon_text`.
 
-Source: `zpa_pra_console_controller.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_pra_console_controller.md`.
 
 ---
 
@@ -581,7 +579,7 @@ Creates a time-bounded privileged access approval for specific users.
 - `end_time` cannot be more than 365 days in the future.
 - Despite `email_ids` being a list type, the API only processes the first entry. Submit a single ID per resource.
 
-Source: `zpa_pra_approval_controller.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_pra_approval_controller.md`.
 
 ---
 
@@ -606,7 +604,7 @@ Defines an AppProtection inspection policy applied to AppProtection segments via
 
 **Gotcha:** The `predefined_controls` block for the preprocessors group must always be present. Removing it causes the profile to be rejected by the API.
 
-Source: `zpa_inspection_profile.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_inspection_profile.md`.
 
 ---
 
@@ -620,7 +618,7 @@ Defines a custom WAF-like rule for inclusion in an inspection profile.
 
 **Gotcha:** Setting `default_action_value` when `default_action` is not `REDIRECT` produces an API validation error.
 
-Source: `zpa_inspection_custom_controls.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_inspection_custom_controls.md`.
 
 ---
 
@@ -636,7 +634,7 @@ Customises the CBI session banner displayed to end users.
 
 **Optional:** `banner` (Boolean), `persist` (Boolean), `is_default` (Boolean).
 
-Source: `zpa_cloud_browser_isolation_banner.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_cloud_browser_isolation_banner.md`.
 
 ---
 
@@ -646,7 +644,7 @@ Uploads a TLS certificate for CBI domain termination.
 
 **Required:** `name`, `pem` (PEM certificate string).
 
-Source: `zpa_cloud_browser_isolation_certificate.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_cloud_browser_isolation_certificate.md`.
 
 ---
 
@@ -681,7 +679,7 @@ The top-level CBI profile that combines a banner, certificates, regions, and sec
 - `security_controls.flattened_pdf` must be `false` when `upload_download = "all"`.
 - `security_controls.upload_download` must be `"none"` or `"upstream"` when `flattened_pdf = true`.
 
-Source: `zpa_cloud_browser_isolation_external_profile.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_cloud_browser_isolation_external_profile.md`.
 
 ---
 
@@ -709,7 +707,7 @@ Creates a user-facing portal endpoint (for PRA or clientless access).
 | `ext_label` | Label for managed-cert URL construction |
 | `microtenant_id` | — |
 
-Source: `zpa_user_portal_controller.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_user_portal_controller.md`.
 
 ---
 
@@ -721,7 +719,7 @@ Adds a bookmarked link entry visible within a user portal.
 
 **Optional:** `description`, `enabled`, `icon_text`, `link` (URL), `link_path`, `protocol` (e.g., `"https://"`), `microtenant_id`, `user_portals.id` (set of portal IDs this link appears in).
 
-Source: `zpa_user_portal_link.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_user_portal_link.md`.
 
 ---
 
@@ -733,7 +731,7 @@ Configures an Acceptable Use Policy (AUP) page displayed at portal login.
 
 **Optional:** `description`, `enabled`, `aup` (AUP text body), `email`, `phone_num`.
 
-Source: `zpa_user_portal_aup.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_user_portal_aup.md`.
 
 ---
 
@@ -749,7 +747,7 @@ Top-level container for a set of related tags.
 
 **Optional:** `description`, `enabled`, `microtenant_id`.
 
-Source: `zpa_tag_namespace.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_tag_namespace.md`.
 
 ---
 
@@ -763,7 +761,7 @@ Defines a key within a namespace, along with its allowed values.
 
 **Import:** Composite format `<namespace_id>/<tag_key_id>` or `<namespace_id>/<tag_key_name>`.
 
-Source: `zpa_tag_key.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_tag_key.md`.
 
 ---
 
@@ -775,7 +773,7 @@ Groups a set of tag values for use in policy conditions.
 
 **Optional:** `description`, `tags` (set of tag value IDs from `zpa_tag_key.tag_values[*].id`), `microtenant_id`.
 
-Source: `zpa_tag_group.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_tag_group.md`.
 
 ---
 
@@ -789,7 +787,7 @@ Provisions an emergency (break-glass) access user.
 
 **Gotcha:** No import support.
 
-Source: `zpa_emergency_access_user.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_emergency_access_user.md`.
 
 ---
 
@@ -801,7 +799,7 @@ Groups Private Service Edge nodes deployed in a private (on-premises) cloud cont
 
 **Optional:** `city_country`, `country_code`, `description`, `enabled`, `is_public`, `latitude`, `longitude`, `location`, `override_version_profile`, `microtenant_id`, `site_id`, `upgrade_day`, `upgrade_time_in_secs`, `version_profile_id`.
 
-Source: `zpa_private_cloud_group.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_private_cloud_group.md`.
 
 ---
 
@@ -813,7 +811,7 @@ Defines Cloud-to-Cloud IP range objects used in forwarding and network policy.
 
 **Optional:** `description`, `enabled`, `ip_range_begin`, `ip_range_end` (use either begin/end pair or `subnet_cidr`), `subnet_cidr`, `location`, `location_hint`, `sccm_flag`, `country_code`, `latitude_in_db`, `longitude_in_db`.
 
-Source: `zpa_c2c_ip_ranges.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_c2c_ip_ranges.md`.
 
 ---
 
@@ -823,7 +821,7 @@ Stores ZIA API credentials in the ZPA tenant so that ZPA can perform file-inspec
 
 **Required:** `zia_username`, `zia_password` (sensitive), `zia_cloud_service_api_key` (sensitive), `zia_sandbox_api_token` (sensitive), `zia_cloud_domain`.
 
-Source: `zpa_zia_cloud_config.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_zia_cloud_config.md`.
 
 ---
 
@@ -913,9 +911,9 @@ Standard access control rule (allow/deny/require approval).
 | `app_connector_groups` | Block; optional connector pinning |
 | `app_server_groups` | Block; optional server group pinning |
 
-The six variant doc files (`zpa_policy_access_rule_posture_profile.md`, `_risk_factor.md`, `_saml.md`, `_scim_attribute.md`, `_scim_group.md`, `_trusted_networks.md`) are usage examples showing different `object_type` configurations in conditions — not distinct resources.
+The six variant doc files (`zpa_policy_access_rule_posture_profile.md`, `vendor/terraform-provider-zpa/docs/resources/_risk_factor.md`, `vendor/terraform-provider-zpa/docs/resources/_saml.md`, `vendor/terraform-provider-zpa/docs/resources/_scim_attribute.md`, `vendor/terraform-provider-zpa/docs/resources/_scim_group.md`, `vendor/terraform-provider-zpa/docs/resources/_trusted_networks.md`) are usage examples showing different `object_type` configurations in conditions — not distinct resources.
 
-Source: `zpa_policy_access_rule.md`, `zpa_policy_access_rule_v2.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_v2.md`.
 
 ---
 
@@ -931,7 +929,7 @@ Sets re-authentication timeouts.
 | `reauth_timeout` | Integer seconds | Human-readable string (`"10 Days"`, `"1 Hours"`, `"Never"`) |
 | `reauth_idle_timeout` | Integer seconds | Human-readable string |
 
-Source: `zpa_policy_timeout_rule.md`, `zpa_policy_timeout_rule_v2.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_policy_timeout_rule.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_timeout_rule_v2.md`.
 
 ---
 
@@ -943,7 +941,7 @@ Controls traffic forwarding to ZPA vs. bypass.
 
 **`action` values:** `BYPASS`, `INTERCEPT`, `INTERCEPT_ACCESSIBLE`.
 
-Source: `zpa_policy_forwarding_rule.md`, `zpa_policy_forwarding_rule_v2.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_policy_forwarding_rule.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_forwarding_rule_v2.md`.
 
 ---
 
@@ -957,7 +955,7 @@ Routes matching traffic through AppProtection.
 
 **Required when `action = INSPECT`:** `zpn_inspection_profile_id`.
 
-Source: `zpa_policy_inspection_rule.md`, `zpa_policy_inspection_rule_v2.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_policy_inspection_rule.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_inspection_rule_v2.md`.
 
 ---
 
@@ -973,7 +971,7 @@ Routes matching sessions through Cloud Browser Isolation.
 
 **v2 additions:** Supports `CHROME_ENTERPRISE` and `CHROME_POSTURE_PROFILE` object types.
 
-Source: `zpa_policy_isolation_rule.md`, `zpa_policy_isolation_rule_v2.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_policy_isolation_rule.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_isolation_rule_v2.md`.
 
 ---
 
@@ -991,7 +989,7 @@ Controls which PRA capabilities are available in a session.
 
 **Conditions limited to:** `APP`, `APP_GROUP`, `SAML`, `SCIM`, `SCIM_GROUP`.
 
-Source: `zpa_policy_capabilities_rule.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_policy_capabilities_rule.md`.
 
 ---
 
@@ -1005,7 +1003,7 @@ Injects PRA credentials into sessions matching the rule.
 
 **Conditions:** First `conditions` block must use `object_type = CONSOLE` with the relevant PRA console IDs. Additional blocks can use `SAML`, `SCIM`, or `SCIM_GROUP`.
 
-Source: `zpa_policy_credential_rule.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_policy_credential_rule.md`.
 
 ---
 
@@ -1019,7 +1017,7 @@ Configures monitoring behaviour for browser-access sessions.
 
 **Supported `object_type` additions:** `USER_PORTAL`, `CLIENT_TYPE` (in addition to standard `APP`, `APP_GROUP`).
 
-Source: `zpa_policy_browser_protection_rule.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_policy_browser_protection_rule.md`.
 
 ---
 
@@ -1035,7 +1033,7 @@ Controls capabilities within the user portal itself (approval workflows, file ac
 
 **Supported `object_type` values:** `PRIVILEGE_PORTAL`, `COUNTRY_CODE`, `SAML`, `SCIM`, `SCIM_GROUP`.
 
-Source: `zpa_policy_portal_access_rule.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_policy_portal_access_rule.md`.
 
 ---
 
@@ -1051,7 +1049,7 @@ Redirects matching sessions to specific Service Edge groups.
 
 **Conditions limited to:** `CLIENT_TYPE`, `COUNTRY_CODE`.
 
-Source: `zpa_policy_redirection_rule.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_policy_redirection_rule.md`.
 
 ---
 
@@ -1065,7 +1063,7 @@ Manages the order of rules within a policy set. Replaces deprecated `rule_order`
 
 **Gotcha:** For `ACCESS_POLICY`, Deception rules must be assigned lower (earlier) order numbers than standard access rules.
 
-Source: `zpa_policy_access_rule_reorder.md`
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_reorder.md`.
 
 ---
 
@@ -1129,16 +1127,20 @@ Most read-only data sources accept `name` or `id` and export the full resource s
 
 ## Open questions register
 
-1. **Resolved 2026-04-26.** `zia_cloud_domain` valid values confirmed from provider source. Source: `vendor/terraform-provider-zpa/zpa/resource_zpa_cloud_config.go` (lines 34–44). `validation.StringInSlice` enforces: `zscaler`, `zscloud`, `zscalerone`, `zscalertwo`, `zscalerthree`, `zscalerbeta`, `zscalergov`, `zscalerten`, `zspreview`. The provider's `StateFunc` automatically appends `.net` to the stored value (e.g., `zscloud` → `zscloud.net`) but the raw input should not include the `.net` suffix.
+Source: `vendor/terraform-provider-zpa/zpa/resource_zpa_cloud_config.go`; `vendor/terraform-provider-zpa/docs/resources/zpa_app_connector_group.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_private_cloud_group.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_redirection_rule.md`.
+
+Resolved items below cite the specific provider files used for verification inline.
+
+1. **Resolved 2026-04-26.** `zia_cloud_domain` valid values confirmed from provider source. `validation.StringInSlice` enforces: `zscaler`, `zscloud`, `zscalerone`, `zscalertwo`, `zscalerthree`, `zscalerbeta`, `zscalergov`, `zscalerten`, `zspreview`. The provider's `StateFunc` automatically appends `.net` to the stored value (e.g., `zscloud` → `zscloud.net`) but the raw input should not include the `.net` suffix.
 
 2. **LSS `source_log_type` canonical list** — The mapping between internal API names and alias-doc filenames is confirmed from the provider docs reviewed in earlier sweep. For runtime verification, use the `zpa_lss_config_log_type_formats` data source.
 
-3. **Resolved 2026-04-26.** `app_connector_group` OAuth2 enrollment fields confirmed. Source: `vendor/terraform-provider-zpa/docs/resources/zpa_app_connector_group.md` (lines 141–142). Two fields: `enrollment_cert_id` (String) — ID of the enrollment certificate, use `zpa_enrollment_cert` data source with name `"Connector"`; `user_codes` (Set of String) — codes displayed on App Connector VMs during OAuth2 enrollment flow. Both must be set together to trigger the OAuth2 user code verification API.
+3. **Resolved 2026-04-26.** `app_connector_group` OAuth2 enrollment fields confirmed. Two fields: `enrollment_cert_id` (String) — ID of the enrollment certificate, use `zpa_enrollment_cert` data source with name `"Connector"`; `user_codes` (Set of String) — codes displayed on App Connector VMs during OAuth2 enrollment flow. Both must be set together to trigger the OAuth2 user code verification API.
 
-4. **Resolved 2026-04-26.** Policy rule v1 deprecation timeline: `rule_order` attribute is deprecated as of the provider docs reviewed (replaced by `zpa_policy_access_rule_reorder`). The v1 resource (`zpa_policy_access_rule`) itself has no removal schedule stated in the docs. Source: `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule.md` line 17 and 127. The `policy_set_id` attribute was made optional in v3.2.0 per line 121. No EOL date for v1 resource confirmed.
+4. **Resolved 2026-04-26.** Policy rule v1 deprecation timeline: `rule_order` attribute is deprecated as of the provider docs reviewed (replaced by `zpa_policy_access_rule_reorder`). The v1 resource (`zpa_policy_access_rule`) itself has no removal schedule stated in the docs. The `policy_set_id` attribute was made optional in v3.2.0. No EOL date for v1 resource confirmed.
 
-5. **Resolved 2026-04-26.** `zpa_private_cloud_group` uses `site_id` (String) to link a private cloud group to a Site Controller site. Source: `vendor/terraform-provider-zpa/docs/resources/zpa_private_cloud_group.md` line 56. The official documentation page is https://help.zscaler.com/zpa/about-private-cloud-controller-groups. The distinction from `zpa_app_connector_group`: private cloud groups are for ZPA Private Cloud (on-premises ZPA deployments using Private Cloud Controllers), while app connector groups are for standard cloud-hosted ZPA. The `site_id` references the Private Cloud Controller's site identifier.
+5. **Resolved 2026-04-26.** `zpa_private_cloud_group` uses `site_id` (String) to link a private cloud group to a Site Controller site. The distinction from `zpa_app_connector_group`: private cloud groups are for ZPA Private Cloud (on-premises ZPA deployments using Private Cloud Controllers), while app connector groups are for standard cloud-hosted ZPA. The `site_id` references the Private Cloud Controller's site identifier.
 
 6. **Tag group membership in policy** — Tags and tag groups are Early Access. Whether `zpa_tag_group` IDs can currently be referenced in policy rule conditions as an `object_type` is not confirmed from available sources. Remains unresolved.
 
-7. **Resolved 2026-04-26.** `zpa_policy_redirection_rule` CLIENT_TYPE values confirmed. Source: `vendor/terraform-provider-zpa/docs/resources/zpa_policy_redirection_rule.md`. Valid `CLIENT_TYPE` values: `zpn_client_type_machine_tunnel`, `zpn_client_type_edge_connector`, `zpn_client_type_zapp`, `zpn_client_type_zapp_partner`, `zpn_client_type_branch_connector`. These are the values to use in the `values` list under a condition with `object_type = "CLIENT_TYPE"`.
+7. **Resolved 2026-04-26.** `zpa_policy_redirection_rule` CLIENT_TYPE values confirmed. Valid `CLIENT_TYPE` values: `zpn_client_type_machine_tunnel`, `zpn_client_type_edge_connector`, `zpn_client_type_zapp`, `zpn_client_type_zapp_partner`, `zpn_client_type_branch_connector`. These are the values to use in the `values` list under a condition with `object_type = "CLIENT_TYPE"`.

@@ -5,11 +5,19 @@ title: "Risk360 reference hub"
 content-type: reference
 last-verified: "2026-04-24"
 confidence: high
-sources: []
+source-tier: doc
+sources:
+  - "vendor/zscaler-help/what-risk360.md"
+  - "vendor/zscaler-help/risk360-about-dashboard.md"
+  - "vendor/zscaler-help/risk360-about-factors.md"
+  - "vendor/zscaler-help/risk360-monte-carlo.md"
+  - "vendor/zscaler-help/risk360-product-marketing.md"
 author-status: reviewed
 ---
 
 # Risk360 reference hub
+
+Source: `vendor/zscaler-help/what-risk360.md`; `vendor/zscaler-help/risk360-about-dashboard.md`; `vendor/zscaler-help/risk360-about-factors.md`; `vendor/zscaler-help/risk360-monte-carlo.md`; `vendor/zscaler-help/risk360-product-marketing.md`.
 
 Entry point for **Zscaler Risk360** questions — Zscaler's cyber risk quantification framework that ingests Zscaler telemetry plus external sources to produce financial-loss risk estimates and a unified risk dashboard.
 
@@ -17,11 +25,15 @@ Risk360 is **executive-facing first**, operator-second. CISOs, board members, au
 
 ## Topics
 
+Source: `vendor/zscaler-help/what-risk360.md`; `vendor/zscaler-help/risk360-about-dashboard.md`; `vendor/zscaler-help/risk360-about-factors.md`; `vendor/zscaler-help/risk360-monte-carlo.md`; `vendor/zscaler-help/risk360-product-marketing.md`.
+
 | Topic | File | Status |
 |---|---|---|
 | Architecture, data sources, Monte Carlo math, dashboard surfaces, licensing, frameworks | [`./overview.md`](./overview.md) | draft |
 
 ## Why Risk360 matters in the suite
+
+Source: `vendor/zscaler-help/what-risk360.md`; `vendor/zscaler-help/risk360-about-dashboard.md`; `vendor/zscaler-help/risk360-about-factors.md`; `vendor/zscaler-help/risk360-monte-carlo.md`; `vendor/zscaler-help/risk360-product-marketing.md`.
 
 Risk360 is the **only** Zscaler product that:
 
@@ -35,12 +47,16 @@ Other Zscaler products are operational; Risk360 is **strategic / governance-tier
 
 ## When to start here vs elsewhere
 
+Source: `vendor/zscaler-help/what-risk360.md`; `vendor/zscaler-help/risk360-about-dashboard.md`; `vendor/zscaler-help/risk360-product-marketing.md`.
+
 - **Start here** for "what is Risk360?", "how does Zscaler quantify cyber risk in dollars?", "how does Risk360 integrate with our SEC compliance reporting?", "what's the Monte Carlo simulation about?"
 - **Start in [`../zia/`](../zia/) or [`../zpa/`](../zpa/)** for the underlying telemetry sources Risk360 ingests.
 - **Start in [`../shared/admin-rbac.md`](../shared/admin-rbac.md)** for Risk360's distinct RBAC surface.
 - **Start in [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)** for "is Risk360 in scope?" — coverage tier check.
 
 ## Coverage gaps (deferred)
+
+Source: `vendor/zscaler-help/what-risk360.md`; `vendor/zscaler-help/risk360-about-factors.md`; `vendor/zscaler-help/risk360-product-marketing.md`.
 
 - Detailed factor catalog (115+ factors not enumerated in skill — would require capturing the full Factors page with paginated content)
 - Per-factor weighting math (Zscaler doesn't disclose internal weights publicly)

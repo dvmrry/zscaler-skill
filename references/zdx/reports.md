@@ -36,6 +36,8 @@ This file:
 
 ## Subsystem map
 
+Source: `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_health_metrics.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_events.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_apps.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_web_probes.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_cloudpath_probes.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/users/users.go`; `vendor/zscaler-sdk-python/zscaler/zdx/apps.py`; `vendor/zscaler-sdk-python/zscaler/zdx/devices.py`; `vendor/zscaler-sdk-python/zscaler/zdx/users.py`.
+
 | Subsystem | Go path | Python class | Full documentation |
 |-----------|---------|--------------|-------------------|
 | applications | `reports/applications/` | `AppsAPI` | [`./applications.md`](./applications.md) |
@@ -117,6 +119,8 @@ Python `UsersAPI` exposes only `list_users()` and `get_user()`. (`vendor/zscaler
 
 ## New endpoints not covered in other refs
 
+Source: `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_quality_metrics.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_top_process.go`; `vendor/zscaler-sdk-python/zscaler/zdx/devices.py`.
+
 ### Call quality metrics (Microsoft Teams / Zoom)
 
 Per-device, per-app call quality drilldown. Used for video conferencing applications (Microsoft Teams via Microsoft Graph API integration, Zoom).
@@ -179,6 +183,8 @@ For the deeptrace lifecycle (when traceIDs are created and become available), se
 
 ## What the reports service does NOT expose
 
+Source: `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_health_metrics.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_events.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_apps.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_top_process.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/users/users.go`; `vendor/zscaler-sdk-python/zscaler/zdx/apps.py`; `vendor/zscaler-sdk-python/zscaler/zdx/devices.py`; `vendor/zscaler-sdk-python/zscaler/zdx/users.py`.
+
 The `reports/` umbrella has no:
 
 - **Top-N queries** — no "top apps by poor score," "top users by device count," or equivalent ranked lists.
@@ -188,6 +194,8 @@ The `reports/` umbrella has no:
 - **Write operations** — the entire `reports/` service is read-only. Application creation, probe configuration, and user management are performed via the ZDX Admin Portal.
 
 ## Python SDK coverage map
+
+Source: `vendor/zscaler-sdk-python/zscaler/zdx/apps.py`; `vendor/zscaler-sdk-python/zscaler/zdx/devices.py`; `vendor/zscaler-sdk-python/zscaler/zdx/users.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go`.
 
 | Go subsystem | Python class | Notable methods | Citation |
 |--------------|--------------|-----------------|----------|
@@ -199,6 +207,8 @@ The `reports/` umbrella has no:
 
 ## Edge cases and SDK behavior notes
 
+Source: `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_web_probes.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/geo_locations.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/users/users.go`; `vendor/zscaler-sdk-python/zscaler/zdx/devices.py`.
+
 **Metric dual-unmarshalling fallback**: `GetAppScores()`, `GetAppMetrics()`, and `GetWebProbes()` in Go attempt to unmarshal the response as `[]common.Metric` first; if that fails, they retry as a single `common.Metric` and wrap it in a slice. This handles an API inconsistency where some endpoint responses return a single object instead of an array. (`application_score_metrics.go:18-35`, `device_web_probes.go:36-53`)
 
 **No auto-pagination**: Cursor pagination uses `next_offset` token. Neither Go nor Python SDK manages multi-page traversal automatically — callers must loop until `next_offset` is null. (`devices.go:79-91`, `users.go:56-68`)
@@ -208,6 +218,8 @@ The `reports/` umbrella has no:
 **Device detail depth**: Go `GetAllDevices()` returns `DeviceDetail` with nested `Hardware`, `Network`, and `Software` fields in the list response. (`devices.go:15-21`, `79-91`). Python `list_devices()` returns minimal fields; full hardware/network/software detail requires a separate `get_device(device_id)` call.
 
 ## Gaps — what isn't there
+
+Source: `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_top_process.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/users/users.go`; `vendor/zscaler-sdk-python/zscaler/zdx/apps.py`; `vendor/zscaler-sdk-python/zscaler/zdx/devices.py`; `vendor/zscaler-sdk-python/zscaler/zdx/users.py`.
 
 1. **No per-user operational metrics**: User inventory (devices, geolocations, ZS locations) is available. Per-user score trends, per-user app metrics, and per-user device metrics are not exposed.
 2. **No aggregation endpoints**: No rollups, summaries, or ranked queries of any kind.

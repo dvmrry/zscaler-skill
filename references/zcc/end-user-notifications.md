@@ -35,7 +35,9 @@ Native OS notifications (toasts on Windows, alerts in macOS Notification Center,
 - Service Disaster Recovery mode detected
 - App update available
 
-ZCC-emitted notifications are configured under **Administration > Client Connector Notifications > End User Notifications** in the ZCC Portal. [Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`]
+Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`.
+
+ZCC-emitted notifications are configured under **Administration > Client Connector Notifications > End User Notifications** in the ZCC Portal.
 
 ### 1.2 In-app messages
 
@@ -47,15 +49,21 @@ HTML pages served by a ZIA Public Service Edge when a URL filtering or Cloud App
 
 For ZIA block page configuration and how URL filtering rules trigger them, see [`../zia/url-filtering.md`](../zia/url-filtering.md).
 
+Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`; `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md`.
+
 ---
 
 ## 2. What admins can configure
 
-Configuration lives at **Administration > Client Connector Notifications** in the ZCC Portal. Two tabs exist: **End User Notifications** and **Acceptable Use Policy (AUP) Settings**. A third path — **Notification Templates** — replaces the End User Notifications tab when templates are in use; when templates are active, the standard tab does not appear. [Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`]
+Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`.
+
+Configuration lives at **Administration > Client Connector Notifications** in the ZCC Portal. Two tabs exist: **End User Notifications** and **Acceptable Use Policy (AUP) Settings**. A third path — **Notification Templates** — replaces the End User Notifications tab when templates are in use; when templates are active, the standard tab does not appear.
 
 ### 2.1 End User Notifications tab
 
-The following toggles are available [Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`]:
+Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`.
+
+The following toggles are available:
 
 | Setting | Description | User-overridable |
 |---|---|---|
@@ -68,7 +76,9 @@ The following toggles are available [Source: `vendor/zscaler-help/configuring-en
 
 ### 2.2 Zscaler Notification Framework (Windows and macOS only)
 
-Requires ZCC 4.2 or later on both Windows and macOS. [Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`]
+Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`.
+
+Requires ZCC 4.2 or later on both Windows and macOS.
 
 | Setting | Description |
 |---|---|
@@ -78,7 +88,9 @@ Requires ZCC 4.2 or later on both Windows and macOS. [Source: `vendor/zscaler-he
 
 ### 2.3 Acceptable Use Policy (AUP) Settings tab
 
-AUP is a full-screen in-app overlay that ZCC displays before allowing users to connect. It is not a web page block; it is rendered by ZCC itself. [Source: `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md`]
+Source: `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md`.
+
+AUP is a full-screen in-app overlay that ZCC displays before allowing users to connect. It is not a web page block; it is rendered by ZCC itself.
 
 | Setting | Options |
 |---|---|
@@ -92,11 +104,15 @@ Configuring branding (logo, corporate colors) within the AUP message body is pos
 
 When notification templates are enabled, this tab replaces the End User Notifications tab. Templates allow per-notification-type customization of text beyond the global toggles. The help portal references a separate article ("Configuring Notification Templates for Zscaler Client Connector") that was not captured in available vendor sources. Details on template fields and branding options are not confirmed from reviewed sources; see [Deferred — ZCC end-user notifications](#deferred-items).
 
+Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`.
+
 ---
 
 ## 3. Notification triggers
 
-The following events surface ZCC-emitted notifications when the corresponding toggle is enabled. [Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`; `references/zcc/forwarding-profile.md`]
+Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`.
+
+The following events surface ZCC-emitted notifications when the corresponding toggle is enabled. For captive-portal forwarding behavior, see [`./forwarding-profile.md`](./forwarding-profile.md).
 
 | Event | Notification type | Persistent (with framework) |
 |---|---|---|
@@ -123,7 +139,9 @@ Notes on specific triggers:
 
 ## 4. Per-platform support matrix
 
-The notification subsystem behaviors differ across platforms. [Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`; `references/zcc/install-parameters.md`]
+Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`.
+
+The notification subsystem behaviors differ across platforms. For install-parameter context, see [`./install-parameters.md`](./install-parameters.md).
 
 | Feature | Windows | macOS | Linux | iOS | Android | ChromeOS |
 |---|---|---|---|---|---|---|
@@ -139,7 +157,7 @@ The notification subsystem behaviors differ across platforms. [Source: `vendor/z
 Notes:
 
 - **Linux.** Linux is listed in the Web Policy per-platform sub-policies but the vendor notification doc does not address Linux for any of the notification framework features. Treat Linux as unsupported for ZCC-emitted OS toasts until confirmed.
-- **iOS.** The install parameter `disableCaptivePortalNotification` (bool, default `0`) suppresses captive portal detection notifications at the MDM-config layer. Source: [`./install-parameters.md § UI / user access`](./install-parameters.md).
+- **iOS.** The install parameter `disableCaptivePortalNotification` (bool, default `0`) suppresses captive portal detection notifications at the MDM-config layer. See [`./install-parameters.md § UI / user access`](./install-parameters.md).
 - **Android.** Notification delivery depends on Android OS version and whether the user has granted the ZCC app notification permission (Android 13+). MDM-deployed ZCC may have permissions auto-granted via managed configuration.
 - **ChromeOS.** ChromeOS is listed in the Android/ChromeOS install parameter doc but the notification behavior is not separately described in the reviewed vendor notification doc.
 - **Windows Toast.** On Windows 10/11, ZCC notifications appear in the Action Center if the user has not dismissed them. The Custom Timer setting (5–60 seconds) controls how long the toast banner is visible before collapsing to the Action Center.
@@ -149,6 +167,8 @@ Notes:
 
 ## 5. Configuration via App Profiles
 
+Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`.
+
 The End User Notifications settings described in Section 2 are global to the ZCC tenant (not per-App-Profile) when configured under **Administration > Client Connector Notifications**. However, some notification-adjacent behaviors are per-App-Profile:
 
 - **Captive portal grace period.** The duration during which ZCC disables web security after detecting a captive portal is now configured per App Profile on newer tenants, not globally via the FailOpenPolicy object. See [`./forwarding-profile.md § Fail-open policy`](./forwarding-profile.md) and [`./web-policy.md`](./web-policy.md).
@@ -156,15 +176,17 @@ The End User Notifications settings described in Section 2 are global to the ZCC
 - **Platform sub-policies.** `windowsPolicy`, `macPolicy`, `linuxPolicy`, `iosPolicy`, `androidPolicy` sub-objects on the Web Policy (App Profile) include per-platform controls that can affect ZCC UI behavior (e.g., `disable_password`, `logout_password`), but do not include direct notification content fields. See [`./web-policy.md § Per-platform sub-policies`](./web-policy.md).
 - **Notification Templates.** When notification templates are in use, they are configured at the ZCC Portal level (Administration > Client Connector Notifications > Notification Templates tab), not per-App-Profile. Whether templates can be scoped per App Profile is not confirmed from reviewed sources; see Deferred.
 
-The ZCC SDK does not expose notification configuration as a discrete service. The `web_policy` service (`/zcc/papi/public/v1/web/policy`) manages App Profile data but does not include notification toggle fields in the Python or Go SDK models reviewed. Notification settings appear to be configured exclusively through the ZCC Portal admin UI. [Source: `references/zcc/sdk.md`]
+The ZCC SDK does not expose notification configuration as a discrete service. The `web_policy` service (`/zcc/papi/public/v1/web/policy`) manages App Profile data but does not include notification toggle fields in the Python or Go SDK models reviewed. Notification settings appear to be configured exclusively through the ZCC Portal admin UI. See [`./sdk.md`](./sdk.md) for the SDK surface.
 
 ---
 
 ## 6. Localization
 
+Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`; `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md`.
+
 The Zscaler Notification Framework supports English by default. Multi-language notification content through the Notification Templates system is referenced in related-article links in the vendor notification doc but was not captured in available sources. Specific details — supported languages, fallback behavior, per-locale template definition — are not confirmed from reviewed sources. See Deferred.
 
-For the AUP message, the content is free-form HTML. Admins who need multi-language AUP text must embed all language variants in the HTML content field manually; there is no built-in language selector for AUP. [Source: `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md`]
+For the AUP message, the content is free-form HTML. Admins who need multi-language AUP text must embed all language variants in the HTML content field manually; there is no built-in language selector for AUP.
 
 ---
 
@@ -174,10 +196,12 @@ Admins may want a silent client — for kiosk deployments, server-side VDI sessi
 
 **How to silence:**
 
-- Set **Enable Notifications by Default** to off in the End User Notifications tab. Users enrolled after this change will not receive notifications by default. [Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`]
+Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`.
+
+- Set **Enable Notifications by Default** to off in the End User Notifications tab. Users enrolled after this change will not receive notifications by default.
 - Disable each category toggle (App Updates, Service Status, ZIA Notifications, ZPA Reauthentication) individually.
-- On iOS: set the `disableCaptivePortalNotification` managed-config key to `1` to suppress captive portal notifications at enrollment time. [Source: `references/zcc/install-parameters.md`]
-- On Windows VDI: set the `VDI` / `vdi` install parameter to `1`. ZCC adjusts behavior for virtual desktop scenarios. [Source: `references/zcc/install-parameters.md`]
+- On iOS: set the `disableCaptivePortalNotification` managed-config key to `1` to suppress captive portal notifications at enrollment time. See [`./install-parameters.md`](./install-parameters.md).
+- On Windows VDI: set the `VDI` / `vdi` install parameter to `1`. ZCC adjusts behavior for virtual desktop scenarios. See [`./install-parameters.md`](./install-parameters.md).
 
 **Risks of disabling:**
 
@@ -192,10 +216,12 @@ Silent-client configurations should document which notification categories are d
 
 ## 8. Logging
 
+Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`; `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md`.
+
 ZCC notification events are not represented as distinct entries in the ZIA admin audit log or the ZPA audit log, based on reviewed sources. The following logging surfaces apply:
 
-- **ZCC diagnostic logs.** The ZCC client writes local diagnostic logs that include notification delivery events. Log verbosity and rotation are controlled by `log_level`, `log_mode`, and `log_file_size` fields on the Web Policy object. [Source: `references/zcc/web-policy.md § Top-level ZCC behavior knobs`]
-- **Disable-reason tracking.** When a user disables ZCC, the reason can be captured via `send_disable_service_reason` on the Web Policy, and aggregated via the `/downloadDisableReasons` API endpoint. [Source: `references/zcc/web-policy.md`; `references/zcc/sdk.md § devices`]
+- **ZCC diagnostic logs.** The ZCC client writes local diagnostic logs that include notification delivery events. Log verbosity and rotation are controlled by `log_level`, `log_mode`, and `log_file_size` fields on the Web Policy object. See [`./web-policy.md`](./web-policy.md).
+- **Disable-reason tracking.** When a user disables ZCC, the reason can be captured via `send_disable_service_reason` on the Web Policy, and aggregated via the `/downloadDisableReasons` API endpoint. See [`./web-policy.md`](./web-policy.md) and [`./sdk.md`](./sdk.md).
 - **ZIA admin audit log.** Configuration changes to notification settings (e.g., toggling "Enable Notifications by Default") generate entries in the ZIA/ZCC Portal admin audit log. User-facing notification delivery itself is not represented in the audit log.
 - **ZPA reauthentication events.** ZPA session expiry and reauth events are logged in ZPA analytics (accessible from the ZPA Admin Portal), not in the ZCC notification log. Cross-reference ZPA session logs if investigating why a user received or did not receive a ZPA reauth prompt.
 
@@ -204,6 +230,8 @@ Whether ZCC notification delivery events (specifically: "notification shown", "u
 ---
 
 ## 9. Common operator confusions
+
+Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`.
 
 ### Block-page text in ZIA is not notification text in ZCC
 
@@ -221,11 +249,13 @@ When "Enable ZIA Notifications" is on and ZIA DLP policy triggers, ZCC can surfa
 
 ### The Zscaler Notification Framework is Windows/macOS only at v4.2+
 
-Operators who enable Persistent Notifications and Custom Timer settings expecting them to apply to iOS or Android endpoints will not see results on those platforms. The framework is Windows and macOS only as of ZCC 4.2. [Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`]
+Operators who enable Persistent Notifications and Custom Timer settings expecting them to apply to iOS or Android endpoints will not see results on those platforms. The framework is Windows and macOS only as of ZCC 4.2.
 
 ---
 
 ## 10. Operational gotchas
+
+Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`.
 
 ### OS notification permission denials
 
@@ -239,9 +269,9 @@ On iOS, ZCC is delivered and configured via MDM managed-app-config. The `disable
 
 ### Version skew with older clients ignoring new notification types
 
-The Zscaler Notification Framework fields (Custom Timer, Persistent Notifications, ZIA Notification Persistent) require ZCC 4.2 or later on Windows and macOS. [Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`] Devices running older clients will not honor these settings. In a mixed-version fleet, the admin console settings apply only to clients that support the framework; older clients exhibit pre-4.2 default notification behavior. Fleet version reporting via `/downloadServiceStatus` (ZCC SDK `devices.download_service_status`) can identify out-of-date clients.
+The Zscaler Notification Framework fields (Custom Timer, Persistent Notifications, ZIA Notification Persistent) require ZCC 4.2 or later on Windows and macOS. Devices running older clients will not honor these settings. In a mixed-version fleet, the admin console settings apply only to clients that support the framework; older clients exhibit pre-4.2 default notification behavior. Fleet version reporting via `/downloadServiceStatus` (ZCC SDK `devices.download_service_status`) can identify out-of-date clients.
 
-App profile updates — including notification settings — propagate to endpoints only on ZCC restart or user logout and re-login, not continuously. [Source: `references/zcc/forwarding-profile.md § Edge cases`] A setting change pushed in the admin console does not reach currently-connected devices until their next ZCC restart event.
+App profile updates — including notification settings — propagate to endpoints only on ZCC restart or user logout and re-login, not continuously. See [`./forwarding-profile.md`](./forwarding-profile.md). A setting change pushed in the admin console does not reach currently-connected devices until their next ZCC restart event.
 
 ### Captive portal notification and the grace period timer
 

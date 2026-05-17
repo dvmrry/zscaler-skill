@@ -13,15 +13,21 @@ author-status: draft
 
 # ZIA DNS Control policy
 
+Source: `vendor/zscaler-help/about-dns-control.md`.
+
 DNS Control is a **separate policy module** inside ZIA's Firewall Control umbrella, distinct from URL Filtering, Cloud App Control, and Firewall Filtering. It evaluates **DNS queries and responses** — not HTTP(S) flows. A URL Filtering block for `badsite.com` does nothing to the DNS lookup itself; a DNS Control block prevents resolution from completing at all.
 
 Navigation path: `Policies > Access Control > Firewall > DNS Control`.
 
 ## What DNS Control is not
 
+Source: `vendor/zscaler-help/about-dns-control.md`.
+
 **Cloud Connector DNS Gateways** (CBC product, `Administration > Gateways`) are a different thing entirely — they redirect DNS requests received by a Cloud or Branch Connector to operator-specified DNS servers. They live in a separate product (Cloud & Branch Connector), have no rule engine, and carry no ZIA policy context. Don't conflate the two when an operator describes "DNS gateway."
 
 ## When DNS Control fires
+
+Source: `vendor/zscaler-help/about-dns-control.md`.
 
 ```
 DNS query arrives at ZIA Public Service Edge
@@ -37,6 +43,8 @@ DNS Control applies to **recursive and iterative** DNS requests and covers UDP, 
 
 ## Prerequisite — firewall-configured locations
 
+Source: `vendor/zscaler-help/about-dns-control.md`.
+
 DNS Control requires **firewall to be configured for the location**. From the source doc:
 
 > To enable DNS Control, you need to configure the firewall for locations. In addition, ensure a Firewall Filtering rule is configured to allow DNS traffic (Network Services condition matches DNS), per the Recommended Firewall Control policy.
@@ -44,6 +52,8 @@ DNS Control requires **firewall to be configured for the location**. From the so
 The reason is architectural: DNS Control sits inside the Firewall Control pipeline. Traffic from locations that haven't been onboarded to firewall forwarding never reaches the DNS Control engine. A tenant reporting "DNS Control rules aren't firing" for users at a specific site should check location configuration before chasing rule logic. See [`./firewall.md`](./firewall.md) for the firewall pipeline and [`./locations.md`](./locations.md) for location setup.
 
 ## The three predefined rules
+
+Source: `vendor/zscaler-help/about-dns-control.md`; `vendor/zscaler-help/understanding-source-ip-anchoring.md`; `vendor/zscaler-help/configuring-forwarding-policies-source-ip-anchoring-using-zpa.md`.
 
 Zscaler ships three predefined DNS Control rules that are present in every tenant. They can be disabled or modified, but Zscaler recommends keeping them **at high rule order (Rule 1 and Rule 2)**.
 
@@ -71,9 +81,13 @@ Zscaler explicitly warns against disabling the Road Warrior rule. If disabled, r
 
 ## Default rules
 
+Source: `vendor/zscaler-help/about-dns-control.md`.
+
 Below all custom and predefined rules sit **default rules that allow all DNS traffic**. These maintain the lowest precedence, cannot be deleted, but their actions can be modified. They function as the catch-all — traffic that matches no custom rule is allowed through.
 
 ## Custom rule structure
+
+Source: `vendor/zscaler-help/about-dns-control.md`.
 
 Custom DNS Control rules support:
 
@@ -95,6 +109,8 @@ Rule evaluation is ascending rule order, first-match-wins, same model as Firewal
 
 ## DoH (DNS over HTTPS)
 
+Source: `vendor/zscaler-help/about-dns-control.md`.
+
 ZIA evaluates DoH traffic, but with a structural constraint. DoH queries are HTTP(S) requests — the DNS payload is encrypted inside HTTPS. For ZIA to inspect the DNS payload and apply DNS Control rules to it, **SSL Inspection must be enabled for the DoH provider's domain** (e.g., `cloudflare-dns.com`, `dns.google`). Without decryption, ZIA sees an HTTPS flow to a DoH endpoint; DNS Control doesn't engage on the inner DNS query.
 
 What the operator can do:
@@ -106,6 +122,8 @@ What the operator cannot do without decryption: match on the DNS query name, rec
 The source doc states DNS Control covers "UDP, TCP, and DNS over HTTPS (DoH) — irrespective of the protocol and the encryption used" — this is the product capability statement, contingent on having SSL Inspection covering the DoH transport. It is not saying DoH queries are inspected without decryption.
 
 ## DNS tunnel detection
+
+Source: `vendor/zscaler-help/about-dns-control.md`.
 
 DNS tunneling embeds data in DNS query names or TXT/NULL record payloads to exfiltrate data or establish covert C2 channels. DNS Control includes detection for this pattern.
 
@@ -124,6 +142,8 @@ Operators who need to allow DNS tunneling patterns for legitimate tooling (e.g.,
 
 ## NROD categorization latency
 
+Source: `vendor/zscaler-help/about-dns-control.md`.
+
 DNS Control rules can reference **Newly Registered and Observed Domains (NROD)** as a criterion. Zscaler categorizes domains newly registered within the last 30 days, newly observed for the first time, or newly revived (dormant ~10 days then reactivated) as NROD until a proper classification is available.
 
 From the source doc:
@@ -136,6 +156,8 @@ The same NROD latency applies to URL Filtering — see [`./url-filtering.md § E
 
 ## Surprises and gotchas
 
+Source: `vendor/zscaler-help/about-dns-control.md`; `vendor/zscaler-help/ranges-limitations-zia.md`; `vendor/zscaler-help/understanding-source-ip-anchoring.md`.
+
 1. **DNS Control ≠ URL Filtering.** Both feel domain-based. URL Filtering fires on the HTTP(S) request URL; DNS Control fires on the DNS query. A URL Filtering block does not prevent resolution. An operator who needs to block both resolution and access needs rules in both modules — or just a DNS Control block (which prevents access by making the domain unresolvable).
 
 2. **The firewall-location prerequisite is a silent miss.** DNS Control rules can be authored correctly and still never fire if the relevant location isn't firewall-configured. The rule list looks fine; traffic just bypasses the engine.
@@ -144,7 +166,9 @@ The same NROD latency applies to URL Filtering — see [`./url-filtering.md § E
 
 4. **DoH requires SSL Inspection to be useful.** Operators who enable DoH-blocking via DNS Control but haven't ensured SSL Inspection covers DoH endpoints get false confidence — DoH flows to uninspected providers are opaque.
 
-5. **DNS Control rule limits by tier.** Essential: 64 rules. Advanced: 1,000 rules. Source: `references/zia/firewall.md § Rule count limits`.
+Source: `vendor/zscaler-help/ranges-limitations-zia.md`.
+
+5. **DNS Control rule limits by tier.** Essential: 64 rules. Advanced: 1,000 rules.
 
 ## Cross-links
 
