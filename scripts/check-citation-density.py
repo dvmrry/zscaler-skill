@@ -51,7 +51,7 @@ BRACKET_SOURCE_RE = re.compile(r"\[Source:\s*([^\]]+)\]", re.IGNORECASE)
 INLINE_SOURCE_RE = re.compile(r"\bSource:\s*(.+)", re.IGNORECASE)
 SOURCE_PATH_RE = re.compile(r"\b(?:vendor|scripts)/[A-Za-z0-9_./&-]+")
 QUOTED_SOURCE_PATH_RE = re.compile(r"`(?:vendor|scripts)/[^`]+`")
-UNQUOTED_SOURCE_PATH_RE = re.compile(r"(?<!`)\b(?:vendor|scripts)/[A-Za-z0-9_./-]+")
+UNQUOTED_SOURCE_PATH_RE = re.compile(r"(?<!`)\b(?:vendor|scripts)/[A-Za-z0-9_./&-]+")
 SOURCE_PERIOD_INSIDE_BACKTICK_RE = re.compile(r"`(?:vendor|scripts)/[^`]+\.`")
 COMMA_SOURCE_SEPARATOR_RE = re.compile(r"`\s*,\s*`")
 BARE_MD_RE = re.compile(r"(?<![/A-Za-z0-9_.-])([A-Za-z0-9_.-]+\.md)(?![/A-Za-z0-9_.-])")
@@ -302,6 +302,7 @@ def frontmatter_source_payloads(text: str) -> list[tuple[int, str]]:
 
 
 def source_path_missing(source_path: str) -> bool:
+    source_path = source_path.rstrip(".,);:")
     candidate = REPO_ROOT / source_path
     if candidate.exists():
         return False

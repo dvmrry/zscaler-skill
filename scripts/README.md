@@ -72,9 +72,16 @@ The public snapshot layout is product-first: `_data/snapshot/zia/`,
 `ZSCALER_CLOUD`; the public script does not partition output into per-cloud
 directories.
 
-`simulate-policy.py` reads the product-first layout by default. Private
-multi-cloud overlays can pass `--cloud <name>` (or set `ZSCALER_CLOUD`) to read
-`_data/snapshot/<cloud>/zia/`, with product-first fallback for public snapshots.
+`simulate-policy.py` currently reads the product-first layout. Private
+multi-cloud overlay support is tracked separately and should not be documented
+as available until the matching CLI flags ship.
+
+When a reference doc intentionally adds, removes, or restructures visible
+`Source:` coverage, regenerate the citation inventory in the same PR:
+
+```bash
+./scripts/check-citation-density.py --write-citation-inventory references/_meta/citation-inventory.json
+```
 
 Lines prefixed `!` indicate a per-resource fetch failure; the run continues.
 Lines prefixed `-` indicate that the SDK surface for that resource was not
