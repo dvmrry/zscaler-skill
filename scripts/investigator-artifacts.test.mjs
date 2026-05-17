@@ -3,7 +3,13 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { openCase, verifyCaseFiles } from "./investigator-artifacts.mjs";
+import {
+  beginTurn,
+  completeTurn,
+  initializeTurnLedger,
+  openCase,
+  verifyCaseFiles,
+} from "./investigator-artifacts.mjs";
 
 function tempRepo() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "zscaler-skill-test-"));
@@ -31,6 +37,61 @@ function writeJson(root, name, value) {
   const target = path.join(root, name);
   fs.writeFileSync(target, `${JSON.stringify(value, null, 2)}\n`, "utf8");
   return target;
+}
+
+function writeDiscoveryJournal(journalPath) {
+  fs.writeFileSync(journalPath, `# Discovery Journal
+
+ISSUE: ZPA users cannot reach wiki.internal
+STATUS: Investigating
+
+## Framing
+
+| Field | Value |
+|---|---|
+| Symptom | ZPA users cannot reach wiki.internal |
+
+## Proposed Loads
+
+- agents/investigator/prompt.md
+- agents/investigator/harness.md
+
+## Claims
+
+| Claim | Source | Status | Next evidence needed | Timestamp | Notes |
+|---|---|---|---|---|---|
+| H1: Application segment may not include the app | references/zpa/app-segments.md | Open (uncertain) | Check application segment snapshot | 2026-05-17T00:00:00.000Z | reference-grounded |
+
+## Resolution
+
+Open.
+`, "utf8");
+}
+
+function createPassingCaseWithJournal() {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  const result = openCase({
+    root,
+    caseSlug: "2026-05-17-turn-ledger",
+    framingJson: framingPath,
+    proposedLoads: [
+      "agents/investigator/prompt.md",
+      "agents/investigator/harness.md",
+    ],
+  });
+  writeDiscoveryJournal(result.journalPath);
+  return { root, caseSlug: result.caseSlug, journalPath: result.journalPath };
+}
+
+function readJson(filePath) {
+  return JSON.parse(fs.readFileSync(filePath, "utf8"));
 }
 
 test("openCase creates passing case intake, JSON, and journal artifacts", () => {
@@ -386,5 +447,197 @@ test("verifyCaseFiles recomputes status and rejects forged passing artifacts", (
   assert.throws(
     () => verifyCaseFiles(root, "2026-05-17-forged-pass"),
     /case-intake\.json recomputes to blocked/,
+  );
+});
+
+test("initializeTurnLedger creates genesis ledger and current turn state", () => {
+  const { root, caseSlug } = createPassingCaseWithJournal();
+
+  const result = initializeTurnLedger({ root, caseSlug });
+
+  assert.equal(result.status, "pass");
+  assert.ok(fs.existsSync(result.turnLogPath));
+  assert.ok(fs.existsSync(result.turnStatePath));
+
+  const events = fs.readFileSync(result.turnLogPath, "utf8").trim().split("\n").map(JSON.parse);
+  assert.equal(events.length, 1);
+  assert.equal(events[0].sequence, 0);
+  assert.equal(events[0].type, "genesis");
+
+  const state = readJson(result.turnStatePath);
+  assert.equal(state.currentSequence, 0);
+  assert.equal(state.pendingTurn, null);
+  assert.ok(state.nextTurnToken);
+  assert.deepEqual(state.allowedNext, [
+    "continue-top-open",
+    "investigate-different-claim",
+    "add-evidence",
+    "mark-resolved",
+    "pause",
+  ]);
+});
+
+test("initializeTurnLedger requires a real claim table", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  const result = openCase({
+    root,
+    caseSlug: "2026-05-17-no-claim-table",
+    framingJson: framingPath,
+    proposedLoads: [
+      "agents/investigator/prompt.md",
+      "agents/investigator/harness.md",
+    ],
+  });
+
+  assert.throws(
+    () => initializeTurnLedger({ root, caseSlug: result.caseSlug }),
+    /journal\.md missing claim table header/,
+  );
+});
+
+test("beginTurn validates allowed actions and blocks duplicate pending turns", () => {
+  const { root, caseSlug } = createPassingCaseWithJournal();
+  const initialized = initializeTurnLedger({ root, caseSlug });
+
+  assert.throws(
+    () => beginTurn({ root, caseSlug, userAction: "invent-new-state" }),
+    /user action is not allowed/,
+  );
+
+  const begun = beginTurn({ root, caseSlug, userAction: "continue-top-open" });
+  assert.equal(begun.status, "pass");
+  assert.ok(begun.pendingTurn.turnToken);
+
+  assert.throws(
+    () => beginTurn({ root, caseSlug, userAction: "continue-top-open" }),
+    /pendingTurn already exists/,
+  );
+
+  const state = readJson(initialized.turnStatePath);
+  state.pendingTurn = null;
+  state.nextTurnToken = null;
+  fs.writeFileSync(initialized.turnStatePath, `${JSON.stringify(state, null, 2)}\n`, "utf8");
+  assert.throws(
+    () => beginTurn({ root, caseSlug, userAction: "continue-top-open" }),
+    /missing nextTurnToken/,
+  );
+});
+
+test("completeTurn rejects stale tokens, forged previous hashes, and unchanged journals", () => {
+  const { root, caseSlug } = createPassingCaseWithJournal();
+  initializeTurnLedger({ root, caseSlug });
+  const begun = beginTurn({ root, caseSlug, userAction: "continue-top-open" });
+  const pending = begun.pendingTurn;
+
+  const baseTurn = {
+    sequence: pending.sequence,
+    previousHash: pending.priorLatestTurnHash,
+    turnToken: pending.turnToken,
+    userAction: pending.userAction,
+    actionType: "load-file",
+    actionSummary: "Checked one evidence source.",
+    touchedClaims: ["H1"],
+    evidenceRefs: ["E1"],
+    journalHashBefore: pending.journalHashBefore,
+    allowedNext: ["pause"],
+  };
+
+  const wrongTokenPath = writeJson(root, "wrong-token.json", {
+    ...baseTurn,
+    turnToken: "not-the-helper-token",
+  });
+  assert.throws(
+    () => completeTurn({ root, caseSlug, turnJson: wrongTokenPath }),
+    /turnToken does not match pendingTurn/,
+  );
+
+  const wrongPreviousPath = writeJson(root, "wrong-previous.json", {
+    ...baseTurn,
+    previousHash: "sha256:wrong",
+  });
+  assert.throws(
+    () => completeTurn({ root, caseSlug, turnJson: wrongPreviousPath }),
+    /previousHash does not match pendingTurn/,
+  );
+
+  const unchangedPath = writeJson(root, "unchanged.json", baseTurn);
+  assert.throws(
+    () => completeTurn({ root, caseSlug, turnJson: unchangedPath }),
+    /journal\.md hash did not change/,
+  );
+});
+
+test("completeTurn appends one event, clears pending state, and enforces state/log agreement", () => {
+  const { root, caseSlug, journalPath } = createPassingCaseWithJournal();
+  const initialized = initializeTurnLedger({ root, caseSlug });
+  const begun = beginTurn({ root, caseSlug, userAction: "continue-top-open" });
+  const pending = begun.pendingTurn;
+
+  fs.appendFileSync(journalPath, "\nTurn update: checked one evidence source.\n", "utf8");
+  const turnPath = writeJson(root, "turn.json", {
+    sequence: pending.sequence,
+    previousHash: pending.priorLatestTurnHash,
+    turnToken: pending.turnToken,
+    userAction: pending.userAction,
+    actionType: "load-file",
+    actionSummary: "Checked one evidence source.",
+    touchedClaims: ["H1"],
+    evidenceRefs: ["E1"],
+    journalHashBefore: pending.journalHashBefore,
+    allowedNext: ["pause"],
+  });
+
+  const completed = completeTurn({ root, caseSlug, turnJson: turnPath });
+
+  assert.equal(completed.status, "pass");
+  assert.equal(completed.event.sequence, 1);
+  assert.equal(completed.state.pendingTurn, null);
+  assert.ok(completed.state.nextTurnToken);
+
+  const events = fs.readFileSync(completed.turnLogPath, "utf8").trim().split("\n").map(JSON.parse);
+  assert.equal(events.length, 2);
+  assert.equal(events[1].sequence, 1);
+
+  const state = readJson(completed.turnStatePath);
+  assert.equal(state.currentSequence, 1);
+  assert.equal(state.latestTurnHash, completed.state.latestTurnHash);
+
+  state.latestTurnHash = initialized.state.latestTurnHash;
+  fs.writeFileSync(completed.turnStatePath, `${JSON.stringify(state, null, 2)}\n`, "utf8");
+  assert.throws(
+    () => beginTurn({ root, caseSlug, userAction: "pause" }),
+    /does not agree with last 02-turns\.jsonl event/,
+  );
+});
+
+test("completeTurn requires touched claims for investigative journal changes", () => {
+  const { root, caseSlug, journalPath } = createPassingCaseWithJournal();
+  initializeTurnLedger({ root, caseSlug });
+  const begun = beginTurn({ root, caseSlug, userAction: "continue-top-open" });
+  const pending = begun.pendingTurn;
+
+  fs.appendFileSync(journalPath, "\nTurn update: checked one evidence source.\n", "utf8");
+  const turnPath = writeJson(root, "turn-no-claims.json", {
+    sequence: pending.sequence,
+    previousHash: pending.priorLatestTurnHash,
+    turnToken: pending.turnToken,
+    userAction: pending.userAction,
+    actionType: "load-file",
+    actionSummary: "Checked one evidence source.",
+    evidenceRefs: ["E1"],
+    journalHashBefore: pending.journalHashBefore,
+    allowedNext: ["pause"],
+  });
+
+  assert.throws(
+    () => completeTurn({ root, caseSlug, turnJson: turnPath }),
+    /touchedClaims is required/,
   );
 });

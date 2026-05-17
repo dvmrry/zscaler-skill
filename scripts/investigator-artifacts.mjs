@@ -1,9 +1,13 @@
 #!/usr/bin/env node
 import fs from "node:fs";
+import crypto from "node:crypto";
 import path from "node:path";
 import process from "node:process";
 
 const CASE_INTAKE_BASENAME = "case-intake";
+const WORKFLOW_DIR = "workflow";
+const TURN_LOG_BASENAME = "02-turns.jsonl";
+const TURN_STATE_BASENAME = "02-turn-state.json";
 const REQUIRED_CASE_INTAKE_FIELDS = ["Status:", "Blocking Issues:", "Next Step:"];
 const REQUIRED_JOURNAL_MARKERS = [
   "# Discovery Journal",
@@ -12,15 +16,26 @@ const REQUIRED_JOURNAL_MARKERS = [
   "## Claims",
   "## Resolution",
 ];
+const REQUIRED_CLAIM_TABLE_HEADER = "| Claim | Source | Status | Next evidence needed | Timestamp | Notes |";
+const DEFAULT_ALLOWED_NEXT = [
+  "continue-top-open",
+  "investigate-different-claim",
+  "add-evidence",
+  "mark-resolved",
+  "pause",
+];
 
 function usage(exitCode = 0) {
   const out = exitCode === 0 ? process.stdout : process.stderr;
   out.write(`Usage:
   node scripts/investigator-artifacts.mjs open-case --root <repo> --case-slug <slug> --framing-json <file> [--proposed-load <path> ...] [--force]
   node scripts/investigator-artifacts.mjs verify-case --root <repo> --case-slug <slug>
+  node scripts/investigator-artifacts.mjs initialize-turn-ledger --root <repo> --case-slug <slug> [--force]
+  node scripts/investigator-artifacts.mjs begin-turn --root <repo> --case-slug <slug> --user-action <action>
+  node scripts/investigator-artifacts.mjs complete-turn --root <repo> --case-slug <slug> --turn-json <file>
 
 Creates and verifies _data/cases/<slug>/case-intake.md,
-case-intake.json, and journal.md.
+case-intake.json, journal.md, and optional workflow turn state.
 `);
   process.exit(exitCode);
 }
@@ -46,6 +61,12 @@ function parseArgs(argv) {
       i += 1;
     } else if (key === "--framing-json") {
       args.framingJson = value;
+      i += 1;
+    } else if (key === "--turn-json") {
+      args.turnJson = value;
+      i += 1;
+    } else if (key === "--user-action") {
+      args.userAction = value;
       i += 1;
     } else if (key === "--proposed-load") {
       args.proposedLoads.push(value);
@@ -88,6 +109,293 @@ function safeRepoPath(root, relativePath) {
     throw new Error(`path escapes repo root: ${relativePath}`);
   }
   return path.join(root, normalized);
+}
+
+function sha256Text(text) {
+  return `sha256:${crypto.createHash("sha256").update(text).digest("hex")}`;
+}
+
+function sha256File(filePath) {
+  return sha256Text(fs.readFileSync(filePath, "utf8"));
+}
+
+function hashTurnEvent(event) {
+  return sha256Text(JSON.stringify(event));
+}
+
+function atomicWriteFile(filePath, content) {
+  const tempPath = `${filePath}.tmp-${process.pid}-${crypto.randomUUID()}`;
+  fs.writeFileSync(tempPath, content, "utf8");
+  fs.renameSync(tempPath, filePath);
+}
+
+function atomicWriteJson(filePath, value) {
+  atomicWriteFile(filePath, `${JSON.stringify(value, null, 2)}\n`);
+}
+
+function loadJson(root, jsonPath, requiredArgName) {
+  if (!jsonPath) throw new Error(`${requiredArgName} is required`);
+  const resolved = path.isAbsolute(jsonPath)
+    ? jsonPath
+    : safeRepoPath(root, jsonPath);
+  return JSON.parse(fs.readFileSync(resolved, "utf8"));
+}
+
+function casePaths(root, caseSlug) {
+  assertSafeSlug(caseSlug);
+  const caseDir = path.join(root, "_data", "cases", caseSlug);
+  const workflowDir = path.join(caseDir, WORKFLOW_DIR);
+  return {
+    caseDir,
+    workflowDir,
+    caseIntakePath: path.join(caseDir, `${CASE_INTAKE_BASENAME}.md`),
+    caseIntakeJsonPath: path.join(caseDir, `${CASE_INTAKE_BASENAME}.json`),
+    journalPath: path.join(caseDir, "journal.md"),
+    turnLogPath: path.join(workflowDir, TURN_LOG_BASENAME),
+    turnStatePath: path.join(workflowDir, TURN_STATE_BASENAME),
+  };
+}
+
+function makeTurnToken() {
+  return crypto.randomUUID();
+}
+
+function readJsonl(filePath) {
+  const raw = fs.readFileSync(filePath, "utf8").trim();
+  if (!raw) return [];
+  return raw.split("\n").map((line) => JSON.parse(line));
+}
+
+function appendJsonl(filePath, value) {
+  fs.appendFileSync(filePath, `${JSON.stringify(value)}\n`, "utf8");
+}
+
+function normalizeAllowedNext(allowedNext) {
+  if (!Array.isArray(allowedNext) || allowedNext.length === 0) {
+    throw new Error("allowedNext must be a non-empty array");
+  }
+  const normalized = [];
+  const seen = new Set();
+  for (const item of allowedNext) {
+    const action = String(item || "").trim();
+    if (!action) throw new Error("allowedNext cannot contain empty actions");
+    if (!seen.has(action)) {
+      seen.add(action);
+      normalized.push(action);
+    }
+  }
+  return normalized;
+}
+
+function normalizeBlockingIssues(blockingIssues) {
+  if (blockingIssues === undefined) return [];
+  if (!Array.isArray(blockingIssues)) {
+    throw new Error("blockingIssues must be an array");
+  }
+  return blockingIssues.map((issue) => String(issue));
+}
+
+function requiresTouchedClaims(actionType) {
+  return actionType !== "pause";
+}
+
+function verifyJournalHasClaimTable(journalPath) {
+  const journal = fs.readFileSync(journalPath, "utf8");
+  if (!journal.includes("# Discovery Journal")) {
+    throw new Error("journal.md missing marker: # Discovery Journal");
+  }
+  if (!journal.includes(REQUIRED_CLAIM_TABLE_HEADER)) {
+    throw new Error("journal.md missing claim table header");
+  }
+}
+
+function readTurnState(paths) {
+  const state = JSON.parse(fs.readFileSync(paths.turnStatePath, "utf8"));
+  if (fs.existsSync(paths.turnLogPath)) {
+    const events = readJsonl(paths.turnLogPath);
+    const lastEvent = events.at(-1);
+    if (lastEvent) {
+      const lastHash = hashTurnEvent(lastEvent);
+      if (state.latestTurnHash !== lastHash) {
+        throw new Error(`${TURN_STATE_BASENAME} does not agree with last ${TURN_LOG_BASENAME} event`);
+      }
+      if (state.currentSequence !== lastEvent.sequence) {
+        throw new Error(`${TURN_STATE_BASENAME} sequence does not agree with last ${TURN_LOG_BASENAME} event`);
+      }
+    }
+  }
+  return state;
+}
+
+function initializeTurnLedger(args) {
+  const root = resolveRepoRoot(args.root);
+  const verified = verifyCaseFiles(root, args.caseSlug);
+  const paths = casePaths(root, args.caseSlug);
+  verifyJournalHasClaimTable(paths.journalPath);
+
+  fs.mkdirSync(paths.workflowDir, { recursive: true });
+  if (!args.force && (fs.existsSync(paths.turnLogPath) || fs.existsSync(paths.turnStatePath))) {
+    throw new Error("turn ledger already exists; rerun initialize-turn-ledger with --force only to replace it");
+  }
+
+  const journalHash = sha256File(paths.journalPath);
+  const nextTurnToken = makeTurnToken();
+  const genesisEvent = {
+    sequence: 0,
+    type: "genesis",
+    caseSlug: args.caseSlug,
+    previousHash: null,
+    turnToken: null,
+    nextTurnToken,
+    userAction: "initialize",
+    activeHypothesis: null,
+    actionType: "initialize",
+    actionSummary: "Initialized investigator turn ledger from saved journal.",
+    evidenceRefs: [],
+    touchedClaims: [],
+    journalHashBefore: journalHash,
+    journalHashAfter: journalHash,
+    allowedNext: DEFAULT_ALLOWED_NEXT,
+    blockingIssues: [],
+  };
+  const latestTurnHash = hashTurnEvent(genesisEvent);
+  const state = {
+    caseSlug: args.caseSlug,
+    currentSequence: 0,
+    latestTurnHash,
+    journalHash,
+    nextTurnToken,
+    pendingTurn: null,
+    allowedNext: DEFAULT_ALLOWED_NEXT,
+    blockingIssues: [],
+  };
+
+  atomicWriteFile(paths.turnLogPath, `${JSON.stringify(genesisEvent)}\n`);
+  atomicWriteJson(paths.turnStatePath, state);
+  readTurnState(paths);
+  return { status: "pass", ...verified, turnLogPath: paths.turnLogPath, turnStatePath: paths.turnStatePath, state };
+}
+
+function beginTurn(args) {
+  const root = resolveRepoRoot(args.root);
+  verifyCaseFiles(root, args.caseSlug);
+  const paths = casePaths(root, args.caseSlug);
+  verifyJournalHasClaimTable(paths.journalPath);
+  if (!args.userAction) throw new Error("--user-action is required for begin-turn");
+
+  const state = readTurnState(paths);
+  if (state.caseSlug !== args.caseSlug) {
+    throw new Error(`${TURN_STATE_BASENAME} caseSlug does not match requested case`);
+  }
+  if (state.pendingTurn) {
+    throw new Error("pendingTurn already exists; complete, repair, or abandon it before begin-turn");
+  }
+  if (!state.nextTurnToken) {
+    throw new Error(`${TURN_STATE_BASENAME} missing nextTurnToken; reinitialize or repair the turn ledger`);
+  }
+  const allowedNext = normalizeAllowedNext(state.allowedNext);
+  if (!allowedNext.includes(args.userAction)) {
+    throw new Error(`user action is not allowed by current turn state: ${args.userAction}`);
+  }
+
+  const journalHashBefore = sha256File(paths.journalPath);
+  if (state.journalHash && state.journalHash !== journalHashBefore) {
+    throw new Error(`${TURN_STATE_BASENAME} journalHash does not match journal.md`);
+  }
+  const pendingTurn = {
+    turnToken: makeTurnToken(),
+    userAction: args.userAction,
+    journalHashBefore,
+    sequence: Number(state.currentSequence) + 1,
+    priorLatestTurnHash: state.latestTurnHash,
+  };
+  const nextState = {
+    ...state,
+    nextTurnToken: null,
+    pendingTurn,
+  };
+  atomicWriteJson(paths.turnStatePath, nextState);
+  return { status: "pass", caseSlug: args.caseSlug, turnStatePath: paths.turnStatePath, pendingTurn };
+}
+
+function completeTurn(args) {
+  const root = resolveRepoRoot(args.root);
+  verifyCaseFiles(root, args.caseSlug);
+  const paths = casePaths(root, args.caseSlug);
+  verifyJournalHasClaimTable(paths.journalPath);
+  const turnInput = loadJson(root, args.turnJson, "--turn-json");
+  const state = readTurnState(paths);
+  const pending = state.pendingTurn;
+  if (!pending) {
+    throw new Error("no pendingTurn exists; run begin-turn before complete-turn");
+  }
+
+  const actionType = String(turnInput.actionType || "").trim();
+  if (!actionType) throw new Error("turn-json actionType is required");
+  const blockingIssues = normalizeBlockingIssues(turnInput.blockingIssues);
+  if (blockingIssues.length) {
+    throw new Error(`turn-json contains blocking issues: ${blockingIssues.join("; ")}`);
+  }
+  if (turnInput.turnToken !== pending.turnToken) {
+    throw new Error("turn-json turnToken does not match pendingTurn");
+  }
+  if (turnInput.sequence !== pending.sequence) {
+    throw new Error("turn-json sequence does not match pendingTurn");
+  }
+  if (turnInput.previousHash !== pending.priorLatestTurnHash) {
+    throw new Error("turn-json previousHash does not match pendingTurn");
+  }
+  if (turnInput.userAction !== pending.userAction) {
+    throw new Error("turn-json userAction does not match pendingTurn");
+  }
+  if (turnInput.journalHashBefore !== undefined && turnInput.journalHashBefore !== pending.journalHashBefore) {
+    throw new Error("turn-json journalHashBefore does not match pendingTurn");
+  }
+
+  const journalHashAfter = sha256File(paths.journalPath);
+  if (requiresTouchedClaims(actionType) && journalHashAfter === pending.journalHashBefore) {
+    throw new Error("journal.md hash did not change for investigative action");
+  }
+  if (turnInput.journalHashAfter !== undefined && turnInput.journalHashAfter !== journalHashAfter) {
+    throw new Error("turn-json journalHashAfter does not match journal.md");
+  }
+  if (requiresTouchedClaims(actionType) && (!Array.isArray(turnInput.touchedClaims) || turnInput.touchedClaims.length === 0)) {
+    throw new Error("turn-json touchedClaims is required for investigative actions");
+  }
+
+  const allowedNext = normalizeAllowedNext(turnInput.allowedNext || DEFAULT_ALLOWED_NEXT);
+  const nextTurnToken = makeTurnToken();
+  const event = {
+    sequence: pending.sequence,
+    previousHash: pending.priorLatestTurnHash,
+    turnToken: pending.turnToken,
+    nextTurnToken,
+    userAction: pending.userAction,
+    activeHypothesis: turnInput.activeHypothesis ?? null,
+    actionType,
+    actionSummary: fieldValue(turnInput.actionSummary, "not specified"),
+    evidenceRefs: asArray(turnInput.evidenceRefs),
+    touchedClaims: asArray(turnInput.touchedClaims),
+    journalHashBefore: pending.journalHashBefore,
+    journalHashAfter,
+    allowedNext,
+    blockingIssues: [],
+  };
+  const latestTurnHash = hashTurnEvent(event);
+  appendJsonl(paths.turnLogPath, event);
+  const nextState = {
+    caseSlug: args.caseSlug,
+    currentSequence: event.sequence,
+    latestTurnHash,
+    journalHash: journalHashAfter,
+    nextTurnToken,
+    pendingTurn: null,
+    allowedNext,
+    blockingIssues: [],
+  };
+  atomicWriteJson(paths.turnStatePath, nextState);
+  readTurnState(paths);
+  return { status: "pass", caseSlug: args.caseSlug, turnLogPath: paths.turnLogPath, turnStatePath: paths.turnStatePath, event, state: nextState };
 }
 
 function loadFraming(root, framingJson) {
@@ -395,6 +703,21 @@ function main() {
       process.stdout.write(`${JSON.stringify({ status: "pass", ...result }, null, 2)}\n`);
       return;
     }
+    if (args.command === "initialize-turn-ledger") {
+      const result = initializeTurnLedger(args);
+      process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+      return;
+    }
+    if (args.command === "begin-turn") {
+      const result = beginTurn(args);
+      process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+      return;
+    }
+    if (args.command === "complete-turn") {
+      const result = completeTurn(args);
+      process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+      return;
+    }
     usage(1);
   } catch (error) {
     process.stderr.write(`investigator-artifacts: ${error.message}\n`);
@@ -412,4 +735,7 @@ export {
   isTelemetryReferencePath,
   caseIntakeStatus,
   verifyCaseFiles,
+  initializeTurnLedger,
+  beginTurn,
+  completeTurn,
 };
