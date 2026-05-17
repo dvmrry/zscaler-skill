@@ -3,9 +3,10 @@ product: zpa
 topic: "zpa-app-segments"
 title: "ZPA application segment matching"
 content-type: reasoning
-last-verified: "2026-04-24"
+last-verified: "2026-05-17"
 verified-against:
   vendor/terraform-provider-zpa: a3c845f3366cc2267e1b244f9968e727c92bad3d
+  vendor/zscaler-mcp-server: 25eccadd1d476bb90cb415c468197ec0a802c8fa
 confidence: high
 source-tier: mixed
 sources:
@@ -19,6 +20,7 @@ sources:
   - "vendor/zscaler-help/zpa-user-to-app-segmentation-refarch.txt"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_application_segment.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_application_segment_multimatch_bulk.md"
+  - "vendor/zscaler-mcp-server/CHANGELOG.md"
 author-status: draft
 ---
 
@@ -227,7 +229,7 @@ Source: `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `ven
 - **Double encryption mutual exclusion.** From p.12: "If you selected Browser Access or Source IP Anchoring for any application, you can't enable Double Encryption."
 - **Source IP Anchor (SIPA) feature flag.** Enabling `Source IP Anchor` on a segment opts into the SIPA cross-product flow — ZIA-inspected traffic is forwarded to this segment's App Connector so the destination sees a customer-controlled IP (not a Zscaler PSE IP). Full mechanics (ZPA-side + ZIA-side dual config, DNS Resolver rule ordering, SIPA Direct variant for ZIA DR mode, licensing) in [`../shared/source-ip-anchoring.md`](../shared/source-ip-anchoring.md). Mutually exclusive with Browser Access, Double Encryption, and Multimatch on the same segment. The SIPA flag is also the filter determining which ZPA segments appear in ZIA SSL Inspection rule's `zpa_app_segments` criterion — non-SIPA segments are invisible to that selector.
 - **Health reporting + wildcard.** From p.15, cited above: `CONTINUOUS` health reporting is not allowed if any application in the segment is a bare `*` wildcard.
-- **Python SDK `clientless_app_ids` is key-presence-sensitive, not truthiness-sensitive.** From upstream `zscaler/zaler-mcp-server` issue #50 (closed 2026-04-21): the underlying SDK at `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py:411` checks `if "clientless_app_ids" in body:`, not `if body.get("clientless_app_ids"):`. **Including `clientless_app_ids: None` in the request body triggers a `BROWSER_ACCESS` segment lookup**, which then fails with "No matching clientless App found" for a standard (non-Browser-Access) segment. **Implication for callers:** omit the key entirely when not creating/updating a Browser Access segment — passing `None` is NOT equivalent. Affects both `create_application_segment` and `update_application_segment` paths. Same hazard applies to anyone wrapping the SDK (MCP server hit it; custom callers will too).
+- **Python SDK `clientless_app_ids` is key-presence-sensitive, not truthiness-sensitive.** From upstream `zscaler/zscaler-mcp-server` issue #50 (closed 2026-04-21): the underlying SDK checks `if "clientless_app_ids" in body:`, not `if body.get("clientless_app_ids"):`. **Including `clientless_app_ids: None` in the request body triggers a `BROWSER_ACCESS` segment lookup**, which then fails with "No matching clientless App found" for a standard (non-Browser-Access) segment. **Implication for callers:** omit the key entirely when not creating/updating a Browser Access segment — passing `None` is NOT equivalent. Affects both `create_application_segment` and `update_application_segment` paths. MCP server v0.12.0 removed `clientless_app_ids` from the standard app-segment tools and moved Browser Access workloads to dedicated `zpa_*_application_segment_ba` tools.
 
 ## Worked example (covers eval Q6)
 
