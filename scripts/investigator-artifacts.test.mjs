@@ -248,3 +248,40 @@ test("verifyCaseFiles fails for missing and mutated case intake artifacts", () =
     /journal\.md missing marker/,
   );
 });
+
+test("verifyCaseFiles recomputes status and rejects forged passing artifacts", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZIA block page appears for payroll site",
+    tenantCloud: "zs1",
+    products: ["zia"],
+    scope: "one user",
+  });
+
+  const result = openCase({
+    root,
+    caseSlug: "2026-05-17-forged-pass",
+    framingJson: framingPath,
+    proposedLoads: [
+      "agents/investigator/prompt.md",
+      "agents/investigator/harness.md",
+      "references/zia/logs/web-log-schema.md",
+    ],
+  });
+
+  const caseIntakeJson = JSON.parse(fs.readFileSync(result.caseIntakeJsonPath, "utf8"));
+  caseIntakeJson.status = "pass";
+  caseIntakeJson.blockingIssues = [];
+  fs.writeFileSync(result.caseIntakeJsonPath, `${JSON.stringify(caseIntakeJson, null, 2)}\n`, "utf8");
+
+  const forgedMarkdown = fs.readFileSync(result.caseIntakePath, "utf8")
+    .replace(/^Status: blocked$/m, "Status: pass")
+    .replace(/^Blocking Issues: .+$/m, "Blocking Issues: none");
+  fs.writeFileSync(result.caseIntakePath, forgedMarkdown, "utf8");
+
+  assert.throws(
+    () => verifyCaseFiles(root, "2026-05-17-forged-pass"),
+    /case-intake\.json recomputes to blocked/,
+  );
+});

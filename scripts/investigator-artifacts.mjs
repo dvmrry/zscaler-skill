@@ -290,6 +290,13 @@ function verifyCaseFiles(root, caseSlug) {
   if (caseIntakeJson.status !== "pass" || !Array.isArray(caseIntakeJson.blockingIssues) || caseIntakeJson.blockingIssues.length) {
     throw new Error(`${CASE_INTAKE_BASENAME}.json does not describe a passing case intake`);
   }
+  const recomputed = caseIntakeStatus(
+    caseIntakeJson.framing || {},
+    normalizeProposedLoads(caseIntakeJson.proposedLoads || []),
+  );
+  if (recomputed.status !== "pass") {
+    throw new Error(`${CASE_INTAKE_BASENAME}.json recomputes to ${recomputed.status}: ${recomputed.blockingIssues.join("; ")}`);
+  }
 
   return { caseDir, caseIntakePath, caseIntakeJsonPath, journalPath };
 }

@@ -287,7 +287,7 @@ Multiple rows may match a single framing — **add every matching row** to PROPO
 | ZIdentity, OneAPI, Authentication Level, step-up auth | `references/zidentity/index.md` |
 | LSS / NSS log fields, metrics, telemetry schemas | matching reference under `references/{zia,zpa,zcc}/logs/` |
 
-#### Early-journal creation — write the stub before Checkpoint 1
+#### Case-intake creation — run the helper before Checkpoint 1
 
 After composing the PARSED FRAMING and PROPOSED LOADS blocks, **immediately run
 the artifact creation transaction below before the Checkpoint 1 halt**.
