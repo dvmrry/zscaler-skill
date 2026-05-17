@@ -72,6 +72,40 @@ workflow harness. The canonical investigator harness now lives at
 adapters are tested against it, the large Windsurf file remains a preserved
 baseline rather than accidental duplication.
 
+## Artifact-gated phases
+
+For unreliable runtimes, adapter prose is not a strong enough boundary by
+itself. Use helper-backed artifacts for any phase transition where skipping the
+gate would create false confidence.
+
+The adapter pattern is:
+
+1. Load the canonical prompt and harness.
+2. Call the canonical helper command for the current phase.
+3. Verify the artifact the helper produced.
+4. Read back the verified artifact.
+5. Continue only when the artifact says `Status: pass` and
+   `Blocking Issues: none`.
+
+Adapters should keep exact helper commands load-bearing. Do not say only "run
+the deterministic helper" or "create the phase artifact." Weak runtimes may
+understand that text after the fact while still failing to execute the gate.
+Put the literal command shape near the instruction that requires it. If a
+runtime invents an adjacent command, skips verification, or prints the next
+checkpoint before the helper passes, the adapter should treat the phase as
+blocked rather than continuing from chat memory.
+
+The investigator case-intake gate is the current concrete example:
+
+```bash
+node scripts/investigator-artifacts.mjs open-case ...
+node scripts/investigator-artifacts.mjs verify-case ...
+```
+
+New investigations still start with `/z-investigator`. Resume-oriented
+adapters such as `/z-investigator-load` may exist, but they must verify the
+case-intake artifact before continuing.
+
 ## Adapter layer
 
 Runtime adapters may live under directories such as:
