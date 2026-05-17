@@ -112,8 +112,13 @@ docs/                    project docs and rendered static docs assets
 
 `_data/` is a replaceable runtime-data mount point. Public upstream ships only
 the skeleton; internal release artifacts may pre-populate `_data` from a
-private source. Run `node scripts/check-data-contract.mjs` after replacing
-`_data` with a local overlay or submodule.
+private source. To mount a user-supplied data repo or local directory, run:
+
+```bash
+node scripts/setup-data-mount.mjs --data-url <git-url-or-local-path> --data-ref main
+```
+
+Then run `node scripts/check-data-contract.mjs` to verify the mounted shape.
 
 Every reference file carries YAML frontmatter (`product`, `topic`,
 `content-type`, `last-verified`, `confidence`, `source-tier`, `sources`,

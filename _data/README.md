@@ -27,6 +27,19 @@ The checker verifies the directory shape, reports whether `_data` appears to be
 a submodule, and warns when the skeleton is empty enough that snapshot-backed
 or tenant-schema-backed reasoning will be unavailable.
 
+To replace the public skeleton with a user-supplied runtime-data source, use the
+generic setup helper:
+
+```bash
+node scripts/setup-data-mount.mjs \
+  --data-url <git-url-or-local-path> \
+  --data-ref main
+```
+
+Local directories are copied into `_data`. Other URLs are added as a git
+submodule. The helper refuses to replace populated `_data` contents unless
+`--force` is explicit, then runs the same public contract check.
+
 ## Subdirectories
 
 ### `_data/iac/`

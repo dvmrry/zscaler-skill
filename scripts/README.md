@@ -34,7 +34,7 @@ while finishing a tenant-specific implementation.
 | Category | Scripts |
 |---|---|
 | **Hygiene / CI** | `check-hygiene.py`, `check-citations.sh`, `check-citation-density.py` (density advisory; source-line audit + citation inventory regression strict in CI), `check-agent-skills.py` (portable Agent Skill contract and adapter-shape check), `check-doc-links.py`, `check-orphans.py`, `check-workflow-evals.py`, `check-vendor-drift.py`, `check-scrape-freshness.py`, `maintenance-digest.py`, `vendor-impact-summary.py` |
-| **Manual hygiene** | `check-staleness.sh`, `check-data-contract.mjs` |
+| **Manual hygiene** | `check-staleness.sh`, `check-data-contract.mjs`, `setup-data-mount.mjs` |
 | **Eval suite** | `run-evals.py` |
 | **Tenant API operations** | `diagnose-tenant.py`, `snapshot-refresh.py`, `url-lookup.py` |
 | **Private-overlay scaffolds** | `access-check.py`, `connector-health.py`, `sandbox-check.py`, `ssl-audit.py`, `zpa-app-check.py` |
@@ -109,6 +109,16 @@ overlay/submodule shape without reading tenant contents:
 ```bash
 node scripts/check-data-contract.mjs
 ```
+
+To replace the public `_data` skeleton with a user-supplied data source:
+
+```bash
+node scripts/setup-data-mount.mjs --data-url <git-url-or-local-path> --data-ref main
+```
+
+Local directories are copied. Other URLs are added as a git submodule. The
+setup helper refuses to replace populated `_data` unless `--force` is explicit,
+and it runs the data contract check after setup.
 
 Missing required directories are errors. Empty public-skeleton directories are
 warnings, because the upstream repo intentionally does not ship tenant data.
