@@ -5,24 +5,28 @@
 # ///
 """simulate-policy.py — runnable CLI for the policy simulator.
 
-Loads ZIA URL filter rules + categories from _data/snapshot/zia/, simulates a
-request, and emits the matched rule + reasoning trace. Useful for "would
-this URL be blocked?" / "what-if I change rule N?" questions.
+Loads ZIA URL filter rules + categories from _data/snapshot/, simulates a
+request, and emits the matched rule + reasoning trace. Useful for "would this
+URL be blocked?" / "what-if I change rule N?" questions.
 
 Run:
     ./scripts/simulate-policy.py --url https://www.reddit.com
+    ./scripts/simulate-policy.py --cloud zs2 --url https://www.reddit.com
     ./scripts/simulate-policy.py --url https://wiki.example.com --department engineering
     ./scripts/simulate-policy.py --url https://x.com --include-disabled    # what-if mode
     ./scripts/simulate-policy.py --url https://x.com --json                 # machine-readable
 
-Requires _data/snapshot/zia/url-filtering-rules.json and url-categories.json to
-exist. If empty, run `./scripts/snapshot-refresh.py --zia-only` first.
+Reads product-first snapshots from _data/snapshot/zia/ by default. If --cloud
+or ZSCALER_CLOUD is set, first tries _data/snapshot/<cloud>/zia/ and falls back
+to the product-first layout. If empty, run `./scripts/snapshot-refresh.py
+--zia-only` first.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from dataclasses import asdict
 from pathlib import Path
@@ -31,36 +35,71 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import policy_simulator as ps
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-SNAPSHOT_RULES = REPO_ROOT / "_data" / "snapshot" / "zia" / "url-filtering-rules.json"
-SNAPSHOT_CATS = REPO_ROOT / "_data" / "snapshot" / "zia" / "url-categories.json"
+DEFAULT_SNAPSHOT_ROOT = REPO_ROOT / "_data" / "snapshot"
+ZIA_RULES_FILE = "url-filtering-rules.json"
+ZIA_CATEGORIES_FILE = "url-categories.json"
 
 
-def load_snapshot() -> tuple[list[dict], list[dict]]:
-    if not SNAPSHOT_RULES.exists():
+def _rel(path: Path) -> str:
+    try:
+        return str(path.relative_to(REPO_ROOT))
+    except ValueError:
+        return str(path)
+
+
+def _zia_snapshot_dirs(snapshot_root: Path, cloud: str | None) -> list[Path]:
+    dirs: list[Path] = []
+    if cloud:
+        dirs.append(snapshot_root / cloud / "zia")
+    else:
+        cloud_dirs = sorted(
+            path / "zia"
+            for path in snapshot_root.iterdir()
+            if path.is_dir() and (path / "zia" / ZIA_RULES_FILE).exists()
+        ) if snapshot_root.exists() else []
+        if len(cloud_dirs) == 1:
+            dirs.extend(cloud_dirs)
+    dirs.append(snapshot_root / "zia")
+    return dirs
+
+
+def load_snapshot(snapshot_root: Path, cloud: str | None) -> tuple[list[dict], list[dict], Path]:
+    snapshot_root = snapshot_root.expanduser().resolve()
+    checked = _zia_snapshot_dirs(snapshot_root, cloud)
+    snapshot_dir = next(
+        (path for path in checked if (path / ZIA_RULES_FILE).exists()),
+        checked[0],
+    )
+    rules_path = snapshot_dir / ZIA_RULES_FILE
+    cats_path = snapshot_dir / ZIA_CATEGORIES_FILE
+
+    if not rules_path.exists():
+        checked_paths = ", ".join(_rel(path / ZIA_RULES_FILE) for path in checked)
         print(
-            f"ERROR: {SNAPSHOT_RULES.relative_to(REPO_ROOT)} not found. "
-            "Run ./scripts/snapshot-refresh.py --zia-only first.",
+            f"ERROR: {ZIA_RULES_FILE} not found. Checked: {checked_paths}. "
+            "Run ./scripts/snapshot-refresh.py --zia-only first, or pass --cloud/--snapshot-root.",
             file=sys.stderr,
         )
         sys.exit(2)
-    rules = json.loads(SNAPSHOT_RULES.read_text())
+    rules = json.loads(rules_path.read_text())
     cats = []
-    if SNAPSHOT_CATS.exists():
-        cats = json.loads(SNAPSHOT_CATS.read_text())
+    if cats_path.exists():
+        cats = json.loads(cats_path.read_text())
     else:
         print(
-            f"WARN: {SNAPSHOT_CATS.relative_to(REPO_ROOT)} not found. "
+            f"WARN: {_rel(cats_path)} not found. "
             "Category resolution will be skipped — rules with urlCategories will not match.",
             file=sys.stderr,
         )
-    return rules, cats
+    return rules, cats, snapshot_dir
 
 
-def render_text(result: ps.SimulationResult) -> str:
+def render_text(result: ps.SimulationResult, snapshot_dir: Path) -> str:
     lines = [
         "Policy simulation",
         "=" * 40,
         "",
+        f"Snapshot:        {_rel(snapshot_dir)}",
         f"Request URL:     {result.request.url}",
     ]
     if result.request.user_email:
@@ -84,8 +123,10 @@ def render_text(result: ps.SimulationResult) -> str:
     return "\n".join(lines)
 
 
-def render_json(result: ps.SimulationResult) -> str:
-    return json.dumps(asdict(result), indent=2, default=str)
+def render_json(result: ps.SimulationResult, snapshot_dir: Path) -> str:
+    payload = asdict(result)
+    payload["snapshot"] = _rel(snapshot_dir)
+    return json.dumps(payload, indent=2, default=str)
 
 
 def main() -> int:
@@ -99,6 +140,20 @@ def main() -> int:
     p.add_argument("--device-category", help="e.g., Windows, Mac, iOS")
     p.add_argument("--source-ip", help="Source IP address")
     p.add_argument(
+        "--cloud",
+        default=os.environ.get("ZSCALER_CLOUD"),
+        help=(
+            "Snapshot cloud/tenant directory under _data/snapshot/ "
+            "(default: ZSCALER_CLOUD if set, else product-first layout)."
+        ),
+    )
+    p.add_argument(
+        "--snapshot-root",
+        type=Path,
+        default=DEFAULT_SNAPSHOT_ROOT,
+        help="Snapshot root directory (default: _data/snapshot)",
+    )
+    p.add_argument(
         "--include-disabled",
         action="store_true",
         help="Allow disabled rules to match (what-if mode). Default: realistic, disabled rules don't fire.",
@@ -106,7 +161,7 @@ def main() -> int:
     p.add_argument("--json", action="store_true", help="Emit JSON instead of text")
     args = p.parse_args()
 
-    rules, cats = load_snapshot()
+    rules, cats, snapshot_dir = load_snapshot(args.snapshot_root, args.cloud)
     request = ps.URLFilterRequest(
         url=args.url,
         user_email=args.user_email,
@@ -125,9 +180,9 @@ def main() -> int:
     )
 
     if args.json:
-        print(render_json(result))
+        print(render_json(result, snapshot_dir))
     else:
-        print(render_text(result))
+        print(render_text(result, snapshot_dir))
 
     return 0
 
