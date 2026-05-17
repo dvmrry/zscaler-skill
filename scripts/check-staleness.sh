@@ -101,3 +101,5 @@ echo "  1. Re-read the source captures and current Zscaler help articles."
 echo "  2. Update content where Zscaler has changed behavior or added features."
 echo "  3. Bump the last-verified date to today."
 echo "  4. Commit with a message describing what changed (or 'refresh — no content changes' if just the date bump)."
+
+exit 1

@@ -71,8 +71,10 @@ from __future__ import annotations
 import argparse
 import os
 import sys
+from pathlib import Path
 from typing import Any
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 from scaffold_guard import add_scaffold_arg, guard_scaffold
 
 
@@ -205,12 +207,27 @@ def main() -> int:
     # of: client.zia.user_management.get_user, client.zia.groups.get_group.
     user_ctx: dict = {}
 
-    categories = resolve_url_categories(client, args.url)
-    ssl = walk_ssl_inspection(client, args.url, user_ctx)
-    url_filter = walk_url_filtering(client, args.url, categories, user_ctx)
-    cac = walk_cac(client, args.url, user_ctx)
-    dlp = walk_dlp(client, args.url, user_ctx, ssl)
-    firewall = walk_firewall(client, args.url, user_ctx)
+    try:
+        categories = resolve_url_categories(client, args.url)
+    except NotImplementedError as e:
+        print(f"WARN: URL category resolution not implemented: {e}", file=sys.stderr)
+        categories = []
+
+    def scaffold_result(layer: str, fn):
+        try:
+            return fn()
+        except NotImplementedError as e:
+            print(f"WARN: {layer} traversal not implemented: {e}", file=sys.stderr)
+            return {"status": "scaffold", "reason": str(e)}
+
+    ssl = scaffold_result("SSL inspection", lambda: walk_ssl_inspection(client, args.url, user_ctx))
+    url_filter = scaffold_result(
+        "URL filtering",
+        lambda: walk_url_filtering(client, args.url, categories, user_ctx),
+    )
+    cac = scaffold_result("Cloud App Control", lambda: walk_cac(client, args.url, user_ctx))
+    dlp = scaffold_result("DLP", lambda: walk_dlp(client, args.url, user_ctx, ssl))
+    firewall = scaffold_result("Cloud Firewall", lambda: walk_firewall(client, args.url, user_ctx))
 
     result = {
         "url": args.url,

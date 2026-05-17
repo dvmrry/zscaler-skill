@@ -39,18 +39,18 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 T1_PRODUCTS = ["zia", "zpa", "zcc", "zdx", "zbi", "zidentity", "cloud-connector", "zwa", "shared"]
 T2A_PRODUCTS = ["deception", "risk360", "ai-security", "zms"]
 META_DOCS = [
-    "references/_clarifications.md",
-    "references/_runbooks.md",
-    "references/_agent-patterns.md",
-    "references/_policy-simulation.md",
+    "references/_meta/clarifications.md",
+    "references/_meta/runbooks.md",
+    "references/_meta/agent-patterns.md",
+    "references/_meta/policy-simulation.md",
 ]
 QUICK_FILES = [
     "SKILL.md",
     "README.md",
     "PLAN.md",
-    "references/_portfolio-map.md",
-    "references/_layering-model.md",
-    "references/_verification-protocol.md",
+    "references/_meta/portfolio-map.md",
+    "references/_meta/layering-model.md",
+    "references/_meta/verification-protocol.md",
 ]
 
 FRONTMATTER_RE = re.compile(r"\A---\s*\n.*?\n---\s*\n", re.DOTALL)
@@ -67,7 +67,7 @@ def collect_files(quick: bool) -> list[Path]:
     if quick:
         return files
 
-    primer_dir = REPO_ROOT / "references" / "_primer"
+    primer_dir = REPO_ROOT / "references" / "_meta" / "primer"
     if primer_dir.exists():
         index = primer_dir / "index.md"
         if index.exists():

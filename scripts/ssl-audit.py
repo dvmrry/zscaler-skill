@@ -71,8 +71,10 @@ import argparse
 import os
 import sys
 from enum import IntEnum
+from pathlib import Path
 from typing import Any
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 from scaffold_guard import add_scaffold_arg, guard_scaffold
 
 

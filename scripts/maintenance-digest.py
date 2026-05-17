@@ -26,7 +26,7 @@ import re
 import subprocess
 import sys
 from dataclasses import dataclass
-from datetime import UTC, date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -139,7 +139,7 @@ def hygiene_eval_warning() -> str:
 
 
 def render(args: argparse.Namespace) -> str:
-    now = datetime.now(UTC).replace(microsecond=0)
+    now = datetime.now(timezone.utc).replace(microsecond=0)
     stale, total_refs = stale_refs(args.stale_days)
     scaffolds, todo_files = scaffold_inventory()
     vendor = json_from_command(["./scripts/check-vendor-drift.py", "--json"])

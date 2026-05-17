@@ -22,7 +22,7 @@ author-status: draft
 
 # ZIA Cloud App Control and URL filtering interaction
 
-Source: `vendor/zscaler-help/Cloud_App_Control_Deployment_and_Operations_Guide.txt`; `vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt`; `vendor/zscaler-help/Recommended_URL_`&_Cloud_App_Control_Policy.txt; `vendor/zscaler-help/Configuring_Advanced_Policy_Settings.txt`; `vendor/zscaler-help/Understanding_Policy_Enforcement.txt`.
+Source: `vendor/zscaler-help/Cloud_App_Control_Deployment_and_Operations_Guide.txt`; `vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt`; `vendor/zscaler-help/Recommended_URL_&_Cloud_App_Control_Policy.txt`; `vendor/zscaler-help/Configuring_Advanced_Policy_Settings.txt`; `vendor/zscaler-help/Understanding_Policy_Enforcement.txt`.
 
 How Cloud App Control (CAC) evaluates against SaaS / cloud application traffic, how it composes with URL Filtering, and which layer wins when the two disagree.
 
@@ -132,7 +132,7 @@ Cross-SDK sweep (2026-04-24) surfaced details the earlier Python-SDK-derived doc
 
 ## Edge cases
 
-Source: `vendor/zscaler-help/Cloud_App_Control_Deployment_and_Operations_Guide.txt`; `vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt`; `vendor/zscaler-help/Recommended_URL_`&_Cloud_App_Control_Policy.txt; `vendor/zscaler-help/Configuring_Advanced_Policy_Settings.txt`; `vendor/zscaler-help/ranges-limitations-zia.md`.
+Source: `vendor/zscaler-help/Cloud_App_Control_Deployment_and_Operations_Guide.txt`; `vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt`; `vendor/zscaler-help/Recommended_URL_&_Cloud_App_Control_Policy.txt`; `vendor/zscaler-help/Configuring_Advanced_Policy_Settings.txt`; `vendor/zscaler-help/ranges-limitations-zia.md`.
 
 - **No custom EUNs for CAC.** "Cloud App Control policies do not support custom End User Notifications (EUNs)." (*CAC Deployment Guide*, p.3.) Blocked users see the default notification.
 - **URL Filtering-only categories.** Newly Registered and Observed Domains (NROD) "can only be used in URL Filtering rules" (*About URL Categories*, p.9). So NROD never fires in CAC evaluation — if the only rule that would catch a malicious new domain is an NROD-block rule in URL Filtering, and CAC happens to explicitly allow the app, NROD never runs (without cascading).

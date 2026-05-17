@@ -44,7 +44,7 @@ Manual review workflow:
     1. Run script (or let CI run it).
     2. Open _data/logs/issues-new.md (local) or the sticky issue (CI).
     3. For each surfaced issue: source-check + thread per
-       references/_verification-protocol.md, or skip if not behavioral.
+       references/_meta/verification-protocol.md, or skip if not behavioral.
     4. Comment on the sticky issue (if used) to record the triage decision.
 """
 
@@ -318,7 +318,7 @@ def render_digest(
         "",
         "1. Each issue below is a candidate. Read the title; click through if it looks behavioral.",
         "2. Issues that touch documented skill behavior → source-check + thread per "
-        "[`references/_verification-protocol.md`](../references/_verification-protocol.md).",
+        "[`references/_meta/verification-protocol.md`](../references/_meta/verification-protocol.md).",
         "3. Issues that look like TF schema drift or SDK enum changes → re-run "
         "`scripts/find-asymmetries.py`.",
         "4. Issues that don't bear on the skill → skip.",

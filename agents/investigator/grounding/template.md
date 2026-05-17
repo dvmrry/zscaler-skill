@@ -46,7 +46,7 @@ author-status: draft
 
 ## Expected behavior anchors
 
-- [`references/<product>/<source>.md § <heading>`](../../../references/<product>/<source>.md) — <why this anchor matters before reasoning>
+- `references/<product>/<source>.md` section `<heading>` — <why this anchor matters before reasoning>
 
 ## Load docs
 
@@ -77,4 +77,3 @@ Do not add a grounding card when:
 - The card would only duplicate an index page.
 - The content is an ordered proof/disproof sequence. Use
   [`../diagnostics/template.md`](../diagnostics/template.md) for that shape.
-

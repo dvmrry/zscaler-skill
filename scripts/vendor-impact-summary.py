@@ -27,7 +27,7 @@ def changed_submodules(base_ref: str, head_ref: str) -> list[tuple[str, str, str
         if len(parts) < 6:
             continue
         old_mode, new_mode, old_sha, new_sha, status, path = parts[:6]
-        if old_mode == "160000" or new_mode == "160000":
+        if old_mode.lstrip(":") == "160000" or new_mode.lstrip(":") == "160000":
             out.append((path, old_sha, new_sha))
     return out
 

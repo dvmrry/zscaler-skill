@@ -545,7 +545,7 @@ def render_report(candidates: dict) -> str:
         f"(set size ≤ {NEAR_DUP_MAX_SET_SIZE}): {len(candidates['near_duplicates'])}",
         "",
         "Each candidate below is a *signal*, not a confirmed finding. Triage per "
-        "[`references/_verification-protocol.md`](../references/_verification-protocol.md):",
+        "[`references/_meta/verification-protocol.md`](../references/_meta/verification-protocol.md):",
         "",
         "1. Source-check the candidate against TF + Python SDK + Go SDK + Postman + help.",
         "2. Tier-A confirmed → thread into topical doc + add row to `references/<product>/api.md § Read/write shape asymmetries`.",
@@ -630,7 +630,15 @@ def render_report(candidates: dict) -> str:
     return "\n".join(lines)
 
 
-def main():
+def main() -> int:
+    missing_inputs = [
+        str(root.relative_to(REPO_ROOT))
+        for _, root in TF_PROVIDERS
+        if not root.exists()
+    ]
+    if not POSTMAN_COLLECTION.exists():
+        missing_inputs.append(str(POSTMAN_COLLECTION.relative_to(REPO_ROOT)))
+
     validators = collect_all_validators()
     candidates = find_candidates(validators)
     postman_diffs = find_postman_diffs()
@@ -648,7 +656,17 @@ def main():
     print(f"    {len(candidates['intra_provider'])} intra-provider mismatches")
     print(f"    {len(candidates['near_duplicates'])} within-validator near-duplicates")
     print(f"  Pass 2: {len(postman_diffs)} Postman request/response field diffs")
+    if missing_inputs:
+        print(
+            "ERROR: missing expected vendor inputs: " + ", ".join(missing_inputs),
+            file=sys.stderr,
+        )
+        return 2
+    if not validators:
+        print("ERROR: no Terraform validators were extracted from vendor inputs", file=sys.stderr)
+        return 1
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
