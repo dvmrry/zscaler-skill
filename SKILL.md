@@ -74,7 +74,7 @@ ls -A _data/snapshot/ | grep -v '^\.gitkeep$'
 
 If empty, say so explicitly (see **When to decline**) and still answer the general case where possible. If populated, read the relevant JSON (`_data/snapshot/zia/url-categories.json`, `_data/snapshot/zia/url-filtering-rules.json`, `_data/snapshot/zpa/app-segments.json`, etc.) and cite the specific rule IDs you used.
 
-`_data/logs/` is a separate cache for log-query results (gitignored; populated by `scripts/splunk-query.sh`). Logs are a validation layer, not a primary source — see **When to consult logs** below.
+`_data/schemas/` is a separate cache for log-schema decompositions, query skeletons, and script-generated reports (gitignored; populated by scripts such as `splunk-query.sh`, `issue-watch.py`, and `find-asymmetries.py`). Raw logs are a validation layer, not a primary source — see **When to consult logs** below.
 
 ## Reference IaC vs production IaC
 

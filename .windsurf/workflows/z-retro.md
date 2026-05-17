@@ -13,13 +13,13 @@ description: Run a journal-first incident retro / postmortem. Loads the incident
 4. **Use your file-read tool to load `agents/clarification-pattern.md`.** Multiple-choice clarification pattern when the incident path is ambiguous.
 <!-- adapter-deps:end -->
 
-All paths are relative to the Zscaler skill repo root. **Do not respond until all files are loaded.** Then follow the retro playbook: locate the incident directory, load `journal.md` first, extract material warnings, render/update `postmortem.md`, and close with the final gate.
+All paths are relative to the Zscaler skill repo root. **Do not respond until all files are loaded.** Then follow the retro playbook: locate the case directory, load `journal.md` first, extract material warnings, render/update `postmortem.md`, and close with the final gate.
 
 ## Best framing for the user's input
 
 The user's retro scope should include:
 
-- **Incident directory** — `_data/incidents/<YYYY-MM-DD>-<slug>/`
+- **Case directory** — `_data/cases/<YYYY-MM-DD>-<slug>/`
 - **Concern** — what decision or warning the retro must address
 - **Related PR / commit** — optional, but useful for `What changed`
 - **Desired output** — write `postmortem.md`, review an existing postmortem, or produce warning ledger only

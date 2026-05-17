@@ -17,4 +17,4 @@ The user's SOC review scope:
 
 $ARGUMENTS
 
-Parse scope, infer or accept the subtype (`policy` / `access` / `coverage` / `config` / `activity`), note the threat model if given. Ground before reasoning per Step 2 (read schemas and product references; check disk-first evidence in `_data/snapshot/<cloud>/`, the operative incident directory's `evidence/`, and `_data/logs/`). Apply the subtype check-set, output the posture register grouped by severity, and save to `_data/incidents/<slug>/posture.md`. Do not change tenant state — propose only. If scope is ambiguous, ask one targeted clarifying question.
+Parse scope, infer or accept the subtype (`policy` / `access` / `coverage` / `config` / `activity`), note the threat model if given. Ground before reasoning per Step 2 (read schemas and product references; check disk-first evidence in `_data/snapshot/<cloud>/`, the operative case directory's `evidence/`, and `_data/schemas/`). Apply the subtype check-set, output the posture register grouped by severity, and save to `_data/cases/<slug>/posture.md`. Do not change tenant state — propose only. If scope is ambiguous, ask one targeted clarifying question.

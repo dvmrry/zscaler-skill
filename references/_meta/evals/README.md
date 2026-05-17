@@ -34,7 +34,7 @@ The separation keeps the runner cheap (no API key required) and lets the operato
 ./scripts/run-evals.py validate responses.json
 ```
 
-The validate command emits a markdown report to stdout and saves it under `_data/logs/eval-results-<UTC-date>.md`. Exit code: 0 if all responses pass, 1 if any fail validation, 2 on usage errors.
+The validate command emits a markdown report to stdout and saves it under `_data/schemas/eval-results-<UTC-date>.md`. Exit code: 0 if all responses pass, 1 if any fail validation, 2 on usage errors.
 
 ## Validation rules
 

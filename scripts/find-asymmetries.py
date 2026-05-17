@@ -11,14 +11,14 @@ Status: functional. Passes 1 + 2 implemented.
   - Pass 2: Postman request body vs response example field-path diff.
 Passes 3-5 documented inline as future-work scaffolding.
 
-Output: _data/logs/asymmetry-candidates.md (gitignored upstream — populate per-fork).
+Output: _data/schemas/asymmetry-candidates.md (gitignored upstream — populate per-fork).
 
 Run:
     ./scripts/find-asymmetries.py
 
 Manual review workflow:
     1. Run script.
-    2. Open _data/logs/asymmetry-candidates.md.
+    2. Open _data/schemas/asymmetry-candidates.md.
     3. For each candidate, eyeball: known finding (skip), real new finding
        (open clarification + thread into doc), false positive (note + move on).
     4. Re-run periodically as upstream submodules bump.

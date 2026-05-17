@@ -1,12 +1,23 @@
-# `_data/incidents/` — incident artifacts and post-mortems
+# `_data/cases/` — saved investigations, reviews, and incident retros
 
-Structured location for incident-investigation artifacts. Captures what happened, what we did, and what changed because of it. The skill dogfoods its own discipline — when something breaks (CI silently failing, schema drift across a Renovate bump, a deployment regression, a tenant-side operational issue), the resulting artifact lives here under the same standards we apply to Zscaler-tenant investigations.
+Structured location for saved troubleshooting cases. Captures what was asked,
+what we investigated, what evidence was used, and what changed because of it.
+The case may be a production incident, a hygiene failure, a posture review, an
+exploratory investigation, or a tenant-side operational issue. The skill
+dogfoods its own discipline — durable work lives here under the same standards
+we apply to Zscaler-tenant investigations.
 
-Lives under `_data/` (rather than `references/_meta/`) because incidents typically contain context-specific data — real CI logs, real timestamps, real commit hashes, sometimes tenant identifiers. The `_data/` private-by-default posture is the right home; engineers commit skill-internal incidents that have no sensitive data, and add `.gitignore` rules for tenant-side incident dirs that need full privacy.
+Lives under `_data/` (rather than `references/_meta/`) because cases typically
+contain context-specific data — real CI logs, real timestamps, real commit
+hashes, sometimes tenant identifiers. The `_data/` private-by-default posture is
+the right home; engineers commit skill-internal cases that have no sensitive
+data, and add `.gitignore` rules for tenant-side case dirs that need full
+privacy.
 
-## Per-incident structure
+## Per-case structure
 
-Each incident gets its own directory: `<YYYY-MM-DD>-<short-slug>/`. The slug is descriptive enough to recognize from a directory listing six months later.
+Each case gets its own directory: `<YYYY-MM-DD>-<short-slug>/`. The slug is
+descriptive enough to recognize from a directory listing six months later.
 
 ```
 2026-04-30-ci-silent-failures/
@@ -48,7 +59,7 @@ Keep it blameless and brief. The artifact's purpose is institutional memory, not
 
 ### `evidence/`
 
-Raw artifacts that the journal cites — CI run logs, command output, screenshots, API response dumps, snapshot captures, packet traces. **Gitignored by default**: `_data/incidents/*/evidence/*` is in `.gitignore` (with `.gitkeep` preserved so the directory survives). Engineers can choose to commit specific files by adding `!` overrides per-file when the content is safe to publish.
+Raw artifacts that the journal cites — CI run logs, command output, screenshots, API response dumps, snapshot captures, packet traces. **Gitignored by default**: `_data/cases/*` is in `.gitignore` (with `.gitkeep` and this README preserved). Engineers can choose to commit specific case directories and evidence files by adding explicit `!` overrides when the content is safe to publish.
 
 The journal/evidence relationship matters: **journal claims cite evidence files; the evidence is what makes the claims falsifiable.** A claim like "InternalReason field shows CONNECTOR_UNHEALTHY (12 sessions)" cites `evidence/lss-connector-unhealthy-2026-04-30T14-30Z.json` — the raw query result. Future readers can verify the claim against the source.
 
@@ -95,29 +106,48 @@ When the agent saves an evidence file, it does both: write the file with the ren
 
 ## Privacy posture
 
-Three categories:
+The public repo default is private: `_data/cases/*` is ignored unless a fork or
+branch explicitly opts a case back in. Three categories:
 
 | Content | Default | Override |
 |---|---|---|
-| Skill-internal incident artifacts (no tenant data — e.g., today's CI silent-failure incident) | **Tracked publicly** | Add `.gitignore` rule per-incident if you change your mind |
-| Tenant-side incident artifacts (Zscaler operational issues with real tenant identifiers) | **Tracked, but redact tenant-specifics** OR add to `.gitignore` to keep fully private | Per fork policy |
-| `evidence/` raw artifacts | **Gitignored** | Add `!` override per-file when safe |
+| Skill-internal case artifacts with no tenant data | **Ignored by default** | Add `!` overrides for the case directory and safe files |
+| Tenant-side case artifacts with real tenant identifiers | **Ignored by default** | Internal fork policy decides whether to commit redacted journals, full private journals, or nothing |
+| `evidence/` raw artifacts | **Ignored by default** | Add parent-directory and per-file `!` overrides only when safe |
 
 The README itself is always tracked — it documents the convention.
+
+Git re-include rules must reopen every ignored parent before a file can be
+tracked. A safe public example looks like:
+
+```gitignore
+!_data/cases/2026-04-30-ci-silent-failures/
+!_data/cases/2026-04-30-ci-silent-failures/journal.md
+!_data/cases/2026-04-30-ci-silent-failures/timeline.md
+```
+
+If publishing selected evidence, also reopen `evidence/` before the file:
+
+```gitignore
+!_data/cases/2026-04-30-ci-silent-failures/evidence/
+!_data/cases/2026-04-30-ci-silent-failures/evidence/MANIFEST.md
+```
 
 ## Naming and indexing
 
 - Directory names use ISO date prefix for chronological sort
 - Slugs are kebab-case, descriptive enough to scan
-- Cross-link incidents from related references when the lessons are load-bearing for future readers (e.g., a CI incident that surfaces a workflow-discipline gap should get a back-link from the relevant methodology / playbook doc)
+- Cross-link cases from related references when the lessons are load-bearing for future readers (e.g., a CI case that surfaces a workflow-discipline gap should get a back-link from the relevant methodology / playbook doc)
 
-## Canonical example
+## Case examples
 
-[`2026-04-30-ci-silent-failures/`](./2026-04-30-ci-silent-failures/) — the first incident captured under this convention. Use as a template for future incidents.
+Case directories are ignored by default, so this public README does not link to
+a canonical tracked example. If a fork publishes a safe example case, link it
+from this section and use it as the local template for future cases.
 
 ## How investigations land here
 
-Every `/z-investigator` invocation saves a `journal.md` in this directory by default — the playbook's First Response procedure persists the journal at first render and updates it in place as the investigation progresses. `_data/incidents/` is the skill's umbrella home for any saved investigation artifact; the name reflects that incidents are the most common shape, not that every saved investigation must be one.
+Every `/z-investigator` invocation saves a `journal.md` in this directory by default — the playbook's First Response procedure persists the journal at first render and updates it in place as the investigation progresses. `_data/cases/` is the skill's umbrella home for any saved investigation artifact.
 
 **Routine flow (most investigations):**
 
@@ -137,7 +167,7 @@ For **exploratory investigations** that aren't incidents, only `journal.md` exis
 8. Capture cited raw artifacts under `evidence/` (gitignored by default)
 9. `IMPROVEMENTS.md` gets follow-up entries for any deferred work
 
-Privacy is unchanged across both flows: `_data/incidents/*` is gitignored by default, so journals stay local until the engineer explicitly opts in to publish.
+Privacy is unchanged across both flows: `_data/cases/*` is gitignored by default, so journals stay local until the engineer explicitly opts in to publish.
 
 ## Cross-links
 
