@@ -61,6 +61,17 @@ function makeGitOverlaySource() {
   return source;
 }
 
+function runSetupCommand(args) {
+  return childProcess.execFileSync(
+    process.execPath,
+    [path.join(import.meta.dirname, "setup-data-mount.mjs"), ...args],
+    {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+    },
+  );
+}
+
 test("isSkeletonTree accepts only README and .gitkeep files", () => {
   const root = tempDir("zscaler-data-skeleton-");
   makeDataSkeleton(root);
@@ -186,4 +197,24 @@ test("setupDataMount removes tracked skeleton files before adding a submodule", 
   assert.equal(fs.existsSync(path.join(root, ".gitmodules")), true);
   assert.deepEqual(result.report.errors, []);
   assert.ok(result.report.info.some((line) => line.includes("submodule")));
+});
+
+test("setup-data-mount CLI installs a local data source in auto mode", () => {
+  const root = tempDir("zscaler-data-cli-");
+  makeDataSkeleton(root);
+  const source = makeOverlaySource();
+
+  const output = runSetupCommand([
+    "--root",
+    root,
+    "--data-url",
+    source,
+    "--mode",
+    "auto",
+  ]);
+
+  assert.match(output, /Mode: copy/);
+  assert.match(output, /Errors: 0/);
+  assert.equal(fs.existsSync(path.join(root, "_data", "schemas", "fields.json")), true);
+  assert.equal(fs.existsSync(path.join(root, "_data", "snapshot", "zs1", "_manifest.json")), true);
 });
