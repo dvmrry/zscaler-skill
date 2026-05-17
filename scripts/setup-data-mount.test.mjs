@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import childProcess from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -29,6 +30,34 @@ function makeOverlaySource() {
   fs.mkdirSync(path.join(source, "snapshot", "zs1"), { recursive: true });
   fs.writeFileSync(path.join(source, "schemas", "fields.json"), "{}\n", "utf8");
   fs.writeFileSync(path.join(source, "snapshot", "zs1", "_manifest.json"), "{}\n", "utf8");
+  return source;
+}
+
+function git(root, args) {
+  return childProcess.execFileSync("git", args, {
+    cwd: root,
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  }).trim();
+}
+
+function commitAll(root, message) {
+  git(root, ["add", "."]);
+  git(root, [
+    "-c",
+    "user.name=Zscaler Skill Test",
+    "-c",
+    "user.email=zscaler-skill-test@example.invalid",
+    "commit",
+    "-m",
+    message,
+  ]);
+}
+
+function makeGitOverlaySource() {
+  const source = makeOverlaySource();
+  git(source, ["init", "-b", "main"]);
+  commitAll(source, "initial overlay data");
   return source;
 }
 
@@ -96,4 +125,65 @@ test("setupDataMount dry-run reports the plan without replacing files", () => {
   assert.equal(result.plan.dataRef, "main");
   assert.equal(result.report, null);
   assert.equal(fs.existsSync(path.join(root, "_data", "snapshot", "zs1", "_manifest.json")), false);
+});
+
+test("setupDataMount can force a local source to submodule mode", () => {
+  const root = tempDir("zscaler-data-local-submodule-");
+  makeDataSkeleton(root);
+  const source = makeOverlaySource();
+
+  const result = setupDataMount({
+    root,
+    dataUrl: source,
+    dataRef: "main",
+    dryRun: true,
+    force: false,
+    mode: "submodule",
+  });
+
+  assert.equal(result.plan.requestedMode, "submodule");
+  assert.equal(result.plan.mode, "submodule");
+  assert.equal(result.plan.dataRef, "main");
+  assert.equal(result.report, null);
+});
+
+test("setupDataMount rejects copy mode for non-local URLs", () => {
+  const root = tempDir("zscaler-data-copy-remote-");
+  makeDataSkeleton(root);
+
+  assert.throws(
+    () => setupDataMount({
+      root,
+      dataUrl: "https://example.invalid/runtime-data.git",
+      dataRef: null,
+      dryRun: true,
+      force: false,
+      mode: "copy",
+    }),
+    /requires --data-url to resolve to a local directory/,
+  );
+});
+
+test("setupDataMount removes tracked skeleton files before adding a submodule", () => {
+  const root = tempDir("zscaler-data-git-submodule-");
+  git(root, ["init", "-b", "main"]);
+  makeDataSkeleton(root);
+  commitAll(root, "initial public skeleton");
+  const source = makeGitOverlaySource();
+
+  const result = setupDataMount({
+    root,
+    dataUrl: source,
+    dataRef: "main",
+    dryRun: false,
+    force: false,
+    mode: "submodule",
+  });
+
+  const trackedData = git(root, ["ls-files", "--stage", "--", "_data"]);
+  assert.match(trackedData, /^160000 /);
+  assert.ok(!trackedData.includes("_data/README.md"));
+  assert.equal(fs.existsSync(path.join(root, ".gitmodules")), true);
+  assert.deepEqual(result.report.errors, []);
+  assert.ok(result.report.info.some((line) => line.includes("submodule")));
 });

@@ -115,7 +115,10 @@ the skeleton; internal release artifacts may pre-populate `_data` from a
 private source. To mount a user-supplied data repo or local directory, run:
 
 ```bash
-node scripts/setup-data-mount.mjs --data-url <git-url-or-local-path> --data-ref main
+node scripts/setup-data-mount.mjs \
+  --data-url <git-url-or-local-path> \
+  --data-ref main \
+  --mode auto
 ```
 
 Then run `node scripts/check-data-contract.mjs` to verify the mounted shape.

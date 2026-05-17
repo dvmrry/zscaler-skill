@@ -113,12 +113,18 @@ node scripts/check-data-contract.mjs
 To replace the public `_data` skeleton with a user-supplied data source:
 
 ```bash
-node scripts/setup-data-mount.mjs --data-url <git-url-or-local-path> --data-ref main
+node scripts/setup-data-mount.mjs \
+  --data-url <git-url-or-local-path> \
+  --data-ref main \
+  --mode auto
 ```
 
-Local directories are copied. Other URLs are added as a git submodule. The
-setup helper refuses to replace populated `_data` unless `--force` is explicit,
-and it runs the data contract check after setup.
+Mode `auto` copies local directories and adds other URLs as a git submodule.
+Use `--mode submodule` when a local repository path should be mounted as a real
+`_data` submodule instead of copied. The setup helper refuses to replace
+populated `_data` unless `--force` is explicit, removes tracked skeleton files
+through git before submodule setup, and runs the data contract check after
+setup.
 
 Missing required directories are errors. Empty public-skeleton directories are
 warnings, because the upstream repo intentionally does not ship tenant data.

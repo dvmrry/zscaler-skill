@@ -33,12 +33,16 @@ generic setup helper:
 ```bash
 node scripts/setup-data-mount.mjs \
   --data-url <git-url-or-local-path> \
-  --data-ref main
+  --data-ref main \
+  --mode auto
 ```
 
-Local directories are copied into `_data`. Other URLs are added as a git
-submodule. The helper refuses to replace populated `_data` contents unless
-`--force` is explicit, then runs the same public contract check.
+Mode `auto` copies local directories into `_data` and adds other URLs as a git
+submodule. Use `--mode submodule` when a local repository path should be mounted
+as a real `_data` submodule instead of copied. The helper refuses to replace
+populated `_data` contents unless `--force` is explicit, removes tracked
+skeleton files through git before submodule setup, then runs the same public
+contract check.
 
 ## Subdirectories
 
