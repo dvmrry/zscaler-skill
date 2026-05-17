@@ -896,9 +896,9 @@ Notable kwargs include `auth_bypass_urls`, `kerberos_bypass_urls`, `enable_offic
 | `list_ips_signature_rules` / `GetAll` | `/zia/api/v1/ipsSignatureRules` | Read custom signature rules. |
 | `get_ips_signature_rule` / `Get` | `/zia/api/v1/ipsSignatureRules/{id}` | Read one custom signature rule. |
 | `add_ips_signature_rule` / `Create` | `/zia/api/v1/ipsSignatureRules` | Python SDK pre-validates `rule_text` before create. |
-| `update_ips_signature_rule` / `Update` | `/zia/api/v1/ipsSignatureRules/{id}` | Python SDK pre-validates `rule_text` when supplied. |
+| `update_ips_signature_rule` / `Update` | `/zia/api/v1/ipsSignatureRules/{id}` | Python SDK does not pre-validate `rule_text` before update; call `validate_ips_signature_rule` explicitly when needed. |
 | `delete_ips_signature_rule` / `Delete` | `/zia/api/v1/ipsSignatureRules/{id}` | Delete custom signature rule. |
-| `validate_ips_signature_rule` / `ValidateRuleText` | `/zia/api/v1/ipsSignatureRules/validateRuleText` | Validates Suricata/Snort-style rule text. Invalid rules surface before write in the Python SDK create/update helpers. |
+| `validate_ips_signature_rule` / `ValidateRuleText` | `/zia/api/v1/ipsSignatureRules/validateRuleText` | Validates Suricata/Snort-style rule text. Invalid rules surface before create in the Python SDK create helper. |
 | `export_custom_ips_signatures` / export helpers | `/zia/api/v1/ipsSignatureRules/export` | CSV export support. |
 
 **Terraform parity:** `zia_ips_signature_rules` resource and data source.
