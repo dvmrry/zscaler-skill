@@ -204,6 +204,7 @@ def check_runtime_adapters(findings: list[Finding], strict: bool) -> None:
 
             stale_patterns = {
                 "_data/incidents": re.compile(r"_data/incidents"),
+                "_data/snapshots": re.compile(r"_data/snapshots"),
                 "bare snapshot/": re.compile(r"(?<!_data/)snapshot/"),
                 "bare iac/": re.compile(r"(?<!_data/)iac/"),
             }

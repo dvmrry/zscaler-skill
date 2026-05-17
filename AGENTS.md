@@ -7,8 +7,10 @@ adapters as separate layers.
 Canonical workflow logic lives under `agents/`. Portable Agent Skills under
 `.agents/skills/` are open-standard loaders for those canonical workflows.
 Runtime-specific files under `.claude/`, `.windsurf/`, or other adapter
-directories should stay thin and only explain how that runtime loads the
-canonical prompt.
+directories should stay thin where the runtime can follow the canonical
+workflow directly. Adapters may reinforce a canonical harness when a weaker
+runtime needs explicit checkpoint or output-shape discipline, but the harness
+contract belongs under `agents/`.
 
 For Zscaler questions:
 

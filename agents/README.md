@@ -88,4 +88,4 @@ author-status: draft
 4. Add `diagnostics/template.md` only when the role needs an authoring template for verified ordered diagnostics.
 5. Update this README's "Available workflows" table.
 6. Add a portable skill under `.agents/skills/` when the workflow should be natively discoverable by Codex, Windsurf, or another Agent Skills-compatible runtime.
-7. Wire optional runtime adapters (`.claude/commands/<role>.md` for Claude Code, `.windsurf/workflows/<role>.md` for Windsurf) that invoke the canonical prompt without re-stating the workflow.
+7. Wire optional runtime adapters (`.claude/commands/<role>.md` for Claude Code, `.windsurf/workflows/<role>.md` for Windsurf) that invoke the canonical prompt. Keep adapters thin when the runtime can follow the canonical workflow directly; allow explicit reinforcement only when it points back to a canonical harness under `agents/**`.

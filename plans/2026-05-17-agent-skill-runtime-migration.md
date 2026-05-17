@@ -485,12 +485,18 @@ Candidate must preserve:
 - rigid output shape when the baseline defines one
 - visible grounding-files-loaded / loaded-files signal
 
-Run the same Windsurf prompt through:
+Run the same Windsurf prompt through the current baseline plus both candidate
+load paths:
 
 ```text
 /z-investigator
-/z-investigator-v2
+/z-investigator-v2-loads-skill
+/z-investigator-v2-loads-prompt
 ```
+
+Only one candidate should ship. Test both so the review can determine whether
+the portable skill body carries load-bearing instructions that are lost when a
+runtime treats the skill only as discovery metadata.
 
 Only replace baseline after evidence shows parity or improvement.
 
@@ -502,6 +508,7 @@ Only replace baseline after evidence shows parity or improvement.
 - Fail on missing canonical prompt path.
 - Fail on missing routing docs.
 - Warn on large runtime adapters for now.
+- Warn on known stale runtime adapter path patterns.
 - Warn or fail on runtime-local skill name collisions depending on strictness.
 
 The large `z-investigator` warning is expected until the migration has a tested
