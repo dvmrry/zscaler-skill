@@ -104,13 +104,15 @@ Step 1 proposed loads are docs-only. They must include:
 
 They may include grounding cards or product references that match the framing.
 They must not include snapshot files, sibling case journals, or broad data
-directories.
+directories. Every proposed load must exist under the repository root; a
+missing file is a blocked intake, not a reason to invent a replacement path.
 
 Telemetry references under `references/{zia,zpa,zcc}/logs/` are only valid when
 the user's framing already mentions logs, metrics, SIEM data, LSS/NSS,
-pre-collected evidence, Splunk, or an explicit evidence path. If the framing
-does not contain that telemetry context, the helper marks the case intake
-blocked instead of allowing a speculative telemetry load.
+pre-collected evidence, Splunk, compact telemetry terms such as `syslog`,
+`weblog`, or `log4j`, or an explicit evidence path. If the framing does not
+contain that telemetry context, the helper marks the case intake blocked
+instead of allowing a speculative telemetry load.
 
 ## Case Intake Fields
 
@@ -140,6 +142,12 @@ generate hypotheses, or render a discovery journal table in the same response.
 
 The load phase begins only after the user confirms continuation and
 `verify-case` reports a passing case intake.
+
+If the target case directory already contains `case-intake.md`,
+`case-intake.json`, or `journal.md`, treat it as a resume path and run
+`verify-case` instead of `open-case`. `open-case` refuses to overwrite existing
+artifacts unless `--force` is explicitly supplied; adapters should not use
+`--force` unless the user has asked to replace the case intake artifacts.
 
 The user-facing command remains `/z-investigator`. If a runtime needs a
 separate resume entry point, expose a load command that verifies an existing

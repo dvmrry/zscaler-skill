@@ -6,7 +6,25 @@ import test from "node:test";
 import { openCase, verifyCaseFiles } from "./investigator-artifacts.mjs";
 
 function tempRepo() {
-  return fs.mkdtempSync(path.join(os.tmpdir(), "zscaler-skill-test-"));
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "zscaler-skill-test-"));
+  makeRepoFiles(root, [
+    "agents/investigator/prompt.md",
+    "agents/investigator/harness.md",
+    "agents/investigator/grounding/zpa-segment-matching.md",
+    "references/zia/logs/web-log-schema.md",
+    "references/zpa/logs/access-log-schema.md",
+    "references/zpa/logs/app-connector-metrics.md",
+    "references/zpa/logs/app-connector-status.md",
+  ]);
+  return root;
+}
+
+function makeRepoFiles(root, relativePaths) {
+  for (const relativePath of relativePaths) {
+    const target = path.join(root, relativePath);
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.writeFileSync(target, `# ${path.basename(relativePath)}\n`, "utf8");
+  }
 }
 
 function writeJson(root, name, value) {
@@ -185,6 +203,91 @@ test("openCase allows telemetry loads when evidence is in framing", () => {
   });
 
   assert.equal(result.status, "pass");
+});
+
+test("openCase allows compact telemetry terms in framing", () => {
+  for (const [term, referencePath] of [
+    ["syslog shows connector resets", "references/zpa/logs/access-log-schema.md"],
+    ["weblog has blocked transaction entries", "references/zia/logs/web-log-schema.md"],
+    ["log4j events appear in SIEM", "references/zia/logs/web-log-schema.md"],
+  ]) {
+    const root = tempRepo();
+    const framingPath = writeJson(root, "framing.json", {
+      workingDirectory: root,
+      symptom: term,
+      tenantCloud: "zs2",
+      products: ["zpa"],
+      scope: "many users",
+    });
+
+    const result = openCase({
+      root,
+      caseSlug: `2026-05-17-${term.split(" ")[0]}`,
+      framingJson: framingPath,
+      proposedLoads: [
+        "agents/investigator/prompt.md",
+        "agents/investigator/harness.md",
+        referencePath,
+      ],
+    });
+
+    assert.equal(result.status, "pass");
+  }
+});
+
+test("openCase blocks missing proposed loads", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+
+  const result = openCase({
+    root,
+    caseSlug: "2026-05-17-missing-load",
+    framingJson: framingPath,
+    proposedLoads: [
+      "agents/investigator/prompt.md",
+      "agents/investigator/harness.md",
+      "agents/investigator/grounding/does-not-exist.md",
+    ],
+  });
+
+  assert.equal(result.status, "blocked");
+  assert.match(result.blockingIssues.join(" "), /proposed load does not exist/);
+});
+
+test("openCase refuses to clobber existing case artifacts without force", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  const args = {
+    root,
+    caseSlug: "2026-05-17-no-clobber",
+    framingJson: framingPath,
+    proposedLoads: [
+      "agents/investigator/prompt.md",
+      "agents/investigator/harness.md",
+    ],
+  };
+
+  openCase(args);
+
+  assert.throws(
+    () => openCase(args),
+    /case artifacts already exist/,
+  );
+
+  const forced = openCase({ ...args, force: true });
+  assert.equal(forced.status, "pass");
 });
 
 test("verifyCaseFiles fails for blocked case intake", () => {

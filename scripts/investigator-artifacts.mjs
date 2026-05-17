@@ -16,7 +16,7 @@ const REQUIRED_JOURNAL_MARKERS = [
 function usage(exitCode = 0) {
   const out = exitCode === 0 ? process.stdout : process.stderr;
   out.write(`Usage:
-  node scripts/investigator-artifacts.mjs open-case --root <repo> --case-slug <slug> --framing-json <file> [--proposed-load <path> ...]
+  node scripts/investigator-artifacts.mjs open-case --root <repo> --case-slug <slug> --framing-json <file> [--proposed-load <path> ...] [--force]
   node scripts/investigator-artifacts.mjs verify-case --root <repo> --case-slug <slug>
 
 Creates and verifies _data/cases/<slug>/case-intake.md,
@@ -31,6 +31,7 @@ function parseArgs(argv) {
 
   const args = {
     command,
+    force: false,
     proposedLoads: [],
   };
 
@@ -49,6 +50,8 @@ function parseArgs(argv) {
     } else if (key === "--proposed-load") {
       args.proposedLoads.push(value);
       i += 1;
+    } else if (key === "--force") {
+      args.force = true;
     } else {
       throw new Error(`Unknown argument: ${key}`);
     }
@@ -138,7 +141,7 @@ function hasLogContext(framing) {
   ];
   const haystack = fields.join(" ").toLowerCase();
   const separatedLogToken = /(^|[\s/_.:;()[\],])logs?($|[\s/_.:;()[\],])/;
-  const telemetryToken = /\b(siem|lss|nss|splunk|evidence|events?|trace|packet|pcap|metric|metrics|telemetry)\b/;
+  const telemetryToken = /\b(siem|lss|nss|splunk|syslog|weblog|log4j|evidence|events?|trace|packet|pcap|metric|metrics|telemetry)\b/;
   return separatedLogToken.test(haystack) || telemetryToken.test(haystack);
 }
 
@@ -146,7 +149,7 @@ function isTelemetryReferencePath(relativePath) {
   return /^references\/(zia|zpa|zcc)\/logs\/.+\.md$/.test(relativePath);
 }
 
-function caseIntakeStatus(framing, proposedLoads) {
+function caseIntakeStatus(framing, proposedLoads, root = null) {
   const issues = [];
   if (!String(framing.workingDirectory || "").trim()) {
     issues.push("workingDirectory is required");
@@ -168,6 +171,13 @@ function caseIntakeStatus(framing, proposedLoads) {
   }
   if (proposedLoads.some((load) => load.startsWith("_data/cases/"))) {
     issues.push("Step 1 proposed loads must not browse case artifacts");
+  }
+  if (root) {
+    for (const load of proposedLoads) {
+      if (!fs.existsSync(safeRepoPath(root, load))) {
+        issues.push(`proposed load does not exist: ${load}`);
+      }
+    }
   }
   if (proposedLoads.some(isTelemetryReferencePath) && !hasLogContext(framing)) {
     issues.push("telemetry proposed loads require log, metric, SIEM, or evidence context in the framing");
@@ -293,6 +303,7 @@ function verifyCaseFiles(root, caseSlug) {
   const recomputed = caseIntakeStatus(
     caseIntakeJson.framing || {},
     normalizeProposedLoads(caseIntakeJson.proposedLoads || []),
+    root,
   );
   if (recomputed.status !== "pass") {
     throw new Error(`${CASE_INTAKE_BASENAME}.json recomputes to ${recomputed.status}: ${recomputed.blockingIssues.join("; ")}`);
@@ -306,7 +317,7 @@ function openCase(args) {
   assertSafeSlug(args.caseSlug);
   const framing = loadFraming(root, args.framingJson);
   const proposedLoads = normalizeProposedLoads(args.proposedLoads);
-  const { status, blockingIssues } = caseIntakeStatus(framing, proposedLoads);
+  const { status, blockingIssues } = caseIntakeStatus(framing, proposedLoads, root);
 
   const caseDir = path.join(root, "_data", "cases", args.caseSlug);
   const caseIntakePath = path.join(caseDir, `${CASE_INTAKE_BASENAME}.md`);
@@ -318,6 +329,13 @@ function openCase(args) {
     : "Resolve the blocking issue, then rerun open-case.";
 
   fs.mkdirSync(caseDir, { recursive: true });
+  const existingArtifacts = [caseIntakePath, caseIntakeJsonPath, journalPath]
+    .filter((artifactPath) => fs.existsSync(artifactPath));
+  if (existingArtifacts.length && !args.force) {
+    throw new Error(
+      `case artifacts already exist; use verify-case or rerun open-case with --force: ${existingArtifacts.join(", ")}`,
+    );
+  }
 
   const caseIntakeJson = {
     status,

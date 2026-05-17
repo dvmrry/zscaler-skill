@@ -313,9 +313,11 @@ Always include:
 Then include every grounding card and product reference that matches the
 framing's vocabulary. Include telemetry references under
 `references/{zia,zpa,zcc}/logs/` only when logs, metrics, SIEM data, LSS/NSS,
-or a user-provided evidence path is part of the framing. Prefer explicit
+compact telemetry terms such as `syslog`, `weblog`, or `log4j`, or a
+user-provided evidence path is part of the framing. Prefer explicit
 framing-to-file matches over model inference; companion references are often
-needed together.
+needed together. Every proposed load must exist under the repository root
+before Step 1 can pass.
 
 If a matching file exists under `agents/investigator/grounding/`, prefer that
 grounding card before falling back to keyword-only topic loading.
@@ -343,7 +345,8 @@ Slug selection:
 
 - If the user referenced an existing case path, use that slug.
 - If the user-referenced or current case directory already contains
-  `journal.md`, continue that journal.
+  `case-intake.md`, `case-intake.json`, or `journal.md`, run `verify-case` and
+  resume that case instead of rerunning `open-case`.
 - Otherwise derive a short slug from date + symptom, for example
   `2026-05-17-zpa-connector-assignment`.
 
@@ -353,7 +356,9 @@ directory already containing `journal.md`.
 
 The stub bodies are deterministic and owned by
 `scripts/investigator-artifacts.mjs`. Do not hand-author a different case
-intake or journal shape in a runtime adapter.
+intake or journal shape in a runtime adapter. `open-case` refuses to overwrite
+existing artifacts unless `--force` is explicitly supplied; do not use
+`--force` unless the user has asked to replace the intake artifacts.
 
 If the working directory is unknown, do not create the stub. Ask the working
 directory clarification as the whole turn.

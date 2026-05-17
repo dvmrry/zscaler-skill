@@ -25,6 +25,10 @@ $ARGUMENTS
 Follow the per-turn shape defined in the canonical playbook. Output is plain markdown — headers, bold labels, bullets, blockquotes, real markdown tables — never wrapped in code fences except for genuine code/YAML/JSON. Per [`agents/clarification-pattern.md`](../../agents/clarification-pattern.md), ask **one clarification per turn, never multiple**; when the question has 2–5 closed-set options, use Claude Code's `AskUserQuestion` tool so the user gets native clickable options. The closing multi-choice IS the checkpoint — no separate `═══ CHECKPOINT N` banner or verb-list reply guide is emitted.
 
 Step 1 must use the case-intake helper; do not hand-write the journal stub.
+If the target case directory already exists with `case-intake.md`,
+`case-intake.json`, or `journal.md`, run `verify-case` and resume through
+`/z-investigator-load`; do not use `--force` unless the user explicitly asks to
+replace the intake artifacts.
 After composing the parsed framing and proposed loads, run the literal command
 shape from `agents/investigator/case-intake.md`:
 

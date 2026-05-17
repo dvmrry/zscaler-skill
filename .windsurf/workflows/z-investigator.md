@@ -260,6 +260,7 @@ If the framing has no backticked tokens, set the field to `none`.
 Emit a `**Proposed loads** (Step 2A — docs only; snapshot loads decided in Step 2B after docs are read)` heading followed by a bullet list of paths. The list is **mapping-driven case-relevant knowledge** — playbook + grounding-card matches + framing-matched product references + matching telemetry references under `references/{zia,zpa,zcc}/logs/` only when logs / metrics / SIEM / LSS / NSS or a user-provided evidence path are part of the framing. Do not add files because they might support an ungrounded hypothesis. Cross-cutting agent-instruction docs (methodology, diagnostics template, siem-emission-discipline, tenant-schema-derivation, loading-discipline, clarification-pattern) are on-demand and **do NOT appear here**. **Snapshot files also do not appear** — they are decided in Step 2 after docs are loaded.
 
 - agents/investigator/prompt.md
+- agents/investigator/harness.md
 - <product references from the mapping table that match Products / features>
 - <telemetry reference(s) only if framing involves logs, metrics, SIEM, or explicit evidence>
 
@@ -291,74 +292,63 @@ Multiple rows may match a single framing — **add every matching row** to PROPO
 
 After composing the PARSED FRAMING and PROPOSED LOADS blocks, **immediately run
 the artifact creation transaction below before the Checkpoint 1 halt**.
-Subsequent steps update this file in place; they do not create a new journal.
+Subsequent steps update the helper-created journal in place; they do not create
+a new journal.
 
 **Artifact creation transaction:**
 
 1. Resolve `case_dir` to `<working-directory>/_data/cases/<slug>`.
-2. Resolve `journal_path` to `<case_dir>/journal.md`.
-3. Create `case_dir`.
-4. Write the exact stub body below to `journal_path`.
-5. Read `journal_path` back.
-6. Verify the readback contains all required markers:
-   - `# Discovery Journal —`
-   - `## Framing`
-   - `## Proposed Loads`
-   - `## Claims`
-   - `## Resolution`
-7. Only after all six steps succeed, emit `Journal created: <journal_path>`.
+2. Write the parsed framing to a JSON file.
+3. Run the helper exactly, adding one `--proposed-load` per PROPOSED LOADS
+   entry:
+
+```bash
+node scripts/investigator-artifacts.mjs open-case \
+  --root <repo-root> \
+  --case-slug <slug> \
+  --framing-json <path-to-framing-json> \
+  --proposed-load agents/investigator/prompt.md \
+  --proposed-load agents/investigator/harness.md
+```
+
+4. If the helper reports `Status: blocked` or exits non-zero, halt. Do not load
+   docs, enumerate snapshots, or generate hypotheses.
+5. If the helper reports `Status: pass`, run:
+
+```bash
+node scripts/investigator-artifacts.mjs verify-case \
+  --root <repo-root> \
+  --case-slug <slug>
+```
+
+6. Only after `verify-case` succeeds, emit:
+   - `Case intake: <case_dir>/case-intake.md`
+   - `Case intake JSON: <case_dir>/case-intake.json`
+   - `Journal created: <case_dir>/journal.md`
 
 **Slug selection** (same logic as Step 3B's save):
 
-- If the framing contains an existing path or slug, use that directory.
-- If the user-referenced or current case directory already has a `journal.md`, this is a continuation — update that file.
+- If the framing contains an existing path or slug, use that directory and run
+  `verify-case` first. If verification passes, this is a load/resume path, not
+  a new `open-case` path.
+- If the user-referenced or current case directory already has a `journal.md`,
+  this is a continuation — run `verify-case` and load/resume that journal.
 - Otherwise mint a fresh slug: `<YYYY-MM-DD>-<short-kebab-descriptor>`. Create the directory.
 - Do not browse sibling case directories to find a matching prior journal.
 
-**Stub content:**
-
-```markdown
-# Discovery Journal — <Symptom from PARSED FRAMING>
-
-ISSUE: <one-sentence symptom>
-STATUS: Investigating
-TIMESTAMP: <ISO 8601 UTC>
-WORKING DIRECTORY: <path>
-CASE DIRECTORY: <case_dir>
-JOURNAL PATH: <journal_path>
-
-## Framing
-
-| Field | Value |
-|---|---|
-| Symptom | <PARSED FRAMING.Symptom> |
-| Tenant cloud | <PARSED FRAMING.Tenant cloud> |
-| Products / features | <PARSED FRAMING.Products / features> |
-| Scope | <PARSED FRAMING.Scope> |
-| Recency | <PARSED FRAMING.Recency> |
-| User-flagged specifics | <PARSED FRAMING.User-flagged specifics> |
-
-## Proposed Loads
-
-<one bullet per proposed-load path, exactly as emitted in Step 1>
-
-## Claims
-
-(Hypotheses populated in Step 3.)
-
-## Resolution
-
-Pending.
-```
-
-**Why early creation matters.** The agent sometimes skips the save action if it begins troubleshooting without first writing the journal. Creating the stub at Step 1 guarantees a permanent artifact exists from the moment the framing is parsed — even if subsequent steps drift or skip, the framing record is preserved on disk.
+**Why helper-backed creation matters.** The agent sometimes skips or mutates the
+save action if it begins troubleshooting without a deterministic gate. The Node
+helper creates `case-intake.md`, `case-intake.json`, and `journal.md`, refuses
+speculative loads, refuses missing proposed-load files, and will not clobber an
+existing case unless `--force` is explicitly supplied. Do not hand-write these
+artifacts in the Windsurf adapter.
 
 **Working directory precondition still applies.** If `Working directory` is `unknown`, that's a blocking unknown — Step 1 enters pre-Step-1 mode and emits a single working-directory clarification (no other content) before any data emission. The stub cannot be created without a known absolute path; the journal-creation step happens only after the working-directory pre-Step-1 clarification resolves.
 
-**Failure handling.** If directory creation, write, readback, or marker
-verification fails, do not claim the journal exists. Emit `**Journal not
-created:** <failed transaction step> — <reason>` and make fixing the save the
-next checkpoint option. Do not run Step 2 while artifact creation is incomplete.
+**Failure handling.** If JSON write, helper execution, or `verify-case` fails,
+do not claim the case intake is ready. Emit `**Case intake not ready:**
+<failed transaction step> — <reason>` and make fixing the helper gate the next
+checkpoint option. Do not run Step 2 while artifact creation is incomplete.
 
 #### Checkpoint 1 — pre-Step-1 vs full-Step-1 ending
 
