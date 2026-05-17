@@ -64,6 +64,11 @@ Two kinds of question this skill handles:
 - **General behavior** — "how do wildcards match?", "what happens when URL filtering and cloud app control both apply?". Answerable anywhere, sourced from `references/`.
 - **Tenant-specific lookups** — "is `reddit.com` in a URL category in *our* tenant?". Requires a `_data/snapshot/` populated by the refresh scripts. The public upstream repo ships empty; tenant snapshots live only in private forks.
 
+Structured troubleshooting with a symptom, affected scope, and timeframe should
+use the portable `zscaler-investigator` skill or the `/z-investigator` runtime
+adapter. This broad `zscaler` entrypoint is for ad-hoc Q&A and lightweight
+lookups, not discovery-journal investigations.
+
 ## Check for a snapshot first
 
 Before answering tenant-specific questions, check whether `_data/snapshot/` (config) has anything beyond `.gitkeep`:

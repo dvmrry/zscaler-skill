@@ -2,7 +2,7 @@
 
 [![Doc hygiene](https://github.com/dvmrry/zscaler-skill/actions/workflows/check-hygiene.yml/badge.svg)](https://github.com/dvmrry/zscaler-skill/actions/workflows/check-hygiene.yml)
 
-A Claude skill for reasoning about Zscaler environments: ZIA, ZPA, ZCC, ZDX,
+An agent skill for reasoning about Zscaler environments: ZIA, ZPA, ZCC, ZDX,
 ZBI, ZIdentity, Cloud & Branch Connector, ZWA, ZPA AppProtection, and the
 broader Zscaler portfolio.
 
@@ -18,9 +18,10 @@ tenant-specific questions backed by snapshots, and structured investigations.
 API access is useful, but it is not the point; an agent with API access and no
 behavioral model can still answer confidently and wrong.
 
-The repo follows the [Anthropic skill conventions](https://github.com/anthropics/skills):
-`SKILL.md` at the root, progressive disclosure through `references/`, helper
-scripts in `scripts/`, and eval prompts in `references/_meta/evals/`.
+The repo follows open, file-based agent conventions: `AGENTS.md` for repository
+runtime guidance, `SKILL.md` as the high-level skill entrypoint, portable Agent
+Skills under `.agents/skills/`, progressive disclosure through `references/`,
+helper scripts in `scripts/`, and eval prompts in `references/_meta/evals/`.
 
 ## Entry points
 
@@ -29,11 +30,15 @@ Default to `@zscaler`; use procedural roles when the task has a defined output.
 - **Cascade always-on guidance**: Windsurf discovers [`AGENTS.md`](./AGENTS.md)
   and [`.windsurf/rules/zscaler.md`](./.windsurf/rules/zscaler.md). These are
   thin adapters that load canonical logic under `agents/`.
+- **Portable Agent Skills**: open-standard skill loaders live under
+  [`.agents/skills/`](./.agents/skills/). These expose canonical workflows to
+  compatible runtimes without copying the workflow body into runtime adapters.
 - **`@zscaler`**: ad-hoc grounded Q&A. The canonical playbook is
   [`agents/zscaler/prompt.md`](./agents/zscaler/prompt.md); the repo-root
   [`zscaler`](./zscaler) file is a thin runtime loader.
-- **`/z-investigator`**: evidence-based troubleshooting; produces a discovery
-  journal.
+- **`zscaler-investigator` / `/z-investigator`**: evidence-based
+  troubleshooting; produces a discovery journal. The portable skill is the
+  open-standard entrypoint; the slash command is a runtime adapter.
 - **`/z-architect`**: capacity and scaling review; produces a recommendation
   register.
 - **`/z-auditor`**: editorial and structural skill audit; produces an audit
@@ -94,6 +99,7 @@ SDK response shapes against their own tenant.
 ```text
 SKILL.md                 skill routing hub
 AGENTS.md                repo runtime guide for coding agents
+.agents/skills/          portable Agent Skills that load canonical workflows
 agents/                  canonical prompts, diagnostics, and role workflows
 references/              sourced Zscaler behavior and product references
 references/_meta/        portfolio map, clarifications, evals, templates
