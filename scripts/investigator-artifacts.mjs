@@ -127,6 +127,8 @@ function normalizeProposedLoads(loads) {
 }
 
 function hasLogContext(framing) {
+  if (asArray(framing.evidencePaths).length > 0) return true;
+
   const fields = [
     framing.symptom,
     framing.scope,
@@ -134,14 +136,15 @@ function hasLogContext(framing) {
     framing.alreadyTried,
     framing.recency,
     ...asArray(framing.userFlaggedSpecifics),
-    ...asArray(framing.evidencePaths),
   ];
   const haystack = fields.join(" ").toLowerCase();
-  return /\b(log|logs|siem|lss|nss|splunk|evidence|event|events|trace|packet|pcap)\b/.test(haystack);
+  const separatedLogToken = /(^|[\s/_.:;()[\],])logs?($|[\s/_.:;()[\],])/;
+  const telemetryToken = /\b(siem|lss|nss|splunk|evidence|events?|trace|packet|pcap|metric|metrics|telemetry)\b/;
+  return separatedLogToken.test(haystack) || telemetryToken.test(haystack);
 }
 
-function isLogSchemaPath(relativePath) {
-  return /^references\/(zia|zpa|zcc)\/logs\/.+schema\.md$/.test(relativePath);
+function isTelemetryReferencePath(relativePath) {
+  return /^references\/(zia|zpa|zcc)\/logs\/.+\.md$/.test(relativePath);
 }
 
 function caseIntakeStatus(framing, proposedLoads) {
@@ -167,8 +170,8 @@ function caseIntakeStatus(framing, proposedLoads) {
   if (proposedLoads.some((load) => load.startsWith("_data/cases/"))) {
     issues.push("Step 1 proposed loads must not browse case artifacts");
   }
-  if (proposedLoads.some(isLogSchemaPath) && !hasLogContext(framing)) {
-    issues.push("log-schema proposed loads require log, SIEM, or evidence context in the framing");
+  if (proposedLoads.some(isTelemetryReferencePath) && !hasLogContext(framing)) {
+    issues.push("telemetry proposed loads require log, metric, SIEM, or evidence context in the framing");
   }
 
   return {
@@ -382,7 +385,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 export {
   openCase,
   hasLogContext,
-  isLogSchemaPath,
+  isTelemetryReferencePath,
   caseIntakeStatus,
   verifyCaseFiles,
 };

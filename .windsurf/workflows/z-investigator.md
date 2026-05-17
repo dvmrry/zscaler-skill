@@ -119,7 +119,7 @@ The literal output. *No Clarification block in this turn — clarifications happ
 - agents/investigator/prompt.md
 - agents/investigator/harness.md
 - <product references from the framing→file mapping that match — these ARE the case-relevant knowledge, load every matching one>
-- <log schema(s) under `references/{zia,zpa,zcc}/logs/<name>-schema.md` — only if the framing already involves logs>
+- <telemetry references under `references/{zia,zpa,zcc}/logs/` — only if the framing already involves logs, metrics, SIEM data, or explicit evidence>
 
 Cross-cutting docs (methodology, diagnostics template, siem-emission-discipline, tenant-schema-derivation, loading-discipline, clarification-pattern) are **on-demand only** — do NOT include them in PROPOSED LOADS. They load when their trigger fires (per `agents/investigator/prompt.md § On-demand references`).
 
@@ -257,11 +257,11 @@ If the framing has no backticked tokens, set the field to `none`.
 
 #### Output: proposed loads (docs only)
 
-Emit a `**Proposed loads** (Step 2A — docs only; snapshot loads decided in Step 2B after docs are read)` heading followed by a bullet list of paths. The list is **mapping-driven case-relevant knowledge** — playbook + grounding-card matches + framing-matched product references + matching log schema(s) only when logs / SIEM / LSS / NSS or a user-provided log path are part of the framing. Do not add files because they might support an ungrounded hypothesis. Cross-cutting agent-instruction docs (methodology, diagnostics template, siem-emission-discipline, tenant-schema-derivation, loading-discipline, clarification-pattern) are on-demand and **do NOT appear here**. **Snapshot files also do not appear** — they are decided in Step 2 after docs are loaded.
+Emit a `**Proposed loads** (Step 2A — docs only; snapshot loads decided in Step 2B after docs are read)` heading followed by a bullet list of paths. The list is **mapping-driven case-relevant knowledge** — playbook + grounding-card matches + framing-matched product references + matching telemetry references under `references/{zia,zpa,zcc}/logs/` only when logs / metrics / SIEM / LSS / NSS or a user-provided evidence path are part of the framing. Do not add files because they might support an ungrounded hypothesis. Cross-cutting agent-instruction docs (methodology, diagnostics template, siem-emission-discipline, tenant-schema-derivation, loading-discipline, clarification-pattern) are on-demand and **do NOT appear here**. **Snapshot files also do not appear** — they are decided in Step 2 after docs are loaded.
 
 - agents/investigator/prompt.md
 - <product references from the mapping table that match Products / features>
-- <log schema(s) only if framing involves logs>
+- <telemetry reference(s) only if framing involves logs, metrics, SIEM, or explicit evidence>
 
 > **Note:** snapshot enumeration and selection used to live in Step 1; moved to Step 2B after docs load. Docs tell the agent which snapshot files are entry points and which links of the chain matter — selecting without docs in context produces uninformed bulk loads.
 
@@ -285,7 +285,7 @@ Multiple rows may match a single framing — **add every matching row** to PROPO
 | Cloud Connector, Branch Connector | `references/cloud-connector/index.md` |
 | ZDX probe, deeptrace, Cloud Path | `references/zdx/index.md` |
 | ZIdentity, OneAPI, Authentication Level, step-up auth | `references/zidentity/index.md` |
-| LSS / NSS log fields, log schema | matching schema under `references/{zia,zpa,zcc}/logs/` |
+| LSS / NSS log fields, metrics, telemetry schemas | matching reference under `references/{zia,zpa,zcc}/logs/` |
 
 #### Early-journal creation — write the stub before Checkpoint 1
 

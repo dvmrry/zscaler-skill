@@ -51,7 +51,7 @@ test("openCase creates passing case intake, JSON, and journal artifacts", () => 
   assert.match(caseIntakeMd, /^Blocking Issues: none$/m);
 });
 
-test("openCase blocks speculative log-schema loads without log framing", () => {
+test("openCase blocks speculative telemetry loads without telemetry framing", () => {
   const root = tempRepo();
   const framingPath = writeJson(root, "framing.json", {
     workingDirectory: root,
@@ -68,12 +68,12 @@ test("openCase blocks speculative log-schema loads without log framing", () => {
     proposedLoads: [
       "agents/investigator/prompt.md",
       "agents/investigator/harness.md",
-      "references/zia/logs/web-insights-schema.md",
+      "references/zia/logs/web-log-schema.md",
     ],
   });
 
   assert.equal(result.status, "blocked");
-  assert.match(result.blockingIssues.join(" "), /log-schema proposed loads require/);
+  assert.match(result.blockingIssues.join(" "), /telemetry proposed loads require/);
 
   const caseIntakeMd = fs.readFileSync(
     path.join(root, "_data/cases/2026-05-17-zia-payroll/case-intake.md"),
@@ -82,7 +82,57 @@ test("openCase blocks speculative log-schema loads without log framing", () => {
   assert.match(caseIntakeMd, /^Status: blocked$/m);
 });
 
-test("openCase allows log-schema loads when evidence is in framing", () => {
+test("openCase does not treat hyphenated hostname log token as telemetry context", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "node-helper-log-reject.example.invalid is unreachable",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+
+  const result = openCase({
+    root,
+    caseSlug: "2026-05-17-hostname-log-token",
+    framingJson: framingPath,
+    proposedLoads: [
+      "agents/investigator/prompt.md",
+      "agents/investigator/harness.md",
+      "references/zpa/logs/access-log-schema.md",
+    ],
+  });
+
+  assert.equal(result.status, "blocked");
+  assert.match(result.blockingIssues.join(" "), /telemetry proposed loads require/);
+});
+
+test("openCase blocks metrics references without telemetry framing", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA app segment is unreachable",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+
+  const result = openCase({
+    root,
+    caseSlug: "2026-05-17-zpa-reachability",
+    framingJson: framingPath,
+    proposedLoads: [
+      "agents/investigator/prompt.md",
+      "agents/investigator/harness.md",
+      "references/zpa/logs/app-connector-metrics.md",
+    ],
+  });
+
+  assert.equal(result.status, "blocked");
+  assert.match(result.blockingIssues.join(" "), /telemetry proposed loads require/);
+});
+
+test("openCase allows telemetry loads when evidence is in framing", () => {
   const root = tempRepo();
   const framingPath = writeJson(root, "framing.json", {
     workingDirectory: root,
@@ -100,9 +150,71 @@ test("openCase allows log-schema loads when evidence is in framing", () => {
     proposedLoads: [
       "agents/investigator/prompt.md",
       "agents/investigator/harness.md",
-      "references/zpa/logs/app-connector-status-schema.md",
+      "references/zpa/logs/app-connector-status.md",
     ],
   });
 
   assert.equal(result.status, "pass");
+});
+
+test("verifyCaseFiles fails for blocked case intake", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZIA block page appears for payroll site",
+    tenantCloud: "zs1",
+    products: ["zia"],
+    scope: "one user",
+  });
+
+  openCase({
+    root,
+    caseSlug: "2026-05-17-blocked",
+    framingJson: framingPath,
+    proposedLoads: [
+      "agents/investigator/prompt.md",
+      "agents/investigator/harness.md",
+      "references/zia/logs/web-log-schema.md",
+    ],
+  });
+
+  assert.throws(
+    () => verifyCaseFiles(root, "2026-05-17-blocked"),
+    /case-intake\.md status is not pass/,
+  );
+});
+
+test("verifyCaseFiles fails for missing and mutated case intake artifacts", () => {
+  const root = tempRepo();
+  assert.throws(
+    () => verifyCaseFiles(root, "2026-05-17-missing"),
+    /no such file or directory/,
+  );
+
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "LSS logs show empty connector field",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+    evidencePaths: ["_data/cases/example/evidence/lss.csv"],
+  });
+
+  const result = openCase({
+    root,
+    caseSlug: "2026-05-17-mutated",
+    framingJson: framingPath,
+    proposedLoads: [
+      "agents/investigator/prompt.md",
+      "agents/investigator/harness.md",
+      "references/zpa/logs/access-log-schema.md",
+    ],
+  });
+
+  fs.writeFileSync(result.journalPath, "# Discovery Journal\n\n## Framing\n", "utf8");
+
+  assert.throws(
+    () => verifyCaseFiles(root, "2026-05-17-mutated"),
+    /journal\.md missing marker/,
+  );
 });

@@ -311,8 +311,9 @@ Always include:
 - `agents/investigator/harness.md`
 
 Then include every grounding card and product reference that matches the
-framing's vocabulary. Include log schemas only when logs, SIEM data, LSS/NSS,
-or a user-provided log/evidence path is part of the framing. Prefer explicit
+framing's vocabulary. Include telemetry references under
+`references/{zia,zpa,zcc}/logs/` only when logs, metrics, SIEM data, LSS/NSS,
+or a user-provided evidence path is part of the framing. Prefer explicit
 framing-to-file matches over model inference; companion references are often
 needed together.
 

@@ -106,10 +106,11 @@ They may include grounding cards or product references that match the framing.
 They must not include snapshot files, sibling case journals, or broad data
 directories.
 
-Log-schema references are only valid when the user's framing already mentions
-logs, SIEM data, LSS/NSS, pre-collected evidence, Splunk, or an explicit
-evidence/log path. If the framing does not contain that log context, the helper
-marks the case intake blocked instead of allowing a speculative log-schema load.
+Telemetry references under `references/{zia,zpa,zcc}/logs/` are only valid when
+the user's framing already mentions logs, metrics, SIEM data, LSS/NSS,
+pre-collected evidence, Splunk, or an explicit evidence path. If the framing
+does not contain that telemetry context, the helper marks the case intake
+blocked instead of allowing a speculative telemetry load.
 
 ## Case Intake Fields
 
