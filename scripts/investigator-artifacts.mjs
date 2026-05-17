@@ -1,0 +1,388 @@
+#!/usr/bin/env node
+import fs from "node:fs";
+import path from "node:path";
+import process from "node:process";
+
+const REPORT_BASENAME = "workflow-zscaler-investigator-report";
+const REQUIRED_REPORT_FIELDS = ["Status:", "Blocking Issues:", "Next Step:"];
+const REQUIRED_JOURNAL_MARKERS = [
+  "# Discovery Journal",
+  "## Framing",
+  "## Proposed Loads",
+  "## Claims",
+  "## Resolution",
+];
+
+function usage(exitCode = 0) {
+  const out = exitCode === 0 ? process.stdout : process.stderr;
+  out.write(`Usage:
+  node scripts/investigator-artifacts.mjs create-report --root <repo> --case-slug <slug> --framing-json <file> [--proposed-load <path> ...]
+  node scripts/investigator-artifacts.mjs verify-report --root <repo> --case-slug <slug>
+
+Creates and verifies _data/cases/<slug>/workflow-zscaler-investigator-report.md,
+workflow-zscaler-investigator-report.json, and journal.md.
+`);
+  process.exit(exitCode);
+}
+
+function parseArgs(argv) {
+  const command = argv[2];
+  if (!command || command === "--help" || command === "-h") usage(0);
+
+  const args = {
+    command,
+    proposedLoads: [],
+  };
+
+  for (let i = 3; i < argv.length; i += 1) {
+    const key = argv[i];
+    const value = argv[i + 1];
+    if (key === "--root") {
+      args.root = value;
+      i += 1;
+    } else if (key === "--case-slug") {
+      args.caseSlug = value;
+      i += 1;
+    } else if (key === "--framing-json") {
+      args.framingJson = value;
+      i += 1;
+    } else if (key === "--proposed-load") {
+      args.proposedLoads.push(value);
+      i += 1;
+    } else {
+      throw new Error(`Unknown argument: ${key}`);
+    }
+  }
+
+  return args;
+}
+
+function assertSafeSlug(slug) {
+  if (!slug || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(slug)) {
+    throw new Error("case slug must use only letters, numbers, dot, underscore, or hyphen");
+  }
+  if (slug.includes("..")) {
+    throw new Error("case slug cannot contain '..'");
+  }
+}
+
+function resolveRepoRoot(rootArg) {
+  if (!rootArg) throw new Error("--root is required");
+  const root = path.resolve(rootArg);
+  const stat = fs.statSync(root, { throwIfNoEntry: false });
+  if (!stat || !stat.isDirectory()) {
+    throw new Error(`repo root does not exist or is not a directory: ${root}`);
+  }
+  return root;
+}
+
+function safeRepoPath(root, relativePath) {
+  if (!relativePath || path.isAbsolute(relativePath) || relativePath.includes("\0")) {
+    throw new Error(`unsafe relative path: ${relativePath}`);
+  }
+  const normalized = path.normalize(relativePath);
+  if (normalized.startsWith("..") || path.isAbsolute(normalized)) {
+    throw new Error(`path escapes repo root: ${relativePath}`);
+  }
+  return path.join(root, normalized);
+}
+
+function loadFraming(root, framingJson) {
+  if (!framingJson) throw new Error("--framing-json is required for create-report");
+  const framingPath = path.isAbsolute(framingJson)
+    ? framingJson
+    : safeRepoPath(root, framingJson);
+  const raw = fs.readFileSync(framingPath, "utf8");
+  const framing = JSON.parse(raw);
+  if (!framing || typeof framing !== "object" || Array.isArray(framing)) {
+    throw new Error("framing JSON must be an object");
+  }
+  return framing;
+}
+
+function asArray(value) {
+  if (Array.isArray(value)) return value.map((item) => String(item));
+  if (value === undefined || value === null || value === "") return [];
+  return [String(value)];
+}
+
+function normalizeProposedLoads(loads) {
+  const seen = new Set();
+  const normalized = [];
+  for (const item of loads) {
+    if (!item) continue;
+    if (path.isAbsolute(item) || item.includes("\0")) {
+      throw new Error(`proposed load must be repo-relative: ${item}`);
+    }
+    const clean = path.normalize(item);
+    if (clean.startsWith("..")) {
+      throw new Error(`proposed load escapes repo root: ${item}`);
+    }
+    if (!seen.has(clean)) {
+      seen.add(clean);
+      normalized.push(clean);
+    }
+  }
+  return normalized;
+}
+
+function hasLogContext(framing) {
+  const fields = [
+    framing.symptom,
+    framing.scope,
+    framing.whatWorks,
+    framing.alreadyTried,
+    framing.recency,
+    ...asArray(framing.userFlaggedSpecifics),
+    ...asArray(framing.evidencePaths),
+  ];
+  const haystack = fields.join(" ").toLowerCase();
+  return /\b(log|logs|siem|lss|nss|splunk|evidence|event|events|trace|packet|pcap)\b/.test(haystack);
+}
+
+function isLogSchemaPath(relativePath) {
+  return /^references\/(zia|zpa|zcc)\/logs\/.+schema\.md$/.test(relativePath);
+}
+
+function reportStatus(framing, proposedLoads) {
+  const issues = [];
+  if (!String(framing.workingDirectory || "").trim()) {
+    issues.push("workingDirectory is required");
+  }
+  if (!String(framing.symptom || "").trim()) {
+    issues.push("symptom is required");
+  }
+  if (!String(framing.scope || "").trim()) {
+    issues.push("scope is required");
+  }
+  if (!proposedLoads.includes("agents/investigator/prompt.md")) {
+    issues.push("proposed loads must include agents/investigator/prompt.md");
+  }
+  if (!proposedLoads.includes("agents/investigator/harness.md")) {
+    issues.push("proposed loads must include agents/investigator/harness.md");
+  }
+  if (proposedLoads.some((load) => load.startsWith("_data/snapshot/"))) {
+    issues.push("Step 1 proposed loads must not include tenant snapshot files");
+  }
+  if (proposedLoads.some((load) => load.startsWith("_data/cases/"))) {
+    issues.push("Step 1 proposed loads must not browse case artifacts");
+  }
+  if (proposedLoads.some(isLogSchemaPath) && !hasLogContext(framing)) {
+    issues.push("log-schema proposed loads require log, SIEM, or evidence context in the framing");
+  }
+
+  return {
+    status: issues.length === 0 ? "pass" : "blocked",
+    blockingIssues: issues,
+  };
+}
+
+function bulletList(items) {
+  if (!items.length) return "- none";
+  return items.map((item) => `- ${item}`).join("\n");
+}
+
+function fieldValue(value, fallback = "not specified") {
+  if (Array.isArray(value)) return value.length ? value.join(", ") : fallback;
+  const text = String(value ?? "").trim();
+  return text || fallback;
+}
+
+function buildReportMd({ status, blockingIssues, nextStep, root, caseDir, reportJsonPath, journalPath, framing, proposedLoads }) {
+  const issueLine = blockingIssues.length ? blockingIssues.join("; ") : "none";
+  return `Status: ${status}
+Blocking Issues: ${issueLine}
+Next Step: ${nextStep}
+
+# Workflow Zscaler Investigator Report
+
+Case Directory: ${caseDir}
+Report JSON: ${reportJsonPath}
+Journal Path: ${journalPath}
+Working Directory: ${fieldValue(framing.workingDirectory, root)}
+
+## Framing
+
+| Field | Value |
+|---|---|
+| Symptom | ${fieldValue(framing.symptom)} |
+| Tenant cloud | ${fieldValue(framing.tenantCloud, "unknown/not needed")} |
+| Products / features | ${fieldValue(framing.products)} |
+| Scope | ${fieldValue(framing.scope)} |
+| Recency | ${fieldValue(framing.recency)} |
+| What works | ${fieldValue(framing.whatWorks)} |
+| Already tried | ${fieldValue(framing.alreadyTried)} |
+| User-flagged specifics | ${fieldValue(framing.userFlaggedSpecifics, "none")} |
+| Evidence paths | ${fieldValue(framing.evidencePaths, "none")} |
+
+## Proposed Loads
+
+${bulletList(proposedLoads)}
+`;
+}
+
+function buildJournalMd({ status, caseDir, reportPath, reportJsonPath, journalPath, framing, proposedLoads, timestamp }) {
+  return `# Discovery Journal - ${fieldValue(framing.symptom, "unframed investigation")}
+
+ISSUE: ${fieldValue(framing.symptom)}
+STATUS: ${status === "pass" ? "Investigating" : "Blocked at workflow report phase"}
+TIMESTAMP: ${timestamp}
+WORKING DIRECTORY: ${fieldValue(framing.workingDirectory)}
+CASE DIRECTORY: ${caseDir}
+WORKFLOW REPORT PATH: ${reportPath}
+WORKFLOW REPORT JSON: ${reportJsonPath}
+JOURNAL PATH: ${journalPath}
+
+## Framing
+
+| Field | Value |
+|---|---|
+| Symptom | ${fieldValue(framing.symptom)} |
+| Tenant cloud | ${fieldValue(framing.tenantCloud, "unknown/not needed")} |
+| Products / features | ${fieldValue(framing.products)} |
+| Scope | ${fieldValue(framing.scope)} |
+| Recency | ${fieldValue(framing.recency)} |
+| User-flagged specifics | ${fieldValue(framing.userFlaggedSpecifics, "none")} |
+
+## Proposed Loads
+
+${bulletList(proposedLoads)}
+
+## Claims
+
+(Hypotheses populated after workflow report verification and Step 2 grounding.)
+
+## Resolution
+
+${status === "pass" ? "Open." : "Blocked before grounding."}
+`;
+}
+
+function verifyReportFiles(root, caseSlug) {
+  assertSafeSlug(caseSlug);
+  const caseDir = path.join(root, "_data", "cases", caseSlug);
+  const reportPath = path.join(caseDir, `${REPORT_BASENAME}.md`);
+  const reportJsonPath = path.join(caseDir, `${REPORT_BASENAME}.json`);
+  const journalPath = path.join(caseDir, "journal.md");
+
+  const reportMd = fs.readFileSync(reportPath, "utf8");
+  const reportJson = JSON.parse(fs.readFileSync(reportJsonPath, "utf8"));
+  const journalMd = fs.readFileSync(journalPath, "utf8");
+
+  for (const marker of REQUIRED_REPORT_FIELDS) {
+    if (!reportMd.includes(marker)) {
+      throw new Error(`${REPORT_BASENAME}.md missing marker: ${marker}`);
+    }
+  }
+  if (!/^Status: pass$/m.test(reportMd)) {
+    throw new Error(`${REPORT_BASENAME}.md status is not pass`);
+  }
+  if (!/^Blocking Issues: none$/m.test(reportMd)) {
+    throw new Error(`${REPORT_BASENAME}.md blocking issues are not none`);
+  }
+  for (const marker of REQUIRED_JOURNAL_MARKERS) {
+    if (!journalMd.includes(marker)) {
+      throw new Error(`journal.md missing marker: ${marker}`);
+    }
+  }
+  if (reportJson.status !== "pass" || !Array.isArray(reportJson.blockingIssues) || reportJson.blockingIssues.length) {
+    throw new Error(`${REPORT_BASENAME}.json does not describe a passing report`);
+  }
+
+  return { caseDir, reportPath, reportJsonPath, journalPath };
+}
+
+function createReport(args) {
+  const root = resolveRepoRoot(args.root);
+  assertSafeSlug(args.caseSlug);
+  const framing = loadFraming(root, args.framingJson);
+  const proposedLoads = normalizeProposedLoads(args.proposedLoads);
+  const { status, blockingIssues } = reportStatus(framing, proposedLoads);
+
+  const caseDir = path.join(root, "_data", "cases", args.caseSlug);
+  const reportPath = path.join(caseDir, `${REPORT_BASENAME}.md`);
+  const reportJsonPath = path.join(caseDir, `${REPORT_BASENAME}.json`);
+  const journalPath = path.join(caseDir, "journal.md");
+  const timestamp = new Date().toISOString();
+  const nextStep = status === "pass"
+    ? "Run verify-report, then load only the proposed files."
+    : "Resolve the blocking issue, then rerun create-report.";
+
+  fs.mkdirSync(caseDir, { recursive: true });
+
+  const reportJson = {
+    status,
+    blockingIssues,
+    nextStep,
+    caseSlug: args.caseSlug,
+    caseDir,
+    reportPath,
+    reportJsonPath,
+    journalPath,
+    createdAt: timestamp,
+    framing,
+    proposedLoads,
+  };
+
+  fs.writeFileSync(reportJsonPath, `${JSON.stringify(reportJson, null, 2)}\n`, "utf8");
+  fs.writeFileSync(reportPath, buildReportMd({
+    status,
+    blockingIssues,
+    nextStep,
+    root,
+    caseDir,
+    reportJsonPath,
+    journalPath,
+    framing,
+    proposedLoads,
+  }), "utf8");
+  fs.writeFileSync(journalPath, buildJournalMd({
+    status,
+    caseDir,
+    reportPath,
+    reportJsonPath,
+    journalPath,
+    framing,
+    proposedLoads,
+    timestamp,
+  }), "utf8");
+
+  if (status === "pass") {
+    verifyReportFiles(root, args.caseSlug);
+  }
+
+  return reportJson;
+}
+
+function main() {
+  try {
+    const args = parseArgs(process.argv);
+    if (args.command === "create-report") {
+      const result = createReport(args);
+      process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+      process.exit(result.status === "pass" ? 0 : 2);
+    }
+    if (args.command === "verify-report") {
+      const root = resolveRepoRoot(args.root);
+      const result = verifyReportFiles(root, args.caseSlug);
+      process.stdout.write(`${JSON.stringify({ status: "pass", ...result }, null, 2)}\n`);
+      return;
+    }
+    usage(1);
+  } catch (error) {
+    process.stderr.write(`investigator-artifacts: ${error.message}\n`);
+    process.exit(1);
+  }
+}
+
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main();
+}
+
+export {
+  createReport,
+  hasLogContext,
+  isLogSchemaPath,
+  reportStatus,
+  verifyReportFiles,
+};

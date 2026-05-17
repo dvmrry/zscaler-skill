@@ -20,6 +20,19 @@ Windsurf `/z-investigator` workflow. The first implementation PR should create
 the canonical harness, wire references to it, and preserve the current Windsurf
 adapter as the known-good baseline.
 
+Implementation update: downstream Windsurf testing showed that prose-only
+Step 1 instructions inside the monolithic adapter were still too soft. The
+public-safe path is now:
+
+- keep `/z-investigator` as the user-facing command;
+- keep `.windsurf` runtime files as adapter surfaces, not source of truth;
+- add a canonical Step 1 workflow report under `agents/investigator/`;
+- add a small Node stdlib helper that creates and verifies
+  `workflow-zscaler-investigator-report.md`,
+  `workflow-zscaler-investigator-report.json`, and `journal.md`;
+- expose `/z-investigator-step-1` and `/z-investigator-step-2` only as
+  internal adapter validation / recovery gates, not as the normal user flow.
+
 Recommended canonical file:
 
 ```text
@@ -53,7 +66,8 @@ Do not do these in the harness implementation PR:
 - Add `.windsurf/workflows/z-investigator-v2-loads-skill.md`.
 - Add `.windsurf/workflows/z-investigator-v2-loads-prompt.md`.
 - Thin the Windsurf baseline adapter.
-- Implement JSON workflow artifact schemas.
+- Implement a full multi-phase JSON workflow schema beyond the narrow Step 1
+  workflow report gate.
 - Add maintainer skill loaders whose canonical prompts do not exist.
 - Touch private overlay or downstream generated adapter details.
 
@@ -188,10 +202,10 @@ preconditions, and the mapping-driven load list. Those are runtime-behavior
 guards, not product knowledge.
 
 Follow-up downstream testing also showed that prose-level "write and read back"
-instructions are not deterministic enough. Artifact creation must be a named
-transaction with ordered steps: resolve paths, create the case directory, write
-the exact stub, read the same file back, verify required markers, and only then
-emit `Journal created`. Step 3 journal saves use the same write/readback/marker
+instructions are not deterministic enough. Step 1 artifact creation must be a
+helper-backed transaction that creates and verifies the workflow report JSON,
+workflow report markdown, and journal stub before the checkpoint is rendered.
+Step 3 journal saves can later adopt the same write/readback/marker
 verification pattern before `Journal saved`.
 
 This creates a temporary duplicate-by-design state:
@@ -296,3 +310,12 @@ After this plan is implemented:
 4. Only then consider replacing or thinning the current Windsurf baseline.
 5. Later, add structured workflow artifacts under
    `_data/cases/<slug>/workflow/` and validators for those artifacts.
+
+Current narrow artifact gate:
+
+```text
+_data/cases/<slug>/
+  workflow-zscaler-investigator-report.md
+  workflow-zscaler-investigator-report.json
+  journal.md
+```

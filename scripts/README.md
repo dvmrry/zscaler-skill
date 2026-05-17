@@ -26,6 +26,8 @@ while finishing a tenant-specific implementation.
 - **Stdlib-only scripts** still use the uv shebang (with `dependencies = []`) for consistency — direct invocation works the same way regardless of whether deps are external.
 - **Library files** (no shebang) are imported by other scripts: `agent_patterns.py`, `policy_simulator.py`.
 - **Bash scripts** (`check-citations.sh`, `check-staleness.sh`, etc.) are direct-invokable (`./scripts/<name>.sh`).
+- **Node helpers** use only Node standard libraries when they exist to support
+  runtime workflow gates without adding a project install step.
 
 ## What's here
 
@@ -36,7 +38,7 @@ while finishing a tenant-specific implementation.
 | **Eval suite** | `run-evals.py` |
 | **Tenant API operations** | `diagnose-tenant.py`, `snapshot-refresh.py`, `url-lookup.py` |
 | **Private-overlay scaffolds** | `access-check.py`, `connector-health.py`, `sandbox-check.py`, `ssl-audit.py`, `zpa-app-check.py` |
-| **Reasoning helpers** | `agent_patterns.py` (lib), `policy_simulator.py` (lib), `simulate-policy.py`, `find-asymmetries.py`, `ab-test-prompt.py` (experimental placeholder) |
+| **Reasoning helpers** | `agent_patterns.py` (lib), `policy_simulator.py` (lib), `simulate-policy.py`, `find-asymmetries.py`, `ab-test-prompt.py` (experimental placeholder), `investigator-artifacts.mjs` |
 | **Maintenance** | `issue-watch.py`, `maintenance-digest.py`, `vendor-impact-summary.py`, `refresh-postman.sh`, `refresh-automate-zscaler.sh`, `snapshot-refresh.py`, `convert-pdf-sources.sh`, `scaffold_guard.py`, `splunk-query.sh` (stub) |
 | **Build** | `render-skill-pdf.py` |
 

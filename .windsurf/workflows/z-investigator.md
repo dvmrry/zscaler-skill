@@ -10,6 +10,7 @@ description: "Start an evidence-based troubleshooting investigation — parse fr
 Always load:
 - `agents/investigator/prompt.md`
 - `agents/investigator/harness.md`
+- `agents/investigator/workflow-report.md`
 
 Available on demand. Do not load before first response unless the trigger applies:
 - `agents/investigator/methodology.md` — load when stuck, drifting, or preparing handoff.
@@ -21,6 +22,13 @@ Available on demand. Do not load before first response unless the trigger applie
 <!-- adapter-deps:end -->
 
 All paths are relative to the Zscaler skill repo root. **Do not respond until all files are loaded.** Then follow the per-step procedure below.
+
+Step 1 artifact creation is helper-backed. Follow
+`agents/investigator/workflow-report.md`: create
+`workflow-zscaler-investigator-report.md`,
+`workflow-zscaler-investigator-report.json`, and `journal.md` with
+`node scripts/investigator-artifacts.mjs create-report`, then run
+`verify-report` before rendering a successful Step 1 checkpoint.
 
 ---
 
@@ -117,10 +125,14 @@ Cross-cutting docs (methodology, diagnostics template, siem-emission-discipline,
 
 **Journal created:** `<working-dir>/_data/cases/<slug>/journal.md`
 
-Only emit `Journal created` after the file-write tool writes the stub and the
-file-read tool reads it back successfully. If write or readback fails, emit
-`Journal not created: <reason>` and make fixing the save the next checkpoint
-option.
+**Workflow report:** `<working-dir>/_data/cases/<slug>/workflow-zscaler-investigator-report.md`
+**Workflow report JSON:** `<working-dir>/_data/cases/<slug>/workflow-zscaler-investigator-report.json`
+
+Only emit these paths after `node scripts/investigator-artifacts.mjs
+create-report` creates the artifacts and `node scripts/investigator-artifacts.mjs
+verify-report` verifies a passing report. If creation or verification fails,
+emit `Workflow report not ready: <reason>` and make fixing the workflow report
+artifact the next checkpoint option.
 
 What's next?
 - Proceed — load the proposed files (run Step 2)

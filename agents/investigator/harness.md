@@ -9,8 +9,10 @@ source-tier: practice
 sources:
   - ".windsurf/workflows/z-investigator.md"
   - "agents/investigator/prompt.md"
+  - "agents/investigator/workflow-report.md"
   - "agents/_meta/runtime-adapters.md"
   - "agents/_meta/windsurf-runtime-notes.md"
+  - "scripts/investigator-artifacts.mjs"
 author-status: draft
 ---
 
@@ -25,12 +27,17 @@ snapshot-load discipline, and subsequent-turn cadence.
 Runtime adapters may reinforce this harness for weaker models, but they should
 not invent a separate checkpoint contract.
 
+Step 1's deterministic artifact contract lives in
+[`workflow-report.md`](./workflow-report.md). Use the Node helper named there for
+workflow report and journal creation instead of relying on prose-only file-write
+instructions.
+
 ## Procedure Model
 
 The investigation has three sequential setup steps followed by repeated
 investigation turns:
 
-1. **Step 1 — Parse framing.**
+1. **Step 1 — Parse framing and create workflow report artifacts.**
 2. **Step 2 — Load files.**
 3. **Step 3 — Generate and save the discovery journal.**
 4. **Subsequent turns — update one hypothesis or evidence path per turn.**
@@ -138,6 +145,8 @@ Template:
 - `<path>`
 - `<path>`
 
+**Workflow report:** `<working-dir>/_data/cases/<slug>/workflow-zscaler-investigator-report.md`
+**Workflow report JSON:** `<working-dir>/_data/cases/<slug>/workflow-zscaler-investigator-report.json`
 **Journal created:** `<working-dir>/_data/cases/<slug>/journal.md`
 
 **What's next?**
@@ -147,10 +156,12 @@ Template:
 - Pause — stop here
 ```
 
-Only emit `Journal created` after the file-write tool has written the stub and
-the file-read tool has read it back successfully. If write or readback fails,
-emit `Journal not created: <reason>` and make fixing the save the next
-checkpoint option.
+Only emit these artifact paths after
+`node scripts/investigator-artifacts.mjs create-report` creates them and
+`node scripts/investigator-artifacts.mjs verify-report` verifies a passing
+report. If creation or verification fails, emit `Workflow report not ready:
+<reason>` and make fixing the workflow report artifact the next checkpoint
+option.
 
 The closing menu is Checkpoint 1. Halt after it. Do not load files, generate
 hypotheses, output a journal table, or run Step 2 before the user confirms.
@@ -308,27 +319,24 @@ needed together.
 If a matching file exists under `agents/investigator/grounding/`, prefer that
 grounding card before falling back to keyword-only topic loading.
 
-### Early Journal Creation
+### Workflow Report Artifact Creation
 
-After composing the parsed framing and proposed loads, run this artifact
-creation transaction. Do not summarize or collapse these steps:
+After composing the parsed framing and proposed loads, follow
+[`workflow-report.md`](./workflow-report.md). Do not summarize or collapse the
+helper-backed transaction:
 
 1. Resolve `case_dir` to `<working-dir>/_data/cases/<slug>`.
-2. Resolve `journal_path` to `<case_dir>/journal.md`.
-3. Create `case_dir`.
-4. Write the exact stub body below to `journal_path`.
-5. Read `journal_path` back.
-6. Verify the readback contains all required markers:
-   - `# Discovery Journal —`
-   - `## Framing`
-   - `## Proposed Loads`
-   - `## Claims`
-   - `## Resolution`
-7. Only after all six steps succeed, emit `Journal created:
-   <journal_path>`.
+2. Write the parsed framing to a JSON file.
+3. Run `node scripts/investigator-artifacts.mjs create-report` with the repo
+   root, slug, framing JSON, and proposed load list.
+4. If the report status is `pass`, run
+   `node scripts/investigator-artifacts.mjs verify-report`.
+5. Only after verification succeeds, emit the workflow report, report JSON, and
+   journal paths in the Step 1 output.
 
-Do this before Checkpoint 1. The artifact must exist from Step 1 onward, even
-if it only contains the framing and empty claims.
+Do this before Checkpoint 1. `workflow-zscaler-investigator-report.md`,
+`workflow-zscaler-investigator-report.json`, and `journal.md` must exist from
+Step 1 onward, even if the journal only contains framing and empty claims.
 
 Slug selection:
 
@@ -342,50 +350,17 @@ Do not browse sibling case directories to find a matching prior journal. The
 only continuation signals are an explicit user path/slug or the current target
 directory already containing `journal.md`.
 
-The stub body is deterministic. Fill placeholders from parsed framing and the
-proposed-load list; do not invent additional sections at Step 1:
-
-```text
-# Discovery Journal — <symptom>
-
-ISSUE: <one-sentence symptom>
-STATUS: Investigating
-TIMESTAMP: <ISO 8601 UTC>
-WORKING DIRECTORY: <absolute working directory>
-CASE DIRECTORY: <case_dir>
-JOURNAL PATH: <journal_path>
-
-## Framing
-
-| Field | Value |
-|---|---|
-| Symptom | <symptom> |
-| Tenant cloud | <cloud> |
-| Products / features | <products/features> |
-| Scope | <scope> |
-| Recency | <recency> |
-| User-flagged specifics | <tokens/paths/IDs> |
-
-## Proposed Loads
-
-<one bullet per proposed-load path, exactly as emitted in Step 1>
-
-## Claims
-
-(Hypotheses populated in Step 3.)
-
-## Resolution
-
-Open.
-```
+The stub bodies are deterministic and owned by
+`scripts/investigator-artifacts.mjs`. Do not hand-author a different workflow
+report or journal shape in a runtime adapter.
 
 If the working directory is unknown, do not create the stub. Ask the working
 directory clarification as the whole turn.
 
 If directory creation, write, readback, or marker verification fails, do not
-claim the journal exists. Surface `Journal not created: <failed transaction
-step> — <reason>` and halt at Checkpoint 1 with a save-retry option. Do not run
-Step 2 while artifact creation is incomplete.
+claim the workflow report is ready. Surface `Workflow report not ready:
+<failed transaction step> - <reason>` and halt at Checkpoint 1 with a retry
+option. Do not run Step 2 while artifact creation is incomplete.
 
 ## Step 2 Details
 
