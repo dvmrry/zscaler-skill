@@ -151,14 +151,14 @@ instantiation patterns.
 ./scripts/snapshot-refresh.py --zcc-only      # just ZCC
 ```
 
-The script writes to `_data/snapshot/zia/*.json`,
-`_data/snapshot/zpa/*.json`, and `_data/snapshot/zcc/*.json`, plus a
+The script writes to `_data/snapshot/<cloud>/zia/*.json`,
+`_data/snapshot/<cloud>/zpa/*.json`, and `_data/snapshot/<cloud>/zcc/*.json`, plus a
 `_manifest.json` with timestamps and per-resource counts.
 
-The public snapshot layout is product-first, not cloud-first. `ZSCALER_CLOUD`
-is recorded in `_data/snapshot/_manifest.json`; the public script does not
-create per-cloud directories. Multi-tenant or multi-cloud forks should treat
-that as a private overlay.
+The public snapshot layout is cloud-first. `ZSCALER_CLOUD` or `--cloud`
+selects the directory under `_data/snapshot/<cloud>/`; if neither is provided,
+the script writes to `_data/snapshot/default/`. Multi-tenant or multi-cloud
+forks should keep one directory per tenant cloud or tenant slug.
 
 The public upstream repo keeps `_data/snapshot/` empty via `.gitkeep`. Populate
 this directory locally, or in a private fork if your org explicitly allows

@@ -237,24 +237,24 @@ The chain has four hops, each verifiable against snapshot data. Walk them in ord
 
 Hypothesis: *"SIPA app segment exists but Server Group → App Connector Group association is missing or incorrect."*
 
-Snapshot files referenced: `_data/snapshot/zs3/zpa/application-segments.json` and `_data/snapshot/zs3/zpa/server-groups.json`.
+Snapshot files referenced: `_data/snapshot/zs2/zpa/application-segments.json` and `_data/snapshot/zs2/zpa/server-groups.json`.
 
 ```bash
 # Hop 1+2: find the segment for ssh.dev.azure.com:22 and list its server groups
 jq '.[] | select(.domainNames | index("ssh.dev.azure.com")) |
        {name, serverGroups: [.serverGroups[].id]}' \
-  _data/snapshot/zs3/zpa/application-segments.json
+  _data/snapshot/zs2/zpa/application-segments.json
 
 # Hop 3: for each server group ID returned above, list appConnectorGroups
 jq --arg id "<server-group-id>" '.[] | select(.id == $id) |
        {name, appConnectorGroups: [.appConnectorGroups[].id]}' \
-  _data/snapshot/zs3/zpa/server-groups.json
+  _data/snapshot/zs2/zpa/server-groups.json
 
 # Hop 4: for each connector group ID, count CONNECTED connectors
 jq --arg gid "<connector-group-id>" '
   [.[] | select(.appConnectorGroupId == $gid and .connectionStatus == "CONNECTED")]
    | length' \
-  _data/snapshot/zs3/zpa/app-connectors.json
+  _data/snapshot/zs2/zpa/app-connectors.json
 ```
 
 If any hop returns an empty list or zero, that's the broken hop and the corresponding hypothesis is `Confirmed`.

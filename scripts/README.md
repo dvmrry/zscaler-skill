@@ -31,7 +31,7 @@ while finishing a tenant-specific implementation.
 
 | Category | Scripts |
 |---|---|
-| **Hygiene / CI** | `check-hygiene.py`, `check-citations.sh`, `check-citation-density.py` (density advisory; source-line audit + citation inventory regression strict in CI), `check-doc-links.py`, `check-orphans.py`, `check-workflow-evals.py`, `check-vendor-drift.py`, `check-scrape-freshness.py`, `maintenance-digest.py`, `vendor-impact-summary.py` |
+| **Hygiene / CI** | `check-hygiene.py`, `check-citations.sh`, `check-citation-density.py` (density advisory; source-line audit + citation inventory regression strict in CI), `check-agent-skills.py` (portable Agent Skill contract and adapter-shape check), `check-doc-links.py`, `check-orphans.py`, `check-workflow-evals.py`, `check-vendor-drift.py`, `check-scrape-freshness.py`, `maintenance-digest.py`, `vendor-impact-summary.py` |
 | **Manual hygiene** | `check-staleness.sh` |
 | **Eval suite** | `run-evals.py` |
 | **Tenant API operations** | `diagnose-tenant.py`, `snapshot-refresh.py`, `url-lookup.py` |
@@ -58,23 +58,22 @@ A successful `snapshot-refresh.py` run against a small tenant looks like:
 ```text
 $ ./scripts/snapshot-refresh.py --zia-only
 zia:
-  ✓ url-categories: 142 records -> _data/snapshot/zia/url-categories.json
-  ✓ url-filtering-rules: 37 records -> _data/snapshot/zia/url-filtering-rules.json
-  ✓ cloud-app-control-rules: 12 records -> _data/snapshot/zia/cloud-app-control-rules.json
-  ✓ ssl-inspection-rules: 8 records -> _data/snapshot/zia/ssl-inspection-rules.json
-  ✓ advanced-settings: 1 records -> _data/snapshot/zia/advanced-settings.json
+  ✓ url-categories: 142 records -> _data/snapshot/zs2/zia/url-categories.json
+  ✓ url-filtering-rules: 37 records -> _data/snapshot/zs2/zia/url-filtering-rules.json
+  ✓ cloud-app-control-rules: 12 records -> _data/snapshot/zs2/zia/cloud-app-control-rules.json
+  ✓ ssl-inspection-rules: 8 records -> _data/snapshot/zs2/zia/ssl-inspection-rules.json
+  ✓ advanced-settings: 1 records -> _data/snapshot/zs2/zia/advanced-settings.json
 
-manifest -> _data/snapshot/_manifest.json
+manifest -> _data/snapshot/zs2/_manifest.json
 ```
 
-The public snapshot layout is product-first: `_data/snapshot/zia/`,
-`_data/snapshot/zpa/`, and `_data/snapshot/zcc/`. The manifest records
-`ZSCALER_CLOUD`; the public script does not partition output into per-cloud
-directories.
+The public snapshot layout is cloud-first: `_data/snapshot/<cloud>/zia/`,
+`_data/snapshot/<cloud>/zpa/`, and `_data/snapshot/<cloud>/zcc/`. The manifest
+records the selected cloud or tenant slug.
 
-`simulate-policy.py` reads the product-first layout by default. Private
-multi-cloud overlays can pass `--cloud <name>` (or set `ZSCALER_CLOUD`) to read
-`_data/snapshot/<cloud>/zia/`, with product-first fallback for public snapshots.
+`simulate-policy.py` reads the cloud-first layout by default. Pass
+`--cloud <name>` or set `ZSCALER_CLOUD` to select a specific snapshot. Legacy
+product-first snapshots remain a read fallback for older local exports.
 Pass `--snapshot-root <path>` when the snapshot directory is not
 `_data/snapshot`.
 
@@ -83,6 +82,23 @@ When a reference doc intentionally adds, removes, or restructures visible
 
 ```bash
 ./scripts/check-citation-density.py --write-citation-inventory references/_meta/citation-inventory.json
+```
+
+Semantic source coverage is advisory and surfaces prose that names evidence
+families without a matching section-level `Source:` family. For example, if a
+paragraph says "the underlying SDK checks..." but the section source list cites
+only help docs, run:
+
+```bash
+./scripts/check-citation-density.py --audit-source-quality --include-semantic
+```
+
+Portable Agent Skill contract checks validate repo-local skill metadata,
+canonical `agents/**` loader paths, routing-doc mentions, and obvious runtime
+adapter drift before downstream runtime testing:
+
+```bash
+./scripts/check-agent-skills.py
 ```
 
 Lines prefixed `!` indicate a per-resource fetch failure; the run continues.

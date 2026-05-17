@@ -295,4 +295,4 @@ Answers preserved in `_meta/clarifications.md`:
 - ZPA access policy precedence (the next layer — which segment is *allowed*) — [`./policy-precedence.md`](./policy-precedence.md)
 - Cross-product policy evaluation — [`../shared/policy-evaluation.md`](../shared/policy-evaluation.md)
 - LSS access log schema (for observational validation of which segment actually matched) — [`./logs/access-log-schema.md`](./logs/access-log-schema.md)
-- Wire-format schema for `_data/snapshot/zpa/app-segments.json` (camelCase keys, dual port-range formats, jq queries) — [`./snapshot-schema.md`](./snapshot-schema.md)
+- Wire-format schema for `_data/snapshot/<cloud>/zpa/app-segments.json` (camelCase keys, dual port-range formats, jq queries) — [`./snapshot-schema.md`](./snapshot-schema.md)

@@ -16,10 +16,10 @@ Run:
     ./scripts/simulate-policy.py --url https://x.com --include-disabled    # what-if mode
     ./scripts/simulate-policy.py --url https://x.com --json                 # machine-readable
 
-Reads product-first snapshots from _data/snapshot/zia/ by default. If --cloud
-or ZSCALER_CLOUD is set, first tries _data/snapshot/<cloud>/zia/ and falls back
-to the product-first layout. If empty, run `./scripts/snapshot-refresh.py
---zia-only` first.
+Reads cloud-first snapshots from _data/snapshot/<cloud>/zia/. If --cloud or
+ZSCALER_CLOUD is omitted and exactly one cloud directory exists, that directory
+is used. Legacy product-first snapshots remain a read fallback.
+If empty, run `./scripts/snapshot-refresh.py --zia-only` first.
 """
 
 from __future__ import annotations
@@ -144,7 +144,7 @@ def main() -> int:
         default=os.environ.get("ZSCALER_CLOUD"),
         help=(
             "Snapshot cloud/tenant directory under _data/snapshot/ "
-            "(default: ZSCALER_CLOUD if set, else product-first layout)."
+            "(default: ZSCALER_CLOUD if set, else auto-detect one cloud directory)."
         ),
     )
     p.add_argument(

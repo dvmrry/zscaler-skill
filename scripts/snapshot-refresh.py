@@ -25,20 +25,20 @@ Usage:
   ./scripts/snapshot-refresh.py --zcc-only
 
 Writes to:
-  _data/snapshot/zia/url-categories.json
-  _data/snapshot/zia/url-filtering-rules.json
-  _data/snapshot/zia/cloud-app-control-rules.json
-  _data/snapshot/zia/ssl-inspection-rules.json
-  _data/snapshot/zia/advanced-settings.json
-  _data/snapshot/zpa/app-segments.json
-  _data/snapshot/zpa/segment-groups.json
-  _data/snapshot/zpa/server-groups.json
-  _data/snapshot/zpa/access-policy-rules.json
-  _data/snapshot/zcc/forwarding-profiles.json
-  _data/snapshot/zcc/trusted-networks.json
-  _data/snapshot/zcc/fail-open-policy.json
-  _data/snapshot/zcc/web-policy.json
-  _data/snapshot/_manifest.json   (fetch timestamps, counts, script version)
+  _data/snapshot/<cloud>/zia/url-categories.json
+  _data/snapshot/<cloud>/zia/url-filtering-rules.json
+  _data/snapshot/<cloud>/zia/cloud-app-control-rules.json
+  _data/snapshot/<cloud>/zia/ssl-inspection-rules.json
+  _data/snapshot/<cloud>/zia/advanced-settings.json
+  _data/snapshot/<cloud>/zpa/app-segments.json
+  _data/snapshot/<cloud>/zpa/segment-groups.json
+  _data/snapshot/<cloud>/zpa/server-groups.json
+  _data/snapshot/<cloud>/zpa/access-policy-rules.json
+  _data/snapshot/<cloud>/zcc/forwarding-profiles.json
+  _data/snapshot/<cloud>/zcc/trusted-networks.json
+  _data/snapshot/<cloud>/zcc/fail-open-policy.json
+  _data/snapshot/<cloud>/zcc/web-policy.json
+  _data/snapshot/<cloud>/_manifest.json   (fetch timestamps, counts, script version)
 
 Each dump is a straight JSON serialization of the SDK's list response. Schema
 versioning is informal — the files' contents change when Zscaler changes the
@@ -100,8 +100,8 @@ def _fetch_all(fn: Callable, label: str) -> list[dict] | None:
     return out
 
 
-def refresh_zia(client) -> dict[str, int]:
-    target = SNAPSHOT_DIR / "zia"
+def refresh_zia(client, snapshot_root: Path) -> dict[str, int]:
+    target = snapshot_root / "zia"
     counts: dict[str, int] = {}
     print("zia:")
     for name, fn_path in (
@@ -130,8 +130,8 @@ def refresh_zia(client) -> dict[str, int]:
     return counts
 
 
-def refresh_zpa(client) -> dict[str, int]:
-    target = SNAPSHOT_DIR / "zpa"
+def refresh_zpa(client, snapshot_root: Path) -> dict[str, int]:
+    target = snapshot_root / "zpa"
     counts: dict[str, int] = {}
     print("zpa:")
     for name, fn_path in (
@@ -159,8 +159,8 @@ def refresh_zpa(client) -> dict[str, int]:
     return counts
 
 
-def refresh_zcc(client) -> dict[str, int]:
-    target = SNAPSHOT_DIR / "zcc"
+def refresh_zcc(client, snapshot_root: Path) -> dict[str, int]:
+    target = snapshot_root / "zcc"
     counts: dict[str, int] = {}
     print("zcc:")
     for name, fn_path in (
@@ -193,6 +193,11 @@ def main() -> int:
     parser.add_argument("--zia-only", action="store_true")
     parser.add_argument("--zpa-only", action="store_true")
     parser.add_argument("--zcc-only", action="store_true")
+    parser.add_argument(
+        "--cloud",
+        default=os.environ.get("ZSCALER_CLOUD"),
+        help="Snapshot cloud/tenant slug under _data/snapshot/ (default: ZSCALER_CLOUD, or 'default' for local path only).",
+    )
     args = parser.parse_args()
 
     _check_env()
@@ -204,14 +209,19 @@ def main() -> int:
         "client_secret": os.environ.get("ZSCALER_CLIENT_SECRET"),
         "private_key": os.environ.get("ZSCALER_PRIVATE_KEY"),
         "vanity_domain": os.environ["ZSCALER_VANITY_DOMAIN"],
-        "cloud": os.environ.get("ZSCALER_CLOUD"),
+        "cloud": args.cloud,
     })
+
+    snapshot_slug = args.cloud or "default"
+    snapshot_root = SNAPSHOT_DIR / snapshot_slug
 
     manifest = {
         "script": "snapshot-refresh.py",
         "script_version": SCRIPT_VERSION,
         "fetched_at_utc": datetime.now(timezone.utc).isoformat(),
-        "zscaler_cloud": os.environ.get("ZSCALER_CLOUD") or "default",
+        "snapshot_layout": "cloud-first",
+        "snapshot_root": str(snapshot_root.relative_to(Path(__file__).resolve().parent.parent)),
+        "zscaler_cloud": snapshot_slug,
         "counts": {},
     }
 
@@ -220,13 +230,13 @@ def main() -> int:
     run_zcc = not (args.zia_only or args.zpa_only)
 
     if run_zia:
-        manifest["counts"]["zia"] = refresh_zia(client)
+        manifest["counts"]["zia"] = refresh_zia(client, snapshot_root)
     if run_zpa:
-        manifest["counts"]["zpa"] = refresh_zpa(client)
+        manifest["counts"]["zpa"] = refresh_zpa(client, snapshot_root)
     if run_zcc:
-        manifest["counts"]["zcc"] = refresh_zcc(client)
+        manifest["counts"]["zcc"] = refresh_zcc(client, snapshot_root)
 
-    manifest_path = SNAPSHOT_DIR / "_manifest.json"
+    manifest_path = snapshot_root / "_manifest.json"
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True))
     print(f"\nmanifest → {manifest_path}")

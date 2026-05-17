@@ -35,33 +35,33 @@ No subdir convention — flat. Scripts that want their own scratch namespace can
 ### `_data/snapshot/`
 
 **Tenant config dumps for offline analysis.** Gitignored except `.gitkeep`.
-The public scripts use a product-first layout:
+The public scripts use a cloud-first layout:
 
 ```
 _data/snapshot/
-├── zia/
-│   ├── url-categories.json
-│   ├── url-filtering-rules.json
-│   └── ...
-├── zpa/
-│   ├── app-segments.json
-│   ├── server-groups.json
-│   └── ...
-├── zcc/
-│   ├── forwarding-profiles.json
-│   └── ...
-└── _manifest.json
+└── <cloud>/
+    ├── zia/
+    │   ├── url-categories.json
+    │   ├── url-filtering-rules.json
+    │   └── ...
+    ├── zpa/
+    │   ├── app-segments.json
+    │   ├── server-groups.json
+    │   └── ...
+    ├── zcc/
+    │   ├── forwarding-profiles.json
+    │   └── ...
+    └── _manifest.json
 ```
 
-`scripts/snapshot-refresh.py` records the selected `ZSCALER_CLOUD` in
-`_manifest.json`; it does not create per-cloud directories.
+`scripts/snapshot-refresh.py` uses `--cloud`, `ZSCALER_CLOUD`, or `default`
+as the `<cloud>` slug and records that slug in `_manifest.json`.
 
 `scripts/snapshot-refresh.py` writes here. `scripts/simulate-policy.py` and other config-replay tools read from here.
 
-**Multi-tenant / multi-cloud forks** can add a private overlay such as
-`_data/snapshot/<tenant>/zia/...` or `_data/snapshot/<cloud>/zia/...`, but
-that is not the public repo convention. If a fork adds such an overlay, update
-its local agent prompts and scripts to match.
+**Multi-tenant / multi-cloud forks** should keep one directory per tenant cloud
+or tenant slug under `_data/snapshot/`. Do not mix multiple clouds into a
+product-first directory.
 
 ### `_data/cases/`
 
