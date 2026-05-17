@@ -58,7 +58,7 @@ From the inspected Go ZTW service files:
 
 ## Terraform provider resources
 
-Source: `vendor/terraform-provider-ztc/ztc/provider.go`; `vendor/terraform-provider-ztc/ztc/config.go`; `vendor/terraform-provider-ztc/docs/resources/ztc_activation_status.md`; `vendor/terraform-provider-ztc/docs/resources/ztc_traffic_forwarding_rule.md`; `vendor/terraform-provider-ztc/docs/data-sources/ztc_edge_connector_group.md`.
+Source: `vendor/terraform-provider-ztc/ztc/provider.go`; `vendor/terraform-provider-ztc/ztc/config.go`; `vendor/terraform-provider-ztc/ztc/resource_ztc_activation_status.go`; `vendor/terraform-provider-ztc/docs/resources/ztc_traffic_forwarding_rule.md`; `vendor/terraform-provider-ztc/docs/data-sources/ztc_edge_connector_group.md`.
 
 From the Terraform provider schema and generated docs:
 

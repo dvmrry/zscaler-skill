@@ -3,7 +3,7 @@
 # requires-python = ">=3.10"
 # dependencies = []
 # ///
-"""Report paragraph-level citation density for reference and agent docs.
+"""Report paragraph-level citation density for reference docs.
 
 This is advisory by default. It does not attempt to prove that every claim is
 correctly cited; it finds long Markdown files where many body paragraphs have no
@@ -12,7 +12,7 @@ local citation marker. Use the ranked output to choose human audit targets.
 Examples:
   ./scripts/check-citation-density.py
   ./scripts/check-citation-density.py --threshold 0.80 --top 25
-  ./scripts/check-citation-density.py references agents
+  ./scripts/check-citation-density.py references
   ./scripts/check-citation-density.py --audit-sources
   ./scripts/check-citation-density.py --audit-source-quality
   ./scripts/check-citation-density.py --audit-source-quality --include-semantic
@@ -49,7 +49,7 @@ SOURCE_LINE_RE = re.compile(r"^\s*Source:\s*(.*)$", re.IGNORECASE)
 ALTERNATE_SOURCE_LINE_RE = re.compile(r"^\s*(?:Source\s+\([^)]*\)|Sources|Vendor source):\s*(.*)$", re.IGNORECASE)
 BRACKET_SOURCE_RE = re.compile(r"\[Source:\s*([^\]]+)\]", re.IGNORECASE)
 INLINE_SOURCE_RE = re.compile(r"\bSource:\s*(.+)", re.IGNORECASE)
-SOURCE_PATH_RE = re.compile(r"\b(?:vendor|scripts)/[A-Za-z0-9_./-]+")
+SOURCE_PATH_RE = re.compile(r"\b(?:vendor|scripts)/[A-Za-z0-9_./&-]+")
 QUOTED_SOURCE_PATH_RE = re.compile(r"`(?:vendor|scripts)/[^`]+`")
 UNQUOTED_SOURCE_PATH_RE = re.compile(r"(?<!`)\b(?:vendor|scripts)/[A-Za-z0-9_./-]+")
 SOURCE_PERIOD_INSIDE_BACKTICK_RE = re.compile(r"`(?:vendor|scripts)/[^`]+\.`")
@@ -227,7 +227,7 @@ def should_warn_directory_sources(path: Path, text: str) -> bool:
 
 
 def is_attention_candidate(score: FileScore, threshold: float, large_paragraphs: int) -> bool:
-    if score.audit_class not in {"reference", "reasoning"}:
+    if score.audit_class != "reference":
         return False
     return (
         score.paragraphs >= large_paragraphs
@@ -281,6 +281,38 @@ def source_payloads(line: str) -> list[tuple[str, str]]:
     return payloads
 
 
+def frontmatter_source_payloads(text: str) -> list[tuple[int, str]]:
+    match = FRONTMATTER_CAPTURE_RE.match(text)
+    if not match:
+        return []
+
+    payloads: list[tuple[int, str]] = []
+    in_sources = False
+    for offset, line in enumerate(match.group(1).splitlines(), start=2):
+        stripped = line.strip()
+        if re.match(r"^[A-Za-z0-9_-]+:", stripped):
+            in_sources = stripped.startswith("sources:")
+            continue
+        if not in_sources or not stripped.startswith("-"):
+            continue
+        value = stripped.removeprefix("-").strip().strip("\"'")
+        if value:
+            payloads.append((offset, value))
+    return payloads
+
+
+def source_path_missing(source_path: str) -> bool:
+    candidate = REPO_ROOT / source_path
+    if candidate.exists():
+        return False
+    parts = Path(source_path).parts
+    if parts and parts[0] == "vendor" and len(parts) >= 2:
+        submodule_root = REPO_ROOT / parts[0] / parts[1]
+        if not submodule_root.exists():
+            return False
+    return True
+
+
 STYLE_SOURCE_KINDS = {
     "after-content-source",
     "alternate-source-label",
@@ -318,6 +350,11 @@ def audit_source_quality(
     line_lookup = {line_number: line for line_number, line in lines}
     source_styles: set[str] = set()
     previous_source_payload = ""
+
+    for line_number, source_text in frontmatter_source_payloads(text):
+        for source_path in SOURCE_PATH_RE.findall(source_text):
+            if source_path_missing(source_path):
+                issues.append(issue(rel, line_number, "missing-source-path", source_text))
 
     def next_nonblank_line(after: int) -> str:
         for line_number, candidate in lines:
@@ -397,6 +434,8 @@ def audit_source_quality(
                 issues.append(issue(rel, line_number, "frontmatter-proxy-source", line.strip()))
 
             for source_path in SOURCE_PATH_RE.findall(source_text):
+                if source_path_missing(source_path):
+                    issues.append(issue(rel, line_number, "missing-source-path", line.strip()))
                 if source_path.endswith("/") and warn_directory_sources:
                     issues.append(issue(rel, line_number, "directory-source", line.strip()))
                 if "/test" in source_path or source_path.endswith("_test.go") or "/tests/" in source_path:
@@ -727,6 +766,9 @@ def compare_citation_inventory(
             if int(after.get(field, 0)) > int(before.get(field, 0)):
                 add(path, f"{field}-increase", before.get(field, 0), after.get(field, 0))
 
+    for path in sorted(set(current_items) - set(baseline_items)):
+        add(path, "file-untracked", "missing", "present")
+
     return regressions
 
 
@@ -859,7 +901,7 @@ def main() -> int:
         "paths",
         nargs="*",
         default=[str(REPO_ROOT / name) for name in DEFAULT_DIRS],
-        help="Files or directories to scan (default: references agents)",
+        help="Files or directories to scan (default: references)",
     )
     parser.add_argument("--threshold", type=float, default=0.80)
     parser.add_argument("--top", type=int, default=20)
@@ -940,12 +982,7 @@ def main() -> int:
     args = parser.parse_args()
 
     roots = [Path(path).resolve() for path in args.paths]
-    expanded: list[Path] = []
-    for root in roots:
-        if root.is_file():
-            expanded.append(root)
-        else:
-            expanded.append(root)
+    expanded = list(roots)
 
     scores = collect_scores(expanded)
     citation_inventory = collect_citation_inventory(expanded) if (

@@ -24,7 +24,7 @@ How ZIA matches URLs configured in custom URL categories and URL filtering rules
 
 Three non-obvious behaviors that experienced operators still miss:
 
-Source: `vendor/zscaler-help/URL_Format_Guidelines.txt`.
+Source: `vendor/zscaler-help/url-format-guidelines.md`.
 
 1. **Leading-period wildcards cap at 5 subdomain levels deep.** `.example.com` matches `a.b.c.d.example.com` (4 levels) but the cap at exactly 5 is ambiguous in docs — see [clarification `zia-14`](../_meta/clarifications.md#zia-14-leading-period-wildcard-at-exactly-5-subdomain-levels). Teams that hardcode deep subdomain chains past 5 levels should not rely on wildcard inheritance — either the traffic falls through, or it hits an ambiguity. When in doubt, add the deeper subdomain as an explicit entry or add a shorter wildcard that fits within the cap.
 2. **Asterisks are not valid wildcards.** `*.example.com` and `*example.com` are documented as invalid, but operator reports suggest the admin console accepts them at save time — see [clarification `zia-15`](../_meta/clarifications.md#zia-15-console-accepts-asterisk-despite-docs-marking-it-invalid). Treat asterisks as broken regardless of whether the console lets you save them; translate to the leading-period form.

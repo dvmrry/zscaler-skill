@@ -9,7 +9,7 @@ source-tier: code
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zcc/zcc_service.py"
   - "vendor/zscaler-sdk-python/zscaler/zcc/legacy.py"
-  - "vendor/zscaler-sdk-python/zscaler/zcc/utils.py"
+  - "vendor/zscaler-sdk-python/zscaler/utils.py"
   - "vendor/zscaler-sdk-go/zscaler/zcc/services/common/common.go"
 author-status: draft
 ---
@@ -91,7 +91,7 @@ ZCC requires ZCC-scoped API credentials. When using OneAPI, the token request mu
 
 ### Pagination — Python
 
-Source: `vendor/zscaler-sdk-python/zscaler/zcc/utils.py`; `vendor/zscaler-sdk-python/zscaler/zcc/devices.py`.
+Source: `vendor/zscaler-sdk-python/zscaler/utils.py`; `vendor/zscaler-sdk-python/zscaler/zcc/devices.py`.
 
 List endpoints accept `page` (1-indexed) and `page_size` (default 50, max 5000) as `query_params` keys. The `@zcc_param_mapper` decorator translates snake_case OS and registration type names to their numeric API equivalents before the request is sent.
 
@@ -111,7 +111,7 @@ Every method returns a three-tuple `(result, response, error)`. Callers should c
 
 ### Parameter mapping (`@zcc_param_mapper`)
 
-Source: `vendor/zscaler-sdk-python/zscaler/zcc/utils.py`.
+Source: `vendor/zscaler-sdk-python/zscaler/utils.py`.
 
 The `zcc_param_mapper` decorator translates human-readable OS type strings (`"windows"`, `"macos"`, etc.) to integer codes required by the API (`3`, `4`, etc.), and registration type strings to their numeric equivalents. It also handles date-to-API-format conversion for endpoints that accept `start_date`/`end_date`.
 

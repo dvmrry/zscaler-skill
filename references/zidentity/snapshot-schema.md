@@ -8,7 +8,7 @@ confidence: medium
 source-tier: doc
 sources:
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
-  - "vendor/zscaler-sdk-python/zscaler/zidentity/"
+  - "vendor/zscaler-sdk-python/zscaler/zid/"
 author-status: draft
 ---
 

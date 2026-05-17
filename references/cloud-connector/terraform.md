@@ -379,7 +379,7 @@ Import: by `<GROUP_ID>` or `<GROUP_NAME>`.
 
 #### `ztc_location_template`
 
-Source: `vendor/terraform-provider-ztc/docs/resources/ztc_location_meta/template.md`.
+Source: `vendor/terraform-provider-ztc/docs/resources/ztc_location_template.md`.
 
 Manages location templates. Templates are applied to provisioning URLs to configure the ZIA location settings that Cloud Connector locations inherit.
 

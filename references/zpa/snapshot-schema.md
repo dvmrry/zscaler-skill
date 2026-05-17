@@ -427,11 +427,11 @@ Cross-links: [`./app-segments.md`](./app-segments.md), [`./browser-access.md`](.
 
 ## `segment-groups.json`
 
-Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscaler-sdk-python/zscaler/zpa/segment_group.py`.
+Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscaler-sdk-python/zscaler/zpa/segment_groups.py`.
 
 API: `GET /zpa/mgmtconfig/v1/admin/customers/{customerId}/segmentGroup`
 
-Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscaler-sdk-python/zscaler/zpa/segment_group.py`.
+Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscaler-sdk-python/zscaler/zpa/segment_groups.py`.
 
 **Shape:** wrapped paginated response with `list` containing segment-group objects.
 
@@ -467,7 +467,7 @@ Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscal
 }
 ```
 
-Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscaler-sdk-python/zscaler/zpa/segment_group.py`.
+Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscaler-sdk-python/zscaler/zpa/segment_groups.py`.
 
 Each segment group **embeds full application objects**, not just IDs — so `app-segments.json` and `segment-groups.json` have overlapping data. Operationally this means snapshot diff'ing must account for the duplication.
 
@@ -486,11 +486,11 @@ jq '.list[] | select(.enabled == false) | .name' _data/snapshot/zpa/segment-grou
 
 ## `server-groups.json`
 
-Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscaler-sdk-python/zscaler/zpa/server_group.py`.
+Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscaler-sdk-python/zscaler/zpa/server_groups.py`.
 
 API: `GET /zpa/mgmtconfig/v1/admin/customers/{customerId}/serverGroup`
 
-Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscaler-sdk-python/zscaler/zpa/server_group.py`.
+Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscaler-sdk-python/zscaler/zpa/server_groups.py`.
 
 **Shape:** wrapped paginated response.
 

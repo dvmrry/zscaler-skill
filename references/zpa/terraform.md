@@ -28,12 +28,10 @@ sources:
   - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_config_controller.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_app_connector_metrics.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_app_connector_status.md"
-  - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_browser_access.md"
-  - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_user_activity.md"
-  - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_user_status.md"
-  - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_zpn_ast_auth_log.md"
-  - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_zpn_pbroker_comprehensive_stats.md"
-  - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_zpn_trans_log.md"
+  - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_web_browser.md"
+  - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_config_user_activity.md"
+  - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_config_user_status.md"
+  - "vendor/terraform-provider-zpa/docs/data-sources/zpa_lss_config_log_type_formats.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_pra_approval_controller.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_pra_console_controller.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_pra_credential_controller.md"
@@ -470,7 +468,7 @@ Source: `vendor/terraform-provider-zpa/docs/resources/zpa_microtenant_controller
 
 ### Log Streaming Service (LSS)
 
-The ZPA provider exposes a single Terraform resource type for LSS regardless of the log stream type. The eight doc files with LSS-specific names (`zpa_lss_app_connector_metrics.md`, etc.) are usage-example aliases — they all configure the same `zpa_lss_config_controller` resource with different `source_log_type` values.
+The ZPA provider exposes a single Terraform resource type for LSS regardless of the log stream type. Several LSS-specific docs (`zpa_lss_app_connector_metrics.md`, `zpa_lss_config_user_activity.md`, etc.) are usage-example aliases — they configure the same `zpa_lss_config_controller` resource with different `source_log_type` values. The provider also exposes `zpa_lss_config_log_type_formats` as the source for valid log type metadata.
 
 #### `zpa_lss_config_controller`
 
@@ -494,19 +492,19 @@ Streams ZPA log data to an external SIEM over TCP.
 
 **`source_log_type` values:**
 
-| Value | Alias doc file | Description |
+| Value | Alias or metadata source | Description |
 |---|---|---|
-| `zpn_trans_log` | `zpa_lss_user_activity.md` | Per-session user activity |
-| `zpn_auth_log` | `zpa_lss_user_status.md` | Authentication events |
-| `zpn_ast_auth_log` | `zpa_lss_zpn_ast_auth_log.md` | AST auth events |
-| `zpn_pbroker_comprehensive_stats` | `zpa_lss_zpn_pbroker_comprehensive_stats.md` | Broker stats |
-| `zpn_trans_log` (browser) | `zpa_lss_browser_access.md` | Browser access sessions |
+| `zpn_trans_log` | `zpa_lss_config_user_activity.md` | Per-session user activity |
+| `zpn_auth_log` | `zpa_lss_config_user_status.md` | Authentication events |
+| `zpn_ast_auth_log` | `zpa_lss_config_log_type_formats.md` | AST auth events |
+| `zpn_pbroker_comprehensive_stats` | `zpa_lss_config_log_type_formats.md` | Broker stats |
+| `zpn_trans_log` (browser) | `zpa_lss_web_browser.md` | Browser access sessions |
 | `zpn_sys_auth_log` | — | System auth |
-| `zpn_http_trans_log` | `zpa_lss_zpn_trans_log.md` | HTTP transactions |
+| `zpn_http_trans_log` | `zpa_lss_config_log_type_formats.md` | HTTP transactions |
 | `zpn_cnx_apps_stats` | `zpa_lss_app_connector_metrics.md` | Connector metrics |
 | (connector status) | `zpa_lss_app_connector_status.md` | Connector health status |
 
-Source: `vendor/terraform-provider-zpa/docs/resources/zpa_lss_config_controller.md` (and alias docs).
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_lss_config_controller.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_lss_app_connector_metrics.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_lss_app_connector_status.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_lss_config_user_activity.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_lss_config_user_status.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_lss_web_browser.md`; `vendor/terraform-provider-zpa/docs/data-sources/zpa_lss_config_log_type_formats.md`.
 
 ---
 

@@ -109,19 +109,13 @@ print(result.summary())
 
 ```bash
 ./scripts/simulate-policy.py --url https://www.reddit.com
-./scripts/simulate-policy.py --cloud zs2 --url https://www.reddit.com
 ./scripts/simulate-policy.py --url https://wiki.example.com --department engineering
 ./scripts/simulate-policy.py --url https://x.com --include-disabled    # what-if
 ./scripts/simulate-policy.py --url https://x.com --json                 # machine output
 ```
 
-Requires `url-filtering-rules.json` + `url-categories.json` under either
-`_data/snapshot/zia/` or `_data/snapshot/<cloud>/zia/`. Pass `--cloud <name>`
-or set `ZSCALER_CLOUD` for a per-cloud/private overlay; otherwise the CLI uses
-the public product-first layout. If exactly one per-cloud overlay exists under
-the snapshot root, the CLI auto-detects it. Pass `--snapshot-root <path>` when
-the snapshot directory is not `_data/snapshot`. Text output includes a
-`Snapshot:` line so operators can see which snapshot directory was used. Run
+Requires `_data/snapshot/zia/url-filtering-rules.json` +
+`_data/snapshot/zia/url-categories.json`. Run
 `./scripts/snapshot-refresh.py --zia-only` first if the snapshot is empty.
 
 ## Single-URL before/after primitive

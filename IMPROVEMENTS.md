@@ -158,12 +158,12 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 - **Cost**: variable — depends on the production scenario; capturing should be cheap (template is in place) but the underlying investigation/audit determines the work
 - **Notes**: when the first real production investigation or audit happens (a `/z-investigator` or `/z-auditor` cycle that runs against actual tenant data, not template-mode), capture it as the first verified diagnostic under the relevant role's `diagnostics/` directory. Use it to: (a) confirm the template's required fields are right, (b) confirm the verification-gating language works as a discipline, (c) seed the public diagnostics library with one canonical example. Do NOT manufacture speculative diagnostics to fill the template — that defeats the verification-gating principle the templates are built around.
 
-### `simulate-policy.py` snapshot path uses old per-product convention ✅ RESOLVED 2026-05-15
+### `simulate-policy.py` snapshot path uses old per-product convention
 
-- **Status**: Resolved
+- **Status**: In progress (implementation held for a separate PR)
 - **Origin**: 2026-04-30 — flagged when documenting the per-cloud subdir convention in `_data/README.md`
-- **Resolution**: `scripts/simulate-policy.py` now accepts `--cloud` (defaulting to `ZSCALER_CLOUD`) and `--snapshot-root`. It tries `_data/snapshot/<cloud>/zia/` first when a cloud is provided, auto-detects a single per-cloud/private overlay when unambiguous, and falls back to the public product-first `_data/snapshot/zia/` layout. Docs updated in `scripts/README.md` and `references/_meta/policy-simulation.md`.
-- **Validation**: syntax parse; `./scripts/simulate-policy.py --help`; empty-public-snapshot error path; path-candidate ordering; `git diff --check`; `python3 scripts/check-doc-links.py`; `./scripts/check-hygiene.py` (passes with existing eval-coverage warning).
+- **Current direction**: add `--cloud` (defaulting to `ZSCALER_CLOUD`) and `--snapshot-root`, try `_data/snapshot/<cloud>/zia/` first when a cloud is provided, auto-detect a single per-cloud/private overlay when unambiguous, and fall back to the public product-first `_data/snapshot/zia/` layout.
+- **Notes**: keep this out of the citation-cleanup PR unless the script implementation is committed with it. The public docs should not claim this behavior until `scripts/simulate-policy.py` ships the matching CLI.
 
 ### Primer files: `confidence: high` with empty `sources` ✅ RESOLVED 2026-04-30
 
