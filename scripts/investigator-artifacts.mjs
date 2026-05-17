@@ -3,8 +3,8 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 
-const REPORT_BASENAME = "workflow-zscaler-investigator-report";
-const REQUIRED_REPORT_FIELDS = ["Status:", "Blocking Issues:", "Next Step:"];
+const CASE_INTAKE_BASENAME = "case-intake";
+const REQUIRED_CASE_INTAKE_FIELDS = ["Status:", "Blocking Issues:", "Next Step:"];
 const REQUIRED_JOURNAL_MARKERS = [
   "# Discovery Journal",
   "## Framing",
@@ -16,11 +16,11 @@ const REQUIRED_JOURNAL_MARKERS = [
 function usage(exitCode = 0) {
   const out = exitCode === 0 ? process.stdout : process.stderr;
   out.write(`Usage:
-  node scripts/investigator-artifacts.mjs create-report --root <repo> --case-slug <slug> --framing-json <file> [--proposed-load <path> ...]
-  node scripts/investigator-artifacts.mjs verify-report --root <repo> --case-slug <slug>
+  node scripts/investigator-artifacts.mjs open-case --root <repo> --case-slug <slug> --framing-json <file> [--proposed-load <path> ...]
+  node scripts/investigator-artifacts.mjs verify-case --root <repo> --case-slug <slug>
 
-Creates and verifies _data/cases/<slug>/workflow-zscaler-investigator-report.md,
-workflow-zscaler-investigator-report.json, and journal.md.
+Creates and verifies _data/cases/<slug>/case-intake.md,
+case-intake.json, and journal.md.
 `);
   process.exit(exitCode);
 }
@@ -88,7 +88,7 @@ function safeRepoPath(root, relativePath) {
 }
 
 function loadFraming(root, framingJson) {
-  if (!framingJson) throw new Error("--framing-json is required for create-report");
+  if (!framingJson) throw new Error("--framing-json is required for open-case");
   const framingPath = path.isAbsolute(framingJson)
     ? framingJson
     : safeRepoPath(root, framingJson);
@@ -144,7 +144,7 @@ function isLogSchemaPath(relativePath) {
   return /^references\/(zia|zpa|zcc)\/logs\/.+schema\.md$/.test(relativePath);
 }
 
-function reportStatus(framing, proposedLoads) {
+function caseIntakeStatus(framing, proposedLoads) {
   const issues = [];
   if (!String(framing.workingDirectory || "").trim()) {
     issues.push("workingDirectory is required");
@@ -188,16 +188,16 @@ function fieldValue(value, fallback = "not specified") {
   return text || fallback;
 }
 
-function buildReportMd({ status, blockingIssues, nextStep, root, caseDir, reportJsonPath, journalPath, framing, proposedLoads }) {
+function buildCaseIntakeMd({ status, blockingIssues, nextStep, root, caseDir, caseIntakeJsonPath, journalPath, framing, proposedLoads }) {
   const issueLine = blockingIssues.length ? blockingIssues.join("; ") : "none";
   return `Status: ${status}
 Blocking Issues: ${issueLine}
 Next Step: ${nextStep}
 
-# Workflow Zscaler Investigator Report
+# Investigator Case Intake
 
 Case Directory: ${caseDir}
-Report JSON: ${reportJsonPath}
+Case Intake JSON: ${caseIntakeJsonPath}
 Journal Path: ${journalPath}
 Working Directory: ${fieldValue(framing.workingDirectory, root)}
 
@@ -221,16 +221,16 @@ ${bulletList(proposedLoads)}
 `;
 }
 
-function buildJournalMd({ status, caseDir, reportPath, reportJsonPath, journalPath, framing, proposedLoads, timestamp }) {
+function buildJournalMd({ status, caseDir, caseIntakePath, caseIntakeJsonPath, journalPath, framing, proposedLoads, timestamp }) {
   return `# Discovery Journal - ${fieldValue(framing.symptom, "unframed investigation")}
 
 ISSUE: ${fieldValue(framing.symptom)}
-STATUS: ${status === "pass" ? "Investigating" : "Blocked at workflow report phase"}
+STATUS: ${status === "pass" ? "Investigating" : "Blocked at case intake phase"}
 TIMESTAMP: ${timestamp}
 WORKING DIRECTORY: ${fieldValue(framing.workingDirectory)}
 CASE DIRECTORY: ${caseDir}
-WORKFLOW REPORT PATH: ${reportPath}
-WORKFLOW REPORT JSON: ${reportJsonPath}
+CASE INTAKE PATH: ${caseIntakePath}
+CASE INTAKE JSON: ${caseIntakeJsonPath}
 JOURNAL PATH: ${journalPath}
 
 ## Framing
@@ -250,7 +250,7 @@ ${bulletList(proposedLoads)}
 
 ## Claims
 
-(Hypotheses populated after workflow report verification and Step 2 grounding.)
+(Hypotheses populated after case intake verification and Step 2 grounding.)
 
 ## Resolution
 
@@ -258,80 +258,80 @@ ${status === "pass" ? "Open." : "Blocked before grounding."}
 `;
 }
 
-function verifyReportFiles(root, caseSlug) {
+function verifyCaseFiles(root, caseSlug) {
   assertSafeSlug(caseSlug);
   const caseDir = path.join(root, "_data", "cases", caseSlug);
-  const reportPath = path.join(caseDir, `${REPORT_BASENAME}.md`);
-  const reportJsonPath = path.join(caseDir, `${REPORT_BASENAME}.json`);
+  const caseIntakePath = path.join(caseDir, `${CASE_INTAKE_BASENAME}.md`);
+  const caseIntakeJsonPath = path.join(caseDir, `${CASE_INTAKE_BASENAME}.json`);
   const journalPath = path.join(caseDir, "journal.md");
 
-  const reportMd = fs.readFileSync(reportPath, "utf8");
-  const reportJson = JSON.parse(fs.readFileSync(reportJsonPath, "utf8"));
+  const caseIntakeMd = fs.readFileSync(caseIntakePath, "utf8");
+  const caseIntakeJson = JSON.parse(fs.readFileSync(caseIntakeJsonPath, "utf8"));
   const journalMd = fs.readFileSync(journalPath, "utf8");
 
-  for (const marker of REQUIRED_REPORT_FIELDS) {
-    if (!reportMd.includes(marker)) {
-      throw new Error(`${REPORT_BASENAME}.md missing marker: ${marker}`);
+  for (const marker of REQUIRED_CASE_INTAKE_FIELDS) {
+    if (!caseIntakeMd.includes(marker)) {
+      throw new Error(`${CASE_INTAKE_BASENAME}.md missing marker: ${marker}`);
     }
   }
-  if (!/^Status: pass$/m.test(reportMd)) {
-    throw new Error(`${REPORT_BASENAME}.md status is not pass`);
+  if (!/^Status: pass$/m.test(caseIntakeMd)) {
+    throw new Error(`${CASE_INTAKE_BASENAME}.md status is not pass`);
   }
-  if (!/^Blocking Issues: none$/m.test(reportMd)) {
-    throw new Error(`${REPORT_BASENAME}.md blocking issues are not none`);
+  if (!/^Blocking Issues: none$/m.test(caseIntakeMd)) {
+    throw new Error(`${CASE_INTAKE_BASENAME}.md blocking issues are not none`);
   }
   for (const marker of REQUIRED_JOURNAL_MARKERS) {
     if (!journalMd.includes(marker)) {
       throw new Error(`journal.md missing marker: ${marker}`);
     }
   }
-  if (reportJson.status !== "pass" || !Array.isArray(reportJson.blockingIssues) || reportJson.blockingIssues.length) {
-    throw new Error(`${REPORT_BASENAME}.json does not describe a passing report`);
+  if (caseIntakeJson.status !== "pass" || !Array.isArray(caseIntakeJson.blockingIssues) || caseIntakeJson.blockingIssues.length) {
+    throw new Error(`${CASE_INTAKE_BASENAME}.json does not describe a passing case intake`);
   }
 
-  return { caseDir, reportPath, reportJsonPath, journalPath };
+  return { caseDir, caseIntakePath, caseIntakeJsonPath, journalPath };
 }
 
-function createReport(args) {
+function openCase(args) {
   const root = resolveRepoRoot(args.root);
   assertSafeSlug(args.caseSlug);
   const framing = loadFraming(root, args.framingJson);
   const proposedLoads = normalizeProposedLoads(args.proposedLoads);
-  const { status, blockingIssues } = reportStatus(framing, proposedLoads);
+  const { status, blockingIssues } = caseIntakeStatus(framing, proposedLoads);
 
   const caseDir = path.join(root, "_data", "cases", args.caseSlug);
-  const reportPath = path.join(caseDir, `${REPORT_BASENAME}.md`);
-  const reportJsonPath = path.join(caseDir, `${REPORT_BASENAME}.json`);
+  const caseIntakePath = path.join(caseDir, `${CASE_INTAKE_BASENAME}.md`);
+  const caseIntakeJsonPath = path.join(caseDir, `${CASE_INTAKE_BASENAME}.json`);
   const journalPath = path.join(caseDir, "journal.md");
   const timestamp = new Date().toISOString();
   const nextStep = status === "pass"
-    ? "Run verify-report, then load only the proposed files."
-    : "Resolve the blocking issue, then rerun create-report.";
+    ? "Run verify-case, then load only the proposed files."
+    : "Resolve the blocking issue, then rerun open-case.";
 
   fs.mkdirSync(caseDir, { recursive: true });
 
-  const reportJson = {
+  const caseIntakeJson = {
     status,
     blockingIssues,
     nextStep,
     caseSlug: args.caseSlug,
     caseDir,
-    reportPath,
-    reportJsonPath,
+    caseIntakePath,
+    caseIntakeJsonPath,
     journalPath,
     createdAt: timestamp,
     framing,
     proposedLoads,
   };
 
-  fs.writeFileSync(reportJsonPath, `${JSON.stringify(reportJson, null, 2)}\n`, "utf8");
-  fs.writeFileSync(reportPath, buildReportMd({
+  fs.writeFileSync(caseIntakeJsonPath, `${JSON.stringify(caseIntakeJson, null, 2)}\n`, "utf8");
+  fs.writeFileSync(caseIntakePath, buildCaseIntakeMd({
     status,
     blockingIssues,
     nextStep,
     root,
     caseDir,
-    reportJsonPath,
+    caseIntakeJsonPath,
     journalPath,
     framing,
     proposedLoads,
@@ -339,8 +339,8 @@ function createReport(args) {
   fs.writeFileSync(journalPath, buildJournalMd({
     status,
     caseDir,
-    reportPath,
-    reportJsonPath,
+    caseIntakePath,
+    caseIntakeJsonPath,
     journalPath,
     framing,
     proposedLoads,
@@ -348,23 +348,23 @@ function createReport(args) {
   }), "utf8");
 
   if (status === "pass") {
-    verifyReportFiles(root, args.caseSlug);
+    verifyCaseFiles(root, args.caseSlug);
   }
 
-  return reportJson;
+  return caseIntakeJson;
 }
 
 function main() {
   try {
     const args = parseArgs(process.argv);
-    if (args.command === "create-report") {
-      const result = createReport(args);
+    if (args.command === "open-case") {
+      const result = openCase(args);
       process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
       process.exit(result.status === "pass" ? 0 : 2);
     }
-    if (args.command === "verify-report") {
+    if (args.command === "verify-case") {
       const root = resolveRepoRoot(args.root);
-      const result = verifyReportFiles(root, args.caseSlug);
+      const result = verifyCaseFiles(root, args.caseSlug);
       process.stdout.write(`${JSON.stringify({ status: "pass", ...result }, null, 2)}\n`);
       return;
     }
@@ -380,9 +380,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 }
 
 export {
-  createReport,
+  openCase,
   hasLogContext,
   isLogSchemaPath,
-  reportStatus,
-  verifyReportFiles,
+  caseIntakeStatus,
+  verifyCaseFiles,
 };

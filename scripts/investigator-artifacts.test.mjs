@@ -3,7 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { createReport, verifyReportFiles } from "./investigator-artifacts.mjs";
+import { openCase, verifyCaseFiles } from "./investigator-artifacts.mjs";
 
 function tempRepo() {
   return fs.mkdtempSync(path.join(os.tmpdir(), "zscaler-skill-test-"));
@@ -15,7 +15,7 @@ function writeJson(root, name, value) {
   return target;
 }
 
-test("createReport creates passing report, JSON, and journal artifacts", () => {
+test("openCase creates passing case intake, JSON, and journal artifacts", () => {
   const root = tempRepo();
   const framingPath = writeJson(root, "framing.json", {
     workingDirectory: root,
@@ -27,7 +27,7 @@ test("createReport creates passing report, JSON, and journal artifacts", () => {
     userFlaggedSpecifics: ["wiki.internal"],
   });
 
-  const result = createReport({
+  const result = openCase({
     root,
     caseSlug: "2026-05-17-zpa-wiki",
     framingJson: framingPath,
@@ -41,17 +41,17 @@ test("createReport creates passing report, JSON, and journal artifacts", () => {
   assert.equal(result.status, "pass");
   assert.deepEqual(result.blockingIssues, []);
 
-  const verified = verifyReportFiles(root, "2026-05-17-zpa-wiki");
-  assert.ok(fs.existsSync(verified.reportPath));
-  assert.ok(fs.existsSync(verified.reportJsonPath));
+  const verified = verifyCaseFiles(root, "2026-05-17-zpa-wiki");
+  assert.ok(fs.existsSync(verified.caseIntakePath));
+  assert.ok(fs.existsSync(verified.caseIntakeJsonPath));
   assert.ok(fs.existsSync(verified.journalPath));
 
-  const reportMd = fs.readFileSync(verified.reportPath, "utf8");
-  assert.match(reportMd, /^Status: pass$/m);
-  assert.match(reportMd, /^Blocking Issues: none$/m);
+  const caseIntakeMd = fs.readFileSync(verified.caseIntakePath, "utf8");
+  assert.match(caseIntakeMd, /^Status: pass$/m);
+  assert.match(caseIntakeMd, /^Blocking Issues: none$/m);
 });
 
-test("createReport blocks speculative log-schema loads without log framing", () => {
+test("openCase blocks speculative log-schema loads without log framing", () => {
   const root = tempRepo();
   const framingPath = writeJson(root, "framing.json", {
     workingDirectory: root,
@@ -61,7 +61,7 @@ test("createReport blocks speculative log-schema loads without log framing", () 
     scope: "one user",
   });
 
-  const result = createReport({
+  const result = openCase({
     root,
     caseSlug: "2026-05-17-zia-payroll",
     framingJson: framingPath,
@@ -75,14 +75,14 @@ test("createReport blocks speculative log-schema loads without log framing", () 
   assert.equal(result.status, "blocked");
   assert.match(result.blockingIssues.join(" "), /log-schema proposed loads require/);
 
-  const reportMd = fs.readFileSync(
-    path.join(root, "_data/cases/2026-05-17-zia-payroll/workflow-zscaler-investigator-report.md"),
+  const caseIntakeMd = fs.readFileSync(
+    path.join(root, "_data/cases/2026-05-17-zia-payroll/case-intake.md"),
     "utf8",
   );
-  assert.match(reportMd, /^Status: blocked$/m);
+  assert.match(caseIntakeMd, /^Status: blocked$/m);
 });
 
-test("createReport allows log-schema loads when evidence is in framing", () => {
+test("openCase allows log-schema loads when evidence is in framing", () => {
   const root = tempRepo();
   const framingPath = writeJson(root, "framing.json", {
     workingDirectory: root,
@@ -93,7 +93,7 @@ test("createReport allows log-schema loads when evidence is in framing", () => {
     evidencePaths: ["_data/cases/example/evidence/lss.csv"],
   });
 
-  const result = createReport({
+  const result = openCase({
     root,
     caseSlug: "2026-05-17-zpa-lss",
     framingJson: framingPath,

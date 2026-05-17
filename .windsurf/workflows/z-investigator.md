@@ -10,7 +10,7 @@ description: "Start an evidence-based troubleshooting investigation — parse fr
 Always load:
 - `agents/investigator/prompt.md`
 - `agents/investigator/harness.md`
-- `agents/investigator/workflow-report.md`
+- `agents/investigator/case-intake.md`
 
 Available on demand. Do not load before first response unless the trigger applies:
 - `agents/investigator/methodology.md` — load when stuck, drifting, or preparing handoff.
@@ -24,11 +24,11 @@ Available on demand. Do not load before first response unless the trigger applie
 All paths are relative to the Zscaler skill repo root. **Do not respond until all files are loaded.** Then follow the per-step procedure below.
 
 Step 1 artifact creation is helper-backed. Follow
-`agents/investigator/workflow-report.md`: create
-`workflow-zscaler-investigator-report.md`,
-`workflow-zscaler-investigator-report.json`, and `journal.md` with
-`node scripts/investigator-artifacts.mjs create-report`, then run
-`verify-report` before rendering a successful Step 1 checkpoint.
+`agents/investigator/case-intake.md`: create
+`case-intake.md`,
+`case-intake.json`, and `journal.md` with
+`node scripts/investigator-artifacts.mjs open-case`, then run
+`verify-case` before rendering a successful Step 1 checkpoint.
 
 ---
 
@@ -125,13 +125,13 @@ Cross-cutting docs (methodology, diagnostics template, siem-emission-discipline,
 
 **Journal created:** `<working-dir>/_data/cases/<slug>/journal.md`
 
-**Workflow report:** `<working-dir>/_data/cases/<slug>/workflow-zscaler-investigator-report.md`
-**Workflow report JSON:** `<working-dir>/_data/cases/<slug>/workflow-zscaler-investigator-report.json`
+**Case intake:** `<working-dir>/_data/cases/<slug>/case-intake.md`
+**Case intake JSON:** `<working-dir>/_data/cases/<slug>/case-intake.json`
 
 Only emit these paths after `node scripts/investigator-artifacts.mjs
-create-report` creates the artifacts and `node scripts/investigator-artifacts.mjs
-verify-report` verifies a passing report. If creation or verification fails,
-emit `Workflow report not ready: <reason>` and make fixing the workflow report
+open-case` creates the artifacts and `node scripts/investigator-artifacts.mjs
+verify-case` verifies a passing case intake. If creation or verification fails,
+emit `Case intake not ready: <reason>` and make fixing the case intake
 artifact the next checkpoint option.
 
 What's next?

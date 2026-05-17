@@ -1,7 +1,7 @@
 ---
 role: investigator
-artifact: workflow-report
-title: "Investigator workflow report — deterministic Step 1 artifact"
+artifact: case-intake
+title: "Investigator case intake — deterministic Step 1 artifact"
 content-type: prompt
 last-verified: "2026-05-17"
 confidence: high
@@ -13,24 +13,24 @@ sources:
 author-status: draft
 ---
 
-# Investigator Workflow Report
+# Investigator Case Intake
 
 This is the canonical Step 1 intake gate for `/z-investigator`.
 
-The workflow report turns the user's framing into durable artifacts before any
+The case intake turns the user's framing into durable artifacts before any
 grounding files are loaded or hypotheses are rendered. Runtime adapters may
 wrap this phase, but they should not redefine it.
 
 ## Purpose
 
-The report phase creates and verifies:
+The case intake phase creates and verifies:
 
-- `_data/cases/<slug>/workflow-zscaler-investigator-report.md`
-- `_data/cases/<slug>/workflow-zscaler-investigator-report.json`
+- `_data/cases/<slug>/case-intake.md`
+- `_data/cases/<slug>/case-intake.json`
 - `_data/cases/<slug>/journal.md`
 
 The next phase must refuse to continue unless
-`workflow-zscaler-investigator-report.md` exists with:
+`case-intake.md` exists with:
 
 ```text
 Status: pass
@@ -45,7 +45,7 @@ the blocker before loading evidence or generating hypotheses.
 Use the Node helper for artifact creation and verification:
 
 ```bash
-node scripts/investigator-artifacts.mjs create-report \
+node scripts/investigator-artifacts.mjs open-case \
   --root <repo-root> \
   --case-slug <slug> \
   --framing-json <path-to-framing-json> \
@@ -56,7 +56,7 @@ node scripts/investigator-artifacts.mjs create-report \
 Then verify the gate before continuing:
 
 ```bash
-node scripts/investigator-artifacts.mjs verify-report \
+node scripts/investigator-artifacts.mjs verify-case \
   --root <repo-root> \
   --case-slug <slug>
 ```
@@ -85,7 +85,7 @@ multi-line strings through shell arguments. Keep the shape simple:
 }
 ```
 
-Required fields for a `pass` report:
+Required fields for a passing case intake:
 
 - `workingDirectory`
 - `symptom`
@@ -109,24 +109,24 @@ directories.
 Log-schema references are only valid when the user's framing already mentions
 logs, SIEM data, LSS/NSS, pre-collected evidence, Splunk, or an explicit
 evidence/log path. If the framing does not contain that log context, the helper
-marks the report blocked instead of allowing a speculative log-schema load.
+marks the case intake blocked instead of allowing a speculative log-schema load.
 
-## Report Fields
+## Case Intake Fields
 
-`workflow-zscaler-investigator-report.md` starts with plain top-level fields:
+`case-intake.md` starts with plain top-level fields:
 
 ```text
 Status: pass
 Blocking Issues: none
-Next Step: Run verify-report, then load only the proposed files.
+Next Step: Run verify-case, then load only the proposed files.
 ```
 
-For blocked reports:
+For blocked case intakes:
 
 ```text
 Status: blocked
 Blocking Issues: <one-line issue summary>
-Next Step: Resolve the blocking issue, then rerun create-report.
+Next Step: Resolve the blocking issue, then rerun open-case.
 ```
 
 Keep these fields stable. Runtime adapters and reviewers can grep them without
@@ -134,13 +134,13 @@ parsing freeform prose.
 
 ## Phase Boundary
 
-After `create-report`, stop. Do not load Step 2 files, enumerate snapshots,
+After `open-case`, stop. Do not load Step 2 files, enumerate snapshots,
 generate hypotheses, or render a discovery journal table in the same response.
 
 The load phase begins only after the user confirms continuation and
-`verify-report` reports a passing workflow report.
+`verify-case` reports a passing case intake.
 
-The user-facing command remains `/z-investigator`. If a runtime cannot
-reliably honor this as one monolithic command, expose internal step gates such
-as `/z-investigator-step-1` and `/z-investigator-step-2` for adapter validation
-and recovery. Those step commands should not become the primary user workflow.
+The user-facing command remains `/z-investigator`. If a runtime needs a
+separate resume entry point, expose a load command that verifies an existing
+case intake before continuing. Do not expose a separate new-case Step 1 command
+as the primary user workflow.

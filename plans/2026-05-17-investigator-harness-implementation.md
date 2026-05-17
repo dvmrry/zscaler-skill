@@ -26,12 +26,12 @@ public-safe path is now:
 
 - keep `/z-investigator` as the user-facing command;
 - keep `.windsurf` runtime files as adapter surfaces, not source of truth;
-- add a canonical Step 1 workflow report under `agents/investigator/`;
+- add a canonical Step 1 case intake under `agents/investigator/`;
 - add a small Node stdlib helper that creates and verifies
-  `workflow-zscaler-investigator-report.md`,
-  `workflow-zscaler-investigator-report.json`, and `journal.md`;
-- expose `/z-investigator-step-1` and `/z-investigator-step-2` only as
-  internal adapter validation / recovery gates, not as the normal user flow.
+  `case-intake.md`,
+  `case-intake.json`, and `journal.md`;
+- keep `/z-investigator-load` as an optional resume path for an existing case,
+  not as the normal new-investigation flow.
 
 Recommended canonical file:
 
@@ -67,7 +67,7 @@ Do not do these in the harness implementation PR:
 - Add `.windsurf/workflows/z-investigator-v2-loads-prompt.md`.
 - Thin the Windsurf baseline adapter.
 - Implement a full multi-phase JSON workflow schema beyond the narrow Step 1
-  workflow report gate.
+  case intake gate.
 - Add maintainer skill loaders whose canonical prompts do not exist.
 - Touch private overlay or downstream generated adapter details.
 
@@ -203,8 +203,8 @@ guards, not product knowledge.
 
 Follow-up downstream testing also showed that prose-level "write and read back"
 instructions are not deterministic enough. Step 1 artifact creation must be a
-helper-backed transaction that creates and verifies the workflow report JSON,
-workflow report markdown, and journal stub before the checkpoint is rendered.
+helper-backed transaction that creates and verifies the case intake JSON,
+case intake markdown, and journal stub before the checkpoint is rendered.
 Step 3 journal saves can later adopt the same write/readback/marker
 verification pattern before `Journal saved`.
 
@@ -315,7 +315,7 @@ Current narrow artifact gate:
 
 ```text
 _data/cases/<slug>/
-  workflow-zscaler-investigator-report.md
-  workflow-zscaler-investigator-report.json
+  case-intake.md
+  case-intake.json
   journal.md
 ```

@@ -9,7 +9,7 @@ source-tier: practice
 sources:
   - ".windsurf/workflows/z-investigator.md"
   - "agents/investigator/prompt.md"
-  - "agents/investigator/workflow-report.md"
+  - "agents/investigator/case-intake.md"
   - "agents/_meta/runtime-adapters.md"
   - "agents/_meta/windsurf-runtime-notes.md"
   - "scripts/investigator-artifacts.mjs"
@@ -28,8 +28,8 @@ Runtime adapters may reinforce this harness for weaker models, but they should
 not invent a separate checkpoint contract.
 
 Step 1's deterministic artifact contract lives in
-[`workflow-report.md`](./workflow-report.md). Use the Node helper named there for
-workflow report and journal creation instead of relying on prose-only file-write
+[`case-intake.md`](./case-intake.md). Use the Node helper named there for
+case intake and journal creation instead of relying on prose-only file-write
 instructions.
 
 ## Procedure Model
@@ -37,7 +37,7 @@ instructions.
 The investigation has three sequential setup steps followed by repeated
 investigation turns:
 
-1. **Step 1 — Parse framing and create workflow report artifacts.**
+1. **Step 1 — Parse framing and create case intake artifacts.**
 2. **Step 2 — Load files.**
 3. **Step 3 — Generate and save the discovery journal.**
 4. **Subsequent turns — update one hypothesis or evidence path per turn.**
@@ -145,8 +145,8 @@ Template:
 - `<path>`
 - `<path>`
 
-**Workflow report:** `<working-dir>/_data/cases/<slug>/workflow-zscaler-investigator-report.md`
-**Workflow report JSON:** `<working-dir>/_data/cases/<slug>/workflow-zscaler-investigator-report.json`
+**Case intake:** `<working-dir>/_data/cases/<slug>/case-intake.md`
+**Case intake JSON:** `<working-dir>/_data/cases/<slug>/case-intake.json`
 **Journal created:** `<working-dir>/_data/cases/<slug>/journal.md`
 
 **What's next?**
@@ -157,10 +157,10 @@ Template:
 ```
 
 Only emit these artifact paths after
-`node scripts/investigator-artifacts.mjs create-report` creates them and
-`node scripts/investigator-artifacts.mjs verify-report` verifies a passing
-report. If creation or verification fails, emit `Workflow report not ready:
-<reason>` and make fixing the workflow report artifact the next checkpoint
+`node scripts/investigator-artifacts.mjs open-case` creates them and
+`node scripts/investigator-artifacts.mjs verify-case` verifies a passing
+case intake. If creation or verification fails, emit `Case intake not ready:
+<reason>` and make fixing the case intake artifact the next checkpoint
 option.
 
 The closing menu is Checkpoint 1. Halt after it. Do not load files, generate
@@ -319,23 +319,23 @@ needed together.
 If a matching file exists under `agents/investigator/grounding/`, prefer that
 grounding card before falling back to keyword-only topic loading.
 
-### Workflow Report Artifact Creation
+### Case Intake Artifact Creation
 
 After composing the parsed framing and proposed loads, follow
-[`workflow-report.md`](./workflow-report.md). Do not summarize or collapse the
+[`case-intake.md`](./case-intake.md). Do not summarize or collapse the
 helper-backed transaction:
 
 1. Resolve `case_dir` to `<working-dir>/_data/cases/<slug>`.
 2. Write the parsed framing to a JSON file.
-3. Run `node scripts/investigator-artifacts.mjs create-report` with the repo
+3. Run `node scripts/investigator-artifacts.mjs open-case` with the repo
    root, slug, framing JSON, and proposed load list.
-4. If the report status is `pass`, run
-   `node scripts/investigator-artifacts.mjs verify-report`.
-5. Only after verification succeeds, emit the workflow report, report JSON, and
-   journal paths in the Step 1 output.
+4. If the case intake status is `pass`, run
+   `node scripts/investigator-artifacts.mjs verify-case`.
+5. Only after verification succeeds, emit the case intake, case intake JSON,
+   and journal paths in the Step 1 output.
 
-Do this before Checkpoint 1. `workflow-zscaler-investigator-report.md`,
-`workflow-zscaler-investigator-report.json`, and `journal.md` must exist from
+Do this before Checkpoint 1. `case-intake.md`,
+`case-intake.json`, and `journal.md` must exist from
 Step 1 onward, even if the journal only contains framing and empty claims.
 
 Slug selection:
@@ -351,14 +351,14 @@ only continuation signals are an explicit user path/slug or the current target
 directory already containing `journal.md`.
 
 The stub bodies are deterministic and owned by
-`scripts/investigator-artifacts.mjs`. Do not hand-author a different workflow
-report or journal shape in a runtime adapter.
+`scripts/investigator-artifacts.mjs`. Do not hand-author a different case
+intake or journal shape in a runtime adapter.
 
 If the working directory is unknown, do not create the stub. Ask the working
 directory clarification as the whole turn.
 
 If directory creation, write, readback, or marker verification fails, do not
-claim the workflow report is ready. Surface `Workflow report not ready:
+claim the case intake is ready. Surface `Case intake not ready:
 <failed transaction step> - <reason>` and halt at Checkpoint 1 with a retry
 option. Do not run Step 2 while artifact creation is incomplete.
 

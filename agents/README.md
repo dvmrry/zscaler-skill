@@ -35,13 +35,13 @@ The split keeps `references/` focused as a knowledge base, lets agent personas r
 
 | Role | Slash command | Artifacts | Description |
 |---|---|---|---|
-| **Investigator** | `/z-investigator` | [`prompt`](./investigator/prompt.md) · [`harness`](./investigator/harness.md) · [`workflow report`](./investigator/workflow-report.md) · [`methodology`](./investigator/methodology.md) · [`grounding`](./investigator/grounding/) · [`diagnostics template`](./investigator/diagnostics/template.md) | Evidence-based troubleshooting — discovery journal, claim status, anti-fabrication |
+| **Investigator** | `/z-investigator` | [`prompt`](./investigator/prompt.md) · [`harness`](./investigator/harness.md) · [`case intake`](./investigator/case-intake.md) · [`methodology`](./investigator/methodology.md) · [`grounding`](./investigator/grounding/) · [`diagnostics template`](./investigator/diagnostics/template.md) | Evidence-based troubleshooting — discovery journal, claim status, anti-fabrication |
 | **Architect** | `/z-architect` | [`prompt`](./architect/prompt.md) · [`methodology`](./architect/methodology.md) · [`diagnostics template`](./architect/diagnostics/template.md) | Capacity, scaling, and structural-risk review with recommendation register |
 | **Auditor** | `/z-auditor` | [`prompt`](./auditor/prompt.md) · [`methodology`](./auditor/methodology.md) | Editorial / structural / hygiene lint of references and tenant configuration |
 | **SOC** | `/z-soc` | [`prompt`](./soc/prompt.md) | Security posture review — RBAC least-privilege, telemetry coverage, threat-model-anchored findings |
 | **Retro** | `/z-retro` | [`prompt`](./retro/prompt.md) · [`methodology`](./retro/methodology.md) | Journal-first incident postmortem — warning ledger, source map, proceed/stop decision gate |
 
-Each role's `prompt.md` is the playbook the slash command activates. `harness.md` is the canonical phase/checkpoint contract when a workflow needs strict turn sequencing. `workflow-report.md` defines a deterministic phase artifact when prose-only checkpoints are not reliable enough. `methodology.md` is the discipline the playbook references. `grounding/` holds lightweight symptom-to-context profiles. `diagnostics/template.md` is an authoring template for verified ordered diagnostics; it is not a runtime dependency for ordinary first responses.
+Each role's `prompt.md` is the playbook the slash command activates. `harness.md` is the canonical phase/checkpoint contract when a workflow needs strict turn sequencing. `case-intake.md` defines a deterministic phase artifact when prose-only checkpoints are not reliable enough. `methodology.md` is the discipline the playbook references. `grounding/` holds lightweight symptom-to-context profiles. `diagnostics/template.md` is an authoring template for verified ordered diagnostics; it is not a runtime dependency for ordinary first responses.
 
 ## Cross-cutting agent infrastructure
 
@@ -57,7 +57,7 @@ Files in `agents/` use a slightly different frontmatter shape than `references/`
 ```yaml
 ---
 role: investigator                    # role this artifact belongs to (omit for cross-cutting)
-artifact: prompt                       # prompt | harness | workflow-report | methodology | grounding | diagnostics-template
+artifact: prompt                       # prompt | harness | case-intake | methodology | grounding | diagnostics-template
 title: "..."
 content-type: prompt                   # prompt | reference
 last-verified: "YYYY-MM-DD"
