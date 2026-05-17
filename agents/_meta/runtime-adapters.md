@@ -67,8 +67,10 @@ and runtime adapters load.
 
 `/z-investigator` is the known hard case. Its current Windsurf workflow contains
 checkpoint discipline that the investigator prompt references as an external
-workflow harness. Until that harness is lifted into `agents/investigator/`, the
-large Windsurf file is a preserved baseline rather than accidental duplication.
+workflow harness. The canonical investigator harness now lives at
+[`investigator/harness.md`](../investigator/harness.md); until candidate
+adapters are tested against it, the large Windsurf file remains a preserved
+baseline rather than accidental duplication.
 
 ## Adapter layer
 

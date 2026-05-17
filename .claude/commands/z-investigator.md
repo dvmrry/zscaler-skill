@@ -6,6 +6,7 @@ argument-hint: [what fails] in [where], [scope], since [when]; backtick `<litera
 <!-- adapter-deps:start -->
 Always load:
 - `agents/investigator/prompt.md`
+- `agents/investigator/harness.md`
 
 Available on demand. Do not load before first response unless the trigger applies:
 - `agents/investigator/methodology.md` — load when stuck, drifting, or preparing handoff.
@@ -24,4 +25,4 @@ Follow the per-turn shape defined in the canonical playbook. Output is plain mar
 
 Step 1 must include the early-journal-creation step: write a stub journal to `<working-dir>/_data/cases/<slug>/journal.md` immediately after composing the parsed framing. The artifact must exist on disk from Step 1 onward.
 
-Note: `.windsurf/workflows/z-investigator.md` carries the equivalent windsurf-runtime-specific harness. For Claude Code, follow `agents/investigator/prompt.md` directly — this command is a thin loader, not a re-statement of the playbook.
+Note: `.windsurf/workflows/z-investigator.md` carries the equivalent windsurf-runtime-specific reinforcement for weaker-runtime behavior. For Claude Code, follow `agents/investigator/prompt.md` plus `agents/investigator/harness.md` directly — this command is a thin loader, not a re-statement of the playbook.

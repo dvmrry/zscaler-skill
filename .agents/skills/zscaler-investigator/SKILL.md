@@ -14,9 +14,14 @@ not a quick factual answer.
 
 ## Canonical Workflow
 
-Load and follow:
+Load and follow both files:
 
 - `../../../agents/investigator/prompt.md`
+- `../../../agents/investigator/harness.md`
+
+`prompt.md` defines investigator reasoning, grounding, and evidence discipline.
+`harness.md` defines phase order, checkpoint halts, output shape, journal
+creation timing, and snapshot-load discipline.
 
 Load these only when their trigger applies:
 

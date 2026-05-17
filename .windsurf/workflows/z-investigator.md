@@ -9,6 +9,7 @@ description: "Start an evidence-based troubleshooting investigation — parse fr
 <!-- adapter-deps:start -->
 Always load:
 - `agents/investigator/prompt.md`
+- `agents/investigator/harness.md`
 
 Available on demand. Do not load before first response unless the trigger applies:
 - `agents/investigator/methodology.md` — load when stuck, drifting, or preparing handoff.

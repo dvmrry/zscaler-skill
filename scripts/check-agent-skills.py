@@ -145,6 +145,17 @@ def check_skill(skill_file: Path, findings: list[Finding], allow_smoke_tests: bo
     if not prompt_targets and not is_smoke_test:
         findings.append(Finding("error", skill_file, "skill does not reference a canonical agents/**/prompt.md"))
 
+    if name == "zscaler-investigator":
+        expected_harness = AGENTS_ROOT / "investigator" / "harness.md"
+        if expected_harness not in agent_targets:
+            findings.append(
+                Finding(
+                    "error",
+                    skill_file,
+                    "zscaler-investigator must reference agents/investigator/harness.md",
+                )
+            )
+
     if is_smoke_test and "agent-skill-smoke-test: loaded" not in body:
         findings.append(Finding("error", skill_file, "smoke-test skill must define its expected marker output"))
     if is_smoke_test and not allow_smoke_tests:
