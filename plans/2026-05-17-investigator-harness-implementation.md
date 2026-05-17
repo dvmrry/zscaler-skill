@@ -174,6 +174,12 @@ For the first harness implementation PR:
   reinforces.
 - Do not add v2 adapters yet.
 
+During this transitional window, `agents/investigator/harness.md` and the
+un-thinned Windsurf body are a deliberate dual-maintenance pair. Any behavior
+change to one must either update the other in the same PR or explicitly document
+why the two are allowed to diverge. This risk remains until A/B parity evidence
+supports replacing the Windsurf body with a thin loader.
+
 This creates a temporary duplicate-by-design state:
 
 ```text

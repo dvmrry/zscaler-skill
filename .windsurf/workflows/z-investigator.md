@@ -273,8 +273,9 @@ After composing the PARSED FRAMING and PROPOSED LOADS blocks, **immediately use 
 **Slug selection** (same logic as Step 3B's save):
 
 - If the framing contains an existing path or slug, use that directory.
-- If `_data/cases/<some-existing-slug>/` already has a `journal.md` whose ISSUE matches, this is a continuation — update that file.
+- If the user-referenced or current case directory already has a `journal.md`, this is a continuation — update that file.
 - Otherwise mint a fresh slug: `<YYYY-MM-DD>-<short-kebab-descriptor>`. Create the directory.
+- Do not browse sibling case directories to find a matching prior journal.
 
 **Stub content:**
 
@@ -348,14 +349,14 @@ For each file in the confirmed PROPOSED LOADS (playbook + framing-matched produc
 
 Two enumerations happen at this step. Both are recursive listings; both paste output verbatim. Show your command output regardless of result.
 
-**2B.1 — Snapshot.** Tenant snapshots are the canonical source for "what's actually configured" — do not propose live API calls for config the snapshot already has. If `Tenant cloud` was specified in PARSED FRAMING, run a recursive listing of `_data/snapshot/<cloud>/` (or `_data/<cloud>/` for the fork-specific layout). Emit a `**Snapshot enumeration** (find _data/snapshot/zs3/ -type f)` heading followed by a bullet list of paths returned:
+**2B.1 — Snapshot.** Tenant snapshots are the canonical source for "what's actually configured" — do not propose live API calls for config the snapshot already has. If `Tenant cloud` was specified in PARSED FRAMING, run a recursive listing of `_data/snapshot/<cloud>/` (or `_data/<cloud>/` for the fork-specific layout). Emit a `**Snapshot enumeration** (find _data/snapshot/zs2/ -type f)` heading followed by a bullet list of paths returned:
 
-- _data/snapshot/zs3/zia/url-filtering-rules.json
-- _data/snapshot/zs3/zpa/segments.json
-- _data/snapshot/zs3/zpa/server-groups.json
+- _data/snapshot/zs2/zia/url-filtering-rules.json
+- _data/snapshot/zs2/zpa/segments.json
+- _data/snapshot/zs2/zpa/server-groups.json
 - ... <every file the recursive listing returned>
 
-Required commands (use one): `find _data/snapshot/<cloud>/ -type f`, `ls -R _data/snapshot/<cloud>/`, or your file-list tool's recursive option. If both canonical and fork-specific paths are empty, show both attempts as plain prose lines: *"Snapshot enumeration (find _data/snapshot/zs3/ -type f): no files returned. Also tried: find _data/zs3/ -type f → no files returned."*
+Required commands (use one): `find _data/snapshot/<cloud>/ -type f`, `ls -R _data/snapshot/<cloud>/`, or your file-list tool's recursive option. If both canonical and fork-specific paths are empty, show both attempts as plain prose lines: *"Snapshot enumeration (find _data/snapshot/zs2/ -type f): no files returned. Also tried: find _data/zs2/ -type f → no files returned."*
 
 **2B.2 — Existing evidence (log files, prior captures).** Logs the user may have already collected typically live in either:
 
@@ -428,7 +429,7 @@ For each token in the `User-flagged specifics` field of PARSED FRAMING, run a se
 Surface results under a `**Grep results — user-flagged specifics in loaded content**` heading, one bullet per token with sub-bullets per match location:
 
 - `BLK Cloud ZPA Global`:
-  - _data/snapshot/zs3/zpa/server-groups.json: `.[3].name`, `.[3].applications[2].serverGroups[0].name`
+  - _data/snapshot/zs2/zpa/server-groups.json: `.[3].name`, `.[3].applications[2].serverGroups[0].name`
   - references/zpa/segment-server-groups.md:138
 - `WARNING: connection failed`:
   - (no matches in loaded content — would need additional logs)
@@ -446,7 +447,7 @@ Emit a `**Loaded**` heading followed by a nested bullet list:
   - ✓ agents/investigator/methodology.md
   - ✓ <each product reference>
 - Snapshot entry points (one per product):
-  - ✓ _data/snapshot/zs3/zpa/application-segments.json (entry point for ZPA chain)
+  - ✓ _data/snapshot/zs2/zpa/application-segments.json (entry point for ZPA chain)
   - Will load on-demand as chain is traversed:
     - server-groups.json (after segment IDs identified)
     - connector-groups.json (after server-group IDs identified)
@@ -520,8 +521,9 @@ Do NOT attempt the save against a relative path that may resolve nowhere; do NOT
 **Slug selection:**
 
 - If the user's framing referenced an existing path (e.g., `_data/cases/test-foo/`), use that slug — write to its `journal.md`.
-- If `_data/cases/<some-existing-slug>/` already has a `journal.md` whose ISSUE matches this investigation, this is a continuation — update that file in place.
+- If the user-referenced or current case directory already has a `journal.md`, this is a continuation — update that file in place.
 - Otherwise mint a fresh slug: `<YYYY-MM-DD>-<short-kebab-descriptor>` (e.g., `2026-04-30-ssh-azure-port-22`). Create the directory.
+- Do not browse sibling case directories to find a matching prior journal.
 
 **Subsequent turns** update the same file in place — do not create a new file each turn. The working directory established at Step 1 carries forward; do not re-resolve it on subsequent turns.
 

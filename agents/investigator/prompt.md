@@ -150,7 +150,7 @@ Product defaults (ZIA allow-by-default vs ZPA deny-by-default) and architectural
 
 - **User-pointed path takes priority.** If the framing contains a path or slug (e.g., `_data/cases/test-foo/`, `2026-04-30-ci-silent-failures`), that directory is the operative artifact — read its `journal.md` (if any) and `evidence/*` first. The user is telling you where the work lives; respect the pointer instead of creating a sibling. This directory is also the save target for Step 6.
 - **Current case's `evidence/` directory** — if `_data/cases/<operative-slug>/evidence/` exists and has files, read them before asking the user what to investigate. The user may have placed CI logs, API dumps, or screenshots there that already carry the answer. The same applies to evidence files attached to the current chat (paste-ins, file uploads).
-- **Tenant API data / config snapshots** — `_data/snapshot/<cloud>/` (e.g., `_data/snapshot/zs2/`, `_data/snapshot/zs3/`) is the canonical location for offline dumps of API-derived tenant config: URL filtering rules, access policies, segments, connector groups. In Step 2, enumerate the cloud snapshot directory first, then load only the harness-approved entry points selected from that enumeration — do not load the whole per-cloud subtree. The cloud is inferable from the tenant's API base URL (`zsapi.zscaler.net` ⇒ `zs1`, `zsapi.zscalerthree.net` ⇒ `zs3`, etc. — see [`../shared/cloud-architecture.md`](../../references/shared/cloud-architecture.md) if unfamiliar). Forks may use a slightly different layout (e.g., `_data/<cloud>/` directly without the `snapshot/` prefix); if the canonical path is empty, scan `_data/` for any per-cloud subdir before assuming no snapshot exists.
+- **Tenant API data / config snapshots** — `_data/snapshot/<cloud>/` (e.g., `_data/snapshot/zs1/`, `_data/snapshot/zs2/`) is the canonical location for offline dumps of API-derived tenant config: URL filtering rules, access policies, segments, connector groups. In Step 2, enumerate the cloud snapshot directory first, then load only the harness-approved entry points selected from that enumeration — do not load the whole per-cloud subtree. The cloud is inferable from the tenant's API base URL (`zsapi.zscaler.net` ⇒ `zs1`, `zsapi.zscalerthree.net` ⇒ `zs3`, etc. — see [`../shared/cloud-architecture.md`](../../references/shared/cloud-architecture.md) if unfamiliar). Forks may use a slightly different layout (e.g., `_data/<cloud>/` directly without the `snapshot/` prefix); if the canonical path is empty, try that exact `_data/<cloud>/` fallback and show both attempts before assuming no snapshot exists.
 - **Script outputs** — `_data/schemas/` holds dumped output from skill scripts (issue-watch, find-asymmetries, hygiene digests). Relevant if the framing involves a recent skill-script run.
 
 **Do not browse sibling case directories.** Unless the user explicitly points at a specific case directory, do not `ls _data/cases/`, do not read any other case's `journal.md`, and do not surface "this looks similar to a prior case" to the user. Cross-pollinating findings between investigations contaminates evidence and produces false confidence; the discipline for safely re-using prior journals isn't refined enough yet. Stay scoped to the operative directory the user named (or a fresh slug if none was named).
@@ -163,7 +163,7 @@ Grounding files loaded:
   - references/shared/source-ip-anchoring.md
   - references/zpa/app-connector.md
   - references/zpa/logs/access-log-schema.md
-  - _data/snapshot/zs3/url-filtering-rules.json
+  - _data/snapshot/zs2/url-filtering-rules.json
 ```
 
 If you loaded zero grounding files in Step 2, state explicitly: `Grounding files
@@ -223,8 +223,8 @@ After rendering in chat, write the same journal to `_data/cases/<slug>/journal.m
 **Path selection — check before minting a new slug:**
 
 1. **User named a path or slug in the framing** → use that directory. If the framing contains a path like `_data/cases/test-foo/` or `2026-04-30-ci-silent-failures`, treat it as the operative directory. Do not create a sibling with a fresh slug — the user is pointing you at the artifact they want updated.
-2. **The directory already exists with a `journal.md`** → this is a continuation, not a new investigation. Read the existing journal, treat its claims as the starting state, and update in place. Don't overwrite — preserve prior claim history (use `Stale` / `Ruled out` to retire entries, not deletion).
-3. **No path given and no obvious match in `_data/cases/`** (Step 2d's scan should have flagged any match) → mint a new slug: `<YYYY-MM-DD>-<short-kebab-descriptor>`. Date is today in UTC; slug is recognizable from a directory listing six months later. Examples: `ssh-azure-port-22`, `salesforce-sso-loop`, `connector-group-us-east-1-disconnected`. Create the directory.
+2. **The user-referenced or current directory already exists with a `journal.md`** → this is a continuation, not a new investigation. Read the existing journal, treat its claims as the starting state, and update in place. Don't overwrite — preserve prior claim history (use `Stale` / `Ruled out` to retire entries, not deletion).
+3. **No path given** → mint a new slug: `<YYYY-MM-DD>-<short-kebab-descriptor>`. Date is today in UTC; slug is recognizable from a directory listing six months later. Examples: `ssh-azure-port-22`, `salesforce-sso-loop`, `connector-group-us-east-1-disconnected`. Create the directory. Do not browse sibling case directories to find a matching prior journal.
 
 **Path conventions:**
 

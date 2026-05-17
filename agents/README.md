@@ -25,7 +25,7 @@ This directory holds the agent infrastructure for the skill — playbooks, metho
 |---|---|---|
 | `agents/` | Agent infrastructure: how to operate (playbooks, methodologies, grounding cards, diagnostics templates) | AI agents executing role-specific workflows |
 | `references/` | Product knowledge: what to know (Zscaler product docs, schemas, log refs) | Both agents (as evidence) and human readers |
-| `_data/` | Evidence and state: what exists right now (snapshots, incidents, evals) | Agents and operators investigating current state |
+| `_data/` | Evidence and state: tenant snapshots, IaC overlays, local case artifacts, and eval outputs | Agents and operators investigating current state |
 | `.agents/skills/` | Portable Agent Skills: open-standard trigger metadata and thin loaders for canonical workflows | Codex, Windsurf, and other compatible runtimes |
 | `_meta/` | Repo-level meta-documentation (clarifications, portfolio map, audits) | Maintainers and auditing agents |
 

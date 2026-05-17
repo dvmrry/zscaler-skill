@@ -308,9 +308,14 @@ if it only contains the framing and empty claims.
 Slug selection:
 
 - If the user referenced an existing case path, use that slug.
-- If an existing journal matches the issue, continue that journal.
+- If the user-referenced or current case directory already contains
+  `journal.md`, continue that journal.
 - Otherwise derive a short slug from date + symptom, for example
   `2026-05-17-zpa-connector-assignment`.
+
+Do not browse sibling case directories to find a matching prior journal. The
+only continuation signals are an explicit user path/slug or the current target
+directory already containing `journal.md`.
 
 The stub should contain:
 
