@@ -221,7 +221,8 @@ Same shape as Step 3 with the journal table updated. Header reads `#### Investig
 > **Input:** the user's framing in chat (next message)
 > **Output:** a `PARSED FRAMING` block (template below)
 > **Halts at:** Checkpoint 1
-> **Side effects:** none — no file loads in this step
+> **Side effects:** creates/verifies case-intake and journal stub artifacts;
+> no docs, snapshots, or evidence files are loaded in this step
 
 Read the framing. Compose the data blocks below by filling in the bracketed fields. Use the **Framing → file mapping** to populate the proposed-loads list. Use the **Snapshot enumeration** procedure to list per-cloud config files individually.
 
@@ -382,14 +383,14 @@ For each file in the confirmed PROPOSED LOADS (playbook + framing-matched produc
 
 Two enumerations happen at this step. Both are recursive listings; both paste output verbatim as plain monospace paths. Show your command output regardless of result.
 
-**2B.1 — Snapshot.** Tenant snapshots are the canonical source for "what's actually configured" — do not propose live API calls for config the snapshot already has. If `Tenant cloud` was specified in PARSED FRAMING, run a recursive listing of `_data/snapshot/<cloud>/` (or `_data/<cloud>/` for the fork-specific layout). Emit a `**Snapshot enumeration** (find _data/snapshot/zs2/ -type f)` heading followed by a bullet list of paths returned:
+**2B.1 — Snapshot.** Tenant snapshots are the canonical source for "what's actually configured" — do not propose live API calls for config the snapshot already has. If `Tenant cloud` was specified in PARSED FRAMING, run a recursive listing of `_data/snapshot/<cloud>/`. Emit a `**Snapshot enumeration** (find _data/snapshot/zs2/ -type f)` heading followed by a bullet list of paths returned:
 
 - _data/snapshot/zs2/zia/url-filtering-rules.json
 - _data/snapshot/zs2/zpa/segments.json
 - _data/snapshot/zs2/zpa/server-groups.json
 - ... <every file the recursive listing returned>
 
-Required commands (use one): `find _data/snapshot/<cloud>/ -type f`, `ls -R _data/snapshot/<cloud>/`, or your file-list tool's recursive option. If both canonical and fork-specific paths are empty, show both attempts as plain prose lines: *"Snapshot enumeration (find _data/snapshot/zs2/ -type f): no files returned. Also tried: find _data/zs2/ -type f → no files returned."*
+Required commands (use one): `find _data/snapshot/<cloud>/ -type f`, `ls -R _data/snapshot/<cloud>/`, or your file-list tool's recursive option. Only use the fork-specific `_data/<cloud>/` fallback if `_data/snapshot/<cloud>/` itself is absent or empty; do not use `_data/<cloud>/` to fill in a missing product subtree. If `_data/snapshot/zs2/` exists but `_data/snapshot/zs2/zpa/` is absent, report `no ZPA snapshot subtree found for zs2` and continue from references/evidence instead of inferring ZPA state from `_data/snapshot/zs2/zia/`, another cloud, or broad `_data/`. If both canonical and fork-specific cloud paths are empty, show both attempts as plain prose lines: *"Snapshot enumeration (find _data/snapshot/zs2/ -type f): no files returned. Also tried: find _data/zs2/ -type f → no files returned."*
 
 **2B.2 — Existing evidence (log files, prior captures).** Logs the user may have already collected typically live in either:
 

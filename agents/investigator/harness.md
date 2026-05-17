@@ -391,6 +391,13 @@ Use a recursive file-listing tool. The canonical public path is singular
 If the fork-specific `_data/<cloud>/` layout exists and the canonical path is
 empty, show both attempts plainly.
 
+The fallback is cloud-level only. If `_data/snapshot/<cloud>/` exists but a
+product subtree such as `_data/snapshot/<cloud>/zpa/` is absent, report `no ZPA
+snapshot subtree found for <cloud>` and continue from references/evidence. Do
+not infer product state from sibling product subtrees, another cloud, broad
+`_data/`, or the fork-specific fallback unless the canonical cloud path itself
+was absent or empty.
+
 Also enumerate existing evidence for the current case:
 
 ```text
