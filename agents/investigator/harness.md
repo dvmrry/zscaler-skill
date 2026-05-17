@@ -88,6 +88,9 @@ are non-blocking. Fold them into the next checkpoint menu.
 
 Use plain markdown. Do not wrap the whole response in a code fence. Code fences
 are reserved for real code, shell commands, JSON, YAML, or raw templates.
+Render paths as plain monospace text only. Do not turn investigation paths into
+Markdown links; runtime linkification can obscure the exact path string and
+make journal artifacts harder to copy, diff, or grep.
 
 ### Step 1 — Clarification-Only Turn
 
@@ -144,6 +147,11 @@ Template:
 - Pause — stop here
 ```
 
+Only emit `Journal created` after the file-write tool has written the stub and
+the file-read tool has read it back successfully. If write or readback fails,
+emit `Journal not created: <reason>` and make fixing the save the next
+checkpoint option.
+
 The closing menu is Checkpoint 1. Halt after it. Do not load files, generate
 hypotheses, output a journal table, or run Step 2 before the user confirms.
 
@@ -156,10 +164,13 @@ Template:
 
 **Loaded / grounding files loaded**
 - Docs:
+  - `agents/investigator/prompt.md` — `canonical investigator prompt`
+  - `agents/investigator/harness.md` — `canonical checkpoint contract`
   - `<path>` — `<why loaded>`
 - Snapshot:
   - `<path>` — `<why loaded>`
 - Existing evidence:
+  - `<working-dir>/_data/cases/<slug>/journal.md` — `operative journal`
   - `<path>` — `<why loaded>`
 - Skipped / deferred:
   - `<count or path>` — `<why skipped or deferred>`
@@ -277,18 +288,22 @@ them as candidate claims or framing notes, not settled facts.
 
 ### Proposed Loads
 
-The Step 1 proposed load list is docs-only. Do not include snapshot paths in
-Step 1 proposed loads. Snapshot enumeration and selection happen in Step 2
-after docs are loaded.
+The Step 1 proposed load list is docs-only and mapping-driven. Do not choose
+files because they might support a hypothesis you have not grounded yet. Use
+the explicit grounding-card and framing-to-file mappings in the investigator
+prompt, then stop. Snapshot enumeration and selection happen in Step 2 after
+docs are loaded.
 
 Always include:
 
 - `agents/investigator/prompt.md`
 - `agents/investigator/harness.md`
 
-Then include every grounding card, product reference, and log schema that
-matches the framing's vocabulary. Prefer explicit framing-to-file matches over
-model inference; companion references are often needed together.
+Then include every grounding card and product reference that matches the
+framing's vocabulary. Include log schemas only when logs, SIEM data, LSS/NSS,
+or a user-provided log/evidence path is part of the framing. Prefer explicit
+framing-to-file matches over model inference; companion references are often
+needed together.
 
 If a matching file exists under `agents/investigator/grounding/`, prefer that
 grounding card before falling back to keyword-only topic loading.
@@ -302,8 +317,9 @@ file-write tool to create a stub journal at:
 <working-dir>/_data/cases/<slug>/journal.md
 ```
 
-Do this before Checkpoint 1. The artifact must exist from Step 1 onward, even
-if it only contains the framing and empty claims.
+Do this before Checkpoint 1. Then read the same file back with the file-read
+tool before saying `Journal created` in chat. The artifact must exist from Step
+1 onward, even if it only contains the framing and empty claims.
 
 Slug selection:
 
@@ -349,6 +365,9 @@ Open.
 If the working directory is unknown, do not create the stub. Ask the working
 directory clarification as the whole turn.
 
+If the write or readback fails, do not claim the journal exists. Surface the
+failure plainly and halt at Checkpoint 1 with a save-retry option.
+
 ## Step 2 Details
 
 Step 2 has five sub-steps. Do them in order.
@@ -379,14 +398,18 @@ Also enumerate existing evidence for the current case:
 <working-dir>/_data/cases/<slug>/journal.md
 ```
 
-If the user named another evidence path, enumerate that path too. Do not browse
-sibling case directories unless the user explicitly points to them.
+If the user named another evidence path, enumerate that path too. Paste the
+literal file enumeration as plain monospace paths, one path per line where the
+runtime allows it. Do not browse sibling case directories unless the user
+explicitly points to them.
 
 ### 2C — Select Entry Points
 
 Use the loaded docs and grounding cards to choose snapshot and evidence entry
-points. Cap initial snapshot loads at five files total across products unless
-the user explicitly directs otherwise.
+points. This selection is mapping-driven: start from the grounding card's
+`Inspect snapshot` list or the product/reference mapping, then narrow by the
+user's literal tokens. Cap initial snapshot loads at five files total across
+products unless the user explicitly directs otherwise.
 
 Prefer entry points that identify policy objects, app segments, server groups,
 connector groups, locations, forwarding profiles, log schemas, or named
@@ -405,7 +428,9 @@ Default entry points by product:
 
 ### 2D — Load Selected Files
 
-Load selected snapshot and evidence files with the file-read tool. Do not load
+Load selected snapshot and evidence files with the file-read tool. Also read
+`<working-dir>/_data/cases/<slug>/journal.md` as the operative artifact so
+Step 3 updates the same file rather than creating a new one. Do not load
 unselected snapshot files. For files larger than 100 MB, search for
 user-flagged specifics first instead of loading blindly. If no search pattern
 can be derived from the framing or loaded context, ask one clarification before
@@ -451,7 +476,9 @@ Cannot save journal — working directory unknown. Reply with the absolute path
 of the repo root and I will retry the save.
 ```
 
-Without the save, Step 3 is incomplete and Checkpoint 3 cannot fire.
+After saving, read the file back before reporting `Journal saved`. Without
+readback, the save is not verified. Without the save and readback, Step 3 is
+incomplete and Checkpoint 3 cannot fire.
 
 ## Chain Traversal
 

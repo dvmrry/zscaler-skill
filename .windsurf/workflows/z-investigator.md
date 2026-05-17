@@ -66,7 +66,7 @@ Load-bearing facts. If you find yourself reasoning against any of these, stop �
 
 ## Per-turn output format (applies to every turn)
 
-Every turn's response follows the per-step shape described below. **Do NOT add prose between sections, decorative headers, or summary commentary outside the shape — the shape IS the response.** Output is plain markdown — headers, bold labels, bullets, blockquotes for the checkpoint menu — never wrapped in code fences. Fences are reserved for genuine code (shell commands, JSON, YAML, raw markdown templates).
+Every turn's response follows the per-step shape described below. **Do NOT add prose between sections, decorative headers, or summary commentary outside the shape — the shape IS the response.** Output is plain markdown — headers, bold labels, bullets, blockquotes for the checkpoint menu — never wrapped in code fences. Fences are reserved for genuine code (shell commands, JSON, YAML, raw markdown templates). Render paths as plain monospace text only; do not turn investigation paths into Markdown links.
 
 ### Step 1 — pre-Step-1 turn (clarification only, when a blocking unknown exists)
 
@@ -109,12 +109,18 @@ The literal output. *No Clarification block in this turn — clarifications happ
 **Proposed loads** (Step 2A — docs only)
 
 - agents/investigator/prompt.md
+- agents/investigator/harness.md
 - <product references from the framing→file mapping that match — these ARE the case-relevant knowledge, load every matching one>
 - <log schema(s) under `references/{zia,zpa,zcc}/logs/<name>-schema.md` — only if the framing already involves logs>
 
 Cross-cutting docs (methodology, diagnostics template, siem-emission-discipline, tenant-schema-derivation, loading-discipline, clarification-pattern) are **on-demand only** — do NOT include them in PROPOSED LOADS. They load when their trigger fires (per `agents/investigator/prompt.md § On-demand references`).
 
 **Journal created:** `<working-dir>/_data/cases/<slug>/journal.md`
+
+Only emit `Journal created` after the file-write tool writes the stub and the
+file-read tool reads it back successfully. If write or readback fails, emit
+`Journal not created: <reason>` and make fixing the save the next checkpoint
+option.
 
 What's next?
 - Proceed — load the proposed files (run Step 2)
@@ -132,11 +138,14 @@ The literal output. Step 2 has no assumption clarifications (the data is just en
 **Loaded**
 
 - Docs:
-  - ✓ <file>
+  - ✓ agents/investigator/prompt.md
+  - ✓ agents/investigator/harness.md
+  - ✓ <each proposed doc>
 - Snapshot entry points:
   - ✓ <file>
   - Will load on-demand: <list of chain-traversal candidates>
 - Existing evidence:
+  - ✓ _data/cases/<slug>/journal.md (operative journal)
   - ✓ <file>
 - Skipped:
   - <count> snapshot files unrelated to framing — load on-demand
@@ -236,7 +245,7 @@ If the framing has no backticked tokens, set the field to `none`.
 
 #### Output: proposed loads (docs only)
 
-Emit a `**Proposed loads** (Step 2A — docs only; snapshot loads decided in Step 2B after docs are read)` heading followed by a bullet list of paths. The list is the **case-relevant knowledge** — playbook + framing-matched product references + matching log schema(s) when logs are part of the framing. Cross-cutting agent-instruction docs (methodology, diagnostics template, siem-emission-discipline, tenant-schema-derivation, loading-discipline, clarification-pattern) are on-demand and **do NOT appear here**. **Snapshot files also do not appear** — they are decided in Step 2 after docs are loaded.
+Emit a `**Proposed loads** (Step 2A — docs only; snapshot loads decided in Step 2B after docs are read)` heading followed by a bullet list of paths. The list is **mapping-driven case-relevant knowledge** — playbook + grounding-card matches + framing-matched product references + matching log schema(s) only when logs / SIEM / LSS / NSS or a user-provided log path are part of the framing. Do not add files because they might support an ungrounded hypothesis. Cross-cutting agent-instruction docs (methodology, diagnostics template, siem-emission-discipline, tenant-schema-derivation, loading-discipline, clarification-pattern) are on-demand and **do NOT appear here**. **Snapshot files also do not appear** — they are decided in Step 2 after docs are loaded.
 
 - agents/investigator/prompt.md
 - <product references from the mapping table that match Products / features>
@@ -315,7 +324,11 @@ Pending.
 
 **Working directory precondition still applies.** If `Working directory` is `unknown`, that's a blocking unknown — Step 1 enters pre-Step-1 mode and emits a single working-directory clarification (no other content) before any data emission. The stub cannot be created without a known absolute path; the journal-creation step happens only after the working-directory pre-Step-1 clarification resolves.
 
-**Add to Step 1's output template** a `**Journal created:** <path>` line right before the Checkpoint 1 menu, listing the path written. Example: `**Journal created:** <working-dir>/_data/cases/<slug>/journal.md`
+**Readback requirement.** After writing the stub, immediately read the same file
+back with your file-read tool. Only then add `**Journal created:** <path>` right
+before the Checkpoint 1 menu. If the write or readback fails, do not claim the
+journal exists; emit `**Journal not created:** <reason>` and make fixing the
+save the next checkpoint option.
 
 #### Checkpoint 1 — pre-Step-1 vs full-Step-1 ending
 
@@ -347,7 +360,7 @@ For each file in the confirmed PROPOSED LOADS (playbook + framing-matched produc
 
 #### 2B — Enumerate the snapshot directory AND existing evidence (only after 2A completes)
 
-Two enumerations happen at this step. Both are recursive listings; both paste output verbatim. Show your command output regardless of result.
+Two enumerations happen at this step. Both are recursive listings; both paste output verbatim as plain monospace paths. Show your command output regardless of result.
 
 **2B.1 — Snapshot.** Tenant snapshots are the canonical source for "what's actually configured" — do not propose live API calls for config the snapshot already has. If `Tenant cloud` was specified in PARSED FRAMING, run a recursive listing of `_data/snapshot/<cloud>/` (or `_data/<cloud>/` for the fork-specific layout). Emit a `**Snapshot enumeration** (find _data/snapshot/zs2/ -type f)` heading followed by a bullet list of paths returned:
 
@@ -408,7 +421,7 @@ If you can't derive grep patterns from the framing, halt and ask the user before
 
 Use your file-read tool to load each entry-point file selected in 2C. **Do not load other snapshot files at this step**; chain-traversal on subsequent turns will load deeper links as needed.
 
-After all loads complete (docs from 2A + snapshot entry points + existing evidence from 2D), output the consolidated LOADED block (template below).
+After all loads complete (docs from 2A + snapshot entry points + existing evidence from 2D), read the operative journal path (`<working-dir>/_data/cases/<slug>/journal.md`) so Step 3 updates the same file. Then output the consolidated LOADED block (template below).
 
 #### 2E — Search User-flagged specifics across loaded content
 
@@ -444,7 +457,7 @@ Emit a `**Loaded**` heading followed by a nested bullet list:
 
 - Docs:
   - ✓ agents/investigator/prompt.md
-  - ✓ agents/investigator/methodology.md
+  - ✓ agents/investigator/harness.md
   - ✓ <each product reference>
 - Snapshot entry points (one per product):
   - ✓ _data/snapshot/zs2/zpa/application-segments.json (entry point for ZPA chain)
@@ -453,6 +466,7 @@ Emit a `**Loaded**` heading followed by a nested bullet list:
     - connector-groups.json (after server-group IDs identified)
     - app-connectors.json (after connector-group IDs identified)
 - Existing evidence (from operative case dir):
+  - ✓ _data/cases/<slug>/journal.md (operative journal)
   - ✓ _data/cases/<slug>/evidence/MANIFEST.md
   - ✓ _data/cases/<slug>/evidence/<log file 1>
   - ✓ _data/cases/<slug>/evidence/<log file 2>
@@ -516,7 +530,7 @@ After generating the journal in chat, **immediately use your file-write tool** t
 
 > `Cannot save journal — working directory unknown. Reply with the absolute path of the repo root (e.g., /Users/<you>/src/gh/<org>/zscaler-skill) and I will retry the save.`
 
-Do NOT attempt the save against a relative path that may resolve nowhere; do NOT silently skip the save and continue. The save is part of Step 3 — without it, Step 3 is incomplete and Checkpoint 3 cannot fire.
+Do NOT attempt the save against a relative path that may resolve nowhere; do NOT silently skip the save and continue. After saving, immediately read the same file back with your file-read tool before reporting `Journal saved`. The save is part of Step 3 — without save and readback, Step 3 is incomplete and Checkpoint 3 cannot fire.
 
 **Slug selection:**
 

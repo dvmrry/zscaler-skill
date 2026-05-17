@@ -180,6 +180,13 @@ change to one must either update the other in the same PR or explicitly document
 why the two are allowed to diverge. This risk remains until A/B parity evidence
 supports replacing the Windsurf body with a thin loader.
 
+Downstream Windsurf testing supports a "thicker thin shim" target rather than a
+minimal one-line loader. Even after the body is thinned, the Windsurf adapter
+should retain runtime-local reinforcement for file-write/readback discipline,
+plain monospace paths, literal file enumeration, mechanical checkpoint
+preconditions, and the mapping-driven load list. Those are runtime-behavior
+guards, not product knowledge.
+
 This creates a temporary duplicate-by-design state:
 
 ```text
