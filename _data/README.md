@@ -90,8 +90,8 @@ Sanitization).
 
 ## Why this dir exists
 
-Top-level cleanliness. Before consolidation, `iac/`, `schemas/`, and
-`snapshot/` were three separate top-level dirs encoding three different but
-related concepts. Consolidating mirrors the `_meta/` pattern under
+Top-level cleanliness. Before consolidation, `iac/`, `logs/` (now
+`schemas/`), and `snapshot/` were three separate top-level dirs encoding three
+different but related concepts. Consolidating mirrors the `_meta/` pattern under
 `references/`: anything not under `_data/` is content/infrastructure; anything
 under `_data/` is fork/tenant/runtime.

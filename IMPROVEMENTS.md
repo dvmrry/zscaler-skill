@@ -51,7 +51,7 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 - **Cost**: low. Two plausible mechanisms:
   - Internal fork maintains its own `.gitignore` rules in `.git/info/exclude` (per-clone, not committed) — simplest but doesn't survive re-cloning
   - Internal fork commits an alternate `.gitignore.internal` and switches via `git config core.excludesfile` — survives cloning but adds setup ceremony
-- **Notes**: the public-vs-private fork divergence is already a documented pattern in the skill (see `.gitignore` line 2: "The private internal fork overrides this to commit snapshot/ and schemas/ contents"). Cases inherit the same shape. When the internal fork actually goes through a real production case, that's the moment to formalize the override mechanism.
+- **Notes**: the public-vs-private fork divergence is already a documented pattern in the skill (see `.gitignore` line 2: "The private internal fork overrides this to commit snapshot/, schemas/, and cases/ contents"). Cases inherit the same shape. When the internal fork actually goes through a real production case, that's the moment to formalize the override mechanism.
 
 ### Auto-fix agent for hygiene failures (Claude-specific)
 

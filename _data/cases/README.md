@@ -59,7 +59,7 @@ Keep it blameless and brief. The artifact's purpose is institutional memory, not
 
 ### `evidence/`
 
-Raw artifacts that the journal cites — CI run logs, command output, screenshots, API response dumps, snapshot captures, packet traces. **Gitignored by default**: `_data/cases/*/evidence/*` is in `.gitignore` (with `.gitkeep` preserved so the directory survives). Engineers can choose to commit specific files by adding `!` overrides per-file when the content is safe to publish.
+Raw artifacts that the journal cites — CI run logs, command output, screenshots, API response dumps, snapshot captures, packet traces. **Gitignored by default**: `_data/cases/*` is in `.gitignore` (with `.gitkeep` and this README preserved). Engineers can choose to commit specific case directories and evidence files by adding explicit `!` overrides when the content is safe to publish.
 
 The journal/evidence relationship matters: **journal claims cite evidence files; the evidence is what makes the claims falsifiable.** A claim like "InternalReason field shows CONNECTOR_UNHEALTHY (12 sessions)" cites `evidence/lss-connector-unhealthy-2026-04-30T14-30Z.json` — the raw query result. Future readers can verify the claim against the source.
 
@@ -106,15 +106,32 @@ When the agent saves an evidence file, it does both: write the file with the ren
 
 ## Privacy posture
 
-Three categories:
+The public repo default is private: `_data/cases/*` is ignored unless a fork or
+branch explicitly opts a case back in. Three categories:
 
 | Content | Default | Override |
 |---|---|---|
-| Skill-internal case artifacts (no tenant data — e.g., today's CI silent-failure case) | **Tracked publicly** | Add `.gitignore` rule per-case if you change your mind |
-| Tenant-side case artifacts (Zscaler operational issues with real tenant identifiers) | **Tracked, but redact tenant-specifics** OR add to `.gitignore` to keep fully private | Per fork policy |
-| `evidence/` raw artifacts | **Gitignored** | Add `!` override per-file when safe |
+| Skill-internal case artifacts with no tenant data | **Ignored by default** | Add `!` overrides for the case directory and safe files |
+| Tenant-side case artifacts with real tenant identifiers | **Ignored by default** | Internal fork policy decides whether to commit redacted journals, full private journals, or nothing |
+| `evidence/` raw artifacts | **Ignored by default** | Add parent-directory and per-file `!` overrides only when safe |
 
 The README itself is always tracked — it documents the convention.
+
+Git re-include rules must reopen every ignored parent before a file can be
+tracked. A safe public example looks like:
+
+```gitignore
+!_data/cases/2026-04-30-ci-silent-failures/
+!_data/cases/2026-04-30-ci-silent-failures/journal.md
+!_data/cases/2026-04-30-ci-silent-failures/timeline.md
+```
+
+If publishing selected evidence, also reopen `evidence/` before the file:
+
+```gitignore
+!_data/cases/2026-04-30-ci-silent-failures/evidence/
+!_data/cases/2026-04-30-ci-silent-failures/evidence/MANIFEST.md
+```
 
 ## Naming and indexing
 
@@ -122,9 +139,11 @@ The README itself is always tracked — it documents the convention.
 - Slugs are kebab-case, descriptive enough to scan
 - Cross-link cases from related references when the lessons are load-bearing for future readers (e.g., a CI case that surfaces a workflow-discipline gap should get a back-link from the relevant methodology / playbook doc)
 
-## Canonical example
+## Case examples
 
-[`2026-04-30-ci-silent-failures/`](./2026-04-30-ci-silent-failures/) — the first case captured under this convention. Use as a template for future cases.
+Case directories are ignored by default, so this public README does not link to
+a canonical tracked example. If a fork publishes a safe example case, link it
+from this section and use it as the local template for future cases.
 
 ## How investigations land here
 
