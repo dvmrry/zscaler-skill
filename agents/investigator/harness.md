@@ -310,16 +310,25 @@ grounding card before falling back to keyword-only topic loading.
 
 ### Early Journal Creation
 
-After composing the parsed framing and proposed loads, immediately use the
-file-write tool to create a stub journal at:
+After composing the parsed framing and proposed loads, run this artifact
+creation transaction. Do not summarize or collapse these steps:
 
-```text
-<working-dir>/_data/cases/<slug>/journal.md
-```
+1. Resolve `case_dir` to `<working-dir>/_data/cases/<slug>`.
+2. Resolve `journal_path` to `<case_dir>/journal.md`.
+3. Create `case_dir`.
+4. Write the exact stub body below to `journal_path`.
+5. Read `journal_path` back.
+6. Verify the readback contains all required markers:
+   - `# Discovery Journal —`
+   - `## Framing`
+   - `## Proposed Loads`
+   - `## Claims`
+   - `## Resolution`
+7. Only after all six steps succeed, emit `Journal created:
+   <journal_path>`.
 
-Do this before Checkpoint 1. Then read the same file back with the file-read
-tool before saying `Journal created` in chat. The artifact must exist from Step
-1 onward, even if it only contains the framing and empty claims.
+Do this before Checkpoint 1. The artifact must exist from Step 1 onward, even
+if it only contains the framing and empty claims.
 
 Slug selection:
 
@@ -333,10 +342,18 @@ Do not browse sibling case directories to find a matching prior journal. The
 only continuation signals are an explicit user path/slug or the current target
 directory already containing `journal.md`.
 
-The stub should contain:
+The stub body is deterministic. Fill placeholders from parsed framing and the
+proposed-load list; do not invent additional sections at Step 1:
 
 ```text
 # Discovery Journal — <symptom>
+
+ISSUE: <one-sentence symptom>
+STATUS: Investigating
+TIMESTAMP: <ISO 8601 UTC>
+WORKING DIRECTORY: <absolute working directory>
+CASE DIRECTORY: <case_dir>
+JOURNAL PATH: <journal_path>
 
 ## Framing
 
@@ -351,7 +368,7 @@ The stub should contain:
 
 ## Proposed Loads
 
-(See Step 1 proposed loads.)
+<one bullet per proposed-load path, exactly as emitted in Step 1>
 
 ## Claims
 
@@ -365,8 +382,10 @@ Open.
 If the working directory is unknown, do not create the stub. Ask the working
 directory clarification as the whole turn.
 
-If the write or readback fails, do not claim the journal exists. Surface the
-failure plainly and halt at Checkpoint 1 with a save-retry option.
+If directory creation, write, readback, or marker verification fails, do not
+claim the journal exists. Surface `Journal not created: <failed transaction
+step> — <reason>` and halt at Checkpoint 1 with a save-retry option. Do not run
+Step 2 while artifact creation is incomplete.
 
 ## Step 2 Details
 
@@ -476,9 +495,18 @@ Cannot save journal — working directory unknown. Reply with the absolute path
 of the repo root and I will retry the save.
 ```
 
-After saving, read the file back before reporting `Journal saved`. Without
-readback, the save is not verified. Without the save and readback, Step 3 is
-incomplete and Checkpoint 3 cannot fire.
+Use the same transaction shape as Step 1:
+
+1. Write the full rendered journal to `journal_path`.
+2. Read `journal_path` back.
+3. Verify the readback contains:
+   - `# Discovery Journal`
+   - `| Claim | Source | Status | Next evidence needed | Timestamp | Notes |`
+   - `## Resolution`
+4. Only after verification succeeds, emit `Journal saved: <journal_path>`.
+
+Without write, readback, and marker verification, Step 3 is incomplete and
+Checkpoint 3 cannot fire.
 
 ## Chain Traversal
 

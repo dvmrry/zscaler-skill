@@ -187,6 +187,13 @@ plain monospace paths, literal file enumeration, mechanical checkpoint
 preconditions, and the mapping-driven load list. Those are runtime-behavior
 guards, not product knowledge.
 
+Follow-up downstream testing also showed that prose-level "write and read back"
+instructions are not deterministic enough. Artifact creation must be a named
+transaction with ordered steps: resolve paths, create the case directory, write
+the exact stub, read the same file back, verify required markers, and only then
+emit `Journal created`. Step 3 journal saves use the same write/readback/marker
+verification pattern before `Journal saved`.
+
 This creates a temporary duplicate-by-design state:
 
 ```text

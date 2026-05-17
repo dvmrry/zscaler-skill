@@ -277,7 +277,24 @@ Multiple rows may match a single framing — **add every matching row** to PROPO
 
 #### Early-journal creation — write the stub before Checkpoint 1
 
-After composing the PARSED FRAMING and PROPOSED LOADS blocks, **immediately use your file-write tool** to create a stub journal at `<working-directory>/_data/cases/<slug>/journal.md`. **Do this before the Checkpoint 1 halt.** The artifact must exist on disk from Step 1 onward — even a template-with-only-the-framing is correct shape. Subsequent steps update this file in place; they do not create it.
+After composing the PARSED FRAMING and PROPOSED LOADS blocks, **immediately run
+the artifact creation transaction below before the Checkpoint 1 halt**.
+Subsequent steps update this file in place; they do not create a new journal.
+
+**Artifact creation transaction:**
+
+1. Resolve `case_dir` to `<working-directory>/_data/cases/<slug>`.
+2. Resolve `journal_path` to `<case_dir>/journal.md`.
+3. Create `case_dir`.
+4. Write the exact stub body below to `journal_path`.
+5. Read `journal_path` back.
+6. Verify the readback contains all required markers:
+   - `# Discovery Journal —`
+   - `## Framing`
+   - `## Proposed Loads`
+   - `## Claims`
+   - `## Resolution`
+7. Only after all six steps succeed, emit `Journal created: <journal_path>`.
 
 **Slug selection** (same logic as Step 3B's save):
 
@@ -295,6 +312,8 @@ ISSUE: <one-sentence symptom>
 STATUS: Investigating
 TIMESTAMP: <ISO 8601 UTC>
 WORKING DIRECTORY: <path>
+CASE DIRECTORY: <case_dir>
+JOURNAL PATH: <journal_path>
 
 ## Framing
 
@@ -309,7 +328,7 @@ WORKING DIRECTORY: <path>
 
 ## Proposed Loads
 
-(See PROPOSED LOADS block; Step 2 will mark which were actually loaded.)
+<one bullet per proposed-load path, exactly as emitted in Step 1>
 
 ## Claims
 
@@ -324,11 +343,10 @@ Pending.
 
 **Working directory precondition still applies.** If `Working directory` is `unknown`, that's a blocking unknown — Step 1 enters pre-Step-1 mode and emits a single working-directory clarification (no other content) before any data emission. The stub cannot be created without a known absolute path; the journal-creation step happens only after the working-directory pre-Step-1 clarification resolves.
 
-**Readback requirement.** After writing the stub, immediately read the same file
-back with your file-read tool. Only then add `**Journal created:** <path>` right
-before the Checkpoint 1 menu. If the write or readback fails, do not claim the
-journal exists; emit `**Journal not created:** <reason>` and make fixing the
-save the next checkpoint option.
+**Failure handling.** If directory creation, write, readback, or marker
+verification fails, do not claim the journal exists. Emit `**Journal not
+created:** <failed transaction step> — <reason>` and make fixing the save the
+next checkpoint option. Do not run Step 2 while artifact creation is incomplete.
 
 #### Checkpoint 1 — pre-Step-1 vs full-Step-1 ending
 
@@ -530,7 +548,20 @@ After generating the journal in chat, **immediately use your file-write tool** t
 
 > `Cannot save journal — working directory unknown. Reply with the absolute path of the repo root (e.g., /Users/<you>/src/gh/<org>/zscaler-skill) and I will retry the save.`
 
-Do NOT attempt the save against a relative path that may resolve nowhere; do NOT silently skip the save and continue. After saving, immediately read the same file back with your file-read tool before reporting `Journal saved`. The save is part of Step 3 — without save and readback, Step 3 is incomplete and Checkpoint 3 cannot fire.
+Do NOT attempt the save against a relative path that may resolve nowhere; do NOT silently skip the save and continue.
+
+Use the deterministic save transaction:
+
+1. Write the full rendered journal to `journal_path`.
+2. Read `journal_path` back.
+3. Verify the readback contains:
+   - `# Discovery Journal`
+   - `| Claim | Source | Status | Next evidence needed | Timestamp | Notes |`
+   - `## Resolution`
+4. Only after verification succeeds, emit `Journal saved: <journal_path>`.
+
+The save is part of Step 3 — without write, readback, and marker verification,
+Step 3 is incomplete and Checkpoint 3 cannot fire.
 
 **Slug selection:**
 
