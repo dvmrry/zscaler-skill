@@ -502,6 +502,18 @@ test("initializeTurnLedger requires a real claim table", () => {
   );
 });
 
+test("initializeTurnLedger rejects non-canonical claim statuses", () => {
+  const { root, caseSlug, journalPath } = createPassingCaseWithJournal();
+  const journal = fs.readFileSync(journalPath, "utf8")
+    .replace("Open (uncertain)", "Open (supported)");
+  fs.writeFileSync(journalPath, journal, "utf8");
+
+  assert.throws(
+    () => initializeTurnLedger({ root, caseSlug }),
+    /claim status is not allowed: Open \(supported\)/,
+  );
+});
+
 test("beginTurn validates allowed actions and blocks duplicate pending turns", () => {
   const { root, caseSlug } = createPassingCaseWithJournal();
   const initialized = initializeTurnLedger({ root, caseSlug });
@@ -528,6 +540,34 @@ test("beginTurn validates allowed actions and blocks duplicate pending turns", (
   assert.throws(
     () => beginTurn({ root, caseSlug, userAction: "continue-top-open" }),
     /missing nextTurnToken/,
+  );
+});
+
+test("completeTurn rejects non-canonical claim status updates", () => {
+  const { root, caseSlug, journalPath } = createPassingCaseWithJournal();
+  initializeTurnLedger({ root, caseSlug });
+  const begun = beginTurn({ root, caseSlug, userAction: "continue-top-open" });
+  const pending = begun.pendingTurn;
+
+  const journal = fs.readFileSync(journalPath, "utf8")
+    .replace("Open (uncertain)", "Less likely (unsupported)");
+  fs.writeFileSync(journalPath, `${journal}\nTurn update: checked one evidence source.\n`, "utf8");
+  const turnPath = writeJson(root, "turn-bad-status.json", {
+    sequence: pending.sequence,
+    previousHash: pending.priorLatestTurnHash,
+    turnToken: pending.turnToken,
+    userAction: pending.userAction,
+    actionType: "load-file",
+    actionSummary: "Checked one evidence source.",
+    touchedClaims: ["H1"],
+    evidenceRefs: ["E1"],
+    journalHashBefore: pending.journalHashBefore,
+    allowedNext: ["pause"],
+  });
+
+  assert.throws(
+    () => completeTurn({ root, caseSlug, turnJson: turnPath }),
+    /claim status is not allowed: Less likely \(unsupported\)/,
   );
 });
 
@@ -641,4 +681,52 @@ test("completeTurn requires touched claims for investigative journal changes", (
     () => completeTurn({ root, caseSlug, turnJson: turnPath }),
     /touchedClaims is required/,
   );
+});
+
+test("completeTurn validates query-request patterns against the Splunk catalog", () => {
+  const { root, caseSlug, journalPath } = createPassingCaseWithJournal();
+  const catalogPath = path.join(root, "references", "shared", "splunk-queries.md");
+  fs.mkdirSync(path.dirname(catalogPath), { recursive: true });
+  fs.writeFileSync(catalogPath, `# SPL patterns
+
+### \`segment-match-observed\`
+
+\`\`\`spl
+index=$INDEX_ZPA Application=$APP
+\`\`\`
+`, "utf8");
+
+  initializeTurnLedger({ root, caseSlug });
+  const begun = beginTurn({ root, caseSlug, userAction: "continue-top-open" });
+  const pending = begun.pendingTurn;
+
+  fs.appendFileSync(journalPath, "\nTurn update: prepared the next SIEM query request.\n", "utf8");
+  const baseTurn = {
+    sequence: pending.sequence,
+    previousHash: pending.priorLatestTurnHash,
+    turnToken: pending.turnToken,
+    userAction: pending.userAction,
+    actionType: "query-request",
+    actionSummary: "Prepared the next SIEM query request.",
+    touchedClaims: ["H1"],
+    evidenceRefs: ["references/shared/splunk-queries.md#segment-match-observed"],
+    journalHashBefore: pending.journalHashBefore,
+    allowedNext: ["pause"],
+  };
+
+  const unknownPath = writeJson(root, "turn-unknown-query.json", {
+    ...baseTurn,
+    queryPatterns: ["SIEM_ZPA_AUTHZ_DENY_BY_APP"],
+  });
+  assert.throws(
+    () => completeTurn({ root, caseSlug, turnJson: unknownPath }),
+    /query pattern is not in references\/shared\/splunk-queries\.md/,
+  );
+
+  const validPath = writeJson(root, "turn-valid-query.json", {
+    ...baseTurn,
+    queryPatterns: ["segment-match-observed"],
+  });
+  const completed = completeTurn({ root, caseSlug, turnJson: validPath });
+  assert.deepEqual(completed.event.queryPatterns, ["segment-match-observed"]);
 });

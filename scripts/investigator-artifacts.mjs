@@ -17,6 +17,15 @@ const REQUIRED_JOURNAL_MARKERS = [
   "## Resolution",
 ];
 const REQUIRED_CLAIM_TABLE_HEADER = "| Claim | Source | Status | Next evidence needed | Timestamp | Notes |";
+const VALID_CLAIM_STATUSES = new Set([
+  "Open (likely)",
+  "Open (uncertain)",
+  "Confirmed (high)",
+  "Confirmed (medium)",
+  "Ruled out",
+  "Stale",
+  "Resolved",
+]);
 const DEFAULT_ALLOWED_NEXT = [
   "continue-top-open",
   "investigate-different-claim",
@@ -199,6 +208,15 @@ function requiresTouchedClaims(actionType) {
   return actionType !== "pause";
 }
 
+function markdownTableCells(line) {
+  return line
+    .trim()
+    .replace(/^\|/, "")
+    .replace(/\|$/, "")
+    .split("|")
+    .map((cell) => cell.trim());
+}
+
 function verifyJournalHasClaimTable(journalPath) {
   const journal = fs.readFileSync(journalPath, "utf8");
   if (!journal.includes("# Discovery Journal")) {
@@ -207,6 +225,46 @@ function verifyJournalHasClaimTable(journalPath) {
   if (!journal.includes(REQUIRED_CLAIM_TABLE_HEADER)) {
     throw new Error("journal.md missing claim table header");
   }
+  const lines = journal.split(/\r?\n/);
+  const headerIndex = lines.findIndex((line) => line.trim() === REQUIRED_CLAIM_TABLE_HEADER);
+  for (const line of lines.slice(headerIndex + 1)) {
+    const trimmed = line.trim();
+    if (!trimmed) break;
+    if (trimmed.startsWith("## ")) break;
+    if (/^\|\s*-+/.test(trimmed)) continue;
+    if (!trimmed.startsWith("|")) continue;
+    const cells = markdownTableCells(trimmed);
+    if (cells.length < 3) continue;
+    const status = cells[2];
+    if (!VALID_CLAIM_STATUSES.has(status)) {
+      throw new Error(`journal.md claim status is not allowed: ${status}`);
+    }
+  }
+}
+
+function splunkPatternNames(root) {
+  const catalogPath = path.join(root, "references", "shared", "splunk-queries.md");
+  const catalog = fs.readFileSync(catalogPath, "utf8");
+  const names = new Set();
+  for (const match of catalog.matchAll(/^### `([^`]+)`/gm)) {
+    names.add(match[1]);
+  }
+  return names;
+}
+
+function validateQueryRequest(root, turnInput, actionType) {
+  if (actionType !== "query-request") return [];
+  const queryPatterns = asArray(turnInput.queryPatterns);
+  if (queryPatterns.length === 0) {
+    throw new Error("query-request turns must include queryPatterns from references/shared/splunk-queries.md");
+  }
+  const catalogNames = splunkPatternNames(root);
+  for (const pattern of queryPatterns) {
+    if (!catalogNames.has(pattern)) {
+      throw new Error(`query pattern is not in references/shared/splunk-queries.md: ${pattern}`);
+    }
+  }
+  return queryPatterns;
 }
 
 function readTurnState(paths) {
@@ -362,6 +420,7 @@ function completeTurn(args) {
   if (requiresTouchedClaims(actionType) && (!Array.isArray(turnInput.touchedClaims) || turnInput.touchedClaims.length === 0)) {
     throw new Error("turn-json touchedClaims is required for investigative actions");
   }
+  const queryPatterns = validateQueryRequest(root, turnInput, actionType);
 
   const allowedNext = normalizeAllowedNext(turnInput.allowedNext || DEFAULT_ALLOWED_NEXT);
   const nextTurnToken = makeTurnToken();
@@ -376,6 +435,7 @@ function completeTurn(args) {
     actionSummary: fieldValue(turnInput.actionSummary, "not specified"),
     evidenceRefs: asArray(turnInput.evidenceRefs),
     touchedClaims: asArray(turnInput.touchedClaims),
+    queryPatterns,
     journalHashBefore: pending.journalHashBefore,
     journalHashAfter,
     allowedNext,
