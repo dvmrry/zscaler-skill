@@ -47,7 +47,7 @@ The skill answers questions by combining three distinct **knowledge layers**. Ea
 **Where it lives:**
 - `_data/snapshot/zia/*.json`, `_data/snapshot/zpa/*.json`, `_data/snapshot/zcc/*.json` — config dumps from the API.
 - `_data/snapshot/_manifest.json` — timestamps and per-resource counts.
-- (Future) per-tenant operational logs in `_data/logs/` (gitignored).
+- (Future) per-tenant log-schema decompositions and query skeletons in `_data/schemas/` (gitignored).
 
 **Authority pattern:** sourced from real tenant API. Authoritative for "what does this tenant actually have configured." Stale within hours-to-days depending on tenant change rate.
 

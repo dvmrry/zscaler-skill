@@ -25,8 +25,8 @@ The user's scope should include:
 - **Threat model** (optional) — `external attacker w/ stolen credentials`, `compromised admin`, `data exfil via cloud apps`, `ransomware lateral movement`, or "general"
 - **Tenant cloud** (helps) — `zs2`, `zs3`, etc., so the agent can locate snapshot data
 
-The user's SOC review scope follows this command in the chat. Parse scope and subtype, ground before reasoning per Step 2 (read schemas and product references; check `_data/snapshot/<cloud>/`, the operative incident directory's `evidence/`, and `_data/logs/` first), apply the relevant subtype check-set, and output the posture register grouped by severity.
+The user's SOC review scope follows this command in the chat. Parse scope and subtype, ground before reasoning per Step 2 (read schemas and product references; check `_data/snapshot/<cloud>/`, the operative case directory's `evidence/`, and `_data/schemas/` first), apply the relevant subtype check-set, and output the posture register grouped by severity.
 
-Save the register to `_data/incidents/<slug>/posture.md` per Step 5. For routine (non-incident-driven) reviews use slug `<YYYY-MM-DD>-soc-<scope-descriptor>`.
+Save the register to `_data/cases/<slug>/posture.md` per Step 5. For routine (non-incident-driven) reviews use slug `<YYYY-MM-DD>-soc-<scope-descriptor>`.
 
 Do not change tenant state — propose only. If scope is ambiguous, ask one targeted clarifying question.

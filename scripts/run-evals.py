@@ -38,7 +38,7 @@ Response file format:
     (only IDs you want to validate need to be present)
 
 Validation output is human-readable to stdout AND saved as a markdown
-report under `_data/logs/eval-results-<UTC-date>.md`.
+report under `_data/schemas/eval-results-<UTC-date>.md`.
 
 Exit code: 0 if all listed/validated evals pass; 1 if any validation fails.
 """

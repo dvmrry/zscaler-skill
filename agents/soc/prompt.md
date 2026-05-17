@@ -62,7 +62,7 @@ Follow the audit register format and severity / status enums from [`auditor/meth
 - Do not mark findings `Resolved` without verification (re-read the snapshot, re-run the query)
 - Findings outside scope go in Notes or "Out-of-scope observations," not silently dropped or chased
 
-The discipline around evidence sourcing follows [`investigator/methodology.md`](../investigator/methodology.md) — disk first (`_data/snapshot/<cloud>/`, `_data/incidents/<operative>/evidence/`), then SIEM, then live API, then portal as last resort. See [`investigator/prompt.md § Step 4`](../investigator/prompt.md) for the full preference ladder.
+The discipline around evidence sourcing follows [`investigator/methodology.md`](../investigator/methodology.md) — disk first (`_data/snapshot/<cloud>/`, `_data/cases/<operative>/evidence/`), then SIEM, then live API, then portal as last resort. See [`investigator/prompt.md § Step 4`](../investigator/prompt.md) for the full preference ladder.
 
 When asking the user a clarifying question — subtype inference, threat-model selection, scope disambiguation — format the question as a multiple-choice block (per [`agents/clarification-pattern.md`](../clarification-pattern.md)), never plain prose. Example for subtype inference:
 
@@ -93,7 +93,7 @@ Same a/b/c/d as `/z-investigator` (see [`investigator/prompt.md § Step 2`](../i
 - **a.** Read source schemas for any logs / config files you'll analyze
 - **b.** Read the canonical product / feature reference for any Zscaler component in scope
 - **c.** Verify framing claims as `Open (uncertain)` until evidence supports them
-- **d.** Check existing evidence on disk — `_data/incidents/<operative-slug>/evidence/`, `_data/snapshot/<cloud>/`, `_data/logs/`. Read any operative-directory `journal.md` or `posture.md` already in place; do not browse sibling incident directories.
+- **d.** Check existing evidence on disk — `_data/cases/<operative-slug>/evidence/`, `_data/snapshot/<cloud>/`, `_data/schemas/`. Read any operative-directory `journal.md` or `posture.md` already in place; do not browse sibling case directories.
 
 A SOC review especially leans on **(a)** and **(d)** — schemas tell you what posture controls a given config field actually enables, and the snapshot is the canonical source for "what's actually configured."
 
@@ -109,7 +109,7 @@ Render the register grouped by severity, highest first. Use the format below.
 
 ### 5. Save the register to disk
 
-Same convention as `/z-investigator` Step 6: write to `_data/incidents/<slug>/posture.md`. Path selection logic identical — user-pointed path takes priority; existing dir + `posture.md` is a continuation; fresh slug otherwise. Save unconditionally unless the user opts out.
+Same convention as `/z-investigator` Step 6: write to `_data/cases/<slug>/posture.md`. Path selection logic identical — user-pointed path takes priority; existing dir + `posture.md` is a continuation; fresh slug otherwise. Save unconditionally unless the user opts out.
 
 For routine (non-incident-driven) SOC reviews, slug pattern: `<YYYY-MM-DD>-soc-<scope-descriptor>` (e.g., `2026-04-30-soc-zpa-admin-rbac`, `2026-04-30-soc-zia-url-filtering-bypass`).
 
@@ -225,9 +225,9 @@ After the first response, continue the review by:
 
 Do not mark the overall review `Complete` until every finding has a non-`Open` status. **Specifically, do not declare a cycle done while any `Critical` finding is `Open` — promote it to `Acknowledged` with explicit deferral rationale or action it.**
 
-## Saving as an incident artifact
+## Saving as a case artifact
 
-The posture register itself is always saved per Step 5. If the SOC review surfaces a finding that crosses into incident territory (active exploitation, breach indicators, compliance violation requiring disclosure), the same `_data/incidents/<slug>/` directory becomes the home for `journal.md` (the corresponding investigation), `timeline.md`, `postmortem.md`, and `evidence/`. See [`../../_data/incidents/README.md`](../../_data/incidents/README.md) for the convention.
+The posture register itself is always saved per Step 5. If the SOC review surfaces a finding that crosses into incident territory (active exploitation, breach indicators, compliance violation requiring disclosure), the same `_data/cases/<slug>/` directory becomes the home for `journal.md` (the corresponding investigation), `timeline.md`, `postmortem.md`, and `evidence/`. See [`../../_data/cases/README.md`](../../_data/cases/README.md) for the convention.
 
 For routine posture reviews with no incident shape, only `posture.md` exists in the directory — that's the expected and correct shape.
 
@@ -250,7 +250,7 @@ For routine posture reviews with no incident shape, only `posture.md` exists in 
 - [`siem-emission-discipline.md`](../siem-emission-discipline.md) — SIEM execution modes
 - [`splunk-queries.md`](../../references/shared/splunk-queries.md) — Splunk pattern catalog (used in detection-coverage check)
 - [`tenant-schema-derivation.md`](../tenant-schema-derivation.md) — canonical vs. tenant schemas (used in coverage subtype)
-- [`../../_data/incidents/README.md`](../../_data/incidents/README.md) — incident artifact convention (where `posture.md` lands)
+- [`../../_data/cases/README.md`](../../_data/cases/README.md) — case artifact convention (where `posture.md` lands)
 
 ---
 

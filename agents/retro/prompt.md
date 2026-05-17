@@ -9,7 +9,7 @@ confidence: high
 source-tier: practice
 sources:
   - "agents/retro/methodology.md"
-  - "_data/incidents/README.md"
+  - "_data/cases/README.md"
   - "agents/investigator/methodology.md"
 dependencies:
   - "methodology.md"
@@ -20,13 +20,13 @@ author-status: draft
 
 # Retro — journal-first incident postmortem workflow
 
-This is the playbook invoked by `/z-retro` after an investigation has produced an incident journal. Its job is to turn `_data/incidents/<slug>/journal.md` into a postmortem with an explicit warning ledger and decision gate.
+This is the playbook invoked by `/z-retro` after an investigation has produced an incident journal. Its job is to turn `_data/cases/<slug>/journal.md` into a postmortem with an explicit warning ledger and decision gate.
 
 ## Mode
 
 You are entering retro mode. This is a **journal-first postmortem**, not a fresh investigation and not a free-form narrative. The first substantive action is to load the incident journal, extract every material warning / unresolved claim, and decide whether the journal supports forward motion.
 
-If there is no `journal.md`, stop. Ask for the incident directory or recommend running `/z-investigator` first. Do not invent a retro from chat memory.
+If there is no `journal.md`, stop. Ask for the case directory or recommend running `/z-investigator` first. Do not invent a retro from chat memory.
 
 ## What this command will not do
 
@@ -41,14 +41,14 @@ A good `/z-retro` invocation includes:
 
 | Field | Example |
 |---|---|
-| **Incident directory** | `_data/incidents/2026-05-14-ci-warning-regression/` |
+| **Case directory** | `_data/cases/2026-05-14-ci-warning-regression/` |
 | **Question / concern** | `retro must decide whether warnings blocked merge` |
 | **Related PR / commit** | `PR #14`, `51ba1da`, `main@ba4b456..51ba1da` |
 | **Desired output** | `write postmortem.md`, `just produce warning ledger`, `review existing postmortem` |
 
-Minimum viable framing: an incident directory containing `journal.md`, or enough context to identify exactly one incident directory.
+Minimum viable framing: a case directory containing `journal.md`, or enough context to identify exactly one case directory.
 
-If multiple incident directories match or none is provided, ask one multiple-choice clarification and stop.
+If multiple case directories match or none is provided, ask one multiple-choice clarification and stop.
 
 ## Discipline
 
@@ -66,16 +66,16 @@ Use [`../investigator/methodology.md`](../investigator/methodology.md) for claim
 
 When invoked, do these in order:
 
-### 1. Locate the incident directory
+### 1. Locate the case directory
 
-Parse `$ARGUMENTS` for an explicit `_data/incidents/<slug>/` path. If no path is provided, scan `_data/incidents/` directory names only and pick an exact match only when there is one obvious candidate from the user's words.
+Parse `$ARGUMENTS` for an explicit `_data/cases/<slug>/` path. If no path is provided, scan `_data/cases/` directory names only and pick an exact match only when there is one obvious candidate from the user's words.
 
 If ambiguous, ask one multiple-choice clarification:
 
 > Which incident should `/z-retro` use?
 >
-> - `_data/incidents/<slug-a>/` — <why it might match>
-> - `_data/incidents/<slug-b>/` — <why it might match>
+> - `_data/cases/<slug-a>/` — <why it might match>
+> - `_data/cases/<slug-b>/` — <why it might match>
 > - Other — specify
 
 ### 2. Load required artifacts
@@ -83,7 +83,7 @@ If ambiguous, ask one multiple-choice clarification:
 Load, in this order:
 
 1. `agents/retro/methodology.md`
-2. `_data/incidents/README.md`
+2. `_data/cases/README.md`
 3. `<incident>/journal.md`
 4. `<incident>/timeline.md` if present
 5. `<incident>/evidence/MANIFEST.md` if present
@@ -145,4 +145,4 @@ If blocked before artifact loading, output only the single clarification questio
 
 - [`./methodology.md`](./methodology.md) — postmortem format, warning ledger, decision gate, and handoff rules
 - [`../investigator/methodology.md`](../investigator/methodology.md) — claim status semantics for reading `journal.md`
-- [`../../_data/incidents/README.md`](../../_data/incidents/README.md) — incident artifact layout and privacy posture
+- [`../../_data/cases/README.md`](../../_data/cases/README.md) — case artifact layout and privacy posture

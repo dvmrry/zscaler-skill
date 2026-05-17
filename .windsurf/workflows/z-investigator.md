@@ -113,7 +113,7 @@ The literal output. *No Clarification block in this turn — clarifications happ
 
 Cross-cutting docs (methodology, diagnostics template, siem-emission-discipline, tenant-schema-derivation, loading-discipline, clarification-pattern) are **on-demand only** — do NOT include them in PROPOSED LOADS. They load when their trigger fires (per `agents/investigator/prompt.md § On-demand references`).
 
-**Journal created:** `<working-dir>/_data/incidents/<slug>/journal.md`
+**Journal created:** `<working-dir>/_data/cases/<slug>/journal.md`
 
 What's next?
 - Proceed — load the proposed files (run Step 2)
@@ -178,7 +178,7 @@ The literal output. Same pattern: closing multi-choice **is** the checkpoint.
 
 **Next step:** <single next investigation step — which source to consult, what field to check>
 
-**Journal saved:** `<working-dir>/_data/incidents/<slug>/journal.md`
+**Journal saved:** `<working-dir>/_data/cases/<slug>/journal.md`
 
 What's next?
 - Investigate the top Open hypothesis
@@ -217,7 +217,7 @@ Emit a `**Parsed framing**` heading followed by a bullet list (one bullet per fi
 - Working directory: <absolute path of repo root, or "unknown — needs user confirmation">
 - User-flagged specifics: <every backticked token from the framing, verbatim, comma-separated; or "none">
 
-The `Working directory` field is the absolute path the workflow's relative paths (`references/...`, `_data/incidents/...`) resolve against. Infer from the workspace context if you can; if you cannot determine it confidently, set it to `unknown` — that triggers a required clarification (see below). Do **not** guess; do **not** assume `.` will resolve correctly at file-write time.
+The `Working directory` field is the absolute path the workflow's relative paths (`references/...`, `_data/cases/...`) resolve against. Infer from the workspace context if you can; if you cannot determine it confidently, set it to `unknown` — that triggers a required clarification (see below). Do **not** guess; do **not** assume `.` will resolve correctly at file-write time.
 
 The `User-flagged specifics` field captures **every backticked token from the user's framing, verbatim, in their original casing.** Backticks in framing are the user's signal for *"this is a literal identifier, do not paraphrase or generalize."* Examples:
 
@@ -267,12 +267,12 @@ Multiple rows may match a single framing — **add every matching row** to PROPO
 
 #### Early-journal creation — write the stub before Checkpoint 1
 
-After composing the PARSED FRAMING and PROPOSED LOADS blocks, **immediately use your file-write tool** to create a stub journal at `<working-directory>/_data/incidents/<slug>/journal.md`. **Do this before the Checkpoint 1 halt.** The artifact must exist on disk from Step 1 onward — even a template-with-only-the-framing is correct shape. Subsequent steps update this file in place; they do not create it.
+After composing the PARSED FRAMING and PROPOSED LOADS blocks, **immediately use your file-write tool** to create a stub journal at `<working-directory>/_data/cases/<slug>/journal.md`. **Do this before the Checkpoint 1 halt.** The artifact must exist on disk from Step 1 onward — even a template-with-only-the-framing is correct shape. Subsequent steps update this file in place; they do not create it.
 
 **Slug selection** (same logic as Step 3B's save):
 
 - If the framing contains an existing path or slug, use that directory.
-- If `_data/incidents/<some-existing-slug>/` already has a `journal.md` whose ISSUE matches, this is a continuation — update that file.
+- If `_data/cases/<some-existing-slug>/` already has a `journal.md` whose ISSUE matches, this is a continuation — update that file.
 - Otherwise mint a fresh slug: `<YYYY-MM-DD>-<short-kebab-descriptor>`. Create the directory.
 
 **Stub content:**
@@ -313,7 +313,7 @@ Pending.
 
 **Working directory precondition still applies.** If `Working directory` is `unknown`, that's a blocking unknown — Step 1 enters pre-Step-1 mode and emits a single working-directory clarification (no other content) before any data emission. The stub cannot be created without a known absolute path; the journal-creation step happens only after the working-directory pre-Step-1 clarification resolves.
 
-**Add to Step 1's output template** a `**Journal created:** <path>` line right before the Checkpoint 1 menu, listing the path written. Example: `**Journal created:** <working-dir>/_data/incidents/<slug>/journal.md`
+**Add to Step 1's output template** a `**Journal created:** <path>` line right before the Checkpoint 1 menu, listing the path written. Example: `**Journal created:** <working-dir>/_data/cases/<slug>/journal.md`
 
 #### Checkpoint 1 — pre-Step-1 vs full-Step-1 ending
 
@@ -358,16 +358,16 @@ Required commands (use one): `find _data/snapshot/<cloud>/ -type f`, `ls -R _dat
 
 **2B.2 — Existing evidence (log files, prior captures).** Logs the user may have already collected typically live in either:
 
-- `_data/incidents/<slug>/evidence/` — if the framing referenced a slug, or one already exists for this investigation
+- `_data/cases/<slug>/evidence/` — if the framing referenced a slug, or one already exists for this investigation
 - A user-named directory inside or alongside the working directory
 
-Run a recursive listing of any candidate evidence directory and paste output. Emit a `**Evidence enumeration** (find <working-dir>/_data/incidents/<slug>/evidence/ -type f)` heading followed by a bullet list:
+Run a recursive listing of any candidate evidence directory and paste output. Emit a `**Evidence enumeration** (find <working-dir>/_data/cases/<slug>/evidence/ -type f)` heading followed by a bullet list:
 
 - .../evidence/lss-userstatus-2026-04-30T14-30Z.csv
 - .../evidence/connector-status-2026-04-30T14-32Z.json
 - .../evidence/MANIFEST.md
 
-If the user's clarification about pre-existing logs (from Step 1) named a different path, enumerate that path too. If no evidence directory exists or the paths are empty, show the empty result as a plain line: *"Evidence enumeration (find <working-dir>/_data/incidents/<slug>/evidence/ -type f): no files returned."*
+If the user's clarification about pre-existing logs (from Step 1) named a different path, enumerate that path too. If no evidence directory exists or the paths are empty, show the empty result as a plain line: *"Evidence enumeration (find <working-dir>/_data/cases/<slug>/evidence/ -type f): no files returned."*
 
 Files found in evidence enumeration are candidate loads — they get included in 2C/2D selection alongside snapshot entry points.
 
@@ -450,10 +450,10 @@ Emit a `**Loaded**` heading followed by a nested bullet list:
     - server-groups.json (after segment IDs identified)
     - connector-groups.json (after server-group IDs identified)
     - app-connectors.json (after connector-group IDs identified)
-- Existing evidence (from operative incident dir):
-  - ✓ _data/incidents/<slug>/evidence/MANIFEST.md
-  - ✓ _data/incidents/<slug>/evidence/<log file 1>
-  - ✓ _data/incidents/<slug>/evidence/<log file 2>
+- Existing evidence (from operative case dir):
+  - ✓ _data/cases/<slug>/evidence/MANIFEST.md
+  - ✓ _data/cases/<slug>/evidence/<log file 1>
+  - ✓ _data/cases/<slug>/evidence/<log file 2>
 - Skipped (in enumeration but not loaded):
   - <count> snapshot files unrelated to framing — load on-demand
   - <count> evidence files not specified by user — load on-demand if relevant
@@ -498,7 +498,7 @@ End your response with the closing **What's next?** multi-choice block from the 
 > **Input:** user-confirmed `LOADED` block from Step 2 + the actual file content read in Step 2
 > **Output:** a discovery journal table (in chat) + the same journal written to disk
 > **Halts at:** Checkpoint 3 (after journal output + save)
-> **Side effects:** writes / updates `_data/incidents/<slug>/journal.md` via your file-write tool
+> **Side effects:** writes / updates `_data/cases/<slug>/journal.md` via your file-write tool
 
 **Precondition:** Step 2's `LOADED` block was produced AND the user replied with explicit confirmation. If either is missing, halt with `Prior step not confirmed — cannot proceed to Step 3` and re-run the missing step.
 
@@ -508,7 +508,7 @@ Follow the **First Response procedure in `agents/investigator/prompt.md`** (load
 
 #### 3B — Save the journal to disk (always; do not ask permission)
 
-After generating the journal in chat, **immediately use your file-write tool** to save the same journal to `<working-directory>/_data/incidents/<slug>/journal.md`. This save is unconditional — it is not a yes/no question for the user. Do NOT ask permission to write the file; do NOT defer the save to a later turn.
+After generating the journal in chat, **immediately use your file-write tool** to save the same journal to `<working-directory>/_data/cases/<slug>/journal.md`. This save is unconditional — it is not a yes/no question for the user. Do NOT ask permission to write the file; do NOT defer the save to a later turn.
 
 **Precondition — working directory must be known.** Before invoking the file-write tool, verify the `Working directory` field from PARSED FRAMING is an absolute path (not `unknown`, not a relative path). If it is `unknown` or unresolved, **halt** with:
 
@@ -518,8 +518,8 @@ Do NOT attempt the save against a relative path that may resolve nowhere; do NOT
 
 **Slug selection:**
 
-- If the user's framing referenced an existing path (e.g., `_data/incidents/test-foo/`), use that slug — write to its `journal.md`.
-- If `_data/incidents/<some-existing-slug>/` already has a `journal.md` whose ISSUE matches this investigation, this is a continuation — update that file in place.
+- If the user's framing referenced an existing path (e.g., `_data/cases/test-foo/`), use that slug — write to its `journal.md`.
+- If `_data/cases/<some-existing-slug>/` already has a `journal.md` whose ISSUE matches this investigation, this is a continuation — update that file in place.
 - Otherwise mint a fresh slug: `<YYYY-MM-DD>-<short-kebab-descriptor>` (e.g., `2026-04-30-ssh-azure-port-22`). Create the directory.
 
 **Subsequent turns** update the same file in place — do not create a new file each turn. The working directory established at Step 1 carries forward; do not re-resolve it on subsequent turns.
@@ -540,7 +540,7 @@ After Step 3's first journal output, **every** subsequent turn in this investiga
 
 1. **Read user direction.** The user replied to the previous turn's closing multi-choice. The selection (or `Other — specify` free-text) names the next action: investigate the top Open hypothesis, focus on a specific one, rule out a specific one with evidence, add a new hypothesis, or pause. Parse it. If it's `pause`, halt without further work — the journal stays saved.
 2. **Perform exactly ONE investigation action.** Read one source, run one query, evaluate one piece of evidence. **Do NOT** batch multiple hypothesis investigations into one turn. **Do NOT** rule out a hypothesis you weren't directed to investigate.
-3. **Update the journal.** Print the updated journal table in chat (with claim status changes, new evidence, dismissed hypotheses if any). Then **immediately save the updated journal** to `_data/incidents/<slug>/journal.md` using your file-write tool — same path as Step 3B, no permission asked.
+3. **Update the journal.** Print the updated journal table in chat (with claim status changes, new evidence, dismissed hypotheses if any). Then **immediately save the updated journal** to `_data/cases/<slug>/journal.md` using your file-write tool — same path as Step 3B, no permission asked.
 4. **Halt with the closing multi-choice.** End your response with the same **What's next?** multi-choice from the Step 3 turn shape (using options that fit the current state — e.g., if all hypotheses except one are ruled out, the menu can name the remaining one as the next focus). Wait for the user.
 
 **This cadence applies until the user explicitly closes the investigation** with `pause` or `done` (a status of `Resolved` on the root cause claim with the user's confirmation that the resolution holds). Until then, every response is one action + journal update + halt — never a rolling investigation that resolves multiple hypotheses without user direction.

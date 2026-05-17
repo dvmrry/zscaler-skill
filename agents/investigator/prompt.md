@@ -138,12 +138,12 @@ Product defaults (ZIA allow-by-default vs ZPA deny-by-default) and architectural
 
 **d. Check existing evidence the user has placed on disk.** Before generating hypotheses from scratch, read the inputs the user has already set up:
 
-- **User-pointed path takes priority.** If the framing contains a path or slug (e.g., `_data/incidents/test-foo/`, `2026-04-30-ci-silent-failures`), that directory is the operative artifact — read its `journal.md` (if any) and `evidence/*` first. The user is telling you where the work lives; respect the pointer instead of creating a sibling. This directory is also the save target for Step 6.
-- **Current incident's `evidence/` directory** — if `_data/incidents/<operative-slug>/evidence/` exists and has files, read them before asking the user what to investigate. The user may have placed CI logs, API dumps, or screenshots there that already carry the answer. The same applies to evidence files attached to the current chat (paste-ins, file uploads).
+- **User-pointed path takes priority.** If the framing contains a path or slug (e.g., `_data/cases/test-foo/`, `2026-04-30-ci-silent-failures`), that directory is the operative artifact — read its `journal.md` (if any) and `evidence/*` first. The user is telling you where the work lives; respect the pointer instead of creating a sibling. This directory is also the save target for Step 6.
+- **Current case's `evidence/` directory** — if `_data/cases/<operative-slug>/evidence/` exists and has files, read them before asking the user what to investigate. The user may have placed CI logs, API dumps, or screenshots there that already carry the answer. The same applies to evidence files attached to the current chat (paste-ins, file uploads).
 - **Tenant API data / config snapshots** — `_data/snapshot/<cloud>/` (e.g., `_data/snapshot/zs2/`, `_data/snapshot/zs3/`) is the canonical location for offline dumps of API-derived tenant config: URL filtering rules, access policies, segments, connector groups. **Always `ls _data/snapshot/` and read any per-cloud subdir whose cloud matches the framing's tenant** — this is the cheapest source of "what's actually configured" and avoids the state drift between API query time and now. The cloud is inferable from the tenant's API base URL (`zsapi.zscaler.net` ⇒ `zs1`, `zsapi.zscalerthree.net` ⇒ `zs3`, etc. — see [`../shared/cloud-architecture.md`](../../references/shared/cloud-architecture.md) if unfamiliar). Forks may use a slightly different layout (e.g., `_data/<cloud>/` directly without the `snapshot/` prefix); if the canonical path is empty, scan `_data/` for any per-cloud subdir before assuming no snapshot exists.
-- **Script logs** — `_data/logs/` holds dumped output from skill scripts (issue-watch, find-asymmetries, hygiene digests). Relevant if the framing involves a recent skill-script run.
+- **Script outputs** — `_data/schemas/` holds dumped output from skill scripts (issue-watch, find-asymmetries, hygiene digests). Relevant if the framing involves a recent skill-script run.
 
-**Do not browse sibling incident directories.** Unless the user explicitly points at a specific incident directory, do not `ls _data/incidents/`, do not read any other incident's `journal.md`, and do not surface "this looks similar to a prior incident" to the user. Cross-pollinating findings between investigations contaminates evidence and produces false confidence; the discipline for safely re-using prior journals isn't refined enough yet. Stay scoped to the operative directory the user named (or a fresh slug if none was named).
+**Do not browse sibling case directories.** Unless the user explicitly points at a specific case directory, do not `ls _data/cases/`, do not read any other case's `journal.md`, and do not surface "this looks similar to a prior case" to the user. Cross-pollinating findings between investigations contaminates evidence and produces false confidence; the discipline for safely re-using prior journals isn't refined enough yet. Stay scoped to the operative directory the user named (or a fresh slug if none was named).
 
 **Output: grounding files loaded.** Your first response **must include** a `Grounding files loaded:` line that lists every file you read in this step (one path per line). Example:
 
@@ -176,8 +176,8 @@ RCA is fundamentally **expected vs observed**: the product reference says what *
 
 1. **Product reference** — what's the *expected* behavior? Look at the ZIA / ZPA / ZCC / ZDX / ZIdentity / shared reference doc that covers the framing's product or feature. The framing→file mapping in Step 2b is your routing table for picking the right doc. This tier is first because it grounds *what should be true* before you check what is true. Skipping it produces hypotheses anchored in the wrong product mental model (ZIA allow-by-default vs ZPA deny-by-default; per-app vs per-segment; IdP-claim vs SCIM-claim).
 2. **Tenant snapshot** — `_data/snapshot/<cloud>/` (or fork-specific `_data/<cloud>/`). API-derived config dumps for *this* tenant: connector groups, segments, rules, profiles. **This is the canonical source for "what's actually configured"** — use it before any live API call. Snapshots can be stale; if state-drift matters for the question, refresh via `scripts/snapshot-refresh.py` or its fork-equivalent — don't bypass to a one-off API call.
-3. **Operative directory** — `_data/incidents/<operative-slug>/evidence/` (read `MANIFEST.md` first to see what's already captured) and the existing `journal.md` claims. The user may have already provided the answer; reading it costs nothing.
-4. **Script logs** — `_data/logs/`. Recent script output (issue-watch digests, find-asymmetries, hygiene digests, connector-health output).
+3. **Operative directory** — `_data/cases/<operative-slug>/evidence/` (read `MANIFEST.md` first to see what's already captured) and the existing `journal.md` claims. The user may have already provided the answer; reading it costs nothing.
+4. **Script outputs** — `_data/schemas/`. Recent script output (issue-watch digests, find-asymmetries, hygiene digests, connector-health output).
 5. **Runtime logs / SIEM** — Splunk / Sentinel / Elastic / Sumo / Chronicle. Use only when the question is about **runtime / log-flow data** (transactions, sessions, events) rather than configuration. Per-SIEM emission discipline lives in [`../siem-emission-discipline.md`](../siem-emission-discipline.md) — load that on-demand when about to emit a query, not eagerly.
 6. **Live API** — only when both the snapshot doesn't have the answer and the question requires *now-state* (in-flight session counts, current connector status, etc.). When you do call an API, save the response to `evidence/` per the manifest convention so the next investigation can use it from disk.
 7. **Portal / admin console** — last resort, manual lookup. Cite the navigation path in the source field; if the result is informative enough to keep, screenshot to `evidence/` with a manifest entry.
@@ -196,7 +196,7 @@ What this rule does NOT do:
 
 The point of disk-first is **avoiding redundant queries**, not stopping investigation early. Calling out to a SIEM / API / portal when `_data/` has the answer wastes the user's tokens; treating a single on-disk file as the answer to the entire investigation is the opposite failure — confidence without coverage.
 
-Files added to `evidence/` follow the naming and manifest convention in [`../../_data/incidents/README.md § evidence/`](../../_data/incidents/README.md). Both the rename and the manifest row are written at save time, in the same step.
+Files added to `evidence/` follow the naming and manifest convention in [`../../_data/cases/README.md § evidence/`](../../_data/cases/README.md). Both the rename and the manifest row are written at save time, in the same step.
 
 ### 5. Output the journal
 
@@ -204,21 +204,21 @@ Render the discovery journal with hypotheses as `Open (likely)` or `Open (uncert
 
 ### 6. Save the journal to disk
 
-After rendering in chat, write the same journal to `_data/incidents/<slug>/journal.md`. **This save is unconditional** — every `/z-investigator` invocation persists its journal, regardless of whether the investigation later turns out to be an incident or stays exploratory. Subsequent turns update the same file in place.
+After rendering in chat, write the same journal to `_data/cases/<slug>/journal.md`. **This save is unconditional** — every `/z-investigator` invocation persists its journal, regardless of whether the investigation later turns out to be an incident or stays exploratory. Subsequent turns update the same file in place.
 
 **Path selection — check before minting a new slug:**
 
-1. **User named a path or slug in the framing** → use that directory. If the framing contains a path like `_data/incidents/test-foo/` or `2026-04-30-ci-silent-failures`, treat it as the operative directory. Do not create a sibling with a fresh slug — the user is pointing you at the artifact they want updated.
+1. **User named a path or slug in the framing** → use that directory. If the framing contains a path like `_data/cases/test-foo/` or `2026-04-30-ci-silent-failures`, treat it as the operative directory. Do not create a sibling with a fresh slug — the user is pointing you at the artifact they want updated.
 2. **The directory already exists with a `journal.md`** → this is a continuation, not a new investigation. Read the existing journal, treat its claims as the starting state, and update in place. Don't overwrite — preserve prior claim history (use `Stale` / `Ruled out` to retire entries, not deletion).
-3. **No path given and no obvious match in `_data/incidents/`** (Step 2d's scan should have flagged any match) → mint a new slug: `<YYYY-MM-DD>-<short-kebab-descriptor>`. Date is today in UTC; slug is recognizable from a directory listing six months later. Examples: `ssh-azure-port-22`, `salesforce-sso-loop`, `connector-group-us-east-1-disconnected`. Create the directory.
+3. **No path given and no obvious match in `_data/cases/`** (Step 2d's scan should have flagged any match) → mint a new slug: `<YYYY-MM-DD>-<short-kebab-descriptor>`. Date is today in UTC; slug is recognizable from a directory listing six months later. Examples: `ssh-azure-port-22`, `salesforce-sso-loop`, `connector-group-us-east-1-disconnected`. Create the directory.
 
 **Path conventions:**
 
-- The journal lives at `_data/incidents/<slug>/journal.md`.
-- `_data/incidents/*` is gitignored by default, so the journal stays local-only unless the engineer explicitly opts in to publish it.
-- If the user's named path doesn't start with `_data/incidents/` (e.g., they pointed at a path elsewhere in the tree), respect their pointer but flag the deviation in your reply — they may have a reason (a fork's internal convention) or it may be a typo worth confirming.
+- The journal lives at `_data/cases/<slug>/journal.md`.
+- `_data/cases/*` is gitignored by default, so the journal stays local-only unless the engineer explicitly opts in to publish it.
+- If the user's named path doesn't start with `_data/cases/` (e.g., they pointed at a path elsewhere in the tree), respect their pointer but flag the deviation in your reply — they may have a reason (a fork's internal convention) or it may be a typo worth confirming.
 
-`_data/incidents/` is the skill's umbrella home for any saved `/z-investigator` artifact — the name reflects that incidents are the most common shape, not that every saved investigation must be one. If the investigation turns out to be incident-shaped (production break, regression, hygiene failure), the same directory becomes the home for `timeline.md` + `postmortem.md` + `evidence/` per § "Saving as an incident artifact." If it stays exploratory, only `journal.md` exists in the directory — that's fine.
+`_data/cases/` is the skill's umbrella home for any saved `/z-investigator` artifact — the name reflects that incidents are the most common shape, not that every saved investigation must be one. If the investigation turns out to be incident-shaped (production break, regression, hygiene failure), the same directory becomes the home for `timeline.md` + `postmortem.md` + `evidence/` per § "Saving as a case artifact." If it stays exploratory, only `journal.md` exists in the directory — that's fine.
 
 If the user explicitly indicates they don't want a save (e.g., "don't save this, just answering a quick question"), skip step 6 and note the skip in your reply. Otherwise save by default.
 
@@ -276,21 +276,19 @@ Stop and escalate (with a handoff summary per the methodology doc) when:
 
 When the investigation pauses or hands off to another agent/person, output the handoff format from the methodology doc: confirmed facts, open questions, current root cause hypothesis, next steps, what tools/access you had vs. didn't.
 
-## Saving as an incident artifact
+## Saving as a case artifact
 
 The journal itself is always saved per Step 6 above. This section covers the **incident-shape add-ons** — `timeline.md`, `postmortem.md`, and `evidence/` — that are written *in addition to* the journal when an investigation turns out to be an incident.
 
-When this investigation is an **incident** — a production break, regression, hygiene failure, or other reactive triage with consequences worth remembering — author the additional artifacts alongside the journal in the same `_data/incidents/<YYYY-MM-DD>-<slug>/` directory:
+When this investigation is an **incident** — a production break, regression, hygiene failure, or other reactive triage with consequences worth remembering — author the additional artifacts alongside the journal in the same `_data/cases/<YYYY-MM-DD>-<slug>/` directory:
 
 1. **`timeline.md`** — author from the chat history + commit log; chronological events with ISO-8601 timestamps. Short — a glance gives the shape.
 2. **`postmortem.md`** — author after the dust settles (within ~24h while context is fresh): root cause, why-not-caught-earlier, what changed, lessons, follow-ups. Blameless and brief.
-3. **`evidence/`** — raw artifacts that the journal cites (CI logs, command output, API dumps, screenshots). Gitignored by default per the privacy posture in [`../../_data/incidents/README.md`](../../_data/incidents/README.md).
+3. **`evidence/`** — raw artifacts that the journal cites (CI logs, command output, API dumps, screenshots). Gitignored by default per the privacy posture in [`../../_data/cases/README.md`](../../_data/cases/README.md).
 
-The whole `_data/incidents/<slug>/` tree is gitignored by default (private posture); engineers explicitly opt-in to publish a skill-internal incident by adding `!`-overrides per-incident. So an incident journal stays local-only unless deliberately published.
+The whole `_data/cases/<slug>/` tree is gitignored by default (private posture); engineers explicitly opt-in to publish a skill-internal case by adding `!`-overrides per-case. So a case journal stays local-only unless deliberately published.
 
 If the investigation stays exploratory (no production stakes, no consequences worth remembering), the directory just contains `journal.md` — that's the expected and correct shape. Don't author a postmortem for a "how does X work?" exploration.
-
-If the investigation is NOT incident-shaped — exploratory, hypothesis-driven, no production stakes — there's no need to save the artifact. Chat-ephemeral is fine.
 
 ## Diagnostics
 

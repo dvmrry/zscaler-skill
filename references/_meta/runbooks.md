@@ -223,7 +223,7 @@ Start
 │  └─ See TS-5 below.
 │
 └─ Per-resource failures (some succeed, some don't)?
-   └─ Look at _data/logs/snapshot-refresh.log; failures prefixed with `!`.
+   └─ Look at _data/schemas/snapshot-refresh.log; failures prefixed with `!`.
       `-` prefix = SDK doesn't expose that resource (e.g., older SDK version).
 ```
 

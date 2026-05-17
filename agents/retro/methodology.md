@@ -7,7 +7,7 @@ last-verified: "2026-05-14"
 confidence: high
 source-tier: practice
 sources:
-  - "_data/incidents/README.md"
+  - "_data/cases/README.md"
   - "agents/investigator/methodology.md"
 dependencies:
   - "../investigator/methodology.md"
@@ -25,17 +25,17 @@ The retro does **not** replace the journal, and it does **not** smooth over warn
 
 Required:
 
-- `_data/incidents/<slug>/journal.md` — source of claims, hypotheses, warning signs, and status transitions.
+- `_data/cases/<slug>/journal.md` — source of claims, hypotheses, warning signs, and status transitions.
 
 Usually present:
 
-- `_data/incidents/<slug>/timeline.md` — chronological event ordering.
-- `_data/incidents/<slug>/evidence/MANIFEST.md` — raw artifact index.
-- `_data/incidents/<slug>/evidence/*` — raw evidence, loaded only when needed to verify a claim.
+- `_data/cases/<slug>/timeline.md` — chronological event ordering.
+- `_data/cases/<slug>/evidence/MANIFEST.md` — raw artifact index.
+- `_data/cases/<slug>/evidence/*` — raw evidence, loaded only when needed to verify a claim.
 
 Optional:
 
-- `_data/incidents/<slug>/audit.md` / `posture.md` — follow-on review artifacts.
+- `_data/cases/<slug>/audit.md` / `posture.md` — follow-on review artifacts.
 - Git commits, PRs, or CI runs tied to the incident.
 
 ## Non-negotiable invariants
@@ -78,7 +78,7 @@ The gate is evidence-derived. If the evidence is incomplete, choose the more con
 
 ## Postmortem format
 
-Write `_data/incidents/<slug>/postmortem.md` with these sections:
+Write `_data/cases/<slug>/postmortem.md` with these sections:
 
 ```markdown
 # Postmortem — <incident title>
@@ -135,4 +135,4 @@ Write `_data/incidents/<slug>/postmortem.md` with these sections:
 
 - [`./prompt.md`](./prompt.md) — executable `/z-retro` playbook and first-turn output shape
 - [`../investigator/methodology.md`](../investigator/methodology.md) — claim status semantics inherited from investigation journals
-- [`../../_data/incidents/README.md`](../../_data/incidents/README.md) — incident directory convention, privacy posture, and evidence manifest shape
+- [`../../_data/cases/README.md`](../../_data/cases/README.md) — case directory convention, privacy posture, and evidence manifest shape

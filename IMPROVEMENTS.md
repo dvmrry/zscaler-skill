@@ -43,15 +43,15 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 - **Cost**: low. Pick one Windsurf workflow (e.g., `.windsurf/workflows/z-investigator.md`), rewrite structurally per their pattern (decision tables before prose, ❌/✅ rules), observe whether the agent's behavior actually differs.
 - **Notes**: speculative refactor — no observed failure mode forces it. Worth running once just as an experiment to see whether the pattern pays off in our agent's behavior. Don't sweep across all workflows preemptively.
 
-### Internal-fork override pattern for `_data/incidents/`
+### Internal-fork override pattern for `_data/cases/`
 
 - **Status**: Proposed
-- **Origin**: 2026-04-30 — when establishing the default-private posture for incident artifacts. Public skill gitignores the per-incident dirs; internal fork should override.
-- **Impact**: lets the internal/production fork commit incident artifacts for institutional memory (journals, timelines, postmortems become a queryable history) while the public skill stays private-by-default. Without the override, every internal-fork operator has to remember to `git add -f` per-incident or maintain their own gitignore patches.
+- **Origin**: 2026-04-30 — when establishing the default-private posture for case artifacts. Public skill gitignores the per-case dirs; internal fork should override.
+- **Impact**: lets the internal/production fork commit case artifacts for institutional memory (journals, timelines, postmortems become a queryable history) while the public skill stays private-by-default. Without the override, every internal-fork operator has to remember to `git add -f` per-case or maintain their own gitignore patches.
 - **Cost**: low. Two plausible mechanisms:
   - Internal fork maintains its own `.gitignore` rules in `.git/info/exclude` (per-clone, not committed) — simplest but doesn't survive re-cloning
   - Internal fork commits an alternate `.gitignore.internal` and switches via `git config core.excludesfile` — survives cloning but adds setup ceremony
-- **Notes**: the public-vs-private fork divergence is already a documented pattern in the skill (see `.gitignore` line 2: "The private internal fork overrides this to commit snapshot/ and logs/ contents"). Incidents inherit the same shape. When the internal fork actually goes through a real production incident, that's the moment to formalize the override mechanism.
+- **Notes**: the public-vs-private fork divergence is already a documented pattern in the skill (see `.gitignore` line 2: "The private internal fork overrides this to commit snapshot/ and schemas/ contents"). Cases inherit the same shape. When the internal fork actually goes through a real production case, that's the moment to formalize the override mechanism.
 
 ### Auto-fix agent for hygiene failures (Claude-specific)
 
@@ -192,7 +192,7 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 ### ZDX + ZIdentity reference flesh-out ✅ RESOLVED 2026-05-05
 
 - **Status**: Resolved
-- **Origin**: 2026-05-04 — `_data/grills/2026-05-04-whole-repo-grill.md` flagged ZDX (7 refs) and ZIdentity (7 refs) as the two T1 products with thinnest reference coverage. Plan at `_data/grills/plans/2026-05-04-zdx-zidentity-fleshout.md`.
+- **Origin**: 2026-05-04 — `plans/2026-05-04-whole-repo-review.md` flagged ZDX (7 refs) and ZIdentity (7 refs) as the two T1 products with thinnest reference coverage. Plan at `plans/2026-05-04-zdx-zidentity-fleshout.md`.
 - **Resolution**: executed via per-task extract → z-writer → verify pipeline on branch `zdx-zidentity-fleshout`. 11 new citation-backed reference docs + index updates:
   - **ZDX** (6 new refs, count now 13): `score.md` (`282acc8`), `cloud-architecture.md` (`5cd62b0`), `applications.md` (`3179b61`), `devices.md` (`f0f2514`), `reports.md` (`80df83e`), `administration.md` (`59f4211`); `score.md` follow-up correction at `7dd5637`
   - **ZIdentity** (5 new refs, count now 12): `admin-rbac.md` (`c345082`), `users.md` (`90a30cf`), `groups.md` (`0a3ca6e`), `resource-servers.md` (`bb2c505`), `user-entitlements.md` (`03c9dd1`)
@@ -202,7 +202,7 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 ### Portfolio-map + tier schema cleanup ✅ RESOLVED 2026-05-04
 
 - **Status**: Resolved
-- **Origin**: 2026-05-04 — `_data/grills/2026-05-04-whole-repo-grill.md` audit found drift between `references/_meta/portfolio-map.md` and the filesystem, plus a tier schema (T1/T2a/T2b/T3) that conflated structural axes (has-API) with coverage-depth axes (file count).
+- **Origin**: 2026-05-04 — `plans/2026-05-04-whole-repo-review.md` audit found drift between `references/_meta/portfolio-map.md` and the filesystem, plus a tier schema (T1/T2a/T2b/T3) that conflated structural axes (has-API) with coverage-depth axes (file count).
 - **Resolution**: executed via the `superpowers:writing-plans` → `superpowers:subagent-driven-development` flow on branch `portfolio-map-tier-cleanup`. Six commits on top of `c94e19a`:
   - `f77c15a` — Consolidate `workflow-automation/` into `zwa/` (canonical SDK-named dir); marketing-name alias added
   - `48cc436` — Address minor doc-quality review notes from f77c15a
@@ -211,7 +211,7 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
   - `9a2a804` — Apply T1-T5 flat tier schema (T1: 6 / T2: 2 / T3: 15 / T4: 12 / T5: 0); AppProtection folded into ZPA T1 row; ZDX flagged T1 borderline per Task-1 verification gate
   - `5350629` — `SKILL.md` synced to new schema (description string + body routing block)
 - **Outcomes**: schema is now flat T1-T5 (no alpha-suffix sub-tiers); two duplicate dirs eliminated (citation-discipline closed); 4 orphan dirs now enumerated; ZBI/ZWA demoted to T2; AppProtection no longer a separate T1 row; CASB and architectural pillars explicitly outside the tier system.
-- **Followups (cosmetic, non-blocking)**: CASB block still sits visually inside Tier 3 (could move to dedicated section between T3/T4); Tier-1 marketing-aliases section's ZTB entry has no reverse pointer to the Zero Trust Branch product; SKILL.md description string lengthened (~+8 lines); a future sweep could check for stale "Tier 2a"/"Tier 2b" mentions in `references/`. Grill synthesis at `_data/grills/2026-05-04-whole-repo-grill.md`.
+- **Followups (cosmetic, non-blocking)**: CASB block still sits visually inside Tier 3 (could move to dedicated section between T3/T4); Tier-1 marketing-aliases section's ZTB entry has no reverse pointer to the Zero Trust Branch product; SKILL.md description string lengthened (~+8 lines); a future sweep could check for stale "Tier 2a"/"Tier 2b" mentions in `references/`. Review synthesis at `plans/2026-05-04-whole-repo-review.md`.
 
 ### Submodule drift detection ✅ RESOLVED 2026-05-03
 

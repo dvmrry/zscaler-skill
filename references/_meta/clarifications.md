@@ -799,7 +799,7 @@ Rationale for env vars over alternatives:
 - **No bundled secrets-manager integration** — 1Password (`op read "op://..."`), Vault, AWS Secrets Manager, etc. are fine upstream of the shell. The scripts only consume env vars; how those get populated is the operator's choice. Example pattern for a fork: `eval "$(op read 'op://private/zscaler/.envrc')" && ./scripts/snapshot-refresh.py`.
 - **Env vars are what the SDK already expects** — the `zscaler-sdk-python` OneAPI path reads these by default. Forcing a custom config layer would duplicate SDK conventions.
 
-Affects: `.gitignore` correctly excludes `_data/snapshot/`, `_data/logs/`, and local-scratch paths but not `.env` (no `.env` is ever created by the skill). Script headers document the 4 required env vars in block comments. No onboarding-doc change needed beyond what's already in README step 4.
+Affects: `.gitignore` correctly excludes `_data/snapshot/`, `_data/schemas/`, and local-scratch paths but not `.env` (no `.env` is ever created by the skill). Script headers document the 4 required env vars in block comments. No onboarding-doc change needed beyond what's already in README step 4.
 
 ---
 

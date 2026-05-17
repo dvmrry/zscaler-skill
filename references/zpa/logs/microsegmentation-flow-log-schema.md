@@ -1,6 +1,6 @@
 ---
 product: zpa
-topic: "_data/logs/microsegmentation-flow-log-schema"
+topic: "zpa-logs/microsegmentation-flow-log-schema"
 title: "ZPA LSS Microsegmentation Flow log — field reference"
 content-type: reference
 last-verified: "2026-05-06"

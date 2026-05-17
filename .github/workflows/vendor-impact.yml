@@ -36,8 +36,8 @@ jobs:
           ./scripts/vendor-impact-summary.py \
             --base "$BASE_SHA" \
             --head HEAD \
-            --output _data/logs/vendor-impact-summary.md
-          cat _data/logs/vendor-impact-summary.md >> "$GITHUB_STEP_SUMMARY"
+            --output _data/schemas/vendor-impact-summary.md
+          cat _data/schemas/vendor-impact-summary.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Generate asymmetry candidates
         run: ./scripts/find-asymmetries.py
@@ -47,8 +47,8 @@ jobs:
         with:
           name: vendor-impact
           path: |
-            _data/logs/vendor-impact-summary.md
-            _data/logs/asymmetry-candidates.md
+            _data/schemas/vendor-impact-summary.md
+            _data/schemas/asymmetry-candidates.md
 
       - name: Comment on PR
         if: github.event_name == 'pull_request'
@@ -57,7 +57,7 @@ jobs:
           script: |
             const fs = require('fs');
             const marker = '<!-- vendor-impact-summary -->';
-            const body = marker + '\n' + fs.readFileSync('_data/logs/vendor-impact-summary.md', 'utf8');
+            const body = marker + '\n' + fs.readFileSync('_data/schemas/vendor-impact-summary.md', 'utf8');
             const {owner, repo} = context.repo;
             const issue_number = context.issue.number;
             const comments = await github.paginate(github.rest.issues.listComments, {
