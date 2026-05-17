@@ -1,6 +1,31 @@
-# `_data/` — fork-customization and runtime data
+# `_data/` — replaceable runtime data mount
 
-Single home for everything that becomes per-fork or per-tenant. The skill-internal docs (methodologies, playbooks, registers) live under `references/_meta/`; runtime data (tenant snapshots, script outputs, fork-specific IaC) lives here.
+Single home for everything that becomes per-fork or per-tenant. The
+skill-internal docs (methodologies, playbooks, registers) live under
+`references/_meta/`; runtime data (tenant snapshots, script outputs,
+fork-specific IaC) lives here.
+
+The public upstream ships a minimal `_data` skeleton. Private or internal
+deployments may replace `_data` with an overlay repository, submodule, or local
+mount that follows the same directory contract. Public upstream does not ship
+tenant data.
+
+Expected top-level directories:
+
+- `_data/cases/`
+- `_data/schemas/`
+- `_data/snapshot/`
+- `_data/iac/`
+
+Run the public contract check after replacing or mounting `_data`:
+
+```bash
+node scripts/check-data-contract.mjs
+```
+
+The checker verifies the directory shape, reports whether `_data` appears to be
+a submodule, and warns when the skeleton is empty enough that snapshot-backed
+or tenant-schema-backed reasoning will be unavailable.
 
 ## Subdirectories
 
@@ -87,6 +112,9 @@ case content do so deliberately by adjusting `.gitignore`. **Tenant snapshots
 and raw operational logs should generally not be committed**, even to private
 forks, unless the org has explicit guidance otherwise (see `iac/README.md` §
 Sanitization).
+
+Release artifacts may pre-populate `_data` from a private source. Public
+upstream does not ship tenant data.
 
 ## Why this dir exists
 

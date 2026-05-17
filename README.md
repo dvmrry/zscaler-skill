@@ -110,6 +110,11 @@ _data/iac/               tenant IaC overlay; empty upstream, populated per fork
 docs/                    project docs and rendered static docs assets
 ```
 
+`_data/` is a replaceable runtime-data mount point. Public upstream ships only
+the skeleton; internal release artifacts may pre-populate `_data` from a
+private source. Run `node scripts/check-data-contract.mjs` after replacing
+`_data` with a local overlay or submodule.
+
 Every reference file carries YAML frontmatter (`product`, `topic`,
 `content-type`, `last-verified`, `confidence`, `source-tier`, `sources`,
 `author-status`). See [`references/_meta/template.md`](./references/_meta/template.md).

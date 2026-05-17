@@ -34,7 +34,7 @@ while finishing a tenant-specific implementation.
 | Category | Scripts |
 |---|---|
 | **Hygiene / CI** | `check-hygiene.py`, `check-citations.sh`, `check-citation-density.py` (density advisory; source-line audit + citation inventory regression strict in CI), `check-agent-skills.py` (portable Agent Skill contract and adapter-shape check), `check-doc-links.py`, `check-orphans.py`, `check-workflow-evals.py`, `check-vendor-drift.py`, `check-scrape-freshness.py`, `maintenance-digest.py`, `vendor-impact-summary.py` |
-| **Manual hygiene** | `check-staleness.sh` |
+| **Manual hygiene** | `check-staleness.sh`, `check-data-contract.mjs` |
 | **Eval suite** | `run-evals.py` |
 | **Tenant API operations** | `diagnose-tenant.py`, `snapshot-refresh.py`, `url-lookup.py` |
 | **Private-overlay scaffolds** | `access-check.py`, `connector-health.py`, `sandbox-check.py`, `ssl-audit.py`, `zpa-app-check.py` |
@@ -102,6 +102,16 @@ adapter drift before downstream runtime testing:
 ```bash
 ./scripts/check-agent-skills.py
 ```
+
+The `_data` mount contract check verifies the public skeleton or a private
+overlay/submodule shape without reading tenant contents:
+
+```bash
+node scripts/check-data-contract.mjs
+```
+
+Missing required directories are errors. Empty public-skeleton directories are
+warnings, because the upstream repo intentionally does not ship tenant data.
 
 Lines prefixed `!` indicate a per-resource fetch failure; the run continues.
 Lines prefixed `-` indicate that the SDK surface for that resource was not
