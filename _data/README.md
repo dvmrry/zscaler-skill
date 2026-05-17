@@ -44,6 +44,11 @@ populated `_data` contents unless `--force` is explicit, removes tracked
 skeleton files through git before submodule setup, then runs the same public
 contract check.
 
+If a root-level `zscaler-skill-setup.json` exists, the helper reads setup
+defaults from it. Use [`../zscaler-skill-setup.example.json`](../zscaler-skill-setup.example.json)
+as the public-safe template. The real config is gitignored because it may
+contain a private data source URL.
+
 ## Subdirectories
 
 ### `_data/iac/`

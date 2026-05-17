@@ -17,6 +17,8 @@ For Zscaler questions:
 - Do not answer Zscaler policy, API, log, or tenant-specific questions from
   memory.
 - For ad-hoc Q&A, read `agents/zscaler/prompt.md` and follow it.
+- For setup or repair of the `_data` runtime-data mount, use the
+  `zscaler-skill-setup` skill.
 - For troubleshooting with symptom, affected scope, and timeframe, use the
   `zscaler-investigator` skill or suggest `/z-investigator`.
 - For security posture review, suggest `/z-soc`.

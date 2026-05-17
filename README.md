@@ -36,6 +36,9 @@ Default to `@zscaler`; use procedural roles when the task has a defined output.
 - **`@zscaler`**: ad-hoc grounded Q&A. The canonical playbook is
   [`agents/zscaler/prompt.md`](./agents/zscaler/prompt.md); the repo-root
   [`zscaler`](./zscaler) file is a thin runtime loader.
+- **`zscaler-skill-setup`**: setup or repair of the `_data` runtime-data mount;
+  prompts for a data URL/path, mode, and ref, then calls the deterministic setup
+  and contract-check scripts.
 - **`zscaler-investigator` / `/z-investigator`**: evidence-based
   troubleshooting; produces a discovery journal. The portable skill is the
   open-standard entrypoint; the slash command is a runtime adapter.
@@ -120,6 +123,12 @@ node scripts/setup-data-mount.mjs \
   --data-ref main \
   --mode auto
 ```
+
+Internal releases may instead place setup defaults in a local
+`zscaler-skill-setup.json` at the repo root. See
+[`zscaler-skill-setup.example.json`](./zscaler-skill-setup.example.json) for the
+public-safe shape; the real file is gitignored because it may contain private
+URLs.
 
 Then run `node scripts/check-data-contract.mjs` to verify the mounted shape.
 

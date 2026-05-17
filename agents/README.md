@@ -36,6 +36,7 @@ The split keeps `references/` focused as a knowledge base, lets agent personas r
 | Role | Slash command | Artifacts | Description |
 |---|---|---|---|
 | **Investigator** | `/z-investigator` | [`prompt`](./investigator/prompt.md) · [`harness`](./investigator/harness.md) · [`case intake`](./investigator/case-intake.md) · [`methodology`](./investigator/methodology.md) · [`grounding`](./investigator/grounding/) · [`diagnostics template`](./investigator/diagnostics/template.md) | Evidence-based troubleshooting — discovery journal, claim status, anti-fabrication |
+| **Setup** | `zscaler-skill-setup` | [`prompt`](./setup/prompt.md) | `_data` runtime-data mount setup and repair using deterministic helper scripts |
 | **Architect** | `/z-architect` | [`prompt`](./architect/prompt.md) · [`methodology`](./architect/methodology.md) · [`diagnostics template`](./architect/diagnostics/template.md) | Capacity, scaling, and structural-risk review with recommendation register |
 | **Auditor** | `/z-auditor` | [`prompt`](./auditor/prompt.md) · [`methodology`](./auditor/methodology.md) | Editorial / structural / hygiene lint of references and tenant configuration |
 | **SOC** | `/z-soc` | [`prompt`](./soc/prompt.md) | Security posture review — RBAC least-privilege, telemetry coverage, threat-model-anchored findings |

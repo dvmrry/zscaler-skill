@@ -12,31 +12,49 @@ const SKELETON_NAMES = new Set([".gitkeep", "README.md"]);
 function usage(exitCode = 0) {
   const out = exitCode === 0 ? process.stdout : process.stderr;
   out.write(`Usage:
-  node scripts/setup-data-mount.mjs --data-url <git-url-or-local-path> [--data-ref <ref>] [--mode auto|copy|submodule] [--root <repo-root>] [--force] [--dry-run]
+  node scripts/setup-data-mount.mjs [--config <json>] [--data-url <git-url-or-local-path>] [--data-ref <ref>] [--mode auto|copy|submodule] [--root <repo-root>] [--force] [--dry-run]
 
 Replaces the public _data skeleton with a user-supplied runtime data mount.
 
 Mode auto copies local directories into _data and adds other URLs as a git
 submodule. Use --mode submodule when a local repository path should be mounted
 as a real _data submodule instead of copied.
+If --config is omitted, ./zscaler-skill-setup.json is used when it exists.
+CLI flags override config values.
 The helper never knows private URLs unless the caller provides one at runtime.
 `);
   process.exit(exitCode);
 }
 
+function readConfig(configPath) {
+  if (!configPath || !fs.existsSync(configPath)) return {};
+  const data = JSON.parse(fs.readFileSync(configPath, "utf8"));
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
+    throw new Error(`config must be a JSON object: ${configPath}`);
+  }
+  return data;
+}
+
 function parseArgs(argv) {
   const args = {
+    config: null,
     dataUrl: null,
     dataRef: null,
     dryRun: false,
     force: false,
-    mode: "auto",
+    forceSet: false,
+    mode: null,
     root: path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."),
   };
 
   for (let i = 2; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === "--help" || arg === "-h") usage(0);
+    if (arg === "--config") {
+      args.config = argv[i + 1] || null;
+      i += 1;
+      continue;
+    }
     if (arg === "--data-url") {
       args.dataUrl = argv[i + 1] || null;
       i += 1;
@@ -63,19 +81,33 @@ function parseArgs(argv) {
     }
     if (arg === "--force") {
       args.force = true;
+      args.forceSet = true;
       continue;
     }
     throw new Error(`Unknown argument: ${arg}`);
   }
 
-  if (!args.dataUrl) {
+  const defaultConfig = path.join(args.root, "zscaler-skill-setup.json");
+  const configPath = args.config ? path.resolve(args.root, args.config) : defaultConfig;
+  const config = readConfig(configPath);
+  const merged = {
+    configPath: fs.existsSync(configPath) ? configPath : null,
+    dataUrl: args.dataUrl ?? config.dataUrl ?? null,
+    dataRef: args.dataRef ?? config.dataRef ?? "main",
+    dryRun: args.dryRun,
+    force: args.forceSet ? args.force : Boolean(config.force),
+    mode: args.mode ?? config.mode ?? "auto",
+    root: args.root,
+  };
+
+  if (!merged.dataUrl) {
     throw new Error("--data-url is required");
   }
-  if (!["auto", "copy", "submodule"].includes(args.mode)) {
+  if (!["auto", "copy", "submodule"].includes(merged.mode)) {
     throw new Error("--mode must be one of: auto, copy, submodule");
   }
 
-  return args;
+  return merged;
 }
 
 function isSkeletonTree(targetPath) {
@@ -192,6 +224,7 @@ function setupDataMount(options) {
     dataRef: options.dataRef || null,
     mode,
     requestedMode,
+    configPath: options.configPath || null,
     dryRun: Boolean(options.dryRun),
     force: Boolean(options.force),
   };
@@ -224,6 +257,7 @@ function printResult(result) {
   process.stdout.write(`Mode: ${result.plan.mode}\n`);
   process.stdout.write(`Target: ${result.plan.dataDir}\n`);
   process.stdout.write(`Source: ${result.plan.dataUrl}\n`);
+  if (result.plan.configPath) process.stdout.write(`Config: ${result.plan.configPath}\n`);
   if (result.plan.dataRef) process.stdout.write(`Ref: ${result.plan.dataRef}\n`);
   if (result.plan.dryRun) {
     process.stdout.write("Dry run: no files changed\n");

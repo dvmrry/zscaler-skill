@@ -126,6 +126,11 @@ populated `_data` unless `--force` is explicit, removes tracked skeleton files
 through git before submodule setup, and runs the data contract check after
 setup.
 
+If `zscaler-skill-setup.json` exists at the repo root, the setup helper reads
+defaults from it. CLI flags override config values. The public template is
+[`../zscaler-skill-setup.example.json`](../zscaler-skill-setup.example.json);
+the real config is gitignored because it may contain a private data source URL.
+
 Missing required directories are errors. Empty public-skeleton directories are
 warnings, because the upstream repo intentionally does not ship tenant data.
 

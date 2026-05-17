@@ -218,3 +218,55 @@ test("setup-data-mount CLI installs a local data source in auto mode", () => {
   assert.equal(fs.existsSync(path.join(root, "_data", "schemas", "fields.json")), true);
   assert.equal(fs.existsSync(path.join(root, "_data", "snapshot", "zs1", "_manifest.json")), true);
 });
+
+test("setup-data-mount CLI can load defaults from root setup config", () => {
+  const root = tempDir("zscaler-data-config-");
+  makeDataSkeleton(root);
+  const source = makeOverlaySource();
+  fs.writeFileSync(
+    path.join(root, "zscaler-skill-setup.json"),
+    `${JSON.stringify({
+      dataUrl: source,
+      dataRef: "main",
+      mode: "auto",
+    }, null, 2)}\n`,
+    "utf8",
+  );
+
+  const output = runSetupCommand(["--root", root]);
+
+  assert.match(output, /Mode: copy/);
+  assert.match(output, /Config: /);
+  assert.match(output, /Ref: main/);
+  assert.match(output, /Errors: 0/);
+  assert.equal(fs.existsSync(path.join(root, "_data", "schemas", "fields.json")), true);
+});
+
+test("setup-data-mount CLI flags override setup config values", () => {
+  const root = tempDir("zscaler-data-config-override-");
+  makeDataSkeleton(root);
+  const source = makeOverlaySource();
+  fs.writeFileSync(
+    path.join(root, "zscaler-skill-setup.json"),
+    `${JSON.stringify({
+      dataUrl: "https://example.invalid/runtime-data.git",
+      dataRef: "develop",
+      mode: "submodule",
+    }, null, 2)}\n`,
+    "utf8",
+  );
+
+  const output = runSetupCommand([
+    "--root",
+    root,
+    "--data-url",
+    source,
+    "--mode",
+    "copy",
+  ]);
+
+  assert.match(output, /Mode: copy/);
+  assert.match(output, /Ref: develop/);
+  assert.match(output, /Errors: 0/);
+  assert.equal(fs.existsSync(path.join(root, "_data", "schemas", "fields.json")), true);
+});
