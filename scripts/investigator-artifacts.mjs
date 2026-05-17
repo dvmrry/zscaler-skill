@@ -135,7 +135,6 @@ function hasLogContext(framing) {
     framing.whatWorks,
     framing.alreadyTried,
     framing.recency,
-    ...asArray(framing.userFlaggedSpecifics),
   ];
   const haystack = fields.join(" ").toLowerCase();
   const separatedLogToken = /(^|[\s/_.:;()[\],])logs?($|[\s/_.:;()[\],])/;

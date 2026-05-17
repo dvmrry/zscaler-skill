@@ -132,6 +132,36 @@ test("openCase blocks metrics references without telemetry framing", () => {
   assert.match(result.blockingIssues.join(" "), /telemetry proposed loads require/);
 });
 
+test("openCase does not treat flagged host tokens as telemetry context", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA app segment is unreachable",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+    userFlaggedSpecifics: [
+      "log.example.invalid",
+      "metric-service.example.invalid",
+    ],
+  });
+
+  const result = openCase({
+    root,
+    caseSlug: "2026-05-17-flagged-hosts",
+    framingJson: framingPath,
+    proposedLoads: [
+      "agents/investigator/prompt.md",
+      "agents/investigator/harness.md",
+      "references/zpa/logs/access-log-schema.md",
+      "references/zpa/logs/app-connector-metrics.md",
+    ],
+  });
+
+  assert.equal(result.status, "blocked");
+  assert.match(result.blockingIssues.join(" "), /telemetry proposed loads require/);
+});
+
 test("openCase allows telemetry loads when evidence is in framing", () => {
   const root = tempRepo();
   const framingPath = writeJson(root, "framing.json", {
