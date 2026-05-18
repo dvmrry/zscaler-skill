@@ -68,6 +68,15 @@ TEST_SOURCE_RE = re.compile(r"\b(?:vendor|scripts)/[A-Za-z0-9_./-]*(?:/tests?/|_
 FRONTMATTER_PROXY_RE = re.compile(
     r"(?i)\b(?:sources? listed in frontmatter|listed in frontmatter|sources? listed above|frontmatter sources?)\b"
 )
+SDK_EVIDENCE_RE = re.compile(
+    r"(?i)\b(?:underlying SDK checks?|SDK source|SDK's .* source|confirmed from .* SDK|from .* SDK source|SDK source is (?:the )?canonical)\b"
+)
+TERRAFORM_EVIDENCE_RE = re.compile(
+    r"(?i)\b(?:confirmed from .*Terraform provider|Terraform provider sources?|TF provider sources?|TF provider's .*`resource_|Terraform provider's .*`resource_|provider source at `resource_)\b"
+)
+MCP_EVIDENCE_RE = re.compile(
+    r"(?i)\b(?:From upstream `zscaler/zscaler-mcp-server` issue|MCP server v\d|MCP server .*removed|MCP server .*added)\b"
+)
 
 # Broad but intentionally transparent. This is a triage signal, not a verifier.
 CITATION_PATTERNS_RAW = [
@@ -325,6 +334,9 @@ STYLE_SOURCE_KINDS = {
 
 SEMANTIC_SOURCE_KINDS = {
     "frontmatter-proxy-source",
+    "section-source-missing-mcp",
+    "section-source-missing-sdk",
+    "section-source-missing-terraform",
     "source-mcp",
     "source-test",
 }
@@ -452,6 +464,8 @@ def audit_source_quality(
     if len(source_styles) > 1:
         styles = ", ".join(sorted(source_styles))
         issues.insert(0, issue(rel, 1, "mixed-source-style", f"Source styles in file: {styles}"))
+    if include_semantic:
+        issues.extend(audit_section_evidence_coverage(rel, lines))
     visible_kinds = set()
     if include_style:
         visible_kinds.update(STYLE_SOURCE_KINDS)
@@ -462,6 +476,56 @@ def audit_source_quality(
         for source_issue in issues
         if source_issue.severity == "quality" or source_issue.kind in visible_kinds
     ]
+
+
+def audit_section_evidence_coverage(rel: str, lines: list[tuple[int, str]]) -> list[SourceIssue]:
+    """Flag body claims that name an evidence tier absent from section sources.
+
+    This is intentionally section-scoped rather than previous-line scoped: a
+    Source line immediately before or after the paragraph still counts.
+    """
+    issues: list[SourceIssue] = []
+    sections: list[list[tuple[int, str]]] = []
+    current: list[tuple[int, str]] = []
+    for line_number, line in lines:
+        if HEADING_RE.match(line) and current:
+            sections.append(current)
+            current = []
+        current.append((line_number, line))
+    if current:
+        sections.append(current)
+
+    def has_family(source_text: str, family: str) -> bool:
+        if family == "sdk":
+            return "vendor/zscaler-sdk-" in source_text
+        if family == "terraform":
+            return "vendor/terraform-provider-" in source_text
+        if family == "mcp":
+            return "vendor/zscaler-mcp-server/" in source_text
+        return False
+
+    for section in sections:
+        source_texts = [source_text for _, line in section for _, source_text in source_payloads(line)]
+        joined_sources = "\n".join(source_texts)
+        for line_number, line in section:
+            if source_payloads(line) or HEADING_RE.match(line) or TABLE_RE.match(line):
+                continue
+            stripped = line.strip()
+            if not stripped or stripped.startswith(("```", "|")):
+                continue
+
+            checks = [
+                ("sdk", SDK_EVIDENCE_RE, "section-source-missing-sdk"),
+                ("terraform", TERRAFORM_EVIDENCE_RE, "section-source-missing-terraform"),
+                ("mcp", MCP_EVIDENCE_RE, "section-source-missing-mcp"),
+            ]
+            for family, pattern, kind in checks:
+                if not pattern.search(line):
+                    continue
+                if has_family(line, family) or has_family(joined_sources, family):
+                    continue
+                issues.append(issue(rel, line_number, kind, stripped))
+    return issues
 
 
 def references_frontmatter_source(paragraph: str, source_basenames: set[str]) -> bool:
