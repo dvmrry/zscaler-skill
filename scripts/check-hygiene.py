@@ -738,6 +738,57 @@ def check_adapter_coverage() -> list[Finding]:
 
             deps_block = block_match.group(1)
 
+            workflow = role_dir / "workflow.md"
+            workflow_rel = str(workflow.relative_to(REPO_ROOT))
+            workflow_covers_prompt_deps = False
+            if workflow.exists() and workflow_rel in deps_block:
+                workflow_fm, _ = extract_frontmatter(
+                    workflow.read_text(encoding="utf-8", errors="replace")
+                )
+                required_reads = workflow_fm.get("required-reads") if workflow_fm else None
+                optional_reads = workflow_fm.get("optional-reads", []) if workflow_fm else []
+                if not isinstance(required_reads, list):
+                    findings.append(
+                        Finding(
+                            "error",
+                            workflow,
+                            "agent-dependencies",
+                            "workflow.md referenced by adapter must declare required-reads list",
+                        )
+                    )
+                    continue
+                if not isinstance(optional_reads, list):
+                    findings.append(
+                        Finding(
+                            "error",
+                            workflow,
+                            "agent-dependencies",
+                            "workflow.md optional-reads must be a list when present",
+                        )
+                    )
+                    continue
+                else:
+                    workflow_reads = required_reads + optional_reads
+                    missing = [prompt_rel] + [
+                        dep_rel for dep_rel in prompt_deps if dep_rel not in workflow_reads
+                    ]
+                    missing = [item for item in missing if item not in workflow_reads]
+                    if missing:
+                        findings.append(
+                            Finding(
+                                "error",
+                                workflow,
+                                "agent-dependencies",
+                                "workflow required-reads missing adapter dependency target(s): "
+                                + ", ".join(missing),
+                            )
+                        )
+                    else:
+                        workflow_covers_prompt_deps = True
+
+            if workflow.exists() and workflow_rel in deps_block:
+                continue
+
             if prompt_rel not in deps_block:
                 findings.append(
                     Finding(

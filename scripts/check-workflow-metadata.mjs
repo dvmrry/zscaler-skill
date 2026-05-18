@@ -18,12 +18,39 @@ const REQUIRED_FIELDS = [
 ];
 
 const ADAPTER_POINTER_FILES = {
+  "z-architect": [
+    ".claude/commands/z-architect.md",
+    ".windsurf/workflows/z-architect.md",
+  ],
+  "z-auditor": [
+    ".claude/commands/z-auditor.md",
+    ".windsurf/workflows/z-auditor.md",
+  ],
   "z-investigator": [
     ".agents/skills/zscaler-investigator/SKILL.md",
     ".claude/commands/z-investigator.md",
     ".claude/commands/z-investigator-resume.md",
     ".windsurf/workflows/z-investigator.md",
     ".windsurf/workflows/z-investigator-resume.md",
+  ],
+  "z-researcher": [
+    ".claude/commands/z-researcher.md",
+    ".windsurf/workflows/z-researcher.md",
+  ],
+  "z-retro": [
+    ".claude/commands/z-retro.md",
+    ".windsurf/workflows/z-retro.md",
+  ],
+  "z-soc": [
+    ".claude/commands/z-soc.md",
+    ".windsurf/workflows/z-soc.md",
+  ],
+  zscaler: [
+    "zscaler",
+    ".windsurf/rules/zscaler.md",
+  ],
+  "zscaler-skill-setup": [
+    ".agents/skills/zscaler-skill-setup/SKILL.md",
   ],
 };
 
@@ -120,7 +147,7 @@ function checkWorkflow(filePath, findings) {
     }
   }
 
-  for (const field of ["known-runtimes", "required-reads", "supporting-scripts"]) {
+  for (const field of ["known-runtimes", "required-reads", "optional-reads", "supporting-scripts"]) {
     if (field in data && !Array.isArray(data[field])) {
       findings.push(finding(owner, `${field} must be a YAML list`));
     }
@@ -130,12 +157,15 @@ function checkWorkflow(filePath, findings) {
   if (!/^[a-z][a-z0-9-]*$/.test(workflowId)) {
     findings.push(finding(owner, "id must be lower-kebab-case"));
   }
-  if (!/^\/[a-z][a-z0-9-]*$/.test(String(data["primary-command"] || ""))) {
-    findings.push(finding(owner, "primary-command must be a slash command"));
+  if (!/^(\/|@)[a-z][a-z0-9-]*$/.test(String(data["primary-command"] || ""))) {
+    findings.push(finding(owner, "primary-command must be a slash command or @ command"));
   }
 
   for (const target of Array.isArray(data["required-reads"]) ? data["required-reads"] : []) {
     requireExists(target, owner, findings, "required read");
+  }
+  for (const target of Array.isArray(data["optional-reads"]) ? data["optional-reads"] : []) {
+    requireExists(target, owner, findings, "optional read");
   }
   for (const helper of Array.isArray(data["supporting-scripts"]) ? data["supporting-scripts"] : []) {
     requireExists(helper, owner, findings, "supporting script");

@@ -51,9 +51,17 @@ node scripts/investigator-artifacts.mjs open-case \
   --root <repo-root> \
   --case-slug <slug> \
   --framing-json <path-to-framing-json> \
-  --proposed-load agents/investigator/prompt.md \
-  --proposed-load agents/investigator/harness.md
+  --proposed-load <displayed-load-1> \
+  --proposed-load <displayed-load-2> \
+  --proposed-load <displayed-load-N>
 ```
+
+Compose the complete Step 1 proposed-load list before running `open-case`.
+Every path shown in the Step 1 `**Proposed loads**` section must be passed as a
+`--proposed-load` argument. At minimum, that list includes
+`agents/investigator/prompt.md` and `agents/investigator/harness.md`; if the
+displayed list includes product references or grounding cards, those paths must
+also be included in the helper command.
 
 Then verify the gate before continuing:
 
@@ -109,6 +117,12 @@ They must not include snapshot files, sibling case journals, or broad data
 directories. Every proposed load must exist under the repository root; a
 missing file is a blocked intake, not a reason to invent a replacement path.
 
+After `verify-case` passes, the Step 1 response must render proposed loads from
+the verified `case-intake.json` / `case-intake.md` artifacts. Do not append,
+rewrite, or "helpfully" add extra paths in chat. If the proposed load list is
+wrong or incomplete, rerun `open-case` with the corrected `--proposed-load`
+arguments and rerun `verify-case` before showing the new list.
+
 Telemetry references under `references/{zia,zpa,zcc}/logs/` are only valid when
 the user's framing already mentions logs, metrics, SIEM data, LSS/NSS,
 pre-collected evidence, Splunk, compact telemetry terms such as `syslog`,
@@ -144,6 +158,11 @@ generate hypotheses, or render a discovery journal table in the same response.
 
 The load phase begins only after the user confirms continuation and
 `verify-case` reports a passing case intake.
+
+Step 2 may load only the proposed loads stored in the verified
+`case-intake.json`, plus later user-approved additions. If the chat-rendered
+Step 1 list differs from `case-intake.json`, treat Step 1 as invalid and fix the
+case intake before continuing.
 
 After Step 3 writes and verifies the first real discovery journal, initialize
 the turn ledger before presenting the Step 3 checkpoint:

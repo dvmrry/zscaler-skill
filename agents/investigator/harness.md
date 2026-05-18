@@ -163,6 +163,11 @@ case intake. If creation or verification fails, emit `Case intake not ready:
 <reason>` and make fixing the case intake artifact the next checkpoint
 option.
 
+Render the `**Proposed loads**` list from the verified `case-intake.json`.
+Do not add, remove, or rewrite paths in chat after `verify-case`. If the list is
+wrong, rerun `open-case` with the corrected `--proposed-load` arguments, rerun
+`verify-case`, and then render the updated helper-owned list.
+
 The closing menu is Checkpoint 1. Halt after it. Do not load files, generate
 hypotheses, output a journal table, or run Step 2 before the user confirms.
 
@@ -210,6 +215,11 @@ Template:
 - Skip a file from the journal evidence — specify
 - Pause — stop here
 ```
+
+Before Step 2 loads anything, compare the Step 1 displayed proposed loads to
+`_data/cases/<slug>/case-intake.json.proposedLoads`. If they differ, stop with
+`Case intake mismatch` and fix Step 1 by rerunning `open-case` + `verify-case`.
+Do not proceed from a chat-only proposed load.
 
 The closing menu is Checkpoint 2. Halt after it. Do not output a journal,
 generate hypotheses, or run Step 3 before the user confirms.

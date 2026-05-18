@@ -6,7 +6,7 @@ description: Use for Zscaler, ZIA, ZPA, ZCC, ZDX, ZIdentity, Cloud Connector, Zs
 # Zscaler Skill Loader
 
 When the user asks a Zscaler-related question, use your file-read tool to load
-`agents/zscaler/prompt.md` before answering, then follow that playbook.
+`agents/zscaler/workflow.md` before answering, then follow that workflow.
 
 For procedural tasks, prefer the existing Windsurf workflows:
 
