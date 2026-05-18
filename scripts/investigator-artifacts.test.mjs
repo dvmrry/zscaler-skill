@@ -793,6 +793,58 @@ index=$INDEX_ZPA Application=$APP
   assert.deepEqual(completed.event.queryPatterns, ["segment-match-observed"]);
 });
 
+test("completeTurn allows non-Splunk request-user-evidence with an explicit request", () => {
+  const { root, caseSlug, journalPath } = createPassingCaseWithJournal();
+  initializeTurnLedger({ root, caseSlug });
+  const begun = beginTurn({ root, caseSlug, userAction: "request-user-evidence" });
+  const pending = begun.pendingTurn;
+
+  fs.appendFileSync(journalPath, "\nTurn update: asked user for the Azure rollback change record.\n", "utf8");
+  const turnPath = writeJson(root, "turn-manual-evidence-request.json", {
+    sequence: pending.sequence,
+    previousHash: pending.priorLatestTurnHash,
+    turnToken: pending.turnToken,
+    userAction: pending.userAction,
+    actionType: "request-user-evidence",
+    actionSummary: "Asked user for the Azure rollback change record.",
+    touchedClaims: ["H1: Application segment may not include the app"],
+    evidenceRequest: "Provide the Azure change record or deployment rollback ID for 2026-05-17 15:05 UTC.",
+    evidenceRefs: ["user-request:azure-rollback-change-record"],
+    journalHashBefore: pending.journalHashBefore,
+    allowedNext: ["record-user-evidence", "pause"],
+  });
+
+  const completed = completeTurn({ root, caseSlug, turnJson: turnPath });
+  assert.equal(completed.event.evidenceRequest, "Provide the Azure change record or deployment rollback ID for 2026-05-17 15:05 UTC.");
+  assert.deepEqual(completed.event.queryPatterns, []);
+});
+
+test("completeTurn requires evidenceRequest for request-user-evidence", () => {
+  const { root, caseSlug, journalPath } = createPassingCaseWithJournal();
+  initializeTurnLedger({ root, caseSlug });
+  const begun = beginTurn({ root, caseSlug, userAction: "request-user-evidence" });
+  const pending = begun.pendingTurn;
+
+  fs.appendFileSync(journalPath, "\nTurn update: asked user for missing evidence.\n", "utf8");
+  const turnPath = writeJson(root, "turn-missing-evidence-request.json", {
+    sequence: pending.sequence,
+    previousHash: pending.priorLatestTurnHash,
+    turnToken: pending.turnToken,
+    userAction: pending.userAction,
+    actionType: "request-user-evidence",
+    actionSummary: "Asked user for missing evidence.",
+    touchedClaims: ["H1: Application segment may not include the app"],
+    evidenceRefs: ["user-request:missing-evidence"],
+    journalHashBefore: pending.journalHashBefore,
+    allowedNext: ["record-user-evidence", "pause"],
+  });
+
+  assert.throws(
+    () => completeTurn({ root, caseSlug, turnJson: turnPath }),
+    /request-user-evidence turns must include evidenceRequest/,
+  );
+});
+
 test("completeTurn keeps user evidence requests separate from returned evidence", () => {
   const { root, caseSlug, journalPath } = createPassingCaseWithJournal();
   const catalogPath = path.join(root, "references", "shared", "splunk-queries.md");
@@ -1010,4 +1062,9 @@ test("completeTurn allows mark-resolved when completion gate is satisfied", () =
 
   const completed = completeTurn({ root, caseSlug, turnJson: turnPath });
   assert.equal(completed.event.actionType, "mark-resolved");
+  assert.deepEqual(completed.event.completionGate, {
+    rootCauseClaim: "H1: Application segment may not include the app",
+    userConfirmedResolution: true,
+    supportingEvidenceRefs: ["_data/cases/example/evidence/rollback-confirmation.md"],
+  });
 });

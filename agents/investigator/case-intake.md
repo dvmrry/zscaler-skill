@@ -160,6 +160,10 @@ are two completed turns: first `request-user-evidence` or `query-request`, then
 a later `record-user-evidence` turn when the user provides results. Do not keep
 a pending turn open while waiting for the user.
 
+Use `query-request` for Splunk/SIEM catalog-pattern requests. Use
+`request-user-evidence` for non-Splunk evidence and include the exact
+`evidenceRequest` in the turn JSON.
+
 Resolution is also a separate completed turn. The direct evidence supporting a
 `mark-resolved` turn must already be recorded by a prior completed
 `record-user-evidence` or `add-evidence` turn.

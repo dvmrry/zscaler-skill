@@ -298,12 +298,17 @@ Then halt and surface `Turn abandoned before journal mutation: <reason>`. If
 `Pending turn requires repair` and ask the user whether to complete the turn
 with a valid turn JSON or manually reconcile the journal.
 
-Use `actionType: "query-request"` or `"request-user-evidence"` only to record
-the request for the user to run or provide evidence. That turn must complete
-immediately after journaling the request. When the user returns query rows,
-logs, screenshots, or other evidence, start a fresh `begin-turn` with
-`--user-action record-user-evidence`; do not hold `pendingTurn` open across a
-user checkpoint.
+Use `actionType: "query-request"` only for a SIEM/Splunk catalog-pattern
+request. It must include `queryPatterns` from
+`references/shared/splunk-queries.md`.
+
+Use `actionType: "request-user-evidence"` for non-Splunk evidence requests
+such as Azure changes, API/manual lookups, screenshots, support tickets, or
+operator-provided files. It must include `evidenceRequest` with the exact
+requested evidence. Request turns must complete immediately after journaling the
+request. When the user returns query rows, logs, screenshots, or other
+evidence, start a fresh `begin-turn` with `--user-action record-user-evidence`;
+do not hold `pendingTurn` open across a user checkpoint.
 
 Use `actionType: "mark-resolved"` only when the resolution gate is satisfied.
 The helper rejects completion unless the turn JSON includes `completionGate`

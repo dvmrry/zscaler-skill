@@ -632,7 +632,7 @@ After Step 3's first journal output, **every** subsequent turn in this investiga
    ```
 
    If this fails, halt and surface the helper error. Do not mutate the journal.
-3. **Perform exactly ONE investigation action.** Read one source, run one query, evaluate one piece of evidence, or record one user-evidence request/result. **Do NOT** batch multiple hypothesis investigations into one turn. **Do NOT** rule out a hypothesis you weren't directed to investigate. A query request is a completed turn: journal the requested catalog pattern and halt. When the user returns results, start a fresh `record-user-evidence` turn; do not keep `pendingTurn` open across the checkpoint.
+3. **Perform exactly ONE investigation action.** Read one source, run one query, evaluate one piece of evidence, or record one user-evidence request/result. **Do NOT** batch multiple hypothesis investigations into one turn. **Do NOT** rule out a hypothesis you weren't directed to investigate. A `query-request` is a completed Splunk/catalog-pattern turn and must include `queryPatterns`. A `request-user-evidence` turn is for non-Splunk evidence such as Azure changes, API/manual lookups, screenshots, support tickets, or operator-provided files and must include `evidenceRequest`. When the user returns results, start a fresh `record-user-evidence` turn; do not keep `pendingTurn` open across the checkpoint.
    Use only canonical `actionType` values: `load-file`, `query-request`,
    `request-user-evidence`, `record-user-evidence`, `add-evidence`,
    `mark-resolved`, or `pause`. Do not use synonyms like `record-evidence`.

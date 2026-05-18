@@ -28,6 +28,7 @@ const VALID_CLAIM_STATUSES = new Set([
 ]);
 const OPEN_CLAIM_STATUSES = new Set(["Open (likely)", "Open (uncertain)"]);
 const EVIDENCE_REQUEST_ACTION_TYPES = new Set(["query-request", "request-user-evidence"]);
+const QUERY_REQUEST_ACTION_TYPES = new Set(["query-request"]);
 const VALID_ACTION_TYPES = new Set([
   "load-file",
   "query-request",
@@ -350,7 +351,7 @@ function splunkPatternNames(root) {
 }
 
 function validateQueryRequest(root, turnInput, actionType) {
-  if (!EVIDENCE_REQUEST_ACTION_TYPES.has(actionType)) return [];
+  if (!QUERY_REQUEST_ACTION_TYPES.has(actionType)) return [];
   const queryPatterns = asArray(turnInput.queryPatterns);
   if (queryPatterns.length === 0) {
     throw new Error(`${actionType} turns must include queryPatterns from references/shared/splunk-queries.md`);
@@ -362,6 +363,15 @@ function validateQueryRequest(root, turnInput, actionType) {
     }
   }
   return queryPatterns;
+}
+
+function validateUserEvidenceRequest(turnInput, actionType) {
+  if (actionType !== "request-user-evidence") return null;
+  const evidenceRequest = String(turnInput.evidenceRequest || "").trim();
+  if (!evidenceRequest) {
+    throw new Error("request-user-evidence turns must include evidenceRequest");
+  }
+  return evidenceRequest;
 }
 
 function validateEvidenceHandoffTurn(journalPath, turnInput, actionType) {
@@ -376,6 +386,16 @@ function validateEvidenceHandoffTurn(journalPath, turnInput, actionType) {
       throw new Error(`${actionType} must not record returned evidence or close claims; use record-user-evidence in a new turn`);
     }
   }
+}
+
+function normalizeCompletionGate(turnInput, actionType) {
+  if (actionType !== "mark-resolved") return null;
+  const completionGate = turnInput.completionGate || {};
+  return {
+    rootCauseClaim: String(completionGate.rootCauseClaim || "").trim(),
+    userConfirmedResolution: completionGate.userConfirmedResolution === true,
+    supportingEvidenceRefs: asArray(completionGate.supportingEvidenceRefs),
+  };
 }
 
 function readTurnState(paths) {
@@ -570,8 +590,10 @@ function completeTurn(args) {
     throw new Error("turn-json touchedClaims is required for investigative actions");
   }
   const queryPatterns = validateQueryRequest(root, turnInput, actionType);
+  const evidenceRequest = validateUserEvidenceRequest(turnInput, actionType);
   validateEvidenceHandoffTurn(paths.journalPath, turnInput, actionType);
   validateMarkResolved(paths.journalPath, turnInput, actionType, priorEvents);
+  const completionGate = normalizeCompletionGate(turnInput, actionType);
 
   const allowedNext = normalizeAllowedNext(turnInput.allowedNext || DEFAULT_ALLOWED_NEXT);
   const nextTurnToken = makeTurnToken();
@@ -587,6 +609,8 @@ function completeTurn(args) {
     evidenceRefs: asArray(turnInput.evidenceRefs),
     touchedClaims: asArray(turnInput.touchedClaims),
     queryPatterns,
+    evidenceRequest,
+    completionGate,
     journalHashBefore: pending.journalHashBefore,
     journalHashAfter,
     allowedNext,
