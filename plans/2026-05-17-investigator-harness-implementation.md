@@ -30,7 +30,7 @@ public-safe path is now:
 - add a small Node stdlib helper that creates and verifies
   `case-intake.md`,
   `case-intake.json`, and `journal.md`;
-- keep `/z-investigator-load` as an optional resume path for an existing case,
+- keep `/z-investigator-resume` as an optional resume path for an existing case,
   not as the normal new-investigation flow.
 
 Recommended canonical file:

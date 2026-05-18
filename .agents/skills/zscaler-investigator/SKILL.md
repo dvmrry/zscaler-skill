@@ -12,6 +12,8 @@ description: >
 Use this skill when the user wants a structured troubleshooting investigation,
 not a quick factual answer.
 
+Workflow metadata: `../../../agents/investigator/workflow.md`
+
 ## Canonical Workflow
 
 Load and follow these files:
@@ -37,9 +39,9 @@ Load these only when their trigger applies:
 
 ## Runtime Policy
 
-The files above are the source of truth. Runtime-specific command files may add
-UI affordances, local save-path details, or an explicit harness where a weaker
-runtime needs stronger checkpoint discipline.
+The canonical files above are the workflow source of truth. Runtime-specific
+command files may add UI handling, local save-path details, or checkpoint
+reinforcement.
 
 If a runtime has a dedicated `/z-investigator` adapter, preserve that adapter's
 behavior and let it decide whether to delegate through this skill. In runtimes

@@ -5,6 +5,7 @@ name: Doc hygiene
 #   - check-citations.sh:        markdown link path resolution in references/** and agents/**
 #   - check-doc-links.py:        HTML link / asset path resolution in docs/**
 #   - check-citation-density.py: reference source-anchor coverage and Source: audit
+#   - check-workflow-metadata.mjs: workflow metadata and adapter-reference check
 #   - check-orphans.py:          reference files with no inbound links from anywhere
 #   - check-workflow-evals.py:   agent workflow eval coverage and fixture health
 #   - check-vendor-drift.py:     refs whose cited vendor sources may have drifted
@@ -49,6 +50,7 @@ on:
       - 'scripts/check-vendor-drift.py'
       - 'scripts/check-scrape-freshness.py'
       - 'scripts/check-workflow-evals.py'
+      - 'scripts/check-workflow-metadata.mjs'
       - 'scripts/check-agent-skills.py'
       - 'references/_meta/evals/workflow-evals.json'
       - 'zscaler'
@@ -77,6 +79,7 @@ on:
       - 'scripts/check-vendor-drift.py'
       - 'scripts/check-scrape-freshness.py'
       - 'scripts/check-workflow-evals.py'
+      - 'scripts/check-workflow-metadata.mjs'
       - 'scripts/check-agent-skills.py'
       - 'references/_meta/evals/workflow-evals.json'
       - 'zscaler'
@@ -110,6 +113,9 @@ jobs:
 
       - name: Check portable Agent Skill contracts
         run: ./scripts/check-agent-skills.py
+
+      - name: Check workflow metadata
+        run: node scripts/check-workflow-metadata.mjs
 
       - name: Check for broken markdown citations in references/ and agents/
         run: ./scripts/check-citations.sh

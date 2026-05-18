@@ -103,7 +103,7 @@ node scripts/investigator-artifacts.mjs verify-case ...
 ```
 
 New investigations still start with `/z-investigator`. Resume-oriented
-adapters such as `/z-investigator-load` may exist, but they must verify the
+adapters such as `/z-investigator-resume` may exist, but they must verify the
 case-intake artifact before continuing.
 
 ## Adapter layer

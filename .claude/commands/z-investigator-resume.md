@@ -4,6 +4,8 @@ argument-hint: <case-slug>
 ---
 
 <!-- adapter-deps:start -->
+Workflow metadata: `agents/investigator/workflow.md`
+
 Always load:
 - `agents/investigator/prompt.md`
 - `agents/investigator/harness.md`

@@ -33,7 +33,7 @@ while finishing a tenant-specific implementation.
 
 | Category | Scripts |
 |---|---|
-| **Hygiene / CI** | `check-hygiene.py`, `check-citations.sh`, `check-citation-density.py` (density advisory; source-line audit + citation inventory regression strict in CI), `check-agent-skills.py` (portable Agent Skill contract and adapter-shape check), `check-doc-links.py`, `check-orphans.py`, `check-workflow-evals.py`, `check-vendor-drift.py`, `check-scrape-freshness.py`, `maintenance-digest.py`, `vendor-impact-summary.py` |
+| **Hygiene / CI** | `check-hygiene.py`, `check-citations.sh`, `check-citation-density.py` (density advisory; source-line audit + citation inventory regression strict in CI), `check-agent-skills.py` (portable Agent Skill contract and adapter-shape check), `check-workflow-metadata.mjs` (workflow metadata and adapter-reference check), `check-doc-links.py`, `check-orphans.py`, `check-workflow-evals.py`, `check-vendor-drift.py`, `check-scrape-freshness.py`, `maintenance-digest.py`, `vendor-impact-summary.py` |
 | **Manual hygiene** | `check-staleness.sh`, `check-data-contract.mjs`, `setup-data-mount.mjs` |
 | **Eval suite** | `run-evals.py` |
 | **Tenant API operations** | `diagnose-tenant.py`, `snapshot-refresh.py`, `url-lookup.py` |
@@ -97,10 +97,16 @@ only help docs, run:
 
 Portable Agent Skill contract checks validate repo-local skill metadata,
 canonical `agents/**` loader paths, routing-doc mentions, and obvious runtime
-adapter drift before downstream runtime testing:
+adapter-reference mismatches before runtime testing:
 
 ```bash
 ./scripts/check-agent-skills.py
+```
+
+Validate workflow metadata and runtime adapter pointers:
+
+```bash
+node scripts/check-workflow-metadata.mjs
 ```
 
 The `_data` mount contract check verifies the public skeleton or a private

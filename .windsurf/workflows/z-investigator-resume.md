@@ -2,7 +2,9 @@
 description: "Resume an existing investigator case from a verified case-intake artifact."
 ---
 
-# /z-investigator-load
+# /z-investigator-resume
+
+Workflow metadata: `agents/investigator/workflow.md`
 
 Use this only to resume an existing case directory. For a new investigation,
 use `/z-investigator`.

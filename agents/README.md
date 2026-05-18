@@ -26,7 +26,7 @@ This directory holds the agent infrastructure for the skill — playbooks, metho
 | `agents/` | Agent infrastructure: how to operate (playbooks, methodologies, grounding cards, diagnostics templates) | AI agents executing role-specific workflows |
 | `references/` | Product knowledge: what to know (Zscaler product docs, schemas, log refs) | Both agents (as evidence) and human readers |
 | `_data/` | Evidence and state: tenant snapshots, IaC overlays, local case artifacts, and eval outputs | Agents and operators investigating current state |
-| `.agents/skills/` | Portable Agent Skills: open-standard trigger metadata and thin loaders for canonical workflows | Codex, Windsurf, and other compatible runtimes |
+| `.agents/skills/` | Agent Skills: trigger metadata and loaders for canonical workflows | Codex, Windsurf, and other compatible runtimes |
 | `_meta/` | Repo-level meta-documentation (clarifications, portfolio map, audits) | Maintainers and auditing agents |
 
 The split keeps `references/` focused as a knowledge base, lets agent personas route to predictable paths, and makes it easier to add new agent workflows without touching product docs.
@@ -81,6 +81,7 @@ author-status: draft
 - [`_meta/windsurf-runtime-notes.md`](./_meta/windsurf-runtime-notes.md) — Windsurf-specific behavior for `.windsurf/workflows/` and `.windsurf/rules/`. Operational guidance, not workflow content.
 - [`_meta/runtime-adapters.md`](./_meta/runtime-adapters.md) — canonical workflow vs portable skill vs runtime adapter policy.
 - [`_meta/workflow-artifacts.md`](./_meta/workflow-artifacts.md) — future artifact-gated workflow contract notes.
+- [`_meta/workflow-metadata.md`](./_meta/workflow-metadata.md) — neutral workflow metadata and validator notes.
 
 ## Adding a new role
 

@@ -4,6 +4,8 @@ argument-hint: [what fails] in [where], [scope], since [when]; backtick `<litera
 ---
 
 <!-- adapter-deps:start -->
+Workflow metadata: `agents/investigator/workflow.md`
+
 Always load:
 - `agents/investigator/prompt.md`
 - `agents/investigator/harness.md`
@@ -27,7 +29,7 @@ Follow the per-turn shape defined in the canonical playbook. Output is plain mar
 Step 1 must use the case-intake helper; do not hand-write the journal stub.
 If the target case directory already exists with `case-intake.md`,
 `case-intake.json`, or `journal.md`, run `verify-case` and resume through
-`/z-investigator-load`; do not use `--force` unless the user explicitly asks to
+`/z-investigator-resume`; do not use `--force` unless the user explicitly asks to
 replace the intake artifacts.
 After composing the parsed framing and proposed loads, run the literal command
 shape from `agents/investigator/case-intake.md`:
@@ -57,4 +59,4 @@ Step 3 and later turns must use the turn transaction gates defined in
 `initialize-turn-ledger` after the first real journal is saved, then
 `begin-turn` / `complete-turn` around every subsequent investigation turn.
 
-Note: `.windsurf/workflows/z-investigator.md` carries the equivalent windsurf-runtime-specific reinforcement for weaker-runtime behavior. For Claude Code, follow `agents/investigator/prompt.md`, `agents/investigator/harness.md`, and `agents/investigator/case-intake.md` directly — this command is a thin loader, not a re-statement of the playbook.
+Note: `.windsurf/workflows/z-investigator.md` contains Windsurf-specific adapter instructions. For Claude Code, follow `agents/investigator/prompt.md`, `agents/investigator/harness.md`, and `agents/investigator/case-intake.md` directly; this command adds Claude-specific loading and helper gates.
