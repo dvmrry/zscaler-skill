@@ -41,6 +41,14 @@ summarize, or replace the canonical procedure here.
   intake artifacts.
 - After Step 3, use the turn ledger commands before and after every later
   investigation action.
+- A request turn is a completed turn. `query-request` and
+  `request-user-evidence` must run through `begin-turn` and `complete-turn`,
+  then halt. The user's returned evidence starts a new `record-user-evidence`
+  turn.
+- Do not leave `pendingTurn` open across a user checkpoint or evidence handoff.
+- If this is a dry-run or simulated test, say so. Do not claim helper commands
+  ran, files were written, or `journal.md` was saved unless the runtime actually
+  performed those actions.
 
 ## Step 1 helper gate
 
@@ -81,3 +89,6 @@ For every later controller turn, run `begin-turn`, perform exactly one
 investigation action, then run `complete-turn`. If the action blocks after
 `begin-turn` and before journal mutation, run `abandon-turn --reason "<reason>"`
 before halting.
+
+For request turns, `complete-turn` happens before asking the user for results.
+Do not wait with an open pending transaction.
