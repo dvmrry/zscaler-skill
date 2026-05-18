@@ -7,6 +7,7 @@ argument-hint: [scope] — e.g., "App Connector Group us-east-1, planning 3x gro
 Load and follow the playbook at @agents/architect/prompt.md.
 
 Before the first response, also load each of its declared dependencies:
+- `agents/architect/harness.md` — scope, evidence, config-first, and recommendation register gates
 - `agents/architect/methodology.md` — recommendation register format, risk scale, confidence calibration, status lifecycle
 - `agents/siem-emission-discipline.md` — SIEM emission modes, public/private boundary
 

@@ -8,10 +8,12 @@ last-verified: "2026-04-29"
 confidence: high
 source-tier: practice
 sources:
+  - "agents/architect/harness.md"
   - "agents/architect/methodology.md"
   - "agents/siem-emission-discipline.md"
   - "references/zpa/logs/app-connector-metrics.md"
 dependencies:
+  - "harness.md"
   - "methodology.md"
   - "../siem-emission-discipline.md"
 author-status: draft
@@ -42,7 +44,7 @@ Minimum viable: scope + a one-line "what changed or what's planned" context. The
 
 ## Discipline
 
-Follow the recommendation register format in [`architect/methodology.md`](./methodology.md):
+Follow [`./harness.md`](./harness.md) and the recommendation register format in [`architect/methodology.md`](./methodology.md):
 
 - Every recommendation has rationale, risk, evidence, confidence, status
 - Confidence is calibrated to evidence quality; do not inflate

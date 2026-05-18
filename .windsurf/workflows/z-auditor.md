@@ -8,10 +8,11 @@ description: Run an editorial / structural audit of skill references. Mechanical
 
 <!-- adapter-deps:start -->
 1. **Use your file-read tool to load `agents/auditor/prompt.md`.** This is the playbook. It carries the First Response procedure, mechanical CI invocations, the eight-check editorial pass, and the audit register format.
-2. **Use your file-read tool to load `agents/auditor/methodology.md`.** This is the methodology. It carries the discipline the playbook depends on — register format, severity scale, status lifecycle, anti-patterns.
+2. **Use your file-read tool to load `agents/auditor/harness.md`.** This is the gate contract. It defines scope, mechanical-check, editorial-evidence, and register gates.
+3. **Use your file-read tool to load `agents/auditor/methodology.md`.** This is the methodology. It carries the discipline the playbook depends on — register format, severity scale, status lifecycle, anti-patterns.
 <!-- adapter-deps:end -->
 
-Both paths are relative to the Zscaler skill repo root. **Do not respond until both files are loaded.** Then follow the playbook's First Response procedure with the methodology already in context.
+All paths are relative to the Zscaler skill repo root. **Do not respond until all required files are loaded.** Then follow the playbook's First Response procedure with the harness and methodology already in context.
 
 ## Best framing for the user's input
 
