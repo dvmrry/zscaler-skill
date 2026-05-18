@@ -1,0 +1,263 @@
+import assert from "node:assert/strict";
+import childProcess from "node:child_process";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import test from "node:test";
+import { prepareOverlaySubmission, runtimePathToOverlayPath } from "./prepare-overlay-submission.mjs";
+
+function tempDir(prefix) {
+  return fs.mkdtempSync(path.join(os.tmpdir(), prefix));
+}
+
+function git(root, args) {
+  return childProcess.execFileSync("git", args, {
+    cwd: root,
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  }).trim();
+}
+
+function commitAll(root, message) {
+  git(root, ["add", "."]);
+  git(root, [
+    "-c",
+    "user.name=Zscaler Skill Test",
+    "-c",
+    "user.email=zscaler-skill-test@example.invalid",
+    "commit",
+    "-m",
+    message,
+  ]);
+}
+
+function makeRootWithCase() {
+  const root = tempDir("zscaler-overlay-root-");
+  const caseDir = path.join(root, "_data", "cases", "2026-05-18-example");
+  fs.mkdirSync(caseDir, { recursive: true });
+  fs.writeFileSync(path.join(caseDir, "case-intake.json"), "{\"status\":\"pass\"}\n", "utf8");
+  fs.writeFileSync(path.join(caseDir, "journal.md"), "# Journal\n", "utf8");
+  return { root, caseDir };
+}
+
+function makeOverlayRepo() {
+  const repo = tempDir("zscaler-overlay-repo-");
+  git(repo, ["init", "-b", "main"]);
+  fs.writeFileSync(path.join(repo, "README.md"), "# overlay\n", "utf8");
+  commitAll(repo, "initial overlay");
+  return repo;
+}
+
+test("prepareOverlaySubmission requires explicit approval by default", () => {
+  const { root, caseDir } = makeRootWithCase();
+  const overlay = makeOverlayRepo();
+
+  assert.throws(
+    () => prepareOverlaySubmission({
+      approve: false,
+      artifacts: [caseDir],
+      branchPrefix: "case-submission/",
+      defaultBranch: "main",
+      dryRun: false,
+      repoUrl: overlay,
+      requireExplicitApproval: true,
+      root,
+      allowedRoots: ["_data/cases"],
+    }),
+    /explicit approval required/,
+  );
+});
+
+test("prepareOverlaySubmission rejects artifacts outside allowed roots", () => {
+  const root = tempDir("zscaler-overlay-outside-");
+  const overlay = makeOverlayRepo();
+  const outside = path.join(root, "README.md");
+  fs.writeFileSync(outside, "# public\n", "utf8");
+
+  assert.throws(
+    () => prepareOverlaySubmission({
+      approve: true,
+      artifacts: [outside],
+      branchPrefix: "case-submission/",
+      defaultBranch: "main",
+      dryRun: true,
+      repoUrl: overlay,
+      requireExplicitApproval: true,
+      root,
+      allowedRoots: ["_data/cases"],
+    }),
+    /outside allowed roots/,
+  );
+});
+
+test("prepareOverlaySubmission rejects obvious secret material", () => {
+  const { root, caseDir } = makeRootWithCase();
+  const overlay = makeOverlayRepo();
+  fs.writeFileSync(
+    path.join(caseDir, "bad.pem"),
+    "-----BEGIN PRIVATE KEY-----\nabc\n-----END PRIVATE KEY-----\n",
+    "utf8",
+  );
+
+  assert.throws(
+    () => prepareOverlaySubmission({
+      approve: true,
+      artifacts: [caseDir],
+      branchPrefix: "case-submission/",
+      defaultBranch: "main",
+      dryRun: true,
+      repoUrl: overlay,
+      requireExplicitApproval: true,
+      root,
+      allowedRoots: ["_data/cases"],
+    }),
+    /possible private key material/,
+  );
+});
+
+test("prepareOverlaySubmission rejects Azure DevOps PAT-shaped material", () => {
+  const { root, caseDir } = makeRootWithCase();
+  const overlay = makeOverlayRepo();
+  fs.writeFileSync(
+    path.join(caseDir, "ado.env"),
+    "AZURE_DEVOPS_EXT_PAT=aaaaaaaaaaaaaaaaaaaaaaaaAZDOaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n",
+    "utf8",
+  );
+
+  assert.throws(
+    () => prepareOverlaySubmission({
+      approve: true,
+      artifacts: [caseDir],
+      branchPrefix: "case-submission/",
+      defaultBranch: "main",
+      dryRun: true,
+      repoUrl: overlay,
+      requireExplicitApproval: true,
+      root,
+      allowedRoots: ["_data/cases"],
+    }),
+    /possible Azure DevOps token/,
+  );
+});
+
+test("prepareOverlaySubmission rejects credential assignment material", () => {
+  const { root, caseDir } = makeRootWithCase();
+  const overlay = makeOverlayRepo();
+  fs.writeFileSync(
+    path.join(caseDir, "credentials.json"),
+    "{\"client_secret\":\"super-secret-client-value\"}\n",
+    "utf8",
+  );
+
+  assert.throws(
+    () => prepareOverlaySubmission({
+      approve: true,
+      artifacts: [caseDir],
+      branchPrefix: "case-submission/",
+      defaultBranch: "main",
+      dryRun: true,
+      repoUrl: overlay,
+      requireExplicitApproval: true,
+      root,
+      allowedRoots: ["_data/cases"],
+    }),
+    /possible credential assignment/,
+  );
+});
+
+test("prepareOverlaySubmission rejects symlink artifacts", () => {
+  const { root, caseDir } = makeRootWithCase();
+  const overlay = makeOverlayRepo();
+  const outside = path.join(root, "outside.txt");
+  fs.writeFileSync(outside, "outside\n", "utf8");
+  fs.symlinkSync(outside, path.join(caseDir, "linked-outside.txt"));
+
+  assert.throws(
+    () => prepareOverlaySubmission({
+      approve: true,
+      artifacts: [caseDir],
+      branchPrefix: "case-submission/",
+      defaultBranch: "main",
+      dryRun: true,
+      repoUrl: overlay,
+      requireExplicitApproval: true,
+      root,
+      allowedRoots: ["_data/cases"],
+    }),
+    /symlink artifacts are not allowed/,
+  );
+});
+
+test("prepareOverlaySubmission rejects files that exceed the scan limit", () => {
+  const { root, caseDir } = makeRootWithCase();
+  const overlay = makeOverlayRepo();
+  fs.writeFileSync(path.join(caseDir, "large.log"), Buffer.alloc(5 * 1024 * 1024 + 1, "a"));
+
+  assert.throws(
+    () => prepareOverlaySubmission({
+      approve: true,
+      artifacts: [caseDir],
+      branchPrefix: "case-submission/",
+      defaultBranch: "main",
+      dryRun: true,
+      repoUrl: overlay,
+      requireExplicitApproval: true,
+      root,
+      allowedRoots: ["_data/cases"],
+    }),
+    /exceeds scan limit/,
+  );
+});
+
+test("prepareOverlaySubmission reports binary files as unscanned text", () => {
+  const { root, caseDir } = makeRootWithCase();
+  const overlay = makeOverlayRepo();
+  fs.writeFileSync(path.join(caseDir, "artifact.bin"), Buffer.from([0, 1, 2, 3]));
+
+  const result = prepareOverlaySubmission({
+    approve: true,
+    artifacts: [caseDir],
+    branchPrefix: "case-submission/",
+    defaultBranch: "main",
+    dryRun: true,
+    repoUrl: overlay,
+    requireExplicitApproval: true,
+    root,
+    allowedRoots: ["_data/cases"],
+  });
+
+  assert.deepEqual(result.warnings, ["_data/cases/2026-05-18-example/artifact.bin: not scanned as text"]);
+});
+
+test("runtimePathToOverlayPath maps runtime _data paths to overlay-root paths", () => {
+  assert.equal(runtimePathToOverlayPath("_data/cases/example"), "cases/example");
+  assert.equal(runtimePathToOverlayPath("_data/schemas/fields.json"), "schemas/fields.json");
+  assert.equal(runtimePathToOverlayPath("_data/iac/main.tf"), "iac/main.tf");
+  assert.throws(() => runtimePathToOverlayPath("references/zpa/app-segments.md"), /must start with _data/);
+});
+
+test("prepareOverlaySubmission creates an overlay branch and commit without pushing", () => {
+  const { root, caseDir } = makeRootWithCase();
+  const overlay = makeOverlayRepo();
+
+  const result = prepareOverlaySubmission({
+    approve: true,
+    artifacts: [caseDir],
+    branchPrefix: "case-submission/",
+    defaultBranch: "main",
+    dryRun: false,
+    repoUrl: overlay,
+    requireExplicitApproval: true,
+    root,
+    allowedRoots: ["_data/cases", "_data/schemas", "_data/iac"],
+  });
+
+  assert.equal(result.status, "prepared");
+  assert.match(result.branch, /^case-submission\/2026-05-18-example-/);
+  assert.equal(result.files[0], "cases/2026-05-18-example");
+  assert.equal(result.sourceFiles[0], "_data/cases/2026-05-18-example");
+  assert.equal(fs.existsSync(path.join(result.overlayCheckout, "cases", "2026-05-18-example", "journal.md")), true);
+  assert.equal(fs.existsSync(path.join(result.overlayCheckout, "_data", "cases", "2026-05-18-example", "journal.md")), false);
+  assert.equal(git(result.overlayCheckout, ["rev-parse", "--abbrev-ref", "HEAD"]), result.branch);
+  assert.match(result.nextAction, /^git -C .* push origin case-submission\/2026-05-18-example-/);
+});

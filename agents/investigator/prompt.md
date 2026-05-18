@@ -9,6 +9,7 @@ confidence: high
 source-tier: practice
 sources:
   - "agents/investigator/harness.md"
+  - "agents/investigator/grounding/index.md"
   - "agents/investigator/methodology.md"
   - "agents/siem-emission-discipline.md"
   - "references/shared/siem-log-mapping.md"
@@ -16,6 +17,7 @@ sources:
   - "agents/tenant-schema-derivation.md"
 dependencies:
   - "harness.md"
+  - "grounding/index.md"
   - "methodology.md"
   - "../siem-emission-discipline.md"
   - "../tenant-schema-derivation.md"
@@ -112,7 +114,7 @@ perceived relevance.**
 
 **b. Use your file-read tool to load the canonical product / feature reference.** If the framing names a Zscaler product or feature, load the relevant reference before forming a hypothesis.
 
-**Symptom grounding — check first.** Before using the keyword-based mapping below, look at `agents/investigator/grounding/` for a matching symptom shape. If one matches, load the grounding card and use its `Load docs` + `Inspect snapshot` lists as the grounding plan, and treat its `Expected behavior anchors` as the doc sections to read first (not just the file at the file level). Grounding cards exist because real Zscaler troubleshooting needs *clusters* of refs read together (segment + server-group + connector chain; URL filtering + Cloud App Control; SSL inspection + bypass rules) — a single keyword match isn't usually enough. Available grounding cards:
+**Symptom grounding — check first.** Before using the keyword-based mapping below, load [`grounding/index.md`](./grounding/index.md) during Step 2 and check for a matching symptom shape. If one matches, load the grounding card and use its `Load docs` + `Inspect snapshot` lists as the grounding plan, and treat its `Expected behavior anchors` as the doc sections to read first (not just the file at the file level). Grounding cards exist because real Zscaler troubleshooting needs *clusters* of refs read together (segment + server-group + connector chain; URL filtering + Cloud App Control; SSL inspection + bypass rules) — a single keyword match isn't usually enough. Available grounding cards:
 
 - [`grounding/zpa-connector-assignment.md`](./grounding/zpa-connector-assignment.md) — connector assignment failures, empty `Connector` LSS field, "no connector available."
 - [`grounding/zpa-segment-matching.md`](./grounding/zpa-segment-matching.md) — segment scope, specificity, multi-segment overlap, port-mismatch.
@@ -334,6 +336,7 @@ Cross-cutting discipline docs and methodology supplements are listed as `depende
 
 - [`investigator/methodology.md`](./methodology.md) — discovery journal anti-patterns, handoff format, claim-status guidance, worked examples. **Load when:** investigation is stuck, drifting, preparing a handoff, resolving claim-status ambiguity, or you need anti-pattern examples.
 - [`investigator/harness.md`](./harness.md) — phase order, checkpoint halts, output shapes, early journal creation, snapshot-load discipline. **Load with this prompt**; it is part of the investigator runtime contract.
+- [`investigator/grounding/index.md`](./grounding/index.md) — troubleshooting discipline and symptom-card map. **Load during Step 2** before selecting grounding cards or product references.
 - [`investigator/diagnostics/template.md`](./diagnostics/template.md) — authoring template for reusable diagnostics. **Load when:** creating or reviewing a verified diagnostic sequence; do not load for ordinary case grounding.
 - [`../siem-emission-discipline.md`](../siem-emission-discipline.md) — agent execution modes, query plumbing, public/private boundary. **Load when:** about to emit or run a SIEM query; mapping a Zscaler log type to a SIEM table / index / sourcetype.
 - [`../tenant-schema-derivation.md`](../tenant-schema-derivation.md) — canonical-vs-tenant schema reconciliation recipes per SIEM. **Load when:** canonical schema and tenant SIEM fields disagree, or deriving tenant-specific field mappings.

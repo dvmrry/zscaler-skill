@@ -9,6 +9,7 @@ confidence: high
 source-tier: practice
 sources:
   - "agents/auditor/harness.md"
+  - "agents/auditor/grounding/index.md"
   - "agents/auditor/methodology.md"
   - "scripts/check-hygiene.py"
   - "scripts/check-citations.sh"
@@ -16,6 +17,7 @@ sources:
   - "scripts/check-doc-links.py"
 dependencies:
   - "harness.md"
+  - "grounding/index.md"
   - "methodology.md"
 author-status: draft
 ---
@@ -50,7 +52,7 @@ If scope is missing or unclear, ask **one** clarifying question — don't fabric
 
 ## Discipline
 
-Follow [`./harness.md`](./harness.md) plus the audit register format and severity scale in [`auditor/methodology.md`](./methodology.md):
+Follow [`./harness.md`](./harness.md), [`./grounding/index.md`](./grounding/index.md), plus the audit register format and severity scale in [`auditor/methodology.md`](./methodology.md):
 
 - Every finding cites a source (file:line, script output, cross-file comparison)
 - Use the lowest applicable severity — inflation drowns real issues

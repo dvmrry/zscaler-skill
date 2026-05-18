@@ -41,12 +41,16 @@ Use only portable concepts:
 - `supporting-scripts`
 
 `required-reads` is the workflow bootstrap contract: files that must be loaded
-before the role answers. `optional-reads` is for conditional workflow support
-files that must exist and be available when their trigger applies.
+before the role answers. If a role has `agents/<role>/grounding/index.md`, that
+index belongs in `required-reads`; it is the role-level grounding entrypoint.
+Child grounding files, such as investigator symptom cards, remain conditional
+and are loaded only when their trigger applies. `optional-reads` is for other
+conditional workflow support files that must exist and be available when their
+trigger applies.
 
-This is distinct from role `grounding/` files. Grounding describes domain,
-evidence, or context-loading discipline for reasoning. Workflow reads describe
-which agent-control files the runtime must load to execute the role correctly.
+Grounding describes public domain discipline, evidence framing, and
+context-loading maps for reasoning. Workflow metadata describes which
+agent-control files the runtime must load to execute the role correctly.
 
 ## Validator scope
 

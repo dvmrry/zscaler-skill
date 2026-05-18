@@ -14,9 +14,9 @@ Schema fields:
   - must_contain_in_prompt — phrases that MUST appear in the prompt body
   - must_not_contain_in_prompt — phrases that MUST NOT appear in the prompt body
     (anti-patterns; their presence indicates the prompt instructs the wrong shape)
-  - must_reference_paths — paths that MUST be referenced from the prompt or
-    any of its runtime adapters (catches drift where a dependency is
-    declared but not actually mentioned anywhere)
+  - must_reference_paths — paths that MUST be referenced from prompt
+    frontmatter, prompt body, or any runtime adapter (catches drift where a
+    dependency is absent from the load contract)
 
 This is a STATIC check on file content. It does not run agents or evaluate
 runtime output. The contract is: if the prompt source contains the discipline
@@ -90,6 +90,26 @@ def body_after_frontmatter(path: Path) -> str:
     return text[m.end():] if m else text
 
 
+def frontmatter_search_text(prompt: Path, fm: dict) -> str:
+    """Return raw + normalized frontmatter strings for dependency matching."""
+    parts = [yaml.safe_dump(fm, sort_keys=True)]
+    for key in ("sources", "dependencies", "required-reads"):
+        values = fm.get(key) or []
+        if not isinstance(values, list):
+            continue
+        for value in values:
+            if not isinstance(value, str):
+                continue
+            parts.append(value)
+            if value.startswith(".") or not value.startswith(("agents/", "references/", "scripts/", "_data/")):
+                normalized = (prompt.parent / value).resolve()
+                try:
+                    parts.append(str(normalized.relative_to(REPO_ROOT)))
+                except ValueError:
+                    pass
+    return "\n".join(parts)
+
+
 def load_schemas() -> dict:
     if not EVALS_FILE.exists():
         print(f"error: {EVALS_FILE.relative_to(REPO_ROOT)} not found", file=sys.stderr)
@@ -119,6 +139,7 @@ def check_prompt(prompt: Path, schemas: dict) -> list[Finding]:
 
     schema = schemas[shape_name]
     body = body_after_frontmatter(prompt)
+    fm_text = frontmatter_search_text(prompt, fm)
 
     # Determine role + which adapter runtimes this prompt expects.
     # Prefer frontmatter `role:`; fall back to parent dir name for the
@@ -151,7 +172,7 @@ def check_prompt(prompt: Path, schemas: dict) -> list[Finding]:
         adapter = adapter_path(kind, role)
         if adapter.exists():
             adapter_contents.append(adapter.read_text(encoding="utf-8", errors="replace"))
-    combined = body + "\n" + "\n".join(adapter_contents)
+    combined = fm_text + "\n" + body + "\n" + "\n".join(adapter_contents)
 
     for phrase in schema.get("must_contain_in_prompt", []):
         if phrase not in body:

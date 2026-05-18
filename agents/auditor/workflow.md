@@ -9,6 +9,7 @@ confidence: medium
 sources:
   - agents/auditor/prompt.md
   - agents/auditor/harness.md
+  - agents/auditor/grounding/index.md
   - agents/auditor/methodology.md
 author-status: draft
 summary: Editorial and structural audit of skill references
@@ -20,6 +21,7 @@ known-runtimes:
 required-reads:
   - agents/auditor/prompt.md
   - agents/auditor/harness.md
+  - agents/auditor/grounding/index.md
   - agents/auditor/methodology.md
 supporting-scripts:
   - scripts/check-hygiene.py

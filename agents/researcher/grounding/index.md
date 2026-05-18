@@ -7,6 +7,7 @@ last-verified: "2026-05-18"
 confidence: high
 source-tier: practice
 sources:
+  - "https://diataxis.fr/"
   - "references/_meta/template.md"
   - "scripts/check-hygiene.py"
 dependencies: []
@@ -16,6 +17,15 @@ author-status: draft
 # Researcher grounding - efficient source extraction discipline
 
 Use this grounding index before `/z-researcher` starts Step 1.
+
+## Public research anchors
+
+Use public documentation taxonomy as discipline, not as a substitute for product sources:
+
+- Separate **reference** material from **how-to**, **explanation**, and **tutorial** material before writing. Most files in `references/` should behave like reference docs, with examples only when they clarify a source-backed behavior.
+- Preserve provenance at the smallest useful unit: field, enum, endpoint, policy rule, log key, or source paragraph.
+- Build indexes for retrieval and contradiction handling, not narrative completeness.
+- Treat source discovery, extraction, writing, and verification as separate phases. Do not let a useful narrative from discovery skip extraction or verification.
 
 ## Source selection
 

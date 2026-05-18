@@ -9,6 +9,7 @@ source-tier: practice
 sources:
   - "scripts/setup-data-mount.mjs"
   - "scripts/check-data-contract.mjs"
+  - "scripts/prepare-overlay-submission.mjs"
   - "docs/data-contract/README.md"
 dependencies: []
 adapters: []
@@ -75,6 +76,35 @@ node scripts/setup-data-mount.mjs --root <repo-root>
 The public example file is `zscaler-skill-setup.example.json`. The real
 `zscaler-skill-setup.json` is ignored because it may contain private data source
 URLs.
+
+## Overlay Submission
+
+Use this only when the user explicitly wants to prepare `_data` artifacts for a
+configured overlay repository. Submission is opt-in. Do not push or create a PR
+unless the user asks for that follow-up.
+
+Collect:
+
+- **Artifact path**: one or more selected paths under `_data/cases`,
+  `_data/schemas`, or `_data/iac`.
+- **Overlay repo URL or local path**: from `zscaler-skill-setup.json` or the
+  `--repo-url` flag.
+- **Approval**: required. The helper expects `--approve`.
+
+Command shape:
+
+```bash
+node scripts/prepare-overlay-submission.mjs \
+  --root <repo-root> \
+  --case-path _data/cases/<case-slug> \
+  --approve
+```
+
+The helper validates allowed roots, scans for obvious secret material, copies
+selected artifacts into a temporary overlay checkout, commits to a named branch,
+and prints JSON with status, branch, files, warnings, and next action.
+Input paths use runtime `_data/...` paths; submitted overlay paths are relative
+to the overlay repo root, for example `_data/cases/foo` becomes `cases/foo`.
 
 ## Capability Report
 
