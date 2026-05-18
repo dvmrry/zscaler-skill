@@ -134,6 +134,9 @@ function validateArtifact(root, artifact, allowedRoots) {
   if (!fs.existsSync(absolute)) {
     throw new Error(`artifact does not exist: ${artifact}`);
   }
+  if (fs.lstatSync(absolute).isSymbolicLink()) {
+    throw new Error(`artifact must not be a symlink: ${artifact}`);
+  }
   const relative = toPosix(path.relative(root, absolute));
   const allowed = allowedRoots.some((allowedRoot) => {
     const normalized = allowedRoot.replace(/\/+$/, "");
@@ -157,6 +160,9 @@ function runtimePathToOverlayPath(runtimePath) {
 }
 
 function listFiles(targetPath) {
+  if (fs.lstatSync(targetPath).isSymbolicLink()) {
+    throw new Error(`symlink artifacts are not allowed: ${targetPath}`);
+  }
   if (fs.statSync(targetPath).isFile()) return [targetPath];
   const files = [];
   const stack = [targetPath];
@@ -165,6 +171,9 @@ function listFiles(targetPath) {
     for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
       if (entry.name === ".git") continue;
       const entryPath = path.join(current, entry.name);
+      if (entry.isSymbolicLink()) {
+        throw new Error(`symlink artifacts are not allowed: ${entryPath}`);
+      }
       if (entry.isDirectory()) {
         stack.push(entryPath);
       } else if (entry.isFile()) {
@@ -191,6 +200,9 @@ function scanArtifacts(artifacts) {
     [/\bBearer\s+[A-Za-z0-9._~+/=-]{20,}\b/i, "bearer token"],
     [/\b(?:AKIA|ASIA)[A-Z0-9]{16}\b/, "AWS access key"],
     [/\bgh[pousr]_[A-Za-z0-9_]{20,}\b/, "GitHub token"],
+    [/\b(?:AZURE_DEVOPS_EXT_PAT|AZDO_PAT|ADO_PAT|SYSTEM_ACCESSTOKEN)\s*[:=]\s*["']?[A-Za-z0-9._~+/=-]{20,}/i, "Azure DevOps token"],
+    [/\b[A-Za-z0-9._~+/=-]{8,}AZDO[A-Za-z0-9._~+/=-]{20,}\b/, "Azure DevOps token"],
+    [/["']?\b(?:client_secret|refresh_token|access_token|id_token)\b["']?\s*[:=]\s*["'][^"'\s]{12,}["']/i, "credential assignment"],
   ];
   const warnPatterns = [
     [/\/Users\/[A-Za-z0-9._-]+/, "local macOS user path"],

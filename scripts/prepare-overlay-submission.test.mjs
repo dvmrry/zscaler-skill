@@ -115,6 +115,79 @@ test("prepareOverlaySubmission rejects obvious secret material", () => {
   );
 });
 
+test("prepareOverlaySubmission rejects Azure DevOps PAT-shaped material", () => {
+  const { root, caseDir } = makeRootWithCase();
+  const overlay = makeOverlayRepo();
+  fs.writeFileSync(
+    path.join(caseDir, "ado.env"),
+    "AZURE_DEVOPS_EXT_PAT=aaaaaaaaaaaaaaaaaaaaaaaaAZDOaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n",
+    "utf8",
+  );
+
+  assert.throws(
+    () => prepareOverlaySubmission({
+      approve: true,
+      artifacts: [caseDir],
+      branchPrefix: "case-submission/",
+      defaultBranch: "main",
+      dryRun: true,
+      repoUrl: overlay,
+      requireExplicitApproval: true,
+      root,
+      allowedRoots: ["_data/cases"],
+    }),
+    /possible Azure DevOps token/,
+  );
+});
+
+test("prepareOverlaySubmission rejects credential assignment material", () => {
+  const { root, caseDir } = makeRootWithCase();
+  const overlay = makeOverlayRepo();
+  fs.writeFileSync(
+    path.join(caseDir, "credentials.json"),
+    "{\"client_secret\":\"super-secret-client-value\"}\n",
+    "utf8",
+  );
+
+  assert.throws(
+    () => prepareOverlaySubmission({
+      approve: true,
+      artifacts: [caseDir],
+      branchPrefix: "case-submission/",
+      defaultBranch: "main",
+      dryRun: true,
+      repoUrl: overlay,
+      requireExplicitApproval: true,
+      root,
+      allowedRoots: ["_data/cases"],
+    }),
+    /possible credential assignment/,
+  );
+});
+
+test("prepareOverlaySubmission rejects symlink artifacts", () => {
+  const { root, caseDir } = makeRootWithCase();
+  const overlay = makeOverlayRepo();
+  const outside = path.join(root, "outside.txt");
+  fs.writeFileSync(outside, "outside\n", "utf8");
+  fs.symlinkSync(outside, path.join(caseDir, "linked-outside.txt"));
+
+  assert.throws(
+    () => prepareOverlaySubmission({
+      approve: true,
+      artifacts: [caseDir],
+      branchPrefix: "case-submission/",
+      defaultBranch: "main",
+      dryRun: true,
+      repoUrl: overlay,
+      requireExplicitApproval: true,
+      root,
+      allowedRoots: ["_data/cases"],
+    }),
+    /symlink artifacts are not allowed/,
+  );
+});
+
 test("runtimePathToOverlayPath maps runtime _data paths to overlay-root paths", () => {
   assert.equal(runtimePathToOverlayPath("_data/cases/example"), "cases/example");
   assert.equal(runtimePathToOverlayPath("_data/schemas/fields.json"), "schemas/fields.json");
