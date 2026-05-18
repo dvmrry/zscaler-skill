@@ -648,6 +648,19 @@ After Step 3's first journal output, **every** subsequent turn in this investiga
    ```
 
    If this fails, surface the helper error and do not claim the turn completed.
+   If the action becomes blocked after `begin-turn` but before any journal
+   mutation, run:
+
+   ```bash
+   node scripts/investigator-artifacts.mjs abandon-turn \
+     --root <working-dir> \
+     --case-slug <slug> \
+     --reason "<why the turn was blocked before mutation>"
+   ```
+
+   Then halt and say `Turn abandoned before journal mutation: <reason>`. If
+   `abandon-turn` says `journal.md` changed, halt with `Pending turn requires
+   repair`; do not start another turn.
 5. **Halt with the closing multi-choice.** End your response with the same **What's next?** multi-choice from the Step 3 turn shape (using options that fit the current state — e.g., if all hypotheses except one are ruled out, the menu can name the remaining one as the next focus). Wait for the user.
 
 **This cadence applies until the user explicitly closes the investigation** with `pause` or `done` (a status of `Resolved` on the root cause claim with the user's confirmation that the resolution holds). Until then, every response is one action + journal update + halt — never a rolling investigation that resolves multiple hypotheses without user direction.

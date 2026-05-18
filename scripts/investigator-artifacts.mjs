@@ -46,6 +46,7 @@ function usage(exitCode = 0) {
   node scripts/investigator-artifacts.mjs initialize-turn-ledger --root <repo> --case-slug <slug> [--force]
   node scripts/investigator-artifacts.mjs begin-turn --root <repo> --case-slug <slug> --user-action <action>
   node scripts/investigator-artifacts.mjs complete-turn --root <repo> --case-slug <slug> --turn-json <file>
+  node scripts/investigator-artifacts.mjs abandon-turn --root <repo> --case-slug <slug> --reason <text>
 
 Creates and verifies _data/cases/<slug>/case-intake.md,
 case-intake.json, journal.md, and optional workflow turn state.
@@ -80,6 +81,9 @@ function parseArgs(argv) {
       i += 1;
     } else if (key === "--user-action") {
       args.userAction = value;
+      i += 1;
+    } else if (key === "--reason") {
+      args.reason = value;
       i += 1;
     } else if (key === "--proposed-load") {
       args.proposedLoads.push(value);
@@ -451,6 +455,42 @@ function beginTurn(args) {
   };
   atomicWriteJson(paths.turnStatePath, nextState);
   return { status: "pass", caseSlug: args.caseSlug, turnStatePath: paths.turnStatePath, pendingTurn };
+}
+
+function abandonTurn(args) {
+  const root = resolveRepoRoot(args.root);
+  verifyCaseFiles(root, args.caseSlug);
+  const paths = casePaths(root, args.caseSlug);
+  verifyJournalHasClaimTable(paths.journalPath);
+  const state = readTurnState(paths);
+  const pending = state.pendingTurn;
+  if (!pending) {
+    throw new Error("no pendingTurn exists; nothing to abandon");
+  }
+  const journalHash = sha256File(paths.journalPath);
+  if (journalHash !== pending.journalHashBefore) {
+    throw new Error("cannot abandon pendingTurn after journal.md changed; complete the turn or manually reconcile the journal first");
+  }
+  const reason = String(args.reason || "").trim();
+  if (!reason) {
+    throw new Error("--reason is required for abandon-turn");
+  }
+
+  const nextState = {
+    ...state,
+    journalHash,
+    nextTurnToken: pending.turnToken,
+    pendingTurn: null,
+    abandonedTurn: {
+      sequence: pending.sequence,
+      userAction: pending.userAction,
+      reason,
+      abandonedAt: new Date().toISOString(),
+    },
+  };
+  atomicWriteJson(paths.turnStatePath, nextState);
+  readTurnState(paths);
+  return { status: "pass", caseSlug: args.caseSlug, turnStatePath: paths.turnStatePath, abandonedTurn: nextState.abandonedTurn, state: nextState };
 }
 
 function completeTurn(args) {
@@ -852,6 +892,11 @@ function main() {
       process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
       return;
     }
+    if (args.command === "abandon-turn") {
+      const result = abandonTurn(args);
+      process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+      return;
+    }
     if (args.command === "complete-turn") {
       const result = completeTurn(args);
       process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
@@ -876,5 +921,6 @@ export {
   verifyCaseFiles,
   initializeTurnLedger,
   beginTurn,
+  abandonTurn,
   completeTurn,
 };

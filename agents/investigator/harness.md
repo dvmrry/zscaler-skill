@@ -277,6 +277,22 @@ node scripts/investigator-artifacts.mjs complete-turn \
   --turn-json <path-to-turn-json>
 ```
 
+If `begin-turn` succeeded but the chosen action becomes blocked before any
+journal mutation, do not leave the case wedged with an open `pendingTurn`.
+Run:
+
+```bash
+node scripts/investigator-artifacts.mjs abandon-turn \
+  --root <working-dir> \
+  --case-slug <slug> \
+  --reason "<why the turn was blocked before mutation>"
+```
+
+Then halt and surface `Turn abandoned before journal mutation: <reason>`. If
+`abandon-turn` reports that `journal.md` changed, do not continue; surface
+`Pending turn requires repair` and ask the user whether to complete the turn
+with a valid turn JSON or manually reconcile the journal.
+
 Use `actionType: "query-request"` or `"request-user-evidence"` only to record
 the request for the user to run or provide evidence. That turn must complete
 immediately after journaling the request. When the user returns query rows,

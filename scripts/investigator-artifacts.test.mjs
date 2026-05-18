@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import {
+  abandonTurn,
   beginTurn,
   completeTurn,
   initializeTurnLedger,
@@ -542,6 +543,39 @@ test("beginTurn validates allowed actions and blocks duplicate pending turns", (
   assert.throws(
     () => beginTurn({ root, caseSlug, userAction: "continue-top-open" }),
     /missing nextTurnToken/,
+  );
+});
+
+test("abandonTurn clears an unchanged pending turn and restores the token", () => {
+  const { root, caseSlug } = createPassingCaseWithJournal();
+  initializeTurnLedger({ root, caseSlug });
+  const begun = beginTurn({ root, caseSlug, userAction: "continue-top-open" });
+  const pending = begun.pendingTurn;
+
+  const abandoned = abandonTurn({
+    root,
+    caseSlug,
+    reason: "blocked before journal mutation",
+  });
+
+  assert.equal(abandoned.status, "pass");
+  assert.equal(abandoned.state.pendingTurn, null);
+  assert.equal(abandoned.state.nextTurnToken, pending.turnToken);
+  assert.equal(abandoned.abandonedTurn.sequence, pending.sequence);
+
+  const retry = beginTurn({ root, caseSlug, userAction: "continue-top-open" });
+  assert.equal(retry.pendingTurn.turnToken, pending.turnToken);
+});
+
+test("abandonTurn refuses to clear a pending turn after journal mutation", () => {
+  const { root, caseSlug, journalPath } = createPassingCaseWithJournal();
+  initializeTurnLedger({ root, caseSlug });
+  beginTurn({ root, caseSlug, userAction: "continue-top-open" });
+  fs.appendFileSync(journalPath, "\nTurn update: partial mutation before block.\n", "utf8");
+
+  assert.throws(
+    () => abandonTurn({ root, caseSlug, reason: "blocked after partial mutation" }),
+    /cannot abandon pendingTurn after journal\.md changed/,
   );
 });
 

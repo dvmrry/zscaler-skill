@@ -160,6 +160,11 @@ are two completed turns: first `request-user-evidence` or `query-request`, then
 a later `record-user-evidence` turn when the user provides results. Do not keep
 a pending turn open while waiting for the user.
 
+If a later turn becomes blocked after `begin-turn` and before journal mutation,
+run `abandon-turn --reason "<reason>"` before halting. This restores the
+helper-owned token only when `journal.md` is unchanged; if the journal changed,
+halt and request repair instead of starting a new turn.
+
 If the target case directory already contains `case-intake.md`,
 `case-intake.json`, or `journal.md`, treat it as a resume path and run
 `verify-case` instead of `open-case`. `open-case` refuses to overwrite existing
