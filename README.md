@@ -70,11 +70,26 @@ git clone --recursive <fork-url> zscaler-skill
 cd zscaler-skill
 
 git config core.hooksPath .githooks
+mkdir -p ~/.claude/skills
 ln -s "$(pwd)" ~/.claude/skills/zscaler
 ```
 
+Install Node 18+ for the deterministic workflow helpers. Before snapshot-backed
+tenant reasoning, mount runtime data into `_data/` and verify the directory
+contract:
+
+```bash
+node scripts/setup-data-mount.mjs \
+  --data-url <git-url-or-local-path> \
+  --data-ref <branch-or-tag> \
+  --mode checkout
+
+node scripts/check-data-contract.mjs
+node scripts/check-fast.mjs
+```
+
 Create Zscaler API credentials, export the `ZSCALER_*` environment variables,
-then pull a first snapshot:
+then pull a first snapshot into the runtime-data mount:
 
 ```bash
 ./scripts/snapshot-refresh.py
@@ -101,7 +116,8 @@ SDK response shapes against their own tenant.
   dependencies, and script conventions.
 - [Maintenance](./docs/maintenance.md): CI, sticky issues, submodule updates,
   contribution rules, testing, and known gaps.
-- [PLAN.md](./PLAN.md): crash-recovery and roadmap state.
+- [CHANGELOG.md](./CHANGELOG.md): release notes and upgrade-relevant changes.
+- [PLAN.md](./PLAN.md): historical crash-recovery and roadmap notes.
 - [Portfolio map](./references/_meta/portfolio-map.md): coverage tiers across
   Zscaler products.
 - [Clarifications](./references/_meta/clarifications.md): open, partial, and
@@ -131,9 +147,11 @@ repo or local directory, run:
 ```bash
 node scripts/setup-data-mount.mjs \
   --data-url <git-url-or-local-path> \
-  --data-ref main \
+  --data-ref <branch-or-tag> \
   --mode checkout
 ```
+
+Use the actual branch or tag for your runtime-data source.
 
 Internal releases may instead place setup defaults in a local
 `zscaler-skill-setup.json` at the repo root. See

@@ -62,7 +62,7 @@ This skill encodes **how Zscaler actually behaves** — rule precedence, wildcar
 Two kinds of question this skill handles:
 
 - **General behavior** — "how do wildcards match?", "what happens when URL filtering and cloud app control both apply?". Answerable anywhere, sourced from `references/`.
-- **Tenant-specific lookups** — "is `reddit.com` in a URL category in *our* tenant?". Requires a `_data/snapshot/` populated by the refresh scripts. The public upstream repo ships empty; tenant snapshots live only in private forks.
+- **Tenant-specific lookups** — "is `reddit.com` in a URL category in *our* tenant?". Requires a `_data/snapshot/` populated by the refresh scripts. Public upstream does not track `_data/`; tenant snapshots live only in private runtime-data mounts or forks.
 
 Structured troubleshooting with a symptom, affected scope, and timeframe should
 use the portable `zscaler-investigator` skill or the `/z-investigator` runtime
@@ -71,10 +71,10 @@ lookups, not discovery-journal investigations.
 
 ## Check for a snapshot first
 
-Before answering tenant-specific questions, check whether `_data/snapshot/` (config) has anything beyond `.gitkeep`:
+Before answering tenant-specific questions, check whether `_data/snapshot/` has any runtime data:
 
 ```bash
-ls -A _data/snapshot/ | grep -v '^\.gitkeep$'
+find _data/snapshot -mindepth 1 -type f -print -quit
 ```
 
 If empty, say so explicitly (see **When to decline**) and still answer the general case where possible. If populated, read the relevant JSON (`_data/snapshot/<cloud>/zia/url-categories.json`, `_data/snapshot/<cloud>/zia/url-filtering-rules.json`, `_data/snapshot/<cloud>/zpa/app-segments.json`, etc.) and cite the specific rule IDs you used.
@@ -88,7 +88,7 @@ The skill ships with **Zscaler's reference IaC** under `vendor/terraform-provide
 If a fork has populated `_data/iac/` (empty in upstream), treat that as **production truth** for "how is X actually deployed in our environment" questions. The reference IaC under `vendor/` remains useful for "what's possible" / "what fields exist" / "what defaults Zscaler ships." Where the two diverge for a specific deployment, prefer `_data/iac/` for env-specific answers and cite the reference for context.
 
 ```bash
-ls -A _data/iac/ | grep -v '^\.gitkeep$'   # check before assuming reference IaC reflects this fork's deployment
+find _data/iac -mindepth 1 -type f -print -quit   # check before assuming reference IaC reflects this fork's deployment
 ```
 
 See [`docs/data-contract/iac.md`](docs/data-contract/iac.md) for the precedence rules and structure.

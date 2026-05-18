@@ -23,8 +23,7 @@ For Zscaler questions:
   `zscaler-investigator` skill or suggest `/z-investigator`.
 - For security posture review, suggest `/z-soc`.
 - For capacity or scaling review, suggest `/z-architect`.
-- For skill/reference audit, use `/skill-auditor` when available; `/z-auditor`
-  is a legacy adapter name.
+- For skill/reference audit, suggest `/z-auditor`.
 - For incident retrospectives / postmortems after a journal exists, suggest
   `/z-retro`.
 - Load only the files needed for the current question.

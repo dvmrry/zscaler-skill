@@ -58,7 +58,7 @@ The skill answers questions by combining three distinct **knowledge layers**. Ea
 
 **Update cadence:** per-fork. Run `scripts/snapshot-refresh.py` when needed; cron weekly is reasonable for stable tenants. Log queries are on-demand.
 
-**Critical property:** **never committed to the public upstream.** Tenant data lives in private forks. The public repo's `_data/snapshot/` ships with `.gitkeep` only.
+**Critical property:** **never committed to the public upstream.** Tenant data lives in private runtime-data mounts or forks. Public upstream ignores `_data/` and documents the expected shape in `docs/data-contract/`.
 
 ### Layer 3 — SME tribal knowledge
 

@@ -10,7 +10,7 @@ If you just forked this and are here because [`README.md`](./README.md) step 2 s
 
 1. **The skill is feature-complete as a knowledge/reasoning artifact.** All `references/` docs are drafted and cited; `SKILL.md` routes to them; `references/_meta/evals/evals.json` exercises them. You can hand the skill to Claude and get useful answers about Zscaler policy evaluation today, with no further work.
 2. **Scope: eight products + architectural layer.** Products covered: ZIA, ZPA, ZCC (Client Connector), ZDX (Digital Experience), ZBI (Cloud Browser Isolation), ZIdentity (unified auth + OneAPI + step-up), Cloud & Branch Connector (ZTW/ZTC/CBC), ZWA (Workflow Automation — DLP incidents). Architectural layer covered: policy evaluation, cloud architecture (Central Authority + Service Edges + BC Cloud), SIPA, SCIM, PAC files, Locations/sublocations/Location Groups, Device Posture, Firewall Control (Filtering/NAT/DNS/IPS), Browser Access, Privileged Remote Access, Subclouds, NSS architecture. **Out of scope:** ZMS, ZINS, EASM, ZAI Guard (vendored in SDKs, not written up), Federal Cloud (deferred — tenant signal pending).
-3. **`_data/snapshot/` is empty on purpose.** The public repo ships it empty so the fork doesn't inherit somebody else's tenant data. Run `scripts/snapshot-refresh.py` once your credentials are set up (README step 5) and commit the output to your internal fork. Script now dumps ZIA + ZPA + ZCC (use `--zia-only` / `--zpa-only` / `--zcc-only` to scope). Without a snapshot, the skill falls back to general answers for tenant-specific questions — still useful, just hedged.
+3. **`_data/` is a runtime-data mount.** Public upstream does not track tenant data. Create `_data/` with `scripts/setup-data-mount.mjs`, verify it with `scripts/check-data-contract.mjs`, then run `scripts/snapshot-refresh.py` once your credentials are set up. Script now dumps ZIA + ZPA + ZCC (use `--zia-only` / `--zpa-only` / `--zcc-only` to scope). Without a snapshot, the skill falls back to general answers for tenant-specific questions — still useful, just hedged.
 4. **5 of 8 scripts are scaffolds, not functional code.** Only `url-lookup.py` and `snapshot-refresh.py` are complete end-to-end. The other five (`access-check.py`, `ssl-audit.py`, `sandbox-check.py`, `connector-health.py`, `zpa-app-check.py`) have docstrings, argument parsing, auth wiring, and logical structure but leave TODOs where live-API response shape needs confirmation. First-run-against-real-tenant is where those TODOs become tractable.
 5. **Known API / documentation blind spots** — all have operator-level workarounds documented:
    - **Malware Protection and ATP block diagnosis** — no API, console-only (workflow codified in `references/zia/malware-and-atp.md`).
@@ -38,7 +38,7 @@ This repo is designed to be **forked privately to run against a real tenant**. T
 | `vendor/zscaler-help/*.pdf`, `vendor/zscaler-help/*.md` | Pinned bibliography — every reference doc cites something here |
 | `scripts/url-lookup.py`, `scripts/snapshot-refresh.py`, `scripts/splunk-query.sh` | Tooling scaffolds (Python via `uv run --script`). `snapshot-refresh.py` covers ZIA + ZPA + ZCC. |
 | `references/_meta/evals/evals.json` | Skill eval prompts (14 canonical Q→A prompts with structured assertions, must_cite_files, must_not_say traps) |
-| `_data/snapshot/` | Where tenant snapshot JSON lands after fork (currently empty + `.gitkeep`) |
+| `_data/snapshot/` | Where tenant snapshot JSON lands inside the ignored `_data/` runtime-data mount |
 
 ## 7-step roadmap — state
 

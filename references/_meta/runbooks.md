@@ -133,7 +133,7 @@ See [`../shared/oneapi.md § Authentication mechanisms`](../shared/oneapi.md) fo
 
 **Procedure:**
 
-1. `ls _data/snapshot/<cloud>/zia/ _data/snapshot/<cloud>/zpa/ _data/snapshot/<cloud>/zcc/` — if directories are empty (only `.gitkeep`), no snapshot exists.
+1. `find _data/snapshot/<cloud> -mindepth 2 -type f -print -quit` — if it prints nothing, no snapshot exists for that cloud.
 2. `cat _data/snapshot/_manifest.json` — inspect timestamps. Fields older than the last tenant config change are stale.
 3. Re-run `./scripts/snapshot-refresh.py` to update.
 

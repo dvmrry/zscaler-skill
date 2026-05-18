@@ -23,7 +23,7 @@ author-status: draft
 
 This is the canonical ad-hoc-surface playbook. It is reached by typing `@zscaler` in either Cascade or Claude Code — the runtime adapter is a small loader at the repo root (extensionless, named `zscaler`) that points back to this file via the standard `<!-- adapter-deps:start --> ... <!-- adapter-deps:end -->` marker pattern. There is no slash command, because there is no procedural harness to drive. The output shape is a conversational answer with citations, not a structured artifact.
 
-The procedural roles (`/z-investigator`, `/z-architect`, `/z-auditor`, `/z-soc`) handle their own discipline. This surface handles everything else: definitions, "what does X mean", "is X allowed in our tenant", "what does the destination see", "how does this work in our config".
+The procedural roles (`/z-investigator`, `/z-architect`, `/z-auditor`, `/z-soc`, `/z-retro`, `/z-researcher`) handle their own discipline. Use `zscaler-skill-setup` for `_data` setup or repair. This surface handles everything else: definitions, "what does X mean", "is X allowed in our tenant", "what does the destination see", "how does this work in our config".
 
 ## What you are doing
 
@@ -77,7 +77,7 @@ Use the runtime's structured-question facility when one exists (Claude Code's `A
 
 Do not auto-invoke the procedural roles or compose framing on the user's behalf — that bypasses user intent. Just surface the shape mismatch and let the user decide.
 
-For other procedural shapes — capacity / scaling design questions (`/z-architect`), structural audits (`/z-auditor`), security posture (`/z-soc`) — the cue is softer (no single test as crisp as symptom + scope + recency). When the question has clearly outgrown ad-hoc Q&A, name the relevant role and offer the handoff. Otherwise stay here.
+For other procedural shapes — capacity / scaling design questions (`/z-architect`), structural audits (`/z-auditor`), security posture (`/z-soc`), incident retrospectives after a journal exists (`/z-retro`), reference expansion (`/z-researcher`), or runtime-data setup (`zscaler-skill-setup`) — the cue is softer (no single test as crisp as symptom + scope + recency). When the question has clearly outgrown ad-hoc Q&A, name the relevant role and offer the handoff. Otherwise stay here.
 
 ## Posture summary
 
