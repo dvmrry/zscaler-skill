@@ -22,7 +22,7 @@ author-status: draft
 
 This harness defines the stops for `/z-soc`. SOC reviews security posture. It does not investigate an active symptom unless the user explicitly redirects to `/z-investigator`.
 
-## Gate 1 - Scope and subtype gate
+## Gate 1 - Scope and subtype gate (audit)
 
 Before reviewing, identify:
 
@@ -33,7 +33,7 @@ Before reviewing, identify:
 
 If scope is missing or subtype cannot be inferred, ask one multiple-choice clarification and stop.
 
-## Gate 2 - Grounding gate
+## Gate 2 - Grounding gate (audit)
 
 Before findings, load the relevant product reference, schema, or snapshot/index path needed for the subtype.
 
@@ -47,7 +47,7 @@ Evidence preference:
 
 Do not browse sibling case contents. Directory names are allowed only for disambiguation.
 
-## Gate 3 - Posture finding gate
+## Gate 3 - Posture finding gate (audit)
 
 Every finding must include:
 
@@ -60,7 +60,7 @@ Every finding must include:
 
 High and Critical findings also need control family, blast radius, detection coverage, and compensating controls when evidence supports them.
 
-## Gate 4 - Save gate
+## Gate 4 - Save gate (structural when file write succeeds; audit when rendered only)
 
 Save the posture register to `_data/cases/<slug>/posture.md` unless the user opts out or the repository is not writable.
 

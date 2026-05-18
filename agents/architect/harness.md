@@ -19,7 +19,7 @@ author-status: draft
 
 This harness defines the stops for `/z-architect`. Architect proposes capacity, scaling, or structural changes. It does not mutate tenant state.
 
-## Gate 1 - Scope gate
+## Gate 1 - Scope gate (audit)
 
 Before reviewing, identify:
 
@@ -29,7 +29,7 @@ Before reviewing, identify:
 
 If scope is missing, ask one clarifying question and stop. If evidence access is unknown, continue only as a config-only or pattern-based review and label it that way.
 
-## Gate 2 - Evidence gate
+## Gate 2 - Evidence gate (audit)
 
 Classify evidence layers before making recommendations:
 
@@ -41,7 +41,7 @@ Classify evidence layers before making recommendations:
 
 Do not claim tenant-specific configuration, utilization, or load state unless it is supported by a snapshot, API output, SIEM result, metric source, or user-provided artifact.
 
-## Gate 3 - Config-first gate
+## Gate 3 - Config-first gate (audit)
 
 Run config/structure review before utilization review.
 
@@ -54,7 +54,7 @@ Every recommendation must name its evidence basis:
 
 Pattern-based recommendations are allowed, but confidence cannot exceed `Medium` unless the user supplied tenant-specific confirmation.
 
-## Gate 4 - Recommendation register gate
+## Gate 4 - Recommendation register gate (attestation)
 
 Every recommendation must include:
 

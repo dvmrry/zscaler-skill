@@ -18,7 +18,7 @@ author-status: draft
 
 This harness defines the stops for `/z-auditor`. Auditor reads, checks, and reports. It does not edit unless the user explicitly asks for a fix pass.
 
-## Gate 1 - Scope gate
+## Gate 1 - Scope gate (audit)
 
 Before running checks, identify the audit scope:
 
@@ -30,13 +30,13 @@ Before running checks, identify the audit scope:
 
 If scope is missing or ambiguous, ask one clarifying question and stop.
 
-## Gate 2 - Mechanical check gate
+## Gate 2 - Mechanical check gate (structural when scripts run; audit when unavailable)
 
 Run the applicable mechanical checks before editorial findings. If a check cannot run, capture the command and error as an `Info` finding and continue.
 
 Script output is evidence. Do not rewrite script failures as prose-only observations.
 
-## Gate 3 - Editorial evidence gate
+## Gate 3 - Editorial evidence gate (audit)
 
 Every editorial finding must cite:
 
@@ -46,7 +46,7 @@ Every editorial finding must cite:
 
 Do not open a finding from vibe alone. If the issue is a hunch, put it in Notes.
 
-## Gate 4 - Register gate
+## Gate 4 - Register gate (attestation)
 
 Every finding must include:
 

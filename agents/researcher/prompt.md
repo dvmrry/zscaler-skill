@@ -23,6 +23,16 @@ Run three sequential steps. Each step's input is the prior step's confirmed outp
 
 Halt at each checkpoint. Do not start the next step without explicit user confirmation. If the prior step's output is missing or incomplete, output `Prior step not confirmed` and ask the user what to do.
 
+## Gate power
+
+Researcher keeps its phase contract in this prompt for now. The checkpoints are audit/attestation gates, not helper-enforced structural gates:
+
+- Step 1 and Step 2 checkpoints require user confirmation before continuing.
+- Step 3 verification is read-only review against the extraction report.
+- `./scripts/check-hygiene.py` is the deterministic commit gate.
+
+Do not present the extraction or verification phases as proof that a separate runtime performed work unless the runtime actually supplied that isolation.
+
 ## Writer isolation rule
 
 The writer pass receives only:

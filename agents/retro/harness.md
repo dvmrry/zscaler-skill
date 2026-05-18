@@ -30,7 +30,7 @@ If either is missing or ambiguous, stop before drafting:
 
 Do not build a retro from chat memory.
 
-## Gate 1 - Artifact gate
+## Gate 1 - Artifact gate (audit)
 
 Before warning extraction, load only:
 
@@ -43,7 +43,7 @@ Before warning extraction, load only:
 
 Do not load raw evidence files unless a journal claim, timeline row, or manifest row needs verification.
 
-## Gate 2 - Warning ledger gate
+## Gate 2 - Warning ledger gate (audit)
 
 Before drafting postmortem prose, create a warning ledger that includes every material warning from the journal.
 
@@ -63,7 +63,7 @@ Allowed gate impacts:
 
 If a material warning has no disposition, the final gate cannot be `Proceed`.
 
-## Gate 3 - Evidence map gate
+## Gate 3 - Evidence map gate (audit)
 
 Every settled conclusion must map to a source:
 
@@ -75,7 +75,7 @@ Every settled conclusion must map to a source:
 
 Unsupported conclusions stay out of the final root cause. Mark them as `Unsupported` or keep them in follow-up work.
 
-## Gate 4 - Postmortem write gate
+## Gate 4 - Postmortem write gate (audit)
 
 Only write or update `<case>/postmortem.md` after Gates 1-3 pass.
 
@@ -93,7 +93,7 @@ The postmortem must include:
 
 If the user asked for review only, render findings in the response and do not write the file.
 
-## Final gate
+## Final gate (attestation)
 
 End with exactly one:
 
