@@ -9,7 +9,7 @@ confidence: high
 source-tier: practice
 sources:
   - "agents/retro/methodology.md"
-  - "_data/cases/README.md"
+  - "docs/data-contract/cases.md"
   - "agents/investigator/methodology.md"
 dependencies:
   - "methodology.md"
@@ -83,7 +83,7 @@ If ambiguous, ask one multiple-choice clarification:
 Load, in this order:
 
 1. `agents/retro/methodology.md`
-2. `_data/cases/README.md`
+2. `docs/data-contract/cases.md`
 3. `<incident>/journal.md`
 4. `<incident>/timeline.md` if present
 5. `<incident>/evidence/MANIFEST.md` if present
@@ -145,4 +145,4 @@ If blocked before artifact loading, output only the single clarification questio
 
 - [`./methodology.md`](./methodology.md) — postmortem format, warning ledger, decision gate, and handoff rules
 - [`../investigator/methodology.md`](../investigator/methodology.md) — claim status semantics for reading `journal.md`
-- [`../../_data/cases/README.md`](../../_data/cases/README.md) — case artifact layout and privacy posture
+- [`../../docs/data-contract/cases.md`](../../docs/data-contract/cases.md) — case artifact layout and privacy posture

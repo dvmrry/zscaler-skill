@@ -59,7 +59,7 @@ Keep it blameless and brief. The artifact's purpose is institutional memory, not
 
 ### `evidence/`
 
-Raw artifacts that the journal cites — CI run logs, command output, screenshots, API response dumps, snapshot captures, packet traces. **Gitignored by default**: `_data/cases/*` is in `.gitignore` (with `.gitkeep` and this README preserved). Engineers can choose to commit specific case directories and evidence files by adding explicit `!` overrides when the content is safe to publish.
+Raw artifacts that the journal cites — CI run logs, command output, screenshots, API response dumps, snapshot captures, packet traces. **Ignored by default**: `_data/` is in `.gitignore`. Engineers can choose to commit specific case directories and evidence files by adding explicit `!` overrides when the content is safe to publish.
 
 The journal/evidence relationship matters: **journal claims cite evidence files; the evidence is what makes the claims falsifiable.** A claim like "InternalReason field shows CONNECTOR_UNHEALTHY (12 sessions)" cites `evidence/lss-connector-unhealthy-2026-04-30T14-30Z.json` — the raw query result. Future readers can verify the claim against the source.
 
@@ -115,7 +115,8 @@ branch explicitly opts a case back in. Three categories:
 | Tenant-side case artifacts with real tenant identifiers | **Ignored by default** | Internal fork policy decides whether to commit redacted journals, full private journals, or nothing |
 | `evidence/` raw artifacts | **Ignored by default** | Add parent-directory and per-file `!` overrides only when safe |
 
-The README itself is always tracked — it documents the convention.
+This public contract document is tracked; runtime `_data/cases/` content is
+not.
 
 Git re-include rules must reopen every ignored parent before a file can be
 tracked. A safe public example looks like:
@@ -141,8 +142,8 @@ If publishing selected evidence, also reopen `evidence/` before the file:
 
 ## Case examples
 
-Case directories are ignored by default, so this public README does not link to
-a canonical tracked example. If a fork publishes a safe example case, link it
+Case directories are ignored by default, so this public contract does not link
+to a canonical tracked example. If a fork publishes a safe example case, link it
 from this section and use it as the local template for future cases.
 
 ## How investigations land here
@@ -175,4 +176,4 @@ Privacy is unchanged across both flows: `_data/cases/*` is gitignored by default
 - [`../../agents/retro/prompt.md`](../../agents/retro/prompt.md) and [`../../agents/retro/methodology.md`](../../agents/retro/methodology.md) — journal-first postmortem workflow
 - [`../../agents/auditor/methodology.md`](../../agents/auditor/methodology.md) — register format if a post-incident audit is warranted
 - [`../../IMPROVEMENTS.md`](../../IMPROVEMENTS.md) — skill-level backlog where follow-ups land
-- [`../README.md`](../README.md) — `_data/` directory convention overview
+- [`./README.md`](./README.md) — `_data/` directory convention overview

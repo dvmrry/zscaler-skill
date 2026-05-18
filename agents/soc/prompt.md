@@ -227,7 +227,7 @@ Do not mark the overall review `Complete` until every finding has a non-`Open` s
 
 ## Saving as a case artifact
 
-The posture register itself is always saved per Step 5. If the SOC review surfaces a finding that crosses into incident territory (active exploitation, breach indicators, compliance violation requiring disclosure), the same `_data/cases/<slug>/` directory becomes the home for `journal.md` (the corresponding investigation), `timeline.md`, `postmortem.md`, and `evidence/`. See [`../../_data/cases/README.md`](../../_data/cases/README.md) for the convention.
+The posture register itself is always saved per Step 5. If the SOC review surfaces a finding that crosses into incident territory (active exploitation, breach indicators, compliance violation requiring disclosure), the same `_data/cases/<slug>/` directory becomes the home for `journal.md` (the corresponding investigation), `timeline.md`, `postmortem.md`, and `evidence/`. See [`../../docs/data-contract/cases.md`](../../docs/data-contract/cases.md) for the convention.
 
 For routine posture reviews with no incident shape, only `posture.md` exists in the directory — that's the expected and correct shape.
 
@@ -250,7 +250,7 @@ For routine posture reviews with no incident shape, only `posture.md` exists in 
 - [`siem-emission-discipline.md`](../siem-emission-discipline.md) — SIEM execution modes
 - [`splunk-queries.md`](../../references/shared/splunk-queries.md) — Splunk pattern catalog (used in detection-coverage check)
 - [`tenant-schema-derivation.md`](../tenant-schema-derivation.md) — canonical vs. tenant schemas (used in coverage subtype)
-- [`../../_data/cases/README.md`](../../_data/cases/README.md) — case artifact convention (where `posture.md` lands)
+- [`../../docs/data-contract/cases.md`](../../docs/data-contract/cases.md) — case artifact convention (where `posture.md` lands)
 
 ---
 

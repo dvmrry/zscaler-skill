@@ -161,7 +161,7 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 ### `simulate-policy.py` snapshot path uses old per-product convention ✅ RESOLVED 2026-05-16
 
 - **Status**: Resolved
-- **Origin**: 2026-04-30 — flagged when documenting the per-cloud subdir convention in `_data/README.md`
+- **Origin**: 2026-04-30 — flagged when documenting the per-cloud subdir convention now captured in `docs/data-contract/README.md`
 - **Resolution**: `scripts/simulate-policy.py` now accepts `--cloud` (defaulting to `ZSCALER_CLOUD`) and `--snapshot-root`. It tries `_data/snapshot/<cloud>/zia/` first, auto-detects a single per-cloud/private overlay when unambiguous, and keeps legacy product-first snapshots as a read fallback. Text and JSON output include the selected snapshot path.
 - **Validation**: syntax parse; `./scripts/simulate-policy.py --help`; legacy product-first fixture; explicit `--cloud` fixture; `ZSCALER_CLOUD` fixture; single-cloud auto-detect fixture; missing-snapshot error path.
 

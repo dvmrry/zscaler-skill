@@ -122,36 +122,35 @@ Validate workflow metadata and runtime adapter pointers:
 node scripts/check-workflow-metadata.mjs
 ```
 
-The `_data` mount contract check verifies the public skeleton or a private
-overlay/submodule shape without reading tenant contents:
+The `_data` mount contract check verifies a runtime data mount without reading
+tenant contents:
 
 ```bash
 node scripts/check-data-contract.mjs
 ```
 
-To replace the public `_data` skeleton with a user-supplied data source:
+To create `_data` from a user-supplied data source:
 
 ```bash
 node scripts/setup-data-mount.mjs \
   --data-url <git-url-or-local-path> \
   --data-ref main \
-  --mode auto
+  --mode checkout
 ```
 
-Mode `auto` copies local directories and adds other URLs as a git submodule.
-Use `--mode submodule` when a local repository path should be mounted as a real
-`_data` submodule instead of copied. The setup helper refuses to replace
-populated `_data` unless `--force` is explicit, removes tracked skeleton files
-through git before submodule setup, and runs the data contract check after
-setup.
+Mode `checkout` clones a repository or local path into `_data` without
+registering a parent-repo submodule. Mode `copy` materializes a local directory
+copy. Use `--mode submodule` only when a release/build flow deliberately wants
+a pinned `_data` gitlink. The setup helper refuses to replace populated `_data`
+unless `--force` is explicit and runs the data contract check after setup.
 
 If `zscaler-skill-setup.json` exists at the repo root, the setup helper reads
 defaults from it. CLI flags override config values. The public template is
 [`../zscaler-skill-setup.example.json`](../zscaler-skill-setup.example.json);
 the real config is gitignored because it may contain a private data source URL.
 
-Missing required directories are errors. Empty public-skeleton directories are
-warnings, because the upstream repo intentionally does not ship tenant data.
+Missing required directories are errors. Empty runtime directories are warnings,
+because snapshot-backed reasoning and tenant schema hints are unavailable.
 
 Lines prefixed `!` indicate a per-resource fetch failure; the run continues.
 Lines prefixed `-` indicate that the SDK surface for that resource was not

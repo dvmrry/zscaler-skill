@@ -1,14 +1,13 @@
-# `_data/` — replaceable runtime data mount
+# `_data/` runtime data contract
 
 Single home for everything that becomes per-fork or per-tenant. The
 skill-internal docs (methodologies, playbooks, registers) live under
 `references/_meta/`; runtime data (tenant snapshots, script outputs,
 fork-specific IaC) lives here.
 
-The public upstream ships a minimal `_data` skeleton. Private or internal
-deployments may replace `_data` with an overlay repository, submodule, or local
-mount that follows the same directory contract. Public upstream does not ship
-tenant data.
+Public upstream does not track `_data/`; it tracks this contract instead.
+Runtime deployments create `_data/` from a local checkout, copied data
+directory, or explicit submodule that follows the same directory shape.
 
 Expected top-level directories:
 
@@ -17,35 +16,34 @@ Expected top-level directories:
 - `_data/snapshot/`
 - `_data/iac/`
 
-Run the public contract check after replacing or mounting `_data`:
+Run the public contract check after creating or replacing `_data`:
 
 ```bash
 node scripts/check-data-contract.mjs
 ```
 
 The checker verifies the directory shape, reports whether `_data` appears to be
-a submodule, and warns when the skeleton is empty enough that snapshot-backed
+a submodule, and warns when runtime data is missing enough that snapshot-backed
 or tenant-schema-backed reasoning will be unavailable.
 
-To replace the public skeleton with a user-supplied runtime-data source, use the
-generic setup helper:
+To create `_data` from a user-supplied runtime-data source, use the generic
+setup helper:
 
 ```bash
 node scripts/setup-data-mount.mjs \
   --data-url <git-url-or-local-path> \
   --data-ref main \
-  --mode auto
+  --mode checkout
 ```
 
-Mode `auto` copies local directories into `_data` and adds other URLs as a git
-submodule. Use `--mode submodule` when a local repository path should be mounted
-as a real `_data` submodule instead of copied. The helper refuses to replace
-populated `_data` contents unless `--force` is explicit, removes tracked
-skeleton files through git before submodule setup, then runs the same public
-contract check.
+Mode `checkout` clones a data repository or local path into `_data` without
+registering a parent-repo submodule. Use `--mode copy` for a materialized copy,
+or `--mode submodule` only when a release/build flow deliberately wants a
+pinned `_data` gitlink. The helper refuses to replace populated `_data`
+contents unless `--force` is explicit, then runs the same public contract check.
 
 If a root-level `zscaler-skill-setup.json` exists, the helper reads setup
-defaults from it. Use [`../zscaler-skill-setup.example.json`](../zscaler-skill-setup.example.json)
+defaults from it. Use [`../../zscaler-skill-setup.example.json`](../../zscaler-skill-setup.example.json)
 as the public-safe template. The real config is gitignored because it may
 contain a private data source URL.
 
@@ -57,12 +55,12 @@ contain a private data source URL.
 
 The skill's vendored reference IaC lives separately at `vendor/terraform-provider-zia/`, `vendor/terraform-provider-zpa/`, `vendor/terraform-provider-ztc/` — those show *one valid way* to deploy each resource per Zscaler's published modules. When `_data/iac/` is populated, agents treat it as **production truth** for "how is X actually deployed in our environment" while vendor IaC stays useful for "what's possible / what fields exist."
 
-See [`./iac/README.md`](./iac/README.md) for the full convention, structure options, and sanitization guidance.
+See [`./iac.md`](./iac.md) for the full convention, structure options, and sanitization guidance.
 
 ### `_data/schemas/`
 
-Runtime schema, query-skeleton, and generated-report workspace. Gitignored
-except `.gitkeep`.
+Runtime schema, query-skeleton, and generated-report workspace. Ignored in the
+public repo.
 
 This directory is for artifacts that make vendor-specific log/query work easier:
 deconstructed log schemas, field maps, query skeletons, and generated reports
@@ -81,7 +79,7 @@ No subdir convention — flat. Scripts that want their own scratch namespace can
 
 ### `_data/snapshot/`
 
-**Tenant config dumps for offline analysis.** Gitignored except `.gitkeep`.
+**Tenant config dumps for offline analysis.** Ignored in the public repo.
 The public scripts use a cloud-first layout:
 
 ```
@@ -119,24 +117,24 @@ also contain `timeline.md` (chronological events), `postmortem.md` (root cause +
 lessons), and `evidence/` (raw artifacts — CI logs, command output, API dumps;
 gitignored by default).
 
-**Default-private posture**: `_data/cases/*` is gitignored except for `README.md`
-and `.gitkeep`. Engineers explicitly opt-in to publish a skill-internal case by
-adding `!`-overrides per-case. Internal forks are expected to override the
-gitignore so case artifacts can be committed there for institutional memory.
+**Default-private posture**: `_data/cases/*` is ignored in the public repo.
+Engineers explicitly opt in to publishing a skill-internal case by adding
+`!`-overrides per-case. Forks can override the gitignore when case artifacts
+are safe to commit for institutional memory.
 
-See [`./cases/README.md`](./cases/README.md) for the full convention.
+See [`./cases.md`](./cases.md) for the full convention.
 
 ## Privacy
 
-Everything under `_data/` (other than tracked README files and `.gitkeep` files)
-is gitignored by default. Forks that want to commit `iac/`, `schemas/`, or
-case content do so deliberately by adjusting `.gitignore`. **Tenant snapshots
-and raw operational logs should generally not be committed**, even to private
-forks, unless the org has explicit guidance otherwise (see `iac/README.md` §
+Everything under `_data/` is gitignored by default. Forks that want to commit
+`iac/`, `schemas/`, or case content do so deliberately by adjusting
+`.gitignore`. **Tenant snapshots and raw operational logs should generally not
+be committed**, even to private forks, unless the org has explicit guidance
+otherwise (see `iac.md` §
 Sanitization).
 
-Release artifacts may pre-populate `_data` from a private source. Public
-upstream does not ship tenant data.
+Automation may pre-populate `_data` before use. Public upstream does not ship
+tenant data.
 
 ## Why this dir exists
 

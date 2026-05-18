@@ -46,7 +46,7 @@ terminology was found in the current sweep.
 
 ### Medium
 
-4. `_data/cases/README.md` links to old methodology paths.
+4. The case artifact convention doc linked to old methodology paths.
    - `references/shared/troubleshooting-methodology.md` no longer exists.
    - `references/shared/audit-methodology.md` no longer exists.
    - Current files are `agents/investigator/methodology.md` and
@@ -86,7 +86,7 @@ terminology was found in the current sweep.
 
 - Fixed stale `/z-investigate` and `/z-audit` presentation labels to
   `/z-investigator` and `/z-auditor`.
-- Fixed `_data/cases/README.md` methodology links to point at
+- Fixed the case artifact convention links to point at
   `agents/investigator/methodology.md` and `agents/auditor/methodology.md`.
 - Fixed clarification example anchors to real `clarifications.md#...` targets.
 - Replaced old prompt-file examples (`investigate-prompt.md`,

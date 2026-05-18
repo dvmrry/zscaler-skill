@@ -9,7 +9,7 @@ source-tier: practice
 sources:
   - "scripts/setup-data-mount.mjs"
   - "scripts/check-data-contract.mjs"
-  - "_data/README.md"
+  - "docs/data-contract/README.md"
 dependencies: []
 adapters: []
 author-status: draft
@@ -28,8 +28,9 @@ Collect these values before running commands:
 
 - **Repo root**: default to the current repository root.
 - **Data URL or local path**: required. Do not invent a default.
-- **Mode**: one of `auto`, `copy`, or `submodule`. Default to `auto` unless the
-  user explicitly needs a local repo mounted as a submodule.
+- **Mode**: one of `auto`, `checkout`, `copy`, or `submodule`. Default to
+  `checkout` unless the user explicitly needs a materialized copy or a parent
+  repo submodule.
 - **Data ref**: optional, default `main`.
 - **Config file**: optional. If `zscaler-skill-setup.json` exists at the repo
   root, the helper reads it automatically. CLI flags override config values.
@@ -52,7 +53,7 @@ node scripts/setup-data-mount.mjs \
   --config <optional-config-json> \
   --data-url <git-url-or-local-path> \
   --data-ref <ref> \
-  --mode <auto|copy|submodule>
+  --mode <auto|checkout|copy|submodule>
 ```
 
 Then verify:
