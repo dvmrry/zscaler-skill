@@ -74,9 +74,9 @@ Load only the cloud and product path for the stage being tested:
 Examples: `_data/snapshot/zs1/zia/`, `_data/snapshot/zs2/zpa/`,
 `_data/snapshot/beta/zcc/`.
 
-If a fork also has a product-first export from the public scripts
-(`_data/snapshot/zia/...`), treat it as a single-cloud or scratch snapshot.
-Do not collapse multi-cloud tenant truth into that layout.
+If a fork also has a product-first export from older scripts, treat it only as
+user-pointed scratch evidence. Do not treat it as canonical tenant truth, and
+do not collapse multi-cloud tenant state into that layout.
 
 ## Use runtime logs only when
 

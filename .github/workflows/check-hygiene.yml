@@ -15,8 +15,9 @@ name: Doc hygiene
 # Errors fail the build; warnings are advisory and don't block.
 #
 # Triggers:
-#   - PRs touching references/, agents/, runtime adapters (.claude, .windsurf),
-#     evals/, docs/, vendor submodules, or the scripts
+#   - PRs touching references/, agents/, portable skills (.agents), runtime
+#     adapters (.claude, .windsurf), plans, evals, docs, vendor submodules, or
+#     the scripts
 #   - Pushes to main on the same paths
 #   - Top-level framing docs (README, PLAN, IMPROVEMENTS) — hygiene runs on
 #     them so structural / link claims stay valid
@@ -29,10 +30,12 @@ on:
       - 'references/**'
       - 'references/_meta/evals/**'
       - 'agents/**'
+      - '.agents/**'
       - '.windsurf/**'
       - '.claude/**'
       - '.github/workflows/**'
       - 'docs/**'
+      - 'plans/**'
       - '.gitmodules'
       - 'vendor/**'
       - 'README.md'
@@ -46,6 +49,7 @@ on:
       - 'scripts/check-vendor-drift.py'
       - 'scripts/check-scrape-freshness.py'
       - 'scripts/check-workflow-evals.py'
+      - 'scripts/check-agent-skills.py'
       - 'references/_meta/evals/workflow-evals.json'
       - 'zscaler'
   push:
@@ -54,10 +58,12 @@ on:
       - 'references/**'
       - 'references/_meta/evals/**'
       - 'agents/**'
+      - '.agents/**'
       - '.windsurf/**'
       - '.claude/**'
       - '.github/workflows/**'
       - 'docs/**'
+      - 'plans/**'
       - '.gitmodules'
       - 'vendor/**'
       - 'README.md'
@@ -71,6 +77,7 @@ on:
       - 'scripts/check-vendor-drift.py'
       - 'scripts/check-scrape-freshness.py'
       - 'scripts/check-workflow-evals.py'
+      - 'scripts/check-agent-skills.py'
       - 'references/_meta/evals/workflow-evals.json'
       - 'zscaler'
   schedule:
@@ -100,6 +107,9 @@ jobs:
 
       - name: Run hygiene checks
         run: ./scripts/check-hygiene.py
+
+      - name: Check portable Agent Skill contracts
+        run: ./scripts/check-agent-skills.py
 
       - name: Check for broken markdown citations in references/ and agents/
         run: ./scripts/check-citations.sh

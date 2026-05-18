@@ -37,7 +37,7 @@ Pick the most specific stage that fits. Capitalize only the first word. Backtick
 |--------------------|-----------------------------------------------------------|------------------------------------------------------------------|
 | `locating source`  | Deciding which file/dir to read; pre-load orientation     | `Locating source for ZIA URL filtering precedence.`              |
 | `reading <path>`   | About to load a specific file                              | `Reading references/zia/url-filtering.md.`                       |
-| `searching <dir>`  | About to grep / rglob a directory tree                     | `Searching _data/snapshot/zs3/policies/ for matching rules.`     |
+| `searching <dir>`  | About to grep / rglob a directory tree                     | `Searching _data/snapshot/zs2/policies/ for matching rules.`     |
 | `querying <name>`  | Dispatched a SIEM / API call                              | `Querying Splunk for connector availability metrics.`            |
 | `checking citations` | Verifying claim-to-source pairing after reads complete   | `Checking citations against 3 loaded references.`                |
 | `composing answer` | Synthesis stage after all reads complete                   | `Composing answer from 3 loaded sources.`                        |
@@ -82,7 +82,7 @@ Do not announce before:
 - ✗ `Just a moment please…` — content-free; no signal about what's happening.
 - ✗ `Reading…<long pause>…done` — heartbeat-style; one line, no continuation.
 - ✓ `Reading references/zia/url-filtering.md.`
-- ✓ `Searching _data/snapshot/zs3/policies/ for SSL bypasses.`
+- ✓ `Searching _data/snapshot/zs2/policies/ for SSL bypasses.`
 - ✓ `Querying Splunk for connector_id="abc-123" last 24h.`
 - ✓ `Composing answer from 3 loaded sources.`
 - ✓ `Waiting for user — Checkpoint 2.` (procedural only)

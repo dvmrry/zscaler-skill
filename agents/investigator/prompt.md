@@ -8,12 +8,14 @@ last-verified: "2026-04-29"
 confidence: high
 source-tier: practice
 sources:
+  - "agents/investigator/harness.md"
   - "agents/investigator/methodology.md"
   - "agents/siem-emission-discipline.md"
   - "references/shared/siem-log-mapping.md"
   - "references/shared/splunk-queries.md"
   - "agents/tenant-schema-derivation.md"
 dependencies:
+  - "harness.md"
   - "methodology.md"
   - "../siem-emission-discipline.md"
   - "../tenant-schema-derivation.md"
@@ -25,6 +27,8 @@ author-status: draft
 # Investigate — evidence-based troubleshooting playbook
 
 This is the playbook invoked by the `/z-investigator` slash command (Claude Code and Windsurf). It establishes investigation mode for a Zscaler troubleshooting task: discovery journal, citation discipline, hypothesis prioritization, anti-fabrication.
+
+Load and follow [`harness.md`](./harness.md) alongside this prompt. The harness owns phase order, output shape, checkpoint halts, journal creation timing, and snapshot-load discipline. This prompt owns investigator reasoning, grounding, source preference, and evidence discipline.
 
 ## Mode
 
@@ -40,7 +44,7 @@ Investigation is hypothesis-driven, not doc-driven. For every turn, do these in 
 4. **Update the journal** — move the claim's status based on what the evidence showed. `Open (likely/uncertain)` → `Confirmed (medium/high)` if validated, `Ruled out` if invalidated, `Stale` if the underlying state changed.
 5. **Pick the next hypothesis or evidence source** and surface it in `Next evidence needed` for the journal's top Open claim.
 
-The loop is recursive: every turn after the first journal output follows it. Halt-and-wait at checkpoints (per the workflow harness); within a turn, do one cycle, not many.
+The loop is recursive: every turn after the first journal output follows it. Halt-and-wait at checkpoints per [`harness.md`](./harness.md); within a turn, do one cycle, not many.
 
 ## User framing — what to include for best results
 
@@ -81,12 +85,15 @@ Priority order when multiple gaps exist (ask the highest unresolved one first):
 
 ## First response
 
+The phase sequence and literal output shapes are defined in [`harness.md`](./harness.md). Do not compress Step 1, Step 2, and Step 3 into one response. Do not generate hypotheses, load snapshot files, or write the full journal before the harness checkpoint allows it.
+
 When invoked, do **one** of two things based on whether any blocking unknown exists in the framing:
 
-- **If a blocking unknown exists** (working directory unresolved, tenant cloud unspecified-and-needed, or symptom/scope too vague to form proposed loads): your first response is a single clarification multi-choice block — **only** the clarification, with no parsed framing, no proposed loads, no journal-created line, no hypotheses. The clarification IS the entire turn. Halt for the user's answer; on the next turn re-check for blocking unknowns. Continue clarifying-only turns one block per turn until all blocking unknowns resolve. Then emit the full first response (the six things below) on a later turn.
-- **If no blocking unknowns exist** (framing was well-specified): your first response is the six things below, in order, in one turn. Close with a What's-next? multi-choice (covered in Step 1 of the procedure) — never with a separate Clarification section bundled alongside the data emission.
+- **If a blocking unknown exists** (working directory unresolved, tenant cloud unspecified-and-needed, or symptom/scope too vague to form proposed loads): your first response is a single clarification multi-choice block — **only** the clarification, with no parsed framing, no proposed loads, no journal-created line, no hypotheses. The clarification IS the entire turn. Halt for the user's answer; on the next turn re-check for blocking unknowns. Continue clarifying-only turns one block per turn until all blocking unknowns resolve. Then emit the full Step 1 turn defined in the harness.
+- **If no blocking unknowns exist** (framing was well-specified): emit the full Step 1 turn defined in the harness. Close with the Step 1 What's-next? multi-choice — never with a separate Clarification section bundled alongside the data emission.
 
-The six things, in order — emitted only when no blocking unknowns remain:
+The six content areas below are emitted across the harness phases, not necessarily
+in one turn. Emit each only when the active harness step allows it:
 
 ### 1. Parse the user's framing into the journal ISSUE field
 
@@ -96,7 +103,10 @@ If a non-blocking ambiguity surfaces here (e.g., scope is "one user / many" and 
 
 ### 2. Ground before you reason
 
-Four read-tool calls before generating hypotheses. Skipping any of these produces output that's confidently wrong. **Use your file-read tool for every load below — do not summarize from memory or skip based on perceived relevance.**
+This content belongs to Step 2 of the harness. Skipping grounding before
+hypotheses produces output that's confidently wrong. **Use your file-read tool
+for every confirmed Step 2 load — do not summarize from memory or skip based on
+perceived relevance.**
 
 **a. Use your file-read tool to load the relevant log schema.** If the framing involves logs (LSS / NSS / audit / SIEM), load the schema file under `references/{zia,zpa,zcc}/logs/<name>-schema.md` before reasoning over field values. Field names look self-evident but aren't (`action`, `reason`, `status` mean different things across log types); sample values mislead without the enum / type / semantic notes. If you don't know which schema applies, use your file-read tool to load `references/<product>/index.md` first and find it from there.
 
@@ -117,9 +127,10 @@ The grounding list grows as new symptom shapes surface in real investigations �
 | Framing mentions... | Load via file-read tool |
 |---|---|
 | SIPA, Source IP Anchoring | `references/shared/source-ip-anchoring.md` |
-| App Connector, connector health, connector flap, connector status, connector assignment | `references/zpa/app-connector.md` |
+| App Connector, connector health, connector flap, connector status, connector assignment | `references/zpa/app-connector.md` and `references/zpa/segment-server-groups.md` |
 | App Connector Metrics, AliveTargetCount, TargetCount | `references/zpa/logs/app-connector-metrics.md` |
-| ZPA segment, app segment, application segment, segment scope | `references/zpa/app-segments.md` |
+| ZPA reachability, private app unreachable, app missing, application not found | `references/zpa/app-segments.md`, `references/zpa/segment-server-groups.md`, and `references/zpa/policy-precedence.md` |
+| ZPA segment, app segment, application segment, segment scope | `references/zpa/app-segments.md` and `references/zpa/segment-server-groups.md` |
 | ZPA policy evaluation, access policy, policy precedence | `references/zpa/policy-precedence.md` |
 | Server group | `references/zpa/segment-server-groups.md` |
 | ZIA URL filtering, URL category, allow / block rule | `references/zia/url-filtering.md` |
@@ -140,22 +151,26 @@ Product defaults (ZIA allow-by-default vs ZPA deny-by-default) and architectural
 
 - **User-pointed path takes priority.** If the framing contains a path or slug (e.g., `_data/cases/test-foo/`, `2026-04-30-ci-silent-failures`), that directory is the operative artifact — read its `journal.md` (if any) and `evidence/*` first. The user is telling you where the work lives; respect the pointer instead of creating a sibling. This directory is also the save target for Step 6.
 - **Current case's `evidence/` directory** — if `_data/cases/<operative-slug>/evidence/` exists and has files, read them before asking the user what to investigate. The user may have placed CI logs, API dumps, or screenshots there that already carry the answer. The same applies to evidence files attached to the current chat (paste-ins, file uploads).
-- **Tenant API data / config snapshots** — `_data/snapshot/<cloud>/` (e.g., `_data/snapshot/zs2/`, `_data/snapshot/zs3/`) is the canonical location for offline dumps of API-derived tenant config: URL filtering rules, access policies, segments, connector groups. **Always `ls _data/snapshot/` and read any per-cloud subdir whose cloud matches the framing's tenant** — this is the cheapest source of "what's actually configured" and avoids the state drift between API query time and now. The cloud is inferable from the tenant's API base URL (`zsapi.zscaler.net` ⇒ `zs1`, `zsapi.zscalerthree.net` ⇒ `zs3`, etc. — see [`../shared/cloud-architecture.md`](../../references/shared/cloud-architecture.md) if unfamiliar). Forks may use a slightly different layout (e.g., `_data/<cloud>/` directly without the `snapshot/` prefix); if the canonical path is empty, scan `_data/` for any per-cloud subdir before assuming no snapshot exists.
+- **Tenant API data / config snapshots** — `_data/snapshot/<cloud>/` (e.g., `_data/snapshot/zs1/`, `_data/snapshot/zs2/`) is the canonical location for offline dumps of API-derived tenant config: URL filtering rules, access policies, segments, connector groups. In Step 2, enumerate the cloud snapshot directory first, then load only the harness-approved entry points selected from that enumeration — do not load the whole per-cloud subtree. The cloud is inferable from the tenant's API base URL (`zsapi.zscaler.net` ⇒ `zs1`, `zsapi.zscalerthree.net` ⇒ `zs3`, etc. — see [`../shared/cloud-architecture.md`](../../references/shared/cloud-architecture.md) if unfamiliar). Forks may use a slightly different layout (e.g., `_data/<cloud>/` directly without the `snapshot/` prefix); if the canonical cloud path is empty, try that exact `_data/<cloud>/` fallback and show both attempts before assuming no snapshot exists. Do not use the fallback to paper over a missing product subtree: if `_data/snapshot/zs2/` exists but `_data/snapshot/zs2/zpa/` is absent, report that no ZPA snapshot subtree was found for `zs2` and continue from references/evidence instead of inferring tenant ZPA state.
 - **Script outputs** — `_data/schemas/` holds dumped output from skill scripts (issue-watch, find-asymmetries, hygiene digests). Relevant if the framing involves a recent skill-script run.
 
 **Do not browse sibling case directories.** Unless the user explicitly points at a specific case directory, do not `ls _data/cases/`, do not read any other case's `journal.md`, and do not surface "this looks similar to a prior case" to the user. Cross-pollinating findings between investigations contaminates evidence and produces false confidence; the discipline for safely re-using prior journals isn't refined enough yet. Stay scoped to the operative directory the user named (or a fresh slug if none was named).
 
-**Output: grounding files loaded.** Your first response **must include** a `Grounding files loaded:` line that lists every file you read in this step (one path per line). Example:
+**Output: grounding files loaded.** The Step 2 `Loaded / grounding files loaded`
+block must list every file read in this step (one path per line). Example:
 
 ```
 Grounding files loaded:
   - references/shared/source-ip-anchoring.md
   - references/zpa/app-connector.md
   - references/zpa/logs/access-log-schema.md
-  - _data/snapshot/zs3/url-filtering-rules.json
+  - _data/snapshot/zs2/url-filtering-rules.json
 ```
 
-If you loaded zero grounding files, state explicitly: `Grounding files loaded: none — proceeding from memory`. This makes skipped grounding visible to the user immediately so they can intervene before hypothesis generation amplifies the gap.
+If you loaded zero grounding files in Step 2, state explicitly: `Grounding files
+loaded: none — proceeding from memory`. This makes skipped grounding visible to
+the user immediately so they can intervene before hypothesis generation
+amplifies the gap.
 
 ### 3. Generate initial hypotheses
 
@@ -200,7 +215,7 @@ Files added to `evidence/` follow the naming and manifest convention in [`../../
 
 ### 5. Output the journal
 
-Render the discovery journal with hypotheses as `Open (likely)` or `Open (uncertain)` claims, plus the proposed next investigation step.
+Render the discovery journal with hypotheses as `Open (likely)` or `Open (uncertain)` claims, plus the proposed next investigation step. Use `Open (likely)` only when loaded tenant snapshot, runtime evidence, or user-provided evidence points toward that hypothesis. If only product references were loaded and no tenant/runtime evidence is available, use `Open (uncertain)` and state that the hypothesis is reference-grounded only.
 
 ### 6. Save the journal to disk
 
@@ -209,8 +224,8 @@ After rendering in chat, write the same journal to `_data/cases/<slug>/journal.m
 **Path selection — check before minting a new slug:**
 
 1. **User named a path or slug in the framing** → use that directory. If the framing contains a path like `_data/cases/test-foo/` or `2026-04-30-ci-silent-failures`, treat it as the operative directory. Do not create a sibling with a fresh slug — the user is pointing you at the artifact they want updated.
-2. **The directory already exists with a `journal.md`** → this is a continuation, not a new investigation. Read the existing journal, treat its claims as the starting state, and update in place. Don't overwrite — preserve prior claim history (use `Stale` / `Ruled out` to retire entries, not deletion).
-3. **No path given and no obvious match in `_data/cases/`** (Step 2d's scan should have flagged any match) → mint a new slug: `<YYYY-MM-DD>-<short-kebab-descriptor>`. Date is today in UTC; slug is recognizable from a directory listing six months later. Examples: `ssh-azure-port-22`, `salesforce-sso-loop`, `connector-group-us-east-1-disconnected`. Create the directory.
+2. **The user-referenced or current directory already exists with a `journal.md`** → this is a continuation, not a new investigation. Read the existing journal, treat its claims as the starting state, and update in place. Don't overwrite — preserve prior claim history (use `Stale` / `Ruled out` to retire entries, not deletion).
+3. **No path given** → mint a new slug: `<YYYY-MM-DD>-<short-kebab-descriptor>`. Date is today in UTC; slug is recognizable from a directory listing six months later. Examples: `ssh-azure-port-22`, `salesforce-sso-loop`, `connector-group-us-east-1-disconnected`. Create the directory. Do not browse sibling case directories to find a matching prior journal.
 
 **Path conventions:**
 
@@ -220,7 +235,9 @@ After rendering in chat, write the same journal to `_data/cases/<slug>/journal.m
 
 `_data/cases/` is the skill's umbrella home for any saved `/z-investigator` artifact — the name reflects that incidents are the most common shape, not that every saved investigation must be one. If the investigation turns out to be incident-shaped (production break, regression, hygiene failure), the same directory becomes the home for `timeline.md` + `postmortem.md` + `evidence/` per § "Saving as a case artifact." If it stays exploratory, only `journal.md` exists in the directory — that's fine.
 
-If the user explicitly indicates they don't want a save (e.g., "don't save this, just answering a quick question"), skip step 6 and note the skip in your reply. Otherwise save by default.
+Do not skip the save during an active investigator run. If the user wants a
+quick answer without a saved journal, route them to normal ad-hoc Q&A instead
+of entering this investigator workflow.
 
 ## Journal template
 
@@ -236,6 +253,12 @@ Emit as plain markdown — never inside a code fence:
 | ... | ... | ... | ... | ... | ... |
 
 **Next-evidence rule.** Every claim with status `Open (likely)` or `Open (uncertain)` MUST populate `Next evidence needed` with a concrete action — query text, file path + specific field, or API endpoint + filter. Vague entries like *"check logs"* or *"look at config"* are insufficient. Claims with `Confirmed (high)`, `Confirmed (medium)`, `Ruled out`, `Stale`, or `Resolved` may use `-` or a brief revalidation note (e.g., *"re-check after policy update"*). The column is what makes the next turn's action obvious without re-deriving it.
+
+**Evidence-basis rule.** The `Notes` column must explicitly say whether the
+hypothesis is `reference-grounded`, `snapshot-grounded`, `runtime-evidence
+grounded`, or `mixed`. If tenant snapshot or runtime evidence was unavailable,
+say so plainly; do not imply tenant-specific ZPA configuration state from
+reference docs alone.
 
 **Root cause hypothesis (current):** [leading hypothesis, or "no leader yet — investigating in priority order"]
 
@@ -254,10 +277,19 @@ After the first response, continue the investigation by:
 Do not declare `Resolved` for the overall issue until:
 1. Root cause is confirmed (`Confirmed (high)`)
 2. You can explain why the other hypotheses were ruled out
+3. The user confirms the fix or rollback holds
+4. The `mark-resolved` turn includes helper-verifiable `completionGate`
+   metadata with the exact root-cause claim and direct supporting evidence refs
+5. The supporting evidence refs were already recorded in a prior completed
+   evidence turn
+
+Do not resolve by elimination alone. If the remaining hypothesis has no direct
+supporting evidence, keep it `Open (likely)` or `Open (uncertain)` and ask for
+the next evidence source.
 
 ## SIEM query emission (pointer)
 
-When you're about to emit or run a SIEM query (Splunk, Sentinel, Chronicle, Elastic, Sumo), load [`agents/siem-emission-discipline.md`](../siem-emission-discipline.md) — it owns the execution-mode framework (agent-direct vs user-handoff vs coworking), placeholder plumbing, schema cross-referencing, and pattern catalogs. The on-demand triggers are listed in § On-demand references below. Don't load it eagerly; load it at the moment you're about to emit a query, not as part of grounding.
+When you're about to emit or run a SIEM query (Splunk, Sentinel, Chronicle, Elastic, Sumo), load [`agents/siem-emission-discipline.md`](../siem-emission-discipline.md) — it owns the execution-mode framework (agent-direct vs user-handoff vs coworking), placeholder plumbing, schema cross-referencing, and pattern catalogs. The on-demand triggers are listed in § Supporting references below. Don't load it eagerly; load it at the moment you're about to emit a query, not as part of grounding.
 
 Two related pointers, also on-demand:
 
@@ -296,11 +328,12 @@ A diagnostic is a verified, ordered proof/disproof sequence for a repeated hypot
 
 Do not load the diagnostics template during ordinary grounding or first response. Load it when converting a verified investigation pattern into a reusable diagnostic, usually after a real ticket, lab reproduction, or vendor-prescribed sequence proves the steps.
 
-## On-demand references — load only when triggered
+## Supporting references — load by trigger
 
-Cross-cutting discipline docs and methodology supplements are listed as `dependencies:` in this prompt's frontmatter and referenced in the runtime adapter, but **none of them should be loaded before the first response**. They are Level-3 resources in the Anthropic Skills sense — load each only when its trigger condition applies. Always-loaded short summaries are inlined here so the active rules survive even when the full reference isn't loaded.
+Cross-cutting discipline docs and methodology supplements are listed as `dependencies:` in this prompt's frontmatter and referenced in the runtime adapter. `harness.md` is the exception: load it with this prompt because it is part of the investigator runtime contract. The other files are Level-3 resources in the Anthropic Skills sense — load each only when its trigger condition applies. Always-loaded short summaries are inlined here so the active rules survive even when the full reference isn't loaded.
 
 - [`investigator/methodology.md`](./methodology.md) — discovery journal anti-patterns, handoff format, claim-status guidance, worked examples. **Load when:** investigation is stuck, drifting, preparing a handoff, resolving claim-status ambiguity, or you need anti-pattern examples.
+- [`investigator/harness.md`](./harness.md) — phase order, checkpoint halts, output shapes, early journal creation, snapshot-load discipline. **Load with this prompt**; it is part of the investigator runtime contract.
 - [`investigator/diagnostics/template.md`](./diagnostics/template.md) — authoring template for reusable diagnostics. **Load when:** creating or reviewing a verified diagnostic sequence; do not load for ordinary case grounding.
 - [`../siem-emission-discipline.md`](../siem-emission-discipline.md) — agent execution modes, query plumbing, public/private boundary. **Load when:** about to emit or run a SIEM query; mapping a Zscaler log type to a SIEM table / index / sourcetype.
 - [`../tenant-schema-derivation.md`](../tenant-schema-derivation.md) — canonical-vs-tenant schema reconciliation recipes per SIEM. **Load when:** canonical schema and tenant SIEM fields disagree, or deriving tenant-specific field mappings.
@@ -310,6 +343,7 @@ Cross-cutting discipline docs and methodology supplements are listed as `depende
 ## Cross-links
 
 - [`investigator/methodology.md`](./methodology.md) — discovery journal, claim status, anti-patterns
+- [`investigator/harness.md`](./harness.md) — checkpoint and phase contract
 - [`investigator/diagnostics/template.md`](./diagnostics/template.md) — authoring template for verified diagnostics
 - [`siem-emission-discipline.md`](../siem-emission-discipline.md) — agent execution modes, public/private boundary
 - [`siem-log-mapping.md`](../../references/shared/siem-log-mapping.md) — Zscaler log type catalog

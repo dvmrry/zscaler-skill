@@ -37,7 +37,7 @@ Source: IMPROVEMENTS #13. One-line addition to `references/zia/sdk.md` or `api.m
 
 ### 1.4 simulate-policy.py snapshot path convention
 
-Source: IMPROVEMENTS #16. Script hardcodes `_data/snapshot/zia/url-filtering-rules.json` (per-product top-level), but documented convention is `_data/snapshot/<cloud>/<product>/...`. Low cost. **Caveat from earlier session: defer until first real tenant snapshot exists.** Otherwise fixing now risks fixing wrong (we don't know what the actual `<cloud>` slug should be until a real `snapshot-refresh.py` run).
+Source: IMPROVEMENTS #16. Script previously hardcoded product-first snapshot paths, but documented convention is `_data/snapshot/<cloud>/<product>/...`. Low cost. **Status:** closed by the cloud-first snapshot refresh update; legacy product-first remains read-only fallback for older local exports.
 
 ---
 

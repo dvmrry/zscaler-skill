@@ -15,15 +15,15 @@ author-status: draft
 
 # ZCC _data/snapshot/ schema
 
-Operational reference for the JSON files `scripts/snapshot-refresh.py` writes under `_data/snapshot/zcc/`. Pre-written from SDK model classes (`vendor/zscaler-sdk-python/zscaler/zcc/models/`); Postman collection has no ZCC response samples (the ZCC folder in Postman is the smallest at 9 leaf items, no schemas). Validate against actual JSON when fork populates and bump confidence to `high`.
+Operational reference for the JSON files `scripts/snapshot-refresh.py` writes under `_data/snapshot/<cloud>/zcc/`. Pre-written from SDK model classes (`vendor/zscaler-sdk-python/zscaler/zcc/models/`); Postman collection has no ZCC response samples (the ZCC folder in Postman is the smallest at 9 leaf items, no schemas). Validate against actual JSON when fork populates and bump confidence to `high`.
 
 ## Files written by `--zcc-only`
 
 ```
-_data/snapshot/zcc/forwarding-profiles.json
-_data/snapshot/zcc/trusted-networks.json
-_data/snapshot/zcc/fail-open-policy.json
-_data/snapshot/zcc/web-policy.json
+_data/snapshot/<cloud>/zcc/forwarding-profiles.json
+_data/snapshot/<cloud>/zcc/trusted-networks.json
+_data/snapshot/<cloud>/zcc/fail-open-policy.json
+_data/snapshot/<cloud>/zcc/web-policy.json
 ```
 
 ## Wire-format conventions for ZCC
@@ -116,16 +116,16 @@ Full SDK model: `vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.
 
 ```bash
 # List forwarding profiles by name + active state
-jq '.[] | {name, active, has_zia: ((.forwardingProfileActions | length) > 0), has_zpa: ((.forwardingProfileZpaActions | length) > 0)}' _data/snapshot/zcc/forwarding-profiles.json
+jq '.[] | {name, active, has_zia: ((.forwardingProfileActions | length) > 0), has_zpa: ((.forwardingProfileZpaActions | length) > 0)}' _data/snapshot/<cloud>/zcc/forwarding-profiles.json
 
 # Profiles with ZPA actions configured (have ZPA forwarding logic)
-jq '.[] | select((.forwardingProfileZpaActions | length) > 0) | .name' _data/snapshot/zcc/forwarding-profiles.json
+jq '.[] | select((.forwardingProfileZpaActions | length) > 0) | .name' _data/snapshot/<cloud>/zcc/forwarding-profiles.json
 
 # Count profiles per (conditionType, evaluateTrustedNetwork) combination
-jq 'group_by([.conditionType, .evaluateTrustedNetwork]) | map({condition: .[0].conditionType, evaluate: .[0].evaluateTrustedNetwork, count: length})' _data/snapshot/zcc/forwarding-profiles.json
+jq 'group_by([.conditionType, .evaluateTrustedNetwork]) | map({condition: .[0].conditionType, evaluate: .[0].evaluateTrustedNetwork, count: length})' _data/snapshot/<cloud>/zcc/forwarding-profiles.json
 
 # Profiles using a specific Z-Tunnel 2.0 fallback mode
-jq '.[] | select(.forwardingProfileActions[]?.tunnel2FallbackType != 0) | {name, fallback: .forwardingProfileActions[0].tunnel2FallbackType}' _data/snapshot/zcc/forwarding-profiles.json
+jq '.[] | select(.forwardingProfileActions[]?.tunnel2FallbackType != 0) | {name, fallback: .forwardingProfileActions[0].tunnel2FallbackType}' _data/snapshot/<cloud>/zcc/forwarding-profiles.json
 ```
 
 ## `trusted-networks.json`
@@ -162,13 +162,13 @@ Full SDK model: `vendor/zscaler-sdk-python/zscaler/zcc/models/trustednetworks.py
 
 ```bash
 # All trusted networks with their criteria
-jq '.trustedNetworkContracts[] | {name, dns: .dnsServers, ssids, subnets: .trustedSubnets}' _data/snapshot/zcc/trusted-networks.json
+jq '.trustedNetworkContracts[] | {name, dns: .dnsServers, ssids, subnets: .trustedSubnets}' _data/snapshot/<cloud>/zcc/trusted-networks.json
 
 # Networks with SSID-based detection
-jq '.trustedNetworkContracts[] | select(.ssids | length > 0) | {name, ssids}' _data/snapshot/zcc/trusted-networks.json
+jq '.trustedNetworkContracts[] | select(.ssids | length > 0) | {name, ssids}' _data/snapshot/<cloud>/zcc/trusted-networks.json
 
 # Find networks an IP could match (subnet check)
-jq --arg ip "10.0.0.5" '.trustedNetworkContracts[] | select(.trustedSubnets | split(",") | map(. as $cidr | $ip) | length > 0) | .name' _data/snapshot/zcc/trusted-networks.json
+jq --arg ip "10.0.0.5" '.trustedNetworkContracts[] | select(.trustedSubnets | split(",") | map(. as $cidr | $ip) | length > 0) | .name' _data/snapshot/<cloud>/zcc/trusted-networks.json
 # (CIDR matching is awkward in jq; use a Python script for real subnet checks)
 ```
 
@@ -204,10 +204,10 @@ Full SDK model: `vendor/zscaler-sdk-python/zscaler/zcc/models/failopenpolicy.py`
 
 ```bash
 # Show fail-open settings
-jq '.[0]' _data/snapshot/zcc/fail-open-policy.json
+jq '.[0]' _data/snapshot/<cloud>/zcc/fail-open-policy.json
 
 # Just the captive portal grace period
-jq '.[0].captivePortalGracePeriod' _data/snapshot/zcc/fail-open-policy.json
+jq '.[0].captivePortalGracePeriod' _data/snapshot/<cloud>/zcc/fail-open-policy.json
 ```
 
 ## `web-policy.json`
@@ -266,13 +266,13 @@ Full SDK model: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py` — 
 
 ```bash
 # Web policies + which forwarding profile each binds to
-jq '.[] | {name, forwarding_profile_id, device_type, active}' _data/snapshot/zcc/web-policy.json
+jq '.[] | {name, forwarding_profile_id, device_type, active}' _data/snapshot/<cloud>/zcc/web-policy.json
 
 # Find web policy assigned to a specific forwarding profile
-jq --argjson fp_id 12345 '.[] | select(.forwarding_profile_id == $fp_id) | .name' _data/snapshot/zcc/web-policy.json
+jq --argjson fp_id 12345 '.[] | select(.forwarding_profile_id == $fp_id) | .name' _data/snapshot/<cloud>/zcc/web-policy.json
 
 # Per-platform policy presence
-jq '.[] | {name, has_win: (.windowsPolicy != null), has_mac: (.macosPolicy != null), has_ios: (.iosPolicy != null)}' _data/snapshot/zcc/web-policy.json
+jq '.[] | {name, has_win: (.windowsPolicy != null), has_mac: (.macosPolicy != null), has_ios: (.iosPolicy != null)}' _data/snapshot/<cloud>/zcc/web-policy.json
 ```
 
 **Critical**: `forwarding_profile_id` is the answer to clarification `zcc-07` ("how does a user get assigned to a forwarding profile?") — see [`./web-policy.md`](./web-policy.md).

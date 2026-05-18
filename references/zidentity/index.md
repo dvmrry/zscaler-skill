@@ -37,7 +37,7 @@ Questions that land here: "how do I create API client credentials?", "why is ste
 | **Resource servers** — read-only OAuth resource registry, service-grouped scopes (no scope mutation API), OneAPI client linkage via `clientResources` field | [`./resource-servers.md`](./resource-servers.md) | draft |
 | **User entitlements** — read-only admin & service entitlement query API, observed role+scope values from test fixtures, Python-wraps-vs-Go-slice return divergence | [`./user-entitlements.md`](./user-entitlements.md) | draft |
 | API surface — `client.zid.*` methods, Python vs Go SDK parity, wire format | [`./api.md`](./api.md) | draft |
-| **Snapshot schema (anticipatory)** — anticipated `_data/snapshot/zidentity/*.json` shapes for users / groups / api-clients / resource-servers; array-of-one-page wrap, pagination quirks, secret-material-never-returned | [`./snapshot-schema.md`](./snapshot-schema.md) | draft |
+| **Snapshot schema (anticipatory)** — anticipated `_data/snapshot/<cloud>/zidentity/*.json` shapes for users / groups / api-clients / resource-servers; array-of-one-page wrap, pagination quirks, secret-material-never-returned | [`./snapshot-schema.md`](./snapshot-schema.md) | draft |
 | **ZIdentity SDK** — Python and Go service catalog (`client.zid.*`); method summary; parity gaps between language SDKs | [`./sdk.md`](./sdk.md) | draft |
 
 ## What this hub does NOT cover yet

@@ -64,6 +64,11 @@ Two kinds of question this skill handles:
 - **General behavior** — "how do wildcards match?", "what happens when URL filtering and cloud app control both apply?". Answerable anywhere, sourced from `references/`.
 - **Tenant-specific lookups** — "is `reddit.com` in a URL category in *our* tenant?". Requires a `_data/snapshot/` populated by the refresh scripts. The public upstream repo ships empty; tenant snapshots live only in private forks.
 
+Structured troubleshooting with a symptom, affected scope, and timeframe should
+use the portable `zscaler-investigator` skill or the `/z-investigator` runtime
+adapter. This broad `zscaler` entrypoint is for ad-hoc Q&A and lightweight
+lookups, not discovery-journal investigations.
+
 ## Check for a snapshot first
 
 Before answering tenant-specific questions, check whether `_data/snapshot/` (config) has anything beyond `.gitkeep`:
@@ -72,7 +77,7 @@ Before answering tenant-specific questions, check whether `_data/snapshot/` (con
 ls -A _data/snapshot/ | grep -v '^\.gitkeep$'
 ```
 
-If empty, say so explicitly (see **When to decline**) and still answer the general case where possible. If populated, read the relevant JSON (`_data/snapshot/zia/url-categories.json`, `_data/snapshot/zia/url-filtering-rules.json`, `_data/snapshot/zpa/app-segments.json`, etc.) and cite the specific rule IDs you used.
+If empty, say so explicitly (see **When to decline**) and still answer the general case where possible. If populated, read the relevant JSON (`_data/snapshot/<cloud>/zia/url-categories.json`, `_data/snapshot/<cloud>/zia/url-filtering-rules.json`, `_data/snapshot/<cloud>/zpa/app-segments.json`, etc.) and cite the specific rule IDs you used.
 
 `_data/schemas/` is a separate cache for log-schema decompositions, query skeletons, and script-generated reports (gitignored; populated by scripts such as `splunk-query.sh`, `issue-watch.py`, and `find-asymmetries.py`). Raw logs are a validation layer, not a primary source — see **When to consult logs** below.
 
@@ -192,7 +197,7 @@ Return every non-trivial answer in this shape. It keeps answers grounded, makes 
 
 ## Sources
 - references/zia/url-filtering.md (§ section you used)
-- _data/snapshot/zia/url-filtering-rules.json (rule IDs 42, 47 — only if snapshot was consulted)
+- _data/snapshot/<cloud>/zia/url-filtering-rules.json (rule IDs 42, 47 — only if snapshot was consulted)
 
 ## Confidence
 high | medium | low — <one-line reason; e.g. "stub reference, inferred from Zscaler KB">

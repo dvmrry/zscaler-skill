@@ -9,6 +9,8 @@ description: "Start an evidence-based troubleshooting investigation — parse fr
 <!-- adapter-deps:start -->
 Always load:
 - `agents/investigator/prompt.md`
+- `agents/investigator/harness.md`
+- `agents/investigator/case-intake.md`
 
 Available on demand. Do not load before first response unless the trigger applies:
 - `agents/investigator/methodology.md` — load when stuck, drifting, or preparing handoff.
@@ -20,6 +22,13 @@ Available on demand. Do not load before first response unless the trigger applie
 <!-- adapter-deps:end -->
 
 All paths are relative to the Zscaler skill repo root. **Do not respond until all files are loaded.** Then follow the per-step procedure below.
+
+Step 1 artifact creation is helper-backed. Follow
+`agents/investigator/case-intake.md`: create
+`case-intake.md`,
+`case-intake.json`, and `journal.md` with
+`node scripts/investigator-artifacts.mjs open-case`, then run
+`verify-case` before rendering a successful Step 1 checkpoint.
 
 ---
 
@@ -65,7 +74,7 @@ Load-bearing facts. If you find yourself reasoning against any of these, stop �
 
 ## Per-turn output format (applies to every turn)
 
-Every turn's response follows the per-step shape described below. **Do NOT add prose between sections, decorative headers, or summary commentary outside the shape — the shape IS the response.** Output is plain markdown — headers, bold labels, bullets, blockquotes for the checkpoint menu — never wrapped in code fences. Fences are reserved for genuine code (shell commands, JSON, YAML, raw markdown templates).
+Every turn's response follows the per-step shape described below. **Do NOT add prose between sections, decorative headers, or summary commentary outside the shape — the shape IS the response.** Output is plain markdown — headers, bold labels, bullets, blockquotes for the checkpoint menu — never wrapped in code fences. Fences are reserved for genuine code (shell commands, JSON, YAML, raw markdown templates). Render paths as plain monospace text only; do not turn investigation paths into Markdown links.
 
 ### Step 1 — pre-Step-1 turn (clarification only, when a blocking unknown exists)
 
@@ -108,12 +117,22 @@ The literal output. *No Clarification block in this turn — clarifications happ
 **Proposed loads** (Step 2A — docs only)
 
 - agents/investigator/prompt.md
+- agents/investigator/harness.md
 - <product references from the framing→file mapping that match — these ARE the case-relevant knowledge, load every matching one>
-- <log schema(s) under `references/{zia,zpa,zcc}/logs/<name>-schema.md` — only if the framing already involves logs>
+- <telemetry references under `references/{zia,zpa,zcc}/logs/` — only if the framing already involves logs, metrics, SIEM data, or explicit evidence>
 
 Cross-cutting docs (methodology, diagnostics template, siem-emission-discipline, tenant-schema-derivation, loading-discipline, clarification-pattern) are **on-demand only** — do NOT include them in PROPOSED LOADS. They load when their trigger fires (per `agents/investigator/prompt.md § On-demand references`).
 
 **Journal created:** `<working-dir>/_data/cases/<slug>/journal.md`
+
+**Case intake:** `<working-dir>/_data/cases/<slug>/case-intake.md`
+**Case intake JSON:** `<working-dir>/_data/cases/<slug>/case-intake.json`
+
+Only emit these paths after `node scripts/investigator-artifacts.mjs
+open-case` creates the artifacts and `node scripts/investigator-artifacts.mjs
+verify-case` verifies a passing case intake. If creation or verification fails,
+emit `Case intake not ready: <reason>` and make fixing the case intake
+artifact the next checkpoint option.
 
 What's next?
 - Proceed — load the proposed files (run Step 2)
@@ -131,11 +150,14 @@ The literal output. Step 2 has no assumption clarifications (the data is just en
 **Loaded**
 
 - Docs:
-  - ✓ <file>
+  - ✓ agents/investigator/prompt.md
+  - ✓ agents/investigator/harness.md
+  - ✓ <each proposed doc>
 - Snapshot entry points:
   - ✓ <file>
   - Will load on-demand: <list of chain-traversal candidates>
 - Existing evidence:
+  - ✓ _data/cases/<slug>/journal.md (operative journal)
   - ✓ <file>
 - Skipped:
   - <count> snapshot files unrelated to framing — load on-demand
@@ -183,6 +205,7 @@ The literal output. Same pattern: closing multi-choice **is** the checkpoint.
 What's next?
 - Investigate the top Open hypothesis
 - Focus on a specific hypothesis — specify H#
+- Request user evidence — name the catalog pattern or exact evidence request
 - Rule out a hypothesis — specify H# and the evidence
 - Add a new hypothesis — specify
 - Pause — stop here; journal saved for resumption
@@ -192,6 +215,13 @@ What's next?
 
 Same shape as Step 3 with the journal table updated. Header reads `#### Investigation turn — updated journal`. One investigation action per turn (per § Subsequent turns below). Closing "What's next?" multi-choice is the checkpoint.
 
+Post-Step-3 turns are helper-bracketed transactions. Step 3 initializes the
+ledger with `initialize-turn-ledger`. Every later user/controller turn runs
+`begin-turn` before journal mutation and `complete-turn` after exactly one
+investigation action. Do not hold `pendingTurn` open across a user checkpoint:
+query and evidence requests complete as their own turn, and returned evidence
+is recorded in a later `record-user-evidence` turn.
+
 ---
 
 ## 📋 Step 1 — Parse framing
@@ -199,7 +229,8 @@ Same shape as Step 3 with the journal table updated. Header reads `#### Investig
 > **Input:** the user's framing in chat (next message)
 > **Output:** a `PARSED FRAMING` block (template below)
 > **Halts at:** Checkpoint 1
-> **Side effects:** none — no file loads in this step
+> **Side effects:** creates/verifies case-intake and journal stub artifacts;
+> no docs, snapshots, or evidence files are loaded in this step
 
 Read the framing. Compose the data blocks below by filling in the bracketed fields. Use the **Framing → file mapping** to populate the proposed-loads list. Use the **Snapshot enumeration** procedure to list per-cloud config files individually.
 
@@ -235,11 +266,12 @@ If the framing has no backticked tokens, set the field to `none`.
 
 #### Output: proposed loads (docs only)
 
-Emit a `**Proposed loads** (Step 2A — docs only; snapshot loads decided in Step 2B after docs are read)` heading followed by a bullet list of paths. The list is the **case-relevant knowledge** — playbook + framing-matched product references + matching log schema(s) when logs are part of the framing. Cross-cutting agent-instruction docs (methodology, diagnostics template, siem-emission-discipline, tenant-schema-derivation, loading-discipline, clarification-pattern) are on-demand and **do NOT appear here**. **Snapshot files also do not appear** — they are decided in Step 2 after docs are loaded.
+Emit a `**Proposed loads** (Step 2A — docs only; snapshot loads decided in Step 2B after docs are read)` heading followed by a bullet list of paths. The list is **mapping-driven case-relevant knowledge** — playbook + grounding-card matches + framing-matched product references + matching telemetry references under `references/{zia,zpa,zcc}/logs/` only when logs / metrics / SIEM / LSS / NSS or a user-provided evidence path are part of the framing. Do not add files because they might support an ungrounded hypothesis. Cross-cutting agent-instruction docs (methodology, diagnostics template, siem-emission-discipline, tenant-schema-derivation, loading-discipline, clarification-pattern) are on-demand and **do NOT appear here**. **Snapshot files also do not appear** — they are decided in Step 2 after docs are loaded.
 
 - agents/investigator/prompt.md
+- agents/investigator/harness.md
 - <product references from the mapping table that match Products / features>
-- <log schema(s) only if framing involves logs>
+- <telemetry reference(s) only if framing involves logs, metrics, SIEM, or explicit evidence>
 
 > **Note:** snapshot enumeration and selection used to live in Step 1; moved to Step 2B after docs load. Docs tell the agent which snapshot files are entry points and which links of the chain matter — selecting without docs in context produces uninformed bulk loads.
 
@@ -252,6 +284,7 @@ Multiple rows may match a single framing — **add every matching row** to PROPO
 | SIPA, Source IP Anchoring | `references/shared/source-ip-anchoring.md` |
 | App Connector, connector health, connector flap, connector status, connector assignment, health check, health probe, target reachability, eligibility filter, connector selection | `references/zpa/app-connector.md` |
 | App Connector Metrics, AliveTargetCount, TargetCount, health reporting cadence, ON_ACCESS, CONTINUOUS | `references/zpa/logs/app-connector-metrics.md` |
+| ZPA reachability, private app unreachable, app missing, application not found | `references/zpa/app-segments.md` AND `references/zpa/segment-server-groups.md` AND `references/zpa/policy-precedence.md` |
 | ZPA segment, app segment, application segment, segment scope, `health_reporting` setting, SIPA segment | `references/zpa/app-segments.md` AND `references/zpa/segment-server-groups.md` (the segment→server-group→connector chain spans both) |
 | ZPA policy, access policy, policy precedence, policy evaluation | `references/zpa/policy-precedence.md` |
 | Server group, server-group → connector-group association | `references/zpa/segment-server-groups.md` |
@@ -263,57 +296,69 @@ Multiple rows may match a single framing — **add every matching row** to PROPO
 | Cloud Connector, Branch Connector | `references/cloud-connector/index.md` |
 | ZDX probe, deeptrace, Cloud Path | `references/zdx/index.md` |
 | ZIdentity, OneAPI, Authentication Level, step-up auth | `references/zidentity/index.md` |
-| LSS / NSS log fields, log schema | matching schema under `references/{zia,zpa,zcc}/logs/` |
+| LSS / NSS log fields, metrics, telemetry schemas | matching reference under `references/{zia,zpa,zcc}/logs/` |
 
-#### Early-journal creation — write the stub before Checkpoint 1
+#### Case-intake creation — run the helper before Checkpoint 1
 
-After composing the PARSED FRAMING and PROPOSED LOADS blocks, **immediately use your file-write tool** to create a stub journal at `<working-directory>/_data/cases/<slug>/journal.md`. **Do this before the Checkpoint 1 halt.** The artifact must exist on disk from Step 1 onward — even a template-with-only-the-framing is correct shape. Subsequent steps update this file in place; they do not create it.
+After composing the PARSED FRAMING and PROPOSED LOADS blocks, **immediately run
+the artifact creation transaction below before the Checkpoint 1 halt**.
+Subsequent steps update the helper-created journal in place; they do not create
+a new journal.
+
+**Artifact creation transaction:**
+
+1. Resolve `case_dir` to `<working-directory>/_data/cases/<slug>`.
+2. Write the parsed framing to a JSON file.
+3. Run the helper exactly, adding one `--proposed-load` per PROPOSED LOADS
+   entry:
+
+```bash
+node scripts/investigator-artifacts.mjs open-case \
+  --root <repo-root> \
+  --case-slug <slug> \
+  --framing-json <path-to-framing-json> \
+  --proposed-load agents/investigator/prompt.md \
+  --proposed-load agents/investigator/harness.md
+```
+
+4. If the helper reports `Status: blocked` or exits non-zero, halt. Do not load
+   docs, enumerate snapshots, or generate hypotheses.
+5. If the helper reports `Status: pass`, run:
+
+```bash
+node scripts/investigator-artifacts.mjs verify-case \
+  --root <repo-root> \
+  --case-slug <slug>
+```
+
+6. Only after `verify-case` succeeds, emit:
+   - `Case intake: <case_dir>/case-intake.md`
+   - `Case intake JSON: <case_dir>/case-intake.json`
+   - `Journal created: <case_dir>/journal.md`
 
 **Slug selection** (same logic as Step 3B's save):
 
-- If the framing contains an existing path or slug, use that directory.
-- If `_data/cases/<some-existing-slug>/` already has a `journal.md` whose ISSUE matches, this is a continuation — update that file.
+- If the framing contains an existing path or slug, use that directory and run
+  `verify-case` first. If verification passes, this is a load/resume path, not
+  a new `open-case` path.
+- If the user-referenced or current case directory already has a `journal.md`,
+  this is a continuation — run `verify-case` and load/resume that journal.
 - Otherwise mint a fresh slug: `<YYYY-MM-DD>-<short-kebab-descriptor>`. Create the directory.
+- Do not browse sibling case directories to find a matching prior journal.
 
-**Stub content:**
-
-```markdown
-# Discovery Journal — <Symptom from PARSED FRAMING>
-
-ISSUE: <one-sentence symptom>
-STATUS: Investigating
-TIMESTAMP: <ISO 8601 UTC>
-WORKING DIRECTORY: <path>
-
-## Framing
-
-| Field | Value |
-|---|---|
-| Symptom | <PARSED FRAMING.Symptom> |
-| Tenant cloud | <PARSED FRAMING.Tenant cloud> |
-| Products / features | <PARSED FRAMING.Products / features> |
-| Scope | <PARSED FRAMING.Scope> |
-| Recency | <PARSED FRAMING.Recency> |
-| User-flagged specifics | <PARSED FRAMING.User-flagged specifics> |
-
-## Proposed Loads
-
-(See PROPOSED LOADS block; Step 2 will mark which were actually loaded.)
-
-## Claims
-
-(Hypotheses populated in Step 3.)
-
-## Resolution
-
-Pending.
-```
-
-**Why early creation matters.** The agent sometimes skips the save action if it begins troubleshooting without first writing the journal. Creating the stub at Step 1 guarantees a permanent artifact exists from the moment the framing is parsed — even if subsequent steps drift or skip, the framing record is preserved on disk.
+**Why helper-backed creation matters.** The agent sometimes skips or mutates the
+save action if it begins troubleshooting without a deterministic gate. The Node
+helper creates `case-intake.md`, `case-intake.json`, and `journal.md`, refuses
+speculative loads, refuses missing proposed-load files, and will not clobber an
+existing case unless `--force` is explicitly supplied. Do not hand-write these
+artifacts in the Windsurf adapter.
 
 **Working directory precondition still applies.** If `Working directory` is `unknown`, that's a blocking unknown — Step 1 enters pre-Step-1 mode and emits a single working-directory clarification (no other content) before any data emission. The stub cannot be created without a known absolute path; the journal-creation step happens only after the working-directory pre-Step-1 clarification resolves.
 
-**Add to Step 1's output template** a `**Journal created:** <path>` line right before the Checkpoint 1 menu, listing the path written. Example: `**Journal created:** <working-dir>/_data/cases/<slug>/journal.md`
+**Failure handling.** If JSON write, helper execution, or `verify-case` fails,
+do not claim the case intake is ready. Emit `**Case intake not ready:**
+<failed transaction step> — <reason>` and make fixing the helper gate the next
+checkpoint option. Do not run Step 2 while artifact creation is incomplete.
 
 #### Checkpoint 1 — pre-Step-1 vs full-Step-1 ending
 
@@ -345,16 +390,16 @@ For each file in the confirmed PROPOSED LOADS (playbook + framing-matched produc
 
 #### 2B — Enumerate the snapshot directory AND existing evidence (only after 2A completes)
 
-Two enumerations happen at this step. Both are recursive listings; both paste output verbatim. Show your command output regardless of result.
+Two enumerations happen at this step. Both are recursive listings; both paste output verbatim as plain monospace paths. Show your command output regardless of result.
 
-**2B.1 — Snapshot.** Tenant snapshots are the canonical source for "what's actually configured" — do not propose live API calls for config the snapshot already has. If `Tenant cloud` was specified in PARSED FRAMING, run a recursive listing of `_data/snapshot/<cloud>/` (or `_data/<cloud>/` for the fork-specific layout). Emit a `**Snapshot enumeration** (find _data/snapshot/zs3/ -type f)` heading followed by a bullet list of paths returned:
+**2B.1 — Snapshot.** Tenant snapshots are the canonical source for "what's actually configured" — do not propose live API calls for config the snapshot already has. If `Tenant cloud` was specified in PARSED FRAMING, run a recursive listing of `_data/snapshot/<cloud>/`. Emit a `**Snapshot enumeration** (find _data/snapshot/zs2/ -type f)` heading followed by a bullet list of paths returned:
 
-- _data/snapshot/zs3/zia/url-filtering-rules.json
-- _data/snapshot/zs3/zpa/segments.json
-- _data/snapshot/zs3/zpa/server-groups.json
+- _data/snapshot/zs2/zia/url-filtering-rules.json
+- _data/snapshot/zs2/zpa/segments.json
+- _data/snapshot/zs2/zpa/server-groups.json
 - ... <every file the recursive listing returned>
 
-Required commands (use one): `find _data/snapshot/<cloud>/ -type f`, `ls -R _data/snapshot/<cloud>/`, or your file-list tool's recursive option. If both canonical and fork-specific paths are empty, show both attempts as plain prose lines: *"Snapshot enumeration (find _data/snapshot/zs3/ -type f): no files returned. Also tried: find _data/zs3/ -type f → no files returned."*
+Required commands (use one): `find _data/snapshot/<cloud>/ -type f`, `ls -R _data/snapshot/<cloud>/`, or your file-list tool's recursive option. Only use the fork-specific `_data/<cloud>/` fallback if `_data/snapshot/<cloud>/` itself is absent or empty; do not use `_data/<cloud>/` to fill in a missing product subtree. If `_data/snapshot/zs2/` exists but `_data/snapshot/zs2/zpa/` is absent, report `no ZPA snapshot subtree found for zs2` and continue from references/evidence instead of inferring ZPA state from `_data/snapshot/zs2/zia/`, another cloud, or broad `_data/`. If both canonical and fork-specific cloud paths are empty, show both attempts as plain prose lines: *"Snapshot enumeration (find _data/snapshot/zs2/ -type f): no files returned. Also tried: find _data/zs2/ -type f → no files returned."*
 
 **2B.2 — Existing evidence (log files, prior captures).** Logs the user may have already collected typically live in either:
 
@@ -406,7 +451,7 @@ If you can't derive grep patterns from the framing, halt and ask the user before
 
 Use your file-read tool to load each entry-point file selected in 2C. **Do not load other snapshot files at this step**; chain-traversal on subsequent turns will load deeper links as needed.
 
-After all loads complete (docs from 2A + snapshot entry points + existing evidence from 2D), output the consolidated LOADED block (template below).
+After all loads complete (docs from 2A + snapshot entry points + existing evidence from 2D), read the operative journal path (`<working-dir>/_data/cases/<slug>/journal.md`) so Step 3 updates the same file. Then output the consolidated LOADED block (template below).
 
 #### 2E — Search User-flagged specifics across loaded content
 
@@ -427,7 +472,7 @@ For each token in the `User-flagged specifics` field of PARSED FRAMING, run a se
 Surface results under a `**Grep results — user-flagged specifics in loaded content**` heading, one bullet per token with sub-bullets per match location:
 
 - `BLK Cloud ZPA Global`:
-  - _data/snapshot/zs3/zpa/server-groups.json: `.[3].name`, `.[3].applications[2].serverGroups[0].name`
+  - _data/snapshot/zs2/zpa/server-groups.json: `.[3].name`, `.[3].applications[2].serverGroups[0].name`
   - references/zpa/segment-server-groups.md:138
 - `WARNING: connection failed`:
   - (no matches in loaded content — would need additional logs)
@@ -442,15 +487,16 @@ Emit a `**Loaded**` heading followed by a nested bullet list:
 
 - Docs:
   - ✓ agents/investigator/prompt.md
-  - ✓ agents/investigator/methodology.md
+  - ✓ agents/investigator/harness.md
   - ✓ <each product reference>
 - Snapshot entry points (one per product):
-  - ✓ _data/snapshot/zs3/zpa/application-segments.json (entry point for ZPA chain)
+  - ✓ _data/snapshot/zs2/zpa/application-segments.json (entry point for ZPA chain)
   - Will load on-demand as chain is traversed:
     - server-groups.json (after segment IDs identified)
     - connector-groups.json (after server-group IDs identified)
     - app-connectors.json (after connector-group IDs identified)
 - Existing evidence (from operative case dir):
+  - ✓ _data/cases/<slug>/journal.md (operative journal)
   - ✓ _data/cases/<slug>/evidence/MANIFEST.md
   - ✓ _data/cases/<slug>/evidence/<log file 1>
   - ✓ _data/cases/<slug>/evidence/<log file 2>
@@ -506,6 +552,13 @@ End your response with the closing **What's next?** multi-choice block from the 
 
 Follow the **First Response procedure in `agents/investigator/prompt.md`** (loaded in Step 2). Generate the discovery journal table per its format. Every claim must cite a source from the `LOADED` block.
 
+**Evidence-basis requirement:** In the `Notes` column, label each hypothesis as
+`reference-grounded`, `snapshot-grounded`, `runtime-evidence grounded`, or
+`mixed`. Use `Open (likely)` only when loaded tenant snapshot, runtime evidence,
+or user-provided evidence points toward that hypothesis. If only product
+references were loaded, use `Open (uncertain)` and state `reference-grounded
+only; no tenant snapshot or runtime evidence available`.
+
 #### 3B — Save the journal to disk (always; do not ask permission)
 
 After generating the journal in chat, **immediately use your file-write tool** to save the same journal to `<working-directory>/_data/cases/<slug>/journal.md`. This save is unconditional — it is not a yes/no question for the user. Do NOT ask permission to write the file; do NOT defer the save to a later turn.
@@ -514,13 +567,43 @@ After generating the journal in chat, **immediately use your file-write tool** t
 
 > `Cannot save journal — working directory unknown. Reply with the absolute path of the repo root (e.g., /Users/<you>/src/gh/<org>/zscaler-skill) and I will retry the save.`
 
-Do NOT attempt the save against a relative path that may resolve nowhere; do NOT silently skip the save and continue. The save is part of Step 3 — without it, Step 3 is incomplete and Checkpoint 3 cannot fire.
+Do NOT attempt the save against a relative path that may resolve nowhere; do NOT silently skip the save and continue.
+
+Use the deterministic save transaction:
+
+1. Write the full rendered journal to `journal_path`.
+2. Read `journal_path` back.
+3. Verify the readback contains:
+   - `# Discovery Journal`
+   - `| Claim | Source | Status | Next evidence needed | Timestamp | Notes |`
+   - `## Resolution`
+4. Only after verification succeeds, emit `Journal saved: <journal_path>`.
+
+The save is part of Step 3 — without write, readback, and marker verification,
+Step 3 is incomplete and Checkpoint 3 cannot fire.
+
+#### 3C — Initialize turn ledger
+
+After journal save verification succeeds, run:
+
+```bash
+node scripts/investigator-artifacts.mjs initialize-turn-ledger \
+  --root <working-dir> \
+  --case-slug <slug>
+```
+
+If this fails, do not emit the Step 3 checkpoint. Surface
+`Turn ledger not ready: <reason>` and make retrying the helper the next
+checkpoint option. Subsequent investigation turns are invalid unless
+`_data/cases/<slug>/workflow/02-turn-state.json` exists and `begin-turn`
+succeeds.
 
 **Slug selection:**
 
 - If the user's framing referenced an existing path (e.g., `_data/cases/test-foo/`), use that slug — write to its `journal.md`.
-- If `_data/cases/<some-existing-slug>/` already has a `journal.md` whose ISSUE matches this investigation, this is a continuation — update that file in place.
+- If the user-referenced or current case directory already has a `journal.md`, this is a continuation — update that file in place.
 - Otherwise mint a fresh slug: `<YYYY-MM-DD>-<short-kebab-descriptor>` (e.g., `2026-04-30-ssh-azure-port-22`). Create the directory.
+- Do not browse sibling case directories to find a matching prior journal.
 
 **Subsequent turns** update the same file in place — do not create a new file each turn. The working directory established at Step 1 carries forward; do not re-resolve it on subsequent turns.
 
@@ -536,13 +619,55 @@ After printing the journal AND saving to disk, end your response with the closin
 
 After Step 3's first journal output, **every** subsequent turn in this investigation follows the same per-turn cadence — the halt-and-ask pattern is **recursive**, not one-shot. Apply this on turn 2, turn 3, turn N, until the user marks the investigation complete.
 
-#### Per-turn cadence (do all four, in order, then halt)
+#### Per-turn cadence (do all five, in order, then halt)
 
-1. **Read user direction.** The user replied to the previous turn's closing multi-choice. The selection (or `Other — specify` free-text) names the next action: investigate the top Open hypothesis, focus on a specific one, rule out a specific one with evidence, add a new hypothesis, or pause. Parse it. If it's `pause`, halt without further work — the journal stays saved.
-2. **Perform exactly ONE investigation action.** Read one source, run one query, evaluate one piece of evidence. **Do NOT** batch multiple hypothesis investigations into one turn. **Do NOT** rule out a hypothesis you weren't directed to investigate.
-3. **Update the journal.** Print the updated journal table in chat (with claim status changes, new evidence, dismissed hypotheses if any). Then **immediately save the updated journal** to `_data/cases/<slug>/journal.md` using your file-write tool — same path as Step 3B, no permission asked.
-4. **Halt with the closing multi-choice.** End your response with the same **What's next?** multi-choice from the Step 3 turn shape (using options that fit the current state — e.g., if all hypotheses except one are ruled out, the menu can name the remaining one as the next focus). Wait for the user.
+1. **Read user direction.** The user replied to the previous turn's closing multi-choice. The selection (or `Other — specify` free-text) names the next action: investigate the top Open hypothesis, focus on a specific one, request user evidence, record user-provided evidence, add a new hypothesis, mark resolved, or pause. Parse it. If it's `pause`, halt without further work — the journal stays saved.
+2. **Begin the helper transaction.** Run:
+
+   ```bash
+   node scripts/investigator-artifacts.mjs begin-turn \
+     --root <working-dir> \
+     --case-slug <slug> \
+     --user-action <continue-top-open|investigate-different-claim|request-user-evidence|record-user-evidence|add-evidence|mark-resolved|pause>
+   ```
+
+   If this fails, halt and surface the helper error. Do not mutate the journal.
+3. **Perform exactly ONE investigation action.** Read one source, run one query, evaluate one piece of evidence, or record one user-evidence request/result. **Do NOT** batch multiple hypothesis investigations into one turn. **Do NOT** rule out a hypothesis you weren't directed to investigate. A `query-request` is a completed Splunk/catalog-pattern turn and must include `queryPatterns`. A `request-user-evidence` turn is for non-Splunk evidence such as Azure changes, API/manual lookups, screenshots, support tickets, or operator-provided files and must include `evidenceRequest`. When the user returns results, start a fresh `record-user-evidence` turn; do not keep `pendingTurn` open across the checkpoint.
+   Use only canonical `actionType` values: `load-file`, `query-request`,
+   `request-user-evidence`, `record-user-evidence`, `add-evidence`,
+   `mark-resolved`, or `pause`. Do not use synonyms like `record-evidence`.
+   For `mark-resolved`, do not resolve by elimination alone. The turn JSON must
+   include `completionGate.rootCauseClaim`,
+   `completionGate.userConfirmedResolution: true`, and non-empty
+   `completionGate.supportingEvidenceRefs`; the root-cause claim must be
+   `Resolved` or `Confirmed (high)`, no claims may remain Open, and the
+   supporting evidence refs must already be recorded in an earlier completed
+   turn. Do not record returned evidence and mark resolved in the same turn.
+4. **Update the journal and complete the helper transaction.** Print the updated journal table in chat, save the updated journal to `_data/cases/<slug>/journal.md`, write a turn JSON file, then run:
+
+   ```bash
+   node scripts/investigator-artifacts.mjs complete-turn \
+     --root <working-dir> \
+     --case-slug <slug> \
+     --turn-json <path-to-turn-json>
+   ```
+
+   If this fails, surface the helper error and do not claim the turn completed.
+   If the action becomes blocked after `begin-turn` but before any journal
+   mutation, run:
+
+   ```bash
+   node scripts/investigator-artifacts.mjs abandon-turn \
+     --root <working-dir> \
+     --case-slug <slug> \
+     --reason "<why the turn was blocked before mutation>"
+   ```
+
+   Then halt and say `Turn abandoned before journal mutation: <reason>`. If
+   `abandon-turn` says `journal.md` changed, halt with `Pending turn requires
+   repair`; do not start another turn.
+5. **Halt with the closing multi-choice.** End your response with the same **What's next?** multi-choice from the Step 3 turn shape (using options that fit the current state — e.g., if all hypotheses except one are ruled out, the menu can name the remaining one as the next focus). Wait for the user.
 
 **This cadence applies until the user explicitly closes the investigation** with `pause` or `done` (a status of `Resolved` on the root cause claim with the user's confirmation that the resolution holds). Until then, every response is one action + journal update + halt — never a rolling investigation that resolves multiple hypotheses without user direction.
 
-If you find yourself about to write a response that ① touches more than one hypothesis OR ② omits the journal save OR ③ omits the closing multi-choice halt, **stop**. You are off-cadence. Reset to the four-step structure above.
+If you find yourself about to write a response that ① touches more than one hypothesis OR ② omits the journal save OR ③ omits `begin-turn` / `complete-turn` OR ④ omits the closing multi-choice halt, **stop**. You are off-cadence. Reset to the five-step structure above.

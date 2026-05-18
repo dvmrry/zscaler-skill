@@ -116,10 +116,9 @@ print(result.summary())
 ```
 
 Requires `url-filtering-rules.json` + `url-categories.json` under either
-`_data/snapshot/zia/` or `_data/snapshot/<cloud>/zia/`. Pass `--cloud <name>`
-or set `ZSCALER_CLOUD` for a per-cloud/private overlay; otherwise the CLI uses
-the public product-first layout. If exactly one per-cloud overlay exists under
-the snapshot root, the CLI auto-detects it. Pass `--snapshot-root <path>` when
+`_data/snapshot/<cloud>/zia/` or a legacy product-first fallback. Pass
+`--cloud <name>` or set `ZSCALER_CLOUD`; otherwise the CLI auto-detects exactly
+one cloud directory under the snapshot root. Pass `--snapshot-root <path>` when
 the snapshot directory is not `_data/snapshot`. Text and JSON output include
 the selected `snapshot` path so operators can see which snapshot directory was
 used. Run `./scripts/snapshot-refresh.py --zia-only` first if the snapshot is

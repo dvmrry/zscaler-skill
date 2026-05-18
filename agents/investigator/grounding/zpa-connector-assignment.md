@@ -44,7 +44,7 @@ Read these *before* interpreting any logs. Establish what *should* happen in the
 - `_data/snapshot/<cloud>/zpa/connector-groups.json`
 - `_data/snapshot/<cloud>/zpa/app-connectors.json`
 
-(Fork layouts may use `_data/<cloud>/zpa/...` or `_data/snapshot/zpa/...` without the `<cloud>/` segment — scan `_data/` for the actual layout if the canonical path is empty.)
+(Fork layouts may use `_data/<cloud>/zpa/...` directly. If the canonical path is empty, try that exact cloud fallback and show both attempts. Do not scan broad `_data/` or collapse multi-cloud tenant truth into a product-first layout.)
 
 ## Use runtime logs only when
 

@@ -778,7 +778,7 @@ Real implementations of the refresh / lookup / splunk-query scripts would need a
 **Answer**: Python via `uv run --script` shebang, using the vendored `zscaler-sdk-python`. Implemented:
 
 - `scripts/url-lookup.py` — mirrors the `investigate-url` workflow from `vendor/zscaler-mcp-server/commands/investigate-url.md`.
-- `scripts/snapshot-refresh.py` — dumps ZIA + ZPA config to `_data/snapshot/<product>/*.json` with `--zia-only` / `--zpa-only` flags and a `_manifest.json`.
+- `scripts/snapshot-refresh.py` — dumps ZIA + ZPA config to `_data/snapshot/<cloud>/<product>/*.json` with `--zia-only` / `--zpa-only` flags and a per-cloud `_manifest.json`.
 - `scripts/splunk-query.sh` — kept as bash stub (Splunk SDK is Python but the Splunk path is not the critical one and the bash stub matches the legacy pattern).
 
 ---
@@ -811,12 +811,12 @@ Raw JSON dumps from the API are cheap to produce and `jq`-friendly but noisy for
 
 **Status**: resolved (2026-04-24).
 
-**Answer**: **Raw JSON** as shipped by `snapshot-refresh.py` today — one file per resource under `_data/snapshot/<product>/<resource>.json`, plus a `_manifest.json` capturing timestamp + per-resource counts. Wire format (camelCase for ZIA, mixed for ZPA) is preserved as-is; no paraphrasing pass.
+**Answer**: **Raw JSON** as shipped by `snapshot-refresh.py` today — one file per resource under `_data/snapshot/<cloud>/<product>/<resource>.json`, plus a per-cloud `_manifest.json` capturing timestamp + per-resource counts. Wire format (camelCase for ZIA, mixed for ZPA) is preserved as-is; no paraphrasing pass.
 
 Rationale:
 
 - **Faithfulness over friendliness.** Paraphrased markdown risks going stale against API changes or drifting from the SDK's model. Raw JSON is source-of-truth; any transformation is downstream.
-- **`jq`-first access.** Skill answers that need tenant data read JSON directly (`jq '.[] | select(.name == "X")' _data/snapshot/zia/url-categories.json`) or via small Python helpers in the scripts. Claude handles JSON well enough that noisy fields aren't a blocker.
+- **`jq`-first access.** Skill answers that need tenant data read JSON directly (`jq '.[] | select(.name == "X")' _data/snapshot/<cloud>/zia/url-categories.json`) or via small Python helpers in the scripts. Claude handles JSON well enough that noisy fields aren't a blocker.
 - **Model consumption concerns are real but bounded.** The scripts are selective — `url-lookup.py` extracts only the fields relevant to the question, doesn't pass the full JSON blob to the model. Reasoning docs under `references/` carry the narrative; snapshot answers "what does this tenant actually have configured" in raw form.
 - **Deferred `snapshot-schema.md` docs** are the answer to "noisy for model consumption" — once the first fork-admin run produces real output, write camelCase-key tables and jq cheatsheets per-product (tracked in PLAN.md § 4).
 

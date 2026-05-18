@@ -1,6 +1,53 @@
-# `_data/` — fork-customization and runtime data
+# `_data/` — replaceable runtime data mount
 
-Single home for everything that becomes per-fork or per-tenant. The skill-internal docs (methodologies, playbooks, registers) live under `references/_meta/`; runtime data (tenant snapshots, script outputs, fork-specific IaC) lives here.
+Single home for everything that becomes per-fork or per-tenant. The
+skill-internal docs (methodologies, playbooks, registers) live under
+`references/_meta/`; runtime data (tenant snapshots, script outputs,
+fork-specific IaC) lives here.
+
+The public upstream ships a minimal `_data` skeleton. Private or internal
+deployments may replace `_data` with an overlay repository, submodule, or local
+mount that follows the same directory contract. Public upstream does not ship
+tenant data.
+
+Expected top-level directories:
+
+- `_data/cases/`
+- `_data/schemas/`
+- `_data/snapshot/`
+- `_data/iac/`
+
+Run the public contract check after replacing or mounting `_data`:
+
+```bash
+node scripts/check-data-contract.mjs
+```
+
+The checker verifies the directory shape, reports whether `_data` appears to be
+a submodule, and warns when the skeleton is empty enough that snapshot-backed
+or tenant-schema-backed reasoning will be unavailable.
+
+To replace the public skeleton with a user-supplied runtime-data source, use the
+generic setup helper:
+
+```bash
+node scripts/setup-data-mount.mjs \
+  --data-url <git-url-or-local-path> \
+  --data-ref main \
+  --mode auto
+```
+
+Mode `auto` copies local directories into `_data` and adds other URLs as a git
+submodule. Use `--mode submodule` when a local repository path should be mounted
+as a real `_data` submodule instead of copied. The helper refuses to replace
+populated `_data` contents unless `--force` is explicit, removes tracked
+skeleton files through git before submodule setup, then runs the same public
+contract check.
+
+If a root-level `zscaler-skill-setup.json` exists, the helper reads setup
+defaults from it. Use [`../zscaler-skill-setup.example.json`](../zscaler-skill-setup.example.json)
+as the public-safe template. The real config is gitignored because it may
+contain a private data source URL.
 
 ## Subdirectories
 
@@ -35,33 +82,33 @@ No subdir convention — flat. Scripts that want their own scratch namespace can
 ### `_data/snapshot/`
 
 **Tenant config dumps for offline analysis.** Gitignored except `.gitkeep`.
-The public scripts use a product-first layout:
+The public scripts use a cloud-first layout:
 
 ```
 _data/snapshot/
-├── zia/
-│   ├── url-categories.json
-│   ├── url-filtering-rules.json
-│   └── ...
-├── zpa/
-│   ├── app-segments.json
-│   ├── server-groups.json
-│   └── ...
-├── zcc/
-│   ├── forwarding-profiles.json
-│   └── ...
-└── _manifest.json
+└── <cloud>/
+    ├── zia/
+    │   ├── url-categories.json
+    │   ├── url-filtering-rules.json
+    │   └── ...
+    ├── zpa/
+    │   ├── app-segments.json
+    │   ├── server-groups.json
+    │   └── ...
+    ├── zcc/
+    │   ├── forwarding-profiles.json
+    │   └── ...
+    └── _manifest.json
 ```
 
-`scripts/snapshot-refresh.py` records the selected `ZSCALER_CLOUD` in
-`_manifest.json`; it does not create per-cloud directories.
+`scripts/snapshot-refresh.py` uses `--cloud`, `ZSCALER_CLOUD`, or `default`
+as the `<cloud>` slug and records that slug in `_manifest.json`.
 
 `scripts/snapshot-refresh.py` writes here. `scripts/simulate-policy.py` and other config-replay tools read from here.
 
-**Multi-tenant / multi-cloud forks** can add a private overlay such as
-`_data/snapshot/<tenant>/zia/...` or `_data/snapshot/<cloud>/zia/...`, but
-that is not the public repo convention. If a fork adds such an overlay, update
-its local agent prompts and scripts to match.
+**Multi-tenant / multi-cloud forks** should keep one directory per tenant cloud
+or tenant slug under `_data/snapshot/`. Do not mix multiple clouds into a
+product-first directory.
 
 ### `_data/cases/`
 
@@ -87,6 +134,9 @@ case content do so deliberately by adjusting `.gitignore`. **Tenant snapshots
 and raw operational logs should generally not be committed**, even to private
 forks, unless the org has explicit guidance otherwise (see `iac/README.md` §
 Sanitization).
+
+Release artifacts may pre-populate `_data` from a private source. Public
+upstream does not ship tenant data.
 
 ## Why this dir exists
 

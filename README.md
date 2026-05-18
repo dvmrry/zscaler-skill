@@ -2,7 +2,7 @@
 
 [![Doc hygiene](https://github.com/dvmrry/zscaler-skill/actions/workflows/check-hygiene.yml/badge.svg)](https://github.com/dvmrry/zscaler-skill/actions/workflows/check-hygiene.yml)
 
-A Claude skill for reasoning about Zscaler environments: ZIA, ZPA, ZCC, ZDX,
+An agent skill for reasoning about Zscaler environments: ZIA, ZPA, ZCC, ZDX,
 ZBI, ZIdentity, Cloud & Branch Connector, ZWA, ZPA AppProtection, and the
 broader Zscaler portfolio.
 
@@ -18,9 +18,10 @@ tenant-specific questions backed by snapshots, and structured investigations.
 API access is useful, but it is not the point; an agent with API access and no
 behavioral model can still answer confidently and wrong.
 
-The repo follows the [Anthropic skill conventions](https://github.com/anthropics/skills):
-`SKILL.md` at the root, progressive disclosure through `references/`, helper
-scripts in `scripts/`, and eval prompts in `references/_meta/evals/`.
+The repo follows open, file-based agent conventions: `AGENTS.md` for repository
+runtime guidance, `SKILL.md` as the high-level skill entrypoint, portable Agent
+Skills under `.agents/skills/`, progressive disclosure through `references/`,
+helper scripts in `scripts/`, and eval prompts in `references/_meta/evals/`.
 
 ## Entry points
 
@@ -29,11 +30,18 @@ Default to `@zscaler`; use procedural roles when the task has a defined output.
 - **Cascade always-on guidance**: Windsurf discovers [`AGENTS.md`](./AGENTS.md)
   and [`.windsurf/rules/zscaler.md`](./.windsurf/rules/zscaler.md). These are
   thin adapters that load canonical logic under `agents/`.
+- **Portable Agent Skills**: open-standard skill loaders live under
+  [`.agents/skills/`](./.agents/skills/). These expose canonical workflows to
+  compatible runtimes without copying the workflow body into runtime adapters.
 - **`@zscaler`**: ad-hoc grounded Q&A. The canonical playbook is
   [`agents/zscaler/prompt.md`](./agents/zscaler/prompt.md); the repo-root
   [`zscaler`](./zscaler) file is a thin runtime loader.
-- **`/z-investigator`**: evidence-based troubleshooting; produces a discovery
-  journal.
+- **`zscaler-skill-setup`**: setup or repair of the `_data` runtime-data mount;
+  prompts for a data URL/path, mode, and ref, then calls the deterministic setup
+  and contract-check scripts.
+- **`zscaler-investigator` / `/z-investigator`**: evidence-based
+  troubleshooting; produces a discovery journal. The portable skill is the
+  open-standard entrypoint; the slash command is a runtime adapter.
 - **`/z-architect`**: capacity and scaling review; produces a recommendation
   register.
 - **`/z-auditor`**: editorial and structural skill audit; produces an audit
@@ -94,6 +102,7 @@ SDK response shapes against their own tenant.
 ```text
 SKILL.md                 skill routing hub
 AGENTS.md                repo runtime guide for coding agents
+.agents/skills/          portable Agent Skills that load canonical workflows
 agents/                  canonical prompts, diagnostics, and role workflows
 references/              sourced Zscaler behavior and product references
 references/_meta/        portfolio map, clarifications, evals, templates
@@ -103,6 +112,25 @@ _data/snapshot/          tenant config dumps; empty upstream, populated locally
 _data/iac/               tenant IaC overlay; empty upstream, populated per fork
 docs/                    project docs and rendered static docs assets
 ```
+
+`_data/` is a replaceable runtime-data mount point. Public upstream ships only
+the skeleton; internal release artifacts may pre-populate `_data` from a
+private source. To mount a user-supplied data repo or local directory, run:
+
+```bash
+node scripts/setup-data-mount.mjs \
+  --data-url <git-url-or-local-path> \
+  --data-ref main \
+  --mode auto
+```
+
+Internal releases may instead place setup defaults in a local
+`zscaler-skill-setup.json` at the repo root. See
+[`zscaler-skill-setup.example.json`](./zscaler-skill-setup.example.json) for the
+public-safe shape; the real file is gitignored because it may contain private
+URLs.
+
+Then run `node scripts/check-data-contract.mjs` to verify the mounted shape.
 
 Every reference file carries YAML frontmatter (`product`, `topic`,
 `content-type`, `last-verified`, `confidence`, `source-tier`, `sources`,

@@ -72,10 +72,14 @@ Workflows cannot pin to a specific model. The user's session model (e.g., SWE-1.
 
 **Implication**: design workflows for the **weakest model in routine rotation**. Tightening for SWE-1.6 (explicit numbered steps, status enums, "will NOT do" sections, gating fields) doesn't penalize stronger-model sessions — they extract the same procedural value, plus headroom — but failing to tighten penalizes weaker-model sessions immediately.
 
-This is also why verified diagnostics matter: an ordered command/query → value → decision sequence leaves less room for weak-model drift than open-ended reasoning. The authoring templates live at [`investigator/diagnostics/template.md`](../investigator/diagnostics/template.md) and [`architect/diagnostics/template.md`](../architect/diagnostics/template.md), but they are only loaded when creating or reviewing reusable diagnostics.
+This is also why canonical harnesses matter: a workflow such as `/z-investigator` needs a shared phase/checkpoint contract under `agents/**` that runtime adapters can reinforce without inventing a separate workflow. See [`runtime-adapters.md`](./runtime-adapters.md) for the portable-skill / adapter / harness split and [`investigator/harness.md`](../investigator/harness.md) for the investigator checkpoint contract.
+
+Verified diagnostics follow the same principle at a smaller scale: an ordered command/query → value → decision sequence leaves less room for weak-model drift than open-ended reasoning. The authoring templates live at [`investigator/diagnostics/template.md`](../investigator/diagnostics/template.md) and [`architect/diagnostics/template.md`](../architect/diagnostics/template.md), but they are only loaded when creating or reviewing reusable diagnostics.
 
 ## Cross-links
 
 - Windsurf workflow files — `.windsurf/workflows/z-investigator.md`, `z-auditor.md`, `z-architect.md`
 - Claude Code parallels — `.claude/commands/z-investigator.md`, `z-auditor.md`, `z-architect.md`
+- [`runtime-adapters.md`](./runtime-adapters.md) — canonical workflow vs portable skill vs runtime adapter policy
+- [`investigator/harness.md`](../investigator/harness.md) — canonical investigator phase/checkpoint contract
 - [`siem-emission-discipline.md`](../siem-emission-discipline.md) — the broader "agent-direct vs. user-handoff vs. coworking" framework these workflows operate under
