@@ -191,7 +191,7 @@ test("prepareOverlaySubmission rejects symlink artifacts", () => {
 test("prepareOverlaySubmission rejects files that exceed the scan limit", () => {
   const { root, caseDir } = makeRootWithCase();
   const overlay = makeOverlayRepo();
-  fs.writeFileSync(path.join(caseDir, "large.log"), Buffer.alloc(1024 * 1024 + 1, "a"));
+  fs.writeFileSync(path.join(caseDir, "large.log"), Buffer.alloc(5 * 1024 * 1024 + 1, "a"));
 
   assert.throws(
     () => prepareOverlaySubmission({

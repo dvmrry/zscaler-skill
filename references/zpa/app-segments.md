@@ -3,10 +3,10 @@ product: zpa
 topic: "zpa-app-segments"
 title: "ZPA application segment matching"
 content-type: reasoning
-last-verified: "2026-05-17"
+last-verified: "2026-05-18"
 verified-against:
   vendor/terraform-provider-zpa: a3c845f3366cc2267e1b244f9968e727c92bad3d
-  vendor/zscaler-mcp-server: 25eccadd1d476bb90cb415c468197ec0a802c8fa
+  vendor/zscaler-mcp-server: 246430c8d2d99726ad6cdcb00d1adc4e316cb966
 confidence: high
 source-tier: mixed
 sources:

@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 
 const DEFAULT_ALLOWED_ROOTS = ["_data/cases", "_data/schemas", "_data/iac"];
 const DEFAULT_BRANCH_PREFIX = "artifact-submission/";
-const MAX_SCAN_BYTES = 1024 * 1024;
+const MAX_SCAN_BYTES = 5 * 1024 * 1024;
 
 function usage(exitCode = 0) {
   const out = exitCode === 0 ? process.stdout : process.stderr;
