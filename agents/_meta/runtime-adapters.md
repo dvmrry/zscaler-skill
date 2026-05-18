@@ -23,8 +23,8 @@ These files are source of truth:
 
 - `AGENTS.md` — repository operating contract for coding agents.
 - `SKILL.md` — high-level Zscaler skill entrypoint and routing surface.
-- `agents/**` — canonical workflow playbooks, methodologies, grounding cards,
-  diagnostics templates, and role conventions.
+- `agents/**` — canonical workflow metadata, playbooks, methodologies,
+  grounding cards, diagnostics templates, and role conventions.
 - `references/**` — Zscaler product and behavior references.
 - `scripts/**` — deterministic checks and utility tooling.
 
@@ -35,8 +35,8 @@ Portable Agent Skills live under `.agents/skills/`.
 Each skill should be a thin loader that:
 
 1. Declares trigger metadata in its `SKILL.md` frontmatter.
-2. Points to the canonical workflow under `agents/**`.
-3. Lists on-demand dependencies without re-stating the whole workflow.
+2. Points to the canonical `agents/<role>/workflow.md`.
+3. Avoids re-stating the workflow, required reads, or helper gates.
 
 The skill should not copy long command bodies from `.claude/`, `.windsurf/`, or
 other runtime folders.
@@ -46,6 +46,7 @@ Portable skills assume this repository layout:
 ```text
 .agents/skills/<skill-name>/SKILL.md
 agents/<role>/prompt.md
+agents/<role>/workflow.md
 ```
 
 Relative links from a portable skill are validated against that layout. If a
@@ -79,7 +80,7 @@ gate would create false confidence.
 
 The adapter pattern is:
 
-1. Load the canonical prompt and harness.
+1. Load the canonical workflow metadata and required reads.
 2. Call the canonical helper command for the current phase.
 3. Verify the artifact the helper produced.
 4. Read back the verified artifact.
@@ -137,7 +138,8 @@ adapter until parity has been tested.
 
 When adding or revising a workflow:
 
-1. Update the canonical workflow under `agents/**`.
+1. Update the canonical workflow under `agents/**`, starting with
+   `agents/<role>/workflow.md`.
 2. Add or update a portable skill under `.agents/skills/` if the workflow should
    be natively discoverable by open-standard agent runtimes.
 3. Keep Claude, Windsurf, and other runtime wrappers thin.

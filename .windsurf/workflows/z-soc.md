@@ -1,34 +1,11 @@
 ---
-description: Run a SOC / security-posture review of tenant configuration, telemetry, or access state. Posture-driven (vs. /z-auditor lint or /z-investigator hypothesis). Outputs a posture register with severity calibrated to security impact.
+description: Run a SOC / security-posture review.
 ---
 
 # /z-soc
 
-## Required reads — do these now, in order
-
 <!-- adapter-deps:start -->
-1. **Use your file-read tool to load `agents/soc/prompt.md`.** This is the playbook. It carries the First Response procedure, the five subtype check-sets, and the posture register format.
-2. **Use your file-read tool to load `agents/soc/harness.md`.** This is the gate contract. It defines scope/subtype, grounding, posture-finding, and save gates.
-3. **Use your file-read tool to load `agents/soc/grounding/index.md`.** This is the grounding load map for posture, identity, policy, and telemetry context.
-4. **Use your file-read tool to load `agents/auditor/methodology.md`.** Shared methodology (also used by `/z-auditor`). Carries register format, severity scale, status lifecycle, anti-patterns.
-5. **Use your file-read tool to load `agents/investigator/methodology.md`.** Evidence discipline, claim status — relevant when SOC findings hand off to investigation.
-6. **Use your file-read tool to load `agents/siem-emission-discipline.md`.** SIEM emission modes, public/private boundary, placeholder plumbing.
-7. **Use your file-read tool to load `agents/clarification-pattern.md`.** Multiple-choice with free-text escape for closed-set decisions (subtype selection, etc.).
+Load and follow `agents/soc/workflow.md`.
 <!-- adapter-deps:end -->
 
-All paths are relative to the Zscaler skill repo root. **Do not respond until all files are loaded.** Then follow the playbook's First Response procedure with the supporting context already loaded.
-
-## Best framing for the user's input
-
-The user's scope should include:
-
-- **Scope** — `ZPA admin RBAC`, `ZIA URL filtering rules`, `telemetry coverage`, `Salesforce app segment`, `the whole tenant`
-- **Subtype** (optional) — one of: `policy`, `access`, `coverage`, `config`, `activity`. If omitted, infer from scope.
-- **Threat model** (optional) — `external attacker w/ stolen credentials`, `compromised admin`, `data exfil via cloud apps`, `ransomware lateral movement`, or "general"
-- **Tenant cloud** (helps) — `zs2`, `zs3`, etc., so the agent can locate snapshot data
-
-The user's SOC review scope follows this command in the chat. Parse scope and subtype, ground before reasoning per Step 2 (read schemas and product references; check `_data/snapshot/<cloud>/`, the operative case directory's `evidence/`, and `_data/schemas/` first), apply the relevant subtype check-set, and output the posture register grouped by severity.
-
-Save the register to `_data/cases/<slug>/posture.md` per Step 5. For routine (non-incident-driven) reviews use slug `<YYYY-MM-DD>-soc-<scope-descriptor>`.
-
-Do not change tenant state — propose only. If scope is ambiguous, ask one targeted clarifying question.
+Do not respond until the workflow file and its required reads are loaded.

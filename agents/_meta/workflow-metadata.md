@@ -15,8 +15,8 @@ author-status: draft
 
 # Workflow metadata
 
-A workflow metadata file records the command, required reads, supporting
-scripts, and maintained adapter runtimes for a workflow.
+A workflow metadata file records the command, required reads, optional reads,
+supporting scripts, and maintained adapter runtimes for a workflow.
 
 The metadata lives beside the canonical workflow:
 
@@ -37,12 +37,18 @@ Use only portable concepts:
 - `primary-command`
 - `known-runtimes`
 - `required-reads`
+- `optional-reads`
 - `supporting-scripts`
 
-Keep adapter details out of this metadata except for file paths used by the
-metadata check.
+`required-reads` is the workflow bootstrap contract: files that must be loaded
+before the role answers. `optional-reads` is for conditional workflow support
+files that must exist and be available when their trigger applies.
+
+This is distinct from role `grounding/` files. Grounding describes domain,
+evidence, or context-loading discipline for reasoning. Workflow reads describe
+which agent-control files the runtime must load to execute the role correctly.
 
 ## Validator scope
 
 `scripts/check-workflow-metadata.mjs` checks required metadata fields,
-referenced read/script paths, and known adapter pointers.
+referenced read/script paths, optional read paths, and known adapter pointers.

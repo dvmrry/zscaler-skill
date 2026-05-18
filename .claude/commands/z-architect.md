@@ -1,23 +1,11 @@
 ---
-description: Run a capacity / scaling architecture review. Config-first, metrics-augmented when available. Outputs a recommendation register with risk and confidence calibrated to evidence quality.
-argument-hint: [scope] — e.g., "App Connector Group us-east-1, planning 3x growth by Q3, Splunk has Connector Metrics"
+description: Run a capacity / scaling architecture review.
+argument-hint: [scope]
 ---
 
 <!-- adapter-deps:start -->
-Load and follow the playbook at @agents/architect/prompt.md.
-
-Before the first response, also load each of its declared dependencies:
-- `agents/architect/harness.md` — scope, evidence, config-first, and recommendation register gates
-- `agents/architect/grounding/index.md` — cloud, network, and capacity grounding load map
-- `agents/architect/methodology.md` — recommendation register format, risk scale, confidence calibration, status lifecycle
-- `agents/siem-emission-discipline.md` — SIEM emission modes, public/private boundary
-
-Available on demand:
-- `agents/architect/diagnostics/template.md` — load only when authoring or reviewing a verified reusable diagnostic.
+Load and follow `agents/architect/workflow.md`.
 <!-- adapter-deps:end -->
 
-The user's architect scope and context:
-
+User input:
 $ARGUMENTS
-
-Parse scope, planning horizon, and evidence access. Map evidence layers (config-only / config + metrics / mixed). Walk config for structural issues first; layer in utilization analysis if metrics are available. Output a recommendation register grouped by risk. Do not change tenant state — propose only. If scope or evidence access is unclear, ask one targeted clarifying question.

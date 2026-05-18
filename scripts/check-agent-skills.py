@@ -141,18 +141,25 @@ def check_skill(skill_file: Path, findings: list[Finding], allow_smoke_tests: bo
         else:
             agent_targets.append(resolved)
 
+    workflow_targets = [path for path in agent_targets if path.name == "workflow.md"]
     prompt_targets = [path for path in agent_targets if path.name == "prompt.md"]
-    if not prompt_targets and not is_smoke_test:
-        findings.append(Finding("error", skill_file, "skill does not reference a canonical agents/**/prompt.md"))
+    if not workflow_targets and not prompt_targets and not is_smoke_test:
+        findings.append(
+            Finding(
+                "error",
+                skill_file,
+                "skill does not reference a canonical agents/**/workflow.md or prompt.md",
+            )
+        )
 
     if name == "zscaler-investigator":
-        expected_harness = AGENTS_ROOT / "investigator" / "harness.md"
-        if expected_harness not in agent_targets:
+        expected_workflow = AGENTS_ROOT / "investigator" / "workflow.md"
+        if expected_workflow not in agent_targets:
             findings.append(
                 Finding(
                     "error",
                     skill_file,
-                    "zscaler-investigator must reference agents/investigator/harness.md",
+                    "zscaler-investigator must reference agents/investigator/workflow.md",
                 )
             )
 

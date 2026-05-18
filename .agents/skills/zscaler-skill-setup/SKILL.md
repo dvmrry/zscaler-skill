@@ -8,28 +8,7 @@ description: >
 
 # Zscaler Skill Setup
 
-Use this skill when the user wants help setting up or repairing `_data`.
+Load and follow `../../../agents/setup/workflow.md`.
 
-## Canonical Workflow
-
-Load and follow:
-
-- `../../../agents/setup/prompt.md`
-
-The prompt defines the input collection, command echoing, deterministic helper
-execution, and post-setup capability report.
-
-## Runtime Policy
-
-The canonical prompt is the source of truth for setup workflow behavior.
-
-The deterministic implementation lives in these repo-root scripts:
-
-- `scripts/setup-data-mount.mjs`
-- `scripts/check-data-contract.mjs`
-
-Do not reimplement setup logic in the skill body. The skill is a thin loader
-for the canonical setup workflow and public helper scripts.
-
-Keep environment-specific data source defaults out of this skill. Put them in
-a local `zscaler-skill-setup.json`, a wrapper, or the setup command.
+The canonical workflow is the source of truth. This skill is only a portable
+runtime entrypoint.
