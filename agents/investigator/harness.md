@@ -237,14 +237,52 @@ Template:
 **What's next?**
 - Investigate H1 — gather the next evidence
 - Focus another hypothesis — specify
+- Request user evidence — name the catalog pattern or exact evidence request
 - Add a hypothesis — specify
 - Pause — stop here; journal saved for resumption
 ```
 
 The closing menu is Checkpoint 3. Halt after it. First response is a plan, not
-a diagnosis.
+a diagnosis. Before emitting Checkpoint 3, initialize the turn ledger:
+
+```bash
+node scripts/investigator-artifacts.mjs initialize-turn-ledger \
+  --root <working-dir> \
+  --case-slug <slug>
+```
+
+If the command fails, do not claim Step 3 is complete. Surface
+`Turn ledger not ready: <reason>` and make retrying the helper the next
+checkpoint option.
 
 ### Subsequent Investigation Turn
+
+Every post-Step-3 controller turn is a helper-bracketed transaction. Before
+reading new evidence, updating claims, or recording a user-provided result, run:
+
+```bash
+node scripts/investigator-artifacts.mjs begin-turn \
+  --root <working-dir> \
+  --case-slug <slug> \
+  --user-action <continue-top-open|investigate-different-claim|request-user-evidence|record-user-evidence|add-evidence|mark-resolved|pause>
+```
+
+After exactly one investigation action, update `journal.md`, write a turn JSON
+file, and close the transaction:
+
+```bash
+node scripts/investigator-artifacts.mjs complete-turn \
+  --root <working-dir> \
+  --case-slug <slug> \
+  --turn-json <path-to-turn-json>
+```
+
+Use `actionType: "query-request"` or `"request-user-evidence"` only to record
+the request for the user to run or provide evidence. That turn must complete
+immediately after journaling the request. When the user returns query rows,
+logs, screenshots, or other evidence, start a fresh `begin-turn` with
+`--user-action record-user-evidence`; do not hold `pendingTurn` open across a
+user checkpoint.
 
 Template:
 
@@ -270,14 +308,16 @@ Template:
 **What's next?**
 - Continue with top Open claim
 - Investigate a different claim — specify
+- Request user evidence — name the catalog pattern or exact evidence request
+- Record user-provided evidence
 - Add evidence — specify
 - Mark resolved — summarize verified root cause
 - Pause — stop here
 ```
 
-Do one investigation action per turn, update the journal, save it, and halt.
-This cadence repeats until the user explicitly pauses or closes the
-investigation.
+Do one investigation action per turn, update the journal, complete the helper
+transaction, save it, and halt. This cadence repeats until the user explicitly
+pauses or closes the investigation.
 
 ## Step 1 Details
 
@@ -503,6 +543,14 @@ Use the same transaction shape as Step 1:
 
 Without write, readback, and marker verification, Step 3 is incomplete and
 Checkpoint 3 cannot fire.
+
+### Initialize Turn Ledger
+
+After the journal save verification succeeds, initialize the helper-owned turn
+ledger before presenting Checkpoint 3. This creates
+`_data/cases/<slug>/workflow/02-turns.jsonl` and
+`_data/cases/<slug>/workflow/02-turn-state.json`. Subsequent turns are not
+valid unless this ledger exists and `begin-turn` succeeds.
 
 ## Chain Traversal
 

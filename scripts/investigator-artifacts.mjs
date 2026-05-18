@@ -26,9 +26,13 @@ const VALID_CLAIM_STATUSES = new Set([
   "Stale",
   "Resolved",
 ]);
+const OPEN_CLAIM_STATUSES = new Set(["Open (likely)", "Open (uncertain)"]);
+const EVIDENCE_REQUEST_ACTION_TYPES = new Set(["query-request", "request-user-evidence"]);
 const DEFAULT_ALLOWED_NEXT = [
   "continue-top-open",
   "investigate-different-claim",
+  "request-user-evidence",
+  "record-user-evidence",
   "add-evidence",
   "mark-resolved",
   "pause",
@@ -242,6 +246,25 @@ function verifyJournalHasClaimTable(journalPath) {
   }
 }
 
+function journalClaimStatuses(journalPath) {
+  const journal = fs.readFileSync(journalPath, "utf8");
+  const statuses = new Map();
+  const lines = journal.split(/\r?\n/);
+  const headerIndex = lines.findIndex((line) => line.trim() === REQUIRED_CLAIM_TABLE_HEADER);
+  if (headerIndex === -1) return statuses;
+  for (const line of lines.slice(headerIndex + 1)) {
+    const trimmed = line.trim();
+    if (!trimmed) break;
+    if (trimmed.startsWith("## ")) break;
+    if (/^\|\s*-+/.test(trimmed)) continue;
+    if (!trimmed.startsWith("|")) continue;
+    const cells = markdownTableCells(trimmed);
+    if (cells.length < 3) continue;
+    statuses.set(cells[0], cells[2]);
+  }
+  return statuses;
+}
+
 function splunkPatternNames(root) {
   const catalogPath = path.join(root, "references", "shared", "splunk-queries.md");
   const catalog = fs.readFileSync(catalogPath, "utf8");
@@ -253,10 +276,10 @@ function splunkPatternNames(root) {
 }
 
 function validateQueryRequest(root, turnInput, actionType) {
-  if (actionType !== "query-request") return [];
+  if (!EVIDENCE_REQUEST_ACTION_TYPES.has(actionType)) return [];
   const queryPatterns = asArray(turnInput.queryPatterns);
   if (queryPatterns.length === 0) {
-    throw new Error("query-request turns must include queryPatterns from references/shared/splunk-queries.md");
+    throw new Error(`${actionType} turns must include queryPatterns from references/shared/splunk-queries.md`);
   }
   const catalogNames = splunkPatternNames(root);
   for (const pattern of queryPatterns) {
@@ -265,6 +288,20 @@ function validateQueryRequest(root, turnInput, actionType) {
     }
   }
   return queryPatterns;
+}
+
+function validateEvidenceHandoffTurn(journalPath, turnInput, actionType) {
+  if (!EVIDENCE_REQUEST_ACTION_TYPES.has(actionType)) return;
+  const statuses = journalClaimStatuses(journalPath);
+  for (const claim of asArray(turnInput.touchedClaims)) {
+    const status = statuses.get(claim);
+    if (!status) {
+      throw new Error(`${actionType} touched claim is not present in journal.md: ${claim}`);
+    }
+    if (!OPEN_CLAIM_STATUSES.has(status)) {
+      throw new Error(`${actionType} must not record returned evidence or close claims; use record-user-evidence in a new turn`);
+    }
+  }
 }
 
 function readTurnState(paths) {
@@ -421,6 +458,7 @@ function completeTurn(args) {
     throw new Error("turn-json touchedClaims is required for investigative actions");
   }
   const queryPatterns = validateQueryRequest(root, turnInput, actionType);
+  validateEvidenceHandoffTurn(paths.journalPath, turnInput, actionType);
 
   const allowedNext = normalizeAllowedNext(turnInput.allowedNext || DEFAULT_ALLOWED_NEXT);
   const nextTurnToken = makeTurnToken();

@@ -52,4 +52,9 @@ node scripts/investigator-artifacts.mjs verify-case \
 Only after verification passes may you report `case-intake.md`,
 `case-intake.json`, and `journal.md` as created.
 
+Step 3 and later turns must use the turn transaction gates defined in
+`agents/investigator/harness.md` and `agents/investigator/case-intake.md`:
+`initialize-turn-ledger` after the first real journal is saved, then
+`begin-turn` / `complete-turn` around every subsequent investigation turn.
+
 Note: `.windsurf/workflows/z-investigator.md` carries the equivalent windsurf-runtime-specific reinforcement for weaker-runtime behavior. For Claude Code, follow `agents/investigator/prompt.md`, `agents/investigator/harness.md`, and `agents/investigator/case-intake.md` directly — this command is a thin loader, not a re-statement of the playbook.

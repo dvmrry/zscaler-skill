@@ -14,14 +14,17 @@ not a quick factual answer.
 
 ## Canonical Workflow
 
-Load and follow both files:
+Load and follow these files:
 
 - `../../../agents/investigator/prompt.md`
 - `../../../agents/investigator/harness.md`
+- `../../../agents/investigator/case-intake.md`
 
 `prompt.md` defines investigator reasoning, grounding, and evidence discipline.
 `harness.md` defines phase order, checkpoint halts, output shape, journal
-creation timing, and snapshot-load discipline.
+creation timing, turn-transaction gates, and snapshot-load discipline.
+`case-intake.md` defines the deterministic helper contract for case intake,
+journal creation, and post-Step-3 turn ledger initialization.
 
 Load these only when their trigger applies:
 

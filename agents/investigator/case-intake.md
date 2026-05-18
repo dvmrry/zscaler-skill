@@ -28,6 +28,8 @@ The case intake phase creates and verifies:
 - `_data/cases/<slug>/case-intake.md`
 - `_data/cases/<slug>/case-intake.json`
 - `_data/cases/<slug>/journal.md`
+- `_data/cases/<slug>/workflow/02-turns.jsonl` after Step 3
+- `_data/cases/<slug>/workflow/02-turn-state.json` after Step 3
 
 The next phase must refuse to continue unless
 `case-intake.md` exists with:
@@ -142,6 +144,21 @@ generate hypotheses, or render a discovery journal table in the same response.
 
 The load phase begins only after the user confirms continuation and
 `verify-case` reports a passing case intake.
+
+After Step 3 writes and verifies the first real discovery journal, initialize
+the turn ledger before presenting the Step 3 checkpoint:
+
+```bash
+node scripts/investigator-artifacts.mjs initialize-turn-ledger \
+  --root <repo-root> \
+  --case-slug <slug>
+```
+
+Every later controller turn must run `begin-turn` before modifying the journal
+and `complete-turn` after exactly one investigation action. Evidence handoffs
+are two completed turns: first `request-user-evidence` or `query-request`, then
+a later `record-user-evidence` turn when the user provides results. Do not keep
+a pending turn open while waiting for the user.
 
 If the target case directory already contains `case-intake.md`,
 `case-intake.json`, or `journal.md`, treat it as a resume path and run

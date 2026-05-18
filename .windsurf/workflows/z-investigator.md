@@ -205,6 +205,7 @@ The literal output. Same pattern: closing multi-choice **is** the checkpoint.
 What's next?
 - Investigate the top Open hypothesis
 - Focus on a specific hypothesis — specify H#
+- Request user evidence — name the catalog pattern or exact evidence request
 - Rule out a hypothesis — specify H# and the evidence
 - Add a new hypothesis — specify
 - Pause — stop here; journal saved for resumption
@@ -213,6 +214,13 @@ What's next?
 ### Subsequent turns (after Step 3, during investigation)
 
 Same shape as Step 3 with the journal table updated. Header reads `#### Investigation turn — updated journal`. One investigation action per turn (per § Subsequent turns below). Closing "What's next?" multi-choice is the checkpoint.
+
+Post-Step-3 turns are helper-bracketed transactions. Step 3 initializes the
+ledger with `initialize-turn-ledger`. Every later user/controller turn runs
+`begin-turn` before journal mutation and `complete-turn` after exactly one
+investigation action. Do not hold `pendingTurn` open across a user checkpoint:
+query and evidence requests complete as their own turn, and returned evidence
+is recorded in a later `record-user-evidence` turn.
 
 ---
 
@@ -574,6 +582,22 @@ Use the deterministic save transaction:
 The save is part of Step 3 — without write, readback, and marker verification,
 Step 3 is incomplete and Checkpoint 3 cannot fire.
 
+#### 3C — Initialize turn ledger
+
+After journal save verification succeeds, run:
+
+```bash
+node scripts/investigator-artifacts.mjs initialize-turn-ledger \
+  --root <working-dir> \
+  --case-slug <slug>
+```
+
+If this fails, do not emit the Step 3 checkpoint. Surface
+`Turn ledger not ready: <reason>` and make retrying the helper the next
+checkpoint option. Subsequent investigation turns are invalid unless
+`_data/cases/<slug>/workflow/02-turn-state.json` exists and `begin-turn`
+succeeds.
+
 **Slug selection:**
 
 - If the user's framing referenced an existing path (e.g., `_data/cases/test-foo/`), use that slug — write to its `journal.md`.
@@ -595,13 +619,32 @@ After printing the journal AND saving to disk, end your response with the closin
 
 After Step 3's first journal output, **every** subsequent turn in this investigation follows the same per-turn cadence — the halt-and-ask pattern is **recursive**, not one-shot. Apply this on turn 2, turn 3, turn N, until the user marks the investigation complete.
 
-#### Per-turn cadence (do all four, in order, then halt)
+#### Per-turn cadence (do all five, in order, then halt)
 
-1. **Read user direction.** The user replied to the previous turn's closing multi-choice. The selection (or `Other — specify` free-text) names the next action: investigate the top Open hypothesis, focus on a specific one, rule out a specific one with evidence, add a new hypothesis, or pause. Parse it. If it's `pause`, halt without further work — the journal stays saved.
-2. **Perform exactly ONE investigation action.** Read one source, run one query, evaluate one piece of evidence. **Do NOT** batch multiple hypothesis investigations into one turn. **Do NOT** rule out a hypothesis you weren't directed to investigate.
-3. **Update the journal.** Print the updated journal table in chat (with claim status changes, new evidence, dismissed hypotheses if any). Then **immediately save the updated journal** to `_data/cases/<slug>/journal.md` using your file-write tool — same path as Step 3B, no permission asked.
-4. **Halt with the closing multi-choice.** End your response with the same **What's next?** multi-choice from the Step 3 turn shape (using options that fit the current state — e.g., if all hypotheses except one are ruled out, the menu can name the remaining one as the next focus). Wait for the user.
+1. **Read user direction.** The user replied to the previous turn's closing multi-choice. The selection (or `Other — specify` free-text) names the next action: investigate the top Open hypothesis, focus on a specific one, request user evidence, record user-provided evidence, add a new hypothesis, mark resolved, or pause. Parse it. If it's `pause`, halt without further work — the journal stays saved.
+2. **Begin the helper transaction.** Run:
+
+   ```bash
+   node scripts/investigator-artifacts.mjs begin-turn \
+     --root <working-dir> \
+     --case-slug <slug> \
+     --user-action <continue-top-open|investigate-different-claim|request-user-evidence|record-user-evidence|add-evidence|mark-resolved|pause>
+   ```
+
+   If this fails, halt and surface the helper error. Do not mutate the journal.
+3. **Perform exactly ONE investigation action.** Read one source, run one query, evaluate one piece of evidence, or record one user-evidence request/result. **Do NOT** batch multiple hypothesis investigations into one turn. **Do NOT** rule out a hypothesis you weren't directed to investigate. A query request is a completed turn: journal the requested catalog pattern and halt. When the user returns results, start a fresh `record-user-evidence` turn; do not keep `pendingTurn` open across the checkpoint.
+4. **Update the journal and complete the helper transaction.** Print the updated journal table in chat, save the updated journal to `_data/cases/<slug>/journal.md`, write a turn JSON file, then run:
+
+   ```bash
+   node scripts/investigator-artifacts.mjs complete-turn \
+     --root <working-dir> \
+     --case-slug <slug> \
+     --turn-json <path-to-turn-json>
+   ```
+
+   If this fails, surface the helper error and do not claim the turn completed.
+5. **Halt with the closing multi-choice.** End your response with the same **What's next?** multi-choice from the Step 3 turn shape (using options that fit the current state — e.g., if all hypotheses except one are ruled out, the menu can name the remaining one as the next focus). Wait for the user.
 
 **This cadence applies until the user explicitly closes the investigation** with `pause` or `done` (a status of `Resolved` on the root cause claim with the user's confirmation that the resolution holds). Until then, every response is one action + journal update + halt — never a rolling investigation that resolves multiple hypotheses without user direction.
 
-If you find yourself about to write a response that ① touches more than one hypothesis OR ② omits the journal save OR ③ omits the closing multi-choice halt, **stop**. You are off-cadence. Reset to the four-step structure above.
+If you find yourself about to write a response that ① touches more than one hypothesis OR ② omits the journal save OR ③ omits `begin-turn` / `complete-turn` OR ④ omits the closing multi-choice halt, **stop**. You are off-cadence. Reset to the five-step structure above.

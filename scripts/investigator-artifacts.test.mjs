@@ -471,6 +471,8 @@ test("initializeTurnLedger creates genesis ledger and current turn state", () =>
   assert.deepEqual(state.allowedNext, [
     "continue-top-open",
     "investigate-different-claim",
+    "request-user-evidence",
+    "record-user-evidence",
     "add-evidence",
     "mark-resolved",
     "pause",
@@ -708,7 +710,7 @@ index=$INDEX_ZPA Application=$APP
     userAction: pending.userAction,
     actionType: "query-request",
     actionSummary: "Prepared the next SIEM query request.",
-    touchedClaims: ["H1"],
+    touchedClaims: ["H1: Application segment may not include the app"],
     evidenceRefs: ["references/shared/splunk-queries.md#segment-match-observed"],
     journalHashBefore: pending.journalHashBefore,
     allowedNext: ["pause"],
@@ -729,4 +731,45 @@ index=$INDEX_ZPA Application=$APP
   });
   const completed = completeTurn({ root, caseSlug, turnJson: validPath });
   assert.deepEqual(completed.event.queryPatterns, ["segment-match-observed"]);
+});
+
+test("completeTurn keeps user evidence requests separate from returned evidence", () => {
+  const { root, caseSlug, journalPath } = createPassingCaseWithJournal();
+  const catalogPath = path.join(root, "references", "shared", "splunk-queries.md");
+  fs.mkdirSync(path.dirname(catalogPath), { recursive: true });
+  fs.writeFileSync(catalogPath, `# SPL patterns
+
+### \`segment-match-observed\`
+
+\`\`\`spl
+index=$INDEX_ZPA Application=$APP
+\`\`\`
+`, "utf8");
+
+  initializeTurnLedger({ root, caseSlug });
+  const begun = beginTurn({ root, caseSlug, userAction: "request-user-evidence" });
+  const pending = begun.pendingTurn;
+
+  const closedJournal = fs.readFileSync(journalPath, "utf8")
+    .replace("Open (uncertain)", "Confirmed (medium)");
+  fs.writeFileSync(journalPath, `${closedJournal}\nTurn update: user returned query rows.\n`, "utf8");
+
+  const smuggledResultPath = writeJson(root, "turn-smuggled-query-result.json", {
+    sequence: pending.sequence,
+    previousHash: pending.priorLatestTurnHash,
+    turnToken: pending.turnToken,
+    userAction: pending.userAction,
+    actionType: "query-request",
+    actionSummary: "Asked user to run the next SIEM query.",
+    touchedClaims: ["H1: Application segment may not include the app"],
+    evidenceRefs: ["references/shared/splunk-queries.md#segment-match-observed"],
+    queryPatterns: ["segment-match-observed"],
+    journalHashBefore: pending.journalHashBefore,
+    allowedNext: ["record-user-evidence", "pause"],
+  });
+
+  assert.throws(
+    () => completeTurn({ root, caseSlug, turnJson: smuggledResultPath }),
+    /must not record returned evidence or close claims/,
+  );
 });
