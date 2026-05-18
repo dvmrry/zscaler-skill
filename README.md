@@ -18,10 +18,16 @@ tenant-specific questions backed by snapshots, and structured investigations.
 API access is useful, but it is not the point; an agent with API access and no
 behavioral model can still answer confidently and wrong.
 
-The repo follows open, file-based agent conventions: `AGENTS.md` for repository
-runtime guidance, `SKILL.md` as the high-level skill entrypoint, portable Agent
-Skills under `.agents/skills/`, progressive disclosure through `references/`,
-helper scripts in `scripts/`, and eval prompts in `references/_meta/evals/`.
+The repo follows open, file-based agent conventions. Canonical workflow logic
+lives in `agents/<role>/workflow.md` — each role's runtime-neutral entrypoint,
+which owns its `required-reads` bootstrap list, command name, and
+adapter-pointer checks. `AGENTS.md` carries repository runtime guidance and
+`SKILL.md` is the high-level routing surface; the runtime adapters
+(`.agents/skills/`, `.claude/commands/`, `.windsurf/workflows/`, and the
+repo-root `zscaler` loader) are thin pointers at the canonical workflows rather
+than restatements of them. Product knowledge uses progressive disclosure
+through `references/`, with helper scripts in `scripts/` and eval prompts in
+`references/_meta/evals/`.
 
 ## Entry points
 
@@ -30,18 +36,22 @@ Default to `@zscaler`; use procedural roles when the task has a defined output.
 - **Cascade always-on guidance**: Windsurf discovers [`AGENTS.md`](./AGENTS.md)
   and [`.windsurf/rules/zscaler.md`](./.windsurf/rules/zscaler.md). These are
   thin adapters that load canonical logic under `agents/`.
-- **Portable Agent Skills**: open-standard skill loaders live under
-  [`.agents/skills/`](./.agents/skills/). These expose canonical workflows to
-  compatible runtimes without copying the workflow body into runtime adapters.
-- **`@zscaler`**: ad-hoc grounded Q&A. The canonical playbook is
-  [`agents/zscaler/prompt.md`](./agents/zscaler/prompt.md); the repo-root
-  [`zscaler`](./zscaler) file is a thin runtime loader.
+- **Canonical workflows**: every role's entrypoint is
+  `agents/<role>/workflow.md`. The loaders under
+  [`.agents/skills/`](./.agents/skills/), `.claude/commands/`,
+  `.windsurf/workflows/`, and the repo-root [`zscaler`](./zscaler) file are
+  thin pointers at those workflows — they do not copy the workflow body.
+- **`@zscaler`**: ad-hoc grounded Q&A. Canonical entrypoint
+  [`agents/zscaler/workflow.md`](./agents/zscaler/workflow.md); the playbook
+  beneath it is `agents/zscaler/prompt.md`.
 - **`zscaler-skill-setup`**: setup or repair of the `_data` runtime-data mount;
   prompts for a data URL/path, mode, and ref, then calls the deterministic setup
   and contract-check scripts.
-- **`zscaler-investigator` / `/z-investigator`**: evidence-based
-  troubleshooting; produces a discovery journal. The portable skill is the
-  open-standard entrypoint; the slash command is a runtime adapter.
+- **`/z-investigator`** (resume with **`/z-investigator-resume`**):
+  evidence-based troubleshooting; produces a discovery journal behind a
+  deterministic case-intake and turn-ledger gate.
+- **`/z-researcher`**: citation-backed reference expansion with extraction,
+  isolated writing, and verification checkpoints.
 - **`/z-architect`**: capacity and scaling review; produces a recommendation
   register.
 - **`/z-auditor`**: editorial and structural skill audit; produces an audit
@@ -103,7 +113,7 @@ SDK response shapes against their own tenant.
 SKILL.md                 skill routing hub
 AGENTS.md                repo runtime guide for coding agents
 .agents/skills/          portable Agent Skills that load canonical workflows
-agents/                  canonical prompts, diagnostics, and role workflows
+agents/                  canonical role workflows (workflow.md), prompts, harnesses, grounding
 references/              sourced Zscaler behavior and product references
 references/_meta/        portfolio map, clarifications, evals, templates
 scripts/                 public tooling, maintenance checks, private scaffolds

@@ -1,0 +1,76 @@
+# Changelog
+
+All notable changes to this skill are recorded here. Format follows
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
+the skill as a whole, not any single script.
+
+## [0.2.0] — 2026-05-18
+
+Released from `main` at commit `ea8229a` (the artifacts in this entry are tied to
+that commit). 0.2.0 is the runtime-migration line: canonical workflow logic was
+centralized and the runtime surfaces reduced to thin loaders.
+
+### Added
+
+- Canonical `agents/<role>/workflow.md` entrypoint for every role
+  (investigator, architect, auditor, researcher, retro, SOC, setup, and the
+  ad-hoc `@zscaler` Q&A path). Each `workflow.md` owns its `required-reads`
+  bootstrap list, command name, and adapter-pointer checks.
+- Deterministic investigator gate: `scripts/investigator-artifacts.mjs`
+  (`open-case` / `verify-case`, status recomputed from inputs rather than
+  trusted), a turn-transaction ledger (`begin-turn` / `complete-turn`,
+  helper-owned ordering token), and `abandon-turn` recovery for a blocked
+  mid-turn so a case cannot wedge across a halt.
+- Per-role `harness.md` (architect, auditor, retro, SOC) and `grounding/`
+  index cards, right-sized per role rather than copied from investigator.
+- `/z-researcher` as a canonical role (normalized from a `.claude`-only
+  command to `agents/researcher/`).
+- `scripts/prepare-overlay-submission.mjs`: validates selected `_data`
+  artifacts against an allowlist, scans for credentials, and prepares an
+  overlay branch without pushing by default.
+- `scripts/check-data-contract.mjs` and `scripts/setup-data-mount.mjs` for the
+  `_data` runtime mount; data-contract and Node helper regression suites wired
+  into CI.
+- This `CHANGELOG.md` and a top-level `VERSION` file.
+
+### Changed
+
+- `.windsurf/workflows/*`, `.claude/commands/*`, `.agents/skills/*`, and the
+  repo-root `zscaler` loader are now thin pointers at the canonical workflows;
+  the ~600-line Windsurf investigator body was removed in favor of the
+  canonical contract.
+- `_data` is documented and treated as a replaceable runtime mount, not repo
+  content; its public shape lives in `docs/data-contract/`.
+- Validators (`check-agent-skills.py`, `check-workflow-metadata.mjs`) enforce
+  dependency coverage through `agents/<role>/workflow.md` instead of duplicated
+  wrapper text.
+- Zscaler upstream vendor submodules updated to `246430c`.
+
+### Renamed
+
+- `/z-investigator-load` → `/z-investigator-resume` (case resume entrypoint).
+- The legacy `/researcher` command alias collapsed to `/z-researcher`.
+
+### Fixed
+
+- Citation-inventory baseline reconciled to the post-submodule-bump source
+  count for `references/zpa/app-segments.md` (the long-standing red was the
+  inventory lagging a legitimate upstream change, not a coverage loss); the
+  citation gate remains blocking.
+- README now linked `CHANGELOG.md` while none existed — this entry resolves
+  that dangling reference.
+
+### Known limitations
+
+- Cascade-runtime behavior is validated by deterministic repo checks and
+  proxy/representative smoke runs, not by automated Cascade regression.
+  Off-smoke-path interpretation divergence is an accepted, bounded residual.
+
+## [0.1.0] — baseline
+
+Pre-changelog baseline. No changelog was kept before 0.2.0; this is a marker,
+not a reconstructed history. 0.1.0 denotes the skill prior to the
+runtime-migration line: the Zscaler knowledge references, the original
+investigator/architect/auditor/SOC/retro roles, snapshot tooling, and the
+Windsurf/Claude adapters as full-bodied wrappers. See git history before
+commit `e0c2255` for detail.
