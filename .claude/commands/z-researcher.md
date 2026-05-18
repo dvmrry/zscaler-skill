@@ -5,6 +5,9 @@ argument-hint: <target-file-path> [scope: whole-file|section <name>|add <topic>]
 
 <!-- adapter-deps:start -->
 Load and follow the playbook at @agents/researcher/prompt.md.
+
+Before the first response, also load its declared dependency:
+- `agents/researcher/grounding/index.md` — source selection, extraction, and verification discipline
 <!-- adapter-deps:end -->
 
 The user's researcher scope:

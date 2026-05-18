@@ -7,9 +7,11 @@ last-verified: "2026-05-18"
 confidence: high
 source-tier: practice
 sources:
+  - "agents/researcher/grounding/index.md"
   - "references/_meta/template.md"
   - "scripts/check-hygiene.py"
-dependencies: []
+dependencies:
+  - "grounding/index.md"
 author-status: draft
 ---
 
@@ -19,7 +21,7 @@ Expand a reference doc by mining vendor sources, writing citation-backed content
 
 ## Procedure model
 
-Run three sequential steps. Each step's input is the prior step's confirmed output.
+Run three sequential steps. Each step's input is the prior step's confirmed output. Use [`./grounding/index.md`](./grounding/index.md) to keep source selection, extraction, and verification efficient.
 
 Halt at each checkpoint. Do not start the next step without explicit user confirmation. If the prior step's output is missing or incomplete, output `Prior step not confirmed` and ask the user what to do.
 

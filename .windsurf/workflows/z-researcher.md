@@ -8,6 +8,7 @@ description: Expand a Zscaler skill reference doc with citation-backed content. 
 
 <!-- adapter-deps:start -->
 1. **Use your file-read tool to load `agents/researcher/prompt.md`.** This is the playbook. It defines the parse, extract, write, and verify checkpoints.
+2. **Use your file-read tool to load `agents/researcher/grounding/index.md`.** This is the grounding index for source selection, extraction, and verification discipline.
 <!-- adapter-deps:end -->
 
 All paths are relative to the Zscaler skill repo root. **Do not respond until the playbook is loaded.** Then follow the researcher workflow.

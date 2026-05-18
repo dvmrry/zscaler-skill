@@ -9,9 +9,10 @@ description: Run a journal-first incident retro / postmortem. Loads the incident
 <!-- adapter-deps:start -->
 1. **Use your file-read tool to load `agents/retro/prompt.md`.** This is the playbook. It carries the artifact-loading order, warning-ledger extraction, and output shape.
 2. **Use your file-read tool to load `agents/retro/harness.md`.** This is the gate contract. It defines the artifact gate, warning-ledger gate, evidence-map gate, and final gate.
-3. **Use your file-read tool to load `agents/retro/methodology.md`.** This is the methodology. It defines the journal-first postmortem format, warning dispositions, and final decision gate.
-4. **Use your file-read tool to load `agents/investigator/methodology.md`.** Claim status semantics for interpreting the investigation journal.
-5. **Use your file-read tool to load `agents/clarification-pattern.md`.** Multiple-choice clarification pattern when the incident path is ambiguous.
+3. **Use your file-read tool to load `agents/retro/grounding/index.md`.** This is the grounding index for postmortem discipline and final gate checks.
+4. **Use your file-read tool to load `agents/retro/methodology.md`.** This is the methodology. It defines the journal-first postmortem format, warning dispositions, and final decision gate.
+5. **Use your file-read tool to load `agents/investigator/methodology.md`.** Claim status semantics for interpreting the investigation journal.
+6. **Use your file-read tool to load `agents/clarification-pattern.md`.** Multiple-choice clarification pattern when the incident path is ambiguous.
 <!-- adapter-deps:end -->
 
 All paths are relative to the Zscaler skill repo root. **Do not respond until all files are loaded.** Then follow the retro playbook: locate the case directory, load `journal.md` first, extract material warnings, render/update `postmortem.md`, and close with the final gate.
