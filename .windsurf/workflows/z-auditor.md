@@ -12,7 +12,7 @@ description: Run an editorial / structural audit of skill references. Mechanical
 3. **Use your file-read tool to load `agents/auditor/methodology.md`.** This is the methodology. It carries the discipline the playbook depends on — register format, severity scale, status lifecycle, anti-patterns.
 <!-- adapter-deps:end -->
 
-Both paths are relative to the Zscaler skill repo root. **Do not respond until both files are loaded.** Then follow the playbook's First Response procedure with the methodology already in context.
+All paths are relative to the Zscaler skill repo root. **Do not respond until all required files are loaded.** Then follow the playbook's First Response procedure with the harness and methodology already in context.
 
 ## Best framing for the user's input
 
