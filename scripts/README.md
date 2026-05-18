@@ -4,13 +4,17 @@ All Python scripts use [uv](https://docs.astral.sh/uv/) with [PEP 723 inline scr
 
 ## Running
 
-Direct invocation (uv reads the inline metadata):
+Common local checks:
 
 ```bash
+node scripts/check-fast.mjs
 ./scripts/check-hygiene.py
 ./scripts/check-orphans.py
 ./scripts/run-evals.py list
 ```
+
+Python scripts use uv to read their inline metadata; Node helpers use only the
+standard library.
 
 Optionally install all script deps once via `uv sync --extra scripts` (reads the aggregated list from the top-level `pyproject.toml`).
 
@@ -33,7 +37,7 @@ while finishing a tenant-specific implementation.
 
 | Category | Scripts |
 |---|---|
-| **Hygiene / CI** | `check-hygiene.py`, `check-citations.sh`, `check-citation-density.py` (density advisory; source-line audit + citation inventory regression strict in CI), `check-agent-skills.py` (portable Agent Skill contract and adapter-shape check), `check-workflow-metadata.mjs` (workflow metadata and adapter-reference check), `check-doc-links.py`, `check-orphans.py`, `check-workflow-evals.py`, `check-vendor-drift.py`, `check-scrape-freshness.py`, `maintenance-digest.py`, `vendor-impact-summary.py` |
+| **Hygiene / CI** | `check-fast.mjs` (parallel local fast gate), `check-hygiene.py`, `check-citations.sh` / `check-citations.mjs`, `check-citation-density.py` (density advisory; source-line audit + citation inventory regression strict in CI), `check-agent-skills.py` (portable Agent Skill contract and adapter-shape check), `check-workflow-metadata.mjs` (workflow metadata and adapter-reference check), `check-doc-links.py`, `check-orphans.py`, `check-workflow-evals.py`, `check-vendor-drift.py`, `check-scrape-freshness.py`, `maintenance-digest.py`, `vendor-impact-summary.py` |
 | **Manual hygiene** | `check-staleness.sh`, `check-data-contract.mjs`, `setup-data-mount.mjs` |
 | **Eval suite** | `run-evals.py` |
 | **Tenant API operations** | `diagnose-tenant.py`, `snapshot-refresh.py`, `url-lookup.py` |
@@ -102,6 +106,15 @@ adapter-reference mismatches before runtime testing:
 ```bash
 ./scripts/check-agent-skills.py
 ```
+
+Run the fast local gate when iterating on workflow helpers or references:
+
+```bash
+node scripts/check-fast.mjs
+```
+
+It runs independent cheap checks in parallel and prints buffered output only
+for failures, so local validation does not become a wall of interleaved logs.
 
 Validate workflow metadata and runtime adapter pointers:
 
