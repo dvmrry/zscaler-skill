@@ -9,8 +9,9 @@ description: Run a capacity / scaling architecture review. Config-first, metrics
 <!-- adapter-deps:start -->
 1. **Use your file-read tool to load `agents/architect/prompt.md`.** This is the playbook. It carries the First Response procedure, evidence-mapping logic, and recommendation register format.
 2. **Use your file-read tool to load `agents/architect/harness.md`.** This is the gate contract. It defines scope, evidence, config-first, and recommendation-register gates.
-3. **Use your file-read tool to load `agents/architect/methodology.md`.** This is the methodology. It carries the discipline the playbook depends on — register format, risk scale, confidence levels, status lifecycle.
-4. **Use your file-read tool to load `agents/siem-emission-discipline.md`.** SIEM emission modes, public/private boundary, placeholder plumbing — applies when architect queries SIEMs for utilization.
+3. **Use your file-read tool to load `agents/architect/grounding/index.md`.** This is the grounding load map for cloud, network, and capacity context.
+4. **Use your file-read tool to load `agents/architect/methodology.md`.** This is the methodology. It carries the discipline the playbook depends on — register format, risk scale, confidence levels, status lifecycle.
+5. **Use your file-read tool to load `agents/siem-emission-discipline.md`.** SIEM emission modes, public/private boundary, placeholder plumbing — applies when architect queries SIEMs for utilization.
 <!-- adapter-deps:end -->
 
 All paths are relative to the Zscaler skill repo root. **Do not respond until all files are loaded.** Then follow the playbook's First Response procedure with the methodology and emission discipline already in context. Load `agents/architect/diagnostics/template.md` only when authoring or reviewing a verified reusable diagnostic.

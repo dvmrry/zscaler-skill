@@ -8,6 +8,7 @@ Load and follow the playbook at @agents/architect/prompt.md.
 
 Before the first response, also load each of its declared dependencies:
 - `agents/architect/harness.md` — scope, evidence, config-first, and recommendation register gates
+- `agents/architect/grounding/index.md` — cloud, network, and capacity grounding load map
 - `agents/architect/methodology.md` — recommendation register format, risk scale, confidence calibration, status lifecycle
 - `agents/siem-emission-discipline.md` — SIEM emission modes, public/private boundary
 
