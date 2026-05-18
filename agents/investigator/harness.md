@@ -284,6 +284,19 @@ logs, screenshots, or other evidence, start a fresh `begin-turn` with
 `--user-action record-user-evidence`; do not hold `pendingTurn` open across a
 user checkpoint.
 
+Use `actionType: "mark-resolved"` only when the resolution gate is satisfied.
+The helper rejects completion unless the turn JSON includes `completionGate`
+with:
+
+- `rootCauseClaim`: the exact journal claim that is the resolved/confirmed
+  root cause.
+- `userConfirmedResolution: true`: the user confirmed the fix or rollback holds.
+- `supportingEvidenceRefs`: one or more direct evidence references.
+
+The journal must have no `Open (likely)` or `Open (uncertain)` claims, and the
+root-cause claim must be `Resolved` or `Confirmed (high)`. Do not resolve by
+elimination alone.
+
 Template:
 
 ```text

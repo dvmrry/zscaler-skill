@@ -277,6 +277,13 @@ After the first response, continue the investigation by:
 Do not declare `Resolved` for the overall issue until:
 1. Root cause is confirmed (`Confirmed (high)`)
 2. You can explain why the other hypotheses were ruled out
+3. The user confirms the fix or rollback holds
+4. The `mark-resolved` turn includes helper-verifiable `completionGate`
+   metadata with the exact root-cause claim and direct supporting evidence refs
+
+Do not resolve by elimination alone. If the remaining hypothesis has no direct
+supporting evidence, keep it `Open (likely)` or `Open (uncertain)` and ask for
+the next evidence source.
 
 ## SIEM query emission (pointer)
 

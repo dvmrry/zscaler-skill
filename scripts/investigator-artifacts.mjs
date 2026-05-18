@@ -265,6 +265,46 @@ function journalClaimStatuses(journalPath) {
   return statuses;
 }
 
+function validateMarkResolved(journalPath, turnInput, actionType) {
+  if (actionType !== "mark-resolved") return;
+
+  const completionGate = turnInput.completionGate;
+  if (!completionGate || typeof completionGate !== "object" || Array.isArray(completionGate)) {
+    throw new Error("mark-resolved turns must include completionGate");
+  }
+
+  const rootCauseClaim = String(completionGate.rootCauseClaim || "").trim();
+  if (!rootCauseClaim) {
+    throw new Error("mark-resolved completionGate.rootCauseClaim is required");
+  }
+  if (completionGate.userConfirmedResolution !== true) {
+    throw new Error("mark-resolved requires completionGate.userConfirmedResolution: true");
+  }
+
+  const supportingEvidenceRefs = asArray(completionGate.supportingEvidenceRefs);
+  if (supportingEvidenceRefs.length === 0) {
+    throw new Error("mark-resolved requires completionGate.supportingEvidenceRefs");
+  }
+
+  const statuses = journalClaimStatuses(journalPath);
+  if (statuses.size === 0) {
+    throw new Error("mark-resolved requires at least one claim in journal.md");
+  }
+  const openClaims = [...statuses.entries()]
+    .filter(([, status]) => OPEN_CLAIM_STATUSES.has(status))
+    .map(([claim]) => claim);
+  if (openClaims.length > 0) {
+    throw new Error(`mark-resolved requires no open claims; still open: ${openClaims.join("; ")}`);
+  }
+  const rootStatus = statuses.get(rootCauseClaim);
+  if (!rootStatus) {
+    throw new Error(`mark-resolved rootCauseClaim is not present in journal.md: ${rootCauseClaim}`);
+  }
+  if (!new Set(["Resolved", "Confirmed (high)"]).has(rootStatus)) {
+    throw new Error(`mark-resolved root cause claim must be Resolved or Confirmed (high), not ${rootStatus}`);
+  }
+}
+
 function splunkPatternNames(root) {
   const catalogPath = path.join(root, "references", "shared", "splunk-queries.md");
   const catalog = fs.readFileSync(catalogPath, "utf8");
@@ -459,6 +499,7 @@ function completeTurn(args) {
   }
   const queryPatterns = validateQueryRequest(root, turnInput, actionType);
   validateEvidenceHandoffTurn(paths.journalPath, turnInput, actionType);
+  validateMarkResolved(paths.journalPath, turnInput, actionType);
 
   const allowedNext = normalizeAllowedNext(turnInput.allowedNext || DEFAULT_ALLOWED_NEXT);
   const nextTurnToken = makeTurnToken();

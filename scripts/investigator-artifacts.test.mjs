@@ -773,3 +773,129 @@ index=$INDEX_ZPA Application=$APP
     /must not record returned evidence or close claims/,
   );
 });
+
+test("completeTurn blocks mark-resolved while any claim is still open", () => {
+  const { root, caseSlug, journalPath } = createPassingCaseWithJournal();
+  initializeTurnLedger({ root, caseSlug });
+  const begun = beginTurn({ root, caseSlug, userAction: "mark-resolved" });
+  const pending = begun.pendingTurn;
+
+  fs.writeFileSync(journalPath, `# Discovery Journal
+
+ISSUE: ZPA users cannot reach wiki.internal
+STATUS: Investigating
+
+## Framing
+
+| Field | Value |
+|---|---|
+| Symptom | ZPA users cannot reach wiki.internal |
+
+## Proposed Loads
+
+- agents/investigator/prompt.md
+- agents/investigator/harness.md
+
+## Claims
+
+| Claim | Source | Status | Next evidence needed | Timestamp | Notes |
+|---|---|---|---|---|---|
+| H1: Application segment may not include the app | references/zpa/app-segments.md | Ruled out | - | 2026-05-17T00:00:00.000Z | segment match observed |
+| H2: Connector/backend health issue | references/zpa/logs/app-connector-metrics.md | Ruled out | - | 2026-05-17T00:05:00.000Z | no connector errors observed |
+| H3: Policy or posture issue | references/zpa/policy-precedence.md | Open (uncertain) | Check policy inspection failures | 2026-05-17T00:10:00.000Z | not directly tested |
+
+## Resolution
+
+Attempted resolution by elimination.
+`, "utf8");
+
+  const turnPath = writeJson(root, "turn-premature-resolved.json", {
+    sequence: pending.sequence,
+    previousHash: pending.priorLatestTurnHash,
+    turnToken: pending.turnToken,
+    userAction: pending.userAction,
+    actionType: "mark-resolved",
+    actionSummary: "Tried to resolve by eliminating H1 and H2.",
+    touchedClaims: ["H3: Policy or posture issue"],
+    evidenceRefs: ["references/zpa/policy-precedence.md"],
+    journalHashBefore: pending.journalHashBefore,
+    completionGate: {
+      rootCauseClaim: "H3: Policy or posture issue",
+      userConfirmedResolution: true,
+      supportingEvidenceRefs: ["references/zpa/policy-precedence.md"],
+    },
+    allowedNext: ["pause"],
+  });
+
+  assert.throws(
+    () => completeTurn({ root, caseSlug, turnJson: turnPath }),
+    /requires no open claims/,
+  );
+});
+
+test("completeTurn blocks mark-resolved without user-confirmed supporting evidence", () => {
+  const { root, caseSlug, journalPath } = createPassingCaseWithJournal();
+  initializeTurnLedger({ root, caseSlug });
+  const begun = beginTurn({ root, caseSlug, userAction: "mark-resolved" });
+  const pending = begun.pendingTurn;
+
+  const resolvedJournal = fs.readFileSync(journalPath, "utf8")
+    .replace("Open (uncertain)", "Confirmed (high)")
+    .replace("Open.", "Resolved.");
+  fs.writeFileSync(journalPath, `${resolvedJournal}\nTurn update: marked the case resolved.\n`, "utf8");
+
+  const turnPath = writeJson(root, "turn-resolved-no-confirmation.json", {
+    sequence: pending.sequence,
+    previousHash: pending.priorLatestTurnHash,
+    turnToken: pending.turnToken,
+    userAction: pending.userAction,
+    actionType: "mark-resolved",
+    actionSummary: "Marked the case resolved.",
+    touchedClaims: ["H1: Application segment may not include the app"],
+    evidenceRefs: ["references/zpa/app-segments.md"],
+    journalHashBefore: pending.journalHashBefore,
+    completionGate: {
+      rootCauseClaim: "H1: Application segment may not include the app",
+      supportingEvidenceRefs: ["references/zpa/app-segments.md"],
+    },
+    allowedNext: ["pause"],
+  });
+
+  assert.throws(
+    () => completeTurn({ root, caseSlug, turnJson: turnPath }),
+    /userConfirmedResolution: true/,
+  );
+});
+
+test("completeTurn allows mark-resolved when completion gate is satisfied", () => {
+  const { root, caseSlug, journalPath } = createPassingCaseWithJournal();
+  initializeTurnLedger({ root, caseSlug });
+  const begun = beginTurn({ root, caseSlug, userAction: "mark-resolved" });
+  const pending = begun.pendingTurn;
+
+  const resolvedJournal = fs.readFileSync(journalPath, "utf8")
+    .replace("Open (uncertain)", "Confirmed (high)")
+    .replace("Open.", "Resolved.");
+  fs.writeFileSync(journalPath, `${resolvedJournal}\nTurn update: user confirmed the rollback resolved the issue.\n`, "utf8");
+
+  const turnPath = writeJson(root, "turn-resolved-valid.json", {
+    sequence: pending.sequence,
+    previousHash: pending.priorLatestTurnHash,
+    turnToken: pending.turnToken,
+    userAction: pending.userAction,
+    actionType: "mark-resolved",
+    actionSummary: "User confirmed the rollback resolved the issue.",
+    touchedClaims: ["H1: Application segment may not include the app"],
+    evidenceRefs: ["references/zpa/app-segments.md", "_data/cases/example/evidence/rollback-confirmation.md"],
+    journalHashBefore: pending.journalHashBefore,
+    completionGate: {
+      rootCauseClaim: "H1: Application segment may not include the app",
+      userConfirmedResolution: true,
+      supportingEvidenceRefs: ["references/zpa/app-segments.md", "_data/cases/example/evidence/rollback-confirmation.md"],
+    },
+    allowedNext: ["pause"],
+  });
+
+  const completed = completeTurn({ root, caseSlug, turnJson: turnPath });
+  assert.equal(completed.event.actionType, "mark-resolved");
+});
