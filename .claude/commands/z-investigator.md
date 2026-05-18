@@ -53,6 +53,10 @@ node scripts/investigator-artifacts.mjs verify-case \
 
 Only after verification passes may you report `case-intake.md`,
 `case-intake.json`, and `journal.md` as created.
+Render proposed loads only from the verified `case-intake.json`
+`proposedLoads` array. Do not append extra paths in chat. If the proposed load
+list needs changes, rerun `open-case` with corrected `--proposed-load`
+arguments and rerun `verify-case`.
 
 Step 3 and later turns must use the turn transaction gates defined in
 `agents/investigator/harness.md` and `agents/investigator/case-intake.md`:

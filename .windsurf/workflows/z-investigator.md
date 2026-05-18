@@ -37,6 +37,10 @@ summarize, or replace the canonical procedure here.
 - Do not hand-write case-intake artifacts or the initial journal stub.
 - Do not load Step 2 files, enumerate snapshots, or generate hypotheses until
   `verify-case` passes.
+- Step 1 displayed proposed loads must exactly match the verified
+  `case-intake.json` `proposedLoads` array. Do not append extra paths in chat.
+  To change the list, rerun `open-case` with the corrected `--proposed-load`
+  arguments and rerun `verify-case`.
 - Do not use `--force` unless the user explicitly asks to replace existing case
   intake artifacts.
 - After Step 3, use the turn ledger commands before and after every later
@@ -73,6 +77,10 @@ node scripts/investigator-artifacts.mjs verify-case \
 If the target case directory already contains `case-intake.md`,
 `case-intake.json`, or `journal.md`, do not run `open-case`. Run `verify-case`
 and continue through `/z-investigator-resume`.
+
+After `verify-case`, read `case-intake.json` and render proposed loads only from
+its `proposedLoads` array. If the displayed Step 1 list differs from the JSON,
+stop before Step 2 and report `Case intake mismatch`.
 
 ## Step 3 and later turns
 
