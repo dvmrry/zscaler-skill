@@ -8,10 +8,12 @@ last-verified: "2026-05-14"
 confidence: high
 source-tier: practice
 sources:
+  - "agents/retro/harness.md"
   - "agents/retro/methodology.md"
   - "docs/data-contract/cases.md"
   - "agents/investigator/methodology.md"
 dependencies:
+  - "harness.md"
   - "methodology.md"
   - "../investigator/methodology.md"
   - "../clarification-pattern.md"
@@ -52,7 +54,7 @@ If multiple case directories match or none is provided, ask one multiple-choice 
 
 ## Discipline
 
-Follow [`./methodology.md`](./methodology.md):
+Follow [`./harness.md`](./harness.md) and [`./methodology.md`](./methodology.md):
 
 - No journal, no retro
 - Every conclusion cites the journal, timeline, evidence manifest, command output, or commit
@@ -82,12 +84,13 @@ If ambiguous, ask one multiple-choice clarification:
 
 Load, in this order:
 
-1. `agents/retro/methodology.md`
-2. `docs/data-contract/cases.md`
-3. `<incident>/journal.md`
-4. `<incident>/timeline.md` if present
-5. `<incident>/evidence/MANIFEST.md` if present
-6. Existing `<incident>/postmortem.md` if the task is to review or revise it
+1. `agents/retro/harness.md`
+2. `agents/retro/methodology.md`
+3. `docs/data-contract/cases.md`
+4. `<incident>/journal.md`
+5. `<incident>/timeline.md` if present
+6. `<incident>/evidence/MANIFEST.md` if present
+7. Existing `<incident>/postmortem.md` if the task is to review or revise it
 
 Do not load raw `evidence/*` files unless a journal claim or manifest row requires verification.
 
@@ -144,5 +147,6 @@ If blocked before artifact loading, output only the single clarification questio
 ## Cross-links
 
 - [`./methodology.md`](./methodology.md) — postmortem format, warning ledger, decision gate, and handoff rules
+- [`./harness.md`](./harness.md) — artifact gate, warning-ledger gate, evidence-map gate, and final-gate requirements
 - [`../investigator/methodology.md`](../investigator/methodology.md) — claim status semantics for reading `journal.md`
 - [`../../docs/data-contract/cases.md`](../../docs/data-contract/cases.md) — case artifact layout and privacy posture

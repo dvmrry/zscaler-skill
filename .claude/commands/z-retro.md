@@ -7,6 +7,7 @@ argument-hint: [incident-dir] — e.g., "_data/cases/2026-05-14-ci-warning-regre
 Load and follow the playbook at @agents/retro/prompt.md.
 
 Before the first response, also load each of its declared dependencies:
+- `agents/retro/harness.md` — artifact gate, warning-ledger gate, evidence-map gate, final gate
 - `agents/retro/methodology.md` — journal-first postmortem format, warning ledger, decision gate
 - `agents/investigator/methodology.md` — claim status semantics from the investigation journal
 - `agents/clarification-pattern.md` — multiple-choice clarification pattern when the incident path is ambiguous

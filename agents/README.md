@@ -8,9 +8,11 @@ source-tier: practice
 sources:
   - "agents/investigator/harness.md"
   - "agents/investigator/prompt.md"
+  - "agents/researcher/prompt.md"
   - "agents/architect/prompt.md"
   - "agents/auditor/prompt.md"
   - "agents/soc/prompt.md"
+  - "agents/retro/harness.md"
   - "agents/retro/prompt.md"
 author-status: draft
 ---
@@ -37,10 +39,11 @@ The split keeps `references/` focused as a knowledge base, lets agent personas r
 |---|---|---|---|
 | **Investigator** | `/z-investigator` | [`prompt`](./investigator/prompt.md) · [`harness`](./investigator/harness.md) · [`case intake`](./investigator/case-intake.md) · [`methodology`](./investigator/methodology.md) · [`grounding`](./investigator/grounding/) · [`diagnostics template`](./investigator/diagnostics/template.md) | Evidence-based troubleshooting — discovery journal, claim status, anti-fabrication |
 | **Setup** | `zscaler-skill-setup` | [`prompt`](./setup/prompt.md) | `_data` runtime-data mount setup and repair using deterministic helper scripts |
+| **Researcher** | `/z-researcher` | [`prompt`](./researcher/prompt.md) | Citation-backed reference expansion with extraction, isolated writing, and verification checkpoints |
 | **Architect** | `/z-architect` | [`prompt`](./architect/prompt.md) · [`methodology`](./architect/methodology.md) · [`diagnostics template`](./architect/diagnostics/template.md) | Capacity, scaling, and structural-risk review with recommendation register |
 | **Auditor** | `/z-auditor` | [`prompt`](./auditor/prompt.md) · [`methodology`](./auditor/methodology.md) | Editorial / structural / hygiene lint of references and tenant configuration |
 | **SOC** | `/z-soc` | [`prompt`](./soc/prompt.md) | Security posture review — RBAC least-privilege, telemetry coverage, threat-model-anchored findings |
-| **Retro** | `/z-retro` | [`prompt`](./retro/prompt.md) · [`methodology`](./retro/methodology.md) | Journal-first incident postmortem — warning ledger, source map, proceed/stop decision gate |
+| **Retro** | `/z-retro` | [`prompt`](./retro/prompt.md) · [`harness`](./retro/harness.md) · [`methodology`](./retro/methodology.md) | Journal-first incident postmortem — warning ledger, source map, proceed/stop decision gate |
 
 Each role's `prompt.md` is the playbook the slash command activates. `harness.md` is the canonical phase/checkpoint contract when a workflow needs strict turn sequencing. `case-intake.md` defines a deterministic phase artifact when prose-only checkpoints are not reliable enough. `methodology.md` is the discipline the playbook references. `grounding/` holds lightweight symptom-to-context profiles. `diagnostics/template.md` is an authoring template for verified ordered diagnostics; it is not a runtime dependency for ordinary first responses.
 
@@ -73,7 +76,7 @@ author-status: draft
 ---
 ```
 
-- **`role`** + **`artifact`** replace the `product:` + `topic:` pair used in `references/`. Role identifies the workflow family (investigator, architect, auditor, soc); artifact identifies the file's role within that family. Cross-cutting files at `agents/` root drop `role` and use `topic:` directly.
+- **`role`** + **`artifact`** replace the `product:` + `topic:` pair used in `references/`. Role identifies the workflow family (investigator, setup, researcher, architect, auditor, soc, retro); artifact identifies the file's role within that family. Cross-cutting files at `agents/` root drop `role` and use `topic:` directly.
 - **`dependencies:`** lists other agent artifacts this file relies on or expects to be loaded alongside. Distinct from `sources:` (where content comes from). The dependencies field is machine-readable and forms the basis for future artifact-graph tooling.
 
 ## Runtime notes

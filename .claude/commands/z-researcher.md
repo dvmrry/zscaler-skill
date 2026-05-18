@@ -1,15 +1,13 @@
 ---
-description: Expand a Zscaler skill reference doc with citation-backed content. Three-step procedure (parse → extract → write+verify) with halt-and-wait checkpoints. Spawns memory-isolated subagents for each phase to prevent conversation-context contamination of reference docs.
+description: Expand a Zscaler skill reference doc with citation-backed content. Uses parse, extract, write, and verify checkpoints to keep operator context out of reference docs.
 argument-hint: <target-file-path> [scope: whole-file|section <name>|add <topic>]
 ---
-
-# /researcher
 
 <!-- adapter-deps:start -->
 Load and follow the playbook at @agents/researcher/prompt.md.
 <!-- adapter-deps:end -->
 
-The user's framing:
+The user's researcher scope:
 
 $ARGUMENTS
 
