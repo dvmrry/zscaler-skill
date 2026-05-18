@@ -44,7 +44,7 @@ centralized and the runtime surfaces reduced to thin loaders.
 - Validators (`check-agent-skills.py`, `check-workflow-metadata.mjs`) enforce
   dependency coverage through `agents/<role>/workflow.md` instead of duplicated
   wrapper text.
-- Zscaler upstream vendor submodules updated to `246430c`.
+- Zscaler upstream vendor submodules updated through `bc56b11`.
 
 ### Renamed
 

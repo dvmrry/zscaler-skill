@@ -6,7 +6,7 @@ content-type: reasoning
 last-verified: "2026-05-18"
 verified-against:
   vendor/terraform-provider-zpa: a3c845f3366cc2267e1b244f9968e727c92bad3d
-  vendor/zscaler-mcp-server: 246430c8d2d99726ad6cdcb00d1adc4e316cb966
+  vendor/zscaler-mcp-server: bc56b110199294de58e6a9abf0569c49bd948670
 confidence: high
 source-tier: mixed
 sources:
