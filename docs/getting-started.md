@@ -1,8 +1,8 @@
 # Getting Started
 
-This walkthrough is for a private fork or local checkout that will hold tenant
-snapshots and local overlays. The public upstream intentionally keeps
-`_data/snapshot/` and `_data/iac/` empty.
+This walkthrough is for a private fork or local checkout that will use tenant
+snapshots and local overlays. Public upstream does not track `_data/`; create a
+local runtime-data mount before using snapshot-backed workflows.
 
 ## Prerequisites
 
@@ -13,6 +13,8 @@ snapshots and local overlays. The public upstream intentionally keeps
 - **Python 3.10+** with [`uv`](https://docs.astral.sh/uv/) on `PATH`. Every
   script uses the uv single-file-script pattern; dependencies install on first
   run, no virtualenv setup needed.
+- **Node 18+** for deterministic workflow helpers such as case-intake,
+  runtime-data setup, data-contract checks, and overlay submission.
 - **Git** for submodule fetch.
 - **ZIA and ZPA admin access** to create the API client credentials used below.
 
@@ -58,6 +60,7 @@ there.
 Symlink or copy this repo into your Claude skills directory:
 
 ```bash
+mkdir -p ~/.claude/skills
 ln -s "$(pwd)" ~/.claude/skills/zscaler
 ```
 
@@ -142,6 +145,25 @@ are only needed for tenant-specific lookups.
 See [`references/zia/api.md`](../references/zia/api.md) for Python client
 instantiation patterns.
 
+## Set Up Runtime Data
+
+`_data/` is an ignored runtime-data mount. Create it from a private data
+repository or local directory before relying on tenant snapshots, schema hints,
+or case history:
+
+```bash
+node scripts/setup-data-mount.mjs \
+  --data-url <git-url-or-local-path> \
+  --data-ref <branch-or-tag> \
+  --mode checkout
+
+node scripts/check-data-contract.mjs
+```
+
+Use the actual branch or tag for your runtime-data source. Mode `checkout`
+clones the runtime data directly into `_data/` without registering a parent-repo
+submodule.
+
 ## Pull the First Snapshot
 
 ```bash
@@ -160,11 +182,11 @@ selects the directory under `_data/snapshot/<cloud>/`; if neither is provided,
 the script writes to `_data/snapshot/default/`. Multi-tenant or multi-cloud
 forks should keep one directory per tenant cloud or tenant slug.
 
-The public upstream repo keeps `_data/snapshot/` empty via `.gitkeep`. Populate
-this directory locally, or in a private fork if your org explicitly allows
-committing sanitized tenant snapshots. The skill cites `_data/snapshot/` when
-answering tenant-specific questions. Without it, most tenant-specific answers
-revert to "I can't verify, here's the general mechanism."
+Populate `_data/snapshot/` locally, or in a private runtime-data repository if
+your org explicitly allows committing sanitized tenant snapshots. The skill
+cites `_data/snapshot/` when answering tenant-specific questions. Without it,
+most tenant-specific answers revert to "I can't verify, here's the general
+mechanism."
 
 ## Try Public-Safe Scripts
 

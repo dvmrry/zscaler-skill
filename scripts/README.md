@@ -115,6 +115,9 @@ node scripts/check-fast.mjs
 
 It runs independent cheap checks in parallel and prints buffered output only
 for failures, so local validation does not become a wall of interleaved logs.
+The current fast gate covers workflow metadata, citation links, and the Node
+helper test suite; it is a local acceleration path, not a replacement for the
+full CI hygiene workflow.
 
 Validate workflow metadata and runtime adapter pointers:
 
@@ -134,9 +137,11 @@ To create `_data` from a user-supplied data source:
 ```bash
 node scripts/setup-data-mount.mjs \
   --data-url <git-url-or-local-path> \
-  --data-ref main \
+  --data-ref <branch-or-tag> \
   --mode checkout
 ```
+
+Use the actual branch or tag for your runtime-data source.
 
 Mode `checkout` clones a repository or local path into `_data` without
 registering a parent-repo submodule. Mode `copy` materializes a local directory
@@ -168,9 +173,10 @@ push by default. Configure the overlay target in local
 The overlay repository is treated as the `_data` content root, so runtime paths
 are copied without the `_data/` prefix (`_data/cases/foo` → `cases/foo`).
 
-Lines prefixed `!` indicate a per-resource fetch failure; the run continues.
-Lines prefixed `-` indicate that the SDK surface for that resource was not
-found, likely due to SDK version lag; those do not block the rest of the run.
+For `snapshot-refresh.py` output, lines prefixed `!` indicate a per-resource
+fetch failure; the run continues. Lines prefixed `-` indicate that the SDK
+surface for that resource was not found, likely due to SDK version lag; those
+do not block the rest of the run.
 
 ## When to add a new script
 

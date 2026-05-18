@@ -26,15 +26,21 @@ The checker verifies the directory shape, reports whether `_data` appears to be
 a submodule, and warns when runtime data is missing enough that snapshot-backed
 or tenant-schema-backed reasoning will be unavailable.
 
+The `_data/README.md` marker is recommended because it makes accidental runtime
+mount replacement obvious to humans. The checker warns when it is missing but
+does not fail the contract solely for that marker.
+
 To create `_data` from a user-supplied runtime-data source, use the generic
 setup helper:
 
 ```bash
 node scripts/setup-data-mount.mjs \
   --data-url <git-url-or-local-path> \
-  --data-ref main \
+  --data-ref <branch-or-tag> \
   --mode checkout
 ```
+
+Use the actual branch or tag for your runtime-data source.
 
 Mode `checkout` clones a data repository or local path into `_data` without
 registering a parent-repo submodule. Use `--mode copy` for a materialized copy,

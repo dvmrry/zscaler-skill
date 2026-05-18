@@ -13,7 +13,7 @@ sources:
   - scripts/prepare-overlay-submission.mjs
 author-status: draft
 summary: Runtime data mount setup and repair workflow
-primary-command: /zscaler-skill-setup
+primary-command: "@zscaler-skill-setup"
 known-runtimes:
   - codex
 required-reads:
