@@ -185,8 +185,6 @@ function listFiles(targetPath) {
 }
 
 function readTextForScan(filePath) {
-  const stat = fs.statSync(filePath);
-  if (stat.size > MAX_SCAN_BYTES) return null;
   const buffer = fs.readFileSync(filePath);
   if (buffer.includes(0)) return null;
   return buffer.toString("utf8");
@@ -212,9 +210,17 @@ function scanArtifacts(artifacts) {
 
   for (const artifact of artifacts) {
     for (const filePath of listFiles(artifact.absolute)) {
-      const text = readTextForScan(filePath);
-      if (text === null) continue;
       const relativeFile = toPosix(path.relative(artifact.root, filePath));
+      const stat = fs.statSync(filePath);
+      if (stat.size > MAX_SCAN_BYTES) {
+        errors.push(`${relativeFile}: exceeds scan limit (${MAX_SCAN_BYTES} bytes)`);
+        continue;
+      }
+      const text = readTextForScan(filePath);
+      if (text === null) {
+        warnings.push(`${relativeFile}: not scanned as text`);
+        continue;
+      }
       for (const [pattern, label] of rejectPatterns) {
         if (pattern.test(text)) errors.push(`${relativeFile}: possible ${label}`);
       }

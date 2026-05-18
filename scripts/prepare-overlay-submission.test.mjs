@@ -188,6 +188,47 @@ test("prepareOverlaySubmission rejects symlink artifacts", () => {
   );
 });
 
+test("prepareOverlaySubmission rejects files that exceed the scan limit", () => {
+  const { root, caseDir } = makeRootWithCase();
+  const overlay = makeOverlayRepo();
+  fs.writeFileSync(path.join(caseDir, "large.log"), Buffer.alloc(1024 * 1024 + 1, "a"));
+
+  assert.throws(
+    () => prepareOverlaySubmission({
+      approve: true,
+      artifacts: [caseDir],
+      branchPrefix: "case-submission/",
+      defaultBranch: "main",
+      dryRun: true,
+      repoUrl: overlay,
+      requireExplicitApproval: true,
+      root,
+      allowedRoots: ["_data/cases"],
+    }),
+    /exceeds scan limit/,
+  );
+});
+
+test("prepareOverlaySubmission reports binary files as unscanned text", () => {
+  const { root, caseDir } = makeRootWithCase();
+  const overlay = makeOverlayRepo();
+  fs.writeFileSync(path.join(caseDir, "artifact.bin"), Buffer.from([0, 1, 2, 3]));
+
+  const result = prepareOverlaySubmission({
+    approve: true,
+    artifacts: [caseDir],
+    branchPrefix: "case-submission/",
+    defaultBranch: "main",
+    dryRun: true,
+    repoUrl: overlay,
+    requireExplicitApproval: true,
+    root,
+    allowedRoots: ["_data/cases"],
+  });
+
+  assert.deepEqual(result.warnings, ["_data/cases/2026-05-18-example/artifact.bin: not scanned as text"]);
+});
+
 test("runtimePathToOverlayPath maps runtime _data paths to overlay-root paths", () => {
   assert.equal(runtimePathToOverlayPath("_data/cases/example"), "cases/example");
   assert.equal(runtimePathToOverlayPath("_data/schemas/fields.json"), "schemas/fields.json");
