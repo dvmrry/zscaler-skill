@@ -7,7 +7,7 @@ last-verified: "2026-05-14"
 confidence: high
 source-tier: practice
 sources:
-  - "_data/cases/README.md"
+  - "docs/data-contract/cases.md"
   - "agents/investigator/methodology.md"
 dependencies:
   - "../investigator/methodology.md"
@@ -135,4 +135,4 @@ Write `_data/cases/<slug>/postmortem.md` with these sections:
 
 - [`./prompt.md`](./prompt.md) — executable `/z-retro` playbook and first-turn output shape
 - [`../investigator/methodology.md`](../investigator/methodology.md) — claim status semantics inherited from investigation journals
-- [`../../_data/cases/README.md`](../../_data/cases/README.md) — case directory convention, privacy posture, and evidence manifest shape
+- [`../../docs/data-contract/cases.md`](../../docs/data-contract/cases.md) — case directory convention, privacy posture, and evidence manifest shape

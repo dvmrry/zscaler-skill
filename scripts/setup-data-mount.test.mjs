@@ -92,6 +92,7 @@ test("setupDataMount copies a local data source and runs the contract check", ()
     dataRef: null,
     dryRun: false,
     force: false,
+    mode: "auto",
   });
 
   assert.equal(result.plan.mode, "copy");
@@ -114,6 +115,7 @@ test("setupDataMount refuses to replace populated data without force", () => {
       dataRef: null,
       dryRun: false,
       force: false,
+      mode: "auto",
     }),
     /non-skeleton files/,
   );
@@ -130,6 +132,7 @@ test("setupDataMount dry-run reports the plan without replacing files", () => {
     dataRef: "main",
     dryRun: true,
     force: false,
+    mode: "auto",
   });
 
   assert.equal(result.plan.mode, "copy");
@@ -156,6 +159,64 @@ test("setupDataMount can force a local source to submodule mode", () => {
   assert.equal(result.plan.mode, "submodule");
   assert.equal(result.plan.dataRef, "main");
   assert.equal(result.report, null);
+});
+
+test("setupDataMount can mount a local git source in checkout mode", () => {
+  const root = tempDir("zscaler-data-local-checkout-");
+  git(root, ["init", "-b", "main"]);
+  fs.writeFileSync(path.join(root, ".gitignore"), "_data/\n", "utf8");
+  commitAll(root, "initial public repo");
+  const source = makeGitOverlaySource();
+
+  const result = setupDataMount({
+    root,
+    dataUrl: source,
+    dataRef: "main",
+    dryRun: false,
+    force: false,
+    mode: "checkout",
+  });
+
+  assert.equal(result.plan.mode, "checkout");
+  assert.equal(fs.existsSync(path.join(root, "_data", ".git")), true);
+  assert.equal(fs.existsSync(path.join(root, ".gitmodules")), false);
+  assert.deepEqual(result.report.errors, []);
+  assert.equal(git(root, ["status", "--short"]), "");
+});
+
+test("setupDataMount auto mode checks out local git sources", () => {
+  const root = tempDir("zscaler-data-auto-checkout-");
+  const source = makeGitOverlaySource();
+
+  const result = setupDataMount({
+    root,
+    dataUrl: source,
+    dataRef: "main",
+    dryRun: true,
+    force: false,
+    mode: "auto",
+  });
+
+  assert.equal(result.plan.requestedMode, "auto");
+  assert.equal(result.plan.mode, "checkout");
+});
+
+test("setupDataMount rejects checkout mode for non-git local directories", () => {
+  const root = tempDir("zscaler-data-checkout-nongit-");
+  makeDataSkeleton(root);
+  const source = makeOverlaySource();
+
+  assert.throws(
+    () => setupDataMount({
+      root,
+      dataUrl: source,
+      dataRef: "main",
+      dryRun: true,
+      force: false,
+      mode: "checkout",
+    }),
+    /requires --data-url to resolve to a git repository/,
+  );
 });
 
 test("setupDataMount rejects copy mode for non-local URLs", () => {

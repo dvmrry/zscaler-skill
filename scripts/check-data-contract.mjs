@@ -13,7 +13,7 @@ function usage(exitCode = 0) {
   out.write(`Usage:
   node scripts/check-data-contract.mjs [--root <repo-root>]
 
-Verifies the public _data mount contract without reading tenant contents.
+Verifies the _data runtime mount contract without reading tenant contents.
 `);
   process.exit(exitCode);
 }
@@ -89,7 +89,7 @@ function checkDataContract(root) {
 
   const readmePath = path.join(dataDir, "README.md");
   if (!fs.existsSync(readmePath) || !fs.statSync(readmePath).isFile()) {
-    errors.push("_data/README.md is missing");
+    warnings.push("_data/README.md is missing");
   }
 
   for (const dirname of REQUIRED_DIRS) {

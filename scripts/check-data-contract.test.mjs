@@ -20,7 +20,7 @@ function makeDataSkeleton(root) {
   }
 }
 
-test("checkDataContract accepts the public skeleton with warnings", () => {
+test("checkDataContract accepts an empty runtime mount with warnings", () => {
   const root = tempRepo();
   makeDataSkeleton(root);
 
@@ -29,6 +29,19 @@ test("checkDataContract accepts the public skeleton with warnings", () => {
   assert.ok(report.warnings.some((warning) => warning.includes("_data/snapshot/ contains only skeleton files")));
   assert.ok(report.warnings.some((warning) => warning.includes("snapshot-backed reasoning unavailable")));
   assert.ok(report.info.some((line) => line.includes("ordinary directory")));
+});
+
+test("checkDataContract warns when runtime README is missing", () => {
+  const root = tempRepo();
+  const dataDir = path.join(root, "_data");
+  fs.mkdirSync(dataDir, { recursive: true });
+  for (const dir of ["cases", "schemas", "snapshot", "iac"]) {
+    fs.mkdirSync(path.join(dataDir, dir), { recursive: true });
+  }
+
+  const report = checkDataContract(root);
+  assert.deepEqual(report.errors, []);
+  assert.ok(report.warnings.includes("_data/README.md is missing"));
 });
 
 test("checkDataContract errors when required directories are missing", () => {

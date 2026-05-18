@@ -108,20 +108,21 @@ references/              sourced Zscaler behavior and product references
 references/_meta/        portfolio map, clarifications, evals, templates
 scripts/                 public tooling, maintenance checks, private scaffolds
 vendor/                  pinned upstream SDKs, providers, modules, and tool refs
-_data/snapshot/          tenant config dumps; empty upstream, populated locally
-_data/iac/               tenant IaC overlay; empty upstream, populated per fork
+_data/                   ignored runtime data mount, populated locally
+docs/data-contract/      public contract for the expected _data layout
 docs/                    project docs and rendered static docs assets
 ```
 
-`_data/` is a replaceable runtime-data mount point. Public upstream ships only
-the skeleton; internal release artifacts may pre-populate `_data` from a
-private source. To mount a user-supplied data repo or local directory, run:
+`_data/` is a replaceable runtime-data mount point and is ignored by the public
+repo. The public directory contract lives in
+[`docs/data-contract/`](./docs/data-contract/). To mount a user-supplied data
+repo or local directory, run:
 
 ```bash
 node scripts/setup-data-mount.mjs \
   --data-url <git-url-or-local-path> \
   --data-ref main \
-  --mode auto
+  --mode checkout
 ```
 
 Internal releases may instead place setup defaults in a local

@@ -31,7 +31,5 @@ The deterministic implementation lives in these repo-root scripts:
 Do not reimplement setup logic in the skill body. The skill is a thin loader
 for the canonical setup workflow and public helper scripts.
 
-This upstream skill must not contain private data URLs, private organization
-names, or internal release defaults. If a downstream environment has preferred
-defaults, keep them in a local `zscaler-skill-setup.json`, a private wrapper, or
-pass them at invocation time.
+Keep environment-specific data source defaults out of this skill. Put them in
+a local `zscaler-skill-setup.json`, a wrapper, or the setup command.

@@ -211,7 +211,7 @@ What this rule does NOT do:
 
 The point of disk-first is **avoiding redundant queries**, not stopping investigation early. Calling out to a SIEM / API / portal when `_data/` has the answer wastes the user's tokens; treating a single on-disk file as the answer to the entire investigation is the opposite failure — confidence without coverage.
 
-Files added to `evidence/` follow the naming and manifest convention in [`../../_data/cases/README.md § evidence/`](../../_data/cases/README.md). Both the rename and the manifest row are written at save time, in the same step.
+Files added to `evidence/` follow the naming and manifest convention in [`../../docs/data-contract/cases.md § evidence/`](../../docs/data-contract/cases.md). Both the rename and the manifest row are written at save time, in the same step.
 
 ### 5. Output the journal
 
@@ -316,7 +316,7 @@ When this investigation is an **incident** — a production break, regression, h
 
 1. **`timeline.md`** — author from the chat history + commit log; chronological events with ISO-8601 timestamps. Short — a glance gives the shape.
 2. **`postmortem.md`** — author after the dust settles (within ~24h while context is fresh): root cause, why-not-caught-earlier, what changed, lessons, follow-ups. Blameless and brief.
-3. **`evidence/`** — raw artifacts that the journal cites (CI logs, command output, API dumps, screenshots). Gitignored by default per the privacy posture in [`../../_data/cases/README.md`](../../_data/cases/README.md).
+3. **`evidence/`** — raw artifacts that the journal cites (CI logs, command output, API dumps, screenshots). Gitignored by default per the privacy posture in [`../../docs/data-contract/cases.md`](../../docs/data-contract/cases.md).
 
 The whole `_data/cases/<slug>/` tree is gitignored by default (private posture); engineers explicitly opt-in to publish a skill-internal case by adding `!`-overrides per-case. So a case journal stays local-only unless deliberately published.
 

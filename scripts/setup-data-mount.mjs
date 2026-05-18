@@ -12,13 +12,13 @@ const SKELETON_NAMES = new Set([".gitkeep", "README.md"]);
 function usage(exitCode = 0) {
   const out = exitCode === 0 ? process.stdout : process.stderr;
   out.write(`Usage:
-  node scripts/setup-data-mount.mjs [--config <json>] [--data-url <git-url-or-local-path>] [--data-ref <ref>] [--mode auto|copy|submodule] [--root <repo-root>] [--force] [--dry-run]
+  node scripts/setup-data-mount.mjs [--config <json>] [--data-url <git-url-or-local-path>] [--data-ref <ref>] [--mode auto|checkout|copy|submodule] [--root <repo-root>] [--force] [--dry-run]
 
-Replaces the public _data skeleton with a user-supplied runtime data mount.
+Creates or replaces the _data runtime data mount.
 
-Mode auto copies local directories into _data and adds other URLs as a git
-submodule. Use --mode submodule when a local repository path should be mounted
-as a real _data submodule instead of copied.
+Mode checkout clones a git repository or local git checkout into _data without
+registering a parent-repo submodule. Mode copy materializes a local directory.
+Mode submodule is only for flows that deliberately want a parent-repo gitlink.
 If --config is omitted, ./zscaler-skill-setup.json is used when it exists.
 CLI flags override config values.
 The helper never knows private URLs unless the caller provides one at runtime.
@@ -96,15 +96,15 @@ function parseArgs(argv) {
     dataRef: args.dataRef ?? config.dataRef ?? "main",
     dryRun: args.dryRun,
     force: args.forceSet ? args.force : Boolean(config.force),
-    mode: args.mode ?? config.mode ?? "auto",
+    mode: args.mode ?? config.mode ?? "checkout",
     root: args.root,
   };
 
   if (!merged.dataUrl) {
     throw new Error("--data-url is required");
   }
-  if (!["auto", "copy", "submodule"].includes(merged.mode)) {
-    throw new Error("--mode must be one of: auto, copy, submodule");
+  if (!["auto", "checkout", "copy", "submodule"].includes(merged.mode)) {
+    throw new Error("--mode must be one of: auto, checkout, copy, submodule");
   }
 
   return merged;
@@ -179,6 +179,11 @@ function isGitRepo(root) {
   return gitOutput(root, ["rev-parse", "--show-toplevel"]) !== "";
 }
 
+function isGitSource(root, dataUrl, localSource) {
+  if (!localSource) return true;
+  return isGitRepo(localSource) || fs.existsSync(path.join(localSource, ".git"));
+}
+
 function trackedDataPaths(root) {
   const output = gitOutput(root, ["ls-files", "--", "_data"]);
   return output ? output.split("\n").filter(Boolean) : [];
@@ -193,6 +198,20 @@ function removeDataForSubmodule(root, dataDir) {
   fs.rmSync(dataDir, { recursive: true, force: true });
 }
 
+function removeDataForRuntimeMount(dataDir) {
+  fs.rmSync(dataDir, { recursive: true, force: true });
+}
+
+function cloneCheckout(root, options, dataDir) {
+  removeDataForRuntimeMount(dataDir);
+  const cloneArgs = ["clone"];
+  if (options.dataRef) {
+    cloneArgs.push("--branch", options.dataRef);
+  }
+  cloneArgs.push(options.dataUrl, "_data");
+  runGit(root, cloneArgs);
+}
+
 function ensureRequiredDirs(dataDir) {
   for (const dirname of REQUIRED_DIRS) {
     fs.mkdirSync(path.join(dataDir, dirname), { recursive: true });
@@ -203,14 +222,17 @@ function setupDataMount(options) {
   const root = path.resolve(options.root);
   const dataDir = path.join(root, "_data");
   const localSource = resolveLocalSource(root, options.dataUrl);
-  const requestedMode = options.mode || "auto";
+  const requestedMode = options.mode || "checkout";
   const mode = requestedMode === "auto"
-    ? (localSource ? "copy" : "submodule")
+    ? (localSource && !isGitSource(root, options.dataUrl, localSource) ? "copy" : "checkout")
     : requestedMode;
   const safeToReplace = isSkeletonTree(dataDir);
 
   if (mode === "copy" && !localSource) {
     throw new Error("--mode copy requires --data-url to resolve to a local directory");
+  }
+  if (mode === "checkout" && localSource && !isGitSource(root, options.dataUrl, localSource)) {
+    throw new Error("--mode checkout requires --data-url to resolve to a git repository or use a git URL");
   }
 
   if (!safeToReplace && !options.force) {
@@ -234,8 +256,10 @@ function setupDataMount(options) {
   }
 
   if (mode === "copy") {
-    fs.rmSync(dataDir, { recursive: true, force: true });
+    removeDataForRuntimeMount(dataDir);
     copyDirectory(localSource, dataDir);
+  } else if (mode === "checkout") {
+    cloneCheckout(root, options, dataDir);
   } else {
     removeDataForSubmodule(root, dataDir);
     const submoduleArgs = ["-c", "protocol.file.allow=always", "submodule", "add", "--force"];

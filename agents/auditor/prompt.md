@@ -248,7 +248,7 @@ Do not mark the overall audit `Complete` until every finding has a non-`Open` st
 
 ## Incident-driven audits
 
-Most audits are routine / scheduled. Some are **triggered by an incident** — a hygiene-failure investigation surfaces "what else might be wrong?" and the natural follow-up is an audit pass. When that happens, the audit register can be saved alongside the case journal at `_data/cases/<slug>/audit.md` (rather than as ephemeral chat output). See [`../../_data/cases/README.md`](../../_data/cases/README.md) for the convention. Case artifacts are gitignored by default (private posture); incident-driven audits inherit the same.
+Most audits are routine / scheduled. Some are **triggered by an incident** — a hygiene-failure investigation surfaces "what else might be wrong?" and the natural follow-up is an audit pass. When that happens, the audit register can be saved alongside the case journal at `_data/cases/<slug>/audit.md` (rather than as ephemeral chat output). See [`../../docs/data-contract/cases.md`](../../docs/data-contract/cases.md) for the convention. Case artifacts are gitignored by default (private posture); incident-driven audits inherit the same.
 
 ## What this command will NOT do
 

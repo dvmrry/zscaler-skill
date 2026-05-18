@@ -91,7 +91,7 @@ If a fork has populated `_data/iac/` (empty in upstream), treat that as **produc
 ls -A _data/iac/ | grep -v '^\.gitkeep$'   # check before assuming reference IaC reflects this fork's deployment
 ```
 
-See [`_data/iac/README.md`](_data/iac/README.md) for the precedence rules and structure.
+See [`docs/data-contract/iac.md`](docs/data-contract/iac.md) for the precedence rules and structure.
 
 ## Question routing
 
