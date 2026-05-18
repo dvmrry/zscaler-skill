@@ -57,15 +57,21 @@ summarize, or replace the canonical procedure here.
 ## Step 1 helper gate
 
 For a new case, follow `agents/investigator/case-intake.md`: create the framing
-JSON, run `open-case`, then run `verify-case` before reporting Step 1 success.
+JSON, compose the complete Step 1 proposed-load list, run `open-case`, then run
+`verify-case` before reporting Step 1 success.
+
+Every load displayed in the Step 1 `**Proposed loads**` section must be passed
+to `open-case` as a `--proposed-load` argument. Do not run a partial
+prompt/harness-only command and then add product references in chat.
 
 ```bash
 node scripts/investigator-artifacts.mjs open-case \
   --root <repo-root> \
   --case-slug <slug> \
   --framing-json <path-to-framing-json> \
-  --proposed-load agents/investigator/prompt.md \
-  --proposed-load agents/investigator/harness.md
+  --proposed-load <displayed-load-1> \
+  --proposed-load <displayed-load-2> \
+  --proposed-load <displayed-load-N>
 ```
 
 ```bash

@@ -51,9 +51,17 @@ node scripts/investigator-artifacts.mjs open-case \
   --root <repo-root> \
   --case-slug <slug> \
   --framing-json <path-to-framing-json> \
-  --proposed-load agents/investigator/prompt.md \
-  --proposed-load agents/investigator/harness.md
+  --proposed-load <displayed-load-1> \
+  --proposed-load <displayed-load-2> \
+  --proposed-load <displayed-load-N>
 ```
+
+Compose the complete Step 1 proposed-load list before running `open-case`.
+Every path shown in the Step 1 `**Proposed loads**` section must be passed as a
+`--proposed-load` argument. At minimum, that list includes
+`agents/investigator/prompt.md` and `agents/investigator/harness.md`; if the
+displayed list includes product references or grounding cards, those paths must
+also be included in the helper command.
 
 Then verify the gate before continuing:
 

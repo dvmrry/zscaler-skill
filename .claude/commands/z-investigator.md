@@ -31,16 +31,19 @@ If the target case directory already exists with `case-intake.md`,
 `case-intake.json`, or `journal.md`, run `verify-case` and resume through
 `/z-investigator-resume`; do not use `--force` unless the user explicitly asks to
 replace the intake artifacts.
-After composing the parsed framing and proposed loads, run the literal command
-shape from `agents/investigator/case-intake.md`:
+After composing the parsed framing and proposed loads, run the command shape
+from `agents/investigator/case-intake.md`. Every path displayed in the Step 1
+`**Proposed loads**` section must be passed as a `--proposed-load` argument; do
+not run a prompt/harness-only command and then add product references in chat.
 
 ```bash
 node scripts/investigator-artifacts.mjs open-case \
   --root <repo-root> \
   --case-slug <slug> \
   --framing-json <path-to-framing-json> \
-  --proposed-load agents/investigator/prompt.md \
-  --proposed-load agents/investigator/harness.md
+  --proposed-load <displayed-load-1> \
+  --proposed-load <displayed-load-2> \
+  --proposed-load <displayed-load-N>
 ```
 
 Then verify before rendering a successful Step 1 checkpoint:
