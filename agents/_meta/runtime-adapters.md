@@ -65,12 +65,11 @@ may reinforce the harness where a weaker runtime needs explicit wording, but
 the canonical contract should name the harness file that both portable skills
 and runtime adapters load.
 
-`/z-investigator` is the known hard case. Its current Windsurf workflow contains
-checkpoint discipline that the investigator prompt references as an external
-workflow harness. The canonical investigator harness now lives at
-[`investigator/harness.md`](../investigator/harness.md); until candidate
-adapters are tested against it, the large Windsurf file remains a preserved
-baseline rather than accidental duplication.
+`/z-investigator` is the known hard case. Its checkpoint discipline lives in
+[`investigator/harness.md`](../investigator/harness.md) and the helper-backed
+intake contract lives in [`investigator/case-intake.md`](../investigator/case-intake.md).
+Runtime adapters should load those canonical files and reinforce the helper
+commands, not carry their own copy of the full procedure.
 
 ## Artifact-gated phases
 
