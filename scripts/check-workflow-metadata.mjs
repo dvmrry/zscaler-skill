@@ -174,6 +174,17 @@ function checkWorkflow(filePath, findings) {
     }
   }
 
+  const role = String(data.role || "");
+  const groundingDir = path.join(AGENTS_ROOT, role, "grounding");
+  const groundingIndex = `agents/${role}/grounding/index.md`;
+  const requiredReads = Array.isArray(data["required-reads"]) ? data["required-reads"] : [];
+  if (role && fs.existsSync(groundingDir)) {
+    requireExists(groundingIndex, owner, findings, "grounding index");
+    if (!requiredReads.includes(groundingIndex)) {
+      findings.push(finding(owner, `grounding index must be a required read: ${groundingIndex}`));
+    }
+  }
+
   for (const target of ADAPTER_POINTER_FILES[workflowId] || []) {
     if (!requireExists(target, owner, findings, "adapter pointer")) continue;
     const text = fs.readFileSync(path.join(REPO_ROOT, target), "utf8");

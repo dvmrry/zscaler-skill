@@ -10,6 +10,7 @@ sources:
   - agents/investigator/prompt.md
   - agents/investigator/harness.md
   - agents/investigator/case-intake.md
+  - agents/investigator/grounding/index.md
   - scripts/investigator-artifacts.mjs
 author-status: draft
 summary: Evidence-based Zscaler troubleshooting investigation
@@ -22,6 +23,7 @@ required-reads:
   - agents/investigator/prompt.md
   - agents/investigator/harness.md
   - agents/investigator/case-intake.md
+  - agents/investigator/grounding/index.md
 optional-reads:
   - agents/investigator/methodology.md
   - agents/investigator/diagnostics/template.md
@@ -58,6 +60,7 @@ Before responding, load:
 1. `agents/investigator/prompt.md`
 2. `agents/investigator/harness.md`
 3. `agents/investigator/case-intake.md`
+4. `agents/investigator/grounding/index.md`
 
 Available on demand. Do not load these before the first response unless the
 trigger applies:

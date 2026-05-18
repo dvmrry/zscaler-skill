@@ -7,6 +7,9 @@ last-verified: "2026-05-18"
 confidence: high
 source-tier: practice
 sources:
+  - "https://sre.google/sre-book/postmortem-culture/"
+  - "https://sre.google/workbook/postmortem-culture/"
+  - "https://csrc.nist.gov/publications/detail/sp/800-61/rev-2/final"
   - "agents/retro/methodology.md"
   - "agents/retro/harness.md"
   - "docs/data-contract/cases.md"
@@ -18,6 +21,15 @@ author-status: draft
 # Retro grounding - postmortem and decision-gate discipline
 
 Use this grounding index before `/z-retro` drafts or reviews a postmortem.
+
+## Public retro anchors
+
+Use public incident-review practice as discipline, not as evidence:
+
+- Write for learning and recurrence prevention, not blame assignment.
+- Separate timeline facts, contributing factors, detection/response gaps, and corrective actions.
+- A root cause statement should be supported by evidence and should not erase contributing conditions.
+- Action items should be specific, owned, testable, and tied to a failure mode observed in the journal.
 
 ## Always load
 
