@@ -124,6 +124,13 @@ jobs:
         # reference docs, clarification IDs, or vague scopes.
         run: ./scripts/check-citation-density.py --audit-source-quality --include-source-style --strict-sources --top 25
 
+      - name: Audit semantic citation evidence coverage (advisory)
+        # Surfaces body prose that names an evidence tier such as SDK, MCP, or
+        # Terraform provider behavior while the surrounding section Source:
+        # lines do not cite that evidence family. Advisory until the current
+        # queue is reviewed.
+        run: ./scripts/check-citation-density.py --audit-source-quality --include-semantic --top 80
+
       - name: Check citation inventory regression
         # Fails when a file loses visible Source: coverage, cited-paragraph
         # coverage, source-path mentions, or gains source-quality findings.
