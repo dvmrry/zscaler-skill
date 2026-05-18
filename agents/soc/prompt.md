@@ -8,11 +8,13 @@ last-verified: "2026-04-30"
 confidence: high
 source-tier: practice
 sources:
+  - "agents/soc/harness.md"
   - "agents/auditor/methodology.md"
   - "agents/investigator/methodology.md"
   - "references/shared/siem-log-mapping.md"
   - "agents/siem-emission-discipline.md"
 dependencies:
+  - "harness.md"
   - "../auditor/methodology.md"
   - "../investigator/methodology.md"
   - "../siem-emission-discipline.md"
@@ -52,7 +54,7 @@ Minimum viable framing: scope + at least one subtype hint, OR scope alone (agent
 
 ## Discipline
 
-Follow the audit register format and severity / status enums from [`auditor/methodology.md`](../auditor/methodology.md), with SOC-specific extensions:
+Follow [`./harness.md`](./harness.md) plus the audit register format and severity / status enums from [`auditor/methodology.md`](../auditor/methodology.md), with SOC-specific extensions:
 
 - Every finding cites a source: snapshot file, SIEM query result, API response, log evidence, vendor doc citation
 - Severity uses the same `Critical / High / Medium / Low / Info` enum, calibrated to **security impact if not addressed** (not editorial priority)

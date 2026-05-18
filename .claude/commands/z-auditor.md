@@ -7,6 +7,7 @@ argument-hint: [scope: directory, file, "." for whole repo, or topic keyword]
 Load and follow the playbook at @agents/auditor/prompt.md.
 
 Before the first response, also load its declared dependency:
+- `agents/auditor/harness.md` — scope, mechanical-check, editorial-evidence, and register gates
 - `agents/auditor/methodology.md` — register format, severity scale, status lifecycle, anti-patterns
 <!-- adapter-deps:end -->
 

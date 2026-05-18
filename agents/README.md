@@ -9,8 +9,11 @@ sources:
   - "agents/investigator/harness.md"
   - "agents/investigator/prompt.md"
   - "agents/researcher/prompt.md"
+  - "agents/architect/harness.md"
   - "agents/architect/prompt.md"
+  - "agents/auditor/harness.md"
   - "agents/auditor/prompt.md"
+  - "agents/soc/harness.md"
   - "agents/soc/prompt.md"
   - "agents/retro/harness.md"
   - "agents/retro/prompt.md"
@@ -40,9 +43,9 @@ The split keeps `references/` focused as a knowledge base, lets agent personas r
 | **Investigator** | `/z-investigator` | [`prompt`](./investigator/prompt.md) · [`harness`](./investigator/harness.md) · [`case intake`](./investigator/case-intake.md) · [`methodology`](./investigator/methodology.md) · [`grounding`](./investigator/grounding/) · [`diagnostics template`](./investigator/diagnostics/template.md) | Evidence-based troubleshooting — discovery journal, claim status, anti-fabrication |
 | **Setup** | `zscaler-skill-setup` | [`prompt`](./setup/prompt.md) | `_data` runtime-data mount setup and repair using deterministic helper scripts |
 | **Researcher** | `/z-researcher` | [`prompt`](./researcher/prompt.md) | Citation-backed reference expansion with extraction, isolated writing, and verification checkpoints |
-| **Architect** | `/z-architect` | [`prompt`](./architect/prompt.md) · [`methodology`](./architect/methodology.md) · [`diagnostics template`](./architect/diagnostics/template.md) | Capacity, scaling, and structural-risk review with recommendation register |
-| **Auditor** | `/z-auditor` | [`prompt`](./auditor/prompt.md) · [`methodology`](./auditor/methodology.md) | Editorial / structural / hygiene lint of references and tenant configuration |
-| **SOC** | `/z-soc` | [`prompt`](./soc/prompt.md) | Security posture review — RBAC least-privilege, telemetry coverage, threat-model-anchored findings |
+| **Architect** | `/z-architect` | [`prompt`](./architect/prompt.md) · [`harness`](./architect/harness.md) · [`methodology`](./architect/methodology.md) · [`diagnostics template`](./architect/diagnostics/template.md) | Capacity, scaling, and structural-risk review with recommendation register |
+| **Auditor** | `/z-auditor` | [`prompt`](./auditor/prompt.md) · [`harness`](./auditor/harness.md) · [`methodology`](./auditor/methodology.md) | Editorial / structural / hygiene lint of references and tenant configuration |
+| **SOC** | `/z-soc` | [`prompt`](./soc/prompt.md) · [`harness`](./soc/harness.md) | Security posture review — RBAC least-privilege, telemetry coverage, threat-model-anchored findings |
 | **Retro** | `/z-retro` | [`prompt`](./retro/prompt.md) · [`harness`](./retro/harness.md) · [`methodology`](./retro/methodology.md) | Journal-first incident postmortem — warning ledger, source map, proceed/stop decision gate |
 
 Each role's `prompt.md` is the playbook the slash command activates. `harness.md` is the canonical phase/checkpoint contract when a workflow needs strict turn sequencing. `case-intake.md` defines a deterministic phase artifact when prose-only checkpoints are not reliable enough. `methodology.md` is the discipline the playbook references. `grounding/` holds lightweight symptom-to-context profiles. `diagnostics/template.md` is an authoring template for verified ordered diagnostics; it is not a runtime dependency for ordinary first responses.

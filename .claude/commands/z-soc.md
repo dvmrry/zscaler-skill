@@ -7,6 +7,7 @@ argument-hint: [scope] — e.g., "ZPA admin RBAC", "ZIA URL filtering rules, thr
 Load and follow the playbook at @agents/soc/prompt.md.
 
 Before the first response, also load each of its declared dependencies:
+- `agents/soc/harness.md` — scope/subtype, grounding, posture finding, and save gates
 - `agents/auditor/methodology.md` — register format, severity scale, status lifecycle (shared with `/z-auditor`)
 - `agents/investigator/methodology.md` — evidence discipline, claim status (used in subsequent investigation handoffs)
 - `agents/siem-emission-discipline.md` — SIEM emission modes, public/private boundary
