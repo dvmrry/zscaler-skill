@@ -28,6 +28,15 @@ const VALID_CLAIM_STATUSES = new Set([
 ]);
 const OPEN_CLAIM_STATUSES = new Set(["Open (likely)", "Open (uncertain)"]);
 const EVIDENCE_REQUEST_ACTION_TYPES = new Set(["query-request", "request-user-evidence"]);
+const VALID_ACTION_TYPES = new Set([
+  "load-file",
+  "query-request",
+  "request-user-evidence",
+  "record-user-evidence",
+  "add-evidence",
+  "mark-resolved",
+  "pause",
+]);
 const DEFAULT_ALLOWED_NEXT = [
   "continue-top-open",
   "investigate-different-claim",
@@ -269,7 +278,23 @@ function journalClaimStatuses(journalPath) {
   return statuses;
 }
 
-function validateMarkResolved(journalPath, turnInput, actionType) {
+function validateActionType(actionType) {
+  if (!VALID_ACTION_TYPES.has(actionType)) {
+    throw new Error(`turn-json actionType is not allowed: ${actionType}`);
+  }
+}
+
+function priorEvidenceRefs(events) {
+  const refs = new Set();
+  for (const event of events) {
+    for (const ref of asArray(event.evidenceRefs)) {
+      refs.add(ref);
+    }
+  }
+  return refs;
+}
+
+function validateMarkResolved(journalPath, turnInput, actionType, priorEvents) {
   if (actionType !== "mark-resolved") return;
 
   const completionGate = turnInput.completionGate;
@@ -306,6 +331,11 @@ function validateMarkResolved(journalPath, turnInput, actionType) {
   }
   if (!new Set(["Resolved", "Confirmed (high)"]).has(rootStatus)) {
     throw new Error(`mark-resolved root cause claim must be Resolved or Confirmed (high), not ${rootStatus}`);
+  }
+  const recordedRefs = priorEvidenceRefs(priorEvents);
+  const unrecordedRefs = supportingEvidenceRefs.filter((ref) => !recordedRefs.has(ref));
+  if (unrecordedRefs.length > 0) {
+    throw new Error(`mark-resolved supporting evidence must be recorded in a prior turn: ${unrecordedRefs.join("; ")}`);
   }
 }
 
@@ -507,6 +537,8 @@ function completeTurn(args) {
 
   const actionType = String(turnInput.actionType || "").trim();
   if (!actionType) throw new Error("turn-json actionType is required");
+  validateActionType(actionType);
+  const priorEvents = fs.existsSync(paths.turnLogPath) ? readJsonl(paths.turnLogPath) : [];
   const blockingIssues = normalizeBlockingIssues(turnInput.blockingIssues);
   if (blockingIssues.length) {
     throw new Error(`turn-json contains blocking issues: ${blockingIssues.join("; ")}`);
@@ -539,7 +571,7 @@ function completeTurn(args) {
   }
   const queryPatterns = validateQueryRequest(root, turnInput, actionType);
   validateEvidenceHandoffTurn(paths.journalPath, turnInput, actionType);
-  validateMarkResolved(paths.journalPath, turnInput, actionType);
+  validateMarkResolved(paths.journalPath, turnInput, actionType, priorEvents);
 
   const allowedNext = normalizeAllowedNext(turnInput.allowedNext || DEFAULT_ALLOWED_NEXT);
   const nextTurnToken = makeTurnToken();

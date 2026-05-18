@@ -280,6 +280,8 @@ Do not declare `Resolved` for the overall issue until:
 3. The user confirms the fix or rollback holds
 4. The `mark-resolved` turn includes helper-verifiable `completionGate`
    metadata with the exact root-cause claim and direct supporting evidence refs
+5. The supporting evidence refs were already recorded in a prior completed
+   evidence turn
 
 Do not resolve by elimination alone. If the remaining hypothesis has no direct
 supporting evidence, keep it `Open (likely)` or `Open (uncertain)` and ask for

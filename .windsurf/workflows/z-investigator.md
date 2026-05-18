@@ -633,11 +633,16 @@ After Step 3's first journal output, **every** subsequent turn in this investiga
 
    If this fails, halt and surface the helper error. Do not mutate the journal.
 3. **Perform exactly ONE investigation action.** Read one source, run one query, evaluate one piece of evidence, or record one user-evidence request/result. **Do NOT** batch multiple hypothesis investigations into one turn. **Do NOT** rule out a hypothesis you weren't directed to investigate. A query request is a completed turn: journal the requested catalog pattern and halt. When the user returns results, start a fresh `record-user-evidence` turn; do not keep `pendingTurn` open across the checkpoint.
+   Use only canonical `actionType` values: `load-file`, `query-request`,
+   `request-user-evidence`, `record-user-evidence`, `add-evidence`,
+   `mark-resolved`, or `pause`. Do not use synonyms like `record-evidence`.
    For `mark-resolved`, do not resolve by elimination alone. The turn JSON must
    include `completionGate.rootCauseClaim`,
    `completionGate.userConfirmedResolution: true`, and non-empty
    `completionGate.supportingEvidenceRefs`; the root-cause claim must be
-   `Resolved` or `Confirmed (high)`, and no claims may remain Open.
+   `Resolved` or `Confirmed (high)`, no claims may remain Open, and the
+   supporting evidence refs must already be recorded in an earlier completed
+   turn. Do not record returned evidence and mark resolved in the same turn.
 4. **Update the journal and complete the helper transaction.** Print the updated journal table in chat, save the updated journal to `_data/cases/<slug>/journal.md`, write a turn JSON file, then run:
 
    ```bash

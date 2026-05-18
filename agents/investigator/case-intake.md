@@ -160,6 +160,10 @@ are two completed turns: first `request-user-evidence` or `query-request`, then
 a later `record-user-evidence` turn when the user provides results. Do not keep
 a pending turn open while waiting for the user.
 
+Resolution is also a separate completed turn. The direct evidence supporting a
+`mark-resolved` turn must already be recorded by a prior completed
+`record-user-evidence` or `add-evidence` turn.
+
 If a later turn becomes blocked after `begin-turn` and before journal mutation,
 run `abandon-turn --reason "<reason>"` before halting. This restores the
 helper-owned token only when `journal.md` is unchanged; if the journal changed,

@@ -607,6 +607,32 @@ test("completeTurn rejects non-canonical claim status updates", () => {
   );
 });
 
+test("completeTurn rejects non-canonical action types", () => {
+  const { root, caseSlug, journalPath } = createPassingCaseWithJournal();
+  initializeTurnLedger({ root, caseSlug });
+  const begun = beginTurn({ root, caseSlug, userAction: "record-user-evidence" });
+  const pending = begun.pendingTurn;
+
+  fs.appendFileSync(journalPath, "\nTurn update: recorded one evidence result.\n", "utf8");
+  const turnPath = writeJson(root, "turn-bad-action-type.json", {
+    sequence: pending.sequence,
+    previousHash: pending.priorLatestTurnHash,
+    turnToken: pending.turnToken,
+    userAction: pending.userAction,
+    actionType: "record-evidence",
+    actionSummary: "Recorded one evidence result.",
+    touchedClaims: ["H1: Application segment may not include the app"],
+    evidenceRefs: ["E1"],
+    journalHashBefore: pending.journalHashBefore,
+    allowedNext: ["pause"],
+  });
+
+  assert.throws(
+    () => completeTurn({ root, caseSlug, turnJson: turnPath }),
+    /actionType is not allowed: record-evidence/,
+  );
+});
+
 test("completeTurn rejects stale tokens, forged previous hashes, and unchanged journals", () => {
   const { root, caseSlug } = createPassingCaseWithJournal();
   initializeTurnLedger({ root, caseSlug });
@@ -901,7 +927,7 @@ test("completeTurn blocks mark-resolved without user-confirmed supporting eviden
   );
 });
 
-test("completeTurn allows mark-resolved when completion gate is satisfied", () => {
+test("completeTurn blocks mark-resolved when supporting evidence was not recorded earlier", () => {
   const { root, caseSlug, journalPath } = createPassingCaseWithJournal();
   initializeTurnLedger({ root, caseSlug });
   const begun = beginTurn({ root, caseSlug, userAction: "mark-resolved" });
@@ -926,6 +952,58 @@ test("completeTurn allows mark-resolved when completion gate is satisfied", () =
       rootCauseClaim: "H1: Application segment may not include the app",
       userConfirmedResolution: true,
       supportingEvidenceRefs: ["references/zpa/app-segments.md", "_data/cases/example/evidence/rollback-confirmation.md"],
+    },
+    allowedNext: ["pause"],
+  });
+
+  assert.throws(
+    () => completeTurn({ root, caseSlug, turnJson: turnPath }),
+    /supporting evidence must be recorded in a prior turn/,
+  );
+});
+
+test("completeTurn allows mark-resolved when completion gate is satisfied", () => {
+  const { root, caseSlug, journalPath } = createPassingCaseWithJournal();
+  initializeTurnLedger({ root, caseSlug });
+  const evidenceTurn = beginTurn({ root, caseSlug, userAction: "record-user-evidence" }).pendingTurn;
+
+  const evidenceJournal = fs.readFileSync(journalPath, "utf8")
+    .replace("Open (uncertain)", "Confirmed (high)");
+  fs.writeFileSync(journalPath, `${evidenceJournal}\nTurn update: recorded direct rollback evidence.\n`, "utf8");
+
+  const evidenceTurnPath = writeJson(root, "turn-record-evidence.json", {
+    sequence: evidenceTurn.sequence,
+    previousHash: evidenceTurn.priorLatestTurnHash,
+    turnToken: evidenceTurn.turnToken,
+    userAction: evidenceTurn.userAction,
+    actionType: "record-user-evidence",
+    actionSummary: "Recorded direct rollback evidence.",
+    touchedClaims: ["H1: Application segment may not include the app"],
+    evidenceRefs: ["_data/cases/example/evidence/rollback-confirmation.md"],
+    journalHashBefore: evidenceTurn.journalHashBefore,
+    allowedNext: ["mark-resolved", "pause"],
+  });
+  completeTurn({ root, caseSlug, turnJson: evidenceTurnPath });
+
+  const resolveTurn = beginTurn({ root, caseSlug, userAction: "mark-resolved" }).pendingTurn;
+  const resolvedJournal = fs.readFileSync(journalPath, "utf8")
+    .replace("Open.", "Resolved.");
+  fs.writeFileSync(journalPath, `${resolvedJournal}\nTurn update: user confirmed the rollback resolved the issue.\n`, "utf8");
+
+  const turnPath = writeJson(root, "turn-resolved-valid.json", {
+    sequence: resolveTurn.sequence,
+    previousHash: resolveTurn.priorLatestTurnHash,
+    turnToken: resolveTurn.turnToken,
+    userAction: resolveTurn.userAction,
+    actionType: "mark-resolved",
+    actionSummary: "User confirmed the rollback resolved the issue.",
+    touchedClaims: ["H1: Application segment may not include the app"],
+    evidenceRefs: ["_data/cases/example/evidence/rollback-confirmation.md"],
+    journalHashBefore: resolveTurn.journalHashBefore,
+    completionGate: {
+      rootCauseClaim: "H1: Application segment may not include the app",
+      userConfirmedResolution: true,
+      supportingEvidenceRefs: ["_data/cases/example/evidence/rollback-confirmation.md"],
     },
     allowedNext: ["pause"],
   });

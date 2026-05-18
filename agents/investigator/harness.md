@@ -277,6 +277,11 @@ node scripts/investigator-artifacts.mjs complete-turn \
   --turn-json <path-to-turn-json>
 ```
 
+`actionType` must be one of: `load-file`, `query-request`,
+`request-user-evidence`, `record-user-evidence`, `add-evidence`,
+`mark-resolved`, or `pause`. Do not invent synonyms such as
+`record-evidence`.
+
 If `begin-turn` succeeded but the chosen action becomes blocked before any
 journal mutation, do not leave the case wedged with an open `pendingTurn`.
 Run:
@@ -310,7 +315,9 @@ with:
 - `supportingEvidenceRefs`: one or more direct evidence references.
 
 The journal must have no `Open (likely)` or `Open (uncertain)` claims, and the
-root-cause claim must be `Resolved` or `Confirmed (high)`. Do not resolve by
+root-cause claim must be `Resolved` or `Confirmed (high)`. Supporting evidence
+must already have been recorded in an earlier completed turn; do not record
+returned evidence and mark resolved in the same turn. Do not resolve by
 elimination alone.
 
 Template:
