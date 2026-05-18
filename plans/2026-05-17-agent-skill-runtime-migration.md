@@ -211,7 +211,7 @@ agents/tenant-schema-derivation.md
 Claude commands:
 
 ```text
-.claude/commands/researcher.md
+.claude/commands/z-researcher.md
 .claude/commands/z-architect.md
 .claude/commands/z-auditor.md
 .claude/commands/z-investigator.md
@@ -357,8 +357,8 @@ zscaler-investigator
 zscaler-architect
 zscaler-soc
 zscaler-retro
+zscaler-researcher
 skill-auditor
-skill-researcher
 skill-drift-review
 skill-agent-review
 ```
@@ -370,9 +370,9 @@ skill-agent-review
 /z-architect
 /z-soc
 /z-retro
+/z-researcher
 /z-config-auditor        # later tenant config lint role
 /skill-auditor           # maintainer runtimes only
-/skill-researcher        # maintainer runtimes only
 /skill-drift-review      # future
 /skill-agent-review      # future
 ```
@@ -411,7 +411,7 @@ zscaler-architect       -> agents/architect/prompt.md
 zscaler-soc             -> agents/soc/prompt.md
 zscaler-retro           -> agents/retro/prompt.md
 skill-auditor           -> agents/auditor/prompt.md for now
-skill-researcher        -> agents/researcher/prompt.md
+zscaler-researcher      -> agents/researcher/prompt.md
 skill-drift-review      -> agents/drift-review/prompt.md
 skill-agent-review      -> agents/agent-review/prompt.md
 ```
@@ -436,7 +436,7 @@ agents/agent-review/prompt.md
 
 These should be concise and may initially adapt existing command text:
 
-- `skill-researcher` can migrate from `.claude/commands/researcher.md`.
+- `zscaler-researcher` can load `agents/researcher/prompt.md` and expose `/z-researcher`.
 - `skill-drift-review` should cover upstream/vendor/submodule/source drift.
 - `skill-agent-review` should review `agents/**`, `.agents/skills/**`, and
   runtime adapter coherence.
@@ -553,7 +553,7 @@ Repo-maintainer workflows should become first-class portable skills:
 
 ```text
 skill-auditor
-skill-researcher
+zscaler-researcher
 skill-drift-review
 skill-agent-review
 ```

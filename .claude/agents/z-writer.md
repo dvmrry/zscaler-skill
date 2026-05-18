@@ -1,6 +1,6 @@
 ---
 name: z-writer
-description: Apply extraction-report findings to a Zscaler skill reference doc. Writes ONLY content backed by the extraction report; routes anything else to an Open questions section. Use after Explore has produced a citation report, when a doc needs to be expanded with proper citations. Spawned by /researcher or /z-researcher.
+description: Apply extraction-report findings to a Zscaler skill reference doc. Writes ONLY content backed by the extraction report; routes anything else to an Open questions section. Use after Explore has produced a citation report, when a doc needs to be expanded with proper citations. Spawned by /z-researcher.
 tools: Read, Edit
 model: sonnet
 ---

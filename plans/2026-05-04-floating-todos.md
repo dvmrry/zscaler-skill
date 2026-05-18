@@ -45,7 +45,7 @@ Source: IMPROVEMENTS #16. Script previously hardcoded product-first snapshot pat
 
 ### 2.1 Decide `/curator` fate
 
-Source: tmp plan. Currently subsumed by `/researcher` cleanup-mode. Recommended action: **kill the placeholder concept** — formally retire `/curator` as a planned command, document `/researcher` cleanup-mode as the canonical path. ~5 minutes of doc-only work.
+Source: tmp plan. Currently subsumed by `/z-researcher` cleanup-mode. Recommended action: **kill the placeholder concept** — formally retire `/curator` as a planned command, document `/z-researcher` cleanup-mode as the canonical path. ~5 minutes of doc-only work.
 
 ### 2.2 Pre-push hygiene gating decision
 
