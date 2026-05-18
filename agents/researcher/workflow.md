@@ -9,6 +9,7 @@ confidence: medium
 sources:
   - agents/researcher/prompt.md
   - agents/researcher/grounding/index.md
+  - scripts/prepare-overlay-submission.mjs
 author-status: draft
 summary: Citation-backed reference expansion workflow
 primary-command: /z-researcher
@@ -21,6 +22,7 @@ required-reads:
   - agents/researcher/grounding/index.md
 supporting-scripts:
   - scripts/check-hygiene.py
+  - scripts/prepare-overlay-submission.mjs
 ---
 
 # Zscaler Researcher Workflow
@@ -33,3 +35,20 @@ The checkpoints are audit/attestation gates, not helper-enforced structural
 gates.
 
 Supporting script: `scripts/check-hygiene.py`
+
+## Closeout Option
+
+If the research run produced durable `_data` artifacts such as schema notes,
+evidence summaries, or plans, offer overlay submission only as an explicit user
+choice after verification. Submission must never happen automatically.
+
+Use:
+
+```bash
+node scripts/prepare-overlay-submission.mjs \
+  --root <repo-root> \
+  --artifact <path-under-_data> \
+  --approve
+```
+
+Report the helper JSON and stop for user review.

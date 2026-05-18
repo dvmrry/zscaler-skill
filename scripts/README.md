@@ -38,7 +38,7 @@ while finishing a tenant-specific implementation.
 | Category | Scripts |
 |---|---|
 | **Hygiene / CI** | `check-fast.mjs` (parallel local fast gate), `check-hygiene.py`, `check-citations.sh` / `check-citations.mjs`, `check-citation-density.py` (density advisory; source-line audit + citation inventory regression strict in CI), `check-agent-skills.py` (portable Agent Skill contract and adapter-shape check), `check-workflow-metadata.mjs` (workflow metadata and adapter-reference check), `check-doc-links.py`, `check-orphans.py`, `check-workflow-evals.py`, `check-vendor-drift.py`, `check-scrape-freshness.py`, `maintenance-digest.py`, `vendor-impact-summary.py` |
-| **Manual hygiene** | `check-staleness.sh`, `check-data-contract.mjs`, `setup-data-mount.mjs` |
+| **Manual hygiene** | `check-staleness.sh`, `check-data-contract.mjs`, `setup-data-mount.mjs`, `prepare-overlay-submission.mjs` |
 | **Eval suite** | `run-evals.py` |
 | **Tenant API operations** | `diagnose-tenant.py`, `snapshot-refresh.py`, `url-lookup.py` |
 | **Private-overlay scaffolds** | `access-check.py`, `connector-health.py`, `sandbox-check.py`, `ssl-audit.py`, `zpa-app-check.py` |
@@ -151,6 +151,22 @@ the real config is gitignored because it may contain a private data source URL.
 
 Missing required directories are errors. Empty runtime directories are warnings,
 because snapshot-backed reasoning and tenant schema hints are unavailable.
+
+To prepare selected runtime artifacts for a configured overlay repository:
+
+```bash
+node scripts/prepare-overlay-submission.mjs \
+  --case-path _data/cases/<case-slug> \
+  --approve
+```
+
+The helper validates that selected paths are under allowed `_data` roots, scans
+for obvious secret material, creates a branch in a temporary overlay checkout,
+commits the selected files, and prints the next `git push` command. It does not
+push by default. Configure the overlay target in local
+`zscaler-skill-setup.json` under `overlaySubmission`, or pass `--repo-url`.
+The overlay repository is treated as the `_data` content root, so runtime paths
+are copied without the `_data/` prefix (`_data/cases/foo` → `cases/foo`).
 
 Lines prefixed `!` indicate a per-resource fetch failure; the run continues.
 Lines prefixed `-` indicate that the SDK surface for that resource was not

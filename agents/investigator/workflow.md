@@ -31,6 +31,7 @@ optional-reads:
   - agents/clarification-pattern.md
 supporting-scripts:
   - scripts/investigator-artifacts.mjs
+  - scripts/prepare-overlay-submission.mjs
 ---
 
 # Zscaler Investigator Workflow
@@ -141,3 +142,25 @@ not leave `pendingTurn` open across a user checkpoint or evidence handoff.
 If this is a dry-run or simulated test, say so. Do not claim helper commands
 ran, files were written, or `journal.md` was saved unless the runtime actually
 performed those actions.
+
+## Closeout Option
+
+After a case has useful durable artifacts, offer this only as an explicit user
+choice:
+
+- Prepare overlay submission
+- Archive locally
+- Pause
+
+Submission must never happen automatically. If the user chooses submission, run
+the deterministic helper with explicit approval:
+
+```bash
+node scripts/prepare-overlay-submission.mjs \
+  --root <repo-root> \
+  --case-path _data/cases/<case-slug> \
+  --approve
+```
+
+Report the helper JSON. Do not hand-assemble git commands or claim that a PR
+was created unless the helper or a follow-up command actually did it.

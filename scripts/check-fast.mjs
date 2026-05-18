@@ -20,6 +20,7 @@ const CHECKS = [
       "--test",
       "scripts/investigator-artifacts.test.mjs",
       "scripts/check-data-contract.test.mjs",
+      "scripts/prepare-overlay-submission.test.mjs",
       "scripts/setup-data-mount.test.mjs",
       "scripts/check-citations.test.mjs",
     ],

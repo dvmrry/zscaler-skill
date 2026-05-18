@@ -133,6 +133,20 @@ URLs.
 
 Then run `node scripts/check-data-contract.mjs` to verify the mounted shape.
 
+To prepare selected local runtime artifacts for a configured overlay repository,
+use:
+
+```bash
+node scripts/prepare-overlay-submission.mjs \
+  --case-path _data/cases/<case-slug> \
+  --approve
+```
+
+The helper validates selected `_data` paths, creates a branch in a temporary
+overlay checkout, and prints the next push command. It does not push by default.
+The overlay repository is treated as the `_data` content root, so
+`_data/cases/<case-slug>` is submitted as `cases/<case-slug>`.
+
 Every reference file carries YAML frontmatter (`product`, `topic`,
 `content-type`, `last-verified`, `confidence`, `source-tier`, `sources`,
 `author-status`). See [`references/_meta/template.md`](./references/_meta/template.md).
