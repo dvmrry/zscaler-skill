@@ -4,6 +4,8 @@ description: "Start an evidence-based troubleshooting investigation — parse fr
 
 # /z-investigator
 
+Workflow metadata: `agents/investigator/workflow.md`
+
 ## Required reads — do these now, in order
 
 <!-- adapter-deps:start -->

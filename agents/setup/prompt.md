@@ -84,6 +84,5 @@ After the contract check, distinguish setup state from live integration state:
 - Missing cloud, SIEM, or Zscaler credentials may block live refresh or live
   validation, but they do not mean the `_data` mount contract failed.
 
-Do not print secrets. Do not record private URLs in committed upstream files. If
-the data source is private, keep it in the user's command, local root config, or
-private release wrapper.
+Do not print secrets. Do not record private URLs in committed files. If the data
+source is private, keep it in the user's command or local root config.

@@ -59,9 +59,9 @@ should call helpers and report their output; they should not reimplement helper
 logic in prose.
 
 Name the exact command at the boundary. Phrases like "run the deterministic
-Step 1 helper" are not sufficient for weak runtimes. The adapter must preserve
-the literal command shape and required arguments near the phase instruction so
-the model does not have to infer the executable step.
+Step 1 helper" are not enough for runtimes that follow instructions literally.
+The adapter must preserve the literal command shape and required arguments near
+the phase instruction so the model does not have to infer the executable step.
 
 For code-maintenance workflows, this often maps to:
 
