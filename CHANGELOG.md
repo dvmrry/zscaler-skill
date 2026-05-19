@@ -6,9 +6,9 @@ the skill as a whole, not any single script.
 
 ## [0.2.0] — 2026-05-18
 
-Released from `main` at commit `ea8229a` (the artifacts in this entry are tied to
-that commit). 0.2.0 is the runtime-migration line: canonical workflow logic was
-centralized and the runtime surfaces reduced to thin loaders.
+The `v0.2.0` tag is the release anchor for this entry. 0.2.0 is the
+runtime-migration line: canonical workflow logic was centralized and the
+runtime surfaces reduced to thin loaders.
 
 ### Added
 
@@ -65,6 +65,13 @@ centralized and the runtime surfaces reduced to thin loaders.
 - Cascade-runtime behavior is validated by deterministic repo checks and
   proxy/representative smoke runs, not by automated Cascade regression.
   Off-smoke-path interpretation divergence is an accepted, bounded residual.
+- Several live-tenant scripts remain scaffolded until response shapes can be
+  validated against real deployments. The release ships the deterministic
+  helper and contract-checking spine; tenant API completion remains explicit
+  follow-up work.
+- `author-status` is an authoring lifecycle field. For trust decisions, use
+  each reference's `confidence`, `source-tier`, `sources`, and
+  `verified-against` metadata.
 
 ## [0.1.0] — baseline
 

@@ -1,12 +1,18 @@
 ---
 title: "Investigator Loop Closure Plan"
 date: "2026-05-17"
-status: draft-review
+status: implemented-0.2.0-foundation
 scope: "hardening post-Step-3 investigator loop drift without overstating verifier power"
 source-review: "PR #24 downstream runtime smoke tests and loop-closure review round"
+implemented-in: "0.2.0"
 ---
 
 # Investigator Loop Closure Plan
+
+> Resolution: the 0.2.0 foundation shipped. The investigator has helper-owned
+> turn transactions (`initialize-turn-ledger`, `begin-turn`, `complete-turn`,
+> `abandon-turn`), pending-turn recovery, and completion-gate checks. Longer
+> loop expansion and future workflow ports remain roadmap work.
 
 ## Executive Summary
 

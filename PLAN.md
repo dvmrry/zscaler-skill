@@ -2,7 +2,9 @@
 
 **Purpose of this file:** crash-recovery artifact. If the session dies, read this to know what the project is, what's been done, and what's next without reconstructing from a 99MB transcript.
 
-Last updated: 2026-04-26 (capture-driven build-out — sitemap audit, 2 capture rounds totaling ~150 pages, 19 new reference docs, _data/iac/ extension point scaffolded).
+Last updated: 2026-05-18 (0.2.0 release sweep — runtime workflow migration,
+deterministic investigator gates, `_data` runtime mount, overlay submission,
+and green release validation).
 
 ## TL;DR for new fork admins
 
@@ -32,7 +34,7 @@ This repo is designed to be **forked privately to run against a real tenant**. T
 | File | What it is |
 |---|---|
 | `SKILL.md` | Anthropic-canonical skill entrypoint — extensive question-routing table |
-| `references/_meta/clarifications.md` | **Canonical index** of open/partial/resolved ambiguities with sources. Status summary near the top is the quick-scan view (18 resolved / 6 partial / 1 investigating / 7 open as of 2026-04-24). |
+| `references/_meta/clarifications.md` | **Canonical index** of open/partial/resolved ambiguities with sources. Status summary near the top is the quick-scan view (20 resolved/clarified, 17 partially resolved, 152 open as of 2026-05-18). |
 | `references/zia/*.md`, `references/zpa/*.md`, `references/zcc/*.md`, `references/zdx/*.md`, `references/zbi/*.md`, `references/zidentity/*.md`, `references/cloud-connector/*.md`, `references/zwa/*.md`, `references/shared/*.md` | Distilled reference docs; each cites vendored sources and links to `_meta/clarifications.md` by ID |
 | `vendor/zscaler-help/README.md` | Drop convention, workflow, refresh instructions for the pinned bibliography |
 | `vendor/zscaler-help/*.pdf`, `vendor/zscaler-help/*.md` | Pinned bibliography — every reference doc cites something here |

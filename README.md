@@ -178,6 +178,8 @@ The overlay repository is treated as the `_data` content root, so
 Every reference file carries YAML frontmatter (`product`, `topic`,
 `content-type`, `last-verified`, `confidence`, `source-tier`, `sources`,
 `author-status`). See [`references/_meta/template.md`](./references/_meta/template.md).
+`author-status` tracks authoring lifecycle; trust is signaled by `confidence`,
+`source-tier`, `sources`, and `verified-against`.
 
 ## Known boundaries
 

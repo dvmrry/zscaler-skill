@@ -1,12 +1,18 @@
 ---
 title: "Agent Skill Runtime Migration Review Packet"
 date: "2026-05-17"
-status: draft-review
+status: implemented-0.2.0-foundation
 scope: ".agents skills, runtime adapters, z-investigator migration"
 intended-reviewers: "Opus, Gemini, DeepSeek, Codex, or similar architecture reviewers"
+implemented-in: "0.2.0"
 ---
 
 # Agent Skill Runtime Migration Review Packet
+
+> Resolution: the 0.2.0 foundation shipped. Runtime surfaces now load canonical
+> `agents/<role>/workflow.md` entrypoints, with thin `.claude`, `.windsurf`,
+> `.agents/skills`, and repo-root loader surfaces. Early candidate skill-loader
+> ideas below that were not needed for 0.2.0 remain roadmap, not release scope.
 
 ## Executive Summary
 
@@ -65,7 +71,7 @@ Examples:
 - `agents/architect/prompt.md`
 - `agents/soc/prompt.md`
 - `agents/retro/prompt.md`
-- future `agents/researcher/prompt.md`
+- `agents/researcher/prompt.md`
 - future `agents/drift-review/prompt.md`
 - future `agents/agent-review/prompt.md`
 

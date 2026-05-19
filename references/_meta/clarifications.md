@@ -3,7 +3,7 @@ product: meta
 topic: "clarifications-index"
 title: "Clarification index — open questions across references"
 content-type: reference
-last-verified: "2026-04-24"
+last-verified: "2026-05-18"
 confidence: high
 sources: []
 author-status: reviewed
@@ -77,7 +77,10 @@ Each entry follows this template. Body is narrative — the existing zia-01 entr
 
 ## Status summary
 
-Skim this before reading the full entries.
+Skim this before reading the full entries. Summary refreshed 2026-05-18:
+20 entries are resolved or clarified, 17 are partially resolved, and 152 remain
+open. Most open entries require lab tests, tenant snapshots, operator
+experience, or vendor confirmation rather than more public-doc reading.
 
 ### Resolved
 
