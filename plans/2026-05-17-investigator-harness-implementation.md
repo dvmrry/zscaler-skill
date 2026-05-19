@@ -1,12 +1,17 @@
 ---
 title: "Investigator Harness Implementation Plan"
 date: "2026-05-17"
-status: draft-implementation-plan
+status: implemented-0.2.0
 scope: "canonical investigator harness extraction and runtime preservation"
 source-review: "PR #24 agent skill runtime migration review"
+implemented-in: "0.2.0"
 ---
 
 # Investigator Harness Implementation Plan
+
+> Resolution: implemented in 0.2.0. The investigator now has canonical
+> `workflow.md`, `prompt.md`, `harness.md`, `case-intake.md`, deterministic
+> case-intake helper commands, and thin runtime adapters.
 
 ## Executive Summary
 

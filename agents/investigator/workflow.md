@@ -142,9 +142,9 @@ A request turn is a completed turn. `query-request` and
 halt. The user's returned evidence starts a new `record-user-evidence` turn. Do
 not leave `pendingTurn` open across a user checkpoint or evidence handoff.
 
-If this is a dry-run or simulated test, say so. Do not claim helper commands
-ran, files were written, or `journal.md` was saved unless the runtime actually
-performed those actions.
+If this is a dry-run or simulated test, say so. Use "would write", "would run",
+or "would save" phrasing. Do not claim helper commands ran, files were written,
+or `journal.md` was saved unless the runtime actually performed those actions.
 
 ## Closeout Option
 

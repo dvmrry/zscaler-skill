@@ -26,6 +26,7 @@ For Zscaler questions:
 - For skill/reference audit, suggest `/z-auditor`.
 - For incident retrospectives / postmortems after a journal exists, suggest
   `/z-retro`.
+- For citation-backed reference expansion, suggest `/z-researcher`.
 - Load only the files needed for the current question.
 - Tenant-specific truth lives in `_data/snapshot/` and `_data/iac/`.
 - Do not read `vendor/` unless the loaded prompt or current question
