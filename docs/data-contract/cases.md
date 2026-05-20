@@ -84,25 +84,36 @@ Examples:
 
 #### `evidence/MANIFEST.md`
 
-Because the rename alone doesn't carry the query, every evidence directory should have a `MANIFEST.md` that captures the source query and what each file is. The agent writes a row at save time; future readers (human or agent) read the manifest first when entering the directory.
+Because the rename alone doesn't carry the query, every evidence directory
+should have a `MANIFEST.md` that captures the source query/request, digest, and
+what each file is. The agent writes a row at save time; future readers (human
+or agent) read the manifest first when entering the directory.
 
 Format — markdown table, append-only:
 
 ```markdown
 # evidence/ manifest
 
-Each row: one evidence file, its source query, and what it captures. Append at save; never silently overwrite.
+Each row: one evidence file, its source query/request, digest, summary, and
+touched claim. Append at save; never silently overwrite.
 
-| File | Source | Query / parameters | What it captures | Captured at |
-|---|---|---|---|---|
-| `splunk-lss-connector-health-2026-04-30T14-30Z.csv` | Splunk | `index=$INDEX_ZPA sourcetype=zpa-lss-userstatus earliest=-2h \| stats count by ConnectionStatus, ConnectorID` | Connector health status counts for the incident window | 2026-04-30T14:30Z |
-| `zpa-api-connector-groups-2026-04-30T14-32Z.json` | ZPA API | `GET /mgmtconfig/v1/admin/customers/{customerId}/appConnectorGroup` | Full list of App Connector Groups | 2026-04-30T14:32Z |
-| `screenshot-portal-segment-config-2026-04-30T15-00Z.png` | ZPA admin portal | `Resource Management > Application Management > Application Segments > "salesforce-prod"` | Segment config snapshot at investigation time | 2026-04-30T15:00Z |
+| Evidence Ref | Source | Captured At | Source File Hash | Query/Request Ref | Summary | Touched Claims |
+|---|---|---|---|---|---|---|
+| `_data/cases/example/evidence/splunk-lss-connector-health-20260430T143000Z.csv` | Splunk | 2026-04-30T14:30:00Z | `<sha256>` | `index=$INDEX_ZPA sourcetype=zpa-lss-userstatus earliest=-2h \| stats count by ConnectionStatus, ConnectorID` | Connector health status counts for the incident window. | H1: Connector group is unhealthy |
+| `_data/cases/example/evidence/zpa-api-connector-groups-20260430T143200Z.json` | ZPA API | 2026-04-30T14:32:00Z | `<sha256>` | `GET /mgmtconfig/v1/admin/customers/{customerId}/appConnectorGroup` | Full list of App Connector Groups. | H2: App Connector Group assignment changed |
 ```
 
-The query / parameters column is the load-bearing field — it's the only thing that lets a future reader (or the agent in a later turn) understand what the file actually represents. Empty = file is opaque. If the user pastes results into chat without the query, the agent should ask for or reconstruct the query before saving.
+The query/request ref and summary columns are load-bearing — they let a future
+reader (or the agent in a later turn) understand what the file represents.
+Empty query/request ref = opaque file. If the user pastes results into chat
+without the query or request, the agent should ask for or reconstruct it before
+saving.
 
-When the agent saves an evidence file, it does both: write the file with the renamed path AND append a row to `MANIFEST.md`. When the agent reads `evidence/`, it reads `MANIFEST.md` first.
+When the agent saves an evidence file, it does both: write the file with the
+renamed path and append a row to `MANIFEST.md`. When
+`scripts/investigator-artifacts.mjs capabilities` reports `import-evidence`,
+use that helper for the copy/hash/manifest step. When the agent reads
+`evidence/`, it reads `MANIFEST.md` first.
 
 ## Privacy posture
 

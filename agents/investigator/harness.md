@@ -277,6 +277,48 @@ node scripts/investigator-artifacts.mjs begin-turn \
   --user-action <continue-top-open|investigate-different-claim|request-user-evidence|record-user-evidence|add-evidence|mark-resolved|pause>
 ```
 
+When the helper is available, check its capabilities before relying on optional
+mechanical helpers:
+
+```bash
+node scripts/investigator-artifacts.mjs capabilities
+```
+
+If `supported` includes `import-evidence`, use it for
+`record-user-evidence` and `add-evidence` turns that need to save returned
+files or result artifacts. If the capability is missing or the command fails,
+fall back to the manual evidence convention and surface the failure plainly.
+Do not invent a separate runtime mode.
+
+`import-evidence` is additive-only. It may verify case and turn state, copy
+files into case-local `evidence/`, compute source hashes, append
+`evidence/MANIFEST.md`, and return evidence refs. It must not replace the
+journal update or `complete-turn`, and it must not mutate `journal.md`,
+`workflow/02-turns.jsonl`, or `workflow/02-turn-state.json`.
+
+Single-item form:
+
+```bash
+node scripts/investigator-artifacts.mjs import-evidence \
+  --root <working-dir> \
+  --case-slug <slug> \
+  --source-file <path-to-result> \
+  --name <short-evidence-name> \
+  --source <source-system-or-tool> \
+  --query-file <repo-relative-query-file> \
+  --summary "<one-line-summary>" \
+  --captured-at <ISO-8601-UTC> \
+  --touched-claim "<exact journal claim>" \
+  --active-hypothesis <Hn-or-short-tag>
+```
+
+Use `--query "<text>"` or `--request-text "<text>"` instead of
+`--query-file` when the query/request text is not already saved in the repo;
+do not leak local absolute query paths into the manifest. For a small related
+evidence wave in one `record-user-evidence` or `add-evidence` turn, pass an
+`--input-json` file with `items[]`. This is still one ledger action, not a
+`record-evidence-batch` transaction.
+
 After exactly one investigation action, update `journal.md`, write a turn JSON
 file, and close the transaction:
 
@@ -319,6 +361,11 @@ requested evidence. Request turns must complete immediately after journaling the
 request. When the user returns query rows, logs, screenshots, or other
 evidence, start a fresh `begin-turn` with `--user-action record-user-evidence`;
 do not hold `pendingTurn` open across a user checkpoint.
+
+When recording returned evidence, summarize the helper result in chat instead
+of pasting full helper JSON, hashes, or turn JSON. The normal user-visible
+shape is: evidence count, destination refs, claim status change, and next
+evidence. Surface raw helper diagnostics only when repair is needed.
 
 Use `actionType: "mark-resolved"` only when the resolution gate is satisfied.
 The helper rejects completion unless the turn JSON includes `completionGate`
