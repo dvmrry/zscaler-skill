@@ -465,6 +465,25 @@ Together, Shape A plus Shape A2 remove manual artifact handling and hand-written
 turn JSON without changing the one-action-per-turn contract. This is the safest
 place to measure whether helper support solves enough of the latency.
 
+## Request / Result Collapse Rule
+
+Default to the narrow safe form:
+
+- If the agent asks the user to run a query or gather evidence and then halts,
+  that request is a completed turn. Returned evidence must be recorded in a
+  later turn. Do not hold `pendingTurn` open across that user checkpoint.
+- Once the user returns a file, path, or pasted result, assistant-side
+  bookkeeping for that result should collapse into one `record-user-evidence`
+  turn: import the returned file(s), append manifest rows, update the journal
+  timeline/claims, generate turn JSON, and run `complete-turn`.
+- If the user provides a result file/output in the same assistant response where
+  the agent is already recording evidence, the helper may include the
+  query/request text and returned result together in the import metadata.
+
+Do not erase the request-then-result audit trail for evidence that arrives
+later. The completed request turn remains the audit record for what was asked;
+the cheaper transaction is the later assistant-side result-recording work.
+
 ## Deferred: Shape B Batch Evidence Transaction
 
 Only consider this after Slice 0 and Shape A have been tested on fresh cases.
@@ -508,7 +527,7 @@ Rejected when:
 - Touched claims are missing from `journal.md`.
 - The requested action would require browsing sibling case directories.
 
-## Batch Input Shape
+## Deferred Shape B Batch Input Shape
 
 A batch file avoids huge shell invocations and makes review easier:
 
@@ -545,26 +564,7 @@ event.
 The exact schema should stay small. Avoid building a full workflow engine while
 solving a batching problem.
 
-## Request / Result Collapse Rule
-
-Default to the narrow safe form:
-
-- If the agent asks the user to run a query or gather evidence and then halts,
-  that request is a completed turn. Returned evidence must be recorded in a
-  later turn. Do not hold `pendingTurn` open across that user checkpoint.
-- Once the user returns a file, path, or pasted result, assistant-side
-  bookkeeping for that result should collapse into one `record-user-evidence`
-  turn: import the returned file(s), append manifest rows, update the journal
-  timeline/claims, generate turn JSON, and run `complete-turn`.
-- If the user provides a result file/output in the same assistant response where
-  the agent is already recording evidence, the helper may include the
-  query/request text and returned result together in the import metadata.
-
-Do not erase the request-then-result audit trail for evidence that arrives
-later. The completed request turn remains the audit record for what was asked;
-the cheaper transaction is the later assistant-side result-recording work.
-
-## Partial Batch Recovery
+## Deferred Shape B Partial Batch Recovery
 
 Batching makes failure larger. The helper must be designed around recoverable
 step boundaries.
@@ -688,7 +688,6 @@ Repository tests:
 
 - `node --test scripts/investigator-artifacts.test.mjs`
 - targeted new helper tests for evidence import and generated turn JSON
-- targeted batch tests before Shape B
 - hygiene checks if documentation changes land
 
 Scenario tests:
@@ -697,7 +696,9 @@ Scenario tests:
 - evidence bundle: 3 related files supplied together;
 - ADO-style split-path evidence: managed proxy path is healthy, but
   unmanaged/direct egress to the same SaaS is denied or dropped; preserve both
-  evidence streams without burying the distinction in repeated journal prose;
+  evidence streams without burying the distinction in repeated journal prose,
+  and assert each path lands as a distinct manifest row with its own touched
+  claim;
 - malformed evidence: missing query text;
 - malformed evidence: missing `capturedAt`;
 - unsafe path: source file outside allowed roots;
