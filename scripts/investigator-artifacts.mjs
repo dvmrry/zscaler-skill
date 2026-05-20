@@ -71,7 +71,7 @@ function usage(exitCode = 0) {
   node scripts/investigator-artifacts.mjs complete-turn --root <repo> --case-slug <slug> --turn-json <file>
   node scripts/investigator-artifacts.mjs abandon-turn --root <repo> --case-slug <slug> --reason <text>
   node scripts/investigator-artifacts.mjs capabilities
-  node scripts/investigator-artifacts.mjs import-evidence --root <repo> --case-slug <slug> --source-file <file> --name <name> --source <source> (--query <text>|--query-file <file>|--request-text <text>) --summary <text> --captured-at <ISO-UTC> --touched-claim <claim> [--active-hypothesis <tag>]
+  node scripts/investigator-artifacts.mjs import-evidence --root <repo> --case-slug <slug> --source-file <file> --name <name> --source <source> (--query <text>|--query-file <file>|--request-text <text>) --summary <text> --captured-at <ISO-UTC> --touched-claim <claim> [--active-hypothesis <tag>] [--allow-placeholder-query]
   node scripts/investigator-artifacts.mjs import-evidence --root <repo> --case-slug <slug> --input-json <file>
 
 Creates and verifies _data/cases/<slug>/case-intake.md,
@@ -150,6 +150,8 @@ function parseArgs(argv) {
       i += 1;
     } else if (key === "--force") {
       args.force = true;
+    } else if (key === "--allow-placeholder-query") {
+      args.allowPlaceholderQuery = true;
     } else {
       throw new Error(`Unknown argument: ${key}`);
     }
@@ -875,15 +877,39 @@ function normalizeQueryRef(root, item) {
     if (path.isAbsolute(queryRef)) {
       throw new Error("queryFile must be inside the repository; use query or requestText for external queries");
     }
+    validateConcreteQueryMetadata(fs.readFileSync(queryFile, "utf8"), item);
     return queryRef;
   }
   const query = String(item.query ?? "").trim();
-  if (query) return query;
+  if (query) {
+    validateConcreteQueryMetadata(query, item);
+    return query;
+  }
   const requestText = String(item.requestText ?? "").trim();
-  if (requestText) return requestText;
+  if (requestText) {
+    validateConcreteQueryMetadata(requestText, item);
+    return requestText;
+  }
   const queryRef = String(item.queryRef ?? "").trim();
-  if (queryRef) return queryRef;
+  if (queryRef) {
+    validateConcreteQueryMetadata(queryRef, item);
+    return queryRef;
+  }
   throw new Error("evidence item must include queryFile, query, requestText, or queryRef");
+}
+
+function validateConcreteQueryMetadata(text, item) {
+  if (item.allowPlaceholderQuery === true) return;
+  const value = String(text || "");
+  const placeholderPatterns = [
+    /\$INDEX(?:_[A-Z0-9_]+|\b)/i,
+    /<\s*your[-_\s][^>]*>/i,
+    /\bindex\s*=\s*(?:$|[|\s])/i,
+    /\bsourcetype\s*=\s*(?:$|[|\s])/i,
+  ];
+  if (placeholderPatterns.some((pattern) => pattern.test(value))) {
+    throw new Error("query/request metadata contains unresolved SIEM placeholder; replace it or use allowPlaceholderQuery only for invalidated/corrective evidence");
+  }
 }
 
 function normalizeEvidenceItems(root, args) {
@@ -907,6 +933,7 @@ function normalizeEvidenceItems(root, args) {
     query: args.query,
     queryFile: args.queryFile,
     requestText: args.requestText,
+    allowPlaceholderQuery: args.allowPlaceholderQuery,
     summary: args.summary,
     capturedAt: args.capturedAt,
     touchedClaims: args.touchedClaims,
@@ -931,7 +958,11 @@ function importEvidence(args) {
   verifyCaseFiles(root, args.caseSlug);
   const paths = casePaths(root, args.caseSlug);
   verifyJournalHasClaimTable(paths.journalPath);
-  readTurnState(paths);
+  const state = readTurnState(paths);
+  const pending = state.pendingTurn;
+  if (!pending) {
+    throw new Error("import-evidence requires an open pendingTurn; run begin-turn first");
+  }
 
   fs.mkdirSync(paths.evidenceDir, { recursive: true });
   const rawItems = normalizeEvidenceItems(root, args);
@@ -1007,6 +1038,11 @@ function importEvidence(args) {
     manifestRows: prepared.map((item) => item.manifestRow),
     turnJsonPath: null,
     warnings: [],
+    pendingTurn: {
+      sequence: pending.sequence,
+      turnToken: pending.turnToken,
+      userAction: pending.userAction,
+    },
     items: prepared.map((item) => ({
       evidenceRef: item.evidenceRef,
       sourceFileHash: item.sourceFileHash,

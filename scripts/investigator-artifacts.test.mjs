@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -578,6 +579,11 @@ test("importEvidence copies one evidence file, appends manifest, and leaves turn
   });
 
   assert.equal(result.status, "ok");
+  assert.deepEqual(result.pendingTurn, {
+    sequence: pending.sequence,
+    turnToken: pending.turnToken,
+    userAction: pending.userAction,
+  });
   assert.deepEqual(result.evidenceRefs, [
     "_data/cases/2026-05-17-turn-ledger/evidence/splunk-managed-proxy-path-20260520T141000Z.json",
   ]);
@@ -604,6 +610,7 @@ test("importEvidence supports a small multi-item evidence wave from input JSON",
   );
   fs.writeFileSync(journalPath, journal, "utf8");
   initializeTurnLedger({ root, caseSlug });
+  beginTurn({ root, caseSlug, userAction: "record-user-evidence" });
   fs.writeFileSync(path.join(root, "proxy-path.json"), "{\"path\":\"proxy\"}\n", "utf8");
   fs.writeFileSync(path.join(root, "direct-egress.json"), "{\"path\":\"direct\"}\n", "utf8");
   fs.writeFileSync(path.join(root, "proxy.spl"), "proxy query\n", "utf8");
@@ -647,6 +654,7 @@ test("importEvidence supports a small multi-item evidence wave from input JSON",
 test("importEvidence handles special-character metadata without breaking manifest rows", () => {
   const { root, caseSlug } = createPassingCaseWithJournal();
   initializeTurnLedger({ root, caseSlug });
+  beginTurn({ root, caseSlug, userAction: "record-user-evidence" });
   const sourceFile = path.join(root, "result with spaces.json");
   fs.writeFileSync(sourceFile, "{\"rows\":1}\n", "utf8");
 
@@ -674,6 +682,7 @@ test("importEvidence handles special-character metadata without breaking manifes
 test("importEvidence rejects missing metadata, non-UTC timestamps, unknown claims, and collisions", () => {
   const { root, caseSlug } = createPassingCaseWithJournal();
   initializeTurnLedger({ root, caseSlug });
+  beginTurn({ root, caseSlug, userAction: "record-user-evidence" });
   const sourceFile = path.join(root, "result.json");
   fs.writeFileSync(sourceFile, "{}\n", "utf8");
 
@@ -763,9 +772,72 @@ test("importEvidence rejects missing metadata, non-UTC timestamps, unknown claim
   );
 });
 
+test("importEvidence rejects unresolved SIEM placeholders unless explicitly allowed", () => {
+  const { root, caseSlug } = createPassingCaseWithJournal();
+  initializeTurnLedger({ root, caseSlug });
+  beginTurn({ root, caseSlug, userAction: "record-user-evidence" });
+  const sourceFile = path.join(root, "result.json");
+  fs.writeFileSync(sourceFile, "{}\n", "utf8");
+  const queryFile = path.join(root, "placeholder.spl");
+  fs.writeFileSync(queryFile, "index=$INDEX_ZPA sourcetype=<your_sourcetype>\n", "utf8");
+
+  assert.throws(
+    () => importEvidence({
+      root,
+      caseSlug,
+      sourceFile,
+      name: "placeholder",
+      source: "Splunk",
+      queryFile,
+      summary: "Placeholder query should not become evidence.",
+      capturedAt: "2026-05-20T14:10:00Z",
+      touchedClaims: ["H1: Application segment may not include the app"],
+    }),
+    /unresolved SIEM placeholder/,
+  );
+
+  const result = importEvidence({
+    root,
+    caseSlug,
+    sourceFile,
+    name: "invalidated-placeholder",
+    source: "Splunk",
+    query: "index=$INDEX_ZPA sourcetype=<your_sourcetype>",
+    allowPlaceholderQuery: true,
+    summary: "Invalidated placeholder query recorded as corrective evidence.",
+    capturedAt: "2026-05-20T14:11:00Z",
+    touchedClaims: ["H1: Application segment may not include the app"],
+  });
+  assert.equal(result.status, "ok");
+});
+
+test("importEvidence hashes binary evidence bytes", () => {
+  const { root, caseSlug } = createPassingCaseWithJournal();
+  initializeTurnLedger({ root, caseSlug });
+  beginTurn({ root, caseSlug, userAction: "record-user-evidence" });
+  const sourceFile = path.join(root, "screenshot.bin");
+  const bytes = Buffer.from([0x00, 0xff, 0x80, 0x41, 0x0a]);
+  fs.writeFileSync(sourceFile, bytes);
+
+  const result = importEvidence({
+    root,
+    caseSlug,
+    sourceFile,
+    name: "binary-fixture",
+    source: "Screenshot",
+    requestText: "User-provided screenshot bytes.",
+    summary: "Binary screenshot fixture.",
+    capturedAt: "2026-05-20T14:10:00Z",
+    touchedClaims: ["H1: Application segment may not include the app"],
+  });
+
+  assert.equal(result.items[0].sourceFileHash, `sha256:${createHash("sha256").update(bytes).digest("hex")}`);
+});
+
 test("importEvidence rejects external absolute query files to avoid manifest path leaks", () => {
   const { root, caseSlug } = createPassingCaseWithJournal();
   initializeTurnLedger({ root, caseSlug });
+  beginTurn({ root, caseSlug, userAction: "record-user-evidence" });
   const sourceFile = path.join(root, "result.json");
   fs.writeFileSync(sourceFile, "{}\n", "utf8");
   const externalQueryFile = path.join(os.tmpdir(), `external-query-${Date.now()}.spl`);
@@ -808,9 +880,32 @@ test("importEvidence requires initialized turn ledger", () => {
   );
 });
 
+test("importEvidence requires an open pending turn", () => {
+  const { root, caseSlug } = createPassingCaseWithJournal();
+  initializeTurnLedger({ root, caseSlug });
+  const sourceFile = path.join(root, "result.json");
+  fs.writeFileSync(sourceFile, "{}\n", "utf8");
+
+  assert.throws(
+    () => importEvidence({
+      root,
+      caseSlug,
+      sourceFile,
+      name: "result",
+      source: "Splunk",
+      query: "index=zscaler",
+      summary: "Pending turn is missing.",
+      capturedAt: "2026-05-20T14:10:00Z",
+      touchedClaims: ["H1: Application segment may not include the app"],
+    }),
+    /requires an open pendingTurn/,
+  );
+});
+
 test("importEvidence rejects empty input JSON and malformed manifests", () => {
   const { root, caseSlug } = createPassingCaseWithJournal();
   initializeTurnLedger({ root, caseSlug });
+  beginTurn({ root, caseSlug, userAction: "record-user-evidence" });
   const emptyInputJson = writeJson(root, "empty-evidence-input.json", { items: [] });
 
   assert.throws(
@@ -843,6 +938,7 @@ test("importEvidence rejects empty input JSON and malformed manifests", () => {
 test("importEvidence removes copied files if manifest append fails", () => {
   const { root, caseSlug } = createPassingCaseWithJournal();
   initializeTurnLedger({ root, caseSlug });
+  beginTurn({ root, caseSlug, userAction: "record-user-evidence" });
   const evidenceDir = path.join(root, "_data/cases", caseSlug, "evidence");
   fs.mkdirSync(path.join(evidenceDir, "MANIFEST.md"), { recursive: true });
   const sourceFile = path.join(root, "result.json");
@@ -871,6 +967,7 @@ test("importEvidence removes copied files if manifest append fails", () => {
 test("importEvidence removes copied files if a later copy fails", () => {
   const { root, caseSlug } = createPassingCaseWithJournal();
   initializeTurnLedger({ root, caseSlug });
+  beginTurn({ root, caseSlug, userAction: "record-user-evidence" });
   const firstSource = path.join(root, "first.json");
   const secondSource = path.join(root, "second.json");
   fs.writeFileSync(firstSource, "{\"rows\":1}\n", "utf8");

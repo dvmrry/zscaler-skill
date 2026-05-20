@@ -259,10 +259,19 @@ directly: repeated claim-row prose.
 Long investigations should stop expanding the same claim row with repeated
 stable context. Prefer:
 
-- short active claim table;
+- short active claim table that preserves the existing claim-table header and
+  status vocabulary;
 - append-only evidence timeline;
 - dismissed hypotheses section;
 - compact current-state summary.
+
+Slice 0 must not change the helper-visible claim table contract. The `## Claims`
+section keeps the exact table header
+`| Claim | Source | Status | Next evidence needed | Timestamp | Notes |`, keeps
+resolved/root-cause claims in that table, and uses the existing status
+vocabulary. If a future journal shape wants different columns or moves
+resolved/root-cause claims out of `## Claims`, that is no longer a no-code
+Slice 0 change; update the helper and tests in the same slice.
 
 Proposed journal sections:
 
@@ -430,15 +439,20 @@ The helper:
 - verifies the case and turn state;
 - copies / renames the file into `evidence/` using a deterministic naming
   convention;
-- computes `sourceFileHash` before copying each file;
+- computes `sourceFileHash` as SHA-256 over raw file bytes before copying each
+  file;
 - appends `evidence/MANIFEST.md` once per imported item;
 - emits or writes JSON refs suitable for turn completion.
 
-Slice 1 `import-evidence` is purely additive. It may run while a `pendingTurn`
-exists, but it must not create, complete, abandon, or mutate `pendingTurn`; it
-reads turn state only for validation/context. It writes only under
+Slice 1 `import-evidence` is purely additive and normally requires an open
+`pendingTurn` created by `begin-turn`. It must not create, complete, abandon,
+or mutate `pendingTurn`; it reads turn state only for validation/context and
+returns the pending turn sequence/token/userAction in its output so the agent
+can connect imported refs to the later turn JSON. It writes only under
 case-local `evidence/` and `evidence/MANIFEST.md`; it must not modify
 `journal.md`, `workflow/02-turns.jsonl`, or `workflow/02-turn-state.json`.
+Out-of-band evidence backfill, if ever needed, should be a separate explicit
+mode with its own ledger story rather than the default import path.
 
 The turn-state read is intentional even though `import-evidence` does not write
 turn state. It preserves the resume/pending-turn checkpoint while keeping the
@@ -454,6 +468,10 @@ Before coding, lock these small contracts:
 - **Required metadata**: `sourceFileHash`, `capturedAt` as ISO 8601 UTC,
   `source`, query/request text or query file, one-line `summary`, and exact
   `touchedClaims`.
+- **SIEM placeholders**: query/request metadata must not contain unresolved
+  placeholders such as `$INDEX_*`, `<your_*>`, blank `index=`, or blank
+  `sourcetype=` unless the evidence is explicitly recorded as
+  invalidated/corrective evidence.
 - **Manifest row**: use a stable Markdown table with columns
   `Evidence Ref | Source | Captured At | Source File Hash | Query/Request Ref | Summary | Touched Claims`.
   `Touched Claims` should contain compact claim IDs or exact claim labels
@@ -487,8 +505,13 @@ Current reviewer convergence for the implemented `import-evidence` slice:
 Useful hardening before canonical workflow wiring:
 
 - add/keep tests for unsafe source/query paths;
+- add tests that import without an open `pendingTurn` is rejected and that the
+  helper output includes pending turn sequence/token/userAction;
 - add tests for special-character filenames, source labels, summaries, query
   refs, and touched-claim labels;
+- add tests for unresolved SIEM placeholder query metadata;
+- add at least one binary/non-UTF8 evidence fixture proving `sourceFileHash`
+  is SHA-256 over raw bytes;
 - add a test or explicit guard for excessive destination filename length;
 - add a partial-copy rollback test where item 2 fails after item 1 was copied;
 - keep malformed-manifest and partial-failure cleanup tests;
@@ -784,6 +807,10 @@ Blocking evals for the first helper implementation:
 - helper records an evidence file without source/query/request metadata;
 - helper records an evidence file without `capturedAt`;
 - helper accepts non-UTC or invalid `capturedAt`;
+- helper imports evidence without an open pending turn;
+- helper accepts unresolved SIEM placeholder query metadata, such as
+  `$INDEX_*`, `<your_*>`, blank `index=`, or blank `sourcetype=`, unless the
+  item is explicitly invalidated/corrective evidence;
 - helper references a touched claim not present in `journal.md`;
 - helper permits evidence recording and `mark-resolved` in one action;
 - helper silently overwrites an existing evidence destination;

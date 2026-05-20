@@ -290,10 +290,12 @@ files or result artifacts. If the capability is missing or the command fails,
 fall back to the manual evidence convention and surface the failure plainly.
 Do not invent a separate runtime mode.
 
-`import-evidence` is additive-only. It may verify case and turn state, copy
-files into case-local `evidence/`, compute source hashes, append
-`evidence/MANIFEST.md`, and return evidence refs. It must not replace the
-journal update or `complete-turn`, and it must not mutate `journal.md`,
+`import-evidence` is additive-only and requires the current turn to already
+have an open `pendingTurn` from `begin-turn`. It may verify case and turn
+state, copy files into case-local `evidence/`, compute source hashes over raw
+file bytes, append `evidence/MANIFEST.md`, and return evidence refs plus the
+pending turn sequence/token/userAction. It must not replace the journal update
+or `complete-turn`, and it must not mutate `journal.md`,
 `workflow/02-turns.jsonl`, or `workflow/02-turn-state.json`.
 
 Single-item form:
@@ -314,7 +316,10 @@ node scripts/investigator-artifacts.mjs import-evidence \
 
 Use `--query "<text>"` or `--request-text "<text>"` instead of
 `--query-file` when the query/request text is not already saved in the repo;
-do not leak local absolute query paths into the manifest. For a small related
+do not leak local absolute query paths into the manifest. Query/request
+metadata must not contain unresolved SIEM placeholders such as `$INDEX_*`,
+`<your_*>`, blank `index=`, or blank `sourcetype=` unless the import is
+explicitly recording invalidated/corrective evidence. For a small related
 evidence wave in one `record-user-evidence` or `add-evidence` turn, pass an
 `--input-json` file with `items[]`. This is still one ledger action, not a
 `record-evidence-batch` transaction.
