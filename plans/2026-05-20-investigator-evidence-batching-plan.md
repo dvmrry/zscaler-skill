@@ -330,7 +330,10 @@ Successful helper output should be one JSON object with a stable envelope:
 {
   "status": "ok",
   "operation": "import-evidence",
-  "evidenceRefs": ["_data/cases/<slug>/evidence/<file>"],
+  "evidenceRefs": [
+    "_data/cases/<slug>/evidence/<file-1>",
+    "_data/cases/<slug>/evidence/<file-2>"
+  ],
   "manifestPath": "_data/cases/<slug>/evidence/MANIFEST.md",
   "manifestRows": ["| ... |"],
   "turnJsonPath": null,
@@ -374,14 +377,47 @@ node scripts/investigator-artifacts.mjs import-evidence \
   --active-hypothesis <Hn-or-short-tag>
 ```
 
+Slice 1 should support a small evidence wave without becoming Shape B. It may
+do this with repeatable `--source-file` groups or an `--input-json` file with
+`items[]`. The helper remains additive-only: copy each file, compute one hash
+per file, append one manifest row per item, return `evidenceRefs[]`, and leave
+journal reasoning plus ledger completion to the agent.
+
+Example compact input:
+
+```json
+{
+  "items": [
+    {
+      "sourceFile": "/absolute/path/proxy-path.json",
+      "name": "managed-proxy-path",
+      "source": "Splunk",
+      "queryFile": "queries/managed-proxy-path.spl",
+      "summary": "Managed proxy path shows allowed CONNECT/SSL.",
+      "capturedAt": "2026-05-20T14:10:00Z",
+      "touchedClaims": ["H2: Managed proxy path is healthy"]
+    },
+    {
+      "sourceFile": "/absolute/path/direct-egress.json",
+      "name": "unmanaged-direct-egress-deny",
+      "source": "Splunk",
+      "queryFile": "queries/direct-egress.spl",
+      "summary": "Unmanaged direct egress to the same SaaS is denied or dropped.",
+      "capturedAt": "2026-05-20T14:12:00Z",
+      "touchedClaims": ["H3: Unmanaged direct egress path is failing"]
+    }
+  ]
+}
+```
+
 The helper:
 
 - verifies the case and turn state;
 - copies / renames the file into `evidence/` using a deterministic naming
   convention;
-- computes `sourceFileHash` before copying;
-- appends `evidence/MANIFEST.md`;
-- emits or writes a JSON ref suitable for turn completion.
+- computes `sourceFileHash` before copying each file;
+- appends `evidence/MANIFEST.md` once per imported item;
+- emits or writes JSON refs suitable for turn completion.
 
 Slice 1 `import-evidence` is purely additive. It may run while a `pendingTurn`
 exists, but it must not create, complete, abandon, or mutate `pendingTurn`; it
@@ -513,15 +549,20 @@ solving a batching problem.
 
 Default to the narrow safe form:
 
-- If the user provides a result file/output in the same assistant turn where
-  the agent is recording evidence, a batch may include the query/request text
-  and returned result together.
 - If the agent asks the user to run a query or gather evidence and then halts,
   that request is a completed turn. Returned evidence must be recorded in a
-  later turn.
+  later turn. Do not hold `pendingTurn` open across that user checkpoint.
+- Once the user returns a file, path, or pasted result, assistant-side
+  bookkeeping for that result should collapse into one `record-user-evidence`
+  turn: import the returned file(s), append manifest rows, update the journal
+  timeline/claims, generate turn JSON, and run `complete-turn`.
+- If the user provides a result file/output in the same assistant response where
+  the agent is already recording evidence, the helper may include the
+  query/request text and returned result together in the import metadata.
 
-Do not hold `pendingTurn` open across a user checkpoint. Do not erase the
-request-then-result audit trail for evidence that arrives later.
+Do not erase the request-then-result audit trail for evidence that arrives
+later. The completed request turn remains the audit record for what was asked;
+the cheaper transaction is the later assistant-side result-recording work.
 
 ## Partial Batch Recovery
 
@@ -585,10 +626,12 @@ Before Shape B lands, re-measure after Slice 0 and Shape A/A2:
 - Add helper capability discovery.
 - Define stable helper output schema.
 - Use the destination naming and manifest row schema defined above.
+- Support a small evidence wave through repeatable file inputs or `items[]`
+  input JSON without creating a ledger batch transaction.
 - Copy / rename files into case-local `evidence/`.
-- Compute source file hash before copying.
+- Compute source file hash before copying each file.
 - Create `evidence/MANIFEST.md` if missing.
-- Append manifest rows.
+- Append one manifest row per item.
 - Emit JSON refs for turn completion.
 - Emit compact helper output by default.
 - Benchmark helper runtime.
@@ -652,6 +695,9 @@ Scenario tests:
 
 - immediate SIEM handoff with result file already available;
 - evidence bundle: 3 related files supplied together;
+- ADO-style split-path evidence: managed proxy path is healthy, but
+  unmanaged/direct egress to the same SaaS is denied or dropped; preserve both
+  evidence streams without burying the distinction in repeated journal prose;
 - malformed evidence: missing query text;
 - malformed evidence: missing `capturedAt`;
 - unsafe path: source file outside allowed roots;
