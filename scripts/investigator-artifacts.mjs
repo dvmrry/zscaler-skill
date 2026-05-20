@@ -974,10 +974,19 @@ function importEvidence(args) {
   }
 
   ensureManifestHeader(paths.evidenceManifestPath);
-  for (const item of prepared) {
-    fs.copyFileSync(item.sourceFile, item.destination, fs.constants.COPYFILE_EXCL);
+  const copied = [];
+  try {
+    for (const item of prepared) {
+      fs.copyFileSync(item.sourceFile, item.destination, fs.constants.COPYFILE_EXCL);
+      copied.push(item.destination);
+    }
+    fs.appendFileSync(paths.evidenceManifestPath, `${prepared.map((item) => item.manifestRow).join("\n")}\n`, "utf8");
+  } catch (error) {
+    for (const destination of copied) {
+      fs.rmSync(destination, { force: true });
+    }
+    throw error;
   }
-  fs.appendFileSync(paths.evidenceManifestPath, `${prepared.map((item) => item.manifestRow).join("\n")}\n`, "utf8");
 
   return {
     status: "ok",

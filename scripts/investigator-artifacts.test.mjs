@@ -553,8 +553,11 @@ test("beginTurn validates allowed actions and blocks duplicate pending turns", (
 
 test("importEvidence copies one evidence file, appends manifest, and leaves turn state unchanged", () => {
   const { root, caseSlug } = createPassingCaseWithJournal();
-  initializeTurnLedger({ root, caseSlug });
+  const initialized = initializeTurnLedger({ root, caseSlug });
   const pending = beginTurn({ root, caseSlug, userAction: "record-user-evidence" }).pendingTurn;
+  const journalPath = path.join(root, "_data/cases", caseSlug, "journal.md");
+  const journalBefore = fs.readFileSync(journalPath, "utf8");
+  const turnLogBefore = fs.readFileSync(initialized.turnLogPath, "utf8");
   const sourceFile = path.join(root, "splunk-export.json");
   fs.writeFileSync(sourceFile, "{\"rows\":1}\n", "utf8");
   const queryFile = path.join(root, "query.spl");
@@ -585,6 +588,8 @@ test("importEvidence copies one evidence file, appends manifest, and leaves turn
   assert.match(manifest, /H1: Application segment may not include the app/);
   const state = readJson(path.join(root, "_data/cases", caseSlug, "workflow", "02-turn-state.json"));
   assert.deepEqual(state.pendingTurn, pending);
+  assert.equal(fs.readFileSync(journalPath, "utf8"), journalBefore);
+  assert.equal(fs.readFileSync(initialized.turnLogPath, "utf8"), turnLogBefore);
 });
 
 test("importEvidence supports a small multi-item evidence wave from input JSON", () => {
@@ -710,6 +715,66 @@ test("importEvidence rejects missing metadata, non-UTC timestamps, unknown claim
       touchedClaims: ["H1: Application segment may not include the app"],
     }),
     /evidence destination already exists/,
+  );
+});
+
+test("importEvidence rejects empty input JSON and malformed manifests", () => {
+  const { root, caseSlug } = createPassingCaseWithJournal();
+  initializeTurnLedger({ root, caseSlug });
+  const emptyInputJson = writeJson(root, "empty-evidence-input.json", { items: [] });
+
+  assert.throws(
+    () => importEvidence({ root, caseSlug, inputJson: emptyInputJson }),
+    /input JSON must include a non-empty items array/,
+  );
+
+  const evidenceDir = path.join(root, "_data/cases", caseSlug, "evidence");
+  fs.mkdirSync(evidenceDir, { recursive: true });
+  fs.writeFileSync(path.join(evidenceDir, "MANIFEST.md"), "| Old | Schema |\n|---|---|\n", "utf8");
+  const sourceFile = path.join(root, "result.json");
+  fs.writeFileSync(sourceFile, "{}\n", "utf8");
+
+  assert.throws(
+    () => importEvidence({
+      root,
+      caseSlug,
+      sourceFile,
+      name: "result",
+      source: "Splunk",
+      query: "index=zscaler",
+      summary: "Malformed manifest.",
+      capturedAt: "2026-05-20T14:10:00Z",
+      touchedClaims: ["H1: Application segment may not include the app"],
+    }),
+    /MANIFEST\.md does not use the expected evidence manifest schema/,
+  );
+});
+
+test("importEvidence removes copied files if manifest append fails", () => {
+  const { root, caseSlug } = createPassingCaseWithJournal();
+  initializeTurnLedger({ root, caseSlug });
+  const evidenceDir = path.join(root, "_data/cases", caseSlug, "evidence");
+  fs.mkdirSync(path.join(evidenceDir, "MANIFEST.md"), { recursive: true });
+  const sourceFile = path.join(root, "result.json");
+  fs.writeFileSync(sourceFile, "{}\n", "utf8");
+
+  assert.throws(
+    () => importEvidence({
+      root,
+      caseSlug,
+      sourceFile,
+      name: "result",
+      source: "Splunk",
+      query: "index=zscaler",
+      summary: "Manifest append should fail.",
+      capturedAt: "2026-05-20T14:10:00Z",
+      touchedClaims: ["H1: Application segment may not include the app"],
+    }),
+    /EISDIR|illegal operation on a directory/,
+  );
+  assert.equal(
+    fs.existsSync(path.join(evidenceDir, "splunk-result-20260520T141000Z.json")),
+    false,
   );
 });
 
