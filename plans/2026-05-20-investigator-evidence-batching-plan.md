@@ -10,6 +10,7 @@ review-inputs:
   - "DeepSeek review, 2026-05-20"
   - "Goose/Ollama DeepSeek review, 2026-05-20"
   - "OpenCode/Qwen review, 2026-05-20"
+  - "OpenCode/Ollama DeepSeek implementation review, 2026-05-20"
 ---
 
 # Investigator Evidence Batching Plan
@@ -49,6 +50,11 @@ self-improves with proof rather than with retro prose alone.
 This document is a proposal for review. It does not change the canonical
 investigator runtime contract by itself.
 
+Current PR state: Slice 1 helper-only evidence import has an opening
+implementation. The remaining review question is no longer "should we build a
+helper at all?" It is "is the Shape A helper mechanically tight enough to wire
+into the canonical workflow after focused hardening and measurement?"
+
 ## Review Convergence
 
 Claude and DeepSeek agreed on the core diagnosis:
@@ -65,6 +71,10 @@ Claude and DeepSeek agreed on the core diagnosis:
   append-only evidence timeline section.
 - The helper command should be named `import-evidence`, not `add-evidence`, so
   it does not collide with the existing ledger `actionType: "add-evidence"`.
+- Implementation review of the current Shape A helper found no journal, turn
+  state, or turn log mutation and no obvious path traversal issue. The useful
+  follow-up is focused hardening coverage, not expanding the helper into Shape
+  B.
 
 Key refinement from review: do not introduce three named canonical modes
 (`Strict`, `Assisted`, `Strong-Runtime`). That multiplies the drift surface
@@ -232,6 +242,11 @@ Implementation options to evaluate:
 - consider a faster digest such as BLAKE3 only if dependency policy allows it
   and measurement shows hashing is material;
 - keep the script output quiet regardless of digest choice.
+
+Do not weaken evidence-file hashing based on instinct alone. If hashing is not
+the measured bottleneck, keep durable evidence digests boring and strong, and
+look first at process count, repeated ledger replay, journal hashing, and chat
+verbosity.
 
 ## Slice 0: Journal Shape First
 
@@ -425,6 +440,10 @@ reads turn state only for validation/context. It writes only under
 case-local `evidence/` and `evidence/MANIFEST.md`; it must not modify
 `journal.md`, `workflow/02-turns.jsonl`, or `workflow/02-turn-state.json`.
 
+The turn-state read is intentional even though `import-evidence` does not write
+turn state. It preserves the resume/pending-turn checkpoint while keeping the
+helper additive-only.
+
 Before coding, lock these small contracts:
 
 - **Destination name**: `<source-slug>-<name-slug>-<captured-at-basic>.<ext>`,
@@ -441,6 +460,46 @@ Before coding, lock these small contracts:
   joined with `; ` when IDs are not available.
 - **Path safety**: reject unsafe paths and never leave recorded evidence
   outside case-local `evidence/`.
+- **Filename bounds**: deterministic destination names should be bounded so
+  unusually long names or summaries cannot create filesystem-dependent
+  failures. Prefer rejecting or truncating only the slug component with a
+  stable rule and tests.
+- **Special characters**: source names, evidence names, summaries, query refs,
+  and claim labels may contain Markdown-significant characters. Manifest rows
+  must remain parseable and readable.
+
+### Shape A Implementation Review Notes
+
+Current reviewer convergence for the implemented `import-evidence` slice:
+
+- The helper stays safely short of Shape B: no `journal.md`, turn log, turn
+  state, claim-status, or resolution mutation.
+- Path handling appears bounded by repo/path-safety checks and case-local
+  evidence destinations.
+- Manifest append failure cleanup is load-bearing and should remain covered by
+  tests.
+- Partial-copy rollback is load-bearing: if a later copy fails after an
+  earlier item was copied, the helper must remove the earlier copied evidence
+  file and leave no orphaned unmanifested evidence.
+- Evidence refs should remain repo-relative in helper output to avoid leaking
+  local absolute paths into chat, turn JSON, or exported review packets.
+
+Useful hardening before canonical workflow wiring:
+
+- add/keep tests for unsafe source/query paths;
+- add tests for special-character filenames, source labels, summaries, query
+  refs, and touched-claim labels;
+- add a test or explicit guard for excessive destination filename length;
+- add a partial-copy rollback test where item 2 fails after item 1 was copied;
+- keep malformed-manifest and partial-failure cleanup tests;
+- benchmark helper runtime on a realistic case directory.
+
+Out of scope for this slice unless the contract changes:
+
+- concurrent `import-evidence` calls against the same case;
+- preserving source-file permissions on imported evidence;
+- helper-owned journal timeline appends;
+- helper-generated turn JSON.
 
 ## Shape A2: Turn JSON Generation
 
@@ -638,7 +697,9 @@ Before Shape B lands, re-measure after Slice 0 and Shape A/A2:
 - Benchmark the combined `begin-turn` + `import-evidence` + `complete-turn`
   path, not only individual helper commands.
 - Add tests for naming, manifest append, unsafe paths, duplicate names,
-  missing metadata, and file hash recording.
+  missing metadata, file hash recording, special characters, excessive
+  destination filename length, malformed manifests, and partial-failure
+  cleanup.
 
 ### Slice 2: Turn JSON Generation
 
@@ -707,6 +768,8 @@ Scenario tests:
 - hash-chain mismatch;
 - touched claim not present in `journal.md`;
 - attempt to record evidence and mark resolved in one action.
+- special-character evidence metadata;
+- excessive evidence destination name length.
 
 Deferred Shape B scenario tests:
 
@@ -730,6 +793,7 @@ Blocking evals for the first helper implementation:
 - helper leaves a pending transaction that resume does not detect;
 - helper adds more than the accepted performance budget for normal turn
   bookkeeping without a measured explanation.
+- helper output leaks local absolute evidence paths on success.
 
 ## Reviewer Questions Still Open
 
@@ -763,6 +827,9 @@ Do not use this plan to:
 - create three parallel canonical workflow modes;
 - build a full workflow engine before proving the smaller helper shape;
 - optimize cryptographic strength before measuring actual helper overhead.
+- add same-case concurrent import support before there is a demonstrated need;
+- preserve source-file permissions as part of import semantics unless that
+  becomes an explicit evidence-handling requirement.
 
 ## Open Decisions
 
@@ -779,11 +846,16 @@ Do not use this plan to:
 
 ## Recommended Next Step
 
-Treat the second review pass as enough to proceed with Slice 0. Before Slice 1
-coding, confirm that the destination naming, manifest row schema, capability
-output, and additive-write invariant are acceptable to the implementation owner.
+Treat the second review pass as enough to keep the Shape A implementation in
+review. Ask reviewers to check only the current Slice 1 helper boundary and the
+hardening list above:
 
-If accepted, implement Slice 0 first, run a fresh investigation, and only then
-decide whether helper code should proceed. Future retros should keep feeding
-small operational and mechanical improvements back into this plan rather than
-forcing a large redesign up front.
+- does `import-evidence` remain additive-only;
+- are the path, manifest, and metadata contracts sufficient;
+- are special-character and excessive-name cases the right remaining tests;
+- is anything here merge-blocking before canonical workflow wiring.
+
+Do not re-open Shape B or runtime-mode design during this review unless a
+reviewer identifies a concrete safety failure in Shape A. Future retros should
+keep feeding small operational and mechanical improvements back into this plan
+rather than forcing a large redesign up front.

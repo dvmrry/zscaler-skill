@@ -11,6 +11,7 @@ const TURN_STATE_BASENAME = "02-turn-state.json";
 const EVIDENCE_DIR_BASENAME = "evidence";
 const EVIDENCE_MANIFEST_BASENAME = "MANIFEST.md";
 const HELPER_VERSION = "0.2.0";
+const MAX_EVIDENCE_SLUG_PART_LENGTH = 80;
 const SUPPORTED_OPERATIONS = [
   "open-case",
   "verify-case",
@@ -464,6 +465,9 @@ function normalizeCompletionGate(turnInput, actionType) {
 }
 
 function readTurnState(paths) {
+  if (!fs.existsSync(paths.turnStatePath)) {
+    throw new Error(`missing ${TURN_STATE_BASENAME}; run initialize-turn-ledger first`);
+  }
   const state = JSON.parse(fs.readFileSync(paths.turnStatePath, "utf8"));
   if (fs.existsSync(paths.turnLogPath)) {
     const events = readJsonl(paths.turnLogPath);
@@ -829,6 +833,9 @@ function slugPart(value, label) {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
   if (!slug) throw new Error(`${label} must contain at least one alphanumeric character`);
+  if (slug.length > MAX_EVIDENCE_SLUG_PART_LENGTH) {
+    throw new Error(`${label} slug is too long; maximum ${MAX_EVIDENCE_SLUG_PART_LENGTH} characters`);
+  }
   return slug;
 }
 
@@ -864,7 +871,11 @@ function resolveReadableFile(root, filePath, label) {
 function normalizeQueryRef(root, item) {
   if (item.queryFile) {
     const queryFile = resolveReadableFile(root, item.queryFile, "queryFile");
-    return displayPath(root, queryFile);
+    const queryRef = displayPath(root, queryFile);
+    if (path.isAbsolute(queryRef)) {
+      throw new Error("queryFile must be inside the repository; use query or requestText for external queries");
+    }
+    return queryRef;
   }
   const query = String(item.query ?? "").trim();
   if (query) return query;

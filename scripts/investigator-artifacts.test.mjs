@@ -556,8 +556,10 @@ test("importEvidence copies one evidence file, appends manifest, and leaves turn
   const initialized = initializeTurnLedger({ root, caseSlug });
   const pending = beginTurn({ root, caseSlug, userAction: "record-user-evidence" }).pendingTurn;
   const journalPath = path.join(root, "_data/cases", caseSlug, "journal.md");
+  const turnStatePath = path.join(root, "_data/cases", caseSlug, "workflow", "02-turn-state.json");
   const journalBefore = fs.readFileSync(journalPath, "utf8");
   const turnLogBefore = fs.readFileSync(initialized.turnLogPath, "utf8");
+  const turnStateBefore = fs.readFileSync(turnStatePath, "utf8");
   const sourceFile = path.join(root, "splunk-export.json");
   fs.writeFileSync(sourceFile, "{\"rows\":1}\n", "utf8");
   const queryFile = path.join(root, "query.spl");
@@ -586,10 +588,11 @@ test("importEvidence copies one evidence file, appends manifest, and leaves turn
   assert.match(manifest, /splunk-managed-proxy-path-20260520T141000Z\.json/);
   assert.match(manifest, /Managed proxy path shows allowed CONNECT\/SSL\./);
   assert.match(manifest, /H1: Application segment may not include the app/);
-  const state = readJson(path.join(root, "_data/cases", caseSlug, "workflow", "02-turn-state.json"));
+  const state = readJson(turnStatePath);
   assert.deepEqual(state.pendingTurn, pending);
   assert.equal(fs.readFileSync(journalPath, "utf8"), journalBefore);
   assert.equal(fs.readFileSync(initialized.turnLogPath, "utf8"), turnLogBefore);
+  assert.equal(fs.readFileSync(turnStatePath, "utf8"), turnStateBefore);
 });
 
 test("importEvidence supports a small multi-item evidence wave from input JSON", () => {
@@ -639,6 +642,33 @@ test("importEvidence supports a small multi-item evidence wave from input JSON",
   assert.equal(manifestRows.length, 2);
   assert.match(manifestRows[0], /H2: Managed proxy path is healthy/);
   assert.match(manifestRows[1], /H3: Unmanaged direct egress path is failing/);
+});
+
+test("importEvidence handles special-character metadata without breaking manifest rows", () => {
+  const { root, caseSlug } = createPassingCaseWithJournal();
+  initializeTurnLedger({ root, caseSlug });
+  const sourceFile = path.join(root, "result with spaces.json");
+  fs.writeFileSync(sourceFile, "{\"rows\":1}\n", "utf8");
+
+  const result = importEvidence({
+    root,
+    caseSlug,
+    sourceFile,
+    name: "Managed Proxy/Path: Salesforce?",
+    source: "Splunk | ZIA",
+    query: "index=zscaler_proxy | stats count",
+    summary: "Allowed CONNECT/SSL | response bytes present.\nSecond line is folded.",
+    capturedAt: "2026-05-20T14:10:00Z",
+    touchedClaims: ["H1: Application segment may not include the app"],
+  });
+
+  assert.deepEqual(result.evidenceRefs, [
+    "_data/cases/2026-05-17-turn-ledger/evidence/splunk-zia-managed-proxy-path-salesforce-20260520T141000Z.json",
+  ]);
+  const manifest = readManifest(root, caseSlug);
+  assert.match(manifest, /Splunk \\| ZIA/);
+  assert.match(manifest, /index=zscaler_proxy \\| stats count/);
+  assert.match(manifest, /Allowed CONNECT\/SSL \\| response bytes present\. Second line is folded\./);
 });
 
 test("importEvidence rejects missing metadata, non-UTC timestamps, unknown claims, and collisions", () => {
@@ -691,6 +721,21 @@ test("importEvidence rejects missing metadata, non-UTC timestamps, unknown claim
     /touched claim is not present in journal\.md/,
   );
 
+  assert.throws(
+    () => importEvidence({
+      root,
+      caseSlug,
+      sourceFile,
+      name: "x".repeat(81),
+      source: "Splunk",
+      query: "index=zscaler",
+      summary: "Long name.",
+      capturedAt: "2026-05-20T14:10:00Z",
+      touchedClaims: ["H1: Application segment may not include the app"],
+    }),
+    /name slug is too long/,
+  );
+
   importEvidence({
     root,
     caseSlug,
@@ -715,6 +760,51 @@ test("importEvidence rejects missing metadata, non-UTC timestamps, unknown claim
       touchedClaims: ["H1: Application segment may not include the app"],
     }),
     /evidence destination already exists/,
+  );
+});
+
+test("importEvidence rejects external absolute query files to avoid manifest path leaks", () => {
+  const { root, caseSlug } = createPassingCaseWithJournal();
+  initializeTurnLedger({ root, caseSlug });
+  const sourceFile = path.join(root, "result.json");
+  fs.writeFileSync(sourceFile, "{}\n", "utf8");
+  const externalQueryFile = path.join(os.tmpdir(), `external-query-${Date.now()}.spl`);
+  fs.writeFileSync(externalQueryFile, "index=zscaler\n", "utf8");
+
+  assert.throws(
+    () => importEvidence({
+      root,
+      caseSlug,
+      sourceFile,
+      name: "result",
+      source: "Splunk",
+      queryFile: externalQueryFile,
+      summary: "External query file.",
+      capturedAt: "2026-05-20T14:10:00Z",
+      touchedClaims: ["H1: Application segment may not include the app"],
+    }),
+    /queryFile must be inside the repository/,
+  );
+});
+
+test("importEvidence requires initialized turn ledger", () => {
+  const { root, caseSlug } = createPassingCaseWithJournal();
+  const sourceFile = path.join(root, "result.json");
+  fs.writeFileSync(sourceFile, "{}\n", "utf8");
+
+  assert.throws(
+    () => importEvidence({
+      root,
+      caseSlug,
+      sourceFile,
+      name: "result",
+      source: "Splunk",
+      query: "index=zscaler",
+      summary: "Ledger is missing.",
+      capturedAt: "2026-05-20T14:10:00Z",
+      touchedClaims: ["H1: Application segment may not include the app"],
+    }),
+    /missing 02-turn-state\.json/,
   );
 });
 
@@ -776,6 +866,57 @@ test("importEvidence removes copied files if manifest append fails", () => {
     fs.existsSync(path.join(evidenceDir, "splunk-result-20260520T141000Z.json")),
     false,
   );
+});
+
+test("importEvidence removes copied files if a later copy fails", () => {
+  const { root, caseSlug } = createPassingCaseWithJournal();
+  initializeTurnLedger({ root, caseSlug });
+  const firstSource = path.join(root, "first.json");
+  const secondSource = path.join(root, "second.json");
+  fs.writeFileSync(firstSource, "{\"rows\":1}\n", "utf8");
+  fs.writeFileSync(secondSource, "{\"rows\":2}\n", "utf8");
+  const inputJson = writeJson(root, "copy-failure-input.json", {
+    items: [
+      {
+        sourceFile: firstSource,
+        name: "first",
+        source: "Splunk",
+        query: "index=zscaler first",
+        summary: "First file should be rolled back.",
+        capturedAt: "2026-05-20T14:10:00Z",
+        touchedClaims: ["H1: Application segment may not include the app"],
+      },
+      {
+        sourceFile: secondSource,
+        name: "second",
+        source: "Splunk",
+        query: "index=zscaler second",
+        summary: "Second file copy fails.",
+        capturedAt: "2026-05-20T14:11:00Z",
+        touchedClaims: ["H1: Application segment may not include the app"],
+      },
+    ],
+  });
+  const originalCopyFileSync = fs.copyFileSync;
+  let copyCount = 0;
+  fs.copyFileSync = (...args) => {
+    copyCount += 1;
+    if (copyCount === 2) throw new Error("forced second copy failure");
+    return originalCopyFileSync(...args);
+  };
+
+  try {
+    assert.throws(
+      () => importEvidence({ root, caseSlug, inputJson }),
+      /forced second copy failure/,
+    );
+  } finally {
+    fs.copyFileSync = originalCopyFileSync;
+  }
+
+  const evidenceDir = path.join(root, "_data/cases", caseSlug, "evidence");
+  assert.equal(fs.existsSync(path.join(evidenceDir, "splunk-first-20260520T141000Z.json")), false);
+  assert.equal(fs.existsSync(path.join(evidenceDir, "splunk-second-20260520T141100Z.json")), false);
 });
 
 test("abandonTurn clears an unchanged pending turn and restores the token", () => {
