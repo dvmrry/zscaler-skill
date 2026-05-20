@@ -12,7 +12,7 @@ sources:
   - agents/investigator/case-intake.md
   - agents/investigator/grounding/index.md
   - scripts/investigator-artifacts.mjs
-author-status: draft
+author-status: reviewed
 summary: Evidence-based Zscaler troubleshooting investigation
 primary-command: /z-investigator
 known-runtimes:

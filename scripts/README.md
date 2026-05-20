@@ -37,13 +37,14 @@ while finishing a tenant-specific implementation.
 
 | Category | Scripts |
 |---|---|
-| **Hygiene / CI** | `check-fast.mjs` (parallel local fast gate), `check-hygiene.py`, `check-citations.sh` / `check-citations.mjs`, `check-citation-density.py` (density advisory; source-line audit + citation inventory regression strict in CI), `check-agent-skills.py` (portable Agent Skill contract and adapter-shape check), `check-workflow-metadata.mjs` (workflow metadata and adapter-reference check), `check-doc-links.py`, `check-orphans.py`, `check-workflow-evals.py`, `check-vendor-drift.py`, `check-scrape-freshness.py`, `maintenance-digest.py`, `vendor-impact-summary.py` |
+| **Hygiene / CI** | `check-fast.mjs` (parallel local fast gate), `check-hygiene.py`, `check-citations.sh` / `check-citations.mjs`, `check-citation-density.py` (density advisory; source-line audit + citation inventory regression strict in CI), `check-agent-skills.py` (portable Agent Skill contract and adapter-shape check), `check-workflow-metadata.mjs` (workflow metadata and adapter-reference check), `check-doc-links.py`, `check-orphans.py`, `check-workflow-evals.py`, `check-vendor-drift.py`, `check-scrape-freshness.py`, `vendor-impact-summary.py`, `find-asymmetries.py` |
 | **Manual hygiene** | `check-staleness.sh`, `check-data-contract.mjs`, `setup-data-mount.mjs`, `prepare-overlay-submission.mjs` |
 | **Eval suite** | `run-evals.py` |
 | **Tenant API operations** | `diagnose-tenant.py`, `snapshot-refresh.py`, `url-lookup.py` |
 | **Private-overlay scaffolds** | `access-check.py`, `connector-health.py`, `sandbox-check.py`, `ssl-audit.py`, `zpa-app-check.py` |
-| **Reasoning helpers** | `agent_patterns.py` (lib), `policy_simulator.py` (lib), `simulate-policy.py`, `find-asymmetries.py`, `ab-test-prompt.py` (experimental placeholder), `investigator-artifacts.mjs` |
-| **Maintenance** | `issue-watch.py`, `maintenance-digest.py`, `vendor-impact-summary.py`, `refresh-postman.sh`, `refresh-automate-zscaler.sh`, `snapshot-refresh.py`, `convert-pdf-sources.sh`, `scaffold_guard.py`, `splunk-query.sh` (stub) |
+| **Reasoning helpers** | `agent_patterns.py` (lib), `policy_simulator.py` (lib), `simulate-policy.py`, `ab-test-prompt.py` (experimental placeholder), `investigator-artifacts.mjs` |
+| **Maintenance** | `issue-watch.py`, `maintenance-digest.py`, `refresh-postman.sh`, `refresh-automate-zscaler.sh`, `snapshot-refresh.py`, `convert-pdf-sources.sh`, `splunk-query.sh` (stub) |
+| **Libraries** | `scaffold_guard.py` |
 | **Build** | `render-skill-pdf.py` |
 
 ## Aggregated dependencies

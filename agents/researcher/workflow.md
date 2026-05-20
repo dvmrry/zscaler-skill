@@ -10,7 +10,7 @@ sources:
   - agents/researcher/prompt.md
   - agents/researcher/grounding/index.md
   - scripts/prepare-overlay-submission.mjs
-author-status: draft
+author-status: reviewed
 summary: Citation-backed reference expansion workflow
 primary-command: /z-researcher
 known-runtimes:

@@ -13,7 +13,7 @@ sources:
   - agents/retro/methodology.md
   - agents/investigator/methodology.md
   - agents/clarification-pattern.md
-author-status: draft
+author-status: reviewed
 summary: Journal-first incident retro and postmortem workflow
 primary-command: /z-retro
 known-runtimes:
