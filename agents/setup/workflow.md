@@ -11,7 +11,7 @@ sources:
   - scripts/setup-data-mount.mjs
   - scripts/check-data-contract.mjs
   - scripts/prepare-overlay-submission.mjs
-author-status: draft
+author-status: reviewed
 summary: Runtime data mount setup and repair workflow
 primary-command: "@zscaler-skill-setup"
 known-runtimes:

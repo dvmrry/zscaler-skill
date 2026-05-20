@@ -9,6 +9,11 @@ const CHECKS = [
     args: ["scripts/check-workflow-metadata.mjs"],
   },
   {
+    name: "portable Agent Skill contracts",
+    command: "./scripts/check-agent-skills.py",
+    args: [],
+  },
+  {
     name: "citation links",
     command: "node",
     args: ["scripts/check-citations.mjs"],

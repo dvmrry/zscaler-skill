@@ -11,7 +11,7 @@ sources:
   - agents/auditor/harness.md
   - agents/auditor/grounding/index.md
   - agents/auditor/methodology.md
-author-status: draft
+author-status: reviewed
 summary: Editorial and structural audit of skill references
 primary-command: /z-auditor
 known-runtimes:
