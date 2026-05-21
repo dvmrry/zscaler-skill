@@ -8,6 +8,19 @@ const CASE_INTAKE_BASENAME = "case-intake";
 const WORKFLOW_DIR = "workflow";
 const TURN_LOG_BASENAME = "02-turns.jsonl";
 const TURN_STATE_BASENAME = "02-turn-state.json";
+const EVIDENCE_DIR_BASENAME = "evidence";
+const EVIDENCE_MANIFEST_BASENAME = "MANIFEST.md";
+const HELPER_VERSION = "0.2.0";
+const MAX_EVIDENCE_SLUG_PART_LENGTH = 80;
+const SUPPORTED_OPERATIONS = [
+  "open-case",
+  "verify-case",
+  "initialize-turn-ledger",
+  "begin-turn",
+  "complete-turn",
+  "abandon-turn",
+  "import-evidence",
+];
 const REQUIRED_CASE_INTAKE_FIELDS = ["Status:", "Blocking Issues:", "Next Step:"];
 const REQUIRED_JOURNAL_MARKERS = [
   "# Discovery Journal",
@@ -57,6 +70,9 @@ function usage(exitCode = 0) {
   node scripts/investigator-artifacts.mjs begin-turn --root <repo> --case-slug <slug> --user-action <action>
   node scripts/investigator-artifacts.mjs complete-turn --root <repo> --case-slug <slug> --turn-json <file>
   node scripts/investigator-artifacts.mjs abandon-turn --root <repo> --case-slug <slug> --reason <text>
+  node scripts/investigator-artifacts.mjs capabilities
+  node scripts/investigator-artifacts.mjs import-evidence --root <repo> --case-slug <slug> --source-file <file> --name <name> --source <source> (--query <text>|--query-file <file>|--request-text <text>) --summary <text> --captured-at <ISO-UTC> --touched-claim <claim> [--active-hypothesis <tag>] [--allow-placeholder-query]
+  node scripts/investigator-artifacts.mjs import-evidence --root <repo> --case-slug <slug> --input-json <file>
 
 Creates and verifies _data/cases/<slug>/case-intake.md,
 case-intake.json, journal.md, and optional workflow turn state.
@@ -72,6 +88,7 @@ function parseArgs(argv) {
     command,
     force: false,
     proposedLoads: [],
+    touchedClaims: [],
   };
 
   for (let i = 3; i < argv.length; i += 1) {
@@ -95,11 +112,46 @@ function parseArgs(argv) {
     } else if (key === "--reason") {
       args.reason = value;
       i += 1;
+    } else if (key === "--source-file") {
+      args.sourceFile = value;
+      i += 1;
+    } else if (key === "--name") {
+      args.name = value;
+      i += 1;
+    } else if (key === "--source") {
+      args.source = value;
+      i += 1;
+    } else if (key === "--query") {
+      args.query = value;
+      i += 1;
+    } else if (key === "--query-file") {
+      args.queryFile = value;
+      i += 1;
+    } else if (key === "--request-text") {
+      args.requestText = value;
+      i += 1;
+    } else if (key === "--summary") {
+      args.summary = value;
+      i += 1;
+    } else if (key === "--captured-at") {
+      args.capturedAt = value;
+      i += 1;
+    } else if (key === "--active-hypothesis") {
+      args.activeHypothesis = value;
+      i += 1;
+    } else if (key === "--input-json") {
+      args.inputJson = value;
+      i += 1;
+    } else if (key === "--touched-claim") {
+      args.touchedClaims.push(value);
+      i += 1;
     } else if (key === "--proposed-load") {
       args.proposedLoads.push(value);
       i += 1;
     } else if (key === "--force") {
       args.force = true;
+    } else if (key === "--allow-placeholder-query") {
+      args.allowPlaceholderQuery = true;
     } else {
       throw new Error(`Unknown argument: ${key}`);
     }
@@ -143,7 +195,7 @@ function sha256Text(text) {
 }
 
 function sha256File(filePath) {
-  return sha256Text(fs.readFileSync(filePath, "utf8"));
+  return `sha256:${crypto.createHash("sha256").update(fs.readFileSync(filePath)).digest("hex")}`;
 }
 
 function hashTurnEvent(event) {
@@ -178,6 +230,8 @@ function casePaths(root, caseSlug) {
     caseIntakePath: path.join(caseDir, `${CASE_INTAKE_BASENAME}.md`),
     caseIntakeJsonPath: path.join(caseDir, `${CASE_INTAKE_BASENAME}.json`),
     journalPath: path.join(caseDir, "journal.md"),
+    evidenceDir: path.join(caseDir, EVIDENCE_DIR_BASENAME),
+    evidenceManifestPath: path.join(caseDir, EVIDENCE_DIR_BASENAME, EVIDENCE_MANIFEST_BASENAME),
     turnLogPath: path.join(workflowDir, TURN_LOG_BASENAME),
     turnStatePath: path.join(workflowDir, TURN_STATE_BASENAME),
   };
@@ -388,6 +442,20 @@ function validateEvidenceHandoffTurn(journalPath, turnInput, actionType) {
   }
 }
 
+function validateTouchedClaimsExist(journalPath, touchedClaims, context) {
+  const claims = asArray(touchedClaims).map((claim) => claim.trim()).filter(Boolean);
+  if (claims.length === 0) {
+    throw new Error(`${context} must include at least one touched claim`);
+  }
+  const statuses = journalClaimStatuses(journalPath);
+  for (const claim of claims) {
+    if (!statuses.has(claim)) {
+      throw new Error(`${context} touched claim is not present in journal.md: ${claim}`);
+    }
+  }
+  return claims;
+}
+
 function normalizeCompletionGate(turnInput, actionType) {
   if (actionType !== "mark-resolved") return null;
   const completionGate = turnInput.completionGate || {};
@@ -399,6 +467,9 @@ function normalizeCompletionGate(turnInput, actionType) {
 }
 
 function readTurnState(paths) {
+  if (!fs.existsSync(paths.turnStatePath)) {
+    throw new Error(`missing ${TURN_STATE_BASENAME}; run initialize-turn-ledger first`);
+  }
   const state = JSON.parse(fs.readFileSync(paths.turnStatePath, "utf8"));
   if (fs.existsSync(paths.turnLogPath)) {
     const events = readJsonl(paths.turnLogPath);
@@ -743,6 +814,246 @@ function fieldValue(value, fallback = "not specified") {
   return text || fallback;
 }
 
+function basicUtcTimestamp(capturedAt) {
+  const text = String(capturedAt || "").trim();
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/.test(text)) {
+    throw new Error("capturedAt must be an ISO 8601 UTC timestamp ending in Z");
+  }
+  const date = new Date(text);
+  const normalizedInput = text.replace(/\.000Z$/, "Z");
+  const normalizedParsed = date.toISOString().replace(/\.000Z$/, "Z");
+  if (Number.isNaN(date.getTime()) || normalizedParsed !== normalizedInput) {
+    throw new Error(`capturedAt is not a valid UTC timestamp: ${text}`);
+  }
+  return date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+}
+
+function slugPart(value, label) {
+  const slug = String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  if (!slug) throw new Error(`${label} must contain at least one alphanumeric character`);
+  if (slug.length > MAX_EVIDENCE_SLUG_PART_LENGTH) {
+    throw new Error(`${label} slug is too long; maximum ${MAX_EVIDENCE_SLUG_PART_LENGTH} characters`);
+  }
+  return slug;
+}
+
+function markdownCell(value) {
+  return String(value ?? "")
+    .replace(/\r?\n/g, " ")
+    .replace(/\|/g, "\\|")
+    .trim();
+}
+
+function displayPath(root, filePath) {
+  const relative = path.relative(root, filePath);
+  if (relative && !relative.startsWith("..") && !path.isAbsolute(relative)) {
+    return relative;
+  }
+  return filePath;
+}
+
+function resolveReadableFile(root, filePath, label) {
+  if (!filePath || String(filePath).includes("\0")) {
+    throw new Error(`${label} is required`);
+  }
+  const resolved = path.isAbsolute(filePath)
+    ? path.resolve(filePath)
+    : safeRepoPath(root, filePath);
+  const stat = fs.statSync(resolved, { throwIfNoEntry: false });
+  if (!stat || !stat.isFile()) {
+    throw new Error(`${label} does not exist or is not a file: ${resolved}`);
+  }
+  return resolved;
+}
+
+function normalizeQueryRef(root, item) {
+  if (item.queryFile) {
+    const queryFile = resolveReadableFile(root, item.queryFile, "queryFile");
+    const queryRef = displayPath(root, queryFile);
+    if (path.isAbsolute(queryRef)) {
+      throw new Error("queryFile must be inside the repository; use query or requestText for external queries");
+    }
+    validateConcreteQueryMetadata(fs.readFileSync(queryFile, "utf8"), item);
+    return queryRef;
+  }
+  const query = String(item.query ?? "").trim();
+  if (query) {
+    validateConcreteQueryMetadata(query, item);
+    return query;
+  }
+  const requestText = String(item.requestText ?? "").trim();
+  if (requestText) {
+    validateConcreteQueryMetadata(requestText, item);
+    return requestText;
+  }
+  const queryRef = String(item.queryRef ?? "").trim();
+  if (queryRef) {
+    validateConcreteQueryMetadata(queryRef, item);
+    return queryRef;
+  }
+  throw new Error("evidence item must include queryFile, query, requestText, or queryRef");
+}
+
+function validateConcreteQueryMetadata(text, item) {
+  if (item.allowPlaceholderQuery === true) return;
+  const value = String(text || "");
+  const placeholderPatterns = [
+    /\$INDEX(?:_[A-Z0-9_]+|\b)/i,
+    /<\s*your[-_\s][^>]*>/i,
+    /\bindex\s*=\s*(?:$|[|\s])/i,
+    /\bsourcetype\s*=\s*(?:$|[|\s])/i,
+  ];
+  if (placeholderPatterns.some((pattern) => pattern.test(value))) {
+    throw new Error("query/request metadata contains unresolved SIEM placeholder; replace it or use allowPlaceholderQuery only for invalidated/corrective evidence");
+  }
+}
+
+function normalizeEvidenceItems(root, args) {
+  if (args.inputJson) {
+    const input = loadJson(root, args.inputJson, "--input-json");
+    if (!input || typeof input !== "object" || Array.isArray(input)) {
+      throw new Error("input JSON must be an object");
+    }
+    if (!Array.isArray(input.items) || input.items.length === 0) {
+      throw new Error("input JSON must include a non-empty items array");
+    }
+    return input.items.map((item) => ({
+      activeHypothesis: item.activeHypothesis ?? input.activeHypothesis,
+      ...item,
+    }));
+  }
+  return [{
+    sourceFile: args.sourceFile,
+    name: args.name,
+    source: args.source,
+    query: args.query,
+    queryFile: args.queryFile,
+    requestText: args.requestText,
+    allowPlaceholderQuery: args.allowPlaceholderQuery,
+    summary: args.summary,
+    capturedAt: args.capturedAt,
+    touchedClaims: args.touchedClaims,
+    activeHypothesis: args.activeHypothesis,
+  }];
+}
+
+function ensureManifestHeader(manifestPath) {
+  const header = "| Evidence Ref | Source | Captured At | Source File Hash | Query/Request Ref | Summary | Touched Claims |\n|---|---|---|---|---|---|---|\n";
+  if (!fs.existsSync(manifestPath) || fs.readFileSync(manifestPath, "utf8").trim() === "") {
+    atomicWriteFile(manifestPath, header);
+    return;
+  }
+  const manifest = fs.readFileSync(manifestPath, "utf8");
+  if (!manifest.includes("| Evidence Ref | Source | Captured At | Source File Hash | Query/Request Ref | Summary | Touched Claims |")) {
+    throw new Error(`${EVIDENCE_MANIFEST_BASENAME} does not use the expected evidence manifest schema`);
+  }
+}
+
+function importEvidence(args) {
+  const root = resolveRepoRoot(args.root);
+  verifyCaseFiles(root, args.caseSlug);
+  const paths = casePaths(root, args.caseSlug);
+  verifyJournalHasClaimTable(paths.journalPath);
+  const state = readTurnState(paths);
+  const pending = state.pendingTurn;
+  if (!pending) {
+    throw new Error("import-evidence requires an open pendingTurn; run begin-turn first");
+  }
+
+  fs.mkdirSync(paths.evidenceDir, { recursive: true });
+  const rawItems = normalizeEvidenceItems(root, args);
+  const prepared = [];
+  const destinations = new Set();
+  for (const [index, item] of rawItems.entries()) {
+    if (!item || typeof item !== "object" || Array.isArray(item)) {
+      throw new Error(`evidence item ${index + 1} must be an object`);
+    }
+    const sourceFile = resolveReadableFile(root, item.sourceFile, "sourceFile");
+    const source = String(item.source || "").trim();
+    if (!source) throw new Error(`evidence item ${index + 1} source is required`);
+    const name = String(item.name || "").trim();
+    if (!name) throw new Error(`evidence item ${index + 1} name is required`);
+    const summary = String(item.summary || "").trim();
+    if (!summary) throw new Error(`evidence item ${index + 1} summary is required`);
+    const capturedAt = String(item.capturedAt || "").trim();
+    const capturedAtBasic = basicUtcTimestamp(capturedAt);
+    const touchedClaims = validateTouchedClaimsExist(paths.journalPath, item.touchedClaims, `evidence item ${index + 1}`);
+    const queryRef = normalizeQueryRef(root, item);
+    const sourceFileHash = sha256File(sourceFile);
+    const ext = path.extname(sourceFile).toLowerCase();
+    const filename = `${slugPart(source, "source")}-${slugPart(name, "name")}-${capturedAtBasic}${ext}`;
+    const destination = path.join(paths.evidenceDir, filename);
+    if (!destination.startsWith(`${paths.evidenceDir}${path.sep}`)) {
+      throw new Error("computed evidence destination escapes evidence directory");
+    }
+    if (destinations.has(destination)) {
+      throw new Error(`duplicate evidence destination in input: ${filename}`);
+    }
+    if (fs.existsSync(destination)) {
+      throw new Error(`evidence destination already exists: ${destination}`);
+    }
+    destinations.add(destination);
+    const evidenceRef = path.join("_data", "cases", args.caseSlug, EVIDENCE_DIR_BASENAME, filename);
+    const manifestRow = `| ${markdownCell(evidenceRef)} | ${markdownCell(source)} | ${markdownCell(capturedAt)} | ${markdownCell(sourceFileHash)} | ${markdownCell(queryRef)} | ${markdownCell(summary)} | ${markdownCell(touchedClaims.join("; "))} |`;
+    prepared.push({
+      sourceFile,
+      destination,
+      evidenceRef,
+      source,
+      name,
+      capturedAt,
+      sourceFileHash,
+      queryRef,
+      summary,
+      touchedClaims,
+      activeHypothesis: item.activeHypothesis ?? null,
+      manifestRow,
+    });
+  }
+
+  ensureManifestHeader(paths.evidenceManifestPath);
+  const copied = [];
+  try {
+    for (const item of prepared) {
+      fs.copyFileSync(item.sourceFile, item.destination, fs.constants.COPYFILE_EXCL);
+      copied.push(item.destination);
+    }
+    fs.appendFileSync(paths.evidenceManifestPath, `${prepared.map((item) => item.manifestRow).join("\n")}\n`, "utf8");
+  } catch (error) {
+    for (const destination of copied) {
+      fs.rmSync(destination, { force: true });
+    }
+    throw error;
+  }
+
+  return {
+    status: "ok",
+    operation: "import-evidence",
+    evidenceRefs: prepared.map((item) => item.evidenceRef),
+    manifestPath: path.join("_data", "cases", args.caseSlug, EVIDENCE_DIR_BASENAME, EVIDENCE_MANIFEST_BASENAME),
+    manifestRows: prepared.map((item) => item.manifestRow),
+    turnJsonPath: null,
+    warnings: [],
+    pendingTurn: {
+      sequence: pending.sequence,
+      turnToken: pending.turnToken,
+      userAction: pending.userAction,
+    },
+    items: prepared.map((item) => ({
+      evidenceRef: item.evidenceRef,
+      sourceFileHash: item.sourceFileHash,
+      source: item.source,
+      capturedAt: item.capturedAt,
+      touchedClaims: item.touchedClaims,
+      activeHypothesis: item.activeHypothesis,
+    })),
+  };
+}
+
 function buildCaseIntakeMd({ status, blockingIssues, nextStep, root, caseDir, caseIntakeJsonPath, journalPath, framing, proposedLoads }) {
   const issueLine = blockingIssues.length ? blockingIssues.join("; ") : "none";
   return `Status: ${status}
@@ -927,6 +1238,15 @@ function openCase(args) {
 function main() {
   try {
     const args = parseArgs(process.argv);
+    if (args.command === "capabilities") {
+      process.stdout.write(`${JSON.stringify({
+        status: "ok",
+        operation: "capabilities",
+        version: HELPER_VERSION,
+        supported: SUPPORTED_OPERATIONS,
+      }, null, 2)}\n`);
+      return;
+    }
     if (args.command === "open-case") {
       const result = openCase(args);
       process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
@@ -958,8 +1278,24 @@ function main() {
       process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
       return;
     }
+    if (args.command === "import-evidence") {
+      const result = importEvidence(args);
+      process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+      return;
+    }
     usage(1);
   } catch (error) {
+    if (process.argv[2] === "import-evidence") {
+      process.stderr.write(`${JSON.stringify({
+        status: "error",
+        operation: "import-evidence",
+        completed: [],
+        failed: ["validation-or-import"],
+        repair: error.message,
+        warnings: [],
+      }, null, 2)}\n`);
+      process.exit(1);
+    }
     process.stderr.write(`investigator-artifacts: ${error.message}\n`);
     process.exit(1);
   }
@@ -979,4 +1315,5 @@ export {
   beginTurn,
   abandonTurn,
   completeTurn,
+  importEvidence,
 };

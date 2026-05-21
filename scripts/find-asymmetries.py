@@ -101,7 +101,7 @@ TF_PROVIDERS = [
     ("ztc", REPO_ROOT / "vendor" / "terraform-provider-ztc" / "ztc"),
 ]
 POSTMAN_COLLECTION = REPO_ROOT / "vendor" / "zscaler-api-specs" / "oneapi-postman-collection.json"
-OUTPUT = REPO_ROOT / "_data" / "logs" / "asymmetry-candidates.md"
+OUTPUT = REPO_ROOT / "_data" / "schemas" / "asymmetry-candidates.md"
 
 # Thresholds tuned by triage:
 #   - Skip near-duplicate scan for sets larger than NEAR_DUP_MAX_SET_SIZE
@@ -638,6 +638,12 @@ def main() -> int:
     ]
     if not POSTMAN_COLLECTION.exists():
         missing_inputs.append(str(POSTMAN_COLLECTION.relative_to(REPO_ROOT)))
+    if missing_inputs:
+        print(
+            "ERROR: missing expected vendor inputs: " + ", ".join(missing_inputs),
+            file=sys.stderr,
+        )
+        return 2
 
     validators = collect_all_validators()
     candidates = find_candidates(validators)
@@ -656,12 +662,6 @@ def main() -> int:
     print(f"    {len(candidates['intra_provider'])} intra-provider mismatches")
     print(f"    {len(candidates['near_duplicates'])} within-validator near-duplicates")
     print(f"  Pass 2: {len(postman_diffs)} Postman request/response field diffs")
-    if missing_inputs:
-        print(
-            "ERROR: missing expected vendor inputs: " + ", ".join(missing_inputs),
-            file=sys.stderr,
-        )
-        return 2
     if not validators:
         print("ERROR: no Terraform validators were extracted from vendor inputs", file=sys.stderr)
         return 1

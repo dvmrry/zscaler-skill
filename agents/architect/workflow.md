@@ -12,7 +12,7 @@ sources:
   - agents/architect/grounding/index.md
   - agents/architect/methodology.md
   - agents/siem-emission-discipline.md
-author-status: draft
+author-status: reviewed
 summary: Capacity and scaling architecture review
 primary-command: /z-architect
 known-runtimes:

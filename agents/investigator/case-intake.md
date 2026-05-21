@@ -179,6 +179,13 @@ are two completed turns: first `request-user-evidence` or `query-request`, then
 a later `record-user-evidence` turn when the user provides results. Do not keep
 a pending turn open while waiting for the user.
 
+When the helper capabilities include `import-evidence`, use it during
+`record-user-evidence` or `add-evidence` turns to move returned files into
+case-local `evidence/` and append `evidence/MANIFEST.md`. This does not replace
+the journal update or `complete-turn`; it only removes manual file copying,
+hashing, naming, and manifest-row work. If the helper is unavailable, follow
+the manual evidence convention instead.
+
 Use `query-request` for Splunk/SIEM catalog-pattern requests. Use
 `request-user-evidence` for non-Splunk evidence and include the exact
 `evidenceRequest` in the turn JSON.

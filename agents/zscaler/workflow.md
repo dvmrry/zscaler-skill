@@ -10,7 +10,7 @@ sources:
   - agents/zscaler/prompt.md
   - agents/loading-discipline.md
   - agents/clarification-pattern.md
-author-status: draft
+author-status: reviewed
 summary: Grounded ad-hoc Zscaler Q&A
 primary-command: "@zscaler"
 known-runtimes:

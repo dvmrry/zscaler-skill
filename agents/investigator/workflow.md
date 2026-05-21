@@ -12,7 +12,7 @@ sources:
   - agents/investigator/case-intake.md
   - agents/investigator/grounding/index.md
   - scripts/investigator-artifacts.mjs
-author-status: draft
+author-status: reviewed
 summary: Evidence-based Zscaler troubleshooting investigation
 primary-command: /z-investigator
 known-runtimes:
@@ -136,6 +136,14 @@ For every later controller turn, run `begin-turn`, perform exactly one
 investigation action, then run `complete-turn`. If the action blocks after
 `begin-turn` and before journal mutation, run `abandon-turn --reason "<reason>"`
 before halting.
+
+If `node scripts/investigator-artifacts.mjs capabilities` reports
+`import-evidence`, use that helper inside `record-user-evidence` and
+`add-evidence` turns to copy returned files into case-local `evidence/`, append
+`evidence/MANIFEST.md`, and return evidence refs. The helper is additive-only:
+it does not update `journal.md`, complete the turn, or mutate workflow turn
+state. The agent still updates the journal, writes the turn JSON, and runs
+`complete-turn`.
 
 A request turn is a completed turn. `query-request` and
 `request-user-evidence` must run through `begin-turn` and `complete-turn`, then

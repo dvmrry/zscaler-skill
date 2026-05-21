@@ -38,7 +38,7 @@ This directory holds the agent infrastructure for the skill — playbooks, metho
 | `references/` | Product knowledge: what to know (Zscaler product docs, schemas, log refs) | Both agents (as evidence) and human readers |
 | `_data/` | Evidence and state: tenant snapshots, IaC overlays, local case artifacts, and eval outputs | Agents and operators investigating current state |
 | `.agents/skills/` | Agent Skills: trigger metadata and loaders for canonical workflows | Codex, Windsurf, and other compatible runtimes |
-| `_meta/` | Repo-level meta-documentation (clarifications, portfolio map, audits) | Maintainers and auditing agents |
+| `_meta/` | Agent-layer meta-documentation: runtime adapter policy, workflow metadata, and workflow artifact notes | Maintainers and auditing agents |
 
 The split keeps `references/` focused as a knowledge base, lets agent personas route to predictable paths, and makes it easier to add new agent workflows without touching product docs.
 
@@ -75,6 +75,8 @@ Files at the root of `agents/` apply across roles:
 
 - [`siem-emission-discipline.md`](./siem-emission-discipline.md) — execution modes (agent-direct / user-handoff / coworking), placeholder plumbing, public/private boundary for SIEM queries
 - [`tenant-schema-derivation.md`](./tenant-schema-derivation.md) — canonical-vs-tenant schema distinction, derivation recipes per SIEM, storage template
+- [`clarification-pattern.md`](./clarification-pattern.md) — standard clarify-before-routing pattern for underspecified Zscaler requests
+- [`loading-discipline.md`](./loading-discipline.md) — bounded file-loading and stage-announcement discipline for agent workflows
 
 ## Frontmatter conventions
 
@@ -83,7 +85,7 @@ Files in `agents/` use a slightly different frontmatter shape than `references/`
 ```yaml
 ---
 role: investigator                    # role this artifact belongs to (omit for cross-cutting)
-artifact: prompt                       # prompt | harness | case-intake | methodology | grounding | diagnostics-template
+artifact: prompt                       # workflow | prompt | harness | case-intake | methodology | grounding | diagnostics-template
 title: "..."
 content-type: prompt                   # prompt | reference
 last-verified: "YYYY-MM-DD"
@@ -98,7 +100,8 @@ author-status: draft
 ---
 ```
 
-- **`role`** + **`artifact`** replace the `product:` + `topic:` pair used in `references/`. Role identifies the workflow family (investigator, setup, researcher, architect, auditor, soc, retro); artifact identifies the file's role within that family. Cross-cutting files at `agents/` root drop `role` and use `topic:` directly.
+- **`role`** + **`artifact`** replace the `product:` + `topic:` pair used in `references/`. Role identifies the workflow family (zscaler, investigator, setup, researcher, architect, auditor, soc, retro); artifact identifies the file's role within that family. Cross-cutting files at `agents/` root drop `role` and use `topic:` directly.
+- **`workflow.md`** files use the extended workflow metadata schema documented in [`_meta/workflow-metadata.md`](./_meta/workflow-metadata.md). They intentionally omit `source-tier:` and add workflow fields such as `id`, `summary`, `primary-command`, `known-runtimes`, `required-reads`, `optional-reads`, and `supporting-scripts`.
 - **`dependencies:`** lists other agent artifacts this file relies on or expects to be loaded alongside. Distinct from `sources:` (where content comes from). The dependencies field is machine-readable and forms the basis for future artifact-graph tooling.
 
 ## Runtime notes

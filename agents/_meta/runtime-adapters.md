@@ -9,7 +9,7 @@ sources:
   - "AGENTS.md"
   - "SKILL.md"
   - "agents/README.md"
-author-status: draft
+author-status: reviewed
 ---
 
 # Runtime adapters and portable skills

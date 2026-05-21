@@ -213,7 +213,7 @@ What this rule does NOT do:
 
 The point of disk-first is **avoiding redundant queries**, not stopping investigation early. Calling out to a SIEM / API / portal when `_data/` has the answer wastes the user's tokens; treating a single on-disk file as the answer to the entire investigation is the opposite failure — confidence without coverage.
 
-Files added to `evidence/` follow the naming and manifest convention in [`../../docs/data-contract/cases.md § evidence/`](../../docs/data-contract/cases.md). Both the rename and the manifest row are written at save time, in the same step.
+Files added to `evidence/` follow the naming and manifest convention in [`../../docs/data-contract/cases.md § evidence/`](../../docs/data-contract/cases.md). When the helper reports `import-evidence` support, use it to perform the rename, hash, copy, and manifest-row append in the same step. The helper does not replace journal reasoning or turn completion.
 
 ### 5. Output the journal
 

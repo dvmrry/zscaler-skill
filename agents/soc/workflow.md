@@ -14,7 +14,7 @@ sources:
   - agents/investigator/methodology.md
   - agents/siem-emission-discipline.md
   - agents/clarification-pattern.md
-author-status: draft
+author-status: reviewed
 summary: Security posture review workflow
 primary-command: /z-soc
 known-runtimes:
