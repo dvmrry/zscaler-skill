@@ -39,7 +39,7 @@ while finishing a tenant-specific implementation.
 |---|---|
 | **Hygiene / CI** | `check-fast.mjs` (parallel local fast gate), `check-hygiene.py`, `check-citations.sh` / `check-citations.mjs`, `check-citation-density.py` (density advisory; source-line audit + citation inventory regression strict in CI), `check-agent-skills.py` (portable Agent Skill contract and adapter-shape check), `check-workflow-metadata.mjs` (workflow metadata and adapter-reference check), `check-doc-links.py`, `check-orphans.py`, `check-workflow-evals.py`, `check-vendor-drift.py`, `check-scrape-freshness.py`, `vendor-impact-summary.py`, `find-asymmetries.py` |
 | **Manual hygiene** | `check-staleness.sh`, `check-data-contract.mjs`, `setup-data-mount.mjs`, `prepare-overlay-submission.mjs` |
-| **Eval suite** | `run-evals.py` |
+| **Eval suite** | `run-evals.py`, `benchmark-investigator-helper.mjs` |
 | **Tenant API operations** | `diagnose-tenant.py`, `snapshot-refresh.py`, `url-lookup.py` |
 | **Private-overlay scaffolds** | `access-check.py`, `connector-health.py`, `sandbox-check.py`, `ssl-audit.py`, `zpa-app-check.py` |
 | **Reasoning helpers** | `agent_patterns.py` (lib), `policy_simulator.py` (lib), `simulate-policy.py`, `ab-test-prompt.py` (experimental placeholder), `investigator-artifacts.mjs` |
@@ -119,6 +119,17 @@ for failures, so local validation does not become a wall of interleaved logs.
 The current fast gate covers workflow metadata, citation links, and the Node
 helper test suite; it is a local acceleration path, not a replacement for the
 full CI hygiene workflow.
+
+Benchmark investigator helper mechanics without involving an agent runtime:
+
+```bash
+node scripts/benchmark-investigator-helper.mjs
+```
+
+This creates synthetic case directories in the OS temp directory, seeds actual
+turn-ledger events, and reports p50/p95/max timings for the post-Step-3 helper
+path. Use it to separate deterministic helper overhead from agent workflow
+latency.
 
 Validate workflow metadata and runtime adapter pointers:
 

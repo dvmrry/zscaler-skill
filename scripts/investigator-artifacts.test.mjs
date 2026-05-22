@@ -7,6 +7,7 @@ import test from "node:test";
 import {
   abandonTurn,
   beginTurn,
+  capabilities,
   completeTurn,
   initializeTurnLedger,
   importEvidence,
@@ -27,6 +28,14 @@ function tempRepo() {
   ]);
   return root;
 }
+
+test("capabilities reports helper-assisted complete-turn input support", () => {
+  const result = capabilities();
+
+  assert.equal(result.status, "ok");
+  assert.ok(result.supported.includes("complete-turn"));
+  assert.ok(result.supportedOptions["complete-turn"].includes("--turn-input-json"));
+});
 
 function makeRepoFiles(root, relativePaths) {
   for (const relativePath of relativePaths) {
@@ -1187,6 +1196,97 @@ test("completeTurn appends one event, clears pending state, and enforces state/l
   assert.throws(
     () => beginTurn({ root, caseSlug, userAction: "pause" }),
     /does not agree with last 02-turns\.jsonl event/,
+  );
+});
+
+test("completeTurn accepts helper-assisted turn input JSON", () => {
+  const { root, caseSlug, journalPath } = createPassingCaseWithJournal();
+  initializeTurnLedger({ root, caseSlug });
+  beginTurn({ root, caseSlug, userAction: "record-user-evidence" });
+
+  fs.appendFileSync(journalPath, "\nTurn update: recorded one evidence result.\n", "utf8");
+  const inputPath = writeJson(root, "turn-input.json", {
+    actionType: "record-user-evidence",
+    actionSummary: "Recorded one evidence result.",
+    touchedClaims: ["H1: Application segment may not include the app"],
+    evidenceRefs: ["_data/cases/2026-05-17-turn-ledger/evidence/result.json"],
+    allowedNext: ["pause"],
+  });
+
+  const completed = completeTurn({ root, caseSlug, turnInputJson: inputPath });
+
+  assert.equal(completed.status, "pass");
+  assert.equal(completed.event.sequence, 1);
+  assert.equal(completed.event.userAction, "record-user-evidence");
+  assert.equal(completed.event.actionType, "record-user-evidence");
+  assert.ok(completed.event.journalHashAfter);
+});
+
+test("completeTurn rejects caller-supplied helper-owned fields in turn input JSON", () => {
+  const { root, caseSlug, journalPath } = createPassingCaseWithJournal();
+  initializeTurnLedger({ root, caseSlug });
+  beginTurn({ root, caseSlug, userAction: "continue-top-open" });
+  fs.appendFileSync(journalPath, "\nTurn update: checked one evidence source.\n", "utf8");
+  const inputPath = writeJson(root, "turn-forged-helper-owned.json", {
+    sequence: 99,
+    journalHashAfter: "sha256:forged",
+    actionType: "load-file",
+    actionSummary: "Checked one evidence source.",
+    touchedClaims: ["H1"],
+    allowedNext: ["pause"],
+  });
+
+  assert.throws(
+    () => completeTurn({ root, caseSlug, turnInputJson: inputPath }),
+    /must not include helper-owned fields: sequence, journalHashAfter/,
+  );
+});
+
+test("completeTurn with turn input rejects unchanged journal for investigative action", () => {
+  const { root, caseSlug } = createPassingCaseWithJournal();
+  initializeTurnLedger({ root, caseSlug });
+  beginTurn({ root, caseSlug, userAction: "continue-top-open" });
+  const inputPath = writeJson(root, "turn-unchanged-journal.json", {
+    actionType: "load-file",
+    actionSummary: "Checked one evidence source.",
+    touchedClaims: ["H1"],
+    allowedNext: ["pause"],
+  });
+
+  assert.throws(
+    () => completeTurn({ root, caseSlug, turnInputJson: inputPath }),
+    /journal\.md hash did not change/,
+  );
+});
+
+test("completeTurn requires exactly one turn completion input", () => {
+  const { root, caseSlug, journalPath } = createPassingCaseWithJournal();
+  initializeTurnLedger({ root, caseSlug });
+  beginTurn({ root, caseSlug, userAction: "continue-top-open" });
+  fs.appendFileSync(journalPath, "\nTurn update: checked one evidence source.\n", "utf8");
+  const inputPath = writeJson(root, "turn-input-overwrite.json", {
+    actionType: "load-file",
+    actionSummary: "Checked one evidence source.",
+    touchedClaims: ["H1: Application segment may not include the app"],
+    allowedNext: ["pause"],
+  });
+
+  const pending = readJson(path.join(root, "_data/cases", caseSlug, "workflow/02-turn-state.json")).pendingTurn;
+  const fullTurnPath = writeJson(root, "turn-full.json", {
+    sequence: pending.sequence,
+    previousHash: pending.priorLatestTurnHash,
+    turnToken: pending.turnToken,
+    userAction: pending.userAction,
+    actionType: "load-file",
+    actionSummary: "Checked one evidence source.",
+    touchedClaims: ["H1: Application segment may not include the app"],
+    journalHashBefore: pending.journalHashBefore,
+    allowedNext: ["pause"],
+  });
+
+  assert.throws(
+    () => completeTurn({ root, caseSlug, turnJson: fullTurnPath, turnInputJson: inputPath }),
+    /provide only one of --turn-json or --turn-input-json/,
   );
 });
 

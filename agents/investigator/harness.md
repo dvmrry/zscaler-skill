@@ -325,7 +325,28 @@ evidence wave in one `record-user-evidence` or `add-evidence` turn, pass an
 `record-evidence-batch` transaction.
 
 After exactly one investigation action, update `journal.md`, write a turn JSON
-file, and close the transaction:
+file, and close the transaction.
+
+If `capabilities.supportedOptions["complete-turn"]` includes
+`--turn-input-json`, prefer it over hand-writing the full turn JSON. The agent
+still owns the journal update and the action summary; the helper fills
+helper-owned fields from `pendingTurn`, re-hashes `journal.md`, validates the
+turn, and completes it in the existing completion command.
+
+```bash
+node scripts/investigator-artifacts.mjs complete-turn \
+  --root <working-dir> \
+  --case-slug <slug> \
+  --turn-input-json <path-to-turn-input-json>
+```
+
+The input JSON must contain the agent-owned fields such as `actionType`,
+`actionSummary`, `touchedClaims`, `evidenceRefs`, and `allowedNext`. It must
+not include helper-owned fields such as `sequence`, `previousHash`,
+`turnToken`, `userAction`, `journalHashBefore`, or `journalHashAfter`.
+
+If helper-assisted completion is unavailable, write the full turn JSON and use
+the legacy completion shape:
 
 ```bash
 node scripts/investigator-artifacts.mjs complete-turn \

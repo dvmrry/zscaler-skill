@@ -145,6 +145,14 @@ it does not update `journal.md`, complete the turn, or mutate workflow turn
 state. The agent still updates the journal, writes the turn JSON, and runs
 `complete-turn`.
 
+If `capabilities.supportedOptions["complete-turn"]` includes
+`--turn-input-json`, use `complete-turn --turn-input-json` after the journal
+update instead of hand-writing the full turn JSON. The helper owns sequence,
+token, previous hash, user action, and journal hashes; the agent owns
+`actionType`, `actionSummary`, touched claims, evidence refs, and allowed next
+actions. This keeps the existing completion command boundary while removing
+helper-owned JSON ceremony.
+
 A request turn is a completed turn. `query-request` and
 `request-user-evidence` must run through `begin-turn` and `complete-turn`, then
 halt. The user's returned evidence starts a new `record-user-evidence` turn. Do
