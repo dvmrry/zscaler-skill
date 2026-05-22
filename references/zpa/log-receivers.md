@@ -3,7 +3,7 @@ product: zpa
 topic: "log-receivers"
 title: "ZPA Log Receivers — LSS configuration and architecture"
 content-type: reasoning
-last-verified: "2026-04-28"
+last-verified: "2026-05-22"
 confidence: medium
 source-tier: mixed
 sources:
@@ -187,6 +187,10 @@ Source: `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`; `vendor/zscaler-sdk-pyth
 **SDK service** (`client.zpa.lss`): `list_configs`, `get_config`, `add_lss_config`, `update_lss_config`, `delete_lss_config`, `get_log_formats`, `get_client_types`, `get_status_codes`. Uses the v2 endpoint `/zpa/mgmtconfig/v2/admin/customers/{customer_id}/lssConfig`. (Tier A — sdk.md §2.22.)
 
 `add_lss_config` signature: `(lss_host, lss_port, name, source_log_type, app_connector_group_ids=None, enabled=True, source_log_format="csv", use_tls=False, **kwargs)`.
+
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`.
+
+`update_lss_config` in zscaler-sdk-python v1.9.30 builds a partial PUT payload from caller-supplied fields and omits unprovided `policyRule` / `policyRuleResource` data. That matters for receivers with attached SIEM policy filters: older SDK behavior could round-trip fetched policy objects and fail non-policy updates with `policy.invalid.mapping.input`. If an LSS receiver rename or endpoint-only update fails that way, upgrade to v1.9.30 or later. Upstream issue [zscaler/zscaler-sdk-python#514](https://github.com/zscaler/zscaler-sdk-python/issues/514) tracks the fixed behavior.
 
 ## Operational gotchas
 
