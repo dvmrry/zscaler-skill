@@ -3,10 +3,10 @@ product: zia
 topic: zia-sdk
 title: "ZIA SDK — service and method catalog"
 content-type: reference
-last-verified: "2026-05-17"
+last-verified: "2026-05-22"
 verified-against:
-  vendor/zscaler-sdk-python: 8d054b1fdd18bcb29722b7051dc282c0d1c86be6
-  vendor/zscaler-sdk-go: 4b58470175a847a74a332f39b158ab2fc3a76059
+  vendor/zscaler-sdk-python: be8f7c7c1e3c78f3cb8e6e24c2378264200f7d98
+  vendor/zscaler-sdk-go: 65276eca609347a3776bfd0421a08e2f2b0b2a95
 confidence: medium
 source-tier: code
 sources:
@@ -22,6 +22,8 @@ sources:
   - vendor/zscaler-sdk-python/zscaler/zia/bandwidth_classes.py
   - vendor/zscaler-sdk-python/zscaler/zia/bandwidth_control_rules.py
   - vendor/zscaler-sdk-python/zscaler/zia/browser_control_settings.py
+  - vendor/zscaler-sdk-python/zscaler/zia/secure_browsing.py
+  - vendor/zscaler-sdk-go/zscaler/zia/services/secure_browsing/secure_browsing.go
   - vendor/zscaler-sdk-python/zscaler/zia/casb_dlp_rules.py
   - vendor/zscaler-sdk-python/zscaler/zia/casb_malware_rules.py
   - vendor/zscaler-sdk-python/zscaler/zia/cloud_app_instances.py
@@ -433,6 +435,23 @@ Notable kwargs include `auth_bypass_urls`, `kerberos_bypass_urls`, `enable_offic
 | `update_browser_control_settings` | `(**kwargs) -> APIResult[BrowserControlSettings]` | PUT `/browserControl`. |
 
 **Go parity:** Yes (`browser_control_settings/`)
+
+---
+
+### SecureBrowsingAPI
+
+**Python SDK:** `client.zia.secure_browsing` (`SecureBrowsingAPI`, added in zscaler-sdk-python v1.9.30).
+**Go SDK package:** `zscaler/zia/services/secure_browsing` (added in zscaler-sdk-go v3.8.37).
+**Purpose:** Browser Control and Smart Browser Isolation settings on the `/browserControlSettings` API surface.
+
+| Python method / Go function | Endpoint | Notes |
+|---|---|---|
+| `get_browser_control_settings` / `GetBrowserControlSettings` | `/zia/api/v1/browserControlSettings` | Reads Browser Control settings, including warning behavior, blocked browser versions, Smart Browser Isolation enablement, and isolation profile reference. |
+| `update_browser_control_settings` / `UpdateBrowserControlSettings` | `/zia/api/v1/browserControlSettings` | Updates Browser Control settings. |
+| `get_supported_browser_versions` / `GetSupportedBrowserVersions` | `/zia/api/v1/browserControlSettings/supportedBrowserVersions` | Reads supported and older browser-version sets by browser type. |
+| `update_smart_isolation` / `UpdateSmartIsolation` | `/zia/api/v1/browserControlSettings/smartIsolation` | Updates Smart Browser Isolation settings and user/group scoping. Python reshapes `smart_isolation_users_ids` and `smart_isolation_groups_ids` through the common ID-field transformer. |
+
+This is separate from the older `client.zia.browser_control_settings` accessor, which models the legacy `/browserControl` endpoint.
 
 ---
 
