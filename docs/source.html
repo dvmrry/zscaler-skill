@@ -276,7 +276,15 @@
   ];
 
   const params = new URLSearchParams(location.search);
-  const rawParam = (params.get('p') || '').trim().replace(/^\/+|\/+$/g, '');
+  const param = normalizeSourceParam(params.get('p') || '');
+  if (!param.ok) {
+    document.getElementById('banner-path').textContent = 'invalid source path';
+    document.title = 'Invalid Source Path — Source';
+    renderCrumbs('');
+    showError(`Invalid source path: ${param.reason}`);
+    return;
+  }
+  const rawParam = param.value;
 
   const candidates = [];
   let displayPath;
@@ -526,10 +534,9 @@
   }
 
   function currentSlugFromUrl() {
-    const p = (new URLSearchParams(location.search).get('p') || '').trim()
-      .replace(/^\/+|\/+$/g, '').replace(/\.md$/, '');
-    if (!p) return '_portfolio-map';
-    return p;
+    const param = normalizeSourceParam(new URLSearchParams(location.search).get('p') || '');
+    if (!param.ok || !param.value) return '_portfolio-map';
+    return param.value.replace(/\.md$/, '');
   }
 
   // ── Search ────────────────────────────────────────────────────────
@@ -664,24 +671,61 @@
     return p.split('/').map(encodeURIComponent).join('/');
   }
 
+  function normalizeSourceParam(value) {
+    const normalized = String(value || '').trim().replace(/^\/+|\/+$/g, '');
+    if (!normalized) return { ok: true, value: '' };
+    if (normalized.includes('\\')) return { ok: false, reason: 'backslashes are not allowed' };
+    if (/[\u0000-\u001F\u007F"'<>`]/.test(normalized)) {
+      return { ok: false, reason: 'HTML-breaking characters are not allowed' };
+    }
+    if (!/^[A-Za-z0-9._/-]+$/.test(normalized)) {
+      return { ok: false, reason: 'only letters, numbers, dot, dash, underscore, and slash are allowed' };
+    }
+    const segments = normalized.split('/');
+    if (segments.some(seg => !seg || seg === '.' || seg === '..')) {
+      return { ok: false, reason: 'empty and dot path segments are not allowed' };
+    }
+    return { ok: true, value: normalized };
+  }
+
   // ── UI bits ───────────────────────────────────────────────────────
 
   function renderCrumbs(p) {
     const el = document.getElementById('crumbs');
+    el.textContent = '';
     if (!p) { el.textContent = 'Source'; return; }
+    const root = document.createElement('a');
+    root.href = '?p=';
+    root.textContent = 'Source';
+    el.appendChild(root);
     const parts = p.split('/');
-    const links = parts.map((seg, i) => {
+    parts.forEach((seg, i) => {
+      el.appendChild(document.createTextNode(' › '));
       const sub = parts.slice(0, i + 1).join('/');
       const isLast = i === parts.length - 1;
-      if (isLast) return `<span style="color: var(--ink);">${escapeHtml(seg)}</span>`;
-      return `<a href="?p=${encodePath(sub)}">${escapeHtml(seg)}</a>`;
+      if (isLast) {
+        const span = document.createElement('span');
+        span.style.color = 'var(--ink)';
+        span.textContent = seg;
+        el.appendChild(span);
+        return;
+      }
+      const a = document.createElement('a');
+      a.href = `?p=${encodePath(sub)}`;
+      a.textContent = seg;
+      el.appendChild(a);
     });
-    el.innerHTML = `<a href="?p=">Source</a>` + ' › ' + links.join(' › ');
   }
 
   function setGithubLink(rel) {
     const el = document.getElementById('github-link');
-    el.innerHTML = `<a href="${VIEW}/${rel}" target="_blank" rel="noopener">View on GitHub ↗</a>`;
+    el.textContent = '';
+    const a = document.createElement('a');
+    a.href = `${VIEW}/${rel.split('/').map(encodeURIComponent).join('/')}`;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.textContent = 'View on GitHub ↗';
+    el.appendChild(a);
   }
 
   function renderMeta(fm) {
