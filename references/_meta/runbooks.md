@@ -3,9 +3,9 @@ product: shared
 topic: "runbooks"
 title: "Runbooks — actionable patterns and troubleshooting flows"
 content-type: reasoning
-last-verified: "2026-05-17"
+last-verified: "2026-05-22"
 verified-against:
-  vendor/zscaler-sdk-python: 8d054b1fdd18bcb29722b7051dc282c0d1c86be6
+  vendor/zscaler-sdk-python: be8f7c7c1e3c78f3cb8e6e24c2378264200f7d98
 confidence: high
 source-tier: mixed
 sources:
