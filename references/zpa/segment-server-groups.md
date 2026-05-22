@@ -3,7 +3,7 @@ product: zpa
 topic: "segment-server-groups"
 title: "Segment Groups and Server Groups — ZPA's two grouping primitives"
 content-type: reasoning
-last-verified: "2026-05-14"
+last-verified: "2026-05-22"
 confidence: medium
 source-tier: mixed
 sources:
@@ -194,7 +194,9 @@ Removing the last Connector Group from a Server Group leaves no valid connector 
 
 Source: `vendor/terraform-provider-zpa/zpa/resource_zpa_server_group.go`.
 
-`resourceServerGroupDelete` calls `detachServerGroupFromAllAppSegments` before deletion (lines 317–318). This modifies every App Segment that references the deleted Server Group — potentially leaving those App Segments with an empty `serverGroups[]`. The TF provider handles this automatically during TF-managed deletion, but a manual API deletion (via SDK or direct API call) does not guarantee equivalent cleanup.
+`resourceServerGroupDelete` calls `detachServerGroupFromAllAppSegments` before deletion (lines 317–318). This removes the deleted Server Group from affected App Segments — potentially leaving those App Segments with an empty `serverGroups[]`. The TF provider handles this automatically during TF-managed deletion, but a manual API deletion (via SDK or direct API call) does not guarantee equivalent cleanup.
+
+As of terraform-provider-zpa v4.4.4, that helper iterates all App Segments and calls `applicationsegment.Update` unconditionally after rebuilding each segment's `serverGroups` list. Upstream issue [zscaler/terraform-provider-zpa#658](https://github.com/zscaler/terraform-provider-zpa/issues/658) reports the operational symptom: destroying one `zpa_server_group` can create update/audit history for unrelated App Segments that never referenced the deleted Server Group. Treat Terraform-managed Server Group destroys as noisy change windows until upstream guards the update call behind an actual membership change.
 
 ### Deleting a Segment Group silently removes it from policy rules
 

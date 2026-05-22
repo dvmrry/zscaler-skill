@@ -3,7 +3,7 @@ product: zia
 topic: "zia-terraform"
 title: "ZIA Terraform provider resource catalog"
 content-type: reference
-last-verified: "2026-04-26"
+last-verified: "2026-05-22"
 confidence: medium
 source-tier: doc
 sources:
@@ -996,9 +996,14 @@ ZIA administrator roles defining which ZIA features the role holder can access a
 |---|---|---|
 | `name` | String | Required |
 | `rank` | Int | Optional; 1–7 scale, default 7 (least privileged) |
+| `role_type` | String | Optional; provider validator accepts `ORG_ADMIN`, `EXEC_INSIGHT`, `EXEC_INSIGHT_AND_ORG_ADMIN`, `SDWAN` |
 | Various permission fields | List(String) | Optional; e.g., `policy_access`, `report_access`, `dashboard_access` |
 
 Gotcha: Rank 1 is most privileged. Lower-ranked admins cannot manage higher-ranked admins. Import by numeric ID or name.
+
+Source: `vendor/terraform-provider-zia/zia/resource_zia_admin_roles.go`.
+
+Provider validator gap: as of terraform-provider-zia v4.7.21, `resource_zia_admin_roles.go` rejects `role_type = "PUBLIC_API"` even though upstream issue [zscaler/terraform-provider-zia#572](https://github.com/zscaler/terraform-provider-zia/issues/572) reports that the ZIA API returns `roleType: "PUBLIC_API"` for API-only admin roles. Imported API roles can hit a catch-22: setting `PUBLIC_API` in HCL fails validation, while omitting `role_type` can trip the provider's immutability check. Until upstream accepts the enum, imported API roles may need `lifecycle { ignore_changes = [role_type] }` and explicit review before applying role changes.
 
 ### `zia_auth_settings_urls`
 
