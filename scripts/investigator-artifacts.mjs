@@ -10,7 +10,7 @@ const TURN_LOG_BASENAME = "02-turns.jsonl";
 const TURN_STATE_BASENAME = "02-turn-state.json";
 const EVIDENCE_DIR_BASENAME = "evidence";
 const EVIDENCE_MANIFEST_BASENAME = "MANIFEST.md";
-const HELPER_VERSION = "0.2.0";
+const HELPER_VERSION = "0.3.0";
 const MAX_EVIDENCE_SLUG_PART_LENGTH = 80;
 const SUPPORTED_OPERATIONS = [
   "open-case",
@@ -20,6 +20,17 @@ const SUPPORTED_OPERATIONS = [
   "complete-turn",
   "abandon-turn",
   "import-evidence",
+];
+const SUPPORTED_OPTIONS = {
+  "complete-turn": ["--turn-json", "--turn-input-json"],
+};
+const HELPER_OWNED_TURN_FIELDS = [
+  "sequence",
+  "previousHash",
+  "turnToken",
+  "userAction",
+  "journalHashBefore",
+  "journalHashAfter",
 ];
 const REQUIRED_CASE_INTAKE_FIELDS = ["Status:", "Blocking Issues:", "Next Step:"];
 const REQUIRED_JOURNAL_MARKERS = [
@@ -68,7 +79,7 @@ function usage(exitCode = 0) {
   node scripts/investigator-artifacts.mjs verify-case --root <repo> --case-slug <slug>
   node scripts/investigator-artifacts.mjs initialize-turn-ledger --root <repo> --case-slug <slug> [--force]
   node scripts/investigator-artifacts.mjs begin-turn --root <repo> --case-slug <slug> --user-action <action>
-  node scripts/investigator-artifacts.mjs complete-turn --root <repo> --case-slug <slug> --turn-json <file>
+  node scripts/investigator-artifacts.mjs complete-turn --root <repo> --case-slug <slug> (--turn-json <file>|--turn-input-json <file>)
   node scripts/investigator-artifacts.mjs abandon-turn --root <repo> --case-slug <slug> --reason <text>
   node scripts/investigator-artifacts.mjs capabilities
   node scripts/investigator-artifacts.mjs import-evidence --root <repo> --case-slug <slug> --source-file <file> --name <name> --source <source> (--query <text>|--query-file <file>|--request-text <text>) --summary <text> --captured-at <ISO-UTC> --touched-claim <claim> [--active-hypothesis <tag>] [--allow-placeholder-query]
@@ -105,6 +116,9 @@ function parseArgs(argv) {
       i += 1;
     } else if (key === "--turn-json") {
       args.turnJson = value;
+      i += 1;
+    } else if (key === "--turn-input-json") {
+      args.turnInputJson = value;
       i += 1;
     } else if (key === "--user-action") {
       args.userAction = value;
@@ -614,17 +628,46 @@ function abandonTurn(args) {
   return { status: "pass", caseSlug: args.caseSlug, turnStatePath: paths.turnStatePath, abandonedTurn: nextState.abandonedTurn, state: nextState };
 }
 
+function loadTurnInputForCompletion(root, args, paths, pending) {
+  if (args.turnJson && args.turnInputJson) {
+    throw new Error("provide only one of --turn-json or --turn-input-json");
+  }
+  if (!args.turnJson && !args.turnInputJson) {
+    throw new Error("complete-turn requires --turn-json or --turn-input-json");
+  }
+  if (args.turnJson) {
+    return loadJson(root, args.turnJson, "--turn-json");
+  }
+  const input = loadJson(root, args.turnInputJson, "--turn-input-json");
+  if (!input || typeof input !== "object" || Array.isArray(input)) {
+    throw new Error("turn input JSON must be an object");
+  }
+  const suppliedHelperFields = HELPER_OWNED_TURN_FIELDS.filter((field) => Object.prototype.hasOwnProperty.call(input, field));
+  if (suppliedHelperFields.length) {
+    throw new Error(`turn input must not include helper-owned fields: ${suppliedHelperFields.join(", ")}`);
+  }
+  return {
+    ...input,
+    sequence: pending.sequence,
+    previousHash: pending.priorLatestTurnHash,
+    turnToken: pending.turnToken,
+    userAction: pending.userAction,
+    journalHashBefore: pending.journalHashBefore,
+    journalHashAfter: sha256File(paths.journalPath),
+  };
+}
+
 function completeTurn(args) {
   const root = resolveRepoRoot(args.root);
   verifyCaseFiles(root, args.caseSlug);
   const paths = casePaths(root, args.caseSlug);
   verifyJournalHasClaimTable(paths.journalPath);
-  const turnInput = loadJson(root, args.turnJson, "--turn-json");
   const state = readTurnState(paths);
   const pending = state.pendingTurn;
   if (!pending) {
     throw new Error("no pendingTurn exists; run begin-turn before complete-turn");
   }
+  const turnInput = loadTurnInputForCompletion(root, args, paths, pending);
 
   const actionType = String(turnInput.actionType || "").trim();
   if (!actionType) throw new Error("turn-json actionType is required");
@@ -1235,16 +1278,21 @@ function openCase(args) {
   return caseIntakeJson;
 }
 
+function capabilities() {
+  return {
+    status: "ok",
+    operation: "capabilities",
+    version: HELPER_VERSION,
+    supported: SUPPORTED_OPERATIONS,
+    supportedOptions: SUPPORTED_OPTIONS,
+  };
+}
+
 function main() {
   try {
     const args = parseArgs(process.argv);
     if (args.command === "capabilities") {
-      process.stdout.write(`${JSON.stringify({
-        status: "ok",
-        operation: "capabilities",
-        version: HELPER_VERSION,
-        supported: SUPPORTED_OPERATIONS,
-      }, null, 2)}\n`);
+      process.stdout.write(`${JSON.stringify(capabilities(), null, 2)}\n`);
       return;
     }
     if (args.command === "open-case") {
@@ -1311,6 +1359,7 @@ export {
   isTelemetryReferencePath,
   caseIntakeStatus,
   verifyCaseFiles,
+  capabilities,
   initializeTurnLedger,
   beginTurn,
   abandonTurn,
