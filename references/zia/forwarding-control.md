@@ -3,7 +3,7 @@ product: zia
 topic: "forwarding-control"
 title: "Forwarding Control + Source IP Anchoring (SIPA) — egress routing decisions"
 content-type: reasoning
-last-verified: "2026-05-03"
+last-verified: "2026-05-22"
 confidence: medium
 source-tier: mixed
 sources:
@@ -14,6 +14,7 @@ sources:
   - "vendor/zscaler-help/understanding-source-ip-anchoring.md"
   - "vendor/zscaler-help/understanding-source-ip-anchoring-direct.md"
   - "vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_rule.go"
+  - "vendor/terraform-provider-zia/docs/resources/zia_forwarding_control_rule.md"
   - "vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_zpa_gateway.go"
   - "vendor/zscaler-help/Traffic_Forwarding_in_ZIA_Reference_Architecture.txt"
 author-status: draft
@@ -45,7 +46,7 @@ Because Forwarding Control fires after content inspection, a ZPA-forwarded flow 
 
 ## Forward methods (the `forward_method` field)
 
-Source: `vendor/zscaler-sdk-python/zscaler/zia/forwarding_control.py`; `vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_rule.go`.
+Source: `vendor/zscaler-sdk-python/zscaler/zia/forwarding_control.py`; `vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_rule.go`; `vendor/terraform-provider-zia/docs/resources/zia_forwarding_control_rule.md`.
 
 From the TF provider schema and Python SDK (Tier A — both sources):
 
@@ -160,6 +161,30 @@ Forwarding Control rules share the standard ZIA rule-criteria model. From the TF
 - App: `zpa_app_segments` (for ZPA method), `app_service_groups`
 
 Rule evaluation is first-match-wins in ascending Rule Order, with Admin Rank as a structural gate — same model as URL Filtering and Firewall. See [`./url-filtering.md`](./url-filtering.md).
+
+### Terraform shape for `nw_services`
+
+Network services on a `zia_forwarding_control_rule` use nested blocks with an `id` list, not a direct string or scalar field. To match DNS traffic for a direct forwarding rule, resolve the named service first and pass its ID in the block:
+
+```hcl
+data "zia_firewall_filtering_network_service" "dns" {
+  name = "DNS"
+}
+
+resource "zia_forwarding_control_rule" "dns_direct" {
+  name           = "DNS Direct"
+  description    = "Direct forwarding for DNS"
+  order          = 1
+  rank           = 7
+  state          = "ENABLED"
+  type           = "FORWARDING"
+  forward_method = "DIRECT"
+
+  nw_services {
+    id = [data.zia_firewall_filtering_network_service.dns.id]
+  }
+}
+```
 
 ## DNS configuration for SIPA
 
