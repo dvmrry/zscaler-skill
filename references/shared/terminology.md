@@ -13,6 +13,9 @@ sources:
   - "vendor/zscaler-help/about-virtual-service-edges-internet-saas.md"
   - "vendor/zscaler-help/about-app-connectors.md"
   - "vendor/zscaler-help/what-is-zscaler-client-connector.md"
+  - "references/ai-security/ai-guard.md"
+  - "vendor/zscaler-help/ai-guard-what-is.md"
+  - "vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py"
 author-status: reviewed
 ---
 

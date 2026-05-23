@@ -232,18 +232,18 @@ The Tier 3 vs Tier 4 distinction matters: Tier 3 products have substantial reaso
 
 Never pretend deep-dive coverage exists where it doesn't. Confidence drop is honest signal — but **always be articulate about every Zscaler-marketed product**. The chatbot-foundation goal requires breadth of awareness, not just operational depth on the products we use.
 
-## Coverage statistics (as of 2026-05-04)
+## Coverage statistics (as of 2026-05-22)
 
 Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscaler-help/zero-trust-exchange-zte-marketing.md`; `vendor/zscaler-help/security-operations-suite-marketing.md`.
 
 - **Tier 1 — Core products:** 6 (ZIA, ZPA [incl AppProtection], ZCC, ZDX, ZIdentity, Cloud Connector)
-- **Tier 2 — Programmable but shallow:** 2 (ZBI, ZWA)
-- **Tier 3 — Reasoning content, no API:** 15 (Deception, Risk360, AI Security family, ZMS, ZSDK, ITDR, DSPM, AEM, UVM, Zscaler Cellular, SOC Workbench, Breach Predictor, Business Insights, Zero Trust Branch, Experience Center / unified) plus a CASB disambiguation entry (CASB is delivered via ZIA + DSPM/SaaS Security, not a standalone product)
+- **Tier 2 — Programmable but shallow:** 3 (ZBI, ZWA, AI Guard)
+- **Tier 3 — Reasoning content, no API:** 15 (Deception, Risk360, AI Security family surfaces beyond AI Guard, ZMS, ZSDK, ITDR, DSPM, AEM, UVM, Zscaler Cellular, SOC Workbench, Breach Predictor, Business Insights, Zero Trust Branch, Experience Center / unified) plus a CASB disambiguation entry (CASB is delivered via ZIA + DSPM/SaaS Security, not a standalone product)
 - **Tier 4 — Paragraph-only:** 12 (Resilience, Business Continuity Cloud, CTEM, Cloud Protection / ZTC, Posture Control, Microsoft Copilot Data Protection, Red Canary MDR, Managed Threat Hunting, ZTE for B2B, Shadow IT / SaaS Security Report / ZINS, EASM, Federal Cloud variants)
 - **Tier 5 — Out of scope:** 0 (currently empty; reserved for deprecated / internal / unshipped)
 - **Architectural pillars named:** 4 (ZTE, Data Fabric, Agentic SecOps, plus the customer-segment "Zero Trust for X" framing)
 
-Total Zscaler portfolio: roughly 35 distinct products + 4 architectural pillars at this date. Full operational depth on 6 (Tier 1), programmable coverage on 2 more (Tier 2), reasoning-content awareness on 15 more (Tier 3), paragraph-level awareness on 12 more (Tier 4) — at-minimum aware of all the rest, deliberately ignore none.
+Total Zscaler portfolio: roughly 36 distinct products + 4 architectural pillars at this date. Full operational depth on 6 (Tier 1), programmable coverage on 3 more (Tier 2), reasoning-content awareness on 15 more (Tier 3), paragraph-level awareness on 12 more (Tier 4) — at-minimum aware of all the rest, deliberately ignore none.
 
 ## Maintenance
 

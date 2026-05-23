@@ -4,9 +4,18 @@ topic: coverage
 title: "AI Guard public-source coverage manifest"
 content-type: reference
 last-verified: "2026-05-22"
+verified-against:
+  vendor/zscaler-sdk-go: 65276eca609347a3776bfd0421a08e2f2b0b2a95
+  vendor/terraform-provider-zia: 5c32408c1d33da384845a040b0749c1f4f23ef61
+  vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
+  vendor/terraform-provider-ztc: 766a6c1e0be3266203a3cea4b5255ab4a6f26695
+  vendor/zscaler-mcp-server: bc56b110199294de58e6a9abf0569c49bd948670
+  vendor/zscaler-terraform-skills: 6a68e1cb5c21a4efeac77f14a67646ff45cc74e1
 confidence: high
 source-tier: doc
 sources:
+  - ".gitmodules"
+  - "vendor/README.md"
   - "vendor/zscaler-help/ai-guard-help-index.md"
   - "vendor/zscaler-help/ai-guard-what-is.md"
   - "vendor/zscaler-help/ai-guard-step-step-configuration-guide-ai-guard.md"
@@ -47,6 +56,12 @@ This manifest is the certification boundary for AI Guard coverage in this repo. 
 Acceptable shorthand: **all publicly discoverable Zscaler AI Guard Help features are documented and certified in this repo as of 2026-05-22**.
 
 Do not extend that sentence to private roadmap features, unpublished tenant entitlements, commercial packaging, field-level log schemas not present in Help, or broad admin APIs not present in public SDK/API sources.
+
+## Source classes checked
+
+Source: `.gitmodules`; `vendor/README.md`; `vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py`; `vendor/zguard-ai-integrations/README.md`.
+
+This pass checked the captured public Help tree, the Python SDK policy-detection surface, public `zguard-ai-integrations` examples, and the vendored Go SDK, Terraform providers, Terraform skills, MCP server, and local Automation Hub captures available in this repository. The positive AI Guard programmable surface found in those sources is the Python SDK / DaaS policy-detection API plus integration examples; no AI Guard admin-plane API, Go SDK service, Terraform resource, MCP tool, or Automation Hub procedure was found in the captured source classes.
 
 ## Help article coverage
 
@@ -108,3 +123,10 @@ Source: `vendor/zscaler-help/ai-guard-about-ai-guard-insights.md`; `vendor/zscal
 - Broad admin automation for LLM providers, credentials, applications, policy configurations, policy controls, RBAC roles, tenant settings, dashboard data, insights, usage, or log exports is not found in public SDK/API captures.
 
 These gaps do not mean the public AI Guard Help surface is incomplete in this repo. They mark boundaries where public Help/SDK sources do not expose enough detail to certify behavior beyond the documented surface.
+
+## Cross-links
+
+- AI Guard reference: [`./ai-guard.md`](./ai-guard.md)
+- AI Security overview: [`./overview.md`](./overview.md)
+- AI Security index: [`./index.md`](./index.md)
+- Portfolio classification: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)
