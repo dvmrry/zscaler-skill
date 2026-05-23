@@ -8,6 +8,7 @@ confidence: medium
 source-tier: doc
 sources:
   - "vendor/zscaler-help/ai-guard-what-is.md"
+  - "vendor/zscaler-help/ai-guard-help-index.md"
   - "vendor/zscaler-help/ai-guard-step-step-configuration-guide-ai-guard.md"
   - "vendor/zscaler-help/ai-guard-configuring-zia-proxy-chain-ai-guard.md"
   - "vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-proxy-mode.md"
@@ -16,10 +17,12 @@ sources:
   - "vendor/zscaler-help/ai-guard-about-ai-guard-insights.md"
   - "vendor/zscaler-help/ai-guard-about-ai-guard-usage.md"
   - "vendor/zscaler-help/ai-guard-managing-tenant-settings.md"
+  - "vendor/zscaler-help/ai-guard-managing-role-based-access-control-ai-guard.md"
   - "vendor/zscaler-help/ai-guard-add-and-manage-ai-guard-policies.md"
-  - "vendor/zscaler-help/ai-guard-managing-ai-guard-policy-matching.md"
+  - "vendor/zscaler-help/ai-guard-managing-ai-guard-policy-control.md"
   - "vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.md"
   - "vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py"
+  - "vendor/zscaler-sdk-python/zscaler/zaiguard/models/policy_detection.py"
   - "vendor/zguard-ai-integrations/README.md"
   - "vendor/zscaler-help/ai-security-marketing.md"
   - "vendor/zscaler-help/ai-guardrails-marketing.md"
@@ -32,7 +35,7 @@ Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard
 
 Entry point for **Zscaler AI Security** questions — the family of products that secures enterprise AI usage, including AI Guard (runtime guardrails), AI Guardrails (marketing umbrella for the same), AI Red Teaming (vulnerability assessment for customer LLM apps), and the broader four-pillar governance framework.
 
-Confidence is **high for AI Guard runtime detection, deployment shape, and admin-portal operating model** because Help documents Proxy / DaaS flows, policy/app/provider objects, policy-control matching, dashboards, usage, insights, tenant settings, and log-export destinations. Confidence remains **medium for the broader AI Security family** because AI Guardrails and AI Red Teaming still have mostly marketing-level coverage, and no Terraform, Go SDK, Postman, or broad admin-configuration API surface is captured.
+Confidence is **high for AI Guard runtime detection, deployment shape, and admin-portal operating model** because every article visible in the public AI Guard Help category tree was captured on 2026-05-22, and the Python SDK policy-detection request/response surface is also vendored. Confidence remains **medium for the broader AI Security family** because AI Guardrails and AI Red Teaming still have mostly marketing-level coverage, and no Terraform, Go SDK, Postman, or broad admin-configuration API surface is captured.
 
 ## Topics
 
@@ -42,6 +45,7 @@ Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard
 |---|---|---|
 | Four-pillar framework, AI Guard detector categories, deployment modes (Proxy / DaaS / OnPrem), ZIA proxy-chain integration, Python policy-detection SDK surface, AI Red Teaming, edge cases | [`./overview.md`](./overview.md) | draft |
 | AI Guard runtime enforcement, admin objects, policy control, tenant/provider/app setup, observability, log exports, and SDK/API surface | [`./ai-guard.md`](./ai-guard.md) | draft |
+| AI Guard public-source coverage manifest and certification boundary | [`./ai-guard-coverage.md`](./ai-guard-coverage.md) | reviewed |
 
 ## Why AI Security matters in the suite
 
@@ -74,7 +78,7 @@ Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard
 - Custom-detector authoring — fixed-set vs extensible.
 - Log export event schema and exact SIEM field mapping. Destinations are captured, but field-level schema is not.
 - AI Red Teaming + AI Guard interlock — does Red Teaming output configure Guard rules?
-- Full AI Guard admin-configuration automation surface.
+- Full AI Guard admin-configuration automation surface. Public Help documents portal administration, but no broad admin API/SDK/Terraform surface is captured.
 - Go SDK, Terraform, and Postman coverage for AI Guard.
 - Gov-cloud availability (likely deferred until commercial cloud GA stabilizes).
 

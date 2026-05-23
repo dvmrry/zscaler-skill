@@ -9,6 +9,7 @@ source-tier: doc
 sources:
   - "https://help.zscaler.com/ai-guard/what-ai-guard"
   - "vendor/zscaler-help/ai-guard-what-is.md"
+  - "vendor/zscaler-help/ai-guard-help-index.md"
   - "vendor/zscaler-help/ai-guard-step-step-configuration-guide-ai-guard.md"
   - "vendor/zscaler-help/ai-guard-configuring-zia-proxy-chain-ai-guard.md"
   - "vendor/zscaler-help/ai-guard-api-user-guide.md"
@@ -18,10 +19,12 @@ sources:
   - "vendor/zscaler-help/ai-guard-about-ai-guard-insights.md"
   - "vendor/zscaler-help/ai-guard-about-ai-guard-usage.md"
   - "vendor/zscaler-help/ai-guard-managing-tenant-settings.md"
+  - "vendor/zscaler-help/ai-guard-managing-role-based-access-control-ai-guard.md"
   - "vendor/zscaler-help/ai-guard-add-and-manage-ai-guard-policies.md"
-  - "vendor/zscaler-help/ai-guard-managing-ai-guard-policy-matching.md"
+  - "vendor/zscaler-help/ai-guard-managing-ai-guard-policy-control.md"
   - "vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.md"
   - "vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py"
+  - "vendor/zscaler-sdk-python/zscaler/zaiguard/models/policy_detection.py"
   - "vendor/zguard-ai-integrations/README.md"
   - "https://www.zscaler.com/products-and-solutions/ai-security"
   - "vendor/zscaler-help/ai-security-marketing.md"
@@ -36,7 +39,7 @@ Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-secur
 
 Zscaler's AI Security stack is **a family, not a single product**. Marketing groups four pillars under "AI Security"; help-portal docs treat individual sub-products (AI Guard, AI Guardrails, AI Red Teaming) as discrete services. This page maps the family so the skill can route a user's question to the right component before claiming depth.
 
-**Confidence is high for AI Guard runtime detection, deployment shape, and portal operating model**, because Help now documents Proxy / DAS flows, policy/app/provider setup, policy-control matching, dashboards, usage, insights, tenant settings, log exports, and the pinned Python SDK policy-detection methods. **Confidence remains medium for the broader AI Security family**: AI Guardrails and AI Red Teaming still have mostly marketing-level coverage, and no Terraform, Go SDK, Postman, or broad AI Guard admin-configuration API surface is captured.
+**Confidence is high for AI Guard runtime detection, deployment shape, and portal operating model**, because every article visible in the public AI Guard Help category tree was captured on 2026-05-22 and mapped into this repo, and the pinned Python SDK policy-detection methods/models are also captured. **Confidence remains medium for the broader AI Security family**: AI Guardrails and AI Red Teaming still have mostly marketing-level coverage, and no Terraform, Go SDK, Postman, or broad AI Guard admin-configuration API surface is captured.
 
 ## The four pillars
 
@@ -124,11 +127,11 @@ Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard
 
 ### Admin and observability model
 
-Source: `vendor/zscaler-help/ai-guard-dashboard.md`; `vendor/zscaler-help/ai-guard-about-ai-guard-insights.md`; `vendor/zscaler-help/ai-guard-about-ai-guard-usage.md`; `vendor/zscaler-help/ai-guard-managing-tenant-settings.md`; `vendor/zscaler-help/ai-guard-add-and-manage-ai-guard-policies.md`; `vendor/zscaler-help/ai-guard-managing-ai-guard-policy-matching.md`; `vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.md`.
+Source: `vendor/zscaler-help/ai-guard-dashboard.md`; `vendor/zscaler-help/ai-guard-about-ai-guard-insights.md`; `vendor/zscaler-help/ai-guard-about-ai-guard-usage.md`; `vendor/zscaler-help/ai-guard-managing-tenant-settings.md`; `vendor/zscaler-help/ai-guard-managing-role-based-access-control-ai-guard.md`; `vendor/zscaler-help/ai-guard-add-and-manage-ai-guard-policies.md`; `vendor/zscaler-help/ai-guard-managing-ai-guard-policy-control.md`; `vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.md`.
 
 AI Guard's Help docs now expose enough admin detail to treat the product as Tier 2+ rather than awareness-only:
 
-- **Configuration objects:** AI Applications, AI Application Groups, LLM Providers, LLM Provider Credentials, Policy Configurations, Policy Control rules, tenant settings, and log exports.
+- **Configuration objects:** AI Applications, AI Application Groups, LLM Providers, LLM Provider Credentials, Policy Configurations, Policy Control rules, RBAC roles, tenant settings, and log exports.
 - **Policy binding:** Policy Configurations define detector behavior, while Policy Control rules decide where those policies apply. Matching can use users/groups, LLM/model, applications/credentials, application groups, custom request headers, and source IPs.
 - **Operational dashboards:** Dashboard, Insights, and Usage expose transaction count, detections, prompt/response actions, token counts, content size, detection latency, top detectors, PII categories, active apps, and active LLMs.
 - **External exports:** Captured destinations include ADX Event Hub, CrowdStrike HEC plus S3 content storage, AWS S3 metadata/content buckets, and Splunk HEC metadata/content endpoints.
@@ -198,6 +201,7 @@ Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-secur
 ## Cross-links
 
 - Skill index: [`./index.md`](./index.md)
+- AI Guard coverage manifest: [`./ai-guard-coverage.md`](./ai-guard-coverage.md)
 - Portfolio map (where AI Security sits in the Zscaler portfolio): [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)
 - ZIA URL Filtering (GenAI categories that pre-classify AI traffic): [`../zia/url-filtering.md`](../zia/url-filtering.md)
 - ZIA DLP (prompt scanning before AI Guard inspection): [`../zia/dlp.md`](../zia/dlp.md)

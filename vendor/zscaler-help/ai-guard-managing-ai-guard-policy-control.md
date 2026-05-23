@@ -1,6 +1,6 @@
 # Managing AI Guard Policy Control
 
-**Source:** https://help.zscaler.com/ai-guard/managing-ai-guard-policy-matching
+**Source:** https://help.zscaler.com/ai-guard/managing-ai-guard-policy-control
 **Captured:** 2026-05-22 via Codex Browser.
 
 ---

@@ -8,6 +8,7 @@ confidence: medium
 source-tier: doc
 sources:
   - "vendor/zscaler-help/ai-guard-what-is.md"
+  - "vendor/zscaler-help/ai-guard-help-index.md"
   - "vendor/zscaler-help/ai-guard-step-step-configuration-guide-ai-guard.md"
   - "vendor/zscaler-help/ai-guard-configuring-zia-proxy-chain-ai-guard.md"
   - "vendor/zscaler-help/ai-guard-api-user-guide.md"
@@ -19,17 +20,27 @@ sources:
   - "vendor/zscaler-help/ai-guard-managing-tenant-settings.md"
   - "vendor/zscaler-help/ai-guard-managing-llm-providers-ai-guard.md"
   - "vendor/zscaler-help/ai-guard-managing-llm-provider-credentials-ai-guard.md"
+  - "vendor/zscaler-help/ai-guard-managing-role-based-access-control-ai-guard.md"
   - "vendor/zscaler-help/ai-guard-add-and-manage-ai-applications-ai-guard.md"
   - "vendor/zscaler-help/ai-guard-add-and-manage-ai-guard-policies.md"
-  - "vendor/zscaler-help/ai-guard-managing-ai-guard-policy-matching.md"
+  - "vendor/zscaler-help/ai-guard-managing-ai-guard-policy-control.md"
   - "vendor/zscaler-help/ai-guard-ai-guard-policy-testing.md"
   - "vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.md"
   - "vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py"
+  - "vendor/zscaler-sdk-python/zscaler/zaiguard/models/policy_detection.py"
   - "vendor/zguard-ai-integrations/README.md"
 author-status: draft
 ---
 
 # AI Guard — runtime protection and policy enforcement for AI/LLM applications
+
+## Certification scope
+
+Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard-step-step-configuration-guide-ai-guard.md`; `vendor/zscaler-help/ai-guard-managing-role-based-access-control-ai-guard.md`; `vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.md`; `vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py`; `vendor/zguard-ai-integrations/README.md`.
+
+As of the 2026-05-22 capture, this repository has captured and mapped every article visible in the public **AI Guard Help** category tree, plus the AI Guard policy-detection surface in the vendored Python SDK and the public `zscaler/zguard-ai-integrations` examples. In repo language, AI Guard is now **documented and certified for the discoverable public Help, SDK, and integration surfaces**.
+
+This certification does not assert private roadmap features, tenant-specific entitlements, commercial packaging, unpublished admin APIs, or portal behavior not present in the captured public sources. Those remain explicit open questions rather than hidden assumptions.
 
 ## What it is
 
@@ -111,7 +122,7 @@ Treat the supported-app/domain list as date-sensitive. The captured guide states
 
 ## Policy management
 
-Source: `vendor/zscaler-help/ai-guard-add-and-manage-ai-applications-ai-guard.md`; `vendor/zscaler-help/ai-guard-add-and-manage-ai-guard-policies.md`; `vendor/zscaler-help/ai-guard-managing-ai-guard-policy-matching.md`; `vendor/zscaler-help/ai-guard-ai-guard-policy-testing.md`.
+Source: `vendor/zscaler-help/ai-guard-add-and-manage-ai-applications-ai-guard.md`; `vendor/zscaler-help/ai-guard-add-and-manage-ai-guard-policies.md`; `vendor/zscaler-help/ai-guard-managing-ai-guard-policy-control.md`; `vendor/zscaler-help/ai-guard-ai-guard-policy-testing.md`.
 
 AI Guard policy setup has three distinct objects:
 
@@ -132,7 +143,7 @@ Policy Testing lets an admin select a provider credential, policy, LLM model, an
 
 ## Tenant and provider configuration
 
-Source: `vendor/zscaler-help/ai-guard-managing-tenant-settings.md`; `vendor/zscaler-help/ai-guard-managing-llm-providers-ai-guard.md`; `vendor/zscaler-help/ai-guard-managing-llm-provider-credentials-ai-guard.md`.
+Source: `vendor/zscaler-help/ai-guard-managing-tenant-settings.md`; `vendor/zscaler-help/ai-guard-managing-llm-providers-ai-guard.md`; `vendor/zscaler-help/ai-guard-managing-llm-provider-credentials-ai-guard.md`; `vendor/zscaler-help/ai-guard-managing-role-based-access-control-ai-guard.md`.
 
 Tenant settings expose the tenant name, deployment mode (`Proxy` or `DaaS`), UUID, and Zscaler AWS Account ID. The AWS account ID is used for optional AWS integrations such as S3 log exports and customer-managed keys.
 
@@ -147,6 +158,8 @@ Operational tenant controls include:
 - Optional deletion of conversation history when a provider response is blocked.
 
 Proxy mode also requires LLM Provider and LLM Provider Credential objects. Provider fields include provider name, provider type, public/private deployment, and provider-specific server selection. Credential fields include credential name, associated LLM provider, optional expiration date, and API key copied from the provider dashboard.
+
+AI Guard RBAC supports custom roles for system users managed through ZIdentity or local hosted system users in AI Guard. The captured Help page says AI Guard previously supported Administrator, Editor, and Viewer roles; the newer RBAC model lets admins create roles from templates or custom permission/scope selections. Templates are Viewer (read-only access), Editor (read/create/update without delete), and Administrator (full access). Roles are assigned from System User Management.
 
 ## Observability
 
@@ -166,6 +179,8 @@ Log exports can be configured to export allowed/detected prompts and blocked pro
 
 ## API surface
 
+Source: `vendor/zscaler-help/ai-guard-api-user-guide.md`; `vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md`; `vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py`; `vendor/zscaler-sdk-python/zscaler/zaiguard/models/policy_detection.py`; `vendor/zguard-ai-integrations/README.md`.
+
 AI Guard has an API surface:
 - **Proxy-mode provider API pathing**: Applications send provider-shaped requests to `https://proxy.zseclipse.net` using provider-specific paths such as `/v1/messages`, `/v1/chat/completions`, Bedrock model paths, Gemini `generateContent`, and Vertex paths.
 - **DaaS policy detection API**: Applications call `https://api.<cloud>.zseclipse.net/v1/detection/execute-policy` for an explicit policy ID, or `/v1/detection/resolve-and-execute-policy` for AI Guard policy resolution.
@@ -174,9 +189,27 @@ AI Guard has an API surface:
 
 Direction values are documented in the SDK as `IN` and `OUT`. The DAS/API Help page describes the pattern as scanning prompt content before model submission and response content before user return.
 
+The SDK request/response model matters for resilient DaaS integrations:
+
+| Area | Fields / behavior |
+|---|---|
+| Request | `content`, `direction`, optional `policyId`, optional `transactionId` |
+| Top-level response | `transactionId`, `statusCode`, `errorMsg`, `detectorErrorCount`, `action`, `severity`, `direction`, `detectorResponses`, `throttlingDetails` |
+| Per-detector response | `statusCode`, `errorMsg`, `triggered`, `action`, `latency`, `deviceType`, `details`, `severity`, optional `contentHash` |
+| Throttling | `throttlingDetails` carries `rlcId`, `metric`, and `retryAfterMillis`; integrations must treat this as retry/backoff input rather than a generic failure. |
+
+The public Python SDK exposes runtime policy detection only. It does not expose Help-documented portal objects such as LLM Provider, LLM Provider Credential, AI Application, Policy Configuration, Policy Control, Tenant Settings, RBAC Role, Dashboard, Insights, Usage, or Log Export management.
+
 ## Integration examples
 
 Zscaler publishes `zguard-ai-integrations` as an example repository for AI Guard DAS integrations. Captured completed integrations include Claude Code, Cursor, Cline, Windsurf, GitHub Actions, Jenkins, Azure AI Gateway / APIM, Google Apigee X, Kong Gateway, LiteLLM, NeMo Guardrails, Portkey AI Gateway, TrueFoundry, and n8n. Treat these as implementation examples, not as proof that the core AI Guard admin plane is programmable.
+
+| Integration family | Examples | Surface protected |
+|---|---|---|
+| IDE / agent hooks | Claude Code, Cursor, Cline, Windsurf | User prompts, agent responses, tool/MCP requests, post-tool output, URL/file-read hooks where the host supports those interception points. |
+| AI gateways / proxies | LiteLLM, Portkey, Kong, Azure APIM, Google Apigee | Gateway request and response paths around LLM provider traffic. |
+| CI/CD policy validation | GitHub Actions, Jenkins | Synthetic prompt/response test cases before deployment, usually using `resolve-and-execute-policy` unless a specific policy ID is supplied. |
+| App / orchestration frameworks | TrueFoundry, NeMo Guardrails, n8n | Application-level prompt and response scanning embedded in app, guardrail, or workflow logic. |
 
 ## Relationship to ZIA AI features
 
@@ -209,5 +242,5 @@ For operators asking "how do I control GenAI app usage across the org" → ZIA. 
 
 - ZIA AI app controls (network-level AI app visibility and access): [`../zia/index.md`](../zia/index.md)
 - ZIA DLP (data-in-motion sensitive data protection): [`../zia/dlp.md`](../zia/dlp.md)
-- AI Guard is in the ai-security reference directory alongside: [`./index.md`](./index.md), [`./overview.md`](./overview.md)
+- AI Guard is in the ai-security reference directory alongside: [`./index.md`](./index.md), [`./overview.md`](./overview.md), [`./ai-guard-coverage.md`](./ai-guard-coverage.md)
 - Portfolio map: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)
