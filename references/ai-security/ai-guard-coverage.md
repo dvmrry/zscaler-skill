@@ -30,6 +30,10 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py"
   - "vendor/zscaler-sdk-python/zscaler/zaiguard/models/policy_detection.py"
   - "vendor/zguard-ai-integrations/README.md"
+  - "vendor/zguard-ai-integrations/github-actions/README.md"
+  - "vendor/zguard-ai-integrations/Windsurf/README.md"
+  - "vendor/zguard-ai-integrations/n8n/README.md"
+  - "vendor/zguard-ai-integrations/Anthropic/claude-code-aiguard/hooks/scan_file_read_README.md"
 author-status: reviewed
 ---
 
@@ -87,9 +91,9 @@ No AI Guard surface was found in the vendored Go SDK, Terraform providers, MCP s
 
 ## Integration coverage
 
-Source: `vendor/zguard-ai-integrations/README.md`; `vendor/zguard-ai-integrations/github-actions/README.md`; `vendor/zguard-ai-integrations/LiteLLM/README.md`; `vendor/zguard-ai-integrations/Cursor/README.md`.
+Source: `vendor/zguard-ai-integrations/README.md`; `vendor/zguard-ai-integrations/github-actions/README.md`; `vendor/zguard-ai-integrations/Windsurf/README.md`; `vendor/zguard-ai-integrations/n8n/README.md`; `vendor/zguard-ai-integrations/Anthropic/claude-code-aiguard/hooks/scan_file_read_README.md`.
 
-The public `zguard-ai-integrations` repository is captured as a submodule and summarized in [`./ai-guard.md`](./ai-guard.md). It provides implementation examples for IDE/agent hooks, gateways/proxies, CI/CD validation, app/orchestration integrations, and guardrail frameworks. Treat these as example integration patterns, not as evidence of admin-plane programmability.
+The public `zguard-ai-integrations` repository is captured as a submodule and summarized in [`./ai-guard.md`](./ai-guard.md). It provides implementation examples for IDE/agent hooks, gateways/proxies, CI/CD validation, app/orchestration integrations, and guardrail frameworks. The current synthesis covers the repository-level DAS pattern plus representative GitHub Actions, Windsurf, n8n, Claude Code file-read, and Azure APIM examples. Treat these as example integration patterns, not as evidence of admin-plane programmability.
 
 ## Open verification gaps
 

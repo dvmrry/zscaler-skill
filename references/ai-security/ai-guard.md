@@ -29,6 +29,14 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py"
   - "vendor/zscaler-sdk-python/zscaler/zaiguard/models/policy_detection.py"
   - "vendor/zguard-ai-integrations/README.md"
+  - "vendor/zguard-ai-integrations/github-actions/README.md"
+  - "vendor/zguard-ai-integrations/github-actions/config/test-prompts.yaml"
+  - "vendor/zguard-ai-integrations/github-actions/scripts/scan_policy.py"
+  - "vendor/zguard-ai-integrations/github-actions/.github/workflows/model-security-scan.yml"
+  - "vendor/zguard-ai-integrations/Windsurf/README.md"
+  - "vendor/zguard-ai-integrations/n8n/README.md"
+  - "vendor/zguard-ai-integrations/Anthropic/claude-code-aiguard/hooks/scan_file_read_README.md"
+  - "vendor/zguard-ai-integrations/Anthropic/claude-code-aiguard/hooks/scan_file_read.py"
 author-status: draft
 ---
 
@@ -179,7 +187,7 @@ Log exports can be configured to export allowed/detected prompts and blocked pro
 
 ## API surface
 
-Source: `vendor/zscaler-help/ai-guard-api-user-guide.md`; `vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md`; `vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py`; `vendor/zscaler-sdk-python/zscaler/zaiguard/models/policy_detection.py`; `vendor/zguard-ai-integrations/README.md`.
+Source: `vendor/zscaler-help/ai-guard-api-user-guide.md`; `vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md`; `vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py`; `vendor/zscaler-sdk-python/zscaler/zaiguard/models/policy_detection.py`; `vendor/zguard-ai-integrations/README.md`; `vendor/zguard-ai-integrations/n8n/README.md`.
 
 AI Guard has an API surface:
 - **Proxy-mode provider API pathing**: Applications send provider-shaped requests to `https://proxy.zseclipse.net` using provider-specific paths such as `/v1/messages`, `/v1/chat/completions`, Bedrock model paths, Gemini `generateContent`, and Vertex paths.
@@ -187,7 +195,7 @@ AI Guard has an API surface:
 - **Python SDK**: `zscaler.zaiguard.policy_detection.PolicyDetectionAPI` exposes `execute_policy(content, direction, policy_id=None, transaction_id=None)` and `resolve_and_execute_policy(content, direction, transaction_id=None)`. Authentication uses `AIGUARD_API_KEY`, `AIGUARD_CLOUD`, and optional `AIGUARD_OVERRIDE_URL`.
 - **Admin/config APIs**: No comprehensive public REST API reference for AI Guard administration was found in available sources.
 
-Direction values are documented in the SDK as `IN` and `OUT`. The DAS/API Help page describes the pattern as scanning prompt content before model submission and response content before user return.
+Direction values are documented in the SDK as `IN` and `OUT`. The DAS/API Help page describes the pattern as scanning prompt content before model submission and response content before user return. The integration examples use the same distinction more broadly: `IN` covers user prompts, tool input, command arguments, or file content before the AI application consumes it; `OUT` covers model responses, tool output, URL checks, or response content before it is returned downstream.
 
 The SDK request/response model matters for resilient DaaS integrations:
 
@@ -198,11 +206,15 @@ The SDK request/response model matters for resilient DaaS integrations:
 | Per-detector response | `statusCode`, `errorMsg`, `triggered`, `action`, `latency`, `deviceType`, `details`, `severity`, optional `contentHash` |
 | Throttling | `throttlingDetails` carries `rlcId`, `metric`, and `retryAfterMillis`; integrations must treat this as retry/backoff input rather than a generic failure. |
 
+When a policy ID is supplied, examples call `execute-policy`. When no policy ID is supplied, examples call `resolve-and-execute-policy`, relying on the API key's associated application and policy to resolve the effective policy. The Python SDK model also shows that the resolved-policy response can include `policyId`, `policyName`, and `policyVersion`, while the explicit execution response model does not expose those fields as top-level attributes.
+
 The public Python SDK exposes runtime policy detection only. It does not expose Help-documented portal objects such as LLM Provider, LLM Provider Credential, AI Application, Policy Configuration, Policy Control, Tenant Settings, RBAC Role, Dashboard, Insights, Usage, or Log Export management.
 
 ## Integration examples
 
-Zscaler publishes `zguard-ai-integrations` as an example repository for AI Guard DAS integrations. Captured completed integrations include Claude Code, Cursor, Cline, Windsurf, GitHub Actions, Jenkins, Azure AI Gateway / APIM, Google Apigee X, Kong Gateway, LiteLLM, NeMo Guardrails, Portkey AI Gateway, TrueFoundry, and n8n. Treat these as implementation examples, not as proof that the core AI Guard admin plane is programmable.
+Source: `vendor/zguard-ai-integrations/README.md`; `vendor/zguard-ai-integrations/github-actions/README.md`; `vendor/zguard-ai-integrations/github-actions/config/test-prompts.yaml`; `vendor/zguard-ai-integrations/github-actions/scripts/scan_policy.py`; `vendor/zguard-ai-integrations/github-actions/.github/workflows/model-security-scan.yml`; `vendor/zguard-ai-integrations/Windsurf/README.md`; `vendor/zguard-ai-integrations/n8n/README.md`; `vendor/zguard-ai-integrations/Anthropic/claude-code-aiguard/hooks/scan_file_read_README.md`; `vendor/zguard-ai-integrations/Anthropic/claude-code-aiguard/hooks/scan_file_read.py`.
+
+Zscaler publishes `zguard-ai-integrations` as an example repository for AI Guard DAS integrations. Captured completed integrations include Claude Code, Cursor, Cline, Windsurf, GitHub Actions, Jenkins, Azure AI Gateway / APIM, Google Apigee X, Kong Gateway, LiteLLM, NeMo Guardrails, Portkey AI Gateway, TrueFoundry, and n8n. The repository describes the DAS pattern as application-by-application integration with no proxy infrastructure requirement, independent application wiring, and platform-specific optimizations. Treat these as implementation examples, not as proof that the core AI Guard admin plane is programmable.
 
 | Integration family | Examples | Surface protected |
 |---|---|---|
@@ -210,6 +222,15 @@ Zscaler publishes `zguard-ai-integrations` as an example repository for AI Guard
 | AI gateways / proxies | LiteLLM, Portkey, Kong, Azure APIM, Google Apigee | Gateway request and response paths around LLM provider traffic. |
 | CI/CD policy validation | GitHub Actions, Jenkins | Synthetic prompt/response test cases before deployment, usually using `resolve-and-execute-policy` unless a specific policy ID is supplied. |
 | App / orchestration frameworks | TrueFoundry, NeMo Guardrails, n8n | Application-level prompt and response scanning embedded in app, guardrail, or workflow logic. |
+
+Integration-derived behavior is host-specific:
+
+- CI/CD integrations validate expected AI Guard actions (`ALLOW`, `BLOCK`, or `DETECT`) against synthetic prompts and responses. GitHub Actions examples fail the job on required mismatches, allow `optional: true` cases to warn without failing, and log expected action, actual action, triggered detectors, blocking detectors, and transaction ID. The sample workflow only runs the scan on relevant config/script/workflow changes or manual dispatch; optional Vertex AI deploy/test jobs are gated by a repository variable and additionally require separate GCP secrets.
+- IDE and agent hooks depend on the host hook model. Windsurf pre-hooks can block user prompts, shell commands, and MCP tool arguments by exiting with the required blocking status, but Windsurf post-hooks for MCP results and Cascade responses are log/alert-only because the platform cannot block there. Claude Code file-read scanning is narrower still: it scans sensitive filename patterns, sends file content with `direction="IN"`, blocks only on an AI Guard `BLOCK` action, treats `DETECT` as a warning, and intentionally fails open when the API key is missing, the API call fails, or the file cannot be read.
+- Workflow/app integrations expose policy behavior to downstream workflow logic. The n8n node supports prompt scan (`IN`), response scan (`OUT`), and a dual scan that skips the response scan when the prompt is blocked. It documents a fail-closed internal-error behavior when n8n "Continue On Fail" handling is enabled, and returns fields such as `action`, `severity`, `detectorResponses`, policy identity, masked content when applicable, and `transactionId`.
+- Gateway examples show the expected placement pattern: scan inbound prompt/request content before LLM processing and scan outbound response/content before the user receives it. Azure APIM examples attach AI Guard scanning through policy fragments in both inbound and outbound policy sections.
+
+Do not generalize one integration's failure posture to all integrations. Missing API keys are fail-open in some developer hooks, API errors are fail-closed in some Windsurf pre-hooks, and workflow integrations may fail closed only under specific platform error-handling settings.
 
 ## Relationship to ZIA AI features
 
