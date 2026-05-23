@@ -36,7 +36,12 @@ parse, extract, write, and verify checkpoints in `agents/researcher/prompt.md`.
 The checkpoints are audit/attestation gates, not helper-enforced structural
 gates.
 
-Supporting script: `scripts/check-hygiene.py`
+Supporting scripts:
+
+- `scripts/check-hygiene.py`
+- `scripts/check-citations.sh`
+- `scripts/check-orphans.py`
+- `scripts/prepare-overlay-submission.mjs`
 
 ## Closeout Option
 
