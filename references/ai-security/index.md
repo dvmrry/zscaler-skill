@@ -12,6 +12,13 @@ sources:
   - "vendor/zscaler-help/ai-guard-configuring-zia-proxy-chain-ai-guard.md"
   - "vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-proxy-mode.md"
   - "vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md"
+  - "vendor/zscaler-help/ai-guard-dashboard.md"
+  - "vendor/zscaler-help/ai-guard-about-ai-guard-insights.md"
+  - "vendor/zscaler-help/ai-guard-about-ai-guard-usage.md"
+  - "vendor/zscaler-help/ai-guard-managing-tenant-settings.md"
+  - "vendor/zscaler-help/ai-guard-add-and-manage-ai-guard-policies.md"
+  - "vendor/zscaler-help/ai-guard-managing-ai-guard-policy-matching.md"
+  - "vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.md"
   - "vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py"
   - "vendor/zguard-ai-integrations/README.md"
   - "vendor/zscaler-help/ai-security-marketing.md"
@@ -25,7 +32,7 @@ Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard
 
 Entry point for **Zscaler AI Security** questions — the family of products that secures enterprise AI usage, including AI Guard (runtime guardrails), AI Guardrails (marketing umbrella for the same), AI Red Teaming (vulnerability assessment for customer LLM apps), and the broader four-pillar governance framework.
 
-Confidence is **medium-high for AI Guard runtime detection and deployment shape** because Help documents Proxy / DaaS flows and the Python SDK exposes `zscaler.zaiguard` policy-detection methods. Confidence remains **medium for the broader AI Security family** because AI Guardrails and AI Red Teaming still have mostly marketing-level coverage, and no Terraform, Go SDK, Postman, or broad admin-configuration API surface is captured.
+Confidence is **high for AI Guard runtime detection, deployment shape, and admin-portal operating model** because Help documents Proxy / DaaS flows, policy/app/provider objects, policy-control matching, dashboards, usage, insights, tenant settings, and log-export destinations. Confidence remains **medium for the broader AI Security family** because AI Guardrails and AI Red Teaming still have mostly marketing-level coverage, and no Terraform, Go SDK, Postman, or broad admin-configuration API surface is captured.
 
 ## Topics
 
@@ -34,6 +41,7 @@ Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard
 | Topic | File | Status |
 |---|---|---|
 | Four-pillar framework, AI Guard detector categories, deployment modes (Proxy / DaaS / OnPrem), ZIA proxy-chain integration, Python policy-detection SDK surface, AI Red Teaming, edge cases | [`./overview.md`](./overview.md) | draft |
+| AI Guard runtime enforcement, admin objects, policy control, tenant/provider/app setup, observability, log exports, and SDK/API surface | [`./ai-guard.md`](./ai-guard.md) | draft |
 
 ## Why AI Security matters in the suite
 
@@ -64,7 +72,7 @@ Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard
 - Pricing / packaging (which AI Security capabilities bundle into which Zscaler edition).
 - Latency / performance numbers for inline mode.
 - Custom-detector authoring — fixed-set vs extensible.
-- Logging / SIEM integration details (Help confirms optional log exports, but not destination/schema coverage).
+- Log export event schema and exact SIEM field mapping. Destinations are captured, but field-level schema is not.
 - AI Red Teaming + AI Guard interlock — does Red Teaming output configure Guard rules?
 - Full AI Guard admin-configuration automation surface.
 - Go SDK, Terraform, and Postman coverage for AI Guard.

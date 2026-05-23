@@ -14,6 +14,13 @@ sources:
   - "vendor/zscaler-help/ai-guard-api-user-guide.md"
   - "vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-proxy-mode.md"
   - "vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md"
+  - "vendor/zscaler-help/ai-guard-dashboard.md"
+  - "vendor/zscaler-help/ai-guard-about-ai-guard-insights.md"
+  - "vendor/zscaler-help/ai-guard-about-ai-guard-usage.md"
+  - "vendor/zscaler-help/ai-guard-managing-tenant-settings.md"
+  - "vendor/zscaler-help/ai-guard-add-and-manage-ai-guard-policies.md"
+  - "vendor/zscaler-help/ai-guard-managing-ai-guard-policy-matching.md"
+  - "vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.md"
   - "vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py"
   - "vendor/zguard-ai-integrations/README.md"
   - "https://www.zscaler.com/products-and-solutions/ai-security"
@@ -29,7 +36,7 @@ Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-secur
 
 Zscaler's AI Security stack is **a family, not a single product**. Marketing groups four pillars under "AI Security"; help-portal docs treat individual sub-products (AI Guard, AI Guardrails, AI Red Teaming) as discrete services. This page maps the family so the skill can route a user's question to the right component before claiming depth.
 
-**Confidence is medium-high for AI Guard runtime detection and deployment shape**, because Help now documents Proxy / DAS flows and the pinned Python SDK exposes `zscaler.zaiguard` policy-detection methods. **Confidence remains medium for the broader AI Security family**: AI Guardrails and AI Red Teaming still have mostly marketing-level coverage, and no Terraform, Go SDK, Postman, or broad AI Guard admin-configuration API surface is captured.
+**Confidence is high for AI Guard runtime detection, deployment shape, and portal operating model**, because Help now documents Proxy / DAS flows, policy/app/provider setup, policy-control matching, dashboards, usage, insights, tenant settings, log exports, and the pinned Python SDK policy-detection methods. **Confidence remains medium for the broader AI Security family**: AI Guardrails and AI Red Teaming still have mostly marketing-level coverage, and no Terraform, Go SDK, Postman, or broad AI Guard admin-configuration API surface is captured.
 
 ## The four pillars
 
@@ -115,6 +122,17 @@ Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard
 - **DaaS mode requires application changes** — every prompt/response path needs API calls. Not a pure "drop in" deploy.
 - **GPU-based inference** is in Zscaler's cloud — implies non-trivial latency cost compared to a pattern-match inspector. No published latency numbers.
 
+### Admin and observability model
+
+Source: `vendor/zscaler-help/ai-guard-dashboard.md`; `vendor/zscaler-help/ai-guard-about-ai-guard-insights.md`; `vendor/zscaler-help/ai-guard-about-ai-guard-usage.md`; `vendor/zscaler-help/ai-guard-managing-tenant-settings.md`; `vendor/zscaler-help/ai-guard-add-and-manage-ai-guard-policies.md`; `vendor/zscaler-help/ai-guard-managing-ai-guard-policy-matching.md`; `vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.md`.
+
+AI Guard's Help docs now expose enough admin detail to treat the product as Tier 2+ rather than awareness-only:
+
+- **Configuration objects:** AI Applications, AI Application Groups, LLM Providers, LLM Provider Credentials, Policy Configurations, Policy Control rules, tenant settings, and log exports.
+- **Policy binding:** Policy Configurations define detector behavior, while Policy Control rules decide where those policies apply. Matching can use users/groups, LLM/model, applications/credentials, application groups, custom request headers, and source IPs.
+- **Operational dashboards:** Dashboard, Insights, and Usage expose transaction count, detections, prompt/response actions, token counts, content size, detection latency, top detectors, PII categories, active apps, and active LLMs.
+- **External exports:** Captured destinations include ADX Event Hub, CrowdStrike HEC plus S3 content storage, AWS S3 metadata/content buckets, and Splunk HEC metadata/content endpoints.
+
 ## AI Guardrails — marketing umbrella
 
 Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
@@ -173,7 +191,7 @@ Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-secur
 - **Token / call accounting** — AI Guard inline mode adds GPU inference per request; how is that billed? Per-call, per-token, flat-rate per seat? Not in captures.
 - **Latency budget** — what does a typical inline-mode prompt round-trip look like added to LLM provider latency? No data.
 - **Custom detector authoring** — can operators add their own intent classifiers, or are the 15 categories fixed? Not in captures.
-- **Logging / SIEM integration details** — Help confirms optional AI Guard log exports, but destination types, schema, and whether this feeds NSS / Cloud NSS / LSS or a dedicated stream remain uncaptured. Cross-reference [`../shared/nss-architecture.md`](../shared/nss-architecture.md) when this is resolved.
+- **Log export schema details** — Help confirms ADX, CrowdStrike, S3, and Splunk export destinations, including separate metadata/content targets for some destinations, but not the field-level event schema.
 - **Provider compatibility freshness** — proxy-mode captures list supported provider paths and a ZIA app/domain table dated April 14, 2026. Treat this as time-sensitive.
 - **AI Red Teaming integration with AI Guard** — does AI Red Teaming output configure AI Guard rules automatically (probe found a jailbreak → AI Guard blocks it next time)? Captures imply but don't confirm.
 

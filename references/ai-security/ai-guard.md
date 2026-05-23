@@ -13,6 +13,17 @@ sources:
   - "vendor/zscaler-help/ai-guard-api-user-guide.md"
   - "vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-proxy-mode.md"
   - "vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md"
+  - "vendor/zscaler-help/ai-guard-dashboard.md"
+  - "vendor/zscaler-help/ai-guard-about-ai-guard-insights.md"
+  - "vendor/zscaler-help/ai-guard-about-ai-guard-usage.md"
+  - "vendor/zscaler-help/ai-guard-managing-tenant-settings.md"
+  - "vendor/zscaler-help/ai-guard-managing-llm-providers-ai-guard.md"
+  - "vendor/zscaler-help/ai-guard-managing-llm-provider-credentials-ai-guard.md"
+  - "vendor/zscaler-help/ai-guard-add-and-manage-ai-applications-ai-guard.md"
+  - "vendor/zscaler-help/ai-guard-add-and-manage-ai-guard-policies.md"
+  - "vendor/zscaler-help/ai-guard-managing-ai-guard-policy-matching.md"
+  - "vendor/zscaler-help/ai-guard-ai-guard-policy-testing.md"
+  - "vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.md"
   - "vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py"
   - "vendor/zguard-ai-integrations/README.md"
 author-status: draft
@@ -100,23 +111,58 @@ Treat the supported-app/domain list as date-sensitive. The captured guide states
 
 ## Policy management
 
-AI Guard policies are configured in the AI Guard Admin Portal:
-- **AI Applications**: Define which LLM-backed applications are managed
-- **LLM Providers**: Configure which LLM APIs are in scope
-- **LLM Provider Credentials**: Manage API credentials
-- **Policy Configurations**: Enable/disable detectors, set actions (log, block, alert)
-- **Policy Control**: Manage enforcement per policy
-- **Policy Testing**: Test policies against sample prompts before deployment
+Source: `vendor/zscaler-help/ai-guard-add-and-manage-ai-applications-ai-guard.md`; `vendor/zscaler-help/ai-guard-add-and-manage-ai-guard-policies.md`; `vendor/zscaler-help/ai-guard-managing-ai-guard-policy-matching.md`; `vendor/zscaler-help/ai-guard-ai-guard-policy-testing.md`.
+
+AI Guard policy setup has three distinct objects:
+
+| Object | Purpose | Operational notes |
+|---|---|---|
+| **AI Applications** | Register the AI apps or chatbots AI Guard will manage. | DaaS-mode apps use an AI Guard API key. Proxy-mode apps use an identity broker. Applications can be grouped into AI Application Groups. |
+| **Policy Configurations** | Define detector behavior for prompts and responses. | Most prompt detectors expose `Enabled`, `Severity`, `Threshold`, and `Action`. Actions include Allow, Block, and Detect; some detectors also expose Disabled. |
+| **Policy Control** | Bind a policy configuration to matching users or applications. | Rule order and status are explicit. At least one match criterion is required. |
+
+Policy configurations support detector-specific fields. Examples from the captured Help page include programming languages for Code, regex patterns for Text, competitor names for Competition, allowed languages for Language, secret types for Secrets, PII types, custom topics, prompt-tag categories, and sensitive context for Intellectual Property. Competition and Topic entries are limited to 10 at a time for a single policy.
+
+Policy Control has two shapes:
+
+- **User policy control** matches policy configurations against LLM provider/model plus users and/or user groups.
+- **AI application policy control** matches against LLM/model, application and credentials, application groups, custom request headers, and source IPs.
+
+Policy Testing lets an admin select a provider credential, policy, LLM model, and test prompt before production enforcement. Treat this as pre-enforcement validation, not as proof of production traffic behavior.
+
+## Tenant and provider configuration
+
+Source: `vendor/zscaler-help/ai-guard-managing-tenant-settings.md`; `vendor/zscaler-help/ai-guard-managing-llm-providers-ai-guard.md`; `vendor/zscaler-help/ai-guard-managing-llm-provider-credentials-ai-guard.md`.
+
+Tenant settings expose the tenant name, deployment mode (`Proxy` or `DaaS`), UUID, and Zscaler AWS Account ID. The AWS account ID is used for optional AWS integrations such as S3 log exports and customer-managed keys.
+
+Operational tenant controls include:
+
+- Network access control using IPv4 CIDR ranges.
+- Custom request headers, including a conversation ID header and sensitive-header marking.
+- Security settings to store prompts/responses for 90 days, enable event-detection feedback, encrypt sensitive custom headers, and use customer-managed content encryption.
+- Customer-managed-key configuration; the captured page lists AWS as the currently supported KMS provider type.
+- ZIA end-user and group sync, including an immediate `Start Sync` action outside the scheduled batch window.
+- Custom block messages for prompt blocks and response blocks.
+- Optional deletion of conversation history when a provider response is blocked.
+
+Proxy mode also requires LLM Provider and LLM Provider Credential objects. Provider fields include provider name, provider type, public/private deployment, and provider-specific server selection. Credential fields include credential name, associated LLM provider, optional expiration date, and API key copied from the provider dashboard.
 
 ## Observability
 
+Source: `vendor/zscaler-help/ai-guard-dashboard.md`; `vendor/zscaler-help/ai-guard-about-ai-guard-insights.md`; `vendor/zscaler-help/ai-guard-about-ai-guard-usage.md`; `vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.md`.
+
 | Surface | Description |
 |---|---|
-| Dashboard | Overview of AI Guard activity, detector hits, enforcement actions |
-| Insights | Detailed findings and trends |
-| Usage | LLM usage metrics (tokens, requests, cost tracking) |
-| Log Exports | Export AI Guard logs for SIEM or further analysis |
+| Dashboard | Operational transaction view across users or AI applications. Shows app/LLM/detection/transaction counts, per-transaction policy name, severity, prompt/response detections, LLM, and prompt/response action. Date range is capped at up to 90 days. |
+| Insights | Executive overview of prompts, responses, active apps/LLMs, blocked counts, token counts, detection latency, trends over time, security posture, transactions by LLM/application, top detectors, and PII detections/categories. |
+| Usage | Usage view by AI application or user, including prompt/response content size, prompt tokens, and response tokens. |
+| Log Exports | Third-party export configuration for incident/event data. Captured destinations include ADX Event Hub, CrowdStrike HEC plus S3 content storage, AWS S3 metadata/content buckets, and Splunk HEC metadata/content endpoints. |
 | System Users | View users in AI Guard's user registry |
+
+Dashboard transaction details include Overview, Detection Summary, Performance & Network Stats, Custom Request Headers, and Prompt Details. This means AI Guard can support investigations where the key question is "which detector fired, on which app/user, with what prompt/response action, and with what latency?"
+
+Log exports can be configured to export allowed/detected prompts and blocked prompts. Some destinations separate metadata and content streams or buckets, which matters for sensitive-content handling and SIEM ingestion design.
 
 ## API surface
 
@@ -144,9 +190,13 @@ For operators asking "how do I control GenAI app usage across the org" → ZIA. 
 
 - AI Guard uses GPU-based AI inference for detection — detectors are not simple pattern-match rules. This means detection quality depends on the AI models Zscaler maintains.
 - In Proxy mode, AI Guard is configured with LLM provider credentials. This means AI Guard sits in the trust chain for LLM API calls.
+- Proxy mode requires AI Application, LLM Provider, and LLM Provider Credential configuration. DaaS mode requires application API-key handling instead.
 - DaaS mode requires application code changes (the application must make the AI Guard API call). This is a development integration, not a transparent network proxy.
 - DaaS mode should instrument both prompt and response paths. Do not assume prompt-only inspection enforces output-side policy.
 - Proxy-mode ZIA integration should fail closed and block QUIC, otherwise AI-app traffic can bypass the intended inspection path.
+- Policy Control is a binding layer separate from policy configuration. A policy can exist but not enforce as expected if its match rule order, enabled state, user/app scope, LLM/model, custom-header, or source-IP criteria are wrong.
+- Custom request headers can become policy-match criteria and can be marked sensitive. Treat header naming and encryption settings as part of policy design, not just metadata decoration.
+- Storing prompt/response history is an explicit tenant setting with a 90-day history window in the captured Help page. Do not assume full prompt text is always retained.
 - The "Refusal Detection" feature is notable — it protects against scenarios where adversaries attempt to overwhelm an AI application by causing it to refuse legitimate queries (a denial-of-service pattern against AI apps).
 
 ## What AI Guard is not
