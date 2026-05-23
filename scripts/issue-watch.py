@@ -8,7 +8,7 @@
 Status: functional. Two output modes:
 
   Local mode (default)
-    Walks the seven vendored upstream repos via the public GitHub REST API.
+    Walks the configured vendored upstream repos via the public GitHub REST API.
     Compares against last-seen timestamps per repo (saved to
     _data/schemas/issue-watch-state.json). Outputs new and updated issues to
     _data/schemas/issues-new.md for human triage. Both files live in _data/schemas/
@@ -35,7 +35,7 @@ runs use the persisted timestamp.
 
 Authentication:
     Public repos work unauthenticated at 60 requests/hr per IP — sufficient
-    for the seven repos checked weekly. For higher rate limits and for
+    for the configured repos checked weekly. For higher rate limits and for
     sticky-mode write access, set GITHUB_TOKEN. In GitHub Actions,
     secrets.GITHUB_TOKEN provides 1000 req/hr and the issues:write
     permission needed for sticky mode.
@@ -71,6 +71,7 @@ REPOS = [
     "zscaler/terraform-provider-ztc",
     "zscaler/zscaler-mcp-server",
     "zscaler/zscaler-api-specs",
+    "zscaler/zguard-ai-integrations",
 ]
 
 GITHUB_API = "https://api.github.com"

@@ -3,11 +3,17 @@ product: ai-security
 topic: "ai-security-index"
 title: "AI Security family reference hub"
 content-type: reference
-last-verified: "2026-04-25"
+last-verified: "2026-05-22"
 confidence: medium
 source-tier: doc
 sources:
   - "vendor/zscaler-help/ai-guard-what-is.md"
+  - "vendor/zscaler-help/ai-guard-step-step-configuration-guide-ai-guard.md"
+  - "vendor/zscaler-help/ai-guard-configuring-zia-proxy-chain-ai-guard.md"
+  - "vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-proxy-mode.md"
+  - "vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md"
+  - "vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py"
+  - "vendor/zguard-ai-integrations/README.md"
   - "vendor/zscaler-help/ai-security-marketing.md"
   - "vendor/zscaler-help/ai-guardrails-marketing.md"
 author-status: reviewed
@@ -15,23 +21,23 @@ author-status: reviewed
 
 # AI Security reference hub
 
-Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
+Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md`; `vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
 
 Entry point for **Zscaler AI Security** questions — the family of products that secures enterprise AI usage, including AI Guard (runtime guardrails), AI Guardrails (marketing umbrella for the same), AI Red Teaming (vulnerability assessment for customer LLM apps), and the broader four-pillar governance framework.
 
-Confidence is **medium** because all coverage is sourced from marketing material + one help-portal article. There is **no SDK module** (`zaiguard` does not exist in either Python or Go SDKs), no Terraform resource, and no Postman coverage captured. Operational depth questions need Zscaler docs / TAM.
+Confidence is **medium-high for AI Guard runtime detection and deployment shape** because Help documents Proxy / DaaS flows and the Python SDK exposes `zscaler.zaiguard` policy-detection methods. Confidence remains **medium for the broader AI Security family** because AI Guardrails and AI Red Teaming still have mostly marketing-level coverage, and no Terraform, Go SDK, Postman, or broad admin-configuration API surface is captured.
 
 ## Topics
 
-Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
+Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md`; `vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
 
 | Topic | File | Status |
 |---|---|---|
-| Four-pillar framework, AI Guard 15 detectors, deployment modes (Proxy / DaaS / OnPrem), integration with ZIA URL Filter + DLP + ZBI, AI Red Teaming, edge cases | [`./overview.md`](./overview.md) | draft |
+| Four-pillar framework, AI Guard detector categories, deployment modes (Proxy / DaaS / OnPrem), ZIA proxy-chain integration, Python policy-detection SDK surface, AI Red Teaming, edge cases | [`./overview.md`](./overview.md) | draft |
 
 ## Why AI Security matters in the suite
 
-Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
+Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md`; `vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
 
 AI Security is **the suite-spanning offering**, not a standalone product:
 
@@ -43,7 +49,7 @@ The skill should treat questions about "AI security in the Zscaler stack" as a l
 
 ## When to start here vs elsewhere
 
-Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
+Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md`; `vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
 
 - **Start here** for: "what is AI Guard?" / "what's the difference between AI Guard and AI Guardrails?" / "what are the AI Security pillars?" / "how does Zscaler protect against prompt injection?"
 - **Start in [`../zia/url-filtering.md`](../zia/url-filtering.md)** for: "how does Zscaler block ChatGPT?" — the URL Filter GenAI categories handle category-level blocking before AI Guard's content layer fires.
@@ -53,15 +59,15 @@ Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-secur
 
 ## Coverage gaps (deferred)
 
-Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
+Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md`; `vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
 
 - Pricing / packaging (which AI Security capabilities bundle into which Zscaler edition).
 - Latency / performance numbers for inline mode.
 - Custom-detector authoring — fixed-set vs extensible.
-- Logging / SIEM integration channels (NSS? LSS? own stream?).
+- Logging / SIEM integration details (Help confirms optional log exports, but not destination/schema coverage).
 - AI Red Teaming + AI Guard interlock — does Red Teaming output configure Guard rules?
-- LLM-provider compatibility list for proxy mode.
-- DaaS mode integration patterns / SDK shape (no SDK exists; what's the API contract?).
+- Full AI Guard admin-configuration automation surface.
+- Go SDK, Terraform, and Postman coverage for AI Guard.
 - Gov-cloud availability (likely deferred until commercial cloud GA stabilizes).
 
 These don't block conceptual answers; they limit operational depth.

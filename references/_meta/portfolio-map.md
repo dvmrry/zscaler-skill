@@ -12,6 +12,9 @@ sources:
   - "vendor/zscaler-help/zero-trust-exchange-zte-marketing.md"
   - "vendor/zscaler-help/data-fabric-for-security-marketing.md"
   - "vendor/zscaler-help/security-operations-suite-marketing.md"
+  - "vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py"
+  - "vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md"
+  - "vendor/zguard-ai-integrations/README.md"
 author-status: draft
 ---
 
@@ -75,7 +78,7 @@ The skill uses SDK namespace names (ZIA, ZPA, etc.) as canonical reference paths
 
 (ZBI and ZWA marketing aliases live in the Tier 2 section now that those products are classified T2.)
 
-## Tier 2 — Programmable but shallow (2 products)
+## Tier 2 — Programmable but shallow (3 products)
 
 Have SDK / TF surface but reference coverage is thin compared to Tier 1 (may not match a single Tier 1 sub-component's depth). Answer with full confidence on what's documented; explicitly note the coverage gap when relevant. Promotion to T1 is appropriate when reference coverage broadens to multi-component depth.
 
@@ -85,6 +88,7 @@ Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`.
 |---|---|---|---|
 | **ZBI — Cloud Browser Isolation** | Remote-browser rendering for risky / unmanaged-device scenarios. Isolation profiles, Smart Browser Isolation, ZPA Isolation Policy. Marketed as "Zero Trust Browser." | [`zbi/index.md`](../zbi/index.md) | Python `zscaler/zia/cloud_browser_isolation.py` + Go `zscaler/zpa/services/cloudbrowserisolation/*` |
 | **ZWA — Workflow Automation** | DLP incident lifecycle management. Incident triage, workflows, ticketing/notification integrations. Downstream of ZIA DLP. | [`zwa/index.md`](../zwa/index.md) | Python `zscaler/zwa/` + Go `zscaler/zwa/` |
+| **AI Guard** | Runtime prompt/response policy detection for AI and LLM applications. Broader AI Security family includes AI Guardrails and AI Red Teaming, but only AI Guard policy detection has verified SDK coverage. | [`ai-security/index.md`](../ai-security/index.md) | Python `zscaler/zaiguard/` policy detection: `/detection/execute-policy`, `/detection/resolve-and-execute-policy`. No verified Go SDK, Terraform, or broad admin-configuration API surface. |
 
 ### Marketing-name aliases (Tier 2)
 
@@ -104,8 +108,8 @@ Active-defense threat detection via decoys (fake servers, AD objects, endpoints,
 #### Risk360
 Cyber risk quantification framework. Monte Carlo financial-loss simulation 1000x/day across 4 scenarios (inherent / residual / 30-day / peer). 115-140+ factors across 4 attack stages × 4 entities, mapped to MITRE ATT&CK / NIST CSF / SEC S-K 106(b). Paid add-on under Security Operations tier. CISO/board audience. Reasoning doc: [`../risk360/overview.md`](../risk360/overview.md). No SDK / TF presence.
 
-#### AI Security family (AI Guard / AI Guardrails / AI Red Teaming)
-Family includes AI Guard (15 detector categories: prompt injection, jailbreak, toxicity, sensitive data, off-topic responses, malicious URLs, language enforcement, code injection, gibberish, refusal-as-DoS, finance advice, prompt tagging, competitor discussion, URL reachability, legal advice), AI Guardrails (marketing umbrella — same product), AI Red Teaming (offline vulnerability assessment for customer LLM apps), and the four-pillar governance framework. Three deployment modes: Proxy (inline), DaaS (application-layer sidecar), OnPrem hybrid. Layers on top of existing ZIA GenAI URL Filter categories + DLP prompt scanning. Reasoning doc: [`../ai-security/overview.md`](../ai-security/overview.md). No SDK module in Python or Go SDK; portal-only configuration. Captures: `vendor/zscaler-help/ai-security-marketing.md`, `ai-guardrails-marketing.md`, `ai-guard-what-is.md`.
+#### AI Security family surfaces beyond AI Guard
+AI Guard itself is now classified Tier 2 because the Python SDK exposes runtime policy detection. The broader AI Security family still includes reasoning-only surfaces: AI Guardrails (marketing umbrella), AI Red Teaming (offline vulnerability assessment for customer LLM apps), and the four-pillar governance framework. Reasoning doc: [`../ai-security/overview.md`](../ai-security/overview.md). Captures include `vendor/zscaler-help/ai-security-marketing.md`, `vendor/zscaler-help/ai-guardrails-marketing.md`, `vendor/zscaler-help/ai-guard-what-is.md`, and the AI Guard Help subpage captures listed in the AI Security reference frontmatter.
 
 #### ZMS — Zscaler Microsegmentation
 East-west / workload-to-workload policy via host-installed agents (Win/Linux), AI-powered policy recommendations on a 14-day rolling telemetry window, local OS enforcement (Windows Filtering Platform / Linux nftables). Positioned as a ZPA add-on. Reasoning doc: [`../zms/overview.md`](../zms/overview.md). No SDK module; portal-only configuration. Captures: `vendor/zscaler-help/microsegmentation-marketing.md`, `zero-trust-microsegmentation-marketing.md`, `what-is-microsegmentation-zpa.md`.

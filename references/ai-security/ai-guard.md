@@ -3,11 +3,18 @@ product: ai-guard
 topic: overview
 title: "AI Guard — runtime protection and policy enforcement for AI/LLM applications"
 content-type: reference
-last-verified: "2026-04-28"
+last-verified: "2026-05-22"
 confidence: medium
 source-tier: doc
 sources:
   - "vendor/zscaler-help/ai-guard-what-is.md"
+  - "vendor/zscaler-help/ai-guard-step-step-configuration-guide-ai-guard.md"
+  - "vendor/zscaler-help/ai-guard-configuring-zia-proxy-chain-ai-guard.md"
+  - "vendor/zscaler-help/ai-guard-api-user-guide.md"
+  - "vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-proxy-mode.md"
+  - "vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md"
+  - "vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py"
+  - "vendor/zguard-ai-integrations/README.md"
 author-status: draft
 ---
 
@@ -25,11 +32,24 @@ AI Guard offers three deployment options:
 
 | Mode | How it works | Use case |
 |---|---|---|
-| **Proxy (inline)** | AI Guard placed between the AI application and the LLM provider. Traffic flows through AI Guard for inspection. | Default for enterprise deployments where network position allows interception |
-| **DaaS (Detection as a Service)** | AI Guard as a sidecar — not inline. Application makes an API call to AI Guard per prompt and per response. | When inline placement is not possible; application must be modified to make the DaaS API call |
+| **Proxy (inline)** | The application sends model requests to AI Guard's proxy endpoint; AI Guard inspects traffic and proxies it to the configured upstream LLM provider. | Default for enterprise deployments where the app can route LLM traffic through AI Guard |
+| **DaaS (Detection as a Service)** | AI Guard is not inline. Application code calls AI Guard before sending the prompt to the model and again before returning the model response. | When inline placement is not possible or the application should keep direct LLM-provider routing |
 | **OnPrem hybrid** | On-premises deployment of AI Guard components | Organizations requiring data residency or on-premises processing |
 
 **Key DaaS distinction**: In DaaS mode, AI Guard does not require manually adding the LLM provider to the configuration. The application controls which LLM it calls; AI Guard inspects the content only. In Proxy mode, AI Guard is aware of and configured with the LLM provider.
+
+## Configuration workflow
+
+The Help configuration guide lays out the operational sequence:
+
+1. Provision end users by linking ZIA with AI Guard.
+2. Configure LLM providers and provider credentials when using Proxy mode.
+3. Add AI applications to AI Guard.
+4. Configure policies by enabling detectors on prompts and responses.
+5. Optionally configure incident log exports.
+6. Optionally configure tenant-wide settings.
+
+System users are managed in ZIdentity and can be viewed from AI Guard's System User Management page.
 
 ## Detector categories
 
@@ -57,7 +77,7 @@ AI Guard enforces "intent-based detectors" using AI models and GPUs for inferenc
 
 AI Guard supports the following LLM providers (API request construction guides documented):
 - Anthropic (Claude)
-- Azure OpenAI
+- Azure Foundry / OpenAI-compatible chat completions
 - AWS Bedrock (Anthropic models)
 - AWS Bedrock Unified
 - AWS Bedrock Agent
@@ -67,7 +87,16 @@ AI Guard supports the following LLM providers (API request construction guides d
 
 ## ZIA integration
 
-AI Guard can be configured to work with ZIA via proxy chain. The "Integrating ZIA with AI Guard" page (`configuring-zia-proxy-chain-ai-guard`) documents this integration. This allows AI Guard to be positioned within the ZIA traffic flow for organizations using ZIA as the primary internet proxy.
+AI Guard can be invoked from ZIA by proxy chaining supported AI-app traffic to AI Guard. The integration guide requires:
+
+- AI Guard subscription and linked ZIA / AI Guard tenants.
+- AI Guard endpoint CA certificate uploaded to ZIA as a proxy-chaining root certificate.
+- ZIA proxy pointing at `forward.zseclipse.net` on port `9443` as of the captured guide.
+- Proxy gateway configured fail-closed.
+- A firewall rule to block/drop QUIC so traffic does not bypass the proxy path.
+- Wildcard FQDN destination groups and Forwarding Control rules for the supported AI-provider domains.
+
+Treat the supported-app/domain list as date-sensitive. The captured guide states the listed supported generative AI applications were last updated on April 14, 2026.
 
 ## Policy management
 
@@ -92,11 +121,16 @@ AI Guard policies are configured in the AI Guard Admin Portal:
 ## API surface
 
 AI Guard has an API surface:
-- **DaaS API**: The application makes API calls to AI Guard per prompt/response (this is the DaaS deployment model)
-- **API Request Construction User Guide**: Documents how to construct requests for each supported LLM provider
-- No comprehensive public REST API reference for AI Guard administration was found in available sources
+- **Proxy-mode provider API pathing**: Applications send provider-shaped requests to `https://proxy.zseclipse.net` using provider-specific paths such as `/v1/messages`, `/v1/chat/completions`, Bedrock model paths, Gemini `generateContent`, and Vertex paths.
+- **DaaS policy detection API**: Applications call `https://api.<cloud>.zseclipse.net/v1/detection/execute-policy` for an explicit policy ID, or `/v1/detection/resolve-and-execute-policy` for AI Guard policy resolution.
+- **Python SDK**: `zscaler.zaiguard.policy_detection.PolicyDetectionAPI` exposes `execute_policy(content, direction, policy_id=None, transaction_id=None)` and `resolve_and_execute_policy(content, direction, transaction_id=None)`. Authentication uses `AIGUARD_API_KEY`, `AIGUARD_CLOUD`, and optional `AIGUARD_OVERRIDE_URL`.
+- **Admin/config APIs**: No comprehensive public REST API reference for AI Guard administration was found in available sources.
 
-The AI Guard API user guide (`ai-guard-api-user-guide`) is documented in the help portal, confirming API-accessible functionality.
+Direction values are documented in the SDK as `IN` and `OUT`. The DAS/API Help page describes the pattern as scanning prompt content before model submission and response content before user return.
+
+## Integration examples
+
+Zscaler publishes `zguard-ai-integrations` as an example repository for AI Guard DAS integrations. Captured completed integrations include Claude Code, Cursor, Cline, Windsurf, GitHub Actions, Jenkins, Azure AI Gateway / APIM, Google Apigee X, Kong Gateway, LiteLLM, NeMo Guardrails, Portkey AI Gateway, TrueFoundry, and n8n. Treat these as implementation examples, not as proof that the core AI Guard admin plane is programmable.
 
 ## Relationship to ZIA AI features
 
@@ -111,6 +145,8 @@ For operators asking "how do I control GenAI app usage across the org" → ZIA. 
 - AI Guard uses GPU-based AI inference for detection — detectors are not simple pattern-match rules. This means detection quality depends on the AI models Zscaler maintains.
 - In Proxy mode, AI Guard is configured with LLM provider credentials. This means AI Guard sits in the trust chain for LLM API calls.
 - DaaS mode requires application code changes (the application must make the AI Guard API call). This is a development integration, not a transparent network proxy.
+- DaaS mode should instrument both prompt and response paths. Do not assume prompt-only inspection enforces output-side policy.
+- Proxy-mode ZIA integration should fail closed and block QUIC, otherwise AI-app traffic can bypass the intended inspection path.
 - The "Refusal Detection" feature is notable — it protects against scenarios where adversaries attempt to overwhelm an AI application by causing it to refuse legitimate queries (a denial-of-service pattern against AI apps).
 
 ## What AI Guard is not
