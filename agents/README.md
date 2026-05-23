@@ -42,6 +42,11 @@ This directory holds the agent infrastructure for the skill — playbooks, metho
 
 The split keeps `references/` focused as a knowledge base, lets agent personas route to predictable paths, and makes it easier to add new agent workflows without touching product docs.
 
+Role grounding is scoped to role duties. Researcher grounding improves
+citation-backed reference expansion and source-boundary discipline; it must not
+override operational troubleshooting, investigation, SOC review, architecture
+review, or any other role contract.
+
 ## Available workflows
 
 | Role | Slash command | Artifacts | Description |
