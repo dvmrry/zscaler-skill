@@ -49,8 +49,8 @@ From the AI Security product page, Zscaler's framing covers the full enterprise-
 
 | Pillar | What it covers | Closest sub-product |
 |---|---|---|
-| **AI Asset Management** | Discovery of shadow AI apps, mapping AI models / dev tools, posture assessment across infrastructure and data pipelines. | Capability of the broader Zscaler Data Fabric + ZIA observability — no dedicated SKU surfaced. |
-| **Secure Access to AI Apps** | Warn / block / isolate user access to public AI apps (ChatGPT, Claude, Gemini, etc.); enforce DLP on prompts; content moderation. | Implemented via **ZIA URL Filtering** (12 GenAI categories), **ZIA DLP** prompt scanning, **ZBI** (isolation for risky AI usage). Not a separate product — leverages the Tier 1 ZIA stack. |
+| **AI Asset Management** | Discovery of shadow AI apps, mapping AI models / dev tools, posture assessment across infrastructure and data pipelines. | Capability of the broader Zscaler Data Fabric + existing observability stack — no dedicated SKU surfaced. |
+| **Secure Access to AI Apps** | Warn / block / isolate user access to public AI apps (ChatGPT, Claude, Gemini, etc.); enforce DLP on prompts; content moderation. | Closest routing targets in this skill are **ZIA URL Filtering**, **ZIA DLP**, and **ZBI**. Treat exact product behavior as owned by those product references, not by AI Guard. |
 | **Secure AI Apps and Infrastructure** | Automated vulnerability assessment of customer-deployed LLM apps; 25+ prebuilt probes; custom risk scanning; remediation tracking. | **AI Red Teaming** (sub-product). |
 | **AI Governance** | Real-time compliance monitoring, framework alignment, audit reporting. | Spans **AI Guard** (runtime enforcement) + reporting layer. |
 
@@ -106,24 +106,18 @@ Zscaler's `zguard-ai-integrations` repo provides working DAS examples for develo
 
 Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard-configuring-zia-proxy-chain-ai-guard.md`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
 
-AI Guard chains into ZIA in **proxy mode**. The traffic path looks like:
+AI Guard chains into ZIA in **proxy mode**. The AI Guard proxy-chain article covers the AI Guard-specific forwarding/proxy-chain requirements: AI Guard proxy-chain certificate, proxy gateway, `forward.zseclipse.net:9443` endpoint, fail-close behavior, QUIC block/drop, wildcard destination groups, and Forwarding Control rules for supported AI-provider domains.
 
-```
-user → ZCC → ZIA URL Filter (catches GenAI categories) → ZIA DLP (prompt scanning)
-     → AI Guard (intent-based detectors) → LLM provider
-     ← responses flow back through the same pipeline
-```
-
-The existing skill coverage of GenAI URL categories (in `references/zia/url-filtering.md`) and DLP GenAI prompt scanning (in `references/zia/dlp.md`) handles the URL-Filter + DLP layers. AI Guard adds the **content-aware inline inspection** layer that sits between DLP and the LLM provider. This is a **prepend, not a replace** — DLP still runs.
+AI Guard adds a **content-aware LLM inspection** layer for prompts and responses; it does not replace existing ZIA or ZBI controls. Treat the exact ZIA/ZBI policy order as a cross-product routing question rather than as an AI Guard-only claim.
 
 ### Operational pre-reqs
 
 Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard-configuring-zia-proxy-chain-ai-guard.md`; `vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
 
-- **Inline mode requires SSL inspection** — prompt/response payloads are HTTPS to LLM providers; same SSL-inspection rule that DLP needs. SSL bypass on LLM domains kills AI Guard inline mode just like it kills DLP. Cross-link to [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md).
+- **Inline mode requires SSL inspection** — prompt/response payloads are HTTPS to LLM providers, so SSL bypass on LLM domains can prevent AI Guard inline inspection. Cross-link to [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md) for operational SSL-bypass diagnosis.
 - **ZIA proxy-chain mode requires forwarding hygiene** — the guide calls for the AI Guard proxy-chain certificate, proxy gateway, `forward.zseclipse.net:9443` endpoint, fail-close behavior, QUIC block/drop, wildcard destination groups, and Forwarding Control rules for supported AI-provider domains.
 - **DaaS mode requires application changes** — every prompt/response path needs API calls. Not a pure "drop in" deploy.
-- **GPU-based inference** is in Zscaler's cloud — implies non-trivial latency cost compared to a pattern-match inspector. No published latency numbers.
+- **GPU-based inference** is part of AI Guard's detector model. Placement depends on deployment mode: SaaS/proxy and DaaS call the Zscaler service, while OnPrem hybrid is documented for data-residency/compliance cases. No published latency numbers are captured.
 
 ### Admin and observability model
 
@@ -140,13 +134,13 @@ AI Guard's Help docs now expose enough admin detail to treat the product as Tier
 
 Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
 
-"AI Guardrails" appears on the product website but the help-portal doc that explains it is `what-ai-guard`. **AI Guardrails is the marketing name; AI Guard is the product**. Both refer to the same runtime-protection service. The Guardrails marketing emphasis adds:
+"AI Guardrails" appears on the product website but the help-portal doc that explains it is `what-ai-guard`. AI Guardrails appears to be the marketing/runtime-guardrails surface for AI Guard; no separate technical Help surface is captured. The Guardrails marketing emphasis adds:
 
 - **100+ predefined DLP dictionaries** integrated for prompt scanning.
 - **Dashboards** to see all prompts sent to models, track policy violations, and test policies before enforcement.
 - **Compliance support** for AI-deployment regulatory frameworks.
 
-These framing differences don't appear to be feature differences. Treat the names as synonymous unless a customer / Zscaler doc explicitly distinguishes them.
+These framing differences don't currently establish a separate programmable product surface. Treat the names as closely related unless a customer / Zscaler doc explicitly distinguishes them.
 
 ## AI Red Teaming
 
@@ -168,17 +162,17 @@ Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard
 
 | Existing reference | AI Security touchpoint |
 |---|---|
-| [`../zia/url-filtering.md`](../zia/url-filtering.md) — 12 GenAI URL Filter categories | These pre-classify AI-related traffic *before* it hits AI Guard. URL Filter blocks at the category level; AI Guard does deep content inspection. |
-| [`../zia/dlp.md`](../zia/dlp.md) — DLP GenAI prompt scanning, HTTP GET query inspection | DLP applies dictionary / regex / EDM matchers on prompts. AI Guard adds intent-classification matchers (jailbreak, toxicity, etc.) that pure DLP can't do. |
-| [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md) | Required for AI Guard inline mode. SSL bypass on LLM provider domains breaks AI Guard. |
-| [`../zbi/policy-integration.md`](../zbi/policy-integration.md) — Isolate action | "Secure Access" pillar uses ZBI to isolate risky AI app sessions. AI Guard doesn't replace ZBI; it complements it. |
-| [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md) | AI Guard + ZIA + ZBI form a chain — should be added as a cross-product hook. |
+| [`../zia/url-filtering.md`](../zia/url-filtering.md) — GenAI URL Filter categories | Navigation target for category-level AI app access questions. |
+| [`../zia/dlp.md`](../zia/dlp.md) — DLP GenAI prompt scanning, HTTP GET query inspection | Navigation target for sensitive-data-in-prompt questions. |
+| [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md) | Navigation target for SSL bypass and decrypt prerequisites that can affect inline inspection. |
+| [`../zbi/policy-integration.md`](../zbi/policy-integration.md) — Isolate action | Navigation target for AI app isolation questions under the Secure Access pillar. |
+| [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md) | Future cross-product hook target. |
 
 ## Edge cases / gotchas
 
 Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md`; `vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
 
-1. **"AI Guard" vs "AI Guardrails" is a naming inconsistency, not a product split.** Operators will use either name. Skill should accept both as equivalent.
+1. **"AI Guard" vs "AI Guardrails" is a naming inconsistency in captured sources, not a verified technical split.** Operators will use either name. Skill should route both to this family reference while noting that no separate AI Guardrails Help/admin surface is captured.
 2. **AI Guard has a narrow Python SDK surface, not full admin automation.** The Python SDK exposes `zscaler.zaiguard` / `client.zguard.policy_detection` methods for runtime policy detection. Do not imply this covers portal configuration, LLM provider management, policy authoring, or Terraform.
 3. **DaaS mode bypasses Zscaler's inline path entirely.** A tenant deploying DaaS mode does NOT need ZIA inline; it's an application-layer integration. This breaks the "Zscaler is always inline" mental model. Conversely, a tenant with proxy-mode AI Guard does need SSL inspection on LLM traffic.
 4. **Pricing/packaging not captured.** AI Guard appears separately licensed but the SKU / tier mapping isn't in the captures. Treat licensing questions as unanswered.
@@ -203,7 +197,7 @@ Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-secur
 - Skill index: [`./index.md`](./index.md)
 - AI Guard coverage manifest: [`./ai-guard-coverage.md`](./ai-guard-coverage.md)
 - Portfolio map (where AI Security sits in the Zscaler portfolio): [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)
-- ZIA URL Filtering (GenAI categories that pre-classify AI traffic): [`../zia/url-filtering.md`](../zia/url-filtering.md)
-- ZIA DLP (prompt scanning before AI Guard inspection): [`../zia/dlp.md`](../zia/dlp.md)
-- SSL inspection (required for AI Guard inline mode): [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md)
-- ZBI (isolation for risky AI app sessions): [`../zbi/overview.md`](../zbi/overview.md)
+- ZIA URL Filtering routing target: [`../zia/url-filtering.md`](../zia/url-filtering.md)
+- ZIA DLP routing target: [`../zia/dlp.md`](../zia/dlp.md)
+- SSL inspection routing target for inline inspection prerequisites: [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md)
+- ZBI routing target: [`../zbi/overview.md`](../zbi/overview.md)

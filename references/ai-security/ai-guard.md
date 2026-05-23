@@ -12,6 +12,7 @@ sources:
   - "vendor/zscaler-help/ai-guard-step-step-configuration-guide-ai-guard.md"
   - "vendor/zscaler-help/ai-guard-configuring-zia-proxy-chain-ai-guard.md"
   - "vendor/zscaler-help/ai-guard-api-user-guide.md"
+  - "vendor/zscaler-help/ai-guard-managing-ai-guard-users.md"
   - "vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-proxy-mode.md"
   - "vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md"
   - "vendor/zscaler-help/ai-guard-dashboard.md"
@@ -234,15 +235,13 @@ Do not generalize one integration's failure posture to all integrations. Missing
 
 ## Relationship to ZIA AI features
 
-ZIA has its own AI-related features (AI app controls, AI-generated content detection in DLP, Generative AI category in URL filtering). AI Guard is a separate, deeper product:
-- ZIA AI controls: network-level visibility into which AI apps employees use, basic access control
-- AI Guard: runtime protection of the prompt/response content within enterprise AI applications
+AI Guard is not the source of truth for ZIA AI-app access control, ZIA DLP, ZIA SSL inspection, or ZBI isolation behavior. Use this page for the captured AI Guard runtime-protection surface, and route broader GenAI access or DLP questions to the owning product references.
 
 For operators asking "how do I control GenAI app usage across the org" → ZIA. For operators asking "how do I protect our custom AI application's LLM interactions" → AI Guard.
 
 ## Key operational notes
 
-- AI Guard uses GPU-based AI inference for detection — detectors are not simple pattern-match rules. This means detection quality depends on the AI models Zscaler maintains.
+- AI Guard uses GPU-based AI inference for detection — detectors are not simple pattern-match rules. Deployment placement varies by Proxy, DaaS, and OnPrem hybrid mode.
 - In Proxy mode, AI Guard is configured with LLM provider credentials. This means AI Guard sits in the trust chain for LLM API calls.
 - Proxy mode requires AI Application, LLM Provider, and LLM Provider Credential configuration. DaaS mode requires application API-key handling instead.
 - DaaS mode requires application code changes (the application must make the AI Guard API call). This is a development integration, not a transparent network proxy.
@@ -255,13 +254,13 @@ For operators asking "how do I control GenAI app usage across the org" → ZIA. 
 
 ## What AI Guard is not
 
-- Not a web content filter. Use ZIA URL filtering for general internet AI app access control.
+- Not a web content filter. Route general internet AI app access-control questions to ZIA URL filtering.
 - Not an LLM provider. AI Guard wraps LLMs; it does not run its own language model (the underlying LLMs are from OpenAI, Anthropic, Google, AWS, etc.).
-- Not a full CASB for AI apps. For visibility into which AI SaaS apps employees are using across the org, ZIA CASB or Business Insights is more appropriate.
+- Not a full CASB for AI apps. Route broader AI SaaS discovery and posture questions to the owning ZIA / Business Insights references.
 
 ## Cross-links
 
-- ZIA AI app controls (network-level AI app visibility and access): [`../zia/index.md`](../zia/index.md)
-- ZIA DLP (data-in-motion sensitive data protection): [`../zia/dlp.md`](../zia/dlp.md)
+- ZIA AI app access-control routing target: [`../zia/index.md`](../zia/index.md)
+- ZIA DLP routing target: [`../zia/dlp.md`](../zia/dlp.md)
 - AI Guard is in the ai-security reference directory alongside: [`./index.md`](./index.md), [`./overview.md`](./overview.md), [`./ai-guard-coverage.md`](./ai-guard-coverage.md)
 - Portfolio map: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)
