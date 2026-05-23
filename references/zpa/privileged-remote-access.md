@@ -3,11 +3,11 @@ product: zpa
 topic: "privileged-remote-access"
 title: "Privileged Remote Access (PRA) — clientless RDP/SSH/VNC"
 content-type: reasoning
-last-verified: "2026-05-17"
+last-verified: "2026-05-23"
 verified-against:
   vendor/zscaler-sdk-python: 8d054b1fdd18bcb29722b7051dc282c0d1c86be6
   vendor/terraform-provider-zpa: a3c845f3366cc2267e1b244f9968e727c92bad3d
-  vendor/zscaler-mcp-server: 25eccadd1d476bb90cb415c468197ec0a802c8fa
+  vendor/zscaler-mcp-server: 8409e1661b7f7171bfbb9297e1ecfc61c28b6d92
 confidence: medium
 source-tier: mixed
 sources:
@@ -135,7 +135,7 @@ Relevant integration points from `references/zpa/app-segments.md`:
 - **SIPA is not supported** on PRA segments — same architectural reason as Browser Access (protocol relay terminates before backend sees the packet).
 - The `VM_CONNECT` action value surfaces on PRA segments (distinct from the standard ZPA CONNECT mechanism).
 
-The Zscaler MCP server v0.12.0 added dedicated PRA app-segment tools (`zpa_*_application_segment_pra`) and an onboarding skill. Those tools model PRA-specific `common_apps_dto.apps_config` entries per RDP/SSH target, validate `application_protocol` as `RDP` or `SSH`, reject RDP-only `connection_security` on SSH entries, and preserve the SDK's `app_types: ["SECURE_REMOTE_ACCESS"]` auto-injection.
+The Zscaler MCP server v0.12.0 added dedicated PRA app-segment tools (`zpa_*_application_segment_pra`) and an onboarding skill. Those tools model PRA-specific `common_apps_dto.apps_config` entries per RDP/SSH target, validate `application_protocol` as `RDP` or `SSH`, reject RDP-only `connection_security` on SSH entries, and preserve the SDK's `app_types: ["SECURE_REMOTE_ACCESS"]` auto-injection. As of MCP server v0.12.3, the PRA list tool accepts `page` and `page_size` as positive integers and string-coerces them at the SDK call site, so agent-emitted JSON numbers work without changing the underlying API payload.
 
 ## Capabilities policy (what users can actually do in-session)
 
