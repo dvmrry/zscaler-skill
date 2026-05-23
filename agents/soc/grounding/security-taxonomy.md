@@ -25,6 +25,31 @@ tags are added only after the evidence shows the exposure.
 
 ## Output discipline
 
+Use the taxonomy as a response template for declared findings. The header is
+metadata for the human reader; it is not a separate scan artifact.
+
+```markdown
+### <finding title>
+
+- Severity: <Critical / High / Medium / Low / Info>
+- Record type: finding
+- Category: <finding family or SOC subtype>
+- Taxonomy: <CWE / OWASP / NIST / CISA / MITRE labels, if applicable>
+- Source: <tenant snapshot path, SIEM query result, API response, log, or user evidence>
+- Confidence: <high / medium / low / open>
+- Status: <Open / Acknowledged / Resolved / Info>
+
+**What to fix**
+<operator-facing remediation>
+
+**Evidence and taxonomy mapping**
+...
+```
+
+Do not add scanner-specific metadata such as run ID, commit, branch, owner,
+owner-source, or scan status unless the user explicitly supplies that context
+and asks for it.
+
 Every SOC finding that uses a framework tag must include:
 
 - **Evidence** - the observed tenant fact, with source path, log, query result,

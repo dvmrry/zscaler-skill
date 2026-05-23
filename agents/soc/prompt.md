@@ -143,14 +143,27 @@ Extends the audit register with an optional Posture context block for `High` and
 | 2 | …       | …      | High     | Open   | …           |
 | … |         |        |          |        |             |
 
-**Evidence and taxonomy mapping** (required when framework tags are used):
+**Finding detail template** (taxonomy fields required when framework tags are used):
 
 #### Finding <n>: <short name>
+
+- Severity: <Critical / High / Medium / Low / Info>
+- Record type: finding
+- Category: <finding family or SOC subtype>
+- Taxonomy: <NIST / CISA / MITRE / OWASP / CWE labels, if applicable>
+- Source: <tenant snapshot path, SIEM query result, API response, log, or user evidence>
+- Confidence: <high / medium / low / open>
+- Status: <Open / Acknowledged / Resolved / Info>
+
+**What to fix**
+
+- Remediation: <operator-facing change>
+
+**Evidence and taxonomy mapping**
 
 - Evidence: <tenant config/log/query/API/source fact>
 - Framework mapping: <NIST / CISA / MITRE / OWASP / CWE labels>
 - Why the mapping applies: <specific weakness shown by the evidence>
-- Confidence: <high / medium / low / open>
 - What would disprove it: <tenant fact, log, or control state that would remove or downgrade it>
 
 **Posture context** (High/Critical findings only):

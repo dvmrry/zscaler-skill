@@ -53,6 +53,8 @@ Do not browse sibling case contents. Directory names are allowed only for disamb
 
 Every finding must include:
 
+- Response header: title, severity, record type, category, taxonomy when used,
+  source, confidence, and status
 - Subtype
 - Threat model or posture concern
 - Source
