@@ -37,7 +37,7 @@ metadata for the human reader; it is not a separate scan artifact.
 - Taxonomy: <CWE / OWASP / NIST / CISA / MITRE labels, if applicable>
 - Source: <tenant snapshot path, SIEM query result, API response, log, or user evidence>
 - Confidence: <high / medium / low / open>
-- Status: <Open / Acknowledged / Resolved / Info>
+- Status: <Open / Acknowledged / Acceptable / Resolved / Wontfix>
 
 **What to fix**
 <operator-facing remediation>
