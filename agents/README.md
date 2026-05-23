@@ -23,6 +23,7 @@ sources:
   - "agents/retro/harness.md"
   - "agents/retro/grounding/index.md"
   - "agents/retro/prompt.md"
+  - "agents/declared-records.md"
 author-status: draft
 ---
 
@@ -82,6 +83,7 @@ Files at the root of `agents/` apply across roles:
 - [`tenant-schema-derivation.md`](./tenant-schema-derivation.md) — canonical-vs-tenant schema distinction, derivation recipes per SIEM, storage template
 - [`clarification-pattern.md`](./clarification-pattern.md) — standard clarify-before-routing pattern for underspecified Zscaler requests
 - [`loading-discipline.md`](./loading-discipline.md) — bounded file-loading and stage-announcement discipline for agent workflows
+- [`declared-records.md`](./declared-records.md) — lightweight metadata convention for durable findings, recommendations, warnings, decisions, claims, and action items
 
 ## Frontmatter conventions
 

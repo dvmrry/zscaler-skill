@@ -9,6 +9,7 @@ confidence: medium
 sources:
   - agents/researcher/prompt.md
   - agents/researcher/grounding/index.md
+  - agents/declared-records.md
   - scripts/prepare-overlay-submission.mjs
 author-status: reviewed
 summary: Citation-backed reference expansion workflow
@@ -20,6 +21,7 @@ known-runtimes:
 required-reads:
   - agents/researcher/prompt.md
   - agents/researcher/grounding/index.md
+  - agents/declared-records.md
 supporting-scripts:
   - scripts/check-hygiene.py
   - scripts/check-citations.sh

@@ -11,6 +11,7 @@ sources:
   - agents/auditor/harness.md
   - agents/auditor/grounding/index.md
   - agents/auditor/methodology.md
+  - agents/declared-records.md
 author-status: reviewed
 summary: Editorial and structural audit of skill references
 primary-command: /z-auditor
@@ -23,6 +24,7 @@ required-reads:
   - agents/auditor/harness.md
   - agents/auditor/grounding/index.md
   - agents/auditor/methodology.md
+  - agents/declared-records.md
 supporting-scripts:
   - scripts/check-hygiene.py
 ---

@@ -11,12 +11,14 @@ sources:
   - "agents/architect/harness.md"
   - "agents/architect/grounding/index.md"
   - "agents/architect/methodology.md"
+  - "agents/declared-records.md"
   - "agents/siem-emission-discipline.md"
   - "references/zpa/logs/app-connector-metrics.md"
 dependencies:
   - "harness.md"
   - "grounding/index.md"
   - "methodology.md"
+  - "../declared-records.md"
   - "../siem-emission-discipline.md"
 author-status: draft
 ---
@@ -49,6 +51,9 @@ Minimum viable: scope + a one-line "what changed or what's planned" context. The
 Follow [`./harness.md`](./harness.md), [`./grounding/index.md`](./grounding/index.md), and the recommendation register format in [`architect/methodology.md`](./methodology.md):
 
 - Every recommendation has rationale, risk, evidence, confidence, status
+- Recommendations and architecture decisions are declared records. Express the
+  record in architect vocabulary: risk, evidence layer, tradeoff, confidence,
+  status, and validation or rollback condition.
 - Confidence is calibrated to evidence quality; do not inflate
 - Config-only recommendations are valid (and common); mark them as such
 - Do not change tenant state — propose only

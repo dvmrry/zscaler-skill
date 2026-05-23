@@ -8,12 +8,14 @@ confidence: high
 source-tier: practice
 sources:
   - "agents/researcher/grounding/index.md"
+  - "agents/declared-records.md"
   - "references/_meta/template.md"
   - "scripts/check-hygiene.py"
   - "scripts/check-citations.sh"
   - "scripts/check-orphans.py"
 dependencies:
   - "grounding/index.md"
+  - "../declared-records.md"
 author-status: draft
 ---
 
@@ -58,6 +60,12 @@ If the runtime supports separate agents, use a memory-isolated writer. If it doe
 ## Output discipline
 
 Each turn opens with the active step heading and emits its data sections plus checkpoint menu as plain Markdown. Do not wrap the whole response in code fences. Use fences only for actual code, JSON, YAML, or shell commands.
+
+Use the declared-records convention for durable source-boundary decisions,
+extraction gaps, and verifier findings. Researcher records should express:
+record type, source class checked, coverage, confidence, known gap, and
+do-not-infer boundary. Do not use SOC or audit finding headers for ordinary
+extraction prose.
 
 ## Step 1 - Parse framing
 

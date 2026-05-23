@@ -11,6 +11,7 @@ sources:
   - "agents/auditor/harness.md"
   - "agents/auditor/grounding/index.md"
   - "agents/auditor/methodology.md"
+  - "agents/declared-records.md"
   - "scripts/check-hygiene.py"
   - "scripts/check-citations.sh"
   - "scripts/check-staleness.sh"
@@ -19,6 +20,7 @@ dependencies:
   - "harness.md"
   - "grounding/index.md"
   - "methodology.md"
+  - "../declared-records.md"
 author-status: draft
 ---
 
@@ -62,6 +64,9 @@ If scope is missing or unclear, ask **one** clarifying question — don't fabric
 Follow [`./harness.md`](./harness.md), [`./grounding/index.md`](./grounding/index.md), plus the audit register format and severity scale in [`auditor/methodology.md`](./methodology.md):
 
 - Every finding cites a source (file:line, script output, cross-file comparison)
+- Audit findings are declared records: include record type, source, severity,
+  confidence when evidence quality is material, status, remediation, and
+  verification/disproof condition using the audit register vocabulary.
 - Use the lowest applicable severity — inflation drowns real issues
 - Do not mark findings `Resolved` without verification
 - Findings outside scope go in Notes or "Out-of-scope observations," not silently dropped or chased
