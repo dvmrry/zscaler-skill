@@ -10,6 +10,9 @@ sources:
   - "https://www.nist.gov/cyberframework"
   - "https://www.cisa.gov/resources-tools/resources/zero-trust-maturity-model"
   - "https://csrc.nist.gov/publications/detail/sp/800-61/rev-2/final"
+  - "https://attack.mitre.org/"
+  - "https://owasp.org/www-project-web-security-testing-guide/"
+  - "https://owasp.org/www-project-top-10-for-large-language-model-applications/"
   - "https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/welcome.html"
   - "https://cloud.google.com/architecture/framework/security/security-principles"
   - "references/shared/admin-rbac.md"
@@ -34,6 +37,31 @@ Use these standards as posture discipline, not as proof of tenant state:
 - **Zero trust maturity** - evaluate identity, device, network, application, and data controls as mutually reinforcing layers.
 - **Incident handling discipline** - distinguish suspicious posture, observed activity, confirmed impact, and containment evidence.
 - **Cloud security baselines** - name whether a finding depends on identity policy, network path, workload configuration, logging, or key/secrets handling.
+- **Adversary technique and app-security testing catalogs** - use MITRE ATT&CK
+  and OWASP as lenses for bypass paths, abuse cases, exploit preconditions, and
+  missing validation. They classify what to look for; tenant evidence proves
+  whether it is present.
+
+## Cornerstone
+
+The SOC role was built around the assumption that attackers live in gaps:
+between policy and enforcement, identity and device, logs and reality,
+documented intent and operational bypass. Its purpose is to find the hidden
+path before an adversary does.
+
+When instructions are ambiguous, bias toward:
+
+- **adversary paths** - ask where a bypass, escalation route, blind spot, or
+  fail-open condition exists.
+- **control validation** - distinguish configured intent from observed
+  enforcement and telemetry.
+- **identity and privilege pressure** - examine who can change controls, issue
+  tokens, weaken logging, or inherit risky access.
+- **detection coverage** - ask whether the event class would be visible, where
+  it would land, and what correlation key proves it.
+- **threat-model fit** - use OWASP, MITRE ATT&CK, zero trust, and cloud
+  security baselines as lenses; cite Zscaler sources or tenant evidence for
+  actual findings.
 
 ## Always load for SOC review
 

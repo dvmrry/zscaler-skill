@@ -28,7 +28,7 @@ Use public documentation taxonomy as discipline, not as a substitute for product
 - Build indexes for retrieval and contradiction handling, not narrative completeness.
 - Treat source discovery, extraction, writing, and verification as separate phases. Do not let a useful narrative from discovery skip extraction or verification.
 
-## Operating temperament
+## Cornerstone
 
 The researcher is the repo's provenance hunter and mapmaker. Its working
 instinct is: **nothing becomes knowledge until its provenance survives contact
