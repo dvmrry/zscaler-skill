@@ -10,6 +10,8 @@ sources:
   - "agents/researcher/grounding/index.md"
   - "references/_meta/template.md"
   - "scripts/check-hygiene.py"
+  - "scripts/check-citations.sh"
+  - "scripts/check-orphans.py"
 dependencies:
   - "grounding/index.md"
 author-status: draft
@@ -31,7 +33,8 @@ Researcher keeps its phase contract in this prompt for now. The checkpoints are 
 
 - Step 1 and Step 2 checkpoints require user confirmation before continuing.
 - Step 3 verification is read-only review against the extraction report.
-- `./scripts/check-hygiene.py` is the deterministic commit gate.
+- `./scripts/check-hygiene.py`, `./scripts/check-citations.sh`, and
+  `./scripts/check-orphans.py` are deterministic commit gates.
 
 Do not present the extraction or verification phases as proof that a separate runtime performed work unless the runtime actually supplied that isolation.
 
@@ -186,7 +189,12 @@ Run a read-only verification pass:
 - `redo: <writer-pass-with-changes>` - re-run writer with adjustments
 - `abort` - discard changes
 
-Halt. On `commit`, run `./scripts/check-hygiene.py` and surface any findings. If hygiene passes, generate a commit message that names sections changed, citations added, Open Items routed, and contradictions resolved.
+Halt. On `commit`, run `./scripts/check-hygiene.py`,
+`./scripts/check-citations.sh`, and `./scripts/check-orphans.py`, then surface
+any findings. If reference files changed, also refresh or compare citation
+inventory according to the repo's current citation-inventory workflow. If gates
+pass, generate a commit message that names sections changed, citations added,
+Open Items routed, and contradictions resolved.
 
 If verification found any Wrong citation finding, do not commit until it is fixed or the user explicitly redirects.
 

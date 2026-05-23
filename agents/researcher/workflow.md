@@ -22,6 +22,8 @@ required-reads:
   - agents/researcher/grounding/index.md
 supporting-scripts:
   - scripts/check-hygiene.py
+  - scripts/check-citations.sh
+  - scripts/check-orphans.py
   - scripts/prepare-overlay-submission.mjs
 ---
 
