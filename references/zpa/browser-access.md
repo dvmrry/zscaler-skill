@@ -3,11 +3,11 @@ product: zpa
 topic: "browser-access"
 title: "Browser Access — clientless ZPA via a web browser"
 content-type: reference
-last-verified: "2026-05-17"
+last-verified: "2026-05-23"
 verified-against:
   vendor/terraform-provider-zpa: a3c845f3366cc2267e1b244f9968e727c92bad3d
   vendor/zscaler-sdk-python: 8d054b1fdd18bcb29722b7051dc282c0d1c86be6
-  vendor/zscaler-mcp-server: 25eccadd1d476bb90cb415c468197ec0a802c8fa
+  vendor/zscaler-mcp-server: 8409e1661b7f7171bfbb9297e1ecfc61c28b6d92
 confidence: high
 source-tier: mixed
 sources:
@@ -188,7 +188,7 @@ Both share the same underlying `/application` endpoint as the base `ApplicationS
 
 As of `zscaler-sdk-python` v1.9.28, both Browser Access SDK services use `transform_common_id_fields(..., coerce_ids=False)` when shaping ID-list fields. This preserves ZPA's opaque string IDs on the wire instead of coercing numeric-looking IDs to integers.
 
-The SDK v2 BA service models the per-domain Browser Access payload under `common_apps_dto.apps_config`. The Zscaler MCP server v0.12.0 added dedicated BA tools (`zpa_*_application_segment_ba`) that require `apps_config`, validate that every `apps_config[].domain` also appears in `domain_names`, and auto-inject `app_types: ["BROWSER_ACCESS"]` when missing.
+The SDK v2 BA service models the per-domain Browser Access payload under `common_apps_dto.apps_config`. The Zscaler MCP server v0.12.0 added dedicated BA tools (`zpa_*_application_segment_ba`) that require `apps_config`, validate that every `apps_config[].domain` also appears in `domain_names`, and auto-inject `app_types: ["BROWSER_ACCESS"]` when missing. As of MCP server v0.12.3, the BA list tool accepts `page` and `page_size` as positive integers and string-coerces them at the SDK call site, so agent-emitted JSON numbers work without changing the underlying API payload.
 
 **Methods:**
 
