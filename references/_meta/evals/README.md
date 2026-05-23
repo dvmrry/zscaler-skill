@@ -11,7 +11,7 @@ author-status: draft
 
 # Eval suite — `evals.json`
 
-Hand-written behavioral specifications: 24 entries shaped as `{prompt, expected_output, assertions, must_cite_files, must_not_say, expected_confidence, tenant_data_required}`. Captures concrete examples of "what a correct answer looks like" for the skill across URL filtering, ZPA segments, ZCC forwarding, SSL inspection, AI Security source-boundary handling, and other Tier 1 areas.
+Hand-written behavioral specifications: 25 entries shaped as `{prompt, expected_output, assertions, must_cite_files, must_not_say, expected_confidence, tenant_data_required}`. Captures concrete examples of "what a correct answer looks like" for the skill across URL filtering, ZPA segments, ZCC forwarding, SSL inspection, AI Security source-boundary handling, SOC evidence-first taxonomy mapping, and other Tier 1 areas.
 
 ## What this is — and isn't
 

@@ -10,10 +10,12 @@ sources:
   - "agents/auditor/methodology.md"
   - "agents/investigator/methodology.md"
   - "agents/siem-emission-discipline.md"
+  - "agents/soc/grounding/security-taxonomy.md"
 dependencies:
   - "../auditor/methodology.md"
   - "../investigator/methodology.md"
   - "../siem-emission-discipline.md"
+  - "grounding/security-taxonomy.md"
   - "../clarification-pattern.md"
 author-status: draft
 ---
@@ -54,6 +56,11 @@ Every finding must include:
 - Subtype
 - Threat model or posture concern
 - Source
+- Evidence
+- Framework mapping, when a standard helps classify the risk
+- Why the mapping applies, when a framework is used
+- Confidence
+- What would disprove or downgrade it
 - Severity
 - Status
 - Remediation
@@ -70,4 +77,6 @@ If no case directory exists, create a routine SOC review slug with the pattern `
 
 - Do not change tenant state.
 - Do not mark findings `Resolved` without verification.
+- Do not use OWASP, NIST, MITRE, CISA, or CWE as proof of a tenant finding.
+  Standards classify evidence; they do not replace evidence.
 - Do not convert a posture exposure into an active-exploitation claim. Hand off exploitability questions to `/z-investigator`.

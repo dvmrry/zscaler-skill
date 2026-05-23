@@ -10,6 +10,7 @@ source-tier: practice
 sources:
   - "agents/soc/harness.md"
   - "agents/soc/grounding/index.md"
+  - "agents/soc/grounding/security-taxonomy.md"
   - "agents/auditor/methodology.md"
   - "agents/investigator/methodology.md"
   - "references/shared/siem-log-mapping.md"
@@ -17,6 +18,7 @@ sources:
 dependencies:
   - "harness.md"
   - "grounding/index.md"
+  - "grounding/security-taxonomy.md"
   - "../auditor/methodology.md"
   - "../investigator/methodology.md"
   - "../siem-emission-discipline.md"
@@ -59,6 +61,11 @@ Minimum viable framing: scope + at least one subtype hint, OR scope alone (agent
 Follow [`./harness.md`](./harness.md), [`./grounding/index.md`](./grounding/index.md), and the audit register format and severity / status enums from [`auditor/methodology.md`](../auditor/methodology.md), with SOC-specific extensions:
 
 - Every finding cites a source: snapshot file, SIEM query result, API response, log evidence, vendor doc citation
+- Frameworks classify the finding; they do not prove the finding. If a finding
+  uses OWASP, NIST, MITRE, CISA, or CWE language, load
+  [`grounding/security-taxonomy.md`](./grounding/security-taxonomy.md) and
+  include evidence, framework mapping, why it applies, confidence, and what
+  would disprove it.
 - Severity uses the same `Critical / High / Medium / Low / Info` enum, calibrated to **security impact if not addressed** (not editorial priority)
 - Status uses the same `Open / Acknowledged / Acceptable / Resolved / Wontfix` lifecycle
 - **High and Critical findings include a Posture context block**: control family, threat model, blast radius, detection coverage, compensating controls
@@ -135,6 +142,16 @@ Extends the audit register with an optional Posture context block for `High` and
 | 1 | …       | …      | Critical | Open   | …           |
 | 2 | …       | …      | High     | Open   | …           |
 | … |         |        |          |        |             |
+
+**Evidence and taxonomy mapping** (required when framework tags are used):
+
+#### Finding <n>: <short name>
+
+- Evidence: <tenant config/log/query/API/source fact>
+- Framework mapping: <NIST / CISA / MITRE / OWASP / CWE labels>
+- Why the mapping applies: <specific weakness shown by the evidence>
+- Confidence: <high / medium / low / open>
+- What would disprove it: <tenant fact, log, or control state that would remove or downgrade it>
 
 **Posture context** (High/Critical findings only):
 

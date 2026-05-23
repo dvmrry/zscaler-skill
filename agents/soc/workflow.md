@@ -10,6 +10,7 @@ sources:
   - agents/soc/prompt.md
   - agents/soc/harness.md
   - agents/soc/grounding/index.md
+  - agents/soc/grounding/security-taxonomy.md
   - agents/auditor/methodology.md
   - agents/investigator/methodology.md
   - agents/siem-emission-discipline.md
@@ -25,6 +26,7 @@ required-reads:
   - agents/soc/prompt.md
   - agents/soc/harness.md
   - agents/soc/grounding/index.md
+  - agents/soc/grounding/security-taxonomy.md
   - agents/auditor/methodology.md
   - agents/investigator/methodology.md
   - agents/siem-emission-discipline.md

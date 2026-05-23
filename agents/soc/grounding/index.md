@@ -15,6 +15,7 @@ sources:
   - "https://owasp.org/www-project-top-10-for-large-language-model-applications/"
   - "https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/welcome.html"
   - "https://cloud.google.com/architecture/framework/security/security-principles"
+  - "agents/soc/grounding/security-taxonomy.md"
   - "references/shared/admin-rbac.md"
   - "references/shared/audit-logs.md"
   - "references/shared/siem-log-mapping.md"
@@ -41,6 +42,10 @@ Use these standards as posture discipline, not as proof of tenant state:
   and OWASP as lenses for bypass paths, abuse cases, exploit preconditions, and
   missing validation. They classify what to look for; tenant evidence proves
   whether it is present.
+- **Evidence-first security taxonomy** - when a SOC finding maps to NIST, CISA,
+  MITRE, OWASP, or CWE, load [`security-taxonomy.md`](./security-taxonomy.md)
+  and include the evidence, mapping, why it applies, confidence, and what would
+  disprove it.
 
 ## Cornerstone
 
@@ -99,3 +104,6 @@ When instructions are ambiguous, bias toward:
 - Severity is based on blast radius, control family, and visibility, not on how ugly the config looks.
 - Missing telemetry is a finding only when the relevant event class should be observable for the stated threat model.
 - Use standards language to classify risk, but cite Zscaler references, snapshots, logs, or user evidence for the actual finding.
+- Do not use OWASP, NIST, MITRE, CISA, or CWE as a substitute for tenant
+  evidence. If a framework is the only source, record a threat-model note rather
+  than a finding.
