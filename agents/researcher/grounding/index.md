@@ -27,20 +27,55 @@ Use public documentation taxonomy as discipline, not as a substitute for product
 - Build indexes for retrieval and contradiction handling, not narrative completeness.
 - Treat source discovery, extraction, writing, and verification as separate phases. Do not let a useful narrative from discovery skip extraction or verification.
 
+## Documentation prime directive
+
+This workflow exists to build a comprehensive, source-grounded Zscaler product
+knowledge base from every relevant vendor or vendor-adjacent source class
+available in this repo. Help docs explain public/admin behavior; SDKs, API
+docs, schemas, and Postman collections explain programmable surfaces;
+Terraform providers and modules explain IaC-manageable surfaces; MCP servers
+and tools explain operational automation; public integration repositories,
+examples, tests, changelogs, and workflow files explain deployment patterns,
+edge cases, and product semantics.
+
+Every product claim added to `references/` must be traceable to captured source
+material or explicitly marked as an open gap, contradiction, operator-reported
+candidate, or inference. Unsourced product behavior is not "background
+knowledge"; it is unreliable and must not be promoted into reference text.
+
+Coverage language must name the source boundary it certifies. "Help coverage",
+"SDK/API coverage", "Terraform coverage", "MCP coverage", and "integration
+coverage" are separate claims unless the extraction pass checked all relevant
+source classes and recorded the gaps.
+
 ## Source selection
 
-Prefer sources in this order:
+Start from the target reference's `sources:` frontmatter, then build a
+source-class checklist for the scoped product or feature. Check every relevant
+class before claiming coverage:
 
-1. Existing `sources:` frontmatter on the target reference
-2. Adjacent SDK or API references for the same product
-3. Vendor help captures already present under `vendor/`
-4. Nearby reference files only to identify cross-links or contradictions
+1. **Help and product docs** - `vendor/zscaler-help/`, Automate docs, PDFs/text captures, and public help pages already captured locally.
+2. **API and schema sources** - API docs, Postman collections, OpenAPI/GraphQL/schema captures, request/response examples, log schemas, and field catalogs.
+3. **SDKs** - Python SDK, Go SDK, and any product-specific model/service/example/test files.
+4. **Terraform and IaC** - Terraform providers, modules, validators, examples, and changelogs for fields that are configurable as code.
+5. **MCP / tools / automation** - MCP servers, skills, scripts, commands, Automation Hub captures, and tool docs that expose operational workflows.
+6. **Public integration repositories** - vendor-published examples, hooks, plugins, CI/CD integrations, gateway policies, guardrail libraries, workflows, and tests.
+7. **Changelogs, issues, and examples** - upstream changelogs, documented issues, sample configs, and tests when they clarify source-backed behavior or drift.
+8. **Existing references** - nearby `references/` files only to identify current claims, cross-links, contradictions, and routing shape.
 
-Do not broaden the source set just because a topic is interesting. Ask before expanding beyond the confirmed scope.
+If a class is relevant but absent or not yet captured, record it in `Gaps`.
+If a class is irrelevant to the scope, say why briefly in the extraction
+summary. Do not silently skip a source class and then claim comprehensive
+coverage.
+
+Do not broaden beyond the confirmed product or feature just because a topic is
+interesting. Ask before expanding the scope boundary.
 
 ## Extraction discipline
 
 - Extract exact fields, wire keys, endpoint paths, enum names, and line references.
+- Extract source-class coverage: which relevant source classes were checked,
+  which had findings, which were absent, and which are out of scope.
 - Keep source quotes short and targeted.
 - Capture contradictions separately from new content.
 - Put missing or unsupported findings in `Gaps`, not the body.

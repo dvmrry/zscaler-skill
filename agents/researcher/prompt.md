@@ -61,7 +61,11 @@ Each turn opens with the active step heading and emits its data sections plus ch
 Parse the user's request:
 
 - **Target file** - full path under `references/`, for example `references/zcc/web-policy.md`. If ambiguous, ask once.
-- **Vendor sources to mine** - suggest from the target file's `sources` frontmatter plus obvious adjacent vendor captures, SDK equivalents, or help articles.
+- **Sources to mine** - suggest from the target file's `sources` frontmatter,
+  then apply the source-class checklist in `grounding/index.md`: Help/product
+  docs, API/schema sources, SDKs, Terraform/IaC, MCP/tools/automation, public
+  integration repositories, changelogs/issues/examples, and existing
+  references for contradiction and routing checks.
 - **Scope** - whole-file rewrite, specific section, or add a new section/topic.
 - **Open Items routing list** - operator-reported scenarios, hypotheses, or conversation-context items the user wants captured. These route to Open questions in Step 3, not the reference body. If none are named, the list is empty.
 
@@ -73,8 +77,13 @@ Output:
 
 - Target: `references/<path>`
 - Sources to mine:
-  - `vendor/...`
-  - `vendor/...`
+  - Help/product docs: `vendor/...` or `none / not relevant`
+  - API/schema sources: `vendor/...` or `none / not relevant`
+  - SDKs: `vendor/...` or `none / not relevant`
+  - Terraform/IaC: `vendor/...` or `none / not relevant`
+  - MCP/tools/automation: `vendor/...` or `none / not relevant`
+  - Public integrations/examples: `vendor/...` or `none / not relevant`
+  - Existing references for contradictions/routing: `references/...`
 - Scope: `<whole-file | section: NAME | add: TOPIC>`
 - Open Items routing list:
   - `<item>` - `<one-line description>`
@@ -97,9 +106,15 @@ The extraction pass must:
 
 - Read the target reference doc once for context
 - Mine each confirmed source from Step 1
+- Report the source-class checklist: checked, finding-bearing, absent,
+  irrelevant, and gap classes
 - Extract field names with wire keys, types, and line references where available
 - Extract API endpoint URLs, HTTP methods, and line references where available
 - Extract specific help-article statements with line references where available
+- Extract integration semantics from public repos when in scope: interception
+  point, request/response direction, policy selection, verdict handling,
+  fail-open/fail-closed behavior, logging/correlation fields, and platform
+  limits
 - Flag SDK divergences, including fields present in one SDK but not another, type mismatches, and different wire keys
 - Flag findings that contradict existing claims in the target doc
 - End with a `Gaps` section listing requested items not found in the sources
@@ -115,6 +130,7 @@ Surface the extraction report, followed by:
 **Summary**
 
 - Files mined: `<N>`
+- Source classes checked: `<list>`
 - Citation-worthy findings: `<count>`
 - SDK divergences flagged: `<count>`
 - Contradictions vs target doc: `<count>`
