@@ -34,6 +34,13 @@ The mechanical lint pipeline (`scripts/check-hygiene.py`, `check-citations.sh`, 
 
 Your value-add is the **editorial** layer CI can't catch: voice, structural shape, confidence calibration, content/frontmatter agreement, cross-link reciprocity, dangling concepts, open-question hygiene, **and the subtler citation discipline cases the inference-pattern script doesn't match** (claims that read as fact but aren't framed with one of the script's known phrases).
 
+For documentation/reference audits, also check **coverage-boundary honesty**:
+claims such as "covered", "certified", "complete", "comprehensive", or
+"documented" must say which source classes were checked. Help coverage, SDK/API
+coverage, Terraform coverage, MCP/tool coverage, and integration coverage are
+different claims. If the doc does not show the boundary or gap list, open a
+finding rather than assuming the missing source class was reviewed.
+
 ## User framing — what to include for best results
 
 A good `/z-auditor` invocation includes a **scope**. The scope can be:
@@ -147,6 +154,8 @@ Does the body match what frontmatter promises?
 - `topic` matches the file location?
 - `last-verified` is plausible given last edit and content currency?
 - `sources` cited in frontmatter actually appear in the body or footer?
+- coverage/certification language matches the `sources` list and any stated
+  source-class boundary?
 
 Severity: `High` for mismatches that mislead readers; `Medium` otherwise.
 
@@ -210,6 +219,29 @@ Then look for what the script can't match: claims that **read as documented beha
 Severity: `High` for fact-shaped claims with no source backing (especially numeric or behavioral specifics); `Medium` for general framings that read as inference; `Low` for cosmetic citation gaps.
 
 For script false positives (the paragraph is actually well-cited overall, or it's operational routing language not a behavior claim), record as Notes / out-of-scope rather than findings — but flag the pattern if it suggests the script's regex needs tuning.
+
+#### i. Coverage-boundary honesty
+
+For documentation coverage or reference-expansion audits, check whether the doc
+distinguishes:
+
+- Help/product docs
+- API/schema sources
+- SDKs
+- Terraform/IaC
+- MCP/tools/automation
+- Public integrations/examples/tests
+- Existing references used for contradiction or routing checks
+
+Open a finding if the doc claims a product, feature, or source family is
+"complete", "certified", or "comprehensive" but only cites one source class, or
+if relevant absent source classes are not listed as gaps. Do not require a full
+research pass inside the audit; the finding can route the missing source class
+back to `/z-researcher`.
+
+Severity: `High` when an overbroad claim could mislead downstream agents or
+operators; `Medium` when the boundary is incomplete but locally caveated; `Low`
+for wording that is bounded but likely to be misread.
 
 ### 4. Output the audit register
 
