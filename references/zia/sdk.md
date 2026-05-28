@@ -6,7 +6,7 @@ content-type: reference
 last-verified: "2026-05-22"
 verified-against:
   vendor/zscaler-sdk-python: be8f7c7c1e3c78f3cb8e6e24c2378264200f7d98
-  vendor/zscaler-sdk-go: 65276eca609347a3776bfd0421a08e2f2b0b2a95
+  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
 confidence: medium
 source-tier: code
 sources:
@@ -441,7 +441,7 @@ Notable kwargs include `auth_bypass_urls`, `kerberos_bypass_urls`, `enable_offic
 ### SecureBrowsingAPI
 
 **Python SDK:** `client.zia.secure_browsing` (`SecureBrowsingAPI`, added in zscaler-sdk-python v1.9.30).
-**Go SDK package:** `zscaler/zia/services/secure_browsing` (added in zscaler-sdk-go v3.8.37).
+**Go SDK package:** `zscaler/zia/services/secure_browsing` (added in zscaler-sdk-go v3.8.37). As of zscaler-sdk-go `fe52adc`, the package declaration matches the directory name: `secure_browsing`.
 **Purpose:** Browser Control and Smart Browser Isolation settings on the `/browserControlSettings` API surface.
 
 | Python method / Go function | Endpoint | Notes |
