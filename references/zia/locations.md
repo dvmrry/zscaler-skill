@@ -3,14 +3,17 @@ product: zia
 topic: "locations"
 title: "Locations, sublocations, and Location Groups"
 content-type: reasoning
-last-verified: "2026-04-24"
+last-verified: "2026-05-30"
 confidence: high
-source-tier: doc
+source-tier: mixed
+verified-against:
+  vendor/ziacloud-ansible: 1fed2ef920111fde20f704f00b153048ac73276f
 sources:
   - "vendor/zscaler-help/about-location-groups.md"
   - "vendor/zscaler-help/understanding-sublocations.md"
   - "vendor/zscaler-help/configuring-manual-location-groups.md"
   - "vendor/zscaler-help/configuring-dynamic-location-groups.md"
+  - "vendor/ziacloud-ansible/plugins/modules/zia_location_management.py"
 author-status: draft
 ---
 
@@ -138,6 +141,13 @@ XFF is opt-in per location because accepting unauthenticated headers is a spoofi
 ## Extranet locations
 
 An **Extranet Location Type** groups locations assigned to a specific extranet (third-party network connected via Zscaler). Used for B2B traffic segregation. Extranet groups let you write rules that apply only to partner traffic without coupling those rules to per-partner location IDs.
+
+## Automation notes
+
+Source: `vendor/ziacloud-ansible/plugins/modules/zia_location_management.py`.
+
+- The ZIA Ansible location module supports `profile = EXTRANET` and extranet-specific fields: `extranet`, `extranet_dns`, `extranet_ip_pool`, `default_extranet_dns`, and `default_extranet_ts_pool`. Treat these as Extranet location-management fields, not generic location-group membership.
+- For sublocations, the Ansible module looks up existing children through the parent-scoped sublocation endpoint (`list_sub_locations(parent_id)`) before deciding whether to create or update. Automation should not infer "sublocation missing" from a top-level location list alone.
 
 ## Surprises worth flagging
 

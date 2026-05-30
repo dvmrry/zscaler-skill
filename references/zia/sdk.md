@@ -3,9 +3,9 @@ product: zia
 topic: zia-sdk
 title: "ZIA SDK — service and method catalog"
 content-type: reference
-last-verified: "2026-05-22"
+last-verified: "2026-05-30"
 verified-against:
-  vendor/zscaler-sdk-python: be8f7c7c1e3c78f3cb8e6e24c2378264200f7d98
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
   vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
 confidence: medium
 source-tier: code
@@ -47,6 +47,9 @@ sources:
   - vendor/zscaler-sdk-python/zscaler/zia/dlp_templates.py
   - vendor/zscaler-sdk-python/zscaler/zia/dlp_web_rules.py
   - vendor/zscaler-sdk-python/zscaler/zia/dns_gatways.py
+  - vendor/zscaler-sdk-python/zscaler/zia/email_profiles.py
+  - vendor/zscaler-sdk-python/zscaler/zia/models/email_profiles.py
+  - vendor/zscaler-sdk-go/zscaler/zia/services/email_profiles/email_profiles.go
   - vendor/zscaler-sdk-python/zscaler/zia/end_user_notification.py
   - vendor/zscaler-sdk-python/zscaler/zia/file_type_control_rule.py
   - vendor/zscaler-sdk-python/zscaler/zia/forwarding_control.py
@@ -760,6 +763,24 @@ This is separate from the older `client.zia.browser_control_settings` accessor, 
 | `delete_dns_gateway` | `(gw_id: int)` | DELETE `/dnsGateway/{id}`. |
 
 **Go parity:** No
+
+---
+
+### EmailProfilesAPI
+
+**File:** `zscaler/zia/email_profiles.py`
+**Accessor:** `client.zia.email_profiles`
+**Purpose:** CRUD for email recipient profiles. Profiles carry `name`, `description`, and an `emails` list; the SDK uses the `/emailRecipientProfile` endpoint.
+
+| Method | Signature | Notes |
+|---|---|---|
+| `list_email_profiles` | `(query_params=None) -> APIResult[List[EmailProfiles]]` | GET `/emailRecipientProfile`. Supports `page`, `page_size`, and `search`. |
+| `get_email_profile` | `(profile_id: int) -> APIResult[EmailProfiles]` | GET `/emailRecipientProfile/{id}`. |
+| `add_email_profile` | `(**kwargs) -> APIResult[EmailProfiles]` | POST `/emailRecipientProfile`. Important fields: `name`, `description`, `emails`. |
+| `update_email_profile` | `(profile_id: int, **kwargs) -> APIResult[EmailProfiles]` | PUT `/emailRecipientProfile/{id}`. |
+| `delete_email_profile` | `(profile_id: int) -> APIResult[None]` | DELETE `/emailRecipientProfile/{id}`. |
+
+**Go parity:** Yes (`email_profiles/`)
 
 ---
 

@@ -3,10 +3,12 @@ product: zpa
 topic: "zpa-app-connector"
 title: "ZPA App Connector — VM architecture, groups, provisioning keys, software updates"
 content-type: reasoning
-last-verified: "2026-05-05"
+last-verified: "2026-05-30"
 confidence: high
-source-tier: doc
+source-tier: mixed
 verified-against:
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/zpacloud-ansible: 5b6f18aa301eb02d3812e4a46b93187b7953d69e
   vendor/terraform-aws-zpa-app-connector-modules: afea191a839ecd8bb153bdaed3a5dad17cf1a54b
   vendor/terraform-azurerm-zpa-app-connector-modules: 4b9faa39bdf06a7aaec8729d7966e9e8f0d9fc03
 sources:
@@ -20,6 +22,10 @@ sources:
   - "vendor/zscaler-help/zpa-about-connector-groups.md"
   - "vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt"
   - "vendor/zscaler-help/understanding-private-access-architecture.md"
+  - "vendor/zscaler-sdk-python/zscaler/zpa/app_connectors.py"
+  - "vendor/zscaler-sdk-python/zscaler/zpa/app_connector_groups.py"
+  - "vendor/zscaler-sdk-python/zscaler/zpa/models/app_connector_groups.py"
+  - "vendor/zpacloud-ansible/plugins/modules/zpa_app_connector_groups.py"
   - "vendor/terraform-aws-zpa-app-connector-modules/README.md"
   - "vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zsac-acvm-aws/variables.tf"
   - "vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zsac-asg-aws/variables.tf"
@@ -86,6 +92,8 @@ App Connector Groups are the policy, upgrade, and capacity unit. Per *About App 
 - **Scheduled upgrade windows** apply at the group level (see below). The Terraform module defaults to `SUNDAY` at `66600` seconds (18:30 UTC) (`vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zpa-app-connector-group/variables.tf:39-49`).
 - **DNS query type** defaults to `IPV4_IPV6`; valid values are `IPV4_IPV6`, `IPV4`, `IPV6` (`vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zpa-app-connector-group/variables.tf:72-85`).
 - **Version profile** defaults to `override_version_profile=true`, `version_profile_id=0` (Default track) (`vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zpa-app-connector-group/variables.tf:51-70`).
+- **SDK version metadata** can appear as a nested `version` object on App Connector Group responses. The Python SDK model includes version profile name/id plus `sargeVersion`, `childVersion`, and `latestPlatform` fields. Treat these as connector software/version-track metadata, not group membership.
+- **Ansible onboarding convenience:** the ZPA Ansible App Connector Group module can resolve the default enrollment certificate named `Connector` when `enrollment_cert_id` is omitted, and can verify OAuth `user_codes` after create/update. Treat the resolved enrollment certificate ID and user-code verification result as automation evidence; group creation alone is not proof that connectors enrolled successfully.
 - **Latitude/longitude coordinates** on the group tell ZPA where the group is physically, for nearest-connector selection.
 - **`-el8` version tracks** and `ip_anchor_type` enum fields surface in the SDK (`vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorgroup/`) — relevant when auditing group config.
 

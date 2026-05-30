@@ -3,10 +3,13 @@ product: zia
 topic: "zia-terraform"
 title: "ZIA Terraform provider resource catalog"
 content-type: reference
-last-verified: "2026-05-22"
+last-verified: "2026-05-30"
+verified-against:
+  vendor/terraform-provider-zia: ea8509d39beb4446a4ddb904e763fb7adb2e9445
 confidence: medium
-source-tier: doc
+source-tier: mixed
 sources:
+  - "vendor/terraform-provider-zia/CHANGELOG.md"
   - "vendor/terraform-provider-zia/docs/index.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_activation_status.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_admin_roles.md"
@@ -80,6 +83,8 @@ sources:
   - "vendor/terraform-provider-zia/docs/resources/zia_virtual_service_edge_cluster.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_virtual_service_edge_node.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_workload_groups.md"
+  - "vendor/terraform-provider-zia/zia/resource_zia_cloud_app_control_rules.go"
+  - "vendor/terraform-provider-zia/zia/resource_zia_url_categories.go"
 author-status: draft
 ---
 
@@ -206,7 +211,7 @@ Cloud App Control policy rules that allow, block, or isolate access to specific 
 | `applications` | List(String) | Optional; specific cloud app IDs |
 | `cbi_profile` | Block | Optional; Cloud Browser Isolation profile |
 
-Gotcha: ISOLATE actions require a CBI subscription and cannot be mixed with other action types in the same rule. Import by compound key `rule_type:rule_id`.
+Gotcha: ISOLATE actions require a CBI subscription and cannot be mixed with other action types in the same rule. Provider v4.7.23 removed local `MaxItems` caps from `tenancy_profile_ids` and `cloud_app_instances`; treat their effective limits as API-owned, not provider-owned. Import by compound key `rule_type:rule_id`.
 
 ### `zia_cloud_application_instance`
 
@@ -235,6 +240,8 @@ Custom URL categories that can be referenced in URL filtering rules, DLP rules, 
 | `urls` | List(String) | Optional |
 | `keywords` | List(String) | Optional |
 | `val` | Int | Computed; numeric ID used when referencing this category in DLP web rules |
+
+Gotcha: Provider v4.7.23 suppresses URL-order-only diffs for `urls` after import or API readback. Treat set membership changes as meaningful; do not treat a pure URL order change as policy drift.
 
 Gotcha: A maximum of 48 custom URL categories is allowed per tenant. The `val` attribute (not the string ID) must be used when cross-referencing this category in `zia_dlp_web_rules`. Import by numeric ID or name.
 

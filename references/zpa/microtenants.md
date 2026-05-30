@@ -3,9 +3,9 @@ product: zpa
 topic: "microtenants"
 title: "ZPA Microtenants — multi-org isolation within a single tenant"
 content-type: reference
-last-verified: "2026-05-17"
+last-verified: "2026-05-30"
 verified-against:
-  vendor/zscaler-sdk-python: 8d054b1fdd18bcb29722b7051dc282c0d1c86be6
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
 confidence: high
 source-tier: doc
 sources:
