@@ -3,10 +3,11 @@ product: zpa
 topic: "zpa-app-segments"
 title: "ZPA application segment matching"
 content-type: reasoning
-last-verified: "2026-05-23"
+last-verified: "2026-05-30"
 verified-against:
   vendor/terraform-provider-zpa: a3c845f3366cc2267e1b244f9968e727c92bad3d
-  vendor/zscaler-mcp-server: 8409e1661b7f7171bfbb9297e1ecfc61c28b6d92
+  vendor/zscaler-mcp-server: be37fb604a07dc9c5a4c3e009312c4f11acaa6d3
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
 confidence: high
 source-tier: mixed
 sources:
@@ -21,6 +22,7 @@ sources:
   - "vendor/terraform-provider-zpa/docs/resources/zpa_application_segment.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_application_segment_multimatch_bulk.md"
   - "vendor/zscaler-mcp-server/CHANGELOG.md"
+  - "vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py"
 author-status: draft
 ---
 
@@ -107,6 +109,7 @@ A few fields live at the API/TF level but are absent from or under-documented in
   - **`zpnerId`** — Zscaler internal reference identifier.
 
   Callers scripting against the wire directly (HTTP or Go SDK) can set these; Python-SDK callers can only read them out of snapshot JSON.
+- **Browser Access app resources expose `inconsistentConfigDetails`.** The Python SDK model for Browser Access app resources (`AppResource`) now carries the API's `inconsistentConfigDetails` field. Treat it as a server-reported configuration warning attached to the app resource, not as application-segment matching or policy precedence by itself.
 - **Cross-microtenant Move and Share operations** are Go-SDK-only:
   - **`AppSegmentMicrotenantMove`** (`applicationsegment_move/` service) — `POST .../application/{id}/move`. Moves a segment from one microtenant to another.
   - **`AppSegmentMicrotenantShare`** (`applicationsegment_share/` service) — `PUT .../application/{id}/share`. Shares a segment across microtenant boundaries.
