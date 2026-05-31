@@ -4,6 +4,13 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.3.0](https://github.com/dvmrry/zscaler-skill/compare/v0.2.0...v0.3.0) (2026-05-31)
+
+
+### Features
+
+* **refs:** recognize AI Guard coverage ([#55](https://github.com/dvmrry/zscaler-skill/issues/55)) ([476e50e](https://github.com/dvmrry/zscaler-skill/commit/476e50eaef8d1c2ee4affffa9dbeb80daa58d88b))
+
 ## [0.2.0] — 2026-05-18
 
 The `v0.2.0` tag is the release anchor for this entry. 0.2.0 is the

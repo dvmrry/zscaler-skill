@@ -39,5 +39,10 @@ the marker.
 4. Merge the release PR.
 5. Release Please creates the GitHub release and `vX.Y.Z` tag.
 
+Release PRs must still receive the normal hygiene check before merge. If a
+metadata-only release PR reports no checks, add or repair a release-process doc
+change so branch protection evaluates the release boundary instead of merging
+unchecked metadata.
+
 Do not hand-edit tags for ordinary releases. Use manual tags only for historical
 backfills or repairs, and record that decision in the release PR or issue.
