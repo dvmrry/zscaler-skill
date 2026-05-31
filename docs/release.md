@@ -23,6 +23,14 @@ Use conventional commit prefixes for changes that should affect release notes:
 While the project is pre-1.0, breaking changes bump the minor version. Normal
 features also move the minor version; fixes move the patch version.
 
+## Retroactive Feature Markers
+
+If a feature lands before Release Please is active or before the commit uses a
+releasable prefix, add a small follow-up PR with the correct conventional
+commit type and a `Release-As:` footer. Do not edit release tags by hand for
+this case; let Release Please generate the release PR, changelog, and tag from
+the marker.
+
 ## Release Flow
 
 1. Merge normal PRs to `main`.
