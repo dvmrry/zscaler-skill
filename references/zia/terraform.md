@@ -211,7 +211,7 @@ Cloud App Control policy rules that allow, block, or isolate access to specific 
 | `applications` | List(String) | Optional; specific cloud app IDs |
 | `cbi_profile` | Block | Optional; Cloud Browser Isolation profile |
 
-Gotcha: ISOLATE actions require a CBI subscription and cannot be mixed with other action types in the same rule. Provider v4.7.23 removed local `MaxItems` caps from `tenancy_profile_ids` and `cloud_app_instances`; treat their effective limits as API-owned, not provider-owned. Import by compound key `rule_type:rule_id`.
+Gotcha: ISOLATE actions require a CBI subscription and cannot be mixed with other action types in the same rule. Provider v4.7.23 removed local `MaxItems` caps from `tenancy_profile_ids` and `cloud_app_instances` after [zscaler/terraform-provider-zia#577](https://github.com/zscaler/terraform-provider-zia/issues/577) showed API responses with more than eight tenancy profile IDs; treat their effective limits as API-owned, not provider-owned. Import by compound key `rule_type:rule_id`.
 
 ### `zia_cloud_application_instance`
 
@@ -244,6 +244,8 @@ Custom URL categories that can be referenced in URL filtering rules, DLP rules, 
 Gotcha: Provider v4.7.23 suppresses URL-order-only diffs for `urls` after import or API readback. Treat set membership changes as meaningful; do not treat a pure URL order change as policy drift.
 
 Gotcha: A maximum of 48 custom URL categories is allowed per tenant. The `val` attribute (not the string ID) must be used when cross-referencing this category in `zia_dlp_web_rules`. Import by numeric ID or name.
+
+Gotcha: Large custom categories can be expensive during Terraform refresh and planning. Upstream issue [zscaler/terraform-provider-zia#575](https://github.com/zscaler/terraform-provider-zia/issues/575) reported an approximately 20,000-URL category taking about 18 minutes during plan/refresh. v4.7.22 attempted to reduce URL diff churn but introduced a `SetNew only operates on computed keys` failure; v4.7.23 is the relevant fixed baseline for large imported categories.
 
 ### `zia_url_categories_predefined`
 
@@ -863,6 +865,8 @@ Location and sub-location objects that represent physical or logical network loc
 | `auth_required` | Bool | Optional |
 
 Gotcha: A location must have either `ip_addresses` or `vpn_credentials` (or both). Sub-locations are created by specifying `parent_id`. Import by numeric ID or name.
+
+Gotcha: `dynamic_location_groups` support is version-sensitive and currently ambiguous in the Terraform provider. Earlier provider work added manual and dynamic location-group fields to `zia_location_management`, but v4.6.0 later removed or commented out dynamic-group handling while preserving static/manual group behavior. See [clarification zia-46](../_meta/clarifications.md#zia-46-terraform-provider-dynamic-location-groups-removal) before treating Terraform location-management state as authoritative for Dynamic Location Group membership.
 
 ---
 

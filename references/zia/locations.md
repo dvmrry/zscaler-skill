@@ -13,6 +13,9 @@ sources:
   - "vendor/zscaler-help/understanding-sublocations.md"
   - "vendor/zscaler-help/configuring-manual-location-groups.md"
   - "vendor/zscaler-help/configuring-dynamic-location-groups.md"
+  - "vendor/terraform-provider-zia/CHANGELOG.md"
+  - "vendor/terraform-provider-zia/docs/resources/zia_location_management.md"
+  - "vendor/terraform-provider-zia/zia/resource_zia_location_management.go"
   - "vendor/ziacloud-ansible/plugins/modules/zia_location_management.py"
 author-status: draft
 ---
@@ -197,6 +200,8 @@ Source: `vendor/zscaler-help/configuring-dynamic-location-groups.md`.
    **What's also NOT verified** (still tier-C, tracked as a candidate): whether other "the"-article countries (Bahamas, Gambia, Philippines, etc.) exhibit the same read-side stripping against ZIA. The verified data point is Netherlands specifically; extrapolation to other countries is reasonable inference but not source-confirmed. Treat extension to other countries as tier-D inference until a second country is reproducibly observed.
 
    Cross-listed in [`./api.md § Read/write shape asymmetries`](./api.md).
+
+8. **Terraform `dynamic_location_groups` support regressed or was intentionally removed in v4.6.0; rationale unconfirmed.** Upstream issue [zscaler/terraform-provider-zia#355](https://github.com/zscaler/terraform-provider-zia/issues/355) indicates the provider added Manual and Dynamic Location Group attributes to `zia_location_management` in v2.91.3. Later v4.6.0 work ([zscaler/terraform-provider-zia#496](https://github.com/zscaler/terraform-provider-zia/pull/496)) removed or commented out dynamic-location-group schema/read/write handling while the changelog only calls out static location-group drift. Treat Terraform support for Dynamic Location Groups as provider-version-sensitive and unresolved; do not infer that the ZIA product feature is deprecated solely because the Terraform provider stopped exposing the field. Tracked as [clarification zia-46](../_meta/clarifications.md#zia-46-terraform-provider-dynamic-location-groups-removal).
 
 ## Cross-links
 
