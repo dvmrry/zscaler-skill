@@ -1332,7 +1332,7 @@ Data sources have the same names as corresponding resources (prefix `data.zia_*`
 
 | Data Source | Reads |
 |---|---|
-| `zia_firewall_filtering_rule` | Firewall filtering rule by name or ID |
+| `zia_firewall_filtering_rule` | Firewall filtering rule by name or ID. As of terraform-provider-zia v4.7.21, upstream issue [zscaler/terraform-provider-zia#568](https://github.com/zscaler/terraform-provider-zia/issues/568) added list-all retrieval with local JMESPath `search` support for this data source. Do not assume the same list-all behavior exists for every rule data source; provider maintainers called out endpoint pagination limits in that thread. |
 | `zia_firewall_dns_rule` | Firewall DNS Control rule by name or ID |
 | `zia_firewall_ips_rule` | Firewall IPS Control rule by name or ID |
 | `zia_ips_signature_rules` | Custom IPS signature rule by name or ID |
