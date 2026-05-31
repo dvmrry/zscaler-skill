@@ -3,7 +3,7 @@ product: zia
 topic: "tenant-profiles"
 title: "Tenant Profiles — SaaS tenant restriction (corporate-only access)"
 content-type: reasoning
-last-verified: "2026-04-28"
+last-verified: "2026-05-30"
 confidence: medium
 source-tier: mixed
 sources:
@@ -11,6 +11,7 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zia/models/tenancy_restriction_profile.py"
   - "vendor/zscaler-help/about-tenant-profiles.md"
   - "vendor/zscaler-help/adding-tenant-profiles.md"
+  - "vendor/terraform-provider-zia/docs/resources/zia_cloud_app_control_rule.md"
   - "vendor/terraform-provider-zia/zia/resource_zia_tenant_restriction_profile.go"
   - "vendor/terraform-provider-zia/zia/data_source_zia_tenant_restriction_profile.go"
 author-status: draft
@@ -172,6 +173,9 @@ Tenant restriction profiles are referenced in CAC rules. The 127-rules-per-categ
 
 **8. Profile deletion does not cascade to CAC rules.**
 Deleting a Tenant Profile that is referenced by an active CAC rule leaves a stale reference. ZIA does not prevent this operation or warn about dependent rules. Audit dependent CAC rules before deleting a profile.
+
+**9. Terraform provider versions before v4.7.23 capped CAC tenant profile references too low.**
+Upstream issue [zscaler/terraform-provider-zia#577](https://github.com/zscaler/terraform-provider-zia/issues/577) reported that `zia_cloud_app_control_rule.tenancy_profile_ids` was limited to eight IDs by provider schema even though the API can return more. The provider removed local caps from `tenancy_profile_ids` and `cloud_app_instances` in v4.7.23. Treat the effective limit as API-owned, not provider-owned; if a tenant uses more than eight tenant profiles in one CAC rule, require provider v4.7.23 or later before interpreting the plan as policy drift.
 
 ## Cross-links
 

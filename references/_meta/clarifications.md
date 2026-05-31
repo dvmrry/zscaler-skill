@@ -3,7 +3,7 @@ product: meta
 topic: "clarifications-index"
 title: "Clarification index — open questions across references"
 content-type: reference
-last-verified: "2026-05-18"
+last-verified: "2026-05-30"
 confidence: high
 sources: []
 author-status: reviewed
@@ -77,8 +77,8 @@ Each entry follows this template. Body is narrative — the existing zia-01 entr
 
 ## Status summary
 
-Skim this before reading the full entries. Summary refreshed 2026-05-18:
-20 entries are resolved or clarified, 17 are partially resolved, and 152 remain
+Skim this before reading the full entries. Summary refreshed 2026-05-30:
+20 entries are resolved or clarified, 17 are partially resolved, and 153 remain
 open. Most open entries require lab tests, tenant snapshots, operator
 experience, or vendor confirmation rather than more public-doc reading.
 
@@ -119,7 +119,7 @@ experience, or vendor confirmation rather than more public-doc reading.
 
 ### Open
 
-`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-45`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-19`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `shared-20`–`shared-27`, `zcc-08`–`zcc-75`.
+`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-46`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-19`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `shared-20`–`shared-27`, `zcc-08`–`zcc-75`.
 
 Partial / SDK-mined (resolved via code read or help-doc capture; full lab confirmation pending): `zcc-01`, `zcc-02`, `zcc-03`, `zcc-04`, `zcc-05`, `zcc-06`, `zcc-07`, **`log-04`** (field name + illustrative values confirmed via `web-log-schema.md`; full enum of `ruletype` / `reason` values still needs a tenant export). All six ZCC enum clarifications had their **datatype** (int vs string) resolved by the Go SDK cross-check on 2026-04-24; the integer-to-meaning mapping remains open for `zcc-01` through `zcc-04` and `zcc-06`.
 
@@ -1663,6 +1663,35 @@ The exact sync frequency per IdP (Okta event-triggered vs scheduled batch, Entra
 
 **Status**: open
 **Resolves with**: zscaler doc not yet read (per-IdP SCIM configuration guides) — the IdP documentation is authoritative for cadence behavior
+
+---
+
+### zia-46 — Terraform provider dynamic location groups removal
+
+*Origin: `references/zia/locations.md` § Surprises worth flagging*
+
+Why did the Terraform provider remove or comment out `dynamic_location_groups`
+handling in `zia_location_management` during the v4.6.0 era after earlier
+provider work added Manual and Dynamic Location Group attributes? Was the field
+deprecated by the ZIA API, temporarily removed due provider drift, moved to a
+separate API/resource shape, or intentionally hidden because dynamic membership
+is read-only/API-derived?
+
+**Status**: open — last updated 2026-05-30
+**Resolves with**: support ticket OR upstream maintainer comment OR code read
+against provider history plus live API behavior
+**Blocks**: deterministic guidance for managing Dynamic Location Group
+membership through Terraform. Public docs still describe Dynamic Location
+Groups as a ZIA product feature, so provider removal must not be interpreted as
+product deprecation without additional evidence.
+
+Known evidence: [zscaler/terraform-provider-zia#355](https://github.com/zscaler/terraform-provider-zia/issues/355)
+states that v2.91.3 added Manual and Dynamic Location Group attributes to
+`zia_location_management`. Later v4.6.0 work
+([zscaler/terraform-provider-zia#496](https://github.com/zscaler/terraform-provider-zia/pull/496))
+removed or commented dynamic-location-group handling while release notes only
+call out static location-group drift. The missing rationale is the clarification
+gap.
 
 ---
 
