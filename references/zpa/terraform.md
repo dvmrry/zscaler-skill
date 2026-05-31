@@ -323,6 +323,7 @@ Associates app connectors with backend servers. All application segments referen
 **Gotchas:**
 - `servers` block is mandatory when `dynamic_discovery = false`; omitting it causes a plan error.
 - Extranet connectivity requires `extranet_enabled = true` at the group level before `extranet_dto` is applied.
+- Destroying a Terraform-managed Server Group can create noisy App Segment update history. As of terraform-provider-zpa v4.4.4, upstream issue [zscaler/terraform-provider-zpa#658](https://github.com/zscaler/terraform-provider-zpa/issues/658) reports that `zpa_server_group` deletion updates every App Segment, not only segments that referenced the deleted group. Treat Server Group destroys as change-window operations and cross-check [`segment-server-groups.md`](./segment-server-groups.md) before relying on audit history during the same window.
 
 Source: `vendor/terraform-provider-zpa/docs/resources/zpa_server_group.md`.
 

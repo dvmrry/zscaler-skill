@@ -151,6 +151,22 @@ When asked to add new content, choose the surface deliberately:
 
 Default to a markdown file in `references/` unless the content shape genuinely calls for a curated HTML synthesis.
 
+### Promoting reference groups into curated Pages
+
+Every `references/<group>/` folder is exposed automatically through `docs/source.html`; that source-browser exposure is the default and does not imply a homepage card, top-nav item, curated hub, or full guide page.
+
+Use curated Pages surfaces deliberately:
+
+| Promotion target | Use when |
+|---|---|
+| Source browser only | The group is narrow, emerging, optional, integration-specific, or still mostly source/reference capture. |
+| Homepage card | The group is a common reader entry point or platform pillar with enough maintained references to justify a front-door pointer. |
+| Top navigation | The group is one of the highest-signal platform foundations and should stay visible across the docs site. Keep this list sparse. |
+| `docs/<group>/index.html` hub | The group has multiple maintained pages that need a curated reading path beyond the source tree. |
+| Full `guide.html` | The group has stable scope, enough cross-linked material, and a clear operator workflow that benefits from synthesis. |
+
+When adding a new `references/<group>/`, record the intended docs posture in the PR: source-browser-only, homepage card, top-nav, curated hub, or full guide. Do not silently promote every new reference group into curated Pages.
+
 ## File-naming semantics across layers
 
 The skill uses parallel naming conventions across `references/` (markdown source) and `docs/` (rendered HTML). Use the same name for the same conceptual role:
