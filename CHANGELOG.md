@@ -4,6 +4,13 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.4.0](https://github.com/dvmrry/zscaler-skill/compare/v0.3.0...v0.4.0) (2026-06-02)
+
+
+### Features
+
+* **zcc:** track Terraform provider coverage ([#59](https://github.com/dvmrry/zscaler-skill/issues/59)) ([c2d7442](https://github.com/dvmrry/zscaler-skill/commit/c2d74424aafc3cc6b463515e3885fef8bb846ad4))
+
 ## [0.3.0](https://github.com/dvmrry/zscaler-skill/compare/v0.2.0...v0.3.0) (2026-05-31)
 
 
