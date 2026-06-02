@@ -114,9 +114,10 @@ For a claim about API behavior:
 1. **TF provider validator** — `vendor/terraform-provider-{zia,zpa,zcc,ztc}/**/validator.go`, `**/resource_*.go` (`ValidateFunc`, `StringInSlice`, map-based validator patterns).
 2. **Python SDK model** — `vendor/zscaler-sdk-python/zscaler/<product>/models/*.py` (constants, dataclass field types, validators).
 3. **Go SDK model + service** — `vendor/zscaler-sdk-go/zscaler/<product>/services/**/*.go` (struct tags, enum constants).
-4. **Vendored help captures** — `vendor/zscaler-help/*.md` (text matches).
-5. **Upstream issues** — `gh issue list --repo zscaler/<repo> --search "<term>"` for already-discussed problems.
-6. **`scripts/find-asymmetries.py` output** — `_data/schemas/asymmetry-candidates.md` for cross-source mismatches the script already surfaced.
+4. **Postman collection** — `vendor/zscaler-api-specs/oneapi-postman-collection.json` (request/response examples).
+5. **Vendored help captures** — `vendor/zscaler-help/*.md` (text matches).
+6. **Upstream issues** — `gh issue list --repo zscaler/<repo> --search "<term>"` for already-discussed problems.
+7. **`scripts/find-asymmetries.py` output** — `_data/schemas/asymmetry-candidates.md` for cross-source mismatches the script already surfaced.
 
 If steps 1–7 yield nothing, the claim stays tier C.
 
