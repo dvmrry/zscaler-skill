@@ -59,7 +59,7 @@ contain a private data source URL.
 
 **Fork-customization placeholder for production Infrastructure-as-Code.** Empty in the public upstream skill. Each fork populates this with their org's actual deployed IaC for Zscaler resources — Terraform, CloudFormation, Pulumi, whatever the org uses.
 
-The skill's vendored reference IaC lives separately at `vendor/terraform-provider-zia/`, `vendor/terraform-provider-zpa/`, `vendor/terraform-provider-ztc/` — those show *one valid way* to deploy each resource per Zscaler's published modules. When `_data/iac/` is populated, agents treat it as **production truth** for "how is X actually deployed in our environment" while vendor IaC stays useful for "what's possible / what fields exist."
+The skill's vendored provider source lives separately at `vendor/terraform-provider-zia/`, `vendor/terraform-provider-zpa/`, `vendor/terraform-provider-zcc/`, and `vendor/terraform-provider-ztc/`; vendored deployment examples or modules live separately under `vendor/terraform-*-modules/` when present. When `_data/iac/` is populated, agents treat it as **production truth** for "how is X actually deployed in our environment" while vendor source stays useful for "what's possible / what fields exist."
 
 See [`./iac.md`](./iac.md) for the full convention, structure options, and sanitization guidance.
 
@@ -76,12 +76,15 @@ case directory's `evidence/` folder.
 
 Current generated files written here:
 
-- `_data/schemas/issues-new.md` — `scripts/issue-watch.py` weekly digest output
-- `_data/schemas/issue-watch-state.json` — `scripts/issue-watch.py` cursor state
 - `_data/schemas/asymmetry-candidates.md` — `scripts/find-asymmetries.py` output
 - `_data/schemas/hygiene-digest.md` — `scripts/check-hygiene.py --digest` output
 
 No subdir convention — flat. Scripts that want their own scratch namespace can create subdirs at will (e.g., `_data/schemas/sweeps/<date>/`).
+
+Issue-watch output lives under `_data/logs/`:
+
+- `_data/logs/issues-new.md` — `scripts/issue-watch.py` weekly digest output
+- `_data/logs/issue-watch-state.json` — `scripts/issue-watch.py` cursor state
 
 ### `_data/snapshot/`
 

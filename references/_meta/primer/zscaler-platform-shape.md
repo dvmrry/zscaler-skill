@@ -74,7 +74,7 @@ Replaces VPN. Users authenticate per-app (not per-network), each app has its own
 ### Workload / branch traffic layer
 
 #### **Cloud & Branch Connector (CBC / ZTW / ZTC)** — workload-side traffic forwarding
-VM-based gateway for cloud workloads (AWS / Azure / GCP) and branch offices. Routes their traffic into the Zscaler cloud the way ZCC routes user traffic. Five marketing names for the same product family.
+VM-based gateway for cloud workloads (AWS / Azure / GCP) and branch offices. It plays an analogous forwarding role for workload and branch traffic, but is implemented as VM/appliance infrastructure rather than the ZCC endpoint agent. Five marketing names for the same product family.
 
 ### Observability layer
 

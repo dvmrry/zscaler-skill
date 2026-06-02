@@ -111,7 +111,7 @@ When a user reports a behavior:
 
 For a claim about API behavior:
 
-1. **TF provider validator** — `vendor/terraform-provider-{zia,zpa,ztc}/**/validator.go`, `**/resource_*.go` (`ValidateFunc`, `StringInSlice`, map-based validator patterns).
+1. **TF provider validator** — `vendor/terraform-provider-{zia,zpa,zcc,ztc}/**/validator.go`, `**/resource_*.go` (`ValidateFunc`, `StringInSlice`, map-based validator patterns).
 2. **Python SDK model** — `vendor/zscaler-sdk-python/zscaler/<product>/models/*.py` (constants, dataclass field types, validators).
 3. **Go SDK model + service** — `vendor/zscaler-sdk-go/zscaler/<product>/services/**/*.go` (struct tags, enum constants).
 4. **Postman collection** — `vendor/zscaler-api-specs/oneapi-postman-collection.json` (request/response examples).

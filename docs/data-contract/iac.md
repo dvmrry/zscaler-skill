@@ -4,9 +4,9 @@
 
 ## Why this exists
 
-The skill ships with **Zscaler's reference IaC** vendored under `vendor/terraform-provider-zia/`, `vendor/terraform-provider-zpa/`, `vendor/terraform-provider-ztc/`, and `vendor/zscaler-mcp-server/`. Those modules show *one* valid way to deploy each resource — they're useful for understanding what fields the API accepts, what defaults Zscaler ships, and what patterns Zscaler considers idiomatic. They are **reference implementations**, not specification.
+The skill ships with Zscaler Terraform provider source under `vendor/terraform-provider-zia/`, `vendor/terraform-provider-zpa/`, `vendor/terraform-provider-zcc/`, and `vendor/terraform-provider-ztc/`. Those repositories are useful for understanding resource schemas, validation rules, and provider coverage. Deployment examples or modules, when vendored, live separately under `vendor/terraform-*-modules/`. Provider source and example modules are reference material, not production truth.
 
-When your fork's `iac/` is populated, agents will treat it as **production truth** for "how is X actually deployed in our environment" questions. Vendored reference IaC stays useful for "what's possible" and field-level shape questions. Where the two diverge, your `iac/` wins for env-specific answers.
+When your fork's `iac/` is populated, agents will treat it as **production truth** for "how is X actually deployed in our environment" questions. Vendored providers and modules stay useful for "what's possible" and field-level shape questions. Where the two diverge, your `iac/` wins for env-specific answers.
 
 ## Routing precedence (post-fork)
 
@@ -14,7 +14,7 @@ When your fork's `iac/` is populated, agents will treat it as **production truth
 |---|---|
 | "How does our X get deployed?" | `iac/` (production truth) |
 | "What fields does the API accept for X?" | `vendor/zscaler-sdk-python/` + `vendor/terraform-provider-*` (API contract) |
-| "What's the recommended way to deploy X?" | `vendor/terraform-provider-*` reference modules + `vendor/zscaler-help/` (Zscaler guidance) |
+| "What's the recommended way to deploy X?" | `vendor/terraform-*-modules/` when present + `vendor/zscaler-help/` (Zscaler guidance) |
 | "Why doesn't our X work?" | `iac/` first (compare to deployed state), then reference for "how Zscaler intends it" |
 
 ## Suggested structure

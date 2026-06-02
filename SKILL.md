@@ -81,14 +81,14 @@ If empty, say so explicitly (see **When to decline**) and still answer the gener
 
 `_data/schemas/` is a separate cache for log-schema decompositions, query skeletons, and script-generated reports (gitignored; populated by scripts such as `splunk-query.sh`, `issue-watch.py`, and `find-asymmetries.py`). Raw logs are a validation layer, not a primary source — see **When to consult logs** below.
 
-## Reference IaC vs production IaC
+## Vendor source vs production IaC
 
-The skill ships with **Zscaler's reference IaC** under `vendor/terraform-provider-{zia,zpa,ztc}/` — those are the canonical Zscaler-published Terraform providers. They show one valid way to deploy each resource and are authoritative for what fields the API accepts and what shapes Zscaler considers idiomatic. **They are reference implementations, not specification.** A different working IaC implementation isn't wrong.
+The skill ships with Zscaler Terraform provider source under `vendor/terraform-provider-{zia,zpa,zcc,ztc}/`. Those repositories are useful for resource schemas, validation rules, provider coverage, and field-level shapes. Deployment examples or modules, when vendored, live separately under `vendor/terraform-*-modules/`. Provider source and example modules are reference material, not production truth.
 
-If a fork has populated `_data/iac/` (empty in upstream), treat that as **production truth** for "how is X actually deployed in our environment" questions. The reference IaC under `vendor/` remains useful for "what's possible" / "what fields exist" / "what defaults Zscaler ships." Where the two diverge for a specific deployment, prefer `_data/iac/` for env-specific answers and cite the reference for context.
+If a fork has populated `_data/iac/` (empty in upstream), treat that as **production truth** for "how is X actually deployed in our environment" questions. The source under `vendor/` remains useful for "what's possible" / "what fields exist" / "what defaults Zscaler ships." Where the two diverge for a specific deployment, prefer `_data/iac/` for env-specific answers and cite the reference for context.
 
 ```bash
-find _data/iac -mindepth 1 -type f -print -quit   # check before assuming reference IaC reflects this fork's deployment
+find _data/iac -mindepth 1 -type f -print -quit   # check before assuming vendor source reflects this fork's deployment
 ```
 
 See [`docs/data-contract/iac.md`](docs/data-contract/iac.md) for the precedence rules and structure.
