@@ -136,7 +136,7 @@ There is no `ssl_inspection` or `certificate_trust` service module in the ZCC SD
 
 ### Terraform
 
-There is no ZCC Terraform provider in the vendor sources. SSL inspection configuration for ZCC users is managed via:
+The vendored ZCC Terraform provider exists, but it does not expose a dedicated ZCC SSL-inspection or certificate-trust resource in the pinned source. SSL inspection configuration for ZCC users is managed via:
 
 - ZCC Portal (App Profile settings)
 - ZIA Terraform provider (`terraform-provider-zia`) for the ZIA-side SSL inspection policy (`resource_zia_ssl_inspection_rules.go`)

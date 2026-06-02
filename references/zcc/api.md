@@ -3,18 +3,19 @@ product: zcc
 topic: "zcc-api"
 title: "ZCC API surface — endpoints, wire format, SDK methods"
 content-type: reference
-last-verified: "2026-04-24"
+last-verified: "2026-06-02"
 confidence: medium
 source-tier: code
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zcc/"
   - "vendor/zscaler-sdk-python/docsrc/zs/zcc/"
+  - "vendor/terraform-provider-zcc/docs/index.md"
 author-status: draft
 ---
 
 # ZCC API surface
 
-Endpoint prefixes, authentication notes, and SDK method summary for the ZCC (Zscaler Client Connector) portal API.
+Endpoint prefixes, authentication notes, and SDK method summary for the ZCC (Zscaler Client Connector) portal API. For Terraform resource and data-source coverage, see [`./terraform.md`](./terraform.md).
 
 ## Base endpoint
 

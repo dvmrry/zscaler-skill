@@ -28,7 +28,7 @@ PASS DESIGN
 ------------------------------------------------------------------------
 
 Pass 1 — TF validator extraction + cross-source diff (IMPLEMENTED)
-    Walk all `*.go` files in vendor/terraform-provider-{zia,zpa,ztc}/.
+    Walk all `*.go` files in the vendored Zscaler Terraform providers.
     Extract three complementary validator patterns:
       (a) `validation.StringInSlice([]string{...}, false)` — inline schema
           validators. Bound to nearest preceding `"field_name": {`.
@@ -38,6 +38,9 @@ Pass 1 — TF validator extraction + cross-source diff (IMPLEMENTED)
       (c) `var <name> = []string{...}` — global named string slice used as
           allowlist (e.g., supportedLocationManagementCountries). Bound to
           the var name as the field. ZTC pattern.
+      (d) `stringvalidator.OneOf(...)`, `stringvalidator.OneOfCaseInsensitive(...)`,
+          and `int64validator.OneOf(...)` — Terraform Plugin Framework validators.
+          Bound to the nearest preceding `schema.*Attribute{` field. ZCC pattern.
     (b) and (c) added 2026-04-25 after the tz THE_NETHERLANDS finding was
     missed by (a) alone.
 
@@ -98,6 +101,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 TF_PROVIDERS = [
     ("zia", REPO_ROOT / "vendor" / "terraform-provider-zia" / "zia"),
     ("zpa", REPO_ROOT / "vendor" / "terraform-provider-zpa" / "zpa"),
+    ("zcc", REPO_ROOT / "vendor" / "terraform-provider-zcc" / "internal" / "framework"),
     ("ztc", REPO_ROOT / "vendor" / "terraform-provider-ztc" / "ztc"),
 ]
 POSTMAN_COLLECTION = REPO_ROOT / "vendor" / "zscaler-api-specs" / "oneapi-postman-collection.json"
@@ -119,7 +123,7 @@ class Validator:
     field: str  # inline: schema field name; map-based or slice-based: var name
     values: tuple
     line: int
-    kind: str  # "stringinslice", "mapstruct", or "stringslice"
+    kind: str  # "stringinslice", "mapstruct", "stringslice", or "frameworkoneof"
 
 
 # ---- Inline StringInSlice extraction (Pass 1a) ----
@@ -128,7 +132,9 @@ INLINE_VALIDATOR_RE = re.compile(
     re.DOTALL,
 )
 VALUE_RE = re.compile(r'"([^"]*)"')
-FIELD_NAME_RE = re.compile(r'"([a-z_][a-z0-9_]*)"\s*:\s*\{')
+FIELD_NAME_RE = re.compile(
+    r'"([a-z_][a-z0-9_]*)"\s*:\s*(?:\{|(?:schema\.)?\w+Attribute\s*\{)'
+)
 
 
 def extract_inline_validators(provider: str, path: Path, content: str) -> list[Validator]:
@@ -248,6 +254,48 @@ def extract_slice_validators(provider: str, path: Path, content: str) -> list[Va
     return out
 
 
+# ---- Terraform Plugin Framework OneOf extraction (Pass 1d, added for ZCC) ----
+FRAMEWORK_ONEOF_RE = re.compile(
+    r"(?:stringvalidator|int64validator)\.OneOf(?:CaseInsensitive)?\((.*?)\)",
+    re.DOTALL,
+)
+FRAMEWORK_VALUE_RE = re.compile(r'"([^"]*)"|(?<![\w.])(-?\d+)(?![\w.])')
+
+
+def extract_framework_oneof_validators(provider: str, path: Path, content: str) -> list[Validator]:
+    """Find Terraform Plugin Framework OneOf validators with literal args.
+
+    Some framework validators pass helper-returned slices such as
+    `helpers.PlatformNames()...`; those require cross-file resolution and are
+    intentionally skipped here. Literal string and int allowlists are still
+    useful drift signals.
+    """
+    out = []
+    for m in FRAMEWORK_ONEOF_RE.finditer(content):
+        values = []
+        for string_val, int_val in FRAMEWORK_VALUE_RE.findall(m.group(1)):
+            values.append(string_val or int_val)
+        values = tuple(sorted(set(values)))
+        if not values:
+            continue
+        prefix = content[: m.start()]
+        last_match = None
+        for fm in FIELD_NAME_RE.finditer(prefix):
+            last_match = fm
+        field_name = last_match.group(1) if last_match else "<unknown>"
+        out.append(
+            Validator(
+                provider=provider,
+                resource_file=path.name,
+                field=field_name,
+                values=values,
+                line=content[: m.start()].count("\n") + 1,
+                kind="frameworkoneof",
+            )
+        )
+    return out
+
+
 def collect_all_validators() -> list[Validator]:
     all_v: list[Validator] = []
     for provider, root in TF_PROVIDERS:
@@ -261,6 +309,7 @@ def collect_all_validators() -> list[Validator]:
             all_v.extend(extract_inline_validators(provider, path, content))
             all_v.extend(extract_map_validators(provider, path, content))
             all_v.extend(extract_slice_validators(provider, path, content))
+            all_v.extend(extract_framework_oneof_validators(provider, path, content))
     return all_v
 
 
@@ -480,6 +529,7 @@ def find_candidates(validators: list[Validator]) -> dict:
         "inline_count": sum(1 for v in validators if v.kind == "stringinslice"),
         "map_count": sum(1 for v in validators if v.kind == "mapstruct"),
         "slice_count": sum(1 for v in validators if v.kind == "stringslice"),
+        "framework_count": sum(1 for v in validators if v.kind == "frameworkoneof"),
     }
 
 
@@ -537,7 +587,8 @@ def render_report(candidates: dict) -> str:
         f"- Total validators: {candidates['total_validators']} "
         f"({candidates['inline_count']} inline StringInSlice, "
         f"{candidates['map_count']} map[string]struct{{}}, "
-        f"{candidates['slice_count']} named []string)",
+        f"{candidates['slice_count']} named []string, "
+        f"{candidates['framework_count']} framework OneOf)",
         f"- Unique field/var names: {candidates['unique_fields']}",
         f"- Cross-provider mismatches: {len(candidates['cross_provider'])}",
         f"- Intra-provider mismatches: {len(candidates['intra_provider'])}",
@@ -655,7 +706,8 @@ def main() -> int:
     print(
         f"  Pass 1: {candidates['total_validators']} validators "
         f"({candidates['inline_count']} inline + {candidates['map_count']} map-based + "
-        f"{candidates['slice_count']} slice-based) "
+        f"{candidates['slice_count']} slice-based + "
+        f"{candidates['framework_count']} framework OneOf) "
         f"across {candidates['unique_fields']} unique field/var names"
     )
     print(f"    {len(candidates['cross_provider'])} cross-provider mismatches")

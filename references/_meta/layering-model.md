@@ -26,7 +26,7 @@ The skill answers questions by combining three distinct **knowledge layers**. Ea
 - `references/**/*.md` — every reasoning and reference doc.
 - `vendor/zscaler-help/**/*.md`, `*.pdf` — captured help articles and refarch PDFs.
 - `vendor/zscaler-sdk-{python,go}/` — SDK source.
-- `vendor/terraform-provider-{zia,zpa,ztc}/` — TF provider schemas.
+- `vendor/terraform-provider-{zia,zpa,zcc,ztc}/` — TF provider schemas.
 - `vendor/zscaler-api-specs/` — Postman collection.
 - `references/_meta/primer/` — prerequisite networking + identity knowledge.
 

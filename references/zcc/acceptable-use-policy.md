@@ -3,7 +3,7 @@ product: zcc
 topic: acceptable-use-policy
 title: "ZCC Acceptable Use Policy — in-app prompt for compliance and consent gating"
 content-type: reference
-last-verified: "2026-04-27"
+last-verified: "2026-06-02"
 confidence: medium
 source-tier: doc
 sources:
@@ -11,6 +11,9 @@ sources:
   - "vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md"
   - "vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md"
   - "vendor/zscaler-sdk-go/zscaler/zcc/services/admin_roles/admin_roles.go"
+  - "vendor/terraform-provider-zcc/docs/index.md"
+  - "vendor/terraform-provider-zcc/docs/resources/zcc_notification_template.md"
+  - "vendor/terraform-provider-zcc/docs/data-sources/zcc_notification_template.md"
   - "vendor/zscaler-help/ranges-limitations-zia.md"
 author-status: draft
 ---
@@ -132,7 +135,11 @@ There is no AUP or notifications service package under `vendor/zscaler-sdk-go/zs
 
 ### Terraform
 
-There is no ZCC Terraform provider in the vendor sources (`vendor/` contains terraform-provider-zia, terraform-provider-zpa, and terraform-provider-ztc — no terraform-provider-zcc). The ZIA provider has `resource_zia_end_user_notification.go` which manages the ZIA web-block-page AUP fields (`aup_frequency`, `aup_custom_frequency`, `aup_day_offset`, `aup_message`) — this is a ZIA construct, not ZCC (Tier B — SDK/TF).
+The vendored ZCC Terraform provider exists at `vendor/terraform-provider-zcc/`, but the pinned provider surface does not expose a ZCC AUP resource or data source. It covers forwarding profiles, trusted networks, fail-open policy, device cleanup, web privacy, ZIA posture, notification templates, and related read-only data sources. See [`./terraform.md`](./terraform.md) for the current provider catalog.
+
+The ZCC provider's `zcc_notification_template` resource manages end-user notification templates and ZIA/ZPA notification toggles. It does not expose the AUP frequency or AUP message fields documented in the ZCC Portal AUP settings page.
+
+The ZIA provider has `resource_zia_end_user_notification.go` which manages the ZIA web-block-page AUP fields (`aup_frequency`, `aup_custom_frequency`, `aup_day_offset`, `aup_message`) — this is a ZIA construct, not ZCC (Tier B — SDK/TF).
 
 The ZPA provider has `resource_zpa_user_portal_aup.go` which manages the ZPA user portal AUP — also a separate construct.
 

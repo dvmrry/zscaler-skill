@@ -3,7 +3,7 @@ product: zcc
 topic: "zcc-index"
 title: "ZCC reference hub"
 content-type: reference
-last-verified: "2026-04-24"
+last-verified: "2026-06-02"
 confidence: medium
 sources: []
 author-status: draft
@@ -41,6 +41,7 @@ Almost every ZIA or ZPA answer leans on ZCC implicitly. "User X is blocked" migh
 | **Support options** — built-in diagnostics, feedback submission, self-service controls available to end users; Send Feedback log packaging | [`./support-options.md`](./support-options.md) | draft |
 | **Troubleshooting** — error codes, common failure modes (tunnel down, enrollment failure, proxy bypass), diagnostic workflow | [`./troubleshooting.md`](./troubleshooting.md) | draft |
 | **ZCC SDK** — Python and Go service catalog (`client.zcc.*`); method summary; legacy vs OneAPI auth paths; rate-limit client behavior | [`./sdk.md`](./sdk.md) | draft |
+| **ZCC Terraform provider** — resource/data-source catalog for `terraform-provider-zcc`; OneAPI-only auth; automation coverage boundaries | [`./terraform.md`](./terraform.md) | draft |
 | **API rate limits** — 100 calls/hour general cap, 3 calls/day download endpoints, `X-Rate-Limit-*` headers, retry semantics, bulk UDID batching, pagination discipline | [`./api-rate-limits.md`](./api-rate-limits.md) | draft |
 | **API schemas** — full ZCC REST endpoint catalog with request/response shapes derived from the SDK | [`./api-schemas.md`](./api-schemas.md) | draft |
 | **SSL inspection (ZCC)** — client-side SSL trust / inspection behavior, certificate handling on the device | [`./ssl-inspection-zcc.md`](./ssl-inspection-zcc.md) | draft |

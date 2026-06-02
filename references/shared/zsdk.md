@@ -37,7 +37,7 @@ The value proposition: back-end APIs and services are deployed behind App Connec
 | Who installs it | App developer embeds SDK in app | IT deploys agent to managed device | IT deploys App Connector; user accesses via ZCC or browser |
 | Target user | Consumer mobile app user | Enterprise employee | Enterprise employee |
 | Admin portal | `admin.zsdkone.net` (ZSDK-specific cloud) | ZCC Portal | ZPA Admin Portal |
-| Terraform / SDK support | None — portal-only | ZCC SDK (Python/Go); no Terraform provider | ZPA SDK (Python/Go); Terraform provider |
+| Terraform / SDK support | None — portal-only | ZCC SDK (Python/Go); Terraform provider with partial coverage | ZPA SDK (Python/Go); Terraform provider |
 | mTLS tunnel | App Connector → ZSDK Public Service Edge | Z-Tunnel to ZIA PSE / ZPA microtunnel | App Connector → ZPA cloud |
 | Platform scope | iOS, Android native + hybrid apps | Windows, macOS, Linux, iOS, Android, ChromeOS | Any client via ZCC or browser (Browser Access) |
 

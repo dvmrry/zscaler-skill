@@ -9,6 +9,8 @@ Upstream Zscaler sources, vendored as git submodules at pinned commits.
 | `zscaler-sdk-python/` | [`zscaler/zscaler-sdk-python`](https://github.com/zscaler/zscaler-sdk-python) | Python SDK; canonical API coverage and auth flows |
 | `terraform-provider-zia/` | [`zscaler/terraform-provider-zia`](https://github.com/zscaler/terraform-provider-zia) | ZIA TF resource schemas and gotchas |
 | `terraform-provider-zpa/` | [`zscaler/terraform-provider-zpa`](https://github.com/zscaler/terraform-provider-zpa) | ZPA TF resource schemas and gotchas |
+| `terraform-provider-zcc/` | [`zscaler/terraform-provider-zcc`](https://github.com/zscaler/terraform-provider-zcc) | ZCC TF resource schemas and automation coverage boundaries |
+| `terraform-provider-ztc/` | [`zscaler/terraform-provider-ztc`](https://github.com/zscaler/terraform-provider-ztc) | Cloud Connector / ZTC TF resource schemas and gotchas |
 | `zscaler-mcp-server/` | [`zscaler/zscaler-mcp-server`](https://github.com/zscaler/zscaler-mcp-server) | Zscaler-authored operational content — 28 skills across ZIA/ZPA/ZDX/ZMS/EASM/ZINS, 20 slash commands, plus CLAUDE.md and GEMINI.md. Canonical workflow vocabulary; covers procedures but not the reasoning semantics our `references/` distill. |
 | `zguard-ai-integrations/` | [`zscaler/zguard-ai-integrations`](https://github.com/zscaler/zguard-ai-integrations) | AI Guard Detection-as-a-Service integration examples for Claude Code, Cursor, Windsurf, CI/CD, gateways, n8n, and related AI platforms. |
 | `splunk-sdk-python/` | [`splunk/splunk-sdk-python`](https://github.com/splunk/splunk-sdk-python) | Python SDK for submitting SPL searches and streaming results — used by `scripts/splunk-query.sh` to execute the SPL patterns in `references/shared/splunk-queries.md`. |
@@ -58,7 +60,7 @@ git add vendor/terraform-provider-zia
 git commit -m "vendor: bump terraform-provider-zia"
 ```
 
-Bump all three:
+Bump all vendored upstreams:
 
 ```bash
 git submodule update --remote
