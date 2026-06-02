@@ -3,9 +3,9 @@ product: zia
 topic: "zia-terraform"
 title: "ZIA Terraform provider resource catalog"
 content-type: reference
-last-verified: "2026-05-30"
+last-verified: "2026-06-02"
 verified-against:
-  vendor/terraform-provider-zia: ea8509d39beb4446a4ddb904e763fb7adb2e9445
+  vendor/terraform-provider-zia: 717926eb564bb21dea1f8e0c3222e6593b29f849
 confidence: medium
 source-tier: mixed
 sources:
@@ -85,6 +85,7 @@ sources:
   - "vendor/terraform-provider-zia/docs/resources/zia_workload_groups.md"
   - "vendor/terraform-provider-zia/zia/resource_zia_cloud_app_control_rules.go"
   - "vendor/terraform-provider-zia/zia/resource_zia_url_categories.go"
+  - "vendor/terraform-provider-zia/zia/resource_zia_user_management_users.go"
 author-status: draft
 ---
 
@@ -1047,7 +1048,9 @@ Local ZIA user accounts that can be referenced in policies for user-based enforc
 | `department` | Block | Required; department ID reference |
 | `auth_methods` | List(String) | Optional; `BASIC` |
 
-Gotcha: The `password` attribute is write-only and is not imported. Import by numeric ID or name.
+Gotcha: The `password` attribute is write-only and is not imported. Import by numeric ID or name. Provider v4.7.24 changed `zia_user_management` reads to resolve users through the list endpoint because ZIdentity-migrated tenants could return encoded `name` and `email` values from the single-user lookup, causing perpetual in-place Terraform drift. The same release also fixed a read crash for users with one or more group memberships.
+
+Source: `vendor/terraform-provider-zia/CHANGELOG.md`; `vendor/terraform-provider-zia/zia/resource_zia_user_management_users.go`.
 
 ---
 
