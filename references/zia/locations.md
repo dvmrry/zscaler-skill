@@ -3,11 +3,11 @@ product: zia
 topic: "locations"
 title: "Locations, sublocations, and Location Groups"
 content-type: reasoning
-last-verified: "2026-05-30"
+last-verified: "2026-06-04"
 confidence: high
 source-tier: mixed
 verified-against:
-  vendor/ziacloud-ansible: 1fed2ef920111fde20f704f00b153048ac73276f
+  vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
 sources:
   - "vendor/zscaler-help/about-location-groups.md"
   - "vendor/zscaler-help/understanding-sublocations.md"

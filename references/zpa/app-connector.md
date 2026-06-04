@@ -3,13 +3,13 @@ product: zpa
 topic: "zpa-app-connector"
 title: "ZPA App Connector — VM architecture, groups, provisioning keys, software updates"
 content-type: reasoning
-last-verified: "2026-05-30"
+last-verified: "2026-06-04"
 confidence: high
 source-tier: mixed
 verified-against:
   vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
-  vendor/zpacloud-ansible: 5b6f18aa301eb02d3812e4a46b93187b7953d69e
-  vendor/terraform-aws-zpa-app-connector-modules: afea191a839ecd8bb153bdaed3a5dad17cf1a54b
+  vendor/zpacloud-ansible: 84ab824d6ce5853c12add6ae3280dcfb8db273a2
+  vendor/terraform-aws-zpa-app-connector-modules: ce13da584021ae4005ff4e7b9c56eb9d1dce9e71
   vendor/terraform-azurerm-zpa-app-connector-modules: 4b9faa39bdf06a7aaec8729d7966e9e8f0d9fc03
 sources:
   - "https://help.zscaler.com/zpa/about-connectors"
@@ -26,13 +26,16 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zpa/app_connector_groups.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/models/app_connector_groups.py"
   - "vendor/zpacloud-ansible/plugins/modules/zpa_app_connector_groups.py"
+  - "vendor/terraform-aws-zpa-app-connector-modules/CHANGELOG.md"
   - "vendor/terraform-aws-zpa-app-connector-modules/README.md"
   - "vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zsac-acvm-aws/variables.tf"
   - "vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zsac-asg-aws/variables.tf"
   - "vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zsac-asg-aws/main.tf"
   - "vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zsac-sg-aws/main.tf"
   - "vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zsac-iam-aws/main.tf"
+  - "vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zpa-app-connector-group/main.tf"
   - "vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zpa-app-connector-group/variables.tf"
+  - "vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zpa-provisioning-key/main.tf"
   - "vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zpa-provisioning-key/variables.tf"
   - "vendor/terraform-aws-zpa-app-connector-modules/examples/README.md"
   - "vendor/terraform-azurerm-zpa-app-connector-modules/README.md"
@@ -95,6 +98,7 @@ App Connector Groups are the policy, upgrade, and capacity unit. Per *About App 
 - **SDK version metadata** can appear as a nested `version` object on App Connector Group responses. The Python SDK model includes version profile name/id plus `sargeVersion`, `childVersion`, and `latestPlatform` fields. Treat these as connector software/version-track metadata, not group membership.
 - **Ansible onboarding convenience:** the ZPA Ansible App Connector Group module can resolve the default enrollment certificate named `Connector` when `enrollment_cert_id` is omitted, and can verify OAuth `user_codes` after create/update. Treat the resolved enrollment certificate ID and user-code verification result as automation evidence; group creation alone is not proof that connectors enrolled successfully.
 - **Latitude/longitude coordinates** on the group tell ZPA where the group is physically, for nearest-connector selection.
+- **`city_country` is API-derived in the AWS Terraform module.** The AWS App Connector Group module now passes a `city_country` input but ignores post-create changes because the ZPA API derives the returned value from latitude/longitude while the provider schema marks the field optional rather than computed. Treat a plan that wants to reset an empty `city_country` back to `""` as API/provider readback drift, not an operator-visible group change.
 - **`-el8` version tracks** and `ip_anchor_type` enum fields surface in the SDK (`vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorgroup/`) — relevant when auditing group config.
 
 Groups are the unit at which upgrades are orchestrated: when a new App Connector version is available, ZPA picks one connector in the group at random, upgrades it (restart + re-enroll), picks the next, and so on. The group stays available throughout because only one connector is down at a time.
@@ -139,11 +143,13 @@ A literal copy of this error in a support ticket narrows diagnosis to "key is wr
 
 **Provisioning key validation asymmetry between AWS and Azure Terraform modules.** The AWS App Connector Terraform module hard-validates `provisioning_key_association_type` to `CONNECTOR_GRP` only — the validation block rejects any other value at plan time (`vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zpa-provisioning-key/variables.tf:26-36`). The Azure module accepts both `CONNECTOR_GRP` and `SERVICE_EDGE_GRP` (`vendor/terraform-azurerm-zpa-app-connector-modules/modules/terraform-zpa-provisioning-key/variables.tf:29-40`). Practical consequence: a `SERVICE_EDGE_GRP` key cannot be created via the AWS module — operators must use the ZPA API directly or the raw `zscaler/terraform-provider-zpa` resource. The same key *can* be created via the Azure module. Operators who are scripting provisioning key creation cross-cloud should branch on the target cloud or use the API layer uniformly.
 
+**App Connectors enroll two ways: provisioning key or OAuth2 user code.** Alongside the long-standing provisioning-key shared secret, ZPA App Connector Groups accept OAuth2 `user_codes` for enrollment. The AWS Terraform module still defaults to the provisioning-key path (which it hard-validates to `CONNECTOR_GRP`) but now also wires up `user_codes`. The two paths are not interchangeable within a single flow — pick one per group.
+
 ### Reference deployment examples
 
 Source: `vendor/terraform-aws-zpa-app-connector-modules/README.md`; `vendor/terraform-aws-zpa-app-connector-modules/examples/README.md`; `vendor/terraform-azurerm-zpa-app-connector-modules/README.md`; `vendor/terraform-azurerm-zpa-app-connector-modules/examples/README.md`; `vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zsac-acvm-aws/variables.tf`; `vendor/terraform-azurerm-zpa-app-connector-modules/modules/terraform-zsac-acvm-azure/variables.tf`.
 
-Zscaler publishes reference Terraform configurations in two vendor-maintained repositories. As of module versions AWS v1.4.0 / Azure v1.1.0, all App Connectors are deployed on RHEL 9 (`vendor/terraform-aws-zpa-app-connector-modules/README.md:19`; `vendor/terraform-azurerm-zpa-app-connector-modules/README.md:19`).
+Zscaler publishes reference Terraform configurations in two vendor-maintained repositories. As of module versions AWS v1.4.0 / Azure v1.1.0, all App Connectors are deployed on RHEL 9 (`vendor/terraform-aws-zpa-app-connector-modules/README.md:66`; `vendor/terraform-azurerm-zpa-app-connector-modules/README.md:19`).
 
 **AWS examples** (`vendor/terraform-aws-zpa-app-connector-modules/examples/`):
 
