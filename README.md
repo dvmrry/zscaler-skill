@@ -1,69 +1,26 @@
 # zscaler-skill
 
 [![Doc hygiene](https://github.com/dvmrry/zscaler-skill/actions/workflows/check-hygiene.yml/badge.svg)](https://github.com/dvmrry/zscaler-skill/actions/workflows/check-hygiene.yml)
+[![Release](https://img.shields.io/github/v/release/dvmrry/zscaler-skill)](https://github.com/dvmrry/zscaler-skill/releases)
+[![License](https://img.shields.io/badge/license-FSL--1.1--Apache--2.0-blue)](LICENSE.md)
 
-An agent skill for reasoning about Zscaler environments: ZIA, ZPA, ZCC, ZDX,
-ZBI, ZIdentity, Cloud & Branch Connector, ZWA, ZPA AppProtection, and the
-broader Zscaler portfolio.
+> An agent skill that makes AI assistants reason **correctly** about Zscaler — rule precedence, matching semantics, and policy evaluation order — instead of answering confidently and wrong.
 
-The core value is codified behavior: policy evaluation order, rule precedence,
-wildcard semantics, source confidence, product-fit framing, and cross-product
-interactions that raw LLMs often hallucinate.
+The product is **codified behavior**, not API access. An agent with live API keys and no behavioral model will still tell you the wrong rule won, that `*.foo.com` matches `foo.com`, or that SSL inspection happens once. This skill encodes how Zscaler actually behaves, with every claim graded by source and confidence. Unofficial; not affiliated with, endorsed by, or sponsored by Zscaler.
 
-## What this is
+## What it knows
 
-This repository is a knowledge skill and workflow base for grounded Zscaler
-answers. It helps an agent answer simple lookups, policy-order questions,
-tenant-specific questions backed by snapshots, and structured investigations.
-API access is useful, but it is not the point; an agent with API access and no
-behavioral model can still answer confidently and wrong.
+- **The behavior LLMs hallucinate** — URL-filter rule order and first-match semantics, the wildcard-vs-exact specificity gotcha, the two-pass SSL inspection model, Cloud App Control ↔ URL Filtering interaction, ZPA app-segment matching, and cross-product policy evaluation.
+- **Honest coverage tiers** — deep operational depth (SDK / Terraform / OneAPI) on ZIA, ZPA, ZCC, ZDX, ZIdentity, and Cloud & Branch Connector; awareness-level on the rest of the portfolio — and it tells you which tier it's standing on before it answers.
+- **Source-graded answers** — every reference carries `confidence`, `source-tier`, and `sources`; a [verification protocol](./references/_meta/verification-protocol.md) gates what earns a place, so unverified claims don't get dressed up as fact.
+- **Tenant-aware, fail-closed** — answers tenant-specific questions ("is `reddit.com` blocked in *our* tenant?") from a mounted `_data/` snapshot, and declines rather than guesses when there's no snapshot.
+- **Structured workflows** — repeatable, evidence-based roles for investigation, research, audit, and review when a task needs a defined output, not just a chat answer.
 
-The repo follows open, file-based agent conventions. Canonical workflow logic
-lives in `agents/<role>/workflow.md` — each role's runtime-neutral entrypoint,
-which owns its `required-reads` bootstrap list, command name, and
-adapter-pointer checks. `AGENTS.md` carries repository runtime guidance and
-`SKILL.md` is the high-level routing surface; the runtime adapters
-(`.agents/skills/`, `.claude/commands/`, `.windsurf/workflows/`, and the
-repo-root `zscaler` loader) are thin pointers at the canonical workflows rather
-than restatements of them. Product knowledge uses progressive disclosure
-through `references/`, with helper scripts in `scripts/` and eval prompts in
-`references/_meta/evals/`.
+[`SKILL.md`](./SKILL.md) is the routing surface — the question-shape table that sends each query to the right reference. [`references/_meta/portfolio-map.md`](./references/_meta/portfolio-map.md) is the per-product coverage index.
 
-## Entry points
+## Install
 
-Default to `@zscaler`; use procedural roles when the task has a defined output.
-
-- **Cascade always-on guidance**: Windsurf discovers [`AGENTS.md`](./AGENTS.md)
-  and [`.windsurf/rules/zscaler.md`](./.windsurf/rules/zscaler.md). These are
-  thin adapters that load canonical logic under `agents/`.
-- **Canonical workflows**: every role's entrypoint is
-  `agents/<role>/workflow.md`. The loaders under
-  [`.agents/skills/`](./.agents/skills/), `.claude/commands/`,
-  `.windsurf/workflows/`, and the repo-root [`zscaler`](./zscaler) file are
-  thin pointers at those workflows — they do not copy the workflow body.
-- **`@zscaler`**: ad-hoc grounded Q&A. Canonical entrypoint
-  [`agents/zscaler/workflow.md`](./agents/zscaler/workflow.md); the playbook
-  beneath it is `agents/zscaler/prompt.md`.
-- **`zscaler-skill-setup`**: setup or repair of the `_data` runtime-data mount;
-  prompts for a data URL/path, mode, and ref, then calls the deterministic setup
-  and contract-check scripts.
-- **`/z-investigator`** (resume with **`/z-investigator-resume`**):
-  evidence-based troubleshooting; produces a discovery journal behind a
-  deterministic case-intake and turn-ledger gate.
-- **`/z-researcher`**: citation-backed reference expansion with extraction,
-  isolated writing, and verification checkpoints.
-- **`/z-architect`**: capacity and scaling review; produces a recommendation
-  register.
-- **`/z-auditor`**: editorial and structural skill audit; produces an audit
-  register.
-- **`/z-soc`**: security-posture review; produces a posture register.
-- **`/z-retro`**: journal-first incident postmortem; produces a warning
-  ledger and proceed/stop decision gate.
-
-## Quick start
-
-Full setup details, including ZIdentity auth, legacy auth, and snapshot
-behavior, live in [docs/getting-started.md](./docs/getting-started.md).
+The skill is a directory Claude (or any file-based agent) loads. Symlink it into your skills path:
 
 ```bash
 git clone --recursive <fork-url> zscaler-skill
@@ -74,124 +31,71 @@ mkdir -p ~/.claude/skills
 ln -s "$(pwd)" ~/.claude/skills/zscaler
 ```
 
-Install Node 18+ for the deterministic workflow helpers. Before snapshot-backed
-tenant reasoning, mount runtime data into `_data/` and verify the directory
-contract:
+Install Node 18+ for the deterministic workflow helpers. Full setup — credentials, ZIdentity / legacy auth, snapshot behavior — is in [docs/getting-started.md](./docs/getting-started.md).
+
+## Quick start
+
+Ask grounded questions directly:
+
+```
+@zscaler why does my deny rule lose to a lower allow rule?
+@zscaler does *.example.com cover app.example.com?
+```
+
+For tenant-specific answers, mount a runtime-data snapshot, then use the public-safe operational path:
 
 ```bash
-node scripts/setup-data-mount.mjs \
-  --data-url <git-url-or-local-path> \
-  --data-ref <branch-or-tag> \
-  --mode checkout
-
+node scripts/setup-data-mount.mjs --data-url <git-url-or-path> --data-ref <branch> --mode checkout
 node scripts/check-data-contract.mjs
-node scripts/check-fast.mjs
-```
+./scripts/snapshot-refresh.py            # pull a first snapshot (needs ZSCALER_* creds)
 
-Create Zscaler API credentials, export the `ZSCALER_*` environment variables,
-then pull a first snapshot into the runtime-data mount:
-
-```bash
-./scripts/snapshot-refresh.py
-```
-
-With a snapshot in place, try the public-safe operational path:
-
-```bash
 ./scripts/url-lookup.py https://www.reddit.com
 ./scripts/simulate-policy.py --url https://www.reddit.com
 ```
 
-The public repo treats snapshot-backed scripts and reference-hygiene tooling as
-operational. Live-tenant diagnostic sketches such as `access-check.py`,
-`ssl-audit.py`, `sandbox-check.py`, `connector-health.py`, and
-`zpa-app-check.py` are private-overlay scaffolds until an adopter validates the
-SDK response shapes against their own tenant.
+Snapshot-backed scripts and reference-hygiene tooling are operational in the public repo. Live-tenant diagnostic sketches (`access-check.py`, `ssl-audit.py`, `sandbox-check.py`, `connector-health.py`, `zpa-app-check.py`) are scaffolds until an adopter validates the SDK response shapes against their own tenant.
+
+## Entry points
+
+Default to `@zscaler`; reach for a procedural role when the task has a defined deliverable.
+
+| Command | Use it for | Produces |
+| --- | --- | --- |
+| `@zscaler` | Ad-hoc grounded Q&A and lookups | A sourced answer with confidence |
+| `zscaler-skill-setup` | Set up or repair the `_data` runtime mount | A verified data mount |
+| `/z-investigator` (`/z-investigator-resume`) | Evidence-based troubleshooting | A discovery journal behind a case-intake + turn-ledger gate |
+| `/z-researcher` | Citation-backed reference expansion | New reference content with verification checkpoints |
+| `/z-architect` | Capacity and scaling review | A recommendation register |
+| `/z-auditor` | Editorial / structural skill audit | An audit register |
+| `/z-soc` | Security-posture review | A posture register |
+| `/z-retro` | Journal-first incident postmortem | A warning ledger + proceed/stop decision |
+
+Each role's canonical logic lives in `agents/<role>/workflow.md`; the loaders under `.agents/skills/`, `.claude/commands/`, and `.windsurf/workflows/` (plus the repo-root [`zscaler`](./zscaler) file) are thin pointers at those workflows, not copies. See [`AGENTS.md`](./AGENTS.md) for the runtime model.
 
 ## Documentation
 
-- [Getting started](./docs/getting-started.md): private fork setup, credentials,
-  first snapshot, first script run.
-- [Scripts](./scripts/README.md): script inventory, support boundary,
-  dependencies, and script conventions.
-- [Maintenance](./docs/maintenance.md): CI, sticky issues, submodule updates,
-  contribution rules, testing, and known gaps.
-- [CHANGELOG.md](./CHANGELOG.md): release notes and upgrade-relevant changes.
-- [PLAN.md](./PLAN.md): historical crash-recovery and roadmap notes.
-- [Portfolio map](./references/_meta/portfolio-map.md): coverage tiers across
-  Zscaler products.
-- [Clarifications](./references/_meta/clarifications.md): open, partial, and
-  resolved ambiguity register.
+**Usage**
+- [docs/getting-started.md](./docs/getting-started.md) — fork setup, credentials, first snapshot, first script run
+- [scripts/README.md](./scripts/README.md) — script inventory, support boundary, conventions
+- [docs/maintenance.md](./docs/maintenance.md) — CI, sticky issues, submodule updates, contribution rules
 
-## Repository map
+**Reference**
+- [references/_meta/portfolio-map.md](./references/_meta/portfolio-map.md) — product coverage tiers
+- [references/_meta/clarifications.md](./references/_meta/clarifications.md) — open / partial / resolved ambiguity register
+- [references/_meta/verification-protocol.md](./references/_meta/verification-protocol.md) — how a finding earns its place
+- [docs/data-contract/](./docs/data-contract/) — expected `_data/` layout
 
-```text
-SKILL.md                 skill routing hub
-AGENTS.md                repo runtime guide for coding agents
-.agents/skills/          portable Agent Skills that load canonical workflows
-agents/                  canonical role workflows (workflow.md), prompts, harnesses, grounding
-references/              sourced Zscaler behavior and product references
-references/_meta/        portfolio map, clarifications, evals, templates
-scripts/                 public tooling, maintenance checks, private scaffolds
-vendor/                  pinned upstream SDKs, providers, modules, and tool refs
-_data/                   ignored runtime data mount, populated locally
-docs/data-contract/      public contract for the expected _data layout
-docs/                    project docs and rendered static docs assets
-```
-
-`_data/` is a replaceable runtime-data mount point and is ignored by the public
-repo. The public directory contract lives in
-[`docs/data-contract/`](./docs/data-contract/). To mount a user-supplied data
-repo or local directory, run:
-
-```bash
-node scripts/setup-data-mount.mjs \
-  --data-url <git-url-or-local-path> \
-  --data-ref <branch-or-tag> \
-  --mode checkout
-```
-
-Use the actual branch or tag for your runtime-data source.
-
-Internal releases may instead place setup defaults in a local
-`zscaler-skill-setup.json` at the repo root. See
-[`zscaler-skill-setup.example.json`](./zscaler-skill-setup.example.json) for the
-public-safe shape; the real file is gitignored because it may contain private
-URLs.
-
-Then run `node scripts/check-data-contract.mjs` to verify the mounted shape.
-
-To prepare selected local runtime artifacts for a configured overlay repository,
-use:
-
-```bash
-node scripts/prepare-overlay-submission.mjs \
-  --case-path _data/cases/<case-slug> \
-  --approve
-```
-
-The helper validates selected `_data` paths, creates a branch in a temporary
-overlay checkout, and prints the next push command. It does not push by default.
-The overlay repository is treated as the `_data` content root, so
-`_data/cases/<case-slug>` is submitted as `cases/<case-slug>`.
-
-Every reference file carries YAML frontmatter (`product`, `topic`,
-`content-type`, `last-verified`, `confidence`, `source-tier`, `sources`,
-`author-status`). See [`references/_meta/template.md`](./references/_meta/template.md).
-`author-status` tracks authoring lifecycle; trust is signaled by `confidence`,
-`source-tier`, `sources`, and `verified-against`.
+**Project**
+- [CHANGELOG.md](./CHANGELOG.md) · [PLAN.md](./PLAN.md)
 
 ## Known boundaries
 
-- Malware Protection and ATP blocks have no API coverage; diagnosis of specific
-  blocks still requires the ZIA Admin Console.
-- Several clarifications remain open because they require tenant-specific lab
-  tests; see [`PLAN.md`](./PLAN.md).
+- Malware Protection and ATP blocks have no API coverage — diagnosing a specific block still needs the ZIA Admin Console.
+- Some clarifications stay open pending tenant-specific lab tests (see [PLAN.md](./PLAN.md)).
 - Snapshot schema docs are deferred until real tenant output exists.
 - Z-Tunnel wire-format internals are not customer-documented.
-- Tier 3 and Tier 4 portfolio areas can be routed and explained, but the skill
-  must not invent SDK, Terraform, or API behavior for them.
+- Tier 3 / Tier 4 portfolio areas can be routed and explained, but the skill will not invent SDK, Terraform, or API behavior for them.
 
 ## License
 
-Licensed under FSL-1.1-Apache-2.0. See [`LICENSE.md`](./LICENSE.md).
+Licensed under [FSL-1.1-Apache-2.0](./LICENSE.md).
