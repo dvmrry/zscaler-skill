@@ -1,25 +1,21 @@
 name: Lint JS
 
-# Bug-catching lint for the Node helper scripts (scripts/*.mjs) and the docs
-# site browser JS (docs/*.js). Uses Biome with only the correctness / suspicious
-# / security rule groups enabled (see biome.json) — style and formatting are
-# intentionally not enforced. The repo has no package.json, so Biome is run via
-# a pinned npx invocation rather than a committed dependency.
+# Bug-catching lint for the Node helper scripts (scripts/*.mjs), the docs site
+# browser JS (docs/*.js), and the docs CSS (docs/*.css). Uses Biome with only
+# the correctness / suspicious / security rule groups enabled (see biome.json) —
+# style and formatting are intentionally not enforced. The repo has no
+# package.json, so Biome is run via a pinned npx invocation rather than a
+# committed dependency.
+#
+# Runs on EVERY pull request (no path filter): this is a required status check,
+# and a path-filtered required check would never report on PRs that don't touch
+# the filtered paths, blocking them forever. The lint is fast, so running it
+# unconditionally is cheaper than that failure mode.
 
 on:
   pull_request:
-    paths:
-      - "docs/**/*.js"
-      - "scripts/**/*.mjs"
-      - "biome.json"
-      - ".github/workflows/lint-js.yml"
   push:
     branches: [main]
-    paths:
-      - "docs/**/*.js"
-      - "scripts/**/*.mjs"
-      - "biome.json"
-      - ".github/workflows/lint-js.yml"
   workflow_dispatch:
 
 permissions:
