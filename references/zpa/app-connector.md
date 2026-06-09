@@ -123,7 +123,7 @@ The pipe-delimited prefix carries the provisioning-server URL; the payload is th
 - **Multiple keys per group** are supported. Useful for different deployment pipelines (prod deploy pipeline uses one key, DR restore pipeline uses another) so utilization logs differentiate.
 - **Keys are treated as secrets** — Zscaler recommends not storing in cleartext. If the admin disabled *View or Export Provisioning Key After Creation* at config time, the key is never retrievable after creation and a backup must exist externally (e.g., in a credentials vault) or a new key must be generated.
 
-**The #1 enrollment failure cause** (per MCP server's `troubleshoot-connector` skill, which drives `scripts/connector-health.py`): the provisioning key utilization count hitting its max. Symptoms: new App Connector instances fail to enroll; old ones keep working. Diagnostic: check the key's `Provisioning Key Utilization Count` against `Maximum # of App Connectors` for that key.
+**The #1 enrollment failure cause** (per MCP server's `troubleshoot-connector` skill): the provisioning key utilization count hitting its max. Symptoms: new App Connector instances fail to enroll; old ones keep working. Diagnostic: check the key's `Provisioning Key Utilization Count` against `Maximum # of App Connectors` for that key.
 
 **Incorrect-key-copy error** (quoted verbatim from *About App Connector Provisioning Keys*):
 
@@ -226,7 +226,7 @@ App Connectors surface health metrics that the ZPA admin console displays and th
 - **Per-segment target reachability** — driven by the segment's `health_reporting` setting (`NONE` / `ON_ACCESS` / `CONTINUOUS`). Surfaced in App Connector Metrics as `TargetCount` (configured) vs `AliveTargetCount` (currently reachable from this connector's network position). `AliveTargetCount < TargetCount` means some configured targets are not reachable from this connector right now.
 - **Current software version vs target version** — version-lag indicator.
 - **Certificate expiry** — cert validity window. Connectors don't auto-rotate certs; if a cert approaches expiry, re-enrollment is required.
-- **VM-cloning fingerprint issue** — when a VM template is used to deploy multiple App Connectors without unique re-enrollment, all clones share a hardware fingerprint. ZPA detects the collision and disables all but one. The remedy is re-enrollment with unique fingerprints per clone. `scripts/connector-health.py` surfaces this pattern as a suspected cause when `last_upgrade_time` is significantly older than the group's peers.
+- **VM-cloning fingerprint issue** — when a VM template is used to deploy multiple App Connectors without unique re-enrollment, all clones share a hardware fingerprint. ZPA detects the collision and disables all but one. The remedy is re-enrollment with unique fingerprints per clone. A suspected signal is a connector whose `last_upgrade_time` is significantly older than the group's peers.
 
 ### How sessions are assigned to App Connectors
 
@@ -361,4 +361,3 @@ Source: `vendor/zscaler-help/about-app-connectors.md`; `vendor/zscaler-help/abou
 - Cloud Connector (sibling outbound VM on the workload side) — [`../cloud-connector/overview.md`](../cloud-connector/overview.md)
 - Source IP Anchoring (SIPA) (App Connector is the egress point for SIPA traffic) — [`../shared/source-ip-anchoring.md`](../shared/source-ip-anchoring.md)
 - Cloud architecture / PKI model (certificates, outbound-only model) — [`../shared/cloud-architecture.md`](../shared/cloud-architecture.md)
-- Connector health script (references this doc) — `scripts/connector-health.py`

@@ -76,12 +76,10 @@ empty.
 - **Malware Protection and ATP blocks have no API coverage.**
   `references/zia/malware-and-atp.md` covers the operational and console-only
   layer; diagnosis of specific blocks still requires the ZIA Admin Console.
-- **Five live-tenant diagnostic scripts are private-overlay scaffolds.**
-  `access-check.py`, `ssl-audit.py`, `sandbox-check.py`, `connector-health.py`,
-  and `zpa-app-check.py` preserve the intended workflow design but exit by
-  default because the public repo cannot validate tenant-specific SDK response
-  shapes. `url-lookup.py`, `simulate-policy.py`, and `snapshot-refresh.py` are
-  the supported public operational path.
+- **Credentialed live-tenant diagnostics are out of scope.** Tenant reads are
+  handled by the read-only `zscalerctl` CLI; the never-validated SDK diagnostic
+  scaffolds were removed (2026-06). `url-lookup.py`, `simulate-policy.py`, and
+  `snapshot-refresh.py` are the supported public operational path.
 - **Several clarifications remain open** because they require tenant-specific
   lab tests. See `PLAN.md`.
 - **Snapshot schema docs are deferred** and should be written against real

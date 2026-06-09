@@ -53,7 +53,7 @@ node scripts/check-data-contract.mjs
 ./scripts/simulate-policy.py --url https://www.reddit.com
 ```
 
-Snapshot-backed scripts and reference-hygiene tooling are operational in the public repo. Live-tenant diagnostic sketches (`access-check.py`, `ssl-audit.py`, `sandbox-check.py`, `connector-health.py`, `zpa-app-check.py`) are scaffolds until an adopter validates the SDK response shapes against their own tenant.
+Snapshot-backed scripts and reference-hygiene tooling are operational in the public repo. Credentialed live-tenant reads are out of scope for this repo — the read-only [`zscalerctl`](https://github.com/dvmrry/zscalerctl) CLI is the tenant-read surface.
 
 ## Entry points
 

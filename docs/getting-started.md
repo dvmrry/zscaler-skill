@@ -198,10 +198,8 @@ With a snapshot in place:
 ```
 
 The public repo treats snapshot-backed and reference-hygiene scripts as
-operational. Live-tenant diagnostic sketches such as `access-check.py`,
-`ssl-audit.py`, `sandbox-check.py`, `connector-health.py`, and
-`zpa-app-check.py` are private-overlay scaffolds until an adopter validates the
-SDK response shapes against their own tenant.
+operational. Credentialed live-tenant diagnostics are out of scope here — use
+the read-only `zscalerctl` CLI for tenant reads.
 
 See [`scripts/README.md`](../scripts/README.md) for the full inventory.
 

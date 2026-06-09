@@ -8,7 +8,6 @@ confidence: high
 source-tier: code
 sources:
   - "scripts/agent_patterns.py"
-  - "scripts/diagnose-tenant.py"
   - "references/shared/oneapi.md"
   - "references/_meta/runbooks.md"
 author-status: reviewed
@@ -34,7 +33,7 @@ Two paths:
 
 2. **Copy-paste a function** — every pattern below is self-contained in the doc and in the module. Paste into your runtime if the import path isn't available.
 
-The runnable CLI `scripts/diagnose-tenant.py` is a worked-example consumer that calls every pattern in one pass.
+The `diagnose_tenant()` composite in `scripts/agent_patterns.py` is a worked-example consumer that calls every pattern in one pass.
 
 ## Pattern 1 — `detect_cloud` (cloud class detection)
 
@@ -333,12 +332,11 @@ def diagnose_tenant(env=None, admin_url=None, client=None, smoke_test_product="z
     return TenantDiagnosis(cloud_class, cloud_details, auth_framework, forced_legacy, smoke, endpoints, advisories)
 ```
 
-The runnable CLI `scripts/diagnose-tenant.py` is the consumer reference — it pretty-prints (text or JSON) the result of `diagnose_tenant()`.
+The `diagnose_tenant()` composite in `scripts/agent_patterns.py` is the consumer reference — it combines every pattern and returns a `TenantDiagnosis`.
 
 ## Cross-links
 
 - Module source: `scripts/agent_patterns.py` (canonical implementation)
-- Runnable CLI: `scripts/diagnose-tenant.py`
 - Human-readable runbooks: [`runbooks.md`](runbooks.md)
 - Auth framework reference: [`../shared/oneapi.md`](../shared/oneapi.md)
 - Verification protocol (when adding new patterns): [`verification-protocol.md`](verification-protocol.md)

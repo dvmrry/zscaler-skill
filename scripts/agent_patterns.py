@@ -15,8 +15,7 @@ Plus a composite:
   - diagnose_tenant()           — runs all of the above in one call
 
 The companion markdown doc at references/_meta/agent-patterns.md mirrors these
-functions for in-context reference. The companion CLI at
-scripts/diagnose-tenant.py pretty-prints diagnose_tenant() output.
+functions for in-context reference.
 
 These are pure functions over their inputs (no global state, no side effects
 beyond what the names suggest). An AI agent can lift any function as-is.
