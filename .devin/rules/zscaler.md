@@ -8,7 +8,7 @@ description: Use for Zscaler, ZIA, ZPA, ZCC, ZDX, ZIdentity, Cloud Connector, Zs
 When the user asks a Zscaler-related question, use your file-read tool to load
 `agents/zscaler/workflow.md` before answering, then follow that workflow.
 
-For procedural tasks, prefer the existing Windsurf workflows:
+For procedural tasks, prefer the existing Devin workflows:
 
 - Troubleshooting with symptom, affected scope, and timeframe: `/z-investigator`
 - Security posture review: `/z-soc`

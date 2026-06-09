@@ -142,7 +142,7 @@ When adding or revising a workflow:
    `agents/<role>/workflow.md`.
 2. Add or update a portable skill under `.agents/skills/` if the workflow should
    be natively discoverable by open-standard agent runtimes.
-3. Keep Claude, Windsurf, and other runtime wrappers thin.
+3. Keep Claude, Devin, and other runtime wrappers thin.
 4. Remove copied workflow text from adapters whenever the same behavior is
    already expressed canonically.
 5. Avoid same-name skill wrappers across `.agents/skills/` and runtime-specific

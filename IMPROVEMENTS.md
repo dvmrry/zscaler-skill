@@ -35,12 +35,12 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 - **Cost**: low. Extend `check-hygiene.py` with a per-file line-count threshold (warn on `>N lines`) and optionally a per-section token estimate.
 - **Notes**: not actionable until we observe a retrieval/comprehension issue tied to ref size. File so we have the lever ready if that day comes.
 
-### Test the decision-table-first authoring pattern on a Windsurf workflow
+### Test the decision-table-first authoring pattern on a Devin workflow
 
 - **Status**: Proposed (experiment, not commitment)
 - **Origin**: 2026-05-03 — observed in `vendor/zscaler-terraform-skills`. Their authoring rules optimize for **retrieval economics**: SKILL.md + on-demand reference subsection per query.
-- **Impact**: Their loading pattern matches Windsurf workflows better than Claude Code commands. CC commands load once at invocation and stay in context for the whole session — retrieval-economics doesn't apply. Windsurf workflows load per-trigger, closer to retrieval-on-demand.
-- **Cost**: low. Pick one Windsurf workflow (e.g., `.devin/workflows/z-investigator.md`), rewrite structurally per their pattern (decision tables before prose, ❌/✅ rules), observe whether the agent's behavior actually differs.
+- **Impact**: Their loading pattern matches Devin workflows better than Claude Code commands. CC commands load once at invocation and stay in context for the whole session — retrieval-economics doesn't apply. Devin workflows load per-trigger, closer to retrieval-on-demand.
+- **Cost**: low. Pick one Devin workflow (e.g., `.devin/workflows/z-investigator.md`), rewrite structurally per their pattern (decision tables before prose, ❌/✅ rules), observe whether the agent's behavior actually differs.
 - **Notes**: speculative refactor — no observed failure mode forces it. Worth running once just as an experiment to see whether the pattern pays off in our agent's behavior. Don't sweep across all workflows preemptively.
 
 ### Internal-fork override pattern for `_data/cases/`
@@ -82,7 +82,7 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 
   Patterns we haven't yet exploited, ordered roughly by leverage:
 
-  **Cross-agent (works under Claude Code, Windsurf, and future agents loading the skill):**
+  **Cross-agent (works under Claude Code, Devin, and future agents loading the skill):**
 
   - **Schema-validated structured output for registers** — discovery journal / audit register / recommendation register currently emit Markdown tables. Could ALSO emit a JSON/YAML sidecar matching a schema. Hybrid keeps human-readable Markdown while making the register machine-checkable. Lowest cost, highest leverage of the cross-agent set.
   - **Pre-flight checks that gate generation** — hygiene runs after edits land. A pre-flight rubric ("before writing, check N invariants against existing state") moves determinism earlier. Closer to a type-check than a test-run.
@@ -92,11 +92,11 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 
   **Claude-specific (or hard cross-agent):**
 
-  - **Subagent / multi-agent rubric review** — Claude's Agent tool is Claude-specific. Windsurf workflows can't invoke other workflows (per `windsurf-runtime-notes.md`). Producer-reviewer pairs work under CC; not portable. Could still be a CC-mode-only enhancement, but explicitly scoped.
+  - **Subagent / multi-agent rubric review** — Claude's Agent tool is Claude-specific. Devin workflows can't invoke other workflows (per `devin-runtime-notes.md`). Producer-reviewer pairs work under CC; not portable. Could still be a CC-mode-only enhancement, but explicitly scoped.
 
   **Not a determinism pattern (don't pursue as one):**
 
-  - **Memory-as-constraint** — initially listed here, then ruled out. Memory (CC auto-memory, Windsurf memory) is a soft continuity signal, not a deterministic constraint: compaction can summarize-away specific entries, cross-session reads are optional, and unlike every other soft guideline in this list there's no introspectable hard check ("did the agent actually read memory entry X?" isn't verifiable from outside the agent). Useful for carrying user preferences across sessions (the `feedback_*` and `project_*` memory types) but not for enforcing discipline in the skill itself. Mentioned here so we don't accidentally re-propose it.
+  - **Memory-as-constraint** — initially listed here, then ruled out. Memory (CC auto-memory, Devin memory) is a soft continuity signal, not a deterministic constraint: compaction can summarize-away specific entries, cross-session reads are optional, and unlike every other soft guideline in this list there's no introspectable hard check ("did the agent actually read memory entry X?" isn't verifiable from outside the agent). Useful for carrying user preferences across sessions (the `feedback_*` and `project_*` memory types) but not for enforcing discipline in the skill itself. Mentioned here so we don't accidentally re-propose it.
 
   **Action triggers**: promote individual patterns to their own IMPROVEMENTS.md items when there's a real reason to build them. Don't speculatively build — the framing is the contribution; individual investments need their own justification.
 

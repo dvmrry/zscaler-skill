@@ -23,7 +23,7 @@ author-status: draft
 
 # Architect — capacity & scaling playbook (lite)
 
-This is the playbook invoked by the `/z-architect` slash command (Claude Code and Windsurf). Current shape is **capacity** — sizing, scaling, and structural risk review, config-first with metrics-augmentation when available. Future subtypes (topology, migration, cost) sketched at the end.
+This is the playbook invoked by the `/z-architect` slash command (Claude Code and Devin). Current shape is **capacity** — sizing, scaling, and structural risk review, config-first with metrics-augmentation when available. Future subtypes (topology, migration, cost) sketched at the end.
 
 ## Mode
 

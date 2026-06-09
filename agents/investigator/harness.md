@@ -11,7 +11,7 @@ sources:
   - "agents/investigator/prompt.md"
   - "agents/investigator/case-intake.md"
   - "agents/_meta/runtime-adapters.md"
-  - "agents/_meta/windsurf-runtime-notes.md"
+  - "agents/_meta/devin-runtime-notes.md"
   - "scripts/investigator-artifacts.mjs"
 author-status: draft
 ---
