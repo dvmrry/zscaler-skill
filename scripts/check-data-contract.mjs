@@ -1,12 +1,9 @@
 #!/usr/bin/env node
-import childProcess from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
-
-const REQUIRED_DIRS = ["cases", "schemas", "snapshot", "iac"];
-const IGNORED_SKELETON_FILES = new Set([".gitkeep", "README.md"]);
+import { DATA_REQUIRED_DIRS, DATA_SKELETON_FILES, gitTryOutput } from "./lib.mjs";
 
 function usage(exitCode = 0) {
   const out = exitCode === 0 ? process.stdout : process.stderr;
@@ -40,20 +37,12 @@ function parseArgs(argv) {
 function listUsefulEntries(dir) {
   const entries = fs.readdirSync(dir, { withFileTypes: true });
   return entries
-    .filter((entry) => !IGNORED_SKELETON_FILES.has(entry.name))
+    .filter((entry) => !DATA_SKELETON_FILES.has(entry.name))
     .map((entry) => entry.name);
 }
 
 function gitLsTree(root, targetPath) {
-  try {
-    return childProcess.execFileSync(
-      "git",
-      ["ls-tree", "HEAD", targetPath],
-      { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
-    ).trim();
-  } catch {
-    return "";
-  }
+  return gitTryOutput(root, ["ls-tree", "HEAD", targetPath]);
 }
 
 function detectDataSubmodule(root) {
@@ -92,7 +81,7 @@ function checkDataContract(root) {
     warnings.push("_data/README.md is missing");
   }
 
-  for (const dirname of REQUIRED_DIRS) {
+  for (const dirname of DATA_REQUIRED_DIRS) {
     const dir = path.join(dataDir, dirname);
     if (!fs.existsSync(dir) || !fs.statSync(dir).isDirectory()) {
       errors.push(`_data/${dirname}/ directory is missing`);

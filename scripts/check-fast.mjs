@@ -1,6 +1,22 @@
 #!/usr/bin/env node
 import { spawn } from "node:child_process";
+import fs from "node:fs";
+import path from "node:path";
 import process from "node:process";
+import { fileURLToPath } from "node:url";
+
+// Auto-discover every scripts/*.test.mjs so a new test file is never silently
+// skipped by forgetting to register it here.
+const scriptsDir = path.dirname(fileURLToPath(import.meta.url));
+const testFiles = fs
+  .readdirSync(scriptsDir)
+  .filter((name) => name.endsWith(".test.mjs"))
+  .sort()
+  .map((name) => `scripts/${name}`);
+if (testFiles.length === 0) {
+  console.error("check-fast: no scripts/*.test.mjs files discovered");
+  process.exit(1);
+}
 
 const CHECKS = [
   {
@@ -21,14 +37,7 @@ const CHECKS = [
   {
     name: "node helper tests",
     command: "node",
-    args: [
-      "--test",
-      "scripts/investigator-artifacts.test.mjs",
-      "scripts/check-data-contract.test.mjs",
-      "scripts/prepare-overlay-submission.test.mjs",
-      "scripts/setup-data-mount.test.mjs",
-      "scripts/check-citations.test.mjs",
-    ],
+    args: ["--test", ...testFiles],
   },
   {
     name: "diff whitespace",
