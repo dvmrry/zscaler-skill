@@ -653,7 +653,7 @@ Candidate entry:
   runtime:
     skill: .agents/skills/zscaler-investigator/SKILL.md
     adapters:
-      - .windsurf/workflows/z-investigator.md
+      - .devin/workflows/z-investigator.md
       - .claude/commands/z-investigator.md
   artifacts:
     root: _data/cases/{caseSlug}

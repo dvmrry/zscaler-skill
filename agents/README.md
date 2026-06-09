@@ -106,7 +106,7 @@ author-status: draft
 
 ## Runtime notes
 
-- [`_meta/windsurf-runtime-notes.md`](./_meta/windsurf-runtime-notes.md) — Windsurf-specific behavior for `.windsurf/workflows/` and `.windsurf/rules/`. Operational guidance, not workflow content.
+- [`_meta/windsurf-runtime-notes.md`](./_meta/windsurf-runtime-notes.md) — Windsurf-specific behavior for `.devin/workflows/` and `.devin/rules/`. Operational guidance, not workflow content.
 - [`_meta/runtime-adapters.md`](./_meta/runtime-adapters.md) — canonical workflow vs portable skill vs runtime adapter policy.
 - [`_meta/workflow-artifacts.md`](./_meta/workflow-artifacts.md) — future artifact-gated workflow contract notes.
 - [`_meta/workflow-metadata.md`](./_meta/workflow-metadata.md) — neutral workflow metadata and validator notes.
@@ -122,4 +122,4 @@ author-status: draft
 7. Declare first-turn files in `workflow.md` `required-reads`; use `optional-reads` for conditional workflow support files.
 8. Update this README's "Available workflows" table.
 9. Add a portable skill under `.agents/skills/` when the workflow should be natively discoverable by Codex, Windsurf, or another Agent Skills-compatible runtime.
-10. Wire optional runtime adapters (`.claude/commands/<role>.md` for Claude Code, `.windsurf/workflows/<role>.md` for Windsurf) that invoke `agents/{role}/workflow.md`. Keep adapters thin; move workflow logic back into `agents/**`.
+10. Wire optional runtime adapters (`.claude/commands/<role>.md` for Claude Code, `.devin/workflows/<role>.md` for Windsurf) that invoke `agents/{role}/workflow.md`. Keep adapters thin; move workflow logic back into `agents/**`.

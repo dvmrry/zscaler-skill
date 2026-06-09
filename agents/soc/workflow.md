@@ -19,7 +19,7 @@ summary: Security posture review workflow
 primary-command: /z-soc
 known-runtimes:
   - codex
-  - windsurf
+  - devin
   - claude
 required-reads:
   - agents/soc/prompt.md

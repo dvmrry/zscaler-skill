@@ -30,7 +30,7 @@ Step 1 instructions inside the monolithic adapter were still too soft. The
 public-safe path is now:
 
 - keep `/z-investigator` as the user-facing command;
-- keep `.windsurf` runtime files as adapter surfaces, not source of truth;
+- keep `.devin` runtime files as adapter surfaces, not source of truth;
 - add a canonical Step 1 case intake under `agents/investigator/`;
 - add a small Node stdlib helper that creates and verifies
   `case-intake.md`,
@@ -53,7 +53,7 @@ journal creation, snapshot-load discipline, and subsequent-turn cadence.
 From the PR #24 review round:
 
 - `agents/investigator/prompt.md` is not the full runtime contract by itself.
-- `.windsurf/workflows/z-investigator.md` currently carries load-bearing
+- `.devin/workflows/z-investigator.md` currently carries load-bearing
   harness behavior.
 - The Windsurf baseline must remain intact until a candidate has parity
   evidence.
@@ -67,9 +67,9 @@ From the PR #24 review round:
 
 Do not do these in the harness implementation PR:
 
-- Replace `.windsurf/workflows/z-investigator.md`.
-- Add `.windsurf/workflows/z-investigator-v2-loads-skill.md`.
-- Add `.windsurf/workflows/z-investigator-v2-loads-prompt.md`.
+- Replace `.devin/workflows/z-investigator.md`.
+- Add `.devin/workflows/z-investigator-v2-loads-skill.md`.
+- Add `.devin/workflows/z-investigator-v2-loads-prompt.md`.
 - Thin the Windsurf baseline adapter.
 - Implement a full multi-phase JSON workflow schema beyond the narrow Step 1
   case intake gate.
@@ -98,7 +98,7 @@ last-verified: "2026-05-17"
 confidence: high
 source-tier: practice
 sources:
-  - ".windsurf/workflows/z-investigator.md"
+  - ".devin/workflows/z-investigator.md"
   - "agents/investigator/prompt.md"
   - "agents/_meta/runtime-adapters.md"
   - "agents/_meta/windsurf-runtime-notes.md"
@@ -186,7 +186,7 @@ Update `.agents/skills/zscaler-investigator/SKILL.md`:
 
 For the first harness implementation PR:
 
-- Preserve `.windsurf/workflows/z-investigator.md` behavior.
+- Preserve `.devin/workflows/z-investigator.md` behavior.
 - Do not thin it.
 - If touching it, restrict changes to cross-linking or comments that identify
   `agents/investigator/harness.md` as the canonical harness it currently
@@ -217,7 +217,7 @@ This creates a temporary duplicate-by-design state:
 
 ```text
 agents/investigator/harness.md          canonical harness
-.windsurf/workflows/z-investigator.md   known-good reinforced baseline
+.devin/workflows/z-investigator.md   known-good reinforced baseline
 ```
 
 That duplication is acceptable only until candidate adapters are built and
@@ -281,7 +281,7 @@ Manual validation checklist:
 - `agents/investigator/prompt.md` links to the harness instead of vaguely
   referencing an unnamed workflow harness.
 - `.agents/skills/zscaler-investigator/SKILL.md` loads both prompt and harness.
-- `.windsurf/workflows/z-investigator.md` is not behaviorally thinned.
+- `.devin/workflows/z-investigator.md` is not behaviorally thinned.
 - No `_data/snapshots/` plural path is introduced.
 - No runtime-specific skill mirror is added.
 - No `z-investigator-v2` file is added.
@@ -289,7 +289,7 @@ Manual validation checklist:
 Expected checker state:
 
 - `check-agent-skills.py` passes.
-- One non-blocking large-adapter warning for `.windsurf/workflows/z-investigator.md`
+- One non-blocking large-adapter warning for `.devin/workflows/z-investigator.md`
   may remain until the v2 migration exists.
 
 ## Acceptance Criteria
@@ -307,8 +307,8 @@ The harness implementation PR is ready when:
 After this plan is implemented:
 
 1. Build two candidate adapters:
-   - `.windsurf/workflows/z-investigator-v2-loads-skill.md`
-   - `.windsurf/workflows/z-investigator-v2-loads-prompt.md`
+   - `.devin/workflows/z-investigator-v2-loads-skill.md`
+   - `.devin/workflows/z-investigator-v2-loads-prompt.md`
 2. Run the parity rubric from
    `plans/2026-05-17-agent-skill-runtime-migration.md`.
 3. Choose one candidate path.

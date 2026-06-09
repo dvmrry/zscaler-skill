@@ -66,7 +66,7 @@ Default to `@zscaler`; reach for a procedural role when the task has a defined d
 | `/z-soc` | Security-posture review | A posture register |
 | `/z-retro` | Journal-first incident postmortem | A warning ledger + proceed/stop decision |
 
-Each role's canonical logic lives in `agents/<role>/workflow.md`; the loaders under `.agents/skills/`, `.claude/commands/`, and `.windsurf/workflows/` (plus the repo-root [`zscaler`](./zscaler) file) are thin pointers at those workflows, not copies. See [`AGENTS.md`](./AGENTS.md) for the runtime model.
+Each role's canonical logic lives in `agents/<role>/workflow.md`; the loaders under `.agents/skills/`, `.claude/commands/`, and `.devin/workflows/` (plus the repo-root [`zscaler`](./zscaler) file) are thin pointers at those workflows, not copies. See [`AGENTS.md`](./AGENTS.md) for the runtime model.
 
 ## Documentation
 

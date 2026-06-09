@@ -23,7 +23,7 @@ The metadata lives beside the canonical workflow:
 - `agents/<workflow>/workflow.md` — human-readable workflow metadata with YAML
   frontmatter.
 
-Runtime-specific files under `.claude/`, `.windsurf/`, or future adapter roots
+Runtime-specific files under `.claude/`, `.devin/`, or future adapter roots
 may add local loading or UI instructions. They should point back to the
 workflow metadata so the shared workflow shape stays easy to check.
 

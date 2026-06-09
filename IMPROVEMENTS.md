@@ -40,7 +40,7 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 - **Status**: Proposed (experiment, not commitment)
 - **Origin**: 2026-05-03 — observed in `vendor/zscaler-terraform-skills`. Their authoring rules optimize for **retrieval economics**: SKILL.md + on-demand reference subsection per query.
 - **Impact**: Their loading pattern matches Windsurf workflows better than Claude Code commands. CC commands load once at invocation and stay in context for the whole session — retrieval-economics doesn't apply. Windsurf workflows load per-trigger, closer to retrieval-on-demand.
-- **Cost**: low. Pick one Windsurf workflow (e.g., `.windsurf/workflows/z-investigator.md`), rewrite structurally per their pattern (decision tables before prose, ❌/✅ rules), observe whether the agent's behavior actually differs.
+- **Cost**: low. Pick one Windsurf workflow (e.g., `.devin/workflows/z-investigator.md`), rewrite structurally per their pattern (decision tables before prose, ❌/✅ rules), observe whether the agent's behavior actually differs.
 - **Notes**: speculative refactor — no observed failure mode forces it. Worth running once just as an experiment to see whether the pattern pays off in our agent's behavior. Don't sweep across all workflows preemptively.
 
 ### Internal-fork override pattern for `_data/cases/`

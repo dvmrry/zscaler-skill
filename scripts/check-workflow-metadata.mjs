@@ -20,34 +20,34 @@ const REQUIRED_FIELDS = [
 const ADAPTER_POINTER_FILES = {
   "z-architect": [
     ".claude/commands/z-architect.md",
-    ".windsurf/workflows/z-architect.md",
+    ".devin/workflows/z-architect.md",
   ],
   "z-auditor": [
     ".claude/commands/z-auditor.md",
-    ".windsurf/workflows/z-auditor.md",
+    ".devin/workflows/z-auditor.md",
   ],
   "z-investigator": [
     ".agents/skills/zscaler-investigator/SKILL.md",
     ".claude/commands/z-investigator.md",
     ".claude/commands/z-investigator-resume.md",
-    ".windsurf/workflows/z-investigator.md",
-    ".windsurf/workflows/z-investigator-resume.md",
+    ".devin/workflows/z-investigator.md",
+    ".devin/workflows/z-investigator-resume.md",
   ],
   "z-researcher": [
     ".claude/commands/z-researcher.md",
-    ".windsurf/workflows/z-researcher.md",
+    ".devin/workflows/z-researcher.md",
   ],
   "z-retro": [
     ".claude/commands/z-retro.md",
-    ".windsurf/workflows/z-retro.md",
+    ".devin/workflows/z-retro.md",
   ],
   "z-soc": [
     ".claude/commands/z-soc.md",
-    ".windsurf/workflows/z-soc.md",
+    ".devin/workflows/z-soc.md",
   ],
   zscaler: [
     "zscaler",
-    ".windsurf/rules/zscaler.md",
+    ".devin/rules/zscaler.md",
   ],
   "zscaler-skill-setup": [
     ".agents/skills/zscaler-skill-setup/SKILL.md",

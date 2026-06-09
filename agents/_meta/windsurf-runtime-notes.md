@@ -12,7 +12,7 @@ author-status: draft
 
 # Windsurf runtime — conventions for workflow / rules authoring
 
-How Windsurf processes the files in `.windsurf/`, distilled from the work framework agent's answers. These are the load-bearing facts for anyone editing workflow / rules content in this repo.
+How Windsurf processes the files in `.devin/`, distilled from the work framework agent's answers. These are the load-bearing facts for anyone editing workflow / rules content in this repo.
 
 ## File-path references in workflows are not auto-resolved
 
@@ -28,7 +28,7 @@ The Windsurf runtime does **not** automatically inline files referenced from ins
 
 User input arrives as the next chat turn. There is no placeholder syntax that gets substituted into the workflow body before the prompt is sent to the model.
 
-**Implication**: workflow bodies use the "user's input follows in the chat" framing. The Claude Code shim (`.claude/commands/*.md`) uses `$ARGUMENTS`; the Windsurf shim (`.windsurf/workflows/*.md`) cannot, and tells the model to read the user's framing from the next message.
+**Implication**: workflow bodies use the "user's input follows in the chat" framing. The Claude Code shim (`.claude/commands/*.md`) uses `$ARGUMENTS`; the Windsurf shim (`.devin/workflows/*.md`) cannot, and tells the model to read the user's framing from the next message.
 
 **Claude Code** (`.claude/commands/audit.md`):
 
@@ -38,7 +38,7 @@ User input arrives as the next chat turn. There is no placeholder syntax that ge
 >
 > Parse the scope, ...
 
-**Windsurf** (`.windsurf/workflows/z-auditor.md`):
+**Windsurf** (`.devin/workflows/z-auditor.md`):
 
 > The user's audit scope follows this command in the chat. Parse it, ...
 
@@ -60,11 +60,11 @@ Three persistence / loading mechanisms in Windsurf:
 
 | Mechanism | Loading | Use case |
 |---|---|---|
-| `.windsurf/rules/*.md` | Always loaded into session context | Persistent global guidance — analog of CLAUDE.md |
-| `.windsurf/workflows/*.md` | On-demand (slash commands) | Invokable procedures — analog of `.claude/commands/` |
+| `.devin/rules/*.md` | Always loaded into session context | Persistent global guidance — analog of CLAUDE.md |
+| `.devin/workflows/*.md` | On-demand (slash commands) | Invokable procedures — analog of `.claude/commands/` |
 | Memory | Persistence layer separate from both | Cross-session state |
 
-**Implication for `.windsurf/rules/`**: use sparingly. Anything in rules adds to every session's context budget. Reserve rules for high-leverage facts that genuinely apply to every conversation in this repo (e.g., "this is a Zscaler skill; canonical references live under `references/`; never commit tenant-specific identifiers").
+**Implication for `.devin/rules/`**: use sparingly. Anything in rules adds to every session's context budget. Reserve rules for high-leverage facts that genuinely apply to every conversation in this repo (e.g., "this is a Zscaler skill; canonical references live under `references/`; never commit tenant-specific identifiers").
 
 ## Model pinning is session-level, not workflow-level
 
@@ -78,7 +78,7 @@ Verified diagnostics follow the same principle at a smaller scale: an ordered co
 
 ## Cross-links
 
-- Windsurf workflow files — `.windsurf/workflows/z-investigator.md`, `z-auditor.md`, `z-architect.md`
+- Windsurf workflow files — `.devin/workflows/z-investigator.md`, `z-auditor.md`, `z-architect.md`
 - Claude Code parallels — `.claude/commands/z-investigator.md`, `z-auditor.md`, `z-architect.md`
 - [`runtime-adapters.md`](./runtime-adapters.md) — canonical workflow vs portable skill vs runtime adapter policy
 - [`investigator/harness.md`](../investigator/harness.md) — canonical investigator phase/checkpoint contract

@@ -84,7 +84,7 @@ runtime surfaces reduced to thin loaders.
 
 ### Changed
 
-- `.windsurf/workflows/*`, `.claude/commands/*`, `.agents/skills/*`, and the
+- `.devin/workflows/*`, `.claude/commands/*`, `.agents/skills/*`, and the
   repo-root `zscaler` loader are now thin pointers at the canonical workflows;
   the ~600-line Windsurf investigator body was removed in favor of the
   canonical contract.

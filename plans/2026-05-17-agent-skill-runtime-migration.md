@@ -10,7 +10,7 @@ implemented-in: "0.2.0"
 # Agent Skill Runtime Migration Review Packet
 
 > Resolution: the 0.2.0 foundation shipped. Runtime surfaces now load canonical
-> `agents/<role>/workflow.md` entrypoints, with thin `.claude`, `.windsurf`,
+> `agents/<role>/workflow.md` entrypoints, with thin `.claude`, `.devin`,
 > `.agents/skills`, and repo-root loader surfaces. Early candidate skill-loader
 > ideas below that were not needed for 0.2.0 remain roadmap, not release scope.
 
@@ -49,7 +49,7 @@ surfaces as interchangeable would break the workflows.
 The specific hazard:
 
 > We add `.agents/skills`, assume it replaces runtime-specific workflows, thin
-> or delete `.windsurf/workflows/z-investigator.md`, and then discover that
+> or delete `.devin/workflows/z-investigator.md`, and then discover that
 > Windsurf no longer follows the step gates, grounding discipline, journal
 > behavior, or anti-fabrication rules that made `/z-investigator` useful.
 
@@ -102,7 +102,7 @@ Examples:
 
 ```text
 .claude/commands/z-investigator.md
-.windsurf/workflows/z-investigator.md
+.devin/workflows/z-investigator.md
 ```
 
 These files define UX and loading behavior for a specific runtime. They should
@@ -130,11 +130,11 @@ Windsurf file a preserved baseline, not proof of accidental duplication.
 Do not conflate these:
 
 ```text
-.windsurf/skills/**/SKILL.md
-.windsurf/workflows/*.md
+.devin/skills/**/SKILL.md
+.devin/workflows/*.md
 ```
 
-`.windsurf/skills/**` is a Windsurf skill surface. `.windsurf/workflows/*.md`
+`.devin/skills/**` is a Windsurf skill surface. `.devin/workflows/*.md`
 is the Windsurf slash workflow surface.
 
 For Windsurf operator usage, the intended interface remains `/z-*` workflows,
@@ -176,11 +176,11 @@ These observations came from local tests and downstream runtime checks.
 ### Windsurf
 
 - Saw `.agents/skills` in a skill registry.
-- Also saw `.windsurf/skills`.
-- Same-name skills in `.agents/skills` and `.windsurf/skills` both appeared as
+- Also saw `.devin/skills`.
+- Same-name skills in `.agents/skills` and `.devin/skills` both appeared as
   duplicate entries rather than clean directory precedence.
 - Skill invocation/autocomplete was frictional compared with slash workflows.
-- Windsurf operator UX should remain `.windsurf/workflows` slash commands.
+- Windsurf operator UX should remain `.devin/workflows` slash commands.
 
 ### Claude Code
 
@@ -228,21 +228,21 @@ Claude commands:
 Windsurf workflows:
 
 ```text
-.windsurf/workflows/z-architect.md
-.windsurf/workflows/z-auditor.md
-.windsurf/workflows/z-investigator.md
-.windsurf/workflows/z-retro.md
-.windsurf/workflows/z-soc.md
+.devin/workflows/z-architect.md
+.devin/workflows/z-auditor.md
+.devin/workflows/z-investigator.md
+.devin/workflows/z-retro.md
+.devin/workflows/z-soc.md
 ```
 
 Line-count evidence:
 
 ```text
-.windsurf/workflows/z-architect.md      29 lines
-.windsurf/workflows/z-auditor.md        30 lines
-.windsurf/workflows/z-investigator.md  548 lines
-.windsurf/workflows/z-retro.md          27 lines
-.windsurf/workflows/z-soc.md            32 lines
+.devin/workflows/z-architect.md      29 lines
+.devin/workflows/z-auditor.md        30 lines
+.devin/workflows/z-investigator.md  548 lines
+.devin/workflows/z-retro.md          27 lines
+.devin/workflows/z-soc.md            32 lines
 ```
 
 Most Windsurf workflows are already loader-shaped. `/z-investigator` is the
@@ -289,7 +289,7 @@ It validates:
 Current expected warning:
 
 ```text
-.windsurf/workflows/z-investigator.md: runtime adapter is large; confirm it is a deliberate harness or lift the procedure into agents/**
+.devin/workflows/z-investigator.md: runtime adapter is large; confirm it is a deliberate harness or lift the procedure into agents/**
 ```
 
 This warning is useful but should not fail the first migration PR.
@@ -347,7 +347,7 @@ Do not:
 - Rename `/z-*` slash commands to `/zscaler-*`.
 - Treat Windsurf `@skill` UX as the operator workflow interface.
 - Move all canonical workflow logic under `.agents/`.
-- Replace `.windsurf/workflows/z-investigator.md` in the first pass.
+- Replace `.devin/workflows/z-investigator.md` in the first pass.
 - Assume a runtime's skill primitive and command primitive are equivalent.
 - Add private implementation details or private tooling names to public docs.
 - Use successful tests of thin workflows as proof that the mature investigator
@@ -454,7 +454,7 @@ Do not overbuild these in the first PR.
 Keep:
 
 ```text
-.windsurf/workflows/z-investigator.md
+.devin/workflows/z-investigator.md
 ```
 
 unchanged during the first PR except for obvious stale references or comments.
@@ -462,7 +462,7 @@ unchanged during the first PR except for obvious stale references or comments.
 Create a parallel candidate later:
 
 ```text
-.windsurf/workflows/z-investigator-v2.md
+.devin/workflows/z-investigator-v2.md
 ```
 
 Do not overwrite current `/z-investigator` until candidate behavior is tested
@@ -583,8 +583,8 @@ Include:
 
 Exclude:
 
-- Replacing `.windsurf/workflows/z-investigator.md`.
-- Adding `.windsurf/workflows/z-investigator-v2.md`.
+- Replacing `.devin/workflows/z-investigator.md`.
+- Adding `.devin/workflows/z-investigator-v2.md`.
 - Implementing JSON artifact schemas.
 - Runtime-specific generated adapter mirrors.
 - Any private tooling names or implementation details.
@@ -623,7 +623,7 @@ When reviewing this plan:
 
 1. Do not suggest replacing the current `/z-investigator` unless you also
    provide a parity test strategy.
-2. Do not treat `.agents/skills` as equivalent to `.windsurf/workflows`.
+2. Do not treat `.agents/skills` as equivalent to `.devin/workflows`.
 3. Do not treat Windsurf `@skill` invocation as acceptable replacement for
    `/z-*` operator UX unless you address the observed autocomplete friction.
 4. Focus on primitive boundaries, migration safety, and testability.
