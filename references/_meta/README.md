@@ -26,7 +26,6 @@ Anything under `references/_meta/` is skill-internal. Anything else under `refer
 | [`clarifications.md`](./clarifications.md) | The canonical register of open + resolved questions across the skill. Each gets a stable ID (`zia-03`, `shared-02`, etc.) referenced from topical docs. |
 | [`evals/evals.json`](./evals/evals.json) | 19 hand-written behavioral evals — prompt + expected output + assertions + must-cite + must-not-say. See [`evals/README.md`](./evals/README.md) and `scripts/run-evals.py`. |
 | [`layering-model.md`](./layering-model.md) | The skill's mental layering model — what's vendor truth vs. derived vs. opinionated. |
-| [`policy-simulation.md`](./policy-simulation.md) | Notes on the policy-simulation reasoning approach used by the simulate scripts. |
 | [`portfolio-map.md`](./portfolio-map.md) | Top-level catalog of every Zscaler product with depth tier (deep-dive / awareness / out-of-scope). Entry point for "does Zscaler have a product for X?" questions. |
 | [`primer/`](./primer/) | Foundational educational material — networking basics, identity, zero-trust philosophy, Zscaler platform shape. Synthesis docs, not vendor-sourced; cite-light by design. |
 | [`runbooks.md`](./runbooks.md) | Cross-product operational runbooks. |

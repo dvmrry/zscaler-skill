@@ -9,7 +9,6 @@ source-tier: code
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zcc/models/"
   - "vendor/zscaler-sdk-python/zscaler/zcc/"
-  - "scripts/snapshot-refresh.py"
 author-status: draft
 ---
 

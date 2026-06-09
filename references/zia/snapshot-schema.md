@@ -10,7 +10,6 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zia/models/"
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
   - "vendor/terraform-provider-zia/zia/"
-  - "scripts/snapshot-refresh.py"
 author-status: draft
 ---
 

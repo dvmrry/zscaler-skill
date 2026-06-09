@@ -10,7 +10,6 @@ sources:
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
   - "vendor/zscaler-sdk-python/zscaler/zpa/"
   - "vendor/terraform-provider-zpa/zpa/"
-  - "scripts/snapshot-refresh.py"
 author-status: draft
 ---
 

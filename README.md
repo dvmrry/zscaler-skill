@@ -42,18 +42,14 @@ Ask grounded questions directly:
 @zscaler does *.example.com cover app.example.com?
 ```
 
-For tenant-specific answers, mount a runtime-data snapshot, then use the public-safe operational path:
+For tenant-specific answers, mount a runtime-data snapshot into `_data/`:
 
 ```bash
 node scripts/setup-data-mount.mjs --data-url <git-url-or-path> --data-ref <branch> --mode checkout
 node scripts/check-data-contract.mjs
-./scripts/snapshot-refresh.py            # pull a first snapshot (needs ZSCALER_* creds)
-
-./scripts/url-lookup.py https://www.reddit.com
-./scripts/simulate-policy.py --url https://www.reddit.com
 ```
 
-Snapshot-backed scripts and reference-hygiene tooling are operational in the public repo. Credentialed live-tenant reads are out of scope for this repo — the read-only [`zscalerctl`](https://github.com/dvmrry/zscalerctl) CLI is the tenant-read surface.
+The snapshot itself is populated out of band — e.g. a private overlay, or a sanitized dump from the read-only [`zscalerctl`](https://github.com/dvmrry/zscalerctl) CLI. Credentialed tenant reads are out of scope for this repo; the references plus a mounted snapshot are the operational surface.
 
 ## Entry points
 

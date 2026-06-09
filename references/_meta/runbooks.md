@@ -500,8 +500,6 @@ Some changes can't be rolled back even with the patterns above:
 - **Test on a non-production tenant first if available.** A dev / sandbox tenant lets you exercise the activation gate without production-impact risk.
 - **For ZPA, plan the maintenance window.** Propagate-on-write means risky changes affect users immediately. Schedule them.
 
-For the simulator-based pattern of "validate the change before applying," see [`policy-simulation.md § Change validation`](policy-simulation.md).
-
 ## Cross-links
 
 - Authentication mechanisms (full reference, not runbook): [`../shared/oneapi.md § Authentication mechanisms`](../shared/oneapi.md)
