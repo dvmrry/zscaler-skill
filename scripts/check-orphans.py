@@ -92,7 +92,6 @@ def collect_source_files(repo_root: Path) -> list[Path]:
 def collect_linked_targets(sources: list[Path], repo_root: Path) -> set[Path]:
     """Resolve every link / path / dir reference in source files to absolute paths."""
     targets: set[Path] = set()
-    refs = repo_root / "references"
 
     for src in sources:
         try:

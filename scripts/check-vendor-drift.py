@@ -232,7 +232,7 @@ def main() -> int:
                 print(f"  {f['ref']}: cites {f['submodule']}")
             if len(unverified) > 10:
                 print(f"  ... and {len(unverified) - 10} more")
-            print(f"  (Add `verified-against:` to ref frontmatter at next verification cycle to enable drift tracking.)")
+            print("  (Add `verified-against:` to ref frontmatter at next verification cycle to enable drift tracking.)")
             print()
 
         if not (drifted_high or drifted_low or unverified):

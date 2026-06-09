@@ -22,7 +22,7 @@ Usage:
 import re
 import subprocess
 import sys
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 
 
@@ -108,11 +108,11 @@ def run_tests() -> list[dict]:
     for i, case in enumerate(TEST_CASES, 1):
         print(f"[{i}/{len(TEST_CASES)}] {case.question[:60]}...", flush=True)
 
-        print(f"  A (baseline)...", flush=True)
+        print("  A (baseline)...", flush=True)
         ans_a = run_agent(CONDITION_A, case.question, case.expected)
         found_a = extract_signals(ans_a, case.expected)
 
-        print(f"  B (variant) ...", flush=True)
+        print("  B (variant) ...", flush=True)
         ans_b = run_agent(CONDITION_B, case.question, case.expected)
         found_b = extract_signals(ans_b, case.expected)
 

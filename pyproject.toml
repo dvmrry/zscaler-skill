@@ -40,3 +40,23 @@ scripts = [
 # find-asymmetries, run-evals, simulate-policy.
 # They use the uv-script shebang for consistency, not because they need
 # external deps.
+
+[tool.ruff]
+target-version = "py310"
+# The snapshot/tenant tooling (snapshot-refresh, simulate-policy, policy_simulator,
+# url-lookup) is slated to move out to the zscalerctl-based tooling layer; it is
+# intentionally not linted here rather than maintained in place.
+extend-exclude = [
+    "scripts/snapshot-refresh.py",
+    "scripts/simulate-policy.py",
+    "scripts/policy_simulator.py",
+    "scripts/url-lookup.py",
+    "vendor",
+    "_data",
+]
+
+[tool.ruff.lint]
+# Bug-catching only, mirroring the Biome JS config: pyflakes (F), syntax (E9),
+# and bugbear (B). Style/formatting (E/W), complexity, and the noisy bandit (S)
+# subprocess/try-except rules are intentionally not enforced.
+select = ["F", "E9", "B"]
