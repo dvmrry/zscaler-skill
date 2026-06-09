@@ -4,6 +4,13 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.4.5](https://github.com/dvmrry/zscaler-skill/compare/v0.4.4...v0.4.5) (2026-06-09)
+
+
+### Bug Fixes
+
+* **docs:** correct invalid [@import](https://github.com/import) position and lint CSS in CI ([#76](https://github.com/dvmrry/zscaler-skill/issues/76)) ([de00f93](https://github.com/dvmrry/zscaler-skill/commit/de00f93419aa2e02090a73ec6db85cbf2315a053))
+
 ## [0.4.4](https://github.com/dvmrry/zscaler-skill/compare/v0.4.3...v0.4.4) (2026-06-09)
 
 
