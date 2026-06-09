@@ -3,7 +3,7 @@ product: cloud-connector
 topic: "cloud-connector-api"
 title: "Cloud Connector API — SDKs + Terraform provider"
 content-type: reference
-last-verified: "2026-04-24"
+last-verified: "2026-06-09"
 confidence: medium
 source-tier: mixed
 sources:
@@ -17,6 +17,8 @@ sources:
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/activation/activation.go"
   - "vendor/terraform-provider-ztc/ztc/provider.go"
   - "vendor/terraform-provider-ztc/ztc/config.go"
+  - "vendor/terraform-provider-ztc/ztc/resource_ztc_location_management.go"
+  - "vendor/terraform-provider-zia/zia/resource_zia_location_management.go"
 author-status: draft
 ---
 
@@ -53,6 +55,8 @@ From the inspected Go ZTW service files:
 | `provisioning` | Provisioning URL, public cloud info (AWS account, Azure subscription, GCP project). |
 | `workload_groups` | Workload group CRUD — tag-based workload abstractions for policy. |
 | `common` | Shared models. |
+
+**Location `profile`-tag asymmetry vs ZIA.** ZTW/Cloud Connector location management exposes the same `profile` tag as ZIA (same field, same "defaults to `Unassigned`" semantics) but accepts a **narrower** value set: `NONE`, `CORPORATE`, `SERVER`, `GUESTWIFI`, `IOT` (`vendor/terraform-provider-ztc/ztc/resource_ztc_location_management.go:276-281`). ZIA additionally accepts `WORKLOAD` and `EXTRANET` (`vendor/terraform-provider-zia/zia/resource_zia_location_management.go:385-392`). So a Cloud Connector deployment location **cannot** be tagged `WORKLOAD` or `EXTRANET` — those two profile types are ZIA-only. Verified against both TF provider validators (Tier A).
 
 **Go-SDK authentication status**: the current vendored Go ZTW client configuration is the legacy CBC/ZTC credential surface (`ZTC_USERNAME`, `ZTC_PASSWORD`, `ZTC_API_KEY`, `ZTC_CLOUD`, plus optional `ZSCALER_PARTNER_ID`). Do not assume standard ZIdentity OAuth for Go ZTW automation from this capture alone.
 
