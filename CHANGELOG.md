@@ -4,6 +4,13 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.4.6](https://github.com/dvmrry/zscaler-skill/compare/v0.4.5...v0.4.6) (2026-06-09)
+
+
+### Documentation
+
+* **cloud-connector:** note ZTW location profile-tag asymmetry vs ZIA ([#80](https://github.com/dvmrry/zscaler-skill/issues/80)) ([158ea10](https://github.com/dvmrry/zscaler-skill/commit/158ea10c285a5266d45bc455687542141e19e972))
+
 ## [0.4.5](https://github.com/dvmrry/zscaler-skill/compare/v0.4.4...v0.4.5) (2026-06-09)
 
 
