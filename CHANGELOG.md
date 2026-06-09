@@ -4,6 +4,13 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.4.3](https://github.com/dvmrry/zscaler-skill/compare/v0.4.2...v0.4.3) (2026-06-09)
+
+
+### Bug Fixes
+
+* **scripts:** harden and dedup Node workflow helpers ([#66](https://github.com/dvmrry/zscaler-skill/issues/66)) ([a933305](https://github.com/dvmrry/zscaler-skill/commit/a933305e42e3cbd25e76c98aa9d62dffb00cd848))
+
 ## [0.4.2](https://github.com/dvmrry/zscaler-skill/compare/v0.4.1...v0.4.2) (2026-06-08)
 
 
