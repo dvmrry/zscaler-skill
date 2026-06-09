@@ -261,7 +261,7 @@ Query params for `list_by_company`: `page` (int), `page_size` (int), `search` (s
 
 ### API gotchas
 
-**Response envelope**: The list endpoint wraps results under `trustedNetworkContracts`, not at the top-level array. The Go SDK unwraps it via `TrustedNetworksResponse.TrustedNetworkContracts []TrustedNetwork` (`trusted_network.go:38–41`); the Python SDK unwraps it at `trusted_networks.py:86`: `trusted_networks = response_body.get("trustedNetworkContracts", [])`. Any custom lister (snapshot-refresh.py or similar) must unwrap this key.
+**Response envelope**: The list endpoint wraps results under `trustedNetworkContracts`, not at the top-level array. The Go SDK unwraps it via `TrustedNetworksResponse.TrustedNetworkContracts []TrustedNetwork` (`trusted_network.go:38–41`); the Python SDK unwraps it at `trusted_networks.py:86`: `trusted_networks = response_body.get("trustedNetworkContracts", [])`. Any custom lister must unwrap this key.
 
 **Create doesn't return the new object**: POST `/create` returns only `{success, errorCode}` — not the created TrustedNetwork. Documented in the Go SDK comment block at `trusted_network.go:43–46` ("The contract (id, networkName, etc.) is not returned; resolve the resource via `GetTrustedNetworkByName` after create"); struct definition at `trusted_network.go:47–50`. The Go SDK works around this by retrying `GetTrustedNetworkByName` up to 6 times with 2-second delays after create (`trusted_network.go:154–166`). The Python SDK doesn't implement this retry — callers using the Python SDK must re-fetch manually after create.
 

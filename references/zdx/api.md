@@ -144,17 +144,6 @@ See [`../shared/oneapi.md § Three authentication mechanisms`](../shared/oneapi.
 - **Read-only emphasis**: `apps`, `devices`, `users`, `inventory` are all read-only. Configuration (adding apps, creating probes, defining alert rules) goes through the admin portal, not the API. A fork admin looking for "add a probe programmatically" will not find it in the current SDK surface.
 - **Time-range parameters** are expected on most metric endpoints (`from`, `to`, or similar date params). Exact parameter names vary per endpoint — check SDK method signatures before calling.
 
-## Snapshotting ZDX
-
-`scripts/snapshot-refresh.py` doesn't yet dump ZDX. Adding it would mean:
-
-- `client.zdx.apps.list_apps` → `_data/snapshot/<cloud>/zdx/apps.json`
-- `client.zdx.devices.list_devices` → `_data/snapshot/<cloud>/zdx/devices.json`
-- `client.zdx.alerts.list_ongoing` + `list_historical` → `_data/snapshot/<cloud>/zdx/alerts-ongoing.json` + `_data/snapshot/<cloud>/zdx/alerts-historical.json`
-- `client.zdx.inventory.list_softwares` → `_data/snapshot/<cloud>/zdx/software-inventory.json`
-
-**Caveat**: ZDX data is fundamentally time-series — a single snapshot captures a point-in-time view of what ZDX currently reports. Unlike ZIA/ZPA config (which changes slowly), ZDX metrics update every 5 minutes. A snapshot is useful for "what's the current state?" but not for historical analysis — use the time-range query params on live API calls for that.
-
 ## Rate limits
 
 ZDX uses tier-based rate limits keyed to license count (different from ZIA's weight-based / ZPA's per-IP). See [`../shared/oneapi.md § ZDX — tier-based by license count`](../shared/oneapi.md) for the table. Response headers: `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` (UTC epoch seconds — note the `RateLimit-*` form, distinct from ZIA's lowercase `x-ratelimit-*`).

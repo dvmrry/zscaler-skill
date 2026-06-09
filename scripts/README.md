@@ -27,7 +27,7 @@ use the read-only `zscalerctl` CLI for tenant reads.
 - **Shebang**: `#!/usr/bin/env -S uv run --quiet --script`
 - **PEP 723 block**: declares `requires-python` and `dependencies`
 - **Stdlib-only scripts** still use the uv shebang (with `dependencies = []`) for consistency — direct invocation works the same way regardless of whether deps are external.
-- **Library files** (no shebang) are imported by other scripts: `agent_patterns.py`, `policy_simulator.py`.
+- **Library files** (no shebang) are imported by other scripts: `agent_patterns.py`.
 - **Bash scripts** (`check-citations.sh`, `check-staleness.sh`, etc.) are direct-invokable (`./scripts/<name>.sh`).
 - **Node helpers** use only Node standard libraries when they exist to support
   runtime workflow gates without adding a project install step.
@@ -39,9 +39,8 @@ use the read-only `zscalerctl` CLI for tenant reads.
 | **Hygiene / CI** | `check-fast.mjs` (parallel local fast gate), `check-hygiene.py`, `check-citations.sh` / `check-citations.mjs`, `check-citation-density.py` (density advisory; source-line audit + citation inventory regression strict in CI), `check-agent-skills.py` (portable Agent Skill contract and adapter-shape check), `check-workflow-metadata.mjs` (workflow metadata and adapter-reference check), `check-doc-links.py`, `check-orphans.py`, `check-workflow-evals.py`, `check-vendor-drift.py`, `check-scrape-freshness.py`, `vendor-impact-summary.py`, `find-asymmetries.py` |
 | **Manual hygiene** | `check-staleness.sh`, `check-data-contract.mjs`, `setup-data-mount.mjs`, `prepare-overlay-submission.mjs` |
 | **Eval suite** | `run-evals.py`, `benchmark-investigator-helper.mjs` |
-| **Tenant API operations** | `snapshot-refresh.py`, `url-lookup.py` |
-| **Reasoning helpers** | `agent_patterns.py` (lib), `policy_simulator.py` (lib), `simulate-policy.py`, `ab-test-prompt.py` (experimental placeholder), `investigator-artifacts.mjs` |
-| **Maintenance** | `issue-watch.py`, `maintenance-digest.py`, `refresh-postman.sh`, `refresh-automate-zscaler.sh`, `snapshot-refresh.py`, `convert-pdf-sources.sh`, `splunk-query.sh` (stub) |
+| **Reasoning helpers** | `agent_patterns.py` (lib), `ab-test-prompt.py` (experimental placeholder), `investigator-artifacts.mjs` |
+| **Maintenance** | `issue-watch.py`, `maintenance-digest.py`, `refresh-postman.sh`, `refresh-automate-zscaler.sh`, `convert-pdf-sources.sh`, `splunk-query.sh` (stub) |
 | **Build** | `render-skill-pdf.py` |
 
 ## Aggregated dependencies
@@ -51,35 +50,8 @@ Listed in [`../pyproject.toml`](../pyproject.toml) under `[project.optional-depe
 Currently used:
 
 - `pyyaml>=6` — frontmatter parsing
-- `zscaler-sdk-python>=1.7` — SDK-calling scripts
 - `httpx>=0.27` — GitHub API calls (issue-watch and maintenance digest sticky issues)
 - `markdown>=3.5`, `pymdown-extensions>=10` — PDF rendering
-
-## Expected first-run output
-
-A successful `snapshot-refresh.py` run against a small tenant looks like:
-
-```text
-$ ./scripts/snapshot-refresh.py --zia-only
-zia:
-  ✓ url-categories: 142 records -> _data/snapshot/zs2/zia/url-categories.json
-  ✓ url-filtering-rules: 37 records -> _data/snapshot/zs2/zia/url-filtering-rules.json
-  ✓ cloud-app-control-rules: 12 records -> _data/snapshot/zs2/zia/cloud-app-control-rules.json
-  ✓ ssl-inspection-rules: 8 records -> _data/snapshot/zs2/zia/ssl-inspection-rules.json
-  ✓ advanced-settings: 1 records -> _data/snapshot/zs2/zia/advanced-settings.json
-
-manifest -> _data/snapshot/zs2/_manifest.json
-```
-
-The public snapshot layout is cloud-first: `_data/snapshot/<cloud>/zia/`,
-`_data/snapshot/<cloud>/zpa/`, and `_data/snapshot/<cloud>/zcc/`. The manifest
-records the selected cloud or tenant slug.
-
-`simulate-policy.py` reads the cloud-first layout by default. Pass
-`--cloud <name>` or set `ZSCALER_CLOUD` to select a specific snapshot. Legacy
-product-first snapshots remain a read fallback for older local exports.
-Pass `--snapshot-root <path>` when the snapshot directory is not
-`_data/snapshot`.
 
 When a reference doc intentionally adds, removes, or restructures visible
 `Source:` coverage, regenerate the citation inventory in the same PR:
@@ -181,11 +153,6 @@ push by default. Configure the overlay target in local
 `zscaler-skill-setup.json` under `overlaySubmission`, or pass `--repo-url`.
 The overlay repository is treated as the `_data` content root, so runtime paths
 are copied without the `_data/` prefix (`_data/cases/foo` → `cases/foo`).
-
-For `snapshot-refresh.py` output, lines prefixed `!` indicate a per-resource
-fetch failure; the run continues. Lines prefixed `-` indicate that the SDK
-surface for that resource was not found, likely due to SDK version lag; those
-do not block the rest of the run.
 
 ## When to add a new script
 

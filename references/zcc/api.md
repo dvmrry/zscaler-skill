@@ -157,18 +157,6 @@ def call(method, *args, **kwargs):
 
 For troubleshooting these patterns, see [`../_meta/runbooks.md § Troubleshooting flows`](../_meta/runbooks.md).
 
-## Snapshotting ZCC configuration
-
-`scripts/snapshot-refresh.py` currently does not dump ZCC resources. Adding them means extending `refresh_zia(...)` (misleadingly named — it's a full-tenant refresh orchestrator) with entries for:
-
-```python
-("zcc-forwarding-profiles", "forwarding_profile.list_by_company", "zcc"),
-("zcc-trusted-networks",    "trusted_networks.list_by_company", "zcc"),
-("zcc-fail-open-policy",    "fail_open_policy.list_by_company", "zcc"),
-```
-
-…then extending the service-resolution from `getattr(client.zia, svc)` to handle a `zcc` namespace. Not done yet; follow-up for a fork admin that wants ZCC-aware tenant-specific answers. See `PLAN.md § 4. Snapshot schema docs` for the general rationale.
-
 ## Open questions
 
 See also `../_meta/clarifications.md` entries `zcc-01` through `zcc-06` — enum values on key fields are all inferred from field names and not validated by the SDK.

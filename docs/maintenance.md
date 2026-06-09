@@ -78,8 +78,9 @@ empty.
   layer; diagnosis of specific blocks still requires the ZIA Admin Console.
 - **Credentialed live-tenant diagnostics are out of scope.** Tenant reads are
   handled by the read-only `zscalerctl` CLI; the never-validated SDK diagnostic
-  scaffolds were removed (2026-06). `url-lookup.py`, `simulate-policy.py`, and
-  `snapshot-refresh.py` are the supported public operational path.
+  scaffolds were removed (2026-06), as were the SDK snapshot / lookup / simulator
+  scripts. Tenant config is mounted into `_data/snapshot/` out of band (private
+  overlay or `zscalerctl` dump); the references reason over it.
 - **Several clarifications remain open** because they require tenant-specific
   lab tests. See `PLAN.md`.
 - **Snapshot schema docs are deferred** and should be written against real

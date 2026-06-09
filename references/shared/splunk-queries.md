@@ -177,7 +177,7 @@ If `$HOSTNAME` doesn't appear at all, combine with local packet capture or clien
 
 **Purpose:** Detect when configured policy doesn't match observed behavior. Classic example: a rule configured as Allow but logging Block action (or vice versa).
 
-Requires joining a snapshot export against live logs. Candidate approach (requires `snapshot_rules.csv` exported by `scripts/snapshot-refresh.py`):
+Requires joining a snapshot export against live logs. Candidate approach (requires a `snapshot_rules.csv` export from the snapshot):
 
 ```spl
 | inputlookup snapshot_rules.csv

@@ -42,7 +42,6 @@ META_DOCS = [
     "references/_meta/clarifications.md",
     "references/_meta/runbooks.md",
     "references/_meta/agent-patterns.md",
-    "references/_meta/policy-simulation.md",
 ]
 QUICK_FILES = [
     "SKILL.md",

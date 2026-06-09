@@ -17,7 +17,7 @@ author-status: draft
 
 Source: `vendor/zscaler-sdk-python/zscaler/zia/models/`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/terraform-provider-zia/zia/`.
 
-Operational reference for the JSON files `scripts/snapshot-refresh.py` writes under `_data/snapshot/<cloud>/zia/`. Pre-written from SDK model classes (`vendor/zscaler-sdk-python/zscaler/zia/models/`) + Postman API surface + Terraform provider schema + existing reasoning docs. Once a real fork-admin run produces tenant data, validate this doc against actual JSON and bump confidence to `high`.
+Operational reference for the ZIA config JSON under `_data/snapshot/<cloud>/zia/`. Pre-written from SDK model classes (`vendor/zscaler-sdk-python/zscaler/zia/models/`) + Postman API surface + Terraform provider schema + existing reasoning docs. Once a real fork-admin run produces tenant data, validate this doc against actual JSON and bump confidence to `high`.
 
 ## Files written by `--zia-only`
 
@@ -495,7 +495,7 @@ Cross-links: [`./url-filtering.md § cascading`](./url-filtering.md), [`./cloud-
 
 ## What's NOT yet in the snapshot
 
-Resources `snapshot-refresh.py` doesn't currently dump that you might want to extend it to cover:
+Resources the snapshot layout doesn’t currently cover:
 
 | Resource | API path | Why useful |
 |---|---|---|

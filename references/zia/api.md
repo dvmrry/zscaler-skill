@@ -148,7 +148,7 @@ while resp.has_next():
     all_records.extend(next_records)
 ```
 
-`scripts/snapshot-refresh.py` uses this pattern. Custom callers should not assume the first call returns the full collection; always check `resp.has_next()` even if you expect a small dataset.
+Custom callers should not assume the first call returns the full collection; always check `resp.has_next()` even if you expect a small dataset.
 
 ## Activation lifecycle
 

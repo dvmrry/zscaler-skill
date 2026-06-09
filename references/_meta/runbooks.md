@@ -135,7 +135,7 @@ See [`../shared/oneapi.md § Authentication mechanisms`](../shared/oneapi.md) fo
 
 1. `find _data/snapshot/<cloud> -mindepth 2 -type f -print -quit` — if it prints nothing, no snapshot exists for that cloud.
 2. `cat _data/snapshot/_manifest.json` — inspect timestamps. Fields older than the last tenant config change are stale.
-3. Re-run `./scripts/snapshot-refresh.py` to update.
+3. Re-populate `_data/snapshot/` to update.
 
 If snapshot is empty (upstream skill default), the skill should DECLINE tenant-specific questions per the SKILL.md "When to decline" rules. This is a feature, not a bug — it prevents the skill from confabulating tenant data.
 
@@ -197,34 +197,10 @@ Start
 │           See references/zia/sandbox.md if dealing with sandbox rules.
 │
 ├─ Is the URL falling into a different category than expected?
-│  └─ Use scripts/url-lookup.py to verify category resolution.
+│  └─ Verify the URL’s category resolution against the snapshot or logs.
 │           Specificity-wins-across-custom-categories may route the request to a different rule.
 │
 └─ Still not behaving → Check Web Insights logs for "Blocked Policy Type"; the answer is in the data.
-```
-
-### TS-3 — "Snapshot script returned no data" or "scripts/snapshot-refresh.py errored"
-
-```
-Start
-├─ Are submodules initialized?
-│  └─ Run: git submodule update --init --recursive
-│
-├─ Is uv installed and on PATH?
-│  └─ Run: which uv  (install via curl -LsSf https://astral.sh/uv/install.sh | sh)
-│
-├─ Are credentials set?
-│  └─ Check: env | grep ZSCALER  (or ZIA_/ZPA_/ZCC_ for legacy)
-│
-├─ Did the SDK instantiate cleanly?
-│  └─ Run: python3 -c "from zscaler import ZscalerClient; ZscalerClient({'client_id': '...', ...})"
-│
-├─ 429 rate-limited?
-│  └─ See TS-5 below.
-│
-└─ Per-resource failures (some succeed, some don't)?
-   └─ Look at _data/schemas/snapshot-refresh.log; failures prefixed with `!`.
-      `-` prefix = SDK doesn't expose that resource (e.g., older SDK version).
 ```
 
 ### TS-4 — "Activation is stuck or returning 409"
@@ -388,8 +364,8 @@ else:
 ### Service account hygiene
 
 - **Use dedicated automation accounts**, not personal admin accounts. Personal accounts get rotated when admins leave; automation breaks silently.
-- **Scope each API client to least privilege.** ZIdentity API clients can be scoped per-product (ZIA-only, ZPA-only, etc.) and per-permission. A snapshot-refresh client doesn't need write scopes.
-- **Tag clients with what consumes them.** ZIdentity API client name should identify the consuming script/system (e.g., `zscaler-skill-snapshot-refresh-PROD`). Untagged clients become un-rotatable.
+- **Scope each API client to least privilege.** ZIdentity API clients can be scoped per-product (ZIA-only, ZPA-only, etc.) and per-permission. A read-only snapshot client doesn’t need write scopes.
+- **Tag clients with what consumes them.** ZIdentity API client name should identify the consuming script/system (e.g., `zscaler-skill-snapshot-PROD`). Untagged clients become un-rotatable.
 - **Document the rotation schedule** alongside the client. Without a rotation cadence, secrets age silently into security incidents.
 
 ---
@@ -416,9 +392,8 @@ Reversibility differs sharply by product. Pick the right pattern for the product
 ZIA's activation gate is a **rollback window built into the platform**. Use it deliberately.
 
 ```python
-# 1. Snapshot before the change so you have a known-good baseline
-import json, subprocess
-subprocess.run(["./scripts/snapshot-refresh.py", "--zia-only"], check=True)
+# 1. Snapshot _data/snapshot/ before the change so you have a known-good baseline
+import json
 
 # 2. Confirm activation status is clean before starting
 status, _, err = client.zia.activation.get_status()
@@ -432,8 +407,7 @@ rule_dict["action"] = "BLOCK"
 _, _, err = client.zia.url_filtering_rules.update_rule(rule_id=42, **rule_dict)
 if err: raise RuntimeError(f"update_rule: {err}")
 
-# 4. Sanity-check before activating (e.g., re-read and verify, run policy_simulator
-#    against representative URLs, etc.)
+# 4. Sanity-check before activating (e.g., re-read and verify against representative URLs, etc.)
 verified, _, err = client.zia.url_filtering_rules.get_rule(rule_id=42)
 if verified.action != "BLOCK":
     # Revert: re-write with the original
@@ -494,7 +468,7 @@ Some changes can't be rolled back even with the patterns above:
 
 ### Operational guidance
 
-- **Always snapshot before risky changes.** `./scripts/snapshot-refresh.py` is cheap; running it pre-change costs ~30 seconds and gives you a known-good baseline.
+- **Always snapshot before risky changes.** Capturing `_data/snapshot/` pre-change is cheap and gives you a known-good baseline.
 - **Use ZIA's activation gate deliberately.** Stage all related changes together, then activate as one atomic step. Don't activate one change at a time when they're related.
 - **Coordinate concurrent admins.** ZIA's edit lock + activation gate mean concurrent automation can step on each other — see `EDIT_LOCK_NOT_AVAILABLE` in [§ Troubleshooting flows § TS-4](#ts-4-activation-is-stuck-or-returning-409).
 - **Test on a non-production tenant first if available.** A dev / sandbox tenant lets you exercise the activation gate without production-impact risk.

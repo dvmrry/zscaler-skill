@@ -17,7 +17,7 @@ author-status: draft
 
 Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscaler-sdk-python/zscaler/zpa/`; `vendor/terraform-provider-zpa/zpa/`.
 
-Operational reference for the JSON files `scripts/snapshot-refresh.py` writes under `_data/snapshot/<cloud>/zpa/`. Pre-written from the Postman collection (which has rich response samples for ZPA) + SDK source + Terraform provider schema. Once a fork-admin run produces tenant data, validate this doc against actual JSON and bump confidence to `high`.
+Operational reference for the ZPA config JSON under `_data/snapshot/<cloud>/zpa/`. Pre-written from the Postman collection (which has rich response samples for ZPA) + SDK source + Terraform provider schema. Once a fork-admin run produces tenant data, validate this doc against actual JSON and bump confidence to `high`.
 
 ## Files written by `--zpa-only`
 
