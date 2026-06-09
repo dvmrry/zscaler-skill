@@ -11,13 +11,9 @@
 (function () {
   if (window.__leftSidebarInit) return;
   window.__leftSidebarInit = true;
+  if (!window.ZSkill) return; // docs-lib.js must load first (bootstrapped by nav.js)
 
-  const REPO = 'dvmrry/zscaler-skill';
-  const BRANCH = 'main';
-  const RAW = `https://raw.githubusercontent.com/${REPO}/${BRANCH}`;
-  const TREE_API = `https://api.github.com/repos/${REPO}/git/trees/${BRANCH}?recursive=1`;
-  const TREE_CACHE_KEY = 'zskill:ref-tree:v1';
-  const TREE_CACHE_TTL = 1000 * 60 * 30;
+  const { RAW, loadTree, cachedShas, prettify, encodePath, escapeHtml } = window.ZSkill;
   const CONTENT_KEY_PREFIX = 'zskill:content:v1:';
 
   // Hub display labels. Some references/ folders correspond to a hub
@@ -76,11 +72,6 @@
   const SOURCE_URL = PREFIX + 'source.html';
 
 
-  let treeShas = (() => {
-    try { return JSON.parse(localStorage.getItem(TREE_CACHE_KEY + ':shas') || '{}'); }
-    catch (_) { return {}; }
-  })();
-
   // Inject the sidebar shell synchronously so layout settles before
   // the tree fetch completes.
   const sidebar = document.createElement('aside');
@@ -103,41 +94,6 @@
     document.getElementById('ls-tree').innerHTML =
       `<p class="ls-status">Could not load file list.<br><small>${escapeHtml(err.message)}</small></p>`;
   });
-
-  // ── Tree fetch ────────────────────────────────────────────────────
-
-  function readCachedTree() {
-    try {
-      const raw = localStorage.getItem(TREE_CACHE_KEY);
-      if (!raw) return null;
-      const { ts, entries } = JSON.parse(raw);
-      if (Date.now() - ts > TREE_CACHE_TTL) return null;
-      return entries;
-    } catch (_) { return null; }
-  }
-
-  async function loadTree() {
-    const cached = readCachedTree();
-    if (cached) return cached;
-    const r = await fetch(TREE_API, { headers: { 'Accept': 'application/vnd.github+json' } });
-    if (!r.ok) throw new Error(`tree API ${r.status}`);
-    const data = await r.json();
-    const entries = (data.tree || [])
-      .filter(e => e.type === 'blob' && e.path.startsWith('references/') && e.path.endsWith('.md'))
-      .map(e => e.path.slice('references/'.length));
-    const shas = {};
-    for (const e of (data.tree || [])) {
-      if (e.type === 'blob' && e.path.startsWith('references/') && e.path.endsWith('.md')) {
-        shas[e.path.slice('references/'.length)] = e.sha;
-      }
-    }
-    try {
-      localStorage.setItem(TREE_CACHE_KEY, JSON.stringify({ ts: Date.now(), entries }));
-      localStorage.setItem(TREE_CACHE_KEY + ':shas', JSON.stringify(shas));
-    } catch (_) {}
-    treeShas = shas;
-    return entries;
-  }
 
   // ── Render ────────────────────────────────────────────────────────
 
@@ -245,6 +201,7 @@
     const status = document.getElementById('ls-search-status');
     if (!input || !status) return;
 
+    const treeShas = cachedShas();
     const contentCache = {};
     let indexed = 0;
     const total = entries.length;
@@ -357,15 +314,5 @@
     // welcome cluster.
     if (/(readers-guide|onboarding)\.html$/.test(location.pathname)) return '_meta';
     return null;
-  }
-
-  function prettify(s) {
-    return s.replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-  }
-  function encodePath(p) {
-    return p.split('/').map(encodeURIComponent).join('/');
-  }
-  function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 })();

@@ -253,11 +253,24 @@
 
   // Auto-load the shared left-sidebar (file-tree navigation). Always
   // loaded — every page gets the sidebar, and the rail toggle hides
-  // it when desired.
-  const sidebarScript = document.createElement('script');
-  sidebarScript.src = prefix + 'left-sidebar.js?v=5';
-  sidebarScript.async = true;
-  document.body.appendChild(sidebarScript);
+  // it when desired. left-sidebar.js depends on docs-lib.js (window.ZSkill),
+  // so ensure that is present first; pages that include docs-lib.js directly
+  // (hub pages, source.html) skip the extra fetch.
+  ensureDocsLib(function () {
+    const sidebarScript = document.createElement('script');
+    sidebarScript.src = prefix + 'left-sidebar.js?v=6';
+    sidebarScript.async = true;
+    document.body.appendChild(sidebarScript);
+  });
+
+  function ensureDocsLib(cb) {
+    if (window.ZSkill) { cb(); return; }
+    const lib = document.createElement('script');
+    lib.src = prefix + 'docs-lib.js?v=21';
+    lib.onload = cb;
+    lib.onerror = cb; // left-sidebar guards on window.ZSkill and no-ops if absent
+    document.head.appendChild(lib);
+  }
 
   function safeRead(k) {
     try { return localStorage.getItem(k); } catch (_) { return null; }

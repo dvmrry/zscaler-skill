@@ -238,42 +238,13 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
-<script src="nav.js?v=20"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+<script src="docs-lib.js?v=21"></script>
+<script src="nav.js?v=21"></script>
 <script>
 (function () {
-  const REPO = 'dvmrry/zscaler-skill';
-  const BRANCH = 'main';
-  const RAW = `https://raw.githubusercontent.com/${REPO}/${BRANCH}`;
-  const VIEW = `https://github.com/${REPO}/blob/${BRANCH}`;
-  const TREE_API = `https://api.github.com/repos/${REPO}/git/trees/${BRANCH}?recursive=1`;
-  const TREE_CACHE_KEY = 'zskill:ref-tree:v1';
-  const TREE_CACHE_TTL = 1000 * 60 * 30; // 30 min
-
-  // Friendly labels for the top-level groups in references/.
-  const GROUP_LABELS = {
-    'zia': 'ZIA',
-    'zpa': 'ZPA',
-    'zcc': 'ZCC',
-    'zdx': 'ZDX',
-    'zbi': 'ZBI',
-    'zms': 'ZMS',
-    'zwa': 'ZWA',
-    'zidentity': 'ZIdentity',
-    'cloud-connector': 'Cloud Connector',
-    'shared': 'Shared',
-    'ai-security': 'AI Security',
-    'risk360': 'Risk360',
-    'deception': 'Deception',
-    '_meta': 'Meta',
-  };
-  // Order in which groups appear in the sidebar.
-  const GROUP_ORDER = [
-    'zia', 'zpa', 'cloud-connector',
-    'zcc', 'zdx', 'zidentity',
-    'zbi', 'zwa', 'zms',
-    'ai-security', 'risk360', 'deception',
-    'shared', '_meta',
-  ];
+  const { RAW, VIEW, safeHref, escapeHtml, encodePath } = window.ZSkill;
+  const escapeAttr = escapeHtml;
 
   const params = new URLSearchParams(location.search);
   const param = normalizeSourceParam(params.get('p') || '');
@@ -306,9 +277,7 @@
   renderCrumbs(rawParam);
 
   // The file-tree sidebar is provided by the shared left-sidebar.js
-  // (auto-loaded by nav.js). The legacy renderSidebar / loadTree
-  // functions in this file are unused; left for now but safe to delete
-  // in a follow-up.
+  // (auto-loaded by nav.js).
 
   fetchFirst(candidates).then(({ url, text }) => {
     if (!text) {
@@ -379,297 +348,6 @@
   }
 
   function stripQuotes(s) { return s.replace(/^["']|["']$/g, ''); }
-
-  // ── Tree / sidebar ────────────────────────────────────────────────
-
-  async function loadTree() {
-    const cached = readCachedTree();
-    if (cached) return cached;
-    const r = await fetch(TREE_API, { headers: { 'Accept': 'application/vnd.github+json' } });
-    if (!r.ok) throw new Error(`tree API ${r.status}`);
-    const data = await r.json();
-    // Keep entries as paths (strings) for backwards compatibility with
-    // hub-topics.js / nav.js that read the same cache. SHAs are stored
-    // separately and only used by the search content cache.
-    const entries = (data.tree || [])
-      .filter(e => e.type === 'blob' && e.path.startsWith('references/') && e.path.endsWith('.md'))
-      .map(e => e.path.slice('references/'.length));
-    const shas = {};
-    for (const e of (data.tree || [])) {
-      if (e.type === 'blob' && e.path.startsWith('references/') && e.path.endsWith('.md')) {
-        shas[e.path.slice('references/'.length)] = e.sha;
-      }
-    }
-    try {
-      localStorage.setItem(TREE_CACHE_KEY, JSON.stringify({ ts: Date.now(), entries }));
-      localStorage.setItem(TREE_CACHE_KEY + ':shas', JSON.stringify(shas));
-    } catch (_) { /* ignore quota */ }
-    treeShas = shas;
-    return entries;
-  }
-  let treeShas = (() => {
-    try { return JSON.parse(localStorage.getItem(TREE_CACHE_KEY + ':shas') || '{}'); }
-    catch (_) { return {}; }
-  })();
-
-  function readCachedTree() {
-    try {
-      const raw = localStorage.getItem(TREE_CACHE_KEY);
-      if (!raw) return null;
-      const { ts, entries } = JSON.parse(raw);
-      if (Date.now() - ts > TREE_CACHE_TTL) return null;
-      return entries;
-    } catch (_) { return null; }
-  }
-
-  function renderSidebar(entries) {
-    if (!entries || !entries.length) {
-      document.getElementById('sidebar').innerHTML =
-        '<p class="sb-status">No reference files found.</p>';
-      return;
-    }
-
-    // Group entries: top-level files vs subdir files. Files under _meta/
-    // (primer, agent-patterns, layering-model, clarifications, etc.) are
-    // grouped together under the "Meta" label.
-    const groups = {};   // groupKey → [ {path, label} ]
-    const topLevel = []; // files directly under references/
-
-    for (const path of entries) {
-      const parts = path.split('/');
-      if (parts.length === 1) {
-        topLevel.push({ path, label: prettify(parts[0].replace(/\.md$/, '')) });
-      } else {
-        const group = parts[0];
-        if (!groups[group]) groups[group] = [];
-        const fileLabel = parts.slice(1).join('/').replace(/\.md$/, '');
-        groups[group].push({ path, label: prettify(fileLabel) });
-      }
-    }
-
-    // Sort each group: index first, then alpha by label.
-    for (const k of Object.keys(groups)) {
-      groups[k].sort((a, b) => {
-        if (a.path.endsWith('/index.md')) return -1;
-        if (b.path.endsWith('/index.md')) return 1;
-        return a.label.localeCompare(b.label);
-      });
-    }
-    topLevel.sort((a, b) => a.label.localeCompare(b.label));
-
-    // Active path: drop .md and the references/ prefix to compare with `?p=` slugs.
-    const currentSlug = currentSlugFromUrl();
-
-    // Determine the current section group (e.g. "zia", "cloud-connector")
-    // so we can auto-expand only that group on first render. Works for
-    // both section-index slugs ("zia") and deeper file slugs
-    // ("zia/url-filtering"); top-level files keep the References group
-    // expanded.
-    const slugFirstSeg = currentSlug.split('/')[0];
-    const currentGroup = groups[slugFirstSeg] ? slugFirstSeg : null;
-
-    const html = [];
-
-    if (topLevel.length) {
-      const expanded = currentGroup === null;
-      html.push(renderGroup('_top', 'References', topLevel.map(f => ({
-        slug: f.path.replace(/\.md$/, ''),
-        label: f.label,
-        path: f.path,
-      })), currentSlug, expanded));
-    }
-
-    const orderedKeys = [
-      ...GROUP_ORDER.filter(k => groups[k]),
-      ...Object.keys(groups).filter(k => !GROUP_ORDER.includes(k)).sort(),
-    ];
-
-    for (const key of orderedKeys) {
-      const label = GROUP_LABELS[key] || prettify(key);
-      const items = groups[key].map(f => ({
-        slug: f.path.replace(/\.md$/, '').replace(/\/index$/, ''),
-        label: f.path.endsWith('/index.md') ? 'Overview' : f.label,
-        path: f.path,
-      }));
-      html.push(renderGroup(key, label, items, currentSlug, key === currentGroup));
-    }
-
-    document.getElementById('sb-tree').innerHTML = html.join('');
-    setupGroupToggle();
-    setupSearch(entries);
-  }
-
-  function renderGroup(key, label, items, currentSlug, expanded) {
-    const cls = 'sb-group' + (expanded ? ' sb-open' : '');
-    const out = [`<div class="${cls}" data-group="${escapeHtml(key)}">`];
-    out.push(`<button class="sb-group-head" type="button" aria-expanded="${expanded}">`);
-    out.push(`<span class="sb-group-caret" aria-hidden="true">▸</span>`);
-    out.push(`<span class="sb-group-label">${escapeHtml(label)}</span>`);
-    out.push(`<span class="sb-group-count">${items.length}</span>`);
-    out.push(`</button>`);
-    out.push(`<ul class="sb-group-list">`);
-    for (const it of items) {
-      out.push(renderSidebarItem(it.slug, it.label, currentSlug, it.path));
-    }
-    out.push(`</ul></div>`);
-    return out.join('');
-  }
-
-  function setupGroupToggle() {
-    const groups = document.querySelectorAll('.sb-group');
-    groups.forEach(g => {
-      const head = g.querySelector('.sb-group-head');
-      head.addEventListener('click', () => {
-        const open = g.classList.toggle('sb-open');
-        head.setAttribute('aria-expanded', open ? 'true' : 'false');
-      });
-    });
-  }
-
-  function renderSidebarItem(slug, label, currentSlug, path) {
-    const isActive = slug === currentSlug;
-    const cls = isActive ? ' class="active"' : '';
-    const dataPath = path ? ` data-path="${escapeHtml(path)}"` : '';
-    return `<li><a href="?p=${encodePath(slug)}"${cls}${dataPath}>${escapeHtml(label)}</a></li>`;
-  }
-
-  function currentSlugFromUrl() {
-    const param = normalizeSourceParam(new URLSearchParams(location.search).get('p') || '');
-    if (!param.ok || !param.value) return '_portfolio-map';
-    return param.value.replace(/\.md$/, '');
-  }
-
-  // ── Search ────────────────────────────────────────────────────────
-  // Two-stage filter: instant title/path match, with content match
-  // layered on once each file's body has been fetched. Bodies are
-  // fetched lazily in the background after the page settles, keyed by
-  // file SHA in localStorage so we don't re-fetch unchanged content.
-
-  const CONTENT_KEY_PREFIX = 'zskill:content:v1:';
-
-  function setupSearch(entries) {
-    const input = document.getElementById('sb-search-input');
-    const status = document.getElementById('sb-search-status');
-    if (!input || !status) return;
-
-    const contentCache = {}; // path → lowercased body text
-    let indexed = 0;
-    let totalToIndex = 0;
-
-    // Hydrate from localStorage for files whose SHA matches the current tree
-    for (const path of entries) {
-      const sha = treeShas[path];
-      if (!sha) continue;
-      try {
-        const cached = localStorage.getItem(CONTENT_KEY_PREFIX + sha);
-        if (cached !== null) {
-          contentCache[path] = cached;
-          indexed++;
-        }
-      } catch (_) {}
-    }
-    totalToIndex = entries.length;
-    updateStatus();
-
-    // Background-fetch missing files. Stagger lightly to be a polite
-    // citizen of raw.githubusercontent.com.
-    setTimeout(() => loadAllContent(entries), 250);
-
-    async function loadAllContent(entries) {
-      for (const path of entries) {
-        if (contentCache[path] !== undefined) continue;
-        try {
-          const r = await fetch(`${RAW}/references/${path}`);
-          if (!r.ok) continue;
-          const text = await r.text();
-          // Strip frontmatter and lowercase for cheap indexOf matching.
-          const body = text.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '').toLowerCase();
-          contentCache[path] = body;
-          indexed++;
-          const sha = treeShas[path];
-          if (sha) {
-            try { localStorage.setItem(CONTENT_KEY_PREFIX + sha, body); }
-            catch (_) { /* storage full — skip persistence */ }
-          }
-          if (indexed % 5 === 0) updateStatus();
-          await new Promise(res => setTimeout(res, 25));
-        } catch (_) { /* skip and continue */ }
-      }
-      updateStatus();
-      // If a query is in progress, re-run it so newly-indexed files appear.
-      if (input.value.trim()) onInput();
-    }
-
-    function updateStatus() {
-      if (indexed >= totalToIndex) {
-        status.textContent = '';
-      } else {
-        status.textContent = `Indexing ${indexed}/${totalToIndex}…`;
-      }
-    }
-
-    function onInput() {
-      const q = input.value.trim().toLowerCase();
-      const links = document.querySelectorAll('#sb-tree li a');
-      const headers = document.querySelectorAll('#sb-tree h3');
-
-      if (!q) {
-        links.forEach(a => a.parentElement.classList.remove('no-match'));
-        headers.forEach(h => h.classList.remove('no-match'));
-        // Clear match badges
-        document.querySelectorAll('.match-badge').forEach(b => b.remove());
-        return;
-      }
-
-      const visibleLists = new Set();
-
-      links.forEach(a => {
-        const path = a.dataset.path;
-        const labelText = a.textContent.toLowerCase();
-
-        // Existing badge needs to go before we recompute
-        const existingBadge = a.querySelector('.match-badge');
-        if (existingBadge) existingBadge.remove();
-
-        const titleMatch = labelText.includes(q);
-        const body = contentCache[path];
-        const contentMatch = body !== undefined && body.includes(q);
-
-        const matches = titleMatch || contentMatch;
-        a.parentElement.classList.toggle('no-match', !matches);
-
-        if (matches) {
-          if (!titleMatch && contentMatch) {
-            // Indicate this match came from body content, not the label.
-            const badge = document.createElement('span');
-            badge.className = 'match-badge';
-            badge.textContent = '·';
-            badge.title = 'matches in body text';
-            a.appendChild(badge);
-          }
-          const list = a.closest('ul');
-          if (list) visibleLists.add(list);
-        }
-      });
-
-      // Hide section headers whose list has no visible items
-      headers.forEach(h => {
-        const next = h.nextElementSibling;
-        const visible = next && visibleLists.has(next);
-        h.classList.toggle('no-match', !visible);
-      });
-    }
-
-    input.addEventListener('input', onInput);
-  }
-
-  function prettify(s) {
-    return s.replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-  }
-
-  function encodePath(p) {
-    return p.split('/').map(encodeURIComponent).join('/');
-  }
 
   function normalizeSourceParam(value) {
     const normalized = String(value || '').trim().replace(/^\/+|\/+$/g, '');
@@ -766,17 +444,21 @@
       },
     });
     const html = marked.parse(md);
-    document.getElementById('content').innerHTML = html;
+    document.getElementById('content').innerHTML = DOMPurify.sanitize(html);
   }
 
   function rewriteHref(href, currentDir) {
-    if (/^(https?:|mailto:|tel:|#|data:)/i.test(href)) return href;
-    if (href.startsWith('/')) return href;
-    const m = href.match(/^(.+?)\.md(#.*)?$/);
-    if (!m) return href;
-    const target = resolvePath(currentDir, m[1]);
-    const anchor = m[2] || '';
-    return `?p=${encodePath(target)}${anchor}`;
+    const raw = String(href || '');
+    // Internal relative markdown links route through the source viewer.
+    if (!/^[a-z][a-z0-9+.-]*:/i.test(raw) && !raw.startsWith('/') && !raw.startsWith('#')) {
+      const m = raw.match(/^(.+?)\.md(#.*)?$/);
+      if (m) {
+        const target = resolvePath(currentDir, m[1]);
+        return `?p=${encodePath(target)}${m[2] || ''}`;
+      }
+    }
+    // Everything else is neutralized against javascript:/data:/etc.
+    return safeHref(raw);
   }
 
   function resolvePath(base, rel) {
@@ -798,10 +480,6 @@
     return last.replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
   }
 
-  function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  }
-  function escapeAttr(s) { return escapeHtml(s); }
 
   function showError(msg) {
     const el = document.getElementById('content');
