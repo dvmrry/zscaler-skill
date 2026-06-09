@@ -18,7 +18,7 @@ summary: Journal-first incident retro and postmortem workflow
 primary-command: /z-retro
 known-runtimes:
   - codex
-  - windsurf
+  - devin
   - claude
 required-reads:
   - agents/retro/prompt.md

@@ -24,7 +24,7 @@ author-status: draft
 
 # Audit — editorial / structural lint playbook
 
-This is the playbook invoked by the `/z-auditor` slash command (Claude Code and Windsurf). The shape is **lint** — editorial / structural / hygiene review of references and tenant configuration. Posture-shaped review (RBAC least-privilege, telemetry coverage, threat-model-anchored findings) lives in the sibling `/z-soc` command — see [`soc/prompt.md`](../soc/prompt.md).
+This is the playbook invoked by the `/z-auditor` slash command (Claude Code and Devin). The shape is **lint** — editorial / structural / hygiene review of references and tenant configuration. Posture-shaped review (RBAC least-privilege, telemetry coverage, threat-model-anchored findings) lives in the sibling `/z-soc` command — see [`soc/prompt.md`](../soc/prompt.md).
 
 ## Mode
 

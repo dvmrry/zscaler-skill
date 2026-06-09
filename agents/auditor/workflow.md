@@ -16,7 +16,7 @@ summary: Editorial and structural audit of skill references
 primary-command: /z-auditor
 known-runtimes:
   - codex
-  - windsurf
+  - devin
   - claude
 required-reads:
   - agents/auditor/prompt.md
