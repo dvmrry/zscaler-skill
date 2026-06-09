@@ -9,43 +9,9 @@
 (function () {
   const group = document.body && document.body.dataset && document.body.dataset.hubGroup;
   if (!group) return;
+  if (!window.ZSkill) { if (window.console) console.warn('hub-topics: docs-lib.js not loaded'); return; }
 
-  const REPO = 'dvmrry/zscaler-skill';
-  const BRANCH = 'main';
-  const TREE_API = `https://api.github.com/repos/${REPO}/git/trees/${BRANCH}?recursive=1`;
-  const CACHE_KEY = 'zskill:ref-tree:v1';
-  const CACHE_TTL = 1000 * 60 * 30;
-
-  function readCachedTree() {
-    try {
-      const raw = localStorage.getItem(CACHE_KEY);
-      if (!raw) return null;
-      const { ts, entries } = JSON.parse(raw);
-      if (Date.now() - ts > CACHE_TTL) return null;
-      return entries;
-    } catch (_) { return null; }
-  }
-
-  async function loadTree() {
-    const cached = readCachedTree();
-    if (cached) return cached;
-    const r = await fetch(TREE_API, { headers: { Accept: 'application/vnd.github+json' } });
-    if (!r.ok) throw new Error('tree API ' + r.status);
-    const data = await r.json();
-    const entries = (data.tree || [])
-      .filter(e => e.type === 'blob' && e.path.startsWith('references/') && e.path.endsWith('.md'))
-      .map(e => e.path.slice('references/'.length));
-    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), entries })); } catch (_) { /* quota */ }
-    return entries;
-  }
-
-  function prettify(s) {
-    return s.replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-  }
-
-  function encodePath(p) {
-    return p.split('/').map(encodeURIComponent).join('/');
-  }
+  const { loadTree, prettify, encodePath, escapeHtml } = window.ZSkill;
 
   loadTree().then(entries => {
     const items = entries
@@ -64,7 +30,7 @@
     const section = document.createElement('section');
     section.className = 'topic-list-section';
     const links = items.map(it =>
-      `<a href="../source.html?p=${encodePath(it.slug)}">${it.label}</a>`
+      `<a href="../source.html?p=${encodePath(it.slug)}">${escapeHtml(it.label)}</a>`
     ).join('');
     section.innerHTML =
       '<h3 class="topic-list-heading">Documents</h3>' +
