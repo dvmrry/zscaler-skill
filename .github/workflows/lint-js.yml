@@ -1,0 +1,37 @@
+name: Lint JS
+
+# Bug-catching lint for the Node helper scripts (scripts/*.mjs) and the docs
+# site browser JS (docs/*.js). Uses Biome with only the correctness / suspicious
+# / security rule groups enabled (see biome.json) — style and formatting are
+# intentionally not enforced. The repo has no package.json, so Biome is run via
+# a pinned npx invocation rather than a committed dependency.
+
+on:
+  pull_request:
+    paths:
+      - "docs/**/*.js"
+      - "scripts/**/*.mjs"
+      - "biome.json"
+      - ".github/workflows/lint-js.yml"
+  push:
+    branches: [main]
+    paths:
+      - "docs/**/*.js"
+      - "scripts/**/*.mjs"
+      - "biome.json"
+      - ".github/workflows/lint-js.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  biome:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Biome lint (correctness / suspicious / security)
+        run: npx --yes @biomejs/biome@1.9.4 lint docs scripts

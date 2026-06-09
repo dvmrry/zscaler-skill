@@ -125,7 +125,7 @@ async function checkLinks(root, files, checkUrls) {
           brokenUrls.push(`${relFile} -> ${target}`);
         }
       } else if (target.startsWith("mailto:") || target.startsWith("#")) {
-        continue;
+        // mailto: and in-page anchors need no resolution
       } else {
         totalPaths += 1;
         const relativePath = targetPath(target);
