@@ -148,7 +148,7 @@ while resp.has_next():
     all_records.extend(next_records)
 ```
 
-`scripts/snapshot-refresh.py` uses this pattern. Custom callers should not assume the first call returns the full collection; always check `resp.has_next()` even if you expect a small dataset.
+Custom callers should not assume the first call returns the full collection; always check `resp.has_next()` even if you expect a small dataset.
 
 ## Activation lifecycle
 
@@ -526,17 +526,6 @@ Notable ZIA resources at `vendor/terraform-provider-zia/docs/resources/`:
 - `zia_cloud_nss_feed` — NSS feed config
 
 Data sources mirror many of these (see `vendor/terraform-provider-zia/docs/data-sources/`).
-
-## Scripts in this repo that use these endpoints
-
-Source: `scripts/url-lookup.py`; `scripts/snapshot-refresh.py`.
-
-Both scripts use `zscaler-sdk-python` via a `uv run`–style self-contained shebang. Env-var setup per this doc's **Authentication** section.
-
-- **`scripts/url-lookup.py <url>`** — implements the `investigate-url` workflow (adapted from `vendor/zscaler-mcp-server/commands/investigate-url.md`). Calls `client.zia.url_categories.lookup([url])` to classify the URL, then `client.zia.url_filtering.list_rules()` to enumerate rules referencing the resulting category. Reports rule order, action, scope, and enabled state.
-- **`scripts/snapshot-refresh.py [--zia-only | --zpa-only]`** — bulk-dumps ZIA `url_categories.list_categories`, `url_filtering.list_rules`, `cloudappcontrol.list_rules`, `advanced_settings.get_advanced_settings` to `_data/snapshot/<cloud>/zia/*.json`, plus ZPA equivalents to `_data/snapshot/<cloud>/zpa/*.json`. Writes `_data/snapshot/_manifest.json` with fetch timestamps and per-resource counts. Handles SDK pagination via `resp.has_next()` / `resp.next()`.
-
-These scripts are the authored implementation of the stubs referenced by the skill's *Check for a snapshot first* section in `SKILL.md`.
 
 ## Open questions
 

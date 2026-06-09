@@ -24,10 +24,6 @@ scripts = [
     # Frontmatter parsing (check-hygiene.py, check-vendor-drift.py)
     "pyyaml>=6",
 
-    # SDK-calling scripts (access-check, connector-health, sandbox-check,
-    # snapshot-refresh, ssl-audit, url-lookup, zpa-app-check)
-    "zscaler-sdk-python>=1.7",
-
     # Async HTTP for upstream issue polling (issue-watch.py)
     "httpx>=0.27",
 
@@ -38,6 +34,16 @@ scripts = [
 
 # Some scripts are stdlib-only (deps = [] in their PEP 723 block):
 # ab-test-prompt, check-doc-links, check-orphans, check-scrape-freshness,
-# diagnose-tenant, find-asymmetries, run-evals, simulate-policy.
+# find-asymmetries, run-evals.
 # They use the uv-script shebang for consistency, not because they need
 # external deps.
+
+[tool.ruff]
+target-version = "py310"
+extend-exclude = ["vendor", "_data"]
+
+[tool.ruff.lint]
+# Bug-catching only, mirroring the Biome JS config: pyflakes (F), syntax (E9),
+# and bugbear (B). Style/formatting (E/W), complexity, and the noisy bandit (S)
+# subprocess/try-except rules are intentionally not enforced.
+select = ["F", "E9", "B"]

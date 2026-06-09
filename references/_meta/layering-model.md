@@ -56,7 +56,7 @@ The skill answers questions by combining three distinct **knowledge layers**. Ea
 - "This tenant has 3 ZPA App Connector groups, each with 2 connectors at version 22.146.1."
 - "URL category `Custom_Engineering` includes the FQDNs `slack.company.example.com` and `confluence.company.example.com`."
 
-**Update cadence:** per-fork. Run `scripts/snapshot-refresh.py` when needed; cron weekly is reasonable for stable tenants. Log queries are on-demand.
+**Update cadence:** per-fork. Re-populate `_data/snapshot/` when needed; cron weekly is reasonable for stable tenants. Log queries are on-demand.
 
 **Critical property:** **never committed to the public upstream.** Tenant data lives in private runtime-data mounts or forks. Public upstream ignores `_data/` and documents the expected shape in `docs/data-contract/`.
 

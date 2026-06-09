@@ -1,0 +1,29 @@
+name: Lint Python
+
+# Bug-catching lint for the maintained Python (scripts/*.py): ruff with only the
+# pyflakes (F), syntax (E9), and bugbear (B) rule groups — see [tool.ruff] in
+# pyproject.toml. Style/formatting and the noisy bandit (subprocess / try-except)
+# rules are intentionally not enforced, mirroring the Biome JS config. The
+# snapshot/tenant tooling is excluded there (slated to move to the zscalerctl
+# layer), so it is not maintained in place.
+#
+# Runs on EVERY pull request (no path filter) so it is safe to promote to a
+# required status check without blocking PRs that don't touch Python.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ruff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v8.2.0
+      - name: Ruff (pyflakes / syntax / bugbear)
+        run: uvx ruff@0.6.9 check scripts/

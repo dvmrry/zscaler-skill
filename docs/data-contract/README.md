@@ -108,10 +108,10 @@ _data/snapshot/
     └── _manifest.json
 ```
 
-`scripts/snapshot-refresh.py` uses `--cloud`, `ZSCALER_CLOUD`, or `default`
-as the `<cloud>` slug and records that slug in `_manifest.json`.
+The snapshot uses `--cloud`, `ZSCALER_CLOUD`, or `default` as the `<cloud>`
+slug, recorded in `_manifest.json`.
 
-`scripts/snapshot-refresh.py` writes here. `scripts/simulate-policy.py` and other config-replay tools read from here.
+Whatever populates the snapshot (a private overlay, or a `zscalerctl` dump) writes here; config-replay tooling reads from here.
 
 **Multi-tenant / multi-cloud forks** should keep one directory per tenant cloud
 or tenant slug under `_data/snapshot/`. Do not mix multiple clouds into a

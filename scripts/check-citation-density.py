@@ -356,7 +356,6 @@ def audit_source_quality(
 ) -> list[SourceIssue]:
     text = path.read_text(encoding="utf-8", errors="replace")
     rel = str(path.relative_to(REPO_ROOT))
-    audit_class = audit_class_for_path(path, text)
     warn_directory_sources = should_warn_directory_sources(path, text)
     issues: list[SourceIssue] = []
     lines = iter_scannable_lines(text)

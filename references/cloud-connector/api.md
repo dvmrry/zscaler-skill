@@ -219,7 +219,7 @@ For troubleshooting these patterns, see [`../_meta/runbooks.md § Troubleshootin
 
 Source: `vendor/zscaler-sdk-python/zscaler/ztw/ztw_service.py`; `vendor/zscaler-sdk-python/zscaler/ztw/ec_groups.py`; `vendor/zscaler-sdk-python/zscaler/ztw/forwarding_rules.py`; `vendor/terraform-provider-ztc/ztc/provider.go`.
 
-`scripts/snapshot-refresh.py` doesn't include Cloud Connector yet. As of SDK v2.0.0, adding ZTW is now native Python via the `client.ztw.ec_groups` and `client.ztw.forwarding_rules` service accessors. Pre-v2.0.0 the workaround was Go SDK or Zscaler Terraformer CLI; that workaround is no longer required.
+ZTW config reads are native Python (SDK v2.0.0+) via the `client.ztw.ec_groups` and `client.ztw.forwarding_rules` service accessors. Pre-v2.0.0 the workaround was Go SDK or Zscaler Terraformer CLI; that workaround is no longer required.
 
 Alternative: use `terraform plan -out` against the `ztc` provider and parse the plan JSON for config state. Workable; not elegant.
 

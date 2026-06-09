@@ -1,9 +1,9 @@
 name: CodeQL
 
-# Static security analysis for the repo's own JavaScript (scripts/*.mjs and
-# docs/*.js). Vendored upstream code under vendor/ is not analyzed: submodules
-# are deliberately not checked out here, so CodeQL only sees first-party code.
-# Results surface in the repository Security tab.
+# Static security analysis for the repo's own code: JavaScript (scripts/*.mjs,
+# docs/*.js) and Python (scripts/*.py). Vendored upstream code under vendor/ is
+# not analyzed: submodules are deliberately not checked out here, so CodeQL only
+# sees first-party code. Results surface in the repository Security tab.
 
 on:
   push:
@@ -20,15 +20,19 @@ permissions:
 
 jobs:
   analyze:
-    name: Analyze JavaScript
+    name: Analyze ${{ matrix.language }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [javascript-typescript, python]
     steps:
       - uses: actions/checkout@v6
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
         with:
-          languages: javascript-typescript
+          languages: ${{ matrix.language }}
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
         with:
-          category: "/language:javascript-typescript"
+          category: "/language:${{ matrix.language }}"

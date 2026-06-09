@@ -383,12 +383,6 @@ Source: `vendor/zscaler-sdk-python/README.md`; `vendor/zscaler-sdk-python/zscale
 
 Several ZPA resources accept a microtenant scope. Per `vendor/zscaler-sdk-python/zscaler/zpa/microtenants.py` (SDK module listing) and the ZPA Configuring Defined Application Segments PDF p.19: "Microtenants aren't supported" for some features like Extranet settings. The microtenant context must be specified at the client level or per-request; see SDK module for the exact pattern.
 
-## Scripts in this repo that use these endpoints
-
-Source: `scripts/snapshot-refresh.py`.
-
-- **`scripts/snapshot-refresh.py [--zpa-only]`** — dumps ZPA `application_segment.list_segments`, `segment_groups.list_groups`, `server_groups.list_groups`, and `policies.list_rules` to `_data/snapshot/<cloud>/zpa/*.json`. Uses the same `ZscalerClient` authentication documented here; see `references/zia/api.md` for the full env-var list (shared between products under OneAPI). Handles SDK pagination via `resp.has_next()` / `resp.next()`.
-
 ## Cross-links
 
 - Application segment matching — [`./app-segments.md`](./app-segments.md)

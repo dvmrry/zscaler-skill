@@ -9,13 +9,12 @@ source-tier: code
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zcc/models/"
   - "vendor/zscaler-sdk-python/zscaler/zcc/"
-  - "scripts/snapshot-refresh.py"
 author-status: draft
 ---
 
 # ZCC _data/snapshot/ schema
 
-Operational reference for the JSON files `scripts/snapshot-refresh.py` writes under `_data/snapshot/<cloud>/zcc/`. Pre-written from SDK model classes (`vendor/zscaler-sdk-python/zscaler/zcc/models/`); Postman collection has no ZCC response samples (the ZCC folder in Postman is the smallest at 9 leaf items, no schemas). Validate against actual JSON when fork populates and bump confidence to `high`.
+Operational reference for the ZCC config JSON under `_data/snapshot/<cloud>/zcc/`. Pre-written from SDK model classes (`vendor/zscaler-sdk-python/zscaler/zcc/models/`); Postman collection has no ZCC response samples (the ZCC folder in Postman is the smallest at 9 leaf items, no schemas). Validate against actual JSON when fork populates and bump confidence to `high`.
 
 ## Files written by `--zcc-only`
 
@@ -279,7 +278,7 @@ jq '.[] | {name, has_win: (.windowsPolicy != null), has_mac: (.macosPolicy != nu
 
 ## What's NOT in the snapshot
 
-ZCC has additional resources `snapshot-refresh.py` doesn't currently dump:
+ZCC has additional resources not covered by the snapshot layout:
 
 | Resource | Why useful |
 |---|---|
@@ -292,7 +291,7 @@ ZCC has additional resources `snapshot-refresh.py` doesn't currently dump:
 | IP Apps / Process Apps (`/ipApps`, `/processApps`) | Custom application definitions |
 | Bypass apps (`/bypassApps`) | Apps configured to bypass Zscaler |
 
-Adding them requires extending `scripts/snapshot-refresh.py`'s ZCC resource list. SDK methods are documented in `vendor/zscaler-sdk-python/zscaler/zcc/`.
+SDK methods for these are documented in `vendor/zscaler-sdk-python/zscaler/zcc/`.
 
 ## Wire-format gotchas (ZCC-specific)
 

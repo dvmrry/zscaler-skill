@@ -772,7 +772,7 @@ Affects: `scripts/splunk-query.sh` is run-on-request by the operator; the skill'
 
 ### shared-03 — Script language choice for tenant-data tooling
 
-*Origin: earlier scaffold discussion; referenced in `scripts/snapshot-refresh.py`, `scripts/url-lookup.py`, `scripts/splunk-query.sh`*
+*Origin: earlier scaffold discussion (refresh / lookup / splunk tooling)*
 
 Real implementations of the refresh / lookup / splunk-query scripts would need auth, pagination, retry. Bash + curl vs Python + SDK was undecided during scaffolding.
 
@@ -780,15 +780,15 @@ Real implementations of the refresh / lookup / splunk-query scripts would need a
 
 **Answer**: Python via `uv run --script` shebang, using the vendored `zscaler-sdk-python`. Implemented:
 
-- `scripts/url-lookup.py` — mirrors the `investigate-url` workflow from `vendor/zscaler-mcp-server/commands/investigate-url.md`.
-- `scripts/snapshot-refresh.py` — dumps ZIA + ZPA config to `_data/snapshot/<cloud>/<product>/*.json` with `--zia-only` / `--zpa-only` flags and a per-cloud `_manifest.json`.
+- A URL-lookup helper mirrored the `investigate-url` workflow from `vendor/zscaler-mcp-server/commands/investigate-url.md`.
+- A snapshot-refresh helper dumped ZIA + ZPA config under `_data/snapshot/<cloud>/<product>/`. (Both SDK helpers were later removed; tenant reads now go through the read-only zscalerctl CLI.)
 - `scripts/splunk-query.sh` — kept as bash stub (Splunk SDK is Python but the Splunk path is not the critical one and the bash stub matches the legacy pattern).
 
 ---
 
 ### shared-04 — Snapshot auth pattern
 
-*Origin: `scripts/snapshot-refresh.py` header comments*
+*Origin: snapshot-tooling header comments*
 
 Where credentials come from when running the refresh scripts — env vars, `.env` file, `op read` (1Password CLI), cloud secrets manager — is undecided. Shapes `.gitignore`, script structure, and onboarding docs.
 
@@ -799,7 +799,7 @@ Where credentials come from when running the refresh scripts — env vars, `.env
 Rationale for env vars over alternatives:
 
 - **No `.env` file** committed — the skill is designed for private forks, and the repo's `.gitignore` doesn't model a `.env` convention. Operators who prefer `.env` can layer one via `direnv`, `dotenv`, or a shell-rc source — none of the scripts block this.
-- **No bundled secrets-manager integration** — 1Password (`op read "op://..."`), Vault, AWS Secrets Manager, etc. are fine upstream of the shell. The scripts only consume env vars; how those get populated is the operator's choice. Example pattern for a fork: `eval "$(op read 'op://private/zscaler/.envrc')" && ./scripts/snapshot-refresh.py`.
+- **No bundled secrets-manager integration** — 1Password (`op read "op://..."`), Vault, AWS Secrets Manager, etc. are fine upstream of the shell. The scripts only consume env vars; how those get populated is the operator's choice. Example pattern for a fork: `eval "$(op read 'op://private/zscaler/.envrc')"` upstream of whatever populates the snapshot.
 - **Env vars are what the SDK already expects** — the `zscaler-sdk-python` OneAPI path reads these by default. Forcing a custom config layer would duplicate SDK conventions.
 
 Affects: `.gitignore` correctly excludes `_data/snapshot/`, `_data/schemas/`, and local-scratch paths but not `.env` (no `.env` is ever created by the skill). Script headers document the 4 required env vars in block comments. No onboarding-doc change needed beyond what's already in README step 4.
@@ -814,13 +814,13 @@ Raw JSON dumps from the API are cheap to produce and `jq`-friendly but noisy for
 
 **Status**: resolved (2026-04-24).
 
-**Answer**: **Raw JSON** as shipped by `snapshot-refresh.py` today — one file per resource under `_data/snapshot/<cloud>/<product>/<resource>.json`, plus a per-cloud `_manifest.json` capturing timestamp + per-resource counts. Wire format (camelCase for ZIA, mixed for ZPA) is preserved as-is; no paraphrasing pass.
+**Answer**: **Raw JSON** — one file per resource under `_data/snapshot/<cloud>/<product>/<resource>.json`, plus a per-cloud `_manifest.json` capturing timestamp + per-resource counts. Wire format (camelCase for ZIA, mixed for ZPA) is preserved as-is; no paraphrasing pass.
 
 Rationale:
 
 - **Faithfulness over friendliness.** Paraphrased markdown risks going stale against API changes or drifting from the SDK's model. Raw JSON is source-of-truth; any transformation is downstream.
 - **`jq`-first access.** Skill answers that need tenant data read JSON directly (`jq '.[] | select(.name == "X")' _data/snapshot/<cloud>/zia/url-categories.json`) or via small Python helpers in the scripts. Claude handles JSON well enough that noisy fields aren't a blocker.
-- **Model consumption concerns are real but bounded.** The scripts are selective — `url-lookup.py` extracts only the fields relevant to the question, doesn't pass the full JSON blob to the model. Reasoning docs under `references/` carry the narrative; snapshot answers "what does this tenant actually have configured" in raw form.
+- **Model consumption concerns are real but bounded.** Consumers should be selective — extract only the fields relevant to the question rather than passing the full JSON blob to the model. Reasoning docs under `references/` carry the narrative; snapshot answers "what does this tenant actually have configured" in raw form.
 - **Deferred `snapshot-schema.md` docs** are the answer to "noisy for model consumption" — once the first fork-admin run produces real output, write camelCase-key tables and jq cheatsheets per-product (tracked in PLAN.md § 4).
 
 A paraphrased-markdown post-processing step remains an option for the future if a fork team wants it, but no current skill answer requires one.

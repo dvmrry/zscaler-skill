@@ -740,7 +740,6 @@ def check_adapter_coverage() -> list[Finding]:
 
             workflow = role_dir / "workflow.md"
             workflow_rel = str(workflow.relative_to(REPO_ROOT))
-            workflow_covers_prompt_deps = False
             if workflow.exists() and workflow_rel in deps_block:
                 workflow_fm, _ = extract_frontmatter(
                     workflow.read_text(encoding="utf-8", errors="replace")
@@ -783,8 +782,6 @@ def check_adapter_coverage() -> list[Finding]:
                                 + ", ".join(missing),
                             )
                         )
-                    else:
-                        workflow_covers_prompt_deps = True
 
             if workflow.exists() and workflow_rel in deps_block:
                 continue

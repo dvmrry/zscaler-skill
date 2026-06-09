@@ -80,12 +80,10 @@ live OneAPI docs if your tenant UI differs:
    `https://admin.<your-vanity-domain>.zslogin.net` or the gov/ten equivalent.
 2. Find the API client management page, commonly under
    **Integrations -> API Clients -> Add Client**.
-3. Grant the client read scopes for ZIA (`zia.*`), ZPA (`zpa.*`), and ZCC
-   (`zcc.*`). `snapshot-refresh.py` needs read access across URL categories,
-   URL filtering, CAC, SSL inspection, advanced settings, app segments, segment
-   groups, server groups, access policies, ZCC forwarding profiles, trusted
-   networks, fail-open policies, and web policies. ZDX, ZBI, CBC, and ZWA scopes
-   are only needed if you extend snapshot coverage for those products.
+3. Grant the client read scopes for the products whose configuration you snapshot
+   — typically ZIA (`zia.*`), ZPA (`zpa.*`), and ZCC (`zcc.*`). (Credentials are
+   consumed by whatever populates `_data/snapshot/`, e.g. `zscalerctl`, not by
+   this repo.)
 4. On save, copy the **Client ID** and either the **Client Secret** or the
    downloadable private key PEM.
 5. Your **Vanity Domain** is the subdomain you use to sign in to ZIdentity. If
@@ -164,44 +162,17 @@ Use the actual branch or tag for your runtime-data source. Mode `checkout`
 clones the runtime data directly into `_data/` without registering a parent-repo
 submodule.
 
-## Pull the First Snapshot
+## Populate the snapshot
 
-```bash
-./scripts/snapshot-refresh.py                 # full ZIA + ZPA + ZCC dump
-./scripts/snapshot-refresh.py --zia-only      # just ZIA
-./scripts/snapshot-refresh.py --zpa-only      # just ZPA
-./scripts/snapshot-refresh.py --zcc-only      # just ZCC
-```
+`_data/snapshot/` holds sanitized tenant configuration the skill cites when
+answering tenant-specific questions, in a cloud-first layout —
+`_data/snapshot/<cloud>/<product>/*.json` (see [`docs/data-contract/`](./data-contract/)).
 
-The script writes to `_data/snapshot/<cloud>/zia/*.json`,
-`_data/snapshot/<cloud>/zpa/*.json`, and `_data/snapshot/<cloud>/zcc/*.json`, plus a
-`_manifest.json` with timestamps and per-resource counts.
-
-The public snapshot layout is cloud-first. `ZSCALER_CLOUD` or `--cloud`
-selects the directory under `_data/snapshot/<cloud>/`; if neither is provided,
-the script writes to `_data/snapshot/default/`. Multi-tenant or multi-cloud
-forks should keep one directory per tenant cloud or tenant slug.
-
-Populate `_data/snapshot/` locally, or in a private runtime-data repository if
-your org explicitly allows committing sanitized tenant snapshots. The skill
-cites `_data/snapshot/` when answering tenant-specific questions. Without it,
+Populate it out of band: a private runtime-data repository, or a sanitized dump
+from the read-only [`zscalerctl`](https://github.com/dvmrry/zscalerctl) CLI.
+Credentialed tenant reads are out of scope for this repo. Without a snapshot,
 most tenant-specific answers revert to "I can't verify, here's the general
 mechanism."
-
-## Try Public-Safe Scripts
-
-With a snapshot in place:
-
-```bash
-./scripts/url-lookup.py https://www.reddit.com
-./scripts/simulate-policy.py --url https://www.reddit.com
-```
-
-The public repo treats snapshot-backed and reference-hygiene scripts as
-operational. Live-tenant diagnostic sketches such as `access-check.py`,
-`ssl-audit.py`, `sandbox-check.py`, `connector-health.py`, and
-`zpa-app-check.py` are private-overlay scaffolds until an adopter validates the
-SDK response shapes against their own tenant.
 
 See [`scripts/README.md`](../scripts/README.md) for the full inventory.
 

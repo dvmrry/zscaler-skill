@@ -14,9 +14,9 @@ author-status: draft
 
 # ZIdentity _data/snapshot/ schema
 
-Operational reference for ZIdentity resource shapes. ZIdentity is **not currently in `scripts/snapshot-refresh.py`** — this doc describes the resource shapes you'd get if extended to dump them, drawn from the Postman collection (which has rich ZIdentity response samples — 26 of them).
+Operational reference for ZIdentity resource shapes. ZIdentity config is **not currently snapshotted** — this doc describes the resource shapes you'd get if extended to dump them, drawn from the Postman collection (which has rich ZIdentity response samples — 26 of them).
 
-When extending `snapshot-refresh.py` for ZIdentity, anticipated outputs:
+Anticipated ZIdentity snapshot outputs:
 
 ```
 _data/snapshot/<cloud>/zidentity/users.json
