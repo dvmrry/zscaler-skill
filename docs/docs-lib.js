@@ -9,8 +9,6 @@
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   if (typeof window !== "undefined") window.ZSkill = api;
 })(function () {
-  "use strict";
-
   const REPO = "dvmrry/zscaler-skill";
   const BRANCH = "main";
   const RAW = `https://raw.githubusercontent.com/${REPO}/${BRANCH}`;
