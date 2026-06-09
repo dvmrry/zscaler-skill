@@ -331,3 +331,40 @@ test("setup-data-mount CLI flags override setup config values", () => {
   assert.match(output, /Errors: 0/);
   assert.equal(fs.existsSync(path.join(root, "_data", "schemas", "fields.json")), true);
 });
+
+test("setupDataMount copy mode rejects a symlinked source entry", () => {
+  const root = tempDir("zscaler-data-symlink-src-");
+  makeDataSkeleton(root);
+  const source = makeOverlaySource();
+  fs.symlinkSync("/etc/hosts", path.join(source, "cases", "link"));
+
+  assert.throws(
+    () => setupDataMount({
+      root,
+      dataUrl: source,
+      dataRef: null,
+      dryRun: false,
+      force: false,
+      mode: "copy",
+    }),
+    /symlink/,
+  );
+});
+
+test("setupDataMount rejects an option-like data ref before touching git", () => {
+  const root = tempDir("zscaler-data-bad-ref-");
+  makeDataSkeleton(root);
+  const source = makeOverlaySource();
+
+  assert.throws(
+    () => setupDataMount({
+      root,
+      dataUrl: source,
+      dataRef: "--upload-pack=/evil",
+      dryRun: true,
+      force: false,
+      mode: "copy",
+    }),
+    /ref/,
+  );
+});

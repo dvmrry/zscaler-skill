@@ -1,10 +1,18 @@
 #!/usr/bin/env node
-import childProcess from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
+import {
+  assertNotOption,
+  assertSafeRef,
+  containedRelative,
+  normalizeAllowedRoots,
+  readJsonObject,
+  runGit,
+  toPosix,
+} from "./lib.mjs";
 
 const DEFAULT_ALLOWED_ROOTS = ["_data/cases", "_data/schemas", "_data/iac"];
 const DEFAULT_BRANCH_PREFIX = "artifact-submission/";
@@ -27,15 +35,6 @@ allowedRoots, and requireExplicitApproval.
 
 function scriptRoot() {
   return path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-}
-
-function readJsonIfExists(filePath) {
-  if (!filePath || !fs.existsSync(filePath)) return {};
-  const parsed = JSON.parse(fs.readFileSync(filePath, "utf8"));
-  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-    throw new Error(`config must be a JSON object: ${filePath}`);
-  }
-  return parsed;
 }
 
 function parseArgs(argv) {
@@ -97,7 +96,7 @@ function parseArgs(argv) {
   const configPath = args.config
     ? path.resolve(args.root, args.config)
     : path.join(args.root, "zscaler-skill-setup.json");
-  const config = readJsonIfExists(configPath);
+  const config = readJsonObject(configPath);
   const overlay = config.overlaySubmission || {};
 
   return {
@@ -117,18 +116,10 @@ function parseArgs(argv) {
   };
 }
 
-function toPosix(relativePath) {
-  return relativePath.split(path.sep).join("/");
-}
-
-function isInside(child, parent) {
-  const relative = path.relative(parent, child);
-  return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
-}
-
 function validateArtifact(root, artifact, allowedRoots) {
   const absolute = path.resolve(root, artifact);
-  if (!isInside(absolute, root)) {
+  const relative = containedRelative(root, absolute);
+  if (relative === null) {
     throw new Error(`artifact must be inside repo root: ${artifact}`);
   }
   if (!fs.existsSync(absolute)) {
@@ -137,7 +128,6 @@ function validateArtifact(root, artifact, allowedRoots) {
   if (fs.lstatSync(absolute).isSymbolicLink()) {
     throw new Error(`artifact must not be a symlink: ${artifact}`);
   }
-  const relative = toPosix(path.relative(root, absolute));
   const allowed = allowedRoots.some((allowedRoot) => {
     const normalized = allowedRoot.replace(/\/+$/, "");
     return relative === normalized || relative.startsWith(`${normalized}/`);
@@ -233,14 +223,6 @@ function scanArtifacts(artifacts) {
   return { warnings, errors };
 }
 
-function runGit(cwd, args) {
-  return childProcess.execFileSync("git", args, {
-    cwd,
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "pipe"],
-  }).trim();
-}
-
 function slugFromArtifacts(artifacts) {
   const first = artifacts[0]?.relative || "submission";
   const parts = first.split("/");
@@ -259,10 +241,6 @@ function copyArtifactToOverlay(artifact, overlayRoot) {
   });
 }
 
-function gitStatusShort(root) {
-  return runGit(root, ["status", "--short"]);
-}
-
 function prepareOverlaySubmission(options) {
   const root = path.resolve(options.root);
   if (options.artifacts.length === 0) {
@@ -277,9 +255,12 @@ function prepareOverlaySubmission(options) {
   if (options.requireExplicitApproval && !options.approve) {
     throw new Error("explicit approval required; re-run with --approve");
   }
+  assertNotOption(options.repoUrl, "repo url");
+  assertSafeRef(options.defaultBranch, "default branch");
+  const allowedRoots = normalizeAllowedRoots(options.allowedRoots);
 
   const artifacts = options.artifacts.map((artifactPath) => ({
-    ...validateArtifact(root, artifactPath, options.allowedRoots),
+    ...validateArtifact(root, artifactPath, allowedRoots),
     root,
   }));
   const scan = scanArtifacts(artifacts);
@@ -288,6 +269,7 @@ function prepareOverlaySubmission(options) {
   }
 
   const branchName = `${options.branchPrefix}${slugFromArtifacts(artifacts)}-${new Date().toISOString().replace(/[-:.TZ]/g, "").slice(0, 14)}`;
+  assertSafeRef(branchName, "branch name");
   const result = {
     status: options.dryRun ? "dry-run" : "prepared",
     mode: "pull-request",
@@ -301,30 +283,35 @@ function prepareOverlaySubmission(options) {
   if (options.dryRun) return result;
 
   const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "zscaler-overlay-submission-"));
-  const overlayRoot = path.join(tempRoot, "overlay");
-  runGit(tempRoot, ["clone", "--branch", options.defaultBranch, options.repoUrl, overlayRoot]);
-  runGit(overlayRoot, ["checkout", "-b", branchName]);
-  for (const artifact of artifacts) copyArtifactToOverlay(artifact, overlayRoot);
+  try {
+    const overlayRoot = path.join(tempRoot, "overlay");
+    runGit(tempRoot, ["clone", "--branch", options.defaultBranch, "--", options.repoUrl, overlayRoot]);
+    runGit(overlayRoot, ["checkout", "-b", branchName]);
+    for (const artifact of artifacts) copyArtifactToOverlay(artifact, overlayRoot);
 
-  const status = gitStatusShort(overlayRoot);
-  if (!status) {
-    throw new Error("selected artifacts produced no overlay changes");
+    runGit(overlayRoot, ["add", "--", ...artifacts.map((artifact) => artifact.overlayRelative)]);
+    const staged = runGit(overlayRoot, ["diff", "--cached", "--name-only"]);
+    if (!staged) {
+      throw new Error("selected artifacts produced no overlay changes");
+    }
+    runGit(overlayRoot, [
+      "-c",
+      "user.name=Zscaler Skill",
+      "-c",
+      "user.email=zscaler-skill@example.invalid",
+      "commit",
+      "-m",
+      `Add overlay artifacts for ${slugFromArtifacts(artifacts)}`,
+    ]);
+
+    result.overlayCheckout = overlayRoot;
+    result.commit = runGit(overlayRoot, ["rev-parse", "--short", "HEAD"]);
+    result.nextAction = `git -C ${overlayRoot} push origin ${branchName}`;
+    return result;
+  } catch (error) {
+    fs.rmSync(tempRoot, { recursive: true, force: true });
+    throw error;
   }
-  runGit(overlayRoot, ["add", "--", ...artifacts.map((artifact) => artifact.overlayRelative)]);
-  runGit(overlayRoot, [
-    "-c",
-    "user.name=Zscaler Skill",
-    "-c",
-    "user.email=zscaler-skill@example.invalid",
-    "commit",
-    "-m",
-    `Add overlay artifacts for ${slugFromArtifacts(artifacts)}`,
-  ]);
-
-  result.overlayCheckout = overlayRoot;
-  result.commit = runGit(overlayRoot, ["rev-parse", "--short", "HEAD"]);
-  result.nextAction = `git -C ${overlayRoot} push origin ${branchName}`;
-  return result;
 }
 
 function printResult(result) {

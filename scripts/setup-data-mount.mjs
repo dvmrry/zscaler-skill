@@ -1,13 +1,18 @@
 #!/usr/bin/env node
-import childProcess from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { checkDataContract } from "./check-data-contract.mjs";
-
-const REQUIRED_DIRS = ["cases", "schemas", "snapshot", "iac"];
-const SKELETON_NAMES = new Set([".gitkeep", "README.md"]);
+import {
+  assertNotOption,
+  assertSafeRef,
+  DATA_REQUIRED_DIRS,
+  DATA_SKELETON_FILES,
+  gitTryOutput,
+  readJsonObject,
+  runGit,
+} from "./lib.mjs";
 
 function usage(exitCode = 0) {
   const out = exitCode === 0 ? process.stdout : process.stderr;
@@ -24,15 +29,6 @@ CLI flags override config values.
 The helper never knows private URLs unless the caller provides one at runtime.
 `);
   process.exit(exitCode);
-}
-
-function readConfig(configPath) {
-  if (!configPath || !fs.existsSync(configPath)) return {};
-  const data = JSON.parse(fs.readFileSync(configPath, "utf8"));
-  if (!data || typeof data !== "object" || Array.isArray(data)) {
-    throw new Error(`config must be a JSON object: ${configPath}`);
-  }
-  return data;
 }
 
 function parseArgs(argv) {
@@ -89,7 +85,7 @@ function parseArgs(argv) {
 
   const defaultConfig = path.join(args.root, "zscaler-skill-setup.json");
   const configPath = args.config ? path.resolve(args.root, args.config) : defaultConfig;
-  const config = readConfig(configPath);
+  const config = readJsonObject(configPath);
   const merged = {
     configPath: fs.existsSync(configPath) ? configPath : null,
     dataUrl: args.dataUrl ?? config.dataUrl ?? null,
@@ -124,7 +120,7 @@ function isSkeletonTree(targetPath) {
         stack.push(entryPath);
         continue;
       }
-      if (!entry.isFile() || !SKELETON_NAMES.has(entry.name)) {
+      if (!entry.isFile() || !DATA_SKELETON_FILES.has(entry.name)) {
         return false;
       }
     }
@@ -146,7 +142,23 @@ function resolveLocalSource(root, dataUrl) {
   return null;
 }
 
+function assertNoSymlinks(dir) {
+  const stack = [dir];
+  while (stack.length) {
+    const current = stack.pop();
+    for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
+      if (entry.name === ".git") continue;
+      const entryPath = path.join(current, entry.name);
+      if (entry.isSymbolicLink()) {
+        throw new Error(`data source must not contain symlinks: ${entryPath}`);
+      }
+      if (entry.isDirectory()) stack.push(entryPath);
+    }
+  }
+}
+
 function copyDirectory(source, target) {
+  assertNoSymlinks(source);
   fs.mkdirSync(path.dirname(target), { recursive: true });
   fs.cpSync(source, target, {
     recursive: true,
@@ -155,28 +167,8 @@ function copyDirectory(source, target) {
   });
 }
 
-function runGit(root, args) {
-  childProcess.execFileSync("git", args, {
-    cwd: root,
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "pipe"],
-  });
-}
-
-function gitOutput(root, args) {
-  try {
-    return childProcess.execFileSync("git", args, {
-      cwd: root,
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "ignore"],
-    }).trim();
-  } catch {
-    return "";
-  }
-}
-
 function isGitRepo(root) {
-  return gitOutput(root, ["rev-parse", "--show-toplevel"]) !== "";
+  return gitTryOutput(root, ["rev-parse", "--show-toplevel"]) !== "";
 }
 
 function isGitSource(root, dataUrl, localSource) {
@@ -185,7 +177,7 @@ function isGitSource(root, dataUrl, localSource) {
 }
 
 function trackedDataPaths(root) {
-  const output = gitOutput(root, ["ls-files", "--", "_data"]);
+  const output = gitTryOutput(root, ["ls-files", "--", "_data"]);
   return output ? output.split("\n").filter(Boolean) : [];
 }
 
@@ -208,18 +200,20 @@ function cloneCheckout(root, options, dataDir) {
   if (options.dataRef) {
     cloneArgs.push("--branch", options.dataRef);
   }
-  cloneArgs.push(options.dataUrl, "_data");
+  cloneArgs.push("--", options.dataUrl, "_data");
   runGit(root, cloneArgs);
 }
 
 function ensureRequiredDirs(dataDir) {
-  for (const dirname of REQUIRED_DIRS) {
+  for (const dirname of DATA_REQUIRED_DIRS) {
     fs.mkdirSync(path.join(dataDir, dirname), { recursive: true });
   }
 }
 
 function setupDataMount(options) {
   const root = path.resolve(options.root);
+  assertNotOption(options.dataUrl, "data url");
+  if (options.dataRef) assertSafeRef(options.dataRef, "data ref");
   const dataDir = path.join(root, "_data");
   const localSource = resolveLocalSource(root, options.dataUrl);
   const requestedMode = options.mode || "checkout";
@@ -266,7 +260,7 @@ function setupDataMount(options) {
     if (options.dataRef) {
       submoduleArgs.push("--branch", options.dataRef);
     }
-    submoduleArgs.push(options.dataUrl, "_data");
+    submoduleArgs.push("--", options.dataUrl, "_data");
     runGit(root, submoduleArgs);
   }
 

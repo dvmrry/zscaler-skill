@@ -23,6 +23,7 @@ const CHECKS = [
     command: "node",
     args: [
       "--test",
+      "scripts/lib.test.mjs",
       "scripts/investigator-artifacts.test.mjs",
       "scripts/check-data-contract.test.mjs",
       "scripts/prepare-overlay-submission.test.mjs",

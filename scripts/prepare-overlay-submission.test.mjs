@@ -229,6 +229,88 @@ test("prepareOverlaySubmission reports binary files as unscanned text", () => {
   assert.deepEqual(result.warnings, ["_data/cases/2026-05-18-example/artifact.bin: not scanned as text"]);
 });
 
+test("prepareOverlaySubmission rejects allowed roots with traversal", () => {
+  const { root, caseDir } = makeRootWithCase();
+  const overlay = makeOverlayRepo();
+
+  assert.throws(
+    () => prepareOverlaySubmission({
+      approve: true,
+      artifacts: [caseDir],
+      branchPrefix: "case-submission/",
+      defaultBranch: "main",
+      dryRun: true,
+      repoUrl: overlay,
+      requireExplicitApproval: true,
+      root,
+      allowedRoots: ["_data/cases/../../etc"],
+    }),
+    /allowed root must not contain/,
+  );
+});
+
+test("prepareOverlaySubmission rejects an option-like default branch", () => {
+  const { root, caseDir } = makeRootWithCase();
+  const overlay = makeOverlayRepo();
+
+  assert.throws(
+    () => prepareOverlaySubmission({
+      approve: true,
+      artifacts: [caseDir],
+      branchPrefix: "case-submission/",
+      defaultBranch: "--upload-pack=/evil",
+      dryRun: true,
+      repoUrl: overlay,
+      requireExplicitApproval: true,
+      root,
+      allowedRoots: ["_data/cases"],
+    }),
+    /branch/,
+  );
+});
+
+test("prepareOverlaySubmission rejects an option-like branch prefix", () => {
+  const { root, caseDir } = makeRootWithCase();
+  const overlay = makeOverlayRepo();
+
+  assert.throws(
+    () => prepareOverlaySubmission({
+      approve: true,
+      artifacts: [caseDir],
+      branchPrefix: "-evil/",
+      defaultBranch: "main",
+      dryRun: true,
+      repoUrl: overlay,
+      requireExplicitApproval: true,
+      root,
+      allowedRoots: ["_data/cases"],
+    }),
+    /branch name/,
+  );
+});
+
+test("prepareOverlaySubmission cleans up the temp clone when the clone fails", () => {
+  const { root, caseDir } = makeRootWithCase();
+  const leaked = () => fs.readdirSync(os.tmpdir()).filter((n) => n.startsWith("zscaler-overlay-submission-"));
+  const before = leaked();
+
+  assert.throws(
+    () => prepareOverlaySubmission({
+      approve: true,
+      artifacts: [caseDir],
+      branchPrefix: "case-submission/",
+      defaultBranch: "main",
+      dryRun: false,
+      repoUrl: path.join(root, "no-such-overlay-repo.git"),
+      requireExplicitApproval: true,
+      root,
+      allowedRoots: ["_data/cases"],
+    }),
+  );
+
+  assert.deepEqual(leaked(), before);
+});
+
 test("runtimePathToOverlayPath maps runtime _data paths to overlay-root paths", () => {
   assert.equal(runtimePathToOverlayPath("_data/cases/example"), "cases/example");
   assert.equal(runtimePathToOverlayPath("_data/schemas/fields.json"), "schemas/fields.json");
