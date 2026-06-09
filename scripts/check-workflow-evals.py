@@ -42,20 +42,20 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 AGENTS = REPO_ROOT / "agents"
 EVALS_FILE = REPO_ROOT / "references" / "_meta" / "evals" / "workflow-evals.json"
 ADAPTER_KIND_TO_DIR = {
-    "windsurf": REPO_ROOT / ".windsurf" / "workflows",
+    "devin": REPO_ROOT / ".devin" / "workflows",
     "claude": REPO_ROOT / ".claude" / "commands",
     # `root` is for ad-hoc surfaces invoked via @<role> — the file lives
     # extensionless at REPO_ROOT/<role>, not under a kind-specific dir
     # with a `z-` prefix. See adapter_path() for filename derivation.
     "root": REPO_ROOT,
 }
-DEFAULT_ADAPTER_KINDS = ["windsurf", "claude"]
+DEFAULT_ADAPTER_KINDS = ["devin", "claude"]
 
 
 def adapter_path(kind: str, role: str) -> Path:
     """Derive the adapter file path for a (kind, role) pair.
 
-    Mirrors check-hygiene.py's adapter_path() — `windsurf` and `claude`
+    Mirrors check-hygiene.py's adapter_path() — `devin` and `claude`
     use `{dir}/z-{role}.md`; `root` uses extensionless `REPO_ROOT/{role}`.
     """
     if kind == "root":

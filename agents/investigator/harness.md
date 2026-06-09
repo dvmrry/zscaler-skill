@@ -7,11 +7,11 @@ last-verified: "2026-05-17"
 confidence: high
 source-tier: practice
 sources:
-  - ".windsurf/workflows/z-investigator.md"
+  - ".devin/workflows/z-investigator.md"
   - "agents/investigator/prompt.md"
   - "agents/investigator/case-intake.md"
   - "agents/_meta/runtime-adapters.md"
-  - "agents/_meta/windsurf-runtime-notes.md"
+  - "agents/_meta/devin-runtime-notes.md"
   - "scripts/investigator-artifacts.mjs"
 author-status: draft
 ---

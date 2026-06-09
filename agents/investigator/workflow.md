@@ -17,7 +17,7 @@ summary: Evidence-based Zscaler troubleshooting investigation
 primary-command: /z-investigator
 known-runtimes:
   - codex
-  - windsurf
+  - devin
   - claude
 required-reads:
   - agents/investigator/prompt.md

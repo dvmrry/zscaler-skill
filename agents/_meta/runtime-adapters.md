@@ -38,7 +38,7 @@ Each skill should be a thin loader that:
 2. Points to the canonical `agents/<role>/workflow.md`.
 3. Avoids re-stating the workflow, required reads, or helper gates.
 
-The skill should not copy long command bodies from `.claude/`, `.windsurf/`, or
+The skill should not copy long command bodies from `.claude/`, `.devin/`, or
 other runtime folders.
 
 Portable skills assume this repository layout:
@@ -111,7 +111,7 @@ case-intake artifact before continuing.
 Runtime adapters may live under directories such as:
 
 - `.claude/`
-- `.windsurf/`
+- `.devin/`
 - future runtime-specific directories
 
 Adapters may add runtime conveniences, such as slash-command arguments,
@@ -130,7 +130,7 @@ runtime can consume the portable skill directly.
 
 Some runtimes surface portable skills as slash-style commands. Do not assume
 that a `/name` entry in one runtime is equivalent to a hand-authored
-`.windsurf/workflows/name.md` or `.claude/commands/name.md` adapter. If both a
+`.devin/workflows/name.md` or `.claude/commands/name.md` adapter. If both a
 portable skill and a runtime adapter are visible, prefer the known-good runtime
 adapter until parity has been tested.
 
@@ -142,7 +142,7 @@ When adding or revising a workflow:
    `agents/<role>/workflow.md`.
 2. Add or update a portable skill under `.agents/skills/` if the workflow should
    be natively discoverable by open-standard agent runtimes.
-3. Keep Claude, Windsurf, and other runtime wrappers thin.
+3. Keep Claude, Devin, and other runtime wrappers thin.
 4. Remove copied workflow text from adapters whenever the same behavior is
    already expressed canonically.
 5. Avoid same-name skill wrappers across `.agents/skills/` and runtime-specific

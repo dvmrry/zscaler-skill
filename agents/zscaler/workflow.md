@@ -14,7 +14,7 @@ author-status: reviewed
 summary: Grounded ad-hoc Zscaler Q&A
 primary-command: "@zscaler"
 known-runtimes:
-  - windsurf
+  - devin
   - claude
 required-reads:
   - agents/zscaler/prompt.md

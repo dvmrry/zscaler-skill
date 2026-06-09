@@ -28,7 +28,7 @@ author-status: draft
 
 # Investigate — evidence-based troubleshooting playbook
 
-This is the playbook invoked by the `/z-investigator` slash command (Claude Code and Windsurf). It establishes investigation mode for a Zscaler troubleshooting task: discovery journal, citation discipline, hypothesis prioritization, anti-fabrication.
+This is the playbook invoked by the `/z-investigator` slash command (Claude Code and Devin). It establishes investigation mode for a Zscaler troubleshooting task: discovery journal, citation discipline, hypothesis prioritization, anti-fabrication.
 
 Load and follow [`harness.md`](./harness.md) alongside this prompt. The harness owns phase order, output shape, checkpoint halts, journal creation timing, and snapshot-load discipline. This prompt owns investigator reasoning, grounding, source preference, and evidence discipline.
 

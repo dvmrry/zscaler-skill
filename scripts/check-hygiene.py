@@ -23,7 +23,7 @@ Runs six checks in a single pass:
        For each file under agents/ that declares a `dependencies:` list in
        frontmatter, every entry must resolve to an existing path. For each
        agents/{role}/prompt.md, locate runtime adapters under
-       .windsurf/workflows/ and .claude/commands/; the adapter must
+       .devin/workflows/ and .claude/commands/; the adapter must
        reference the prompt path and mention each dependency the prompt
        declares.
 
@@ -548,24 +548,24 @@ def check_eval_coverage(md_files: list[Path], strict: bool) -> list[Finding]:
 # Adapter directories that should reference the agent role prompts.
 # Pattern: agents/{role}/prompt.md ↔ {adapter_dir}/z-{role}.md
 ADAPTER_DIRS = [
-    REPO_ROOT / ".windsurf" / "workflows",
+    REPO_ROOT / ".devin" / "workflows",
     REPO_ROOT / ".claude" / "commands",
 ]
 ADAPTER_KIND_TO_DIR = {
-    "windsurf": REPO_ROOT / ".windsurf" / "workflows",
+    "devin": REPO_ROOT / ".devin" / "workflows",
     "claude": REPO_ROOT / ".claude" / "commands",
     # `root` is for ad-hoc surfaces invoked via @<role> — the file lives
     # extensionless at REPO_ROOT/<role>, not under a kind-specific dir
     # with a `z-` prefix. See adapter_path() for filename derivation.
     "root": REPO_ROOT,
 }
-DEFAULT_ADAPTER_KINDS = ["windsurf", "claude"]
+DEFAULT_ADAPTER_KINDS = ["devin", "claude"]
 
 
 def adapter_path(kind: str, role: str) -> Path:
     """Derive the adapter file path for a (kind, role) pair.
 
-    `windsurf` and `claude` use the convention `{dir}/z-{role}.md`.
+    `devin` and `claude` use the convention `{dir}/z-{role}.md`.
     `root` uses extensionless `REPO_ROOT/{role}` so `@<role>` autocompletes
     cleanly without a `.md` tail.
     """
@@ -638,9 +638,9 @@ def check_adapter_coverage() -> list[Finding]:
     """For each role prompt at agents/{role}/prompt.md:
 
     1. Determine the expected adapter runtimes from the prompt's
-       `adapters:` frontmatter (defaults to ["windsurf", "claude"];
+       `adapters:` frontmatter (defaults to ["devin", "claude"];
        set `adapters: []` to opt out entirely, or e.g.
-       `adapters: [windsurf]` for a single-runtime role).
+       `adapters: [devin]` for a single-runtime role).
     2. For each declared runtime, locate the adapter file and:
          - error if the adapter is missing
          - error if the adapter has no <!-- adapter-deps:start --> ...

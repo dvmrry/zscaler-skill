@@ -15,7 +15,7 @@ summary: Citation-backed reference expansion workflow
 primary-command: /z-researcher
 known-runtimes:
   - codex
-  - windsurf
+  - devin
   - claude
 required-reads:
   - agents/researcher/prompt.md

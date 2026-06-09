@@ -17,7 +17,7 @@ summary: Capacity and scaling architecture review
 primary-command: /z-architect
 known-runtimes:
   - codex
-  - windsurf
+  - devin
   - claude
 required-reads:
   - agents/architect/prompt.md

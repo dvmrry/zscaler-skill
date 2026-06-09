@@ -42,16 +42,16 @@ ROUTING_DOCS = [
 
 RUNTIME_ADAPTER_DIRS = [
     REPO_ROOT / ".claude" / "commands",
-    REPO_ROOT / ".windsurf" / "workflows",
+    REPO_ROOT / ".devin" / "workflows",
 ]
 
 RUNTIME_SKILL_ROOTS = [
-    REPO_ROOT / ".windsurf" / "skills",
+    REPO_ROOT / ".devin" / "skills",
     REPO_ROOT / ".claude" / "skills",
 ]
 
 RUNTIME_SKILL_PREFIXES = {
-    REPO_ROOT / ".windsurf" / "skills": "windsurf-",
+    REPO_ROOT / ".devin" / "skills": "devin-",
     REPO_ROOT / ".claude" / "skills": "claude-",
 }
 
