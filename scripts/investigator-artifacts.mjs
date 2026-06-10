@@ -27,11 +27,13 @@ const SUPPORTED_OPERATIONS = [
   "complete-turn",
   "abandon-turn",
   "import-evidence",
+  "save-journal",
   "status",
 ];
 const SUPPORTED_OPTIONS = {
   "complete-turn": ["--turn-json", "--turn-input-json"],
   "record-loads": ["--loaded", "--deferred", "--allow-additional", "--force"],
+  "save-journal": ["--content-file"],
 };
 const HELPER_OWNED_TURN_FIELDS = [
   "sequence",
@@ -92,6 +94,7 @@ function usage(exitCode = 0) {
   node scripts/investigator-artifacts.mjs begin-turn --root <repo> --case-slug <slug> --user-action <action>
   node scripts/investigator-artifacts.mjs complete-turn --root <repo> --case-slug <slug> (--turn-json <file>|--turn-input-json <file>)
   node scripts/investigator-artifacts.mjs abandon-turn --root <repo> --case-slug <slug> --reason <text>
+  node scripts/investigator-artifacts.mjs save-journal --root <repo> --case-slug <slug> --content-file <path>
   node scripts/investigator-artifacts.mjs status --root <repo> --case-slug <slug>
   node scripts/investigator-artifacts.mjs capabilities
   node scripts/investigator-artifacts.mjs import-evidence --root <repo> --case-slug <slug> --source-file <file> --name <name> --source <source> (--query <text>|--query-file <file>|--request-text <text>) --summary <text> --captured-at <ISO-UTC> --touched-claim <claim> [--active-hypothesis <tag>] [--allow-placeholder-query]
@@ -189,6 +192,9 @@ function parseArgs(argv) {
       args.allowAdditional = true;
     } else if (key === "--allow-placeholder-query") {
       args.allowPlaceholderQuery = true;
+    } else if (key === "--content-file") {
+      args.contentFile = value;
+      i += 1;
     } else {
       throw new Error(`Unknown argument: ${key}`);
     }
@@ -974,7 +980,7 @@ function caseStatus(args) {
   const nextActions = [];
   if (phase === "journal-pending") {
     nextActions.push(
-      `Generate the Step 3 discovery journal per agents/investigator/harness.md and save it to ${paths.journalPath}, then rerun status. Do not hand-edit the stub's Claims section to satisfy the ledger gate.`,
+      `Generate the Step 3 discovery journal per agents/investigator/harness.md, render the full journal to a temp file, and run \`node scripts/investigator-artifacts.mjs save-journal --root ${root} --case-slug ${caseSlug} --content-file <temp-path>\`, then rerun status. Do not hand-edit the stub's Claims section to satisfy the ledger gate.`,
     );
   }
 
@@ -1003,7 +1009,7 @@ function initializeTurnLedger(args) {
   } catch (err) {
     if (err.message.includes("missing claim table header") || err.message.includes("missing marker")) {
       throw new Error(
-        `journal.md still contains the Step 1 stub (missing claim table). Generate the Step 3 discovery journal per agents/investigator/harness.md and save it to ${paths.journalPath} first. Do not hand-edit the stub's Claims header to satisfy this gate.`,
+        `journal.md still contains the Step 1 stub (missing claim table). Generate the Step 3 discovery journal per agents/investigator/harness.md, render it to a temp file, and run save-journal to save it to ${paths.journalPath} first. Do not hand-edit the stub's Claims header to satisfy this gate.`,
       );
     }
     throw err;
@@ -1814,6 +1820,70 @@ function openCase(args) {
   return caseIntakeJson;
 }
 
+function saveJournal(args) {
+  const root = resolveRepoRoot(args.root);
+
+  // Slug safety + case dir existence check (cheapest gate).
+  assertSafeSlug(args.caseSlug);
+  const paths = casePaths(root, args.caseSlug);
+  if (!fs.existsSync(paths.caseIntakePath) || !fs.existsSync(paths.caseIntakeJsonPath)) {
+    throw new Error(
+      `case directory not found or missing intake artifacts for slug: ${args.caseSlug}`,
+    );
+  }
+
+  // Resolve and read the content file (absolute paths are accepted — runtimes stage to /tmp).
+  if (!args.contentFile || String(args.contentFile).includes("\0")) {
+    throw new Error("--content-file is required");
+  }
+  const contentFilePath = path.isAbsolute(args.contentFile)
+    ? path.resolve(args.contentFile)
+    : safeRepoPath(root, args.contentFile);
+  const contentStat = fs.statSync(contentFilePath, { throwIfNoEntry: false });
+  if (!contentStat || !contentStat.isFile()) {
+    throw new Error(`--content-file does not exist or is not a file: ${contentFilePath}`);
+  }
+  const content = fs.readFileSync(contentFilePath, "utf8");
+
+  // Validate the journal content BEFORE writing.
+  if (!content.includes(REQUIRED_JOURNAL_MARKERS[0])) {
+    throw new Error(
+      `journal content missing required heading (${REQUIRED_JOURNAL_MARKERS[0]}); render the journal per agents/investigator/harness.md before saving`,
+    );
+  }
+  if (!content.includes(REQUIRED_CLAIM_TABLE_HEADER)) {
+    throw new Error(
+      `journal content missing canonical claim table header (${REQUIRED_CLAIM_TABLE_HEADER}); render the journal per agents/investigator/harness.md before saving`,
+    );
+  }
+  if (!content.includes("## Resolution")) {
+    throw new Error(
+      `journal content missing ## Resolution section; render the journal per agents/investigator/harness.md before saving`,
+    );
+  }
+
+  // Write atomically to the case journal path.
+  atomicWriteFile(paths.journalPath, content);
+
+  // Read back and re-verify.
+  verifyJournalHasClaimTable(paths.journalPath);
+  if (!fs.readFileSync(paths.journalPath, "utf8").includes("## Resolution")) {
+    throw new Error("journal.md readback missing ## Resolution; filesystem may be unreliable");
+  }
+
+  const bytesWritten = Buffer.byteLength(content, "utf8");
+  const journalHash = sha256File(paths.journalPath);
+
+  return {
+    status: "pass",
+    operation: "save-journal",
+    caseSlug: args.caseSlug,
+    journalPath: paths.journalPath,
+    bytesWritten,
+    journalHash,
+  };
+}
+
 function capabilities() {
   return {
     status: "ok",
@@ -1883,6 +1953,11 @@ function main() {
       process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
       return;
     }
+    if (args.command === "save-journal") {
+      const result = saveJournal(args);
+      process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+      return;
+    }
     usage(1);
   } catch (error) {
     if (process.argv[2] === "import-evidence") {
@@ -1920,5 +1995,6 @@ export {
   abandonTurn,
   completeTurn,
   importEvidence,
+  saveJournal,
   caseStatus,
 };

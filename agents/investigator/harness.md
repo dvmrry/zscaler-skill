@@ -488,8 +488,9 @@ Template:
 - Pause — stop here
 ```
 
-Do one investigation action per turn, update the journal, complete the helper
-transaction, save it, and halt. This cadence repeats until the user explicitly
+Do one investigation action per turn, update the journal, save it via
+`save-journal` (or a shell write if the helper is unavailable), complete the
+helper transaction, and halt. This cadence repeats until the user explicitly
 pauses or closes the investigation.
 
 ## Step 1 Details
@@ -707,15 +708,24 @@ Cannot save journal — working directory unknown. Reply with the absolute path
 of the repo root and I will retry the save.
 ```
 
-Use the same transaction shape as Step 1:
+Some runtimes' native file-write tools refuse gitignored paths. `_data/` is
+deliberately gitignored as a privacy posture. NEVER edit `.gitignore` to enable
+a write — use `save-journal` (or a shell write as the fallback below) instead.
 
-1. Write the full rendered journal to `journal_path`.
-2. Read `journal_path` back.
-3. Verify the readback contains:
-   - `# Discovery Journal`
-   - `| Claim | Source | Status | Next evidence needed | Timestamp | Notes |`
-   - `## Resolution`
-4. Only after verification succeeds, emit `Journal saved: <journal_path>`.
+Render the full journal to a temp file, then run the `save-journal` helper,
+which performs the write, readback, and marker verification in one atomic step:
+
+```bash
+node scripts/investigator-artifacts.mjs save-journal \
+  --root <working-dir> \
+  --case-slug <slug> \
+  --content-file <temp-path>
+```
+
+Only after the helper exits 0, emit `Journal saved: <journal_path>`.
+
+If the helper is unavailable, perform the manual write/readback/marker
+transaction through the runtime's SHELL instead.
 
 Without write, readback, and marker verification, Step 3 is incomplete and
 Checkpoint 3 cannot fire.

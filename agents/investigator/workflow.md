@@ -153,9 +153,10 @@ entry or any blocking issue mentioning `Pending turn requires repair`, surface
 that line verbatim to the user before doing anything else.
 
 For every later controller turn, run `begin-turn`, perform exactly one
-investigation action, then run `complete-turn`. If the action blocks after
-`begin-turn` and before journal mutation, run `abandon-turn --reason "<reason>"`
-before halting.
+investigation action, save the journal via `save-journal` (or a shell write if
+the helper is unavailable — never by editing `.gitignore`), then run
+`complete-turn`. If the action blocks after `begin-turn` and before journal
+mutation, run `abandon-turn --reason "<reason>"` before halting.
 
 If `node scripts/investigator-artifacts.mjs capabilities` reports
 `import-evidence`, use that helper inside `record-user-evidence` and

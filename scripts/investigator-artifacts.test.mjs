@@ -15,6 +15,7 @@ import {
   loadsStatus,
   openCase,
   recordLoads,
+  saveJournal,
   verifyCaseFiles,
   verifyLoads,
 } from "./investigator-artifacts.mjs";
@@ -2778,4 +2779,260 @@ test("initializeTurnLedger throws with Step-1-stub message and hand-edit warning
     () => initializeTurnLedger({ root, caseSlug: result.caseSlug }),
     /Do not hand-edit/,
   );
+});
+
+// ── save-journal tests ────────────────────────────────────────────────────────
+
+/**
+ * Renders a minimal but fully valid discovery journal to a temp file and
+ * returns the temp file path. Content passes all three marker checks.
+ */
+function writeTempJournal(content) {
+  const tmpPath = path.join(os.tmpdir(), `test-journal-${Date.now()}-${Math.random().toString(36).slice(2)}.md`);
+  fs.writeFileSync(tmpPath, content, "utf8");
+  return tmpPath;
+}
+
+const VALID_JOURNAL_CONTENT = `# Discovery Journal
+
+ISSUE: ZPA users cannot reach wiki.internal
+STATUS: Investigating
+
+## Framing
+
+| Field | Value |
+|---|---|
+| Symptom | ZPA users cannot reach wiki.internal |
+
+## Proposed Loads
+
+- agents/investigator/prompt.md
+- agents/investigator/harness.md
+
+## Claims
+
+| Claim | Source | Status | Next evidence needed | Timestamp | Notes |
+|---|---|---|---|---|---|
+| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check app segment | 2026-06-10T00:00:00Z | reference-grounded |
+
+## Resolution
+
+Open.
+`;
+
+test("save-journal happy path: writes journal, returns pass with sha256, file matches content", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  openCase({
+    root,
+    caseSlug: "2026-06-10-save-journal-happy",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+
+  const tmpPath = writeTempJournal(VALID_JOURNAL_CONTENT);
+  const result = saveJournal({
+    root,
+    caseSlug: "2026-06-10-save-journal-happy",
+    contentFile: tmpPath,
+  });
+
+  assert.equal(result.status, "pass");
+  assert.equal(result.operation, "save-journal");
+  assert.equal(result.caseSlug, "2026-06-10-save-journal-happy");
+  assert.ok(result.journalPath.endsWith("journal.md"));
+  assert.ok(typeof result.bytesWritten === "number" && result.bytesWritten > 0);
+  assert.match(result.journalHash, /^sha256:[0-9a-f]{64}$/);
+
+  // File on disk matches content.
+  const onDisk = fs.readFileSync(result.journalPath, "utf8");
+  assert.equal(onDisk, VALID_JOURNAL_CONTENT);
+
+  // Hash matches what we'd compute independently.
+  const expectedHash = `sha256:${createHash("sha256").update(VALID_JOURNAL_CONTENT).digest("hex")}`;
+  assert.equal(result.journalHash, expectedHash);
+});
+
+test("save-journal overwrite: second save with updated content succeeds without --force", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  openCase({
+    root,
+    caseSlug: "2026-06-10-save-journal-overwrite",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+
+  const tmpPath1 = writeTempJournal(VALID_JOURNAL_CONTENT);
+  const result1 = saveJournal({
+    root,
+    caseSlug: "2026-06-10-save-journal-overwrite",
+    contentFile: tmpPath1,
+  });
+  assert.equal(result1.status, "pass");
+
+  const updatedContent = VALID_JOURNAL_CONTENT.replace(
+    "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check app segment | 2026-06-10T00:00:00Z | reference-grounded |",
+    "| H1: Segment missing | references/zpa/app-segments.md | Confirmed (high) | n/a | 2026-06-10T01:00:00Z | confirmed |",
+  );
+  const tmpPath2 = writeTempJournal(updatedContent);
+  const result2 = saveJournal({
+    root,
+    caseSlug: "2026-06-10-save-journal-overwrite",
+    contentFile: tmpPath2,
+  });
+  assert.equal(result2.status, "pass");
+  assert.notEqual(result1.journalHash, result2.journalHash);
+
+  const onDisk = fs.readFileSync(result2.journalPath, "utf8");
+  assert.equal(onDisk, updatedContent);
+});
+
+test("save-journal: content missing claim-table header throws actionable error and does not modify journal", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  const openResult = openCase({
+    root,
+    caseSlug: "2026-06-10-save-journal-no-table",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+
+  // Capture the stub content before attempting save.
+  const stubContent = fs.readFileSync(openResult.journalPath, "utf8");
+
+  const noTableContent = `# Discovery Journal
+
+## Framing
+
+no table here
+
+## Resolution
+
+Open.
+`;
+  const tmpPath = writeTempJournal(noTableContent);
+  assert.throws(
+    () => saveJournal({ root, caseSlug: "2026-06-10-save-journal-no-table", contentFile: tmpPath }),
+    /claim table header/,
+  );
+  // Actionable message names the canonical header string.
+  assert.throws(
+    () => saveJournal({ root, caseSlug: "2026-06-10-save-journal-no-table", contentFile: tmpPath }),
+    /Claim \| Source \| Status \| Next evidence needed/,
+  );
+  // Journal on disk must be unchanged (still the stub).
+  const afterContent = fs.readFileSync(openResult.journalPath, "utf8");
+  assert.equal(afterContent, stubContent);
+});
+
+test("save-journal: content missing ## Resolution throws", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  openCase({
+    root,
+    caseSlug: "2026-06-10-save-journal-no-resolution",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+
+  const noResolutionContent = `# Discovery Journal
+
+## Claims
+
+| Claim | Source | Status | Next evidence needed | Timestamp | Notes |
+|---|---|---|---|---|---|
+| H1: Segment missing | ref | Open (uncertain) | check | 2026-06-10T00:00:00Z | ref |
+`;
+  const tmpPath = writeTempJournal(noResolutionContent);
+  assert.throws(
+    () => saveJournal({ root, caseSlug: "2026-06-10-save-journal-no-resolution", contentFile: tmpPath }),
+    /## Resolution/,
+  );
+});
+
+test("save-journal: missing case dir throws", () => {
+  const root = tempRepo();
+  const tmpPath = writeTempJournal(VALID_JOURNAL_CONTENT);
+  assert.throws(
+    () => saveJournal({ root, caseSlug: "nonexistent-case", contentFile: tmpPath }),
+    /missing intake artifacts/,
+  );
+});
+
+test("save-journal: bad slug throws", () => {
+  const root = tempRepo();
+  const tmpPath = writeTempJournal(VALID_JOURNAL_CONTENT);
+  assert.throws(
+    () => saveJournal({ root, caseSlug: "../escape", contentFile: tmpPath }),
+    /case slug/,
+  );
+});
+
+test("save-journal integration: stub journal case → save-journal full journal → initializeTurnLedger passes", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  const openResult = openCase({
+    root,
+    caseSlug: "2026-06-10-save-journal-integration",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+  recordLoads({
+    root,
+    caseSlug: openResult.caseSlug,
+    loaded: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+    deferred: [],
+    allowAdditional: false,
+    force: false,
+  });
+
+  // Before save-journal, initializeTurnLedger should fail (stub journal).
+  assert.throws(
+    () => initializeTurnLedger({ root, caseSlug: openResult.caseSlug }),
+    /Step 1 stub/,
+  );
+
+  // Save a full journal via save-journal (no hand-editing).
+  const tmpPath = writeTempJournal(VALID_JOURNAL_CONTENT);
+  const saveResult = saveJournal({
+    root,
+    caseSlug: openResult.caseSlug,
+    contentFile: tmpPath,
+  });
+  assert.equal(saveResult.status, "pass");
+
+  // Now initializeTurnLedger must succeed.
+  const ledgerResult = initializeTurnLedger({ root, caseSlug: openResult.caseSlug });
+  assert.equal(ledgerResult.status, "pass");
 });

@@ -194,8 +194,17 @@ node scripts/investigator-artifacts.mjs verify-loads \
 exists and recomputes to pass. Step 3 cannot begin without a passing loads
 artifact.
 
-After Step 3 writes and verifies the first real discovery journal, initialize
-the turn ledger before presenting the Step 3 checkpoint:
+After Step 3 generates the first real discovery journal, render it to a temp
+file and save it with:
+
+```bash
+node scripts/investigator-artifacts.mjs save-journal \
+  --root <repo-root> \
+  --case-slug <slug> \
+  --content-file <temp-path>
+```
+
+Then initialize the turn ledger before presenting the Step 3 checkpoint:
 
 ```bash
 node scripts/investigator-artifacts.mjs initialize-turn-ledger \
