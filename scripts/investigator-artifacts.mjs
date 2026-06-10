@@ -28,12 +28,15 @@ const SUPPORTED_OPERATIONS = [
   "abandon-turn",
   "import-evidence",
   "save-journal",
+  "run-turn",
   "status",
 ];
 const SUPPORTED_OPTIONS = {
   "complete-turn": ["--turn-json", "--turn-input-json"],
   "record-loads": ["--loaded", "--deferred", "--allow-additional", "--force"],
   "save-journal": ["--content-file"],
+  "run-turn": ["--user-action", "--journal-file", "--turn-input-json"],
+  "initialize-turn-ledger": ["--journal-file", "--force"],
 };
 const HELPER_OWNED_TURN_FIELDS = [
   "sequence",
@@ -90,11 +93,12 @@ function usage(exitCode = 0) {
   node scripts/investigator-artifacts.mjs verify-case --root <repo> --case-slug <slug>
   node scripts/investigator-artifacts.mjs record-loads --root <repo> --case-slug <slug> --loaded <path> [--loaded <path> ...] [--deferred <path>=<reason> ...] [--allow-additional] [--force]
   node scripts/investigator-artifacts.mjs verify-loads --root <repo> --case-slug <slug>
-  node scripts/investigator-artifacts.mjs initialize-turn-ledger --root <repo> --case-slug <slug> [--force]
+  node scripts/investigator-artifacts.mjs initialize-turn-ledger --root <repo> --case-slug <slug> [--journal-file <path>] [--force]
   node scripts/investigator-artifacts.mjs begin-turn --root <repo> --case-slug <slug> --user-action <action>
   node scripts/investigator-artifacts.mjs complete-turn --root <repo> --case-slug <slug> (--turn-json <file>|--turn-input-json <file>)
   node scripts/investigator-artifacts.mjs abandon-turn --root <repo> --case-slug <slug> --reason <text>
   node scripts/investigator-artifacts.mjs save-journal --root <repo> --case-slug <slug> --content-file <path>
+  node scripts/investigator-artifacts.mjs run-turn --root <repo> --case-slug <slug> --user-action <action> --journal-file <path> --turn-input-json <file>
   node scripts/investigator-artifacts.mjs status --root <repo> --case-slug <slug>
   node scripts/investigator-artifacts.mjs capabilities
   node scripts/investigator-artifacts.mjs import-evidence --root <repo> --case-slug <slug> --source-file <file> --name <name> --source <source> (--query <text>|--query-file <file>|--request-text <text>) --summary <text> --captured-at <ISO-UTC> --touched-claim <claim> [--active-hypothesis <tag>] [--allow-placeholder-query]
@@ -194,6 +198,9 @@ function parseArgs(argv) {
       args.allowPlaceholderQuery = true;
     } else if (key === "--content-file") {
       args.contentFile = value;
+      i += 1;
+    } else if (key === "--journal-file") {
+      args.journalFile = value;
       i += 1;
     } else {
       throw new Error(`Unknown argument: ${key}`);
@@ -342,15 +349,14 @@ function journalHasClaimTable(journalPath) {
   }
 }
 
-function verifyJournalHasClaimTable(journalPath) {
-  const journal = fs.readFileSync(journalPath, "utf8");
-  if (!journal.includes("# Discovery Journal")) {
+function verifyJournalContentHasClaimTable(content) {
+  if (!content.includes("# Discovery Journal")) {
     throw new Error("journal.md missing marker: # Discovery Journal");
   }
-  if (!journal.includes(REQUIRED_CLAIM_TABLE_HEADER)) {
+  if (!content.includes(REQUIRED_CLAIM_TABLE_HEADER)) {
     throw new Error("journal.md missing claim table header");
   }
-  const lines = journal.split(/\r?\n/);
+  const lines = content.split(/\r?\n/);
   const headerIndex = lines.findIndex((line) => line.trim() === REQUIRED_CLAIM_TABLE_HEADER);
   for (const line of lines.slice(headerIndex + 1)) {
     const trimmed = line.trim();
@@ -367,10 +373,14 @@ function verifyJournalHasClaimTable(journalPath) {
   }
 }
 
-function journalClaimStatuses(journalPath) {
-  const journal = fs.readFileSync(journalPath, "utf8");
+function verifyJournalHasClaimTable(journalPath) {
+  const content = fs.readFileSync(journalPath, "utf8");
+  verifyJournalContentHasClaimTable(content);
+}
+
+function journalClaimStatusesFromContent(content) {
   const statuses = new Map();
-  const lines = journal.split(/\r?\n/);
+  const lines = content.split(/\r?\n/);
   const headerIndex = lines.findIndex((line) => line.trim() === REQUIRED_CLAIM_TABLE_HEADER);
   if (headerIndex === -1) return statuses;
   for (const line of lines.slice(headerIndex + 1)) {
@@ -384,6 +394,11 @@ function journalClaimStatuses(journalPath) {
     statuses.set(cells[0], cells[2]);
   }
   return statuses;
+}
+
+function journalClaimStatuses(journalPath) {
+  const content = fs.readFileSync(journalPath, "utf8");
+  return journalClaimStatusesFromContent(content);
 }
 
 function validateActionType(actionType) {
@@ -404,7 +419,7 @@ function priorEvidenceRefs(events) {
   return refs;
 }
 
-function validateMarkResolved(journalPath, turnInput, actionType, priorEvents) {
+function validateMarkResolved(journalPath, turnInput, actionType, priorEvents, journalContent) {
   if (actionType !== "mark-resolved") return;
 
   const completionGate = turnInput.completionGate;
@@ -425,7 +440,9 @@ function validateMarkResolved(journalPath, turnInput, actionType, priorEvents) {
     throw new Error("mark-resolved requires completionGate.supportingEvidenceRefs");
   }
 
-  const statuses = journalClaimStatuses(journalPath);
+  const statuses = journalContent
+    ? journalClaimStatusesFromContent(journalContent)
+    : journalClaimStatuses(journalPath);
   if (statuses.size === 0) {
     throw new Error("mark-resolved requires at least one claim in journal.md");
   }
@@ -483,9 +500,11 @@ function validateUserEvidenceRequest(turnInput, actionType) {
   return evidenceRequest;
 }
 
-function validateEvidenceHandoffTurn(journalPath, turnInput, actionType) {
+function validateEvidenceHandoffTurn(journalPath, turnInput, actionType, journalContent) {
   if (!EVIDENCE_REQUEST_ACTION_TYPES.has(actionType)) return;
-  const statuses = journalClaimStatuses(journalPath);
+  const statuses = journalContent
+    ? journalClaimStatusesFromContent(journalContent)
+    : journalClaimStatuses(journalPath);
   for (const claim of asArray(turnInput.touchedClaims)) {
     const status = statuses.get(claim);
     if (!status) {
@@ -497,18 +516,40 @@ function validateEvidenceHandoffTurn(journalPath, turnInput, actionType) {
   }
 }
 
-function validateTouchedClaimsExist(journalPath, touchedClaims, context) {
+function validateTouchedClaimsExist(journalPath, touchedClaims, context, journalContent) {
   const claims = asArray(touchedClaims).map((claim) => claim.trim()).filter(Boolean);
   if (claims.length === 0) {
     throw new Error(`${context} must include at least one touched claim`);
   }
-  const statuses = journalClaimStatuses(journalPath);
+  const statuses = journalContent
+    ? journalClaimStatusesFromContent(journalContent)
+    : journalClaimStatuses(journalPath);
+  const claimKeys = [...statuses.keys()];
+  const resolved = [];
   for (const claim of claims) {
-    if (!statuses.has(claim)) {
-      throw new Error(`${context} touched claim is not present in journal.md: ${claim}`);
+    if (statuses.has(claim)) {
+      // Exact match — current behavior.
+      resolved.push(claim);
+      continue;
     }
+    // Short H-tag match: claim is like "H1" or "h12" with no colon.
+    // A cell matches if it starts with the tag (case-insensitive) followed by ":".
+    const shortTagMatch = /^[Hh]\d+$/.test(claim);
+    if (shortTagMatch) {
+      const tagPrefix = claim.toLowerCase() + ":";
+      const matches = claimKeys.filter((k) => k.toLowerCase().startsWith(tagPrefix));
+      if (matches.length === 1) {
+        resolved.push(matches[0]);
+        continue;
+      }
+      // Zero or multiple matches — ambiguous; fall through to error.
+    }
+    const claimSummary = claimKeys.map((k) => k.slice(0, 60)).join(" | ");
+    throw new Error(
+      `${context} touched claim is not present in journal.md: ${claim}. Journal claims: ${claimSummary}`,
+    );
   }
-  return claims;
+  return resolved;
 }
 
 function normalizeCompletionGate(turnInput, actionType) {
@@ -951,6 +992,9 @@ function caseStatus(args) {
       "pause",
     ].join("|");
     nextCommands.push(
+      `${baseCmd} run-turn ${rootFlag} ${slugFlag} --user-action <${actionList}> --journal-file <path-to-rendered-updated-journal> --turn-input-json <path-to-agent-owned-turn-fields>`,
+    );
+    nextCommands.push(
       `${baseCmd} begin-turn ${rootFlag} ${slugFlag} --user-action <${actionList}>`,
     );
   } else if (phase === "turn-open") {
@@ -980,7 +1024,7 @@ function caseStatus(args) {
   const nextActions = [];
   if (phase === "journal-pending") {
     nextActions.push(
-      `Generate the Step 3 discovery journal per agents/investigator/harness.md, render the full journal to a temp file, and run \`node scripts/investigator-artifacts.mjs save-journal --root ${root} --case-slug ${caseSlug} --content-file <temp-path>\`, then rerun status. Do not hand-edit the stub's Claims section to satisfy the ledger gate.`,
+      `Generate the Step 3 discovery journal per agents/investigator/harness.md, render the full journal to a temp file, then run \`node scripts/investigator-artifacts.mjs initialize-turn-ledger --root ${root} --case-slug ${caseSlug} --journal-file <temp-path>\` (one press: saves journal + initializes ledger). Alternatively run save-journal then initialize-turn-ledger as separate steps. Do not hand-edit the stub's Claims section to satisfy the ledger gate.`,
     );
   }
 
@@ -1004,15 +1048,41 @@ function initializeTurnLedger(args) {
   const root = resolveRepoRoot(args.root);
   const verified = verifyCaseFiles(root, args.caseSlug);
   const paths = casePaths(root, args.caseSlug);
-  try {
-    verifyJournalHasClaimTable(paths.journalPath);
-  } catch (err) {
-    if (err.message.includes("missing claim table header") || err.message.includes("missing marker")) {
-      throw new Error(
-        `journal.md still contains the Step 1 stub (missing claim table). Generate the Step 3 discovery journal per agents/investigator/harness.md, render it to a temp file, and run save-journal to save it to ${paths.journalPath} first. Do not hand-edit the stub's Claims header to satisfy this gate.`,
-      );
+
+  // ── Read and validate --journal-file content FIRST if provided ──────────────
+  // Spec: validate content before any write (fail-fast before loads gate).
+  let journalContentFromFile = null;
+  if (args.journalFile) {
+    const journalFilePath = path.isAbsolute(args.journalFile)
+      ? path.resolve(args.journalFile)
+      : safeRepoPath(root, args.journalFile);
+    const journalFileStat = fs.statSync(journalFilePath, { throwIfNoEntry: false });
+    if (!journalFileStat || !journalFileStat.isFile()) {
+      throw new Error(`--journal-file does not exist or is not a file: ${journalFilePath}`);
     }
-    throw err;
+    journalContentFromFile = fs.readFileSync(journalFilePath, "utf8");
+    validateJournalContentForSave(journalContentFromFile);
+  }
+
+  // ── Check the on-disk journal (or supply --journal-file as a stand-in) ─────
+  // When --journal-file is provided, the on-disk journal may still be a stub —
+  // validate the file content, not the stub. Without --journal-file, the journal
+  // must already be on disk and valid (original behavior).
+  if (journalContentFromFile !== null) {
+    // Validate the new content structurally (validateJournalContentForSave already ran above,
+    // but verifyJournalContentHasClaimTable also checks status values — already included).
+    // If the file content is valid, we'll write it after the loads gate passes.
+  } else {
+    try {
+      verifyJournalHasClaimTable(paths.journalPath);
+    } catch (err) {
+      if (err.message.includes("missing claim table header") || err.message.includes("missing marker")) {
+        throw new Error(
+          `journal.md still contains the Step 1 stub (missing claim table). Generate the Step 3 discovery journal per agents/investigator/harness.md, render it to a temp file, and run save-journal to save it to ${paths.journalPath} first. Do not hand-edit the stub's Claims header to satisfy this gate.`,
+        );
+      }
+      throw err;
+    }
   }
 
   // Gate: Step 2 loads must be recorded and passing before the ledger can be initialized.
@@ -1020,10 +1090,23 @@ function initializeTurnLedger(args) {
   // cannot learn that --force bypasses the gate.
   requirePassingLoads(root, args.caseSlug);
 
-  fs.mkdirSync(paths.workflowDir, { recursive: true });
+  // Pre-write guard: check for existing ledger before any journal write or mkdir.
+  // Must run here so a no-force re-run with --journal-file throws without mutating anything.
   if (!args.force && (fs.existsSync(paths.turnLogPath) || fs.existsSync(paths.turnStatePath))) {
     throw new Error("turn ledger already exists; rerun initialize-turn-ledger with --force only to replace it");
   }
+
+  // If --journal-file provided, write the journal now (after loads gate and ledger guard pass, before ledger init).
+  if (journalContentFromFile !== null) {
+    atomicWriteFile(paths.journalPath, journalContentFromFile);
+    // Verify the written journal.
+    verifyJournalHasClaimTable(paths.journalPath);
+    if (!fs.readFileSync(paths.journalPath, "utf8").includes("## Resolution")) {
+      throw new Error("journal.md readback missing ## Resolution; filesystem may be unreliable");
+    }
+  }
+
+  fs.mkdirSync(paths.workflowDir, { recursive: true });
 
   const journalHash = sha256File(paths.journalPath);
   const nextTurnToken = makeTurnToken();
@@ -1218,6 +1301,11 @@ function completeTurn(args) {
   }
   const queryPatterns = validateQueryRequest(root, turnInput, actionType);
   const evidenceRequest = validateUserEvidenceRequest(turnInput, actionType);
+  // Validate and resolve touched claims so short H-tags expand to their full cell text.
+  let resolvedTouchedClaims = asArray(turnInput.touchedClaims);
+  if (requiresTouchedClaims(actionType)) {
+    resolvedTouchedClaims = validateTouchedClaimsExist(paths.journalPath, turnInput.touchedClaims, "complete-turn");
+  }
   validateEvidenceHandoffTurn(paths.journalPath, turnInput, actionType);
   validateMarkResolved(paths.journalPath, turnInput, actionType, priorEvents);
   const completionGate = normalizeCompletionGate(turnInput, actionType);
@@ -1234,7 +1322,7 @@ function completeTurn(args) {
     actionType,
     actionSummary: fieldValue(turnInput.actionSummary, "not specified"),
     evidenceRefs: asArray(turnInput.evidenceRefs),
-    touchedClaims: asArray(turnInput.touchedClaims),
+    touchedClaims: resolvedTouchedClaims,
     queryPatterns,
     evidenceRequest,
     completionGate,
@@ -1628,6 +1716,197 @@ function importEvidence(args) {
   };
 }
 
+// ── validateJournalContentForSave (shared by saveJournal and runTurn) ─────────
+//
+// Single-source predicate for journal content.  Every marker checked here is
+// derived from the same REQUIRED_JOURNAL_MARKERS constant that verifyCaseFiles
+// uses, plus the canonical claim-table header checked by
+// verifyJournalContentHasClaimTable.  The two can never drift apart.
+//
+// The saved file always keeps the stub's full section skeleton:
+//   # Discovery Journal - <issue>
+//   ## Framing, ## Proposed Loads, ## Claims (with canonical table), ## Resolution
+// The chat turn shape (Issue / claims table / Next step) is NOT the file shape.
+// See "Journal file template" in agents/investigator/harness.md Step 3 Details.
+
+function validateJournalContentForSave(content) {
+  // Collect ALL missing markers in one pass so the error names all of them.
+  const missingMarkers = REQUIRED_JOURNAL_MARKERS.filter((marker) => !content.includes(marker));
+  const missingClaimTable = !content.includes(REQUIRED_CLAIM_TABLE_HEADER);
+
+  if (missingMarkers.length > 0 || missingClaimTable) {
+    const parts = [];
+    if (missingMarkers.length > 0) {
+      parts.push(missingMarkers.join(", "));
+    }
+    if (missingClaimTable) {
+      parts.push(`canonical claim table header (${REQUIRED_CLAIM_TABLE_HEADER})`);
+    }
+    throw new Error(
+      `journal content missing required sections: ${parts.join(", ")}. The saved journal file keeps the stub's full shape (# Discovery Journal heading, ## Framing, ## Proposed Loads, ## Claims with the canonical table, ## Resolution) — see the journal file template in agents/investigator/harness.md. The chat turn shape and the saved file shape are not the same.`,
+    );
+  }
+  // Full claim table structural validation (validates status values, etc.).
+  verifyJournalContentHasClaimTable(content);
+}
+
+// ── runTurn: atomic begin + journal save + complete ───────────────────────────
+
+function runTurn(args) {
+  const root = resolveRepoRoot(args.root);
+  verifyCaseFiles(root, args.caseSlug);
+  const paths = casePaths(root, args.caseSlug);
+
+  if (!args.userAction) throw new Error("--user-action is required for run-turn");
+  if (!args.journalFile) throw new Error("--journal-file is required for run-turn");
+  if (!args.turnInputJson) throw new Error("--turn-input-json is required for run-turn");
+
+  // ── Phase 1: validate everything BEFORE any write ─────────────────────────
+
+  // 1a. Read current state and refuse if pendingTurn already open.
+  const state = readTurnState(paths);
+  if (state.caseSlug !== args.caseSlug) {
+    throw new Error(`${TURN_STATE_BASENAME} caseSlug does not match requested case`);
+  }
+  if (state.pendingTurn) {
+    throw new Error(
+      `a pending turn is already open (sequence ${state.pendingTurn.sequence}); run status and follow its nextCommands to complete, repair, or abandon it before run-turn`,
+    );
+  }
+  if (!state.nextTurnToken) {
+    throw new Error(`${TURN_STATE_BASENAME} missing nextTurnToken; reinitialize or repair the turn ledger`);
+  }
+  const allowedNext = normalizeAllowedNext(state.allowedNext);
+  if (!allowedNext.includes(args.userAction)) {
+    throw new Error(`user action is not allowed by current turn state: ${args.userAction}`);
+  }
+
+  // 1b. Read and validate the turn input JSON.
+  const rawTurnInput = loadJson(root, args.turnInputJson, "--turn-input-json");
+  if (!rawTurnInput || typeof rawTurnInput !== "object" || Array.isArray(rawTurnInput)) {
+    throw new Error("turn input JSON must be an object");
+  }
+  const suppliedHelperFields = HELPER_OWNED_TURN_FIELDS.filter(
+    (field) => Object.prototype.hasOwnProperty.call(rawTurnInput, field),
+  );
+  if (suppliedHelperFields.length) {
+    throw new Error(`turn input must not include helper-owned fields: ${suppliedHelperFields.join(", ")}`);
+  }
+  const actionType = String(rawTurnInput.actionType || "").trim();
+  if (!actionType) throw new Error("turn-json actionType is required");
+  validateActionType(actionType);
+  const blockingIssues = normalizeBlockingIssues(rawTurnInput.blockingIssues);
+  if (blockingIssues.length) {
+    throw new Error(`turn-json contains blocking issues: ${blockingIssues.join("; ")}`);
+  }
+
+  // 1c. Read and validate the new journal content from --journal-file.
+  const journalFilePath = path.isAbsolute(args.journalFile)
+    ? path.resolve(args.journalFile)
+    : safeRepoPath(root, args.journalFile);
+  const journalFileStat = fs.statSync(journalFilePath, { throwIfNoEntry: false });
+  if (!journalFileStat || !journalFileStat.isFile()) {
+    throw new Error(`--journal-file does not exist or is not a file: ${journalFilePath}`);
+  }
+  const newJournalContent = fs.readFileSync(journalFilePath, "utf8");
+  validateJournalContentForSave(newJournalContent);
+
+  // 1d. Verify the on-disk journal is valid (begin-turn would also check this).
+  verifyJournalHasClaimTable(paths.journalPath);
+
+  // 1e. Compute journalHashBefore (hash of current on-disk journal — what begin-turn would have captured).
+  const journalHashBefore = sha256File(paths.journalPath);
+  if (state.journalHash && state.journalHash !== journalHashBefore) {
+    throw new Error(`${TURN_STATE_BASENAME} journalHash does not match journal.md`);
+  }
+
+  // 1f. Build the pending turn context (as begin-turn would).
+  const sequence = Number(state.currentSequence) + 1;
+  const turnToken = state.nextTurnToken;
+  const priorLatestTurnHash = state.latestTurnHash;
+
+  // 1g. Compute journalHashAfter from the new content.
+  const newJournalHash = `sha256:${crypto.createHash("sha256").update(newJournalContent).digest("hex")}`;
+
+  // 1h. journal must change for investigative actions.
+  if (requiresTouchedClaims(actionType) && newJournalHash === journalHashBefore) {
+    throw new Error("journal.md hash did not change for investigative action");
+  }
+
+  // 1i. Run all completion validations against the NEW journal content.
+  const priorEvents = fs.existsSync(paths.turnLogPath) ? readJsonl(paths.turnLogPath) : [];
+  if (requiresTouchedClaims(actionType) && (!Array.isArray(rawTurnInput.touchedClaims) || rawTurnInput.touchedClaims.length === 0)) {
+    throw new Error("turn-json touchedClaims is required for investigative actions");
+  }
+  const queryPatterns = validateQueryRequest(root, rawTurnInput, actionType);
+  const evidenceRequest = validateUserEvidenceRequest(rawTurnInput, actionType);
+  // Validate touched claims against the NEW journal content, not the old on-disk journal.
+  // Capture resolved claims so short H-tags (e.g. "H1") expand to their full cell text.
+  let resolvedTouchedClaims = asArray(rawTurnInput.touchedClaims);
+  if (requiresTouchedClaims(actionType)) {
+    resolvedTouchedClaims = validateTouchedClaimsExist(paths.journalPath, rawTurnInput.touchedClaims, "run-turn", newJournalContent);
+  }
+  validateEvidenceHandoffTurn(paths.journalPath, rawTurnInput, actionType, newJournalContent);
+  validateMarkResolved(paths.journalPath, rawTurnInput, actionType, priorEvents, newJournalContent);
+
+  // ── Phase 2: all validations passed — write atomically ───────────────────
+
+  // 2a. Write the new journal atomically.
+  atomicWriteFile(paths.journalPath, newJournalContent);
+
+  // 2b. Build and append the turn event.
+  const completionGate = normalizeCompletionGate(rawTurnInput, actionType);
+  const allowedNextOut = normalizeAllowedNext(rawTurnInput.allowedNext || DEFAULT_ALLOWED_NEXT);
+  const nextTurnToken = makeTurnToken();
+  const event = {
+    sequence,
+    previousHash: priorLatestTurnHash,
+    turnToken,
+    nextTurnToken,
+    userAction: args.userAction,
+    activeHypothesis: rawTurnInput.activeHypothesis ?? null,
+    actionType,
+    actionSummary: fieldValue(rawTurnInput.actionSummary, "not specified"),
+    evidenceRefs: asArray(rawTurnInput.evidenceRefs),
+    touchedClaims: resolvedTouchedClaims,
+    queryPatterns,
+    evidenceRequest,
+    completionGate,
+    journalHashBefore,
+    journalHashAfter: newJournalHash,
+    allowedNext: allowedNextOut,
+    blockingIssues: [],
+  };
+  const latestTurnHash = hashTurnEvent(event);
+  appendJsonl(paths.turnLogPath, event);
+
+  // 2c. Update turn state.
+  const nextState = {
+    caseSlug: args.caseSlug,
+    currentSequence: sequence,
+    latestTurnHash,
+    journalHash: newJournalHash,
+    nextTurnToken,
+    pendingTurn: null,
+    allowedNext: allowedNextOut,
+    blockingIssues: [],
+  };
+  atomicWriteJson(paths.turnStatePath, nextState);
+  readTurnState(paths);
+
+  return {
+    status: "pass",
+    operation: "run-turn",
+    caseSlug: args.caseSlug,
+    journalPath: paths.journalPath,
+    journalHash: newJournalHash,
+    turnLogPath: paths.turnLogPath,
+    turnStatePath: paths.turnStatePath,
+    event,
+    state: nextState,
+  };
+}
+
 function buildCaseIntakeMd({ status, blockingIssues, nextStep, root, caseDir, caseIntakeJsonPath, journalPath, framing, proposedLoads }) {
   const issueLine = blockingIssues.length ? blockingIssues.join("; ") : "none";
   return `Status: ${status}
@@ -1720,10 +1999,9 @@ function verifyCaseFiles(root, caseSlug) {
   if (!/^Blocking Issues: none$/m.test(caseIntakeMd)) {
     throw new Error(`${CASE_INTAKE_BASENAME}.md blocking issues are not none`);
   }
-  for (const marker of REQUIRED_JOURNAL_MARKERS) {
-    if (!journalMd.includes(marker)) {
-      throw new Error(`journal.md missing marker: ${marker}`);
-    }
+  const missingJournalMarkers = REQUIRED_JOURNAL_MARKERS.filter((marker) => !journalMd.includes(marker));
+  if (missingJournalMarkers.length > 0) {
+    throw new Error(`journal.md missing marker: ${missingJournalMarkers.join(", ")}`);
   }
   if (caseIntakeJson.status !== "pass" || !Array.isArray(caseIntakeJson.blockingIssues) || caseIntakeJson.blockingIssues.length) {
     throw new Error(`${CASE_INTAKE_BASENAME}.json does not describe a passing case intake`);
@@ -1753,7 +2031,7 @@ function openCase(args) {
   const journalPath = path.join(caseDir, "journal.md");
   const timestamp = new Date().toISOString();
   const nextStep = status === "pass"
-    ? "Run verify-case, then load only the proposed files."
+    ? "Load only the proposed files (open-case already verified this intake)."
     : "Resolve the blocking issue, then rerun open-case.";
 
   fs.mkdirSync(caseDir, { recursive: true });
@@ -1846,21 +2124,7 @@ function saveJournal(args) {
   const content = fs.readFileSync(contentFilePath, "utf8");
 
   // Validate the journal content BEFORE writing.
-  if (!content.includes(REQUIRED_JOURNAL_MARKERS[0])) {
-    throw new Error(
-      `journal content missing required heading (${REQUIRED_JOURNAL_MARKERS[0]}); render the journal per agents/investigator/harness.md before saving`,
-    );
-  }
-  if (!content.includes(REQUIRED_CLAIM_TABLE_HEADER)) {
-    throw new Error(
-      `journal content missing canonical claim table header (${REQUIRED_CLAIM_TABLE_HEADER}); render the journal per agents/investigator/harness.md before saving`,
-    );
-  }
-  if (!content.includes("## Resolution")) {
-    throw new Error(
-      `journal content missing ## Resolution section; render the journal per agents/investigator/harness.md before saving`,
-    );
-  }
+  validateJournalContentForSave(content);
 
   // Write atomically to the case journal path.
   atomicWriteFile(paths.journalPath, content);
@@ -1958,6 +2222,11 @@ function main() {
       process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
       return;
     }
+    if (args.command === "run-turn") {
+      const result = runTurn(args);
+      process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+      process.exit(0);
+    }
     usage(1);
   } catch (error) {
     if (process.argv[2] === "import-evidence") {
@@ -1996,5 +2265,9 @@ export {
   completeTurn,
   importEvidence,
   saveJournal,
+  runTurn,
   caseStatus,
+  // Exported for drift-guard tests only — do not use in application code.
+  REQUIRED_JOURNAL_MARKERS,
+  validateJournalContentForSave,
 };

@@ -3,7 +3,7 @@ role: investigator
 artifact: case-intake
 title: "Investigator case intake — deterministic Step 1 artifact"
 content-type: prompt
-last-verified: "2026-06-09"
+last-verified: "2026-06-10"
 confidence: high
 source-tier: practice
 sources:
@@ -63,7 +63,9 @@ Every path shown in the Step 1 `**Proposed loads**` section must be passed as a
 displayed list includes product references or grounding cards, those paths must
 also be included in the helper command.
 
-Then verify the gate before continuing:
+A `status: "pass"` response from `open-case` is the verification for that turn —
+`open-case` already writes and reads back all artifacts. Run `verify-case` only
+when resuming an existing case or re-checking after repair:
 
 ```bash
 node scripts/investigator-artifacts.mjs verify-case \
@@ -117,11 +119,13 @@ They must not include snapshot files, sibling case journals, or broad data
 directories. Every proposed load must exist under the repository root; a
 missing file is a blocked intake, not a reason to invent a replacement path.
 
-After `verify-case` passes, the Step 1 response must render proposed loads from
+After a passing `open-case`, the Step 1 response must render proposed loads from
 the verified `case-intake.json` / `case-intake.md` artifacts. Do not append,
 rewrite, or "helpfully" add extra paths in chat. If the proposed load list is
 wrong or incomplete, rerun `open-case` with the corrected `--proposed-load`
-arguments and rerun `verify-case` before showing the new list.
+arguments before showing the new list. Run `verify-case` only when resuming an
+existing case or re-checking after a repair — not as a required second step
+after a passing `open-case`.
 
 Telemetry references under `references/{zia,zpa,zcc}/logs/` are only valid when
 the user's framing already mentions logs, metrics, SIEM data, LSS/NSS,
@@ -142,7 +146,7 @@ telemetry context in the framing fields the user actually expressed it in.
 ```text
 Status: pass
 Blocking Issues: none
-Next Step: Run verify-case, then load only the proposed files.
+Next Step: Load only the proposed files (open-case already verified this intake).
 ```
 
 For blocked case intakes:
@@ -161,8 +165,10 @@ parsing freeform prose.
 After `open-case`, stop. Do not load Step 2 files, enumerate snapshots,
 generate hypotheses, or render a discovery journal table in the same response.
 
-The load phase begins only after the user confirms continuation and
-`verify-case` reports a passing case intake.
+The load phase begins only after the user confirms continuation. A passing
+`open-case` is the intake verification; `verify-case` is the resume/repair
+check — run it only when resuming an existing case or re-checking after a
+repair, not after a passing `open-case`.
 
 Step 2 may load only the proposed loads stored in the verified
 `case-intake.json`, plus later user-approved additions. If the chat-rendered
@@ -182,20 +188,27 @@ node scripts/investigator-artifacts.mjs record-loads \
   --deferred <path>=<reason>
 ```
 
-Then verify the loads gate before continuing:
-
-```bash
-node scripts/investigator-artifacts.mjs verify-loads \
-  --root <repo-root> \
-  --case-slug <slug>
-```
+A passing `record-loads` result is sufficient to proceed. `verify-loads` is
+a resume/repair command — run it only when resuming an existing case or
+re-checking after a repair, not in the same turn after a passing `record-loads`.
 
 `initialize-turn-ledger` will refuse to run unless `workflow/01-loads.json`
 exists and recomputes to pass. Step 3 cannot begin without a passing loads
 artifact.
 
 After Step 3 generates the first real discovery journal, render it to a temp
-file and save it with:
+file and initialize the turn ledger in one press:
+
+```bash
+node scripts/investigator-artifacts.mjs initialize-turn-ledger \
+  --root <repo-root> \
+  --case-slug <slug> \
+  --journal-file <temp-path>
+```
+
+This saves the journal and initializes the ledger atomically. If the journal
+content is invalid or loads are not passing, nothing is written. If you need
+to save the journal separately first (e.g. repair path), use `save-journal`:
 
 ```bash
 node scripts/investigator-artifacts.mjs save-journal \
@@ -204,19 +217,35 @@ node scripts/investigator-artifacts.mjs save-journal \
   --content-file <temp-path>
 ```
 
-Then initialize the turn ledger before presenting the Step 3 checkpoint:
+The saved file must keep the stub's full section skeleton (`## Framing`,
+`## Proposed Loads`, `## Claims` with the canonical table, `## Resolution`).
+The chat turn shape and the saved file shape are not the same — see the
+"Journal file template" in `agents/investigator/harness.md` Step 3 Details.
+
+Every later controller turn should use `run-turn` as the canonical single-press
+command: perform the action, render the updated journal to a temp file, write the
+turn input JSON, then:
 
 ```bash
-node scripts/investigator-artifacts.mjs initialize-turn-ledger \
+node scripts/investigator-artifacts.mjs run-turn \
   --root <repo-root> \
-  --case-slug <slug>
+  --case-slug <slug> \
+  --user-action <action> \
+  --journal-file <path-to-rendered-updated-journal> \
+  --turn-input-json <path-to-agent-owned-turn-fields>
 ```
 
-Every later controller turn must run `begin-turn` before modifying the journal
-and `complete-turn` after exactly one investigation action. Evidence handoffs
-are two completed turns: first `request-user-evidence` or `query-request`, then
-a later `record-user-evidence` turn when the user provides results. Do not keep
-a pending turn open while waiting for the user.
+`run-turn` is all-or-nothing: a failed `run-turn` leaves no pending turn to
+clean up. Fix the reported problem and rerun it.
+
+Use the split `begin-turn` / `save-journal` / `complete-turn` form for:
+- Turns that need `import-evidence` (which requires an open `pendingTurn`).
+- Repair flows after a failure that left state mid-transaction.
+
+Evidence handoffs are two completed turns: first `request-user-evidence` or
+`query-request` (using `run-turn`), then a later `record-user-evidence` turn
+when the user provides results. Do not keep a pending turn open while waiting
+for the user.
 
 When the helper capabilities include `import-evidence`, use it during
 `record-user-evidence` or `add-evidence` turns to move returned files into
@@ -233,10 +262,12 @@ Resolution is also a separate completed turn. The direct evidence supporting a
 `mark-resolved` turn must already be recorded by a prior completed
 `record-user-evidence` or `add-evidence` turn.
 
-If a later turn becomes blocked after `begin-turn` and before journal mutation,
-run `abandon-turn --reason "<reason>"` before halting. This restores the
-helper-owned token only when `journal.md` is unchanged; if the journal changed,
-halt and request repair instead of starting a new turn.
+When using the split form: if a turn becomes blocked after `begin-turn` and
+before journal mutation, run `abandon-turn --reason "<reason>"` before halting.
+This restores the helper-owned token only when `journal.md` is unchanged; if
+the journal changed, halt and request repair instead of starting a new turn.
+When using `run-turn`, a failed run leaves no pending turn — simply fix the
+reported error and rerun.
 
 If the target case directory already contains `case-intake.md`,
 `case-intake.json`, or `journal.md`, treat it as a resume path and run

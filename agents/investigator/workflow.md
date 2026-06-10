@@ -4,7 +4,7 @@ title: Zscaler Investigator
 role: investigator
 artifact: workflow
 content-type: reference
-last-verified: "2026-06-09"
+last-verified: "2026-06-10"
 confidence: medium
 sources:
   - agents/investigator/prompt.md
@@ -42,14 +42,14 @@ Load and follow the canonical investigator files listed in `required-reads`.
 
 Runtime adapters must preserve:
 
-- Step 1 case intake gate
+- Step 1 case intake gate (open-case)
 - Step 2 file-load checkpoint
-- Step 2 load-recording gate (`record-loads` before Step 3)
-- Step 3 journal and turn-ledger initialization
-- Post-Step-3 status-first recovery (`status` before any action when resuming or after failure)
-- Post-Step-3 begin/complete/abandon turn transaction
-- One action per turn
-- Resolution completion gate
+- Step 2 load-recording gate (record-loads gate before Step 3)
+- Step 3 journal save and turn-ledger initialization gate
+- Post-Step-3 status-first recovery (status before any action when resuming or after failure)
+- Post-Step-3 atomic turn transaction (journal write + ledger event, validated before write)
+- One investigation action per turn
+- Resolution completion gate (completionGate on mark-resolved)
 
 The metadata gives adapter docs and repo checks a stable place to point.
 
@@ -77,8 +77,8 @@ trigger applies:
 ## New Case Entry
 
 Follow `agents/investigator/case-intake.md`. Create the framing JSON, compose
-the complete Step 1 proposed-load list, run `open-case`, then run `verify-case`
-before reporting Step 1 success.
+the complete Step 1 proposed-load list, run `open-case`, then report Step 1
+success when `open-case` exits 0 with `status: "pass"`.
 
 Every path displayed in the Step 1 `**Proposed loads**` section must be passed
 to `open-case` as a `--proposed-load` argument.
@@ -93,13 +93,18 @@ node scripts/investigator-artifacts.mjs open-case \
   --proposed-load <displayed-load-N>
 ```
 
+`open-case` already writes and reads back all artifacts; a `status: "pass"`
+response is the verification. Run `verify-case` only to resume an existing case
+or re-check after repair — not as a required second step after a passing
+`open-case`.
+
 ```bash
 node scripts/investigator-artifacts.mjs verify-case \
   --root <repo-root> \
   --case-slug <slug>
 ```
 
-After `verify-case`, render proposed loads only from the verified
+After `open-case` passes, render proposed loads only from the verified
 `case-intake.json` `proposedLoads` array. If the displayed Step 1 list differs
 from the JSON, stop before Step 2 and report `Case intake mismatch`.
 
@@ -126,14 +131,19 @@ the next journal update, using the proposed loads from
 
 ## Later Turns
 
-After Step 3 saves the first real `journal.md`, initialize the turn ledger before
-presenting the Step 3 checkpoint:
+After Step 3 generates the first real `journal.md`, initialize the turn ledger
+before presenting the Step 3 checkpoint — use the single-press compound form:
 
 ```bash
 node scripts/investigator-artifacts.mjs initialize-turn-ledger \
   --root <repo-root> \
-  --case-slug <slug>
+  --case-slug <slug> \
+  --journal-file <temp-path>
 ```
+
+This saves the journal and initializes the ledger atomically. Omit
+`--journal-file` only if the journal was already saved by a prior `save-journal`
+call.
 
 When resuming a case, after any helper failure, or whenever turn state is
 uncertain, run `status` first:
@@ -152,32 +162,40 @@ error text and follow its instructions. If the output contains a `pendingTurn`
 entry or any blocking issue mentioning `Pending turn requires repair`, surface
 that line verbatim to the user before doing anything else.
 
-For every later controller turn, run `begin-turn`, perform exactly one
-investigation action, save the journal via `save-journal` (or a shell write if
-the helper is unavailable — never by editing `.gitignore`), then run
-`complete-turn`. If the action blocks after `begin-turn` and before journal
-mutation, run `abandon-turn --reason "<reason>"` before halting.
+For every later controller turn, the canonical single-press command is `run-turn`:
+perform exactly one investigation action, render the updated journal to a temp
+file, write the turn input JSON, then:
+
+```bash
+node scripts/investigator-artifacts.mjs run-turn \
+  --root <repo-root> \
+  --case-slug <slug> \
+  --user-action <continue-top-open|investigate-different-claim|request-user-evidence|record-user-evidence|add-evidence|mark-resolved|pause> \
+  --journal-file <path-to-rendered-updated-journal> \
+  --turn-input-json <path-to-agent-owned-turn-fields>
+```
+
+`run-turn` validates everything first, then writes atomically. A failed
+`run-turn` leaves no pending turn — fix the reported problem and rerun.
+
+Use the split `begin-turn` / `save-journal` / `complete-turn` form when:
+- The turn needs `import-evidence` (requires an open `pendingTurn`).
+- Resuming or repairing after a failure that left state mid-transaction.
+- If the action blocks after `begin-turn` and before journal mutation, run
+  `abandon-turn --reason "<reason>"` before halting.
 
 If `node scripts/investigator-artifacts.mjs capabilities` reports
 `import-evidence`, use that helper inside `record-user-evidence` and
 `add-evidence` turns to copy returned files into case-local `evidence/`, append
 `evidence/MANIFEST.md`, and return evidence refs. The helper is additive-only:
 it does not update `journal.md`, complete the turn, or mutate workflow turn
-state. The agent still updates the journal, writes the turn JSON, and runs
-`complete-turn`.
-
-If `capabilities.supportedOptions["complete-turn"]` includes
-`--turn-input-json`, use `complete-turn --turn-input-json` after the journal
-update instead of hand-writing the full turn JSON. The helper owns sequence,
-token, previous hash, user action, and journal hashes; the agent owns
-`actionType`, `actionSummary`, touched claims, evidence refs, and allowed next
-actions. This keeps the existing completion command boundary while removing
-helper-owned JSON ceremony.
+state. The agent still updates the journal, writes the turn input JSON, and runs
+`complete-turn` (or uses `run-turn` for turns that don't need `import-evidence`).
 
 A request turn is a completed turn. `query-request` and
-`request-user-evidence` must run through `begin-turn` and `complete-turn`, then
-halt. The user's returned evidence starts a new `record-user-evidence` turn. Do
-not leave `pendingTurn` open across a user checkpoint or evidence handoff.
+`request-user-evidence` run through `run-turn` (or `begin-turn`/`complete-turn`)
+and then halt. The user's returned evidence starts a new `record-user-evidence`
+turn. Do not leave `pendingTurn` open across a user checkpoint or evidence handoff.
 
 If this is a dry-run or simulated test, say so. Use "would write", "would run",
 or "would save" phrasing. Do not claim helper commands ran, files were written,
