@@ -774,6 +774,40 @@ transaction through the runtime's SHELL instead.
 Without write, readback, and marker verification, Step 3 is incomplete and
 Checkpoint 3 cannot fire.
 
+#### Journal file template
+
+The saved file always keeps the stub's full section skeleton. The chat turn
+shape (Issue / claims table / Next step) is NOT the file shape — extend the
+existing file, never re-derive the file from the chat turn output.
+
+```
+# Discovery Journal - <issue>
+
+ISSUE: ...
+STATUS: Investigating
+TIMESTAMP: ...
+
+## Framing
+<framing table from case intake>
+
+## Proposed Loads
+<list>
+
+## Claims
+| Claim | Source | Status | Next evidence needed | Timestamp | Notes |
+|---|---|---|---|---|---|
+...
+
+## Resolution
+Open.
+```
+
+`save-journal` and `initialize-turn-ledger --journal-file` both validate that
+all five sections are present before writing. A journal that renders only the
+chat turn shape (heading + claims table + next step, without `## Framing` and
+`## Proposed Loads`) will be rejected with a single error listing every missing
+section.
+
 ### Initialize Turn Ledger
 
 After the journal is saved, initialize the helper-owned turn ledger before

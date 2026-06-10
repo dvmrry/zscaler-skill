@@ -1717,24 +1717,36 @@ function importEvidence(args) {
 }
 
 // ── validateJournalContentForSave (shared by saveJournal and runTurn) ─────────
+//
+// Single-source predicate for journal content.  Every marker checked here is
+// derived from the same REQUIRED_JOURNAL_MARKERS constant that verifyCaseFiles
+// uses, plus the canonical claim-table header checked by
+// verifyJournalContentHasClaimTable.  The two can never drift apart.
+//
+// The saved file always keeps the stub's full section skeleton:
+//   # Discovery Journal - <issue>
+//   ## Framing, ## Proposed Loads, ## Claims (with canonical table), ## Resolution
+// The chat turn shape (Issue / claims table / Next step) is NOT the file shape.
+// See "Journal file template" in agents/investigator/harness.md Step 3 Details.
 
 function validateJournalContentForSave(content) {
-  if (!content.includes(REQUIRED_JOURNAL_MARKERS[0])) {
+  // Collect ALL missing markers in one pass so the error names all of them.
+  const missingMarkers = REQUIRED_JOURNAL_MARKERS.filter((marker) => !content.includes(marker));
+  const missingClaimTable = !content.includes(REQUIRED_CLAIM_TABLE_HEADER);
+
+  if (missingMarkers.length > 0 || missingClaimTable) {
+    const parts = [];
+    if (missingMarkers.length > 0) {
+      parts.push(missingMarkers.join(", "));
+    }
+    if (missingClaimTable) {
+      parts.push(`canonical claim table header (${REQUIRED_CLAIM_TABLE_HEADER})`);
+    }
     throw new Error(
-      `journal content missing required heading (${REQUIRED_JOURNAL_MARKERS[0]}); render the journal per agents/investigator/harness.md before saving`,
+      `journal content missing required sections: ${parts.join(", ")}. The saved journal file keeps the stub's full shape (# Discovery Journal heading, ## Framing, ## Proposed Loads, ## Claims with the canonical table, ## Resolution) — see the journal file template in agents/investigator/harness.md. The chat turn shape and the saved file shape are not the same.`,
     );
   }
-  if (!content.includes(REQUIRED_CLAIM_TABLE_HEADER)) {
-    throw new Error(
-      `journal content missing canonical claim table header (${REQUIRED_CLAIM_TABLE_HEADER}); render the journal per agents/investigator/harness.md before saving`,
-    );
-  }
-  if (!content.includes("## Resolution")) {
-    throw new Error(
-      `journal content missing ## Resolution section; render the journal per agents/investigator/harness.md before saving`,
-    );
-  }
-  // Full claim table structural validation.
+  // Full claim table structural validation (validates status values, etc.).
   verifyJournalContentHasClaimTable(content);
 }
 
@@ -1987,10 +1999,9 @@ function verifyCaseFiles(root, caseSlug) {
   if (!/^Blocking Issues: none$/m.test(caseIntakeMd)) {
     throw new Error(`${CASE_INTAKE_BASENAME}.md blocking issues are not none`);
   }
-  for (const marker of REQUIRED_JOURNAL_MARKERS) {
-    if (!journalMd.includes(marker)) {
-      throw new Error(`journal.md missing marker: ${marker}`);
-    }
+  const missingJournalMarkers = REQUIRED_JOURNAL_MARKERS.filter((marker) => !journalMd.includes(marker));
+  if (missingJournalMarkers.length > 0) {
+    throw new Error(`journal.md missing marker: ${missingJournalMarkers.join(", ")}`);
   }
   if (caseIntakeJson.status !== "pass" || !Array.isArray(caseIntakeJson.blockingIssues) || caseIntakeJson.blockingIssues.length) {
     throw new Error(`${CASE_INTAKE_BASENAME}.json does not describe a passing case intake`);
@@ -2256,4 +2267,7 @@ export {
   saveJournal,
   runTurn,
   caseStatus,
+  // Exported for drift-guard tests only — do not use in application code.
+  REQUIRED_JOURNAL_MARKERS,
+  validateJournalContentForSave,
 };

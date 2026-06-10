@@ -19,6 +19,8 @@ import {
   saveJournal,
   verifyCaseFiles,
   verifyLoads,
+  REQUIRED_JOURNAL_MARKERS,
+  validateJournalContentForSave,
 } from "./investigator-artifacts.mjs";
 
 function tempRepo() {
@@ -3746,4 +3748,189 @@ test("run-turn: short H-tag touchedClaim resolves against new-journal content", 
   assert.equal(result.status, "pass");
   // Resolved to the full claim text from the new journal.
   assert.deepEqual(result.event.touchedClaims, ["H1: Segment missing"]);
+});
+
+// ── Validator alignment: save-journal / run-turn / ledger-init ────────────────
+
+test("save-journal: chat-shape-only content (heading + claim table + Resolution, no Framing/Proposed Loads/Claims sections) throws ONE error listing ALL missing sections; journal on disk untouched", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  const openResult = openCase({
+    root,
+    caseSlug: "2026-06-10-chat-shape-save",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+  const stubContent = fs.readFileSync(openResult.journalPath, "utf8");
+
+  // Chat-shape content: has the heading, the canonical claim table, and ## Resolution,
+  // but is missing ## Framing and ## Proposed Loads (the sections that verifyCaseFiles
+  // and the ledger gate require that validateJournalContentForSave previously did not check).
+  const chatShapeContent = `# Discovery Journal
+
+ISSUE: ZPA users cannot reach wiki.internal
+STATUS: Investigating
+
+## Claims
+
+| Claim | Source | Status | Next evidence needed | Timestamp | Notes |
+|---|---|---|---|---|---|
+| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check app segment | 2026-06-10T00:00:00Z | reference-grounded |
+
+## Resolution
+
+Open.
+`;
+  const tmpPath = writeTempJournal(chatShapeContent);
+
+  // Must throw exactly once with all missing markers in the message.
+  let errorMessage;
+  try {
+    saveJournal({ root, caseSlug: "2026-06-10-chat-shape-save", contentFile: tmpPath });
+    assert.fail("expected saveJournal to throw");
+  } catch (err) {
+    errorMessage = err.message;
+  }
+
+  // Error must name BOTH missing section markers.
+  assert.match(errorMessage, /## Framing/);
+  assert.match(errorMessage, /## Proposed Loads/);
+
+  // Journal on disk must be unchanged.
+  assert.equal(fs.readFileSync(openResult.journalPath, "utf8"), stubContent);
+});
+
+test("drift guard: validateJournalContentForSave's marker set is a superset of REQUIRED_JOURNAL_MARKERS", () => {
+  // For every marker in REQUIRED_JOURNAL_MARKERS, a content string that includes
+  // every OTHER marker (plus the claim table and the marker under test removed)
+  // must be rejected by validateJournalContentForSave.
+  // This directly asserts that save can never accept content the ledger gate would reject.
+
+  const claimTableHeader = "| Claim | Source | Status | Next evidence needed | Timestamp | Notes |";
+  const baseContent = [
+    "# Discovery Journal",
+    "",
+    "## Framing",
+    "",
+    "| Field | Value |",
+    "|---|---|",
+    "| Symptom | test |",
+    "",
+    "## Proposed Loads",
+    "",
+    "- agents/investigator/prompt.md",
+    "",
+    "## Claims",
+    "",
+    claimTableHeader,
+    "|---|---|---|---|---|---|",
+    "| H1: Test claim | ref | Open (uncertain) | check | 2026-06-10T00:00:00Z | note |",
+    "",
+    "## Resolution",
+    "",
+    "Open.",
+    "",
+  ].join("\n");
+
+  // Verify the base passes.
+  assert.doesNotThrow(() => validateJournalContentForSave(baseContent));
+
+  // Remove each REQUIRED_JOURNAL_MARKERS entry in turn — each must be rejected.
+  for (const marker of REQUIRED_JOURNAL_MARKERS) {
+    const withoutMarker = baseContent.replace(marker, "");
+    assert.throws(
+      () => validateJournalContentForSave(withoutMarker),
+      new RegExp(marker.replace(/[[\](){}*+?.,\\^$|#\s]/g, "\\$&")),
+      `validateJournalContentForSave should reject content missing: ${marker}`,
+    );
+  }
+});
+
+test("drift guard integration: content accepted by validateJournalContentForSave always passes the ledger-init journal check (end-to-end)", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  const openResult = openCase({
+    root,
+    caseSlug: "2026-06-10-drift-guard-integration",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+  recordLoads({
+    root,
+    caseSlug: openResult.caseSlug,
+    loaded: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+    deferred: [],
+    allowAdditional: false,
+    force: false,
+  });
+
+  // VALID_JOURNAL_CONTENT is the minimal fixture that passes validateJournalContentForSave.
+  // Saving it via save-journal and then running initialize-turn-ledger must both succeed —
+  // no gap between the two predicate checks.
+  const tmpPath = writeTempJournal(VALID_JOURNAL_CONTENT);
+
+  const saveResult = saveJournal({ root, caseSlug: openResult.caseSlug, contentFile: tmpPath });
+  assert.equal(saveResult.status, "pass");
+
+  const ledgerResult = initializeTurnLedger({ root, caseSlug: openResult.caseSlug });
+  assert.equal(ledgerResult.status, "pass");
+});
+
+test("run-turn: chat-shape-only journal content throws ONE error listing all missing sections; nothing persisted", () => {
+  const { root, caseSlug } = createCaseWithLedger();
+  const journalPath = path.join(root, "_data/cases", caseSlug, "journal.md");
+  const journalBefore = fs.readFileSync(journalPath, "utf8");
+  const turnStatePath = path.join(root, "_data/cases", caseSlug, "workflow/02-turn-state.json");
+  const stateBefore = readJson(turnStatePath);
+  const logPath = path.join(root, "_data/cases", caseSlug, "workflow/02-turns.jsonl");
+  const logBefore = fs.readFileSync(logPath, "utf8");
+
+  // Chat-shape content: has heading, claim table, Resolution but no Framing/Proposed Loads.
+  const chatShapeContent = `# Discovery Journal
+
+ISSUE: ZPA users cannot reach wiki.internal
+STATUS: Investigating
+
+## Claims
+
+| Claim | Source | Status | Next evidence needed | Timestamp | Notes |
+|---|---|---|---|---|---|
+| H1: Segment missing | references/zpa/app-segments.md | Confirmed (high) | n/a | 2026-06-10T01:00:00Z | confirmed |
+
+## Resolution
+
+Open.
+`;
+  const tmpJournal = writeTempJournal(chatShapeContent);
+  const inputPath = makeValidRunTurnInput(root);
+
+  let errorMessage;
+  try {
+    runTurn({ root, caseSlug, userAction: "continue-top-open", journalFile: tmpJournal, turnInputJson: inputPath });
+    assert.fail("expected run-turn to throw");
+  } catch (err) {
+    errorMessage = err.message;
+  }
+
+  // Error must name both missing sections.
+  assert.match(errorMessage, /## Framing/);
+  assert.match(errorMessage, /## Proposed Loads/);
+
+  // Nothing persisted.
+  assert.equal(fs.readFileSync(journalPath, "utf8"), journalBefore);
+  assert.equal(readJson(turnStatePath).pendingTurn, null);
+  assert.equal(readJson(turnStatePath).currentSequence, stateBefore.currentSequence);
+  assert.equal(fs.readFileSync(logPath, "utf8"), logBefore);
 });

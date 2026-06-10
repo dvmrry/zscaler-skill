@@ -217,6 +217,11 @@ node scripts/investigator-artifacts.mjs save-journal \
   --content-file <temp-path>
 ```
 
+The saved file must keep the stub's full section skeleton (`## Framing`,
+`## Proposed Loads`, `## Claims` with the canonical table, `## Resolution`).
+The chat turn shape and the saved file shape are not the same — see the
+"Journal file template" in `agents/investigator/harness.md` Step 3 Details.
+
 Every later controller turn should use `run-turn` as the canonical single-press
 command: perform the action, render the updated journal to a temp file, write the
 turn input JSON, then:
