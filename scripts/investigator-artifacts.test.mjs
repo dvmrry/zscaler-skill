@@ -3582,3 +3582,168 @@ test("capabilities: run-turn is listed in supported operations and options", () 
   assert.ok(ledgerOpts, "initialize-turn-ledger must have supportedOptions entry");
   assert.ok(ledgerOpts.includes("--journal-file"));
 });
+
+// ── Finding 1: pre-write ledger guard ────────────────────────────────────────
+
+test("initialize-turn-ledger --journal-file: existing ledger + new journal content + no --force throws without mutating journal", () => {
+  // Create a fully initialized case (with ledger already present).
+  const { root, caseSlug } = createCaseWithLedger();
+  const journalPath = path.join(root, "_data/cases", caseSlug, "journal.md");
+  const journalBefore = fs.readFileSync(journalPath, "utf8");
+
+  // New journal content that would change the journal if written.
+  const newContent = VALID_JOURNAL_CONTENT.replace(
+    "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check app segment | 2026-06-10T00:00:00Z | reference-grounded |",
+    "| H1: Segment missing | references/zpa/app-segments.md | Confirmed (high) | n/a | 2026-06-10T01:00:00Z | confirmed |",
+  );
+  const tmpPath = writeTempJournal(newContent);
+
+  // Should throw because ledger already exists and --force is not set.
+  assert.throws(
+    () => initializeTurnLedger({ root, caseSlug, journalFile: tmpPath }),
+    /turn ledger already exists/,
+  );
+
+  // Journal on disk must be unchanged — the guard must have fired before any write.
+  assert.equal(fs.readFileSync(journalPath, "utf8"), journalBefore);
+});
+
+// ── Finding 2: openCase nextStep artifact content ─────────────────────────────
+
+test("openCase generates nextStep without verify-case instruction for a passing intake", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  const result = openCase({
+    root,
+    caseSlug: "2026-06-10-nextstep-check",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+
+  assert.equal(result.status, "pass");
+
+  // The nextStep returned by openCase must not instruct verify-case.
+  assert.ok(
+    !result.nextStep.includes("verify-case"),
+    `nextStep must not mention verify-case: ${result.nextStep}`,
+  );
+  assert.match(result.nextStep, /open-case already verified/);
+
+  // The written case-intake.md must also carry the updated nextStep.
+  const intakeMd = fs.readFileSync(
+    path.join(root, "_data/cases/2026-06-10-nextstep-check/case-intake.md"),
+    "utf8",
+  );
+  assert.match(intakeMd, /Next Step: Load only the proposed files \(open-case already verified this intake\)\./);
+});
+
+// ── Finding 3: H-tag touchedClaims matching ──────────────────────────────────
+
+test("completeTurn: short H-tag touchedClaim resolves to matching full claim cell", () => {
+  // createPassingCaseWithJournal puts "H1: Application segment may not include the app" in the journal.
+  const { root, caseSlug, journalPath } = createPassingCaseWithJournal();
+  initializeTurnLedger({ root, caseSlug });
+  const begun = beginTurn({ root, caseSlug, userAction: "continue-top-open" });
+  const pending = begun.pendingTurn;
+
+  fs.appendFileSync(journalPath, "\nTurn update: checked segment evidence.\n", "utf8");
+  const turnPath = writeJson(root, "turn-h-tag.json", {
+    sequence: pending.sequence,
+    previousHash: pending.priorLatestTurnHash,
+    turnToken: pending.turnToken,
+    userAction: pending.userAction,
+    actionType: "load-file",
+    actionSummary: "Checked segment evidence.",
+    touchedClaims: ["H1"], // short tag — must resolve to the full cell
+    evidenceRefs: ["E1"],
+    journalHashBefore: pending.journalHashBefore,
+    allowedNext: ["pause"],
+  });
+
+  const completed = completeTurn({ root, caseSlug, turnJson: turnPath });
+  assert.equal(completed.status, "pass");
+  // The persisted event must store the resolved full claim text.
+  assert.deepEqual(completed.event.touchedClaims, ["H1: Application segment may not include the app"]);
+});
+
+test("completeTurn: exact full claim text still matches (no regression)", () => {
+  const { root, caseSlug, journalPath } = createPassingCaseWithJournal();
+  initializeTurnLedger({ root, caseSlug });
+  const begun = beginTurn({ root, caseSlug, userAction: "continue-top-open" });
+  const pending = begun.pendingTurn;
+
+  fs.appendFileSync(journalPath, "\nTurn update: checked segment evidence.\n", "utf8");
+  const turnPath = writeJson(root, "turn-full-claim.json", {
+    sequence: pending.sequence,
+    previousHash: pending.priorLatestTurnHash,
+    turnToken: pending.turnToken,
+    userAction: pending.userAction,
+    actionType: "load-file",
+    actionSummary: "Checked segment evidence.",
+    touchedClaims: ["H1: Application segment may not include the app"],
+    evidenceRefs: ["E1"],
+    journalHashBefore: pending.journalHashBefore,
+    allowedNext: ["pause"],
+  });
+
+  const completed = completeTurn({ root, caseSlug, turnJson: turnPath });
+  assert.equal(completed.status, "pass");
+  assert.deepEqual(completed.event.touchedClaims, ["H1: Application segment may not include the app"]);
+});
+
+test("completeTurn: unknown H-tag fails with claim list in error message", () => {
+  const { root, caseSlug, journalPath } = createPassingCaseWithJournal();
+  initializeTurnLedger({ root, caseSlug });
+  const begun = beginTurn({ root, caseSlug, userAction: "continue-top-open" });
+  const pending = begun.pendingTurn;
+
+  fs.appendFileSync(journalPath, "\nTurn update: checked segment evidence.\n", "utf8");
+  const turnPath = writeJson(root, "turn-unknown-tag.json", {
+    sequence: pending.sequence,
+    previousHash: pending.priorLatestTurnHash,
+    turnToken: pending.turnToken,
+    userAction: pending.userAction,
+    actionType: "load-file",
+    actionSummary: "Checked segment evidence.",
+    touchedClaims: ["H9"], // H9 does not exist
+    evidenceRefs: ["E1"],
+    journalHashBefore: pending.journalHashBefore,
+    allowedNext: ["pause"],
+  });
+
+  assert.throws(
+    () => completeTurn({ root, caseSlug, turnJson: turnPath }),
+    /touched claim is not present in journal\.md: H9\. Journal claims: H1:/,
+  );
+});
+
+test("run-turn: short H-tag touchedClaim resolves against new-journal content", () => {
+  // The new journal has "H1: Segment missing" — pass short tag "H1"; must succeed and store full text.
+  const { root, caseSlug } = createCaseWithLedger();
+  const tmpJournal = writeTempJournal(UPDATED_JOURNAL_CONTENT);
+  const inputPath = writeJson(root, `run-turn-htag-${Date.now()}.json`, {
+    actionType: "load-file",
+    actionSummary: "Checked one evidence source.",
+    touchedClaims: ["H1"], // short tag
+    evidenceRefs: ["E1"],
+    allowedNext: ["continue-top-open", "pause"],
+  });
+
+  const result = runTurn({
+    root,
+    caseSlug,
+    userAction: "continue-top-open",
+    journalFile: tmpJournal,
+    turnInputJson: inputPath,
+  });
+
+  assert.equal(result.status, "pass");
+  // Resolved to the full claim text from the new journal.
+  assert.deepEqual(result.event.touchedClaims, ["H1: Segment missing"]);
+});

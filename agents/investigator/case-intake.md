@@ -119,11 +119,13 @@ They must not include snapshot files, sibling case journals, or broad data
 directories. Every proposed load must exist under the repository root; a
 missing file is a blocked intake, not a reason to invent a replacement path.
 
-After `verify-case` passes, the Step 1 response must render proposed loads from
+After a passing `open-case`, the Step 1 response must render proposed loads from
 the verified `case-intake.json` / `case-intake.md` artifacts. Do not append,
 rewrite, or "helpfully" add extra paths in chat. If the proposed load list is
 wrong or incomplete, rerun `open-case` with the corrected `--proposed-load`
-arguments and rerun `verify-case` before showing the new list.
+arguments before showing the new list. Run `verify-case` only when resuming an
+existing case or re-checking after a repair — not as a required second step
+after a passing `open-case`.
 
 Telemetry references under `references/{zia,zpa,zcc}/logs/` are only valid when
 the user's framing already mentions logs, metrics, SIEM data, LSS/NSS,
@@ -144,7 +146,7 @@ telemetry context in the framing fields the user actually expressed it in.
 ```text
 Status: pass
 Blocking Issues: none
-Next Step: Run verify-case, then load only the proposed files.
+Next Step: Load only the proposed files (open-case already verified this intake).
 ```
 
 For blocked case intakes:
@@ -163,8 +165,10 @@ parsing freeform prose.
 After `open-case`, stop. Do not load Step 2 files, enumerate snapshots,
 generate hypotheses, or render a discovery journal table in the same response.
 
-The load phase begins only after the user confirms continuation and
-`verify-case` reports a passing case intake.
+The load phase begins only after the user confirms continuation. A passing
+`open-case` is the intake verification; `verify-case` is the resume/repair
+check — run it only when resuming an existing case or re-checking after a
+repair, not after a passing `open-case`.
 
 Step 2 may load only the proposed loads stored in the verified
 `case-intake.json`, plus later user-approved additions. If the chat-rendered

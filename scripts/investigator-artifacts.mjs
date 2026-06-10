@@ -524,12 +524,32 @@ function validateTouchedClaimsExist(journalPath, touchedClaims, context, journal
   const statuses = journalContent
     ? journalClaimStatusesFromContent(journalContent)
     : journalClaimStatuses(journalPath);
+  const claimKeys = [...statuses.keys()];
+  const resolved = [];
   for (const claim of claims) {
-    if (!statuses.has(claim)) {
-      throw new Error(`${context} touched claim is not present in journal.md: ${claim}`);
+    if (statuses.has(claim)) {
+      // Exact match — current behavior.
+      resolved.push(claim);
+      continue;
     }
+    // Short H-tag match: claim is like "H1" or "h12" with no colon.
+    // A cell matches if it starts with the tag (case-insensitive) followed by ":".
+    const shortTagMatch = /^[Hh]\d+$/.test(claim);
+    if (shortTagMatch) {
+      const tagPrefix = claim.toLowerCase() + ":";
+      const matches = claimKeys.filter((k) => k.toLowerCase().startsWith(tagPrefix));
+      if (matches.length === 1) {
+        resolved.push(matches[0]);
+        continue;
+      }
+      // Zero or multiple matches — ambiguous; fall through to error.
+    }
+    const claimSummary = claimKeys.map((k) => k.slice(0, 60)).join(" | ");
+    throw new Error(
+      `${context} touched claim is not present in journal.md: ${claim}. Journal claims: ${claimSummary}`,
+    );
   }
-  return claims;
+  return resolved;
 }
 
 function normalizeCompletionGate(turnInput, actionType) {
@@ -1070,7 +1090,13 @@ function initializeTurnLedger(args) {
   // cannot learn that --force bypasses the gate.
   requirePassingLoads(root, args.caseSlug);
 
-  // If --journal-file provided, write the journal now (after loads gate passes, before ledger init).
+  // Pre-write guard: check for existing ledger before any journal write or mkdir.
+  // Must run here so a no-force re-run with --journal-file throws without mutating anything.
+  if (!args.force && (fs.existsSync(paths.turnLogPath) || fs.existsSync(paths.turnStatePath))) {
+    throw new Error("turn ledger already exists; rerun initialize-turn-ledger with --force only to replace it");
+  }
+
+  // If --journal-file provided, write the journal now (after loads gate and ledger guard pass, before ledger init).
   if (journalContentFromFile !== null) {
     atomicWriteFile(paths.journalPath, journalContentFromFile);
     // Verify the written journal.
@@ -1081,9 +1107,6 @@ function initializeTurnLedger(args) {
   }
 
   fs.mkdirSync(paths.workflowDir, { recursive: true });
-  if (!args.force && (fs.existsSync(paths.turnLogPath) || fs.existsSync(paths.turnStatePath))) {
-    throw new Error("turn ledger already exists; rerun initialize-turn-ledger with --force only to replace it");
-  }
 
   const journalHash = sha256File(paths.journalPath);
   const nextTurnToken = makeTurnToken();
@@ -1278,6 +1301,11 @@ function completeTurn(args) {
   }
   const queryPatterns = validateQueryRequest(root, turnInput, actionType);
   const evidenceRequest = validateUserEvidenceRequest(turnInput, actionType);
+  // Validate and resolve touched claims so short H-tags expand to their full cell text.
+  let resolvedTouchedClaims = asArray(turnInput.touchedClaims);
+  if (requiresTouchedClaims(actionType)) {
+    resolvedTouchedClaims = validateTouchedClaimsExist(paths.journalPath, turnInput.touchedClaims, "complete-turn");
+  }
   validateEvidenceHandoffTurn(paths.journalPath, turnInput, actionType);
   validateMarkResolved(paths.journalPath, turnInput, actionType, priorEvents);
   const completionGate = normalizeCompletionGate(turnInput, actionType);
@@ -1294,7 +1322,7 @@ function completeTurn(args) {
     actionType,
     actionSummary: fieldValue(turnInput.actionSummary, "not specified"),
     evidenceRefs: asArray(turnInput.evidenceRefs),
-    touchedClaims: asArray(turnInput.touchedClaims),
+    touchedClaims: resolvedTouchedClaims,
     queryPatterns,
     evidenceRequest,
     completionGate,
@@ -1801,8 +1829,10 @@ function runTurn(args) {
   const queryPatterns = validateQueryRequest(root, rawTurnInput, actionType);
   const evidenceRequest = validateUserEvidenceRequest(rawTurnInput, actionType);
   // Validate touched claims against the NEW journal content, not the old on-disk journal.
+  // Capture resolved claims so short H-tags (e.g. "H1") expand to their full cell text.
+  let resolvedTouchedClaims = asArray(rawTurnInput.touchedClaims);
   if (requiresTouchedClaims(actionType)) {
-    validateTouchedClaimsExist(paths.journalPath, rawTurnInput.touchedClaims, "run-turn", newJournalContent);
+    resolvedTouchedClaims = validateTouchedClaimsExist(paths.journalPath, rawTurnInput.touchedClaims, "run-turn", newJournalContent);
   }
   validateEvidenceHandoffTurn(paths.journalPath, rawTurnInput, actionType, newJournalContent);
   validateMarkResolved(paths.journalPath, rawTurnInput, actionType, priorEvents, newJournalContent);
@@ -1826,7 +1856,7 @@ function runTurn(args) {
     actionType,
     actionSummary: fieldValue(rawTurnInput.actionSummary, "not specified"),
     evidenceRefs: asArray(rawTurnInput.evidenceRefs),
-    touchedClaims: asArray(rawTurnInput.touchedClaims),
+    touchedClaims: resolvedTouchedClaims,
     queryPatterns,
     evidenceRequest,
     completionGate,
@@ -1990,7 +2020,7 @@ function openCase(args) {
   const journalPath = path.join(caseDir, "journal.md");
   const timestamp = new Date().toISOString();
   const nextStep = status === "pass"
-    ? "Run verify-case, then load only the proposed files."
+    ? "Load only the proposed files (open-case already verified this intake)."
     : "Resolve the blocking issue, then rerun open-case.";
 
   fs.mkdirSync(caseDir, { recursive: true });

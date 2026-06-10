@@ -166,9 +166,10 @@ emit `Case intake not ready: <reason>` and make fixing the case intake
 artifact the next checkpoint option.
 
 Render the `**Proposed loads**` list from the verified `case-intake.json`.
-Do not add, remove, or rewrite paths in chat after `verify-case`. If the list is
-wrong, rerun `open-case` with the corrected `--proposed-load` arguments, rerun
-`verify-case`, and then render the updated helper-owned list.
+Do not add, remove, or rewrite paths in chat. If the list is wrong, rerun
+`open-case` with the corrected `--proposed-load` arguments and then render the
+updated helper-owned list. Run `verify-case` only to resume an existing case or
+re-check after repair — not as a required second step after a passing `open-case`.
 
 The closing menu is Checkpoint 1. Halt after it. Do not load files, generate
 hypotheses, output a journal table, or run Step 2 before the user confirms.
