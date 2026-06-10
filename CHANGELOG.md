@@ -4,6 +4,14 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.5.0](https://github.com/dvmrry/zscaler-skill/compare/v0.4.6...v0.5.0) (2026-06-10)
+
+
+### Features
+
+* **investigator:** compound helper commands — one button press per gated phase ([#84](https://github.com/dvmrry/zscaler-skill/issues/84)) ([1fcf758](https://github.com/dvmrry/zscaler-skill/commit/1fcf7587f07a48e1f57e1007c08ece52b14bc922))
+* **investigator:** record-loads Step 2 gate, status doctor command, and forge-resistant gate errors ([#82](https://github.com/dvmrry/zscaler-skill/issues/82)) ([7cc4880](https://github.com/dvmrry/zscaler-skill/commit/7cc48808d662f7515dcf4b49d0425e9483c0a848))
+
 ## [0.4.6](https://github.com/dvmrry/zscaler-skill/compare/v0.4.5...v0.4.6) (2026-06-09)
 
 
