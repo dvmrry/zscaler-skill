@@ -327,6 +327,15 @@ function markdownTableCells(line) {
     .map((cell) => cell.trim());
 }
 
+function journalHasClaimTable(journalPath) {
+  try {
+    const journal = fs.readFileSync(journalPath, "utf8");
+    return journal.includes("# Discovery Journal") && journal.includes(REQUIRED_CLAIM_TABLE_HEADER);
+  } catch (_) {
+    return false;
+  }
+}
+
 function verifyJournalHasClaimTable(journalPath) {
   const journal = fs.readFileSync(journalPath, "utf8");
   if (!journal.includes("# Discovery Journal")) {
@@ -853,7 +862,12 @@ function caseStatus(args) {
   } else if (!loadsResult.present || !loadsResult.pass) {
     phase = "loads";
   } else if (!ledgerResult.present) {
-    phase = "ledger-pending";
+    // Distinguish between a stub journal (Step 3 not yet done) and a real journal.
+    if (!journalHasClaimTable(paths.journalPath)) {
+      phase = "journal-pending";
+    } else {
+      phase = "ledger-pending";
+    }
   } else if (!ledgerResult.consistent) {
     phase = "ledger-pending";
   } else if (ledgerResult.pendingTurn) {
@@ -911,6 +925,9 @@ function caseStatus(args) {
     nextCommands.push(
       `${baseCmd} record-loads ${rootFlag} ${slugFlag} --loaded agents/investigator/prompt.md --loaded agents/investigator/harness.md${forceFlag}`,
     );
+  } else if (phase === "journal-pending") {
+    // journal-pending: no helper command can fix this — the agent must generate the
+    // Step 3 discovery journal.  nextCommands stays empty.
   } else if (phase === "ledger-pending") {
     nextCommands.push(
       `${baseCmd} initialize-turn-ledger ${rootFlag} ${slugFlag}`,
@@ -949,6 +966,16 @@ function caseStatus(args) {
   }
   // phase === "resolved" → nextCommands stays empty.
 
+  // ── nextActions ──
+  // Agent-performed (non-helper-command) steps that must happen before the next
+  // helper command can run.  Present in every response; usually empty.
+  const nextActions = [];
+  if (phase === "journal-pending") {
+    nextActions.push(
+      `Generate the Step 3 discovery journal per agents/investigator/harness.md and save it to ${paths.journalPath}, then rerun status. Do not hand-edit the stub's Claims section to satisfy the ledger gate.`,
+    );
+  }
+
   return {
     operation: "status",
     caseSlug,
@@ -959,6 +986,7 @@ function caseStatus(args) {
     journal: journalResult,
     blockingIssues,
     nextCommands,
+    nextActions,
   };
 }
 
@@ -968,7 +996,16 @@ function initializeTurnLedger(args) {
   const root = resolveRepoRoot(args.root);
   const verified = verifyCaseFiles(root, args.caseSlug);
   const paths = casePaths(root, args.caseSlug);
-  verifyJournalHasClaimTable(paths.journalPath);
+  try {
+    verifyJournalHasClaimTable(paths.journalPath);
+  } catch (err) {
+    if (err.message.includes("missing claim table header") || err.message.includes("missing marker")) {
+      throw new Error(
+        `journal.md still contains the Step 1 stub (missing claim table). Generate the Step 3 discovery journal per agents/investigator/harness.md and save it to ${paths.journalPath} first. Do not hand-edit the stub's Claims header to satisfy this gate.`,
+      );
+    }
+    throw err;
+  }
 
   // Gate: Step 2 loads must be recorded and passing before the ledger can be initialized.
   // Fires unconditionally — including on --force re-initialization — so a weak agent
@@ -1697,9 +1734,20 @@ function openCase(args) {
   const existingArtifacts = [caseIntakePath, caseIntakeJsonPath, journalPath]
     .filter((artifactPath) => fs.existsSync(artifactPath));
   if (existingArtifacts.length && !args.force) {
-    throw new Error(
-      `case artifacts already exist; use verify-case or rerun open-case with --force: ${existingArtifacts.join(", ")}`,
-    );
+    // Allow overwriting a blocked intake without --force — that IS the repair path.
+    let existingIntakeIsBlocked = false;
+    try {
+      const existingIntakeMd = fs.readFileSync(caseIntakePath, "utf8");
+      existingIntakeIsBlocked = /^Status: blocked$/m.test(existingIntakeMd);
+    } catch (_) {
+      // Unreadable or missing — treat as not-blocked; fall through to refusal.
+    }
+    if (!existingIntakeIsBlocked) {
+      throw new Error(
+        `case artifacts already exist with a passing intake; use verify-case to resume, or rerun open-case with --force only if the user asked to replace them: ${existingArtifacts.join(", ")}`,
+      );
+    }
+    // existingIntakeIsBlocked — allow the overwrite silently.
   }
 
   const caseIntakeJson = {

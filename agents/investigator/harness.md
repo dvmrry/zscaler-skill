@@ -306,11 +306,15 @@ node scripts/investigator-artifacts.mjs status \
   --case-slug <slug>
 ```
 
-Follow its `nextCommands` to determine the legal next action. If it reports a
-`pendingTurn` in the `ledger` field, or any `blockingIssues` containing
-`Pending turn requires repair`, surface that line verbatim to the user before
-doing anything else. Do not attempt to begin a new turn or modify the journal
-until the pending turn is resolved.
+Follow its `nextCommands` AND `nextActions` to determine the legal next action.
+`nextCommands` are copy-pasteable helper commands; `nextActions` are agent-performed
+steps (such as generating the Step 3 journal) that must happen before any helper
+command can run. If it reports a `pendingTurn` in the `ledger` field, or any
+`blockingIssues` containing `Pending turn requires repair`, surface that line
+verbatim to the user before doing anything else. Do not attempt to begin a new
+turn or modify the journal until the pending turn is resolved. A failing helper
+gate is never repaired by hand-editing case artifacts; surface the helper's error
+text and follow its instructions.
 
 Every post-Step-3 controller turn is a helper-bracketed transaction. Before
 reading new evidence, updating claims, or recording a user-provided result, run:
@@ -565,9 +569,12 @@ directory already containing `journal.md`.
 
 The stub bodies are deterministic and owned by
 `scripts/investigator-artifacts.mjs`. Do not hand-author a different case
-intake or journal shape in a runtime adapter. `open-case` refuses to overwrite
-existing artifacts unless `--force` is explicitly supplied; do not use
-`--force` unless the user has asked to replace the intake artifacts.
+intake or journal shape in a runtime adapter. `open-case` may overwrite
+existing artifacts with a **blocked** intake (status `blocked`) without
+`--force` — that is the documented repair path for a blocked `open-case`.
+For an existing artifact with a **passing** intake, `--force` is required and
+must not be used unless the user has explicitly asked to replace the intake
+artifacts.
 
 If the working directory is unknown, do not create the stub. Ask the working
 directory clarification as the whole turn.

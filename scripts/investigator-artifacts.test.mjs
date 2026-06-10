@@ -538,7 +538,7 @@ test("initializeTurnLedger requires a real claim table", () => {
 
   assert.throws(
     () => initializeTurnLedger({ root, caseSlug: result.caseSlug }),
-    /journal\.md missing claim table header/,
+    /Step 1 stub.*Do not hand-edit/,
   );
 });
 
@@ -2183,12 +2183,15 @@ test("status reports ledger-pending phase after loads pass but no ledger", () =>
     products: ["zpa"],
     scope: "many users",
   });
-  openCase({
+  const opened = openCase({
     root,
     caseSlug: "2026-05-17-status-ledger-phase",
     framingJson: framingPath,
     proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
   });
+  // Write the real discovery journal (with claim table) so the phase is ledger-pending
+  // rather than journal-pending.
+  writeDiscoveryJournal(opened.journalPath);
   recordLoads({
     root,
     caseSlug: "2026-05-17-status-ledger-phase",
@@ -2503,4 +2506,220 @@ test("capabilities includes new operations and options", () => {
   assert.ok(result.supportedOptions["record-loads"].includes("--deferred"));
   assert.ok(result.supportedOptions["record-loads"].includes("--allow-additional"));
   assert.ok(result.supportedOptions["record-loads"].includes("--force"));
+});
+
+// ── Fix 1: open-case blocked-intake overwrite ────────────────────────────────
+
+test("openCase overwrites a blocked intake WITHOUT --force (repair path)", () => {
+  const root = tempRepo();
+  // First open-case: blocked (telemetry load without telemetry framing).
+  const blockedFramingPath = writeJson(root, "framing-blocked.json", {
+    workingDirectory: root,
+    symptom: "ZIA block page appears for payroll site",
+    tenantCloud: "zs1",
+    products: ["zia"],
+    scope: "one user",
+  });
+  const blocked = openCase({
+    root,
+    caseSlug: "2026-05-17-repair-blocked",
+    framingJson: blockedFramingPath,
+    proposedLoads: [
+      "agents/investigator/prompt.md",
+      "agents/investigator/harness.md",
+      "references/zia/logs/web-log-schema.md",
+    ],
+  });
+  assert.equal(blocked.status, "blocked");
+
+  // Re-run with a corrected framing (no telemetry load) — must succeed WITHOUT --force.
+  const fixedFramingPath = writeJson(root, "framing-fixed.json", {
+    workingDirectory: root,
+    symptom: "ZIA block page appears for payroll site",
+    tenantCloud: "zs1",
+    products: ["zia"],
+    scope: "one user",
+  });
+  const repaired = openCase({
+    root,
+    caseSlug: "2026-05-17-repair-blocked",
+    framingJson: fixedFramingPath,
+    proposedLoads: [
+      "agents/investigator/prompt.md",
+      "agents/investigator/harness.md",
+    ],
+  });
+  assert.equal(repaired.status, "pass");
+  assert.deepEqual(repaired.blockingIssues, []);
+});
+
+test("openCase refuses to overwrite a passing intake without --force", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  const args = {
+    root,
+    caseSlug: "2026-05-17-pass-no-clobber",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  };
+  openCase(args);
+  // Second call without --force must throw with passing-intake message.
+  assert.throws(
+    () => openCase(args),
+    /case artifacts already exist with a passing intake/,
+  );
+  // With --force it must succeed.
+  const forced = openCase({ ...args, force: true });
+  assert.equal(forced.status, "pass");
+});
+
+test("openCase refuses to overwrite a corrupt/garbage case-intake.md without --force", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  const args = {
+    root,
+    caseSlug: "2026-05-17-corrupt-intake",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  };
+  openCase(args);
+  // Corrupt the case-intake.md so it cannot be read as valid.
+  const caseIntakePath = path.join(root, "_data/cases/2026-05-17-corrupt-intake/case-intake.md");
+  fs.writeFileSync(caseIntakePath, "GARBAGE\x00\x01\x02", "utf8");
+  // Must still refuse without --force (can't confirm it's blocked, treat as unknown).
+  assert.throws(
+    () => openCase(args),
+    /case artifacts already exist/,
+  );
+});
+
+// ── Fix 2: status journal-pending phase ──────────────────────────────────────
+
+test("status reports journal-pending phase when loads pass but journal is still the Step 1 stub", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  openCase({
+    root,
+    caseSlug: "2026-05-17-journal-pending",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+  recordLoads({
+    root,
+    caseSlug: "2026-05-17-journal-pending",
+    loaded: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+    deferred: [],
+    allowAdditional: false,
+    force: false,
+  });
+  // Journal is still the Step 1 stub (no claim table) at this point.
+
+  const result = caseStatus({ root, caseSlug: "2026-05-17-journal-pending" });
+  assert.equal(result.phase, "journal-pending");
+  assert.deepEqual(result.nextCommands, []);
+  assert.ok(Array.isArray(result.nextActions));
+  assert.ok(result.nextActions.length > 0, "nextActions must be populated for journal-pending");
+  assert.ok(
+    result.nextActions.some((a) => a.includes("journal.md") || a.includes("journal")),
+    `expected nextActions to mention the journal path, got: ${JSON.stringify(result.nextActions)}`,
+  );
+  assert.ok(
+    result.nextActions.some((a) => a.includes("Do not hand-edit")),
+    `expected nextActions to warn against hand-editing, got: ${JSON.stringify(result.nextActions)}`,
+  );
+});
+
+test("status reports ledger-pending (not journal-pending) when journal has claim table", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  const opened = openCase({
+    root,
+    caseSlug: "2026-05-17-ledger-pending-ct",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+  // Write the real discovery journal (with claim table).
+  writeDiscoveryJournal(opened.journalPath);
+  recordLoads({
+    root,
+    caseSlug: "2026-05-17-ledger-pending-ct",
+    loaded: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+    deferred: [],
+    allowAdditional: false,
+    force: false,
+  });
+
+  const result = caseStatus({ root, caseSlug: "2026-05-17-ledger-pending-ct" });
+  assert.equal(result.phase, "ledger-pending");
+  assert.ok(result.nextCommands.some((c) => c.includes("initialize-turn-ledger")));
+});
+
+test("status always includes nextActions field (present and empty in non-journal-pending phases)", () => {
+  const root = tempRepo();
+  const result = caseStatus({ root, caseSlug: "2026-05-17-no-case-next-actions" });
+  assert.equal(result.phase, "no-case");
+  assert.ok(Object.prototype.hasOwnProperty.call(result, "nextActions"), "nextActions must be present");
+  assert.deepEqual(result.nextActions, []);
+});
+
+// ── Fix 3: initializeTurnLedger actionable error on stub journal ─────────────
+
+test("initializeTurnLedger throws with Step-1-stub message and hand-edit warning on stub journal", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  const result = openCase({
+    root,
+    caseSlug: "2026-05-17-stub-journal-gate",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+  // Record passing loads so requirePassingLoads does not fire first.
+  recordLoads({
+    root,
+    caseSlug: result.caseSlug,
+    loaded: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+    deferred: [],
+    allowAdditional: false,
+    force: false,
+  });
+  // Journal is still the Step 1 stub.
+
+  assert.throws(
+    () => initializeTurnLedger({ root, caseSlug: result.caseSlug }),
+    /Step 1 stub/,
+  );
+  assert.throws(
+    () => initializeTurnLedger({ root, caseSlug: result.caseSlug }),
+    /Do not hand-edit/,
+  );
 });
