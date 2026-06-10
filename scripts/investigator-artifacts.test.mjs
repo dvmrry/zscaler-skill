@@ -279,6 +279,62 @@ test("openCase does not treat flagged host tokens as telemetry context", () => {
   assert.match(result.blockingIssues.join(" "), /telemetry proposed loads require/);
 });
 
+test("openCase allows telemetry loads when telemetry phrase is in userFlaggedSpecifics", () => {
+  // Regression: live Cascade round 2026-06-10 — "LSS shows the connector status
+  // log gap" was faithfully parsed into userFlaggedSpecifics and the guardrail
+  // false-blocked the telemetry loads.
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "App Connector showing unhealthy",
+    tenantCloud: "zs3",
+    products: ["zpa"],
+    scope: "one connector offline in connector-group-us-east-1",
+    userFlaggedSpecifics: [
+      "connector-group-us-east-1",
+      "LSS shows connector status log gap",
+    ],
+  });
+
+  const result = openCase({
+    root,
+    caseSlug: "2026-06-10-lss-phrase-specific",
+    framingJson: framingPath,
+    proposedLoads: [
+      "agents/investigator/prompt.md",
+      "agents/investigator/harness.md",
+      "references/zpa/logs/app-connector-metrics.md",
+    ],
+  });
+
+  assert.equal(result.status, "pass");
+});
+
+test("openCase allows telemetry loads when a bare telemetry keyword is flagged", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "App Connector showing unhealthy",
+    tenantCloud: "zs3",
+    products: ["zpa"],
+    scope: "one connector",
+    userFlaggedSpecifics: ["LSS"],
+  });
+
+  const result = openCase({
+    root,
+    caseSlug: "2026-06-10-bare-lss-specific",
+    framingJson: framingPath,
+    proposedLoads: [
+      "agents/investigator/prompt.md",
+      "agents/investigator/harness.md",
+      "references/zpa/logs/app-connector-metrics.md",
+    ],
+  });
+
+  assert.equal(result.status, "pass");
+});
+
 test("openCase allows telemetry loads when evidence is in framing", () => {
   const root = tempRepo();
   const framingPath = writeJson(root, "framing.json", {

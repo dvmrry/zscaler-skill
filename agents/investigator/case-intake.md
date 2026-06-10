@@ -128,7 +128,12 @@ the user's framing already mentions logs, metrics, SIEM data, LSS/NSS,
 pre-collected evidence, Splunk, compact telemetry terms such as `syslog`,
 `weblog`, or `log4j`, or an explicit evidence path. If the framing does not
 contain that telemetry context, the helper marks the case intake blocked
-instead of allowing a speculative telemetry load.
+instead of allowing a speculative telemetry load. Telemetry mentions inside
+user-flagged phrases (for example `LSS shows connector status log gap`) and
+bare flagged telemetry keywords (for example `LSS`) count as that context;
+bare flagged host or ID tokens (for example `log.example.invalid`) do not. Do
+not invent extra framing JSON fields to satisfy the guardrail; put the
+telemetry context in the framing fields the user actually expressed it in.
 
 ## Case Intake Fields
 

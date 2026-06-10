@@ -1293,6 +1293,23 @@ function normalizeProposedLoads(loads) {
   return normalized;
 }
 
+const BARE_TELEMETRY_KEYWORDS = new Set([
+  "log", "logs", "lss", "nss", "siem", "splunk", "syslog", "weblog", "log4j",
+  "pcap", "telemetry", "metric", "metrics", "trace", "event", "events",
+]);
+
+// userFlaggedSpecifics entries are usually identifiers (hostnames, IDs, domains)
+// whose substrings must not count as telemetry context (e.g. log.example.invalid).
+// Multi-word phrases ("LSS shows connector status log gap") and bare telemetry
+// keywords are genuine framing context and do count.
+function telemetryFlaggedSpecifics(framing) {
+  return asArray(framing.userFlaggedSpecifics).filter((token) => {
+    const value = String(token).trim();
+    if (/\s/.test(value)) return true;
+    return BARE_TELEMETRY_KEYWORDS.has(value.toLowerCase());
+  });
+}
+
 function hasLogContext(framing) {
   if (asArray(framing.evidencePaths).length > 0) return true;
 
@@ -1302,6 +1319,7 @@ function hasLogContext(framing) {
     framing.whatWorks,
     framing.alreadyTried,
     framing.recency,
+    ...telemetryFlaggedSpecifics(framing),
   ];
   const haystack = fields.join(" ").toLowerCase();
   const separatedLogToken = /(^|[\s/_.:;()[\],])logs?($|[\s/_.:;()[\],])/;
@@ -1344,7 +1362,7 @@ function caseIntakeStatus(framing, proposedLoads, root = null) {
     }
   }
   if (proposedLoads.some(isTelemetryReferencePath) && !hasLogContext(framing)) {
-    issues.push("telemetry proposed loads require log, metric, SIEM, or evidence context in the framing");
+    issues.push("telemetry proposed loads require log, metric, SIEM, or evidence context in the framing (checked: symptom, scope, whatWorks, alreadyTried, recency, evidencePaths, and phrase-form or bare-keyword userFlaggedSpecifics; bare host/ID tokens do not count)");
   }
 
   return {
