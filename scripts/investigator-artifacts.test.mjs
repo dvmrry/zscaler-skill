@@ -8,11 +8,15 @@ import {
   abandonTurn,
   beginTurn,
   capabilities,
+  caseStatus,
   completeTurn,
   initializeTurnLedger,
   importEvidence,
+  loadsStatus,
   openCase,
+  recordLoads,
   verifyCaseFiles,
+  verifyLoads,
 } from "./investigator-artifacts.mjs";
 
 function tempRepo() {
@@ -80,6 +84,23 @@ Open.
 `, "utf8");
 }
 
+/**
+ * Records the two mandatory loads for a case that was created with only
+ * agents/investigator/prompt.md and agents/investigator/harness.md as
+ * proposedLoads. Tests that need the ledger to be initializable call this
+ * after openCase.
+ */
+function recordMinimalLoads(root, caseSlug) {
+  return recordLoads({
+    root,
+    caseSlug,
+    loaded: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+    deferred: [],
+    allowAdditional: false,
+    force: false,
+  });
+}
+
 function createPassingCaseWithJournal() {
   const root = tempRepo();
   const framingPath = writeJson(root, "framing.json", {
@@ -99,6 +120,7 @@ function createPassingCaseWithJournal() {
     ],
   });
   writeDiscoveryJournal(result.journalPath);
+  recordMinimalLoads(root, result.caseSlug);
   return { root, caseSlug: result.caseSlug, journalPath: result.journalPath };
 }
 
@@ -1637,4 +1659,667 @@ test("completeTurn allows mark-resolved when completion gate is satisfied", () =
     userConfirmedResolution: true,
     supportingEvidenceRefs: ["_data/cases/example/evidence/rollback-confirmation.md"],
   });
+});
+
+// ── record-loads / verify-loads / loadsStatus tests ───────────────────────────
+
+test("loadsStatus passes when all proposedLoads are loaded and mandatory docs present", () => {
+  const root = tempRepo();
+  const proposedLoads = ["agents/investigator/prompt.md", "agents/investigator/harness.md"];
+  const loaded = ["agents/investigator/prompt.md", "agents/investigator/harness.md"];
+  const result = loadsStatus(root, proposedLoads, loaded, [], false);
+  assert.equal(result.status, "pass");
+  assert.deepEqual(result.blockingIssues, []);
+  assert.deepEqual(result.additionalLoads, []);
+});
+
+test("loadsStatus blocks when mandatory doc is missing from loaded", () => {
+  const root = tempRepo();
+  const proposedLoads = ["agents/investigator/prompt.md", "agents/investigator/harness.md"];
+  const loaded = ["agents/investigator/prompt.md"]; // missing harness.md
+  const result = loadsStatus(root, proposedLoads, loaded, [], false);
+  assert.equal(result.status, "blocked");
+  assert.ok(result.blockingIssues.some((i) => i.includes("agents/investigator/harness.md")));
+});
+
+test("loadsStatus blocks when mandatory doc is deferred", () => {
+  const root = tempRepo();
+  const proposedLoads = ["agents/investigator/prompt.md", "agents/investigator/harness.md"];
+  const loaded = ["agents/investigator/prompt.md"];
+  const deferred = [{ path: "agents/investigator/harness.md", reason: "skip for now" }];
+  const result = loadsStatus(root, proposedLoads, loaded, deferred, false);
+  assert.equal(result.status, "blocked");
+  assert.ok(result.blockingIssues.some((i) => i.includes("mandatory") && i.includes("harness.md")));
+});
+
+test("loadsStatus blocks when proposed load is neither loaded nor deferred", () => {
+  const root = tempRepo();
+  const proposedLoads = [
+    "agents/investigator/prompt.md",
+    "agents/investigator/harness.md",
+    "agents/investigator/grounding/zpa-segment-matching.md",
+  ];
+  const loaded = ["agents/investigator/prompt.md", "agents/investigator/harness.md"];
+  // grounding file not deferred either
+  const result = loadsStatus(root, proposedLoads, loaded, [], false);
+  assert.equal(result.status, "blocked");
+  assert.ok(result.blockingIssues.some((i) => i.includes("zpa-segment-matching")));
+});
+
+test("loadsStatus blocks when loaded path does not exist on disk", () => {
+  const root = tempRepo();
+  const proposedLoads = [
+    "agents/investigator/prompt.md",
+    "agents/investigator/harness.md",
+    "agents/investigator/grounding/does-not-exist.md",
+  ];
+  const loaded = [
+    "agents/investigator/prompt.md",
+    "agents/investigator/harness.md",
+    "agents/investigator/grounding/does-not-exist.md",
+  ];
+  const result = loadsStatus(root, proposedLoads, loaded, [], false);
+  assert.equal(result.status, "blocked");
+  assert.ok(result.blockingIssues.some((i) => i.includes("does not exist")));
+});
+
+test("loadsStatus blocks deferred entry missing reason", () => {
+  const root = tempRepo();
+  const proposedLoads = [
+    "agents/investigator/prompt.md",
+    "agents/investigator/harness.md",
+    "agents/investigator/grounding/zpa-segment-matching.md",
+  ];
+  const loaded = ["agents/investigator/prompt.md", "agents/investigator/harness.md"];
+  const deferred = [{ path: "agents/investigator/grounding/zpa-segment-matching.md", reason: "" }];
+  const result = loadsStatus(root, proposedLoads, loaded, deferred, false);
+  assert.equal(result.status, "blocked");
+  assert.ok(result.blockingIssues.some((i) => i.includes("missing reason")));
+});
+
+test("loadsStatus blocks additional loads without allow-additional flag", () => {
+  const root = tempRepo();
+  const proposedLoads = ["agents/investigator/prompt.md", "agents/investigator/harness.md"];
+  const loaded = [
+    "agents/investigator/prompt.md",
+    "agents/investigator/harness.md",
+    "agents/investigator/grounding/zpa-segment-matching.md",
+  ];
+  const result = loadsStatus(root, proposedLoads, loaded, [], false);
+  assert.equal(result.status, "blocked");
+  assert.ok(result.blockingIssues.some((i) => i.includes("--allow-additional")));
+});
+
+test("loadsStatus passes with additional loads when allow-additional is true", () => {
+  const root = tempRepo();
+  const proposedLoads = ["agents/investigator/prompt.md", "agents/investigator/harness.md"];
+  const loaded = [
+    "agents/investigator/prompt.md",
+    "agents/investigator/harness.md",
+    "agents/investigator/grounding/zpa-segment-matching.md",
+  ];
+  const result = loadsStatus(root, proposedLoads, loaded, [], true);
+  assert.equal(result.status, "pass");
+  assert.deepEqual(result.additionalLoads, ["agents/investigator/grounding/zpa-segment-matching.md"]);
+});
+
+test("recordLoads happy path writes artifact and returns pass", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  openCase({
+    root,
+    caseSlug: "2026-05-17-loads-happy",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+
+  const result = recordLoads({
+    root,
+    caseSlug: "2026-05-17-loads-happy",
+    loaded: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+    deferred: [],
+    allowAdditional: false,
+    force: false,
+  });
+
+  assert.equal(result.status, "pass");
+  assert.equal(result.operation, "record-loads");
+  assert.deepEqual(result.blockingIssues, []);
+  assert.ok(fs.existsSync(result.loadsPath));
+
+  const artifact = JSON.parse(fs.readFileSync(result.loadsPath, "utf8"));
+  assert.equal(artifact.status, "pass");
+  assert.deepEqual(artifact.loaded, ["agents/investigator/prompt.md", "agents/investigator/harness.md"]);
+  assert.deepEqual(artifact.blockingIssues, []);
+  assert.ok(artifact.recordedAt);
+});
+
+test("recordLoads exit semantics: returns status blocked (exit 2) for blocking artifact", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  openCase({
+    root,
+    caseSlug: "2026-05-17-loads-blocked",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+
+  const result = recordLoads({
+    root,
+    caseSlug: "2026-05-17-loads-blocked",
+    loaded: ["agents/investigator/prompt.md"], // missing harness.md
+    deferred: [],
+    allowAdditional: false,
+    force: false,
+  });
+
+  assert.equal(result.status, "blocked");
+  assert.ok(result.blockingIssues.length > 0);
+
+  // Artifact must still be written even when blocked (like open-case).
+  const artifact = JSON.parse(fs.readFileSync(result.loadsPath, "utf8"));
+  assert.equal(artifact.status, "blocked");
+});
+
+test("recordLoads refuses to overwrite without --force", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  const args = {
+    root,
+    caseSlug: "2026-05-17-loads-no-clobber",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  };
+  openCase(args);
+
+  const loadArgs = {
+    root,
+    caseSlug: args.caseSlug,
+    loaded: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+    deferred: [],
+    allowAdditional: false,
+    force: false,
+  };
+  recordLoads(loadArgs);
+
+  assert.throws(
+    () => recordLoads(loadArgs),
+    /already exists/,
+  );
+
+  const forced = recordLoads({ ...loadArgs, force: true });
+  assert.equal(forced.status, "pass");
+});
+
+test("recordLoads records additional loads and additionalApproved flag", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  openCase({
+    root,
+    caseSlug: "2026-05-17-loads-additional",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+
+  const result = recordLoads({
+    root,
+    caseSlug: "2026-05-17-loads-additional",
+    loaded: [
+      "agents/investigator/prompt.md",
+      "agents/investigator/harness.md",
+      "agents/investigator/grounding/zpa-segment-matching.md",
+    ],
+    deferred: [],
+    allowAdditional: true,
+    force: false,
+  });
+
+  assert.equal(result.status, "pass");
+  assert.deepEqual(result.additionalLoads, ["agents/investigator/grounding/zpa-segment-matching.md"]);
+
+  const artifact = JSON.parse(fs.readFileSync(result.loadsPath, "utf8"));
+  assert.equal(artifact.additionalApproved, true);
+  assert.deepEqual(artifact.additionalLoads, ["agents/investigator/grounding/zpa-segment-matching.md"]);
+});
+
+test("verifyLoads passes for a valid artifact", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  openCase({
+    root,
+    caseSlug: "2026-05-17-verify-loads-pass",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+  recordLoads({
+    root,
+    caseSlug: "2026-05-17-verify-loads-pass",
+    loaded: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+    deferred: [],
+    allowAdditional: false,
+    force: false,
+  });
+
+  const result = verifyLoads(root, "2026-05-17-verify-loads-pass");
+  assert.equal(result.status, "pass");
+  assert.equal(result.operation, "verify-loads");
+});
+
+test("verifyLoads recomputes and catches tampering: stored pass but loaded file deleted", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  openCase({
+    root,
+    caseSlug: "2026-05-17-verify-tamper",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+  recordLoads({
+    root,
+    caseSlug: "2026-05-17-verify-tamper",
+    loaded: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+    deferred: [],
+    allowAdditional: false,
+    force: false,
+  });
+
+  // Delete a loaded file from disk — recompute should catch it.
+  fs.rmSync(path.join(root, "agents/investigator/harness.md"));
+
+  assert.throws(
+    () => verifyLoads(root, "2026-05-17-verify-tamper"),
+    /stored status is "pass" but recomputes to "blocked"/,
+  );
+});
+
+test("verifyLoads recomputes and catches tampering: loaded entry removed from artifact while proposedLoads still requires it", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  openCase({
+    root,
+    caseSlug: "2026-05-17-verify-tamper-remove",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+  recordLoads({
+    root,
+    caseSlug: "2026-05-17-verify-tamper-remove",
+    loaded: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+    deferred: [],
+    allowAdditional: false,
+    force: false,
+  });
+
+  // Tamper: remove harness.md from the stored loaded list but keep status "pass".
+  const loadsPath = path.join(root, "_data/cases/2026-05-17-verify-tamper-remove/workflow/01-loads.json");
+  const artifact = JSON.parse(fs.readFileSync(loadsPath, "utf8"));
+  artifact.loaded = ["agents/investigator/prompt.md"];
+  fs.writeFileSync(loadsPath, `${JSON.stringify(artifact, null, 2)}\n`, "utf8");
+
+  assert.throws(
+    () => verifyLoads(root, "2026-05-17-verify-tamper-remove"),
+    /stored status is "pass" but recomputes to "blocked"/,
+  );
+});
+
+test("verifyLoads throws when 01-loads.json is missing", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  openCase({
+    root,
+    caseSlug: "2026-05-17-no-loads",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+
+  assert.throws(
+    () => verifyLoads(root, "2026-05-17-no-loads"),
+    /01-loads\.json not found/,
+  );
+});
+
+test("initializeTurnLedger throws without loads artifact", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  const result = openCase({
+    root,
+    caseSlug: "2026-05-17-no-loads-gate",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+  writeDiscoveryJournal(result.journalPath);
+
+  assert.throws(
+    () => initializeTurnLedger({ root, caseSlug: result.caseSlug }),
+    /Step 2 loads not recorded/,
+  );
+});
+
+test("initializeTurnLedger throws on tampered (blocked) loads artifact", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  const result = openCase({
+    root,
+    caseSlug: "2026-05-17-tampered-loads-gate",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+  writeDiscoveryJournal(result.journalPath);
+
+  // Record a blocked loads artifact (missing harness.md).
+  recordLoads({
+    root,
+    caseSlug: result.caseSlug,
+    loaded: ["agents/investigator/prompt.md"],
+    deferred: [],
+    allowAdditional: false,
+    force: false,
+  });
+
+  assert.throws(
+    () => initializeTurnLedger({ root, caseSlug: result.caseSlug }),
+    /recomputes to blocked/,
+  );
+});
+
+test("initializeTurnLedger passes after valid record-loads", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  const result = openCase({
+    root,
+    caseSlug: "2026-05-17-loads-then-ledger",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+  writeDiscoveryJournal(result.journalPath);
+  recordLoads({
+    root,
+    caseSlug: result.caseSlug,
+    loaded: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+    deferred: [],
+    allowAdditional: false,
+    force: false,
+  });
+
+  const ledger = initializeTurnLedger({ root, caseSlug: result.caseSlug });
+  assert.equal(ledger.status, "pass");
+  assert.ok(fs.existsSync(ledger.turnLogPath));
+});
+
+// ── status (doctor) tests ─────────────────────────────────────────────────────
+
+test("status reports no-case phase before any case files", () => {
+  const root = tempRepo();
+  const result = caseStatus({ root, caseSlug: "2026-05-17-never-opened" });
+  assert.equal(result.operation, "status");
+  assert.equal(result.phase, "no-case");
+  assert.equal(result.intake.present, false);
+  assert.ok(result.nextCommands.some((c) => c.includes("open-case")));
+});
+
+test("status reports intake phase after blocked open-case", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZIA block page appears for payroll site",
+    tenantCloud: "zs1",
+    products: ["zia"],
+    scope: "one user",
+  });
+  openCase({
+    root,
+    caseSlug: "2026-05-17-status-blocked-intake",
+    framingJson: framingPath,
+    proposedLoads: [
+      "agents/investigator/prompt.md",
+      "agents/investigator/harness.md",
+      "references/zia/logs/web-log-schema.md",
+    ],
+  });
+
+  const result = caseStatus({ root, caseSlug: "2026-05-17-status-blocked-intake" });
+  assert.equal(result.phase, "intake");
+  assert.equal(result.intake.present, true);
+  assert.equal(result.intake.pass, false);
+  assert.ok(result.nextCommands.some((c) => c.includes("open-case")));
+  // Caveat about --force in blockingIssues.
+  assert.ok(result.blockingIssues.some((i) => i.includes("--force")));
+});
+
+test("status reports loads phase after passing intake but no loads artifact", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  openCase({
+    root,
+    caseSlug: "2026-05-17-status-loads-phase",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+
+  const result = caseStatus({ root, caseSlug: "2026-05-17-status-loads-phase" });
+  assert.equal(result.phase, "loads");
+  assert.equal(result.loads.present, false);
+  assert.ok(result.nextCommands.some((c) => c.includes("record-loads")));
+});
+
+test("status reports ledger-pending phase after loads pass but no ledger", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  openCase({
+    root,
+    caseSlug: "2026-05-17-status-ledger-phase",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+  recordLoads({
+    root,
+    caseSlug: "2026-05-17-status-ledger-phase",
+    loaded: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+    deferred: [],
+    allowAdditional: false,
+    force: false,
+  });
+
+  const result = caseStatus({ root, caseSlug: "2026-05-17-status-ledger-phase" });
+  assert.equal(result.phase, "ledger-pending");
+  assert.equal(result.loads.pass, true);
+  assert.equal(result.ledger.present, false);
+  assert.ok(result.nextCommands.some((c) => c.includes("initialize-turn-ledger")));
+});
+
+test("status reports turn-ready phase after ledger initialized", () => {
+  const { root, caseSlug } = createPassingCaseWithJournal();
+
+  initializeTurnLedger({ root, caseSlug });
+
+  const result = caseStatus({ root, caseSlug });
+  assert.equal(result.phase, "turn-ready");
+  assert.equal(result.ledger.present, true);
+  assert.equal(result.ledger.consistent, true);
+  assert.equal(result.ledger.pendingTurn, null);
+  assert.ok(result.nextCommands.some((c) => c.includes("begin-turn")));
+});
+
+test("status reports turn-open phase with dangling pendingTurn (journal unchanged)", () => {
+  const { root, caseSlug } = createPassingCaseWithJournal();
+  initializeTurnLedger({ root, caseSlug });
+  beginTurn({ root, caseSlug, userAction: "continue-top-open" });
+
+  const result = caseStatus({ root, caseSlug });
+  assert.equal(result.phase, "turn-open");
+  assert.ok(result.ledger.pendingTurn);
+  assert.equal(result.ledger.pendingTurn.journalChangedSinceBegin, false);
+  // Both complete and abandon should appear.
+  assert.ok(result.nextCommands.some((c) => c.includes("complete-turn")));
+  assert.ok(result.nextCommands.some((c) => c.includes("abandon-turn")));
+});
+
+test("status reports turn-open phase with dangling pendingTurn (journal changed)", () => {
+  const { root, caseSlug, journalPath } = createPassingCaseWithJournal();
+  initializeTurnLedger({ root, caseSlug });
+  beginTurn({ root, caseSlug, userAction: "continue-top-open" });
+  fs.appendFileSync(journalPath, "\nTurn update: partial mutation.\n", "utf8");
+
+  const result = caseStatus({ root, caseSlug });
+  assert.equal(result.phase, "turn-open");
+  assert.equal(result.ledger.pendingTurn.journalChangedSinceBegin, true);
+  // Only complete-turn, not abandon-turn.
+  assert.ok(result.nextCommands.some((c) => c.includes("complete-turn")));
+  assert.ok(!result.nextCommands.some((c) => c.includes("abandon-turn")));
+  // Repair issue must be surfaced.
+  assert.ok(result.blockingIssues.some((i) => i.includes("Pending turn requires repair")));
+});
+
+test("status reports consistent: false without throwing for corrupted turn-state", () => {
+  const { root, caseSlug } = createPassingCaseWithJournal();
+  initializeTurnLedger({ root, caseSlug });
+  const turnStatePath = path.join(root, "_data/cases", caseSlug, "workflow/02-turn-state.json");
+  const state = JSON.parse(fs.readFileSync(turnStatePath, "utf8"));
+  state.latestTurnHash = "sha256:corrupted";
+  fs.writeFileSync(turnStatePath, `${JSON.stringify(state, null, 2)}\n`, "utf8");
+
+  const result = caseStatus({ root, caseSlug });
+  assert.equal(result.ledger.consistent, false);
+  assert.ok(result.ledger.issues.length > 0);
+  // Must not throw — just report.
+});
+
+test("status reports resolved phase after mark-resolved with all claims closed", () => {
+  const { root, caseSlug, journalPath } = createPassingCaseWithJournal();
+  initializeTurnLedger({ root, caseSlug });
+
+  // Record evidence.
+  const evidenceTurn = beginTurn({ root, caseSlug, userAction: "record-user-evidence" }).pendingTurn;
+  const evidenceJournal = fs.readFileSync(journalPath, "utf8")
+    .replace("Open (uncertain)", "Confirmed (high)");
+  fs.writeFileSync(journalPath, `${evidenceJournal}\nTurn update: recorded evidence.\n`, "utf8");
+  const evidenceTurnPath = writeJson(root, "t1-evidence.json", {
+    sequence: evidenceTurn.sequence,
+    previousHash: evidenceTurn.priorLatestTurnHash,
+    turnToken: evidenceTurn.turnToken,
+    userAction: evidenceTurn.userAction,
+    actionType: "record-user-evidence",
+    actionSummary: "Recorded direct rollback evidence.",
+    touchedClaims: ["H1: Application segment may not include the app"],
+    evidenceRefs: ["_data/cases/example/evidence/rollback-confirmation.md"],
+    journalHashBefore: evidenceTurn.journalHashBefore,
+    allowedNext: ["mark-resolved", "pause"],
+  });
+  completeTurn({ root, caseSlug, turnJson: evidenceTurnPath });
+
+  // Mark resolved.
+  const resolveTurn = beginTurn({ root, caseSlug, userAction: "mark-resolved" }).pendingTurn;
+  const resolvedJournal = fs.readFileSync(journalPath, "utf8").replace("Open.", "Resolved.");
+  fs.writeFileSync(journalPath, `${resolvedJournal}\nTurn update: confirmed resolution.\n`, "utf8");
+  const resolveTurnPath = writeJson(root, "t2-resolve.json", {
+    sequence: resolveTurn.sequence,
+    previousHash: resolveTurn.priorLatestTurnHash,
+    turnToken: resolveTurn.turnToken,
+    userAction: resolveTurn.userAction,
+    actionType: "mark-resolved",
+    actionSummary: "User confirmed the rollback resolved the issue.",
+    touchedClaims: ["H1: Application segment may not include the app"],
+    evidenceRefs: ["_data/cases/example/evidence/rollback-confirmation.md"],
+    journalHashBefore: resolveTurn.journalHashBefore,
+    completionGate: {
+      rootCauseClaim: "H1: Application segment may not include the app",
+      userConfirmedResolution: true,
+      supportingEvidenceRefs: ["_data/cases/example/evidence/rollback-confirmation.md"],
+    },
+    allowedNext: ["pause"],
+  });
+  completeTurn({ root, caseSlug, turnJson: resolveTurnPath });
+
+  const result = caseStatus({ root, caseSlug });
+  assert.equal(result.phase, "resolved");
+  assert.deepEqual(result.nextCommands, []);
+});
+
+test("capabilities includes new operations and options", () => {
+  const result = capabilities();
+  assert.ok(result.supported.includes("record-loads"));
+  assert.ok(result.supported.includes("verify-loads"));
+  assert.ok(result.supported.includes("status"));
+  assert.ok(result.supportedOptions["record-loads"].includes("--loaded"));
+  assert.ok(result.supportedOptions["record-loads"].includes("--deferred"));
+  assert.ok(result.supportedOptions["record-loads"].includes("--allow-additional"));
+  assert.ok(result.supportedOptions["record-loads"].includes("--force"));
 });

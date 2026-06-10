@@ -3,7 +3,7 @@ role: investigator
 artifact: case-intake
 title: "Investigator case intake — deterministic Step 1 artifact"
 content-type: prompt
-last-verified: "2026-05-17"
+last-verified: "2026-06-09"
 confidence: high
 source-tier: practice
 sources:
@@ -163,6 +163,31 @@ Step 2 may load only the proposed loads stored in the verified
 `case-intake.json`, plus later user-approved additions. If the chat-rendered
 Step 1 list differs from `case-intake.json`, treat Step 1 as invalid and fix the
 case intake before continuing.
+
+After Step 2 loads are complete and before Step 3 begins, record every loaded
+and deferred path with the helper:
+
+```bash
+node scripts/investigator-artifacts.mjs record-loads \
+  --root <repo-root> \
+  --case-slug <slug> \
+  --loaded agents/investigator/prompt.md \
+  --loaded agents/investigator/harness.md \
+  --loaded <every-other-path-actually-read> \
+  --deferred <path>=<reason>
+```
+
+Then verify the loads gate before continuing:
+
+```bash
+node scripts/investigator-artifacts.mjs verify-loads \
+  --root <repo-root> \
+  --case-slug <slug>
+```
+
+`initialize-turn-ledger` will refuse to run unless `workflow/01-loads.json`
+exists and recomputes to pass. Step 3 cannot begin without a passing loads
+artifact.
 
 After Step 3 writes and verifies the first real discovery journal, initialize
 the turn ledger before presenting the Step 3 checkpoint:

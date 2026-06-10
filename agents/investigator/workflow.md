@@ -4,7 +4,7 @@ title: Zscaler Investigator
 role: investigator
 artifact: workflow
 content-type: reference
-last-verified: "2026-05-18"
+last-verified: "2026-06-09"
 confidence: medium
 sources:
   - agents/investigator/prompt.md
@@ -44,7 +44,9 @@ Runtime adapters must preserve:
 
 - Step 1 case intake gate
 - Step 2 file-load checkpoint
+- Step 2 load-recording gate (`record-loads` before Step 3)
 - Step 3 journal and turn-ledger initialization
+- Post-Step-3 status-first recovery (`status` before any action when resuming or after failure)
 - Post-Step-3 begin/complete/abandon turn transaction
 - One action per turn
 - Resolution completion gate
@@ -131,6 +133,19 @@ node scripts/investigator-artifacts.mjs initialize-turn-ledger \
   --root <repo-root> \
   --case-slug <slug>
 ```
+
+When resuming a case, after any helper failure, or whenever turn state is
+uncertain, run `status` first:
+
+```bash
+node scripts/investigator-artifacts.mjs status \
+  --root <repo-root> \
+  --case-slug <slug>
+```
+
+Follow `nextCommands` from the output. If the output contains a `pendingTurn`
+entry or any blocking issue mentioning `Pending turn requires repair`, surface
+that line verbatim to the user before doing anything else.
 
 For every later controller turn, run `begin-turn`, perform exactly one
 investigation action, then run `complete-turn`. If the action blocks after
