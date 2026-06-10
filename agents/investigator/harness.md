@@ -3,7 +3,7 @@ role: investigator
 artifact: harness
 title: "Investigator harness — checkpoint and phase contract"
 content-type: prompt
-last-verified: "2026-05-17"
+last-verified: "2026-06-09"
 confidence: high
 source-tier: practice
 sources:
@@ -221,6 +221,32 @@ Before Step 2 loads anything, compare the Step 1 displayed proposed loads to
 `Case intake mismatch` and fix Step 1 by rerunning `open-case` + `verify-case`.
 Do not proceed from a chat-only proposed load.
 
+Before presenting Checkpoint 2, record every loaded and deferred path
+with the helper:
+
+```bash
+node scripts/investigator-artifacts.mjs record-loads \
+  --root <working-dir> \
+  --case-slug <slug> \
+  --loaded agents/investigator/prompt.md \
+  --loaded agents/investigator/harness.md \
+  --loaded <every-other-path-actually-read> \
+  --deferred <path>=<reason-for-deferral>
+```
+
+Pass `--allow-additional` only when the user has explicitly approved loading
+paths that were not in `case-intake.json proposedLoads`; document the reason
+via the deferred or additional entry. Pass `--force` only if rerunning after a
+correction.
+
+Only after the helper exits 0 emit:
+`**Loads recorded:** <working-dir>/_data/cases/<slug>/workflow/01-loads.json`
+
+If the helper exits non-zero or errors, emit:
+`Loads not recorded: <reason>`
+and make retrying the helper the next checkpoint option. **Checkpoint 2 cannot
+fire without a passing loads artifact.**
+
 The closing menu is Checkpoint 2. Halt after it. Do not output a journal,
 generate hypotheses, or run Step 3 before the user confirms.
 
@@ -261,11 +287,34 @@ node scripts/investigator-artifacts.mjs initialize-turn-ledger \
   --case-slug <slug>
 ```
 
+`initialize-turn-ledger` refuses to run unless `workflow/01-loads.json`
+exists and recomputes to pass. If the loads artifact is missing or blocked,
+the error message shows the exact `record-loads` command to run first.
+
 If the command fails, do not claim Step 3 is complete. Surface
 `Turn ledger not ready: <reason>` and make retrying the helper the next
 checkpoint option.
 
 ### Subsequent Investigation Turn
+
+When resuming a case, after any helper failure, or whenever turn state is
+uncertain, run `status` FIRST:
+
+```bash
+node scripts/investigator-artifacts.mjs status \
+  --root <working-dir> \
+  --case-slug <slug>
+```
+
+Follow its `nextCommands` AND `nextActions` to determine the legal next action.
+`nextCommands` are copy-pasteable helper commands; `nextActions` are agent-performed
+steps (such as generating the Step 3 journal) that must happen before any helper
+command can run. If it reports a `pendingTurn` in the `ledger` field, or any
+`blockingIssues` containing `Pending turn requires repair`, surface that line
+verbatim to the user before doing anything else. Do not attempt to begin a new
+turn or modify the journal until the pending turn is resolved. A failing helper
+gate is never repaired by hand-editing case artifacts; surface the helper's error
+text and follow its instructions.
 
 Every post-Step-3 controller turn is a helper-bracketed transaction. Before
 reading new evidence, updating claims, or recording a user-provided result, run:
@@ -439,8 +488,9 @@ Template:
 - Pause — stop here
 ```
 
-Do one investigation action per turn, update the journal, complete the helper
-transaction, save it, and halt. This cadence repeats until the user explicitly
+Do one investigation action per turn, update the journal, save it via
+`save-journal` (or a shell write if the helper is unavailable), complete the
+helper transaction, and halt. This cadence repeats until the user explicitly
 pauses or closes the investigation.
 
 ## Step 1 Details
@@ -520,9 +570,12 @@ directory already containing `journal.md`.
 
 The stub bodies are deterministic and owned by
 `scripts/investigator-artifacts.mjs`. Do not hand-author a different case
-intake or journal shape in a runtime adapter. `open-case` refuses to overwrite
-existing artifacts unless `--force` is explicitly supplied; do not use
-`--force` unless the user has asked to replace the intake artifacts.
+intake or journal shape in a runtime adapter. `open-case` may overwrite
+existing artifacts with a **blocked** intake (status `blocked`) without
+`--force` — that is the documented repair path for a blocked `open-case`.
+For an existing artifact with a **passing** intake, `--force` is required and
+must not be used unless the user has explicitly asked to replace the intake
+artifacts.
 
 If the working directory is unknown, do not create the stub. Ask the working
 directory clarification as the whole turn.
@@ -655,15 +708,24 @@ Cannot save journal — working directory unknown. Reply with the absolute path
 of the repo root and I will retry the save.
 ```
 
-Use the same transaction shape as Step 1:
+Some runtimes' native file-write tools refuse gitignored paths. `_data/` is
+deliberately gitignored as a privacy posture. NEVER edit `.gitignore` to enable
+a write — use `save-journal` (or a shell write as the fallback below) instead.
 
-1. Write the full rendered journal to `journal_path`.
-2. Read `journal_path` back.
-3. Verify the readback contains:
-   - `# Discovery Journal`
-   - `| Claim | Source | Status | Next evidence needed | Timestamp | Notes |`
-   - `## Resolution`
-4. Only after verification succeeds, emit `Journal saved: <journal_path>`.
+Render the full journal to a temp file, then run the `save-journal` helper,
+which performs the write, readback, and marker verification in one atomic step:
+
+```bash
+node scripts/investigator-artifacts.mjs save-journal \
+  --root <working-dir> \
+  --case-slug <slug> \
+  --content-file <temp-path>
+```
+
+Only after the helper exits 0, emit `Journal saved: <journal_path>`.
+
+If the helper is unavailable, perform the manual write/readback/marker
+transaction through the runtime's SHELL instead.
 
 Without write, readback, and marker verification, Step 3 is incomplete and
 Checkpoint 3 cannot fire.

@@ -4,7 +4,7 @@ title: Zscaler Investigator
 role: investigator
 artifact: workflow
 content-type: reference
-last-verified: "2026-05-18"
+last-verified: "2026-06-09"
 confidence: medium
 sources:
   - agents/investigator/prompt.md
@@ -44,7 +44,9 @@ Runtime adapters must preserve:
 
 - Step 1 case intake gate
 - Step 2 file-load checkpoint
+- Step 2 load-recording gate (`record-loads` before Step 3)
 - Step 3 journal and turn-ledger initialization
+- Post-Step-3 status-first recovery (`status` before any action when resuming or after failure)
 - Post-Step-3 begin/complete/abandon turn transaction
 - One action per turn
 - Resolution completion gate
@@ -101,9 +103,10 @@ After `verify-case`, render proposed loads only from the verified
 `case-intake.json` `proposedLoads` array. If the displayed Step 1 list differs
 from the JSON, stop before Step 2 and report `Case intake mismatch`.
 
-Do not hand-write case-intake artifacts or the initial journal stub. Do not use
-`--force` unless the user explicitly asks to replace existing case-intake
-artifacts.
+Do not hand-write case-intake artifacts or the initial journal stub. `open-case`
+may overwrite a **blocked** intake without `--force` — that is the repair path
+for a blocked `open-case`. For a **passing** intake, do not use `--force` unless
+the user explicitly asks to replace the existing artifacts.
 
 ## Resume Entry
 
@@ -132,10 +135,28 @@ node scripts/investigator-artifacts.mjs initialize-turn-ledger \
   --case-slug <slug>
 ```
 
+When resuming a case, after any helper failure, or whenever turn state is
+uncertain, run `status` first:
+
+```bash
+node scripts/investigator-artifacts.mjs status \
+  --root <repo-root> \
+  --case-slug <slug>
+```
+
+Follow `nextCommands` AND `nextActions` from the output. `nextActions` are
+agent-performed steps (such as generating the Step 3 journal) that precede any
+helper command; `nextCommands` are copy-pasteable helper invocations. A failing
+helper gate is never repaired by hand-editing case artifacts; surface the helper's
+error text and follow its instructions. If the output contains a `pendingTurn`
+entry or any blocking issue mentioning `Pending turn requires repair`, surface
+that line verbatim to the user before doing anything else.
+
 For every later controller turn, run `begin-turn`, perform exactly one
-investigation action, then run `complete-turn`. If the action blocks after
-`begin-turn` and before journal mutation, run `abandon-turn --reason "<reason>"`
-before halting.
+investigation action, save the journal via `save-journal` (or a shell write if
+the helper is unavailable — never by editing `.gitignore`), then run
+`complete-turn`. If the action blocks after `begin-turn` and before journal
+mutation, run `abandon-turn --reason "<reason>"` before halting.
 
 If `node scripts/investigator-artifacts.mjs capabilities` reports
 `import-evidence`, use that helper inside `record-user-evidence` and

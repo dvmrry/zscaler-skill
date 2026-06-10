@@ -3,7 +3,7 @@ role: investigator
 artifact: case-intake
 title: "Investigator case intake — deterministic Step 1 artifact"
 content-type: prompt
-last-verified: "2026-05-17"
+last-verified: "2026-06-09"
 confidence: high
 source-tier: practice
 sources:
@@ -128,7 +128,12 @@ the user's framing already mentions logs, metrics, SIEM data, LSS/NSS,
 pre-collected evidence, Splunk, compact telemetry terms such as `syslog`,
 `weblog`, or `log4j`, or an explicit evidence path. If the framing does not
 contain that telemetry context, the helper marks the case intake blocked
-instead of allowing a speculative telemetry load.
+instead of allowing a speculative telemetry load. Telemetry mentions inside
+user-flagged phrases (for example `LSS shows connector status log gap`) and
+bare flagged telemetry keywords (for example `LSS`) count as that context;
+bare flagged host or ID tokens (for example `log.example.invalid`) do not. Do
+not invent extra framing JSON fields to satisfy the guardrail; put the
+telemetry context in the framing fields the user actually expressed it in.
 
 ## Case Intake Fields
 
@@ -164,8 +169,42 @@ Step 2 may load only the proposed loads stored in the verified
 Step 1 list differs from `case-intake.json`, treat Step 1 as invalid and fix the
 case intake before continuing.
 
-After Step 3 writes and verifies the first real discovery journal, initialize
-the turn ledger before presenting the Step 3 checkpoint:
+After Step 2 loads are complete and before Step 3 begins, record every loaded
+and deferred path with the helper:
+
+```bash
+node scripts/investigator-artifacts.mjs record-loads \
+  --root <repo-root> \
+  --case-slug <slug> \
+  --loaded agents/investigator/prompt.md \
+  --loaded agents/investigator/harness.md \
+  --loaded <every-other-path-actually-read> \
+  --deferred <path>=<reason>
+```
+
+Then verify the loads gate before continuing:
+
+```bash
+node scripts/investigator-artifacts.mjs verify-loads \
+  --root <repo-root> \
+  --case-slug <slug>
+```
+
+`initialize-turn-ledger` will refuse to run unless `workflow/01-loads.json`
+exists and recomputes to pass. Step 3 cannot begin without a passing loads
+artifact.
+
+After Step 3 generates the first real discovery journal, render it to a temp
+file and save it with:
+
+```bash
+node scripts/investigator-artifacts.mjs save-journal \
+  --root <repo-root> \
+  --case-slug <slug> \
+  --content-file <temp-path>
+```
+
+Then initialize the turn ledger before presenting the Step 3 checkpoint:
 
 ```bash
 node scripts/investigator-artifacts.mjs initialize-turn-ledger \

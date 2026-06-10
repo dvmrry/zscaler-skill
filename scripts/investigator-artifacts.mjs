@@ -6,23 +6,34 @@ import process from "node:process";
 
 const CASE_INTAKE_BASENAME = "case-intake";
 const WORKFLOW_DIR = "workflow";
+const LOADS_BASENAME = "01-loads.json";
 const TURN_LOG_BASENAME = "02-turns.jsonl";
 const TURN_STATE_BASENAME = "02-turn-state.json";
 const EVIDENCE_DIR_BASENAME = "evidence";
 const EVIDENCE_MANIFEST_BASENAME = "MANIFEST.md";
-const HELPER_VERSION = "0.3.0";
+const HELPER_VERSION = "0.4.0";
 const MAX_EVIDENCE_SLUG_PART_LENGTH = 80;
+const MANDATORY_LOADS = [
+  "agents/investigator/prompt.md",
+  "agents/investigator/harness.md",
+];
 const SUPPORTED_OPERATIONS = [
   "open-case",
   "verify-case",
+  "record-loads",
+  "verify-loads",
   "initialize-turn-ledger",
   "begin-turn",
   "complete-turn",
   "abandon-turn",
   "import-evidence",
+  "save-journal",
+  "status",
 ];
 const SUPPORTED_OPTIONS = {
   "complete-turn": ["--turn-json", "--turn-input-json"],
+  "record-loads": ["--loaded", "--deferred", "--allow-additional", "--force"],
+  "save-journal": ["--content-file"],
 };
 const HELPER_OWNED_TURN_FIELDS = [
   "sequence",
@@ -77,16 +88,20 @@ function usage(exitCode = 0) {
   out.write(`Usage:
   node scripts/investigator-artifacts.mjs open-case --root <repo> --case-slug <slug> --framing-json <file> [--proposed-load <path> ...] [--force]
   node scripts/investigator-artifacts.mjs verify-case --root <repo> --case-slug <slug>
+  node scripts/investigator-artifacts.mjs record-loads --root <repo> --case-slug <slug> --loaded <path> [--loaded <path> ...] [--deferred <path>=<reason> ...] [--allow-additional] [--force]
+  node scripts/investigator-artifacts.mjs verify-loads --root <repo> --case-slug <slug>
   node scripts/investigator-artifacts.mjs initialize-turn-ledger --root <repo> --case-slug <slug> [--force]
   node scripts/investigator-artifacts.mjs begin-turn --root <repo> --case-slug <slug> --user-action <action>
   node scripts/investigator-artifacts.mjs complete-turn --root <repo> --case-slug <slug> (--turn-json <file>|--turn-input-json <file>)
   node scripts/investigator-artifacts.mjs abandon-turn --root <repo> --case-slug <slug> --reason <text>
+  node scripts/investigator-artifacts.mjs save-journal --root <repo> --case-slug <slug> --content-file <path>
+  node scripts/investigator-artifacts.mjs status --root <repo> --case-slug <slug>
   node scripts/investigator-artifacts.mjs capabilities
   node scripts/investigator-artifacts.mjs import-evidence --root <repo> --case-slug <slug> --source-file <file> --name <name> --source <source> (--query <text>|--query-file <file>|--request-text <text>) --summary <text> --captured-at <ISO-UTC> --touched-claim <claim> [--active-hypothesis <tag>] [--allow-placeholder-query]
   node scripts/investigator-artifacts.mjs import-evidence --root <repo> --case-slug <slug> --input-json <file>
 
 Creates and verifies _data/cases/<slug>/case-intake.md,
-case-intake.json, journal.md, and optional workflow turn state.
+case-intake.json, journal.md, workflow/01-loads.json, and optional workflow turn state.
 `);
   process.exit(exitCode);
 }
@@ -100,6 +115,9 @@ function parseArgs(argv) {
     force: false,
     proposedLoads: [],
     touchedClaims: [],
+    loaded: [],
+    deferred: [],
+    allowAdditional: false,
   };
 
   for (let i = 3; i < argv.length; i += 1) {
@@ -162,10 +180,21 @@ function parseArgs(argv) {
     } else if (key === "--proposed-load") {
       args.proposedLoads.push(value);
       i += 1;
+    } else if (key === "--loaded") {
+      args.loaded.push(value);
+      i += 1;
+    } else if (key === "--deferred") {
+      args.deferred.push(value);
+      i += 1;
     } else if (key === "--force") {
       args.force = true;
+    } else if (key === "--allow-additional") {
+      args.allowAdditional = true;
     } else if (key === "--allow-placeholder-query") {
       args.allowPlaceholderQuery = true;
+    } else if (key === "--content-file") {
+      args.contentFile = value;
+      i += 1;
     } else {
       throw new Error(`Unknown argument: ${key}`);
     }
@@ -246,6 +275,7 @@ function casePaths(root, caseSlug) {
     journalPath: path.join(caseDir, "journal.md"),
     evidenceDir: path.join(caseDir, EVIDENCE_DIR_BASENAME),
     evidenceManifestPath: path.join(caseDir, EVIDENCE_DIR_BASENAME, EVIDENCE_MANIFEST_BASENAME),
+    loadsPath: path.join(workflowDir, LOADS_BASENAME),
     turnLogPath: path.join(workflowDir, TURN_LOG_BASENAME),
     turnStatePath: path.join(workflowDir, TURN_STATE_BASENAME),
   };
@@ -303,6 +333,15 @@ function markdownTableCells(line) {
     .map((cell) => cell.trim());
 }
 
+function journalHasClaimTable(journalPath) {
+  try {
+    const journal = fs.readFileSync(journalPath, "utf8");
+    return journal.includes("# Discovery Journal") && journal.includes(REQUIRED_CLAIM_TABLE_HEADER);
+  } catch (_) {
+    return false;
+  }
+}
+
 function verifyJournalHasClaimTable(journalPath) {
   const journal = fs.readFileSync(journalPath, "utf8");
   if (!journal.includes("# Discovery Journal")) {
@@ -349,7 +388,9 @@ function journalClaimStatuses(journalPath) {
 
 function validateActionType(actionType) {
   if (!VALID_ACTION_TYPES.has(actionType)) {
-    throw new Error(`turn-json actionType is not allowed: ${actionType}`);
+    throw new Error(
+      `turn-json actionType is not allowed: ${actionType}. Valid actionType values: ${[...VALID_ACTION_TYPES].join(", ")}. actionType is not the begin-turn --user-action value.`,
+    );
   }
 }
 
@@ -501,11 +542,483 @@ function readTurnState(paths) {
   return state;
 }
 
+// ── record-loads / verify-loads helpers ──────────────────────────────────────
+
+function parseDeferredEntry(entry) {
+  // Split on first '=' only; reason may itself contain '='.
+  const eqIndex = String(entry).indexOf("=");
+  if (eqIndex === -1) {
+    return { path: String(entry).trim(), reason: "" };
+  }
+  return {
+    path: String(entry).slice(0, eqIndex).trim(),
+    reason: String(entry).slice(eqIndex + 1).trim(),
+  };
+}
+
+/**
+ * Pure-ish predicate for the Step 2 loads gate. Returns
+ *   { status: "pass"|"blocked", blockingIssues: [] }
+ *
+ * Inputs must already be normalised (normalizeProposedLoads-style paths).
+ * `root` is required for filesystem existence checks on `loaded` paths.
+ */
+function loadsStatus(root, proposedLoads, loaded, deferred, additionalAllowed) {
+  const issues = [];
+
+  // Mandatory docs may not be deferred.
+  const deferredPaths = new Set(deferred.map((d) => d.path));
+  for (const mandatory of MANDATORY_LOADS) {
+    if (!loaded.includes(mandatory)) {
+      if (deferredPaths.has(mandatory)) {
+        issues.push(`${mandatory} is mandatory and must be loaded, not deferred`);
+      } else {
+        issues.push(`${mandatory} must be in loaded`);
+      }
+    }
+  }
+
+  // Every proposed load must appear in exactly one of loaded or deferred.
+  const loadedSet = new Set(loaded);
+  for (const proposed of proposedLoads) {
+    const inLoaded = loadedSet.has(proposed);
+    const inDeferred = deferredPaths.has(proposed);
+    if (!inLoaded && !inDeferred) {
+      issues.push(`proposed load not accounted for (add to --loaded or --deferred): ${proposed}`);
+    }
+  }
+
+  // Every deferred entry must carry a non-empty reason.
+  for (const entry of deferred) {
+    if (!entry.reason) {
+      issues.push(`deferred entry missing reason: ${entry.path}`);
+    }
+  }
+
+  // A path must not appear in both loaded and deferred.
+  const overlap = loaded.filter((p) => deferredPaths.has(p));
+  if (overlap.length > 0) {
+    issues.push(`path(s) appear in both loaded and deferred: ${overlap.join(", ")}`);
+  }
+
+  // Every loaded path must exist under the repo root.
+  for (const loadedPath of loaded) {
+    try {
+      const abs = safeRepoPath(root, loadedPath);
+      if (!fs.existsSync(abs)) {
+        issues.push(`loaded path does not exist: ${loadedPath}`);
+      }
+    } catch (err) {
+      issues.push(`loaded path is unsafe: ${loadedPath} (${err.message})`);
+    }
+  }
+
+  // Additional loads (loaded but not in proposedLoads) require the flag.
+  const proposedSet = new Set(proposedLoads);
+  const additionalLoads = loaded.filter((p) => !proposedSet.has(p));
+  if (additionalLoads.length > 0 && !additionalAllowed) {
+    issues.push(
+      `loaded paths not in proposedLoads require --allow-additional: ${additionalLoads.join(", ")}`,
+    );
+  }
+
+  return {
+    status: issues.length === 0 ? "pass" : "blocked",
+    blockingIssues: issues,
+    additionalLoads,
+  };
+}
+
+function recordLoads(args) {
+  const root = resolveRepoRoot(args.root);
+  const verified = verifyCaseFiles(root, args.caseSlug);
+  const paths = casePaths(root, args.caseSlug);
+
+  // Read proposedLoads from the verified case-intake.json.
+  const caseIntakeJson = JSON.parse(fs.readFileSync(paths.caseIntakeJsonPath, "utf8"));
+  const proposedLoads = normalizeProposedLoads(caseIntakeJson.proposedLoads || []);
+
+  // Normalize inputs.
+  const loaded = normalizeProposedLoads(args.loaded || []);
+  const deferred = (args.deferred || []).map((entry) => {
+    const parsed = parseDeferredEntry(entry);
+    // Validate the path part is a safe relative path.
+    try {
+      const clean = path.normalize(parsed.path);
+      if (!parsed.path || path.isAbsolute(parsed.path) || clean.startsWith("..")) {
+        throw new Error(`deferred path escapes repo root or is absolute: ${parsed.path}`);
+      }
+      parsed.path = clean;
+    } catch (err) {
+      throw new Error(`deferred path is invalid: ${parsed.path} — ${err.message}`);
+    }
+    return parsed;
+  });
+
+  const additionalAllowed = Boolean(args.allowAdditional);
+
+  // Refuse to overwrite without --force.
+  fs.mkdirSync(paths.workflowDir, { recursive: true });
+  if (!args.force && fs.existsSync(paths.loadsPath)) {
+    throw new Error(`${LOADS_BASENAME} already exists; rerun record-loads with --force only to replace it`);
+  }
+
+  const { status, blockingIssues, additionalLoads } = loadsStatus(
+    root, proposedLoads, loaded, deferred, additionalAllowed,
+  );
+
+  const artifact = {
+    status,
+    caseSlug: args.caseSlug,
+    loaded,
+    deferred,
+    additionalLoads,
+    additionalApproved: additionalAllowed && additionalLoads.length > 0,
+    blockingIssues,
+    recordedAt: new Date().toISOString(),
+  };
+
+  atomicWriteJson(paths.loadsPath, artifact);
+
+  // Readback verification: re-read and check structure matches.
+  const readback = JSON.parse(fs.readFileSync(paths.loadsPath, "utf8"));
+  if (readback.status !== status) {
+    throw new Error(`${LOADS_BASENAME} readback status mismatch; filesystem may be unreliable`);
+  }
+
+  return {
+    status,
+    operation: "record-loads",
+    caseSlug: args.caseSlug,
+    loadsPath: paths.loadsPath,
+    loaded,
+    deferred,
+    additionalLoads,
+    additionalApproved: artifact.additionalApproved,
+    blockingIssues,
+    ...verified,
+  };
+}
+
+function verifyLoads(root, caseSlug) {
+  assertSafeSlug(caseSlug);
+  const paths = casePaths(root, caseSlug);
+
+  if (!fs.existsSync(paths.loadsPath)) {
+    throw new Error(
+      `${LOADS_BASENAME} not found; run: node scripts/investigator-artifacts.mjs record-loads --root <root> --case-slug ${caseSlug} --loaded <path> ...`,
+    );
+  }
+
+  const artifact = JSON.parse(fs.readFileSync(paths.loadsPath, "utf8"));
+
+  // Re-read proposedLoads from current case-intake.json (recompute, never trust stored status).
+  const caseIntakeJson = JSON.parse(fs.readFileSync(paths.caseIntakeJsonPath, "utf8"));
+  const proposedLoads = normalizeProposedLoads(caseIntakeJson.proposedLoads || []);
+
+  const loaded = Array.isArray(artifact.loaded) ? artifact.loaded : [];
+  const deferred = Array.isArray(artifact.deferred) ? artifact.deferred : [];
+  const additionalAllowed = artifact.additionalApproved === true;
+
+  const { status, blockingIssues, additionalLoads } = loadsStatus(
+    root, proposedLoads, loaded, deferred, additionalAllowed,
+  );
+
+  if (artifact.status === "pass" && status !== "pass") {
+    throw new Error(
+      `${LOADS_BASENAME} stored status is "pass" but recomputes to "${status}": ${blockingIssues.join("; ")}`,
+    );
+  }
+
+  return {
+    status,
+    operation: "verify-loads",
+    caseSlug,
+    loadsPath: paths.loadsPath,
+    loaded,
+    deferred,
+    additionalLoads,
+    blockingIssues,
+  };
+}
+
+function requirePassingLoads(root, caseSlug) {
+  const paths = casePaths(root, caseSlug);
+  if (!fs.existsSync(paths.loadsPath)) {
+    throw new Error(
+      `Step 2 loads not recorded; run: node scripts/investigator-artifacts.mjs record-loads --root ${root} --case-slug ${caseSlug} --loaded <path> ...`,
+    );
+  }
+  // Recompute — never trust the stored status field.
+  const artifact = JSON.parse(fs.readFileSync(paths.loadsPath, "utf8"));
+  const caseIntakeJson = JSON.parse(fs.readFileSync(paths.caseIntakeJsonPath, "utf8"));
+  const proposedLoads = normalizeProposedLoads(caseIntakeJson.proposedLoads || []);
+  const loaded = Array.isArray(artifact.loaded) ? artifact.loaded : [];
+  const deferred = Array.isArray(artifact.deferred) ? artifact.deferred : [];
+  const additionalAllowed = artifact.additionalApproved === true;
+  const { status, blockingIssues } = loadsStatus(root, proposedLoads, loaded, deferred, additionalAllowed);
+  if (status !== "pass") {
+    throw new Error(
+      `${LOADS_BASENAME} recomputes to blocked: ${blockingIssues.join("; ")}; fix loads and rerun record-loads before initialize-turn-ledger`,
+    );
+  }
+}
+
+// ── status (doctor) ───────────────────────────────────────────────────────────
+
+function caseStatus(args) {
+  const root = resolveRepoRoot(args.root);
+  assertSafeSlug(args.caseSlug);
+  const caseSlug = args.caseSlug;
+  const paths = casePaths(root, caseSlug);
+
+  // ── intake ──
+  const intakeResult = { present: false, pass: false, issues: [] };
+  let intakeJson = null;
+  try {
+    if (fs.existsSync(paths.caseIntakeJsonPath) && fs.existsSync(paths.caseIntakePath)) {
+      intakeResult.present = true;
+      intakeJson = JSON.parse(fs.readFileSync(paths.caseIntakeJsonPath, "utf8"));
+      // Recompute — don't trust stored status.
+      verifyCaseFiles(root, caseSlug);
+      intakeResult.pass = true;
+    }
+  } catch (err) {
+    intakeResult.pass = false;
+    intakeResult.issues.push(err.message);
+  }
+
+  // ── loads ──
+  const loadsResult = { present: false, pass: false, issues: [] };
+  let loadsArtifact = null;
+  if (intakeResult.pass) {
+    try {
+      if (fs.existsSync(paths.loadsPath)) {
+        loadsResult.present = true;
+        loadsArtifact = JSON.parse(fs.readFileSync(paths.loadsPath, "utf8"));
+        const verifyResult = verifyLoads(root, caseSlug);
+        loadsResult.pass = verifyResult.status === "pass";
+        if (!loadsResult.pass) {
+          loadsResult.issues.push(...verifyResult.blockingIssues);
+        }
+      }
+    } catch (err) {
+      loadsResult.pass = false;
+      loadsResult.issues.push(err.message);
+    }
+  }
+
+  // ── ledger ──
+  const ledgerResult = {
+    present: false,
+    consistent: false,
+    currentSequence: null,
+    pendingTurn: null,
+    issues: [],
+  };
+  let turnState = null;
+  if (loadsResult.pass) {
+    try {
+      if (fs.existsSync(paths.turnStatePath)) {
+        ledgerResult.present = true;
+        turnState = readTurnState(paths);
+        ledgerResult.consistent = true;
+        ledgerResult.currentSequence = turnState.currentSequence;
+        if (turnState.pendingTurn) {
+          const pending = turnState.pendingTurn;
+          const currentJournalHash = fs.existsSync(paths.journalPath)
+            ? sha256File(paths.journalPath)
+            : null;
+          const journalChangedSinceBegin =
+            currentJournalHash !== null &&
+            pending.journalHashBefore !== undefined &&
+            currentJournalHash !== pending.journalHashBefore;
+          ledgerResult.pendingTurn = {
+            sequence: pending.sequence,
+            userAction: pending.userAction,
+            journalChangedSinceBegin,
+          };
+        }
+      }
+    } catch (err) {
+      ledgerResult.consistent = false;
+      ledgerResult.issues.push(err.message);
+    }
+  }
+
+  // ── journal ──
+  const journalResult = { present: false, claimCounts: {} };
+  if (fs.existsSync(paths.journalPath)) {
+    journalResult.present = true;
+    try {
+      const statuses = journalClaimStatuses(paths.journalPath);
+      for (const [, statusVal] of statuses) {
+        journalResult.claimCounts[statusVal] = (journalResult.claimCounts[statusVal] || 0) + 1;
+      }
+    } catch (_) {
+      // Non-fatal for status command.
+    }
+  }
+
+  // ── derive phase ──
+  let phase;
+  const RESOLVED_STATUSES = new Set(["Resolved", "Confirmed (high)", "Ruled out", "Stale"]);
+  if (!intakeResult.present) {
+    phase = "no-case";
+  } else if (!intakeResult.pass) {
+    phase = "intake";
+  } else if (!loadsResult.present || !loadsResult.pass) {
+    phase = "loads";
+  } else if (!ledgerResult.present) {
+    // Distinguish between a stub journal (Step 3 not yet done) and a real journal.
+    if (!journalHasClaimTable(paths.journalPath)) {
+      phase = "journal-pending";
+    } else {
+      phase = "ledger-pending";
+    }
+  } else if (!ledgerResult.consistent) {
+    phase = "ledger-pending";
+  } else if (ledgerResult.pendingTurn) {
+    phase = "turn-open";
+  } else {
+    // Check if all claims are resolved.
+    const allStatuses = Object.keys(journalResult.claimCounts);
+    const allResolved =
+      allStatuses.length > 0 &&
+      allStatuses.every((s) => RESOLVED_STATUSES.has(s));
+    // Check for a completed mark-resolved turn.
+    let hasMarkResolvedTurn = false;
+    if (allResolved && fs.existsSync(paths.turnLogPath)) {
+      try {
+        const events = readJsonl(paths.turnLogPath);
+        hasMarkResolvedTurn = events.some((e) => e.actionType === "mark-resolved");
+      } catch (_) {
+        // If log is unreadable, don't claim resolved.
+      }
+    }
+    if (allResolved && hasMarkResolvedTurn) {
+      phase = "resolved";
+    } else {
+      phase = "turn-ready";
+    }
+  }
+
+  // ── blocking issues ──
+  const blockingIssues = [
+    ...intakeResult.issues,
+    ...loadsResult.issues,
+    ...ledgerResult.issues,
+  ];
+
+  // ── nextCommands ──
+  const baseCmd = `node scripts/investigator-artifacts.mjs`;
+  const rootFlag = `--root ${root}`;
+  const slugFlag = `--case-slug ${caseSlug}`;
+  const nextCommands = [];
+
+  if (phase === "no-case" || (!intakeResult.present && !intakeResult.pass)) {
+    nextCommands.push(
+      `${baseCmd} open-case ${rootFlag} ${slugFlag} --framing-json <path-to-framing-json> --proposed-load agents/investigator/prompt.md --proposed-load agents/investigator/harness.md`,
+    );
+  } else if (phase === "intake") {
+    // Intake present but failing — show re-run with --force; approval requirement goes in blockingIssues.
+    nextCommands.push(
+      `${baseCmd} open-case ${rootFlag} ${slugFlag} --framing-json <path-to-framing-json> --proposed-load agents/investigator/prompt.md --proposed-load agents/investigator/harness.md --force`,
+    );
+    blockingIssues.push(
+      "Replacing existing intake artifacts requires explicit user approval (repo policy: --force on open-case only when the user asked)",
+    );
+  } else if (phase === "loads") {
+    const forceFlag = loadsResult.present ? " --force" : "";
+    nextCommands.push(
+      `${baseCmd} record-loads ${rootFlag} ${slugFlag} --loaded agents/investigator/prompt.md --loaded agents/investigator/harness.md${forceFlag}`,
+    );
+  } else if (phase === "journal-pending") {
+    // journal-pending: no helper command can fix this — the agent must generate the
+    // Step 3 discovery journal.  nextCommands stays empty.
+  } else if (phase === "ledger-pending") {
+    nextCommands.push(
+      `${baseCmd} initialize-turn-ledger ${rootFlag} ${slugFlag}`,
+    );
+  } else if (phase === "turn-ready") {
+    const actionList = [
+      "continue-top-open",
+      "investigate-different-claim",
+      "request-user-evidence",
+      "record-user-evidence",
+      "add-evidence",
+      "mark-resolved",
+      "pause",
+    ].join("|");
+    nextCommands.push(
+      `${baseCmd} begin-turn ${rootFlag} ${slugFlag} --user-action <${actionList}>`,
+    );
+  } else if (phase === "turn-open") {
+    const pending = ledgerResult.pendingTurn;
+    if (pending && pending.journalChangedSinceBegin) {
+      // Journal changed — complete only; abandon is blocked.
+      blockingIssues.push(
+        "Pending turn requires repair: journal.md changed after begin-turn; complete the turn with a valid turn JSON or manually reconcile.",
+      );
+      nextCommands.push(
+        `${baseCmd} complete-turn ${rootFlag} ${slugFlag} --turn-input-json <path-to-turn-input-json>`,
+      );
+    } else {
+      nextCommands.push(
+        `${baseCmd} complete-turn ${rootFlag} ${slugFlag} --turn-input-json <path-to-turn-input-json>`,
+      );
+      nextCommands.push(
+        `${baseCmd} abandon-turn ${rootFlag} ${slugFlag} --reason "<why the turn was blocked before mutation>"`,
+      );
+    }
+  }
+  // phase === "resolved" → nextCommands stays empty.
+
+  // ── nextActions ──
+  // Agent-performed (non-helper-command) steps that must happen before the next
+  // helper command can run.  Present in every response; usually empty.
+  const nextActions = [];
+  if (phase === "journal-pending") {
+    nextActions.push(
+      `Generate the Step 3 discovery journal per agents/investigator/harness.md, render the full journal to a temp file, and run \`node scripts/investigator-artifacts.mjs save-journal --root ${root} --case-slug ${caseSlug} --content-file <temp-path>\`, then rerun status. Do not hand-edit the stub's Claims section to satisfy the ledger gate.`,
+    );
+  }
+
+  return {
+    operation: "status",
+    caseSlug,
+    phase,
+    intake: intakeResult,
+    loads: loadsResult,
+    ledger: ledgerResult,
+    journal: journalResult,
+    blockingIssues,
+    nextCommands,
+    nextActions,
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 function initializeTurnLedger(args) {
   const root = resolveRepoRoot(args.root);
   const verified = verifyCaseFiles(root, args.caseSlug);
   const paths = casePaths(root, args.caseSlug);
-  verifyJournalHasClaimTable(paths.journalPath);
+  try {
+    verifyJournalHasClaimTable(paths.journalPath);
+  } catch (err) {
+    if (err.message.includes("missing claim table header") || err.message.includes("missing marker")) {
+      throw new Error(
+        `journal.md still contains the Step 1 stub (missing claim table). Generate the Step 3 discovery journal per agents/investigator/harness.md, render it to a temp file, and run save-journal to save it to ${paths.journalPath} first. Do not hand-edit the stub's Claims header to satisfy this gate.`,
+      );
+    }
+    throw err;
+  }
+
+  // Gate: Step 2 loads must be recorded and passing before the ledger can be initialized.
+  // Fires unconditionally — including on --force re-initialization — so a weak agent
+  // cannot learn that --force bypasses the gate.
+  requirePassingLoads(root, args.caseSlug);
 
   fs.mkdirSync(paths.workflowDir, { recursive: true });
   if (!args.force && (fs.existsSync(paths.turnLogPath) || fs.existsSync(paths.turnStatePath))) {
@@ -786,6 +1299,23 @@ function normalizeProposedLoads(loads) {
   return normalized;
 }
 
+const BARE_TELEMETRY_KEYWORDS = new Set([
+  "log", "logs", "lss", "nss", "siem", "splunk", "syslog", "weblog", "log4j",
+  "pcap", "telemetry", "metric", "metrics", "trace", "event", "events",
+]);
+
+// userFlaggedSpecifics entries are usually identifiers (hostnames, IDs, domains)
+// whose substrings must not count as telemetry context (e.g. log.example.invalid).
+// Multi-word phrases ("LSS shows connector status log gap") and bare telemetry
+// keywords are genuine framing context and do count.
+function telemetryFlaggedSpecifics(framing) {
+  return asArray(framing.userFlaggedSpecifics).filter((token) => {
+    const value = String(token).trim();
+    if (/\s/.test(value)) return true;
+    return BARE_TELEMETRY_KEYWORDS.has(value.toLowerCase());
+  });
+}
+
 function hasLogContext(framing) {
   if (asArray(framing.evidencePaths).length > 0) return true;
 
@@ -795,6 +1325,7 @@ function hasLogContext(framing) {
     framing.whatWorks,
     framing.alreadyTried,
     framing.recency,
+    ...telemetryFlaggedSpecifics(framing),
   ];
   const haystack = fields.join(" ").toLowerCase();
   const separatedLogToken = /(^|[\s/_.:;()[\],])logs?($|[\s/_.:;()[\],])/;
@@ -837,7 +1368,7 @@ function caseIntakeStatus(framing, proposedLoads, root = null) {
     }
   }
   if (proposedLoads.some(isTelemetryReferencePath) && !hasLogContext(framing)) {
-    issues.push("telemetry proposed loads require log, metric, SIEM, or evidence context in the framing");
+    issues.push("telemetry proposed loads require log, metric, SIEM, or evidence context in the framing (checked: symptom, scope, whatWorks, alreadyTried, recency, evidencePaths, and phrase-form or bare-keyword userFlaggedSpecifics; bare host/ID tokens do not count)");
   }
 
   return {
@@ -1229,9 +1760,20 @@ function openCase(args) {
   const existingArtifacts = [caseIntakePath, caseIntakeJsonPath, journalPath]
     .filter((artifactPath) => fs.existsSync(artifactPath));
   if (existingArtifacts.length && !args.force) {
-    throw new Error(
-      `case artifacts already exist; use verify-case or rerun open-case with --force: ${existingArtifacts.join(", ")}`,
-    );
+    // Allow overwriting a blocked intake without --force — that IS the repair path.
+    let existingIntakeIsBlocked = false;
+    try {
+      const existingIntakeMd = fs.readFileSync(caseIntakePath, "utf8");
+      existingIntakeIsBlocked = /^Status: blocked$/m.test(existingIntakeMd);
+    } catch (_) {
+      // Unreadable or missing — treat as not-blocked; fall through to refusal.
+    }
+    if (!existingIntakeIsBlocked) {
+      throw new Error(
+        `case artifacts already exist with a passing intake; use verify-case to resume, or rerun open-case with --force only if the user asked to replace them; to start a NEW investigation, choose a different --case-slug: ${existingArtifacts.join(", ")}`,
+      );
+    }
+    // existingIntakeIsBlocked — allow the overwrite silently.
   }
 
   const caseIntakeJson = {
@@ -1278,6 +1820,70 @@ function openCase(args) {
   return caseIntakeJson;
 }
 
+function saveJournal(args) {
+  const root = resolveRepoRoot(args.root);
+
+  // Slug safety + case dir existence check (cheapest gate).
+  assertSafeSlug(args.caseSlug);
+  const paths = casePaths(root, args.caseSlug);
+  if (!fs.existsSync(paths.caseIntakePath) || !fs.existsSync(paths.caseIntakeJsonPath)) {
+    throw new Error(
+      `case directory not found or missing intake artifacts for slug: ${args.caseSlug}`,
+    );
+  }
+
+  // Resolve and read the content file (absolute paths are accepted — runtimes stage to /tmp).
+  if (!args.contentFile || String(args.contentFile).includes("\0")) {
+    throw new Error("--content-file is required");
+  }
+  const contentFilePath = path.isAbsolute(args.contentFile)
+    ? path.resolve(args.contentFile)
+    : safeRepoPath(root, args.contentFile);
+  const contentStat = fs.statSync(contentFilePath, { throwIfNoEntry: false });
+  if (!contentStat || !contentStat.isFile()) {
+    throw new Error(`--content-file does not exist or is not a file: ${contentFilePath}`);
+  }
+  const content = fs.readFileSync(contentFilePath, "utf8");
+
+  // Validate the journal content BEFORE writing.
+  if (!content.includes(REQUIRED_JOURNAL_MARKERS[0])) {
+    throw new Error(
+      `journal content missing required heading (${REQUIRED_JOURNAL_MARKERS[0]}); render the journal per agents/investigator/harness.md before saving`,
+    );
+  }
+  if (!content.includes(REQUIRED_CLAIM_TABLE_HEADER)) {
+    throw new Error(
+      `journal content missing canonical claim table header (${REQUIRED_CLAIM_TABLE_HEADER}); render the journal per agents/investigator/harness.md before saving`,
+    );
+  }
+  if (!content.includes("## Resolution")) {
+    throw new Error(
+      `journal content missing ## Resolution section; render the journal per agents/investigator/harness.md before saving`,
+    );
+  }
+
+  // Write atomically to the case journal path.
+  atomicWriteFile(paths.journalPath, content);
+
+  // Read back and re-verify.
+  verifyJournalHasClaimTable(paths.journalPath);
+  if (!fs.readFileSync(paths.journalPath, "utf8").includes("## Resolution")) {
+    throw new Error("journal.md readback missing ## Resolution; filesystem may be unreliable");
+  }
+
+  const bytesWritten = Buffer.byteLength(content, "utf8");
+  const journalHash = sha256File(paths.journalPath);
+
+  return {
+    status: "pass",
+    operation: "save-journal",
+    caseSlug: args.caseSlug,
+    journalPath: paths.journalPath,
+    bytesWritten,
+    journalHash,
+  };
+}
+
 function capabilities() {
   return {
     status: "ok",
@@ -1306,6 +1912,22 @@ function main() {
       process.stdout.write(`${JSON.stringify({ status: "pass", ...result }, null, 2)}\n`);
       return;
     }
+    if (args.command === "record-loads") {
+      const result = recordLoads(args);
+      process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+      process.exit(result.status === "pass" ? 0 : 2);
+    }
+    if (args.command === "verify-loads") {
+      const root = resolveRepoRoot(args.root);
+      const result = verifyLoads(root, args.caseSlug);
+      process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+      process.exit(result.status === "pass" ? 0 : 2);
+    }
+    if (args.command === "status") {
+      const result = caseStatus(args);
+      process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+      return;
+    }
     if (args.command === "initialize-turn-ledger") {
       const result = initializeTurnLedger(args);
       process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
@@ -1328,6 +1950,11 @@ function main() {
     }
     if (args.command === "import-evidence") {
       const result = importEvidence(args);
+      process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+      return;
+    }
+    if (args.command === "save-journal") {
+      const result = saveJournal(args);
       process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
       return;
     }
@@ -1360,9 +1987,14 @@ export {
   caseIntakeStatus,
   verifyCaseFiles,
   capabilities,
+  loadsStatus,
+  recordLoads,
+  verifyLoads,
   initializeTurnLedger,
   beginTurn,
   abandonTurn,
   completeTurn,
   importEvidence,
+  saveJournal,
+  caseStatus,
 };
