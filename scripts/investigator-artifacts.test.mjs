@@ -2313,6 +2313,187 @@ test("status reports resolved phase after mark-resolved with all claims closed",
   assert.deepEqual(result.nextCommands, []);
 });
 
+// ── Finding 1: --force ledger gate bypass ────────────────────────────────────
+
+test("initializeTurnLedger with --force throws when loads artifact is missing", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  const result = openCase({
+    root,
+    caseSlug: "2026-05-17-force-gate-bypass",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+  writeDiscoveryJournal(result.journalPath);
+  // Record loads and initialize once so the ledger exists.
+  recordLoads({
+    root,
+    caseSlug: result.caseSlug,
+    loaded: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+    deferred: [],
+    allowAdditional: false,
+    force: false,
+  });
+  initializeTurnLedger({ root, caseSlug: result.caseSlug });
+
+  // Now delete the loads artifact so the gate should fire on --force re-init.
+  const loadsPath = path.join(root, "_data/cases", result.caseSlug, "workflow/01-loads.json");
+  fs.rmSync(loadsPath);
+
+  assert.throws(
+    () => initializeTurnLedger({ root, caseSlug: result.caseSlug, force: true }),
+    /Step 2 loads not recorded/,
+  );
+});
+
+// ── Finding 2: status loads-phase --force flag ───────────────────────────────
+
+test("status loads phase: nextCommands record-loads omits --force when artifact absent", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  openCase({
+    root,
+    caseSlug: "2026-05-17-status-loads-no-force",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+
+  const result = caseStatus({ root, caseSlug: "2026-05-17-status-loads-no-force" });
+  assert.equal(result.phase, "loads");
+  assert.equal(result.loads.present, false);
+  const cmd = result.nextCommands.find((c) => c.includes("record-loads"));
+  assert.ok(cmd, "expected a record-loads command");
+  assert.ok(!cmd.includes("--force"), "should NOT contain --force when artifact absent");
+});
+
+test("status loads phase: nextCommands record-loads includes --force when artifact present-but-blocked", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  openCase({
+    root,
+    caseSlug: "2026-05-17-status-loads-with-force",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+  // Record a blocked artifact (missing harness.md).
+  recordLoads({
+    root,
+    caseSlug: "2026-05-17-status-loads-with-force",
+    loaded: ["agents/investigator/prompt.md"],
+    deferred: [],
+    allowAdditional: false,
+    force: false,
+  });
+
+  const result = caseStatus({ root, caseSlug: "2026-05-17-status-loads-with-force" });
+  assert.equal(result.phase, "loads");
+  assert.equal(result.loads.present, true);
+  assert.equal(result.loads.pass, false);
+  const cmd = result.nextCommands.find((c) => c.includes("record-loads"));
+  assert.ok(cmd, "expected a record-loads command");
+  assert.ok(cmd.includes("--force"), "should contain --force when artifact is present-but-blocked");
+});
+
+// ── Finding 3: loaded/deferred disjointness ──────────────────────────────────
+
+test("loadsStatus blocks when a path appears in both loaded and deferred", () => {
+  const root = tempRepo();
+  const proposedLoads = ["agents/investigator/prompt.md", "agents/investigator/harness.md"];
+  const loaded = ["agents/investigator/prompt.md", "agents/investigator/harness.md"];
+  const deferred = [{ path: "agents/investigator/harness.md", reason: "already loaded" }];
+  const result = loadsStatus(root, proposedLoads, loaded, deferred, false);
+  assert.equal(result.status, "blocked");
+  assert.ok(
+    result.blockingIssues.some((i) => i.includes("both loaded and deferred") && i.includes("harness.md")),
+    `expected disjointness issue, got: ${JSON.stringify(result.blockingIssues)}`,
+  );
+});
+
+// ── Finding 4: status intake nextCommand --force ─────────────────────────────
+
+test("status intake phase: nextCommands open-case includes --force and blockingIssues states approval required", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZIA block page appears for payroll site",
+    tenantCloud: "zs1",
+    products: ["zia"],
+    scope: "one user",
+  });
+  openCase({
+    root,
+    caseSlug: "2026-05-17-status-intake-force",
+    framingJson: framingPath,
+    proposedLoads: [
+      "agents/investigator/prompt.md",
+      "agents/investigator/harness.md",
+      "references/zia/logs/web-log-schema.md",
+    ],
+  });
+
+  const result = caseStatus({ root, caseSlug: "2026-05-17-status-intake-force" });
+  assert.equal(result.phase, "intake");
+  const cmd = result.nextCommands.find((c) => c.includes("open-case"));
+  assert.ok(cmd, "expected an open-case command");
+  assert.ok(cmd.includes("--force"), "open-case command must include --force");
+  assert.ok(
+    result.blockingIssues.some((i) => i.includes("explicit user approval")),
+    `expected approval-required issue, got: ${JSON.stringify(result.blockingIssues)}`,
+  );
+});
+
+// ── Finding 5: verify-loads exit 2 on blocked ────────────────────────────────
+// Exit semantics are tested at the CLI boundary in integration; here we confirm
+// verifyLoads itself returns status "blocked" (not "pass") so the CLI handler
+// will call process.exit(2).
+test("verifyLoads returns blocked status when artifact recomputes to blocked (stored blocked)", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  openCase({
+    root,
+    caseSlug: "2026-05-17-verify-loads-blocked-exit",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+  // Record a blocked artifact.
+  recordLoads({
+    root,
+    caseSlug: "2026-05-17-verify-loads-blocked-exit",
+    loaded: ["agents/investigator/prompt.md"],
+    deferred: [],
+    allowAdditional: false,
+    force: false,
+  });
+
+  const result = verifyLoads(root, "2026-05-17-verify-loads-blocked-exit");
+  assert.equal(result.status, "blocked");
+  assert.ok(result.blockingIssues.length > 0);
+});
+
 test("capabilities includes new operations and options", () => {
   const result = capabilities();
   assert.ok(result.supported.includes("record-loads"));

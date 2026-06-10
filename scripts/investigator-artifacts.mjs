@@ -578,6 +578,12 @@ function loadsStatus(root, proposedLoads, loaded, deferred, additionalAllowed) {
     }
   }
 
+  // A path must not appear in both loaded and deferred.
+  const overlap = loaded.filter((p) => deferredPaths.has(p));
+  if (overlap.length > 0) {
+    issues.push(`path(s) appear in both loaded and deferred: ${overlap.join(", ")}`);
+  }
+
   // Every loaded path must exist under the repo root.
   for (const loadedPath of loaded) {
     try {
@@ -893,16 +899,17 @@ function caseStatus(args) {
       `${baseCmd} open-case ${rootFlag} ${slugFlag} --framing-json <path-to-framing-json> --proposed-load agents/investigator/prompt.md --proposed-load agents/investigator/harness.md`,
     );
   } else if (phase === "intake") {
-    // Intake present but failing — show re-run without --force (caveat goes in issues).
+    // Intake present but failing — show re-run with --force; approval requirement goes in blockingIssues.
     nextCommands.push(
-      `${baseCmd} open-case ${rootFlag} ${slugFlag} --framing-json <path-to-framing-json> --proposed-load agents/investigator/prompt.md --proposed-load agents/investigator/harness.md`,
+      `${baseCmd} open-case ${rootFlag} ${slugFlag} --framing-json <path-to-framing-json> --proposed-load agents/investigator/prompt.md --proposed-load agents/investigator/harness.md --force`,
     );
     blockingIssues.push(
-      "open-case refuses to overwrite without --force; only use it if the user asked to replace the intake",
+      "Replacing existing intake artifacts requires explicit user approval (repo policy: --force on open-case only when the user asked)",
     );
   } else if (phase === "loads") {
+    const forceFlag = loadsResult.present ? " --force" : "";
     nextCommands.push(
-      `${baseCmd} record-loads ${rootFlag} ${slugFlag} --loaded agents/investigator/prompt.md --loaded agents/investigator/harness.md`,
+      `${baseCmd} record-loads ${rootFlag} ${slugFlag} --loaded agents/investigator/prompt.md --loaded agents/investigator/harness.md${forceFlag}`,
     );
   } else if (phase === "ledger-pending") {
     nextCommands.push(
@@ -964,10 +971,9 @@ function initializeTurnLedger(args) {
   verifyJournalHasClaimTable(paths.journalPath);
 
   // Gate: Step 2 loads must be recorded and passing before the ledger can be initialized.
-  // Only fires when the ledger doesn't already exist (existing cases are unaffected).
-  if (!fs.existsSync(paths.turnLogPath) && !fs.existsSync(paths.turnStatePath)) {
-    requirePassingLoads(root, args.caseSlug);
-  }
+  // Fires unconditionally — including on --force re-initialization — so a weak agent
+  // cannot learn that --force bypasses the gate.
+  requirePassingLoads(root, args.caseSlug);
 
   fs.mkdirSync(paths.workflowDir, { recursive: true });
   if (!args.force && (fs.existsSync(paths.turnLogPath) || fs.existsSync(paths.turnStatePath))) {
@@ -1777,7 +1783,7 @@ function main() {
       const root = resolveRepoRoot(args.root);
       const result = verifyLoads(root, args.caseSlug);
       process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
-      return;
+      process.exit(result.status === "pass" ? 0 : 2);
     }
     if (args.command === "status") {
       const result = caseStatus(args);
