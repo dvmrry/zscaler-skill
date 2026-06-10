@@ -15,6 +15,7 @@ import {
   loadsStatus,
   openCase,
   recordLoads,
+  runTurn,
   saveJournal,
   verifyCaseFiles,
   verifyLoads,
@@ -3035,4 +3036,549 @@ test("save-journal integration: stub journal case → save-journal full journal 
   // Now initializeTurnLedger must succeed.
   const ledgerResult = initializeTurnLedger({ root, caseSlug: openResult.caseSlug });
   assert.equal(ledgerResult.status, "pass");
+});
+
+// ── run-turn tests ────────────────────────────────────────────────────────────
+
+/**
+ * Returns a valid turn-input object for run-turn / complete-turn that works with
+ * the standard VALID_JOURNAL_CONTENT that has "H1: Segment missing".
+ * The journal must be mutated (claim status changed) so the hash differs.
+ */
+function makeValidRunTurnInput(root) {
+  const inputPath = writeJson(root, `turn-input-${Date.now()}.json`, {
+    actionType: "load-file",
+    actionSummary: "Checked one evidence source.",
+    touchedClaims: ["H1: Segment missing"],
+    evidenceRefs: ["E1"],
+    allowedNext: ["continue-top-open", "pause"],
+  });
+  return inputPath;
+}
+
+/**
+ * Updated journal content: same as VALID_JOURNAL_CONTENT but with a mutated claim.
+ */
+const UPDATED_JOURNAL_CONTENT = VALID_JOURNAL_CONTENT.replace(
+  "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check app segment | 2026-06-10T00:00:00Z | reference-grounded |",
+  "| H1: Segment missing | references/zpa/app-segments.md | Confirmed (high) | n/a | 2026-06-10T01:00:00Z | confirmed |",
+);
+
+function createCaseWithLedger() {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  const openResult = openCase({
+    root,
+    caseSlug: `2026-06-10-run-turn-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+  const tmpPath = writeTempJournal(VALID_JOURNAL_CONTENT);
+  saveJournal({ root, caseSlug: openResult.caseSlug, contentFile: tmpPath });
+  recordLoads({
+    root,
+    caseSlug: openResult.caseSlug,
+    loaded: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+    deferred: [],
+    allowAdditional: false,
+    force: false,
+  });
+  initializeTurnLedger({ root, caseSlug: openResult.caseSlug });
+  return { root, caseSlug: openResult.caseSlug };
+}
+
+test("run-turn happy path: ledger advances identically to manual begin/save/complete", () => {
+  // Set up two twin fixtures and run each path to compare key fields.
+  function makeFixture() {
+    const root = tempRepo();
+    const framingPath = writeJson(root, "framing.json", {
+      workingDirectory: root,
+      symptom: "ZPA users cannot reach wiki.internal",
+      tenantCloud: "zs2",
+      products: ["zpa"],
+      scope: "many users",
+    });
+    const caseSlug = "2026-06-10-twin-fixture";
+    openCase({
+      root,
+      caseSlug,
+      framingJson: framingPath,
+      proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+    });
+    const tmpPath = writeTempJournal(VALID_JOURNAL_CONTENT);
+    saveJournal({ root, caseSlug, contentFile: tmpPath });
+    recordLoads({
+      root,
+      caseSlug,
+      loaded: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+      deferred: [],
+      allowAdditional: false,
+      force: false,
+    });
+    initializeTurnLedger({ root, caseSlug });
+    return { root, caseSlug };
+  }
+
+  // Twin A: manual begin → save → complete.
+  const { root: rootA, caseSlug: slugA } = makeFixture();
+  const journalPath = path.join(rootA, "_data/cases", slugA, "journal.md");
+  const pendingA = beginTurn({ root: rootA, caseSlug: slugA, userAction: "continue-top-open" }).pendingTurn;
+  const tmpA = writeTempJournal(UPDATED_JOURNAL_CONTENT);
+  saveJournal({ root: rootA, caseSlug: slugA, contentFile: tmpA });
+  const inputPathA = makeValidRunTurnInput(rootA);
+  const resultA = completeTurn({ root: rootA, caseSlug: slugA, turnInputJson: inputPathA });
+
+  // Twin B: single run-turn.
+  const { root: rootB, caseSlug: slugB } = makeFixture();
+  const tmpB = writeTempJournal(UPDATED_JOURNAL_CONTENT);
+  const inputPathB = makeValidRunTurnInput(rootB);
+  const resultB = runTurn({
+    root: rootB,
+    caseSlug: slugB,
+    userAction: "continue-top-open",
+    journalFile: tmpB,
+    turnInputJson: inputPathB,
+  });
+
+  // Both should advance to sequence 1.
+  assert.equal(resultA.event.sequence, 1);
+  assert.equal(resultB.event.sequence, 1);
+
+  // userAction, actionType, touchedClaims must match.
+  assert.equal(resultA.event.userAction, resultB.event.userAction);
+  assert.equal(resultA.event.actionType, resultB.event.actionType);
+  assert.deepEqual(resultA.event.touchedClaims, resultB.event.touchedClaims);
+
+  // journalHashBefore must equal the pre-existing on-disk journal hash in both.
+  // Since twin fixtures are identically constructed, both journalHashBefore values should match.
+  assert.equal(resultA.event.journalHashBefore, resultB.event.journalHashBefore);
+
+  // journalHashAfter must match (same new content applied).
+  assert.equal(resultA.event.journalHashAfter, resultB.event.journalHashAfter);
+
+  // State must agree: no pendingTurn, sequence 1.
+  assert.equal(resultA.state.currentSequence, 1);
+  assert.equal(resultB.state.currentSequence, 1);
+  assert.equal(resultA.state.pendingTurn, null);
+  assert.equal(resultB.state.pendingTurn, null);
+
+  // run-turn result includes journalPath and journalHash fields.
+  assert.ok(resultB.journalPath.endsWith("journal.md"));
+  assert.ok(resultB.journalHash.startsWith("sha256:"));
+});
+
+test("run-turn atomicity: bad actionType leaves no pendingTurn, journal unchanged, sequence unchanged", () => {
+  const { root, caseSlug } = createCaseWithLedger();
+  const paths = { journalPath: path.join(root, "_data/cases", caseSlug, "journal.md") };
+  const journalBefore = fs.readFileSync(paths.journalPath, "utf8");
+  const turnStatePath = path.join(root, "_data/cases", caseSlug, "workflow/02-turn-state.json");
+  const stateBefore = readJson(turnStatePath);
+
+  const tmpJournal = writeTempJournal(UPDATED_JOURNAL_CONTENT);
+  const badInputPath = writeJson(root, "bad-action-type.json", {
+    actionType: "record-evidence", // invalid
+    actionSummary: "Should not persist.",
+    touchedClaims: ["H1: Segment missing"],
+    evidenceRefs: [],
+    allowedNext: ["pause"],
+  });
+
+  assert.throws(
+    () => runTurn({ root, caseSlug, userAction: "continue-top-open", journalFile: tmpJournal, turnInputJson: badInputPath }),
+    /actionType is not allowed: record-evidence/,
+  );
+
+  // State untouched: no pendingTurn, same sequence.
+  const stateAfter = readJson(turnStatePath);
+  assert.equal(stateAfter.pendingTurn, null);
+  assert.equal(stateAfter.currentSequence, stateBefore.currentSequence);
+
+  // Journal on disk unchanged.
+  assert.equal(fs.readFileSync(paths.journalPath, "utf8"), journalBefore);
+});
+
+test("run-turn atomicity: invalid journal content (missing claim table) leaves nothing persisted", () => {
+  const { root, caseSlug } = createCaseWithLedger();
+  const journalPath = path.join(root, "_data/cases", caseSlug, "journal.md");
+  const journalBefore = fs.readFileSync(journalPath, "utf8");
+  const turnStatePath = path.join(root, "_data/cases", caseSlug, "workflow/02-turn-state.json");
+  const stateBefore = readJson(turnStatePath);
+  const logPath = path.join(root, "_data/cases", caseSlug, "workflow/02-turns.jsonl");
+  const logBefore = fs.readFileSync(logPath, "utf8");
+
+  const noTableContent = `# Discovery Journal\n\n## Framing\n\nno table\n\n## Resolution\n\nOpen.\n`;
+  const tmpJournal = writeTempJournal(noTableContent);
+  const inputPath = makeValidRunTurnInput(root);
+
+  assert.throws(
+    () => runTurn({ root, caseSlug, userAction: "continue-top-open", journalFile: tmpJournal, turnInputJson: inputPath }),
+    /claim table header/,
+  );
+
+  assert.equal(fs.readFileSync(journalPath, "utf8"), journalBefore);
+  assert.equal(readJson(turnStatePath).pendingTurn, null);
+  assert.equal(readJson(turnStatePath).currentSequence, stateBefore.currentSequence);
+  assert.equal(fs.readFileSync(logPath, "utf8"), logBefore);
+});
+
+test("run-turn atomicity: touchedClaims naming absent-from-new-journal claim leaves nothing persisted", () => {
+  const { root, caseSlug } = createCaseWithLedger();
+  const journalPath = path.join(root, "_data/cases", caseSlug, "journal.md");
+  const journalBefore = fs.readFileSync(journalPath, "utf8");
+  const turnStatePath = path.join(root, "_data/cases", caseSlug, "workflow/02-turn-state.json");
+  const stateBefore = readJson(turnStatePath);
+
+  // Updated journal where H1 claim name has changed (doesn't exist as "H1: Segment missing").
+  const differentClaimContent = VALID_JOURNAL_CONTENT.replace(
+    "| H1: Segment missing |",
+    "| H2: Different claim |",
+  );
+  const tmpJournal = writeTempJournal(differentClaimContent);
+  const inputPath = writeJson(root, "bad-touched-claims.json", {
+    actionType: "load-file",
+    actionSummary: "Checked evidence.",
+    touchedClaims: ["H1: Segment missing"], // not in new journal
+    evidenceRefs: [],
+    allowedNext: ["pause"],
+  });
+
+  assert.throws(
+    () => runTurn({ root, caseSlug, userAction: "continue-top-open", journalFile: tmpJournal, turnInputJson: inputPath }),
+    /touched claim is not present in journal\.md/,
+  );
+
+  assert.equal(fs.readFileSync(journalPath, "utf8"), journalBefore);
+  assert.equal(readJson(turnStatePath).pendingTurn, null);
+  assert.equal(readJson(turnStatePath).currentSequence, stateBefore.currentSequence);
+});
+
+test("run-turn: touchedClaims present in new journal but absent from old on-disk journal passes", () => {
+  // Start with old journal that has H1: Segment missing.
+  // New journal content introduces H2: New claim instead.
+  // The turn references H2 which is only in the new journal — should PASS.
+  const { root, caseSlug } = createCaseWithLedger();
+
+  // New journal has only H2.
+  const newClaimContent = VALID_JOURNAL_CONTENT.replace(
+    "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check app segment | 2026-06-10T00:00:00Z | reference-grounded |",
+    "| H2: New claim | references/zpa/app-segments.md | Confirmed (high) | n/a | 2026-06-10T01:00:00Z | confirmed |",
+  );
+  const tmpJournal = writeTempJournal(newClaimContent);
+  const inputPath = writeJson(root, "new-claim-input.json", {
+    actionType: "load-file",
+    actionSummary: "Confirmed H2 from reference.",
+    touchedClaims: ["H2: New claim"], // only in new journal, not in old
+    evidenceRefs: [],
+    allowedNext: ["pause"],
+  });
+
+  // Should succeed: validation is against the NEW journal content.
+  const result = runTurn({
+    root,
+    caseSlug,
+    userAction: "continue-top-open",
+    journalFile: tmpJournal,
+    turnInputJson: inputPath,
+  });
+  assert.equal(result.status, "pass");
+  assert.deepEqual(result.event.touchedClaims, ["H2: New claim"]);
+});
+
+test("run-turn: open pendingTurn refuses with status-pointing message; state untouched", () => {
+  const { root, caseSlug } = createCaseWithLedger();
+  // Open a pending turn with begin-turn.
+  const begun = beginTurn({ root, caseSlug, userAction: "continue-top-open" });
+  const turnStatePath = path.join(root, "_data/cases", caseSlug, "workflow/02-turn-state.json");
+  const stateBefore = readJson(turnStatePath);
+
+  const tmpJournal = writeTempJournal(UPDATED_JOURNAL_CONTENT);
+  const inputPath = makeValidRunTurnInput(root);
+
+  assert.throws(
+    () => runTurn({ root, caseSlug, userAction: "continue-top-open", journalFile: tmpJournal, turnInputJson: inputPath }),
+    /a pending turn is already open.*run status/,
+  );
+
+  // State must be untouched.
+  const stateAfter = readJson(turnStatePath);
+  assert.deepEqual(stateAfter, stateBefore);
+});
+
+test("run-turn: request-user-evidence with evidenceRequest passes and halts as single completed turn", () => {
+  const { root, caseSlug } = createCaseWithLedger();
+
+  // New journal content with the claim still open (required for evidence handoff).
+  const tmpJournal = writeTempJournal(
+    VALID_JOURNAL_CONTENT + "\nTurn update: asked user for evidence.\n",
+  );
+  const inputPath = writeJson(root, "evidence-request-input.json", {
+    actionType: "request-user-evidence",
+    actionSummary: "Asked user for the segment configuration.",
+    touchedClaims: ["H1: Segment missing"],
+    evidenceRefs: ["user-request:segment-config"],
+    evidenceRequest: "Please provide the segment configuration export from the ZPA portal.",
+    allowedNext: ["record-user-evidence", "pause"],
+  });
+
+  const result = runTurn({
+    root,
+    caseSlug,
+    userAction: "request-user-evidence",
+    journalFile: tmpJournal,
+    turnInputJson: inputPath,
+  });
+
+  assert.equal(result.status, "pass");
+  assert.equal(result.event.actionType, "request-user-evidence");
+  assert.equal(result.event.evidenceRequest, "Please provide the segment configuration export from the ZPA portal.");
+  assert.equal(result.state.pendingTurn, null);
+});
+
+test("run-turn: mark-resolved enforces completionGate (failing case)", () => {
+  const { root, caseSlug } = createCaseWithLedger();
+
+  // New journal still has an open claim — should fail.
+  const tmpJournal = writeTempJournal(VALID_JOURNAL_CONTENT + "\nTurn update: tried to resolve.\n");
+  const inputPath = writeJson(root, "bad-resolve-input.json", {
+    actionType: "mark-resolved",
+    actionSummary: "Premature resolution.",
+    touchedClaims: ["H1: Segment missing"],
+    evidenceRefs: [],
+    completionGate: {
+      rootCauseClaim: "H1: Segment missing",
+      userConfirmedResolution: true,
+      supportingEvidenceRefs: ["E1"],
+    },
+    allowedNext: ["pause"],
+  });
+
+  assert.throws(
+    () => runTurn({ root, caseSlug, userAction: "mark-resolved", journalFile: tmpJournal, turnInputJson: inputPath }),
+    /requires no open claims/,
+  );
+});
+
+test("run-turn: mark-resolved enforces completionGate (passing case)", () => {
+  const { root, caseSlug } = createCaseWithLedger();
+
+  // First: record a prior evidence turn so the supportingEvidenceRef is recorded.
+  const evidenceTmpJournal = writeTempJournal(
+    VALID_JOURNAL_CONTENT.replace("Open (uncertain)", "Confirmed (high)") + "\nTurn update: evidence recorded.\n",
+  );
+  const evidenceTmpFile = writeTempJournal(VALID_JOURNAL_CONTENT);
+  saveJournal({ root, caseSlug, contentFile: evidenceTmpFile }); // need journal saved via save-journal so initializeTurnLedger is already done
+  const evidenceInputPath = writeJson(root, "evidence-rec-input.json", {
+    actionType: "record-user-evidence",
+    actionSummary: "Recorded supporting evidence.",
+    touchedClaims: ["H1: Segment missing"],
+    evidenceRefs: ["_data/cases/example/evidence/confirm.md"],
+    allowedNext: ["mark-resolved", "pause"],
+  });
+  const e1Result = runTurn({
+    root,
+    caseSlug,
+    userAction: "record-user-evidence",
+    journalFile: evidenceTmpJournal,
+    turnInputJson: evidenceInputPath,
+  });
+  assert.equal(e1Result.status, "pass");
+
+  // Now mark-resolved turn with no open claims and supporting evidence from prior turn.
+  const resolvedJournalContent =
+    VALID_JOURNAL_CONTENT
+      .replace("Open (uncertain)", "Confirmed (high)")
+      .replace("Open.", "Resolved.") +
+    "\nTurn update: user confirmed resolution.\n";
+  const resolveTmpJournal = writeTempJournal(resolvedJournalContent);
+  const resolveInputPath = writeJson(root, "resolve-input.json", {
+    actionType: "mark-resolved",
+    actionSummary: "User confirmed the fix holds.",
+    touchedClaims: ["H1: Segment missing"],
+    evidenceRefs: ["_data/cases/example/evidence/confirm.md"],
+    completionGate: {
+      rootCauseClaim: "H1: Segment missing",
+      userConfirmedResolution: true,
+      supportingEvidenceRefs: ["_data/cases/example/evidence/confirm.md"],
+    },
+    allowedNext: ["pause"],
+  });
+
+  const result = runTurn({
+    root,
+    caseSlug,
+    userAction: "mark-resolved",
+    journalFile: resolveTmpJournal,
+    turnInputJson: resolveInputPath,
+  });
+  assert.equal(result.status, "pass");
+  assert.equal(result.event.actionType, "mark-resolved");
+  assert.ok(result.event.completionGate);
+  assert.equal(result.state.pendingTurn, null);
+});
+
+// ── initialize-turn-ledger --journal-file tests ───────────────────────────────
+
+test("initialize-turn-ledger --journal-file: stub journal on disk + valid content file saves journal AND initializes ledger", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  const openResult = openCase({
+    root,
+    caseSlug: "2026-06-10-ledger-with-journal-file",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+  recordLoads({
+    root,
+    caseSlug: openResult.caseSlug,
+    loaded: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+    deferred: [],
+    allowAdditional: false,
+    force: false,
+  });
+
+  // Journal is still stub (no claim table) — initializeTurnLedger without --journal-file would fail.
+  assert.throws(
+    () => initializeTurnLedger({ root, caseSlug: openResult.caseSlug }),
+    /Step 1 stub/,
+  );
+
+  // Now run with --journal-file.
+  const tmpPath = writeTempJournal(VALID_JOURNAL_CONTENT);
+  const result = initializeTurnLedger({ root, caseSlug: openResult.caseSlug, journalFile: tmpPath });
+
+  assert.equal(result.status, "pass");
+  assert.ok(fs.existsSync(result.turnLogPath));
+  assert.ok(fs.existsSync(result.turnStatePath));
+
+  // Journal must be saved.
+  const journalPath = path.join(root, "_data/cases", openResult.caseSlug, "journal.md");
+  const onDisk = fs.readFileSync(journalPath, "utf8");
+  assert.equal(onDisk, VALID_JOURNAL_CONTENT);
+
+  // Ledger must be initialized.
+  const state = readJson(result.turnStatePath);
+  assert.equal(state.currentSequence, 0);
+  assert.equal(state.pendingTurn, null);
+  assert.ok(state.nextTurnToken);
+});
+
+test("initialize-turn-ledger --journal-file: invalid content refuses before any write", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  const openResult = openCase({
+    root,
+    caseSlug: "2026-06-10-ledger-invalid-journal-file",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+  recordLoads({
+    root,
+    caseSlug: openResult.caseSlug,
+    loaded: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+    deferred: [],
+    allowAdditional: false,
+    force: false,
+  });
+
+  const stubContent = fs.readFileSync(openResult.journalPath, "utf8");
+  const badContent = `# Discovery Journal\n\n## Framing\n\nno table\n\n## Resolution\n\nOpen.\n`;
+  const tmpPath = writeTempJournal(badContent);
+
+  assert.throws(
+    () => initializeTurnLedger({ root, caseSlug: openResult.caseSlug, journalFile: tmpPath }),
+    /claim table header/,
+  );
+
+  // Journal on disk must be unchanged (still the stub).
+  assert.equal(fs.readFileSync(openResult.journalPath, "utf8"), stubContent);
+
+  // Ledger must not exist.
+  const turnStatePath = path.join(root, "_data/cases", openResult.caseSlug, "workflow/02-turn-state.json");
+  assert.equal(fs.existsSync(turnStatePath), false);
+});
+
+test("initialize-turn-ledger --journal-file: missing loads artifact refuses before writing journal", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  const openResult = openCase({
+    root,
+    caseSlug: "2026-06-10-ledger-no-loads-journal-file",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+  // No record-loads call — loads artifact is missing.
+
+  const stubContent = fs.readFileSync(openResult.journalPath, "utf8");
+  const tmpPath = writeTempJournal(VALID_JOURNAL_CONTENT);
+
+  assert.throws(
+    () => initializeTurnLedger({ root, caseSlug: openResult.caseSlug, journalFile: tmpPath }),
+    /Step 2 loads not recorded/,
+  );
+
+  // Journal must be unchanged (the loads gate fired before the write).
+  assert.equal(fs.readFileSync(openResult.journalPath, "utf8"), stubContent);
+});
+
+// ── status: turn-ready nextCommands contains run-turn ────────────────────────
+
+test("status turn-ready: nextCommands contains run-turn as the first suggestion", () => {
+  const { root, caseSlug } = createCaseWithLedger();
+  const result = caseStatus({ root, caseSlug });
+  assert.equal(result.phase, "turn-ready");
+
+  const runTurnCmd = result.nextCommands.find((c) => c.includes("run-turn"));
+  assert.ok(runTurnCmd, "expected a run-turn command in nextCommands");
+  assert.ok(runTurnCmd.includes("--user-action"), "run-turn command should include --user-action");
+  assert.ok(runTurnCmd.includes("--journal-file"), "run-turn command should include --journal-file");
+  assert.ok(runTurnCmd.includes("--turn-input-json"), "run-turn command should include --turn-input-json");
+
+  // begin-turn is still present as the second suggestion (for evidence-import turns).
+  const beginTurnCmd = result.nextCommands.find((c) => c.includes("begin-turn"));
+  assert.ok(beginTurnCmd, "expected a begin-turn command in nextCommands");
+
+  // run-turn should appear before begin-turn.
+  const runTurnIdx = result.nextCommands.findIndex((c) => c.includes("run-turn"));
+  const beginTurnIdx = result.nextCommands.findIndex((c) => c.includes("begin-turn"));
+  assert.ok(runTurnIdx < beginTurnIdx, "run-turn should appear before begin-turn");
+});
+
+// ── capabilities includes run-turn ───────────────────────────────────────────
+
+test("capabilities: run-turn is listed in supported operations and options", () => {
+  const result = capabilities();
+  assert.ok(result.supported.includes("run-turn"), "run-turn must be in supported");
+  const opts = result.supportedOptions["run-turn"];
+  assert.ok(opts, "run-turn must have supportedOptions entry");
+  assert.ok(opts.includes("--user-action"));
+  assert.ok(opts.includes("--journal-file"));
+  assert.ok(opts.includes("--turn-input-json"));
+  // initialize-turn-ledger must also list --journal-file.
+  const ledgerOpts = result.supportedOptions["initialize-turn-ledger"];
+  assert.ok(ledgerOpts, "initialize-turn-ledger must have supportedOptions entry");
+  assert.ok(ledgerOpts.includes("--journal-file"));
 });

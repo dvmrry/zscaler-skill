@@ -3,7 +3,7 @@ role: investigator
 artifact: harness
 title: "Investigator harness — checkpoint and phase contract"
 content-type: prompt
-last-verified: "2026-06-09"
+last-verified: "2026-06-10"
 confidence: high
 source-tier: practice
 sources:
@@ -157,11 +157,13 @@ Template:
 ```
 
 Only emit these artifact paths after
-`node scripts/investigator-artifacts.mjs open-case` creates them and
-`node scripts/investigator-artifacts.mjs verify-case` verifies a passing
-case intake. If creation or verification fails, emit `Case intake not ready:
-<reason>` and make fixing the case intake artifact the next checkpoint
-option.
+`node scripts/investigator-artifacts.mjs open-case` exits 0 with
+`status: "pass"`. `open-case` already writes and reads back all artifacts;
+a `status: "pass"` response is the verification. `verify-case` is for
+resuming an existing case or re-checking after repair — do not require a
+separate `verify-case` run in the same Step 1 turn. If `open-case` fails,
+emit `Case intake not ready: <reason>` and make fixing the case intake
+artifact the next checkpoint option.
 
 Render the `**Proposed loads**` list from the verified `case-intake.json`.
 Do not add, remove, or rewrite paths in chat after `verify-case`. If the list is
@@ -247,6 +249,10 @@ If the helper exits non-zero or errors, emit:
 and make retrying the helper the next checkpoint option. **Checkpoint 2 cannot
 fire without a passing loads artifact.**
 
+`verify-loads` is a resume/repair command. Do not require it in the same turn
+after a passing `record-loads`; run it only when resuming an existing case or
+re-checking after a repair.
+
 The closing menu is Checkpoint 2. Halt after it. Do not output a journal,
 generate hypotheses, or run Step 3 before the user confirms.
 
@@ -279,7 +285,23 @@ Template:
 ```
 
 The closing menu is Checkpoint 3. Halt after it. First response is a plan, not
-a diagnosis. Before emitting Checkpoint 3, initialize the turn ledger:
+a diagnosis. Before emitting Checkpoint 3, render the journal to a temp file
+and initialize the turn ledger in one press:
+
+```bash
+node scripts/investigator-artifacts.mjs initialize-turn-ledger \
+  --root <working-dir> \
+  --case-slug <slug> \
+  --journal-file <temp-path>
+```
+
+This saves the journal and initializes the ledger atomically. `--journal-file`
+validates the journal content, runs the loads gate, writes the journal, then
+initializes the ledger. If the journal content is invalid or loads are not
+passing, nothing is written.
+
+If you need to save the journal and initialize separately (e.g. journal was
+already saved), run `initialize-turn-ledger` without `--journal-file`:
 
 ```bash
 node scripts/investigator-artifacts.mjs initialize-turn-ledger \
@@ -316,8 +338,26 @@ turn or modify the journal until the pending turn is resolved. A failing helper
 gate is never repaired by hand-editing case artifacts; surface the helper's error
 text and follow its instructions.
 
-Every post-Step-3 controller turn is a helper-bracketed transaction. Before
-reading new evidence, updating claims, or recording a user-provided result, run:
+Every post-Step-3 controller turn is a helper-bracketed transaction. The
+canonical single-press form is `run-turn`: perform the investigation action,
+render the updated journal to a temp file, write the turn input JSON, then:
+
+```bash
+node scripts/investigator-artifacts.mjs run-turn \
+  --root <working-dir> \
+  --case-slug <slug> \
+  --user-action <continue-top-open|investigate-different-claim|request-user-evidence|record-user-evidence|add-evidence|mark-resolved|pause> \
+  --journal-file <path-to-rendered-updated-journal> \
+  --turn-input-json <path-to-agent-owned-turn-fields>
+```
+
+`run-turn` validates everything first, then writes the journal and ledger
+atomically. If anything is invalid, nothing is persisted — there is no pending
+turn to clean up. Fix the reported problem and rerun `run-turn`.
+
+Use the split `begin-turn` / `save-journal` / `complete-turn` form when:
+- The turn needs `import-evidence` (which requires an open `pendingTurn`).
+- Resuming or repairing after a failure that left state mid-transaction.
 
 ```bash
 node scripts/investigator-artifacts.mjs begin-turn \
@@ -409,9 +449,9 @@ node scripts/investigator-artifacts.mjs complete-turn \
 `mark-resolved`, or `pause`. Do not invent synonyms such as
 `record-evidence`.
 
-If `begin-turn` succeeded but the chosen action becomes blocked before any
-journal mutation, do not leave the case wedged with an open `pendingTurn`.
-Run:
+When using the split form: if `begin-turn` succeeded but the chosen action
+becomes blocked before any journal mutation, do not leave the case wedged with
+an open `pendingTurn`. Run:
 
 ```bash
 node scripts/investigator-artifacts.mjs abandon-turn \
@@ -546,10 +586,11 @@ helper-backed transaction:
 2. Write the parsed framing to a JSON file.
 3. Run `node scripts/investigator-artifacts.mjs open-case` with the repo
    root, slug, framing JSON, and proposed load list.
-4. If the case intake status is `pass`, run
-   `node scripts/investigator-artifacts.mjs verify-case`.
-5. Only after verification succeeds, emit the case intake, case intake JSON,
-   and journal paths in the Step 1 output.
+4. Only after `open-case` exits 0 with `status: "pass"`, emit the case
+   intake, case intake JSON, and journal paths in the Step 1 output.
+   `open-case` already writes and reads back all artifacts; no separate
+   `verify-case` is needed in the same turn. Run `verify-case` only to
+   resume an existing case or re-check after repair.
 
 Do this before Checkpoint 1. `case-intake.md`,
 `case-intake.json`, and `journal.md` must exist from
@@ -712,8 +753,9 @@ Some runtimes' native file-write tools refuse gitignored paths. `_data/` is
 deliberately gitignored as a privacy posture. NEVER edit `.gitignore` to enable
 a write — use `save-journal` (or a shell write as the fallback below) instead.
 
-Render the full journal to a temp file, then run the `save-journal` helper,
-which performs the write, readback, and marker verification in one atomic step:
+Render the full journal to a temp file. If using the compound Step 3 command
+(`initialize-turn-ledger --journal-file`), pass the temp path there — the
+journal save is included. If saving standalone, use the `save-journal` helper:
 
 ```bash
 node scripts/investigator-artifacts.mjs save-journal \
@@ -722,7 +764,8 @@ node scripts/investigator-artifacts.mjs save-journal \
   --content-file <temp-path>
 ```
 
-Only after the helper exits 0, emit `Journal saved: <journal_path>`.
+`save-journal` performs the write, readback, and marker verification in one
+atomic step. Only after it exits 0, emit `Journal saved: <journal_path>`.
 
 If the helper is unavailable, perform the manual write/readback/marker
 transaction through the runtime's SHELL instead.
@@ -732,11 +775,15 @@ Checkpoint 3 cannot fire.
 
 ### Initialize Turn Ledger
 
-After the journal save verification succeeds, initialize the helper-owned turn
-ledger before presenting Checkpoint 3. This creates
+After the journal is saved, initialize the helper-owned turn ledger before
+presenting Checkpoint 3. This creates
 `_data/cases/<slug>/workflow/02-turns.jsonl` and
 `_data/cases/<slug>/workflow/02-turn-state.json`. Subsequent turns are not
 valid unless this ledger exists and `begin-turn` succeeds.
+
+Prefer the compound `initialize-turn-ledger --journal-file <temp-path>` form
+described in the Step 3 template above: it saves the journal and initializes
+the ledger in one command.
 
 ## Chain Traversal
 
