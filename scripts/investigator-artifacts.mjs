@@ -382,7 +382,9 @@ function journalClaimStatuses(journalPath) {
 
 function validateActionType(actionType) {
   if (!VALID_ACTION_TYPES.has(actionType)) {
-    throw new Error(`turn-json actionType is not allowed: ${actionType}`);
+    throw new Error(
+      `turn-json actionType is not allowed: ${actionType}. Valid actionType values: ${[...VALID_ACTION_TYPES].join(", ")}. actionType is not the begin-turn --user-action value.`,
+    );
   }
 }
 
@@ -1744,7 +1746,7 @@ function openCase(args) {
     }
     if (!existingIntakeIsBlocked) {
       throw new Error(
-        `case artifacts already exist with a passing intake; use verify-case to resume, or rerun open-case with --force only if the user asked to replace them: ${existingArtifacts.join(", ")}`,
+        `case artifacts already exist with a passing intake; use verify-case to resume, or rerun open-case with --force only if the user asked to replace them; to start a NEW investigation, choose a different --case-slug: ${existingArtifacts.join(", ")}`,
       );
     }
     // existingIntakeIsBlocked — allow the overwrite silently.

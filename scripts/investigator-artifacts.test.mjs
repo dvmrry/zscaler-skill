@@ -1130,7 +1130,7 @@ test("completeTurn rejects non-canonical action types", () => {
 
   assert.throws(
     () => completeTurn({ root, caseSlug, turnJson: turnPath }),
-    /actionType is not allowed: record-evidence/,
+    /actionType is not allowed: record-evidence.*Valid actionType values: .*load-file.*not the begin-turn --user-action value/,
   );
 });
 
