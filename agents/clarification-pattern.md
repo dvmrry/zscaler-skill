@@ -2,12 +2,13 @@
 topic: "clarification-pattern"
 title: "Clarification pattern — multiple-choice questions for closed-set decisions"
 content-type: reference
-last-verified: "2026-05-06"
+last-verified: "2026-06-09"
 confidence: medium
 source-tier: practice
 sources:
   - "Internal UX practice — multiple-choice clarifications with a free-text escape are a near-universal AI-chat pattern"
   - "agents/loading-discipline.md (parallel cross-cutting discipline pattern)"
+  - "Cascade bridge runtime test 3 (2026-05-09) — confirm-a-default example reproduced verbatim with fabricated basis when framing had no cloud signal"
 author-status: draft
 ---
 
@@ -71,18 +72,29 @@ When SOC scope is given without an explicit subtype, the agent infers — but sh
 
 Four options drawn from the closed set defined in `agents/soc/prompt.md`, plus the escape. If the user picks `Other`, the scope is non-standard — useful signal in itself.
 
-### `/z-investigator` assumption confirmation
+### `/z-investigator` tenant-cloud clarification
 
-Step 1 parses the user's framing and lists assumptions to confirm. Each assumption is a clarification:
+Step 1 parses the user's framing. When a blocking field such as the tenant cloud is missing, ask an open choice — do not invent a default:
 
-> I assumed the tenant cloud is `zs3` based on the API base URL. Confirm:
+> I cannot determine the tenant cloud from your framing. It selects the snapshot path for Step 2.
+>
+> - `zs1`
+> - `zs2`
+> - `zs3`
+> - Other — specify
+
+Use the confirm-a-default variant **only when the framing itself contains the evidence for the default** — for example an API base URL (`zsapi.zscalerthree.net` ⇒ `zs3`):
+
+> The API base URL in your framing maps to `zs3`. Confirm:
 >
 > - Yes — proceed with `zs3`
 > - No — actually `zs1`
 > - No — actually `zs2`
 > - Other — specify
 
-Common clouds plus escape; keep the concrete options scoped to what the framing makes plausible. Avoids ambiguity from free-text replies like *"yes that's right"* or *"no I meant the other one"*.
+If you cannot point at the literal token in the framing that justifies the default, the open-choice form is the only valid one. Runtime testing has caught weak models reproducing the confirm-a-default wording verbatim against framings with no cloud signal at all — fabricating a basis ("based on the API base URL") that the user then confirms, sending the investigation into the wrong cloud. The example's format is the template; its content is conditional on evidence.
+
+Both forms avoid ambiguity from free-text replies like *"yes that's right"* or *"no I meant the other one"*.
 
 ## Anti-patterns
 
