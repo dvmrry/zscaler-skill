@@ -455,13 +455,17 @@ _data/cases/<slug>/workflow/01-loaded-set.json
 
 ### Helper Commands
 
-```bash
-node scripts/investigator-artifacts.mjs record-loaded-set \
+> **Superseded design sketch** — `record-loaded-set` and `verify-loaded-set`
+> shipped as `record-loads` and `verify-loads` in v0.3.0. The original names
+> below are kept for historical reference only.
+
+```text
+node scripts/investigator-artifacts.mjs record-loads \
   --root <repo-root> \
   --case-slug <slug> \
   --loaded-set-json <file>
 
-node scripts/investigator-artifacts.mjs verify-loaded-set \
+node scripts/investigator-artifacts.mjs verify-loads \
   --root <repo-root> \
   --case-slug <slug>
 ```
@@ -489,8 +493,11 @@ node scripts/investigator-artifacts.mjs verify-loaded-set \
 
 If needed later, add helper-owned reads:
 
-```bash
-node scripts/investigator-artifacts.mjs load-file \
+> **Superseded design sketch** — `load-file` was not shipped; file-load
+> recording is handled by `record-loads`.
+
+```text
+node scripts/investigator-artifacts.mjs record-loads \
   --root <repo-root> \
   --case-slug <slug> \
   --path <repo-relative-path>
@@ -614,8 +621,11 @@ Before an investigation emits RCA/retro output, require:
 
 ### Possible Command
 
-```bash
-node scripts/investigator-artifacts.mjs verify-completion \
+> **Superseded design sketch** — `verify-completion` was not shipped; the
+> `status` command covers completion-state inspection.
+
+```text
+node scripts/investigator-artifacts.mjs status \
   --root <repo-root> \
   --case-slug <slug>
 ```

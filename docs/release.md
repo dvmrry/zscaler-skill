@@ -16,8 +16,10 @@ Use conventional commit prefixes for changes that should affect release notes:
 
 - `feat:` for user-visible additions.
 - `fix:` for user-visible bug fixes.
-- `docs:`, `chore:`, `test:`, or `ci:` for maintenance changes that usually do
-  not bump the release by themselves.
+- `docs:` for documentation changes — these cut releases (v0.4.6 was cut by a
+  docs commit; release-please-config.json marks `docs` as a visible section).
+- `chore:`, `test:`, or `ci:` for maintenance changes that do not bump the
+  release by themselves.
 - Use `!` or a `BREAKING CHANGE:` footer only for incompatible changes.
 
 While the project is pre-1.0, breaking changes bump the minor version. Normal
@@ -39,10 +41,14 @@ the marker.
 4. Merge the release PR.
 5. Release Please creates the GitHub release and `vX.Y.Z` tag.
 
-Release PRs must still receive the normal hygiene check before merge. If a
-metadata-only release PR reports no checks, add or repair a release-process doc
-change so branch protection evaluates the release boundary instead of merging
-unchecked metadata.
+Release PRs must still receive the normal hygiene check before merge. The
+release PR check behavior depends on token configuration:
+
+- With `RELEASE_PLEASE_TOKEN` set to a fine-grained PAT (see
+  `release-please.yml`), the release PR triggers required checks normally.
+- Without it, the bot-created PR uses the default `GITHUB_TOKEN`, which cannot
+  trigger required checks on its own PRs. Admin-merge is the standing procedure
+  in that case.
 
 Do not hand-edit tags for ordinary releases. Use manual tags only for historical
 backfills or repairs, and record that decision in the release PR or issue.

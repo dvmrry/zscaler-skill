@@ -73,9 +73,9 @@ node scripts/investigator-artifacts.mjs verify-case \
   --case-slug <slug>
 ```
 
-The helper uses only Node standard libraries. It is intentionally small so
-runtime adapters can invoke the same brittle boundary instead of relying on
-prose-only instruction following.
+The helper uses only Node standard libraries. It is deliberately a single
+dependency-free file so every runtime adapter invokes one stable entrypoint
+instead of relying on prose-only instruction following.
 
 ## Framing JSON
 
