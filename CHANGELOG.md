@@ -4,6 +4,15 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.7.0](https://github.com/dvmrry/zscaler-skill/compare/v0.6.0...v0.7.0) (2026-06-12)
+
+
+### Features
+
+* **investigator:** forge-lineage-5 hardening — no force over MCP, archiving re-init, evidence-gated claim transitions ([#96](https://github.com/dvmrry/zscaler-skill/issues/96)) ([490d5f3](https://github.com/dvmrry/zscaler-skill/commit/490d5f3b26efbcbc2ece86b9b0f51bc9b4450815))
+* **investigator:** MCP 2025-11-25 conformance + resources + prompts ([#98](https://github.com/dvmrry/zscaler-skill/issues/98)) ([2e16166](https://github.com/dvmrry/zscaler-skill/commit/2e16166f6ccf86565c431c084d3631a9f53e0eed))
+* **investigator:** MCP-first transport selection in the canonical workflow entry path ([#99](https://github.com/dvmrry/zscaler-skill/issues/99)) ([f40cbf2](https://github.com/dvmrry/zscaler-skill/commit/f40cbf267353634bccefcb9607ca933774aaf910))
+
 ## [0.6.0](https://github.com/dvmrry/zscaler-skill/compare/v0.5.3...v0.6.0) (2026-06-12)
 
 
