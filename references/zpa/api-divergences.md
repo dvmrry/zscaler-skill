@@ -12,7 +12,7 @@ sources:
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/**"
   - "vendor/zscaler-sdk-python/zscaler/zpa/**"
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
-  - "Field observations relayed from the maintainer's zscaler-as-code IaC repo (tools/MINING.md; not vendored here)"
+  - "Operator field observations from production ZPA-via-Terraform usage (not reproducible from the vendored sources)"
 author-status: draft
 ---
 
@@ -20,11 +20,11 @@ author-status: draft
 
 The Go SDK, the Python SDK, and the Postman collection are three independent views of the same ZPA management API, each produced separately and updated at different cadences. Where they agree, confidence is high. Where they diverge, an engineer needs to know which source to trust before writing code — and the answer changes by field, endpoint, and resource type.
 
-Field observations relayed from the maintainer's live-tenant IaC repo (`MINING.md` and associated test files) add a fourth signal: actual API behavior encountered in production. Those observations can corroborate or contradict the SDK and collection claims, but cannot be reproduced from these sources alone and are flagged accordingly.
+Operator field observations from production ZPA-via-Terraform usage add a fourth signal: actual API behavior encountered in practice. Those observations can corroborate or contradict the SDK and collection claims, but cannot be reproduced from these sources alone and are flagged accordingly.
 
 **Quick trust hierarchy (applies unless an entry below overrides it):**
 
-- Live cassette / IaC field observation > Go SDK source > Python SDK docstring > Postman schema annotation
+- Live cassette / operator field observation > Go SDK source > Python SDK docstring > Postman schema annotation
 - Postman example response bodies beat Postman schema annotations when the two differ
 - Both SDKs use string for all ZPA IDs; Postman's `<long>` annotations are a Java/schema artifact — treat them as strings
 
@@ -139,13 +139,13 @@ Field observations relayed from the maintainer's live-tenant IaC repo (`MINING.m
 ### Field observations (Application Segments)
 
 **`policy_style` — string returned by API; Terraform maps to bool (corroborated)**
-All three Go SDK structs (`ApplicationSegmentResource`, `AppSegmentPRA`, `AppSegmentInspection`) carry `PolicyStyle string json:"policyStyle,omitempty"`. The API returns a string enum (`DUAL_POLICY_EVAL` or `NONE`). Any Terraform schema that exposes this as `bool` is performing a non-obvious conversion. Sources: `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:76`, `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go:67`, `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go:67`. (Corroborating field observation recorded in the maintainer's IaC repo mining notes.)
+All three Go SDK structs (`ApplicationSegmentResource`, `AppSegmentPRA`, `AppSegmentInspection`) carry `PolicyStyle string json:"policyStyle,omitempty"`. The API returns a string enum (`DUAL_POLICY_EVAL` or `NONE`). Any Terraform schema that exposes this as `bool` is performing a non-obvious conversion. Sources: `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:76`, `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go:67`, `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go:67`. (Corroborating operator field observation from production Terraform usage.)
 
 **`server_groups` — API returns N separate objects; provider collapses to one merged block (corroborated)**
-Both SDKs confirm the API accepts and returns N separate server group objects. The merge-flatten behavior is Terraform-provider-specific; the SDK surface is a proper list. Sources: `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:67`, `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py:273-274`. (Corroborating field observation recorded in the maintainer's IaC repo mining notes.)
+Both SDKs confirm the API accepts and returns N separate server group objects. The merge-flatten behavior is Terraform-provider-specific; the SDK surface is a proper list. Sources: `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:67`, `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py:273-274`. (Corroborating operator field observation from production Terraform usage.)
 
 **`segment_group.applications` — server-computed back-reference (corroborated)**
-The Python SDK confirms segment group membership is managed from the application segment side (via `SegmentGroupID`). The Go SDK `ApplicationSegmentResource.Applications` is `string json:"applications,omitempty"` — a summary field, not a list of objects. This supports the IaC claim that carrying the applications list in Terraform config causes phantom drift. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:36`) (Corroborating field observation recorded in the maintainer's IaC repo transform tests.)
+The Python SDK confirms segment group membership is managed from the application segment side (via `SegmentGroupID`). The Go SDK `ApplicationSegmentResource.Applications` is `string json:"applications,omitempty"` — a summary field, not a list of objects. This matches the operator observation that carrying the applications list in Terraform config causes phantom drift. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:36`) (Corroborating operator field observation from production Terraform usage.)
 
 ---
 
@@ -255,9 +255,9 @@ The Python SDK confirms segment group membership is managed from the application
 
 ### Field observations (Policy)
 
-**`operands.name` rewritten by API (corroborated):** Go SDK v1 UpdateRule explicitly clears `operand.Name` before PUT (`policysetcontroller.go:198-202`). This confirms the IaC observation that the API always rewrites operand name to the referenced object's display name. The SDK strips it silently to prevent 400 errors.
+**`operands.name` rewritten by API (corroborated):** Go SDK v1 UpdateRule explicitly clears `operand.Name` before PUT (`policysetcontroller.go:198-202`). This confirms the operator observation that the API always rewrites operand name to the referenced object's display name. The SDK strips it silently to prevent 400 errors.
 
-**`priority` and `rule_order` — server-computed (partially corroborated):** Both fields are present in Go v2 `PolicyRule` request struct (lines 138, 141) but sending them on creates/updates is likely ignored or causes drift. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:138,141`) (Corroborating field observation recorded in the maintainer's IaC repo policy-rule pulls.)
+**`priority` and `rule_order` — server-computed (partially corroborated):** Both fields are present in Go v2 `PolicyRule` request struct (lines 138, 141) but sending them on creates/updates is likely ignored or causes drift. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:138,141`) (Corroborating operator field observation from production Terraform usage.)
 
 **`capabilities.file_upload=False` maps to `INSPECT_FILE_UPLOAD` — Python SDK bug confirmed:** `policies.py:3216-3217` maps `priv_caps_map.get('file_upload') is False` to `'INSPECT_FILE_UPLOAD'`. Setting `file_upload=False` to mean inspect-uploads is counter-intuitive. `inspect_file_upload=True` independently also maps to `INSPECT_FILE_UPLOAD` (line 3222). (`vendor/zscaler-sdk-python/zscaler/zpa/policies.py:3214-3222`)
 
@@ -362,11 +362,11 @@ The Python SDK confirms segment group membership is managed from the application
 
 ### Field observations (App Connectors)
 
-**`latitude`/`longitude` — string fields, range-validated (corroborated):** The IaC claim that ZPA `app_connector_group` latitude and longitude are schema-typed as strings but validated with range bounds is confirmed. Go SDK types both as `string` (`vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group.go:30-32`). Postman types group-level lat/lon as `string` but connector-level as `double` — the group-level string contract stands. (Corroborating field observation recorded in the maintainer's IaC repo mining notes.)
+**`latitude`/`longitude` — string fields, range-validated (corroborated):** The operator observation that ZPA `app_connector_group` latitude and longitude are schema-typed as strings but validated with range bounds is confirmed. Go SDK types both as `string` (`vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group.go:30-32`). Postman types group-level lat/lon as `string` but connector-level as `double` — the group-level string contract stands. (Corroborating operator field observation from production Terraform usage.)
 
-**`update_connector_schedule` snake_case bug — not in IaC observations but confirmed in source:** See entry above. (`vendor/zscaler-sdk-python/zscaler/zpa/app_connector_schedule.py:185-200`)
+**`update_connector_schedule` snake_case bug — not in operator field observations but confirmed in source:** See entry above. (`vendor/zscaler-sdk-python/zscaler/zpa/app_connector_schedule.py:185-200`)
 
-**Go SDK `CustomerVersionProfile` Update wrong path:** See entry above. No IaC observation covers this endpoint. (`vendor/zscaler-sdk-go/zscaler/zpa/services/customerversionprofile/zpa_customer_version_profile.go:88-90`)
+**Go SDK `CustomerVersionProfile` Update wrong path:** See entry above. No operator field observation covers this endpoint. (`vendor/zscaler-sdk-go/zscaler/zpa/services/customerversionprofile/zpa_customer_version_profile.go:88-90`)
 
 ---
 
@@ -453,9 +453,9 @@ The Python SDK confirms segment group membership is managed from the application
 
 ### Field observations (Server Groups)
 
-**`server_groups` merge-flatten drift (corroborated):** The IaC claim that the Terraform provider's `flattenCommonAppServerGroupSimple` collapses all N ServerGroup API elements into one merged block is corroborated. The SDK correctly returns all N objects; flattening is a provider-layer behavior on the read path. Sources: `vendor/zscaler-sdk-go/zscaler/zpa/services/servergroup/zpa_server_group.go:181-188`. IaC source: `MINING.md:29,125`.
+**`server_groups` merge-flatten drift (corroborated):** The operator observation that the Terraform provider's `flattenCommonAppServerGroupSimple` collapses all N ServerGroup API elements into one merged block is corroborated. The SDK correctly returns all N objects; flattening is a provider-layer behavior on the read path. Sources: `vendor/zscaler-sdk-go/zscaler/zpa/services/servergroup/zpa_server_group.go:181-188`. (Corroborating operator field observation.)
 
-**IP-anchoring blocks referential deletes (consistent, not directly corroborated):** `ServerGroup.IpAnchored` has no `omitempty` — always serialized. The SDK does not implement any pre-delete anchoring check; the block is server-side. Callers should set `IpAnchored` to `false` before attempting deletion. (`vendor/zscaler-sdk-go/zscaler/zpa/services/servergroup/zpa_server_group.go:25`) (Corroborating field observation recorded in the maintainer's IaC repo mining notes.)
+**IP-anchoring blocks referential deletes (consistent, not directly corroborated):** `ServerGroup.IpAnchored` has no `omitempty` — always serialized. The SDK does not implement any pre-delete anchoring check; the block is server-side. Callers should set `IpAnchored` to `false` before attempting deletion. (`vendor/zscaler-sdk-go/zscaler/zpa/services/servergroup/zpa_server_group.go:25`) (Corroborating operator field observation from production Terraform usage.)
 
 ---
 
@@ -520,7 +520,7 @@ The Python SDK confirms segment group membership is managed from the application
 
 ### Field observations (Posture/Trusted Networks)
 
-**`posture_udid` and `networkId` are stable references — API name-rewrite does not apply here:** The IaC observation that `operands[].name` is always rewritten by the API applies to app connector and app segment references, not to `postureUdid` or `networkId`. Those fields are opaque identifiers, not display names, and are stable across plan-apply cycles. Sources: `vendor/zscaler-sdk-go/zscaler/zpa/services/postureprofile/zpa_posture_profile.go:33`, `vendor/zscaler-sdk-go/zscaler/zpa/services/trustednetwork/zpa_trusted_network.go:27`. (Corroborating field observation recorded in the maintainer's IaC repo mining notes.)
+**`posture_udid` and `networkId` are stable references — API name-rewrite does not apply here:** The operator observation that `operands[].name` is always rewritten by the API applies to app connector and app segment references, not to `postureUdid` or `networkId`. Those fields are opaque identifiers, not display names, and are stable across plan-apply cycles. Sources: `vendor/zscaler-sdk-go/zscaler/zpa/services/postureprofile/zpa_posture_profile.go:33`, `vendor/zscaler-sdk-go/zscaler/zpa/services/trustednetwork/zpa_trusted_network.go:27`. (Corroborating operator field observation from production Terraform usage.)
 
 ---
 
@@ -573,7 +573,7 @@ The Python SDK confirms segment group membership is managed from the application
 
 ### Field observations (Service Edges)
 
-**`latitude`/`longitude` typed as strings (corroborated):** `ServiceEdgeGroup.Latitude` is `string json:"latitude,omitempty"` in Go. Postman describes lat/lon as `string` for `ServiceEdgeGroup`. (Corroborating field observation recorded in the maintainer's IaC repo mining notes.)
+**`latitude`/`longitude` typed as strings (corroborated):** `ServiceEdgeGroup.Latitude` is `string json:"latitude,omitempty"` in Go. Postman describes lat/lon as `string` for `ServiceEdgeGroup`. (Corroborating operator field observation from production Terraform usage.)
 
 **`ServiceEdgeSchedule` POST returns 204 (confirmed):** Python `add_service_edge_schedule` handles 204 by returning `ServiceEdgeSchedule({"id": scheduler_id})` as synthetic success. There is no Location header. (`vendor/zscaler-sdk-python/zscaler/zpa/service_edge_schedule.py:143-147`) Postman: `vendor/zscaler-api-specs/oneapi-postman-collection.json:111265,111317`.
 
@@ -640,7 +640,7 @@ The Python SDK confirms segment group membership is managed from the application
 
 ### Field observations (LSS)
 
-**Policy conditions ordering — unordered backend (confirmed for LSS):** The LSS resource's `policyRuleResource.Conditions` is a Go slice. The Terraform validator accepts `AND` or `OR` as condition operators. Do not rely on positional ordering of conditions or operands across round-trips. Sources: `vendor/zscaler-sdk-go/zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go:81`, `vendor/terraform-provider-zpa/zpa/resource_zpa_lss_config_controller.go:39-43`. (Corroborating field observation recorded in the maintainer's IaC repo mining notes.)
+**Policy conditions ordering — unordered backend (confirmed for LSS):** The LSS resource's `policyRuleResource.Conditions` is a Go slice. The Terraform validator accepts `AND` or `OR` as condition operators. Do not rely on positional ordering of conditions or operands across round-trips. Sources: `vendor/zscaler-sdk-go/zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go:81`, `vendor/terraform-provider-zpa/zpa/resource_zpa_lss_config_controller.go:39-43`. (Corroborating operator field observation from production Terraform usage.)
 
 ---
 
@@ -843,7 +843,7 @@ The Python SDK confirms segment group membership is managed from the application
 
 ### Field observations (Certificates)
 
-**No IaC field observations cover ZPA Certificates or Enrollment:** All IaC observations from the maintainer's live-tenant repo concern ZIA (url_filtering, cloud_app_control, location management), ZCC, and cross-cutting ZPA issues (server_groups, policy_access_rule, segment_group). No corroboration or contradiction of any certificate-area claim is possible from those sources. IaC sources: `MINING.md`, `RUNBOOK.md`.
+**No operator field observations cover ZPA Certificates or Enrollment:** the available production field observations do not touch the certificate or enrollment area, so no corroboration or contradiction of any certificate-area claim is possible from that signal. The SDK/Postman source citations above stand on their own.
 
 ---
 
@@ -1069,9 +1069,9 @@ The Python SDK confirms segment group membership is managed from the application
 
 ### Field observations (CBI/AppProtection)
 
-**`cbi_profile` `{id:'0', name:'', ...}` stub — treated as absent by provider (corroborated):** Consistent with the CBI profile struct having `omitempty` on ID — a zero-value ID would serialize as absent. Engineers importing resources with no CBI profile must handle the stub object explicitly. (`vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go:18`) (Corroborating field observation recorded in the maintainer's IaC repo transform tooling.)
+**`cbi_profile` `{id:'0', name:'', ...}` stub — treated as absent by provider (corroborated):** Consistent with the CBI profile struct having `omitempty` on ID — a zero-value ID would serialize as absent. Engineers importing resources with no CBI profile must handle the stub object explicitly. (`vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go:18`) (Corroborating operator field observation from production Terraform usage.)
 
-**`InspectionProfile.ControlInfoResource.Count` — server-computed (parallel to operands.name rewrite):** The `controlsInfo[].count` field (string) is computed server-side. Storing it in Terraform config will cause perpetual drift as the API overwrites the value. (`vendor/zscaler-sdk-go/zscaler/zpa/services/inspectioncontrol/inspection_profile/zpa_inspection_profile.go:47-50`) (Corroborating field observation recorded in the maintainer's IaC repo mining notes.)
+**`InspectionProfile.ControlInfoResource.Count` — server-computed (parallel to operands.name rewrite):** The `controlsInfo[].count` field (string) is computed server-side. Storing it in Terraform config will cause perpetual drift as the API overwrites the value. (`vendor/zscaler-sdk-go/zscaler/zpa/services/inspectioncontrol/inspection_profile/zpa_inspection_profile.go:47-50`) (Corroborating operator field observation from production Terraform usage.)
 
 ---
 
