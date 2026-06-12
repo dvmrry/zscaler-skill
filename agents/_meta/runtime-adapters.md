@@ -2,7 +2,7 @@
 topic: "runtime-adapters"
 title: "Runtime adapters and portable skills"
 content-type: reference
-last-verified: "2026-06-10"
+last-verified: "2026-06-12"
 confidence: high
 source-tier: practice
 sources:
@@ -136,6 +136,44 @@ that a `/name` entry in one runtime is equivalent to a hand-authored
 `.devin/workflows/name.md` or `.claude/commands/name.md` adapter. If both a
 portable skill and a runtime adapter are visible, prefer the known-good runtime
 adapter until parity has been tested.
+
+## MCP transport
+
+The canonical helper (`scripts/investigator-artifacts.mjs`) now has two fronts:
+
+- **CLI** — `node scripts/investigator-artifacts.mjs <command> ...` — for
+  click-gated shells such as work Windsurf today, where the runtime executes
+  shell commands on button press.
+- **MCP stdio server** — `node scripts/investigator-mcp-server.mjs` — for
+  tool-capable runtimes (Claude Code, Codex, Goose; and Windsurf once MCP
+  lands there) that drive the same gates through named tools instead of shell
+  commands.
+
+Both fronts call the same exported functions and enforce the same gates.
+Adapters policy is unchanged: load the canonical workflow and harness files,
+call the gate, verify the artifact, continue only when it passes.
+
+The server is registered project-scope in `.mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "zscaler-investigator": {
+      "command": "node",
+      "args": ["scripts/investigator-mcp-server.mjs"]
+    }
+  }
+}
+```
+
+Tool-capable runtimes that pick up `.mcp.json` will offer these tools:
+`status`, `open_case`, `verify_case`, `record_loads`, `verify_loads`,
+`save_journal`, `initialize_turn_ledger`, `begin_turn`, `run_turn`,
+`complete_turn`, `abandon_turn`, `import_evidence`, `helper_capabilities`.
+
+Tool descriptions and tool results are the instruction channel — actionable
+gate errors pass through verbatim so runtimes can self-correct without a
+separate explanation layer.
 
 ## Migration rule
 
