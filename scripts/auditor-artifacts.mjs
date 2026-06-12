@@ -225,6 +225,9 @@ export function resolveSource(root, checksDir, source) {
     const lineStart = parseInt(fileLineMatch[2], 10);
     // lineEnd defaults to lineStart if not given.
     const lineEnd = fileLineMatch[3] !== undefined ? parseInt(fileLineMatch[3], 10) : lineStart;
+    if (lineStart < 1) {
+      return { type: "file-line", resolves: false, error: "line number must be >= 1 (lines are 1-indexed)" };
+    }
     if (lineEnd < lineStart) {
       return { type: "file-line", resolves: false, error: `line range end (${lineEnd}) < start (${lineStart})` };
     }

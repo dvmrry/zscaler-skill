@@ -185,6 +185,29 @@ test("record-finding: REJECT finding with nonexistent file:line source", () => {
   fs.rmSync(root, { recursive: true, force: true });
 });
 
+test("record-finding: REJECT finding citing line 0 (lines are 1-indexed)", () => {
+  const root = tempRepo();
+  const scopeFile = writeScopeFile(root, makeScope({ paths: ["references/zpa/index.md"] }));
+  openAudit({ root, auditSlug: "line-zero-test", scopeJson: scopeFile });
+
+  const findingFile = writeFindingFile(root, {
+    findingId: "F1",
+    description: "Line zero citation",
+    source: "references/zpa/index.md:0",
+    severity: "Critical",
+    status: "Open",
+    remediation: "Fix it",
+  });
+
+  assert.throws(
+    () => recordFinding({ root, auditSlug: "line-zero-test", findingJson: findingFile }),
+    /line number must be >= 1|source does not resolve/,
+    "should reject finding citing line 0",
+  );
+
+  fs.rmSync(root, { recursive: true, force: true });
+});
+
 test("record-finding: REJECT finding with line beyond EOF", () => {
   const root = tempRepo();
   const scopeFile = writeScopeFile(root, makeScope({ paths: ["references/zpa/index.md"] }));
