@@ -2,7 +2,7 @@
 topic: "agents-index"
 title: "Agent workflows — index and conventions"
 content-type: reference
-last-verified: "2026-05-18"
+last-verified: "2026-06-10"
 confidence: high
 source-tier: practice
 sources:
@@ -47,7 +47,7 @@ The split keeps `references/` focused as a knowledge base, lets agent personas r
 | Role | Slash command | Artifacts | Description |
 |---|---|---|---|
 | **Zscaler Q&A** | `@zscaler` | [`workflow`](./zscaler/workflow.md) · [`prompt`](./zscaler/prompt.md) | Ad-hoc grounded Q&A with citations and handoff detection |
-| **Investigator** | `/z-investigator` | [`workflow`](./investigator/workflow.md) · [`prompt`](./investigator/prompt.md) · [`harness`](./investigator/harness.md) · [`case intake`](./investigator/case-intake.md) · [`methodology`](./investigator/methodology.md) · [`grounding`](./investigator/grounding/index.md) · [`diagnostics template`](./investigator/diagnostics/template.md) | Evidence-based troubleshooting — discovery journal, claim status, anti-fabrication |
+| **Investigator** | `/z-investigator` | [`workflow`](./investigator/workflow.md) · [`prompt`](./investigator/prompt.md) · [`harness`](./investigator/harness.md) · [`case intake`](./investigator/case-intake.md) · [`methodology`](./investigator/methodology.md) · [`grounding`](./investigator/grounding/index.md) · [`diagnostics template`](./investigator/diagnostics/template.md) | Evidence-based troubleshooting — discovery journal, claim status, anti-fabrication. Uses deterministic helper gates (`scripts/investigator-artifacts.mjs`) for each phase transition; artifacts are written to `_data/cases/<slug>/workflow/` (loads JSON, hash-chained turn ledger, journal saves). |
 | **Setup** | `zscaler-skill-setup` | [`workflow`](./setup/workflow.md) · [`prompt`](./setup/prompt.md) | `_data` runtime-data mount setup and repair using deterministic helper scripts |
 | **Researcher** | `/z-researcher` | [`workflow`](./researcher/workflow.md) · [`prompt`](./researcher/prompt.md) · [`grounding`](./researcher/grounding/) | Citation-backed reference expansion with extraction, isolated writing, and verification checkpoints |
 | **Architect** | `/z-architect` | [`workflow`](./architect/workflow.md) · [`prompt`](./architect/prompt.md) · [`harness`](./architect/harness.md) · [`grounding`](./architect/grounding/) · [`methodology`](./architect/methodology.md) · [`diagnostics template`](./architect/diagnostics/template.md) | Capacity, scaling, and structural-risk review with recommendation register |
