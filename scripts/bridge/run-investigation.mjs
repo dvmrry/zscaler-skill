@@ -43,9 +43,10 @@
 // Scenario JSON shape:
 //   {
 //     "id": "forge6-replay",                 // run identifier (used in dir + report)
-//     "role": "investigator"|"auditor",      // optional; defaults to "investigator"
+//     "role": "investigator"|"auditor"|"soc", // optional; defaults to "investigator"
 //     "caseSlug": "bridge-forge6",           // investigator case slug (role:investigator)
 //     "auditSlug": "bridge-audit-1",         // auditor audit slug (role:auditor)
+//     "reviewSlug": "bridge-soc-1",          // SOC review slug (role:soc)
 //     "root": "/abs/path/to/zscaler-skill",  // repo root the case lives under
 //     "model": "swe-1.6",                    // default devin model (overridable via --model)
 //     "permissionConfig": "scripts/bridge/scenarios/mcp-readonly.config.json", // optional
@@ -82,6 +83,12 @@ import {
   renderAuditReport,
   resolveSource,
 } from "../auditor-artifacts.mjs";
+
+import {
+  socStatus,
+  renderSocReport,
+  resolveSource as socResolveSource,
+} from "../soc-artifacts.mjs";
 
 const USAGE = `Usage:
   node scripts/bridge/run-investigation.mjs --scenario <scenario.json> [--model <m>] [--out-dir <dir>]
@@ -535,6 +542,65 @@ function computeAuditReport(root, auditSlug) {
   }
 }
 
+/**
+ * Compute the SOC disk status for a bridge scenario with role:"soc".
+ *
+ * Returns:
+ *   { ok, phase, findingCounts, evidenceRecorded, allFindingsSourced, error? }
+ *
+ * allFindingsSourced is true when every finding in findings.jsonl has a
+ * resolving source (re-verified post-hoc using socResolveSource()).
+ */
+function computeSocDiskStatus(root, reviewSlug) {
+  try {
+    const status = socStatus({ root, reviewSlug });
+    const findingsPath = path.join(root, "_data", "soc-reviews", reviewSlug, "findings.jsonl");
+    const evidenceDir = path.join(root, "_data", "soc-reviews", reviewSlug, "evidence");
+    let allFindingsSourced = true;
+    try {
+      if (fs.existsSync(findingsPath)) {
+        const lines = fs.readFileSync(findingsPath, "utf8").trim().split("\n").filter(Boolean);
+        for (const line of lines) {
+          const f = JSON.parse(line);
+          if (!f.source || String(f.source).trim() === "") {
+            allFindingsSourced = false;
+            break;
+          }
+          const resolved = socResolveSource(root, evidenceDir, f.source);
+          if (!resolved.resolves) {
+            allFindingsSourced = false;
+            break;
+          }
+        }
+      }
+    } catch (_) {
+      allFindingsSourced = false;
+    }
+    return {
+      ok: true,
+      phase: status.phase,
+      findingCounts: status.findingCounts,
+      evidenceRecorded: status.evidenceRecorded,
+      allFindingsSourced,
+    };
+  } catch (err) {
+    return { ok: false, error: String(err && err.message) };
+  }
+}
+
+/**
+ * Compute the SOC report for the bridge (role:"soc").
+ * Returns { ok, text } or { ok: false, error }.
+ */
+function computeSocReport(root, reviewSlug) {
+  try {
+    const text = renderSocReport({ root, reviewSlug });
+    return { ok: true, text };
+  } catch (err) {
+    return { ok: false, error: String(err && err.message) };
+  }
+}
+
 function main() {
   let args;
   try {
@@ -565,6 +631,14 @@ function main() {
     if (!scenario.id || !scenario.auditSlug || !scenario.root || !Array.isArray(scenario.turns)) {
       process.stderr.write(
         "Auditor scenario must include id, auditSlug, root, and a turns[] array.\n",
+      );
+      process.exit(1);
+      return;
+    }
+  } else if (role === "soc") {
+    if (!scenario.id || !scenario.reviewSlug || !scenario.root || !Array.isArray(scenario.turns)) {
+      process.stderr.write(
+        "SOC scenario must include id, reviewSlug, root, and a turns[] array.\n",
       );
       process.exit(1);
       return;
@@ -670,6 +744,10 @@ function main() {
     const diskResult = computeAuditDiskStatus(root, scenario.auditSlug);
     disk = diskResult.ok ? diskResult : null;
     caseReport = computeAuditReport(root, scenario.auditSlug);
+  } else if (role === "soc") {
+    const diskResult = computeSocDiskStatus(root, scenario.reviewSlug);
+    disk = diskResult.ok ? diskResult : null;
+    caseReport = computeSocReport(root, scenario.reviewSlug);
   } else {
     const diskResult = computeDiskStatus(root, scenario.caseSlug);
     disk = diskResult.ok ? diskResult : null;
@@ -705,6 +783,7 @@ function main() {
         model,
         caseSlug: scenario.caseSlug || null,
         auditSlug: scenario.auditSlug || null,
+        reviewSlug: scenario.reviewSlug || null,
         sessionId,
         turns: turns.map((t) => ({
           index: t.index,
@@ -746,4 +825,6 @@ export {
   installPermissionConfig,
   computeAuditDiskStatus,
   computeAuditReport,
+  computeSocDiskStatus,
+  computeSocReport,
 };

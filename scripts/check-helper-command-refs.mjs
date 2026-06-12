@@ -5,6 +5,7 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { capabilities as investigatorCapabilities } from "./investigator-artifacts.mjs";
 import { capabilities as auditorCapabilities } from "./auditor-artifacts.mjs";
+import { capabilities as socCapabilities } from "./soc-artifacts.mjs";
 
 const DEFAULT_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -28,13 +29,17 @@ const COMMAND_REF_RE = /investigator-artifacts\.mjs\s+([a-z][a-z-]*)/g;
 // Matches any token following "auditor-artifacts.mjs " in prose or code.
 const AUDITOR_COMMAND_REF_RE = /auditor-artifacts\.mjs\s+([a-z][a-z-]*)/g;
 
+// Matches any token following "soc-artifacts.mjs " in prose or code.
+const SOC_COMMAND_REF_RE = /soc-artifacts\.mjs\s+([a-z][a-z-]*)/g;
+
 function usage(exitCode = 0) {
   const out = exitCode === 0 ? process.stdout : process.stderr;
   out.write(`Usage:
   node scripts/check-helper-command-refs.mjs [--root <repo-root>]
 
-Scans tracked docs for investigator-artifacts.mjs and auditor-artifacts.mjs
-<command> mentions and reports any token not in the respective supported command sets.
+Scans tracked docs for investigator-artifacts.mjs, auditor-artifacts.mjs, and
+soc-artifacts.mjs <command> mentions and reports any token not in the respective
+supported command sets.
 `);
   process.exit(exitCode);
 }
@@ -86,18 +91,20 @@ function collectFiles(root, scanPaths) {
 }
 
 /**
- * Scan the given files for investigator-artifacts.mjs and auditor-artifacts.mjs
- * command references. Reports any token not in the respective supported command sets.
+ * Scan the given files for investigator-artifacts.mjs, auditor-artifacts.mjs,
+ * and soc-artifacts.mjs command references. Reports any token not in the
+ * respective supported command sets.
  *
  * @param {string} root                 Repo root (for relative path display).
  * @param {string[]} files              Absolute paths to scan.
  * @param {Set<string>} validCommands   Valid investigator command tokens.
  * @param {Set<string>} validAuditorCommands  Valid auditor command tokens.
+ * @param {Set<string>} validSocCommands      Valid SOC command tokens.
  * @returns {{ errors: string[], mentionCount: number }}
  *
  * Exported so the test file can call it directly against a temp directory.
  */
-export function scanFiles(root, files, validCommands, validAuditorCommands = new Set()) {
+export function scanFiles(root, files, validCommands, validAuditorCommands = new Set(), validSocCommands = new Set()) {
   const errors = [];
   let mentionCount = 0;
 
@@ -137,6 +144,18 @@ export function scanFiles(root, files, validCommands, validAuditorCommands = new
           );
         }
       }
+
+      // SOC command references.
+      for (const match of line.matchAll(SOC_COMMAND_REF_RE)) {
+        const token = match[1];
+        mentionCount += 1;
+        if (validSocCommands.size > 0 && !validSocCommands.has(token)) {
+          const rel = path.relative(root, filePath);
+          errors.push(
+            `${rel}:${i + 1}: unknown soc-artifacts.mjs command "${token}" — valid commands: ${[...validSocCommands].join(", ")}`,
+          );
+        }
+      }
     }
   }
 
@@ -149,9 +168,11 @@ function main() {
   const validCommands = new Set(invCap.supported);
   const audCap = auditorCapabilities();
   const validAuditorCommands = new Set(audCap.supported);
+  const socCap = socCapabilities();
+  const validSocCommands = new Set(socCap.supported);
 
   const files = collectFiles(args.root, SCAN_PATHS);
-  const { errors, mentionCount } = scanFiles(args.root, files, validCommands, validAuditorCommands);
+  const { errors, mentionCount } = scanFiles(args.root, files, validCommands, validAuditorCommands, validSocCommands);
 
   if (errors.length > 0) {
     for (const err of errors) {
