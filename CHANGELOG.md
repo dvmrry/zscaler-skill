@@ -4,6 +4,13 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.6.0](https://github.com/dvmrry/zscaler-skill/compare/v0.5.3...v0.6.0) (2026-06-12)
+
+
+### Features
+
+* **investigator:** MCP stdio server transport for the helper gates ([#94](https://github.com/dvmrry/zscaler-skill/issues/94)) ([79eeae8](https://github.com/dvmrry/zscaler-skill/commit/79eeae82588a867fb4a5577dcb53dc6143a55ab3))
+
 ## [0.5.3](https://github.com/dvmrry/zscaler-skill/compare/v0.5.2...v0.5.3) (2026-06-12)
 
 
