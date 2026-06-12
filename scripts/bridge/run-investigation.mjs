@@ -43,15 +43,22 @@
 // Scenario JSON shape:
 //   {
 //     "id": "forge6-replay",                 // run identifier (used in dir + report)
-//     "caseSlug": "bridge-forge6",           // investigator case slug to verify on disk
+//     "role": "investigator"|"auditor",      // optional; defaults to "investigator"
+//     "caseSlug": "bridge-forge6",           // investigator case slug (role:investigator)
+//     "auditSlug": "bridge-audit-1",         // auditor audit slug (role:auditor)
 //     "root": "/abs/path/to/zscaler-skill",  // repo root the case lives under
 //     "model": "swe-1.6",                    // default devin model (overridable via --model)
 //     "permissionConfig": "scripts/bridge/scenarios/mcp-readonly.config.json", // optional
 //     "turns": [ { "prompt": "..." }, { "prompt": "..." } ],
 //     "expect": {
+//       // Investigator-only:
 //       "diskPhase": "turn-ready",                                    // optional exact phase match
 //       "maxArchivedGenerations": 0,                                  // optional ceiling
 //       "forbidStatuses": ["Confirmed (high)", "Resolved", "Ruled out"], // claim statuses that must NOT appear
+//       // Auditor-only:
+//       "minFindings": 1,                                             // audit must have at least N findings
+//       "allFindingsSourced": true,                                   // every finding in ledger must have a source
+//       // Both:
 //       "forbidTranscriptStrings": ["traceroute", "CPUUtilization"],  // must NOT appear in any agent response
 //       "requireTranscriptStrings": []                                // must appear somewhere across responses
 //     }
@@ -64,11 +71,16 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-// Resolve the repo helper relative to THIS script (scripts/bridge/ -> scripts/).
+// Resolve the repo helpers relative to THIS script (scripts/bridge/ -> scripts/).
 import {
   caseStatus,
   renderCaseReport,
 } from "../investigator-artifacts.mjs";
+
+import {
+  auditStatus,
+  renderAuditReport,
+} from "../auditor-artifacts.mjs";
 
 const USAGE = `Usage:
   node scripts/bridge/run-investigation.mjs --scenario <scenario.json> [--model <m>] [--out-dir <dir>]
@@ -120,7 +132,8 @@ function extractSessionId(exportObj) {
  * Evaluate scenario.expect against the captured disk status and transcript text.
  *
  * @param {object} expect            scenario.expect (any/all keys optional)
- * @param {object} disk              { phase, archivedGenerations, claimCounts } from caseStatus
+ * @param {object} disk              Investigator: { phase, archivedGenerations, claimCounts }
+ *                                   Auditor: { phase, findingCounts, allFindingsSourced }
  * @param {string[]} agentResponses  flat array of every captured agent text response
  * @returns {{ checks: Array<{name, pass, detail}>, pass: boolean }}
  */
@@ -131,6 +144,8 @@ function evaluateExpectations(expect, disk, agentResponses) {
   const archived = disk ? disk.archivedGenerations : null;
   const claimCounts = (disk && disk.claimCounts) || {};
   const haystack = (agentResponses || []).join("\n");
+
+  // ── Investigator-only checks ──────────────────────────────────────────────
 
   if (typeof exp.diskPhase === "string") {
     const pass = phase === exp.diskPhase;
@@ -165,6 +180,37 @@ function evaluateExpectations(expect, disk, agentResponses) {
         : `forbidden statuses present: [${violations.join(", ")}]`,
     });
   }
+
+  // ── Auditor-only checks ───────────────────────────────────────────────────
+
+  if (typeof exp.minFindings === "number") {
+    const total = (disk && disk.findingCounts && typeof disk.findingCounts.total === "number")
+      ? disk.findingCounts.total
+      : 0;
+    const pass = total >= exp.minFindings;
+    checks.push({
+      name: `findingCount >= ${exp.minFindings}`,
+      pass,
+      detail: pass
+        ? `findingCount is ${total}`
+        : `findingCount is ${total} (required >= ${exp.minFindings})`,
+    });
+  }
+
+  if (exp.allFindingsSourced === true) {
+    const sourced = (disk && typeof disk.allFindingsSourced === "boolean")
+      ? disk.allFindingsSourced
+      : false;
+    checks.push({
+      name: `allFindingsSourced`,
+      pass: sourced,
+      detail: sourced
+        ? "every finding in the ledger carries a recorded source"
+        : "one or more findings in the ledger are missing a source",
+    });
+  }
+
+  // ── Both ──────────────────────────────────────────────────────────────────
 
   if (Array.isArray(exp.forbidTranscriptStrings)) {
     const violations = exp.forbidTranscriptStrings.filter((s) => haystack.includes(s));
@@ -423,6 +469,62 @@ function computeCaseReport(root, caseSlug) {
   }
 }
 
+/**
+ * Compute the auditor disk status for a bridge scenario with role:"auditor".
+ *
+ * Returns:
+ *   { ok, phase, findingCounts, checksRecorded, allFindingsSourced, error? }
+ *
+ * allFindingsSourced is true when every finding in the findings.jsonl has a
+ * non-empty source field (evidence-gated at record time, so this is a post-hoc
+ * confirmation check).
+ */
+function computeAuditDiskStatus(root, auditSlug) {
+  try {
+    const status = auditStatus({ root, auditSlug });
+    // Check that every finding has a source (belt-and-suspenders — the helper gate
+    // enforces this at record time, but the bridge verifies it from the ledger too).
+    const findingsPath = path.join(root, "_data", "audits", auditSlug, "findings.jsonl");
+    let allFindingsSourced = true;
+    try {
+      if (fs.existsSync(findingsPath)) {
+        const lines = fs.readFileSync(findingsPath, "utf8").trim().split("\n").filter(Boolean);
+        for (const line of lines) {
+          const f = JSON.parse(line);
+          if (!f.source || String(f.source).trim() === "") {
+            allFindingsSourced = false;
+            break;
+          }
+        }
+      }
+    } catch (_) {
+      allFindingsSourced = false;
+    }
+    return {
+      ok: true,
+      phase: status.phase,
+      findingCounts: status.findingCounts,
+      checksRecorded: status.checksRecorded,
+      allFindingsSourced,
+    };
+  } catch (err) {
+    return { ok: false, error: String(err && err.message) };
+  }
+}
+
+/**
+ * Compute the audit report for the bridge (role:"auditor").
+ * Returns { ok, text } or { ok: false, error }.
+ */
+function computeAuditReport(root, auditSlug) {
+  try {
+    const text = renderAuditReport({ root, auditSlug });
+    return { ok: true, text };
+  } catch (err) {
+    return { ok: false, error: String(err && err.message) };
+  }
+}
+
 function main() {
   let args;
   try {
@@ -447,12 +549,24 @@ function main() {
     return;
   }
 
-  if (!scenario.id || !scenario.caseSlug || !scenario.root || !Array.isArray(scenario.turns)) {
-    process.stderr.write(
-      "Scenario must include id, caseSlug, root, and a turns[] array.\n",
-    );
-    process.exit(1);
-    return;
+  const role = scenario.role || "investigator";
+
+  if (role === "auditor") {
+    if (!scenario.id || !scenario.auditSlug || !scenario.root || !Array.isArray(scenario.turns)) {
+      process.stderr.write(
+        "Auditor scenario must include id, auditSlug, root, and a turns[] array.\n",
+      );
+      process.exit(1);
+      return;
+    }
+  } else {
+    if (!scenario.id || !scenario.caseSlug || !scenario.root || !Array.isArray(scenario.turns)) {
+      process.stderr.write(
+        "Scenario must include id, caseSlug, root, and a turns[] array.\n",
+      );
+      process.exit(1);
+      return;
+    }
   }
 
   const model = args.model || scenario.model || DEFAULT_MODEL;
@@ -539,9 +653,18 @@ function main() {
   }
 
   // ── independent disk verification (repo helper) ──
-  const diskResult = computeDiskStatus(root, scenario.caseSlug);
-  const disk = diskResult.ok ? diskResult : null;
-  const caseReport = computeCaseReport(root, scenario.caseSlug);
+  let disk = null;
+  let caseReport = null;
+
+  if (role === "auditor") {
+    const diskResult = computeAuditDiskStatus(root, scenario.auditSlug);
+    disk = diskResult.ok ? diskResult : null;
+    caseReport = computeAuditReport(root, scenario.auditSlug);
+  } else {
+    const diskResult = computeDiskStatus(root, scenario.caseSlug);
+    disk = diskResult.ok ? diskResult : null;
+    caseReport = computeCaseReport(root, scenario.caseSlug);
+  }
 
   // ── evaluate expectations ──
   const allAgentResponses = turns.flatMap((t) => t.agentResponses);
@@ -568,8 +691,10 @@ function main() {
     `${JSON.stringify(
       {
         scenarioId: scenario.id,
+        role,
         model,
-        caseSlug: scenario.caseSlug,
+        caseSlug: scenario.caseSlug || null,
+        auditSlug: scenario.auditSlug || null,
         sessionId,
         turns: turns.map((t) => ({
           index: t.index,
@@ -581,7 +706,7 @@ function main() {
           stdout: t.stdout,
         })),
         disk,
-        caseReport: caseReport.ok ? { ok: true } : { ok: false, error: caseReport.error },
+        caseReport: caseReport && caseReport.ok ? { ok: true } : { ok: false, error: caseReport ? caseReport.error : "not computed" },
         evaluation,
         overallPass,
       },
@@ -609,4 +734,6 @@ export {
   parseArgs,
   trimBlock,
   installPermissionConfig,
+  computeAuditDiskStatus,
+  computeAuditReport,
 };
