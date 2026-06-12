@@ -200,7 +200,7 @@ const TOOLS = [
   {
     name: "run_turn",
     description:
-      "Canonical per-turn command. Atomic begin + save-journal + complete in one call; all-or-nothing — a failed run_turn leaves no pending turn. Fix the reported problem and rerun. actionType must be one of: load-file, query-request, request-user-evidence, record-user-evidence, add-evidence, mark-resolved, pause. Never invent, simulate, or assume evidence. With no tenant data, the correct action is request-user-evidence. Claim statuses only move on recorded evidence — the server enforces this.",
+      "Canonical per-turn command. Atomic begin + save-journal + complete in one call; all-or-nothing — a failed run_turn leaves no pending turn. Fix the reported problem and rerun. actionType must be one of: load-file, query-request, request-user-evidence, record-user-evidence, add-evidence, mark-resolved, pause. Never invent, simulate, or assume evidence. With no tenant data, the correct action is request-user-evidence. Claim statuses only move on recorded evidence — the server enforces this. record-user-evidence and add-evidence turns require evidenceRefs backed by import_evidence — narrative summaries are not evidence.",
     inputSchema: {
       type: "object",
       properties: {

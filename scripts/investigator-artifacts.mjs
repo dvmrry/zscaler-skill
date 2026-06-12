@@ -612,6 +612,43 @@ function validateUserEvidenceRequest(turnInput, actionType) {
   return evidenceRequest;
 }
 
+const EVIDENCE_RECORDING_ACTION_TYPES = new Set(["record-user-evidence", "add-evidence"]);
+
+/**
+ * Gate for evidence-recording turns (record-user-evidence / add-evidence).
+ *
+ * These turns exist specifically to record evidence — a turn that records
+ * nothing is a contradiction that enables the narrative-fabrication attack:
+ * a model can complete a "record-user-evidence" turn whose actionSummary
+ * contains fabricated narrative while refs stays empty.
+ *
+ * Rules:
+ * - evidenceRefs must be non-empty.
+ * - Every ref must be verifiable: present in the case's evidence/MANIFEST.md
+ *   (written by import-evidence) OR in priorEvidenceRefs(events).
+ *
+ * Reuses the same manifestEvidenceRefs + priorEvidenceRefs helpers used by
+ * validateClaimTransitions — no second verifier.
+ */
+function validateEvidenceRecordingTurn(paths, turnInput, actionType, priorEvents) {
+  if (!EVIDENCE_RECORDING_ACTION_TYPES.has(actionType)) return;
+  const evidenceRefs = asArray(turnInput.evidenceRefs);
+  if (evidenceRefs.length === 0) {
+    throw new Error(
+      `record-user-evidence/add-evidence turns must carry verifiable evidenceRefs: import the returned files first (import_evidence within a begin/complete turn) so the refs exist in evidence/MANIFEST.md. Recording evidence without evidence is not a valid turn.`,
+    );
+  }
+  const recordedRefs = priorEvidenceRefs(priorEvents);
+  const manifestRefs = manifestEvidenceRefs(paths);
+  const verifiable = (ref) => recordedRefs.has(ref) || manifestRefs.has(ref);
+  const unverifiable = evidenceRefs.filter((ref) => !verifiable(ref));
+  if (unverifiable.length > 0) {
+    throw new Error(
+      `record-user-evidence/add-evidence turns must carry verifiable evidenceRefs: import the returned files first (import_evidence within a begin/complete turn) so the refs exist in evidence/MANIFEST.md. Recording evidence without evidence is not a valid turn. Unverifiable refs: ${unverifiable.join(", ")}`,
+    );
+  }
+}
+
 function validateEvidenceHandoffTurn(journalPath, turnInput, actionType, journalContent) {
   if (!EVIDENCE_REQUEST_ACTION_TYPES.has(actionType)) return;
   const statuses = journalContent
@@ -1458,6 +1495,7 @@ function completeTurn(args) {
     resolvedTouchedClaims = validateTouchedClaimsExist(paths.journalPath, turnInput.touchedClaims, "complete-turn");
   }
   validateEvidenceHandoffTurn(paths.journalPath, turnInput, actionType);
+  validateEvidenceRecordingTurn(paths, turnInput, actionType, priorEvents);
   validateMarkResolved(paths.journalPath, turnInput, actionType, priorEvents);
   // Change 3: evidence-gated claim transition predicate.
   // priorContent: journal content at begin-turn time (snapshotted into pendingTurn).
@@ -2046,6 +2084,7 @@ function runTurn(args) {
     resolvedTouchedClaims = validateTouchedClaimsExist(paths.journalPath, rawTurnInput.touchedClaims, "run-turn", newJournalContent);
   }
   validateEvidenceHandoffTurn(paths.journalPath, rawTurnInput, actionType, newJournalContent);
+  validateEvidenceRecordingTurn(paths, rawTurnInput, actionType, priorEvents);
   validateMarkResolved(paths.journalPath, rawTurnInput, actionType, priorEvents, newJournalContent);
   // Change 3: evidence-gated claim transition predicate.
   // priorJournalContent is the on-disk journal before the atomic write — full prior state available.

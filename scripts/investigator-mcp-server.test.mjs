@@ -744,6 +744,28 @@ test("run_turn description contains premise-challenge text", async () => {
   }
 });
 
+test("run_turn description contains evidence-recording import_evidence requirement", async () => {
+  const server = spawnServer();
+  try {
+    await server.call({ jsonrpc: "2.0", method: "initialize", params: { protocolVersion: "2024-11-05", capabilities: {} } });
+    const resp = await server.call({ jsonrpc: "2.0", method: "tools/list", params: {} });
+    const tool = resp.result.tools.find((t) => t.name === "run_turn");
+    assert.ok(tool, "run_turn tool not found");
+    assert.match(
+      tool.description,
+      /record-user-evidence and add-evidence turns require evidenceRefs backed by import_evidence/,
+      `run_turn description must require import_evidence-backed refs for evidence-recording turns, got: ${tool.description}`,
+    );
+    assert.match(
+      tool.description,
+      /narrative summaries are not evidence/,
+      `run_turn description must state narrative summaries are not evidence, got: ${tool.description}`,
+    );
+  } finally {
+    server.close();
+  }
+});
+
 test("save_journal description contains initial-journal Open-only text", async () => {
   const server = spawnServer();
   try {

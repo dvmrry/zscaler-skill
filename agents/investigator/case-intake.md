@@ -252,7 +252,10 @@ When the helper capabilities include `import-evidence`, use it during
 case-local `evidence/` and append `evidence/MANIFEST.md`. This does not replace
 the journal update or `complete-turn`; it only removes manual file copying,
 hashing, naming, and manifest-row work. If the helper is unavailable, follow
-the manual evidence convention instead.
+the manual evidence convention instead. `record-user-evidence` and `add-evidence`
+turns must carry non-empty `evidenceRefs` where every ref is verifiable — in
+`evidence/MANIFEST.md` or in a prior completed turn; narrative summaries are
+not evidence.
 
 Use `query-request` for Splunk/SIEM catalog-pattern requests. Use
 `request-user-evidence` for non-Splunk evidence and include the exact

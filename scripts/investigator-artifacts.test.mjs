@@ -1295,12 +1295,28 @@ test("completeTurn accepts helper-assisted turn input JSON", () => {
   initializeTurnLedger({ root, caseSlug });
   beginTurn({ root, caseSlug, userAction: "record-user-evidence" });
 
+  // Import evidence during the open pending turn so the ref exists in MANIFEST.md.
+  const sourceFile = path.join(root, "result.json");
+  fs.writeFileSync(sourceFile, JSON.stringify({ rows: 1 }), "utf8");
+  const importResult = importEvidence({
+    root,
+    caseSlug,
+    sourceFile,
+    name: "result",
+    source: "Splunk",
+    query: "index=zscaler_proxy",
+    summary: "One evidence result.",
+    capturedAt: "2026-06-12T10:00:00Z",
+    touchedClaims: ["H1: Application segment may not include the app"],
+  });
+  const [evidenceRef] = importResult.evidenceRefs;
+
   fs.appendFileSync(journalPath, "\nTurn update: recorded one evidence result.\n", "utf8");
   const inputPath = writeJson(root, "turn-input.json", {
     actionType: "record-user-evidence",
     actionSummary: "Recorded one evidence result.",
     touchedClaims: ["H1: Application segment may not include the app"],
-    evidenceRefs: ["_data/cases/2026-05-17-turn-ledger/evidence/result.json"],
+    evidenceRefs: [evidenceRef],
     allowedNext: ["pause"],
   });
 
@@ -1679,10 +1695,23 @@ test("completeTurn allows mark-resolved when completion gate is satisfied", () =
   const { root, caseSlug, journalPath } = createPassingCaseWithJournal();
   initializeTurnLedger({ root, caseSlug });
 
-  // Turn 1: record the evidence ref into the ledger WITHOUT transitioning the claim status.
-  // This establishes the ref in priorEvidenceRefs(events) so the subsequent turn can
-  // verify it (Change 3 evidence-gated transition predicate).
+  // Turn 1: import evidence during the open pending turn so the ref exists in MANIFEST.md,
+  // then complete the turn recording the ref WITHOUT transitioning the claim status.
+  // This establishes the ref in priorEvidenceRefs(events) for subsequent turns.
   const t1 = beginTurn({ root, caseSlug, userAction: "record-user-evidence" }).pendingTurn;
+  const rollbackSrc = path.join(root, "rollback-confirmation.json");
+  fs.writeFileSync(rollbackSrc, JSON.stringify({ confirmed: true }), "utf8");
+  const importResult = importEvidence({
+    root, caseSlug,
+    sourceFile: rollbackSrc,
+    name: "rollback-confirmation",
+    source: "Change management",
+    requestText: "Rollback confirmation from user",
+    summary: "Rollback confirmed by user.",
+    capturedAt: "2026-06-12T10:00:00Z",
+    touchedClaims: ["H1: Application segment may not include the app"],
+  });
+  const rollbackRef = importResult.evidenceRefs[0];
   const journalWithNote1 = fs.readFileSync(journalPath, "utf8") +
     "\nTurn update: rollback evidence collected, status still uncertain.\n";
   fs.writeFileSync(journalPath, journalWithNote1, "utf8");
@@ -1694,7 +1723,7 @@ test("completeTurn allows mark-resolved when completion gate is satisfied", () =
     actionType: "record-user-evidence",
     actionSummary: "Collected rollback evidence; claim still under evaluation.",
     touchedClaims: ["H1: Application segment may not include the app"],
-    evidenceRefs: ["_data/cases/example/evidence/rollback-confirmation.md"],
+    evidenceRefs: [rollbackRef],
     journalHashBefore: t1.journalHashBefore,
     allowedNext: ["record-user-evidence", "mark-resolved", "pause"],
   });
@@ -1714,7 +1743,7 @@ test("completeTurn allows mark-resolved when completion gate is satisfied", () =
     actionType: "record-user-evidence",
     actionSummary: "Recorded direct rollback evidence.",
     touchedClaims: ["H1: Application segment may not include the app"],
-    evidenceRefs: ["_data/cases/example/evidence/rollback-confirmation.md"],
+    evidenceRefs: [rollbackRef],
     journalHashBefore: evidenceTurn.journalHashBefore,
     allowedNext: ["mark-resolved", "pause"],
   });
@@ -1733,23 +1762,21 @@ test("completeTurn allows mark-resolved when completion gate is satisfied", () =
     actionType: "mark-resolved",
     actionSummary: "User confirmed the rollback resolved the issue.",
     touchedClaims: ["H1: Application segment may not include the app"],
-    evidenceRefs: ["_data/cases/example/evidence/rollback-confirmation.md"],
+    evidenceRefs: [rollbackRef],
     journalHashBefore: resolveTurn.journalHashBefore,
     completionGate: {
       rootCauseClaim: "H1: Application segment may not include the app",
       userConfirmedResolution: true,
-      supportingEvidenceRefs: ["_data/cases/example/evidence/rollback-confirmation.md"],
+      supportingEvidenceRefs: [rollbackRef],
     },
     allowedNext: ["pause"],
   });
 
   const completed = completeTurn({ root, caseSlug, turnJson: turnPath });
   assert.equal(completed.event.actionType, "mark-resolved");
-  assert.deepEqual(completed.event.completionGate, {
-    rootCauseClaim: "H1: Application segment may not include the app",
-    userConfirmedResolution: true,
-    supportingEvidenceRefs: ["_data/cases/example/evidence/rollback-confirmation.md"],
-  });
+  assert.equal(completed.event.completionGate.rootCauseClaim, "H1: Application segment may not include the app");
+  assert.ok(completed.event.completionGate.userConfirmedResolution);
+  assert.deepEqual(completed.event.completionGate.supportingEvidenceRefs, [rollbackRef]);
 });
 
 // ── record-loads / verify-loads / loadsStatus tests ───────────────────────────
@@ -2360,10 +2387,23 @@ test("status reports resolved phase after mark-resolved with all claims closed",
   const { root, caseSlug, journalPath } = createPassingCaseWithJournal();
   initializeTurnLedger({ root, caseSlug });
 
-  // Turn 1: record evidence ref into the ledger WITHOUT transitioning the claim status.
-  // This establishes the ref in priorEvidenceRefs(events) so the subsequent transition
-  // turn can verify it (Change 3 evidence-gated transition predicate).
+  // Turn 1: import evidence during the open pending turn so the ref exists in MANIFEST.md,
+  // then complete the turn recording the ref WITHOUT transitioning the claim status.
+  // This establishes the ref in priorEvidenceRefs(events) for subsequent turns.
   const t1 = beginTurn({ root, caseSlug, userAction: "record-user-evidence" }).pendingTurn;
+  const rollbackSrc = path.join(root, "rollback-confirmation.json");
+  fs.writeFileSync(rollbackSrc, JSON.stringify({ confirmed: true }), "utf8");
+  const importResult = importEvidence({
+    root, caseSlug,
+    sourceFile: rollbackSrc,
+    name: "rollback-confirmation",
+    source: "Change management",
+    requestText: "Rollback confirmation from user",
+    summary: "Rollback confirmed by user.",
+    capturedAt: "2026-06-12T10:00:00Z",
+    touchedClaims: ["H1: Application segment may not include the app"],
+  });
+  const rollbackRef = importResult.evidenceRefs[0];
   const journalWithNote1 = fs.readFileSync(journalPath, "utf8") +
     "\nTurn update: rollback evidence collected, status still uncertain.\n";
   fs.writeFileSync(journalPath, journalWithNote1, "utf8");
@@ -2375,7 +2415,7 @@ test("status reports resolved phase after mark-resolved with all claims closed",
     actionType: "record-user-evidence",
     actionSummary: "Collected rollback evidence; claim still under evaluation.",
     touchedClaims: ["H1: Application segment may not include the app"],
-    evidenceRefs: ["_data/cases/example/evidence/rollback-confirmation.md"],
+    evidenceRefs: [rollbackRef],
     journalHashBefore: t1.journalHashBefore,
     allowedNext: ["record-user-evidence", "mark-resolved", "pause"],
   });
@@ -2394,7 +2434,7 @@ test("status reports resolved phase after mark-resolved with all claims closed",
     actionType: "record-user-evidence",
     actionSummary: "Recorded direct rollback evidence.",
     touchedClaims: ["H1: Application segment may not include the app"],
-    evidenceRefs: ["_data/cases/example/evidence/rollback-confirmation.md"],
+    evidenceRefs: [rollbackRef],
     journalHashBefore: evidenceTurn.journalHashBefore,
     allowedNext: ["mark-resolved", "pause"],
   });
@@ -2412,12 +2452,12 @@ test("status reports resolved phase after mark-resolved with all claims closed",
     actionType: "mark-resolved",
     actionSummary: "User confirmed the rollback resolved the issue.",
     touchedClaims: ["H1: Application segment may not include the app"],
-    evidenceRefs: ["_data/cases/example/evidence/rollback-confirmation.md"],
+    evidenceRefs: [rollbackRef],
     journalHashBefore: resolveTurn.journalHashBefore,
     completionGate: {
       rootCauseClaim: "H1: Application segment may not include the app",
       userConfirmedResolution: true,
-      supportingEvidenceRefs: ["_data/cases/example/evidence/rollback-confirmation.md"],
+      supportingEvidenceRefs: [rollbackRef],
     },
     allowedNext: ["pause"],
   });
@@ -3429,9 +3469,24 @@ test("run-turn: mark-resolved enforces completionGate (failing case)", () => {
 test("run-turn: mark-resolved enforces completionGate (passing case)", () => {
   const { root, caseSlug } = createCaseWithLedger();
 
-  // First: record a prior evidence turn that keeps the claim Open (uncertain) but
-  // records the evidence ref.  This avoids triggering the evidence-gated transition
-  // predicate (Change 3) while establishing the ref in priorEvidenceRefs(events).
+  // First: import evidence in a begin/complete turn to establish the ref in MANIFEST.md,
+  // then complete the turn keeping the claim Open (uncertain) — this avoids triggering
+  // the evidence-gated transition predicate (Change 3) while establishing the ref so
+  // subsequent turns can reference it.
+  const confirmSrc = path.join(root, "confirm.json");
+  fs.writeFileSync(confirmSrc, JSON.stringify({ confirmed: true }), "utf8");
+  beginTurn({ root, caseSlug, userAction: "record-user-evidence" });
+  const importResult = importEvidence({
+    root, caseSlug,
+    sourceFile: confirmSrc,
+    name: "confirm",
+    source: "Change management",
+    requestText: "Confirmation from user",
+    summary: "Confirmation received.",
+    capturedAt: "2026-06-12T10:00:00Z",
+    touchedClaims: ["H1: Segment missing"],
+  });
+  const confirmRef = importResult.evidenceRefs[0];
   const evidenceTmpJournal = writeTempJournal(
     VALID_JOURNAL_CONTENT.replace(
       "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check app segment | 2026-06-10T00:00:00Z | reference-grounded |",
@@ -3442,16 +3497,16 @@ test("run-turn: mark-resolved enforces completionGate (passing case)", () => {
     actionType: "record-user-evidence",
     actionSummary: "Recorded supporting evidence.",
     touchedClaims: ["H1: Segment missing"],
-    evidenceRefs: ["_data/cases/example/evidence/confirm.md"],
+    evidenceRefs: [confirmRef],
     allowedNext: ["mark-resolved", "pause"],
   });
-  const e1Result = runTurn({
-    root,
-    caseSlug,
-    userAction: "record-user-evidence",
-    journalFile: evidenceTmpJournal,
-    turnInputJson: evidenceInputPath,
-  });
+  // Use completeTurn (not runTurn) because the pending turn from beginTurn is open.
+  const tmpJournalPath = evidenceTmpJournal;
+  // Save the journal content to disk for completeTurn.
+  const evidenceJournalContent = fs.readFileSync(tmpJournalPath, "utf8");
+  const journalPath = path.join(root, "_data/cases", caseSlug, "journal.md");
+  fs.writeFileSync(journalPath, evidenceJournalContent, "utf8");
+  const e1Result = completeTurn({ root, caseSlug, turnInputJson: evidenceInputPath });
   assert.equal(e1Result.status, "pass");
 
   // Now mark-resolved turn: transitions Open (uncertain) -> Confirmed (high).
@@ -3466,11 +3521,11 @@ test("run-turn: mark-resolved enforces completionGate (passing case)", () => {
     actionType: "mark-resolved",
     actionSummary: "User confirmed the fix holds.",
     touchedClaims: ["H1: Segment missing"],
-    evidenceRefs: ["_data/cases/example/evidence/confirm.md"],
+    evidenceRefs: [confirmRef],
     completionGate: {
       rootCauseClaim: "H1: Segment missing",
       userConfirmedResolution: true,
-      supportingEvidenceRefs: ["_data/cases/example/evidence/confirm.md"],
+      supportingEvidenceRefs: [confirmRef],
     },
     allowedNext: ["pause"],
   });
@@ -4111,20 +4166,36 @@ test("run-turn: replay attack — Confirmed (high) flip with empty evidenceRefs 
 test("run-turn: Confirmed (high) flip WITH verifiable prior evidenceRef passes", () => {
   const { root, caseSlug } = createCaseWithLedger();
 
-  // First turn: record the ref WITHOUT transitioning the status.
-  const e1Journal = VALID_JOURNAL_CONTENT.replace(
+  // First turn: import the evidence file during a begin/complete turn, keeping the claim
+  // Open (uncertain). This creates the ref in MANIFEST.md so it is verifiable.
+  const confirmSrc = path.join(root, "confirm-e1.json");
+  fs.writeFileSync(confirmSrc, JSON.stringify({ data: "evidence" }), "utf8");
+  beginTurn({ root, caseSlug, userAction: "record-user-evidence" });
+  const importResult = importEvidence({
+    root, caseSlug,
+    sourceFile: confirmSrc,
+    name: "confirm-e1",
+    source: "Change management",
+    requestText: "Confirmation from user",
+    summary: "Confirmation received.",
+    capturedAt: "2026-06-12T10:00:00Z",
+    touchedClaims: ["H1: Segment missing"],
+  });
+  const confirmRef = importResult.evidenceRefs[0];
+  const e1JournalContent = VALID_JOURNAL_CONTENT.replace(
     "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check app segment | 2026-06-10T00:00:00Z | reference-grounded |",
     "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check connector group | 2026-06-10T01:00:00Z | evidence-recorded |",
   ) + "\nTurn update: evidence file loaded.\n";
-  const tmpE1 = writeTempJournal(e1Journal);
+  const journalPath = path.join(root, "_data/cases", caseSlug, "journal.md");
+  fs.writeFileSync(journalPath, e1JournalContent, "utf8");
   const inputE1 = writeJson(root, "e1-input.json", {
     actionType: "record-user-evidence",
     actionSummary: "Loaded supporting evidence.",
     touchedClaims: ["H1: Segment missing"],
-    evidenceRefs: ["_data/cases/example/evidence/confirm.md"],
+    evidenceRefs: [confirmRef],
     allowedNext: ["record-user-evidence", "continue-top-open", "pause"],
   });
-  const e1Result = runTurn({ root, caseSlug, userAction: "record-user-evidence", journalFile: tmpE1, turnInputJson: inputE1 });
+  const e1Result = completeTurn({ root, caseSlug, turnInputJson: inputE1 });
   assert.equal(e1Result.status, "pass");
 
   // Second turn: transition is now verifiable because ref is in priorEvidenceRefs(events).
@@ -4137,7 +4208,7 @@ test("run-turn: Confirmed (high) flip WITH verifiable prior evidenceRef passes",
     actionType: "record-user-evidence",
     actionSummary: "Confirmed based on loaded evidence.",
     touchedClaims: ["H1: Segment missing"],
-    evidenceRefs: ["_data/cases/example/evidence/confirm.md"],
+    evidenceRefs: [confirmRef],
     allowedNext: ["mark-resolved", "pause"],
   });
   const confirmedResult = runTurn({ root, caseSlug, userAction: "record-user-evidence", journalFile: tmpConfirmed, turnInputJson: inputConfirmed });
@@ -4260,6 +4331,146 @@ test("run-turn: downgrade to Stale passes without evidenceRefs (exempt status)",
 
   const result = runTurn({ root, caseSlug, userAction: "continue-top-open", journalFile: tmpJournal, turnInputJson: inputPath });
   assert.equal(result.status, "pass");
+});
+
+// ── Evidence-recording gate (forge-5 hardening) ───────────────────────────────
+// Regression tests for the exploit: a model completes record-user-evidence with
+// refs: [] and a fabricated actionSummary — the turn must be rejected.
+
+test("run-turn: record-user-evidence with empty evidenceRefs is rejected with repair message", () => {
+  const { root, caseSlug } = createCaseWithLedger();
+  const journalContent = VALID_JOURNAL_CONTENT.replace(
+    "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check app segment | 2026-06-10T00:00:00Z | reference-grounded |",
+    "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check next | 2026-06-10T01:00:00Z | updated |",
+  ) + "\nTurn update: fabricated evidence narrative with no actual refs.\n";
+  const tmpJournal = writeTempJournal(journalContent);
+  const inputPath = writeJson(root, "exploit-input.json", {
+    actionType: "record-user-evidence",
+    actionSummary: "I found that the segment was misconfigured (fabricated).",
+    touchedClaims: ["H1: Segment missing"],
+    evidenceRefs: [],
+    allowedNext: ["pause"],
+  });
+  assert.throws(
+    () => runTurn({ root, caseSlug, userAction: "record-user-evidence", journalFile: tmpJournal, turnInputJson: inputPath }),
+    /record-user-evidence\/add-evidence turns must carry verifiable evidenceRefs.*import_evidence/,
+  );
+});
+
+test("run-turn: add-evidence with empty evidenceRefs is rejected with repair message", () => {
+  const { root, caseSlug } = createCaseWithLedger();
+  const journalContent = VALID_JOURNAL_CONTENT.replace(
+    "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check app segment | 2026-06-10T00:00:00Z | reference-grounded |",
+    "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check next | 2026-06-10T01:00:00Z | updated |",
+  ) + "\nTurn update: add-evidence with no refs.\n";
+  const tmpJournal = writeTempJournal(journalContent);
+  const inputPath = writeJson(root, "exploit-add-evidence-input.json", {
+    actionType: "add-evidence",
+    actionSummary: "Added evidence (fabricated).",
+    touchedClaims: ["H1: Segment missing"],
+    evidenceRefs: [],
+    allowedNext: ["pause"],
+  });
+  assert.throws(
+    () => runTurn({ root, caseSlug, userAction: "add-evidence", journalFile: tmpJournal, turnInputJson: inputPath }),
+    /record-user-evidence\/add-evidence turns must carry verifiable evidenceRefs.*import_evidence/,
+  );
+});
+
+test("run-turn: record-user-evidence with unverifiable ref is rejected with repair message", () => {
+  const { root, caseSlug } = createCaseWithLedger();
+  const journalContent = VALID_JOURNAL_CONTENT.replace(
+    "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check app segment | 2026-06-10T00:00:00Z | reference-grounded |",
+    "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check next | 2026-06-10T01:00:00Z | updated |",
+  ) + "\nTurn update: forged ref.\n";
+  const tmpJournal = writeTempJournal(journalContent);
+  const inputPath = writeJson(root, "forged-ref-input.json", {
+    actionType: "record-user-evidence",
+    actionSummary: "Recorded evidence with fabricated ref.",
+    touchedClaims: ["H1: Segment missing"],
+    evidenceRefs: ["_data/cases/nonexistent/evidence/forged.json"],
+    allowedNext: ["pause"],
+  });
+  assert.throws(
+    () => runTurn({ root, caseSlug, userAction: "record-user-evidence", journalFile: tmpJournal, turnInputJson: inputPath }),
+    /record-user-evidence\/add-evidence turns must carry verifiable evidenceRefs.*import_evidence/,
+  );
+});
+
+test("completeTurn: record-user-evidence with empty evidenceRefs is rejected with repair message", () => {
+  const { root, caseSlug, journalPath } = createPassingCaseWithJournal();
+  initializeTurnLedger({ root, caseSlug });
+  beginTurn({ root, caseSlug, userAction: "record-user-evidence" });
+  fs.appendFileSync(journalPath, "\nTurn update: fabricated evidence.\n", "utf8");
+  const inputPath = writeJson(root, "completeTurn-exploit-input.json", {
+    actionType: "record-user-evidence",
+    actionSummary: "I observed evidence (fabricated).",
+    touchedClaims: ["H1: Application segment may not include the app"],
+    evidenceRefs: [],
+    allowedNext: ["pause"],
+  });
+  assert.throws(
+    () => completeTurn({ root, caseSlug, turnInputJson: inputPath }),
+    /record-user-evidence\/add-evidence turns must carry verifiable evidenceRefs.*import_evidence/,
+  );
+});
+
+test("completeTurn: add-evidence with empty evidenceRefs is rejected with repair message", () => {
+  const { root, caseSlug, journalPath } = createPassingCaseWithJournal();
+  initializeTurnLedger({ root, caseSlug });
+  beginTurn({ root, caseSlug, userAction: "add-evidence" });
+  fs.appendFileSync(journalPath, "\nTurn update: fabricated evidence.\n", "utf8");
+  const inputPath = writeJson(root, "completeTurn-add-evidence-exploit-input.json", {
+    actionType: "add-evidence",
+    actionSummary: "Added evidence (fabricated).",
+    touchedClaims: ["H1: Application segment may not include the app"],
+    evidenceRefs: [],
+    allowedNext: ["pause"],
+  });
+  assert.throws(
+    () => completeTurn({ root, caseSlug, turnInputJson: inputPath }),
+    /record-user-evidence\/add-evidence turns must carry verifiable evidenceRefs.*import_evidence/,
+  );
+});
+
+test("run-turn: record-user-evidence with MANIFEST-backed ref passes (positive path)", () => {
+  // Positive path: import-evidence creates a MANIFEST.md entry; completion with that ref passes.
+  const { root, caseSlug } = createCaseWithLedger();
+
+  // Begin a turn, import evidence (creates MANIFEST.md entry), then complete it.
+  beginTurn({ root, caseSlug, userAction: "record-user-evidence" });
+  const srcFile = path.join(root, "evidence-data.json");
+  fs.writeFileSync(srcFile, JSON.stringify({ rows: 5 }), "utf8");
+  const importResult = importEvidence({
+    root, caseSlug,
+    sourceFile: srcFile,
+    name: "evidence-data",
+    source: "Splunk",
+    query: "index=zscaler_proxy",
+    summary: "Five matching log rows found.",
+    capturedAt: "2026-06-12T11:00:00Z",
+    touchedClaims: ["H1: Segment missing"],
+  });
+  const [evidenceRef] = importResult.evidenceRefs;
+  assert.ok(evidenceRef, "importEvidence must return a ref");
+
+  const journalContent = VALID_JOURNAL_CONTENT.replace(
+    "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check app segment | 2026-06-10T00:00:00Z | reference-grounded |",
+    "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Review results | 2026-06-12T11:00:00Z | evidence-recorded |",
+  ) + "\nTurn update: evidence loaded.\n";
+  const journalPath = path.join(root, "_data/cases", caseSlug, "journal.md");
+  fs.writeFileSync(journalPath, journalContent, "utf8");
+  const inputPath = writeJson(root, "positive-path-input.json", {
+    actionType: "record-user-evidence",
+    actionSummary: "Recorded five matching log rows.",
+    touchedClaims: ["H1: Segment missing"],
+    evidenceRefs: [evidenceRef],
+    allowedNext: ["continue-top-open", "pause"],
+  });
+
+  const result = completeTurn({ root, caseSlug, turnInputJson: inputPath });
+  assert.equal(result.status, "pass");
+  assert.deepEqual(result.event.evidenceRefs, [evidenceRef]);
 });
 
 // ── Change 3: initial journal gate (save-journal / initialize-turn-ledger) ────

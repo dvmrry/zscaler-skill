@@ -506,6 +506,12 @@ command enforces that the initial journal contains only `Open` claims; subsequen
 terminal statuses (`Confirmed`, `Ruled out`, `Resolved`) — evidence-gated
 transitions must go through `run-turn` or `begin-turn`/`complete-turn`.
 
+`record-user-evidence` and `add-evidence` turns must carry non-empty
+`evidenceRefs` where every ref is verifiable (present in `evidence/MANIFEST.md`
+or in a prior completed turn's `evidenceRefs`). Use `import_evidence` within a
+`begin-turn`/`complete-turn` split to create the MANIFEST.md entries before
+completing the turn. Narrative summaries in `actionSummary` are not evidence.
+
 Specifically, evidence-gated transitions require:
 
 - Transitioning a claim to `Confirmed (high)`, `Confirmed (medium)`,
