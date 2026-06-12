@@ -105,7 +105,15 @@ function resolveResourceContent(uri) {
   if (!parsed) return null;
   const { slug, kind } = parsed;
 
-  // Derive the repo root from the server script location.
+  // Derive the repo root from the server script location (scripts/../ = repo root).
+  // DESIGN NOTE: this is intentional — the resource root is always the repo the server
+  // is installed in, regardless of any tool call's `root` parameter. Tool calls forward
+  // `root` explicitly to the helper; resource reads use this server-relative root.
+  // Consequence: auditor://audit/<slug>/... URIs only resolve audits stored under the
+  // repo this server binary lives in. Cross-repo resource reads are NOT supported by
+  // design. Operators running the server from a different repo will get -32002 for any
+  // audit that does not exist under that repo's _data/audits/. See workflow.md or
+  // runtime-adapters.md for deployment notes.
   const root = path.resolve(new URL("..", import.meta.url).pathname);
 
   if (kind === "report") {
@@ -647,6 +655,11 @@ function handleRequest(raw) {
 }
 
 // ── Stdin reader ──────────────────────────────────────────────────────────────
+
+// Log the resource root at startup so operators can confirm which repo the
+// server resolves audit resource URIs against (see resolveResourceContent).
+const _RESOURCE_ROOT = path.resolve(new URL("..", import.meta.url).pathname);
+process.stderr.write(`[auditor-mcp-server] resource root: ${_RESOURCE_ROOT}\n`);
 
 let buffer = "";
 

@@ -80,6 +80,7 @@ import {
 import {
   auditStatus,
   renderAuditReport,
+  resolveSource,
 } from "../auditor-artifacts.mjs";
 
 const USAGE = `Usage:
@@ -482,9 +483,13 @@ function computeCaseReport(root, caseSlug) {
 function computeAuditDiskStatus(root, auditSlug) {
   try {
     const status = auditStatus({ root, auditSlug });
-    // Check that every finding has a source (belt-and-suspenders — the helper gate
-    // enforces this at record time, but the bridge verifies it from the ledger too).
+    // Check that every finding has a source that actually resolves (belt-and-suspenders —
+    // the helper gate enforces this at record time, but the bridge re-verifies from the
+    // ledger to catch findings that slipped through, e.g. via the trailing-newline
+    // off-by-one). Presence alone is not sufficient; we call resolveSource() so that a
+    // non-empty but unresolvable source string is also rejected.
     const findingsPath = path.join(root, "_data", "audits", auditSlug, "findings.jsonl");
+    const checksDir = path.join(root, "_data", "audits", auditSlug, "checks");
     let allFindingsSourced = true;
     try {
       if (fs.existsSync(findingsPath)) {
@@ -492,6 +497,11 @@ function computeAuditDiskStatus(root, auditSlug) {
         for (const line of lines) {
           const f = JSON.parse(line);
           if (!f.source || String(f.source).trim() === "") {
+            allFindingsSourced = false;
+            break;
+          }
+          const resolved = resolveSource(root, checksDir, f.source);
+          if (!resolved.resolves) {
             allFindingsSourced = false;
             break;
           }

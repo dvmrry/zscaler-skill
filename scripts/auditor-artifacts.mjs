@@ -170,7 +170,7 @@ function auditPaths(root, auditSlug) {
  *
  * Returns { type: "file-line"|"cross-file"|"check"|"unknown", resolves: boolean, error?: string }
  */
-function resolveSource(root, checksDir, source) {
+export function resolveSource(root, checksDir, source) {
   const s = String(source || "").trim();
   if (!s) return { type: "unknown", resolves: false, error: "source is empty" };
 
@@ -238,7 +238,15 @@ function resolveSource(root, checksDir, source) {
       return { type: "file-line", resolves: false, error: `file does not exist: ${filePart}` };
     }
     const content = fs.readFileSync(abs, "utf8");
-    const lineCount = content.split(/\r?\n/).length;
+    // Strip the trailing empty element produced by a trailing newline so that
+    // "N visible lines + trailing newline" is counted as N, not N+1. Without
+    // this correction, citing line N+1 on a standard newline-terminated file
+    // would pass the gate even though that line has no content.
+    const splitLines = content.split(/\r?\n/);
+    const lineCount =
+      splitLines.length > 0 && splitLines[splitLines.length - 1] === ""
+        ? splitLines.length - 1
+        : splitLines.length;
     if (lineEnd > lineCount) {
       return {
         type: "file-line",

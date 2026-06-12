@@ -265,6 +265,9 @@ function makeAuditFixture(root, slug, { withFindings = [] } = {}) {
   const auditDir = path.join(root, "_data", "audits", slug);
   fs.mkdirSync(auditDir, { recursive: true });
 
+  // Create a stub source file so file:line citations of "README.md:1" resolve.
+  fs.writeFileSync(path.join(root, "README.md"), "# Test Repo\n", "utf8");
+
   const timestamp = "2026-06-12T00:00:00.000Z";
   const intakeMd = `Status: pass\nBlocking Issues: none\n\n# Audit Intake\n\nAudit Slug: ${slug}\n`;
   fs.writeFileSync(path.join(auditDir, "audit-intake.md"), intakeMd, "utf8");
@@ -392,6 +395,33 @@ test("computeAuditDiskStatus: allFindingsSourced is false when a finding has an 
         description: "Finding without source",
         source: "",
         severity: "Info",
+        status: "Open",
+      },
+    ],
+  });
+  try {
+    const result = computeAuditDiskStatus(root, slug);
+    assert.equal(result.ok, true);
+    assert.equal(result.allFindingsSourced, false);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("computeAuditDiskStatus: allFindingsSourced is false when a finding has a non-empty but unresolvable source", () => {
+  // A finding that slipped through with a non-empty source that references a file
+  // which does not exist should cause allFindingsSourced to be false. Presence of
+  // a non-empty source string is not sufficient — resolveSource must confirm it.
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "aud-bridge-"));
+  const slug = "fixture-audit-3";
+  makeAuditFixture(root, slug, {
+    withFindings: [
+      {
+        findingId: "F-001",
+        description: "Finding with unresolvable source",
+        // References a file that does not exist in the fixture repo.
+        source: "does-not-exist/phantom.md:1",
+        severity: "Critical",
         status: "Open",
       },
     ],

@@ -208,6 +208,33 @@ test("record-finding: REJECT finding with line beyond EOF", () => {
   fs.rmSync(root, { recursive: true, force: true });
 });
 
+test("record-finding: REJECT finding citing the phantom trailing-newline line (off-by-one boundary)", () => {
+  // The fixture file has 5 visible lines and a trailing newline.
+  // content.split(/\r?\n/).length gives 6 (phantom empty element).
+  // Without the off-by-one fix, citing line 6 would pass the gate.
+  // With the fix, line 6 is correctly identified as beyond EOF.
+  const root = tempRepo();
+  const scopeFile = writeScopeFile(root, makeScope({ paths: ["references/zpa/index.md"] }));
+  openAudit({ root, auditSlug: "off-by-one-test", scopeJson: scopeFile });
+
+  const findingFile = writeFindingFile(root, {
+    findingId: "F1",
+    description: "Phantom line citation",
+    source: "references/zpa/index.md:6", // visibleLineCount (5) + 1 = 6
+    severity: "Critical",
+    status: "Open",
+    remediation: "Fix it",
+  });
+
+  assert.throws(
+    () => recordFinding({ root, auditSlug: "off-by-one-test", findingJson: findingFile }),
+    /beyond EOF|source does not resolve/,
+    "should reject finding citing one past the last visible line",
+  );
+
+  fs.rmSync(root, { recursive: true, force: true });
+});
+
 test("record-finding: REJECT High severity with only cross-file source", () => {
   const root = tempRepo();
   const scopeFile = writeScopeFile(root, makeScope({ paths: ["references/zpa/index.md"] }));
