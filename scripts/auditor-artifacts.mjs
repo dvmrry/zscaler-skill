@@ -336,7 +336,7 @@ function renderRegister(findings) {
       f.status,
       f.remediation || "",
       f.notes || "",
-    ].map((v) => String(v ?? "").replace(/\|/g, "\\|").replace(/\r?\n/g, " ").trim());
+    ].map((v) => String(v ?? "").replace(/\\/g, "\\\\").replace(/\|/g, "\\|").replace(/\r?\n/g, " ").trim());
     lines.push(`| ${cells.join(" | ")} |`);
   }
   lines.push("");
