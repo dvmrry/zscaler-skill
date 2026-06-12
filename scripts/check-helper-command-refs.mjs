@@ -3,7 +3,8 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
-import { capabilities } from "./investigator-artifacts.mjs";
+import { capabilities as investigatorCapabilities } from "./investigator-artifacts.mjs";
+import { capabilities as auditorCapabilities } from "./auditor-artifacts.mjs";
 
 const DEFAULT_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -24,13 +25,16 @@ const SCAN_PATHS = [
 // Matches any token following "investigator-artifacts.mjs " in prose or code.
 const COMMAND_REF_RE = /investigator-artifacts\.mjs\s+([a-z][a-z-]*)/g;
 
+// Matches any token following "auditor-artifacts.mjs " in prose or code.
+const AUDITOR_COMMAND_REF_RE = /auditor-artifacts\.mjs\s+([a-z][a-z-]*)/g;
+
 function usage(exitCode = 0) {
   const out = exitCode === 0 ? process.stdout : process.stderr;
   out.write(`Usage:
   node scripts/check-helper-command-refs.mjs [--root <repo-root>]
 
-Scans tracked docs for investigator-artifacts.mjs <command> mentions and
-reports any token not in the supported command set.
+Scans tracked docs for investigator-artifacts.mjs and auditor-artifacts.mjs
+<command> mentions and reports any token not in the respective supported command sets.
 `);
   process.exit(exitCode);
 }
@@ -82,12 +86,18 @@ function collectFiles(root, scanPaths) {
 }
 
 /**
- * Scan the given files for helper command references.
- * Returns { errors, mentionCount, fileCount }.
+ * Scan the given files for investigator-artifacts.mjs and auditor-artifacts.mjs
+ * command references. Reports any token not in the respective supported command sets.
+ *
+ * @param {string} root                 Repo root (for relative path display).
+ * @param {string[]} files              Absolute paths to scan.
+ * @param {Set<string>} validCommands   Valid investigator command tokens.
+ * @param {Set<string>} validAuditorCommands  Valid auditor command tokens.
+ * @returns {{ errors: string[], mentionCount: number }}
  *
  * Exported so the test file can call it directly against a temp directory.
  */
-export function scanFiles(root, files, validCommands) {
+export function scanFiles(root, files, validCommands, validAuditorCommands = new Set()) {
   const errors = [];
   let mentionCount = 0;
 
@@ -103,13 +113,27 @@ export function scanFiles(root, files, validCommands) {
     const lines = text.split(/\r?\n/);
     for (let i = 0; i < lines.length; i += 1) {
       const line = lines[i];
+
+      // Investigator command references.
       for (const match of line.matchAll(COMMAND_REF_RE)) {
         const token = match[1];
         mentionCount += 1;
         if (!validCommands.has(token)) {
           const rel = path.relative(root, filePath);
           errors.push(
-            `${rel}:${i + 1}: unknown command token "${token}" — valid commands: ${[...validCommands].join(", ")}`,
+            `${rel}:${i + 1}: unknown investigator-artifacts.mjs command "${token}" — valid commands: ${[...validCommands].join(", ")}`,
+          );
+        }
+      }
+
+      // Auditor command references.
+      for (const match of line.matchAll(AUDITOR_COMMAND_REF_RE)) {
+        const token = match[1];
+        mentionCount += 1;
+        if (validAuditorCommands.size > 0 && !validAuditorCommands.has(token)) {
+          const rel = path.relative(root, filePath);
+          errors.push(
+            `${rel}:${i + 1}: unknown auditor-artifacts.mjs command "${token}" — valid commands: ${[...validAuditorCommands].join(", ")}`,
           );
         }
       }
@@ -121,11 +145,13 @@ export function scanFiles(root, files, validCommands) {
 
 function main() {
   const args = parseArgs(process.argv);
-  const cap = capabilities();
-  const validCommands = new Set(cap.supported);
+  const invCap = investigatorCapabilities();
+  const validCommands = new Set(invCap.supported);
+  const audCap = auditorCapabilities();
+  const validAuditorCommands = new Set(audCap.supported);
 
   const files = collectFiles(args.root, SCAN_PATHS);
-  const { errors, mentionCount } = scanFiles(args.root, files, validCommands);
+  const { errors, mentionCount } = scanFiles(args.root, files, validCommands, validAuditorCommands);
 
   if (errors.length > 0) {
     for (const err of errors) {
