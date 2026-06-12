@@ -4,7 +4,7 @@ title: Zscaler Investigator
 role: investigator
 artifact: workflow
 content-type: reference
-last-verified: "2026-06-10"
+last-verified: "2026-06-12"
 confidence: medium
 sources:
   - agents/investigator/prompt.md
@@ -62,6 +62,34 @@ by model narration. Claim statuses in the answer come from the on-disk journal;
 the turn history comes from the ledger. See
 [`agents/_meta/runtime-adapters.md`](../_meta/runtime-adapters.md) for the
 answer-from-artifact rule and available resource URIs.
+
+## Transport selection
+
+Both transports enforce the identical gates (same helper core) and share the
+identical reasoning discipline (`prompt.md`, `harness.md`, `grounding/`). The
+only difference is whether gate calls go through MCP tools or shell commands.
+Choose once per case — never mix transports mid-case.
+
+**MCP path (preferred when available).** If the `zscaler-investigator` MCP
+server is mounted — that is, the runtime offers tools named `status`,
+`open_case`, `run_turn`, `render_report`, etc. — use the MCP path. Retrieve
+the server's `investigate` prompt (`prompts/get investigate`) and follow it:
+it carries the gated order, premise-challenge, status-first, and
+answer-from-artifact rules. Drive every gate as its MCP tool. The final answer
+to the user is the output of `render_report` (or the
+`investigator://case/{slug}/report` resource) — never model narration. The
+same discipline files (`prompt.md`, `harness.md`, `grounding/index.md`) still
+govern reasoning; the MCP entrypoint at
+`agents/investigator/mcp-entrypoint.md` is what the server returns for the
+`investigate` prompt.
+
+**CLI path (shell-only runtimes).** When the MCP server is not available —
+for example, work Windsurf today — follow the existing CLI command sequence
+documented below in this file (`node scripts/investigator-artifacts.mjs ...`),
+unchanged.
+
+Both transports hit the same gates and produce the same artifacts. The
+selection is purely about HOW gates are called, not WHAT the investigation does.
 
 ## Required Load Order
 
