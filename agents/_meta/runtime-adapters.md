@@ -139,6 +139,15 @@ adapter until parity has been tested.
 
 ## MCP transport
 
+### Transport selection
+
+Tool-capable runtimes with the `zscaler-investigator` MCP server mounted use
+the MCP path: retrieve the `investigate` prompt, drive every gate as a named
+MCP tool, and return `render_report` output as the final answer. Shell-only
+runtimes use the CLI path (`node scripts/investigator-artifacts.mjs ...`).
+`agents/investigator/workflow.md` owns the selection contract; adapters stay
+thin pointers to that file.
+
 The canonical helper (`scripts/investigator-artifacts.mjs`) now has two fronts:
 
 - **CLI** — `node scripts/investigator-artifacts.mjs <command> ...` — for

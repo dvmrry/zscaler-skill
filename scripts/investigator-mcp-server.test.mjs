@@ -1287,3 +1287,62 @@ test("prompts/get unknown prompt name returns -32602", async () => {
     server.close();
   }
 });
+
+// ── Drift guard: mcp-entrypoint.md tool names must exist in tools/list ────────
+//
+// The entrypoint is now load-bearing (workflow.md routes MCP runtimes to it).
+// If a tool referenced in the doc is renamed or removed from the server, this
+// test catches the canonical-vs-adapter drift before it reaches production.
+
+test("drift guard: every gate tool named in mcp-entrypoint.md exists in tools/list", async () => {
+  // The known gate tool names.  We intersect this set with what the doc
+  // actually mentions so the test is stable against prose that naturally
+  // contains words like "status" in other contexts.
+  const KNOWN_GATE_TOOLS = new Set([
+    "status",
+    "open_case",
+    "record_loads",
+    "initialize_turn_ledger",
+    "run_turn",
+    "render_report",
+  ]);
+
+  const entrypointPath = path.join(REPO_ROOT, "agents", "investigator", "mcp-entrypoint.md");
+  const entrypointContent = fs.readFileSync(entrypointPath, "utf8");
+
+  // Extract tool tokens: bold (**name**) or inline-code (`name`) sequences
+  // that match a known gate tool name.
+  const referenced = new Set();
+  for (const name of KNOWN_GATE_TOOLS) {
+    // Match **name** or `name` (backtick-fenced)
+    const boldPattern = new RegExp(`\\*\\*${name}\\*\\*`);
+    const codePattern = new RegExp(`\`${name}\``);
+    if (boldPattern.test(entrypointContent) || codePattern.test(entrypointContent)) {
+      referenced.add(name);
+    }
+  }
+
+  assert.ok(
+    referenced.size > 0,
+    `mcp-entrypoint.md must reference at least one known gate tool name (bold or backtick); found none among: ${[...KNOWN_GATE_TOOLS].join(", ")}`,
+  );
+
+  // Get the actual tool list from the server.
+  const server = spawnServer();
+  try {
+    await server.call({ jsonrpc: "2.0", method: "initialize", params: { protocolVersion: "2025-06-18", capabilities: {} } });
+    const resp = await server.call({ jsonrpc: "2.0", method: "tools/list", params: {} });
+    assert.ok(!resp.error, `tools/list error: ${JSON.stringify(resp.error)}`);
+    const servedNames = new Set(resp.result.tools.map((t) => t.name));
+
+    const missing = [...referenced].filter((name) => !servedNames.has(name));
+    assert.equal(
+      missing.length,
+      0,
+      `mcp-entrypoint.md references tool(s) not in tools/list: ${missing.join(", ")}. ` +
+        `Served tools: ${[...servedNames].join(", ")}`,
+    );
+  } finally {
+    server.close();
+  }
+});
