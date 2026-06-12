@@ -74,6 +74,7 @@ const VALID_CLAIM_STATUSES = new Set([
 const OPEN_CLAIM_STATUSES = new Set(["Open (likely)", "Open (uncertain)"]);
 // Statuses that require recorded evidence before a claim may enter them.
 const EVIDENCE_REQUIRED_STATUSES = new Set([
+  "Open (likely)",
   "Confirmed (high)",
   "Confirmed (medium)",
   "Ruled out",
@@ -489,7 +490,7 @@ function validateClaimTransitions(paths, priorContent, newContent, turnInput, pr
 
   const evidenceRefs = asArray(turnInput.evidenceRefs);
   if (evidenceRefs.length === 0) {
-    // Fast path: no evidence refs means any terminal transition is a violation.
+    // Fast path: no evidence refs means any evidence-gated transition is a violation.
     for (const [claim, newStatus] of newStatuses) {
       const priorStatus = priorStatuses.get(claim);
       // Claim is unchanged — exempt.
@@ -502,13 +503,6 @@ function validateClaimTransitions(paths, priorContent, newContent, turnInput, pr
         const claimSummary = claim.slice(0, 60);
         throw new Error(
           `claim transitions to ${newStatus} require recorded evidence: '${claimSummary}'. Record evidence first (import_evidence within a begin/complete turn, or a record-user-evidence turn whose evidenceRefs name recorded items). Claims cannot be confirmed or ruled out by assertion.`,
-        );
-      }
-      // Open (uncertain) -> Open (likely) requires evidence.
-      if (priorStatus === "Open (uncertain)" && newStatus === "Open (likely)") {
-        const claimSummary = claim.slice(0, 60);
-        throw new Error(
-          `upgrading a hypothesis to likely requires recorded evidence: '${claimSummary}'. Record evidence first (import_evidence within a begin/complete turn, or a record-user-evidence turn whose evidenceRefs name recorded items).`,
         );
       }
     }
@@ -531,15 +525,6 @@ function validateClaimTransitions(paths, priorContent, newContent, turnInput, pr
         const claimSummary = claim.slice(0, 60);
         throw new Error(
           `claim transitions to ${newStatus} require recorded evidence: '${claimSummary}'. Record evidence first (import_evidence within a begin/complete turn, or a record-user-evidence turn whose evidenceRefs name recorded items). Claims cannot be confirmed or ruled out by assertion.`,
-        );
-      }
-    }
-
-    if (priorStatus === "Open (uncertain)" && newStatus === "Open (likely)") {
-      if (unverifiable.length > 0) {
-        const claimSummary = claim.slice(0, 60);
-        throw new Error(
-          `upgrading a hypothesis to likely requires recorded evidence: '${claimSummary}'. Record evidence first (import_evidence within a begin/complete turn, or a record-user-evidence turn whose evidenceRefs name recorded items).`,
         );
       }
     }
@@ -1951,8 +1936,8 @@ function validateJournalContentForSave(content, paths, insidePendingTurn = false
     if (preResolved.length > 0) {
       const isInitial = !journalHasClaimTable(paths.journalPath);
       const context = isInitial
-        ? "the initial journal cannot contain resolved/confirmed/ruled-out claims; investigations start Open"
-        : "save-journal outside an active turn cannot introduce terminal claim statuses (Confirmed, Ruled out, Resolved); evidence-gated transitions must go through run-turn or begin/complete-turn";
+        ? "the initial journal cannot contain resolved/confirmed/ruled-out claims or Open (likely); investigations start Open (uncertain)"
+        : "save-journal outside an active turn cannot introduce evidence-gated statuses (Open (likely), Confirmed, Ruled out, Resolved); evidence-gated transitions must go through run-turn or begin/complete-turn";
       throw new Error(
         `${context} — record evidence through turns to move claims. Pre-resolved: ${preResolved.join("; ")}`,
       );

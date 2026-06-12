@@ -4238,7 +4238,7 @@ Open.
 
   assert.throws(
     () => runTurn({ root, caseSlug, userAction: "continue-top-open", journalFile: tmpJournal, turnInputJson: inputPath }),
-    /upgrading a hypothesis to likely requires recorded evidence/,
+    /claim transitions to Open \(likely\) require recorded evidence/,
   );
 });
 
@@ -4288,7 +4288,7 @@ test("save-journal: first save with Confirmed (high) claim is rejected (initial 
 
   assert.throws(
     () => saveJournal({ root, caseSlug: "2026-06-12-initial-journal-gate", contentFile: tmpPath }),
-    /initial journal cannot contain resolved\/confirmed\/ruled-out claims/,
+    /initial journal cannot contain resolved\/confirmed\/ruled-out claims or Open \(likely\)/,
   );
 });
 
@@ -4323,7 +4323,7 @@ test("save-journal: second save (overwrite) with Confirmed (high) claim is rejec
   // Second save must ALSO throw — the gate applies to all save-journal calls outside a turn.
   assert.throws(
     () => saveJournal({ root, caseSlug: "2026-06-12-overwrite-gate", contentFile: tmpPath2 }),
-    /save-journal outside an active turn cannot introduce terminal claim statuses/,
+    /save-journal outside an active turn cannot introduce evidence-gated statuses/,
   );
 });
 
@@ -4354,6 +4354,81 @@ test("initialize-turn-ledger: journal with Confirmed (high) claim is rejected by
 
   assert.throws(
     () => initializeTurnLedger({ root, caseSlug, journalFile: tmpPath }),
-    /initial journal cannot contain resolved\/confirmed\/ruled-out claims/,
+    /initial journal cannot contain resolved\/confirmed\/ruled-out claims or Open \(likely\)/,
+  );
+});
+
+// ── Finding-coverage tests (round-2 adversarial review) ───────────────────────
+
+test("completeTurn throws when pendingTurn.journalContentBefore is absent (hand-crafted state file)", () => {
+  // Covers the guard added in round-1 (investigator-artifacts.mjs lines 1483-1486).
+  // Without this test a silent-skip regression would go undetected.
+  const { root, caseSlug, journalPath } = createPassingCaseWithJournal();
+  initializeTurnLedger({ root, caseSlug });
+  beginTurn({ root, caseSlug, userAction: "continue-top-open" });
+
+  // Hack the turn-state file: delete journalContentBefore from pendingTurn,
+  // simulating a hand-crafted or older-version state file.
+  const turnStatePath = path.join(root, "_data/cases", caseSlug, "workflow", "02-turn-state.json");
+  const state = readJson(turnStatePath);
+  delete state.pendingTurn.journalContentBefore;
+  fs.writeFileSync(turnStatePath, `${JSON.stringify(state, null, 2)}\n`, "utf8");
+
+  // Mutate the journal so the hash-change check is satisfied.
+  fs.appendFileSync(journalPath, "\nTurn update: checked segment evidence.\n", "utf8");
+
+  const pending = state.pendingTurn;
+  const turnPath = writeJson(root, "turn-missing-before.json", {
+    sequence: pending.sequence,
+    previousHash: pending.priorLatestTurnHash,
+    turnToken: pending.turnToken,
+    userAction: pending.userAction,
+    actionType: "load-file",
+    actionSummary: "Checked segment evidence.",
+    touchedClaims: ["H1"],
+    evidenceRefs: ["E1"],
+    journalHashBefore: pending.journalHashBefore,
+    allowedNext: ["pause"],
+  });
+
+  assert.throws(
+    () => completeTurn({ root, caseSlug, turnJson: turnPath }),
+    /pendingTurn is missing journalContentBefore/,
+  );
+});
+
+test("save-journal: Open (likely) claim is rejected outside an active turn (evidence-gated status)", () => {
+  // Covers finding 2: Open (likely) must be blocked by save-journal outside a turn,
+  // just as terminal statuses are.  An agent cannot forge an elevated status via
+  // bare save-journal without going through the turn/evidence gate.
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  openCase({
+    root,
+    caseSlug: "2026-06-12-open-likely-gate",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+
+  // First save establishes the on-disk journal (Open (uncertain) — allowed).
+  const tmpPath1 = writeTempJournal(VALID_JOURNAL_CONTENT);
+  saveJournal({ root, caseSlug: "2026-06-12-open-likely-gate", contentFile: tmpPath1 });
+
+  // Second save tries to upgrade the claim to Open (likely) without a turn.
+  const likelyContent = VALID_JOURNAL_CONTENT.replace(
+    "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check app segment | 2026-06-10T00:00:00Z | reference-grounded |",
+    "| H1: Segment missing | references/zpa/app-segments.md | Open (likely) | Confirm next | 2026-06-10T01:00:00Z | upgraded |",
+  );
+  const tmpPath2 = writeTempJournal(likelyContent);
+
+  assert.throws(
+    () => saveJournal({ root, caseSlug: "2026-06-12-open-likely-gate", contentFile: tmpPath2 }),
+    /save-journal outside an active turn cannot introduce evidence-gated statuses/,
   );
 });
