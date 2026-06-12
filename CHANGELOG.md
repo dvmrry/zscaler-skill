@@ -4,6 +4,13 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.5.2](https://github.com/dvmrry/zscaler-skill/compare/v0.5.1...v0.5.2) (2026-06-12)
+
+
+### Documentation
+
+* **zpa:** SDK/Postman deep dive — verified schema facts + cross-source divergence reference ([#89](https://github.com/dvmrry/zscaler-skill/issues/89)) ([5bb34c7](https://github.com/dvmrry/zscaler-skill/commit/5bb34c71750887def557e4a9dd7e48cfd74908ba))
+
 ## [0.5.1](https://github.com/dvmrry/zscaler-skill/compare/v0.5.0...v0.5.1) (2026-06-12)
 
 
