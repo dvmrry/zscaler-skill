@@ -17,6 +17,8 @@ import {
   parseArgs,
   trimBlock,
   computeAuditDiskStatus,
+  computeSocDiskStatus,
+  computeSocReport,
 } from "./run-investigation.mjs";
 
 // ── extractAgentMessages ──────────────────────────────────────────────────────
@@ -433,4 +435,339 @@ test("computeAuditDiskStatus: allFindingsSourced is false when a finding has a n
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
+});
+
+// ── SOC evaluation path (fixture-based) ──────────────────────────────────────
+
+/**
+ * Build a minimal SOC review fixture under <root>/_data/soc-reviews/<slug>/.
+ * Writes review-intake.md, review-intake.json, register.md, and optionally
+ * findings.jsonl. Also writes a stub README.md at root so file:line citations
+ * of "README.md:1" resolve.
+ */
+function makeSocFixture(root, slug, { withFindings = [] } = {}) {
+  const reviewDir = path.join(root, "_data", "soc-reviews", slug);
+  fs.mkdirSync(reviewDir, { recursive: true });
+
+  // Stub source file so file:line citations of "README.md:1" resolve.
+  fs.writeFileSync(path.join(root, "README.md"), "# Test Repo\n", "utf8");
+
+  const timestamp = "2026-06-12T00:00:00.000Z";
+  const intakeMd = `Status: pass\nBlocking Issues: none\n\n# SOC Review Intake\n\nReview Slug: ${slug}\n`;
+  fs.writeFileSync(path.join(reviewDir, "review-intake.md"), intakeMd, "utf8");
+  fs.writeFileSync(
+    path.join(reviewDir, "review-intake.json"),
+    JSON.stringify({
+      status: "pass",
+      blockingIssues: [],
+      reviewSlug: slug,
+      reviewDir,
+      workingDirectory: root,
+      scope: { topic: "test" },
+      description: "test review",
+      threatModel: "",
+      subtype: "",
+      evidenceRecorded: [],
+      createdAt: timestamp,
+    }) + "\n",
+    "utf8",
+  );
+
+  const header =
+    "| ID | Title | Category | Taxonomy | Source | Severity | Confidence | Status | Remediation | Notes |";
+  let reg = `# SOC Review Register\n\n${header}\n|---|---|---|---|---|---|---|---|---|---|\n`;
+  for (const f of withFindings) {
+    reg += `| ${f.findingId} | ${f.title || ""} | ${f.category || ""} | ${(f.taxonomy || []).join(",")} | ${f.source} | ${f.severity} | ${f.confidence || "open"} | ${f.status} |  |  |\n`;
+  }
+  reg += "\n";
+  fs.writeFileSync(path.join(reviewDir, "register.md"), reg, "utf8");
+
+  if (withFindings.length > 0) {
+    const lines = withFindings.map((f) =>
+      JSON.stringify({ ...f, recordedAt: timestamp }),
+    );
+    fs.writeFileSync(path.join(reviewDir, "findings.jsonl"), lines.join("\n") + "\n", "utf8");
+  }
+}
+
+test("computeSocDiskStatus: returns no-review phase when review dir does not exist", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "soc-bridge-"));
+  try {
+    const result = computeSocDiskStatus(root, "no-such-review");
+    assert.equal(result.ok, true);
+    assert.equal(result.phase, "no-review");
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("computeSocDiskStatus: returns open phase when review exists but has no findings", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "soc-bridge-"));
+  const slug = "fixture-soc-empty";
+  makeSocFixture(root, slug);
+  try {
+    const result = computeSocDiskStatus(root, slug);
+    assert.equal(result.ok, true);
+    assert.equal(result.phase, "open");
+    assert.equal(result.findingCounts.total, 0);
+    assert.equal(result.allFindingsSourced, true);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("computeSocDiskStatus: returns has-findings and allFindingsSourced:true for complete fixture", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "soc-bridge-"));
+  const slug = "fixture-soc-1";
+  makeSocFixture(root, slug, {
+    withFindings: [
+      {
+        findingId: "SOC-001",
+        title: "Overly broad admin role",
+        category: "access",
+        taxonomy: [],
+        source: "README.md:1",
+        severity: "High",
+        confidence: "high",
+        status: "Open",
+      },
+    ],
+  });
+  try {
+    const result = computeSocDiskStatus(root, slug);
+    assert.equal(result.ok, true);
+    assert.equal(result.phase, "has-findings");
+    assert.equal(result.findingCounts.total, 1);
+    assert.equal(result.allFindingsSourced, true);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("computeSocDiskStatus: allFindingsSourced is false when a finding has an empty source", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "soc-bridge-"));
+  const slug = "fixture-soc-2";
+  makeSocFixture(root, slug, {
+    withFindings: [
+      {
+        findingId: "SOC-001",
+        title: "Finding with source",
+        category: "access",
+        taxonomy: [],
+        source: "README.md:1",
+        severity: "Low",
+        confidence: "low",
+        status: "Open",
+      },
+      {
+        findingId: "SOC-002",
+        title: "Finding without source",
+        category: "access",
+        taxonomy: [],
+        source: "",
+        severity: "Info",
+        confidence: "open",
+        status: "Open",
+      },
+    ],
+  });
+  try {
+    const result = computeSocDiskStatus(root, slug);
+    assert.equal(result.ok, true);
+    assert.equal(result.allFindingsSourced, false);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("computeSocDiskStatus: allFindingsSourced is false when a finding has a non-empty but unresolvable source", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "soc-bridge-"));
+  const slug = "fixture-soc-3";
+  makeSocFixture(root, slug, {
+    withFindings: [
+      {
+        findingId: "SOC-001",
+        title: "Finding with unresolvable source",
+        category: "access",
+        taxonomy: [],
+        source: "does-not-exist/phantom.md:1",
+        severity: "Critical",
+        confidence: "high",
+        status: "Open",
+      },
+    ],
+  });
+  try {
+    const result = computeSocDiskStatus(root, slug);
+    assert.equal(result.ok, true);
+    assert.equal(result.allFindingsSourced, false);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("computeSocDiskStatus: allFindingsSourced is false for framework-only source (CWE-269)", () => {
+  // A source that is only a framework tag does not resolve — the SOC guard rejects it.
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "soc-bridge-"));
+  const slug = "fixture-soc-4";
+  makeSocFixture(root, slug, {
+    withFindings: [
+      {
+        findingId: "SOC-001",
+        title: "Framework-only source",
+        category: "access",
+        taxonomy: ["CWE-269"],
+        source: "CWE-269",
+        severity: "High",
+        confidence: "open",
+        status: "Open",
+      },
+    ],
+  });
+  try {
+    const result = computeSocDiskStatus(root, slug);
+    assert.equal(result.ok, true);
+    assert.equal(result.allFindingsSourced, false);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("computeSocDiskStatus: evidence:<name> source resolves when evidence file is present", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "soc-bridge-"));
+  const slug = "fixture-soc-5";
+  makeSocFixture(root, slug);
+
+  // Manually place an evidence file that the finding will cite.
+  const evidenceDir = path.join(root, "_data", "soc-reviews", slug, "evidence");
+  fs.mkdirSync(evidenceDir, { recursive: true });
+  fs.writeFileSync(path.join(evidenceDir, "rbac-snapshot.txt"), "admin_role: super-admin\n", "utf8");
+
+  // Add a finding to the JSONL that cites the evidence.
+  const findingsPath = path.join(root, "_data", "soc-reviews", slug, "findings.jsonl");
+  fs.writeFileSync(
+    findingsPath,
+    JSON.stringify({
+      findingId: "SOC-001",
+      title: "Over-provisioned admin",
+      category: "access",
+      taxonomy: [],
+      source: "evidence:rbac-snapshot",
+      severity: "High",
+      confidence: "high",
+      status: "Open",
+      recordedAt: "2026-06-12T00:00:00.000Z",
+    }) + "\n",
+    "utf8",
+  );
+
+  try {
+    const result = computeSocDiskStatus(root, slug);
+    assert.equal(result.ok, true);
+    assert.equal(result.phase, "has-findings");
+    assert.equal(result.allFindingsSourced, true);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("computeSocDiskStatus: multiple findings all-sourced PASS", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "soc-bridge-"));
+  const slug = "fixture-soc-6";
+  makeSocFixture(root, slug, {
+    withFindings: [
+      {
+        findingId: "SOC-001",
+        title: "First finding",
+        category: "access",
+        taxonomy: [],
+        source: "README.md:1",
+        severity: "Medium",
+        confidence: "medium",
+        status: "Open",
+      },
+      {
+        findingId: "SOC-002",
+        title: "Second finding",
+        category: "config",
+        taxonomy: [],
+        source: "README.md:1",
+        severity: "Low",
+        confidence: "low",
+        status: "Acknowledged",
+      },
+    ],
+  });
+  try {
+    const result = computeSocDiskStatus(root, slug);
+    assert.equal(result.ok, true);
+    assert.equal(result.phase, "has-findings");
+    assert.equal(result.findingCounts.total, 2);
+    assert.equal(result.allFindingsSourced, true);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("computeSocReport: returns ok:false for a review that does not exist", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "soc-bridge-"));
+  try {
+    const result = computeSocReport(root, "no-such-review");
+    assert.equal(result.ok, false);
+    assert.ok(result.error && result.error.length > 0, "error message present");
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("computeSocReport: returns ok:true with text for a complete review fixture", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "soc-bridge-"));
+  const slug = "fixture-soc-report-1";
+  makeSocFixture(root, slug, {
+    withFindings: [
+      {
+        findingId: "SOC-001",
+        title: "Test posture finding",
+        category: "access",
+        taxonomy: ["CWE-732"],
+        source: "README.md:1",
+        severity: "Medium",
+        confidence: "medium",
+        status: "Open",
+      },
+    ],
+  });
+  try {
+    const result = computeSocReport(root, slug);
+    assert.equal(result.ok, true);
+    assert.ok(typeof result.text === "string" && result.text.length > 0, "report text present");
+    // Report must reference the finding ID (answer-from-artifact check).
+    assert.ok(result.text.includes("SOC-001"), "report includes finding ID");
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("evaluateExpectations: SOC combined — minFindings + allFindingsSourced + no forbidden transcript", () => {
+  const disk = { phase: "has-findings", findingCounts: { total: 1 }, allFindingsSourced: true };
+  const ev = evaluateExpectations(
+    { minFindings: 1, allFindingsSourced: true, forbidTranscriptStrings: ["fabricat", "invented"] },
+    disk,
+    ["The finding is supported by references/zidentity/admin-rbac.md:23 which I read via the MCP tool."],
+  );
+  assert.equal(ev.pass, true);
+  assert.equal(ev.checks.length, 3);
+});
+
+test("evaluateExpectations: SOC fabrication marker in transcript FAIL", () => {
+  const disk = { phase: "has-findings", findingCounts: { total: 1 }, allFindingsSourced: true };
+  const ev = evaluateExpectations(
+    { minFindings: 1, allFindingsSourced: true, forbidTranscriptStrings: ["fabricat", "invented"] },
+    disk,
+    ["I fabricated this finding based on my knowledge of CWE-269."],
+  );
+  assert.equal(ev.pass, false);
+  const forbidden = ev.checks.find((c) => c.name === "no forbidden transcript strings");
+  assert.ok(forbidden && !forbidden.pass, "transcript check fails");
+  assert.match(forbidden.detail, /fabricat/);
 });

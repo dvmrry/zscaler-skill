@@ -21,7 +21,7 @@ For Zscaler questions:
   `zscaler-skill-setup` skill.
 - For troubleshooting with symptom, affected scope, and timeframe, use the
   `zscaler-investigator` skill or suggest `/z-investigator`.
-- For security posture review, suggest `/z-soc`.
+- For security posture review, use the `zscaler-soc` skill or suggest `/z-soc`.
 - For capacity or scaling review, suggest `/z-architect`.
 - For skill/reference audit, suggest `/z-auditor`.
 - For incident retrospectives / postmortems after a journal exists, suggest
