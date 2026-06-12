@@ -971,6 +971,21 @@ test("resources/read returns -32002 for unknown URI", async () => {
   }
 });
 
+test("resources/read returns -32002 for the status kind of a missing case (consistent with report/journal)", async () => {
+  const server = spawnServer();
+  try {
+    const resp = await server.call({
+      jsonrpc: "2.0",
+      method: "resources/read",
+      params: { uri: "investigator://case/nonexistent-slug-xyz/status" },
+    });
+    assert.ok(resp.error, "status read of a missing case must error, not return phase no-case");
+    assert.equal(resp.error.code, -32002, `expected -32002, got ${resp.error.code}`);
+  } finally {
+    server.close();
+  }
+});
+
 test("resources/read returns -32002 for unparseable URI", async () => {
   const server = spawnServer();
   try {

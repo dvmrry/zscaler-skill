@@ -110,6 +110,14 @@ function resolveResourceContent(uri) {
     return { uri, mimeType: "text/markdown", text };
   }
   if (kind === "status") {
+    // A resource read of a specific case URI must 404 for a missing case,
+    // consistent with the report/journal kinds. caseStatus() itself returns
+    // phase "no-case" rather than throwing (correct for the doctor tool, wrong
+    // for a resource read), so assert the case directory exists first.
+    const caseDir = path.join(root, "_data", "cases", slug);
+    if (!fs.existsSync(path.join(caseDir, "case-intake.md"))) {
+      throw new Error(`no such case: ${slug}`);
+    }
     const result = caseStatus({ root, caseSlug: slug });
     return { uri, mimeType: "application/json", text: JSON.stringify(result, null, 2) };
   }
@@ -359,7 +367,9 @@ const TOOLS = [
     annotations: {
       readOnlyHint: false,
       destructiveHint: false,
-      idempotentHint: false,
+      // Writing the same journal content twice produces the same file bytes
+      // and the same case state — safe for a client to retry on failure.
+      idempotentHint: true,
       openWorldHint: false,
     },
   },
