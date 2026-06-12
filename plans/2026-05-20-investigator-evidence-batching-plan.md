@@ -1,7 +1,7 @@
 ---
 title: "Investigator Evidence Batching Plan"
 date: "2026-05-20"
-status: review-draft
+status: partially-implemented-0.5.0
 scope: "reduce /z-investigator long-run evidence-handling latency without weakening auditability"
 intended-reviewers: "Claude, DeepSeek, Codex, Cascade, or similar architecture reviewers"
 source-review: "2026-05-20 friction audit of a 25+ loop investigator run"
@@ -14,6 +14,11 @@ review-inputs:
 ---
 
 # Investigator Evidence Batching Plan
+
+> **Resolution note (2026-06-10):** Slice 1 (`import-evidence`) shipped in
+> v0.5.0. Slice 2's intent is covered by `run-turn --turn-input-json` (v0.5.0).
+> Slice 0 (journal Evidence Timeline / Dismissed Hypotheses sections) remains
+> open.
 
 ## Executive Summary
 

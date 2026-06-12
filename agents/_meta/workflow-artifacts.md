@@ -2,7 +2,7 @@
 topic: "workflow-artifacts"
 title: "Workflow artifacts and phase gates"
 content-type: reference
-last-verified: "2026-05-17"
+last-verified: "2026-06-10"
 confidence: medium
 source-tier: practice
 sources:
@@ -108,7 +108,7 @@ node scripts/investigator-artifacts.mjs open-case \
   --proposed-load agents/investigator/harness.md
 ```
 
-The verification command is:
+The `open-case` verification command is available for resume or repair:
 
 ```bash
 node scripts/investigator-artifacts.mjs verify-case \
@@ -116,7 +116,38 @@ node scripts/investigator-artifacts.mjs verify-case \
   --case-slug <slug>
 ```
 
-A fuller future `/z-investigator` artifact contract could write:
+A passing `open-case` response IS the verification. Run `verify-case` only
+when resuming an existing case or re-checking after repair — not as a
+required second step after a passing `open-case`.
+
+## Shipped Step 2+ artifact contract
+
+The shipped artifact contract extends the Step 1 case directory with
+workflow state written by deterministic helpers:
+
+```text
+_data/cases/<slug>/
+  case-intake.md
+  case-intake.json
+  journal.md
+  workflow/
+    01-loads.json          ← written by record-loads; recomputed by
+                              initialize-turn-ledger gate
+    02-turns.jsonl         ← hash-chained turn ledger; written via
+                              initialize-turn-ledger / run-turn / complete-turn
+    02-turn-state.json     ← current turn state (written with 02-turns.jsonl)
+  evidence/
+    MANIFEST.md            ← written by import-evidence
+    <slug>-<name>.<ext>    ← individual evidence files
+```
+
+Journal saves are written by `save-journal` and verified against required
+section markers before the write is accepted.
+
+## Superseded design sketch (kept for history)
+
+The block below was an earlier speculative contract that was never built.
+The shipped contract above supersedes it.
 
 ```text
 _data/cases/<slug>/

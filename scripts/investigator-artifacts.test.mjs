@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import test from "node:test";
 import {
   abandonTurn,
@@ -43,6 +44,14 @@ test("capabilities reports helper-assisted complete-turn input support", () => {
   assert.equal(result.status, "ok");
   assert.ok(result.supported.includes("complete-turn"));
   assert.ok(result.supportedOptions["complete-turn"].includes("--turn-input-json"));
+});
+
+test("capabilities().version matches the trimmed contents of the repo VERSION file", () => {
+  const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+  const versionFile = path.join(repoRoot, "VERSION");
+  const expected = fs.readFileSync(versionFile, "utf8").trim();
+  const result = capabilities();
+  assert.equal(result.version, expected, `capabilities().version should be "${expected}"`);
 });
 
 function makeRepoFiles(root, relativePaths) {

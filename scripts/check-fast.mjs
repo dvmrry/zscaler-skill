@@ -35,6 +35,11 @@ const CHECKS = [
     args: ["scripts/check-citations.mjs"],
   },
   {
+    name: "helper command refs",
+    command: "node",
+    args: ["scripts/check-helper-command-refs.mjs"],
+  },
+  {
     name: "node helper tests",
     command: "node",
     args: ["--test", ...testFiles],

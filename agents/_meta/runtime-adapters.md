@@ -2,7 +2,7 @@
 topic: "runtime-adapters"
 title: "Runtime adapters and portable skills"
 content-type: reference
-last-verified: "2026-05-17"
+last-verified: "2026-06-10"
 confidence: high
 source-tier: practice
 sources:
@@ -99,8 +99,11 @@ The investigator case-intake gate is the current concrete example:
 
 ```bash
 node scripts/investigator-artifacts.mjs open-case ...
-node scripts/investigator-artifacts.mjs verify-case ...
 ```
+
+A passing `open-case` response IS the verification; `verify-case` is for
+resuming an existing case or re-checking after repair, not as a required
+second step after a passing `open-case`.
 
 New investigations still start with `/z-investigator`. Resume-oriented
 adapters such as `/z-investigator-resume` may exist, but they must verify the

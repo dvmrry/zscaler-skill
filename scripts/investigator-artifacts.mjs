@@ -11,7 +11,13 @@ const TURN_LOG_BASENAME = "02-turns.jsonl";
 const TURN_STATE_BASENAME = "02-turn-state.json";
 const EVIDENCE_DIR_BASENAME = "evidence";
 const EVIDENCE_MANIFEST_BASENAME = "MANIFEST.md";
-const HELPER_VERSION = "0.4.0";
+let HELPER_VERSION = "unknown";
+try {
+  const versionFile = new URL("../VERSION", import.meta.url);
+  HELPER_VERSION = fs.readFileSync(versionFile, "utf8").trim();
+} catch {
+  // Fall back to "unknown" — capabilities() must keep working in odd deployments.
+}
 const MAX_EVIDENCE_SLUG_PART_LENGTH = 80;
 const MANDATORY_LOADS = [
   "agents/investigator/prompt.md",
@@ -30,6 +36,7 @@ const SUPPORTED_OPERATIONS = [
   "save-journal",
   "run-turn",
   "status",
+  "capabilities",
 ];
 const SUPPORTED_OPTIONS = {
   "complete-turn": ["--turn-json", "--turn-input-json"],

@@ -68,8 +68,9 @@ Start a Claude Code session and confirm the skill loads with `/skills`.
 
 ## Set Up ZIA and ZPA Credentials
 
-The operational scripts use `zscaler-sdk-python` via OneAPI OAuth through
-ZIdentity.
+Credentials are consumed by external tooling — the `zscalerctl` CLI or a
+private data-repo populator — that produces the `_data/snapshot/` dumps this
+skill reads. No script in this repo connects to Zscaler directly.
 
 Create the API client in ZIdentity. This is a one-time setup and requires
 ZIdentity admin access. Zscaler can move console navigation over time, so treat
@@ -81,20 +82,17 @@ live OneAPI docs if your tenant UI differs:
 2. Find the API client management page, commonly under
    **Integrations -> API Clients -> Add Client**.
 3. Grant the client read scopes for the products whose configuration you snapshot
-   — typically ZIA (`zia.*`), ZPA (`zpa.*`), and ZCC (`zcc.*`). (Credentials are
-   consumed by whatever populates `_data/snapshot/`, e.g. `zscalerctl`, not by
-   this repo.)
+   — typically ZIA (`zia.*`), ZPA (`zpa.*`), and ZCC (`zcc.*`).
 4. On save, copy the **Client ID** and either the **Client Secret** or the
    downloadable private key PEM.
 5. Your **Vanity Domain** is the subdomain you use to sign in to ZIdentity. If
    your admin portal URL is `https://admin.acme.zslogin.net`, the vanity domain
    is `acme`.
 
-If the portal path above does not match your tenant,
-`vendor/zscaler-sdk-python/README.md` has Zscaler's pinned walkthrough. Zscaler's
-live OneAPI docs are at https://help.zscaler.com/oneapi.
+If the portal path above does not match your tenant, Zscaler's live OneAPI docs
+are at https://help.zscaler.com/oneapi.
 
-Export the env vars:
+Configure the env vars for your external tooling (`zscalerctl` or equivalent):
 
 ```bash
 export ZSCALER_CLIENT_ID=...
@@ -105,7 +103,7 @@ export ZSCALER_CLOUD=...            # optional; omit for default commercial clou
 
 For JWT auth, set `ZSCALER_PRIVATE_KEY` instead of `ZSCALER_CLIENT_SECRET`.
 
-The pinned SDK docs list these `ZSCALER_CLOUD` values:
+Known `ZSCALER_CLOUD` values:
 
 - **Commercial**: omit the var for the default path. Explicit commercial values
   include `zscaler.net`, `zscalertwo.net`, `zscalerthree.net`, `zscloud.net`,
@@ -114,34 +112,8 @@ The pinned SDK docs list these `ZSCALER_CLOUD` values:
 - **ZPA-only gov values** also exist (`GOV`, `GOVUS`); use the legacy path if
   your ZPA tenant uses these.
 
-For this repo's SDK path, default commercial-cloud tenants usually leave
-`ZSCALER_CLOUD` unset. Per `tf-zia#552`, hard-requiring it via
-`getEnvVarOrFail` was a bug; the SDK's expected production behavior is empty or
-unset. Set `ZSCALER_CLOUD` when running against gov clouds, beta clouds, or a
-non-default commercial cloud where the tenant is explicitly on a
-non-`zscaler.net` cloud.
-
-## Legacy Auth
-
-Use this path when your tenant is pre-ZIdentity, or a gov tenant that has not
-migrated:
-
-```bash
-export ZSCALER_USE_LEGACY=true
-```
-
-Legacy auth needs product-specific env vars. At minimum:
-
-- ZIA: `ZIA_USERNAME`, `ZIA_PASSWORD`, `ZIA_API_KEY`, `ZIA_CLOUD`.
-- ZPA: `ZPA_CLIENT_ID`, `ZPA_CLIENT_SECRET`, `ZPA_CUSTOMER_ID`, `ZPA_CLOUD`.
-
-The full list is in `vendor/zscaler-sdk-python/README.md` under the legacy API
-framework section. If you are on legacy, the skill can still answer most of its
-reasoning questions from `references/` without the scripts running; credentials
-are only needed for tenant-specific lookups.
-
-See [`references/zia/api.md`](../references/zia/api.md) for Python client
-instantiation patterns.
+Default commercial-cloud tenants usually leave `ZSCALER_CLOUD` unset. Set it
+when running against gov clouds, beta clouds, or a non-default commercial cloud.
 
 ## Set Up Runtime Data
 

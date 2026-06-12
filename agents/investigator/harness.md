@@ -221,7 +221,7 @@ Template:
 
 Before Step 2 loads anything, compare the Step 1 displayed proposed loads to
 `_data/cases/<slug>/case-intake.json.proposedLoads`. If they differ, stop with
-`Case intake mismatch` and fix Step 1 by rerunning `open-case` + `verify-case`.
+`Case intake mismatch` and fix Step 1 by rerunning `open-case`.
 Do not proceed from a chat-only proposed load.
 
 Before presenting Checkpoint 2, record every loaded and deferred path

@@ -15,5 +15,9 @@ jobs:
     steps:
       - uses: googleapis/release-please-action@v4
         with:
+          # With a fine-grained PAT in RELEASE_PLEASE_TOKEN the release PR
+          # triggers required checks normally; without it, behavior is unchanged
+          # and admin-merge remains the standing procedure for the bot-token deadlock.
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
