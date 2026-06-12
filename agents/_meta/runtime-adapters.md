@@ -169,11 +169,55 @@ The server is registered project-scope in `.mcp.json`:
 Tool-capable runtimes that pick up `.mcp.json` will offer these tools:
 `status`, `open_case`, `verify_case`, `record_loads`, `verify_loads`,
 `save_journal`, `initialize_turn_ledger`, `begin_turn`, `run_turn`,
-`complete_turn`, `abandon_turn`, `import_evidence`, `helper_capabilities`.
+`complete_turn`, `abandon_turn`, `import_evidence`, `helper_capabilities`,
+`render_report`.
 
 Tool descriptions and tool results are the instruction channel — actionable
 gate errors pass through verbatim so runtimes can self-correct without a
 separate explanation layer.
+
+### MCP resources (answer-from-artifact)
+
+The server exposes three per-case resource templates via `resources/templates/list`:
+
+| URI template | MIME type | Content |
+|---|---|---|
+| `investigator://case/{slug}/report` | `text/markdown` | Artifact-derived investigation report (journal claims + turn history) |
+| `investigator://case/{slug}/journal` | `text/markdown` | Raw `journal.md` content |
+| `investigator://case/{slug}/status` | `application/json` | JSON output of `caseStatus()` |
+
+**Answer-from-artifact rule**: the final answer to the user is produced by
+`render_report` (tool) or by reading `investigator://case/{slug}/report`
+(resource) — not by model narration. Every claim status and every stated fact
+in the report is derived from on-disk artifacts. The model must not paraphrase
+or summarize findings from memory.
+
+`resources/list` enumerates existing cases when `_data/cases` is present; it
+returns an empty list gracefully when the directory is absent.
+
+Unknown or unparseable URIs return JSON-RPC error `-32002 Resource not found`.
+
+### MCP prompts (server-shipped role entrypoint)
+
+The server exposes two prompts via `prompts/list` and `prompts/get`:
+
+- **`investigate`** — returns the investigator role entrypoint from
+  `agents/investigator/mcp-entrypoint.md`, with optional `framing` argument
+  appended. This replaces per-runtime adapter prose as the role entry surface.
+- **`resume-case`** — requires `case_slug`; returns a status-first recovery
+  instruction for the named case.
+
+Unknown prompt names and missing required arguments return `-32602`.
+
+### Conformance gate
+
+Protocol conformance is verified by `scripts/check-mcp-conformance.mjs`. It
+runs in-process JSON-RPC assertions covering: initialize handshake, capabilities
+echo, tools/list annotations, unknown-tool error code, resources/templates/list,
+prompts/list, and prompts/get edge cases. If the official MCP Inspector CLI is
+available via npx, it is detected; full headless inspector integration is noted
+as pending. The gate is wired into `check-fast.mjs` and degrades gracefully if
+the inspector binary is unavailable.
 
 The MCP surface enforces two additional hardening constraints that do not
 apply to the CLI:

@@ -53,7 +53,15 @@ Runtime adapters must preserve:
 
 The metadata gives adapter docs and repo checks a stable place to point.
 
-Supporting script: `scripts/investigator-artifacts.mjs`
+Supporting scripts: `scripts/investigator-artifacts.mjs`,
+`scripts/investigator-mcp-server.mjs`.
+
+On MCP runtimes, the role entrypoint is server-provided (prompt `investigate`),
+and the final investigation answer is produced by the `render_report` tool — not
+by model narration. Claim statuses in the answer come from the on-disk journal;
+the turn history comes from the ledger. See
+[`agents/_meta/runtime-adapters.md`](../_meta/runtime-adapters.md) for the
+answer-from-artifact rule and available resource URIs.
 
 ## Required Load Order
 

@@ -45,6 +45,11 @@ const CHECKS = [
     args: ["--test", ...testFiles],
   },
   {
+    name: "MCP conformance",
+    command: "node",
+    args: ["scripts/check-mcp-conformance.mjs"],
+  },
+  {
     name: "diff whitespace",
     command: "git",
     args: ["diff", "--check"],
