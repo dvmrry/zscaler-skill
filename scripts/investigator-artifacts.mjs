@@ -2399,6 +2399,147 @@ function capabilities() {
   };
 }
 
+/**
+ * renderCaseReport({ root, caseSlug }) -> string (markdown)
+ *
+ * Render a human-readable investigation report derived STRICTLY from on-disk
+ * artifacts: journal claims table, turn ledger history (02-turns.jsonl),
+ * evidence/MANIFEST.md, and archivedGenerations.  No free narrative; every
+ * claim status and every stated fact comes from a file.
+ *
+ * Throws an actionable error if the case does not exist.
+ */
+function renderCaseReport({ root, caseSlug }) {
+  const resolvedRoot = resolveRepoRoot(root);
+  assertSafeSlug(caseSlug);
+  const paths = casePaths(resolvedRoot, caseSlug);
+
+  // Assert case existence.
+  if (!fs.existsSync(paths.caseIntakePath)) {
+    throw new Error(
+      `Case not found: ${caseSlug}. Run open_case to create it, or check the case slug spelling.`,
+    );
+  }
+
+  const lines = [];
+
+  // ── Header ──────────────────────────────────────────────────────────────
+  lines.push(`# Investigation Report: ${caseSlug}`);
+  lines.push("");
+
+  // ── Issue / Status (from case-intake.json if present) ───────────────────
+  let intakeJson = null;
+  try {
+    intakeJson = JSON.parse(fs.readFileSync(paths.caseIntakeJsonPath, "utf8"));
+  } catch (_) {
+    // Non-fatal; render what we can.
+  }
+  if (intakeJson) {
+    lines.push("## Issue");
+    lines.push("");
+    lines.push(`**Symptom:** ${intakeJson.symptom || "(not recorded)"}`);
+    if (intakeJson.tenantCloud) lines.push(`**Cloud:** ${intakeJson.tenantCloud}`);
+    if (intakeJson.products) lines.push(`**Products:** ${asArray(intakeJson.products).join(", ")}`);
+    if (intakeJson.scope) lines.push(`**Scope:** ${intakeJson.scope}`);
+    lines.push("");
+  }
+
+  // ── Claims (from journal.md claim table only) ────────────────────────────
+  lines.push("## Claims");
+  lines.push("");
+  if (fs.existsSync(paths.journalPath)) {
+    const journalContent = fs.readFileSync(paths.journalPath, "utf8");
+    const claimStatuses = journalClaimStatusesFromContent(journalContent);
+    if (claimStatuses.size === 0) {
+      lines.push("No claims recorded in journal.");
+    } else {
+      lines.push("| Claim | Status | Source | Notes |");
+      lines.push("|---|---|---|---|");
+      // Re-parse all 6 columns from the journal table for source + notes.
+      const journalLines = journalContent.split(/\r?\n/);
+      const headerIdx = journalLines.findIndex((l) => l.trim() === REQUIRED_CLAIM_TABLE_HEADER);
+      for (const line of journalLines.slice(headerIdx + 1)) {
+        const trimmed = line.trim();
+        if (!trimmed) break;
+        if (trimmed.startsWith("## ")) break;
+        if (/^\|\s*-+/.test(trimmed)) continue;
+        if (!trimmed.startsWith("|")) continue;
+        const cells = markdownTableCells(trimmed);
+        if (cells.length < 3) continue;
+        const claim = cells[0];
+        const source = cells[1] || "";
+        const status = cells[2];
+        const notes = cells[5] || "";
+        lines.push(`| ${claim} | ${status} | ${source} | ${notes} |`);
+      }
+    }
+  } else {
+    lines.push("No journal present.");
+  }
+  lines.push("");
+
+  // ── Evidence recorded (from evidence/MANIFEST.md) ────────────────────────
+  lines.push("## Evidence recorded");
+  lines.push("");
+  if (fs.existsSync(paths.evidenceManifestPath)) {
+    const manifest = fs.readFileSync(paths.evidenceManifestPath, "utf8");
+    lines.push(manifest.trim());
+  } else {
+    lines.push("None recorded.");
+  }
+  lines.push("");
+
+  // ── Turn history (from 02-turns.jsonl) ───────────────────────────────────
+  lines.push("## Turn history");
+  lines.push("");
+  if (fs.existsSync(paths.turnLogPath)) {
+    let events = [];
+    try {
+      events = readJsonl(paths.turnLogPath);
+    } catch (_) {
+      lines.push("(turn log unreadable)");
+    }
+    if (events.length === 0) {
+      lines.push("No turns recorded.");
+    } else {
+      lines.push("| Sequence | Action type | User action |");
+      lines.push("|---|---|---|");
+      for (const event of events) {
+        const seq = event.sequence !== undefined ? String(event.sequence) : "?";
+        const actionType = event.actionType || "(unknown)";
+        const userAction = event.userAction || "";
+        lines.push(`| ${seq} | ${actionType} | ${userAction} |`);
+      }
+    }
+  } else {
+    lines.push("No turn ledger present.");
+  }
+  lines.push("");
+
+  // ── Ledger integrity ─────────────────────────────────────────────────────
+  let archivedGenerations = 0;
+  if (fs.existsSync(paths.ledgerArchiveDir)) {
+    try {
+      archivedGenerations = fs.readdirSync(paths.ledgerArchiveDir, { withFileTypes: true })
+        .filter((e) => e.isDirectory()).length;
+    } catch (_) {
+      // Non-fatal.
+    }
+  }
+  lines.push("## Ledger integrity");
+  lines.push("");
+  if (archivedGenerations > 0) {
+    lines.push(
+      `WARNING: This case has ${archivedGenerations} archived ledger generation(s). Prior turn history was replaced via force re-initialization. Review workflow/ledger-archive/ before trusting the current chain.`,
+    );
+  } else {
+    lines.push("No archived generations. Ledger chain intact.");
+  }
+  lines.push("");
+
+  return lines.join("\n");
+}
+
 function main() {
   try {
     const args = parseArgs(process.argv);
@@ -2508,6 +2649,7 @@ export {
   saveJournal,
   runTurn,
   caseStatus,
+  renderCaseReport,
   // Exported for drift-guard tests only — do not use in application code.
   REQUIRED_JOURNAL_MARKERS,
   validateJournalContentForSave,
