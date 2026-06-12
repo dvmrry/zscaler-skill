@@ -3,7 +3,7 @@ product: zpa
 topic: "api-postman-schemas"
 title: "ZPA API schemas (from Postman collection)"
 content-type: reference
-last-verified: "2026-04-28"
+last-verified: "2026-06-12"
 confidence: high
 source-tier: vendor
 sources:
@@ -4257,4 +4257,190 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
   "<string>"
 ]
 ```
+
+
+---
+
+## Annotations — verified facts from Postman collection
+
+The sections below record behavioral details, enum values, and quirks that are not captured in the per-endpoint schemas above. Every claim cites the line in the source file.
+
+---
+
+### Application Segments — commonAppsDto unified write surface
+
+`commonAppsDto` is the unified write surface for BA, Inspect, and PRA sub-applications (`vendor/zscaler-api-specs/oneapi-postman-collection.json:11008`). Each entry in `appsConfig` carries:
+
+| Field | Notes |
+|---|---|
+| `adpEnabled` | boolean |
+| `allowOptions` | boolean |
+| `appId` | long |
+| `appTypes[]` | array of type strings |
+| `applicationPort` | integer |
+| `applicationProtocol` | string enum |
+| `baAppId` | long — BA sub-app ID |
+| `certificateId` | long |
+| `certificateName` | string |
+| `cname` | string |
+| `connectionSecurity` | string |
+| `domain` | string |
+| `enabled` | boolean |
+| `hidden` | boolean |
+| `inspectAppId` | long — Inspect sub-app ID |
+| `localDomain` | string |
+| `name` | string |
+| `path` | string |
+| `portal` | boolean |
+| `praAppId` | long — PRA sub-app ID |
+| `protocols[]` | array |
+| `trustUntrustedCert` | boolean |
+
+On PUT, the `deletedBaApps`, `deletedInspectApps`, and `deletedPraApps` arrays carry IDs of sub-applications to remove (`vendor/zscaler-api-specs/oneapi-postman-collection.json:11008`).
+
+---
+
+### Microtenants — sharedMicrotenantDetails on ApplicationSegment GET
+
+ApplicationSegment GET responses include `sharedMicrotenantDetails` with the following shape (`vendor/zscaler-api-specs/oneapi-postman-collection.json:11008,14307`):
+
+```json
+{
+  "sharedMicrotenantDetails": {
+    "sharedFromMicrotenant": { "id": "<long>", "name": "<string>" },
+    "sharedToMicrotenants": [{ "id": "<long>", "name": "<string>" }]
+  }
+}
+```
+
+`sharedToMicrotenants` is an array; `sharedFromMicrotenant` is a single object. Both carry only `id` and `name`.
+
+The share PUT request body uses `{ "shareToMicrotenants": ["<long>"] }` — an array of IDs, not objects (`vendor/zscaler-api-specs/oneapi-postman-collection.json:14320`).
+
+---
+
+### Microtenants — microtenantId query parameter sentinel values
+
+For resource endpoints accepting `microtenantId` as a query parameter (`vendor/zscaler-api-specs/oneapi-postman-collection.json:14347`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:36599`):
+
+- Pass `0` to scope the request to the Default microtenant.
+- Omit the parameter entirely for the Customer data microtenant.
+
+For `targetMicrotenantId` on the credential/move endpoint, pass `0` for Default; the null/omit case for target is not documented in the collection (`vendor/zscaler-api-specs/oneapi-postman-collection.json:36607`).
+
+This `0`/null pattern is documented in the `microtenantId` field description on every relevant endpoint and applies to application/share, application/move, and credential/move.
+
+---
+
+### App Connectors, Groups, and Schedules — enum values
+
+**controlChannelStatus** (`vendor/zscaler-api-specs/oneapi-postman-collection.json:29077`):
+
+- `UNKNOWN`
+- `ZPN_STATUS_AUTHENTICATED`
+- `ZPN_STATUS_DISCONNECTED`
+
+**upgradeStatus** (`vendor/zscaler-api-specs/oneapi-postman-collection.json:29077`):
+
+- `UNKNOWN`
+- `COMPLETE`
+- `IN_PROGRESS`
+- `RESTARTING`
+- `REMOVAL_IN_PROGRESS`
+- `PARTIAL_FAILURE`
+- `FAILED`
+
+**zpnSubModuleUpgradeList[].role** (`vendor/zscaler-api-specs/oneapi-postman-collection.json:29077`):
+
+- `ASSISTANT`
+- `PRIVATE_BROKER`
+- `SITE_CONTROLLER`
+- `GUACD`
+- `MMDB_GEOIP`
+- `MMDB_ISP`
+
+---
+
+### App Connectors, Groups, and Schedules — microtenantId=0 sentinel
+
+`microtenantId=0` selects the Default microtenant. For Customer data microtenants the value should be `null` (not zero). This convention applies to connector, group, and schedule endpoints and is documented in the `microtenantId` description on every relevant Postman endpoint (`vendor/zscaler-api-specs/oneapi-postman-collection.json:27800`).
+
+---
+
+### Server Groups — inconsistentConfigDetails read-only field
+
+ServerGroup GET responses include a top-level read-only field `inconsistentConfigDetails` containing 17 keys (`vendor/zscaler-api-specs/oneapi-postman-collection.json:119576`):
+
+`application`, `segmentGroup`, `appConnectorGroup`, `baCertificate`, `branchConnectorGroup`, `cloudConnectorGroup`, `idp`, `location`, `machineGroup`, `postureProfile`, `samlAttributes`, `scimAttributes`, `serverGroup`, `sraApplication`, `trustedNetwork`, `userPortal`, `workloadTagGroup`
+
+Each key is an array of `{ name: string, reason: string }` objects surfacing configuration drift. Neither the Go SDK nor the Python SDK struct models this field.
+
+---
+
+### Service Edges — serviceEdgeSchedule POST returns 204
+
+`POST /mgmtconfig/v1/admin/customers/:customerId/serviceEdgeSchedule` returns **204 No Content** with no body or Location header (`vendor/zscaler-api-specs/oneapi-postman-collection.json:111265`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:111317`). Use a GET immediately after creation to retrieve the schedule. This matches the connector schedule pattern but deviates from typical REST create semantics (201 Created).
+
+---
+
+### Log Streaming Service (LSS) — clientTypes endpoint deprecation
+
+`GET /mgmtconfig/v2/admin/lssConfig/clientTypes` is documented as deprecated in a future release (`vendor/zscaler-api-specs/oneapi-postman-collection.json:64139`).
+
+Replacement is the customer-scoped path: `GET /mgmtconfig/v2/admin/lssConfig/customers/:customerId/clientTypes` (`vendor/zscaler-api-specs/oneapi-postman-collection.json:66790`).
+
+**SDK divergence**: The Go SDK still calls the deprecated global path (no customerId). The Python SDK already uses the customer-scoped replacement path.
+
+---
+
+### Privileged Remote Access (PRA) — applicationProtocol enum
+
+The full set of `applicationProtocol` values observed across PRA-related endpoints in the Postman collection (`vendor/zscaler-api-specs/oneapi-postman-collection.json:86512`):
+
+`AUTO`, `DYNAMIC`, `FTP`, `HTTP`, `HTTPS`, `NONE`, `RDP`, `SSH`, `VNC`, `WEBSOCKET`
+
+Note: `DYNAMIC`, `FTP`, `VNC`, and `WEBSOCKET` are present in the collection but were not included in the original documented set. See Open questions for a citation-scope note.
+
+---
+
+### Privileged Remote Access (PRA) — CredentialPool absent from collection
+
+No CredentialPool endpoints exist in `oneapi-postman-collection.json`. The collection contains only Credential Controller endpoints on the `mgmtconfig` vhost (`vendor/zscaler-api-specs/oneapi-postman-collection.json:36571`). CredentialPool lives on a separate `waap-pra-config` vhost and is documented only via the SDKs.
+
+---
+
+### Certificates and Enrollment — microtenantId query parameter semantics
+
+For `/certificate` and deprecated `/clientlessCertificate` endpoints, the `microtenantId` query parameter follows the same sentinel convention (`vendor/zscaler-api-specs/oneapi-postman-collection.json:21872`):
+
+- Pass `0` for the Default microtenant.
+- Pass `null` for a Customer data microtenant.
+
+Omitting vs. passing null may differ in behavior; the description does not clarify.
+
+---
+
+### Provisioning Keys — response codes
+
+**POST create returns 200, not 201.** The Postman collection example response for POST is named "OK" (200) (`vendor/zscaler-api-specs/oneapi-postman-collection.json:97610`). This matches ZPA's general pattern of returning 200 for creates rather than 201.
+
+**Error response shape** — uniform across all Provisioning Key endpoints for 4xx and 5xx status codes (`vendor/zscaler-api-specs/oneapi-postman-collection.json:94722`):
+
+```json
+{ "hostname": "<string>", "id": "<string>", "reason": "<string>" }
+```
+
+---
+
+### Cloud Browser Isolation (CBI) — profileId type and POST response code
+
+**profileId is UUID, not long integer.** The Postman collection types `:profileId` as `<uuid>` on CBI isolation profile endpoints (`vendor/zscaler-api-specs/oneapi-postman-collection.json:19626`). Inspection profile IDs are typed as `long`. Using an integer for a CBI profile ID will fail.
+
+**POST CBI isolation profile returns HTTP 200, not 201.** Successful CBI profile creation returns 200 rather than 201 Created (`vendor/zscaler-api-specs/oneapi-postman-collection.json:21501`). This differs from `mgmtconfig` POST endpoints (inspection controls, etc.) which return 201.
+
+---
+
+## Open questions
+
+- **PRAApplication.applicationProtocol full enum citation scope** — the report claims DYNAMIC, FTP, VNC, and WEBSOCKET are present in the collection and cites `oneapi-postman-collection.json:86512`, but that line shows a PRA Console GET response listing only HTTP and SSH in the two example instances shown. The full 10-value enum (AUTO, DYNAMIC, FTP, HTTP, HTTPS, NONE, RDP, SSH, VNC, WEBSOCKET) likely appears across multiple PRA endpoints in the collection rather than at a single line — *unverified at line-level; requires a grep across the full collection for each enum value to confirm completeness*
 

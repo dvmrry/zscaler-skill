@@ -58,6 +58,7 @@ Field-and-endpoint-level catalogs derived from Zscaler SDKs and Postman collecti
 |---|---|---|
 | API endpoint inventory — full ZPA REST endpoint catalog with request/response shapes | [`./api-schemas.md`](./api-schemas.md) | draft |
 | Postman-collection-derived schemas — extracted struct shapes and parameter types from the ZPA Postman collection | [`./api-postman-schemas.md`](./api-postman-schemas.md) | draft |
+| **API source divergences** — where the Go SDK, Python SDK, and Postman collection disagree with each other and with field observations; which source to trust per area | [`./api-divergences.md`](./api-divergences.md) | draft |
 | SAML attribute reference — attributes available for ZPA policy criteria and how they're sourced from the IdP | [`./saml-attributes.md`](./saml-attributes.md) | draft |
 
 ## When the question spans multiple topics
