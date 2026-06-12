@@ -27,6 +27,12 @@ snapshot-load discipline, and subsequent-turn cadence.
 Runtime adapters may reinforce this harness for weaker models, but they should
 not invent a separate checkpoint contract.
 
+On MCP runtimes, the role entrypoint is server-provided (prompt `investigate`
+from the MCP server) and the final investigation answer is produced by
+`render_report` (tool) — not by model narration. See
+[`agents/_meta/runtime-adapters.md`](../_meta/runtime-adapters.md) for the
+full answer-from-artifact rule and resource URI scheme.
+
 Step 1's deterministic artifact contract lives in
 [`case-intake.md`](./case-intake.md). Use the Node helper named there for
 case intake and journal creation instead of relying on prose-only file-write

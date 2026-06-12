@@ -178,18 +178,26 @@ test("initialize returns serverInfo.name and version matching VERSION file", asy
   }
 });
 
-test("tools/list returns all 13 tools with inputSchemas", async () => {
+test("tools/list returns all 14 tools with inputSchemas and annotations", async () => {
   const server = spawnServer();
   try {
     await server.call({ jsonrpc: "2.0", method: "initialize", params: { protocolVersion: "2024-11-05", capabilities: {} } });
     const resp = await server.call({ jsonrpc: "2.0", method: "tools/list", params: {} });
     assert.ok(!resp.error, `unexpected error: ${JSON.stringify(resp.error)}`);
     const tools = resp.result.tools;
-    assert.equal(tools.length, 13, `expected 13 tools, got ${tools.length}: ${tools.map((t) => t.name).join(", ")}`);
+    assert.equal(tools.length, 14, `expected 14 tools, got ${tools.length}: ${tools.map((t) => t.name).join(", ")}`);
     for (const tool of tools) {
       assert.ok(tool.name, "tool missing name");
       assert.ok(tool.inputSchema, `tool ${tool.name} missing inputSchema`);
       assert.equal(tool.inputSchema.type, "object", `tool ${tool.name} inputSchema.type is not object`);
+      // A2: every tool must have annotations with all four boolean hints.
+      assert.ok(tool.annotations, `tool ${tool.name} missing annotations`);
+      assert.equal(typeof tool.annotations.readOnlyHint, "boolean", `tool ${tool.name} annotations.readOnlyHint is not boolean`);
+      assert.equal(typeof tool.annotations.destructiveHint, "boolean", `tool ${tool.name} annotations.destructiveHint is not boolean`);
+      assert.equal(typeof tool.annotations.idempotentHint, "boolean", `tool ${tool.name} annotations.idempotentHint is not boolean`);
+      assert.equal(typeof tool.annotations.openWorldHint, "boolean", `tool ${tool.name} annotations.openWorldHint is not boolean`);
+      // A2: every tool must have a title.
+      assert.ok(tool.title, `tool ${tool.name} missing title`);
     }
   } finally {
     server.close();
@@ -223,14 +231,14 @@ test("unknown method returns -32601 error", async () => {
 test("server survives an error call and serves the next request", async () => {
   const server = spawnServer();
   try {
-    // A tools/call for an unknown tool returns isError in result, not a crash.
+    // A tools/call for an unknown tool now returns a JSON-RPC protocol error (-32602), not a crash.
     const errResp = await server.call({
       jsonrpc: "2.0",
       method: "tools/call",
       params: { name: "nonexistent_tool", arguments: {} },
     });
-    assert.ok(errResp.result, "expected a result (not a top-level error)");
-    assert.equal(errResp.result.isError, true);
+    assert.ok(errResp.error, "expected a JSON-RPC error for unknown tool");
+    assert.equal(errResp.error.code, -32602, `expected -32602, got ${errResp.error.code}`);
 
     // Server must still respond to subsequent requests.
     const pingResp = await server.call({ jsonrpc: "2.0", method: "ping", params: {} });
@@ -576,7 +584,7 @@ test("open_case with telemetry proposed load and no telemetry framing produces b
   }
 });
 
-test("tools/call for unknown tool returns isError result", async () => {
+test("tools/call for unknown tool returns JSON-RPC -32602 protocol error", async () => {
   const server = spawnServer();
   try {
     const resp = await server.call({
@@ -584,8 +592,10 @@ test("tools/call for unknown tool returns isError result", async () => {
       method: "tools/call",
       params: { name: "totally_unknown_tool", arguments: {} },
     });
-    assert.ok(resp.result, "expected a result object");
-    assert.equal(resp.result.isError, true);
+    // Per MCP spec 2025-11-25: unknown tool is a Protocol Error, not an isError result.
+    assert.ok(resp.error, "expected a JSON-RPC error object");
+    assert.equal(resp.error.code, -32602, `expected -32602, got ${resp.error.code}`);
+    assert.match(resp.error.message, /Unknown tool/, `error message should name the tool, got: ${resp.error.message}`);
   } finally {
     server.close();
   }
@@ -800,6 +810,479 @@ test("initialize_turn_ledger description contains force-not-available and archiv
       /archives the prior ledger to workflow\/ledger-archive/,
       `initialize_turn_ledger description must mention ledger-archive, got: ${tool.description}`,
     );
+  } finally {
+    server.close();
+  }
+});
+
+// ── Part A conformance tests ──────────────────────────────────────────────────
+
+test("A1: initialize without protocolVersion defaults to 2025-06-18", async () => {
+  const server = spawnServer();
+  try {
+    const resp = await server.call({
+      jsonrpc: "2.0",
+      method: "initialize",
+      params: { capabilities: {}, clientInfo: { name: "test", version: "0.0.1" } },
+    });
+    assert.ok(!resp.error, `unexpected error: ${JSON.stringify(resp.error)}`);
+    assert.equal(resp.result.protocolVersion, "2025-06-18", `expected default 2025-06-18, got ${resp.result.protocolVersion}`);
+  } finally {
+    server.close();
+  }
+});
+
+test("A1: initialize echoes client protocolVersion when present", async () => {
+  const server = spawnServer();
+  try {
+    const resp = await server.call({
+      jsonrpc: "2.0",
+      method: "initialize",
+      params: { protocolVersion: "2024-11-05", capabilities: {} },
+    });
+    assert.ok(!resp.error);
+    assert.equal(resp.result.protocolVersion, "2024-11-05");
+  } finally {
+    server.close();
+  }
+});
+
+test("A5: initialize advertises resources and prompts capabilities", async () => {
+  const server = spawnServer();
+  try {
+    const resp = await server.call({
+      jsonrpc: "2.0",
+      method: "initialize",
+      params: { protocolVersion: "2025-06-18", capabilities: {} },
+    });
+    assert.ok(!resp.error);
+    const caps = resp.result.capabilities;
+    assert.ok(caps.resources, "capabilities.resources missing");
+    assert.equal(caps.resources.listChanged, false, "resources.listChanged should be false");
+    assert.equal(caps.resources.subscribe, false, "resources.subscribe should be false");
+    assert.ok(caps.prompts, "capabilities.prompts missing");
+    assert.equal(caps.prompts.listChanged, false, "prompts.listChanged should be false");
+  } finally {
+    server.close();
+  }
+});
+
+test("A3: successful tool result includes structuredContent", async () => {
+  const root = tempFixtureRepo();
+  const caseSlug = `mcp-structured-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const server = spawnServer();
+  try {
+    await server.call({ jsonrpc: "2.0", method: "initialize", params: { protocolVersion: "2025-06-18", capabilities: {} } });
+    const resp = await server.call({
+      jsonrpc: "2.0",
+      method: "tools/call",
+      params: {
+        name: "open_case",
+        arguments: {
+          root,
+          case_slug: caseSlug,
+          framing: {
+            workingDirectory: root,
+            symptom: "ZPA users cannot reach wiki.internal",
+            tenantCloud: "zs2",
+            products: ["zpa"],
+            scope: "many users",
+          },
+          proposed_loads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+        },
+      },
+    });
+    assert.ok(!resp.error);
+    assert.ok(!resp.result.isError, `unexpected isError: ${resp.result.content?.[0]?.text}`);
+    assert.ok(resp.result.structuredContent, "structuredContent missing from tool result");
+    assert.equal(typeof resp.result.structuredContent, "object", "structuredContent should be an object");
+    assert.equal(resp.result.structuredContent.status, "pass", "structuredContent.status should be pass");
+  } finally {
+    server.close();
+  }
+});
+
+test("A3: status tool outputSchema is present on the tool definition", async () => {
+  const server = spawnServer();
+  try {
+    await server.call({ jsonrpc: "2.0", method: "initialize", params: { protocolVersion: "2025-06-18", capabilities: {} } });
+    const resp = await server.call({ jsonrpc: "2.0", method: "tools/list", params: {} });
+    const statusTool = resp.result.tools.find((t) => t.name === "status");
+    assert.ok(statusTool, "status tool not found");
+    assert.ok(statusTool.outputSchema, "status tool missing outputSchema");
+    assert.equal(statusTool.outputSchema.type, "object");
+    // Phase enum must include known values.
+    const phaseEnum = statusTool.outputSchema.properties?.phase?.enum || [];
+    assert.ok(phaseEnum.includes("no-case"), "outputSchema.phase enum missing no-case");
+    assert.ok(phaseEnum.includes("turn-ready"), "outputSchema.phase enum missing turn-ready");
+    assert.ok(phaseEnum.includes("resolved"), "outputSchema.phase enum missing resolved");
+  } finally {
+    server.close();
+  }
+});
+
+// ── Part B: resources ─────────────────────────────────────────────────────────
+
+test("resources/templates/list returns three case templates", async () => {
+  const server = spawnServer();
+  try {
+    await server.call({ jsonrpc: "2.0", method: "initialize", params: { protocolVersion: "2025-06-18", capabilities: {} } });
+    const resp = await server.call({ jsonrpc: "2.0", method: "resources/templates/list", params: {} });
+    assert.ok(!resp.error, `unexpected error: ${JSON.stringify(resp.error)}`);
+    const templates = resp.result.resourceTemplates;
+    assert.ok(Array.isArray(templates), "resourceTemplates should be an array");
+    assert.equal(templates.length, 3, `expected 3 templates, got ${templates.length}`);
+    const uris = templates.map((t) => t.uriTemplate);
+    assert.ok(uris.includes("investigator://case/{slug}/report"), "missing report template");
+    assert.ok(uris.includes("investigator://case/{slug}/journal"), "missing journal template");
+    assert.ok(uris.includes("investigator://case/{slug}/status"), "missing status template");
+    for (const t of templates) {
+      assert.ok(t.name, `template missing name`);
+      assert.ok(t.mimeType, `template ${t.uriTemplate} missing mimeType`);
+    }
+  } finally {
+    server.close();
+  }
+});
+
+test("resources/list returns empty array when _data/cases absent (graceful degrade)", async () => {
+  const server = spawnServer();
+  try {
+    const resp = await server.call({ jsonrpc: "2.0", method: "resources/list", params: {} });
+    assert.ok(!resp.error, `unexpected error: ${JSON.stringify(resp.error)}`);
+    assert.ok(Array.isArray(resp.result.resources), "resources should be an array");
+  } finally {
+    server.close();
+  }
+});
+
+test("resources/read returns -32002 for unknown URI", async () => {
+  const server = spawnServer();
+  try {
+    const resp = await server.call({
+      jsonrpc: "2.0",
+      method: "resources/read",
+      params: { uri: "investigator://case/nonexistent-slug-xyz/report" },
+    });
+    assert.ok(resp.error, "expected error for unknown case URI");
+    assert.equal(resp.error.code, -32002, `expected -32002, got ${resp.error.code}`);
+  } finally {
+    server.close();
+  }
+});
+
+test("resources/read returns -32002 for the status kind of a missing case (consistent with report/journal)", async () => {
+  const server = spawnServer();
+  try {
+    const resp = await server.call({
+      jsonrpc: "2.0",
+      method: "resources/read",
+      params: { uri: "investigator://case/nonexistent-slug-xyz/status" },
+    });
+    assert.ok(resp.error, "status read of a missing case must error, not return phase no-case");
+    assert.equal(resp.error.code, -32002, `expected -32002, got ${resp.error.code}`);
+  } finally {
+    server.close();
+  }
+});
+
+test("resources/read returns -32002 for unparseable URI", async () => {
+  const server = spawnServer();
+  try {
+    const resp = await server.call({
+      jsonrpc: "2.0",
+      method: "resources/read",
+      params: { uri: "https://example.com/not-an-investigator-uri" },
+    });
+    assert.ok(resp.error, "expected error for non-investigator URI");
+    assert.equal(resp.error.code, -32002);
+  } finally {
+    server.close();
+  }
+});
+
+test("resources/read returns markdown report for an existing initialized case (in repo _data)", async () => {
+  // resources/read uses the server's own _data/cases path (repo-relative).
+  // We create the case under REPO_ROOT so the server can find it.
+  const caseSlug = `mcp-resource-test-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const caseDir = path.join(REPO_ROOT, "_data", "cases", caseSlug);
+  const server = spawnServer();
+  try {
+    await server.call({ jsonrpc: "2.0", method: "initialize", params: { protocolVersion: "2025-06-18", capabilities: {} } });
+    // Create a case using the actual REPO_ROOT so resources/read can find it.
+    await server.call({
+      jsonrpc: "2.0",
+      method: "tools/call",
+      params: {
+        name: "open_case",
+        arguments: {
+          root: REPO_ROOT,
+          case_slug: caseSlug,
+          framing: { workingDirectory: REPO_ROOT, symptom: "ZPA test symptom", tenantCloud: "zs2", products: ["zpa"], scope: "one user" },
+          proposed_loads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+        },
+      },
+    });
+    await server.call({
+      jsonrpc: "2.0",
+      method: "tools/call",
+      params: {
+        name: "record_loads",
+        arguments: { root: REPO_ROOT, case_slug: caseSlug, loaded: ["agents/investigator/prompt.md", "agents/investigator/harness.md"] },
+      },
+    });
+    await server.call({
+      jsonrpc: "2.0",
+      method: "tools/call",
+      params: {
+        name: "initialize_turn_ledger",
+        arguments: { root: REPO_ROOT, case_slug: caseSlug, journal_content: VALID_JOURNAL_CONTENT },
+      },
+    });
+
+    // Read the report resource.
+    const resp = await server.call({
+      jsonrpc: "2.0",
+      method: "resources/read",
+      params: { uri: `investigator://case/${caseSlug}/report` },
+    });
+    assert.ok(!resp.error, `unexpected error: ${JSON.stringify(resp.error)}`);
+    const contents = resp.result.contents;
+    assert.ok(Array.isArray(contents) && contents.length > 0, "contents should be non-empty");
+    assert.equal(contents[0].mimeType, "text/markdown");
+    const reportText = contents[0].text;
+    // Report must contain journal-derived claim status.
+    assert.match(reportText, /Open/, "report should contain Open claim status from journal");
+    // Must NOT contain Confirmed (journal has only Open claims).
+    assert.doesNotMatch(reportText, /Confirmed/, "report must not claim Confirmed status when journal has only Open claims");
+  } finally {
+    server.close();
+    // Clean up the test case from the real _data directory.
+    try { fs.rmSync(caseDir, { recursive: true, force: true }); } catch { /* best-effort */ }
+  }
+});
+
+test("render_report tool returns report text for an initialized case", async () => {
+  const root = tempFixtureRepo();
+  const caseSlug = `mcp-render-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const server = spawnServer();
+  try {
+    await server.call({ jsonrpc: "2.0", method: "initialize", params: { protocolVersion: "2025-06-18", capabilities: {} } });
+    await server.call({
+      jsonrpc: "2.0",
+      method: "tools/call",
+      params: {
+        name: "open_case",
+        arguments: {
+          root,
+          case_slug: caseSlug,
+          framing: { workingDirectory: root, symptom: "ZPA render test", tenantCloud: "zs2", products: ["zpa"], scope: "one user" },
+          proposed_loads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+        },
+      },
+    });
+    await server.call({
+      jsonrpc: "2.0",
+      method: "tools/call",
+      params: {
+        name: "record_loads",
+        arguments: { root, case_slug: caseSlug, loaded: ["agents/investigator/prompt.md", "agents/investigator/harness.md"] },
+      },
+    });
+    await server.call({
+      jsonrpc: "2.0",
+      method: "tools/call",
+      params: {
+        name: "initialize_turn_ledger",
+        arguments: { root, case_slug: caseSlug, journal_content: VALID_JOURNAL_CONTENT },
+      },
+    });
+
+    const resp = await server.call({
+      jsonrpc: "2.0",
+      method: "tools/call",
+      params: { name: "render_report", arguments: { root, case_slug: caseSlug } },
+    });
+    assert.ok(!resp.error, `unexpected error: ${JSON.stringify(resp.error)}`);
+    assert.ok(!resp.result.isError, `unexpected isError: ${resp.result.content?.[0]?.text}`);
+    const text = resp.result.content[0].text;
+    // Result should contain the report (wrapped in { status, report } object).
+    const result = JSON.parse(text);
+    assert.equal(result.status, "pass");
+    assert.ok(result.report, "report field missing");
+    assert.match(result.report, /# Investigation Report/, "report should start with heading");
+    // Journal-derived: Open status present.
+    assert.match(result.report, /Open/, "report should reflect journal claim status");
+  } finally {
+    server.close();
+  }
+});
+
+// ── Part B: renderCaseReport artifact-derivation guard ────────────────────────
+
+test("renderCaseReport: journal says Open, report does not say Confirmed", async () => {
+  // This test verifies the artifact-derivation guarantee of renderCaseReport directly
+  // through the tool (render_report) using a case whose journal has only Open claims.
+  const root = tempFixtureRepo();
+  const caseSlug = `mcp-claimguard-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const server = spawnServer();
+  try {
+    await server.call({ jsonrpc: "2.0", method: "initialize", params: { protocolVersion: "2025-06-18", capabilities: {} } });
+    await server.call({
+      jsonrpc: "2.0",
+      method: "tools/call",
+      params: {
+        name: "open_case",
+        arguments: {
+          root,
+          case_slug: caseSlug,
+          framing: { workingDirectory: root, symptom: "Claim guard test", tenantCloud: "zs2", products: ["zpa"], scope: "one user" },
+          proposed_loads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+        },
+      },
+    });
+    await server.call({
+      jsonrpc: "2.0",
+      method: "tools/call",
+      params: {
+        name: "record_loads",
+        arguments: { root, case_slug: caseSlug, loaded: ["agents/investigator/prompt.md", "agents/investigator/harness.md"] },
+      },
+    });
+    await server.call({
+      jsonrpc: "2.0",
+      method: "tools/call",
+      params: {
+        name: "initialize_turn_ledger",
+        arguments: { root, case_slug: caseSlug, journal_content: VALID_JOURNAL_CONTENT },
+      },
+    });
+
+    const resp = await server.call({
+      jsonrpc: "2.0",
+      method: "tools/call",
+      params: { name: "render_report", arguments: { root, case_slug: caseSlug } },
+    });
+    const result = JSON.parse(resp.result.content[0].text);
+    // Journal has only "Open (uncertain)" — report must not claim Confirmed.
+    assert.doesNotMatch(result.report, /Confirmed/, "report must not say Confirmed when journal has only Open claims");
+    // And no fabricated free-text claims can appear because renderCaseReport takes no free text.
+    assert.match(result.report, /H1: Segment missing/, "report should contain the journal claim text");
+  } finally {
+    server.close();
+  }
+});
+
+// ── Part C: prompts ───────────────────────────────────────────────────────────
+
+test("prompts/list returns investigate and resume-case", async () => {
+  const server = spawnServer();
+  try {
+    await server.call({ jsonrpc: "2.0", method: "initialize", params: { protocolVersion: "2025-06-18", capabilities: {} } });
+    const resp = await server.call({ jsonrpc: "2.0", method: "prompts/list", params: {} });
+    assert.ok(!resp.error, `unexpected error: ${JSON.stringify(resp.error)}`);
+    const prompts = resp.result.prompts;
+    assert.ok(Array.isArray(prompts), "prompts should be array");
+    const investigate = prompts.find((p) => p.name === "investigate");
+    assert.ok(investigate, "investigate prompt missing");
+    const resumeCase = prompts.find((p) => p.name === "resume-case");
+    assert.ok(resumeCase, "resume-case prompt missing");
+    // resume-case must declare case_slug as required.
+    const slugArg = resumeCase.arguments?.find((a) => a.name === "case_slug");
+    assert.ok(slugArg, "resume-case missing case_slug argument");
+    assert.equal(slugArg.required, true, "case_slug should be required");
+  } finally {
+    server.close();
+  }
+});
+
+test("prompts/get investigate returns mcp-entrypoint.md content as user message", async () => {
+  const server = spawnServer();
+  try {
+    await server.call({ jsonrpc: "2.0", method: "initialize", params: { protocolVersion: "2025-06-18", capabilities: {} } });
+    const resp = await server.call({
+      jsonrpc: "2.0",
+      method: "prompts/get",
+      params: { name: "investigate", arguments: {} },
+    });
+    assert.ok(!resp.error, `unexpected error: ${JSON.stringify(resp.error)}`);
+    assert.ok(resp.result.messages, "messages missing");
+    const msg = resp.result.messages[0];
+    assert.equal(msg.role, "user");
+    assert.equal(msg.content.type, "text");
+    // Drift guard: served text must match on-disk mcp-entrypoint.md.
+    const entrypointPath = path.join(REPO_ROOT, "agents", "investigator", "mcp-entrypoint.md");
+    const entrypointContent = fs.readFileSync(entrypointPath, "utf8");
+    assert.equal(
+      msg.content.text,
+      entrypointContent,
+      "investigate prompt text must match agents/investigator/mcp-entrypoint.md (drift guard)",
+    );
+  } finally {
+    server.close();
+  }
+});
+
+test("prompts/get investigate appends framing when provided", async () => {
+  const server = spawnServer();
+  try {
+    await server.call({ jsonrpc: "2.0", method: "initialize", params: { protocolVersion: "2025-06-18", capabilities: {} } });
+    const resp = await server.call({
+      jsonrpc: "2.0",
+      method: "prompts/get",
+      params: { name: "investigate", arguments: { framing: "ZPA users cannot reach wiki.internal since 09:00 UTC." } },
+    });
+    assert.ok(!resp.error);
+    const text = resp.result.messages[0].content.text;
+    assert.match(text, /ZPA users cannot reach wiki\.internal/, "framing should be appended to prompt text");
+  } finally {
+    server.close();
+  }
+});
+
+test("prompts/get resume-case without case_slug returns -32602", async () => {
+  const server = spawnServer();
+  try {
+    const resp = await server.call({
+      jsonrpc: "2.0",
+      method: "prompts/get",
+      params: { name: "resume-case", arguments: {} },
+    });
+    assert.ok(resp.error, "expected error when case_slug is missing");
+    assert.equal(resp.error.code, -32602, `expected -32602, got ${resp.error.code}`);
+  } finally {
+    server.close();
+  }
+});
+
+test("prompts/get resume-case with case_slug returns status-first instruction", async () => {
+  const server = spawnServer();
+  try {
+    const resp = await server.call({
+      jsonrpc: "2.0",
+      method: "prompts/get",
+      params: { name: "resume-case", arguments: { case_slug: "2026-06-12-test" } },
+    });
+    assert.ok(!resp.error, `unexpected error: ${JSON.stringify(resp.error)}`);
+    const msg = resp.result.messages[0];
+    assert.equal(msg.role, "user");
+    assert.match(msg.content.text, /status/, "resume-case prompt must instruct running status first");
+    assert.match(msg.content.text, /2026-06-12-test/, "resume-case prompt must include the case slug");
+  } finally {
+    server.close();
+  }
+});
+
+test("prompts/get unknown prompt name returns -32602", async () => {
+  const server = spawnServer();
+  try {
+    const resp = await server.call({
+      jsonrpc: "2.0",
+      method: "prompts/get",
+      params: { name: "__nonexistent_prompt__", arguments: {} },
+    });
+    assert.ok(resp.error, "expected error for unknown prompt");
+    assert.equal(resp.error.code, -32602);
   } finally {
     server.close();
   }
