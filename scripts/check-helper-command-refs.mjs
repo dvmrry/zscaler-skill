@@ -103,9 +103,7 @@ export function scanFiles(root, files, validCommands) {
     const lines = text.split(/\r?\n/);
     for (let i = 0; i < lines.length; i += 1) {
       const line = lines[i];
-      COMMAND_REF_RE.lastIndex = 0;
-      let match;
-      while ((match = COMMAND_REF_RE.exec(line)) !== null) {
+      for (const match of line.matchAll(COMMAND_REF_RE)) {
         const token = match[1];
         mentionCount += 1;
         if (!validCommands.has(token)) {
