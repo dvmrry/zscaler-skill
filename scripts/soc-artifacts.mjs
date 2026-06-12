@@ -69,6 +69,14 @@ const STRONG_SOURCE_REQUIRED_SEVERITIES = new Set(["Critical", "High"]);
 // Framework-tag patterns: a source that ONLY matches these is not evidence.
 // ADAPTED FROM auditor-artifacts.mjs (SOC-specific extension: adds the framework guard).
 const FRAMEWORK_ONLY_RE = /^(CWE-\d+|OWASP[:\-][^\s]+|NIST[\s:][^\s]+|MITRE[:\s][^\s]+|ATT&CK[:\s][^\s]+|T\d{4}|CISA[:\s]?[^\s]*)$/i;
+// Multi-word framework references ("MITRE ATT&CK T1078", "NIST SP 800-53",
+// "OWASP A01:2021") start with a framework keyword but have no file shape
+// (no "/" and no ".ext"[:line] suffix). hasFileShape distinguishes them from a
+// real path that happens to start with a framework word ("nist-controls.md:10").
+const FRAMEWORK_PREFIX_RE = /^(CWE|OWASP|NIST|MITRE|ATT&CK|CISA)\b/i;
+function hasFileShape(s) {
+  return s.includes("/") || /\.[a-z0-9]+(:\d+(-\d+)?)?$/i.test(s);
+}
 
 const SUPPORTED_OPERATIONS = [
   "open-review",
@@ -201,8 +209,14 @@ export function resolveSource(root, evidenceDir, source) {
   const s = String(source || "").trim();
   if (!s) return { type: "unknown", resolves: false, error: "source is empty" };
 
-  // FRAMEWORK-NOT-EVIDENCE guard: single-token framework references are not evidence.
-  if (FRAMEWORK_ONLY_RE.test(s)) {
+  // FRAMEWORK-NOT-EVIDENCE guard: framework references (single-token or
+  // multi-word) are not evidence. Skip path/evidence-shaped sources so a real
+  // file that starts with a framework word still resolves normally.
+  if (
+    !hasFileShape(s) &&
+    !/^evidence:/i.test(s) &&
+    (FRAMEWORK_ONLY_RE.test(s) || FRAMEWORK_PREFIX_RE.test(s))
+  ) {
     return {
       type: "framework-only",
       resolves: false,

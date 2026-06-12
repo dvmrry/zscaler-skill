@@ -265,6 +265,46 @@ test("record-finding: REJECT finding whose source is ONLY a MITRE framework tag"
   fs.rmSync(root, { recursive: true, force: true });
 });
 
+test("record-finding: multi-word framework sources get the specific framework-not-evidence message", () => {
+  const root = tempRepo();
+  const scopeFile = writeScopeFile(root, makeScope({ paths: ["references/zidentity/admin-rbac.md"] }));
+  openReview({ root, reviewSlug: "multiword-fw-test", scopeJson: scopeFile });
+
+  // Multi-word framework references have no file shape; they must be rejected
+  // with the taxonomy-naming message, not the generic format error.
+  for (const source of ["MITRE ATT&CK T1078", "NIST SP 800-53", "OWASP A01:2021"]) {
+    const findingFile = writeFindingFile(root, {
+      findingId: "SOC-001",
+      title: "framework-sourced finding",
+      source,
+      severity: "Medium",
+      confidence: "medium",
+      status: "Open",
+      remediation: "Fix it",
+    });
+    assert.throws(
+      () => recordFinding({ root, reviewSlug: "multiword-fw-test", findingJson: findingFile }),
+      /framework tag classifies a finding; it does not prove it/,
+      `multi-word framework source not given the specific message: ${source}`,
+    );
+  }
+
+  // A real file whose name starts with a framework word must still resolve.
+  const goodFile = writeFindingFile(root, {
+    findingId: "SOC-002",
+    title: "real file cite",
+    source: "references/zidentity/admin-rbac.md:1",
+    severity: "Low",
+    confidence: "medium",
+    status: "Open",
+    remediation: "Fix it",
+  });
+  const result = recordFinding({ root, reviewSlug: "multiword-fw-test", findingJson: goodFile });
+  assert.equal(result.status, "ok");
+
+  fs.rmSync(root, { recursive: true, force: true });
+});
+
 test("record-finding: REJECT finding whose source is ONLY a NIST framework tag", () => {
   const root = tempRepo();
   const scopeFile = writeScopeFile(root, makeScope({ paths: ["references/zidentity/admin-rbac.md"] }));
