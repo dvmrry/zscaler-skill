@@ -4,6 +4,13 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.5.1](https://github.com/dvmrry/zscaler-skill/compare/v0.5.0...v0.5.1) (2026-06-12)
+
+
+### Bug Fixes
+
+* **ci:** enforce full test suite, unblock Renovate, release token plumbing, and v0.5.0 doc-drift sweep ([#86](https://github.com/dvmrry/zscaler-skill/issues/86)) ([c1a1432](https://github.com/dvmrry/zscaler-skill/commit/c1a1432dae4eaace51539f08184a78d83c25606b))
+
 ## [0.5.0](https://github.com/dvmrry/zscaler-skill/compare/v0.4.6...v0.5.0) (2026-06-10)
 
 
