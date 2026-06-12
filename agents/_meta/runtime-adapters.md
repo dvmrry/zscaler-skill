@@ -324,6 +324,91 @@ exact repair.
 **No force over MCP.** `force` is rejected at dispatch with an actionable
 repair message pointing to the CLI path.
 
+## SOC MCP server (`zscaler-soc`)
+
+The SOC role has a parallel MCP server at `scripts/soc-mcp-server.mjs`. It
+exposes the SOC posture-review lifecycle (open -> record evidence -> record
+findings -> report) as named MCP tools, with the same three load-bearing
+properties as the investigator and auditor: evidence-gated records,
+answer-from-artifact, and fabrication-resistant errors.
+
+### SOC tools
+
+| Tool | Read-only | Description |
+|---|---|---|
+| `soc_status` | yes | Read-only doctor: phase, finding counts, evidence recorded, nextActions (outputSchema) |
+| `open_review` | no | Create review intake (scope + description + optional threat model) |
+| `record_evidence` | no | Store tenant evidence under `evidence/<name>.*` and register it in the intake JSON |
+| `record_finding` | no | Record an evidence-gated finding into findings.jsonl, re-derive register.md |
+| `render_soc_report` | yes | Render artifact-derived posture report — the final answer surface |
+| `helper_capabilities` | yes | Version and supported operations |
+
+### SOC resources
+
+Three per-review resource templates via `resources/templates/list`:
+
+| URI template | MIME type | Content |
+|---|---|---|
+| `soc://review/{slug}/report` | `text/markdown` | Artifact-derived posture report (scope + findings by severity) |
+| `soc://review/{slug}/register` | `text/markdown` | Raw `register.md` (derived from findings.jsonl) |
+| `soc://review/{slug}/status` | `application/json` | JSON output of `socStatus()` with phase enum `no-review\|open\|has-findings` |
+
+**Answer-from-artifact rule**: the final answer is produced by
+`render_soc_report` (tool) or by reading `soc://review/{slug}/report`
+(resource) — not by model narration. Every finding and its source comes from
+on-disk `findings.jsonl`. Missing-review resource reads return `-32002` for
+all three kinds.
+
+### SOC prompt
+
+The server exposes one prompt via `prompts/list` and `prompts/get`:
+
+- **`soc-review`** — returns the SOC role entrypoint from
+  `agents/soc/mcp-entrypoint.md`, with optional `scope` argument appended.
+  Carries the gated order, framework-not-evidence rule, premise-challenge,
+  status-first, evidence-source, and answer-from-artifact rules.
+
+Unknown prompt names return `-32602`.
+
+### Registration
+
+```json
+{
+  "mcpServers": {
+    "zscaler-soc": {
+      "command": "node",
+      "args": ["scripts/soc-mcp-server.mjs"]
+    }
+  }
+}
+```
+
+### Evidence gate (SOC)
+
+Every finding must carry a resolving source. Source types:
+
+- `path:line` — file:line reference; file must exist under repo root and have
+  at least `line` lines.
+- `path/a.md + path/b.md` — cross-file reference; all listed files must exist.
+- `evidence:<name>` — recorded evidence; must have been stored by
+  `record_evidence` before the finding is recorded.
+
+**Critical/High severity or Resolved status** requires a `path:line` or
+`evidence:<name>` source — cross-file existence alone is too weak for
+high-severity assertions.
+
+**Framework-not-evidence guard (SOC-specific)**: a source whose entire value
+is a framework tag — `CWE-\d+`, `OWASP:`, `NIST:`, `MITRE:`, `ATT&CK:`,
+`T\d{4}`, `CISA` — is rejected with the message: _"a framework tag classifies
+a finding; it does not prove it. Cite tenant evidence — a snapshot path,
+recorded SIEM/API/log evidence (evidence:<name> via record_evidence), or a
+file:line. Frameworks go in the taxonomy field, not the source."_ The
+`taxonomy` field accepts framework tags freely; they are recorded as metadata,
+never treated as evidence.
+
+**No force over MCP.** `force` is rejected at dispatch with an actionable
+repair message pointing to the CLI path.
+
 ## Migration rule
 
 When adding or revising a workflow:
