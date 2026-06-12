@@ -237,6 +237,38 @@ test("server survives an error call and serves the next request", async () => {
   }
 });
 
+test("server survives a helper throw and serves the next request (dispatchTool catch path)", async () => {
+  const server = spawnServer();
+  try {
+    await server.call({ jsonrpc: "2.0", method: "initialize", params: { protocolVersion: "2024-11-05", capabilities: {} } });
+
+    // Call a real, known tool (status) with a non-existent root — this routes through
+    // dispatchTool and hits the catch branch when the helper throws.
+    const errResp = await server.call({
+      jsonrpc: "2.0",
+      method: "tools/call",
+      params: {
+        name: "status",
+        arguments: { root: "/nonexistent-path-that-cannot-exist-abc123", case_slug: "any-slug" },
+      },
+    });
+    assert.ok(errResp.result, "expected a result object, not a top-level error");
+    assert.equal(errResp.result.isError, true, "expected isError:true from dispatchTool catch");
+    // The helper error message should be passed through verbatim.
+    assert.match(
+      errResp.result.content[0].text,
+      /does not exist or is not a directory/,
+      `expected actionable root-not-found message, got: ${errResp.result.content[0].text}`,
+    );
+
+    // Server must still respond to subsequent requests — proving it didn't crash.
+    const pingResp = await server.call({ jsonrpc: "2.0", method: "ping", params: {} });
+    assert.deepEqual(pingResp.result, {});
+  } finally {
+    server.close();
+  }
+});
+
 test("notifications/initialized is accepted silently (no response expected)", async () => {
   const server = spawnServer();
   try {

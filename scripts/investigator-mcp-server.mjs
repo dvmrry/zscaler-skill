@@ -29,6 +29,18 @@ import {
   caseStatus,
 } from "./investigator-artifacts.mjs";
 
+// ── Root validation ───────────────────────────────────────────────────────────
+
+function resolveRepoRoot(rootArg) {
+  if (!rootArg) throw new Error("root is required");
+  const root = path.resolve(rootArg);
+  const stat = fs.statSync(root, { throwIfNoEntry: false });
+  if (!stat || !stat.isDirectory()) {
+    throw new Error(`repo root does not exist or is not a directory: ${root}`);
+  }
+  return root;
+}
+
 // ── Version ───────────────────────────────────────────────────────────────────
 let SERVER_VERSION = "unknown";
 try {
@@ -240,32 +252,32 @@ const TOOLS = [
   {
     name: "import_evidence",
     description:
-      "Import one evidence file into the case evidence directory. Requires an open pending turn (begin_turn first). source_file must be an absolute path to the file to import.",
+      "Import one evidence file into the case evidence directory. Requires an open pending turn (begin_turn first). source_file must be an absolute path to the file to import. Supply either (a) source_file + name + source + summary + captured_at + touched_claim for single-item mode, or (b) items object for batch mode. root and case_slug are always required.",
     inputSchema: {
       type: "object",
       properties: {
         root: { type: "string", description: "Absolute path to the repo root." },
         case_slug: { type: "string", description: "Case slug." },
-        source_file: { type: "string", description: "Absolute path to the source file to import." },
-        name: { type: "string", description: "Short name for the evidence artifact." },
-        source: { type: "string", description: "Evidence source label (e.g. tool name, system name)." },
+        source_file: { type: "string", description: "Single-item mode: absolute path to the source file to import." },
+        name: { type: "string", description: "Single-item mode: short name for the evidence artifact." },
+        source: { type: "string", description: "Single-item mode: evidence source label (e.g. tool name, system name)." },
         query: { type: "string", description: "Query text used to obtain this evidence (one of query, query_file, or request_text)." },
         query_file: { type: "string", description: "Path to a file containing the query text." },
         request_text: { type: "string", description: "Free-text request description (for request-user-evidence turns)." },
-        summary: { type: "string", description: "Human-readable summary of what was found." },
-        captured_at: { type: "string", description: "ISO-UTC timestamp when evidence was captured." },
+        summary: { type: "string", description: "Single-item mode: human-readable summary of what was found." },
+        captured_at: { type: "string", description: "Single-item mode: ISO-UTC timestamp when evidence was captured." },
         touched_claim: {
           type: "array",
           items: { type: "string" },
-          description: "Claims touched by this evidence (H-tag or full claim text from the journal claim table).",
+          description: "Single-item mode: claims touched by this evidence (H-tag or full claim text from the journal claim table).",
         },
         active_hypothesis: { type: "string", description: "Optional active hypothesis tag." },
         items: {
           type: "object",
-          description: "Batch mode: pass an object with an items array for multi-item import. Overrides single-item params.",
+          description: "Batch mode: pass an object with an items array for multi-item import. When present, overrides all single-item params.",
         },
       },
-      required: ["root", "case_slug", "source_file", "name", "source", "summary", "captured_at", "touched_claim"],
+      required: ["root", "case_slug"],
     },
   },
   {
@@ -329,7 +341,7 @@ function dispatchTool(name, params) {
     }
 
     case "verify_case": {
-      const root = params.root;
+      const root = resolveRepoRoot(params.root);
       return verifyCaseFiles(root, params.case_slug);
     }
 
@@ -346,7 +358,7 @@ function dispatchTool(name, params) {
     }
 
     case "verify_loads": {
-      const root = params.root;
+      const root = resolveRepoRoot(params.root);
       return verifyLoads(root, params.case_slug);
     }
 
