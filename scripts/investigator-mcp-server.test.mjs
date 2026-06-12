@@ -67,9 +67,12 @@ STATUS: Investigating
 Open.
 `;
 
+// Keep Open (uncertain) — the run_turn happy-path action type is load-file, which records
+// no evidence.  Transitioning to Confirmed (high) here would require a verifiable evidenceRef
+// in priorEvidenceRefs(events), which does not exist on the first turn (Change 3 gate).
 const UPDATED_JOURNAL_CONTENT = VALID_JOURNAL_CONTENT.replace(
   "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check app segment | 2026-06-10T00:00:00Z | reference-grounded |",
-  "| H1: Segment missing | references/zpa/app-segments.md | Confirmed (high) | n/a | 2026-06-10T01:00:00Z | confirmed |",
+  "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Review connector group | 2026-06-10T01:00:00Z | snapshot-checked |",
 );
 
 // ── Server spawn + JSON-RPC helper ────────────────────────────────────────────
@@ -583,6 +586,220 @@ test("tools/call for unknown tool returns isError result", async () => {
     });
     assert.ok(resp.result, "expected a result object");
     assert.equal(resp.result.isError, true);
+  } finally {
+    server.close();
+  }
+});
+
+// ── Change 1: force removed from MCP schemas ──────────────────────────────────
+
+test("tools/list: no tool schema contains a force property", async () => {
+  const server = spawnServer();
+  try {
+    await server.call({ jsonrpc: "2.0", method: "initialize", params: { protocolVersion: "2024-11-05", capabilities: {} } });
+    const resp = await server.call({ jsonrpc: "2.0", method: "tools/list", params: {} });
+    const tools = resp.result.tools;
+    for (const tool of tools) {
+      const schema = tool.inputSchema || {};
+      const properties = schema.properties || {};
+      assert.ok(
+        !Object.prototype.hasOwnProperty.call(properties, "force"),
+        `tool ${tool.name} inputSchema.properties must not contain 'force'`,
+      );
+    }
+  } finally {
+    server.close();
+  }
+});
+
+test("passing force to open_case returns isError with MCP repair message", async () => {
+  const root = tempFixtureRepo();
+  const server = spawnServer();
+  try {
+    await server.call({ jsonrpc: "2.0", method: "initialize", params: { protocolVersion: "2024-11-05", capabilities: {} } });
+    const resp = await server.call({
+      jsonrpc: "2.0",
+      method: "tools/call",
+      params: {
+        name: "open_case",
+        arguments: {
+          root,
+          case_slug: "2026-06-12-force-test",
+          framing: {
+            workingDirectory: root,
+            symptom: "ZPA users cannot reach wiki.internal",
+            tenantCloud: "zs2",
+            products: ["zpa"],
+            scope: "many users",
+          },
+          proposed_loads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+          force: true,
+        },
+      },
+    });
+    assert.equal(resp.result.isError, true, "expected isError:true when force is passed over MCP");
+    const text = resp.result.content[0].text;
+    assert.match(text, /force is not available over MCP/, `error must include force-rejection message, got: ${text}`);
+    assert.match(text, /Replacing existing artifacts is a human decision/, `error must include human-decision repair text, got: ${text}`);
+  } finally {
+    server.close();
+  }
+});
+
+test("passing force to record_loads returns isError with MCP repair message", async () => {
+  const root = tempFixtureRepo();
+  const server = spawnServer();
+  try {
+    await server.call({ jsonrpc: "2.0", method: "initialize", params: { protocolVersion: "2024-11-05", capabilities: {} } });
+    const resp = await server.call({
+      jsonrpc: "2.0",
+      method: "tools/call",
+      params: {
+        name: "record_loads",
+        arguments: {
+          root,
+          case_slug: "2026-06-12-force-test",
+          loaded: ["agents/investigator/prompt.md"],
+          deferred: [],
+          force: true,
+        },
+      },
+    });
+    assert.equal(resp.result.isError, true, "expected isError:true when force is passed to record_loads over MCP");
+    const text = resp.result.content[0].text;
+    assert.match(text, /force is not available over MCP/, `error must include force-rejection message, got: ${text}`);
+  } finally {
+    server.close();
+  }
+});
+
+test("passing force to initialize_turn_ledger returns isError with MCP repair message", async () => {
+  const root = tempFixtureRepo();
+  const server = spawnServer();
+  try {
+    await server.call({ jsonrpc: "2.0", method: "initialize", params: { protocolVersion: "2024-11-05", capabilities: {} } });
+    const resp = await server.call({
+      jsonrpc: "2.0",
+      method: "tools/call",
+      params: {
+        name: "initialize_turn_ledger",
+        arguments: {
+          root,
+          case_slug: "2026-06-12-force-test",
+          force: true,
+        },
+      },
+    });
+    assert.equal(resp.result.isError, true, "expected isError:true when force is passed to initialize_turn_ledger over MCP");
+    const text = resp.result.content[0].text;
+    assert.match(text, /force is not available over MCP/, `error must include force-rejection message, got: ${text}`);
+  } finally {
+    server.close();
+  }
+});
+
+// ── Change 4: premise-challenge descriptions ──────────────────────────────────
+
+test("open_case description contains premise-challenge text", async () => {
+  const server = spawnServer();
+  try {
+    await server.call({ jsonrpc: "2.0", method: "initialize", params: { protocolVersion: "2024-11-05", capabilities: {} } });
+    const resp = await server.call({ jsonrpc: "2.0", method: "tools/list", params: {} });
+    const tool = resp.result.tools.find((t) => t.name === "open_case");
+    assert.ok(tool, "open_case tool not found");
+    assert.match(
+      tool.description,
+      /presumes facts not in evidence/,
+      `open_case description must contain premise-challenge text, got: ${tool.description}`,
+    );
+    assert.match(
+      tool.description,
+      /let evidence decide/,
+      `open_case description must contain 'let evidence decide', got: ${tool.description}`,
+    );
+  } finally {
+    server.close();
+  }
+});
+
+test("run_turn description contains premise-challenge text", async () => {
+  const server = spawnServer();
+  try {
+    await server.call({ jsonrpc: "2.0", method: "initialize", params: { protocolVersion: "2024-11-05", capabilities: {} } });
+    const resp = await server.call({ jsonrpc: "2.0", method: "tools/list", params: {} });
+    const tool = resp.result.tools.find((t) => t.name === "run_turn");
+    assert.ok(tool, "run_turn tool not found");
+    assert.match(
+      tool.description,
+      /Never invent.*simulate.*assume evidence/,
+      `run_turn description must prohibit inventing evidence, got: ${tool.description}`,
+    );
+    assert.match(
+      tool.description,
+      /Claim statuses only move on recorded evidence/,
+      `run_turn description must mention server enforcement, got: ${tool.description}`,
+    );
+  } finally {
+    server.close();
+  }
+});
+
+test("run_turn description contains evidence-recording import_evidence requirement", async () => {
+  const server = spawnServer();
+  try {
+    await server.call({ jsonrpc: "2.0", method: "initialize", params: { protocolVersion: "2024-11-05", capabilities: {} } });
+    const resp = await server.call({ jsonrpc: "2.0", method: "tools/list", params: {} });
+    const tool = resp.result.tools.find((t) => t.name === "run_turn");
+    assert.ok(tool, "run_turn tool not found");
+    assert.match(
+      tool.description,
+      /record-user-evidence and add-evidence turns require evidenceRefs backed by import_evidence/,
+      `run_turn description must require import_evidence-backed refs for evidence-recording turns, got: ${tool.description}`,
+    );
+    assert.match(
+      tool.description,
+      /narrative summaries are not evidence/,
+      `run_turn description must state narrative summaries are not evidence, got: ${tool.description}`,
+    );
+  } finally {
+    server.close();
+  }
+});
+
+test("save_journal description contains initial-journal Open-only text", async () => {
+  const server = spawnServer();
+  try {
+    await server.call({ jsonrpc: "2.0", method: "initialize", params: { protocolVersion: "2024-11-05", capabilities: {} } });
+    const resp = await server.call({ jsonrpc: "2.0", method: "tools/list", params: {} });
+    const tool = resp.result.tools.find((t) => t.name === "save_journal");
+    assert.ok(tool, "save_journal tool not found");
+    assert.match(
+      tool.description,
+      /initial journal starts with Open claims only/,
+      `save_journal description must state initial journal is Open-only, got: ${tool.description}`,
+    );
+  } finally {
+    server.close();
+  }
+});
+
+test("initialize_turn_ledger description contains force-not-available and archive text", async () => {
+  const server = spawnServer();
+  try {
+    await server.call({ jsonrpc: "2.0", method: "initialize", params: { protocolVersion: "2024-11-05", capabilities: {} } });
+    const resp = await server.call({ jsonrpc: "2.0", method: "tools/list", params: {} });
+    const tool = resp.result.tools.find((t) => t.name === "initialize_turn_ledger");
+    assert.ok(tool, "initialize_turn_ledger tool not found");
+    assert.match(
+      tool.description,
+      /force is not available over MCP/,
+      `initialize_turn_ledger description must state force unavailable over MCP, got: ${tool.description}`,
+    );
+    assert.match(
+      tool.description,
+      /archives the prior ledger to workflow\/ledger-archive/,
+      `initialize_turn_ledger description must mention ledger-archive, got: ${tool.description}`,
+    );
   } finally {
     server.close();
   }

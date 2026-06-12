@@ -175,6 +175,25 @@ Tool descriptions and tool results are the instruction channel — actionable
 gate errors pass through verbatim so runtimes can self-correct without a
 separate explanation layer.
 
+The MCP surface enforces two additional hardening constraints that do not
+apply to the CLI:
+
+- **No force over MCP.** Any tool call that includes a `force` parameter is
+  rejected at dispatch with an explicit repair message listing the correct
+  repair flow. Force re-initialization of the turn ledger is a human decision;
+  use the CLI with explicit user approval. The `force` property does not appear
+  in any tool's input schema.
+
+- **Evidence-gated claim-status transitions.** The helper enforces that
+  transitions to `Confirmed (high)`, `Confirmed (medium)`, `Ruled out`, or
+  `Resolved` require prior recorded evidence refs that are verifiable (present
+  in a prior completed turn's `evidenceRefs` or in `evidence/MANIFEST.md`).
+  Upgrading `Open (uncertain)` to `Open (likely)` is subject to the same check.
+  The initial journal save (before any turn ledger exists) must contain only
+  `Open` claim statuses. Runtimes that attempt to bypass these gates by
+  hand-editing artifacts or by asserting evidence refs that were never recorded
+  will see actionable gate errors from `run_turn` and `complete_turn`.
+
 ## Migration rule
 
 When adding or revising a workflow:

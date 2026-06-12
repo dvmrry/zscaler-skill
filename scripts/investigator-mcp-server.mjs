@@ -52,6 +52,10 @@ try {
 
 // ── Tool definitions ──────────────────────────────────────────────────────────
 
+// Change 1: error returned when force is passed over MCP.
+const FORCE_OVER_MCP_ERROR =
+  "force is not available over MCP. Repair flows: run status and follow its nextCommands/nextActions; abandon_turn clears a blocked pending turn. Replacing existing artifacts is a human decision — use the CLI with explicit user approval.";
+
 const TOOLS = [
   {
     name: "status",
@@ -69,7 +73,7 @@ const TOOLS = [
   {
     name: "open_case",
     description:
-      "Step 1 gate. Proposed loads must be docs-only (prompt.md + harness.md are mandatory). A passing open_case IS the verification — verify_case is for resuming or repair only. The telemetry guardrail blocks telemetry reference loads unless the framing contains explicit telemetry evidence. Use force only with explicit user approval.",
+      "Step 1 gate. Proposed loads must be docs-only (prompt.md + harness.md are mandatory). A passing open_case IS the verification — verify_case is for resuming or repair only. The telemetry guardrail blocks telemetry reference loads unless the framing contains explicit telemetry evidence. If the user's framing presumes facts not in evidence (e.g. asks you to write up THE root cause with no tenant data), do not adopt the presumption — open the case with the symptom as reported and let evidence decide.",
     inputSchema: {
       type: "object",
       properties: {
@@ -84,7 +88,6 @@ const TOOLS = [
           items: { type: "string" },
           description: "Repo-relative paths to proposed loads. Must include agents/investigator/prompt.md and agents/investigator/harness.md.",
         },
-        force: { type: "boolean", description: "Overwrite existing passing intake. Requires explicit user approval." },
       },
       required: ["root", "case_slug", "framing", "proposed_loads"],
     },
@@ -132,10 +135,6 @@ const TOOLS = [
           type: "boolean",
           description: "Allow loads beyond the proposed list.",
         },
-        force: {
-          type: "boolean",
-          description: "Overwrite an existing loads artifact. Use only with explicit user approval.",
-        },
       },
       required: ["root", "case_slug", "loaded"],
     },
@@ -156,7 +155,7 @@ const TOOLS = [
   {
     name: "save_journal",
     description:
-      "Write the discovery journal. Content must match the full stub skeleton: # Discovery Journal heading, ## Framing, ## Proposed Loads, ## Claims with a canonical claim table (| Claim | Source | Status | Next evidence needed | Timestamp | Notes |), and ## Resolution.",
+      "Write the discovery journal. Content must match the full stub skeleton: # Discovery Journal heading, ## Framing, ## Proposed Loads, ## Claims with a canonical claim table (| Claim | Source | Status | Next evidence needed | Timestamp | Notes |), and ## Resolution. The initial journal starts with Open claims only. save_journal rejects Confirmed, Ruled out, and Resolved claims whether this is the first write or a subsequent overwrite — do not use save_journal to transition claim statuses. Call run_turn or complete_turn instead; evidence-gated transitions must go through a turn.",
     inputSchema: {
       type: "object",
       properties: {
@@ -170,7 +169,7 @@ const TOOLS = [
   {
     name: "initialize_turn_ledger",
     description:
-      "One-press Step 3. Writes the genesis turn event. Refuses unless recorded-loads artifact is passing. If journal_content is provided, writes the journal atomically before initializing (saves a separate save_journal call). Use force only to re-initialize an existing ledger with explicit user approval.",
+      "One-press Step 3. Writes the genesis turn event. Refuses unless recorded-loads artifact is passing. If journal_content is provided, writes the journal atomically before initializing (saves a separate save_journal call). The initial journal starts with Open claims only — claims cannot reach Confirmed or Ruled out without recorded evidence through turns. CLI force re-initialization archives the prior ledger to workflow/ledger-archive/; force is not available over MCP.",
     inputSchema: {
       type: "object",
       properties: {
@@ -180,7 +179,6 @@ const TOOLS = [
           type: "string",
           description: "Optional full journal markdown content to write before initializing.",
         },
-        force: { type: "boolean", description: "Re-initialize existing ledger. Requires explicit user approval." },
       },
       required: ["root", "case_slug"],
     },
@@ -202,7 +200,7 @@ const TOOLS = [
   {
     name: "run_turn",
     description:
-      "Canonical per-turn command. Atomic begin + save-journal + complete in one call; all-or-nothing — a failed run_turn leaves no pending turn. Fix the reported problem and rerun. actionType must be one of: load-file, query-request, request-user-evidence, record-user-evidence, add-evidence, mark-resolved, pause.",
+      "Canonical per-turn command. Atomic begin + save-journal + complete in one call; all-or-nothing — a failed run_turn leaves no pending turn. Fix the reported problem and rerun. actionType must be one of: load-file, query-request, request-user-evidence, record-user-evidence, add-evidence, mark-resolved, pause. Never invent, simulate, or assume evidence. With no tenant data, the correct action is request-user-evidence. Claim statuses only move on recorded evidence — the server enforces this. record-user-evidence and add-evidence turns require evidenceRefs backed by import_evidence — narrative summaries are not evidence.",
     inputSchema: {
       type: "object",
       properties: {
@@ -318,6 +316,11 @@ function cleanupTmp(dir) {
 // ── Tool dispatch ─────────────────────────────────────────────────────────────
 
 function dispatchTool(name, params) {
+  // Change 1: reject force if passed over MCP regardless of which tool it came with.
+  if (Object.prototype.hasOwnProperty.call(params, "force")) {
+    throw new Error(FORCE_OVER_MCP_ERROR);
+  }
+
   switch (name) {
     case "status": {
       return caseStatus({ root: params.root, caseSlug: params.case_slug });
@@ -333,7 +336,7 @@ function dispatchTool(name, params) {
           caseSlug: params.case_slug,
           framingJson: tmp.filePath,
           proposedLoads: params.proposed_loads || [],
-          force: params.force || false,
+          force: false,
         });
       } finally {
         if (tmpDir) cleanupTmp(tmpDir);
@@ -353,7 +356,7 @@ function dispatchTool(name, params) {
         loaded: params.loaded || [],
         deferred,
         allowAdditional: params.allow_additional || false,
-        force: params.force || false,
+        force: false,
       });
     }
 
@@ -383,7 +386,7 @@ function dispatchTool(name, params) {
         const args = {
           root: params.root,
           caseSlug: params.case_slug,
-          force: params.force || false,
+          force: false,
         };
         if (params.journal_content !== undefined && params.journal_content !== null) {
           const tmp = writeTmpFile(params.journal_content);

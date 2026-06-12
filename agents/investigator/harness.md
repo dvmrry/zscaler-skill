@@ -3,7 +3,7 @@ role: investigator
 artifact: harness
 title: "Investigator harness — checkpoint and phase contract"
 content-type: prompt
-last-verified: "2026-06-10"
+last-verified: "2026-06-12"
 confidence: high
 source-tier: practice
 sources:
@@ -497,6 +497,50 @@ root-cause claim must be `Resolved` or `Confirmed (high)`. Supporting evidence
 must already have been recorded in an earlier completed turn; do not record
 returned evidence and mark resolved in the same turn. Do not resolve by
 elimination alone.
+
+### Evidence-gated claim-status transitions
+
+The helper enforces this in `run-turn` and `complete-turn`. The `save-journal`
+command enforces that the initial journal contains only `Open` claims; subsequent
+`save-journal` calls outside an active turn are also blocked from introducing
+terminal statuses (`Confirmed`, `Ruled out`, `Resolved`) — evidence-gated
+transitions must go through `run-turn` or `begin-turn`/`complete-turn`.
+
+`record-user-evidence` and `add-evidence` turns must carry non-empty
+`evidenceRefs` where every ref is verifiable (present in `evidence/MANIFEST.md`
+or in a prior completed turn's `evidenceRefs`). Use `import_evidence` within a
+`begin-turn`/`complete-turn` split to create the MANIFEST.md entries before
+completing the turn. Narrative summaries in `actionSummary` are not evidence.
+
+Specifically, evidence-gated transitions require:
+
+- Transitioning a claim to `Confirmed (high)`, `Confirmed (medium)`,
+  `Ruled out`, or `Resolved` requires that the turn's `evidenceRefs` are
+  non-empty AND that every ref is verifiable — it must already appear in a
+  prior completed turn's `evidenceRefs` OR in `evidence/MANIFEST.md`.
+- Upgrading a claim from `Open (uncertain)` to `Open (likely)` requires the
+  same verifiability check.
+- Transitions TO `Stale` or TO `Open (uncertain)` are always exempt.
+- Unchanged statuses are always exempt.
+
+Do not write `Confirmed (high)`, `Ruled out`, or `Resolved` into the journal
+during the same turn that first names the evidence ref. The correct sequence is:
+1. Evidence turn (e.g. `record-user-evidence`) — records the ref in the ledger
+   with the claim still `Open`.
+2. Confirmation turn — transitions the claim status; the ref is now in
+   `priorEvidenceRefs` (prior turn events) and passes the verifiability check.
+
+Alternatively, use `import-evidence` inside a split `begin-turn` /
+`complete-turn` flow: imported evidence refs appear in `MANIFEST.md` and are
+verifiable within the same turn's `complete-turn` call.
+
+The initial journal (the Step 3 save) must contain only `Open` claim statuses.
+`save-journal`, `initialize-turn-ledger`, and any subsequent `save-journal` call
+outside an active turn all enforce this — terminal statuses can only enter the
+journal through a completed turn.
+
+If the gate fires, surface the error text verbatim and add a separate evidence
+turn before retrying the transition.
 
 Template:
 

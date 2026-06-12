@@ -72,6 +72,18 @@ const VALID_CLAIM_STATUSES = new Set([
   "Resolved",
 ]);
 const OPEN_CLAIM_STATUSES = new Set(["Open (likely)", "Open (uncertain)"]);
+// Statuses that require recorded evidence before a claim may enter them.
+const EVIDENCE_REQUIRED_STATUSES = new Set([
+  "Open (likely)",
+  "Confirmed (high)",
+  "Confirmed (medium)",
+  "Ruled out",
+  "Resolved",
+]);
+// Statuses that are exempt from the transition predicate (downgrades or no-ops).
+const TRANSITION_EXEMPT_STATUSES = new Set(["Stale", "Open (uncertain)"]);
+// Directory name for archived ledger generations (Change 2).
+const LEDGER_ARCHIVE_DIR = "ledger-archive";
 const EVIDENCE_REQUEST_ACTION_TYPES = new Set(["query-request", "request-user-evidence"]);
 const QUERY_REQUEST_ACTION_TYPES = new Set(["query-request"]);
 const VALID_ACTION_TYPES = new Set([
@@ -292,6 +304,7 @@ function casePaths(root, caseSlug) {
     loadsPath: path.join(workflowDir, LOADS_BASENAME),
     turnLogPath: path.join(workflowDir, TURN_LOG_BASENAME),
     turnStatePath: path.join(workflowDir, TURN_STATE_BASENAME),
+    ledgerArchiveDir: path.join(workflowDir, LEDGER_ARCHIVE_DIR),
   };
 }
 
@@ -426,6 +439,98 @@ function priorEvidenceRefs(events) {
   return refs;
 }
 
+/**
+ * Read the evidence/MANIFEST.md for the case (if present) and return the set
+ * of evidence ref strings it contains.  Used to verify refs created by
+ * import_evidence during the current split turn (Change 3).
+ */
+function manifestEvidenceRefs(paths) {
+  if (!fs.existsSync(paths.evidenceManifestPath)) return new Set();
+  const manifest = fs.readFileSync(paths.evidenceManifestPath, "utf8");
+  const refs = new Set();
+  for (const line of manifest.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed.startsWith("|")) continue;
+    const cells = trimmed
+      .replace(/^\|/, "")
+      .replace(/\|$/, "")
+      .split("|")
+      .map((c) => c.trim());
+    if (cells.length < 1) continue;
+    const ref = cells[0];
+    // Skip the header row and separator row.
+    if (ref === "Evidence Ref" || /^-+$/.test(ref)) continue;
+    if (ref) refs.add(ref);
+  }
+  return refs;
+}
+
+/**
+ * Evidence-gated claim-status transition predicate (Change 3).
+ *
+ * Called from both runTurn (where priorContent is the on-disk journal before
+ * the atomic write — full prior state available) and completeTurn (where
+ * priorContent is the journal content snapshotted into pendingTurn at
+ * beginTurn time — full prior state also available with the new pendingTurn
+ * shape).
+ *
+ * Rules:
+ * - Entering Confirmed (high|medium), Ruled out, or Resolved requires:
+ *     evidenceRefs non-empty AND every ref is verifiable (in priorEvidenceRefs
+ *     OR in the case MANIFEST.md).
+ * - Entering Open (likely) from Open (uncertain) requires evidenceRefs
+ *     non-empty AND verifiable.
+ * - Transitions TO Stale or TO Open (uncertain) are exempt.
+ * - Claims that first appear already in an exempt status are also exempt.
+ * - Unchanged statuses are exempt.
+ */
+function validateClaimTransitions(paths, priorContent, newContent, turnInput, priorEvents) {
+  const priorStatuses = journalClaimStatusesFromContent(priorContent);
+  const newStatuses = journalClaimStatusesFromContent(newContent);
+
+  const evidenceRefs = asArray(turnInput.evidenceRefs);
+  if (evidenceRefs.length === 0) {
+    // Fast path: no evidence refs means any evidence-gated transition is a violation.
+    for (const [claim, newStatus] of newStatuses) {
+      const priorStatus = priorStatuses.get(claim);
+      // Claim is unchanged — exempt.
+      if (priorStatus === newStatus) continue;
+      // Transition to exempt status — exempt.
+      if (TRANSITION_EXEMPT_STATUSES.has(newStatus)) continue;
+      // First-appearing claim already in an exempt status — exempt.
+      if (priorStatus === undefined && TRANSITION_EXEMPT_STATUSES.has(newStatus)) continue;
+      if (EVIDENCE_REQUIRED_STATUSES.has(newStatus)) {
+        const claimSummary = claim.slice(0, 60);
+        throw new Error(
+          `claim transitions to ${newStatus} require recorded evidence: '${claimSummary}'. Record evidence first (import_evidence within a begin/complete turn, or a record-user-evidence turn whose evidenceRefs name recorded items). Claims cannot be confirmed or ruled out by assertion.`,
+        );
+      }
+    }
+    return;
+  }
+
+  // Evidence refs present — check verifiability.
+  const recordedRefs = priorEvidenceRefs(priorEvents);
+  const manifestRefs = manifestEvidenceRefs(paths);
+  const verifiable = (ref) => recordedRefs.has(ref) || manifestRefs.has(ref);
+  const unverifiable = evidenceRefs.filter((ref) => !verifiable(ref));
+
+  for (const [claim, newStatus] of newStatuses) {
+    const priorStatus = priorStatuses.get(claim);
+    if (priorStatus === newStatus) continue;
+    if (TRANSITION_EXEMPT_STATUSES.has(newStatus)) continue;
+
+    if (EVIDENCE_REQUIRED_STATUSES.has(newStatus)) {
+      if (unverifiable.length > 0) {
+        const claimSummary = claim.slice(0, 60);
+        throw new Error(
+          `claim transitions to ${newStatus} require recorded evidence: '${claimSummary}'. Record evidence first (import_evidence within a begin/complete turn, or a record-user-evidence turn whose evidenceRefs name recorded items). Claims cannot be confirmed or ruled out by assertion.`,
+        );
+      }
+    }
+  }
+}
+
 function validateMarkResolved(journalPath, turnInput, actionType, priorEvents, journalContent) {
   if (actionType !== "mark-resolved") return;
 
@@ -505,6 +610,43 @@ function validateUserEvidenceRequest(turnInput, actionType) {
     throw new Error("request-user-evidence turns must include evidenceRequest");
   }
   return evidenceRequest;
+}
+
+const EVIDENCE_RECORDING_ACTION_TYPES = new Set(["record-user-evidence", "add-evidence"]);
+
+/**
+ * Gate for evidence-recording turns (record-user-evidence / add-evidence).
+ *
+ * These turns exist specifically to record evidence — a turn that records
+ * nothing is a contradiction that enables the narrative-fabrication attack:
+ * a model can complete a "record-user-evidence" turn whose actionSummary
+ * contains fabricated narrative while refs stays empty.
+ *
+ * Rules:
+ * - evidenceRefs must be non-empty.
+ * - Every ref must be verifiable: present in the case's evidence/MANIFEST.md
+ *   (written by import-evidence) OR in priorEvidenceRefs(events).
+ *
+ * Reuses the same manifestEvidenceRefs + priorEvidenceRefs helpers used by
+ * validateClaimTransitions — no second verifier.
+ */
+function validateEvidenceRecordingTurn(paths, turnInput, actionType, priorEvents) {
+  if (!EVIDENCE_RECORDING_ACTION_TYPES.has(actionType)) return;
+  const evidenceRefs = asArray(turnInput.evidenceRefs);
+  if (evidenceRefs.length === 0) {
+    throw new Error(
+      `record-user-evidence/add-evidence turns must carry verifiable evidenceRefs: import the returned files first (import_evidence within a begin/complete turn) so the refs exist in evidence/MANIFEST.md. Recording evidence without evidence is not a valid turn.`,
+    );
+  }
+  const recordedRefs = priorEvidenceRefs(priorEvents);
+  const manifestRefs = manifestEvidenceRefs(paths);
+  const verifiable = (ref) => recordedRefs.has(ref) || manifestRefs.has(ref);
+  const unverifiable = evidenceRefs.filter((ref) => !verifiable(ref));
+  if (unverifiable.length > 0) {
+    throw new Error(
+      `record-user-evidence/add-evidence turns must carry verifiable evidenceRefs: import the returned files first (import_evidence within a begin/complete turn) so the refs exist in evidence/MANIFEST.md. Recording evidence without evidence is not a valid turn. Unverifiable refs: ${unverifiable.join(", ")}`,
+    );
+  }
 }
 
 function validateEvidenceHandoffTurn(journalPath, turnInput, actionType, journalContent) {
@@ -862,11 +1004,19 @@ function caseStatus(args) {
     consistent: false,
     currentSequence: null,
     pendingTurn: null,
+    archivedGenerations: 0,
     issues: [],
   };
   let turnState = null;
   if (loadsResult.pass) {
     try {
+      // Count archived ledger generations regardless of whether the live ledger exists.
+      const archiveDir = paths.ledgerArchiveDir;
+      if (fs.existsSync(archiveDir)) {
+        const entries = fs.readdirSync(archiveDir, { withFileTypes: true });
+        ledgerResult.archivedGenerations = entries.filter((e) => e.isDirectory()).length;
+      }
+
       if (fs.existsSync(paths.turnStatePath)) {
         ledgerResult.present = true;
         turnState = readTurnState(paths);
@@ -1034,6 +1184,12 @@ function caseStatus(args) {
       `Generate the Step 3 discovery journal per agents/investigator/harness.md, render the full journal to a temp file, then run \`node scripts/investigator-artifacts.mjs initialize-turn-ledger --root ${root} --case-slug ${caseSlug} --journal-file <temp-path>\` (one press: saves journal + initializes ledger). Alternatively run save-journal then initialize-turn-ledger as separate steps. Do not hand-edit the stub's Claims section to satisfy the ledger gate.`,
     );
   }
+  // Change 2: surface archived ledger generations so laundering is visible.
+  if (ledgerResult.archivedGenerations > 0) {
+    nextActions.push(
+      `This case has ${ledgerResult.archivedGenerations} archived ledger generation(s) — prior turn history was replaced via force re-initialization; review workflow/ledger-archive/ before trusting the current chain.`,
+    );
+  }
 
   return {
     operation: "status",
@@ -1068,7 +1224,8 @@ function initializeTurnLedger(args) {
       throw new Error(`--journal-file does not exist or is not a file: ${journalFilePath}`);
     }
     journalContentFromFile = fs.readFileSync(journalFilePath, "utf8");
-    validateJournalContentForSave(journalContentFromFile);
+    // Change 3: pass paths so initial-journal gate fires (no ledger yet at this point).
+    validateJournalContentForSave(journalContentFromFile, paths);
   }
 
   // ── Check the on-disk journal (or supply --journal-file as a stand-in) ─────
@@ -1114,6 +1271,26 @@ function initializeTurnLedger(args) {
   }
 
   fs.mkdirSync(paths.workflowDir, { recursive: true });
+
+  // Change 2: if --force and existing ledger files exist, archive them instead
+  // of overwriting in place.  Both files are moved together into a timestamped
+  // subdirectory of workflow/ledger-archive/ so prior turn history is never
+  // silently destroyed.
+  if (args.force) {
+    const logExists = fs.existsSync(paths.turnLogPath);
+    const stateExists = fs.existsSync(paths.turnStatePath);
+    if (logExists || stateExists) {
+      const ts = new Date().toISOString().replace(/:/g, "-").replace(/\.\d+Z$/, "Z");
+      const archiveSubdir = path.join(paths.ledgerArchiveDir, ts);
+      fs.mkdirSync(archiveSubdir, { recursive: true });
+      if (logExists) {
+        fs.renameSync(paths.turnLogPath, path.join(archiveSubdir, TURN_LOG_BASENAME));
+      }
+      if (stateExists) {
+        fs.renameSync(paths.turnStatePath, path.join(archiveSubdir, TURN_STATE_BASENAME));
+      }
+    }
+  }
 
   const journalHash = sha256File(paths.journalPath);
   const nextTurnToken = makeTurnToken();
@@ -1179,10 +1356,14 @@ function beginTurn(args) {
   if (state.journalHash && state.journalHash !== journalHashBefore) {
     throw new Error(`${TURN_STATE_BASENAME} journalHash does not match journal.md`);
   }
+  // Change 3: snapshot journal content at begin-turn time so completeTurn can
+  // run the evidence-gated transition predicate against the true prior state.
+  const journalContentBefore = fs.readFileSync(paths.journalPath, "utf8");
   const pendingTurn = {
     turnToken: state.nextTurnToken,
     userAction: args.userAction,
     journalHashBefore,
+    journalContentBefore,
     sequence: Number(state.currentSequence) + 1,
     priorLatestTurnHash: state.latestTurnHash,
   };
@@ -1314,7 +1495,23 @@ function completeTurn(args) {
     resolvedTouchedClaims = validateTouchedClaimsExist(paths.journalPath, turnInput.touchedClaims, "complete-turn");
   }
   validateEvidenceHandoffTurn(paths.journalPath, turnInput, actionType);
+  validateEvidenceRecordingTurn(paths, turnInput, actionType, priorEvents);
   validateMarkResolved(paths.journalPath, turnInput, actionType, priorEvents);
+  // Change 3: evidence-gated claim transition predicate.
+  // priorContent: journal content at begin-turn time (snapshotted into pendingTurn).
+  // newContent: current on-disk journal (after agent write, before our append).
+  // If journalContentBefore is absent (e.g. hand-crafted or stale state file), treat
+  // that as a hard error — silently skipping validation opens a forge path.
+  const priorJournalContent = pending.journalContentBefore;
+  if (priorJournalContent === undefined) {
+    throw new Error(
+      `pendingTurn is missing journalContentBefore — turn state file may be hand-crafted or written by an older version; abandon this turn (abandon-turn) and begin a fresh one`,
+    );
+  }
+  {
+    const newJournalContent = fs.readFileSync(paths.journalPath, "utf8");
+    validateClaimTransitions(paths, priorJournalContent, newJournalContent, turnInput, priorEvents);
+  }
   const completionGate = normalizeCompletionGate(turnInput, actionType);
 
   const allowedNext = normalizeAllowedNext(turnInput.allowedNext || DEFAULT_ALLOWED_NEXT);
@@ -1736,7 +1933,7 @@ function importEvidence(args) {
 // The chat turn shape (Issue / claims table / Next step) is NOT the file shape.
 // See "Journal file template" in agents/investigator/harness.md Step 3 Details.
 
-function validateJournalContentForSave(content) {
+function validateJournalContentForSave(content, paths, insidePendingTurn = false) {
   // Collect ALL missing markers in one pass so the error names all of them.
   const missingMarkers = REQUIRED_JOURNAL_MARKERS.filter((marker) => !content.includes(marker));
   const missingClaimTable = !content.includes(REQUIRED_CLAIM_TABLE_HEADER);
@@ -1755,6 +1952,35 @@ function validateJournalContentForSave(content) {
   }
   // Full claim table structural validation (validates status values, etc.).
   verifyJournalContentHasClaimTable(content);
+
+  // Change 3: reject terminal claim statuses on every save-journal call that is not
+  // executing inside an active pendingTurn (i.e. called via runTurn or completeTurn).
+  // The flag `insidePendingTurn` is set by callers that already own a pending turn;
+  // when absent/false (direct save-journal MCP/CLI calls), the full gate applies.
+  //
+  // Gate logic:
+  //   • No on-disk claim table yet (initial journal, Step 3): reject terminal statuses.
+  //   • On-disk claim table exists AND caller is NOT inside a pending turn: also reject
+  //     terminal statuses — evidence-gated transitions must go through run-turn or
+  //     begin/complete-turn, never through a bare save-journal call.
+  //   • On-disk claim table exists AND caller IS inside a pending turn: skip this check
+  //     here — validateClaimTransitions (called in completeTurn / runTurn) enforces the
+  //     evidence requirement.
+  if (paths && !insidePendingTurn) {
+    const statuses = journalClaimStatusesFromContent(content);
+    const preResolved = [...statuses.entries()]
+      .filter(([, status]) => EVIDENCE_REQUIRED_STATUSES.has(status))
+      .map(([claim]) => claim.slice(0, 60));
+    if (preResolved.length > 0) {
+      const isInitial = !journalHasClaimTable(paths.journalPath);
+      const context = isInitial
+        ? "the initial journal cannot contain resolved/confirmed/ruled-out claims or Open (likely); investigations start Open (uncertain)"
+        : "save-journal outside an active turn cannot introduce evidence-gated statuses (Open (likely), Confirmed, Ruled out, Resolved); evidence-gated transitions must go through run-turn or begin/complete-turn";
+      throw new Error(
+        `${context} — record evidence through turns to move claims. Pre-resolved: ${preResolved.join("; ")}`,
+      );
+    }
+  }
 }
 
 // ── runTurn: atomic begin + journal save + complete ───────────────────────────
@@ -1816,12 +2042,16 @@ function runTurn(args) {
     throw new Error(`--journal-file does not exist or is not a file: ${journalFilePath}`);
   }
   const newJournalContent = fs.readFileSync(journalFilePath, "utf8");
-  validateJournalContentForSave(newJournalContent);
+  // runTurn owns an active pending turn — pass insidePendingTurn=true so the
+  // terminal-status gate defers to validateClaimTransitions (called below).
+  validateJournalContentForSave(newJournalContent, paths, true);
 
   // 1d. Verify the on-disk journal is valid (begin-turn would also check this).
   verifyJournalHasClaimTable(paths.journalPath);
 
-  // 1e. Compute journalHashBefore (hash of current on-disk journal — what begin-turn would have captured).
+  // 1e. Capture the current on-disk journal content (prior state for Change 3 transition
+  // gate) and compute journalHashBefore.
+  const priorJournalContent = fs.readFileSync(paths.journalPath, "utf8");
   const journalHashBefore = sha256File(paths.journalPath);
   if (state.journalHash && state.journalHash !== journalHashBefore) {
     throw new Error(`${TURN_STATE_BASENAME} journalHash does not match journal.md`);
@@ -1854,7 +2084,11 @@ function runTurn(args) {
     resolvedTouchedClaims = validateTouchedClaimsExist(paths.journalPath, rawTurnInput.touchedClaims, "run-turn", newJournalContent);
   }
   validateEvidenceHandoffTurn(paths.journalPath, rawTurnInput, actionType, newJournalContent);
+  validateEvidenceRecordingTurn(paths, rawTurnInput, actionType, priorEvents);
   validateMarkResolved(paths.journalPath, rawTurnInput, actionType, priorEvents, newJournalContent);
+  // Change 3: evidence-gated claim transition predicate.
+  // priorJournalContent is the on-disk journal before the atomic write — full prior state available.
+  validateClaimTransitions(paths, priorJournalContent, newJournalContent, rawTurnInput, priorEvents);
 
   // ── Phase 2: all validations passed — write atomically ───────────────────
 
@@ -2130,8 +2364,8 @@ function saveJournal(args) {
   }
   const content = fs.readFileSync(contentFilePath, "utf8");
 
-  // Validate the journal content BEFORE writing.
-  validateJournalContentForSave(content);
+  // Validate the journal content BEFORE writing (Change 3: pass paths for initial-journal gate).
+  validateJournalContentForSave(content, paths);
 
   // Write atomically to the case journal path.
   atomicWriteFile(paths.journalPath, content);
