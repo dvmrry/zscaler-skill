@@ -4,6 +4,13 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.9.1](https://github.com/dvmrry/zscaler-skill/compare/v0.9.0...v0.9.1) (2026-06-12)
+
+
+### Documentation
+
+* **zpa:** de-attribute IaC field observations to protect private infra ([#105](https://github.com/dvmrry/zscaler-skill/issues/105)) ([4daa898](https://github.com/dvmrry/zscaler-skill/commit/4daa89819405c573e093ab966f1cd0554bb37b39))
+
 ## [0.9.0](https://github.com/dvmrry/zscaler-skill/compare/v0.8.0...v0.9.0) (2026-06-12)
 
 
