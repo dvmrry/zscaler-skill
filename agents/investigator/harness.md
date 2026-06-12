@@ -500,8 +500,13 @@ elimination alone.
 
 ### Evidence-gated claim-status transitions
 
-The helper enforces that claim-status changes to terminal or elevated statuses
-require prior recorded evidence. Specifically:
+The helper enforces this in `run-turn` and `complete-turn`. The `save-journal`
+command enforces that the initial journal contains only `Open` claims; subsequent
+`save-journal` calls outside an active turn are also blocked from introducing
+terminal statuses (`Confirmed`, `Ruled out`, `Resolved`) — evidence-gated
+transitions must go through `run-turn` or `begin-turn`/`complete-turn`.
+
+Specifically, evidence-gated transitions require:
 
 - Transitioning a claim to `Confirmed (high)`, `Confirmed (medium)`,
   `Ruled out`, or `Resolved` requires that the turn's `evidenceRefs` are
@@ -524,7 +529,9 @@ Alternatively, use `import-evidence` inside a split `begin-turn` /
 verifiable within the same turn's `complete-turn` call.
 
 The initial journal (the Step 3 save) must contain only `Open` claim statuses.
-The `save-journal` and `initialize-turn-ledger` helpers enforce this.
+`save-journal`, `initialize-turn-ledger`, and any subsequent `save-journal` call
+outside an active turn all enforce this — terminal statuses can only enter the
+journal through a completed turn.
 
 If the gate fires, surface the error text verbatim and add a separate evidence
 turn before retrying the transition.

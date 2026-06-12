@@ -1477,8 +1477,15 @@ function completeTurn(args) {
   // Change 3: evidence-gated claim transition predicate.
   // priorContent: journal content at begin-turn time (snapshotted into pendingTurn).
   // newContent: current on-disk journal (after agent write, before our append).
+  // If journalContentBefore is absent (e.g. hand-crafted or stale state file), treat
+  // that as a hard error — silently skipping validation opens a forge path.
   const priorJournalContent = pending.journalContentBefore;
-  if (priorJournalContent !== undefined) {
+  if (priorJournalContent === undefined) {
+    throw new Error(
+      `pendingTurn is missing journalContentBefore — turn state file may be hand-crafted or written by an older version; abandon this turn (abandon-turn) and begin a fresh one`,
+    );
+  }
+  {
     const newJournalContent = fs.readFileSync(paths.journalPath, "utf8");
     validateClaimTransitions(paths, priorJournalContent, newJournalContent, turnInput, priorEvents);
   }
@@ -1903,7 +1910,7 @@ function importEvidence(args) {
 // The chat turn shape (Issue / claims table / Next step) is NOT the file shape.
 // See "Journal file template" in agents/investigator/harness.md Step 3 Details.
 
-function validateJournalContentForSave(content, paths) {
+function validateJournalContentForSave(content, paths, insidePendingTurn = false) {
   // Collect ALL missing markers in one pass so the error names all of them.
   const missingMarkers = REQUIRED_JOURNAL_MARKERS.filter((marker) => !content.includes(marker));
   const missingClaimTable = !content.includes(REQUIRED_CLAIM_TABLE_HEADER);
@@ -1923,21 +1930,31 @@ function validateJournalContentForSave(content, paths) {
   // Full claim table structural validation (validates status values, etc.).
   verifyJournalContentHasClaimTable(content);
 
-  // Change 3: when the on-disk journal has no valid claim table yet (either the file does not
-  // exist, or it is still the openCase stub with no claim table), reject pre-resolved claims.
-  // The initial save-journal call produces the first real claim table from hypothesis-generation
-  // (Step 3); all claims must be Open at that point.  Evidence-gated transitions happen through
-  // turns, not the initial save.  Subsequent saves (second+ calls where a real claim table
-  // already exists on disk) are not gated here — claim transitions are enforced in
-  // completeTurn / runTurn instead.
-  if (paths && !journalHasClaimTable(paths.journalPath)) {
+  // Change 3: reject terminal claim statuses on every save-journal call that is not
+  // executing inside an active pendingTurn (i.e. called via runTurn or completeTurn).
+  // The flag `insidePendingTurn` is set by callers that already own a pending turn;
+  // when absent/false (direct save-journal MCP/CLI calls), the full gate applies.
+  //
+  // Gate logic:
+  //   • No on-disk claim table yet (initial journal, Step 3): reject terminal statuses.
+  //   • On-disk claim table exists AND caller is NOT inside a pending turn: also reject
+  //     terminal statuses — evidence-gated transitions must go through run-turn or
+  //     begin/complete-turn, never through a bare save-journal call.
+  //   • On-disk claim table exists AND caller IS inside a pending turn: skip this check
+  //     here — validateClaimTransitions (called in completeTurn / runTurn) enforces the
+  //     evidence requirement.
+  if (paths && !insidePendingTurn) {
     const statuses = journalClaimStatusesFromContent(content);
     const preResolved = [...statuses.entries()]
       .filter(([, status]) => EVIDENCE_REQUIRED_STATUSES.has(status))
       .map(([claim]) => claim.slice(0, 60));
     if (preResolved.length > 0) {
+      const isInitial = !journalHasClaimTable(paths.journalPath);
+      const context = isInitial
+        ? "the initial journal cannot contain resolved/confirmed/ruled-out claims; investigations start Open"
+        : "save-journal outside an active turn cannot introduce terminal claim statuses (Confirmed, Ruled out, Resolved); evidence-gated transitions must go through run-turn or begin/complete-turn";
       throw new Error(
-        `the initial journal cannot contain resolved/confirmed/ruled-out claims; investigations start Open — record evidence through turns to move claims. Pre-resolved: ${preResolved.join("; ")}`,
+        `${context} — record evidence through turns to move claims. Pre-resolved: ${preResolved.join("; ")}`,
       );
     }
   }
@@ -2002,7 +2019,9 @@ function runTurn(args) {
     throw new Error(`--journal-file does not exist or is not a file: ${journalFilePath}`);
   }
   const newJournalContent = fs.readFileSync(journalFilePath, "utf8");
-  validateJournalContentForSave(newJournalContent);
+  // runTurn owns an active pending turn — pass insidePendingTurn=true so the
+  // terminal-status gate defers to validateClaimTransitions (called below).
+  validateJournalContentForSave(newJournalContent, paths, true);
 
   // 1d. Verify the on-disk journal is valid (begin-turn would also check this).
   verifyJournalHasClaimTable(paths.journalPath);

@@ -155,7 +155,7 @@ const TOOLS = [
   {
     name: "save_journal",
     description:
-      "Write the discovery journal. Content must match the full stub skeleton: # Discovery Journal heading, ## Framing, ## Proposed Loads, ## Claims with a canonical claim table (| Claim | Source | Status | Next evidence needed | Timestamp | Notes |), and ## Resolution. The initial journal starts with Open claims only — evidence-gated transitions happen through turns.",
+      "Write the discovery journal. Content must match the full stub skeleton: # Discovery Journal heading, ## Framing, ## Proposed Loads, ## Claims with a canonical claim table (| Claim | Source | Status | Next evidence needed | Timestamp | Notes |), and ## Resolution. The initial journal starts with Open claims only. save_journal rejects Confirmed, Ruled out, and Resolved claims whether this is the first write or a subsequent overwrite — do not use save_journal to transition claim statuses. Call run_turn or complete_turn instead; evidence-gated transitions must go through a turn.",
     inputSchema: {
       type: "object",
       properties: {

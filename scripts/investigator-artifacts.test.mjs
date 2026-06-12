@@ -2914,7 +2914,11 @@ test("save-journal happy path: writes journal, returns pass with sha256, file ma
   assert.equal(result.journalHash, expectedHash);
 });
 
-test("save-journal overwrite: second save with updated content succeeds without --force", () => {
+test("save-journal overwrite: second save with updated Open-status content succeeds without --force", () => {
+  // Second saves are allowed when they contain only Open claim statuses.
+  // Terminal-status transitions (Confirmed, Ruled out, Resolved) are blocked on all
+  // save-journal calls outside an active turn; those transitions must go through run-turn
+  // or begin/complete-turn.
   const root = tempRepo();
   const framingPath = writeJson(root, "framing.json", {
     workingDirectory: root,
@@ -2938,9 +2942,10 @@ test("save-journal overwrite: second save with updated content succeeds without 
   });
   assert.equal(result1.status, "pass");
 
+  // Second save: update the claim's Next evidence column only — status stays Open (uncertain).
   const updatedContent = VALID_JOURNAL_CONTENT.replace(
     "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check app segment | 2026-06-10T00:00:00Z | reference-grounded |",
-    "| H1: Segment missing | references/zpa/app-segments.md | Confirmed (high) | n/a | 2026-06-10T01:00:00Z | confirmed |",
+    "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Verify segment config | 2026-06-10T01:00:00Z | updated |",
   );
   const tmpPath2 = writeTempJournal(updatedContent);
   const result2 = saveJournal({
@@ -3652,10 +3657,11 @@ test("initialize-turn-ledger --journal-file: existing ledger + new journal conte
   const journalPath = path.join(root, "_data/cases", caseSlug, "journal.md");
   const journalBefore = fs.readFileSync(journalPath, "utf8");
 
-  // New journal content that would change the journal if written.
+  // New journal content that would change the journal if written — Open status only so the
+  // terminal-status gate doesn't fire before the ledger guard (which is what we're testing here).
   const newContent = VALID_JOURNAL_CONTENT.replace(
     "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check app segment | 2026-06-10T00:00:00Z | reference-grounded |",
-    "| H1: Segment missing | references/zpa/app-segments.md | Confirmed (high) | n/a | 2026-06-10T01:00:00Z | confirmed |",
+    "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Verify segment config | 2026-06-10T01:00:00Z | updated |",
   );
   const tmpPath = writeTempJournal(newContent);
 
@@ -4286,10 +4292,10 @@ test("save-journal: first save with Confirmed (high) claim is rejected (initial 
   );
 });
 
-test("save-journal: second save (overwrite) with Confirmed (high) claim passes (not an initial journal)", () => {
-  // After the first save, further saves bypass the initial-journal gate because the
-  // journal file already exists.  Claim-transition enforcement happens in completeTurn /
-  // runTurn instead.
+test("save-journal: second save (overwrite) with Confirmed (high) claim is rejected outside a turn", () => {
+  // save-journal blocks terminal claim statuses on ALL calls outside an active pendingTurn,
+  // not only the initial journal.  Evidence-gated transitions must go through run-turn or
+  // begin/complete-turn.
   const root = tempRepo();
   const framingPath = writeJson(root, "framing.json", {
     workingDirectory: root,
@@ -4314,9 +4320,11 @@ test("save-journal: second save (overwrite) with Confirmed (high) claim passes (
   );
   const tmpPath2 = writeTempJournal(confirmedContent);
 
-  // Second save must NOT throw — the initial-journal gate only applies to the first save.
-  const result2 = saveJournal({ root, caseSlug: "2026-06-12-overwrite-gate", contentFile: tmpPath2 });
-  assert.equal(result2.status, "pass");
+  // Second save must ALSO throw — the gate applies to all save-journal calls outside a turn.
+  assert.throws(
+    () => saveJournal({ root, caseSlug: "2026-06-12-overwrite-gate", contentFile: tmpPath2 }),
+    /save-journal outside an active turn cannot introduce terminal claim statuses/,
+  );
 });
 
 test("initialize-turn-ledger: journal with Confirmed (high) claim is rejected by initial-journal gate", () => {
