@@ -1678,8 +1678,30 @@ test("completeTurn blocks mark-resolved when supporting evidence was not recorde
 test("completeTurn allows mark-resolved when completion gate is satisfied", () => {
   const { root, caseSlug, journalPath } = createPassingCaseWithJournal();
   initializeTurnLedger({ root, caseSlug });
-  const evidenceTurn = beginTurn({ root, caseSlug, userAction: "record-user-evidence" }).pendingTurn;
 
+  // Turn 1: record the evidence ref into the ledger WITHOUT transitioning the claim status.
+  // This establishes the ref in priorEvidenceRefs(events) so the subsequent turn can
+  // verify it (Change 3 evidence-gated transition predicate).
+  const t1 = beginTurn({ root, caseSlug, userAction: "record-user-evidence" }).pendingTurn;
+  const journalWithNote1 = fs.readFileSync(journalPath, "utf8") +
+    "\nTurn update: rollback evidence collected, status still uncertain.\n";
+  fs.writeFileSync(journalPath, journalWithNote1, "utf8");
+  const t1Path = writeJson(root, "turn-evidence-t1.json", {
+    sequence: t1.sequence,
+    previousHash: t1.priorLatestTurnHash,
+    turnToken: t1.turnToken,
+    userAction: t1.userAction,
+    actionType: "record-user-evidence",
+    actionSummary: "Collected rollback evidence; claim still under evaluation.",
+    touchedClaims: ["H1: Application segment may not include the app"],
+    evidenceRefs: ["_data/cases/example/evidence/rollback-confirmation.md"],
+    journalHashBefore: t1.journalHashBefore,
+    allowedNext: ["record-user-evidence", "mark-resolved", "pause"],
+  });
+  completeTurn({ root, caseSlug, turnJson: t1Path });
+
+  // Turn 2: evidence ref is now in priorEvidenceRefs(events) — transition is verifiable.
+  const evidenceTurn = beginTurn({ root, caseSlug, userAction: "record-user-evidence" }).pendingTurn;
   const evidenceJournal = fs.readFileSync(journalPath, "utf8")
     .replace("Open (uncertain)", "Confirmed (high)");
   fs.writeFileSync(journalPath, `${evidenceJournal}\nTurn update: recorded direct rollback evidence.\n`, "utf8");
@@ -2338,7 +2360,28 @@ test("status reports resolved phase after mark-resolved with all claims closed",
   const { root, caseSlug, journalPath } = createPassingCaseWithJournal();
   initializeTurnLedger({ root, caseSlug });
 
-  // Record evidence.
+  // Turn 1: record evidence ref into the ledger WITHOUT transitioning the claim status.
+  // This establishes the ref in priorEvidenceRefs(events) so the subsequent transition
+  // turn can verify it (Change 3 evidence-gated transition predicate).
+  const t1 = beginTurn({ root, caseSlug, userAction: "record-user-evidence" }).pendingTurn;
+  const journalWithNote1 = fs.readFileSync(journalPath, "utf8") +
+    "\nTurn update: rollback evidence collected, status still uncertain.\n";
+  fs.writeFileSync(journalPath, journalWithNote1, "utf8");
+  const t1Path = writeJson(root, "t0-pre-evidence.json", {
+    sequence: t1.sequence,
+    previousHash: t1.priorLatestTurnHash,
+    turnToken: t1.turnToken,
+    userAction: t1.userAction,
+    actionType: "record-user-evidence",
+    actionSummary: "Collected rollback evidence; claim still under evaluation.",
+    touchedClaims: ["H1: Application segment may not include the app"],
+    evidenceRefs: ["_data/cases/example/evidence/rollback-confirmation.md"],
+    journalHashBefore: t1.journalHashBefore,
+    allowedNext: ["record-user-evidence", "mark-resolved", "pause"],
+  });
+  completeTurn({ root, caseSlug, turnJson: t1Path });
+
+  // Turn 2: evidence ref is now in priorEvidenceRefs(events) — transition is verifiable.
   const evidenceTurn = beginTurn({ root, caseSlug, userAction: "record-user-evidence" }).pendingTurn;
   const evidenceJournal = fs.readFileSync(journalPath, "utf8")
     .replace("Open (uncertain)", "Confirmed (high)");
@@ -3070,9 +3113,12 @@ function makeValidRunTurnInput(root) {
 /**
  * Updated journal content: same as VALID_JOURNAL_CONTENT but with a mutated claim.
  */
+// Change 3: updated journal content must not transition to a terminal status without
+// prior recorded evidence.  Use Open (uncertain) with updated notes to satisfy the
+// hash-change requirement without triggering the evidence-gated transition predicate.
 const UPDATED_JOURNAL_CONTENT = VALID_JOURNAL_CONTENT.replace(
   "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check app segment | 2026-06-10T00:00:00Z | reference-grounded |",
-  "| H1: Segment missing | references/zpa/app-segments.md | Confirmed (high) | n/a | 2026-06-10T01:00:00Z | confirmed |",
+  "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check connector group | 2026-06-10T01:00:00Z | snapshot-checked |",
 );
 
 function createCaseWithLedger() {
@@ -3275,15 +3321,15 @@ test("run-turn: touchedClaims present in new journal but absent from old on-disk
   // The turn references H2 which is only in the new journal — should PASS.
   const { root, caseSlug } = createCaseWithLedger();
 
-  // New journal has only H2.
+  // New journal has only H2 — Open (uncertain) so no terminal transition fires.
   const newClaimContent = VALID_JOURNAL_CONTENT.replace(
     "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check app segment | 2026-06-10T00:00:00Z | reference-grounded |",
-    "| H2: New claim | references/zpa/app-segments.md | Confirmed (high) | n/a | 2026-06-10T01:00:00Z | confirmed |",
+    "| H2: New claim | references/zpa/app-segments.md | Open (uncertain) | Check connector | 2026-06-10T01:00:00Z | reference-grounded |",
   );
   const tmpJournal = writeTempJournal(newClaimContent);
   const inputPath = writeJson(root, "new-claim-input.json", {
     actionType: "load-file",
-    actionSummary: "Confirmed H2 from reference.",
+    actionSummary: "Added H2 from reference.",
     touchedClaims: ["H2: New claim"], // only in new journal, not in old
     evidenceRefs: [],
     allowedNext: ["pause"],
@@ -3378,12 +3424,15 @@ test("run-turn: mark-resolved enforces completionGate (failing case)", () => {
 test("run-turn: mark-resolved enforces completionGate (passing case)", () => {
   const { root, caseSlug } = createCaseWithLedger();
 
-  // First: record a prior evidence turn so the supportingEvidenceRef is recorded.
+  // First: record a prior evidence turn that keeps the claim Open (uncertain) but
+  // records the evidence ref.  This avoids triggering the evidence-gated transition
+  // predicate (Change 3) while establishing the ref in priorEvidenceRefs(events).
   const evidenceTmpJournal = writeTempJournal(
-    VALID_JOURNAL_CONTENT.replace("Open (uncertain)", "Confirmed (high)") + "\nTurn update: evidence recorded.\n",
+    VALID_JOURNAL_CONTENT.replace(
+      "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check app segment | 2026-06-10T00:00:00Z | reference-grounded |",
+      "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check policy | 2026-06-10T01:00:00Z | evidence-recorded |",
+    ) + "\nTurn update: evidence recorded.\n",
   );
-  const evidenceTmpFile = writeTempJournal(VALID_JOURNAL_CONTENT);
-  saveJournal({ root, caseSlug, contentFile: evidenceTmpFile }); // need journal saved via save-journal so initializeTurnLedger is already done
   const evidenceInputPath = writeJson(root, "evidence-rec-input.json", {
     actionType: "record-user-evidence",
     actionSummary: "Recorded supporting evidence.",
@@ -3400,7 +3449,8 @@ test("run-turn: mark-resolved enforces completionGate (passing case)", () => {
   });
   assert.equal(e1Result.status, "pass");
 
-  // Now mark-resolved turn with no open claims and supporting evidence from prior turn.
+  // Now mark-resolved turn: transitions Open (uncertain) -> Confirmed (high).
+  // The ref is now in priorEvidenceRefs(events) from the first turn — verifiable.
   const resolvedJournalContent =
     VALID_JOURNAL_CONTENT
       .replace("Open (uncertain)", "Confirmed (high)")
@@ -3942,4 +3992,360 @@ Open.
   assert.equal(readJson(turnStatePath).pendingTurn, null);
   assert.equal(readJson(turnStatePath).currentSequence, stateBefore.currentSequence);
   assert.equal(fs.readFileSync(logPath, "utf8"), logBefore);
+});
+
+// ── Change 2: archive-on-force ledger re-init ─────────────────────────────────
+
+test("initializeTurnLedger with force archives existing ledger files to ledger-archive/<ts>/", () => {
+  const { root, caseSlug } = createCaseWithLedger();
+
+  // Run a turn so the ledger has non-genesis content.
+  const t1 = beginTurn({ root, caseSlug, userAction: "continue-top-open" }).pendingTurn;
+  const journalPath = path.join(root, "_data/cases", caseSlug, "journal.md");
+  fs.appendFileSync(journalPath, "\nTurn update: initial evidence sweep.\n", "utf8");
+  const t1Path = writeJson(root, "t1-init.json", {
+    sequence: t1.sequence,
+    previousHash: t1.priorLatestTurnHash,
+    turnToken: t1.turnToken,
+    userAction: t1.userAction,
+    actionType: "load-file",
+    actionSummary: "Checked initial reference.",
+    touchedClaims: ["H1: Segment missing"],
+    evidenceRefs: [],
+    journalHashBefore: t1.journalHashBefore,
+    allowedNext: ["continue-top-open", "pause"],
+  });
+  completeTurn({ root, caseSlug, turnJson: t1Path });
+
+  // Capture file content before force re-init.
+  const workflowDir = path.join(root, "_data/cases", caseSlug, "workflow");
+  const logPath = path.join(workflowDir, "02-turns.jsonl");
+  const statePath = path.join(workflowDir, "02-turn-state.json");
+  const logBefore = fs.readFileSync(logPath, "utf8");
+  const stateBefore = fs.readFileSync(statePath, "utf8");
+
+  // Re-init with force — must archive, not overwrite.
+  const result = initializeTurnLedger({ root, caseSlug, force: true });
+  assert.equal(result.status, "pass");
+
+  // New ledger files must be fresh (genesis only).
+  const newLog = fs.readFileSync(logPath, "utf8");
+  const newState = readJson(statePath);
+  assert.notEqual(newLog, logBefore, "log should be reset to genesis");
+  assert.equal(newState.currentSequence, 0, "sequence should restart at 0");
+
+  // Archive dir must exist with at least one timestamped subdirectory.
+  const archiveDir = path.join(workflowDir, "ledger-archive");
+  assert.ok(fs.existsSync(archiveDir), "ledger-archive/ must exist");
+  const entries = fs.readdirSync(archiveDir, { withFileTypes: true });
+  const subdirs = entries.filter((e) => e.isDirectory());
+  assert.equal(subdirs.length, 1, "exactly one archive subdirectory expected");
+
+  // The archived files must contain the prior content.
+  const archivePath = path.join(archiveDir, subdirs[0].name);
+  assert.equal(
+    fs.readFileSync(path.join(archivePath, "02-turns.jsonl"), "utf8"),
+    logBefore,
+  );
+  assert.equal(
+    fs.readFileSync(path.join(archivePath, "02-turn-state.json"), "utf8"),
+    stateBefore,
+  );
+});
+
+test("caseStatus reports archivedGenerations 0 when no archive dir exists", () => {
+  const { root, caseSlug } = createCaseWithLedger();
+  const result = caseStatus({ root, caseSlug });
+  assert.equal(result.ledger.archivedGenerations, 0, "archivedGenerations should be 0");
+  const hasWarning = (result.nextActions || []).some((a) =>
+    a.includes("archived ledger"),
+  );
+  assert.ok(!hasWarning, "should have no archived-ledger nextActions warning");
+});
+
+test("caseStatus reports archivedGenerations > 0 and nextActions warning after force re-init", () => {
+  const { root, caseSlug } = createCaseWithLedger();
+
+  // Force re-init to create one archive generation.
+  initializeTurnLedger({ root, caseSlug, force: true });
+
+  const result = caseStatus({ root, caseSlug });
+  assert.equal(result.ledger.archivedGenerations, 1, "archivedGenerations should be 1");
+  const hasWarning = (result.nextActions || []).some((a) =>
+    a.includes("archived ledger"),
+  );
+  assert.ok(hasWarning, "nextActions must contain an archived-ledger warning");
+});
+
+// ── Change 3: evidence-gated claim-status transition gate ─────────────────────
+
+test("run-turn: replay attack — Confirmed (high) flip with empty evidenceRefs is rejected", () => {
+  const { root, caseSlug } = createCaseWithLedger();
+
+  const journalContent = VALID_JOURNAL_CONTENT.replace(
+    "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check app segment | 2026-06-10T00:00:00Z | reference-grounded |",
+    "| H1: Segment missing | references/zpa/app-segments.md | Confirmed (high) | n/a | 2026-06-10T01:00:00Z | invented |",
+  ) + "\nTurn update: fabricated confirmation.\n";
+
+  const tmpJournal = writeTempJournal(journalContent);
+  const inputPath = writeJson(root, "attack-input.json", {
+    actionType: "load-file",
+    actionSummary: "Invented confirmation.",
+    touchedClaims: ["H1: Segment missing"],
+    evidenceRefs: [],
+    allowedNext: ["pause"],
+  });
+
+  assert.throws(
+    () => runTurn({ root, caseSlug, userAction: "continue-top-open", journalFile: tmpJournal, turnInputJson: inputPath }),
+    /require recorded evidence/,
+  );
+});
+
+test("run-turn: Confirmed (high) flip WITH verifiable prior evidenceRef passes", () => {
+  const { root, caseSlug } = createCaseWithLedger();
+
+  // First turn: record the ref WITHOUT transitioning the status.
+  const e1Journal = VALID_JOURNAL_CONTENT.replace(
+    "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check app segment | 2026-06-10T00:00:00Z | reference-grounded |",
+    "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check connector group | 2026-06-10T01:00:00Z | evidence-recorded |",
+  ) + "\nTurn update: evidence file loaded.\n";
+  const tmpE1 = writeTempJournal(e1Journal);
+  const inputE1 = writeJson(root, "e1-input.json", {
+    actionType: "record-user-evidence",
+    actionSummary: "Loaded supporting evidence.",
+    touchedClaims: ["H1: Segment missing"],
+    evidenceRefs: ["_data/cases/example/evidence/confirm.md"],
+    allowedNext: ["record-user-evidence", "continue-top-open", "pause"],
+  });
+  const e1Result = runTurn({ root, caseSlug, userAction: "record-user-evidence", journalFile: tmpE1, turnInputJson: inputE1 });
+  assert.equal(e1Result.status, "pass");
+
+  // Second turn: transition is now verifiable because ref is in priorEvidenceRefs(events).
+  const confirmedJournal = VALID_JOURNAL_CONTENT.replace(
+    "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check app segment | 2026-06-10T00:00:00Z | reference-grounded |",
+    "| H1: Segment missing | references/zpa/app-segments.md | Confirmed (high) | n/a | 2026-06-10T02:00:00Z | confirmed |",
+  ).replace("Open.", "Resolved.") + "\nTurn update: confirmed by evidence.\n";
+  const tmpConfirmed = writeTempJournal(confirmedJournal);
+  const inputConfirmed = writeJson(root, "confirmed-input.json", {
+    actionType: "record-user-evidence",
+    actionSummary: "Confirmed based on loaded evidence.",
+    touchedClaims: ["H1: Segment missing"],
+    evidenceRefs: ["_data/cases/example/evidence/confirm.md"],
+    allowedNext: ["mark-resolved", "pause"],
+  });
+  const confirmedResult = runTurn({ root, caseSlug, userAction: "record-user-evidence", journalFile: tmpConfirmed, turnInputJson: inputConfirmed });
+  assert.equal(confirmedResult.status, "pass");
+});
+
+test("run-turn: Ruled out flip with empty evidenceRefs is rejected", () => {
+  const { root, caseSlug } = createCaseWithLedger();
+
+  const journalContent = VALID_JOURNAL_CONTENT.replace(
+    "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check app segment | 2026-06-10T00:00:00Z | reference-grounded |",
+    "| H1: Segment missing | references/zpa/app-segments.md | Ruled out | n/a | 2026-06-10T01:00:00Z | invented |",
+  ) + "\nTurn update: fabricated ruled-out.\n";
+  const tmpJournal = writeTempJournal(journalContent);
+  const inputPath = writeJson(root, "ruled-out-input.json", {
+    actionType: "load-file",
+    actionSummary: "Invented ruled-out.",
+    touchedClaims: ["H1: Segment missing"],
+    evidenceRefs: [],
+    allowedNext: ["pause"],
+  });
+
+  assert.throws(
+    () => runTurn({ root, caseSlug, userAction: "continue-top-open", journalFile: tmpJournal, turnInputJson: inputPath }),
+    /require recorded evidence/,
+  );
+});
+
+test("run-turn: Open (uncertain) to Open (likely) without evidenceRefs is rejected", () => {
+  // Need a case with Open (likely) as the new status — use a custom journal.
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  const openResult = openCase({
+    root,
+    caseSlug: `2026-06-12-likely-gate-${Date.now()}`,
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+  const caseSlug = openResult.caseSlug;
+
+  // Build a journal with Open (likely) status.
+  const initialContent = `# Discovery Journal
+
+ISSUE: ZPA users cannot reach wiki.internal
+STATUS: Investigating
+
+## Framing
+
+| Field | Value |
+|---|---|
+| Symptom | ZPA users cannot reach wiki.internal |
+
+## Proposed Loads
+
+- agents/investigator/prompt.md
+- agents/investigator/harness.md
+
+## Claims
+
+| Claim | Source | Status | Next evidence needed | Timestamp | Notes |
+|---|---|---|---|---|---|
+| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check app segment | 2026-06-10T00:00:00Z | reference-grounded |
+
+## Resolution
+
+Open.
+`;
+  const initTmpPath = writeTempJournal(initialContent);
+  saveJournal({ root, caseSlug, contentFile: initTmpPath });
+  recordLoads({
+    root,
+    caseSlug,
+    loaded: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+    deferred: [],
+    allowAdditional: false,
+    force: false,
+  });
+  initializeTurnLedger({ root, caseSlug });
+
+  const likelyJournal = initialContent.replace(
+    "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check app segment | 2026-06-10T00:00:00Z | reference-grounded |",
+    "| H1: Segment missing | references/zpa/app-segments.md | Open (likely) | Confirm next | 2026-06-10T01:00:00Z | upgraded |",
+  ) + "\nTurn update: upgraded without evidence.\n";
+  const tmpJournal = writeTempJournal(likelyJournal);
+  const inputPath = writeJson(root, "likely-input.json", {
+    actionType: "load-file",
+    actionSummary: "Upgraded to likely without evidence.",
+    touchedClaims: ["H1: Segment missing"],
+    evidenceRefs: [],
+    allowedNext: ["pause"],
+  });
+
+  assert.throws(
+    () => runTurn({ root, caseSlug, userAction: "continue-top-open", journalFile: tmpJournal, turnInputJson: inputPath }),
+    /upgrading a hypothesis to likely requires recorded evidence/,
+  );
+});
+
+test("run-turn: downgrade to Stale passes without evidenceRefs (exempt status)", () => {
+  const { root, caseSlug } = createCaseWithLedger();
+
+  const staleJournal = VALID_JOURNAL_CONTENT.replace(
+    "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check app segment | 2026-06-10T00:00:00Z | reference-grounded |",
+    "| H1: Segment missing | references/zpa/app-segments.md | Stale | Needs refresh | 2026-06-10T01:00:00Z | deprioritized |",
+  ) + "\nTurn update: deprioritized stale claim.\n";
+  const tmpJournal = writeTempJournal(staleJournal);
+  const inputPath = writeJson(root, "stale-input.json", {
+    actionType: "load-file",
+    actionSummary: "Marked claim stale.",
+    touchedClaims: ["H1: Segment missing"],
+    evidenceRefs: [],
+    allowedNext: ["continue-top-open", "pause"],
+  });
+
+  const result = runTurn({ root, caseSlug, userAction: "continue-top-open", journalFile: tmpJournal, turnInputJson: inputPath });
+  assert.equal(result.status, "pass");
+});
+
+// ── Change 3: initial journal gate (save-journal / initialize-turn-ledger) ────
+
+test("save-journal: first save with Confirmed (high) claim is rejected (initial journal gate)", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  openCase({
+    root,
+    caseSlug: "2026-06-12-initial-journal-gate",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+
+  const preResolvedContent = VALID_JOURNAL_CONTENT.replace(
+    "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check app segment | 2026-06-10T00:00:00Z | reference-grounded |",
+    "| H1: Segment missing | references/zpa/app-segments.md | Confirmed (high) | n/a | 2026-06-10T00:00:00Z | invented |",
+  );
+  const tmpPath = writeTempJournal(preResolvedContent);
+
+  assert.throws(
+    () => saveJournal({ root, caseSlug: "2026-06-12-initial-journal-gate", contentFile: tmpPath }),
+    /initial journal cannot contain resolved\/confirmed\/ruled-out claims/,
+  );
+});
+
+test("save-journal: second save (overwrite) with Confirmed (high) claim passes (not an initial journal)", () => {
+  // After the first save, further saves bypass the initial-journal gate because the
+  // journal file already exists.  Claim-transition enforcement happens in completeTurn /
+  // runTurn instead.
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  openCase({
+    root,
+    caseSlug: "2026-06-12-overwrite-gate",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+
+  const tmpPath1 = writeTempJournal(VALID_JOURNAL_CONTENT);
+  saveJournal({ root, caseSlug: "2026-06-12-overwrite-gate", contentFile: tmpPath1 });
+
+  const confirmedContent = VALID_JOURNAL_CONTENT.replace(
+    "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check app segment | 2026-06-10T00:00:00Z | reference-grounded |",
+    "| H1: Segment missing | references/zpa/app-segments.md | Confirmed (high) | n/a | 2026-06-10T01:00:00Z | confirmed |",
+  );
+  const tmpPath2 = writeTempJournal(confirmedContent);
+
+  // Second save must NOT throw — the initial-journal gate only applies to the first save.
+  const result2 = saveJournal({ root, caseSlug: "2026-06-12-overwrite-gate", contentFile: tmpPath2 });
+  assert.equal(result2.status, "pass");
+});
+
+test("initialize-turn-ledger: journal with Confirmed (high) claim is rejected by initial-journal gate", () => {
+  const root = tempRepo();
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  const openResult = openCase({
+    root,
+    caseSlug: "2026-06-12-ledger-init-gate",
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+  const caseSlug = openResult.caseSlug;
+
+  recordMinimalLoads(root, caseSlug);
+
+  const preResolvedContent = VALID_JOURNAL_CONTENT.replace(
+    "| H1: Segment missing | references/zpa/app-segments.md | Open (uncertain) | Check app segment | 2026-06-10T00:00:00Z | reference-grounded |",
+    "| H1: Segment missing | references/zpa/app-segments.md | Confirmed (high) | n/a | 2026-06-10T00:00:00Z | invented |",
+  );
+  const tmpPath = writeTempJournal(preResolvedContent);
+
+  assert.throws(
+    () => initializeTurnLedger({ root, caseSlug, journalFile: tmpPath }),
+    /initial journal cannot contain resolved\/confirmed\/ruled-out claims/,
+  );
 });

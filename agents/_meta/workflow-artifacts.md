@@ -2,7 +2,7 @@
 topic: "workflow-artifacts"
 title: "Workflow artifacts and phase gates"
 content-type: reference
-last-verified: "2026-06-10"
+last-verified: "2026-06-12"
 confidence: medium
 source-tier: practice
 sources:
@@ -136,6 +136,10 @@ _data/cases/<slug>/
     02-turns.jsonl         ← hash-chained turn ledger; written via
                               initialize-turn-ledger / run-turn / complete-turn
     02-turn-state.json     ← current turn state (written with 02-turns.jsonl)
+    ledger-archive/        ← created by --force re-init; prior ledger files
+      <UTC-timestamp>/     ←   are moved here (never overwritten in place)
+        02-turns.jsonl
+        02-turn-state.json
   evidence/
     MANIFEST.md            ← written by import-evidence
     <slug>-<name>.<ext>    ← individual evidence files
@@ -143,6 +147,18 @@ _data/cases/<slug>/
 
 Journal saves are written by `save-journal` and verified against required
 section markers before the write is accepted.
+
+The initial journal (produced at Step 3) must contain only `Open` claim
+statuses. The `save-journal` helper enforces this on first write. Subsequent
+writes are gated by the evidence-gated transition predicate in `run-turn` /
+`complete-turn` instead.
+
+Force re-initialization of the turn ledger (`--force` flag on CLI only) archives
+the existing `02-turns.jsonl` and `02-turn-state.json` into a timestamped
+subdirectory of `workflow/ledger-archive/` before writing fresh genesis files.
+The prior chain is never destroyed. `caseStatus` reports `archivedGenerations`
+and emits a `nextActions` warning when any archived generation is found.
+`force` is not available over MCP; use the CLI with explicit user approval.
 
 ## Superseded design sketch (kept for history)
 

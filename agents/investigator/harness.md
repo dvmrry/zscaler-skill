@@ -3,7 +3,7 @@ role: investigator
 artifact: harness
 title: "Investigator harness — checkpoint and phase contract"
 content-type: prompt
-last-verified: "2026-06-10"
+last-verified: "2026-06-12"
 confidence: high
 source-tier: practice
 sources:
@@ -497,6 +497,37 @@ root-cause claim must be `Resolved` or `Confirmed (high)`. Supporting evidence
 must already have been recorded in an earlier completed turn; do not record
 returned evidence and mark resolved in the same turn. Do not resolve by
 elimination alone.
+
+### Evidence-gated claim-status transitions
+
+The helper enforces that claim-status changes to terminal or elevated statuses
+require prior recorded evidence. Specifically:
+
+- Transitioning a claim to `Confirmed (high)`, `Confirmed (medium)`,
+  `Ruled out`, or `Resolved` requires that the turn's `evidenceRefs` are
+  non-empty AND that every ref is verifiable — it must already appear in a
+  prior completed turn's `evidenceRefs` OR in `evidence/MANIFEST.md`.
+- Upgrading a claim from `Open (uncertain)` to `Open (likely)` requires the
+  same verifiability check.
+- Transitions TO `Stale` or TO `Open (uncertain)` are always exempt.
+- Unchanged statuses are always exempt.
+
+Do not write `Confirmed (high)`, `Ruled out`, or `Resolved` into the journal
+during the same turn that first names the evidence ref. The correct sequence is:
+1. Evidence turn (e.g. `record-user-evidence`) — records the ref in the ledger
+   with the claim still `Open`.
+2. Confirmation turn — transitions the claim status; the ref is now in
+   `priorEvidenceRefs` (prior turn events) and passes the verifiability check.
+
+Alternatively, use `import-evidence` inside a split `begin-turn` /
+`complete-turn` flow: imported evidence refs appear in `MANIFEST.md` and are
+verifiable within the same turn's `complete-turn` call.
+
+The initial journal (the Step 3 save) must contain only `Open` claim statuses.
+The `save-journal` and `initialize-turn-ledger` helpers enforce this.
+
+If the gate fires, surface the error text verbatim and add a separate evidence
+turn before retrying the transition.
 
 Template:
 

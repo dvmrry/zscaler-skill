@@ -3,7 +3,7 @@ role: investigator
 artifact: case-intake
 title: "Investigator case intake — deterministic Step 1 artifact"
 content-type: prompt
-last-verified: "2026-06-10"
+last-verified: "2026-06-12"
 confidence: high
 source-tier: practice
 sources:
