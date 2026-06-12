@@ -9,6 +9,7 @@ confidence: medium
 sources:
   - agents/researcher/prompt.md
   - agents/researcher/grounding/index.md
+  - agents/declared-records.md
   - scripts/prepare-overlay-submission.mjs
 author-status: reviewed
 summary: Citation-backed reference expansion workflow
@@ -20,8 +21,11 @@ known-runtimes:
 required-reads:
   - agents/researcher/prompt.md
   - agents/researcher/grounding/index.md
+  - agents/declared-records.md
 supporting-scripts:
   - scripts/check-hygiene.py
+  - scripts/check-citations.sh
+  - scripts/check-orphans.py
   - scripts/prepare-overlay-submission.mjs
 ---
 
@@ -34,7 +38,12 @@ parse, extract, write, and verify checkpoints in `agents/researcher/prompt.md`.
 The checkpoints are audit/attestation gates, not helper-enforced structural
 gates.
 
-Supporting script: `scripts/check-hygiene.py`
+Supporting scripts:
+
+- `scripts/check-hygiene.py`
+- `scripts/check-citations.sh`
+- `scripts/check-orphans.py`
+- `scripts/prepare-overlay-submission.mjs`
 
 ## Closeout Option
 

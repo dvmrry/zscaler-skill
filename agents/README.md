@@ -23,6 +23,7 @@ sources:
   - "agents/retro/harness.md"
   - "agents/retro/grounding/index.md"
   - "agents/retro/prompt.md"
+  - "agents/declared-records.md"
 author-status: draft
 ---
 
@@ -41,6 +42,11 @@ This directory holds the agent infrastructure for the skill — playbooks, metho
 | `_meta/` | Agent-layer meta-documentation: runtime adapter policy, workflow metadata, and workflow artifact notes | Maintainers and auditing agents |
 
 The split keeps `references/` focused as a knowledge base, lets agent personas route to predictable paths, and makes it easier to add new agent workflows without touching product docs.
+
+Role grounding is scoped to role duties. Researcher grounding improves
+citation-backed reference expansion and source-boundary discipline; it must not
+override operational troubleshooting, investigation, SOC review, architecture
+review, or any other role contract.
 
 ## Available workflows
 
@@ -77,6 +83,7 @@ Files at the root of `agents/` apply across roles:
 - [`tenant-schema-derivation.md`](./tenant-schema-derivation.md) — canonical-vs-tenant schema distinction, derivation recipes per SIEM, storage template
 - [`clarification-pattern.md`](./clarification-pattern.md) — standard clarify-before-routing pattern for underspecified Zscaler requests
 - [`loading-discipline.md`](./loading-discipline.md) — bounded file-loading and stage-announcement discipline for agent workflows
+- [`declared-records.md`](./declared-records.md) — lightweight metadata convention for durable findings, recommendations, warnings, decisions, claims, and action items
 
 ## Frontmatter conventions
 
