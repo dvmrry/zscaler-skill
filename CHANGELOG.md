@@ -4,6 +4,14 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.5.3](https://github.com/dvmrry/zscaler-skill/compare/v0.5.2...v0.5.3) (2026-06-12)
+
+
+### Documentation
+
+* **agents:** role cornerstones and declared-records convention (supersedes [#49](https://github.com/dvmrry/zscaler-skill/issues/49)) ([#91](https://github.com/dvmrry/zscaler-skill/issues/91)) ([fd086ad](https://github.com/dvmrry/zscaler-skill/commit/fd086add1fbb11032db1ba19954a3e9623b200a5))
+* **plans:** cornerstone A/B experiment results — generic grounding wins, cosplay confirmed, premise-challenge is the active ingredient ([#92](https://github.com/dvmrry/zscaler-skill/issues/92)) ([f678311](https://github.com/dvmrry/zscaler-skill/commit/f6783113a1f071c6ab872c980ed2512809960a41))
+
 ## [0.5.2](https://github.com/dvmrry/zscaler-skill/compare/v0.5.1...v0.5.2) (2026-06-12)
 
 
