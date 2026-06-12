@@ -1,0 +1,612 @@
+#!/usr/bin/env node
+//
+// run-investigation.mjs — self-contained, multi-turn investigation bridge harness.
+//
+// LOCAL-ONLY TOOL. This is NOT a CI test. It spawns the `devin` CLI (needs auth +
+// network) to drive a tool-capable runtime through a MULTI-TURN scripted case, then
+// independently verifies the case's on-disk gate state using THIS repo's own helper
+// exports (scripts/investigator-artifacts.mjs). Zero coupling to any external plugin —
+// the only external dependency is the `devin` binary; everything else is Node stdlib
+// plus repo-local imports.
+//
+// Usage:
+//   node scripts/bridge/run-investigation.mjs --scenario <scenario.json> [--model <m>] [--out-dir <dir>]
+//   node scripts/bridge/run-investigation.mjs --help
+//
+// What it does:
+//   1. Loads a scenario JSON (shape below).
+//   2. Drives `devin` turn-by-turn (turn 0 starts a session; later turns resume it
+//      with -r <session_id>, carrying conversation state headless).
+//   3. Captures each turn's stdout AND the parsed agent steps from the --export
+//      transcript.
+//   4. Verifies the case on disk with caseStatus()/renderCaseReport() from the repo
+//      helper — phase, ledger consistency, archived generations, journal claim counts.
+//   5. Evaluates scenario.expect (disk phase, max archived generations, forbidden /
+//      required transcript strings, forbidden claim statuses) → overall PASS/FAIL.
+//   6. Writes report.md + transcript.json into the run output dir.
+//
+// Devin CLI primitives this harness relies on (verified by hand):
+//   - Turn 0: `devin --model <m> -p --prompt-file <pf> --export <out.json>` runs
+//     headless, prints the final answer to stdout, writes a transcript to <out.json>.
+//   - Resume: `devin -r <session_id> --model <m> -p "<msg>" --export <out.json>`.
+//   - Export schema:
+//       { session_id: string, agent: {...},
+//         steps: [ { source: "user"|"system"|"agent", message: <string|object>, metadata: {...} } ] }
+//     Agent text turns are steps with source === "agent" and a string `message`.
+//   - session_id is read from the turn-0 export's top-level `session_id`.
+//
+// Optional per-session permission lock: scenario.permissionConfig points at a JSON
+// permission config; the harness copies it into `.devin/config.local.json` for the run
+// and restores/removes it afterward (try/finally) so the user's workspace is left clean.
+// It never touches the user's real `.devin/config.json`.
+//
+// Scenario JSON shape:
+//   {
+//     "id": "forge6-replay",                 // run identifier (used in dir + report)
+//     "caseSlug": "bridge-forge6",           // investigator case slug to verify on disk
+//     "root": "/abs/path/to/zscaler-skill",  // repo root the case lives under
+//     "model": "swe-1.6",                    // default devin model (overridable via --model)
+//     "permissionConfig": "scripts/bridge/scenarios/mcp-readonly.config.json", // optional
+//     "turns": [ { "prompt": "..." }, { "prompt": "..." } ],
+//     "expect": {
+//       "diskPhase": "turn-ready",                                    // optional exact phase match
+//       "maxArchivedGenerations": 0,                                  // optional ceiling
+//       "forbidStatuses": ["Confirmed (high)", "Resolved", "Ruled out"], // claim statuses that must NOT appear
+//       "forbidTranscriptStrings": ["traceroute", "CPUUtilization"],  // must NOT appear in any agent response
+//       "requireTranscriptStrings": []                                // must appear somewhere across responses
+//     }
+//   }
+//
+// Exit code: 0 on overall PASS, 1 on overall FAIL.
+
+import { spawnSync } from "node:child_process";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+// Resolve the repo helper relative to THIS script (scripts/bridge/ -> scripts/).
+import {
+  caseStatus,
+  renderCaseReport,
+} from "../investigator-artifacts.mjs";
+
+const USAGE = `Usage:
+  node scripts/bridge/run-investigation.mjs --scenario <scenario.json> [--model <m>] [--out-dir <dir>]
+  node scripts/bridge/run-investigation.mjs --help
+
+LOCAL-ONLY. Drives the \`devin\` CLI through a multi-turn scripted investigation
+(needs devin auth + network), captures each turn's response, then independently
+verifies the case's on-disk gate state via this repo's own helper exports.
+NOT a CI test — do not wire into check-fast.
+
+Flags:
+  --scenario <path>   Path to the scenario JSON (required). See file header for shape.
+  --model <m>         Override scenario.model (default: scenario.model or "swe-1.6").
+  --out-dir <dir>     Override the run output directory.
+  --help              Print this help and exit 0.
+`;
+
+const DEFAULT_MODEL = "swe-1.6";
+
+// ── pure helpers (unit-tested with fixtures; no devin, no disk) ──────────────
+
+/**
+ * Extract agent text responses from a parsed devin --export object.
+ * Agent text turns are steps with source === "agent" and a STRING message.
+ * Object-valued agent messages (tool calls etc.) are ignored for the text capture.
+ * Returns an array of trimmed non-empty strings, in order.
+ */
+function extractAgentMessages(exportObj) {
+  if (!exportObj || !Array.isArray(exportObj.steps)) return [];
+  const out = [];
+  for (const step of exportObj.steps) {
+    if (!step || step.source !== "agent") continue;
+    if (typeof step.message !== "string") continue;
+    const trimmed = step.message.trim();
+    if (trimmed.length > 0) out.push(trimmed);
+  }
+  return out;
+}
+
+/** Read the top-level session_id from a parsed export object (or null). */
+function extractSessionId(exportObj) {
+  if (exportObj && typeof exportObj.session_id === "string" && exportObj.session_id.length > 0) {
+    return exportObj.session_id;
+  }
+  return null;
+}
+
+/**
+ * Evaluate scenario.expect against the captured disk status and transcript text.
+ *
+ * @param {object} expect            scenario.expect (any/all keys optional)
+ * @param {object} disk              { phase, archivedGenerations, claimCounts } from caseStatus
+ * @param {string[]} agentResponses  flat array of every captured agent text response
+ * @returns {{ checks: Array<{name, pass, detail}>, pass: boolean }}
+ */
+function evaluateExpectations(expect, disk, agentResponses) {
+  const checks = [];
+  const exp = expect || {};
+  const phase = disk ? disk.phase : null;
+  const archived = disk ? disk.archivedGenerations : null;
+  const claimCounts = (disk && disk.claimCounts) || {};
+  const haystack = (agentResponses || []).join("\n");
+
+  if (typeof exp.diskPhase === "string") {
+    const pass = phase === exp.diskPhase;
+    checks.push({
+      name: `diskPhase === "${exp.diskPhase}"`,
+      pass,
+      detail: pass ? `phase is "${phase}"` : `phase is "${phase}" (expected "${exp.diskPhase}")`,
+    });
+  }
+
+  if (typeof exp.maxArchivedGenerations === "number") {
+    const value = typeof archived === "number" ? archived : 0;
+    const pass = value <= exp.maxArchivedGenerations;
+    checks.push({
+      name: `archivedGenerations <= ${exp.maxArchivedGenerations}`,
+      pass,
+      detail: pass
+        ? `archivedGenerations is ${value}`
+        : `archivedGenerations is ${value} (max ${exp.maxArchivedGenerations})`,
+    });
+  }
+
+  if (Array.isArray(exp.forbidStatuses)) {
+    const present = Object.keys(claimCounts);
+    const violations = exp.forbidStatuses.filter((s) => present.includes(s));
+    const pass = violations.length === 0;
+    checks.push({
+      name: `no forbidden claim statuses present`,
+      pass,
+      detail: pass
+        ? `none of [${exp.forbidStatuses.join(", ")}] present`
+        : `forbidden statuses present: [${violations.join(", ")}]`,
+    });
+  }
+
+  if (Array.isArray(exp.forbidTranscriptStrings)) {
+    const violations = exp.forbidTranscriptStrings.filter((s) => haystack.includes(s));
+    const pass = violations.length === 0;
+    checks.push({
+      name: `no forbidden transcript strings`,
+      pass,
+      detail: pass
+        ? `none of [${exp.forbidTranscriptStrings.join(", ")}] appeared`
+        : `forbidden strings appeared: [${violations.join(", ")}]`,
+    });
+  }
+
+  if (Array.isArray(exp.requireTranscriptStrings)) {
+    const missing = exp.requireTranscriptStrings.filter((s) => !haystack.includes(s));
+    const pass = missing.length === 0;
+    checks.push({
+      name: `required transcript strings present`,
+      pass,
+      detail: pass
+        ? `all required strings present`
+        : `missing required strings: [${missing.join(", ")}]`,
+    });
+  }
+
+  const pass = checks.every((c) => c.pass);
+  return { checks, pass };
+}
+
+// ── CLI arg parsing ──────────────────────────────────────────────────────────
+
+function parseArgs(argv) {
+  const args = { scenario: null, model: null, outDir: null, help: false };
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (a === "--help" || a === "-h") {
+      args.help = true;
+    } else if (a === "--scenario") {
+      args.scenario = argv[++i];
+    } else if (a === "--model") {
+      args.model = argv[++i];
+    } else if (a === "--out-dir") {
+      args.outDir = argv[++i];
+    } else {
+      throw new Error(`Unknown argument: ${a}`);
+    }
+  }
+  return args;
+}
+
+// ── side-effecting helpers (only run in the live path; not unit-tested) ──────
+
+/** Run one devin invocation, returning { ok, stdout, stderr, code }. Never throws. */
+function runDevin(devinArgs) {
+  let result;
+  try {
+    result = spawnSync("devin", devinArgs, {
+      encoding: "utf8",
+      maxBuffer: 64 * 1024 * 1024,
+    });
+  } catch (err) {
+    return { ok: false, stdout: "", stderr: String(err && err.message), code: null };
+  }
+  if (result.error) {
+    return {
+      ok: false,
+      stdout: result.stdout || "",
+      stderr: String(result.error.message),
+      code: result.status,
+    };
+  }
+  const ok = result.status === 0 && (result.stdout || "").trim().length > 0;
+  return {
+    ok,
+    stdout: result.stdout || "",
+    stderr: result.stderr || "",
+    code: result.status,
+  };
+}
+
+/** Safe-parse a JSON file; returns { obj, error }. */
+function readJsonFile(filePath) {
+  try {
+    const raw = fs.readFileSync(filePath, "utf8");
+    return { obj: JSON.parse(raw), error: null };
+  } catch (err) {
+    return { obj: null, error: String(err && err.message) };
+  }
+}
+
+/**
+ * Install the scenario's permission config as .devin/config.local.json for the run.
+ * Returns a restore function (idempotent) that puts the workspace back exactly as it was.
+ * Never clobbers .devin/config.json (the user's real config).
+ */
+function installPermissionConfig(root, permissionConfigPath) {
+  const devinDir = path.join(root, ".devin");
+  const target = path.join(devinDir, "config.local.json");
+  const src = path.isAbsolute(permissionConfigPath)
+    ? permissionConfigPath
+    : path.join(root, permissionConfigPath);
+
+  const hadDir = fs.existsSync(devinDir);
+  const hadTarget = fs.existsSync(target);
+  let savedTarget = null;
+  if (hadTarget) savedTarget = fs.readFileSync(target, "utf8");
+
+  fs.mkdirSync(devinDir, { recursive: true });
+  fs.copyFileSync(src, target);
+
+  return function restore() {
+    try {
+      if (hadTarget && savedTarget !== null) {
+        fs.writeFileSync(target, savedTarget);
+      } else if (fs.existsSync(target)) {
+        fs.rmSync(target);
+      }
+      // Only remove .devin if WE created it and it is now empty.
+      if (!hadDir && fs.existsSync(devinDir)) {
+        const remaining = fs.readdirSync(devinDir);
+        if (remaining.length === 0) fs.rmdirSync(devinDir);
+      }
+    } catch (_) {
+      // Best-effort cleanup; never throw out of finally.
+    }
+  };
+}
+
+// ── report rendering ─────────────────────────────────────────────────────────
+
+function trimBlock(text, limit = 4000) {
+  if (typeof text !== "string") return "";
+  const t = text.trim();
+  if (t.length <= limit) return t;
+  return `${t.slice(0, limit)}\n… [truncated ${t.length - limit} chars]`;
+}
+
+function renderReport({ scenario, model, outDir, turns, disk, caseReport, evaluation, overallPass }) {
+  const lines = [];
+  lines.push(`# Bridge investigation run: ${scenario.id}`);
+  lines.push("");
+  lines.push(`- Model: \`${model}\``);
+  lines.push(`- Case slug: \`${scenario.caseSlug}\``);
+  lines.push(`- Root: \`${scenario.root}\``);
+  lines.push(`- Output dir: \`${outDir}\``);
+  lines.push(`- Overall: **${overallPass ? "PASS" : "FAIL"}**`);
+  lines.push("");
+
+  lines.push("## Turns");
+  lines.push("");
+  for (const turn of turns) {
+    lines.push(`### Turn ${turn.index}${turn.resumed ? " (resumed)" : ""}`);
+    lines.push("");
+    lines.push(`- devin exit: ${turn.exitCode === null ? "n/a" : turn.exitCode} (${turn.ok ? "ok" : "error/empty"})`);
+    if (turn.exportError) lines.push(`- export parse error: ${turn.exportError}`);
+    lines.push("");
+    lines.push("**Prompt:**");
+    lines.push("");
+    lines.push("```");
+    lines.push(trimBlock(turn.prompt, 2000));
+    lines.push("```");
+    lines.push("");
+    lines.push("**Captured agent response(s):**");
+    lines.push("");
+    if (turn.agentResponses.length === 0) {
+      lines.push("_(no agent text captured)_");
+    } else {
+      for (const resp of turn.agentResponses) {
+        lines.push("```");
+        lines.push(trimBlock(resp));
+        lines.push("```");
+      }
+    }
+    if (turn.stderr && turn.stderr.trim().length > 0) {
+      lines.push("");
+      lines.push("**stderr (tail):**");
+      lines.push("");
+      lines.push("```");
+      lines.push(trimBlock(turn.stderr, 1500));
+      lines.push("```");
+    }
+    lines.push("");
+  }
+
+  lines.push("## Disk verdict (independent — repo helper)");
+  lines.push("");
+  if (!disk) {
+    lines.push("_Case status could not be computed (the case may never have been created)._");
+  } else {
+    lines.push(`- Phase: \`${disk.phase}\``);
+    lines.push(`- Ledger consistent: ${disk.ledgerConsistent}`);
+    lines.push(`- Ledger currentSequence: ${disk.currentSequence}`);
+    lines.push(`- Archived ledger generations: ${disk.archivedGenerations}`);
+    const claimEntries = Object.entries(disk.claimCounts || {});
+    if (claimEntries.length === 0) {
+      lines.push(`- Journal claim counts: _(none)_`);
+    } else {
+      lines.push(`- Journal claim counts:`);
+      for (const [status, count] of claimEntries) {
+        lines.push(`  - ${status}: ${count}`);
+      }
+    }
+  }
+  lines.push("");
+
+  lines.push("## Rendered case report (from on-disk artifacts)");
+  lines.push("");
+  if (caseReport && caseReport.ok) {
+    lines.push("```markdown");
+    lines.push(trimBlock(caseReport.text, 8000));
+    lines.push("```");
+  } else {
+    lines.push(`_renderCaseReport unavailable: ${caseReport ? caseReport.error : "case not created"}_`);
+  }
+  lines.push("");
+
+  lines.push("## Expectations");
+  lines.push("");
+  if (evaluation.checks.length === 0) {
+    lines.push("_(no expectations declared in scenario)_");
+  } else {
+    for (const check of evaluation.checks) {
+      lines.push(`- [${check.pass ? "PASS" : "FAIL"}] ${check.name} — ${check.detail}`);
+    }
+  }
+  lines.push("");
+  lines.push(`## Overall: ${overallPass ? "PASS" : "FAIL"}`);
+  lines.push("");
+  return lines.join("\n");
+}
+
+// ── main ──────────────────────────────────────────────────────────────────────
+
+function computeDiskStatus(root, caseSlug) {
+  try {
+    const status = caseStatus({ root, caseSlug });
+    return {
+      ok: true,
+      phase: status.phase,
+      ledgerConsistent: status.ledger ? status.ledger.consistent : false,
+      currentSequence: status.ledger ? status.ledger.currentSequence : null,
+      archivedGenerations: status.ledger ? status.ledger.archivedGenerations : 0,
+      claimCounts: status.journal ? status.journal.claimCounts : {},
+    };
+  } catch (err) {
+    return { ok: false, error: String(err && err.message) };
+  }
+}
+
+function computeCaseReport(root, caseSlug) {
+  try {
+    const text = renderCaseReport({ root, caseSlug });
+    return { ok: true, text };
+  } catch (err) {
+    return { ok: false, error: String(err && err.message) };
+  }
+}
+
+function main() {
+  let args;
+  try {
+    args = parseArgs(process.argv.slice(2));
+  } catch (err) {
+    process.stderr.write(`${err.message}\n\n${USAGE}`);
+    process.exit(1);
+    return;
+  }
+
+  if (args.help || !args.scenario) {
+    process.stdout.write(USAGE);
+    process.exit(args.help ? 0 : 1);
+    return;
+  }
+
+  const scenarioPath = path.resolve(args.scenario);
+  const { obj: scenario, error: scenarioError } = readJsonFile(scenarioPath);
+  if (scenarioError) {
+    process.stderr.write(`Failed to read scenario ${scenarioPath}: ${scenarioError}\n`);
+    process.exit(1);
+    return;
+  }
+
+  if (!scenario.id || !scenario.caseSlug || !scenario.root || !Array.isArray(scenario.turns)) {
+    process.stderr.write(
+      "Scenario must include id, caseSlug, root, and a turns[] array.\n",
+    );
+    process.exit(1);
+    return;
+  }
+
+  const model = args.model || scenario.model || DEFAULT_MODEL;
+  const root = scenario.root;
+
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const outDir = args.outDir
+    ? path.resolve(args.outDir)
+    : path.join(root, "_data", "bridge-runs", `${scenario.id}-${stamp}`);
+  fs.mkdirSync(outDir, { recursive: true });
+
+  // Optional permission lock — installed for the whole run, restored in finally.
+  let restorePermissions = () => {};
+  if (scenario.permissionConfig) {
+    restorePermissions = installPermissionConfig(root, scenario.permissionConfig);
+  }
+
+  const turns = [];
+  let sessionId = null;
+
+  try {
+    for (let i = 0; i < scenario.turns.length; i++) {
+      const turnSpec = scenario.turns[i];
+      const prompt = String(turnSpec.prompt || "");
+      const exportPath = path.join(outDir, `turn-${i}.json`);
+
+      let devinArgs;
+      let promptFile = null;
+      if (i === 0) {
+        // Turn 0: prompt-file + start a new session.
+        promptFile = path.join(outDir, `turn-${i}.prompt.txt`);
+        fs.writeFileSync(promptFile, prompt);
+        devinArgs = ["--model", model, "-p", "--prompt-file", promptFile, "--export", exportPath];
+      } else {
+        // Resume turns carry state with -r <session_id>.
+        if (!sessionId) {
+          turns.push({
+            index: i,
+            resumed: true,
+            prompt,
+            ok: false,
+            exitCode: null,
+            stdout: "",
+            stderr: "no session_id captured from turn 0; cannot resume",
+            agentResponses: [],
+            exportError: null,
+          });
+          continue;
+        }
+        devinArgs = ["-r", sessionId, "--model", model, "-p", prompt, "--export", exportPath];
+      }
+
+      const run = runDevin(devinArgs);
+
+      // Parse export (tolerate missing/garbled — record and continue).
+      let agentResponses = [];
+      let exportError = null;
+      if (fs.existsSync(exportPath)) {
+        const { obj: exportObj, error } = readJsonFile(exportPath);
+        if (error) {
+          exportError = error;
+        } else {
+          agentResponses = extractAgentMessages(exportObj);
+          if (i === 0) sessionId = extractSessionId(exportObj);
+        }
+      } else {
+        exportError = "no export file written";
+      }
+
+      turns.push({
+        index: i,
+        resumed: i > 0,
+        prompt,
+        ok: run.ok,
+        exitCode: run.code,
+        stdout: run.stdout,
+        stderr: run.stderr,
+        agentResponses,
+        exportError,
+      });
+    }
+  } finally {
+    restorePermissions();
+  }
+
+  // ── independent disk verification (repo helper) ──
+  const diskResult = computeDiskStatus(root, scenario.caseSlug);
+  const disk = diskResult.ok ? diskResult : null;
+  const caseReport = computeCaseReport(root, scenario.caseSlug);
+
+  // ── evaluate expectations ──
+  const allAgentResponses = turns.flatMap((t) => t.agentResponses);
+  const evaluation = evaluateExpectations(scenario.expect, disk, allAgentResponses);
+  const overallPass = evaluation.pass;
+
+  // ── write artifacts ──
+  const reportPath = path.join(outDir, "report.md");
+  const report = renderReport({
+    scenario,
+    model,
+    outDir,
+    turns,
+    disk,
+    caseReport,
+    evaluation,
+    overallPass,
+  });
+  fs.writeFileSync(reportPath, report);
+
+  const transcriptPath = path.join(outDir, "transcript.json");
+  fs.writeFileSync(
+    transcriptPath,
+    `${JSON.stringify(
+      {
+        scenarioId: scenario.id,
+        model,
+        caseSlug: scenario.caseSlug,
+        sessionId,
+        turns: turns.map((t) => ({
+          index: t.index,
+          resumed: t.resumed,
+          ok: t.ok,
+          exitCode: t.exitCode,
+          exportError: t.exportError,
+          agentResponses: t.agentResponses,
+          stdout: t.stdout,
+        })),
+        disk,
+        caseReport: caseReport.ok ? { ok: true } : { ok: false, error: caseReport.error },
+        evaluation,
+        overallPass,
+      },
+      null,
+      2,
+    )}\n`,
+  );
+
+  process.stdout.write(`${overallPass ? "PASS" : "FAIL"}\n`);
+  process.stdout.write(`report: ${reportPath}\n`);
+  process.exit(overallPass ? 0 : 1);
+}
+
+// Only run main() when invoked directly (not when imported by the test file).
+const isDirectInvocation =
+  process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (isDirectInvocation) {
+  main();
+}
+
+export {
+  extractAgentMessages,
+  extractSessionId,
+  evaluateExpectations,
+  parseArgs,
+  trimBlock,
+  installPermissionConfig,
+};
