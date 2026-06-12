@@ -16,6 +16,7 @@ import {
   installPermissionConfig,
   parseArgs,
   trimBlock,
+  computeAuditDiskStatus,
 } from "./run-investigation.mjs";
 
 // ── extractAgentMessages ──────────────────────────────────────────────────────
@@ -256,4 +257,180 @@ test("installPermissionConfig restores a pre-existing config.local.json and neve
   assert.equal(fs.readFileSync(path.join(devinDir, "config.json"), "utf8"), '{"real":"user-config"}');
 
   fs.rmSync(root, { recursive: true, force: true });
+});
+
+// ── Auditor evaluation path (fixture-based) ───────────────────────────────────
+
+function makeAuditFixture(root, slug, { withFindings = [] } = {}) {
+  const auditDir = path.join(root, "_data", "audits", slug);
+  fs.mkdirSync(auditDir, { recursive: true });
+
+  // Create a stub source file so file:line citations of "README.md:1" resolve.
+  fs.writeFileSync(path.join(root, "README.md"), "# Test Repo\n", "utf8");
+
+  const timestamp = "2026-06-12T00:00:00.000Z";
+  const intakeMd = `Status: pass\nBlocking Issues: none\n\n# Audit Intake\n\nAudit Slug: ${slug}\n`;
+  fs.writeFileSync(path.join(auditDir, "audit-intake.md"), intakeMd, "utf8");
+  fs.writeFileSync(
+    path.join(auditDir, "audit-intake.json"),
+    JSON.stringify({
+      status: "pass",
+      blockingIssues: [],
+      auditSlug: slug,
+      auditDir,
+      workingDir: root,
+      scope: { topic: "test" },
+      description: "test",
+      checksRun: [],
+      createdAt: timestamp,
+    }) + "\n",
+    "utf8",
+  );
+
+  const header = "| ID | Description | Source | Severity | Status | Remediation | Notes |";
+  let reg = `# Audit Register\n\n${header}\n|---|---|---|---|---|---|---|\n`;
+  for (const f of withFindings) {
+    reg += `| ${f.findingId} | ${f.description} | ${f.source} | ${f.severity} | ${f.status} |  |  |\n`;
+  }
+  reg += "\n";
+  fs.writeFileSync(path.join(auditDir, "register.md"), reg, "utf8");
+
+  if (withFindings.length > 0) {
+    const lines = withFindings.map((f) =>
+      JSON.stringify({ ...f, recordedAt: timestamp }),
+    );
+    fs.writeFileSync(path.join(auditDir, "findings.jsonl"), lines.join("\n") + "\n", "utf8");
+  }
+}
+
+test("evaluateExpectations: minFindings PASS when findingCounts.total meets threshold", () => {
+  const disk = { phase: "has-findings", findingCounts: { total: 3 }, allFindingsSourced: true };
+  const pass = evaluateExpectations({ minFindings: 1 }, disk, []);
+  assert.equal(pass.pass, true);
+  assert.equal(pass.checks[0].pass, true);
+});
+
+test("evaluateExpectations: minFindings FAIL when findingCounts.total below threshold", () => {
+  const disk = { phase: "open", findingCounts: { total: 0 }, allFindingsSourced: true };
+  const fail = evaluateExpectations({ minFindings: 1 }, disk, []);
+  assert.equal(fail.pass, false);
+  assert.match(fail.checks[0].detail, /findingCount is 0/);
+});
+
+test("evaluateExpectations: allFindingsSourced PASS when disk.allFindingsSourced is true", () => {
+  const disk = { phase: "has-findings", findingCounts: { total: 2 }, allFindingsSourced: true };
+  const ev = evaluateExpectations({ allFindingsSourced: true }, disk, []);
+  assert.equal(ev.pass, true);
+  assert.equal(ev.checks[0].pass, true);
+});
+
+test("evaluateExpectations: allFindingsSourced FAIL when disk.allFindingsSourced is false", () => {
+  const disk = { phase: "has-findings", findingCounts: { total: 1 }, allFindingsSourced: false };
+  const ev = evaluateExpectations({ allFindingsSourced: true }, disk, []);
+  assert.equal(ev.pass, false);
+  assert.match(ev.checks[0].detail, /missing a source/);
+});
+
+test("evaluateExpectations: auditor checks combined — minFindings + allFindingsSourced + no forbidden transcript", () => {
+  const disk = { phase: "has-findings", findingCounts: { total: 2 }, allFindingsSourced: true };
+  const ev = evaluateExpectations(
+    { minFindings: 1, allFindingsSourced: true, forbidTranscriptStrings: ["fabricat"] },
+    disk,
+    ["The finding cites README.md:1 which actually contains the text."],
+  );
+  assert.equal(ev.pass, true);
+  assert.equal(ev.checks.length, 3);
+});
+
+test("computeAuditDiskStatus: returns no-audit phase when audit dir does not exist", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "aud-bridge-"));
+  try {
+    const result = computeAuditDiskStatus(root, "no-such-slug");
+    assert.equal(result.ok, true);
+    assert.equal(result.phase, "no-audit");
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("computeAuditDiskStatus: returns has-findings and allFindingsSourced:true for complete fixture", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "aud-bridge-"));
+  const slug = "fixture-audit-1";
+  makeAuditFixture(root, slug, {
+    withFindings: [
+      {
+        findingId: "F-001",
+        description: "A test finding",
+        source: "README.md:1",
+        severity: "Low",
+        status: "Open",
+      },
+    ],
+  });
+  try {
+    const result = computeAuditDiskStatus(root, slug);
+    assert.equal(result.ok, true);
+    assert.equal(result.phase, "has-findings");
+    assert.equal(result.findingCounts.total, 1);
+    assert.equal(result.allFindingsSourced, true);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("computeAuditDiskStatus: allFindingsSourced is false when a finding has an empty source", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "aud-bridge-"));
+  const slug = "fixture-audit-2";
+  makeAuditFixture(root, slug, {
+    withFindings: [
+      {
+        findingId: "F-001",
+        description: "Finding with source",
+        source: "README.md:1",
+        severity: "Low",
+        status: "Open",
+      },
+      {
+        findingId: "F-002",
+        description: "Finding without source",
+        source: "",
+        severity: "Info",
+        status: "Open",
+      },
+    ],
+  });
+  try {
+    const result = computeAuditDiskStatus(root, slug);
+    assert.equal(result.ok, true);
+    assert.equal(result.allFindingsSourced, false);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("computeAuditDiskStatus: allFindingsSourced is false when a finding has a non-empty but unresolvable source", () => {
+  // A finding that slipped through with a non-empty source that references a file
+  // which does not exist should cause allFindingsSourced to be false. Presence of
+  // a non-empty source string is not sufficient — resolveSource must confirm it.
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "aud-bridge-"));
+  const slug = "fixture-audit-3";
+  makeAuditFixture(root, slug, {
+    withFindings: [
+      {
+        findingId: "F-001",
+        description: "Finding with unresolvable source",
+        // References a file that does not exist in the fixture repo.
+        source: "does-not-exist/phantom.md:1",
+        severity: "Critical",
+        status: "Open",
+      },
+    ],
+  });
+  try {
+    const result = computeAuditDiskStatus(root, slug);
+    assert.equal(result.ok, true);
+    assert.equal(result.allFindingsSourced, false);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
 });

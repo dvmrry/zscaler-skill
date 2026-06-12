@@ -247,6 +247,83 @@ apply to the CLI:
   hand-editing artifacts or by asserting evidence refs that were never recorded
   will see actionable gate errors from `run_turn` and `complete_turn`.
 
+---
+
+## Auditor MCP server (`zscaler-auditor`)
+
+The auditor role has a parallel MCP server at `scripts/auditor-mcp-server.mjs`.
+It exposes the lighter audit lifecycle (open -> record findings -> report) as
+named MCP tools, with the same three load-bearing properties as the investigator:
+evidence-gated records, answer-from-artifact, and fabrication-resistant errors.
+
+### Auditor tools
+
+| Tool | Read-only | Description |
+|---|---|---|
+| `audit_status` | yes | Read-only doctor: phase, finding counts, checks recorded, nextActions |
+| `open_audit` | no | Create audit intake (scope + description) |
+| `record_finding` | no | Record an evidence-gated finding into findings.jsonl, re-derive register.md |
+| `record_check_output` | no | Store a CI/check script's output as evidence under `checks/<name>.txt` |
+| `render_audit_report` | yes | Render artifact-derived report — the final answer surface |
+| `helper_capabilities` | yes | Version and supported operations |
+
+### Auditor resources
+
+Three per-audit resource templates via `resources/templates/list`:
+
+| URI template | MIME type | Content |
+|---|---|---|
+| `auditor://audit/{slug}/report` | `text/markdown` | Artifact-derived audit report (scope + findings by severity) |
+| `auditor://audit/{slug}/register` | `text/markdown` | Raw `register.md` (derived from findings.jsonl) |
+| `auditor://audit/{slug}/status` | `application/json` | JSON output of `auditStatus()` |
+
+**Answer-from-artifact rule**: the final answer is produced by `render_audit_report`
+(tool) or by reading `auditor://audit/{slug}/report` (resource) — not by model
+narration. Every finding and its source comes from on-disk `findings.jsonl`.
+Missing-audit resource reads return `-32002` for all three kinds.
+
+### Auditor prompt
+
+The server exposes one prompt via `prompts/list` and `prompts/get`:
+
+- **`audit`** — returns the auditor role entrypoint from
+  `agents/auditor/mcp-entrypoint.md`, with optional `scope` argument appended.
+  Carries the gated order, premise-challenge, status-first, evidence-source, and
+  answer-from-artifact rules.
+
+Unknown prompt names return `-32602`.
+
+### Registration
+
+```json
+{
+  "mcpServers": {
+    "zscaler-auditor": {
+      "command": "node",
+      "args": ["scripts/auditor-mcp-server.mjs"]
+    }
+  }
+}
+```
+
+### Evidence gate (auditor)
+
+Every finding must carry a resolving source. Source types:
+
+- `path:line` — file:line reference; file must exist under repo root and have
+  at least `line` lines.
+- `path/a.md + path/b.md` — cross-file reference; all listed files must exist.
+- `check:<name>` — recorded check output; must have been stored by
+  `record_check_output` before the finding is recorded.
+
+**Critical/High severity or Resolved status** requires a `path:line` or
+`check:<name>` source — cross-file existence alone is too weak for
+high-severity assertions. Violations produce isError responses naming the
+exact repair.
+
+**No force over MCP.** `force` is rejected at dispatch with an actionable
+repair message pointing to the CLI path.
+
 ## Migration rule
 
 When adding or revising a workflow:

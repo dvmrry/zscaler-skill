@@ -5,8 +5,10 @@ import path from "node:path";
 import test from "node:test";
 import { scanFiles } from "./check-helper-command-refs.mjs";
 import { capabilities } from "./investigator-artifacts.mjs";
+import { capabilities as auditorCapabilities } from "./auditor-artifacts.mjs";
 
 const VALID_COMMANDS = new Set(capabilities().supported);
+const VALID_AUDITOR_COMMANDS = new Set(auditorCapabilities().supported);
 
 function makeTempDir() {
   return fs.mkdtempSync(path.join(os.tmpdir(), "zscaler-check-refs-test-"));
@@ -31,7 +33,7 @@ test("valid command mentions pass with zero errors", () => {
     ].join("\n"),
   );
 
-  const { errors, mentionCount } = scanFiles(dir, [file], VALID_COMMANDS);
+  const { errors, mentionCount } = scanFiles(dir, [file], VALID_COMMANDS, VALID_AUDITOR_COMMANDS);
   assert.equal(errors.length, 0, `expected no errors, got: ${errors.join("; ")}`);
   assert.equal(mentionCount, 3);
 });
@@ -44,7 +46,7 @@ test("unknown command token in a fixture file fails with the file named", () => 
     "node scripts/investigator-artifacts.mjs does-not-exist --root /repo\n",
   );
 
-  const { errors } = scanFiles(dir, [file], VALID_COMMANDS);
+  const { errors } = scanFiles(dir, [file], VALID_COMMANDS, VALID_AUDITOR_COMMANDS);
   assert.ok(errors.length > 0, "expected at least one error");
   assert.ok(
     errors[0].includes("docs/test.md"),
@@ -67,7 +69,7 @@ test("multiple unknown tokens are all reported", () => {
     ].join("\n"),
   );
 
-  const { errors } = scanFiles(dir, [file], VALID_COMMANDS);
+  const { errors } = scanFiles(dir, [file], VALID_COMMANDS, VALID_AUDITOR_COMMANDS);
   assert.equal(errors.length, 2);
 });
 
@@ -83,7 +85,7 @@ test("mix of valid and invalid tokens only reports the invalid ones", () => {
     ].join("\n"),
   );
 
-  const { errors, mentionCount } = scanFiles(dir, [file], VALID_COMMANDS);
+  const { errors, mentionCount } = scanFiles(dir, [file], VALID_COMMANDS, VALID_AUDITOR_COMMANDS);
   assert.equal(errors.length, 1);
   assert.ok(errors[0].includes("fake-command"));
   assert.equal(mentionCount, 3);
@@ -93,7 +95,27 @@ test("file with no command mentions passes with zero mentions", () => {
   const dir = makeTempDir();
   const file = writeFile(dir, "SKILL.md", "No helper calls here.\n");
 
-  const { errors, mentionCount } = scanFiles(dir, [file], VALID_COMMANDS);
+  const { errors, mentionCount } = scanFiles(dir, [file], VALID_COMMANDS, VALID_AUDITOR_COMMANDS);
   assert.equal(errors.length, 0);
   assert.equal(mentionCount, 0);
+});
+
+test("unknown auditor-artifacts.mjs command is reported as an error", () => {
+  const dir = makeTempDir();
+  const file = writeFile(
+    dir,
+    "agents/auditor/test.md",
+    "node scripts/auditor-artifacts.mjs invalid-cmd --root /repo --audit-slug test\n",
+  );
+
+  const { errors } = scanFiles(dir, [file], VALID_COMMANDS, VALID_AUDITOR_COMMANDS);
+  assert.ok(errors.length > 0, "expected at least one error for invalid auditor command");
+  assert.ok(
+    errors[0].includes("invalid-cmd"),
+    `error should name the bad token — got: ${errors[0]}`,
+  );
+  assert.ok(
+    errors[0].includes("auditor"),
+    `error should mention auditor-artifacts.mjs — got: ${errors[0]}`,
+  );
 });

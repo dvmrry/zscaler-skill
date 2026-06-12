@@ -1710,6 +1710,7 @@ function slugPart(value, label) {
 function markdownCell(value) {
   return String(value ?? "")
     .replace(/\r?\n/g, " ")
+    .replace(/\\/g, "\\\\")
     .replace(/\|/g, "\\|")
     .trim();
 }
