@@ -4,6 +4,14 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.9.0](https://github.com/dvmrry/zscaler-skill/compare/v0.8.0...v0.9.0) (2026-06-12)
+
+
+### Features
+
+* **auditor:** second role on the proven foundation — evidence-gated findings, conformant MCP server ([#102](https://github.com/dvmrry/zscaler-skill/issues/102)) ([3ee9143](https://github.com/dvmrry/zscaler-skill/commit/3ee9143eead0b6427dbcd1f8fb516c2313090293))
+* **soc:** third role on the proven foundation — security posture review with framework-not-evidence gate ([#104](https://github.com/dvmrry/zscaler-skill/issues/104)) ([ac38629](https://github.com/dvmrry/zscaler-skill/commit/ac38629e0dc71a070e31f74b76f132b6bc3bb731))
+
 ## [0.8.0](https://github.com/dvmrry/zscaler-skill/compare/v0.7.0...v0.8.0) (2026-06-12)
 
 
