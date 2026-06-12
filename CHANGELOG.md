@@ -4,6 +4,13 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.8.0](https://github.com/dvmrry/zscaler-skill/compare/v0.7.0...v0.8.0) (2026-06-12)
+
+
+### Features
+
+* **bridge:** self-contained multi-turn investigation harness driving Devin CLI with disk-truth verification ([#100](https://github.com/dvmrry/zscaler-skill/issues/100)) ([956f501](https://github.com/dvmrry/zscaler-skill/commit/956f501ce80f50c6261ed11af549bc414ffa1fa2))
+
 ## [0.7.0](https://github.com/dvmrry/zscaler-skill/compare/v0.6.0...v0.7.0) (2026-06-12)
 
 
