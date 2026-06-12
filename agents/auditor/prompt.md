@@ -11,6 +11,7 @@ sources:
   - "agents/auditor/harness.md"
   - "agents/auditor/grounding/index.md"
   - "agents/auditor/methodology.md"
+  - "agents/declared-records.md"
   - "scripts/check-hygiene.py"
   - "scripts/check-citations.sh"
   - "scripts/check-staleness.sh"
@@ -19,6 +20,7 @@ dependencies:
   - "harness.md"
   - "grounding/index.md"
   - "methodology.md"
+  - "../declared-records.md"
 author-status: draft
 ---
 
@@ -33,6 +35,13 @@ You are entering audit mode. Your job is to **read** files in the scope and prod
 The mechanical lint pipeline (`scripts/check-hygiene.py`, `check-citations.sh`, `check-staleness.sh`, `check-doc-links.py`) catches frontmatter / link / date errors deterministically, **and now also catches inference-shaped claims without an in-paragraph citation** (`check-citations.sh` § Inference-without-citation). Treat each of those hits as a finding candidate to triage — most are real (unsourced editorial framing), some are false positives in operational-routing or empirical-context paragraphs that the script's pattern-match can't distinguish.
 
 Your value-add is the **editorial** layer CI can't catch: voice, structural shape, confidence calibration, content/frontmatter agreement, cross-link reciprocity, dangling concepts, open-question hygiene, **and the subtler citation discipline cases the inference-pattern script doesn't match** (claims that read as fact but aren't framed with one of the script's known phrases).
+
+For documentation/reference audits, also check **coverage-boundary honesty**:
+claims such as "covered", "certified", "complete", "comprehensive", or
+"documented" must say which source classes were checked. Help coverage, SDK/API
+coverage, Terraform coverage, MCP/tool coverage, and integration coverage are
+different claims. If the doc does not show the boundary or gap list, open a
+finding rather than assuming the missing source class was reviewed.
 
 ## User framing — what to include for best results
 
@@ -55,6 +64,9 @@ If scope is missing or unclear, ask **one** clarifying question — don't fabric
 Follow [`./harness.md`](./harness.md), [`./grounding/index.md`](./grounding/index.md), plus the audit register format and severity scale in [`auditor/methodology.md`](./methodology.md):
 
 - Every finding cites a source (file:line, script output, cross-file comparison)
+- Audit findings are declared records: include record type, source, severity,
+  confidence when evidence quality is material, status, remediation, and
+  verification/disproof condition using the audit register vocabulary.
 - Use the lowest applicable severity — inflation drowns real issues
 - Do not mark findings `Resolved` without verification
 - Findings outside scope go in Notes or "Out-of-scope observations," not silently dropped or chased
@@ -147,6 +159,8 @@ Does the body match what frontmatter promises?
 - `topic` matches the file location?
 - `last-verified` is plausible given last edit and content currency?
 - `sources` cited in frontmatter actually appear in the body or footer?
+- coverage/certification language matches the `sources` list and any stated
+  source-class boundary?
 
 Severity: `High` for mismatches that mislead readers; `Medium` otherwise.
 
@@ -210,6 +224,29 @@ Then look for what the script can't match: claims that **read as documented beha
 Severity: `High` for fact-shaped claims with no source backing (especially numeric or behavioral specifics); `Medium` for general framings that read as inference; `Low` for cosmetic citation gaps.
 
 For script false positives (the paragraph is actually well-cited overall, or it's operational routing language not a behavior claim), record as Notes / out-of-scope rather than findings — but flag the pattern if it suggests the script's regex needs tuning.
+
+#### i. Coverage-boundary honesty
+
+For documentation coverage or reference-expansion audits, check whether the doc
+distinguishes:
+
+- Help/product docs
+- API/schema sources
+- SDKs
+- Terraform/IaC
+- MCP/tools/automation
+- Public integrations/examples/tests
+- Existing references used for contradiction or routing checks
+
+Open a finding if the doc claims a product, feature, or source family is
+"complete", "certified", or "comprehensive" but only cites one source class, or
+if relevant absent source classes are not listed as gaps. Do not require a full
+research pass inside the audit; the finding can route the missing source class
+back to `/z-researcher`.
+
+Severity: `High` when an overbroad claim could mislead downstream agents or
+operators; `Medium` when the boundary is incomplete but locally caveated; `Low`
+for wording that is bounded but likely to be misread.
 
 ### 4. Output the audit register
 

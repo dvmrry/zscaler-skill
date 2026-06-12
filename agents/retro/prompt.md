@@ -11,12 +11,14 @@ sources:
   - "agents/retro/harness.md"
   - "agents/retro/grounding/index.md"
   - "agents/retro/methodology.md"
+  - "agents/declared-records.md"
   - "docs/data-contract/cases.md"
   - "agents/investigator/methodology.md"
 dependencies:
   - "harness.md"
   - "grounding/index.md"
   - "methodology.md"
+  - "../declared-records.md"
   - "../investigator/methodology.md"
   - "../clarification-pattern.md"
 author-status: draft
@@ -60,6 +62,9 @@ Follow [`./harness.md`](./harness.md), [`./grounding/index.md`](./grounding/inde
 
 - No journal, no retro
 - Every conclusion cites the journal, timeline, evidence manifest, command output, or commit
+- Warnings, lessons, action items, and final gates are declared records. Express
+  them in retro vocabulary: evidence, disposition, lesson, required change,
+  confidence when uncertain, and gate impact.
 - Warnings are first-class and must be disposed before any proceed recommendation
 - The retro ends with exactly one decision gate: `Proceed`, `Proceed with accepted risk`, or `Stop / do not proceed`
 - A retro that ignores unresolved warnings is not a basis for pushing forward

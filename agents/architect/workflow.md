@@ -11,6 +11,7 @@ sources:
   - agents/architect/harness.md
   - agents/architect/grounding/index.md
   - agents/architect/methodology.md
+  - agents/declared-records.md
   - agents/siem-emission-discipline.md
 author-status: reviewed
 summary: Capacity and scaling architecture review
@@ -24,6 +25,7 @@ required-reads:
   - agents/architect/harness.md
   - agents/architect/grounding/index.md
   - agents/architect/methodology.md
+  - agents/declared-records.md
   - agents/siem-emission-discipline.md
 supporting-scripts:
 ---

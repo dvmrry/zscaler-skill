@@ -11,6 +11,7 @@ sources:
   - agents/retro/harness.md
   - agents/retro/grounding/index.md
   - agents/retro/methodology.md
+  - agents/declared-records.md
   - agents/investigator/methodology.md
   - agents/clarification-pattern.md
 author-status: reviewed
@@ -25,6 +26,7 @@ required-reads:
   - agents/retro/harness.md
   - agents/retro/grounding/index.md
   - agents/retro/methodology.md
+  - agents/declared-records.md
   - agents/investigator/methodology.md
   - agents/clarification-pattern.md
 supporting-scripts:
