@@ -1,10 +1,14 @@
 #!/usr/bin/env bash
-# pre-push — run the hygiene suite locally before allowing a push.
+# pre-push — run the local checks CI enforces before allowing a push.
 #
-# Catches failures BEFORE they hit main. Same checks CI runs, in the
-# same order. Bypass with `git push --no-verify` if you need to (e.g.,
-# pushing a known-broken WIP branch); the CI workflow remains the
-# backstop.
+# Two families, both required in CI and previously NOT both covered here:
+#   1. The Python docs/citation/vendor/scrape hygiene suite (check-hygiene.yml).
+#   2. The node/MCP fast suite (scripts/check-fast.mjs) — workflow metadata,
+#      agent-skill contracts, citation links, helper-command refs, node helper
+#      tests, MCP conformance, diff whitespace. These are disjoint from family 1.
+#
+# Catches failures BEFORE they hit main. Bypass with `git push --no-verify` if
+# you need to (e.g., pushing a known-broken WIP branch); CI remains the backstop.
 #
 # Activate once per clone:
 #   git config core.hooksPath .githooks
@@ -14,7 +18,7 @@ set -e
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 cd "$REPO_ROOT"
 
-echo "▸ pre-push: running hygiene suite (9 checks)..."
+echo "▸ pre-push: running hygiene suite + node/MCP fast checks (10 steps)..."
 echo
 
 failed=0
@@ -42,6 +46,7 @@ run "citation-inventory"     "./scripts/check-citation-density.py --compare-cita
 run "check-orphans"          "./scripts/check-orphans.py"
 run "check-vendor-drift"     "./scripts/check-vendor-drift.py"
 run "check-scrape-freshness" "./scripts/check-scrape-freshness.py"
+run "check-fast (node/MCP)"  "node scripts/check-fast.mjs"
 
 echo
 if [ $failed -ne 0 ]; then

@@ -6,7 +6,7 @@
  * communicates via newline-delimited JSON-RPC 2.0 over stdio.
  */
 import assert from "node:assert/strict";
-import { spawn } from "node:child_process";
+import { spawnMcpServer } from "./mcp-stdio-client.mjs";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -82,73 +82,16 @@ const REQUEST_TIMEOUT_MS = 10_000;
 /**
  * Spawn the server, send requests, collect responses, then close.
  *
+ * Thin wrapper over the shared stdio client (scripts/mcp-stdio-client.mjs) so
+ * every existing `spawnServer()` call site keeps working unchanged.
+ *
  * Usage:
  *   const server = spawnServer();
  *   const result = await server.call({ jsonrpc: "2.0", id: 1, method: "ping" });
  *   server.close();
  */
 function spawnServer() {
-  const child = spawn(process.execPath, [SERVER_SCRIPT], {
-    stdio: ["pipe", "pipe", "pipe"],
-  });
-
-  let stdoutBuffer = "";
-  const pending = new Map(); // id -> { resolve, reject, timer }
-
-  child.stdout.setEncoding("utf8");
-  child.stdout.on("data", (chunk) => {
-    stdoutBuffer += chunk;
-    let newlineIndex = stdoutBuffer.indexOf("\n");
-    while (newlineIndex !== -1) {
-      const line = stdoutBuffer.slice(0, newlineIndex).trim();
-      stdoutBuffer = stdoutBuffer.slice(newlineIndex + 1);
-      if (line.length > 0) {
-        let msg;
-        try {
-          msg = JSON.parse(line);
-        } catch {
-          // Skip unparseable lines.
-          newlineIndex = stdoutBuffer.indexOf("\n");
-          continue;
-        }
-        const entry = pending.get(msg.id);
-        if (entry) {
-          clearTimeout(entry.timer);
-          pending.delete(msg.id);
-          entry.resolve(msg);
-        }
-      }
-      newlineIndex = stdoutBuffer.indexOf("\n");
-    }
-  });
-
-  child.stderr.setEncoding("utf8");
-  // Discard stderr (server logs go there).
-
-  let nextId = 1;
-
-  function call(request) {
-    return new Promise((resolve, reject) => {
-      const id = request.id !== undefined ? request.id : nextId++;
-      const fullRequest = { ...request, id };
-      const timer = setTimeout(() => {
-        pending.delete(id);
-        reject(new Error(`Timeout waiting for response to method: ${request.method}`));
-      }, REQUEST_TIMEOUT_MS);
-      pending.set(id, { resolve, reject, timer });
-      child.stdin.write(`${JSON.stringify(fullRequest)}\n`);
-    });
-  }
-
-  function sendNotification(notification) {
-    child.stdin.write(`${JSON.stringify(notification)}\n`);
-  }
-
-  function close() {
-    child.stdin.end();
-  }
-
-  return { call, sendNotification, close, child };
+  return spawnMcpServer(SERVER_SCRIPT, { requestTimeoutMs: REQUEST_TIMEOUT_MS });
 }
 
 // ── initialize handshake ──────────────────────────────────────────────────────

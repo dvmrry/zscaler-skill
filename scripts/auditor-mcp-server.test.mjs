@@ -20,7 +20,7 @@
  * - A5: capabilities declare resources and prompts
  */
 import assert from "node:assert/strict";
-import { spawn } from "node:child_process";
+import { spawnMcpServer } from "./mcp-stdio-client.mjs";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -130,69 +130,12 @@ function writeJson(filePath, value) {
 const REQUEST_TIMEOUT_MS = 10_000;
 
 /**
- * Spawn the auditor MCP server, expose call() and sendNotification(), close when done.
+ * Spawn the auditor MCP server via the shared stdio client
+ * (scripts/mcp-stdio-client.mjs); existing `spawnServer()` call sites are
+ * unchanged.
  */
 function spawnServer() {
-  const child = spawn(process.execPath, [SERVER_SCRIPT], {
-    stdio: ["pipe", "pipe", "pipe"],
-  });
-
-  let stdoutBuffer = "";
-  const pending = new Map(); // id -> { resolve, reject, timer }
-
-  child.stdout.setEncoding("utf8");
-  child.stdout.on("data", (chunk) => {
-    stdoutBuffer += chunk;
-    let nl = stdoutBuffer.indexOf("\n");
-    while (nl !== -1) {
-      const line = stdoutBuffer.slice(0, nl).trim();
-      stdoutBuffer = stdoutBuffer.slice(nl + 1);
-      if (line.length > 0) {
-        let msg;
-        try {
-          msg = JSON.parse(line);
-        } catch {
-          nl = stdoutBuffer.indexOf("\n");
-          continue;
-        }
-        const entry = pending.get(msg.id);
-        if (entry) {
-          clearTimeout(entry.timer);
-          pending.delete(msg.id);
-          entry.resolve(msg);
-        }
-      }
-      nl = stdoutBuffer.indexOf("\n");
-    }
-  });
-
-  child.stderr.setEncoding("utf8");
-  // Discard stderr (logs go there).
-
-  let nextId = 1;
-
-  function call(request) {
-    return new Promise((resolve, reject) => {
-      const id = request.id !== undefined ? request.id : nextId++;
-      const fullRequest = { ...request, id };
-      const timer = setTimeout(() => {
-        pending.delete(id);
-        reject(new Error(`Timeout waiting for response to method: ${request.method}`));
-      }, REQUEST_TIMEOUT_MS);
-      pending.set(id, { resolve, reject, timer });
-      child.stdin.write(`${JSON.stringify(fullRequest)}\n`);
-    });
-  }
-
-  function sendNotification(notification) {
-    child.stdin.write(`${JSON.stringify(notification)}\n`);
-  }
-
-  function close() {
-    child.stdin.end();
-  }
-
-  return { call, sendNotification, close, child };
+  return spawnMcpServer(SERVER_SCRIPT, { requestTimeoutMs: REQUEST_TIMEOUT_MS });
 }
 
 // ── initialize ────────────────────────────────────────────────────────────────
@@ -1031,6 +974,59 @@ test("prompts/get audit drift-guard: served text matches agents/auditor/mcp-entr
     assert.ok(
       servedText.includes(onDiskSnippet),
       `served text should contain on-disk content. Expected snippet: "${onDiskSnippet}". Got: "${servedText.slice(0, 200)}"`,
+    );
+  } finally {
+    server.close();
+  }
+});
+
+// ── Drift guard: mcp-entrypoint.md tool names must exist in tools/list ────────
+//
+// The entrypoint is load-bearing (workflow.md routes MCP runtimes to it). If a
+// gate tool referenced in the doc is renamed or removed from the server, this
+// catches the canonical-vs-adapter drift before it reaches production. Mirrors
+// the investigator guard. KNOWN_GATE_TOOLS is intersected with what the doc
+// actually mentions so the test stays stable against prose; helper_capabilities
+// and record_check_output are intentionally excluded (not numbered gate steps).
+test("drift guard: every gate tool named in mcp-entrypoint.md exists in tools/list", async () => {
+  const KNOWN_GATE_TOOLS = new Set([
+    "audit_status",
+    "open_audit",
+    "record_finding",
+    "render_audit_report",
+  ]);
+
+  const entrypointPath = path.join(REPO_ROOT, "agents", "auditor", "mcp-entrypoint.md");
+  const entrypointContent = fs.readFileSync(entrypointPath, "utf8");
+
+  // Match **name** or `name` (bold or backtick-fenced).
+  const referenced = new Set();
+  for (const name of KNOWN_GATE_TOOLS) {
+    const boldPattern = new RegExp(`\\*\\*${name}\\*\\*`);
+    const codePattern = new RegExp(`\`${name}\``);
+    if (boldPattern.test(entrypointContent) || codePattern.test(entrypointContent)) {
+      referenced.add(name);
+    }
+  }
+
+  assert.ok(
+    referenced.size > 0,
+    `mcp-entrypoint.md must reference at least one known gate tool name (bold or backtick); found none among: ${[...KNOWN_GATE_TOOLS].join(", ")}`,
+  );
+
+  const server = spawnServer();
+  try {
+    await server.call({ jsonrpc: "2.0", method: "initialize", params: { protocolVersion: "2025-06-18", capabilities: {} } });
+    const resp = await server.call({ jsonrpc: "2.0", method: "tools/list", params: {} });
+    assert.ok(!resp.error, `tools/list error: ${JSON.stringify(resp.error)}`);
+    const servedNames = new Set(resp.result.tools.map((t) => t.name));
+
+    const missing = [...referenced].filter((name) => !servedNames.has(name));
+    assert.equal(
+      missing.length,
+      0,
+      `mcp-entrypoint.md references tool(s) not in tools/list: ${missing.join(", ")}. ` +
+        `Served tools: ${[...servedNames].join(", ")}`,
     );
   } finally {
     server.close();
