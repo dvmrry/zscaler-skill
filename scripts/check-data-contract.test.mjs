@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { checkDataContract } from "./check-data-contract.mjs";
+import { DATA_REQUIRED_DIRS } from "./lib.mjs";
 
 function tempRepo() {
   return fs.mkdtempSync(path.join(os.tmpdir(), "zscaler-data-contract-"));
@@ -13,7 +14,7 @@ function makeDataSkeleton(root) {
   const dataDir = path.join(root, "_data");
   fs.mkdirSync(dataDir, { recursive: true });
   fs.writeFileSync(path.join(dataDir, "README.md"), "# _data\n", "utf8");
-  for (const dir of ["cases", "schemas", "snapshot", "iac"]) {
+  for (const dir of DATA_REQUIRED_DIRS) {
     const target = path.join(dataDir, dir);
     fs.mkdirSync(target, { recursive: true });
     fs.writeFileSync(path.join(target, ".gitkeep"), "", "utf8");
@@ -35,7 +36,7 @@ test("checkDataContract warns when runtime README is missing", () => {
   const root = tempRepo();
   const dataDir = path.join(root, "_data");
   fs.mkdirSync(dataDir, { recursive: true });
-  for (const dir of ["cases", "schemas", "snapshot", "iac"]) {
+  for (const dir of DATA_REQUIRED_DIRS) {
     fs.mkdirSync(path.join(dataDir, dir), { recursive: true });
   }
 
@@ -50,10 +51,9 @@ test("checkDataContract errors when required directories are missing", () => {
   fs.writeFileSync(path.join(root, "_data", "README.md"), "# _data\n", "utf8");
 
   const report = checkDataContract(root);
-  assert.ok(report.errors.includes("_data/cases/ directory is missing"));
-  assert.ok(report.errors.includes("_data/schemas/ directory is missing"));
-  assert.ok(report.errors.includes("_data/snapshot/ directory is missing"));
-  assert.ok(report.errors.includes("_data/iac/ directory is missing"));
+  for (const dir of DATA_REQUIRED_DIRS) {
+    assert.ok(report.errors.includes(`_data/${dir}/ directory is missing`));
+  }
 });
 
 test("checkDataContract treats populated directories as available", () => {

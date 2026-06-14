@@ -15,6 +15,8 @@ Expected top-level directories:
 - `_data/schemas/`
 - `_data/snapshot/`
 - `_data/iac/`
+- `_data/audits/`
+- `_data/soc-reviews/`
 
 Run the public contract check after creating or replacing `_data`:
 
@@ -132,6 +134,29 @@ Engineers explicitly opt in to publishing a skill-internal case by adding
 are safe to commit for institutional memory.
 
 See [`./cases.md`](./cases.md) for the full convention.
+
+### `_data/audits/`
+
+**Saved `/z-auditor` audit artifacts (register-shaped).** Each audit gets its own
+dir: `<slug>/` containing `audit-intake.json`, `register.md`, `findings.jsonl`,
+and a `checks/` dir of recorded check outputs. Written by the auditor helper
+(`scripts/auditor-artifacts.mjs`) and the auditor MCP server. Individual audit
+dirs are created on demand; the `audits/` parent is part of the contract so the
+MCP server's `resources/list` resolves instead of silently returning empty.
+
+### `_data/soc-reviews/`
+
+**Saved `/z-soc` posture-review artifacts (register-shaped).** Each review gets
+its own dir: `<slug>/` containing `review-intake.json`, `register.md`,
+`findings.jsonl`, and an `evidence/` dir of recorded evidence. Written by the SOC
+helper (`scripts/soc-artifacts.mjs`) and the SOC MCP server. Individual review
+dirs are created on demand; the `soc-reviews/` parent is part of the contract.
+
+> Note: the SOC *prompt* (non-MCP) path can instead co-locate a narrative
+> `posture.md` under `_data/cases/<slug>/` when a review crosses into incident
+> territory and shares a directory with an investigation — see
+> [`agents/soc/prompt.md`](../../agents/soc/prompt.md). `_data/soc-reviews/` is
+> the register-shaped store used by the MCP/helper path.
 
 ## Privacy
 
