@@ -37,6 +37,7 @@ const PROTOCOL_VERSION = "2025-06-18";
 const ROLE_CONFIGS = [
   {
     role: "investigator",
+    serverName: "zscaler-investigator",
     serverScript: path.join(SCRIPTS_DIR, "investigator-mcp-server.mjs"),
     expectedTemplates: [
       "investigator://case/{slug}/report",
@@ -50,6 +51,7 @@ const ROLE_CONFIGS = [
   },
   {
     role: "auditor",
+    serverName: "zscaler-auditor",
     serverScript: path.join(SCRIPTS_DIR, "auditor-mcp-server.mjs"),
     expectedTemplates: [
       "auditor://audit/{slug}/report",
@@ -63,6 +65,7 @@ const ROLE_CONFIGS = [
   },
   {
     role: "soc",
+    serverName: "zscaler-soc",
     serverScript: path.join(SCRIPTS_DIR, "soc-mcp-server.mjs"),
     expectedTemplates: [
       "soc://review/{slug}/report",
@@ -95,6 +98,10 @@ async function runInProcessConformance(config) {
     if (initResp.result) {
       if (initResp.result.protocolVersion !== PROTOCOL_VERSION) {
         fail(`initialize: protocolVersion echo mismatch — expected ${PROTOCOL_VERSION} got ${initResp.result.protocolVersion}`);
+      }
+      const serverInfo = initResp.result.serverInfo || {};
+      if (serverInfo.name !== config.serverName) {
+        fail(`initialize: serverInfo.name mismatch — expected ${config.serverName} got ${serverInfo.name}`);
       }
       const caps = initResp.result.capabilities || {};
       if (!caps.tools) fail("initialize: capabilities.tools missing");
