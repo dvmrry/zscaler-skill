@@ -38,3 +38,62 @@ export function extractTurnSignals(exportObj) {
   }
   return out;
 }
+
+// The record-gate tool per role whose call count is correlated against the disk
+// artifact count to disambiguate retries from legitimate batch recording.
+const RECORD_GATE = { auditor: "record_finding", soc: "record_finding" };
+
+function computeRetrySignal(role, counts, disk) {
+  const gate = RECORD_GATE[role];
+  if (!gate) return { basis: "unavailable" }; // e.g. investigator (ledger-shaped, different gate)
+  const gateCalls = counts[gate] || 0;
+  const diskCount = disk && disk.findingCounts && typeof disk.findingCounts.total === "number" ? disk.findingCounts.total : null;
+  if (diskCount === null) return { gate, gateCalls, diskCount: null, inferredRetries: null, basis: "inferred" };
+  return { gate, gateCalls, diskCount, inferredRetries: Math.max(0, gateCalls - diskCount), basis: "disk" };
+}
+
+/**
+ * Assemble a self-contained, deterministic digest from the run's in-memory data.
+ * Every signal that is not directly observed declares its outcomeBasis.
+ *
+ * @param {object} run - { role, model, scenario, overallPass, repoCommit,
+ *   scenarioHash, turnSignals: ReturnType<extractTurnSignals>[], disk, evaluation }
+ */
+export function extractRunDigest(run) {
+  const turnSignals = Array.isArray(run.turnSignals) ? run.turnSignals : [];
+  const toolSequence = turnSignals.flatMap((t) => t.mcpCalls || []);
+  const nonMcpCallCount = turnSignals.reduce((n, t) => n + (t.nonMcpCallCount || 0), 0);
+
+  const counts = {};
+  for (const name of toolSequence) counts[name] = (counts[name] || 0) + 1;
+  const duplicateMcpCalls = Object.fromEntries(Object.entries(counts).filter(([, c]) => c > 1));
+
+  const checks = (run.evaluation && Array.isArray(run.evaluation.checks)) ? run.evaluation.checks : [];
+  const seqCheck = checks.find((c) => typeof c.name === "string" && c.name.startsWith("toolSequence"));
+  const expectedToolSequence = seqCheck
+    ? { pass: seqCheck.pass, detail: seqCheck.detail, basis: "expect" }
+    : { pass: null, basis: "unavailable" };
+
+  const stamps = turnSignals.flatMap((t) => [t.firstTs, t.lastTs]).filter((x) => typeof x === "string" && x.length > 0).sort();
+  const timing = stamps.length >= 2
+    ? { wallMs: Date.parse(stamps[stamps.length - 1]) - Date.parse(stamps[0]), basis: "export" }
+    : { wallMs: null, basis: "unavailable" };
+
+  return {
+    digestSchemaVersion: DIGEST_SCHEMA_VERSION,
+    scenarioId: (run.scenario && run.scenario.id) || null,
+    role: run.role || null,
+    model: run.model || null,
+    repoCommit: run.repoCommit || null,
+    scenarioHash: run.scenarioHash || null,
+    overallPass: run.overallPass === true,
+    turnCount: turnSignals.length,
+    toolSequence,
+    nonMcpCallCount,
+    duplicateMcpCalls,
+    retry: computeRetrySignal(run.role, counts, run.disk),
+    expectedToolSequence,
+    timing,
+    expectChecks: checks.map((c) => ({ name: c.name, pass: c.pass })),
+  };
+}
