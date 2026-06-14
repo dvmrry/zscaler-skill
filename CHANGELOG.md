@@ -4,6 +4,13 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.11.1](https://github.com/dvmrry/zscaler-skill/compare/v0.11.0...v0.11.1) (2026-06-14)
+
+
+### Bug Fixes
+
+* **bridge:** retry signal uses per-run finding delta, not cumulative disk ([#117](https://github.com/dvmrry/zscaler-skill/issues/117)) ([48f76f4](https://github.com/dvmrry/zscaler-skill/commit/48f76f415720a16c21c07775b77c54a031802a44))
+
 ## [0.11.0](https://github.com/dvmrry/zscaler-skill/compare/v0.10.1...v0.11.0) (2026-06-14)
 
 
