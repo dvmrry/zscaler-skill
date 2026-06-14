@@ -52,6 +52,7 @@ function runFixture(overrides = {}) {
     overallPass: true,
     repoCommit: "abc1234",
     scenarioHash: "deadbeef",
+    preFindingCount: 0,
     turnSignals: [
       { mcpCalls: ["open_review", "record_finding", "record_finding", "render_soc_report"], nonMcpCallCount: 2, firstTs: "2026-06-12T16:00:00.000Z", lastTs: "2026-06-12T16:00:30.000Z" },
     ],
@@ -71,7 +72,7 @@ test("extractRunDigest: rolls up sequence, non-MCP count, duplicates, and disk-c
   assert.equal(d.role, "soc");
   assert.equal(d.nonMcpCallCount, 2);
   assert.deepEqual(d.duplicateMcpCalls, { record_finding: 2 });
-  assert.deepEqual(d.retry, { gate: "record_finding", gateCalls: 2, diskCount: 2, inferredRetries: 0, outcomeBasis: "disk" });
+  assert.deepEqual(d.retry, { gate: "record_finding", gateCalls: 2, createdThisRun: 2, inferredRetries: 0, outcomeBasis: "disk" });
   assert.equal(d.expectedToolSequence.pass, true);
   assert.equal(d.expectedToolSequence.outcomeBasis, "expect");
   assert.equal(d.timing.outcomeBasis, "export");
@@ -83,15 +84,32 @@ test("extractRunDigest: retry signal flags failed records (3 calls, 1 finding ->
     turnSignals: [{ mcpCalls: ["open_review", "record_finding", "record_finding", "record_finding"], nonMcpCallCount: 0, firstTs: null, lastTs: null }],
     disk: { findingCounts: { total: 1 } },
   }));
-  assert.deepEqual(d.retry, { gate: "record_finding", gateCalls: 3, diskCount: 1, inferredRetries: 2, outcomeBasis: "disk" });
+  assert.deepEqual(d.retry, { gate: "record_finding", gateCalls: 3, createdThisRun: 1, inferredRetries: 2, outcomeBasis: "disk" });
   assert.equal(d.timing.outcomeBasis, "unavailable");
 });
 
-test("extractRunDigest: no disk counts -> retry basis inferred; investigator -> unavailable", () => {
+test("extractRunDigest: reused-slug fix — createdThisRun uses pre/post delta (DAV-14)", () => {
+  // 8 record_finding calls; disk total 12 but 4 pre-existed from a prior run on the
+  // reused slug → 8 created this run → 0 retries (not confounded by cumulative disk).
+  const d = extractRunDigest(runFixture({
+    turnSignals: [{ mcpCalls: ["open_review", ...Array(8).fill("record_finding"), "render_soc_report"], nonMcpCallCount: 0, firstTs: null, lastTs: null }],
+    disk: { findingCounts: { total: 12 } },
+    preFindingCount: 4,
+  }));
+  assert.deepEqual(d.retry, { gate: "record_finding", gateCalls: 8, createdThisRun: 8, inferredRetries: 0, outcomeBasis: "disk" });
+});
+
+test("extractRunDigest: no disk counts -> retry inferred; investigator -> unavailable", () => {
   const noDisk = extractRunDigest(runFixture({ disk: null }));
   assert.equal(noDisk.retry.outcomeBasis, "inferred");
   const inv = extractRunDigest(runFixture({ role: "investigator", disk: { claimCounts: {} } }));
   assert.equal(inv.retry.outcomeBasis, "unavailable");
+});
+
+test("extractRunDigest: disk present but no pre-snapshot -> inferred, no confounded number", () => {
+  const d = extractRunDigest(runFixture({ preFindingCount: undefined, disk: { findingCounts: { total: 6 } } }));
+  assert.equal(d.retry.outcomeBasis, "inferred");
+  assert.equal(d.retry.inferredRetries, null);
 });
 
 import { renderRunQuality } from "./digest-run.mjs";
