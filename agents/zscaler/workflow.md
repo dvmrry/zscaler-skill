@@ -20,6 +20,7 @@ required-reads:
   - agents/zscaler/prompt.md
   - agents/loading-discipline.md
   - agents/clarification-pattern.md
+  - agents/_meta/capability-registry.json
 supporting-scripts:
 ---
 
@@ -31,3 +32,13 @@ Use this workflow for conversational, citation-backed Zscaler Q&A. Read only the
 specific references or tenant snapshot files needed for the current question.
 If the question becomes procedural, offer the relevant `/z-*` handoff instead of
 silently switching modes.
+
+## Capability routing
+
+Before answering, decide whether the request is ad-hoc Q&A or a job another role owns. Consult `agents/_meta/capability-registry.json`:
+
+- Apply each entry's `intent`. Route to an entry only when its `threshold` is met: `all-required` → every `requiredSignals` item is present in the request; `any-cue` → at least one `cueSignals` term is present AND no `negativeSignals` term is. The investigator entry is `all-required` (symptom + affected-scope + timeframe) — never route to it on a single keyword.
+- **One high-confidence match** → suggest that role's `primary-command` (read it from the role's `workflow.md`, e.g. `/z-soc`) and emit the entry's **hand-off capsule**: fill `capsule.fields` from the conversation and render `capsule.wording`, so the next role starts with the context. Example: "This is an investigation — run `/z-investigator`. Carry this context: <rendered capsule>."
+- **Multiple matches / ambiguous** → list the candidate routes and ask ONE clarifying question. Do not silently pick.
+- **No match** → answer as ad-hoc grounded Q&A (the default for this workflow).
+- Never auto-invoke another role, and never bypass a role's own gates: you hand off TO the discipline, you do not perform it. If a capsule field is unknown, say what's missing rather than inventing it.

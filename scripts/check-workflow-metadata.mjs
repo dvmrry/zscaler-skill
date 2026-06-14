@@ -85,7 +85,7 @@ function requireExists(relativePath, owner, findings, label = "path") {
   return true;
 }
 
-function parseFrontmatter(filePath, findings) {
+export function parseFrontmatter(filePath, findings) {
   const text = fs.readFileSync(filePath, "utf8");
   const match = /^---\n([\s\S]*?)\n---\n?/.exec(text);
   if (!match) {
@@ -222,4 +222,7 @@ function main() {
   return 1;
 }
 
-process.exit(main());
+// Only run as a script, not when imported as a module.
+if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
+  process.exit(main());
+}
