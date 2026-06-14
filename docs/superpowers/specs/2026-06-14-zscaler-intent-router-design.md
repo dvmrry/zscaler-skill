@@ -1,141 +1,107 @@
 # @zscaler intent router + capability registry
 
-**Status:** design (pre-implementation) · **Date:** 2026-06-14 · **Origin:** "grounding + routing layer" / agent-hub front-door discussion
+**Status:** design (v2, after cross-model review) · **Date:** 2026-06-14 · **Origin:** "grounding + routing layer" / agent-hub front-door discussion
+
+**Review provenance:** v1 reviewed by Claude (Sonnet), Codex (GPT), and Gemini — all ground-truthed against the actual `@zscaler` workflow/prompt + data contract. All returned "revise, then ship Increment 1," converging on: structured intent matching, migrate from `prompt.md` (not just AGENTS.md), registry lint/`last-verified`, YAML-not-JSON, keep registry ≠ linkage. v2 also folds in the higher-value catches: state-carrying hand-off, the "invisible refactor" fix, the load/invoke gate-integrity boundary, and the discovery-vs-creation correction on the generator.
 
 ## Problem
 
-`@zscaler` is today an ad-hoc grounded Q&A workflow. Two forces push it toward
-being a **front door**:
+`@zscaler` is today ad-hoc grounded Q&A. Two forces push it toward being a **front door**:
 
-1. **The skill is becoming a grounding + routing layer** — shedding the *doing*
-   (creds/SDK → `zscalerctl` and external repos own execution). Its job is to
-   ground answers and point you to the right capability, not to do everything.
-2. **Capabilities are federating** — across internal roles (investigator,
-   auditor, soc, architect, retro, researcher) and, increasingly, **external
-   repos that own their own skills/mcps** (e.g. `zscaler-as-code` for IaC).
+1. **The skill is becoming a grounding + routing layer** — shedding the *doing* (creds/SDK → `zscalerctl` + external repos own execution). Its job is to ground answers and point to the right capability.
+2. **Capabilities are federating** — internal roles (investigator/auditor/soc/architect/retro/researcher) and external repos that own their own skills/mcps (e.g. `zscaler-as-code`).
 
-Users shouldn't need to know the incantation (`/z-auditor`, `/z-soc`, …) or
-which repo owns a thing. `@zscaler` should **load the relevant knowledge and
-route by intent** — to an internal role *or* an external owner — without forcing
-explicit invocation.
+Users shouldn't need the incantation (`/z-auditor`…) or to know which repo owns a thing. `@zscaler` should **load knowledge and route by intent** — internal or external — without forcing explicit invocation.
 
-This already exists in embryo: `agents/zscaler/workflow.md` says *"if the
-question becomes procedural, offer the relevant `/z-*` handoff instead of
-silently switching modes,"* and `AGENTS.md:15-29` is a hardcoded prose list of
-"for X → suggest `/z-Y`." This design **turns that prose into a data-driven
-registry** and makes `@zscaler` an active, honest router over it.
+This exists in embryo, and is **further along than v1 implied**: the real routing logic is in `agents/zscaler/prompt.md` (a crisp escalation grammar — e.g. `/z-investigator` fires only on **symptom + affected scope + timeframe**), not just the flat `AGENTS.md:15-29` list. This design turns that *prompt-level escalation grammar* into a data-driven, lintable registry and makes `@zscaler` an active, honest router over it.
 
 ## Core principle: honest hand-off = no-fabrication applied to *capability*
 
-The roles never fabricate findings; the front door never fabricates *capability*.
-
-- Route on **grounded, high-confidence intent**; when ambiguous, **surface the
-  candidate routes and ask** — don't silently pick the wrong door.
-- When the registry doesn't know who owns something, **say so** — don't guess an
-  owner.
-- Be **transparent** about what it's doing: *suggest* vs *load* vs *point-to-external*
-  — never silent magic.
-
-This is "answer from artifact" applied to *which capability you invoke*.
+- Route on **structured, high-confidence intent**; when ambiguous, **surface candidates and ask** — never silently pick the wrong door.
+- When the registry can't prove an owner, **say unknown** — don't guess. (Absent fork overlay ≠ "no external owners" — say "I don't know who owns this in your environment.")
+- Be **transparent**: *suggest* vs *load* vs *point-to-external* — never silent magic.
+- **Gate integrity (hard boundary):** routing or `load` must never let `@zscaler` bypass a role's MCP gates or answer-from-artifact rules. A routed/loaded role still runs its own gates; the router hands off *to* the discipline, it doesn't *replace* it.
 
 ## Architecture
 
-### Capability registry (the seam — data, not prose)
+### Capability registry (the seam — structured data)
 
-A registry of entries, each:
+YAML (humans and LLMs reason over it better than JSON), at `agents/_meta/capability-registry.yaml`, with a committed JSON Schema + validator. Each entry:
 
+```yaml
+- id: investigator
+  kind: internal-role            # internal-role | external-owner
+  intent:
+    requiredSignals: [symptom, affected-scope, timeframe]   # ALL must be present
+    cueSignals: ["why is", "broken", "failing", "regression"]
+    negativeSignals: ["how do I set up", "audit"]            # suppress on these
+    examples: ["zpa app X intermittently fails for site Y since tuesday"]
+    threshold: all-required        # all-required | any-cue | n-of
+  where: agents/investigator/workflow.md   # internal: workflow; external: repo+path / _data mount
+  review: "symptom + scope + timeframe; see prompt.md escalation test"
+  owner: zscaler-investigator              # skill/mcp that owns it
+  engageHow: suggest                       # suggest | load | point | invoke
+  lastVerified: "2026-06-14"
+  authorStatus: reviewed
 ```
-{
-  id,                       // "auditor", "zscaler-as-code", ...
-  kind,                     // "internal-role" | "external-owner"
-  intentSignals,           // phrases/cues that indicate this capability
-  where,                   // internal: workflow path; external: repo+path or _data mount
-  review,                  // what to read/look at
-  owner,                   // the skill/mcp that owns it (esp. external)
-  engageHow                // "suggest" | "load" | "point" | "invoke"
-}
-```
 
-- **Internal-role entries** are public-safe (role metadata only) → committed in
-  the repo. They supersede the hardcoded `AGENTS.md` list.
-- **External-owner entries** are fork/tenant-specific (where *your* IaC lives,
-  which external skills own it) → live in a **fork overlay under the `_data`
-  mount** (gitignored), exactly like `_data/iac` is the fork mount for
-  production-truth IaC. Public base + fork overlay mirrors the `references/`
-  (owned) vs `_data/` (fork/tenant) split the repo already uses.
+- **Internal-role entries** = public-safe, committed. Carry `lastVerified`/`authorStatus` like `workflow.md`.
+- **External-owner entries** = fork/tenant-specific → **fork overlay under the `_data` mount** (gitignored), the `_data/iac` model. Committed registry holds a public *stub* (`kind: external-owner`, `engageHow: point`); the fork overlay supplies real `where`/`owner`.
+- **The investigator three-field test is encoded, not flattened** — `requiredSignals + threshold: all-required` preserves `prompt.md`'s precision; that specificity per entry is what stops single-keyword misrouting.
 
 ### `@zscaler` router
 
-Loads grounding + the registry, classifies intent, and acts per `engageHow`:
+Loads grounding + registry; classifies intent against the structured signals; acts per `engageHow`:
+- **internal / suggest** → recommend the role **with a state-carrying hand-off** (below).
+- **external / point** → honest hand-off: where/what/who-owns/how-to-engage. No hot-load.
+- **ambiguous** → present candidate routes + one clarifying question.
+- **unknown** → admit it.
 
-- **internal-role / suggest** → "this looks like an audit — run `/z-auditor`"
-  (the formalized AGENTS.md nudge).
-- **external-owner / point** → honest hand-off: where it lives, what to review,
-  who owns it, how you'd engage it. **No hot-load.**
-- **ambiguous** → present the candidate routes, ask one clarifying question.
-- **unknown** (not in registry) → admit it; do not invent an owner.
+### State-carrying hand-off (the Increment-1 payoff)
+
+A hand-off must not make the user repeat themselves (the "amnesiac hand-off" — switching roles drops context). So a suggestion ships a **context capsule**: the distilled problem statement the next role needs, e.g. `/z-investigator` *with* "symptom=…, scope=…, since=…". This is the user-visible value that makes Increment 1 more than a refactor.
 
 ### `engageHow` maturity ladder
 
-The audacious end-state and the humble start are the *same architecture* at
-different `engageHow` settings. Flipping a value is additive — no rewrite:
+Same architecture at different settings; flipping a value is additive:
 
 ```
-suggest  →  load (internal: @zscaler loads the role's workflow)
-         →  point (external: provenance hand-off, no execution)
-         →  invoke (future: a hub actually drives the external skill/mcp)
+suggest (+ state capsule)  →  load (internal: @zscaler loads the role's workflow, gates intact)
+                           →  point (external: provenance hand-off, no execution)
+                           →  invoke (future: a hub drives the external skill/mcp)
 ```
 
 ## Incremental delivery
 
-- **Increment 1 (MVP):** registry-as-data for the **internal roles**, all
-  `engageHow: "suggest"`; `@zscaler` consults it and gives intent-aware
-  suggestions/hand-off. Formalizes `AGENTS.md:15-29` + the workflow's hand-off
-  line into one data-driven router. Smallest shippable slice; `@zscaler` stays a
-  prompt-scaffolding workflow (it's a router/loader, not a register-producer — no
-  MCP server).
-- **Increment 2:** external-owner entries via the `_data` fork overlay +
-  honest external hand-off (`engageHow: "point"`).
-- **Increment 3:** internal `load` — `@zscaler` loads a routed role's workflow
-  directly instead of only suggesting it.
-- **Increment 4 (future):** `invoke` — a hub drives external skills/mcps
-  (intent-not-power boundary). Out of scope here; the registry is the seam that
-  keeps it additive.
+- **Increment 1 (MVP):** structured registry for the **internal roles** (YAML + schema + lint) migrated from `prompt.md`'s escalation grammar; `@zscaler` routes against it and produces **state-carrying suggestions/hand-offs**; the AGENTS.md routing block is **auto-generated from the registry**. Visible value: better routing + no-repeat hand-offs. `@zscaler` stays prompt-scaffolding (no MCP server).
+- **Increment 2:** external-owner entries via the `_data` fork overlay (added to the data contract as *optional*, not breaking existing mounts) + honest external hand-off (`point`).
+- **Increment 3:** internal `load` — `@zscaler` loads a routed role's workflow directly, **gates intact** (must not bypass role MCP/answer-from-artifact).
+- **Increment 4 (future):** `invoke` — a hub drives external skills/mcps (intent-not-power boundary).
 
-Each increment is independently useful and proves itself before the next — the
-same discipline that let the meta-retro MVP earn its deferred layers.
+Each increment is independently useful and earns the next.
 
-## What this retires
+## AGENTS.md, drift, and lint
 
-The **scaffold-role generator (DAV-11 PR5) is no longer worth building.** The
-high-leverage shared substrate is the **registry + router**, not a file-stamping
-tool. New roles get *surfaced* via the registry and *built directly* (reusing the
-PR1/PR2 shared libs). Recommend closing PR5 in favor of this.
+The registry is the single source of truth. The `AGENTS.md` routing block is **auto-generated from it** (precedent: the vendored `zscaler-mcp-server` auto-generates docs from its tool inventory) — humans still read AGENTS.md, but it can't drift from the registry. A lint (extend `check-workflow-metadata.mjs` or a sibling) validates: required fields, `where` paths resolve, `intent.requiredSignals`/`cueSignals` non-empty, `lastVerified` present, and the AGENTS.md block is in sync.
+
+## On the scaffold generator (DAV-11 PR5) — corrected
+
+The registry solves **discovery** (which role do I need?), not **creation** (how do I build a new role?). These are different problems, so the registry doesn't *replace* the generator — but PR5 stays low-value on its own merits (only one register-shaped role left; PR1/PR2 libs already cut creation cost). **Recommendation: don't build PR5.** If role-*creation* toil bites later (there are still manual "add a role" steps in `agents/README.md`), address it with a lightweight **validator/checklist** that the registry lint already half-covers — not a code-stamping generator.
 
 ## Non-goals
 
-- Hot-loading / hub invocation (Increment 4, future).
-- Owning, editing, or executing external repos' tooling.
-- Cross-role linkage (separate deferred thread — related but not required here).
-- Turning `@zscaler` into a register-shaped role (it's a router shape).
+- Hot-loading / hub invocation (Increment 4).
+- Owning/editing/executing external repos' tooling.
+- Cross-role linkage (separate deferred thread; the registry may *feed* it but doesn't share its per-case data model).
+- Turning `@zscaler` into a register-shaped role (it's a router).
 
 ## Data / privacy
 
-Internal-role registry = public-safe, committed. External-owner registry =
-fork-private under the `_data` mount (gitignored), same scrub discipline as the
-rest of `_data` (cf. the `scrub-iac-attribution` precedent — reading private
-infra location/ownership must not leak into public artifacts).
+Internal registry = public-safe, committed. External overlay = fork-private under `_data` (gitignored), same scrub discipline as the rest of `_data` (cf. `scrub-iac-attribution` — reading private infra location/ownership must not leak into public artifacts).
 
-## Open questions (for review)
+## Resolved decisions
 
-1. **Registry format/location** — committed file for internal roles (e.g.
-   `agents/_meta/capability-registry.json`) + a fork overlay under `_data`? Lean: yes.
-2. **Intent classification** — for Increment 1, lightweight (intent cues in the
-   workflow prompt, with "ambiguous → ask"), no new infra. Or a structured
-   classifier later? Lean: lightweight first; honesty (offer-when-unsure) makes
-   it safe.
-3. **Relationship to `AGENTS.md:15-29`** — registry supersedes the prose list;
-   AGENTS.md then points at `@zscaler` as the concierge. Confirm.
-4. **Does the registry double as the meta-retro / cross-role linkage substrate?**
-   It's a capability/ownership map; linkage is an artifact-chain map. Likely
-   distinct, but worth noting the overlap before either is built out.
+1. **Format/location** → YAML at `agents/_meta/capability-registry.yaml` + JSON Schema + validator; fork overlay under `_data` (optional, added to the contract).
+2. **Intent classification** → lightweight but *structured* (required/negative/cue signals + threshold + examples); keep the investigator three-field test first-class; "ambiguous → ask." No classifier infra.
+3. **AGENTS.md** → auto-generated from the registry (supersedes hand-maintained prose; humans still see it; lint prevents drift).
+4. **Registry vs linkage** → distinct data models; registry may be referenced by linkage but doesn't carry per-case state.
