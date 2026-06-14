@@ -1,0 +1,81 @@
+{
+  "entries": [
+    {
+      "id": "investigator", "kind": "internal-role", "workflowId": "z-investigator",
+      "intent": {
+        "requiredSignals": ["symptom", "affected-scope", "timeframe"],
+        "cueSignals": ["why is", "broken", "failing", "intermittent", "regression"],
+        "negativeSignals": ["how do I set up", "audit", "review posture"],
+        "examples": ["zpa app X intermittently fails for site Y since tuesday"],
+        "threshold": "all-required"
+      },
+      "capsule": { "fields": ["symptom", "scope", "timeframe", "known_context", "missing_info"],
+        "wording": "Investigating: symptom={symptom}; scope={scope}; since={timeframe}. Known: {known_context}. Still needed: {missing_info}." },
+      "engageHow": "suggest", "lastVerified": "2026-06-14", "authorStatus": "reviewed"
+    },
+    {
+      "id": "auditor", "kind": "internal-role", "workflowId": "z-auditor",
+      "intent": {
+        "requiredSignals": [],
+        "cueSignals": ["audit", "hygiene", "lint the refs", "structural review", "reference quality"],
+        "negativeSignals": ["why is", "broken", "posture", "threat"],
+        "examples": ["audit the zpa reference docs for drift"],
+        "threshold": "any-cue"
+      },
+      "capsule": { "fields": ["scope", "known_context"], "wording": "Auditing scope={scope}. Context: {known_context}." },
+      "engageHow": "suggest", "lastVerified": "2026-06-14", "authorStatus": "reviewed"
+    },
+    {
+      "id": "soc", "kind": "internal-role", "workflowId": "z-soc",
+      "intent": {
+        "requiredSignals": [],
+        "cueSignals": ["posture", "threat", "exposure", "least-privilege", "attack surface", "blast radius", "telemetry coverage", "detection", "RBAC", "defensible"],
+        "negativeSignals": ["why is", "broken", "capacity", "scaling", "audit hygiene"],
+        "examples": ["review the ZPA admin RBAC posture for least-privilege exposure"],
+        "threshold": "any-cue"
+      },
+      "capsule": { "fields": ["scope", "subtype", "threat_model", "known_context"],
+        "wording": "SOC review: scope={scope}; subtype={subtype}; threat model={threat_model}. Context: {known_context}." },
+      "engageHow": "suggest", "lastVerified": "2026-06-14", "authorStatus": "reviewed"
+    },
+    {
+      "id": "architect", "kind": "internal-role", "workflowId": "z-architect",
+      "intent": {
+        "requiredSignals": [],
+        "cueSignals": ["capacity", "scaling", "sizing", "design", "recommendation", "SPOF", "growth", "topology", "will this scale", "single point of failure"],
+        "negativeSignals": ["why is", "broken", "posture", "threat", "audit"],
+        "examples": ["review App Connector Group us-east-1 capacity for 3x user growth by Q3"],
+        "threshold": "any-cue"
+      },
+      "capsule": { "fields": ["scope", "scaling_context", "evidence_layers", "known_context"],
+        "wording": "Architect review: scope={scope}; planning context={scaling_context}; evidence={evidence_layers}. Context: {known_context}." },
+      "engageHow": "suggest", "lastVerified": "2026-06-14", "authorStatus": "reviewed"
+    },
+    {
+      "id": "retro", "kind": "internal-role", "workflowId": "z-retro",
+      "intent": {
+        "requiredSignals": ["existing-journal"],
+        "cueSignals": ["postmortem", "retro", "lessons", "warning ledger", "decision gate", "after the incident"],
+        "negativeSignals": ["fresh incident", "troubleshoot", "why is", "still failing"],
+        "examples": ["run a retro on _data/cases/2026-05-14-ci-warning-regression/"],
+        "threshold": "all-required"
+      },
+      "capsule": { "fields": ["case_directory", "question", "known_context"],
+        "wording": "Retro: case={case_directory}; question={question}. Context: {known_context}." },
+      "engageHow": "suggest", "lastVerified": "2026-06-14", "authorStatus": "reviewed"
+    },
+    {
+      "id": "researcher", "kind": "internal-role", "workflowId": "z-researcher",
+      "intent": {
+        "requiredSignals": [],
+        "cueSignals": ["expand the reference", "citation-backed", "document behavior", "mine sources", "reference expansion", "SDK divergences", "drift in the reference", "add a section"],
+        "negativeSignals": ["troubleshoot", "posture", "why is", "postmortem"],
+        "examples": ["expand references/zpa/app-connector.md by mining the SDK and Postman sources"],
+        "threshold": "any-cue"
+      },
+      "capsule": { "fields": ["target_file", "sources_to_mine", "scope", "known_context"],
+        "wording": "Researcher: target={target_file}; sources={sources_to_mine}; scope={scope}. Context: {known_context}." },
+      "engageHow": "suggest", "lastVerified": "2026-06-14", "authorStatus": "reviewed"
+    }
+  ]
+}

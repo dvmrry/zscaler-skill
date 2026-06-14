@@ -51,6 +51,7 @@ const CHECKS = [
     args: ["scripts/check-mcp-conformance.mjs"],
   },
   { name: "capability registry", command: "node", args: ["scripts/check-capability-registry.mjs"] },
+  { name: "AGENTS routing block", command: "node", args: ["scripts/gen-capability-routing.mjs", "--check"] },
   {
     name: "diff whitespace",
     command: "git",
