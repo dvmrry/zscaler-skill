@@ -4,6 +4,13 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.10.1](https://github.com/dvmrry/zscaler-skill/compare/v0.10.0...v0.10.1) (2026-06-14)
+
+
+### Bug Fixes
+
+* **data-contract:** formalize _data/audits and _data/soc-reviews ([#113](https://github.com/dvmrry/zscaler-skill/issues/113)) ([b2e5ed9](https://github.com/dvmrry/zscaler-skill/commit/b2e5ed914261a726224883d280897e43c2a33e3d))
+
 ## [0.10.0](https://github.com/dvmrry/zscaler-skill/compare/v0.9.2...v0.10.0) (2026-06-14)
 
 
