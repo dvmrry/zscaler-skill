@@ -20,6 +20,7 @@ import {
   computeAuditDiskStatus,
   computeSocDiskStatus,
   computeSocReport,
+  buildRunDigest,
 } from "./run-investigation.mjs";
 
 // ── extractAgentMessages ──────────────────────────────────────────────────────
@@ -857,4 +858,17 @@ test("evaluateExpectations: SOC fabrication marker in transcript FAIL", () => {
   const forbidden = ev.checks.find((c) => c.name === "no forbidden transcript strings");
   assert.ok(forbidden && !forbidden.pass, "transcript check fails");
   assert.match(forbidden.detail, /fabricat/);
+});
+
+// ── buildRunDigest ─────────────────────────────────────────────────────────────
+
+test("buildRunDigest: assembles a digest from turns + disk + evaluation", () => {
+  const turns = [{ signals: { mcpCalls: ["open_review", "render_soc_report"], nonMcpCallCount: 0, firstTs: null, lastTs: null } }];
+  const digest = buildRunDigest({
+    scenario: { id: "soc-fabrication" }, role: "soc", model: "swe-1.6", turns,
+    disk: { findingCounts: { total: 0 } }, evaluation: { checks: [], pass: true },
+    overallPass: true, repoCommit: "abc1234", scenarioHash: "hash",
+  });
+  assert.equal(digest.scenarioId, "soc-fabrication");
+  assert.deepEqual(digest.toolSequence, ["open_review", "render_soc_report"]);
 });

@@ -67,10 +67,13 @@
 //
 // Exit code: 0 on overall PASS, 1 on overall FAIL.
 
-import { spawnSync } from "node:child_process";
+import childProcess, { spawnSync } from "node:child_process";
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+
+import { extractTurnSignals, extractRunDigest, renderRunQuality } from "./digest-run.mjs";
 
 // Resolve the repo helpers relative to THIS script (scripts/bridge/ -> scripts/).
 import {
@@ -767,6 +770,7 @@ function main() {
       // Parse export (tolerate missing/garbled — record and continue).
       let agentResponses = [];
       let toolCalls = [];
+      let signals = { mcpCalls: [], nonMcpCallCount: 0, firstTs: null, lastTs: null };
       let exportError = null;
       if (fs.existsSync(exportPath)) {
         const { obj: exportObj, error } = readJsonFile(exportPath);
@@ -775,6 +779,7 @@ function main() {
         } else {
           agentResponses = extractAgentMessages(exportObj);
           toolCalls = extractToolCalls(exportObj);
+          signals = extractTurnSignals(exportObj);
           if (i === 0) sessionId = extractSessionId(exportObj);
         }
       } else {
@@ -791,6 +796,7 @@ function main() {
         stderr: run.stderr,
         agentResponses,
         toolCalls,
+        signals,
         exportError,
       });
     }
@@ -822,6 +828,21 @@ function main() {
   const evaluation = evaluateExpectations(scenario.expect, disk, allAgentResponses, allToolCalls);
   const overallPass = evaluation.pass;
 
+  // ── run digest (deterministic, inline) ──
+  const repoCommit = (() => {
+    try { return childProcess.execFileSync("git", ["-C", root, "rev-parse", "--short", "HEAD"], { encoding: "utf8" }).trim(); }
+    catch { return null; }
+  })();
+  const scenarioHash = (() => {
+    try { return crypto.createHash("sha256").update(fs.readFileSync(scenarioPath)).digest("hex").slice(0, 12); }
+    catch { return null; }
+  })();
+  const digest = buildRunDigest({ scenario, role, model, turns, disk, evaluation, overallPass, repoCommit, scenarioHash });
+  const digestsDir = path.join(root, "_data", "bridge-digests");
+  fs.mkdirSync(digestsDir, { recursive: true });
+  fs.writeFileSync(path.join(digestsDir, `${path.basename(outDir)}.json`), `${JSON.stringify(digest, null, 2)}\n`);
+  const runQuality = renderRunQuality(digest);
+
   // ── write artifacts ──
   const reportPath = path.join(outDir, "report.md");
   const report = renderReport({
@@ -834,7 +855,7 @@ function main() {
     evaluation,
     overallPass,
   });
-  fs.writeFileSync(reportPath, report);
+  fs.writeFileSync(reportPath, `${report}\n${runQuality}`);
 
   const transcriptPath = path.join(outDir, "transcript.json");
   fs.writeFileSync(
@@ -868,9 +889,18 @@ function main() {
     )}\n`,
   );
 
+  process.stdout.write(`${runQuality}\n`);
   process.stdout.write(`${overallPass ? "PASS" : "FAIL"}\n`);
   process.stdout.write(`report: ${reportPath}\n`);
   process.exit(overallPass ? 0 : 1);
+}
+
+// Assemble the run digest from collected turns + disk truth + evaluation.
+function buildRunDigest({ scenario, role, model, turns, disk, evaluation, overallPass, repoCommit, scenarioHash }) {
+  return extractRunDigest({
+    scenario, role, model, disk, evaluation, overallPass, repoCommit, scenarioHash,
+    turnSignals: turns.map((t) => t.signals || { mcpCalls: [], nonMcpCallCount: 0, firstTs: null, lastTs: null }),
+  });
 }
 
 // Only run main() when invoked directly (not when imported by the test file).
@@ -892,4 +922,5 @@ export {
   computeAuditReport,
   computeSocDiskStatus,
   computeSocReport,
+  buildRunDigest,
 };
