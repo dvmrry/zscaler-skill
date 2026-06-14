@@ -120,6 +120,8 @@ author-status: draft
 
 ## Adding a new role
 
+Role routing is driven by `agents/_meta/capability-registry.json` (routing-only data: intent signals + hand-off capsule; command/path/required-reads DERIVE from each role's `workflow.md` via the shared frontmatter parser — no copied metadata). The `@zscaler` front door consults it; the AGENTS.md routing block is generated from it (`node scripts/gen-capability-routing.mjs`, bounded by `<!-- capability-routing -->` markers), and `check-fast` lints both the registry (`check-capability-registry.mjs`) and the AGENTS block (`--check`). When adding a role, add a registry entry — the validator enforces the required fields — then regenerate the AGENTS block.
+
 1. Create `agents/{role}/` directory with at minimum `workflow.md` and `prompt.md`.
 2. Add `grounding/index.md` when the role benefits from public domain discipline, source anchors, or conditional reference-load guidance. Keep private topology, baselines, and local evidence catalogs in `_data/`, not upstream.
 3. Add `harness.md` when the role needs strict phase order, checkpoints, output shapes, or cross-turn state handling.
@@ -127,6 +129,7 @@ author-status: draft
 5. Add extra files under `grounding/` only when the role needs child cards such as investigator symptom-to-context profiles.
 6. Add `diagnostics/template.md` only when the role needs an authoring template for verified ordered diagnostics.
 7. Declare first-turn files in `workflow.md` `required-reads`; use `optional-reads` for conditional workflow support files.
-8. Update this README's "Available workflows" table.
-9. Add a portable skill under `.agents/skills/` when the workflow should be natively discoverable by Codex, Devin, or another Agent Skills-compatible runtime.
-10. Wire optional runtime adapters (`.claude/commands/<role>.md` for Claude Code, `.devin/workflows/<role>.md` for Devin) that invoke `agents/{role}/workflow.md`. Keep adapters thin; move workflow logic back into `agents/**`.
+8. Add a `capability-registry.json` entry (intent signals + capsule) and run `node scripts/gen-capability-routing.mjs` to refresh the AGENTS.md routing block.
+9. Update this README's "Available workflows" table.
+10. Add a portable skill under `.agents/skills/` when the workflow should be natively discoverable by Codex, Devin, or another Agent Skills-compatible runtime.
+11. Wire optional runtime adapters (`.claude/commands/<role>.md` for Claude Code, `.devin/workflows/<role>.md` for Devin) that invoke `agents/{role}/workflow.md`. Keep adapters thin; move workflow logic back into `agents/**`.

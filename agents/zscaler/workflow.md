@@ -20,6 +20,7 @@ required-reads:
   - agents/zscaler/prompt.md
   - agents/loading-discipline.md
   - agents/clarification-pattern.md
+  - agents/_meta/capability-registry.json
 supporting-scripts:
 ---
 
