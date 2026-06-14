@@ -12,6 +12,7 @@ import test from "node:test";
 import {
   evaluateExpectations,
   extractAgentMessages,
+  extractToolCalls,
   extractSessionId,
   installPermissionConfig,
   parseArgs,
@@ -46,6 +47,58 @@ test("extractAgentMessages tolerates missing/garbled export shapes", () => {
   assert.deepEqual(extractAgentMessages({}), []);
   assert.deepEqual(extractAgentMessages({ steps: "not-an-array" }), []);
   assert.deepEqual(extractAgentMessages({ steps: [null, { source: "agent" }] }), []);
+});
+
+// ── extractToolCalls ──────────────────────────────────────────────────────────
+
+// Mirror the real Devin export shape: MCP tool calls live in
+// step.metadata.extensions["chisel/tool_call_content"][callId]._meta, with the
+// tool name in "cognition.ai/toolName" and eventType "mcp_tool_call".
+function mcpCall(toolName) {
+  return {
+    _meta: { "cognition.ai/toolName": toolName, "cognition.ai/eventType": "mcp_tool_call" },
+  };
+}
+
+function agentToolStep(content) {
+  return { source: "agent", message: "...", metadata: { extensions: { "chisel/tool_call_content": content } } };
+}
+
+test("extractToolCalls returns bare MCP tool names in call order, skipping non-MCP calls", () => {
+  const exportObj = {
+    steps: [
+      { source: "system", message: "rules", metadata: { extensions: { "agent-ext/rules-loaded": {} } } },
+      // "Listed MCP tools" — kind:other but no _meta → skipped.
+      agentToolStep({ call_1: { title: "Listed MCP tools", kind: "other", rawInput: { server_name: "zscaler-soc" } } }),
+      agentToolStep({ call_2: mcpCall("mcp__zscaler-soc__open_review") }),
+      // a file read — kind:read, no _meta → skipped.
+      agentToolStep({ call_3: { title: "Read file", kind: "read", locations: [{ path: "x.md" }] } }),
+      agentToolStep({ call_4: mcpCall("mcp__zscaler-soc__record_finding") }),
+      agentToolStep({ call_5: mcpCall("mcp__zscaler-soc__render_soc_report") }),
+    ],
+  };
+  assert.deepEqual(extractToolCalls(exportObj), ["open_review", "record_finding", "render_soc_report"]);
+});
+
+test("extractToolCalls preserves order of multiple calls within one step", () => {
+  const exportObj = {
+    steps: [
+      agentToolStep({
+        call_a: mcpCall("mcp__zscaler-investigator__record_loads"),
+        call_b: mcpCall("mcp__zscaler-investigator__run_turn"),
+      }),
+    ],
+  };
+  assert.deepEqual(extractToolCalls(exportObj), ["record_loads", "run_turn"]);
+});
+
+test("extractToolCalls tolerates missing/garbled export shapes", () => {
+  assert.deepEqual(extractToolCalls(null), []);
+  assert.deepEqual(extractToolCalls({}), []);
+  assert.deepEqual(extractToolCalls({ steps: "not-an-array" }), []);
+  assert.deepEqual(extractToolCalls({ steps: [null, { source: "agent" }] }), []);
+  // agent step with extensions but no tool-call content → [].
+  assert.deepEqual(extractToolCalls({ steps: [{ source: "agent", metadata: { extensions: {} } }] }), []);
 });
 
 // ── extractSessionId ──────────────────────────────────────────────────────────
@@ -146,6 +199,40 @@ test("evaluateExpectations: requireTranscriptStrings must all appear", () => {
   );
   assert.equal(missing.pass, false);
   assert.match(missing.checks[0].detail, /open claim/);
+});
+
+test("evaluateExpectations: expectedToolSequence passes when the gate order is an ordered subsequence", () => {
+  const tools = ["open_review", "record_finding", "record_finding", "render_soc_report"];
+  const evalResult = evaluateExpectations(
+    { expectedToolSequence: ["open_review", "record_finding", "render_soc_report"] },
+    null,
+    [],
+    tools,
+  );
+  assert.equal(evalResult.pass, true);
+});
+
+test("evaluateExpectations: expectedToolSequence catches forge-when-blocked (render before record)", () => {
+  const tools = ["open_review", "render_soc_report", "record_finding"];
+  const evalResult = evaluateExpectations(
+    { expectedToolSequence: ["open_review", "record_finding", "render_soc_report"] },
+    null,
+    [],
+    tools,
+  );
+  assert.equal(evalResult.pass, false);
+  assert.ok(evalResult.checks.some((c) => !c.pass && c.name.includes("toolSequence")));
+});
+
+test("evaluateExpectations: expectedToolSequence fails when a gate tool never appears", () => {
+  const tools = ["open_review", "render_soc_report"];
+  const evalResult = evaluateExpectations(
+    { expectedToolSequence: ["open_review", "record_finding", "render_soc_report"] },
+    null,
+    [],
+    tools,
+  );
+  assert.equal(evalResult.pass, false);
 });
 
 test("evaluateExpectations: no expectations → vacuous PASS", () => {
