@@ -9,9 +9,17 @@
  * Pure Node stdlib — no SDK, no deps.
  */
 import fs from "node:fs";
-import os from "node:os";
 import path from "node:path";
 import process from "node:process";
+import {
+  makeResponse,
+  makeError,
+  resolveRepoRoot,
+  cleanupTmp,
+  readServerVersion,
+  writeTmpJson as writeTmpJsonWithPrefix,
+  writeTmpFile as writeTmpFileWithPrefix,
+} from "./mcp-server-lib.mjs";
 
 import {
   openCase,
@@ -30,26 +38,8 @@ import {
   renderCaseReport,
 } from "./investigator-artifacts.mjs";
 
-// ── Root validation ───────────────────────────────────────────────────────────
-
-function resolveRepoRoot(rootArg) {
-  if (!rootArg) throw new Error("root is required");
-  const root = path.resolve(rootArg);
-  const stat = fs.statSync(root, { throwIfNoEntry: false });
-  if (!stat || !stat.isDirectory()) {
-    throw new Error(`repo root does not exist or is not a directory: ${root}`);
-  }
-  return root;
-}
-
 // ── Version ───────────────────────────────────────────────────────────────────
-let SERVER_VERSION = "unknown";
-try {
-  const versionFile = new URL("../VERSION", import.meta.url);
-  SERVER_VERSION = fs.readFileSync(versionFile, "utf8").trim();
-} catch {
-  // Fall back to "unknown".
-}
+const SERVER_VERSION = readServerVersion(import.meta.url);
 
 // ── MCP entrypoint prompt path ────────────────────────────────────────────────
 // Canonical prompt content lives on disk — not as a string literal — to avoid drift.
@@ -567,27 +557,8 @@ const TOOLS = [
 
 // ── Tmp-file helpers ──────────────────────────────────────────────────────────
 
-function writeTmpFile(content) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "inv-mcp-"));
-  const filePath = path.join(dir, "content");
-  fs.writeFileSync(filePath, content, "utf8");
-  return { dir, filePath };
-}
-
-function writeTmpJson(value) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "inv-mcp-"));
-  const filePath = path.join(dir, "content.json");
-  fs.writeFileSync(filePath, `${JSON.stringify(value, null, 2)}\n`, "utf8");
-  return { dir, filePath };
-}
-
-function cleanupTmp(dir) {
-  try {
-    fs.rmSync(dir, { recursive: true, force: true });
-  } catch {
-    // Best-effort cleanup.
-  }
-}
+const writeTmpFile = (content) => writeTmpFileWithPrefix(content, "inv-mcp-");
+const writeTmpJson = (value) => writeTmpJsonWithPrefix(value, "inv-mcp-");
 
 // ── Tool dispatch ─────────────────────────────────────────────────────────────
 
@@ -778,16 +749,6 @@ function dispatchTool(name, params) {
 }
 
 // ── JSON-RPC protocol ─────────────────────────────────────────────────────────
-
-function makeResponse(id, result) {
-  return { jsonrpc: "2.0", id, result };
-}
-
-function makeError(id, code, message, data) {
-  const error = { code, message };
-  if (data !== undefined) error.data = data;
-  return { jsonrpc: "2.0", id, error };
-}
 
 function handleRequest(raw) {
   let parsed;
