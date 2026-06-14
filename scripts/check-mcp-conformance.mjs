@@ -2,12 +2,16 @@
 /**
  * check-mcp-conformance.mjs
  *
- * MCP Inspector conformance gate.
+ * MCP Inspector conformance gate for ALL role servers (investigator, auditor,
+ * SOC). Previously this gate ran against the investigator server only, leaving
+ * the two newer shipped servers ungated; it now runs the same in-process
+ * JSON-RPC conformance suite against every role, parameterized by a small
+ * per-role config (URI templates, prompt names, status tool).
  *
- * Attempts to run the official MCP Inspector CLI via npx against this server.
- * If the inspector binary is unavailable (offline CI, first-run cold cache), it
- * degrades gracefully: falls back to in-process JSON-RPC conformance assertions
- * and prints a clear note that the official inspector was not run.
+ * Attempts to run the official MCP Inspector CLI via npx first. If the inspector
+ * binary is unavailable (offline CI, first-run cold cache), it degrades
+ * gracefully: falls back to in-process JSON-RPC conformance assertions and
+ * prints a clear note that the official inspector was not run.
  *
  * Wire this into check-fast.mjs as a check that degrades on inspector absence
  * but hard-fails on any conformance violation the in-process checks catch.
@@ -18,106 +22,108 @@ import { spawn } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import process from "node:process";
+import { spawnMcpServer } from "./mcp-stdio-client.mjs";
 
 const SCRIPTS_DIR = path.dirname(fileURLToPath(import.meta.url));
-const SERVER_SCRIPT = path.join(SCRIPTS_DIR, "investigator-mcp-server.mjs");
 const REQUEST_TIMEOUT_MS = 15_000;
+const PROTOCOL_VERSION = "2025-06-18";
+
+// ── Per-role conformance config ──────────────────────────────────────────────
+//
+// Everything that diverges per role lives here; the assertion suite below is
+// role-agnostic. `requiredArgPrompt` is null for roles whose single prompt has
+// no required argument (auditor, SOC) — the missing-required-arg check is
+// skipped for them rather than asserting a prompt they do not have.
+const ROLE_CONFIGS = [
+  {
+    role: "investigator",
+    serverScript: path.join(SCRIPTS_DIR, "investigator-mcp-server.mjs"),
+    expectedTemplates: [
+      "investigator://case/{slug}/report",
+      "investigator://case/{slug}/journal",
+      "investigator://case/{slug}/status",
+    ],
+    promptNames: ["investigate", "resume-case"],
+    primaryPrompt: "investigate",
+    requiredArgPrompt: { name: "resume-case", arg: "case_slug" },
+    statusTool: { name: "status", slugParam: "case_slug" },
+  },
+  {
+    role: "auditor",
+    serverScript: path.join(SCRIPTS_DIR, "auditor-mcp-server.mjs"),
+    expectedTemplates: [
+      "auditor://audit/{slug}/report",
+      "auditor://audit/{slug}/register",
+      "auditor://audit/{slug}/status",
+    ],
+    promptNames: ["audit"],
+    primaryPrompt: "audit",
+    requiredArgPrompt: null,
+    statusTool: { name: "audit_status", slugParam: "audit_slug" },
+  },
+  {
+    role: "soc",
+    serverScript: path.join(SCRIPTS_DIR, "soc-mcp-server.mjs"),
+    expectedTemplates: [
+      "soc://review/{slug}/report",
+      "soc://review/{slug}/register",
+      "soc://review/{slug}/status",
+    ],
+    promptNames: ["soc-review"],
+    primaryPrompt: "soc-review",
+    requiredArgPrompt: null,
+    statusTool: { name: "soc_status", slugParam: "review_slug" },
+  },
+];
 
 // ── In-process conformance assertions ────────────────────────────────────────
 
-function spawnServer() {
-  const child = spawn(process.execPath, [SERVER_SCRIPT], {
-    stdio: ["pipe", "pipe", "pipe"],
-  });
-  let stdoutBuffer = "";
-  const pending = new Map();
-  child.stdout.setEncoding("utf8");
-  child.stdout.on("data", (chunk) => {
-    stdoutBuffer += chunk;
-    let idx = stdoutBuffer.indexOf("\n");
-    while (idx !== -1) {
-      const line = stdoutBuffer.slice(0, idx).trim();
-      stdoutBuffer = stdoutBuffer.slice(idx + 1);
-      if (line.length > 0) {
-        let msg;
-        try { msg = JSON.parse(line); } catch { idx = stdoutBuffer.indexOf("\n"); continue; }
-        const entry = pending.get(msg.id);
-        if (entry) {
-          clearTimeout(entry.timer);
-          pending.delete(msg.id);
-          entry.resolve(msg);
-        }
-      }
-      idx = stdoutBuffer.indexOf("\n");
-    }
-  });
-  child.stderr.setEncoding("utf8");
-  let nextId = 1;
-  function call(request) {
-    return new Promise((resolve, reject) => {
-      const id = request.id !== undefined ? request.id : nextId++;
-      const fullRequest = { ...request, id };
-      const timer = setTimeout(() => {
-        pending.delete(id);
-        reject(new Error(`Timeout waiting for: ${request.method}`));
-      }, REQUEST_TIMEOUT_MS);
-      pending.set(id, { resolve, reject, timer });
-      child.stdin.write(`${JSON.stringify(fullRequest)}\n`);
-    });
-  }
-  function close() { child.stdin.end(); }
-  return { call, close };
-}
-
-function assert(condition, message) {
-  if (!condition) throw new Error(`CONFORMANCE FAIL: ${message}`);
-}
-
-async function runInProcessConformance() {
-  const server = spawnServer();
+async function runInProcessConformance(config) {
+  const server = spawnMcpServer(config.serverScript, { requestTimeoutMs: REQUEST_TIMEOUT_MS });
   const failures = [];
+  const fail = (msg) => failures.push(`[${config.role}] ${msg}`);
 
   try {
     // ── initialize handshake ──────────────────────────────────────────────
     const initResp = await server.call({
       jsonrpc: "2.0",
       method: "initialize",
-      params: { protocolVersion: "2025-06-18", capabilities: {}, clientInfo: { name: "conformance-check", version: "0.0.1" } },
+      params: { protocolVersion: PROTOCOL_VERSION, capabilities: {}, clientInfo: { name: "conformance-check", version: "0.0.1" } },
     });
-    if (initResp.error) failures.push(`initialize returned error: ${JSON.stringify(initResp.error)}`);
-    if (!initResp.result) failures.push("initialize: no result");
+    if (initResp.error) fail(`initialize returned error: ${JSON.stringify(initResp.error)}`);
+    if (!initResp.result) fail("initialize: no result");
     if (initResp.result) {
-      if (initResp.result.protocolVersion !== "2025-06-18") {
-        failures.push(`initialize: protocolVersion echo mismatch — expected 2025-06-18 got ${initResp.result.protocolVersion}`);
+      if (initResp.result.protocolVersion !== PROTOCOL_VERSION) {
+        fail(`initialize: protocolVersion echo mismatch — expected ${PROTOCOL_VERSION} got ${initResp.result.protocolVersion}`);
       }
       const caps = initResp.result.capabilities || {};
-      if (!caps.tools) failures.push("initialize: capabilities.tools missing");
-      if (!caps.resources) failures.push("initialize: capabilities.resources missing");
-      if (!caps.prompts) failures.push("initialize: capabilities.prompts missing");
+      if (!caps.tools) fail("initialize: capabilities.tools missing");
+      if (!caps.resources) fail("initialize: capabilities.resources missing");
+      if (!caps.prompts) fail("initialize: capabilities.prompts missing");
       if (caps.resources && caps.resources.subscribe !== false) {
-        failures.push("initialize: capabilities.resources.subscribe should be false");
+        fail("initialize: capabilities.resources.subscribe should be false");
       }
       if (caps.resources && caps.resources.listChanged !== false) {
-        failures.push("initialize: capabilities.resources.listChanged should be false");
+        fail("initialize: capabilities.resources.listChanged should be false");
       }
       if (caps.prompts && caps.prompts.listChanged !== false) {
-        failures.push("initialize: capabilities.prompts.listChanged should be false");
+        fail("initialize: capabilities.prompts.listChanged should be false");
       }
     }
 
     // ── tools/list ────────────────────────────────────────────────────────
     const toolsResp = await server.call({ jsonrpc: "2.0", method: "tools/list", params: {} });
-    if (toolsResp.error) failures.push(`tools/list error: ${JSON.stringify(toolsResp.error)}`);
+    if (toolsResp.error) fail(`tools/list error: ${JSON.stringify(toolsResp.error)}`);
     const tools = (toolsResp.result || {}).tools || [];
-    if (tools.length === 0) failures.push("tools/list: no tools returned");
+    if (tools.length === 0) fail("tools/list: no tools returned");
     for (const tool of tools) {
-      if (!tool.name) failures.push(`tools/list: tool missing name`);
-      if (!tool.inputSchema) failures.push(`tools/list: tool ${tool.name} missing inputSchema`);
-      if (!tool.annotations) failures.push(`tools/list: tool ${tool.name} missing annotations`);
+      if (!tool.name) fail(`tools/list: tool missing name`);
+      if (!tool.inputSchema) fail(`tools/list: tool ${tool.name} missing inputSchema`);
+      if (!tool.annotations) fail(`tools/list: tool ${tool.name} missing annotations`);
       if (tool.annotations) {
         for (const key of ["readOnlyHint", "destructiveHint", "idempotentHint", "openWorldHint"]) {
           if (typeof tool.annotations[key] !== "boolean") {
-            failures.push(`tools/list: tool ${tool.name} annotations.${key} is not boolean`);
+            fail(`tools/list: tool ${tool.name} annotations.${key} is not boolean`);
           }
         }
       }
@@ -129,57 +135,60 @@ async function runInProcessConformance() {
       method: "tools/call",
       params: { name: "__nonexistent__", arguments: {} },
     });
-    if (!unknownResp.error) failures.push("tools/call unknown tool: expected JSON-RPC error, got result");
+    if (!unknownResp.error) fail("tools/call unknown tool: expected JSON-RPC error, got result");
     if (unknownResp.error && unknownResp.error.code !== -32602) {
-      failures.push(`tools/call unknown tool: expected -32602, got ${unknownResp.error.code}`);
+      fail(`tools/call unknown tool: expected -32602, got ${unknownResp.error.code}`);
     }
 
     // ── resources/templates/list ──────────────────────────────────────────
     const templatesResp = await server.call({ jsonrpc: "2.0", method: "resources/templates/list", params: {} });
-    if (templatesResp.error) failures.push(`resources/templates/list error: ${JSON.stringify(templatesResp.error)}`);
+    if (templatesResp.error) fail(`resources/templates/list error: ${JSON.stringify(templatesResp.error)}`);
     const templates = (templatesResp.result || {}).resourceTemplates || [];
-    if (templates.length === 0) failures.push("resources/templates/list: no templates returned");
-    const expectedTemplates = ["investigator://case/{slug}/report", "investigator://case/{slug}/journal", "investigator://case/{slug}/status"];
-    for (const uriTemplate of expectedTemplates) {
+    if (templates.length === 0) fail("resources/templates/list: no templates returned");
+    for (const uriTemplate of config.expectedTemplates) {
       if (!templates.some((t) => t.uriTemplate === uriTemplate)) {
-        failures.push(`resources/templates/list: missing template ${uriTemplate}`);
+        fail(`resources/templates/list: missing template ${uriTemplate}`);
       }
     }
 
     // ── resources/list ────────────────────────────────────────────────────
     const resourcesResp = await server.call({ jsonrpc: "2.0", method: "resources/list", params: {} });
-    if (resourcesResp.error) failures.push(`resources/list error: ${JSON.stringify(resourcesResp.error)}`);
-    // resources/list may return empty array if no cases exist — that is conformant.
+    if (resourcesResp.error) fail(`resources/list error: ${JSON.stringify(resourcesResp.error)}`);
+    // resources/list may return an empty array if no artifacts exist — conformant.
 
     // ── prompts/list ──────────────────────────────────────────────────────
     const promptsResp = await server.call({ jsonrpc: "2.0", method: "prompts/list", params: {} });
-    if (promptsResp.error) failures.push(`prompts/list error: ${JSON.stringify(promptsResp.error)}`);
+    if (promptsResp.error) fail(`prompts/list error: ${JSON.stringify(promptsResp.error)}`);
     const prompts = (promptsResp.result || {}).prompts || [];
-    if (!prompts.some((p) => p.name === "investigate")) failures.push("prompts/list: missing 'investigate' prompt");
-    if (!prompts.some((p) => p.name === "resume-case")) failures.push("prompts/list: missing 'resume-case' prompt");
-
-    // ── prompts/get — investigate ─────────────────────────────────────────
-    const getInvestigateResp = await server.call({
-      jsonrpc: "2.0",
-      method: "prompts/get",
-      params: { name: "investigate", arguments: {} },
-    });
-    if (getInvestigateResp.error) failures.push(`prompts/get investigate error: ${JSON.stringify(getInvestigateResp.error)}`);
-    if (getInvestigateResp.result) {
-      const msgs = (getInvestigateResp.result.messages || []);
-      if (msgs.length === 0) failures.push("prompts/get investigate: no messages returned");
-      if (msgs[0] && msgs[0].role !== "user") failures.push("prompts/get investigate: first message role should be user");
+    for (const name of config.promptNames) {
+      if (!prompts.some((p) => p.name === name)) fail(`prompts/list: missing '${name}' prompt`);
     }
 
-    // ── prompts/get — resume-case missing required arg ────────────────────
-    const resumeNoArgResp = await server.call({
+    // ── prompts/get — primary prompt (no required args) ───────────────────
+    const getPrimaryResp = await server.call({
       jsonrpc: "2.0",
       method: "prompts/get",
-      params: { name: "resume-case", arguments: {} },
+      params: { name: config.primaryPrompt, arguments: {} },
     });
-    if (!resumeNoArgResp.error) failures.push("prompts/get resume-case without case_slug: expected error");
-    if (resumeNoArgResp.error && resumeNoArgResp.error.code !== -32602) {
-      failures.push(`prompts/get resume-case without case_slug: expected -32602, got ${resumeNoArgResp.error.code}`);
+    if (getPrimaryResp.error) fail(`prompts/get ${config.primaryPrompt} error: ${JSON.stringify(getPrimaryResp.error)}`);
+    if (getPrimaryResp.result) {
+      const msgs = getPrimaryResp.result.messages || [];
+      if (msgs.length === 0) fail(`prompts/get ${config.primaryPrompt}: no messages returned`);
+      if (msgs[0] && msgs[0].role !== "user") fail(`prompts/get ${config.primaryPrompt}: first message role should be user`);
+    }
+
+    // ── prompts/get — missing required arg returns -32602 (if applicable) ──
+    if (config.requiredArgPrompt) {
+      const { name, arg } = config.requiredArgPrompt;
+      const missingArgResp = await server.call({
+        jsonrpc: "2.0",
+        method: "prompts/get",
+        params: { name, arguments: {} },
+      });
+      if (!missingArgResp.error) fail(`prompts/get ${name} without ${arg}: expected error`);
+      if (missingArgResp.error && missingArgResp.error.code !== -32602) {
+        fail(`prompts/get ${name} without ${arg}: expected -32602, got ${missingArgResp.error.code}`);
+      }
     }
 
     // ── unknown prompt returns -32602 ─────────────────────────────────────
@@ -188,25 +197,28 @@ async function runInProcessConformance() {
       method: "prompts/get",
       params: { name: "__nonexistent__", arguments: {} },
     });
-    if (!unknownPromptResp.error) failures.push("prompts/get unknown: expected error");
+    if (!unknownPromptResp.error) fail("prompts/get unknown: expected error");
     if (unknownPromptResp.error && unknownPromptResp.error.code !== -32602) {
-      failures.push(`prompts/get unknown: expected -32602, got ${unknownPromptResp.error.code}`);
+      fail(`prompts/get unknown: expected -32602, got ${unknownPromptResp.error.code}`);
     }
 
-    // ── status tool returns structuredContent ─────────────────────────────
+    // ── status tool returns result or error (does not crash) ──────────────
     const statusToolResp = await server.call({
       jsonrpc: "2.0",
       method: "tools/call",
-      params: { name: "status", arguments: { root: SCRIPTS_DIR, case_slug: "nonexistent-case-for-conformance-check" } },
+      params: {
+        name: config.statusTool.name,
+        arguments: { root: SCRIPTS_DIR, [config.statusTool.slugParam]: "nonexistent-slug-for-conformance-check" },
+      },
     });
-    // status on a missing case throws → isError result; but if it somehow passes, check structuredContent.
-    // The important thing is the server doesn't crash.
+    // status on a missing slug throws → isError result; but the important thing
+    // is the server returns *something* and does not crash.
     if (!statusToolResp.result && !statusToolResp.error) {
-      failures.push("tools/call status: expected result or error, got neither");
+      fail(`tools/call ${config.statusTool.name}: expected result or error, got neither`);
     }
 
   } catch (err) {
-    failures.push(`Unexpected error during in-process checks: ${err.message}`);
+    fail(`Unexpected error during in-process checks: ${err.message}`);
   } finally {
     server.close();
   }
@@ -254,13 +266,23 @@ if (!inspectorCheck.available) {
   // which are deterministic and do not require a specific inspector version.
 }
 
-const failures = await runInProcessConformance();
-if (failures.length > 0) {
+const allFailures = [];
+for (const config of ROLE_CONFIGS) {
+  const failures = await runInProcessConformance(config);
+  if (failures.length === 0) {
+    console.log(`  ✓ ${config.role}: conformance checks passed`);
+  } else {
+    console.log(`  ✗ ${config.role}: ${failures.length} conformance failure(s)`);
+    allFailures.push(...failures);
+  }
+}
+
+if (allFailures.length > 0) {
   console.error("\nMCP conformance failures:");
-  for (const f of failures) {
+  for (const f of allFailures) {
     console.error(`  - ${f}`);
   }
   process.exit(1);
 }
 
-console.log("MCP conformance checks passed (in-process).");
+console.log(`\nMCP conformance checks passed (in-process) for ${ROLE_CONFIGS.length} role servers.`);
