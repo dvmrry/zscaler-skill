@@ -97,3 +97,28 @@ export function extractRunDigest(run) {
     expectChecks: checks.map((c) => ({ name: c.name, pass: c.pass })),
   };
 }
+
+/** Render a compact, human-facing run-quality section from a digest. */
+export function renderRunQuality(d) {
+  const seq = d.expectedToolSequence.basis === "unavailable"
+    ? "n/a"
+    : (d.expectedToolSequence.pass ? "pass" : "FAIL");
+  const retry = d.retry.basis === "disk"
+    ? `${d.retry.inferredRetries} (calls ${d.retry.gateCalls} vs ${d.retry.diskCount} on disk)`
+    : `n/a (${d.retry.basis})`;
+  const dups = Object.keys(d.duplicateMcpCalls).length
+    ? Object.entries(d.duplicateMcpCalls).map(([k, v]) => `${k}×${v}`).join(", ")
+    : "none";
+  const wall = d.timing.basis === "export" ? `${Math.round(d.timing.wallMs / 1000)}s` : "n/a";
+  return [
+    "## Run quality",
+    "",
+    `- overall: ${d.overallPass ? "PASS" : "FAIL"} · role: ${d.role} · model: ${d.model}`,
+    `- expectedToolSequence: ${seq}`,
+    `- non-MCP tool calls (bypass signal): ${d.nonMcpCallCount}`,
+    `- inferred retries: ${retry}`,
+    `- duplicate MCP calls: ${dups}`,
+    `- wall time: ${wall} · turns: ${d.turnCount}`,
+    "",
+  ].join("\n");
+}

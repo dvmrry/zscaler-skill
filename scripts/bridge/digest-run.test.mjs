@@ -93,3 +93,16 @@ test("extractRunDigest: no disk counts -> retry basis inferred; investigator -> 
   const inv = extractRunDigest(runFixture({ role: "investigator", disk: { claimCounts: {} } }));
   assert.equal(inv.retry.basis, "unavailable");
 });
+
+import { renderRunQuality } from "./digest-run.mjs";
+
+test("renderRunQuality: surfaces the actionable signals in markdown", () => {
+  const md = renderRunQuality(extractRunDigest(runFixture({
+    turnSignals: [{ mcpCalls: ["open_review", "record_finding", "record_finding", "record_finding"], nonMcpCallCount: 3, firstTs: "2026-06-12T16:00:00.000Z", lastTs: "2026-06-12T16:00:30.000Z" }],
+    disk: { findingCounts: { total: 1 } },
+  })));
+  assert.match(md, /## Run quality/);
+  assert.match(md, /non-MCP tool calls.*3/);
+  assert.match(md, /inferred retries.*2/);
+  assert.match(md, /expectedToolSequence/);
+});
