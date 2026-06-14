@@ -12,7 +12,7 @@ import path from "node:path";
 
 // The _data runtime-mount contract: top-level dirs and the files that count
 // as an empty "skeleton" tree (safe to replace without --force).
-export const DATA_REQUIRED_DIRS = ["cases", "schemas", "snapshot", "iac"];
+export const DATA_REQUIRED_DIRS = ["cases", "schemas", "snapshot", "iac", "audits", "soc-reviews"];
 export const DATA_SKELETON_FILES = new Set([".gitkeep", "README.md"]);
 
 // Git ref names we are willing to hand to git as a --branch value. Deliberately

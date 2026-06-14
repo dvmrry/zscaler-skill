@@ -5,6 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { isSkeletonTree, setupDataMount } from "./setup-data-mount.mjs";
+import { DATA_REQUIRED_DIRS } from "./lib.mjs";
 
 function tempDir(prefix) {
   return fs.mkdtempSync(path.join(os.tmpdir(), prefix));
@@ -14,7 +15,7 @@ function makeDataSkeleton(root) {
   const dataDir = path.join(root, "_data");
   fs.mkdirSync(dataDir, { recursive: true });
   fs.writeFileSync(path.join(dataDir, "README.md"), "# _data\n", "utf8");
-  for (const dir of ["cases", "schemas", "snapshot", "iac"]) {
+  for (const dir of DATA_REQUIRED_DIRS) {
     const target = path.join(dataDir, dir);
     fs.mkdirSync(target, { recursive: true });
     fs.writeFileSync(path.join(target, ".gitkeep"), "", "utf8");
@@ -24,7 +25,7 @@ function makeDataSkeleton(root) {
 function makeOverlaySource() {
   const source = tempDir("zscaler-data-source-");
   fs.writeFileSync(path.join(source, "README.md"), "# overlay data\n", "utf8");
-  for (const dir of ["cases", "schemas", "snapshot", "iac"]) {
+  for (const dir of DATA_REQUIRED_DIRS) {
     fs.mkdirSync(path.join(source, dir), { recursive: true });
   }
   fs.mkdirSync(path.join(source, "snapshot", "zs1"), { recursive: true });
