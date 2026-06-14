@@ -4,6 +4,13 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.10.0](https://github.com/dvmrry/zscaler-skill/compare/v0.9.2...v0.10.0) (2026-06-14)
+
+
+### Features
+
+* **bridge:** PR4 tool-order observability — expectedToolSequence + gate the bridge suite ([#111](https://github.com/dvmrry/zscaler-skill/issues/111)) ([2a5e4e5](https://github.com/dvmrry/zscaler-skill/commit/2a5e4e50c439316460b9a7749a21e397de93e52e))
+
 ## [0.9.2](https://github.com/dvmrry/zscaler-skill/compare/v0.9.1...v0.9.2) (2026-06-14)
 
 
