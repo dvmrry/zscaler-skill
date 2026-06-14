@@ -4,6 +4,13 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.12.0](https://github.com/dvmrry/zscaler-skill/compare/v0.11.1...v0.12.0) (2026-06-14)
+
+
+### Features
+
+* **router:** [@zscaler](https://github.com/zscaler) intent-router — capability registry (Increment 1) ([#119](https://github.com/dvmrry/zscaler-skill/issues/119)) ([6494555](https://github.com/dvmrry/zscaler-skill/commit/649455550696532c82192a291e06ce998d2c3eca))
+
 ## [0.11.1](https://github.com/dvmrry/zscaler-skill/compare/v0.11.0...v0.11.1) (2026-06-14)
 
 
