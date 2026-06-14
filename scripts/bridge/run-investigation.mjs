@@ -730,6 +730,20 @@ function main() {
     restorePermissions = installPermissionConfig(root, scenario.permissionConfig);
   }
 
+  // Snapshot the per-role finding count BEFORE driving the model, so the digest's
+  // retry signal isolates findings created THIS run from any a prior run left on a
+  // reused slug (findings.jsonl appends). See DAV-14.
+  const preFindingCount = (() => {
+    try {
+      const pre = role === "auditor" ? computeAuditDiskStatus(root, scenario.auditSlug)
+        : role === "soc" ? computeSocDiskStatus(root, scenario.reviewSlug)
+        : null;
+      return pre && pre.findingCounts && typeof pre.findingCounts.total === "number" ? pre.findingCounts.total : 0;
+    } catch {
+      return 0;
+    }
+  })();
+
   const turns = [];
   let sessionId = null;
 
@@ -837,7 +851,7 @@ function main() {
     try { return crypto.createHash("sha256").update(fs.readFileSync(scenarioPath)).digest("hex").slice(0, 12); }
     catch { return null; }
   })();
-  const digest = buildRunDigest({ scenario, role, model, turns, disk, evaluation, overallPass, repoCommit, scenarioHash });
+  const digest = buildRunDigest({ scenario, role, model, turns, disk, evaluation, overallPass, repoCommit, scenarioHash, preFindingCount });
   const digestsDir = path.join(root, "_data", "bridge-digests");
   fs.mkdirSync(digestsDir, { recursive: true });
   fs.writeFileSync(path.join(digestsDir, `${path.basename(outDir)}.json`), `${JSON.stringify(digest, null, 2)}\n`);
@@ -896,9 +910,9 @@ function main() {
 }
 
 // Assemble the run digest from collected turns + disk truth + evaluation.
-function buildRunDigest({ scenario, role, model, turns, disk, evaluation, overallPass, repoCommit, scenarioHash }) {
+function buildRunDigest({ scenario, role, model, turns, disk, evaluation, overallPass, repoCommit, scenarioHash, preFindingCount }) {
   return extractRunDigest({
-    scenario, role, model, disk, evaluation, overallPass, repoCommit, scenarioHash,
+    scenario, role, model, disk, evaluation, overallPass, repoCommit, scenarioHash, preFindingCount,
     turnSignals: turns.map((t) => t.signals || { mcpCalls: [], nonMcpCallCount: 0, firstTs: null, lastTs: null }),
   });
 }

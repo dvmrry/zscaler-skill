@@ -43,13 +43,20 @@ export function extractTurnSignals(exportObj) {
 // artifact count to disambiguate retries from legitimate batch recording.
 const RECORD_GATE = { auditor: "record_finding", soc: "record_finding" };
 
-function computeRetrySignal(role, counts, disk) {
+function computeRetrySignal(role, counts, disk, preFindingCount) {
   const gate = RECORD_GATE[role];
   if (!gate) return { outcomeBasis: "unavailable" }; // e.g. investigator (ledger-shaped, different gate)
   const gateCalls = counts[gate] || 0;
-  const diskCount = disk && disk.findingCounts && typeof disk.findingCounts.total === "number" ? disk.findingCounts.total : null;
-  if (diskCount === null) return { gate, gateCalls, diskCount: null, inferredRetries: null, outcomeBasis: "inferred" };
-  return { gate, gateCalls, diskCount, inferredRetries: Math.max(0, gateCalls - diskCount), outcomeBasis: "disk" };
+  const postTotal = disk && disk.findingCounts && typeof disk.findingCounts.total === "number" ? disk.findingCounts.total : null;
+  // We need BOTH a post total AND a pre-run snapshot to isolate THIS run's
+  // findings from any a prior run left on a reused slug (findings.jsonl appends).
+  // Without either, report inferred with no number rather than a confounded one —
+  // gateCalls vs cumulative disk is meaningless. See DAV-14.
+  if (postTotal === null || typeof preFindingCount !== "number") {
+    return { gate, gateCalls, createdThisRun: null, inferredRetries: null, outcomeBasis: "inferred" };
+  }
+  const createdThisRun = Math.max(0, postTotal - preFindingCount);
+  return { gate, gateCalls, createdThisRun, inferredRetries: Math.max(0, gateCalls - createdThisRun), outcomeBasis: "disk" };
 }
 
 /**
@@ -97,7 +104,7 @@ export function extractRunDigest(run) {
     toolSequence,
     nonMcpCallCount,
     duplicateMcpCalls,
-    retry: computeRetrySignal(run.role, counts, run.disk),
+    retry: computeRetrySignal(run.role, counts, run.disk, run.preFindingCount),
     expectedToolSequence,
     timing,
     expectChecks: checks.map((c) => ({ name: c.name, pass: c.pass })),
@@ -110,7 +117,7 @@ export function renderRunQuality(d) {
     ? "n/a"
     : (d.expectedToolSequence.pass ? "pass" : "FAIL");
   const retry = d.retry.outcomeBasis === "disk"
-    ? `${d.retry.inferredRetries} (calls ${d.retry.gateCalls} vs ${d.retry.diskCount} on disk)`
+    ? `${d.retry.inferredRetries} (calls ${d.retry.gateCalls} vs ${d.retry.createdThisRun} created this run)`
     : `n/a (${d.retry.outcomeBasis})`;
   const dups = Object.keys(d.duplicateMcpCalls).length
     ? Object.entries(d.duplicateMcpCalls).map(([k, v]) => `${k}×${v}`).join(", ")
