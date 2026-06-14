@@ -4,6 +4,13 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.11.0](https://github.com/dvmrry/zscaler-skill/compare/v0.10.1...v0.11.0) (2026-06-14)
+
+
+### Features
+
+* **bridge:** meta-retro MVP — inline run-quality digest ([#115](https://github.com/dvmrry/zscaler-skill/issues/115)) ([ed8dac4](https://github.com/dvmrry/zscaler-skill/commit/ed8dac474e34e61e3cd748ec6bdb6aad526a7b5f))
+
 ## [0.10.1](https://github.com/dvmrry/zscaler-skill/compare/v0.10.0...v0.10.1) (2026-06-14)
 
 
