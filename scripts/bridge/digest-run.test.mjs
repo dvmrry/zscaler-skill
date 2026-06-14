@@ -71,10 +71,10 @@ test("extractRunDigest: rolls up sequence, non-MCP count, duplicates, and disk-c
   assert.equal(d.role, "soc");
   assert.equal(d.nonMcpCallCount, 2);
   assert.deepEqual(d.duplicateMcpCalls, { record_finding: 2 });
-  assert.deepEqual(d.retry, { gate: "record_finding", gateCalls: 2, diskCount: 2, inferredRetries: 0, basis: "disk" });
+  assert.deepEqual(d.retry, { gate: "record_finding", gateCalls: 2, diskCount: 2, inferredRetries: 0, outcomeBasis: "disk" });
   assert.equal(d.expectedToolSequence.pass, true);
-  assert.equal(d.expectedToolSequence.basis, "expect");
-  assert.equal(d.timing.basis, "export");
+  assert.equal(d.expectedToolSequence.outcomeBasis, "expect");
+  assert.equal(d.timing.outcomeBasis, "export");
   assert.equal(d.timing.wallMs, 30000);
 });
 
@@ -83,15 +83,15 @@ test("extractRunDigest: retry signal flags failed records (3 calls, 1 finding ->
     turnSignals: [{ mcpCalls: ["open_review", "record_finding", "record_finding", "record_finding"], nonMcpCallCount: 0, firstTs: null, lastTs: null }],
     disk: { findingCounts: { total: 1 } },
   }));
-  assert.deepEqual(d.retry, { gate: "record_finding", gateCalls: 3, diskCount: 1, inferredRetries: 2, basis: "disk" });
-  assert.equal(d.timing.basis, "unavailable");
+  assert.deepEqual(d.retry, { gate: "record_finding", gateCalls: 3, diskCount: 1, inferredRetries: 2, outcomeBasis: "disk" });
+  assert.equal(d.timing.outcomeBasis, "unavailable");
 });
 
 test("extractRunDigest: no disk counts -> retry basis inferred; investigator -> unavailable", () => {
   const noDisk = extractRunDigest(runFixture({ disk: null }));
-  assert.equal(noDisk.retry.basis, "inferred");
+  assert.equal(noDisk.retry.outcomeBasis, "inferred");
   const inv = extractRunDigest(runFixture({ role: "investigator", disk: { claimCounts: {} } }));
-  assert.equal(inv.retry.basis, "unavailable");
+  assert.equal(inv.retry.outcomeBasis, "unavailable");
 });
 
 import { renderRunQuality } from "./digest-run.mjs";
@@ -105,4 +105,23 @@ test("renderRunQuality: surfaces the actionable signals in markdown", () => {
   assert.match(md, /non-MCP tool calls.*3/);
   assert.match(md, /inferred retries.*2/);
   assert.match(md, /expectedToolSequence/);
+});
+
+test("extractRunDigest: unparseable timestamps yield outcomeBasis unavailable, not NaN", () => {
+  const d = extractRunDigest(runFixture({
+    turnSignals: [{ mcpCalls: ["open_review"], nonMcpCallCount: 0, firstTs: "not-a-date", lastTs: "also-bad" }],
+  }));
+  assert.equal(d.timing.wallMs, null);
+  assert.equal(d.timing.outcomeBasis, "unavailable");
+});
+
+test("extractRunDigest: wall time spans across multiple turns", () => {
+  const d = extractRunDigest(runFixture({
+    turnSignals: [
+      { mcpCalls: ["open_review"], nonMcpCallCount: 0, firstTs: "2026-06-12T16:00:00.000Z", lastTs: "2026-06-12T16:00:10.000Z" },
+      { mcpCalls: ["render_soc_report"], nonMcpCallCount: 0, firstTs: "2026-06-12T16:00:20.000Z", lastTs: "2026-06-12T16:00:40.000Z" },
+    ],
+  }));
+  assert.equal(d.timing.outcomeBasis, "export");
+  assert.equal(d.timing.wallMs, 40000);
 });

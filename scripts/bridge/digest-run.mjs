@@ -45,11 +45,11 @@ const RECORD_GATE = { auditor: "record_finding", soc: "record_finding" };
 
 function computeRetrySignal(role, counts, disk) {
   const gate = RECORD_GATE[role];
-  if (!gate) return { basis: "unavailable" }; // e.g. investigator (ledger-shaped, different gate)
+  if (!gate) return { outcomeBasis: "unavailable" }; // e.g. investigator (ledger-shaped, different gate)
   const gateCalls = counts[gate] || 0;
   const diskCount = disk && disk.findingCounts && typeof disk.findingCounts.total === "number" ? disk.findingCounts.total : null;
-  if (diskCount === null) return { gate, gateCalls, diskCount: null, inferredRetries: null, basis: "inferred" };
-  return { gate, gateCalls, diskCount, inferredRetries: Math.max(0, gateCalls - diskCount), basis: "disk" };
+  if (diskCount === null) return { gate, gateCalls, diskCount: null, inferredRetries: null, outcomeBasis: "inferred" };
+  return { gate, gateCalls, diskCount, inferredRetries: Math.max(0, gateCalls - diskCount), outcomeBasis: "disk" };
 }
 
 /**
@@ -71,13 +71,19 @@ export function extractRunDigest(run) {
   const checks = (run.evaluation && Array.isArray(run.evaluation.checks)) ? run.evaluation.checks : [];
   const seqCheck = checks.find((c) => typeof c.name === "string" && c.name.startsWith("toolSequence"));
   const expectedToolSequence = seqCheck
-    ? { pass: seqCheck.pass, detail: seqCheck.detail, basis: "expect" }
-    : { pass: null, basis: "unavailable" };
+    ? { pass: seqCheck.pass, detail: seqCheck.detail, outcomeBasis: "expect" }
+    : { pass: null, outcomeBasis: "unavailable" };
 
   const stamps = turnSignals.flatMap((t) => [t.firstTs, t.lastTs]).filter((x) => typeof x === "string" && x.length > 0).sort();
-  const timing = stamps.length >= 2
-    ? { wallMs: Date.parse(stamps[stamps.length - 1]) - Date.parse(stamps[0]), basis: "export" }
-    : { wallMs: null, basis: "unavailable" };
+  let timing;
+  if (stamps.length >= 2) {
+    const wallMs = Date.parse(stamps[stamps.length - 1]) - Date.parse(stamps[0]);
+    timing = Number.isNaN(wallMs)
+      ? { wallMs: null, outcomeBasis: "unavailable" }
+      : { wallMs, outcomeBasis: "export" };
+  } else {
+    timing = { wallMs: null, outcomeBasis: "unavailable" };
+  }
 
   return {
     digestSchemaVersion: DIGEST_SCHEMA_VERSION,
@@ -100,16 +106,16 @@ export function extractRunDigest(run) {
 
 /** Render a compact, human-facing run-quality section from a digest. */
 export function renderRunQuality(d) {
-  const seq = d.expectedToolSequence.basis === "unavailable"
+  const seq = d.expectedToolSequence.outcomeBasis === "unavailable"
     ? "n/a"
     : (d.expectedToolSequence.pass ? "pass" : "FAIL");
-  const retry = d.retry.basis === "disk"
+  const retry = d.retry.outcomeBasis === "disk"
     ? `${d.retry.inferredRetries} (calls ${d.retry.gateCalls} vs ${d.retry.diskCount} on disk)`
-    : `n/a (${d.retry.basis})`;
+    : `n/a (${d.retry.outcomeBasis})`;
   const dups = Object.keys(d.duplicateMcpCalls).length
     ? Object.entries(d.duplicateMcpCalls).map(([k, v]) => `${k}×${v}`).join(", ")
     : "none";
-  const wall = d.timing.basis === "export" ? `${Math.round(d.timing.wallMs / 1000)}s` : "n/a";
+  const wall = d.timing.outcomeBasis === "export" ? `${Math.round(d.timing.wallMs / 1000)}s` : "n/a";
   return [
     "## Run quality",
     "",
