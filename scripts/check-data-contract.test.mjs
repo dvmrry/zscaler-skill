@@ -51,10 +51,9 @@ test("checkDataContract errors when required directories are missing", () => {
   fs.writeFileSync(path.join(root, "_data", "README.md"), "# _data\n", "utf8");
 
   const report = checkDataContract(root);
-  assert.ok(report.errors.includes("_data/cases/ directory is missing"));
-  assert.ok(report.errors.includes("_data/schemas/ directory is missing"));
-  assert.ok(report.errors.includes("_data/snapshot/ directory is missing"));
-  assert.ok(report.errors.includes("_data/iac/ directory is missing"));
+  for (const dir of DATA_REQUIRED_DIRS) {
+    assert.ok(report.errors.includes(`_data/${dir}/ directory is missing`));
+  }
 });
 
 test("checkDataContract treats populated directories as available", () => {
