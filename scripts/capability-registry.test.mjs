@@ -35,3 +35,13 @@ test("resolveWorkflow derives command + required-reads from the role workflow (n
 test("resolveWorkflow returns null for an unknown workflowId", () => {
   assert.equal(resolveWorkflow(tmpRepo(), "z-nonexistent"), null);
 });
+
+import { renderRoutingBlock } from "./capability-registry.mjs";
+
+test("renderRoutingBlock emits a marked block with derived command", () => {
+  const block = renderRoutingBlock(tmpRepo());
+  assert.match(block, /<!-- capability-routing:start -->/);
+  assert.match(block, /<!-- capability-routing:end -->/);
+  assert.match(block, /\/z-auditor/);          // derived primary-command
+  assert.match(block, /audit/);                // a cue signal
+});

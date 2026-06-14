@@ -39,3 +39,21 @@ export function resolveWorkflow(root, workflowId) {
   }
   return null;
 }
+
+export const ROUTING_START = "<!-- capability-routing:start -->";
+export const ROUTING_END = "<!-- capability-routing:end -->";
+
+/** Render the AGENTS.md routing block from the registry (derives command from workflow.md). */
+export function renderRoutingBlock(root) {
+  const reg = loadRegistry(root);
+  const lines = [ROUTING_START, "", "<!-- GENERATED from agents/_meta/capability-registry.json — do not edit by hand. -->", ""];
+  for (const e of reg.entries) {
+    if (e.kind !== "internal-role") continue;
+    const wf = resolveWorkflow(root, e.workflowId);
+    const cmd = wf ? wf.primaryCommand : `(unresolved: ${e.workflowId})`;
+    const cues = [...(e.intent.requiredSignals || []), ...(e.intent.cueSignals || [])].join(", ");
+    lines.push(`- ${cmd} — ${cues}`);
+  }
+  lines.push("", ROUTING_END);
+  return lines.join("\n");
+}
