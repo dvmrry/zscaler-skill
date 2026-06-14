@@ -4,6 +4,13 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.9.2](https://github.com/dvmrry/zscaler-skill/compare/v0.9.1...v0.9.2) (2026-06-14)
+
+
+### Bug Fixes
+
+* **artifacts:** safeRepoPath no longer rejects paths that merely start with ".." ([#109](https://github.com/dvmrry/zscaler-skill/issues/109)) ([f0a945f](https://github.com/dvmrry/zscaler-skill/commit/f0a945f8257c7ec9c95343421ac0ef4efe1f40af))
+
 ## [0.9.1](https://github.com/dvmrry/zscaler-skill/compare/v0.9.0...v0.9.1) (2026-06-12)
 
 
