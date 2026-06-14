@@ -12,11 +12,11 @@ but we could not (a) drive a runtime through a genuine MULTI-TURN scripted case,
 ## This is NOT a CI test
 
 The harness spawns the real `devin` binary, which needs **auth + network**. It is a
-**local tool only** — it is deliberately *not* wired into `scripts/check-fast.mjs`
-or any CI workflow, and `check-fast`'s test discovery is non-recursive, so neither
-the harness nor its fixture test runs in the gate. Only the harness's *pure* logic
-is unit-tested (with fixtures, no `devin` spawn) in `run-investigation.test.mjs`,
-which you run directly when you want it.
+**local tool only** — the live harness is deliberately *not* wired into
+`scripts/check-fast.mjs` or any CI workflow. Only the harness's *pure* logic is
+unit-tested (with fixtures, no `devin` spawn) in `run-investigation.test.mjs`;
+those fixture tests are covered by `check-fast`'s recursive test discovery and
+can also be run directly when you want them.
 
 ## What it does
 
