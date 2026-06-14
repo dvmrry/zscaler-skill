@@ -50,6 +50,7 @@ const CHECKS = [
     command: "node",
     args: ["scripts/check-mcp-conformance.mjs"],
   },
+  { name: "capability registry", command: "node", args: ["scripts/check-capability-registry.mjs"] },
   {
     name: "diff whitespace",
     command: "git",
