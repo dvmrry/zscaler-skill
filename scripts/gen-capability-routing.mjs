@@ -12,7 +12,8 @@ const check = process.argv.includes("--check");
 
 const block = renderRoutingBlock(root);
 const text = fs.readFileSync(agentsPath, "utf8");
-const re = new RegExp(`${ROUTING_START}[\\s\\S]*?${ROUTING_END}`);
+const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const re = new RegExp(`${esc(ROUTING_START)}[\\s\\S]*?${esc(ROUTING_END)}`);
 if (!re.test(text)) {
   console.error(`AGENTS.md is missing the ${ROUTING_START} / ${ROUTING_END} markers. Add them once, then re-run.`);
   process.exit(1);

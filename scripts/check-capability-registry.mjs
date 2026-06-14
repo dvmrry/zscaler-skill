@@ -4,17 +4,25 @@
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
-import { loadRegistry, resolveWorkflow } from "./capability-registry.mjs";
+import { loadRegistry, workflowIdCounts } from "./capability-registry.mjs";
 
 export function validateRegistry(root) {
   const errors = [];
   let reg;
   try { reg = loadRegistry(root); } catch (e) { return [e.message]; }
+  const idCounts = workflowIdCounts(root);
+  const seenWorkflowIds = new Set();
   for (const e of reg.entries) {
     const id = e.id || "(no id)";
     if (e.kind !== "internal-role") continue; // external entries are Increment 2
-    if (!e.workflowId || !resolveWorkflow(root, e.workflowId)) {
+    if (!e.workflowId || !(idCounts[e.workflowId] >= 1)) {
       errors.push(`entry ${id}: workflowId "${e.workflowId}" does not resolve to a workflow.md with that id`);
+    } else if (idCounts[e.workflowId] > 1) {
+      errors.push(`entry ${id}: workflowId "${e.workflowId}" is ambiguous — ${idCounts[e.workflowId]} workflow.md files share that id`);
+    }
+    if (e.workflowId) {
+      if (seenWorkflowIds.has(e.workflowId)) errors.push(`entry ${id}: duplicate registry workflowId "${e.workflowId}"`);
+      seenWorkflowIds.add(e.workflowId);
     }
     const intent = e.intent || {};
     const hasSignals = (intent.requiredSignals || []).length > 0 || (intent.cueSignals || []).length > 0;

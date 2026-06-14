@@ -43,6 +43,22 @@ export function resolveWorkflow(root, workflowId) {
 export const ROUTING_START = "<!-- capability-routing:start -->";
 export const ROUTING_END = "<!-- capability-routing:end -->";
 
+/** Count how many agents/<role>/workflow.md files declare each frontmatter id. */
+export function workflowIdCounts(root) {
+  const counts = {};
+  const agentsDir = path.join(root, "agents");
+  if (!fs.existsSync(agentsDir)) return counts;
+  for (const ent of fs.readdirSync(agentsDir, { withFileTypes: true })) {
+    if (!ent.isDirectory()) continue;
+    const wf = path.join(agentsDir, ent.name, "workflow.md");
+    if (!fs.existsSync(wf)) continue;
+    const parsed = parseFrontmatter(wf, []);
+    const id = parsed && parsed.data && parsed.data.id;
+    if (id) counts[id] = (counts[id] || 0) + 1;
+  }
+  return counts;
+}
+
 /** Render the AGENTS.md routing block from the registry (derives command from workflow.md). */
 export function renderRoutingBlock(root) {
   const reg = loadRegistry(root);

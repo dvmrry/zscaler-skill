@@ -35,3 +35,31 @@ test("missing capsule fields or lastVerified is an error", () => {
   assert.ok(validateRegistry(repo({ ...ok, capsule: { fields: [], wording: "" } })).some((e) => /capsule/i.test(e)));
   assert.ok(validateRegistry(repo({ ...ok, lastVerified: undefined })).some((e) => /lastVerified/i.test(e)));
 });
+
+test("duplicate registry workflowId is an error", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "cap-val-"));
+  fs.mkdirSync(path.join(root, "agents", "auditor"), { recursive: true });
+  fs.mkdirSync(path.join(root, "agents", "_meta"), { recursive: true });
+  fs.writeFileSync(path.join(root, "agents", "auditor", "workflow.md"),
+    "---\nid: z-auditor\nprimary-command: /z-auditor\nrequired-reads:\n  - agents/auditor/prompt.md\n---\n#\n");
+  const entry2 = { ...ok, id: "auditor2" };
+  fs.writeFileSync(path.join(root, "agents", "_meta", "capability-registry.json"),
+    JSON.stringify({ entries: [ok, entry2] }));
+  const errs = validateRegistry(root);
+  assert.ok(errs.some((e) => /duplicate.*workflowId/i.test(e)));
+});
+
+test("ambiguous workflow id across two workflow.md files is an error", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "cap-val-"));
+  fs.mkdirSync(path.join(root, "agents", "auditor"), { recursive: true });
+  fs.mkdirSync(path.join(root, "agents", "auditor2"), { recursive: true });
+  fs.mkdirSync(path.join(root, "agents", "_meta"), { recursive: true });
+  fs.writeFileSync(path.join(root, "agents", "auditor", "workflow.md"),
+    "---\nid: z-auditor\nprimary-command: /z-auditor\nrequired-reads:\n  - agents/auditor/prompt.md\n---\n#\n");
+  fs.writeFileSync(path.join(root, "agents", "auditor2", "workflow.md"),
+    "---\nid: z-auditor\nprimary-command: /z-auditor\nrequired-reads:\n  - agents/auditor2/prompt.md\n---\n#\n");
+  fs.writeFileSync(path.join(root, "agents", "_meta", "capability-registry.json"),
+    JSON.stringify({ entries: [ok] }));
+  const errs = validateRegistry(root);
+  assert.ok(errs.some((e) => /ambiguous/i.test(e)));
+});
