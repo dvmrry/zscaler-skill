@@ -32,7 +32,15 @@ export function safeRepoPath(root, relativePath) {
     throw new Error(`unsafe relative path: ${relativePath}`);
   }
   const normalized = path.normalize(relativePath);
-  if (normalized.startsWith("..") || path.isAbsolute(normalized)) {
+  // Reject genuine parent traversal only ("..", "../…", or platform "..\…") —
+  // NOT a path whose first segment merely starts with ".." (e.g. "..foo"), which
+  // is a legitimate directory name. The earlier startsWith("..") was an
+  // over-broad false positive (errs safe, but rejects valid citations).
+  if (
+    normalized === ".." ||
+    normalized.startsWith(`..${path.sep}`) ||
+    path.isAbsolute(normalized)
+  ) {
     throw new Error(`path escapes repo root: ${relativePath}`);
   }
   return path.join(root, normalized);

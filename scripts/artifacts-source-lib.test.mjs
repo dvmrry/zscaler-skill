@@ -41,6 +41,17 @@ test("safeRepoPath rejects absolute paths, NUL bytes, and escapes", () => {
   assert.throws(() => safeRepoPath(root, "/etc/passwd"), /unsafe relative path/);
   assert.throws(() => safeRepoPath(root, "a\0b"), /unsafe relative path/);
   assert.throws(() => safeRepoPath(root, "../outside.md"), /escapes repo root/);
+  assert.throws(() => safeRepoPath(root, ".."), /escapes repo root/);
+  assert.throws(() => safeRepoPath(root, "../../etc"), /escapes repo root/);
+  assert.throws(() => safeRepoPath(root, "a/../../b"), /escapes repo root/);
+});
+
+test("safeRepoPath allows a leading segment that merely starts with .. (e.g. ..foo)", () => {
+  const root = makeRoot();
+  // "..foo" is a legitimate directory name, not a parent traversal — must not be
+  // rejected by the over-broad startsWith("..") predicate.
+  assert.equal(safeRepoPath(root, "..foo/file.md"), path.join(root, "..foo/file.md"));
+  assert.equal(safeRepoPath(root, "..foo"), path.join(root, "..foo"));
 });
 
 // ── resolveFileLineSource ─────────────────────────────────────────────────────
