@@ -101,6 +101,18 @@ forge-when-blocked pattern that outcome-only checks miss: e.g. a
 rendered, then narrated over) fails the order even when the on-disk state looks
 plausible.
 
+## Run quality digest
+
+Every run prints a **Run quality** section (also appended to `report.md`) and
+writes a per-run digest JSON to `_data/bridge-digests/<run>.json` (gitignored).
+The digest is deterministic and self-contained — objective signals only, every
+inferred signal tagged with an `outcomeBasis`. The Devin export records tool
+*calls* but not *results*, so gate friction is inferred from duplicate calls and
+**disambiguated against disk truth** (e.g. `record_finding` call count vs the
+finding count on disk → inferred retries). Aggregation across runs, public
+promotion, and LLM reflection are intentionally not built yet — see
+`docs/superpowers/specs/2026-06-14-bridge-meta-retro-design.md`.
+
 ### Optional per-session permission lock
 
 If `permissionConfig` is set, the harness copies that JSON into
