@@ -5,14 +5,15 @@ import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 
-// Auto-discover every scripts/*.test.mjs so a new test file is never silently
-// skipped by forgetting to register it here.
+// Auto-discover every scripts/**/*.test.mjs (recursively, so suites in subdirs
+// like scripts/bridge/ are never silently skipped) — a new test file is picked
+// up without registering it here.
 const scriptsDir = path.dirname(fileURLToPath(import.meta.url));
 const testFiles = fs
-  .readdirSync(scriptsDir)
+  .readdirSync(scriptsDir, { recursive: true })
   .filter((name) => name.endsWith(".test.mjs"))
   .sort()
-  .map((name) => `scripts/${name}`);
+  .map((name) => `scripts/${name.split(path.sep).join("/")}`);
 if (testFiles.length === 0) {
   console.error("check-fast: no scripts/*.test.mjs files discovered");
   process.exit(1);
