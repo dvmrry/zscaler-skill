@@ -20,6 +20,12 @@ import fs from "node:fs";
 import crypto from "node:crypto";
 import path from "node:path";
 import process from "node:process";
+import {
+  safeRepoPath,
+  resolveCrossFileSource,
+  resolveFileLineSource,
+  resolveBareFilePath,
+} from "./artifacts-source-lib.mjs";
 
 // ── Version ───────────────────────────────────────────────────────────────────
 let HELPER_VERSION = "unknown";
@@ -94,18 +100,6 @@ function resolveRepoRoot(rootArg) {
   return root;
 }
 
-/** Resolve a repo-relative path safely (cannot escape the root). */
-function safeRepoPath(root, relativePath) {
-  if (!relativePath || path.isAbsolute(relativePath) || relativePath.includes("\0")) {
-    throw new Error(`unsafe relative path: ${relativePath}`);
-  }
-  const normalized = path.normalize(relativePath);
-  if (normalized.startsWith("..") || path.isAbsolute(normalized)) {
-    throw new Error(`path escapes repo root: ${relativePath}`);
-  }
-  return path.join(root, normalized);
-}
-
 /** SHA-256 of a text string, prefixed with "sha256:". */
 function sha256Text(text) {
   return `sha256:${crypto.createHash("sha256").update(text).digest("hex")}`;
@@ -174,7 +168,7 @@ export function resolveSource(root, checksDir, source) {
   const s = String(source || "").trim();
   if (!s) return { type: "unknown", resolves: false, error: "source is empty" };
 
-  // (c) check:<name>
+  // (c) check:<name> — auditor-specific recorded-check reference.
   if (s.startsWith("check:")) {
     const checkName = s.slice("check:".length).trim();
     if (!checkName) return { type: "check", resolves: false, error: "check name is empty" };
@@ -189,92 +183,16 @@ export function resolveSource(root, checksDir, source) {
     return { type: "check", resolves: true };
   }
 
-  // (b) cross-file: source contains comma or " + " separating 2+ paths.
-  // We detect by presence of comma or literal " + " as separator.
-  const crossFileSep = /,|\s\+\s/;
-  if (crossFileSep.test(s)) {
-    const rawParts = s.split(/,|\s\+\s/).map((p) => p.trim()).filter(Boolean);
-    if (rawParts.length >= 2) {
-      const missing = [];
-      for (const part of rawParts) {
-        // Strip optional :linespec suffix for cross-file form.
-        const filePart = part.replace(/:\d[\d-]*$/, "").trim();
-        try {
-          const abs = safeRepoPath(root, filePart);
-          if (!fs.existsSync(abs)) missing.push(filePart);
-        } catch {
-          missing.push(filePart);
-        }
-      }
-      if (missing.length > 0) {
-        return {
-          type: "cross-file",
-          resolves: false,
-          error: `cross-file source references files that do not exist: ${missing.join(", ")}`,
-        };
-      }
-      return { type: "cross-file", resolves: true };
-    }
-  }
+  // (b) cross-file, (a) file:line, and bare-file-path are role-agnostic —
+  // resolved by the shared primitives in scripts/artifacts-source-lib.mjs.
+  const cross = resolveCrossFileSource(root, s);
+  if (cross) return cross;
 
-  // (a) file:line — "path/to/file.md:42" or "path:10-20"
-  // Split on the LAST colon that is followed by a digit.
-  const fileLineMatch = /^(.+):(\d+)(?:-(\d+))?$/.exec(s);
-  if (fileLineMatch) {
-    const filePart = fileLineMatch[1].trim();
-    const lineStart = parseInt(fileLineMatch[2], 10);
-    // lineEnd defaults to lineStart if not given.
-    const lineEnd = fileLineMatch[3] !== undefined ? parseInt(fileLineMatch[3], 10) : lineStart;
-    if (lineStart < 1) {
-      return { type: "file-line", resolves: false, error: "line number must be >= 1 (lines are 1-indexed)" };
-    }
-    if (lineEnd < lineStart) {
-      return { type: "file-line", resolves: false, error: `line range end (${lineEnd}) < start (${lineStart})` };
-    }
-    let abs;
-    try {
-      abs = safeRepoPath(root, filePart);
-    } catch (err) {
-      return { type: "file-line", resolves: false, error: err.message };
-    }
-    if (!fs.existsSync(abs)) {
-      return { type: "file-line", resolves: false, error: `file does not exist: ${filePart}` };
-    }
-    const content = fs.readFileSync(abs, "utf8");
-    // Strip the trailing empty element produced by a trailing newline so that
-    // "N visible lines + trailing newline" is counted as N, not N+1. Without
-    // this correction, citing line N+1 on a standard newline-terminated file
-    // would pass the gate even though that line has no content.
-    const splitLines = content.split(/\r?\n/);
-    const lineCount =
-      splitLines.length > 0 && splitLines[splitLines.length - 1] === ""
-        ? splitLines.length - 1
-        : splitLines.length;
-    if (lineEnd > lineCount) {
-      return {
-        type: "file-line",
-        resolves: false,
-        error: `line ${lineEnd} beyond EOF (file has ${lineCount} lines): ${filePart}`,
-      };
-    }
-    return { type: "file-line", resolves: true };
-  }
+  const fileLine = resolveFileLineSource(root, s);
+  if (fileLine) return fileLine;
 
-  // Could be a bare file path (no line number). Treat as file:line with type "unknown"
-  // for now — it won't satisfy the strong-source requirement.
-  // Try to resolve it as a file to give a useful error.
-  try {
-    const abs = safeRepoPath(root, s);
-    if (fs.existsSync(abs)) {
-      return {
-        type: "unknown",
-        resolves: false,
-        error: `source "${s}" is a bare file path without a line reference. Use path:line format (e.g. ${s}:1).`,
-      };
-    }
-  } catch {
-    // Not a file path — fall through.
-  }
+  const bare = resolveBareFilePath(root, s);
+  if (bare) return bare;
 
   return {
     type: "unknown",
