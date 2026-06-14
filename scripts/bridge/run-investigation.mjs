@@ -113,7 +113,9 @@ const DEFAULT_MODEL = "swe-1.6";
 /**
  * Extract agent text responses from a parsed devin --export object.
  * Agent text turns are steps with source === "agent" and a STRING message.
- * Object-valued agent messages (tool calls etc.) are ignored for the text capture.
+ * Non-string messages are skipped here; MCP tool calls are NOT object-valued
+ * messages — they live in step.metadata.extensions and are captured separately
+ * by extractToolCalls().
  * Returns an array of trimmed non-empty strings, in order.
  */
 function extractAgentMessages(exportObj) {
@@ -126,6 +128,39 @@ function extractAgentMessages(exportObj) {
     if (trimmed.length > 0) out.push(trimmed);
   }
   return out;
+}
+
+/**
+ * Extract the ordered sequence of MCP tool calls from a parsed devin --export
+ * object. Devin records tool calls in step.metadata.extensions
+ * ["chisel/tool_call_content"] (keyed by call id), NOT as object-valued
+ * messages. MCP tool calls carry _meta["cognition.ai/eventType"] ===
+ * "mcp_tool_call" and _meta["cognition.ai/toolName"] === "mcp__<server>__<tool>";
+ * we return the bare <tool> names in call order. Non-MCP tool calls (file reads,
+ * "list tools", etc.) are skipped. Tolerates missing/garbled shapes → [].
+ */
+function extractToolCalls(exportObj) {
+  if (!exportObj || !Array.isArray(exportObj.steps)) return [];
+  const calls = [];
+  for (const step of exportObj.steps) {
+    if (!step || step.source !== "agent") continue;
+    const extensions = step.metadata && step.metadata.extensions;
+    const content = extensions && extensions["chisel/tool_call_content"];
+    if (!content || typeof content !== "object") continue;
+    for (const callId of Object.keys(content)) {
+      const call = content[callId];
+      const meta = call && call._meta;
+      if (!meta || meta["cognition.ai/eventType"] !== "mcp_tool_call") continue;
+      const toolName = meta["cognition.ai/toolName"];
+      if (typeof toolName !== "string" || toolName.length === 0) continue;
+      // "mcp__<server>__<tool>" → "<tool>". The separator is a double
+      // underscore; the server may contain hyphens, and tool names do not
+      // contain "__", so splitting on "__" and taking the tail is safe.
+      const parts = toolName.split("__");
+      calls.push(parts.length >= 3 ? parts.slice(2).join("__") : toolName);
+    }
+  }
+  return calls;
 }
 
 /** Read the top-level session_id from a parsed export object (or null). */
@@ -143,15 +178,17 @@ function extractSessionId(exportObj) {
  * @param {object} disk              Investigator: { phase, archivedGenerations, claimCounts }
  *                                   Auditor: { phase, findingCounts, allFindingsSourced }
  * @param {string[]} agentResponses  flat array of every captured agent text response
+ * @param {string[]} toolCalls       ordered bare MCP tool names across all turns
  * @returns {{ checks: Array<{name, pass, detail}>, pass: boolean }}
  */
-function evaluateExpectations(expect, disk, agentResponses) {
+function evaluateExpectations(expect, disk, agentResponses, toolCalls) {
   const checks = [];
   const exp = expect || {};
   const phase = disk ? disk.phase : null;
   const archived = disk ? disk.archivedGenerations : null;
   const claimCounts = (disk && disk.claimCounts) || {};
   const haystack = (agentResponses || []).join("\n");
+  const tools = toolCalls || [];
 
   // ── Investigator-only checks ──────────────────────────────────────────────
 
@@ -241,6 +278,28 @@ function evaluateExpectations(expect, disk, agentResponses) {
       detail: pass
         ? `all required strings present`
         : `missing required strings: [${missing.join(", ")}]`,
+    });
+  }
+
+  if (Array.isArray(exp.expectedToolSequence)) {
+    // Ordered-subsequence check: each expected tool name must appear in the
+    // actual MCP tool-call order (not necessarily contiguous). Catches the
+    // forge-when-blocked pattern that the outcome-only checks miss — e.g.
+    // render_*_report called before any record_finding (an empty register
+    // rendered, then narrated over).
+    let idx = 0;
+    for (const name of tools) {
+      if (idx < exp.expectedToolSequence.length && name === exp.expectedToolSequence[idx]) {
+        idx += 1;
+      }
+    }
+    const pass = idx === exp.expectedToolSequence.length;
+    checks.push({
+      name: `toolSequence ⊇ [${exp.expectedToolSequence.join(" → ")}]`,
+      pass,
+      detail: pass
+        ? `expected gate tool calls appeared in order`
+        : `expected order [${exp.expectedToolSequence.join(" → ")}] not satisfied; actual MCP tool calls: [${tools.join(", ")}]`,
     });
   }
 
@@ -707,6 +766,7 @@ function main() {
 
       // Parse export (tolerate missing/garbled — record and continue).
       let agentResponses = [];
+      let toolCalls = [];
       let exportError = null;
       if (fs.existsSync(exportPath)) {
         const { obj: exportObj, error } = readJsonFile(exportPath);
@@ -714,6 +774,7 @@ function main() {
           exportError = error;
         } else {
           agentResponses = extractAgentMessages(exportObj);
+          toolCalls = extractToolCalls(exportObj);
           if (i === 0) sessionId = extractSessionId(exportObj);
         }
       } else {
@@ -729,6 +790,7 @@ function main() {
         stdout: run.stdout,
         stderr: run.stderr,
         agentResponses,
+        toolCalls,
         exportError,
       });
     }
@@ -756,7 +818,8 @@ function main() {
 
   // ── evaluate expectations ──
   const allAgentResponses = turns.flatMap((t) => t.agentResponses);
-  const evaluation = evaluateExpectations(scenario.expect, disk, allAgentResponses);
+  const allToolCalls = turns.flatMap((t) => t.toolCalls);
+  const evaluation = evaluateExpectations(scenario.expect, disk, allAgentResponses, allToolCalls);
   const overallPass = evaluation.pass;
 
   // ── write artifacts ──
@@ -792,6 +855,7 @@ function main() {
           exitCode: t.exitCode,
           exportError: t.exportError,
           agentResponses: t.agentResponses,
+          toolCalls: t.toolCalls,
           stdout: t.stdout,
         })),
         disk,
@@ -818,6 +882,7 @@ if (isDirectInvocation) {
 
 export {
   extractAgentMessages,
+  extractToolCalls,
   extractSessionId,
   evaluateExpectations,
   parseArgs,
