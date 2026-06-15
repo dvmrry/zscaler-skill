@@ -3,13 +3,18 @@ product: zcc
 topic: "zcc-devices"
 title: "ZCC devices — inventory, lifecycle, and cleanup"
 content-type: reference
-last-verified: "2026-05-01"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: mixed
+verified-against:
+  zscaler-sdk-go: "fe52adcee3dc10bbad12ea8e9f8e17a4583c655a"
+  zscaler-sdk-python: "b3c3645fd530b668c463ce5f1331cfcfc7cb4c00"
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py"
   - "vendor/zscaler-sdk-python/zscaler/zcc/devices.py"
   - "vendor/zscaler-sdk-go/zscaler/zcc/services/devices/devices.go"
+  - "vendor/zscaler-sdk-go/zscaler/zcc/services/download_devices/download_devices.go"
+  - "vendor/zscaler-sdk-go/zscaler/zcc/services/remove_devices/zcc_remove_devices.go"
   - "vendor/zscaler-help/configuring-automated-device-cleanup.md"
   - "vendor/zscaler-help/configuring-zscaler-client-connector-collect-hostnames.md"
   - "vendor/zscaler-help/configuring-zscaler-client-connector-collect-device-owner-information.md"
@@ -66,12 +71,12 @@ From `vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py` (Tier B — SDK/T
 | `mac_address` | `macAddress` | str | Primary MAC at registration. Used for correlation with NAC / inventory tools. |
 | `manufacturer` | `manufacturer` | str | Hardware vendor (Apple, Dell, Lenovo, …). |
 | `os_version` | `osVersion` | str | OS version string at last check-in. |
-| `type` | `type` | **int (Go) / untyped (Python)** | Device platform. Wire-format ambiguous — Go SDK declares `int` on the list endpoint (`devices.go:42`) but `string` on the detail endpoint (`devices.go:82`); Python untyped (`models/devices.py:52`). Caller-side strings (`windows`, `macos`, `linux`, `ios`, `android`) are translated to integer codes via `zcc_param_map["os"]` before sending — see [§ Mobile filtering and OS-type integer encoding](#mobile-filtering-and-os-type-integer-encoding). |
+| `type` | `type` | **int (Go) / untyped (Python)** | Device platform. Wire-format ambiguous — Go SDK declares `int` on the list endpoint (`devices.go:42`) but `string` on the detail endpoint (`devices.go:82`); Python untyped (`models/devices.py:53`). Caller-side strings (`windows`, `macos`, `linux`, `ios`, `android`) are translated to integer codes via `zcc_param_map["os"]` before sending — see [§ Mobile filtering and OS-type integer encoding](#mobile-filtering-and-os-type-integer-encoding). |
 | `zapp_arch` | `zappArch` | str | CPU architecture (x86_64, arm64, etc.). |
 | `agent_version` | `agentVersion` | str | Current ZCC client version installed on the device. |
 | `tunnel_version` | `tunnelVersion` | str | Active Z-Tunnel version (`1.0` or `2.0`). |
 | `upm_version` | `upmVersion` | str | User Posture Module version (ZDX component). |
-| `state` | `state` | **int (Go list) / string (Go detail) / untyped (Python)** | Registration state. **Go SDK is internally inconsistent**: `GetDevices` (list endpoint) declares `int` (`devices.go:40`); `DeviceDetails` (detail endpoint) declares `string` (`devices.go:80`). Same wire field, two different declared types in the same SDK. Python is untyped (`models/devices.py:50`). Observed values from operator reports: `REGISTERED`, `DEREGISTERED`, `DISABLED` — but if the wire actually returns ints, the Go list-endpoint type wins. **Confidence: low** until tenant verification. |
+| `state` | `state` | **int (Go list) / string (Go detail) / untyped (Python)** | Registration state. **Go SDK is internally inconsistent**: `GetDevices` (list endpoint) declares `int` (`devices.go:40`); `DeviceDetails` (detail endpoint) declares `string` (`devices.go:80`). Same wire field, two different declared types in the same SDK. Python is untyped (`models/devices.py:51`). Observed values from operator reports: `REGISTERED`, `DEREGISTERED`, `DISABLED` — but if the wire actually returns ints, the Go list-endpoint type wins. **Confidence: low** until tenant verification. |
 | `registration_state` | `registrationState` | str | Finer-grained state tracking. Exact distinction from `state` not documented in available sources. |
 | `vpn_state` | `vpnState` | int (Go) / untyped (Python) | ZCC VPN / tunnel state. Integer code on the wire (`devices.go:46`); enum values undocumented in either SDK. Present on `Device`/`GetDevices` (list) **only** — does NOT appear on `DeviceDetails` (detail) in either SDK. |
 | `policy_name` | `policyName` | str | Currently-applied Web Policy (App Profile) name at last config download. Informational — may be stale if policy was renamed or device hasn't checked in recently. |
@@ -95,40 +100,40 @@ Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py`; `vendor/zscal
 
 Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/devices/devices.go`.
 
-`get_device_details()` returns a richer `DeviceDetails` object beyond the list fields. **Major Python/Go SDK divergence**: Python `DeviceDetails` (`models/devices.py:283–499`) carries ~50 fields; Go `DeviceDetails` (`devices.go:61–88`) carries only ~25. Most of the service-state and posture fields are Python-only.
+`get_device_details()` returns a richer `DeviceDetails` object beyond the list fields. **Major Python/Go SDK divergence**: Python `DeviceDetails` (`models/devices.py:284–500`) carries ~50 fields; Go `DeviceDetails` (`devices.go:61–88`) carries only the 26 common ones. Most of the service-state and posture fields are Python-only. (This field-level divergence is real and unchanged — it is distinct from the method-surface divergence above, where 9 of 10 endpoints now exist in both SDKs.)
 
 ### Fields present in both Python and Go DeviceDetails
 
 | Wire key | Role | Python line | Go line |
 |---|---|---|---|
-| `agentVersion` / `agent_version` | ZCC agent version on device | 299 | 62 |
-| `carrier` | Cellular carrier name (mobile-relevant) | 300 | 63 |
-| `config_download_time` | Last config download timestamp | 301 | 64 |
-| `deregistration_time` | Deregistration timestamp | 302 | 66 |
-| `devicePolicyName` | Currently-applied App Profile name | 303 | 67 |
-| `device_locale` / `deviceLocale` | Device locale string (mobile-relevant) | 304 | 65 |
-| `download_count` | Config download count | 305 | 68 |
-| `external_model` / `externalModel` | Externally-visible model identifier | 306 | 69 |
-| `hardwareFingerprint` | Stable HW fingerprint | 307 | 70 |
-| `keep_alive_time` / `keepAliveTime` | Keepalive heartbeat timestamp | 308 | 71 |
-| `last_seen_time` / `lastSeenTime` | Most recent check-in | 309 | 72 |
-| `mac_address` / `macAddress` | Primary MAC | 310 | 73 |
-| `machineHostname` | Endpoint hostname (gated by `WebPrivacy.collect_machine_hostname`) | 311 | 74 |
-| `manufacturer` | Hardware vendor | 312 | 75 |
-| `os_version` / `osVersion` | OS version string | 313 | 76 |
-| `owner` | Owning user (gated by `WebPrivacy.collect_user_info`) | 314 | 77 |
-| `registration_time` / `registrationTime` | Initial registration | 315 | 78 |
-| `rooted` | Jailbreak/root detection (mobile-relevant); Go `int`, Python untyped | 316 | 79 |
-| `state` | Registration state — **Go declares `string` here but `int` on list endpoint** | 317 | 80 |
-| `tunnel_version` / `tunnelVersion` | Active Z-Tunnel version | 318 | 81 |
-| `type` | Device platform — **same Go list-vs-detail type inconsistency** | 319 | 82 |
-| `unique_id` / `uniqueId` | Alternate stable ID | 320 | 83 |
-| `upm_version` / `upmVersion` | UPM (User Posture Module) version | 321 | 84 |
-| `user_name` / `userName` | OS-level username | 322 | 85 |
-| `zad_version` / `zadVersion` | ZAD version (Zscaler App Daemon) | 323 | 86 |
-| `zapp_arch` / `zappArch` | CPU architecture | 324 | 87 |
+| `agentVersion` / `agent_version` | ZCC agent version on device | 300 | 62 |
+| `carrier` | Cellular carrier name (mobile-relevant) | 301 | 63 |
+| `config_download_time` | Last config download timestamp | 302 | 64 |
+| `deregistration_time` | Deregistration timestamp | 303 | 65 |
+| `devicePolicyName` | Currently-applied App Profile name | 304 | 66 |
+| `device_locale` / `deviceLocale` | Device locale string (mobile-relevant) | 305 | 67 |
+| `download_count` | Config download count | 306 | 68 |
+| `external_model` / `externalModel` | Externally-visible model identifier | 307 | 69 |
+| `hardwareFingerprint` | Stable HW fingerprint | 308 | 70 |
+| `keep_alive_time` / `keepAliveTime` | Keepalive heartbeat timestamp | 309 | 71 |
+| `last_seen_time` / `lastSeenTime` | Most recent check-in | 310 | 72 |
+| `mac_address` / `macAddress` | Primary MAC | 311 | 73 |
+| `machineHostname` | Endpoint hostname (gated by `WebPrivacy.collect_machine_hostname`) | 312 | 74 |
+| `manufacturer` | Hardware vendor | 313 | 75 |
+| `os_version` / `osVersion` | OS version string | 314 | 76 |
+| `owner` | Owning user (gated by `WebPrivacy.collect_user_info`) | 315 | 77 |
+| `registration_time` / `registrationTime` | Initial registration | 316 | 78 |
+| `rooted` | Jailbreak/root detection (mobile-relevant); Go `int`, Python untyped | 317 | 79 |
+| `state` | Registration state — **Go declares `string` here but `int` on list endpoint** | 318 | 80 |
+| `tunnel_version` / `tunnelVersion` | Active Z-Tunnel version | 319 | 81 |
+| `type` | Device platform — **same Go list-vs-detail type inconsistency** | 320 | 82 |
+| `unique_id` / `uniqueId` | Alternate stable ID | 321 | 83 |
+| `upm_version` / `upmVersion` | UPM (User Posture Module) version | 322 | 84 |
+| `user_name` / `userName` | OS-level username | 323 | 85 |
+| `zad_version` / `zadVersion` | ZAD version (Zscaler App Daemon) | 324 | 86 |
+| `zapp_arch` / `zappArch` | CPU architecture | 325 | 87 |
 
-Note: Python `DeviceDetails.__init__` uses **dual-key lookup** (snake_case OR camelCase) for these fields (`models/devices.py:299–324`) — defensive read against the API returning either form.
+Note: Python `DeviceDetails.__init__` uses **dual-key lookup** (snake_case OR camelCase) for these fields (`models/devices.py:300–325`) — defensive read against the API returning either form.
 
 ### Fields Python-only — absent from Go DeviceDetails
 
@@ -136,24 +141,27 @@ These ~25 fields exist in the Python model and are read from API responses, but 
 
 | Wire key | Role | Python line |
 |---|---|---|
-| `id` | Device record ID | 327 |
-| `internal_model` | Internal model identifier | 328 |
-| `serialNumber` | Hardware serial | 330 |
-| `ziaEnabled` / `zpaEnabled` / `zdxEnabled` / `zdEnabled` / `zdpEnabled` | Per-service enabled flags | 331–335 |
-| `ziaHealth` / `zpaHealth` / `zdxHealth` / `zdHealth` / `zdpHealth` | Per-service health strings | 336–340 |
-| `zpaLastSeenTime` / `zdxLastSeenTime` / `zdLastSeenTime` / `zdpLastSeenTime` | Per-service last-seen | 341–344 |
-| `zccLoggedInUserType` | User type for shared/MDM-managed devices (mobile-relevant) | 345 |
-| `externalDeviceId` | External device ID | 346 |
-| `zccForceRevert` | Force-revert flag | 347 |
-| `antiTamperingStatus` | Anti-tamper protection state | 348 |
-| `deviceTrust` | Device trust level / posture assessment | 349 |
-| `zccTunnelVersion` | ZCC tunnel version (may differ from list `tunnelVersion`) | 350 |
-| `vdi` | VDI flag (Virtual Desktop Infrastructure) | 351 |
-| `strictEnforcement` | Strict enforcement mode active | 352 |
-| `expectedZCCVersion` / `expectedZCCVersionTimestamp` | Configured target ZCC version + when set | 353–356 |
-| `zccUpgradeStatus` | ZCC upgrade progress state | 357 |
-| `deviceOtpArray` | Device OTP array (`ZscalerCollection` of str) | 359–361 |
-| `logFetchInfo` | `LogFetchInfo` sub-object — Python-only nested struct | 363–371 |
+| `id` | Device record ID | 328 |
+| `internal_model` | Internal model identifier | 329 |
+| `zdpVersion` | ZDP service version string (acronym not expanded in SDK source — see Open questions) | 330 |
+| `serialNumber` | Hardware serial | 331 |
+| `ziaEnabled` / `zpaEnabled` / `zdxEnabled` / `zdEnabled` / `zdpEnabled` | Per-service enabled flags (incl. `zdpEnabled`) | 332–336 |
+| `ziaHealth` / `zpaHealth` / `zdxHealth` / `zdHealth` / `zdpHealth` | Per-service health strings (incl. `zdpHealth`) | 337–341 |
+| `zpaLastSeenTime` / `zdxLastSeenTime` / `zdLastSeenTime` / `zdpLastSeenTime` | Per-service last-seen (incl. `zdpLastSeenTime`) | 342–345 |
+| `zccLoggedInUserType` | User type for shared/MDM-managed devices (mobile-relevant) | 346 |
+| `externalDeviceId` | External device ID | 347 |
+| `zccForceRevert` | Force-revert flag | 348 |
+| `antiTamperingStatus` | Anti-tamper protection state | 349 |
+| `deviceTrust` | Device trust level / posture assessment | 350 |
+| `zccTunnelVersion` | ZCC tunnel version (may differ from list `tunnelVersion`) | 351 |
+| `vdi` | VDI flag (Virtual Desktop Infrastructure) | 352 |
+| `strictEnforcement` | Strict enforcement mode active | 353 |
+| `expectedZCCVersion` / `expectedZCCVersionTimestamp` | Configured target ZCC version + when set | 354–356 |
+| `zccUpgradeStatus` | ZCC upgrade progress state | 358 |
+| `deviceOtpArray` | Device OTP array (`ZscalerCollection` of str) | 360–362 |
+| `logFetchInfo` | `LogFetchInfo` sub-object — Python-only nested struct | 364–372 |
+
+Note: the `zdp*` siblings (`zdpVersion` 330, `zdpEnabled` 336, `zdpHealth` 341, `zdpLastSeenTime` 345) sit alongside the `zd*` fields (`zdEnabled` 335, `zdHealth` 340, `zdLastSeenTime` 344) — all Python-only, none surfaced by the Go `DeviceDetails` struct (`devices.go:61–88`). `zdp` and `zd` are distinct service prefixes in the model; the SDK does not expand either acronym (see Open questions).
 
 For posture/health/upgrade audits, **the Python SDK or direct API calls are the only path** — Go won't surface these fields even if the API returns them.
 
@@ -232,6 +240,8 @@ Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py`; `vendor/zscal
 
 Three related operations in the SDK:
 
+**Python payload note**: the Python devices write methods all accept `**kwargs` and forward them as the request body — `update_device_cleanup_info(**kwargs)` (`devices.py:404`, `body.update(kwargs)` at `:435`), `remove_devices(query_params, **kwargs)` (`devices.py:508`, `body = kwargs` at `:550`), and `force_remove_devices(query_params, **kwargs)` (`devices.py:572`, `body = kwargs` at `:614`). This is a deliberate contrast with the Python **entitlements** update methods, which are hardcoded empty-body — a device cleanup/removal caller does NOT inherit that limitation and can pass real fields. `remove_machine_tunnel` (`devices.py:635`) is the one exception in shape: it runs both `query_params` and `kwargs` through `convert_keys_to_camel_case` before sending (`devices.py:668–669`), so callers may pass snake_case and have it camel-cased automatically.
+
 ### `remove_devices` — standard deregistration
 
 Marks the device as deregistered; retains the record in the portal (in Removed state). The device retains its history; it can be permanently purged later via `autoPurgeDays`. Accepts filters (likely `udid` or user-identifying fields) to scope which devices are affected.
@@ -283,23 +293,29 @@ All methods on `client.zcc.devices` from Python SDK (`vendor/zscaler-sdk-python/
 | `get_device_details` / `GetDeviceDetails` | GET | `/zcc/papi/public/v1/getDeviceDetails` | `devices.py:483–487` | `devices.go:121–145` |
 | `get_device_cleanup_info` / `GetDeviceCleanupInfo` | GET | `/zcc/papi/public/v1/getDeviceCleanupInfo` | `devices.py:382–386` | `devices.go:98–119` |
 | `update_device_cleanup_info` / `SetDeviceCleanupInfo` | PUT | `/zcc/papi/public/v1/setDeviceCleanupInfo` | `devices.py:431–435` | `devices.go:147–158` |
-| `download_devices` | GET | `/zcc/papi/public/v1/downloadDevices` | `devices.py:96–97` | **Not in Go SDK** |
-| `download_service_status` | GET | `/zcc/papi/public/v1/downloadServiceStatus` | `devices.py:177–178` | **Not in Go SDK** |
-| `download_disable_reasons` | GET | `/zcc/papi/public/v1/downloadDisableReasons` | `devices.py:265–266` | **Not in Go SDK** |
-| `remove_devices` | POST | `/zcc/papi/public/v1/removeDevices` | `devices.py:545–549` | **Not in Go SDK** |
-| `force_remove_devices` | POST | `/zcc/papi/public/v1/forceRemoveDevices` | `devices.py:609–613` | **Not in Go SDK** |
-| `remove_machine_tunnel` | POST | `/zcc/papi/public/v1/removeMachineTunnel` | `devices.py:665–669` | **Not in Go SDK** |
+| `download_devices` | GET | `/zcc/papi/public/v1/downloadDevices` | `devices.py:94` | `download_devices.go:22` (`DownloadDevices`) |
+| `download_service_status` | GET | `/zcc/papi/public/v1/downloadServiceStatus` | `devices.py:175` | `download_devices.go:46` (`DownloadServiceStatus`) |
+| `download_disable_reasons` | GET | `/zcc/papi/public/v1/downloadDisableReasons` | `devices.py:263` | **Not in Go SDK** |
+| `remove_devices` | POST | `/zcc/papi/public/v1/removeDevices` | `devices.py:545` | `zcc_remove_devices.go:31` (`SoftRemoveDevices`) |
+| `force_remove_devices` | POST | `/zcc/papi/public/v1/forceRemoveDevices` | `devices.py:609` | `zcc_remove_devices.go:44` (`ForceRemoveDevices`) |
+| `remove_machine_tunnel` | POST | `/zcc/papi/public/v1/removeMachineTunnel` | `devices.py:665` | `zcc_remove_devices.go:57` (`RemoveMachineTunnel`) |
 
-**SDK divergence**: 6 of 10 endpoints are Python-SDK-only. The Go SDK exposes only the four read endpoints plus the cleanup-info update. **Bulk CSV exports, deregistration, force-removal, and machine-tunnel removal are not callable from the Go SDK** — Go consumers need to drop to direct HTTP for these.
+(All Go citations resolve under `vendor/zscaler-sdk-go/zscaler/zcc/services/`: the `devices/` rows in `devices/devices.go`, the `download_*` rows in `download_devices/download_devices.go`, and the three `remove`/`force`/`machine-tunnel` rows in `remove_devices/zcc_remove_devices.go`.)
+
+**SDK divergence**: only `download_disable_reasons` is Python-only — confirmed Go-absent (no `downloadDisableReasons` / `DisableReasons` symbol anywhere under `vendor/zscaler-sdk-go/zscaler/zcc/`). The other 9 of 10 endpoints exist in **both** SDKs. This is a correction of an earlier draft that claimed bulk CSV exports, deregistration, force-removal, and machine-tunnel removal were Go-unreachable — they are not. The Go SDK simply **split these into their own service packages** rather than the single `devices` package the rest of the read surface lives in: `download_devices/` carries `DownloadDevices` + `DownloadServiceStatus` (`download_devices.go:13–14` endpoints, `:22`/`:46` funcs), and `remove_devices/` carries `SoftRemoveDevices` + `ForceRemoveDevices` + `RemoveMachineTunnel` (`zcc_remove_devices.go:13–15` endpoints, `:31`/`:44`/`:57` funcs). Naming and signatures differ from Python:
+
+- Go's standard deregistration is **`SoftRemoveDevices`** (not `RemoveDevices`); `SoftRemoveDevices` and `ForceRemoveDevices` both take an explicit `pageSize int` argument and a `RemoveDevicesRequest` struct, returning a `RemoveDevicesResponse` (`zcc_remove_devices.go:18–28, 31, 44`). `RemoveDevicesRequest` fields: `ClientConnectorVersion []string`, `OsType int`, `Udids []string`, `UserName string` (`zcc_remove_devices.go:23–28`) — note `OsType` is `int` on the Go side, matching the integer-encoded wire value.
+- Go's `RemoveMachineTunnel` takes `hostNames []string` + `machineToken string` and joins hostnames into a comma-separated `hostName` payload key (`zcc_remove_devices.go:57, 66`).
+- The Go `download_devices` funcs take `osTypes` / `registrationTypes` as pre-formatted comma-separated strings (`download_devices.go:17–20, 22`) — the caller does the OS/registration-type integer encoding the Python `@zcc_param_mapper` decorator does automatically.
 
 ### Pagination divergence
 
 | Endpoint | Python default page size | Python max | Go behavior |
 |---|---|---|---|
-| `list_devices` / `getDevices` | 50 (`devices.py:308–310`) | 5000 | Hardcoded `pageSize=1000` (`devices.go:96`); auto-paginates via `common.ReadAllPages`; **caller cannot control page size** |
-| `remove_devices`, `force_remove_devices` | 30 (`devices.py:519, 584`) | 5000 | N/A (Python-only) |
+| `list_devices` / `getDevices` | 50 (`devices.py:305–307`) | 5000 | Hardcoded `pageSize=1000` (`devices.go:95`); auto-paginates via `common.ReadAllPages`; **caller cannot control page size** |
+| `remove_devices`, `force_remove_devices` | 30 (`devices.py:516, 580`) | 5000 | Caller passes `pageSize int` explicitly to `SoftRemoveDevices` / `ForceRemoveDevices` (`zcc_remove_devices.go:31, 44`) — no default; the value is appended as a `?pageSize=` query param (`zcc_remove_devices.go:33, 46`) |
 
-A Go caller that needs a different page size has no SDK lever — must use direct HTTP.
+For `list_devices`, a Go caller that needs a different page size has no SDK lever (hardcoded 1000) — must use direct HTTP. For the remove endpoints, Go callers do control page size directly.
 
 ### Mobile filtering and OS-type integer encoding
 
@@ -350,11 +366,11 @@ iOS and Android devices surface fields that desktop devices don't. These appear 
 
 | Field | Wire key | Where | Role |
 |---|---|---|---|
-| `carrier` | `carrier` | DeviceDetails (both SDKs, `devices.py:300`, `devices.go:63`) | Cellular carrier name. Empty on desktop devices. |
-| `device_locale` | `device_locale` / `deviceLocale` (dual-key Python) | DeviceDetails (both SDKs, `devices.py:304`, `devices.go:65`) | Device locale string. |
-| `rooted` | `rooted` | DeviceDetails (both SDKs, `devices.py:316`, `devices.go:79`) | Jailbreak / root detection state. Go types as `int`, Python untyped. |
-| `zad_version` | `zadVersion` | DeviceDetails (both SDKs, `devices.py:323`, `devices.go:86`) | ZAD version (Zscaler App Daemon — relevant on Android). |
-| `zcc_logged_in_user_type` | `zccLoggedInUserType` | DeviceDetails (**Python only**, `devices.py:345`) | Distinguishes user types for shared / MDM-managed devices. Operationally relevant on enterprise mobile fleets where one device may have multiple user contexts. Go SDK can't read this. |
+| `carrier` | `carrier` | DeviceDetails (both SDKs, `devices.py:301`, `devices.go:63`) | Cellular carrier name. Empty on desktop devices. |
+| `device_locale` | `device_locale` / `deviceLocale` (dual-key Python) | DeviceDetails (both SDKs, `devices.py:305`, `devices.go:67`) | Device locale string. |
+| `rooted` | `rooted` | DeviceDetails (both SDKs, `devices.py:317`, `devices.go:79`) | Jailbreak / root detection state. Go types as `int`, Python untyped. |
+| `zad_version` | `zadVersion` | DeviceDetails (both SDKs, `devices.py:324`, `devices.go:86`) | ZAD version (Zscaler App Daemon — relevant on Android). |
+| `zcc_logged_in_user_type` | `zccLoggedInUserType` | DeviceDetails (**Python only**, `devices.py:346`) | Distinguishes user types for shared / MDM-managed devices. Operationally relevant on enterprise mobile fleets where one device may have multiple user contexts. Go SDK can't read this. |
 | `zia_health` / `zpa_health` / `zdx_health` | `ziaHealth` / `zpaHealth` / `zdxHealth` | DeviceDetails (**Python only**) | Per-service health on mobile. Go SDK can't read these. |
 
 **Cross-link to App Profile platform sub-policies**: device-level inventory fields here are read-only views of the device's state. The control plane for what ZCC actually does on iOS / Android / Windows / macOS / Linux lives in the App Profile's per-platform sub-policies — `iosPolicy` / `androidPolicy` / `macPolicy` / `windowsPolicy` / `linuxPolicy`. Notable mobile-specific App Profile fields documented in [`./web-policy.md`](./web-policy.md):
@@ -369,6 +385,14 @@ Filter the list to mobile-only via the `os_type` / `os_types` query params on `l
 A common audit shape: "show me all jailbroken iOS devices that are entitled to ZPA" — combines `os_type=ios` filter on `list_devices` + `rooted` field on each device's `DeviceDetails` + ZPA entitlement check from [`./entitlements.md`](./entitlements.md). All three pieces are needed; the Devices API alone won't tell you entitlement state.
 
 Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py`; `vendor/zscaler-sdk-python/zscaler/zcc/devices.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/devices/devices.go`.
+
+---
+
+## Open questions
+
+- **`zdp*` and `zd*` field meanings** — the Python `DeviceDetails` model carries both a `zd*` set (`zdEnabled` 335, `zdHealth` 340, `zdLastSeenTime` 344) and a `zdp*` set (`zdpVersion` 330, `zdpEnabled` 336, `zdpHealth` 341, `zdpLastSeenTime` 345). The SDK source never expands either acronym, so what service each prefix names — and how `zd` differs from `zdp` — is not backed by current sources. Resolve from a help-portal Device Details capture or a live tenant response before asserting the expansions. See [clarification `zcc-81`](../_meta/clarifications.md#zcc-81-device-zd-vs-zdp-field-prefix-meanings).
+- **`registration_state` vs `state`** — both fields exist on the `Device` list model (`models/devices.py:49, 51`); the finer-grained distinction between them is not documented in the vendored SDK source. See [clarification `zcc-82`](../_meta/clarifications.md#zcc-82-device-registration_state-vs-state-distinction).
+- **`DeviceDetails.state` / `type` wire type** — the Go SDK declares `state`/`type` as `int` on the list endpoint (`devices.go:40, 42`) but `string` on the detail endpoint (`devices.go:80, 82`). Which the wire actually returns per endpoint is unverified against a live tenant. See [clarification `zcc-83`](../_meta/clarifications.md#zcc-83-devicedetailsstate-type-wire-type-per-endpoint).
 
 ---
 

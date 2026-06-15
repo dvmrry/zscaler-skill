@@ -3,12 +3,15 @@ product: zcc
 topic: forwarding-profiles
 title: "ZCC forwarding profiles — portal configuration, network environments, and app profile assignment"
 content-type: reference
-last-verified: "2026-04-28"
-confidence: medium
-source-tier: doc
+last-verified: "2026-06-15"
+confidence: high
+source-tier: mixed
 sources:
   - "vendor/zscaler-help/configuring-forwarding-profiles-zscaler-client-connector.md"
   - "vendor/zscaler-help/about-forwarding-profiles.md"
+  - "vendor/zscaler-sdk-python/zscaler/zcc/models/application_profiles.py"
+  - "vendor/zscaler-sdk-python/zscaler/zcc/application_profiles.py"
+  - "vendor/zscaler-sdk-python/zscaler/zcc/zcc_service.py"
 author-status: draft
 ---
 
@@ -54,7 +57,9 @@ On macOS, interface description keyword matching is not used — only the interf
 
 The current network type is displayed to the user in the ZCC app on both the Internet Security window and the Private Access window.
 
-Source: `vendor/zscaler-help/about-forwarding-profiles.md`.
+These four classifications are not just portal-UI prose — they are named, structured branches in the SDK. When an App Profile sets `enableLocationPolicyOverride` (`vendor/zscaler-sdk-python/zscaler/zcc/models/application_profiles.py:422`), it carries a `LocationRulesetPolicies` object whose fields are exactly the four network types: `trusted`, `offTrusted`, `vpnTrusted`, and `splitVpnTrusted` (`vendor/zscaler-sdk-python/zscaler/zcc/models/application_profiles.py:711`). Each is its own `LocationPolicy` sub-object, confirming that On-Trusted / Off-Trusted / VPN-Trusted / Split VPN-Trusted are real, independently-configurable branches rather than display labels.
+
+Source: `vendor/zscaler-help/about-forwarding-profiles.md`; `vendor/zscaler-sdk-python/zscaler/zcc/models/application_profiles.py`.
 
 ---
 
@@ -127,9 +132,11 @@ Source: `vendor/zscaler-help/configuring-forwarding-profiles-zscaler-client-conn
 
 An **App Profile** (also called a Web Policy in the SDK/API) is the entity that assigns a forwarding profile to a user or device. The App Profile references the forwarding profile by ID. A user's active App Profile determines their active forwarding profile (Tier A — vendor/zscaler-help/about-forwarding-profiles.md).
 
+The join is directly SDK-backed: the App Profile object carries a `forwardingProfileId` field — `ApplicationProfile.forwarding_profile_id` maps the wire key `forwardingProfileId` (`vendor/zscaler-sdk-python/zscaler/zcc/models/application_profiles.py:69`). This is the authoritative field that points an App Profile at a Forwarding Profile. The App Profile object is read and updated through the `client.zcc.application_profiles` surface (`vendor/zscaler-sdk-python/zscaler/zcc/zcc_service.py:129`), which is REST-backed by `GET /zcc/papi/public/v1/application-profiles` (list) and `GET` / `PATCH /zcc/papi/public/v1/application-profiles/{profile_id}` (`vendor/zscaler-sdk-python/zscaler/zcc/application_profiles.py:77-81`, `vendor/zscaler-sdk-python/zscaler/zcc/application_profiles.py:123-127`, `vendor/zscaler-sdk-python/zscaler/zcc/application_profiles.py:218-222`). When [`./snapshot-schema.md`](./snapshot-schema.md) joins App Profiles to Forwarding Profiles by ID, `forwardingProfileId` is the field it joins on.
+
 ```
 User / Device
-    └── assigned to → App Profile (Web Policy)
+    └── assigned to → App Profile (Web Policy)         [forwardingProfileId]
                           └── references → Forwarding Profile
                                                ├── On-Trusted action (ZIA)
                                                ├── Off-Trusted action (ZIA)
@@ -176,6 +183,13 @@ The forwarding profile wire-format is documented in detail in [`./forwarding-pro
 - Go SDK service: `vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go`
 - Wire-format enum fields (`conditionType`, `networkType`, `actionType`, `primaryTransport`) are integers, not strings — documented in [`./forwarding-profile.md § Wire-type correction`](./forwarding-profile.md)
 - Fail-open policy is a separate object (`FailOpenPolicy`) at the tenant level, not embedded in the forwarding profile
+
+The App-Profile → Forwarding-Profile assignment is its own SDK surface, distinct from the forwarding-profile object itself:
+
+- SDK object: `ApplicationProfile` (Python: `vendor/zscaler-sdk-python/zscaler/zcc/models/application_profiles.py`); the join field is `forwarding_profile_id` ← wire key `forwardingProfileId` (`vendor/zscaler-sdk-python/zscaler/zcc/models/application_profiles.py:69`)
+- Python SDK service surface: `client.zcc.application_profiles` (`vendor/zscaler-sdk-python/zscaler/zcc/zcc_service.py:129`), REST base `/zcc/papi/public/v1` (`vendor/zscaler-sdk-python/zscaler/zcc/application_profiles.py:31`)
+- REST endpoints: `GET /application-profiles` (`vendor/zscaler-sdk-python/zscaler/zcc/application_profiles.py:77-81`), `GET /application-profiles/{profile_id}` (`vendor/zscaler-sdk-python/zscaler/zcc/application_profiles.py:123-127`), `PATCH /application-profiles/{profile_id}` (`vendor/zscaler-sdk-python/zscaler/zcc/application_profiles.py:218-222`)
+- Per-network-type override branches: `LocationRulesetPolicies` with fields `trusted` / `offTrusted` / `vpnTrusted` / `splitVpnTrusted` (`vendor/zscaler-sdk-python/zscaler/zcc/models/application_profiles.py:711`), gated by `enableLocationPolicyOverride` (`vendor/zscaler-sdk-python/zscaler/zcc/models/application_profiles.py:422`)
 
 ---
 

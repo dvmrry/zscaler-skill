@@ -3,7 +3,7 @@ product: zcc
 topic: ssl-inspection-zcc
 title: "ZCC SSL inspection — agent-side certificate trust and inspection configuration"
 content-type: reference
-last-verified: "2026-05-01"
+last-verified: "2026-06-15"
 confidence: low
 source-tier: doc
 sources:
@@ -22,7 +22,12 @@ author-status: draft
 
 Source: `vendor/zscaler-help/configuring-ssl-inspection-zscaler-client-connector.md`; `vendor/zscaler-help/what-is-zscaler-client-connector.md`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`.
 
-The primary vendor source (`vendor/zscaler-help/configuring-ssl-inspection-zscaler-client-connector.md`) redirected to an unrelated NSS-servers page during capture (line 8 of the captured file confirms the redirect, with no article content). This document records what is known from adjacent vendor sources — primarily the SDK-level App Profile fields for certificate trust — and clearly marks gaps. **Confidence remains low** for the topic as a whole. Operators needing authoritative detail should consult the ZCC help portal directly at `help.zscaler.com/zscaler-client-connector/configuring-ssl-inspection-zscaler-client-connector`.
+The primary vendor source (`vendor/zscaler-help/configuring-ssl-inspection-zscaler-client-connector.md`) still redirects to an unrelated NSS-servers page (`configuring-ssl-inspection-zscaler-client-connector.md:8` records the redirect to `help.zscaler.com/zia/about-nss-servers`, with no article content captured). This document records what is known from adjacent vendor sources — primarily the SDK-level App Profile fields for certificate trust — and clearly marks gaps. Operators needing the authoritative narrative should consult the ZCC help portal directly at `help.zscaler.com/zscaler-client-connector/configuring-ssl-inspection-zscaler-client-connector`.
+
+**Confidence is mixed, not uniformly low:**
+
+- **Low** for the help-portal-dependent narrative sections (whether a dedicated SSL-inspection page exists, inline-vs-defer behavior, ZCC-specific bypass mechanics) — these rest on the unavailable help source.
+- **High (code-tier)** for the [certificate-trust-by-platform wire-key matrix](#certificate-trust-by-platform) and the [snake_case `install_ssl_certs` /edit behavior](#certificate-trust-by-platform), both grounded directly in the Python and Go SDK source. The frontmatter `confidence: low` is retained to flag the topic's weakest sections; treat the SDK-backed certificate content as the document's strongest, fully-sourced material.
 
 What this document *can* answer authoritatively (from SDK sources):
 
@@ -74,19 +79,31 @@ These settings are part of the App Profile / Web Policy configuration, not a sta
 
 ### Firefox certificate trust
 
-Firefox uses its own certificate store and does not automatically trust OS-level CAs. ZCC has a Firefox integration path that installs the Zscaler CA into Firefox's store automatically. From the help capture (`configuring-firefox-integration-zscaler-client-connector.md:26`): *"If you choose not to use Firefox integration for Zscaler Client Connector, then you must manually install the appropriate signing certificates from Firefox."* Disabling Firefox integration shifts cert install to a manual user/IT task. See [`./firefox-integration.md`](./firefox-integration.md).
+Firefox uses its own certificate store and does not automatically trust OS-level CAs. ZCC has a Firefox integration path that installs the Zscaler CA into Firefox's store automatically. From the help capture (`configuring-firefox-integration-zscaler-client-connector.md:30`): *"If you choose not to use Firefox integration for Zscaler Client Connector, then you must manually install the appropriate signing certificates from Firefox."* Disabling Firefox integration shifts cert install to a manual user/IT task. See [`./firefox-integration.md`](./firefox-integration.md).
 
 ### Certificate trust by platform
 
-The actual SDK fields for ZCC certificate installation, sourced directly from the App Profile model. **The wire key for the cert-install field is not consistent across platforms, and the Python and Go SDKs disagree on Windows.** Full citations and details in [`./web-policy.md § install_ssl_certs wire-key matrix`](./web-policy.md):
+The actual SDK fields for ZCC certificate installation, sourced directly from the App Profile model. **The wire key for the cert-install field is not uniform — it is `install_ssl_certs` (snake_case) on Windows and macOS but `installCerts` (camelCase) on Linux and Android — and the Python and Go SDKs disagree on macOS specifically.** Full citations and details in [`./web-policy.md § install_ssl_certs wire-key matrix`](./web-policy.md):
 
 | Platform | Python wire key | Go wire key | Notes |
 |---|---|---|---|
-| Windows | `install_ssl_certs` (snake_case) — `webpolicy.py:834,892` | `installCerts` (camelCase) — `web_policy.go:206` | **SDK conflict** — Python and Go disagree on the wire format. Verify against a real tenant. |
-| Linux | `installCerts` — `webpolicy.py:927,943` | `installCerts` — `web_policy.go:106` | Consistent. |
-| macOS | `installCerts` — `webpolicy.py:1098,1132` | `installCerts` — `web_policy.go:120` | Consistent. Python attribute is `install_certs`, not `install_ssl_certs`. |
-| Android | `installCerts` — `webpolicy.py:1022,1058` | `installCerts` — `web_policy.go:68` | Consistent. Python attribute is `install_certs`. |
-| iOS | **Not present** (`webpolicy.py:951–972`) | **Not present** (`web_policy.go:95–102`) | iOS App Profile has **no SSL-cert-install field at all**. iOS cert distribution is MDM-managed (configuration profile), not ZCC App Profile-managed. |
+| Windows | `install_ssl_certs` (snake_case) — `webpolicy.py:837,895` | `installCerts` (camelCase) — `web_policy.go:465` (`WindowsPolicy` sub-policy struct) | Python attribute is `install_ssl_certs`; the camelCase Go sub-policy tag is the documented-correct shape for the `windowsPolicy` block. A separate top-level `WebPolicy` field, `InstallSslCertsTop json:"install_ssl_certs"` (`web_policy.go:186`, snake_case, `common.IntOrString`), also exists at the body root. |
+| Linux | `installCerts` (camelCase) — `webpolicy.py:930,946` | `installCerts` (camelCase) — `web_policy.go:380` | Consistent. |
+| macOS | `installCerts` (camelCase) — `webpolicy.py:1106,1140` | `install_ssl_certs` (snake_case) — `web_policy.go:408` (`common.IntOrString`) | **SDK conflict** — Python emits camelCase `installCerts`, Go emits snake_case `install_ssl_certs`. Go is the corrected shape (see "/edit behavior" below); the Python camelCase tag is the silently-ignored form. Python attribute is `install_certs`, not `install_ssl_certs`. |
+| Android | `installCerts` (camelCase) — `webpolicy.py:1025,1065` | `installCerts` (camelCase) — `web_policy.go:348` | Consistent. Python attribute is `install_certs`. |
+| iOS | **Not present** (`webpolicy.py:954–1001`) | **Not present** (`web_policy.go:368–377`) | iOS App Profile has **no SSL-cert-install field at all**. iOS cert distribution is MDM-managed (configuration profile), not ZCC App Profile-managed. |
+
+Read this matrix as snake-vs-camel-per-platform, not a single Windows-only conflict: the cert-install key is snake_case (`install_ssl_certs`) for Windows and macOS but camelCase (`installCerts`) for Linux and Android, and the live SDK conflict is on **macOS** (Python camel vs Go snake), not Windows.
+
+#### macOS /edit wire-key behavior — documented, not open
+
+The Go SDK resolves the snake-vs-camel question for the macOS `macPolicy` block from captured real UI traffic. Per the `MacPolicy` doc comment (`web_policy.go:388–394`) and field (`web_policy.go:408`):
+
+- The macOS password/cert fields serialize in **snake_case** (`disable_password` / `install_ssl_certs` / `logout_password` / `uninstall_password`).
+- "earlier versions of this struct used camelCase tags which the API silently ignored, leading to `{"success":"false","id":0}` on /edit" (`web_policy.go:391–393`).
+- "install_ssl_certs is a JSON number, not a string" (`web_policy.go:394`) — hence the Go type is `common.IntOrString`, and the on-wire value is `0`/`1`, not a bool or quoted string.
+
+**Authoritative behavior**: on the ZCC OneAPI `/web/policy/edit` endpoint, the macOS policy accepts snake_case `install_ssl_certs` (a JSON number). A camelCase `installCerts` key is **silently ignored** — the call returns a false-success body `{"success":"false","id":0}` rather than erroring, so a tenant editing macOS cert-install with the wrong key sees no overt failure but the setting does not take effect. This is a high-value silent-failure gotcha: the Python SDK's camelCase macOS tag (`webpolicy.py:1106,1140`) is exactly the ignored shape.
 
 **Operational implication for iOS deployments**: a tenant deploying ZCC on iOS for the first time and expecting `install_ssl_certs = true` to push the Zscaler root CA will be surprised. iOS cert install must be done via MDM (Intune, Jamf, etc.) — there is no per-App-Profile toggle. This is a common cause of "iOS users see cert errors but Windows users don't" tickets.
 
@@ -187,11 +204,12 @@ Source: `vendor/zscaler-help/configuring-ssl-inspection-zscaler-client-connector
 The primary vendor source for ZCC-side SSL inspection configuration (`help.zscaler.com/zscaler-client-connector/configuring-ssl-inspection-zscaler-client-connector`) was unavailable at time of capture. The following remain unconfirmed and require direct portal or vendor documentation review (some originally-listed items have since been answered from SDK source — see notes):
 
 - Whether a dedicated "SSL Inspection" configuration page exists in the ZCC Portal separate from App Profile settings — **unanswered**.
-- ~~The exact App Profile fields (with SDK field names) for Zscaler CA auto-installation per platform~~ — **answered** in [§ Certificate trust by platform — App Profile fields](#certificate-trust-by-platform) from `webpolicy.py` and `web_policy.go`. Outstanding: which Windows wire-key the API actually accepts (Python emits snake_case `install_ssl_certs`, Go emits camelCase `installCerts`).
+- ~~The exact App Profile fields (with SDK field names) for Zscaler CA auto-installation per platform~~ — **answered** in [§ Certificate trust by platform — App Profile fields](#certificate-trust-by-platform) from `webpolicy.py` and `web_policy.go`.
+- ~~Which wire-key the API actually accepts for the cert-install field~~ — **answered (macOS)**. The earlier note framed this as a Windows Python-vs-Go conflict; the live conflict is on **macOS** (Python camel `installCerts` vs Go snake `install_ssl_certs`), and the Go SDK resolves it from captured UI traffic: `/web/policy/edit` accepts snake_case `install_ssl_certs` (a JSON number) for macOS, and silently ignores the camelCase form (returns `{"success":"false","id":0}`). See [§ macOS /edit wire-key behavior](#certificate-trust-by-platform), citing `web_policy.go:388–394` and `:408`. Outstanding: whether Windows and Android `/edit` exhibit the same silent-ignore behavior for their respective keys is not captured in source.
 - Whether ZCC supports inline SSL inspection (acting as a local proxy) or only defers to ZIA cloud inspection — **unanswered**. ZCC's `redirectWebTraffic` and listening-proxy behavior in Z-Tunnel 2.0 (see [`./z-tunnel.md`](./z-tunnel.md)) operate at the tunnel/forwarding layer; whether they perform any inspection or just forwarding remains undocumented.
 - Per-app SSL bypass at the ZCC level (vs ZIA policy-level bypass) — **partially answered**. ZCC App Profile has `bypass_app_ids`, `bypass_custom_app_ids`, `app_identity_names`, `app_service_ids` fields (see [`./web-policy.md § App bypass fields`](./web-policy.md)) that exclude apps from ZCC interception entirely — those apps don't enter the Z-Tunnel and therefore don't reach ZIA inspection. Whether there's a separate "ZCC SSL bypass" mechanism distinct from this app-level bypass is undocumented.
 - iOS cert install via MDM — what specific MDM payload type and CA identifier does Zscaler recommend? Not in the captured sources.
-- **WebKit-class browsers ignoring SSL inspection in some tenant configs** — operator-reported scenario (2026-05-01): copilot.microsoft.com → m365.cloud.microsoft redirect rule fires on Chrome and Edge but not Safari on the same machine; no ZIA logs for the Safari traffic; original Microsoft cert visible; same machine works fine on a different ZPA tenant. Hypothesised root cause is QUIC / HTTP3 bypass (Safari uses UDP 443 aggressively; ZIA forward proxy is TCP-only) but this hypothesis was not verified before site visit. The `dropQuicTraffic` field in `PolicyExtension` (`webpolicy.py:417`) and Cloud Firewall rules blocking UDP 443 are candidate levers, neither tested. Resolution requires a tenant-side test once onsite. **Do not treat the QUIC hypothesis as documented behavior until verified.**
+- **WebKit-class browsers ignoring SSL inspection in some tenant configs** — operator-reported scenario (2026-05-01): copilot.microsoft.com → m365.cloud.microsoft redirect rule fires on Chrome and Edge but not Safari on the same machine; no ZIA logs for the Safari traffic; original Microsoft cert visible; same machine works fine on a different ZPA tenant. Hypothesised root cause is QUIC / HTTP3 bypass (Safari uses UDP 443 aggressively; ZIA forward proxy is TCP-only) but this hypothesis was not verified before site visit. The `dropQuicTraffic` field in `PolicyExtension` (`webpolicy.py:416`) and Cloud Firewall rules blocking UDP 443 are candidate levers, neither tested. Resolution requires a tenant-side test once onsite. **Do not treat the QUIC hypothesis as documented behavior until verified.**
 
 ---
 

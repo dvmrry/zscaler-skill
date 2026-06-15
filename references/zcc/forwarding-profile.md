@@ -3,12 +3,14 @@ product: zcc
 topic: "zcc-forwarding-profile"
 title: "ZCC forwarding profile — how ZCC decides where to send traffic"
 content-type: reasoning
-last-verified: "2026-05-03"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: mixed
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py"
   - "vendor/zscaler-sdk-python/zscaler/zcc/forwarding_profile.py"
+  - "vendor/zscaler-sdk-python/zscaler/zcc/_serialize.py"
+  - "vendor/zscaler-sdk-python/zscaler/zcc/models/application_profiles.py"
   - "vendor/zscaler-sdk-python/zscaler/zcc/models/failopenpolicy.py"
   - "vendor/zscaler-sdk-python/zscaler/zcc/fail_open_policy.py"
   - "vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go"
@@ -43,7 +45,7 @@ A ZCC install has **one active forwarding profile per device at any given moment
 
 ## Wire-type correction — enum fields are integer-coded, not strings
 
-**Cross-SDK validation (2026-04-24) against `vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go` revealed that all the enum-like fields on ForwardingProfile and its action blocks are `int` on the wire, not string enums.** The Python SDK passes kwargs through without type enforcement, which made it look like operators could send strings like `"TRUSTED_CRITERIA_AND"` or `"ZTUNNEL"` — but the API actually expects small integers. Fields affected (line references from `forwarding_profile.go`):
+**Cross-SDK validation against `vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go` shows that all the enum-like fields on ForwardingProfile and its action blocks are `int` on the wire, not string enums.** The Python SDK no longer passes kwargs raw — as of the v1.9.31 model rewrite, `update_forwarding_profile` runs the request body through `zcc_to_wire(body, ForwardingProfile)` (`forwarding_profile.py:126`), which introspects the `ForwardingProfile` model's `request_format` to translate snake_case input into the exact wire casing (`_serialize.py:104`). The model is now the wire source of truth (snake_case in; camelCase / UPPER-acronym out, e.g. `UDPTimeout`, `pacURL`, `actionTypeZIA` — `forwardingprofile.py:20-25`). The model does *not* coerce value types, though — it preserves whatever value the caller passes — so the int-vs-string distinction below still matters for anyone hand-building payloads or feeding through values typed as strings. Fields affected (line references from `forwarding_profile.go`):
 
 - `conditionType` — typed `int` on `ForwardingProfile` (line 22)
 - `networkType` — typed `int` on each `forwardingProfileActions[]` and `forwardingProfileZpaActions[]` entry (line 48)
@@ -63,7 +65,7 @@ Plus these flags that look boolean-ish but are `int` (0/1) on the wire: `enableL
 - `MtuForZadapter` — GET returns `IntOrString`; POST requires `string`
 - `IsSameAsOnTrustedNetwork` — GET is `bool` with `omitempty`; POST is `*bool` (pointer) with `omitempty`
 
-Within `UnifiedTunnelRequest` (lines 107–124): `BlockUnreachableDomainsTraffic` and `MtuForZadapter` are also `string` on POST. `SameAsOnTrusted` is `int` with `omitempty`. This asymmetry is not surfaced in the Python SDK at all — the Python client passes kwargs through raw and relies on the API accepting the same shape in both directions, which is unverified for these fields.
+Within `UnifiedTunnelRequest` (lines 107–124): `BlockUnreachableDomainsTraffic` and `MtuForZadapter` are also `string` on POST. `SameAsOnTrusted` is `int` with `omitempty`. This GET-vs-POST asymmetry is not surfaced in the Python SDK: `zcc_to_wire` (`_serialize.py:104`) only fixes wire-key *casing* from the model, it does not re-type values per direction, so the Python client still relies on the API accepting the same value shape in both directions — unverified for these fields.
 
 ## Mechanics
 
@@ -104,18 +106,18 @@ From `vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py` (lines 
 | `trusted_egress_ips` | `trustedEgressIps` | Trusted egress IP list (public IP the network NATs to). |
 | `trusted_network_ids` | `trustedNetworkIds` | References to separate TrustedNetwork entities by ID. |
 | `trusted_networks` | `trustedNetworks` | (String list; likely the resolved names of the referenced TrustedNetworks for display — redundant with IDs at the API level.) |
-| `predefined_tn_all` | `predefinedTnAll` | Boolean; shortcut that treats any of a pre-defined set of trusted networks as a match. (`forwardingprofile.py:55`) |
+| `predefined_tn_all` | `predefinedTnAll` | Boolean; shortcut that treats any of a pre-defined set of trusted networks as a match. (`forwardingprofile.py:401`) |
 | `predefined_trusted_networks` | `predefinedTrustedNetworks` | The resolved set behind the above shortcut. |
 | `condition_type` | `conditionType` | How trusted-criteria combine (AND vs OR) at the **profile level** — across the inline fields + referenced TrustedNetworks. Typed `int` (`forwarding_profile.go:22`); enum values not documented in SDK — see [`clarification zcc-01`](../_meta/clarifications.md#zcc-01-forwardingprofile-condition_type-enum). **Distinct from the per-TrustedNetwork `conditionType`** which controls combination within a single TrustedNetwork's criteria — see [`./trusted-networks.md § condition_type`](./trusted-networks.md). The two `conditionType` fields are evaluated at different levels of the criteria tree. |
 | `evaluate_trusted_network` | `evaluateTrustedNetwork` | Master toggle — if false, trusted-network evaluation is skipped entirely and only the Untrusted action branch applies. Typed `int` (`forwarding_profile.go:40`). |
 | `skip_trusted_criteria_match` | `skipTrustedCriteriaMatch` | Bypass criteria evaluation (forces a specific branch). Mutually-exclusive relationship with `evaluate_trusted_network` not confirmed; see `zcc-01`. Typed `int` (`forwarding_profile.go:41`). |
 | `enable_lwf_driver` | `enableLWFDriver` | Windows Lightweight Filter driver mode — affects how ZCC intercepts traffic on Windows. Uniquely typed `string` in Go SDK despite being conceptually 0/1. |
 | `enable_split_vpn_t_n` | `enableSplitVpnTN` | Split VPN Trusted Network mode — when ZCC is running alongside a full VPN, consult the VPN's network as the trusted criterion. Typed `int` (`forwarding_profile.go:39`). |
-| `enable_unified_tunnel` | `enableUnifiedTunnel` | Master toggle for Unified Tunnel mode (Go SDK only — absent from Python SDK). Typed `int` (`forwarding_profile.go:36`). See [§ Unified Tunnel](#unified-tunnel). |
+| `enable_unified_tunnel` | `enableUnifiedTunnel` | Master toggle for Unified Tunnel mode. Now modeled in the Python SDK (`forwardingprofile.py:388`). Typed `int` (`forwarding_profile.go:36`). See [§ Unified Tunnel](#unified-tunnel). |
 | `enable_all_default_adapters_t_n` | `enableAllDefaultAdaptersTN` | Whether all OS default network adapters participate in trusted-network evaluation. Typed `int` (`forwarding_profile.go:38`). |
 | `forwarding_profile_actions` | `forwardingProfileActions` | **List** of per-network-type ZIA actions. One item per network classification. See [§ ForwardingProfileActions](#forwardingprofileactions-zia-actions-per-network-type). |
 | `forwarding_profile_zpa_actions` | `forwardingProfileZpaActions` | **List** of per-network-type ZPA actions. Parallel structure; independently configurable. |
-| `unified_tunnel` | `unifiedTunnel` | List of UnifiedTunnel sub-objects (Go SDK only). See [§ Unified Tunnel](#unified-tunnel). |
+| `unified_tunnel` | `unifiedTunnel` | List of UnifiedTunnel sub-objects. Now modeled in the Python SDK (`forwardingprofile.py:419`, `UnifiedTunnel` class at `forwardingprofile.py:299-364`). See [§ Unified Tunnel](#unified-tunnel). |
 
 ### ForwardingProfileActions — ZIA actions per network type
 
@@ -125,47 +127,47 @@ The `actionType` field within the block decides what happens to Internet traffic
 
 **If `actionType: NONE` is configured on the Trusted branch, ZCC bypasses ZIA entirely on trusted networks.** This is the single most common "why didn't ZIA see this traffic?" finding. A tenant that adds a TrustedNetwork for a user's home Wi-Fi (accidentally or deliberately) effectively exempts that user from ZIA inspection while at home.
 
-Per-action sub-fields that shape the tunnel/probe behavior (field names from `forwardingprofile.py:145–178`, type annotations from `forwarding_profile.go:47–81`):
+Per-action sub-fields that shape the tunnel/probe behavior (field names from the `ForwardingProfileActions` class, `forwardingprofile.py:106–230`; type annotations from `forwarding_profile.go:47–81`):
 
 | Field | Wire key | Role |
 |---|---|---|
 | `primary_transport` | `primaryTransport` | Z-Tunnel transport preference. Typed `int` (`forwarding_profile.go:54`); exact enum unconfirmed — see [`clarification zcc-04`](../_meta/clarifications.md#zcc-04-forwardingprofile-primary_transport-enum). |
-| `allow_tls_fallback` | `allowTLSFallback` | If DTLS fails, fall back to TLS. (`forwardingprofile.py:150`) |
-| `tunnel2_fallback_type` | `tunnel2FallbackType` | Specific fallback behavior when Z-Tunnel 2.0 fails. Typed `int` (`forwarding_profile.go:61`). **Python SDK bug**: the `if config:` branch sets `self.tunnel2_fallback` from `tunnel2Fallback` (line 172); the `else:` branch sets `self.tunnel2_fallback_type = None` (line 219, different attribute name); `request_format()` only serializes `tunnel2Fallback: self.tunnel2_fallback` (line 250). Result: `tunnel2_fallback_type` is **dead code** — never reachable from a live API response, never serialized on write. The Go-only `tunnel2FallbackType` int field (the actual wire shape) has no working Python SDK path. |
-| `use_tunnel2_for_proxied_web_traffic` | `useTunnel2ForProxiedWebTraffic` | Explicit Z-Tunnel 2.0 toggle for proxied web traffic. (`forwardingprofile.py:173`) |
-| `use_tunnel2_for_unencrypted_web_traffic` | `useTunnel2ForUnencryptedWebTraffic` | Z-Tunnel 2.0 toggle for unencrypted web traffic separately. Go SDK only (`forwarding_profile.go:67`); absent from Python model. |
-| `enable_packet_tunnel` | `enablePacketTunnel` | Packet-level tunnel vs L4/L7 proxy. (`forwardingprofile.py:162`) |
-| `optimise_for_unstable_connections` | `optimiseForUnstableConnections` | Performance tuning for flaky networks. Go SDK only (`forwarding_profile.go:74`); absent from Python model. |
-| `latency_based_zen_enablement` | `latencyBasedZenEnablement` | Pick best Service Edge based on latency probes. Returns as `IntOrString` (`forwarding_profile.go:58`). |
-| `zen_probe_interval` / `zen_probe_sample_size` / `zen_threshold_limit` | — | Latency probe tuning. (`forwardingprofile.py:176–178`) |
+| `allow_tls_fallback` | `allowTLSFallback` | If DTLS fails, fall back to TLS. (`forwardingprofile.py:126`) |
+| `tunnel2_fallback_type` | `tunnel2FallbackType` | Specific fallback behavior when Z-Tunnel 2.0 fails. Typed `int` (`forwarding_profile.go:61`). In the v1.9.31 model rewrite this is now a normal `int` field with a working Python round-trip: read from `config["tunnel2FallbackType"]` (`forwardingprofile.py:128`), defaulted to `None` in the no-config branch (`forwardingprofile.py:174`), serialized as `"tunnel2FallbackType": self.tunnel2_fallback_type` (`forwardingprofile.py:209`). The earlier attribute-naming inconsistency (an orphaned `tunnel2_fallback` / `tunnel2Fallback` that was never serialized) is gone — there is no `tunnel2_fallback` attribute anywhere in the current model. |
+| `use_tunnel2_for_proxied_web_traffic` | `useTunnel2ForProxiedWebTraffic` | Explicit Z-Tunnel 2.0 toggle for proxied web traffic. (`forwardingprofile.py:129`) |
+| `use_tunnel2_for_unencrypted_web_traffic` | `useTunnel2ForUnencryptedWebTraffic` | Z-Tunnel 2.0 toggle for unencrypted web traffic separately. Now modeled in the Python SDK (`forwardingprofile.py:132`); typed `int` in Go (`forwarding_profile.go:67`). |
+| `enable_packet_tunnel` | `enablePacketTunnel` | Packet-level tunnel vs L4/L7 proxy. (`forwardingprofile.py:113`) |
+| `optimise_for_unstable_connections` | `optimiseForUnstableConnections` | Performance tuning for flaky networks. Go SDK only (`forwarding_profile.go:74`); absent from the Python `ForwardingProfileActions` model. |
+| `latency_based_zen_enablement` | `latencyBasedZenEnablement` | Pick best Service Edge based on latency probes. Returns as `IntOrString` (`forwarding_profile.go:69`). |
+| `zen_probe_interval` / `zen_probe_sample_size` / `zen_threshold_limit` | — | Latency probe tuning. (`forwardingprofile.py:144–146`) |
 | `redirect_web_traffic` | `redirectWebTraffic` | Whether to redirect web traffic into the tunnel at all. Returns as `IntOrString`. |
-| `system_proxy` / `system_proxy_data` | `systemProxy` / `systemProxyData` | OS-level proxy integration (PAC URL, proxy server, bypass rules). `systemProxyData` sub-fields: `bypassProxyForPrivateIP`, `enableAutoDetect`, `enablePAC`, `enableProxyServer`, `pacDataPath`, `pacURL`, `performGPUpdate`, `proxyAction`, `proxyServerAddress`, `proxyServerPort` (`forwardingprofile.py:184–193`). |
+| `system_proxy` / `system_proxy_data` | `systemProxy` / `systemProxyData` | OS-level proxy integration (PAC URL, proxy server, bypass rules). `systemProxyData` is now its own `SystemProxyData` model class (`forwardingprofile.py:33–78`) with sub-fields: `bypassProxyForPrivateIP`, `enableAutoDetect`, `enablePAC`, `enableProxyServer`, `pacURL`, `pacDataPath`, `performGPUpdate`, `proxyAction`, `proxyServerAddress`, `proxyServerPort` (`forwardingprofile.py:39–50`). |
 | `custom_pac` | `customPac` | Custom PAC content or URL. For PAC semantics (variable substitution, Kerberos, 10-version history, self-hosted-loses-variables rule) see [`../shared/pac-files.md`](../shared/pac-files.md). |
 | `drop_ipv6_traffic` / `drop_ipv6_traffic_in_ipv6_network` / `drop_ipv6_include_traffic_in_t2` | — | IPv6 handling. Return as `IntOrString` or `IntOrString` variant (`forwarding_profile.go:63–73`). |
 | `path_mtu_discovery` / `mtu_for_zadapter` | — | Path MTU and ZCC virtual-adapter MTU. `mtu_for_zadapter` returns as `IntOrString`; POST sends as `string` (`forwarding_profile_request.go:48`). |
-| `dtls_timeout` / `tls_timeout` / `udp_timeout` | `DTLSTimeout` / `TLSTimeout` / `UDPTimeout` | Per-transport timeouts. (`forwardingprofile.py:145–147`) |
+| `dtls_timeout` / `tls_timeout` / `udp_timeout` | `DTLSTimeout` / `TLSTimeout` / `UDPTimeout` | Per-transport timeouts. (`forwardingprofile.py:122–124`) |
 | `block_unreachable_domains_traffic` | `blockUnreachableDomainsTraffic` | If a domain fails to resolve, whether to allow the attempt to fall through or block. Returns as `IntOrString`; POST sends as `string` (`forwarding_profile_request.go:42`). |
 | `is_same_as_on_trusted_network` | `isSameAsOnTrustedNetwork` | Inherits settings from the On-Trusted branch. Typed `bool` with `omitempty` in Go GET response (`forwarding_profile.go:80`); `*bool` pointer with `omitempty` on POST (`forwarding_profile_request.go:68`). Unique — uses `bool` not `int`, unlike other toggles. |
-| `send_all_dns_to_trusted_server` | `sendAllDNSToTrustedServer` | Forwards all DNS queries to the trusted DNS server rather than resolving normally. Go SDK only; absent from Python model. |
+| `send_all_dns_to_trusted_server` | `sendAllDNSToTrustedServer` | Forwards all DNS queries to the trusted DNS server rather than resolving normally. Go SDK only (`forwarding_profile.go:62`); absent from the Python `ForwardingProfileActions` model. |
 | `network_type` | `networkType` | The branch this action block applies to. See [§ Network types](#network-type-branches). |
 
 ### ForwardingProfileZpaActions — ZPA actions per network type
 
 Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go`.
 
-Parallel structure; independent of ZIA actions. One action block per network type, keyed the same way. Notable fields (from `forwardingprofile.py:276–305` and `forwarding_profile.go`):
+Parallel structure; independent of ZIA actions. One action block per network type, keyed the same way. Notable fields (from the `ForwardingProfileZpaActions` class, `forwardingprofile.py:233–296`, and `forwarding_profile.go`):
 
 | Field | Wire key | Role |
 |---|---|---|
-| `action_type` | `actionType` | NONE / tunnel / etc., as above but for ZPA. Typed `int`. |
-| `latency_based_zpa_server_enablement` | `latencyBasedZpaServerEnablement` | Pick best ZPA Service Edge based on latency. (`forwardingprofile.py:281`) |
-| `latency_based_server_mt_enablement` | `latencyBasedServerMTEnablement` | Latency-based Source MT (microtenant-aware) ZPA server selection. (`forwardingprofile.py:279`) |
-| `lbs_zpa_probe_interval` / `lbs_zpa_probe_sample_size` / `lbs_zpa_threshold_limit` | — | ZPA-side latency probe tuning. (`forwardingprofile.py:285–287`) |
-| `send_trusted_network_result_to_zpa` | `sendTrustedNetworkResultToZpa` | Whether ZCC tells ZPA the current trusted-network state. Affects ZPA policy rules that use the TRUSTED_NETWORK condition. (`forwardingprofile.py:303`) |
-| `partner_info` | `partnerInfo` | Partner-integration sub-object. Sub-fields: `allowTlsFallback`, `mtuForZadapter`, `primaryTransport` (`forwardingprofile.py:295–297`). |
-| `primary_transport` | `primaryTransport` | Transport preference for ZPA tunnel. (`forwardingprofile.py:302`) |
+| `action_type` | `actionType` | NONE / tunnel / etc., as above but for ZPA. Typed `int`. (`forwardingprofile.py:239`) |
+| `latency_based_server_enablement` | `latencyBasedServerEnablement` | Pick best ZPA Service Edge based on latency. (`forwardingprofile.py:245`) |
+| `latency_based_server_mt_enablement` | `latencyBasedServerMTEnablement` | Latency-based Source MT (microtenant-aware) ZPA server selection. (`forwardingprofile.py:251`) |
+| `lbs_probe_interval` / `lbs_probe_sample_size` / `lbs_threshold_limit` | — | ZPA-side latency probe tuning. (`forwardingprofile.py:248–250`) |
+| `send_trusted_network_result_to_zpa` | `sendTrustedNetworkResultToZpa` | Whether ZCC tells ZPA the current trusted-network state. Affects ZPA policy rules that use the TRUSTED_NETWORK condition. (`forwardingprofile.py:258`) |
+| `partner_info` | `partnerInfo` | Partner-integration sub-object (`PartnerInfo` class, `forwardingprofile.py:81–103`). Sub-fields: `primaryTransport`, `mtuForZadapter`, `allowTlsFallback` (`forwardingprofile.py:87–89`). |
+| `primary_transport` | `primaryTransport` | Transport preference for ZPA tunnel. (`forwardingprofile.py:240`) |
 
-**Key cross-product hook: `sendTrustedNetworkResultToZpa`** (`forwardingprofile.py:303`). ZPA access-policy rules can reference a TRUSTED_NETWORK condition. The behavioral claim — that this toggle controls whether ZPA's TRUSTED_NETWORK condition fires — is **inferred from the field name**: vendor help articles do not document this hook explicitly. **Confidence: medium**. If a tenant reports "ZPA TRUSTED_NETWORK condition isn't firing," check this toggle, but verify with a tenant-side test before promising it as the cause.
+**Key cross-product hook: `sendTrustedNetworkResultToZpa`** (`forwardingprofile.py:258`). ZPA access-policy rules can reference a TRUSTED_NETWORK condition. The behavioral claim — that this toggle controls whether ZPA's TRUSTED_NETWORK condition fires — is **inferred from the field name**: vendor help articles do not document this hook explicitly. **Confidence: medium**. If a tenant reports "ZPA TRUSTED_NETWORK condition isn't firing," check this toggle, but verify with a tenant-side test before promising it as the cause.
 
 ### The two action lists are independent
 
@@ -186,7 +188,7 @@ Per the model, ZCC uses three kinds of trusted-criteria input:
 
 1. **Inline criteria on the profile** — `dns_servers`, `dns_search_domains`, `hostname`+`resolved_ips_for_hostname`, `trusted_dhcp_servers`, `trusted_gateways`, `trusted_subnets`, `trusted_egress_ips`.
 2. **Referenced TrustedNetwork entities** — `trusted_network_ids` points to standalone TrustedNetwork objects defined separately (see [`./trusted-networks.md`](./trusted-networks.md)).
-3. **Predefined set** — `predefined_tn_all` / `predefined_trusted_networks` act as a shortcut for "any of a pre-declared set of networks." (`forwardingprofile.py:55`)
+3. **Predefined set** — `predefined_tn_all` / `predefined_trusted_networks` act as a shortcut for "any of a pre-declared set of networks." (`forwardingprofile.py:401`)
 
 How these combine: `condition_type` controls AND vs OR across the pieces (`forwarding_profile.go:22`). The enum isn't documented in the SDK — see `zcc-01`. Likely values: AND (all criteria must match), OR (any matches), or possibly `TRUSTED_CRITERIA_AND` / `TRUSTED_CRITERIA_OR` style strings. Lab-test at first tenant onboarding.
 
@@ -211,23 +213,23 @@ The RefArch framing also describes the master behavior: ZCC contains a feature c
 
 ### Fail-open policy — what happens when the cloud is unreachable
 
-A separate `FailOpenPolicy` object lives at the company level (one per tenant), distinct from the forwarding profile. API endpoint: `GET /zcc/papi/public/v1/webFailOpenPolicy/listByCompany`, `PUT /zcc/papi/public/v1/webFailOpenPolicy/edit` (`fail_open_policy.py:65–66`, `fail_open_policy.py:124–125`). Fields (from `models/failopenpolicy.py:38–65`):
+A separate `FailOpenPolicy` object lives at the company level (one per tenant), distinct from the forwarding profile. API endpoint: `GET /zcc/papi/public/v1/webFailOpenPolicy/listByCompany` (`fail_open_policy.py:66`), `PUT /zcc/papi/public/v1/webFailOpenPolicy/edit` (`fail_open_policy.py:126`). Fields (from `models/failopenpolicy.py:38–65`):
 
 | Field | Wire key | Behavior |
 |---|---|---|
 | `enable_fail_open` | `enableFailOpen` | Master toggle. If true, when the tunnel/proxy is unreachable, ZCC allows traffic out direct. If false, traffic is blocked. (`failopenpolicy.py:47`) |
 | `enable_captive_portal_detection` | `enableCaptivePortalDetection` | Whether ZCC detects a captive portal (hotel Wi-Fi, airport) that intercepts HTTP requests. (`failopenpolicy.py:44`) |
-| `captive_portal_web_sec_disable_minutes` | `captivePortalWebSecDisableMinutes` | Grace period during which ZCC disables web security so the user can complete captive-portal auth. Example value in SDK: `'10'` (`fail_open_policy.py:107`). After expiry, ZCC re-enforces. (`failopenpolicy.py:38`) |
+| `captive_portal_web_sec_disable_minutes` | `captivePortalWebSecDisableMinutes` | Grace period during which ZCC disables web security so the user can complete captive-portal auth. Example value in SDK: `'10'` (`fail_open_policy.py:108`). After expiry, ZCC re-enforces. (`failopenpolicy.py:38`) |
 | `enable_strict_enforcement_prompt` | `enableStrictEnforcementPrompt` | When enabled, prompts the user before letting fail-open happen, instead of silently allowing. |
-| `strict_enforcement_prompt_delay_minutes` | `strictEnforcementPromptDelayMinutes` | Delay before the prompt appears. Example value in SDK: `'2'` (`fail_open_policy.py:113`). |
+| `strict_enforcement_prompt_delay_minutes` | `strictEnforcementPromptDelayMinutes` | Delay before the prompt appears. Example value in SDK: `'2'` (`fail_open_policy.py:114`). |
 | `strict_enforcement_prompt_message` | `strictEnforcementPromptMessage` | Custom text. |
-| `tunnel_failure_retry_count` | `tunnelFailureRetryCount` | How many times ZCC retries the tunnel before declaring "unreachable" and applying fail-open. Example value in SDK: `'25'` (`fail_open_policy.py:115`). (`failopenpolicy.py:65`) |
+| `tunnel_failure_retry_count` | `tunnelFailureRetryCount` | How many times ZCC retries the tunnel before declaring "unreachable" and applying fail-open. Example value in SDK: `'25'` (`fail_open_policy.py:116`). (`failopenpolicy.py:65`) |
 | `enable_web_sec_on_proxy_unreachable` | `enableWebSecOnProxyUnreachable` | When PAC-proxy mode is active and the proxy is unreachable, whether web security still runs. |
 | `enable_web_sec_on_tunnel_failure` | `enableWebSecOnTunnelFailure` | When Z-Tunnel fails, whether web security still attempts to run (e.g. via a fallback path). |
 
 **Captive portal grace period is a common "user got blocked at the airport" story.** If a user logs into the portal slowly, they hit the re-enforcement window and are blocked until they disconnect/reconnect. Not a ZIA URL filter issue — a ZCC fail-open issue.
 
-**Captive portal settings may exist at App Profile scope as well as the tenant-global FailOpenPolicy described above.** The captured help article `about-zscaler-client-connector-app-profiles.md` does not document the migration explicitly; this scope split is reported in operator discussions and ZCC release notes not vendored here. **Confidence: low** until a vendor source is captured. When answering "why did this user get captive-portal-blocked and that user didn't on the same network", check both the tenant-global FailOpenPolicy *and* per-App-Profile platform sub-policies (see [`./web-policy.md`](./web-policy.md)) — the per-profile override may be in play.
+**Captive portal and fail-close settings also exist at App Profile scope, alongside the tenant-global FailOpenPolicy described above.** This is now SDK-confirmed, not just operator-reported: the `ApplicationProfile` model carries a per-profile captive-portal grace period, `reactivateWebSecurityMinutes` (`application_profiles.py:49`), and its `PolicyExtension` block carries the App-Profile fail-close surface — `zccAppFailOpenPolicy` (`application_profiles.py:474`), `zccTunnelFailPolicy` (`application_profiles.py:475`), and the `zccFailCloseSettings*` family: `zccFailCloseSettingsLockdownOnTunnelProcessExit` (`application_profiles.py:456`), `...LockdownOnFirewallError` (`application_profiles.py:461`), `...LockdownOnDriverError` (`application_profiles.py:466`), `...ExitUninstallPassword` (`application_profiles.py:451`), `...ThumbPrint` (`application_profiles.py:471`), `...IpBypasses` (`application_profiles.py:448`). When answering "why did this user get captive-portal-blocked and that user didn't on the same network", check both the tenant-global FailOpenPolicy *and* the active App Profile's `reactivateWebSecurityMinutes` / `PolicyExtension` fail-close fields (see [`./web-policy.md`](./web-policy.md)) — the per-profile setting may be in play. **Confidence: medium** — the SDK confirms these fields exist and are App-Profile-scoped; the exact precedence between a per-profile setting and the tenant-global FailOpenPolicy is not documented in the captured sources.
 
 ### Failure taxonomy and version-specific overrides
 
@@ -235,7 +237,7 @@ The *About Forwarding Profiles* capture (`vendor/zscaler-help/about-forwarding-p
 
 | Failure condition | What ZCC does | Configurable via |
 |---|---|---|
-| **Captive portal detected** | Disables web security for `captivePortalWebSecDisableMinutes`; user completes portal auth; re-enforces | App Profile (newer tenants) or tenant-global FailOpenPolicy |
+| **Captive portal detected** | Disables web security for `captivePortalWebSecDisableMinutes` (tenant-global) or `reactivateWebSecurityMinutes` (per App Profile, `application_profiles.py:49`); user completes portal auth; re-enforces | App Profile (`reactivateWebSecurityMinutes`) or tenant-global FailOpenPolicy |
 | **Tunnel establishment timeout** | Retries `tunnelFailureRetryCount` times, then applies fail-open | FailOpenPolicy (`tunnelFailureRetryCount`, `enableFailOpen`) |
 | **Z-Tunnel mid-session failure** | Falls back per `tunnel2FallbackType` (Z-Tunnel 2.0 → 1.0 / direct / drop) — see [`./z-tunnel.md`](./z-tunnel.md) | Forwarding profile per-network-type action |
 | **PAC proxy unreachable** | If `enableWebSecOnProxyUnreachable=true`, web security still attempts via fallback; otherwise falls open or blocks per master toggle | FailOpenPolicy |
@@ -251,30 +253,26 @@ The *About Forwarding Profiles* capture (`vendor/zscaler-help/about-forwarding-p
 
 ## Fields Python SDK doesn't expose (Go-SDK-only)
 
-Cross-SDK audit (2026-04-24) against `vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go:36–135` surfaced fields the Python SDK doesn't model. These fields exist on the wire and are settable via direct API call or Go SDK:
+The v1.9.31 Python SDK rewrite (`models/forwardingprofile.py`, now a fully-modeled `ForwardingProfile` class at `forwardingprofile.py:367–486` with sub-action classes at `forwardingprofile.py:106–364`) closed most of the old Python/Go delta. Fields that were previously Go-SDK-only are **now modeled in Python**: `enableUnifiedTunnel` (`forwardingprofile.py:388`), `unifiedTunnel` (`forwardingprofile.py:419`), `enableAllDefaultAdaptersTN` (`forwardingprofile.py:391`), `tunnel2FallbackType` (`forwardingprofile.py:128`), `useTunnel2ForUnencryptedWebTraffic` (`forwardingprofile.py:132`), `dropIpv6IncludeTrafficInT2` (`forwardingprofile.py:136`), the ZIA-side latency-server family `latencyBasedServerEnablement` / `lbsProbeInterval` / `lbsProbeSampleSize` / `lbsThresholdLimit` / `latencyBasedServerMTEnablement` (`forwardingprofile.py:147–155`), and `isSameAsOnTrustedNetwork` (`forwardingprofile.py:157`).
 
 Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go`; `vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile_request.go`.
 
+**What remains Go-SDK-only** (present on the wire / Go struct, still absent from the Python model — settable via direct API call or Go SDK):
+
 **On `ForwardingProfile`:**
 
-- `enableUnifiedTunnel` (int, 0/1) — master toggle for the Unified Tunnel feature (line 36).
-- `unifiedTunnel` (list of `UnifiedTunnel` sub-objects) — per-network-type unified-tunnel configuration (line 37).
-- `enableAllDefaultAdaptersTN` (int, 0/1) — whether all OS default network adapters participate in trusted-network evaluation (line 38).
-- `trustedNetworkIdsSelected` (list of int) — distinct from `trustedNetworkIds`. Relationship unclear; may be UI-selection state vs authoritative reference list. Needs tenant confirmation.
+- `trustedNetworkIdsSelected` (list of int, `forwarding_profile.go:44`) — distinct from `trustedNetworkIds`. Relationship unclear; may be UI-selection state vs authoritative reference list. Needs tenant confirmation.
 
 **On `forwardingProfileActions[]` items:**
 
-- `tunnel2FallbackType` (int enum, line 61) — specific kind of Z-Tunnel 2.0 fallback to perform. Python SDK had only a generic `tunnel2_fallback` bool, with an attribute-naming inconsistency between branches (lines 172 vs 219 of `forwardingprofile.py`).
-- `useTunnel2ForUnencryptedWebTraffic` (int, 0/1, line 67) — sibling of `useTunnel2ForProxiedWebTraffic`. Controls Z-Tunnel 2.0 behavior for unencrypted web traffic separately from proxied.
-- `optimiseForUnstableConnections` (int, 0/1, line 74) — performance tuning for flaky networks.
-- `sendAllDNSToTrustedServer` (int, 0/1) — forwards all DNS queries to the trusted DNS server rather than resolving normally.
-- `dropIpv6IncludeTrafficInT2` (IntOrString, line 73) — IPv6 drop behavior specific to Z-Tunnel 2.0.
-- `latencyBasedServerEnablement` / `lbsProbeInterval` / `lbsProbeSampleSize` / `lbsThresholdLimit` / `latencyBasedServerMTEnablement` — latency-based server selection on the ZIA-actions side. Python SDK had these only on ZPA actions.
-- `isSameAsOnTrustedNetwork` (bool with omitempty, line 80) — **exception to the int-not-bool rule**; this field is `bool` not `int` in the Go GET struct. Pointer `*bool` on POST (`forwarding_profile_request.go:68`).
+- `optimiseForUnstableConnections` (int, 0/1, `forwarding_profile.go:74`) — performance tuning for flaky networks.
+- `sendAllDNSToTrustedServer` (int, 0/1, `forwarding_profile.go:62`) — forwards all DNS queries to the trusted DNS server rather than resolving normally.
+
+**Note on `isSameAsOnTrustedNetwork`:** still the **exception to the int-not-bool rule** — `bool` (not `int`) in the Go GET struct (`forwarding_profile.go:80`), `*bool` pointer on POST (`forwarding_profile_request.go:68`). It is now modeled in the Python `ForwardingProfileActions` (`forwardingprofile.py:157`).
 
 ## Unified Tunnel
 
-The Go SDK exposes a `UnifiedTunnel` sub-structure (`forwarding_profile.go:119–139`) distinct from both ForwardingProfileActions and ForwardingProfileZpaActions. Shape:
+Both SDKs now expose a `UnifiedTunnel` sub-structure distinct from both ForwardingProfileActions and ForwardingProfileZpaActions: Go struct at `forwarding_profile.go:119–139`, Python `UnifiedTunnel` model class at `forwardingprofile.py:299–364` (the `actionTypeZIA` / `actionTypeZPA` split is at `forwardingprofile.py:323–324`). Shape (type info from the Go struct):
 
 | Field | Role |
 |---|---|
@@ -302,12 +300,12 @@ Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py`; `ve
 
 - **Profile has no TRUSTED branch at all.** If `forwardingProfileActions` doesn't include an item with `networkType = TRUSTED`, ZCC has no defined behavior for the trusted branch. **Inferred** from struct shape: this likely behaves the same as `evaluate_trusted_network = false` (`forwarding_profile.go:40`), but the equivalence is not stated in any captured help article — vendor source only confirms the field exists. Lab-test before relying on the equivalence; ZCC's actual default behavior for absent action blocks could differ from the master-toggle-off path. **Confidence: low**.
 - **Trusted-network criteria match at home by accident.** If `trusted_subnets` are broad enough to match a common home-network config (e.g., `192.168.1.0/24`, the default for many consumer routers), users on home Wi-Fi can be classified TRUSTED and skip ZIA inspection. Audit trusted criteria for specificity.
-- **ZPA TRUSTED_NETWORK policy rules silently don't fire** when `sendTrustedNetworkResultToZpa` is off on the active forwarding profile's ZPA actions (`forwardingprofile.py:303`), or when `evaluateTrustedNetwork` is false at the profile level (`forwarding_profile.go:40`). Check both before chasing ZPA-side rule logic.
+- **ZPA TRUSTED_NETWORK policy rules silently don't fire** when `sendTrustedNetworkResultToZpa` is off on the active forwarding profile's ZPA actions (`forwardingprofile.py:258`), or when `evaluateTrustedNetwork` is false at the profile level (`forwarding_profile.go:40`). Check both before chasing ZPA-side rule logic.
 - **VPN-Trusted misdetection on non-standard VPN clients.** If the VPN adapter's interface description doesn't contain Cisco, Juniper, Fortinet, PanGP, or VPN on Windows (`about-forwarding-profiles.md:36`), ZCC won't recognize it as a VPN-Trusted network. Users will be treated as Off-Trusted even while VPN is active. Fix: contact the VPN vendor to rename the adapter, or use trusted-subnet/egress-IP criteria instead.
-- **QUIC / HTTP3 considerations (operator-reported, unverified).** ZCC intercepts at the OS network layer; ZIA's forward proxy operates on HTTP/TCP. QUIC runs over UDP 443. Whether QUIC traffic from WebKit-class browsers consistently bypasses ZIA proxy inspection in tenant configurations that don't drop UDP 443 is an open question — the architectural gap is real, but the operational behavior in production tenants has not been verified in this skill. Candidate levers if it does manifest: `dropQuicTraffic` in PolicyExtension (`webpolicy.py:417`), or a Cloud Firewall rule blocking UDP 443. The CAC reference (`../zia/cloud-app-control.md`) cites the QUIC concern at the ZIA-deployment level. Treat as a hypothesis to verify against the tenant, not a documented diagnostic conclusion.
+- **QUIC / HTTP3 considerations (operator-reported, unverified).** ZCC intercepts at the OS network layer; ZIA's forward proxy operates on HTTP/TCP. QUIC runs over UDP 443. Whether QUIC traffic from WebKit-class browsers consistently bypasses ZIA proxy inspection in tenant configurations that don't drop UDP 443 is an open question — the architectural gap is real, but the operational behavior in production tenants has not been verified in this skill. Candidate levers if it does manifest: `dropQuicTraffic` (`webpolicy.py:416`; also on the App Profile `PolicyExtension` at `application_profiles.py:408`), or a Cloud Firewall rule blocking UDP 443. The CAC reference (`../zia/cloud-app-control.md`) cites the QUIC concern at the ZIA-deployment level. Treat as a hypothesis to verify against the tenant, not a documented diagnostic conclusion.
 - **App profile updates are event-driven, not polled.** ZCC downloads profile changes "whenever users log out and back into the app or restart their computers" (`about-zscaler-client-connector-app-profiles.md:17`). There is no continuous polling interval. An operator pushing a critical policy change expecting immediate propagation to connected devices will be surprised — connected devices keep the cached profile until next ZCC logout/restart.
 - **Z-Tunnel 2.0 + Bandwidth Control.** Per `references/zia/ssl-inspection.md`, HTTP/2 inspection falls back to HTTP/1.1 at locations where Bandwidth Control is enabled. This is a Service-Edge-side effect but it can look like a ZCC transport issue — rule out Bandwidth Control before suspecting ZCC.
-- **System proxy integration overrides.** When `systemProxy` is enabled with `enablePAC`/`enableProxyServer` in `systemProxyData` (`forwardingprofile.py:186–187`), ZCC honors the OS-level proxy settings in addition to (or instead of) its own forwarding actions. Order of precedence is not clearly documented; treat as operator-configured-to-taste. See [`clarification zcc-05`](../_meta/clarifications.md#zcc-05-systemproxydata-vs-native-forwarding-action-precedence).
+- **System proxy integration overrides.** When `systemProxy` is enabled (`forwardingprofile.py:160`) with `enablePAC`/`enableProxyServer` in `systemProxyData` (`forwardingprofile.py:43–44`), ZCC honors the OS-level proxy settings in addition to (or instead of) its own forwarding actions. Order of precedence is not clearly documented; treat as operator-configured-to-taste. See [`clarification zcc-05`](../_meta/clarifications.md#zcc-05-systemproxydata-vs-native-forwarding-action-precedence).
 - **IPv6 drop flags can break IPv6-only apps.** `dropIpv6Traffic`, `dropIpv6TrafficInIpv6Network`, and `dropIpv6IncludeTrafficInT2` all return as `IntOrString` (`forwarding_profile.go:63–73`); real-tenant defaults may silently drop IPv6. A user reporting "IPv6-only application fails on ZCC" should have these inspected.
 
 ## Open questions
@@ -317,7 +315,8 @@ Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py`; `ve
 - `action_type` enum values (NONE / TUNNEL / PAC / ENFORCE_POLICIES / ?) — [clarification `zcc-03`](../_meta/clarifications.md#zcc-03-forwardingprofile-action_type-enum).
 - `primary_transport` enum values (ZTUNNEL / DTLS / TLS / ?) — [clarification `zcc-04`](../_meta/clarifications.md#zcc-04-forwardingprofile-primary_transport-enum).
 - Precedence when `systemProxyData` and native forwarding actions both specify a path — [clarification `zcc-05`](../_meta/clarifications.md#zcc-05-systemproxydata-vs-native-forwarding-action-precedence).
-- Behavioral description of Unified Tunnel (Go SDK struct confirmed; no help article found) — follow-up item.
+- Behavioral description of Unified Tunnel — the model is now confirmed in both SDKs (Go `UnifiedTunnel` struct `forwarding_profile.go:119–139`; Python `UnifiedTunnel` class `forwardingprofile.py:299–364`), but the customer-side operational semantics (what shared-transport actually changes vs two separate Z-Tunnels) still have no help-article backing — follow-up item. See [clarification `zcc-84`](../_meta/clarifications.md#zcc-84-unified-tunnel-operational-semantics).
+- Precedence between a per-App-Profile fail-close setting and the tenant-global `FailOpenPolicy`. The App-Profile fail-close fields are now SDK-confirmed (`application_profiles.py` `reactivateWebSecurityMinutes:49`, `PolicyExtension` `zccAppFailOpenPolicy:474` / `zccTunnelFailPolicy:475` / `zccFailCloseSettings*:449–472`), but which one wins when both are set is not documented in the captured sources — lab-test or capture a vendor source before promising a precedence order to a customer. See [clarification `zcc-85`](../_meta/clarifications.md#zcc-85-app-profile-fail-close-vs-tenant-failopenpolicy-precedence).
 
 ## Cross-links
 
