@@ -211,7 +211,7 @@ The record carries only the fields below (vendor/zscaler-sdk-python/zscaler/zid/
 
 `authType` → auth artifact mapping: `SECRET` → secret material at `/api-clients/{id}/secrets` (below); `PUBKEYCERT` → `clientAuthentication.clientCertificates[].certContent`; `JWKS` → `clientAuthentication.clientJWKsUrl` + `publicKeys[]`.
 
-**Secrets are a separate sub-resource** at `GET {prefix}/api-clients/{id}/secrets` (vendor/zscaler-sdk-python/zscaler/zid/api_client.py:414-415; model `APIClientSecrets`, api_client.py:287-318). Each secret = `{ id, createdAt, expiresAt, value }`. The `value` field IS present on this endpoint (populated on creation — the secret-shown-once pattern). A snapshot must fetch this per client; it is not embedded in the api-client record.
+**Secrets are a separate sub-resource** at `GET {prefix}/api-clients/{id}/secrets` (vendor/zscaler-sdk-python/zscaler/zid/api_client.py:414-415; model `APIClientSecrets`, api_client.py:287-318). Each secret = `{ id, createdAt, expiresAt, value }`. The `value` field is returned by this endpoint on **every GET** (`api_client.py:305` maps `value` from the read response) — it is **not** a show-once value, so any snapshot of the secrets sub-resource captures the live secret material. A snapshot must fetch this per client; it is not embedded in the api-client record. **Treat the secrets sub-resource as sensitive and prefer not to snapshot `value` at all** unless the snapshot store is secured for secret material.
 
 ```json
 [
@@ -310,7 +310,7 @@ These are real, source-confirmed ZIdentity surfaces that a snapshot could add �
 
 2. **`results_total`, `next_link`, `prev_link` are snake_case**, despite all other fields being camelCase. Quirk of the pagination wrapper.
 
-3. **The api-client record never contains secret material** — there is no `secrets[]` on the record. Secrets live only at `/api-clients/{id}/secrets`, which returns `{ id, createdAt, expiresAt, value }`. The `value` IS populated on creation (secret-shown-once), so the secrets endpoint output is sensitive even though the record output is not (vendor/zscaler-sdk-python/zscaler/zid/models/api_client.py:287-318).
+3. **The api-client record never contains secret material** — there is no `secrets[]` on the record. Secrets live only at `/api-clients/{id}/secrets`, which returns `{ id, createdAt, expiresAt, value }`. The `value` is returned by that endpoint on **every call**, not just at creation (`api_client.py:305`), so the secrets sub-resource output is sensitive even though the record output is not — a snapshot of it captures live secret material (vendor/zscaler-sdk-python/zscaler/zid/models/api_client.py:287-318).
 
 4. **String IDs** — same as ZPA. `id: "..."` not integers.
 
