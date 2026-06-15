@@ -240,7 +240,7 @@ Start
 │  │      x-ratelimit-* headers indicate remaining budget. Backoff strategy is product-specific;
 │  │      see oneapi.md § Rate limits — different model per product.
 │  ├─ ZPA → Per-IP rate limit. RateLimit-* headers (different naming!).
-│  ├─ ZDX → Tier-based by license count. RateLimit-* headers.
+│  ├─ ZDX → Tier-based by license count. RateLimit-* headers (OneAPI gateway, help-documented; direct-cloud SDK path uses X-Ratelimit-*-Second — host-coupling inferred, see zdx/api-divergences.md).
 │  ├─ ZCC → Flat tenant-wide. X-Rate-Limit-* headers (note the dashes — different again!).
 │  └─ ZTW (Cloud Connector) → Same as ZIA weight model.
 │

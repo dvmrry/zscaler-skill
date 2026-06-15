@@ -27,7 +27,7 @@ The ZCC limits are distinct from:
 
 - **ZIA**: weight-based (100 calls/hour per IP for general endpoints; 1,000 GET calls/hour; 400 POST/PUT calls/hour). ZIA uses `x-ratelimit-limit`, `x-ratelimit-remaining`, `x-ratelimit-reset` headers.
 - **ZPA**: per-IP window (20 GET / 10 write per 10-second window). ZPA returns a `retry-after` header on 429.
-- **ZDX**: tier-based by license count (1,000–9,000 calls/hour depending on tier). ZDX uses `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` headers.
+- **ZDX**: tier-based by license count (1,000–9,000 calls/hour depending on tier). ZDX OneAPI gateway path returns `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` headers (help-documented); the SDK direct-cloud transport reads `X-Ratelimit-Remaining-Second` / `X-Ratelimit-Limit-Second` — per-host header family is inferred, not live-confirmed (see `references/zdx/api-divergences.md`).
 
 ZCC does not share a rate-limit pool with ZIA or ZPA. API calls to `/zia/api/v1` and `/zpa/mgmtconfig/v1` are counted separately.
 
@@ -65,7 +65,7 @@ ZCC uses a distinct header naming scheme from ZIA and ZDX. The exact header name
 
 These headers use the `X-Rate-Limit-*` form. This differs from:
 - ZIA, which uses lowercase `x-ratelimit-limit`, `x-ratelimit-remaining`, `x-ratelimit-reset`.
-- ZDX, which uses `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset`.
+- ZDX OneAPI gateway path, which returns `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` (help-documented; direct-cloud SDK transport reads `X-Ratelimit-*-Second` — see `references/zdx/api-divergences.md`).
 
 A header corresponding to the limit ceiling (analogous to ZIA's `x-ratelimit-limit`) is not documented for ZCC. Callers should not rely on a `X-Rate-Limit-Limit` header being present.
 

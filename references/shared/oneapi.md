@@ -27,7 +27,7 @@ author-status: draft
 
 # OneAPI — unified API gateway, auth flows, rate limits, error model
 
-OneAPI is Zscaler's unified API gateway — a single host (`api.zsapi.net`) fronting every product API with consistent authentication, rate limiting, error semantics, and tenant routing. It's distinct from product-specific legacy APIs (ZDX has its own auth path, ZCC has its own login endpoint) but is the modern path for ZIA, ZPA, ZIdentity, ZCC, ZTW (Cloud & Branch Connector), and BI (Business Insights).
+OneAPI is Zscaler's unified API gateway — a single host (`api.zsapi.net`) fronting every product API with consistent authentication, rate limiting, error semantics, and tenant routing. It's the modern path for ZIA, ZPA, ZIdentity, ZDX, ZCC, ZTW (Cloud & Branch Connector), and BI (Business Insights). Some products (ZDX, ZCC) also retain dedicated legacy auth flows for non-ZIdentity / gov tenants or legacy tooling — see [§ Authentication mechanisms](#authentication-mechanisms-5-paths-in-the-wild).
 
 This doc consolidates **everything that's true cross-product** — the auth flows, base URL table, rate-limit math per product, error codes, maintenance-mode behavior, and how the Postman collection covers each product. Use this as the entry point for any "how do I authenticate / call / rate-limit / handle errors" question; descend into product-specific `api.md` docs only for endpoint-shape details.
 
@@ -294,7 +294,7 @@ Headers on every response: `x-ratelimit-limit`, `x-ratelimit-remaining`, `x-rate
 | 3 | 100,000 | 5 | 120 | 6,000 | 30,000 |
 | 4 | >100,000 | 5 | 180 | 9,000 | 60,000 |
 
-Headers: `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` (UTC epoch seconds — different naming + different value shape from ZIA).
+Headers (OneAPI gateway path, help-documented): `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` (UTC epoch seconds — different naming + different value shape from ZIA). Note: the SDK direct-cloud transport reads `X-Ratelimit-Remaining-Second` / `X-Ratelimit-Limit-Second` instead; the per-host header family is inferred, not live-confirmed — see [`../zdx/api-divergences.md § Rate-limit response headers`](../zdx/api-divergences.md).
 
 ### ZCC — flat tenant-wide
 
@@ -447,9 +447,9 @@ Note: This section summarizes the cited OneAPI mechanics above.
 
 1. **`audience=https://api.zscaler.com` is REQUIRED** on the OneAPI token request. Tokens issued without it succeed at exchange but fail at the OneAPI gateway with 401. Common debugging trap.
 
-2. **Three coexisting auth flows.** ZDX and legacy ZCC do not use OneAPI OAuth. A multi-product script that touches ZDX must implement SHA256(secret:timestamp) auth alongside the OneAPI flow.
+2. **Three coexisting auth flows.** ZDX is OneAPI-capable (both SDKs route it through ZIdentity OAuth), but it also retains a dedicated SHA256-signed legacy flow used on non-ZIdentity / gov tenants. Legacy ZCC similarly coexists with the OneAPI path. A multi-product script that touches ZDX on a non-ZIdentity tenant must implement SHA256(secret:timestamp) auth; on a ZIdentity-configured tenant, the standard OneAPI OAuth flow applies.
 
-3. **Rate-limit response headers differ per product.** Code that polls `x-ratelimit-remaining` for ZIA needs to switch to `RateLimit-Remaining` for ZDX and `X-Rate-Limit-Remaining` for ZCC. Same conceptual field, three names.
+3. **Rate-limit response headers differ per product.** Code that polls `x-ratelimit-remaining` for ZIA needs to switch to `RateLimit-Remaining` for ZDX (OneAPI gateway path, help-documented; the SDK direct-cloud transport reads `X-Ratelimit-*-Second` — the per-host mapping is inferred, see [`../zdx/api-divergences.md`](../zdx/api-divergences.md)) and `X-Rate-Limit-Remaining` for ZCC. Same conceptual field, three names.
 
 4. **ZPA web reference docs don't exist** at automate.zscaler.com — Postman is the only published API surface. This is a staged rollout per Zscaler; check periodically for ZPA web pages.
 

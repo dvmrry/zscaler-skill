@@ -22,7 +22,7 @@ Endpoint and SDK summary for ZDX. Unlike ZIA / ZPA, ZDX is **read-dominant** —
 
 ## Base endpoint
 
-ZDX **data** endpoints live under `/zdx/v1` on both transports (`vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go:12`, `.../reports/devices/devices.go:12`, `.../inventory/inventory.go:12`). Two transports reach them: the OneAPI gateway (`https://api.zsapi.net/zdx/v1/...`) and the legacy direct-cloud host the SDKs build (`https://api.zdxcloud.net`, default cloud `zdxcloud`; `vendor/zscaler-sdk-python/zscaler/zdx/legacy.py:55`,`57`). The two differ in their auth-path prefix — see [Auth](#auth). ZDX retains its own SHA256-signed auth flow (`vendor/zscaler-sdk-python/zscaler/zdx/legacy.py`) rather than the ZIdentity OAuth exchange ZIA/ZPA use under OneAPI.
+ZDX **data** endpoints live under `/zdx/v1` on both transports (`vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go:12`, `.../reports/devices/devices.go:12`, `.../inventory/inventory.go:12`). Two transports reach them: the OneAPI gateway (`https://api.zsapi.net/zdx/v1/...`) and the legacy direct-cloud host the SDKs build (`https://api.zdxcloud.net`, default cloud `zdxcloud`; `vendor/zscaler-sdk-python/zscaler/zdx/legacy.py:55`,`57`). The two differ in their auth-path prefix — see [Auth](#auth). ZDX also retains a dedicated SHA256-signed legacy auth flow (`vendor/zscaler-sdk-python/zscaler/zdx/legacy.py`) for non-ZIdentity / gov tenants or tooling pinned to the direct-cloud path — see [Auth](#auth).
 
 ## SDK services under `client.zdx.*`
 
