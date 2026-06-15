@@ -113,7 +113,7 @@ The Go `reports/users` types expose `User`, `Devices`, `UserLocation`, and `ZSLo
 |---|---|
 | `share_snapshot(name, alert_id, expiry, obfuscation)` | Create a shareable snapshot of an alert's details. POST `/zdx/v1/snapshot/alert` (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:83-87`). |
 
-`expiry` is in hours and must be between **2 hours and 90 days** (default 2 hours); the SDK converts it to a Unix-epoch value (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:40-42`,`105`). `obfuscation` is a list selecting which fields to redact in the shared snapshot — valid values are `USER_NAME`, `LOCATION`, `DEVICE_NAME`, `IP_ADDRESS`, `WIFI_NAME` (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:43-45`). This is a **write**, not a state read.
+`expiry` is in hours and must be between **2 hours and 90 days** (default 2 hours); the SDK converts it to a Unix-epoch value (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:40-42`,`105`). `obfuscation` is a list selecting which fields to redact in the shared snapshot — valid values are `USER_NAME`, `LOCATION`, `DEVICE_NAME`, `IP_ADDRESS`, `WIFI_NAME` (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:43-45`). **Note:** as of the reviewed SDK commit, `obfuscation` is accepted as a kwarg but **not placed in the POST body** by the Python client — `share_snapshot` builds the body from `name`/`alert_id`/`expiry` only (`snapshot.py:91-106`), so these values describe the API contract, not confirmed SDK behavior (see [clarification `zdx-35`](../_meta/clarifications.md#zdx-35-share_snapshot-obfuscation-transmission)). This is a **write**, not a state read.
 
 ## Auth
 

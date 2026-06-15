@@ -296,6 +296,7 @@ Generates a shareable, optionally obfuscated snapshot of ZDX alert data.
 
 **Notable behavior:**
 - `share_snapshot` kwargs: `name` (str), `alert_id` (str), `expiry` (int, hours; must be between 2 hours and 90 days), `obfuscation` (list of strings: `"USER_NAME"`, `"LOCATION"`, `"DEVICE_NAME"`, `"IP_ADDRESS"`, `"WIFI_NAME"`).
+- ⚠️ `obfuscation` is accepted as a kwarg but is **not placed in the HTTP request body** in the current SDK version — `share_snapshot` builds the body from `name`/`alert_id`/`expiry` only (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:91-106`). The documented values describe the API contract, not confirmed SDK behavior. See [clarification `zdx-35`](../_meta/clarifications.md#zdx-35-share_snapshot-obfuscation-transmission).
 - The `expiry` value is converted from hours to Unix epoch (`current_time + hours * 3600`) inside the method before sending.
 - The `@zdx_params` decorator is applied, so `expiry` is routed through `query_params` first and then extracted to the body.
 - Returns a `Snapshot` object with `id`, `name`, `alert_id`, `expiry` (epoch), `obfuscation`, `url`, `status`.
