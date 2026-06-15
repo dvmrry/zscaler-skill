@@ -53,20 +53,20 @@ Source: `vendor/zscaler-help/automate-zscaler/api-authentication-overview.md`; `
 
 Related references: [`legacy-api.md`](./legacy-api.md), [`../zia/api.md`](../zia/api.md), [`../zpa/api.md`](../zpa/api.md), [`../zcc/api.md`](../zcc/api.md), and [`../zdx/api.md`](../zdx/api.md).
 
-OneAPI is the modern path. **Four legacy paths still exist** because (a) gov-cloud tenants don't have OneAPI, (b) some products were never OneAPI-migrated (ZDX, ZCC pre-OneAPI), and (c) plenty of tenants haven't migrated to ZIdentity yet. Operational reality: any code touching multiple Zscaler products today must be prepared to deal with 2–3 different auth flows.
+OneAPI is the modern path. **Four legacy paths still exist** because (a) gov-cloud tenants don't have OneAPI, (b) some products retain a dedicated legacy auth flow in parallel with OneAPI (ZDX SHA256-signed flow, ZCC legacy path), and (c) plenty of tenants haven't migrated to ZIdentity yet. Operational reality: any code touching multiple Zscaler products today must be prepared to deal with 2–3 different auth flows.
 
 | Mechanism | Used by | Endpoint | Notes |
 |---|---|---|---|
 | **OneAPI OAuth 2.0** | ZIA, ZPA, ZIdentity, ZCC (OneAPI path), ZTW, BI | `https://<vanity>.zslogin.net/oauth2/v1/token` | Modern path. Client-credentials flow via ZIdentity. **Not supported in gov clouds** (`zscalergov`, `zscalerten`, ZPA `GOV`/`GOVUS`). |
 | **ZIA legacy** | ZIA (pre-ZIdentity tenants + gov clouds) | `POST https://<cloud>.zscaler.net/api/v1/authenticatedSession` | Username + password + API key + obfuscated timestamp. Algorithm below. |
 | **ZPA legacy** | ZPA (pre-ZIdentity tenants + gov clouds `GOV`/`GOVUS`) | `POST /signin` (per cloud) | `client_id`, `client_secret`, `customer_id` issued in ZPA Admin Portal. |
-| **ZDX legacy** | ZDX only — never migrated to OneAPI as of capture | `POST https://api.zsapi.net/zdx/v1/oauth/token` | SHA256-signed `key+timestamp`. **15-minute timestamp window.** |
+| **ZDX legacy** | ZDX (legacy tenants / direct-cloud host path) | `POST https://api.zdxcloud.net/v1/oauth/token` or `POST https://api.zsapi.net/zdx/v1/oauth/token` | SHA256-signed `key+timestamp`. **15-minute timestamp window.** ZDX also supports the OneAPI OAuth 2.0 path (see [`../zdx/api.md § Auth`](../zdx/api.md)). |
 | **ZCC legacy** | ZCC (legacy path) | `POST https://api.zsapi.net/zcc/papi/auth/v1/login` | apiKey + secretKey, returns JWT. |
 
 **When you need a legacy path** (any one of these → must use the corresponding legacy auth):
 - Tenant is on a gov cloud (`zscalergov` / `zscalerten` for ZIA/ZCC; ZPA `GOV` / `GOVUS`).
 - Tenant hasn't migrated to ZIdentity yet (some enterprises remain on legacy auth indefinitely; the migration is opt-in, not forced).
-- The product is ZDX (no OneAPI path exists).
+- The product is ZDX and the tenant or tooling requires the direct SHA256-signed legacy flow (e.g. using `LegacyZDXClient` / `WithZdxLegacyClient`).
 - Code is interfacing with an older automation script written before OneAPI shipped.
 
 **Migration consideration:** when a tenant migrates to ZIdentity, the legacy auth keys keep working in parallel for a transition period. Don't assume legacy is "off" just because OneAPI is enabled — both can coexist on the same tenant. This means an audit script must be explicit about which path it's using; running with stale legacy creds against a ZIdentity-enabled tenant works silently and may produce different results than the modern OneAPI flow against the same data.
@@ -197,7 +197,7 @@ The Python SDK `LegacyZPAClient` handles this transparently. Hand-coded clients 
 
 ### ZDX legacy — SHA256-signed timestamp
 
-ZDX has not migrated to OneAPI auth (as of capture date 2026-04-24). The flow:
+ZDX retains a dedicated legacy SHA256-signed token flow **in addition to** OneAPI (the SDKs route ZDX through ZIdentity OAuth when not using a legacy client — `vendor/zscaler-sdk-go/zscaler/oneapiclient.go:386-387`). Use this legacy flow on non-ZIdentity / gov tenants or tooling pinned to it. The flow:
 
 ```http
 POST https://api.zsapi.net/zdx/v1/oauth/token HTTP/1.1
@@ -477,7 +477,7 @@ The table above (§ Authentication mechanisms) summarizes the five auth paths. T
 
 - **Gov clouds**: ZIA/ZCC tenants on `zscalergov` / `zscalerten`; ZPA tenants on `GOV` / `GOVUS` clouds do not support OneAPI (Tier A — vendor/zscaler-help/legacy-getting-started-zia-api.md).
 - **Pre-ZIdentity tenants**: Enterprises that have not migrated to ZIdentity remain on legacy auth indefinitely — migration is opt-in.
-- **ZDX**: Never migrated to OneAPI; always requires its own legacy SHA256-signed token flow.
+- **ZDX**: OneAPI-capable (the SDKs route ZDX via ZIdentity OAuth), but it also retains a dedicated legacy SHA256-signed token flow used on non-ZIdentity / gov tenants or by tooling pinned to it.
 - **Legacy automation code**: Existing scripts targeting the product-specific legacy APIs.
 
 OneAPI and legacy auth can coexist on a ZIdentity-enabled tenant during the migration transition period. Do not assume legacy creds are inactive just because the tenant has ZIdentity enabled.

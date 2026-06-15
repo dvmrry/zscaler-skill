@@ -60,7 +60,7 @@ This is the cluster where the three sources most directly contradict one another
 - **Go SDK:** default `rawBaseURL = "https://api.zdxcloud.net"` (or `https://api.%s.net` for a user-specified cloud), and the token URL is `cfg.BaseURL.String() + "/v1/oauth/token"` — i.e. `https://api.zdxcloud.net/v1/oauth/token`. (`vendor/zscaler-sdk-go/zscaler/zdx/v2_config.go:150-152`, `vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:234`)
 - **Help-site reference:** documents the token endpoint as the OneAPI gateway `POST https://api.zsapi.net/zdx/v1/oauth/token`, with the data base URL `https://api.zsapi.net/zdx/v1`. (`vendor/zscaler-help/automate-zscaler/api-reference-zdx-overview.md:10`, `:16`)
 
-**Significance / which to trust:** Both are live. The direct cloud host (`api.zdxcloud.net`) is what both vendored SDKs use today; the OneAPI gateway host (`api.zsapi.net`) is the front-door form the help site documents and is also the host the [`../shared/oneapi.md`](../shared/oneapi.md) ZDX-legacy row records. A hand-built client must pick a host and stay on it — the auth path prefix differs by host (next entry).
+**Significance / which to trust:** Both hosts are documented — the direct cloud host (`api.zdxcloud.net`) is what both vendored SDKs use today; the OneAPI gateway host (`api.zsapi.net`) is the front-door form the help site documents and is also the host the [`../shared/oneapi.md`](../shared/oneapi.md) ZDX-legacy row records. Whether a given tenant's credentials work against one host, the other, or both is unverified from source alone (see open question 1 below). A hand-built client must pick a host and stay on it — the auth path prefix differs by host (next entry).
 
 ---
 

@@ -33,7 +33,7 @@ ZDX **data** endpoints live under `/zdx/v1` on both transports (`vendor/zscaler-
 | `client.zdx.apps` | Application metrics, score, users | Core analytics surface. |
 | `client.zdx.devices` | Per-device metrics, web probes, cloud path probes, call quality | Highest-volume method set. |
 | `client.zdx.inventory` | Software inventory per device | Audit surface. |
-| `client.zdx.snapshot` | Share an alert-detail snapshot (a **write**) | Single method `share_snapshot` — POSTs a shareable alert snapshot with an expiry and optional field obfuscation. Not a state-capture read. |
+| `client.zdx.snapshot` | Share an alert-detail snapshot (a **write**) | Single method `share_snapshot` — POSTs a shareable alert snapshot with an expiry and an `obfuscation` field list (API contract); note `obfuscation` is not placed in the POST body by the current Python client (see [§ `client.zdx.snapshot`](#clientzdxsnapshot)). Not a state-capture read. |
 | `client.zdx.troubleshooting` | Diagnostics Sessions (SDK calls them "deeptraces"), analysis jobs, top processes | On-demand deep investigation workflow. Contains **writes** (start/delete deeptrace, start/delete analysis). |
 | `client.zdx.users` | User-level queries | User lookups, user-to-device mapping. See [`### client.zdx.users`](#clientzdxusers). |
 

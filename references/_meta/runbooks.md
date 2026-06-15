@@ -48,7 +48,7 @@ Run the [cloud detection](#diagnostic-1-which-cloud-is-this-tenant-on) procedure
 
 What products does this script touch?
 
-- **ZDX** in scope → ZDX always uses **ZDX legacy** auth (SHA256-signed timestamp). ZDX has not migrated to OneAPI as of 2026-04 capture date. Even on ZIdentity-migrated tenants, ZDX retains its own auth.
+- **ZDX** in scope → ZDX is **OneAPI-capable**: both SDKs route ZDX through the ZIdentity OAuth path when not using a legacy client (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:386-387`; Python `oneapi_client.py` `zdx` → `ZDXService`). ZDX also retains a **dedicated legacy SHA256-signed flow** (`vendor/zscaler-sdk-python/zscaler/zdx/legacy.py`). Prefer OneAPI on ZIdentity-configured commercial tenants (confirm per Step 3); use ZDX legacy on non-ZIdentity or gov tenants — the same OneAPI-or-legacy pattern as ZCC.
 - **Only ZCC** in scope → can use either **OneAPI** (if ZIdentity-configured) or **ZCC legacy** (apiKey + secretKey). OneAPI preferred for new code.
 - **ZIA, ZPA, ZIdentity, ZTW (Cloud Connector), or BI** in scope → eligible for OneAPI on commercial clouds; must use product-specific legacy on gov clouds.
 
@@ -61,7 +61,7 @@ Even on a commercial cloud, OneAPI requires a ZIdentity API client to be created
 | Tenant cloud | Products | Recommended auth |
 |---|---|---|
 | Commercial, ZIdentity-configured | ZIA / ZPA / ZIdentity / ZCC / ZTW / BI | **OneAPI OAuth 2.0** |
-| Commercial, ZIdentity-configured | ZDX (any subset) | **ZDX legacy** for ZDX calls; OneAPI for everything else |
+| Commercial, ZIdentity-configured | ZDX (any subset) | **OneAPI OAuth 2.0** (ZDX is OneAPI-capable per the SDK); ZDX legacy SHA256 available as a fallback |
 | Commercial, NOT ZIdentity-configured | ZIA | **ZIA legacy** (obfuscated timestamp) |
 | Commercial, NOT ZIdentity-configured | ZPA | **ZPA legacy** (Client ID + Customer ID) |
 | Commercial, NOT ZIdentity-configured | ZCC | **ZCC legacy** (apiKey + secretKey) |
@@ -73,7 +73,7 @@ Even on a commercial cloud, OneAPI requires a ZIdentity API client to be created
 
 **Multi-product scripts on gov clouds:** must implement multiple legacy auth paths. There is no unified gov-cloud auth.
 
-**Multi-product scripts touching ZDX:** must always implement ZDX-legacy alongside whatever else, since ZDX never migrated.
+**Multi-product scripts touching ZDX:** ZDX works over OneAPI like the other products; its dedicated legacy SHA256 flow remains available as a fallback for non-ZIdentity / gov tenants — implement it where ZIdentity isn't configured.
 
 See [`../shared/oneapi.md § Authentication mechanisms`](../shared/oneapi.md) for the full per-mechanism details, including the obfuscation algorithm for ZIA legacy and the SHA256 flow for ZDX legacy.
 
