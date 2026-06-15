@@ -1436,7 +1436,7 @@ the source's own grouping.
 | NotificationTemplateContract | notificationTemplateContract | *NotificationTemplateContract | ✓ | new |
 | NotificationTemplateId | notificationTemplateId | int | ✓ | new; links to v2 notification-templates |
 | MachineTokenSelected | machineTokenSelected | string | ✓ | new |
-| DeviceTypeAlt | deviceType | int | ✓ | new; string companion to device_type |
+| DeviceTypeAlt | deviceType | int | ✓ | new; int field sharing the `deviceType` JSON key, distinct from `device_type`; not the unmodelled string companion (`"DEVICE_TYPE_MAC"`) the API returns on reads |
 | UseZscalerNotificationFrameworkTop | useZscalerNotificationFramework | string | ✓ | new (Top mirror) |
 | SwitchFocusToNotificationTop | switchFocusToNotification | string | ✓ | new (Top mirror) |
 
@@ -1675,10 +1675,11 @@ Source: `vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network_v2/trusted_n
   faithfully sends both). The DefaultMacosWebPolicy constructor's comment says it
   seeds both from a "known-working UI-generated request body" but does not state
   precedence. See [clarification `zcc-77`](../_meta/clarifications.md#zcc-77-webpolicy-top-vs-nested-block-precedence-on-write).
-- `DeviceTypeAlt` (`json:"deviceType"`) coexists with `DeviceType`
-  (`json:"device_type"`) on WebPolicy; the SDK comment marks the former as the
-  string companion the API returns on reads, but which one a write honours when
-  both are set is not documented in source. See [clarification `zcc-78`](../_meta/clarifications.md#zcc-78-webpolicy-devicetype-vs-device_type-write-precedence).
+- `DeviceTypeAlt` (`json:"deviceType"`, **int**) coexists with `DeviceType`
+  (`json:"device_type"`, int) on WebPolicy — two distinct modelled int fields. Separately,
+  the SDK comment notes the API returns an **unmodelled `deviceType` string** (e.g.
+  `"DEVICE_TYPE_MAC"`) on reads; `DeviceTypeAlt` is not that string companion. Which int
+  field a write honours when both are set is not documented in source. See [clarification `zcc-78`](../_meta/clarifications.md#zcc-78-webpolicy-devicetype-vs-device_type-write-precedence).
 - The full `WebPolicy` field set is modeled from UI request-body captures
   (`payload-ios.json`, etc.) referenced in the SDK comments; whether every
   `*Selected` / `*SelectedOption` form-state field is required on write vs.

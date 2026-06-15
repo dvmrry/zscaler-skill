@@ -144,7 +144,7 @@ The ZCC deep-dive refresh (2026-06-15) registered these open behavior questions 
 | ID | Title | Resolves with |
 |---|---|---|
 | [`zcc-77`](#zcc-77-webpolicy-top-vs-nested-block-precedence-on-write) | WebPolicy `*Top` root-level vs nested-block field precedence on write | lab test |
-| [`zcc-78`](#zcc-78-webpolicy-devicetype-vs-device_type-write-precedence) | WebPolicy `deviceType` (string) vs `device_type` (int) precedence on write | lab test |
+| [`zcc-78`](#zcc-78-webpolicy-devicetype-vs-device_type-write-precedence) | WebPolicy `DeviceTypeAlt` (int, wire `deviceType`) vs `DeviceType` (int, wire `device_type`) precedence on write | lab test |
 | [`zcc-79`](#zcc-79-webpolicy-selected-form-state-fields-required-on-write) | Which WebPolicy `*Selected` / `*SelectedOption` form-state fields are required on write | lab test |
 | [`zcc-80`](#zcc-80-zcc-v1-vs-v2-endpoint-coexistence) | ZCC v1 vs v2 endpoint coexistence / supersession | zscaler doc not yet read / lab test |
 | [`zcc-81`](#zcc-81-device-zd-vs-zdp-field-prefix-meanings) | Device `zd*` vs `zdp*` field-prefix service meanings | zscaler doc not yet read / tenant snapshot |
@@ -3110,7 +3110,7 @@ The Go `WebPolicy` struct carries many settings twice: a root-level `*Top`-suffi
 
 *Origin: `references/zcc/api-schemas.md` § Open questions*
 
-`DeviceTypeAlt` (wire `deviceType`, `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go:323`) coexists with `DeviceType` (wire `device_type`, `web_policy.go:99`) on the WebPolicy struct. The SDK comment marks the string `deviceType` companion as the value the API returns on reads (`web_policy.go:65-69`), but which field a write honours when both are populated is not documented in source.
+`DeviceTypeAlt` (wire `deviceType`, **int**, `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go:323`) coexists with `DeviceType` (wire `device_type`, int, `web_policy.go:99`) on the WebPolicy struct — two distinct int fields. Separately, the SDK comment notes the API returns an unmodelled `deviceType` **string** (e.g. `"DEVICE_TYPE_MAC"`) on reads (`web_policy.go:65-69`); `DeviceTypeAlt` is not that string companion. Which int field a write honours when both are populated is not documented in source.
 
 **Status**: open
 **Resolves with**: lab test (submit a WebPolicy write with `device_type` and `deviceType` set to different device types, observe which the API applies)

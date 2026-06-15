@@ -19,7 +19,7 @@ author-status: draft
 
 The Go SDK and the Python SDK are two independent views of the same ZCC management API (`/zcc/papi/public/...`), produced separately and updated at different cadences. Where they agree, confidence is high. Where they diverge, an engineer needs to know which source to trust before writing code — and the answer changes by field, endpoint, and resource type.
 
-ZCC is the most divergence-rich of the Zscaler SDK pairs. Two pressures drive it: (1) the ZCC web API returns numeric fields inconsistently — sometimes as JSON numbers, sometimes as quoted strings, sometimes camelCase, sometimes snake_case, and the casing of the *same* logical field can differ per platform and per SDK; (2) the Go SDK was refactored more recently than the Python SDK's v1.9.31 baseline, splitting some services into new packages and adding two `/v2` services the Python SDK does not have yet.
+ZCC is the most divergence-rich of the Zscaler SDK pairs. Two pressures drive it: (1) the ZCC web API returns numeric fields inconsistently — sometimes as JSON numbers, sometimes as quoted strings, sometimes camelCase, sometimes snake_case, and the casing of the *same* logical field can differ per platform and per SDK; (2) the Go SDK was refactored more recently than the Python SDK's v1.9.31 baseline, splitting some services into new packages and adding three `/v2` services (`notification_template`, `zia_posture`, `trusted_network_v2`) the Python SDK does not yet expose on the v2 path.
 
 **Quick trust hierarchy (applies unless an entry below overrides it):**
 
@@ -451,7 +451,7 @@ So the casing is **inverted between the two SDKs for both macOS and Windows.**
 - **Modern (Python):** `client.zcc.application_profiles` — REST GET `/application-profiles`, GET `/application-profiles/{id}`, PATCH `/application-profiles/{id}`. The `ApplicationProfile` model overlaps `WebPolicy` on `logMode`/`logLevel`/`logFileSize` and `forwardingProfileId`, and adds `reactivateWebSecurityMinutes` (profile-scope captive-portal grace), a `PolicyExtension` block (fail-close family `zccFailCloseSettings*`, `dropQuicTraffic`, `enableAntiTampering`, `locationRulesetPolicies`, `generateCliPasswordContract`), and a `DisasterRecovery` block. (`vendor/zscaler-sdk-python/zscaler/zcc/application_profiles.py:80,126,221`, `vendor/zscaler-sdk-python/zscaler/zcc/models/application_profiles.py:23,45-47,49,69,78,88`, `vendor/zscaler-sdk-python/zscaler/zcc/models/application_profiles.py:402,408,427,437,448`)
 - The service is wired at `vendor/zscaler-sdk-python/zscaler/zcc/zcc_service.py:129-134`.
 
-**Significance / which to trust:** Two APIs target overlapping on-device-policy state. Consumers reconciling `logMode`/`forwardingProfileId` from both must decide which is authoritative for their tenant. The modern `/application-profiles` surface is Python-backed at this pin (no Go service); it carries the profile-scoped captive-portal-grace and fail-close fields that the legacy `WebPolicy` exposes only at company scope.
+**Significance / which to trust:** Two APIs target overlapping on-device-policy state. Consumers reconciling `logMode`/`forwardingProfileId` from both must decide which is authoritative for their tenant. The modern `/application-profiles` surface exists in **both** SDKs at this pin (Go: `vendor/zscaler-sdk-go/zscaler/zcc/services/application_profiles/application_profiles.go`; Python: `vendor/zscaler-sdk-python/zscaler/zcc/application_profiles.py`); it carries the profile-scoped captive-portal-grace and fail-close fields that the legacy `WebPolicy` exposes only at company scope.
 
 ---
 
@@ -465,7 +465,7 @@ The following are unresolved after cross-referencing both SDKs. Each requires li
 
 3. **`onNetPolicy` (web policy).** Present only in the Python model; whether the Go `WebPolicy` omission is a lag or a deliberate scoping is unverified against a live `listByCompany` response.
 
-4. **`/application-profiles` Go coverage.** The modern App-Profiles surface has a Python service but no Go service at this pin; whether the Go SDK will add it (and whether a Go `WebPolicy`-vs-`ApplicationProfile` authority rule emerges) is open.
+4. **`/application-profiles` Go vs Python field parity.** Both SDKs implement this surface at this pin (Go `application_profiles.go`, Python `models/application_profiles.py`); whether the Go struct and Python model diverge field-by-field — and which is authoritative when `WebPolicy` and `ApplicationProfile` disagree — is open.
 
 5. **`/downloadDisableReasons` server-side rate-limit accounting.** Whether the documented "3/day per download endpoint" quota counts `/downloadDisableReasons` separately, shares a bucket with `/downloadDevices`, or is enforced server-side at all is not determinable from the SDK sources (Python tracks only `/downloadDevices` client-side).
 

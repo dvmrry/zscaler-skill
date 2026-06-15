@@ -131,7 +131,7 @@ A tool that constructs a payload by hand and sets only one of the two copies can
 | 4 | macOS |
 | 5 | Linux |
 
-This is the value the `activate_web_policy` / `ActivateWebPolicy` call expects in its `device_type` / `DeviceType` field — see [§ Activation scope](#activation-scope-single-policy-device_type-not-bulk). The list endpoint's `device_type` **query param** uses the string form instead (`ios` / `android` / `windows` / `macos` / `linux`, `web_policy.py:45–46`). The same enum belongs in [`./api-schemas.md`](./api-schemas.md). The API also returns a companion `deviceType` string on reads (e.g. `"DEVICE_TYPE_MAC"`) that the Go SDK does not model (`web_policy.go:66–69`, `DeviceTypeAlt` field at `:323` is the read-only mirror).
+This is the value the `activate_web_policy` / `ActivateWebPolicy` call expects in its `device_type` / `DeviceType` field — see [§ Activation scope](#activation-scope-single-policy-device_type-not-bulk). The list endpoint's `device_type` **query param** uses the string form instead (`ios` / `android` / `windows` / `macos` / `linux`, `web_policy.py:45–46`). The same enum belongs in [`./api-schemas.md`](./api-schemas.md). The API also returns a companion `deviceType` string on reads (e.g. `"DEVICE_TYPE_MAC"`) that the Go SDK does not model (`web_policy.go:66–69`). The `DeviceTypeAlt` field at `:323` is a separate **int**-typed field sharing the `deviceType` JSON key (`json:"deviceType,omitempty"`) — it is not that string companion.
 
 ### Captive-portal and fail-open knobs (top level)
 
