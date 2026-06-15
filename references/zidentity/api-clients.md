@@ -138,7 +138,7 @@ Tokens carry:
 
 ## API Client Access Policy
 
-Beyond per-client roles and scopes, there is a separate **API Client Access Policy** that applies tenant-wide rules to all API clients. (Referenced in vendor/zscaler-help/zidentity-about-api-clients.md related articles; the dedicated policy help page is NOT captured in `vendor/zscaler-help/` — see Open questions.) Use: restrict API client access by source IP, time of day, or other environmental factors — analogous to admin IP restriction for human admins but for programmatic access.
+Beyond per-client roles and scopes, there is a separate **API Client Access Policy** that applies tenant-wide rules to all API clients. (Referenced in vendor/zscaler-help/zidentity-about-api-clients.md related articles; the dedicated policy help page is NOT captured in `vendor/zscaler-help/` — see Open questions.) The specific rule knobs (e.g. source-IP, time-of-day) and enforcement point are **inferred by analogy** to admin IP restriction, not read from source — see [clarification `zid-34`](../_meta/clarifications.md#zid-34-api-client-access-policy-article-uncaptured).
 
 ## Authentication method: client secret vs JWT private key
 

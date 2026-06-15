@@ -42,7 +42,7 @@ users = client.zid.users.list_users()
 
 `ZIdService` (`zscaler/zid/zid_service.py`) is instantiated inside `ZscalerClient`. It takes a `RequestExecutor` directly (not a parent client object — note the constructor signature differs from ZCC and ZDX service classes). All service properties (`api_client`, `groups`, `users`, `user_entitlement`, `resource_servers`) instantiate their API class on each property access.
 
-The base endpoint for all ZIdentity operations is `/ziam/admin/api/v1` **in the Python SDK** (`_zidentity_base_endpoint`, defined identically in all five service files — e.g., `vendor/zscaler-sdk-python/zscaler/zid/users.py:31`). The endpoint paths in the service-catalog tables below show this Python form. The Go SDK constants omit the `/ziam` prefix (`/admin/api/v1/...` — e.g., `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go:16`); the `/ziam` segment is supplied by OneAPI gateway routing, so the full wire paths are equivalent.
+The base endpoint for all ZIdentity operations is `/ziam/admin/api/v1` **in the Python SDK** (`_zidentity_base_endpoint`, defined identically in all five service files — e.g., `vendor/zscaler-sdk-python/zscaler/zid/users.py:31`). The endpoint paths in the service-catalog tables below show this Python form. The **Go SDK** diverges on **both path and host**: its constants omit `/ziam` (`/admin/api/v1/...` — e.g., `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go:16`) and the client rewrites the target host to `https://{vanity}-admin.zslogin.net` (`vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:402-414`). The two SDKs do **not** reach the same wire URL — this is a cross-SDK host-and-path divergence, not a cosmetic prefix difference (see [`./api-divergences.md § 1`](./api-divergences.md)).
 
 ### Client construction — Go
 
@@ -114,7 +114,7 @@ Source: `vendor/zscaler-sdk-python/zscaler/zid/api_client.py`; `vendor/zscaler-s
   - `client_authentication`: `auth_type` (`"SECRET"`, `"PUBKEYCERT"`, `"JWKS"`), `client_jw_ks_url`, `public_keys`, `client_certificates`.
   - `client_resources`: list of resource objects, each with `id`, `name`, `default_api` (bool), `selected_scopes` (list of `{id, name}` scope references).
 - `add_api_client_secret` is applicable only when `auth_type` is `"SECRET"`. Accepts `expires_at` (Unix epoch string).
-- Secret values are returned by `add_api_client_secret` at creation time. Whether `get_api_client_secret` also returns the `value` field on read is an API-server behavior not determinable from SDK source alone — see Open questions / [clarification `zid-10`](../_meta/clarifications.md).
+- Secret values are returned by `add_api_client_secret` at creation time. Whether `get_api_client_secret` also returns the `value` field on read is an API-server behavior not determinable from SDK source alone — see Open questions / [clarification `zid-27`](../_meta/clarifications.md#zid-27-secrets-snapshot-file-layout).
 - `delete_api_client` is permanent and unrecoverable per SDK docstring.
 
 **Go parity:** ❌ No dedicated `api-clients` Go package identified in the service directory. This surface is Python-only in the SDK.
