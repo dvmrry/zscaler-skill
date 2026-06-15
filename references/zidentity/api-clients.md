@@ -115,12 +115,12 @@ Per the admin portal's About API Clients page and SDK documentation, each API cl
 
 ## Client secret rotation
 
-When an API client is created, the client secret (or private key) is displayed **once** in the admin portal. After navigating away, the secret is not retrievable — admins who don't copy it at creation time must rotate the credential (which invalidates any caller using the old secret). (Tier A — from portal behavior described in vendor docs.)
+When an API client is created, the client secret (or private key) is typically shown once in the admin portal and treated as not re-displayable afterward — so admins who don't copy it at creation must rotate the credential (which invalidates any caller using the old secret). (Tier C — this shown-once behavior is the common OAuth-portal pattern and operator experience; the captured help page `vendor/zscaler-help/zidentity-about-api-clients.md` lists only the API Clients page actions/columns and does **not** itself establish shown-once/non-retrievable behavior. Whether a post-creation API GET returns the secret `value` is separately unverified — see [clarification `zid-27`](../_meta/clarifications.md#zid-27-secrets-snapshot-file-layout).)
 
 **Rotation procedure:**
 1. Regenerate the credential in the admin portal.
 2. The old secret is immediately invalidated for new token requests.
-3. Existing tokens issued against the old secret remain valid until their TTL expires (up to 60 minutes).
+3. Existing tokens issued against the old secret remain valid until their TTL expires (read `expires_in`; the TTL is tenant-configurable, default 3600s — no fixed ceiling is established in source).
 4. Update every caller (scripts, Terraform state/vars, SDK configs, CI secrets) with the new secret before tokens expire to avoid a service gap.
 
 The skill answer for "I forgot the secret, what do I do?" is: regenerate the credential in the portal, then update every caller. (Programmatic rotation via `add_api_client_secret` is available given an admin-scoped bootstrap client — `vendor/zscaler-sdk-python/zscaler/zid/api_client.py:436`. The portal's shown-once behaviour — not being able to re-display a secret after navigating away — is portal UX, not something the SDK source establishes; whether a post-creation GET returns the secret `value` is unverified, see [clarification `zid-27`](../_meta/clarifications.md#zid-27-secrets-snapshot-file-layout).)

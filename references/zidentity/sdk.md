@@ -227,22 +227,19 @@ Source: `vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py`; `vendor/zsc
 - `get_resource_server` returns a `ResourceServersRecord` with fields: `id`, `name`, `display_name`, `description`, `primary_aud`, `default_api`, `service_scopes` (list of service+scope associations).
 - The Python SDK exposes **only read operations** for resource servers. No create, update, or delete.
 
-**Go SDK — additional write operations:**
+**Go SDK — also read-only:**
 
-The Go `resource_servers` package exposes full CRUD:
+The Go `resource_servers` package exposes **only read** operations — there is no `Create`, `Update`, or `Delete` in the package (`vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go:46-96`):
 
 | Go function | HTTP |
 |---|---|
 | `Get(ctx, service, resourceID)` | GET |
 | `GetAll(ctx, service, queryParams)` | GET (paginated) |
 | `GetByName(ctx, service, name)` | GET (search) |
-| `Create(ctx, service, resource)` | POST |
-| `Update(ctx, service, resourceID, resource)` | PUT |
-| `Delete(ctx, service, resourceID)` | DELETE |
 
 The `ResourceServers` Go struct includes: `ID`, `Name`, `DisplayName`, `Description`, `PrimaryAud`, `DefaultApi`, `ServiceScopes` (with nested `Service` and `Scopes`).
 
-**Go parity:** ⚠ Go has full CRUD; Python is read-only. Automation that needs to create or modify resource server registrations must use the Go SDK or the direct API.
+**Go parity:** ✅ Both SDKs are read-only for resource servers. Resource-server registrations are not created or modified through either SDK — that surface (if it exists at all) is not exposed by the captured SDK source.
 
 ---
 
@@ -287,7 +284,7 @@ ZIdentity uses `offset`/`limit` with `next_link`/`prev_link` cursor links in the
 | `groups` | `list_groups`, `get_group`, `add_group`, `update_group`, `delete_group`, `list_group_users_details`, `add_user_to_group`, `add_users_to_group`, `replace_users_groups`, `remove_user_from_group` | `Get`, `GetAll`, `GetByName`, `Create`, `Update`, `Delete`, `GetUsers` | Go adds `GetUsers`; Python has equivalent via `list_group_users_details` |
 | `users` | `list_users`, `get_user`, `add_user`, `update_user`, `delete_user`, `list_user_group_details` | `Get`, `GetAll`, `GetByName`, `Create`, `Update`, `Delete`, `GetGroupsByUser` | Functionally equivalent |
 | `user_entitlement` | `get_admin_entitlement`, `get_service_entitlement` | `GetAdminEntitlement`, `GetServiceEntitlement` | ✅ Parity |
-| `resource_servers` | `list_resource_servers`, `get_resource_server` | `Get`, `GetAll`, `GetByName`, `Create`, `Update`, `Delete` | Python read-only; Go has full CRUD |
+| `resource_servers` | `list_resource_servers`, `get_resource_server` | `Get`, `GetAll`, `GetByName` | Both read-only |
 
 ## Model classes
 
