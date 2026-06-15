@@ -107,7 +107,7 @@ The issued access token is a Bearer token, passed as `Authorization: Bearer <tok
 
 ### 2.3 Token lifecycle
 
-- Access token lifetime is configurable at API client creation via `access_token_life_time` (seconds) — confirmed as an SDK field (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py:164`, `:195`).
+- `access_token_life_time` is an SDK-accepted integer field at API client creation (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py:164`, `:195`). Its semantics are unresolved: the field name implies a per-client token-TTL override (seconds), but the field's docstring reads "Whether the client is active" — an active-flag description that contradicts the name. Whether it actually controls token lifetime is not determinable from SDK source alone — see [clarification `zid-11`](../_meta/clarifications.md#zid-11-access_token_life_time-field-semantics).
 - No refresh token flow is documented for the client credentials grant in available SDK source.
 - Token revocation: a "Revoking Access Tokens" capability is referenced in the related-articles list of the captured API-clients help page (`vendor/zscaler-help/zidentity-about-api-clients.md:47`), but that page itself is **not captured** in `vendor/zscaler-help/` — treat revocation behavior as an uncaptured reference, not confirmed source. No SDK-level revocation endpoint exists in the `api_client` service (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py` — methods are limited to client + secret CRUD).
 - Secrets (`client_secret`) are managed via the `api_client` SDK service — `get_api_client_secret`, `add_api_client_secret`, `delete_api_client_secret` (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py`). The secret model carries `id`, `expires_at` (Unix epoch string), `created_at`, and `value` (`vendor/zscaler-sdk-python/zscaler/zid/models/api_client.py:301-310`). Whether `value` is populated only on creation versus also on read is an API-server behavior not determinable from SDK source — see Open questions.
@@ -134,7 +134,7 @@ From the SDK (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py`):
 | `name` | string | Display name |
 | `description` | string | Optional |
 | `status` | bool | `true` = active |
-| `access_token_life_time` | int (seconds) | Token expiry duration |
+| `access_token_life_time` | int | Token TTL in seconds (field name), but docstring reads as active-flag — semantics unresolved; see [zid-11](../_meta/clarifications.md#zid-11-access_token_life_time-field-semantics) |
 | `client_authentication.auth_type` | enum | `"SECRET"`, `"PUBKEYCERT"`, `"JWKS"` |
 | `client_authentication.client_jw_ks_url` | string | JWKS endpoint URL (JWKS auth type) |
 | `client_authentication.public_keys` | list | Public keys (PUBKEYCERT auth type) |

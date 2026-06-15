@@ -110,11 +110,11 @@ Source: `vendor/zscaler-sdk-python/zscaler/zid/api_client.py`; `vendor/zscaler-s
 **Notable behavior:**
 - `list_api_clients` query params: `offset`, `limit`, `name[like]`. Returns an `APIClients` wrapper; individual records are in `result.records`.
 - `add_api_client` accepts a complex nested structure:
-  - `name`, `description`, `status` (bool), `access_token_life_time` (int, seconds).
+  - `name`, `description`, `status` (bool), `access_token_life_time` (int — field name implies token TTL in seconds, but semantics are unresolved; see [zid-11](../_meta/clarifications.md#zid-11-access_token_life_time-field-semantics)).
   - `client_authentication`: `auth_type` (`"SECRET"`, `"PUBKEYCERT"`, `"JWKS"`), `client_jw_ks_url`, `public_keys`, `client_certificates`.
   - `client_resources`: list of resource objects, each with `id`, `name`, `default_api` (bool), `selected_scopes` (list of `{id, name}` scope references).
 - `add_api_client_secret` is applicable only when `auth_type` is `"SECRET"`. Accepts `expires_at` (Unix epoch string).
-- Secret values are returned only at creation time; `get_api_client_secret` returns metadata, not the secret value.
+- Secret values are returned by `add_api_client_secret` at creation time. Whether `get_api_client_secret` also returns the `value` field on read is an API-server behavior not determinable from SDK source alone — see Open questions / [clarification `zid-10`](../_meta/clarifications.md).
 - `delete_api_client` is permanent and unrecoverable per SDK docstring.
 
 **Go parity:** ❌ No dedicated `api-clients` Go package identified in the service directory. This surface is Python-only in the SDK.

@@ -195,7 +195,7 @@ Government clouds (`zscalergov`, `zscalerten`, ZPA GOV, GOVUS) are not supported
 - **IP-based admin access restriction** — limit admin portal access to specific source IP ranges. Tenant-level setting in ZIdentity.
 - **Admin role management** — RBAC within ZIdentity for delegating portal access without granting full admin.
 - **Audit reports** — configuration-change log; shows what admin changed what setting and when.
-- **API Client Access Policy** — controls which API clients are permitted to call which scopes. Enforced by ZIdentity at token issuance.
+- **API Client Access Policy** — controls which API clients are permitted to call which scopes. Enforced by ZIdentity at token issuance. (The dedicated policy help page is not captured in vendor sources; specific rule knobs such as source-IP and time-of-day restrictions are inferred by analogy, not confirmed from source — see [clarification `zid-34`](../_meta/clarifications.md#zid-34-api-client-access-policy-article-uncaptured).)
 
 ---
 
