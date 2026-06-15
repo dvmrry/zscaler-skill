@@ -1326,7 +1326,7 @@ Parallel to `zcc-01` but at the TrustedNetwork entity level: how do this Trusted
 
 *Origin: `references/zcc/api.md` § Open questions*
 
-The SDK's `client.zcc.forwarding_profile` surface exposes CRUD on profile objects but no method for associating a profile with a user, group, or device. ZCC admin UX offers "App Profiles" that select a forwarding profile — but the App Profile API is not exposed under `client.zcc` in the current SDK. How does assignment happen programmatically?
+The SDK's `client.zcc.forwarding_profile` surface exposes CRUD on profile objects but no method for associating a profile with a user, group, or device. ZCC admin UX offers "App Profiles" that select a forwarding profile. The App Profile API is exposed under `client.zcc.application_profiles` (`/application-profiles`, list + get-by-id + PATCH) in both SDKs (Go: `application_profiles/application_profiles.go:296 PatchApplicationProfile`; Python: `zcc_service.py:129-134`). How the full forwarding-profile-to-user/device assignment relationship is managed programmatically remains partly open.
 
 **Resolves with**: partial answer from SDK mining (see below). Full completeness: lab confirmation on a real tenant that WebPolicy is the sole assignment mechanism. **Status**: partially resolved (2026-04-24).
 
@@ -3187,7 +3187,7 @@ The Unified Tunnel model is confirmed in both SDKs (Go `UnifiedTunnel` struct `v
 
 *Origin: `references/zcc/forwarding-profile.md` § Open questions*
 
-App-Profile fail-close fields are SDK-confirmed on the application-profile / PolicyExtension surface — `reactivateWebSecurityMinutes` (`vendor/zscaler-sdk-python/zscaler/zcc/models/application_profiles.py:49`), `zccAppFailOpenPolicy` (`:474`), `zccTunnelFailPolicy` (`:475`), and the `zccFailCloseSettings*` block (`:449-472`). Which setting wins when both a per-App-Profile fail-close value and the tenant-global `FailOpenPolicy` are set is not documented in the captured sources.
+App-Profile fail-close fields are SDK-confirmed on the application-profile / PolicyExtension surface — `zccAppFailOpenPolicy` (`:474`), `zccTunnelFailPolicy` (`:475`), and the `zccFailCloseSettings*` block (`:449-472`). Note: `reactivateWebSecurityMinutes` (`application_profiles.py:49`) is the time before web security reactivates after a user-initiated disable (`web_policy.py:183` docstring: "Minutes after which Web Security is reactivated when disabled by the user") — it is not a captive-portal grace field; the captive-portal grace field is `captivePortalWebSecDisableMinutes` on `FailOpenPolicy`. Which setting wins when both a per-App-Profile fail-close value and the tenant-global `FailOpenPolicy` are set is not documented in the captured sources.
 
 **Status**: open
 **Resolves with**: lab test (set conflicting per-App-Profile and tenant-global fail-close values, induce a tunnel/firewall error, observe which policy applies) OR zscaler doc not yet read
