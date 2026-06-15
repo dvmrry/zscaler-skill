@@ -28,7 +28,7 @@ Document **how Zscaler behaves** (product/API/SDK semantics, divergences, gotcha
 
 ## Phases (gate between each)
 
-**Phase 0 — Inventory & freshness (read-only).** Fetch every vendor submodule → "what moved" table (pin vs upstream HEAD, commits behind, changed-path summary). Enumerate open vendor issues/PRs across the repos, each tagged with the product/behavior it touches. Map `references/<product>/` (doc count, `last-verified` age, `confidence`, presence of `sdk.md`/`api-divergences.md`, open `clarifications.md` IDs). Account for in-flight work (#123 scrape + Codex's branch) so we don't double-cover. → **prioritized worklist.**
+**Phase 0 — Inventory & freshness (read-only).** Fetch every vendor submodule → "what moved" table (pin vs upstream HEAD, commits behind, changed-path summary). Enumerate open vendor issues/PRs across the repos, each tagged with the product/behavior it touches. Map `references/<product>/` (doc count, `last-verified` age, `confidence`, presence of `sdk.md`/`api-divergences.md`, open `clarifications.md` IDs). Account for already-landed work (#123 scrape, merged to main) and any remaining in-flight branches (e.g., Codex's branch) so we don't double-cover. → **prioritized worklist.**
 
 **Phase 1 — Triage & routing.** Classify each delta/issue as behavior-teaching (scrape target) vs tooling/packaging (log & skip). Per product, decide refresh / expand / net-new.
 
