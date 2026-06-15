@@ -239,7 +239,7 @@ Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscal
 - **Tier 5 — Out of scope:** 0 (currently empty; reserved for deprecated / internal / unshipped)
 - **Architectural pillars named:** 4 (ZTE, Data Fabric, Agentic SecOps, plus the customer-segment "Zero Trust for X" framing)
 
-Total Zscaler portfolio: roughly 36 distinct products + 4 architectural pillars at this date. Full operational depth on 6 (Tier 1), programmable coverage on 3 more (Tier 2), reasoning-content awareness on 15 more (Tier 3), paragraph-level awareness on 12 more (Tier 4) — at-minimum aware of all the rest, deliberately ignore none.
+Total Zscaler portfolio: roughly 36 distinct products + 4 architectural pillars at this date. Full operational depth on 6 (Tier 1), programmable coverage on 5 more (Tier 2), reasoning-content awareness on 14 more (Tier 3), paragraph-level awareness on 11 more (Tier 4) — at-minimum aware of all the rest, deliberately ignore none.
 
 ## Maintenance
 

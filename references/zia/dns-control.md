@@ -177,7 +177,9 @@ Source: `vendor/zscaler-help/ranges-limitations-zia.md`.
 
 ## API/SDK surface — the DNS rule resource
 
-Source: SDK service layer. This section documents how the DNS Control rule resource behaves over the API (action enum, per-action field dependencies, wire shapes). The four UI-level actions above (`Allow` / `Block` / `Redirect Request` / `Redirect Response`) are the doc-tier names; the API exposes a wider 10-value enum.
+Source: `vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_firewall_dns_rules.py`; `vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_dns.py`; `vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_dns_rules.py`; `vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go`.
+
+This section documents how the DNS Control rule resource behaves over the API (action enum, per-action field dependencies, wire shapes). The four UI-level actions above (`Allow` / `Block` / `Redirect Request` / `Redirect Response`) are the doc-tier names; the API exposes a wider 10-value enum.
 
 ### Endpoint
 

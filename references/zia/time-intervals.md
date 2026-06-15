@@ -214,7 +214,6 @@ on the rule type.
 | Cloud Firewall IPS Control | `/firewallIpsRules` | `cloud_firewall_ips_rules.py` | `zia_firewall_ips_rule` |
 | URL Filtering | `/urlFilteringRules` | `url_filtering_rules.py` | `zia_url_filtering_rules` |
 | DLP Web Rules | `/webDlpRules` | — (Python model absent; Go struct present) | `zia_dlp_web_rules` |
-| SSL Inspection | `/sslInspectionRules` | `ssl_inspection_rules.py` (SDK model has the field, but **the API does NOT honor it** — see caveat below) | `zia_ssl_inspection_rules` |
 | File Type Control | `/fileTypeControlRules` | `filetyperules.py` | `zia_file_type_control_rules` |
 | Cloud App Control | `/cloudApplicationRules` | `cloudappcontrol.py` | `zia_cloud_app_control_rule` |
 | Forwarding Control | `/forwardingRules` | `forwarding_control_policy.py` | `zia_forwarding_control_rule` |
@@ -237,7 +236,7 @@ structs (based on the model file listing): CASB DLP rules, CASB Malware rules, F
 Control Policy.
 
 > **Caveat — SSL Inspection: SDK model exposes `timeWindows`, but the API ignores it.**
-> The SSL Inspection row above is listed for completeness, but it is a genuine
+> SSL Inspection is **excluded** from the table above — it is a genuine
 > SDK-model-vs-API divergence, not a usable scheduling target. The Python SDK *model*
 > serializes a `timeWindows` field on SSL inspection rules
 > (`vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py:121-122` deserialize,
