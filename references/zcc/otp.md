@@ -99,7 +99,7 @@ A generic `otp` field exists in the bundle alongside the operation-scoped OTPs (
 
 The following appeared in surrounding tooling prose but could not be verified against SDK/API source. They are flagged unverified.
 
-- **No expiry / TTL field in source.** Neither `OtpResponse` model carries a TTL, expiry timestamp, or validity-window field (`vendor/zscaler-sdk-python/zscaler/zcc/models/secrets_otp.py:33-45`; `vendor/zscaler-sdk-go/zscaler/zcc/services/secrets/getotp/get_otp.go:15-27`). The "short-lived" characterization is MCP-tool docstring prose only (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zcc/get_otp.py:8`, `:60-61`, `:77-81`) — unverified product framing, not a source-backed field.
+- **No expiry / TTL field in source.** Neither `OtpResponse` model carries a TTL, expiry timestamp, or validity-window field (`vendor/zscaler-sdk-python/zscaler/zcc/models/secrets_otp.py:33-45`; `vendor/zscaler-sdk-go/zscaler/zcc/services/secrets/getotp/get_otp.go:15-27`). The "short-lived" characterization is MCP-tool docstring prose only (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zcc/get_otp.py:8`, `:60-61`, `:77-81`) — unverified product framing, not a source-backed field. (Tracked as `zcc-76` in [`references/_meta/clarifications.md`](../_meta/clarifications.md#zcc-76-otp-expiry-ttl-server-behavior).)
 
 - **No length/format/numeric-vs-alphanumeric constraint in source.** Model fields are plain `string` / `None` with no validation (`vendor/zscaler-sdk-python/zscaler/zcc/models/secrets_otp.py:33-45`; `vendor/zscaler-sdk-go/zscaler/zcc/services/secrets/getotp/get_otp.go:16-26`). The example values `123456` / `654321` in the tool docstring are illustrative only (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zcc/get_otp.py:93-94`).
 
