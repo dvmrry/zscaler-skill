@@ -3,11 +3,12 @@ product: zpa
 topic: "zpa-app-segments"
 title: "ZPA application segment matching"
 content-type: reasoning
-last-verified: "2026-06-08"
+last-verified: "2026-06-15"
 verified-against:
   vendor/terraform-provider-zpa: a3c845f3366cc2267e1b244f9968e727c92bad3d
   vendor/zscaler-mcp-server: f84ce4f0ed48047614a4202ac311cbdf00ea9a10
   vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
 confidence: high
 source-tier: mixed
 sources:
@@ -23,6 +24,8 @@ sources:
   - "vendor/terraform-provider-zpa/docs/resources/zpa_application_segment_multimatch_bulk.md"
   - "vendor/zscaler-mcp-server/CHANGELOG.md"
   - "vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py"
+  - "vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py"
+  - "vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go"
 author-status: draft
 ---
 
@@ -83,11 +86,11 @@ resource "zpa_application_segment" "this" {
 
 A few fields live at the API/TF level but are absent from or under-documented in the help articles. Relevant when reading snapshot JSON or writing policy about segments programmatically.
 
-- **`enabled` defaults to `True`** on newly-constructed segment objects (`zscaler/zpa/models/application_segment.py:41`). Help docs don't highlight this; a caller who forgets to set `enabled` ends up with a live segment, not a draft. When auditing "why is this segment active?", don't assume the author explicitly turned it on.
+- **`enabled` defaults to `True`** on newly-constructed segment objects (`zscaler/zpa/models/application_segment.py:42`). Help docs don't highlight this; a caller who forgets to set `enabled` ends up with a live segment, not a draft. When auditing "why is this segment active?", don't assume the author explicitly turned it on.
 - **Dual port-range formats coexist:**
   - `tcp_port_ranges` / `udp_port_ranges` — list of strings, e.g. `["80", "8080-8090"]` (the field name the TF provider uses)
   - `tcp_port_range` / `udp_port_range` — list of `{from, to}` dicts
-  - SDK `request_format()` sends both (`zscaler/zpa/models/application_segment.py:90-107`). Different endpoints may prefer one or the other; both are tolerated. In snapshot JSON, you may see the same ports emitted twice in two formats.
+  - SDK `request_format()` sends both (`zscaler/zpa/models/application_segment.py:218-221`, where `tcpPortRanges`/`udpPortRanges` and `tcpPortRange`/`udpPortRange` are emitted together; the read-side dict parse is `:98-108`). Different endpoints may prefer one or the other; both are tolerated. In snapshot JSON, you may see the same ports emitted twice in two formats.
 - **`inspect_traffic_with_zia`** (bool, default `False`) — enables ZIA inline inspection for ZPA traffic at the segment level. This is the ZPA-side hook for ZIA+ZPA integration (distinct from ZIA's `zpa_app_segments` on SSL inspection rules, which operates the reverse direction). When a request touches both products, check both toggles.
 - **Governance flags** (server-assigned, appear across ZPA resources):
   - `read_only` — set by Zscaler-managed or microtenant-restricted objects. Cannot be modified by customer admins.
@@ -97,23 +100,26 @@ A few fields live at the API/TF level but are absent from or under-documented in
 - ⚠️ **`select_connector_close_to_app` is immutable.** TF marks it `ForceNew` (`resource_zpa_application_segment.go:197`): toggling connector-proximity routing on an existing segment **destroys and recreates the segment** at the API level. Applies to all segment variants (base, `_pra`, `_inspection`, `_browser_access`). Operationally: plan for access interruption when changing connector routing strategy.
 - **`bypass_type` has three values, not two**: `ALWAYS`, `NEVER`, `ON_NET` (`resource_zpa_application_segment.go:83-87`). **`ON_NET`** (bypass only for on-network users) is undocumented in most help articles but is a valid API value — useful for hybrid on-network-vs-remote patterns.
 - **`icmp_access_type` enum**: `PING_TRACEROUTING`, `PING`, `NONE` (default `NONE`) — controls ICMP behavior on the segment. Relevant when a question asks "why can I ping this app through ZPA?"
-- **`tcp_keep_alive` is a string enum `"0"` / `"1"`, not boolean** (`:228-230`). Wire-format quirk: callers writing JSON payloads programmatically must send strings.
-- **Go-SDK-only segment fields not surfaced in Python.** Cross-SDK sweep (2026-04-24) found these fields on `ApplicationSegmentResource` in Go (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go`) that the Python SDK doesn't model. They appear in snapshot JSON for tenants using them:
-  - **`bypassOnReauth`** — whether the segment bypasses ZPA on session re-authentication. Operationally significant: affects hybrid on-net/off-net users who re-auth mid-session (session flaps can briefly skip ZPA inspection).
-  - **`extranetEnabled`** — extranet access toggle for the segment.
-  - **`apiProtectionEnabled`** / **`autoAppProtectEnabled`** / **`adpEnabled`** — AppProtection and Application Data Protection-related flags.
-  - **`weightedLoadBalancing`** — weighted balancing across App Connectors instead of default strategy.
-  - **`fqdnDnsCheck`** — FQDN DNS-resolution health check on the segment.
-  - **`healthCheckType`** — discriminates health-check strategies beyond the `health_reporting` enum.
-  - **`policyStyle`** — finer-grained policy-style selector (undocumented enum).
-  - **`zpnerId`** — Zscaler internal reference identifier.
-
-  Callers scripting against the wire directly (HTTP or Go SDK) can set these; Python-SDK callers can only read them out of snapshot JSON.
+- **`tcp_keep_alive` is a string enum `"0"` / `"1"`, not boolean** (sent on the wire `:234`). Wire-format quirk: callers writing JSON payloads programmatically must send strings.
+- **Segment fields under-documented in help but present in both SDKs.** These fields live on the segment model in *both* the Python SDK (`zscaler/zpa/models/application_segment.py`) and the Go SDK (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:29-76`), and the Python `request_format()` writes them on the wire — so Python callers can both read and **write** them, not just read them out of snapshot JSON. They are nonetheless thin or absent in the help articles, so they surface mostly when reading snapshot JSON or scripting segments:
+  - **`bypass_on_reauth`** (py `:50`, sent on the wire `:230`; go `BypassOnReauth` `:38`) — whether the segment bypasses ZPA on session re-authentication. Operationally significant: affects hybrid on-net/off-net users who re-auth mid-session (session flaps can briefly skip ZPA inspection).
+  - **`extranet_enabled`** (py `:68`; go `ExtranetEnabled` `:29`) — extranet access toggle for the segment.
+  - **`api_protection_enabled`** (py `:65`) / **`auto_app_protect_enabled`** (py `:64`) / **`adp_enabled`** (py `:63`, sent `:238`) — AppProtection and Application Data Protection-related flags.
+  - **`weighted_load_balancing`** (py `:67`; go `WeightedLoadBalancing` `:56`) — weighted balancing across App Connectors instead of default strategy.
+  - **`fqdn_dns_check`** (py `:66`; go `FQDNDnsCheck` `:42`) — FQDN DNS-resolution health check on the segment.
+  - **`health_check_type`** (py `:46`; go `HealthCheckType` `:39`) — discriminates health-check strategies beyond the `health_reporting` enum.
+  - **`policy_style`** (py `:55`, sent `:256`; go `PolicyStyle` `:76`) — finer-grained policy-style selector (undocumented enum).
+  - **`zpn_er_id`** (py `:136`, sent `:255`; go `ZPNERID` `:74`, JSON key `zpnErId`) — Zscaler internal reference identifier.
+- **Newer segment fields neither SDK section called out before.** Modeled on the Go `ApplicationSegmentResource` and (where noted) the Python models:
+  - **`app_recommendation_id`** (go `AppRecommendationId` `:46`; Python carries it on the Browser Access `AppResource` model, `application_segment.py:861`) — links a segment back to an app-recommendation record.
+  - **`default_idle_timeout`** (go `DefaultIdleTimeout` `:68`; Python `AppResource` `:866`) and **`default_max_age`** (go `DefaultMaxAge` `:69`; Python `AppResource` `:867`) — session-lifecycle timers, emitted as strings.
+  - **`share_to_microtenants`** (go `ShareToMicrotenants` `:72`, JSON `shareToMicrotenants`) — the microtenant-share target list (the payload the Share operation below sets).
+  - **`tags`** (py `:154`; go `Tags` `:75`) — namespace/key/value tag objects attached to the segment.
 - **Browser Access app resources expose `inconsistentConfigDetails`.** The Python SDK model for Browser Access app resources (`AppResource`) now carries the API's `inconsistentConfigDetails` field. Treat it as a server-reported configuration warning attached to the app resource, not as application-segment matching or policy precedence by itself.
-- **Cross-microtenant Move and Share operations** are Go-SDK-only:
-  - **`AppSegmentMicrotenantMove`** (`applicationsegment_move/` service) — `POST .../application/{id}/move`. Moves a segment from one microtenant to another.
-  - **`AppSegmentMicrotenantShare`** (`applicationsegment_share/` service) — `PUT .../application/{id}/share`. Shares a segment across microtenant boundaries.
-  - These pair with the `read_only` / `shared_from_microtenant` / `shared_to_microtenant` governance flags documented above. An operator asking "how do I move a segment to a different microtenant programmatically" needs the Go SDK or direct HTTP — Python SDK has no equivalent.
+- **Cross-microtenant Move and Share operations** are available in **both** SDKs:
+  - **Move** — `POST .../application/{id}/move`, moves a segment from one microtenant to another. Python: `client.zpa.app_segments.app_segment_move(application_id, target_segment_group_id=..., target_server_group_id=..., target_microtenant_id=...)` (`zscaler/zpa/application_segment.py:525`). Go: `AppSegmentMicrotenantMove` in the `applicationsegment_move/` service (`applicationsegment_move/applicationsegment_move.go:25,32`).
+  - **Share** — `PUT .../application/{id}/share`, shares a segment across microtenant boundaries. Python: `client.zpa.app_segments.app_segment_share(application_id, share_to_microtenants=[...])` (`zscaler/zpa/application_segment.py:598`, payload key `shareToMicrotenants` `:634`). Go: `AppSegmentMicrotenantShare` in the `applicationsegment_share/` service (`applicationsegment_share/applicationsegment_share.go:23,29`).
+  - These pair with the `read_only` / `shared_from_microtenant` / `shared_to_microtenant` governance flags documented above. An operator asking "how do I move/share a segment to a different microtenant programmatically" can use either SDK — note the Python move only supports Default-microtenant (`microtenant_id` `0`) → child-tenant direction (`application_segment.py:528`).
 
 ### Wildcard domain constraints
 

@@ -3,7 +3,7 @@ product: zpa
 topic: "zpa-index"
 title: "ZPA reference hub"
 content-type: reference
-last-verified: "2026-04-24"
+last-verified: "2026-06-15"
 confidence: high
 sources: []
 author-status: reviewed
@@ -57,6 +57,7 @@ Field-and-endpoint-level catalogs derived from Zscaler SDKs and Postman collecti
 | Schema | File | Status |
 |---|---|---|
 | API endpoint inventory — full ZPA REST endpoint catalog with request/response shapes | [`./api-schemas.md`](./api-schemas.md) | draft |
+| **Legacy API endpoint reference** — complete `config.private.zscaler.com` endpoint surface (the legacy counterpart to the OneAPI surface in [`./api.md`](./api.md)); v1/v2 mgmtconfig + userconfig + CBI base URLs, per-service endpoint tables extracted from the Go SDK service layer | [`./legacy-endpoints.md`](./legacy-endpoints.md) | draft |
 | Postman-collection-derived schemas — extracted struct shapes and parameter types from the ZPA Postman collection | [`./api-postman-schemas.md`](./api-postman-schemas.md) | draft |
 | **API source divergences** — where the Go SDK, Python SDK, and Postman collection disagree with each other and with field observations; which source to trust per area | [`./api-divergences.md`](./api-divergences.md) | draft |
 | SAML attribute reference — attributes available for ZPA policy criteria and how they're sourced from the IdP | [`./saml-attributes.md`](./saml-attributes.md) | draft |
@@ -64,3 +65,7 @@ Field-and-endpoint-level catalogs derived from Zscaler SDKs and Postman collecti
 ## When the question spans multiple topics
 
 Start at [`../shared/policy-evaluation.md`](../shared/policy-evaluation.md) for the cross-feature mental model, then descend into the specific topic file.
+
+## Open questions
+
+- **Status column does not yet carry signal.** Every linked doc currently self-declares `author-status: draft` in its own frontmatter (verified across `machine-groups.md:28`, `legacy-endpoints.md:13`, `app-segments.md`, `segment-server-groups.md`, `api.md`), so the index status column correctly mirrors `draft` for all rows. The audit suggested promoting demonstrably-complete docs (e.g. `machine-groups.md`) to a higher status, but doing so here would contradict the doc's own frontmatter. Promotion should be driven from each doc's `author-status` (and supporting `confidence`/`source-tier`) being raised first — e.g. `machine-groups.md` is still `confidence: medium`, `source-tier: doc`, `last-verified: 2026-04-27` — after which the index column can be regenerated to match. Deferred until the per-doc statuses are advanced.

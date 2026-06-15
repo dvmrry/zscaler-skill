@@ -4367,17 +4367,17 @@ Python SDK enum: `ALL` (Zscaler manages ThreatLabZ controls automatically), `SPE
 
 ## Open questions
 
-- **PrivateCloudController canonical restart path** — Go SDK uses `/restart/{id}`; Python SDK uses `/{id}/restart`. Postman has no entry for PrivateCloudController to settle the canonical path. — *unverified, requires lab test against live tenant*
+- **PrivateCloudController canonical restart path** — Go SDK uses `/restart/{id}`; Python SDK uses `/{id}/restart`. Postman has no entry for PrivateCloudController to settle the canonical path. — *unverified, requires lab test against live tenant*. (Tracked as [`zpa-22`](../_meta/clarifications.md#zpa-22-privatecloudcontroller-canonical-restart-path).)
 
-- **Credential sensitive fields in GET response** — Python SDK model excludes `password` and `private_key` from response fields; Postman collection shows them present in GET list example bodies. Whether these are actually returned or are Postman placeholder artifacts is unresolved. — *unverified, requires tenant-side check*
+- **Credential sensitive fields in GET response** — Python SDK model excludes `password` and `private_key` from response fields; Postman collection shows them present in GET list example bodies. Whether these are actually returned or are Postman placeholder artifacts is unresolved. — *unverified, requires tenant-side check*. (Tracked as [`zpa-23`](../_meta/clarifications.md#zpa-23-credential-sensitive-fields-in-get-response).)
 
-- **NLA as a valid connectionSecurity value for PRA sub-apps** — Python SDK docstring lists it; not present in Postman or Go SDK struct. — *unverified, requires API-level test*
+- **NLA as a valid connectionSecurity value for PRA sub-apps** — Python SDK docstring lists it; not present in Postman or Go SDK struct. — *unverified, requires API-level test*. (Tracked as [`zpa-24`](../_meta/clarifications.md#zpa-24-nla-as-a-valid-connectionsecurity-value-for-pra-sub-apps).)
 
 - **ScimAttributeHeader delta field accuracy** — The extraction report initially claimed Postman cited the Go struct (line 20-37) as proof of delta. Spot-check showed the Go struct at those lines has no delta field. The claim that delta exists in the Python model is verified; the claim it exists in Go is not. — *extraction report citation for Go struct was inaccurate; do not rely on Go SDK for this field*
 
-- **BaCertificate update_certificate (Python) — validity as API operation** — Go SDK and Postman have no PUT for `/certificate/:id`. Python SDK exposes `update_certificate`. — *unverified, requires lab test*
+- **BaCertificate update_certificate (Python) — validity as API operation** — Go SDK and Postman have no PUT for `/certificate/:id`. Python SDK exposes `update_certificate`. — *unverified, requires lab test*. (Tracked as [`zpa-25`](../_meta/clarifications.md#zpa-25-bacertificate-update_certificate-validity-as-an-api-operation).)
 
-- **zpn_client_type_browser_isolation in LSS policy conditions** — Commented out in Go SDK integration test; listed as valid in TF validator. Status at API level is unknown. — *unverified, requires tenant-side check*
+- **zpn_client_type_browser_isolation in LSS policy conditions** — Commented out in Go SDK integration test; listed as valid in TF validator. Status at API level is unknown. — *unverified, requires tenant-side check*. (Tracked as [`zpa-26`](../_meta/clarifications.md#zpa-26-zpn_client_type_browser_isolation-in-lss-policy-conditions).)
 
 ---
 

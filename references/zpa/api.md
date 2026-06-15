@@ -3,13 +3,21 @@ product: zpa
 topic: "zpa-api"
 title: "ZPA API surface"
 content-type: reference
-last-verified: "2026-04-23"
-confidence: medium
+last-verified: "2026-06-15"
+confidence: high
 source-tier: code
 sources:
   - "vendor/zscaler-sdk-python/README.md"
+  - "vendor/zscaler-sdk-python/zscaler/zpa/zpa_service.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py"
+  - "vendor/zscaler-sdk-python/zscaler/zpa/policies.py"
+  - "vendor/zscaler-sdk-python/zscaler/zpa/lss.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py"
+  - "vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go"
+  - "vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_user_api.go"
+  - "vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go"
+  - "vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment_pra.go"
+  - "vendor/terraform-provider-zpa/zpa/resource_zpa_policy_access_rule_v2.go"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_application_segment.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_segment_group.md"
@@ -110,22 +118,22 @@ resource "zpa_application_segment" "this" {
   - `tcpPortRange` / `udpPortRange` — list of `{from, to}` dicts
   - SDK `request_format()` sends both. Different API endpoints may require one or the other; the SDK tolerates both.
 - **`inspect_traffic_with_zia`** (bool) — enables ZIA inline inspection for ZPA traffic at the segment level. This is the ZPA-side hook for ZIA+ZPA integration (distinct from ZIA's `zpa_app_segments` on SSL inspection rules).
-- **`policy_style`** — present but no enum values in the SDK; server-assigned. [inferred]
+- **`policy_style`** — a free `string` in the SDK (no enum constant): `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:76` (`PolicyStyle string json:"policyStyle,omitempty"`). The API returns one of two observed values, `DUAL_POLICY_EVAL` or `NONE` (operator-corroborated, not an SDK enum). See [`./api-divergences.md § Field observations (Application Segments)`](./api-divergences.md#field-observations-application-segments).
 - **`read_only`, `restriction_type`, `zscaler_managed`** are server-assigned governance flags appearing across App Segments, Segment Groups, App Connector Groups, and Policy Rules. Any object with `read_only=True` or `zscaler_managed=True` should be treated as immutable by the skill.
 
 **TF-level findings** (`terraform-provider-zpa/zpa/resource_zpa_application_segment.go`):
 
-- **`select_connector_close_to_app` is `ForceNew`** (`:197`). Toggling connector-proximity routing on an existing segment requires **destroy and recreate** — the API refuses in-place updates to this flag. Plan for access interruption when changing it. Applies to all segment variants (base, `_pra`, `_inspection`, `_browser_access`).
-- **`bypass_type` enum (3 values)**: `ALWAYS`, `NEVER`, `ON_NET` (`:83-87`). **`ON_NET`** (bypass only for on-network users) is undocumented in most App Segment help articles.
-- **`icmp_access_type` enum**: `PING_TRACEROUTING`, `PING`, `NONE` (default `NONE`) (`:180-184`). Controls ICMP handling on the segment.
-- **`health_reporting` enum**: `NONE`, `ON_ACCESS`, `CONTINUOUS` (default `NONE`) (`:170-174`).
-- **`log_features` enum**: `DEFAULT`, `SIEM` (default `DEFAULT`) (`:109-113`).
-- **`tcp_keep_alive` is a string enum `"0"` / `"1"`, not a native boolean** (`:228-230`). Wire-format quirk — callers constructing payloads programmatically must send strings.
+- **`select_connector_close_to_app` is `ForceNew`** (`:194`). Toggling connector-proximity routing on an existing segment requires **destroy and recreate** — the API refuses in-place updates to this flag. Plan for access interruption when changing it. Applies to all segment variants (base, `_pra`, `_inspection`, `_browser_access`).
+- **`bypass_type` enum (3 values)**: `ALWAYS`, `NEVER`, `ON_NET` (`:84-86`). **`ON_NET`** (bypass only for on-network users) is undocumented in most App Segment help articles.
+- **`icmp_access_type` enum**: `PING_TRACEROUTING`, `PING`, `NONE` (default `NONE`) (`:176-184`). Controls ICMP handling on the segment.
+- **`health_reporting` enum**: `NONE`, `ON_ACCESS`, `CONTINUOUS` (default `NONE`) (`:165-174`).
+- **`config_space` enum**: `DEFAULT`, `SIEM` (default `DEFAULT`) (`:106-114`). (The TF schema field is named `config_space`, wire `configSpace`; SDK model field `config_space` — `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:35`. Earlier drafts mislabeled this `log_features`.)
+- **`tcp_keep_alive` is a string enum `"0"` / `"1"`, not a native boolean** (`:224-230`). Wire-format quirk — callers constructing payloads programmatically must send strings.
 
 **PRA segment extras** (`resource_zpa_application_segment_pra.go`):
 
-- **`apps_config.app_types` enum**: `RDP`, `SSH`, `VNC` (`:252-254`). Full set of PRA protocols.
-- **RDP `connection_security` enum (6 values)**: `ANY`, `NLA`, `NLA_EXT`, `TLS`, `VM_CONNECT`, `RDP` (`:260-262`). **`VM_CONNECT`** is PRA-only, absent from help docs — used for Hyper-V VM Connect tunneling.
+- **`apps_config.app_types` enum**: `RDP`, `SSH`, `VNC` (`:253`). Full set of PRA protocols.
+- **RDP `connection_security` enum (6 values)**: `ANY`, `NLA`, `NLA_EXT`, `TLS`, `VM_CONNECT`, `RDP` (`:261`). **`VM_CONNECT`** is PRA-only, absent from help docs — used for Hyper-V VM Connect tunneling.
 
 **Browser Access extras** (`resource_zpa_application_segment_browser_access.go`):
 
@@ -185,7 +193,7 @@ Per *Access Policy Deployment and Operations Guide* (vendored PDF) p.3, rule ord
 **TF-level findings on policy rules:**
 
 - **`reauth_timeout` and `reauth_idle_timeout` are `ForceNew`** in the shared policy schema (`common.go:554-562`). **Changing either on an existing rule requires Terraform to destroy and recreate it** — the API refuses in-place updates. Correction to earlier threading in `references/zpa/policy-precedence.md`: editing these fields isn't just a normal update; it's an in-place disruption that can renumber the rule. Plan carefully.
-- **v2 policy `object_type` enum — 19 values** (`resource_zpa_policy_access_rule_v2.go:112-132`): `APP`, `APP_GROUP`, `LOCATION`, `IDP`, `SAML`, `SCIM`, `SCIM_GROUP`, `CLIENT_TYPE`, `POSTURE`, `TRUSTED_NETWORK`, `BRANCH_CONNECTOR_GROUP`, `EDGE_CONNECTOR_GROUP`, `MACHINE_GRP`, `COUNTRY_CODE`, `PLATFORM`, `RISK_FACTOR_TYPE`, `CHROME_ENTERPRISE`, `CHROME_POSTURE_PROFILE`, `WORKLOAD_TAG_GROUP`. v2 adds materially more types than v1 (`LOCATION`, `BRANCH_CONNECTOR_GROUP`, `EDGE_CONNECTOR_GROUP`, `MACHINE_GRP`, `COUNTRY_CODE`, `PLATFORM`, `RISK_FACTOR_TYPE`, `CHROME_ENTERPRISE`, `CHROME_POSTURE_PROFILE`, `WORKLOAD_TAG_GROUP`). When answering v1-vs-v2 behavior questions, the surface-area delta is structural.
+- **v2 policy `object_type` enum — 19 values** (`resource_zpa_policy_access_rule_v2.go:107-131`): `APP`, `APP_GROUP`, `LOCATION`, `IDP`, `SAML`, `SCIM`, `SCIM_GROUP`, `CLIENT_TYPE`, `POSTURE`, `TRUSTED_NETWORK`, `BRANCH_CONNECTOR_GROUP`, `EDGE_CONNECTOR_GROUP`, `MACHINE_GRP`, `COUNTRY_CODE`, `PLATFORM`, `RISK_FACTOR_TYPE`, `CHROME_ENTERPRISE`, `CHROME_POSTURE_PROFILE`, `WORKLOAD_TAG_GROUP`. v2 adds materially more types than v1 (`LOCATION`, `BRANCH_CONNECTOR_GROUP`, `EDGE_CONNECTOR_GROUP`, `MACHINE_GRP`, `COUNTRY_CODE`, `PLATFORM`, `RISK_FACTOR_TYPE`, `CHROME_ENTERPRISE`, `CHROME_POSTURE_PROFILE`, `WORKLOAD_TAG_GROUP`). When answering v1-vs-v2 behavior questions, the surface-area delta is structural.
 - **Access rule `action` enum**: `ALLOW`, `DENY`, `REQUIRE_APPROVAL` (both v1 and v2). `REQUIRE_APPROVAL` is a first-class API value corresponding to the Conditional Access / step-up pattern described in `zpa-06`.
 - **Timeout rule `action` is `RE_AUTH` only** (`resource_zpa_policy_access_timeout_rule.go:31-33`) — single-value enum.
 - **Forwarding rule `action` enum (v2)**: `BYPASS`, `INTERCEPT`, `INTERCEPT_ACCESSIBLE` (`resource_zpa_policy_access_forwarding_rule_v2.go:43-47`). **`INTERCEPT_ACCESSIBLE`** is undocumented in forwarding rule action docs — appears to be a variant of INTERCEPT for accessibility-gated flows.
@@ -256,15 +264,16 @@ TF resources for LSS configuration (each maps to a specific log type):
 
 `models/lss.py` defines `LSSResourceModel` with these top-level fields: `id`, `connector_groups`, `config` (LSSConfig), `policy_rule`, `policy_rule_resource`. `LSSConfig` carries `name`, `description`, `enabled`, `source_log_type`, `modified_time`, `creation_time`, `modified_by`, plus the log-stream content template.
 
-## Go-SDK-only surfaces (cross-SDK audit 2026-04-24)
+## Go-SDK-only surfaces (cross-SDK audit 2026-06-15)
 
 Source: `vendor/zscaler-sdk-go/zscaler/zpa/services/`; `vendor/zscaler-sdk-python/zscaler/zpa/`.
 
 Cross-check against `vendor/zscaler-sdk-go/zscaler/zpa/services/` surfaced services the Python SDK at `vendor/zscaler-sdk-python/zscaler/zpa/` doesn't expose:
 
-- **`applicationsegment_move`** / **`applicationsegment_share`** (Go) — explicit microtenant-cross-segment operations: `AppSegmentMicrotenantMove` and `AppSegmentMicrotenantShare`. Python's `application_segment` has no equivalent methods. Any tooling that needs to move application segments across microtenants or share segments between microtenant boundaries must use the Go SDK or call the API directly.
 - **Microtenant-sharing sub-objects on `ApplicationSegmentResource`** (Go) — `SharedMicrotenantDetails`, `SharedFromMicrotenant`, `SharedToMicrotenant` are typed sub-structs. Python's `application_segment.py` passes these through as unvalidated dicts. Tenants using microtenants should expect these fields to appear in snapshot JSON.
-- **`scim_api`** (Go) — full ZPA SCIM CRUD. Python has `scim_groups` and `scim_attributes` modules but they don't cover the full SCIM provisioning surface the Go SDK exposes.
+- **`scim_api`** (Go) — full ZPA SCIM **user** CRUD (`scim_user_api.go`: Get/Create/Update/Patch/Delete/GetAll, `vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_user_api.go:64-132`). Python has `scim_groups` and `scim_attributes` modules but no SCIM-user CRUD module, so this provisioning surface remains Go-only.
+
+**Move / share is no longer Go-only.** Earlier audits listed `applicationsegment_move` / `applicationsegment_share` as Go-only; the Python SDK now exposes equivalents: `client.zpa.application_segment.app_segment_move(application_id, ...)` (`vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py:525`, POST `.../application/{id}/move`, body `targetSegmentGroupId`/`targetMicrotenantId`/`targetServerGroupId` at :566-569) and `app_segment_share(application_id, ...)` (`:598`). The cross-SDK wire-format difference (Go body also carries `applicationId`/`microtenantId`; Postman and Python omit them) is documented in [`./api-divergences.md § Move request body`](./api-divergences.md#move-request-body-go-sdk-includes-applicationid-and-microtenantid-postman-and-python-omit-them).
 
 Python-only modules the Go SDK doesn't carry (some of these are Python's way of splitting what Go bundles; some are newer features): `tag_key`, `tag_namespace`, all five `pra_*` modules (`pra_approval`, `pra_console`, `pra_credential`, `pra_credential_pool`, `pra_portal`), and all four `cbi_*` modules (`cbi_banner`, `cbi_certificate`, `cbi_profile`, `cbi_region`). The PRA and CBI surfaces exist in Go under different paths — the module split differs rather than the API coverage.
 
@@ -295,7 +304,12 @@ def list_all(method, **kwargs):
     return out
 
 segments = list_all(client.zpa.application_segment.list_segments)
-policies = list_all(client.zpa.policy_set_controller.list_rules)
+# list_rules is policy_type-scoped (returns V1 objects); pass the type, not a bare method.
+# The arg is a lowercase POLICY_MAP alias ("access"), NOT the wire value "ACCESS_POLICY":
+# policies.py:496-498 does POLICY_MAP.get(policy_type) and raises
+# ValueError("Incorrect policy type provided: ...") on a value or unknown key.
+# (vendor/zscaler-sdk-python/zscaler/zpa/policies.py:453 — def list_rules(self, policy_type, ...))
+access_rules = list_all(lambda **kw: client.zpa.policies.list_rules("access", **kw))
 
 # Pattern 2: round-trip update for an Application Segment
 # CRITICAL: do NOT include `clientless_app_ids` in the body for standard segments.
@@ -310,20 +324,23 @@ if err: raise RuntimeError(f"update_segment: {err}")
 # See ./app-segments.md § Edge cases for the full clientless_app_ids gotcha.
 
 # Pattern 3: reorder access policy rules
-# (Go SDK has BulkReorder; Python uses list_rules → manual update per rule.
-# For >5 rules, prefer the Go SDK route or direct HTTP to the bulk endpoint.)
-rules_in_order = [42, 7, 13]  # IDs in desired evaluation order
-for new_position, rule_id in enumerate(rules_in_order, 1):
-    rule, _, err = client.zpa.policy_set_controller.get_rule(policy_id=POLICY_ID, rule_id=rule_id)
-    if err: raise RuntimeError(f"get_rule: {err}")
-    rule_dict = rule.as_dict()
-    rule_dict["rule_order"] = new_position
-    _, _, err = client.zpa.policy_set_controller.update_rule(policy_id=POLICY_ID, rule_id=rule_id, **rule_dict)
-    if err: raise RuntimeError(f"update_rule: {err}")
+# Reordering is its own method — there is NO top-level update_rule.
+# Single rule: reorder_rule(policy_type, rule_id, rule_order)  (policies.py:3987)
+# All at once: bulk_reorder_rules(policy_type, rules_orders)    (policies.py:4064)
+# Read a single rule with get_rule(policy_type, rule_id)        (policies.py:388)
+rules_in_order = ["42", "7", "13"]  # IDs in desired evaluation order
+# policy_type is a lowercase POLICY_MAP alias ("access"), NOT the wire value "ACCESS_POLICY".
+# bulk_reorder_rules and reorder_rule both call get_policy() (policies.py:4124, :4038), which
+# does POLICY_MAP.get(policy_type) (policies.py:349-351) and raises ValueError on a bad key.
+# One bulk call is preferred over a per-rule loop:
+_, _, err = client.zpa.policies.bulk_reorder_rules("access", rules_in_order)
+if err: raise RuntimeError(f"bulk_reorder_rules: {err}")
+# Or move a single rule to a 1-based position:
+# _, _, err = client.zpa.policies.reorder_rule("access", rule_id="42", rule_order="1")
 # See ./policy-precedence.md for rule-order vs priority disambiguation.
 
-# Pattern 4: LSS feed config (V1 policy format — only place V1 remains current)
-feeds = list_all(client.zpa.lss.list_feeds)
+# Pattern 4: LSS config (V1 policy format — only place V1 remains current)
+feeds = list_all(client.zpa.lss.list_configs)
 
 # Pattern 5: error-handling wrapper (same shape as ZIA)
 def call(method, *args, **kwargs):

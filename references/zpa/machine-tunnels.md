@@ -3,7 +3,7 @@ product: zpa
 topic: "zpa-machine-tunnels"
 title: "ZPA Machine Tunnels — pre-authentication policy and AD connectivity"
 content-type: reference
-last-verified: "2026-04-27"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: doc
 sources:
@@ -14,6 +14,7 @@ sources:
   - "vendor/zscaler-help/configuring-device-posture-profiles.md"
   - "vendor/zscaler-help/automate-zscaler/api-reference-zcc-overview.md"
   - "vendor/terraform-provider-zpa/docs/data-sources/zpa_machine_group.md"
+  - "vendor/terraform-provider-zpa/zpa/validator.go"
   - "vendor/zscaler-sdk-python/zscaler/zpa/machine_groups.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/policies.py"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/machinegroup/zpa_machine_group.go"
@@ -161,19 +162,30 @@ Provisioning Keys (for App Connector / Service Edge enrollment, not the machine 
 
 ### Client Type on Access and Forwarding Policy
 
-Source: `vendor/zscaler-sdk-python/zscaler/zpa/policies.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/machinegroup/zpa_machine_group.go`; `vendor/terraform-provider-zpa/docs/data-sources/zpa_machine_group.md`.
+Source: `vendor/terraform-provider-zpa/zpa/validator.go`; `vendor/zscaler-sdk-python/zscaler/zpa/policies.py`.
 
-Machine tunnels surface in ZPA policy as the client type `zpn_client_type_machine_tunnel`. This is the primary mechanism for writing policy that applies to pre-login machine sessions and not to user sessions (or vice versa).
+Machine tunnels surface in ZPA policy as the client type `zpn_client_type_machine_tunnel` — this is the value relevant to machine tunnels (`vendor/zscaler-sdk-python/zscaler/zpa/policies.py:2127`). This is the primary mechanism for writing policy that applies to pre-login machine sessions and not to user sessions (or vice versa).
 
-From `policy-precedence.md`, the Client Types criterion on an access policy rule uses an AND relationship across distinct criterion types and an OR relationship within a single criterion block. The full client type enum (as validated in the Python SDK):
+From `policy-precedence.md`, the Client Types criterion on an access policy rule uses an AND relationship across distinct criterion types and an OR relationship within a single criterion block.
+
+The authoritative validated client-type set is the Terraform provider's `supportedClientTypes` map, which accepts 12 values (`vendor/terraform-provider-zpa/zpa/validator.go:170-183`):
 
 ```
-zpn_client_type_edge_connector
-zpn_client_type_branch_connector
+zpn_client_type_exporter
+zpn_client_type_exporter_noauth
 zpn_client_type_machine_tunnel
-zpn_client_type_zapp            (user ZCC sessions)
+zpn_client_type_edge_connector
+zpn_client_type_zia_inspection
+zpn_client_type_vdi
+zpn_client_type_zapp                (user ZCC sessions)
+zpn_client_type_slogger
+zpn_client_type_browser_isolation
+zpn_client_type_ip_anchoring
 zpn_client_type_zapp_partner
+zpn_client_type_branch_connector
 ```
+
+Note that the Python SDK does **not** validate this full set across all policy types. Most policy-creation functions accept any client-type string and pass it through to the API (the SDK docstrings freely use values such as `zpn_client_type_exporter` and `zpn_client_type_browser_isolation` in their examples — `vendor/zscaler-sdk-python/zscaler/zpa/policies.py:1545-1546`, `:565`). The only SDK functions that validate against a fixed list are the redirection-rule helpers `add_redirection_rule_v2` and `update_redirection_rule_v2`, which restrict the operand to a narrower 5 values: `edge_connector`, `branch_connector`, `machine_tunnel`, `zapp`, `zapp_partner` (`vendor/zscaler-sdk-python/zscaler/zpa/policies.py:3500-3506`, `:3644-3650`). That narrow list is specific to redirection rules and is not the general access/forwarding client-type enum.
 
 A rule that includes `zpn_client_type_machine_tunnel` in its `CLIENT_TYPE` operand will match machine tunnel sessions. A rule that includes only `zpn_client_type_zapp` will not match machine tunnel sessions, even on the same device.
 
@@ -253,15 +265,15 @@ The help article at `help.zscaler.com/zscaler-client-connector/configuring-zpa-m
 
 ## Open questions
 
-1. **Console path for the global "Enable ZPA Machine Tunnel for All" toggle** — the help article (`configuring-zpa-machine-tunnel-all`) has moved or been removed. The exact ZPA Admin Portal navigation path is not confirmed from current documentation. Expected location: somewhere within App Profile or ZPA Global Settings. Requires tenant-level confirmation.
+1. **Console path for the global "Enable ZPA Machine Tunnel for All" toggle** — the help article (`configuring-zpa-machine-tunnel-all`) has moved or been removed. The exact ZPA Admin Portal navigation path is not confirmed from current documentation. Expected location: somewhere within App Profile or ZPA Global Settings. Requires tenant-level confirmation. (Tracked as [`zpa-42`](../_meta/clarifications.md#zpa-42-console-path-for-the-global-enable-zpa-machine-tunnel-for-all-toggle).)
 
-2. **Whether Machine Groups can be created via the ZPA Management API** — both SDKs expose only read operations on Machine Groups. The documentation implies groups are created in the Admin Portal and populated via provisioning enrollment. Whether a direct `POST /machineGroup` endpoint exists is not confirmed.
+2. **Whether Machine Groups can be created via the ZPA Management API** — both SDKs expose only read operations on Machine Groups. The documentation implies groups are created in the Admin Portal and populated via provisioning enrollment. Whether a direct `POST /machineGroup` endpoint exists is not confirmed. (Same question as [`zpa-11`](../_meta/clarifications.md#zpa-11-machine-group-creation-endpoint).)
 
-3. **Machine tunnel behavior during user session transitions** — the help article notes the tunnel is Active before user login and may become Inactive after. The exact lifecycle (does the machine tunnel remain active alongside the user tunnel post-login, or does it hand off?) is not explicitly documented.
+3. **Machine tunnel behavior during user session transitions** — the help article notes the tunnel is Active before user login and may become Inactive after. The exact lifecycle (does the machine tunnel remain active alongside the user tunnel post-login, or does it hand off?) is not explicitly documented. (Tracked as [`zpa-43`](../_meta/clarifications.md#zpa-43-machine-tunnel-behavior-during-user-session-transitions).)
 
-4. **Machine tunnel support for macOS-specific MDM enrollment flows** — Jamf and Intune are listed as posture types for macOS. Whether they affect the machine tunnel provisioning flow (e.g., Jamf-issued certificates as the enrollment anchor) is not documented.
+4. **Machine tunnel support for macOS-specific MDM enrollment flows** — Jamf and Intune are listed as posture types for macOS. Whether they affect the machine tunnel provisioning flow (e.g., Jamf-issued certificates as the enrollment anchor) is not documented. (Tracked as [`zpa-44`](../_meta/clarifications.md#zpa-44-macos-mdm-enrollment-effect-on-machine-tunnel-provisioning).)
 
-5. **ZPA Machine Provisioning Key type for machines** — the `zpa_provisioning_key` TF resource supports `CONNECTOR_GRP` and `SERVICE_EDGE_GRP` association types. Whether machine tunnel provisioning keys use a different mechanism (app profile embedded key rather than a standard ZPA provisioning key resource) is not fully clear from sources.
+5. **ZPA Machine Provisioning Key type for machines** — the `zpa_provisioning_key` TF resource supports `CONNECTOR_GRP` and `SERVICE_EDGE_GRP` association types. Whether machine tunnel provisioning keys use a different mechanism (app profile embedded key rather than a standard ZPA provisioning key resource) is not fully clear from sources. (Tracked as [`zpa-45`](../_meta/clarifications.md#zpa-45-machine-tunnel-provisioning-key-mechanism).)
 
 ## Cross-links
 

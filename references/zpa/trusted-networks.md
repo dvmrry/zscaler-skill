@@ -3,7 +3,7 @@ product: zpa
 topic: "trusted-networks"
 title: "ZPA Trusted Networks — policy-side network identifiers"
 content-type: reasoning
-last-verified: "2026-04-28"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: code
 sources:
@@ -87,19 +87,21 @@ From `models/trusted_network.py` (Python SDK) and `zpa_trusted_network.go` (Go S
 
 From `trusted_networks.py` and `zpa_trusted_network.go`:
 
-- List: `GET /zpa/mgmtconfig/v2/admin/customers/{customerId}/network` — paginated; supports `search`, `page`, `page_size`.
-- Get by ID: `GET /zpa/mgmtconfig/v1/admin/customers/{customerId}/network/{networkId}` — note v1 for single-object fetch, v2 for list.
-- Lookup by `networkId` value: no dedicated endpoint; requires client-side scan of list results (`GetByNetID` in Go SDK iterates the full list).
+- List: `GET /zpa/mgmtconfig/v2/admin/customers/{customerId}/network` — paginated; supports `search`, `page`, `page_size`. (`trusted_networks.py:88` uses `_zpa_base_endpoint_v2`.)
+- Get by ID: `GET /zpa/mgmtconfig/v1/admin/customers/{customerId}/network/{id}` — note v1 for single-object fetch, v2 for list. (`trusted_networks.py:132` uses `_zpa_base_endpoint` v1; Go `Get` at `zpa_trusted_network.go:33` uses `mgmtConfigV1`.)
+- Lookup by `networkId` value: no dedicated endpoint; requires client-side scan of list results. The Go SDK's `GetByNetID` (`zpa_trusted_network.go:42-54`) pages the v2 list and matches on the `NetworkID` field value (`zpa_trusted_network.go:49`).
 
-**SDK service** (`client.zpa.trusted_networks`): `list_trusted_networks`, `get_trusted_network`. Read-only. (Tier A — `trusted_networks.py`.)
+**SDK service** (`client.zpa.trusted_networks`): `list_trusted_networks` (`trusted_networks.py:38`) and `get_network` (`trusted_networks.py:113`). Read-only. Note the single-fetch method is `get_network(network_id)` — it sends its argument as the `/network/{...}` path segment (`trusted_networks.py:133`), which is the object **`id`** path key, distinct from the Go `GetByNetID`, which scans the list by the **`networkId`** field value. This reinforces the `network_id`-vs-`id` gotcha that is this doc's headline point. (Tier A — `trusted_networks.py`.)
 
 ## PSE Group mapping
 
 Source: `vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go`.
 
-ZPA Private Service Edge (PSE) Groups carry a `trusted_networks` field — a list of Trusted Network IDs. This maps a PSE Group to specific networks: the PSE Group is associated with those trusted network identities and is preferred or exclusively used when users connect from those networks.
+ZPA Private Service Edge (PSE) Groups carry a `trusted_networks` field — a list of Trusted Network IDs (`resource_zpa_service_edge_group.go:152`). This maps a PSE Group to specific networks: the PSE Group is associated with those trusted network identities and is preferred or exclusively used when users connect from those networks.
 
-The `publicly_accessible` field on a PSE Group controls whether the PSE is also available for users outside the mapped trusted networks. If `publicly_accessible = false`, only users whose ZCC signals an associated Trusted Network will connect through this PSE Group; remote users will connect to Public Service Edges instead. (Tier A — vendor/zscaler-help/about-private-service-edge-groups.md: "Choose if the Private Service Edge group with specific trusted networks mapping is also available publicly for all users outside of these trusted networks.")
+The `is_public` field on a PSE Group (TF) / `IsPublic` (SDK) controls whether the PSE is also available for users outside the mapped trusted networks (`resource_zpa_service_edge_group.go:91`). If `is_public = false`, only users whose ZCC signals an associated Trusted Network will connect through this PSE Group; remote users will connect to Public Service Edges instead. In the admin UI this control is labeled **"Publicly Accessible"** — that is the display name, not the API/TF field name. (Tier A — vendor/zscaler-help/about-private-service-edge-groups.md:38: "Choose if the Private Service Edge group with specific trusted networks mapping is also available publicly for all users outside of these trusted networks.")
+
+**Wire detail:** the Go SDK serializes this field as an upper-cased string, not a JSON boolean. On write the TF provider does `strings.ToUpper(strconv.FormatBool(...))`, producing `"TRUE"` / `"FALSE"` (`resource_zpa_service_edge_group.go:444`); on read it parses the string back with `strconv.ParseBool(resp.IsPublic)` (`resource_zpa_service_edge_group.go:335`, set at `:342`).
 
 This is the most direct structural coupling between a Trusted Network object and a ZPA resource. Operators deploying PSE Groups at branch sites will typically bind the PSE Group to the Trusted Network(s) representing those sites.
 
@@ -115,11 +117,11 @@ Condition shape (from `common.go` validator at lines 1111–1127):
 ```
 objectType = "TRUSTED_NETWORK"
 lhs        = <networkId value>       // the network_id field, NOT the object id field
-rhs        = "true"                  // always "true"; "false" is accepted by v1 schema but
-                                     // validators in v2 schema enforce only "true"
+rhs        = "true"                  // two validators in common.go disagree on whether
+                                     // "false" is legal — see gotcha #6. Use "true".
 ```
 
-Source: `vendor/terraform-provider-zpa/zpa/common.go`.
+Source: `vendor/terraform-provider-zpa/zpa/common.go`. The provider has **two** TRUSTED_NETWORK validators that disagree on the legal `rhs` set: the single-operand validator (`common.go:147-158`) enforces `"true"` only (`if operand.RHS != "true"` at `common.go:155`), while the `entry_values` validator (`common.go:1111-1127`) accepts `"true"` or `"false"` (`if !rhsOk || (rhs != "true" && rhs != "false")` at `common.go:1124`). See gotcha #6.
 
 The TF provider validates `lhs` by calling `GetByNetID` at plan time — a plan with an invalid `networkId` will fail at `terraform plan`.
 
@@ -155,11 +157,24 @@ Trusted Network names often include a parenthetical cloud suffix, e.g. `"Corp-HQ
 **5. `master_customer_id` signals inheritance.**
 If `master_customer_id` is populated, the Trusted Network was inherited from a parent tenant in a multi-tenant hierarchy. Operators cannot modify inherited objects at the child tenant level.
 
-**6. RHS semantics — "true" only in v2 policy schema.**
-The v1 policy condition schema accepts `rhs = "true"` or `rhs = "false"` for `TRUSTED_NETWORK`. The v2 schema validator enforces `rhs = "true"` only (source: `common.go` lines 1124–1125). The intended semantic of `"false"` (i.e., "user is NOT on this trusted network") is present in the v1 validator but removed from v2 enforcement. Use `"true"` exclusively.
+**6. RHS semantics — two validators in the same provider disagree on whether `"false"` is legal.**
+The TF provider validates a `TRUSTED_NETWORK` operand through two different code paths, and they do **not** agree:
+- The **single-operand** validator (`common.go:147-158`) enforces `rhs = "true"` only: `if operand.RHS != "true"` at `common.go:155` rejects anything else. This is the strict path.
+- The **`entry_values`** validator (`common.go:1111-1127`) accepts `rhs = "true"` **or** `rhs = "false"`: `if !rhsOk || (rhs != "true" && rhs != "false")` at `common.go:1124` only rejects values outside that pair. This is the permissive path.
 
-**7. PSE Group `publicly_accessible` interacts with trusted network scoping.**
-If a PSE Group has trusted networks configured but `publicly_accessible = false`, remote users (whose ZCC does not signal those trusted networks) will not route through that PSE. This is intentional for on-prem-only PSE deployments but can be a surprise when testing from off-network.
+So whether `"false"` (semantically "user is NOT on this trusted network") is accepted depends on which operand shape the resource emits. This is a genuine in-provider divergence — log it in `api-divergences.md` if not already captured. Operationally: **use `"true"` exclusively** so the condition is accepted by both validators regardless of which path runs.
+
+**7. PSE Group `is_public` interacts with trusted network scoping.**
+If a PSE Group has trusted networks configured but `is_public = false` (`resource_zpa_service_edge_group.go:91`), remote users (whose ZCC does not signal those trusted networks) will not route through that PSE. This is intentional for on-prem-only PSE deployments but can be a surprise when testing from off-network. The field is `is_public` (TF) / `IsPublic` (SDK); the admin UI labels it "Publicly Accessible" — do not look for a literal `publicly_accessible` field in the API.
+
+## Open questions
+
+These claims appear in the operational narrative above but are **not** grounded in the SDK/TF source available in `vendor/`. They are inferred behavior and should be confirmed against official documentation or tenant observation before being relied on:
+
+- **`rhs = "false"` runtime semantics.** Source confirms the two validators disagree on whether `"false"` is *accepted* at plan time (gotcha #6), but not what the policy engine *does* with a `TRUSTED_NETWORK` operand whose `rhs = "false"` — i.e. whether it genuinely evaluates "user is NOT on this trusted network." The validators are client-side TF checks; the server-side evaluation semantic is undocumented in vendor source. (Tracked as [`zpa-78`](../_meta/clarifications.md#zpa-78-trusted_network-rhs-false-runtime-semantics).)
+- **Provisioning trigger for ZPA Trusted Network objects.** The doc states these objects are provisioned by Zscaler during network registration and are read-only via API (confirmed: TF exposes only a data source, no resource). The exact event that *creates* a Trusted Network object (App Connector deployment vs PSE group config vs ZCC ruleset registration) is not derivable from the SDK/TF source. (Tracked as [`zpa-79`](../_meta/clarifications.md#zpa-79-provisioning-trigger-that-creates-zpa-trusted-network-objects).)
+- **ZCC→ZPA signal at session establishment.** The "two-layer model" describes ZCC evaluating detection criteria and signaling ZPA at tunnel setup, with ZPA evaluating `TRUSTED_NETWORK` conditions against those signals. The `TRUSTED_NETWORK` object type and its operand shape are confirmed in `common.go`, but the runtime signaling path between ZCC and ZPA is not present in any vendored SDK/TF source. (Tracked as [`zpa-80`](../_meta/clarifications.md#zpa-80-zcczpa-trusted-network-signal-at-session-establishment).)
+- **PSE routing / off-network fallback behavior.** The claim that `is_public = false` causes remote users to fall back to Public Service Edges describes runtime routing. The `is_public` field and its `"TRUE"`/`"FALSE"` serialization are confirmed in source; the resulting connection-routing behavior is inferred from the UI help text, not from code. (Tracked as [`zpa-81`](../_meta/clarifications.md#zpa-81-pse-routing-off-network-fallback-when-is_public-false).)
 
 ## Cross-links
 

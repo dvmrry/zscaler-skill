@@ -3,7 +3,7 @@ product: zpa
 topic: "zpa-policy-precedence"
 title: "ZPA access policy precedence"
 content-type: reasoning
-last-verified: "2026-04-24"
+last-verified: "2026-06-15"
 confidence: high
 source-tier: doc
 sources:
@@ -45,14 +45,15 @@ This is the opposite of ZIA URL Filtering's default-allow. Confusing the two is 
 
 ### Criteria types
 
-From *About Access Policy* pp.1–3, criteria available on an access policy rule:
+Criteria available on an access policy rule, from *About Access Policy* pp.1–3. Rows annotated *(code-layer object type)* are not enumerated as standalone criteria in that help doc; their object-type strings are sourced from the Terraform provider and cited inline.
 
 | Criterion | Meaning |
 |---|---|
 | Application Segments | Specific application segments the rule applies to |
 | Segment Groups | Groups of segments the rule applies to |
 | Branch Connector Groups | Branch Connector groups |
-| Chrome Enterprise Browser | Whether user accesses apps via Chrome Enterprise browser |
+| Chrome Enterprise Browser | Whether user accesses apps via Chrome Enterprise browser. Object type `CHROME_ENTERPRISE` (`terraform-provider-zpa/zpa/common.go:1216`) |
+| Chrome Posture Profile<br>*(code-layer object type)* | A Chrome Posture Profile referenced by ID. Object type `CHROME_POSTURE_PROFILE` (`terraform-provider-zpa/zpa/common.go:1212`) — see operand-form note below. Not listed as a standalone criterion in *About Access Policy*; the help docs surface it only as a sub-option of Chrome Enterprise Browser: "When enabled, you can also select a configured Chrome posture profile" (*Configuring Access Policies* p.5, `vendor/zscaler-help/Configuring_Access_Policies.txt:152`) |
 | Client Connector Posture Profiles | Zscaler Client Connector device posture checks |
 | Client Connector Trusted Networks | Trusted-network state reported by Zscaler Client Connector |
 | Client Types | `Zscaler Client Connector`, `Client Connector for VDI`, `Client Connector Partner`, `Branch Connector`, `Cloud Connector`, `Machine Tunnel`, `Web Browser`, `Internet & SaaS Service Edge`, `Extranet` |
@@ -106,21 +107,22 @@ The authoritative version is *Configuring Access Policies* p.3:
 
 Several first-class fields on access-policy rules are visible via the API/TF/SDK layer but not highlighted in the help articles. Relevant when reading snapshots or writing policy-as-code.
 
-- **Two distinct reauth fields** (`zscaler/zpa/models/policyset_controller_v2.py:49-50`):
+- **Two distinct reauth fields** (`zscaler/zpa/models/policyset_controller_v2.py:50-51`):
   - `reauth_timeout` — session duration before a full re-authentication is required.
   - `reauth_idle_timeout` — idle duration before re-auth.
   - **Both default to `None`**, meaning the global tenant setting applies when a rule doesn't override. If a user asks "why is this session re-auth-ing sooner than the rule says", check both the rule value and the tenant global.
   - ⚠️ **Both are `ForceNew` at the Terraform/API level** (`terraform-provider-zpa/zpa/common.go:554-562`). **Changing either on an existing rule requires destroy-recreate** — the API refuses in-place updates. Operationally: an admin can't just "bump the timeout" on a running rule; the rule is deleted and re-created, which can shuffle rule order and cause transient policy gaps. Plan changes during maintenance windows.
-- **`devicePostureFailureNotificationEnabled`** (bool — Python SDK calls this `device_posture_failure_notification_enabled`, but the wire/snapshot JSON key is camelCase per Go SDK `policysetcontrollerv2.go:78`) — controls whether users see a notification when device posture causes access denial. Useful context when debugging silent posture-based blocks. Operators querying snapshot JSON must use the camelCase form.
-- **Conditional cross-field dependencies for action-specific profiles** (`zscaler/zpa/models/policyset_controller_v2.py:61-65`):
+- **`devicePostureFailureNotificationEnabled`** (bool — Python SDK calls this `device_posture_failure_notification_enabled`, but the wire/snapshot JSON key is camelCase per Go SDK `policysetcontrollerv2.go:82`) — controls whether users see a notification when device posture causes access denial. Useful context when debugging silent posture-based blocks. Operators querying snapshot JSON must use the camelCase form.
+- **Conditional cross-field dependencies for action-specific profiles** (`zscaler/zpa/models/policyset_controller_v2.py:62-64`):
   - `zpn_isolation_profile_id` — only relevant when `action = ISOLATE`. References a ZPA isolation profile that configures the isolated browser session (Turbo Mode, copy/paste allow, region, etc.). See [`../zbi/policy-integration.md`](../zbi/policy-integration.md) for the isolation-profile surface and [`../zbi/overview.md`](../zbi/overview.md) for the container/rendering model.
   - `zpn_inspection_profile_id` / `zpn_inspection_profile_name` — only relevant when `action = INSPECT`.
   - **SDK does not validate** that the profile ID matches the action type. Setting an irrelevant profile ID passes silently; the API's behavior in that case is unstated. When debugging "why isn't my isolation profile applying?", verify the action actually is `ISOLATE`.
 - **`credential` and `credential_pool`** are nested sub-objects on access-policy rules — used for PRA (Privileged Remote Access) rules to attach credentials directly. Not a separate rule type.
-- **Operand match forms are mutually exclusive** (`zscaler/zpa/models/policyset_controller_v2.py:266-272`). Each policy criterion in the API is expressed as an `Operand` object with one of two match forms:
-  - `values` — list of IDs (used for most object types: Application Segments, Segment Groups, Locations, etc.).
-  - `entry_values` — list of `{lhs, rhs}` pairs (used for SAML / SCIM / SCIM_GROUP attribute matching, where `lhs` is the attribute name and `rhs` is the matched value).
+- **Operand match forms are mutually exclusive** (`zscaler/zpa/models/policyset_controller_v2.py:268-272`). Each policy criterion in the API is expressed as an `Operand` object with one of two match forms:
+  - `values` — list of IDs (`policyset_controller_v2.py:268`; used for most object types: Application Segments, Segment Groups, Locations, etc.).
+  - `entry_values` — list of `{lhs, rhs}` pairs (`policyset_controller_v2.py:269-272`; used for SAML / SCIM / SCIM_GROUP attribute matching, where `lhs` is the attribute name and `rhs` is the matched value).
   - Knowing which form a criterion uses matters when you're constructing policy programmatically or parsing snapshot JSON; mixing forms on a single Operand is invalid.
+  - **`CHROME_POSTURE_PROFILE` and `CHROME_ENTERPRISE` use different operand forms** despite both relating to Chrome. The Terraform provider validates this: `CHROME_POSTURE_PROFILE` requires the `values` (ID-list) form — "a Chrome Posture Profile ID must be provided when object_type = CHROME_POSTURE_PROFILE" (`terraform-provider-zpa/zpa/common.go:1212-1214`). `CHROME_ENTERPRISE` instead requires the `entry_values` form with `lhs = "managed"` and `rhs` of `"true"` or `"false"` (`terraform-provider-zpa/zpa/common.go:1216-1234`). So a Chrome Posture Profile criterion is an ID match; a Chrome Enterprise Browser criterion is a managed-state match.
 
 ### Order and editing constraints
 
@@ -211,10 +213,10 @@ Access policy doesn't live in isolation — several policy families evaluate in 
 
 - **Empty conditions list = global rule.** A forwarding rule with no conditions is a global bypass for ALL traffic. An access rule with no conditions allows all users to all apps. Both the MCP forwarding-rule and access-rule skills explicitly call this out as dangerous.
 - **Newly created rules are appended at the end.** Rule order matters (see first-match-wins above); always verify order after creation. The MCP skill notes there's no `order` parameter at create time — rule order is a post-hoc attribute to manage.
-- **Rule order can be changed programmatically** — two dedicated APIs in Go SDK (`policysetcontrollerv2.go:324-415`):
-  - **`Reorder`** — `PUT .../rule/{id}/reorder/{newOrder}` — move a single rule to a new order position.
-  - **`BulkReorder`** — accepts a full ordered rule-ID list and applies the entire re-ordering in one atomic call. Useful after importing rules or for large rule-order refactors.
-  - Plus `GetRiskScoreValues` (v2 endpoint) — retrieves valid values for the `RISK_FACTOR_TYPE` criterion (the ZIA-sourced user risk score; see [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md)).
+- **Rule order can be changed programmatically** — two dedicated APIs in Go SDK:
+  - **`Reorder`** (`policysetcontrollerv2.go:328`) — `PUT .../rule/{id}/reorder/{newOrder}` — move a single rule to a new order position.
+  - **`BulkReorder`** (`policysetcontrollerv2.go:342`) — accepts a full ordered rule-ID list and applies the entire re-ordering in one atomic call. Useful after importing rules or for large rule-order refactors.
+  - Plus `GetRiskScoreValues` (`policysetcontrollerv2.go:449`) — retrieves valid values for the `RISK_FACTOR_TYPE` criterion (the ZIA-sourced user risk score; see [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md)).
   - Python SDK may not expose these directly; the `list_rules` → manual-edit pattern is the Python fallback. Fork teams doing large-scale ZPA rule reorganization should prefer the Go SDK or direct HTTP.
 
 ### Timeout policy specifics
@@ -243,6 +245,8 @@ These semantics apply identically across Access, Forwarding, and Timeout policie
 
 - Deception policy broader interaction model — [clarification `zpa-07`](../_meta/clarifications.md#zpa-07-deception-policy-order-interaction) (resolved 2026-04-24)
 - Alias mapping for "Require Approval" vs "Conditional Access" vs "Allow with Privileged Approval" — [clarification `zpa-06`](../_meta/clarifications.md#zpa-06-require-approval-action-semantics) (partially resolved)
+- `snapshot-schema.md` objectType enum is labelled "19-value" but is missing `CHROME_POSTURE_PROFILE` (and the full Terraform `common.go` switch enumerates additional object types such as `LOCATION`, `CONSOLE`, `USER_PORTAL`, `PRIVILEGE_PORTAL`, `BRANCH_CONNECTOR_GROUP`). The authoritative enum count needs re-deriving and re-pinning in snapshot-schema.md (out of scope for this doc); source for the count lives in `terraform-provider-zpa/zpa/common.go:1334-1336`.
+- Whether the ZPA API (not just the Terraform provider) enforces the `CHROME_POSTURE_PROFILE` = `values` vs `CHROME_ENTERPRISE` = `entry_values` operand-form split, or whether the Terraform provider validation is stricter than the backend. The split is confirmed at the provider layer (`terraform-provider-zpa/zpa/common.go:1212-1234`); backend behavior for a mismatched form is unconfirmed in the SDK service layer. (Tracked as [`zpa-46`](../_meta/clarifications.md#zpa-46-api-enforcement-of-the-chrome_posture_profile-vs-chrome_enterprise-operand-form-split).)
 
 Resolved while writing this doc:
 
@@ -253,4 +257,4 @@ Resolved while writing this doc:
 - Application segment matching (the stage that runs *before* access policy) — [`./app-segments.md`](./app-segments.md)
 - LSS access log schema — for observational validation of which rule matched — [`./logs/access-log-schema.md`](./logs/access-log-schema.md) — the `Policy` field carries the fired rule name.
 - Cross-product policy evaluation mental model — [`../shared/policy-evaluation.md`](../shared/policy-evaluation.md)
-- Wire-format schema for `_data/snapshot/<cloud>/zpa/access-policy-rules.json` (ruleOrder-as-string, operand tree, 19-value objectType enum) — [`./snapshot-schema.md`](./snapshot-schema.md)
+- Wire-format schema for `_data/snapshot/<cloud>/zpa/access-policy-rules.json` (ruleOrder-as-string, operand tree, objectType enum) — [`./snapshot-schema.md`](./snapshot-schema.md). Note: the enum there is currently labelled "19-value" but does not include `CHROME_POSTURE_PROFILE` (a distinct object type in current source — `terraform-provider-zpa/zpa/common.go:1212`), so that count needs re-verification in snapshot-schema.md.
