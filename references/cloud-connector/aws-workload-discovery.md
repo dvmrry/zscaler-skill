@@ -37,7 +37,7 @@ This doc covers the AWS account-level integration that feeds tag-based policy an
 
 > **Feature gating.** AWS partner integrations (workload discovery) must be enabled by Zscaler Support before the Partner Integrations menu is visible (*"To enable this feature, contact Zscaler Support."* — `vendor/zscaler-help/cbc-about-amazon-web-services-accounts.md:18`). Do not assume it is on by default.
 
-> **This is not a console-only feature.** Every onboarding concept below — account registration, trust fields, the External ID, supported regions, the CloudFormation template URL, permission verification, data-collection enable/disable, and account groups — has a backing SDK call, Terraform resource, and REST endpoint. See [§ SDK / Terraform / API surface](#sdk-terraform-api-surface) below for the concept-to-call mapping. The console screens described here are one front-end over that API.
+> **This is not a console-only feature.** Every onboarding concept below has a backing REST endpoint; most have an SDK call (Python and/or Go), and some — but not all — have a Terraform resource. See [§ SDK / Terraform / API surface](#sdk-terraform-api-surface) below for the per-concept availability matrix — several operations (permission verification, Zscaler-side trust settings, data-collection enable/disable) are SDK/API-only with no Terraform resource. The console screens described here are one front-end over that API.
 
 ## Why workload discovery exists
 
@@ -75,8 +75,6 @@ Adding an AWS account to the Zscaler Admin Console (`Infrastructure > Connectors
 
 Each account entry carries:
 
-| Field | Purpose |
-|---|---|
 | Field | SDK/TF field | Purpose |
 |---|---|---|
 | AWS Account ID | `awsAccountId` / `aws_account_id` | The account where workloads are deployed (12 digits) |
