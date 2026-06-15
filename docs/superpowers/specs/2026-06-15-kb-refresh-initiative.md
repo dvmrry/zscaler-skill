@@ -78,4 +78,4 @@ Principle: cheap models for breadth/discovery, Opus for extraction/authoring/div
 
 ## Session-derived discipline (carry into every phase)
 
-- Verify citations against source (off-by-N class); `check-hygiene gfm_anchor` collapses whitespace to a single hyphen; run the FULL gate; keep `clarifications.md` in sync; SDK-vs-API divergences are the highest-value class; cross-model review converges. See `memory/project_vendor-mcp-scrape.md` and `memory/project_sdk-postman-deep-dive.md`.
+- Verify citations against source (off-by-N class); `check-hygiene gfm_anchor` collapses whitespace to a single hyphen; run the FULL gate; keep `clarifications.md` in sync; SDK-vs-API divergences are the highest-value class; cross-model review converges. (Detailed session context comes from the PR #123 vendor-MCP scrape and the ZPA SDK/Postman deep-dive — recorded in project memory, not tracked in this repo.)
