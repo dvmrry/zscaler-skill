@@ -89,16 +89,16 @@ Resources (manage state):
 - `ztc_ip_destination_groups`
 - `ztc_ip_pool_groups` — maps to the **IP pools** API (`/ipGroups`); SDK-backed in both SDKs (see note below)
 - `ztc_ip_source_groups`
-- `ztc_location_management`
 - `ztc_location_template`
 - `ztc_network_services`
-- `ztc_network_services_groups`
+- `ztc_network_service_groups`
 - `ztc_provisioning_url`
 - `ztc_public_cloud_info`
 - `ztc_traffic_forwarding_dns_rule`
+- `ztc_traffic_forwarding_log_rule`
 - `ztc_traffic_forwarding_rule`
 
-Data sources (read-only lookups): parallel data sources exist for most of the above (`data_source_ztc_*`) for read-only lookups of existing resources. Plus data sources for `edge_connector_group`, `provisioning_url`, `supported_regions`, `public_cloud_info` that offer introspection without creation.
+Data sources (read-only lookups): parallel data sources exist for most of the above (`data_source_ztc_*`) for read-only lookups of existing resources. Plus data sources for `edge_connector_group`, `location_management`, `provisioning_url`, `supported_regions`, `public_cloud_info`, `workload_groups` that offer introspection without creation. Note: `ztc_location_management` is a **data source only** in the ZTC provider (`provider.go:DataSourcesMap`) — there is no `ztc_location_management` resource; location management records are read via this data source, not created/updated/deleted through Terraform.
 
 **`ztc_ip_pool_groups` is fully SDK-backed** — it manages **IP pools** via the `/ipGroups` API ("Retrieves the list of IP pools", `vendor/zscaler-sdk-python/CHANGELOG.md:2461`). Both SDKs cover it: Python `client.ztw.ip_groups` hits `/ipGroups` (`vendor/zscaler-sdk-python/zscaler/ztw/ip_groups.py:72-74`), and Go uses `policyresources/ipgroups` against the full path `/ztw/api/v1/ipGroups` (`vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/ipgroups/ipgroups.go:15`). So IP pools can be managed via Terraform, Python, or Go — not a TF-only abstraction.
 

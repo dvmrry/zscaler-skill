@@ -642,7 +642,7 @@ Workload groups (tag-based workload abstractions used in forwarding rule `src_wo
 
 Note: `Create`/`Update`/`Delete` are **commented out** in the Go SDK (`vendor/zscaler-sdk-go/zscaler/ztw/services/workload_groups/workload_groups.go:97-132`) and are not compiled; the Python SDK has no write operations for workload groups either. The ZTC Terraform provider exposes a `ztc_workload_groups` **data source** (`vendor/terraform-provider-ztc/ztc/provider.go:146` → `dataSourceWorkloadGroup()`, backed by `vendor/terraform-provider-ztc/ztc/data_source_ztc_workload_groups.go`, which imports `ztw/services/workload_groups` and surfaces `id`/`name`/`description`/`expression`/`expression_json`). So `src_workload_groups` IDs can be looked up via the ZTC provider — the prior "use ZIA's `zia_workload_groups`" guidance is no longer required.
 
-No TF **resource** for workload groups in the ZTC provider (`provider.go:108-125` registers none) — mutation goes through the SDK/API or is authored ZIA-side. TF **data source**: `ztc_workload_groups` (`provider.go:146`).
+No TF **resource** for workload groups in the ZTC provider (`provider.go:108-125` registers none) — mutation goes through the raw API or is authored ZIA-side. TF **data source**: `ztc_workload_groups` (`provider.go:146`).
 
 Vendor docs gap: despite the data source being registered in `provider.go`, there is no `docs/data-sources/ztc_workload_groups.md` page in the provider repo (the `docs/data-sources/` directory has pages for every other ZTC data source but this one). This is a vendor documentation gap, not a code gap.
 
