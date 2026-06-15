@@ -3,7 +3,7 @@ product: shared
 topic: "portfolio-map"
 title: "Zscaler product portfolio map"
 content-type: reference
-last-verified: "2026-05-04"
+last-verified: "2026-06-14"
 confidence: medium
 source-tier: mixed
 sources:

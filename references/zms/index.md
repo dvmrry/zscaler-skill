@@ -3,7 +3,7 @@ product: zms
 topic: "zms-index"
 title: "ZMS reference hub"
 content-type: reference
-last-verified: "2026-04-25"
+last-verified: "2026-06-14"
 confidence: medium
 sources: []
 author-status: reviewed

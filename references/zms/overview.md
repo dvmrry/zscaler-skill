@@ -3,7 +3,7 @@ product: zms
 topic: "zms-overview"
 title: "ZMS — Zscaler Microsegmentation (workload east-west)"
 content-type: reasoning
-last-verified: "2026-04-25"
+last-verified: "2026-06-14"
 confidence: medium
 source-tier: doc
 sources:
