@@ -43,7 +43,6 @@ ZMS is also the only Zscaler product (alongside Cloud Connector with VMs) where 
 
 ## Coverage gaps (deferred)
 
-- API / SDK surface — the read-only `client.zms.*` GraphQL surface (`POST /zms/graphql`, `vendor/zscaler-sdk-python/zscaler/zms/agents.py:34`) is now captured in [`./api.md`](./api.md); write configuration remains portal-only.
 - Container / Kubernetes integration model.
 - Conflict resolution with other host firewalls (Defender via GPO, host-IDS, custom nftables).
 - Observation → enforcement transition runbook.

@@ -387,6 +387,8 @@ Reversibility differs sharply by product. Pick the right pattern for the product
 | **ZWA** | Propagate on write (workflow runs on next DLP incident) | None for config; in-flight incidents continue with their original workflow | Snapshot-before-change for config. |
 | **Deception / Risk360 / AI Security / ZMS** | Portal-only — no programmatic rollback | N/A | Manual revert via portal. |
 
+> Note: ZMS exposes a **read-only** GraphQL API (`client.zms.*`) and AI Guard a policy-detection API (`client.zaiguard`); neither provides a programmatic write or rollback path, so config changes remain portal-only. See [`../zms/api.md`](../zms/api.md).
+
 ### Pattern: ZIA staged-and-revert (the activation-gate workflow)
 
 ZIA's activation gate is a **rollback window built into the platform**. Use it deliberately.
