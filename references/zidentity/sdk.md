@@ -3,7 +3,7 @@ product: zidentity
 topic: zidentity-sdk
 title: "ZIdentity SDK reference — Python and Go service catalog"
 content-type: reference
-last-verified: "2026-04-26"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: code
 sources:
@@ -42,7 +42,7 @@ users = client.zid.users.list_users()
 
 `ZIdService` (`zscaler/zid/zid_service.py`) is instantiated inside `ZscalerClient`. It takes a `RequestExecutor` directly (not a parent client object — note the constructor signature differs from ZCC and ZDX service classes). All service properties (`api_client`, `groups`, `users`, `user_entitlement`, `resource_servers`) instantiate their API class on each property access.
 
-The base endpoint for all ZIdentity operations is `/ziam/admin/api/v1`.
+The base endpoint for all ZIdentity operations is `/ziam/admin/api/v1` **in the Python SDK** (`_zidentity_base_endpoint`, defined identically in all five service files — e.g., `vendor/zscaler-sdk-python/zscaler/zid/users.py:31`). The endpoint paths in the service-catalog tables below show this Python form. The Go SDK constants omit the `/ziam` prefix (`/admin/api/v1/...` — e.g., `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go:16`); the `/ziam` segment is supplied by OneAPI gateway routing, so the full wire paths are equivalent.
 
 ### Client construction — Go
 
@@ -312,7 +312,7 @@ All model classes live under `vendor/zscaler-sdk-python/zscaler/zid/models/`.
 
 1. **Resolved 2026-04-26.** The Go SDK `api-clients` package is genuinely absent from the inspected Go ZIdentity service catalog. The catalog contains only `common`, `groups`, `resource_servers`, `user_entitlement`, and `users`. The `api_client` service (full CRUD for OAuth2 clients, plus secret lifecycle) is Python-only in the SDK.
 
-2. `add_api_client_secret` accepts `expires_at` as a string Unix epoch. The only example in the SDK docstring (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py`, line 458) shows `'1785643102'` (a valid future epoch timestamp). The API behavior when `expires_at` is omitted or set to a past value is not documented in the SDK source. The acceptable range for `expires_at` is not stated and cannot be confirmed from available sources.
+2. `add_api_client_secret` accepts `expires_at` as a string Unix epoch. The only example in the SDK docstring (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py`, line 458) shows `'1785643102'` (a valid future epoch timestamp). The API behavior when `expires_at` is omitted or set to a past value is not documented in the SDK source. The acceptable range for `expires_at` is not stated and cannot be confirmed from available sources. — see [clarification `zid-13`](../_meta/clarifications.md#zid-13-add_api_client_secret-expires_at-behavior)
 
 3. **Resolved 2026-04-26.** `get_group` declares `group_id: int` in its signature (`vendor/zscaler-sdk-python/zscaler/zid/groups.py`, line 113) but ZIdentity IDs are strings (e.g., `"ihlmch6ikg7m1"`). The Go SDK consistently uses `string` IDs for ZIdentity (`vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go`). The `int` type annotation in Python is a bug — it is inconsistent with the runtime ID format and will cause static analyzer false positives.
 
@@ -320,6 +320,6 @@ All model classes live under `vendor/zscaler-sdk-python/zscaler/zid/models/`.
 
 5. **Resolved 2026-04-26.** The `Entitlements` and `Service` naming reflects genuinely different response shapes. Per `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go`: `Entitlements` contains `Roles []IDNameDisplayName`, `Scope IDNameDisplayName`, and `Service Service` — representing which product roles the user holds and the scope of those roles. `Service` contains `ID`, `ServiceName`, `CloudName`, `CloudDomainName`, `OrgName`, `OrgID` — representing which Zscaler service instance the user is provisioned into. Admin entitlements answer "what can this user do?"; service entitlements answer "which tenant/service is this user's account tied to?".
 
-6. Whether all resource servers in a tenant are enumerable via `list_resource_servers` or whether some are Zscaler-internal and hidden from the list is not confirmed from available sources. The Go `resource_servers` package (`vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/`) and the Python `resource_servers.py` both call the same `/ziam/admin/api/v1/resource-servers` endpoint without any filtering parameter that would distinguish tenant-created from system-provided entries.
+6. Whether all resource servers in a tenant are enumerable via `list_resource_servers` or whether some are Zscaler-internal and hidden from the list is not confirmed from available sources. The Go `resource_servers` package (`vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/`) and the Python `resource_servers.py` both call the same `/ziam/admin/api/v1/resource-servers` endpoint without any filtering parameter that would distinguish tenant-created from system-provided entries. — see [clarification `zid-25`](../_meta/clarifications.md#zid-25-resource-server-enumerability-hidden-internal-entries)
 
-7. **Partially resolved 2026-04-26.** Group `source` values are documented for users (not groups) in `vendor/zscaler-sdk-python/zscaler/zid/users.py` line 187: `"UI"`, `"API"`, `"SCIM"`, `"JIT"`. For groups, `vendor/zscaler-sdk-python/zscaler/zid/groups.py` line 167 lists `"SCIM"` and `"MANUAL"` as examples but does not enumerate the full set. The Go struct (`vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go`) uses `omitempty` with no enumeration. The full set of valid group source values cannot be confirmed from available sources.
+7. **Partially resolved 2026-04-26.** Group `source` values are documented for users (not groups) in `vendor/zscaler-sdk-python/zscaler/zid/users.py` line 187: `"UI"`, `"API"`, `"SCIM"`, `"JIT"`. For groups, `vendor/zscaler-sdk-python/zscaler/zid/groups.py` line 167 lists `"SCIM"` and `"MANUAL"` as examples but does not enumerate the full set. The Go struct (`vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go`) uses `omitempty` with no enumeration. The full set of valid group source values cannot be confirmed from available sources. — see [clarification `zid-21`](../_meta/clarifications.md#zid-21-group-source-value-enum-completeness)

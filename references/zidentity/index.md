@@ -39,6 +39,7 @@ Questions that land here: "how do I create API client credentials?", "why is ste
 | API surface — `client.zid.*` methods, Python vs Go SDK parity, wire format | [`./api.md`](./api.md) | draft |
 | **Snapshot schema (anticipatory)** — anticipated `_data/snapshot/<cloud>/zidentity/*.json` shapes for users / groups / api-clients / resource-servers; array-of-one-page wrap, pagination quirks, secret-material-never-returned | [`./snapshot-schema.md`](./snapshot-schema.md) | draft |
 | **ZIdentity SDK** — Python and Go service catalog (`client.zid.*`); method summary; parity gaps between language SDKs | [`./sdk.md`](./sdk.md) | draft |
+| **API source divergences** — where the Go SDK, Python SDK, and Postman collection disagree on the `zid` surface; base path + host split, resource-servers read-only everywhere, api-clients Python-only, `authType` enum, auto-injected audience, wire param naming; which source to trust per area | [`./api-divergences.md`](./api-divergences.md) | draft |
 
 ## What this hub does NOT cover yet
 

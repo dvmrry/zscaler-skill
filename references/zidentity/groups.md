@@ -3,7 +3,7 @@ product: zidentity
 topic: "zidentity-groups"
 title: "ZIdentity groups — CRUD, membership, dynamic vs static, policy-principal semantics"
 content-type: reference
-last-verified: "2026-05-05"
+last-verified: "2026-06-15"
 confidence: high
 source-tier: code
 sources:
@@ -11,6 +11,7 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zid/models/groups.py"
   - "vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go"
   - "vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go"
+  - "vendor/zscaler-sdk-go/zscaler/ziarequests.go"
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
 author-status: draft
 ---
@@ -234,7 +235,7 @@ Source: `vendor/zscaler-sdk-python/zscaler/zid/groups.py`; `vendor/zscaler-sdk-p
 | `Update` group ID type | `str` (`groups.py:221`) | `int` (`groups.go:112`) | Type mismatch with struct `ID string`; appears to be a Go SDK bug — the URL format call uses `%d` on an int while `Get` and `Delete` accept `string` |
 | Member list response type | `Groups` wrapper with pagination metadata | `[]interface{}` raw slice (`groups.go:92`) | Python preserves `results_total`, `next_link`, etc.; Go loses pagination metadata |
 | `GetByName` | Not exposed | Client-side substring match on all pages (`groups.go:56`) | Go convenience function; expensive for large tenants |
-| Single `AddUserToGroup` POST body | `kwargs` dict (typically empty) | Empty `struct{}{}` (`groups.go:179`) | Endpoint takes no body; both implementations are functionally equivalent |
+| Single `AddUserToGroup` POST body | `kwargs` dict (typically empty) | Empty `struct{}{}` (`groups.go:179`) | Endpoint takes no body. NOT functionally equivalent on the return value: Python parses the response into a `GroupRecord` (`groups.py:430-438`); Go discards it — see `AddUserToGroup` return-value bug below |
 | `list_groups` vs `GetAll` return | `(Groups envelope, response, error)` | `([]Groups, error)` — metadata consumed internally | Python exposes pagination links; Go hides them |
 
 ## Known bugs and edge cases
@@ -250,6 +251,8 @@ Source: `vendor/zscaler-sdk-python/zscaler/zid/groups.py`; `vendor/zscaler-sdk-p
 4. **`custom_attrs_info` assignment in Python**: `GroupRecord` assigns `self.custom_attrs_info = config if isinstance(config, dict) else {}` — this assigns the entire raw config dict, not a filtered custom-attributes sub-key. (`models/groups.py:94`)
 
 5. **Dual `isDynamicGroup` + `dynamicGroup` flags**: The wire protocol carries both. Their intended distinction and the behavior when they disagree is not documented in the SDK. (`models/groups.py:88-89`, `groups.go:26-27`)
+
+6. **Go `AddUserToGroup` returns an effectively-nil `*http.Response`**: The function posts an empty `struct{}{}` via `service.Client.Create` and then does `httpResp, _ := resp.(*http.Response)` (`groups.go:185`). But `Client.Create` does not return an `*http.Response` when the server replies with a JSON body — it unmarshals the body into a `reflect.New` of the *payload* type and returns that (`ziarequests.go:44-52`), i.e. a `*struct{}` here, not an `*http.Response`. The type assertion therefore fails and is swallowed by the `_`, so the returned `*http.Response` is `nil` whenever the server returns a JSON body. `Create` returns a real `*http.Response` only when the body is empty or non-JSON (`ziarequests.go:53-58`). Either way the assertion result is discarded silently. Callers cannot rely on the returned `*http.Response` for status or headers. Contrast Python's `add_user_to_group`, which parses the response into a `GroupRecord` (`groups.py:430-438`). (`groups.go:177-186`, `ziarequests.go:18-58`)
 
 ## Gaps
 
@@ -271,10 +274,10 @@ The following capabilities are absent from both SDKs:
 
 Source: `vendor/zscaler-sdk-python/zscaler/zid/groups.py`; `vendor/zscaler-sdk-python/zscaler/zid/models/groups.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go`.
 
-- **Dual-flag semantics (`isDynamicGroup` vs `dynamicGroup`)** — what the server does when the two flags disagree is undocumented; the Go test only sets `DynamicGroup: true` — *unverified, requires API spec review or lab test*
-- **Dynamic group membership mutation server behavior** — whether `add_user_to_group` on a dynamic group is rejected server-side or silently succeeds is unknown — *unverified, requires lab test*
-- **User deduplication in bulk add** — whether duplicate user IDs in `add_users_to_group` result in rejection, deduplication, or silent ignore is unknown — *unverified, requires lab test*
-- **IdP-sourced group (`source: SCIM`) mutation semantics** — whether SDK CRUD operations on SCIM-provisioned groups are rejected by the server is undocumented — *unverified, requires lab test or vendor documentation*
+- **Dual-flag semantics (`isDynamicGroup` vs `dynamicGroup`)** — what the server does when the two flags disagree is undocumented; the Go test only sets `DynamicGroup: true` — *unverified, requires API spec review or lab test* — see [clarification `zid-17`](../_meta/clarifications.md#zid-17-group-dual-flag-semantics-isdynamicgroup-vs-dynamicgroup)
+- **Dynamic group membership mutation server behavior** — whether `add_user_to_group` on a dynamic group is rejected server-side or silently succeeds is unknown — *unverified, requires lab test* — see [clarification `zid-18`](../_meta/clarifications.md#zid-18-dynamic-group-membership-mutation-behavior)
+- **User deduplication in bulk add** — whether duplicate user IDs in `add_users_to_group` result in rejection, deduplication, or silent ignore is unknown — *unverified, requires lab test* — see [clarification `zid-19`](../_meta/clarifications.md#zid-19-user-deduplication-in-bulk-add)
+- **IdP-sourced group (`source: SCIM`) mutation semantics** — whether SDK CRUD operations on SCIM-provisioned groups are rejected by the server is undocumented — *unverified, requires lab test or vendor documentation* — see [clarification `zid-20`](../_meta/clarifications.md#zid-20-scim-sourced-group-mutation-semantics)
 
 ## Cross-links
 
