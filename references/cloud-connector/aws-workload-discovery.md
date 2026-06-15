@@ -57,7 +57,7 @@ The whole onboarding flow is automatable — console screens are one front-end o
 | Lightweight account list / count | `/publicCloudInfo/lite`, `/publicCloudInfo/count` | `list_public_cloud_info_lite`, `get_public_cloud_info_count` | — | — |
 | Generate External ID | `POST /publicCloudInfo/generateExternalId` | `generate_external_id` | — | (Computed `external_id`) |
 | Get CloudFormation template URL | `GET /publicCloudInfo/cloudFormationTemplate?awsAccountId=N` | `get_cloud_formation_template` | `GetCloudFormationTemplateURL` | — |
-| List supported regions | `GET /publicCloudInfo/supportedRegions` | (region IDs via account onboarding) | `GetSupportedRegions` / `GetSupportedRegionsByName` | `supported_regions` |
+| List supported regions | `GET /publicCloudInfo/supportedRegions` | (region IDs via account onboarding) | `GetSupportedRegions` / `GetSupportedRegionsByName` | `ztc_supported_regions` data source |
 | Enable / disable data collection | `PUT /publicCloudInfo/{id}/changeState?enable=` | `change_state_public_cloud_info` | — | — |
 | Verify account permissions | `PUT /discoveryService/{awsAccountID}/permissions` | `discovery_service.update_discovery_service_permissions` | `UpdateDiscoveryPermissions` | — |
 | Zscaler-side trust settings | `GET /discoveryService/workloadDiscoverySettings` | `discovery_service.get_discovery_settings` | `GetWorkloadDiscoverySettings` | — |
