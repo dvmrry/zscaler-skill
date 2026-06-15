@@ -3,7 +3,7 @@ product: meta
 topic: "clarifications-index"
 title: "Clarification index — open questions across references"
 content-type: reference
-last-verified: "2026-06-14"
+last-verified: "2026-06-15"
 confidence: high
 sources: []
 author-status: reviewed
@@ -23,6 +23,7 @@ Centralized list of open questions raised across `references/*.md`. Each entry h
 - `zdx-*` — ZDX (Digital Experience) behavior question
 - `zms-*` — ZMS (Microsegmentation) behavior question
 - `easm-*` — EASM (External Attack Surface Management) behavior question
+- `cloud-connector-*` — Cloud & Branch Connector (ZTW) behavior question
 - `shared-*` — cross-product or skill-wide question
 - `log-*` — log-schema / NSS / LSS question that spans multiple products
 
@@ -80,10 +81,12 @@ Each entry follows this template. Body is narrative — the existing zia-01 entr
 
 ## Status summary
 
-Skim this before reading the full entries. Summary refreshed 2026-05-30:
-20 entries are resolved or clarified, 17 are partially resolved, and 153 remain
-open. Most open entries require lab tests, tenant snapshots, operator
-experience, or vendor confirmation rather than more public-doc reading.
+Skim this before reading the full entries. Summary refreshed 2026-06-15:
+20 entries are resolved or clarified, 17 are partially resolved, and 177 remain
+open (the 2026-06-15 Cloud & Branch Connector refresh added `cloud-connector-01`
+through `cloud-connector-24`). Most open entries require lab tests, tenant
+snapshots, operator experience, or vendor confirmation rather than more
+public-doc reading.
 
 ### Resolved
 
@@ -122,7 +125,7 @@ experience, or vendor confirmation rather than more public-doc reading.
 
 ### Open
 
-`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-49`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-20`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `shared-20`–`shared-27`, `zcc-08`–`zcc-76`, `zdx-01`–`zdx-02`, `zms-01`, `easm-01`–`easm-02`.
+`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-49`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-20`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `shared-20`–`shared-27`, `zcc-08`–`zcc-76`, `zdx-01`–`zdx-02`, `zms-01`, `easm-01`–`easm-02`, `cloud-connector-01`–`cloud-connector-24`.
 
 The vendor-MCP scrape (2026-06-14) added these open behavior questions — each links to its detailed entry below:
 
@@ -142,6 +145,35 @@ The vendor-MCP scrape (2026-06-14) added these open behavior questions — each 
 Partial / SDK-mined (resolved via code read or help-doc capture; full lab confirmation pending): `zcc-01`, `zcc-02`, `zcc-03`, `zcc-04`, `zcc-05`, `zcc-06`, `zcc-07`, **`log-04`** (field name + illustrative values confirmed via `web-log-schema.md`; full enum of `ruletype` / `reason` values still needs a tenant export). All six ZCC enum clarifications had their **datatype** (int vs string) resolved by the Go SDK cross-check on 2026-04-24; the integer-to-meaning mapping remains open for `zcc-01` through `zcc-04` and `zcc-06`.
 
 `shared-17`, `shared-18`, `shared-19` — partially resolved by 2026-05-06 doc sweep (refined further the same day). Existing-doc backing now covers: Service Edge re-evaluation triggers + **subcloud override mechanics fully resolved** via `references/shared/subclouds.md`; ZIA auth-frequency + surrogate-IP TTL fields and dependency rules + **ZIdentity step-up timing fully resolved** as synchronous via `vendor/zscaler-help/understanding-step-up-authentication-zidentity.md`; QUIC handling with ZTunnel-mode interaction, HTTP/2 enable toggle + Bandwidth Control fallback, WebSocket DLP Copilot-only carveout. The remaining sub-questions narrowed substantially: selection-signal weighting and DC-exclusion mechanics (shared-17), surrogate IP clock anchor + auth-source decision tree + trusted-network-transition behavior (shared-18), HTTP/2 per-stream re-evaluation + WebSocket non-DLP inspection coverage + gRPC/SSE/chunked behavior (shared-19).
+
+The Cloud & Branch Connector (ZTW) deep-dive refresh (2026-06-15) added these open behavior questions — each links to its detailed entry below:
+
+| ID | Title | Resolves with |
+|---|---|---|
+| [`cloud-connector-01`](#cloud-connector-01-per-region-status-representation-regionstatusstatus) | Per-region `status` representation (boolean vs four console strings) | code read / lab test |
+| [`cloud-connector-02`](#cloud-connector-02-aws-workload-discovery-cloudformation-body-eventbridge-iam-sqs) | AWS workload-discovery CloudFormation body (EventBridge / IAM / SQS) | zscaler doc not yet read / operator experience |
+| [`cloud-connector-03`](#cloud-connector-03-source-ip-group-size-and-count-limits) | Source IP group member + per-tenant count limits | support ticket / lab test |
+| [`cloud-connector-04`](#cloud-connector-04-ipv6-entries-in-ztc_ip_source_groups-vs-a-separate-ipv6-group-object) | IPv6 entries in `ztc_ip_source_groups` vs separate IPv6 group object | lab test / code read |
+| [`cloud-connector-05`](#cloud-connector-05-source_ip_group_exclusion-applicability-to-cloud-branch-connector) | `source_ip_group_exclusion` applicability to CC | lab test |
+| [`cloud-connector-06`](#cloud-connector-06-zia-origin-source-groups-editability-from-ztc-and-lite-payload-shape) | ZIA-origin group editability from ZTC + `/lite` payload shape | lab test / zscaler doc not yet read |
+| [`cloud-connector-07`](#cloud-connector-07-ztg-vs-cloud-connector-group-type-semantics) | ZTG vs Cloud Connector group type semantics | zscaler doc not yet read / lab test |
+| [`cloud-connector-08`](#cloud-connector-08-ha-mechanics-cchealth-port-fail-openclose-toggle-fail-open-egress-path) | HA: `?cchealth` port, fail-open/close toggle path, fail-open egress | lab test / zscaler doc not yet read |
+| [`cloud-connector-09`](#cloud-connector-09-forwarding-method-semantics-and-the-true-backend-forwardmethod-enum) | `ENATDEDIP`/`GEOIP`/`PROXYCHAIN` semantics + true `forwardMethod` enum | lab test / Postman cross-check |
+| [`cloud-connector-10`](#cloud-connector-10-forwarding-rule-count-limit-and-admin-rank-rule-order-interaction) | Forwarding rule-count limit + Admin Rank ↔ Rule Order interaction | support ticket / lab test |
+| [`cloud-connector-11`](#cloud-connector-11-overwrite-dns-response-does-a-response-rewrite-action-exist-at-all) | "Overwrite DNS response" — does a response-rewrite action exist | zscaler doc not yet read / lab test |
+| [`cloud-connector-12`](#cloud-connector-12-dns-rule-ui-match-criteria-tunnel-detection-and-doh-interception-not-in-the-sdk) | DNS rule UI criteria / tunnel detection / DoH interception not in SDK | zscaler doc not yet read / lab test |
+| [`cloud-connector-13`](#cloud-connector-13-dns-gateway-failover-order-default-gateway-config-and-ipv6-on-referenced-resolvers) | DNS gateway failover order / default gateway / IPv6 resolvers | lab test / zscaler doc not yet read |
+| [`cloud-connector-14`](#cloud-connector-14-duplicate-dns-gateway-packages-and-the-type-field-semantics) | Duplicate DNS gateway packages + `type` field semantics | lab test / code read |
+| [`cloud-connector-15`](#cloud-connector-15-subcloud_primarysecondary-backend-behavior-for-cc-dc-proxies) | `subcloud_primary`/`secondary` backend behavior for CC DC proxies | lab test |
+| [`cloud-connector-16`](#cloud-connector-16-ztc_traffic_forwarding_rule-oneapi-requirement-and-zpa-app-segment-id-equivalence) | `ztc_traffic_forwarding_rule` OneAPI requirement + ZPA segment-ID parity | lab test |
+| [`cloud-connector-17`](#cloud-connector-17-local-local_switch-forwarding-method-real-behavior-or-doc-artifact) | "Local" / `LOCAL_SWITCH` forwarding method — real or doc artifact | lab test / Postman cross-check |
+| [`cloud-connector-18`](#cloud-connector-18-ztw-api-surface-gaps-endpoint-paths-azuregcp-discovery-automation-go-zidentity-auth) | ZTW API gaps: endpoint paths / Azure-GCP discovery / Go ZIdentity auth | code read / lab test |
+| [`cloud-connector-19`](#cloud-connector-19-ztw-sdk-method-convention-anomalies-and-oneapi-govten-exclusion-behavior) | ZTW SDK method-convention anomalies + OneAPI gov/ten exclusion behavior | code read / lab test |
+| [`cloud-connector-20`](#cloud-connector-20-nss-va-for-cbc-feed-coverage-sizing-certs-ha-and-rule-match-semantics) | NSS VA for CBC: feed coverage / sizing / certs / HA / rule-match | zscaler doc not yet read / lab test |
+| [`cloud-connector-21`](#cloud-connector-21-insightstunnel-insights-aggregation-and-byte-count-parity-with-nss-feeds) | Insights/Tunnel-Insights aggregation + byte-count parity with NSS feeds | lab test / zscaler doc not yet read |
+| [`cloud-connector-22`](#cloud-connector-22-cc-region-coverage-govcloud-china-gcp-deployment-and-wds-vs-ztg-region-set-parity) | CC region coverage: GovCloud / China / GCP deploy / WDS-vs-ZTG parity | zscaler doc not yet read / tenant snapshot / support ticket |
+| [`cloud-connector-23`](#cloud-connector-23-dest_workload_groups_ids-binding-to-local_switch-local) | `dest_workload_groups_ids` binding to `LOCAL_SWITCH` / "Local" | lab test |
+| [`cloud-connector-24`](#cloud-connector-24-field-character-limit-enforcement-on-dns-and-log-and-control-rules) | Field character-limit enforcement on DNS / Log-and-Control rules | lab test / zscaler doc not yet read |
 
 ---
 
@@ -3062,6 +3094,270 @@ EASM finding risk fields — `risk_level` / `severity_score` / `status` (`vendor
 
 **Status**: open
 **Resolves with**: tenant snapshot (collect observed values across live findings) OR zscaler doc not yet read
+
+---
+
+### cloud-connector-01 — Per-region status representation (RegionStatus.status)
+
+*Origin: `references/cloud-connector/aws-workload-discovery.md` § Open questions*
+
+The Go workload-discovery `RegionStatus.status` field is typed as a boolean, while the captured console help text shows four string states (`Success` / `Disabled` / `Error` / `Starting Discovery`). Whether the API actually returns a richer status that the Go SDK under-models (boolean only) — or the console derives the four strings from a boolean plus other fields — is unresolved. Until this is settled the skill cannot map a workload-discovery region row to one of the four console states from the SDK shape alone.
+
+**Status**: open
+**Resolves with**: code read (a future SDK release may widen the type) OR lab test (read a region in each console state via the API, observe the wire value)
+
+---
+
+### cloud-connector-02 — AWS workload-discovery CloudFormation body (EventBridge / IAM / SQS)
+
+*Origin: `references/cloud-connector/aws-workload-discovery.md` § Open questions*
+
+Three AWS workload-discovery details live inside the CloudFormation template that the setup flow deploys, and the template is referenced by URL only — its rendered body is not reproduced as text in any captured source: (1) the EventBridge rule's event-pattern JSON (which EC2/ECS/Lambda event types are matched) and the cross-account target ARN format — the `eventBusName` field is API-modeled but the pattern is not; (2) the IAM permission document the template installs; (3) the SQS permissions added by the "Update the Cloud Connector Role for SQS Permissions" setup step, including the queue-ARN detail. None of these has an SDK or Terraform surface to recover them from.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (render the linked CloudFormation template body) OR operator experience (inspect a deployed stack)
+
+---
+
+### cloud-connector-03 — Source IP group size and count limits
+
+*Origin: `references/cloud-connector/source-ip-groups.md` § Open questions*
+
+No captured source states an upper bound on (a) the number of address entries a single `ztc_ip_source_groups` group may hold, or (b) the number of source IP groups a tenant may define. The SDK struct and Terraform schema (`vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/ipsourcegroups/ipsourcegroups.go`; `vendor/terraform-provider-ztc/docs/resources/ztc_ip_source_groups.md`) impose no documented cap. Relevant to capacity planning and to explaining a rejected create.
+
+**Status**: open
+**Resolves with**: support ticket (Zscaler confirms platform limits) OR lab test (grow a group / group count until the API rejects)
+
+---
+
+### cloud-connector-04 — IPv6 entries in ztc_ip_source_groups vs a separate IPv6 group object
+
+*Origin: `references/cloud-connector/source-ip-groups.md` § Open questions*
+
+Whether the `ip_addresses` field on `ztc_ip_source_groups` accepts IPv6 CIDR notation is unconfirmed. The forwarding-rule struct carries dedicated IPv6 group fields on both sides — `SrcIpv6Groups` and `DestIpv6Groups`, parallel to the IPv4 `SrcIpGroups` / `DestIpGroups` (`vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go:124,132`) — distinct from the IPv4 group fields. It is unclear whether those IPv6 fields reference the same `ztc_ip_source_groups` object type or a separate IPv6-specific group resource, and therefore whether IPv6 source addresses are configured in the same group object or a different one.
+
+**Status**: open
+**Resolves with**: lab test (create a group with an IPv6 CIDR, reference it from `srcIpv6Groups`, observe acceptance) OR code read (a future SDK/TF release may expose an IPv6 group type)
+
+---
+
+### cloud-connector-05 — source_ip_group_exclusion applicability to Cloud & Branch Connector
+
+*Origin: `references/cloud-connector/source-ip-groups.md` § Open questions; `references/cloud-connector/api-divergences.md` § Open questions*
+
+The forwarding-rule SDK struct comment marks `SourceIpGroupExclusion` "Not applicable to Cloud & Branch Connector," yet the Terraform provider exposes it as a configurable boolean. Whether the backend honors a set value on a CC `ecRdr` rule, rejects it, or silently ignores it is unresolved — the SDK comment and the TF schema disagree, and the wire behavior is not recoverable from source.
+
+**Status**: open
+**Resolves with**: lab test (set `source_ip_group_exclusion` on a CC forwarding rule, observe whether the backend applies, rejects, or ignores it)
+
+---
+
+### cloud-connector-06 — ZIA-origin source groups: editability from ZTC and lite payload shape
+
+*Origin: `references/cloud-connector/source-ip-groups.md` § Open questions*
+
+Two related gaps on source IP groups: (1) whether groups created in ZIA (`creator_context = "ZIA"`) can be modified through the ZTC provider/API or only via ZIA is not confirmed; (2) the `/ipSourceGroups/lite` response is only confirmed to return `id`+`name` — whether it also includes additional fields such as `creator_context` is not documented in captured sources.
+
+**Status**: open
+**Resolves with**: lab test (attempt a ZTC update of a ZIA-origin group; read a `/lite` response and inspect its fields) OR zscaler doc not yet read
+
+---
+
+### cloud-connector-07 — ZTG vs Cloud Connector group type semantics
+
+*Origin: `references/cloud-connector/overview.md` § Open questions*
+
+The exact distinction between a "ZTG" group type and a "Cloud Connector" group type is not documented in captured articles. It is likely a naming evolution, but whether the two denote different object types, different capabilities, or simply old vs new terminology for the same construct is unresolved.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR lab test (inspect both group types in a tenant)
+
+---
+
+### cloud-connector-08 — HA mechanics: cchealth port, fail-open/close toggle, fail-open egress path
+
+*Origin: `references/cloud-connector/overview.md` § Open questions*
+
+Three high-availability mechanics are named in the captured HA help article but not pinned down: (1) whether the `?cchealth` probe port is configurable and over what range — the article says only "configured during deployment" (`vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md:30`); (2) where in the admin portal the fail-open / fail-close toggle lives — the article says "customers can change this configuration" without naming the path (`:51`); (3) what the fail-open egress path actually is — the source says fail-open lets "workloads that are accessing the internet to continue doing so" yet also that "the egressing traffic is flowing through Zscaler for inspection and policy control" (`:51`), two clauses that are hard to reconcile when the fail-open precondition is that no Cloud Connector in the group can reach a Service Edge. Whether fail-open routes direct-to-internet (no inspection) or via a retained/degraded Zscaler path is not resolved; neither reading should be documented as fact.
+
+**Status**: open
+**Resolves with**: lab test (trigger a fail-open condition, observe the egress path) OR zscaler doc not yet read (a clearer source on the toggle path and probe-port range)
+
+---
+
+### cloud-connector-09 — Forwarding-method semantics and the true backend forwardMethod enum
+
+*Origin: `references/cloud-connector/forwarding.md` § Open questions; `references/cloud-connector/api-divergences.md` § Open questions*
+
+The console-label and runtime semantics of several `ForwardMethod` enum values are unconfirmed, and the sources disagree on the enum itself. The Go doc-comment lists ten values including `ENATDEDIP`, `GEOIP`, and `PROXYCHAIN` (`vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go:44`), the Terraform validator lists a smaller set, and the wire field is a free string. Specifically unresolved: (1) `ENATDEDIP` (reads as dedicated-IP NAT) and `GEOIP` (reads as geo-based forwarding) have no console label or documented semantics in captures; (2) `PROXYCHAIN`'s full chaining topology — where the proxy gateway sits, auth, failover — is not in source (only the proxy-gateway action field and its TCP-only network-service constraint are sourced); (3) the full set of values the `ecRdr` endpoint actually accepts — and whether `LOCAL_SWITCH`, `ENATDEDIP`, `GEOIP`, `PROXYCHAIN`, and bare `ZPA` are all live — is unknown without a tenant.
+
+**Status**: open
+**Resolves with**: lab test (submit each candidate `forwardMethod` against the `ecRdr` endpoint, observe acceptance and behavior) OR Postman / oneapi-spec cross-check (a third independent source on the enum)
+
+---
+
+### cloud-connector-10 — Forwarding rule count limit and Admin Rank ↔ Rule Order interaction
+
+*Origin: `references/cloud-connector/forwarding.md` § Open questions*
+
+Two forwarding-rule capacity/precedence questions: (1) how many traffic forwarding rules a tenant may define is not captured — the wildcard-domain/FQDN-entry caps (16K per org, 8,000 per rule, `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md:108`) are entry limits, not a rule-count limit; (2) CC forwarding rules carry an Admin Rank field (`vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go:41`), but whether admin rank *gates* the editable Rule Order values the way ZIA URL Filtering's admin-rank does is not stated in captured source.
+
+**Status**: open
+**Resolves with**: support ticket OR lab test (grow rule count until rejection; vary admin rank and observe whether Rule Order editability is constrained)
+
+---
+
+### cloud-connector-11 — "Overwrite DNS response" — does a response-rewrite action exist at all?
+
+*Origin: `references/cloud-connector/dns-subsystem.md` § Open questions; `references/cloud-connector/api-divergences.md` § Open questions*
+
+"Overwrite DNS response" is named in help-page capability text but absent from the DNS-rule `action` enum (`ALLOW` / `BLOCK` / `REDIR_REQ` / `REDIR_ZPA`) and from every `*ztw*` SDK/TF source. Whether it is a separate feature with its own object/endpoint, a different rule type, or just marketing wording for one of the `REDIR_*` actions is unresolved — no source establishes it.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (a source describing the feature's object/endpoint) OR lab test (look for a response-rewrite action in a live DNS-rule config)
+
+---
+
+### cloud-connector-12 — DNS rule UI match criteria, tunnel detection, and DoH interception not in the SDK
+
+*Origin: `references/cloud-connector/dns-subsystem.md` § Open questions*
+
+Several DNS-policy capabilities named in help UI text have no field in the captured `ECDNSRules` struct, which exposes only IP/group/location/ecGroup fields: (1) the UI match dimensions "users/groups/departments," "domain categorization / IP categorization," "DNS record types," and "location of resolved IP addresses" — whether these map to a richer (uncaptured) schema or are ZIA-DNS-Control concepts mislabeled in shared help text is unresolved; (2) DNS tunnel-detection trigger heuristics, thresholds, and response actions are not in captures and not modeled by any SDK field; (3) how CC identifies and handles DoH at the app layer is neither documented in captures nor exposed in the SDK.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (a DNS-rule schema source naming these criteria) OR lab test (configure each UI criterion, inspect the resulting object)
+
+---
+
+### cloud-connector-13 — DNS gateway failover order, default gateway config, and IPv6 on referenced resolvers
+
+*Origin: `references/cloud-connector/dns-subsystem.md` § Open questions*
+
+Three DNS-gateway behaviors not exposed in the gateway object: (1) whether the secondary resolver is tried before `failureBehavior` fires (and under what conditions) — the SDK carries `primaryIp` / `secondaryIp` / `failureBehavior` but no field describing the try-order; (2) what the default (non-deletable) DNS gateway resolves to and whether it is operator-modifiable — the SDK has no `isDefault` discriminator; (3) whether a LAN- or WAN-referenced resolver slot can carry an IPv6 address — the "IPv4 only" statement in capture is scoped to the Custom DNS Server entry (`vendor/zscaler-help/cbc-configuring-dns-gateway.md:32,40`), and the gateway struct's `primaryIp` / `secondaryIp` are plain strings with no documented address-family constraint. Related: the `ZPA Resolver` predefined DNS rule is treated as predefined/non-deletable by the TF deletion guard (`vendor/terraform-provider-ztc/ztc/resource_ztc_traffic_forwarding_dns_rule.go:135-139`) but no captured source describes its default state, match criteria, action, or license/mode gating.
+
+**Status**: open
+**Resolves with**: lab test (induce primary-resolver failure and observe try-order; inspect the default gateway and the `ZPA Resolver` rule) OR zscaler doc not yet read
+
+---
+
+### cloud-connector-14 — Duplicate DNS gateway packages and the type field semantics
+
+*Origin: `references/cloud-connector/terraform.md` § Open questions; `references/cloud-connector/sdk.md` § Open questions; `references/cloud-connector/api-divergences.md` § Open questions*
+
+Two Go SDK packages — `dns_gateway` and `forwarding_gateways/dns_forwarding_gateway` — both target `/ztw/api/v1/dnsGateways` with no clear deprecation note. The `dns_gateway` package omits `*http.Response` from its `Get`/`Create`/`Update` signatures and omits the `Type` field; the `dns_forwarding_gateway` package includes both, and its `type` carries `ZIA` / `ECSELF` values. Unresolved: (1) which package is canonical for the Terraform provider (`ztc_dns_forwarding_gateway` vs `ztc_dns_gateway`, both targeting the same endpoint); (2) whether the API distinguishes the two by `dnsGatewayType`; (3) whether `type` is required by the backend, optional, or meaningful only for the Log-and-Control ("ECSELF") variant.
+
+**Status**: open
+**Resolves with**: lab test (create gateways via each resource and compare the wire payloads / `type` handling) OR code read (a future SDK release may deprecate one package)
+
+---
+
+### cloud-connector-15 — subcloud_primary/secondary backend behavior for CC DC proxies
+
+*Origin: `references/cloud-connector/terraform.md` § Open questions; `references/cloud-connector/api-divergences.md` § Open questions*
+
+The Terraform forwarding-gateway resource registers `subcloud_primary` / `subcloud_secondary` as `id`+`name` blocks and reads/writes them (`vendor/terraform-provider-ztc/ztc/resource_ztc_forwarding_gateway.go:127-128,187-190,250-251`), tying them to a manual DC proxy when the org has subclouds. The SDK struct comment still calls them "Not applicable to Cloud & Branch Connector" (`vendor/zscaler-sdk-go/zscaler/ztw/services/forwarding_gateways/.../zia_forwarding_gateway.go:38-41`). Whether the backend API actually honors subclouds for Cloud & Branch Connector DC proxies (vs the TF schema merely exposing the fields) is not verifiable from source.
+
+**Status**: open
+**Resolves with**: lab test (set subcloud blocks on a CC forwarding gateway, observe whether the backend applies them to DC-proxy selection)
+
+---
+
+### cloud-connector-16 — ztc_traffic_forwarding_rule: OneAPI requirement and ZPA App Segment ID equivalence
+
+*Origin: `references/cloud-connector/terraform.md` § Open questions*
+
+Two forwarding-rule questions on the Terraform surface: (1) whether `ztc_traffic_forwarding_rule` requires OneAPI auth or works with both auth frameworks is not confirmed from available sources; (2) the `zparesources` Go package exports `GetZPAApplicationSegments`, returning ZPA Application Segment IDs visible to the CC tenant (`vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/zparesources/zparesources.go`), but whether those IDs are identical to the IDs returned by the `zpa_application_segment` data source in the ZPA Terraform provider has not been confirmed by a live cross-provider test. The ZTC provider exposes no data source for this lookup.
+
+**Status**: open
+**Resolves with**: lab test (run a forwarding-rule create under each auth framework; compare segment IDs from `zparesources` against the ZPA provider data source for the same segment)
+
+---
+
+### cloud-connector-17 — "Local" / LOCAL_SWITCH forwarding method — real behavior or doc artifact
+
+*Origin: `references/cloud-connector/terraform.md` § Open questions; `references/cloud-connector/index.md` § forwarding-method prose*
+
+The Go `ForwardMethod` enum (`vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go:44`) has no `LOCAL_SWITCH` value, yet a `LOCAL_SWITCH` value appears in the Terraform validator and in Python docstrings, and `index.md` prose lists "local" among the forwarding methods. Whether "local switch" / "Local" is a real portal-only or hardware-gateway (Branch Connector) behavior that the Go enum simply does not model, or an erroneous notion that propagated through docs, is unresolved. Until confirmed, the skill should not assert a `LOCAL_SWITCH` enum value against the Go SDK.
+
+**Status**: open
+**Resolves with**: lab test (attempt a `LOCAL_SWITCH` / "Local" forwarding rule on a Cloud vs Branch Connector tenant, observe acceptance) OR Postman / oneapi-spec cross-check on the `forwardMethod` enum
+
+---
+
+### cloud-connector-18 — ZTW API surface gaps: endpoint paths, Azure/GCP discovery automation, Go ZIdentity auth
+
+*Origin: `references/cloud-connector/api.md` § Open questions*
+
+Three ZTW API-surface items not resolved in the current pass: (1) the `*Endpoint` consts for the `adminuserrolemgmt` and `activation_cli` Go service packages were not inspected, so their endpoint paths are unverified (the rest of the Go service-surface table now carries verified paths); (2) whether `publicCloudInfo` exposes discovery automation for Azure/GCP — `publicCloudInfo` records carry AWS/Azure/GCP account identities, but the discovery-permission and CloudFormation-template flows in current Go source (`vendor/zscaler-sdk-go/zscaler/ztw/services/partner_integrations/partner_integrations.go:56-82`) are AWS-specific, with no Azure/GCP equivalent of `cloudFormationTemplate` or `discoveryService/{id}/permissions`; (3) whether the legacy `ZTC_*` credential surface is the only Go ZTW auth path — the vendored Go ZTW config exposes only the legacy CBC/ZTC credentials, and whether a ZIdentity OAuth path exists for Go ZTW is not confirmable from this capture (note: cloud-connector-19 records that OneAPI *is* a confirmed ZTW path in both SDKs; this item is narrower, about the Go ZTW config object specifically).
+
+**Status**: open
+**Resolves with**: code read (inspect the two service packages' endpoint consts; re-check the Go ZTW config for a ZIdentity path on a future release) OR lab test (probe Azure/GCP discovery automation against a tenant)
+
+---
+
+### cloud-connector-19 — ZTW SDK method-convention anomalies and OneAPI gov/ten exclusion behavior
+
+*Origin: `references/cloud-connector/sdk.md` § Open questions*
+
+Two Go SDK convention anomalies whose intent is unconfirmed: (1) `provisioning_url` uses the ZIA-style methods (`service.Client.Create`, not `CreateResource`) for `Create` / `UpdateWithPut` / `Delete` — whether this is intentional or a bug is not stated in source; (2) `workload_groups.Get` calls `service.Client.Read` (not `ReadResource`), inconsistent with the ZTW convention of `ReadResource` for GETs — the endpoint may use the ZIA-compatible request path rather than the Resource-suffixed path, but the reason is not documented. Plus one narrower auth question: OneAPI is confirmed available for ZTW and excluded for the `zscalergov` and `zscalerten` clouds, but whether the SDK surfaces that exclusion as an explicit error or silently falls back to legacy auth for those clouds is not confirmed from source.
+
+**Status**: open
+**Resolves with**: code read (a future SDK release or maintainer note clarifying the method-convention choices) OR lab test (invoke ZTW OneAPI against a gov/ten cloud and observe whether it errors or falls back)
+
+---
+
+### cloud-connector-20 — NSS VA for CBC: feed coverage, sizing, certs, HA, and rule-match semantics
+
+*Origin: `references/cloud-connector/nss-va.md` § Open questions*
+
+Several NSS-VA-for-CBC behaviors are not pinned down in the captured help sources: (1) whether CBC DNS events (from the DNS Forwarding Gateway / DNS policy) appear under the NSS Firewall log type or require a separate feed — generic NSS docs list DNS as a separate type, but CBC NSS guidance references only Firewall; (2) NSS VA sizing numbers for typical CC fleet sizes (the guides point to Zscaler's interactive sizing tool but capture no CBC table); (3) the NSS client certificate's validity period and whether Zscaler offers automated renewal or requires manual re-registration; (4) whether two NSS VAs can consume the same Nanolog partition simultaneously (active-active HA) or the stream targets exactly one VA; (5) whether Log-and-Control Forwarding gateway selection affects the path CC VMs take to upload logs to the Nanolog — i.e. whether a misconfigured log/control rule could starve the Nanolog before the NSS VA can pull; (6) whether JSON is a supported Firewall feed output format for VM-based NSS in CBC (or CSV is the only tested format); (7) whether Log-and-Control Forwarding rule evaluation stops at the first matching rule (first-match-wins) and whether the auto-created default rule holds the terminal catch-all position — captured source confirms ascending-numerical-order evaluation and disabled-rule skip (`vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.md:34,36`) but not the stop-on-first-match semantics.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (CBC-specific NSS sizing / cert / feed-format guidance) OR lab test (observe DNS-in-Firewall-feed, active-active VA behavior, and rule-match stop semantics in a tenant)
+
+---
+
+### cloud-connector-21 — Insights/Tunnel-Insights aggregation and byte-count parity with NSS feeds
+
+*Origin: `references/cloud-connector/logs/log-schema.md` § Open questions*
+
+Three Insights-surface items the log-schema doc flags but cannot resolve from source: (1) whether a raw log-download API exists for Insights data — none is confirmed (absence of evidence, not evidence of absence); (2) whether the byte counts in Tunnel Insights (DPD / Received / Sent bytes) match `inbytes` / `outbytes` from NSS-firewall records for the same sessions is unverified — no NSS feed equivalent of the Tunnel Insights metrics is confirmed; (3) the exact time-window aggregation behavior of Insights session/DNS/tunnel views at multi-day scale (the UI says it aggregates per day, but the precise semantics are undocumented). The separate `Status` / `UpgradeStatus` SDK value-space question is filed as `log-22`, not here.
+
+**Status**: open
+**Resolves with**: lab test (compare Tunnel Insights byte counts against NSS records for the same sessions; observe multi-day aggregation) OR zscaler doc not yet read (a raw-log-download API surface)
+
+---
+
+### cloud-connector-22 — CC region coverage: GovCloud, China, GCP deployment, and WDS-vs-ZTG region-set parity
+
+*Origin: `references/cloud-connector/regions.md` § Open questions*
+
+The captured regions material leaves the deployment-region picture incomplete (the doc's OQ-CCR-01 through OQ-CCR-09): whether the AWS CC AMI and Azure CC Marketplace listing exist in GovCloud / Azure Government and AWS/Azure China; which GCP regions support CC *deployment* (and whether a Google Cloud Marketplace listing exists) plus the GCP-specific networking model; whether AWS opt-in regions support the CC AMI and/or Zero Trust Gateway; per-region availability of CC VM size options (Small/Medium/Large); and the Azure Function App Flex Consumption regional-gap list. Most consequential: the workload-discovery supported-region surface is confirmed programmatically (`GET /ztw/api/v1/publicCloudInfo/supportedRegions` / the `ztc_supported_regions` data source, see § Programmatic region enumeration), but the captured Go/TF source defines only the shape (id/name/cloud_type), not the region values, and does not assert that the WDS set equals the ZTG deployment list or per-cloud CC deployment availability. The relationship between the three region sets (WDS, ZTG, CC-deployment) is unconfirmed.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (capture the linked GCP/China/GovCloud CC deployment pages) OR tenant snapshot (query `ztc_supported_regions` per cloud and compare against the 16-region ZTG table) OR support ticket (GovCloud / FedRAMP availability)
+
+---
+
+### cloud-connector-23 — dest_workload_groups_ids binding to LOCAL_SWITCH / "Local"
+
+*Origin: `references/cloud-connector/api-divergences.md` § Open questions*
+
+The Python docstring ties destination workload groups (`dest_workload_groups_ids` / `destWorkloadGroups`) to the `LOCAL_SWITCH` forward method, while the help text ties them to the console "Local" method. Whether the backend actually accepts `destWorkloadGroups` only on `LOCAL_SWITCH` / "Local" rules — and rejects or ignores them on other forwarding methods — is unconfirmed (and depends partly on cloud-connector-17, the question of whether `LOCAL_SWITCH` is itself a live method).
+
+**Status**: open
+**Resolves with**: lab test (set `dest_workload_groups_ids` on rules of varying forward method, observe which the backend accepts)
+
+---
+
+### cloud-connector-24 — Field character-limit enforcement on DNS and Log-and-Control rules
+
+*Origin: `references/cloud-connector/dns-subsystem.md` § Open questions*
+
+The help pages state character limits for Log-and-Control rule fields (name ≤ 31, description ≤ 10,240), but the captured `ECTrafficLogRules` struct models them as plain string fields with no enforcement. Whether the API actually enforces these limits server-side — and whether the DNS-rule fields carry analogous undocumented limits — is doc-tier until confirmed against the API's validation behavior.
+
+**Status**: open
+**Resolves with**: lab test (submit over-length name/description values, observe whether the API rejects them) OR zscaler doc not yet read
 
 ---
 
