@@ -4,6 +4,13 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.12.1](https://github.com/dvmrry/zscaler-skill/compare/v0.12.0...v0.12.1) (2026-06-15)
+
+
+### Documentation
+
+* **references:** independent vendor-MCP scrape (EASM, ZMS API, ZIA, ZDX, ZCC, ZPA) ([#123](https://github.com/dvmrry/zscaler-skill/issues/123)) ([3aad598](https://github.com/dvmrry/zscaler-skill/commit/3aad598ad676ebbcc73569bf976d0f1e2c4d61d9))
+
 ## [0.12.0](https://github.com/dvmrry/zscaler-skill/compare/v0.11.1...v0.12.0) (2026-06-14)
 
 
