@@ -3290,10 +3290,10 @@ The TF data source lists `zpn_auth_log_1id` as a valid format-lookup code (`vend
 
 *Origin: `references/zpa/log-receivers.md` § Open questions*
 
-Eight codes present in the TF format-lookup set are absent from the Python `source_log_map` (`zpn_pbroker_comprehensive_stats`, `zms_flow_log`, `zpn_sitec_comprehensive_stats`, `zpn_sitec_auth_log`, `zpn_auth_log_1id`, `zpn_smb_inspection_log`, `zpn_ldap_inspection_log`, `zpn_krb_inspection_log`). They are valid for `GET /lssConfig/logType/formats`, but whether the ZPA API rejects them as a receiver's `sourceLogType` (vs. the Python SDK simply not exposing a key) is not established — the SDK validates against its own map, not a server response.
+Eight codes present in the TF format-lookup set are absent from the Python `source_log_map`. Of these, **`zpn_pbroker_comprehensive_stats` is resolved**: the Terraform resource `zpa_lss_config_controller` includes it in its `source_log_type` `ValidateFunc` (`vendor/terraform-provider-zpa/zpa/resource_zpa_lss_config_controller.go:225`), which is strong evidence the ZPA API accepts it on a live receiver. The remaining seven (`zms_flow_log`, `zpn_sitec_comprehensive_stats`, `zpn_sitec_auth_log`, `zpn_auth_log_1id`, `zpn_smb_inspection_log`, `zpn_ldap_inspection_log`, `zpn_krb_inspection_log`) are valid for `GET /lssConfig/logType/formats` but absent from both the Python `source_log_map` and the TF resource's write-time validator — whether the ZPA API rejects them on a receiver's `sourceLogType` is not established in available sources.
 
-**Status**: open
-**Resolves with**: lab test (configure a receiver with one of these `sourceLogType` values and observe acceptance)
+**Status**: partial — `zpn_pbroker_comprehensive_stats` resolved (TF resource accepts it); 7 remaining codes still open
+**Resolves with**: lab test (configure a receiver with one of the 7 remaining `sourceLogType` values and observe acceptance)
 
 ---
 
