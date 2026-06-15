@@ -39,7 +39,7 @@ Source: `vendor/zscaler-help/about-virtual-service-edge-clusters-internet-saas.m
 
 Three reasons to cluster VSE instances rather than deploying standalone VMs: (Tier A — about-virtual-service-edge-clusters-internet-saas.md; about-virtual-service-edges-internet-saas.md)
 
-**N+1 redundancy.** A cluster of at least two VMs can absorb the loss of one member without a service interruption. The active load balancer detects the unhealthy VM and stops sending it traffic; surviving members absorb the load. A standalone VM has no failover partner.
+**N+1 redundancy.** A cluster of at least two VMs can absorb the loss of one member without a service interruption. The active load balancer is expected to detect an unhealthy VM and stop sending it traffic, with surviving members absorbing the load — but this per-VM health-monitoring behavior is not explicitly documented in the VSE cluster source; it is inferred from PSE cluster behavior (Tier B — by analogy with understanding-private-service-edge-internet-saas.md:33). A standalone VM has no failover partner.
 
 **Throughput aggregation.** Each VSE VM delivers up to 600 Mbps total throughput (on VMware ESXi with the optional SSL acceleration card). With up to 16 VMs in a cluster, aggregate throughput scales horizontally. A single-VM deployment is hard-capped at 600 Mbps; a cluster is not.
 
@@ -77,7 +77,7 @@ Source: `vendor/zscaler-help/about-virtual-service-edge-clusters-internet-saas.m
 
 | Dimension | Standalone VSE | VSE Cluster (2–16 VMs) |
 |---|---|---|
-| Failover | None | Active-active; LB removes unhealthy member |
+| Failover | None | Active-active; LB removes unhealthy member (Tier B — inferred from PSE; not stated in VSE source) |
 | Throughput ceiling | 600 Mbps (1 VM) | 9,600 Mbps derived (16 × 600 Mbps; not a vendor-stated aggregate) |
 | Zscaler support posture | Evaluation / test only | Production — supported |
 | Policy object complexity | 1 VM = 1 object | N VMs behind 1 cluster object |
