@@ -3,9 +3,11 @@ product: shared
 topic: analytics-graphql
 title: "Analytics GraphQL API — ZDX trends + SaaS Security Report"
 content-type: reference
-last-verified: "2026-04-27"
+last-verified: "2026-06-15"
 confidence: medium
-source-tier: doc
+source-tier: mixed
+verified-against:
+  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
 sources:
   - "vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md"
   - "vendor/zscaler-help/automate-zscaler/guides-analytics-api.md"
@@ -14,6 +16,8 @@ sources:
   - "vendor/zscaler-help/about-saas-security-report.md"
   - "https://automate.zscaler.com/docs/api-reference-and-guides/graphql-api-references/zinsights/"
   - "https://automate.zscaler.com/docs/api-reference-and-guides/guides/zscaler-analytics/working-with-zscaler-analytics"
+  - "vendor/zscaler-mcp-server/zscaler_mcp/common/toolsets.py"
+  - "vendor/zscaler-mcp-server/zscaler_mcp/services.py"
 author-status: draft
 ---
 
@@ -40,6 +44,25 @@ The endpoint is listed alongside all other OneAPI products at `automate.zscaler.
 | ZInsights GraphQL (`/zins/graphql`) | Trend queries across web traffic, firewalls, SaaS, shadow IT, IoT, cybersecurity | GraphQL |
 
 The ZDX REST API returns device-level and probe-level data. The GraphQL API returns aggregated organizational trend data — suitable for dashboard widgets and executive summaries, not per-device diagnostics.
+
+## MCP Z-Insights coverage
+
+Source: `vendor/zscaler-mcp-server/zscaler_mcp/common/toolsets.py`; `vendor/zscaler-mcp-server/zscaler_mcp/services.py`.
+
+The vendor MCP registers a non-default `zins` toolset for read-only analytics queries. It wraps the GraphQL surface into 16 task-shaped reads:
+
+| Domain | MCP coverage |
+|---|---|
+| Web Traffic | Traffic by location, total traffic without grouping, web protocol distribution, threat super-categories, threat class. |
+| Cyber Security | Incidents by category, incidents by location, daily incident trend, incidents by threat and app. |
+| Zero Trust Firewall | Traffic by action, location, and network service. |
+| SaaS Security / CASB | CASB app report. |
+| Shadow IT | Discovered apps and summary statistics. |
+| IoT | Device statistics and classifications. |
+
+All Z-Insights MCP tools are analytics-only; there are no write operations. The tools make the GraphQL API easier to call from agents, but they do not change the underlying limitation: this is aggregated reporting data, not raw logs or per-device troubleshooting telemetry.
+
+Implementation drift note: the shared MCP runtime reference tracks a current toolset-routing issue where some ZINS-named tools can be selected through ZIA-oriented prefixes. Treat that as a vendor implementation detail, not a product entitlement model.
 
 ---
 

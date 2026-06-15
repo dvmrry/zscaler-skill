@@ -12,12 +12,15 @@ sources:
   - "vendor/zscaler-help/automate-zscaler/api-authentication-overview.md"
   - "vendor/zscaler-help/automate-zscaler/api-reference-zdx-overview.md"
   - "vendor/zscaler-sdk-python/zscaler/zdx/"
+  - "vendor/zscaler-mcp-server/CHANGELOG.md"
+  - "vendor/zscaler-mcp-server/zscaler_mcp/common/toolsets.py"
+  - "vendor/zscaler-mcp-server/zscaler_mcp/services.py"
 author-status: draft
 ---
 
 # ZDX API surface
 
-Endpoint and SDK summary for ZDX. Unlike ZIA / ZPA, ZDX is primarily a **read-only** API — the configuration surface (probes, alerts, applications) is console-driven; the API mostly exposes **metric and status retrieval**.
+Endpoint, SDK, and MCP summary for ZDX. Unlike ZIA / ZPA, ZDX is primarily a **read-only** API — the configuration surface (probes, alerts, applications) is console-driven; the API mostly exposes **metric and status retrieval**. The MCP server preserves that read-only shape except for on-demand troubleshooting lifecycle calls that start/delete deep traces and score analyses.
 
 ## Base endpoint
 
@@ -35,6 +38,24 @@ All ZDX paths live under `/zdx/v1` (legacy API). Accessed via `ZscalerClient` / 
 | `client.zdx.snapshot` | (Role unclear without SDK deep-dive) | Likely point-in-time state capture. |
 | `client.zdx.troubleshooting` | Diagnostics Sessions (SDK calls them "deeptraces"), analysis jobs, top processes | On-demand deep investigation workflow. |
 | `client.zdx.users` | User-level queries | User lookups, user-to-device mapping. |
+
+## MCP toolsets and write boundary
+
+Source: `vendor/zscaler-mcp-server/zscaler_mcp/common/toolsets.py`; `vendor/zscaler-mcp-server/zscaler_mcp/services.py`; `vendor/zscaler-mcp-server/CHANGELOG.md`.
+
+The MCP splits ZDX into five default-on resource-family toolsets:
+
+| MCP toolset | Coverage | Write scope |
+|---|---|---|
+| `zdx_alerts` | Ongoing and historical alerts, alert details, affected devices | None |
+| `zdx_locations` | Location and department operand catalogs | None |
+| `zdx_software_inventory` | Installed software inventory and software detail | None |
+| `zdx_reports` | Device inventory, application metrics, score trends, app users, web-probe and cloudpath-probe results | None |
+| `zdx_troubleshooting` | Deep-trace and analysis lifecycle plus deep-trace metrics/events/top-processes | `zdx_start_deeptrace`, `zdx_delete_deeptrace`, `zdx_start_analysis`, `zdx_delete_analysis` |
+
+Operationally, this means "ZDX is read-only" remains a good default for inventory and analytics, but not for troubleshooting sessions. Starting a deep trace or analysis is tenant/device-affecting workflow automation even though it does not create standing configuration like probes or alert rules.
+
+Vendor drift note: the callable tool is spelled `zdx_start_deeptrace`; some vendor prose uses `deep_trace`. Prefer the registered tool name when building MCP harnesses.
 
 ### `client.zdx.apps`
 

@@ -10,6 +10,8 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zcc/"
   - "vendor/zscaler-sdk-python/docsrc/zs/zcc/"
   - "vendor/terraform-provider-zcc/docs/index.md"
+  - "vendor/zscaler-mcp-server/CHANGELOG.md"
+  - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zcc/get_otp.py"
 author-status: draft
 ---
 
@@ -75,7 +77,7 @@ Implication: when a ZIA admin is added, they don't automatically appear in ZCC's
 | `client.zcc.entitlements` | ZPA and ZDX group entitlements | Which user/group is entitled to which service. |
 | `client.zcc.company` | Tenant company info | Read-only tenant metadata. |
 | `client.zcc.admin_user` | ZCC portal admin RBAC | Portal admins distinct from ZIA/ZPA admins. |
-| `client.zcc.secrets` | OTP + uninstall/logout passwords | Used to block end-users from removing ZCC. |
+| `client.zcc.secrets` | OTP bundle: logout, exit, uninstall, revert, and per-service disable passwords | Used to authorize controlled end-user actions on ZCC. Read-only call, sensitive credential output. |
 
 ## Wire format quirks
 
@@ -86,6 +88,30 @@ Implication: when a ZIA admin is added, they don't automatically appear in ZCC's
 - **`/edit` takes POST on some endpoints and PUT on others.** `webForwardingProfile/edit` uses POST; `webFailOpenPolicy/edit` and `webTrustedNetwork/edit` use PUT. The SDK handles this, but hand-crafted HTTP calls need to match each endpoint's convention.
 - **List responses for `trusted_networks` are wrapped.** `/webTrustedNetwork/listByCompany` returns a body with `trustedNetworkContracts: [...]`, not a bare array.
 - **`/getOtp` is cache-prone.** End-user OTP retrieval (`GET /zcc/papi/public/v1/getOtp?udid={udid}`) can be cached by intermediate proxies / CDNs, returning a stale OTP. Workaround documented by Zscaler: append a dummy random query parameter, e.g. `?udid=...&_=<random>`. The SDK does this internally; hand-crafted HTTP calls need to apply it.
+
+## MCP OTP bundle
+
+Source: `vendor/zscaler-mcp-server/zscaler_mcp/tools/zcc/get_otp.py`; `vendor/zscaler-mcp-server/CHANGELOG.md`.
+
+The MCP exposes a single `zcc_get_device_otp` tool wrapping `client.zcc.secrets.get_otp`. The input is the device UDID; if the operator starts from a user or hostname, first resolve the device through `zcc_list_devices` and then pass the returned `udid`.
+
+The endpoint returns a bundle, not one password:
+
+| Field | Use |
+|---|---|
+| `logout_otp` | Sign the user out of ZCC. |
+| `exit_otp` | Allow the user to exit/quit ZCC. |
+| `uninstall_otp` | Allow ZCC uninstall. |
+| `revert_otp` | Revert ZCC to a prior version. |
+| `zia_disable_otp` | Temporarily disable ZIA enforcement. |
+| `zpa_disable_otp` | Temporarily disable ZPA enforcement. |
+| `zdx_disable_otp` | Temporarily disable ZDX. |
+| `zdp_disable_otp` | Temporarily disable ZDP. |
+| `anti_tempering_disable_otp` | Disable anti-tampering protection. |
+| `deception_settings_otp` | Modify Deception settings. |
+| `otp` | Legacy/generic OTP field. |
+
+Although the call is classified as read-only because it uses GET and does not mutate tenant state, the returned values are sensitive short-lived credentials. Do not log them, paste them into broad chat history, or treat them like harmless diagnostic output.
 
 ## Rate limits
 

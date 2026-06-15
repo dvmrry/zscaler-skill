@@ -3,9 +3,11 @@ product: cloud-connector
 topic: "cloud-connector-api"
 title: "Cloud Connector API — SDKs + Terraform provider"
 content-type: reference
-last-verified: "2026-06-09"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: mixed
+verified-against:
+  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
 sources:
   - "https://help.zscaler.com/cloud-branch-connector/configuring-cloud-provisioning-template"
   - "vendor/zscaler-help/cbc-configuring-cloud-provisioning-template.md"
@@ -19,6 +21,9 @@ sources:
   - "vendor/terraform-provider-ztc/ztc/config.go"
   - "vendor/terraform-provider-ztc/ztc/resource_ztc_location_management.go"
   - "vendor/terraform-provider-zia/zia/resource_zia_location_management.go"
+  - "vendor/zscaler-mcp-server/CHANGELOG.md"
+  - "vendor/zscaler-mcp-server/zscaler_mcp/common/toolsets.py"
+  - "vendor/zscaler-mcp-server/zscaler_mcp/services.py"
 author-status: draft
 ---
 
@@ -33,6 +38,26 @@ How to manage Cloud Connector programmatically. Three programmatic paths now exi
 3. **Terraform provider** with `ztc_*` resources — path `vendor/terraform-provider-ztc/ztc/`.
 
 For automation that's been pinned to Python pre-v2.0.0, the historical workaround was direct HTTP via `requests` or shelling out to the Go-based Zscaler Terraformer. The v2.0.0 SDK supersedes those workarounds.
+
+## MCP ZTW coverage
+
+Source: `vendor/zscaler-mcp-server/zscaler_mcp/common/toolsets.py`; `vendor/zscaler-mcp-server/zscaler_mcp/services.py`; `vendor/zscaler-mcp-server/CHANGELOG.md`.
+
+The vendor MCP adds a `ztw` toolset for Cloud Connector / ZTW automation. In the inspected v0.12.7 code it registers 13 read tools and 6 write tools:
+
+| Area | MCP coverage |
+|---|---|
+| IP groups | List/list-lite, create, delete. |
+| IP source groups | List/list-lite, create, delete. |
+| IP destination groups | List/list-lite, create, delete. |
+| Network services | List network services and network service groups. |
+| Public cloud | List public cloud info and detailed account information. |
+| Discovery settings | Get workload discovery service settings. |
+| Administration | List admins and roles. |
+
+The write boundary is narrower than the full Cloud Connector configuration surface: it covers IP group create/delete operations, not forwarding-rule, provisioning-template, or activation workflows. Treat it as a useful MCP automation slice layered on top of the broader SDK/Terraform surfaces described below.
+
+Implementation drift note: the shared MCP runtime reference tracks a current first-match prefix-routing issue where some `ztw_*` tools may be selected under ZIA-oriented toolsets. For operator-facing guidance, keep the product model as Cloud Connector/ZTW and use `client.ztw.*` or the explicit `ztw_*` tool names.
 
 ## Go SDK service surface
 

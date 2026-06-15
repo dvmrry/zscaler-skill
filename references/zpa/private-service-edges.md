@@ -24,6 +24,8 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zpa/private_cloud_group.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/private_cloud_controller.py"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/serviceedgegroup/zpa_service_edge_group.go"
+  - "vendor/zscaler-mcp-server/CHANGELOG.md"
+  - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/service_edges.py"
   - "vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf"
   - "vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-asg-aws/variables.tf"
   - "vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-asg-aws/main.tf"
@@ -352,6 +354,26 @@ Key kwargs for `add_service_edge_group` / `update_service_edge_group`: `name`, `
 | `bulk_delete_service_edges(service_edge_ids)` | POST | `/serviceEdge/bulkDelete` |
 
 Individual PSE instances are enrolled via provisioning key, not created via the API. The API manages the instance record after enrollment (rename, enable/disable, deregister).
+
+**MCP service-edge tools** (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/service_edges.py`):
+
+The vendored MCP server now exposes individual Service Edge operations as a
+first-class automation surface: `zpa_list_service_edges`,
+`zpa_get_service_edge`, `zpa_update_service_edge`, `zpa_delete_service_edge`,
+and `zpa_bulk_delete_service_edges` (`vendor/zscaler-mcp-server/CHANGELOG.md:117`).
+The list/get tools return the instance record, including control-channel state,
+runtime status, version, geographic location, enrollment certificate, parent
+`serviceEdgeGroupId`, and provisioning-key reference
+(`vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/service_edges.py:13-96`).
+
+MCP documents a useful boundary: group membership and provisioning-key
+assignment belong to Service Edge Group / Provisioning Key workflows, not the
+individual edge update tool. `zpa_update_service_edge` only sends explicitly
+provided kwargs such as `name`, `description`, and `enabled`
+(`vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/service_edges.py:104-146`).
+Delete and bulk-delete are HMAC-confirmed and remove the cloud-side edge
+record; the edge must be reprovisioned with a fresh provisioning key before it
+can reconnect (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/service_edges.py:149-225`).
 
 **Private Cloud Group** (`client.zpa.private_cloud_group`):
 

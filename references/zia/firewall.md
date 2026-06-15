@@ -18,6 +18,9 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/ips_signature_rules.py"
   - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/ips_signature_rules.py"
+  - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_firewall_dns_rules.py"
+  - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_firewall_ips_rules.py"
+  - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_firewall_rules.py"
   - "vendor/zscaler-help/ranges-limitations-zia.md"
 author-status: draft
 ---
@@ -150,6 +153,41 @@ Source: `vendor/zscaler-help/about-ips-control.md`; `vendor/terraform-provider-z
 
 - Firewall Insights > Logs — full IPS detection log.
 - Security Dashboard — web-traffic threat detections (subset of the full log).
+
+## MCP automation deltas
+
+Source: `vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_firewall_dns_rules.py`; `vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_firewall_ips_rules.py`; `vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/ips_signature_rules.py`; `vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_firewall_rules.py`; [`../shared/mcp-runtime.md`](../shared/mcp-runtime.md).
+
+The vendored MCP server reinforces three firewall automation gotchas:
+
+- **DNS rules use `applications`, not `cloud_applications`.** The field still
+  accepts canonical ZIA policy-engine cloud-app names used by SSL Inspection,
+  Web DLP, File Type Control, and CAC. DNS-related categories such as DNS
+  tunnels and DNS-over-HTTPS providers live in that same catalog. MCP
+  auto-resolves friendly names through the shared cloud-app resolver before
+  create/update
+  (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_firewall_dns_rules.py:1-25`,
+  `:49-80`).
+- **DNS and IPS rule updates backfill `name` and `order`.** Their MCP modules
+  document PUT/full-replacement endpoints and backfill those fields when the
+  caller omits them
+  (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_firewall_dns_rules.py:11-14`,
+  `:620-628`; `vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_firewall_ips_rules.py:10-14`).
+- **Custom IPS signatures are separate from Cloud Firewall IPS policy rules.**
+  Custom signature tools manage the Snort/Suricata-style detection body, while
+  Cloud Firewall IPS rules control where those detections are enforced. MCP
+  validates `rule_text` on create, does not re-run the duplicate-`sid`
+  validation on update, and requires ZIA activation after writes
+  (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/ips_signature_rules.py:1-44`,
+  `:131-180`).
+
+Implementation drift note: `CLAUDE.md` says ZIA rule update tools generally
+backfill `name` and `order`, but the base `zia_update_cloud_firewall_rule`
+implementation builds a payload only from explicitly supplied fields and calls
+`fw.update_rule(rule_id, **payload)` (`vendor/zscaler-mcp-server/CLAUDE.md:116-118`;
+`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_firewall_rules.py:438-468`,
+`:600-646`). Treat this as an MCP implementation note until verified against
+the SDK/API behavior.
 
 ## NAT Control
 

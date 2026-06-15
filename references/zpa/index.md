@@ -35,6 +35,7 @@ Entry point for Zscaler Private Access (ZPA) questions — application segments,
 | **Machine Tunnels** — pre-authentication ZPA access; device-identity-based policy before user login; ZCC machine tunnel enrollment; AD/LDAP reachability prerequisite | [`./machine-tunnels.md`](./machine-tunnels.md) | draft |
 | **Machine Groups** — enrollment-driven device grouping consumed by Machine Tunnel policy; ZCC enrollment attributes used for group membership | [`./machine-groups.md`](./machine-groups.md) | draft |
 | **Private Service Edges** — on-prem ZPA Service Edge deployment; cluster architecture; brokering private app access without sending traffic through Zscaler cloud | [`./private-service-edges.md`](./private-service-edges.md) | draft |
+| **Baseline Audit** — MCP read-only compliance workflow; inventories connectors, server groups, segments, policy, and LSS config, then reports posture findings with explicit cannot-audit telemetry gaps | [`./baseline-audit.md`](./baseline-audit.md) | draft |
 | **Segment Groups** — policy-scoping primitive grouping App Segments; semantics, membership, and how Access Policy rules reference them | [`./segment-groups.md`](./segment-groups.md) | draft |
 | **SCIM policy mapping** — how SCIM / IdP group attributes map to ZPA access policy conditions; `lhs`/`rhs` attribute references; group-membership evaluation | [`./scim-policy-mapping.md`](./scim-policy-mapping.md) | draft |
 | **ZPA SDK** — service and method catalog (`client.zpa.*`); Python and Go coverage; method-to-endpoint mapping | [`./sdk.md`](./sdk.md) | draft |

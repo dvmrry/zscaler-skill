@@ -94,6 +94,13 @@ sources:
   - vendor/zscaler-sdk-python/zscaler/zia/zia_service.py
   - vendor/zscaler-sdk-python/zscaler/zia/zpa_gateway.py
   - vendor/zscaler-sdk-python/README.md
+  - vendor/zscaler-mcp-server/CHANGELOG.md
+  - vendor/zscaler-mcp-server/CLAUDE.md
+  - vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/advanced_settings.py
+  - vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/atp_settings.py
+  - vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/atp_malware_protection.py
+  - vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_app_control.py
+  - vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/time_intervals.py
 author-status: draft
 ---
 
@@ -199,6 +206,50 @@ All list responses support `resp.search(expression)` for client-side projection:
 users, resp, _ = client.zia.user_management.list_users()
 admins = resp.search("[?adminUser==`true`].{name: name, id: id}")
 ```
+
+### MCP automation deltas from vendor `zscaler-mcp-server` v0.12.7
+
+Source: `vendor/zscaler-mcp-server/CHANGELOG.md`; `vendor/zscaler-mcp-server/CLAUDE.md`; `vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/advanced_settings.py`; `vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/atp_settings.py`; `vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/atp_malware_protection.py`; `vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_app_control.py`; `vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/time_intervals.py`; [`../shared/mcp-runtime.md`](../shared/mcp-runtime.md).
+
+The vendored MCP server exposes several ZIA surfaces and safety contracts that
+are easy to miss when reading only SDK method catalogs:
+
+- **Tenant-wide singletons are not patch-like.** MCP documents strict
+  fetch-merge-write behavior for Advanced Settings, ATP settings, ATP security
+  exceptions, and Malware Settings. Omitted Advanced Settings fields reset to
+  API defaults or `[]`; omitted ATP settings reset to defaults; omitted Malware
+  Settings fields reset to `False`
+  (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/advanced_settings.py:1-28`,
+  `:115-150`; `vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/atp_settings.py:151-236`;
+  `vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/atp_malware_protection.py:395-430`).
+- **ATP malicious URLs differ from ATP security exceptions.** Security
+  exceptions are the allowlist and replace the full list; malicious URLs are the
+  denylist and use add/delete semantics
+  (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/atp_settings.py:27-33`,
+  `:214-236`, `:262-330`).
+- **Cloud App Control rule creation needs preflight.** MCP requires `rule_type`
+  on CAC CRUD calls, uses canonical policy-engine app enums, treats the action
+  list as category-level rather than per-app exhaustive, and recommends one
+  rule per app for multi-app requests because create is the only authoritative
+  validator for each `(rule_type, application, action)` tuple
+  (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_app_control.py:1-137`,
+  `:225-315`, `:750-770`).
+- **Time interval names and schedules are stricter than friendly examples.**
+  MCP validates names as ASCII letters and spaces only, uses `start_time` /
+  `end_time` as minutes from midnight, accepts `EVERYDAY` or `SUN`-`SAT`, and
+  backfills required fields on update. The MCP module also states that SSL
+  Inspection rules do not support `time_windows`
+  (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/time_intervals.py:1-37`,
+  `:48-76`, `:281-354`).
+- **JMESPath in MCP is post-call client-side filtering.** The vendor notes that
+  list tools support a `query` parameter using JMESPath after the API call
+  returns; invalid expressions surface as errors from the helper, and an empty
+  filtered list is authoritative for that response shape
+  (`vendor/zscaler-mcp-server/CLAUDE.md:202-210`).
+
+Source-boundary note: these are MCP/server contracts. Before converting them
+into product API guarantees, corroborate against SDK/API implementation or Help
+captures for the specific endpoint.
 
 ### `enabled` / `state` translation
 

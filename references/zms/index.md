@@ -3,9 +3,15 @@ product: zms
 topic: "zms-index"
 title: "ZMS reference hub"
 content-type: reference
-last-verified: "2026-04-25"
+last-verified: "2026-06-15"
 confidence: medium
-sources: []
+source-tier: mixed
+verified-against:
+  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
+sources:
+  - "vendor/zscaler-help/what-is-microsegmentation-zpa.md"
+  - "vendor/zscaler-mcp-server/zscaler_mcp/common/toolsets.py"
+  - "vendor/zscaler-mcp-server/zscaler_mcp/services.py"
 author-status: reviewed
 ---
 
@@ -13,13 +19,29 @@ author-status: reviewed
 
 Entry point for **Zscaler Microsegmentation (ZMS)** questions — workload-to-workload (east-west) policy enforcement via host-installed agents, AI-powered policy recommendations, and cloud control plane.
 
-Confidence is **medium** — all coverage from marketing material + one help-portal article. **No SDK module** (`zms` does not exist in either Python or Go SDK), no Terraform provider, no Postman collection. Configuration is portal-only.
+Confidence is **medium** — product behavior coverage still comes mostly from marketing material + one help-portal article. **No SDK module** (`zms` does not exist in either Python or Go SDK), no Terraform provider, and no Postman collection are captured, so write configuration still appears portal-only from those sources. The vendor MCP server now adds a read-only ZMS GraphQL inventory surface for agents, resources, policy rules, app zones, tags, and related objects.
 
 ## Topics
 
 | Topic | File | Status |
 |---|---|---|
 | Architecture (cloud + agents + WFP/nftables), AI policy recommendations, deployment, ZPA-add-on framing, edge cases | [`./overview.md`](./overview.md) | draft |
+
+## MCP read-only surface
+
+Source: `vendor/zscaler-mcp-server/zscaler_mcp/common/toolsets.py`; `vendor/zscaler-mcp-server/zscaler_mcp/services.py`.
+
+The MCP registers a `zms` toolset described as GraphQL and read-only. It exposes inventory and posture reads across:
+
+- Agents, connection-status statistics, and version statistics.
+- Agent groups, including TOTP secrets used for enrollment.
+- Resources and resource-group protection status.
+- Microsegmentation policy rules and default policy rules.
+- App zones and discovered app catalog entries.
+- Nonces/provisioning keys.
+- Tag namespaces, keys, and values.
+
+This is enough to improve audit and inventory workflows, but it is not evidence of public write APIs for creating policy, app zones, or resource groups. Treat TOTP secrets and nonce values as sensitive even though the MCP classifies the tools as read-only.
 
 ## Why ZMS matters in the suite
 
@@ -42,7 +64,7 @@ ZMS is also the only Zscaler product (alongside Cloud Connector with VMs) where 
 
 ## Coverage gaps (deferred)
 
-- API / SDK surface — none captured; portal-only configuration.
+- API / SDK surface — public SDK/Terraform write surface still not captured; MCP now exposes read-only GraphQL inventory.
 - Container / Kubernetes integration model.
 - Conflict resolution with other host firewalls (Defender via GPO, host-IDS, custom nftables).
 - Observation → enforcement transition runbook.

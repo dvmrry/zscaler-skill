@@ -17,6 +17,8 @@ sources:
   - "vendor/zscaler-help/Configuring_Advanced_Policy_Settings.txt"
   - "https://help.zscaler.com/zia/about-policy-enforcement"
   - "vendor/zscaler-help/Understanding_Policy_Enforcement.txt"
+  - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_app_control.py"
+  - "vendor/zscaler-mcp-server/skills/zia/create-cloud-app-control-rule/SKILL.md"
 author-status: draft
 ---
 
@@ -129,6 +131,36 @@ Cross-SDK sweep (2026-04-24) surfaced details the earlier Python-SDK-derived doc
 - **`Actions` is a slice (`[]string`), not a single string**. A single CAC rule can specify multiple concurrent action behaviors — useful for rules that combine e.g. "allow access AND log" or "block AND alert-admin" semantics. The rule's `action` field in snapshot JSON is an array; `jq '.action[]'` enumerates what a rule actually does.
 - **`CreateDuplicate` method** (Go SDK `cloudappcontrol.go:204`) — dedicated endpoint for cloning CAC rules. Useful for "create a rule like this one but with different scope" workflows. Python SDK doesn't expose this; operators have to `get_rule` → edit → `create_rule` manually.
 - **`AllAvailableActions` API method** — queries which action values are valid for a given (rule type, cloud application) combination. Relevant when debugging "why isn't action X selectable in the console for this app?" — different cloud apps support different action sets (e.g., some apps don't support Cautious, some don't support Isolate). The API surfaces the valid combinations; the console UI is driven by this same lookup.
+
+## MCP authoring workflow
+
+Source: `vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_app_control.py`; `vendor/zscaler-mcp-server/skills/zia/create-cloud-app-control-rule/SKILL.md`.
+
+The vendored MCP server turns the CAC rule-authoring workflow into a stricter
+preflight sequence:
+
+1. Resolve the app against the **policy-engine catalog**, not the Shadow IT
+   analytics catalog. Use the canonical enum from `app`, not the display name
+   from `appName`.
+2. Discover the `parent` category and pass it as `rule_type`. CAC list/get/create/update/delete tools require this category on every call.
+3. Call `zia_list_cloud_app_control_actions(cloud_app=...)` to see the
+   category-level action vocabulary.
+4. List existing rules for that `rule_type` and check order, duplicate purpose,
+   shadowing, and overlapping allow/deny rules before creating or moving a rule.
+5. For multi-app requests, create one rule per app unless a human explicitly
+   accepts the blast radius of a shared action set.
+
+MCP's important caveat is that `zia_list_cloud_app_control_actions` returns a
+category-level action vocabulary, not a per-app guarantee. The create endpoint
+is the authoritative validator for each `(rule_type, application, action)` tuple
+and can reject a category action for a specific app
+(`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_app_control.py:1-30`,
+`:225-315`). The create tool also documents a hard 31-character rule-name limit
+(`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_app_control.py:750-770`).
+
+This is MCP automation evidence. The existing precedence model above remains
+Help-backed; the exact per-app action-validation contract should be cross-checked
+against SDK/API sources before treating it as a product-wide guarantee.
 
 ## Edge cases
 

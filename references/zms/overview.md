@@ -3,9 +3,11 @@ product: zms
 topic: "zms-overview"
 title: "ZMS — Zscaler Microsegmentation (workload east-west)"
 content-type: reasoning
-last-verified: "2026-04-25"
+last-verified: "2026-06-15"
 confidence: medium
-source-tier: doc
+source-tier: mixed
+verified-against:
+  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
 sources:
   - "https://help.zscaler.com/zpa/what-is-microsegmentation"
   - "vendor/zscaler-help/what-is-microsegmentation-zpa.md"
@@ -13,6 +15,8 @@ sources:
   - "vendor/zscaler-help/microsegmentation-marketing.md"
   - "https://www.zscaler.com/products/zero-trust-microsegmentation"
   - "vendor/zscaler-help/zero-trust-microsegmentation-marketing.md"
+  - "vendor/zscaler-mcp-server/zscaler_mcp/common/toolsets.py"
+  - "vendor/zscaler-mcp-server/zscaler_mcp/services.py"
 author-status: draft
 ---
 
@@ -20,7 +24,7 @@ author-status: draft
 
 **East-west / workload-to-workload policy** for servers, containers, and cloud workloads inside a VPC or across multi-cloud. Mental model: **ZPA segments user→app traffic; ZMS segments app→app traffic.** Both products live under the help-portal `/zpa/` namespace because ZMS is positioned as a ZPA add-on, but the enforcement model is fundamentally different.
 
-**Confidence is medium** — all coverage from marketing pages + one help-portal article. **No SDK module** (`zms` does not exist in Python or Go SDK as of the current pinned versions); configuration is portal-only. No Terraform provider resources for ZMS surfaced in the vendored providers.
+**Confidence is medium** — product-behavior coverage still comes mostly from marketing pages + one help-portal article. **No SDK module** (`zms` does not exist in Python or Go SDK as of the current pinned versions), and no Terraform provider resources for ZMS surfaced in the vendored providers. The vendor MCP server now exposes read-only ZMS GraphQL tools, so the older "no API surface" conclusion should be narrowed to "no captured public SDK/Terraform write surface."
 
 ## Why ZMS exists alongside ZPA
 
@@ -89,6 +93,29 @@ From the help-portal capture:
 - **Managed resources** can deploy to any region (the agents — they run in the customer's environment regardless of where the control plane is).
 - **ZPA prerequisite** — the help-portal capture says "You can enable Microsegmentation for organizations that have Zscaler Private Access (ZPA)." ZMS is not sold standalone.
 
+## MCP GraphQL read surface
+
+Source: `vendor/zscaler-mcp-server/zscaler_mcp/common/toolsets.py`; `vendor/zscaler-mcp-server/zscaler_mcp/services.py`.
+
+The MCP registers a `zms` toolset described as GraphQL and read-only. The implementation exposes reads for:
+
+| Domain | MCP coverage |
+|---|---|
+| Agents | List agents; connection-status statistics; version statistics. |
+| Agent Groups | List groups; retrieve TOTP secrets for enrollment. |
+| Resources | List workloads; retrieve protection-status summary; retrieve event metadata. |
+| Resource Groups | List groups; list members; retrieve protection-status summary. |
+| Policy Rules | List microsegmentation rules and default policy rules. |
+| App Zones | List zones with member/VPC/subnet information. |
+| App Catalog | List discovered application catalog entries. |
+| Nonces | List and get provisioning keys/nonces. |
+| Tags | List namespaces, keys, and values. |
+
+Two operator cautions follow from that boundary:
+
+- The MCP surface can support inventory, posture review, and drift detection, but it does not prove that policy/app-zone/resource-group creation is publicly automatable.
+- TOTP secrets and nonce values are sensitive enrollment material even when retrieved through read-only tools.
+
 ## Deployment flexibility (marketing claim)
 
 Source: `vendor/zscaler-help/microsegmentation-marketing.md`; `vendor/zscaler-help/zero-trust-microsegmentation-marketing.md`.
@@ -104,7 +131,7 @@ The captured material does not confirm this interpretation. Treat the second mod
 
 Source: `vendor/zscaler-help/what-is-microsegmentation-zpa.md`; `vendor/zscaler-help/microsegmentation-marketing.md`; `vendor/zscaler-help/zero-trust-microsegmentation-marketing.md`.
 
-1. **ZMS is not in the SDK.** Operators looking for `client.zms.*` won't find it; configuration is portal-only. This is the same pattern as AI Guard.
+1. **ZMS is not in the public SDK.** Operators looking for `client.zms.*` won't find it; captured SDK/Terraform sources still do not show write automation. The vendor MCP now shows a read-only GraphQL inventory path, so avoid saying "no API" without that qualifier.
 2. **The 14-day telemetry window silently drops infrequent flows.** Don't mass-enforce policies generated from observation alone if your environment has known long-period workflows. Spot-check the recommendation against documented expected traffic patterns.
 3. **Agents enforce locally, not via tunnel.** A host that loses cloud connectivity continues to enforce its last-known policy via WFP / nftables — failure mode is fail-closed against unknown flows but allow-known. Different mental model from ZPA's App Connector dial-out (which fails closed entirely if Connectors lose cloud).
 4. **WFP / nftables = native OS firewall.** Conflicts with other firewall management tools (Windows Defender Firewall policies via GPO, host-based firewalls like Carbon Black, custom nftables rules) are real concerns. Captured docs don't cover conflict resolution; treat as unanswered.
@@ -131,7 +158,7 @@ Source: `vendor/zscaler-help/what-is-microsegmentation-zpa.md`; `vendor/zscaler-
 - **Container support** — agent-per-container vs host-agent-observing-containers?
 - **Cloud-native workload integration** — does ZMS hook into AWS Security Groups / Azure NSGs / GCP firewall rules, or does it pure-OS-level the enforcement and ignore cloud-native firewalls?
 - **Conflict resolution with other host firewalls** — what happens if Windows Defender Firewall via GPO and ZMS via WFP both have rules for the same flow?
-- **API surface** — captured docs don't reveal an API beyond "configure in admin portal." If ZPA admin portal hosts ZMS UI, is there a `client.zpa.*` extension we missed? (Spot-check of the Python SDK didn't find one.)
+- **API surface** — captured public docs don't reveal a write API beyond "configure in admin portal." The MCP's read-only GraphQL implementation proves an internal/integration read surface exists; public support status and mutation coverage remain unverified.
 - **Container orchestrator integration** — does ZMS integrate with Kubernetes admission control, service-mesh sidecars, or is it purely host-level?
 - **Observation-mode → enforce-mode transition** — what's the recommended cutover process? Captures don't cover this.
 - **Multi-cloud identity** — how does an AWS workload's identity (IAM role / instance profile) get represented in ZMS policy? Same for Azure / GCP.
@@ -144,3 +171,4 @@ Source: `vendor/zscaler-help/what-is-microsegmentation-zpa.md`; `vendor/zscaler-
 - ZPA app-segments (the north-south analog): [`../zpa/app-segments.md`](../zpa/app-segments.md)
 - Cloud Connector (workload north-south traffic — distinct from ZMS east-west): [`../cloud-connector/overview.md`](../cloud-connector/overview.md)
 - Cross-product integrations (where ZMS↔ZPA hook should live): [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md)
+- MCP runtime boundary — [`../shared/mcp-runtime.md`](../shared/mcp-runtime.md)

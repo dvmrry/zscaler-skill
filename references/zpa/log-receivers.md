@@ -13,6 +13,9 @@ sources:
   - "vendor/terraform-provider-zpa/zpa/resource_zpa_lss_config_controller.go"
   - "vendor/terraform-provider-zpa/zpa/data_source_zpa_lss_config_log_types_formats.go"
   - "vendor/terraform-provider-zpa/zpa/validator.go"
+  - "vendor/zscaler-mcp-server/CHANGELOG.md"
+  - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/lss.py"
+  - "vendor/zscaler-mcp-server/skills/zpa/audit-baseline-compliance/SKILL.md"
 author-status: draft
 ---
 
@@ -191,6 +194,32 @@ Source: `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`; `vendor/zscaler-sdk-pyth
 Source: `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`.
 
 `update_lss_config` in zscaler-sdk-python v1.9.30 builds a partial PUT payload from caller-supplied fields and omits unprovided `policyRule` / `policyRuleResource` data. That matters for receivers with attached SIEM policy filters: older SDK behavior could round-trip fetched policy objects and fail non-policy updates with `policy.invalid.mapping.input`. If an LSS receiver rename or endpoint-only update fails that way, upgrade to v1.9.30 or later. Upstream issue [zscaler/zscaler-sdk-python#514](https://github.com/zscaler/zscaler-sdk-python/issues/514) tracks the fixed behavior.
+
+## MCP read-only audit surface
+
+Source: `vendor/zscaler-mcp-server/CHANGELOG.md`; `vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/lss.py`; `vendor/zscaler-mcp-server/skills/zpa/audit-baseline-compliance/SKILL.md`; [`../shared/mcp-runtime.md`](../shared/mcp-runtime.md).
+
+The vendored MCP server adds read-only LSS tools:
+`zpa_list_lss_configs`, `zpa_get_lss_config`, `zpa_list_lss_log_types`,
+`zpa_get_lss_log_format`, `zpa_list_lss_status_codes`, and
+`zpa_list_lss_client_types` (`vendor/zscaler-mcp-server/CHANGELOG.md:147`).
+The implementation is intentionally configuration-only: it inventories LSS
+receiver records and metadata catalogs, but does not stream or query log content
+because log delivery happens from the LSS Connector to the SIEM out-of-band
+(`vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/lss.py:1-21`).
+
+This is enough for baseline posture checks:
+
+- whether any LSS config exists;
+- whether a dedicated App Connector Group is used for LSS;
+- whether baseline feeds such as User Activity, User Status, Audit Logs, App
+  Connector Status, and App Connector Metrics are present;
+- whether TLS and filters are configured;
+- which status codes, client types, and log-format templates are available.
+
+MCP cannot prove SIEM delivery health, connector runtime bandwidth, or log
+ingestion freshness from configuration alone; the audit skill tracks those as
+"Cannot Audit" gaps rather than silently inferring telemetry health.
 
 ## Operational gotchas
 

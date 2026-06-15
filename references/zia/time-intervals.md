@@ -13,6 +13,10 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_time_windows.py"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/time_intervals/time_intervals.go"
   - "vendor/terraform-provider-zia/docs/data-sources/zia_firewall_filtering_time_window.md"
+  - "vendor/zscaler-mcp-server/CHANGELOG.md"
+  - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/time_intervals.py"
+  - "vendor/zscaler-mcp-server/skills/zia/manage-time-interval/SKILL.md"
+  - "vendor/zscaler-mcp-server/skills/zia/create-ssl-inspection-rule/SKILL.md"
 author-status: draft
 ---
 
@@ -180,6 +184,44 @@ snake_case) / `timeWindows` (API wire key / Go JSON tag). The Python SDK's
 `[1, 2, 3]` into `[{"id": 1}, {"id": 2}, {"id": 3}]` for this field before sending.
 (Tier B — references/zia/sdk.md line 1655;
 vendor/zscaler-sdk-python/zscaler/zia/time_intervals.py)
+
+### MCP drift note — SSL Inspection support conflict
+
+Source: `vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/time_intervals.py`; `vendor/zscaler-mcp-server/skills/zia/manage-time-interval/SKILL.md`; `vendor/zscaler-mcp-server/skills/zia/create-ssl-inspection-rule/SKILL.md`.
+
+The table above includes SSL Inspection because earlier SDK/model sweeps found
+`time_windows`-style fields in rule models. The vendored MCP server and its
+skills now state the opposite operational rule: Time Intervals are used by ZIA
+policy rules such as Cloud Firewall, URL Filtering, Cloud App Control, and
+similar rule families, but SSL Inspection rules do **not** support
+`time_windows` (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/time_intervals.py:1-8`).
+
+Keep this as an unresolved source conflict until a fresh SDK/API pass verifies
+whether SSL Inspection truly accepts the field or whether the earlier model
+inventory overgeneralized shared rule fields. Do not recommend scheduled SSL
+Inspection rules without corroboration.
+
+### MCP validation and update behavior
+
+Source: `vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/time_intervals.py`; `vendor/zscaler-mcp-server/CHANGELOG.md`.
+
+MCP exposes five Time Interval tools:
+`zia_list_time_intervals`, `zia_get_time_interval`,
+`zia_create_time_interval`, `zia_update_time_interval`, and
+`zia_delete_time_interval` (`vendor/zscaler-mcp-server/CHANGELOG.md:181`).
+The implementation documents additional client-side constraints:
+
+- `start_time` and `end_time` are minutes from midnight, 0-1439.
+- `days_of_week` accepts `EVERYDAY` or `SUN`-`SAT`.
+- Time Interval names are validated as ASCII letters and spaces only; digits,
+  hyphens, colons, slashes, periods, and similar punctuation are rejected before
+  the API call.
+- Update is PUT/full replacement, but MCP backfills `name`, `start_time`,
+  `end_time`, and `days_of_week` from the existing record when omitted.
+
+Source anchors:
+`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/time_intervals.py:13-37`,
+`:48-76`, `:281-354`.
 
 ## 4. Evaluation semantics
 
