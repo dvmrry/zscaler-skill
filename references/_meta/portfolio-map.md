@@ -3,7 +3,7 @@ product: shared
 topic: "portfolio-map"
 title: "Zscaler product portfolio map"
 content-type: reference
-last-verified: "2026-05-04"
+last-verified: "2026-06-14"
 confidence: medium
 source-tier: mixed
 sources:
@@ -27,7 +27,7 @@ Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscal
 Five coverage tiers. API/IaC surface is the primary axis; content depth is the secondary axis:
 
 - **Tier 1 — Core products.** Have SDK/TF/OneAPI surface AND substantive multi-component coverage in `references/<product>/`. Where the skill earns its depth claim. Answer with full operational depth.
-- **Tier 2 — Programmable but shallow.** Have SDK/TF surface but reference coverage is thin — may not match a single Tier 1 sub-component's depth. Answer with full confidence on what's documented; explicitly note the coverage gap when relevant.
+- **Tier 2 — Programmable but shallow.** Have an SDK/TF surface — programmable, or read-only/query-only — but reference coverage is thin (may not match a single Tier 1 sub-component's depth). Answer with full confidence on what's documented; explicitly note the coverage gap when relevant.
 - **Tier 3 — Reasoning content, no API.** No SDK/TF surface (portal-only configuration). Reasoning docs exist under `references/<product>/`. Answer conceptual questions at confidence: medium with an explicit "no SDK / portal-only" caveat. Do NOT fabricate API specifics.
 - **Tier 4 — Paragraph-only awareness.** No SDK, no dedicated reasoning content. One-paragraph treatment in this map. Skill recognizes + describes briefly; redirects to TAM / help.
 - **Tier 5 — Out of scope.** Deprecated / historical / unreleased. Currently empty. Reserved for products not currently worth investment; watched for promotion-worthy changes.
@@ -78,9 +78,9 @@ The skill uses SDK namespace names (ZIA, ZPA, etc.) as canonical reference paths
 
 (ZBI and ZWA marketing aliases live in the Tier 2 section now that those products are classified T2.)
 
-## Tier 2 — Programmable but shallow (3 products)
+## Tier 2 — Programmable but shallow (5 products)
 
-Have SDK / TF surface but reference coverage is thin compared to Tier 1 (may not match a single Tier 1 sub-component's depth). Answer with full confidence on what's documented; explicitly note the coverage gap when relevant. Promotion to T1 is appropriate when reference coverage broadens to multi-component depth.
+Have an SDK / TF surface — programmable, or read-only/query-only — but reference coverage is thin compared to Tier 1 (may not match a single Tier 1 sub-component's depth). Answer with full confidence on what's documented; explicitly note the coverage gap when relevant. Promotion to T1 is appropriate when reference coverage broadens to multi-component depth.
 
 Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`.
 
@@ -89,6 +89,8 @@ Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`.
 | **ZBI — Cloud Browser Isolation** | Remote-browser rendering for risky / unmanaged-device scenarios. Isolation profiles, Smart Browser Isolation, ZPA Isolation Policy. Marketed as "Zero Trust Browser." | [`zbi/index.md`](../zbi/index.md) | Python `zscaler/zia/cloud_browser_isolation.py` + Go `zscaler/zpa/services/cloudbrowserisolation/*` |
 | **ZWA — Workflow Automation** | DLP incident lifecycle management. Incident triage, workflows, ticketing/notification integrations. Downstream of ZIA DLP. | [`zwa/index.md`](../zwa/index.md) | Python `zscaler/zwa/` + Go `zscaler/zwa/` |
 | **AI Guard** | Runtime prompt/response policy detection for AI and LLM applications. Broader AI Security family includes AI Guardrails and AI Red Teaming, but only AI Guard policy detection has verified SDK coverage. | [`ai-security/index.md`](../ai-security/index.md) | Python `zscaler/zaiguard/` policy detection: `/detection/execute-policy`, `/detection/resolve-and-execute-policy`. No verified Go SDK, Terraform, or broad admin-configuration API surface. |
+| **ZMS — Zscaler Microsegmentation** | East-west / workload-to-workload policy via host agents (Win/Linux); AI policy recommendations (14-day rolling telemetry); local OS enforcement (WFP / nftables). Positioned as a ZPA add-on. | [`zms/overview.md`](../zms/overview.md) · [`zms/api.md`](../zms/api.md) | Python `zscaler/zms/` **read-only** GraphQL (`client.zms.*`, `POST /zms/graphql`); no Go SDK, no Terraform. Write config portal-only. |
+| **EASM — External Attack Surface Management** | Outside-in discovery of internet-exposed assets (domains/IPs/services/certs); CISA-KEV + EPSS risk prioritization. Exposure Management suite; distinct from AEM (inside-out CAASM). | [`easm/overview.md`](../easm/overview.md) | Python `zscaler/zeasm/` **read-only** (organizations, findings, lookalike domains); no Go SDK. |
 
 ### Marketing-name aliases (Tier 2)
 
@@ -110,9 +112,6 @@ Cyber risk quantification framework. Monte Carlo financial-loss simulation 1000x
 
 #### AI Security family surfaces beyond AI Guard
 AI Guard itself is now classified Tier 2 because the Python SDK exposes runtime policy detection. The broader AI Security family still includes reasoning-only surfaces: AI Guardrails (marketing umbrella), AI Red Teaming (offline vulnerability assessment for customer LLM apps), and the four-pillar governance framework. Reasoning doc: [`../ai-security/overview.md`](../ai-security/overview.md). Captures include `vendor/zscaler-help/ai-security-marketing.md`, `vendor/zscaler-help/ai-guardrails-marketing.md`, `vendor/zscaler-help/ai-guard-what-is.md`, and the AI Guard Help subpage captures listed in the AI Security reference frontmatter.
-
-#### ZMS — Zscaler Microsegmentation
-East-west / workload-to-workload policy via host-installed agents (Win/Linux), AI-powered policy recommendations on a 14-day rolling telemetry window, local OS enforcement (Windows Filtering Platform / Linux nftables). Positioned as a ZPA add-on. Reasoning doc: [`../zms/overview.md`](../zms/overview.md). No SDK module; portal-only configuration. Captures: `vendor/zscaler-help/microsegmentation-marketing.md`, `zero-trust-microsegmentation-marketing.md`, `what-is-microsegmentation-zpa.md`.
 
 #### ZSDK — Zscaler SDK for Mobile Apps
 **Different product than ZCC.** ZSDK is a **mobile SDK (iOS/Android) for consumer-facing apps** — app developers embed it into their own mobile app's source code so end users get zero-trust connectivity to back-end services without installing any separate Zscaler agent. Access tokens (JWTs) validate user identity; mTLS microtunnels route traffic to back-end APIs and services hidden behind App Connectors. Shares App Connector + Private Service Edge infrastructure with ZPA but runs on a **dedicated multi-tenant cloud at `admin.zsdkone.net`**. Browser Access (limited availability) extends ZPA-style clientless web-app access to ZSDK-protected apps without requiring SDK integration — auth via IdP JWT in any browser. Configuration is portal-based; no first-party Zscaler API SDK for managing ZSDK config (the SDK *is* the product). Tier 3 not because it lacks substance — 30 pages of help-portal content captured — but because it doesn't fit the "zscaler-sdk-* / terraform-provider-*" management surface this skill primarily targets. Captures under `vendor/zscaler-help/zsdk-*.md`.
@@ -196,9 +195,6 @@ Marketed as **Zscaler B2B**. Site-to-site connectivity for B2B applications via 
 #### Shadow IT / SaaS Security Report — formerly "ZINS"
 **Renamed.** Originally "Shadow IT Report" (ZINS naming), now marketed as "**SaaS Security Report**" in current help docs. Reporting product covering Shadow IT discovery (unsanctioned cloud apps users access), IoT device visibility, and SaaS-app risk reporting. Powered by traffic flowing through ZIA — extracts visibility signals from existing ZIA telemetry. Not a policy-enforcement product; pure observability. Risk Index 1-5 per app; sanctioned/unsanctioned breakdown; supports up to **50,000 cloud apps** in the catalog (some marketing material still cites the older 8,500+ figure — outdated). The GraphQL Analytics API at `https://api.zsapi.net/zins/graphql` is its API surface — the `zins` namespace persists even though the marketing name changed. **No dedicated SDK module** — neither Python nor Go SDK has a `zins` namespace; access is direct GraphQL via OneAPI auth. Captures: `vendor/zscaler-help/shadow-it-saas-security-report-zia.md`, `shadow-it-marketing.md`.
 
-#### EASM — External Attack Surface Management
-Discovery and analysis of an organization's internet-exposed assets — domains, IPs, services, certificates — to surface unknown / shadow / forgotten infrastructure that attackers can find before defenders do. **Repositioning note**: EASM no longer has a standalone product URL on zscaler.com — it's now positioned as a component of the broader **Exposure Management** suite (alongside Asset Exposure Management, Unified Vulnerability Management, Risk360, CTEM, Deception). Help portal does have dedicated `/easm/` content. Capabilities: passive + active scanning; CISA KEV-based risk prioritization; M&A diligence use cases; risk scores Critical (90-100) → Low (1-39). Adjacent to but distinct from Asset Exposure Management (internal CAASM). EASM is outside-in attacker-perspective; AEM is inside-out infrastructure-team-perspective. **No SDK module** in Python or Go SDK; portal + help-portal docs only. Captures: `vendor/zscaler-help/easm-what-is-zscaler-easm.md`, `easm-introducing-marketing.md`.
-
 #### Federal Cloud variants (`zscalergov`, `zscalerten`, ZPA GOV / GOVUS)
 **Regulated-cloud editions** of the existing product line for US government and gov-adjacent tenants — not strictly separate products. ZIA / ZPA / ZCC etc. all have gov-cloud variants. Concrete differentiators captured:
 - **ZIA** is the only SASE / TIC 3.0 solution with **FedRAMP High** authorization.
@@ -237,13 +233,13 @@ Never pretend deep-dive coverage exists where it doesn't. Confidence drop is hon
 Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscaler-help/zero-trust-exchange-zte-marketing.md`; `vendor/zscaler-help/security-operations-suite-marketing.md`.
 
 - **Tier 1 — Core products:** 6 (ZIA, ZPA [incl AppProtection], ZCC, ZDX, ZIdentity, Cloud Connector)
-- **Tier 2 — Programmable but shallow:** 3 (ZBI, ZWA, AI Guard)
-- **Tier 3 — Reasoning content, no API:** 15 (Deception, Risk360, AI Security family surfaces beyond AI Guard, ZMS, ZSDK, ITDR, DSPM, AEM, UVM, Zscaler Cellular, SOC Workbench, Breach Predictor, Business Insights, Zero Trust Branch, Experience Center / unified) plus a CASB disambiguation entry (CASB is delivered via ZIA + DSPM/SaaS Security, not a standalone product)
-- **Tier 4 — Paragraph-only:** 12 (Resilience, Business Continuity Cloud, CTEM, Cloud Protection / ZTC, Posture Control, Microsoft Copilot Data Protection, Red Canary MDR, Managed Threat Hunting, ZTE for B2B, Shadow IT / SaaS Security Report / ZINS, EASM, Federal Cloud variants)
+- **Tier 2 — Programmable but shallow:** 5 (ZBI, ZWA, AI Guard, ZMS, EASM)
+- **Tier 3 — Reasoning content, no API:** 14 (Deception, Risk360, AI Security family surfaces beyond AI Guard, ZSDK, ITDR, DSPM, AEM, UVM, Zscaler Cellular, SOC Workbench, Breach Predictor, Business Insights, Zero Trust Branch, Experience Center / unified) plus a CASB disambiguation entry (CASB is delivered via ZIA + DSPM/SaaS Security, not a standalone product)
+- **Tier 4 — Paragraph-only:** 11 (Resilience, Business Continuity Cloud, CTEM, Cloud Protection / ZTC, Posture Control, Microsoft Copilot Data Protection, Red Canary MDR, Managed Threat Hunting, ZTE for B2B, Shadow IT / SaaS Security Report / ZINS, Federal Cloud variants)
 - **Tier 5 — Out of scope:** 0 (currently empty; reserved for deprecated / internal / unshipped)
 - **Architectural pillars named:** 4 (ZTE, Data Fabric, Agentic SecOps, plus the customer-segment "Zero Trust for X" framing)
 
-Total Zscaler portfolio: roughly 36 distinct products + 4 architectural pillars at this date. Full operational depth on 6 (Tier 1), programmable coverage on 3 more (Tier 2), reasoning-content awareness on 15 more (Tier 3), paragraph-level awareness on 12 more (Tier 4) — at-minimum aware of all the rest, deliberately ignore none.
+Total Zscaler portfolio: roughly 36 distinct products + 4 architectural pillars at this date. Full operational depth on 6 (Tier 1), programmable coverage on 5 more (Tier 2), reasoning-content awareness on 14 more (Tier 3), paragraph-level awareness on 11 more (Tier 4) — at-minimum aware of all the rest, deliberately ignore none.
 
 ## Maintenance
 

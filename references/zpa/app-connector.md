@@ -3,7 +3,7 @@ product: zpa
 topic: "zpa-app-connector"
 title: "ZPA App Connector — VM architecture, groups, provisioning keys, software updates"
 content-type: reasoning
-last-verified: "2026-06-04"
+last-verified: "2026-06-14"
 confidence: high
 source-tier: mixed
 verified-against:
@@ -46,6 +46,23 @@ sources:
   - "vendor/terraform-azurerm-zpa-app-connector-modules/modules/terraform-zpa-app-connector-group/variables.tf"
   - "vendor/terraform-azurerm-zpa-app-connector-modules/modules/terraform-zpa-provisioning-key/variables.tf"
   - "vendor/terraform-azurerm-zpa-app-connector-modules/examples/README.md"
+  - "vendor/zscaler-sdk-python/zscaler/zpa/provisioning.py"
+  - "vendor/zscaler-sdk-python/zscaler/zpa/models/provisioning_keys.py"
+  - "vendor/zscaler-sdk-python/zscaler/zpa/models/app_connectors.py"
+  - "vendor/zscaler-sdk-python/zscaler/zpa/models/service_edges.py"
+  - "vendor/zscaler-sdk-python/zscaler/zpa/service_edge_group.py"
+  - "vendor/zscaler-sdk-python/zscaler/zpa/lss.py"
+  - "vendor/zscaler-sdk-go/zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go"
+  - "vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorcontroller/zpa_app_connector_controller.go"
+  - "vendor/zscaler-sdk-go/zscaler/zpa/services/serviceedgecontroller/zpa_service_edge_controller.go"
+  - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/provisioning_key.py"
+  - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/service_edges.py"
+  - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/lss.py"
+  - "vendor/zscaler-mcp-server/skills/zpa/troubleshoot-app-connector/SKILL.md"
+  - "vendor/zscaler-mcp-server/commands/troubleshoot-connector.md"
+  - "vendor/zscaler-help/app-connector-status-log-fields.md"
+  - "vendor/zscaler-help/private-service-edge-status-log-fields.md"
+  - "vendor/zscaler-help/private-cloud-controller-status-log-fields.md"
 author-status: draft
 ---
 
@@ -144,6 +161,126 @@ A literal copy of this error in a support ticket narrows diagnosis to "key is wr
 **Provisioning key validation asymmetry between AWS and Azure Terraform modules.** The AWS App Connector Terraform module hard-validates `provisioning_key_association_type` to `CONNECTOR_GRP` only — the validation block rejects any other value at plan time (`vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zpa-provisioning-key/variables.tf:26-36`). The Azure module accepts both `CONNECTOR_GRP` and `SERVICE_EDGE_GRP` (`vendor/terraform-azurerm-zpa-app-connector-modules/modules/terraform-zpa-provisioning-key/variables.tf:29-40`). Practical consequence: a `SERVICE_EDGE_GRP` key cannot be created via the AWS module — operators must use the ZPA API directly or the raw `zscaler/terraform-provider-zpa` resource. The same key *can* be created via the Azure module. Operators who are scripting provisioning key creation cross-cloud should branch on the target cloud or use the API layer uniformly.
 
 **App Connectors enroll two ways: provisioning key or OAuth2 user code.** Alongside the long-standing provisioning-key shared secret, ZPA App Connector Groups accept OAuth2 `user_codes` for enrollment. The AWS Terraform module still defaults to the provisioning-key path (which it hard-validates to `CONNECTOR_GRP`) but now also wires up `user_codes`. The two paths are not interchangeable within a single flow — pick one per group.
+
+#### SDK field shape and Python-vs-Go divergence
+
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/models/provisioning_keys.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go`.
+
+The provisioning-key object's field set diverges sharply between the two SDKs. The Python `ProvisioningKey` model reads a smaller set of attributes off the raw config than the Go struct defines. The Go struct adds many fields the Python model never reads.
+
+| Wire key (json) | Python attr | Go field | Type (Go) | Python line | Go line |
+|---|---|---|---|---|---|
+| `id` | `id` | `ID` | string | `:30` | `:30` |
+| `name` | `name` | `Name` | string | `:34` | `:35` |
+| `creationTime` | `creation_time` | `CreationTime` | string | `:32` | `:27` |
+| `modifiedTime` | `modified_time` | `ModifiedTime` | string | `:31` | `:34` |
+| `modifiedBy` | `modified_by` | `ModifiedBy` | string | `:33` | `:33` |
+| `enabled` | `enabled` | `Enabled` | bool | `:38` | `:28` |
+| `usageCount` | `usage_count` | `UsageCount` | string | `:35` | `:40` |
+| `maxUsage` | `max_usage` | `MaxUsage` | string | `:36` | `:32` |
+| `zcomponentId` | `zcomponent_id` | `ZcomponentID` | string | `:37` | `:41` |
+| `zcomponentName` | `zcomponent_name` | `ZcomponentName` | string | `:39` | `:42` |
+| `provisioningKey` | `provisioning_key` | `ProvisioningKey` | string | `:40` | `:36` |
+| `enrollmentCertId` | `enrollment_cert_id` | `EnrollmentCertID` | string | `:41` | `:37` |
+| `enrollmentCertName` | `enrollment_cert_name` | `EnrollmentCertName` | string | `:42` | `:38` |
+| `appConnectorGroupId` | — (absent) | `AppConnectorGroupID` | string | — | `:25` |
+| `appConnectorGroupName` | — (absent) | `AppConnectorGroupName` | string | — | `:26` |
+| `expirationInEpochSec` | — (absent) | `ExpirationInEpochSec` | string | — | `:29` |
+| `ipAcl` | — (absent) | `IPACL` | []string | — | `:31` |
+| `uiConfig` | — (absent) | `UIConfig` | string | — | `:39` |
+| `associationType` | — (absent) | `AssociationType` | string | — | `:43` |
+| `readOnly` | — (absent) | `ReadOnly` | bool | — | `:44` |
+| `restrictionType` | — (absent) | `RestrictionType` | string | — | `:45` |
+| `zscalerManaged` | — (absent) | `ZscalerManaged` | bool | — | `:46` |
+| `microtenantId` | — (absent) | `MicroTenantID` | string | — | `:47` |
+| `microtenantName` | — (absent) | `MicroTenantName` | string | — | `:48` |
+
+Notes:
+
+- The Python model defines only the first 13 fields (`vendor/zscaler-sdk-python/zscaler/zpa/models/provisioning_keys.py:30-42`); fields like `appConnectorGroupId`/`appConnectorGroupName`, `expirationInEpochSec`, `ipAcl`, `uiConfig`, `associationType`, `readOnly`, `restrictionType`, `zscalerManaged`, and `microtenantId`/`microtenantName` are present only in the Go struct (`vendor/zscaler-sdk-go/zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go:25-48`). If you need those fields, read them via the Go SDK or the raw API response, not the Python model.
+- **`maxUsage` is typed `string` in Go** (`vendor/zscaler-sdk-go/zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go:32`), but the Python model stores `max_usage` untyped from the raw config (`vendor/zscaler-sdk-python/zscaler/zpa/models/provisioning_keys.py:36`) and the MCP create tool declares its `max_usage` parameter as `int` (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/provisioning_key.py:81`). Treat the wire type as string when round-tripping.
+- **`usageCount` and `maxUsage` are both present in the Python model** (`vendor/zscaler-sdk-python/zscaler/zpa/models/provisioning_keys.py:35-36`), so "max usage reached" is detectable from the object as `usage_count == max_usage`. The exhaustion predicate is stated in the MCP troubleshooting skill: "`max_usage` vs current enrollment count -- if equal, no new enrollments can use this key" (`vendor/zscaler-mcp-server/skills/zpa/troubleshoot-app-connector/SKILL.md:122`). A sibling ZMS skill states the same condition as `>=` — "`usageCount >= maxUsage`" (`vendor/zscaler-mcp-server/skills/zms/troubleshoot-agent-deployment/SKILL.md:175`).
+
+#### Association types — three in Go, two in Python
+
+Source: `vendor/zscaler-sdk-go/zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go`; `vendor/zscaler-sdk-python/zscaler/zpa/provisioning.py`.
+
+The two SDKs disagree on how many association types exist for provisioning keys:
+
+| Association type | Go SDK | Python SDK |
+|---|---|---|
+| `CONNECTOR_GRP` | yes (`:19`) | yes — mapped from `key_type == "connector"` (`:36-37`) |
+| `SERVICE_EDGE_GRP` | yes (`:20`) | yes — mapped from `key_type == "service_edge"` (`:38-39`) |
+| `NP_ASSISTANT_GRP` | yes (`:21`) | no path |
+
+- Go enumerates all three in `ProvisioningKeyAssociationTypes` (`vendor/zscaler-sdk-go/zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go:18-22`).
+- Python's `simplify_key_type` maps only `connector` → `CONNECTOR_GRP` and `service_edge` → `SERVICE_EDGE_GRP`, and raises `ValueError("Unexpected key type.")` for anything else — there is no `NP_ASSISTANT_GRP` path in Python (`vendor/zscaler-sdk-python/zscaler/zpa/provisioning.py:36-41`).
+
+This is wider than the TF-layer asymmetry already documented above (`./api.md § Read/write shape asymmetries`): the divergence here is in the SDK source itself, not just the Terraform validators.
+
+#### Create payload and endpoints (Python SDK)
+
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/provisioning.py`; `vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/provisioning_key.py`.
+
+On create, the Python SDK `add_provisioning_key` pops `name`/`max_usage` and sets a body of `{name, maxUsage, enrollmentCertId, zcomponentId}` — so `enrollment_cert_id` maps to the `enrollmentCertId` wire key and `component_id` maps to `zcomponentId` (`vendor/zscaler-sdk-python/zscaler/zpa/provisioning.py:312-319`).
+
+All provisioning-key endpoints are keyed by the association-type segment derived from `key_type`:
+
+| Operation | URL (under `/zpa/mgmtconfig/v1/admin/customers/{customerId}`) | Line |
+|---|---|---|
+| Base endpoint | `/zpa/mgmtconfig/v1/admin/customers/{customerId}` | `vendor/zscaler-sdk-python/zscaler/zpa/provisioning.py:53` |
+| List | `/associationType/{TYPE}/provisioningKey` | `vendor/zscaler-sdk-python/zscaler/zpa/provisioning.py:112-115` |
+| Get | `/associationType/{TYPE}/provisioningKey/{key_id}` | `vendor/zscaler-sdk-python/zscaler/zpa/provisioning.py:174-177` |
+| Create (POST) | `/associationType/{TYPE}/provisioningKey` | `vendor/zscaler-sdk-python/zscaler/zpa/provisioning.py:302-305` |
+| Update (PUT) | `/associationType/{TYPE}/provisioningKey/{key_id}` | `vendor/zscaler-sdk-python/zscaler/zpa/provisioning.py:375-378` |
+| Delete (DELETE) | `/associationType/{TYPE}/provisioningKey/{key_id}` | `vendor/zscaler-sdk-python/zscaler/zpa/provisioning.py:441-444` |
+
+`{TYPE}` is the output of `simplify_key_type(key_type)` — `CONNECTOR_GRP` or `SERVICE_EDGE_GRP` (`vendor/zscaler-sdk-python/zscaler/zpa/provisioning.py:36-41`).
+
+#### Enrollment cert requirement by key type (client-side only)
+
+Source: `vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/provisioning_key.py`; `vendor/zscaler-sdk-python/zscaler/zpa/provisioning.py`.
+
+- The MCP create tool raises `ValueError("enrollment_cert_id is required for 'connector' key_type")` **only when `key_type == "connector"`**, leaving `service_edge` keys free to omit it (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/provisioning_key.py:103-104`). The tool's own field annotation documents the parameter as "Enrollment certificate ID (required for 'connector' key_type)" (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/provisioning_key.py:85-88`).
+- This requirement is **enforced only client-side in the tool.** The SDK's `add_provisioning_key` treats `enrollment_cert_id` as a plain optional kwarg for both key types (`vendor/zscaler-sdk-python/zscaler/zpa/provisioning.py:314`). Whether the ZPA API itself rejects a connector key without a cert is not shown in source (see Open questions).
+
+#### Deleting a key whose component is already gone
+
+Source: `vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/provisioning_key.py`.
+
+When the App Connector Group / Service Edge Group a key was bound to has already been removed, the key delete is handled benignly rather than erroring:
+
+- The delete tool pre-checks existence and, if the key is gone, returns `"Provisioning key {key_id} does not exist or was already deleted (possibly due to associated component deletion)"` (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/provisioning_key.py:202-210`).
+- The tool docstring frames the already-deleted case as a safe no-op: "Delete a ZPA provisioning key. If the associated component was already deleted, this will return a safe message." (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/provisioning_key.py:183`).
+
+This wording implies a key can vanish when its component is deleted, but no source states that the group delete *actively* auto-deletes the key (see Open questions). The Python group-delete signatures carry no cascade/force parameter — `delete_connector_group(group_id, microtenant_id)` (`vendor/zscaler-sdk-python/zscaler/zpa/app_connector_groups.py:435`) and `delete_service_edge_group(group_id, microtenant_id)` (`vendor/zscaler-sdk-python/zscaler/zpa/service_edge_group.py:320`).
+
+#### Connector status field naming — `controlChannelStatus`, not `runtime_status`
+
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/models/app_connectors.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorcontroller/zpa_app_connector_controller.go`; `vendor/zscaler-sdk-python/zscaler/zpa/models/service_edges.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/serviceedgecontroller/zpa_service_edge_controller.go`.
+
+Both SDKs expose the connector control-connection field as **`controlChannelStatus`** — Python `control_channel_status` (`vendor/zscaler-sdk-python/zscaler/zpa/models/app_connectors.py:46`) and Go `ControlChannelStatus` (`vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorcontroller/zpa_app_connector_controller.go:24`). Neither SDK model defines a field named `runtime_status`/`runtimeStatus`. Service Edges share this shape: the Python Service Edge model carries `control_channel_status`, `provisioning_key_id`, `service_edge_group_id`, and `enrollment_cert` (`vendor/zscaler-sdk-python/zscaler/zpa/models/service_edges.py:47,68,70,72-74`), and the Go Service Edge controller uses only `ControlChannelStatus` (`vendor/zscaler-sdk-go/zscaler/zpa/services/serviceedgecontroller/zpa_service_edge_controller.go:23`).
+
+The `runtime_status` name and the `ZPN_STATUS_*` enum table appear **only in MCP-server skill/command markdown**, not as SDK enum constants:
+
+| `runtime_status` value | Meaning (per SKILL.md) | In SKILL.md | In command doc |
+|---|---|---|---|
+| `ZPN_STATUS_AUTHENTICATED` | Healthy, control connection established | yes (`:99`) | yes (`:30`) |
+| `ZPN_STATUS_DISCONNECTED` | Lost connection to ZPA cloud | yes (`:100`) | yes (`:31`) |
+| `ZPN_STATUS_NOT_ENROLLED` | Never enrolled or enrollment failed | yes (`:101`) | yes (`:32`) |
+| `ZPN_STATUS_PENDING` | Enrollment in progress | yes (`:102`) | no |
+
+- The full four-value table is in `vendor/zscaler-mcp-server/skills/zpa/troubleshoot-app-connector/SKILL.md:99-102`.
+- The `troubleshoot-connector` command doc lists only `AUTHENTICATED`/`DISCONNECTED`/`NOT_ENROLLED` and omits `PENDING` (`vendor/zscaler-mcp-server/commands/troubleshoot-connector.md:28-32`).
+- `ZPN_STATUS_NOT_ENROLLED` is the enrollment-failure status; the SKILL.md remediation lists it under "Enrollment Failure" with provisioning-key, DNS, and connectivity causes (`vendor/zscaler-mcp-server/skills/zpa/troubleshoot-app-connector/SKILL.md:195-209`).
+
+**The LSS `SessionStatus` codes are a distinct family.** The App Connector status log `SessionStatus` field defines a three-value set — `ZPN_STATUS_AUTHENTICATED`, `ZPN_STATUS_AUTH_FAILED`, `ZPN_STATUS_DISCONNECTED` (`vendor/zscaler-help/app-connector-status-log-fields.md:16`) — and the same trio is defined for Private Service Edge status logs (`vendor/zscaler-help/private-service-edge-status-log-fields.md:16`) and Private Cloud Controller status logs (`vendor/zscaler-help/private-cloud-controller-status-log-fields.md:16`). `ZPN_STATUS_AUTH_FAILED` ("failed to authenticate") appears in the LSS `SessionStatus` set but not in the connector `runtime_status` enum, confirming the two sets are different families. The MCP LSS tool treats these as LSS session-status filter values keyed like `ZPN_STATUS_AUTH_FAILED`, fetched via `get_status_codes` (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/lss.py:186-198`). The SDK fetches LSS status codes dynamically from the API at runtime rather than hardcoding them (`vendor/zscaler-sdk-python/zscaler/zpa/lss.py:609`).
+
+#### Deleting a Service Edge requires re-enrollment
+
+Source: `vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/service_edges.py`.
+
+Deleting a Service Edge removes it from the ZPA cloud, and it must be re-provisioned with a fresh provisioning key to reconnect (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/service_edges.py:160-162`).
 
 ### Reference deployment examples
 
@@ -353,6 +490,10 @@ Source: `vendor/zscaler-help/about-app-connectors.md`; `vendor/zscaler-help/abou
 - **Exact App Connector-to-app latency probe cadence** — how frequently ZPA re-measures connector-to-app RTT. Not documented publicly; relevant for "our network path changed, how long until ZPA notices" questions.
 - **Certificate validity window** — exactly how long an App Connector cert is valid before re-enrollment is required. Not captured.
 - **Max connectors per group** — high limits but not explicitly enumerated.
+- **Provisioning-key auto-delete on group delete — unverified.** No vendor source states that deleting an App Connector Group / Service Edge Group *actively* auto-deletes its provisioning keys. The only evidence is indirect: the MCP delete tool's safe no-op message "(possibly due to associated component deletion)" (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/provisioning_key.py:202-210`) and its docstring (`:183`). The Python group-delete signatures carry no cascade/force parameter (`vendor/zscaler-sdk-python/zscaler/zpa/app_connector_groups.py:435`; `vendor/zscaler-sdk-python/zscaler/zpa/service_edge_group.py:320`). Treat auto-delete as inferred behavior, not source-stated.
+- **`ZPN_STATUS_PENDING` as a real runtime status — unverified.** It appears only in the one SKILL.md status table (`vendor/zscaler-mcp-server/skills/zpa/troubleshoot-app-connector/SKILL.md:102`); it is absent from the `troubleshoot-connector` command doc (`vendor/zscaler-mcp-server/commands/troubleshoot-connector.md:30-32`), from all SDK source, and from the zscaler-help status-log-field docs. Its existence as a real ZPA runtime status is not confirmed beyond that single table. (Tracked as `zpa-20` in [`references/_meta/clarifications.md`](../_meta/clarifications.md#zpa-20-zpn_status_pending-as-a-real-runtime-status).)
+- **Whether the ZPA API itself requires an enrollment cert for connector keys — unverified.** The `enrollment_cert_id`-required-for-`connector` rule is enforced only client-side in the MCP tool (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/provisioning_key.py:103-104`); neither SDK's add/update path enforces or documents a per-key-type cert requirement, and the SDK treats it as a plain optional kwarg (`vendor/zscaler-sdk-python/zscaler/zpa/provisioning.py:314`). Whether the API rejects a connector key without a cert is not shown in source.
+- **Wire-level semantics distinguishing `ZPN_STATUS_NOT_ENROLLED` vs `ZPN_STATUS_PENDING` — unverified.** No source defines what `controlChannelStatus`/`runtime_status` value distinguishes these states at the API level; the meanings are prose in SKILL.md tables only (`vendor/zscaler-mcp-server/skills/zpa/troubleshoot-app-connector/SKILL.md:99-102`), not from a server enum. The full `ZPN_STATUS_*` enum cannot be enumerated from SDK source because LSS status codes are fetched dynamically at runtime (`vendor/zscaler-sdk-python/zscaler/zpa/lss.py:609`).
 
 ## Cross-links
 
