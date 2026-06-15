@@ -13,13 +13,14 @@ author-status: reviewed
 
 Entry point for **Zscaler Microsegmentation (ZMS)** questions — workload-to-workload (east-west) policy enforcement via host-installed agents, AI-powered policy recommendations, and cloud control plane.
 
-Confidence is **medium** — all coverage from marketing material + one help-portal article. **No SDK module** (`zms` does not exist in either Python or Go SDK), no Terraform provider, no Postman collection. Configuration is portal-only.
+Confidence is **medium** — coverage from marketing material, one help-portal article, and the Python SDK's read-only `zscaler.zms` GraphQL surface. The Python SDK ships a `zms` module (`client.zms.*`, read-only GraphQL — see [`./api.md`](./api.md)); there is no Go SDK module, no Terraform provider, and no Postman collection. Write configuration is portal-only.
 
 ## Topics
 
 | Topic | File | Status |
 |---|---|---|
 | Architecture (cloud + agents + WFP/nftables), AI policy recommendations, deployment, ZPA-add-on framing, edge cases | [`./overview.md`](./overview.md) | draft |
+| GraphQL API surface (read-only) — query conventions: `eyez_id`, dual pagination, three-level tag hierarchy, managed/unmanaged resource groups | [`./api.md`](./api.md) | draft |
 
 ## Why ZMS matters in the suite
 

@@ -3,11 +3,16 @@ product: zia
 topic: "dns-control"
 title: "ZIA DNS Control policy — predefined rules, DoH, tunnel detection"
 content-type: reasoning
-last-verified: "2026-04-26"
+last-verified: "2026-06-14"
 confidence: high
 source-tier: doc
 sources:
   - "vendor/zscaler-help/about-dns-control.md"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go"
+  - "vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_dns.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_dns_rules.py"
+  - "vendor/zscaler-sdk-python/zscaler/utils.py"
+  - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_firewall_dns_rules.py"
 author-status: draft
 ---
 
@@ -170,6 +175,86 @@ Source: `vendor/zscaler-help/ranges-limitations-zia.md`.
 
 5. **DNS Control rule limits by tier.** Essential: 64 rules. Advanced: 1,000 rules.
 
+## API/SDK surface — the DNS rule resource
+
+Source: SDK service layer. This section documents how the DNS Control rule resource behaves over the API (action enum, per-action field dependencies, wire shapes). The four UI-level actions above (`Allow` / `Block` / `Redirect Request` / `Redirect Response`) are the doc-tier names; the API exposes a wider 10-value enum.
+
+### Endpoint
+
+DNS rules use a dedicated endpoint, **`/zia/api/v1/firewallDnsRules`** (distinct from the firewall filtering rules endpoint):
+
+| Operation | Method + path |
+|---|---|
+| List | `GET /zia/api/v1/firewallDnsRules` |
+| Get one | `GET /zia/api/v1/firewallDnsRules/{id}` |
+| Create | `POST /zia/api/v1/firewallDnsRules` |
+| Update (full replacement) | `PUT /zia/api/v1/firewallDnsRules/{id}` |
+| Delete | `DELETE /zia/api/v1/firewallDnsRules/{id}` |
+
+Citations: Python `cloud_firewall_dns.py:73-76` (list), `:130-133` (get), `:225-228` (add), `:328-332` (update), `:377-381` (delete) — `vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_dns.py`; Go endpoint const `vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:15` and `UpdateWithPut` at `:194`.
+
+Update is a **PUT full replacement**, not a patch (`vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:194`). The MCP tool guards against that by fetching the existing rule and backfilling `name` and `order` when the caller omits them, so partial-update calls don't blank those fields (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_firewall_dns_rules.py:683-691`).
+
+### The action enum (10 values)
+
+The DNS rule `action` enum has exactly 10 values, listed verbatim in all three sources:
+
+`ALLOW`, `BLOCK`, `REDIR_REQ`, `REDIR_RES`, `REDIR_ZPA`, `REDIR_REQ_DOH`, `REDIR_REQ_KEEP_SENDER`, `REDIR_REQ_TCP`, `REDIR_REQ_UDP`, `BLOCK_WITH_RESPONSE`.
+
+Citations: Go action comment lists all 10 (`vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:35`); Python SDK (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_dns.py:175-176` and `:277-278`); MCP tool (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_firewall_dns_rules.py:265-268` and `:494-497`).
+
+The action travels on the wire under the JSON key **`action`**: the MCP tool maps its `rule_action` param to `payload["action"]` (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_firewall_dns_rules.py:139-140`); Go marshals `Action string` as `json:"action,omitempty"` (`vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:36`); Python model at `vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_dns_rules.py:49,221`.
+
+### Per-action field dependencies
+
+These dependency rules are encoded in vendor source **only as a commented-out (inactive) Go validator** (`validateFirewallDNSRules`, wrapped in `/* */` at `vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:264-294`). No client enforces them at runtime — the live Go `Create`/`Update` (`:178-191`, `:193-201`) call no validator, and neither the Python SDK nor the MCP tool does conditional validation. Treat the contract below as inferable-from-source, not API-enforced.
+
+| Action | Required field(s) per Go validator | Citation |
+|---|---|---|
+| `REDIR_RES` | `redirect_ip` (`redirectIp`) must be non-empty | `firewalldnscontrolpolicies.go:286-290` |
+| `REDIR_ZPA` | `zpa_ip_group` (`zpaIpGroup`) with a valid ID | `firewalldnscontrolpolicies.go:281-285` |
+| `REDIR_REQ_KEEP_SENDER` | `dns_gateway` (valid ID/Name) **and** non-empty `protocols` | `firewalldnscontrolpolicies.go:267-275` |
+| `REDIR_REQ_DOH` / `REDIR_REQ_TCP` / `REDIR_REQ_UDP` | `dns_gateway` (valid ID/Name) | `firewalldnscontrolpolicies.go:276-280` |
+| `BLOCK_WITH_RESPONSE` | `block_response_code` (the DNS response code returned) | MCP tool desc `cloud_firewall_dns_rules.py:292-294`, `:506-508` |
+
+Notes on the dependency contract:
+
+- The `protocols` requirement is **unique to `REDIR_REQ_KEEP_SENDER`** among the redirect actions in the validator (`firewalldnscontrolpolicies.go:272-275`).
+- The validator does **not** bind `dns_gateway` to plain `REDIR_REQ` — only to the four redirect-to-gateway variants above. Whether `REDIR_REQ` needs a `dns_gateway` is not stated in source.
+- The validator binds `redirect_ip` **only to `REDIR_RES`**. The MCP tool's field description generalizes it to all redirect actions ("Redirect target IP address when the action is REDIR_*", `vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_firewall_dns_rules.py:276-279`) — a broader claim than the Go validator. Source disagrees here; see Open questions.
+
+### Action-bound fields — wire shapes and SDK divergences
+
+| Field | Wire key | Go type | Python parse type | MCP input shape |
+|---|---|---|---|---|
+| `redirect_ip` | `redirectIp` | `string` (`firewalldnscontrolpolicies.go:45`) | string (`cloud_firewall_dns_rules.py:106,247`) | scalar str |
+| `block_response_code` | `blockResponseCode` | `string` (`firewalldnscontrolpolicies.go:48`) | string (`cloud_firewall_dns_rules.py:127,259`) | scalar str (`cloud_firewall_dns_rules.py:292-294`) |
+| `dns_gateway` | `dnsGateway` | `*common.IDName` (`firewalldnscontrolpolicies.go:104`) | `common.CommonBlocks` (`cloud_firewall_dns_rules.py:141-149,250`) | scalar `Union[int,str]` (`cloud_firewall_dns_rules.py:296-299`) |
+| `zpa_ip_group` | `zpaIpGroup` | `*common.IDName` **no `omitempty`** (`firewalldnscontrolpolicies.go:107`) | `common.CommonIDName` (`cloud_firewall_dns_rules.py:131-139,252`) | scalar `Union[int,str]` (`cloud_firewall_dns_rules.py:304-307`) |
+| `edns_ecs_object` | `ednsEcsObject` | `*common.IDName` (`firewalldnscontrolpolicies.go:109-110`) | `common.CommonBlocks` (`cloud_firewall_dns_rules.py:151-159`) | scalar `Union[int,str]` (`cloud_firewall_dns_rules.py:300-303`) |
+
+Behavioral notes drawn from source:
+
+- **`block_response_code` semantics.** Carries the DNS response code returned when the action is `BLOCK_WITH_RESPONSE` (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_firewall_dns_rules.py:292-294`, `:506-508`). The Go field comment phrases this as "block and send response code" (`vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:47-48`). The set of accepted response-code values (e.g. NXDOMAIN, REFUSED) is **not enumerated in any vendor source** — see Open questions.
+
+- **`zpa_ip_group` serializes even when empty.** Its Go struct tag is `json:"zpaIpGroup"` with **no `omitempty`** (`vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:107`), unlike most fields on the struct — so it is written to the wire even when nil/empty. Semantically it is the ZPA IP pool used to resolve ZPA application domains to ephemeral IPs (`:106-107`; MCP desc `cloud_firewall_dns_rules.py:304-307`).
+
+- **`edns_ecs_object` is a general resolution field, not action-bound.** It is the EDNS ECS object used for DNS resolution (`vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:109-110`; MCP `cloud_firewall_dns_rules.py:300-303`). The Go validator binds it to **no** action — including not to `REDIR_ZPA` (no `edns` clause in the validator at `firewalldnscontrolpolicies.go:264-294`). The Python model assigns it twice: first as `common.ResourceReference` (`cloud_firewall_dns_rules.py:115`), then overwritten with `common.CommonBlocks` (`:151-159`) — so the effective parse type is `CommonBlocks`.
+
+- **Request-build vs response-parse wire-shape divergence (Python).** On the request side both SDKs send `dns_gateway` / `zpa_ip_group` / `edns_ecs_object` as ID-bearing objects (Go marshals them as `*common.IDName`, `firewalldnscontrolpolicies.go:104,107,110`). But Python's `reformat_params` remap table does **not** include these three keys (`vendor/zscaler-sdk-python/zscaler/utils.py:42-101`), and `add_rule`/`update_rule` only run kwargs through `transform_common_id_fields` (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_dns.py:236,340`), which remaps only keys present in `reformat_params`. So a scalar id passed for these three (as the MCP tool does, `cloud_firewall_dns_rules.py:153-158`) is sent **as-is**, not wrapped in `{id: ...}`. On the response side the Python model still parses them back as objects (`CommonBlocks` / `CommonIDName`, per the table above).
+
+- **`BLOCK` vs `BLOCK_WITH_RESPONSE` doc imprecision.** The Python SDK docstrings describe `block_response_code` as the response code sent "when the rule action is BLOCK" (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_dns.py:190`, `:292`), but the enum has no bare `BLOCK` variant that returns a response — the response-returning action is `BLOCK_WITH_RESPONSE`. The MCP tool ties the field correctly to `BLOCK_WITH_RESPONSE` (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_firewall_dns_rules.py:294,507`). The Go comment is the neutral "block and send response code" (`vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:47`).
+
+### Other rule fields
+
+- **`enabled` → `state`.** The Python SDK translates the `enabled` boolean to the API `state` field as `ENABLED`/`DISABLED` before sending; the wire field is `state` (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_dns.py:233-234` add, `:337-338` update; model at `cloud_firewall_dns_rules.py:74,235`; Go `State json:"state,omitempty"` at `firewalldnscontrolpolicies.go:39`).
+
+- **`protocols` enum (Go only).** Supported values are `ANY_RULE`, `SMRULEF_CASCADING_ALLOWED`, `TCP_RULE`, `UDP_RULE`, `DOHTTPS_RULE`, documented only in the Go struct comment (`vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:82`). The Python SDK docstring and MCP tool only give the examples "TCP, UDP, DOHTTPS" — no full enum, no `_RULE` suffix (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_dns.py:189,291`; `vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_firewall_dns_rules.py:327`).
+
+- **`applications`.** Holds DNS tunnels and network applications (canonical ZIA cloud-app names), sent under wire key **`applications`** — distinct from the `cloud_applications` key used by other ZIA policy rule types (`vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:75-76`; Python model `cloud_firewall_dns_rules.py:108,248`; MCP note `cloud_firewall_dns_rules.py:16-24`).
+
+- **`isWebEunEnabled` / `defaultDnsRuleNameUsed`.** Both flags are present in both SDK models but are **not** exposed as parameters by the MCP tool (`vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:95,98`; Python model `cloud_firewall_dns_rules.py:57-58,262-263`; absent from MCP param list `cloud_firewall_dns_rules.py:259-408`).
+
 ## Cross-links
 
 - DNS as a sub-policy inside Firewall Control — [`./firewall.md § DNS Control`](./firewall.md)
@@ -178,3 +263,15 @@ Source: `vendor/zscaler-help/ranges-limitations-zia.md`.
 - Z-Tunnel + DNS interaction (Z-Tunnel 1.0 PAC toggle required for firewall/DNS Control) — [`../zcc/z-tunnel.md`](../zcc/z-tunnel.md)
 - Forwarding Control (ZPA forwarding method — the other side of the SIPA DNS resolver setup) — [`./forwarding-control.md`](./forwarding-control.md)
 - Location configuration prerequisite — [`./locations.md`](./locations.md)
+
+## Open questions
+
+These came up while scraping the SDK/API surface and could not be cleanly resolved from vendor source. Flagged unverified.
+
+- **Valid values for `block_response_code`.** No vendor source enumerates the accepted DNS response codes (e.g. NXDOMAIN, REFUSED, specific rcodes). All three sources describe it only as a free-form "DNS response code" string (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_firewall_dns_rules.py:292-294`; `vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_dns.py:190`; `vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:47-48`). The value set is unverified.
+
+- **Does `redirect_ip` apply to all `REDIR_*` actions or only `REDIR_RES`?** Source disagrees: the commented Go validator binds `redirect_ip` **only to `REDIR_RES`** (`vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:286-290`), while the MCP field description claims it applies to all `REDIR_*` (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_firewall_dns_rules.py:276-279`). The all-`REDIR_*` framing is in the MCP field doc only, not the validator. Unverified.
+
+- **Does plain `REDIR_REQ` require a `dns_gateway`?** The Go validator binds `dns_gateway` to `REDIR_REQ_KEEP_SENDER`, `REDIR_REQ_DOH`, `REDIR_REQ_TCP`, `REDIR_REQ_UDP` but **not** to `REDIR_REQ` (`vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:267-280`). Whether `REDIR_REQ` needs one is not stated in source.
+
+- **Is `edns_ecs_object` tied to the ZPA action?** No source binds `edns_ecs_object` to `REDIR_ZPA` (or any action); it is a general resolution field (`vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:109-110`; `vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_firewall_dns_rules.py:300-303`). The `zpa_ip_group` + `edns_ecs_object` pairing for `REDIR_ZPA` is not verifiable from vendor source.
