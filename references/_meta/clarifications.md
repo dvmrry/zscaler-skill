@@ -3374,7 +3374,7 @@ The `defaultApi` boolean on the resource-server record is present in both SDKs (
 
 *Origin: `references/zidentity/sdk.md` § Open questions (item 6)*
 
-Whether `list_resource_servers` enumerates *all* resource servers in a tenant, or whether some are Zscaler-internal and hidden from the list, is not confirmed from source. Both SDKs call the same `/ziam/admin/api/v1/resource-servers` endpoint (`vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go`) with no filter parameter that would distinguish tenant-created from system-provided entries.
+Whether `list_resource_servers` enumerates *all* resource servers in a tenant, or whether some are Zscaler-internal and hidden from the list, is not confirmed from source. Both SDKs hit the resource-servers endpoint with no filter parameter that would distinguish tenant-created from system-provided entries — via different host+prefix (Python `api.zsapi.net/ziam/admin/api/v1/resource-servers`, `vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py`; Go `{vanity}-admin.zslogin.net/admin/api/v1/resource-servers`, `vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go` + `oneapiconfig.go:404-414`).
 
 **Status**: open
 **Resolves with**: tenant-side check (list resource servers on a live tenant, compare against the console) OR vendor documentation

@@ -56,7 +56,7 @@ grant_type=client_credentials
 
 > **`audience` is injected automatically for SDK callers.** Both SDKs hardcode `audience=https://api.zscaler.com` on every token exchange (secret and JWT): Python at vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py:298 (secret) and :375/:389 (JWT), Go at vendor/zscaler-sdk-go/zscaler/oneapiclient.go:260 (secret) and :321/:335 (JWT). So "forgot the audience" can only happen to a hand-rolled raw-HTTP caller — SDK, Terraform, and MCP users never hit it (this is misconfig #3 below).
 
-ZIdentity returns a bearer token with an `expires_in` field. Read `expires_in` — don't hardcode a TTL assumption. The SDK falls back to 3600 seconds if the field is absent (vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py:461); the actual TTL is tenant-configurable via Authentication Session settings. (Tier A — closed open question from prior version.)
+ZIdentity returns a bearer token with an `expires_in` field. Read `expires_in` — don't hardcode a TTL assumption. The SDK falls back to 3600 seconds if the field is absent (vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py:461); the **tenant-wide default** TTL is configurable via Authentication Session settings (Tier A — closed). Distinct and still open: whether the per-client `access_token_life_time` field overrides that tenant default — its semantics are unresolved (the field name says TTL but the SDK docstring labels it an active flag) — see [clarification `zid-11`](../_meta/clarifications.md#zid-11-access_token_life_time-field-semantics).
 
 For JWT private key auth, the caller signs a JWT assertion with the private key and presents it as `client_assertion` (RFC 7523 client authentication):
 
@@ -123,7 +123,7 @@ When an API client is created, the client secret (or private key) is displayed *
 3. Existing tokens issued against the old secret remain valid until their TTL expires (up to 60 minutes).
 4. Update every caller (scripts, Terraform state/vars, SDK configs, CI secrets) with the new secret before tokens expire to avoid a service gap.
 
-The skill answer for "I forgot the secret, what do I do?" is: regenerate the credential in the portal, then update every caller. (As of current SDK source, the portal does not let you re-display a secret after navigating away; programmatic rotation via `add_api_client_secret` is available given an admin-scoped bootstrap client — vendor/zscaler-sdk-python/zscaler/zid/api_client.py:436.)
+The skill answer for "I forgot the secret, what do I do?" is: regenerate the credential in the portal, then update every caller. (Programmatic rotation via `add_api_client_secret` is available given an admin-scoped bootstrap client — `vendor/zscaler-sdk-python/zscaler/zid/api_client.py:436`. The portal's shown-once behaviour — not being able to re-display a secret after navigating away — is portal UX, not something the SDK source establishes; whether a post-creation GET returns the secret `value` is unverified, see [clarification `zid-27`](../_meta/clarifications.md#zid-27-secrets-snapshot-file-layout).)
 
 ## Access tokens
 

@@ -177,7 +177,7 @@ API client **creation** is available via the admin portal (Administration > API 
 
 Source: `vendor/zscaler-sdk-python/zscaler/zid/zid_service.py`; `vendor/zscaler-sdk-python/zscaler/zid/api_client.py`; `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-python/zscaler/zid/groups.py`; `vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py`; `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go`.
 
-The ZIdentity SDK is accessed via `client.zid.<service>`. The endpoint tables below use the **Python** base endpoint `/ziam/admin/api/v1` (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py:31`). The Go SDK uses `/admin/api/v1` (no `/ziam` prefix) against the same host — strip `/ziam` from each path below for the Go equivalent (see base-path divergence at the top of this doc).
+The ZIdentity SDK is accessed via `client.zid.<service>`. The endpoint tables below use the **Python** base endpoint `/ziam/admin/api/v1` (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py:31`). The Go SDK uses `/admin/api/v1` (no `/ziam` prefix) **and a different host** — `https://{vanity}-admin.zslogin.net`, not `api.zsapi.net` (`vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:404-414`). For the Go equivalent of each path below, strip `/ziam` **and** swap the host (see base-path divergence at the top of this doc).
 
 ### 4.1 `api_client` — `APIClientAPI`
 
@@ -320,7 +320,7 @@ For API client creation in the context of setting up OneAPI credentials for ZPA 
 - Acceptable range for `add_api_client_secret` `expires_at` parameter; behavior when omitted.
 - Whether the API client secret `value` is returned only at creation versus also on `get_api_client_secret`. The SDK secret model deserializes `value` whenever it is present in the response (`vendor/zscaler-sdk-python/zscaler/zid/models/api_client.py:305`), so this is a server-side behavior the SDK does not constrain; needs live confirmation.
 - Token revocation mechanics and the API Client Access Policy rule model are referenced in the captured API-clients help page's related-articles list (`vendor/zscaler-help/zidentity-about-api-clients.md:47-49`) but the underlying help pages are not captured — capture "About Access Tokens", "Revoking Access Tokens", "About the API Client Access Policy", and "Adding API Client Access Policy Rule" to back these claims.
-- Whether the base-path divergence (Python `/ziam/admin/api/v1` vs Go `/admin/api/v1`) reflects a gateway that accepts both prefixes, or whether one SDK relies on a gateway rewrite — both resolve against `api.zsapi.net` in source, but only live testing confirms which prefix the gateway honors.
+- Whether the base-path/host divergence (Python `https://api.zsapi.net/ziam/admin/api/v1` vs Go `https://{vanity}-admin.zslogin.net/admin/api/v1`, `oneapiconfig.go:404-414`) means a live tenant serves both forms or the two SDKs target genuinely distinct front-ends — source pins each SDK to its own host+prefix; only live testing confirms whether the other form also resolves.
 
 ---
 
