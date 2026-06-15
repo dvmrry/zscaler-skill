@@ -3396,10 +3396,10 @@ Whether a future ZIdentity snapshot stores the raw list body (so jq uses `.recor
 
 *Origin: `references/zidentity/snapshot-schema.md` § Open questions*
 
-If API-client secrets are dumped to a snapshot, the per-client file/key naming convention (e.g. `api-client-secrets.json` keyed by client id) is undefined. The secrets endpoint's `value` field is shown-once and sensitive (`vendor/zscaler-sdk-python/zscaler/zid/models/api_client.py:287-318`), so this may warrant exclusion from the snapshot entirely rather than a layout decision.
+If API-client secrets are dumped to a snapshot, the per-client file/key naming convention (e.g. `api-client-secrets.json` keyed by client id) is undefined. More fundamentally, whether a live `GET /api-clients/{id}/secrets` returns the real secret `value` is unverified: the response **shape** carries a `value` field (`vendor/zscaler-sdk-python/zscaler/zid/models/api_client.py:287-318`, mapped at `:305`) and the Postman sample includes one, but that sample value is a synthetic placeholder and the portal documents the secret as not retrievable after creation. Treat `value` as sensitive and consider excluding it from the snapshot entirely rather than making a layout decision.
 
 **Status**: open
-**Resolves with**: design decision (made when the ZIdentity snapshot writer is built)
+**Resolves with**: a live `GET .../secrets` capture to confirm whether `value` is populated post-creation, plus the snapshot-writer design decision
 
 ---
 
