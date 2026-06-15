@@ -200,7 +200,7 @@ ZDX is read-dominant, but the SDK exposes five mutating endpoints. None of them 
 
 The server-side tier table (limits keyed to license count, different from ZIA's weight-based / ZPA's per-IP) lives in [`../shared/oneapi.md § ZDX — tier-based by license count`](../shared/oneapi.md).
 
-**Two response-header families exist, by transport.** The form you parse depends on which path you hit:
+**Two response-header families appear across the sources, apparently split by transport** — the SDK-honored direct-cloud form vs the help-documented gateway form. Which family the *live* server actually emits per host is not confirmed from source (see open question below). What each source establishes:
 
 - **Legacy direct-cloud path (SDK-honored).** Both SDKs read **per-second sliding-window** headers: `X-Ratelimit-Remaining-Second` and `X-Ratelimit-Limit-Second`. They use these to back off proactively before a 429 (Python `vendor/zscaler-sdk-python/zscaler/zdx/legacy.py:97-98`; Go `vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:167-168`). This is the authoritative client-honored behavior.
 - **OneAPI gateway path (help-documented).** The gateway returns `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` (UTC epoch seconds) — distinct from ZIA's lowercase `x-ratelimit-*` (`vendor/zscaler-help/automate-zscaler/api-reference-zdx-overview.md:103`). The SDK code does not read these; the `X-Ratelimit-*-Second` form above is what the SDK transport honors.
