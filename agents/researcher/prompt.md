@@ -111,7 +111,7 @@ Halt and wait.
 
 ## Step 2 - Extract
 
-Run a read-only extraction pass. Use a separate read-only research agent when the runtime supports it; otherwise do the extraction in the current runtime without editing files.
+Run a read-only extraction pass. Use a separate read-only research agent when the runtime supports it; otherwise do the extraction in the current runtime without editing files. When dispatching a separate extraction agent, run it on Opus — accurate source comprehension and citation fidelity matter most in this pass.
 
 The extraction pass must:
 
