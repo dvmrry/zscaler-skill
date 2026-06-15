@@ -3,7 +3,7 @@ product: meta
 topic: "clarifications-index"
 title: "Clarification index — open questions across references"
 content-type: reference
-last-verified: "2026-06-14"
+last-verified: "2026-06-15"
 confidence: high
 sources: []
 author-status: reviewed
@@ -122,7 +122,7 @@ experience, or vendor confirmation rather than more public-doc reading.
 
 ### Open
 
-`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-49`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-20`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `shared-20`–`shared-27`, `zcc-08`–`zcc-76`, `zdx-01`–`zdx-02`, `zms-01`, `easm-01`–`easm-02`.
+`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-49`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-20`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `shared-20`–`shared-27`, `zcc-08`–`zcc-76`, `zdx-01`–`zdx-43`, `zms-01`, `easm-01`–`easm-02`.
 
 The vendor-MCP scrape (2026-06-14) added these open behavior questions — each links to its detailed entry below:
 
@@ -138,6 +138,52 @@ The vendor-MCP scrape (2026-06-14) added these open behavior questions — each 
 | [`zms-01`](#zms-01-fetchall-beyond-policyrules) | Whether ZMS `fetchAll` exists server-side beyond `policyRules` | SDK re-check / lab test |
 | [`easm-01`](#easm-01-finding-scan_type-allowed-values) | EASM finding `scan_type` allowed-value set | tenant snapshot / zscaler doc not yet read |
 | [`easm-02`](#easm-02-finding-risk-field-value-semantics) | EASM finding risk-field semantics (`risk_level` / `cisa_likelihood` / `epss_likelihood`) | tenant snapshot / zscaler doc not yet read |
+
+The ZDX deep-dive refresh (2026-06-15) registered these open ZDX-behavior questions from the per-doc Open-questions sweep — each links to its detailed entry below:
+
+| ID | Title | Resolves with |
+|---|---|---|
+| [`zdx-03`](#zdx-03-zdx-token-host-per-tenant) | Which ZDX host (`api.zdxcloud.net` vs `api.zsapi.net`) a given tenant authenticates against | lab test / zscaler doc not yet read |
+| [`zdx-04`](#zdx-04-zdx-rate-limit-header-family-per-host) | Whether each ZDX host emits the rate-limit header family its source expects | lab test / support ticket |
+| [`zdx-05`](#zdx-05-zdx-server-tier-table-vs-client-flat-limiter) | Whether the server license-tier rate table reconciles with the Go client's flat limiter | zscaler doc not yet read / support ticket |
+| [`zdx-06`](#zdx-06-get_device_app-live-response-shape) | `get_device_app` live response shape (timeseries vs single score) | lab test / zscaler doc not yet read |
+| [`zdx-07`](#zdx-07-deviceevents-live-response-key) | `DeviceEvents` live response key (`instances` vs `events`) | lab test / zscaler doc not yet read |
+| [`zdx-08`](#zdx-08-callqualitymetricsmetrics-live-shape) | `CallQualityMetrics.metrics` live element shape | lab test / zscaler doc not yet read |
+| [`zdx-09`](#zdx-09-org-list-time-filter-semantics) | Time-filter semantics on department/location org lists | lab test / zscaler doc not yet read |
+| [`zdx-10`](#zdx-10-q-vs-search-matching-on-getlocationsfilters) | `Q` vs `Search` matching behavior on `GetLocationsFilters` | lab test / zscaler doc not yet read |
+| [`zdx-11`](#zdx-11-exhaustive-metric_name-value-set) | Exhaustive `metric_name` value set for app metrics | zscaler doc not yet read / lab test |
+| [`zdx-12`](#zdx-12-tenant-level-application-inventory) | Whether the app list returns apps with no recent probe data | tenant snapshot / zscaler doc not yet read |
+| [`zdx-13`](#zdx-13-probe-metadata-per-application) | Which probes are attached to a given application ID | zscaler doc not yet read / operator experience |
+| [`zdx-14`](#zdx-14-application-auto-detection-vs-manual-config) | Whether ZDX auto-discovers apps or requires manual config | zscaler doc not yet read / operator experience |
+| [`zdx-15`](#zdx-15-zdx-ca-topology) | ZDX Central Authority topology (active-passive vs active-active) | zscaler doc not yet read / support ticket |
+| [`zdx-16`](#zdx-16-region-boundary-definition-and-geographic-weighting) | Region boundary definition + same-region peer weighting function | zscaler doc not yet read / lab test |
+| [`zdx-17`](#zdx-17-data-retention-gdpr-and-data-residency) | ZDX data retention period, purge, and data-residency controls | zscaler doc not yet read / support ticket |
+| [`zdx-18`](#zdx-18-tpg-geo-distribution-and-failover) | TPG geo-distribution, SLA, and failover behavior | zscaler doc not yet read / support ticket |
+| [`zdx-19`](#zdx-19-zcc-metric-buffering-when-tpg-unreachable) | ZCC on-device metric buffering when the TPG is unreachable | zscaler doc not yet read / lab test |
+| [`zdx-20`](#zdx-20-cloud-path-probe-routing-through-service-edges) | Whether Cloud Path probe routing through Service Edges is mandatory/optional | zscaler doc not yet read / lab test |
+| [`zdx-21`](#zdx-21-call-quality-monitoring-data-flow) | Call Quality Monitoring polling frequency, latency, failure modes | zscaler doc not yet read / support ticket |
+| [`zdx-22`](#zdx-22-adx-tenant-isolation-mechanism) | ADX-layer tenant isolation mechanism | zscaler doc not yet read / support ticket |
+| [`zdx-23`](#zdx-23-wi-fi-field-availability-in-device-api-response) | Wi-Fi field availability in the device API response | lab test / zscaler doc not yet read |
+| [`zdx-24`](#zdx-24-device-health-metric-category-enumeration) | Exhaustive device health-metric category set | zscaler doc not yet read / lab test |
+| [`zdx-25`](#zdx-25-os_build-api-presence) | Whether `os_build` is present in the device wire response | lab test / zscaler doc not yet read |
+| [`zdx-26`](#zdx-26-geolocation-hierarchy-traversal) | Device geolocation hierarchy traversal model | zscaler doc not yet read / lab test |
+| [`zdx-27`](#zdx-27-device-event-category-enumeration) | Whether device events span categories beyond Zscaler/Hardware/Software/Network | lab test / zscaler doc not yet read |
+| [`zdx-28`](#zdx-28-call-quality-metrics-application-scope-and-metric-labels) | Which apps populate call-quality-metrics and which metric labels appear | lab test / zscaler doc not yet read |
+| [`zdx-29`](#zdx-29-device-grouping-cohorts) | Whether ZDX supports device grouping / cohorts | zscaler doc not yet read / operator experience |
+| [`zdx-30`](#zdx-30-per-probe-cadence-during-a-diagnostics-session) | Per-probe cadence during a Diagnostics Session | zscaler doc not yet read / lab test |
+| [`zdx-31`](#zdx-31-alert-rule-evaluation-cadence) | Alert rule-evaluation interval | zscaler doc not yet read / lab test |
+| [`zdx-32`](#zdx-32-deeptrace-session-name-wire-field) | Deeptrace session-name wire field (`name` vs `session_name`) | lab test / zscaler doc not yet read |
+| [`zdx-33`](#zdx-33-session_length-request-vs-response-key) | `session_length` request-vs-response key divergence | lab test / zscaler doc not yet read |
+| [`zdx-34`](#zdx-34-maximum-look-back-window-and-probe-id-expiry) | Maximum probe look-back window and probe-ID expiry | lab test / zscaler doc not yet read |
+| [`zdx-35`](#zdx-35-share_snapshot-obfuscation-transmission) | Whether the Python `share_snapshot` wires `obfuscation` to the API | code read / lab test |
+| [`zdx-36`](#zdx-36-pft-vs-availability-score-weighting) | Numerical PFT-vs-Availability weighting in the ZDX Score | zscaler doc not yet read / lab test |
+| [`zdx-37`](#zdx-37-zero-value-handling-in-the-lowest-value-within-hour-rollup) | Zero/null handling in the lowest-value-within-hour rollup | zscaler doc not yet read / lab test |
+| [`zdx-38`](#zdx-38-which-metrics-feed-the-composite-score) | Which retrievable metrics actually feed the composite score | zscaler doc not yet read / lab test |
+| [`zdx-39`](#zdx-39-score-recalculation-lag-for-new-users-or-devices) | Score-appearance lag for new users/devices | zscaler doc not yet read / operator experience |
+| [`zdx-40`](#zdx-40-device-level-vs-user-level-score-aggregation) | Whether score is per (user, device) or rolled up per user | zscaler doc not yet read / lab test |
+| [`zdx-41`](#zdx-41-probe-result-retention-and-aging-granularity) | Probe-result retention period and aging granularity | zscaler doc not yet read / tenant snapshot |
+| [`zdx-42`](#zdx-42-adaptive-mode-scoring-comparability) | Whether Adaptive Mode keeps scores comparable across cadences | zscaler doc not yet read / lab test |
+| [`zdx-43`](#zdx-43-inventory-time-range-filter-server-support) | Whether the inventory endpoint honors the time-range filter server-side | lab test / zscaler doc not yet read |
 
 Partial / SDK-mined (resolved via code read or help-doc capture; full lab confirmation pending): `zcc-01`, `zcc-02`, `zcc-03`, `zcc-04`, `zcc-05`, `zcc-06`, `zcc-07`, **`log-04`** (field name + illustrative values confirmed via `web-log-schema.md`; full enum of `ruletype` / `reason` values still needs a tenant export). All six ZCC enum clarifications had their **datatype** (int vs string) resolved by the Go SDK cross-check on 2026-04-24; the integer-to-meaning mapping remains open for `zcc-01` through `zcc-04` and `zcc-06`.
 
@@ -3062,6 +3108,457 @@ EASM finding risk fields — `risk_level` / `severity_score` / `status` (`vendor
 
 **Status**: open
 **Resolves with**: tenant snapshot (collect observed values across live findings) OR zscaler doc not yet read
+
+---
+
+### zdx-03 — ZDX token host per tenant
+
+*Origin: `references/zdx/api-divergences.md` § Open questions; `references/zdx/api.md` § Open questions*
+
+Two ZDX hosts appear across sources. The legacy Python ZDX client and the Go ZDX v2 client default to `api.zdxcloud.net` (`vendor/zscaler-sdk-python/zscaler/zdx/legacy.py:55-57` — default cloud `zdxcloud`, URL `https://api.{cloud}.net`; `vendor/zscaler-sdk-go/zscaler/zdx/v2_config.go:150`), while the OneAPI path uses `api.zsapi.net` (`vendor/zscaler-sdk-python/zscaler/request_executor.py:32`; `vendor/zscaler-sdk-go/zscaler/oneapiclient.go:416`). Whether a specific tenant's credentials authenticate against the legacy ZDX host, the OneAPI host, or both is not determinable from source — it depends on how the tenant was provisioned (legacy ZDX API key vs Zidentity OneAPI client).
+
+**Status**: open
+**Resolves with**: lab test (authenticate the same tenant against each host, observe which succeeds) OR zscaler doc not yet read
+
+---
+
+### zdx-04 — ZDX rate-limit header family per host
+
+*Origin: `references/zdx/api-divergences.md` § Open questions; `references/zdx/api.md` § Open questions*
+
+The two ZDX hosts are read off two source families with different rate-limit header expectations. The legacy ZDX transport reads `X-Ratelimit-Remaining-Second` / `X-Ratelimit-Limit-Second` (`vendor/zscaler-sdk-python/zscaler/zdx/legacy.py:97-98`), and the help capture documents a `RateLimit-*` family on the OneAPI gateway. Whether each host actually emits the family its source expects — and specifically whether the OneAPI gateway (`api.zsapi.net`) enforces a per-second `X-Ratelimit-*-Second` window or only the `RateLimit-*` family — needs a live response capture; the SDK transport on the gateway path does not parse the `RateLimit-*` form, so the gateway-header claim rests on the help capture alone.
+
+**Status**: open
+**Resolves with**: lab test (capture live response headers from each host) OR support ticket
+
+---
+
+### zdx-05 — ZDX server tier table vs client flat limiter
+
+*Origin: `references/zdx/api.md` § Open questions*
+
+The help reference documents a server-side per-tenant rate tier keyed to license count, while the Go ZDX client applies a flat global limiter (`vendor/zscaler-sdk-go/zscaler/zdx/v2_client_ratelimit_test.go:105-107` exercises a 10-req/s global limiter). Whether the client limiter is reconciled with the negotiated server tier anywhere, or is simply a conservative floor independent of the tenant's actual server-side allowance, is not stated in source.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR support ticket (confirm the per-tenant negotiated tier and whether the client floor matters)
+
+---
+
+### zdx-06 — get_device_app live response shape
+
+*Origin: `references/zdx/api-divergences.md` § Open questions; `references/zdx/devices.md` § Open questions*
+
+The two SDKs model the same `GET /devices/{deviceID}/apps/{appID}` endpoint with different shapes: Python returns a `DeviceAppScoreTrend` timeseries (`vendor/zscaler-sdk-python/zscaler/zdx/devices.py:314` wraps the body in `DeviceAppScoreTrend`; model at `vendor/zscaler-sdk-python/zscaler/zdx/models/devices.py:369`), while Go returns a single `*App` score (`vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_apps.go:23`). The actual wire shape returned by the endpoint — a trend series, a single score, or a shape that accommodates both — is not determinable from source alone.
+
+**Status**: open
+**Resolves with**: lab test (capture the raw response from `GET .../apps/{appID}`) OR zscaler doc not yet read
+
+---
+
+### zdx-07 — DeviceEvents live response key
+
+*Origin: `references/zdx/api-divergences.md` § Open questions*
+
+The two SDKs disagree on the JSON key carrying the device-events collection. Go unmarshals from `instances` (`vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_events.go:18` — `Events []Events json:"instances,omitempty"`), while the Python model reads `events` (`vendor/zscaler-sdk-python/zscaler/zdx/models/devices.py:650`). Which key the live API actually returns — or whether both are present — is unverified.
+
+**Status**: open
+**Resolves with**: lab test (capture the raw device-events response) OR zscaler doc not yet read
+
+---
+
+### zdx-08 — CallQualityMetrics.metrics live shape
+
+*Origin: `references/zdx/api-divergences.md` § Open questions; `references/zdx/devices.md` § Open questions*
+
+The `metrics` series on the call-quality-metrics response is modeled differently across SDKs: Python forms a list of `CommonMetrics` objects (`vendor/zscaler-sdk-python/zscaler/zdx/models/devices.py:457`), while Go expects structured `[]common.Metric` (`vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_quality_metrics.go:20`). The actual wire shape of each element in the `metrics` array is unverified.
+
+**Status**: open
+**Resolves with**: lab test (capture a raw call-quality-metrics response) OR zscaler doc not yet read
+
+---
+
+### zdx-09 — Org-list time-filter semantics
+
+*Origin: `references/zdx/administration.md` § Open questions*
+
+The departments and locations list helpers accept time filters (`from`/`to` on `GetDepartmentsFilters` / `GetLocationsFilters`, `vendor/zscaler-sdk-go/zscaler/zdx/services/administration/administration.go:29-37`; `since` on the Python equivalents in `vendor/zscaler-sdk-python/zscaler/zdx/admin.py`). It is unclear whether the window selects "departments/locations that had active devices in this window" or has some other meaning for reference data that does not change over time. The semantics are not stated in source.
+
+**Status**: open
+**Resolves with**: lab test (vary the time window, compare returned org lists) OR zscaler doc not yet read
+
+---
+
+### zdx-10 — Q vs Search matching on GetLocationsFilters
+
+*Origin: `references/zdx/administration.md` § Open questions*
+
+`GetLocationsFilters` carries both a `Search` and a `Q` field (`vendor/zscaler-sdk-go/zscaler/zdx/services/administration/administration.go:33,35`), while `GetDepartmentsFilters` carries only `Search` (`:29-31`). Both location fields appear to filter by name or ID, but whether they differ in matching behavior — exact vs partial, case sensitivity, name-vs-ID scope — is not documented in source.
+
+**Status**: open
+**Resolves with**: lab test (submit each field independently, compare results) OR zscaler doc not yet read
+
+---
+
+### zdx-11 — Exhaustive metric_name value set
+
+*Origin: `references/zdx/applications.md` § Open questions*
+
+The valid `metric_name` values for application metric retrieval are documented only by example, not as an enumerated set. The Python docstring names `pft`, `dns`, `availability` for Web Probes, and the Go docstring names the Web-Probe and CloudPath metric labels in prose (`vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go:38-41`). Neither source provides an enumerated type or exhaustive list of every valid `metric_name`.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR lab test (enumerate accepted `metric_name` values against the endpoint)
+
+---
+
+### zdx-12 — Tenant-level application inventory
+
+*Origin: `references/zdx/applications.md` § Open questions*
+
+It is unverified whether the SDK application-list surface can return applications that have no recent probe data — i.e. configured-but-inactive or unconfigured apps — or whether the list is limited to apps with telemetry in the requested window. The list methods (`vendor/zscaler-sdk-python/zscaler/zdx/apps.py`) do not state inactive-app behavior.
+
+**Status**: open
+**Resolves with**: tenant snapshot (compare configured apps against the list response) OR zscaler doc not yet read
+
+---
+
+### zdx-13 — Probe metadata per application
+
+*Origin: `references/zdx/applications.md` § Open questions*
+
+No SDK endpoint surfaces which probes (Web or Cloud Path) are attached to a given application ID — probe-to-application binding appears portal-only. The application surface (`vendor/zscaler-sdk-python/zscaler/zdx/apps.py`) exposes metrics and scores but no probe-attachment listing.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR operator experience (confirm probe-attachment is portal-only)
+
+---
+
+### zdx-14 — Application auto-detection vs manual config
+
+*Origin: `references/zdx/applications.md` § Open questions*
+
+Whether ZDX automatically discovers monitored applications or requires manual configuration in the portal is not surfaced in SDK source. The read-only application API (`vendor/zscaler-sdk-python/zscaler/zdx/apps.py`) returns whatever apps the tenant has, without revealing how they came to be monitored.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR operator experience
+
+---
+
+### zdx-15 — ZDX CA topology
+
+*Origin: `references/zdx/cloud-architecture.md` § Open questions*
+
+The vendor help states the ZDX Central Authority design is "similar to that of the Internet & SaaS CA" (`vendor/zscaler-help/understanding-zdx-cloud-architecture.md:48`), which implies active-passive, but the ZDX CA's actual topology (active-passive vs active-active) is not explicitly confirmed.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR support ticket
+
+---
+
+### zdx-16 — Region boundary definition and geographic weighting
+
+*Origin: `references/zdx/cloud-architecture.md` § Open questions; `references/zdx/score.md` § Open questions*
+
+ZDX computes a "weighted average of peers in the same region," but the region boundary is undefined: how ZDX converts lat/long or IP to a region (continent vs country vs city, or a geolocation ID), what fallback applies when OS location services are off, and the weighting function over same-region peers are all unstated in vendor sources.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR lab test
+
+---
+
+### zdx-17 — Data retention, GDPR, and data residency
+
+*Origin: `references/zdx/cloud-architecture.md` § Open questions*
+
+No vendor source documents a ZDX telemetry retention period, purge policy, or data-residency / data-location configuration option. The Microsoft Azure Data Explorer (ADX) storage dependency may be material for customers with cloud-provider or data-residency constraints, but the controls (if any) are not documented.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR support ticket
+
+---
+
+### zdx-18 — TPG geo-distribution and failover
+
+*Origin: `references/zdx/cloud-architecture.md` § Open questions*
+
+The Transaction Processing Gateway's stateless design is documented, but its SLA, regional deployment footprint, and failure-domain handling are not. Whether the TPG is regionally distributed, how a client selects one, and what happens on a regional TPG outage are unstated.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR support ticket
+
+---
+
+### zdx-19 — ZCC metric buffering when TPG unreachable
+
+*Origin: `references/zdx/cloud-architecture.md` § Open questions; `references/zdx/overview.md` § Open questions*
+
+When ZCC cannot reach the TPG (transient cloud-unreachable), it is presumed that metrics are buffered on-device and flushed on reconnect, but whether buffering happens at all, the buffer size/retention, and the flush behavior are not documented in vendor sources.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR lab test (induce TPG unreachability, observe gap-fill on reconnect)
+
+---
+
+### zdx-20 — Cloud Path probe routing through Service Edges
+
+*Origin: `references/zdx/cloud-architecture.md` § Open questions*
+
+Vendor sources note Cloud Path probes can visualize tunneling through a Public Service Edge, but whether routing through a Service Edge is mandatory, conditional on the network path, or per-probe-config optional is not documented.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR lab test
+
+---
+
+### zdx-21 — Call Quality Monitoring data flow
+
+*Origin: `references/zdx/cloud-architecture.md` § Open questions*
+
+The polling frequency, latency, and failure modes of ZDX's Call Quality Monitoring integration with Microsoft Graph / Zoom are not documented. The call-quality-metrics surface exists in the SDK (`vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_quality_metrics.go:25`), but how the underlying meeting telemetry is ingested is unstated.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR support ticket
+
+---
+
+### zdx-22 — ADX tenant isolation mechanism
+
+*Origin: `references/zdx/cloud-architecture.md` § Open questions*
+
+ZDX stores telemetry in Microsoft Azure Data Explorer, but the specific tenant-isolation mechanism at the ADX layer (per-tenant partitioning, RBAC, encryption boundaries) is not documented.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR support ticket
+
+---
+
+### zdx-23 — Wi-Fi field availability in device API response
+
+*Origin: `references/zdx/devices.md` § Open questions*
+
+The Go device `Network` struct exposes `wifi_adapter` / `wifi_type` / `ssid` / `bssid` (and channel) (`vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go:50-54`), but the Python device model does not surface them. Whether these fields are present in the API response for all device types or only for wireless-capable devices (and whether Python silently drops them) is unverified.
+
+**Status**: open
+**Resolves with**: lab test (capture device responses across wired and wireless devices) OR zscaler doc not yet read
+
+---
+
+### zdx-24 — Device health-metric category enumeration
+
+*Origin: `references/zdx/devices.md` § Open questions*
+
+The Go health-metrics docstring lists CPU, Memory, Disk I/O, Network I/O, Wi-Fi, Network Bandwidth, "etc." as supported categories (`vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_health_metrics.go:28`), but this is a prose comment ending in "etc.", not an enumerated type. The exhaustive supported-category set is unverified.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR lab test (enumerate accepted metric categories against the endpoint)
+
+---
+
+### zdx-25 — os_build API presence
+
+*Origin: `references/zdx/devices.md` § Open questions*
+
+The Python device model surfaces `os_build` while Go does not, implying the field is in the API response but silently dropped by Go. Whether `os_build` is actually present in the wire response is unconfirmed without a raw sample.
+
+**Status**: open
+**Resolves with**: lab test (capture a raw device response and check for `os_build`) OR zscaler doc not yet read
+
+---
+
+### zdx-26 — Geolocation hierarchy traversal
+
+*Origin: `references/zdx/devices.md` § Open questions*
+
+`DeviceActiveGeo.children` holds nested `Children` objects, and recursive traversal of the geolocation tree via repeated `parent_geo_id`-filtered calls is implied by the nesting rather than stated. Whether callers are expected to traverse the embedded children or re-query per level, and how deep the hierarchy goes, is not documented.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR lab test
+
+---
+
+### zdx-27 — Device-event category enumeration
+
+*Origin: `references/zdx/devices.md` § Open questions*
+
+The Go `GetEvents` docstring comment lists only Zscaler, Hardware, Software, Network as event categories (`vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_events.go:30`); no SDK model or vendored help capture enumerates a fixed category set. Whether the API also emits Location, User, or other event categories is unconfirmed.
+
+**Status**: open
+**Resolves with**: lab test (collect observed event categories from a raw response) OR zscaler doc not yet read
+
+---
+
+### zdx-28 — Call-quality-metrics application scope and metric labels
+
+*Origin: `references/zdx/devices.md` § Open questions*
+
+The call-quality-metrics surface carries `meet_id` / `meet_session_id` / `meet_subject` (`vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_quality_metrics.go:17-19`), implying meeting-application (Teams/Zoom) scope, but which applications actually populate this surface and which metric labels appear in the `metrics` series are not enumerated in source. (Distinct from `zdx-08`, which is about the wire *shape* of each `metrics` element; this entry is about *which* labels and *which* apps.)
+
+**Status**: open
+**Resolves with**: lab test (capture call-quality-metrics across meeting apps) OR zscaler doc not yet read
+
+---
+
+### zdx-29 — Device grouping / cohorts
+
+*Origin: `references/zdx/devices.md` § Open questions*
+
+Neither SDK exposes device grouping or cohort constructs; grouping may be a portal-only feature. Whether ZDX supports device cohorts at all, and if so where they surface, is unverified.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR operator experience
+
+---
+
+### zdx-30 — Per-probe cadence during a Diagnostics Session
+
+*Origin: `references/zdx/diagnostics-and-alerts.md` § Open questions; `references/zdx/probes.md` § Open questions*
+
+The deeptrace session-length set is resolved (5/15/30/60 min) and a help doc states session data is "updated every minute," but the per-probe cadence *during* a session — whether it remains the steady-state 5-minute interval or intensifies to a faster rate — is not stated in any cited source.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR lab test (run a session, observe inter-sample spacing)
+
+---
+
+### zdx-31 — Alert rule-evaluation cadence
+
+*Origin: `references/zdx/diagnostics-and-alerts.md` § Open questions*
+
+Alerts fire "when condition crosses threshold," but the evaluation interval — every score update, hourly, or continuously — is not stated in any cited source. This governs alert-latency expectations.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR lab test
+
+---
+
+### zdx-32 — Deeptrace session-name wire field
+
+*Origin: `references/zdx/diagnostics-and-alerts.md` § Open questions*
+
+No source enumerates the on-wire JSON field the start endpoint expects for the session name. The Python `TraceDetails.request_format` maps `session_name` → `name` (`vendor/zscaler-sdk-python/zscaler/zdx/models/troubleshooting.py:120`), but `start_deeptrace` builds the POST body straight from kwargs with key `session_name` (`vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py:182`), and the Go start payload also uses `session_name` (`vendor/zscaler-sdk-go/zscaler/zdx/services/troubleshooting/deeptrace/deeptrace.go:42`). Whether the live API expects `name` or `session_name` is not confirmable from source.
+
+**Status**: open
+**Resolves with**: lab test (submit each key, observe which the API honors) OR zscaler doc not yet read
+
+---
+
+### zdx-33 — session_length request-vs-response key
+
+*Origin: `references/zdx/diagnostics-and-alerts.md` § Open questions*
+
+The start payloads use key `session_length_minutes` (`vendor/zscaler-sdk-go/zscaler/zdx/services/troubleshooting/deeptrace/deeptrace.go:46`), but the Go response struct `TraceDetails` reads `session_length` (`vendor/zscaler-sdk-go/zscaler/zdx/services/troubleshooting/deeptrace/deeptrace.go:37`). Whether the request and response deliberately use different keys for the same field, or one of the tags is stale, is not confirmable from source beyond these struct tags.
+
+**Status**: open
+**Resolves with**: lab test (start a session, inspect the response key) OR zscaler doc not yet read
+
+---
+
+### zdx-34 — Maximum look-back window and probe-ID expiry
+
+*Origin: `references/zdx/diagnostics-and-alerts.md` § Open questions*
+
+Only the 2-hour default look-back is documented for the probe-read endpoints (default behavior noted in the Go health-metrics docstring, `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_health_metrics.go:27`). No source states a maximum `since` / look-back window, nor whether probe IDs expire after the look-back window elapses.
+
+**Status**: open
+**Resolves with**: lab test (request progressively older windows; re-use an aged probe ID) OR zscaler doc not yet read
+
+---
+
+### zdx-35 — share_snapshot obfuscation transmission
+
+*Origin: `references/zdx/diagnostics-and-alerts.md` § Open questions*
+
+The Python `share_snapshot` docstring documents an `obfuscation` argument with enum values `USER_NAME` / `LOCATION` / `DEVICE_NAME` / `IP_ADDRESS` / `WIFI_NAME` (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:43-45`), but the body-builder copies only `name`, `alert_id`, and the converted `expiry` into the request body (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:95-106`); `obfuscation` is not in the `@zdx_params` shorthand path (`vendor/zscaler-sdk-python/zscaler/utils.py:390`) and is not extracted into the body. From source alone it is unclear whether an `obfuscation` value passed by a caller reaches the API in this SDK version. The API contract and enum set themselves are not in question — only this Python client's transmission of the field.
+
+**Status**: open
+**Resolves with**: code read (a future SDK release that wires the field) OR lab test (capture the outbound snapshot request body)
+
+---
+
+### zdx-36 — PFT vs Availability score weighting
+
+*Origin: `references/zdx/overview.md` § Open questions; `references/zdx/score.md` § Open questions*
+
+The ZDX Score takes Page Fetch Time and Availability as inputs, but the numerical weighting between them — the formula or relative weight — is not documented (`vendor/zscaler-help/about-zdx-score.md`). PFT is named the primary input and Availability a factor, without quantification.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR lab test
+
+---
+
+### zdx-37 — Zero-value handling in the lowest-value-within-hour rollup
+
+*Origin: `references/zdx/overview.md` § Open questions; `references/zdx/score.md` § Open questions*
+
+The hourly score rollup selects the "lowest value within the hour," but whether probe failures (zero or null values) are included or excluded in that selection is unstated. The answer materially affects how a probe outage propagates into the availability component of the score.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR lab test (induce a probe failure, observe the hourly rollup)
+
+---
+
+### zdx-38 — Which metrics feed the composite score
+
+*Origin: `references/zdx/score.md` § Open questions*
+
+The full retrievable metric set is resolved from the Go SDK (Web Probes: Page Fetch Time, Server Response Time, DNS Time, Availability; CloudPath: End to End, Client–Egress, Egress–Application, ZIA Service Edge–Egress, ZIA Service Edge–Application — `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go:38-41`). What remains unverified is *which* of these actually feed the composite ZDX Score versus being trend-only retrievable metrics. The help doc names PFT and Availability but does not state whether Server Response Time, DNS Time, or the CloudPath latency metrics contribute to the score.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR lab test
+
+---
+
+### zdx-39 — Score recalculation lag for new users or devices
+
+*Origin: `references/zdx/score.md` § Open questions*
+
+When a new user or device comes online, the lag before it appears in user-level / device-level scores is not documented. Relevant to "I onboarded this device but ZDX shows no score yet" questions.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR operator experience
+
+---
+
+### zdx-40 — Device-level vs user-level score aggregation
+
+*Origin: `references/zdx/score.md` § Open questions*
+
+The source mentions scores over "all users, their devices, and their locations" but does not clarify whether the score is computed per (user, device) pair or rolled up per user across that user's devices. The aggregation grain is unverified.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR lab test (compare a user's score against per-device scores)
+
+---
+
+### zdx-41 — Probe-result retention and aging granularity
+
+*Origin: `references/zdx/probes.md` § Open questions*
+
+Whether probe results are retained indefinitely or aged out, and at what time granularity older results are down-sampled, is not documented in the vendored help captures.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR tenant snapshot
+
+---
+
+### zdx-42 — Adaptive Mode scoring comparability
+
+*Origin: `references/zdx/probes.md` § Open questions*
+
+Help articles reference an "Adaptive Mode" that dynamically adjusts probe frequency, but how this affects scoring — specifically whether scores remain comparable across different probe cadences — is not documented.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR lab test
+
+---
+
+### zdx-43 — Inventory time-range filter server support
+
+*Origin: `references/zdx/sdk.md` § Open questions*
+
+`list_softwares` applies the `@zdx_params` decorator (`vendor/zscaler-sdk-python/zscaler/zdx/inventory.py:33`), which converts a `since` argument into a `from`/`to` epoch pair, so the client attaches the time-range filter when provided. Whether the inventory endpoint server-side actually honors the time-range filter — returning only software seen within the window — is not confirmable from source; the decorator attaches the params, but server support needs hands-on verification.
+
+**Status**: open
+**Resolves with**: lab test (compare inventory results across time windows) OR zscaler doc not yet read
 
 ---
 

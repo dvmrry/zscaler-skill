@@ -3,9 +3,13 @@ product: zdx
 topic: "zdx-index"
 title: "ZDX reference hub"
 content-type: reference
-last-verified: "2026-05-05"
-confidence: medium
-sources: []
+last-verified: "2026-06-15"
+confidence: high
+sources:
+  - "vendor/zscaler-sdk-python/zscaler/zdx/zdx_service.py"
+  - "vendor/zscaler-sdk-python/zscaler/zdx/inventory.py"
+  - "vendor/zscaler-sdk-python/zscaler/zdx/users.py"
+  - "vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py"
 author-status: draft
 ---
 
@@ -26,13 +30,20 @@ ZIA/ZPA/ZCC answers are about policy precedence and configuration — "what will
 | **Cloud architecture** — Central Authority, ZCC, TPG (multi-tenant RESTful gateway), ADX storage, Admin Portal; 20-minute reporting delay; OAuth 2.0 auth distinct from ZIdentity OneAPI | [`./cloud-architecture.md`](./cloud-architecture.md) | draft |
 | **Applications** — pre-defined apps (Zoom, Box, Salesforce, ServiceNow, M365), classification, read-only API surface, MostImpactedRegion field asymmetry between Python and Go | [`./applications.md`](./applications.md) | draft |
 | **Devices** — device inventory, hardware/network/software fields, Wi-Fi-specific Go-only fields (`wifi_adapter`, `ssid`, `bssid`), `os_build` Python-only | [`./devices.md`](./devices.md) | draft |
-| **Reports** — umbrella over apps/devices/users (NOT an aggregation engine); call-quality-metrics (Microsoft Teams/Zoom), top-processes, deeptrace endpoints | [`./reports.md`](./reports.md) | draft |
+| **Reports** — umbrella over apps/devices/**users** (NOT an aggregation engine); call-quality-metrics (Microsoft Teams/Zoom), top-processes, deeptrace endpoints. User lookups (`list_users` / `get_user`) live here | [`./reports.md`](./reports.md) | draft |
+| **Software inventory** — which software versions are present across the device fleet: `list_softwares` / `list_software_keys` over `/zdx/v1/inventory/software` (`vendor/zscaler-sdk-python/zscaler/zdx/inventory.py:36`) | [`./sdk.md`](./sdk.md) §`inventory`, [`./api.md`](./api.md) | draft |
+| **Alert snapshots** — generate a shareable, optionally obfuscated point-in-time snapshot of a ZDX alert (`share_snapshot` → POST `/zdx/v1/snapshot/alert`); Python-only, no Go equivalent | [`./sdk.md`](./sdk.md) §`snapshot` | draft |
 | **Administration** — SDK is misnamed: it's read-only filter helpers (departments + locations lookup), NOT admin user management | [`./administration.md`](./administration.md) | draft |
 | Probes — Web probes vs Cloud Path probes, what each measures, probe-criteria AND/OR logic | [`./probes.md`](./probes.md) | draft |
 | Diagnostics Sessions and Alerts — on-demand deep-investigation workflow (SDK calls these "deeptraces"; help site calls them Diagnostics Sessions), alert status lifecycle | [`./diagnostics-and-alerts.md`](./diagnostics-and-alerts.md) | draft |
 | ZDX API — SDK surface under `client.zdx.*`, wire terminology ("deeptrace" ≠ "Diagnostics Session") | [`./api.md`](./api.md) | draft |
 | **ZDX SDK** — Python and Go service catalog (`client.zdx.*`); method summary; "deeptrace" terminology map | [`./sdk.md`](./sdk.md) | draft |
+| **API source divergences** — where the Python SDK, Go SDK, and help reference disagree: two token hosts (`api.zdxcloud.net` vs `api.zsapi.net`), `X-Ratelimit-*-Second` vs `RateLimit-*` headers, hardcoded Go limiter vs tier-by-license, plus the per-resource Python-vs-Go field/shape splits | [`./api-divergences.md`](./api-divergences.md) | draft |
 | **API schemas** — endpoint catalog and response-shape reference derived from the ZDX SDK | [`./api-schemas.md`](./api-schemas.md) | draft |
+
+## Full SDK service set
+
+The Python SDK mounts eight services under `client.zdx.*`: `admin`, `alerts`, `apps`, `devices`, `inventory`, `snapshot`, `troubleshooting`, `users`. (`vendor/zscaler-sdk-python/zscaler/zdx/zdx_service.py:17-95`) Every topic above maps to one or more of these — `apps`/`devices`/`users` are documented under Applications/Devices/Reports, `troubleshooting` under Diagnostics, `admin` under Administration, and `inventory`/`snapshot` have their own rows above. The full per-method catalog is in [`./sdk.md`](./sdk.md).
 
 ## Terminology watchout
 

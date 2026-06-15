@@ -3,7 +3,7 @@ product: zdx
 topic: "zdx-cloud-architecture"
 title: "ZDX cloud architecture — components, telemetry path, regional model, auth boundary"
 content-type: reasoning
-last-verified: "2026-05-05"
+last-verified: "2026-06-15"
 confidence: high
 source-tier: doc
 sources:
@@ -166,14 +166,14 @@ The TPG is explicitly described as a "multi-tenant RESTFUL application." (`vendo
 
 ## Open questions
 
-- **ZDX CA topology (active-passive vs. active-active)** — the source states design is "similar to that of the Internet & SaaS CA" (`vendor/zscaler-help/understanding-zdx-cloud-architecture.md:48`), implying active-passive, but ZDX CA topology is not explicitly confirmed. Requires Zscaler documentation or lab verification.
-- **Region boundary definition** — how ZDX converts lat/long or IP to a region (country vs. city vs. continent), and what fallback applies when OS location services are off. Not documented in vendor sources.
-- **Data retention and GDPR** — no documented retention period, purge policies, or data-residency configuration options. The Microsoft ADX dependency may be material for customers with cloud-provider constraints.
-- **TPG geo-distribution and failover** — stateless design is documented; SLA, regional deployment footprint, and failure-domain handling for the TPG itself are not documented.
-- **ZCC buffer behavior when TPG is unreachable** — whether ZCC buffers metrics on-device and flushes on reconnect, buffer size, and flush behavior are not documented.
-- **Cloud Path probe routing through Service Edges** — sources note that Cloud Path probes can visualize tunneling through a Public Service Edge, but whether this is mandatory, conditional on network path, or per-probe-config optional is not documented.
-- **Call Quality Monitoring data flow** — polling frequency, latency, and failure modes for Microsoft Graph / Zoom integration are not documented.
-- **ADX tenant isolation mechanism** — specific isolation at the ADX layer (partitioning, RBAC, encryption) is not documented.
+- **ZDX CA topology (active-passive vs. active-active)** — the source states design is "similar to that of the Internet & SaaS CA" (`vendor/zscaler-help/understanding-zdx-cloud-architecture.md:48`), implying active-passive, but ZDX CA topology is not explicitly confirmed. Requires Zscaler documentation or lab verification. See [clarification zdx-15](../_meta/clarifications.md#zdx-15-zdx-ca-topology).
+- **Region boundary definition** — how ZDX converts lat/long or IP to a region (country vs. city vs. continent), and what fallback applies when OS location services are off. Not documented in vendor sources. See [clarification zdx-16](../_meta/clarifications.md#zdx-16-region-boundary-definition-and-geographic-weighting).
+- **Data retention and GDPR** — no documented retention period, purge policies, or data-residency configuration options. The Microsoft ADX dependency may be material for customers with cloud-provider constraints. See [clarification zdx-17](../_meta/clarifications.md#zdx-17-data-retention-gdpr-and-data-residency).
+- **TPG geo-distribution and failover** — stateless design is documented; SLA, regional deployment footprint, and failure-domain handling for the TPG itself are not documented. See [clarification zdx-18](../_meta/clarifications.md#zdx-18-tpg-geo-distribution-and-failover).
+- **ZCC buffer behavior when TPG is unreachable** — whether ZCC buffers metrics on-device and flushes on reconnect, buffer size, and flush behavior are not documented. See [clarification zdx-19](../_meta/clarifications.md#zdx-19-zcc-metric-buffering-when-tpg-unreachable).
+- **Cloud Path probe routing through Service Edges** — sources note that Cloud Path probes can visualize tunneling through a Public Service Edge, but whether this is mandatory, conditional on network path, or per-probe-config optional is not documented. See [clarification zdx-20](../_meta/clarifications.md#zdx-20-cloud-path-probe-routing-through-service-edges).
+- **Call Quality Monitoring data flow** — polling frequency, latency, and failure modes for Microsoft Graph / Zoom integration are not documented. See [clarification zdx-21](../_meta/clarifications.md#zdx-21-call-quality-monitoring-data-flow).
+- **ADX tenant isolation mechanism** — specific isolation at the ADX layer (partitioning, RBAC, encryption) is not documented. See [clarification zdx-22](../_meta/clarifications.md#zdx-22-adx-tenant-isolation-mechanism).
 
 ## Cross-links
 

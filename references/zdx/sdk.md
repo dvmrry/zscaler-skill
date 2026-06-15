@@ -3,7 +3,7 @@ product: zdx
 topic: zdx-sdk
 title: "ZDX SDK reference — Python and Go service catalog"
 content-type: reference
-last-verified: "2026-04-26"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: code
 sources:
@@ -250,7 +250,11 @@ The only ZDX service with write operations. Manages deep trace sessions (packet 
 - `get_analysis` returns a raw dict (not a model object) from `form_response_body(response.get_body())`.
 - `list_deeptraces` and `list_top_processes` do not accept time-range params.
 
-**Go parity:** ✅ `deeptrace.GetDeepTraces`, `deeptrace.StartDeepTrace`, `deeptrace.DeleteDeepTrace`, and sub-metric retrievers. Analysis in `analysis.StartAnalysis`.
+**Go parity:** ⚠️ Partial, and the Go function names diverge from Python.
+
+- **Deep trace lifecycle (Go has these four):** `deeptrace.GetDeepTraces` (`vendor/zscaler-sdk-go/zscaler/zdx/services/troubleshooting/deeptrace/deeptrace.go:50`), `deeptrace.GetDeepTraceSession` (`deeptrace.go:60`), `deeptrace.CreateDeepTraceSession` (`deeptrace.go:69`), `deeptrace.DeleteDeepTraceSession` (`deeptrace.go:79`). Note the Python-vs-Go naming divergence: Python `start_deeptrace` → Go `CreateDeepTraceSession`; Python `delete_deeptrace` → Go `DeleteDeepTraceSession`; Python `get_deeptrace` → Go `GetDeepTraceSession`. There is **no** `StartDeepTrace`/`DeleteDeepTrace` in Go.
+- **Analysis (Go has these three):** `analysis.GetAnalysis` (`vendor/zscaler-sdk-go/zscaler/zdx/services/troubleshooting/analysis/analysis.go:34`), `analysis.CreateAnalysis` (`analysis.go:44`), `analysis.DeleteAnalysis` (`analysis.go:53`). Again, Python `start_analysis` → Go `CreateAnalysis`; there is **no** `StartAnalysis` in Go.
+- **Deep trace sub-metric endpoints — mostly Python-only.** The Go `troubleshooting/deeptrace` package contains *only* the four lifecycle funcs above (`deeptrace.go:50`/`60`/`69`/`79`) — no sub-metric retrievers. The single exception is top-processes, which lives in a *different* Go package: `reports/devices.GetDeviceTopProcesses` builds the `.../deeptraces/{trace_id}/top-processes` path (`vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_top_process.go:32`,`34`). The other five Python deeptrace sub-metric endpoints — `get_deeptrace_webprobe_metrics`, `get_deeptrace_cloudpath_metrics`, `get_deeptrace_cloudpath`, `get_deeptrace_health_metrics`, `get_deeptrace_events` — have **no** Go SDK function. (The Go `reports/devices` funcs `GetWebProbes`/`GetHealthMetrics`/`GetEvents` build `.../apps/{app_id}/...` and `.../{device_id}/...` report paths, not the `/deeptraces/{trace_id}/...` sub-metric paths, so they are not equivalents.) This is a citeable SDK divergence — a Python-only surface, parallel to the snapshot finding (Q1).
 
 Source: `vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py`; `vendor/zscaler-sdk-python/zscaler/zdx/models/troubleshooting.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/troubleshooting/deeptrace/deeptrace.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/troubleshooting/analysis/analysis.go`.
 
@@ -341,4 +345,4 @@ Source: `vendor/zscaler-sdk-python/zscaler/zdx/apps.py`; `vendor/zscaler-sdk-pyt
 
 4. ZDX cursor-based pagination requires callers to implement their own loop. The Go SDK has no centralized `ReadAllPages` for ZDX either. It is unknown whether Zscaler plans to add pagination helpers for ZDX, or whether the cursor tokens are expected to be managed by each caller.
 
-**Q5 — Partially resolved 2026-04-26.** `list_softwares` applies the `@zdx_params` decorator (`vendor/zscaler-sdk-python/zscaler/zdx/inventory.py`, line 33), which converts `since` → `from`/`to` epoch pair. So the decorator is applied and the `since` param is translated if provided. Whether the API itself honors the time-range filter for the inventory endpoint is not confirmed from source code alone — the decorator attaches it, but server-side support still needs hands-on verification.
+**Q5 — Partially resolved 2026-04-26.** `list_softwares` applies the `@zdx_params` decorator (`vendor/zscaler-sdk-python/zscaler/zdx/inventory.py`, line 33), which converts `since` → `from`/`to` epoch pair. So the decorator is applied and the `since` param is translated if provided. Whether the API itself honors the time-range filter for the inventory endpoint is not confirmed from source code alone — the decorator attaches it, but server-side support still needs hands-on verification. See [clarification zdx-43](../_meta/clarifications.md#zdx-43-inventory-time-range-filter-server-support).
