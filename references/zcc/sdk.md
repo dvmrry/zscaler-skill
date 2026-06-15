@@ -403,7 +403,7 @@ Source: `vendor/zscaler-sdk-python/zscaler/zcc/zcc_service.py`; `vendor/zscaler-
 
 | Surface | Endpoint | Python | Go | Notes |
 |---|---|---|---|---|
-| `application_profiles` | `/zcc/papi/public/v1/application-profiles` | `application_profiles.py` | `application_profiles/application_profiles.go` | Python supports list/get/update; Go supports list/get helpers. |
+| `application_profiles` | `/zcc/papi/public/v1/application-profiles` | `application_profiles.py` | `application_profiles/application_profiles.go` | Python supports list/get/update; Go supports list/get/patch (`PatchApplicationProfile` at `application_profiles.go:296`). |
 | `custom_ip_apps` | `/zcc/papi/public/v1/custom-ip-based-apps` | `custom_ip_base_apps.py` | `custom_ip_apps/custom_ip_apps.go` | Read-only app catalog in inspected SDKs. |
 | `predefined_ip_apps` | `/zcc/papi/public/v1/predefined-ip-based-apps` | `predefined_ip_based_apps.py` | `predefined_ip_apps/predefined_ip_apps.go` | Read-only predefined IP application catalog. |
 | `process_based_apps` | `/zcc/papi/public/v1/process-based-apps` | `process_based_apps.py` | `process_based_apps/process_based_apps.go` | Read-only process-based application catalog. |

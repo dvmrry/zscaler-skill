@@ -436,10 +436,10 @@ So the casing is **inverted between the two SDKs for both macOS and Windows.**
 
 **What each source says:**
 
-- **Go SDK:** `notification_template` (`/zcc/papi/public/v2/notification-templates`) and `zia_posture` (`/zcc/papi/public/v2/zia-posture-profiles`) provide full CRUD, both on the `/v2` path prefix the rest of ZCC does not use. `NotificationTemplate` carries `ziaNotificationTemplate` (with granular `enableZiaFirewall`/`enableZiaDNS`/`enableZiaIPS` toggles and their popup variants) and `zpaNotificationTemplate` sub-templates; `ZIAPosture` carries `highTrustCriteria`/`mediumTrustCriteria`/`lowTrustCriteria` each holding a `cs []TrustCriteriaSet`. (`vendor/zscaler-sdk-go/zscaler/zcc/services/notification_template/notification_template.go:15,39-49`, `vendor/zscaler-sdk-go/zscaler/zcc/services/zia_posture/zia_posture.go:15,34-48`)
-- **Python SDK (v1.9.31):** has no equivalents for either service.
+- **Go SDK:** `notification_template` (`/zcc/papi/public/v2/notification-templates`), `zia_posture` (`/zcc/papi/public/v2/zia-posture-profiles`), and `trusted_network_v2` (`/zcc/papi/public/v2/trusted-networks`) each provide full CRUD on the `/v2` path prefix the rest of ZCC does not use. `NotificationTemplate` carries `ziaNotificationTemplate` (with granular `enableZiaFirewall`/`enableZiaDNS`/`enableZiaIPS` toggles and their popup variants) and `zpaNotificationTemplate` sub-templates; `ZIAPosture` carries `highTrustCriteria`/`mediumTrustCriteria`/`lowTrustCriteria` each holding a `cs []TrustCriteriaSet`; `TrustedNetworkV2` is the RESTful replacement for the v1 verb-suffixed surface and is documented separately above. (`vendor/zscaler-sdk-go/zscaler/zcc/services/notification_template/notification_template.go:15,39-49`, `vendor/zscaler-sdk-go/zscaler/zcc/services/zia_posture/zia_posture.go:15,34-48`, `vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network_v2/trusted_network_v2.go:15`)
+- **Python SDK (v1.9.31):** has no equivalents for any of the three services.
 
-**Significance / which to trust:** These two surfaces are reachable only via the Go SDK (or direct HTTP) at this pin. They each warrant their own reference (see index.md topic gaps).
+**Significance / which to trust:** These three surfaces are reachable only via the Go SDK (or direct HTTP) at this pin. They each warrant their own reference (see index.md topic gaps).
 
 ---
 
