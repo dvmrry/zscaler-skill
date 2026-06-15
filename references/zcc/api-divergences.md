@@ -162,6 +162,17 @@ So the casing is **inverted between the two SDKs for both macOS and Windows.**
 
 ---
 
+### DR flags (`enableZiaDR`, `allowZiaTest`, `ziaDRMethod`, …) — concretely typed in Go, untyped in Python
+
+**What each source says:**
+
+- **Go SDK:** the `DisasterRecovery` struct types the flags concretely — `AllowZiaTest`, `AllowZpaTest`, `EnableZiaDR`, `EnableZpaDR` as `bool`, and `ZiaDRMethod` as `int`. (`vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go:487-494`)
+- **Python SDK:** the `DisasterRecovery` model stores the same fields as plain untyped `config[...]` reads defaulting to `None` — no bool/int coercion (`enable_zia_dr`, `zia_dr_method`, `allow_zia_test`, …). (`vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py:612,627-640`)
+
+**Significance / which to trust:** A hand-built payload that quotes these booleans (`"enableZiaDR":"true"`) round-trips through Python's loose model but fails Go's `bool`/`int` typing. Send `enableZiaDR`/`enableZpaDR`/`allowZiaTest`/`allowZpaTest` as JSON booleans and `ziaDRMethod` as a JSON number; trust the Go struct for the wire types.
+
+---
+
 ### `device_type` — JSON number; the string companion is unmodelled; `deviceType` is a second int
 
 **What each source says:**

@@ -258,7 +258,7 @@ See also [`./forwarding-profile.md`](./forwarding-profile.md).
 
 Python SDK's `SNAKE_CASE_KEYS` set lists `"enable_zia_dr"` (`webpolicy.py:80`), implying the wire key should remain snake_case. But `DisasterRecovery.request_format()` actually emits `"enableZiaDR"` (camelCase, `webpolicy.py:665`), and the Go SDK confirms it: `EnableZiaDR bool json:"enableZiaDR"` (`web_policy.go:490`). **The SNAKE_CASE_KEYS entry for this field is a Python SDK bug — the wire format is camelCase.** Same pattern affects `truncate_large_udpdns_response` and `purge_kerberos_preferred_dc_cache` in `PolicyExtension`: SNAKE_CASE_KEYS lists them (`webpolicy.py:77–78`) but `request_format()` emits `truncateLargeUDPDNSResponse` / `purgeKerberosPreferredDCCache` (camelCase, `webpolicy.py:588, 590`), and the Go `PolicyExtension` confirms both as `common.IntOrString` with camelCase tags (`web_policy.go:596, 598`).
 
-**Typing divergence**: Go now types these DR flags concretely — `EnableZiaDR` / `EnableZpaDR` / `AllowZiaTest` / `AllowZpaTest` as `bool` and `ZiaDRMethod` as `int` (`web_policy.go:488–494`) — while Python leaves them untyped (plain `config[...]` reads, `webpolicy.py:627–641`). A hand-built payload that quotes these booleans (`"enableZiaDR":"true"`) matches Python's loose shape but not Go's. This is a candidate row for [`./api-divergences.md`](./api-divergences.md) (not yet folded in).
+**Typing divergence**: Go now types these DR flags concretely — `EnableZiaDR` / `EnableZpaDR` / `AllowZiaTest` / `AllowZpaTest` as `bool` and `ZiaDRMethod` as `int` (`web_policy.go:488–494`) — while Python leaves them untyped (plain `config[...]` reads, `webpolicy.py:627–641`). A hand-built payload that quotes these booleans (`"enableZiaDR":"true"`) matches Python's loose shape but not Go's. Captured as a cross-source divergence in [`./api-divergences.md`](./api-divergences.md) (see *DR flags — concretely typed in Go, untyped in Python*).
 
 ### Go and Python `disasterRecovery` have converged
 
@@ -280,7 +280,7 @@ A previous version of this doc described a large field-set divergence between th
 - `policyId` (`web_policy.go:492`) — DR config's policy ID, populated on read.
 - `ziaPacUrl` (`web_policy.go:499`) — ZIA DR PAC URL, populated on read.
 
-The "meaningful gap, lab-test which set the API accepts" framing no longer applies — the field sets match. The remaining real differences are the typing divergence above and the `ziaPacUrl`/`policyId` read-only extras. Good candidate row for [`./api-divergences.md`](./api-divergences.md) (not yet folded in).
+The "meaningful gap, lab-test which set the API accepts" framing no longer applies — the field sets match. The remaining real differences are the typing divergence above and the `ziaPacUrl`/`policyId` read-only extras. The typing divergence is captured in [`./api-divergences.md`](./api-divergences.md) (see *DR flags — concretely typed in Go, untyped in Python*).
 
 Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`.
 
