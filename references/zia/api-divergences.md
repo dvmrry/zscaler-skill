@@ -4,7 +4,7 @@ topic: "api-divergences"
 title: "ZIA API source divergences"
 content-type: reference
 confidence: medium
-last-verified: "2026-06-14"
+last-verified: "2026-06-15"
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zia/cloudappcontrol.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/models/cloudappcontrol.py"
@@ -17,6 +17,9 @@ sources:
   - "vendor/zscaler-mcp-server/zscaler_mcp/common/zia_helpers.py"
   - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_app_control.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/authentication_settings.py"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/auth_settings/auth_settings.go"
+  - "vendor/zscaler-help/legacy-authentication-settings.md"
   - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/time_intervals.py"
   - "vendor/zscaler-mcp-server/skills/zia/create-ssl-inspection-rule/SKILL.md"
   - "vendor/zscaler-mcp-server/skills/zia/look-up-rule-targets/SKILL.md"
@@ -29,7 +32,7 @@ The Go SDK and the Python SDK are two independent views of the same ZIA manageme
 
 A third signal here is the Zscaler MCP server's ZIA tools. The MCP layer carries operator-observation notes (API error strings, behavioral quirks) in its docstrings and enforces some constraints client-side. Those notes can describe real API behavior, but they are not reproducible from SDK source and are flagged accordingly. Where a claim about how ZIA behaves exists ONLY in MCP docstrings — not in either SDK — it is called out as an observation, not source-backed product behavior.
 
-This pass covers Cloud App Control (CAC) and URL Filtering. The Postman / oneapi-specs collection was not consulted in this scrape (see Open questions).
+This pass covers Cloud App Control (CAC), URL Filtering, SSL Inspection, and Authentication Settings. The Postman / oneapi-specs collection was not consulted in this scrape (see Open questions).
 
 **Quick trust hierarchy (applies unless an entry below overrides it):**
 
@@ -169,6 +172,20 @@ This pass covers Cloud App Control (CAC) and URL Filtering. The Postman / oneapi
 
 ---
 
+## Authentication Settings
+
+### `passwordStrength` / `passwordExpiry` enums — Python SDK docstring tokens disagree with the API
+
+**What each source says:**
+
+- **API (help capture):** the `AuthSettings` model defines `passwordStrength` as enum `NONE` / `LOW` / `HIGH` and `passwordExpiry` as enum `NEVER` / `MONTHLY` / `QUARTERLY` / `SEMIANNUALLY` (`vendor/zscaler-help/legacy-authentication-settings.md:23-24`). The GET example value echoes `"passwordStrength": "NONE"` / `"passwordExpiry": "NEVER"` (`:36`).
+- **Python SDK docstring:** the `update_authentication_settings` method documents *different* tokens — `password_strength` "Supported values: NONE, MEDIUM, STRONG" and `password_expiry` "Supported values: NEVER, ONE_MONTH, THREE_MONTHS, SIX_MONTHS" (`vendor/zscaler-sdk-python/zscaler/zia/authentication_settings.py:242-245`). The Python model itself stores the value as an opaque string and does not validate against any enum (`vendor/zscaler-sdk-python/zscaler/zia/models/authentication_settings.py:44-45`), so the docstring is the only place these tokens appear.
+- **Go SDK:** the `AuthenticationSettings` struct types both fields as plain `string` with no enum constants, so it does not arbitrate the token set (`vendor/zscaler-sdk-go/zscaler/zia/services/auth_settings/auth_settings.go:39-42`).
+
+**Significance / which to trust:** Trust the API enums (`NONE`/`LOW`/`HIGH`, `NEVER`/`MONTHLY`/`QUARTERLY`/`SEMIANNUALLY`). The Python docstring tokens appear to be wrong — they are not produced by the model, are not echoed in the API example value, and have no corroborating source. A caller who copies `MEDIUM`/`STRONG` or `ONE_MONTH` from the SDK docstring into a `PUT /authSettings` body risks a rejected or silently-ignored value. This is a docstring-vs-API divergence (the SDK's *runtime* behavior is fine, since neither SDK validates the string); only the human-facing docstring is misleading. Cross-reference: `references/zia/ad-integration.md` (AuthSettings field table enum caveat).
+
+---
+
 ## MCP-documented observations (not SDK-backed)
 
 The following describe how ZIA reportedly behaves but are asserted ONLY in MCP tool docstrings or MCP client-side enforcement — not in either SDK. Treat as operator-observation / docs claims pending live-tenant confirmation, not source-backed product behavior. They are recorded here because they document real ZIA API quirks the SDKs do not surface.
@@ -202,7 +219,7 @@ The CAC policy table per `rule_type` is reportedly evaluated top-to-bottom, firs
 ## Open questions
 
 - **No source enumerates per-app action validity.** The whole point of the CAC seed — which actions are individually valid for a given app — is genuinely not exposed by any read path in the vendored sources; `availableActions` returns a flat category-level `List[str]` only. (`vendor/zscaler-sdk-python/zscaler/zia/cloudappcontrol.py:34`, `:84-91`) Needs live-tenant probing to resolve. (Tracked as `zia-49` in [`references/_meta/clarifications.md`](../_meta/clarifications.md#zia-49-cac-per-app-action-validity).)
-- **CAC atomic-validation contract is observation-only.** The `INVALID_INPUT_ARGUMENT` / "Invalid action provided for selected applications" whole-create-rejection behavior and the one-rule-per-app safe pattern are in MCP docstrings only, confirmed absent from both SDKs. Confirm against a live tenant before treating as product behavior.
-- **Representative-app quirk specifics unverified.** The "11 actions" count and the AZURE_DEVOPS->[] vs GITHUB->full-set example are MCP-docstring claims (`cloud_app_control.py:311-318`), not in any SDK; unverified against source.
-- **Postman / oneapi-specs not consulted for ZIA in this pass.** A Postman cross-check would raise confidence on two divergences in particular: the `availableActions` `type` field and the 31-char CAC name limit. The ZPA divergences doc uses Postman as a third source; ZIA has no such cross-check yet.
-- **Python `cloudAppRiskProfile` list-vs-single inconsistency not executed.** The model decodes a list (`models/cloudappcontrol.py:115-117`) but `request_format` calls `.request_format()` as a single object (`:220`). This is a code-shape observation; it was not run to confirm it actually raises at runtime.
+- **CAC atomic-validation contract is observation-only.** The `INVALID_INPUT_ARGUMENT` / "Invalid action provided for selected applications" whole-create-rejection behavior and the one-rule-per-app safe pattern are in MCP docstrings only, confirmed absent from both SDKs. Confirm against a live tenant before treating as product behavior. (Tracked as `zia-53` in [`references/_meta/clarifications.md`](../_meta/clarifications.md#zia-53-cac-atomic-validation-contract-and-representative-app-action-quirk).)
+- **Representative-app quirk specifics unverified.** The "11 actions" count and the AZURE_DEVOPS->[] vs GITHUB->full-set example are MCP-docstring claims (`cloud_app_control.py:311-318`), not in any SDK; unverified against source. (Tracked as `zia-53` in [`references/_meta/clarifications.md`](../_meta/clarifications.md#zia-53-cac-atomic-validation-contract-and-representative-app-action-quirk).)
+- **Postman / oneapi-specs not consulted for ZIA in this pass.** A Postman cross-check would raise confidence on two divergences in particular: the `availableActions` `type` field and the 31-char CAC name limit. The ZPA divergences doc uses Postman as a third source; ZIA has no such cross-check yet. *(Methodology/coverage note, not a ZIA-behavior question — not registered.)*
+- **Python `cloudAppRiskProfile` list-vs-single inconsistency not executed.** The model decodes a list (`models/cloudappcontrol.py:115-117`) but `request_format` calls `.request_format()` as a single object (`:220`). This is a code-shape observation; it was not run to confirm it actually raises at runtime. (Tracked as `zia-54` in [`references/_meta/clarifications.md`](../_meta/clarifications.md#zia-54-python-cloudappriskprofile-list-vs-single-shape).)

@@ -3,7 +3,7 @@ product: zia
 topic: zia-audit-logs
 title: "ZIA Admin Audit Logs"
 content-type: reference
-last-verified: "2026-04-26"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: code
 sources:
@@ -16,6 +16,8 @@ sources:
   - "vendor/zscaler-help/legacy-understanding-zia-api.md"
   - "vendor/zscaler-help/understanding-nanolog-streaming-service.md"
   - "vendor/zscaler-help/automate-zscaler/api-endpoint-catalog.md"
+  - "vendor/terraform-provider-zia/zia/resource_zia_cloud_nss_server.go"
+  - "vendor/zscaler-sdk-python/zscaler/zia/models/cloud_nss.py"
 author-status: draft
 ---
 
@@ -48,13 +50,13 @@ Audit logs are stored for up to **6 months**. This retention period applies to a
 
 ## Where to read audit logs
 
-Source: `vendor/zscaler-help/admin-rbac-captures.md`; `vendor/zscaler-help/understanding-nanolog-streaming-service.md`.
+Source: `vendor/zscaler-help/admin-rbac-captures.md`. Source (legacy NSS streams traffic logs only): `vendor/zscaler-help/understanding-nanolog-streaming-service.md`.
 
 **Admin Portal:** Administration > Audit Logs (exact navigation path is not confirmed from available sources — open question below).
 
 **API/SDK:** Programmatic access via the `auditlogEntryReport` endpoints described in this document.
 
-**NSS (streaming):** ZIA audit logs are not the same as traffic logs. The NSS streams traffic logs (web, firewall, DNS). Audit log streaming outside the API report mechanism is not confirmed in available sources — see open questions.
+**NSS (streaming):** Admin audit logs are separate from data-plane traffic logs. The legacy on-prem/VM NSS streams traffic logs only (web, firewall), but Cloud NSS exposes a dedicated `ADMIN_AUDIT` feed type for continuously streaming admin audit logs to a SIEM/storage destination — see [Streaming destinations](#streaming-destinations).
 
 ---
 
@@ -309,17 +311,26 @@ ZIA requires explicit activation after configuration changes. Audit log queries 
 
 ## Streaming destinations
 
-Source: `vendor/zscaler-help/understanding-nanolog-streaming-service.md`; `vendor/zscaler-sdk-python/zscaler/zia/audit_logs.py`; `vendor/zscaler-sdk-go/zscaler/zia/services/adminauditlogs/adminauditlogs.go`.
+Source: `vendor/zscaler-help/understanding-nanolog-streaming-service.md`; `vendor/terraform-provider-zia/zia/resource_zia_cloud_nss_server.go`; `vendor/zscaler-sdk-python/zscaler/zia/models/cloud_nss.py`.
 
-ZIA audit logs are not available through the Nanolog Streaming Service (NSS). NSS is documented in `vendor/zscaler-help/understanding-nanolog-streaming-service.md` as handling web and firewall traffic logs, not admin audit logs.
+There are two distinct ways to get admin audit logs out of ZIA, and which one applies depends on which NSS you mean.
 
-There is no NSS or Cloud NSS feed type for admin audit logs visible in available sources. The audit log API provides the only programmatic extraction mechanism. Whether a SIEM integration exists for pulling audit logs on a schedule is not covered by the available sources.
+**Legacy on-prem/VM NSS — traffic logs only.** The legacy Nanolog Streaming Service (the customer-hosted NSS VM/appliance) is documented in `vendor/zscaler-help/understanding-nanolog-streaming-service.md` as handling data-plane traffic logs — specifically NSS for Web and NSS for Firewall (`understanding-nanolog-streaming-service.md:25-26`). Admin audit logs are not part of that traffic-log stream.
+
+**Cloud NSS — has a dedicated `ADMIN_AUDIT` feed.** The cloud-hosted NSS feed model does support admin audit logs. `ADMIN_AUDIT` is a valid `nss_log_type` value on the Cloud NSS feed resource (`vendor/terraform-provider-zia/zia/resource_zia_cloud_nss_server.go:70`), and the Cloud NSS feed model carries a dedicated `audit_log_type` (`auditLogType`) filter field for narrowing which audit log categories are streamed (`vendor/zscaler-sdk-python/zscaler/zia/models/cloud_nss.py:249`). A Cloud NSS feed configured with `nss_log_type = ADMIN_AUDIT` delivers admin audit events continuously to a SIEM or cloud-storage destination.
+
+So the two extraction paths are complementary, not exclusive:
+
+- **On-demand pull** — the `auditlogEntryReport` API described above (trigger → poll → download CSV). Best for ad-hoc compliance exports and investigations over a chosen time window.
+- **Continuous push** — a Cloud NSS feed with `nss_log_type = ADMIN_AUDIT`, streaming to a SIEM/S3-style sink. Best for keeping a downstream system in sync without polling.
+
+Cloud NSS feed configuration (including the full `nss_log_type` enumeration and the `audit_log_type` sub-filter) is documented in [`references/zia/api.md` §Cloud NSS feeds](./api.md#cloud-nss-feeds).
 
 ---
 
 ## Terraform
 
-No Terraform resource for provisioning ZIA audit log configuration was found in the available sources. The audit log API is query-only (trigger, poll, download, cancel) and does not manage persistent resources. NSS feeds for traffic logs can be managed via Terraform but NSS does not apply to admin audit logs.
+The `auditlogEntryReport` API itself has no Terraform resource — it is query-only (trigger, poll, download, cancel) and does not manage persistent configuration. However, a Cloud NSS feed that streams admin audit logs *is* a Terraform-manageable resource: set `nss_log_type = "ADMIN_AUDIT"` on the Cloud NSS server resource (`vendor/terraform-provider-zia/zia/resource_zia_cloud_nss_server.go:70`). See [`references/zia/api.md` §Cloud NSS feeds](./api.md#cloud-nss-feeds) for the resource's full field set.
 
 ---
 
@@ -335,12 +346,12 @@ Source: `vendor/zscaler-sdk-go/zscaler/zia/services/eventlogentryreport/eventlog
 
 3. **Resolved 2026-04-26.** Event Log download endpoint: the Go SDK (`vendor/zscaler-sdk-go/zscaler/zia/services/eventlogentryreport/eventlogentryreport.go`) does not expose a download function. The Python SDK's `audit_logs.py` `get_report()` method calls `/auditlogEntryReport/download` for the admin audit log — a parallel download endpoint for event logs is not visible in available sources.
 
-4. **NSS/SIEM streaming for ZIA admin audit logs** — no NSS feed type for admin audit logs is visible in available sources. NSS covers traffic logs (web, firewall); admin audit logs appear to be pull-only via the `auditlogEntryReport` API. Not confirmed from available sources.
+4. **Resolved 2026-06-15.** NSS/SIEM streaming for ZIA admin audit logs is supported via Cloud NSS, not the legacy on-prem/VM NSS. `ADMIN_AUDIT` is a valid `nss_log_type` on the Cloud NSS feed resource (`vendor/terraform-provider-zia/zia/resource_zia_cloud_nss_server.go:70`) and the feed model carries a dedicated `audit_log_type` filter (`vendor/zscaler-sdk-python/zscaler/zia/models/cloud_nss.py:249`). The `auditlogEntryReport` API is the on-demand pull path; a Cloud NSS `ADMIN_AUDIT` feed is the continuous-push path. See [Streaming destinations](#streaming-destinations).
 
 5. **Resolved 2026-04-26.** CSV column names confirmed from help portal capture: Timestamp, Action, Category, Sub-Category, Resource, Admin ID, Client IP, Interface (Admin UI or API), Trace ID, Result (success/failure).
 
-6. **Pagination semantics** — the `page` and `pageSize` fields appear in the request schema. The Go SDK's `ReadAllPages` helper would handle pagination, but the ZIA admin audit log report endpoint uses an async request model (POST to queue → poll status → GET download) rather than a direct paginated list. Whether the downloaded CSV itself is paginated or returned in full is not confirmed.
+6. **Pagination semantics** — the `page` and `pageSize` fields appear in the request schema. The Go SDK's `ReadAllPages` helper would handle pagination, but the ZIA admin audit log report endpoint uses an async request model (POST to queue → poll status → GET download) rather than a direct paginated list. Whether the downloaded CSV itself is paginated or returned in full is not confirmed. (Tracked as `zia-55` in [`../_meta/clarifications.md`](../_meta/clarifications.md#zia-55-admin-audit-report-pagination-and-targetorgid-semantics).)
 
-7. **`targetOrgId` usage** — the Go SDK struct includes `targetOrgId` suggesting MSP/partner-mode audit access across managed organizations. Full semantics not confirmed from available sources.
+7. **`targetOrgId` usage** — the Go SDK struct includes `targetOrgId` suggesting MSP/partner-mode audit access across managed organizations. Full semantics not confirmed from available sources. (Tracked as `zia-55` in [`../_meta/clarifications.md`](../_meta/clarifications.md#zia-55-admin-audit-report-pagination-and-targetorgid-semantics).)
 
 8. **Resolved 2026-04-26.** Retention period is 6 months. Whether the window is rolling or absolute, and whether it can be extended via subscription, is not confirmed.

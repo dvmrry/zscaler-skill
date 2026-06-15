@@ -3,7 +3,7 @@ product: zia
 topic: "zia-wildcard-semantics"
 title: "ZIA URL pattern and wildcard matching"
 content-type: reasoning
-last-verified: "2026-04-24"
+last-verified: "2026-06-15"
 confidence: high
 source-tier: doc
 sources:
@@ -13,6 +13,7 @@ sources:
   - "vendor/zscaler-help/About_URL_Categories.txt"
   - "https://help.zscaler.com/zscaler-deployments-operations/url-filtering-deployment-and-operations-guide"
   - "vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/urlcategories/urlcategories.go"
 author-status: draft
 ---
 
@@ -30,7 +31,7 @@ Source: `vendor/zscaler-help/url-format-guidelines.md`.
 2. **Asterisks are not valid wildcards.** `*.example.com` and `*example.com` are documented as invalid, but operator reports suggest the admin console accepts them at save time — see [clarification `zia-15`](../_meta/clarifications.md#zia-15-console-accepts-asterisk-despite-docs-marking-it-invalid). Treat asterisks as broken regardless of whether the console lets you save them; translate to the leading-period form.
 3. **Specificity wins across custom categories, not rule order.** An exact-match entry in category B overrides a wildcard entry in category A for URL-to-category resolution — even if the rule referencing category A is higher in the URL Filtering rule order. See [`./url-filtering.md § The specificity rule`](./url-filtering.md).
 4. **Bulk URL-add is all-or-nothing.** Adding URLs to a custom category via API: if **any single URL** in the batch uses an invalid format, **the entire request is rejected** with an error. There is no partial-success response. Automation scripts uploading bulk custom-category content must validate every entry before submission.
-5. **Pure-TLD entries are rejected in regular custom URL categories — but a separate `type = "TLD_CATEGORY"` exists for TLD-only blocking.** In a regular custom URL category, the `urls` field rejects `.gov`, `.io`, `.com`, etc. as invalid. **Correct pattern**: create a custom URL category with `type = "TLD_CATEGORY"` and put TLD entries in `db_categorized_urls` (not `urls`). Per upstream `zscaler/terraform-provider-zia` issue #497 (closed in v4.6.4), this category type was historically broken in the TF provider's import path even though creation worked. Once created, TLD categories appear in URL Filter rule selectors as `CUSTOM_NN` IDs and can be referenced from rules normally. **Documentation gap:** the `TLD_CATEGORY` type is undocumented in registry docs as of capture date; surfaces only by reading the resource source or the issue thread. **Operational implication:** if your code reports "we don't support TLD blocking" because `urls = [".ru"]` rejected, you've hit the wrong field on the wrong type — switch to `db_categorized_urls` on a `TLD_CATEGORY`-typed category.
+5. **Pure-TLD entries are rejected in regular custom URL categories — but a separate `type = "TLD_CATEGORY"` exists for TLD-only blocking.** In a regular custom URL category, the `urls` field rejects `.gov`, `.io`, `.com`, etc. as invalid. **Correct pattern**: create a custom URL category with `type = "TLD_CATEGORY"` and put TLD entries in `dbCategorizedUrls` (not `urls`). The category-type taxonomy is documented in the Go SDK service layer — the `type` query parameter filters by category type and takes `ALL`, `URL_CATEGORY`, or `TLD_CATEGORY` (`vendor/zscaler-sdk-go/zscaler/zia/services/urlcategories/urlcategories.go:168`, repeated on the `GetAll` listing call at `urlcategories.go:318-320`). The `URLCategory` struct carries the two distinct URL fields plus the type discriminator side by side: `Urls []string` (json `urls`, `urlcategories.go:36`), `DBCategorizedUrls []string` (json `dbCategorizedUrls`, `urlcategories.go:39`), and `Type string` (json `type`, `urlcategories.go:54`) — which is what substantiates "put TLD entries in `dbCategorizedUrls`, not `urls`" directly from the SDK. As history/colour: upstream `zscaler/terraform-provider-zia` issue #497 (closed in v4.6.4) reported this category type was broken in the TF provider's import path even though creation worked. Once created, TLD categories appear in URL Filter rule selectors as `CUSTOM_NN` IDs and can be referenced from rules normally. **Operational implication:** if your code reports "we don't support TLD blocking" because `urls = [".ru"]` rejected, you've hit the wrong field on the wrong type — switch to `dbCategorizedUrls` on a `TLD_CATEGORY`-typed category.
 6. **Underscores in TLD/SLD with subdomain are rejected.** `www.safe_march.com` is invalid (underscore in SLD with subdomain present), but `safe_march.com` is valid (no subdomain). The asymmetry is undocumented in plain language; surfaces only at validation time.
 
 ## Summary

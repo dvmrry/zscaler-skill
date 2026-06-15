@@ -3,7 +3,7 @@ product: zia
 topic: "zia-terraform"
 title: "ZIA Terraform provider resource catalog"
 content-type: reference
-last-verified: "2026-06-02"
+last-verified: "2026-06-15"
 verified-against:
   vendor/terraform-provider-zia: 717926eb564bb21dea1f8e0c3222e6593b29f849
 confidence: medium
@@ -765,8 +765,10 @@ Forwarding control rules that direct traffic to a specific forwarding method: ZI
 | `name` | String | Required |
 | `order` | Int | Required, ≥1 |
 | `type` | String | Required; `FORWARDING` |
-| `forward_method` | String | Required; `DIRECT`, `PROXYCHAIN`, `ZPA`, `IPSEC_TUNNEL`, `GRE_TUNNEL`, `ECSELF`, `ZIA` |
+| `forward_method` | String | Required; `INVALID`, `DIRECT`, `PROXYCHAIN`, `ZIA`, `ZPA`, `ECZPA`, `ECSELF`, `DROP`, `ENATDEDIP`, `GEOIP` |
 | `zpa_gateway` | Block | Optional; required for `ZPA` method |
+
+The `forward_method` validator (`validation.StringInSlice` in `vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_rule.go:155-166`) accepts exactly the ten values above. `ECZPA` is the Cloud-Connector ZPA-forwarding method — it pairs with `zpa_application_segments` / `zpa_application_segment_groups`, described as applicable only to the ECZPA method "used for Zscaler Cloud Connector" (`vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_rule.go:232-233`), whereas the regular `ZPA` method uses `zpa_gateway` / `zpa_app_segments`.
 
 Gotcha: When `forward_method = "ZPA"`, the provider pauses 60 seconds and retries up to 3 times to allow ZPA gateway propagation. Import by numeric ID or name.
 
@@ -830,7 +832,7 @@ Static IP address objects that identify a customer IP for association with locat
 | `geo_override` | Bool | Optional |
 | `latitude` / `longitude` | Float | Optional |
 
-Gotcha: As of v4.6.2, geographic coordinates are auto-determined from the IP address when `geo_override = false`. Setting `geo_override = true` with explicit coordinates is the recommended pattern for precise control. The `/staticIP` endpoint is rate-limited to 1 POST per second; use `terraform apply -parallelism=1` for bulk creation. Import by numeric ID or IP address.
+Gotcha: As of v4.6.2 ([PR #499](https://github.com/zscaler/terraform-provider-zia/pull/499), `vendor/terraform-provider-zia/CHANGELOG.md:456-465`), when `geo_override = true` but `latitude`/`longitude` are not explicitly provided, the provider lets the API auto-determine the coordinates from the IP address — this eliminated the prior "Missing geo Coordinates" error. More generally, `latitude` and `longitude` are optional and "If not provided, the API will automatically determine it from the IP address" (`vendor/terraform-provider-zia/zia/resource_zia_traffic_forwarding_static_ips.go:58-78`, with the auto-population path at `:100-104`). For bulk creation against the rate-limited endpoint, reduce Terraform parallelism with `terraform apply -parallelism=1` (the SDK-wide client limit is 10 POST/PUT/DELETE and 20 GET per 10-second window — see Rate limiting above). Import by numeric ID or IP address.
 
 ### `zia_traffic_forwarding_vpn_credentials`
 
@@ -1008,14 +1010,18 @@ ZIA administrator roles defining which ZIA features the role holder can access a
 |---|---|---|
 | `name` | String | Required |
 | `rank` | Int | Optional; 1–7 scale, default 7 (least privileged) |
-| `role_type` | String | Optional; provider validator accepts `ORG_ADMIN`, `EXEC_INSIGHT`, `EXEC_INSIGHT_AND_ORG_ADMIN`, `SDWAN` |
+| `role_type` | String | Optional; provider validator accepts `ORG_ADMIN`, `EXEC_INSIGHT`, `EXEC_INSIGHT_AND_ORG_ADMIN`, `SDWAN`, `PUBLIC_API` |
 | Various permission fields | List(String) | Optional; e.g., `policy_access`, `report_access`, `dashboard_access` |
 
 Gotcha: Rank 1 is most privileged. Lower-ranked admins cannot manage higher-ranked admins. Import by numeric ID or name.
 
 Source: `vendor/terraform-provider-zia/zia/resource_zia_admin_roles.go`.
 
-Provider validator gap: as of terraform-provider-zia v4.7.21, `resource_zia_admin_roles.go` rejects `role_type = "PUBLIC_API"` even though upstream issue [zscaler/terraform-provider-zia#572](https://github.com/zscaler/terraform-provider-zia/issues/572) reports that the ZIA API returns `roleType: "PUBLIC_API"` for API-only admin roles. Imported API roles can hit a catch-22: setting `PUBLIC_API` in HCL fails validation, while omitting `role_type` can trip the provider's immutability check. Until upstream accepts the enum, imported API roles may need `lifecycle { ignore_changes = [role_type] }` and explicit review before applying role changes.
+`role_type` accepts `PUBLIC_API`: the `validation.StringInSlice` on `role_type` lists `ORG_ADMIN`, `EXEC_INSIGHT`, `EXEC_INSIGHT_AND_ORG_ADMIN`, `SDWAN`, and `PUBLIC_API` (`vendor/terraform-provider-zia/zia/resource_zia_admin_roles.go:156-162`). The older catch-22 for imported API-only admin roles (upstream issue [zscaler/terraform-provider-zia#572](https://github.com/zscaler/terraform-provider-zia/issues/572)) is resolved — `PUBLIC_API` can now be set directly in HCL without failing validation, so the `lifecycle { ignore_changes = [role_type] }` workaround is no longer required.
+
+`role_type` is immutable after create: a plan-time `CustomizeDiff` rejects any change to `role_type` once the resource has an ID, with the error `the role_type cannot be changed once the resource is created` (`vendor/terraform-provider-zia/zia/resource_zia_admin_roles.go:358-365`). To change a role's type, destroy and recreate the resource.
+
+SDWAN role constraints: when `role_type = "SDWAN"`, the same `CustomizeDiff` requires `policy_access = "READ_WRITE"` and `alerting_access = "NONE"`, otherwise the plan fails with `for SDWAN roles, policy_access must be READ_WRITE` / `for SDWAN roles, alerting_access must be NONE` (`vendor/terraform-provider-zia/zia/resource_zia_admin_roles.go:367-377`).
 
 ### `zia_auth_settings_urls`
 
@@ -1525,12 +1531,14 @@ Resolved items below cite the specific provider or help files used for verificat
    - `zia_bandwidth_classes_file_size` — `file_size` values: `FILE_5MB`, `FILE_10MB`, `FILE_50MB`, `FILE_100MB`, `FILE_250MB`, `FILE_500MB`, `FILE_1GB`.
    - `zia_bandwidth_classes_web_conferencing` — `type` values: `BANDWIDTH_CAT_WEBCONF`, `BANDWIDTH_CAT_VOIP`.
 
-2. **`zia_url_categories_predefined`** — Early Access status and tenant eligibility criteria are not documented in the provider source. Availability may vary by ZIA edition and cloud environment. Remains unresolved.
+2. **`zia_url_categories_predefined`** — Early Access status and tenant eligibility criteria are not documented in the provider source. Availability may vary by ZIA edition and cloud environment. Remains unresolved. (Tracked as `zia-68` in [`../_meta/clarifications.md`](../_meta/clarifications.md#zia-68-terraform-url_categories_predefined-ea-gating-sandbox-v1v2-endpoint-static-ip-throttle).)
 
-3. **`zia_sandbox_behavioral_analysis_v2`** — the exact relationship between v1 and v2 (whether they write to the same underlying API endpoint or separate ones) is not confirmed in the provider docs. Both resources import using the same key (`"sandbox_settings"`), which may cause state conflicts if both are declared in the same configuration. Remains unresolved.
+3. **`zia_sandbox_behavioral_analysis_v2`** — the exact relationship between v1 and v2 (whether they write to the same underlying API endpoint or separate ones) is not confirmed in the provider docs. Both resources import using the same key (`"sandbox_settings"`), which may cause state conflicts if both are declared in the same configuration. Remains unresolved. (Tracked as `zia-68` in [`../_meta/clarifications.md`](../_meta/clarifications.md#zia-68-terraform-url_categories_predefined-ea-gating-sandbox-v1v2-endpoint-static-ip-throttle).)
 
 4. **Resolved 2026-04-26.** `zia_cloud_app_control_rule` ISOLATE action requirements confirmed. ISOLATE actions require a Cloud Browser Isolation (CBI) subscription and must be used alone — they cannot be mixed with other actions. A `cbi_profile` block is required when `action = "ISOLATE"`, referencing a `zia_cloud_browser_isolation_profile` data source. The `available_actions_without_isolate` computed attribute on the `zia_cloud_app_control_rule_actions` data source returns all valid non-ISOLATE actions for a given app category.
 
 5. **Resolved 2026-04-26.** `zia_dc_exclusions` and `zia_sub_cloud` ID sourcing clarified. `zia_dc_exclusions` uses `datacenter_id` sourced from the `zia_datacenters` data source (e.g., `data.zia_datacenters.this.datacenter_id`). `zia_sub_cloud` uses `cloud_id` sourced from the `zia_sub_cloud` data source itself (read by name, then reference `data.zia_sub_cloud.lookup.id`). The two IDs refer to different entities — `datacenter_id` is a datacenter exclusion target; `cloud_id` is a subcloud (geographic traffic routing zone) ID. Sources: `vendor/terraform-provider-zia/docs/resources/zia_dc_exclusions.md` and `vendor/terraform-provider-zia/docs/resources/zia_sub_cloud.md`.
 
 6. **Resolved 2026-04-26.** Admin rank values are fixed ZIA system values (not organization-specific). The provider schema sets rank as a TypeInt with no validation constraint (accepts any int). The provider doc for `zia_admin_roles` states: "Default value is 7 (the lowest rank)." Per the admin RBAC capture, rank controls which roles or admin users a given admin can manage — higher rank = more privilege. The valid range is 0–7 where 0 is the highest (super admin) rank and 7 is the default lowest rank.
+
+7. **`zia_traffic_forwarding_static_ip` per-endpoint POST throttle.** A prior version of the static-IP gotcha asserted "the `/staticIP` endpoint is rate-limited to 1 POST per second" (removed 2026-06-15). No vendored source backs a per-second figure: it is absent from the provider docs, `resource_zia_traffic_forwarding_static_ips.go`, the Python/Go SDKs, and `ranges-limitations-zia.md` (which only caps Static IP Address Entries per Organization at 100). The only SDK-backed limit is the client-wide 10 POST/PUT/DELETE + 20 GET per 10-second window. Whether the `/staticIP` POST path carries a stricter per-endpoint throttle is unconfirmed; `terraform apply -parallelism=1` is retained only as conservative bulk-create guidance. Remains unresolved. (Tracked as `zia-68` in [`../_meta/clarifications.md`](../_meta/clarifications.md#zia-68-terraform-url_categories_predefined-ea-gating-sandbox-v1v2-endpoint-static-ip-throttle).)

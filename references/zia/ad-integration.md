@@ -3,10 +3,19 @@ product: zia
 topic: "zia-ad-integration"
 title: "ZIA Active Directory integration — user/group provisioning, auth methods, and the ZIA auth stack"
 content-type: reference
-last-verified: "2026-04-28"
+last-verified: "2026-06-15"
 confidence: medium
-source-tier: doc
+source-tier: code
 sources:
+  - "vendor/zscaler-sdk-python/zscaler/zia/authentication_settings.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/models/authentication_settings.py"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/auth_settings/auth_settings.go"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/user_authentication_settings/user_authentication_settings.go"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_user_api.go"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_group_api.go"
+  - "vendor/zscaler-sdk-go/zscaler/service.go"
+  - "vendor/terraform-provider-zia/zia/resource_zia_auth_settings_urls.go"
+  - "vendor/terraform-provider-zia/zia/resource_zia_user_management_users.go"
   - "https://help.zscaler.com/zia/understanding-scim"
   - "vendor/zscaler-help/understanding-scim-zia.md"
   - "https://help.zscaler.com/legacy-apis/authentication-settings"
@@ -65,8 +74,11 @@ The `GET/PUT /authSettings` endpoint controls the tenant's authentication mode. 
 | `passwordExpiry` | enum | For hosted-DB users: `NEVER`, `MONTHLY`, `QUARTERLY`, `SEMIANNUALLY` |
 | `lastSyncStartTime` | int (epoch) | Timestamp of last LDAP sync start. Reset on auth type change. |
 | `lastSyncEndTime` | int (epoch) | Timestamp of last LDAP sync completion |
+| `mobileAdminSamlIdpEnabled` | boolean | Indicate the use of Mobile Admin as IdP (Tier A — vendor/zscaler-help/legacy-authentication-settings.md:27; SDK model field vendor/zscaler-sdk-python/zscaler/zia/models/authentication_settings.py:48, vendor/zscaler-sdk-go/zscaler/zia/services/auth_settings/auth_settings.go:51) |
 | `autoProvision` | boolean | Enable SAML auto-provisioning (create users on first SAML login) |
 | `directorySyncMigrateToScimEnabled` | boolean | Disable directory sync to migrate to SCIM or SAML auto-provisioning |
+
+> **Enum caveat — trust the API tokens, not the Python SDK docstring.** The `passwordStrength` and `passwordExpiry` enums above follow the API definition (`NONE`/`LOW`/`HIGH` and `NEVER`/`MONTHLY`/`QUARTERLY`/`SEMIANNUALLY`) from the help capture (vendor/zscaler-help/legacy-authentication-settings.md:23-24). The Python SDK's `update_authentication_settings` docstring lists *different* tokens — `passwordStrength` = `NONE`/`MEDIUM`/`STRONG` and `passwordExpiry` = `NEVER`/`ONE_MONTH`/`THREE_MONTHS`/`SIX_MONTHS` (vendor/zscaler-sdk-python/zscaler/zia/authentication_settings.py:242-245). The Go struct carries no enum values and so does not arbitrate (vendor/zscaler-sdk-go/zscaler/zia/services/auth_settings/auth_settings.go:39-42). The SDK docstring tokens appear to be wrong; use the API-documented enums when writing values. See `references/zia/api-divergences.md` for the cross-source entry.
 
 ## The ZIA auth stack — three provisioning paths
 
@@ -124,7 +136,9 @@ The ZIA SCIM server is at a tenant-specific endpoint. Supported operations:
 
 **Group limit**: a single user cannot belong to more than **128 groups** in ZIA. SCIM provisioning fails for users whose AD group membership exceeds this limit. This is a hard constraint — it is not configurable.
 
-SCIM bulk operations support up to 1,000 entries per page (GET). For tenants with >1,000 users or groups, pagination via `startIndex` is required.
+SCIM bulk operations support up to 1,000 entries per page on the raw REST `GET /Users` (and `GET /Groups`) path (Tier A — vendor/zscaler-help/understanding-scim-zia.md:41-55, which documents "Retrieve All Users (up to 1,000 entries) GET /Users" with `?startIndex=<value>` paging). For tenants with >1,000 users or groups, pagination via `startIndex` is required.
+
+**SDK divergence — the Go SCIM SDK pages at 100, not 1,000.** The Go SCIM client does not use the `GET /Users` 1,000-per-page path for list/lookup; `GetAllUsers` and `GetUserByName` retrieve via `POST /Users/.search` capped at `100 // max per Zscaler SCIM API`, and the group equivalents use `POST /Groups/.search` at the same cap (vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_user_api.go:104-112, :54, vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_group_api.go:99-107, :49). So the effective per-page size differs by call path: 1,000 if you call the raw REST `GET`, 100 if you go through the SDK's search-based list — your paging math changes accordingly.
 
 ### Path 3: SAML auto-provisioning
 
@@ -137,7 +151,7 @@ SAML assertions in ZIA are restricted to **user identity, group, and department 
 | Mechanism | Purpose | Interaction |
 |---|---|---|
 | LDAP/AD sync | Provision users and groups from AD | Legacy; deprecated in favor of SCIM |
-| SCIM | Lifecycle management (create, update, deprovision) | Requires SAML as the auth method; driven by the IdP |
+| SCIM | Lifecycle management (create, update, deprovision) | Requires SAML as the auth method; commonly IdP-driven, but the ZIA SCIM SDK client (`scim_api`) can also drive it directly |
 | SAML SSO | Authenticate user at proxy time | Required if SCIM is used; assertion carries user identity |
 | Kerberos | Transparent SSO for domain-joined devices | Supplements SAML/LDAP; eliminates auth prompts on-LAN |
 | Surrogate IP | Map source IP to authenticated user identity | Used with GRE/IPsec tunnels where per-user auth is not per-connection; identity inference rather than real-time auth |
@@ -156,9 +170,32 @@ SAML assertions in ZIA are restricted to **user identity, group, and department 
 | SCIM Groups | `GET/POST/PUT/PATCH/DELETE /scim/v2/Groups` | |
 | SCIM Bulk | `POST /scim/v2/Bulk` | |
 
-**SDK**: no dedicated Python SDK module for `authSettings` or SCIM was identified in available captures. Auth settings are likely managed via the ZIA API directly or via the admin console. SCIM operations are driven by the IdP (Entra ID, Okta, Ping) rather than by SDK calls.
+**SDK**: both the Python and Go SDKs carry dedicated AuthSettings and SCIM surfaces — auth settings are not "API-direct only," and SCIM is not only IdP-driven.
 
-**Terraform**: no `resource_zia_auth_settings` resource was identified in the vendored TF provider. Auth settings are generally configured once during tenant setup and not managed as code.
+- **Python SDK — AuthSettings.** `vendor/zscaler-sdk-python/zscaler/zia/authentication_settings.py` exposes `get_authentication_settings` (:141), `get_authentication_settings_lite` (:182), and `update_authentication_settings` (:223), backed by the `AuthenticationSettings` model in `vendor/zscaler-sdk-python/zscaler/zia/models/authentication_settings.py`. The same module manages the cookie-auth exempted-URL list: `get_exempted_urls` (:37), `add_urls_to_exempt_list` (:69), and `delete_urls_from_exempt_list` (:105).
+- **Go SDK — AuthSettings.** `vendor/zscaler-sdk-go/zscaler/zia/services/auth_settings/auth_settings.go` exposes `Get` (:60), `GetLite` (:71), and `UpdateAuthSettings` (:82) over the `AuthenticationSettings` struct. The exempted-URL list lives in a separate service: `vendor/zscaler-sdk-go/zscaler/zia/services/user_authentication_settings/user_authentication_settings.go` (`Get` :23, `Update` :34, which diffs current-vs-desired and POSTs `?action=ADD_TO_LIST` / `?action=REMOVE_FROM_LIST`).
+- **Go SDK — ZIA SCIM.** There IS a dedicated ZIA SCIM client surface for programmatic provisioning beyond IdP push: `vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_user_api.go` exposes `GetUser` (:44), `GetUserByName` (:54), `CreateUser` (:73), `UpdateUser` (:84), `DeleteUser` (:94), and `GetAllUsers` (:104); `scim_group_api.go` has the group equivalents (`GetGroup`, `GetGroupByName`, `CreateGroup`, `UpdateGroup`, `DeleteGroup`, `GetAllGroups`). These run over a dedicated `ScimZIAService` client constructed by `NewZIAScimService` (`vendor/zscaler-sdk-go/zscaler/service.go:211-235`), which carries its own SCIM token and tenant ID. So while IdP-driven SCIM (Entra ID, Okta, Ping) is the common path, the SDK can also drive SCIM directly.
+
+**SDK-backed `AuthenticationSettings` model fields** (Python model `vendor/zscaler-sdk-python/zscaler/zia/models/authentication_settings.py:37-54`; Go struct `vendor/zscaler-sdk-go/zscaler/zia/services/auth_settings/auth_settings.go:16-58` — the model fields map 1:1 to the API wire fields):
+
+| SDK field (Python `snake_case` / Go) | Wire field |
+|---|---|
+| `org_auth_type` / `OrgAuthType` | `orgAuthType` |
+| `one_time_auth` / `OneTimeAuth` | `oneTimeAuth` |
+| `saml_enabled` / `SamlEnabled` | `samlEnabled` |
+| `kerberos_enabled` / `KerberosEnabled` | `kerberosEnabled` |
+| `kerberos_pwd` / `KerberosPwd` | `kerberosPwd` |
+| `auth_frequency` / `AuthFrequency` | `authFrequency` |
+| `auth_custom_frequency` / `AuthCustomFrequency` | `authCustomFrequency` |
+| `password_strength` / `PasswordStrength` | `passwordStrength` |
+| `password_expiry` / `PasswordExpiry` | `passwordExpiry` |
+| `last_sync_start_time` / `LastSyncStartTime` | `lastSyncStartTime` |
+| `last_sync_end_time` / `LastSyncEndTime` | `lastSyncEndTime` |
+| `mobile_admin_saml_idp_enabled` / `MobileAdminSamlIdpEnabled` | `mobileAdminSamlIdpEnabled` |
+| `auto_provision` / `AutoProvision` | `autoProvision` |
+| `directory_sync_migrate_to_scim_enabled` / `DirectorySyncMigrateToScimEnabled` | `directorySyncMigrateToScimEnabled` |
+
+**Terraform**: there is no single `resource_zia_auth_settings` resource that manages the full `AuthSettings` object as code, so the tenant-wide auth mode (`orgAuthType`, `samlEnabled`, etc.) is still configured once at tenant setup rather than in Terraform. But two related surfaces ARE Terraform-managed: `vendor/terraform-provider-zia/zia/resource_zia_auth_settings_urls.go` manages the cookie-auth exempted-URL list as code (Create/Update call `user_authentication_settings.Update`), and `vendor/terraform-provider-zia/zia/resource_zia_user_management_users.go` manages ZIA users.
 
 ## Common gotchas
 

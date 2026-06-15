@@ -3,13 +3,17 @@ product: zia
 topic: zia-iot-report
 title: "ZIA IoT Report — device visibility, classification, policy"
 content-type: reference
-last-verified: "2026-04-27"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: doc
 sources:
   - "vendor/zscaler-help/about-iot-report.md"
+  - "vendor/terraform-provider-zia/zia/resource_zia_location_management.go"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/location/locationmanagement/locationmanagement.go"
   - "vendor/zscaler-help/adding-rules-cloud-app-control-policy.md"
   - "vendor/zscaler-help/configuring-dynamic-location-groups.md"
+  - "vendor/terraform-provider-zia/zia/resource_zia_firewall_dns_rules.go"
+  - "vendor/zscaler-sdk-python/tests/integration/zia/test_iot_report.py"
   - "vendor/zscaler-help/automate-zscaler/api-endpoint-catalog.md"
   - "vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md"
   - "vendor/zscaler-help/automate-zscaler/guides-analytics-api.md"
@@ -49,18 +53,22 @@ The report refreshes every **6 hours**. Data reflects devices active in the **la
 
 ### Where the data comes from
 
-Classification is derived entirely from passive observation of traffic that reaches a ZIA Policy Server Engine (PSE). The engine looks at:
+What Zscaler documents: classification is derived from **unauthenticated web traffic**, and "Zscaler's AI/ML engine classifies all unauthenticated devices automatically" (`vendor/zscaler-help/about-iot-report.md:8`). The report covers devices "discovered from unauthenticated web traffic" (`about-iot-report.md:8`). The specific input signals the engine consumes are **not stated in any cited Zscaler source** — the help doc names none of them. Visibility is bounded by what the help doc implies: only traffic that reaches Zscaler is observed, since the report is built from web-traffic discovery rather than a network sensor or endpoint agent.
 
-- HTTP User-Agent strings
-- DHCP fingerprints (when visible inside a GRE/IPSec tunnel)
-- Traffic patterns — destination ports, protocols, request cadence, payload shape
-- DNS request signatures
-
-No SPAN port, no DHCP server integration, no endpoint agent. Visibility is limited to traffic that actually reaches Zscaler; devices that talk only on-premise remain invisible.
+The particular fingerprinting mechanics one would expect from a device-inference engine (HTTP User-Agent parsing, DHCP option fingerprinting, DNS-query signatures, TLS client-hello / JA3 correlation, traffic-behavior weighting) are general-networking inference, **not Zscaler-stated fact**. They are recorded as inferred-not-sourced in the [Open questions register](#6-open-questions-register) rather than presented here as documented behavior.
 
 ### Prerequisite: location must have IoT enabled
 
-The report only shows data for locations where IoT discovery is explicitly enabled on the Location Management page. Newly enabled locations take **24 hours** to produce their first report. Adding or removing locations from the filter can take **up to 24 hours** to reflect in the UI filter list.
+The report only shows data for locations where IoT discovery is explicitly enabled on the Location Management page (`vendor/zscaler-help/about-iot-report.md:22`). Newly enabled locations take **24 hours** to produce their first report, and adding or removing locations from the filter can take **up to 24 hours** to reflect in the UI filter list (`about-iot-report.md:22`).
+
+The location schema exposes **two** distinct per-location IoT toggles, not one:
+
+| Flag (TF) | Go SDK field / JSON | Type | Documented meaning |
+|---|---|---|---|
+| `iot_discovery_enabled` | `IOTDiscoveryEnabled` / `iotDiscoveryEnabled` | bool (Optional+Computed) | "Enable IOT Discovery at the location" — this is the toggle the help doc's "ensure IoT is enabled for that location" refers to (`vendor/terraform-provider-zia/zia/resource_zia_location_management.go:257-261`; `vendor/zscaler-sdk-go/zscaler/zia/services/location/locationmanagement/locationmanagement.go:90-91`) |
+| `iot_enforce_policy_set` | `IOTEnforcePolicySet` / `iotEnforcePolicySet` | bool (Optional+Computed) | Description is **empty** in both the TF schema and the Go model — its precise meaning is not source-stated (`resource_zia_location_management.go:263-267`; `locationmanagement.go:93`) |
+
+The two flags are read and written independently in the provider (`resource_zia_location_management.go:537-538`, `:729-730`). The distinction between "discover IoT devices here" and "enforce the IoT policy set here" bears directly on what the report's policy-status widget reflects — see [open question #6](#6-open-questions-register).
 
 ---
 
@@ -88,17 +96,9 @@ The UUID-to-name mappings are served by three dedicated read-only REST endpoints
 
 ### Fingerprinting signals
 
-The engine uses a combination of signals weighted by confidence:
+**Mechanism not documented by Zscaler.** The only sourced statement is that "Zscaler's AI/ML engine classifies all unauthenticated devices automatically" (`vendor/zscaler-help/about-iot-report.md:8`); the help doc names no input signals. The specific signal mechanics (HTTP User-Agent strings, DHCP option 55/60 fingerprinting, DNS-query signatures, TLS/JA3 client-hello correlation, traffic-behavior weighting) are general fingerprinting-engine inference, **not vendor fact**, and are not present in any cited source. They are tracked as inferred-not-sourced in [open question #5](#6-open-questions-register).
 
-| Signal | Notes |
-|---|---|
-| **User-Agent** | Strongest signal for HTTP/HTTPS traffic. Manufacturer strings (e.g., `Axis/`, `HP LaserJet`) are highly specific. |
-| **DHCP options** | Visible when traffic arrives via GRE/IPSec (DHCP frames are tunneled). Option 55 (parameter request list) and option 60 (vendor class identifier) are primary. Not available for Proxy-mode traffic. |
-| **DNS query patterns** | Devices that query vendor update servers or specific cloud endpoints produce recognizable patterns. |
-| **Traffic behavior** | Port usage, request interval, payload size distribution. Less specific on its own; used to break ties. |
-| **TLS fingerprints (JA3)** | Implicit; specific client-hello signatures correlate to device OS and version. |
-
-Devices with insufficient signal land in **Unknown**.
+What is sourced: devices the engine cannot classify "due to limited information for the AI/ML engine" land in **Unknown** (`about-iot-report.md:31`).
 
 ### Flow observation window
 
@@ -121,7 +121,7 @@ Analytics
 The IoT Report page presents:
 
 - **IoT Device Classification** — top classifications with device counts; click a classification to drill into Discovered Devices.
-- **IoT Device Distribution by Policy Status** — bar chart showing total discovered, those with IoT policies applied, and those with no policies. "Policy applied" here refers to whether any Cloud App Control IoT-specific rule applies — not a general firewall rule.
+- **IoT Device Distribution by Policy Status** — bar chart showing total discovered, those with IoT policies applied, and those with no policies (`vendor/zscaler-help/about-iot-report.md:26`). The help doc does not define what "policy applied" maps to; see [open question #6](#6-open-questions-register) for the `iot_enforce_policy_set` location-flag hypothesis.
 - **Device Type Distribution** — pie chart across all four device types (IoT, User Devices, Servers, Unknown).
 - **Top User Device Classification** — similar breakdown for unmanaged-user device types.
 - **Devices Location** — geographic map of device counts by city; hovering shows city name, state, country, and device count.
@@ -155,7 +155,7 @@ The `deviceList` response contains one object per discovered device with the fie
 | `flowStartTime` | int (epoch s) | Start of evaluation window |
 | `flowEndTime` | int (epoch s) | End of evaluation window |
 
-These endpoints are listed explicitly in the ZIA Cloud Service API feature list (`IoT Report`) and appear in the OneAPI endpoint catalog under `https://api.zsapi.net/zia/api/v1`.
+The exact endpoint paths are hardcoded in the SDK service layer: `/zia/api/v1/iotDiscovery/deviceTypes`, `/categories`, `/classifications`, and `/deviceList` (`vendor/zscaler-sdk-go/zscaler/zia/services/iotreport/iotreport.go:10-13`; `vendor/zscaler-sdk-python/zscaler/zia/iot_report.py:28,55-56,97-98,139-140,180-181`). They are **not** listed in the cited OneAPI endpoint catalog — the catalog's ZIA section is truncated (`vendor/zscaler-help/automate-zscaler/api-endpoint-catalog.md:344`) and `IoT` appears there only as a GraphQL analytics domain (`api-endpoint-catalog.md:432`), not as REST `/iotDiscovery/*` paths.
 
 **Python SDK** (`client.zia.iot_report`):
 
@@ -268,7 +268,7 @@ Returns counts and classification entries. Requires the `zins` service to be ena
 
 ## 4. Policy interaction
 
-Source: `vendor/zscaler-help/about-iot-report.md`; `vendor/zscaler-help/adding-rules-cloud-app-control-policy.md`; `vendor/zscaler-help/configuring-dynamic-location-groups.md`.
+Source: `vendor/zscaler-help/about-iot-report.md`; `vendor/zscaler-help/adding-rules-cloud-app-control-policy.md`; `vendor/zscaler-help/configuring-dynamic-location-groups.md`; `vendor/terraform-provider-zia/zia/resource_zia_firewall_dns_rules.go`.
 
 ### What IoT classification cannot do (directly)
 
@@ -321,22 +321,22 @@ Same situation as Firewall. URL Filtering rules can be scoped to the IoT Traffic
 | Cloud App Control | Indirect (predefined allow rules) | Yes | Predefined IoT rules enable classification bootstrap |
 | SSL Inspection | No | Yes | Can bypass SSL inspection for IoT segments (many devices reject interception) |
 | Bandwidth Control | No | Yes | Can rate-limit IoT location groups |
-| DNS Control | No | No | No location group scoping in DNS rules |
+| DNS Control | No | Yes | DNS filtering rules accept a `location_groups` criterion (`vendor/terraform-provider-zia/zia/resource_zia_firewall_dns_rules.go:195`) |
 | DLP | No | Yes | Can apply data-in-motion DLP to IoT segment traffic |
 
 ---
 
 ## 5. Common gotchas
 
-Source: `vendor/zscaler-help/about-iot-report.md`; `vendor/zscaler-help/adding-rules-cloud-app-control-policy.md`; `vendor/zscaler-help/configuring-dynamic-location-groups.md`; `vendor/zscaler-sdk-python/zscaler/zins/iot.py`.
+Source: `vendor/zscaler-help/about-iot-report.md`; `vendor/zscaler-help/adding-rules-cloud-app-control-policy.md`; `vendor/zscaler-help/configuring-dynamic-location-groups.md`; `vendor/zscaler-sdk-python/zscaler/zins/iot.py`; `vendor/zscaler-sdk-python/tests/integration/zia/test_iot_report.py`; `vendor/zscaler-help/automate-zscaler/guides-analytics-api.md`.
 
 ### Classification accuracy degrades without sufficient traffic
 
 The AI/ML engine needs enough weblog records in the observation window to form a confident classification. Devices that generate very little HTTP/HTTPS traffic (e.g., a temperature sensor that calls home once per hour) may remain Unknown or get a low-confidence classification. The 24-hour active-device window means sporadic devices appear and disappear.
 
-### Proxy-mode deployments have less signal
+### Proxy-mode deployments may carry less signal (inference, not sourced)
 
-When traffic arrives via a PAC-file proxy (client explicitly proxied), DHCP frames are not tunneled and are not visible. The engine loses one of its stronger signals. GRE/IPSec tunnel forwarding preserves inner-IP DHCP visibility and improves classification accuracy for IoT segments.
+Inference, not vendor-stated: if the engine relies on layer-2/3 signals such as DHCP frames (which is itself unconfirmed — see [open question #5](#6-open-questions-register)), then a PAC-file proxy deployment, where the client is explicitly proxied and those frames are neither tunneled nor visible to Zscaler, would lose them, whereas GRE/IPSec tunnel forwarding would preserve inner-traffic visibility. Because Zscaler does not document the input signals at all, treat this as a plausible operational expectation rather than confirmed behavior. The one sourced fact is that the report is built from unauthenticated **web** traffic reaching Zscaler (`vendor/zscaler-help/about-iot-report.md:8`).
 
 ### Mobile devices misclassified as IoT
 
@@ -348,7 +348,7 @@ Any unauthenticated traffic — including BYOD laptops that bypass ZCC — appea
 
 ### "Devices with no policies" is not a reliable security signal on its own
 
-The IoT Device Distribution by Policy Status widget shows devices with and without policies applied. "No policy" means no Cloud App Control IoT-category rule applies — it does not mean the device is unrestricted. The device may still be governed by catch-all Firewall or URL Filtering rules. Do not interpret "no policy" as "no protection."
+The IoT Device Distribution by Policy Status widget shows devices with and without policies applied (`vendor/zscaler-help/about-iot-report.md:26`). Whatever "no policy" maps to internally (see [open question #6](#6-open-questions-register)), it does **not** mean the device is unrestricted — the device may still be governed by catch-all Firewall or URL Filtering rules. Do not interpret "no policy" as "no protection."
 
 ### IoT discovery must be enabled per-location
 
@@ -356,7 +356,7 @@ The feature is not on by default globally. Each location must have IoT enabled i
 
 ### API permission restriction
 
-The integration test for the IoT Report REST endpoints explicitly comments "may fail due to permission restrictions." The `/iotDiscovery/*` endpoints are gated behind the IoT reporting entitlement. If API calls return 403, verify the tenant has the IoT Report feature enabled and the API credential has sufficient role. The `Zscaler Insights Reader` role is required for the Z-Insights GraphQL path; a standard ZIA API credential is required for the REST path.
+The SDK integration test for all four IoT Report REST calls explicitly comments "may fail due to permission restrictions" (`vendor/zscaler-sdk-python/tests/integration/zia/test_iot_report.py:39,45,50,55`), and the test is written to swallow a non-nil error rather than fail. This is a strong signal that the `/iotDiscovery/*` endpoints are gated behind an entitlement or role not present in a baseline ZIA credential. If API calls return a permission error, verify the tenant has the IoT Report feature enabled and the API credential has sufficient role. For the Z-Insights GraphQL (Analytics API) path, ZIdentity provides a default **Zscaler Insights Reader** role (`vendor/zscaler-help/automate-zscaler/guides-analytics-api.md:27`). The exact role/entitlement required for the ZIA REST `/iotDiscovery/*` path is **not stated in any cited source** — see [open question #7](#6-open-questions-register).
 
 ---
 
@@ -372,6 +372,8 @@ Source: `vendor/zscaler-help/about-iot-report.md`; `vendor/zscaler-help/automate
 
 4. **Dynamic policy integration roadmap.** The current gap — classification is available in the report but not as a first-class rule criterion — appears to be a product limitation, not a configuration gap. It is unknown whether Zscaler plans to expose IoT classification as a criteria type in Firewall Filtering or a new IoT Policy engine (similar to how ZIA has a standalone Cloud App Control policy for app-level classification). The predefined CAC rules suggest this is directionally intended but not fully realized.
 
-5. **Classification for encrypted traffic.** The extent to which the AI/ML engine uses TLS fingerprints (JA3/JA3S) for classification without decryption is undocumented. For IoT devices that use non-HTTP protocols or pinned certificates that prevent SSL inspection, the classification signal may degrade significantly.
+5. **Which input signals the AI/ML engine actually consumes (inferred, not sourced).** Zscaler documents only that the engine "classifies all unauthenticated devices automatically" from unauthenticated web traffic (`vendor/zscaler-help/about-iot-report.md:8`); it names **no** input signals. The following are general fingerprinting-engine inference, recorded here because they shape operational expectations but are **not confirmed by any cited source**: HTTP User-Agent strings (e.g. manufacturer tokens like `Axis/`, `HP LaserJet`); DHCP option 55 (parameter request list) and option 60 (vendor class identifier); DNS-query signatures against vendor/update endpoints; traffic-behavior features (port usage, request cadence, payload-size distribution) used as tie-breakers; and TLS client-hello / JA3(S) fingerprints correlated to device OS and version. The extent to which any of these — particularly TLS/JA3 for encrypted traffic without decryption — is used is undocumented. For IoT devices that use non-HTTP protocols or pinned certificates that prevent SSL inspection, whatever signal the engine relies on may degrade significantly. Verifying this against Zscaler documentation is an open item.
 
-6. **Relationship between ZIA IoT Report and ZIA IoT Policy.** The CAC widget references "IoT Policy" applied/not-applied status. The precise definition of what constitutes an "IoT policy" — whether it is specifically the predefined CAC IoT rules, or any rule targeting an IoT Traffic Group location, or something else — is not explicitly stated in available documentation.
+6. **What "IoT policy applied" means in the IoT Device Distribution by Policy Status widget.** The widget reports devices with policies applied vs. no policies (`vendor/zscaler-help/about-iot-report.md:26`), but the help doc never defines what constitutes an "IoT policy." Candidate definitions: the predefined CAC IoT rules, any rule targeting an IoT Traffic Group location, or something else. A concrete, source-backed lead narrows this: the location schema carries a distinct per-location boolean `iot_enforce_policy_set` / `IOTEnforcePolicySet` separate from `iot_discovery_enabled` (`vendor/terraform-provider-zia/zia/resource_zia_location_management.go:263` — Optional+Computed bool; `vendor/zscaler-sdk-go/zscaler/zia/services/location/locationmanagement/locationmanagement.go:93`). Its name maps almost exactly onto the widget's distinction: "enforce the IoT policy *set*" at a location is plausibly what flips a device's status from "no policy" to "policy applied." Testable hypothesis: the widget's "policy applied" status reflects `iot_enforce_policy_set` at the location level, not (only) whether predefined CAC IoT rules exist. Caveat: the flag's description is **empty** in both the TF schema and the Go model, so its precise meaning is not source-stated — the hypothesis needs confirmation against tenant behavior or fuller documentation. The existence of two separate location flags is itself hard evidence that the original framing conflated two real configuration signals.
+
+7. **Role/entitlement required for the ZIA REST `/iotDiscovery/*` path.** The SDK integration test wraps all four IoT Report REST calls with "may fail due to permission restrictions" and is written to tolerate a non-nil error (`vendor/zscaler-sdk-python/tests/integration/zia/test_iot_report.py:39,45,50,55`), which indicates the endpoints are gated by an entitlement or role beyond a baseline ZIA credential. No cited source names that role or entitlement. The `Zscaler Insights Reader` role is documented for the separate Analytics/GraphQL (Z-Insights) path (`vendor/zscaler-help/automate-zscaler/guides-analytics-api.md:27`), not the ZIA REST path. Verifying which role unlocks the REST endpoints is an open item.

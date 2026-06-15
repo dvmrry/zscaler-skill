@@ -3,9 +3,9 @@ product: zia
 topic: "api-schemas"
 title: "ZIA API resource schemas"
 content-type: reference
-last-verified: "2026-04-28"
+last-verified: "2026-06-15"
 verified-against:
-  vendor/zscaler-sdk-go: b14f8696c5008f8ea6ea6025b0c691835d9373b4
+  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
 confidence: high
 source-tier: code
 sources:
@@ -44,6 +44,8 @@ Resource-level schemas for the ZIA legacy API, extracted directly from the Go SD
 
 **Service:** `adminauditlogs`
 
+Source: `vendor/zscaler-sdk-go/zscaler/zia/services/adminauditlogs/adminauditlogs.go:15-29`
+
 | Field | JSON tag | Type | Optional | Notes |
 |---|---|---|---|---|
 | Status | status | string | ✓ |  |
@@ -51,6 +53,29 @@ Resource-level schemas for the ZIA legacy API, extracted directly from the Go SD
 | ProgressEndTime | progressEndTime | int | ✓ |  |
 | ErrorMessage | errorMessage | string | ✓ |  |
 | ErrorCode | errorCode | string | ✓ |  |
+
+## AuditLogEntryRequest
+
+**Service:** `adminauditlogs`
+
+Request payload used to generate an audit-log entry report. Source: `vendor/zscaler-sdk-go/zscaler/zia/services/adminauditlogs/adminauditlogs.go:31-72`
+
+| Field | JSON tag | Type | Optional | Notes |
+|---|---|---|---|---|
+| TargetOrgId | targetOrgId | int | ✓ | `vendor/zscaler-sdk-go/zscaler/zia/services/adminauditlogs/adminauditlogs.go:34` |
+| TraceId | traceId | int | ✓ | `vendor/zscaler-sdk-go/zscaler/zia/services/adminauditlogs/adminauditlogs.go:37` |
+| StartTime | startTime | int | ✓ | Start of the report time range `vendor/zscaler-sdk-go/zscaler/zia/services/adminauditlogs/adminauditlogs.go:40` |
+| EndTime | endTime | int | ✓ | End of the report time range `vendor/zscaler-sdk-go/zscaler/zia/services/adminauditlogs/adminauditlogs.go:43` |
+| Page | page | int | ✓ | `vendor/zscaler-sdk-go/zscaler/zia/services/adminauditlogs/adminauditlogs.go:45` |
+| PageSize | pageSize | string | ✓ | `vendor/zscaler-sdk-go/zscaler/zia/services/adminauditlogs/adminauditlogs.go:47` |
+| AdminName | adminName | string | ✓ | `vendor/zscaler-sdk-go/zscaler/zia/services/adminauditlogs/adminauditlogs.go:50` |
+| ObjectName | objectName | string | ✓ | `vendor/zscaler-sdk-go/zscaler/zia/services/adminauditlogs/adminauditlogs.go:53` |
+| ActionInterface | actionInterface | string | ✓ | `vendor/zscaler-sdk-go/zscaler/zia/services/adminauditlogs/adminauditlogs.go:56` |
+| Category | category | string | ✓ | Filters events by category `vendor/zscaler-sdk-go/zscaler/zia/services/adminauditlogs/adminauditlogs.go:59` |
+| Subcategories | subcategories | []string | ✓ | Filters by areas within a category `vendor/zscaler-sdk-go/zscaler/zia/services/adminauditlogs/adminauditlogs.go:62` |
+| ActionResult | actionResult | string | ✓ | Filters by outcome (Failure/Success) `vendor/zscaler-sdk-go/zscaler/zia/services/adminauditlogs/adminauditlogs.go:65` |
+| ActionTypes | actionTypes | []string | ✓ | `vendor/zscaler-sdk-go/zscaler/zia/services/adminauditlogs/adminauditlogs.go:68` |
+| ClientIP | clientIP | int | ✓ | `vendor/zscaler-sdk-go/zscaler/zia/services/adminauditlogs/adminauditlogs.go:71` |
 
 ## AdminUsers
 
@@ -109,15 +134,20 @@ Resource-level schemas for the ZIA legacy API, extracted directly from the Go SD
 
 **Service:** `adminuserrolemgmt/admins`
 
+Source: `vendor/zscaler-sdk-go/zscaler/zia/services/adminuserrolemgmt/admins/adminusers.go:82-88`
+
 | Field | JSON tag | Type | Optional | Notes |
 |---|---|---|---|---|
 | ID | id | int | ✓ |  |
 | Name | name | string | ✓ |  |
 | IsNameL10Tag | isNameL10nTag | bool | ✓ |  |
+| Extensions | extensions | map[string]interface{} | ✓ | `vendor/zscaler-sdk-go/zscaler/zia/services/adminuserrolemgmt/admins/adminusers.go:87` |
 
 ## AdminRoles
 
 **Service:** `adminuserrolemgmt/roles`
+
+Source: `vendor/zscaler-sdk-go/zscaler/zia/services/adminuserrolemgmt/roles/adminroles.go:18-74`
 
 | Field | JSON tag | Type | Optional | Notes |
 |---|---|---|---|---|
@@ -134,6 +164,12 @@ Resource-level schemas for the ZIA legacy API, extracted directly from the Go SD
 | AdminAcctAccess | adminAcctAccess | string | ✓ |  |
 | IsAuditor | isAuditor | bool | ✓ |  |
 | Permissions | permissions | []string |  |  |
+| FeaturePermissions | featurePermissions | map[string]interface{} | ✓ | Feature access permission per area `vendor/zscaler-sdk-go/zscaler/zia/services/adminuserrolemgmt/roles/adminroles.go:59` |
+| ExtFeaturePermissions | extFeaturePermissions | map[string]interface{} | ✓ | External feature access permission `vendor/zscaler-sdk-go/zscaler/zia/services/adminuserrolemgmt/roles/adminroles.go:62` |
+| IsNonEditable | isNonEditable | bool | ✓ | Whether the role is editable/deletable `vendor/zscaler-sdk-go/zscaler/zia/services/adminuserrolemgmt/roles/adminroles.go:65` |
+| LogsLimit | logsLimit | string | ✓ | Log range limit `vendor/zscaler-sdk-go/zscaler/zia/services/adminuserrolemgmt/roles/adminroles.go:68` |
+| RoleType | roleType | string | ✓ | Admin role type (subject to change) `vendor/zscaler-sdk-go/zscaler/zia/services/adminuserrolemgmt/roles/adminroles.go:71` |
+| ReportTimeDuration | reportTimeDuration | int | ✓ | `vendor/zscaler-sdk-go/zscaler/zia/services/adminuserrolemgmt/roles/adminroles.go:74` |
 
 ## AdvancedSettings
 
@@ -168,7 +204,8 @@ Resource-level schemas for the ZIA legacy API, extracted directly from the Go SD
 | PreferSniOverConnHost | preferSniOverConnHost | bool | ✓ |  |
 | SipaXffHeaderEnabled | sipaXffHeaderEnabled | bool | ✓ |  |
 | BlockNonHttpOnHttpPortEnabled | blockNonHttpOnHttpPortEnabled | bool | ✓ |  |
-| UISessionTimeout | uiSessionTimeout | int | ✓ |  |
+| UISessionTimeout | uiSessionTimeout | int | ✓ | Admin Portal login session timeout |
+| APISessionTimeout | apiSessionTimeout | int | ✓ | API session timeout duration (in minutes) |
 | EcsObject | ecsObject | common.IDNameExternalID | ✓ |  |
 | AuthBypassApps | authBypassApps | []string | ✓ |  |
 | KerberosBypassApps | kerberosBypassApps | []string | ✓ |  |
@@ -579,7 +616,44 @@ Resource-level schemas for the ZIA legacy API, extracted directly from the Go SD
 | URL | url | string |  |  |
 | DefaultProfile | defaultProfile | bool |  |  |
 
-## CBIProfile
+## SmartIsolation
+
+**Service:** `secure_browsing`
+
+Dedicated Smart Browser Isolation settings, updated via `PUT /browserControlSettings/smartIsolation` (`UpdateSmartIsolation`). This is a distinct struct from the `SmartIsolation*` fields embedded in `BrowserControlSettings`.
+
+| Field | JSON tag | Type | Optional | Notes |
+|---|---|---|---|---|
+| PluginCheckFrequency | pluginCheckFrequency | string | ✓ |  |
+| BypassPlugins | bypassPlugins | []string | ✓ |  |
+| BypassApplications | bypassApplications | []string | ✓ |  |
+| BypassAllBrowsers | bypassAllBrowsers | bool | ✓ |  |
+| BlockedInternetExplorerVersions | blockedInternetExplorerVersions | []string | ✓ |  |
+| BlockedChromeVersions | blockedChromeVersions | []string | ✓ |  |
+| BlockedFirefoxVersions | blockedFirefoxVersions | []string | ✓ |  |
+| BlockedSafariVersions | blockedSafariVersions | []string | ✓ |  |
+| BlockedOperaVersions | blockedOperaVersions | []string | ✓ |  |
+| AllowAllBrowsers | allowAllBrowsers | bool | ✓ |  |
+| EnableWarnings | enableWarnings | bool | ✓ |  |
+| EnableSmartBrowserIsolation | enableSmartBrowserIsolation | bool | ✓ |  |
+| SmartIsolationUsers | smartIsolationUsers | []common.IDNameExtensions | ✓ |  |
+| SmartIsolationGroups | smartIsolationGroups | []common.IDNameExtensions | ✓ |  |
+| SmartIsolationProfile | smartIsolationProfile | *SmartIsolationProfile | ✓ | The `secure_browsing` `SmartIsolationProfile` struct (id/name/url/defaultProfile) |
+| SmartIsolationProfileID | smartIsolationProfileId | int | ✓ |  |
+
+## SupportedBrowserVersion
+
+**Service:** `secure_browsing`
+
+Returned (as a JSON array, one element per browser type) by `GET /browserControlSettings/supportedBrowserVersions` (`GetSupportedBrowserVersions`).
+
+| Field | JSON tag | Type | Optional | Notes |
+|---|---|---|---|---|
+| BrowserType | browserType | string | ✓ |  |
+| Versions | versions | []string | ✓ |  |
+| OlderVersions | olderVersions | []string | ✓ |  |
+
+## CBIProfile (browser_isolation)
 
 **Service:** `browser_isolation`
 
@@ -709,7 +783,7 @@ Resource-level schemas for the ZIA legacy API, extracted directly from the Go SD
 | ModifiedAt | modifiedAt | int | ✓ |  |
 | ModifiedBy | modifiedBy | *common.IDNameExtensions | ✓ |  |
 
-## CBIProfile
+## CBIProfile (cloudappcontrol)
 
 **Service:** `cloudappcontrol`
 
@@ -1064,9 +1138,12 @@ Resource-level schemas for the ZIA legacy API, extracted directly from the Go SD
 
 **Service:** `common`
 
+Source: `vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:21-24`
+
 | Field | JSON tag | Type | Optional | Notes |
 |---|---|---|---|---|
-| ID | id | int | ✓ |  |
+| ID | id | int | ✓ | `vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:22` |
+| Extensions | extensions | map[string]interface{} | ✓ | `vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:23` |
 
 ## IDName
 
@@ -1082,20 +1159,26 @@ Resource-level schemas for the ZIA legacy API, extracted directly from the Go SD
 
 **Service:** `common`
 
+Source: `vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:15-19`. Referenced throughout this document wherever a field type is `common.IDNameExtensions`.
+
 | Field | JSON tag | Type | Optional | Notes |
 |---|---|---|---|---|
-| ID | id | int | ✓ |  |
-| Name | name | string | ✓ |  |
+| ID | id | int | ✓ | `vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:16` |
+| Name | name | string | ✓ | `vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:17` |
+| Extensions | extensions | map[string]interface{} | ✓ | `vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:18` |
 
 ## IDNameExternalID
 
 **Service:** `common`
 
+Source: `vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:31-36`
+
 | Field | JSON tag | Type | Optional | Notes |
 |---|---|---|---|---|
-| ID | id | int | ✓ |  |
-| Name | name | string | ✓ |  |
-| ExternalID | externalId | string | ✓ |  |
+| ID | id | int | ✓ | `vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:32` |
+| Name | name | string | ✓ | `vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:33` |
+| ExternalID | externalId | string | ✓ | `vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:34` |
+| Extensions | extensions | map[string]interface{} | ✓ | `vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:35` |
 
 ## IDNameWorkloadGroup
 
@@ -1240,7 +1323,7 @@ Resource-level schemas for the ZIA legacy API, extracted directly from the Go SD
 | ScheduleTime | scheduleTime | int | ✓ |  |
 | ScheduleDisabled | scheduleDisabled | bool | ✓ |  |
 
-## TokenList
+## TokenList (dlp/dlp_exact_data_match)
 
 **Service:** `dlp/dlp_exact_data_match`
 
@@ -1266,13 +1349,16 @@ Resource-level schemas for the ZIA legacy API, extracted directly from the Go SD
 
 **Service:** `dlp/dlp_exact_data_match_lite`
 
+Source: `vendor/zscaler-sdk-go/zscaler/zia/services/dlp/dlp_exact_data_match_lite/dlp_exact_data_match_lite.go:25-38`. Note the `ID` JSON tag is capitalized (`json:"ID"`), unlike most ZIA structs which use lowercase `id`.
+
 | Field | JSON tag | Type | Optional | Notes |
 |---|---|---|---|---|
-| ID | ID | int | ✓ |  |
-| Name | name | string | ✓ |  |
-| ExternalID | externalId | string | ✓ |  |
+| ID | ID | int | ✓ | Capitalized tag `vendor/zscaler-sdk-go/zscaler/zia/services/dlp/dlp_exact_data_match_lite/dlp_exact_data_match_lite.go:27` |
+| Name | name | string | ✓ | `vendor/zscaler-sdk-go/zscaler/zia/services/dlp/dlp_exact_data_match_lite/dlp_exact_data_match_lite.go:30` |
+| ExternalID | externalId | string | ✓ | `vendor/zscaler-sdk-go/zscaler/zia/services/dlp/dlp_exact_data_match_lite/dlp_exact_data_match_lite.go:35` |
+| Extensions | extensions | map[string]interface{} | ✓ | `vendor/zscaler-sdk-go/zscaler/zia/services/dlp/dlp_exact_data_match_lite/dlp_exact_data_match_lite.go:37` |
 
-## TokenList
+## TokenList (dlp/dlp_exact_data_match_lite)
 
 **Service:** `dlp/dlp_exact_data_match_lite`
 
@@ -1737,6 +1823,110 @@ Resource-level schemas for the ZIA legacy API, extracted directly from the Go SD
 | Devices | devices | []common.IDNameExtensions |  |  |
 | ThreatCategories | threatCategories | []common.IDNameExtensions | ✓ |  |
 | ZPAAppSegments | zpaAppSegments | []common.ZPAAppSegments |  |  |
+
+## IPSSignatureRules
+
+**Service:** `ips_signature_rules`
+
+Custom IPS signature rule CRUD (`/ipsSignatureRules`). This is distinct from the IPS *control policy* toggle covered by `firewallipscontrolpolicies` (FirewallIPSRules): this surface manages the individual custom Suricata/Snort signatures, which then take effect through the threat category assigned to them. Also present in the Python SDK (`zscaler/zia/ips_signature_rules.py`).
+
+| Field | JSON tag | Type | Optional | Notes |
+|---|---|---|---|---|
+| ID | id | int |  | System-generated identifier |
+| Name | name | string | ✓ |  |
+| RuleText | ruleText | string | ✓ | Rule text in Suricata/Snort syntax |
+| Description | description | string | ✓ |  |
+| Category | category | *IPSSignatureCategory | ✓ | Assigned threat category (single object, not an array) |
+| Enabled | enabled | bool |  | Whether the signature is enabled and ready for use |
+| Deleted | deleted | bool | ✓ |  |
+| PromoteTime | promoteTime | int | ✓ | Unix seconds; 0 if not yet promoted |
+| RuleTextModTime | ruleTextModTime | int | ✓ | Unix seconds when rule text was last modified |
+| DynamicValidationSubmitted | dynamicValidationSubmitted | bool | ✓ |  |
+| DynamicValidationRejected | dynamicValidationRejected | bool | ✓ |  |
+| DynamicValidationSucceeded | dynamicValidationSucceeded | bool | ✓ |  |
+| DisabledFromZSCM | disabledFromZSCM | bool | ✓ | Disabled from Zscaler Cloud Management |
+| DynamicValRejectCode | dynamicValRejectCode | int | ✓ | Reject code returned by dynamic validation |
+
+### IPSSignatureCategory
+
+**Service:** `ips_signature_rules`
+
+Threat category object embedded in an IPSSignatureRules response. A single object (not an array); uses the localization flag `isNameL10nTag` rather than the common `ExternalID` field, so the SDK declares a dedicated type rather than reusing `common.IDNameExternalID`.
+
+| Field | JSON tag | Type | Optional | Notes |
+|---|---|---|---|---|
+| ID | id | int | ✓ |  |
+| Name | name | string | ✓ | e.g. `ADVANCED_SECURITY` |
+| IsNameL10nTag | isNameL10nTag | bool | ✓ | Name is a localization tag rather than a literal label |
+
+### IPSSignatureRulesImportStatus
+
+**Service:** `ips_signature_rules`
+
+Status of a custom IPS signature rules CSV import (`GET /ipsSignatureRules/import`). Note: in the current Go SDK source the import/import-status functions are commented out (the `/ipsSignatureRules/{export,import}` endpoints are flagged broken upstream), but the response struct shape is defined.
+
+| Field | JSON tag | Type | Optional | Notes |
+|---|---|---|---|---|
+| Status | status | string | ✓ | e.g. INIT, IN_PROGRESS, COMPLETED, FAILED |
+| TotalRecordsAdded | totalRecordsAdded | int |  |  |
+| TotalRecordsDeleted | totalRecordsDeleted | int |  |  |
+| TotalRecordsUpdated | totalRecordsUpdated | int |  |  |
+| FailedRecords | failedRecords | []IPSSignatureRulesFailedRecord | ✓ |  |
+| ProcessedRecords | processedRecords | int |  |  |
+| TotalRecordsInImport | totalRecordsInImport | int |  |  |
+| Errors | errors | []IPSSignatureRulesImportError | ✓ | Global errors not tied to a specific record |
+| PercentComplete | percentComplete | int |  | 0-100 |
+| ErrorCode | errorCode | string | ✓ | Top-level error code on failure |
+
+### IPSSignatureRulesFailedRecord
+
+**Service:** `ips_signature_rules`
+
+A single record from a CSV import that the API could not process.
+
+| Field | JSON tag | Type | Optional | Notes |
+|---|---|---|---|---|
+| ErrorCode | errorCode | string | ✓ | e.g. CONFIGURATION |
+| Name | name | string | ✓ |  |
+| Action | action | string | ✓ | e.g. ADD, UPDATE, DELETE |
+| Description | description | string | ✓ |  |
+
+### IPSSignatureRulesImportError
+
+**Service:** `ips_signature_rules`
+
+A global error during a CSV import (not tied to a specific record).
+
+| Field | JSON tag | Type | Optional | Notes |
+|---|---|---|---|---|
+| ErrorCode | errorCode | string | ✓ |  |
+| Description | description | string | ✓ |  |
+
+### IPSSignatureRuleTextValidationRequest
+
+**Service:** `ips_signature_rules`
+
+JSON body accepted by `POST /ipsSignatureRules/validateRuleText`. The API rejects raw string payloads; the rule text must be wrapped in this object.
+
+| Field | JSON tag | Type | Optional | Notes |
+|---|---|---|---|---|
+| RuleText | ruleText | string |  |  |
+
+### IPSSignatureRulesValidation
+
+**Service:** `ips_signature_rules`
+
+Result of validating a custom IPS signature rule text (`POST /ipsSignatureRules/validateRuleText`); maps to the SMMsgStatusInfo model. A well-formed rule returns HTTP 200 with `status=0` and empty error fields; an invalid rule returns HTTP 400 with a standard error envelope (the SDK surfaces that as a Go error, not a populated struct).
+
+| Field | JSON tag | Type | Optional | Notes |
+|---|---|---|---|---|
+| Status | status | int |  | 0 indicates success |
+| ErrPosition | errPosition | int | ✓ | Position in the rule text where the error occurred |
+| ErrMsg | errMsg | string | ✓ |  |
+| ErrParameter | errParameter | string | ✓ |  |
+| ErrSuggestion | errSuggestion | string | ✓ |  |
+| IDList | idList | []int | ✓ |  |
+| SubIdsMap | subIdsMap | map[string]interface{} | ✓ |  |
 
 ## ApplicationServicesLite
 
@@ -2208,7 +2398,7 @@ Resource-level schemas for the ZIA legacy API, extracted directly from the Go SD
 | LastModTime | lastModTime | int |  |  |
 | Predefined | predefined | bool |  |  |
 
-## ManagedBy
+## ManagedBy (location/locationgroups)
 
 **Service:** `location/locationgroups`
 
@@ -2263,14 +2453,17 @@ Resource-level schemas for the ZIA legacy API, extracted directly from the Go SD
 | ID | id | int | ✓ |  |
 | Name | name | string | ✓ |  |
 
-## Location
+## Location (location/locationmanagement)
 
 **Service:** `location/locationmanagement`
 
+Source: `vendor/zscaler-sdk-go/zscaler/zia/services/location/locationmanagement/locationmanagement.go:193-200`
+
 | Field | JSON tag | Type | Optional | Notes |
 |---|---|---|---|---|
-| ID | id | int | ✓ |  |
-| Name | name | string | ✓ |  |
+| ID | id | int | ✓ | `vendor/zscaler-sdk-go/zscaler/zia/services/location/locationmanagement/locationmanagement.go:195` |
+| Name | name | string | ✓ | `vendor/zscaler-sdk-go/zscaler/zia/services/location/locationmanagement/locationmanagement.go:198` |
+| Extensions | extensions | map[string]interface{} | ✓ | `vendor/zscaler-sdk-go/zscaler/zia/services/location/locationmanagement/locationmanagement.go:199` |
 
 ## Locations
 
@@ -2339,14 +2532,17 @@ Resource-level schemas for the ZIA legacy API, extracted directly from the Go SD
 | VirtualZenClusters | virtualZenClusters | []common.IDNameExtensions |  |  |
 | VirtualZens | virtualZens | []common.IDNameExtensions |  |  |
 
-## ManagedBy
+## ManagedBy (location/locationmanagement)
 
 **Service:** `location/locationmanagement`
 
+Source: `vendor/zscaler-sdk-go/zscaler/zia/services/location/locationmanagement/locationmanagement.go:202-209`
+
 | Field | JSON tag | Type | Optional | Notes |
 |---|---|---|---|---|
-| ID | id | int | ✓ |  |
-| Name | name | string | ✓ |  |
+| ID | id | int | ✓ | `vendor/zscaler-sdk-go/zscaler/zia/services/location/locationmanagement/locationmanagement.go:204` |
+| Name | name | string | ✓ | `vendor/zscaler-sdk-go/zscaler/zia/services/location/locationmanagement/locationmanagement.go:207` |
+| Extensions | extensions | map[string]interface{} | ✓ | `vendor/zscaler-sdk-go/zscaler/zia/services/location/locationmanagement/locationmanagement.go:208` |
 
 ## StaticLocationGroups
 
@@ -2590,7 +2786,7 @@ Resource-level schemas for the ZIA legacy API, extracted directly from the Go SD
 | UpdatedAtTimestamp | updatedAtTimestamp | int |  |  |
 | Subscribed | subscribed | bool |  |  |
 
-## LastModifiedBy
+## LastModifiedBy (pacfiles)
 
 **Service:** `pacfiles`
 
@@ -3097,7 +3293,7 @@ Resource-level schemas for the ZIA legacy API, extracted directly from the Go SD
 | Deleted | deleted | bool | ✓ |  |
 | GetlID | getlId | int | ✓ |  |
 
-## Location
+## Location (shadowitreport)
 
 **Service:** `shadowitreport`
 
@@ -3456,7 +3652,7 @@ Resource-level schemas for the ZIA legacy API, extracted directly from the Go SD
 | PrimaryDestVip | primaryDestVip | *PrimaryDestVip | ✓ |  |
 | SecondaryDestVip | secondaryDestVip | *SecondaryDestVip | ✓ |  |
 
-## LastModifiedBy
+## LastModifiedBy (trafficforwarding/gretunnels)
 
 **Service:** `trafficforwarding/gretunnels`
 
@@ -3465,7 +3661,7 @@ Resource-level schemas for the ZIA legacy API, extracted directly from the Go SD
 | ID | id | int | ✓ |  |
 | Name | name | string | ✓ |  |
 
-## ManagedBy
+## ManagedBy (trafficforwarding/gretunnels)
 
 **Service:** `trafficforwarding/gretunnels`
 
@@ -3538,7 +3734,7 @@ Resource-level schemas for the ZIA legacy API, extracted directly from the Go SD
 | ID | id | int | ✓ |  |
 | Name | name | string | ✓ |  |
 
-## LastModifiedBy
+## LastModifiedBy (trafficforwarding/staticips)
 
 **Service:** `trafficforwarding/staticips`
 
@@ -3547,7 +3743,7 @@ Resource-level schemas for the ZIA legacy API, extracted directly from the Go SD
 | ID | id | int | ✓ |  |
 | Name | name | string | ✓ |  |
 
-## ManagedBy
+## ManagedBy (trafficforwarding/staticips)
 
 **Service:** `trafficforwarding/staticips`
 
@@ -3656,7 +3852,7 @@ Resource-level schemas for the ZIA legacy API, extracted directly from the Go SD
 | PACIPs | pacIps | []string |  |  |
 | PACDomainName | pacDomainName | string |  |  |
 
-## Location
+## Location (trafficforwarding/vpncredentials)
 
 **Service:** `trafficforwarding/vpncredentials`
 
@@ -3665,7 +3861,7 @@ Resource-level schemas for the ZIA legacy API, extracted directly from the Go SD
 | ID | id | int |  |  |
 | Name | name | string |  |  |
 
-## ManagedBy
+## ManagedBy (trafficforwarding/vpncredentials)
 
 **Service:** `trafficforwarding/vpncredentials`
 
@@ -3780,9 +3976,11 @@ Resource-level schemas for the ZIA legacy API, extracted directly from the Go SD
 | DomainType | domainType | string |  |  |
 | Matches | matches | []DomainMatch |  |  |
 
-## CBIProfile
+## CBIProfile (common)
 
-**Service:** `urlfilteringpolicies`
+**Service:** `common` (referenced by `urlfilteringpolicies`)
+
+This Cloud Browser Isolation profile struct now lives in the shared `common` package; the `urlfilteringpolicies` service references it as `*common.CBIProfile`.
 
 | Field | JSON tag | Type | Optional | Notes |
 |---|---|---|---|---|
@@ -3873,7 +4071,7 @@ Resource-level schemas for the ZIA legacy API, extracted directly from the Go SD
 | SourceIPGroups | sourceIpGroups | []common.IDNameExtensions | ✓ |  |
 | TimeWindows | timeWindows | []common.IDNameExtensions | ✓ |  |
 | WorkloadGroups | workloadGroups | []common.IDName | ✓ |  |
-| CBIProfile | cbiProfile | *CBIProfile | ✓ |  |
+| CBIProfile | cbiProfile | *common.CBIProfile | ✓ | Cloud Browser Isolation profile; type moved to the shared `common.CBIProfile` (no longer a local `urlfilteringpolicies` struct) |
 | CBIProfileID | cbiProfileId | int | ✓ |  |
 
 ## ExemptedUrls
@@ -4023,3 +4221,7 @@ Resource-level schemas for the ZIA legacy API, extracted directly from the Go SD
 | Field | JSON tag | Type | Optional | Notes |
 |---|---|---|---|---|
 | ExpressionContainers | expressionContainers | []ExpressionContainer |  |  |
+
+## Open questions
+
+- `ips_signature_rules` import surface: the `IPSSignatureRulesImportStatus` / import / import-status functions are present in the Go SDK source but commented out, with an inline note that the `/ipsSignatureRules/{export,import}` endpoints are broken upstream. The struct shapes are documented above from source, but the actual `GET /ipsSignatureRules/import` and `POST /ipsSignatureRules/import` wire behavior (and the import CSV multipart field name) is unverified against a live tenant. (Tracked as `zia-52` in [`../_meta/clarifications.md`](../_meta/clarifications.md#zia-52-ipssignaturerules-import-wire-behavior-and-multipart-field-name).)

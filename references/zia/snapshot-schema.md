@@ -3,7 +3,7 @@ product: zia
 topic: "snapshot-schema"
 title: "ZIA _data/snapshot/ schema — what's in the JSON, how to read it"
 content-type: reference
-last-verified: "2026-04-24"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: code
 sources:
@@ -175,7 +175,7 @@ Source: `vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rules.py`.
 
     // Match criteria — urlCategories is an array of STRINGS, not objects
     "urlCategories": ["OTHER_ADULT_MATERIAL", "CUSTOM_89"],  // string category IDs (confirmed)
-    // urlCategories2 does NOT appear in real responses (count: 0) — likely write-only or deprecated
+    "urlCategories2": [],             // secondary URL-category match slot — empty on Z2 tenant, but live in the SDK (read+write)
     "requestMethods": [],
     "userAgentTypes": [],
     "userRiskScoreLevels": [],
@@ -234,11 +234,11 @@ Cross-links: [`./url-filtering.md`](./url-filtering.md), [`./locations.md`](./lo
 
 ## `cloud-app-control-rules.json`
 
-Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscaler-sdk-python/zscaler/zia/models/cloud_app_policy.py`.
+Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscaler-sdk-python/zscaler/zia/models/cloudappcontrol.py` (`CloudApplicationControl`).
 
 API: `GET /zia/api/v1/webApplicationRules` (Postman: 23 ZIA folders / Cloud App Control Policy)
 
-Source: `vendor/zscaler-sdk-python/zscaler/zia/models/cloud_app_policy.py`.
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/cloudappcontrol.py` (`CloudApplicationControl`).
 
 **Shape:** Cloud App Control rules, organized by **rule type**. Multiple rule types exist (one per cloud-app category — Webmail, Streaming, Social, etc.).
 
@@ -254,9 +254,9 @@ Source: `vendor/zscaler-sdk-python/zscaler/zia/models/cloud_app_policy.py`.
     "type": "WEBMAIL",                // rule-type discriminator — controls which actions are valid
     "actions": ["BLOCK_WEBMAIL_SEND"],// list (slice) — multiple actions per rule possible
 
-    "applications": [                 // which cloud apps this rule scopes to
-      { "id": 12, "name": "Gmail" },
-      { "id": 13, "name": "Yahoo Mail" }
+    "applications": [                 // array of STRING app IDs, not {id, name} objects
+      "GOOGLE_WEBMAIL",
+      "YAHOO_WEBMAIL"
     ],
     "cloudAppRiskProfile": null,      // see references/zia/cloud-app-control.md
     "cloudAppInstances": [],          // tenant-instance scoping
@@ -281,13 +281,13 @@ Source: `vendor/zscaler-sdk-python/zscaler/zia/models/cloud_app_policy.py`.
 ]
 ```
 
-Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscaler-sdk-python/zscaler/zia/models/cloud_app_policy.py`.
+Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscaler-sdk-python/zscaler/zia/models/cloudappcontrol.py` (`CloudApplicationControl`).
 
 **`type` enum** controls per-rule action validity. The full `type` set is enumerated by `GET /zia/api/v1/webApplicationRules/ruleTypeMapping`. Per-type valid actions queryable via `GET /zia/api/v1/webApplicationRules/availableActions`.
 
-Source: `vendor/zscaler-sdk-python/zscaler/zia/models/cloud_app_policy.py`.
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/cloudappcontrol.py` (`CloudApplicationControl`).
 
-Full SDK model: `vendor/zscaler-sdk-python/zscaler/zia/models/cloud_app_policy.py`.
+Full SDK model: `vendor/zscaler-sdk-python/zscaler/zia/models/cloudappcontrol.py` (`CloudApplicationControl`). Note: `cloud_app_policy.py` holds only the lightweight `CloudApplicationPolicy` catalog struct (`app`, `appName`, `parent`, `parentName`) — not the rule model.
 
 ### Common jq queries
 
@@ -329,7 +329,7 @@ Source: `vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py`.
     // The action object — top-level wrapper around decrypt-or-not decision
     "action": {
       "type": "DECRYPT",              // DECRYPT, DO_NOT_DECRYPT, BLOCK
-      "showEunForUntrustedCerts": true,
+      "showEUN": true,                // wire key is showEUN (also showEUNATP); NOT showEunForUntrustedCerts
       "overrideDefaultCertificate": false,
 
       // Conditional sub-objects depending on type
@@ -337,16 +337,16 @@ Source: `vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py`.
         "serverCertificates": "ALLOW", // BLOCK or ALLOW
         "ocspCheck": true,
         "blockSslTrafficWithNoSniEnabled": false,
-        "minClientTlsVersion": "...",
-        "minServerTlsVersion": "...",
-        "blockUndecryptTraffic": false,
+        "minClientTLSVersion": "...", // uppercase TLS on the wire
+        "minServerTLSVersion": "...", // uppercase TLS on the wire
+        "blockUndecrypt": false,      // wire key is blockUndecrypt, NOT blockUndecryptTraffic
         "http2Enabled": false         // wire is camelCase — http2Enabled, NOT http2_enabled
       },
 
       "doNotDecryptSubActions": {     // confirmed present for all DO_NOT_DECRYPT rules
         "bypassOtherPolicies": false,
         "serverCertificates": "ALLOW",
-        "minTlsVersion": "..."
+        "minTLSVersion": "..."        // uppercase TLS on the wire (NOT minTlsVersion)
       },
 
       "sslInterceptionCert": { "id": 1, "name": "Default Zscaler CA" }
@@ -389,8 +389,8 @@ Full SDK model: `vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rul
 ### Common jq queries
 
 ```bash
-# All Do-Not-Decrypt rules — the bypass set
-jq '.[] | select(.action.type == "DO_NOT_DECRYPT") | {name, urlCategories: [.urlCategories[].id]}' _data/snapshot/<cloud>/zia/ssl-inspection-rules.json
+# All Do-Not-Decrypt rules — the bypass set (urlCategories is an array of string IDs)
+jq '.[] | select(.action.type == "DO_NOT_DECRYPT") | {name, urlCategories}' _data/snapshot/<cloud>/zia/ssl-inspection-rules.json
 
 # Predefined rules (cannot be deleted via API)
 jq '.[] | select(.predefined == true) | {name, action: .action.type}' _data/snapshot/<cloud>/zia/ssl-inspection-rules.json
@@ -421,13 +421,18 @@ Source: `vendor/zscaler-sdk-python/zscaler/zia/models/advanced_settings.py`.
   "cascadeUrlFiltering": true,        // URL Filter cascading default
   "enableAdminRankAccess": false,
   "uiSessionTimeout": 1800,
-  "sslSessionTimeout": 1800,          // SSL session cache TTL
+  "sslSessionTimeout": 1800,          // tenant-observed, NOT in SDK model — see Open questions
   "ecsForAllEnabled": false,
   "dynamicUserRiskEnabled": false,
   "preferSniOverConnHost": false,
+  "preferSniOverConnHostApps": [],    // per-app override list for SNI-over-CONNECT-host
   "sipaXffHeaderEnabled": false,      // see references/shared/source-ip-anchoring.md
   "enableEvaluatePolicyOnGlobalSSLBypass": false,  // capital SSL — url-filtering.md security toggle
   "enableOffice365": false,
+  "enforceSurrogateIpForWindowsApp": false,  // surrogate-IP enforcement for ZCC Windows
+  "httpRangeHeaderRemoveUrlCategories": [],  // strip Range header for these categories
+  "sniDnsOptimizationBypassUrlCategories": [],
+  "domainFrontingBypassUrlCategories": [],
 
   // Auth bypass arrays (each: list of {id, name} objects or strings — verify shape)
   "authBypassApps": [],
@@ -451,26 +456,39 @@ Source: `vendor/zscaler-sdk-python/zscaler/zia/models/advanced_settings.py`.
   "blockNonHttpOnHttpPortEnabled": false,
   "trackHttpTunnelOnHttpPorts": false,
 
-  // Transparent proxy / DNS
+  // Transparent proxy / DNS — toggles
   "enableDnsResolutionOnTransparentProxy": false,
   "enableIPv6DnsOptimizationOnAllTransparentProxy": false,
   "enableIPv6DnsResolutionOnTransparentProxy": false,
 
+  // Transparent-proxy DNS-resolution — scoping lists (apps / urls / urlCategories, each w/ IPv6 variant)
+  // common debugging targets when DNS-on-transparent-proxy behaves unexpectedly
+  "dnsResolutionOnTransparentProxyApps": [],
+  "dnsResolutionOnTransparentProxyIPv6Apps": [],
+  "dnsResolutionOnTransparentProxyUrls": [],
+  "dnsResolutionOnTransparentProxyUrlCategories": [],
+  "dnsResolutionOnTransparentProxyIPv6UrlCategories": [],
+  "dnsResolutionOnTransparentProxyExemptApps": [],
+  "dnsResolutionOnTransparentProxyIPv6ExemptApps": [],
+  "dnsResolutionOnTransparentProxyExemptUrls": [],
+  "dnsResolutionOnTransparentProxyExemptUrlCategories": [],
+  "dnsResolutionOnTransparentProxyIPv6ExemptUrlCategories": [],
+
   // Traffic policy
   "enablePolicyForUnauthenticatedTraffic": false,
-  "enforceGeoMappingForWindowsApp": false,
+  "enforceGeoMappingForWindowsApp": false,  // tenant-observed, NOT in SDK model — see Open questions
   "http2NonbrowserTrafficEnabled": false,
-  "sipaSsoOptimizationByConnApp": false,  // SIPA SSO optimization per connector app
-  "sslOptimizationRequestUrlCategories": [],
+  "sipaSsoOptimizationByConnApp": false,  // tenant-observed, NOT in SDK model — see Open questions
+  "sslOptimizationRequestUrlCategories": [],  // tenant-observed, NOT in SDK model — see Open questions
   "zscalerClientConnector1AndPacRoadWarriorInFirewall": false,
 
-  // ... additional boolean fields (58 total confirmed)
+  // ... additional boolean fields (58 returned by the Z2 tenant)
 }
 ```
 
-Source: `vendor/zscaler-sdk-python/zscaler/zia/models/advanced_settings.py`.
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/advanced_settings.py:262-319` (`request_format`).
 
-Full SDK model: `vendor/zscaler-sdk-python/zscaler/zia/models/advanced_settings.py`. 58 fields confirmed from tenant data.
+Full SDK model: `vendor/zscaler-sdk-python/zscaler/zia/models/advanced_settings.py`. The SDK `request_format` method (`advanced_settings.py:262-319`; the 49 keys span lines 268-316) names 49 keys; the Z2 tenant returned 58, so the SDK surface is a **floor** — the API may return more. Verify the exact key set against a populated tenant snapshot. The named scoping lists above (transparent-proxy DNS-resolution family, `httpRangeHeaderRemoveUrlCategories`, `preferSniOverConnHostApps`, `sniDnsOptimizationBypassUrlCategories`, `domainFrontingBypassUrlCategories`, `enforceSurrogateIpForWindowsApp`) are all SDK-confirmed (`advanced_settings.py:274,292,300,304-316`).
 
 **Fields documented in prior schema that do NOT exist in real responses** (removed above):
 
@@ -565,7 +583,7 @@ jq 'type' _data/snapshot/<cloud>/zia/url-filtering-rules.json  # expect "array"
 **Resolved from tenant verification (2026-04-26):**
 - ✅ url-categories `id` is always a **string** — predefined = category code (`"OTHER_ADULT_MATERIAL"`), custom = `"CUSTOM_89"`. Not integer.
 - ✅ `urlCategories` in rules is an **array of strings**, not `{id, name}` objects.
-- ✅ `urlCategories2` does **not** appear in real responses — write-only or deprecated. Removed from schema.
+- ✅ `urlCategories2` exists in the SDK model (read+write) but was empty in the verified Z2 tenant snapshot — it is a secondary URL-category match slot used only by certain rule configurations; treat absence as "unused on this tenant", not "removed from the API". The current Python SDK model deserializes it (`vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rules.py:70-71`) and serializes it (`url_filtering_rules.py:205`), so it round-trips on both read and write.
 - ✅ `urlKeywordCounts` does **not** exist in real responses — SDK artifact. Removed from schema.
 - ✅ `decryptSubActions` structure confirmed correct.
 - ✅ `doNotDecryptSubActions` confirmed present for all DO_NOT_DECRYPT rules.
@@ -607,6 +625,12 @@ Source: `vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rules.py`; `
 Source: `vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py`.
 
 7. **`defaultRule: true` (SSL Inspection) is the catch-all rule.** Always present, always last. Modify via update; can't be deleted.
+
+## Open questions
+
+- **Four `advanced-settings.json` fields are tenant-observed but absent from the SDK model.** `sslSessionTimeout`, `enforceGeoMappingForWindowsApp`, `sipaSsoOptimizationByConnApp`, and `sslOptimizationRequestUrlCategories` appear in the JSON example as part of the "58 fields returned by the Z2 tenant" but do not appear anywhere in `vendor/zscaler-sdk-python/zscaler/zia/models/advanced_settings.py` (49 `request_format` keys, none matching these in any casing). They are likely part of the gap between the SDK's 49-key floor and the tenant's 58 keys, but they are not source-backed against the SDK. Confirm field names/types against a populated tenant snapshot before relying on them.
+
+- The "Check One-Click bypass states" jq query under `advanced-settings.json` probes `enableMsftO365`, `enableZoom`, `enableWebex` — but this doc's own "Fields documented in prior schema that do NOT exist" block lists those exact UCaaS One-Click toggles as absent from the Z2 tenant, and they are not present in the current SDK model (`vendor/zscaler-sdk-python/zscaler/zia/models/advanced_settings.py` has no such attributes). The query will return `null` for those keys on a real snapshot. Unresolved: whether these toggles live on a separate endpoint (e.g. a dedicated SaaS/One-Click app-control settings resource) or are tier-gated — needs a tenant where they are enabled to confirm the correct field names/location. (Tracked as `zia-65` in [`../_meta/clarifications.md`](../_meta/clarifications.md#zia-65-ucaas-one-click-toggle-field-location).)
 
 ## Cross-links
 

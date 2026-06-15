@@ -3,13 +3,16 @@ product: zia
 topic: rule-labels
 title: "ZIA Rule Labels — tagging construct for policy rule organization and automation"
 content-type: reference
-last-verified: "2026-04-27"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: doc
 sources:
   - "vendor/zscaler-help/about-rule-labels.md"
   - "vendor/zscaler-sdk-python/zscaler/zia/rule_labels.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/models/rule_labels.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_rules.py"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/rule_labels/rule_labels.go"
+  - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
   - "vendor/terraform-provider-zia/docs/resources/zia_rule_labels.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_firewall_filtering_rule.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_url_filtering_rules.md"
@@ -106,9 +109,12 @@ vendor/terraform-provider-zia/)
 The Python SDK's `get_rule_type_label` method documents an additional taxonomy of rule types
 it accepts as filter values for the `/ruleLabels/ruleType/{rule_type}` endpoint:
 `URL_FILTERING`, `FIREWALL`, `CASB_DLP`, `CLOUD_APP_CONTROL`, `DATA_PROTECTION`, `GENAI`,
-`INDUSTRY_PEER`, `NEWS_FEED`, `RISK_SCORE`, `SANDBOX`. This enum is defined in the SDK
-source and not documented in the vendor help portal. (Tier B —
-vendor/zscaler-sdk-python/zscaler/zia/rule_labels.py)
+`INDUSTRY_PEER`, `NEWS_FEED`, `RISK_SCORE`, `SANDBOX`. This enum and the endpoint that uses
+it are **Python-SDK-only**: the docstring enum is defined in the Python SDK source, and the
+`ruleType` path itself has no counterpart in the Go SDK or the Postman collection. Treat its
+REST backing as unconfirmed outside the Python SDK. (Tier B —
+vendor/zscaler-sdk-python/zscaler/zia/rule_labels.py:286-287; see Open question
+[`zia-50`](#7-open-questions).)
 
 Source: `vendor/zscaler-help/about-rule-labels.md`; `vendor/zscaler-sdk-python/zscaler/zia/rule_labels.py`; `vendor/terraform-provider-zia/docs/resources/zia_rule_labels.md`.
 
@@ -118,17 +124,25 @@ Source: `vendor/zscaler-help/about-rule-labels.md`; `vendor/zscaler-sdk-python/z
 
 ### 3.1 REST API Endpoints
 
-| Operation | Method | Path |
-|---|---|---|
-| List all labels | GET | `/zia/api/v1/ruleLabels` |
-| List labels (lite/ID-name pairs) | GET | `/zia/api/v1/ruleLabels/lite` |
-| Get single label | GET | `/zia/api/v1/ruleLabels/{id}` |
-| Get labels by rule type | GET | `/zia/api/v1/ruleLabels/ruleType/{rule_type}` |
-| Create label | POST | `/zia/api/v1/ruleLabels` |
-| Update label | PUT | `/zia/api/v1/ruleLabels/{id}` |
-| Delete label | DELETE | `/zia/api/v1/ruleLabels/{id}` |
+| Operation | Method | Path | Backing |
+|---|---|---|---|
+| List all labels | GET | `/zia/api/v1/ruleLabels` | Python SDK + Go SDK + Postman |
+| Get single label | GET | `/zia/api/v1/ruleLabels/{id}` | Python SDK + Go SDK + Postman |
+| Get labels by rule type | GET | `/zia/api/v1/ruleLabels/ruleType/{rule_type}` | Python SDK only |
+| Create label | POST | `/zia/api/v1/ruleLabels` | Python SDK + Go SDK + Postman |
+| Update label | PUT | `/zia/api/v1/ruleLabels/{id}` | Python SDK + Go SDK + Postman |
+| Delete label | DELETE | `/zia/api/v1/ruleLabels/{id}` | Python SDK + Go SDK + Postman |
 
-(Tier B — vendor/zscaler-sdk-python/zscaler/zia/rule_labels.py)
+The five CRUD endpoints (list, get, create, update, delete) are confirmed across all
+three source tiers: the Python SDK (`list_labels`, `get_label`, `add_label`, `update_label`,
+`delete_label`), the Go SDK (`Get`/`GetAll`/`Create`/`Update`/`Delete` in the
+`rule_labels/` package), and the Postman collection (the "Rule Labels" folder lists exactly
+these five requests — Get all, Get 1, Add, Update, Delete). The `ruleType` filter endpoint
+is **Python-SDK-only**: it appears in `rule_labels.py` (`get_rule_type_label`) but has no
+counterpart in the Go SDK or the Postman collection. (Tier B —
+vendor/zscaler-sdk-python/zscaler/zia/rule_labels.py:37,103,147,200,244,280;
+vendor/zscaler-sdk-go/zscaler/zia/services/rule_labels/rule_labels.go:41,67,82,93,102;
+vendor/zscaler-api-specs/oneapi-postman-collection.json:6131,6162,6194,6234,6275)
 
 ### 3.2 Request/Response Shape
 
@@ -159,15 +173,21 @@ File: `zscaler/zia/rule_labels.py`
 | Method | Signature | Endpoint |
 |---|---|---|
 | `list_labels` | `(query_params=None)` | GET `/ruleLabels` |
-| `list_labels_lite` | `()` | GET `/ruleLabels/lite` |
 | `get_label` | `(label_id: int)` | GET `/ruleLabels/{id}` |
 | `add_label` | `(**kwargs)` | POST `/ruleLabels` |
 | `update_label` | `(label_id: int, **kwargs)` | PUT `/ruleLabels/{id}` |
 | `delete_label` | `(label_id: int)` | DELETE `/ruleLabels/{id}` |
-| `get_rule_type_label` | `(rule_type: str)` | GET `/ruleLabels/ruleType/{rule_type}` |
+| `get_rule_type_label` † | `(rule_type: str)` | GET `/ruleLabels/ruleType/{rule_type}` |
 
-Go SDK parity: confirmed (`rule_labels/` package). (Tier B —
-vendor/zscaler-sdk-python/zscaler/zia/rule_labels.py; references/zia/sdk.md)
+† `get_rule_type_label` is **Python-SDK-only** — it has no equivalent in the Go SDK or the
+Postman collection, so its REST backing is unconfirmed outside the Python SDK service layer.
+(Tier B — vendor/zscaler-sdk-python/zscaler/zia/rule_labels.py:280)
+
+Go SDK parity (for the five CRUD methods): confirmed. The `rule_labels/` package exposes
+`Get`, `GetRuleLabelByName`, `Create`, `Update`, `Delete`, and `GetAll` — no `lite` method
+and no `ruleType` method. (Tier B —
+vendor/zscaler-sdk-go/zscaler/zia/services/rule_labels/rule_labels.go:41,52,67,82,93,102;
+references/zia/sdk.md)
 
 **Idempotency and reassignment.** A label can be renamed via `update_label` without
 affecting the rules that reference it, because rules reference the label by numeric ID, not
@@ -264,10 +284,10 @@ given policy category (e.g., `FIREWALL`, `URL_FILTERING`), which is useful when 
 automation that operates on rules within a single policy domain. (Tier B —
 vendor/zscaler-sdk-python/zscaler/zia/rule_labels.py)
 
-The `FirewallPolicyAPI.list_rules` method in the Python SDK accepts a `rule_label` query
+The firewall `list_rules` method in the Python SDK accepts a `rule_label` query
 parameter, enabling server-side filtering of firewall rules by label. Whether equivalent
 label-based filtering is available on other rule-type list endpoints is not confirmed from
-available sources. (Tier B — references/zia/sdk.md)
+available sources. (Tier B — vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_rules.py:45)
 
 ### 4.3 Change management workflows
 
@@ -349,6 +369,7 @@ registered as deferred questions in [`_meta/clarifications.md`](../_meta/clarifi
 | [`zia-30`](../_meta/clarifications.md#zia-30-rule-label-duplicate-action-semantics) | Does the "duplicate" action in the admin console copy label-to-rule associations, or create a fresh unassociated label copy? |
 | [`zia-31`](../_meta/clarifications.md#zia-31-rule_label-filter-on-non-firewall-endpoints) | Is label-based filtering (`rule_label` query param) available on rule list endpoints other than firewall filtering? |
 | [`zia-32`](../_meta/clarifications.md#zia-32-tenant-cap-on-rule-labels) | Is there a documented cap on the total number of rule labels per tenant? |
+| [`zia-50`](../_meta/clarifications.md#zia-50-ruletype-filter-endpoint-rest-backing) | Is the `/ruleLabels/ruleType/{rule_type}` filter endpoint a stable REST surface, or a Python-SDK-only convenience? It is absent from the Go SDK and Postman. |
 
 ---
 

@@ -3,12 +3,15 @@ product: zia
 topic: "workload-groups"
 title: "ZIA Workload Groups — policy-scoping primitive (sourced from SDK / TF; help portal gap)"
 content-type: reasoning
-last-verified: "2026-04-26"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: code
 sources:
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/workloadgroups/workloadgroups.go"
   - "vendor/zscaler-sdk-python/zscaler/zia/workload_groups.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/models/workload_groups.py"
+  - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/workload_groups.py"
+  - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
   - "vendor/terraform-provider-zia/zia/resource_zia_workload_groups.go"
   - "vendor/terraform-provider-zia/zia/data_source_zia_workload_groups.go"
   - "vendor/terraform-provider-zia/zia/resource_zia_url_filtering_rules.go"
@@ -22,13 +25,19 @@ author-status: draft
 
 # ZIA Workload Groups
 
-> **SOURCE CAVEAT (load-bearing):** The Zscaler help portal page at
+> **SOURCE CAVEAT:** The Zscaler help portal page at
 > `help.zscaler.com/zia/about-workload-groups` is **non-functional as of April
-> 2026** — the SPA reroutes to unrelated content. This document is sourced
-> entirely from the Python SDK (`vendor/zscaler-sdk-python/zscaler/zia/workload_groups.py`
-> and its model) and the Terraform provider schemas. **Confidence: medium.**
-> Semantic intent (especially how the ZIA backend evaluates expressions against
-> live traffic) cannot be confirmed without live-API or upstream-doc evidence.
+> 2026** — the SPA reroutes to unrelated content. This document is sourced from
+> the Python SDK (`vendor/zscaler-sdk-python/zscaler/zia/workload_groups.py` and
+> its model), the **Go SDK** service struct
+> (`vendor/zscaler-sdk-go/zscaler/zia/services/workloadgroups/workloadgroups.go`,
+> whose field doc-comments are first-party behavioral documentation), and the
+> Terraform provider schemas. The **field shape and operator vocabulary are now
+> SDK-cross-confirmed** (Go doc-comments name the operators and the
+> container/tag-container nesting explicitly — see Field shape). What remains
+> genuinely unverified is **live-traffic match evaluation** — how the ZIA backend
+> evaluates a built expression against workload traffic — which no available
+> source describes. **Confidence: medium.**
 
 ## Orientation
 
@@ -46,7 +55,17 @@ Workload Traffic Group answers "which _locations_ carry workload traffic";
 Workload Groups answer "which _workloads within those locations_ match this
 policy."
 
-API endpoint: `/zia/api/v1/workloadGroups`.
+API endpoint: `/zia/api/v1/workloadGroups` (OneAPI base). Confirmed in both
+SDKs: Python `_zia_base_endpoint = "/zia/api/v1"` +
+`/workloadGroups` (`vendor/zscaler-sdk-python/zscaler/zia/workload_groups.py:31,69`)
+and Go `const workloadGroupsEndpoint = "/zia/api/v1/workloadGroups"`
+(`vendor/zscaler-sdk-go/zscaler/zia/services/workloadgroups/workloadgroups.go:15`).
+The legacy Postman/OneAPI collection roots the same resource at
+`{{ZIABase}}/workloadGroups` (different, pre-OneAPI base) and carries only a
+GET-all read example with no request-body schema
+(`vendor/zscaler-api-specs/oneapi-postman-collection.json:9943-9982`) — so
+Postman confirms the resource exists but is **not** a useful source for the
+write/expression schema; the SDK remains source of truth there.
 
 ## Why this matters
 
@@ -86,19 +105,31 @@ while the data source reads and surfaces it.
 ### Expression structure (`expressionJson` / `expression_json`)
 
 The expression is a tree of **containers**, each targeting a tag type and
-combining tags with a logical operator.
+combining tags with a logical operator. The nesting and operator roles below
+are confirmed by the Go SDK struct doc-comments
+(`vendor/zscaler-sdk-go/zscaler/zia/services/workloadgroups/workloadgroups.go`):
+`WorkloadTagExpression` is "the workload group expression … represented in a
+JSON format" (line 40); `expressionJson` holds an `expressionContainers[]` list
+(line 42); each container carries a `tagType`, an `operator`, and a
+`tagContainer` (lines 45-53); the tag-container holds `tags[]` plus its own
+`operator` (lines 56-63).
 
 ```
-expressionJson
-  └─ expressionContainers[]     # list of ExpressionContainer
-       ├─ tagType               # string enum — see tag types below
-       ├─ operator              # AND | OR | OPEN_PARENTHESES | CLOSE_PARENTHESES
-       └─ tagContainer
-            ├─ operator         # AND | OR | OPEN_PARENTHESES | CLOSE_PARENTHESES
-            └─ tags[]
-                 ├─ key         # string — tag key (e.g. "GroupName", "Vpc-id")
-                 └─ value       # string — tag value
+expressionJson                  # "the workload group expression … in a JSON format" (go:40)
+  └─ expressionContainers[]     # list of ExpressionContainer (go:42)
+       ├─ tagType               # string enum — see tag types below (go:47)
+       ├─ operator              # AND | OR — "logical relationships among tag types" (go:49)
+       └─ tagContainer          # (go:53)
+            ├─ operator         # AND | OR — "combine the tags within a tag type" (go:62)
+            └─ tags[]           # max 8 total per group (go:59) — see Tag limits
+                 ├─ key         # string — tag key (e.g. "GroupName", "Vpc-id") (go:69)
+                 └─ value       # string — tag value (go:71)
 ```
+
+**Operators are AND / OR at both levels (SDK-confirmed).** The Go doc-comments
+scope the operator to "either AND or OR" at the container level
+(`workloadgroups.go:49`) and at the tag-container level
+(`workloadgroups.go:62`). This is first-party SDK documentation, not inference.
 
 **Tag types** (from TF `ValidateFunc`):
 
@@ -111,10 +142,32 @@ expressionJson
 | `ENI` | Elastic Network Interface tag |
 | `ATTR` | Arbitrary attribute tag (e.g. `GroupName`) |
 
-**Container-level operator values:** `AND`, `OR`, `OPEN_PARENTHESES`,
-`CLOSE_PARENTHESES`. The parentheses values suggest the expression tree
-supports grouping, but the exact evaluation semantics are unverified (source:
-TF `ValidateFunc` only — tier D inference).
+**Operator values — SDK vs TF divergence.** The Go SDK doc-comments name only
+`AND` and `OR` as the operators, at both the container level
+(`vendor/zscaler-sdk-go/zscaler/zia/services/workloadgroups/workloadgroups.go:49`)
+and the tag-container level
+(`workloadgroups.go:62`). The Terraform provider's `ValidateFunc` additionally
+accepts `OPEN_PARENTHESES` and `CLOSE_PARENTHESES` for both operator fields —
+values the Go SDK comments **do not mention**. This is a genuine SDK-vs-TF
+divergence: the parentheses enum is **TF-provider-only** and is not part of the
+operator vocabulary the SDK documents. How (or whether) ZIA uses parentheses to
+build a precedence-grouped expression is unexplained in any available source —
+see Gotchas #3.
+
+### Tag limits
+
+| Limit | Value | Source |
+|---|---|---|
+| Tags per workload group | **Max 8, across all tag types** | `vendor/zscaler-sdk-go/zscaler/zia/services/workloadgroups/workloadgroups.go:59` (Go SDK doc-comment on `TagContainer.Tags`) |
+
+The Go SDK doc-comment states verbatim: "A maximum of 8 tags can be added to a
+workload group, irrespective of the number of tag types present"
+(`workloadgroups.go:59`). This is a **total** across the whole group, not a
+per-tag-type budget — so a group spanning, say, VPC, VM, and ATTR tag types
+still shares one pool of 8 tags. This is a first-party SDK behavioral limit and
+is **distinct** from the TF-only `MaxItems: 255` cap, which bounds how many
+*workload groups* a single policy rule may reference (not how many tags a group
+may hold) — see the policy-rules table.
 
 ## API operations
 
@@ -128,7 +181,19 @@ Full CRUD is exposed by both the SDK and TF provider:
 | Update | `workload_groups.update_group(group_id, **kwargs)` | `PUT /workloadGroups/{id}` |
 | Delete | `workload_groups.delete_group(group_id)` | `DELETE /workloadGroups/{id}` |
 
-List supports `page` and `page_size` query params (default size: 250; max: 1000).
+List supports `page` and `page_size` query params (default size: 250; max: 1000;
+`vendor/zscaler-sdk-python/zscaler/zia/workload_groups.py:47-50`).
+
+**Lookup-by-name is client-side only.** ZIA exposes **no server-side name query
+param** on `/workloadGroups`. To resolve a group by name you list all groups and
+filter locally. The Go SDK's `GetByName` does exactly this — it calls
+`common.ReadAllPages` then filters in Go with `strings.EqualFold`
+(`vendor/zscaler-sdk-go/zscaler/zia/services/workloadgroups/workloadgroups.go:85-97`),
+which also makes the match **case-insensitive**. The MCP server's own tool
+docstring corroborates the behavior, stating "the ZIA list endpoint does not
+expose a server-side `name` filter, so projection like `[?name=='…'].id` is the
+supported path"
+(`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/workload_groups.py:36-40,53-54`).
 
 TF `zia_workload_groups` resource: supports create, read, update, delete, and
 import by either numeric ID or name. Changes trigger `ZIA_ACTIVATION` if the
@@ -146,10 +211,19 @@ Verified from TF resource and data source files:
 | **DLP Web Rules** | `zia_dlp_web_rules` | `workload_groups` |
 | **Traffic Capture** | `zia_traffic_capture_rules` | `workload_groups` |
 
-All five use the shared `setIdNameSchemaCustom(255, ...)` helper, meaning the
-field is an ID+name set, max 255 members. The SDK URL Filtering model also
-carries `workloadGroups` (`url_filtering.py`); the Python SDK reformat list
-includes it.
+All five use the shared `setIdNameSchemaCustom(255, ...)` helper
+(`vendor/terraform-provider-zia/zia/common.go:113-119`), meaning the field is an
+ID+name set with `MaxItems: 255`. The SDK URL Filtering model also carries
+`workloadGroups` (`url_filtering.py`); the Python SDK reformat list includes it.
+
+> **Source divergence — TF/SDK wire 5, MCP names 4.** The MCP server's
+> workload-group tool docstring enumerates only **four** carrier rule types —
+> Cloud Firewall, URL Filtering, SSL Inspection, Web DLP — and **omits Traffic
+> Capture**
+> (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/workload_groups.py:6-9,48-49`).
+> The TF provider wires `workload_groups` onto all five (the table above). This
+> is an MCP **under-count**, not a capability contradiction: the authoritative
+> set is **5** (TF/SDK > MCP commentary in the source hierarchy).
 
 Forwarding Control rules do **not** carry `workload_groups` in the TF source.
 Bandwidth Control, Cloud App Control, and other rule types were not observed
@@ -178,10 +252,12 @@ feature surface, not a general-purpose tagging system for user traffic.
 ## Gotchas and source-citation gaps
 
 1. **Help portal gap.** `help.zscaler.com/zia/about-workload-groups` does not
-   serve its expected content as of April 2026. All semantic claims in this
-   document derive from SDK/TF code only. Treat everything about _evaluation
-   semantics_ (how ZIA matches an expression against live traffic) as
-   unverified until a functional help-portal page or API reference confirms it.
+   serve its expected content as of April 2026. This document is sourced from
+   SDK code (Go + Python), TF schemas, and MCP/Postman corroboration. Field
+   shape, operator vocabulary (AND/OR), the 8-tag cap, and the
+   client-side-name-lookup behavior are SDK-confirmed. What stays unverified is
+   _live-traffic evaluation semantics_ (how ZIA matches a built expression
+   against workload traffic) — see Open questions.
 
 2. **`expression` vs `expression_json` relationship is unverified.** The API
    returns both a string `expression` and a structured `expressionJson`. Whether
@@ -191,18 +267,61 @@ feature surface, not a general-purpose tagging system for user traffic.
    the SDK docstring only shows `expression_json` in create examples — tier-D
    inference that `expression_json` is the canonical write form.
 
-3. **`OPEN_PARENTHESES` / `CLOSE_PARENTHESES` operator values.** Exposed in
-   TF ValidateFunc for both container-level and tag-container-level operators.
-   How ZIA uses these to build a precedence-grouped expression is not explained
-   in any available source. Tier D — present in schema, semantics unverified.
+3. **`OPEN_PARENTHESES` / `CLOSE_PARENTHESES` are a TF-only operator enum.**
+   These two values appear in the TF `ValidateFunc` for both container-level and
+   tag-container-level operators, but the Go SDK doc-comments scope the operator
+   to "either AND or OR" at both levels
+   (`vendor/zscaler-sdk-go/zscaler/zia/services/workloadgroups/workloadgroups.go:49,62`)
+   and never mention parentheses. So this is a documented **SDK-vs-TF
+   divergence**, not merely "semantics unverified": the operator *vocabulary* is
+   AND/OR per the SDK; the parentheses enum is TF-provider surface only. How (or
+   whether) ZIA itself uses parentheses to build a precedence-grouped expression
+   against live traffic remains unconfirmed.
 
-4. **Max 255 workload groups per rule.** Derived from `setIdNameSchemaCustom(255,
-   ...)` in all rule resources. Whether this is a hard ZIA API limit or a TF
-   provider convention is unconfirmed.
+4. **Two distinct numeric caps — don't conflate them.**
+   - **Max 8 tags per workload group**, across all tag types — first-party Go SDK
+     doc-comment
+     (`vendor/zscaler-sdk-go/zscaler/zia/services/workloadgroups/workloadgroups.go:59`).
+     This is a concrete authoring constraint (8 tags total, *not* 8 per
+     tag-type) and is now SDK-sourced, not inferred — see Tag limits.
+   - **Max 255 workload groups *per rule*** — derived from
+     `setIdNameSchemaCustom(255, ...)`
+     (`vendor/terraform-provider-zia/zia/common.go:113-119`) on all five carrier
+     rule resources. This bounds how many groups a rule references, not tags per
+     group. Whether 255 is a hard ZIA API limit or a TF-provider convention
+     remains **unconfirmed** (TF `MaxItems` only).
 
 5. **Activation required.** Creating, updating, or deleting a Workload Group
    via the TF provider triggers ZIA configuration activation (if
    `ZIA_ACTIVATION=true`). Same as all other ZIA write operations.
+
+## Open questions
+
+These behaviors are not backed by any available source (no functional help
+portal page, no live-API evidence) and should not be treated as established.
+All five are tracked together as `zia-69` in [`../_meta/clarifications.md`](../_meta/clarifications.md#zia-69-workload-group-runtime-expression-evaluation-expressionjson-sync-and-tag-type-enum):
+
+- **Live-traffic match evaluation.** How the ZIA backend evaluates a built
+  expression against actual workload traffic — left-to-right, precedence rules,
+  short-circuiting — is undocumented in SDK, TF, MCP, and Postman sources. Field
+  shape and operator vocabulary are SDK-confirmed; the *runtime semantics* are
+  not.
+- **`expression` (string) vs `expressionJson` sync on write.** Whether ZIA keeps
+  the human-readable `expression` string in sync when only `expressionJson` is
+  written (and whether `expressionJson` is truly the canonical write form) is not
+  confirmed by any source — the TF resource omits the string form on write and
+  the SDK examples only populate the JSON form, but neither documents the
+  server-side behavior.
+- **Parentheses runtime behavior.** Even granting that `OPEN_PARENTHESES` /
+  `CLOSE_PARENTHESES` are a TF-only enum, how (or whether) ZIA consumes them to
+  build a precedence-grouped expression is unexplained anywhere.
+- **Is `MaxItems: 255` a real API limit?** The 255-groups-per-rule cap is a TF
+  provider `MaxItems` convention only; no SDK comment or API reference confirms
+  ZIA enforces it server-side.
+- **Tag-type enum completeness and meanings.** The tag-type values
+  (`ANY`/`VPC`/`SUBNET`/`VM`/`ENI`/`ATTR`) come from the TF `ValidateFunc`; their
+  exact semantics (and whether the list is exhaustive) are inferred from SDK
+  docstring examples, not authoritatively documented.
 
 ## Cross-links
 

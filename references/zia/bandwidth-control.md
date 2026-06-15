@@ -3,10 +3,19 @@ product: zia
 topic: "bandwidth-control"
 title: "ZIA Bandwidth Control"
 content-type: reasoning
-last-verified: "2026-04-24"
+last-verified: "2026-06-15"
 confidence: high
-source-tier: doc
+source-tier: mixed
 sources:
+  - "vendor/zscaler-sdk-python/zscaler/zia/bandwidth_classes.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/bandwidth_control_rules.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/models/bandwidth_classes.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/models/bandwidth_control_rules.py"
+  - "vendor/terraform-provider-zia/zia/resource_zia_bandwidth_control_rules.go"
+  - "vendor/terraform-provider-zia/zia/resource_zia_bandwidth_classes.go"
+  - "vendor/terraform-provider-zia/zia/resource_zia_bandwidth_classes_file_size.go"
+  - "vendor/terraform-provider-zia/zia/resource_zia_bandwidth_classes_web_conferencing.go"
+  - "vendor/terraform-provider-zia/zia/common.go"
   - "vendor/zscaler-help/about-bandwidth-control.md"
   - "vendor/zscaler-help/adding-bandwidth-classes.md"
   - "vendor/zscaler-help/bandwidth-control-policy-example.md"
@@ -50,6 +59,40 @@ Classes are configured in **Administration > Bandwidth Classes**.
 A rule associates bandwidth classes with enforcement terms — guaranteed percentage, maximum percentage, protocol(s), admin rank, time window, and location scope.
 
 Rules are first-match-wins in **ascending Rule Order**. The **default rule evaluates last**. Same order-model as URL Filtering and Firewall.
+
+## API / SDK surface
+
+Source: `vendor/zscaler-sdk-python/zscaler/zia/bandwidth_classes.py`; `vendor/zscaler-sdk-python/zscaler/zia/bandwidth_control_rules.py`; `vendor/zscaler-sdk-python/zscaler/zia/models/bandwidth_classes.py`; `vendor/zscaler-sdk-python/zscaler/zia/models/bandwidth_control_rules.py`; `vendor/terraform-provider-zia/zia/resource_zia_bandwidth_control_rules.go`; `vendor/terraform-provider-zia/zia/resource_zia_bandwidth_classes_file_size.go`; `vendor/terraform-provider-zia/zia/resource_zia_bandwidth_classes_web_conferencing.go`; `vendor/terraform-provider-zia/zia/common.go`.
+
+Both objects in the two-object model are fully API-manageable — the UI is not the only management plane. The Python SDK exposes two CRUD clients, both rooted at `/zia/api/v1`:
+
+| Object | SDK client | Endpoints |
+|---|---|---|
+| Bandwidth Classes | `BandwidthClassesAPI` (`bandwidth_classes.py`) | `GET /bandwidthClasses` (`list_classes`, :37), `GET /bandwidthClasses/lite` (`list_classes_lite`, :103), `GET /bandwidthClasses/{id}` (`get_class`, :159), `POST /bandwidthClasses` (`add_class`, :202), `PUT /bandwidthClasses/{id}` (`update_class`, :256), `DELETE /bandwidthClasses/{id}` (`delete_class`, :304) |
+| Bandwidth Control Rules | `BandwidthControlRulesAPI` (`bandwidth_control_rules.py`) | `GET /bandwidthControlRules` (`list_rules`, :34), `GET /bandwidthControlRules/lite` (`list_rules_lite`, :109), `GET /bandwidthControlRules/{id}` (`get_rule`, :167), `POST /bandwidthControlRules` (`add_rule`, :217), `PUT /bandwidthControlRules/{id}` (`update_rule`, :299), `DELETE /bandwidthControlRules/{id}` (`delete_rule`, :380) |
+
+### Rule fields
+
+The rule guarantee/ceiling that the UI calls "guaranteed %" and "maximum %" are `min_bandwidth` / `max_bandwidth` on the model, serialized as `minBandwidth` / `maxBandwidth` on the wire (`models/bandwidth_control_rules.py:54-56`). The SDK docstrings describe both as a **percentage of the location's bandwidth, applied per selected class, covering upload + download** (`bandwidth_control_rules.py:237-238`).
+
+Other rule fields (`models/bandwidth_control_rules.py:44-91`): `order`, `state` (`ENABLED`/`DISABLED` — the `add_rule` path converts an `enabled` bool into this, `bandwidth_control_rules.py:275-276`), `rank`, `protocols` (list), `bandwidth_classes` (class references), `locations`, `location_groups`, `time_windows`, `labels`, and `default_rule` (bool flagging the rule as the default).
+
+- **Protocols reuse the URL-filtering protocol enum.** The Terraform rule schema wires `protocols` to `getURLProtocols()` (`resource_zia_bandwidth_control_rules.go:117`), the same helper validated by `validateURLFilteringProtocols()` that URL Filtering rules use (`common.go:794-805`). So bandwidth rules match on the URL-filtering protocol vocabulary (e.g. `WEBSOCKETSSL_RULE`, `WEBSOCKET_RULE`, `DOHTTPS_RULE` per the SDK example, `bandwidth_control_rules.py:259`), not a bandwidth-specific list.
+- **Per-rule location scope is capped.** A single rule accepts at most **8 locations** and **32 location groups** (`resource_zia_bandwidth_control_rules.go:113-114`). Scope a rule wider than that and you must split it or fall back to location groups.
+
+### Class fields — classes are typed
+
+A bandwidth class is **typed** — it is not a single undifferentiated matcher. The model carries a `type` field and a `file_size` field (`models/bandwidth_classes.py:41-42`) alongside the matcher lists `applications`, `web_applications`, `urls`, and `url_categories` (`models/bandwidth_classes.py:43-50`).
+
+Terraform exposes the class typing as three distinct resources over the same underlying class object:
+
+| TF resource | Class `type` | Distinguishing field |
+|---|---|---|
+| `zia_bandwidth_classes` | general (URL category / cloud app / URL matchers) | `web_applications`, `urls`, `url_categories` (`resource_zia_bandwidth_classes.go:58-72`; this TF resource has no `applications` field) |
+| `zia_bandwidth_classes_file_size` | `BANDWIDTH_CAT_LARGE_FILE` (`resource_zia_bandwidth_classes_file_size.go:66`) | `file_size` — one of `FILE_5MB`, `FILE_10MB`, `FILE_50MB`, `FILE_100MB`, `FILE_250MB`, `FILE_500MB`, `FILE_1GB` (`:73-81`) |
+| `zia_bandwidth_classes_web_conferencing` | `BANDWIDTH_CAT_WEBCONF` or `BANDWIDTH_CAT_VOIP` (`resource_zia_bandwidth_classes_web_conferencing.go:102-105`) | `applications` (`:107-111`; validated per type, `:24-53` — e.g. `WEBEX`/`GOTOMEETING` for WEBCONF, `SKYPE` for VOIP) |
+
+The file-size and web-conferencing TF resources are thin wrappers: they look the class up by name and `PUT` into the same `bandwidthClasses` object (`resource_zia_bandwidth_classes_file_size.go:101-116`). The file-size class type — capping bandwidth by transfer size rather than by app/category — is a class flavor the help-doc model never surfaces.
 
 ## Limits
 
@@ -119,7 +162,7 @@ Source: `vendor/zscaler-help/about-bandwidth-control.md`.
 - **Bandwidth Control dashboard** — real-time view of per-class usage.
 - **Analytics > Interactive Reports** — standard bandwidth reports (per-class consumption over time, top consumers, contention events). Custom reports supported.
 
-These surfaces are operator-facing; no dedicated API doc found in this capture pass. The Python SDK has some bandwidth-control methods under `client.zia.*` — check `references/zia/api.md § Traffic forwarding` if needed.
+The dashboard and Analytics reports are operator-facing UI surfaces. The two config objects behind them — classes and rules — are fully API-manageable; see [§ API / SDK surface](#api-sdk-surface) below and the module listing in [`references/zia/api.md § Related SDK modules`](./api.md).
 
 ## Pipeline position
 
@@ -173,6 +216,14 @@ Source: `vendor/zscaler-help/about-bandwidth-control.md`; `vendor/zscaler-help/a
 - **"Bandwidth limits look ignored during business hours"** — contention-driven; if pipe isn't saturated, enforcement is inert. Check the Bandwidth Control dashboard for saturation evidence.
 - **"My guest sublocation is eating corporate bandwidth"** — sublocations share, not isolate. Use Locations for hard isolation.
 - **"How do I cap Zoom to 20% globally?"** — create a bandwidth class referencing the Zoom cloud app; create a rule referencing that class with max 20%; apply at all relevant locations with `Enforce Bandwidth Control` on.
+
+## Open questions
+
+- **How the SDK/TF class `type` values map to the help-doc "predefined classes."** The help docs describe predefined, non-deletable classes (Social Media, Streaming, File Share, Business Apps); the SDK/TF expose a `type` field with values `BANDWIDTH_CAT_LARGE_FILE`, `BANDWIDTH_CAT_WEBCONF`, `BANDWIDTH_CAT_VOIP` (and a general type). Whether these typed flavors are the same objects as the UI's predefined classes, or an orthogonal axis, is not stated in any source opened in this pass.
+- **The full enumeration of class `type` values.** Only the file-size and web-conferencing/VOIP types appear with explicit constants in the TF resources; the general `zia_bandwidth_classes` resource does not pin a `type` constant. Whether other `type` values exist (and what the API default is for a plain class) is not in the captured source.
+- **Whether the class-count and rule-count caps are API-enforced.** The 245 custom classes / 8 classes-with-domains / 25,000 domains / 125 rules limits come only from the help docs (*Ranges and Limitations*); no SDK or TF source opened in this pass encodes or validates them, so it is unconfirmed whether the API rejects over-limit creates or whether enforcement is UI-only.
+
+All three are tracked as `zia-56` in [`../_meta/clarifications.md`](../_meta/clarifications.md#zia-56-bandwidth-class-type-enum-vs-ui-predefined-classes-and-cap-enforcement).
 
 ## Cross-links
 

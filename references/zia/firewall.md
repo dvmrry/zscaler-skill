@@ -3,11 +3,12 @@ product: zia
 topic: "firewall"
 title: "ZIA Firewall Control — Filtering, NAT, DNS, IPS"
 content-type: reasoning
-last-verified: "2026-06-14"
+last-verified: "2026-06-15"
 verified-against:
-  vendor/terraform-provider-zia: 5c32408c1d33da384845a040b0749c1f4f23ef61
-  vendor/zscaler-sdk-python: be8f7c7c1e3c78f3cb8e6e24c2378264200f7d98
-  vendor/zscaler-mcp-server: 25eccadd1d476bb90cb415c468197ec0a802c8fa
+  vendor/terraform-provider-zia: 717926eb564bb21dea1f8e0c3222e6593b29f849
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
+  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
 confidence: high
 source-tier: mixed
 sources:
@@ -17,6 +18,11 @@ sources:
   - "vendor/terraform-provider-zia/docs/resources/zia_ips_signature_rules.md"
   - "vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/ips_signature_rules.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_ips.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/nat_control_policy.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/zia_service.py"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/nat_control_policies/nat_control_policies.go"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_policies/ips_policies.go"
   - "vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_destination_groups.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_nw_service.py"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/ipdestinationgroups/ipdestinationgroups.go"
@@ -108,24 +114,24 @@ Tenants using non-default ports for these protocols must configure custom networ
 
 Source: `vendor/terraform-provider-zia/zia/resource_zia_firewall_filtering_rules.go`; `vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py`; `vendor/zscaler-help/ranges-limitations-zia.md`.
 
-From the Terraform provider schema (`resource_zia_firewall_filtering_rules.go`) and SDK:
+Per-rule counts for the identity/scope criteria come from the product limits table, which applies "to users, groups, departments, locations, etc. criteria on any rule" (`vendor/zscaler-help/ranges-limitations-zia.md:193`). The Terraform provider schema does **not** enforce these counts — `users`, `groups`, `departments`, `locations`, and `location_groups` are all declared with no `MaxItems` (`nil`) (`vendor/terraform-provider-zia/zia/resource_zia_firewall_filtering_rules.go:158-162`); only `time_windows` (`intPtr(2)`, `:163`) and `nw_services` (`intPtr(1024)`, `:174`) carry a provider-side cap.
 
-| Criterion | Limit | Scope |
+| Criterion | Per-rule limit | Source |
 |---|---|---|
-| Users | Up to 4 | Advanced only |
-| Groups | Up to 8 | Advanced only |
-| Departments | Unlimited | Advanced only |
-| Locations | Up to 8 | Both tiers |
-| Location Groups | Up to 32 | Both tiers |
-| Devices (with trust level LOW / MEDIUM / HIGH) | — | Advanced only |
-| Time Windows | Up to 2 | Both tiers |
-| Network Services + Service Groups | 1,024 custom services | Both tiers |
-| Network Applications + App Groups | — | Advanced only |
-| Source IPs / subnets / ranges / groups | — | Both tiers |
-| Destination IPs / subnets / ranges / groups | — | Both tiers |
-| Source Countries (ISO 3166 Alpha-2) | — | Both tiers |
-| Destination Countries (ISO 3166 Alpha-2) | — | Both tiers |
-| Destination IP Categories | — | Both tiers |
+| Users | 32 | `ranges-limitations-zia.md:197` (provider: no cap, `resource_zia_firewall_filtering_rules.go:160`) |
+| Groups | 32 | `ranges-limitations-zia.md:198` (provider: no cap, `resource_zia_firewall_filtering_rules.go:161`) |
+| Departments | 32 | `ranges-limitations-zia.md:199` (provider: no cap, `resource_zia_firewall_filtering_rules.go:162`) |
+| Locations | 32 | `ranges-limitations-zia.md:200` (provider: no cap, `resource_zia_firewall_filtering_rules.go:158`) |
+| Location Groups | 32 | `ranges-limitations-zia.md:201` (provider: no cap, `resource_zia_firewall_filtering_rules.go:159`) |
+| Times (Time Windows) | 8 | `ranges-limitations-zia.md:203` (provider caps the resource block at 2, `resource_zia_firewall_filtering_rules.go:163`) |
+| Devices | 64 | `ranges-limitations-zia.md:204` |
+| Device Groups | 8 | `ranges-limitations-zia.md:205` |
+| Workload Groups | 8 | `ranges-limitations-zia.md:206` (provider: 255, `resource_zia_firewall_filtering_rules.go:173`) |
+| Network Services | 1,024 | provider `nw_services` cap, `resource_zia_firewall_filtering_rules.go:174` |
+| Network Services Groups / Network Applications / App Groups | — | no documented per-rule cap (`resource_zia_firewall_filtering_rules.go:171-172`) |
+| Source / Destination IPs, subnets, ranges, groups | — | no documented per-rule cap (`resource_zia_firewall_filtering_rules.go:167-168`) |
+| Source / Destination Countries (ISO 3166 Alpha-2) | — | no documented per-rule cap |
+| Destination IP Categories | — | no documented per-rule cap |
 
 ## Firewall Filtering actions
 
@@ -143,11 +149,12 @@ Rule evaluation is **first-match-wins in ascending Rule Order**, with Admin Rank
 
 ## IPS Control specifics
 
-Source: `vendor/zscaler-help/about-ips-control.md`; `vendor/terraform-provider-zia/docs/resources/zia_ips_signature_rules.md`; `vendor/zscaler-sdk-python/zscaler/zia/ips_signature_rules.py`; `vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/ips_signature_rules.py`; `vendor/zscaler-help/ranges-limitations-zia.md`.
+Source: `vendor/zscaler-help/about-ips-control.md`; `vendor/terraform-provider-zia/docs/resources/zia_ips_signature_rules.md`; `vendor/zscaler-sdk-python/zscaler/zia/ips_signature_rules.py`; `vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_ips.py`; `vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_policies/ips_policies.go`; `vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/ips_signature_rules.py`; `vendor/zscaler-help/ranges-limitations-zia.md`.
 
 - **Signature source**: Zscaler's research team + industry-vendor feeds. Updated continuously by Zscaler; no operator action needed.
 - **Custom signatures**: Snort-like syntax. Uploaded as part of custom threat categories; referenced in IPS Control rules.
 - **Custom-signature automation surfaces**: Terraform `zia_ips_signature_rules`, Python SDK `client.zia.ips_signature_rules`, and MCP `zia_*_ips_signature_rule*` tools manage custom IPS signature definitions separately from `zia_firewall_ips_rule`. The signature automation surfaces validate `rule_text`, assign signatures to threat categories, and expose dynamic-validation status fields. IPS policy rules then reference the relevant threat category.
+- **Two distinct SDK surfaces — signature definitions vs the rule engine**: The signature-definition resource above (`client.zia.ips_signature_rules`) is separate from the IPS **policy-rule** engine `client.zia.cloud_firewall_ips` (`vendor/zscaler-sdk-python/zscaler/zia/zia_service.py:228`, class `FirewallIPSRulesAPI`), which drives the **`/firewallIpsRules`** endpoint (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_ips.py:75,131,223,323,372`; same path in Go as `firewallIpsRulesEndpoint = "/zia/api/v1/firewallIpsRules"`, `vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_policies/ips_policies.go:15`). The policy rule carries an `action` enum — `ALLOW`, `BLOCK_DROP`, `BLOCK_RESET`, `BYPASS_IPS` (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_ips.py:172-173`; Go `Action` field at `vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_policies/ips_policies.go:38`) — which is what decides allow/block/bypass-inspection per flow. The `BYPASS_IPS` value is the wire-level form of the "bypass IPS inspection" action mentioned in the sub-policy table above; the signature-definition resource has no such action field.
 - **Protocol coverage**: HTTP, HTTPS, FTP, DNS, TCP, UDP, IP-based ports and protocols. IPS sees non-web traffic, unlike URL Filter / CAC / DLP.
 - **Default rule: BLOCK ALL**. The shipped default blocks all traffic that matches any signature — customer rules allow-list specific traffic patterns or user populations.
 - **ATP-first evaluation**: If both ATP (`references/zia/malware-and-atp.md`) and IPS Control are licensed, ATP rules evaluate **before** IPS rules. An ATP block pre-empts IPS.
@@ -160,7 +167,7 @@ Source: `vendor/zscaler-help/about-ips-control.md`; `vendor/terraform-provider-z
 
 ## NAT Control
 
-Source: `vendor/zscaler-help/configuring-firewall-policies.md`; `vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py`.
+Source: `vendor/zscaler-help/configuring-firewall-policies.md`; `vendor/zscaler-sdk-python/zscaler/zia/nat_control_policy.py`; `vendor/zscaler-sdk-go/zscaler/zia/services/nat_control_policies/nat_control_policies.go`.
 
 NAT Control rules remap addresses at the PSE level. Common uses:
 
@@ -169,6 +176,31 @@ NAT Control rules remap addresses at the PSE level. Common uses:
 - **Destination-NAT / publishing** — less common in cloud-forwarded deployments.
 
 NAT Control rules evaluate before Firewall Filtering — the rewritten addresses are what Firewall sees.
+
+### NAT Control as a rule surface (DNAT)
+
+NAT Control has its own dedicated SDK surface, separate from the Firewall Filtering rule resource: `client.zia.nat_control_policy` (`vendor/zscaler-sdk-python/zscaler/zia/zia_service.py:670`, class `NatControlPolicyAPI` at `vendor/zscaler-sdk-python/zscaler/zia/nat_control_policy.py:26`), which drives the **`/dnatRules`** endpoint. The Go SDK exposes the same path as the `dnatRulesEndpoint = "/zia/api/v1/dnatRules"` constant (`vendor/zscaler-sdk-go/zscaler/zia/services/nat_control_policies/nat_control_policies.go:15`).
+
+| Operation | Method | Path | Citation |
+|---|---|---|---|
+| List | GET | `/zia/api/v1/dnatRules` | `vendor/zscaler-sdk-python/zscaler/zia/nat_control_policy.py:75` |
+| Get | GET | `/zia/api/v1/dnatRules/{id}` | `vendor/zscaler-sdk-python/zscaler/zia/nat_control_policy.py:131` |
+| Create | POST | `/zia/api/v1/dnatRules` | `vendor/zscaler-sdk-python/zscaler/zia/nat_control_policy.py:215` |
+| Update | PUT | `/zia/api/v1/dnatRules/{id}` | `vendor/zscaler-sdk-python/zscaler/zia/nat_control_policy.py:305` |
+| Delete | DELETE | `/zia/api/v1/dnatRules/{id}` | `vendor/zscaler-sdk-python/zscaler/zia/nat_control_policy.py:351` |
+
+(Python base prefix `_zia_base_endpoint = "/zia/api/v1"` at `vendor/zscaler-sdk-python/zscaler/zia/nat_control_policy.py:28` concatenates with the `/dnatRules` segment.)
+
+The DNAT-specific fields — the redirect target — have no counterpart on a plain Firewall Filtering rule:
+
+| Field (Python kwarg) | Go JSON tag | Meaning | Citation |
+|---|---|---|---|
+| `redirect_ip` | `redirectIp` | IP the traffic is redirected to when the DNAT rule triggers | py `nat_control_policy.py:168`; go `nat_control_policies.go:27` |
+| `redirect_fqdn` | `redirectFqdn` | FQDN the traffic is redirected to | py `nat_control_policy.py:169`; go `nat_control_policies.go:26` |
+| `redirect_port` | `redirectPort` | Port the traffic is redirected to | py `nat_control_policy.py:170`; go `nat_control_policies.go:28` |
+| `res_categories` | `resCategories` | Resolved destination categories the DNAT rule applies to | py `nat_control_policy.py:182`; go `nat_control_policies.go:38` |
+
+The remaining matching criteria (source/dest IP groups, dest countries, dest IP categories, users, groups, locations) mirror the Firewall Filtering rule criteria above (`vendor/zscaler-sdk-python/zscaler/zia/nat_control_policy.py:172-185`). The redirect fields are what make this a destination-NAT surface rather than a filtering one.
 
 ## DNS Control
 
@@ -235,13 +267,12 @@ Source: `vendor/zscaler-help/ranges-limitations-zia.md`.
 |---|---|---|
 | Firewall Filtering — Standard tier | **10 rules** | Hard cap; surprising for orgs migrating from on-prem firewalls expecting unlimited rules |
 | Firewall Filtering — Advanced tier | **1,021 rules** | |
-| SSL Inspection | 255 rules total (245 custom + 10 predefined) | Tighter than DLP; can't be raised |
+| SSL Inspection | 255 rules total (245 custom + 10 predefined) | `ranges-limitations-zia.md:190` |
 | DNS Control — Essential | 64 rules | |
 | DNS Control — Advanced | 1,000 rules | |
-| Destination Groups — FQDNs per group | **100 default → 8,000 with Advanced Firewall** | The 100-FQDN-per-group default is a silent policy gap for FQDN-heavy rules without Advanced |
-| URL Filtering | 1,000 rules | Raisable via support |
-| DLP | 1,024 (→ 2,048 via support) | |
-| All Other Policy Rules (DLP + IPS bucket) | 1,024 (→ 2,048 via support) | |
+| Destination Groups — FQDNs per group | **100 default → 8,000 with Advanced Firewall** | `ranges-limitations-zia.md:183`. The 100-FQDN-per-group default is a silent policy gap for FQDN-heavy rules without Advanced |
+| URL Filtering | 1,000 rules | Raisable via support (`ranges-limitations-zia.md:184`) |
+| All Other Policy Rules (DLP, IPS, etc.) | 1,024 (→ 2,048 via support) | `ranges-limitations-zia.md:191` — single shared bucket; no separate DLP-only cap in source |
 
 The Standard-tier 10-rule Firewall Filtering cap is the most operationally consequential — almost any non-trivial deployment outgrows it immediately.
 
@@ -386,6 +417,8 @@ These came up while mining SDK/API source and could not be backed from any vendo
 - **`DSTN_DOMAIN` field requirement** — `DSTN_DOMAIN` appears only in the four-value enum lists; no example or per-type field rule for it (vs `DSTN_FQDN` using `addresses`) exists in any mined source.
 - **`tag` and `creatorContext` semantics** — both fields exist on the Python Network Service model (`vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_nw_service.py:34`, `:36`) but carry no description or allowed-values documentation in any mined source.
 - **Caps and ordering** — no mined source states a hard cap on addresses per destination group or ports per network service, nor a precedence/ordering rule among the four port arrays.
+
+These open firewall items are tracked together as `zia-60` in [`../_meta/clarifications.md`](../_meta/clarifications.md#zia-60-network-service-type-behavior-countrycategory-enums-and-caps).
 
 ## Cross-links
 
