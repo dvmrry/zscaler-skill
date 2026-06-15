@@ -16,6 +16,10 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/utils.py"
   - "vendor/zscaler-mcp-server/zscaler_mcp/common/zia_helpers.py"
   - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_app_control.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py"
+  - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/time_intervals.py"
+  - "vendor/zscaler-mcp-server/skills/zia/create-ssl-inspection-rule/SKILL.md"
+  - "vendor/zscaler-mcp-server/skills/zia/look-up-rule-targets/SKILL.md"
 author-status: draft
 ---
 
@@ -149,6 +153,19 @@ This pass covers Cloud App Control (CAC) and URL Filtering. The Postman / oneapi
 - **Python SDK:** `get_rule` does a plain GET with no such fallback. (`vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py:114-148`) The Python `URLFilteringRule` model has no `cbi_profile_id` field at all — only `cbi_profile`. (`vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rules.py:119-125`, `:222`)
 
 **Significance / which to trust:** High impact for ISOLATE rules. Python ISOLATE-rule reads via GET-by-ID can silently come back with an empty `cbiProfile`. Use the Go SDK's GET-all-fallback pattern (or read from GET-all directly) when you need the `cbiProfile` populated for an ISOLATE rule.
+
+---
+
+## SSL Inspection
+
+### `timeWindows` — SDK model exposes the field, but the API does NOT support time-of-day scheduling for SSL Inspection
+
+**What each source says:**
+
+- **Python SDK model:** the `SSLInspectionRules` model both deserializes and serializes a `timeWindows` field — `self.time_windows` is populated from `config["timeWindows"]` (`vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py:121-122`) and emitted back as `"timeWindows": self.time_windows` in the request body (`vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py:207`). A caller can therefore set the field and the request will round-trip without error.
+- **MCP server (API behavior):** the ZIA Time Intervals tool docstring states plainly "SSL Inspection rules do **not** support `time_windows`" (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/time_intervals.py:8`). The create-ssl-inspection-rule skill states the rule type "does not support a recurring time-of-day schedule. SSL Inspection rules have no `time_windows` attribute on the API" (`vendor/zscaler-mcp-server/skills/zia/create-ssl-inspection-rule/SKILL.md:23`), "There is no `time_windows` field on this API" (`:64`), and "SSL Inspection has no `time_windows` attribute" (`:198`). The look-up-rule-targets skill marks `time_windows` as applying to "every rule type **except SSL Inspection**" because "SSL Inspection has no `time_windows` field on the API" (`vendor/zscaler-mcp-server/skills/zia/look-up-rule-targets/SKILL.md:57`).
+
+**Significance / which to trust:** This is an SDK-model-exposes-field-but-API-ignores-it divergence — the opposite failure mode from the usual SDK-vs-SDK shape disagreement. The Python model's presence of `timeWindows` is misleading: setting it on an SSL Inspection rule does **not** produce a time-scheduled rule, because the API ignores it for this rule type. Do not rely on the SDK model surface as evidence the feature works. For time-of-day enforcement on encrypted traffic, attach the schedule to a **Cloud Firewall Filtering** rule or a **URL Filtering** rule instead (both honor `timeWindows`), letting the SSL Inspection rule govern only what is decrypted when the scheduled layer permits the traffic (`vendor/zscaler-mcp-server/skills/zia/create-ssl-inspection-rule/SKILL.md:64`). Cross-reference: `references/zia/time-intervals.md` (rule-types table caveat). The API-behavior side of this entry is sourced from MCP skill/tool documentation, not a second SDK; treat the "API ignores it" claim as documented vendor behavior pending live-tenant confirmation.
 
 ---
 

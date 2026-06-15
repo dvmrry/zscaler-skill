@@ -214,7 +214,7 @@ on the rule type.
 | Cloud Firewall IPS Control | `/firewallIpsRules` | `cloud_firewall_ips_rules.py` | `zia_firewall_ips_rule` |
 | URL Filtering | `/urlFilteringRules` | `url_filtering_rules.py` | `zia_url_filtering_rules` |
 | DLP Web Rules | `/webDlpRules` | — (Python model absent; Go struct present) | `zia_dlp_web_rules` |
-| SSL Inspection | `/sslInspectionRules` | `ssl_inspection_rules.py` | `zia_ssl_inspection_rules` |
+| SSL Inspection | `/sslInspectionRules` | `ssl_inspection_rules.py` (SDK model has the field, but **the API does NOT honor it** — see caveat below) | `zia_ssl_inspection_rules` |
 | File Type Control | `/fileTypeControlRules` | `filetyperules.py` | `zia_file_type_control_rules` |
 | Cloud App Control | `/cloudApplicationRules` | `cloudappcontrol.py` | `zia_cloud_app_control_rule` |
 | Forwarding Control | `/forwardingRules` | `forwarding_control_policy.py` | `zia_forwarding_control_rule` |
@@ -235,6 +235,27 @@ Sources per column:
 Rule types confirmed as **not** having a `time_windows` field in the Python models or Go
 structs (based on the model file listing): CASB DLP rules, CASB Malware rules, FTP
 Control Policy.
+
+> **Caveat — SSL Inspection: SDK model exposes `timeWindows`, but the API ignores it.**
+> The SSL Inspection row above is listed for completeness, but it is a genuine
+> SDK-model-vs-API divergence, not a usable scheduling target. The Python SDK *model*
+> serializes a `timeWindows` field on SSL inspection rules
+> (`vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py:121-122` deserialize,
+> `:207` serialize), so a caller can set it and the request will round-trip. But the ZIA
+> **API does not support time-of-day scheduling for SSL Inspection rules** — the field is
+> ignored. This is documented across the MCP server: the SSL inspection rule docstring states
+> "SSL Inspection rules do **not** support `time_windows`"
+> (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/time_intervals.py:8`); the create-rule skill
+> states SSL Inspection rules "have no `time_windows` attribute on the API" and "There is no
+> `time_windows` field on this API"
+> (`vendor/zscaler-mcp-server/skills/zia/create-ssl-inspection-rule/SKILL.md:23`, `:64`, `:198`);
+> and the rule-targets reference marks `time_windows` as applying to "every rule type **except
+> SSL Inspection**" (`vendor/zscaler-mcp-server/skills/zia/look-up-rule-targets/SKILL.md:57`).
+> For time-of-day enforcement on encrypted traffic, move the schedule to a **Cloud Firewall
+> Filtering** rule or a **URL Filtering** rule (both honor `timeWindows`); the SSL Inspection
+> rule then governs only what is decrypted when the scheduled layer permits the traffic
+> (`vendor/zscaler-mcp-server/skills/zia/create-ssl-inspection-rule/SKILL.md:64`).
+> Cross-reference: `references/zia/api-divergences.md` (SSL Inspection section).
 
 ### SDK field name note
 

@@ -23,7 +23,7 @@ author-status: draft
 | List lookalike domains | GET | `/easm/easm-ui/v1/organizations/{org_id}/lookalike-domains` | `vendor/zscaler-sdk-python/zscaler/zeasm/lookalike_domains.py:72-76` |
 | Get one lookalike domain | GET | `/easm/easm-ui/v1/organizations/{org_id}/lookalike-domains/{lookalike_raw}/details` | `vendor/zscaler-sdk-python/zscaler/zeasm/lookalike_domains.py:123-127` |
 
-Both calls require `org_id` (the org's `id` from the organizations list) — see [`overview.md § Org scoping`](overview.md#org-scoping--the-central-access-pattern).
+Both calls require `org_id` (the org's `id` from the organizations list) — see [`overview.md § Org scoping`](overview.md#org-scoping-the-central-access-pattern).
 
 ## Collection shape
 

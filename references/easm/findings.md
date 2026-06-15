@@ -25,7 +25,7 @@ author-status: draft
 | Finding evidence (drill-down L2) | GET | `/easm/easm-ui/v1/organizations/{org_id}/findings/{finding_id}/evidence` | `vendor/zscaler-sdk-python/zscaler/zeasm/findings.py:149`, `:180-183` |
 | Finding scan output (drill-down L3) | GET | `/easm/easm-ui/v1/organizations/{org_id}/findings/{finding_id}/scan-output` | `vendor/zscaler-sdk-python/zscaler/zeasm/findings.py:203`, `:231-234` |
 
-All findings calls require `org_id` (the org's `id` from the organizations list) — see [`overview.md § Org scoping`](overview.md#org-scoping--the-central-access-pattern).
+All findings calls require `org_id` (the org's `id` from the organizations list) — see [`overview.md § Org scoping`](overview.md#org-scoping-the-central-access-pattern).
 
 ## Collection shape
 
