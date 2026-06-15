@@ -128,8 +128,8 @@ Per-rule counts for the identity/scope criteria come from the product limits tab
 | Device Groups | 8 | `ranges-limitations-zia.md:205` |
 | Workload Groups | 8 | `ranges-limitations-zia.md:206` (provider: 255, `resource_zia_firewall_filtering_rules.go:173`) |
 | Network Services | 1,024 | provider `nw_services` cap, `resource_zia_firewall_filtering_rules.go:174` |
-| Network Services Groups / Network Applications / App Groups | — | no documented per-rule cap (`resource_zia_firewall_filtering_rules.go:171-172`) |
-| Source / Destination IPs, subnets, ranges, groups | — | no documented per-rule cap (`resource_zia_firewall_filtering_rules.go:167-168`) |
+| Network Services Groups / Network Applications / App Groups | 1,000 (Service/App Groups) | `ranges-limitations-zia.md:180` (Service Groups/Application Groups per Rule); no separate published cap for Network Applications (provider: no cap, `resource_zia_firewall_filtering_rules.go:171-172`) |
+| Source / Destination IPs, subnets, ranges, groups | 1,000 groups / 8,000 IP entries | `ranges-limitations-zia.md:179` (Source IP/Destination Groups per Rule: 1,000); `:177-178` (IP entries per Rule: 8,000) (provider: no cap, `resource_zia_firewall_filtering_rules.go:167-168`) |
 | Source / Destination Countries (ISO 3166 Alpha-2) | — | no documented per-rule cap |
 | Destination IP Categories | — | no documented per-rule cap |
 

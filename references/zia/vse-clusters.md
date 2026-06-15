@@ -117,7 +117,7 @@ The active LB receives ingress traffic through the cluster IP and directs it to 
 
 The bundled LB's active-passive failover ensures that LB-layer failure is also handled without manual intervention: if the active LB fails, the passive takes over and traffic continues to flow. (Tier A — about-virtual-service-edge-clusters-internet-saas.md)
 
-No admin intervention is required for either VSE instance failure or LB active-passive failover.
+No admin intervention is required for LB active-passive failover (Tier A — sourced above). Auto-removal of an *unhealthy VSE instance* from service without admin intervention is **inferred** from PSE cluster behavior and is not explicitly documented for VSE clusters in the captured sources (Tier B).
 
 **Monitoring surface:** the Admin Console VSE Clusters page (Infrastructure > Internet & SaaS > Traffic Forwarding > Virtual Service Edges > Virtual Service Edge Clusters) displays cluster status, member VMs, cluster IP, and IPSec local termination status per cluster. (Tier A — about-virtual-service-edge-clusters-internet-saas.md)
 
