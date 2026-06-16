@@ -1,9 +1,19 @@
 ---
 product: soc-workbench
 topic: overview
-title: "SOC Workbench — unified threat detection and incident response platform"
+title: "SOC Workbench - threat prioritization and incident-response workspace"
 content-type: reference
-last-verified: "2026-04-28"
+last-verified: "2026-06-16"
+verified-against:
+  vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
+  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/terraform-provider-zia: 717926eb564bb21dea1f8e0c3222e6593b29f849
+  vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
+  vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
+  vendor/zpacloud-ansible: 84ab824d6ce5853c12add6ae3280dcfb8db273a2
+  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
+  vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: medium
 source-tier: doc
 sources:
@@ -11,105 +21,59 @@ sources:
 author-status: draft
 ---
 
-# SOC Workbench — unified threat detection and incident response platform
+# SOC Workbench - threat prioritization and incident-response workspace
 
-## What it is
+SOC Workbench is a SecOps product for consolidating alerts from Zscaler and third-party tools into prioritized, context-rich incidents (`vendor/zscaler-help/soc-what-zscaler-soc-workbench.md:8-10`). The captured help emphasizes risk-based prioritization, automated correlation, context enrichment, actionable incidents, and proactive attack prediction (`vendor/zscaler-help/soc-what-zscaler-soc-workbench.md:12-18`).
 
-SOC Workbench is a Zscaler Security Operations (SecOps) product that consolidates alerts from across a security stack — Zscaler and third-party — into a prioritized, context-enriched view of threats. It addresses alert fatigue by correlating multiple signals into actionable incidents, enriching them with business context (user roles, asset criticality, geographic data, vulnerability context), and providing an investigation workflow in a single console (Tier A — vendor/zscaler-help/soc-what-zscaler-soc-workbench.md).
+## Platform Placement
 
-Unlike SIEM tools that accumulate and store raw events, SOC Workbench focuses on **AI-driven threat prioritization** — transforming isolated alerts into contextualized incidents ranked by business impact.
+The help capture says SOC Workbench is powered by the Zscaler Data Fabric for Security and transforms isolated alerts into a prioritized, holistic view of threats (`vendor/zscaler-help/soc-what-zscaler-soc-workbench.md:27`). It also places SOC Workbench in the broader SecOps portfolio, connecting exposure insights with threat prioritization so vulnerable assets and risky identities can factor into results (`vendor/zscaler-help/soc-what-zscaler-soc-workbench.md:29`).
 
-## Platform placement
+## Core Concepts
 
-SOC Workbench is part of the Zscaler Security Operations (SecOps) platform, sharing infrastructure with AEM (Asset Exposure Management), UVM (Unified Vulnerability Management), and Identity Protection. The underlying data layer is the **Zscaler Data Fabric for Security**, which harmonizes, deduplicates, correlates, and enriches incoming security data.
+The source-backed operating model is thin but useful:
 
-## Core value propositions
+- SOC Workbench unifies alerts from Zscaler and third-party sources in a single console (`vendor/zscaler-help/soc-what-zscaler-soc-workbench.md:33`).
+- Its AI-driven threat analysis turns raw alerts into contextualized threats and highlights the first items to address (`vendor/zscaler-help/soc-what-zscaler-soc-workbench.md:34`).
+- It supports investigation workflows with threat details, log search, asset-impact context, and response support on a single screen (`vendor/zscaler-help/soc-what-zscaler-soc-workbench.md:35`).
+- Core day-to-day capabilities include ingestion, alert enrichment, alert correlation, prioritization, investigation, and resolution (`vendor/zscaler-help/soc-what-zscaler-soc-workbench.md:37-44`).
 
-1. **Unify all alerts**: Zscaler alerts plus third-party tool alerts in one console, with rich context. Eliminates the multi-system inefficiency of receiving alerts from many tools.
-2. **Focus on threats, not alerts**: AI-driven analysis transforms raw alerts into contextualized, actionable threats. Surfaces the top 5 things to address first using historical attack patterns and business context.
-3. **Stop the biggest threats**: Accelerates investigation by providing all threat details on a single page. Enables faster, proportional responses.
+## Connectors And Outegrations
 
-## Key concepts
+The captured connector list includes CrowdStrike, CrowdStrike Identity Protection, Microsoft Defender for Cloud, Microsoft Defender for Endpoint, Microsoft Entra ID, SentinelOne, Snyk, Wiz, Azure Blob, Azure Cloud Assets, ZCC Devices, ZIA Devices and Users, and AnySource file ingestion through AWS S3, GCP, webhook, or upload-file API (`vendor/zscaler-help/soc-what-zscaler-soc-workbench.md:46-48`).
 
-### Alerts and Incidents
+The source uses "Outegrations" for outbound integrations and names Jira and ServiceNow with webhook support (`vendor/zscaler-help/soc-what-zscaler-soc-workbench.md:50-52`). Keep that spelling when matching UI or help text.
 
-SOC Workbench draws a distinction between alerts (individual signals from data sources) and incidents (correlated sets of alerts representing a broader threat). Alerts are enriched; incidents are the primary operational unit for analyst workflow.
+## Source-Family Audit
 
-### Alert scoring
+| Family | Audit result |
+|---|---|
+| Go SDK | No product-specific SOC Workbench service found in this audit pass. |
+| Python SDK | No product-specific SOC Workbench service found in this audit pass. |
+| Terraform | No product-specific SOC Workbench resource or data source found in this audit pass. |
+| Ansible | No product-specific SOC Workbench module found in this audit pass. |
+| MCP | No product-specific SOC Workbench tool found in this audit pass. |
+| Postman | No SOC Workbench endpoint family found in the audited Postman collection. |
+| Help captures | Product overview, connector list, outegration list, core concepts, and report-export capability are captured (`vendor/zscaler-help/soc-what-zscaler-soc-workbench.md:10`, `:27-35`, `:46-62`). |
 
-Configurable scoring system that ranks alerts by risk. Admins configure alert score rules via the admin portal.
+## API Surface
 
-### Incident rules
+Do not claim a full SOC Workbench API from the current captures. The help capture says "Report Export via API" is a documented capability (`vendor/zscaler-help/soc-what-zscaler-soc-workbench.md:62`), but this refresh did not find the endpoint path, schema, or SDK/provider implementation. Treat report export as source-backed at the capability level only.
 
-Rules that correlate multiple alerts into higher-level incidents. Configurable via Administration in the portal.
+## What SOC Workbench Is Not
 
-### Data sources (inbound connectors)
+- It is not evidenced here as a raw log store or SIEM replacement; the captured claim is about prioritizing and triaging threats, not retaining every raw event (`vendor/zscaler-help/soc-what-zscaler-soc-workbench.md:10`, `:31-35`).
+- It is not purely Zscaler-native; the captured connector list includes several third-party security products and generic AnySource ingestion (`vendor/zscaler-help/soc-what-zscaler-soc-workbench.md:46-48`).
+- It is not currently evidenced as programmable through the audited SDK, Terraform, Ansible, MCP, or Postman sources. The only API claim in the capture is report export.
 
-SOC Workbench ingests from:
-- Zscaler telemetry: ZCC Devices, ZIA Devices and Users, ThreatLabz
-- Third-party: CrowdStrike, CrowdStrike Identity Protection, Microsoft Defender for Cloud Findings, Microsoft Defender for Endpoint, Microsoft Entra ID, SentinelOne, Snyk, Wiz, Azure Blob, Azure Cloud Assets
-- Generic: AnySource connector (file upload: AWS S3, GCP, webhook, Upload File API)
+## Open Questions
 
-### Outegrations (Zscaler's term for outbound integrations)
+- The report-export API endpoint, schema, authentication scope, and response shape are not captured. See [clarification soc-workbench-01](../_meta/clarifications.md#soc-workbench-01-soc-workbench-report-export-api-details).
 
-SOC Workbench uses the term "outegration" (not "integration") for outbound connections:
-- Jira (with webhook support)
-- ServiceNow (with webhook support)
+## Cross-Links
 
-### Data unification
-
-Entity resolution and field normalization across disparate sources. Key concepts:
-- **Entity Unification**: Merges duplicate or related entities from different sources
-- **Field Unification**: Normalizes field names/types across sources
-- **Attribute Reconciliation**: Configurable default functions for how conflicting values are resolved
-- **Historical Data**: Configurable retention and lookback for trend analysis
-
-### Custom dashboards
-
-Widget-based dashboards with templates. Dashboard templates available for common SOC use cases.
-
-### Report export
-
-Reports can be exported manually or scheduled. There is an API for triggering report export: the "Triggering Report Export Through an API" page is documented in the help portal (Tier A — vendor/zscaler-help/soc-what-zscaler-soc-workbench.md).
-
-### Entity Explorer and Queries Library
-
-Log search capability: analysts can build queries and search logs from a unified location. The Queries Library provides saved/shared queries.
-
-### Saved Views and Formatting Rules
-
-Analysts can configure personal saved views (filter presets) and formatting rules (conditional display logic in tables/lists).
-
-## Connectivity and infrastructure
-
-- **SSO support**: Microsoft Entra ID, Okta, PingOne, PingFederate, SecureAuth
-- **SecOps Platform Gateway**: A gateway component that connects on-premises environments or data sources to the SecOps cloud platform
-- **Public IP addresses**: Zscaler publishes SecOps public IP ranges (for firewall allow-listing)
-
-## API surface
-
-The "Triggering Report Export Through an API" page is explicitly documented, confirming at least one API endpoint. Additional API surface for data ingestion may exist via the AnySource webhook and Upload File API options. No comprehensive public API reference was found for SOC Workbench specifically in available sources.
-
-## RBAC
-
-Role-based access control with system roles and custom roles. User roles, content permissions assignable per user. Managed within the SecOps platform.
-
-## Key operational notes
-
-- SOC Workbench uses the **Zscaler Data Fabric for Security** as its data backbone — same infrastructure shared with AEM and UVM.
-- Integration with ZTE provides automatic inline controls (ZIA/ZPA) to mitigate risk as threats are identified.
-- The term "outegration" (not "integration") is Zscaler's intentional branding for outbound workflow connections. This term will appear in admin UI and docs — not a typo.
-
-## What SOC Workbench is not
-
-- Not a raw log store or SIEM replacement. Use NSS/LSS/your SIEM for raw event retention.
-- Not a vulnerability scanner. Use UVM or AEM for that.
-- Not purely Zscaler-native — designed explicitly to ingest third-party security tool data.
-
-## Cross-links
-
-- AEM (asset inventory, part of same SecOps platform): [`../aem/overview.md`](../aem/overview.md)
-- UVM (vulnerability management, shares SecOps platform): [`../uvm/overview.md`](../uvm/overview.md)
-- Identity Protection (identity threat detection, shares SecOps platform): [`../identity-protection/overview.md`](../identity-protection/overview.md)
-- Breach Predictor (predictive threat intelligence): [`../breach-predictor/overview.md`](../breach-predictor/overview.md)
+- Claims ledger for this refresh: [`./_claims-ledger.md`](./_claims-ledger.md)
+- AEM, another SecOps portfolio product: [`../aem/overview.md`](../aem/overview.md)
+- UVM, another SecOps portfolio product: [`../uvm/overview.md`](../uvm/overview.md)
+- Identity Protection, another SecOps portfolio product: [`../identity-protection/overview.md`](../identity-protection/overview.md)
 - Portfolio map: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)

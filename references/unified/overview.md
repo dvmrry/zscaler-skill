@@ -1,9 +1,19 @@
 ---
 product: unified
 topic: overview
-title: "Zscaler Experience Center — unified admin console for the Zero Trust Exchange"
+title: "Zscaler Experience Center - unified administration console"
 content-type: reference
-last-verified: "2026-04-28"
+last-verified: "2026-06-16"
+verified-against:
+  vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
+  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/terraform-provider-zia: 717926eb564bb21dea1f8e0c3222e6593b29f849
+  vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
+  vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
+  vendor/zpacloud-ansible: 84ab824d6ce5853c12add6ae3280dcfb8db273a2
+  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
+  vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: medium
 source-tier: doc
 sources:
@@ -11,121 +21,56 @@ sources:
 author-status: draft
 ---
 
-# Zscaler Experience Center — unified admin console for the Zero Trust Exchange
+# Zscaler Experience Center - unified administration console
 
-## What it is
+Zscaler Experience Center is described as a unified, AI-powered administrative and operations console for managing, configuring, and monitoring the Zscaler Zero Trust Exchange from one interface (`vendor/zscaler-help/unified-what-zscaler-experience-center.md:8`). The capture names Internet & SaaS (ZIA), Private Access (ZPA), ZDX, and Zscaler Client Connector as examples of services available through that central hub (`vendor/zscaler-help/unified-what-zscaler-experience-center.md:8`).
 
-Zscaler Experience Center (sometimes referred to as the "Unified Admin Console" or the "/unified" help path) is a unified, AI-powered administrative console that consolidates management, configuration, and monitoring of the Zscaler Zero Trust Exchange (ZTE) platform into a single interface. It eliminates the need for separate per-product admin dashboards (Tier A — vendor/zscaler-help/unified-what-zscaler-experience-center.md).
+## What It Consolidates
 
-The help portal path `help.zscaler.com/unified` maps to the "Getting Started with Zscaler" section, which covers initial onboarding into Experience Center and the unified ZTE platform.
+The captured help frames Experience Center as an orchestration layer over shared platform components, not as a replacement for each product's data plane. It names a unified identity layer, simplified integrated navigation, a common policy framework, Zscaler Copilot interactions, and unified data/analytics as the core mechanisms (`vendor/zscaler-help/unified-what-zscaler-experience-center.md:10-18`).
 
-## What it consolidates
+Key source-backed feature themes:
 
-Experience Center provides a single admin interface for:
-- Internet & SaaS (ZIA)
-- Private Access (ZPA)
-- Zscaler Digital Experience (ZDX)
-- Zscaler Client Connector (ZCC)
-- And other Zscaler services
+- Centralized management for Zscaler offerings and consistency across traffic types (`vendor/zscaler-help/unified-what-zscaler-experience-center.md:20-22`).
+- Guided point-and-click workflows for onboarding, traffic forwarding, and security policy deployment (`vendor/zscaler-help/unified-what-zscaler-experience-center.md:23`).
+- Zscaler generative AI Copilot for operations assistance and natural-language troubleshooting (`vendor/zscaler-help/unified-what-zscaler-experience-center.md:17`, `:24`).
+- Persona-focused visibility for executive summaries and practitioner deep dives (`vendor/zscaler-help/unified-what-zscaler-experience-center.md:25`).
 
-The goal is a single pane of glass for the entire Zscaler platform, replacing the historical model where ZIA, ZPA, ZDX each had separate admin portals.
+## Source-Family Audit
 
-## Key capabilities
-
-### Unified Identity Layer
-
-Single source of truth for users, groups, and roles. Role-based access control (RBAC) configured once and applied consistently across all Zscaler services. Admin roles configured here govern access across ZIA, ZPA, ZDX, and other products in the platform.
-
-### Common Policy Framework
-
-Global policies that govern access to any application — public cloud, private data center, or open internet — from a single policy authoring point. Policies created here feed through to ZIA (for internet/SaaS traffic) and ZPA (for private app access).
-
-### Generative AI — Zscaler Copilot
-
-Experience Center integrates "Zscaler Copilot", a generative AI assistant. Capabilities:
-- Natural language troubleshooting queries to identify root cause of connectivity or security issues
-- Proactive recommendations for policy optimizations or threat remediation
-- Persona-focused analytics
-
-### Unified Data and Analytics
-
-Aggregates logs and telemetry from ZIA, ZPA, and ZDX into a unified analytics engine. Enables cross-platform correlation of performance and security events — for example, correlating a ZIA threat event with ZPA access activity from the same user.
-
-### Guided Onboarding Workflows
-
-Interactive onboarding walkthroughs following industry best practices. Covers: user onboarding (from IdP import, CSV, or manual), traffic forwarding configuration, URL filtering policies, SSL inspection, cyber threat protection policies, data protection policies, user privacy, and policy activation.
-
-### Persona-Focused Insights
-
-Different data views for different roles:
-- Executive summary views (high-level KPIs and risk posture)
-- Practitioner deep-dive views (technical data, drill-down)
-
-### Executive Insights App
-
-A sub-module within Experience Center designed for executive audience. Separate navigation entry. Includes its own error/troubleshooting documentation.
-
-## What "Unified Admin Console" means in context
-
-In Zscaler documentation and support discussions, "unified admin console" or "unified portal" may refer to Experience Center generically. The help portal path `/unified` predates the Experience Center branding — it was previously the "Getting Started" and "Unified" guide.
-
-Older Zscaler deployments used separate portals per product. Experience Center is the new unified surface. Tenants may still access legacy ZIA/ZPA portals during transition; the help portal includes "Legacy UI" entries for ZIA, ZPA, ZDX, ZCC, ZTB, Risk360, etc.
-
-## Cloud name context
-
-The "Understanding Zscaler Cloud Names" article lives under /unified. Cloud names matter because each tenant is assigned to a specific ZIA/ZPA cloud (e.g., zscalerone.net, zscalertwo.net, etc.), and Experience Center operates across these clouds. Admins need cloud name awareness for DNS, SSL, and API endpoint configuration.
-
-## API surface
-
-Experience Center itself is an admin console, not an API product. The underlying products (ZIA, ZPA, ZDX) have their own published REST APIs. Experience Center does not expose a separate API — it is the UI over those APIs. For programmatic management, use ZIA API, ZPA API, or ZDX API directly.
-
-## Key operational notes
-
-- Experience Center is designed to work with ZIdentity (Zscaler's IdP/SSO product) for the unified identity layer; the specific authentication requirement for Experience Center itself is not explicitly stated in vendor sources (Tier A — vendor/zscaler-help/unified-what-zscaler-experience-center.md).
-- Tenants upgrading from legacy separate portals to Experience Center go through a documented migration path ("Upgrading to Zscaler Experience Center").
-- The /unified help path covers the onboarding getting-started journey, not just the console UI itself.
-
-## Legacy vs. current portal terminology
-
-The Zscaler help portal maintains "Legacy UI" entries for the following, which are the old per-product portals that predate Experience Center:
-
-| Legacy entry | Notes |
+| Family | Audit result |
 |---|---|
-| Legacy UI: Internet & SaaS (ZIA) | Old standalone ZIA admin console |
-| Legacy UI: Private Access (ZPA) | Old standalone ZPA admin console |
-| Legacy UI: Digital Experience Monitoring (ZDX) | Old standalone ZDX admin console |
-| Legacy UI: Zscaler Client Connector | Old ZCC portal |
-| Legacy UI: Cloud & Branch Connector | Old Cloud Connector admin console |
-| Legacy UI: Zscaler Cellular | Old Cellular admin console |
-| Legacy UI: Zero Trust Branch | Old ZTB console |
-| Legacy UI: Zero Trust Browser | Old isolation admin UI |
-| Legacy UI: Risk360 Advanced | Earlier generation of Risk360 |
-| Legacy UI: ZIdentity | Older ZIdentity UI |
-| Legacy UI: Workflow Automation | Older Workflow Automation UI |
-| Legacy UI: DSPM | Older DSPM UI |
+| Go SDK | No standalone Experience Center / unified-console service found in this audit pass. |
+| Python SDK | No standalone Experience Center / unified-console service found in this audit pass. |
+| Terraform | No standalone Experience Center / unified-console resource or data source found in this audit pass. |
+| Ansible | No standalone Experience Center / unified-console module found in this audit pass. |
+| MCP | No standalone Experience Center / unified-console tool found in this audit pass. |
+| Postman | No standalone Experience Center / unified-console endpoint family found in the audited Postman collection. |
+| Help captures | The Experience Center product framing and top-level unified-console capabilities are captured (`vendor/zscaler-help/unified-what-zscaler-experience-center.md:8`, `:12-18`, `:22-25`, `:27-29`). |
 
-When a support conversation references the "legacy" portal, it means these older per-product admin UIs. The Experience Center is the current unified surface. Long-term contracts or older deployments may still have access to legacy portals; Zscaler is progressively migrating tenants.
+## API Surface
 
-## ZIA/ZPA cloud vs. Experience Center portal
+This refresh did not find a separate Experience Center API in the audited SDK, Terraform, Ansible, MCP, or Postman sources. That supports an audit-scoped statement only: no standalone programmable surface was found here. For automation, prefer the underlying product APIs (ZIA, ZPA, ZDX, ZCC, etc.) unless a vendor source exposes an Experience Center API. See [clarification unified-01](../_meta/clarifications.md#unified-01-experience-center-standalone-api-surface).
 
-Experience Center is the management UI — it is not itself a data plane or proxy. The ZIA cloud and ZPA cloud that process user traffic are unchanged by Experience Center. Experience Center connects to the tenant's assigned ZIA cloud and ZPA cloud to manage configuration and display telemetry. Cloud names (e.g., `admin.zscalerone.net`, `admin.zscalertwo.net`) are important for:
-- Direct API calls to ZIA or ZPA REST endpoints
-- ZIA NSS configuration
-- SSL certificate trust configuration
+## Help Path Nuance
 
-Operators building automation against ZIA or ZPA should use the cloud-specific API base URL, not an Experience Center URL.
+The `/unified` help path maps to top-level "Getting Started with Zscaler" documentation, including onboarding flows, Experience Center, cloud naming, data privacy, user import, URL filtering, SSL inspection, threat protection, and data-protection policies (`vendor/zscaler-help/unified-what-zscaler-experience-center.md:27-29`). Do not assume every `/unified` help article describes the Experience Center product itself; some pages are shared getting-started material.
 
-## Common questions
+## What Experience Center Is Not
 
-- **"What is the Experience Center?"** → Unified admin console for managing ZIA, ZPA, ZDX, ZCC, and other Zscaler products from a single interface.
-- **"Is there an Experience Center API?"** → No. Use ZIA API, ZPA API, or ZDX API for programmatic management.
-- **"What's the difference between the old ZIA portal and Experience Center?"** → Experience Center is the new unified console. Old ZIA portal is still accessible as "Legacy UI: Internet & SaaS" but is being deprecated over time.
-- **"Does Experience Center change my ZIA/ZPA policies?"** → No. Policies are the same; Experience Center is a different UI to manage the same underlying configuration.
-- **"What is Zscaler Copilot?"** → The generative AI assistant embedded in Experience Center for natural language troubleshooting and recommendations.
+- It is not evidenced as a separate packet-processing cloud or proxy in this capture; it is described as an administrative and operations console (`vendor/zscaler-help/unified-what-zscaler-experience-center.md:8`).
+- It is not evidenced as a separate public API product in the audited source families.
+- It should not be treated as a substitute name for ZIA, ZPA, ZDX, or ZCC APIs. Those products retain their own automation surfaces.
 
-## Cross-links
+## Open Questions
 
-- ZIA (the primary internet security product managed via Experience Center): [`../zia/index.md`](../zia/index.md)
-- ZPA (private access product): [`../zpa/index.md`](../zpa/index.md)
-- ZIdentity (authentication for Experience Center): [`../zidentity/index.md`](../zidentity/index.md)
+- Whether Experience Center has a standalone public API surface is unresolved. See [clarification unified-01](../_meta/clarifications.md#unified-01-experience-center-standalone-api-surface).
+
+## Cross-Links
+
+- Claims ledger for this refresh: [`./_claims-ledger.md`](./_claims-ledger.md)
+- ZIA: [`../zia/index.md`](../zia/index.md)
+- ZPA: [`../zpa/index.md`](../zpa/index.md)
+- ZDX: [`../zdx/index.md`](../zdx/index.md)
+- ZCC: [`../zcc/index.md`](../zcc/index.md)
 - Portfolio map: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)
