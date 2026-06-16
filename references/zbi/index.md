@@ -9,6 +9,8 @@ verified-against:
   vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
   vendor/terraform-provider-zia: 717926eb564bb21dea1f8e0c3222e6593b29f849
   vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
+  vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
+  vendor/zpacloud-ansible: 84ab824d6ce5853c12add6ae3280dcfb8db273a2
   vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
 confidence: high
 source-tier: mixed
@@ -29,6 +31,9 @@ sources:
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbicertificatecontroller/cbicertificatecontroller.go"
   - "vendor/terraform-provider-zia/zia/data_source_zia_cloud_browser_isolation_profile.go"
   - "vendor/terraform-provider-zpa/zpa/provider.go"
+  - "vendor/terraform-provider-zpa/zpa/resource_zpa_policy_access_isolation_rule_v2.go"
+  - "vendor/ziacloud-ansible/plugins/modules/zia_cloud_browser_isolation_profile_info.py"
+  - "vendor/zpacloud-ansible/plugins/modules/zpa_policy_access_isolation_rule_v2.py"
   - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/get_isolation_profile.py"
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
 author-status: draft
@@ -51,17 +56,17 @@ The product has been renamed twice. Operators use all of these names interchange
 - **ZBI** (legacy shorthand often used in tickets for Zscaler Browser Isolation; do not assume this means the Python `client.zbi` accessor)
 - **Zscaler Isolation** (legacy name — what some help-article URLs still use)
 
-Important namespace caveat: the current Python SDK's `client.zbi` service is explicitly **Zscaler Business Insights**, not Zero Trust Browser (`vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py:23-24`, `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:230`, `:316-319`). Browser-isolation automation lives under ZIA Cloud Browser Isolation, ZPA CBI/isolation surfaces, Terraform provider resources/data sources, MCP ZPA tools, and the Postman CBI controllers. When answering a question, translate the user's wording to the current source surface before naming an SDK accessor.
+Important namespace caveat: the current Python SDK's `client.zbi` service is explicitly **Zscaler Business Insights**, not Zero Trust Browser (`vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py:23-24`, `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:230`, `:316-319`). Browser-isolation automation lives under ZIA Cloud Browser Isolation, ZPA CBI/isolation surfaces, Terraform provider resources/data sources, Ansible modules, MCP ZPA tools, and the Postman CBI controllers. When answering a question, translate the user's wording to the current source surface before naming an SDK accessor.
 
 ## Topics
 
-Source: `vendor/zscaler-help/what-is-zero-trust-browser.md`; `vendor/zscaler-help/understanding-turbo-mode-isolation.md`; `vendor/zscaler-help/configuring-smart-browser-isolation-policy.md`; `vendor/zscaler-help/zpa-about-isolation-policy.md`; `vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py`; `vendor/zscaler-sdk-go/zscaler/zia/services/browser_isolation/browser_isolation_profile.go`; `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go`; `vendor/terraform-provider-zia/zia/data_source_zia_cloud_browser_isolation_profile.go`; `vendor/terraform-provider-zpa/zpa/provider.go`; `vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/get_isolation_profile.py`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
+Source: `vendor/zscaler-help/what-is-zero-trust-browser.md`; `vendor/zscaler-help/understanding-turbo-mode-isolation.md`; `vendor/zscaler-help/configuring-smart-browser-isolation-policy.md`; `vendor/zscaler-help/zpa-about-isolation-policy.md`; `vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py`; `vendor/zscaler-sdk-go/zscaler/zia/services/browser_isolation/browser_isolation_profile.go`; `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go`; `vendor/terraform-provider-zia/zia/data_source_zia_cloud_browser_isolation_profile.go`; `vendor/terraform-provider-zpa/zpa/provider.go`; `vendor/ziacloud-ansible/plugins/modules/zia_cloud_browser_isolation_profile_info.py`; `vendor/zpacloud-ansible/plugins/modules/zpa_policy_access_isolation_rule_v2.py`; `vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/get_isolation_profile.py`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
 | Topic | File | Status |
 |---|---|---|
 | Overview — traffic flow, container model, Turbo Mode vs pixel streaming, architecture components | [`./overview.md`](./overview.md) | draft |
 | Policy integration — how ZIA URL Filter `Isolate` action, ZPA Isolation Policy, and Smart Browser Isolation compose; isolation profiles; subscription tiers | [`./policy-integration.md`](./policy-integration.md) | draft |
-| **API surface** — Python and Go ZIA read surfaces, ZPA CBI profile/banner/certificate CRUD, read-only region/ZPA projection/profile surfaces, Terraform/MCP/Postman coverage, Business Insights namespace caveat, and singular-vs-plural endpoint quirks | [`./api.md`](./api.md) | draft |
+| **API surface** — Python and Go ZIA read surfaces, ZPA CBI profile/banner/certificate CRUD, read-only region/ZPA projection/profile surfaces, Terraform/Ansible/MCP/Postman coverage, Business Insights namespace caveat, and singular-vs-plural endpoint quirks | [`./api.md`](./api.md) | draft |
 | Claims ledger — claim-by-claim source map and open-question forcing function for this refresh | [`./_claims-ledger.md`](./_claims-ledger.md) | draft |
 
 ## Scope
@@ -77,7 +82,7 @@ In scope:
 - Tiered subscriptions (full ZBI vs "Miscellaneous & Unknown" limited tier)
 - Session/container lifecycle (10-min idle timeout)
 - Cross-product hooks (SSL Inspection dependency, Malware Protection prerequisite)
-- Programmable surfaces for ZIA read/profile references, ZPA CBI profile and related objects, ZPA isolation policy rules, Smart Browser Isolation Terraform configuration, MCP read/write policy tooling, and the Python `client.zbi` naming collision
+- Programmable surfaces for ZIA read/profile references, ZPA CBI profile and related objects, ZPA isolation policy rules, Smart Browser Isolation Terraform configuration, Ansible read/write modules, MCP read/write policy tooling, and the Python `client.zbi` naming collision
 
 Not in scope (explicitly deferred):
 
