@@ -145,7 +145,7 @@ Application-centric metrics: ZDX Score, score trends, aggregate metrics, and per
 - `list_app_users` returns a single `ApplicationActiveUsers` wrapper object; `list_apps` iterates individual items.
 - `get_app_score` returns time-series data points (`ApplicationScoreTrend`).
 
-**Go parity:** ✅ `applications.GetAllApps`, `applications.GetApp`. Score metrics are in `application_score_metrics` package.
+**Go parity:** ⚠ Partial. `applications.GetAllApps`, `applications.GetApp`, and the `application_score_metrics` package (`GetAppScores`, `GetAppMetrics`) match the app list/get/score/metric methods. But the Python app-**user** methods (`list_app_users`, `get_app_user`) have **no Go equivalent** — the Go `applications` package exposes no app-user function (`vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/`).
 
 Source: `vendor/zscaler-sdk-python/zscaler/zdx/apps.py`; `vendor/zscaler-sdk-python/zscaler/zdx/models/applications.py`; `vendor/zscaler-sdk-python/zscaler/zdx/models/application_users.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go`.
 
@@ -218,7 +218,7 @@ Source: `vendor/zscaler-sdk-python/zscaler/zdx/inventory.py`; `vendor/zscaler-sd
 **File:** `vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py`
 **Go packages:** `vendor/zscaler-sdk-go/zscaler/zdx/services/troubleshooting/deeptrace/`, `troubleshooting/analysis/`
 
-The only ZDX service with write operations. Manages deep trace sessions (packet captures, network path recording) and ZDX Score analysis jobs.
+The principal ZDX write service — the one other ZDX write is `snapshot.share_snapshot` (POST `/zdx/v1/snapshot/alert`, see § `snapshot`); everything else is read-only. Manages deep trace sessions (packet captures, network path recording) and ZDX Score analysis jobs.
 
 **Deep trace methods:**
 
