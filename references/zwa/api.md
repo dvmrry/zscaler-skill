@@ -1,141 +1,170 @@
 ---
 product: zwa
 topic: "zwa-api"
-title: "ZWA API — incident search, evidence, audit logs"
+title: "ZWA API - incident search, evidence URL, audit logs, auth split"
 content-type: reference
-last-verified: "2026-05-06"
+last-verified: "2026-06-16"
+verified-against:
+  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/terraform-provider-zia: 717926eb564bb21dea1f8e0c3222e6593b29f849
+  vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
+  vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
+  vendor/zpacloud-ansible: 84ab824d6ce5853c12add6ae3280dcfb8db273a2
+  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
+  vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: high
-source-tier: mixed
+source-tier: code
 sources:
-  - "https://help.zscaler.com/legacy-apis/dlp-incidents-workflow-automation-api"
-  - "vendor/zscaler-help/dlp-incidents-workflow-automation-api.md"
-  - "https://help.zscaler.com/legacy-apis/api-authentication-workflow-automation-api"
+  - "vendor/zscaler-help/legacy-getting-started-workflow-automation-api.md"
   - "vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md"
+  - "vendor/zscaler-help/dlp-incidents-workflow-automation-api.md"
+  - "vendor/zscaler-sdk-python/zscaler/oneapi_client.py"
+  - "vendor/zscaler-sdk-python/zscaler/oneapi_http_client.py"
+  - "vendor/zscaler-sdk-python/zscaler/zwa/zwa_service.py"
+  - "vendor/zscaler-sdk-python/zscaler/zwa/legacy.py"
   - "vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py"
   - "vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py"
-  - "vendor/zscaler-sdk-python/zscaler/zwa/zwa_service.py"
+  - "vendor/zscaler-sdk-python/zscaler/zwa/models/incident_details.py"
+  - "vendor/zscaler-sdk-python/zscaler/zwa/models/incident_evidence.py"
+  - "vendor/zscaler-sdk-go/zscaler/zwa/v2_config.go"
+  - "vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go"
   - "vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go"
   - "vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go"
   - "vendor/zscaler-sdk-go/zscaler/zwa/services/common/common.go"
+  - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
+  - "vendor/terraform-provider-zia/zia/data_source_zia_dlp_incident_receiver_servers.go"
+  - "vendor/ziacloud-ansible/plugins/modules/zia_dlp_incident_receiver_info.py"
 author-status: draft
 ---
 
-# ZWA API surface
+# ZWA API - incident search, evidence URL, audit logs, auth split
 
-Narrow surface — 2 services, ~14 methods total. Both Python and Go SDKs expose similar functionality with minor method-set differences. Focused on **incident retrieval, evidence, labels/notes, and close actions**. Workflow *configuration* is largely portal-only; API covers post-detection incident lifecycle.
+Source: `vendor/zscaler-sdk-python/zscaler/zwa/zwa_service.py`; `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py`; `vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py`; `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go`; `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go`.
 
-## SDK services under `client.zwa.*`
+ZWA has a real SDK surface, but it is narrow: DLP incident lifecycle operations and customer audit-log search. Do not describe it as workflow template or workflow mapping management. In the current Python client, `client.zwa` returns `ZWAService` unless the client is in legacy mode (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:271-277`), and `ZWAService` exposes only `audit_logs` and `dlp_incidents` properties (`vendor/zscaler-sdk-python/zscaler/zwa/zwa_service.py:21-41`).
 
-Source: `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py`; `vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py`; `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go`; `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go`; `vendor/zscaler-sdk-go/zscaler/zwa/services/common/common.go`.
+## Auth and client naming
 
-### `client.zwa.dlp_incidents` (Python) / `client.zwa.dlp_incidents` (Go)
+Source: `vendor/zscaler-sdk-python/zscaler/oneapi_client.py`; `vendor/zscaler-sdk-python/zscaler/zwa/legacy.py`; `vendor/zscaler-sdk-go/zscaler/zwa/v2_config.go`; `vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go`; `vendor/zscaler-help/legacy-getting-started-workflow-automation-api.md`; `vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md`.
 
-Python methods (per `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py`):
+**Python current client.** The general OneAPI `Client` reads `ZSCALER_CLIENT_ID`, `ZSCALER_CLIENT_SECRET` or `ZSCALER_PRIVATE_KEY`, and `ZSCALER_VANITY_DOMAIN`; it obtains an OAuth token and updates the default authorization header (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:165-184`, `:233-244`). In that mode, `client.zwa` is the current `ZWAService` wrapper (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:271-277`).
 
-| Method | Purpose |
-|---|---|
-| `get_incident_transactions(transaction_id, query_params)` | Fetch the raw DLP transaction that generated the incident. |
-| `get_incident_details(incident_id, query_params)` | Full detail for an incident — metadata + evidence + state. |
-| `change_history(incident_id, query_params)` | Audit trail of changes to this incident (status transitions, assignments, etc.). |
-| `get_incident_triggers(...)` | What triggered the incident (DLP engine, dictionary, pattern). |
-| `get_generated_tickets(...)` | Tickets (ServiceNow / Jira) created from this incident. |
-| `get_incident_evidence(...)` | The actual matched payload content that triggered the DLP rule. Treat output as sensitive. |
-| `dlp_incident_search(...)` | Filtered search across incidents — time range, user, policy, severity, etc. |
-| `incident_group_search(incident_id, incident_group_ids)` | Find incident groups matching criteria. |
-| `assign_labels(incident_id, labels)` | Attach labels to an incident. |
-| `incident_notes(incident_id, notes)` | Add investigator notes. |
-| `incident_close(...)` | Close an incident — terminal status change. |
+**Python legacy client.** `LegacyZWAClient` reads `key_id`, `key_secret`, and `cloud` from config or `ZWA_CLIENT_ID`, `ZWA_CLIENT_SECRET`, and `ZWA_CLOUD`; it builds a `LegacyZWAClientHelper` and flips `use_legacy_client=True` (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:636-656`). The helper requires key ID/secret, defaults the cloud to `us1`, targets `https://api.<cloud>.zsworkflow.net`, posts to `/v1/auth/api-key/token`, and stores the returned bearer token for subsequent requests (`vendor/zscaler-sdk-python/zscaler/zwa/legacy.py:47-65`, `:120-126`, `:140-185`).
 
-Go methods (per `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/`): largely same shape, plus `CreateNote`, `UpdateIncidentStatus`, `AssignLabels`, `FilterIncidentSearch`, `AssignIncidentGroups`, `GetIncidentTransactions`, `GetDLPIncident`.
+**Go SDK.** The Go ZWA package is also API-key based: config fields and environment variables are `ZWA_API_KEY_ID`, `ZWA_API_SECRET`, and `ZWA_CLOUD`; the base URL is `https://api.<cloud>.zsworkflow.net`; authentication posts `key_id` and `key_secret` to `/v1/auth/api-key/token` and parses `token`, `token_type`, and `expires_in` (`vendor/zscaler-sdk-go/zscaler/zwa/v2_config.go:45-49`, `:80-105`, `:140-180`; `vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go:212-294`).
 
-### Cross-SDK parity notes
+**Legacy help.** The captured Workflow Automation API getting-started/auth pages match the API-key flow: API management is enabled with a Workflow Automation subscription, authentication uses API key ID + key secret, and `POST /v1/auth/api-key/token` returns a bearer token with expiration (`vendor/zscaler-help/legacy-getting-started-workflow-automation-api.md:8-17`; `vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md:8-37`). Because Python current-client, Python legacy, Go, and the legacy help pages do not express the same migration boundary, keep the exact boundary open in [clarification zwa-04](../_meta/clarifications.md#zwa-04-current-vs-legacy-auth-boundary).
 
-From the cross-SDK audit (2026-04-24):
+## DLP incidents - Python
 
-- **Python has** (Go doesn't): `get_incident_triggers`, `get_generated_tickets`, `incident_group_search`.
-- **Go has** (Python doesn't): `AssignIncidentGroups`, explicit status-update method (`UpdateIncidentStatus`) separate from close.
+Source: `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py`; `vendor/zscaler-sdk-python/zscaler/zwa/models/incident_details.py`; `vendor/zscaler-sdk-python/zscaler/zwa/models/incident_evidence.py`.
 
-Neither SDK exposes CRUD for workflows, workflow templates, or workflow mappings — **workflow configuration is admin-portal-only**. A tenant that wants to manage workflows programmatically has no supported path.
+Python `client.zwa.dlp_incidents` uses `/zwa/dlp/v1` as its base endpoint (`vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py:32-37`). The method surface is:
 
-### `client.zwa.audit_logs` (Python) / `client.zwa.customeraudit` (Go)
+| Method | HTTP/path | What it supports | Lines |
+|---|---|---|---|
+| `get_incident_transactions(transaction_id, query_params=None)` | `GET /incidents/transactions/{transaction_id}` | Look up incidents associated with a transaction ID. | `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py:39-90` |
+| `get_incident_details(incident_id, query_params=None)` | `GET /incidents/{incident_id}` | Fetch incident details, optionally with `fields`. | `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py:92-143` |
+| `change_history(incident_id, query_params=None)` | `GET /incidents/{incident_id}/change-history` | Fetch incident update history. | `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py:145-190` |
+| `get_incident_triggers(incident_id)` | `GET /incidents/{incident_id}/triggers` | Fetch trigger data. No `fetchTriggerContext` argument is exposed. | `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py:192-238` |
+| `get_generated_tickets(incident_id)` | `GET /incidents/{incident_id}/tickets` | Fetch generated ticket data. | `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py:240-291` |
+| `get_incident_evidence(incident_id)` | `GET /incidents/{incident_id}/evidence` | Fetch evidence metadata/evidence URL, not inline payload bytes. | `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py:293-339` |
+| `dlp_incident_search(query_params=None, fields=None, time_range=None, **kwargs)` | `POST /incidents/search` | Search incidents by field filters/time range and pagination. | `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py:341-450` |
+| `incident_group_search(incident_id, incident_group_ids=None)` | `POST /incidents/{incident_id}/incident-groups/search` | Filter incident groups for an incident. | `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py:452-492` |
+| `assign_labels(incident_id, labels=None)` | `POST /incidents/{incident_id}/labels` | Attach labels to an incident. | `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py:494-538` |
+| `incident_notes(incident_id, notes=None)` | `POST /incidents/{incident_id}/notes` | Add notes to an incident. | `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py:540-584` |
+| `incident_close(incident_id, resolution_label=None, resolution_code=None, notes=None)` | `POST /incidents/{incident_id}/close` | Close/resolve an incident with optional label/code/notes. | `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py:586-645` |
 
-Python methods (per `vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py`):
+Python does **not** expose an incident delete method in this file. Do not infer Python DELETE support from the Go SDK or legacy help.
 
-- `audit_logs(query_params, fields, time_range, **kwargs)` — retrieve ZWA admin audit logs.
+The evidence method deserves careful wording. The Python docstring says it gets the evidence URL and that the link can be used to view/download the XML file with the actual triggering data (`vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py:293-300`). The model exposes `fileName`, `fileType`, `additionalInfo`, and `evidenceURL` (`vendor/zscaler-sdk-python/zscaler/zwa/models/incident_evidence.py:22-57`). Treat the linked/downloadable evidence as sensitive DLP content, but do not say the API response always returns raw payload inline.
 
-Go methods (per `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/`): equivalent coverage under the `customeraudit` service name.
+## DLP incidents - Go
 
-Both cover the same audit log feed — who changed what workflow, when, etc.
+Source: `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go`; `vendor/zscaler-sdk-go/zscaler/zwa/services/common/common.go`.
 
-## Authentication
+Go service paths are rooted at `baseIncidentEndpoint = "/dlp/v1/incidents"` (`vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go:14-16`), which is resolved against the configured ZWA host (`vendor/zscaler-sdk-go/zscaler/zwa/v2_config.go:146-159`). The Go package exposes these functions:
 
-Source: `vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md`; `vendor/zscaler-sdk-python/zscaler/zwa/zwa_service.py`.
+| Function | HTTP/path | What it supports | Lines |
+|---|---|---|---|
+| `CreateNotes(ctx, service, dlpIncidentID, note)` | `POST /notes/{id}` | Add note. The path shape differs from Python/help ordering. | `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go:102-118` |
+| `UpdateIncidentStatus(ctx, service, dlpIncidentID, close)` | `POST /{id}/close` | Close incident with notes only. | `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go:120-144` |
+| `AssignLabels(ctx, service, dlpIncidentID, labels)` | `POST /{id}/labels` | Assign labels. | `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go:146-166` |
+| `FilterIncidentSearch(ctx, service, filters, paginationParams)` | `POST /search` | Search incidents with `CommonDLPIncidentFiltering`. | `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go:168-179` |
+| `AssignIncidentGroups(ctx, service, dlpIncidentID, groupIDs)` | `POST /{id}/incident-groups/search` | Search/filter incident groups, despite the "Assign" function name. | `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go:181-201` |
+| `GetIncidentTransactions(ctx, service, transactionID, paginationParams)` | `GET /transactions/{transactionID}` | Fetch incidents by transaction ID. | `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go:204-221` |
+| `GetDLPIncident(ctx, service, dlpIncidentID, fields)` | `GET /{id}` | Fetch incident details with optional field query params. | `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go:223-253` |
+| `DeleteDLPIncident(ctx, service, dlpIncidentID)` | `DELETE /{id}` | Go-only delete function in inspected SDKs. Runtime semantics are open. | `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go:255-270` |
+| `HistoryDLPIncident(ctx, service, dlpIncidentID)` | `GET /{id}/change-history` | Fetch change history. | `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go:273-292` |
+| `GetDLPIncidentTickets(ctx, service, dlpIncidentID, paginationParams)` | `GET /tickets/{id}` | Fetch generated ticket records. | `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go:294-310` |
+| `GetDLPIncidentTriggers(ctx, service, dlpIncidentID)` | `GET /{id}/triggers` | Fetch trigger data. No `fetchTriggerContext` argument is exposed. | `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go:312-330` |
+| `GetDLPIncidentEvidence(ctx, service, dlpIncidentID)` | `GET /{id}/evidence` | Fetch evidence metadata/evidence URL. | `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go:332-350` |
 
-### OneAPI (current path)
+The Go shared incident model carries the same broad incident record fields used by search/detail calls: internal ID, transaction ID, source type/subtype/actions, severity, priority, matching policies, user/application/content/network info, status, resolution, assigned admin, notes, incident groups, tickets, and labels (`vendor/zscaler-sdk-go/zscaler/zwa/services/common/common.go:15-45`). The shared filter body uses `fields` and `timeRange`, and pagination uses `page`, `pageSize`, and `pageId` (`vendor/zscaler-sdk-go/zscaler/zwa/services/common/common.go:148-178`).
 
-Standard OneAPI OAuth 2.0 via ZIdentity — same env vars as other products (`ZSCALER_CLIENT_ID`, `ZSCALER_CLIENT_SECRET` or `ZSCALER_PRIVATE_KEY`, `ZSCALER_VANITY_DOMAIN`). API client must have ZWA scope granted in the ZIdentity portal; without it, calls return 403.
+## Legacy help API map
 
-### Legacy (pre-ZIdentity tenants)
+Source: `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md`.
 
-For tenants that haven't migrated to ZIdentity, ZWA exposes a legacy API-key flow at `POST /v1/auth/api-key/token` (`vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md:8`):
+The legacy help capture lists these DLP incident endpoints in the Workflow Automation API reference:
 
-- **Body**: `{"key_id": "string", "key_secret": "string"}` (`legacy-api-authentication-workflow-automation-api.md:14-17`)
-- **Response (201)**: `{"token": "...", "token_type": "...", "expires_in": <int>}` — the `token` value goes into the `Bearer` header on subsequent requests (`legacy-api-authentication-workflow-automation-api.md:10, 24-28`)
-- **Response (401)**: authorization failure (`legacy-api-authentication-workflow-automation-api.md:29`)
-- Tokens expire per `expires_in`; clients must handle refresh (`legacy-api-authentication-workflow-automation-api.md:37`)
+| Method | Path | Help line(s) |
+|---|---|---|
+| GET | `/dlp/v1/incidents/transactions/{transactionId}` | `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:23-24`, `:47-50` |
+| GET / DELETE | `/dlp/v1/incidents/{dlpIncidentId}` | `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:25-27`, `:215-249` |
+| GET | `/dlp/v1/incidents/{dlpIncidentId}/change-history` | `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:28-29`, `:475-503` |
+| GET | `/dlp/v1/incidents/{dlpIncidentId}/tickets` | `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:30-31`, `:541-560` |
+| POST | `/dlp/v1/incidents/{dlpIncidentId}/incident-groups/search` | `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:32-33`, `:604-633` |
+| POST | `/dlp/v1/incidents/{dlpIncidentId}/close` | `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:34-35`, `:668-692` |
+| POST | `/dlp/v1/incidents/{dlpIncidentId}/notes` | `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:36-37`, `:907-926` |
+| POST | `/dlp/v1/incidents/{dlpIncidentId}/labels` | `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:38-39`, `:1141-1165` |
+| POST | `/dlp/v1/incidents/search` | `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:40-41`, `:1380-1433` |
+| GET | `/dlp/v1/incidents/{dlpIncidentId}/triggers` | `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:42-43`, `:1592-1621` |
+| GET | `/dlp/v1/incidents/{dlpIncidentId}/evidence` | `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:44-45`, `:1644-1686` |
 
-The legacy auth uses an API key ID + secret pair, not username/password/session cookie like ZIA legacy (`legacy-api-authentication-workflow-automation-api.md:35`). New integrations should use OneAPI; treat this section as a fallback for tenants pre-migration.
+Two divergences are worth preserving:
 
-## Wire format
+- Help documents optional `fetchTriggerContext` on trigger downloads (`vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:1592-1617`), while Python and Go trigger methods expose only `incident_id` (`vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py:192-238`; `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go:312-330`). Track this in [clarification zwa-05](../_meta/clarifications.md#zwa-05-trigger-context-query-param-sdk-coverage).
+- Help and Go expose incident DELETE, while Python does not. Do not describe ZWA as create/read/update/delete complete; delete semantics and parity remain open in [clarification zwa-02](../_meta/clarifications.md#zwa-02-dlp-incident-delete-semantics).
 
-Source: `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py`; `vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py`; `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go`; `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go`.
+## Audit logs
 
-Standard OneAPI conventions: JSON request/response, camelCase keys. Endpoint prefix is `/zwa/dlp/v1/` for both incidents and audit logs (`vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py:36`, `vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py:30`). Specific paths: `/zwa/dlp/v1/incidents/search` (`dlp_incidents.py:422`), `/zwa/dlp/v1/incidents/{id}/incident-groups/search` (`dlp_incidents.py:470`), `/zwa/dlp/v1/customer/audit` (`audit_logs.py:108`).
+Source: `vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py`; `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go`; `vendor/zscaler-sdk-go/zscaler/zwa/services/common/common.go`.
 
-## Legacy API reference
+Python exposes one audit-log method: `client.zwa.audit_logs.audit_logs(query_params=None, fields=None, time_range=None, **kwargs)` (`vendor/zscaler-sdk-python/zscaler/zwa/zwa_service.py:27-33`; `vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py:33-135`). It uses `POST /zwa/dlp/v1/customer/audit`, accepts field filters and a `timeRange` request body, and documents supported filter fields `Action`, `Resource`, `Admin`, and `Module` (`vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py:33-60`, `:108-122`).
 
-Source: `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md`; `vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md`; `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py`; `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go`.
+Go exposes `customeraudit.GetCustomerAudit(ctx, service, filters, paginationParams)` against `/dlp/v1/customer/audit`, using POST and the same shared `CommonDLPIncidentFiltering` body (`vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go:12-47`; `vendor/zscaler-sdk-go/zscaler/zwa/services/common/common.go:148-178`). Go's `AuditLog` struct includes `action`, `module`, `resource`, `changedAt`, `changedBy`, `oldRowJson`, `newRowJson`, and `changeNote` (`vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go:21-34`).
 
-The help article *DLP Incidents (Workflow Automation API)* lives at `help.zscaler.com/legacy-apis/dlp-incidents-workflow-automation-api` — it's a Swagger-UI-style reference with endpoint listings. The article is ~32k chars (from capture); full endpoint schemas are there for operators who need wire-level detail.
+See [`./audit-logs.md`](./audit-logs.md) for the dedicated audit-log model and open retention/streaming questions.
 
-> **Caveat — legacy vs. current API surface.** The help portal still ships a "Legacy UI: Workflow Automation" entry whose API doc lives under `/legacy-apis/`, while the current-generation surface documented above (the `/zwa/dlp/v1/` endpoints exposed via the Python and Go SDK service layers) is what new integrations should target. Treat the SDK source as ground truth for current-gen endpoint paths and method shapes; the legacy-UI API doc may describe a parallel-but-different surface that's not the SDK target. If you find a discrepancy between this doc and the legacy help article, the SDK wins.
+## Non-surfaces from this pass
 
-## Sensitive data considerations
+Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/terraform-provider-zia/zia/data_source_zia_dlp_incident_receiver_servers.go`; `vendor/ziacloud-ansible/plugins/modules/zia_dlp_incident_receiver_info.py`.
 
-Source: `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py`; `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go`.
+- **MCP:** no ZWA Workflow Automation tool was found in the inspected MCP server source. This is an audit-scoped absence from `vendor/zscaler-mcp-server`, not a claim about future/private tooling.
+- **Postman:** no ZWA Workflow Automation surface was found in the inspected OneAPI Postman collection. The collection contains a "DLP Incident Receiver" group, but it is under ZIA ICAP/DLP Incident Receiver configuration (`vendor/zscaler-api-specs/oneapi-postman-collection.json:1928-1955`).
+- **Terraform/Ansible:** ZIA DLP Incident Receiver read surfaces exist (`vendor/terraform-provider-zia/zia/data_source_zia_dlp_incident_receiver_servers.go:10`, `:51-64`; `vendor/ziacloud-ansible/plugins/modules/zia_dlp_incident_receiver_info.py:31`, `:119-124`), but this pass did not find Terraform or Ansible ZWA Workflow Automation incident lifecycle, audit-log, workflow-template, or workflow-mapping resources/modules.
 
-**`get_incident_evidence` returns the actual matched content** — the exact text/payload that tripped the DLP rule. Callers should:
+## Usage guardrails
 
-- Never log the evidence output (it's the exact data DLP was trying to protect).
-- Apply strict RBAC to API clients with ZWA scope.
-- Consider whether audit logs of API calls themselves accidentally expose payload (Zscaler's own audit log wouldn't, but customer wrappers might).
+Source: `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py`; `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go`; `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md`.
 
-**Matched payload data also appears in the admin portal Incidents page**. Admin-portal RBAC effectively controls access to the DLP-tripped content.
-
-## What the API can't do
-
-Source: `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py`; `vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py`; `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go`; `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go`.
-
-Gaps that portal-only users must handle:
-
-- **Workflow definition** — templates, custom workflows, and mappings are portal-only. No API CRUD.
-- **Notification channel configuration** — Slack/Teams webhooks and email templates set up in portal.
-- **Ticketing integration config** — ServiceNow/Jira connections portal-only.
-- **User/manager/approver hierarchy** — pulled from ZIdentity / ZIA user data; not configured in ZWA.
-
-Fork teams automating ZWA should scope ambitions to incident lifecycle (search, retrieve, assign labels/notes, close) rather than workflow-config automation.
+- Say **incident lifecycle API**, not workflow management API. Incident search/detail/history/tickets/triggers/evidence/labels/notes/close are source-backed; workflow template/mapping create-update-delete-list operations are not source-backed in this pass.
+- Say **evidence URL / downloadable evidence XML**, not "raw evidence always returned inline" (`vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py:293-300`; `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:1644-1686`).
+- Preserve cross-SDK differences: Python does not expose delete; Go and help do (`vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go:255-270`; `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:215-244`).
+- Preserve auth differences: Python current `client.zwa` is OneAPI-client-shaped, while Python legacy and Go are API-key/token-shaped (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:165-184`, `:636-656`; `vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go:212-294`).
 
 ## Open questions
 
-Source: `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md`; `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py`; `vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py`.
-
-- Exact endpoint paths per SDK method — not captured line-by-line.
-- Rate limits on ZWA endpoints — not captured.
-- Whether `get_incident_evidence` returns raw or redacted content, and whether there's a payload-size cap.
-- Retention window for audit logs.
+- **Workflow configuration programmability** - see [clarification zwa-01](../_meta/clarifications.md#zwa-01-workflow-configuration-programmability).
+- **DLP incident delete semantics** - see [clarification zwa-02](../_meta/clarifications.md#zwa-02-dlp-incident-delete-semantics).
+- **Audit-log retention and streaming/SIEM support** - see [clarification zwa-03](../_meta/clarifications.md#zwa-03-zwa-audit-log-retention-and-streaming).
+- **Current-vs-legacy auth boundary** - see [clarification zwa-04](../_meta/clarifications.md#zwa-04-current-vs-legacy-auth-boundary).
+- **Trigger context query parameter SDK coverage** - see [clarification zwa-05](../_meta/clarifications.md#zwa-05-trigger-context-query-param-sdk-coverage).
 
 ## Cross-links
 
-- Overview (incident lifecycle, workflow templates) — [`./overview.md`](./overview.md)
-- ZIA DLP (upstream detection source) — [`../zia/dlp.md`](../zia/dlp.md)
-- Cross-product integration (SSL-must-decrypt-for-DLP dependency) — [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md)
+- Product model and workflow templates - [`./overview.md`](./overview.md)
+- Audit-log details - [`./audit-logs.md`](./audit-logs.md)
+- Claims ledger - [`./_claims-ledger.md`](./_claims-ledger.md)

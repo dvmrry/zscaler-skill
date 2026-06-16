@@ -1,11 +1,14 @@
 ---
 product: zwa
 topic: "zwa-overview"
-title: "ZWA overview — incidents, workflows, templates"
+title: "ZWA overview - incidents, workflows, templates"
 content-type: reasoning
-last-verified: "2026-05-04"
+last-verified: "2026-06-16"
+verified-against:
+  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
 confidence: high
-source-tier: doc
+source-tier: mixed
 sources:
   - "https://help.zscaler.com/workflow-automation/what-workflow-automation"
   - "vendor/zscaler-help/what-workflow-automation.md"
@@ -13,220 +16,97 @@ sources:
   - "vendor/zscaler-help/zwa-managing-incidents.md"
   - "https://help.zscaler.com/workflow-automation/understanding-workflows-workflow-automation"
   - "vendor/zscaler-help/understanding-workflows-workflow-automation.md"
+  - "vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py"
+  - "vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go"
 author-status: draft
 ---
 
-# ZWA overview — incidents, workflows, and templates
+# ZWA overview - incidents, workflows, and templates
 
-How Workflow Automation turns raw ZIA DLP detections into trackable incidents, and how admins remediate them either by hand or via configurable workflows.
+Source: `vendor/zscaler-help/what-workflow-automation.md`; `vendor/zscaler-help/zwa-managing-incidents.md`; `vendor/zscaler-help/understanding-workflows-workflow-automation.md`.
 
-## Summary
+Workflow Automation turns DLP policy violations into trackable incidents that governance admins can review, assign, prioritize, notify on, escalate, ticket, label, and close. Zscaler's overview says ZWA automates management and resolution of DLP incidents and integrates with Internet & SaaS to capture Data Protection incidents generated from configured DLP policies (`vendor/zscaler-help/what-workflow-automation.md:14`). The Managing Incidents capture widens the incident source list to Inline DLP, Endpoint DLP, Email DLP, and SaaS Security DLP policies in the Zscaler Admin Console (`vendor/zscaler-help/zwa-managing-incidents.md:16`).
 
-- **Incident** = a single DLP policy violation captured from ZIA. Each incident carries metadata (who, what, when, which policy) plus the data that triggered it (the actual payload fragment DLP matched on).
-- **Incident Group** = a collection of incidents grouped for assignment / prioritization. Admins can bulk-triage groups.
-- **Workflow** = a sequence of remediation actions that fires when an incident matches a **workflow mapping**. Can be predefined (from a template) or custom.
-- **Workflow Template** = one of 9 Zscaler-provided workflow patterns (auto-close, auto-create-ticket, auto-notify, auto-escalate, and variants).
-- **Workflow Mapping** = the link between incident attributes and a workflow. "When an incident has attributes X, Y, Z → fire workflow A."
-- **Incident Group Mapping** = a *named concept distinct from Workflow Mapping* — rules that automatically assign incoming incidents to incident groups based on attributes (vs. a Workflow Mapping, which fires a remediation workflow).
-- **Duplicate Incidents** = a *named concept* in ZWA — detection and handling of repeated incidents arising from the same activity (deduplication semantics for noise reduction).
-- **Approvers** = designated escalation recipients beyond the manager chain. If a user has no manager in the directory, escalation falls back to a configured approver. (See § RBAC for the role-level treatment.)
+## Core objects
 
-Two remediation modes:
+Source: `vendor/zscaler-help/what-workflow-automation.md`; `vendor/zscaler-help/zwa-managing-incidents.md`; `vendor/zscaler-help/understanding-workflows-workflow-automation.md`.
 
-1. **Manual** — admin reviews each incident on the Incidents page, takes actions (investigate, notify user, escalate, create ticket, close).
-2. **Automated** — workflows run the same actions without admin intervention when mappings match.
+- **Incident** - a recorded transaction that violated a Data Protection policy. The Incidents page records metadata and the data that triggered the incident (`vendor/zscaler-help/what-workflow-automation.md:16`).
+- **Incident group** - a grouping/priority/ownership construct. ZWA can group incidents, assign priorities to those groups, and assign groups to admins (`vendor/zscaler-help/what-workflow-automation.md:18`).
+- **Workflow** - an automated remediation sequence. Predefined and custom workflows perform actions such as notify user, escalate, create ticket, and close incident (`vendor/zscaler-help/understanding-workflows-workflow-automation.md:16-21`).
+- **Workflow mapping** - the binding between incident attributes and a workflow. After configuring a workflow, admins must map it to incident transaction attributes so matching incidents trigger the workflow (`vendor/zscaler-help/understanding-workflows-workflow-automation.md:43`).
 
-Users, managers, and approvers **respond to workflow-generated notifications identically to manually-triggered ones** — the end-user experience is the same whether a human or an automated workflow initiated the notification.
+## Incident lifecycle
+
+Source: `vendor/zscaler-help/zwa-managing-incidents.md`.
+
+The source-backed manual process is:
+
+1. A transaction violates one of the configured Data Protection policies and becomes a ZWA incident (`vendor/zscaler-help/zwa-managing-incidents.md:16`).
+2. Workflow Automation assigns the incident to an admin who has edit access to the incident group; unmapped groups are not auto-assigned and require super-admin assignment (`vendor/zscaler-help/zwa-managing-incidents.md:20-24`).
+3. The admin reviews the incident, investigates, and chooses whether to notify the end user or escalate to a manager/approver depending on severity (`vendor/zscaler-help/zwa-managing-incidents.md:26-31`).
+4. The user, manager, or approver can provide justification/advice; the admin proceeds with the incident or closes it based on the response (`vendor/zscaler-help/zwa-managing-incidents.md:27-29`).
+
+The Incidents page supports dashboard widgets for All, Open, Unassigned, Resolved, Waiting Feedback, Escalated, and Response Available states (`vendor/zscaler-help/zwa-managing-incidents.md:47-57`). It also exposes incident search by free-form All search or by up to 10 transaction IDs (`vendor/zscaler-help/zwa-managing-incidents.md:60-80`), date/time filtering with a custom range limit of incidents up to six months old and a maximum three-month rolling window (`vendor/zscaler-help/zwa-managing-incidents.md:154-200`), and CSV export with at most three concurrent bulk activities/downloads (`vendor/zscaler-help/zwa-managing-incidents.md:207-211`).
+
+## Incident fields
+
+Source: `vendor/zscaler-help/zwa-managing-incidents.md`; `vendor/zscaler-sdk-python/zscaler/zwa/models/incident_details.py`; `vendor/zscaler-sdk-go/zscaler/zwa/services/common/common.go`.
+
+Incident records are rich enough to drive triage, ownership, and evidence handling. The portal field list includes transaction ID, duplicate count, creation/change dates, priority, severity, DLP admin, source DLP type, DLP type, labels, status, engine/dictionary/rule/action, destination, incident date, incident groups, justification fields, username, client IP, file fields, application fields, integration, channel, collaborator/share metadata, recipient metadata, protocol, groups, destination type, component/content/workspace/domains, and other source-specific fields (`vendor/zscaler-help/zwa-managing-incidents.md:82-141`). The SDK models overlap with this shape: Python `IncidentDLPDetails` includes `internal_id`, `integration_type`, `transaction_id`, source fields, severity, priority, matching policies, user/application/content/network info, status, resolution, notes, tickets, groups, and labels (`vendor/zscaler-sdk-python/zscaler/zwa/models/incident_details.py:24-75`, `:168-204`), and Go `IncidentDetails` maps the same major JSON fields (`vendor/zscaler-sdk-go/zscaler/zwa/services/common/common.go:15-45`).
+
+## Manual actions
+
+Source: `vendor/zscaler-help/zwa-managing-incidents.md`.
+
+The captured portal action set is broader than the SDK action set. From the Incidents page, admins can assign DLP admin, assign to self, assign priority, close incident, notify user, mark investigating, escalate, add/remove labels, and update incident groups (`vendor/zscaler-help/zwa-managing-incidents.md:214-221`, `:222-260`, `:267-367`). Bulk actions repeat many of those operations across selected incidents or all filtered incidents (`vendor/zscaler-help/zwa-managing-incidents.md:443-560`).
+
+Two source-backed details matter operationally:
+
+- Closing an incident sets status to Resolved; after closure, admins can still perform all other actions except Investigating and Escalate, while status remains Resolved (`vendor/zscaler-help/zwa-managing-incidents.md:267-285`).
+- Updating incident groups can add/delete assigned groups, choose a default group to avoid unassigned incidents, and update admin assignment; priority may change based on the final incident group list (`vendor/zscaler-help/zwa-managing-incidents.md:367-435`).
+
+## Workflow templates
+
+Source: `vendor/zscaler-help/understanding-workflows-workflow-automation.md`.
+
+Zscaler documents nine predefined workflow templates (`vendor/zscaler-help/understanding-workflows-workflow-automation.md:27-38`):
+
+| Template | Source-backed behavior |
+|---|---|
+| Auto Close Data Protection Incident With Resolution Label | Sets incident status to Resolved and adds a resolution label. |
+| Auto Close Data Protection Incident | Sets incident status to Resolved. |
+| Auto Create Tickets | Creates a ticket in a ticketing integration such as ServiceNow or Jira Software. |
+| Auto Escalate | Escalates to the user's manager, or an approver if the manager is not found. |
+| Auto Notify | Notifies the user through email, Slack, or Microsoft Teams. |
+| Auto Notify User and Close Incident | Notifies the user and closes if no response arrives after a configured number of seconds. |
+| Auto Notify User and Concurrently Escalate | Notifies the user and escalates to manager/approver without waiting for user response. |
+| Auto Notify User and Escalate | Notifies the user, then escalates if the user does not respond after a configured number of seconds. |
+| Auto Notify User and Escalate to Manager | Notifies the user and optionally escalates to the manager if the user does not respond after a configured number of seconds. |
+
+Custom workflows are also supported in the portal: admins choose and configure steps/actions without using a template (`vendor/zscaler-help/understanding-workflows-workflow-automation.md:39`). This refresh did **not** find SDK, MCP, Postman, Terraform, or Ansible create/update/delete/list operations for workflow templates, custom workflows, or workflow mappings. Treat workflow configuration as portal-backed unless [clarification zwa-01](../_meta/clarifications.md#zwa-01-workflow-configuration-programmability) is resolved.
 
 ## What ZWA is not
 
-Boundary disclaimers — what operators sometimes assume ZWA does, but doesn't:
+Source: `vendor/zscaler-help/what-workflow-automation.md`; `vendor/zscaler-help/zwa-managing-incidents.md`; `vendor/zscaler-help/understanding-workflows-workflow-automation.md`.
 
-- **Not a SOAR platform.** ZWA is DLP-incident-specific, not a general security orchestration product. No arbitrary playbook engine, no integrations beyond the named ticketing/notification channels.
-- **Not a ZPA workflow tool.** ZPA has its own policy management; ZWA is **ZIA DLP only**. Operators asking about ZPA access automation should look elsewhere.
-- **Not an email security tool.** Slack / Teams / email notifications are *delivery channels for DLP incident notifications*, not inbound email security or anti-phishing.
-- **Not a SIEM integration layer.** For log forwarding to SIEM, use ZIA NSS (Network Security Services) or log streaming — not ZWA.
-- **Not an automation surface for non-DLP ZIA events.** ZWA does not handle ZIA threat events, web filtering blocks, sandbox detections, or any other Zscaler product's alerts — strictly ZIA DLP incidents.
-
-## Mechanics
-
-### Incident lifecycle
-
-From *Managing Incidents* and *Understanding Workflows in Workflow Automation*:
-
-```
-ZIA DLP detection
-    │
-    ▼
-Incident created in ZWA (Incidents page)
-    │
-    ├──────────────────────────────────┐
-    ▼                                  ▼
-Manual triage                    Workflow match (via workflow mapping)
-    │                                  │
-    │ Admin actions:                   │ Automated actions:
-    │ - Investigate                    │ - Notify user
-    │ - Notify user                    │ - Escalate to manager/approver
-    │ - Escalate                       │ - Create ticket
-    │ - Create ticket                  │ - Close incident
-    │ - Close incident                 │ - (+ various combinations via templates)
-    ▼                                  ▼
-Resolved / Closed state
-```
-
-Both paths can operate concurrently on the same tenant — a workflow handles common-case incidents automatically while admins manually triage exception cases.
-
-### Incident attributes
-
-Incidents carry metadata fields that are both display-useful and **the basis for workflow mapping criteria**:
-
-- User identity (who triggered the incident)
-- User's department / manager
-- DLP policy that fired
-- Severity / risk level
-- Matched DLP engine (built-in vs custom dictionary)
-- Source channel (web upload, file transfer, email, etc.)
-- Destination (where the data was being sent)
-- Matched content (the actual payload excerpt — stored as evidence)
-- Timestamp
-- Status (Open / In Progress / Resolved / Closed)
-- Labels (freeform tags admins or workflows assign)
-
-Workflow mappings match on these attributes. A mapping might say: "Department=Finance AND Severity>=High → workflow `Auto-Escalate-to-Finance-Manager`."
-
-### Incident statuses and resolution labels
-
-From the captured material (partial):
-
-- **Open** — newly created, unassigned.
-- **In Progress** — assigned to an admin or a workflow is acting.
-- **Resolved** — admin or workflow closed it. A *resolution label* (e.g., "False Positive," "Policy Violation Acknowledged," "User Notified") can be attached to categorize the closure.
-- **Closed** — terminal.
-
-The workflow template `Auto Close Data Protection Incident With Resolution Label` specifically adds a label on auto-close — distinct from `Auto Close Data Protection Incident` (no label).
-
-### The 9 predefined workflow templates
-
-From *Understanding Workflows in Workflow Automation*:
-
-| Template | What it does |
-|---|---|
-| `Auto Close Data Protection Incident With Resolution Label` | Sets incident status to Resolved and attaches a specified label. |
-| `Auto Close Data Protection Incident` | Sets incident status to Resolved (no label). |
-| `Auto Create Tickets` | Creates a ticket in the configured ticketing integration (ServiceNow or Jira Software). |
-| `Auto Escalate` | Escalates the incident to the user's manager; if manager is not found, to a fallback approver. |
-| `Auto Notify` | Notifies the user who generated the incident via configured channel (email / Slack / Microsoft Teams). |
-| `Auto Notify User and Close Incident` | Notifies user; if no response within configurable seconds, closes the incident. |
-| `Auto Notify User and Concurrently Escalate` | Notifies user AND immediately escalates to manager/approver without waiting for user response. |
-| `Auto Notify User and Escalate` | Notifies user; if no response within configurable seconds, escalates to manager/approver. |
-| `Auto Notify User and Escalate to Manager` | Notifies user; optionally escalates to manager only (no approver fallback) if no response. |
-
-**Template details to configure** (varies per template):
-
-- Notification channel (email / Slack / Microsoft Teams)
-- Wait period for user response (seconds)
-- Resolution label (for auto-close variants)
-- Ticketing integration (for auto-create-tickets)
-
-> **Operational note — wait periods are configured in seconds.** This is an unusual unit for incident-response timing (most products use minutes/hours). Worth flagging when operators configure response windows: a "30" in the wait field is 30 seconds, not 30 minutes. Easy misconfiguration trap.
-
-> **Concurrent vs. sequential escalation — distinct operational behaviors.** The `Auto Notify User and Concurrently Escalate` template fires the user notification AND the manager/approver escalation **in parallel**, with no wait for user response. The `Auto Notify User and Escalate` template (without "Concurrently") instead waits the configured response window before escalating. Choose concurrent for high-severity incidents where manager awareness is required regardless of user response; choose sequential for lower-severity cases where the user should get a chance to self-remediate first.
-
-**Custom workflows**: admins can build workflows that don't use a template — pick any combination of actions + steps. Used for edge-case remediation patterns the templates don't cover.
-
-### Workflow mappings — the trigger model
-
-A workflow doesn't fire on its own — it needs a **workflow mapping** that says "this workflow runs on incidents matching these attributes."
-
-From the help doc:
-
-> After you configure a predefined or custom workflow, you must specify the incidents that use this workflow by mapping the workflow to one or more of the attributes available in an incident transaction.
-
-Mapping criteria use the same incident attribute fields (user, department, DLP policy, severity, etc.) that display on the Incidents page.
-
-**First-match semantics** across workflow mappings: not explicitly documented in captured material. Unclear whether multiple mappings can fire per incident or only the first-matching one. Likely first-match-wins parallel to ZIA rule evaluation, but flag as [clarification candidate].
-
-### Integration with ticketing systems
-
-The `Auto Create Tickets` template (and manual "Create Ticket" actions) integrates with **ServiceNow** and **Jira Software**. Each integration requires:
-
-- Credentials for the target system (API key / OAuth).
-- Field mapping between incident fields and ticket fields.
-- Configured destination (project/queue for Jira; table for ServiceNow).
-
-Integration setup is operational (per-tenant), not covered in the reasoning docs. The skill should route "how do I connect ServiceNow?" to Zscaler's integration-specific help articles (`managing-dlp-*-application-integrations-workflow-automation`).
-
-### Notification channels
-
-Three supported out of the box:
-
-- **Email** — to a specified address or per-incident dynamic (user's email).
-- **Slack** — via webhook / Slack app integration.
-- **Microsoft Teams** — via Teams app integration.
-
-Channel configuration is per-tenant; individual workflows pick which configured channel to use for their notifications.
-
-### Incident groups and admin ownership
-
-From *What Is Workflow Automation?*:
-
-> Workflow Automation provides the capability to group individual incidents into incident groups and assign priorities to those incident groups. These incident groups can then be assigned to different admins.
-
-Use case: during a large DLP event (departing employee, mass accidental disclosure), admins can batch-group dozens of incidents, assign priority, and route ownership — then triage in one workflow-queue view rather than per-incident.
-
-### RBAC — roles within ZWA
-
-ZWA has its own RBAC surface, with four named role types:
-
-| Role | What they do |
-|---|---|
-| **Governance admins** | Manage workflows, configure mappings, view all incidents, and own the ZWA configuration surface. |
-| **Approvers** | Designated recipients for escalated incidents. Can approve or reject the proposed remediation. Used by `Auto Escalate` and the *Concurrently / sequentially escalate* templates when a user's manager isn't available in the directory. |
-| **Integration users** | System accounts for ticketing-system integration (ServiceNow / Jira). Used by the `Auto Create Tickets` workflow template. |
-| **User roles** | Regular end-users who *receive* notifications and can respond / justify their action that triggered the DLP incident. |
-
-Source: `vendor/zscaler-help/what-workflow-automation.md`.
-
-**Important caveat — RBAC inheritance.** ZWA RBAC is **managed within ZWA, not inherited from ZIA admin roles** — i.e., a ZIA admin doesn't automatically get ZWA permissions. This was merged from `workflow-automation/overview.md` on 2026-05-04 and has not been independently confirmed against current ZWA admin help docs; verify before relying on it for tenant-configuration decisions.
-
-## Dependencies — what ZWA needs upstream
-
-**ZWA is downstream of ZIA DLP.** Without ZIA DLP detections, there's nothing for ZWA to ingest. Which means ZWA inherits ZIA DLP's dependencies:
-
-| Dependency | Effect on ZWA |
-|---|---|
-| SSL Inspection must decrypt | Without decrypt, DLP can't see content, ZIA doesn't detect, ZWA gets no incidents. See [`../zia/ssl-inspection.md § SSL bypass is a cross-policy gate`](../zia/ssl-inspection.md). |
-| DLP policies must be configured in ZIA | ZIA DLP rules are the detection source. No ZIA DLP rules → no ZWA incidents. |
-| ZIA→ZWA integration must be enabled | Tenant-level toggle; if off, ZIA detects but nothing feeds ZWA. |
-
-**Operator diagnostic flow** for "DLP incidents not appearing in ZWA":
-
-1. Verify ZIA DLP rules exist and are enabled.
-2. Verify SSL Inspection is decrypting the relevant traffic (not in a bypass).
-3. Check ZIA→ZWA integration status.
-4. Check ZWA ingestion is working (audit log / system status).
-5. Only then look at workflow mappings and rules inside ZWA.
-
-## Edge cases
-
-- **Incident fires but no workflow triggers**: workflow mapping either doesn't match the incident's attributes or the workflow is disabled. Review mappings against incident attributes on the Incidents page.
-- **User never responds to notification**: auto-notify-and-escalate/close templates have configurable wait times. After expiration, escalation or closure proceeds. Users on PTO or terminated users may routinely trigger timeout paths.
-- **Manager not found during auto-escalate**: fallback to approver. If no approver configured, escalation silently fails — incident stays in In Progress.
-- **Ticket creation fails**: ServiceNow/Jira API errors produce a workflow failure. Incident status may get stuck; admin intervention required to investigate and re-attempt.
-- **Resolution label on non-auto-close workflows**: labels are free-form. Inconsistent labeling makes trend analysis harder — org should standardize a label vocabulary.
-- **Dashboard-level sensitive data exposure**: ZWA admin console shows matched payload data (the evidence that triggered the incident). Admin-portal access to ZWA effectively = access to the DLP-tripped content. Scope admin RBAC tightly.
+- **Not DLP policy authoring.** DLP policies exist upstream in the Zscaler Admin Console; ZWA records incidents after those policies are violated (`vendor/zscaler-help/zwa-managing-incidents.md:16`).
+- **Not a general SOAR platform in the captured sources.** The documented workflow templates are DLP-incident-specific actions such as notify, escalate, ticket, and close (`vendor/zscaler-help/understanding-workflows-workflow-automation.md:27-38`).
+- **Not ZPA access automation.** The captured ZWA sources talk about Data Protection incidents and Workflow Automation for Data Protection, not Private Access policy automation.
+- **Not a ZIA DLP Incident Receiver.** Terraform/Ansible/Postman hits for "DLP Incident Receiver" in this pass are ZIA ICAP/DLP receiver configuration surfaces, not ZWA incident lifecycle APIs (`vendor/zscaler-api-specs/oneapi-postman-collection.json:1928-1955`).
 
 ## Open questions
 
-- Workflow mapping evaluation order — first-match-wins, multi-fire, or something else? Not explicitly documented.
-- Max number of workflows / workflow mappings per tenant — not captured.
-- Retention period for closed incidents in ZWA.
-- Whether incidents can be re-opened once closed, or if they're immutable at terminal status.
-- Whether ZWA receives DLP events from ZIA inline DLP, Endpoint DLP, Email DLP, or some subset.
+Source: `vendor/zscaler-help/understanding-workflows-workflow-automation.md`; `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py`; `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go`.
+
+- **Workflow configuration programmability** - no SDK/MCP/Postman/Terraform/Ansible workflow template or mapping create/update/delete/list operation was found in this pass. See [clarification zwa-01](../_meta/clarifications.md#zwa-01-workflow-configuration-programmability).
+- **Go incident delete semantics** - Go and legacy help expose DELETE, but Python does not, and the runtime effect compared with closing/resolving is not established. See [clarification zwa-02](../_meta/clarifications.md#zwa-02-dlp-incident-delete-semantics).
+- **Exact current-vs-legacy auth boundary** - Python current, Python legacy, Go, and legacy help do not collapse to one simple rule. See [clarification zwa-04](../_meta/clarifications.md#zwa-04-current-vs-legacy-auth-boundary).
 
 ## Cross-links
 
-- API surface (Python + Go SDK methods) — [`./api.md`](./api.md)
-- ZIA SSL Inspection (upstream decryption dependency for DLP detection) — [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md)
-- ZIA Malware & ATP (adjacent cybersecurity-policy product family; distinct from DLP but same pipeline position) — [`../zia/malware-and-atp.md`](../zia/malware-and-atp.md)
-- Cross-product integration catalog — [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md)
+- API surface and auth details - [`./api.md`](./api.md)
+- ZWA audit logs - [`./audit-logs.md`](./audit-logs.md)
+- Upstream ZIA DLP - [`../zia/dlp.md`](../zia/dlp.md)
+- Upstream ZIA SSL/TLS Inspection for inline DLP visibility - [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md)
+- Cross-product DLP dependencies - [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md)

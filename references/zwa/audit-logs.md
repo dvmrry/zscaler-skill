@@ -1,12 +1,16 @@
 ---
 product: zwa
 topic: zwa-audit-logs
-title: "ZWA Customer Audit Logs"
+title: "ZWA audit logs - customer audit API"
 content-type: reference
-last-verified: "2026-04-26"
-confidence: medium
+last-verified: "2026-06-16"
+verified-against:
+  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+confidence: high
 source-tier: code
 sources:
+  - "vendor/zscaler-sdk-python/zscaler/zwa/zwa_service.py"
   - "vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py"
   - "vendor/zscaler-sdk-python/zscaler/zwa/models/audit_logs.py"
   - "vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go"
@@ -14,216 +18,142 @@ sources:
 author-status: draft
 ---
 
-# ZWA Customer Audit Logs
+# ZWA audit logs - customer audit API
 
-Zscaler Workflow Automation (ZWA) maintains an audit log of every action performed by administrators in the Workflow Automation Admin Portal and through the ZWA APIs. The audit surface answers: who performed what action, on which resource, in which module, and when.
+Source: `vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py`; `vendor/zscaler-sdk-python/zscaler/zwa/models/audit_logs.py`; `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go`.
 
-This is distinct from ZWA DLP incident logs (which record data-plane policy match events). The audit log records control-plane changes — configuration, workflow, and policy modifications made by admins.
+ZWA audit-log access is a pull API exposed by the Python and Go SDKs. The Python docstring describes the result as audit information for actions made by admins in the Workflow Automation Admin Portal and actions made through APIs (`vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py:33-39`). This page covers that SDK-visible customer audit API only; retention, streaming, and SIEM export support are not documented in the inspected ZWA sources.
 
-## What is captured
+## Accessors and endpoint
 
-Per `vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py`:
+Source: `vendor/zscaler-sdk-python/zscaler/zwa/zwa_service.py`; `vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py`; `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go`.
 
-> The result includes audit information for every action made by the admins in the Workflow Automation Admin Portal and the actions made through APIs.
+| SDK | Accessor | Endpoint | Lines |
+|---|---|---|---|
+| Python | `client.zwa.audit_logs.audit_logs(...)` | `POST /zwa/dlp/v1/customer/audit` | `vendor/zscaler-sdk-python/zscaler/zwa/zwa_service.py:27-33`; `vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py:33-135` |
+| Go | `customeraudit.GetCustomerAudit(ctx, service, filters, paginationParams)` | `POST /dlp/v1/customer/audit` resolved against the configured ZWA host | `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go:12-47` |
 
-Filterable dimensions include: `Action`, `Resource`, `Admin`, and `Module`.
+Python and Go both use a POST-based filter/search model rather than a simple GET. Python builds a body with `fields` and `timeRange` and passes query params for pagination (`vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py:108-122`). Go passes `common.CommonDLPIncidentFiltering` into the shared pager, also using POST (`vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go:36-47`; `vendor/zscaler-sdk-go/zscaler/zwa/services/common/common.go:148-178`).
 
-## API surface
+## Request shape
 
-**Endpoint:** `POST /zwa/dlp/v1/customer/audit`
+Source: `vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py`; `vendor/zscaler-sdk-go/zscaler/zwa/services/common/common.go`.
 
-The audit log API uses a **POST-based filter and search** model rather than a GET with query parameters. Filters and time range are passed in the request body.
+Python signature:
 
-### Request body
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `fields` | []Fields | List of field-value filter pairs |
-| `timeRange` | TimeRange | Start and end time for the query |
-
-#### `Fields` structure
-
-```json
-{
-  "name": "Action",
-  "value": ["CREATE", "UPDATE"]
-}
+```python
+client.zwa.audit_logs.audit_logs(
+    query_params=None,
+    fields=None,
+    time_range=None,
+    **kwargs,
+)
 ```
 
-Supported `name` values: `Action`, `Resource`, `Admin`, `Module`.
+The Python docstring lists supported filter fields `Action`, `Resource`, `Admin`, and `Module` (`vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py:40-46`). It documents pagination query params `page`, `page_size`, and `page_id`, with max page size 100 (`vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py:52-60`). The request body is `{"fields": fields or [], "timeRange": time_range or {}}`, with any extra keyword args merged into the body (`vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py:111-115`).
 
-#### `TimeRange` structure
+Go uses the shared request structs:
 
-```json
-{
-  "startTime": "2025-03-03T18:04:52.074Z",
-  "endTime": "2025-03-03T18:04:52.074Z"
-}
-```
+| Struct | Wire fields | Lines |
+|---|---|---|
+| `CommonDLPIncidentFiltering` | `fields`, `timeRange` | `vendor/zscaler-sdk-go/zscaler/zwa/services/common/common.go:148-152` |
+| `Fields` | `name`, `value` | `vendor/zscaler-sdk-go/zscaler/zwa/services/common/common.go:154-157` |
+| `TimeRange` | `startTime`, `endTime` | `vendor/zscaler-sdk-go/zscaler/zwa/services/common/common.go:159-162` |
+| `PaginationParams` | `page`, `pageSize`, `pageId` | `vendor/zscaler-sdk-go/zscaler/zwa/services/common/common.go:173-178` |
 
-Times are ISO 8601 strings.
-
-### Pagination query parameters
-
-Pagination parameters are passed as URL query parameters on the POST request:
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `page` | int | Page number (1-based) |
-| `pageSize` | int | Records per page; max 100 |
-| `pageId` | string | Page ID for cursor-based pagination (alternative to `page`) |
-
-### Response structure
+## Response shape
 
 Source: `vendor/zscaler-sdk-python/zscaler/zwa/models/audit_logs.py`; `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go`.
 
-The response is an `AuditLogsResponse` envelope:
+Python model:
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `cursor` | Cursor | Pagination state |
-| `logs` | []AuditLog | The audit log entries for this page |
+| Model | Fields | Lines |
+|---|---|---|
+| `AuditLogs` | `cursor`, `logs` | `vendor/zscaler-sdk-python/zscaler/zwa/models/audit_logs.py:24-53` |
+| `Logs` | `action`, `module`, `resource` | `vendor/zscaler-sdk-python/zscaler/zwa/models/audit_logs.py:65-106` |
+| `Action` | `action` | `vendor/zscaler-sdk-python/zscaler/zwa/models/audit_logs.py:109-137` |
 
-#### Cursor fields
+Go model:
 
-Source: `vendor/zscaler-sdk-go/zscaler/zwa/services/common/common.go`.
+| Model | Fields | Lines |
+|---|---|---|
+| `AuditLogsResponse` | `cursor`, `logs` | `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go:16-19` |
+| `AuditLog` | `action`, `module`, `resource`, `changedAt`, `changedBy`, `oldRowJson`, `newRowJson`, `changeNote` | `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go:21-30` |
+| `Action` | `action` | `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go:32-34` |
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `totalPages` | int | Total number of pages |
-| `currentPageNumber` | int | Current page number |
-| `currentPageSize` | int | Number of records on this page |
-| `pageId` | string | Cursor token for the current page |
-| `totalElements` | int | Total matching records across all pages |
+The Go model is richer than the Python model in this snapshot. Do not claim Python returns `changedAt`, `changedBy`, `oldRowJson`, `newRowJson`, or `changeNote` as first-class model attributes unless you verify raw-response handling or SDK changes.
 
-#### `AuditLog` entry fields
+## Pagination and limits
 
-Source: `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go`.
+Source: `vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py`; `vendor/zscaler-sdk-go/zscaler/zwa/services/common/common.go`.
 
-| Field | JSON key | Type | Description |
-|-------|----------|------|-------------|
-| Action | `action.action` | string | The action performed (e.g., CREATE, UPDATE, DELETE) |
-| Module | `module` | string | The portal module where the action occurred |
-| Resource | `resource` | string | The resource that was acted upon |
-| Changed at | `changedAt` | string | Timestamp when the change was made |
-| Changed by | `changedBy` | string | Identity of the admin who made the change |
-| Old value | `oldRowJson` | string | JSON snapshot of the resource before the change |
-| New value | `newRowJson` | string | JSON snapshot of the resource after the change |
-| Change note | `changeNote` | string | Optional note attached to the change |
+Python documents `page`, `page_size`, and `page_id`; its docstring states max page size is 100 (`vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py:52-60`). Go's shared code defines `pageSize = 1000` and defaults to 1000 inside `ReadAllPages` unless overridden (`vendor/zscaler-sdk-go/zscaler/zwa/services/common/common.go:13`, `:190-203`). Treat this as an SDK/documentation mismatch, not proof that the server accepts 1000. When writing portable examples, use page sizes at or below the documented 100 until a tenant/lab confirms otherwise.
 
-The `action` field is nested inside an `Action` sub-object: `{"action": {"action": "CREATE"}}`. The Go model uses `Action struct { Action string }`, and the Python model likewise wraps it.
+The shared Go pager collects response items from a `logs` field (`vendor/zscaler-sdk-go/zscaler/zwa/services/common/common.go:222-245`). That is consistent with audit-log responses, but it is also used by some incident functions; avoid over-claiming incident-search pagination behavior from static code alone.
 
-The `oldRowJson` and `newRowJson` fields provide before/after snapshots of the changed resource as serialized JSON strings. This is the primary mechanism for determining what specifically changed within a resource.
+## Example patterns
 
----
+Source: `vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py`; `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go`; `vendor/zscaler-sdk-go/zscaler/zwa/services/common/common.go`.
 
-## SDK access patterns
-
-### Python SDK
-
-Module: `zscaler.zwa.audit_logs.AuditLogsAPI`
-
-The Python SDK method is named `audit_logs()` and accessed via `client.zwa.audit_logs.audit_logs()`.
+Python:
 
 ```python
-# Filter by severity and time range
-search, response, error = client.zwa.audit_logs.audit_logs(
-    fields=[
-        {"name": "Action", "value": ["CREATE", "UPDATE"]},
-        {"name": "Module", "value": ["DLP"]}
-    ],
+logs, response, error = client.zwa.audit_logs.audit_logs(
+    fields=[{"name": "Module", "value": ["DLP"]}],
     time_range={
-        "startTime": "2025-03-03T18:04:52.074Z",
-        "endTime": "2025-03-04T18:04:52.074Z"
-    }
+        "startTime": "2026-06-16T00:00:00Z",
+        "endTime": "2026-06-16T01:00:00Z",
+    },
+    query_params={"page": 1, "page_size": 100},
 )
-
 if error:
-    print(f"Error fetching audit logs: {error}")
-else:
-    for log in search.logs:
-        print(log.as_dict())
-
-# With pagination
-search, response, error = client.zwa.audit_logs.audit_logs(
-    query_params={"page": 2, "page_size": 50},
-    time_range={
-        "startTime": "2025-03-01T00:00:00.000Z",
-        "endTime": "2025-03-31T23:59:59.999Z"
-    }
-)
+    raise RuntimeError(error)
+for entry in logs.logs:
+    print(entry.action.action, entry.module, entry.resource)
 ```
 
-The Python response is an `AuditLogs` model object with a `cursor` attribute and a `logs` list of `Logs` objects. Each `Logs` object has `action` (an `Action` sub-object), `module`, and `resource` fields. The Go SDK exposes the richer set of fields (`changedAt`, `changedBy`, `oldRowJson`, `newRowJson`, `changeNote`).
-
-### Go SDK
-
-Package: `github.com/zscaler/zscaler-sdk-go/v3/zscaler/zwa/services/customeraudit`
+Go:
 
 ```go
 filters := common.CommonDLPIncidentFiltering{
     Fields: []common.Fields{
-        {Name: "Action", Value: []string{"CREATE", "UPDATE"}},
         {Name: "Module", Value: []string{"DLP"}},
     },
     TimeRange: common.TimeRange{
-        StartTime: "2025-03-03T18:04:52.074Z",
-        EndTime:   "2025-03-04T18:04:52.074Z",
+        StartTime: "2026-06-16T00:00:00Z",
+        EndTime:   "2026-06-16T01:00:00Z",
     },
 }
-
-pageSize := 100
-paginationParams := &common.PaginationParams{
-    PageSize: common.IntPtr(pageSize),
-}
-
-auditLogs, cursor, err := customeraudit.GetCustomerAudit(ctx, service, filters, paginationParams)
+pageSize := common.IntPtr(100)
+logs, cursor, err := customeraudit.GetCustomerAudit(ctx, service, filters, &common.PaginationParams{PageSize: pageSize})
 if err != nil {
-    // handle error
+    return err
 }
-
-for _, log := range auditLogs {
-    fmt.Printf("Action: %s | Module: %s | Resource: %s\n",
-        log.Action.Action, log.Module, log.Resource)
-    fmt.Printf("Changed by: %s at %s\n", log.ChangedBy, log.ChangedAt)
+_ = cursor
+for _, entry := range logs {
+    fmt.Println(entry.Action.Action, entry.Module, entry.Resource, entry.ChangedAt)
 }
 ```
 
-`GetCustomerAudit` internally calls `common.ReadAllPages[AuditLog]` with `http.MethodPost`, automatically fetching all pages. The returned `cursor` reflects the final pagination state.
+## Security and operations notes
 
-### Pagination behavior
+Source: `vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py`; `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go`.
 
-Source: `vendor/zscaler-sdk-go/zscaler/zwa/services/common/common.go`.
-
-The ZWA pagination engine (`common.ReadAllPages`) uses a **cursor + total pages** model:
-
-- Default `pageSize` is 1000 (SDK default, but the API max for this endpoint is 100 per Python docstring).
-- Pagination continues until `currentPageSize < pageSize` or `page >= totalPages - 1`.
-- Either numeric page (`page`) or cursor token (`pageId`) can be used for navigation.
-- JMESPath client-side filtering is applied after all pages are aggregated (via `zscaler.ApplyJMESPathFromContext`).
-
----
-
-## Streaming destinations
-
-No streaming destination mechanism (equivalent to ZIA NSS or ZPA LSS) is documented in available sources for ZWA audit logs. The customer audit API is the only access mechanism visible in the SDKs.
-
----
+- The audit feed is control-plane oriented: admin-portal actions and API actions in Workflow Automation (`vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py:33-39`). Do not confuse it with DLP incident evidence or DLP event logging.
+- Go exposes before/after JSON fields (`oldRowJson`, `newRowJson`) that may contain configuration details (`vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go:21-30`). Treat audit exports as sensitive admin/configuration data.
+- No push/streaming destination equivalent to ZIA NSS or ZPA LSS was found for ZWA audit logs in this pass. Phrase that as an inspected-source absence, not a universal product impossibility.
 
 ## Open questions
 
-Source: `vendor/zscaler-sdk-python/zscaler/zwa/models/audit_logs.py`; `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go`.
+Source: `vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py`; `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go`.
 
-1. **Resolved 2026-04-26.** Python model field gap confirmed. The `Logs` model class only has `action`, `module`, and `resource`. The Go `AuditLog` struct also has `changedAt`, `changedBy`, `oldRowJson`, `newRowJson`, and `changeNote`. The Python model is incomplete relative to the Go struct. Whether the Python API response genuinely omits these fields or the model just fails to map them cannot be confirmed without a live API test.
+- **Retention period** - not documented in the inspected ZWA sources. See [clarification zwa-03](../_meta/clarifications.md#zwa-03-zwa-audit-log-retention-and-streaming).
+- **Streaming/SIEM forwarding** - no ZWA-specific streaming mechanism was found in SDK/help captures. See [clarification zwa-03](../_meta/clarifications.md#zwa-03-zwa-audit-log-retention-and-streaming).
+- **Complete module/action value sets** - Python documents filter field names but not full accepted values (`vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py:40-46`).
+- **Server page-size max** - Python says max 100, Go defaults to 1000; server behavior needs lab/tenant confirmation (`vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py:55-60`; `vendor/zscaler-sdk-go/zscaler/zwa/services/common/common.go:13`, `:190-203`).
 
-2. **Supported `Action` values** — the full set of valid action strings (e.g., `CREATE`, `UPDATE`, `DELETE`, `LOGIN`) for the `Action` field filter is not documented in available sources.
+## Cross-links
 
-3. **Supported `Module` values** — the full set of module names is not documented. Only DLP-related module names are implied by the surrounding code context.
-
-4. **Retention** — the retention period for ZWA customer audit logs is not documented in available sources. See `references/shared/audit-logs.md` for cross-product retention context.
-
-5. **SIEM integration** — whether ZWA audit logs can be forwarded to a SIEM via streaming (push-based) or only retrieved via pull (API) is not confirmed from available sources.
-
-6. **`changeNote` usage** — the `changeNote` field is present in the Go model but not mentioned in the Python docstring. Whether this field is admin-supplied or system-generated is not confirmed from available sources.
-
-7. **API version** — the base path is `/zwa/dlp/v1/customer/audit`. Whether a v2 exists or is planned is not confirmed from available sources.
+- Full API surface and auth split - [`./api.md`](./api.md)
+- Product and workflow model - [`./overview.md`](./overview.md)
+- Claims ledger - [`./_claims-ledger.md`](./_claims-ledger.md)
