@@ -35,6 +35,11 @@ Centralized list of open questions raised across `references/*.md`. Each entry h
 - `breach-predictor-*` — Breach Predictor behavior / API-coverage question
 - `uvm-*` — Unified Vulnerability Management behavior / API-coverage question
 - `dspm-*` — Data Security Posture Management behavior / API-coverage question
+- `aem-*` — Asset Exposure Management / SecOps data-source behavior question
+- `deception-*` — Zscaler Deception admin/API or ZPA integration behavior question
+- `identity-protection-*` — Identity Protection / ITDR behavior question
+- `zero-trust-branch-*` — Zero Trust Branch (ZTB) behavior question
+- `zscaler-cellular-*` — Zscaler Cellular / SIM / Cellular Edge behavior question
 - `log-*` — log-schema / NSS / LSS question that spans multiple products
 
 IDs are stable forever. If an entry is resolved, it stays here with its answer — don't renumber.
@@ -96,8 +101,13 @@ Skim this before reading the full entries. Summary refreshed 2026-06-16:
 refresh queue has expanded the open register with `zia-50`–`zia-69`,
 `zpa-21`–`zpa-81`, `zcc-77`–`zcc-101`, `zdx-03`–`zdx-43`,
 `zid-01`–`zid-35`, `cloud-connector-01`–`cloud-connector-24`,
-`ai-security-01`–`ai-security-04`, `zbi-01`–`zbi-06`, and
-`zwa-01`–`zwa-05`.
+`ai-security-01`–`ai-security-04`, `zbi-01`–`zbi-06`,
+`zwa-01`–`zwa-05`, Tier-C insights entries `business-insights-01`,
+`soc-workbench-01`, and `unified-01`, Tier-C risk entries
+`risk360-01`–`risk360-02`, `breach-predictor-01`, `uvm-01`, and
+`dspm-01`, and Tier-C misc entries `aem-01`, `deception-01`,
+`identity-protection-01`, `zero-trust-branch-01`, and
+`zscaler-cellular-01`.
 Most open entries require lab tests,
 tenant snapshots, operator experience, or vendor confirmation rather than more
 public-doc reading.
@@ -139,7 +149,7 @@ public-doc reading.
 
 ### Open
 
-`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-69`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-81`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `shared-20`–`shared-37`, `zcc-08`–`zcc-101`, `zdx-01`–`zdx-43`, `zid-01`–`zid-35`, `zms-01`, `easm-01`–`easm-02`, `cloud-connector-01`–`cloud-connector-24`, `zwa-01`–`zwa-05`.
+`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-69`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-81`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `shared-20`–`shared-37`, `zcc-08`–`zcc-101`, `zdx-01`–`zdx-43`, `zid-01`–`zid-35`, `zms-01`, `easm-01`–`easm-02`, `cloud-connector-01`–`cloud-connector-24`, `zwa-01`–`zwa-05`, `business-insights-01`, `soc-workbench-01`, `unified-01`, `risk360-01`–`risk360-02`, `breach-predictor-01`, `uvm-01`, `dspm-01`, `aem-01`, `deception-01`, `identity-protection-01`, `zero-trust-branch-01`, `zscaler-cellular-01`.
 
 The vendor-MCP scrape (2026-06-14) added these open behavior questions — each links to its detailed entry below:
 
@@ -5956,6 +5966,61 @@ The captured Experience Center help describes a unified administrative and opera
 
 **Status**: open
 **Resolves with**: vendor API documentation, SDK/provider source exposing an Experience Center service, or explicit vendor confirmation that automation must use the underlying product APIs
+
+---
+
+### aem-01 — AEM AnySource, report, and API endpoint details
+
+*Origin: `references/aem/overview.md` § Open questions*
+
+The AEM refresh established Help-level data-source and connector scope (`vendor/zscaler-help/aem-what-zscaler-security-operations.md:30-41`, `:43-63`) plus CAASM marketing positioning (`vendor/zscaler-help/asset-exposure-management-caasm-marketing.md:20-59`), but found no product-specific Go SDK, Python SDK, Terraform, Ansible, MCP, or Postman surface in the audited vendor trees. The exact AnySource upload contract, report-export API, query/configuration API, and whether those are public OneAPI surfaces remain unresolved.
+
+**Status**: open
+**Resolves with**: vendor API documentation, SDK/provider source exposing AEM operations, Help capture for report/export API details, or tenant-side API capture
+
+---
+
+### deception-01 — Deception admin API and ZPA-managed object contract
+
+*Origin: `references/deception/overview.md` § Open questions*
+
+The Deception Help capture says Super admin can manage features including APIs, decoys, and audit logs (`vendor/zscaler-help/what-is-zscaler-deception.md:37-43`) and that Deception can integrate with ZPA for ZTN decoys (`vendor/zscaler-help/what-is-zscaler-deception.md:45-47`). ZPA Help and Terraform source show constraints/guards around Deception-configured ZPA access-policy rules (`vendor/zscaler-help/About_Access_Policy.txt:169-177`, `:185-190`; `vendor/terraform-provider-zpa/zpa/resource_zpa_policy_access_rule_reorder.go:258-295`). The public source set does not identify the Deception admin API endpoints, auth model, audit-log export details, or the full lifecycle/ownership contract for ZPA objects created by Deception.
+
+**Status**: open
+**Resolves with**: Deception admin API documentation, tenant-side Deception API capture, vendor confirmation, or deeper Help capture for API/audit-log pages
+
+---
+
+### identity-protection-01 — Identity Protection API, integration surface, and legacy ITDR parity
+
+*Origin: `references/identity-protection/overview.md` § Open questions*
+
+The Identity Protection Help capture establishes SecOps/ITDR architecture, ZTE integration, ZCC-dependent detection paths, and a current-vs-legacy UI note (`vendor/zscaler-help/itdr-what-identity-protection.md:35-56`). The refresh found no product-specific Go SDK, Python SDK, Terraform, Ansible, MCP, or Postman surface in the audited vendor trees. The authoritative API surface, connector configuration API, report/export behavior, and exact parity between current SecOps Identity Protection and legacy ITDR remain unresolved.
+
+**Status**: open
+**Resolves with**: vendor API documentation, SDK/provider source exposing Identity Protection operations, current Help capture for legacy/current parity, or tenant-side capture
+
+---
+
+### zero-trust-branch-01 — ZTB Python SDK auth-mode divergence and non-Python coverage
+
+*Origin: `references/zero-trust-branch/overview.md` § Open questions*
+
+The Python SDK exposes `client.ztb` through `oneapi_client.py` (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:279-285`) and `ztb_service.py` says the service is used via the OneAPI authentication path while legacy helpers are for standalone/token access (`vendor/zscaler-sdk-python/zscaler/ztb/ztb_service.py:37-44`). The same repository README says ZTB authenticates by API key and is available only through `LegacyZTBClient`, with OneAPI/OAuth2 not supported (`vendor/zscaler-sdk-python/README.md:1722-1728`, `:1751-1755`). The refresh also found no Go ZTB product service and no Terraform/Ansible/MCP/Postman ZTB product surface. Confirm the supported auth path and whether non-Python surfaces are absent, private, or pending.
+
+**Status**: open
+**Resolves with**: SDK maintainer clarification, live tenant auth test against both paths, vendor API documentation, or updated SDK/provider source
+
+---
+
+### zscaler-cellular-01 — Zscaler Cellular admin and API surface
+
+*Origin: `references/zscaler-cellular/overview.md` § Open questions*
+
+The Cellular Help capture describes Zscaler SIM, Cellular Edge, IP/IMEI/IMSI policy identifiers, and Cellular Admin Portal capabilities (`vendor/zscaler-help/cellular-what-zscaler-cellular.md:8`, `:10-15`, `:26-29`, `:45-67`). The refresh found no product-specific Go SDK, Python SDK, Terraform, Ansible, MCP, or Postman surface in the audited vendor trees. Public sources do not identify a Cellular Admin Portal API, SIM lifecycle endpoint set, eSIM activation API, Cellular Edge deployment API, or the exact ZIA/ZPA policy object mapping for IP/IMEI/IMSI identifiers.
+
+**Status**: open
+**Resolves with**: vendor API documentation, Help capture for Cellular admin/API pages, SDK/provider source exposing Cellular operations, or tenant-side API capture
 
 ---
 

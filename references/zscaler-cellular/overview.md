@@ -1,131 +1,66 @@
 ---
 product: zscaler-cellular
 topic: overview
-title: "Zscaler Cellular — zero trust security for cellular IoT and mobile devices"
+title: "Zscaler Cellular - SIM and Cellular Edge forwarding into ZTE"
 content-type: reference
-last-verified: "2026-04-28"
+last-verified: "2026-06-16"
+verified-against:
+  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/terraform-provider-zia: 717926eb564bb21dea1f8e0c3222e6593b29f849
+  vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
+  vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
+  vendor/zpacloud-ansible: 84ab824d6ce5853c12add6ae3280dcfb8db273a2
+  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
+  vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
+  vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: medium
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/zscaler-cellular-marketing.md"
   - "vendor/zscaler-help/cellular-what-zscaler-cellular.md"
+  - "vendor/zscaler-help/zscaler-cellular-marketing.md"
 author-status: draft
 ---
 
-# Zscaler Cellular — zero trust security for cellular IoT and mobile devices
+# Zscaler Cellular - SIM and Cellular Edge forwarding into ZTE
+
+This is a thin Tier-C reference. The refresh found Help/marketing coverage for Zscaler Cellular, but no product-specific SDK, Terraform, Ansible, MCP, or Postman surface in the audited vendor trees.
+
+## Source-family sweep
+
+| Family | Audit result |
+|---|---|
+| Go SDK | No Zscaler Cellular / Cellular Edge / Zscaler SIM product service surface found in the audited Go SDK tree. |
+| Python SDK | No Zscaler Cellular / Cellular Edge / Zscaler SIM product service surface found in the audited Python SDK tree. |
+| Terraform | No Zscaler Cellular resources or data sources found in the audited ZIA or ZPA providers. |
+| Ansible | No Zscaler Cellular modules found in the audited ZIA or ZPA collections. |
+| MCP | No Zscaler Cellular tools found in the audited MCP server. |
+| Postman | No Zscaler Cellular endpoint family found in the audited OneAPI collection. |
+| Help | Zscaler Cellular is covered by Cellular Help and marketing captures; Help describes two products, Zscaler SIM and Zscaler Cellular Edge (`vendor/zscaler-help/cellular-what-zscaler-cellular.md:8`). |
 
 ## What it is
 
-Zscaler Cellular extends Zscaler's Zero Trust Exchange (ZTE) to cellular-connected IoT and mobile endpoints — devices that use 4G/5G SIM cards for connectivity and cannot or do not run traditional software agents. It secures cellular traffic by routing it through the ZTE via Zscaler-managed SIM cards and a cellular edge infrastructure (Tier A — vendor/zscaler-help/cellular-what-zscaler-cellular.md).
+The Help capture describes Zscaler Cellular as a secure connectivity solution for IoT and mobile devices on a Zero Trust architecture, made up of Zscaler SIM and Zscaler Cellular Edge (`vendor/zscaler-help/cellular-what-zscaler-cellular.md:8`). It says devices with Zscaler SIM connect to public 4G/5G networks, traffic routes to the nearest Cellular Edge, and Cellular Edge forwards traffic to the Zero Trust Exchange for inspection and policy enforcement (`vendor/zscaler-help/cellular-what-zscaler-cellular.md:10-15`).
 
-GA as of August 2025. Positioned under "Zscaler Connectors" in the help portal nav, alongside Client Connector, Cloud & Branch Connector, and Zero Trust Branch.
+The architecture capture says Zscaler SIM is a data-only SIM that integrates directly with ZTE for IoT devices where agent-based solutions are not feasible (`vendor/zscaler-help/cellular-what-zscaler-cellular.md:45-53`). It says Cellular Edge forwards traffic from or to a Zscaler SIM to the ZTE and acts as an egress point to funnel cellular traffic to the Zero Trust Exchange (`vendor/zscaler-help/cellular-what-zscaler-cellular.md:56-63`).
 
-## Two product components
+## Policy and admin scope
 
-| Component | What it is |
-|---|---|
-| **Zscaler SIM** | A data-only SIM card. When inserted into an IoT/mobile device, it routes cellular traffic to the nearest Cellular Edge rather than to the carrier's standard internet path. No software agent required on the device. |
-| **Zscaler Cellular Edge** | An egress point in the Zscaler infrastructure that aggregates cellular traffic from Zscaler SIMs and forwards it to the ZTE for inspection and policy enforcement. |
+The Help capture says policy enforcement can be based on IP address, IMEI, or IMSI (`vendor/zscaler-help/cellular-what-zscaler-cellular.md:26-29`). It also says the admin portal supports SIM management, eSIM assignment and activation, network events, anomaly detection, SIM location groups, geofence anomaly policies, and Cellular Edge deployment/monitoring (`vendor/zscaler-help/cellular-what-zscaler-cellular.md:65-67`).
 
-## How traffic flows
+The marketing capture lists Zscaler Cellular Service and Zscaler Cellular Partner Service as the two deployment/service motions (`vendor/zscaler-help/zscaler-cellular-marketing.md:26-27`).
 
-```
-IoT/Mobile device + Zscaler SIM
-    → 4G/5G carrier network
-    → Nearest Zscaler Cellular Edge
-    → Zscaler Zero Trust Exchange (ZTE)
-    → ZIA policies (internet traffic) or ZPA policies (private app traffic)
-    → Internet / Private applications
-```
+## Programmability posture
 
-Traffic is bidirectional — the Cellular Edge handles both outbound device-initiated and inbound server-initiated traffic.
+No product-specific Zscaler Cellular Go SDK, Python SDK, Terraform, Ansible, MCP, or Postman surface was found in the audited vendor trees. The captured Help material supports portal-managed SIM/edge operations and policy identifiers, but it does not establish a public API, SDK operation set, or provider resource set. See [clarification `zscaler-cellular-01`](../_meta/clarifications.md#zscaler-cellular-01-zscaler-cellular-admin-and-api-surface).
 
-## Policy constructs
+## Open questions
 
-Policies can be applied based on three cellular-specific identifiers:
-- **IP address** — standard network-level identifier
-- **IMEI** — hardware identifier for the device (tied to the physical device)
-- **IMSI** — SIM identifier (tied to the SIM card, not the device)
-
-IMSI and IMEI-based policy is a cellular-native capability not available in traditional Zscaler deployments (which are user/device certificate-based).
-
-## Deployment models
-
-Two deployment options per vendor sources (Tier B — vendor/zscaler-help/zscaler-cellular-marketing.md):
-
-1. **Zscaler Cellular Service** — Plug-and-play, agentless security for cellular IoT devices (vending machines, EV chargers, kiosks). Zscaler manages the SIM and edge infrastructure.
-2. **Zscaler Cellular Partner Service** — Partner-managed solution for SIM infrastructure integration, with high availability and failover. For carriers or managed service providers integrating Zscaler into their network.
-
-## Supported use cases by industry
-
-| Industry | Use cases |
-|---|---|
-| Critical infrastructure | Railway systems, power grids, OT connectivity |
-| Industrial IoT | Asset tracking, energy sensors, connected machinery |
-| Retail | POS systems, kiosks, inventory handheld scanners |
-| Logistics/Transportation | Vehicle telemetry, track-and-trace, connected cabins |
-| Automotive | Connected vehicles, EV charger networks |
-| Government | Foreign deployments, secure communications |
-| Healthcare | Connected medical devices (IoMT) |
-
-## Admin capabilities
-
-Administered via the Zscaler Cellular Admin Portal. Key operational surfaces:
-
-| Feature | Description |
-|---|---|
-| SIM management | View SIM details, change status (active/inactive), change IMEI association, manage tags |
-| eSIM management | Assign and activate eSIMs |
-| Cellular Edge monitoring | View and monitor edge deployments, deploy new cellular edges |
-| Network Events | View and analyze network events per SIM |
-| Anomaly Detection | Built-in anomaly detection with configurable policies |
-| Geofence policies | Geofence-based anomaly detection (e.g., SIM operating outside expected geography) |
-| SIM Location Groups | Group SIMs by physical location for policy management |
-| Dashboard | Centralized view of telemetry metrics, SIM activity, anomaly alerts |
-
-## Global coverage
-
-Zscaler Cellular is designed for global deployments with regional egress and multi-operator support. Marketing materials reference 520+ global carriers, though this figure comes from secondary sources rather than direct Zscaler documentation (Tier B — vendor/zscaler-help/zscaler-cellular-marketing.md).
-
-## Relationship to ZIA and ZPA
-
-Zscaler Cellular **integrates with existing ZIA and ZPA policies**. Traffic forwarded through the ZTE by Cellular Edge is subjected to the same ZIA URL filtering, threat protection, DLP, and ZPA access policies as any other Zscaler-forwarded traffic. Zscaler Cellular is not a standalone security product — it is a traffic forwarding mechanism that feeds into the existing ZTE policy engine.
-
-This means organizations that already have ZIA/ZPA deployed can extend their existing policy framework to cellular-connected devices without re-defining policies.
-
-## Key differentiators vs. traditional ZCC deployment
-
-| Aspect | ZCC (traditional) | Zscaler Cellular |
-|---|---|---|
-| Agent required | Yes (ZCC app must run on device) | No — agentless |
-| Device types | Managed endpoints (laptops, phones) | IoT, OT, headless, legacy devices |
-| Connectivity | Wi-Fi, wired, or carrier | Cellular (4G/5G) only |
-| Policy identifier | User identity + device certificate | IP, IMEI, or IMSI |
-| Provisioning | MDM/app deployment | SIM provisioning (physical or eSIM) |
-
-## API surface
-
-No dedicated Zscaler Cellular API reference was found in available help portal sources. Configuration and monitoring via the Zscaler Cellular Admin Portal. Treat as portal-managed.
-
-## Licensing and availability
-
-GA August 2025. Listed under "Zscaler Connectors" in the help portal product navigation. Separate SKU from ZIA/ZPA. Specific pricing not publicly disclosed.
-
-## Key operational notes
-
-- Zscaler SIM is data-only — voice and SMS services are not provided.
-- IMEI vs. IMSI policy: IMEI ties policy to the physical device hardware; IMSI ties policy to the SIM card. If a SIM is moved to a different device, IMSI-based policies follow the SIM; IMEI-based policies stay with the original device.
-- Anomaly detection is built in and configurable — including geofence-based detection for SIMs operating in unexpected locations.
-
-## What Zscaler Cellular is not
-
-- Not a carrier (MVNO in the traditional sense). Zscaler partners with carriers; it manages the zero trust policy enforcement layer, not the cellular infrastructure.
-- Not applicable to Wi-Fi-connected IoT. For Wi-Fi IoT, Cloud Connector or Zero Trust Branch are more appropriate.
-- Not a replacement for ZCC on managed devices. ZCC provides richer user-identity-based policies and broader feature coverage for managed endpoints.
+- `zscaler-cellular-01`: The captured sources do not identify a public Cellular Admin Portal API, SIM lifecycle endpoint set, eSIM activation API, Cellular Edge deployment API, or ZIA/ZPA policy object mapping for IP/IMEI/IMSI identifiers. See [clarification `zscaler-cellular-01`](../_meta/clarifications.md#zscaler-cellular-01-zscaler-cellular-admin-and-api-surface).
 
 ## Cross-links
 
-- ZIA (policy enforcement for Cellular-forwarded internet traffic): [`../zia/index.md`](../zia/index.md)
-- ZPA (private app access for Cellular-connected devices): [`../zpa/index.md`](../zpa/index.md)
-- Zero Trust Branch (alternative for branch/factory IoT via appliance, not SIM): [`../zero-trust-branch/overview.md`](../zero-trust-branch/overview.md)
-- Portfolio map: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)
+- ZIA: [`../zia/index.md`](../zia/index.md)
+- ZPA: [`../zpa/index.md`](../zpa/index.md)
+- Zero Trust Branch: [`../zero-trust-branch/overview.md`](../zero-trust-branch/overview.md)
+- Claims ledger: [`./_claims-ledger.md`](./_claims-ledger.md)
