@@ -152,10 +152,25 @@ async function renderAndExtract(page, url) {
   } finally {
     await browser.close();
   }
-  provenance.sort((a, b) => a.operation.localeCompare(b.operation));
+  // Merge with any existing provenance so retry / per-product runs accumulate
+  // instead of overwriting. A re-captured op replaces its prior entry (including
+  // replacing a prior error with a success); a fresh error never clobbers an
+  // existing successful capture — so re-running just the failures recovers them.
   fs.mkdirSync(outDir, { recursive: true });
-  fs.writeFileSync(path.join(outDir, 'provenance.json'), JSON.stringify(provenance, null, 2) + '\n');
+  const provPath = path.join(outDir, 'provenance.json');
+  const byOp = new Map();
+  if (fs.existsSync(provPath)) {
+    for (const r of JSON.parse(fs.readFileSync(provPath, 'utf8'))) byOp.set(r.operation, r);
+  }
+  for (const r of provenance) {
+    const prev = byOp.get(r.operation);
+    if (!r.error || !prev || prev.error) byOp.set(r.operation, r);
+  }
+  const merged = [...byOp.values()].sort((a, b) => a.operation.localeCompare(b.operation));
+  fs.writeFileSync(provPath, JSON.stringify(merged, null, 2) + '\n');
   const ok = provenance.filter((r) => !r.error).length;
-  process.stdout.write(`\nCaptured ${ok}/${provenance.length} -> ${outDir}\n`);
+  const mergedOk = merged.filter((r) => !r.error).length;
+  process.stdout.write(`\nCaptured ${ok}/${provenance.length} this run; `
+    + `provenance now ${mergedOk}/${merged.length} ops -> ${outDir}\n`);
   if (ok < provenance.length) process.exit(1);
 })().catch((e) => { process.stderr.write(`FATAL ${e.message}\n`); process.exit(1); });
