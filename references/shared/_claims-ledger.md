@@ -1,0 +1,78 @@
+---
+product: shared
+topic: "shared-claims-ledger"
+title: "Shared claims ledger — Tier 2 first-pass refresh"
+content-type: reference
+last-verified: "2026-06-16"
+verified-against:
+  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+confidence: high
+source-tier: mixed
+sources:
+  - "vendor/zscaler-help/automate-zscaler/getting-started.md"
+  - "vendor/zscaler-help/automate-zscaler/api-authentication-overview.md"
+  - "vendor/zscaler-help/automate-zscaler/guides-rate-limiting.md"
+  - "vendor/zscaler-help/automate-zscaler/guides-response-codes.md"
+  - "vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md"
+  - "vendor/zscaler-help/automate-zscaler/api-endpoint-catalog.md"
+  - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
+  - "vendor/zscaler-help/legacy-activation.md"
+  - "vendor/zscaler-help/admin-rbac-captures.md"
+  - "vendor/zscaler-help/understanding-nanolog-streaming-service.md"
+  - "vendor/zscaler-help/understanding-business-continuity-cloud-components.md"
+  - "vendor/zscaler-help/understanding-scim-zia.md"
+  - "vendor/zscaler-help/about-scim-zpa.md"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/"
+  - "vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/"
+  - "vendor/zscaler-sdk-python/zscaler/zpa/scim_groups.py"
+  - "vendor/zscaler-sdk-python/zscaler/zpa/scim_attributes.py"
+author-status: draft
+---
+
+# Shared claims ledger
+
+This ledger covers the shared claims changed or explicitly guarded in the Tier 2 first-pass shared refresh. It is intentionally claims-led: every row points to the exact vendor source line used to support the claim, or marks the item as an open question.
+
+| Claim | Reference surface | Source line(s) |
+|---|---|---|
+| OneAPI is a unified cross-product API program with centralized auth, tenant access, rate limiting, caching, and lifecycle-management mechanics. | `oneapi.md`, `index.md` | `vendor/zscaler-help/automate-zscaler/getting-started.md:8` |
+| OneAPI uses ZIdentity as authorization server and exposes the token endpoint at `https://<vanity-domain>.zslogin.net/oauth2/v1/token`. | `oneapi.md` | `vendor/zscaler-help/automate-zscaler/getting-started.md:22`, `vendor/zscaler-help/automate-zscaler/getting-started.md:25` |
+| OneAPI token requests require the `audience` parameter set to `https://api.zscaler.com`. | `oneapi.md` | `vendor/zscaler-help/automate-zscaler/api-authentication-overview.md:17`, `vendor/zscaler-help/automate-zscaler/api-authentication-overview.md:21` |
+| The OneAPI base URL table includes ZDX at `/zdx/v1` on `https://api.zsapi.net/zdx/v1`; do not regress ZDX out of OneAPI-capable coverage. | `oneapi.md`, `index.md` | `vendor/zscaler-help/automate-zscaler/getting-started.md:118`, `vendor/zscaler-help/automate-zscaler/getting-started.md:124` |
+| ZDX also has a legacy token endpoint on `https://api.zsapi.net/zdx/v1/oauth/token` and signs `key_secret` as a SHA256 hash of `<secret_key>:<timestamp>` with a 15-minute timestamp validity window. | `oneapi.md` | `vendor/zscaler-help/automate-zscaler/api-authentication-overview.md:39`, `vendor/zscaler-help/automate-zscaler/api-authentication-overview.md:43`, `vendor/zscaler-help/automate-zscaler/api-authentication-overview.md:54` |
+| The Go OneAPI client routes ZDX endpoints to the ZDX OneAPI HTTP client. | `oneapi.md` | `vendor/zscaler-sdk-go/zscaler/oneapiclient.go:386`, `vendor/zscaler-sdk-go/zscaler/oneapiclient.go:387` |
+| ZDX OneAPI rate-limit headers are `RateLimit-Limit`, `RateLimit-Remaining`, and `RateLimit-Reset`. | `oneapi.md` | `vendor/zscaler-help/automate-zscaler/guides-rate-limiting.md:64`, `vendor/zscaler-help/automate-zscaler/guides-rate-limiting.md:65`, `vendor/zscaler-help/automate-zscaler/guides-rate-limiting.md:66`, `vendor/zscaler-help/automate-zscaler/guides-rate-limiting.md:67` |
+| ZIA and Cloud & Branch Connector config changes must be explicitly activated with their activation endpoints. | `activation.md`, `oneapi.md`, `index.md` | `vendor/zscaler-help/automate-zscaler/getting-started.md:193`, `vendor/zscaler-help/automate-zscaler/getting-started.md:196` |
+| The captured legacy ZIA activation status enum values are `ACTIVE`, `PENDING`, and `INPROGRESS`. | `cloud-architecture.md`, `activation.md` | `vendor/zscaler-help/legacy-activation.md:55`, `vendor/zscaler-help/legacy-activation.md:72` |
+| ZIA maintenance read-only mode returns HTTP 403 with `STATE_READONLY`, and the `x-zscaler-mode: read-only` header is included. | `activation.md`, `oneapi.md` | `vendor/zscaler-help/automate-zscaler/guides-response-codes.md:24`, `vendor/zscaler-help/automate-zscaler/guides-response-codes.md:26`, `vendor/zscaler-help/automate-zscaler/guides-response-codes.md:29`, `vendor/zscaler-help/automate-zscaler/guides-response-codes.md:30`, `vendor/zscaler-help/automate-zscaler/guides-response-codes.md:34` |
+| ZPA permission or role changes can take up to two minutes to take effect. | `admin-rbac.md` | `vendor/zscaler-help/admin-rbac-captures.md:91`, `vendor/zscaler-help/admin-rbac-captures.md:105` |
+| UNSUPPORTED narrowed: tenant vintage is not proven by this reference alone; verify a tenant's OneAPI/ZIdentity auth path before treating legacy admin credentials as deprecated. | `admin-rbac.md` | `UNSUPPORTED -> references/shared/admin-rbac.md:230` |
+| For ZIA web and firewall subscriptions, NSS streams copies of Nanolog records to the SIEM and Nanolog retains the originals. | `nss-architecture.md` | `vendor/zscaler-help/understanding-nanolog-streaming-service.md:14`, `vendor/zscaler-help/understanding-nanolog-streaming-service.md:23`, `vendor/zscaler-help/understanding-nanolog-streaming-service.md:28` |
+| Business Continuity Cloud is documented as dedicated private cloud infrastructure and supports only Z-Tunnel 1.0, PAC files, and GRE. | `cloud-architecture.md`, `subclouds.md` | `vendor/zscaler-help/understanding-business-continuity-cloud-components.md:16`, `vendor/zscaler-help/understanding-business-continuity-cloud-components.md:18` |
+| UNSUPPORTED narrowed: this pass did not find a source proving how Business Continuity Cloud mode interacts with subcloud selection. | `subclouds.md` | `UNSUPPORTED -> references/shared/subclouds.md:162` |
+| ZInsights GraphQL's captured domain list is SaaS Security, Cyber Security, Zero Trust Firewall, IoT, Shadow IT, and Web Traffic; ZDX is not in that captured GraphQL domain list. | `analytics-graphql.md` | `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md:19`, `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md:23`, `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md:24`, `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md:25`, `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md:26`, `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md:27`, `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md:28` |
+| The endpoint catalog describes Zscaler Analytics as `https://api.zsapi.net/zins/graphql` with the same six domains. | `analytics-graphql.md` | `vendor/zscaler-help/automate-zscaler/api-endpoint-catalog.md:429`, `vendor/zscaler-help/automate-zscaler/api-endpoint-catalog.md:430`, `vendor/zscaler-help/automate-zscaler/api-endpoint-catalog.md:432` |
+| ZDX has REST trend endpoints in the Postman collection, including application metric trend and device application ZDX score trend descriptions. | `analytics-graphql.md` | `vendor/zscaler-api-specs/oneapi-postman-collection.json:127394`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:127404`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:127675`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:127686` |
+| UNSUPPORTED moved to Open questions: ZInsights GraphQL as the sole programmatic ZDX trend interface. | `analytics-graphql.md`, `clarifications.md` | `UNSUPPORTED -> references/_meta/clarifications.md#shared-34-zdx-trend-linkage-to-zinsights-graphql` |
+| UNSUPPORTED moved to Open questions: `BYTES` as a valid `WebTrafficUnits` enum value. | `analytics-graphql.md`, `clarifications.md` | `UNSUPPORTED -> references/_meta/clarifications.md#shared-36-webtrafficunits-bytes-validity` |
+| ZIA audit logs include a Trace ID column. | `audit-logs.md` | `vendor/zscaler-help/admin-rbac-captures.md:78` |
+| UNSUPPORTED moved to Open questions: OneAPI Trace ID is a guaranteed cross-product audit join key across ZIA, ZPA, ZIdentity, ZWA, ZDX, and ZCC. | `audit-logs.md`, `clarifications.md` | `UNSUPPORTED -> references/_meta/clarifications.md#shared-37-cross-product-trace-id-propagation` |
+| ZIA SCIM supports user/group provisioning, group/department updates, and user deprovisioning. | `scim-provisioning.md` | `vendor/zscaler-help/understanding-scim-zia.md:17`, `vendor/zscaler-help/understanding-scim-zia.md:21`, `vendor/zscaler-help/understanding-scim-zia.md:22`, `vendor/zscaler-help/understanding-scim-zia.md:23` |
+| ZIA SCIM requires pre-registered username domains and caps a single user at 128 associated groups. | `scim-provisioning.md` | `vendor/zscaler-help/understanding-scim-zia.md:33` |
+| ZIA supports only SCIM 2.0 and requires SAML as the authentication method for SCIM provisioning. | `scim-provisioning.md` | `vendor/zscaler-help/understanding-scim-zia.md:35` |
+| ZIA SCIM user operations include create/list/get/filter/update/delete, with PUT or PATCH for update. | `scim-provisioning.md` | `vendor/zscaler-help/understanding-scim-zia.md:40`, `vendor/zscaler-help/understanding-scim-zia.md:41`, `vendor/zscaler-help/understanding-scim-zia.md:43`, `vendor/zscaler-help/understanding-scim-zia.md:44`, `vendor/zscaler-help/understanding-scim-zia.md:45`, `vendor/zscaler-help/understanding-scim-zia.md:46`, `vendor/zscaler-help/understanding-scim-zia.md:47`, `vendor/zscaler-help/understanding-scim-zia.md:48`, `vendor/zscaler-help/understanding-scim-zia.md:50`, `vendor/zscaler-help/understanding-scim-zia.md:51` |
+| ZIA SCIM group operations include create/list/get/filter/update/delete, with PUT or PATCH for update. | `scim-provisioning.md` | `vendor/zscaler-help/understanding-scim-zia.md:53`, `vendor/zscaler-help/understanding-scim-zia.md:54`, `vendor/zscaler-help/understanding-scim-zia.md:56`, `vendor/zscaler-help/understanding-scim-zia.md:57`, `vendor/zscaler-help/understanding-scim-zia.md:58`, `vendor/zscaler-help/understanding-scim-zia.md:60`, `vendor/zscaler-help/understanding-scim-zia.md:61` |
+| ZIA maps SCIM `active=false` to disabling the user, not deleting the user. | `scim-provisioning.md` | `vendor/zscaler-help/understanding-scim-zia.md:82`, `vendor/zscaler-help/understanding-scim-zia.md:84` |
+| ZPA SCIM allows Private Access to remove users when disabled/deleted in the directory and to enforce policies based on SCIM attributes and groups. | `scim-provisioning.md` | `vendor/zscaler-help/about-scim-zpa.md:16`, `vendor/zscaler-help/about-scim-zpa.md:20`, `vendor/zscaler-help/about-scim-zpa.md:21` |
+| ZPA works with any SCIM-standard IdP, with SailPoint given as an example. | `scim-provisioning.md` | `vendor/zscaler-help/about-scim-zpa.md:26` |
+| ZPA SCIM username must match SAML `nameID`; username is the only required and unique attribute in the captured help text. | `scim-provisioning.md` | `vendor/zscaler-help/about-scim-zpa.md:54`, `vendor/zscaler-help/about-scim-zpa.md:56`, `vendor/zscaler-help/about-scim-zpa.md:58` |
+| ZPA maps SCIM `active=false` to deleting the user and `active=true` to enabling the user. | `scim-provisioning.md` | `vendor/zscaler-help/about-scim-zpa.md:67`, `vendor/zscaler-help/about-scim-zpa.md:68` |
+| ZPA's SCIM Attributes page is read-only and Private Access does not support custom attributes. | `scim-provisioning.md` | `vendor/zscaler-help/about-scim-zpa.md:41` |
+| ZPA Okta first-sync failures can occur because Okta does not sync users to Private Access before SCIM is enabled; Zscaler recommends enabling `PROVISION_OUT_OF_SYNC_USERS` and unassigning/reassigning users and groups. | `scim-provisioning.md` | `vendor/zscaler-help/about-scim-zpa.md:28`, `vendor/zscaler-help/about-scim-zpa.md:30`, `vendor/zscaler-help/about-scim-zpa.md:31` |
+| ZIA Go SDK SCIM user functions verified in this pass: `GetUser`, `GetUserByName`, `CreateUser`, `UpdateUser`, `DeleteUser`, `GetAllUsers`. | `scim-provisioning.md` | `vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_user_api.go:44`, `vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_user_api.go:54`, `vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_user_api.go:73`, `vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_user_api.go:84`, `vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_user_api.go:94`, `vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_user_api.go:104` |
+| ZIA Go SDK SCIM group functions verified in this pass: `GetGroup`, `GetGroupByName`, `CreateGroup`, `UpdateGroup`, `DeleteGroup`, `GetAllGroups`. | `scim-provisioning.md` | `vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_group_api.go:39`, `vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_group_api.go:49`, `vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_group_api.go:68`, `vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_group_api.go:79`, `vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_group_api.go:89`, `vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_group_api.go:99` |
+| ZPA Go SDK SCIM user functions verified in this pass: `GetUser`, `GetUserByName`, `CreateUser`, `UpdateUser`, `PatchUser`, `DeleteUser`, `GetAllUsers`. | `scim-provisioning.md` | `vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_user_api.go:64`, `vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_user_api.go:74`, `vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_user_api.go:93`, `vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_user_api.go:104`, `vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_user_api.go:113`, `vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_user_api.go:122`, `vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_user_api.go:132` |
+| ZPA Go SDK SCIM group functions verified in this pass: `GetGroup`, `GetGroupByName`, `CreateGroup`, `UpdateGroup`, `PatchGroup`, `DeleteGroup`, `GetAllGroups`. | `scim-provisioning.md` | `vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_group_api.go:42`, `vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_group_api.go:52`, `vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_group_api.go:71`, `vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_group_api.go:82`, `vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_group_api.go:91`, `vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_group_api.go:100`, `vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_group_api.go:110` |
+| Python SDK ZPA SCIM read surfaces verified in this pass: group list/get and attribute list/get/value retrieval. | `scim-provisioning.md` | `vendor/zscaler-sdk-python/zscaler/zpa/scim_groups.py:26`, `vendor/zscaler-sdk-python/zscaler/zpa/scim_groups.py:37`, `vendor/zscaler-sdk-python/zscaler/zpa/scim_groups.py:120`, `vendor/zscaler-sdk-python/zscaler/zpa/scim_attributes.py:26`, `vendor/zscaler-sdk-python/zscaler/zpa/scim_attributes.py:38`, `vendor/zscaler-sdk-python/zscaler/zpa/scim_attributes.py:101`, `vendor/zscaler-sdk-python/zscaler/zpa/scim_attributes.py:137` |
+| UNSUPPORTED moved to Open questions: whether a current or future Python SDK release exposes ZIA SCIM provisioning wrappers. | `scim-provisioning.md`, `clarifications.md` | `UNSUPPORTED -> references/_meta/clarifications.md#shared-28-python-zia-scim-wrapper-surface` |

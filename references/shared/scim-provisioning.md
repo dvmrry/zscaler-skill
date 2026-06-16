@@ -3,9 +3,10 @@ product: shared
 topic: "scim-provisioning"
 title: "SCIM provisioning — user/group lifecycle across ZIA, ZPA, ZIdentity"
 content-type: reasoning
-last-verified: "2026-04-26"
+last-verified: "2026-06-16"
 verified-against:
-  vendor/zscaler-sdk-go: b14f8696c5008f8ea6ea6025b0c691835d9373b4
+  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
 confidence: high
 source-tier: mixed
 sources:
@@ -20,19 +21,19 @@ author-status: draft
 
 # SCIM provisioning
 
-SCIM (System for Cross-domain Identity Management) is the protocol Zscaler uses for **automated user and group lifecycle management** from an external IdP. Handles create / update / deprovision + attribute + group-membership sync. Without SCIM, tenants manually create users, or rely on SAML JIT (which only creates users the first time they authenticate — doesn't cover updates, deletes, or pre-populating policy dropdowns).
+SCIM (System for Cross-domain Identity Management) is the protocol Zscaler uses for **automated user and group lifecycle management** from an external IdP. For ZIA, the help capture names user and group provisioning, group and department updates, and user deprovisioning as supported SCIM use cases (`vendor/zscaler-help/understanding-scim-zia.md:17`, `vendor/zscaler-help/understanding-scim-zia.md:21`, `vendor/zscaler-help/understanding-scim-zia.md:22`, `vendor/zscaler-help/understanding-scim-zia.md:23`). For ZPA, the help capture says SCIM allows Private Access to remove users when disabled or deleted in the directory and to enforce policy based on SCIM attributes and groups (`vendor/zscaler-help/about-scim-zpa.md:16`, `vendor/zscaler-help/about-scim-zpa.md:20`, `vendor/zscaler-help/about-scim-zpa.md:21`).
 
-**SCIM is separate from SAML.** SAML is authentication; SCIM is provisioning. Tenants typically use the **same IdP for both** (per *About SCIM* ZPA: "Most of the time, the IdP you set up for SAML authentication will be the same one you use for SCIM identity management"), but they're distinct protocols handling distinct concerns.
+**SCIM is separate from SAML.** SAML is authentication; SCIM is provisioning. ZPA's SCIM help notes that the SAML IdP and SCIM IdP are usually the same provider, while ZIA requires SAML as the authentication method before SCIM provisioning is used (`vendor/zscaler-help/about-scim-zpa.md:33`, `vendor/zscaler-help/understanding-scim-zia.md:35`).
 
 ## Summary
 
-- **SCIM 2.0 only.** Zscaler supports version 2.0 of the SCIM standard. 1.x is not supported.
-- **SAML is a prerequisite** for SCIM provisioning in ZIA: "SAML must be used as your authentication method to use SCIM for provisioning."
-- **Username + SAML `nameID` must match** for ZPA SCIM: "The SCIM username attribute must match nameID in the SAML attribute." Cross-product constraint.
-- **ZPA SCIM Attributes are read-only** — no custom attributes supported. ZIA supports a broader, but still Zscaler-maintained, attribute set.
-- **Domain pre-registration** required for usernames in ZIA: the domain part of a SCIM username (e.g., `safemarch.com` in `user@safemarch.com`) must be pre-registered with Zscaler via Support.
-- **Max 128 groups per user** in ZIA. Exceeding this caps what the user's policy can inherit from groups.
-- **Partners**: Zscaler has published IdP config guides for Microsoft Entra ID, Okta, PingFederate, PingOne, Google Workspace, AD FS, OneLogin, CA Single Sign-On. Any SCIM-2.0-compliant IdP (e.g., SailPoint) will also work.
+- **SCIM 2.0 only.** ZIA and ZPA help captures both state that Zscaler supports only SCIM version 2.0 (`vendor/zscaler-help/understanding-scim-zia.md:35`, `vendor/zscaler-help/about-scim-zpa.md:35`).
+- **SAML is a prerequisite** for SCIM provisioning in ZIA (`vendor/zscaler-help/understanding-scim-zia.md:35`).
+- **Username + SAML `nameID` must match** for ZPA SCIM; the ZPA attributes page lists username as the only required and unique attribute, and says the SCIM username attribute must match the SAML `nameID` (`vendor/zscaler-help/about-scim-zpa.md:54`, `vendor/zscaler-help/about-scim-zpa.md:56`, `vendor/zscaler-help/about-scim-zpa.md:58`).
+- **ZPA SCIM Attributes are read-only** and Private Access does not support custom attributes (`vendor/zscaler-help/about-scim-zpa.md:41`).
+- **Domain pre-registration** is required for usernames in ZIA: the domain part of a SCIM username must be registered to the tenant, and Zscaler Support assists with that process (`vendor/zscaler-help/understanding-scim-zia.md:33`).
+- **Max 128 groups per user** in ZIA (`vendor/zscaler-help/understanding-scim-zia.md:33`).
+- **Partners**: the ZIA help capture links Microsoft Entra ID, Okta, PingFederate, PingOne, Google Workspace, AD FS, OneLogin, and CA Single Sign-On configuration guides; the ZPA capture also says Private Access works with any IdP that supports the SCIM standard, giving SailPoint as an example (`vendor/zscaler-help/understanding-scim-zia.md:114`, `vendor/zscaler-help/understanding-scim-zia.md:115`, `vendor/zscaler-help/understanding-scim-zia.md:116`, `vendor/zscaler-help/understanding-scim-zia.md:117`, `vendor/zscaler-help/understanding-scim-zia.md:118`, `vendor/zscaler-help/understanding-scim-zia.md:119`, `vendor/zscaler-help/understanding-scim-zia.md:120`, `vendor/zscaler-help/understanding-scim-zia.md:121`, `vendor/zscaler-help/understanding-scim-zia.md:122`, `vendor/zscaler-help/about-scim-zpa.md:26`).
 
 ## Mechanics
 
@@ -140,25 +141,26 @@ Two paths:
 1. **IdP-driven (most tenants).** The partnered IdP handles auth to Zscaler using OAuth or Bearer-token credentials provisioned in the IdP-Zscaler integration. Zscaler publishes per-IdP config guides.
 2. **Custom SCIM clients.** Tenants can make REST API calls directly to Zscaler's SCIM endpoints using the same OAuth 2.0 OneAPI flow as other Zscaler APIs (see [`../zidentity/api-clients.md`](../zidentity/api-clients.md)). Relevant when a tenant has a homegrown provisioning tool or uses a less-common IdP.
 
-## Cross-SDK parity
+## SDK surface snapshot
 
-From the earlier cross-SDK sweep (`commit 1cdd2c5`):
+The SDK claim here is intentionally function-level. Do not collapse it to a blanket CRUD-coverage statement without re-reading the cited package in the current vendor pin.
 
-- **Go SDK has full SCIM CRUD** for both ZIA and ZPA:
-  - `vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_user_api.go` (and `scim_group_api.go`)
-  - `vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/`
-- **Python SDK has partial coverage**: `scim_groups.py` and `scim_attributes.py` modules for ZPA, but no full SCIM user CRUD surface. ZIA Python SDK has no `scim_api` module at all.
+- **ZIA Go SCIM user functions**: `GetUser`, `GetUserByName`, `CreateUser`, `UpdateUser`, `DeleteUser`, and `GetAllUsers` are live declarations in `scim_user_api.go` (`vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_user_api.go:44`, `vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_user_api.go:54`, `vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_user_api.go:73`, `vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_user_api.go:84`, `vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_user_api.go:94`, `vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_user_api.go:104`).
+- **ZIA Go SCIM group functions**: `GetGroup`, `GetGroupByName`, `CreateGroup`, `UpdateGroup`, `DeleteGroup`, and `GetAllGroups` are live declarations in `scim_group_api.go` (`vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_group_api.go:39`, `vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_group_api.go:49`, `vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_group_api.go:68`, `vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_group_api.go:79`, `vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_group_api.go:89`, `vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_group_api.go:99`).
+- **ZPA Go SCIM user functions**: `GetUser`, `GetUserByName`, `CreateUser`, `UpdateUser`, `PatchUser`, `DeleteUser`, and `GetAllUsers` are live declarations in `scim_user_api.go` (`vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_user_api.go:64`, `vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_user_api.go:74`, `vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_user_api.go:93`, `vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_user_api.go:104`, `vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_user_api.go:113`, `vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_user_api.go:122`, `vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_user_api.go:132`).
+- **ZPA Go SCIM group functions**: `GetGroup`, `GetGroupByName`, `CreateGroup`, `UpdateGroup`, `PatchGroup`, `DeleteGroup`, and `GetAllGroups` are live declarations in `scim_group_api.go` (`vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_group_api.go:42`, `vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_group_api.go:52`, `vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_group_api.go:71`, `vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_group_api.go:82`, `vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_group_api.go:91`, `vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_group_api.go:100`, `vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_group_api.go:110`).
+- **Python SDK ZPA SCIM read surfaces found in this pass**: `SCIMGroupsAPI` exposes `list_scim_groups` and `get_scim_group`; `ScimAttributeHeaderAPI` exposes `list_scim_attributes`, `get_scim_attribute`, and `get_scim_values` (`vendor/zscaler-sdk-python/zscaler/zpa/scim_groups.py:26`, `vendor/zscaler-sdk-python/zscaler/zpa/scim_groups.py:37`, `vendor/zscaler-sdk-python/zscaler/zpa/scim_groups.py:120`, `vendor/zscaler-sdk-python/zscaler/zpa/scim_attributes.py:26`, `vendor/zscaler-sdk-python/zscaler/zpa/scim_attributes.py:38`, `vendor/zscaler-sdk-python/zscaler/zpa/scim_attributes.py:101`, `vendor/zscaler-sdk-python/zscaler/zpa/scim_attributes.py:137`).
 
-Implication: automations that need to programmatically create/update/delete ZIA users via SCIM need the Go SDK or direct HTTP. Python callers can read but not fully provision.
+Implication: Go is the currently documented SDK path for SCIM provisioning operations in this source set. Python automation should use the documented REST endpoints directly for provisioning operations unless a newer Python SDK release exposes a SCIM provisioning module; see [clarification shared-28](../_meta/clarifications.md#shared-28-python-zia-scim-wrapper-surface).
 
 ### Python-vs-Go SDK method snapshot
 
 | Service | Python SDK | Go SDK | Gap |
 |---|---|---|---|
-| ZIA SCIM users CRUD | (no module) | `scim_user_api.go` full CRUD | Full gap |
-| ZIA SCIM groups CRUD | (no module) | `scim_group_api.go` full CRUD | Full gap |
-| ZPA SCIM attributes | `scim_attributes.py` | `scim_api` full CRUD | Write ops only in Go |
-| ZPA SCIM groups | `scim_groups.py` | `scim_api` full CRUD | Write ops only in Go |
+| ZIA SCIM users | See [clarification shared-28](../_meta/clarifications.md#shared-28-python-zia-scim-wrapper-surface) | `GetUser`, `GetUserByName`, `CreateUser`, `UpdateUser`, `DeleteUser`, `GetAllUsers` | Go function list verified; Python wrapper presence remains open for future releases |
+| ZIA SCIM groups | See [clarification shared-28](../_meta/clarifications.md#shared-28-python-zia-scim-wrapper-surface) | `GetGroup`, `GetGroupByName`, `CreateGroup`, `UpdateGroup`, `DeleteGroup`, `GetAllGroups` | Go function list verified; Python wrapper presence remains open for future releases |
+| ZPA SCIM attributes | `list_scim_attributes`, `get_scim_attribute`, `get_scim_values` | Not part of `zpa/services/scim_api`; ZPA Go SCIM user/group APIs are separate | Python surface is read-oriented for attributes |
+| ZPA SCIM groups | `list_scim_groups`, `get_scim_group` | `GetGroup`, `GetGroupByName`, `CreateGroup`, `UpdateGroup`, `PatchGroup`, `DeleteGroup`, `GetAllGroups` | Python surface is read-oriented; Go user/group SCIM API includes write functions |
 
 ## Okta-specific gotcha (ZPA)
 
@@ -178,7 +180,7 @@ From *About SCIM* (ZPA):
 | "New user has no groups in ZPA." | `displayName` → Zscaler Group matching. If IdP sends group `displayName` that doesn't match ZPA's group records, sync doesn't link. | Attribute mapping |
 | "SCIM sync error about username mismatch." | ZPA requires SCIM `userName` to match SAML `nameID` — the IdP might be sending different values | [Cross-product constraint](#summary) |
 | "Okta-to-ZPA sync shows no users initially." | `PROVISION_OUT_OF_SYNC_USERS` flag not enabled in Okta | [Okta-specific gotcha](#okta-specific-gotcha-zpa) |
-| "Python SDK can't create ZIA users." | No Python SDK SCIM surface for ZIA. Use Go SDK or direct HTTP. | [Cross-SDK parity](#cross-sdk-parity) |
+| "Can the Python SDK create ZIA users via SCIM?" | This source pass verified Go SCIM user/group functions and ZPA Python read surfaces, but did not confirm a Python ZIA SCIM provisioning wrapper. Use direct HTTP or verify the installed Python SDK release before relying on one. | [SDK surface snapshot](#sdk-surface-snapshot) |
 | "User exceeded a group limit." | ZIA: 128 groups/user max. IdP-side group sprawl. | ZIA mechanics |
 
 ## Edge cases
@@ -197,6 +199,7 @@ From *About SCIM* (ZPA):
 - **Rate limits on SCIM endpoints** — general ZIA/ZPA rate limits apply, but SCIM-specific guidance isn't captured here.
 - **Group nesting** — SCIM 2.0 supports group members that are themselves groups, but Zscaler's treatment of nested groups isn't documented.
 - **Per-IdP attribute mapping quirks** — Entra ID vs Okta vs Ping vs Google Workspace each have subtle differences in how they populate SCIM fields. Referenced in per-IdP config guides that aren't captured here.
+- **Python ZIA SCIM wrapper surface** — this pass verified Go SCIM provisioning functions and Python ZPA read surfaces, but did not establish whether a current or future Python SDK release exposes ZIA SCIM provisioning wrappers. See [clarification shared-28](../_meta/clarifications.md#shared-28-python-zia-scim-wrapper-surface).
 
 ## Cross-links
 

@@ -130,7 +130,7 @@ public-doc reading.
 
 ### Open
 
-`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-69`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-81`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `shared-20`–`shared-27`, `zcc-08`–`zcc-101`, `zdx-01`–`zdx-43`, `zid-01`–`zid-35`, `zms-01`, `easm-01`–`easm-02`, `cloud-connector-01`–`cloud-connector-24`.
+`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-69`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-81`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `shared-20`–`shared-37`, `zcc-08`–`zcc-101`, `zdx-01`–`zdx-43`, `zid-01`–`zid-35`, `zms-01`, `easm-01`–`easm-02`, `cloud-connector-01`–`cloud-connector-24`.
 
 The vendor-MCP scrape (2026-06-14) added these open behavior questions — each links to its detailed entry below:
 
@@ -2458,6 +2458,116 @@ The standard PAC `isInNet` is IPv4-only; the IPv6-aware `isInNetEx` extension ex
 For tenants with growing IPv6 deployments (especially in mobile/cellular and APAC environments where IPv6 is increasingly default), this is an operational concern.
 
 **Resolves with**: vendor doc on IPv6 PAC support / PSE IPv6 ingress, or experimental verification by attempting IPv6-only PAC fetch and observing variable substitution behavior. **Status**: open — 2026-05-06.
+
+---
+
+### shared-28 — Python ZIA SCIM wrapper surface
+
+*Origin: `references/shared/scim-provisioning.md` § Open questions*
+
+The 2026-06-16 shared SCIM refresh verified function-level Go SDK SCIM user/group surfaces and Python ZPA SCIM read surfaces, but did not establish a Python SDK ZIA SCIM provisioning wrapper in the pinned source. Future Python SDK releases may add one, so answers should avoid saying "Python cannot do this" as a product fact. Say instead that this source set verifies the Go SDK SCIM provisioning functions and the REST endpoint surface, and advise Python callers to use direct HTTP or confirm their installed SDK release.
+
+**Status**: open — 2026-06-16
+**Resolves with**: code read of the current Python SDK package / generated docs index for ZIA SCIM wrappers, plus line-level citations to any discovered module
+
+---
+
+### shared-29 — ZInsights GraphQL rate limits
+
+*Origin: `references/shared/analytics-graphql.md` § Open questions*
+
+The ZInsights GraphQL endpoint is captured as `https://api.zsapi.net/zins/graphql`, but the rate-limit guide does not list a ZInsights-specific bucket. Whether GraphQL shares a Business Insights or ZIA analytics bucket, has its own bucket, and which response headers expose rate-limit state is unresolved.
+
+**Status**: open — 2026-06-16
+**Resolves with**: vendor ZInsights rate-limit documentation or a live 429 capture for `/zins/graphql`
+
+---
+
+### shared-30 — ZInsights production introspection support
+
+*Origin: `references/shared/analytics-graphql.md` § Open questions*
+
+The captured guide documents GraphQL introspection support for the Beta cloud environment only (`vendor/zscaler-help/automate-zscaler/guides-analytics-api.md:31`). Production introspection is not confirmed by this source set; clients should assume it is unavailable unless vendor documentation or a live production test confirms an exception.
+
+**Status**: open — 2026-06-16
+**Resolves with**: vendor documentation for production introspection behavior or a live production introspection response capture
+
+---
+
+### shared-31 — ZInsights pagination and truncation behavior
+
+*Origin: `references/shared/analytics-graphql.md` § Open questions*
+
+Captured examples show per-query `limit` arguments but do not show cursor, offset, or total-count pagination. Whether `limit` is the complete pagination model, whether result sets truncate silently, and whether a maximum `limit` exists are unresolved.
+
+**Status**: open — 2026-06-16
+**Resolves with**: vendor GraphQL pagination docs or live query tests over a dataset large enough to exceed default and explicit limits
+
+---
+
+### shared-32 — ZInsights `obfuscated` flag source setting
+
+*Origin: `references/shared/analytics-graphql.md` § Open questions*
+
+The GraphQL schema exposes `obfuscated` fields on several response shapes, but the captured source does not identify which tenant privacy setting or report configuration flips the flag. Callers should display the flag defensively and avoid treating masked names as real entity names.
+
+**Status**: open — 2026-06-16
+**Resolves with**: vendor privacy-setting documentation tied to ZInsights responses or tenant tests toggling the relevant setting
+
+---
+
+### shared-33 — ZInsights IoT `device_stats` time range
+
+*Origin: `references/shared/analytics-graphql.md` § Open questions*
+
+The multi-domain GraphQL example calls IoT `device_stats` without explicit time-range arguments while most other analytics queries use `start_time` and `end_time`. Whether `device_stats` is time-agnostic or applies an implicit default window is unresolved.
+
+**Status**: open — 2026-06-16
+**Resolves with**: vendor IoT domain argument documentation or live queries comparing `device_stats` results across controlled time windows
+
+---
+
+### shared-34 — ZDX trend linkage to ZInsights GraphQL
+
+*Origin: `references/shared/analytics-graphql.md` § Open questions*
+
+The captured ZInsights GraphQL domain list does not include ZDX, and the OneAPI Postman collection exposes ZDX REST trend endpoints for application metrics and device application score trends. The unresolved question is whether any ZDX dashboard uses ZInsights behind the scenes, or whether ZDX trend access is REST-only in the captured public API surface.
+
+**Status**: open — 2026-06-16
+**Resolves with**: vendor documentation that maps ZDX dashboards to ZInsights GraphQL, or confirmation that ZDX trend data is exposed only through `/zdx/v1` REST endpoints
+
+---
+
+### shared-35 — ZInsights mutation support
+
+*Origin: `references/shared/analytics-graphql.md` § Open questions*
+
+The introspection query template asks for `mutationType { name }`, but the captured docs provide no introspection output showing mutation fields and no mutation examples. Whether any write operations exist is unresolved.
+
+**Status**: open — 2026-06-16
+**Resolves with**: introspection output showing mutation fields plus vendor docs or live tests confirming their behavior
+
+---
+
+### shared-36 — `WebTrafficUnits` `BYTES` validity
+
+*Origin: `references/shared/analytics-graphql.md` § Open questions*
+
+Captured analytics guide examples show `TRANSACTIONS` for `WebTrafficUnits`, but this pass did not find source confirmation that `BYTES` is a valid enum value. SaaS Security UI/reporting exposes byte counters, so `BYTES` is plausible, but it remains unsupported as a GraphQL enum claim.
+
+**Status**: open — 2026-06-16
+**Resolves with**: schema introspection output listing `WebTrafficUnits` enum values or a successful live query using `BYTES`
+
+---
+
+### shared-37 — Cross-product Trace ID propagation
+
+*Origin: `references/shared/audit-logs.md` § Open questions*
+
+ZIA audit logs include a Trace ID column, but this pass did not find source confirmation that the same OneAPI Trace ID is present in ZPA, ZIdentity, ZWA, ZDX, or ZCC audit contexts. Until confirmed, cross-product Trace ID correlation should be treated as an investigation candidate rather than a guaranteed join key.
+
+**Status**: open — 2026-06-16
+**Resolves with**: vendor audit schema docs or live audit samples showing the same Trace ID across products for one API client action
 
 ---
 

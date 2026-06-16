@@ -18,7 +18,7 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zia/activate.py"
   - "vendor/zscaler-mcp-server/commands/troubleshoot-user.md"
   - "vendor/zscaler-mcp-server/skills/cross-product/troubleshoot-user-connectivity/SKILL.md"
-author-status: reviewed
+author-status: draft
 ---
 
 # Activation gates — ZIA + CBC have them, others don't

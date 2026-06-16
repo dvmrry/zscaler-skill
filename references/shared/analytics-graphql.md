@@ -1,9 +1,9 @@
 ---
 product: shared
 topic: analytics-graphql
-title: "Analytics GraphQL API — ZDX trends + SaaS Security Report"
+title: "Analytics GraphQL API — ZInsights reporting domains"
 content-type: reference
-last-verified: "2026-04-27"
+last-verified: "2026-06-16"
 confidence: medium
 source-tier: doc
 sources:
@@ -17,13 +17,12 @@ sources:
 author-status: draft
 ---
 
-# Analytics GraphQL API — ZDX trends + SaaS Security Report
+# Analytics GraphQL API — ZInsights reporting domains
 
 ## Overview
 
-The Zscaler Analytics GraphQL API (internally called **ZInsights**, path prefix `/zins/`) is a GraphQL-only endpoint that powers the trend charts and report dashboards that do not surface through any OneAPI REST path. It is the sole programmatic interface for:
+The Zscaler Analytics GraphQL API (internally called **ZInsights**, path prefix `/zins/`) is a GraphQL endpoint for aggregated analytics and reporting. The captured API reference lists six GraphQL domains: SaaS Security, Cyber Security, Zero Trust Firewall, IoT, Shadow IT, and Web Traffic (`vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md:19`, `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md:23`, `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md:24`, `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md:25`, `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md:26`, `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md:27`, `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md:28`). The endpoint catalog confirms the same domain set for `https://api.zsapi.net/zins/graphql` (`vendor/zscaler-help/automate-zscaler/api-endpoint-catalog.md:429`, `vendor/zscaler-help/automate-zscaler/api-endpoint-catalog.md:430`, `vendor/zscaler-help/automate-zscaler/api-endpoint-catalog.md:432`).
 
-- **ZDX trend data** — the time-series data behind the ZDX Analytics dashboards (web traffic protocols, threat classifications, firewall activity over a chosen time window)
 - **ZINS / SaaS Security Report dashboards** — CASB app usage, shadow IT app discovery, cybersecurity incidents, IoT device classification, and Zero Trust Firewall location/action aggregations as displayed in the ZIA Analytics section
 - **BI API complement** — the REST-based Business Insights API (`/bi/api/v1`) handles saved report configurations and bulk downloads; the GraphQL API handles live, parameterized, cross-domain queries against the same underlying data warehouse
 
@@ -39,7 +38,7 @@ The endpoint is listed alongside all other OneAPI products at `automate.zscaler.
 | Business Insights (`/bi/api/v1`) | Saved reports, scheduled report configs, bulk download | REST |
 | ZInsights GraphQL (`/zins/graphql`) | Trend queries across web traffic, firewalls, SaaS, shadow IT, IoT, cybersecurity | GraphQL |
 
-The ZDX REST API returns device-level and probe-level data. The GraphQL API returns aggregated organizational trend data — suitable for dashboard widgets and executive summaries, not per-device diagnostics.
+The ZDX REST API returns device-level and probe-level trend data; for example, the Postman collection describes `/apps/{appID}/metrics` as an application metric trend endpoint and `/devices/{deviceID}/apps/{deviceAppID}` as a device application ZDX score trend endpoint (`vendor/zscaler-api-specs/oneapi-postman-collection.json:127394`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:127404`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:127675`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:127686`). Do not describe ZInsights GraphQL as the sole ZDX trend API; the unresolved question is whether any ZDX dashboard uses ZInsights behind the scenes or whether ZDX trends are REST-only in the captured API surface. See [clarification shared-34](../_meta/clarifications.md#shared-34-zdx-trend-linkage-to-zinsights-graphql).
 
 ---
 
@@ -126,7 +125,7 @@ Every request is an HTTP POST with a JSON body containing a `query` string and a
 Key conventions:
 
 - **`start_time` / `end_time`** are Unix milliseconds (type `Long`), not seconds. This differs from the ZDX REST API and ZCC download endpoints, which use seconds.
-- **`traffic_unit`** (or `unit`) is an enum (`WebTrafficUnits`). Known values include `TRANSACTIONS` and `BYTES`.
+- **`traffic_unit`** (or `unit`) is an enum (`WebTrafficUnits`). The captured guide examples confirm `TRANSACTIONS`; `BYTES` remains unconfirmed and is tracked in [clarification shared-36](../_meta/clarifications.md#shared-36-webtrafficunits-bytes-validity).
 - **`limit`** controls how many entries are returned inside a given sub-query. It is per-sub-query, not a global page size.
 - **`filter_by`** accepts strongly typed filter objects (e.g., `StringFilter` with `in: [...]` for name filtering).
 - **`categorize_by`** selects the grouping dimension for certain queries (e.g., `LOCATION_ID` for cybersecurity location breakdown).
@@ -469,21 +468,21 @@ Source: `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md`; `vendor
 
 ## Open questions register
 
-**graphql-01** — Rate limits unconfirmed. The ZInsights endpoint is absent from the OneAPI rate-limiting guide. Whether it shares a bucket with Business Insights or has its own limits, and which response headers carry limit state, is unknown.
+**shared-29** — Rate limits unconfirmed. The ZInsights endpoint is absent from the OneAPI rate-limiting guide. Whether it shares a bucket with Business Insights or has its own limits, and which response headers carry limit state, is unknown. See [clarification shared-29](../_meta/clarifications.md#shared-29-zinsights-graphql-rate-limits).
 
-**graphql-02** — Introspection on production. Sources confirm introspection on the Beta environment. Production introspection support is not explicitly confirmed or denied. Until verified, treat production introspection as potentially disabled.
+**shared-30** — Introspection on production. The captured guide documents GraphQL introspection support for the Beta cloud environment only (`vendor/zscaler-help/automate-zscaler/guides-analytics-api.md:31`). Treat production introspection as unavailable unless vendor documentation or a live production test confirms an exception. See [clarification shared-30](../_meta/clarifications.md#shared-30-zinsights-production-introspection-support).
 
-**graphql-03** — Pagination mechanism. No cursor or offset pagination is visible in the query examples. Whether `limit`-only is the intended design, or whether the API silently truncates results above some undocumented cap, is not confirmed.
+**shared-31** — Pagination mechanism. No cursor or offset pagination is visible in the query examples. Whether `limit`-only is the intended design, or whether the API silently truncates results above some undocumented cap, is not confirmed. See [clarification shared-31](../_meta/clarifications.md#shared-31-zinsights-pagination-and-truncation-behavior).
 
-**graphql-04** — `obfuscated` flag behavior. The flag is present on CASB, firewall location, and other domain responses. The exact tenant setting that enables obfuscation (e.g., a ZIA privacy setting) is not identified in captured sources. Callers should handle both `true` and `false` states defensively.
+**shared-32** — `obfuscated` flag behavior. The flag is present on CASB, firewall location, and other domain responses. The exact tenant setting that enables obfuscation (e.g., a ZIA privacy setting) is not identified in captured sources. Callers should handle both `true` and `false` states defensively. See [clarification shared-32](../_meta/clarifications.md#shared-32-zinsights-obfuscated-flag-source-setting).
 
-**graphql-05** — IoT `device_stats` time range. The multi-domain example shows `device_stats` called without time range arguments, while all other sub-queries take `start_time`/`end_time`. Whether `device_stats` is genuinely time-agnostic or has an implicit window is not confirmed.
+**shared-33** — IoT `device_stats` time range. The multi-domain example shows `device_stats` called without time range arguments, while all other sub-queries take `start_time`/`end_time`. Whether `device_stats` is genuinely time-agnostic or has an implicit window is not confirmed. See [clarification shared-33](../_meta/clarifications.md#shared-33-zinsights-iot-device_stats-time-range).
 
-**graphql-06** — ZDX trend linkage. The captured source names the ZDX trends dashboard as a consumer of this API, but no ZDX-specific domain or field is visible in the schema — the web traffic and firewall domains are ZIA-sourced. The exact mechanism by which ZDX Analytics trend data surfaces (same endpoint, separate domain not yet captured, or a different path) is unresolved.
+**shared-34** — ZDX trend linkage. The captured GraphQL source does not list a ZDX domain, while the Postman collection exposes ZDX REST trend endpoints. The exact relationship between ZDX dashboards and ZInsights GraphQL is unresolved. See [clarification shared-34](../_meta/clarifications.md#shared-34-zdx-trend-linkage-to-zinsights-graphql).
 
-**graphql-07** — Mutation support. The introspection query template retrieves `mutationType { name }`, implying mutations may exist. No mutation examples are present in captured sources. Whether any write operations are exposed (e.g., configuring report parameters) is unknown.
+**shared-35** — Mutation support. The introspection query template queries `mutationType { name }`, but no captured introspection output or mutation examples confirm mutation support. Whether any write operations exist is unknown. See [clarification shared-35](../_meta/clarifications.md#shared-35-zinsights-mutation-support).
 
-**graphql-08** — `BYTES` unit behavior. The `WebTrafficUnits` enum is documented as having at least `TRANSACTIONS`. A `BYTES` value is implied by the SaaS Security Report UI (which shows Total Bytes, Upload Bytes, Download Bytes) but is not confirmed as a valid enum value in the API.
+**shared-36** — `BYTES` unit behavior. The `WebTrafficUnits` enum is documented as having at least `TRANSACTIONS`. A `BYTES` value is implied by the SaaS Security Report UI (which shows Total Bytes, Upload Bytes, Download Bytes) but is not confirmed as a valid enum value in the API. See [clarification shared-36](../_meta/clarifications.md#shared-36-webtrafficunits-bytes-validity).
 
 ---
 
