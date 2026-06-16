@@ -3,7 +3,7 @@ product: shared
 topic: "subclouds"
 title: "Subclouds — restricting which Service Edges handle tenant traffic"
 content-type: reasoning
-last-verified: "2026-04-28"
+last-verified: "2026-06-16"
 confidence: high
 source-tier: doc
 sources:
@@ -159,7 +159,7 @@ There is no `GET /subclouds` endpoint. The subcloud list is visible only in the 
 
 5. **Subclouds gate the PSE pool but not the Central Authority.** Policy evaluation still flows through the tenant's CA; only the data-plane PSEs are restricted. CA-level config propagation isn't subcloud-aware.
 
-6. **Business Continuity Cloud bypasses subclouds.** When BC Cloud activates (PSE outage), traffic routes through Zscaler's BC infrastructure regardless of subcloud config. See [`./cloud-architecture.md § Business Continuity Cloud`](./cloud-architecture.md) — BC Cloud supports only Z-Tunnel 1.0 / PAC / GRE (not 2.0), which means a tenant relying on Z-Tunnel 2.0 + a restrictive subcloud loses both during BC activation.
+6. **Business Continuity Cloud uses a separate fallback path.** The BC Cloud docs describe dedicated private cloud infrastructure and support only Z-Tunnel 1.0, PAC files, and GRE (`vendor/zscaler-help/understanding-business-continuity-cloud-components.md:16`, `:18`). This pass did not find a source stating how BC mode interacts with subcloud selection, so verify tenant BC design before claiming subcloud guarantees during a BC event.
 
 7. **Sublocations are independent of subclouds.** Sublocations are a ZIA location config tool for per-IP-range policy within a site. A sublocation change does not affect which PSE handles traffic — only the subcloud does. Don't confuse the two when troubleshooting traffic routing vs policy classification issues.
 

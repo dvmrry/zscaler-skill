@@ -5,8 +5,9 @@ title: "Shared / cross-product reference hub"
 content-type: reference
 last-verified: "2026-04-24"
 confidence: high
+source-tier: mixed
 sources: []
-author-status: reviewed
+author-status: draft
 ---
 
 # Shared / cross-product reference hub
@@ -20,10 +21,10 @@ Docs under `references/shared/` are **not tied to a single Zscaler product**. Th
 | Policy evaluation meta-model — how ZIA and ZPA rule-evaluation differ (default-allow vs default-deny), what's shared, what isn't | [`./policy-evaluation.md`](./policy-evaluation.md) | draft |
 | Cloud architecture — Central Authority (ZIA active-passive vs ZPA active-active), Service Edge form factors, Nanolog, Feed Central, Business Continuity Cloud, Z-Tunnel vs M-Tunnel, PKI | [`./cloud-architecture.md`](./cloud-architecture.md) | draft |
 | **Cross-product integrations** — the canonical catalog of hooks between ZIA, ZPA, ZCC, ZDX, ZBI, ZIdentity, Cloud Connector, ZWA — organized by direction of coupling, with failure-mode notes and a question-shape routing table | [`./cross-product-integrations.md`](./cross-product-integrations.md) | draft |
-| Activation lifecycle — ZIA staged-vs-live gate, API endpoints, EUSA, ZPA contrast | [`./activation.md`](./activation.md) | reviewed |
-| Terminology — legacy / current / log-field aliases across all products (ZEN, PSEN, VSEN, Z-App, App Profile vs Web Policy, ZTW vs ZTC, etc.) | [`./terminology.md`](./terminology.md) | reviewed |
+| Activation lifecycle — ZIA staged-vs-live gate, API endpoints, EUSA, ZPA contrast | [`./activation.md`](./activation.md) | draft |
+| Terminology — legacy / current / log-field aliases across all products (ZEN, PSEN, Z-App, App Profile vs Web Policy, ZTW vs ZTC, etc.) | [`./terminology.md`](./terminology.md) | draft |
 | Source IP Anchoring (SIPA) — ZIA+ZPA cross-product feature for preserving customer-controlled source IP at destination (Office 365 Conditional Access, IP-allowlist apps) | [`./source-ip-anchoring.md`](./source-ip-anchoring.md) | draft |
-| SCIM provisioning — cross-product user/group lifecycle (ZIA + ZPA + ZIdentity), attribute-mapping differences, Python-SDK gap (Go SDK has full CRUD) | [`./scim-provisioning.md`](./scim-provisioning.md) | draft |
+| SCIM provisioning — cross-product user/group lifecycle (ZIA + ZPA + ZIdentity), attribute-mapping differences, function-level Go SDK surface, and Python SDK verification gap | [`./scim-provisioning.md`](./scim-provisioning.md) | draft |
 | **PAC files** — forwarding layer used by ZIA direct-PAC, ZCC PAC action, ZPA Browser Access, and Kerberos auth; Zscaler-specific variables (`${GATEWAY}` etc.) and their substitution mechanic | [`./pac-files.md`](./pac-files.md) | draft |
 | **Device Posture** — cross-product (ZCC evaluates, ZPA + ZIA consume); posture types, evaluation cadence, Machine Tunnel integration, existing-connection immunity | [`./device-posture.md`](./device-posture.md) | draft |
 | **Subclouds** — named subset of PSEs overriding geolocation default; three types (public / private / mixed), subcloud-qualified PAC variables, Zscaler-managed `CONUS`, propagation cascade (5m PAC / 15m ZCC / 10-20m effective) | [`./subclouds.md`](./subclouds.md) | draft |
@@ -32,11 +33,12 @@ Docs under `references/shared/` are **not tied to a single Zscaler product**. Th
 | **OneAPI** — unified gateway (`api.zsapi.net`), four auth flows (OneAPI OAuth — including ZDX on ZIdentity tenants — plus ZDX legacy SHA256, ZCC legacy, and ZIA/ZPA legacy for gov / pre-ZIdentity tenants), `audience=https://api.zscaler.com` is REQUIRED, per-product rate limits + headers (different names per product), HTTP status codes, read-only mode, ZIA+CBC activation gate, Postman-collection-as-only-machine-readable-API-surface (no Swagger published) | [`./oneapi.md`](./oneapi.md) | draft |
 | Log-correlation guidance — when to consult logs vs rely on config, cross-product correlation patterns | [`./log-correlation.md`](./log-correlation.md) | draft |
 | SPL query patterns — canonical SPL snippets for Zscaler log analysis | [`./splunk-queries.md`](./splunk-queries.md) | draft |
-| **Analytics GraphQL API** — ZDX trends and SaaS Security reports via GraphQL; query shape; authentication; pagination | [`./analytics-graphql.md`](./analytics-graphql.md) | draft |
+| **Analytics GraphQL API** — ZInsights reporting domains via GraphQL; query shape; authentication; pagination; ZDX REST contrast | [`./analytics-graphql.md`](./analytics-graphql.md) | draft |
 | **Cross-product audit logs** — audit-log framework across ZIA, ZPA, ZDX; field alignment; retention periods by product; query approach | [`./audit-logs.md`](./audit-logs.md) | draft |
 | **M365 Conditional Access via SIPA** — IP-based Conditional Access policy with Zscaler egress anchoring; setup pattern; limitations and failure modes | [`./m365-conditional-access.md`](./m365-conditional-access.md) | draft |
 | **Multi-cluster load sharing** — ZIA policy enforcement and traffic distribution across data center clusters; failover semantics; cluster selection | [`./multi-cluster-load-sharing.md`](./multi-cluster-load-sharing.md) | draft |
 | **Zscaler SDK landscape** — Python and Go SDK structure across products, client construction, auth flows, common patterns | [`./zsdk.md`](./zsdk.md) | draft |
+| **Claims ledger** — first-pass Tier 2 audit ledger for source-backed shared claims changed or explicitly guarded in this refresh | [`./_claims-ledger.md`](./_claims-ledger.md) | draft |
 | **Devin runtime notes** (agent infrastructure) — how Devin processes `.devin/workflows/` and `.devin/rules/`; conventions for authoring workflow shims that work across CC and Devin | [`../../agents/_meta/devin-runtime-notes.md`](../../agents/_meta/devin-runtime-notes.md) | draft |
 
 ## When to start here vs a product directory

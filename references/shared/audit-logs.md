@@ -3,9 +3,12 @@ product: shared
 topic: audit-logs
 title: "Cross-product audit log framework"
 content-type: reference
-last-verified: "2026-04-26"
+last-verified: "2026-06-16"
 confidence: medium
 source-tier: code
+verified-against:
+  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
 sources:
   - "vendor/zscaler-help/about-log-streaming-service.md"
   - "vendor/zscaler-help/understanding-nanolog-streaming-service.md"
@@ -44,9 +47,9 @@ This document provides a cross-product view of the "who changed what config when
 | **ZIA** | Yes — every portal action and API call | Yes — Event Log Entry Report (system events) | Yes — async report API (`/auditlogEntryReport`) + CSV download | Not confirmed via NSS | 6 months | `vendor/zscaler-help/admin-rbac-captures.md`; `vendor/zscaler-sdk-go/zscaler/zia/services/adminauditlogs/adminauditlogs.go` |
 | **ZPA** | Yes — admin console sessions and config changes | No separate device event log in audit context | LSS streaming to SIEM only; no pull-based report API | Yes — LSS (`zpn_audit_log`) to SIEM over TCP | 6 months | `vendor/zscaler-help/about-log-streaming-service.md` |
 | **ZWA** | Yes — every admin portal action and API call | No | Yes — POST-based filter API (`/zwa/dlp/v1/customer/audit`) | Not confirmed | Not confirmed | `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go` |
-| **ZDX** | No admin audit log found | Yes — device events (Zscaler, hardware, software, network changes) | Yes — GET per-device events (`/zdx/v1/reports/devices/{id}/events`) | No streaming found | Defaults to last 2 hours if unspecified | `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_events.go` |
-| **ZCC** | No admin audit log found in SDK/sources | No | No audit API found | No | Unknown | Exhaustive grep found only admin-role management endpoints, no audit endpoints |
-| **Cloud Connector (ZTW)** | No admin audit log found | No | No audit API found | No | Unknown | Log and Control Forwarding policy handles traffic/control channel routing, not admin audit |
+| **ZDX** | Not confirmed in inspected SDK/source scan | Yes — device events (Zscaler, hardware, software, network changes) | Yes — GET per-device events (`/zdx/v1/reports/devices/{id}/events`) | Not confirmed in inspected sources | Defaults to last 2 hours if unspecified | `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_events.go` |
+| **ZCC** | Not confirmed in inspected SDK/source scan | No inspected admin-audit event source | No audit API confirmed in inspected sources | Not confirmed in inspected sources | Unknown | Inspected admin-role/user SDK endpoints did not expose audit-log query functions |
+| **Cloud Connector (ZTW)** | Not confirmed in inspected SDK/source scan | No inspected admin-audit event source | No audit API confirmed in inspected sources | Not confirmed in inspected sources | Unknown | Log and Control Forwarding policy handles traffic/control channel routing, not admin audit |
 | **ZIdentity** | Audit Logs module exists (view-only permission model) | No | Not exposed in available Go/Python SDK sources | No | Unknown | `vendor/zscaler-help/admin-rbac-captures.md` |
 
 Source: `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_events.go`.
@@ -153,7 +156,7 @@ ZIdentity serves as the identity plane for ZIA and ZPA in modern (OneAPI) deploy
 
 - ZIdentity has an **Audit Logs** module in its permission matrix. Admins must have at minimum view-only access to this module to see ZIdentity audit events.
 - The **Administrative Entitlements** module in ZIdentity controls which ZIA/ZPA products an admin can access. Changes to entitlements are presumably captured in ZIdentity's own audit log.
-- OneAPI **Trace IDs** link API calls to admin identities. When debugging cross-product "who made this call," the Trace ID is the stable correlator across ZIA, ZPA, and ZIdentity audit logs.
+- ZIA audit logs include a **Trace ID** column (`vendor/zscaler-help/admin-rbac-captures.md:78`). Whether the same Trace ID is surfaced consistently across ZPA, ZIdentity, ZDX, ZCC, or ZWA audit contexts is not confirmed; treat cross-product Trace ID correlation as an open question rather than a guaranteed join key. See [clarification shared-37](../_meta/clarifications.md#shared-37-cross-product-trace-id-propagation).
 
 Source: `vendor/zscaler-help/admin-rbac-captures.md`; `vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`.
 
@@ -240,7 +243,7 @@ Source: `vendor/zscaler-sdk-go/zscaler/zdx/services/administration/administratio
 
 Source: `vendor/zscaler-help/admin-rbac-captures.md`.
 
-6. **Cross-product trace ID** — the OneAPI Trace ID appears in ZIA audit log columns. Whether this Trace ID is surfaced in ZWA, ZDX, or ZCC audit contexts is not confirmed from available sources.
+6. **Cross-product trace ID** — the OneAPI Trace ID appears in ZIA audit log columns. Whether this Trace ID is surfaced in ZPA, ZIdentity, ZWA, ZDX, or ZCC audit contexts is not confirmed from available sources. See [clarification shared-37](../_meta/clarifications.md#shared-37-cross-product-trace-id-propagation).
 
 Source: `vendor/zscaler-help/about-log-streaming-service.md`.
 

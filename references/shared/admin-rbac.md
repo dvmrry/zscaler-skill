@@ -3,7 +3,7 @@ product: shared
 topic: "admin-rbac"
 title: "Admin RBAC — ZIA, ZPA, ZIdentity, and the cross-product federation story"
 content-type: reasoning
-last-verified: "2026-04-24"
+last-verified: "2026-06-16"
 confidence: high
 source-tier: doc
 sources:
@@ -73,7 +73,7 @@ Custom role columns: Name, Description, 23 feature permissions:
 
 Administration Control · API Key Management · App Connector Management · Authentication · Business Continuity Management · Certificate Management · Client Connector Portal · Client Sessions · Cloud Connector Management · Company Information · Configuration · Dashboard · Diagnostics · Log Streaming · Machine Management · Notification Management · Policies · Private Service Edge Management · Privileged Remote Access · Privileged Sessions · Security Management · SCIM Management · VPN (For Legacy Apps)
 
-**Permission changes take up to 2 minutes to take effect.** Missing permissions display a warning icon.
+**Permission changes take up to 2 minutes to take effect.** Missing permissions display a warning icon (`vendor/zscaler-help/admin-rbac-captures.md:91`, `:105`).
 
 ### Scoping (implicit)
 
@@ -171,7 +171,7 @@ Admin users are **mutable across types** via `POST /zia/api/v1/adminUsers/{userI
 
 - ZIdentity audit logs are view-only for admins with the **Audit Logs** module permission.
 - Log retention and API audit integration differ per-product.
-- **Cross-product tracing**: OneAPI Trace IDs link API calls to admin identities. When debugging "who made this API call and through which product," the OneAPI Trace ID is the stable correlator across ZIA + ZPA + ZIdentity logs.
+- **Trace ID scope**: ZIA audit-log columns include a Trace ID. Whether the same Trace ID is present across ZPA, ZIdentity, or other product audit contexts is not confirmed; use it as a candidate join key only after checking [clarification shared-37](../_meta/clarifications.md#shared-37-cross-product-trace-id-propagation).
 
 ## ZCC has its own admin copy — sync is operator-controlled
 
@@ -227,7 +227,7 @@ Cannot combine scope types. Options:
 
 3. **ZPA custom roles can grant equal-but-not-higher.** A ZPA admin with "all except Certificate Management" can't delegate someone with "Certificate Management enabled." Avoid privilege-escalation paths by design.
 
-4. **ZIdentity is not optional for modern tenants.** If your tenant is OneAPI-based (any tenant created after late-2024 typically is), ZIdentity is where admin roles live. Legacy paths are being deprecated.
+4. **ZIdentity is the control point for OneAPI-based tenants.** When a tenant uses the modern OneAPI path, ZIdentity is where API clients, resources, and cross-product administrative entitlements are managed. Do not infer tenant vintage from this reference alone; verify the tenant's auth path before treating legacy credentials as deprecated.
 
 5. **API Clients are not admin users.** Don't grant a human admin role to an automation principal; create an API Client with appropriate scopes. Admin-user credentials in CI pipelines are an antipattern.
 
@@ -235,7 +235,7 @@ Cannot combine scope types. Options:
 
 7. **Failed-login lockout is 5-in-1-minute → 5-minute lock.** Brute-force-detection threshold is generous; a real attacker can slow-drip. Layer MFA + geographic-IP gating at ZIdentity for real protection.
 
-8. **Role changes take up to 2 minutes (ZPA).** Not instant. An admin whose role was just expanded may still see the old permissions briefly. Same for revocation — de-privileged admins can still act for up to 2 minutes.
+8. **Role changes take up to 2 minutes (ZPA).** Not instant. An admin whose role was just expanded may still see old permissions briefly; the same delay window can matter during revocation (`vendor/zscaler-help/admin-rbac-captures.md:105`).
 
 ## Cross-links
 
