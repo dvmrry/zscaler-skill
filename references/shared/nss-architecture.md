@@ -3,7 +3,7 @@ product: shared
 topic: "nss-architecture"
 title: "Nanolog Streaming Service (NSS) architecture"
 content-type: reasoning
-last-verified: "2026-04-24"
+last-verified: "2026-06-16"
 confidence: high
 source-tier: doc
 sources:
@@ -15,7 +15,6 @@ sources:
   - "vendor/zscaler-help/about-nss-feeds.md"
   - "vendor/zscaler-help/about-nss-servers.md"
 author-status: draft
-last-verified: "2026-04-28"
 ---
 
 # Nanolog Streaming Service (NSS) architecture
@@ -24,7 +23,7 @@ NSS is the **log-egress layer** that carries Zscaler's per-event data to custome
 
 ## The architectural split
 
-Logs never leave Zscaler's cloud except via NSS. Four moving parts:
+For ZIA web, firewall, DNS, and tunnel feeds, NSS is the documented customer SIEM export path from the Nanolog stream. Four moving parts:
 
 ```
 PSE / App Connector / ZCC    (log generators)

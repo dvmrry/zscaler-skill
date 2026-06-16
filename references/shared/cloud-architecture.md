@@ -3,9 +3,9 @@ product: shared
 topic: "zscaler-cloud-architecture"
 title: "Zscaler cloud architecture — Central Authority, Service Edges, BC Cloud, tunnel model"
 content-type: reasoning
-last-verified: "2026-05-17"
+last-verified: "2026-06-16"
 verified-against:
-  vendor/zscaler-sdk-python: 8d054b1fdd18bcb29722b7051dc282c0d1c86be6
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
 confidence: high
 source-tier: doc
 sources:
@@ -18,6 +18,7 @@ sources:
   - "https://help.zscaler.com/zia/understanding-multi-cluster-load-sharing"
   - "vendor/zscaler-help/understanding-multi-cluster-load-sharing.md"
   - "https://help.zscaler.com/legacy-apis/activation"
+  - "vendor/zscaler-help/legacy-activation.md"
   - "vendor/zscaler-help/zia-activation.md"
   - "vendor/zscaler-sdk-python/zscaler/zia/activate.py"
   - "vendor/zscaler-help/Traffic_Forwarding_in_ZIA_Reference_Architecture.txt"
@@ -61,7 +62,7 @@ The CA is described as **"the brain and nervous system"** of the Zero Trust Exch
 - Policy distributed across all CA components.
 - Dispatchers track real-time application states.
 
-**The two CAs run different clustering models** — ZIA is active-passive, ZPA is active-active. An agent answering "what happens during a CA failover?" should give different mechanics depending on product. This difference is likely an artifact of the products being built independently; watch for Zscaler to converge them in future.
+**The two CAs run different clustering models** — ZIA is active-passive, ZPA is active-active. An agent answering "what happens during a CA failover?" should give different mechanics depending on product and should not assume one service's CA behavior applies to the other.
 
 **What the CA does**:
 
@@ -164,7 +165,7 @@ ZIA config changes are **staged pending** until activation. Full mechanics in [`
 | `GET /status` | Current activation status (3-value enum) | Check before activating |
 | `POST /status/activate` | Apply pending config changes | Moves from PENDING → ACTIVE |
 
-Status enum from the legacy API docs shows 3 values — likely `ACTIVE` / `PENDING` / `INPROGRESS` or similar. Exact enum not fully captured; confirm via live tenant first-fetch (tracked informally until it matters).
+Status enum from the legacy API docs is `ACTIVE` / `PENDING` / `INPROGRESS` (`vendor/zscaler-help/legacy-activation.md:55`, `:72`).
 
 **ZPA has no activation step.** Changes propagate on write — this is an architectural difference between the two products' control planes, parallel to the active-passive vs active-active CA topology difference.
 
