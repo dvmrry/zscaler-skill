@@ -3,13 +3,14 @@ product: zcc
 topic: api-rate-limits
 title: "ZCC API Rate Limits — endpoint tiers, headers, retry semantics"
 content-type: reference
-last-verified: "2026-04-27"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: doc
 sources:
   - "vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md"
   - "vendor/zscaler-sdk-python/zscaler/zcc/legacy.py"
   - "vendor/zscaler-sdk-python/zscaler/zcc/devices.py"
+  - "vendor/zscaler-sdk-python/zscaler/request_executor.py"
 author-status: draft
 ---
 
@@ -97,20 +98,26 @@ The vendor documentation states: "Clients subject to rate limits must back off e
 
 Source: `vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md`; `vendor/zscaler-sdk-python/zscaler/zcc/legacy.py`.
 
-The Python SDK's `LegacyZCCClientHelper` (`vendor/zscaler-sdk-python/zscaler/zcc/legacy.py`) implements the following retry logic:
+The Python SDK's `LegacyZCCClientHelper` (`vendor/zscaler-sdk-python/zscaler/zcc/legacy.py`) implements the following retry logic. Note that the client's local enforcement is **not** uniform across the three download endpoints — only some of them get special-cased client-side.
 
-- **General endpoints (non-download):** Up to 3 retries on 429. The retry delay is read from the `X-Rate-Limit-Retry-After-Seconds` response header. If the header is absent, the client defaults to a 60-second wait.
-- **Download endpoints (`/downloadDevices`, `/downloadServiceStatus`, `/downloadDisableReasons`):** The client raises `ValueError` immediately on 429 for these endpoints. It does not retry. This matches the 3-calls/day hard cap behavior — a 429 on a download endpoint signals the daily quota is exhausted.
+- **Client-side daily-quota pre-check:** Before sending, `check_rate_limit()` raises `RateLimitExceededError` when a local rolling counter is exhausted (`vendor/zscaler-sdk-python/zscaler/zcc/legacy.py:224`). It enforces a 100-calls/hour generic counter (`legacy.py:238`, `RATE_LIMIT = 100` at `legacy.py:102`) and a 3-calls/day daily counter that tracks **only** `/downloadDevices` (`legacy.py:242`, `DOWNLOAD_DEVICES_LIMIT = 3` at `legacy.py:103`). There is no client-side daily counter for `/downloadServiceStatus` or `/downloadDisableReasons`.
+- **General endpoints (non-download):** Up to 3 attempts on 429 (`legacy.py:284`, `max_attempts = 3`). The retry delay is read from the `X-Rate-Limit-Retry-After-Seconds` response header (`_get_backoff_seconds`, `legacy.py:208,215`). If the header is absent, the client defaults to a 60-second wait (`legacy.py:317`, `default=60`); `_get_backoff_seconds` also adds a +1s pad to the header value (`legacy.py:217`).
+- **Immediate-raise-on-429 path — `/downloadDevices` and `/downloadServiceStatus` only:** When a 429 comes back, the client raises `ValueError` immediately (no retry) for `/downloadDevices` *and* `/downloadServiceStatus` (`legacy.py:306`), using `_get_backoff_seconds(response, default=86400)` so the reported wait defaults to a full day when the header is absent (`legacy.py:307`). The same two-endpoint special-case applies in the pre-flight `RateLimitExceededError` handler (`legacy.py:280`).
+- **`/downloadDisableReasons` gets no special client-side handling.** It is in neither the daily-counter pre-check (`legacy.py:242` names only `/downloadDevices`) nor the immediate-raise-on-429 path (`legacy.py:280,306` name only `/downloadDevices` and `/downloadServiceStatus`). The legacy SDK therefore treats `/downloadDisableReasons` as a general endpoint, giving it the standard up-to-3-attempts retry path on 429. The server still enforces 3/day on it (see § 2) — the SDK just does not enforce that locally.
 
 See also: `references/zcc/sdk.md § Client construction — Python`; `references/zcc/sdk.md § CSV download endpoints`.
 
 ### SDK behavior — OneAPI path (`ZCCService` / `ZscalerClient`)
 
-Source: `vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md`; `vendor/zscaler-sdk-python/zscaler/zcc/legacy.py`.
+Source: `vendor/zscaler-sdk-python/zscaler/request_executor.py`.
 
-The modern OneAPI client path uses the shared `RequestExecutor` from the Python SDK. Whether the `RequestExecutor` automatically honors `X-Rate-Limit-Retry-After-Seconds` headers from ZCC responses is not confirmed from available sources. The `RequestExecutor` is documented to handle retry logic centrally for ZIA and ZPA; ZCC-specific behavior in the modern path is unconfirmed.
+The modern OneAPI client path uses the shared `RequestExecutor` from the Python SDK, and it **does** honor the ZCC rate-limit header. `get_retry_after()` reads `X-Rate-Limit-Retry-After-Seconds` (falling back to `X-Rate-Limit-Remaining`) under an inline comment that names these as "ZCC Specific Rate Limiting Headers (LegacyZCCClientHelper)" (`vendor/zscaler-sdk-python/zscaler/request_executor.py:907,913–915`). The retry loop treats 429 as retryable — `is_retryable_status()` includes `HTTPStatus.TOO_MANY_REQUESTS` (`request_executor.py:719,745`) — and on a retryable status it calls `get_retry_after()` and sleeps that long before retrying (`request_executor.py:719–730`).
 
-See `references/zcc/sdk.md § Open questions` (Q6) and [`_meta/clarifications.md` `zcc-12`](../_meta/clarifications.md#zcc-12-requestexecutor-zcc-rate-limit-retry-behavior).
+Retry budget: the default is `maxRetries = 2`, read from `config["client"]["rateLimit"]` (`request_executor.py:82`). The computed backoff has a +1s pad applied (`request_executor.py:923,930`), and an optional `rateLimit.maxRetrySeconds` cap can short-circuit waits judged too long (`request_executor.py:938–944`).
+
+So the OneAPI path does back off on the ZCC `X-Rate-Limit-Retry-After-Seconds` header, unlike the legacy download-endpoint paths which raise immediately. This resolves the former open question (`_meta/clarifications.md` `zcc-12`, now closed).
+
+See `references/zcc/sdk.md § Open questions` (Q6).
 
 ### Recommended retry pattern for direct HTTP callers
 
@@ -167,7 +174,7 @@ ZCC supports two coexisting API paths, and the rate-limit contract applies to bo
 | Auth path | Base URL | Rate-limit enforcement |
 |---|---|---|
 | Legacy (ZCC portal token) | `https://api.zsapi.net/zcc/papi/auth/v1/login` → JWT | Server-enforced 100/hour + 3/day download; legacy SDK client also enforces client-side |
-| OneAPI (ZIdentity OAuth 2.0) | `https://<vanity>.zslogin.net/oauth2/v1/token` → Bearer | Server-enforced 100/hour + 3/day download; OneAPI path SDK retry behavior unconfirmed |
+| OneAPI (ZIdentity OAuth 2.0) | `https://<vanity>.zslogin.net/oauth2/v1/token` → Bearer | Server-enforced 100/hour + 3/day download; OneAPI `RequestExecutor` honors `X-Rate-Limit-Retry-After-Seconds` on 429 (default `maxRetries=2`) — see § 5 |
 
 The server-enforced limits are identical for both paths. The difference lies in whether the SDK client-layer applies additional client-side enforcement and retry logic.
 
@@ -225,9 +232,13 @@ If the script also calls `GET /downloadDevices` for a CSV snapshot during the in
 
 ### Periodic export jobs
 
-Jobs that export device and service-status snapshots via `/downloadDevices`, `/downloadServiceStatus`, and `/downloadDisableReasons` are hard-limited to 3 calls per day across all three endpoints combined (the vendor doc describes 3 calls/day per endpoint; the SDK treats all three as individually capped at 3 calls/day).
+Jobs that export device and service-status snapshots via `/downloadDevices`, `/downloadServiceStatus`, and `/downloadDisableReasons` each hit a server-enforced 3-calls/day cap **per endpoint** (see § 2). The legacy SDK's *client-side* mirroring of that cap is uneven, so do not assume the SDK will pre-empt the server on all three:
 
-A job that runs hourly and calls all three export endpoints will exhaust all three download quotas within the first three hours of the day. Operators should schedule these exports to run at most 3 times per day per endpoint, spread across the calendar day.
+- `/downloadDevices` — the legacy SDK keeps a local daily counter and raises before sending once 3 are used (`vendor/zscaler-sdk-python/zscaler/zcc/legacy.py:242,247`), and also raises immediately on a server 429 (`legacy.py:306`).
+- `/downloadServiceStatus` — no local daily counter, but the SDK does raise immediately on a server 429 instead of retrying (`legacy.py:306`).
+- `/downloadDisableReasons` — no special client-side handling at all; the legacy SDK treats it as a general endpoint and will retry up to 3 attempts on 429 (`legacy.py:280,306` name only the other two). The 3/day cap on it is enforced only by the server.
+
+A job that runs hourly and calls all three export endpoints will exhaust all three server-side download quotas within the first three hours of the day. Operators should schedule these exports to run at most 3 times per day per endpoint, spread across the calendar day.
 
 ### Status polling at high frequency
 

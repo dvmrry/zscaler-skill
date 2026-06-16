@@ -123,7 +123,7 @@ experience, or vendor confirmation rather than more public-doc reading.
 
 ### Open
 
-`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-49`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-20`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `shared-20`–`shared-27`, `zcc-08`–`zcc-76`, `zdx-01`–`zdx-43`, `zms-01`, `easm-01`–`easm-02`.
+`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-49`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-20`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `shared-20`–`shared-27`, `zcc-08`–`zcc-101`, `zdx-01`–`zdx-43`, `zms-01`, `easm-01`–`easm-02`.
 
 The vendor-MCP scrape (2026-06-14) added these open behavior questions — each links to its detailed entry below:
 
@@ -139,6 +139,36 @@ The vendor-MCP scrape (2026-06-14) added these open behavior questions — each 
 | [`zms-01`](#zms-01-fetchall-beyond-policyrules) | Whether ZMS `fetchAll` exists server-side beyond `policyRules` | SDK re-check / lab test |
 | [`easm-01`](#easm-01-finding-scan_type-allowed-values) | EASM finding `scan_type` allowed-value set | tenant snapshot / zscaler doc not yet read |
 | [`easm-02`](#easm-02-finding-risk-field-value-semantics) | EASM finding risk-field semantics (`risk_level` / `cisa_likelihood` / `epss_likelihood`) | tenant snapshot / zscaler doc not yet read |
+
+The ZCC deep-dive refresh (2026-06-15) registered these open behavior questions surfaced in the per-doc **Open questions** sections — each links to its detailed entry below:
+
+| ID | Title | Resolves with |
+|---|---|---|
+| [`zcc-77`](#zcc-77-webpolicy-top-vs-nested-block-precedence-on-write) | WebPolicy `*Top` root-level vs nested-block field precedence on write | lab test |
+| [`zcc-78`](#zcc-78-webpolicy-devicetype-vs-device_type-write-precedence) | WebPolicy `DeviceTypeAlt` (int, wire `deviceType`) vs `DeviceType` (int, wire `device_type`) precedence on write | lab test |
+| [`zcc-79`](#zcc-79-webpolicy-selected-form-state-fields-required-on-write) | Which WebPolicy `*Selected` / `*SelectedOption` form-state fields are required on write | lab test |
+| [`zcc-80`](#zcc-80-zcc-v1-vs-v2-endpoint-coexistence) | ZCC v1 vs v2 endpoint coexistence / supersession | zscaler doc not yet read / lab test |
+| [`zcc-81`](#zcc-81-device-zd-vs-zdp-field-prefix-meanings) | Device `zd*` vs `zdp*` field-prefix service meanings | zscaler doc not yet read / tenant snapshot |
+| [`zcc-82`](#zcc-82-device-registration_state-vs-state-distinction) | Device `registration_state` vs `state` distinction | tenant snapshot / zscaler doc not yet read |
+| [`zcc-83`](#zcc-83-devicedetailsstate-type-wire-type-per-endpoint) | `DeviceDetails.state` / `type` wire type (int on list vs string on detail) | tenant snapshot |
+| [`zcc-84`](#zcc-84-unified-tunnel-operational-semantics) | Unified Tunnel operational semantics vs two separate Z-Tunnels | zscaler doc not yet read / lab test |
+| [`zcc-85`](#zcc-85-app-profile-fail-close-vs-tenant-failopenpolicy-precedence) | App-Profile fail-close vs tenant-global `FailOpenPolicy` precedence | lab test |
+| [`zcc-86`](#zcc-86-get_web_privacy-returns-none-on-error) | `get_web_privacy` returns `None` on error rather than a result tuple | code read (resolved) |
+| [`zcc-87`](#zcc-87-zcc-rate-limit-header-behavior-on-the-oneapi-path) | ZCC rate-limit header behavior on the OneAPI path | zscaler doc not yet read / lab test |
+| [`zcc-88`](#zcc-88-webpolicy-read-shape-macpolicy-vs-macospolicy-key) | WebPolicy read-shape macOS sub-policy key (`macPolicy` vs `macosPolicy`) | tenant snapshot |
+| [`zcc-89`](#zcc-89-webpolicy-groups-users-devicegroups-wire-shape) | WebPolicy `groups` / `users` / `deviceGroups` wire shape on `listByCompany` | tenant snapshot |
+| [`zcc-90`](#zcc-90-webpolicy-companion-devicetype-string-presence-on-reads) | WebPolicy companion `deviceType` string presence on reads | tenant snapshot |
+| [`zcc-91`](#zcc-91-app-supportability-toggle-tenant-defaults) | App Supportability toggle tenant-default values | tenant snapshot / zscaler doc not yet read |
+| [`zcc-92`](#zcc-92-per-product-disable-password-authority-webpolicy-vs-manage_pass) | Per-product disable-password authority (`WebPolicy` vs `manage_pass`) and key mapping | lab test / zscaler doc not yet read |
+| [`zcc-93`](#zcc-93-macos-password-read-key-vs-write-key-api-behavior) | macOS password read-key vs write-key (camelCase vs snake_case) API behavior | lab test |
+| [`zcc-94`](#zcc-94-per-platform-password-gate-ui-surface-per-os) | Which per-platform password gates render as user-facing UI per OS | operator experience / zscaler doc not yet read |
+| [`zcc-95`](#zcc-95-trusted-network-stateful-evaluation-across-transitions) | Trusted-network stateful evaluation across transitions (debounce / cache) | lab test |
+| [`zcc-96`](#zcc-96-multiple-trustednetworks-partial-match-precedence) | Precedence when multiple TrustedNetworks partially match in one Forwarding Profile | lab test |
+| [`zcc-97`](#zcc-97-forwarding_profile_id-orphan-reference-resolution) | `forwarding_profile_id` orphan-reference resolution at enforcement | lab test |
+| [`zcc-98`](#zcc-98-on-net-policy-vs-forwarding-profile-evaluation-order) | On-Net policy vs Forwarding Profile evaluation order | lab test |
+| [`zcc-99`](#zcc-99-dropquictraffic-browser-tcp-fallback-effect) | `dropQuicTraffic` effect on browser TCP fallback | operator experience / lab test |
+| [`zcc-100`](#zcc-100-ipv6-only-network-behavior-of-the-drop_ipv6-flags) | IPv6-only-network runtime behavior of the three `drop_ipv6*` flags | lab test |
+| [`zcc-101`](#zcc-101-service-edge-split-landing-control-connection-behavior) | Service-Edge split-landing control-connection behavior | zscaler doc not yet read / operator experience |
 
 The ZDX deep-dive refresh (2026-06-15) registered these open ZDX-behavior questions from the per-doc Open-questions sweep — each links to its detailed entry below:
 
@@ -1383,7 +1413,7 @@ Parallel to `zcc-01` but at the TrustedNetwork entity level: how do this Trusted
 
 *Origin: `references/zcc/api.md` § Open questions*
 
-The SDK's `client.zcc.forwarding_profile` surface exposes CRUD on profile objects but no method for associating a profile with a user, group, or device. ZCC admin UX offers "App Profiles" that select a forwarding profile — but the App Profile API is not exposed under `client.zcc` in the current SDK. How does assignment happen programmatically?
+The SDK's `client.zcc.forwarding_profile` surface exposes CRUD on profile objects but no method for associating a profile with a user, group, or device. ZCC admin UX offers "App Profiles" that select a forwarding profile. The App Profile API is exposed under `client.zcc.application_profiles` (`/application-profiles`, list + get-by-id + PATCH) in both SDKs (Go: `application_profiles/application_profiles.go:296 PatchApplicationProfile`; Python: `zcc_service.py:129-134`). How the full forwarding-profile-to-user/device assignment relationship is managed programmatically remains partly open.
 
 **Resolves with**: partial answer from SDK mining (see below). Full completeness: lab confirmation on a real tenant that WebPolicy is the sole assignment mechanism. **Status**: partially resolved (2026-04-24).
 
@@ -2343,8 +2373,8 @@ The maximum number of UDIDs accepted per `/forceRemoveDevices` or `/removeDevice
 
 Whether the `RequestExecutor` (shared OneAPI SDK transport) automatically reads and honors `X-Rate-Limit-Retry-After-Seconds` on the modern ZCC API path, or whether only `LegacyZCCClientHelper` implements the retry behavior. Not confirmed from available SDK source.
 
-**Status**: open
-**Resolves with**: code read (inspect `RequestExecutor` in the Python SDK for rate-limit header handling)
+**Status**: resolved (2026-06-15) — confirmed YES. `RequestExecutor.get_retry_after()` explicitly reads `X-Rate-Limit-Retry-After-Seconds` (then `X-Rate-Limit-Remaining`) under the inline comment "ZCC Specific Rate Limiting Headers (LegacyZCCClientHelper)" (`vendor/zscaler-sdk-python/zscaler/request_executor.py:907,913–915`); `is_retryable_status()` includes 429 (`request_executor.py:745`); default `maxRetries=2` from `config["client"]["rateLimit"]` (`request_executor.py:82`). The modern OneAPI path therefore backs off on the ZCC header. Documented in `references/zcc/api-rate-limits.md § 5`.
+**Resolves with**: code read (inspect `RequestExecutor` in the Python SDK for rate-limit header handling) — done
 
 ---
 
@@ -3149,6 +3179,283 @@ EASM finding risk fields — `risk_level` / `severity_score` / `status` (`vendor
 
 **Status**: open
 **Resolves with**: tenant snapshot (collect observed values across live findings) OR zscaler doc not yet read
+
+---
+
+### zcc-77 — WebPolicy `*Top` vs nested-block precedence on write
+
+*Origin: `references/zcc/api-schemas.md` § Open questions*
+
+The Go `WebPolicy` struct carries many settings twice: a root-level `*Top`-suffixed copy and a counterpart inside a nested block (`vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go:186,209-214,222-243`). The `DefaultMacosWebPolicy` constructor comment explains both copies are seeded from a "known-working UI-generated request body" (`web_policy.go:88-90`) and the SDK faithfully sends both. Which copy the API honours on write when the two disagree — or whether one silently wins — is not stated in source.
+
+**Status**: open
+**Resolves with**: lab test (write a WebPolicy with the root-level `*Top` field and its nested counterpart set to conflicting values, read back, observe which persisted)
+
+---
+
+### zcc-78 — WebPolicy `deviceType` vs `device_type` write precedence
+
+*Origin: `references/zcc/api-schemas.md` § Open questions*
+
+`DeviceTypeAlt` (wire `deviceType`, **int**, `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go:323`) coexists with `DeviceType` (wire `device_type`, int, `web_policy.go:99`) on the WebPolicy struct — two distinct int fields. Separately, the SDK comment notes the API returns an unmodelled `deviceType` **string** (e.g. `"DEVICE_TYPE_MAC"`) on reads (`web_policy.go:65-69`); `DeviceTypeAlt` is not that string companion. Which int field a write honours when both are populated is not documented in source.
+
+**Status**: open
+**Resolves with**: lab test (submit a WebPolicy write with `device_type` and `deviceType` set to different device types, observe which the API applies)
+
+---
+
+### zcc-79 — WebPolicy `*Selected` form-state fields required on write
+
+*Origin: `references/zcc/api-schemas.md` § Open questions*
+
+The full `WebPolicy` field set is modeled from UI request-body captures (`payload-ios.json` etc.) referenced in the SDK comments, including numerous `*Selected` / `*SelectedOption` form-state fields. The struct tags carry no `omitempty` either way except where explicitly noted (`vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go:88-90`), so whether each form-state field is required on write versus merely echoed on read is not determinable from the struct alone.
+
+**Status**: open
+**Resolves with**: lab test (write a minimal WebPolicy omitting the `*Selected` fields, observe whether the API rejects, defaults, or accepts the partial body)
+
+---
+
+### zcc-80 — ZCC v1 vs v2 endpoint coexistence
+
+*Origin: `references/zcc/api.md` § Open questions*
+
+The `/zcc/papi/public/v2` families are confirmed in the Go SDK — notification-templates (`vendor/zscaler-sdk-go/zscaler/zcc/services/notification_template/notification_template.go:15`), zia-posture-profiles (`vendor/zscaler-sdk-go/zscaler/zcc/services/zia_posture/zia_posture.go:15`), and trusted-networks (`vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network_v2/trusted_network_v2.go:15`). The Python SDK does not expose these v2 services. Whether the v2 endpoints supersede or coexist with their v1 equivalents long-term — and whether a tenant should migrate — is not stated in the SDK source.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (vendor API changelog / deprecation notice) OR lab test (compare v1 and v2 responses for the same tenant object)
+
+---
+
+### zcc-81 — Device `zd*` vs `zdp*` field-prefix meanings
+
+*Origin: `references/zcc/devices.md` § Open questions*
+
+The Python `DeviceDetails` model carries both a `zd*` set (`zd_enabled` `vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py:335`, `zd_health` `:340`, `zd_last_seen_time` `:344`) and a `zdp*` set (`zdp_version` `:330`, `zdp_enabled` `:336`, `zdp_health` `:341`, `zdp_last_seen_time` `:345`). The SDK source never expands either acronym, so what service each prefix names — and how `zd` differs from `zdp` — is not backed by current sources.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (help-portal Device Details capture) OR tenant snapshot (read a live device response and correlate the prefixes to enabled services)
+
+---
+
+### zcc-82 — Device `registration_state` vs `state` distinction
+
+*Origin: `references/zcc/devices.md` § Open questions*
+
+Both `registration_state` (`vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py:49`) and `state` (`:51`) exist on the `Device` list model, but the finer-grained distinction between them — what each tracks and how their value sets differ — is not documented in the vendored SDK source.
+
+**Status**: open
+**Resolves with**: tenant snapshot (read live device records and compare the two field value sets) OR zscaler doc not yet read
+
+---
+
+### zcc-83 — `DeviceDetails.state` / `type` wire type per endpoint
+
+*Origin: `references/zcc/devices.md` § Open questions*
+
+The Go SDK declares `state` / `type` as `int` on the list endpoint (`vendor/zscaler-sdk-go/zscaler/zcc/services/devices/devices.go:40,42`) but as `string` on the detail endpoint (`devices.go:80,82`). Which type the wire actually returns per endpoint — and whether a caller must handle both forms for the same logical field — is unverified against a live tenant.
+
+**Status**: open
+**Resolves with**: tenant snapshot (capture both the list and detail responses, compare the wire type of `state` / `type`)
+
+---
+
+### zcc-84 — Unified Tunnel operational semantics
+
+*Origin: `references/zcc/forwarding-profile.md` § Open questions*
+
+The Unified Tunnel model is confirmed in both SDKs (Go `UnifiedTunnel` struct `vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go:119`; Python `UnifiedTunnel` class `vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py:299`), carrying shared-transport fields (`actionTypeZIA`, `actionTypeZPA`, `primaryTransport`). What shared-transport actually changes for the user versus running two separate Z-Tunnels — the customer-side operational semantics — has no help-article backing in the captured sources.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (Unified Tunnel help article) OR lab test (enable Unified Tunnel and observe transport/connection behavior versus the two-tunnel baseline)
+
+---
+
+### zcc-85 — App-Profile fail-close vs tenant `FailOpenPolicy` precedence
+
+*Origin: `references/zcc/forwarding-profile.md` § Open questions*
+
+App-Profile fail-close fields are SDK-confirmed on the application-profile / PolicyExtension surface — `zccAppFailOpenPolicy` (`:474`), `zccTunnelFailPolicy` (`:475`), and the `zccFailCloseSettings*` block (`:449-472`). Note: `reactivateWebSecurityMinutes` (`application_profiles.py:49`) is the time before web security reactivates after a user-initiated disable (`web_policy.py:183` docstring: "Minutes after which Web Security is reactivated when disabled by the user") — it is not a captive-portal grace field; the captive-portal grace field is `captivePortalWebSecDisableMinutes` on `FailOpenPolicy`. Which setting wins when both a per-App-Profile fail-close value and the tenant-global `FailOpenPolicy` are set is not documented in the captured sources.
+
+**Status**: open
+**Resolves with**: lab test (set conflicting per-App-Profile and tenant-global fail-close values, induce a tunnel/firewall error, observe which policy applies) OR zscaler doc not yet read
+
+---
+
+### zcc-86 — `get_web_privacy` returns `None` on error
+
+*Origin: `references/zcc/sdk.md` § Open questions*
+
+The Python SDK's `get_web_privacy` returns bare `None` on any error path rather than the result/response/error tuple that every other SDK method returns (`vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py:58,61,65`). This is either an oversight or an intentional deviation; callers must special-case `None` rather than inspecting a third tuple element. (Earlier doc text attributed this to `utils.py`; the deviation actually lives in `web_privacy.py`.)
+
+**Status**: resolved (2026-06-15) — source-confirmed deviation; retained as a caller-behavior note rather than an open ZCC-behavior question.
+**Resolves with**: code read (done — the three `return None` paths are in `web_privacy.py`)
+
+**Answer**: Confirmed in current source: `get_web_privacy` returns `None` when request creation fails, when execution fails, and when response-body parsing raises (`vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py:58,61,65`). This is a Python-SDK API-surface quirk, not a ZCC product behavior; callers must guard for `None`.
+
+---
+
+### zcc-87 — ZCC rate-limit header behavior on the OneAPI path
+
+*Origin: `references/zcc/sdk.md` § Open questions*
+
+The ZCC API's rate-limit response headers (`X-Rate-Limit-Remaining`, `X-Rate-Limit-Retry-After-Seconds`) are consumed by the legacy ZCC client helper, but how — or whether — they are surfaced and honoured on the OneAPI request path is not documented in the SDK source. This overlaps with the rate-limit clarifications `zcc-10` (header presence on 2xx) and `zcc-12` (RequestExecutor retry behavior).
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (OneAPI rate-limit documentation) OR lab test (drive the OneAPI ZCC path to a 429 and inspect the returned headers and client retry behavior)
+
+---
+
+### zcc-88 — WebPolicy read-shape `macPolicy` vs `macosPolicy` key
+
+*Origin: `references/zcc/snapshot-schema.md` § Open questions*
+
+The Python WebPolicy serializer reads and writes the macOS sub-policy under `macPolicy` (`vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py:190,302`), but the documented snapshot example block and the `has_mac` jq query use `macosPolicy`. Whether the `listByCompany` read JSON returns `macPolicy`, `macosPolicy`, or both keys is not confirmed from a captured snapshot.
+
+**Status**: open
+**Resolves with**: tenant snapshot (capture `web/policy/listByCompany` JSON and check which macOS sub-policy key appears)
+
+---
+
+### zcc-89 — WebPolicy `groups` / `users` / `deviceGroups` wire shape
+
+*Origin: `references/zcc/snapshot-schema.md` § Open questions*
+
+The Python model splits scope into `groupIds`/`groupNames`, `userIds`/`userNames`, `deviceGroupIds`/`deviceGroupNames` and additionally parses `groups`/`users` into typed objects (`vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py:118-148`). Which of these keys actually appear in the `listByCompany` wire response — and whether `groups`/`users` arrive id-only or as full `{id, loginName, ...}` objects — is not confirmed from a snapshot.
+
+**Status**: open
+**Resolves with**: tenant snapshot (capture a `listByCompany` response and record which scope keys appear and their element shape)
+
+---
+
+### zcc-90 — WebPolicy companion `deviceType` string presence on reads
+
+*Origin: `references/zcc/snapshot-schema.md` § Open questions*
+
+The Go SDK comment asserts the API returns a companion `deviceType` string such as `"DEVICE_TYPE_MAC"` alongside the integer `device_type` on reads (`vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go:65-69`), but the field is intentionally not modelled, so its wire presence is inferred from a comment rather than confirmed from a captured response.
+
+**Status**: open
+**Resolves with**: tenant snapshot (capture real `web/policy/listByCompany` JSON and confirm whether the `deviceType` string is actually present)
+
+---
+
+### zcc-91 — App Supportability toggle tenant defaults
+
+*Origin: `references/zcc/support-options.md` § Open questions*
+
+The `CompanyInfo` model declares the App Supportability toggles — `supportEnabled` (`vendor/zscaler-sdk-python/zscaler/zcc/models/company_info.py:65`), `supportAdminEmail` (`:64`), `supportTicketEnabled` (`:71`), `disableLoggingControls` (`:74`), and `fetchLogsForAdminsEnabled` (`:67`) — but the SDK does not assert their out-of-box default values. The "Default-on vs default-off" column in the doc is inferred from the help doc's configuration steps, not from source.
+
+**Status**: open
+**Resolves with**: tenant snapshot (read `CompanyInfo` on a freshly provisioned tenant) OR zscaler doc not yet read
+
+---
+
+### zcc-92 — Per-product disable-password authority (`WebPolicy` vs `manage_pass`)
+
+*Origin: `references/zcc/support-options.md` § Open questions*
+
+The same logical disable passwords exist on the top-level `WebPolicy` object — `zdDisablePassword` (`vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go:582`), `zdxDisablePassword` (`:583`), `zpaDisablePassword` (`:584`), `zdpDisablePassword` (`:580`), and `exitPassword` (`:558`) — and on the write-only `manage_pass` bulk POST, which uses differently-named fields including `zadDisablePass` (`vendor/zscaler-sdk-go/zscaler/zcc/services/manage_pass/manage_pass.go:24`) and `ziaDisablePass` (`manage_pass.go:27`). The SDK does not state precedence when a value is set on both surfaces, nor how `manage_pass`'s `ziaDisablePass` / `zadDisablePass` reconcile with the WebPolicy keys — WebPolicy has no `ziaDisablePassword`, and its `zdDisablePassword` product mapping versus `zadDisablePass` is not stated in source.
+
+**Status**: open
+**Resolves with**: lab test (set a disable password on both the WebPolicy and via `manage_pass`, observe which the agent enforces and how the differently-named fields map) OR zscaler doc not yet read
+
+---
+
+### zcc-93 — macOS password read-key vs write-key API behavior
+
+*Origin: `references/zcc/support-options.md` § Open questions*
+
+`MacOSPolicy` reads the password gates under camelCase keys — `disablePassword` (`vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py:1095`), `logoutPassword` (`:1107`), `uninstallPassword` (`:1111`) — but `request_format()` emits snake_case keys — `disable_password` (`:1135`), `logout_password` (`:1141`), `uninstall_password` (`:1143`). Whether the live API accepts the snake_case write form for macOS, ignores it, or stores it under a different key than it reads back is not determinable from the model alone.
+
+**Status**: open
+**Resolves with**: lab test (write a macOS sub-policy via the SDK's snake_case form, read back, confirm the password persisted and under which key)
+
+---
+
+### zcc-94 — Per-platform password-gate UI surface per OS
+
+*Origin: `references/zcc/support-options.md` § Open questions*
+
+All five per-platform sub-policy classes carry the disable / logout / uninstall password fields as model attributes (e.g. macOS `webpolicy.py:1095,1107,1111`; Windows `webpolicy.py:820,841,848`), but the SDK model does not assert which of these gates render as actual user-facing UI actions on each OS — for example whether mobile platforms expose an uninstall-password prompt the same way desktop does.
+
+**Status**: open
+**Resolves with**: operator experience (observe the ZCC UI per OS) OR zscaler doc not yet read
+
+---
+
+### zcc-95 — Trusted-network stateful evaluation across transitions
+
+*Origin: `references/zcc/trusted-networks.md` § Open questions*
+
+Whether ZCC's trusted-network evaluation is stateful across network transitions — does the agent debounce rapid network changes, or cache the previous evaluation result — is not surfaced by any SDK field. The model exposes the criteria but no transition-handling or hysteresis configuration.
+
+**Status**: open
+**Resolves with**: lab test (rapidly switch a device between a trusted and untrusted network, observe whether ZCC debounces or re-evaluates immediately each time)
+
+---
+
+### zcc-96 — Multiple TrustedNetworks partial-match precedence
+
+*Origin: `references/zcc/trusted-networks.md` § Open questions*
+
+When a single Forwarding Profile references multiple TrustedNetworks and more than one partially matches the current environment, which one wins — and how the partial matches are resolved — is not documented in the SDK source.
+
+**Status**: open
+**Resolves with**: lab test (configure a Forwarding Profile with two overlapping TrustedNetworks, place a device where both partially match, observe the effective network determination)
+
+---
+
+### zcc-97 — `forwarding_profile_id` orphan-reference resolution
+
+*Origin: `references/zcc/web-policy.md` § Open questions*
+
+A Web Policy can reference a Forwarding Profile ID (`forwarding_profile_id`, `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py:98`) that has since been deleted — the relationship is FK-shaped but not enforced at write time. What ZCC does at enforcement when the referenced profile is missing — fall back to a default, fail silently, or block traffic — is not described in any available source.
+
+**Status**: open
+**Resolves with**: lab test (point a Web Policy at a Forwarding Profile ID, delete the profile, observe the agent's enforcement behavior on a device under that policy)
+
+---
+
+### zcc-98 — On-Net policy vs Forwarding Profile evaluation order
+
+*Origin: `references/zcc/web-policy.md` § Open questions*
+
+When both the Python-only `onNetPolicy` block (`vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py:220-228`) and the Forwarding Profile's trusted-network configuration are present, which one is evaluated first — and which wins on conflict — is unverified.
+
+**Status**: open
+**Resolves with**: lab test (configure conflicting on-net and Forwarding-Profile trusted-network behavior, observe the effective on-network decision)
+
+---
+
+### zcc-99 — `dropQuicTraffic` browser TCP-fallback effect
+
+*Origin: `references/zcc/web-policy.md` § Open questions*
+
+The `dropQuicTraffic` field exists on the WebPolicy (`vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go:579`; Python `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py:416`), but whether dropping QUIC reliably forces browsers to fall back to TCP/443 — versus failing the connection — is operator-reported, not verified in source.
+
+**Status**: open
+**Resolves with**: operator experience OR lab test (enable `dropQuicTraffic`, drive a QUIC-capable browser, confirm it falls back to TCP rather than failing)
+
+---
+
+### zcc-100 — IPv6-only-network behavior of the `drop_ipv6*` flags
+
+*Origin: `references/zcc/z-tunnel.md` § Open questions*
+
+The forwarding-profile model carries three IPv6-specific flags, all confirmed in source — `drop_ipv6_traffic` (`vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py:117`), `drop_ipv6_traffic_in_ipv6_network` (`:118`), and `drop_ipv6_include_traffic_in_t2` (`:136`). The flags exist, but what each one does to traffic on an IPv6-only network — the runtime behavior — is not described in the captured help docs, which focus on IPv4.
+
+**Status**: open
+**Resolves with**: lab test (toggle each flag on a device attached to an IPv6-only network, observe the effect on IPv6 traffic and Z-Tunnel 2.0 forwarding)
+
+---
+
+### zcc-101 — Service-Edge split-landing control-connection behavior
+
+*Origin: `references/zcc/z-tunnel.md` § Open questions*
+
+When a Z-Tunnel session re-lands on a different Service Edge (split-landing), whether the control connection stays up while data reroutes — or the whole session tears down and re-establishes — is not documented. Wire-format protocol details (framing, keepalive, session resumption) are likewise not customer-documented.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (Support / SE-level protocol detail) OR operator experience (observe session continuity during a Service-Edge failover)
 
 ---
 

@@ -3,14 +3,19 @@ product: zcc
 topic: zcc-sdk
 title: "ZCC SDK reference — Python and Go service catalog"
 content-type: reference
-last-verified: "2026-04-26"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: code
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zcc/zcc_service.py"
   - "vendor/zscaler-sdk-python/zscaler/zcc/legacy.py"
+  - "vendor/zscaler-sdk-python/zscaler/zcc/_serialize.py"
+  - "vendor/zscaler-sdk-python/zscaler/zcc/_field_introspect.py"
+  - "vendor/zscaler-sdk-python/zscaler/zcc/web_policy.py"
+  - "vendor/zscaler-sdk-python/zscaler/request_executor.py"
   - "vendor/zscaler-sdk-python/zscaler/utils.py"
   - "vendor/zscaler-sdk-go/zscaler/zcc/services/common/common.go"
+  - "vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go"
 author-status: draft
 ---
 
@@ -75,11 +80,12 @@ config, err := zscaler.NewConfiguration(
     zscaler.WithCloud("zscloud"),
 )
 service, err := zscaler.NewOneAPIClient(config)
-// Pass service to individual package-level functions:
-devices, err := devices.GetAll(ctx, service, nil)
+// Pass service to individual package-level functions.
+// GetAll takes username and osType filters (empty strings = no filter):
+devices, err := devices.GetAll(ctx, service, "", "")
 ```
 
-Source: `vendor/zscaler-sdk-go/zscaler/zcc/services/common/common.go`; `vendor/zscaler-sdk-go/zscaler/zcc/services/devices/devices.go`.
+Source: `vendor/zscaler-sdk-go/zscaler/zcc/services/common/common.go`; `vendor/zscaler-sdk-go/zscaler/zcc/services/devices/devices.go:90`.
 
 Go ZCC services are package-level functions, not methods on a struct. The `NewZccRequestDo` transport method is used — callers must close `resp.Body` and decode manually.
 
@@ -95,7 +101,7 @@ Source: `vendor/zscaler-sdk-python/zscaler/utils.py`; `vendor/zscaler-sdk-python
 
 List endpoints accept `page` (1-indexed) and `page_size` (default 50, max 5000) as `query_params` keys. The `@zcc_param_mapper` decorator translates snake_case OS and registration type names to their numeric API equivalents before the request is sent.
 
-The raw `response` object returned from every call supports client-side JMESPath filtering via `resp.search(expression)`.
+The raw `response` object returned from every call supports client-side JMESPath filtering via `resp.search(expression)` (`vendor/zscaler-sdk-python/zscaler/oneapi_response.py:274`).
 
 ### Pagination — Go
 
@@ -114,6 +120,22 @@ Every method returns a three-tuple `(result, response, error)`. Callers should c
 Source: `vendor/zscaler-sdk-python/zscaler/utils.py`.
 
 The `zcc_param_mapper` decorator translates human-readable OS type strings (`"windows"`, `"macos"`, etc.) to integer codes required by the API (`3`, `4`, etc.), and registration type strings to their numeric equivalents. It also handles date-to-API-format conversion for endpoints that accept `start_date`/`end_date`.
+
+### Request-body wire-key serialization (ZCC-only `_serialize` / `_field_introspect`)
+
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/_serialize.py`; `vendor/zscaler-sdk-python/zscaler/zcc/_field_introspect.py`; `vendor/zscaler-sdk-python/zscaler/request_executor.py`.
+
+For request *bodies* (as opposed to the OS/date *query-parameter* mapping above), ZCC has its own serializer that supersedes the generic heuristic snake_case→camelCase converter. The module docstring states the design directly: "The model class is the single source of truth for wire keys" and "No reliance on heuristic snake-to-camel conversion or hand-maintained `FIELD_EXCEPTIONS` tables" (`_serialize.py:10,11-12`). It applies to ZCC only and "must not be used by other services" (`_serialize.py:20`).
+
+How it works:
+
+- `zcc_to_wire(body, schema_cls)` (`_serialize.py:104`) walks the user body and rewrites each key to the exact wire form declared by the model class's `request_format` method. The wire key for each provided key is resolved in a fixed order (`_serialize.py:60-83`): (1) if the key is a snake_case attribute the model declares, use the wire key from `request_format`; (2) if the key is already a wire-form key the model declares, keep it as-is; (3) if the key is in the legacy `WebPolicy.SNAKE_CASE_KEYS` set, preserve it as snake_case; (4) otherwise fall back to `to_lower_camel_case` (a no-op for keys already in camelCase, so camelCase the caller passes survives unchanged). Unknown keys pass through rather than being dropped or mangled (`_serialize.py:17-18`).
+- The wire keys are derived per-class by `_field_introspect.field_map(cls)` (`_field_introspect.py:66-80`), which traces the model's `request_format` to produce `{snake_attr -> wire_key}`. Nested model classes are detected from the model's `__init__` (`_field_introspect.py:128-174`) so sub-trees are serialized against the right schema.
+- The result is wrapped in a `_ZccWireBody` marker dict (`_serialize.py:47-57`). When the request executor sees the body is a `_ZccWireBody` it returns it verbatim and skips the legacy `convert_keys_to_camel_case_selective` step (`request_executor.py:358-368`); endpoints not yet migrated to the serializer still go through that legacy selective converter with `WebPolicy.SNAKE_CASE_KEYS` (`request_executor.py:370-372`).
+
+The key consequence — and the reason ZCC casing looks chaotic — is that the wire key is scoped per model class, so the same snake_case attribute can map to different wire keys on different platforms. The docstring's illustrative example is `WindowsPolicy.disable_password` → `disable_password` (snake) vs `LinuxPolicy.disable_password` → `disablePassword` (camel) (`_serialize.py:14-16`). The Go struct tags corroborate that this per-platform divergence is real (though the specific platform that diverges differs from the Python docstring's example): in `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`, `MacPolicy.DisablePassword` carries the snake-case tag `json:"disable_password"` (`web_policy.go:403`) while `WindowsPolicy.DisablePassword` (`web_policy.go:461`) and `LinuxPolicy.DisablePassword` (`web_policy.go:379`) carry the camelCase tag `json:"disablePassword"`. The Go comment explains why MacPolicy is snake-cased: "earlier versions of this struct used camelCase tags which the API silently ignored, leading to `{"success":"false","id":0}` on /edit" (`web_policy.go:391-393`).
+
+This is the path `web_policy_edit` and `update_forwarding_profile` now use: each calls `zcc_to_wire(body, <Model>)` before building the request (`web_policy.py:457`; `forwarding_profile.py:126`).
 
 ---
 
@@ -301,7 +323,7 @@ Manages per-platform agent policy assignments (the set of policies active for ea
 **Notable behavior:**
 - `list_by_company` accepts `device_type` (OS string, mapped by `@zcc_param_mapper`), `page`, `page_size`, `search`, `search_type`.
 - `activate_web_policy` enables or disables a policy for a platform; takes `device_type` (int) and `policy_id` (int). If the response body is empty, an empty `WebPolicy()` object is returned rather than failing.
-- `web_policy_edit` calls `transform_common_id_fields(reformat_params, body, body)` to normalize ID field references before sending.
+- `web_policy_edit` serializes its body via `zcc_to_wire(body, WebPolicy)` (`web_policy.py:457`) before building the request — the model-driven wire-key serializer described under "Request-body wire-key serialization" above, not the older `transform_common_id_fields` path.
 
 **Go parity:** ✅ `web_policy.GetAll`, activate, edit, delete.
 
@@ -381,7 +403,7 @@ Source: `vendor/zscaler-sdk-python/zscaler/zcc/zcc_service.py`; `vendor/zscaler-
 
 | Surface | Endpoint | Python | Go | Notes |
 |---|---|---|---|---|
-| `application_profiles` | `/zcc/papi/public/v1/application-profiles` | `application_profiles.py` | `application_profiles/application_profiles.go` | Python supports list/get/update; Go supports list/get helpers. |
+| `application_profiles` | `/zcc/papi/public/v1/application-profiles` | `application_profiles.py` | `application_profiles/application_profiles.go` | Python supports list/get/update; Go supports list/get/patch (`PatchApplicationProfile` at `application_profiles.go:296`). |
 | `custom_ip_apps` | `/zcc/papi/public/v1/custom-ip-based-apps` | `custom_ip_base_apps.py` | `custom_ip_apps/custom_ip_apps.go` | Read-only app catalog in inspected SDKs. |
 | `predefined_ip_apps` | `/zcc/papi/public/v1/predefined-ip-based-apps` | `predefined_ip_based_apps.py` | `predefined_ip_apps/predefined_ip_apps.go` | Read-only predefined IP application catalog. |
 | `process_based_apps` | `/zcc/papi/public/v1/process-based-apps` | `process_based_apps.py` | `process_based_apps/process_based_apps.go` | Read-only process-based application catalog. |
@@ -403,7 +425,7 @@ The ZCC API represents OS types as integers: iOS=1, Android=2, Windows=3, macOS=
 
 ### CSV download endpoints
 
-`/downloadDevices` and `/downloadServiceStatus` have a combined rate limit of 3 calls per day (enforced by both the server 429 and client-side counters in `LegacyZCCClientHelper`). The response is binary (`application/octet-stream`). The Python implementation validates the response's `Content-Type` header and the first line of the CSV body before writing to disk.
+Both `/downloadDevices` and `/downloadServiceStatus` are subject to a 3-calls-per-day limit, but they are enforced differently in `LegacyZCCClientHelper`. `/downloadDevices` is tracked client-side: `check_rate_limit` keeps a rolling `download_devices_count` that resets daily and raises `RateLimitExceededError` once it reaches `DOWNLOAD_DEVICES_LIMIT` (`vendor/zscaler-sdk-python/zscaler/zcc/legacy.py:242,247,250`). `/downloadServiceStatus` has no client-side counter — it is only caught reactively when the server returns 429, at which point `send` raises immediately without retrying (`vendor/zscaler-sdk-python/zscaler/zcc/legacy.py:306-310`). The response is binary (`application/octet-stream`). The Python implementation validates the response's `Content-Type` header and the first line of the CSV body before writing to disk.
 
 ### Machine tunnel removal
 
@@ -425,14 +447,14 @@ If `partner_id` is set, the `x-partner-id` header is included on every request i
 
 **Q1 — Resolved 2026-04-26.** `update_zdx_group_entitlement` and `update_zpa_group_entitlement` in the Python SDK send an empty body `{}`, but the Go SDK (`vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go`) passes a fully populated struct: `ZdxGroupEntitlements` (fields: `collectZdxLocation`, `computeDeviceGroupsForZDX`, `logoutZCCForZDXService`, `totalCount`, `upmDeviceGroupList`, `upmEnableForAll`, `upmGroupList`) or `ZpaGroupEntitlements` (fields: `computeDeviceGroupsForZPA`, `deviceGroupList`, `groupList`, `machineTunEnabledForAll`, `totalCount`, `zpaEnableForAll`). The Python implementation is incomplete — callers must use the Go SDK or construct the PUT body manually from these struct definitions to make meaningful updates.
 
-2. `get_web_privacy` returns `None` on error rather than a three-tuple, unlike every other method in the SDK. This is either an oversight or an intentional deviation. Callers must handle `None` rather than checking the third tuple element.
+2. `get_web_privacy` returns `None` on error rather than a three-tuple, unlike every other method in the SDK. This is either an oversight or an intentional deviation. Callers must handle `None` rather than checking the third tuple element. See [clarification `zcc-86`](../_meta/clarifications.md#zcc-86-get_web_privacy-returns-none-on-error).
 
-Source: `vendor/zscaler-sdk-python/zscaler/utils.py`.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py:58,61,65` (the three `return None` error paths).
 
-**Q3 — Resolved 2026-04-26.** `web_policy_edit` calls `transform_common_id_fields(reformat_params, body, body)` where `reformat_params` is the global list defined in `vendor/zscaler-sdk-python/zscaler/utils.py` (lines 42–93). It converts snake_case keyword argument keys into their camelCase API equivalents for every object-reference field: `app_services → appServices`, `app_service_groups → appServiceGroups`, `devices → devices`, `device_groups → deviceGroups`, `departments → departments`, `groups → groups`, `users → users`, `labels → labels`, `locations → locations`, `location_groups → locationGroups`, `nw_services → nwServices`, `nw_service_groups → nwServiceGroups`, `src_ip_groups → srcIpGroups`, `time_windows → timeWindows`, plus ZPA-specific fields (`zpa_app_segments`, `zpa_application_segments`, `zpa_application_segment_groups`) and others.
+**Q3 — Re-verified 2026-06-15 (superseded; behavior changed in source).** `web_policy_edit` no longer calls `transform_common_id_fields`. The current source serializes the body with the ZCC-only model-driven serializer: `body = zcc_to_wire(body, WebPolicy)` (`vendor/zscaler-sdk-python/zscaler/zcc/web_policy.py:457`). See the "Request-body wire-key serialization" subsection above for how wire keys are derived per model class. The older `transform_common_id_fields(reformat_params, body, body)` description that previously appeared here was for a prior SDK snapshot and no longer reflects `web_policy.py`.
 
 **Q4 — Resolved 2026-05-16.** Application profiles, custom IP apps, predefined IP apps, and process-based apps are no longer Go-only in the inspected SDK snapshot. `ZCCService` exposes `application_profiles`, `custom_ip_base_apps`, `predefined_ip_based_apps`, and `process_based_apps`. Application profiles support update in Python; custom/predefined/process-based app modules expose read methods. Treat older "Go-only" notes for these services as stale.
 
 **Q5 — Resolved 2026-04-26.** The `manage_pass` endpoint is confirmed in Go at `vendor/zscaler-sdk-go/zscaler/zcc/services/manage_pass/manage_pass.go`. The `ManagePass` struct accepts: `companyId`, `deviceType`, `exitPass`, `logoutPass`, `policyName`, `uninstallPass`, `zadDisablePass`, `zdpDisablePass`, `zdxDisablePass`, `ziaDisablePass`, `zpaDisablePass`. The Python SDK has `models/manage_pass.py` with the matching model but no service module exposing the PUT call. Callers must use the Go SDK or call `POST /zcc/papi/public/v1/managePass` directly.
 
-6. Rate-limit headers returned by the ZCC API (`X-Rate-Limit-Remaining`, `X-Rate-Limit-Retry-After-Seconds`) are consumed by `LegacyZCCClientHelper` but their behavior for the OneAPI path is not documented in the SDK source.
+6. Rate-limit headers returned by the ZCC API (`X-Rate-Limit-Remaining`, `X-Rate-Limit-Retry-After-Seconds`) are consumed by `LegacyZCCClientHelper` but their behavior for the OneAPI path is not documented in the SDK source. See [clarification `zcc-87`](../_meta/clarifications.md#zcc-87-zcc-rate-limit-header-behavior-on-the-oneapi-path).

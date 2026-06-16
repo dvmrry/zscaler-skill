@@ -3,10 +3,11 @@ product: zcc
 topic: end-user-notifications
 title: "ZCC End-User Notifications — block pages, alerts, and in-app messages"
 content-type: reference
-last-verified: "2026-04-27"
+last-verified: "2026-06-15"
 confidence: medium
-source-tier: doc
+source-tier: mixed
 sources:
+  - "vendor/zscaler-sdk-go/zscaler/zcc/services/notification_template/notification_template.go"
   - "vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md"
   - "vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md"
   - "references/zcc/forwarding-profile.md"
@@ -32,7 +33,7 @@ Native OS notifications (toasts on Windows, alerts in macOS Notification Center,
 - ZPA reauthentication required
 - Device posture check failure
 - AUP prompt (in-app overlay)
-- Service Disaster Recovery mode detected
+- Service Disaster Relief (DR) mode detected
 - App update available
 
 Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`.
@@ -57,7 +58,7 @@ Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-c
 
 Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`.
 
-Configuration lives at **Administration > Client Connector Notifications** in the ZCC Portal. Two tabs exist: **End User Notifications** and **Acceptable Use Policy (AUP) Settings**. A third path — **Notification Templates** — replaces the End User Notifications tab when templates are in use; when templates are active, the standard tab does not appear.
+Configuration lives at **Administration > Client Connector Notifications** in the ZCC Portal. Two tabs exist: **End User Notifications** and **Acceptable Use Policy (AUP) Settings**. A third path — **Notification Templates** — is used instead of the End User Notifications tab when templates are in use: the vendor help states that "if you use notification templates, this tab does not display, and you must configure the end user notification settings on the Notification Templates tab" (`vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md:20`).
 
 ### 2.1 End User Notifications tab
 
@@ -69,10 +70,12 @@ The following toggles are available:
 |---|---|---|
 | Enable Notifications by Default | Master toggle; enabled at enrollment time. | Yes |
 | Enable App Updates Notifications | Notifies users when a ZCC upgrade is available. | No |
-| Enable Service Status Notifications | Notifies users when a Zscaler service is in Disaster Recovery (DR) mode. | No |
+| Enable Service Status Notifications | Notifies users when a Zscaler service is in Disaster Relief (DR) mode. | No |
 | Enable ZIA Notifications | Enables ZIA-sourced notifications delivered through ZCC — for example, DLP notifications. | No |
 | Enable Notifications for ZPA Reauthentication | Prompts users for ZPA re-authentication when required. | Yes |
 | Show ZPA Reauthentication Notifications Every (In Minutes) | Interval in minutes for repeating ZPA reauth prompts (range: 2–1440). Enabled by default. | No |
+
+> The vendor help text for the Service Status toggle reads literally "Disaster Relief (DR) mode" (`vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md:28`). The "DR" abbreviation is conventionally read as Disaster Recovery; this doc uses Zscaler's verbatim "Disaster Relief" wording to match the UI string.
 
 ### 2.2 Zscaler Notification Framework (Windows and macOS only)
 
@@ -102,9 +105,59 @@ Configuring branding (logo, corporate colors) within the AUP message body is pos
 
 ### 2.4 Notification Templates tab
 
-When notification templates are enabled, this tab replaces the End User Notifications tab. Templates allow per-notification-type customization of text beyond the global toggles. The help portal references a separate article ("Configuring Notification Templates for Zscaler Client Connector") that was not captured in available vendor sources. Details on template fields and branding options are not confirmed from reviewed sources; see [Deferred — ZCC end-user notifications](#deferred-items).
+Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md` (portal tab-replacement behavior, line 20); `vendor/zscaler-sdk-go/zscaler/zcc/services/notification_template/notification_template.go` (field model).
 
-Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`.
+When notification templates are enabled, the standard End User Notifications tab does not display and notification settings must be configured on the Notification Templates tab instead (`vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md:20`). That is the full extent of the portal-UX behavior the vendor help captures — the help text gives a single sentence and defers the rest to a separate "Configuring Notification Templates for Zscaler Client Connector" article that is **not** in available vendor sources (`configuring-end-user-notifications-zscaler-client-connector.md:20`, `:50`). The field-level model below is reconstructed from the SDK, not from that portal article.
+
+Implied by the SDK schema (not confirmed from a portal/admin-UX source): templates carry a `name` and an `isDefaultTemplate` flag (`vendor/zscaler-sdk-go/zscaler/zcc/services/notification_template/notification_template.go:28-29`), and the list endpoint returns a collection (`GetAll` → `[]NotificationTemplate`, `notification_template.go:154,159`) — so the data shape supports multiple named templates with one marked default. Whether the portal surfaces them exactly that way is not established by reviewed sources.
+
+#### Notification template object model
+
+Notification templates are a first-class API resource, not just a portal-only construct. The Zscaler Go SDK exposes a full CRUD service for them against the V2 endpoint `/zcc/papi/public/v2/notification-templates` (`vendor/zscaler-sdk-go/zscaler/zcc/services/notification_template/notification_template.go:15`). The template object (`notification_template.go:26-58`) carries the following fields:
+
+| Field (JSON) | Maps to / meaning |
+|---|---|
+| `name` | Template name. (`notification_template.go:28`) |
+| `isDefaultTemplate` | Marks this template as the tenant default. (`notification_template.go:29`) |
+| `enableClient` | Master client-notifications toggle — the template-level equivalent of "Enable Notifications by Default". (`notification_template.go:30`) |
+| `enableZia` | ZIA-sourced notifications through ZCC — equivalent of the global "Enable ZIA Notifications". (`notification_template.go:31`) |
+| `enableAppUpdates` | App-update-available notifications — equivalent of "Enable App Updates Notifications". (`notification_template.go:32`) |
+| `enableServiceStatus` | Service-status (Disaster Relief / DR mode) notifications — equivalent of "Enable Service Status Notifications". (`notification_template.go:33`) |
+| `durationInSeconds` | On-screen display duration — the template-level equivalent of the framework "Custom Timer (In Seconds)". (`notification_template.go:34`) |
+| `enablePersistent` | Persistent (display-until-dismissed) notifications — equivalent of "Enable Persistent Notifications". (`notification_template.go:35`) |
+| `enableDoNotDisturb` | Do-Not-Disturb suppression toggle. No counterpart on the global EUN tab in reviewed sources. (`notification_template.go:36`) |
+
+#### Granular ZIA notification toggles (template-only)
+
+The template nests a `ziaNotificationTemplate` object (`notification_template.go:43-51`) that breaks the single global "Enable ZIA Notifications" switch into per-engine toggles, each with a separate pop-up variant:
+
+| Field (JSON) | Meaning |
+|---|---|
+| `enableZiaFirewall` / `enableZiaFirewallPopup` | ZIA firewall notifications, and a separate pop-up toggle for them. (`notification_template.go:44-45`) |
+| `enableZiaDNS` / `enableZiaDNSPopup` | ZIA DNS-control notifications, and a separate pop-up toggle. (`notification_template.go:46-47`) |
+| `enableZiaIPS` / `enableZiaIPSPopup` | ZIA IPS notifications, and a separate pop-up toggle. (`notification_template.go:48-49`) |
+| `enableZiaPersistent` | Makes ZIA notifications persistent — template-level equivalent of "ZIA Notification Persistent". (`notification_template.go:50`) |
+
+This firewall/DNS/IPS granularity is finer than anything the global EUN tab exposes, where ZIA notifications are a single switch.
+
+#### ZPA notification toggles (template-only)
+
+The template also nests a `zpaNotificationTemplate` object (`notification_template.go:53-58`):
+
+| Field (JSON) | Meaning |
+|---|---|
+| `enableZpaReauth` | ZPA reauthentication prompts — equivalent of "Enable Notifications for ZPA Reauthentication". (`notification_template.go:55`) |
+| `zpaReauthIntervalInMinutes` | Repeat interval for reauth prompts — template-level equivalent of "Show ZPA Reauthentication Notifications Every (In Minutes)". (`notification_template.go:56`) |
+| `enableDevicePostureFailure` | Emits a notification on device-posture-check failure. This is an explicit, admin-controllable posture-failure notification toggle. (`notification_template.go:54`) |
+| `delayPostureFailureSeconds` | Delay before the posture-failure notification fires. Has no counterpart on the global EUN tab. (`notification_template.go:57`) |
+
+The `enableDevicePostureFailure` and `delayPostureFailureSeconds` fields are the most consequential new surface here: posture-failure notification is configurable from the template path even though the global EUN tab does not expose it.
+
+#### Template service methods
+
+The Go service (`notification_template.go`) provides: `Create` (POST), `Get` (GET by id), `GetByName` (substring keyword search then client-side exact match), `Update` (PUT), `PartialUpdate` (PATCH), `Delete`, and `GetAll` (paginated list, optional `keyword` name filter). (`notification_template.go:60-160`)
+
+> Vendor-source note: this CRUD surface is exposed only in the Go SDK. There is no notification-template service or model under the Python SDK's `zcc/` package — no template service file exists, only ordinary template-reference *fields* on other models (`notificationTemplateId` / `notificationTemplateContract` on the Python application-profile model, `vendor/zscaler-sdk-python/zscaler/zcc/models/application_profiles.py:65-68`). The Python SDK can therefore *bind* an existing template to an App Profile but cannot create or edit the template body. Operators automating notification-template CRUD must use the Go SDK or the raw V2 REST endpoint.
 
 ---
 
@@ -117,7 +170,7 @@ The following events surface ZCC-emitted notifications when the corresponding to
 | Event | Notification type | Persistent (with framework) |
 |---|---|---|
 | ZCC app update available | OS toast / tray alert | No |
-| ZIA service in Disaster Recovery mode | OS toast | No |
+| ZIA service in Disaster Relief (DR) mode | OS toast | No |
 | ZIA DLP notification (policy-triggered) | OS toast | Yes (when ZIA Notification Persistent enabled) |
 | ZPA reauthentication required | OS toast or tray prompt | Yes (when Persistent Notifications enabled) |
 | Captive portal detected | OS toast | Yes (when Persistent Notifications enabled) |
@@ -127,7 +180,7 @@ The following events surface ZCC-emitted notifications when the corresponding to
 | ZIA sign-in failure | In-app error message | N/A |
 | Trusted Network state change | In-app status change (trusted / untrusted) | N/A |
 | Certificate trust failure | In-app error or OS-level warning (platform-dependent) | N/A (not confirmed as ZCC-emitted toast) |
-| Device posture check failure | In-app status / error | N/A (specific notification toast for posture failure not confirmed; see Deferred) |
+| Device posture check failure | OS toast (admin-toggleable) / in-app status | Posture-failure notification is an explicit template toggle (`enableDevicePostureFailure`), with a configurable pre-fire delay (`delayPostureFailureSeconds`) — `notification_template.go:54,57` |
 
 Notes on specific triggers:
 
@@ -172,11 +225,11 @@ Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-c
 The End User Notifications settings described in Section 2 are global to the ZCC tenant (not per-App-Profile) when configured under **Administration > Client Connector Notifications**. However, some notification-adjacent behaviors are per-App-Profile:
 
 - **Captive portal grace period.** The duration during which ZCC disables web security after detecting a captive portal is now configured per App Profile on newer tenants, not globally via the FailOpenPolicy object. See [`./forwarding-profile.md § Fail-open policy`](./forwarding-profile.md) and [`./web-policy.md`](./web-policy.md).
-- **ZPA reauthentication period.** The global `Show ZPA Reauthentication Notifications Every (In Minutes)` setting may be overridden at the App Profile level. Exact per-profile field not confirmed from reviewed sources; see Deferred.
+- **ZPA reauthentication period.** A reauth interval lives on the notification-template path as `zpaReauthIntervalInMinutes` (`vendor/zscaler-sdk-go/zscaler/zcc/services/notification_template/notification_template.go:56`), so a template can carry its own interval distinct from the global EUN-tab value. That interval is also carried per App Profile: the embedded `notificationTemplateContract` block on the Web Policy includes `zpaReauthNotificationTime` (`vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go:439`), so the bound template's reauth interval rides along with the App Profile.
 - **Platform sub-policies.** `windowsPolicy`, `macPolicy`, `linuxPolicy`, `iosPolicy`, `androidPolicy` sub-objects on the Web Policy (App Profile) include per-platform controls that can affect ZCC UI behavior (e.g., `disable_password`, `logout_password`), but do not include direct notification content fields. See [`./web-policy.md § Per-platform sub-policies`](./web-policy.md).
-- **Notification Templates.** When notification templates are in use, they are configured at the ZCC Portal level (Administration > Client Connector Notifications > Notification Templates tab), not per-App-Profile. Whether templates can be scoped per App Profile is not confirmed from reviewed sources; see Deferred.
+- **Notification Templates.** Templates themselves are authored at the ZCC Portal level (Administration > Client Connector Notifications > Notification Templates tab) and the template object carries no App-Profile-scoping field of its own (`vendor/zscaler-sdk-go/zscaler/zcc/services/notification_template/notification_template.go:26-58`). The *binding* runs the other way: the App Profile / Web Policy object references a template by id. The Go Web Policy model carries `notificationTemplateId` plus an embedded `notificationTemplateContract` block (`vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go:320-321`), and the Go and Python application-profile models carry the same `notificationTemplateId` field (`vendor/zscaler-sdk-go/zscaler/zcc/services/application_profiles/application_profiles.go:61-62`; `vendor/zscaler-sdk-python/zscaler/zcc/models/application_profiles.py:65-68`). So a notification template can be bound to a specific App Profile, by id, from the App-Profile side.
 
-The ZCC SDK does not expose notification configuration as a discrete service. The `web_policy` service (`/zcc/papi/public/v1/web/policy`) manages App Profile data but does not include notification toggle fields in the Python or Go SDK models reviewed. Notification settings appear to be configured exclusively through the ZCC Portal admin UI. See [`./sdk.md`](./sdk.md) for the SDK surface.
+Notification configuration **is** exposed as a discrete SDK service, contrary to earlier revisions of this doc. The global EUN-tab toggles in Section 2.1 are not surfaced as fields on the `web_policy` object, but the **notification-template** path is a first-class API resource: the Go SDK's `notification_template` service performs CRUD against `/zcc/papi/public/v2/notification-templates` and carries the full toggle set documented in Section 2.4 (`vendor/zscaler-sdk-go/zscaler/zcc/services/notification_template/notification_template.go:15`, `:26-58`). There is no Python equivalent (no notification-template service under the Python SDK `zcc/` package). See [`./sdk.md`](./sdk.md) for the broader SDK surface and Section 2.4 for the template field map.
 
 ---
 
@@ -184,7 +237,7 @@ The ZCC SDK does not expose notification configuration as a discrete service. Th
 
 Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`; `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md`.
 
-The Zscaler Notification Framework supports English by default. Multi-language notification content through the Notification Templates system is referenced in related-article links in the vendor notification doc but was not captured in available sources. Specific details — supported languages, fallback behavior, per-locale template definition — are not confirmed from reviewed sources. See Deferred.
+The Zscaler Notification Framework supports English by default. The notification-template object that backs the Notification Templates tab (Section 2.4) carries no language or locale field in the SDK model — its toggles are boolean enable/persist switches plus duration, with no per-locale text or language-selection attribute (`vendor/zscaler-sdk-go/zscaler/zcc/services/notification_template/notification_template.go:26-58`). So the template API surface does not, on its own, establish a multi-language mechanism. Whether localized notification text is supported through some other path, and what language ZCC falls back to when no locale matches, are not confirmed from reviewed sources. See Open questions.
 
 For the AUP message, the content is free-form HTML. Admins who need multi-language AUP text must embed all language variants in the HTML content field manually; there is no built-in language selector for AUP.
 
@@ -207,7 +260,7 @@ Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-c
 
 - Users will not see captive portal alerts and may be unable to complete portal authentication without admin assistance, especially in hotel/airport environments.
 - ZPA reauthentication prompts will not appear; users whose ZPA session has expired will silently lose access to private apps without an explanation.
-- Service Disaster Recovery notifications are suppressed; users in DR mode may not understand why access behavior has changed.
+- Service Disaster Relief (DR) notifications are suppressed; users in DR mode may not understand why access behavior has changed.
 - If Enable Notifications by Default is off, users who need notifications must manually re-enable from within ZCC — which requires knowing to do so.
 
 Silent-client configurations should document which notification categories are disabled so that support teams know to probe user-side ZCC status directly rather than assuming notifications were received.
@@ -225,7 +278,7 @@ ZCC notification events are not represented as distinct entries in the ZIA admin
 - **ZIA admin audit log.** Configuration changes to notification settings (e.g., toggling "Enable Notifications by Default") generate entries in the ZIA/ZCC Portal admin audit log. User-facing notification delivery itself is not represented in the audit log.
 - **ZPA reauthentication events.** ZPA session expiry and reauth events are logged in ZPA analytics (accessible from the ZPA Admin Portal), not in the ZCC notification log. Cross-reference ZPA session logs if investigating why a user received or did not receive a ZPA reauth prompt.
 
-Whether ZCC notification delivery events (specifically: "notification shown", "user dismissed", "user acknowledged AUP") are surfaced in any Zscaler cloud log feed is not confirmed from reviewed sources. See Deferred.
+Whether ZCC notification delivery events (specifically: "notification shown", "user dismissed", "user acknowledged AUP") are surfaced in any Zscaler cloud log feed is not confirmed from reviewed sources. See Open questions.
 
 ---
 
@@ -295,6 +348,17 @@ Users can disable ZPA reauthentication notifications from within the ZCC client.
 
 ---
 
-## Deferred items
+## Open questions
 
-Unsourceable claims registered in [`_meta/clarifications.md`](../_meta/clarifications.md) as `zcc-24` through `zcc-32`.
+Unsourceable claims are registered in [`_meta/clarifications.md`](../_meta/clarifications.md) as `zcc-24` through `zcc-32`. The discovery of the `notification_template` SDK service (Section 2.4) resolves or narrows several of these:
+
+- **`zcc-24` (Notification Templates schema/options) — largely resolved.** The template field schema is now documented in Section 2.4 from the SDK model (`vendor/zscaler-sdk-go/zscaler/zcc/services/notification_template/notification_template.go:26-58`): the toggle set, the granular ZIA firewall/DNS/IPS sub-toggles, the ZPA reauth + posture-failure fields, and the default-template flag (`isDefaultTemplate`, `notification_template.go:29`); the multiple-named-templates model is implied by the list endpoint (`GetAll` → `[]NotificationTemplate`, `notification_template.go:154,159`) rather than stated by a portal source. Per-App-Profile binding is now confirmed: the App Profile / Web Policy object references a template by id (`vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go:320-321`, `vendor/zscaler-sdk-go/zscaler/zcc/services/application_profiles/application_profiles.go:61-62`). What the schema still does **not** settle: any branding/text-customization fields (the template model carries no free-text body field).
+- **`zcc-25` (per-App-Profile ZPA reauth interval) — resolved.** A reauth interval exists on the template (`zpaReauthIntervalInMinutes`, `notification_template.go:56`) and is also carried per App Profile through the embedded `notificationTemplateContract.zpaReauthNotificationTime` field on the Web Policy (`vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go:439`).
+- **`zcc-27` (posture-failure OS notification) — resolved.** The ZPA template exposes an explicit `enableDevicePostureFailure` toggle plus a `delayPostureFailureSeconds` pre-fire delay (`notification_template.go:54,57`), confirming a distinct, admin-controllable posture-failure notification.
+
+Still genuinely open from reviewed sources:
+
+- **`zcc-26` / `zcc-30` — AUP and template localization.** The template model carries no language/locale field (`notification_template.go:26-58`), so it does not establish a multi-language mechanism or a locale-fallback rule. AUP remains a single HTML blob with no documented locale-variant mechanism.
+- **`zcc-28` — certificate-trust-failure notification UX.** Not exposed by the template model; exact UX (ZCC toast vs. OS dialog) unconfirmed.
+- **`zcc-29` — notification delivery logging.** Whether "shown/dismissed/acknowledged" events reach any cloud log feed is unconfirmed.
+- **`zcc-31` / `zcc-32` — Linux and ChromeOS notification behavior.** Not addressed by the notification framework section or the template model.
