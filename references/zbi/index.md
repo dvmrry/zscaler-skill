@@ -3,7 +3,13 @@ product: zbi
 topic: "zbi-index"
 title: "ZBI (Zero Trust Browser / Cloud Browser Isolation) reference hub"
 content-type: reference
-last-verified: "2026-05-06"
+last-verified: "2026-06-16"
+verified-against:
+  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/terraform-provider-zia: 717926eb564bb21dea1f8e0c3222e6593b29f849
+  vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
+  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
 confidence: high
 source-tier: mixed
 sources:
@@ -12,12 +18,19 @@ sources:
   - "vendor/zscaler-help/configuring-smart-browser-isolation-policy.md"
   - "vendor/zscaler-help/zpa-about-isolation-policy.md"
   - "vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py"
+  - "vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py"
+  - "vendor/zscaler-sdk-python/zscaler/oneapi_client.py"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/browser_isolation/browser_isolation_profile.go"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/isolationprofile/isolationprofile.go"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbibannercontroller/cbibannercontroller.go"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbiregions/cbiregions.go"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbizpaprofile/cbizpaprofile.go"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbicertificatecontroller/cbicertificatecontroller.go"
+  - "vendor/terraform-provider-zia/zia/data_source_zia_cloud_browser_isolation_profile.go"
+  - "vendor/terraform-provider-zpa/zpa/provider.go"
+  - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/get_isolation_profile.py"
+  - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
 author-status: draft
 ---
 
@@ -25,30 +38,31 @@ author-status: draft
 
 Source: `vendor/zscaler-help/what-is-zero-trust-browser.md`; `vendor/zscaler-help/understanding-turbo-mode-isolation.md`; `vendor/zscaler-help/configuring-smart-browser-isolation-policy.md`; `vendor/zscaler-help/zpa-about-isolation-policy.md`.
 
-Entry point for browser-isolation questions. ZBI renders web pages on an ephemeral **cloud-hosted browser** and streams the result to the user's native browser, so HTML/CSS/JS never reach the endpoint. Used for high-risk categories (Miscellaneous & Unknown, new domains) and for sensitive internal apps accessed by unmanaged devices.
+Entry point for browser-isolation questions. Zero Trust Browser renders web pages on an ephemeral **cloud-hosted browser** and streams the result to the user's native browser, so HTML/CSS/JS never reach the endpoint (`vendor/zscaler-help/what-is-zero-trust-browser.md:14`, `:18`). It is used for internet traffic routed through ZIA policies and private-app access routed through ZPA isolation policy (`vendor/zscaler-help/what-is-zero-trust-browser.md:22`, `vendor/zscaler-help/zpa-about-isolation-policy.md:16`).
 
 ## Naming — multiple aliases, one product
 
-Source: `vendor/zscaler-help/what-is-zero-trust-browser.md`; `vendor/zscaler-help/configuring-smart-browser-isolation-policy.md`; `vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go`; `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/isolationprofile/isolationprofile.go`; `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbibannercontroller/cbibannercontroller.go`; `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbiregions/cbiregions.go`; `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbizpaprofile/cbizpaprofile.go`; `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbicertificatecontroller/cbicertificatecontroller.go`.
+Source: `vendor/zscaler-help/what-is-zero-trust-browser.md`; `vendor/zscaler-help/configuring-smart-browser-isolation-policy.md`; `vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py`; `vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py`; `vendor/zscaler-sdk-go/zscaler/zia/services/browser_isolation/browser_isolation_profile.go`; `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go`; `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/isolationprofile/isolationprofile.go`; `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbibannercontroller/cbibannercontroller.go`; `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbiregions/cbiregions.go`; `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbizpaprofile/cbizpaprofile.go`; `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbicertificatecontroller/cbicertificatecontroller.go`.
 
 The product has been renamed twice. Operators use all of these names interchangeably in tickets, runbooks, and admin consoles:
 
 - **Zero Trust Browser / ZTB** (current marketing, newer admin UI sections — "ZTB" is the current-marketing abbreviation)
 - **Cloud Browser Isolation (CBI)** (URL path / original marketing; still used in ZIA admin console references and URL Filter `Isolate` action)
-- **ZBI** (Zscaler Browser Isolation — the SDK module name; survives all the rebrandings)
+- **ZBI** (legacy shorthand often used in tickets for Zscaler Browser Isolation; do not assume this means the Python `client.zbi` accessor)
 - **Zscaler Isolation** (legacy name — what some help-article URLs still use)
 
-The Zscaler SDK module is named `zbi` — the initialism survives regardless of which marketing name is current. When answering a question, translate whichever term the user used to the others so they recognize the answer.
+Important namespace caveat: the current Python SDK's `client.zbi` service is explicitly **Zscaler Business Insights**, not Zero Trust Browser (`vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py:23-24`, `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:230`, `:316-319`). Browser-isolation automation lives under ZIA Cloud Browser Isolation, ZPA CBI/isolation surfaces, Terraform provider resources/data sources, MCP ZPA tools, and the Postman CBI controllers. When answering a question, translate the user's wording to the current source surface before naming an SDK accessor.
 
 ## Topics
 
-Source: `vendor/zscaler-help/what-is-zero-trust-browser.md`; `vendor/zscaler-help/understanding-turbo-mode-isolation.md`; `vendor/zscaler-help/configuring-smart-browser-isolation-policy.md`; `vendor/zscaler-help/zpa-about-isolation-policy.md`; `vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go`; `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/isolationprofile/isolationprofile.go`; `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbibannercontroller/cbibannercontroller.go`; `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbiregions/cbiregions.go`; `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbizpaprofile/cbizpaprofile.go`; `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbicertificatecontroller/cbicertificatecontroller.go`.
+Source: `vendor/zscaler-help/what-is-zero-trust-browser.md`; `vendor/zscaler-help/understanding-turbo-mode-isolation.md`; `vendor/zscaler-help/configuring-smart-browser-isolation-policy.md`; `vendor/zscaler-help/zpa-about-isolation-policy.md`; `vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py`; `vendor/zscaler-sdk-go/zscaler/zia/services/browser_isolation/browser_isolation_profile.go`; `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go`; `vendor/terraform-provider-zia/zia/data_source_zia_cloud_browser_isolation_profile.go`; `vendor/terraform-provider-zpa/zpa/provider.go`; `vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/get_isolation_profile.py`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
 | Topic | File | Status |
 |---|---|---|
 | Overview — traffic flow, container model, Turbo Mode vs pixel streaming, architecture components | [`./overview.md`](./overview.md) | draft |
 | Policy integration — how ZIA URL Filter `Isolate` action, ZPA Isolation Policy, and Smart Browser Isolation compose; isolation profiles; subscription tiers | [`./policy-integration.md`](./policy-integration.md) | draft |
-| **API surface** — Python (`client.zia.cloud_browser_isolation` + `client.zpa.cbi_*`) and Go (`zpa/services/cloudbrowserisolation/*`) SDK methods; the ZIA/ZPA accessor split; CBI Profile + Banner + Certificate + Region CRUD; full SecurityControls / UserExperience field reference; singular-vs-plural endpoint quirks | [`./api.md`](./api.md) | draft |
+| **API surface** — Python and Go ZIA read surfaces, ZPA CBI profile/banner/certificate CRUD, read-only region/ZPA projection/profile surfaces, Terraform/MCP/Postman coverage, Business Insights namespace caveat, and singular-vs-plural endpoint quirks | [`./api.md`](./api.md) | draft |
+| Claims ledger — claim-by-claim source map and open-question forcing function for this refresh | [`./_claims-ledger.md`](./_claims-ledger.md) | draft |
 
 ## Scope
 
@@ -63,6 +77,7 @@ In scope:
 - Tiered subscriptions (full ZBI vs "Miscellaneous & Unknown" limited tier)
 - Session/container lifecycle (10-min idle timeout)
 - Cross-product hooks (SSL Inspection dependency, Malware Protection prerequisite)
+- Programmable surfaces for ZIA read/profile references, ZPA CBI profile and related objects, ZPA isolation policy rules, Smart Browser Isolation Terraform configuration, MCP read/write policy tooling, and the Python `client.zbi` naming collision
 
 Not in scope (explicitly deferred):
 
@@ -71,6 +86,7 @@ Not in scope (explicitly deferred):
 - **Sandbox + Isolation integration** — file scanning flow when isolation downloads a file; referenced but not captured.
 - **End-user experience features** (language translate, right-click menu, search in isolation, debug mode, isolation bar, etc.) — UX details not usually relevant to skill reasoning.
 - **Zero Trust Client Browser** — the native browser extension / agent that pairs with server-side isolation; separate subsystem.
+- **Business Insights custom-app/report APIs** — surfaced by Python `client.zbi`; covered here only to prevent Browser Isolation misattribution.
 
 ## When the question spans ZBI + another product
 
