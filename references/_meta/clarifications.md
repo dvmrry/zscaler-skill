@@ -26,6 +26,7 @@ Centralized list of open questions raised across `references/*.md`. Each entry h
 - `cloud-connector-*` — Cloud & Branch Connector (ZTW) behavior question
 - `zid-*` — ZIdentity (identity / API-client / entitlement / admin-RBAC) behavior question
 - `shared-*` — cross-product or skill-wide question
+- `ai-security-*` — AI Security / AI Guard behavior question
 - `log-*` — log-schema / NSS / LSS question that spans multiple products
 
 IDs are stable forever. If an entry is resolved, it stays here with its answer — don't renumber.
@@ -82,11 +83,12 @@ Each entry follows this template. Body is narrative — the existing zia-01 entr
 
 ## Status summary
 
-Skim this before reading the full entries. Summary refreshed 2026-06-15:
+Skim this before reading the full entries. Summary refreshed 2026-06-16:
 20 entries are resolved or clarified, 17 are partially resolved, and the current
 refresh queue has expanded the open register with `zia-50`–`zia-69`,
 `zpa-21`–`zpa-81`, `zcc-77`–`zcc-101`, `zdx-03`–`zdx-43`,
-`zid-01`–`zid-35`, and `cloud-connector-01`–`cloud-connector-24`.
+`zid-01`–`zid-35`, `cloud-connector-01`–`cloud-connector-24`, and
+`ai-security-01`–`ai-security-04`.
 Most open entries require lab tests,
 tenant snapshots, operator experience, or vendor confirmation rather than more
 public-doc reading.
@@ -5572,6 +5574,50 @@ The authoritative full permission matrix (25+ modules × 4 levels) is explicitly
 
 **Status**: open
 **Resolves with**: zscaler doc not yet read / capture
+
+---
+
+### ai-security-01 — AI Guard direction literal aliases
+
+*Origin: `references/ai-security/api-divergences.md` § Direction value divergence*
+
+The Python SDK docstrings define AI Guard `direction` as `IN` or `OUT` (`vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py:51`, `:131`), and integration docs use `IN`/`OUT` for prompt/response scanning. The DAS Help page examples instead pass `"request"` and `"response"` (`vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md:196`, `:200`, `:204`, `:208`). Whether the live API accepts both literal sets, normalizes them, or treats one set as pseudocode is unverified.
+
+**Status**: open
+**Resolves with**: lab test (call both endpoints with `IN`/`OUT` and `request`/`response`) OR vendor API documentation
+
+---
+
+### ai-security-02 — AI Guard execute-policy without policyId
+
+*Origin: `references/ai-security/api-divergences.md` § `policyId` requirement divergence*
+
+The DAS Help page states `policyId` is required for the explicit-policy option (`vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md:78`), while the Python SDK method marks `policy_id` optional and only emits `policyId` when supplied (`vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py:43`, `:84`). It is unclear whether the server rejects `execute-policy` without a policy ID, falls back to resolution, or whether the SDK optionality exists only for payload construction convenience.
+
+**Status**: open
+**Resolves with**: lab test (call `/v1/detection/execute-policy` without `policyId`) OR vendor API documentation
+
+---
+
+### ai-security-03 — AI Guard detector taxonomy source of truth
+
+*Origin: `references/ai-security/api-divergences.md` § Detector taxonomy divergence*
+
+The public Help article gives a 15-item capability list (`vendor/zscaler-help/ai-guard-what-is.md:18`-`:46`), while the integration skill/reference says AI Guard has 19 prompt detectors and 21 response detectors (`vendor/zguard-ai-integrations/Anthropic/claude-code-skill/README.md:21`) organized by `IN` and `OUT`. Whether the integration detector list is a console-complete taxonomy, an integration-local reference, or ahead of the captured Help page is not established.
+
+**Status**: open
+**Resolves with**: current AI Guard console capture OR vendor Help/API documentation that lists the detector names by direction
+
+---
+
+### ai-security-04 — AI Guard admin-plane programmability
+
+*Origin: `references/ai-security/api-divergences.md` § Source classes with no AI Guard admin-plane hit*
+
+This refresh found Python SDK runtime policy detection and public DaaS integration examples, but no broad AI Guard admin-plane API, Go SDK service, Terraform resource, MCP tool, Postman endpoint, or Automation Hub procedure in the inspected source classes. This is an audit-scoped absence, not proof that no private or future admin automation surface exists.
+
+**Status**: open
+**Resolves with**: vendor API documentation, SDK/provider source exposing admin-plane operations, or explicit vendor confirmation
 
 ---
 

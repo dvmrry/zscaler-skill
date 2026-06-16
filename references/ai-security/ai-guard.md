@@ -3,9 +3,13 @@ product: ai-guard
 topic: overview
 title: "AI Guard — runtime protection and policy enforcement for AI/LLM applications"
 content-type: reference
-last-verified: "2026-05-22"
+last-verified: "2026-06-16"
 confidence: medium
-source-tier: doc
+source-tier: mixed
+verified-against:
+  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/zguard-ai-integrations: 7da6ed977fb3987203001dc78e9146e507cb1407
 sources:
   - "vendor/zscaler-help/ai-guard-what-is.md"
   - "vendor/zscaler-help/ai-guard-help-index.md"
@@ -196,7 +200,7 @@ AI Guard has an API surface:
 - **Python SDK**: `zscaler.zaiguard.policy_detection.PolicyDetectionAPI` exposes `execute_policy(content, direction, policy_id=None, transaction_id=None)` and `resolve_and_execute_policy(content, direction, transaction_id=None)`. Authentication uses `AIGUARD_API_KEY`, `AIGUARD_CLOUD`, and optional `AIGUARD_OVERRIDE_URL`.
 - **Admin/config APIs**: No comprehensive public REST API reference for AI Guard administration was found in available sources.
 
-Direction values are documented in the SDK as `IN` and `OUT`. The DAS/API Help page describes the pattern as scanning prompt content before model submission and response content before user return. The integration examples use the same distinction more broadly: `IN` covers user prompts, tool input, command arguments, or file content before the AI application consumes it; `OUT` covers model responses, tool output, URL checks, or response content before it is returned downstream.
+Direction values are documented in the SDK and most integration examples as `IN` and `OUT`. The DAS/API Help page examples use `request` and `response` strings instead; accepted alias behavior is unresolved by static sources, so SDK callers should use `IN`/`OUT` and track the divergence in [`./api-divergences.md`](./api-divergences.md#direction-value-divergence) and [clarification ai-security-01](../_meta/clarifications.md#ai-security-01-ai-guard-direction-literal-aliases). Conceptually, `IN` covers user prompts, tool input, command arguments, or file content before the AI application consumes it; `OUT` covers model responses, tool output, URL checks, or response content before it is returned downstream.
 
 The SDK request/response model matters for resilient DaaS integrations:
 
@@ -210,6 +214,8 @@ The SDK request/response model matters for resilient DaaS integrations:
 When a policy ID is supplied, examples call `execute-policy`. When no policy ID is supplied, examples call `resolve-and-execute-policy`, relying on the API key's associated application and policy to resolve the effective policy. The Python SDK model also shows that the resolved-policy response can include `policyId`, `policyName`, and `policyVersion`, while the explicit execution response model does not expose those fields as top-level attributes.
 
 The public Python SDK exposes runtime policy detection only. It does not expose Help-documented portal objects such as LLM Provider, LLM Provider Credential, AI Application, Policy Configuration, Policy Control, Tenant Settings, RBAC Role, Dashboard, Insights, Usage, or Log Export management.
+
+For implementation caveats, see [`./api-divergences.md`](./api-divergences.md): it records the SDK-vs-Help direction literal mismatch, `policyId` ambiguity for `execute-policy`, detector-taxonomy differences, integration failure posture, and audit-scoped absence of broad admin-plane automation in inspected public sources.
 
 ## Integration examples
 
@@ -263,4 +269,6 @@ For operators asking "how do I control GenAI app usage across the org" → ZIA. 
 - ZIA AI app access-control routing target: [`../zia/index.md`](../zia/index.md)
 - ZIA DLP routing target: [`../zia/dlp.md`](../zia/dlp.md)
 - AI Guard is in the ai-security reference directory alongside: [`./index.md`](./index.md), [`./overview.md`](./overview.md), [`./ai-guard-coverage.md`](./ai-guard-coverage.md)
+- API and integration divergences: [`./api-divergences.md`](./api-divergences.md)
+- Claims ledger: [`./_claims-ledger.md`](./_claims-ledger.md)
 - Portfolio map: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)

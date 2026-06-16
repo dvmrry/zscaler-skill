@@ -3,9 +3,13 @@ product: ai-security
 topic: "ai-security-overview"
 title: "AI Security family — AI Guard, AI Guardrails, AI Red Teaming, governance"
 content-type: reasoning
-last-verified: "2026-05-22"
+last-verified: "2026-06-16"
 confidence: medium
-source-tier: doc
+source-tier: mixed
+verified-against:
+  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/zguard-ai-integrations: 7da6ed977fb3987203001dc78e9146e507cb1407
 sources:
   - "https://help.zscaler.com/ai-guard/what-ai-guard"
   - "vendor/zscaler-help/ai-guard-what-is.md"
@@ -102,6 +106,8 @@ In **DaaS mode AI Guard is not inline** — the customer must wire it in at the 
 
 Zscaler's `zguard-ai-integrations` repo provides working DAS examples for developer tools, CI/CD systems, gateways, orchestration platforms, and AI guardrail libraries. Use those examples to reason about integration patterns, while keeping policy/admin configuration claims tied to Help and SDK sources.
 
+For exact implementation caveats, see [`./api-divergences.md`](./api-divergences.md): SDK and integration sources use `IN`/`OUT` direction literals while the DAS Help examples use `request`/`response`, the `execute-policy` `policyId` requirement is ambiguous across sources, detector counts differ between Help and integration references, and fail-open/fail-closed behavior is integration-specific.
+
 ### How it integrates with the existing ZIA stack
 
 Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard-configuring-zia-proxy-chain-ai-guard.md`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
@@ -191,11 +197,14 @@ Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-secur
 - **Log export schema details** — Help confirms ADX, CrowdStrike, S3, and Splunk export destinations, including separate metadata/content targets for some destinations, but not the field-level event schema.
 - **Provider compatibility freshness** — proxy-mode captures list supported provider paths and a ZIA app/domain table dated April 14, 2026. Treat this as time-sensitive.
 - **AI Red Teaming integration with AI Guard** — does AI Red Teaming output configure AI Guard rules automatically (probe found a jailbreak → AI Guard blocks it next time)? Captures imply but don't confirm.
+- **AI Guard direction literal aliases** — SDK and integration examples use `IN`/`OUT`, while the DAS Help page examples use `request`/`response`; see [clarification ai-security-01](../_meta/clarifications.md#ai-security-01-ai-guard-direction-literal-aliases).
 
 ## Cross-links
 
 - Skill index: [`./index.md`](./index.md)
 - AI Guard coverage manifest: [`./ai-guard-coverage.md`](./ai-guard-coverage.md)
+- AI Guard API divergences: [`./api-divergences.md`](./api-divergences.md)
+- AI Security claims ledger: [`./_claims-ledger.md`](./_claims-ledger.md)
 - Portfolio map (where AI Security sits in the Zscaler portfolio): [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)
 - ZIA URL Filtering routing target: [`../zia/url-filtering.md`](../zia/url-filtering.md)
 - ZIA DLP routing target: [`../zia/dlp.md`](../zia/dlp.md)

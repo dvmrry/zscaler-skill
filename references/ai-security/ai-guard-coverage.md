@@ -3,16 +3,18 @@ product: ai-guard
 topic: coverage
 title: "AI Guard public-source coverage manifest"
 content-type: reference
-last-verified: "2026-05-22"
+last-verified: "2026-06-16"
 verified-against:
-  vendor/zscaler-sdk-go: 65276eca609347a3776bfd0421a08e2f2b0b2a95
-  vendor/terraform-provider-zia: 5c32408c1d33da384845a040b0749c1f4f23ef61
+  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/zguard-ai-integrations: 7da6ed977fb3987203001dc78e9146e507cb1407
+  vendor/terraform-provider-zia: 717926eb564bb21dea1f8e0c3222e6593b29f849
   vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
   vendor/terraform-provider-ztc: 766a6c1e0be3266203a3cea4b5255ab4a6f26695
-  vendor/zscaler-mcp-server: bc56b110199294de58e6a9abf0569c49bd948670
-  vendor/zscaler-terraform-skills: 6a68e1cb5c21a4efeac77f14a67646ff45cc74e1
+  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
+  vendor/zscaler-terraform-skills: b5d2c5ef0aa3d583ee79e949a9072352af71265b
 confidence: high
-source-tier: doc
+source-tier: mixed
 sources:
   - ".gitmodules"
   - "vendor/README.md"
@@ -61,7 +63,7 @@ Do not extend that sentence to private roadmap features, unpublished tenant enti
 
 Source: `.gitmodules`; `vendor/README.md`; `vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py`; `vendor/zguard-ai-integrations/README.md`.
 
-This pass checked the captured public Help tree, the Python SDK policy-detection surface, public `zguard-ai-integrations` examples, and the vendored Go SDK, Terraform providers, Terraform skills, MCP server, and local Automation Hub captures available in this repository. The positive AI Guard programmable surface found in those sources is the Python SDK / DaaS policy-detection API plus integration examples; no AI Guard admin-plane API, Go SDK service, Terraform resource, MCP tool, or Automation Hub procedure was found in the captured source classes.
+This pass checked the captured public Help tree, the Python SDK policy-detection surface, public `zguard-ai-integrations` examples, and the vendored Go SDK, Terraform providers, Terraform skills, MCP server, Postman API specs, and local Automation Hub captures available in this repository. The positive AI Guard programmable surface found in those sources is the Python SDK / DaaS policy-detection API plus integration examples; no AI Guard admin-plane API, Go SDK service, Terraform resource, MCP tool, Postman endpoint, or Automation Hub procedure was found in the captured source classes. Treat that as an audit-scoped absence claim, not as proof about private or future surfaces; see [`./api-divergences.md`](./api-divergences.md#source-classes-with-no-ai-guard-admin-plane-hit).
 
 ## Help article coverage
 
@@ -103,7 +105,7 @@ The vendored Python SDK exposes AI Guard runtime policy detection under `zscaler
 | Response fields | Covered: action/severity/status/error/detector response/throttling model summarized in [`./ai-guard.md`](./ai-guard.md) |
 | Admin/config APIs | Not found in public SDK/API sources. Portal-admin objects are documented from Help, not claimed as programmable. |
 
-No AI Guard surface was found in the vendored Go SDK, Terraform providers, MCP server, or Automation Hub captures during this pass.
+No broad AI Guard admin-plane surface was found in the vendored Go SDK, Terraform providers, MCP server, Postman API specs, or Automation Hub captures during this pass. The positive programmable surface remains Python SDK policy detection plus public DaaS integration examples.
 
 ## Integration coverage
 
@@ -127,6 +129,8 @@ These gaps do not mean the public AI Guard Help surface is incomplete in this re
 ## Cross-links
 
 - AI Guard reference: [`./ai-guard.md`](./ai-guard.md)
+- API and integration divergences: [`./api-divergences.md`](./api-divergences.md)
+- Claims ledger: [`./_claims-ledger.md`](./_claims-ledger.md)
 - AI Security overview: [`./overview.md`](./overview.md)
 - AI Security index: [`./index.md`](./index.md)
 - Portfolio classification: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)
