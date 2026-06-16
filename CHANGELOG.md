@@ -4,6 +4,13 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.13.3](https://github.com/dvmrry/zscaler-skill/compare/v0.13.2...v0.13.3) (2026-06-16)
+
+
+### Documentation
+
+* **zbi:** refresh browser isolation references ([#146](https://github.com/dvmrry/zscaler-skill/issues/146)) ([0d53eeb](https://github.com/dvmrry/zscaler-skill/commit/0d53eeb2b8351ab9b0983ce2d64c4e3a4daf13e1))
+
 ## [0.13.2](https://github.com/dvmrry/zscaler-skill/compare/v0.13.1...v0.13.2) (2026-06-16)
 
 
