@@ -3,7 +3,7 @@ product: cloud-connector
 topic: "cloud-connector-index"
 title: "Cloud & Branch Connector reference hub"
 content-type: reference
-last-verified: "2026-04-24"
+last-verified: "2026-06-15"
 confidence: high
 source-tier: mixed
 sources:
@@ -60,7 +60,7 @@ Source: `vendor/zscaler-help/what-zscaler-cloud-connector.md`; `vendor/zscaler-h
 | Topic | File | Status |
 |---|---|---|
 | Overview — VM architecture, Cloud Connector Groups, autoscaling (ASG/VMSS/MIG), HA model, data vs control plane | [`./overview.md`](./overview.md) | draft |
-| Traffic forwarding — the five forwarding methods (ZIA / ZPA / direct / drop / local), rule criteria, rule evaluation, DNS forwarding gateways | [`./forwarding.md`](./forwarding.md) | draft |
+| Traffic forwarding — the forwarding methods (ZIA / ZPA / direct / drop; see [clarification `cloud-connector-17`](../_meta/clarifications.md#cloud-connector-17-local-local_switch-forwarding-method-real-behavior-or-doc-artifact) on the unsourced "local"/`LOCAL_SWITCH`), rule criteria, rule evaluation, DNS forwarding gateways | [`./forwarding.md`](./forwarding.md) | draft |
 | API and Terraform surface — Python `client.ztw.*`, Go `ztw/services/*`, `ztc_*` resources in TF, provisioning templates, activation | [`./api.md`](./api.md) | draft |
 | **Azure deployment** — Marketplace listing, dual-NIC architecture, Standard ILB + 15s probe, NAT Gateway per AZ, VMSS scaling + Function App orphan cleanup, HA model | [`./azure-deployment.md`](./azure-deployment.md) | draft |
 | **AWS deployment** — Marketplace listing, dual-ENI model, GWLB vs ENI endpoint patterns, ASG with custom CloudWatch CPU metrics, CloudFormation deployment flow, route-table modification post-deploy step, HA model | [`./aws-deployment.md`](./aws-deployment.md) | draft |
@@ -73,6 +73,7 @@ Source: `vendor/zscaler-help/what-zscaler-cloud-connector.md`; `vendor/zscaler-h
 | **Source IP Groups** — network-primitive building blocks for traffic-forwarding rule match criteria; group types and usage | [`./source-ip-groups.md`](./source-ip-groups.md) | draft |
 | **SDK** — Python `zscaler.ztw`, Go SDK `ztw/services/*`, and Terraform (`ztc_*`) surface; method-to-resource mapping | [`./sdk.md`](./sdk.md) | draft |
 | **Terraform** — `ztc_*` resource catalog; provider configuration; activation behavior | [`./terraform.md`](./terraform.md) | draft |
+| **API source divergences** — where the Go SDK, Python SDK, Terraform provider, and Admin Console disagree on `forwardMethod`/`type`/`action` enums, workload-group fields, DNS gateway shapes, SDK method families, auth, and rate limits | [`./api-divergences.md`](./api-divergences.md) | draft |
 
 ## Scope
 

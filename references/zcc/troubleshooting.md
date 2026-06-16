@@ -3,7 +3,7 @@ product: zcc
 topic: troubleshooting
 title: "ZCC Troubleshooting — error codes, common failure modes, and diagnostic workflow"
 content-type: reference
-last-verified: "2026-04-27"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: doc
 sources:
@@ -16,6 +16,7 @@ sources:
   - "vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md"
   - "vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md"
   - "vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md"
+  - "vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py"
   - "references/zcc/forwarding-profile.md"
   - "references/zcc/z-tunnel.md"
   - "references/zcc/install-parameters.md"
@@ -132,8 +133,8 @@ Certificate errors appear in the user's browser as untrusted certificate warning
 
 | Code / State | Trigger | Root cause | Remediation |
 |---|---|---|---|
-| Browser cert error on inspected HTTPS | Zscaler root CA not installed on device | `install_ssl_certs = false` in per-platform Web Policy sub-policy, or automatic install failed | Enable `install_ssl_certs` in the applicable per-platform App Profile policy; for manual install, deploy Zscaler root CA via MDM |
-| macOS users get cert errors, Windows users do not | Per-platform `install_ssl_certs` inconsistency | `macPolicy.install_ssl_certs` is false while `windowsPolicy.install_ssl_certs` is true | Check per-platform sub-policies independently — a `None` sub-policy means "no policy defined for this platform," not "inherit defaults" |
+| Browser cert error on inspected HTTPS | Zscaler root CA not installed on device | The per-platform "install certificates" flag is false in the active Web Policy sub-policy, or automatic install failed. The wire/API key differs by platform: Windows uses `install_ssl_certs` (`WindowsPolicy`, webpolicy.py:837/895); macOS, Linux, and Android use `installCerts` (`MacOSPolicy` webpolicy.py:1106/1140, `LinuxPolicy` webpolicy.py:930/946, `AndroidPolicy` webpolicy.py:1025/1065). | Enable the install-certificates flag in the applicable per-platform App Profile policy — `install_ssl_certs` on Windows, `installCerts` on macOS/Linux/Android. For manual install, deploy the Zscaler root CA via MDM. |
+| macOS users get cert errors, Windows users do not | Per-platform cert-install flag set inconsistently across sub-policies | `macPolicy.installCerts` is false while `windowsPolicy.install_ssl_certs` is true — note the two platforms use different wire keys (`installCerts` vs `install_ssl_certs`; webpolicy.py:1106 vs :837), so a config that "matches" by name on one platform may not exist on the other | Check per-platform sub-policies independently, using the correct key per platform — a `None` sub-policy means "no policy defined for this platform," not "inherit defaults" |
 | DTLS handshake failure | ZCC cannot negotiate DTLS for Z-Tunnel 2.0 | Firewall blocking UDP 443; middlebox stripping DTLS; certificate validation failure at the PSE | Enable `allowTLSFallback` in forwarding profile to fall back to TLS; check firewall for UDP 443 to Zscaler PSE IPs; confirm no TLS interception appliance decrypting the ZCC-to-PSE connection |
 | Step-up `acr` mismatch | OIDC token returned with `acr` value that does not match ZIdentity authentication level mapping | External IdP team changed OIDC configuration without coordinating with ZIdentity admin | Inspect actual `acr` claim in OIDC token; compare against ZIdentity authentication level mappings; realign `acr` values |
 
@@ -216,8 +217,9 @@ Is the block page a Zscaler ZIA block page (Zscaler branding)?
   Yes → The ZIA URL filter is blocking. This is not a ZCC error — diagnose in ZIA.
          Check URL category, URL filter rule order, and user/group membership in ZIA.
   No  → Is it a certificate error page ("Your connection is not private")?
-          Yes → Zscaler root CA not installed. Check install_ssl_certs in App Profile
-                per-platform sub-policy (§3.5). Deploy CA via MDM if needed.
+          Yes → Zscaler root CA not installed. Check the per-platform cert-install
+                flag in the App Profile sub-policy (Windows install_ssl_certs;
+                macOS/Linux/Android installCerts — §3.5). Deploy CA via MDM if needed.
           No  → Is it the captive portal detection page?
                   Yes → Captive portal active. ZCC will re-enable after grace period.
                         Adjust captivePortalWebSecDisableMinutes if too short.
@@ -327,7 +329,7 @@ For active troubleshooting, set log mode to Debug before reproducing the issue.
 |---|---|---|---|
 | Captive portal — waiting for grace period | Yes — complete portal auth before grace period expires | If grace period is too short: adjust `captivePortalWebSecDisableMinutes` | If captive portal detection itself is failing |
 | "Report an Issue" submission | Yes — user submits form | Help-desk receives encrypted log bundle | Escalate to Zscaler if ticket auto-submission is enabled and issue persists |
-| Cert error — Zscaler root CA not trusted | User can manually trust CA (emergency only) | Enable `install_ssl_certs` in App Profile; push via MDM | If CA push fails across fleet |
+| Cert error — Zscaler root CA not trusted | User can manually trust CA (emergency only) | Enable the per-platform cert-install flag in the App Profile (Windows `install_ssl_certs`; macOS/Linux/Android `installCerts` — §3.5); push CA via MDM | If CA push fails across fleet |
 | Fail-open (traffic going direct) | No — user cannot change fail-open policy | Check fail-open policy settings in ZCC Portal; verify PSE reachability | If PSE is confirmed unreachable from Zscaler side |
 | Push MFA fails on corporate Wi-Fi | No | Add APNs/FCM Destination Exclusions in App Profile | If exclusion addition does not resolve |
 | HTTP 401 / 403 on API call | No | Check admin role and token scope | If scope is correct and 403 persists |

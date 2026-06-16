@@ -3,7 +3,7 @@ product: cloud-connector
 topic: "cc-nss-va"
 title: "NSS Virtual Appliance with Cloud Connector — deployment and forwarding"
 content-type: reference
-last-verified: "2026-04-27"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: doc
 sources:
@@ -41,7 +41,7 @@ Cloud Connector is a workload-side VM — it intercepts and forwards traffic but
 | Deployment overhead | Customer deploys and operates a VM (AWS, Azure, or vSphere) | None; Zscaler-managed HTTPS push |
 | Transport to SIEM | Raw TCP connection from the VA to a SIEM listener | HTTPS POST to a cloud-based SIEM ingestion API |
 | On-prem buffer | VM memory (bounded) | None; connectivity gaps = data gap |
-| Multi-SIEM fan-out | Up to 16 feeds per VA instance (8 Firewall + 8 Web) | 1 feed per log type per Cloud NSS instance |
+| Multi-SIEM fan-out | Up to 16 feeds per VA instance (8 Firewall + 8 Web) — cross-product NSS limit, see [`../shared/nss-architecture.md § Feed-count limits`](../shared/nss-architecture.md) | 1 feed per log type per Cloud NSS instance |
 | Required for CBC | NSS for Firewall subscription (CBC-specific) | Cloud NSS for Firewall subscription |
 | Operating model | Customer-managed | Zscaler CloudOps |
 
@@ -78,11 +78,11 @@ No CBC-specific sizing numbers are captured in this skill. Consult the Zscaler d
 
 ### Redundancy
 
-The Zscaler NSS HA model for CBC follows the same pattern as ZIA NSS:
+CBC inherits the standard Zscaler NSS HA model — it is not CBC-specific. The reliability and replay behavior below is a cross-product NSS fact; see [`../shared/nss-architecture.md § Reliability + replay`](../shared/nss-architecture.md) for the canonical detail and citations.
 
-- The **VM memory buffer** provides short-term resilience for SIEM-side outages. If the SIEM receiver goes down, the VA buffers log records in VM memory and replays them when the connection restores, subject to the **Duplicate Logs** setting.
+- The **VM memory buffer** provides short-term resilience for SIEM-side outages. If the SIEM receiver goes down, the VA buffers log records in VM memory and replays them when the connection restores, subject to the **Duplicate Logs** setting (cross-product NSS behavior — [`../shared/nss-architecture.md § Reliability + replay`](../shared/nss-architecture.md)).
 - **If the VA itself becomes unavailable** (e.g., VM host failure, cloud-instance termination), logs that arrive at the Nanolog during the outage are missed — the Nanolog streams to the VA in real time and does not hold logs indefinitely.
-- **NSS one-hour recovery** (opt-in, requires Zscaler Support ticket) lets the Nanolog replay up to one hour of logs after the VA reconnects. Outages longer than one hour create a permanent SIEM gap even if the VA recovers. See [`../shared/nss-architecture.md § Reliability + replay`](../shared/nss-architecture.md) for full detail.
+- **NSS one-hour recovery** (opt-in, requires Zscaler Support ticket) lets the Nanolog replay up to one hour of logs after the VA reconnects. Outages longer than one hour create a permanent SIEM gap even if the VA recovers. This is the generic NSS Nanolog→NSS replay window, not a CBC capability — see [`../shared/nss-architecture.md § Reliability + replay`](../shared/nss-architecture.md) for full detail.
 
 Operators with high availability requirements should consider running two NSS VAs in separate availability zones / cloud regions and configuring two NSS server records in the admin console, each with its own set of feeds. Nanolog supports multiple concurrent connections.
 
@@ -104,8 +104,8 @@ The NSS server type for CBC is **NSS for Firewall**. Selecting the wrong type (N
 
 NSS feeds define what log data the VA extracts from the Nanolog stream and how it formats and delivers that data to the SIEM. For CBC:
 
-- **Use Firewall-type feeds only.** Web feeds are not applicable.
-- Each NSS server supports up to **8 Firewall feeds**. Up to 16 total feeds per server (8 Web + 8 Firewall), but in the CBC context the Web slots are unused.
+- **Use Firewall-type feeds only.** Web feeds are not applicable (CBC-specific constraint — `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md:24`).
+- The per-server feed ceiling (up to 8 Firewall feeds; 16 total per server split 8 Web + 8 Firewall) is a cross-product NSS limit, not CBC-specific — see [`../shared/nss-architecture.md § Feed-count limits`](../shared/nss-architecture.md). In the CBC context the Web slots are simply unused because Cloud Connector emits no Web-type records.
 - Per feed, configure: log type filter criteria, output format (CSV, JSON, or custom template), destination TCP address:port for the SIEM receiver.
 
 Feed-count limits and format options are documented in [`../shared/nss-architecture.md § Feed-count limits`](../shared/nss-architecture.md).
@@ -147,13 +147,13 @@ A **default Log and Control Forwarding Rule** is automatically created for every
 
 Each Log and Control Forwarding Rule has:
 
-- **Rule Order** — ascending integer; rules evaluate in ascending order (Rule 1 before Rule 2). The same first-match-wins semantics as traffic forwarding rules and ZIA URL Filter.
-- **Rule Name** — display name, max 31 characters.
-- **Rule Status** — Enabled or Disabled. A disabled rule **retains its position** in the rule order and is skipped at evaluation time; it does not disappear from the sequence.
-- **Location** — up to 8 locations, or Any.
-- **Cloud & Branch Connector Groups** — specific groups, or Any.
-- **Gateway** — the Log and Control Gateway used to forward control-plane traffic.
-- **Description** — notes, max 10,240 characters.
+- **Rule Order** — ascending integer; rules evaluate in ascending numerical order (Rule 1 before Rule 2), and the Rule Order reflects the rule's place in that order (`vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.md:34`). Whether evaluation stops at the first matching rule (first-match-wins) is not stated in captured CBC source — see Open questions.
+- **Rule Name** — display name, max 31 characters (`vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.md:35`).
+- **Rule Status** — Enabled or Disabled. A disabled rule **retains its position** in the rule order and is skipped at evaluation time; it does not disappear from the sequence (`vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.md:36`).
+- **Location** — up to 8 locations, or Any (`vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.md:38`).
+- **Cloud & Branch Connector Groups** — specific groups, or Any (`vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.md:39`). The field is SDK-backed as `ECTrafficLogRules.ECGroups` (`vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/traffic_log_rules/traffic_log_rules.go:59`), the name-ID set of Cloud Connector groups the rule applies to.
+- **Gateway** — the Log and Control Gateway used to forward control-plane traffic (`vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.md:40`).
+- **Description** — notes, max 10,240 characters (`vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.md:42`).
 
 ### What log-and-control rules apply to
 
@@ -171,7 +171,9 @@ They do **not** apply to:
 
 ### Rule-precedence semantics
 
-First-match-wins, top-down by Rule Order. The default rule sits at the terminal position and catches anything not matched by a custom rule. Disabling a rule does not remove it from the sequence — the next-lower-ordered enabled rule fires instead. This is the same semantics as traffic forwarding rules and ZIA URL Filter; see [`./forwarding.md § Rule evaluation order`](./forwarding.md) for the full pattern.
+Rules evaluate in ascending numerical order — Rule 1 before Rule 2 — and the Rule Order reflects each rule's place in that order (`vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.md:34`). A default Log and Control Forwarding rule with a default-gateway action is created automatically for every tenant, and it cannot be duplicated or deleted (`vendor/zscaler-help/cbc-about-log-and-control-forwarding.md:18,41`). Disabling a rule does not remove it from the sequence — the service skips the disabled rule and moves to the next one, and the rule retains its place in the Rule Order (`vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.md:36`).
+
+Whether evaluation stops at the first matching rule (first-match-wins) and whether the default rule occupies the terminal catch-all position are not stated in captured CBC source material; see Open questions. For the documented evaluation pattern of traffic forwarding rules, see [`./forwarding.md`](./forwarding.md).
 
 ## Common gotchas
 
@@ -206,7 +208,7 @@ Log and Control Forwarding Rules can target specific Cloud Connector Groups (whi
 
 ### Feed limits and log-type scope
 
-Each NSS server handles up to 8 Firewall feeds. In CBC, DNS log records are in the Firewall log stream (not a separate DNS stream as in some other Zscaler products). Operators expecting a dedicated DNS feed type should check whether CBC DNS records arrive under the Firewall log type. This is not explicitly confirmed in captured source material; flagged under open questions.
+Each NSS server handles up to 8 Firewall feeds (cross-product NSS limit — [`../shared/nss-architecture.md § Feed-count limits`](../shared/nss-architecture.md)). Whether CBC DNS log records arrive under the Firewall log stream (as the shared NSS model suggests for VM-based NSS, where DNS flows through the Firewall subscription) or surface as a separate DNS feed type is **not confirmed in captured CBC source material** — the CBC NSS guidance only references Firewall. Operators expecting a dedicated DNS feed type should verify against their tenant; flagged under open questions.
 
 ### Cloud NSS as the alternative
 
@@ -222,6 +224,9 @@ Source: `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md`; `vendor/z
 - **HA / active-active NSS VA support**: Whether two NSS VAs can consume from the same Nanolog partition simultaneously (for redundancy) or whether the Nanolog streams to exactly one VA at a time is not confirmed. If active-active is supported, this is the natural HA pattern; if not, a standby VA must wait for the primary to drop before connecting.
 - **Log and Control Forwarding vs NSS VA interaction**: Whether the Log and Control Forwarding gateway selection affects the path that CC VMs take to upload logs to the Nanolog — and therefore whether a misconfigured log/control rule could starve the Nanolog of CC-generated logs before the NSS VA can pull them — is not confirmed.
 - **Feed output format recommendations for CBC Firewall logs**: The shared NSS doc notes Zscaler recommends JSON for Cloud NSS. For VM-based NSS in the CBC context, whether JSON is supported as a Firewall feed output format (or whether CSV is the only tested format) is not captured.
+- **Log and Control Forwarding rule match behavior**: Captured CBC source confirms rules evaluate in ascending numerical order and that a disabled rule is skipped while keeping its place (`vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.md:34,36`), but does not state whether evaluation stops at the first matching rule (first-match-wins) or whether the auto-created default rule occupies the terminal catch-all position. The earlier comparison to traffic forwarding rules and the ZIA URL Filter was an inference, not a sourced fact — needs confirmation against tenant behavior or a source that explicitly establishes the stop-on-first-match semantics.
+
+All seven items above are filed together as [clarification `cloud-connector-20`](../_meta/clarifications.md#cloud-connector-20-nss-va-for-cbc-feed-coverage-sizing-certs-ha-and-rule-match-semantics).
 
 ## Cross-links
 

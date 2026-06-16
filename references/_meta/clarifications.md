@@ -23,6 +23,8 @@ Centralized list of open questions raised across `references/*.md`. Each entry h
 - `zdx-*` — ZDX (Digital Experience) behavior question
 - `zms-*` — ZMS (Microsegmentation) behavior question
 - `easm-*` — EASM (External Attack Surface Management) behavior question
+- `cloud-connector-*` — Cloud & Branch Connector (ZTW) behavior question
+- `zid-*` — ZIdentity (identity / API-client / entitlement / admin-RBAC) behavior question
 - `shared-*` — cross-product or skill-wide question
 - `log-*` — log-schema / NSS / LSS question that spans multiple products
 
@@ -81,10 +83,12 @@ Each entry follows this template. Body is narrative — the existing zia-01 entr
 ## Status summary
 
 Skim this before reading the full entries. Summary refreshed 2026-06-15:
-20 entries are resolved or clarified, 17 are partially resolved, and 214 remain
-open (the ZPA re-verification pass on 2026-06-15 registered `zpa-21`–`zpa-81`).
-Most open entries require lab tests, tenant snapshots, operator experience, or
-vendor confirmation rather than more public-doc reading.
+20 entries are resolved or clarified, 17 are partially resolved, and the current
+refresh queue has expanded the open register with `zpa-21`–`zpa-81`,
+`zcc-77`–`zcc-101`, `zdx-03`–`zdx-43`, `zid-01`–`zid-35`, and
+`cloud-connector-01`–`cloud-connector-24`. Most open entries require lab tests,
+tenant snapshots, operator experience, or vendor confirmation rather than more
+public-doc reading.
 
 ### Resolved
 
@@ -123,7 +127,7 @@ vendor confirmation rather than more public-doc reading.
 
 ### Open
 
-`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-49`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-81`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `shared-20`–`shared-27`, `zcc-08`–`zcc-76`, `zdx-01`–`zdx-02`, `zms-01`, `easm-01`–`easm-02`.
+`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-49`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-81`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `shared-20`–`shared-27`, `zcc-08`–`zcc-101`, `zdx-01`–`zdx-43`, `zid-01`–`zid-35`, `zms-01`, `easm-01`–`easm-02`, `cloud-connector-01`–`cloud-connector-24`.
 
 The vendor-MCP scrape (2026-06-14) added these open behavior questions — each links to its detailed entry below:
 
@@ -206,9 +210,154 @@ The ZPA reference re-verification pass (2026-06-15) registered the remaining `##
 | [`zpa-80`](#zpa-80-zcczpa-trusted-network-signal-at-session-establishment) | ZCC→ZPA trusted-network signal at session establishment | zscaler doc not yet read / lab test |
 | [`zpa-81`](#zpa-81-pse-routing-off-network-fallback-when-is_public-false) | PSE routing / off-network fallback when `is_public = false` | zscaler doc not yet read / lab test |
 
+The ZCC deep-dive refresh (2026-06-15) registered these open behavior questions surfaced in the per-doc **Open questions** sections — each links to its detailed entry below:
+
+| ID | Title | Resolves with |
+|---|---|---|
+| [`zcc-77`](#zcc-77-webpolicy-top-vs-nested-block-precedence-on-write) | WebPolicy `*Top` root-level vs nested-block field precedence on write | lab test |
+| [`zcc-78`](#zcc-78-webpolicy-devicetype-vs-device_type-write-precedence) | WebPolicy `DeviceTypeAlt` (int, wire `deviceType`) vs `DeviceType` (int, wire `device_type`) precedence on write | lab test |
+| [`zcc-79`](#zcc-79-webpolicy-selected-form-state-fields-required-on-write) | Which WebPolicy `*Selected` / `*SelectedOption` form-state fields are required on write | lab test |
+| [`zcc-80`](#zcc-80-zcc-v1-vs-v2-endpoint-coexistence) | ZCC v1 vs v2 endpoint coexistence / supersession | zscaler doc not yet read / lab test |
+| [`zcc-81`](#zcc-81-device-zd-vs-zdp-field-prefix-meanings) | Device `zd*` vs `zdp*` field-prefix service meanings | zscaler doc not yet read / tenant snapshot |
+| [`zcc-82`](#zcc-82-device-registration_state-vs-state-distinction) | Device `registration_state` vs `state` distinction | tenant snapshot / zscaler doc not yet read |
+| [`zcc-83`](#zcc-83-devicedetailsstate-type-wire-type-per-endpoint) | `DeviceDetails.state` / `type` wire type (int on list vs string on detail) | tenant snapshot |
+| [`zcc-84`](#zcc-84-unified-tunnel-operational-semantics) | Unified Tunnel operational semantics vs two separate Z-Tunnels | zscaler doc not yet read / lab test |
+| [`zcc-85`](#zcc-85-app-profile-fail-close-vs-tenant-failopenpolicy-precedence) | App-Profile fail-close vs tenant-global `FailOpenPolicy` precedence | lab test |
+| [`zcc-86`](#zcc-86-get_web_privacy-returns-none-on-error) | `get_web_privacy` returns `None` on error rather than a result tuple | code read (resolved) |
+| [`zcc-87`](#zcc-87-zcc-rate-limit-header-behavior-on-the-oneapi-path) | ZCC rate-limit header behavior on the OneAPI path | zscaler doc not yet read / lab test |
+| [`zcc-88`](#zcc-88-webpolicy-read-shape-macpolicy-vs-macospolicy-key) | WebPolicy read-shape macOS sub-policy key (`macPolicy` vs `macosPolicy`) | tenant snapshot |
+| [`zcc-89`](#zcc-89-webpolicy-groups-users-devicegroups-wire-shape) | WebPolicy `groups` / `users` / `deviceGroups` wire shape on `listByCompany` | tenant snapshot |
+| [`zcc-90`](#zcc-90-webpolicy-companion-devicetype-string-presence-on-reads) | WebPolicy companion `deviceType` string presence on reads | tenant snapshot |
+| [`zcc-91`](#zcc-91-app-supportability-toggle-tenant-defaults) | App Supportability toggle tenant-default values | tenant snapshot / zscaler doc not yet read |
+| [`zcc-92`](#zcc-92-per-product-disable-password-authority-webpolicy-vs-manage_pass) | Per-product disable-password authority (`WebPolicy` vs `manage_pass`) and key mapping | lab test / zscaler doc not yet read |
+| [`zcc-93`](#zcc-93-macos-password-read-key-vs-write-key-api-behavior) | macOS password read-key vs write-key (camelCase vs snake_case) API behavior | lab test |
+| [`zcc-94`](#zcc-94-per-platform-password-gate-ui-surface-per-os) | Which per-platform password gates render as user-facing UI per OS | operator experience / zscaler doc not yet read |
+| [`zcc-95`](#zcc-95-trusted-network-stateful-evaluation-across-transitions) | Trusted-network stateful evaluation across transitions (debounce / cache) | lab test |
+| [`zcc-96`](#zcc-96-multiple-trustednetworks-partial-match-precedence) | Precedence when multiple TrustedNetworks partially match in one Forwarding Profile | lab test |
+| [`zcc-97`](#zcc-97-forwarding_profile_id-orphan-reference-resolution) | `forwarding_profile_id` orphan-reference resolution at enforcement | lab test |
+| [`zcc-98`](#zcc-98-on-net-policy-vs-forwarding-profile-evaluation-order) | On-Net policy vs Forwarding Profile evaluation order | lab test |
+| [`zcc-99`](#zcc-99-dropquictraffic-browser-tcp-fallback-effect) | `dropQuicTraffic` effect on browser TCP fallback | operator experience / lab test |
+| [`zcc-100`](#zcc-100-ipv6-only-network-behavior-of-the-drop_ipv6-flags) | IPv6-only-network runtime behavior of the three `drop_ipv6*` flags | lab test |
+| [`zcc-101`](#zcc-101-service-edge-split-landing-control-connection-behavior) | Service-Edge split-landing control-connection behavior | zscaler doc not yet read / operator experience |
+
+The ZDX deep-dive refresh (2026-06-15) registered these open ZDX-behavior questions from the per-doc Open-questions sweep — each links to its detailed entry below:
+
+| ID | Title | Resolves with |
+|---|---|---|
+| [`zdx-03`](#zdx-03-zdx-token-host-per-tenant) | Which ZDX host (`api.zdxcloud.net` vs `api.zsapi.net`) a given tenant authenticates against | lab test / zscaler doc not yet read |
+| [`zdx-04`](#zdx-04-zdx-rate-limit-header-family-per-host) | Whether each ZDX host emits the rate-limit header family its source expects | lab test / support ticket |
+| [`zdx-05`](#zdx-05-zdx-server-tier-table-vs-client-flat-limiter) | Whether the server license-tier rate table reconciles with the Go client's flat limiter | zscaler doc not yet read / support ticket |
+| [`zdx-06`](#zdx-06-get_device_app-live-response-shape) | `get_device_app` live response shape (timeseries vs single score) | lab test / zscaler doc not yet read |
+| [`zdx-07`](#zdx-07-deviceevents-live-response-key) | `DeviceEvents` live response key (`instances` vs `events`) | lab test / zscaler doc not yet read |
+| [`zdx-08`](#zdx-08-callqualitymetricsmetrics-live-shape) | `CallQualityMetrics.metrics` live element shape | lab test / zscaler doc not yet read |
+| [`zdx-09`](#zdx-09-org-list-time-filter-semantics) | Time-filter semantics on department/location org lists | lab test / zscaler doc not yet read |
+| [`zdx-10`](#zdx-10-q-vs-search-matching-on-getlocationsfilters) | `Q` vs `Search` matching behavior on `GetLocationsFilters` | lab test / zscaler doc not yet read |
+| [`zdx-11`](#zdx-11-exhaustive-metric_name-value-set) | Exhaustive `metric_name` value set for app metrics | zscaler doc not yet read / lab test |
+| [`zdx-12`](#zdx-12-tenant-level-application-inventory) | Whether the app list returns apps with no recent probe data | tenant snapshot / zscaler doc not yet read |
+| [`zdx-13`](#zdx-13-probe-metadata-per-application) | Which probes are attached to a given application ID | zscaler doc not yet read / operator experience |
+| [`zdx-14`](#zdx-14-application-auto-detection-vs-manual-config) | Whether ZDX auto-discovers apps or requires manual config | zscaler doc not yet read / operator experience |
+| [`zdx-15`](#zdx-15-zdx-ca-topology) | ZDX Central Authority topology (active-passive vs active-active) | zscaler doc not yet read / support ticket |
+| [`zdx-16`](#zdx-16-region-boundary-definition-and-geographic-weighting) | Region boundary definition + same-region peer weighting function | zscaler doc not yet read / lab test |
+| [`zdx-17`](#zdx-17-data-retention-gdpr-and-data-residency) | ZDX data retention period, purge, and data-residency controls | zscaler doc not yet read / support ticket |
+| [`zdx-18`](#zdx-18-tpg-geo-distribution-and-failover) | TPG geo-distribution, SLA, and failover behavior | zscaler doc not yet read / support ticket |
+| [`zdx-19`](#zdx-19-zcc-metric-buffering-when-tpg-unreachable) | ZCC on-device metric buffering when the TPG is unreachable | zscaler doc not yet read / lab test |
+| [`zdx-20`](#zdx-20-cloud-path-probe-routing-through-service-edges) | Whether Cloud Path probe routing through Service Edges is mandatory/optional | zscaler doc not yet read / lab test |
+| [`zdx-21`](#zdx-21-call-quality-monitoring-data-flow) | Call Quality Monitoring polling frequency, latency, failure modes | zscaler doc not yet read / support ticket |
+| [`zdx-22`](#zdx-22-adx-tenant-isolation-mechanism) | ADX-layer tenant isolation mechanism | zscaler doc not yet read / support ticket |
+| [`zdx-23`](#zdx-23-wi-fi-field-availability-in-device-api-response) | Wi-Fi field availability in the device API response | lab test / zscaler doc not yet read |
+| [`zdx-24`](#zdx-24-device-health-metric-category-enumeration) | Exhaustive device health-metric category set | zscaler doc not yet read / lab test |
+| [`zdx-25`](#zdx-25-os_build-api-presence) | Whether `os_build` is present in the device wire response | lab test / zscaler doc not yet read |
+| [`zdx-26`](#zdx-26-geolocation-hierarchy-traversal) | Device geolocation hierarchy traversal model | zscaler doc not yet read / lab test |
+| [`zdx-27`](#zdx-27-device-event-category-enumeration) | Whether device events span categories beyond Zscaler/Hardware/Software/Network | lab test / zscaler doc not yet read |
+| [`zdx-28`](#zdx-28-call-quality-metrics-application-scope-and-metric-labels) | Which apps populate call-quality-metrics and which metric labels appear | lab test / zscaler doc not yet read |
+| [`zdx-29`](#zdx-29-device-grouping-cohorts) | Whether ZDX supports device grouping / cohorts | zscaler doc not yet read / operator experience |
+| [`zdx-30`](#zdx-30-per-probe-cadence-during-a-diagnostics-session) | Per-probe cadence during a Diagnostics Session | zscaler doc not yet read / lab test |
+| [`zdx-31`](#zdx-31-alert-rule-evaluation-cadence) | Alert rule-evaluation interval | zscaler doc not yet read / lab test |
+| [`zdx-32`](#zdx-32-deeptrace-session-name-wire-field) | Deeptrace session-name wire field (`name` vs `session_name`) | lab test / zscaler doc not yet read |
+| [`zdx-33`](#zdx-33-session_length-request-vs-response-key) | `session_length` request-vs-response key divergence | lab test / zscaler doc not yet read |
+| [`zdx-34`](#zdx-34-maximum-look-back-window-and-probe-id-expiry) | Maximum probe look-back window and probe-ID expiry | lab test / zscaler doc not yet read |
+| [`zdx-35`](#zdx-35-share_snapshot-obfuscation-transmission) | Whether the Python `share_snapshot` wires `obfuscation` to the API | code read / lab test |
+| [`zdx-36`](#zdx-36-pft-vs-availability-score-weighting) | Numerical PFT-vs-Availability weighting in the ZDX Score | zscaler doc not yet read / lab test |
+| [`zdx-37`](#zdx-37-zero-value-handling-in-the-lowest-value-within-hour-rollup) | Zero/null handling in the lowest-value-within-hour rollup | zscaler doc not yet read / lab test |
+| [`zdx-38`](#zdx-38-which-metrics-feed-the-composite-score) | Which retrievable metrics actually feed the composite score | zscaler doc not yet read / lab test |
+| [`zdx-39`](#zdx-39-score-recalculation-lag-for-new-users-or-devices) | Score-appearance lag for new users/devices | zscaler doc not yet read / operator experience |
+| [`zdx-40`](#zdx-40-device-level-vs-user-level-score-aggregation) | Whether score is per (user, device) or rolled up per user | zscaler doc not yet read / lab test |
+| [`zdx-41`](#zdx-41-probe-result-retention-and-aging-granularity) | Probe-result retention period and aging granularity | zscaler doc not yet read / tenant snapshot |
+| [`zdx-42`](#zdx-42-adaptive-mode-scoring-comparability) | Whether Adaptive Mode keeps scores comparable across cadences | zscaler doc not yet read / lab test |
+| [`zdx-43`](#zdx-43-inventory-time-range-filter-server-support) | Whether the inventory endpoint honors the time-range filter server-side | lab test / zscaler doc not yet read |
+
+The ZIdentity refresh (2026-06-15) registered these open behavior questions from `references/zidentity/*.md` — each links to its detailed entry below:
+
+| ID | Title | Resolves with |
+|---|---|---|
+| [`zid-01`](#zid-01-admin-permission-level-enum-restricted-full-restrictive-view) | Admin permission-level enum (Restricted Full / Restrictive View vs Full / View Only / Restricted / None) | zscaler doc not yet read / tenant snapshot |
+| [`zid-02`](#zid-02-zidentity-role-to-per-product-scope-inheritance) | ZIdentity role to per-product (ZIA/ZPA) scope inheritance | tenant snapshot / zscaler doc not yet read |
+| [`zid-03`](#zid-03-role-management-apis-absent-from-the-sdk-surface) | Role-management APIs absent from the SDK surface | zscaler doc not yet read / live API trace |
+| [`zid-04`](#zid-04-admin-role-assignment-audit-trail) | Admin role-assignment audit trail | zscaler doc not yet read / live API trace |
+| [`zid-05`](#zid-05-scope-field-semantics-and-value-enum) | Entitlement `scope` field semantics and value enum (`Global` / `Limited` / `AllResources`) | vendor documentation / tenant-side check |
+| [`zid-06`](#zid-06-service-vs-administrative-entitlements-when-to-use-which) | Service vs administrative entitlements: when to use which | vendor documentation / operator experience |
+| [`zid-07`](#zid-07-get_service_entitlement-return-shape-for-multi-service-users) | `get_service_entitlement` return shape for multi-service users | lab test |
+| [`zid-08`](#zid-08-entitlement-api-behavior-by-user-idp-source) | Entitlement API behavior by user IdP source (SCIM vs internal) | tenant-side check |
+| [`zid-09`](#zid-09-scope-forward-compatibility-single-object-vs-list) | Scope forward-compatibility (single object vs list) | vendor API spec / changelog review |
+| [`zid-10`](#zid-10-entitlement-role-name-enum-completeness) | Entitlement role-name enum completeness | vendor documentation / live API enumeration |
+| [`zid-11`](#zid-11-access_token_life_time-field-semantics) | `access_token_life_time` field semantics (TTL vs active-flag docstring contradiction) | lab test / vendor documentation |
+| [`zid-12`](#zid-12-token-revocation-via-sdk-api) | Token revocation via SDK / API and propagation window | zscaler doc not yet read / lab test |
+| [`zid-13`](#zid-13-add_api_client_secret-expires_at-behavior) | `add_api_client_secret` `expires_at` behavior (omitted / past / range) | lab test |
+| [`zid-14`](#zid-14-jwks-authtype-request-body-unobserved-in-vendored-sources) | JWKS `authType` request body unobserved in vendored sources | tenant snapshot / zscaler doc not yet read |
+| [`zid-15`](#zid-15-bare-adminapiv1-prefix-acceptance-on-the-apizsapinet-host) | Bare `/admin/api/v1` prefix acceptance on the `api.zsapi.net` host | live API trace |
+| [`zid-16`](#zid-16-which-wire-host-a-live-tenant-actually-serves) | Which wire host a live tenant actually serves | live API trace |
+| [`zid-17`](#zid-17-group-dual-flag-semantics-isdynamicgroup-vs-dynamicgroup) | Group dual-flag semantics (`isDynamicGroup` vs `dynamicGroup`) | API spec review / lab test |
+| [`zid-18`](#zid-18-dynamic-group-membership-mutation-behavior) | Dynamic-group membership mutation behavior | lab test |
+| [`zid-19`](#zid-19-user-deduplication-in-bulk-add) | User deduplication in bulk add | lab test |
+| [`zid-20`](#zid-20-scim-sourced-group-mutation-semantics) | SCIM-sourced group mutation semantics | lab test / vendor documentation |
+| [`zid-21`](#zid-21-group-source-value-enum-completeness) | Group `source` value enum completeness | vendor documentation / live API enumeration |
+| [`zid-22`](#zid-22-group-enableddisabled-flag-on-the-wire) | Group enabled/disabled flag on the wire | tenant snapshot / vendor documentation |
+| [`zid-23`](#zid-23-empty-servicescopes-array-semantics) | Empty `serviceScopes` array semantics | tenant-side check / vendor documentation |
+| [`zid-24`](#zid-24-defaultapi-flag-behavior) | `defaultApi` flag behavior | vendor documentation / lab test |
+| [`zid-25`](#zid-25-resource-server-enumerability-hidden-internal-entries) | Resource-server enumerability (hidden internal entries) | tenant-side check / vendor documentation |
+| [`zid-26`](#zid-26-zidentity-snapshot-writer-output-shape) | ZIdentity snapshot writer output shape (`.records[]` vs `.[0].records[]`) | design decision |
+| [`zid-27`](#zid-27-secrets-snapshot-file-layout) | Secrets snapshot file layout | design decision |
+| [`zid-28`](#zid-28-authentication-levels-per-product-or-global-only) | Authentication levels: per-product or global only | zscaler doc not yet read / tenant-side check |
+| [`zid-29`](#zid-29-step-up-for-scim-users-without-a-mapped-external-idp-identity) | Step-up for SCIM users without a mapped external IdP identity | lab test / zscaler doc not yet read |
+| [`zid-30`](#zid-30-step-up-message-to-user-localization) | Step-up "message to user" localization | zscaler doc not yet read / tenant-side check |
+| [`zid-31`](#zid-31-where-step-up-elevation-is-logged) | Where step-up elevation is logged (ZIA Transaction / ZPA LSS) | lab test / zscaler doc not yet read |
+| [`zid-32`](#zid-32-omitting-id-on-user-create) | Omitting `id` on user create | lab test / API spec review |
+| [`zid-33`](#zid-33-about-revoking-access-tokens-articles-uncaptured) | About / Revoking Access Tokens articles uncaptured | zscaler doc not yet read / capture |
+| [`zid-34`](#zid-34-api-client-access-policy-article-uncaptured) | API Client Access Policy article uncaptured | zscaler doc not yet read / capture |
+| [`zid-35`](#zid-35-admin-roles-permissions-module-level-matrix-uncaptured) | Admin Roles & Permissions module × level matrix uncaptured | zscaler doc not yet read / capture |
+
 Partial / SDK-mined (resolved via code read or help-doc capture; full lab confirmation pending): `zcc-01`, `zcc-02`, `zcc-03`, `zcc-04`, `zcc-05`, `zcc-06`, `zcc-07`, **`log-04`** (field name + illustrative values confirmed via `web-log-schema.md`; full enum of `ruletype` / `reason` values still needs a tenant export). All six ZCC enum clarifications had their **datatype** (int vs string) resolved by the Go SDK cross-check on 2026-04-24; the integer-to-meaning mapping remains open for `zcc-01` through `zcc-04` and `zcc-06`.
 
 `shared-17`, `shared-18`, `shared-19` — partially resolved by 2026-05-06 doc sweep (refined further the same day). Existing-doc backing now covers: Service Edge re-evaluation triggers + **subcloud override mechanics fully resolved** via `references/shared/subclouds.md`; ZIA auth-frequency + surrogate-IP TTL fields and dependency rules + **ZIdentity step-up timing fully resolved** as synchronous via `vendor/zscaler-help/understanding-step-up-authentication-zidentity.md`; QUIC handling with ZTunnel-mode interaction, HTTP/2 enable toggle + Bandwidth Control fallback, WebSocket DLP Copilot-only carveout. The remaining sub-questions narrowed substantially: selection-signal weighting and DC-exclusion mechanics (shared-17), surrogate IP clock anchor + auth-source decision tree + trusted-network-transition behavior (shared-18), HTTP/2 per-stream re-evaluation + WebSocket non-DLP inspection coverage + gRPC/SSE/chunked behavior (shared-19).
+
+The Cloud & Branch Connector (ZTW) deep-dive refresh (2026-06-15) added these open behavior questions — each links to its detailed entry below:
+
+| ID | Title | Resolves with |
+|---|---|---|
+| [`cloud-connector-01`](#cloud-connector-01-per-region-status-representation-regionstatusstatus) | Per-region `status` representation (boolean vs four console strings) | code read / lab test |
+| [`cloud-connector-02`](#cloud-connector-02-aws-workload-discovery-cloudformation-body-eventbridge-iam-sqs) | AWS workload-discovery CloudFormation body (EventBridge / IAM / SQS) | zscaler doc not yet read / operator experience |
+| [`cloud-connector-03`](#cloud-connector-03-source-ip-group-size-and-count-limits) | Source IP group member + per-tenant count limits | support ticket / lab test |
+| [`cloud-connector-04`](#cloud-connector-04-ipv6-entries-in-ztc_ip_source_groups-vs-a-separate-ipv6-group-object) | IPv6 entries in `ztc_ip_source_groups` vs separate IPv6 group object | lab test / code read |
+| [`cloud-connector-05`](#cloud-connector-05-source_ip_group_exclusion-applicability-to-cloud-branch-connector) | `source_ip_group_exclusion` applicability to CC | lab test |
+| [`cloud-connector-06`](#cloud-connector-06-zia-origin-source-groups-editability-from-ztc-and-lite-payload-shape) | ZIA-origin group editability from ZTC + `/lite` payload shape | lab test / zscaler doc not yet read |
+| [`cloud-connector-07`](#cloud-connector-07-ztg-vs-cloud-connector-group-type-semantics) | ZTG vs Cloud Connector group type semantics | zscaler doc not yet read / lab test |
+| [`cloud-connector-08`](#cloud-connector-08-ha-mechanics-cchealth-port-fail-openclose-toggle-fail-open-egress-path) | HA: `?cchealth` port, fail-open/close toggle path, fail-open egress | lab test / zscaler doc not yet read |
+| [`cloud-connector-09`](#cloud-connector-09-forwarding-method-semantics-and-the-true-backend-forwardmethod-enum) | `ENATDEDIP`/`GEOIP`/`PROXYCHAIN` semantics + true `forwardMethod` enum | lab test / Postman cross-check |
+| [`cloud-connector-10`](#cloud-connector-10-forwarding-rule-count-limit-and-admin-rank-rule-order-interaction) | Forwarding rule-count limit + Admin Rank ↔ Rule Order interaction | support ticket / lab test |
+| [`cloud-connector-11`](#cloud-connector-11-overwrite-dns-response-does-a-response-rewrite-action-exist-at-all) | "Overwrite DNS response" — does a response-rewrite action exist | zscaler doc not yet read / lab test |
+| [`cloud-connector-12`](#cloud-connector-12-dns-rule-ui-match-criteria-tunnel-detection-and-doh-interception-not-in-the-sdk) | DNS rule UI criteria / tunnel detection / DoH interception not in SDK | zscaler doc not yet read / lab test |
+| [`cloud-connector-13`](#cloud-connector-13-dns-gateway-failover-order-default-gateway-config-and-ipv6-on-referenced-resolvers) | DNS gateway failover order / default gateway / IPv6 resolvers | lab test / zscaler doc not yet read |
+| [`cloud-connector-14`](#cloud-connector-14-duplicate-dns-gateway-packages-and-the-type-field-semantics) | Duplicate DNS gateway packages + `type` field semantics | lab test / code read |
+| [`cloud-connector-15`](#cloud-connector-15-subcloud_primarysecondary-backend-behavior-for-cc-dc-proxies) | `subcloud_primary`/`secondary` backend behavior for CC DC proxies | lab test |
+| [`cloud-connector-16`](#cloud-connector-16-ztc_traffic_forwarding_rule-oneapi-requirement-and-zpa-app-segment-id-equivalence) | `ztc_traffic_forwarding_rule` OneAPI requirement + ZPA segment-ID parity | lab test |
+| [`cloud-connector-17`](#cloud-connector-17-local-local_switch-forwarding-method-real-behavior-or-doc-artifact) | "Local" / `LOCAL_SWITCH` forwarding method — real or doc artifact | lab test / Postman cross-check |
+| [`cloud-connector-18`](#cloud-connector-18-ztw-api-surface-gaps-endpoint-paths-azuregcp-discovery-automation-go-zidentity-auth) | ZTW API gaps: endpoint paths / Azure-GCP discovery / Go ZIdentity auth | code read / lab test |
+| [`cloud-connector-19`](#cloud-connector-19-ztw-sdk-method-convention-anomalies-and-oneapi-govten-exclusion-behavior) | ZTW SDK method-convention anomalies + OneAPI gov/ten exclusion behavior | code read / lab test |
+| [`cloud-connector-20`](#cloud-connector-20-nss-va-for-cbc-feed-coverage-sizing-certs-ha-and-rule-match-semantics) | NSS VA for CBC: feed coverage / sizing / certs / HA / rule-match | zscaler doc not yet read / lab test |
+| [`cloud-connector-21`](#cloud-connector-21-insightstunnel-insights-aggregation-and-byte-count-parity-with-nss-feeds) | Insights/Tunnel-Insights aggregation + byte-count parity with NSS feeds | lab test / zscaler doc not yet read |
+| [`cloud-connector-22`](#cloud-connector-22-cc-region-coverage-govcloud-china-gcp-deployment-and-wds-vs-ztg-region-set-parity) | CC region coverage: GovCloud / China / GCP deploy / WDS-vs-ZTG parity | zscaler doc not yet read / tenant snapshot / support ticket |
+| [`cloud-connector-23`](#cloud-connector-23-dest_workload_groups_ids-binding-to-local_switch-local) | `dest_workload_groups_ids` binding to `LOCAL_SWITCH` / "Local" | lab test |
+| [`cloud-connector-24`](#cloud-connector-24-field-character-limit-enforcement-on-dns-and-log-and-control-rules) | Field character-limit enforcement on DNS / Log-and-Control rules | lab test / zscaler doc not yet read |
 
 ---
 
@@ -1363,7 +1512,7 @@ Parallel to `zcc-01` but at the TrustedNetwork entity level: how do this Trusted
 
 *Origin: `references/zcc/api.md` § Open questions*
 
-The SDK's `client.zcc.forwarding_profile` surface exposes CRUD on profile objects but no method for associating a profile with a user, group, or device. ZCC admin UX offers "App Profiles" that select a forwarding profile — but the App Profile API is not exposed under `client.zcc` in the current SDK. How does assignment happen programmatically?
+The SDK's `client.zcc.forwarding_profile` surface exposes CRUD on profile objects but no method for associating a profile with a user, group, or device. ZCC admin UX offers "App Profiles" that select a forwarding profile. The App Profile API is exposed under `client.zcc.application_profiles` (`/application-profiles`, list + get-by-id + PATCH) in both SDKs (Go: `application_profiles/application_profiles.go:296 PatchApplicationProfile`; Python: `zcc_service.py:129-134`). How the full forwarding-profile-to-user/device assignment relationship is managed programmatically remains partly open.
 
 **Resolves with**: partial answer from SDK mining (see below). Full completeness: lab confirmation on a real tenant that WebPolicy is the sole assignment mechanism. **Status**: partially resolved (2026-04-24).
 
@@ -2323,8 +2472,8 @@ The maximum number of UDIDs accepted per `/forceRemoveDevices` or `/removeDevice
 
 Whether the `RequestExecutor` (shared OneAPI SDK transport) automatically reads and honors `X-Rate-Limit-Retry-After-Seconds` on the modern ZCC API path, or whether only `LegacyZCCClientHelper` implements the retry behavior. Not confirmed from available SDK source.
 
-**Status**: open
-**Resolves with**: code read (inspect `RequestExecutor` in the Python SDK for rate-limit header handling)
+**Status**: resolved (2026-06-15) — confirmed YES. `RequestExecutor.get_retry_after()` explicitly reads `X-Rate-Limit-Retry-After-Seconds` (then `X-Rate-Limit-Remaining`) under the inline comment "ZCC Specific Rate Limiting Headers (LegacyZCCClientHelper)" (`vendor/zscaler-sdk-python/zscaler/request_executor.py:907,913–915`); `is_retryable_status()` includes 429 (`request_executor.py:745`); default `maxRetries=2` from `config["client"]["rateLimit"]` (`request_executor.py:82`). The modern OneAPI path therefore backs off on the ZCC header. Documented in `references/zcc/api-rate-limits.md § 5`.
+**Resolves with**: code read (inspect `RequestExecutor` in the Python SDK for rate-limit header handling) — done
 
 ---
 
@@ -3800,6 +3949,1383 @@ EASM finding risk fields — `risk_level` / `severity_score` / `status` (`vendor
 
 **Status**: open
 **Resolves with**: tenant snapshot (collect observed values across live findings) OR zscaler doc not yet read
+
+---
+
+### cloud-connector-01 — Per-region status representation (RegionStatus.status)
+
+*Origin: `references/cloud-connector/aws-workload-discovery.md` § Open questions*
+
+The Go workload-discovery `RegionStatus.status` field is typed as a boolean, while the captured console help text shows four string states (`Success` / `Disabled` / `Error` / `Starting Discovery`). Whether the API actually returns a richer status that the Go SDK under-models (boolean only) — or the console derives the four strings from a boolean plus other fields — is unresolved. Until this is settled the skill cannot map a workload-discovery region row to one of the four console states from the SDK shape alone.
+
+**Status**: open
+**Resolves with**: code read (a future SDK release may widen the type) OR lab test (read a region in each console state via the API, observe the wire value)
+
+---
+
+### cloud-connector-02 — AWS workload-discovery CloudFormation body (EventBridge / IAM / SQS)
+
+*Origin: `references/cloud-connector/aws-workload-discovery.md` § Open questions*
+
+Three AWS workload-discovery details live inside the CloudFormation template that the setup flow deploys, and the template is referenced by URL only — its rendered body is not reproduced as text in any captured source: (1) the EventBridge rule's event-pattern JSON (which EC2/ECS/Lambda event types are matched) and the cross-account target ARN format — the `eventBusName` field is API-modeled but the pattern is not; (2) the IAM permission document the template installs; (3) the SQS permissions added by the "Update the Cloud Connector Role for SQS Permissions" setup step, including the queue-ARN detail. None of these has an SDK or Terraform surface to recover them from.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (render the linked CloudFormation template body) OR operator experience (inspect a deployed stack)
+
+---
+
+### cloud-connector-03 — Source IP group size and count limits
+
+*Origin: `references/cloud-connector/source-ip-groups.md` § Open questions*
+
+No captured source states an upper bound on (a) the number of address entries a single `ztc_ip_source_groups` group may hold, or (b) the number of source IP groups a tenant may define. The SDK struct and Terraform schema (`vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/ipsourcegroups/ipsourcegroups.go`; `vendor/terraform-provider-ztc/docs/resources/ztc_ip_source_groups.md`) impose no documented cap. Relevant to capacity planning and to explaining a rejected create.
+
+**Status**: open
+**Resolves with**: support ticket (Zscaler confirms platform limits) OR lab test (grow a group / group count until the API rejects)
+
+---
+
+### cloud-connector-04 — IPv6 entries in ztc_ip_source_groups vs a separate IPv6 group object
+
+*Origin: `references/cloud-connector/source-ip-groups.md` § Open questions*
+
+Whether the `ip_addresses` field on `ztc_ip_source_groups` accepts IPv6 CIDR notation is unconfirmed. The forwarding-rule struct carries dedicated IPv6 group fields on both sides — `SrcIpv6Groups` and `DestIpv6Groups`, parallel to the IPv4 `SrcIpGroups` / `DestIpGroups` (`vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go:124,132`) — distinct from the IPv4 group fields. It is unclear whether those IPv6 fields reference the same `ztc_ip_source_groups` object type or a separate IPv6-specific group resource, and therefore whether IPv6 source addresses are configured in the same group object or a different one.
+
+**Status**: open
+**Resolves with**: lab test (create a group with an IPv6 CIDR, reference it from `srcIpv6Groups`, observe acceptance) OR code read (a future SDK/TF release may expose an IPv6 group type)
+
+---
+
+### cloud-connector-05 — source_ip_group_exclusion applicability to Cloud & Branch Connector
+
+*Origin: `references/cloud-connector/source-ip-groups.md` § Open questions; `references/cloud-connector/api-divergences.md` § Open questions*
+
+The forwarding-rule SDK struct comment marks `SourceIpGroupExclusion` "Not applicable to Cloud & Branch Connector," yet the Terraform provider exposes it as a configurable boolean. Whether the backend honors a set value on a CC `ecRdr` rule, rejects it, or silently ignores it is unresolved — the SDK comment and the TF schema disagree, and the wire behavior is not recoverable from source.
+
+**Status**: open
+**Resolves with**: lab test (set `source_ip_group_exclusion` on a CC forwarding rule, observe whether the backend applies, rejects, or ignores it)
+
+---
+
+### cloud-connector-06 — ZIA-origin source groups: editability from ZTC and lite payload shape
+
+*Origin: `references/cloud-connector/source-ip-groups.md` § Open questions*
+
+Two related gaps on source IP groups: (1) whether groups created in ZIA (`creator_context = "ZIA"`) can be modified through the ZTC provider/API or only via ZIA is not confirmed; (2) the `/ipSourceGroups/lite` response is only confirmed to return `id`+`name` — whether it also includes additional fields such as `creator_context` is not documented in captured sources.
+
+**Status**: open
+**Resolves with**: lab test (attempt a ZTC update of a ZIA-origin group; read a `/lite` response and inspect its fields) OR zscaler doc not yet read
+
+---
+
+### cloud-connector-07 — ZTG vs Cloud Connector group type semantics
+
+*Origin: `references/cloud-connector/overview.md` § Open questions*
+
+The exact distinction between a "ZTG" group type and a "Cloud Connector" group type is not documented in captured articles. It is likely a naming evolution, but whether the two denote different object types, different capabilities, or simply old vs new terminology for the same construct is unresolved.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR lab test (inspect both group types in a tenant)
+
+---
+
+### cloud-connector-08 — HA mechanics: cchealth port, fail-open/close toggle, fail-open egress path
+
+*Origin: `references/cloud-connector/overview.md` § Open questions*
+
+Three high-availability mechanics are named in the captured HA help article but not pinned down: (1) whether the `?cchealth` probe port is configurable and over what range — the article says only "configured during deployment" (`vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md:30`); (2) where in the admin portal the fail-open / fail-close toggle lives — the article says "customers can change this configuration" without naming the path (`:51`); (3) what the fail-open egress path actually is — the source says fail-open lets "workloads that are accessing the internet to continue doing so" yet also that "the egressing traffic is flowing through Zscaler for inspection and policy control" (`:51`), two clauses that are hard to reconcile when the fail-open precondition is that no Cloud Connector in the group can reach a Service Edge. Whether fail-open routes direct-to-internet (no inspection) or via a retained/degraded Zscaler path is not resolved; neither reading should be documented as fact.
+
+**Status**: open
+**Resolves with**: lab test (trigger a fail-open condition, observe the egress path) OR zscaler doc not yet read (a clearer source on the toggle path and probe-port range)
+
+---
+
+### cloud-connector-09 — Forwarding-method semantics and the true backend forwardMethod enum
+
+*Origin: `references/cloud-connector/forwarding.md` § Open questions; `references/cloud-connector/api-divergences.md` § Open questions*
+
+The console-label and runtime semantics of several `ForwardMethod` enum values are unconfirmed, and the sources disagree on the enum itself. The Go doc-comment lists ten values including `ENATDEDIP`, `GEOIP`, and `PROXYCHAIN` (`vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go:44`), the Terraform validator lists a smaller set, and the wire field is a free string. Specifically unresolved: (1) `ENATDEDIP` (reads as dedicated-IP NAT) and `GEOIP` (reads as geo-based forwarding) have no console label or documented semantics in captures; (2) `PROXYCHAIN`'s full chaining topology — where the proxy gateway sits, auth, failover — is not in source (only the proxy-gateway action field and its TCP-only network-service constraint are sourced); (3) the full set of values the `ecRdr` endpoint actually accepts — and whether `LOCAL_SWITCH`, `ENATDEDIP`, `GEOIP`, `PROXYCHAIN`, and bare `ZPA` are all live — is unknown without a tenant.
+
+**Status**: open
+**Resolves with**: lab test (submit each candidate `forwardMethod` against the `ecRdr` endpoint, observe acceptance and behavior) OR Postman / oneapi-spec cross-check (a third independent source on the enum)
+
+---
+
+### cloud-connector-10 — Forwarding rule count limit and Admin Rank ↔ Rule Order interaction
+
+*Origin: `references/cloud-connector/forwarding.md` § Open questions*
+
+Two forwarding-rule capacity/precedence questions: (1) how many traffic forwarding rules a tenant may define is not captured — the wildcard-domain/FQDN-entry caps (16K per org, 8,000 per rule, `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md:108`) are entry limits, not a rule-count limit; (2) CC forwarding rules carry an Admin Rank field (`vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go:41`), but whether admin rank *gates* the editable Rule Order values the way ZIA URL Filtering's admin-rank does is not stated in captured source.
+
+**Status**: open
+**Resolves with**: support ticket OR lab test (grow rule count until rejection; vary admin rank and observe whether Rule Order editability is constrained)
+
+---
+
+### cloud-connector-11 — "Overwrite DNS response" — does a response-rewrite action exist at all?
+
+*Origin: `references/cloud-connector/dns-subsystem.md` § Open questions; `references/cloud-connector/api-divergences.md` § Open questions*
+
+"Overwrite DNS response" is named in help-page capability text but absent from the DNS-rule `action` enum (`ALLOW` / `BLOCK` / `REDIR_REQ` / `REDIR_ZPA`) and from every `*ztw*` SDK/TF source. Whether it is a separate feature with its own object/endpoint, a different rule type, or just marketing wording for one of the `REDIR_*` actions is unresolved — no source establishes it.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (a source describing the feature's object/endpoint) OR lab test (look for a response-rewrite action in a live DNS-rule config)
+
+---
+
+### cloud-connector-12 — DNS rule UI match criteria, tunnel detection, and DoH interception not in the SDK
+
+*Origin: `references/cloud-connector/dns-subsystem.md` § Open questions*
+
+Several DNS-policy capabilities named in help UI text have no field in the captured `ECDNSRules` struct, which exposes only IP/group/location/ecGroup fields: (1) the UI match dimensions "users/groups/departments," "domain categorization / IP categorization," "DNS record types," and "location of resolved IP addresses" — whether these map to a richer (uncaptured) schema or are ZIA-DNS-Control concepts mislabeled in shared help text is unresolved; (2) DNS tunnel-detection trigger heuristics, thresholds, and response actions are not in captures and not modeled by any SDK field; (3) how CC identifies and handles DoH at the app layer is neither documented in captures nor exposed in the SDK.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (a DNS-rule schema source naming these criteria) OR lab test (configure each UI criterion, inspect the resulting object)
+
+---
+
+### cloud-connector-13 — DNS gateway failover order, default gateway config, and IPv6 on referenced resolvers
+
+*Origin: `references/cloud-connector/dns-subsystem.md` § Open questions*
+
+Three DNS-gateway behaviors not exposed in the gateway object: (1) whether the secondary resolver is tried before `failureBehavior` fires (and under what conditions) — the SDK carries `primaryIp` / `secondaryIp` / `failureBehavior` but no field describing the try-order; (2) what the default (non-deletable) DNS gateway resolves to and whether it is operator-modifiable — the SDK has no `isDefault` discriminator; (3) whether a LAN- or WAN-referenced resolver slot can carry an IPv6 address — the "IPv4 only" statement in capture is scoped to the Custom DNS Server entry (`vendor/zscaler-help/cbc-configuring-dns-gateway.md:32,40`), and the gateway struct's `primaryIp` / `secondaryIp` are plain strings with no documented address-family constraint. Related: the `ZPA Resolver` predefined DNS rule is treated as predefined/non-deletable by the TF deletion guard (`vendor/terraform-provider-ztc/ztc/resource_ztc_traffic_forwarding_dns_rule.go:135-139`) but no captured source describes its default state, match criteria, action, or license/mode gating.
+
+**Status**: open
+**Resolves with**: lab test (induce primary-resolver failure and observe try-order; inspect the default gateway and the `ZPA Resolver` rule) OR zscaler doc not yet read
+
+---
+
+### cloud-connector-14 — Duplicate DNS gateway packages and the type field semantics
+
+*Origin: `references/cloud-connector/terraform.md` § Open questions; `references/cloud-connector/sdk.md` § Open questions; `references/cloud-connector/api-divergences.md` § Open questions*
+
+Two Go SDK packages — `dns_gateway` and `forwarding_gateways/dns_forwarding_gateway` — both target `/ztw/api/v1/dnsGateways` with no clear deprecation note. The `dns_gateway` package omits `*http.Response` from its `Get`/`Create`/`Update` signatures and omits the `Type` field; the `dns_forwarding_gateway` package includes both, and its `type` carries `ZIA` / `ECSELF` values. Unresolved: (1) which package is canonical for the Terraform provider (`ztc_dns_forwarding_gateway` vs `ztc_dns_gateway`, both targeting the same endpoint); (2) whether the API distinguishes the two by `dnsGatewayType`; (3) whether `type` is required by the backend, optional, or meaningful only for the Log-and-Control ("ECSELF") variant.
+
+**Status**: open
+**Resolves with**: lab test (create gateways via each resource and compare the wire payloads / `type` handling) OR code read (a future SDK release may deprecate one package)
+
+---
+
+### cloud-connector-15 — subcloud_primary/secondary backend behavior for CC DC proxies
+
+*Origin: `references/cloud-connector/terraform.md` § Open questions; `references/cloud-connector/api-divergences.md` § Open questions*
+
+The Terraform forwarding-gateway resource registers `subcloud_primary` / `subcloud_secondary` as `id`+`name` blocks and reads/writes them (`vendor/terraform-provider-ztc/ztc/resource_ztc_forwarding_gateway.go:127-128,187-190,250-251`), tying them to a manual DC proxy when the org has subclouds. The SDK struct comment still calls them "Not applicable to Cloud & Branch Connector" (`vendor/zscaler-sdk-go/zscaler/ztw/services/forwarding_gateways/.../zia_forwarding_gateway.go:38-41`). Whether the backend API actually honors subclouds for Cloud & Branch Connector DC proxies (vs the TF schema merely exposing the fields) is not verifiable from source.
+
+**Status**: open
+**Resolves with**: lab test (set subcloud blocks on a CC forwarding gateway, observe whether the backend applies them to DC-proxy selection)
+
+---
+
+### cloud-connector-16 — ztc_traffic_forwarding_rule: OneAPI requirement and ZPA App Segment ID equivalence
+
+*Origin: `references/cloud-connector/terraform.md` § Open questions*
+
+Two forwarding-rule questions on the Terraform surface: (1) whether `ztc_traffic_forwarding_rule` requires OneAPI auth or works with both auth frameworks is not confirmed from available sources; (2) the `zparesources` Go package exports `GetZPAApplicationSegments`, returning ZPA Application Segment IDs visible to the CC tenant (`vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/zparesources/zparesources.go`), but whether those IDs are identical to the IDs returned by the `zpa_application_segment` data source in the ZPA Terraform provider has not been confirmed by a live cross-provider test. The ZTC provider exposes no data source for this lookup.
+
+**Status**: open
+**Resolves with**: lab test (run a forwarding-rule create under each auth framework; compare segment IDs from `zparesources` against the ZPA provider data source for the same segment)
+
+---
+
+### cloud-connector-17 — "Local" / LOCAL_SWITCH forwarding method — real behavior or doc artifact
+
+*Origin: `references/cloud-connector/terraform.md` § Open questions; `references/cloud-connector/index.md` § forwarding-method prose*
+
+The Go `ForwardMethod` enum (`vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go:44`) has no `LOCAL_SWITCH` value, yet a `LOCAL_SWITCH` value appears in the Terraform validator and in Python docstrings, and `index.md` prose lists "local" among the forwarding methods. Whether "local switch" / "Local" is a real portal-only or hardware-gateway (Branch Connector) behavior that the Go enum simply does not model, or an erroneous notion that propagated through docs, is unresolved. Until confirmed, the skill should not assert a `LOCAL_SWITCH` enum value against the Go SDK.
+
+**Status**: open
+**Resolves with**: lab test (attempt a `LOCAL_SWITCH` / "Local" forwarding rule on a Cloud vs Branch Connector tenant, observe acceptance) OR Postman / oneapi-spec cross-check on the `forwardMethod` enum
+
+---
+
+### cloud-connector-18 — ZTW API surface gaps: endpoint paths, Azure/GCP discovery automation, Go ZIdentity auth
+
+*Origin: `references/cloud-connector/api.md` § Open questions*
+
+Three ZTW API-surface items not resolved in the current pass: (1) the `*Endpoint` consts for the `adminuserrolemgmt` and `activation_cli` Go service packages were not inspected, so their endpoint paths are unverified (the rest of the Go service-surface table now carries verified paths); (2) whether `publicCloudInfo` exposes discovery automation for Azure/GCP — `publicCloudInfo` records carry AWS/Azure/GCP account identities, but the discovery-permission and CloudFormation-template flows in current Go source (`vendor/zscaler-sdk-go/zscaler/ztw/services/partner_integrations/partner_integrations.go:56-82`) are AWS-specific, with no Azure/GCP equivalent of `cloudFormationTemplate` or `discoveryService/{id}/permissions`; (3) ~~whether a ZIdentity OAuth path exists for Go ZTW~~ **RESOLVED**: the unified Go client routes ZTW through a dedicated `ZTWHTTPClient` OAuth2 client (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:382-383`); the legacy `ZTC_*` credential surface (`v2_config.go`) is the *alternative* backward-compat path, not the only one. The Go ZTW config object does not itself embed ZIdentity credentials — that lives in the top-level unified client, not the per-service config. Items (1) and (2) remain open.
+
+**Status**: partially open (items 1 and 2 remain; item 3 resolved)
+**Resolves with**: code read (inspect the two service packages' endpoint consts) OR lab test (probe Azure/GCP discovery automation against a tenant)
+
+---
+
+### cloud-connector-19 — ZTW SDK method-convention anomalies and OneAPI gov/ten exclusion behavior
+
+*Origin: `references/cloud-connector/sdk.md` § Open questions*
+
+Two Go SDK convention anomalies whose intent is unconfirmed: (1) `provisioning_url` uses the ZIA-style methods (`service.Client.Create`, not `CreateResource`) for `Create` / `UpdateWithPut` / `Delete` — whether this is intentional or a bug is not stated in source; (2) `workload_groups.Get` calls `service.Client.Read` (not `ReadResource`), inconsistent with the ZTW convention of `ReadResource` for GETs — the endpoint may use the ZIA-compatible request path rather than the Resource-suffixed path, but the reason is not documented. Plus one narrower auth question: OneAPI is confirmed available for ZTW and excluded for the `zscalergov` and `zscalerten` clouds, but whether the SDK surfaces that exclusion as an explicit error or silently falls back to legacy auth for those clouds is not confirmed from source.
+
+**Status**: open
+**Resolves with**: code read (a future SDK release or maintainer note clarifying the method-convention choices) OR lab test (invoke ZTW OneAPI against a gov/ten cloud and observe whether it errors or falls back)
+
+---
+
+### cloud-connector-20 — NSS VA for CBC: feed coverage, sizing, certs, HA, and rule-match semantics
+
+*Origin: `references/cloud-connector/nss-va.md` § Open questions*
+
+Several NSS-VA-for-CBC behaviors are not pinned down in the captured help sources: (1) whether CBC DNS events (from the DNS Forwarding Gateway / DNS policy) appear under the NSS Firewall log type or require a separate feed — generic NSS docs list DNS as a separate type, but CBC NSS guidance references only Firewall; (2) NSS VA sizing numbers for typical CC fleet sizes (the guides point to Zscaler's interactive sizing tool but capture no CBC table); (3) the NSS client certificate's validity period and whether Zscaler offers automated renewal or requires manual re-registration; (4) whether two NSS VAs can consume the same Nanolog partition simultaneously (active-active HA) or the stream targets exactly one VA; (5) whether Log-and-Control Forwarding gateway selection affects the path CC VMs take to upload logs to the Nanolog — i.e. whether a misconfigured log/control rule could starve the Nanolog before the NSS VA can pull; (6) whether JSON is a supported Firewall feed output format for VM-based NSS in CBC (or CSV is the only tested format); (7) whether Log-and-Control Forwarding rule evaluation stops at the first matching rule (first-match-wins) and whether the auto-created default rule holds the terminal catch-all position — captured source confirms ascending-numerical-order evaluation and disabled-rule skip (`vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.md:34,36`) but not the stop-on-first-match semantics.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (CBC-specific NSS sizing / cert / feed-format guidance) OR lab test (observe DNS-in-Firewall-feed, active-active VA behavior, and rule-match stop semantics in a tenant)
+
+---
+
+### cloud-connector-21 — Insights/Tunnel-Insights aggregation and byte-count parity with NSS feeds
+
+*Origin: `references/cloud-connector/logs/log-schema.md` § Open questions*
+
+Three Insights-surface items the log-schema doc flags but cannot resolve from source: (1) whether a raw log-download API exists for Insights data — none is confirmed (absence of evidence, not evidence of absence); (2) whether the byte counts in Tunnel Insights (DPD / Received / Sent bytes) match `inbytes` / `outbytes` from NSS-firewall records for the same sessions is unverified — no NSS feed equivalent of the Tunnel Insights metrics is confirmed; (3) the exact time-window aggregation behavior of Insights session/DNS/tunnel views at multi-day scale (the UI says it aggregates per day, but the precise semantics are undocumented). The separate `Status` / `UpgradeStatus` SDK value-space question is filed as `log-22`, not here.
+
+**Status**: open
+**Resolves with**: lab test (compare Tunnel Insights byte counts against NSS records for the same sessions; observe multi-day aggregation) OR zscaler doc not yet read (a raw-log-download API surface)
+
+---
+
+### cloud-connector-22 — CC region coverage: GovCloud, China, GCP deployment, and WDS-vs-ZTG region-set parity
+
+*Origin: `references/cloud-connector/regions.md` § Open questions*
+
+The captured regions material leaves the deployment-region picture incomplete (the doc's OQ-CCR-01 through OQ-CCR-09): whether the AWS CC AMI and Azure CC Marketplace listing exist in GovCloud / Azure Government and AWS/Azure China; which GCP regions support CC *deployment* (and whether a Google Cloud Marketplace listing exists) plus the GCP-specific networking model; whether AWS opt-in regions support the CC AMI and/or Zero Trust Gateway; per-region availability of CC VM size options (Small/Medium/Large); and the Azure Function App Flex Consumption regional-gap list. Most consequential: the workload-discovery supported-region surface is confirmed programmatically (`GET /ztw/api/v1/publicCloudInfo/supportedRegions` / the `ztc_supported_regions` data source, see § Programmatic region enumeration), but the captured Go/TF source defines only the shape (id/name/cloud_type), not the region values, and does not assert that the WDS set equals the ZTG deployment list or per-cloud CC deployment availability. The relationship between the three region sets (WDS, ZTG, CC-deployment) is unconfirmed.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (capture the linked GCP/China/GovCloud CC deployment pages) OR tenant snapshot (query `ztc_supported_regions` per cloud and compare against the 16-region ZTG table) OR support ticket (GovCloud / FedRAMP availability)
+
+---
+
+### cloud-connector-23 — dest_workload_groups_ids binding to LOCAL_SWITCH / "Local"
+
+*Origin: `references/cloud-connector/api-divergences.md` § Open questions*
+
+The Python docstring ties destination workload groups (`dest_workload_groups_ids` / `destWorkloadGroups`) to the `LOCAL_SWITCH` forward method, while the help text ties them to the console "Local" method. Whether the backend actually accepts `destWorkloadGroups` only on `LOCAL_SWITCH` / "Local" rules — and rejects or ignores them on other forwarding methods — is unconfirmed (and depends partly on cloud-connector-17, the question of whether `LOCAL_SWITCH` is itself a live method).
+
+**Status**: open
+**Resolves with**: lab test (set `dest_workload_groups_ids` on rules of varying forward method, observe which the backend accepts)
+
+---
+
+### cloud-connector-24 — Field character-limit enforcement on DNS and Log-and-Control rules
+
+*Origin: `references/cloud-connector/dns-subsystem.md` § Open questions*
+
+The help pages state character limits for Log-and-Control rule fields (name ≤ 31, description ≤ 10,240), but the captured `ECTrafficLogRules` struct models them as plain string fields with no enforcement. Whether the API actually enforces these limits server-side — and whether the DNS-rule fields carry analogous undocumented limits — is doc-tier until confirmed against the API's validation behavior.
+
+**Status**: open
+**Resolves with**: lab test (submit over-length name/description values, observe whether the API rejects them) OR zscaler doc not yet read
+
+---
+
+### zcc-77 — WebPolicy `*Top` vs nested-block precedence on write
+
+*Origin: `references/zcc/api-schemas.md` § Open questions*
+
+The Go `WebPolicy` struct carries many settings twice: a root-level `*Top`-suffixed copy and a counterpart inside a nested block (`vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go:186,209-214,222-243`). The `DefaultMacosWebPolicy` constructor comment explains both copies are seeded from a "known-working UI-generated request body" (`web_policy.go:88-90`) and the SDK faithfully sends both. Which copy the API honours on write when the two disagree — or whether one silently wins — is not stated in source.
+
+**Status**: open
+**Resolves with**: lab test (write a WebPolicy with the root-level `*Top` field and its nested counterpart set to conflicting values, read back, observe which persisted)
+
+---
+
+### zcc-78 — WebPolicy `deviceType` vs `device_type` write precedence
+
+*Origin: `references/zcc/api-schemas.md` § Open questions*
+
+`DeviceTypeAlt` (wire `deviceType`, **int**, `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go:323`) coexists with `DeviceType` (wire `device_type`, int, `web_policy.go:99`) on the WebPolicy struct — two distinct int fields. Separately, the SDK comment notes the API returns an unmodelled `deviceType` **string** (e.g. `"DEVICE_TYPE_MAC"`) on reads (`web_policy.go:65-69`); `DeviceTypeAlt` is not that string companion. Which int field a write honours when both are populated is not documented in source.
+
+**Status**: open
+**Resolves with**: lab test (submit a WebPolicy write with `device_type` and `deviceType` set to different device types, observe which the API applies)
+
+---
+
+### zcc-79 — WebPolicy `*Selected` form-state fields required on write
+
+*Origin: `references/zcc/api-schemas.md` § Open questions*
+
+The full `WebPolicy` field set is modeled from UI request-body captures (`payload-ios.json` etc.) referenced in the SDK comments, including numerous `*Selected` / `*SelectedOption` form-state fields. The struct tags carry no `omitempty` either way except where explicitly noted (`vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go:88-90`), so whether each form-state field is required on write versus merely echoed on read is not determinable from the struct alone.
+
+**Status**: open
+**Resolves with**: lab test (write a minimal WebPolicy omitting the `*Selected` fields, observe whether the API rejects, defaults, or accepts the partial body)
+
+---
+
+### zcc-80 — ZCC v1 vs v2 endpoint coexistence
+
+*Origin: `references/zcc/api.md` § Open questions*
+
+The `/zcc/papi/public/v2` families are confirmed in the Go SDK — notification-templates (`vendor/zscaler-sdk-go/zscaler/zcc/services/notification_template/notification_template.go:15`), zia-posture-profiles (`vendor/zscaler-sdk-go/zscaler/zcc/services/zia_posture/zia_posture.go:15`), and trusted-networks (`vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network_v2/trusted_network_v2.go:15`). The Python SDK does not expose these v2 services. Whether the v2 endpoints supersede or coexist with their v1 equivalents long-term — and whether a tenant should migrate — is not stated in the SDK source.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (vendor API changelog / deprecation notice) OR lab test (compare v1 and v2 responses for the same tenant object)
+
+---
+
+### zcc-81 — Device `zd*` vs `zdp*` field-prefix meanings
+
+*Origin: `references/zcc/devices.md` § Open questions*
+
+The Python `DeviceDetails` model carries both a `zd*` set (`zd_enabled` `vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py:335`, `zd_health` `:340`, `zd_last_seen_time` `:344`) and a `zdp*` set (`zdp_version` `:330`, `zdp_enabled` `:336`, `zdp_health` `:341`, `zdp_last_seen_time` `:345`). The SDK source never expands either acronym, so what service each prefix names — and how `zd` differs from `zdp` — is not backed by current sources.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (help-portal Device Details capture) OR tenant snapshot (read a live device response and correlate the prefixes to enabled services)
+
+---
+
+### zcc-82 — Device `registration_state` vs `state` distinction
+
+*Origin: `references/zcc/devices.md` § Open questions*
+
+Both `registration_state` (`vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py:49`) and `state` (`:51`) exist on the `Device` list model, but the finer-grained distinction between them — what each tracks and how their value sets differ — is not documented in the vendored SDK source.
+
+**Status**: open
+**Resolves with**: tenant snapshot (read live device records and compare the two field value sets) OR zscaler doc not yet read
+
+---
+
+### zcc-83 — `DeviceDetails.state` / `type` wire type per endpoint
+
+*Origin: `references/zcc/devices.md` § Open questions*
+
+The Go SDK declares `state` / `type` as `int` on the list endpoint (`vendor/zscaler-sdk-go/zscaler/zcc/services/devices/devices.go:40,42`) but as `string` on the detail endpoint (`devices.go:80,82`). Which type the wire actually returns per endpoint — and whether a caller must handle both forms for the same logical field — is unverified against a live tenant.
+
+**Status**: open
+**Resolves with**: tenant snapshot (capture both the list and detail responses, compare the wire type of `state` / `type`)
+
+---
+
+### zcc-84 — Unified Tunnel operational semantics
+
+*Origin: `references/zcc/forwarding-profile.md` § Open questions*
+
+The Unified Tunnel model is confirmed in both SDKs (Go `UnifiedTunnel` struct `vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go:119`; Python `UnifiedTunnel` class `vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py:299`), carrying shared-transport fields (`actionTypeZIA`, `actionTypeZPA`, `primaryTransport`). What shared-transport actually changes for the user versus running two separate Z-Tunnels — the customer-side operational semantics — has no help-article backing in the captured sources.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (Unified Tunnel help article) OR lab test (enable Unified Tunnel and observe transport/connection behavior versus the two-tunnel baseline)
+
+---
+
+### zcc-85 — App-Profile fail-close vs tenant `FailOpenPolicy` precedence
+
+*Origin: `references/zcc/forwarding-profile.md` § Open questions*
+
+App-Profile fail-close fields are SDK-confirmed on the application-profile / PolicyExtension surface — `zccAppFailOpenPolicy` (`:474`), `zccTunnelFailPolicy` (`:475`), and the `zccFailCloseSettings*` block (`:449-472`). Note: `reactivateWebSecurityMinutes` (`application_profiles.py:49`) is the time before web security reactivates after a user-initiated disable (`web_policy.py:183` docstring: "Minutes after which Web Security is reactivated when disabled by the user") — it is not a captive-portal grace field; the captive-portal grace field is `captivePortalWebSecDisableMinutes` on `FailOpenPolicy`. Which setting wins when both a per-App-Profile fail-close value and the tenant-global `FailOpenPolicy` are set is not documented in the captured sources.
+
+**Status**: open
+**Resolves with**: lab test (set conflicting per-App-Profile and tenant-global fail-close values, induce a tunnel/firewall error, observe which policy applies) OR zscaler doc not yet read
+
+---
+
+### zcc-86 — `get_web_privacy` returns `None` on error
+
+*Origin: `references/zcc/sdk.md` § Open questions*
+
+The Python SDK's `get_web_privacy` returns bare `None` on any error path rather than the result/response/error tuple that every other SDK method returns (`vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py:58,61,65`). This is either an oversight or an intentional deviation; callers must special-case `None` rather than inspecting a third tuple element. (Earlier doc text attributed this to `utils.py`; the deviation actually lives in `web_privacy.py`.)
+
+**Status**: resolved (2026-06-15) — source-confirmed deviation; retained as a caller-behavior note rather than an open ZCC-behavior question.
+**Resolves with**: code read (done — the three `return None` paths are in `web_privacy.py`)
+
+**Answer**: Confirmed in current source: `get_web_privacy` returns `None` when request creation fails, when execution fails, and when response-body parsing raises (`vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py:58,61,65`). This is a Python-SDK API-surface quirk, not a ZCC product behavior; callers must guard for `None`.
+
+---
+
+### zcc-87 — ZCC rate-limit header behavior on the OneAPI path
+
+*Origin: `references/zcc/sdk.md` § Open questions*
+
+The ZCC API's rate-limit response headers (`X-Rate-Limit-Remaining`, `X-Rate-Limit-Retry-After-Seconds`) are consumed by the legacy ZCC client helper, but how — or whether — they are surfaced and honoured on the OneAPI request path is not documented in the SDK source. This overlaps with the rate-limit clarifications `zcc-10` (header presence on 2xx) and `zcc-12` (RequestExecutor retry behavior).
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (OneAPI rate-limit documentation) OR lab test (drive the OneAPI ZCC path to a 429 and inspect the returned headers and client retry behavior)
+
+---
+
+### zcc-88 — WebPolicy read-shape `macPolicy` vs `macosPolicy` key
+
+*Origin: `references/zcc/snapshot-schema.md` § Open questions*
+
+The Python WebPolicy serializer reads and writes the macOS sub-policy under `macPolicy` (`vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py:190,302`), but the documented snapshot example block and the `has_mac` jq query use `macosPolicy`. Whether the `listByCompany` read JSON returns `macPolicy`, `macosPolicy`, or both keys is not confirmed from a captured snapshot.
+
+**Status**: open
+**Resolves with**: tenant snapshot (capture `web/policy/listByCompany` JSON and check which macOS sub-policy key appears)
+
+---
+
+### zcc-89 — WebPolicy `groups` / `users` / `deviceGroups` wire shape
+
+*Origin: `references/zcc/snapshot-schema.md` § Open questions*
+
+The Python model splits scope into `groupIds`/`groupNames`, `userIds`/`userNames`, `deviceGroupIds`/`deviceGroupNames` and additionally parses `groups`/`users` into typed objects (`vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py:118-148`). Which of these keys actually appear in the `listByCompany` wire response — and whether `groups`/`users` arrive id-only or as full `{id, loginName, ...}` objects — is not confirmed from a snapshot.
+
+**Status**: open
+**Resolves with**: tenant snapshot (capture a `listByCompany` response and record which scope keys appear and their element shape)
+
+---
+
+### zcc-90 — WebPolicy companion `deviceType` string presence on reads
+
+*Origin: `references/zcc/snapshot-schema.md` § Open questions*
+
+The Go SDK comment asserts the API returns a companion `deviceType` string such as `"DEVICE_TYPE_MAC"` alongside the integer `device_type` on reads (`vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go:65-69`), but the field is intentionally not modelled, so its wire presence is inferred from a comment rather than confirmed from a captured response.
+
+**Status**: open
+**Resolves with**: tenant snapshot (capture real `web/policy/listByCompany` JSON and confirm whether the `deviceType` string is actually present)
+
+---
+
+### zcc-91 — App Supportability toggle tenant defaults
+
+*Origin: `references/zcc/support-options.md` § Open questions*
+
+The `CompanyInfo` model declares the App Supportability toggles — `supportEnabled` (`vendor/zscaler-sdk-python/zscaler/zcc/models/company_info.py:65`), `supportAdminEmail` (`:64`), `supportTicketEnabled` (`:71`), `disableLoggingControls` (`:74`), and `fetchLogsForAdminsEnabled` (`:67`) — but the SDK does not assert their out-of-box default values. The "Default-on vs default-off" column in the doc is inferred from the help doc's configuration steps, not from source.
+
+**Status**: open
+**Resolves with**: tenant snapshot (read `CompanyInfo` on a freshly provisioned tenant) OR zscaler doc not yet read
+
+---
+
+### zcc-92 — Per-product disable-password authority (`WebPolicy` vs `manage_pass`)
+
+*Origin: `references/zcc/support-options.md` § Open questions*
+
+The same logical disable passwords exist on the top-level `WebPolicy` object — `zdDisablePassword` (`vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go:582`), `zdxDisablePassword` (`:583`), `zpaDisablePassword` (`:584`), `zdpDisablePassword` (`:580`), and `exitPassword` (`:558`) — and on the write-only `manage_pass` bulk POST, which uses differently-named fields including `zadDisablePass` (`vendor/zscaler-sdk-go/zscaler/zcc/services/manage_pass/manage_pass.go:24`) and `ziaDisablePass` (`manage_pass.go:27`). The SDK does not state precedence when a value is set on both surfaces, nor how `manage_pass`'s `ziaDisablePass` / `zadDisablePass` reconcile with the WebPolicy keys — WebPolicy has no `ziaDisablePassword`, and its `zdDisablePassword` product mapping versus `zadDisablePass` is not stated in source.
+
+**Status**: open
+**Resolves with**: lab test (set a disable password on both the WebPolicy and via `manage_pass`, observe which the agent enforces and how the differently-named fields map) OR zscaler doc not yet read
+
+---
+
+### zcc-93 — macOS password read-key vs write-key API behavior
+
+*Origin: `references/zcc/support-options.md` § Open questions*
+
+`MacOSPolicy` reads the password gates under camelCase keys — `disablePassword` (`vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py:1095`), `logoutPassword` (`:1107`), `uninstallPassword` (`:1111`) — but `request_format()` emits snake_case keys — `disable_password` (`:1135`), `logout_password` (`:1141`), `uninstall_password` (`:1143`). Whether the live API accepts the snake_case write form for macOS, ignores it, or stores it under a different key than it reads back is not determinable from the model alone.
+
+**Status**: open
+**Resolves with**: lab test (write a macOS sub-policy via the SDK's snake_case form, read back, confirm the password persisted and under which key)
+
+---
+
+### zcc-94 — Per-platform password-gate UI surface per OS
+
+*Origin: `references/zcc/support-options.md` § Open questions*
+
+All five per-platform sub-policy classes carry the disable / logout / uninstall password fields as model attributes (e.g. macOS `webpolicy.py:1095,1107,1111`; Windows `webpolicy.py:820,841,848`), but the SDK model does not assert which of these gates render as actual user-facing UI actions on each OS — for example whether mobile platforms expose an uninstall-password prompt the same way desktop does.
+
+**Status**: open
+**Resolves with**: operator experience (observe the ZCC UI per OS) OR zscaler doc not yet read
+
+---
+
+### zcc-95 — Trusted-network stateful evaluation across transitions
+
+*Origin: `references/zcc/trusted-networks.md` § Open questions*
+
+Whether ZCC's trusted-network evaluation is stateful across network transitions — does the agent debounce rapid network changes, or cache the previous evaluation result — is not surfaced by any SDK field. The model exposes the criteria but no transition-handling or hysteresis configuration.
+
+**Status**: open
+**Resolves with**: lab test (rapidly switch a device between a trusted and untrusted network, observe whether ZCC debounces or re-evaluates immediately each time)
+
+---
+
+### zcc-96 — Multiple TrustedNetworks partial-match precedence
+
+*Origin: `references/zcc/trusted-networks.md` § Open questions*
+
+When a single Forwarding Profile references multiple TrustedNetworks and more than one partially matches the current environment, which one wins — and how the partial matches are resolved — is not documented in the SDK source.
+
+**Status**: open
+**Resolves with**: lab test (configure a Forwarding Profile with two overlapping TrustedNetworks, place a device where both partially match, observe the effective network determination)
+
+---
+
+### zcc-97 — `forwarding_profile_id` orphan-reference resolution
+
+*Origin: `references/zcc/web-policy.md` § Open questions*
+
+A Web Policy can reference a Forwarding Profile ID (`forwarding_profile_id`, `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py:98`) that has since been deleted — the relationship is FK-shaped but not enforced at write time. What ZCC does at enforcement when the referenced profile is missing — fall back to a default, fail silently, or block traffic — is not described in any available source.
+
+**Status**: open
+**Resolves with**: lab test (point a Web Policy at a Forwarding Profile ID, delete the profile, observe the agent's enforcement behavior on a device under that policy)
+
+---
+
+### zcc-98 — On-Net policy vs Forwarding Profile evaluation order
+
+*Origin: `references/zcc/web-policy.md` § Open questions*
+
+When both the Python-only `onNetPolicy` block (`vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py:220-228`) and the Forwarding Profile's trusted-network configuration are present, which one is evaluated first — and which wins on conflict — is unverified.
+
+**Status**: open
+**Resolves with**: lab test (configure conflicting on-net and Forwarding-Profile trusted-network behavior, observe the effective on-network decision)
+
+---
+
+### zcc-99 — `dropQuicTraffic` browser TCP-fallback effect
+
+*Origin: `references/zcc/web-policy.md` § Open questions*
+
+The `dropQuicTraffic` field exists on the WebPolicy (`vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go:579`; Python `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py:416`), but whether dropping QUIC reliably forces browsers to fall back to TCP/443 — versus failing the connection — is operator-reported, not verified in source.
+
+**Status**: open
+**Resolves with**: operator experience OR lab test (enable `dropQuicTraffic`, drive a QUIC-capable browser, confirm it falls back to TCP rather than failing)
+
+---
+
+### zcc-100 — IPv6-only-network behavior of the `drop_ipv6*` flags
+
+*Origin: `references/zcc/z-tunnel.md` § Open questions*
+
+The forwarding-profile model carries three IPv6-specific flags, all confirmed in source — `drop_ipv6_traffic` (`vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py:117`), `drop_ipv6_traffic_in_ipv6_network` (`:118`), and `drop_ipv6_include_traffic_in_t2` (`:136`). The flags exist, but what each one does to traffic on an IPv6-only network — the runtime behavior — is not described in the captured help docs, which focus on IPv4.
+
+**Status**: open
+**Resolves with**: lab test (toggle each flag on a device attached to an IPv6-only network, observe the effect on IPv6 traffic and Z-Tunnel 2.0 forwarding)
+
+---
+
+### zcc-101 — Service-Edge split-landing control-connection behavior
+
+*Origin: `references/zcc/z-tunnel.md` § Open questions*
+
+When a Z-Tunnel session re-lands on a different Service Edge (split-landing), whether the control connection stays up while data reroutes — or the whole session tears down and re-establishes — is not documented. Wire-format protocol details (framing, keepalive, session resumption) are likewise not customer-documented.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (Support / SE-level protocol detail) OR operator experience (observe session continuity during a Service-Edge failover)
+
+---
+
+### zdx-03 — ZDX token host per tenant
+
+*Origin: `references/zdx/api-divergences.md` § Open questions; `references/zdx/api.md` § Open questions*
+
+Two ZDX hosts appear across sources. The legacy Python ZDX client and the Go ZDX v2 client default to `api.zdxcloud.net` (`vendor/zscaler-sdk-python/zscaler/zdx/legacy.py:55-57` — default cloud `zdxcloud`, URL `https://api.{cloud}.net`; `vendor/zscaler-sdk-go/zscaler/zdx/v2_config.go:150`), while the OneAPI path uses `api.zsapi.net` (`vendor/zscaler-sdk-python/zscaler/request_executor.py:32`; `vendor/zscaler-sdk-go/zscaler/oneapiclient.go:416`). Whether a specific tenant's credentials authenticate against the legacy ZDX host, the OneAPI host, or both is not determinable from source — it depends on how the tenant was provisioned (legacy ZDX API key vs Zidentity OneAPI client).
+
+**Status**: open
+**Resolves with**: lab test (authenticate the same tenant against each host, observe which succeeds) OR zscaler doc not yet read
+
+---
+
+### zdx-04 — ZDX rate-limit header family per host
+
+*Origin: `references/zdx/api-divergences.md` § Open questions; `references/zdx/api.md` § Open questions*
+
+The two ZDX hosts are read off two source families with different rate-limit header expectations. The legacy ZDX transport reads `X-Ratelimit-Remaining-Second` / `X-Ratelimit-Limit-Second` (`vendor/zscaler-sdk-python/zscaler/zdx/legacy.py:97-98`), and the help capture documents a `RateLimit-*` family on the OneAPI gateway. Whether each host actually emits the family its source expects — and specifically whether the OneAPI gateway (`api.zsapi.net`) enforces a per-second `X-Ratelimit-*-Second` window or only the `RateLimit-*` family — needs a live response capture; the SDK transport on the gateway path does not parse the `RateLimit-*` form, so the gateway-header claim rests on the help capture alone.
+
+**Status**: open
+**Resolves with**: lab test (capture live response headers from each host) OR support ticket
+
+---
+
+### zdx-05 — ZDX server tier table vs client flat limiter
+
+*Origin: `references/zdx/api.md` § Open questions*
+
+The help reference documents a server-side per-tenant rate tier keyed to license count, while the Go ZDX client applies a flat global limiter (`vendor/zscaler-sdk-go/zscaler/zdx/v2_client_ratelimit_test.go:105-107` exercises a 10-req/s global limiter). Whether the client limiter is reconciled with the negotiated server tier anywhere, or is simply a conservative floor independent of the tenant's actual server-side allowance, is not stated in source.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR support ticket (confirm the per-tenant negotiated tier and whether the client floor matters)
+
+---
+
+### zdx-06 — get_device_app live response shape
+
+*Origin: `references/zdx/api-divergences.md` § Open questions; `references/zdx/devices.md` § Open questions*
+
+The two SDKs model the same `GET /devices/{deviceID}/apps/{appID}` endpoint with different shapes: Python returns a `DeviceAppScoreTrend` timeseries (`vendor/zscaler-sdk-python/zscaler/zdx/devices.py:314` wraps the body in `DeviceAppScoreTrend`; model at `vendor/zscaler-sdk-python/zscaler/zdx/models/devices.py:369`), while Go returns a single `*App` score (`vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_apps.go:23`). The actual wire shape returned by the endpoint — a trend series, a single score, or a shape that accommodates both — is not determinable from source alone.
+
+**Status**: open
+**Resolves with**: lab test (capture the raw response from `GET .../apps/{appID}`) OR zscaler doc not yet read
+
+---
+
+### zdx-07 — DeviceEvents live response key
+
+*Origin: `references/zdx/api-divergences.md` § Open questions*
+
+The two SDKs disagree on the JSON key carrying the device-events collection. Go unmarshals from `instances` (`vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_events.go:18` — `Events []Events json:"instances,omitempty"`), while the Python model reads `events` (`vendor/zscaler-sdk-python/zscaler/zdx/models/devices.py:650`). Which key the live API actually returns — or whether both are present — is unverified.
+
+**Status**: open
+**Resolves with**: lab test (capture the raw device-events response) OR zscaler doc not yet read
+
+---
+
+### zdx-08 — CallQualityMetrics.metrics live shape
+
+*Origin: `references/zdx/api-divergences.md` § Open questions; `references/zdx/devices.md` § Open questions*
+
+The `metrics` series on the call-quality-metrics response is modeled differently across SDKs: Python forms a list of `CommonMetrics` objects (`vendor/zscaler-sdk-python/zscaler/zdx/models/devices.py:457`), while Go expects structured `[]common.Metric` (`vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_quality_metrics.go:20`). The actual wire shape of each element in the `metrics` array is unverified.
+
+**Status**: open
+**Resolves with**: lab test (capture a raw call-quality-metrics response) OR zscaler doc not yet read
+
+---
+
+### zdx-09 — Org-list time-filter semantics
+
+*Origin: `references/zdx/administration.md` § Open questions*
+
+The departments and locations list helpers accept time filters (`from`/`to` on `GetDepartmentsFilters` / `GetLocationsFilters`, `vendor/zscaler-sdk-go/zscaler/zdx/services/administration/administration.go:29-37`; `since` on the Python equivalents in `vendor/zscaler-sdk-python/zscaler/zdx/admin.py`). It is unclear whether the window selects "departments/locations that had active devices in this window" or has some other meaning for reference data that does not change over time. The semantics are not stated in source.
+
+**Status**: open
+**Resolves with**: lab test (vary the time window, compare returned org lists) OR zscaler doc not yet read
+
+---
+
+### zdx-10 — Q vs Search matching on GetLocationsFilters
+
+*Origin: `references/zdx/administration.md` § Open questions*
+
+`GetLocationsFilters` carries both a `Search` and a `Q` field (`vendor/zscaler-sdk-go/zscaler/zdx/services/administration/administration.go:33,35`), while `GetDepartmentsFilters` carries only `Search` (`:29-31`). Both location fields appear to filter by name or ID, but whether they differ in matching behavior — exact vs partial, case sensitivity, name-vs-ID scope — is not documented in source.
+
+**Status**: open
+**Resolves with**: lab test (submit each field independently, compare results) OR zscaler doc not yet read
+
+---
+
+### zdx-11 — Exhaustive metric_name value set
+
+*Origin: `references/zdx/applications.md` § Open questions*
+
+The valid `metric_name` values for application metric retrieval are documented only by example, not as an enumerated set. The Python docstring names `pft`, `dns`, `availability` for Web Probes, and the Go docstring names the Web-Probe and CloudPath metric labels in prose (`vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go:38-41`). Neither source provides an enumerated type or exhaustive list of every valid `metric_name`.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR lab test (enumerate accepted `metric_name` values against the endpoint)
+
+---
+
+### zdx-12 — Tenant-level application inventory
+
+*Origin: `references/zdx/applications.md` § Open questions*
+
+It is unverified whether the SDK application-list surface can return applications that have no recent probe data — i.e. configured-but-inactive or unconfigured apps — or whether the list is limited to apps with telemetry in the requested window. The list methods (`vendor/zscaler-sdk-python/zscaler/zdx/apps.py`) do not state inactive-app behavior.
+
+**Status**: open
+**Resolves with**: tenant snapshot (compare configured apps against the list response) OR zscaler doc not yet read
+
+---
+
+### zdx-13 — Probe metadata per application
+
+*Origin: `references/zdx/applications.md` § Open questions*
+
+No SDK endpoint surfaces which probes (Web or Cloud Path) are attached to a given application ID — probe-to-application binding appears portal-only. The application surface (`vendor/zscaler-sdk-python/zscaler/zdx/apps.py`) exposes metrics and scores but no probe-attachment listing.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR operator experience (confirm probe-attachment is portal-only)
+
+---
+
+### zdx-14 — Application auto-detection vs manual config
+
+*Origin: `references/zdx/applications.md` § Open questions*
+
+Whether ZDX automatically discovers monitored applications or requires manual configuration in the portal is not surfaced in SDK source. The read-only application API (`vendor/zscaler-sdk-python/zscaler/zdx/apps.py`) returns whatever apps the tenant has, without revealing how they came to be monitored.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR operator experience
+
+---
+
+### zdx-15 — ZDX CA topology
+
+*Origin: `references/zdx/cloud-architecture.md` § Open questions*
+
+The vendor help states the ZDX Central Authority design is "similar to that of the Internet & SaaS CA" (`vendor/zscaler-help/understanding-zdx-cloud-architecture.md:48`), which implies active-passive, but the ZDX CA's actual topology (active-passive vs active-active) is not explicitly confirmed.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR support ticket
+
+---
+
+### zdx-16 — Region boundary definition and geographic weighting
+
+*Origin: `references/zdx/cloud-architecture.md` § Open questions; `references/zdx/score.md` § Open questions*
+
+ZDX computes a "weighted average of peers in the same region," but the region boundary is undefined: how ZDX converts lat/long or IP to a region (continent vs country vs city, or a geolocation ID), what fallback applies when OS location services are off, and the weighting function over same-region peers are all unstated in vendor sources.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR lab test
+
+---
+
+### zdx-17 — Data retention, GDPR, and data residency
+
+*Origin: `references/zdx/cloud-architecture.md` § Open questions*
+
+No vendor source documents a ZDX telemetry retention period, purge policy, or data-residency / data-location configuration option. The Microsoft Azure Data Explorer (ADX) storage dependency may be material for customers with cloud-provider or data-residency constraints, but the controls (if any) are not documented.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR support ticket
+
+---
+
+### zdx-18 — TPG geo-distribution and failover
+
+*Origin: `references/zdx/cloud-architecture.md` § Open questions*
+
+The Transaction Processing Gateway's stateless design is documented, but its SLA, regional deployment footprint, and failure-domain handling are not. Whether the TPG is regionally distributed, how a client selects one, and what happens on a regional TPG outage are unstated.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR support ticket
+
+---
+
+### zdx-19 — ZCC metric buffering when TPG unreachable
+
+*Origin: `references/zdx/cloud-architecture.md` § Open questions; `references/zdx/overview.md` § Open questions*
+
+When ZCC cannot reach the TPG (transient cloud-unreachable), it is presumed that metrics are buffered on-device and flushed on reconnect, but whether buffering happens at all, the buffer size/retention, and the flush behavior are not documented in vendor sources.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR lab test (induce TPG unreachability, observe gap-fill on reconnect)
+
+---
+
+### zdx-20 — Cloud Path probe routing through Service Edges
+
+*Origin: `references/zdx/cloud-architecture.md` § Open questions*
+
+Vendor sources note Cloud Path probes can visualize tunneling through a Public Service Edge, but whether routing through a Service Edge is mandatory, conditional on the network path, or per-probe-config optional is not documented.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR lab test
+
+---
+
+### zdx-21 — Call Quality Monitoring data flow
+
+*Origin: `references/zdx/cloud-architecture.md` § Open questions*
+
+The polling frequency, latency, and failure modes of ZDX's Call Quality Monitoring integration with Microsoft Graph / Zoom are not documented. The call-quality-metrics surface exists in the SDK (`vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_quality_metrics.go:25`), but how the underlying meeting telemetry is ingested is unstated.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR support ticket
+
+---
+
+### zdx-22 — ADX tenant isolation mechanism
+
+*Origin: `references/zdx/cloud-architecture.md` § Open questions*
+
+ZDX stores telemetry in Microsoft Azure Data Explorer, but the specific tenant-isolation mechanism at the ADX layer (per-tenant partitioning, RBAC, encryption boundaries) is not documented.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR support ticket
+
+---
+
+### zdx-23 — Wi-Fi field availability in device API response
+
+*Origin: `references/zdx/devices.md` § Open questions*
+
+The Go device `Network` struct exposes `wifi_adapter` / `wifi_type` / `ssid` / `bssid` (and channel) (`vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go:50-54`), but the Python device model does not surface them. Whether these fields are present in the API response for all device types or only for wireless-capable devices (and whether Python silently drops them) is unverified.
+
+**Status**: open
+**Resolves with**: lab test (capture device responses across wired and wireless devices) OR zscaler doc not yet read
+
+---
+
+### zdx-24 — Device health-metric category enumeration
+
+*Origin: `references/zdx/devices.md` § Open questions*
+
+The Go health-metrics docstring lists CPU, Memory, Disk I/O, Network I/O, Wi-Fi, Network Bandwidth, "etc." as supported categories (`vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_health_metrics.go:28`), but this is a prose comment ending in "etc.", not an enumerated type. The exhaustive supported-category set is unverified.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR lab test (enumerate accepted metric categories against the endpoint)
+
+---
+
+### zdx-25 — os_build API presence
+
+*Origin: `references/zdx/devices.md` § Open questions*
+
+The Python device model surfaces `os_build` while Go does not, implying the field is in the API response but silently dropped by Go. Whether `os_build` is actually present in the wire response is unconfirmed without a raw sample.
+
+**Status**: open
+**Resolves with**: lab test (capture a raw device response and check for `os_build`) OR zscaler doc not yet read
+
+---
+
+### zdx-26 — Geolocation hierarchy traversal
+
+*Origin: `references/zdx/devices.md` § Open questions*
+
+`DeviceActiveGeo.children` holds nested `Children` objects, and recursive traversal of the geolocation tree via repeated `parent_geo_id`-filtered calls is implied by the nesting rather than stated. Whether callers are expected to traverse the embedded children or re-query per level, and how deep the hierarchy goes, is not documented.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR lab test
+
+---
+
+### zdx-27 — Device-event category enumeration
+
+*Origin: `references/zdx/devices.md` § Open questions*
+
+The Go `GetEvents` docstring comment lists only Zscaler, Hardware, Software, Network as event categories (`vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_events.go:30`); no SDK model or vendored help capture enumerates a fixed category set. Whether the API also emits Location, User, or other event categories is unconfirmed.
+
+**Status**: open
+**Resolves with**: lab test (collect observed event categories from a raw response) OR zscaler doc not yet read
+
+---
+
+### zdx-28 — Call-quality-metrics application scope and metric labels
+
+*Origin: `references/zdx/devices.md` § Open questions*
+
+The call-quality-metrics surface carries `meet_id` / `meet_session_id` / `meet_subject` (`vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_quality_metrics.go:17-19`), implying meeting-application (Teams/Zoom) scope, but which applications actually populate this surface and which metric labels appear in the `metrics` series are not enumerated in source. (Distinct from `zdx-08`, which is about the wire *shape* of each `metrics` element; this entry is about *which* labels and *which* apps.)
+
+**Status**: open
+**Resolves with**: lab test (capture call-quality-metrics across meeting apps) OR zscaler doc not yet read
+
+---
+
+### zdx-29 — Device grouping / cohorts
+
+*Origin: `references/zdx/devices.md` § Open questions*
+
+Neither SDK exposes device grouping or cohort constructs; grouping may be a portal-only feature. Whether ZDX supports device cohorts at all, and if so where they surface, is unverified.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR operator experience
+
+---
+
+### zdx-30 — Per-probe cadence during a Diagnostics Session
+
+*Origin: `references/zdx/diagnostics-and-alerts.md` § Open questions; `references/zdx/probes.md` § Open questions*
+
+The deeptrace session-length set is resolved (5/15/30/60 min) and a help doc states session data is "updated every minute," but the per-probe cadence *during* a session — whether it remains the steady-state 5-minute interval or intensifies to a faster rate — is not stated in any cited source.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR lab test (run a session, observe inter-sample spacing)
+
+---
+
+### zdx-31 — Alert rule-evaluation cadence
+
+*Origin: `references/zdx/diagnostics-and-alerts.md` § Open questions*
+
+Alerts fire "when condition crosses threshold," but the evaluation interval — every score update, hourly, or continuously — is not stated in any cited source. This governs alert-latency expectations.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR lab test
+
+---
+
+### zdx-32 — Deeptrace session-name wire field
+
+*Origin: `references/zdx/diagnostics-and-alerts.md` § Open questions*
+
+No source enumerates the on-wire JSON field the start endpoint expects for the session name. The Python `TraceDetails.request_format` maps `session_name` → `name` (`vendor/zscaler-sdk-python/zscaler/zdx/models/troubleshooting.py:120`), but `start_deeptrace` builds the POST body straight from kwargs with key `session_name` (`vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py:182`), and the Go start payload also uses `session_name` (`vendor/zscaler-sdk-go/zscaler/zdx/services/troubleshooting/deeptrace/deeptrace.go:42`). Whether the live API expects `name` or `session_name` is not confirmable from source.
+
+**Status**: open
+**Resolves with**: lab test (submit each key, observe which the API honors) OR zscaler doc not yet read
+
+---
+
+### zdx-33 — session_length request-vs-response key
+
+*Origin: `references/zdx/diagnostics-and-alerts.md` § Open questions*
+
+The start payloads use key `session_length_minutes` (`vendor/zscaler-sdk-go/zscaler/zdx/services/troubleshooting/deeptrace/deeptrace.go:46`), but the Go response struct `TraceDetails` reads `session_length` (`vendor/zscaler-sdk-go/zscaler/zdx/services/troubleshooting/deeptrace/deeptrace.go:37`). Whether the request and response deliberately use different keys for the same field, or one of the tags is stale, is not confirmable from source beyond these struct tags.
+
+**Status**: open
+**Resolves with**: lab test (start a session, inspect the response key) OR zscaler doc not yet read
+
+---
+
+### zdx-34 — Maximum look-back window and probe-ID expiry
+
+*Origin: `references/zdx/diagnostics-and-alerts.md` § Open questions*
+
+Only the 2-hour default look-back is documented for the probe-read endpoints (default behavior noted in the Go health-metrics docstring, `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_health_metrics.go:27`). No source states a maximum `since` / look-back window, nor whether probe IDs expire after the look-back window elapses.
+
+**Status**: open
+**Resolves with**: lab test (request progressively older windows; re-use an aged probe ID) OR zscaler doc not yet read
+
+---
+
+### zdx-35 — share_snapshot obfuscation transmission
+
+*Origin: `references/zdx/diagnostics-and-alerts.md` § Open questions*
+
+The Python `share_snapshot` docstring documents an `obfuscation` argument with enum values `USER_NAME` / `LOCATION` / `DEVICE_NAME` / `IP_ADDRESS` / `WIFI_NAME` (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:43-45`), but the body-builder copies only `name`, `alert_id`, and the converted `expiry` into the request body (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:95-106`); `obfuscation` is not in the `@zdx_params` shorthand path (`vendor/zscaler-sdk-python/zscaler/utils.py:390`) and is not extracted into the body. From source alone it is unclear whether an `obfuscation` value passed by a caller reaches the API in this SDK version. The API contract and enum set themselves are not in question — only this Python client's transmission of the field.
+
+**Status**: open
+**Resolves with**: code read (a future SDK release that wires the field) OR lab test (capture the outbound snapshot request body)
+
+---
+
+### zdx-36 — PFT vs Availability score weighting
+
+*Origin: `references/zdx/overview.md` § Open questions; `references/zdx/score.md` § Open questions*
+
+The ZDX Score takes Page Fetch Time and Availability as inputs, but the numerical weighting between them — the formula or relative weight — is not documented (`vendor/zscaler-help/about-zdx-score.md`). PFT is named the primary input and Availability a factor, without quantification.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR lab test
+
+---
+
+### zdx-37 — Zero-value handling in the lowest-value-within-hour rollup
+
+*Origin: `references/zdx/overview.md` § Open questions; `references/zdx/score.md` § Open questions*
+
+The hourly score rollup selects the "lowest value within the hour," but whether probe failures (zero or null values) are included or excluded in that selection is unstated. The answer materially affects how a probe outage propagates into the availability component of the score.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR lab test (induce a probe failure, observe the hourly rollup)
+
+---
+
+### zdx-38 — Which metrics feed the composite score
+
+*Origin: `references/zdx/score.md` § Open questions*
+
+The full retrievable metric set is resolved from the Go SDK (Web Probes: Page Fetch Time, Server Response Time, DNS Time, Availability; CloudPath: End to End, Client–Egress, Egress–Application, ZIA Service Edge–Egress, ZIA Service Edge–Application — `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go:38-41`). What remains unverified is *which* of these actually feed the composite ZDX Score versus being trend-only retrievable metrics. The help doc names PFT and Availability but does not state whether Server Response Time, DNS Time, or the CloudPath latency metrics contribute to the score.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR lab test
+
+---
+
+### zdx-39 — Score recalculation lag for new users or devices
+
+*Origin: `references/zdx/score.md` § Open questions*
+
+When a new user or device comes online, the lag before it appears in user-level / device-level scores is not documented. Relevant to "I onboarded this device but ZDX shows no score yet" questions.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR operator experience
+
+---
+
+### zdx-40 — Device-level vs user-level score aggregation
+
+*Origin: `references/zdx/score.md` § Open questions*
+
+The source mentions scores over "all users, their devices, and their locations" but does not clarify whether the score is computed per (user, device) pair or rolled up per user across that user's devices. The aggregation grain is unverified.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR lab test (compare a user's score against per-device scores)
+
+---
+
+### zdx-41 — Probe-result retention and aging granularity
+
+*Origin: `references/zdx/probes.md` § Open questions*
+
+Whether probe results are retained indefinitely or aged out, and at what time granularity older results are down-sampled, is not documented in the vendored help captures.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR tenant snapshot
+
+---
+
+### zdx-42 — Adaptive Mode scoring comparability
+
+*Origin: `references/zdx/probes.md` § Open questions*
+
+Help articles reference an "Adaptive Mode" that dynamically adjusts probe frequency, but how this affects scoring — specifically whether scores remain comparable across different probe cadences — is not documented.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR lab test
+
+---
+
+### zdx-43 — Inventory time-range filter server support
+
+*Origin: `references/zdx/sdk.md` § Open questions*
+
+`list_softwares` applies the `@zdx_params` decorator (`vendor/zscaler-sdk-python/zscaler/zdx/inventory.py:33`), which converts a `since` argument into a `from`/`to` epoch pair, so the client attaches the time-range filter when provided. Whether the inventory endpoint server-side actually honors the time-range filter — returning only software seen within the window — is not confirmable from source; the decorator attaches the params, but server support needs hands-on verification.
+
+**Status**: open
+**Resolves with**: lab test (compare inventory results across time windows) OR zscaler doc not yet read
+
+---
+
+### zid-01 — Admin permission-level enum (Restricted Full / Restrictive View)
+
+*Origin: `references/zidentity/admin-rbac.md` § Open questions*
+
+The ZIdentity admin-RBAC capture lists four permission levels — Full / View Only / Restricted / None (`vendor/zscaler-help/admin-rbac-captures.md:124`) — but the extraction report notes shared docs elsewhere reference "Restricted Full" and "Restrictive View" as additional or alternate level names. Which enum is authoritative for ZIdentity admin roles is unresolved from the captured source.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (re-capture the live Admin Roles & Permissions article — see `zid-35`) OR tenant snapshot
+
+---
+
+### zid-02 — ZIdentity role to per-product scope inheritance
+
+*Origin: `references/zidentity/admin-rbac.md` § Open questions*
+
+It is unclear whether a ZIdentity "User Admin" role combined with Full Administrative Entitlements automatically inherits any ZIA/ZPA admin scope, or whether per-product admin scope must be configured separately in each product console. The captured admin-RBAC source (`vendor/zscaler-help/admin-rbac-captures.md`) describes ZIdentity-side role assignment but does not state how (or whether) it propagates into per-product feature/scope flags.
+
+**Status**: open
+**Resolves with**: tenant snapshot (compare a ZIdentity admin's role against the scope they actually receive in ZIA/ZPA) OR zscaler doc not yet read
+
+---
+
+### zid-03 — Role-management APIs absent from the SDK surface
+
+*Origin: `references/zidentity/admin-rbac.md` § Open questions*
+
+Neither SDK exposes an endpoint to list role definitions, create custom roles, assign roles, or query the permission matrix at runtime — the Go ZIdentity service catalog contains only `common`, `groups`, `resource_servers`, `user_entitlement`, and `users` (see `zid/sdk.md` item 1, resolved), and the Python `zid/` package has no role-management module. Whether role management is portal-only, or served by an admin endpoint the SDKs simply do not wrap, is not determinable from source.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR live API trace against a tenant
+
+---
+
+### zid-04 — Admin role-assignment audit trail
+
+*Origin: `references/zidentity/admin-rbac.md` § Open questions*
+
+No audit endpoint for ZIdentity role-assignment changes is wrapped in either SDK (the Python `zid/` package and Go `zid/services/` catalog carry no audit-log service). Whether ZIdentity records who-assigned-which-role-when, and where that record is read from, is not determinable from the SDK surface.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR live API trace against a tenant
+
+---
+
+### zid-05 — `scope` field semantics and value enum
+
+*Origin: `references/zidentity/user-entitlements.md` § Open questions; `references/zidentity/admin-rbac.md` § Open questions*
+
+The entitlement `scope` field is populated by both SDKs (Python `vendor/zscaler-sdk-python/zscaler/zid/models/user_entitlement.py:52-60`; the Go `Entitlements` struct carries `Scope common.IDNameDisplayName`) but no value enum or operational definition is documented in either SDK. Fixture examples include `Global`, `Limited`, and `AllResources`, yet what `Limited` actually restricts — which resources, at which granularity — is not stated. This is the same field surfaced from two docs (admin-rbac calls it `Entitlement.scope`; user-entitlements calls it `scope`).
+
+**Status**: open
+**Resolves with**: vendor documentation OR tenant-side check (read live entitlements and correlate each `scope` value with the access it grants)
+
+---
+
+### zid-06 — Service vs administrative entitlements: when to use which
+
+*Origin: `references/zidentity/admin-rbac.md` § Open questions*
+
+Both `get_service_entitlement` and `get_admin_entitlement` exist in the Python SDK (`vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py:37,81`). The response-shape difference is resolved (see `zid/sdk.md` item 5: admin entitlements answer "what can this user do?"; service entitlements answer "which tenant/service is this account tied to?"). What remains open is the *usage* guidance — whether a caller diagnosing a given access problem should read one, the other, or both — which no vendor source documents.
+
+**Status**: open
+**Resolves with**: vendor documentation OR operator experience
+
+---
+
+### zid-07 — `get_service_entitlement` return shape for multi-service users
+
+*Origin: `references/zidentity/user-entitlements.md` § Open questions*
+
+The Go SDK returns `[]Service` for service entitlements, but the Python SDK constructs a single `Service` object from the raw body at `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py:118` (`Service(self.form_response_body(response.get_body()))`). A single `Service.__init__` over an array-shaped body would parse it oddly rather than yield a list. The live wire shape for a user holding multiple service entitlements is undemonstrated in the vendored fixtures, so the Python behavior for that case is unverified.
+
+**Status**: open
+**Resolves with**: lab test (read service entitlements for a multi-service user, observe the body shape)
+
+---
+
+### zid-08 — Entitlement API behavior by user IdP source
+
+*Origin: `references/zidentity/user-entitlements.md` § Open questions*
+
+Whether the entitlement endpoints return different results for SCIM-provisioned vs ZIdentity-internal users is not addressed by either SDK. The `source` field on the user record (`vendor/zscaler-sdk-python/zscaler/zid/users.py:187` — `UI`/`API`/`SCIM`/`JIT`) gives user origin, but no entitlement endpoint accepts or exposes `source`, so any source-dependent behavior is invisible at the SDK layer.
+
+**Status**: open
+**Resolves with**: tenant-side check (compare entitlement responses for a SCIM user vs an internal user)
+
+---
+
+### zid-09 — Scope forward-compatibility (single object vs list)
+
+*Origin: `references/zidentity/user-entitlements.md` § Open questions*
+
+The Go SDK declares an unused `Scope` struct wrapping a *list* — `type Scope struct { Scope []common.IDNameDisplayName }` (`vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go:21-23`) — while the live `Entitlements` struct carries a single `Scope common.IDNameDisplayName` object. The unused list-shaped struct suggests a list-of-scopes design was considered or planned. Whether the wire format will change from a single scope object to a list is unknown.
+
+**Status**: open
+**Resolves with**: vendor API spec OR changelog review
+
+---
+
+### zid-10 — Entitlement role-name enum completeness
+
+*Origin: `references/zidentity/user-entitlements.md` § Open questions*
+
+Observed entitlement role names in test fixtures (`SuperAdmin`, `Admin`, `ReadOnly`, `PolicyAdmin`, `Auditor`) may not be exhaustive — no enum constants are exported in either SDK (`vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go` uses `omitempty` strings with no enumeration). The full set of valid role names cannot be confirmed from source.
+
+**Status**: open
+**Resolves with**: vendor role documentation OR live API enumeration
+
+---
+
+### zid-11 — `access_token_life_time` field semantics
+
+*Origin: `references/zidentity/api-clients.md` § Open questions*
+
+`add_api_client` accepts `access_token_life_time` with an example value of `86400` (= 24h, `vendor/zscaler-sdk-python/zscaler/zid/api_client.py:195`), but the field's own docstring at `vendor/zscaler-sdk-python/zscaler/zid/api_client.py:164` reads "Whether the client is active (true) or inactive (false)" — a description that fits an active-flag, not a token TTL, and contradicts the field name. Whether this is a per-client token-TTL override (and how it interacts with the tenant Authentication Session default) is unresolved from source.
+
+**Status**: open
+**Resolves with**: lab test (set distinct `access_token_life_time` values, observe issued-token lifetime) OR vendor documentation
+
+---
+
+### zid-12 — Token revocation via SDK / API
+
+*Origin: `references/zidentity/api-clients.md` § Open questions*
+
+The Python SDK exposes API-client and secret CRUD (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py:156-530`) but no token-revocation endpoint. Whether outstanding access tokens can be revoked programmatically (vs portal-only), and the post-revocation propagation window, is unconfirmed in SDK source. The "revocation takes effect at the next OneAPI call" timing is asserted from the help related-articles list but the source articles are uncaptured (see `zid-33`).
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (capture the Revoking Access Tokens article — see `zid-33`) OR lab test
+
+---
+
+### zid-13 — `add_api_client_secret` `expires_at` behavior
+
+*Origin: `references/zidentity/sdk.md` § Open questions (item 2)*
+
+`add_api_client_secret` accepts `expires_at` as a string Unix epoch; the only SDK docstring example shows `'1785643102'` (a valid future epoch, `vendor/zscaler-sdk-python/zscaler/zid/api_client.py:458`). The API behavior when `expires_at` is omitted or set to a past value is not documented, and the acceptable range is not stated, so neither can be confirmed from source.
+
+**Status**: open
+**Resolves with**: lab test (create secrets with omitted / past / far-future `expires_at`, observe acceptance and resulting expiry)
+
+---
+
+### zid-14 — JWKS `authType` request body unobserved in vendored sources
+
+*Origin: `references/zidentity/api-divergences.md` § Open questions*
+
+The `JWKS` `authType` value is documented in the Python SDK docstring (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py:167`, alongside `SECRET` and `PUBKEYCERT`), but the captured Postman samples exercise only `SECRET` and `PUBKEYCERT` bodies. No live `JWKS`-configured client body was observed in the vendored sources, so the exact required fields for a JWKS client (e.g. `clientJWKsUrl` vs `publicKeys[]`) are inferred from the model, not seen on the wire.
+
+**Status**: open
+**Resolves with**: tenant snapshot (capture a JWKS-configured API client body) OR zscaler doc not yet read
+
+---
+
+### zid-15 — Bare `/admin/api/v1` prefix acceptance on the `api.zsapi.net` host
+
+*Origin: `references/zidentity/api-divergences.md` § Open questions*
+
+The two SDKs pair a path prefix with a host and neither crosses over: the Python SDK uses `api.zsapi.net` with a `/ziam/admin/api/v1` prefix, while the Go SDK uses `{vanity}-admin.zslogin.net` with a bare `/admin/api/v1` prefix (no `/ziam`). Whether the API accepts the bare `/admin/api/v1` prefix on the `api.zsapi.net` host (or only on the vanity-login host) is not determinable from source alone.
+
+**Status**: open
+**Resolves with**: live API trace (send a bare-prefix request to `api.zsapi.net`, observe acceptance)
+
+---
+
+### zid-16 — Which wire host a live tenant actually serves
+
+*Origin: `references/zidentity/resource-servers.md` § Open questions*
+
+The Go SDK builds requests against `{vanity_domain}-admin.zslogin.net` (`vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:402-414`) while the Python SDK uses `https://api.zsapi.net` as its base (`vendor/zscaler-sdk-python/zscaler/request_executor.py:32`). Both hosts are present in current vendor source, so both are presumably live, but whether a tenant routes them identically (one an edge/login-host alias, the other a gateway alias) or whether one is transitional cannot be determined from the SDKs alone. This is the host-routing twin of the prefix question in `zid-15`.
+
+**Status**: open
+**Resolves with**: live API trace against a tenant (resolve both hosts, compare responses)
+
+---
+
+### zid-17 — Group dual-flag semantics (`isDynamicGroup` vs `dynamicGroup`)
+
+*Origin: `references/zidentity/groups.md` § Open questions*
+
+The group record carries two separate dynamic-group booleans — `isDynamicGroup` and `dynamicGroup` (`vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go:26-27`; Python mirrors both at `vendor/zscaler-sdk-python/zscaler/zid/models/groups.py:89-90`). What the server does when the two flags disagree is undocumented; the Go test only ever sets `DynamicGroup: true`, so the relationship between the two is unverified.
+
+**Status**: open
+**Resolves with**: API spec review OR lab test (set the two flags to conflicting values, observe server behavior)
+
+---
+
+### zid-18 — Dynamic-group membership mutation behavior
+
+*Origin: `references/zidentity/groups.md` § Open questions*
+
+Whether `add_user_to_group` (`vendor/zscaler-sdk-python/zscaler/zid/groups.py`) on a *dynamic* group is rejected server-side or silently succeeds is unknown — dynamic groups derive membership from rules, so a manual add is logically ambiguous, and no source states which way the server resolves it.
+
+**Status**: open
+**Resolves with**: lab test (call a manual add against a dynamic group, observe accept vs reject)
+
+---
+
+### zid-19 — User deduplication in bulk add
+
+*Origin: `references/zidentity/groups.md` § Open questions*
+
+Whether duplicate user IDs in `add_users_to_group` (`vendor/zscaler-sdk-python/zscaler/zid/groups.py`) result in rejection, deduplication, or silent ignore is unknown from source.
+
+**Status**: open
+**Resolves with**: lab test (submit a bulk add with repeated user IDs, observe the result)
+
+---
+
+### zid-20 — SCIM-sourced group mutation semantics
+
+*Origin: `references/zidentity/groups.md` § Open questions*
+
+Whether SDK CRUD operations on SCIM-provisioned groups (`source: SCIM`) are rejected by the server — on the principle that the IdP owns the record — is undocumented. The `source` field exists (`vendor/zscaler-sdk-python/zscaler/zid/groups.py:167` lists `'SCIM'`, `'MANUAL'`) but no source states whether it gates mutation.
+
+**Status**: open
+**Resolves with**: lab test OR vendor documentation
+
+---
+
+### zid-21 — Group `source` value enum completeness
+
+*Origin: `references/zidentity/sdk.md` § Open questions (item 7)*
+
+For *users*, the `source` enum is fully documented — `UI`, `API`, `SCIM`, `JIT` (`vendor/zscaler-sdk-python/zscaler/zid/users.py:187`). For *groups*, the docstring lists only `'SCIM'` and `'MANUAL'` as examples (`vendor/zscaler-sdk-python/zscaler/zid/groups.py:167`) and the Go struct uses `omitempty` with no enumeration. Whether groups share the full user enum (and whether `JIT` / `API` / `UI` are valid group sources) cannot be confirmed from source.
+
+**Status**: open
+**Resolves with**: vendor documentation OR live API enumeration
+
+---
+
+### zid-22 — Group enabled/disabled flag on the wire
+
+*Origin: `references/zidentity/snapshot-schema.md` § Open questions*
+
+User records expose `status` as a boolean (active/disabled), but the group model carries no `status` field in either SDK. Whether groups have an equivalent enabled/disabled flag that the captured models simply omit, or whether groups have no such concept, is not confirmed from the vendored sources.
+
+**Status**: open
+**Resolves with**: tenant snapshot (read a live group record, check for a status field) OR vendor documentation
+
+---
+
+### zid-23 — Empty `serviceScopes` array semantics
+
+*Origin: `references/zidentity/resource-servers.md` § Open questions*
+
+The meaning of a resource server with an empty `serviceScopes` slice (vs a populated one) is not documented in either SDK — whether it means "no scopes available", "all scopes", or "scopes defined elsewhere" is unstated.
+
+**Status**: open
+**Resolves with**: tenant-side check (read live resource servers, correlate empty `serviceScopes` with grantable scopes) OR vendor documentation
+
+---
+
+### zid-24 — `defaultApi` flag behavior
+
+*Origin: `references/zidentity/resource-servers.md` § Open questions*
+
+The `defaultApi` boolean on the resource-server record is present in both SDKs (`vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go:22`; `vendor/zscaler-sdk-python/zscaler/zid/models/resource_servers.py:90`) but its operational meaning — which clients it applies to, what it overrides — is not described in any vendored source.
+
+**Status**: open
+**Resolves with**: vendor documentation OR lab test
+
+---
+
+### zid-25 — Resource-server enumerability (hidden internal entries)
+
+*Origin: `references/zidentity/sdk.md` § Open questions (item 6)*
+
+Whether `list_resource_servers` enumerates *all* resource servers in a tenant, or whether some are Zscaler-internal and hidden from the list, is not confirmed from source. Both SDKs hit the resource-servers endpoint with no filter parameter that would distinguish tenant-created from system-provided entries — via different host+prefix (Python `api.zsapi.net/ziam/admin/api/v1/resource-servers`, `vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py`; Go `{vanity}-admin.zslogin.net/admin/api/v1/resource-servers`, `vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go` + `oneapiconfig.go:404-414`).
+
+**Status**: open
+**Resolves with**: tenant-side check (list resource servers on a live tenant, compare against the console) OR vendor documentation
+
+---
+
+### zid-26 — ZIdentity snapshot writer output shape
+
+*Origin: `references/zidentity/snapshot-schema.md` § Open questions*
+
+Whether a future ZIdentity snapshot stores the raw list body (so jq uses `.records[]`) or wraps pages in an array (so jq uses `.[0].records[]`) is a writer decision not yet made — ZIdentity is not currently snapshotted. The doc's jq examples assume the raw single-object body, matching the SDK list models (`vendor/zscaler-sdk-python/zscaler/zid/models/users.py:36-67`); confirm and re-document once the writer exists.
+
+**Status**: open
+**Resolves with**: design decision (made when the ZIdentity snapshot writer is built; expected alongside the `linear/dav-19-zidentity-refresh` work)
+
+---
+
+### zid-27 — Secrets snapshot file layout
+
+*Origin: `references/zidentity/snapshot-schema.md` § Open questions*
+
+If API-client secrets are dumped to a snapshot, the per-client file/key naming convention (e.g. `api-client-secrets.json` keyed by client id) is undefined. More fundamentally, whether a live `GET /api-clients/{id}/secrets` returns the real secret `value` is unverified: the response **shape** carries a `value` field (`vendor/zscaler-sdk-python/zscaler/zid/models/api_client.py:287-318`, mapped at `:305`) and the Postman sample includes one, but that sample value is a synthetic placeholder and the portal documents the secret as not retrievable after creation. Treat `value` as sensitive and consider excluding it from the snapshot entirely rather than making a layout decision.
+
+**Status**: open
+**Resolves with**: a live `GET .../secrets` capture to confirm whether `value` is populated post-creation, plus the snapshot-writer design decision
+
+---
+
+### zid-28 — Authentication levels: per-product or global only
+
+*Origin: `references/zidentity/step-up-authentication.md` § Open questions*
+
+Whether ZIdentity authentication levels can be configured differently per-product or only globally is unresolved; the captured step-up material (`vendor/zscaler-help/understanding-step-up-authentication-zidentity.md`) describes a single tenant-wide level tree, but does not state whether per-product overrides exist.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR tenant-side check
+
+---
+
+### zid-29 — Step-up for SCIM users without a mapped external IdP identity
+
+*Origin: `references/zidentity/step-up-authentication.md` § Open questions*
+
+How step-up interacts with SCIM-provisioned users who lack a mapped external IdP identity — whether such users can step up at all — is not addressed by the captured step-up material (`vendor/zscaler-help/understanding-step-up-authentication-zidentity.md`).
+
+**Status**: open
+**Resolves with**: lab test (attempt a step-up challenge for a SCIM user with no external IdP mapping) OR zscaler doc not yet read
+
+---
+
+### zid-30 — Step-up "message to user" localization
+
+*Origin: `references/zidentity/step-up-authentication.md` § Open questions*
+
+Whether the per-level "message to user" field supports localization (multiple language strings) or only a single string per level is not stated in the captured step-up material (`vendor/zscaler-help/understanding-step-up-authentication-zidentity.md`).
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR tenant-side check
+
+---
+
+### zid-31 — Where step-up elevation is logged
+
+*Origin: `references/zidentity/step-up-authentication.md` § Open questions*
+
+Whether step-up elevation is recorded in ZIA Transaction logs or ZPA LSS User Activity logs — and with what field values — is not stated in the captured step-up material (`vendor/zscaler-help/understanding-step-up-authentication-zidentity.md`). Relevant to "can I see when a user was challenged" questions.
+
+**Status**: open
+**Resolves with**: lab test (trigger a step-up, search ZIA/ZPA logs for a corresponding record) OR zscaler doc not yet read
+
+---
+
+### zid-32 — Omitting `id` on user create
+
+*Origin: `references/zidentity/users.md` § Open questions*
+
+The `add_user` docstring example passes `id` explicitly (`vendor/zscaler-sdk-python/zscaler/zid/users.py`). Whether omitting `id` triggers server-side auto-generation or returns an error is unverified from source.
+
+**Status**: open
+**Resolves with**: lab test (create a user with no `id`, observe auto-generation vs error) OR API spec review
+
+---
+
+### zid-33 — About / Revoking Access Tokens articles uncaptured
+
+*Origin: `references/zidentity/api-clients.md` § Open questions*
+
+The `About Access Tokens` and `Revoking Access Tokens` help articles are named in the related-articles list of `vendor/zscaler-help/zidentity-about-api-clients.md` but are not captured in `vendor/zscaler-help/`. The "revocation takes effect at the next OneAPI call" timing and the post-revocation propagation window are therefore unverified against source. Capturing these pages would also resolve `zid-12`.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read / capture
+
+---
+
+### zid-34 — API Client Access Policy article uncaptured
+
+*Origin: `references/zidentity/api-clients.md` § Open questions*
+
+The API Client Access Policy is referenced in the captured API-clients help page, but the dedicated policy article is not in `vendor/zscaler-help/`. The specific knobs (source-IP / time-of-day / other conditions) are currently inferred by analogy to admin IP restriction, not read from source.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read / capture
+
+---
+
+### zid-35 — Admin Roles & Permissions module × level matrix uncaptured
+
+*Origin: `references/zidentity/admin-rbac.md` § Open questions*
+
+The authoritative full permission matrix (25+ modules × 4 levels) is explicitly deferred to the live help portal by the capture (`vendor/zscaler-help/admin-rbac-captures.md:128`) and is not present in `vendor/zscaler-help/`. Capturing it would also resolve the permission-level enum question (`zid-01`).
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read / capture
 
 ---
 

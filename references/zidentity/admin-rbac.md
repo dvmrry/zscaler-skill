@@ -3,7 +3,7 @@ product: zidentity
 topic: "zidentity-admin-rbac"
 title: "ZIdentity admin RBAC — role model, federation, entitlements API"
 content-type: reasoning
-last-verified: "2026-05-05"
+last-verified: "2026-06-15"
 confidence: high
 source-tier: mixed
 sources:
@@ -155,19 +155,19 @@ Source: `vendor/zscaler-help/admin-rbac-captures.md`; `vendor/zscaler-sdk-python
 
 Source: `vendor/zscaler-help/admin-rbac-captures.md`; `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py`; `vendor/zscaler-sdk-python/zscaler/zid/models/user_entitlement.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go`.
 
-- **Full permission matrix (25+ modules × 4 levels) not captured** — the vendor doc capture explicitly defers to the live help portal for the authoritative matrix. (`vendor/zscaler-help/admin-rbac-captures.md:128`) — *requires re-capture of live article*
+- **Full permission matrix (25+ modules × 4 levels) not captured** — the vendor doc capture explicitly defers to the live help portal for the authoritative matrix. (`vendor/zscaler-help/admin-rbac-captures.md:128`) — *requires re-capture of live article* — see [clarification `zid-35`](../_meta/clarifications.md#zid-35-admin-roles-permissions-module-level-matrix-uncaptured)
 
-- **Role management APIs not exposed in SDKs** — no endpoint to list role definitions, create custom roles, assign roles, or query the permission matrix at runtime. Confirmed absent from the SDK surface by extraction report; no workaround documented.
+- **Role management APIs not exposed in SDKs** — no endpoint to list role definitions, create custom roles, assign roles, or query the permission matrix at runtime. Confirmed absent from the SDK surface by extraction report; no workaround documented. — see [clarification `zid-03`](../_meta/clarifications.md#zid-03-role-management-apis-absent-from-the-sdk-surface)
 
-- **Relationship between ZIdentity roles and per-product scope/feature flags** — it is unclear whether a ZIdentity "User Admin" role combined with Full Administrative Entitlements automatically inherits any ZIA admin scope, or whether that must be configured separately. — *unverified, requires tenant-side check or Zscaler documentation*
+- **Relationship between ZIdentity roles and per-product scope/feature flags** — it is unclear whether a ZIdentity "User Admin" role combined with Full Administrative Entitlements automatically inherits any ZIA admin scope, or whether that must be configured separately. — *unverified, requires tenant-side check or Zscaler documentation* — see [clarification `zid-02`](../_meta/clarifications.md#zid-02-zidentity-role-to-per-product-scope-inheritance)
 
-- **"Restricted Full" and "Restrictive View" permission levels** — the extraction report notes that shared docs reference four permission levels but the vendor capture at `vendor/zscaler-help/admin-rbac-captures.md:124` lists only Full / View Only / Restricted / None. Authoritative enum unclear. — *unverified, requires live help article re-capture*
+- **"Restricted Full" and "Restrictive View" permission levels** — the extraction report notes that shared docs reference four permission levels but the vendor capture at `vendor/zscaler-help/admin-rbac-captures.md:124` lists only Full / View Only / Restricted / None. Authoritative enum unclear. — *unverified, requires live help article re-capture* — see [clarification `zid-01`](../_meta/clarifications.md#zid-01-admin-permission-level-enum-restricted-full-restrictive-view)
 
-- **Admin role assignment audit trail** — no audit endpoint is documented in the SDK for ZIdentity role-assignment changes. — *requires live API or vendor doc check*
+- **Admin role assignment audit trail** — no audit endpoint is documented in the SDK for ZIdentity role-assignment changes. — *requires live API or vendor doc check* — see [clarification `zid-04`](../_meta/clarifications.md#zid-04-admin-role-assignment-audit-trail)
 
-- **`Entitlement.scope` field semantics** — the field is populated by the SDK but its meaning is not documented. (`vendor/zscaler-sdk-python/zscaler/zid/models/user_entitlement.py:52-60`) — *unverified, requires SDK source review*
+- **`Entitlement.scope` field semantics** — the field is populated by the SDK but its meaning is not documented. (`vendor/zscaler-sdk-python/zscaler/zid/models/user_entitlement.py:52-60`) — *unverified, requires SDK source review* — see [clarification `zid-05`](../_meta/clarifications.md#zid-05-scope-field-semantics-and-value-enum)
 
-- **When to use service entitlements vs administrative entitlements** — both `get_service_entitlement` and `get_admin_entitlement` exist, but no vendor guidance documents the distinction in API usage. (`vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py:37,81`) — *unverified, requires vendor doc or SDK source review*
+- **When to use service entitlements vs administrative entitlements** — both `get_service_entitlement` and `get_admin_entitlement` exist, but no vendor guidance documents the distinction in API usage. (`vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py:37,81`) — *unverified, requires vendor doc or SDK source review* — see [clarification `zid-06`](../_meta/clarifications.md#zid-06-service-vs-administrative-entitlements-when-to-use-which)
 
 ## Cross-links
 

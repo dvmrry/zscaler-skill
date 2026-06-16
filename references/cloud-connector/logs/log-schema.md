@@ -3,7 +3,7 @@ product: cloud-connector
 topic: "cc-log-schema"
 title: "Cloud Connector log fields and access methods"
 content-type: reference
-last-verified: "2026-05-06"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: doc
 sources:
@@ -11,9 +11,13 @@ sources:
   - "vendor/zscaler-help/cbc-accessing-cloud-branch-connector-monitoring.md"
   - "vendor/zscaler-help/cbc-analyzing-branch-connector-details.md"
   - "vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md"
+  - "vendor/zscaler-help/nss-firewall-logs.csv"
   - "vendor/zscaler-help/about-log-streaming-service.md"
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go"
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go"
+  - "vendor/zscaler-sdk-python/zscaler/ztw/ec_groups.py"
+  - "vendor/zscaler-sdk-python/zscaler/ztw/models/ecgroup.py"
+  - "vendor/zscaler-sdk-python/zscaler/ztw/models/ec_group_vm.py"
 author-status: draft
 ---
 
@@ -38,7 +42,7 @@ Source: `vendor/zscaler-help/cbc-about-insights.md`; `vendor/zscaler-help/cbc-ac
 | **Insights — Tunnel Insights** | ZTW admin console (UI only) | Up to 92-day time picker window | Per-tunnel (byte/packet counts) |
 | **NSS for Firewall** | SIEM (syslog / CEF via NSS appliance or Cloud NSS) | Configurable at SIEM | Per-session (firewall log format) |
 | **ZIA-side logs** (ZIA-forwarded traffic only) | ZIA admin console, ZIA NSS | 14 days in ZIA; extended via NSS | Per-transaction (web/firewall format) |
-| **SDK/API state** | Go SDK `ecgroup.GetAll()`, REST API | Point-in-time | Per-VM health state |
+| **SDK/API state** | Go SDK `ecgroup.GetAll()` / Python `ztw.ec_groups.list_ec_groups()`, REST API | Point-in-time | Per-VM health state |
 
 No raw log download API for Insights data was identified in available captures (Tier D — absence of evidence; see Open Questions in `../insights-monitoring.md`).
 
@@ -48,7 +52,7 @@ Source: `vendor/zscaler-help/cbc-about-insights.md`; `vendor/zscaler-help/cbc-ac
 
 ## NSS for Firewall — session log fields
 
-Cloud Connector uses **NSS for Firewall** (not NSS for Web) as its SIEM streaming mechanism. NSS for Firewall must be subscribed separately. The NSS for Firewall field schema is the same schema used by ZIA's firewall log stream (Tier A — vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md).
+Cloud Connector uses **NSS for Firewall** (not NSS for Web) as its SIEM streaming mechanism. NSS for Firewall must be subscribed separately for Cloud & Branch Connector, and only the NSS for Firewall configurations apply — the NSS for Web configurations are not applicable to CC (Tier C — `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md:18,24`). The NSS for Firewall field schema is the same schema used by ZIA's firewall log stream; every specifier below is drawn from the firewall log field reference (Tier C — `vendor/zscaler-help/nss-firewall-logs.csv`).
 
 CC session logs streamed via NSS for Firewall carry the standard ZIA firewall log fields. Key fields for CC context:
 
@@ -124,7 +128,9 @@ CC session logs streamed via NSS for Firewall carry the standard ZIA firewall lo
 
 For the full NSS firewall log schema (all fields), see [`../../zia/logs/firewall-log-schema.md`](../../zia/logs/firewall-log-schema.md). The CC session logs use the same field set.
 
-Source: `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md`; `vendor/zscaler-help/about-log-streaming-service.md`.
+Field specifiers, descriptions, and examples above are drawn from `vendor/zscaler-help/nss-firewall-logs.csv` (e.g., `ttype` → "L2 tunnel" at `nss-firewall-logs.csv:20`, `aggregate` → "Indicates whether the Firewall session is aggregated" at `nss-firewall-logs.csv:21`, `login` → "The user's login name in email address format" at `nss-firewall-logs.csv:61`). The CC subscription and Firewall-vs-Web applicability claims come from `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md:18,24`.
+
+Source: `vendor/zscaler-help/nss-firewall-logs.csv`; `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md`.
 
 ---
 
@@ -178,23 +184,25 @@ Source: `vendor/zscaler-help/cbc-about-insights.md`; `vendor/zscaler-help/cbc-an
 
 ## SDK/API state fields (per-VM monitoring)
 
-The Go SDK `ECVMs` struct (from `zscaler/ztw/services/common/common.go`) exposes per-VM state programmatically. These are **state fields**, not log records, but they are the only programmatic observability surface for Cloud Connector health (Tier A — vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go):
+The per-VM state surface is exposed by both SDKs with full parity. The Go SDK `ECVMs` struct (`vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go:101-119`) and the Python `ECVMS` model nested under each group (`vendor/zscaler-sdk-python/zscaler/ztw/models/ecgroup.py:111-174`) expose the same fields; the Python SDK also ships a structurally identical standalone `ECGroupVM` model (`vendor/zscaler-sdk-python/zscaler/ztw/models/ec_group_vm.py:39-53`). These are **state fields**, not log records, but they are the only programmatic observability surface for Cloud Connector health.
 
-| Field | Type | Description |
+| Field (Go / Python) | Type | Description |
 |---|---|---|
-| `OperationalStatus` | string | `Active`, `Inactive`, or `Disabled` |
-| `ZiaGateway` | string | Active ZIA gateway name |
-| `ZpaBroker` | string | Active ZPA broker |
-| `BuildVersion` | string | Current CC software version (e.g., `24.x.x`) |
-| `NatIp` | string | NAT IP of the CC (public egress IP seen by Zscaler) |
-| `LastUpgradeTime` | int (epoch) | Unix timestamp of last software upgrade |
-| `UpgradeStatus` | int | Current upgrade state (0 = current; non-zero = in-progress or failed; exact codes undocumented) |
-| `UpgradeStartTime` | int (epoch) | Start time of most recent upgrade |
-| `UpgradeEndTime` | int (epoch) | End time of most recent upgrade |
-| `Status` | []string | Per-VM status flags |
+| `OperationalStatus` / `operational_status` | string | `Active`, `Inactive`, or `Disabled` |
+| `FormFactor` / `form_factor` | string | VM form factor (e.g., cloud-instance sizing class) |
+| `ZiaGateway` / `zia_gateway` | string | Active ZIA gateway name |
+| `ZpaBroker` / `zpa_broker` | string | Active ZPA broker |
+| `BuildVersion` / `build_version` | string | Current CC software version (e.g., `24.x.x`) |
+| `NATIP` / `nat_ip` | string | NAT IP of the CC (public egress IP seen by Zscaler; JSON wire name `natIp`) |
+| `LastUpgradeTime` / `last_upgrade_time` | int (epoch) | Unix timestamp of last software upgrade |
+| `UpgradeStatus` / `upgrade_status` | int | Current upgrade state (0 = current; non-zero = in-progress or failed; exact codes undocumented) |
+| `UpgradeStartTime` / `upgrade_start_time` | int (epoch) | Start time of most recent upgrade |
+| `UpgradeEndTime` / `upgrade_end_time` | int (epoch) | End time of most recent upgrade |
+| `UpgradeDayOfWeek` / `upgrade_day_of_week` | int | Configured maintenance day-of-week for upgrades |
+| `Status` / `status` | []string | Per-VM status flags |
 
 ```go
-// Pull all groups with per-VM state
+// Go: pull all groups with per-VM state (ecgroup.GetAll → []EcGroup, each with .ECVMs)
 groups, err := ecgroup.GetAll(ctx, service)
 for _, group := range groups {
     for _, vm := range group.ECVMs {
@@ -204,7 +212,15 @@ for _, group := range groups {
 }
 ```
 
-Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go`.
+```python
+# Python: client.ztw.ec_groups.list_ec_groups() → [ECGroup], each with .ec_vms (ECVMS)
+groups, _, err = client.ztw.ec_groups.list_ec_groups()
+for group in groups:
+    for vm in group.ec_vms:
+        print(vm.name, vm.operational_status, vm.zia_gateway, vm.build_version)
+```
+
+Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go`; `vendor/zscaler-sdk-python/zscaler/ztw/ec_groups.py`; `vendor/zscaler-sdk-python/zscaler/ztw/models/ecgroup.py`; `vendor/zscaler-sdk-python/zscaler/ztw/models/ec_group_vm.py`.
 
 ---
 
@@ -284,9 +300,9 @@ If the Log & Control Forwarding gateway becomes unreachable, CC continues forwar
 
 ### Aggregated sessions lose per-connection detail
 
-The NSS firewall log aggregation behavior applies to CC session logs. When sessions are aggregated (`%s{aggregate} = Yes`), client source port, server port, and IP values reflect only the **last session** in the aggregate. Per-session detail is lost. For investigations requiring per-connection granularity, use shorter time windows to reduce aggregation.
+The NSS firewall log aggregation behavior applies to CC session logs. When sessions are aggregated (`%s{aggregate} = Yes`), the client source IP/port, client destination IP/port, client tunnel IP, server destination IP/port, and server source IP/port all reflect only the **last session** in the aggregate (`vendor/zscaler-help/nss-firewall-logs.csv:13-16,18,37-40`). Per-session detail is lost. For investigations requiring per-connection granularity, use shorter time windows to reduce aggregation.
 
-Source: `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md`; `vendor/zscaler-help/about-log-streaming-service.md`; `vendor/zscaler-help/cbc-about-insights.md`.
+Source: `vendor/zscaler-help/nss-firewall-logs.csv`; `vendor/zscaler-help/about-log-streaming-service.md`; `vendor/zscaler-help/cbc-about-insights.md`.
 
 ---
 
@@ -302,7 +318,7 @@ CC-specific gaps in the SDK state surface (`ECVMs`):
 
 - `Status []string` per-VM flag enum and `UpgradeStatus` int code mapping — both are SDK-readable but the value spaces are not documented in available captures. [Clarification `log-22`](../../_meta/clarifications.md#log-22-cloud-connector-status-flags-and-upgradestatus-codes).
 
-Other items the ref body flags but does not file as formal clarifications:
+Insights-surface gaps, filed together as [clarification `cloud-connector-21`](../../_meta/clarifications.md#cloud-connector-21-insightstunnel-insights-aggregation-and-byte-count-parity-with-nss-feeds):
 
 - No raw log download API for Insights data confirmed (Tier D — absence of evidence)
 - Tunnel Insights metrics (DPD / Received / Sent bytes) — no NSS feed equivalent confirmed; whether the byte counts in Tunnel Insights match `inbytes`/`outbytes` from NSS-firewall records for the same sessions is unverified

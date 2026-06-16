@@ -3,7 +3,7 @@ product: zdx
 topic: "zdx-api"
 title: "ZDX API — SDK surface and endpoint summary"
 content-type: reference
-last-verified: "2026-05-03"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: mixed
 sources:
@@ -12,16 +12,17 @@ sources:
   - "vendor/zscaler-help/automate-zscaler/api-authentication-overview.md"
   - "vendor/zscaler-help/automate-zscaler/api-reference-zdx-overview.md"
   - "vendor/zscaler-sdk-python/zscaler/zdx/"
+  - "vendor/zscaler-sdk-go/zscaler/zdx/"
 author-status: draft
 ---
 
 # ZDX API surface
 
-Endpoint and SDK summary for ZDX. Unlike ZIA / ZPA, ZDX is primarily a **read-only** API — the configuration surface (probes, alerts, applications) is console-driven; the API mostly exposes **metric and status retrieval**.
+Endpoint and SDK summary for ZDX. Unlike ZIA / ZPA, ZDX is **read-dominant** — the configuration surface (probes, alert rules, applications) is console-driven, and most of the API exposes **metric and status retrieval**. It is not write-free, however: the SDK exposes an on-demand diagnostic / sharing write surface — `start_deeptrace` / `delete_deeptrace`, `start_analysis` / `delete_analysis`, and `share_snapshot` are all API writes (see [Write surface](#write-surface)).
 
 ## Base endpoint
 
-All ZDX paths live under `/zdx/v1` (legacy API). Accessed via `ZscalerClient` / OneAPI auth like ZIA and ZPA, though ZDX has its own legacy auth path (`vendor/zscaler-sdk-python/zscaler/zdx/legacy.py`) for older tenants.
+ZDX **data** endpoints live under `/zdx/v1` on both transports (`vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go:12`, `.../reports/devices/devices.go:12`, `.../inventory/inventory.go:12`). Two transports reach them: the OneAPI gateway (`https://api.zsapi.net/zdx/v1/...`) and the legacy direct-cloud host the SDKs build (`https://api.zdxcloud.net`, default cloud `zdxcloud`; `vendor/zscaler-sdk-python/zscaler/zdx/legacy.py:55`,`57`). The two differ in their auth-path prefix — see [Auth](#auth). ZDX also retains a dedicated SHA256-signed legacy auth flow (`vendor/zscaler-sdk-python/zscaler/zdx/legacy.py`) for non-ZIdentity / gov tenants or tooling pinned to the direct-cloud path — see [Auth](#auth).
 
 ## SDK services under `client.zdx.*`
 
@@ -32,9 +33,9 @@ All ZDX paths live under `/zdx/v1` (legacy API). Accessed via `ZscalerClient` / 
 | `client.zdx.apps` | Application metrics, score, users | Core analytics surface. |
 | `client.zdx.devices` | Per-device metrics, web probes, cloud path probes, call quality | Highest-volume method set. |
 | `client.zdx.inventory` | Software inventory per device | Audit surface. |
-| `client.zdx.snapshot` | (Role unclear without SDK deep-dive) | Likely point-in-time state capture. |
-| `client.zdx.troubleshooting` | Diagnostics Sessions (SDK calls them "deeptraces"), analysis jobs, top processes | On-demand deep investigation workflow. |
-| `client.zdx.users` | User-level queries | User lookups, user-to-device mapping. |
+| `client.zdx.snapshot` | Share an alert-detail snapshot (a **write**) | Single method `share_snapshot` — POSTs a shareable alert snapshot with an expiry and an `obfuscation` field list (API contract); note `obfuscation` is not placed in the POST body by the current Python client (see [§ `client.zdx.snapshot`](#clientzdxsnapshot)). Not a state-capture read. |
+| `client.zdx.troubleshooting` | Diagnostics Sessions (SDK calls them "deeptraces"), analysis jobs, top processes | On-demand deep investigation workflow. Contains **writes** (start/delete deeptrace, start/delete analysis). |
+| `client.zdx.users` | User-level queries | User lookups, user-to-device mapping. See [`### client.zdx.users`](#clientzdxusers). |
 
 ### `client.zdx.apps`
 
@@ -72,10 +73,10 @@ Per-device retrieval:
 
 See [`./diagnostics-and-alerts.md § SDK surface for Diagnostics Sessions`](./diagnostics-and-alerts.md) for the full list. Summary:
 
-- 4 CRUD methods on deeptraces (`list`, `start`, `get`, `delete`).
+- 4 CRUD methods on deeptraces (`list`, `start`, `get`, `delete`) — `start_deeptrace` and `delete_deeptrace` are **writes** (POST `/zdx/v1/devices/{device_id}/deeptraces` and DELETE; `vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py:176-180`,`223`).
 - 5 metric-retrieval methods on completed deeptraces (webprobe, cloudpath, cloudpath metrics, health, events).
 - `list_top_processes` for device-level process visibility.
-- 3 methods for broader multi-device / time-range `analysis` jobs.
+- 3 methods for broader multi-device / time-range `analysis` jobs — `start_analysis` (POST `/zdx/v1/analysis`; `vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py:549`) and `delete_analysis` (DELETE `/zdx/v1/analysis/{analysis_id}`; `vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py:647`) are **writes**; `get_analysis` is a read.
 
 ### `client.zdx.alerts`
 
@@ -90,10 +91,29 @@ See [`./diagnostics-and-alerts.md § SDK surface for Diagnostics Sessions`](./di
 
 | Method | Purpose |
 |---|---|
-| `list_softwares(query_params)` | All installed software across devices — useful for ShadowIT / compliance audits. |
+| `list_softwares(query_params)` | Which software versions are present across the device fleet (`vendor/zscaler-sdk-python/zscaler/zdx/inventory.py:36`). |
 | `list_software_keys(...)` | Specific software / license key listings. |
 
 Backed by the MCP `audit-software-inventory` skill under `vendor/zscaler-mcp-server/skills/zdx/audit-software-inventory/`.
+
+### `client.zdx.users`
+
+User-centric retrieval. If no time range is supplied, the endpoint defaults to the last 2 hours (`vendor/zscaler-sdk-go/zscaler/zdx/services/reports/users/users.go:44`,`55`).
+
+| Method | Purpose |
+|---|---|
+| `list_users(query_params)` | All active users, with their devices, active geolocations, and Zscaler locations. GET `/zdx/v1/users` (`vendor/zscaler-sdk-python/zscaler/zdx/users.py:91-95`; Go `GetAllUsers`, `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/users/users.go:56`,`62`). |
+| `get_user(user_id, query_params)` | One user's detail — device, geolocation, and Zscaler-location info. GET `/zdx/v1/users/{user_id}` (`vendor/zscaler-sdk-python/zscaler/zdx/users.py:145-149`; Go `GetUser`, `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/users/users.go:45`,`47`). |
+
+The Go `reports/users` types expose `User`, `Devices`, `UserLocation`, and `ZSLocation` structs (`vendor/zscaler-sdk-go/zscaler/zdx/services/reports/users/users.go:15-42`). `list_users` supports server-side filters (`since`, `location_id`, `department_id`, `geo_id`) and `offset`/`limit` pagination (`vendor/zscaler-sdk-python/zscaler/zdx/users.py:42-59`).
+
+### `client.zdx.snapshot`
+
+| Method | Purpose |
+|---|---|
+| `share_snapshot(name, alert_id, expiry, obfuscation)` | Create a shareable snapshot of an alert's details. POST `/zdx/v1/snapshot/alert` (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:83-87`). |
+
+`expiry` is in hours and must be between **2 hours and 90 days** (default 2 hours); the SDK converts it to a Unix-epoch value (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:40-42`,`105`). `obfuscation` is a list selecting which fields to redact in the shared snapshot — valid values are `USER_NAME`, `LOCATION`, `DEVICE_NAME`, `IP_ADDRESS`, `WIFI_NAME` (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:43-45`). **Note:** as of the reviewed SDK commit, `obfuscation` is accepted as a kwarg but **not placed in the POST body** by the Python client — `share_snapshot` builds the body from `name`/`alert_id`/`expiry` only (`snapshot.py:91-106`), so these values describe the API contract, not confirmed SDK behavior (see [clarification `zdx-35`](../_meta/clarifications.md#zdx-35-share_snapshot-obfuscation-transmission)). This is a **write**, not a state read.
 
 ## Auth
 
@@ -108,10 +128,10 @@ Same as ZIA / ZPA:
 
 ### ZDX-specific legacy auth
 
-ZDX retains a dedicated auth endpoint distinct from OneAPI — pre-ZIdentity tenants and some current ZDX flows use it directly:
+ZDX retains a dedicated SHA256-signed auth flow distinct from OneAPI. It is reached over **two different hosts** depending on transport, and the request body is identical on both:
 
 ```http
-POST https://api.zsapi.net/zdx/v1/oauth/token
+POST <host>/<auth-path>
 Content-Type: application/json
 
 {
@@ -121,13 +141,33 @@ Content-Type: application/json
 }
 ```
 
+**Transport 1 — OneAPI gateway.** `https://api.zsapi.net/zdx/v1/oauth/token` (`vendor/zscaler-help/automate-zscaler/api-authentication-overview.md:43`, `vendor/zscaler-help/automate-zscaler/api-reference-zdx-overview.md:16`). This is the gateway convention — data endpoints live under the same `/zdx/v1/...` prefix as auth.
+
+**Transport 2 — legacy direct cloud (what the SDKs build).** Host is `https://api.{cloud}.net`, where `cloud` defaults to `zdxcloud` (so `https://api.zdxcloud.net`); valid clouds are `zdxcloud` and `zdxbeta` (`vendor/zscaler-sdk-python/zscaler/zdx/legacy.py:33`,`55`,`57`). On this host, **auth lives at `/v1/oauth/token` (no `/zdx` prefix)** while data endpoints use `/zdx/v1/...` — a path-prefix asymmetry unique to the direct-cloud transport (Python `legacy.py:173` → `{base}/v1/oauth/token`; Go `vendor/zscaler-sdk-go/zscaler/zdx/v2_config.go:150-152` builds the base, `v2_client.go:234` appends `/v1/oauth/token`; data-path consts `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go:12`, `.../reports/devices/devices.go:12`, `.../inventory/inventory.go:12` are all `/zdx/v1/...`).
+
+SDK env vars and inputs:
+
+- **Go** uses `ZDX_API_KEY_ID`, `ZDX_API_SECRET`, and `ZDX_CLOUD` (`vendor/zscaler-sdk-go/zscaler/zdx/v2_config.go:47-48`,`84`), or the `WithZDXAPIKeyID` / `WithZDXAPISecret` / `WithZDXCloud` setters.
+- **Python** `LegacyZDXClientHelper` uses `ZDX_CLIENT_ID`, `ZDX_CLIENT_SECRET`, and `ZDX_CLOUD` (`vendor/zscaler-sdk-python/zscaler/zdx/legacy.py:53-55`).
+
 Mechanics:
 
-- `key_secret` is the SHA256 hex digest of `<secret_key>:<timestamp>` (literal colon-concatenation).
+- `key_secret` is the SHA256 hex digest of `<secret_key>:<timestamp>` (literal colon-concatenation) (`vendor/zscaler-sdk-python/zscaler/zdx/legacy.py:164-165`; Go `generateHash`, `vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:374-378`).
 - **Requests are rejected if more than 15 minutes have elapsed** between the supplied `timestamp` and ZDX's clock (`vendor/zscaler-help/automate-zscaler/api-authentication-overview.md:54`, `vendor/zscaler-help/automate-zscaler/api-reference-zdx-overview.md:27`).
 - Returned token is valid for **3600 seconds**.
 
 The Python SDK's `vendor/zscaler-sdk-python/zscaler/zdx/legacy.py` implements this flow. Hand-written callers (curl, Postman without the helper) must produce the SHA256 themselves.
+
+### Partner / MSP access
+
+Both SDKs support a partner ID for multi-tenant / MSP access, sent as an `x-partner-id` request header:
+
+- **Go**: `WithPartnerID` setter or `ZSCALER_PARTNER_ID` env var (`vendor/zscaler-sdk-go/zscaler/zdx/v2_config.go:85`,`214-218`); the header is set on each request (`vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:437-438`).
+- **Python**: `partner_id` argument or `ZSCALER_PARTNER_ID` env var (`vendor/zscaler-sdk-python/zscaler/zdx/legacy.py:49`,`56`); flows into the default headers as `x-partner-id` (`vendor/zscaler-sdk-python/zscaler/request_executor.py:114-116`).
+
+### Token re-authentication (Go)
+
+The Go client transparently re-authenticates on a `401`/`403` response and retries the original request once (`vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:348-369`). Useful operationally: a long-running Go job survives token expiry without caller intervention.
 
 ### Auth-utility endpoints
 
@@ -141,17 +181,38 @@ See [`../shared/oneapi.md § Three authentication mechanisms`](../shared/oneapi.
 ## Wire format quirks
 
 - **Terminology split**: SDK uses "deeptrace" on method names and object keys; admin portal UI uses "Diagnostics Session." Both refer to the same resource.
-- **Read-only emphasis**: `apps`, `devices`, `users`, `inventory` are all read-only. Configuration (adding apps, creating probes, defining alert rules) goes through the admin portal, not the API. A fork admin looking for "add a probe programmatically" will not find it in the current SDK surface.
+- **Read-dominant, not read-only**: `apps`, `devices`, `users`, and `inventory` are read-only. **Config** (adding apps, creating probes, defining alert rules) is portal-only — there is no "add a probe programmatically" in the SDK. But the diagnostic/sharing surface does write: see [Write surface](#write-surface).
 - **Time-range parameters** are expected on most metric endpoints (`from`, `to`, or similar date params). Exact parameter names vary per endpoint — check SDK method signatures before calling.
+
+## Write surface
+
+ZDX is read-dominant, but the SDK exposes five mutating endpoints. None of them touch ZDX *configuration* (probes, alert rules, app definitions remain portal-only); they drive on-demand diagnostics and alert sharing:
+
+| Method | Verb / path | Source |
+|---|---|---|
+| `start_deeptrace(device_id, ...)` | POST `/zdx/v1/devices/{device_id}/deeptraces` | `vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py:176-180` |
+| `delete_deeptrace(device_id, trace_id)` | DELETE `/zdx/v1/devices/{device_id}/deeptraces/{trace_id}` | `vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py:223` |
+| `start_analysis(...)` | POST `/zdx/v1/analysis` | `vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py:549` |
+| `delete_analysis(analysis_id)` | DELETE `/zdx/v1/analysis/{analysis_id}` | `vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py:647` |
+| `share_snapshot(name, alert_id, ...)` | POST `/zdx/v1/snapshot/alert` | `vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:83-87` |
 
 ## Rate limits
 
-ZDX uses tier-based rate limits keyed to license count (different from ZIA's weight-based / ZPA's per-IP). See [`../shared/oneapi.md § ZDX — tier-based by license count`](../shared/oneapi.md) for the table. Response headers: `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` (UTC epoch seconds — note the `RateLimit-*` form, distinct from ZIA's lowercase `x-ratelimit-*`).
+The server-side tier table (limits keyed to license count, different from ZIA's weight-based / ZPA's per-IP) lives in [`../shared/oneapi.md § ZDX — tier-based by license count`](../shared/oneapi.md).
+
+**Two response-header families appear across the sources, apparently split by transport** — the SDK-honored direct-cloud form vs the help-documented gateway form. Which family the *live* server actually emits per host is not confirmed from source (see open question below). What each source establishes:
+
+- **Legacy direct-cloud path (SDK-honored).** Both SDKs read **per-second sliding-window** headers: `X-Ratelimit-Remaining-Second` and `X-Ratelimit-Limit-Second`. They use these to back off proactively before a 429 (Python `vendor/zscaler-sdk-python/zscaler/zdx/legacy.py:97-98`; Go `vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:167-168`). This is the authoritative client-honored behavior.
+- **OneAPI gateway path (help-documented).** The gateway returns `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` (UTC epoch seconds) — distinct from ZIA's lowercase `x-ratelimit-*` (`vendor/zscaler-help/automate-zscaler/api-reference-zdx-overview.md:103`). The SDK code does not read these; the `X-Ratelimit-*-Second` form above is what the SDK transport honors.
+
+**Go SDK client-side limiter.** Independent of the server tier table, the Go SDK installs a flat **global limiter of 100 requests / 60 s** with an additional **5 s delay** baked into the rate-limit transport (`vendor/zscaler-sdk-go/zscaler/zdx/v2_config.go:314`,`322`). So the Go client self-throttles at a fixed rate rather than reading the server's tier-based allowance.
 
 ## Open questions
 
-- Exact endpoint paths for each SDK method (not yet reviewed line-by-line).
-- Query parameter schemas per endpoint.
+- Whether the OneAPI gateway (`api.zsapi.net`) actually enforces the per-second `X-Ratelimit-*-Second` window or only the `RateLimit-*` family — the SDK code only reads the `X-Ratelimit-*-Second` form, and the gateway-header claim rests on the help capture, which the SDK transport does not parse. Server behavior on the gateway is not confirmable from SDK source. See [clarification zdx-04](../_meta/clarifications.md#zdx-04-zdx-rate-limit-header-family-per-host).
+- Whether the server-side tier table (license-count limits) and the Go SDK's flat 100 req/60 s client limiter are reconciled anywhere, or whether the client limiter is simply a conservative floor independent of the negotiated tier. See [clarification zdx-05](../_meta/clarifications.md#zdx-05-zdx-server-tier-table-vs-client-flat-limiter).
+- Full query-parameter schemas per metric endpoint (only the `client.zdx.users` filters are enumerated here from `users.py`; other services' params still need per-method review).
+- Whether the Python SDK has an equivalent of the Go auto-reauth-on-401/403 retry (the Go path is confirmed at `v2_client.go:348-369`; the Python legacy path caches tokens but its 401/403 re-auth behavior was not traced).
 
 ## Cross-links
 

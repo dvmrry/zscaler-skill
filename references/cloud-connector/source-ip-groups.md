@@ -3,7 +3,7 @@ product: cloud-connector
 topic: cc-source-ip-groups
 title: "Cloud Connector Source IP Groups — primitives and policy use"
 content-type: reference
-last-verified: "2026-04-27"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: doc
 sources:
@@ -12,6 +12,7 @@ sources:
   - "vendor/terraform-provider-ztc/docs/resources/ztc_ip_source_groups.md"
   - "vendor/terraform-provider-ztc/docs/data-sources/ztc_ip_source_groups.md"
   - "vendor/terraform-provider-ztc/ztc/resource_ztc_ip_source_groups.go"
+  - "vendor/terraform-provider-ztc/ztc/data_source_ztc_ip_source_groups.go"
   - "vendor/terraform-provider-ztc/examples/ztc_traffic_forwarding_rule/basic_forward_method_zia.tf"
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/ipsourcegroups/ipsourcegroups.go"
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go"
@@ -66,6 +67,13 @@ Source: `vendor/zscaler-help/cbc-about-source-ip-groups.md`; `vendor/terraform-p
 | `ip_addresses` | List of String | Yes | Each entry: individual IP, CIDR subnet, or hyphen-range |
 | `creator_context` | String | Computed | Read-only; `"EC"` for groups created in Cloud & Branch Connector portal; `"ZIA"` for ZIA-origin groups surfaced to CBC |
 | `is_non_editable` | Boolean | Computed | `true` for Zscaler-predefined groups; editable groups are `false` |
+
+`creator_context` and `is_non_editable` are present on the SDK struct
+(`vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/ipsourcegroups/ipsourcegroups.go:32,35`).
+On the Terraform side they are exported by the `ztc_ip_source_groups` **data source**
+(`vendor/terraform-provider-ztc/ztc/data_source_ztc_ip_source_groups.go:40-49`) but **not** by
+the resource, whose schema is limited to `id`, `group_id`, `name`, `description`, and
+`ip_addresses` (`vendor/terraform-provider-ztc/ztc/resource_ztc_ip_source_groups.go:46-72`).
 
 ### Accepted address syntax
 
@@ -165,11 +173,18 @@ criteria.
 ### IPv6
 
 The SDK forwarding rule struct includes a parallel `SrcIpv6Groups` field
-(`json:"srcIpv6Groups"`). This is distinct from `SrcIpGroups` and is intended for
-organizations with IPv6 enabled. The Cloud & Branch Connector portal doc for Source IP Groups
-does not address IPv6 group objects; whether a separate IPv6 source group resource type
-exists in the ZTC provider is not confirmed from available sources. The `ip_addresses` field
-in `ztc_ip_source_groups` does not specify IPv4-only; this is an open question.
+(`json:"srcIpv6Groups"`,
+`vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go:124`).
+This is distinct from `SrcIpGroups` and is intended for organizations with IPv6 enabled. The
+struct carries a matching destination-side field, `DestIpv6Groups`
+(`json:"destIpv6Groups"`, `forwarding_rules.go:132`), alongside `DestIpGroups` — so IPv6 group
+references are symmetric across source and destination, mirroring the IPv4 `SrcIpGroups` /
+`DestIpGroups` pair.
+
+The Cloud & Branch Connector portal doc for Source IP Groups does not address IPv6 group
+objects, and whether a separate IPv6 source group resource type exists in the ZTC provider is
+not confirmed from available sources. The `ip_addresses` field in `ztc_ip_source_groups` does
+not specify IPv4-only; whether it accepts IPv6 entries is an open question.
 
 ---
 
@@ -208,8 +223,13 @@ resource "ztc_ip_source_groups" "web_tier" {
 |---|---|---|
 | `id` | String | Terraform resource ID (string form of integer) |
 | `group_id` | Number | Numeric API ID — use this when referencing in rule blocks |
-| `creator_context` | String | `"EC"` for groups managed by this provider |
-| `is_non_editable` | Boolean | Always `false` for provider-managed groups |
+
+The `ztc_ip_source_groups` **resource** schema exports only `id`, `group_id`, `name`,
+`description`, and `ip_addresses`
+(`vendor/terraform-provider-ztc/ztc/resource_ztc_ip_source_groups.go:46-72`). It does **not**
+surface `creator_context` or `is_non_editable`. Those two fields exist on the SDK struct
+(`vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/ipsourcegroups/ipsourcegroups.go:32,35`)
+and are exported by the **data source** — see below.
 
 **Import**:
 
@@ -236,9 +256,20 @@ data "ztc_ip_source_groups" "existing" {
 }
 ```
 
-Exported attributes match the resource schema. Use `data.ztc_ip_source_groups.<name>.id`
-(the string Terraform resource ID) or `data.ztc_ip_source_groups.<name>.group_id` (the
-integer) when composing rule references.
+Use `data.ztc_ip_source_groups.<name>.id` (the API ID) when composing rule references.
+
+Unlike the resource, the **data source** schema additionally exports two read-only fields
+(`vendor/terraform-provider-ztc/ztc/data_source_ztc_ip_source_groups.go:40-49`, populated at
+`:83-84`):
+
+| Attribute | Type | Notes |
+|---|---|---|
+| `creator_context` | String | Read-only. Provider description: created in Cloud & Branch Connector (EC) is the only applicable value (`data_source_ztc_ip_source_groups.go:43`). The SDK comment notes the broader EC-or-ZIA origin distinction (`ipsourcegroups.go:31`). |
+| `is_non_editable` | Boolean | Read-only. `true` = view-only (predefined groups, which cannot be modified); `false` = editable (`data_source_ztc_ip_source_groups.go:48`, `ipsourcegroups.go:34`). |
+
+Note the schema asymmetry: the data source's `id` is typed `TypeInt`
+(`data_source_ztc_ip_source_groups.go:18`), whereas the resource's `id` is `TypeString` with
+a separate `TypeInt` `group_id`.
 
 ### Referencing in a forwarding rule
 
@@ -394,10 +425,13 @@ any SNAT occurs for source-IP-based policy to work as expected.
 
 ### IPv6 source groups — parallel but separate
 
-The forwarding rule struct exposes a distinct `SrcIpv6Groups` field alongside `SrcIpGroups`.
-Whether the `ztc_ip_source_groups` resource supports IPv6 addresses in `ip_addresses` is not
-confirmed. If IPv6 support is needed, verify via the API whether a separate group type is
-required or whether the existing resource accepts IPv6 CIDR notation.
+The forwarding rule struct exposes a distinct `SrcIpv6Groups` field alongside `SrcIpGroups`,
+and a parallel `DestIpv6Groups` alongside `DestIpGroups`
+(`vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go:124,132`)
+— the IPv6 group fields are symmetric source/destination, just like the IPv4 ones. Whether the
+`ztc_ip_source_groups` resource supports IPv6 addresses in `ip_addresses` is not confirmed. If
+IPv6 support is needed, verify via the API whether a separate group type is required or whether
+the existing resource accepts IPv6 CIDR notation.
 
 ### Activation required
 
@@ -413,23 +447,32 @@ activated. The provider's `ztc_activation_status` resource handles this in-plan,
 Source: `vendor/zscaler-help/cbc-about-source-ip-groups.md`; `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`; `vendor/terraform-provider-ztc/docs/resources/ztc_ip_source_groups.md`; `vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/ipsourcegroups/ipsourcegroups.go`.
 
 1. **Per-group member limit**: No documented upper bound on entries per group. Confirm with
-   Zscaler support whether there is a platform limit.
+   Zscaler support whether there is a platform limit. Filed with the per-tenant count question
+   as [clarification `cloud-connector-03`](../_meta/clarifications.md#cloud-connector-03-source-ip-group-size-and-count-limits).
 
-2. **Per-tenant group count limit**: Not documented in available sources.
+2. **Per-tenant group count limit**: Not documented in available sources. See
+   [clarification `cloud-connector-03`](../_meta/clarifications.md#cloud-connector-03-source-ip-group-size-and-count-limits).
 
 3. **IPv6 address entries in `ztc_ip_source_groups`**: Whether the `ip_addresses` field
-   accepts IPv6 CIDR notation is unconfirmed. The SDK `SrcIpv6Groups` field on the
-   forwarding rule struct is distinct from `SrcIpGroups`; it's unclear if they reference
-   the same group object type.
+   accepts IPv6 CIDR notation is unconfirmed. The forwarding rule struct carries dedicated
+   IPv6 group fields on both sides — `SrcIpv6Groups` and `DestIpv6Groups`, parallel to the
+   IPv4 `SrcIpGroups` / `DestIpGroups`
+   (`forwarding_rules.go:124,132`) — distinct from the IPv4 group fields; it remains unclear
+   whether the IPv6 fields reference the same `ztc_ip_source_groups` object type or a
+   separate IPv6 group resource. Genuinely open. See
+   [clarification `cloud-connector-04`](../_meta/clarifications.md#cloud-connector-04-ipv6-entries-in-ztc_ip_source_groups-vs-a-separate-ipv6-group-object).
 
 4. **`source_ip_group_exclusion` on forwarding rules**: The SDK struct comment says "Not
    applicable to Cloud & Branch Connector." The TF provider exposes it as a boolean field.
-   Confirm whether the API accepts and enforces this flag for CC tenants.
+   Confirm whether the API accepts and enforces this flag for CC tenants. See
+   [clarification `cloud-connector-05`](../_meta/clarifications.md#cloud-connector-05-source_ip_group_exclusion-applicability-to-cloud-branch-connector).
 
 5. **ZIA-origin groups (`creator_context = "ZIA"`) — editability from ZTC**: Whether groups
    created in ZIA can be modified via the ZTC provider/API (or only via ZIA) is not
-   confirmed.
+   confirmed. Filed with the `/lite` payload question as
+   [clarification `cloud-connector-06`](../_meta/clarifications.md#cloud-connector-06-zia-origin-source-groups-editability-from-ztc-and-lite-payload-shape).
 
 6. **`/ipSourceGroups/lite` payload shape**: Only confirmed to return id+name. Whether
    additional fields (e.g., `creator_context`) are included in the lite response is not
-   documented in available sources.
+   documented in available sources. See
+   [clarification `cloud-connector-06`](../_meta/clarifications.md#cloud-connector-06-zia-origin-source-groups-editability-from-ztc-and-lite-payload-shape).
