@@ -83,10 +83,11 @@ Each entry follows this template. Body is narrative — the existing zia-01 entr
 ## Status summary
 
 Skim this before reading the full entries. Summary refreshed 2026-06-15:
-20 entries are resolved or clarified, 17 are partially resolved, and 177 remain
-open (the 2026-06-15 Cloud & Branch Connector refresh added `cloud-connector-01`
-through `cloud-connector-24`). Most open entries require lab tests, tenant
-snapshots, operator experience, or vendor confirmation rather than more
+20 entries are resolved or clarified, 17 are partially resolved, and the current
+refresh queue has expanded the open register with `zpa-21`–`zpa-81`,
+`zcc-77`–`zcc-101`, `zdx-03`–`zdx-43`, `zid-01`–`zid-35`, and
+`cloud-connector-01`–`cloud-connector-24`. Most open entries require lab tests,
+tenant snapshots, operator experience, or vendor confirmation rather than more
 public-doc reading.
 
 ### Resolved
@@ -126,7 +127,7 @@ public-doc reading.
 
 ### Open
 
-`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-49`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-20`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `shared-20`–`shared-27`, `zcc-08`–`zcc-101`, `zdx-01`–`zdx-43`, `zms-01`, `easm-01`–`easm-02`, `cloud-connector-01`–`cloud-connector-24`.
+`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-49`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-81`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `shared-20`–`shared-27`, `zcc-08`–`zcc-101`, `zdx-01`–`zdx-43`, `zid-01`–`zid-35`, `zms-01`, `easm-01`–`easm-02`, `cloud-connector-01`–`cloud-connector-24`.
 
 The vendor-MCP scrape (2026-06-14) added these open behavior questions — each links to its detailed entry below:
 
@@ -142,6 +143,72 @@ The vendor-MCP scrape (2026-06-14) added these open behavior questions — each 
 | [`zms-01`](#zms-01-fetchall-beyond-policyrules) | Whether ZMS `fetchAll` exists server-side beyond `policyRules` | SDK re-check / lab test |
 | [`easm-01`](#easm-01-finding-scan_type-allowed-values) | EASM finding `scan_type` allowed-value set | tenant snapshot / zscaler doc not yet read |
 | [`easm-02`](#easm-02-finding-risk-field-value-semantics) | EASM finding risk-field semantics (`risk_level` / `cisa_likelihood` / `epss_likelihood`) | tenant snapshot / zscaler doc not yet read |
+
+The ZPA reference re-verification pass (2026-06-15) registered the remaining `## Open questions` items from the ZPA docs — each links to its detailed entry below:
+
+| ID | Title | Resolves with |
+|---|---|---|
+| [`zpa-21`](#zpa-21-praapplicationapplicationprotocol-full-enum-citation-scope) | `PRAApplication.applicationProtocol` full enum citation scope in Postman | code read |
+| [`zpa-22`](#zpa-22-privatecloudcontroller-canonical-restart-path) | PrivateCloudController canonical restart path (Go vs Python SDK divergence) | lab test |
+| [`zpa-23`](#zpa-23-credential-sensitive-fields-in-get-response) | Whether `password` / `private_key` are returned on a Credential GET | tenant snapshot / lab test |
+| [`zpa-24`](#zpa-24-nla-as-a-valid-connectionsecurity-value-for-pra-sub-apps) | `NLA` as a valid PRA sub-app `connectionSecurity` value | lab test |
+| [`zpa-25`](#zpa-25-bacertificate-update_certificate-validity-as-an-api-operation) | BaCertificate `update_certificate` (PUT) validity as an API operation | lab test |
+| [`zpa-26`](#zpa-26-zpn_client_type_browser_isolation-in-lss-policy-conditions) | `zpn_client_type_browser_isolation` validity in LSS policy conditions | lab test |
+| [`zpa-27`](#zpa-27-app-connector-to-app-latency-probe-cadence) | App Connector-to-app latency probe cadence | zscaler doc not yet read / operator experience |
+| [`zpa-28`](#zpa-28-app-connector-certificate-validity-window-before-re-enrollment) | App Connector certificate validity window before re-enrollment | zscaler doc not yet read / operator experience |
+| [`zpa-29`](#zpa-29-maximum-app-connectors-per-group) | Maximum App Connectors per group | zscaler doc not yet read / support ticket |
+| [`zpa-30`](#zpa-30-provisioning-key-auto-delete-on-group-delete-api-behavior) | Provisioning-key auto-delete on group delete (API behavior) | lab test |
+| [`zpa-31`](#zpa-31-whether-the-zpa-api-requires-an-enrollment-cert-for-connector-type-provisioning-keys) | Whether the API requires an enrollment cert for connector-type keys | lab test |
+| [`zpa-32`](#zpa-32-zpn_audit_log-lss-field-schema) | `zpn_audit_log` LSS field schema | zscaler doc not yet read |
+| [`zpa-33`](#zpa-33-siem_policy-purpose-relative-to-audit-log-streaming) | `SIEM_POLICY` purpose relative to audit-log streaming | zscaler doc not yet read / lab test |
+| [`zpa-34`](#zpa-34-microtenant-audit-log-scoping) | Microtenant audit-log scoping (isolated vs parent-visible) | tenant snapshot / lab test |
+| [`zpa-35`](#zpa-35-lssconfigfilter-valid-expressions-for-zpn_audit_log) | `LSSConfig.filter` valid expressions for `zpn_audit_log` | zscaler doc not yet read |
+| [`zpa-36`](#zpa-36-runtime-semantics-of-trust_untrusted_cert-and-allow_options) | Runtime semantics of `trust_untrusted_cert` / `allow_options` | zscaler doc not yet read / lab test |
+| [`zpa-37`](#zpa-37-get-stepupauthlevel-response-shape-and-write-verb-support) | `GET /stepupauthlevel` response shape and write-verb support | lab test |
+| [`zpa-38`](#zpa-38-oauth2-user-code-legacy-host-zpa-path-prefix) | OAuth2 user-code legacy host `/zpa` path prefix | lab test |
+| [`zpa-39`](#zpa-39-assistantschedule-legacy-endpoint-still-served-vs-retired-alias) | `/assistantSchedule` legacy endpoint — still served vs retired alias | lab test |
+| [`zpa-40`](#zpa-40-zpn_auth_log_1id-human-facing-label) | `zpn_auth_log_1id` human-facing label | zscaler doc not yet read |
+| [`zpa-41`](#zpa-41-format-only-log-type-codes-acceptance-on-a-receivers-sourcelogtype) | Format-only log-type codes' acceptance on a receiver's `sourceLogType` | lab test |
+| [`zpa-42`](#zpa-42-console-path-for-the-global-enable-zpa-machine-tunnel-for-all-toggle) | Console path for the global "Enable ZPA Machine Tunnel for All" toggle | tenant snapshot / operator experience |
+| [`zpa-43`](#zpa-43-machine-tunnel-behavior-during-user-session-transitions) | Machine tunnel behavior during user session transitions | lab test / operator experience |
+| [`zpa-44`](#zpa-44-macos-mdm-enrollment-effect-on-machine-tunnel-provisioning) | macOS MDM (Jamf/Intune) effect on machine-tunnel provisioning | zscaler doc not yet read / lab test |
+| [`zpa-45`](#zpa-45-machine-tunnel-provisioning-key-mechanism) | Machine-tunnel provisioning key mechanism | zscaler doc not yet read / tenant snapshot |
+| [`zpa-46`](#zpa-46-api-enforcement-of-the-chrome_posture_profile-vs-chrome_enterprise-operand-form-split) | API enforcement of the CHROME_POSTURE_PROFILE vs CHROME_ENTERPRISE operand-form split | lab test |
+| [`zpa-47`](#zpa-47-private-service-edge-vm-sizing-and-per-instance-session-limits) | PSE VM sizing and per-instance session limits | zscaler doc not yet read |
+| [`zpa-48`](#zpa-48-pse-provisioning-key-apiterraform-support) | PSE provisioning-key API/Terraform support | zscaler doc not yet read / lab test |
+| [`zpa-49`](#zpa-49-supported-hypervisor-cloud-image-formats-for-zpa-pses) | Supported hypervisor / cloud-image formats for ZPA PSEs | zscaler doc not yet read |
+| [`zpa-50`](#zpa-50-zpa-pse-dedicated-hardware-appliance-availability) | ZPA PSE dedicated hardware appliance availability | zscaler doc not yet read / support ticket |
+| [`zpa-51`](#zpa-51-private-cloud-controller-product-positioning) | Private Cloud Controller product positioning | zscaler doc not yet read |
+| [`zpa-52`](#zpa-52-restart_private_controller-operational-semantics) | `restart_private_controller` operational semantics (graceful vs hard) | lab test |
+| [`zpa-53`](#zpa-53-service-edge-auto-delete-schedule-accepted-frequency-values-and-defaults) | Service Edge Auto-Delete schedule accepted `frequency` values + defaults | zscaler doc not yet read / lab test |
+| [`zpa-54`](#zpa-54-pse-location-geoip-update-propagation-delay) | PSE location / GeoIP update propagation delay | zscaler doc not yet read / operator experience |
+| [`zpa-55`](#zpa-55-pse-oauth2-enrollment-path-licensereplacement-semantics) | PSE OAuth2 enrollment path license/replacement semantics | zscaler doc not yet read / lab test |
+| [`zpa-56`](#zpa-56-maximum-pses-per-group) | Maximum PSEs per group | zscaler doc not yet read / support ticket |
+| [`zpa-57`](#zpa-57-whether-session-recording-approval-workflow-and-credential-pooling-are-formally-absent-from-base-non-pra-zpa) | Whether session recording / approval / credential pooling are absent from base ZPA | zscaler doc not yet read |
+| [`zpa-58`](#zpa-58-zpa-public-tier-specific-behavior-scale-safe-mode) | ZPA Public-tier-specific behavior (scale / Safe-mode) | zscaler doc not yet read |
+| [`zpa-59`](#zpa-59-zpa-public-tier-policy-caching-ca-reconnect-semantics) | ZPA Public-tier policy-caching / CA-reconnect semantics | zscaler doc not yet read |
+| [`zpa-60`](#zpa-60-upgrade_priority-allowed-values-and-effect-for-the-zpa-service-edge-tier) | `upgrade_priority` allowed values and effect for ZPA service-edge tier | zscaler doc not yet read / lab test |
+| [`zpa-61`](#zpa-61-authoritative-zpa-saml-attribute-limit) | Authoritative ZPA SAML attribute limit (is it exactly 100?) | zscaler doc not yet read / lab test |
+| [`zpa-62`](#zpa-62-userattribute-and-delta-saml-attribute-field-semantics) | `userAttribute` and `delta` SAML-attribute field semantics | zscaler doc not yet read / lab test |
+| [`zpa-63`](#zpa-63-behavior-when-a-scim_group-operand-references-a-deleted-group) | Behavior when a `SCIM_GROUP` operand references a deleted group | lab test |
+| [`zpa-64`](#zpa-64-scim-group-internal_id-field-semantics) | SCIM group `internal_id` field semantics | zscaler doc not yet read / tenant snapshot |
+| [`zpa-65`](#zpa-65-enable_scim_based_policy-false-fallback-behavior) | `enable_scim_based_policy` false fallback behavior | lab test |
+| [`zpa-66`](#zpa-66-scim-attribute-value-matching-case-sensitivity) | SCIM attribute value matching case sensitivity | lab test |
+| [`zpa-67`](#zpa-67-scim-group-membership-resolution-timing-session-vs-per-evaluation) | SCIM group membership resolution timing (session vs per-evaluation) | lab test |
+| [`zpa-68`](#zpa-68-isolation-policy-v2-scim_group-support) | Isolation policy v2 `SCIM_GROUP` support | code read / lab test |
+| [`zpa-69`](#zpa-69-segment-group-update_group_v2-vs-v1-behavioral-difference) | Segment Group `update_group_v2` vs v1 behavioral difference | zscaler doc not yet read / lab test |
+| [`zpa-70`](#zpa-70-segment-group-skip_detailed_app_info-effect-on-writes) | Segment Group `skip_detailed_app_info` effect on writes | lab test |
+| [`zpa-71`](#zpa-71-segment-group-tcpkeepaliveenabled-adminruntime-effect) | Segment Group `tcpKeepAliveEnabled` admin/runtime effect | zscaler doc not yet read |
+| [`zpa-72`](#zpa-72-segment-group-config_space-accepted-values) | Segment Group `config_space` accepted values | lab test / zscaler doc not yet read |
+| [`zpa-73`](#zpa-73-objecttype-zpn_internal_internet_protocol-and-user-wire-validity) | `objectType` `ZPN_INTERNAL_INTERNET_PROTOCOL` / `USER` wire validity | lab test |
+| [`zpa-74`](#zpa-74-tcpkeepalive-literal-wire-token-quoted-string-vs-bare-integer) | `tcpKeepAlive` literal wire token (quoted string vs bare integer) | tenant snapshot |
+| [`zpa-75`](#zpa-75-configspace-at-the-segment-top-level) | `configSpace` valid at the segment top level | tenant snapshot |
+| [`zpa-76`](#zpa-76-which-lss-source_log_type-values-require-a-policy_rule_resource-block) | Which LSS `source_log_type` values require a `policy_rule_resource` block | zscaler doc not yet read / lab test |
+| [`zpa-77`](#zpa-77-tag-tag-group-membership-referenced-in-policy-rule-conditions) | Tag / tag-group membership referenced in policy rule conditions (Early Access) | zscaler doc not yet read / lab test |
+| [`zpa-78`](#zpa-78-trusted_network-rhs-false-runtime-semantics) | `TRUSTED_NETWORK` `rhs = "false"` runtime semantics | lab test |
+| [`zpa-79`](#zpa-79-provisioning-trigger-that-creates-zpa-trusted-network-objects) | Provisioning trigger that creates ZPA Trusted Network objects | zscaler doc not yet read / operator experience |
+| [`zpa-80`](#zpa-80-zcczpa-trusted-network-signal-at-session-establishment) | ZCC→ZPA trusted-network signal at session establishment | zscaler doc not yet read / lab test |
+| [`zpa-81`](#zpa-81-pse-routing-off-network-fallback-when-is_public-false) | PSE routing / off-network fallback when `is_public = false` | zscaler doc not yet read / lab test |
 
 The ZCC deep-dive refresh (2026-06-15) registered these open behavior questions surfaced in the per-doc **Open questions** sections — each links to its detailed entry below:
 
@@ -3145,6 +3212,677 @@ For Cloud App Control, which individual actions are valid for a given cloud appl
 
 **Status**: open
 **Resolves with**: tenant snapshot (observe a connector in the pending state via API) OR lab test
+
+---
+
+### zpa-21 — PRAApplication.applicationProtocol full enum citation scope
+
+*Origin: `references/zpa/api-postman-schemas.md` § Open questions*
+
+The report claims `DYNAMIC`, `FTP`, `VNC`, and `WEBSOCKET` are present for `PRAApplication.applicationProtocol` and cites `vendor/zscaler-api-specs/oneapi-postman-collection.json:86512`, but that line shows a PRA Console GET response listing only `HTTP` and `SSH` in the two example instances. The full 10-value enum (`AUTO`, `DYNAMIC`, `FTP`, `HTTP`, `HTTPS`, `NONE`, `RDP`, `SSH`, `VNC`, `WEBSOCKET`) likely appears across multiple PRA endpoints in the collection rather than at a single line — whether every value is actually present is unverified at line level.
+
+**Status**: open
+**Resolves with**: code read (grep the full Postman collection for each enum value to confirm completeness)
+
+---
+
+### zpa-22 — PrivateCloudController canonical restart path
+
+*Origin: `references/zpa/api-schemas.md` § Open questions*
+
+The two SDKs build different restart paths for a Private Cloud Controller. The Go SDK constructs `/privateCloudController/restart/{id}` (`vendor/zscaler-sdk-go/zscaler/zpa/services/private_cloud_controller/private_cloud_controller.go:128-129` — `path := endpoint+"/restart"` then appends `/{controllerID}`), while the Python SDK uses `/privateCloudController/{id}/restart` (`vendor/zscaler-sdk-python/zscaler/zpa/private_cloud_controller.py:267`). The Postman collection has no PrivateCloudController entry to settle which path the live API actually serves.
+
+**Status**: open
+**Resolves with**: lab test against a live tenant (issue the restart and observe which path the API accepts)
+
+---
+
+### zpa-23 — Credential sensitive fields in GET response
+
+*Origin: `references/zpa/api-schemas.md` § Open questions*
+
+The Python `Credential` model excludes `password` and `private_key` from its response field handling, but the Postman collection shows them present in GET list example bodies. Whether the ZPA API actually returns these sensitive fields on a read, or whether the Postman bodies are placeholder/echo artifacts, is unresolved.
+
+**Status**: open
+**Resolves with**: tenant snapshot / lab test (GET a credential object and inspect whether secret fields are returned)
+
+---
+
+### zpa-24 — NLA as a valid `connectionSecurity` value for PRA sub-apps
+
+*Origin: `references/zpa/api-schemas.md` § Open questions*
+
+The Python SDK docstring lists `NLA` among accepted `connection_security` values (`vendor/zscaler-sdk-python/zscaler/zpa/app_segments_pra.py:188`: `ANY`, `NLA`, `NLA_EXT`, `TLS`, `VM_CONNECT`, `RDP`), but `NLA` is not corroborated by a Go SDK struct enum or a Postman example. Whether the API accepts `NLA` as a distinct connection-security mode is unconfirmed.
+
+**Status**: open
+**Resolves with**: lab test (create a PRA sub-app with `connectionSecurity=NLA` and observe acceptance)
+
+---
+
+### zpa-25 — BaCertificate `update_certificate` validity as an API operation
+
+*Origin: `references/zpa/api-schemas.md` § Open questions*
+
+The Python SDK exposes `update_certificate` building `PUT /certificate/{id}` (`vendor/zscaler-sdk-python/zscaler/zpa/certificates.py:266`, `:294`), but neither the Go SDK nor the Postman collection has a PUT for a BA certificate. Whether the ZPA API actually supports updating an existing BA certificate (vs. delete-and-recreate only) is unconfirmed.
+
+**Status**: open
+**Resolves with**: lab test (attempt a certificate PUT against a live tenant)
+
+---
+
+### zpa-26 — `zpn_client_type_browser_isolation` in LSS policy conditions
+
+*Origin: `references/zpa/api-schemas.md` § Open questions*
+
+`zpn_client_type_browser_isolation` is a defined client type (`vendor/zscaler-sdk-go/zscaler/zpa/services/clienttypes/clienttypes.go:18`) and is listed as a valid `CLIENT_TYPE` value in several TF policy-rule docs, but in the Go LSS-config integration test it appears only inside a commented-out condition block (`vendor/zscaler-sdk-go/zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller_test.go:243`). Whether the ZPA API accepts `zpn_client_type_browser_isolation` as a `CLIENT_TYPE` operand on an LSS-config policy condition specifically is not confirmed at the API level.
+
+**Status**: open
+**Resolves with**: lab test (configure an LSS policy condition with this client type and observe acceptance)
+
+---
+
+### zpa-27 — App Connector-to-app latency probe cadence
+
+*Origin: `references/zpa/app-connector.md` § Open questions*
+
+How frequently ZPA re-measures App Connector-to-application RTT (the latency signal used in connector/path selection) is not stated in the captured help docs (`vendor/zscaler-help/about-app-connectors.md`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`). Relevant to "our network path changed — how long until ZPA notices and re-routes" questions.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read / operator experience
+
+---
+
+### zpa-28 — App Connector certificate validity window before re-enrollment
+
+*Origin: `references/zpa/app-connector.md` § Open questions*
+
+How long an App Connector enrollment certificate is valid before re-enrollment is required is not stated in the captured vendor sources. Relevant to planning connector cert-rotation maintenance.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read / operator experience
+
+---
+
+### zpa-29 — Maximum App Connectors per group
+
+*Origin: `references/zpa/app-connector.md` § Open questions*
+
+The captured help docs describe high connector counts per App Connector Group but do not enumerate an explicit maximum. The exact cap (if any) is unconfirmed.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read / support ticket
+
+---
+
+### zpa-30 — Provisioning-key auto-delete on group delete (API behavior)
+
+*Origin: `references/zpa/app-connector.md` § Open questions*
+
+No vendor source states that deleting an App Connector Group or Service Edge Group *actively* auto-deletes its provisioning keys. The only evidence is indirect: the Python group-delete signature carries no cascade/force parameter (`vendor/zscaler-sdk-python/zscaler/zpa/app_connector_groups.py:435`), and the SDK does not document a cascade. Whether the ZPA API itself removes associated provisioning keys when a group is deleted is unconfirmed; treat auto-delete as inferred, not source-stated.
+
+**Status**: open
+**Resolves with**: lab test (delete a group with an associated provisioning key and check whether the key is also removed)
+
+---
+
+### zpa-31 — Whether the ZPA API requires an enrollment cert for connector-type provisioning keys
+
+*Origin: `references/zpa/app-connector.md` § Open questions*
+
+The "an enrollment cert is required for a `connector`-type provisioning key" rule is enforced only client-side in the MCP tool (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/provisioning_key.py:103-104`); neither SDK's add/update path enforces or documents a per-key-type cert requirement (the SDK treats `enrollment_cert_id` as a plain optional kwarg). Whether the ZPA API itself rejects a connector-type key created without an enrollment cert is unconfirmed.
+
+**Status**: open
+**Resolves with**: lab test (create a connector-type provisioning key without an enrollment cert via the API and observe whether it is rejected)
+
+---
+
+### zpa-32 — `zpn_audit_log` LSS field schema
+
+*Origin: `references/zpa/audit-logs.md` § Open questions*
+
+The specific fields present in a `zpn_audit_log` LSS stream entry are not captured in available sources. The `zpa_lss_config_log_type_formats` data source would carry the authoritative per-field format list but was not available for review.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (capture the `zpa_lss_config_log_type_formats` output for `zpn_audit_log`)
+
+---
+
+### zpa-33 — `SIEM_POLICY` purpose relative to audit-log streaming
+
+*Origin: `references/zpa/audit-logs.md` § Open questions*
+
+The `siem` key maps to `SIEM_POLICY` in the policy `POLICY_MAP` (`vendor/zscaler-sdk-python/zscaler/zpa/policies.py:69`), and a `data.zpa_policy_type.lss_siem_policy` exists, but the purpose of the SIEM policy type in relation to audit-log streaming is not confirmed from available sources.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read / lab test
+
+---
+
+### zpa-34 — Microtenant audit-log scoping
+
+*Origin: `references/zpa/audit-logs.md` § Open questions*
+
+Whether audit logs generated within a microtenant are isolated to that microtenant's LSS configurations, or are also visible to the parent tenant, is not confirmed from available sources.
+
+**Status**: open
+**Resolves with**: tenant snapshot / lab test (compare audit-log visibility across a parent/microtenant boundary)
+
+---
+
+### zpa-35 — `LSSConfig.filter` valid expressions for `zpn_audit_log`
+
+*Origin: `references/zpa/audit-logs.md` § Open questions*
+
+`LSSConfig.filter` is a `[]string`, but the valid filter expressions for the `zpn_audit_log` log type are not documented in available sources.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (the format/filter lookup for `zpn_audit_log`)
+
+---
+
+### zpa-36 — Runtime semantics of `trust_untrusted_cert` and `allow_options`
+
+*Origin: `references/zpa/browser-access.md` § Open questions*
+
+Both fields are present on the SDK clientless-app model (`vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py:771-772`), but the model is a passthrough struct — it does not document what the ZPA service does with each flag. The precise ingress behavior (whether `allow_options` blocks vs forwards an `OPTIONS` preflight to the backend, and whether `trust_untrusted_cert` suppresses the Browser Access web-server certificate error end-to-end or only on the backend leg) is inferred from the field names, not confirmed in vendor source.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read / lab test (toggle each flag and observe ingress behavior)
+
+---
+
+### zpa-37 — `GET /stepupauthlevel` response shape and write-verb support
+
+*Origin: `references/zpa/legacy-endpoints.md` § Open questions*
+
+The Go service `GetStepupAuthLevel` deserializes the response into a plain `[]string` (`vendor/zscaler-sdk-go/zscaler/zpa/services/step_up_auth/step_up_auth.go:30-39`) even though the package defines a richer `StepAuthLevel` struct, so the true wire shape is not pinned down by the SDK. No create/update/delete verbs are exposed for step-up auth levels in the Go service — whether the legacy API supports writes is unconfirmed.
+
+**Status**: open
+**Resolves with**: lab test (capture a real `GET /stepupauthlevel` response and probe for write verbs)
+
+---
+
+### zpa-38 — OAuth2 user-code legacy host `/zpa` path prefix
+
+*Origin: `references/zpa/legacy-endpoints.md` § Open questions*
+
+The `oauth2_user`, `c2c_ip_ranges`, `api_keys`, and `step_up_auth` Go services build paths from the SDK constant `/zpa/mgmtconfig/v1/admin/customers/`, which carries a `/zpa` prefix not present in the doc's Base-URLs table. Whether the live legacy host expects the `/zpa` prefix (a client-routing detail) is not verified.
+
+**Status**: open
+**Resolves with**: lab test (capture the actual request path the legacy host accepts)
+
+---
+
+### zpa-39 — `/assistantSchedule` legacy endpoint — still served vs retired alias
+
+*Origin: `references/zpa/legacy-endpoints.md` § Open questions*
+
+The `appconnectorcontroller` Go package still declares `scheduleEndpoint = "/assistantSchedule"` (`vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorcontroller/zpa_app_connector_controller.go:16`) but no function references it. Whether the legacy API still serves `/assistantSchedule` or it is a fully retired alias of `/connectorSchedule` cannot be determined from the SDK alone.
+
+**Status**: open
+**Resolves with**: lab test (call `/assistantSchedule` against the legacy host and observe the response)
+
+---
+
+### zpa-40 — `zpn_auth_log_1id` human-facing label
+
+*Origin: `references/zpa/log-receivers.md` § Open questions*
+
+The TF data source lists `zpn_auth_log_1id` as a valid format-lookup code (`vendor/terraform-provider-zpa/zpa/data_source_zpa_lss_config_log_types_formats.go:32`), but no source maps it to an operator-facing label. The "User Status (Zidentity)" label used in the doc is inferred from the `auth_log` stem plus the `_1id` (Zidentity / "OneID") suffix; the help doc lists only a single "User Status" with no Zidentity variant.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (the operator-facing display name for this code)
+
+---
+
+### zpa-41 — Format-only log-type codes' acceptance on a receiver's `sourceLogType`
+
+*Origin: `references/zpa/log-receivers.md` § Open questions*
+
+Eight codes present in the TF format-lookup set are absent from the Python `source_log_map`. Of these, **`zpn_pbroker_comprehensive_stats` is resolved**: the Terraform resource `zpa_lss_config_controller` includes it in its `source_log_type` `ValidateFunc` (`vendor/terraform-provider-zpa/zpa/resource_zpa_lss_config_controller.go:225`), which is strong evidence the ZPA API accepts it on a live receiver. The remaining seven (`zms_flow_log`, `zpn_sitec_comprehensive_stats`, `zpn_sitec_auth_log`, `zpn_auth_log_1id`, `zpn_smb_inspection_log`, `zpn_ldap_inspection_log`, `zpn_krb_inspection_log`) are valid for `GET /lssConfig/logType/formats` but absent from both the Python `source_log_map` and the TF resource's write-time validator — whether the ZPA API rejects them on a receiver's `sourceLogType` is not established in available sources.
+
+**Status**: partial — `zpn_pbroker_comprehensive_stats` resolved (TF resource accepts it); 7 remaining codes still open
+**Resolves with**: lab test (configure a receiver with one of the 7 remaining `sourceLogType` values and observe acceptance)
+
+---
+
+### zpa-42 — Console path for the global "Enable ZPA Machine Tunnel for All" toggle
+
+*Origin: `references/zpa/machine-tunnels.md` § Open questions*
+
+The help article `configuring-zpa-machine-tunnel-all` has moved or been removed, so the exact ZPA Admin Portal navigation path for the global machine-tunnel-for-all toggle is not confirmed. Expected location is somewhere within App Profile or ZPA Global Settings.
+
+**Status**: open
+**Resolves with**: tenant snapshot / operator experience (confirm the console location)
+
+---
+
+### zpa-43 — Machine tunnel behavior during user session transitions
+
+*Origin: `references/zpa/machine-tunnels.md` § Open questions*
+
+The help notes the machine tunnel is Active before user login and may become Inactive after. The exact lifecycle — whether the machine tunnel remains active alongside the user tunnel post-login, or hands off — is not explicitly documented.
+
+**Status**: open
+**Resolves with**: lab test / operator experience (observe tunnel state across a login transition)
+
+---
+
+### zpa-44 — macOS MDM enrollment effect on machine-tunnel provisioning
+
+*Origin: `references/zpa/machine-tunnels.md` § Open questions*
+
+Jamf and Intune are listed as posture types for macOS. Whether they affect the machine-tunnel provisioning flow (e.g. a Jamf-issued certificate serving as the enrollment anchor) is not documented.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read / lab test
+
+---
+
+### zpa-45 — Machine-tunnel provisioning key mechanism
+
+*Origin: `references/zpa/machine-tunnels.md` § Open questions*
+
+The `zpa_provisioning_key` TF resource supports `CONNECTOR_GRP` and `SERVICE_EDGE_GRP` association types. Whether machine-tunnel provisioning uses a different mechanism (an app-profile-embedded key rather than a standard ZPA provisioning-key resource) is not clear from sources.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read / tenant snapshot
+
+---
+
+### zpa-46 — API enforcement of the CHROME_POSTURE_PROFILE vs CHROME_ENTERPRISE operand-form split
+
+*Origin: `references/zpa/policy-precedence.md` § Open questions*
+
+The Terraform provider enforces a form split for two object types: `CHROME_POSTURE_PROFILE` requires `values` and `CHROME_ENTERPRISE` requires `entry_values` (with `lhs="managed"`, `rhs` in {`true`,`false`}) (`vendor/terraform-provider-zpa/zpa/common.go:1212-1234`). Whether the ZPA API backend enforces the same split — or whether the provider validation is stricter than the server — is unconfirmed.
+
+**Status**: open
+**Resolves with**: lab test (submit a mismatched operand form directly to the API and observe whether it is rejected)
+
+---
+
+### zpa-47 — Private Service Edge VM sizing and per-instance session limits
+
+*Origin: `references/zpa/private-service-edges.md` § Open questions*
+
+The Deployment Prerequisites document referenced in help sources was not captured. vCPU, vRAM, and disk requirements per PSE VM and per-instance session limits are not confirmed.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (current Deployment Prerequisites doc)
+
+---
+
+### zpa-48 — PSE provisioning-key API/Terraform support
+
+*Origin: `references/zpa/private-service-edges.md` § Open questions*
+
+There is no `zpa_service_edge_provisioning_key` resource in the captured Terraform provider docs (the App Connector equivalent `zpa_provisioning_key` exists). Whether PSE provisioning keys can be created via the API/Terraform or are Admin-Console-only is unconfirmed.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read / lab test
+
+---
+
+### zpa-49 — Supported hypervisor / cloud-image formats for ZPA PSEs
+
+*Origin: `references/zpa/private-service-edges.md` § Open questions*
+
+VMware (ESXi/vSphere) is confirmed for ZPA PSEs. Whether OVA images are provided for Hyper-V, KVM, or cloud-native VM formats (AWS AMI, Azure image) for ZPA PSEs specifically is not confirmed — ZIA VSEs support those platforms, but ZPA PSEs may differ.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read
+
+---
+
+### zpa-50 — ZPA PSE dedicated hardware appliance availability
+
+*Origin: `references/zpa/private-service-edges.md` § Open questions*
+
+The ZIA PSE product has dedicated hardware appliances (PSE 3, PSE 5 physical clusters). Whether ZPA PSEs are virtual-only or also available as dedicated hardware is not confirmed — the captured help sources describe only VM images.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read / support ticket
+
+---
+
+### zpa-51 — Private Cloud Controller product positioning
+
+*Origin: `references/zpa/private-service-edges.md` § Open questions*
+
+The SDK surface is documented (`/privateCloudControllerGroup` group container and `/privateCloudController` member instance form the same group/instance pairing as `/serviceEdgeGroup` ÷ `/serviceEdge`, with `site_id` and `privateBrokerGroupIds` linking the group to a ZPA site — `vendor/zscaler-sdk-python/zscaler/zpa/private_cloud_group.py:180`, `:201`). What the source does not settle is the product semantics: whether the Private Cloud Controller family is a sovereign/private-cloud ZPA control-plane variant or simply an alternate PSE grouping type, and whether it is in scope for standard PSE deployments using Zscaler's public ZPA CA.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (ZPA Private Cloud product docs)
+
+---
+
+### zpa-52 — `restart_private_controller` operational semantics
+
+*Origin: `references/zpa/private-service-edges.md` § Open questions*
+
+The Python SDK exposes a restart for a Private Cloud Controller (`vendor/zscaler-sdk-python/zscaler/zpa/private_cloud_controller.py:245`, `:267`), but the source does not state whether the restart is graceful (drains sessions first) or hard, nor whether an equivalent restart action exists for ordinary `serviceEdge` instances (none is present in the captured `service_edges.py`).
+
+**Status**: open
+**Resolves with**: lab test (restart a controller and observe session impact)
+
+---
+
+### zpa-53 — Service Edge Auto-Delete schedule accepted `frequency` values and defaults
+
+*Origin: `references/zpa/private-service-edges.md` § Open questions*
+
+`ServiceEdgeScheduleAPI` accepts `frequency` / `frequencyInterval` (`vendor/zscaler-sdk-python/zscaler/zpa/service_edge_schedule.py:121-122`), but the SDK does not enumerate the accepted enum values (e.g. days vs weeks) or the default cadence when the schedule is first enabled.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read / lab test
+
+---
+
+### zpa-54 — PSE location / GeoIP update propagation delay
+
+*Origin: `references/zpa/private-service-edges.md` § Open questions*
+
+The help docs note that if a PSE Group location is updated for an existing active connection, the PSE uses the old location until the next new connection. The propagation delay for location changes across the CA topology is not quantified.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read / operator experience
+
+---
+
+### zpa-55 — PSE OAuth2 enrollment path license/replacement semantics
+
+*Origin: `references/zpa/private-service-edges.md` § Open questions*
+
+The `enrollment_cert_id` + `user_codes` pattern on `zpa_service_edge_group` suggests an OAuth2 enrollment flow distinct from the traditional provisioning-key path. Whether it requires a specific ZPA license tier, and whether it replaces or supplements the provisioning-key flow, is not resolved from available sources.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read / lab test
+
+---
+
+### zpa-56 — Maximum PSEs per group
+
+*Origin: `references/zpa/private-service-edges.md` § Open questions*
+
+Unlike App Connector Groups, no documented maximum PSE count per PSE Group was found in the captured sources.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read / support ticket
+
+---
+
+### zpa-57 — Whether session recording, approval workflow, and credential pooling are formally absent from base (non-PRA) ZPA
+
+*Origin: `references/zpa/privileged-remote-access.md` § Open questions*
+
+The captured help articles, Python SDK, and Terraform provider all document session recording, approval workflow, and credential pooling as PRA-specific constructs, but none directly states they are unavailable in standard ZPA. The dedicated PRA SDK modules and the `SECURE_REMOTE_ACCESS`-only `app_types` enum on the PRA segment resource are strong implicit evidence, but a direct source statement is needed to assert the negative.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (a source statement scoping these features to PRA)
+
+---
+
+### zpa-58 — ZPA Public-tier-specific behavior (scale / Safe-mode)
+
+*Origin: `references/zpa/public-service-edges.md` § Open questions*
+
+No ZPA-specific *Public* Service Edge help page is present in vendor sources. The earlier draft's quantitative claims about the Public tier (hundreds of thousands of concurrent users, per-second CA heartbeat, Safe-mode, default URL-block policy) came from the *ZIA* page `about-public-service-edges-internet-saas.md` and described ZIA gateway behavior, not ZPA — they have been removed. Whether any of those scale/Safe-mode behaviors apply to the ZPA broker tier is unconfirmed against a ZPA source.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (a ZPA-specific Public Service Edge source)
+
+---
+
+### zpa-59 — ZPA Public-tier policy-caching / CA-reconnect semantics
+
+*Origin: `references/zpa/public-service-edges.md` § Open questions*
+
+The Private-SE page states a Service Edge registers with the Private Access Cloud, downloads policies/configurations, and caches path-selection decisions (`vendor/zscaler-help/about-private-service-edges.md:12`), but does not specify cache-invalidation, heartbeat cadence, or any fail-open/fail-closed behavior for the ZPA Public tier. Left unstated rather than imported from ZIA.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (a ZPA-specific source for Public-tier cache/heartbeat behavior)
+
+---
+
+### zpa-60 — `upgrade_priority` allowed values and effect for the ZPA service-edge tier
+
+*Origin: `references/zpa/public-service-edges.md` § Open questions*
+
+The Python `ServiceEdgeGroup` model exposes `upgrade_priority` (`vendor/zscaler-sdk-python/zscaler/zpa/models/service_edge_groups.py:63`), but no vendor source defines its allowed values or effect for the ZPA tier.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read / lab test
+
+---
+
+### zpa-61 — Authoritative ZPA SAML attribute limit
+
+*Origin: `references/zpa/saml-attributes.md` § Open questions*
+
+The 100-attribute limit is taken from the ZSDK ranges document (`vendor/zscaler-help/zsdk-ranges-limitations.md:64`). No captured ZPA-specific source restates this figure for ZPA, and the SDK service layer does not encode a cap (`vendor/zscaler-sdk-python/zscaler/zpa/saml_attributes.py` exposes pagination but no count limit). Whether ZPA enforces exactly 100 — or a different value — is unconfirmed against a ZPA-specific source.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read / lab test
+
+---
+
+### zpa-62 — `userAttribute` and `delta` SAML-attribute field semantics
+
+*Origin: `references/zpa/saml-attributes.md` § Open questions*
+
+The model carries `userAttribute` (bool) and `delta` fields (`vendor/zscaler-sdk-python/zscaler/zpa/models/saml_attributes.py:36`, `:40`), but neither the SDK docstrings nor the captured help docs define what `userAttribute=true` toggles in policy behavior, nor what `delta` tracks. Note the `add`/`update` docstring describing `saml_name` as "Whether to enable the cloud browser isolation banner" (`vendor/zscaler-sdk-python/zscaler/zpa/saml_attributes.py:203`) is a copy-paste error — the real meaning of `samlName` is the IdP assertion attribute name. The `userAttribute`/`delta` semantics need a non-docstring source.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read / lab test
+
+---
+
+### zpa-63 — Behavior when a `SCIM_GROUP` operand references a deleted group
+
+*Origin: `references/zpa/scim-policy-mapping.md` § Open questions*
+
+A `SCIM_GROUP` operand referencing a deleted group is expected to never match, but the docs do not confirm whether ZPA surfaces an error at policy-evaluation time, at rule-read time, or silently passes. The `all_entries` query parameter on the SCIM-group API suggests deleted groups can be retrieved — whether the policy engine uses the same store is not documented.
+
+**Status**: open
+**Resolves with**: lab test (reference a deleted SCIM group in a rule and observe evaluation behavior)
+
+---
+
+### zpa-64 — SCIM group `internal_id` field semantics
+
+*Origin: `references/zpa/scim-policy-mapping.md` § Open questions*
+
+`internal_id` is present on both the Go (`ScimGroup.InternalID` — `vendor/zscaler-sdk-go/zscaler/zpa/services/scimgroup/zpa_scim_group.go:27`) and Python SCIM-group models, but is undocumented. Its relationship to `id` and `idp_group_id` is unclear.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read / tenant snapshot (compare the three ID fields on a real SCIM group)
+
+---
+
+### zpa-65 — `enable_scim_based_policy` false fallback behavior
+
+*Origin: `references/zpa/scim-policy-mapping.md` § Open questions*
+
+When `enableScimBasedPolicy` is false on an IdP controller (`vendor/zscaler-sdk-python/zscaler/zpa/models/idp.py:49`), SCIM criteria are not evaluated for users from that IdP. What the policy engine does with those conditions — skip them (treat as not-present, potentially opening access) vs. evaluate them as false (potentially denying access) — is not stated in available documentation.
+
+**Status**: open
+**Resolves with**: lab test (disable the flag and observe how SCIM conditions evaluate)
+
+---
+
+### zpa-66 — SCIM attribute value matching case sensitivity
+
+*Origin: `references/zpa/scim-policy-mapping.md` § Open questions*
+
+The `ScimAttributeHeader` struct exposes a `case_sensitive` bool, and the TF docs note `rhs` must exactly match an observed value. Whether "exactly" is case-insensitive when `case_sensitive = false`, or whether the policy engine applies a different matching rule than the SCIM-attribute-values API, is not documented.
+
+**Status**: open
+**Resolves with**: lab test (compare matching with `case_sensitive` true vs false)
+
+---
+
+### zpa-67 — SCIM group membership resolution timing (session vs per-evaluation)
+
+*Origin: `references/zpa/scim-policy-mapping.md` § Open questions*
+
+It is not confirmed whether ZPA re-queries the `userconfig` SCIM store on every policy evaluation within a session, or whether group membership is resolved once at session start and cached for the session. This matters for users added to / removed from a SCIM group mid-session.
+
+**Status**: open
+**Resolves with**: lab test (change group membership mid-session and observe whether access changes without re-authentication)
+
+---
+
+### zpa-68 — Isolation policy v2 SCIM_GROUP support
+
+*Origin: `references/zpa/scim-policy-mapping.md` § Open questions*
+
+The Isolation rule v2 resource follows the same TF pattern as the other v2 rule families; `SCIM_GROUP` and SCIM support is inferred but not directly confirmed from the isolation-rule v2 TF source read in this pass.
+
+**Status**: open
+**Resolves with**: code read (the isolation-rule v2 operand validators) / lab test
+
+---
+
+### zpa-69 — Segment Group `update_group_v2` vs v1 behavioral difference
+
+*Origin: `references/zpa/segment-server-groups.md` § Open questions*
+
+The Segment Group SDK exposes both `update_group` (`/mgmtconfig/v1`) and `update_group_v2` (`/mgmtconfig/v2`) (`vendor/zscaler-sdk-python/zscaler/zpa/segment_groups.py:206`, `:267`). Both bodies are built identically (`body = {}; body.update(kwargs)`), so the source does not reveal what the v2 endpoint changes behaviorally (field handling, app-association write semantics, validation).
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read / lab test (compare v1 vs v2 update results)
+
+---
+
+### zpa-70 — Segment Group `skip_detailed_app_info` effect on writes
+
+*Origin: `references/zpa/segment-server-groups.md` § Open questions*
+
+The field is present on the model (`vendor/zscaler-sdk-python/zscaler/zpa/models/segment_group.py:41`) and round-tripped by `request_format()`, but the service layer does no special handling, so whether it is a request-side toggle (suppress detailed app inflation in the response) or a stored attribute is not determinable from the SDK source alone.
+
+**Status**: open
+**Resolves with**: lab test (set the field and inspect the response shape)
+
+---
+
+### zpa-71 — Segment Group `tcpKeepAliveEnabled` admin/runtime effect
+
+*Origin: `references/zpa/segment-server-groups.md` § Open questions*
+
+The wire field is confirmed (string-as-bool) and cross-linked to snapshot-schema, but what enabling TCP keep-alive at the Segment Group level actually changes for brokered sessions is not described in the SDK/model source.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (a help capture or admin-guide reference)
+
+---
+
+### zpa-72 — Segment Group `config_space` accepted values
+
+*Origin: `references/zpa/segment-server-groups.md` § Open questions*
+
+The Server Group `add_group` docstring enumerates `DEFAULT` / `SIEM` for its `config_space` (`vendor/zscaler-sdk-python/zscaler/zpa/server_groups.py:164`), but the Segment Group model exposes `config_space` without an equivalent enumeration in source. Whether the same value set applies to Segment Groups is unconfirmed.
+
+**Status**: open
+**Resolves with**: lab test / zscaler doc not yet read
+
+---
+
+### zpa-73 — `objectType: ZPN_INTERNAL_INTERNET_PROTOCOL` and `USER` wire validity
+
+*Origin: `references/zpa/snapshot-schema.md` § Open questions*
+
+An earlier draft of the operand enum listed `ZPN_INTERNAL_INTERNET_PROTOCOL` and `USER`. Neither is recognized by the current Terraform provider operand validators (`vendor/terraform-provider-zpa/zpa/common.go` — confirmed absent), nor found in the SDK Python/Go policy-operand source, nor in the Postman collection. They may be wire-only API enums the TF provider and SDK don't model, or they may be stale.
+
+**Status**: open
+**Resolves with**: lab test (a real GET on `access-policy-rules`) or a Postman/API enum citation confirming whether either appears on the wire
+
+---
+
+### zpa-74 — `tcpKeepAlive` literal wire token (quoted string vs bare integer)
+
+*Origin: `references/zpa/snapshot-schema.md` § Open questions*
+
+SDK and TF both treat `tcpKeepAlive` as a string-as-bool `"0"`/`"1"`, but the Postman `<integer>` type hint leaves open whether the GET response returns the quoted string `"0"` or a bare integer `0`.
+
+**Status**: open
+**Resolves with**: tenant snapshot (`jq '.list[0].tcpKeepAlive' _data/snapshot/<cloud>/zpa/app-segments.json`)
+
+---
+
+### zpa-75 — `configSpace` at the segment top level
+
+*Origin: `references/zpa/snapshot-schema.md` § Open questions*
+
+Whether `SIEM` is valid for `configSpace` at the application-segment top level, or only in embedded `serverGroups` / `appResource` objects, is unconfirmed.
+
+**Status**: open
+**Resolves with**: tenant snapshot (inspect `configSpace` on a real segment object)
+
+---
+
+### zpa-76 — Which LSS `source_log_type` values require a `policy_rule_resource` block
+
+*Origin: `references/zpa/terraform.md` § Open questions*
+
+Only the User Activity (`zpn_trans_log`) and User Status (`zpn_auth_log`) example docs ship a `policy_rule_resource` block (`vendor/terraform-provider-zpa/docs/resources/zpa_lss_config_user_activity.md:77`); the other LSS docs do not. The prior claim that `zpn_ast_auth_log` and `zpn_pbroker_comprehensive_stats` require the block could not be confirmed from any provider doc and was removed. Which `source_log_type` values actually accept or require the block remains open.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read / lab test (apply each LSS config type and observe whether the block is required)
+
+---
+
+### zpa-77 — Tag / tag-group membership referenced in policy rule conditions
+
+*Origin: `references/zpa/terraform.md` § Open questions*
+
+Tags and tag groups are Early Access. Whether `zpa_tag_group` IDs can currently be referenced in policy-rule conditions as an `object_type` is not confirmed from available sources.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read / lab test
+
+---
+
+### zpa-78 — `TRUSTED_NETWORK` `rhs = "false"` runtime semantics
+
+*Origin: `references/zpa/trusted-networks.md` § Open questions*
+
+The TF validator accepts `rhs` values of `"true"` or `"false"` for a `TRUSTED_NETWORK` operand (`vendor/terraform-provider-zpa/zpa/common.go:1122-1125`), but what the policy engine *does* with `rhs = "false"` — i.e. whether it genuinely evaluates "user is NOT on this trusted network" — is undocumented in vendor source. The validators are client-side checks; the server-side evaluation semantic is not stated.
+
+**Status**: open
+**Resolves with**: lab test (build a rule with `rhs = "false"` and observe on/off-network matching)
+
+---
+
+### zpa-79 — Provisioning trigger that creates ZPA Trusted Network objects
+
+*Origin: `references/zpa/trusted-networks.md` § Open questions*
+
+ZPA Trusted Network objects are provisioned by Zscaler during network registration and are read-only via API (confirmed: TF exposes a data source, no resource). The exact event that *creates* a Trusted Network object (App Connector deployment vs PSE group config vs ZCC ruleset registration) is not derivable from the SDK/TF source.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read / operator experience
+
+---
+
+### zpa-80 — ZCC→ZPA trusted-network signal at session establishment
+
+*Origin: `references/zpa/trusted-networks.md` § Open questions*
+
+The two-layer model describes ZCC evaluating detection criteria and signaling ZPA at tunnel setup, with ZPA evaluating `TRUSTED_NETWORK` conditions against those signals. The `TRUSTED_NETWORK` object type and operand shape are confirmed in `common.go`, but the runtime signaling path between ZCC and ZPA is not present in any vendored SDK/TF source.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read / lab test
+
+---
+
+### zpa-81 — PSE routing / off-network fallback when `is_public = false`
+
+*Origin: `references/zpa/trusted-networks.md` § Open questions*
+
+The claim that `is_public = false` causes remote users to fall back to Public Service Edges describes runtime routing. The `is_public` field and its `"TRUE"`/`"FALSE"` serialization are confirmed in source; the resulting connection-routing behavior is inferred from UI help text, not from code.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read / lab test (observe routing for an off-network user with `is_public = false`)
 
 ---
 

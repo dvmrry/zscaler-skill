@@ -3,7 +3,7 @@ product: zpa
 topic: "segment-server-groups"
 title: "Segment Groups and Server Groups — ZPA's two grouping primitives"
 content-type: reasoning
-last-verified: "2026-05-22"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: mixed
 sources:
@@ -109,8 +109,15 @@ From `vendor/zscaler-sdk-python/zscaler/zpa/models/segment_group.py` and `segmen
 | `enabled` | `enabled` | Boolean. Default `true`. |
 | `applications` | `applications` | List of `{id, name}` dicts. Managed bidirectionally with App Segment's `segment_group_id`. |
 | `policy_migrated` | `policyMigrated` | Internal migration flag. Read-only. |
+| `config_space` | `configSpace` | Configuration space (e.g. `DEFAULT`/`SIEM`). |
+| `tcp_keep_alive_enabled` | `tcpKeepAliveEnabled` | String-as-bool on the wire (`"0"`/`"1"`), not a JSON boolean — see [snapshot-schema § Wire-format gotchas](./snapshot-schema.md#wire-format-gotchas). |
+| `microtenant_id` | `microtenantId` | Microtenant scoping; also accepted as a query param on every method. |
+| `microtenant_name` | `microtenantName` | Microtenant display name (read side). |
+| `skip_detailed_app_info` | `skipDetailedAppInfo` | Controls whether the response inflates full App Segment detail under `applications`. |
 
-**SDK service** (`client.zpa.segment_groups`): `list_groups`, `get_group`, `add_group`, `update_group`, `delete_group`. Uses both v1 and v2 endpoints. Delete does not automatically clean up App Segment references unless the TF provider's pre-delete hook runs.
+(All fields confirmed in `vendor/zscaler-sdk-python/zscaler/zpa/models/segment_group.py:32-44`.)
+
+**SDK service** (`client.zpa.segment_groups`): `list_groups`, `get_group`, `add_group`, `update_group`, `update_group_v2`, `delete_group` (`vendor/zscaler-sdk-python/zscaler/zpa/segment_groups.py:38,107,153,206,267,328`). `update_group` targets `/mgmtconfig/v1` (`segment_groups.py:237-240`); `update_group_v2` targets `/mgmtconfig/v2` (`segment_groups.py:298-301`). Delete does not automatically clean up App Segment references unless the TF provider's pre-delete hook runs.
 
 ## Server Group mechanics
 
@@ -144,10 +151,12 @@ From `vendor/zscaler-sdk-python/zscaler/zpa/models/server_group.py` and `server_
 | `dynamic_discovery` | `dynamicDiscovery` | Boolean. Default `true`. Controls server discovery mode. |
 | `ip_anchored` | `ipAnchored` | Boolean. Enables IP anchoring for source NAT behavior. |
 | `app_connector_group_ids` | reformatted to `appConnectorGroups: [{id}]` | Required; list of Connector Group IDs. The SDK preserves ZPA's opaque string IDs on the wire. |
-| `server_ids` | reformatted to `servers: [{id}]` | Only used when `dynamicDiscovery=False`. |
+| `server_ids` | reformatted to `servers: [{id}]` | Accepted as an `add_group`/`update_group` kwarg; reformatted to `servers:[{id}]` on the wire. Used when `dynamicDiscovery=False`. |
 | `applications` | `applications` | Read-only list of App Segments referencing this Server Group. |
 
-**Note on `servers[]` field in Python SDK model.** The `server_group.py` model does not include a `servers` field. Explicit-server mode requires constructing the `servers` list manually — `request_format()` won't serialize it because the model doesn't know about it. The TF provider Go schema does model `servers`, so TF-managed deployments work fine. Python SDK callers using explicit-server mode must bypass `request_format()` and assemble the JSON body directly. Operationally: prefer dynamic discovery when using the Python SDK; use TF for explicit-server requirements. (Tier A — `vendor/zscaler-sdk-python/zscaler/zpa/models/server_group.py`.)
+**Explicit-server mode is supported by the Python SDK.** Pass the `server_ids` kwarg to `add_group` or `update_group`; the service layer reformats it to `servers:[{id}]` on the wire (`vendor/zscaler-sdk-python/zscaler/zpa/server_groups.py:217-218` for add, `293-294` for update). The `add_group` docstring gives a worked explicit-server example: `dynamic_discovery=False, ..., server_ids=['99999']` (`server_groups.py:188-200`). The `server_group.py` model carrying no `servers` *attribute* (`models/server_group.py:31-87`) is a read-path detail — it means a GET response won't surface explicit servers as a typed field — not a write-path blocker. There is no need to bypass `request_format()` or fall back to Terraform for explicit-server requirements.
+
+The real write-path gotcha is the `dynamicDiscovery` default-injection on `update_group`: if `dynamicDiscovery` is absent from the merged body it is forced to `True` (`server_groups.py:284-285`), which can silently clear an explicit server list on a read-modify-write update. Pass `dynamic_discovery=False` explicitly to preserve a static group. This Python-vs-Go divergence is corroborated in [api-divergences.md](./api-divergences.md) (`ServerGroup.dynamicDiscovery` section, server_groups.py:284-285).
 
 **SDK service** (`client.zpa.server_groups`): `list_groups`, `get_group`, `add_group`, `update_group`, `delete_group`. `server_ids` and `app_connector_group_ids` are reformatted to nested `{"id": "..."}` structures by `transform_common_id_fields(..., coerce_ids=False)`, because ZPA IDs are opaque 19-digit strings and should not be coerced into integers.
 
@@ -180,11 +189,11 @@ Source: `vendor/zscaler-sdk-python/zscaler/zpa/server_groups.py`.
 
 ### Dynamic discovery and explicit servers are mutually exclusive
 
-You cannot have both `dynamicDiscovery=True` and a non-empty `servers[]`. The TF provider enforces this at plan time (source: `resource_zpa_server_group.go` lines 208–215). The Python SDK `update_group` method defaults `dynamicDiscovery` to `True` if the key is absent from the body (`server_groups.py` line 276–277: `if "dynamicDiscovery" not in body: body["dynamicDiscovery"] = True`). This default can silently clear explicit server lists on an update if `dynamicDiscovery` is not explicitly passed as `False`.
+You cannot have both `dynamicDiscovery=True` and a non-empty `servers[]`. The TF provider enforces this at plan time (source: `resource_zpa_server_group.go` lines 208–215). The Python SDK `update_group` method defaults `dynamicDiscovery` to `True` if the key is absent from the merged body (`server_groups.py:284-285`: `if "dynamicDiscovery" not in body: body["dynamicDiscovery"] = True`). This default can silently clear explicit server lists on an update if `dynamicDiscovery` is not explicitly passed as `False`.
 
 ### Large Server Group update payloads
 
-As of `zscaler-sdk-python` v1.9.28, `server_groups.update_group()` drops the read-only `applications` association from the update payload unless the caller explicitly supplies it. Before that fix, updating a Server Group associated with many App Segments could fail with an API payload-size error because the SDK round-tripped the full `applications[]` list returned by GET. Operators using older SDK versions should either upgrade or avoid read-modify-write updates on heavily reused Server Groups.
+`server_groups.update_group()` drops the read-only `applications` association from the update payload unless the caller explicitly supplies it via the `applications` kwarg (`server_groups.py:279-280`: `if "applications" not in kwargs: body.pop("applications", None)`). The in-code comment that introduces this guard (`server_groups.py:274-280`) cites upstream "Issue #506" as the motivation: a GET returns the full `applications` association, but round-tripping it on a Server Group bound to a large number of App Segments can exceed the API's payload-size cap. The drop only applies on the read-modify-write `update_group` path; the same risk does not arise on `add_group`. (Note: the "Issue #506" here is the SDK-side fix and is distinct from terraform-provider-zpa#658 referenced under "Deleting a Server Group" below.)
 
 ### Removing a Connector Group from a Server Group
 
@@ -269,6 +278,13 @@ Source: `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py`; `vendor/
 - **Connector group fronting an unreachable target.** Hops 3 and 4 can pass while traffic still fails. That's a runtime hypothesis (target reachability), not a chain hypothesis — see [`./logs/app-connector-metrics.md`](./logs/app-connector-metrics.md) for `AliveTargetCount` semantics and [`./app-connector.md § How sessions are assigned to App Connectors`](./app-connector.md#how-sessions-are-assigned-to-app-connectors) for the eligibility-then-selection model.
 - **Snapshot freshness.** The chain's hop 4 reflects connector state at snapshot time. A connector that was `CONNECTED` then may have flipped `DISCONNECTED` since. Always note the snapshot timestamp in the journal when citing this evidence; cross-reference live status if available.
 - **Microtenant scoping.** If the tenant uses microtenants, the snapshot may be scoped per microtenant. A segment in microtenant A with a server group in microtenant B is a config error worth flagging.
+
+## Open questions
+
+- **`update_group_v2` semantics vs v1.** The Segment Group SDK exposes both `update_group` (`/mgmtconfig/v1`) and `update_group_v2` (`/mgmtconfig/v2`) (`vendor/zscaler-sdk-python/zscaler/zpa/segment_groups.py:206,267`). Both bodies are built identically (`body = {}; body.update(kwargs)`), so the source does not reveal what the v2 endpoint changes behaviorally (field handling, app-association write semantics, validation). Needs a vendor doc or changelog reference before the doc can state when to prefer v2. (Tracked as [`zpa-69`](../_meta/clarifications.md#zpa-69-segment-group-update_group_v2-vs-v1-behavioral-difference).)
+- **`skip_detailed_app_info` effect on writes.** The field is present on the model (`models/segment_group.py:41`) and round-tripped by `request_format()`, but the service layer does no special handling, so whether it is a request-side toggle (suppress detailed app inflation in the response) or a stored attribute is not determinable from the SDK source alone. (Tracked as [`zpa-70`](../_meta/clarifications.md#zpa-70-segment-group-skip_detailed_app_info-effect-on-writes).)
+- **Segment Group `tcpKeepAliveEnabled` admin/runtime effect.** The wire field is confirmed (string-as-bool) and cross-linked to snapshot-schema, but what enabling TCP keep-alive at the Segment Group level actually changes for brokered sessions is not described in the SDK/model source. A help capture or admin-guide reference is needed. (Tracked as [`zpa-71`](../_meta/clarifications.md#zpa-71-segment-group-tcpkeepaliveenabled-adminruntime-effect).)
+- **`config_space` accepted values on Segment Group.** The Server Group `add_group` docstring enumerates `DEFAULT`/`SIEM` for its `config_space` (`server_groups.py:164`), but the Segment Group model exposes `config_space` without an equivalent enumeration in source. Whether the same value set applies is unconfirmed. (Tracked as [`zpa-72`](../_meta/clarifications.md#zpa-72-segment-group-config_space-accepted-values).)
 
 ## Cross-links
 

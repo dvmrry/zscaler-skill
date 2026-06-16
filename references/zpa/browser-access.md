@@ -3,11 +3,11 @@ product: zpa
 topic: "browser-access"
 title: "Browser Access — clientless ZPA via a web browser"
 content-type: reference
-last-verified: "2026-05-23"
+last-verified: "2026-06-15"
 verified-against:
-  vendor/terraform-provider-zpa: a3c845f3366cc2267e1b244f9968e727c92bad3d
-  vendor/zscaler-sdk-python: 8d054b1fdd18bcb29722b7051dc282c0d1c86be6
-  vendor/zscaler-mcp-server: 8409e1661b7f7171bfbb9297e1ecfc61c28b6d92
+  vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
 confidence: high
 source-tier: mixed
 sources:
@@ -16,6 +16,7 @@ sources:
   - "vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment_browser_access.go"
   - "vendor/zscaler-sdk-python/zscaler/zpa/app_segments_ba.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/app_segments_ba_v2.py"
+  - "vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py"
   - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/app_segments_ba.py"
   - "vendor/zscaler-mcp-server/skills/zpa/application_segment-ba-onboard/SKILL.md"
 author-status: draft
@@ -163,6 +164,26 @@ Browser Access apps are configured as a sub-object (`clientlessApps`) within a s
 
 The **Browser Access page** (Policies > Access Control > Clientless > Access Methods > Browser Access) shows all configured BA apps with: Name, Segment Group, Server Groups, Canonical Name (CNAME), Certificate, Domain (FQDN), Status, Application Protocol, Application Port.
 
+**Per-BA-app fields (`clientlessApps` / SDK `BAAppDto`).** Each entry in the segment's clientless-app list carries the following fields. Wire keys (the JSON the API sees) are shown alongside the SDK attribute names; all cited from `models/application_segment.py:758-778`:
+
+| SDK attribute | Wire key | Purpose |
+|---|---|---|
+| `domain` | `domain` | External FQDN of the BA app (`:767`). |
+| `application_protocol` | `applicationProtocol` | `HTTP` or `HTTPS` (`:766`). |
+| `application_port` | `applicationPort` | App port (`:765`). |
+| `certificate_id` | `certificateId` | Browser Access cert object (`:763`). |
+| `cname` | `cname` | Zscaler- or customer-managed CNAME (`:773`). |
+| `trust_untrusted_cert` | `trustUntrustedCert` | Tolerate a backend cert that can't be validated (`:771`). |
+| `allow_options` | `allowOptions` | Permit `OPTIONS` requests (CORS preflight) (`:772`). |
+| `local_domain` | `localDomain` | Internal hostname when it differs from the external one (`:769`). |
+| `hidden` | `hidden` | Hide the app from the portal (`:768`). |
+| `ext_domain` / `ext_domain_name` / `ext_label` | `extDomain` / `extDomainName` / `extLabel` | Custom external label/domain (`:776-778`); these are the fields behind the §9.3 Terraform `certificate_id`-conflicts-with-`ext_label`/`ext_domain` rule. |
+
+Two of these map directly onto behavior documented elsewhere in this doc:
+
+- **`trust_untrusted_cert`** (`:771`) is the programmatic counterpart to the §5 "backend SSL **cannot be validated**" behavior — the SDK/API knob that lines up with resolution option (a) "accept and document." The field name maps cleanly onto tolerating the backend cert mismatch rather than surfacing the web-server certificate error; the exact service-side effect is not spelled out in the SDK source (see Open questions).
+- **`allow_options`** (`:772`) is the field that lines up with the CORS / `OPTIONS`-preflight handling described in §3 — by name, it governs whether `OPTIONS` requests are allowed/forwarded. The precise ingress behavior is likewise inferred from the field name, not confirmed in source (see Open questions).
+
 **Constraints on app segments hosting Browser Access apps:**
 - **Double Encryption** is not supported when Browser Access is enabled on any application in the segment.
 - **Source IP Anchoring (SIPA)** is mutually exclusive with Browser Access on the same segment. SIPA requires the backend to see a ZPA App Connector IP; Browser Access terminates TLS at the Zscaler ingress before handing off, breaking the SIPA guarantee.
@@ -186,9 +207,9 @@ Two SDK services cover Browser Access app segments:
 
 Both share the same underlying `/application` endpoint as the base `ApplicationSegmentAPI`, but provide a separate client object and named methods for the Browser Access context. For new integrations, prefer `app_segments_ba_v2`.
 
-As of `zscaler-sdk-python` v1.9.28, both Browser Access SDK services use `transform_common_id_fields(..., coerce_ids=False)` when shaping ID-list fields. This preserves ZPA's opaque string IDs on the wire instead of coercing numeric-looking IDs to integers.
+As of `zscaler-sdk-python` >= 1.9.28 (verified on v1.9.31), both Browser Access SDK services use `transform_common_id_fields(..., coerce_ids=False)` when shaping ID-list fields (`app_segments_ba.py:298,465`; `app_segments_ba_v2.py:283,422`). This preserves ZPA's opaque string IDs on the wire instead of coercing numeric-looking IDs to integers.
 
-The SDK v2 BA service models the per-domain Browser Access payload under `common_apps_dto.apps_config`. The Zscaler MCP server v0.12.0 added dedicated BA tools (`zpa_*_application_segment_ba`) that require `apps_config`, validate that every `apps_config[].domain` also appears in `domain_names`, and auto-inject `app_types: ["BROWSER_ACCESS"]` when missing. As of MCP server v0.12.3, the BA list tool accepts `page` and `page_size` as positive integers and string-coerces them at the SDK call site, so agent-emitted JSON numbers work without changing the underlying API payload.
+The SDK v2 BA service models the per-domain Browser Access payload under `common_apps_dto.apps_config`. The SDK itself auto-injects `app_types: ["BROWSER_ACCESS"]` into each `apps_config` entry that omits it, in both the create and update paths (`app_segments_ba_v2.py:264-265`, `:367-368`). The Zscaler MCP server (>= v0.12.0, verified on v0.12.7) added dedicated BA tools (`zpa_*_application_segment_ba`) that require `apps_config` and validate that every `apps_config[].domain` also appears in `domain_names` before the SDK round-trip (`app_segments_ba.py:77-82`, called at `:344` on create and `:501` on update); the MCP tools do not inject `app_types` themselves — they only note the SDK's auto-injection in a parameter docstring (`app_segments_ba.py:201-202`). The BA list tool accepts `page` and `page_size` as positive integers (`Field(ge=1)`, `app_segments_ba.py:104-105`) and string-coerces them inside the tool, in the `query_params` dict it builds before calling the SDK (`app_segments_ba.py:133-135`), so agent-emitted JSON numbers work without changing the underlying API payload.
 
 **Methods:**
 
@@ -216,8 +237,8 @@ Browser Access certificates are managed via `client.zpa.certificates` (`Certific
 Resource type: `zpa_application_segment_browser_access`. This is a separate Terraform resource from the base `zpa_application_segment` — treat them as distinct even though they share most fields.
 
 Key Terraform constraints:
-- **`certificate_id` conflicts with `ext_label` + `ext_domain`**. If a custom external label/domain is configured, pinning a certificate ID is rejected at apply time.
-- **`select_connector_close_to_app` is `ForceNew`** — toggling this on an existing BA segment destroys and recreates it. Plan for session interruption.
+- **`certificate_id` conflicts with `ext_label` + `ext_domain`**. If a custom external label/domain is configured on a clientless app, pinning a certificate ID is rejected at plan/apply time (`resource_zpa_application_segment_browser_access.go:41-50`).
+- **`select_connector_close_to_app` is NOT `ForceNew` on this resource.** In the base `zpa_application_segment` resource this attribute *is* `ForceNew` (`resource_zpa_application_segment.go:194-198`), so toggling it there recreates the segment. On `zpa_application_segment_browser_access` it is a plain optional bool with no `ForceNew` — in fact this resource declares no `ForceNew` attributes at all (`resource_zpa_application_segment_browser_access.go:221-224`). Do not assume the base resource's recreate-on-change behavior carries over; this is one of the field-level divergences behind the "treat them as distinct" caution above.
 
 ---
 
@@ -249,6 +270,12 @@ Key Terraform constraints:
 - "Why is Double Encryption failing on this segment?" → BA is enabled somewhere in the segment; mutually exclusive.
 - "Can BA do SSH?" → No, HTTP/HTTPS only. Use PRA.
 - "Why is a user with failed posture still getting a deny on a BA app even though posture isn't in the rule?" → If a posture condition IS in the rule, it silently never matches for agentless users.
+
+---
+
+## Open questions
+
+- **Exact runtime semantics of `trust_untrusted_cert` and `allow_options`.** Both fields are present on the SDK clientless-app model (`models/application_segment.py:771,772`), and their names strongly imply the behavior described in §8 (tolerate a backend cert mismatch; pass `OPTIONS` preflight through to the backend). But the SDK model is only a passthrough struct — it does not document what the ZPA service does with each flag. The precise ingress behavior (e.g. whether `allow_options` blocks vs forwards `OPTIONS`, and whether `trust_untrusted_cert` suppresses the §5 web-server certificate error end-to-end or only on the backend leg) is inferred from the field names and not confirmed in vendor source. Needs an admin-help or API-reference citation before stating it as definite. (Tracked as [`zpa-36`](../_meta/clarifications.md#zpa-36-runtime-semantics-of-trust_untrusted_cert-and-allow_options).)
 
 ---
 

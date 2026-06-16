@@ -3,11 +3,11 @@ product: zpa
 topic: "privileged-remote-access"
 title: "Privileged Remote Access (PRA) — clientless RDP/SSH/VNC"
 content-type: reasoning
-last-verified: "2026-05-23"
+last-verified: "2026-06-15"
 verified-against:
-  vendor/zscaler-sdk-python: 8d054b1fdd18bcb29722b7051dc282c0d1c86be6
-  vendor/terraform-provider-zpa: a3c845f3366cc2267e1b244f9968e727c92bad3d
-  vendor/zscaler-mcp-server: 8409e1661b7f7171bfbb9297e1ecfc61c28b6d92
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
+  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
 confidence: medium
 source-tier: mixed
 sources:
@@ -39,7 +39,7 @@ Source: `vendor/zscaler-help/privileged-remote-access-captures.md`; `vendor/zsca
 | Jump-host / bastion with full audit trail | **PRA** |
 | Emergency admin break-glass with oversight | **PRA** |
 
-Session recording, approval workflow, and credential pooling are documented as PRA features (`privileged-remote-access-captures.md:31-43, :55-61, :75-94`) and are implemented by dedicated PRA-specific API surfaces (`pra_approval.py:26`, `pra_credential_pool.py:25`). The Terraform PRA segment resource is hardcoded to `app_types = "SECURE_REMOTE_ACCESS"` (`resource_zpa_application_segment_pra.go:589`), distinct from the standard application-segment resource.
+Session recording, approval workflow, and credential pooling are documented as PRA features (`privileged-remote-access-captures.md:31-43, :55-61, :75-94`) and are implemented by dedicated PRA-specific API surfaces (`pra_approval.py:26`, `pra_credential_pool.py:25`). The Terraform PRA segment resource is hardcoded to `app_types = "SECURE_REMOTE_ACCESS"` (`resource_zpa_application_segment_pra.go:588`), distinct from the standard application-segment resource.
 
 ## Architecture
 
@@ -71,6 +71,17 @@ Source: `vendor/zscaler-help/privileged-remote-access-captures.md`; `vendor/zsca
 5. **Privileged Capabilities Policy** — per-console capability controls: clipboard allow/deny, file-transfer direction (upload-only, download-only, bidirectional, none), session monitoring by approvers, emergency takeover. (English doc was under maintenance at capture time; re-verify specifics.)
 
 6. **Privileged Policies** (access policy rules) — gate who can request access to which console. Evaluated first-match-wins like other ZPA access policies. See [`./policy-precedence.md`](./policy-precedence.md) for evaluation semantics.
+
+### SDK operations of note
+
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/pra_credential_pool.py`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_approval.py`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_console.py`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_credential.py`.
+
+A few PRA operations map directly onto the behaviors above and are worth knowing exist when debugging or onboarding at scale. (Full method signatures live in [`./sdk.md`](./sdk.md); this is just the capability map.)
+
+- **Pool-usage introspection** — `get_credential_pool_info(pool_id)` returns the credential info mapped to a pool (`pra_credential_pool.py:148`, GET `/credential-pool/{pool_id}/credential`). This is the operation an operator reaches for when chasing pool exhaustion: it shows which credentials a pool actually holds.
+- **Expired-approval cleanup** — `expired_approval(microtenant_id)` bulk-deletes all expired privileged approvals (`pra_approval.py:367`, DELETE `/approval/expired`). Approvals auto-expire at window end (see §Approval workflow); this is the housekeeping call that clears the expired records out.
+- **Bulk console onboarding** — `add_bulk_console(consoles)` creates multiple consoles in one call (`pra_console.py:353`, POST `/praConsole/bulk`), each tied to a `pra_application_id` and one or more `pra_portal_ids`.
+- **Credential relocation across microtenants** — `credential_move(credential_id)` moves a credential between the parent tenant and a microtenant; `target_microtenant_id` is required and `0` targets the Default microtenant (`pra_credential.py:334`, POST `/credential/{credential_id}/move`).
 
 ## Credential pooling — why it matters
 
@@ -125,7 +136,7 @@ All PRA sessions can be recorded; recording is managed per-console.
 
 ## ZPA application-segment integration
 
-Source: `vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment_pra.go`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_console.py`.
+Source: `vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment_pra.go`.
 
 PRA uses a dedicated segment variant. In Terraform that's `zpa_application_segment_pra`; in the Python/Go SDKs the resource type carries `_pra` suffixes on methods.
 
@@ -133,9 +144,9 @@ Relevant integration points from `references/zpa/app-segments.md`:
 
 - **Multimatch is not supported** on segments containing PRA-enabled applications. From the reference architecture: "Multimatch must be disabled if the configuration contains applications using the Access Type of Browser Access, AppProtection, or Privileged Remote Access."
 - **SIPA is not supported** on PRA segments — same architectural reason as Browser Access (protocol relay terminates before backend sees the packet).
-- The `VM_CONNECT` action value surfaces on PRA segments (distinct from the standard ZPA CONNECT mechanism).
+- On PRA segments, each app entry carries a `connection_security` value, validated against the enum `ANY`, `NLA`, `NLA_EXT`, `TLS`, `VM_CONNECT`, `RDP` (`resource_zpa_application_segment_pra.go:261`). `VM_CONNECT` is one of these connection-security/protocol options, not a separate "action" — it pairs with an `application_protocol` of `RDP`, `SSH`, or `VNC` (`resource_zpa_application_segment_pra.go:253`).
 
-The Zscaler MCP server v0.12.0 added dedicated PRA app-segment tools (`zpa_*_application_segment_pra`) and an onboarding skill. Those tools model PRA-specific `common_apps_dto.apps_config` entries per RDP/SSH target, validate `application_protocol` as `RDP` or `SSH`, reject RDP-only `connection_security` on SSH entries, and preserve the SDK's `app_types: ["SECURE_REMOTE_ACCESS"]` auto-injection. As of MCP server v0.12.3, the PRA list tool accepts `page` and `page_size` as positive integers and string-coerces them at the SDK call site, so agent-emitted JSON numbers work without changing the underlying API payload.
+A PRA app entry's `application_protocol` is validated against `RDP`, `SSH`, `VNC` (`resource_zpa_application_segment_pra.go:253`), and `app_types` is forced to `["SECURE_REMOTE_ACCESS"]` on every PRA app the resource builds (`resource_zpa_application_segment_pra.go:588`) — you don't set it yourself. That hardcoding is what distinguishes a PRA segment from a standard application segment at the API layer.
 
 ## Capabilities policy (what users can actually do in-session)
 
@@ -183,7 +194,7 @@ Source: `vendor/zscaler-help/privileged-remote-access-captures.md`; `vendor/zsca
 
 Source: `vendor/zscaler-help/privileged-remote-access-captures.md`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_approval.py`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_credential.py`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_credential_pool.py`; `vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment_pra.go`.
 
-- **Are session recording, approval workflow, and credential pooling formally absent from base (non-PRA) ZPA?** The captured help articles, Python SDK, and Terraform provider all document these features as PRA-specific constructs but none of those sources directly states they are unavailable in standard ZPA. The dedicated PRA SDK modules and the `SECURE_REMOTE_ACCESS`-only `app_types` enum on the PRA segment resource are strong implicit evidence, but a direct source statement would be needed to assert the negative.
+- **Are session recording, approval workflow, and credential pooling formally absent from base (non-PRA) ZPA?** The captured help articles, Python SDK, and Terraform provider all document these features as PRA-specific constructs but none of those sources directly states they are unavailable in standard ZPA. The dedicated PRA SDK modules and the `SECURE_REMOTE_ACCESS`-only `app_types` enum on the PRA segment resource are strong implicit evidence, but a direct source statement would be needed to assert the negative. (Tracked as [`zpa-57`](../_meta/clarifications.md#zpa-57-whether-session-recording-approval-workflow-and-credential-pooling-are-formally-absent-from-base-non-pra-zpa).)
 
 ## Cross-links
 
