@@ -4,6 +4,13 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.13.2](https://github.com/dvmrry/zscaler-skill/compare/v0.13.1...v0.13.2) (2026-06-16)
+
+
+### Documentation
+
+* **ai-security:** add Tier 2 API divergence ledger ([#143](https://github.com/dvmrry/zscaler-skill/issues/143)) ([27b04f2](https://github.com/dvmrry/zscaler-skill/commit/27b04f2d2d734852215e9c2e64ab6bc7a17b6cc4))
+
 ## [0.13.1](https://github.com/dvmrry/zscaler-skill/compare/v0.13.0...v0.13.1) (2026-06-16)
 
 
