@@ -166,7 +166,7 @@ jq '.records[] | select(.idp.name == "Okta-Production") | .name' _data/snapshot/
 
 ## `api-clients.json`
 
-API: `GET {prefix}/api-clients` — **Python SDK only.** The Go SDK has no api-client service at all (vendor/zscaler-sdk-go/zscaler/zid/services/ holds only common, groups, resource_servers, user_entitlement, users), so client/secret automation requires the Python SDK, Terraform, or raw API.
+API: `GET {prefix}/api-clients` — **Python SDK only.** The Go SDK has no api-client service at all (vendor/zscaler-sdk-go/zscaler/zid/services/ holds only common, groups, resource_servers, user_entitlement, users), so client/secret automation requires the **Python SDK or raw API** — not Terraform (the vendored TF providers expose no ZIdentity api-client resource, and Terraform itself needs an API client to authenticate first).
 
 The record carries only the fields below (vendor/zscaler-sdk-python/zscaler/zid/models/api_client.py:86-114; Postman `Apiclient Ops list`). There are **no** top-level `roles`, `scopes`, `audience`, `ipRestrictions`, `timeRestrictions`, `createdAt`, or `lastUsedAt` fields — scope grants live under `clientResources`, and secrets are a separate sub-resource (below).
 
@@ -318,7 +318,7 @@ These are real, source-confirmed ZIdentity surfaces that a snapshot could add �
 
 6. **`source` on users is a flat string**, not a nested object. Values: `UI`, `API`, `SCIM`, `JIT` (vendor/zscaler-sdk-python/zscaler/zid/users.py:187; Go users.go:21). Tracks how the user entered ZIdentity.
 
-7. **Cross-SDK CRUD asymmetry** (high-value): (a) **resource-servers is read-only everywhere** — Python, Go, and the API all expose only list/get; no SDK can modify a resource server. (b) **api-clients is Python-SDK-only** — the Go SDK has no api-client service at all, so client and secret automation requires the Python SDK, Terraform, or raw API.
+7. **Cross-SDK CRUD asymmetry** (high-value): (a) **resource-servers is read-only everywhere** — Python, Go, and the API all expose only list/get; no SDK can modify a resource server. (b) **api-clients is Python-SDK-only** — the Go SDK has no api-client service at all, so client and secret automation requires the Python SDK or raw API (no ZIdentity api-client Terraform resource exists).
 
 8. **Wire host + path differ by SDK** — same logical API: Python → `api.zsapi.net` + `/ziam/admin/api/v1`; Go → `{vanity}-admin.zslogin.net` + `/admin/api/v1` (vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:402-414; vendor/zscaler-sdk-python/zscaler/request_executor.py:175-177). The JSON body is identical; only the URL the snapshot writer hits changes.
 
