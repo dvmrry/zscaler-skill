@@ -3,7 +3,7 @@ product: meta
 topic: "clarifications-index"
 title: "Clarification index — open questions across references"
 content-type: reference
-last-verified: "2026-06-15"
+last-verified: "2026-06-16"
 confidence: high
 sources: []
 author-status: reviewed
@@ -28,6 +28,9 @@ Centralized list of open questions raised across `references/*.md`. Each entry h
 - `zid-*` — ZIdentity (identity / API-client / entitlement / admin-RBAC) behavior question
 - `shared-*` — cross-product or skill-wide question
 - `ai-security-*` — AI Security / AI Guard behavior question
+- `business-insights-*` — Business Insights behavior / API-coverage question
+- `soc-workbench-*` — SOC Workbench behavior / API-coverage question
+- `unified-*` — Zscaler Experience Center / unified-console behavior question
 - `log-*` — log-schema / NSS / LSS question that spans multiple products
 
 IDs are stable forever. If an entry is resolved, it stays here with its answer — don't renumber.
@@ -5861,6 +5864,39 @@ The legacy help capture documents optional `fetchTriggerContext` on `GET /dlp/v1
 
 **Status**: open
 **Resolves with**: SDK source update, direct HTTP lab test with `fetchTriggerContext=true`, or vendor documentation/issue explaining intended SDK coverage
+
+---
+
+### business-insights-01 — Business Insights API coverage beyond custom apps and reports
+
+*Origin: `references/business-insights/overview.md` § Open questions*
+
+The Python SDK exposes Business Insights `client.zbi` REST surfaces for custom applications, report configurations, and report listing/download (`vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py:23-51`, `vendor/zscaler-sdk-python/zscaler/zbi/custom_apps.py:26-34`, `vendor/zscaler-sdk-python/zscaler/zbi/report_configs.py:26-34`, `vendor/zscaler-sdk-python/zscaler/zbi/reports.py:28-36`). The Postman collection mirrors those families under `{{ZBIBaseUrl}}/api/v1/...` (`vendor/zscaler-api-specs/oneapi-postman-collection.json:134314-134343`, `:135164-135176`). The audited sources do not establish whether additional public APIs exist for SaaS connector setup, workplace-utilization dashboards, subscription metadata ingestion, or portal/RBAC administration.
+
+**Status**: open
+**Resolves with**: vendor API documentation, SDK/provider source exposing additional Business Insights modules, or tenant-side API discovery
+
+---
+
+### soc-workbench-01 — SOC Workbench report-export API details
+
+*Origin: `references/soc-workbench/overview.md` § Open questions*
+
+The captured SOC Workbench help says "Report Export via API" is a documented capability (`vendor/zscaler-help/soc-what-zscaler-soc-workbench.md:62`), but this refresh did not find a SOC Workbench SDK, Terraform, Ansible, MCP, or Postman implementation that names the endpoint, request schema, authentication scope, or response shape. Treat the API as source-backed at the capability level only until the endpoint-level source is captured.
+
+**Status**: open
+**Resolves with**: vendor API documentation or captured help page for "Triggering Report Export Through an API"
+
+---
+
+### unified-01 — Experience Center standalone API surface
+
+*Origin: `references/unified/overview.md` § Open questions*
+
+The captured Experience Center help describes a unified administrative and operations console that consolidates management, configuration, monitoring, shared identity, policy, Copilot, and analytics (`vendor/zscaler-help/unified-what-zscaler-experience-center.md:8-18`). This refresh did not find a separate Experience Center SDK, Terraform, Ansible, MCP, or Postman surface. Static source therefore supports "no separate programmable surface found in this audit" rather than a universal claim that Experience Center can never expose its own API.
+
+**Status**: open
+**Resolves with**: vendor API documentation, SDK/provider source exposing an Experience Center service, or explicit vendor confirmation that automation must use the underlying product APIs
 
 ---
 

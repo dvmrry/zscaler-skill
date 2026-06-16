@@ -1,116 +1,82 @@
 ---
 product: business-insights
 topic: overview
-title: "Business Insights — SaaS usage analytics and workplace utilization"
+title: "Business Insights - SaaS usage analytics, workplace utilization, and ZBI API scope"
 content-type: reference
-last-verified: "2026-04-28"
+last-verified: "2026-06-16"
+verified-against:
+  vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
+  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/terraform-provider-zia: 717926eb564bb21dea1f8e0c3222e6593b29f849
+  vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
+  vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
+  vendor/zpacloud-ansible: 84ab824d6ce5853c12add6ae3280dcfb8db273a2
+  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
+  vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: medium
-source-tier: doc
+source-tier: mixed
 sources:
   - "vendor/zscaler-help/bi-what-zscaler-business-insights.md"
+  - "vendor/zscaler-sdk-python/zscaler/oneapi_client.py"
+  - "vendor/zscaler-sdk-python/zscaler/request_executor.py"
+  - "vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py"
+  - "vendor/zscaler-sdk-python/zscaler/zbi/custom_apps.py"
+  - "vendor/zscaler-sdk-python/zscaler/zbi/report_configs.py"
+  - "vendor/zscaler-sdk-python/zscaler/zbi/reports.py"
+  - "vendor/zscaler-mcp-server/integrations/kiro/steering/zins.md"
+  - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zins/common.py"
+  - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
 author-status: draft
 ---
 
-# Business Insights — SaaS usage analytics and workplace utilization
+# Business Insights - SaaS usage analytics, workplace utilization, and ZBI API scope
 
-## What it is
+Business Insights provides visibility into SaaS application usage, application spend, and workplace metrics (`vendor/zscaler-help/bi-what-zscaler-business-insights.md:8`). The help capture splits the product into SaaS Application Management and Office Workplace & Workforce Management: SaaS features include discovery, engagement data, Shadow IT, overlap visibility, and cost control, while workplace features include office-utilization trends, cost-saving models, and workforce metrics (`vendor/zscaler-help/bi-what-zscaler-business-insights.md:10-20`, `:22-31`).
 
-Business Insights is a Zscaler product that provides visibility into two distinct domains:
+## Dependencies And Data Sources
 
-1. **SaaS Application Management**: Which licensed SaaS apps are actually being used, by whom, how often, and at what cost. Enables license right-sizing, shadow IT discovery, and spend optimization across the application portfolio.
-2. **Workplace and Workforce Management**: Office utilization data — who is in the office, when, at which location — to support return-to-office strategy, capacity planning, and hybrid work analytics.
+Business Insights receives data from four source classes: ZIA, IdPs such as Okta and Entra ID, SaaS application connector integrations, and custom application signatures (`vendor/zscaler-help/bi-what-zscaler-business-insights.md:40-45`). The captured prerequisites are also explicit: SaaS app insights require ZIA, while workplace insights require both ZIA and Zscaler Client Connector on relevant endpoints (`vendor/zscaler-help/bi-what-zscaler-business-insights.md:47-50`).
 
-It is not a security product. Business Insights is a business analytics product that happens to be powered by Zscaler's network visibility. Audience is IT leadership, finance, HR, and workplace/facilities teams in addition to security admins (Tier A — vendor/zscaler-help/bi-what-zscaler-business-insights.md).
+The capture says Zscaler can discover usage of more than 30K apps and then show a business-relevant subset in the portal (`vendor/zscaler-help/bi-what-zscaler-business-insights.md:52-54`). Treat that as a discovery/analytics claim, not as proof that every discovered app has a programmable Business Insights object.
 
-## Prerequisites
+## Programmable Surface
 
-- SaaS app insights require ZIA subscription
-- Workplace insights require ZIA plus ZCC deployed on relevant endpoints
+| Family | Audit result |
+|---|---|
+| Go SDK | No product-specific Business Insights / `zbi` REST service found in this audit pass. |
+| Python SDK | `client.zbi` is a Business Insights REST service. It exposes `custom_apps`, `report_configs`, and `reports` (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:230`, `:316-319`, `vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py:23-51`). |
+| Terraform | No product-specific Business Insights resource or data source found in this audit pass. |
+| Ansible | No product-specific Business Insights module found in this audit pass. |
+| MCP | MCP exposes read-only Z-Insights analytics tools that refer to Z-Insights / Business Insights licensing; this is separate from the `client.zbi` REST custom-app/report-config surface (`vendor/zscaler-mcp-server/integrations/kiro/steering/zins.md:1`, `:18`, `vendor/zscaler-mcp-server/zscaler_mcp/tools/zins/common.py:444-447`). |
+| Postman | The OneAPI Postman collection has a "Zscaler Business Insights" folder with custom-app and report-configuration endpoints under `{{ZBIBaseUrl}}/api/v1/...` (`vendor/zscaler-api-specs/oneapi-postman-collection.json:134314-134343`, `:134506-134535`, `:134807-134837`, `:134999-135015`, `:135164-135176`, `:136039-136056`). |
+| Help captures | Product overview, architecture/data-source, prerequisites, and discovery-scale claims are captured in `bi-what-zscaler-business-insights.md` (`vendor/zscaler-help/bi-what-zscaler-business-insights.md:8`, `:40-58`). |
 
-## Data sources
+## Python `client.zbi` REST Scope
 
-Business Insights ingests from four sources:
+`client.zbi.custom_apps` provides create/read/update/delete operations for custom applications used to track Business Insights web traffic, all under `/bi/api/v1/customapps` (`vendor/zscaler-sdk-python/zscaler/zbi/custom_apps.py:26-34`, `:40-92`, `:94-137`, `:139-194`, `:196-244`, `:246-281`). Postman adds an important constraint: public API custom applications support HOST-based signatures; URL-based custom applications are not supported in that endpoint family (`vendor/zscaler-api-specs/oneapi-postman-collection.json:134506-134535`).
 
-| Source | Type | Data contributed |
-|---|---|---|
-| **ZIA** | Zscaler-native | Web traffic analysis — discovers app usage from network traffic |
-| **Identity Providers** | Third-party (Okta, Entra ID) | Login data, user identity, authentication events |
-| **SaaS app connectors** | Direct API integrations | Per-app: license counts, engagement, subscription details |
-| **Custom application signatures** | Admin-configured | Coverage for apps not in Zscaler's catalog |
+`client.zbi.report_configs` provides create/read/update/delete operations for report configurations associated with custom apps under `/bi/api/v1/reports/{report_type}`, with `customapps` as the documented/default report type in the SDK (`vendor/zscaler-sdk-python/zscaler/zbi/report_configs.py:26-34`, `:40-91`, `:93-144`, `:146-215`, `:217-284`, `:286-328`). `client.zbi.reports` can list report files and download a report through `/bi/api/v1/report/all` and `/bi/api/v1/report/download` (`vendor/zscaler-sdk-python/zscaler/zbi/reports.py:28-36`, `:42-115`, `:117-204`).
 
-### Supported SaaS app connectors
+The SDK request executor has special base-URL handling for `/bi` endpoints, routing them to `https://api.<cloud>.zsapi.net` for non-production clouds or the default base for production (`vendor/zscaler-sdk-python/zscaler/request_executor.py:169-173`). Do not confuse this `client.zbi` REST service with Zero Trust Browser, and do not confuse it with the separate `client.zins` / Z-Insights GraphQL analytics accessor.
 
-Okta, Microsoft 365, Salesforce, ServiceNow, Slack, Box, Google Workspace, GitHub.
+## Z-Insights Nuance
 
-### App discovery scale
+The Python SDK also exposes `client.zins` / `client.zinsights` as a separate Z-Insights Analytics GraphQL service (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:336-371`). MCP's Z-Insights skills are read-only and include Shadow IT, SaaS Security, web traffic, cyber security, firewall, and IoT analytics workflows (`vendor/zscaler-mcp-server/integrations/kiro/steering/zins.md:5`, `:18`, `:22-27`, `:54-67`, `:69-80`). This refresh treats that as adjacent analytics surface, not as evidence that MCP can manage Business Insights custom apps or report configurations.
 
-Zscaler can discover usage of over 30,000 apps via ZIA traffic analysis. By default only a business-relevant subset is shown in the portal.
+## What Business Insights Is Not
 
-## Key capabilities
+- It is not ZIA reporting by another name; the captured Business Insights product description adds application-spend and workplace-utilization context on top of Zscaler telemetry (`vendor/zscaler-help/bi-what-zscaler-business-insights.md:8`, `:16-31`).
+- It is not Zero Trust Browser; the same abbreviation `ZBI` appears in Python SDK code for Business Insights (`vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py:23-24`).
+- It is not fully proven to be portal-only. The audited sources show REST APIs for custom apps, report configs, report listing, and report download; additional API coverage remains unresolved.
 
-### SaaS Application Management
+## Open Questions
 
-- **Engagement metrics**: Usage frequency, active vs. inactive users, usage by department
-- **Spending insights**: Contract costs, license plans, start/end dates, per-seat cost
-- **License optimization**: Identifies over-provisioned licenses; supports right-sizing at renewal
-- **Shadow IT discovery**: Surfaces apps purchased by departments or individuals outside IT control
-- **Portfolio overlap detection**: Identifies apps with overlapping functionality that could be consolidated
-- **Instant discovery**: Metrics available as soon as an app is configured
+- Whether Business Insights has public APIs beyond custom applications, report configurations, report listing, report download, and the adjacent Z-Insights GraphQL analytics surface is unresolved. See [clarification business-insights-01](../_meta/clarifications.md#business-insights-01-business-insights-api-coverage-beyond-custom-apps-and-reports).
 
-### Workplace & Workforce Management
+## Cross-Links
 
-- **In-office vs. hybrid vs. remote tracking**: Per employee, per department, per location
-- **Hour-by-hour utilization**: Fine-grained time-series data, not just daily counts
-- **Capacity planning**: Which office locations are underused or overused
-- **Weekly/monthly/quarterly trends**: Multi-cadence reporting for planning cycles
-- **Cost savings modeling**: Predictive models for cost reduction through occupancy optimization
-
-## Admin portal
-
-The Business Insights Admin Portal is a separate console from the ZIA/ZPA admin portals. It has its own authentication, user accounts, and RBAC (system roles + custom roles). Navigation: accessible via the Zscaler Experience Center or directly.
-
-## API surface
-
-The help portal does not prominently document a public API for Business Insights. The product is primarily portal-driven. No API reference was found in available sources — treat as console-only unless confirmed otherwise.
-
-## How it relates to ZIA
-
-Business Insights does not proxy or inspect traffic itself. It uses the traffic logs and metadata already captured by ZIA as its primary signal. The relationship is read-only: Business Insights consumes ZIA data; it does not write policies or change ZIA configuration.
-
-## What Business Insights is not
-
-- Not a CASB or DLP product. It does not enforce data security policies.
-- Not a real-time monitoring tool. It provides analytics over historical traffic data.
-- Not limited to Zscaler-managed apps — shadow IT discovery specifically surfaces non-IT-sanctioned app usage.
-- Not the same as ZIA reporting/analytics. Business Insights is a dedicated product with its own portal, not just a tab in ZIA.
-
-## Operational notes
-
-- License overlap detection is actionable: it can identify when an org pays for both Slack and Teams at full capacity, for example.
-- The workplace utilization feature requires ZCC because ZIA alone cannot determine physical office presence — ZCC location signals are needed.
-- The 30K+ app discovery capability comes from ZIA's URL/app categorization; Business Insights adds the business-context layer (cost, license plans, IdP login correlation) on top.
-
-## Common questions
-
-- **"What is Business Insights?"** → A Zscaler analytics product for SaaS app usage analytics (license optimization, shadow IT, spend) and workplace utilization metrics (hybrid/remote/in-office tracking).
-- **"Does Business Insights require ZIA?"** → Yes. ZIA is required for the traffic analysis that powers SaaS app discovery. Without ZIA, Business Insights has no network signal.
-- **"Does Business Insights require ZCC?"** → Only for workplace utilization features. SaaS app analytics work with ZIA alone.
-- **"Can Business Insights see which users are using Microsoft 365?"** → Yes, via the M365 SaaS app connector plus ZIA traffic — it can show per-user engagement, license usage, and inactive users.
-- **"Is Business Insights a security product?"** → Not primarily. It is a business analytics product. The security team may use it for shadow IT visibility, but the primary value is cost optimization and workplace planning.
-- **"Does Business Insights have an API?"** → Not confirmed in available sources. Treat as portal-only unless your Zscaler TAM confirms an API exists.
-
-## Licensing and availability
-
-Business Insights is a separate SKU from ZIA. Specific pricing tiers are not publicly documented. The product requires ZIA as a dependency. Confirm licensing requirements with your Zscaler account team before deploying.
-
-## Terminology disambiguation
-
-- **Business Insights** (this product) — SaaS spend/usage analytics and workplace utilization
-- **Executive Insights** — A different Zscaler surface within Experience Center for executive-audience dashboards (not the same product)
-- **ZIA Analytics** — Raw traffic analytics available within ZIA admin portal; different from Business Insights' business-context layer
-
-## Cross-links
-
-- ZIA (source of network traffic data that Business Insights analyzes): [`../zia/index.md`](../zia/index.md)
-- ZCC (required for workplace utilization feature): [`../zcc/index.md`](../zcc/index.md)
+- Claims ledger for this refresh: [`./_claims-ledger.md`](./_claims-ledger.md)
+- ZIA, the required source for SaaS app insights: [`../zia/index.md`](../zia/index.md)
+- ZCC, required for workplace utilization features: [`../zcc/index.md`](../zcc/index.md)
 - Portfolio map: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)
