@@ -4,6 +4,14 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.13.5](https://github.com/dvmrry/zscaler-skill/compare/v0.13.4...v0.13.5) (2026-06-16)
+
+
+### Documentation
+
+* **tier-c:** refresh insights analytics stubs ([#150](https://github.com/dvmrry/zscaler-skill/issues/150)) ([a76e898](https://github.com/dvmrry/zscaler-skill/commit/a76e898d1345515048c51a58bde687d49268d6f4))
+* **tier-c:** refresh risk family stubs ([#151](https://github.com/dvmrry/zscaler-skill/issues/151)) ([db87aee](https://github.com/dvmrry/zscaler-skill/commit/db87aeececc5e212da2d5c5d8980d43ea83fc5ce))
+
 ## [0.13.4](https://github.com/dvmrry/zscaler-skill/compare/v0.13.3...v0.13.4) (2026-06-16)
 
 
