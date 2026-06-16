@@ -3,9 +3,9 @@ product: zdx
 topic: "zdx-diagnostics-and-alerts"
 title: "ZDX Diagnostics Sessions (deeptraces) and Alerts"
 content-type: reasoning
-last-verified: "2026-06-14"
+last-verified: "2026-06-15"
 verified-against:
-  vendor/zscaler-sdk-python: 8d054b1fdd18bcb29722b7051dc282c0d1c86be6
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
 confidence: high
 source-tier: mixed
 sources:
@@ -15,6 +15,9 @@ sources:
   - "vendor/zscaler-help/understanding-alert-status.md"
   - "vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py"
   - "vendor/zscaler-sdk-python/zscaler/zdx/alerts.py"
+  - "vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py"
+  - "vendor/zscaler-sdk-python/zscaler/zdx/models/snapshot.py"
+  - "vendor/zscaler-sdk-python/zscaler/zdx/legacy.py"
   - "vendor/zscaler-sdk-python/zscaler/zdx/devices.py"
   - "vendor/zscaler-sdk-python/zscaler/zdx/apps.py"
   - "vendor/zscaler-sdk-python/zscaler/zdx/models/devices.py"
@@ -193,6 +196,25 @@ From `vendor/zscaler-sdk-python/zscaler/zdx/alerts.py`:
 
 The `list_affected_devices` endpoint is the operational superpower: an alert that says "Microsoft Teams degraded" becomes actionable when you know it's 2 users in Tokyo versus 200 users across 5 locations.
 
+### Sharing an alert snapshot
+
+Source: `vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py`; `vendor/zscaler-sdk-python/zscaler/zdx/models/snapshot.py`; `vendor/zscaler-sdk-python/zscaler/zdx/legacy.py`; `vendor/zscaler-sdk-python/zscaler/utils.py`.
+
+ZDX has a separate `snapshot` service whose single operation shares a point-in-time snapshot of one alert's details — useful for handing an alert to someone who isn't in the ZDX console (e.g. an app owner or a vendor) without giving them tenant access. It is keyed by alert ID, so it lives alongside the Alerts surface, not the Diagnostics surface.
+
+`client.zdx.snapshot.share_snapshot(...)` is `POST /zdx/v1/snapshot/alert` (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:31`, `:83-87`; service exposed as the `snapshot` property at `vendor/zscaler-sdk-python/zscaler/zdx/legacy.py:427-434`). It is the only method on the service.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `name` | `str` | The name of the snapshot (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:36`, `:94-95`). |
+| `alert_id` | `str` | The alert the snapshot is taken of — the snapshot is alert-scoped, one alert per call (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:37`, `:96-97`). |
+| `expiry` | `int` | How long the share link stays live, **passed as hours**, default 2h, documented valid range **2 hours to 90 days** (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:40-42`). |
+| `obfuscation` | `list` | Which PII fields to mask in the shared snapshot — documented set `USER_NAME`, `LOCATION`, `DEVICE_NAME`, `IP_ADDRESS`, `WIFI_NAME` (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:43-45`). |
+
+The response record carries `id`, `name`, `alert_id`, `expiry` (in Unix epoch), `obfuscation`, `url` (where the snapshot can be viewed), and `status` (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:48-55`; the `Snapshot` model parses these same fields at `vendor/zscaler-sdk-python/zscaler/zdx/models/snapshot.py:38-44`).
+
+**`expiry` is hours on the surface, epoch on the wire** — same shape as the `since` conversion elsewhere in ZDX, but a *different field*. `expiry` flows through the `@zdx_params` decorator (which moves it into `query_params` — `vendor/zscaler-sdk-python/zscaler/utils.py:420`), then `share_snapshot` pops it back out and converts hours to an absolute epoch with `int(time.time()) + expiry_hours * 3600` before placing it in the request body (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:100-106`). So the API receives an absolute epoch expiry timestamp; the SDK caller supplies a relative hour count. (The obfuscation flow is flagged in Open questions below.)
+
 ## Edge cases
 
 Source: `vendor/zscaler-help/understanding-diagnostics-session-status.md`; `vendor/zscaler-help/understanding-alert-status.md`; `vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py`; `vendor/zscaler-sdk-python/zscaler/zdx/alerts.py`.
@@ -205,17 +227,18 @@ Source: `vendor/zscaler-help/understanding-diagnostics-session-status.md`; `vend
 
 ## Open questions
 
-Source: `vendor/zscaler-help/understanding-diagnostics-session-status.md`; `vendor/zscaler-help/understanding-alert-status.md`; `vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py`; `vendor/zscaler-sdk-python/zscaler/zdx/alerts.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/troubleshooting/deeptrace/deeptrace.go`; `vendor/zscaler-sdk-python/zscaler/zdx/models/troubleshooting.py`.
+Source: `vendor/zscaler-help/understanding-diagnostics-session-status.md`; `vendor/zscaler-help/understanding-alert-status.md`; `vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py`; `vendor/zscaler-sdk-python/zscaler/zdx/alerts.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/troubleshooting/deeptrace/deeptrace.go`; `vendor/zscaler-sdk-python/zscaler/zdx/models/troubleshooting.py`; `vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py`.
 
 - ~~What the configurable session duration range is~~ — **resolved** from SDK source: `session_length_minutes` is constrained to 5, 15, 30, 60 (default 5) (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zdx/deeptrace_manage.py:29-34`; `vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py:155-156`). See the start-payload section above.
-- Per-probe cadence during a session — is it still 5 minutes, or does the session intensify to faster cadence? (Not stated in any of the cited source files.)
+- Per-probe cadence during a session — is it still 5 minutes, or does the session intensify to faster cadence? (Not stated in any of the cited source files.) See [clarification zdx-30](../_meta/clarifications.md#zdx-30-per-probe-cadence-during-a-diagnostics-session).
 - How many concurrent sessions are allowed per tenant, per device. (Not stated in source.) (Tracked as `zdx-02` in [`references/_meta/clarifications.md`](../_meta/clarifications.md#zdx-02-concurrent-deeptrace-session-limits).)
-- Alert rule-evaluation cadence — alerts fire "when condition crosses threshold," but the evaluation interval (every score update? every hour? continuously?) isn't stated.
-- **Session-name wire field name (unverified).** No source enumerates the on-wire JSON field the start endpoint expects for the session name. Python `TraceDetails.request_format` maps `session_name` → `name` (`vendor/zscaler-sdk-python/zscaler/zdx/models/troubleshooting.py:120`), but the `start_deeptrace` POST body is built straight from kwargs with key `session_name` (`vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py:182`). Whether the live API expects `name` or `session_name` is not confirmable from source.
-- **`session_length` request-vs-response key (unverified).** Both the Python and Go start payloads use key `session_length_minutes` (`vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py:182`; `vendor/zscaler-sdk-go/zscaler/zdx/services/troubleshooting/deeptrace/deeptrace.go:46`), but the Go **response** struct `TraceDetails` uses `session_length` (`vendor/zscaler-sdk-go/zscaler/zdx/services/troubleshooting/deeptrace/deeptrace.go:37`). Whether request and response deliberately use different keys for the same field is not confirmable from source beyond these tags.
+- Alert rule-evaluation cadence — alerts fire "when condition crosses threshold," but the evaluation interval (every score update? every hour? continuously?) isn't stated. See [clarification zdx-31](../_meta/clarifications.md#zdx-31-alert-rule-evaluation-cadence).
+- **Session-name wire field name (unverified).** No source enumerates the on-wire JSON field the start endpoint expects for the session name. Python `TraceDetails.request_format` maps `session_name` → `name` (`vendor/zscaler-sdk-python/zscaler/zdx/models/troubleshooting.py:120`), but the `start_deeptrace` POST body is built straight from kwargs with key `session_name` (`vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py:182`). Whether the live API expects `name` or `session_name` is not confirmable from source. See [clarification zdx-32](../_meta/clarifications.md#zdx-32-deeptrace-session-name-wire-field).
+- **`session_length` request-vs-response key (unverified).** Both the Python and Go start payloads use key `session_length_minutes` (`vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py:182`; `vendor/zscaler-sdk-go/zscaler/zdx/services/troubleshooting/deeptrace/deeptrace.go:46`), but the Go **response** struct `TraceDetails` uses `session_length` (`vendor/zscaler-sdk-go/zscaler/zdx/services/troubleshooting/deeptrace/deeptrace.go:37`). Whether request and response deliberately use different keys for the same field is not confirmable from source beyond these tags. See [clarification zdx-33](../_meta/clarifications.md#zdx-33-session_length-request-vs-response-key).
 - **Server-side behavior for a mismatched/non-portable probe ID (unverified).** The non-portability of `web_probe_id` / `cloudpath_probe_id` across (device, app) pairs is inferred from the device+app-nested read paths (`vendor/zscaler-sdk-python/zscaler/zdx/devices.py:358-361`, `:486-489`), not from a stated validation rule. The actual API error when a probe ID from one pair is submitted against another is not stated in source. (Tracked as `zdx-01` in [`references/_meta/clarifications.md`](../_meta/clarifications.md#zdx-01-probe-id-non-portability-server-behavior).)
-- **Maximum `since` / look-back window and probe-ID expiry (unverified).** Only the 2h default is documented (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zdx/device_web_probes.py:30`; `vendor/zscaler-mcp-server/zscaler_mcp/tools/zdx/device_cloudpath_probes.py:36`). No source states a max look-back window or whether probe IDs expire after the look-back window.
+- **Maximum `since` / look-back window and probe-ID expiry (unverified).** Only the 2h default is documented (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zdx/device_web_probes.py:30`; `vendor/zscaler-mcp-server/zscaler_mcp/tools/zdx/device_cloudpath_probes.py:36`). No source states a max look-back window or whether probe IDs expire after the look-back window. See [clarification zdx-34](../_meta/clarifications.md#zdx-34-maximum-look-back-window-and-probe-id-expiry).
 - **`cloud_path_probe_id` corroboration (partial).** `deeptrace_test.go` produced no grep hits for the start-payload wire keys, so the `cloud_path_probe_id` key is corroborated by the production struct tag (`vendor/zscaler-sdk-go/zscaler/zdx/services/troubleshooting/deeptrace/deeptrace.go:45`) and the example, but not by a serialization assertion in tests.
+- **Whether `share_snapshot` actually transmits `obfuscation` (unverified).** The `share_snapshot` docstring documents an `obfuscation` argument (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:43-45`), but the body-builder only copies `name`, `alert_id`, and the converted `expiry` into the request body (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:91-106`); `obfuscation` is not in the `@zdx_params` shorthand list (`vendor/zscaler-sdk-python/zscaler/utils.py:408-420`) and is not extracted into the body here. From source alone it is unclear whether an `obfuscation` value passed by a caller reaches the API in this SDK version, or whether the obfuscation set is documented but not wired through this code path. The documented enum values (`USER_NAME`/`LOCATION`/`DEVICE_NAME`/`IP_ADDRESS`/`WIFI_NAME`) and the API contract itself are not in question — only this Python client's transmission of the field. See [clarification zdx-35](../_meta/clarifications.md#zdx-35-share_snapshot-obfuscation-transmission).
 
 ## Cross-links
 
