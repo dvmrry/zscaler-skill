@@ -51,7 +51,6 @@ BRACKET_SOURCE_RE = re.compile(r"\[Source:\s*([^\]]+)\]", re.IGNORECASE)
 INLINE_SOURCE_RE = re.compile(r"\bSource:\s*(.+)", re.IGNORECASE)
 SOURCE_PATH_RE = re.compile(r"\b(?:vendor|scripts)/[A-Za-z0-9_./&-]+")
 QUOTED_SOURCE_PATH_RE = re.compile(r"`(?:vendor|scripts)/[^`]+`")
-UNQUOTED_SOURCE_PATH_RE = re.compile(r"(?<!`)\b(?:vendor|scripts)/[A-Za-z0-9_./&-]+")
 SOURCE_PERIOD_INSIDE_BACKTICK_RE = re.compile(r"`(?:vendor|scripts)/[^`]+\.`")
 COMMA_SOURCE_SEPARATOR_RE = re.compile(r"`\s*,\s*`")
 BARE_MD_RE = re.compile(r"(?<![/A-Za-z0-9_.-])([A-Za-z0-9_.-]+\.md)(?![/A-Za-z0-9_.-])")
@@ -310,6 +309,20 @@ def frontmatter_source_payloads(text: str) -> list[tuple[int, str]]:
     return payloads
 
 
+def find_unquoted_source_paths(source_text: str) -> list[str]:
+    """Return vendor/ or scripts/ paths that appear genuinely outside backticks.
+
+    Inline-code spans are stripped first, so any path that remains is, by
+    construction, not enclosed in backticks. This avoids the false positive from
+    a single-character negative lookbehind, which only inspected the one
+    character before ``vendor``/``scripts`` and therefore mis-flagged a fully
+    backticked path that contains a nested ``/scripts/`` segment (the char before
+    ``scripts`` being ``/``, not a backtick).
+    """
+    outside_code = INLINE_CODE_RE.sub(" ", source_text)
+    return SOURCE_PATH_RE.findall(outside_code)
+
+
 def source_path_missing(source_path: str) -> bool:
     source_path = source_path.rstrip(".,);:")
     candidate = REPO_ROOT / source_path
@@ -416,7 +429,7 @@ def audit_source_quality(
                     issues.append(issue(rel, line_number, "duplicate-source-period", line.strip()))
                 if SOURCE_PERIOD_INSIDE_BACKTICK_RE.search(source_text):
                     issues.append(issue(rel, line_number, "source-period-inside-backtick", line.strip()))
-                if UNQUOTED_SOURCE_PATH_RE.search(source_text):
+                if find_unquoted_source_paths(source_text):
                     issues.append(issue(rel, line_number, "unquoted-source-path", line.strip()))
                 if COMMA_SOURCE_SEPARATOR_RE.search(source_text):
                     issues.append(issue(rel, line_number, "comma-source-separator", line.strip()))
