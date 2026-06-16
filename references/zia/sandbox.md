@@ -3,7 +3,7 @@ product: zia
 topic: "zia-sandbox"
 title: "ZIA Sandbox — what gets analyzed, what blocks, and why"
 content-type: reasoning
-last-verified: "2026-04-24"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: mixed
 sources:
@@ -13,6 +13,11 @@ sources:
   - "vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_report/sandbox_report.go"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_rules/sandbox_rules.go"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_submission/sandbox_submission.go"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_settings/sandbox_settings.go"
+  - "vendor/zscaler-sdk-python/zscaler/zia/sandbox.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/sandbox_rules.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/models/sandbox.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/models/sandboxrules.py"
   - "vendor/terraform-provider-zia/zia/resource_zia_sandbox_rules.go"
   - "https://help.zscaler.com/zia/about-sandbox"
 author-status: draft
@@ -168,21 +173,21 @@ Beyond the analysis / report layer, Sandbox has a full **rule CRUD surface** the
 
 - **`BaRuleAction`** — `ALLOW` or `BLOCK`. The terminal verdict action.
 - **`FirstTimeEnable`** / **`FirstTimeOperation`** — what to do with a file Sandbox has never seen before. `FirstTimeOperation` enum: `ALLOW_SCAN` (let through while scanning), `QUARANTINE` (hold until verdict), `ALLOW_NOSCAN` (let through without scanning), `QUARANTINE_ISOLATE` (hold and isolate).
-- **`MLActionEnabled`** — enable AI/ML verdict action alongside signature-based detection.
-- **`ByThreatScore`** — decision gated by Sandbox threat score threshold.
-- **`BaPolicyCategories`** — which Sandbox threat categories the rule applies to.
-- **`FileTypes`** — which file types trigger this rule (PE, Office, PDF, Archive, etc.).
-- **`ZPAAppSegments`** — scope the rule to specific ZPA Application Segments (cross-product reference, same pattern as SSL Inspection's `zpa_app_segments`; see [`../shared/source-ip-anchoring.md`](../shared/source-ip-anchoring.md) for the SIPA relationship).
+- **`MLActionEnabled`** — enable the AI Instant Verdict option alongside signature-based detection (`vendor/zscaler-sdk-python/zscaler/zia/sandbox_rules.py:157`).
+- **`ByThreatScore`** — decision gated by a Sandbox threat-score threshold. **The threshold range is 40–70**: the Python SDK documents this constraint as "Minimum threat score can be set between 40 to 70" (`vendor/zscaler-sdk-python/zscaler/zia/sandbox_rules.py:158`).
+- **`BaPolicyCategories`** — which Sandbox threat categories the rule applies to (e.g. `ADWARE_BLOCK`, `BOTMAL_BLOCK`, `RANSOMWARE_BLOCK`, `SUSPICIOUS_BLOCK`; `vendor/zscaler-sdk-python/zscaler/zia/sandbox_rules.py:185-186`).
+- **`FileTypes`** — which file types trigger this rule (`vendor/zscaler-sdk-python/zscaler/zia/sandbox_rules.py:161`).
+- **`ZPAAppSegments`** — scope the rule to specific ZPA Application Segments (cross-product reference, same pattern as SSL Inspection's `zpa_app_segments`; see [`../shared/source-ip-anchoring.md`](../shared/source-ip-anchoring.md) for the SIPA relationship). Present in the Python model as `zpa_app_segments` (`vendor/zscaler-sdk-python/zscaler/zia/models/sandboxrules.py:89`).
 
 **The "Allow and scan" resolution surfaced elsewhere in this doc is literally `FirstTimeOperation = "ALLOW_SCAN"`** on a Sandbox rule. An operator asking "how do I configure first-time file behavior via API" has a full CRUD path — it's not a console-only feature.
 
-Python SDK may not cover all these fields; Go SDK is authoritative for the full surface today.
+Both SDKs now expose the full sandbox-rules surface. The Python SDK has complete CRUD via the `client.zia.sandbox_rules` accessor — `list_rules` / `get_rule` / `add_rule` / `update_rule` / `delete_rule` (`vendor/zscaler-sdk-python/zscaler/zia/sandbox_rules.py:34`, `:92`, `:139`, `:232`, `:324`) — over `/sandboxRules` (`vendor/zscaler-sdk-python/zscaler/zia/sandbox_rules.py:60-61`), and the `SandboxRules` model carries every field above including `ba_policy_categories` (`vendor/zscaler-sdk-python/zscaler/zia/models/sandboxrules.py:49-51`), plus `ba_rule_action`, `first_time_enable`, `first_time_operation`, `ml_action_enabled`, `by_threat_score`, `zpa_app_segments`, and `file_types` (`vendor/zscaler-sdk-python/zscaler/zia/models/sandboxrules.py:66-95`). There is no longer a Python-vs-Go coverage gap on this surface.
 
 ## Discan API — out-of-band instant inspection
 
-Source: `vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_submission/sandbox_submission.go`.
+Source: `vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_submission/sandbox_submission.go`; `vendor/zscaler-sdk-python/zscaler/zia/sandbox.py`.
 
-Separate from `SubmitFile` (which submits to Sandbox for full dynamic analysis), Go SDK exposes **`Discan`** (`sandbox_submission.go:44` — `POST /zscsb/discan`) for **real-time out-of-band file inspection** without dynamic analysis. Combines:
+Separate from the full-submit path (which queues a file for full dynamic analysis), both SDKs expose a Discan call for **real-time out-of-band file inspection** without dynamic analysis: the Go SDK as **`Discan`** (`vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_submission/sandbox_submission.go:44` — `POST /zscsb/discan`), and the Python SDK as **`submit_file_for_inspection`** (`vendor/zscaler-sdk-python/zscaler/zia/sandbox.py:101`), which posts to `/discan` under the same `/zscsb` base endpoint (`vendor/zscaler-sdk-python/zscaler/zia/sandbox.py:126-129`, `:32`). Discan combines:
 
 - AV (anti-virus) signature matching
 - ATP (Advanced Threat Protection) reputation checks
@@ -191,11 +196,28 @@ Separate from `SubmitFile` (which submits to Sandbox for full dynamic analysis),
 
 Use case: an operator wants an instant verdict on a file, doesn't want to queue it for 3-10 minutes of dynamic analysis. Discan returns AV+ATP+cloud-effect+AI verdicts synchronously. Won't catch novel malware that needs dynamic-analysis detection, but catches a high fraction of known-bad and reputation-scored files instantly.
 
+## Custom MD5 block list (Behavioral Analysis Advanced Settings)
+
+Source: `vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_settings/sandbox_settings.go`; `vendor/zscaler-sdk-python/zscaler/zia/sandbox.py`; `vendor/zscaler-sdk-python/zscaler/zia/models/sandbox.py`.
+
+> **Source tier:** SDK-confirmed (Python + Go), not help-portal-documented. Treat as accurate to the wire shape both SDKs implement; the help portal's framing of this surface isn't captured here.
+
+Separate from dynamic analysis, ZIA Sandbox lets an operator maintain a **custom list of MD5 file hashes that are force-blocked** — the Python SDK describes the surface as "the custom list of MD5 file hashes that are blocked by Sandbox" (`vendor/zscaler-sdk-python/zscaler/zia/sandbox.py:239`). This is the lever for "I already know this hash is bad — block it now, don't wait for dynamic analysis to re-derive a verdict." It lives under the Behavioral Analysis Advanced Settings surface.
+
+- **Endpoint**: `/zia/api/v1/behavioralAnalysisAdvancedSettings` — GET to read the current list, PUT to replace it. (Go: `vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_settings/sandbox_settings.go:10`, `Get`/`Getv2`/`Updatev2`/`Update` at `:36`, `:47`, `:58`, `:68`; Python: `get_behavioral_analysis` at `vendor/zscaler-sdk-python/zscaler/zia/sandbox.py:237` and `add_hash_to_custom_list` at `:307`.)
+- **Payload**: the list of hashes. The Go SDK carries it two ways — a flat `FileHashesToBeBlocked []string` (`sandbox_settings.go:15`) and a richer `Md5HashValueList` of `{ url, urlComment, type }` entries where `type` is a string the Go source illustrates only as `// e.g. "MALWARE"` (`sandbox_settings.go:24-34`); the concrete `CUSTOM_FILEHASH_DENY` / `CUSTOM_FILEHASH_ALLOW` enum values come from the Python SDK's `add_hash_to_custom_list` docstring (`vendor/zscaler-sdk-python/zscaler/zia/sandbox.py:318`). Python mirrors the richer shape as `md5HashValueList` of `{ url, urlComment, type }` (`vendor/zscaler-sdk-python/zscaler/zia/models/sandbox.py:38`, `:56-69`; `add_hash_to_custom_list` builds `{"md5HashValueList": ...}` at `vendor/zscaler-sdk-python/zscaler/zia/sandbox.py:341`).
+- **Wire-shape gotcha — sending an empty list to clear it**: the Go `Md5HashValueListPayload` field is deliberately declared **without** `omitempty`, with the comment that the API requires `md5HashValueList` to be present *even as `[]`* when clearing the list (`sandbox_settings.go:31-33`). If you drop the key to clear the blocklist, the clear won't take. Send the key with an empty array. The Python `add_hash_to_custom_list` docstring states the same — "Pass an empty list to clear the blocklist" (`vendor/zscaler-sdk-python/zscaler/zia/sandbox.py:319`).
+- **Quota — how many more hashes you can add**: a separate sub-endpoint reports the cap. Go `FileHashCount` exposes `BlockedFileHashesCount` and `RemainingFileHashes` over `/behavioralAnalysisAdvancedSettings/fileHashCount` (`sandbox_settings.go:11`, `:18-21`, `GetFileHashCount` at `:78`). Python mirrors it as `get_file_hash_count` over the same `/fileHashCount` path (`vendor/zscaler-sdk-python/zscaler/zia/sandbox.py:269`, `:282`). `RemainingFileHashes` is the operationally useful number: it's how many additional MD5s the tenant can still add before hitting the cap.
+
+Operationally: this is the manual override for known-bad files. An MD5 added here is blocked without a dynamic-analysis round-trip, and the file-hash count tells you how much headroom is left before the tenant's blocklist quota is exhausted.
+
 ## Open questions
 
-Source: `vendor/zscaler-mcp-server/skills/zia/investigate-sandbox/SKILL.md`; `vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_report/sandbox_report.go`; `vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_rules/sandbox_rules.go`.
+Source: `vendor/zscaler-mcp-server/skills/zia/investigate-sandbox/SKILL.md`; `vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_report/sandbox_report.go`; `vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_rules/sandbox_rules.go`; `vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_settings/sandbox_settings.go`.
 
-- **No API for Malware Protection or ATP block diagnosis** — the MCP server documents this gap explicitly. Skill should surface this limitation when users hit either policy type. Candidate for a new clarification if we find it warrants one.
+- **No API for Malware Protection or ATP block diagnosis** — the MCP server documents this gap explicitly. Skill should surface this limitation when users hit either policy type. (Tracked as `zia-63` in [`../_meta/clarifications.md`](../_meta/clarifications.md#zia-63-sandbox-md5-blocklist-quota-help-portal-enum-and-the-mpatp-diagnosis-api-gap).)
+- **MD5 blocklist quota — what's the tenant cap, and is it subscription-tiered?** The SDKs expose `RemainingFileHashes` (how many more MD5s can be added) but neither encodes the absolute ceiling or whether it varies by Sandbox subscription tier. The number is observable per-tenant at runtime via `/fileHashCount`; the policy behind it isn't backed by vendored source. (Tracked as `zia-63` in [`../_meta/clarifications.md`](../_meta/clarifications.md#zia-63-sandbox-md5-blocklist-quota-help-portal-enum-and-the-mpatp-diagnosis-api-gap).)
+- **MD5 blocklist help-portal framing** — the custom MD5 block list section above is SDK-derived (Python + Go). How Zscaler's help portal names/positions this surface (and whether the `type` enum values like `CUSTOM_FILEHASH_DENY` / `CUSTOM_FILEHASH_ALLOW` are the documented set vs. SDK-internal) isn't captured here. Confirm against help before treating the enum list as exhaustive. (Tracked as `zia-63` in [`../_meta/clarifications.md`](../_meta/clarifications.md#zia-63-sandbox-md5-blocklist-quota-help-portal-enum-and-the-mpatp-diagnosis-api-gap).)
 - ~~**Sandbox quota semantics** — `zia_get_sandbox_quota` exists but response schema isn't documented in the vendored MCP skill. Unclear what the units are (files/day? bytes/month?).~~ **Resolved (2026-04-24)**: Go SDK `RatingQuota` struct (`sandbox_report.go:18-25`) defines the response as `{ StartTime int, Used int, Allowed int, Scale string, Unused int }`. Quota is a **time-bounded count of report retrievals**, not bytes — `StartTime` is epoch; `Scale` is the time unit (hour/day/month/etc.); `Used`/`Allowed`/`Unused` are report-count buckets. Quota applies to the Sandbox report-fetch API, not to submission volume.
 
 ## Cross-links

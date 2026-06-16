@@ -84,9 +84,10 @@ Each entry follows this template. Body is narrative — the existing zia-01 entr
 
 Skim this before reading the full entries. Summary refreshed 2026-06-15:
 20 entries are resolved or clarified, 17 are partially resolved, and the current
-refresh queue has expanded the open register with `zpa-21`–`zpa-81`,
-`zcc-77`–`zcc-101`, `zdx-03`–`zdx-43`, `zid-01`–`zid-35`, and
-`cloud-connector-01`–`cloud-connector-24`. Most open entries require lab tests,
+refresh queue has expanded the open register with `zia-50`–`zia-69`,
+`zpa-21`–`zpa-81`, `zcc-77`–`zcc-101`, `zdx-03`–`zdx-43`,
+`zid-01`–`zid-35`, and `cloud-connector-01`–`cloud-connector-24`.
+Most open entries require lab tests,
 tenant snapshots, operator experience, or vendor confirmation rather than more
 public-doc reading.
 
@@ -127,7 +128,7 @@ public-doc reading.
 
 ### Open
 
-`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-49`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-81`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `shared-20`–`shared-27`, `zcc-08`–`zcc-101`, `zdx-01`–`zdx-43`, `zid-01`–`zid-35`, `zms-01`, `easm-01`–`easm-02`, `cloud-connector-01`–`cloud-connector-24`.
+`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-69`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-81`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `shared-20`–`shared-27`, `zcc-08`–`zcc-101`, `zdx-01`–`zdx-43`, `zid-01`–`zid-35`, `zms-01`, `easm-01`–`easm-02`, `cloud-connector-01`–`cloud-connector-24`.
 
 The vendor-MCP scrape (2026-06-14) added these open behavior questions — each links to its detailed entry below:
 
@@ -143,6 +144,31 @@ The vendor-MCP scrape (2026-06-14) added these open behavior questions — each 
 | [`zms-01`](#zms-01-fetchall-beyond-policyrules) | Whether ZMS `fetchAll` exists server-side beyond `policyRules` | SDK re-check / lab test |
 | [`easm-01`](#easm-01-finding-scan_type-allowed-values) | EASM finding `scan_type` allowed-value set | tenant snapshot / zscaler doc not yet read |
 | [`easm-02`](#easm-02-finding-risk-field-value-semantics) | EASM finding risk-field semantics (`risk_level` / `cisa_likelihood` / `epss_likelihood`) | tenant snapshot / zscaler doc not yet read |
+
+The 2026-06-15 ZIA refresh registered these open ZIA behavior/source questions surfaced by the per-doc Open-questions sweep — each links to its detailed entry below:
+
+| ID | Title | Resolves with |
+|---|---|---|
+| [`zia-50`](#zia-50-ruletype-filter-endpoint-rest-backing) | `ruleType` filter endpoint REST backing | zscaler doc not yet read / lab test |
+| [`zia-51`](#zia-51-cross-sdk-parity-drift-and-python-devicegroups-write-path) | Cross-SDK parity drift and Python `devicegroups` write-path | code read / lab test |
+| [`zia-52`](#zia-52-ipssignaturerules-import-wire-behavior-and-multipart-field-name) | `ipsSignatureRules` import wire behavior and multipart field name | lab test |
+| [`zia-53`](#zia-53-cac-atomic-validation-contract-and-representative-app-action-quirk) | CAC atomic-validation contract and representative-app action quirk (MCP-docstring-only) | lab test |
+| [`zia-54`](#zia-54-python-cloudappriskprofile-list-vs-single-shape) | Python `cloudAppRiskProfile` list-vs-single code shape | code read / lab test |
+| [`zia-55`](#zia-55-admin-audit-report-pagination-and-targetorgid-semantics) | Admin audit report pagination and `targetOrgId` MSP semantics | lab test / tenant snapshot |
+| [`zia-56`](#zia-56-bandwidth-class-type-enum-vs-ui-predefined-classes-and-cap-enforcement) | Bandwidth class `type` enum vs UI predefined classes, and cap enforcement | zscaler doc not yet read / lab test |
+| [`zia-57`](#zia-57-ftp-and-file-type-control-field-dependency-and-enum-surfaces) | FTP and File Type Control field-dependency and enum surfaces | lab test / zscaler doc not yet read |
+| [`zia-58`](#zia-58-dlp-web-rule-actionseverity-enums-parentsub-rule-composition-externaldlp-behavior) | DLP web rule action/severity enums, parent/sub-rule composition, EXTERNALDLP behavior | lab test / zscaler doc not yet read |
+| [`zia-59`](#zia-59-plain-redir_req-dns_gateway-requirement-and-edns_ecs_objectzpa-pairing) | Plain `REDIR_REQ` `dns_gateway` requirement and `edns_ecs_object`/ZPA pairing | lab test |
+| [`zia-60`](#zia-60-network-service-type-behavior-countrycategory-enums-and-caps) | Network Service `type` behavior, country/category enums, and caps | lab test / zscaler doc not yet read |
+| [`zia-61`](#zia-61-atpmalware-tenant-defaults-singleton-interdependence-capture-vs-denylist) | ATP/Malware tenant defaults, singleton interdependence, capture-vs-denylist | lab test / zscaler doc not yet read |
+| [`zia-62`](#zia-62-pse-shared-nat-rejection-zia-only-health-monitoring-hardware-pse-api) | PSE shared-NAT rejection, ZIA-only health monitoring, hardware-PSE API | zscaler doc not yet read / support ticket / code read |
+| [`zia-63`](#zia-63-sandbox-md5-blocklist-quota-help-portal-enum-and-the-mpatp-diagnosis-api-gap) | Sandbox MD5 blocklist quota, help-portal enum, and the MP/ATP diagnosis API gap | lab test / zscaler doc not yet read |
+| [`zia-64`](#zia-64-scim-department-matching-attribute-length-activefalse-session-kill-and-caps) | SCIM department matching, attribute length, `active=false` session-kill, and caps | lab test / zscaler doc not yet read |
+| [`zia-65`](#zia-65-ucaas-one-click-toggle-field-location) | UCaaS One-Click toggle field location | tenant snapshot / zscaler doc not yet read |
+| [`zia-66`](#zia-66-whether-the-255-ssl-inspection-rule-cap-is-raisable) | Whether the 255 SSL Inspection rule cap is raisable | zscaler doc not yet read / support ticket |
+| [`zia-67`](#zia-67-tenant-profile-per-app-wire-mechanic-and-v1v2-protocol-semantics) | Tenant Profile per-app wire mechanic and v1/v2 protocol semantics | zscaler doc not yet read / lab test |
+| [`zia-68`](#zia-68-terraform-url_categories_predefined-ea-gating-sandbox-v1v2-endpoint-static-ip-throttle) | Terraform `url_categories_predefined` EA gating, sandbox v1/v2 endpoint, static-IP throttle | zscaler doc not yet read / lab test |
+| [`zia-69`](#zia-69-workload-group-runtime-expression-evaluation-expressionjson-sync-and-tag-type-enum) | Workload-group runtime expression evaluation, `expressionJson` sync, and tag-type enum | lab test / zscaler doc not yet read |
 
 The ZPA reference re-verification pass (2026-06-15) registered the remaining `## Open questions` items from the ZPA docs — each links to its detailed entry below:
 
@@ -1753,6 +1779,17 @@ Whether a documented maximum count of rule labels per ZIA tenant exists. Not fou
 
 **Status**: open
 **Resolves with**: zscaler doc not yet read (Ranges & Limitations)
+
+---
+
+### zia-50 — `ruleType` filter endpoint REST backing
+
+*Origin: `references/zia/rule-labels.md` § Open questions*
+
+The `GET /zia/api/v1/ruleLabels/ruleType/{rule_type}` filter endpoint (Python SDK `get_rule_type_label`) appears **only** in the Python SDK service layer (`vendor/zscaler-sdk-python/zscaler/zia/rule_labels.py:280`). It has no counterpart in the Go SDK (`vendor/zscaler-sdk-go/zscaler/zia/services/rule_labels/rule_labels.go` exposes only Get/GetRuleLabelByName/Create/Update/Delete/GetAll) and is absent from the Postman collection (`vendor/zscaler-api-specs/oneapi-postman-collection.json` "Rule Labels" folder lists only the five CRUD requests). Whether this endpoint is a stable, generally available REST surface — or a Python-SDK convenience over an undocumented/internal path — is unconfirmed. The same uncertainty applies to its `rule_type` enum (`URL_FILTERING`, `FIREWALL`, `CASB_DLP`, `CLOUD_APP_CONTROL`, `DATA_PROTECTION`, `GENAI`, `INDUSTRY_PEER`, `NEWS_FEED`, `RISK_SCORE`, `SANDBOX`), which is documented only in the Python SDK docstring.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (OneAPI ruleLabels reference) OR lab test (call the endpoint against a live tenant)
 
 ---
 
@@ -3949,6 +3986,215 @@ EASM finding risk fields — `risk_level` / `severity_score` / `status` (`vendor
 
 **Status**: open
 **Resolves with**: tenant snapshot (collect observed values across live findings) OR zscaler doc not yet read
+
+---
+
+### zia-51 — Cross-SDK parity drift and Python devicegroups write-path
+
+*Origin: `references/zia/api.md` § Open questions*
+
+Two related ZIA SDK-surface questions. First, cross-SDK parity is a moving target: the 2026-06-15 re-sweep confirmed the Go-only surfaces (`scim_api`, `eventlogentryreport`, `devicegroups`-write, and the now-regressed `email_profiles`) against the current Python tree, but parity drifts release-to-release in both directions (`email_profiles` landing in Python is the example). Whether any surface beyond the four named has since gained a Python counterpart was spot-checked, not exhaustively diffed. Second, Python's `device_management.py` exposes `list_device_groups` (read) only, with no create/update/delete (`vendor/zscaler-sdk-python/zscaler/zia/device_management.py:38`); whether the `/deviceGroups` API supports group-level writes that simply aren't wrapped in the Python SDK yet — vs being a Go-SDK-exclusive capability — is not source-verifiable from the SDK layer alone.
+
+**Status**: open
+**Resolves with**: code read (full `vendor/zscaler-sdk-go/zscaler/zia/services/` vs `vendor/zscaler-sdk-python/zscaler/zia/` module diff, re-run each vendor refresh) OR lab test (attempt a `/deviceGroups` write against a live tenant)
+
+---
+
+### zia-52 — ipsSignatureRules import wire behavior and multipart field name
+
+*Origin: `references/zia/api-schemas.md` § Open questions; `references/zia/legacy-endpoints.md` § Open questions*
+
+The Go SDK defines the custom IPS signature rules import + import-status path (`GET`/`POST /ipsSignatureRules/import`) but ships both functions commented out, annotated as broken upstream (`vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go:296-359`). The struct shapes are documented from source, but the actual wire behavior on a current tenant — and the exact multipart field name the gateway expects (the SDK comment guesses `file`, with `csvFile`/`import`/`uploadFile` as untested alternates) — is not confirmable from source alone.
+
+**Status**: open
+**Resolves with**: lab test (call `POST /ipsSignatureRules/import` against a live tenant, capture the accepted multipart field name and response)
+
+---
+
+### zia-53 — CAC atomic-validation contract and representative-app action quirk
+
+*Origin: `references/zia/api-divergences.md` § Open questions*
+
+Two Cloud App Control behaviors are documented only in MCP-server tool docstrings, confirmed absent from both SDKs, and so are observation-only until live-tenant confirmation. First, the atomic-validation contract: a per-app-invalid action is said to reject the whole create with `INVALID_INPUT_ARGUMENT` / "Invalid action provided for selected applications", motivating a one-rule-per-app safe pattern. Second, the representative-app quirk: `list_available_actions(rule_type, cloud_apps)` is said to surface the action list only when `cloud_apps` contains a "representative" app for the category — e.g. `rule_type=SYSTEM_AND_DEVELOPMENT, cloud_apps=[AZURE_DEVOPS]` returns `[]` even though the category has 11 actions, while `cloud_apps=[GITHUB]` returns the full set (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_app_control.py:311-318`). The "11 actions" count and the AZURE_DEVOPS-vs-GITHUB example are MCP-docstring claims, not in any SDK. This is the API-divergence framing of the same gap `zia-49` tracks at the action-validity level.
+
+**Status**: open
+**Resolves with**: lab test (probe a live tenant: submit a mixed-validity multi-app create to observe the atomic-rejection behavior; call `list_available_actions` with non-representative vs representative apps to confirm the empty-vs-full response)
+
+---
+
+### zia-54 — Python cloudAppRiskProfile list-vs-single shape
+
+*Origin: `references/zia/api-divergences.md` § Open questions*
+
+In the Python SDK the CAC rule model decodes `cloudAppRiskProfile` as a *list* (`vendor/zscaler-sdk-python/zscaler/zia/models/cloudappcontrol.py:115-117`, `form_list(..., ResourceReference)`) but the request serializer calls `.request_format()` on it as if it were a *single* object (`:220`). This is a code-shape inconsistency observed by reading source; it was not executed to confirm whether it actually raises at runtime (a list has no `.request_format()` method, so it plausibly does) or whether normalization elsewhere papers over it. Until run, the skill should not assert how a `cloudAppRiskProfile` write actually behaves through the Python SDK.
+
+**Status**: open
+**Resolves with**: code read / lab test (run the Python SDK path with a `cloudAppRiskProfile` populated, observe whether `.request_format()` raises)
+
+---
+
+### zia-55 — Admin audit report pagination and targetOrgId semantics
+
+*Origin: `references/zia/audit-logs.md` § Open questions*
+
+Two open items on the ZIA admin audit log report endpoint. First, pagination: the request schema carries `page` / `pageSize` (`vendor/zscaler-sdk-go/zscaler/zia/services/eventlogentryreport/eventlogentryreport.go:36-37`), but the admin audit report uses an async request model (POST to queue → poll status → GET download) rather than a direct paginated list, and whether the downloaded CSV itself is paginated or returned in full is not confirmed. Second, `targetOrgId`: the admin-audit-log Go struct includes `TargetOrgId` (`vendor/zscaler-sdk-go/zscaler/zia/services/adminauditlogs/adminauditlogs.go:34`), suggesting MSP/partner-mode audit access across managed organizations, but the full semantics are not confirmed from available sources.
+
+**Status**: open
+**Resolves with**: lab test (run an admin audit report export, inspect whether the CSV is full or paged) OR tenant snapshot (MSP-mode tenant to confirm `targetOrgId` behavior)
+
+---
+
+### zia-56 — Bandwidth class type enum vs UI predefined classes, and cap enforcement
+
+*Origin: `references/zia/bandwidth-control.md` § Open questions*
+
+Three open items on Bandwidth Control classes. First, the help docs describe predefined, non-deletable classes (Social Media, Streaming, File Share, Business Apps) while the SDK/TF expose a `type` field with values like `BANDWIDTH_CAT_WEBCONF` / `BANDWIDTH_CAT_VOIP` (`vendor/terraform-provider-zia/zia/resource_zia_bandwidth_classes_web_conferencing.go:94-95`); whether these typed flavors are the same objects as the UI predefined classes or an orthogonal axis is not stated in any source opened in this pass. Second, the full enumeration of class `type` values is not pinned — only the file-size and web-conferencing/VOIP types appear with explicit constants; the general `zia_bandwidth_classes` resource does not pin a `type` constant, so whether other values exist (and the API default for a plain class) is not in captured source. Third, the class-count and rule-count caps (245 custom classes / 8 classes-with-domains / 25,000 domains / 125 rules) come only from the help *Ranges and Limitations* doc; no SDK or TF source encodes or validates them, so whether the API rejects over-limit creates or enforcement is UI-only is unconfirmed.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (per-class `type` reference) OR lab test (create over the documented caps and a plain class, observe the API default and whether limits are enforced)
+
+---
+
+### zia-57 — FTP and File Type Control field-dependency and enum surfaces
+
+*Origin: `references/zia/content-inspection-extras.md` § Open questions*
+
+Four source-unresolvable items on the content-inspection surfaces. (1) Whether a per-site FTP Control rule layer exists outside the SDK — the help docs describe FTP Control with multiple levels and per-site access (`vendor/zscaler-help/about-ftp-control.md:17-21`) but the SDK exposes only the tenant-wide `/ftpSettings` object (`vendor/zscaler-sdk-python/zscaler/zia/ftp_control_policy.py:35`, `:77`); whether per-site FTP allow/deny lives elsewhere (URL Filtering on FTP-protocol conditions, or a UI-only surface) is not determinable from SDK source. (2) The File Type Control `filtering_action`-to-field dependency contract is not encoded in source — `min_size`/`max_size`/`operation`/`active_content`/`unscannable`/`password_protected` are flat kwargs with no client-side validation tying any to a `filtering_action` value, so which combinations the API accepts/rejects (e.g. whether `active_content` is meaningful with `ALLOW`) is unstated. (3) The full `file_types` enum is not statically available — the model treats it as a free string list (`vendor/zscaler-sdk-python/zscaler/zia/models/filetyperules.py:77`); the complete token set is returned at runtime by `/fileTypeCategories`, not hardcoded. (4) The `protocols` value set is only partially confirmed — `HTTP_RULE`/`HTTPS_RULE`/`FTP_RULE` are confirmed from help (`vendor/zscaler-help/about-file-type-control.md:29`), but the model stores `protocols` as an unconstrained string list (`vendor/zscaler-sdk-python/zscaler/zia/models/filetyperules.py:49`) with no enum, so whether additional tokens are accepted is undeterminable from this source.
+
+**Status**: open
+**Resolves with**: lab test (read `/fileTypeCategories` and probe `filtering_action`/field and `protocols` combinations on a live tenant) OR zscaler doc not yet read (FTP Control configuration reference)
+
+---
+
+### zia-58 — DLP web rule action/severity enums, parent/sub-rule composition, EXTERNALDLP behavior
+
+*Origin: `references/zia/dlp.md` § Open questions*
+
+Several DLP web-rule behaviors are not pinned by SDK source. The `action` and `severity` fields are free strings with no enum declared (`vendor/zscaler-sdk-python/zscaler/zia/models/dlp_web_rules.py:49`, `:61`), so the concrete wire sets (help-doc prose names ALLOW / BLOCK / CONFIRM behaviorally; the severity bands) are unconfirmed from SDK. The rule model exposes a `parent_rule` / `sub_rules` hierarchy (`:62-63`) but the SDK does not document how sub-rule evaluation composes with the flat first-match-wins / Evaluate-All-Rules order from the help docs, nor how a parent match interacts with its sub-rules' actions. The `without_content_inspection` (EXTERNALDLP) variant is SDK-confirmed as a distinct no-content-inspection rule (`:53-55`) but what it keys on instead of payload content, and which forwarding surfaces it pairs with, is not pinned. Adjacent doc-level questions also remain: confidence-score-to-confidence-level numeric mapping for predefined dictionaries, whether MIP label matching requires Microsoft 365 integration on the Zscaler side, Evaluate-All-Rules terminal-action semantics when Block and Allow rules both fire, and EDM operational mechanics — all needing tenant tuning or help articles not yet vendored.
+
+**Status**: open
+**Resolves with**: lab test (read live rules to enumerate `action`/`severity` values and observe parent/sub-rule + EXTERNALDLP behavior) OR zscaler doc not yet read (DLP rule and Exact Data Matching reference articles)
+
+---
+
+### zia-59 — Plain REDIR_REQ dns_gateway requirement and edns_ecs_object/ZPA pairing
+
+*Origin: `references/zia/dns-control.md` § Open questions*
+
+Two DNS Control action-binding questions beyond `zia-47`/`zia-48`. First, whether plain `REDIR_REQ` requires a `dns_gateway`: the Go validator binds `dns_gateway` to `REDIR_REQ_KEEP_SENDER`, `REDIR_REQ_DOH`, `REDIR_REQ_TCP`, and `REDIR_REQ_UDP` but *not* to plain `REDIR_REQ` (`vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:267-280`); whether the bare action needs one is not stated in source. Second, whether `edns_ecs_object` is tied to the `REDIR_ZPA` action: no source binds `edns_ecs_object` to `REDIR_ZPA` (or any action) — it is a general resolution field (`vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:109-110`), so the `zpa_ip_group` + `edns_ecs_object` pairing for `REDIR_ZPA` is not verifiable from vendor source.
+
+**Status**: open
+**Resolves with**: lab test (submit a `REDIR_REQ` rule with and without a `dns_gateway`, and a `REDIR_ZPA` rule with/without `edns_ecs_object`, observe what the API requires)
+
+---
+
+### zia-60 — Network Service type behavior, country/category enums, and caps
+
+*Origin: `references/zia/firewall.md` § Open questions*
+
+Several firewall-surface items could not be backed from any vendor file in this pass. (1) `STANDARD` vs `PREDEFINED` Network Service `type` behavior — no `STANDARD`/`PREDEFINED` literal appears in SDK service/model source; only the MCP docstring lists all three (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/network_services.py:136`) and only `CUSTOM` appears as a concrete value, so the wire-level distinction is unverified. (2) Valid country-code format — only example values `COUNTRY_CA` / `COUNTRY_US` appear (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py:431`, `:469`); the full `COUNTRY_*` enum is not enumerated. (3) Allowed custom URL-category identifiers — `ip_categories` is documented as "Only Custom categories allowed" with example `CUSTOM_01` (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py:430`) but no source enumerates or validates the allowed identifiers. (4) `DSTN_DOMAIN` field requirement — it appears only in the four-value enum lists with no example or per-type field rule (vs `DSTN_FQDN` using `addresses`). (5) `tag` and `creatorContext` semantics — both exist on the Python Network Service model (`vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_nw_service.py:34`, `:36`) but carry no description or allowed-values documentation. (6) Caps and ordering — no mined source states a hard cap on addresses per destination group or ports per network service, nor a precedence rule among the four port arrays.
+
+**Status**: open
+**Resolves with**: lab test (read live network services / destination groups to observe `type`, country, and category values and any caps) OR zscaler doc not yet read (Network Services and IP Destination Groups reference)
+
+---
+
+### zia-61 — ATP/Malware tenant defaults, singleton interdependence, capture-vs-denylist
+
+*Origin: `references/zia/malware-and-atp.md` § Open questions*
+
+Several Malware Protection / Advanced Threat Protection behaviors are not backed by vendor source. Default tenant state of any ATP/Malware toggle is not stated: the Python ATP model defaults absent fields to `None` (`vendor/zscaler-sdk-python/zscaler/zia/models/advanced_threat_settings.py:113-160`) and the MalwareSettings model defaults to `False` (`vendor/zscaler-sdk-python/zscaler/zia/models/malware_protection_settings.py:62-77`), but these are client-side construction defaults, not stated API/tenant defaults. Server-side validation rules are not stated beyond `risk_tolerance`'s 0-100 range (`vendor/zscaler-sdk-go/zscaler/zia/services/advancedthreatsettings/advancedthreatsettings.go:18-20`) — e.g. whether `blocked_countries` is validated against ISO 3166 server-side is unstated. The interdependence of the four malware singletons is undocumented (source does not say whether turning off inspection direction disables threat-class enforcement; they are independent endpoints per structure only). The relationship between `maliciousUrlsCapture` (a PCAP toggle inside the ATP settings block, `vendor/zscaler-sdk-python/zscaler/zia/models/advanced_threat_settings.py:111`) and the separate `maliciousUrls` denylist endpoint is not explained, and `dgaDomainsCapture` (`:110`) has no `dgaDomainsBlocked` `*Capture` partner — source asserts no significance to the ordering. Whether `cyberThreatProtection` PUTs auto-activate is not stated in the SDK (the "staged until activation" note is MCP-tooling plumbing, not product API behavior). Adjacent: whether MP/ATP PCAP traffic is API-accessible (vs console-only), and the recommended Malware Protection Policy content (image-only on the live help page), are undocumented in captured source.
+
+**Status**: open
+**Resolves with**: lab test (read a fresh tenant's ATP/Malware settings to observe shipped defaults and whether PUTs auto-activate; probe `blocked_countries` validation) OR zscaler doc not yet read (ATP/Malware policy reference and recommended-content page)
+
+---
+
+### zia-62 — PSE shared-NAT rejection, ZIA-only health monitoring, hardware-PSE API
+
+*Origin: `references/zia/private-service-edge.md` § Open questions*
+
+Three Private Service Edge questions the captured help pages do not settle. (1) Whether shared / overloaded (PAT) NAT breaks a PSE or only forfeits IPv6 — the source states PSE IPs "must have 1:1 static NAT to a public IP" with IPv6 unsupported in that mode (`vendor/zscaler-help/understanding-private-service-edge-internet-saas.md:99`) but does not explicitly say a shared/overloaded mapping is rejected; the stronger "not supported" claim was removed from the doc pending confirmation. (2) What PSE health monitoring a ZIA-only (no-ZDX) tenant gets — the source confirms the PSE Health Dashboard requires ZDX (`:24`) but does not describe the fallback; an earlier "falls back to Cloud Ops telemetry + standard Admin Console" claim was removed as unbacked. (3) Whether there is an SDK/API surface for hardware PSE (PSE 3 / PSE 5) provisioning — the ZIA SDKs ship `vzen_clusters` / `vzen_nodes` for the Virtual Service Edge but no hardware-appliance provisioning service was found, consistent with the Support-ticket Location-binding path, though worth re-checking against newer SDK releases before treating "no API" as permanent.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (PSE deployment / NAT and health-monitoring articles) OR support ticket (shared-NAT and ZIA-only monitoring) OR code read (newer SDK release for a hardware-PSE service)
+
+---
+
+### zia-63 — Sandbox MD5 blocklist quota, help-portal enum, and the MP/ATP diagnosis API gap
+
+*Origin: `references/zia/sandbox.md` § Open questions*
+
+Three Sandbox items remain open. (1) MD5 blocklist quota: the SDK exposes `RemainingFileHashes` (`vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_settings/sandbox_settings.go:20`, read via `/fileHashCount` at `:80`) but neither SDK encodes the absolute ceiling or whether it is subscription-tiered; the cap is observable per-tenant at runtime but the policy behind it is unbacked by vendored source. (2) Help-portal framing of the custom MD5 block list: the section is SDK-derived (Python + Go); how Zscaler's help portal names/positions this surface, and whether the `type` enum values (`CUSTOM_FILEHASH_DENY` / `CUSTOM_FILEHASH_ALLOW`) are the documented set vs SDK-internal, is not captured — confirm against help before treating the enum as exhaustive. (3) The MCP server documents that there is no API for Malware Protection or ATP block diagnosis (only the console Traffic Capture UI); the skill should surface this gap when users hit either policy type. (The Sandbox quota-units question was resolved 2026-04-24 — `RatingQuota` is a time-bounded report-retrieval count.)
+
+**Status**: open
+**Resolves with**: lab test (read `/fileHashCount` on tenants of different Sandbox tiers to bound the MD5 ceiling) OR zscaler doc not yet read (Sandbox custom-hash help article confirming the `type` enum)
+
+---
+
+### zia-64 — SCIM department matching, attribute length, active=false session-kill, and caps
+
+*Origin: `references/zia/scim-provisioning.md` § Open questions*
+
+Five ZIA SCIM behaviors are not backed by any mined vendor file. (1) Department name with no matching ZIA department object — the `department` string is matched by name against an existing ZIA department; whether ZIA matches-or-fails (silent no-association) or matches-or-creates a new department on no match is unstated. (2) Attribute value length limits — no source states a max character length for individual SCIM attribute values such as `displayName` or `department`. (3) Per-IdP Enterprise User extension mapping — how Entra ID vs Okta vs PingFederate populate the enterprise extension for `department` lives in per-IdP configuration guides not captured. (4) `active=false` and live session termination — whether disabling a user via `active=false` immediately terminates that user's active ZIA inspection session, or only blocks future authentication, is undocumented; for immediate revocation, do not rely on SCIM `active=false` alone. (5) SCIM-specific rate limits and tenant caps — no published per-tenant max-users / max-groups cap or SCIM-endpoint rate-limit guidance was found.
+
+**Status**: open
+**Resolves with**: lab test (send SCIM operations against a live tenant: unmatched department, oversized attribute, `active=false` mid-session, bulk provisioning to find caps) OR zscaler doc not yet read (per-IdP SCIM configuration guides)
+
+---
+
+### zia-65 — UCaaS One-Click toggle field location
+
+*Origin: `references/zia/snapshot-schema.md` § Open questions*
+
+The snapshot doc's "Check One-Click bypass states" jq query probes `enableMsftO365`, `enableZoom`, `enableWebex` under `advanced-settings.json`, but those exact UCaaS One-Click toggles are listed as absent from the Z2 tenant snapshot and are not present in the current SDK advanced-settings model (a grep of `vendor/zscaler-sdk-python/zscaler/zia/models/advanced_settings.py` returns no such attributes). The query returns `null` for those keys on a real snapshot. Whether these toggles live on a separate endpoint (e.g. a dedicated SaaS / One-Click app-control settings resource) or are tier-gated is unresolved — needs a tenant where they are enabled to confirm the correct field names / location.
+
+**Status**: open
+**Resolves with**: tenant snapshot (a tenant with the UCaaS One-Click apps enabled, to locate the real field names/endpoint) OR zscaler doc not yet read
+
+---
+
+### zia-66 — Whether the 255 SSL Inspection rule cap is raisable
+
+*Origin: `references/zia/ssl-inspection.md` § Open questions*
+
+The ranges-and-limitations capture lists "255 rules (245 custom + 10 predefined)" for SSL Inspection Policy Rules with no raise annotation (`vendor/zscaler-help/ranges-limitations-zia.md:190`), whereas the adjacent "All Other Policy Rules" row is explicitly annotated "→ 2,048 via support" (`:191`). Absence of an annotation is not proof the SSL cap is fixed; an earlier doc assertion that "the cap is NOT raisable" had no source and was removed. Whether the 255 SSL Inspection cap can be raised via Support is unverified.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (a Zscaler limits source stating the SSL Inspection cap is fixed or raisable) OR support ticket
+
+---
+
+### zia-67 — Tenant Profile per-app wire mechanic and v1/v2 protocol semantics
+
+*Origin: `references/zia/tenant-profiles.md` § Open questions*
+
+Tenant-restriction wire mechanics are documented by the SaaS vendors but not by any vendored Zscaler source (a grep of `about-tenant-profiles.md` / `adding-tenant-profiles.md` returns zero hits for "header", "Restrict-Access", "X-GoogApps", or "inject"). (1) Microsoft 365: Microsoft defines the `Restrict-Access-To-Tenants` and `Restrict-Access-Context` request headers, presumed injected by ZIA into the inspected login flow — only the SSL-inspection prerequisite is confirmed in Zscaler source. (2) Google Workspace: Google defines the `X-GoogApps-Allowed-Domains` header for the same purpose — same status. (3) v1 vs v2 protocol semantics: the `ms_login_services_tr_v2` flag selects "v2 for tenant restriction on MSLOGINSERVICES" (`vendor/terraform-provider-zia/zia/resource_zia_tenant_restriction_profile.go:100-103`) and the limits table distinguishes v1 (Tenant Directory ID, up to 64 chars) from v2 (Tenant Directory ID:Policy ID, up to 256 chars — `vendor/zscaler-help/ranges-limitations-zia.md:260-261`), but what the two protocol versions differ in on the wire, and which Microsoft tenants require v2, is not described in vendored source.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (a Zscaler tenant-restriction header-mechanic article and a v1-vs-v2 configuration guide) OR lab test (capture the injected headers post-decrypt)
+
+---
+
+### zia-68 — Terraform url_categories_predefined EA gating, sandbox v1/v2 endpoint, static-IP throttle
+
+*Origin: `references/zia/terraform.md` § Open questions*
+
+Three Terraform-provider items remain unresolved. (1) `zia_url_categories_predefined` Early Access status and tenant-eligibility criteria are not documented in the provider source; availability may vary by ZIA edition and cloud environment. (2) `zia_sandbox_behavioral_analysis_v2` — the relationship between v1 and v2 (same underlying API endpoint or separate) is not confirmed; both resources import using the same static ID `"sandbox_settings"` (`vendor/terraform-provider-zia/zia/resource_zia_sandbox_behavioral_analysis_advanced_settings.go:41`), which may cause state conflicts if both are declared in one configuration. (3) `zia_traffic_forwarding_static_ip` per-endpoint POST throttle — a prior "1 POST/sec" gotcha was removed (no vendored source backs a per-second figure; it is absent from provider docs, the static-IP resource, both SDKs, and `ranges-limitations-zia.md`, which only caps Static IP Address Entries per Organization at 100). The only SDK-backed limit is the client-wide 10 POST/PUT/DELETE + 20 GET per 10-second window; whether the `/staticIP` POST path carries a stricter per-endpoint throttle is unconfirmed (`-parallelism=1` retained only as conservative bulk-create guidance).
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (URL-categories Early Access eligibility; Sandbox behavioral-analysis v1-vs-v2 endpoint mapping) OR lab test (bulk-POST `/staticIP` to detect any per-endpoint throttle)
+
+---
+
+### zia-69 — Workload-group runtime expression evaluation, expressionJson sync, and tag-type enum
+
+*Origin: `references/zia/workload-groups.md` § Open questions*
+
+Workload-group field shapes are SDK/TF-confirmed but their runtime semantics are not backed by any source. (1) Live-traffic match evaluation — how the ZIA backend evaluates a built expression against actual workload traffic (left-to-right, precedence, short-circuiting) is undocumented across SDK, TF, MCP, and Postman. (2) `expression` (string) vs `expression_json` sync on write — whether ZIA keeps the human-readable string in sync when only the JSON form is written, and whether the JSON form (`vendor/terraform-provider-zia/zia/resource_zia_workload_groups.go:66`) is truly the canonical write form, is not confirmed; the TF resource omits the string form on write. (3) Parentheses runtime behavior — even granting `OPEN_PARENTHESES` / `CLOSE_PARENTHESES` are a TF-only operator enum (`vendor/terraform-provider-zia/zia/resource_zia_workload_groups.go:94`), how ZIA consumes them to build a precedence-grouped expression is unexplained. (4) Whether the 255-groups-per-rule cap is a real API limit — it comes from the shared `setIdNameSchemaCustom(255, ...)` helper used by the policy resources (`vendor/terraform-provider-zia/zia/common.go:113`, applied e.g. at `vendor/terraform-provider-zia/zia/resource_zia_ssl_inspection_rules.go:361`), a TF provider convention; no SDK comment or API reference confirms server-side enforcement. (5) Tag-type enum completeness — the values `ANY`/`VPC`/`SUBNET`/`VM`/`ENI`/`ATTR` come from the TF `ValidateFunc` (`vendor/terraform-provider-zia/zia/resource_zia_workload_groups.go:80-85`); their exact semantics, and whether the list is exhaustive, are inferred from SDK docstring examples, not authoritatively documented.
+
+**Status**: open
+**Resolves with**: lab test (build workload-group expressions with parentheses and mixed operators, write JSON-only, read back to observe string sync and any cap enforcement) OR zscaler doc not yet read (workload-group expression-evaluation and tag-type reference)
 
 ---
 

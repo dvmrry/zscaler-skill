@@ -3,7 +3,7 @@ product: zia
 topic: scim-provisioning
 title: "ZIA SCIM Provisioning — group-to-department mapping, attribute constraints, ZIA-specific behavior"
 content-type: reasoning
-last-verified: "2026-05-03"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: doc
 sources:
@@ -70,7 +70,16 @@ The following is the ZIA SCIM-to-Zscaler field mapping as documented by the vend
 
 Source: `vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_user_api.go`.
 
-The Go SDK's `SCIMUser` struct (`vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_user_api.go`) exposes four top-level fields on a SCIM user response: `id`, `userName`, `displayName`, and `Meta`. The `department` attribute is nested under the **SCIM Enterprise User extension** schema (`urn:ietf:params:scim:schemas:extension:enterprise:2.0:User`), represented by the `EnterpriseExtension` field.
+The Go SDK's `SCIMUser` struct (`vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_user_api.go:24-31`) declares six top-level fields on a SCIM user response:
+
+- `Schemas` (`[]string`) — the SCIM schema URN list the resource declares (SCIM core plus any extension, e.g. the enterprise extension).
+- `ID` (`string`) — the Zscaler-generated user ID.
+- `UserName` (`string`).
+- `DisplayName` (`string`).
+- `EnterpriseExtension` (`*EnterpriseUser`) — the `urn:ietf:params:scim:schemas:extension:enterprise:2.0:User` extension object, which carries `Department` (`scim_user_api.go:33-35`).
+- `Meta` (`*Meta`).
+
+The `department` attribute is therefore not a top-level core field: it lives inside the **SCIM Enterprise User extension** object reached via `EnterpriseExtension`. The `Schemas` array is the on-the-wire evidence of whether the extension is present at all — a connector that omits the enterprise extension will not list its URN in `schemas` and will not populate `EnterpriseExtension`, which directly underpins the operational point below (and in section 5) that such a connector never sends `department`.
 
 Source: `vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_user_api.go`; `vendor/zscaler-help/understanding-scim-zia.md`.
 
@@ -112,7 +121,7 @@ Source: `vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_group_api.go`.
 
 When an IdP sends a SCIM group via `POST /Groups` or `PUT /Groups/{id}`, ZIA stores it as a **ZIA group object** with a Zscaler-generated `id`, a `displayName`, and an `externalId`. The Go SDK `SCIMGroup` struct (`vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_group_api.go`) confirms the fields: `id` (Zscaler UUID), `displayName`, `externalId`, and `members` (list of `{value, $ref}` pairs where `value` is the Zscaler user ID).
 
-When an IdP sends `department` on a user record via the SCIM Enterprise User extension, that string value maps to the user's ZIA `Department` object. ZIA matches the incoming `department` string against the name of an existing ZIA department object. If no ZIA department object with that name exists, the department association may not resolve correctly — the behavior when the department name has no matching ZIA department record is not documented in available sources (deferred — see clarifications register).
+When an IdP sends `department` on a user record via the SCIM Enterprise User extension, that string value maps to the user's ZIA `Department` object. ZIA matches the incoming `department` string against the name of an existing ZIA department object. If no ZIA department object with that name exists, the department association may not resolve correctly — the behavior when the department name has no matching ZIA department record is not documented in available sources (deferred — see "## Open questions").
 
 ### Key distinction from ZPA
 
@@ -132,7 +141,7 @@ ZIA policy rules reference the *resolved ZIA objects* (users, groups, department
 
 Source: `vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/filteringrules/filteringrules.go`.
 
-Firewall Filtering rules accept `users` (up to 4), `groups` (up to 8), and `departments` (unlimited) as criteria. These reference the ZIA user, group, and department objects respectively. A SCIM-provisioned user's group memberships and department assignment make them matchable by firewall rules without any additional configuration beyond SCIM sync being active.
+Firewall Filtering rules accept `users`, `groups`, and `departments` as criteria — declared in the SDK struct as plain `[]common.IDNameExtensions` with no count limit stated in the struct or its comments (`filteringrules.go:88-94`). These reference the ZIA user, group, and department objects respectively. A SCIM-provisioned user's group memberships and department assignment make them matchable by firewall rules without any additional configuration beyond SCIM sync being active. The per-criterion caps (32 users, 32 groups, 32 departments per rule) are documented and sourced in [`./firewall.md § Firewall Filtering rule criteria`](./firewall.md) — they are not derivable from the Go SDK struct and belong with the firewall reference, not here.
 
 Note: identity-aware firewall rules require the Advanced Firewall license. Basic Firewall rules can only scope by IP/port/location; they cannot reference SCIM-derived user or group identity.
 
@@ -144,9 +153,9 @@ URL Filtering rules support `users`, `groups`, `departments`, `device_groups`, a
 
 ### DLP (Web DLP Rules)
 
-Source: `vendor/zscaler-sdk-go/zscaler/zia/services/dlp/dlp_web_rules/dlp_web_rules.go`.
+Source: `vendor/zscaler-sdk-go/zscaler/zia/services/dlp/dlp_web_rules/dlp_web_rules.go` (criteria fields); `vendor/zscaler-help/configuring-dlp-policy-rules-content-inspection.md:136` (unauthenticated-traffic constraint).
 
-DLP Web Rules support `departments`, `groups`, `users`, `locations`, and `location_groups` as criteria. The same SCIM-provisioned user/group/department objects are referenced. One constraint documented in the DLP reference: a DLP rule that applies to unauthenticated traffic must set `Any` for both groups and departments — SCIM-derived group/department scoping requires authenticated user context.
+DLP Web Rules support `departments`, `groups`, `users`, `locations`, and `location_groups` as criteria. The same SCIM-provisioned user/group/department objects are referenced. One constraint documented in the DLP reference: a DLP rule that applies to unauthenticated traffic must set `Any` for both groups and departments — SCIM-derived group/department scoping requires authenticated user context. The vendor source states this directly: "Any rule that applies to unauthenticated traffic must apply to all groups and departments" (`configuring-dlp-policy-rules-content-inspection.md:136`); the Go SDK struct only declares the criteria fields, not this save-time constraint. See [`./dlp.md`](./dlp.md) for the full DLP treatment.
 
 ### Forwarding Control
 
@@ -158,7 +167,7 @@ Forwarding Control rules support `users`, `groups`, `departments`, `device_group
 
 | Rule type | User | Group | Department | Notes |
 |---|---|---|---|---|
-| Firewall Filtering | Yes (up to 4) | Yes (up to 8) | Yes (unlimited) | Advanced Firewall license required for identity criteria |
+| Firewall Filtering | Yes | Yes | Yes | Advanced Firewall license required for identity criteria; per-criterion caps in [`./firewall.md`](./firewall.md) |
 | URL Filtering | Yes | Yes | Yes | Standard |
 | DLP Web Rules | Yes | Yes | Yes | Unauthenticated-traffic rules must use `Any` for group/dept |
 | Forwarding Control | Yes | Yes | Yes | Standard |
@@ -170,7 +179,7 @@ Forwarding Control rules support `users`, `groups`, `departments`, `device_group
 
 ### Attribute set limits
 
-ZIA's SCIM schema exposes a documented set of attributes (section 2 above). Custom attributes are not supported. There are no documented limits on the character length of individual attribute values (e.g., `displayName` or `department` string length) in the sources reviewed. (Deferred — see clarifications register.)
+ZIA's SCIM schema exposes a documented set of attributes (section 2 above). Custom attributes are not supported. There are no documented limits on the character length of individual attribute values (e.g., `displayName` or `department` string length) in the sources reviewed. (Deferred — see "## Open questions".)
 
 ### Group membership cap
 
@@ -214,7 +223,7 @@ SCIM in ZIA requires SAML as the authentication method. An organization that aut
 
 ### IdP-specific notes
 
-The vendor doc calls out no ZIA-specific IdP quirks beyond the general Okta ZPA gotcha documented in [`../shared/scim-provisioning.md § Okta-specific gotcha (ZPA)`](../shared/scim-provisioning.md). Per-IdP attribute mapping nuances (how Entra ID vs Okta vs PingFederate populate the Enterprise User extension for `department`) are covered in per-IdP configuration guides not captured in available vendor sources. (Deferred — see clarifications register.)
+The vendor doc calls out no ZIA-specific IdP quirks beyond the general Okta ZPA gotcha documented in [`../shared/scim-provisioning.md § Okta-specific gotcha (ZPA)`](../shared/scim-provisioning.md). Per-IdP attribute mapping nuances (how Entra ID vs Okta vs PingFederate populate the Enterprise User extension for `department`) are covered in per-IdP configuration guides not captured in available vendor sources. (Deferred — see "## Open questions".)
 
 ---
 
@@ -244,9 +253,11 @@ SCIM sync in ZIA is IdP-driven. The frequency of group membership updates depend
 
 ### Idempotency
 
-Source: `vendor/zscaler-help/understanding-scim-zia.md`; `vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_user_api.go`; `vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_group_api.go`.
+Source: `vendor/zscaler-help/understanding-scim-zia.md`.
 
-ZIA SCIM endpoints support both `PUT` (full replace) and `PATCH` (partial update) for users and groups. The `/Bulk` endpoint (`POST /Bulk`) is available for high-volume provisioning operations, reducing the number of individual requests needed during large group membership changes.
+ZIA SCIM endpoints support both `PUT` (full replace) and `PATCH` (partial update) for users and groups — Update User is `PUT /Users/{UserID}` or `PATCH /Users/{UserID}` (`vendor/zscaler-help/understanding-scim-zia.md:48-50`) and Update Group is `PUT /Groups/{GroupID}` or `PATCH /Groups/{GroupID}` (`vendor/zscaler-help/understanding-scim-zia.md:58-60`). The `/Bulk` endpoint (Bulk Modify Resources: `POST`) is available for high-volume provisioning operations, reducing the number of individual requests needed during large group membership changes (`vendor/zscaler-help/understanding-scim-zia.md:62-63`).
+
+**SDK coverage caveat.** Neither vendor SDK wraps `PATCH` or `/Bulk`. The Go SDK SCIM API implements only `GetUser`/`GetUserByName`/`CreateUser` (POST)/`UpdateUser` (PUT)/`DeleteUser`/`GetAllUsers` and the matching group functions — there is no `Patch*` or `Bulk*` method anywhere in `vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/` (`scim_user_api.go:44-113`, `scim_group_api.go:39-107`). The Python SDK exposes no `scim_api` at all (see section 11). So programmatic `PATCH` or `/Bulk` against ZIA requires hand-rolled direct HTTP against the SCIM endpoints; the SDKs cover only `GET`/`POST`/`PUT`/`DELETE` on individual `/Users` and `/Groups` resources.
 
 ### Rate limiting
 
@@ -257,6 +268,30 @@ ZIA API rate limits apply to SCIM endpoints, but SCIM-specific rate limit guidan
 Source: `vendor/zscaler-help/understanding-scim-zia.md`; `vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_user_api.go`; `vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/scim_group_api.go`.
 
 The `GET /Users` and `GET /Groups` endpoints return up to 1,000 entries per response. Use `startIndex` to paginate. The Go SDK's `GetAllUsers` and `GetAllGroups` functions use a page size of 100 via the `/.search` POST endpoint, consistent with the comment in the source: "100 // max per Zscaler SCIM API".
+
+### SCIM query and discovery surface
+
+Source: `vendor/zscaler-help/understanding-scim-zia.md`.
+
+Beyond the user/group CRUD covered above, ZIA's SCIM server implements the standard SCIM 2.0 filter and discovery endpoints. These are what a connector relies on for targeted reconciliation and incremental (delta) sync — none of them are wrapped by the Go SDK's high-level CRUD methods, so a connector or a custom client uses them directly.
+
+**Server-side filtering on `GET /Users`** (`vendor/zscaler-help/understanding-scim-zia.md:44-47`):
+
+- `GET /Users?filter=userName eq <value>` — equality match on `userName`; the primary lookup for reconciling a known account.
+- `GET /Users?filter=externalID eq <value>` — equality match on the IdP-side external ID, the stable cross-system join key.
+- `GET /Users?filter=id eq <value>` — equality match on the Zscaler-generated ID.
+- `GET /Users?filter=meta.lastModified gt <value>` — returns users modified after a timestamp. This is the support for **incremental / delta sync**: a connector can pull only what changed since its last successful run instead of re-reading the full directory.
+
+`GET /Groups` supports a combined display-name and membership filter: `GET /Groups?filter=displayName eq <value> and members.value eq <value>` (`vendor/zscaler-help/understanding-scim-zia.md:57`).
+
+**Discovery endpoints** (`vendor/zscaler-help/understanding-scim-zia.md:64-73`):
+
+- `GET /ServiceProviderConfig` — the SCIM service provider's capability document (`:67-68`); a connector reads this to learn what the server supports (e.g. PATCH, bulk, filtering).
+- `GET /Schemas` and `GET /Schemas/{SchemaID}` — the resource schemas the server exposes (`:65-66`).
+- `GET /ResourceTypes` and `GET /ResourceTypes/{ResourceTypeID}` — the resource types served (`:70-71`).
+- `[prefix]/.search` (`POST`) — server-side search (`:72-73`). This is the endpoint the Go SDK `GetAllUsers`/`GetAllGroups` functions actually call (`/Users/.search`, `/Groups/.search` — `scim_user_api.go:108`, `scim_group_api.go:103`).
+
+Operationally: if a connector cannot do incremental reconciliation against ZIA, the lever is `meta.lastModified gt` (delta) plus the `externalId`/`userName`/`id` equality filters (targeted lookups); if it cannot negotiate capabilities, check what `GET /ServiceProviderConfig` reports.
 
 ---
 
@@ -329,7 +364,7 @@ As noted in section 2 and 5, the `department` attribute is carried in `urn:ietf:
 
 ### `active=false` does not immediately kill sessions
 
-ZIA's `active=false` sets a disabled flag on the user record. Whether this immediately terminates any active ZIA inspection session for that user is not documented in available vendor sources. Operators who need immediate access revocation (e.g., for terminated employees) should not rely on SCIM `active=false` alone as a session kill mechanism. (Deferred — see clarifications register.)
+ZIA's `active=false` sets a disabled flag on the user record. Whether this immediately terminates any active ZIA inspection session for that user is not documented in available vendor sources. Operators who need immediate access revocation (e.g., for terminated employees) should not rely on SCIM `active=false` alone as a session kill mechanism. (Deferred — see "## Open questions".)
 
 ### SCIM deprovisioning does not revoke tokens
 
@@ -342,6 +377,16 @@ Source: `vendor/zscaler-sdk-python/zscaler/zia/zia_service.py`; `vendor/zscaler-
 The Python SDK has no `scim_api` module exposed through `ZIAService`. Programmatic SCIM operations against ZIA (user or group CRUD via the SCIM endpoints) require either the Go SDK SCIM API service or direct HTTP. This is a notable parity gap since the Python SDK covers most other ZIA services.
 
 ---
+
+## Open questions
+
+These came up while documenting ZIA SCIM and could not be backed from any vendor file in this pass. All five are tracked together as `zia-64` in [`../_meta/clarifications.md`](../_meta/clarifications.md#zia-64-scim-department-matching-attribute-length-activefalse-session-kill-and-caps):
+
+- **Department name that has no matching ZIA department object** — the `department` string is matched by name against an existing ZIA department object (section 3). Whether ZIA matches-or-fails (silent no-association) or matches-or-creates a new department when no match exists is not stated in any mined source. (Referenced inline in section 3 and the section 11 "Department name matching" gotcha.)
+- **Attribute value length limits** — no mined source states a maximum character length for individual SCIM attribute values such as `displayName` or `department` (section 5).
+- **Per-IdP Enterprise User extension mapping nuances** — how Entra ID vs Okta vs PingFederate populate the enterprise extension for `department` lives in per-IdP configuration guides not captured in available vendor sources (section 6).
+- **`active=false` and live session termination** — whether disabling a user via `active=false` immediately terminates that user's active ZIA inspection session, or only blocks future authentication, is not documented (sections 7 and 11). For immediate revocation, do not rely on SCIM `active=false` alone.
+- **SCIM-specific rate limits and tenant caps** — no published per-tenant max-users / max-groups cap or SCIM-endpoint-specific rate-limit guidance was found (section 10); treat as deferred until confirmed against live API responses or current vendor docs.
 
 ## 12. Cross-links
 

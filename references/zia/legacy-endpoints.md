@@ -3,9 +3,9 @@ product: zia
 topic: "legacy-endpoints"
 title: "ZIA legacy API endpoint reference"
 content-type: reference
-last-verified: "2026-04-28"
+last-verified: "2026-06-15"
 verified-against:
-  vendor/zscaler-sdk-go: b14f8696c5008f8ea6ea6025b0c691835d9373b4
+  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
 confidence: high
 source-tier: code
 sources:
@@ -181,6 +181,7 @@ Complete endpoint surface for the ZIA legacy API. Extracted directly from the Go
 | `GET /zia/api/v1/subclouds` | List subclouds |
 | `GET /zia/api/v1/vips` | Virtual IP addresses |
 | `GET /zia/api/v1/vips/recommendedList` | Recommended VIPs |
+| `GET /zia/api/v1/vips/groupByDatacenter` | GRE VIPs grouped by data center (supports `routableIP`, `withinCountryOnly`, `includePrivateServiceEdge`, `includeCurrentVips`, `sourceIp`, `latitude`, `longitude`, `subcloud` query params) |
 
 ## Departments
 
@@ -255,6 +256,21 @@ Complete endpoint surface for the ZIA legacy API. Extracted directly from the Go
 | `GET /zia/api/v1/timeWindows` | Time windows |
 | `GET /zia/api/v1/timeIntervals` | Time intervals |
 
+## IPS Control / Signatures
+
+Custom IPS signature rules (Suricata/Snort rule text). Distinct from the IPS Control *policy* rules (`firewallIpsRules`, listed under DNS / Firewall) — these manage the underlying custom signatures that the policy rules reference via threat category.
+
+| Endpoint | Notes |
+|---|---|
+| `GET /zia/api/v1/ipsSignatureRules` | List custom IPS signature rules |
+| `POST /zia/api/v1/ipsSignatureRules` | Create custom IPS signature rule |
+| `GET /zia/api/v1/ipsSignatureRules/{id}` | Get custom IPS signature rule |
+| `PUT /zia/api/v1/ipsSignatureRules/{id}` | Update custom IPS signature rule |
+| `DELETE /zia/api/v1/ipsSignatureRules/{id}` | Delete custom IPS signature rule |
+| `GET /zia/api/v1/ipsSignatureRules/export` | Export custom IPS signature rules as CSV. Response body is raw CSV (`application/octet-stream` + `Content-Disposition: attachment`); the request itself must not advertise `Content-Type: text/csv` or the gateway returns HTTP 415 |
+| `POST /zia/api/v1/ipsSignatureRules/validateRuleText` | Validate rule text. Body wraps the text as `{"ruleText": "..."}` (a raw string is rejected). Well-formed rule returns HTTP 200; an invalid rule returns HTTP 400 with `INVALID_INPUT_ARGUMENT` and a diagnostic message |
+| `POST /zia/api/v1/ipsSignatureRules/import` | Bulk import rules from CSV (multipart upload), paired with `GET /ipsSignatureRules/import` to poll import status. **Status: defined in the SDK but disabled** — the SDK marks the import / import-status path as broken upstream and ships the functions commented out, so it is not currently usable |
+
 ## Email
 
 | Endpoint | Notes |
@@ -273,7 +289,8 @@ Complete endpoint surface for the ZIA legacy API. Extracted directly from the Go
 | Endpoint | Notes |
 |---|---|
 | `GET /zia/api/v1/exportPolicies` | Export all policies |
-| `GET /zia/api/v1/shadowIT/applications/export` | Shadow IT application export |
+| `POST /zia/api/v1/shadowIT/applications/export` | Shadow IT application export (CSV) |
+| `POST /zia/api/v1/shadowIT/applications/{entity}/exportCsv` | Shadow IT export broken down by entity. `{entity}` is the literal string `USER` or `LOCATION` (not a numeric app ID) |
 
 ## Extranet
 
@@ -468,6 +485,16 @@ Complete endpoint surface for the ZIA legacy API. Extracted directly from the Go
 | `PUT /zia/api/v1/vpnCredentials/{id}` | Update |
 | `DELETE /zia/api/v1/vpnCredentials/{id}` | Delete |
 
+### Region lookup
+
+Read-only geo/IP-to-region resolvers (city, state, country, coordinates).
+
+| Endpoint | Notes |
+|---|---|
+| `GET /zia/api/v1/region/byIPAddress/{ipAddress}` | Resolve an IP address to its region (city/state/country, lat/long, postal code) |
+| `GET /zia/api/v1/region/search?prefix=...` | Search regions by name prefix |
+| `GET /zia/api/v1/region/byGeoCoordinates?latitude=...&longitude=...` | Resolve latitude/longitude to a region |
+
 ## URL Categories
 
 | Endpoint | Notes |
@@ -530,6 +557,12 @@ Complete endpoint surface for the ZIA legacy API. Extracted directly from the Go
 | `POST /zia/api/v1/alertSubscriptions` | Create subscription |
 | `PUT /zia/api/v1/alertSubscriptions/{id}` | Update |
 | `DELETE /zia/api/v1/alertSubscriptions/{id}` | Delete |
+
+---
+
+## Open questions
+
+- **`POST /zia/api/v1/ipsSignatureRules/import` current server-side status.** The Go SDK defines the import + import-status (`GET /ipsSignatureRules/import`) path but ships both functions commented out, annotated as broken upstream (`vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go:296-359`). Whether the endpoint is now functional on current tenants — and the exact multipart field name the gateway expects (the SDK comment guesses `file`, with `csvFile`/`import`/`uploadFile` as untested alternates) — is not confirmable from source alone; needs a live-tenant capture. (Tracked as `zia-52` in [`../_meta/clarifications.md`](../_meta/clarifications.md#zia-52-ipssignaturerules-import-wire-behavior-and-multipart-field-name).)
 
 ---
 

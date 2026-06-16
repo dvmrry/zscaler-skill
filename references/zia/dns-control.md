@@ -3,7 +3,7 @@ product: zia
 topic: "dns-control"
 title: "ZIA DNS Control policy — predefined rules, DoH, tunnel detection"
 content-type: reasoning
-last-verified: "2026-06-14"
+last-verified: "2026-06-15"
 confidence: high
 source-tier: doc
 sources:
@@ -274,6 +274,6 @@ These came up while scraping the SDK/API surface and could not be cleanly resolv
 
 - **Does `redirect_ip` apply to all `REDIR_*` actions or only `REDIR_RES`?** Source disagrees: the commented Go validator binds `redirect_ip` **only to `REDIR_RES`** (`vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:286-290`), while the MCP field description claims it applies to all `REDIR_*` (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_firewall_dns_rules.py:276-279`). The all-`REDIR_*` framing is in the MCP field doc only, not the validator. Unverified. (Tracked as `zia-48` in [`references/_meta/clarifications.md`](../_meta/clarifications.md#zia-48-dns-control-redirect_ip-action-binding).)
 
-- **Does plain `REDIR_REQ` require a `dns_gateway`?** The Go validator binds `dns_gateway` to `REDIR_REQ_KEEP_SENDER`, `REDIR_REQ_DOH`, `REDIR_REQ_TCP`, `REDIR_REQ_UDP` but **not** to `REDIR_REQ` (`vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:267-280`). Whether `REDIR_REQ` needs one is not stated in source.
+- **Does plain `REDIR_REQ` require a `dns_gateway`?** The Go validator binds `dns_gateway` to `REDIR_REQ_KEEP_SENDER`, `REDIR_REQ_DOH`, `REDIR_REQ_TCP`, `REDIR_REQ_UDP` but **not** to `REDIR_REQ` (`vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:267-280`). Whether `REDIR_REQ` needs one is not stated in source. (Tracked as `zia-59` in [`../_meta/clarifications.md`](../_meta/clarifications.md#zia-59-plain-redir_req-dns_gateway-requirement-and-edns_ecs_objectzpa-pairing).)
 
-- **Is `edns_ecs_object` tied to the ZPA action?** No source binds `edns_ecs_object` to `REDIR_ZPA` (or any action); it is a general resolution field (`vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:109-110`; `vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_firewall_dns_rules.py:300-303`). The `zpa_ip_group` + `edns_ecs_object` pairing for `REDIR_ZPA` is not verifiable from vendor source.
+- **Is `edns_ecs_object` tied to the ZPA action?** No source binds `edns_ecs_object` to `REDIR_ZPA` (or any action); it is a general resolution field (`vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:109-110`; `vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_firewall_dns_rules.py:300-303`). The `zpa_ip_group` + `edns_ecs_object` pairing for `REDIR_ZPA` is not verifiable from vendor source. (Tracked as `zia-59` in [`../_meta/clarifications.md`](../_meta/clarifications.md#zia-59-plain-redir_req-dns_gateway-requirement-and-edns_ecs_objectzpa-pairing).)
