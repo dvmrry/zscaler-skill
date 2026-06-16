@@ -33,7 +33,7 @@ Questions that land here: "how do I create API client credentials?", "why is ste
 | Step-Up Authentication — Authentication Levels (hierarchical tree, 32 max, depth 4), ZIA/ZPA integration via access policies, OIDC-only constraint, validity inversion gotcha | [`./step-up-authentication.md`](./step-up-authentication.md) | draft |
 | **Admin RBAC** — 4 system roles (Super Admin / View Only Admin / User Admin / CXO Insight User), 25+ modules with 4 permission levels, federation: identity in ZIdentity, role assignment in Zscaler Admin Console | [`./admin-rbac.md`](./admin-rbac.md) | draft |
 | **Users** — full CRUD users API, 17 fields, 8 filter params, IdP-sourced (SCIM) vs ZIdentity-internal users distinguished by `source` field | [`./users.md`](./users.md) | draft |
-| **Groups** — full CRUD on groups, dual `is_dynamic_group`/`dynamic_group` flags, group-as-policy-principal cross-product semantics, six membership-mutation operations | [`./groups.md`](./groups.md) | draft |
+| **Groups** — full CRUD on groups, dual `is_dynamic_group`/`dynamic_group` flags, group-as-policy-principal cross-product semantics, four membership-mutation operations (+ member-list read) | [`./groups.md`](./groups.md) | draft |
 | **Resource servers** — read-only OAuth resource registry, service-grouped scopes (no scope mutation API), OneAPI client linkage via `clientResources` field | [`./resource-servers.md`](./resource-servers.md) | draft |
 | **User entitlements** — read-only admin & service entitlement query API, observed role+scope values from test fixtures, Python-wraps-vs-Go-slice return divergence | [`./user-entitlements.md`](./user-entitlements.md) | draft |
 | API surface — `client.zid.*` methods, Python vs Go SDK parity, wire format | [`./api.md`](./api.md) | draft |

@@ -18,7 +18,7 @@ author-status: draft
 
 # ZIdentity groups
 
-ZIdentity groups provide full lifecycle management and membership control for both statically and dynamically defined collections of users. Groups are first-class policy principals: ZIA and ZPA policy rules reference groups by ID. The API exposes full CRUD plus six distinct membership-mutation operations. Both SDKs cover the same surface symmetrically.
+ZIdentity groups provide full lifecycle management and membership control for both statically and dynamically defined collections of users. Groups are first-class policy principals: ZIA and ZPA policy rules reference groups by ID. The API exposes full CRUD plus four membership-mutation operations (single/bulk add, bulk replace, single remove) and a member-list read. Both SDKs cover the same surface symmetrically.
 
 Base endpoint:
 - **Python SDK**: `/ziam/admin/api/v1` (`vendor/zscaler-sdk-python/zscaler/zid/groups.py:31`)
