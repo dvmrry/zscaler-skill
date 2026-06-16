@@ -3,7 +3,7 @@ product: zpa
 topic: "posture-profiles"
 title: "ZPA Posture Profiles — policy-side consumer of ZCC posture signals"
 content-type: reference
-last-verified: "2026-04-28"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: mixed
 sources:
@@ -141,7 +141,9 @@ Fields confirmed from both SDK implementations. All fields are **read-only** —
 | `modified_time` | `modifiedTime` | `ModifiedTime` | string | Read-only timestamp |
 | `modified_by` | `modifiedBy` | `ModifiedBy` | string | Read-only audit field |
 
-**Python SDK serialization bug:** `models/posture_profiles.py:104` serializes `rootCert` with a trailing tab character (`"rootCert\t"`). Since profiles are read-only, calling `request_format()` is low-risk in practice, but the output will have a malformed key if used in a debugging context.
+**Python SDK serialization bug:** `models/posture_profiles.py:105` serializes `rootCert` with a trailing tab character (`"rootCert\t": self.root_cert,`). Since profiles are read-only, calling `request_format()` is low-risk in practice, but the output will have a malformed key if used in a debugging context.
+
+**Python bool field defaults:** `apply_to_machine_tunnel_enabled`, `crl_check_enabled`, and `non_exportable_private_key_enabled` default to `False` (not `None`) when absent from the response payload (`models/posture_profiles.py:46`, `:48`, `:50`; same defaults in the no-config branch at `:72`–`:74`). This differs from most ZPA models, where unset optional fields default to `None`. A consumer cannot distinguish "field absent" from "field present and false" on these three.
 
 Source: `vendor/zscaler-sdk-python/zscaler/zpa/models/posture_profiles.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/postureprofile/zpa_posture_profile.go`.
 
@@ -234,9 +236,9 @@ Source: `vendor/zscaler-help/about-device-posture-profiles.md`; `vendor/zscaler-
 | Method | Signature |
 |---|---|
 | `list_posture_profiles` | `(query_params=None) -> APIResult[List[PostureProfile]]` |
-| `get_posture_profile` | `(profile_id: str, query_params=None) -> APIResult[PostureProfile]` |
+| `get_profile` | `(profile_id: str) -> APIResult[PostureProfile]` |
 
-No write methods exist — profiles are provisioned by Zscaler.
+The get method is named `get_profile` (not `get_posture_profile`) and takes only `profile_id` — there is no `query_params` argument on it (`posture_profiles.py:109`). No write methods exist — profiles are provisioned by Zscaler.
 
 ### Terraform
 

@@ -3,7 +3,7 @@ product: zpa
 topic: "zpa-private-service-edges"
 title: "ZPA Private Service Edges — on-prem brokering for private app access"
 content-type: reference
-last-verified: "2026-05-05"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: doc
 verified-against:
@@ -23,6 +23,9 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zpa/service_edge_group.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/private_cloud_group.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/private_cloud_controller.py"
+  - "vendor/zscaler-sdk-python/zscaler/zpa/models/service_edge_schedule.py"
+  - "vendor/zscaler-sdk-python/zscaler/zpa/service_edge_schedule.py"
+  - "vendor/zscaler-sdk-python/zscaler/zpa/zpa_service.py"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/serviceedgegroup/zpa_service_edge_group.go"
   - "vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf"
   - "vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-asg-aws/variables.tf"
@@ -187,18 +190,18 @@ Three Terraform resources are relevant:
 
 | Argument | Purpose |
 |---|---|
-| `enabled` | Enable/disable the group. Default: `true`. (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:142`) |
-| `is_public` | Allow remote users outside trusted networks to reach this PSE group. Requires the PSE to be reachable via a public IP. Default: `false`. (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:144`) |
-| `trusted_networks` | Trusted Network objects whose users are preferentially routed to this PSE group. |
-| `grace_distance_enabled` | Allow this PSE group to override a closer Public SE when the PSE is within `grace_distance_value` of the user. (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:146`) |
-| `grace_distance_value` | Distance threshold (miles or km, per `grace_distance_value_unit`) within which the PSE overrides a Public SE. (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:147`) |
-| `use_in_dr_mode` | Designate this group for disaster recovery only — held in reserve. (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:164`) |
-| `upgrade_day` / `upgrade_time_in_secs` | Maintenance window for software updates. Default: `SUNDAY` / `66600` (18:30 UTC). (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:162-163`) |
-| `version_profile_name` / `version_profile_id` | Software release track: `Default`, `Previous Default`, `New Release`, or EL8 variants. (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:152-160`) |
-| `enrollment_cert_id` + `user_codes` | OAuth2 enrollment path — provide the enrollment cert and the user codes displayed on the PSE VMs after boot to complete enrollment via Terraform. |
-| `microtenant_id` | Scope to a microtenant (requires microtenant license). (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:165`) |
+| `enabled` | Enable/disable the group. Default: `true`. (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:201`) |
+| `is_public` | Allow remote users outside trusted networks to reach this PSE group. Requires the PSE to be reachable via a public IP. Default: `false`. (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:203`) |
+| `trusted_networks` | Trusted Network objects whose users are preferentially routed to this PSE group. (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:233-234`) |
+| `grace_distance_enabled` | Allow this PSE group to override a closer Public SE when the PSE is within `grace_distance_value` of the user. (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:205`) |
+| `grace_distance_value` | Distance threshold (miles or km, per `grace_distance_value_unit`) within which the PSE overrides a Public SE. (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:206-207`) |
+| `use_in_dr_mode` | Designate this group for disaster recovery only — held in reserve. (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:223`) |
+| `upgrade_day` / `upgrade_time_in_secs` | Maintenance window for software updates. Default: `SUNDAY` / `66600` (18:30 UTC). (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:221-222`) |
+| `version_profile_name` / `version_profile_id` | Software release track: `Default`, `Previous Default`, `New Release`, or EL8 variants. Set `override_version_profile = true` (`:209`) to use a non-default track. (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:211-219`) |
+| `enrollment_cert_id` + `user_codes` | OAuth2 enrollment path — provide the enrollment cert and the user codes displayed on the PSE VMs after boot to complete enrollment via Terraform. (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:230-231`) |
+| `microtenant_id` | Scope to a microtenant (requires microtenant license). (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:224`) |
 
-> **Module coverage gap — `grace_distance_*` and `use_in_dr_mode`**: These are valid provider arguments (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:146-148, :164`) but are **absent from both the AWS and Azure reference module wrappers** (`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf:1-83`; `vendor/terraform-azurerm-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf:1-83`). Operators using those modules who need grace distance or DR mode must extend the module or switch to the raw `zpa_service_edge_group` resource directly.
+> **Module coverage gap — `grace_distance_*` and `use_in_dr_mode`**: These are valid provider arguments (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:205-207, :223`) but are **absent from both the AWS and Azure reference module wrappers** (`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf:1-82`; `vendor/terraform-azurerm-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf:1-82`). Operators using those modules who need grace distance or DR mode must extend the module or switch to the raw `zpa_service_edge_group` resource directly.
 
 The `service_edges` block within `zpa_service_edge_group` is deprecated and scheduled for removal. PSE membership is managed externally (via provisioning key enrollment), not by Terraform. Omit this block in new configurations.
 
@@ -280,7 +283,7 @@ The vendor repos ship ready-to-run example configurations. Summaries below; see 
 
 ### Module defaults and instance types
 
-The `terraform-zpa-service-edge-group` module wrapper (identical in both the AWS and Azure repos) applies these defaults (`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf:12-83`; `vendor/terraform-azurerm-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf:12-83`):
+The `terraform-zpa-service-edge-group` module wrapper (identical in both the AWS and Azure repos) applies these defaults (`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf:12-82`; `vendor/terraform-azurerm-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf:12-82`):
 
 | Variable | Default | Provider field |
 |---|---|---|
@@ -357,12 +360,26 @@ Individual PSE instances are enrolled via provisioning key, not created via the 
 
 | Method | HTTP | Endpoint |
 |---|---|---|
-| `list_cloud_groups(query_params)` | GET | `/privateCloudControllerGroup` |
-| `get_cloud_group(group_id)` | GET | `/privateCloudControllerGroup/{id}` |
-| `add_cloud_group(**kwargs)` | POST | `/privateCloudControllerGroup` |
-| `update_cloud_group(group_id, **kwargs)` | PUT | `/privateCloudControllerGroup/{id}` |
-| `delete_cloud_group(group_id)` | DELETE | `/privateCloudControllerGroup/{id}` |
-| `list_private_cloud_group_summary()` | GET | `/privateCloudControllerGroup/summary` |
+| `list_cloud_groups(query_params)` | GET | `/privateCloudControllerGroup` (`private_cloud_group.py:38`, `:79`) |
+| `get_cloud_group(group_id)` | GET | `/privateCloudControllerGroup/{id}` (`private_cloud_group.py:103`, `:125`) |
+| `add_cloud_group(**kwargs)` | POST | `/privateCloudControllerGroup` (`private_cloud_group.py:147`, `:217`) |
+| `update_cloud_group(group_id, **kwargs)` | PUT | `/privateCloudControllerGroup/{id}` (`private_cloud_group.py:239`, `:311`) |
+| `delete_cloud_group(group_id)` | DELETE | `/privateCloudControllerGroup/{id}` (`private_cloud_group.py:338`, `:361`) |
+| `list_private_cloud_group_summary()` | GET | `/privateCloudControllerGroup/summary` (`private_cloud_group.py:376`, `:414`) |
+
+**Private Cloud Controller** (`client.zpa.private_cloud_controller`):
+
+This is the controller-level (instance) resource, the same relationship to Private Cloud Group that the individual `service_edges` resource has to `service_edge_group`: the group is the administrative container, the controller is a member instance. It targets the singular `/privateCloudController` endpoint (vs the group's `/privateCloudControllerGroup`).
+
+| Method | HTTP | Endpoint |
+|---|---|---|
+| `list_cloud_controllers(query_params)` | GET | `/privateCloudController` (`private_cloud_controller.py:37`, `:83`) |
+| `get_cloud_controller(controller_id, query_params)` | GET | `/privateCloudController/{id}` (`private_cloud_controller.py:107`, `:127`) |
+| `update_cloud_controller(controller_id, **kwargs)` | PUT | `/privateCloudController/{id}` (`private_cloud_controller.py:149`, `:181`) |
+| `delete_cloud_controller(controller_id)` | DELETE | `/privateCloudController/{id}` (`private_cloud_controller.py:208`, `:230`) |
+| `restart_private_controller(controller_id)` | PUT | `/privateCloudController/{id}/restart` (`private_cloud_controller.py:245`, `:267`) |
+
+`update_cloud_controller` accepts `name`, `description`, and `enabled` kwargs (`private_cloud_controller.py:156-159`). `restart_private_controller` triggers an instance restart with no body — the controller-level counterpart to a maintenance action, with no equivalent on the group resource. The accessor is registered at `vendor/zscaler-sdk-python/zscaler/zpa/zpa_service.py:346-348`.
 
 ### Go SDK
 
@@ -383,7 +400,30 @@ ZPA Private Service Edges and their groups are managed under **Infrastructure > 
 - **Private Service Edges** — lists all enrolled and deployed PSE instances. Instances that have been added (provisioning key generated) but not yet deployed (VM not enrolled) do not appear here. From this view you can rename, enable/disable, or delete a PSE record. PSE Groups that are Zscaler-managed are read-only in this view.
 - **Private Service Edge Groups** — lists all PSE Groups. Supports both table and map views. From this view you manage group configuration: location, trusted networks, upgrade schedule, version profile, DR mode, and proximity override settings. Each group shows its member PSEs, provisioning keys, and the next scheduled software update time.
 
-The Auto Delete feature (configurable under Private Service Edges page settings) automatically removes PSE records that have been disconnected or disabled for a configured number of days. This helps keep the Admin Console clean in environments where PSE VMs are frequently replaced.
+The Auto Delete feature (configurable under Private Service Edges page settings) automatically removes PSE records that have been disconnected or disabled for a configured number of days. This helps keep the Admin Console clean in environments where PSE VMs are frequently replaced. Although the help docs present Auto Delete as an Admin Console setting, it has a full API/SDK surface — see [§Auto Delete schedule (API)](#auto-delete-schedule-api) below.
+
+## Auto Delete schedule (API)
+
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/service_edge_schedule.py`.
+
+The Admin Console Auto Delete setting is backed programmatically by `ServiceEdgeScheduleAPI` (`client.zpa.service_edge_schedule`, registered in `vendor/zscaler-sdk-python/zscaler/zpa/zpa_service.py:296-298`). It manages the org-wide schedule that purges disconnected/disabled Service Edge records on a configured cadence.
+
+| Method | HTTP | Endpoint |
+|---|---|---|
+| `get_service_edge_schedule(customer_id=None)` | GET | `/serviceEdgeSchedule` (`service_edge_schedule.py:41`, `:54-57`) |
+| `add_service_edge_schedule(schedule)` | POST | `/serviceEdgeSchedule` (`service_edge_schedule.py:85`, `:100-103`) |
+| `update_service_edge_schedule(scheduler_id, schedule)` | PUT | `/serviceEdgeSchedule/{scheduler_id}` (`service_edge_schedule.py:149`, `:166-169`) |
+
+The request payload uses these fields (`service_edge_schedule.py:119-127`); the SDK converts snake_case kwargs to the camelCase wire fields shown:
+
+| Wire field (camelCase) | SDK kwarg | Meaning |
+|---|---|---|
+| `frequency` | `frequency` | Cadence at which disconnected Service Edges are deleted (`service_edge_schedule.py:91`, `:121`). |
+| `frequencyInterval` | `frequency_interval` | Interval value for that frequency (`service_edge_schedule.py:122`). |
+| `deleteDisabled` | `delete_disabled` | Whether disabled (not just disconnected) Service Edges are also eligible for deletion (`service_edge_schedule.py:124-125`). |
+| `enabled` | `enabled` | Whether the auto-delete schedule is active (`service_edge_schedule.py:126-127`). |
+
+The response model (`vendor/zscaler-sdk-python/zscaler/zpa/models/service_edge_schedule.py:32-37`) exposes `id`, `frequency`, `frequency_interval`, `enabled`, `delete_disabled`, and `customer_id`. `customer_id` is sourced from the client config or the `ZPA_CUSTOMER_ID` environment variable; `microtenant_id` (if set) is passed as the `microtenantId` query parameter (`service_edge_schedule.py:62-64`, `:130-131`). This is the same singleton-schedule pattern the App Connector side uses for its own auto-delete schedule.
 
 ## Software version profiles
 
@@ -478,14 +518,16 @@ The `ReadOnly` and `ZscalerManaged` fields on the `ServiceEdgeGroup` struct (Go 
 
 ## Open questions
 
-- **PSE VM sizing specifics** — the Deployment Prerequisites document referenced in help sources was not available in the captured vendor corpus. vCPU, vRAM, and disk requirements per PSE VM and per-instance session limits are not confirmed. Validate against the current Deployment Prerequisites doc before provisioning.
-- **Provisioning key Terraform resource** — there is no `zpa_service_edge_provisioning_key` resource in the captured Terraform provider docs. The App Connector equivalent (`zpa_provisioning_key`) exists. Confirm whether PSE provisioning keys can be created via the API/Terraform or are Admin Console-only.
-- **Supported hypervisor list** — VMware (ESXi/vSphere) is confirmed. It is not confirmed whether OVA images are provided for Hyper-V, KVM, or cloud-native VM formats (AWS AMI, Azure image) for ZPA PSEs specifically. ZIA VSEs support those platforms, but ZPA PSEs may differ.
-- **PSE hardware appliance** — the ZIA PSE product has dedicated hardware appliances (PSE 3, PSE 5 physical clusters). It is not confirmed whether ZPA PSEs are virtual-only or also available as dedicated hardware. The help sources describe only VM images.
-- **Private Cloud Controller vs PSE Group relationship** — the `zpa_private_cloud_group` resource (`/privateCloudControllerGroup` API endpoint) appears to be a distinct grouping construct from `zpa_service_edge_group` (`/serviceEdgeGroup`). It references a `site_id` field and `privateBrokerGroupIds` in its SDK examples. The exact relationship — whether Private Cloud Groups represent a sovereign/private-cloud ZPA control plane variant or a distinct PSE grouping type — is not fully resolved from the captured sources. Treat `zpa_private_cloud_group` as potentially out-of-scope for standard PSE deployments until confirmed.
-- **Location / GeoIP update behavior** — the help docs note that if the PSE Group location is updated for an existing active connection, the PSE uses the old location until the next new connection. The propagation delay for location changes across the CA topology is not quantified. Treat location changes as requiring a maintenance window.
-- **OAuth2 enrollment path** — the `enrollment_cert_id` + `user_codes` pattern in `zpa_service_edge_group` suggests a newer enrollment flow distinct from the traditional provisioning-key-only path. Whether this requires a specific ZPA license tier or replaces the provisioning key flow (or supplements it) is not resolved from the available sources.
-- **Maximum PSEs per group** — unlike App Connector Groups, no documented maximum PSE count per PSE Group was found in the captured sources. Confirm with Zscaler documentation or support for large-scale deployments.
+- **PSE VM sizing specifics** — the Deployment Prerequisites document referenced in help sources was not available in the captured vendor corpus. vCPU, vRAM, and disk requirements per PSE VM and per-instance session limits are not confirmed. Validate against the current Deployment Prerequisites doc before provisioning. (Tracked as [`zpa-47`](../_meta/clarifications.md#zpa-47-private-service-edge-vm-sizing-and-per-instance-session-limits).)
+- **Provisioning key Terraform resource** — there is no `zpa_service_edge_provisioning_key` resource in the captured Terraform provider docs. The App Connector equivalent (`zpa_provisioning_key`) exists. Confirm whether PSE provisioning keys can be created via the API/Terraform or are Admin Console-only. (Tracked as [`zpa-48`](../_meta/clarifications.md#zpa-48-pse-provisioning-key-apiterraform-support).)
+- **Supported hypervisor list** — VMware (ESXi/vSphere) is confirmed. It is not confirmed whether OVA images are provided for Hyper-V, KVM, or cloud-native VM formats (AWS AMI, Azure image) for ZPA PSEs specifically. ZIA VSEs support those platforms, but ZPA PSEs may differ. (Tracked as [`zpa-49`](../_meta/clarifications.md#zpa-49-supported-hypervisor-cloud-image-formats-for-zpa-pses).)
+- **PSE hardware appliance** — the ZIA PSE product has dedicated hardware appliances (PSE 3, PSE 5 physical clusters). It is not confirmed whether ZPA PSEs are virtual-only or also available as dedicated hardware. The help sources describe only VM images. (Tracked as [`zpa-50`](../_meta/clarifications.md#zpa-50-zpa-pse-dedicated-hardware-appliance-availability).)
+- **Private Cloud Controller vs PSE Group — product positioning** — the SDK surface is now documented above: `/privateCloudControllerGroup` (group container) and `/privateCloudController` (member instance) form the same group/instance pairing as `/serviceEdgeGroup` ÷ `/serviceEdge`, with `site_id` and `privateBrokerGroupIds` linking the group to a ZPA site (`vendor/zscaler-sdk-python/zscaler/zpa/private_cloud_group.py:180`, `:201`). What the SDK source does **not** settle is the product semantics: whether the Private Cloud Controller family is a sovereign/private-cloud ZPA control-plane variant or simply an alternate PSE grouping type, and whether it is in scope for standard PSE deployments using Zscaler's public ZPA CA. Confirm against ZPA Private Cloud product docs before treating it as part of a standard PSE rollout. (Tracked as [`zpa-51`](../_meta/clarifications.md#zpa-51-private-cloud-controller-product-positioning).)
+- **`restart_private_controller` operational semantics** — the SDK exposes `PUT /privateCloudController/{id}/restart` (`vendor/zscaler-sdk-python/zscaler/zpa/private_cloud_controller.py:245`, `:267`), but the source does not state whether the restart is graceful (drains sessions first) or hard, nor whether an equivalent restart action exists for ordinary `serviceEdge` instances (none is present in `service_edges.py` as captured). Confirm restart behavior and session impact before using it on a live controller. (Tracked as [`zpa-52`](../_meta/clarifications.md#zpa-52-restart_private_controller-operational-semantics).)
+- **Auto Delete schedule defaults and accepted `frequency` values** — `ServiceEdgeScheduleAPI` accepts `frequency` / `frequencyInterval` (`vendor/zscaler-sdk-python/zscaler/zpa/service_edge_schedule.py:121-122`), but the SDK does not enumerate the accepted enum values (e.g. days vs weeks) or the default cadence when the schedule is first enabled. Confirm the accepted values and defaults against the ZPA API reference or Admin Console. (Tracked as [`zpa-53`](../_meta/clarifications.md#zpa-53-service-edge-auto-delete-schedule-accepted-frequency-values-and-defaults).)
+- **Location / GeoIP update behavior** — the help docs note that if the PSE Group location is updated for an existing active connection, the PSE uses the old location until the next new connection. The propagation delay for location changes across the CA topology is not quantified. Treat location changes as requiring a maintenance window. (Tracked as [`zpa-54`](../_meta/clarifications.md#zpa-54-pse-location-geoip-update-propagation-delay).)
+- **OAuth2 enrollment path** — the `enrollment_cert_id` + `user_codes` pattern in `zpa_service_edge_group` suggests a newer enrollment flow distinct from the traditional provisioning-key-only path. Whether this requires a specific ZPA license tier or replaces the provisioning key flow (or supplements it) is not resolved from the available sources. (Tracked as [`zpa-55`](../_meta/clarifications.md#zpa-55-pse-oauth2-enrollment-path-licensereplacement-semantics).)
+- **Maximum PSEs per group** — unlike App Connector Groups, no documented maximum PSE count per PSE Group was found in the captured sources. Confirm with Zscaler documentation or support for large-scale deployments. (Tracked as [`zpa-56`](../_meta/clarifications.md#zpa-56-maximum-pses-per-group).)
 
 ## Cross-links
 

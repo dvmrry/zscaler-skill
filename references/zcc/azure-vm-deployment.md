@@ -3,7 +3,7 @@ product: zcc
 topic: "azure-vm-deployment"
 title: "ZCC inside Azure VMs — AVD, Windows 365 Cloud PCs, single-session limits, and machine tunnels"
 content-type: reference
-last-verified: "2026-04-28"
+last-verified: "2026-06-15"
 confidence: high
 source-tier: mixed
 sources:
@@ -164,6 +164,8 @@ Machine Tunnel is separately gated via `ZpaGroupEntitlements.machine_tun_enabled
 - If `machine_tun_enabled_for_all = false`, no machine tunnels can activate regardless of App Profile keys or machine group configuration.
 - If `machine_tun_enabled_for_all = true`, machine tunnels activate for devices with the correct App Profile key and machine group enrollment.
 
+In the Go SDK this toggle is the `ZpaGroupEntitlements.machineTunEnabledForAll` field, typed as an `int` (0/1, not a bool) with JSON tag `machineTunEnabledForAll` (`vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go:44`). This is the same field the ZCC entitlements update path sets — see [SDK and Terraform objects](#sdk-and-terraform-objects) below.
+
 Per-group machine-tunnel entitlement gating is not surfaced in the `ZpaGroupEntitlements` model — only the tenant-wide toggle exists there. Fine-grained policy is enforced at the ZPA Access Policy level (machine group membership as a condition), not at the entitlement layer. See [`./entitlements.md`](./entitlements.md).
 
 ---
@@ -182,9 +184,14 @@ From `vendor/zscaler-sdk-python/zscaler/zcc/entitlements.py` (Tier B — SDK/TF)
 
 - `update_zpa_group_entitlement()` — sets `machineTunEnabledForAll` as part of the ZPA entitlement payload.
 
-### ZPA Admin Portal — machine group management
+### ZPA machine group management — a ZPA product object, exposed in both SDKs
 
-Machine groups are managed in the ZPA portal, not the ZCC portal. There is no ZPA machine group resource in the available ZPA Python SDK (`vendor/zscaler-sdk-python/zscaler/zpa/`) based on available vendor sources. Machine group configuration is console-only or via the ZPA API. (Verify in your tenant before asserting — a ZPA machine groups API endpoint likely exists.)
+Machine groups are a ZPA product object (managed in the ZPA Admin Portal, not the ZCC portal), but they **are** exposed programmatically in both Zscaler SDKs against the ZPA `/zpa/mgmtconfig/v1/admin/customers/{customerId}/machineGroup` endpoint:
+
+- **Python**: `client.zpa.machine_groups` (accessor defined in `vendor/zscaler-sdk-python/zscaler/zpa/zpa_service.py:204`), backed by `MachineGroupsAPI` in `vendor/zscaler-sdk-python/zscaler/zpa/machine_groups.py:26` with `list_machine_groups` (`vendor/zscaler-sdk-python/zscaler/zpa/machine_groups.py:37`), `list_machine_group_summary` (`vendor/zscaler-sdk-python/zscaler/zpa/machine_groups.py:100`), and `get_group` (`vendor/zscaler-sdk-python/zscaler/zpa/machine_groups.py:164`). The `MachineGroup` model lives in `vendor/zscaler-sdk-python/zscaler/zpa/models/machine_groups.py`.
+- **Go**: package `machinegroup` with `Get` / `GetByName` / `GetAll` / `GetMachineGroupSummary` over the same `/machineGroup` endpoint (`vendor/zscaler-sdk-go/zscaler/zpa/services/machinegroup/zpa_machine_group.go:48`, `vendor/zscaler-sdk-go/zscaler/zpa/services/machinegroup/zpa_machine_group.go:58`, `vendor/zscaler-sdk-go/zscaler/zpa/services/machinegroup/zpa_machine_group.go:72`, `vendor/zscaler-sdk-go/zscaler/zpa/services/machinegroup/zpa_machine_group.go:81`; endpoint const at `vendor/zscaler-sdk-go/zscaler/zpa/services/machinegroup/zpa_machine_group.go:15`).
+
+The machine-group objects belong to the ZPA product, not ZCC. The SDK methods here are read-oriented (list / get / summary); create and update of machine groups happen in the ZPA Admin Portal. For the full machine-group object and policy detail, see the ZPA reference: [`../zpa/machine-groups.md`](../zpa/machine-groups.md).
 
 ---
 

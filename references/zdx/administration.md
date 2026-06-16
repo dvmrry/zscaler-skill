@@ -3,7 +3,7 @@ product: zdx
 topic: "zdx-administration"
 title: "ZDX administration — read-only filter-helper API surface"
 content-type: reference
-last-verified: "2026-05-05"
+last-verified: "2026-06-15"
 confidence: high
 source-tier: code
 sources:
@@ -187,8 +187,8 @@ Source: `vendor/zscaler-sdk-python/zscaler/zdx/admin.py`; `vendor/zscaler-sdk-py
 
 Source: `vendor/zscaler-sdk-python/zscaler/zdx/admin.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/administration/administration.go`.
 
-- **Time filter semantics for organizational lists** — it is unclear whether the `since`/`From`+`To` filters select "departments/locations that had active devices in this window" or have some other meaning for reference data that doesn't change over time — *unverified, requires vendor doc or tenant-side check*
-- **`Q` vs `Search` on `GetLocationsFilters`** — both fields appear to filter by name or ID; whether they differ in matching behavior (exact vs partial, case sensitivity) is not documented in the source — *unverified, requires vendor doc or lab test*
+- **Time filter semantics for organizational lists** — it is unclear whether the `since`/`From`+`To` filters select "departments/locations that had active devices in this window" or have some other meaning for reference data that doesn't change over time — *unverified, requires vendor doc or tenant-side check*. See [clarification zdx-09](../_meta/clarifications.md#zdx-09-org-list-time-filter-semantics).
+- **`Q` vs `Search` on `GetLocationsFilters`** — both fields appear to filter by name or ID; whether they differ in matching behavior (exact vs partial, case sensitivity) is not documented in the source — *unverified, requires vendor doc or lab test*. See [clarification zdx-10](../_meta/clarifications.md#zdx-10-q-vs-search-matching-on-getlocationsfilters).
 
 ## Cross-links
 

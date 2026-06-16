@@ -3,9 +3,9 @@ product: zpa
 topic: "legacy-endpoints"
 title: "ZPA legacy API endpoint reference"
 content-type: reference
-last-verified: "2026-04-28"
+last-verified: "2026-06-15"
 verified-against:
-  vendor/zscaler-sdk-go: b14f8696c5008f8ea6ea6025b0c691835d9373b4
+  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
 confidence: high
 source-tier: code
 sources:
@@ -46,6 +46,10 @@ The `customerId` is the ZPA tenant ID. All management endpoints use v1 except LS
 | `GET /v2/ssoLoginOptions` | SSO login options (v2) |
 | `GET /apiKeys` | List API keys |
 | `POST /apiKeys` | Create API key |
+| `GET /apiKeys/{id}` | Get API key (`api_keys/api_keys.go:40-49`) |
+| `PUT /apiKeys/{id}` | Update API key (`api_keys/api_keys.go:75-83`) |
+| `DELETE /apiKeys/{id}` | Delete API key (`api_keys/api_keys.go:85-93`) |
+| `GET /stepupauthlevel` | List step-up authentication levels (`step_up_auth/step_up_auth.go:30-39`) |
 
 ## App Connectors
 
@@ -56,10 +60,11 @@ The `customerId` is the ZPA tenant ID. All management endpoints use v1 except LS
 | `PUT /connector/{id}` | Update app connector |
 | `DELETE /connector/{id}` | Delete app connector |
 | `POST /connector/bulkDelete` | Bulk delete connectors |
-| `GET /assistantSchedule` | Get connector assistant schedule |
-| `PUT /assistantSchedule/{id}` | Update assistant schedule |
-| `GET /connectorSchedule` | Get connector schedule |
-| `PUT /connectorSchedule` | Update connector schedule |
+| `GET /connectorSchedule` | Get connector auto-delete schedule (`appconnectorschedule/appconnectorschedule.go:37-45`) |
+| `POST /connectorSchedule` | Create connector auto-delete schedule (`appconnectorschedule/appconnectorschedule.go:48-56`) |
+| `PUT /connectorSchedule/{schedulerId}` | Update connector auto-delete schedule (`appconnectorschedule/appconnectorschedule.go:58-77`) |
+
+The connector auto-delete schedule controls deletion of disconnected App Connectors based on a configured frequency (`vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorschedule/appconnectorschedule.go:11-77`). The wired service uses `/connectorSchedule` only; the SDK's `appconnectorcontroller` still declares an `/assistantSchedule` constant (`vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorcontroller/zpa_app_connector_controller.go:16`), but no service function references it.
 
 ## App Connector Groups
 
@@ -364,7 +369,8 @@ Association types: `CONNECTOR_GRP`, `SERVICE_EDGE_GRP`.
 | `PUT /serviceEdgeGroup/{id}` | Update |
 | `DELETE /serviceEdgeGroup/{id}` | Delete |
 | `GET /serviceEdgeSchedule` | Get service edge schedule |
-| `PUT /serviceEdgeSchedule/{id}` | Update schedule |
+| `POST /serviceEdgeSchedule` | Create service edge schedule (`serviceedgeschedule/serviceedgeschedule.go:48-56`) |
+| `PUT /serviceEdgeSchedule/{schedulerId}` | Update schedule (`serviceedgeschedule/serviceedgeschedule.go:58-77`) |
 
 ## Tags
 
@@ -403,7 +409,27 @@ Association types: `CONNECTOR_GRP`, `SERVICE_EDGE_GRP`.
 | Endpoint | Notes |
 |---|---|
 | `GET /vpnConnectedUsers` | VPN connected users |
-| `GET /v2/ipRanges` | IP ranges (v2) |
+
+## Source IP Anchoring (C2C IP ranges)
+
+IP ranges for Source IP Anchoring / Cloud-to-Cloud (C2C). Full CRUD surface on the v2 path (`vendor/zscaler-sdk-go/zscaler/zpa/services/c2c_ip_ranges/c2c_ip_ranges.go:13-102`).
+
+| Endpoint | Notes |
+|---|---|
+| `GET /v2/ipRanges` | List C2C IP ranges (`c2c_ip_ranges/c2c_ip_ranges.go:93-102`) |
+| `POST /v2/ipRanges` | Create IP range (`c2c_ip_ranges/c2c_ip_ranges.go:66-73`) |
+| `GET /v2/ipRanges/{id}` | Get IP range (`c2c_ip_ranges/c2c_ip_ranges.go:42-50`) |
+| `PUT /v2/ipRanges/{id}` | Update IP range (`c2c_ip_ranges/c2c_ip_ranges.go:75-82`) |
+| `DELETE /v2/ipRanges/{id}` | Delete IP range (`c2c_ip_ranges/c2c_ip_ranges.go:84-91`) |
+
+## OAuth2 User-Code Provisioning
+
+User-code verification for component provisioning (App Connector / Service Edge enrollment) (`vendor/zscaler-sdk-go/zscaler/zpa/services/oauth2_user/oauth2_user.go:61-81`). `{associationType}` is the provisioning association type (e.g. `CONNECTOR_GRP`, `SERVICE_EDGE_GRP`).
+
+| Endpoint | Notes |
+|---|---|
+| `POST /{associationType}/usercodes` | Verify user codes for a component group (`oauth2_user/oauth2_user.go:61-69`) |
+| `POST /{associationType}/usercodes/status` | Check status of user codes (`oauth2_user/oauth2_user.go:72-81`) |
 
 ## Managed Browser
 
@@ -412,6 +438,23 @@ Association types: `CONNECTOR_GRP`, `SERVICE_EDGE_GRP`.
 | `GET /managedBrowserProfile/search` | Search managed browser profiles |
 
 ---
+
+## Source extraction
+
+Endpoint paths and verbs are extracted from the Go SDK service layer under `vendor/zscaler-sdk-go/zscaler/zpa/services/`. Inline citations in the Notes column above abbreviate to `<package>/<file>.go:NN`; the full path prefix is `vendor/zscaler-sdk-go/zscaler/zpa/services/`. The services corrected or added in the 2026-06-15 refresh:
+
+- C2C IP ranges (Source IP Anchoring): `vendor/zscaler-sdk-go/zscaler/zpa/services/c2c_ip_ranges/c2c_ip_ranges.go:13-102`
+- API keys: `vendor/zscaler-sdk-go/zscaler/zpa/services/api_keys/api_keys.go:13-102`
+- App Connector schedule: `vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorschedule/appconnectorschedule.go:11-77`
+- Service Edge schedule: `vendor/zscaler-sdk-go/zscaler/zpa/services/serviceedgeschedule/serviceedgeschedule.go:13-77`
+- Step-up auth levels: `vendor/zscaler-sdk-go/zscaler/zpa/services/step_up_auth/step_up_auth.go:11-39`
+- OAuth2 user-code provisioning: `vendor/zscaler-sdk-go/zscaler/zpa/services/oauth2_user/oauth2_user.go:12-81`
+
+## Open questions
+
+- **`GET /stepupauthlevel` response shape.** The Go service `GetStepupAuthLevel` deserializes into `[]string` (`vendor/zscaler-sdk-go/zscaler/zpa/services/step_up_auth/step_up_auth.go:30-39`) even though the package defines a richer `StepAuthLevel` struct, so the wire shape returned by the endpoint is not pinned down by the SDK. No write verbs (create/update/delete) are exposed for step-up auth levels in the current Go service — unverified whether the API supports them. (Tracked as [`zpa-37`](../_meta/clarifications.md#zpa-37-get-stepupauthlevel-response-shape-and-write-verb-support).)
+- **OAuth2 user-code paths vs. the doc's stated base URL.** The `oauth2_user` and `c2c_ip_ranges`/`api_keys`/`step_up_auth` services build paths from the SDK constant `/zpa/mgmtconfig/v1/admin/customers/`, which carries a `/zpa` prefix not present in this doc's Base URLs table. The tables above list paths relative to the documented `mgmtconfig/v1` base for consistency with the rest of the doc; whether the live legacy host expects the `/zpa` prefix is a client-routing detail not verified here. (Tracked as [`zpa-38`](../_meta/clarifications.md#zpa-38-oauth2-user-code-legacy-host-zpa-path-prefix).)
+- **`/assistantSchedule` (connectors).** The `appconnectorcontroller` package still declares `scheduleEndpoint = "/assistantSchedule"` (`vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorcontroller/zpa_app_connector_controller.go:16`) but no function references it. Whether the legacy API still serves `/assistantSchedule` (vs. it being a fully retired alias of `/connectorSchedule`) cannot be determined from the SDK alone. (Tracked as [`zpa-39`](../_meta/clarifications.md#zpa-39-assistantschedule-legacy-endpoint-still-served-vs-retired-alias).)
 
 ## Cross-links
 

@@ -3,7 +3,7 @@ product: zpa
 topic: "microtenants"
 title: "ZPA Microtenants — multi-org isolation within a single tenant"
 content-type: reference
-last-verified: "2026-05-30"
+last-verified: "2026-06-15"
 verified-against:
   vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
 confidence: high
@@ -13,6 +13,8 @@ sources:
   - "vendor/zscaler-help/configuring-microtenants.md"
   - "vendor/zscaler-sdk-python/zscaler/zpa/microtenants.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/models/microtenants.py"
+  - "vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py"
+  - "vendor/zscaler-sdk-python/zscaler/zpa/pra_credential.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/models/segment_group.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/models/server_group.py"
@@ -113,7 +115,9 @@ Zscaler documents ranges and limitations in a "Ranges & Limitations" article (li
 
 ### 6.1 `microtenantId` query parameter
 
-Every API operation scoped to a Microtenant passes `microtenantId` as a query parameter. In the Python SDK, `microtenant_id` is accepted as a keyword argument or within `query_params` on most methods; it is translated to the `microtenantId` query parameter before the HTTP request is sent. For POST/PUT operations it is sent as a query parameter, not in the request body.
+Every API operation scoped to a Microtenant passes `microtenantId` as a query parameter. In the Python SDK, `microtenant_id` is accepted as a keyword argument or within `query_params` on most methods; it is translated to the `microtenantId` query parameter before the HTTP request is sent.
+
+For **scoped writes and updates**, the `microtenantId` that identifies the operation's target scope is sent as a query parameter, not in the request body — `update_microtenant` builds `params={"microtenantId": ...}` (`vendor/zscaler-sdk-python/zscaler/zpa/microtenants.py:342`), and the same pattern holds for `app_segment_move`/`app_segment_share` (`vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py:572-573`, `637-638`) and the PRA credential write methods. This does **not** apply to `add_microtenant`, which sends `body=kwargs` with no `microtenantId` query handling (`vendor/zscaler-sdk-python/zscaler/zpa/microtenants.py:287-289`) — a Microtenant is being created, so it has no parent Microtenant scope to attach.
 
 SDK client construction example with microtenant scope:
 
@@ -166,7 +170,18 @@ App Segments can be shared across Microtenant boundaries or moved to a different
 - `sharedFromMicrotenant` — `{id, name}` of the source Microtenant that shared this segment in.
 - `sharedToMicrotenants` — list of Microtenants this segment has been shared out to.
 
-A shared-in segment appears in the receiving Microtenant as `readOnly`. **The Go SDK exposes explicit operations** (`AppSegmentMicrotenantMove` / `AppSegmentMicrotenantShare`). The Python SDK has no equivalent — move/share requires Go SDK or direct HTTP (`POST .../application/{id}/move`).
+A shared-in segment appears in the receiving Microtenant as `readOnly`.
+
+**Move and share are exposed in both SDKs.** The Python SDK provides:
+
+- `app_segment_move(application_id, target_segment_group_id=..., target_server_group_id=..., target_microtenant_id=..., microtenant_id=...)` — `POST .../application/{id}/move` (`vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py:525-596`). The body sent is `targetSegmentGroupId` / `targetMicrotenantId` / `targetServerGroupId` (`:566-569`); `microtenant_id` (the source scope) becomes the `microtenantId` query parameter (`:572-573`). **Move only goes Default (microtenant_id `0`) → child Microtenant** (`:528`).
+- `app_segment_share(application_id, share_to_microtenants=[...], microtenant_id=...)` — `PUT .../application/{id}/share` (`vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py:598-661`). The body is `shareToMicrotenants` (`:633-634`); **send an empty list to un-share** the segment (`:610-613`).
+
+Both methods take their arguments as keyword arguments (`**kwargs`), not fixed positional parameters.
+
+A related cross-Microtenant operation lives on PRA credentials: `pra_credential.credential_move(credential_id, query_params={"target_microtenant_id": ..., "microtenant_id": ...})` — `POST .../credential/{id}/move` (`vendor/zscaler-sdk-python/zscaler/zpa/pra_credential.py:334-383`). `target_microtenant_id` is **required** (the method raises `ValueError` without it, `:369-370`), and `0` denotes the Default Microtenant (`:342`).
+
+The Go SDK also exposes move/share (`AppSegmentMicrotenantMove` / `AppSegmentMicrotenantShare`). The Go and Python move bodies differ slightly on the wire — the Go body additionally carries `applicationId` and `microtenantId` (both `omitempty`), which Postman and Python omit. See [`./api-divergences.md § Move request body`](./api-divergences.md#move-request-body-go-sdk-includes-applicationid-and-microtenantid-postman-and-python-omit-them).
 
 ---
 
@@ -184,12 +199,27 @@ A shared-in segment appears in the receiving Microtenant as `readOnly`. **The Go
 
 | Method | Signature | Notes |
 |---|---|---|
-| `list_microtenants` | `(query_params=None)` | `include_roles` query param supported |
-| `get_microtenant` | `(microtenant_id, query_params=None)` | |
-| `add_microtenant` | `(**kwargs)` | Required: `name`, `criteria_attribute`, `criteria_attribute_values` |
-| `update_microtenant` | `(microtenant_id, **kwargs)` | |
-| `delete_microtenant` | `(microtenant_id)` | |
-| `get_microtenant_summary` | `(query_params=None)` | Name/ID summary only |
+| `list_microtenants` | `(query_params=None)` | `include_roles` query param supported (`microtenants.py:38-48`) |
+| `get_microtenant` | `(microtenant_id)` | Takes only `microtenant_id`, no `query_params` (`microtenants.py:92-95`) |
+| `get_microtenant_search` | `(**kwargs)` | `POST /microtenants/search` with a `filter_and_sort_dto`; returns `CommonFilterSearch` (`microtenants.py:171-254`) |
+| `add_microtenant` | `(**kwargs)` | Required: `name`, `criteria_attribute`, `criteria_attribute_values` (`microtenants.py:256-301`) |
+| `update_microtenant` | `(microtenant_id, **kwargs)` | (`microtenants.py:303-364`) |
+| `delete_microtenant` | `(microtenant_id)` | (`microtenants.py:366-395`) |
+| `get_microtenant_summary` | `()` | No args; returns a **2-tuple** `(list, error)`, not the standard 3-tuple (`microtenants.py:132,155-169`) |
+
+**`get_microtenant_search` filter shape.** The `filter_and_sort_dto` passed via `**kwargs` carries `filter_by` (a list of `{filter_name, operator, values}` conditions), `page_by` (`{page, page_size}`), and `sort_by` (`{sort_name, sort_order}`) (`vendor/zscaler-sdk-python/zscaler/zpa/microtenants.py:178-226`). This is the way to filter Microtenants server-side by criteria such as `criteria_attribute_values`:
+
+```python
+result, _, err = client.zpa.microtenants.get_microtenant_search(
+    filter_and_sort_dto={
+        "filter_by": [
+            {"filter_name": "criteria_attribute_values", "operator": "LIKE", "values": ["acme"]}
+        ],
+        "page_by": {"page": 1, "page_size": 20},
+        "sort_by": {"sort_name": "name", "sort_order": "ASC"},
+    }
+)
+```
 
 **`add_microtenant` example:**
 
@@ -246,11 +276,11 @@ Privileged Approvals is per-Microtenant, not global. A Microtenant without `priv
 
 **4. Shared-in segments are read-only.** Edits must happen in the owning Microtenant. Callers scripting against shared segments must check `readOnly` before attempting updates.
 
-**5. Move/Share requires Go SDK or direct HTTP.** The Python SDK has no `AppSegmentMicrotenantMove` or `AppSegmentMicrotenantShare` methods. Use Go SDK or construct HTTP directly (`POST .../application/{id}/move`).
+**5. Move/Share is available in the Python SDK.** Both SDKs now expose move and share. In Python use `app_segment_move(...)` (`POST .../application/{id}/move`, `application_segment.py:525`) and `app_segment_share(share_to_microtenants=[...])` (`PUT .../application/{id}/share`, `application_segment.py:598`). Move only goes Default (`0`) → child; pass an empty `share_to_microtenants` list to un-share. PRA credentials have their own `pra_credential.credential_move(...)` (`pra_credential.py:334`). See §6.4.
 
 **6. Default Tenant resources are visible to Microtenant end users.** End users in a Microtenant can access applications from both the Default Microtenant and their own Microtenant. Cross-Microtenant access (between two non-default Microtenants) is blocked by default unless explicitly shared.
 
-**7. `microtenantId` not in POST/PUT body — only as a query param.** This is the SDK behavior: for POST/PUT operations, `microtenantId` is sent as a query parameter, not in the request body. Direct HTTP callers must follow the same convention.
+**7. Scope `microtenantId` is a query param on writes/updates — but not on `add_microtenant`.** For scoped writes and updates (`update_microtenant`, `app_segment_move`/`app_segment_share`, PRA credential writes), the `microtenantId` identifying the target scope is sent as a query parameter, not in the body. The exception is `add_microtenant`, which sends `body=kwargs` with no `microtenantId` query handling — it is creating a new scope, so there is no parent scope to attach (`microtenants.py:287-289`). Direct HTTP callers must follow the same convention. See §6.1.
 
 ---
 
@@ -261,3 +291,4 @@ Privileged Approvals is per-Microtenant, not global. A Microtenant without `priv
 - Access policy rules (policy isolation is per-Microtenant namespace) — [`./policy-precedence.md`](./policy-precedence.md)
 - App Connectors and Connector Groups (shared at default-tenant level) — [`./app-connector.md`](./app-connector.md)
 - SDK MicrotenantsAPI method catalog — [`./sdk.md §2.21 MicrotenantsAPI`](./sdk.md)
+- Cross-SDK move-request-body wire-format difference — [`./api-divergences.md § Move request body`](./api-divergences.md#move-request-body-go-sdk-includes-applicationid-and-microtenantid-postman-and-python-omit-them)

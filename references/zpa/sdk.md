@@ -3,7 +3,7 @@ product: zpa
 topic: zpa-sdk
 title: "ZPA SDK — service and method catalog"
 content-type: reference
-last-verified: "2026-04-26"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: code
 sources:
@@ -947,15 +947,23 @@ maps these to `CONNECTOR_GRP` / `SERVICE_EDGE_GRP`.
 | **Property** | `client.zpa.saml_attributes` |
 | **Class** | `SAMLAttributesAPI` |
 | **File** | `zscaler/zpa/saml_attributes.py` |
-| **Go parity** | ✅ `samlattribute/` |
+| **Go parity** | ✅ `samlattribute/` (Create/Update/Delete confirmed) |
+
+Full CRUD. The list methods target the v2 base endpoint
+(`_zpa_base_endpoint_v2`, `saml_attributes.py:73,133`) while
+get/add/update/delete target v1 (`saml_attributes.py:35,174,221,267,313`). SAML
+attributes are **not** read-only.
 
 **Methods**
 
-| Method | Signature |
-|---|---|
-| `list_saml_attributes` | `(query_params=None) -> APIResult[List[SAMLAttribute]]` |
-| `get_saml_attribute` | `(attribute_id: str, query_params=None) -> APIResult[SAMLAttribute]` |
-| `list_saml_attributes_by_idp` | `(idp_id: str, query_params=None) -> APIResult[List[SAMLAttribute]]` |
+| Method | Signature | Notes |
+|---|---|---|
+| `list_saml_attributes` | `(query_params=None) -> APIResult[List[SAMLAttribute]]` | v2 endpoint (`saml_attributes.py:73`) |
+| `get_saml_attribute` | `(attribute_id: str, query_params=None) -> APIResult[SAMLAttribute]` | v1 (`saml_attributes.py:174`) |
+| `list_saml_attributes_by_idp` | `(idp_id: str, query_params=None) -> APIResult[List[SAMLAttribute]]` | v2 endpoint (`saml_attributes.py:133`) |
+| `add_saml_attribute` | `(**kwargs) -> APIResult[SAMLAttribute]` | POST v1 `/samlAttribute` (`saml_attributes.py:194,219-222`). Key kwargs: `name`, `saml_name`, `idp_id`, `idp_name`, `user_attribute` (bool) (`saml_attributes.py:199-203`) |
+| `update_saml_attribute` | `(attribute_id: str, **kwargs) -> APIResult[SAMLAttribute]` | PUT v1 (`saml_attributes.py:241,265-269`) |
+| `delete_saml_attribute` | `(attribute_id: str, microtenant_id=None) -> APIResult[None]` | DELETE v1 (`saml_attributes.py:292,311-315`) |
 
 ---
 
@@ -976,7 +984,7 @@ Uses both `mgmtconfig` and `userconfig` base endpoints.
 |---|---|---|
 | `list_scim_attributes` | `(idp_id: str, query_params=None) -> APIResult[List[SCIMAttributeHeader]]` | |
 | `get_scim_attribute` | `(idp_id: str, attribute_id: str, query_params=None) -> APIResult[SCIMAttributeHeader]` | |
-| `get_scim_attribute_values` | `(idp_id: str, attribute_id: str, query_params=None) -> APIResult[dict]` | Returns attribute value list |
+| `get_scim_values` | `(idp_id: str, attribute_id: str, query_params=None) -> APIResult[dict]` | Returns attribute value list from the `userconfig` endpoint (`scim_attributes.py:137,165-167`) |
 
 ---
 
@@ -1013,13 +1021,14 @@ Uses both v1 and v2 endpoints.
 
 **Methods**
 
-| Method | Signature |
-|---|---|
-| `list_groups` | `(query_params=None) -> APIResult[List[SegmentGroup]]` |
-| `get_group` | `(group_id: str, query_params=None) -> APIResult[SegmentGroup]` |
-| `add_group` | `(**kwargs) -> APIResult[SegmentGroup]` |
-| `update_group` | `(group_id: str, **kwargs) -> APIResult[SegmentGroup]` |
-| `delete_group` | `(group_id: str, microtenant_id=None) -> APIResult[None]` |
+| Method | Signature | Notes |
+|---|---|---|
+| `list_groups` | `(query_params=None) -> APIResult[List[SegmentGroup]]` | |
+| `get_group` | `(group_id: str, query_params=None) -> APIResult[SegmentGroup]` | |
+| `add_group` | `(**kwargs) -> APIResult[SegmentGroup]` | |
+| `update_group` | `(group_id: str, **kwargs) -> APIResult[SegmentGroup]` | PUT v1 `/segmentGroup/{id}` (`segment_groups.py:236-240`) |
+| `update_group_v2` | `(group_id: str, **kwargs) -> APIResult[SegmentGroup]` | Identical to `update_group` but targets the v2 mgmtconfig base endpoint (`_zpa_base_endpoint_v2`, `segment_groups.py:36`); PUT v2 `/segmentGroup/{id}` (`segment_groups.py:267,297-301`) |
+| `delete_group` | `(group_id: str, microtenant_id=None) -> APIResult[None]` | |
 
 ---
 

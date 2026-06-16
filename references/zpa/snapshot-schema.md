@@ -3,7 +3,7 @@ product: zpa
 topic: "snapshot-schema"
 title: "ZPA _data/snapshot/ schema — what's in the JSON, how to read it"
 content-type: reference
-last-verified: "2026-04-24"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: code
 sources:
@@ -229,12 +229,14 @@ Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/terra
 
 These fields have conflicting type or name information across sources. Flag these for the verifying agent:
 
-| Field | Postman says | TF provider / snapshot-schema says | Verify |
+| Field | Postman says | TF provider / SDK says | Verify |
 |---|---|---|---|
-| `tcpKeepAlive` | `<integer>` (type hint only — Postman doesn't show real value) | `"0"` / `"1"` string-as-bool (TF `:228-230`) | Is the wire value a quoted string or a bare integer? |
+| `tcpKeepAlive` | `<integer>` (type hint only — Postman doesn't show real value) | string-as-bool `"0"` / `"1"` — SDK and TF agree (see below) | Literal wire token on a real GET: quoted string `"0"` or bare integer `0`? |
 | `configSpace` | `DEFAULT` / `SIEM` seen in sub-objects | `DEFAULT` / `MICROTENANT` at segment top level | Is `SIEM` valid at segment top level, or only in serverGroups/appResource embeds? |
 
-⚠️ ZPA verification deferred — ZPA OAuth keys unavailable at time of ZIA verification pass (2026-04-26). Run the queries below when keys are available.
+`tcpKeepAlive` is resolved as string-as-bool from code alone: the Python model serializes it verbatim from a string field (`vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py:234` — `"tcpKeepAlive": self.tcp_keep_alive`), and the TF schema declares it `Type: schema.TypeString` with a `StringInSlice` validator of `"0"`/`"1"` (`vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go:225,228-230`) and reads it as a string (`:511` — `d.Get("tcp_keep_alive").(string)`). This matches gotcha #7 below. The Postman `<integer>` type hint is the only conflicting signal, so the open item is narrowed to confirming the literal wire token on a real GET — not "string vs integer" broadly. `configSpace` still needs a live capture.
+
+⚠️ ZPA `configSpace` verification deferred — ZPA OAuth keys unavailable at time of ZIA verification pass (2026-04-26). Run the queries below when keys are available. The `configSpace` / `tcpKeepAlive` claims above are cited inline (`vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py:234`; `vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go:225`).
 
 #### Verification commands
 
@@ -607,7 +609,7 @@ Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscal
           "operands": [
             {
               "id": "...",
-              "objectType": "APP",         // 19-value enum: APP, APP_GROUP, SAML, SCIM, SCIM_GROUP, POSTURE, TRUSTED_NETWORK, COUNTRY_CODE, PLATFORM, CLIENT_TYPE, BRANCH_CONNECTOR_GROUP_GROUP, MACHINE_GRP, EDGE_CONNECTOR_GROUP, RISK_FACTOR_TYPE, CHROME_ENTERPRISE, USER_PORTAL, CONSOLE, ZPN_INTERNAL_INTERNET_PROTOCOL, USER
+              "objectType": "APP",         // operand type — see enum table below for the TF-validated set
               "lhs": "...",                // attribute name (for SAML/SCIM)
               "rhs": "...",                // matched value
               "name": "...",
@@ -638,6 +640,14 @@ Key evaluation properties:
 - **Default action when no rule matches: BLOCK** (ZPA's opposite-of-ZIA default — see [`./policy-precedence.md`](./policy-precedence.md)).
 - **`deceptionPolicy: true`** marks rules managed by Zscaler Deception (see [clarification `zpa-07`](../_meta/clarifications.md#zpa-07-deception-policy-order-interaction)).
 - **`predefined: true`** rules can't be edited normally (read-only).
+
+#### `objectType` enum (operand type)
+
+The Terraform provider's operand validators recognize the following `object_type` values. The primary per-operand validator (`vendor/terraform-provider-zpa/zpa/common.go:89-272`) covers `APP`, `APP_GROUP`, `IDP` (`:102`), `EDGE_CONNECTOR_GROUP`, `CLIENT_TYPE`, `MACHINE_GRP`, `POSTURE`, `TRUSTED_NETWORK`, `PLATFORM`, `SAML`, `SCIM`, `SCIM_GROUP`, `COUNTRY_CODE`, `RISK_FACTOR_TYPE`, and `CHROME_ENTERPRISE`. The resource-level operand validator (`vendor/terraform-provider-zpa/zpa/common.go:1019-1233`) additionally recognizes `LOCATION` (`:1032`), `BRANCH_CONNECTOR_GROUP` (`:1040`), `USER_PORTAL` (`:1044`), and `CHROME_POSTURE_PROFILE` (`:1212`). The v1→v2 aggregation switch (`vendor/terraform-provider-zpa/zpa/common.go:1334`) also handles `CONSOLE` and `PRIVILEGE_PORTAL`.
+
+So the full TF-validated set is: `APP`, `APP_GROUP`, `IDP`, `SAML`, `SCIM`, `SCIM_GROUP`, `POSTURE`, `TRUSTED_NETWORK`, `COUNTRY_CODE`, `PLATFORM`, `CLIENT_TYPE`, `MACHINE_GRP`, `EDGE_CONNECTOR_GROUP`, `BRANCH_CONNECTOR_GROUP`, `RISK_FACTOR_TYPE`, `CHROME_ENTERPRISE`, `CHROME_POSTURE_PROFILE`, `LOCATION`, `USER_PORTAL`, `CONSOLE`, `PRIVILEGE_PORTAL`. Note that `BRANCH_CONNECTOR_GROUP` is recognized only by the resource-level validator (`vendor/terraform-provider-zpa/zpa/common.go:1040`) and the v1→v2 aggregation switch (`vendor/terraform-provider-zpa/zpa/common.go:1334`); the primary per-operand validator (`vendor/terraform-provider-zpa/zpa/common.go:89-272`) does not handle it. The [`./terraform.md`](./terraform.md) `object_type` table is the more complete annotated cross-reference (it also lists `EXTRANET`, which the validators above don't gate but the table records). `BRANCH_CONNECTOR_GROUP` and `EDGE_CONNECTOR_GROUP` are distinct object types handled by separate `case` branches (e.g. `vendor/terraform-provider-zpa/zpa/common.go:1036` for `EDGE_CONNECTOR_GROUP` and `:1040` for `BRANCH_CONNECTOR_GROUP` in the resource-level validator, each emitting its own validation error) — the code does not treat them as aliases.
+
+Note: the earlier wire-format draft of this doc listed `ZPN_INTERNAL_INTERNET_PROTOCOL` and a bare `USER` as operand types. Neither appears in the current TF validators (`vendor/terraform-provider-zpa/zpa/common.go`), SDK (Python/Go) source, or the Postman collection — see [Open questions](#open-questions).
 
 ### Common jq queries
 
@@ -747,3 +757,9 @@ Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscal
 - [`./browser-access.md`](./browser-access.md), [`./privileged-remote-access.md`](./privileged-remote-access.md), [`./appprotection.md`](./appprotection.md) — segment variants
 - [`../shared/source-ip-anchoring.md`](../shared/source-ip-anchoring.md) — SIPA flag interpretation
 - [`../_meta/layering-model.md`](../_meta/layering-model.md) — how snapshot data layers onto general docs
+
+## Open questions
+
+- **`objectType: ZPN_INTERNAL_INTERNET_PROTOCOL` and `objectType: USER`** — an earlier draft of the operand enum listed these two values. Neither is recognized by the current Terraform provider operand validators (`vendor/terraform-provider-zpa/zpa/common.go`), nor found in the SDK Python (`vendor/zscaler-sdk-python/`) or Go (`vendor/zscaler-sdk-go/`) policy/operand source, nor in the Postman collection (`vendor/zscaler-api-specs/oneapi-postman-collection.json`). They may be wire-only API enums the TF provider and SDK don't model, or they may be stale. Needs a real GET on `access-policy-rules` (or a Postman/API enum citation) to confirm whether either appears on the wire; otherwise treat them as unverified. (Tracked as [`zpa-73`](../_meta/clarifications.md#zpa-73-objecttype-zpn_internal_internet_protocol-and-user-wire-validity).)
+- **`tcpKeepAlive` literal wire token** — SDK and TF both treat it as string-as-bool `"0"`/`"1"` (resolved above), but the Postman `<integer>` type hint leaves open whether the GET response returns the quoted string `"0"` or a bare integer `0`. Needs a live capture: `jq '.list[0].tcpKeepAlive' _data/snapshot/<cloud>/zpa/app-segments.json`. (Tracked as [`zpa-74`](../_meta/clarifications.md#zpa-74-tcpkeepalive-literal-wire-token-quoted-string-vs-bare-integer).)
+- **`configSpace` at segment top level** — confirm whether `SIEM` is valid at the segment top level or only in embedded serverGroups/appResource objects. Needs a live capture (verification command #2 above). (Tracked as [`zpa-75`](../_meta/clarifications.md#zpa-75-configspace-at-the-segment-top-level).)

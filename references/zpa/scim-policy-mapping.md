@@ -3,7 +3,7 @@ product: zpa
 topic: "zpa-scim-policy-mapping"
 title: "ZPA SCIM groups in policy — IDP attribute to access decision"
 content-type: reference
-last-verified: "2026-04-27"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: doc
 sources:
@@ -19,6 +19,7 @@ sources:
   - "vendor/terraform-provider-zpa/docs/data-sources/zpa_idp_controller.md"
   - "vendor/terraform-provider-zpa/docs/data-sources/zpa_saml_attribute.md"
   - "vendor/zscaler-sdk-python/zscaler/zpa/scim_groups.py"
+  - "vendor/zscaler-sdk-python/zscaler/zpa/scim_attributes.py"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/scimgroup/zpa_scim_group.go"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/scimattributeheader/zpa_scim_attribute_header.go"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/idpcontroller/zpa_idp_controller.go"
@@ -215,7 +216,7 @@ The gotcha is in TF data-source lookups: `data.zpa_scim_groups` resolves by disp
 
 SCIM does not have a native concept of "archive." When an IdP deletes a group, it sends a `DELETE /Groups/{id}` to ZPA. ZPA removes the group from its `userconfig` store. Any policy rules that reference the deleted group's Zscaler `id` now hold a dangling reference. ZPA does not surface an error — the operand simply never evaluates true for any user, which silently restricts or opens access depending on the rule structure.
 
-The Go SDK's `list_scim_groups` / `GetAllByIdpId` supports an `all_entries` parameter that, when true, includes deleted groups in the result. This allows auditing for dangling references before they cause access issues.
+The Python SDK exposes an `all_entries` query param on both `list_scim_groups` (`vendor/zscaler-sdk-python/zscaler/zpa/scim_groups.py:66`) and `get_scim_group` (`scim_groups.py:129`) that, when true, returns SCIM groups including the deleted ones. This is the audit path for finding dangling references before they cause access issues. (The Go SDK's `GetAllByIdpId(ctx, service, idpId)` is the full-list-by-IdP call and does not take an `all_entries` argument — `vendor/zscaler-sdk-go/zscaler/zpa/services/scimgroup/zpa_scim_group.go:64`.)
 
 ### Group ID vs. group name in policy
 
@@ -289,7 +290,10 @@ Package `zscaler.zpa.scim_groups` (`SCIMGroupsAPI`):
 - `list_scim_groups(idp_id, query_params)` — paginated list; supports `start_time`/`end_time` for filtering by `modified_time`, `all_entries` bool to include deleted groups
 - `get_scim_group(group_id, query_params)` — single group by Zscaler ID
 
-Package `zscaler.zpa.scim_attributes`: provides read access to SCIM attribute headers per IdP. (Database locked on this read during research — exact method signature sourced from the Go SDK parity table in `scim-provisioning.md`.)
+Package `zscaler.zpa.scim_attributes` (`ScimAttributeHeaderAPI`):
+- `list_scim_attributes(idp_id, query_params)` — paginated list of attribute headers for one IdP; `query_params` supports `page`, `page_size` (default 20, max 500), and `search` (`scim_attributes.py:48-53`)
+- `get_scim_attribute(idp_id, attribute_id, query_params)` — single attribute header by ID within an IdP's namespace (`scim_attributes.py:101`)
+- `get_scim_values(idp_id, attribute_id, query_params)` — observed string values for one attribute across synced users; reads from the `userconfig` base path (`scim_attributes.py:137`, `scim_attributes.py:165-167`)
 
 No write operations are exposed in either SDK — consistent with SCIM groups being IdP-provisioned objects.
 
@@ -370,17 +374,17 @@ Note: `rhs` must exactly match a value present in `data.zpa_scim_attribute_heade
 
 Clarification status: unresolved source gaps in this document should be promoted to `references/_meta/clarifications.md` if they become cross-document blockers.
 
-- **Exact behavior when `SCIM_GROUP` operand references a deleted group.** The operand is expected to never match, but the API/docs do not confirm whether ZPA surfaces an error at policy evaluation time, at rule read time, or silently passes. The `all_entries` query parameter on the SCIM group API suggests deleted groups can be retrieved — whether ZPA's policy engine uses this same store is not documented.
+- **Exact behavior when `SCIM_GROUP` operand references a deleted group.** The operand is expected to never match, but the API/docs do not confirm whether ZPA surfaces an error at policy evaluation time, at rule read time, or silently passes. The `all_entries` query parameter on the SCIM group API suggests deleted groups can be retrieved — whether ZPA's policy engine uses this same store is not documented. (Tracked as [`zpa-63`](../_meta/clarifications.md#zpa-63-behavior-when-a-scim_group-operand-references-a-deleted-group).)
 
-- **`internal_id` field semantics.** Present on both Go (`ScimGroup.InternalID`) and Python (`SCIMGroup`) models; not documented in available source material. Relationship to `id` and `idp_group_id` is unclear.
+- **`internal_id` field semantics.** Present on both Go (`ScimGroup.InternalID`) and Python (`SCIMGroup`) models; not documented in available source material. Relationship to `id` and `idp_group_id` is unclear. (Tracked as [`zpa-64`](../_meta/clarifications.md#zpa-64-scim-group-internal_id-field-semantics).)
 
-- **`enable_scim_based_policy` fallback behavior.** When this flag is false on an IdP controller, SCIM criteria are not evaluated for users from that IdP. What the policy engine does with those conditions — skip them (treat as not-present, potentially opening access) vs. evaluate them as false (potentially denying access) — is not stated in available documentation.
+- **`enable_scim_based_policy` fallback behavior.** When this flag is false on an IdP controller, SCIM criteria are not evaluated for users from that IdP. What the policy engine does with those conditions — skip them (treat as not-present, potentially opening access) vs. evaluate them as false (potentially denying access) — is not stated in available documentation. (Tracked as [`zpa-65`](../_meta/clarifications.md#zpa-65-enable_scim_based_policy-false-fallback-behavior).)
 
-- **SCIM attribute value matching case sensitivity.** The `ScimAttributeHeader` struct exposes a `case_sensitive` bool. The TF docs note that `rhs` must exactly match an observed value. Whether "exactly" means case-insensitive when `case_sensitive = false`, or whether the policy engine applies a different matching rule than the SCIM-attribute-values API, is not documented.
+- **SCIM attribute value matching case sensitivity.** The `ScimAttributeHeader` struct exposes a `case_sensitive` bool. The TF docs note that `rhs` must exactly match an observed value. Whether "exactly" means case-insensitive when `case_sensitive = false`, or whether the policy engine applies a different matching rule than the SCIM-attribute-values API, is not documented. (Tracked as [`zpa-66`](../_meta/clarifications.md#zpa-66-scim-attribute-value-matching-case-sensitivity).)
 
-- **SCIM group membership resolution at session time vs. policy evaluation time.** It is not confirmed whether ZPA re-queries the `userconfig` SCIM store on every policy evaluation within a session, or whether group membership is resolved once at session start and cached for the session duration. This matters for users who are added to or removed from a SCIM group mid-session.
+- **SCIM group membership resolution at session time vs. policy evaluation time.** It is not confirmed whether ZPA re-queries the `userconfig` SCIM store on every policy evaluation within a session, or whether group membership is resolved once at session start and cached for the session duration. This matters for users who are added to or removed from a SCIM group mid-session. (Tracked as [`zpa-67`](../_meta/clarifications.md#zpa-67-scim-group-membership-resolution-timing-session-vs-per-evaluation).)
 
-- **Isolation policy v2 SCIM support.** The Isolation rule v2 resource follows the same TF pattern as the other v2 rule families; SCIM_GROUP and SCIM support is inferred but not directly confirmed from the isolation-rule v2 TF source read in this research pass.
+- **Isolation policy v2 SCIM support.** The Isolation rule v2 resource follows the same TF pattern as the other v2 rule families; SCIM_GROUP and SCIM support is inferred but not directly confirmed from the isolation-rule v2 TF source read in this research pass. (Tracked as [`zpa-68`](../_meta/clarifications.md#zpa-68-isolation-policy-v2-scim_group-support).)
 
 ---
 

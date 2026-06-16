@@ -3,7 +3,7 @@ product: zidentity
 topic: "zidentity-step-up-authentication"
 title: "ZIdentity Step-Up Authentication — authentication levels, ZIA/ZPA integration"
 content-type: reasoning
-last-verified: "2026-05-17"
+last-verified: "2026-06-15"
 verified-against:
   vendor/zscaler-sdk-python: 8d054b1fdd18bcb29722b7051dc282c0d1c86be6
 confidence: high
@@ -155,10 +155,10 @@ Step-up is the execution layer for both these actions:
 
 ## Open questions
 
-- Whether authentication levels can be configured differently per-product or only globally: the docs suggest a single tenant-wide tree.
-- How step-up interacts with SCIM-provisioned users who don't have a mapped external IdP identity: can they step up at all?
-- Whether the "message to user" field supports localization or just a single string per level.
-- Whether step-up elevation is logged in ZIA Transaction logs or ZPA LSS User Activity logs, and with what field values.
+- Whether authentication levels can be configured differently per-product or only globally: the docs suggest a single tenant-wide tree. — see [clarification `zid-28`](../_meta/clarifications.md#zid-28-authentication-levels-per-product-or-global-only)
+- How step-up interacts with SCIM-provisioned users who don't have a mapped external IdP identity: can they step up at all? — see [clarification `zid-29`](../_meta/clarifications.md#zid-29-step-up-for-scim-users-without-a-mapped-external-idp-identity)
+- Whether the "message to user" field supports localization or just a single string per level. — see [clarification `zid-30`](../_meta/clarifications.md#zid-30-step-up-message-to-user-localization)
+- Whether step-up elevation is logged in ZIA Transaction logs or ZPA LSS User Activity logs, and with what field values. — see [clarification `zid-31`](../_meta/clarifications.md#zid-31-where-step-up-elevation-is-logged)
 
 ## Cross-links
 

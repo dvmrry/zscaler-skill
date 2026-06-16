@@ -3,7 +3,7 @@ product: cloud-connector
 topic: cc-insights-monitoring
 title: "Cloud Connector Insights & monitoring — health, traffic, operational metrics"
 content-type: reference
-last-verified: "2026-04-27"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: doc
 sources:
@@ -22,6 +22,12 @@ sources:
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go"
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/provisioning/public_cloud_account/public_cloud_account.go"
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/partner_integrations/public_cloud_info/public_cloud_info.go"
+  - "vendor/zscaler-sdk-python/zscaler/ztw/ztw_service.py"
+  - "vendor/zscaler-sdk-python/zscaler/ztw/ec_groups.py"
+  - "vendor/zscaler-sdk-python/zscaler/ztw/models/ec_group_vm.py"
+  - "vendor/zscaler-sdk-python/zscaler/ztw/account_details.py"
+  - "vendor/zscaler-sdk-python/zscaler/ztw/discovery_service.py"
+  - "vendor/zscaler-sdk-python/zscaler/ztw/public_cloud_info.py"
   - "vendor/terraform-provider-ztc/docs/data-sources/ztc_edge_connector_group.md"
 author-status: draft
 ---
@@ -203,17 +209,21 @@ Available at the individual CC or BC VM level:
 | Metric | Type | Source |
 |---|---|---|
 | Operational status | Enum: Active / Inactive / Disabled | Monitoring table + CC Details |
-| VM Size | Enum: Small / Medium / Large | Monitoring table |
+| VM Size | Enum: Small / Medium | Console-only field (Monitoring table) — no SDK equivalent; see note below |
+| Form factor | String | SDK `ecVMs[].formFactor` (`common.go:106` / Python `ec_group_vm.py:43`) |
 | Auto Scaling enabled | Boolean | Monitoring table (CC only) |
 | HA Status | Enum: varies | Monitoring table (BC only) |
-| ZIA Gateway | String (active gateway name) | CC Details page |
-| ZPA Broker | String (active broker) | CC Details page |
+| ZIA Gateway | String (active gateway name) | CC Details page / SDK `ecVMs[].ziaGateway` |
+| ZPA Broker | String (active broker) | CC Details page / SDK `ecVMs[].zpaBroker` |
 | Build version | String (e.g. `24.x.x`) | CC Details / SDK `ecVMs[].buildVersion` |
 | NAT IP | IPv4 string | CC Details / SDK `ecVMs[].natIp` |
 | Last upgrade time | Unix timestamp | SDK `ecVMs[].lastUpgradeTime` |
 | Upgrade status | Integer code | SDK `ecVMs[].upgradeStatus` |
+| Upgrade day of week | Integer (day index) | SDK `ecVMs[].upgradeDayOfWeek` (`common.go:116` / Python `ec_group_vm.py:53`) |
 
-The SDK `ECVMs` struct (from `zscaler/ztw/services/common/common.go`) surfaces the per-VM state fields programmatically — see section 5.
+**VM Size is a console-only field.** It appears in the Monitoring table (`vendor/zscaler-help/cbc-accessing-cloud-branch-connector-monitoring.md:63`, "The size of the virtual machine (i.e., Small or Medium)") but has **no equivalent in the SDK object model**: the Go `ECVMs` struct (`vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go:101-119`) and the Python `ECGroupVM` model (`vendor/zscaler-sdk-python/zscaler/ztw/models/ec_group_vm.py:39-53`) expose `formFactor` (a string) rather than a size enum. There are only two documented sizes — Small and Medium; there is no "Large." For programmatic size/shape inference, `formFactor` is the closest SDK field.
+
+The SDK `ECVMs` struct (`vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go:101-119`) and the Python `ECGroupVM` model (`vendor/zscaler-sdk-python/zscaler/ztw/models/ec_group_vm.py:39-53`) surface the per-VM state fields programmatically — see section 4.
 
 ### 3.2 Cloud provider load-balancer health (external to ZTW)
 
@@ -318,7 +328,62 @@ info, err := public_cloud_info.GetPublicCloudInfo(ctx, service, accountID)
 
 Endpoint: `GET /ztw/api/v1/publicCloudInfo/{id}`.
 
-### 4.2 Terraform (read-side data sources)
+### 4.2 Python SDK
+
+**Package:** `zscaler` (PyPI `zscaler-sdk-python`); services reached via the OneAPI client as `client.ztw.<service>` (`vendor/zscaler-sdk-python/zscaler/ztw/ztw_service.py:48,80,187,205`). The Python SDK mirrors the Go reads above and adds finer-grained coverage the Go SDK does not expose.
+
+**Edge Connector groups and a per-VM read (`client.ztw.ec_groups`):**
+
+```python
+# List all groups with per-VM state (mirrors Go ecgroup.GetAll)
+groups, resp, err = client.ztw.ec_groups.list_ec_groups()
+
+# Lite list (name + upgrade state only, lower payload)
+groups_lite, resp, err = client.ztw.ec_groups.list_ec_group_lite()
+
+# Single group by ID
+group, resp, err = client.ztw.ec_groups.get_ec_group(group_id)
+
+# Single VM by group ID + VM ID — per-VM read the Go SDK does NOT provide
+vm, resp, err = client.ztw.ec_groups.get_ec_group_vm(group_id, vm_id)
+# vm exposes: operational_status, status[], form_factor, nat_ip,
+#   zia_gateway, zpa_broker, build_version, last_upgrade_time,
+#   upgrade_status, upgrade_start_time, upgrade_end_time, upgrade_day_of_week
+```
+
+`get_ec_group_vm` hits `GET /ztw/api/v1/ecgroup/{group_id}/vm/{vm_id}` (`vendor/zscaler-sdk-python/zscaler/ztw/ec_groups.py:263-303`) — the single-VM read path. The Go `ecgroup` service has only group-level reads (`Get`, `GetByName`, `GetAll`, lite variants — `vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go:36-88`); to inspect one VM in Go you fetch the group and index into `ECVMs[]`. The returned VM object is the `ECGroupVM` model (`vendor/zscaler-sdk-python/zscaler/ztw/models/ec_group_vm.py:39-53`), the Python counterpart of the Go `ECVMs` struct.
+
+**Public cloud account status / details (`client.ztw.account_details`):**
+
+```python
+# Per-cloud account-ID enablement flags (mirrors Go GetAccountStatus)
+status, resp, err = client.ztw.account_details.list_public_account_status()
+# Per-account detail records
+details, resp, err = client.ztw.account_details.get_public_account_details(account_id)
+```
+
+`list_public_account_status` hits `GET /ztw/api/v1/publicCloudAccountIdStatus` (`vendor/zscaler-sdk-python/zscaler/ztw/account_details.py:222`; endpoint at `:242-245`); `get_public_account_details` is defined at `account_details.py:103`.
+
+**Workload discovery settings (`client.ztw.discovery_service`):**
+
+```python
+# Read tenant-wide workload-discovery settings
+settings, resp, err = client.ztw.discovery_service.get_discovery_settings()
+```
+
+Hits `GET /ztw/api/v1/discoveryService/workloadDiscoverySettings` (`vendor/zscaler-sdk-python/zscaler/ztw/discovery_service.py:32-52`). The Go SDK has no standalone discovery-settings read.
+
+**AWS workload discovery / region status (`client.ztw.public_cloud_info`):**
+
+```python
+info, resp, err = client.ztw.public_cloud_info.get_public_cloud_info(cloud_id)   # GET /publicCloudInfo/{id}
+count, resp, err = client.ztw.public_cloud_info.get_public_cloud_info_count()    # discovered-record count
+ext, resp, err = client.ztw.public_cloud_info.generate_external_id()            # external-ID for cross-account role setup
+```
+
+`get_public_cloud_info` (`vendor/zscaler-sdk-python/zscaler/ztw/public_cloud_info.py:182-206`) mirrors the Go `GetPublicCloudInfo` (`vendor/zscaler-sdk-go/zscaler/ztw/services/partner_integrations/public_cloud_info/public_cloud_info.go:102`). Both other methods also have Go equivalents in the same Go file: `get_public_cloud_info_count` (`public_cloud_info.py:506`) maps to `GetPublicCloudInfoCount` (`public_cloud_info.go:145`), and `generate_external_id` (`public_cloud_info.py:548`) maps to `GenerateExternalID` (`public_cloud_info.go:204`). Both hit the same endpoints — `/publicCloudInfo/count` and `/publicCloudInfo/generateExternalId` (`public_cloud_info.go:147`, `:205`). One return-shape divergence: the Python count returns a list of dict records (count + config date; `public_cloud_info.py:506-546`), whereas the Go count returns a bare `int` (`public_cloud_info.go:145-152`).
+
+### 4.3 Terraform (read-side data sources)
 
 The ZTC Terraform provider exposes `ztc_edge_connector_group` as a data source, which returns all per-VM state fields available in the SDK including `status`, `operational_status`, `zia_gateway`, `zpa_broker`, `build_version`, `last_upgrade_time`, `upgrade_status`, `nat_ip`, and the full management/service network configuration. Useful for GitOps health checks via `terraform plan` output.
 
@@ -332,7 +397,7 @@ output "connector_status" {
 }
 ```
 
-### 4.3 Insights data — no API path identified
+### 4.4 Insights data — no API path identified
 
 The Session, DNS, and Tunnel Insights pages are UI-only in captured sources. No `/ztw/api/v1/insights/*` or equivalent endpoint was found in the Go SDK service list, Terraform provider, or help documentation. If programmatic access to Insights metrics is required, the current paths are:
 

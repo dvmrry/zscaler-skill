@@ -3,7 +3,7 @@ product: zcc
 topic: "zcc-index"
 title: "ZCC reference hub"
 content-type: reference
-last-verified: "2026-06-02"
+last-verified: "2026-06-15"
 confidence: medium
 sources: []
 author-status: draft
@@ -21,9 +21,10 @@ Almost every ZIA or ZPA answer leans on ZCC implicitly. "User X is blocked" migh
 
 | Topic | File | Status |
 |---|---|---|
-| Forwarding profile — how ZCC decides per-network where to forward traffic (PAC / tunnel / none), ZIA actions vs ZPA actions, fail-open behavior | [`./forwarding-profile.md`](./forwarding-profile.md) | draft |
+| Forwarding profile (wire view) — SDK / wire-format / reasoning: how ZCC decides per-network where to forward traffic (PAC / tunnel / none), ZIA actions vs ZPA actions, integer enum values, fail-open behavior | [`./forwarding-profile.md`](./forwarding-profile.md) | draft |
+| Forwarding profiles (portal view) — portal configuration: network environments (On-/Off-/VPN-/Split-VPN-Trusted), the config sections, and app-profile assignment of a profile to users. Paired portal-view counterpart to `forwarding-profile.md` (wire view) | [`./forwarding-profiles.md`](./forwarding-profiles.md) | draft |
 | Trusted networks — detection criteria (DNS, SSIDs, DHCP, subnets, etc.) that switch ZCC's active profile branch | [`./trusted-networks.md`](./trusted-networks.md) | draft |
-| Web policy — on-device policy (PAC URL, per-platform passwords, SSL cert install, DR fallback) and the user↔forwarding-profile assignment link | [`./web-policy.md`](./web-policy.md) | draft |
+| Web policy / App Profiles — on-device policy (PAC URL, per-platform passwords, SSL cert install, DR fallback) and the user↔forwarding-profile assignment link. The policy object that ties users/groups/device-groups to a forwarding profile, `logMode`/`logLevel`/`logFileSize`, DNS/packet-tunnel bypass lists, fail-close settings, and per-service disable passwords. The legacy `WebPolicy` surface and the modern `application_profiles` SDK surface (`client.zcc.application_profiles`, REST `/application-profiles`) both target this object | [`./web-policy.md`](./web-policy.md) | draft |
 | Web privacy — telemetry / log-collection policy (what ZCC reports up, what local users can export) | [`./web-privacy.md`](./web-privacy.md) | draft |
 | Devices — inventory, states, cleanup, remove vs force-remove, CSV downloads | [`./devices.md`](./devices.md) | draft |
 | Entitlements — which users/groups are entitled to ZPA and ZDX (`zpa_enable_for_all` trump card, ZDX location dual-toggle) | [`./entitlements.md`](./entitlements.md) | draft |
@@ -44,6 +45,7 @@ Almost every ZIA or ZPA answer leans on ZCC implicitly. "User X is blocked" migh
 | **ZCC Terraform provider** — resource/data-source catalog for `terraform-provider-zcc`; OneAPI-only auth; automation coverage boundaries | [`./terraform.md`](./terraform.md) | draft |
 | **API rate limits** — 100 calls/hour general cap, 3 calls/day download endpoints, `X-Rate-Limit-*` headers, retry semantics, bulk UDID batching, pagination discipline | [`./api-rate-limits.md`](./api-rate-limits.md) | draft |
 | **API schemas** — full ZCC REST endpoint catalog with request/response shapes derived from the SDK | [`./api-schemas.md`](./api-schemas.md) | draft |
+| **API source divergences** — where the Go and Python SDKs disagree on field types, wire-key casing (incl. the per-platform `install_ssl_certs`/`installCerts` trap), GET-vs-POST type asymmetry, empty-body Python writes, the non-uniform `/edit` HTTP method, and the three Go-only `/v2` services (`notification_template`, `zia_posture`, `trusted_network_v2`); which source to trust per field | [`./api-divergences.md`](./api-divergences.md) | draft |
 | **SSL inspection (ZCC)** — client-side SSL trust / inspection behavior, certificate handling on the device | [`./ssl-inspection-zcc.md`](./ssl-inspection-zcc.md) | draft |
 | **getOtp bundle** — per-device one-time passcodes (logout/exit/uninstall/revert + per-service disable OTPs) keyed by UDID | [`./otp.md`](./otp.md) | draft |
 
@@ -58,3 +60,7 @@ Almost every ZIA or ZPA answer leans on ZCC implicitly. "User X is blocked" migh
 - **"Why didn't ZIA see this traffic?"** — start here (`forwarding-profile.md`), then `references/zia/ssl-inspection.md` or `url-filtering.md`.
 - **"Why didn't ZPA match this app?"** — start at `references/zpa/app-segments.md` (client-side segment matching happens in ZCC, but the segment *config* is the primary question). Cross to `forwarding-profile.md` only if the profile's Trusted-Network evaluation is suspect.
 - **"Traffic goes direct instead of through Zscaler"** — this is almost always a ZCC forwarding-profile issue (`action_type: NONE` on the active network-type branch, or a permissive TrustedNetwork match). Start here.
+
+## Open questions
+
+- **Captive-portal grace as an App Profile setting.** Captive-portal handling is exposed on the `WebPolicy`/company surface (`captivePortalConfig` — `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py:850`) and on the Fail-Open policy (`enable_captive_portal_detection`, `captive_portal_web_sec_disable_minutes` — `vendor/zscaler-sdk-python/zscaler/zcc/fail_open_policy.py:108-109`), not on the `ApplicationProfile` model. Whether the modern `/application-profiles` object carries an equivalent captive-portal grace field is not established in the SDK source; the App Profiles topic row deliberately does not claim it.

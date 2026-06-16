@@ -3,7 +3,7 @@ product: zpa
 topic: "zpa-terraform"
 title: "ZPA Terraform provider — resource catalog"
 content-type: reference
-last-verified: "2026-04-26"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: code
 sources:
@@ -25,9 +25,14 @@ sources:
   - "vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_assistant_schedule.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_ba_certificate.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_microtenant_controller.md"
+  # LSS: 10 doc files (1 zpa_lss_config_controller resource + 9 usage-example aliases)
   - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_config_controller.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_app_connector_metrics.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_app_connector_status.md"
+  - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_app_protection.md"
+  - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md"
+  - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_private_service_edge_status.md"
+  - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_private_service_metrics.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_web_browser.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_config_user_activity.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_config_user_status.md"
@@ -44,6 +49,8 @@ sources:
   - "vendor/terraform-provider-zpa/docs/resources/zpa_cloud_browser_isolation_external_profile.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_v2.md"
+  - "vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_application_segment.md"
+  - "vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_browser_access.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_posture_profile.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_risk_factor.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_saml.md"
@@ -469,7 +476,7 @@ Source: `vendor/terraform-provider-zpa/docs/resources/zpa_microtenant_controller
 
 ### Log Streaming Service (LSS)
 
-The ZPA provider exposes a single Terraform resource type for LSS regardless of the log stream type. Several LSS-specific docs (`zpa_lss_app_connector_metrics.md`, `zpa_lss_config_user_activity.md`, etc.) are usage-example aliases — they configure the same `zpa_lss_config_controller` resource with different `source_log_type` values. The provider also exposes `zpa_lss_config_log_type_formats` as the source for valid log type metadata.
+The ZPA provider exposes a single Terraform resource type for LSS regardless of the log stream type. The provider now ships ten LSS doc files (`zpa_lss_config_controller.md` plus nine usage-example aliases: `zpa_lss_app_connector_metrics.md`, `zpa_lss_app_connector_status.md`, `zpa_lss_app_protection.md`, `zpa_lss_audit_logs.md`, `zpa_lss_config_user_activity.md`, `zpa_lss_config_user_status.md`, `zpa_lss_private_service_edge_status.md`, `zpa_lss_private_service_metrics.md`, `zpa_lss_web_browser.md`), all of which configure the same `zpa_lss_config_controller` resource with different `source_log_type` values. The provider also exposes `zpa_lss_config_log_type_formats` as the source for valid log type metadata.
 
 #### `zpa_lss_config_controller`
 
@@ -489,23 +496,25 @@ Streams ZPA log data to an external SIEM over TCP.
 
 **Optional `config` fields:** `description`, `enabled`, `use_tls`, `filter` (list of status codes to include/exclude).
 
-**Optional:** `policy_rule_resource` block — required for user-activity log types (`zpn_trans_log`, `zpn_auth_log`, `zpn_ast_auth_log`, `zpn_pbroker_comprehensive_stats`). Uses the same v2-style condition syntax as policy access rules. Action must be `LOG`.
+**Optional:** `policy_rule_resource` block — the User Activity (`zpn_trans_log`) and User Status (`zpn_auth_log`) example docs include one; it uses the same v2-style condition syntax as policy access rules, and its `action` must be `LOG`. (See Open questions for which other log types accept or require this block.)
 
-**`source_log_type` values:**
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_lss_config_user_activity.md:77`; `vendor/terraform-provider-zpa/docs/resources/zpa_lss_config_user_status.md:61`.
 
-| Value | Alias or metadata source | Description |
+**`source_log_type` values** (the provider's log-type table maps each token to a display name; the same table appears verbatim in every LSS doc):
+
+| Value | Display name | Demonstrating alias doc |
 |---|---|---|
-| `zpn_trans_log` | `zpa_lss_config_user_activity.md` | Per-session user activity |
-| `zpn_auth_log` | `zpa_lss_config_user_status.md` | Authentication events |
-| `zpn_ast_auth_log` | `zpa_lss_config_log_type_formats.md` | AST auth events |
-| `zpn_pbroker_comprehensive_stats` | `zpa_lss_config_log_type_formats.md` | Broker stats |
-| `zpn_trans_log` (browser) | `zpa_lss_web_browser.md` | Browser access sessions |
-| `zpn_sys_auth_log` | — | System auth |
-| `zpn_http_trans_log` | `zpa_lss_config_log_type_formats.md` | HTTP transactions |
-| `zpn_cnx_apps_stats` | `zpa_lss_app_connector_metrics.md` | Connector metrics |
-| (connector status) | `zpa_lss_app_connector_status.md` | Connector health status |
+| `zpn_trans_log` | User Activity | `zpa_lss_config_user_activity.md` |
+| `zpn_auth_log` | User Status | `zpa_lss_config_user_status.md` |
+| `zpn_ast_auth_log` | App Connector Status | `zpa_lss_app_connector_status.md` |
+| `zpn_http_trans_log` | Web Browser | `zpa_lss_web_browser.md` |
+| `zpn_audit_log` | Audit Logs | `zpa_lss_audit_logs.md` |
+| `zpn_sys_auth_log` | Private Service Edge Status | `zpa_lss_private_service_edge_status.md` |
+| `zpn_ast_comprehensive_stats` | App Connector Metrics | `zpa_lss_app_connector_metrics.md` |
+| `zpn_pbroker_comprehensive_stats` | Private Service Edge Metrics | `zpa_lss_private_service_metrics.md` |
+| `zpn_waf_http_exchanges_log` | ZPA App Protection | `zpa_lss_app_protection.md` |
 
-Source: `vendor/terraform-provider-zpa/docs/resources/zpa_lss_config_controller.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_lss_app_connector_metrics.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_lss_app_connector_status.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_lss_config_user_activity.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_lss_config_user_status.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_lss_web_browser.md`; `vendor/terraform-provider-zpa/docs/data-sources/zpa_lss_config_log_type_formats.md`.
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_lss_config_controller.md:88`; `vendor/terraform-provider-zpa/docs/resources/zpa_lss_app_protection.md:98`; `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md:93`; `vendor/terraform-provider-zpa/docs/resources/zpa_lss_private_service_edge_status.md:96`; `vendor/terraform-provider-zpa/docs/resources/zpa_lss_private_service_metrics.md:97`; `vendor/terraform-provider-zpa/docs/resources/zpa_lss_app_connector_metrics.md:96`; `vendor/terraform-provider-zpa/docs/resources/zpa_lss_app_connector_status.md:93`; `vendor/terraform-provider-zpa/docs/resources/zpa_lss_config_user_activity.md:278`; `vendor/terraform-provider-zpa/docs/resources/zpa_lss_web_browser.md:92`; `vendor/terraform-provider-zpa/docs/data-sources/zpa_lss_config_log_type_formats.md`.
 
 ---
 
@@ -880,8 +889,8 @@ conditions {
 | `MACHINE_GRP` | Machine group IDs |
 | `PLATFORM` | OS/platform (windows, mac, android, ios, linux) |
 | `COUNTRY_CODE` | ISO 3166-1 alpha-2 country codes |
-| `EDGE_CONNECTOR_GROUP` | Branch connector group IDs |
-| `BRANCH_CONNECTOR_GROUP` | Branch connector group IDs (alias) |
+| `EDGE_CONNECTOR_GROUP` | Cloud connector group IDs — the primary validator resolves these against the cloud connector group getter (`vendor/terraform-provider-zpa/zpa/common.go:107-111`) |
+| `BRANCH_CONNECTOR_GROUP` | Branch connector group IDs — a distinct object type, not an alias of `EDGE_CONNECTOR_GROUP`; handled only by the resource-level validator (`vendor/terraform-provider-zpa/zpa/common.go:1040`) and the v1→v2 aggregation switch (`vendor/terraform-provider-zpa/zpa/common.go:1334`) |
 | `RISK_FACTOR_TYPE` | Risk score values |
 | `CHROME_ENTERPRISE` | Chrome Enterprise device signals |
 | `CHROME_POSTURE_PROFILE` | Chrome posture profile IDs |
@@ -912,9 +921,9 @@ Standard access control rule (allow/deny/require approval).
 | `app_connector_groups` | Block; optional connector pinning |
 | `app_server_groups` | Block; optional server group pinning |
 
-The six variant doc files (`zpa_policy_access_rule_posture_profile.md`, `vendor/terraform-provider-zpa/docs/resources/_risk_factor.md`, `vendor/terraform-provider-zpa/docs/resources/_saml.md`, `vendor/terraform-provider-zpa/docs/resources/_scim_attribute.md`, `vendor/terraform-provider-zpa/docs/resources/_scim_group.md`, `vendor/terraform-provider-zpa/docs/resources/_trusted_networks.md`) are usage examples showing different `object_type` configurations in conditions — not distinct resources.
+The access-rule variant doc files are usage examples showing different `object_type` configurations in conditions — not distinct resources. They are: `zpa_policy_access_rule_application_segment.md` (`object_type = "APP"`), `zpa_policy_access_rule_browser_access.md`, `zpa_policy_access_rule_posture_profile.md`, `zpa_policy_access_rule_risk_factor.md`, `zpa_policy_access_rule_saml.md`, `zpa_policy_access_rule_scim_attribute.md`, `zpa_policy_access_rule_scim_group.md`, and `zpa_policy_access_rule_trusted_networks.md`. Each configures the same `zpa_policy_access_rule` / `zpa_policy_access_rule_v2` resource.
 
-Source: `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_v2.md`.
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_v2.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_application_segment.md:31`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_browser_access.md:34`.
 
 ---
 
@@ -1070,7 +1079,7 @@ Source: `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_reo
 
 ## Data sources
 
-The provider exposes data sources for all major resource types, enabling lookup by name or ID. Data sources follow the naming convention `data.zpa_<resource_type>.<label>`. The complete list of 69 data sources mirrors the resource list with the following additions:
+The provider exposes data sources for all major resource types, enabling lookup by name or ID. Data sources follow the naming convention `data.zpa_<resource_type>.<label>`. The data-source set mirrors the resource list (the `docs/data-sources/` directory currently holds 70 doc files, several of which are alias/usage examples rather than distinct data sources) with the following additions:
 
 | Data source | Purpose |
 |---|---|
@@ -1134,7 +1143,9 @@ Resolved items below cite the specific provider files used for verification inli
 
 1. **Resolved 2026-04-26.** `zia_cloud_domain` valid values confirmed from provider source. `validation.StringInSlice` enforces: `zscaler`, `zscloud`, `zscalerone`, `zscalertwo`, `zscalerthree`, `zscalerbeta`, `zscalergov`, `zscalerten`, `zspreview`. The provider's `StateFunc` automatically appends `.net` to the stored value (e.g., `zscloud` → `zscloud.net`) but the raw input should not include the `.net` suffix.
 
-2. **LSS `source_log_type` canonical list** — The mapping between internal API names and alias-doc filenames is confirmed from the provider docs reviewed in earlier sweep. For runtime verification, use the `zpa_lss_config_log_type_formats` data source.
+2. **Resolved 2026-06-15.** LSS `source_log_type` canonical list re-verified against the current provider docs. The log-type → display-name table is identical across all ten LSS doc files (e.g. `vendor/terraform-provider-zpa/docs/resources/zpa_lss_config_controller.md:88`). The LSS section table in this doc was corrected accordingly: `zpn_http_trans_log` is "Web Browser" (not "HTTP transactions"), the App Connector Metrics token is `zpn_ast_comprehensive_stats` (the doc previously listed `zpn_cnx_apps_stats`), and two new tokens were added — `zpn_audit_log` → Audit Logs and `zpn_waf_http_exchanges_log` → ZPA App Protection. For runtime verification, use the `zpa_lss_config_log_type_formats` data source.
+
+   - **Still open:** which `source_log_type` values accept or require a `policy_rule_resource` block. Only the User Activity (`zpn_trans_log`) and User Status (`zpn_auth_log`) example docs ship one (`vendor/terraform-provider-zpa/docs/resources/zpa_lss_config_user_activity.md:77`); the other eight LSS docs (including App Connector Status, Private Service Edge Metrics, and App Protection) do not. The prior claim here that `zpn_ast_auth_log` and `zpn_pbroker_comprehensive_stats` require the block could not be confirmed from any provider doc and has been removed from the LSS section pending source confirmation. (Tracked as [`zpa-76`](../_meta/clarifications.md#zpa-76-which-lss-source_log_type-values-require-a-policy_rule_resource-block).)
 
 3. **Resolved 2026-04-26.** `app_connector_group` OAuth2 enrollment fields confirmed. Two fields: `enrollment_cert_id` (String) — ID of the enrollment certificate, use `zpa_enrollment_cert` data source with name `"Connector"`; `user_codes` (Set of String) — codes displayed on App Connector VMs during OAuth2 enrollment flow. Both must be set together to trigger the OAuth2 user code verification API.
 
@@ -1142,6 +1153,6 @@ Resolved items below cite the specific provider files used for verification inli
 
 5. **Resolved 2026-04-26.** `zpa_private_cloud_group` uses `site_id` (String) to link a private cloud group to a Site Controller site. The distinction from `zpa_app_connector_group`: private cloud groups are for ZPA Private Cloud (on-premises ZPA deployments using Private Cloud Controllers), while app connector groups are for standard cloud-hosted ZPA. The `site_id` references the Private Cloud Controller's site identifier.
 
-6. **Tag group membership in policy** — Tags and tag groups are Early Access. Whether `zpa_tag_group` IDs can currently be referenced in policy rule conditions as an `object_type` is not confirmed from available sources. Remains unresolved.
+6. **Tag group membership in policy** — Tags and tag groups are Early Access. Whether `zpa_tag_group` IDs can currently be referenced in policy rule conditions as an `object_type` is not confirmed from available sources. Remains unresolved. (Tracked as [`zpa-77`](../_meta/clarifications.md#zpa-77-tag-tag-group-membership-referenced-in-policy-rule-conditions).)
 
 7. **Resolved 2026-04-26.** `zpa_policy_redirection_rule` CLIENT_TYPE values confirmed. Valid `CLIENT_TYPE` values: `zpn_client_type_machine_tunnel`, `zpn_client_type_edge_connector`, `zpn_client_type_zapp`, `zpn_client_type_zapp_partner`, `zpn_client_type_branch_connector`. These are the values to use in the `values` list under a condition with `object_type = "CLIENT_TYPE"`.

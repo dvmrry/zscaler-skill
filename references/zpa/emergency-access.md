@@ -3,10 +3,10 @@ product: zpa
 topic: "emergency-access"
 title: "ZPA Emergency Access — time-bounded out-of-band access via Okta"
 content-type: reasoning
-last-verified: "2026-05-17"
+last-verified: "2026-06-15"
 verified-against:
-  vendor/zscaler-sdk-python: 8d054b1fdd18bcb29722b7051dc282c0d1c86be6
-  vendor/terraform-provider-zpa: a3c845f3366cc2267e1b244f9968e727c92bad3d
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
 confidence: high
 source-tier: doc
 sources:
@@ -95,33 +95,48 @@ The Emergency Access Users page also shows **Activation Date** (when admin activ
 
 **Service:** `client.zpa.emergency_access` (`EmergencyAccessAPI`, `vendor/zscaler-sdk-python/zscaler/zpa/emergency_access.py`)
 
-**Pagination note:** Uses `page_id` (not `page`) as the pagination key, unlike most other ZPA services. (Tier A — `emergency_access.py` line 45 docstring explicitly lists `page_id` as the page number parameter.)
+**Pagination note:** Uses `page_id` (not `page`) as the pagination key — the only ZPA service in the SDK to do so; every other ZPA service (e.g. application_segment, c2c_ip_ranges, microtenants, scim_attributes, saml_attributes) documents `page`. (Tier A — `vendor/zscaler-sdk-python/zscaler/zpa/emergency_access.py:46` docstring lists `page_id` as the page-number parameter; Go parity at `vendor/zscaler-sdk-go/zscaler/zpa/services/emergencyaccess/emergencyaccess.go:123` builds the URL with `pageId=`.)
 
 | Method | Signature | Notes |
 |---|---|---|
-| `list_users` | `(query_params=None, **kwargs) -> APIResult[List[EmergencyAccessUser]]` | `search` supports `first_name+EQ+Emily` style |
-| `get_user` | `(user_id: str, query_params=None) -> APIResult[EmergencyAccessUser]` | |
-| `add_user` | `(**kwargs) -> APIResult[EmergencyAccessUser]` | `activate_now=True` triggers immediate activation |
-| `update_user` | `(user_id: str, **kwargs) -> APIResult[EmergencyAccessUser]` | |
-| `delete_user` | `(user_id: str) -> APIResult[None]` | |
-| `activate_user` | `(user_id: str, send_email: bool = False) -> APIResult` | Activates independently of create |
-| `deactivate_user` | `(user_id: str) -> APIResult` | Deactivates without deleting |
+| `list_users` | `(query_params=None, **kwargs)` (`:37`) | `search` supports `first_name+EQ+Emily` style (`:59`) |
+| `get_user` | `(user_id: str, query_params=None)` (`:102`) | |
+| `add_user` | `(activate_now=True, **kwargs)` (`:145`) | `activate_now=True` (default) triggers immediate activation (`:155`) |
+| `update_user` | `(user_id: str, activate_now=True, **kwargs)` (`:206`) | |
+| `activate_user` | `(user_id: str, send_email: bool = False, **kwargs)` (`:272`) | Activates independently of create |
+| `deactivate_user` | `(user_id: str, **kwargs)` (`:318`) | Deactivates without deleting |
 
-**EmergencyAccessUser model fields** (from `models/emergency_access.py`):
+**EmergencyAccessUser model fields** (from `models/emergency_access.py`:33-42 — there is no `id` field; the identity field is `user_id`):
 
 | Field | Wire key | Notes |
 |---|---|---|
-| `id` | `id` | ZPA-side opaque string. |
-| `email_id` | `emailId` | Email address. `ForceNew` in TF — changing email destroys and recreates. |
-| `first_name` | `firstName` | Display name field. |
-| `last_name` | `lastName` | Display name field. |
-| `user_id` | `userId` | Okta-side user ID. |
+| `user_id` | `userId` | Okta-side user ID — the model's identity field (:33). |
+| `first_name` | `firstName` | Display name field (:34). |
+| `last_name` | `lastName` | Display name field (:35). |
+| `email_id` | `emailId` | Email address (:36). |
+| `user_status` | `userStatus` | Mirrors the Okta lifecycle tabulated under "User lifecycle and status" above — Staged / Provisioned / Active / Deprovisioned / Suspended (:37). |
+| `activated_on` | `activatedOn` | Backs the **Activation Date** UI column on the Emergency Access Users page (:38). |
+| `last_login_time` | `lastLoginTime` | Backs the **Last Login Date** UI column on the Emergency Access Users page (:39). |
+| `allowed_activate` | `allowedActivate` | Boolean field; also accepted as an `add_user` request key (:40; `emergency_access.py:167`). |
+| `allowed_deactivate` | `allowedDeactivate` | Boolean field; also accepted as an `add_user` request key (:41; `emergency_access.py:168`). |
+| `update_enabled` | `updateEnabled` | "Indicates if the emergency access user can be updated (true) or not (false)" per the `add_user` docstring (:42; `emergency_access.py:154`). |
 
-**API endpoint:** `GET/POST/PUT/DELETE /zpa/mgmtconfig/v1/admin/customers/{customerId}/emergencyAccess/user`. The list endpoint supports `page_id` for pagination (not the standard `page` parameter).
+**API endpoints** (base `/zpa/mgmtconfig/v1/admin/customers/{customerId}`):
+
+| Operation | Method + path |
+|---|---|
+| List users | `GET …/emergencyAccess/users` (plural; `emergency_access.py:76-79`) |
+| Get user | `GET …/emergencyAccess/user/{user_id}` (`:120-123`) |
+| Add user | `POST …/emergencyAccess/user` (`:176-179`) |
+| Update user | `PUT …/emergencyAccess/user/{user_id}` (`:238-241`) |
+| Activate user | `PUT …/emergencyAccess/user/{user_id}/activate` (`:284-287`) |
+| Deactivate user | `PUT …/emergencyAccess/user/{user_id}/deactivate` (`:329-332`) |
+
+Note the list path is plural (`/users`) while single-resource operations are singular (`/user`). There is **no DELETE endpoint** — the SDK exposes no delete method (deactivation, not deletion, is the removal path; see Terraform note below). The list endpoint paginates with `page_id` (not the standard `page` parameter).
 
 **Go SDK parity:** `emergencyaccess/` service. (Tier A — sdk.md §2.16.)
 
-**Terraform resource:** `zpa_emergency_access_user`. The destroy operation calls `Deactivate` (not delete) — removing the TF resource deactivates the user rather than deleting the Okta account. `email_id` is `ForceNew` — changing the email destroys and recreates the user.
+**Terraform resource:** `zpa_emergency_access_user`. The resource's `DeleteContext` maps to a deactivate handler that calls `emergencyaccess.Deactivate` (not delete) — removing the TF resource deactivates the user rather than deleting the Okta account. (Tier C — `vendor/terraform-provider-zpa/zpa/resource_zpa_emergency_access.go:18,128,139`.) `email_id` is `ForceNew` — changing the email destroys and recreates the user. (`resource_zpa_emergency_access.go:33`.)
 
 ## Limitations
 
