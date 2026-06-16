@@ -1,9 +1,19 @@
 ---
 product: breach-predictor
 topic: overview
-title: "Breach Predictor — predictive threat intelligence and breach risk scoring"
+title: "Breach Predictor - predictive threat context and audit-scoped API surface"
 content-type: reference
-last-verified: "2026-04-28"
+last-verified: "2026-06-16"
+verified-against:
+  vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
+  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/terraform-provider-zia: 717926eb564bb21dea1f8e0c3222e6593b29f849
+  vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
+  vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
+  vendor/zpacloud-ansible: 84ab824d6ce5853c12add6ae3280dcfb8db273a2
+  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
+  vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: medium
 source-tier: doc
 sources:
@@ -11,123 +21,50 @@ sources:
 author-status: draft
 ---
 
-# Breach Predictor — predictive threat intelligence and breach risk scoring
+# Breach Predictor - predictive threat context and audit-scoped API surface
 
-## What it is
+Breach Predictor is positioned as a proactive SecOps product that anticipates threats, provides context, and helps prevent threat actors from accessing sensitive data (`vendor/zscaler-help/bp-what-zscaler-breach-predictor.md:8`). The captured benefits are Enhanced Attack Visibility, Proactive Breach Risk Reduction, and Improved Security Posture (`vendor/zscaler-help/bp-what-zscaler-breach-predictor.md:10-16`).
 
-Breach Predictor is a Zscaler Security Operations (SecOps) product that shifts security posture from reactive to predictive. Rather than responding to alerts after an event has occurred, Breach Predictor consumes and analyzes data from multiple sources using generative AI to surface how threats are likely to propagate, enabling SOC teams to close policy gaps before attackers move to the next stage (Tier A — vendor/zscaler-help/bp-what-zscaler-breach-predictor.md).
+## Operating Model
 
-It is distinct from Risk360 (which quantifies risk in financial terms) and from SOC Workbench (which unifies and triages alerts). Breach Predictor's specific value is **predicting where threats will move** and telling analysts which policies enabled the observed activity.
+The captured help says Breach Predictor shifts from reactive alerts to predictability of attacks and is designed to supplement, not replace, reactive security tools (`vendor/zscaler-help/bp-what-zscaler-breach-predictor.md:25`). It uses predictive intelligence to identify policy problems before threats move to the next stage, and it provides context about the policies that enabled observed activity (`vendor/zscaler-help/bp-what-zscaler-breach-predictor.md:27-29`).
 
-## Platform placement
+The documented high-level workflow is intentionally broad: track substantial data from multiple sources, use generative AI to analyze it, then draw conclusions that provide visibility and guidance (`vendor/zscaler-help/bp-what-zscaler-breach-predictor.md:31-37`). Do not expand that into a specific connector list from this source alone.
 
-Breach Predictor is listed under "Security Operations Platform" in the Zscaler help portal nav, alongside UVM, AEM, EASM, SOC Workbench, Deception, and Identity Protection. It is a paid add-on; specific licensing SKU details are not publicly documented on the help portal.
+## UI Concepts
 
-## Key concepts
+The help capture names several product concepts: Overall Breach Probability score, Sankey charts, MITRE ATT&CK findings tables, AI Assist Dashboard, Dashboard, Findings, Events, Threat Landscape, Tickets, Profiles, and Alerts & Remediation (`vendor/zscaler-help/bp-what-zscaler-breach-predictor.md:39-48`).
 
-### Overall Breach Probability score
+## Source-Family Audit
 
-A single score representing the immediate assessment of your organization's threat landscape. Displayed prominently on the Dashboard (Tier A — vendor/zscaler-help/bp-what-zscaler-breach-predictor.md).
-
-### Findings
-
-Specific security issues surfaced by Breach Predictor's analysis. Each finding is mapped to MITRE ATT&CK and tied to specific policies. The Findings page shows the active issues in your environment.
-
-### MITRE ATT&CK integration
-
-Findings tables display MITRE ATT&CK tactics and techniques. This allows analysts to understand which adversary behaviors are represented by the current threat landscape.
-
-### Sankey charts
-
-Visual representation of threat propagation paths. Sankey diagrams show how threats flow from initial compromise through lateral movement toward data exfiltration, letting analysts see which user populations are most vulnerable and which malware families are present.
-
-### AI Assist Dashboard
-
-A generative AI surface within Breach Predictor. Uses AI to analyze the data and draw conclusions that support visibility and guidance. This is the primary differentiator from rule-based SIEM approaches (Tier A — vendor/zscaler-help/bp-what-zscaler-breach-predictor.md).
-
-### Threat Landscape
-
-A dedicated page/view within Breach Predictor showing the malware families and threat actor behaviors currently present in the organization's traffic.
-
-### Events, Tickets, Profiles, Users
-
-Additional data views within the product. Events provides the underlying signal feed. Tickets tracks remediation work. Profiles applies to asset or user risk profiles. Users enables drill-down into individual user risk.
-
-## How it works
-
-1. Tracks substantial amounts of data from multiple sources (Zscaler telemetry plus external threat data).
-2. Uses generative AI to analyze data.
-3. Draws conclusions to provide visibility and guidance.
-
-Breach Predictor is designed to **supplement, not replace**, reactive security tools. Reactive tools (SIEM, EDR, etc.) provide urgency for imminent threats; Breach Predictor provides context to make proactive decisions before the next attack stage materializes (Tier A — vendor/zscaler-help/bp-what-zscaler-breach-predictor.md).
-
-## Data inputs
-
-The vendor source describes consumption of "vast amounts of data from multiple sources" without enumerating them precisely. Given Breach Predictor's placement in the Zscaler SecOps platform, likely inputs include ZIA and ZPA telemetry, ThreatLabz threat intelligence, and third-party integrations (consistent with other SecOps products). Specific source list not confirmed.
-
-## UI surfaces
-
-| Page | Purpose |
+| Family | Audit result |
 |---|---|
-| Dashboard | Breach probability score, overall risk picture |
-| Findings | Security issues with MITRE ATT&CK mapping and policy context |
-| Users | Per-user risk drill-down |
-| Events | Underlying signal/event feed |
-| Threat Landscape | Malware families and adversary behaviors present |
-| Tickets | Remediation tracking |
-| Profiles | Risk profiles for assets or users |
-| AI Assist Dashboard | Generative AI analysis surface |
+| Go SDK | No product-specific Breach Predictor service found in this audit pass. |
+| Python SDK | No product-specific Breach Predictor service found in this audit pass. |
+| Terraform | No product-specific Breach Predictor resource or data source found in this audit pass. |
+| Ansible | No product-specific Breach Predictor module found in this audit pass. |
+| MCP | No product-specific Breach Predictor tool found in this audit pass. |
+| Postman | No Breach Predictor endpoint family found in the audited Postman collection. |
+| Help captures | Product overview, operating model, workflow, and UI concepts are captured (`vendor/zscaler-help/bp-what-zscaler-breach-predictor.md:8-48`). |
 
-## Relationship to other Zscaler products
+## API Surface
 
-- **vs. SOC Workbench**: SOC Workbench unifies alerts and incidents from many sources, focuses on triage and response workflow. Breach Predictor focuses on predictive intelligence — where will the threat go next?
-- **vs. Risk360**: Risk360 quantifies risk in dollar-denominated financial loss via Monte Carlo simulation, audience is CISO/board. Breach Predictor is SOC-team-focused with operational remediation guidance.
-- **vs. AEM/UVM**: AEM tracks asset inventory and posture; UVM manages vulnerabilities. Breach Predictor uses threat signals to predict breach progression.
+Do not claim a Breach Predictor public API from the current captures. The help source establishes product behavior and UI concepts, but this refresh did not find SDK, Terraform, Ansible, MCP, or Postman surface. The specific data sources, integration details, and endpoint-level API surface remain unresolved. See [clarification breach-predictor-01](../_meta/clarifications.md#breach-predictor-01-breach-predictor-api-integration-and-data-source-details).
 
-## API surface
+## What Breach Predictor Is Not
 
-The help portal lists an "Integrating Applications with Zscaler Breach Predictor" page and a "Requesting Updates in Zscaler Breach Predictor" page, suggesting some integration/API capability exists. However, no public API reference or SDK documentation was found for Breach Predictor specifically. Treat as primarily portal-managed with integration surface not yet confirmed. See open question below.
+- It is not evidenced as a SIEM replacement; the help explicitly says it supplements reactive security tools (`vendor/zscaler-help/bp-what-zscaler-breach-predictor.md:25`).
+- It is not evidenced as a vulnerability scanner or policy-enforcement engine in this capture.
+- It is not safe to enumerate exact ingestion sources from the current help capture; the source only says "multiple sources" (`vendor/zscaler-help/bp-what-zscaler-breach-predictor.md:31`).
 
-## Key limits and constraints
+## Open Questions
 
-- The product is primarily designed for SOC teams, not self-serve end users.
-- The "supplement, not replace" framing is explicit in vendor docs — Breach Predictor is not positioned as a SIEM replacement.
-- Generative AI-based analysis means outputs are probabilistic; the overall breach probability score is an assessment, not a deterministic calculation.
+- Breach Predictor data-source enumeration, API/integration surface, and endpoint/schema details remain unresolved. See [clarification breach-predictor-01](../_meta/clarifications.md#breach-predictor-01-breach-predictor-api-integration-and-data-source-details).
 
-## Open questions
+## Cross-Links
 
-- What specific data sources does Breach Predictor ingest? (not enumerated in vendor docs)
-- What is the API surface? (referenced but not detailed in available sources)
-- What SKU / pricing tier does Breach Predictor fall under?
-- How does it relate to the "AI Assist" features appearing in other Zscaler products?
-
-## Common questions
-
-- **"What is Breach Predictor?"** → A Zscaler SecOps product that uses generative AI to predict how threats will propagate through your organization, and which policies need to be fixed now to prevent future breach.
-- **"How is Breach Predictor different from a SIEM?"** → A SIEM collects and stores security events for retrospective investigation. Breach Predictor predicts future threat movement based on current signals, focusing on proactive policy remediation rather than retrospective event review.
-- **"Does Breach Predictor replace my SIEM?"** → No — vendor docs explicitly position it as a supplement to reactive security tools, not a replacement.
-- **"What does the Breach Probability score mean?"** → An AI-computed assessment of how likely your organization is to experience a data breach given current threat landscape and policy gaps. A higher score indicates more risk.
-- **"What is MITRE ATT&CK used for in Breach Predictor?"** → Findings are mapped to MITRE ATT&CK tactics/techniques so analysts understand which adversary behaviors are currently represented in their environment.
-- **"What is the AI Assist Dashboard?"** → A generative AI surface within Breach Predictor that analyzes threat data and produces natural-language guidance for analysts.
-
-## Relationship to other SecOps platform products
-
-The Zscaler SecOps platform is a collection of related but distinct products sharing the Data Fabric for Security infrastructure:
-
-| Product | Primary focus |
-|---|---|
-| **Breach Predictor** | Predictive threat intelligence; breach probability; policy gap identification |
-| **SOC Workbench** | Alert unification, correlation, and incident triage/response |
-| **AEM** | Asset inventory, attack surface tracking, policy compliance |
-| **UVM** | Vulnerability ingestion, prioritization, and remediation tracking |
-| **Identity Protection** | Identity threat detection, posture scanning, credential exposure |
-| **EASM** | Internet-facing asset discovery and risk |
-
-These products are licensed separately and can be combined. Their shared data fabric means signals from one product can enrich another's views.
-
-## Cross-links
-
-- SecOps platform overview (AEM, UVM, Identity Protection, SOC Workbench share a platform): [`../aem/overview.md`](../aem/overview.md), [`../uvm/overview.md`](../uvm/overview.md)
-- Identity Protection (related detection surface): [`../identity-protection/overview.md`](../identity-protection/overview.md)
-- Risk360 (financial risk quantification; different audience): [`../risk360/overview.md`](../risk360/overview.md)
+- Claims ledger for this refresh: [`./_claims-ledger.md`](./_claims-ledger.md)
+- SOC Workbench: [`../soc-workbench/overview.md`](../soc-workbench/overview.md)
+- Risk360: [`../risk360/overview.md`](../risk360/overview.md)
+- UVM: [`../uvm/overview.md`](../uvm/overview.md)
 - Portfolio map: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)

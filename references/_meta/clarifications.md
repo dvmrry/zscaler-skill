@@ -31,6 +31,10 @@ Centralized list of open questions raised across `references/*.md`. Each entry h
 - `business-insights-*` — Business Insights behavior / API-coverage question
 - `soc-workbench-*` — SOC Workbench behavior / API-coverage question
 - `unified-*` — Zscaler Experience Center / unified-console behavior question
+- `risk360-*` — Risk360 behavior / API-coverage question
+- `breach-predictor-*` — Breach Predictor behavior / API-coverage question
+- `uvm-*` — Unified Vulnerability Management behavior / API-coverage question
+- `dspm-*` — Data Security Posture Management behavior / API-coverage question
 - `log-*` — log-schema / NSS / LSS question that spans multiple products
 
 IDs are stable forever. If an entry is resolved, it stays here with its answer — don't renumber.
@@ -5743,6 +5747,61 @@ This refresh found Python SDK runtime policy detection and public DaaS integrati
 
 **Status**: open
 **Resolves with**: vendor API documentation, SDK/provider source exposing admin-plane operations, or explicit vendor confirmation
+
+---
+
+### risk360-01 — Risk360 programmable API and export surface
+
+*Origin: `references/risk360/overview.md` § Open questions*
+
+Risk360 help captures describe dashboard, factors, asset-level risk, Monte Carlo, log processing, and product positioning (`vendor/zscaler-help/what-risk360.md:8-22`, `vendor/zscaler-help/risk360-about-dashboard.md:8-48`, `vendor/zscaler-help/risk360-monte-carlo.md:12-34`). A Python ZIdentity integration cassette incidentally shows a `ZRA` / `Risk360` resource-server entry with read-only and super-admin role scopes (`vendor/zscaler-sdk-python/tests/integration/zid/cassettes/TestResourceServers.yaml:25-28`, `:132-135`), but this refresh did not find a product-specific Risk360 SDK service, Terraform resource, Ansible module, MCP tool, or Postman endpoint family. Treat Risk360 programmability and export automation as unresolved until a vendor API source is captured.
+
+**Status**: open
+**Resolves with**: vendor API documentation, SDK/provider source exposing Risk360 operations, or tenant-side API discovery
+
+---
+
+### risk360-02 — Risk360 factor catalog, weighting, and peer-benchmark methodology
+
+*Origin: `references/risk360/overview.md` § Open questions*
+
+The captured sources establish that Risk360 uses four attack-stage categories, weighted factors, industry-peer comparison, and a moving factor count (`vendor/zscaler-help/what-risk360.md:8-22`, `vendor/zscaler-help/risk360-about-dashboard.md:8-16`, `vendor/zscaler-help/risk360-about-factors.md:8-20`, `vendor/zscaler-help/risk360-product-marketing.md:18-24`). They do not enumerate the full current factor catalog, disclose per-factor weights, or explain the peer-benchmark cohort methodology.
+
+**Status**: open
+**Resolves with**: captured Factors-page export, vendor methodology documentation, tenant snapshot, or support confirmation
+
+---
+
+### breach-predictor-01 — Breach Predictor API, integration, and data-source details
+
+*Origin: `references/breach-predictor/overview.md` § Open questions*
+
+The captured Breach Predictor help states that the product consumes and analyzes data from multiple sources, uses generative AI, and presents breach-probability, Sankey, MITRE ATT&CK, AI Assist, dashboard, findings, events, threat-landscape, ticket, and profile surfaces (`vendor/zscaler-help/bp-what-zscaler-breach-predictor.md:25-48`). This refresh did not find a product-specific SDK service, Terraform resource, Ansible module, MCP tool, or Postman endpoint family, and the source does not enumerate the ingestion sources or integration API details.
+
+**Status**: open
+**Resolves with**: vendor API/integration documentation, SDK/provider source, tenant-side integration capture, or support confirmation
+
+---
+
+### uvm-01 — UVM AnySource Upload File API endpoint and broader API surface
+
+*Origin: `references/uvm/overview.md` § Open questions*
+
+The UVM AnySource capture names Upload File, AWS S3, GCP, Webhook, and Upload File API methods for AnySource ingestion (`vendor/zscaler-help/uvm-anysource-connector.md:8-16`), and the marketing capture describes connectors, AnySource, AnyTarget, reporting, and automated workflows (`vendor/zscaler-help/uvm-unified-vulnerability-management-marketing.md:21-35`). This refresh did not find a UVM endpoint schema or SDK/provider/MCP/Postman implementation for the Upload File API or broader UVM administration.
+
+**Status**: open
+**Resolves with**: vendor API documentation, captured Upload File API article, SDK/provider source, or tenant-side API discovery
+
+---
+
+### dspm-01 — DSPM programmable/admin API and scanner contract
+
+*Origin: `references/dspm/overview.md` § Open questions*
+
+The DSPM captures establish product behavior, supported provider/on-prem scopes, scan/authentication types, classification, OCR, and data-residency claims (`vendor/zscaler-help/dspm-what-data-security-posture-management.md:8-78`, `vendor/zscaler-help/dspm-marketing.md:48-63`). This refresh did not find a DSPM SDK service, Terraform resource, Ansible module, MCP tool, or Postman endpoint family, and the captures do not provide an endpoint-level admin API or detailed scanner/orchestrator deployment contract.
+
+**Status**: open
+**Resolves with**: vendor API documentation, captured setup guide, SDK/provider source, or tenant-side deployment/API discovery
 
 ---
 
