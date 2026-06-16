@@ -62,7 +62,8 @@ def test_go_struct_missing_returns_empty():
     assert extract_go_struct_fields(GO_FIXTURE, "Nonexistent") == {}
 
 
-# TF schema with a nested Elem block whose key must NOT be captured at top level.
+# TF schema exercising: nested Elem (must not leak), commented-out attributes (must
+# be ignored), a helper-valued key (present but flags unknown), and an acronym key.
 TF_FIXTURE = """
 func resourceThing() *schema.Resource {
 \treturn &schema.Resource{
@@ -81,6 +82,17 @@ func resourceThing() *schema.Resource {
 \t\t\t"computed_id": {
 \t\t\t\tType:     schema.TypeString,
 \t\t\t\tComputed: true,
+\t\t\t},
+\t\t\t"legacy_mode": {
+\t\t\t\tType:     schema.TypeString,
+\t\t\t\tOptional: true,
+\t\t\t\t// Computed: true,
+\t\t\t\t// ValidateFunc: validation.StringInSlice([]string{"X", "Y"}, false),
+\t\t\t},
+\t\t\t"port_range": resourceNetworkPortsSchema(),
+\t\t\t"extranet_dto": {
+\t\t\t\tType:     schema.TypeList,
+\t\t\t\tOptional: true,
 \t\t\t},
 \t\t\t"block": {
 \t\t\t\tType:     schema.TypeList,
@@ -103,11 +115,29 @@ func resourceThing() *schema.Resource {
 @case
 def test_tf_schema_top_level_and_enum():
     f = extract_tf_schema_fields(TF_FIXTURE)
-    assert set(f) == {"name", "mode", "computedId", "block"}, set(f)
+    assert set(f) == {"name", "mode", "computedId", "legacyMode", "portRange",
+                      "extranetDto", "block"}, set(f)
     assert "leaked" not in f, "nested Elem schema keys must not be captured"
     assert f["name"]["required"] is True
     assert f["mode"]["enum"] == ["A", "B", "C"]
     assert f["computedId"]["computed"] is True and f["computedId"]["required"] is False
+
+
+@case
+def test_tf_commented_attributes_ignored():
+    # commented-out Computed / StringInSlice must NOT be read as live schema
+    f = extract_tf_schema_fields(TF_FIXTURE)
+    assert f["legacyMode"]["computed"] is False, f["legacyMode"]
+    assert f["legacyMode"]["enum"] is None, f["legacyMode"]
+
+
+@case
+def test_tf_helper_valued_key_present_flags_unknown():
+    # "port_range": resourceNetworkPortsSchema() is present, with unreadable flags
+    f = extract_tf_schema_fields(TF_FIXTURE)
+    assert "portRange" in f, "helper-valued keys must count as present"
+    assert f["portRange"]["inline"] is False
+    assert f["portRange"]["required"] is None and f["portRange"]["enum"] is None
 
 
 @case
@@ -151,6 +181,17 @@ def test_integration_stable_invariants():
     sg = next(r for r in report["resources"] if r["resource"] == "server_group")
     cs = [d for d in sg["required_drift"] if d["field"] == "configSpace"]
     assert cs and cs[0]["direction"] == "contract_stricter", sg["required_drift"]
+    # --- the three review false-positives must stay fixed ---
+    # P1#1: version_profile_id's StringInSlice is commented out in TF -> no enum.
+    assert not any(e["field"] == "versionProfileId" for e in acg["enum"]["one_sided"]), \
+        acg["enum"]["one_sided"]
+    # P1#2: tcp/udp port ranges are helper-valued TF keys -> matched, not unmatched.
+    aseg = next(r for r in report["resources"] if r["resource"] == "application_segment")
+    unmatched = set(aseg["presence"]["contract_unmatched_in_tf"])
+    assert "tcpPortRange" not in unmatched and "udpPortRange" not in unmatched, unmatched
+    # P2#3: extranetDTO matches extranet_dto by case-fold -> not "unmatched".
+    assert "extranetDTO" not in set(sg["presence"]["contract_unmatched_in_tf"]), \
+        sg["presence"]["contract_unmatched_in_tf"]
 
 
 def main():

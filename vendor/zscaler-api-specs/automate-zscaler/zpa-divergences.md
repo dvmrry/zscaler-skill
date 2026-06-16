@@ -13,8 +13,8 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 ## Totals
 
 - Type drift (contract numeric vs Go string): **32**
-- Required drift (contract vs TF): **11**
-- Enum: **8** match / **0** value-conflict / **3** one-sided
+- Required drift (contract vs TF): **12**
+- Enum: **8** match / **0** value-conflict / **2** one-sided
 - Contract readonly fields checked: **3** (TF disagreement: 0)
 
 ## app_connector_group
@@ -43,7 +43,7 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 ## application_segment
 
-`POST /zpa/mgmtconfig/v1/admin/customers/:customerId/application` — contract 51 / Go 52 / TF 33 fields
+`POST /zpa/mgmtconfig/v1/admin/customers/:customerId/application` — contract 51 / Go 52 / TF 35 fields
 
 **Type drift** — contract says numeric, Go SDK declares string (the API serializes these as JSON strings):
 
@@ -78,6 +78,7 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 - `appConnectorGroups`: contract required=False, TF required=True (TF stricter than API)
 - `configSpace`: contract required=True, TF required=False (contract stricter than TF)
+- `extranetDTO`: contract required=False, TF required=True (TF stricter than API)
 - `servers`: contract required=False, TF required=True (TF stricter than API)
 
 **Contract fields absent from the Go SDK struct:** `inconsistentConfigDetails`

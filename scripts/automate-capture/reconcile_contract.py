@@ -137,20 +137,90 @@ def _scan_blocks_depth1(src, open_marker):
         i += 1
 
 
+def _strip_go_comments(s):
+    """Drop /* */ and // comments so commented-out attributes (Computed,
+    ValidateFunc, ...) are never read as live schema. Adequate for schema blocks:
+    the flags and StringInSlice values we read never appear inside string literals."""
+    s = re.sub(r"/\*.*?\*/", "", s, flags=re.S)
+    s = re.sub(r"//[^\n]*", "", s)
+    return s
+
+
+_TF_MARKER = "Schema: map[string]*schema.Schema{"
+
+
+def _tf_top_level_keys(src):
+    """Every depth-1 key in the top-level Schema map — including helper-valued keys
+    (`"k": resourceFooSchema()`), which inline-block scanning misses. String/comment
+    aware so braces and colons in literals/comments don't confuse depth or key
+    detection."""
+    mi = src.find(_TF_MARKER)
+    if mi == -1:
+        return []
+    i = mi + len(_TF_MARKER)
+    n = len(src)
+    depth = 1
+    keys = []
+    while i < n and depth:
+        c = src[i]
+        if c == "/" and i + 1 < n and src[i + 1] == "/":
+            j = src.find("\n", i)
+            i = n if j == -1 else j
+            continue
+        if c == "/" and i + 1 < n and src[i + 1] == "*":
+            j = src.find("*/", i)
+            i = n if j == -1 else j + 2
+            continue
+        if c == "`":
+            j = src.find("`", i + 1)
+            i = n if j == -1 else j + 1
+            continue
+        if c == '"':
+            k = i + 1
+            while k < n and src[k] != '"':
+                if src[k] == "\\":
+                    k += 1
+                k += 1
+            token = src[i + 1:k]
+            j = k + 1
+            while j < n and src[j] in " \t":
+                j += 1
+            if depth == 1 and j < n and src[j] == ":" and re.fullmatch(r"[a-z0-9_]+", token):
+                keys.append(token)
+            i = k + 1
+            continue
+        if c == "{":
+            depth += 1
+        elif c == "}":
+            depth -= 1
+        i += 1
+    return keys
+
+
 def extract_tf_schema_fields(src):
-    """Top-level TF schema keys -> {camel_key: {tf_key, required, optional, computed, enum}}.
-    Pure (takes source text)."""
+    """Top-level TF schema keys -> {camel_key: {tf_key, inline, required, optional,
+    computed, enum}}. Pure (takes source text). Helper-valued keys are recorded as
+    present (inline=False) with unknown flags (None) — we don't resolve helper bodies,
+    so we never claim a flag/enum divergence we can't see. Comments are stripped
+    before flag/enum reads so commented-out attributes don't count."""
+    blocks = dict(_scan_blocks_depth1(src, _TF_MARKER))
     out = {}
-    for key, block in _scan_blocks_depth1(src, "Schema: map[string]*schema.Schema{"):
+    for key in _tf_top_level_keys(src):
+        block = blocks.get(key)
+        if block is None:
+            out[snake_to_camel(key)] = {"tf_key": key, "inline": False, "required": None,
+                                        "optional": None, "computed": None, "enum": None}
+            continue
+        cb = _strip_go_comments(block)
         enum = None
-        em = re.search(r"StringInSlice\(\s*\[\]string\{([^}]*)\}", block)
+        em = re.search(r"StringInSlice\(\s*\[\]string\{([^}]*)\}", cb)
         if em:
             enum = re.findall(r'"([^"]+)"', em.group(1))
         out[snake_to_camel(key)] = {
-            "tf_key": key,
-            "required": bool(re.search(r"\bRequired:\s*true", block)),
-            "optional": bool(re.search(r"\bOptional:\s*true", block)),
-            "computed": bool(re.search(r"\bComputed:\s*true", block)),
+            "tf_key": key, "inline": True,
+            "required": bool(re.search(r"\bRequired:\s*true", cb)),
+            "optional": bool(re.search(r"\bOptional:\s*true", cb)),
+            "computed": bool(re.search(r"\bComputed:\s*true", cb)),
             "enum": enum,
         }
     return out
@@ -224,16 +294,30 @@ def reconcile_one(res, contracts):
     go = extract_go_struct_fields(_read(go_path), struct)
     tf = extract_tf_schema_fields(_read(res["tf"]))
 
-    cset, goset, tfset = set(cfields), set(go), set(tf)
+    # Case-insensitive TF lookup recovers the acronym casing the snake->camel alias
+    # loses (extranet_dto -> extranetDto vs the contract's extranetDTO). Go json tags
+    # are the wire names, so Go is matched exactly — a Go casing mismatch is a real
+    # divergence we want to keep surfacing.
+    tf_ci = {}
+    for k, v in tf.items():
+        tf_ci.setdefault(k.lower(), v)
+
+    def tf_get(name):
+        return tf.get(name) or tf_ci.get(name.lower())
+
+    cset, goset = set(cfields), set(go)
+    matched_tf = {name for name in cset if tf_get(name)}
     rep = {
         "resource": res["name"],
         "method": create.get("method") or get.get("method"),
         "path": create.get("path") or get.get("path"),
-        "counts": {"contract": len(cset), "go": len(goset), "tf": len(tfset)},
+        "counts": {"contract": len(cset), "go": len(goset), "tf": len(tf)},
         "presence": {
             "contract_only_vs_go": sorted(cset - goset),
             "go_only_vs_contract": sorted(goset - cset),
-            "contract_only_vs_tf": sorted(cset - tfset),
+            # contract fields not matched to a TF key by conservative naming — this is
+            # "unmatched", NOT proof of absence (a helper schema or an unmapped alias).
+            "contract_unmatched_in_tf": sorted(cset - matched_tf),
         },
         "type_drift": [],
         "required_drift": [],
@@ -247,23 +331,32 @@ def reconcile_one(res, contracts):
         if cc and cc != gc and {cc, gc} <= {"number", "string", "boolean"}:
             rep["type_drift"].append({"field": name, "contract": cfields[name]["type"], "go": go[name]["go_type"]})
 
-    for name in sorted(cset & tfset):
+    # required / readonly / enum: only where the matched TF key is an inline block, so
+    # its flags are actually readable. Helper-valued keys are present but their flags
+    # are unresolved -> we never claim a divergence we cannot see.
+    for name in sorted(matched_tf):
+        tff = tf_get(name)
+        if not tff["inline"]:
+            continue
         creq_flag = name in required_names
-        tfreq = tf[name]["required"]
-        if creq_flag != tfreq:
+        if creq_flag != tff["required"]:
             rep["required_drift"].append({
-                "field": name, "contract_required": creq_flag, "tf_required": tfreq,
-                "direction": "tf_stricter" if tfreq and not creq_flag else "contract_stricter",
+                "field": name, "contract_required": creq_flag, "tf_required": tff["required"],
+                "direction": "tf_stricter" if tff["required"] and not creq_flag else "contract_stricter",
             })
 
     # readonly NARROWED: only fields the contract marks readonly; report TF treatment
-    for name in sorted(cset & tfset):
-        if cfields[name].get("readonly"):
-            rep["readonly"].append({"field": name, "tf_computed": tf[name]["computed"],
-                                    "agree": tf[name]["computed"]})
+    for name in sorted(matched_tf):
+        tff = tf_get(name)
+        if cfields[name].get("readonly") and tff["inline"]:
+            rep["readonly"].append({"field": name, "tf_computed": tff["computed"],
+                                    "agree": tff["computed"]})
 
-    for name in sorted(cset & tfset):
-        ce, te = cfields[name].get("enum"), tf[name]["enum"]
+    for name in sorted(matched_tf):
+        tff = tf_get(name)
+        if not tff["inline"]:
+            continue
+        ce, te = cfields[name].get("enum"), tff["enum"]
         if not ce and not te:
             continue
         if ce and te:
