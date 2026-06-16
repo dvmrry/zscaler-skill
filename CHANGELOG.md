@@ -4,6 +4,13 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.13.0](https://github.com/dvmrry/zscaler-skill/compare/v0.12.8...v0.13.0) (2026-06-16)
+
+
+### Features
+
+* **router:** register setup capability + under-specified routing clause ([#121](https://github.com/dvmrry/zscaler-skill/issues/121)) ([f7c3e52](https://github.com/dvmrry/zscaler-skill/commit/f7c3e524a3c08faf4d4022914817767e63046287))
+
 ## [0.12.8](https://github.com/dvmrry/zscaler-skill/compare/v0.12.7...v0.12.8) (2026-06-16)
 
 
