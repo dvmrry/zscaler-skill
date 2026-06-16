@@ -3,7 +3,7 @@ product: zdx
 topic: "zdx-score"
 title: "ZDX Score — model, calculation, scopes, API surface"
 content-type: reasoning
-last-verified: "2026-05-04"
+last-verified: "2026-06-15"
 confidence: high
 source-tier: mixed
 sources:
@@ -104,7 +104,7 @@ All endpoints require a time-range filter; if omitted, the last 2 hours are used
 | GET | `/zdx/v1/apps` | List all active applications with ZDX score (defaults to last 2 hours) | `list_apps()` | `GetAllApps()` | `apps.py:38`, `applications.go:43` |
 | GET | `/zdx/v1/apps/{app_id}` | Get application info including ZDX score, most impacted region, total users | `get_app()` | `GetApp()` | `apps.py:113`, `applications.go:53` |
 | GET | `/zdx/v1/apps/{app_id}/score` | Get the ZDX score trend for a specified application | `get_app_score()` | `GetAppScores()` | `apps.py:173`, `application_score_metrics.go:18` |
-| GET | `/zdx/v1/apps/{app_id}/metrics` | Get metric trend (PFT, DNS, Availability) for a specified application | `get_app_metrics()` | `GetAppMetrics()` | `apps.py:242`, `application_score_metrics.go:45` |
+| GET | `/zdx/v1/apps/{app_id}/metrics` | Get metric trend for a specified application; metric chosen by `metric_name` (Web-Probe and CloudPath-Probe sets — see below) | `get_app_metrics()` | `GetAppMetrics()` | `apps.py:242`, `application_score_metrics.go:45` |
 | GET | `/zdx/v1/devices/{device_id}/apps` | List all active applications for a device with ZDX score | `get_device_apps()` | `GetDeviceAllApps()` | `devices.py:194`, `device_apps.go:34` |
 | GET | `/zdx/v1/devices/{device_id}/apps/{app_id}` | Get a single application for a device, including ZDX score trend | `get_device_app()` | `GetDeviceApp()` | `devices.py:258`, `device_apps.go:23` |
 | GET | `/zdx/v1/apps/{app_id}/users` | List users and devices for an application, filterable by `score_bucket` (poor/okay/good) | `list_app_users()` | — | `apps.py:319` |
@@ -122,55 +122,55 @@ Go: `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application
 
 | Python attr | Go field | Wire key | Type | Citation |
 |-------------|----------|----------|------|----------|
-| `id` | `ID` | `id` | int | `models/applications.py:38`, `applications.go:16` |
-| `name` | `Name` | `name` | string | `models/applications.py:39`, `applications.go:17` |
-| `score` | `Score` | `score` | float (Python), float32 (Go) | `models/applications.py:40`, `applications.go:18` |
-| `total_users` | `TotalUsers` | `total_users` | int | `models/applications.py:41`, `applications.go:21` |
-| `most_impacted_region` | `MostImpactedRegion` | `most_impacted_region` | nested object (see below) | `models/applications.py:43-47`, `applications.go:19` |
+| `id` | `ID` | `id` | int | `models/applications.py:39`, `applications.go:16` |
+| `name` | `Name` | `name` | string | `models/applications.py:40`, `applications.go:17` |
+| `score` | `Score` | `score` | float (Python), float32 (Go) | `models/applications.py:41`, `applications.go:18` |
+| `total_users` | `TotalUsers` | `total_users` | int | `models/applications.py:42`, `applications.go:21` |
+| `most_impacted_region` | `MostImpactedRegion` | `most_impacted_region` | nested object (see below) | `models/applications.py:44-48`, `applications.go:19` |
 
 ### Most Impacted Region fields
 
-The Python `MostImpactedRegion` model (`common.py:242`) exposes only `id` and `country`. The Go `MostImpactedRegion` struct (`applications.go:24-30`) exposes the full set of geo fields.
+The Python `MostImpactedRegion` model (`common.py:243`) exposes only `id` and `country`. The Go `MostImpactedRegion` struct (`applications.go:24-30`) exposes the full set of geo fields.
 
 | Python attr | Go field | Wire key | Type | Python citation | Go citation |
 |-------------|----------|----------|------|-----------------|-------------|
-| `id` | `ID` | `id` | string | `common.py:257` | `applications.go:25` |
-| `country` | `Country` | `country` | string | `common.py:258` | `applications.go:28` |
+| `id` | `ID` | `id` | string | `common.py:258` | `applications.go:25` |
+| `country` | `Country` | `country` | string | `common.py:259` | `applications.go:28` |
 | — | `City` | `city` | string | not in Python model | `applications.go:26` |
 | — | `Region` | `region` | string | not in Python model | `applications.go:27` |
 | — | `GeoType` | `geo_type` | string | not in Python model | `applications.go:29` |
 
 ### Stats fields (application detail response)
 
-Present in Python `ApplicationScore.stats` (`models/applications.py:105-113`) and Go `Apps.Stats` (`applications.go:32-38`).
+Present in Python `ApplicationScore.stats` (`models/applications.py:106-114`) and Go `Apps.Stats` (`applications.go:32-38`).
 
 | Python attr | Go field | Wire key | Type | Citation |
 |-------------|----------|----------|------|----------|
-| `active_users` | `ActiveUsers` | `active_users` | int | `models/applications.py:152`, `applications.go:33` |
-| `active_devices` | `ActiveDevices` | `active_devices` | int | `models/applications.py:153`, `applications.go:34` |
-| `num_poor` | `NumPoor` | `num_poor` | int | `models/applications.py:154`, `applications.go:35` |
-| `num_okay` | `NumOkay` | `num_okay` | int | `models/applications.py:155`, `applications.go:36` |
-| `num_good` | `NumGood` | `num_good` | int | `models/applications.py:156`, `applications.go:37` |
+| `active_users` | `ActiveUsers` | `active_users` | int | `models/applications.py:153`, `applications.go:33` |
+| `active_devices` | `ActiveDevices` | `active_devices` | int | `models/applications.py:154`, `applications.go:34` |
+| `num_poor` | `NumPoor` | `num_poor` | int | `models/applications.py:155`, `applications.go:35` |
+| `num_okay` | `NumOkay` | `num_okay` | int | `models/applications.py:156`, `applications.go:36` |
+| `num_good` | `NumGood` | `num_good` | int | `models/applications.py:157`, `applications.go:37` |
 
 ### Score trend / metric trend fields (`Metric` struct / `ApplicationScoreTrend` model)
 
-Python: `models/applications.py:180` (`ApplicationScoreTrend`), `models/applications.py:220` (`ApplicationMetrics`)
+Python: `models/applications.py:181` (`ApplicationScoreTrend`), `models/applications.py:221` (`ApplicationMetrics`)
 Go: `vendor/zscaler-sdk-go/zscaler/zdx/services/common/common.go` (`Metric` struct, line 5)
 
 Both `get_app_score` and `get_app_metrics` return the same field shape.
 
 | Python attr | Go field | Wire key | Type | Citation |
 |-------------|----------|----------|------|----------|
-| `metric` | `Metric` | `metric` | string | `models/applications.py:195`, `common.go:6` |
-| `unit` | `Unit` | `unit` | string | `models/applications.py:196`, `common.go:7` |
-| `datapoints` | `DataPoints` | `datapoints` | array of DataPoint | `models/applications.py:198-199`, `common.go:8` |
+| `metric` | `Metric` | `metric` | string | `models/applications.py:196`, `common.go:6` |
+| `unit` | `Unit` | `unit` | string | `models/applications.py:197`, `common.go:7` |
+| `datapoints` | `DataPoints` | `datapoints` | array of DataPoint | `models/applications.py:199-200`, `common.go:8` |
 
 ### DataPoint fields
 
 | Python attr | Go field | Wire key | Type | Citation |
 |-------------|----------|----------|------|----------|
-| `timestamp` | `TimeStamp` | `timestamp` | int (Unix epoch seconds) | `common.py:292`, `common.go:12` |
-| `value` | `Value` | `value` | float64 | `common.py:293`, `common.go:13` |
+| `timestamp` | `TimeStamp` | `timestamp` | int (Unix epoch seconds) | `common.py:293`, `common.go:12` |
+| `value` | `Value` | `value` | float64 | `common.py:294`, `common.go:13` |
 
 ### Query filter fields (`GetFromToFilters` / `query_params`)
 
@@ -192,21 +192,32 @@ Python: `query_params` dict; keys documented in each method's docstring.
 
 Python also exposes a `score_bucket` filter on `list_app_users()` (values: `poor`, `okay`, `good`) with no Go SDK equivalent in the reviewed source. (`apps.py:338-339`)
 
+#### `metric_name` values for `get_app_metrics`
+
+The accepted `metric_name` values depend on the probe type of the application. The Go SDK documents both sets on `GetAppMetrics`:
+
+- **Web Probes**: Page Fetch Time, Server Response Time, DNS Time, Availability. Defaults to Page Fetch Time (PFT) when `metric_name` is omitted. (`application_score_metrics.go:38-39`)
+- **CloudPath Probes** (latency metrics): End to End, Client – Egress, Egress – Application, ZIA Service Edge – Egress, ZIA Service Edge – Application. Defaults to End to End latency when omitted. (`application_score_metrics.go:40-41`)
+
+The Python `get_app_metrics` docstring only enumerates `pft` / `dns` / `availability` (`apps.py:257-260`) — it omits Server Response Time and the entire CloudPath set. The underlying `metric_name` query parameter accepts the same values regardless of SDK, so the Python docstring undercounts the available metrics rather than the Python endpoint rejecting them. (See SDK divergences below.)
+
 ## SDK divergences
 
 Source: `vendor/zscaler-sdk-python/zscaler/zdx/apps.py`; `vendor/zscaler-sdk-python/zscaler/zdx/devices.py`; `vendor/zscaler-sdk-python/zscaler/zdx/models/applications.py`; `vendor/zscaler-sdk-python/zscaler/zdx/models/common.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_apps.go`.
 
-**Python response wrapping**: Python SDK wraps responses in model classes (`ApplicationScore`, `ApplicationScoreTrend`, `ApplicationMetrics`) that inherit from `ZscalerObject`. (`models/applications.py:76`, `models/applications.py:180`, `models/applications.py:220`)
+**Python response wrapping**: Python SDK wraps responses in model classes (`ApplicationScore`, `ApplicationScoreTrend`, `ApplicationMetrics`) that inherit from `ZscalerObject`. (`models/applications.py:77`, `models/applications.py:181`, `models/applications.py:221`)
 
 **Go flat structs**: Go SDK returns typed structs directly (`[]Apps`, `*Apps`, `[]common.Metric`). (`applications.go:43-50`, `application_score_metrics.go:18,45`)
 
-**Single-object list wrap in Python**: `get_app()` returns the single `ApplicationScore` object wrapped in a list — `[ApplicationScore(...)]`. (`apps.py:166`)
+**Single-object list wrap in Python**: `get_app()` returns the single `ApplicationScore` object wrapped in a list — `[ApplicationScore(...)]`. (`apps.py:163`)
 
-**Score trend return type**: Python `get_app_score()` returns `ApplicationScoreTrend`; Go `GetAppScores()` returns `[]common.Metric`. Both carry the same `metric / unit / datapoints` fields. (`apps.py:235`, `application_score_metrics.go:18`)
+**Score trend return type**: Python `get_app_score()` returns `ApplicationScoreTrend`; Go `GetAppScores()` returns `[]common.Metric`. Both carry the same `metric / unit / datapoints` fields. (`apps.py:232`, `application_score_metrics.go:18`)
 
-**Python `MostImpactedRegion` is narrower than Go**: The Python `common.MostImpactedRegion` model has only `id` and `country`; the Go `MostImpactedRegion` struct has `id`, `city`, `region`, `country`, `geo_type`. (`common.py:257-258`, `applications.go:25-29`)
+**Python `MostImpactedRegion` is narrower than Go**: The Python `common.MostImpactedRegion` model has only `id` and `country`; the Go `MostImpactedRegion` struct has `id`, `city`, `region`, `country`, `geo_type`. (`common.py:258-259`, `applications.go:25-29`)
 
 **Device-level endpoints**: both SDKs expose per-device application score endpoints — Python `get_device_apps()` / `get_device_app()` (`devices.py:194`, `devices.py:258`) and Go `GetDeviceAllApps()` / `GetDeviceApp()` (`device_apps.go:34`, `device_apps.go:23`).
+
+**Python `metric_name` docstring undercounts the metric set**: The Python `get_app_metrics` docstring lists only `pft` / `dns` / `availability` (`apps.py:257-260`), while the Go `GetAppMetrics` comment documents the full Web-Probe set (Page Fetch Time, Server Response Time, DNS Time, Availability) and the CloudPath-Probe latency set (End to End, Client – Egress, Egress – Application, ZIA Service Edge – Egress, ZIA Service Edge – Application). (`application_score_metrics.go:38-41`) The Python docstring omits Server Response Time and all CloudPath metrics; the `metric_name` parameter itself is a plain string passed through to the API, so this is a documentation gap in the Python SDK, not a behavioral difference in the endpoint.
 
 ## Edge cases and gotchas
 
@@ -228,12 +239,12 @@ Source: `vendor/zscaler-help/about-zdx-score.md`.
 
 Source: `vendor/zscaler-help/about-zdx-score.md`; `vendor/zscaler-sdk-python/zscaler/zdx/apps.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go`.
 
-- **Exact numerical weighting between PFT and Availability** — the docs state both are inputs but do not document the weighting formula or relative weight — *unverified, requires vendor doc or lab test*
-- **Zero-value handling in the lowest-value-within-hour rollup** — unclear whether probe failures (zero or null values) are included or excluded in lowest-value selection, which materially affects how availability impacts the hourly score — *unverified, requires vendor doc or tenant-side check*
-- **Metrics beyond PFT, DNS, and Availability** — the source mentions PFT as the primary input and DNS/Availability as named options for `get_app_metrics`, but does not exhaustively list all metrics that feed the score — *unverified, requires vendor doc*
-- **Score recalculation lag for new users or devices** — when a new user or device comes online, how long before it appears in user/device-level scores — *unverified, requires vendor doc or lab test*
-- **Geographic weighting logic** — "weighted average of peers in the same region" is stated but the region boundary definition (geolocation ID, country, city?) and the weighting function are not specified — *unverified, requires vendor doc*
-- **Device-level vs user-level aggregation** — the source mentions "all users, their devices, and their locations" but does not clarify whether the score is calculated per (user, device) pair or rolled up per user across devices — *unverified, requires vendor doc*
+- **Exact numerical weighting between PFT and Availability** — the docs state both are inputs but do not document the weighting formula or relative weight — *unverified, requires vendor doc or lab test*. See [clarification zdx-36](../_meta/clarifications.md#zdx-36-pft-vs-availability-score-weighting).
+- **Zero-value handling in the lowest-value-within-hour rollup** — unclear whether probe failures (zero or null values) are included or excluded in lowest-value selection, which materially affects how availability impacts the hourly score — *unverified, requires vendor doc or tenant-side check*. See [clarification zdx-37](../_meta/clarifications.md#zdx-37-zero-value-handling-in-the-lowest-value-within-hour-rollup).
+- **Which metrics feed the composite score** — the full `get_app_metrics` metric set is now resolved from the Go SDK (Web Probes: Page Fetch Time, Server Response Time, DNS Time, Availability; CloudPath Probes: End to End, Client–Egress, Egress–Application, ZIA Service Edge–Egress, ZIA Service Edge–Application — `application_score_metrics.go:38-41`). What remains unverified is *which* of these metrics actually feed the composite ZDX Score calculation versus being retrievable trend metrics only. The help doc names PFT as the primary input and Availability as a factor, but does not state whether Server Response Time, DNS Time, or the CloudPath latency metrics contribute to the score — *unverified, requires vendor doc or lab test*. See [clarification zdx-38](../_meta/clarifications.md#zdx-38-which-metrics-feed-the-composite-score).
+- **Score recalculation lag for new users or devices** — when a new user or device comes online, how long before it appears in user/device-level scores — *unverified, requires vendor doc or lab test*. See [clarification zdx-39](../_meta/clarifications.md#zdx-39-score-recalculation-lag-for-new-users-or-devices).
+- **Geographic weighting logic** — "weighted average of peers in the same region" is stated but the region boundary definition (geolocation ID, country, city?) and the weighting function are not specified — *unverified, requires vendor doc*. See [clarification zdx-16](../_meta/clarifications.md#zdx-16-region-boundary-definition-and-geographic-weighting).
+- **Device-level vs user-level aggregation** — the source mentions "all users, their devices, and their locations" but does not clarify whether the score is calculated per (user, device) pair or rolled up per user across devices — *unverified, requires vendor doc*. See [clarification zdx-40](../_meta/clarifications.md#zdx-40-device-level-vs-user-level-score-aggregation).
 
 ## Cross-links
 

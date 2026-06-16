@@ -3,7 +3,7 @@ product: zidentity
 topic: "zidentity-user-entitlements"
 title: "ZIdentity user entitlements — read-only admin & service entitlement query API"
 content-type: reference
-last-verified: "2026-05-05"
+last-verified: "2026-06-15"
 confidence: high
 source-tier: code
 sources:
@@ -246,15 +246,15 @@ Source: `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py`; `vendor/zsc
 
 Source: `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go`.
 
-- **`scope` field semantics** — the field is populated but no enum is documented in vendor sources. Fixture examples include `Global`, `Limited`, and `AllResources`, but the operational meaning of each scope value (e.g., what resources "Limited" restricts access to) is not stated in either SDK. — *unverified, requires vendor documentation or tenant-side check*
+- **`scope` field semantics** — the field is populated but no enum is documented in vendor sources. Fixture examples include `Global`, `Limited`, and `AllResources`, but the operational meaning of each scope value (e.g., what resources "Limited" restricts access to) is not stated in either SDK. — *unverified, requires vendor documentation or tenant-side check* — see [clarification `zid-05`](../_meta/clarifications.md#zid-05-scope-field-semantics-and-value-enum)
 
-- **`get_service_entitlement` Python return shape for multi-service users** — the Go SDK returns `[]Service` for service entitlements, but the Python SDK constructs a single `Service` object from the raw response body (`user_entitlement.py:120`). How the Python SDK behaves when a user has multiple service entitlements is not demonstrated in test fixtures or docstrings. — *unverified, requires lab test or source inspection of `form_response_body` behavior on arrays*
+- **`get_service_entitlement` Python return shape for multi-service users** — the Go SDK returns `[]Service` for service entitlements, but the Python SDK constructs a single `Service` object from the raw response body at `user_entitlement.py:118` (`Service(self.form_response_body(response.get_body()))`). The construction mechanism is now traced, but the wire-level behavior for a user with multiple service entitlements is still undemonstrated in fixtures: a single `Service.__init__` over an array-shaped body would parse it oddly rather than yield a list. Contrast `get_admin_entitlement`, whose `Entitlements.__init__` (`models/user_entitlement.py:139`) does `form_list(config if isinstance(config, list) else [], Entitlement)` — so it yields an **empty** `.entitlements` list whenever the response body is not a top-level JSON array. — *unverified, requires lab test to confirm the live service-entitlement body shape* — see [clarification `zid-07`](../_meta/clarifications.md#zid-07-get_service_entitlement-return-shape-for-multi-service-users)
 
-- **IdP-source behavior difference** — whether the entitlement API returns different results for SCIM-provisioned vs ZIdentity-internal users is not addressed by either SDK. The `source` field on the user record (see [`users.md`](./users.md)) provides user origin, but no entitlement endpoint accepts or exposes it. — *unverified, requires tenant-side check*
+- **IdP-source behavior difference** — whether the entitlement API returns different results for SCIM-provisioned vs ZIdentity-internal users is not addressed by either SDK. The `source` field on the user record (see [`users.md`](./users.md)) provides user origin, but no entitlement endpoint accepts or exposes it. — *unverified, requires tenant-side check* — see [clarification `zid-08`](../_meta/clarifications.md#zid-08-entitlement-api-behavior-by-user-idp-source)
 
-- **Scope forward-compatibility** — the unused `Scope` struct in the Go SDK (`user_entitlement.go:21-23`) suggests a list-of-scopes design was considered or may be planned. Whether the API wire format will ever change from a single scope object to a list is unknown. — *unverified, requires vendor API spec or changelog review*
+- **Scope forward-compatibility** — the unused `Scope` struct in the Go SDK (`user_entitlement.go:21-23`) suggests a list-of-scopes design was considered or may be planned. Whether the API wire format will ever change from a single scope object to a list is unknown. — *unverified, requires vendor API spec or changelog review* — see [clarification `zid-09`](../_meta/clarifications.md#zid-09-scope-forward-compatibility-single-object-vs-list)
 
-- **Role enum completeness** — observed role names (`SuperAdmin`, `Admin`, `ReadOnly`, `PolicyAdmin`, `Auditor`) in test fixtures may not be exhaustive. No enum constants are exported. — *requires vendor role documentation or live API enumeration*
+- **Role enum completeness** — observed role names (`SuperAdmin`, `Admin`, `ReadOnly`, `PolicyAdmin`, `Auditor`) in test fixtures may not be exhaustive. No enum constants are exported. — *requires vendor role documentation or live API enumeration* — see [clarification `zid-10`](../_meta/clarifications.md#zid-10-entitlement-role-name-enum-completeness)
 
 ## Cross-links
 

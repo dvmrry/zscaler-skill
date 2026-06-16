@@ -3,7 +3,7 @@ product: zdx
 topic: "zdx-applications"
 title: "ZDX applications — inventory, monitoring, API surface"
 content-type: reference
-last-verified: "2026-05-05"
+last-verified: "2026-06-15"
 confidence: high
 source-tier: code
 sources:
@@ -210,10 +210,10 @@ Source: `vendor/zscaler-sdk-python/zscaler/zdx/apps.py`; `vendor/zscaler-sdk-pyt
 
 Source: `vendor/zscaler-sdk-python/zscaler/zdx/apps.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go`.
 
-- **Metric names exhaustive list** — the Python docstring documents `pft`, `dns`, `availability` for Web Probes and the Go comment references additional Cloud Path segment metrics, but neither source provides an exhaustive enumerated list of all valid `metric_name` values — *unverified, requires vendor API doc or lab test*
-- **Tenant-level application inventory** — it is unverified whether the SDK can list applications that have no recent probe data (i.e., unconfigured or inactive apps) — *unverified, requires vendor doc or tenant-side check*
-- **Probe metadata per application** — no SDK endpoint surfaces which probes are attached to a given application ID — *unverified, portal-only, requires vendor doc*
-- **Application auto-detection** — whether ZDX automatically discovers applications or requires manual configuration in the portal is not surfaced in the SDK source — *unverified, requires vendor doc*
+- **Metric names exhaustive list** — the Python docstring documents `pft`, `dns`, `availability` for Web Probes and the Go comment references additional Cloud Path segment metrics, but neither source provides an exhaustive enumerated list of all valid `metric_name` values — *unverified, requires vendor API doc or lab test*. See [clarification zdx-11](../_meta/clarifications.md#zdx-11-exhaustive-metric_name-value-set).
+- **Tenant-level application inventory** — it is unverified whether the SDK can list applications that have no recent probe data (i.e., unconfigured or inactive apps) — *unverified, requires vendor doc or tenant-side check*. See [clarification zdx-12](../_meta/clarifications.md#zdx-12-tenant-level-application-inventory).
+- **Probe metadata per application** — no SDK endpoint surfaces which probes are attached to a given application ID — *unverified, portal-only, requires vendor doc*. See [clarification zdx-13](../_meta/clarifications.md#zdx-13-probe-metadata-per-application).
+- **Application auto-detection** — whether ZDX automatically discovers applications or requires manual configuration in the portal is not surfaced in the SDK source — *unverified, requires vendor doc*. See [clarification zdx-14](../_meta/clarifications.md#zdx-14-application-auto-detection-vs-manual-config).
 
 ## Cross-links
 

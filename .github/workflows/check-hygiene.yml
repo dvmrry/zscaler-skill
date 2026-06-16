@@ -123,6 +123,12 @@ jobs:
       - name: Check for broken HTML links in docs/
         run: ./scripts/check-doc-links.py
 
+      - name: Run citation-density source-path regression tests
+        # Guards the source-quality lint below (notably unquoted-source-path),
+        # so a regression in the path-detection regexes is caught here rather
+        # than by silently dropping legitimate backticked citation paths.
+        run: ./scripts/check-citation-density.test.py
+
       - name: Audit local citation/source anchors
         # Density is advisory while the existing corpus is being backfilled.
         # Source-line hygiene is strict: canonical Source: lines must cite

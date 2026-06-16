@@ -3,7 +3,7 @@ product: zidentity
 topic: "zidentity-resource-servers"
 title: "ZIdentity resource servers — read-only OAuth resource registry, service-grouped scopes, API client linkage"
 content-type: reference
-last-verified: "2026-05-05"
+last-verified: "2026-06-15"
 confidence: high
 source-tier: code
 sources:
@@ -13,7 +13,9 @@ sources:
   - "vendor/zscaler-sdk-python/tests/integration/zid/test_resource_servers.py"
   - "vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go"
   - "vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go"
+  - "vendor/zscaler-sdk-go/zscaler/oneapiconfig.go"
   - "vendor/zscaler-sdk-go/tests/unit/zid/services/resource_servers_test.go"
+  - "vendor/zscaler-sdk-python/zscaler/request_executor.py"
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
 author-status: draft
 ---
@@ -29,7 +31,14 @@ A resource server is a read-only registry entry that declares an OAuth audience 
 | Python | `_zidentity_base_endpoint` | `/ziam/admin/api/v1` | `vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py:31` |
 | Go | `resourceServerEndpoint` | `/admin/api/v1/resource-servers` | `vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go:13` |
 
-The Python SDK prepends the full `/ziam/admin/api/v1` prefix; the Go SDK constant stores the path from `/admin/api/v1` onward. Both resolve to the same wire URL (`/ziam/admin/api/v1/resource-servers`) when the client's base URL is applied.
+The Python SDK prepends the full `/ziam/admin/api/v1` prefix; the Go SDK constant stores the path from `/admin/api/v1` onward. **These do not resolve to the same wire URL** — the two SDKs target different hosts as well as different path prefixes:
+
+| SDK | Host (production) | Path prefix | Resolved wire URL |
+|---|---|---|---|
+| Python | `https://api.zsapi.net` (`request_executor.py:32`); non-prod `https://api.{cloud}.zsapi.net` (`request_executor.py:175-177`) | `/ziam/admin/api/v1` | `https://api.zsapi.net/ziam/admin/api/v1/resource-servers` |
+| Go | `https://{vanity_domain}-admin.zslogin.net` (`oneapiconfig.go:410`); non-prod `https://{vanity_domain}-admin.zslogin{cloud}.net` (`oneapiconfig.go:412`) | `/admin/api/v1` | `https://{vanity_domain}-admin.zslogin.net/admin/api/v1/resource-servers` |
+
+The Go client detects a ZIdentity request by the `/admin/api/v1` substring and builds the URL from the vanity domain directly (`oneapiconfig.go:388, 402-414`); the Python client final-joins its base URL with the `/ziam/admin/api/v1`-prefixed endpoint (`request_executor.py:284`). Same logical API, two different request URLs — this is a cross-SDK wire divergence, not a cosmetic prefix difference.
 
 ## Python SDK methods
 
@@ -55,12 +64,12 @@ list_resource_servers(query_params: Optional[dict] = None) -> APIResult[Resource
 ### `get_resource_server`
 
 ```
-get_resource_server(resource_id: str) -> APIResult[ResourceServersRecord]
+get_resource_server(resource_id: str) -> APIResult[dict]
 ```
 
 - **HTTP**: `GET /ziam/admin/api/v1/resource-servers/{resource_id}` (`resource_servers.py:135-139`)
-- **Returns**: `tuple (ResourceServersRecord instance, Response, error)` (`resource_servers.py:123`)
-- **Known bug**: the docstring at `resource_servers.py:120` declares `resource_id (int)` but the actual parameter type is `str` — pass a string ID.
+- **Returns**: `tuple (ResourceServersRecord instance, Response, error)` (`resource_servers.py:122-123`). Note the return annotation on the function is `APIResult[dict]` (`resource_servers.py:115`), but the implementation constructs and returns a `ResourceServersRecord` (`resource_servers.py:154`) — the annotation is looser than the runtime type.
+- **Known bug**: the docstring at `resource_servers.py:120` declares `resource_id (int)` but the actual parameter type is `str` (`resource_servers.py:115`) — pass a string ID.
 
 ## Go SDK functions
 
@@ -112,8 +121,8 @@ Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
 | Name | Method | Raw URL | Line |
 |---|---|---|---|
-| Resource Servers Ops list | GET | `{{ZIAMBase}}/resource-servers?offset=...&limit=...&name[like]=...` | 132116 |
-| Resource Servers Ops get | GET | `{{ZIAMBase}}/resource-servers/:id` | 132265 |
+| Resource Servers Ops list | GET | `{{ZIAMBase}}/resource-servers?offset=...&limit=...&name[like]=...` | 132126 |
+| Resource Servers Ops get | GET | `{{ZIAMBase}}/resource-servers/:id` | 132275 |
 
 `{{ZIAMBase}}` is the Postman environment variable for the ZIAM base URL. Combined with the Python SDK constant, the resolved paths are `GET /ziam/admin/api/v1/resource-servers` and `GET /ziam/admin/api/v1/resource-servers/{id}` respectively.
 
@@ -131,7 +140,7 @@ Query parameter descriptions from Postman (`oneapi-postman-collection.json:13213
 
 ### `ResourceServers` — pagination envelope
 
-Python source: `vendor/zscaler-sdk-python/zscaler/zid/models/resource_servers.py:23-66`
+Python source: `vendor/zscaler-sdk-python/zscaler/zid/models/resource_servers.py:24-67`
 Go source: `vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go:22-29` (generic `PaginationResponse[T]`)
 
 | Python attr | Go field | Wire key | Type | Notes |
@@ -147,7 +156,7 @@ Go uses the shared generic `common.PaginationResponse[ResourceServers]` aliased 
 
 ### `ResourceServersRecord` — single resource server
 
-Python source: `vendor/zscaler-sdk-python/zscaler/zid/models/resource_servers.py:69-117`
+Python source: `vendor/zscaler-sdk-python/zscaler/zid/models/resource_servers.py:70-118`
 Go source: `vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go:16-24`
 
 | Python attr | Go field | Wire key | Type | Notes |
@@ -164,7 +173,7 @@ Both SDKs have identical fields. No type mismatches between Python and Go repres
 
 ### `ServiceScopes` — scopes for one service
 
-Python source: `vendor/zscaler-sdk-python/zscaler/zid/models/resource_servers.py:120-157`
+Python source: `vendor/zscaler-sdk-python/zscaler/zid/models/resource_servers.py:121-158`
 Go source: `vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go:26-29`
 
 | Python attr | Go field | Wire key | Type |
@@ -174,7 +183,7 @@ Go source: `vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource
 
 ### `Service` — service metadata
 
-Python source: `vendor/zscaler-sdk-python/zscaler/zid/models/resource_servers.py:160-200`
+Python source: `vendor/zscaler-sdk-python/zscaler/zid/models/resource_servers.py:161-201`
 Go source: `vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go:31-37`
 
 | Python attr | Go field | Wire key | Type |
@@ -187,7 +196,7 @@ Go source: `vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource
 
 ### `Scopes` / `CommonIDName` — individual scope
 
-Python: uses shared `common.CommonIDName` imported at `models/resource_servers.py:135` (`{id: str, name: str}`)
+Python: uses shared `common.CommonIDName` (`{id: str, name: str}`) — the `common` module is imported at `models/resource_servers.py:21` and `common.CommonIDName` is applied to the `scopes` list at `models/resource_servers.py:136`
 Go: local `Scopes` struct at `resource_servers.go:39-42`
 
 | Python attr | Go field | Wire key | Type |
@@ -199,7 +208,7 @@ Go test validation example (`resource_servers_test.go:134-145`): `{ID: "scope-ad
 
 ## Scope model — read-only nested sub-resource
 
-Scopes live at `ResourceServersRecord.serviceScopes[].scopes[]` (Python `models/resource_servers.py:90-91`; Go `resource_servers.go:23`). There are no independent CRUD operations on scopes: no Create, Update, Delete, or dedicated `GET /scopes` endpoint in either SDK. Scope definitions are authority of the resource server; assignment to an API client happens at the API-client level (see OneAPI client linkage below).
+Scopes live at `ResourceServersRecord.serviceScopes[].scopes[]`. In Python, `service_scopes` is built in `ResourceServersRecord.__init__` (`models/resource_servers.py:91-93`) and each entry's `scopes` list is built in `ServiceScopes.__init__` (`models/resource_servers.py:136`); in Go the `ServiceScopes` field is on the record struct (`resource_servers.go:23`) and the per-service `Scopes` slice is on the `ServiceScopes` struct (`resource_servers.go:28`). There are no independent CRUD operations on scopes: no Create, Update, Delete, or dedicated `GET /scopes` endpoint in either SDK. Scope definitions are authority of the resource server; assignment to an API client happens at the API-client level (see OneAPI client linkage below).
 
 A resource server can carry multiple `ServiceScopes` entries — one per Zscaler service. Example structure (from Go unit test `resource_servers_test.go:187-229`):
 
@@ -233,7 +242,7 @@ Source: Python docstring `vendor/zscaler-sdk-python/zscaler/zid/resource_servers
 | `limit` | `limit` | int | \[1, 1000\] (Go builder clamps at `common.go:96`); Python docstring states \[0, 1000\] | Max records per request |
 | `name[like]` | `name[like]` | str | — | Case-insensitive partial match on resource server name |
 
-`PaginationQueryParams` also defines fields for `loginname`, `displayname[like]`, `primaryemail[like]`, `domainname`, `idpname`, and `excludedynamicgroups` (`common.go:37-43`), but these are not applicable to resource-server endpoints.
+`PaginationQueryParams` also defines fields for `excludedynamicgroups`, `loginname`, `displayname[like]`, `primaryemail[like]`, `domainname`, and `idpname` (`common.go:36-43`), but these are not applicable to resource-server endpoints.
 
 ### Go fluent builder (`common.go:60-103`)
 
@@ -256,12 +265,12 @@ urlValues := params.ToURLValues()                    // common.go:103
 
 Resource servers register available scopes. Assignment of scopes to an API client happens on the API-client side:
 
-- `APIClientRecords.client_resources` (`List[ClientResources]`, JSON: `clientResources`) holds the back-reference from the OAuth client to its authorized resource servers (`vendor/zscaler-sdk-python/zscaler/zid/models/api_client.py:93-95`).
+- `APIClientRecords.client_resources` (`List[ClientResources]`, JSON: `clientResources`) holds the back-reference from the OAuth client to its authorized resource servers (`vendor/zscaler-sdk-python/zscaler/zid/models/api_client.py:94-96`).
 - Resource servers do **not** carry a back-reference to which API clients can access them.
 
 Linkage flow:
 
-1. **API client → resource server**: the OAuth client's `clientResources` list references one or more resource servers (`api_client.py:93-95`).
+1. **API client → resource server**: the OAuth client's `clientResources` list references one or more resource servers (`api_client.py:94-96`).
 2. **Resource server → scopes**: the resource server exposes scopes grouped by service (`serviceScopes`).
 3. **Scope consumption**: when provisioning an API client, scopes are drawn from specific resource servers via `clientResources`.
 
@@ -277,10 +286,11 @@ See [`api-clients.md`](./api-clients.md) for the full `clientResources` field mo
 | Scope model import | Shared `common.CommonIDName` (`models/resource_servers.py:135`) | Local `Scopes` struct (`resource_servers.go:39-42`) |
 | Get return shape | `(result, response, error)` tuple (`resource_servers.py:58`) | `(*ResourceServers, error)` (`resource_servers.go:46`) |
 | Endpoint base constant | `/ziam/admin/api/v1` (`resource_servers.py:31`) | `/admin/api/v1` (prefix within constant) (`resource_servers.go:13`) |
+| Wire host | `api.zsapi.net` (`request_executor.py:32`) | `{vanity_domain}-admin.zslogin.net` (`oneapiconfig.go:410`) |
 
 ## Known bugs and edge cases
 
-1. **Python docstring type mismatch**: `resource_servers.py:120` declares `resource_id (int)` but the parameter is `str`. Pass a string ID. (`resource_servers.py:115`)
+1. **Python docstring type mismatch**: the docstring at `resource_servers.py:120` declares `resource_id (int)` but the signature parameter is `str` (`resource_servers.py:115`). Pass a string ID.
 2. **Go `GetByName` hard-coded page size**: 100 at `resource_servers.go:66`; not configurable by the caller.
 3. **No scope mutation endpoints**: scopes are server-defined and read-only in both SDKs; no Create, Update, or Delete.
 4. **Go `GetByName` empty results**: returns an empty slice with no error when no names match. The Go unit test at `resource_servers_test.go:313` expects 2 matches for name `"ZPA"` from a fixture of 3 records.
@@ -303,9 +313,9 @@ Neither SDK has tests covering pagination query parameters, server-side name fil
 
 ## Open questions
 
-- **Empty `serviceScopes` array semantics** — meaning of a resource server with an empty `serviceScopes` slice (vs a populated one) is not documented in either SDK. Requires review of live API behavior or vendor docs. *Unverified, requires tenant-side check or vendor documentation.*
-- **`defaultApi` flag behavior** — the `defaultApi` boolean field on `ResourceServersRecord` is present in both SDKs but its operational semantics (which clients it applies to, override behavior) are not described in any vendored source. *Unverified, requires vendor documentation or lab test.*
-- **Go endpoint base prefix discrepancy** — Python uses `/ziam/admin/api/v1` as the full prefix (`resource_servers.py:31`); Go uses `/admin/api/v1` (`resource_servers.go:13`). Both resolve correctly through their respective client base-URL configuration, but the prefix difference should be confirmed against the actual wire URL in a live tenant. *Unverified, requires live API trace.*
+- **Empty `serviceScopes` array semantics** — meaning of a resource server with an empty `serviceScopes` slice (vs a populated one) is not documented in either SDK. Requires review of live API behavior or vendor docs. *Unverified, requires tenant-side check or vendor documentation.* — see [clarification `zid-23`](../_meta/clarifications.md#zid-23-empty-servicescopes-array-semantics)
+- **`defaultApi` flag behavior** — the `defaultApi` boolean field on `ResourceServersRecord` is present in both SDKs but its operational semantics (which clients it applies to, override behavior) are not described in any vendored source. *Unverified, requires vendor documentation or lab test.* — see [clarification `zid-24`](../_meta/clarifications.md#zid-24-defaultapi-flag-behavior)
+- **Which wire host a live tenant actually serves** — the Go SDK builds requests against `{vanity_domain}-admin.zslogin.net/admin/api/v1` (`oneapiconfig.go:402-414`) while the Python SDK uses `api.zsapi.net/ziam/admin/api/v1` (`request_executor.py:32, 284`). Both are present in current vendor source, so both are presumably live, but whether the tenant routes them identically (e.g. one is an edge/login-host alias, the other a gateway alias) or whether one is a transitional form cannot be determined from the SDKs alone. *Unverified, requires a live API trace against a tenant.* — see [clarification `zid-16`](../_meta/clarifications.md#zid-16-which-wire-host-a-live-tenant-actually-serves)
 
 ## Cross-links
 
