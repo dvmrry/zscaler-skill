@@ -94,16 +94,18 @@ function contractRegion(text) {
 async function renderAndExtract(page, url) {
   await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
   const deadline = Date.now() + renderTimeoutMs;
-  let lastLen = -1;
+  let lastText = null;
   let stable = 0;
   while (Date.now() < deadline) {
     const text = await page.evaluate(() => document.querySelector('article')?.innerText || '');
-    if (renderComplete(text) && text.length === lastLen) {
+    // Full-text equality (not just length) — two different reads can share a
+    // length; content-stability is the property we actually want.
+    if (renderComplete(text) && text === lastText) {
       if (++stable >= 2) return text;
     } else {
       stable = 0;
     }
-    lastLen = text.length;
+    lastText = text;
     await sleep(300);
   }
   return null;
