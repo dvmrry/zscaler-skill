@@ -293,7 +293,7 @@ Rate limit specifics for ZIdentity endpoints are not documented in available SDK
 | Service | Python | Go | MCP server | Gap |
 |---|---|---|---|---|
 | `api_client` | Full CRUD + secret lifecycle | None identified | None | Python-only — the sole programmatic path for API clients |
-| `groups` | Full CRUD + membership management | Full CRUD + `GetUsers` | Read-only (5 tools) | SDKs functionally equivalent; MCP read-only |
+| `groups` | Full CRUD + membership management | Full CRUD + membership management (`GetUsers` + `AddUserToGroup`/`AddUserListToGroup`/`ReplaceUserListInGroup`/`DeleteUserFromGroup`) | Read-only (5 tools) | SDKs functionally equivalent; MCP read-only |
 | `users` | Full CRUD + `list_user_group_details` | Full CRUD + `GetGroupsByUser` | Read-only (5 tools) | SDKs functionally equivalent; MCP read-only |
 | `user_entitlement` | `get_admin_entitlement`, `get_service_entitlement` | Same (read-only) | None | SDK parity, both read-only |
 | `resource_servers` | Read-only (`list`, `get`) | Read-only (`Get`, `GetAll`, `GetByName`) | None | Read-only everywhere — no write surface in either SDK |

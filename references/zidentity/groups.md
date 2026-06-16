@@ -181,7 +181,7 @@ Full CRUD is supported. No activation step is required — changes take effect i
 
 Source: `vendor/zscaler-sdk-python/zscaler/zid/groups.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go`.
 
-Six distinct operations cover single-user and bulk-user membership changes:
+Five distinct operations cover single-user and bulk-user membership — **four mutations plus one member-list read**:
 
 | Operation | Python | Go | HTTP | Citation |
 |---|---|---|---|---|

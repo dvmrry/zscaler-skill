@@ -152,7 +152,7 @@ Source: `vendor/zscaler-sdk-python/zscaler/zid/groups.py`; `vendor/zscaler-sdk-p
 - `replace_users_groups` performs a full replacement of the group's user membership — existing members not in the new list are removed.
 - `get_group` accepts `int` in the signature but uses string IDs in practice (consistent with Go string IDs).
 
-**Go parity:** ✅ `groups.Get`, `groups.GetAll`, `groups.GetByName`, create/update/delete, `groups.GetUsers` (member list). Go `GetByName` uses `strings.Contains` partial match and returns `[]Groups`.
+**Go parity:** ✅ `groups.Get`, `groups.GetAll`, `groups.GetByName`, `Create`/`Update`/`Delete`, plus the full membership set — `GetUsers` (member list), `AddUserToGroup`, `AddUserListToGroup`, `ReplaceUserListInGroup`, `DeleteUserFromGroup` (`groups.go:92,132,155,177,189`). Go `GetByName` uses `strings.Contains` partial match and returns `[]Groups`.
 
 ---
 
@@ -281,7 +281,7 @@ ZIdentity uses `offset`/`limit` with `next_link`/`prev_link` cursor links in the
 | Service | Python methods | Go methods | Gap |
 |---|---|---|---|
 | `api_client` | `list_api_clients`, `get_api_client`, `add_api_client`, `update_api_client`, `delete_api_client`, `get_api_client_secret`, `add_api_client_secret`, `delete_api_client_secret` | None identified | Go SDK missing `api-clients` package |
-| `groups` | `list_groups`, `get_group`, `add_group`, `update_group`, `delete_group`, `list_group_users_details`, `add_user_to_group`, `add_users_to_group`, `replace_users_groups`, `remove_user_from_group` | `Get`, `GetAll`, `GetByName`, `Create`, `Update`, `Delete`, `GetUsers` | Go adds `GetUsers`; Python has equivalent via `list_group_users_details` |
+| `groups` | `list_groups`, `get_group`, `add_group`, `update_group`, `delete_group`, `list_group_users_details`, `add_user_to_group`, `add_users_to_group`, `replace_users_groups`, `remove_user_from_group` | `Get`, `GetAll`, `GetByName`, `Create`, `Update`, `Delete`, `GetUsers`, `AddUserToGroup`, `AddUserListToGroup`, `ReplaceUserListInGroup`, `DeleteUserFromGroup` | Functionally equivalent — both have full CRUD + the membership mutation set |
 | `users` | `list_users`, `get_user`, `add_user`, `update_user`, `delete_user`, `list_user_group_details` | `Get`, `GetAll`, `GetByName`, `Create`, `Update`, `Delete`, `GetGroupsByUser` | Functionally equivalent |
 | `user_entitlement` | `get_admin_entitlement`, `get_service_entitlement` | `GetAdminEntitlement`, `GetServiceEntitlement` | ✅ Parity |
 | `resource_servers` | `list_resource_servers`, `get_resource_server` | `Get`, `GetAll`, `GetByName` | Both read-only |
