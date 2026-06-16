@@ -4,6 +4,13 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.12.6](https://github.com/dvmrry/zscaler-skill/compare/v0.12.5...v0.12.6) (2026-06-16)
+
+
+### Documentation
+
+* **cloud-connector:** refresh + enhance against current vendor source (DAV-19) ([#130](https://github.com/dvmrry/zscaler-skill/issues/130)) ([16e737e](https://github.com/dvmrry/zscaler-skill/commit/16e737e1397fbf31bc055f6f77065971b17d76be))
+
 ## [0.12.5](https://github.com/dvmrry/zscaler-skill/compare/v0.12.4...v0.12.5) (2026-06-16)
 
 
