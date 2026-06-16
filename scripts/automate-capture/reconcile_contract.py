@@ -450,7 +450,8 @@ def main():
         json.dump(report, f, indent=2)
         f.write("\n")
     with open(md_out, "w", encoding="utf-8") as f:
-        f.write(render_markdown(report) + "\n")
+        # exactly one trailing newline (sections already embed their own blank lines)
+        f.write(render_markdown(report).rstrip("\n") + "\n")
     t = report["totals"]
     print(f"reconciled {len(report['resources'])} resources")
     print(f"  type_drift={t['type_drift']} required_drift={t['required_drift']} "

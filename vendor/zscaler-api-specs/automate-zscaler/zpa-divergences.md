@@ -131,4 +131,3 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 ## Scope
 
 Reconciles the contract against the Go SDK and Terraform provider (the sources that carry type, required, readonly, and enum signal). Python SDK and Postman cross-checks are a documented next step. Field matching is conservative: exact names, with TF snake_case→camelCase derived from the TF key; unmatched fields are reported as presence differences, never guessed.
-
