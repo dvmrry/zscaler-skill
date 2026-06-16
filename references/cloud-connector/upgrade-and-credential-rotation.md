@@ -3,12 +3,21 @@ product: ztw
 topic: "upgrade-and-credential-rotation"
 title: "Cloud Connector upgrades + zsroot credential rotation — operational cadence"
 content-type: reasoning
-last-verified: "2026-04-26"
+last-verified: "2026-06-15"
 confidence: high
-source-tier: doc
+source-tier: mixed
 sources:
   - "vendor/zscaler-help/cbc-managing-cloud-branch-connector-upgrades.md"
   - "vendor/zscaler-help/cbc-rotating-zscaler-service-account-passwords.md"
+  - "vendor/zscaler-help/cbc-about-cloud-connector-groups.md"
+  - "vendor/zscaler-help/cbc-understanding-azure-vmss-deployments.md"
+  - "vendor/zscaler-help/cbc-understanding-cloud-connector-deployments-amazon-web-services-auto-scaling-groups.md"
+  - "vendor/zscaler-sdk-python/zscaler/ztw/ec_groups.py"
+  - "vendor/zscaler-sdk-python/zscaler/ztw/models/ec_group_vm.py"
+  - "vendor/zscaler-sdk-python/zscaler/ztw/admin_users.py"
+  - "vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go"
+  - "vendor/zscaler-mcp-server/zscaler_mcp/services.py"
+  - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
 author-status: draft
 ---
 
@@ -39,20 +48,42 @@ Operational runbook context for operators managing Cloud Connector (CC) and Bran
 
 An OS-level CVE requires a re-deploy cycle, not just waiting for the next Sunday window.
 
+**Scale-set / auto-scaling deployments are a special case.** Azure VMSS and AWS ASG (and GCP MIG) deployments do not patch members in place — they add and remove VMs from the set as load changes, and replace unhealthy or terminated members from the configured launch template / image (`cbc-understanding-azure-vmss-deployments.md:14`, `:16`; `cbc-understanding-cloud-connector-deployments-amazon-web-services-auto-scaling-groups.md:17`, `:19`). Because a replacement VM is launched from the current image, a scale-out (or a health-driven replacement) yields a current-software instance — effectively a de-facto OS upgrade for the members that turn over. Note the same captures warn that manually stopping or rebooting a scale-set/ASG member from the cloud portal can itself trigger termination (`cbc-understanding-azure-vmss-deployments.md:18`; `cbc-understanding-cloud-connector-deployments-amazon-web-services-auto-scaling-groups.md:21`).
+
 ### Behavior during the window
 
 - Active connections are served by the remaining CCs while one CC restarts.
-- Staggering means **at most one CC per group is down at a time** — provided ≥2 healthy members exist before the window opens.
+- Upgrades within a group are **staggered to prevent service impact** — the source states the stagger but does not quantify how many members are down at once or name a minimum healthy-member precondition (`cbc-managing-cloud-branch-connector-upgrades.md:21`). See the redundancy gotcha below for why a 2-CC group is still exposed during the window.
 - Failed upgrades retry at the next weekly window; they don't block the rest of the group.
-- `Update Status` in Admin Console (Infrastructure → Connectors → Cloud) reflects per-CC state: Scheduled / Success / Failure.
+
+Per-VM upgrade state is **read** from the ZTW EC-group API, not surfaced as a single Admin Console "status" field. `GET /ecgroup/{id}/vm/{vmId}` returns each VM's `buildVersion`, `lastUpgradeTime`, `upgradeStatus`, `upgradeStartTime`, `upgradeEndTime`, and `upgradeDayOfWeek` (`vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go:111-116`; `vendor/zscaler-sdk-python/zscaler/ztw/models/ec_group_vm.py:48-53`). Note `upgradeStatus` is an integer enum in the model (`common.go:113` types it `int`), not a "Scheduled / Success / Failure" string label — alongside it the VM exposes `operationalStatus` (string) and `status` (string list) (`common.go:104-105`; `ec_group_vm.py:41-42`). See [API / SDK observability](#api-sdk-observability) below for how to read this programmatically.
 
 > **Gotcha:** a group with exactly 2 CCs has no redundancy margin during the upgrade of the first CC. Zscaler's documented production minimum is 2 CCs per AZ across 2 AZs (4 total). A 2-CC group passes the weekly window with zero redundancy for the duration of one CC's restart.
 
 ### Configuring upgrade windows
 
-Navigate: **Admin Console → Infrastructure → Connectors → Cloud → [select group] → Edit**. The upgrade schedule field accepts a day-of-week and time. Equivalent paths for Branch Connector: Virtual Branch Devices and Physical Branch Devices pages (per Zscaler docs).
+CC Groups live at **Infrastructure > Connectors > Cloud > Management > Cloud Connector Groups** (`cbc-about-cloud-connector-groups.md:27`). To change the upgrade schedule, the upgrade source points to the per-device edit flows rather than naming a single field: "see Editing Cloud Connectors, Editing Virtual Branch Devices, and Editing Physical Branch Devices" (`cbc-managing-cloud-branch-connector-upgrades.md:21`). Branch Connector schedules are edited from the Virtual Branch Devices and Physical Branch Devices pages (same source).
 
-The schedule is group-scoped — no per-CC override. Shift groups away from the Sunday midnight default to avoid overlap with tenant maintenance blackouts.
+The product surfaces the schedule at group scope. In the SDK the read field lives on the per-VM model: `upgradeDayOfWeek` is a field of `ECGroupVM` (Python) / `ECVMs` (Go) — the per-VM record returned by `GET /ecgroup/{id}/vm/{vmId}` (`vendor/zscaler-sdk-python/zscaler/ztw/models/ec_group_vm.py:53`; `vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go:116`). That same per-VM record also carries the VM's `id`, `name`, `natIp`, and `buildVersion` (Python `:39`, `:40`, `:45`, `:48`; Go `:102`, `:103`, `:108`, `:111`). Because the schedule is group-scoped in the product, all VMs in a group share the same day. Shift groups away from the Sunday midnight default to avoid overlap with tenant maintenance blackouts.
+
+### API / SDK observability
+
+The weekly upgrade window is **observable but not triggerable** through the ZTW EC-group API. Every method in the EC-group service is a read except one delete — there is no create, update, or upgrade-trigger:
+
+| Operation | Endpoint | SDK method |
+|---|---|---|
+| List EC groups | `GET /ecgroup` | `list_ec_groups` (`ec_groups.py:39`) |
+| List EC groups (lite) | `GET /ecgroup/lite` | `list_ec_group_lite` (`ec_groups.py:149`) |
+| List EC instances (lite) | `GET /ecInstance/lite` | `list_ec_instance_lite` (`ec_groups.py:207`) |
+| Get one EC group | `GET /ecgroup/{id}` | `get_ec_group` (`ec_groups.py:97`) |
+| Get one VM in a group | `GET /ecgroup/{id}/vm/{vmId}` | `get_ec_group_vm` (`ec_groups.py:263`) |
+| Delete one VM in a group | `DELETE /ecgroup/{id}/vm/{vmId}` | `delete_ec_group_vm` (`ec_groups.py:304`) |
+
+Endpoints confirmed in `vendor/zscaler-api-specs/oneapi-postman-collection.json` (`/ecgroup`, `/ecgroup/lite`, `/ecgroup/{id}`, `/ecgroup/{id}/vm/{vmId}`, and `/ecInstance/lite`); SDK methods in `vendor/zscaler-sdk-python/zscaler/ztw/ec_groups.py`. There is **no create, update, or upgrade-trigger method** in the EC-group service — which independently confirms that operators cannot initiate an individual CC's upgrade via API; they can only read its state and (destructively) delete the VM so the scale set or group re-provisions it.
+
+To confirm or monitor the window programmatically, read `GET /ecgroup/{id}/vm/{vmId}` and inspect `buildVersion`, `lastUpgradeTime`, `upgradeStatus`, `upgradeStartTime`, `upgradeEndTime`, `upgradeDayOfWeek` (`vendor/zscaler-sdk-python/zscaler/ztw/models/ec_group_vm.py:48-53`; `vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go:111-116`).
+
+**Where this surface lives matters operationally.** These EC-group endpoints are SDK + REST API only. They are **not** exposed by the zscaler-mcp-server — its registered ZTW tools cover only account details, discovery settings, IP/network groups, admins/roles, and public-cloud info, with no EC-group tool (`vendor/zscaler-mcp-server/zscaler_mcp/services.py:2297-2321`). So "check the API/SDK" is a real operator move; "check the MCP server" is not.
 
 ### Branch Connector differences
 
@@ -87,7 +118,9 @@ ssh zsroot@169.254.2.2
 passwd zsroot
 ```
 
-Rotation is **per-device** — there is no tenant-wide or group-wide rotation API documented. Each CC VM must be rotated individually.
+Rotation of **`zsroot`** is **per-device** — there is no tenant-wide or group-wide `zsroot` rotation API. Each CC/BC VM must be rotated individually via SSH `passwd zsroot`.
+
+> **Two different credentials, two different mechanisms.** The "no rotation API" statement above is scoped to `zsroot` — the privileged OS account on each device. The ZTW *admin-console* admin user is a separate credential class that **does** have an API rotation path: `POST /passwordChange`, exposed by the SDK as `ztw.admin.change_password(username, old_password, new_password)` (`vendor/zscaler-sdk-python/zscaler/ztw/admin_users.py:37`). Don't read "no rotation API" as "no Zscaler credential is API-rotatable" — it applies only to the device OS account, not the console admin user.
 
 ### Cadence
 
@@ -142,13 +175,13 @@ Rationale:
 
 ---
 
-## 4. Source-citation gaps
+## 4. Open questions
 
-The captured sources (`cbc-managing-cloud-branch-connector-upgrades.md`, `cbc-rotating-zscaler-service-account-passwords.md`) are brief. The following are not confirmed by captures:
+The following are not confirmed by current captures or SDK/API source. Each is held here rather than asserted in the body:
 
 - **Whether the 2-hour CC window and any ZPA App Connector window interact** — ZPA App Connector uses a 4-hour window (per `understanding-connector-software-updates.md`, which covers ZPA, not ZTW). Do not conflate them.
 - **Behavior if a CC is mid-upgrade when zsroot rotation is attempted** — likely fine (rotation is local), but not explicitly confirmed.
-- **Whether VMSS-deployed CCs** (Azure Flex Orchestration) pick up upgrades the same way as static-instance CCs, or whether the VMSS instance replacement model bypasses the weekly check. Likely the latter — a new VMSS instance launched from a fresh image already has current software. Treat VMSS scale-out as a de-facto OS upgrade.
+- **Whether the weekly upgrade check still runs on long-lived scale-set / ASG members.** The replacement-from-launch-template behavior is now a cited fact (see §1 "What gets upgraded") — a scale-out yields current-software instances. What remains uncaptured is whether a member VM that stays up for many weeks *also* receives the in-place weekly package upgrade like a static instance, or only ever refreshes its software when it is replaced. The captures describe scale-set lifecycle (add/remove/replace) but do not state the upgrade path for a persistent member.
 - **Specific failure-recovery procedure** if a CC fails its upgrade (the docs say retry next week; whether manual intervention is possible before that is not captured).
 - **Default zsroot password** for freshly-provisioned CCs — not documented in captures. Cloud Connector VMs on Azure/AWS may use a cloud-provider-generated credential or a Zscaler-set default. Verify at first-deploy.
 

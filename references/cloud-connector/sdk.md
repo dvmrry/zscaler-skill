@@ -3,17 +3,22 @@ product: cloud-connector
 topic: cc-sdk
 title: Cloud Connector SDK — service catalog
 content-type: reference
-last-verified: "2026-05-16"
+last-verified: "2026-06-15"
 confidence: high
 source-tier: code
 sources:
   - vendor/zscaler-sdk-python/zscaler/ztw/ztw_service.py
   - vendor/zscaler-sdk-python/zscaler/ztw/activation.py
+  - vendor/zscaler-sdk-python/zscaler/ztw/discovery_service.py
+  - vendor/zscaler-sdk-python/zscaler/oneapi_client.py
   - vendor/zscaler-sdk-python/CHANGELOG.md
+  - vendor/zscaler-sdk-go/zscaler/oneapiclient.go
   - vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go
   - vendor/zscaler-sdk-go/zscaler/ztw/services/service.go
+  - vendor/zscaler-sdk-go/zscaler/ztw/services/partner_integrations/partner_integrations.go
   - vendor/zscaler-sdk-go/zscaler/ztw/v2_config.go
   - vendor/zscaler-sdk-go/zscaler/service.go
+  - vendor/terraform-provider-ztc/ztc/provider.go
 author-status: draft
 ---
 
@@ -78,7 +83,9 @@ github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/
     └── workload_groups/
 ```
 
-### Client construction
+### Client construction (legacy path)
+
+The `ztw.NewConfiguration` + `zscaler.NewLegacyZtwClient` flow below is the **legacy** construction surface — username/password/API-key against the ZTC portal. It is one of two supported auth paths (see "Authentication: OneAPI vs legacy" immediately below), not the only one.
 
 ```go
 import "github.com/zscaler/zscaler-sdk-go/v3/zscaler"
@@ -96,15 +103,24 @@ if err != nil {
 service, err := zscaler.NewLegacyZtwClient(ztwConfig)
 ```
 
-Source: `vendor/zscaler-sdk-go/zscaler/ztw/v2_config.go`.
+The `WithZtw*` setters are the legacy credential setters: `WithZtwUsername`, `WithZtwPassword`, `WithZtwAPIKey`, `WithZtwCloud`.
+
+Source: `vendor/zscaler-sdk-go/zscaler/ztw/v2_config.go:201,208,215,222`.
 
 Environment variables (alternative to code-level config): `ZTC_USERNAME`, `ZTC_PASSWORD`, `ZTC_API_KEY`, `ZTC_CLOUD`, plus optional `ZSCALER_PARTNER_ID`.
 
 ### Authentication: OneAPI vs legacy
 
-**OneAPI status**: not confirmed in the vendored Go ZTW client configuration. The concrete config surface in this capture is the legacy CBC/ZTC credential set above; do not assume ZIdentity OAuth for ZTW automation unless a newer SDK or API capture documents it.
+Source: `vendor/zscaler-sdk-go/zscaler/oneapiclient.go:207-208,382-383,400-401`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:30,104-108,288-294`.
 
-**Legacy CBC API**: Username/password/API-key authentication against the ZTC portal directly. Activated by setting `use_legacy_client = true` in provider config or the equivalent SDK option. The SDK maintains backwards compatibility.
+**OneAPI**: ZTW (Cloud Connector) **is a first-class OneAPI service** in both SDKs, alongside ZIA/ZPA/ZDX/ZCC. It is not legacy-only. Evidence in the unified clients:
+
+- Go: the unified client routes ZTW to a dedicated OAuth2 HTTP client. `getServiceHTTPClient` returns `client.oauth2Credentials.ZTWHTTPClient` for the `ztw` service (`oneapiclient.go:382-383`), and `detectServiceType` classifies any endpoint whose path is prefixed `ztw` as the ZTW service (`oneapiclient.go:400-401`). ZTW also has its own rate limiter — "ZTW uses same limits as ZIA" — wired as `ztwRateLimiter` (`oneapiclient.go:207-208`).
+- Python: the unified `Client` imports `ZTWService` (`oneapi_client.py:30`) and the `ztw` accessor returns a `ZTWService` over the shared OneAPI `_request_executor` unless `use_legacy_client` is set (`oneapi_client.py:288-294`). The legacy fallback is only taken when both `use_legacy_client` and a `ztw_legacy_client` are supplied (`oneapi_client.py:104-108`).
+
+OneAPI uses Zscaler OAuth 2.0 Client Credentials via ZIdentity. It is **not supported for the `zscalergov` and `zscalerten` clouds** — matching the sibling `terraform.md` (`references/cloud-connector/terraform.md:38`), which documents the same restriction for the ZTC provider.
+
+**Legacy CBC API**: Username/password/API-key authentication against the ZTC portal directly (the `WithZtw*` / `NewLegacyZtwClient` construction shown above; in Python, `use_legacy_client = true` with a `LegacyZTWClientHelper`). This is the alternative to OneAPI, retained for backwards compatibility — not the absence of OneAPI. The legacy `ztw/v2_config.go` only carries the username/password/apikey setters; it is not where OneAPI lives. OneAPI for ZTW lives in the top-level unified client (`oneapiclient.go`), not the legacy ZTW config.
 
 ### Function signature convention
 
@@ -348,7 +364,11 @@ Full CRUD for traffic forwarding rules. Includes an optional server-side filter 
 | `GetAll` | `(ctx, service, params ...ForwardingRulesQuery) ([]ForwardingRules, error)` | Optional filter: `RuleName`, `RuleOrder`, `RuleDescription`, `RuleForwardMethod`, `Location`, `SortBy`, `SortOrder` |
 | `GetEcRDRCount` | `(ctx, service, params *ForwardingRulesCountQuery) (*ForwardingRulesCountResponse, error)` | `GET /ztw/api/v1/ecRules/ecRdr/count` |
 
-`ForwardingRules` key fields: `ID`, `Name`, `Description`, `Type`, `Order`, `Rank`, `ForwardMethod` (`DIRECT`, `ZIA`, `ECZPA`, `ECSELF`, `DROP`, `PROXYCHAIN`, `ENATDEDIP`, `GEOIP`), `State`, `WanSelection`, `SrcIps`, `DestAddresses`, `DestCountries`, `Locations`, `LocationsGroups`, `ECGroups`, `SrcIpGroups`, `DestIpGroups`, `NwServices`, `NwServiceGroups`, `SrcWorkloadGroups`, `ProxyGateway` (`*CommonIDName`), `ZPAApplicationSegments`, `ZPAApplicationSegmentGroups`.
+`ForwardingRules` key fields: `ID`, `Name`, `Description`, `Type`, `Order`, `Rank`, `ForwardMethod` (`INVALID`, `DIRECT`, `PROXYCHAIN`, `ZIA`, `ZPA`, `ECZPA`, `ECSELF`, `DROP`, `ENATDEDIP`, `GEOIP` — per the `ForwardMethod` doc comment at `forwarding_rules.go:44`; `INVALID` is a sentinel, and `ZPA` and `ECZPA` are distinct values), `State`, `WanSelection`, `SrcIps`, `DestAddresses`, `DestCountries`, `Locations`, `LocationsGroups`, `ECGroups`, `SrcIpGroups` (`:120`), `SrcIpv6Groups` (`:124`), `DestIpGroups` (`:128`), `DestIpv6Groups` (`:132`), `NwServices`, `NwServiceGroups`, `SrcWorkloadGroups` (`:152`), `ProxyGateway` (`*CommonIDName`), `ZPAApplicationSegments`, `ZPAApplicationSegmentGroups`.
+
+Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go:44,120,124,128,132,152`.
+
+> Python/Go divergence: the Python SDK added a `dest_workload_groups_ids` attribute to ZTW `forwarding_rules` (`vendor/zscaler-sdk-python/CHANGELOG.md:349`, PR #450), but the Go `ForwardingRules` struct carries only `SrcWorkloadGroups` (`:152`) with no `DestWorkloadGroups` counterpart. Candidate for `api-divergences.md`.
 
 TF resource: `ztc_traffic_forwarding_rule`
 
@@ -514,6 +534,42 @@ CRUD access to cloud account groups. Standard Get/GetByName/GetAll pattern plus 
 
 TF resource/data source: `ztc_account_groups`
 
+#### partner_integrations (top-level functions)
+
+**Package**: `zscaler/ztw/services/partner_integrations`
+**File**: `partner_integrations/partner_integrations.go`
+
+Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/partner_integrations/partner_integrations.go`.
+
+In addition to the `account_groups` and `public_cloud_info` sub-packages, the `partner_integrations` package itself exports top-level functions for workload-discovery onboarding. These back the workload-discovery flow (CloudFormation template, region enumeration, account permission verification):
+
+| Function | Signature | API endpoint | Notes |
+|---|---|---|---|
+| `GetSupportedRegions` | `(ctx, service) ([]common.SupportedRegions, error)` | `GET /ztw/api/v1/publicCloudInfo/supportedRegions` | Workload-discovery region enumerator; backs the `ztc_supported_regions` TF data source (`provider.go:145`) |
+| `GetSupportedRegionsByName` | `(ctx, service, regionName string) (*common.SupportedRegions, error)` | `GET /ztw/api/v1/publicCloudInfo/supportedRegions` + client filter | Case-insensitive (`strings.EqualFold`) |
+| `GetCloudFormationTemplateURL` | `(ctx, service, awsAccountID *int) (string, error)` | `GET /ztw/api/v1/publicCloudInfo/cloudFormationTemplate` | Optional `?awsAccountId=` query when ID supplied; returns the template URL as text |
+| `GetWorkloadDiscoverySettings` | `(ctx, service) ([]WorkloadDiscoverySettings, error)` | `GET /ztw/api/v1/discoveryService/workloadDiscoverySettings` | Returns `TrustedAccountId`/`TrustedRoleName` for the AWS trust policy |
+| `UpdateDiscoveryPermissions` | `(ctx, service, awsAccountID int, permissions *DiscoveryPermissions) error` | `PUT /ztw/api/v1/discoveryService/{awsAccountID}/permissions` | Verifies AWS account perms via `DiscoveryRole` + `ExternalID` |
+
+Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/partner_integrations/partner_integrations.go:33,42,56,72,81`.
+
+`WorkloadDiscoverySettings` fields: `TrustedAccountId`, `TrustedRoleName` (`partner_integrations.go:16-23`). `DiscoveryPermissions` fields: `DiscoveryRole`, `ExternalID` (`partner_integrations.go:25-31`).
+
+### Discovery Service
+
+The Discovery Service surface (workload discovery settings + AWS account-permission verification) is exposed on both SDKs.
+
+**Python** — `client.ztw.discovery_service` → `DiscoveryServiceAPI` (`vendor/zscaler-sdk-python/zscaler/ztw/ztw_service.py:204-211`, importing from `ztw/discovery_service.py`):
+
+| Method | HTTP | API endpoint | Notes |
+|---|---|---|---|
+| `get_discovery_settings()` | GET | `/ztw/api/v1/discoveryService/workloadDiscoverySettings` | Reads the workload discovery service settings (`discovery_service.py:32,48-52`) |
+| `update_discovery_service_permissions(account_group_id, **kwargs)` | PUT | `/ztw/api/v1/discoveryService/{account_group_id}/permissions` | Verifies AWS account perms using `discovery_role` + `external_id` (`discovery_service.py:73,88-92`) |
+
+**Go** — the same two operations are the top-level `partner_integrations.GetWorkloadDiscoverySettings` / `UpdateDiscoveryPermissions` documented under "partner_integrations (top-level functions)" above (`partner_integrations.go:72,81`). There is no separate Go `discovery_service` package; the Go surface lives in `partner_integrations`.
+
+These are real ZTW API surfaces (SDK + API backed). No TF resource/data source maps to the discovery-settings read directly (the region enumerator backs `ztc_supported_regions`).
+
 ---
 
 ### Provisioning
@@ -572,7 +628,7 @@ Manages admin RBAC in the Cloud Connector portal. Contents not directly inspecte
 **File**: `workload_groups/workload_groups.go`  
 **Endpoint**: `/ztw/api/v1/workloadGroups`
 
-Workload groups (tag-based workload abstractions used in forwarding rule `src_workload_groups`). Create/Update/Delete are exported in the SDK source. However, the Terraform provider does not expose a resource for workload group mutation; IDs must be sourced from the ZIA provider (`zia_workload_groups` data source).
+Workload groups (tag-based workload abstractions used in forwarding rule `src_workload_groups`). **The Go SDK is read-only for workload groups** — `Create`/`Update`/`Delete` exist in the source file but sit inside a `/* … */` block comment (`workload_groups.go:97-132`) and are not compiled; the Python SDK exposes `list_groups` only. The ZTC Terraform provider exposes a native `ztc_workload_groups` **data source** (`vendor/terraform-provider-ztc/ztc/provider.go:146`) for read/ID lookup, so `src_workload_groups` IDs can be resolved from the ZTC provider directly — they no longer require the ZIA provider's `zia_workload_groups` data source. There is no ZTC workload-groups **resource** either (mutation must go through the raw API or be authored ZIA-side).
 
 | Function | Signature | Notes |
 |---|---|---|
@@ -584,9 +640,11 @@ Workload groups (tag-based workload abstractions used in forwarding rule `src_wo
 
 `WorkloadTagExpression` → `ExpressionContainers[]` → each with `TagType`, `Operator`, `TagContainer` → `Tags[]` (key-value pairs), max 8 tags total.
 
-Note: Create/Update/Delete are exported in the SDK (`vendor/zscaler-sdk-go/zscaler/ztw/services/workload_groups/workload_groups.go`). The Terraform provider does not expose a resource for workload group mutation; `src_workload_groups` IDs must be retrieved from the ZIA provider (`zia_workload_groups` data source).
+Note: `Create`/`Update`/`Delete` are **commented out** in the Go SDK (`vendor/zscaler-sdk-go/zscaler/ztw/services/workload_groups/workload_groups.go:97-132`) and are not compiled; the Python SDK has no write operations for workload groups either. The ZTC Terraform provider exposes a `ztc_workload_groups` **data source** (`vendor/terraform-provider-ztc/ztc/provider.go:146` → `dataSourceWorkloadGroup()`, backed by `vendor/terraform-provider-ztc/ztc/data_source_ztc_workload_groups.go`, which imports `ztw/services/workload_groups` and surfaces `id`/`name`/`description`/`expression`/`expression_json`). So `src_workload_groups` IDs can be looked up via the ZTC provider — the prior "use ZIA's `zia_workload_groups`" guidance is no longer required.
 
-No TF resource. No TF data source in ZTC provider (use ZIA's `zia_workload_groups`).
+No TF **resource** for workload groups in the ZTC provider (`provider.go:108-125` registers none) — mutation goes through the raw API or is authored ZIA-side. TF **data source**: `ztc_workload_groups` (`provider.go:146`).
+
+Vendor docs gap: despite the data source being registered in `provider.go`, there is no `docs/data-sources/ztc_workload_groups.md` page in the provider repo (the `docs/data-sources/` directory has pages for every other ZTC data source but this one). This is a vendor documentation gap, not a code gap.
 
 ---
 
@@ -675,11 +733,11 @@ Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/provisioning/provisioning_ur
 
 Resolved items below cite the specific SDK files used for verification inline.
 
-1. **Duplicate DNS gateway packages**: `dns_gateway/dns_gateway.go` and `forwarding_gateways/dns_forwarding_gateway/dns_forwarding_gateway.go` both target `/ztw/api/v1/dnsGateways`. The `dns_gateway` package omits `*http.Response` from `Get`/`Create`/`Update` return signatures; the `dns_forwarding_gateway` package includes it. The `dns_gateway` package's struct omits the `Type` field present in the other. Which package is canonical for the Terraform provider is not confirmed from available sources — both exist in the SDK without clear deprecation notes.
+1. **Duplicate DNS gateway packages**: `dns_gateway/dns_gateway.go` and `forwarding_gateways/dns_forwarding_gateway/dns_forwarding_gateway.go` both target `/ztw/api/v1/dnsGateways`. The `dns_gateway` package omits `*http.Response` from `Get`/`Create`/`Update` return signatures; the `dns_forwarding_gateway` package includes it. The `dns_gateway` package's struct omits the `Type` field present in the other. Which package is canonical for the Terraform provider is not confirmed from available sources — both exist in the SDK without clear deprecation notes. See [clarification `cloud-connector-14`](../_meta/clarifications.md#cloud-connector-14-duplicate-dns-gateway-packages-and-the-type-field-semantics).
 
-2. **`provisioning_url` uses non-`Resource` methods**: `Create`, `UpdateWithPut`, and `Delete` in `provisioning_url` use the ZIA-style methods (`service.Client.Create`, not `CreateResource`). Whether this is intentional or a bug is not confirmed from available sources.
+2. **`provisioning_url` uses non-`Resource` methods**: `Create`, `UpdateWithPut`, and `Delete` in `provisioning_url` use the ZIA-style methods (`service.Client.Create`, not `CreateResource`). Whether this is intentional or a bug is not confirmed from available sources. Filed with the `workload_groups.Get` anomaly and OneAPI gov/ten behavior as [clarification `cloud-connector-19`](../_meta/clarifications.md#cloud-connector-19-ztw-sdk-method-convention-anomalies-and-oneapi-govten-exclusion-behavior).
 
-3. **Resolved 2026-04-26.** `workload_groups` Create/Update/Delete are NOT commented out in the current source. `vendor/zscaler-sdk-go/zscaler/ztw/services/workload_groups/workload_groups.go` exports `Create` (line 98), `Update` (line 113), and `Delete` (line 124). The earlier claim that they were "commented out" was inaccurate — the doc has been corrected above. However, the TF provider does not expose a resource for workload groups, and the note "likely authored in ZIA" still applies per TF docs.
+3. **Resolved 2026-06-15.** `workload_groups` Create/Update/Delete ARE commented out — `vendor/zscaler-sdk-go/zscaler/ztw/services/workload_groups/workload_groups.go:97-132` wraps `Create`/`Update`/`Delete` in a `/* … */` block, so they are not compiled and the Go SDK is read-only for workload groups (the Python SDK exposes `list_groups` only). An earlier revision of this doc incorrectly stated they were exported; `api-divergences.md` carries the correct statement. The TF provider exposes no resource for workload groups, so mutation goes through the raw API or is authored ZIA-side.
 
 4. **Resolved 2026-04-26.** `activation_cli` is a standalone CLI program, not a library package. `vendor/zscaler-sdk-go/zscaler/ztw/services/activation_cli/zconActivator.go` declares `package main` and contains a `main()` function that calls `activation.ForceActivationStatus`. It reads credentials from legacy environment variables (`ZCON_USERNAME`, `ZCON_PASSWORD`, `ZCON_API_KEY`, `ZCON_CLOUD`). It is not importable as a Go package — it is a command-line utility bundled with the SDK for force-activating ZTC configurations.
 
@@ -687,6 +745,6 @@ Resolved items below cite the specific SDK files used for verification inline.
 
 6. **Resolved 2026-04-26.** `zparesources` exposes read-only access to ZPA Application Segments usable in traffic forwarding rules. It exports `GetZPAApplicationSegments`. This addresses the hardcoded-ID limitation in `ztc_traffic_forwarding_rule`: callers can look up ZPA Application Segment IDs via this function rather than hardcoding them. No write operations are present.
 
-7. **Resolved 2026-04-26.** `workload_groups.Get` calls `service.Client.Read` (not `ReadResource`) — confirmed in `vendor/zscaler-sdk-go/zscaler/ztw/services/workload_groups/workload_groups.go`. This is inconsistent with the ZTW convention of using `ReadResource` for GET operations. The workload groups endpoint may use the ZIA-compatible request path rather than the ZTW Resource-suffixed path; the exact reason is not documented in available sources.
+7. **Resolved 2026-04-26.** `workload_groups.Get` calls `service.Client.Read` (not `ReadResource`) — confirmed in `vendor/zscaler-sdk-go/zscaler/ztw/services/workload_groups/workload_groups.go`. This is inconsistent with the ZTW convention of using `ReadResource` for GET operations. The workload groups endpoint may use the ZIA-compatible request path rather than the ZTW Resource-suffixed path; the exact reason is not documented in available sources. Residual (why the convention differs) filed as [clarification `cloud-connector-19`](../_meta/clarifications.md#cloud-connector-19-ztw-sdk-method-convention-anomalies-and-oneapi-govten-exclusion-behavior).
 
-8. **Supported cloud environments**: OneAPI is documented as unavailable for `zscalergov` and `zscalerten`. Whether the SDK surfaces this restriction as an error or silently falls back to legacy auth for those clouds is not confirmed from available sources.
+8. **Resolved 2026-06-15.** OneAPI **is** available for ZTW (Cloud Connector) — it is a first-class OneAPI service in both SDKs (Go `oneapiclient.go:382-383,400-401,207-208`; Python `oneapi_client.py:30,104-108,288-294`), with the legacy username/password/API-key path retained as the alternative. OneAPI is excluded for the `zscalergov` and `zscalerten` clouds, matching the sibling `terraform.md:38`. See the rewritten "Authentication: OneAPI vs legacy" section. (Still open, narrower: whether the SDK surfaces the gov/ten exclusion as an explicit error or silently falls back to legacy auth for those clouds is not confirmed from available source — see [clarification `cloud-connector-19`](../_meta/clarifications.md#cloud-connector-19-ztw-sdk-method-convention-anomalies-and-oneapi-govten-exclusion-behavior).)
