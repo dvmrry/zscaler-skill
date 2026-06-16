@@ -46,7 +46,7 @@ Source: `vendor/zscaler-help/configuring-smart-browser-isolation-policy.md`; `ve
 
 Three config objects interact:
 
-1. **Isolation profile** — tenant-level configurable object. Specifies Turbo Mode, copy/paste, file transfer, print, read-only, region selection, persistent state, PAC file, watermarking, and related session behavior. Default isolation profiles are automatically created for organizations with Zero Trust Browser, and admins can manually create multiple profiles for both Internet & SaaS and Private Access (`vendor/zscaler-help/what-is-zero-trust-browser.md:32`).
+1. **Isolation profile** — tenant-level configurable object. Captured profile settings include Turbo Mode, PAC File URL, copy/paste, file transfer, print, read-only isolation, region selection, watermarking, persistent state, and related session behavior (`vendor/zscaler-help/understanding-isolation-miscellaneous-unknown-category-zia.md:19`, `:22-40`, `vendor/zscaler-help/understanding-turbo-mode-isolation.md:27`). Default isolation profiles are automatically created for organizations with Zero Trust Browser, and admins can manually create multiple profiles for both Internet & SaaS and Private Access (`vendor/zscaler-help/what-is-zero-trust-browser.md:32`).
 2. **ZIA-side policy** — URL Filter rules with `Isolate` action pointing to an isolation profile, plus **Smart Browser Isolation**, the AI/ML-driven auto-isolation policy for suspicious sites (`vendor/zscaler-help/configuring-smart-browser-isolation-policy.md:16`, `:22-24`, `:32-34`).
 3. **ZPA-side policy** — Isolation Policy rules with rule-order evaluation and AND/OR conditions, each pointing to a ZPA isolation profile (`vendor/zscaler-help/zpa-about-isolation-policy.md:16`, `:32-33`, `:48-50`).
 
