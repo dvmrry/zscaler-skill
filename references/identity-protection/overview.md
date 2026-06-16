@@ -1,9 +1,19 @@
 ---
 product: identity-protection
 topic: overview
-title: "Identity Protection (ITDR) — identity threat detection and response"
+title: "Identity Protection (ITDR) - identity risk and SecOps posture"
 content-type: reference
-last-verified: "2026-04-28"
+last-verified: "2026-06-16"
+verified-against:
+  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/terraform-provider-zia: 717926eb564bb21dea1f8e0c3222e6593b29f849
+  vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
+  vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
+  vendor/zpacloud-ansible: 84ab824d6ce5853c12add6ae3280dcfb8db273a2
+  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
+  vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
+  vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: medium
 source-tier: doc
 sources:
@@ -11,123 +21,46 @@ sources:
 author-status: draft
 ---
 
-# Identity Protection (ITDR) — identity threat detection and response
+# Identity Protection (ITDR) - identity risk and SecOps posture
+
+This is a thin Tier-C reference. The refresh found Identity Protection / ITDR Help coverage, but no product-specific SDK, Terraform, Ansible, MCP, or Postman surface in the audited vendor trees.
+
+## Source-family sweep
+
+| Family | Audit result |
+|---|---|
+| Go SDK | No Identity Protection / ITDR product service surface found in the audited Go SDK tree. |
+| Python SDK | No Identity Protection / ITDR product service surface found in the audited Python SDK tree. |
+| Terraform | No Identity Protection / ITDR resources or data sources found in the audited ZIA or ZPA providers. |
+| Ansible | No Identity Protection / ITDR modules found in the audited ZIA or ZPA collections. |
+| MCP | No Identity Protection / ITDR tools found in the audited MCP server. |
+| Postman | No Identity Protection / ITDR endpoint family found in the audited OneAPI collection. |
+| Help | Identity Protection is covered by the ITDR Help capture. The capture says it detects anomalous activities and provides continuous unified visibility into identity risks (`vendor/zscaler-help/itdr-what-identity-protection.md:8`). |
 
 ## What it is
 
-Identity Protection is Zscaler's Identity Threat Detection and Response (ITDR) solution. It detects anomalous identity activities (compromised credentials, suspicious logins, sensitive data theft), scans identity infrastructure for misconfigurations, monitors for real-time changes in identity stores, and provides continuous unified visibility into identity risks (Tier A — vendor/zscaler-help/itdr-what-identity-protection.md).
+Identity Protection helps organizations detect anomalous identity activity such as compromised credentials, suspicious logins, and sensitive data theft, and gives continuous visibility into identity risk (`vendor/zscaler-help/itdr-what-identity-protection.md:8`). The capture places it in the Zscaler SecOps platform alongside UVM, AEM, and SOC Workbench (`vendor/zscaler-help/itdr-what-identity-protection.md:10`).
 
-It is part of the Zscaler Security Operations (SecOps) platform, alongside AEM, UVM, and SOC Workbench. Identity Protection uses ZTE (ZIA/ZPA) for response actions — when an identity attack is detected, it can automatically block the compromised user via ZIA/ZPA access policies.
+The architecture section says Identity Protection is an ITDR solution integrated with the SecOps platform, with an Identities App, an ITDR Connector, a Data Fabric Cluster, and Zero Trust Exchange integration (`vendor/zscaler-help/itdr-what-identity-protection.md:35-42`). The Zero Trust Exchange integration is described as providing ZIA/ZPA visibility, enrichment, and containment, including access-policy controls to block compromised users when identity attacks are detected (`vendor/zscaler-help/itdr-what-identity-protection.md:42`).
 
-## Two generations / naming
+## Capability scope
 
-The help portal nav includes both "Identity Protection" (under the main SecOps platform entry) and "ITDR" (under "Zscaler Legacy"). The current generation is the SecOps platform Identity Protection experience. For advanced configuration tasks, some links redirect to the legacy ITDR UI. Both refer to the same underlying capability set; the UX is in transition.
+The Help capture lists detection and posture capabilities: identity posture scanning, AD posture scans, Entra ID posture scans, Okta integration, real-time identity change detection, credential exposure scanning, and identity threat detection (`vendor/zscaler-help/itdr-what-identity-protection.md:44-52`). It specifically says AD posture scan requires ZCC on a domain-joined Windows machine, Credential Exposure Scan requires ZCC, and Identity Threat Detection is enabled as an endpoint policy on designated machines with ZCC installed (`vendor/zscaler-help/itdr-what-identity-protection.md:46-52`).
 
-## Core capabilities
+The legacy note says the Help portal includes an ITDR entry under "Zscaler Legacy" and that Identity Protection in the new SecOps platform UI is the current generation; advanced tasks can redirect to the legacy ITDR experience (`vendor/zscaler-help/itdr-what-identity-protection.md:54-56`).
 
-### 1. Identity posture scan
+## Programmability posture
 
-Assesses identity infrastructure (AD, Entra ID, Okta) for misconfigurations and vulnerabilities. Results include MITRE ATT&CK mapping to identify blind spots and prioritize remediation.
+No product-specific Identity Protection Go SDK, Python SDK, Terraform, Ansible, MCP, or Postman surface was found in the audited vendor trees. The captured Help material supports portal/SecOps architecture and ZTE/ZCC integration concepts, but it does not establish an Identity Protection public API, SDK operation set, or provider resource set. See [clarification `identity-protection-01`](../_meta/clarifications.md#identity-protection-01-identity-protection-api-integration-surface-and-legacy-itdr-parity).
 
-**AD Posture Scan:**
-- Requires ZCC installed on a domain-joined Windows machine
-- Runs LDAP queries to build a map of schema, users, computers, OUs, and other objects
-- Checks objects for misconfigurations and vulnerabilities in AD domains
+## Open questions
 
-**Entra ID Posture Scan:**
-- Connects Entra ID tenants to Identity Protection
-- Uses a deployment script to set up: resource group, app, storage account, service principal, etc.
-- Enables diagnostic settings for change detection via logs
-- Checks misconfigurations across Entra ID users, service principals, and roles
-
-### 2. Identity change detection
-
-Real-time monitoring of critical changes in AD domains and Entra ID tenants. Detects changes that introduce new risks or open pathways for privilege escalation and lateral movement. Provides:
-- Real-time alerting
-- Remediation guidance: video tutorials, commands, scripts
-
-### 3. Credential exposure scan
-
-Scans endpoints for risky identity material stored locally:
-- Usernames and passwords
-- API keys and SSH keys
-- Certificate files and other credentials
-
-Requires ZCC installed on endpoints. Credential exposure is a major post-compromise risk vector — attackers finding local credentials can escalate privileges without triggering traditional detection.
-
-### 4. Identity threat detection
-
-Endpoint-based detection of active identity attacks. ZCC deployed as sensor on designated machines. Detection via configurable detectors:
-
-| Detector | Attack it detects |
-|---|---|
-| DCSync | Mimics Domain Controller replication to steal credentials |
-| DCShadow | Rogue Domain Controller injection |
-| Kerberoasting | Service account credential extraction via Kerberos |
-| (others) | Additional detectors configurable via policies |
-
-When a pattern is detected, ZCC sends signals to Identity Protection, which enriches the signal with investigation context and can trigger automated response actions via orchestration.
-
-### 5. Okta integration
-
-Direct integration for real-time Okta identity data enrichment and response actions:
-- Enrich identity metadata
-- Detect real-time changes on Okta identities
-- Perform actions: activate user, suspend user, clear user sessions
-
-## Architecture components
-
-| Component | Role |
-|---|---|
-| **Identities App** | Built into SecOps platform; central management and analysis surface |
-| **ITDR Connector** | Data connector streaming ITDR solution data to the data fabric |
-| **Data Fabric Cluster** | Processes raw data from all sources; normalizes, correlates, enriches |
-| **ZTE (ZIA/ZPA)** | Response enforcement; blocks compromised users via access policies |
-
-## MITRE ATT&CK mapping
-
-Identity Protection maps findings to MITRE ATT&CK techniques. This enables:
-- Locating blind spots (which techniques are you not detecting?)
-- Prioritizing remediation by adversary technique prevalence
-- Communicating findings in a standard security language
-
-## Data sources / connectors
-
-Ingests from:
-- Active Directory (via LDAP, via ZCC on domain-joined Windows)
-- Microsoft Entra ID (via deployment script + diagnostic settings)
-- Okta (direct integration)
-- Endpoint signals (via ZCC installed on designated detection machines)
-- Generic sources (AnySource via AWS S3)
-
-## ZTE response integration
-
-Identity Protection's enforcement hook is ZTE:
-- Compromised user detected → ZIA policy updated to block internet access
-- Compromised user detected → ZPA access denied to private apps
-
-This is a real-time enforcement path, not just alerting. The integration requires ZIA and/or ZPA to be deployed.
-
-## API surface
-
-The help portal documents "Triggering Report Export Through an API" as a SecOps platform capability. An AnySource ingestion path (AWS S3, webhook, Upload File API) exists. No standalone Identity Protection REST API reference was found in available sources.
-
-## Key operational notes
-
-- ZCC is required for AD posture scanning, credential exposure scanning, and identity threat detection. Identity Protection without ZCC deployed is limited to IdP-based posture assessment.
-- The legacy ITDR portal is still accessible for advanced tasks. Current portal does not replicate all legacy capabilities yet.
-- MITRE ATT&CK mapping is built-in for all identity posture findings — no manual tagging required.
-
-## What Identity Protection is not
-
-- Not an IdP. It integrates with your IdP (AD, Entra ID, Okta) but does not replace it.
-- Not an endpoint security product. ZCC is used as a sensor/agent, but the EDR/endpoint protection function remains with dedicated EDR tools.
-- Not a SIEM. Use your SIEM for raw event retention; Identity Protection provides enriched, correlated identity risk views.
+- `identity-protection-01`: The public captures do not identify the authoritative API surface, connector configuration API, report/export API, or exact parity between the current SecOps UI and legacy ITDR experience. See [clarification `identity-protection-01`](../_meta/clarifications.md#identity-protection-01-identity-protection-api-integration-surface-and-legacy-itdr-parity).
 
 ## Cross-links
 
-- AEM (asset exposure management, same SecOps platform): [`../aem/overview.md`](../aem/overview.md)
-- SOC Workbench (alert/incident response, integrates identity signals): [`../soc-workbench/overview.md`](../soc-workbench/overview.md)
-- ZCC (required sensor for detection capabilities): [`../zcc/index.md`](../zcc/index.md)
-- ZPA (enforcement target for identity-based access blocking): [`../zpa/index.md`](../zpa/index.md)
-- Portfolio map: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)
+- AEM: [`../aem/overview.md`](../aem/overview.md)
+- SOC Workbench: [`../soc-workbench/overview.md`](../soc-workbench/overview.md)
+- ZCC: [`../zcc/index.md`](../zcc/index.md)
+- ZPA: [`../zpa/index.md`](../zpa/index.md)
+- Claims ledger: [`./_claims-ledger.md`](./_claims-ledger.md)

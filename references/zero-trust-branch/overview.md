@@ -1,124 +1,87 @@
 ---
 product: zero-trust-branch
 topic: overview
-title: "Zero Trust Branch — SD-WAN with zero trust device segmentation for branch/factory"
+title: "Zero Trust Branch - branch SD-WAN, segmentation, and ZTB API surface"
 content-type: reference
-last-verified: "2026-04-28"
+last-verified: "2026-06-16"
+verified-against:
+  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/terraform-provider-zia: 717926eb564bb21dea1f8e0c3222e6593b29f849
+  vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
+  vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
+  vendor/zpacloud-ansible: 84ab824d6ce5853c12add6ae3280dcfb8db273a2
+  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
+  vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
+  vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: medium
-source-tier: doc
+source-tier: mixed
 sources:
   - "vendor/zscaler-help/ztb-what-zero-trust-branch.md"
+  - "vendor/zscaler-sdk-python/zscaler/oneapi_client.py"
+  - "vendor/zscaler-sdk-python/zscaler/ztb/ztb_service.py"
+  - "vendor/zscaler-sdk-python/zscaler/ztb/legacy.py"
+  - "vendor/zscaler-sdk-python/README.md"
+  - "vendor/zscaler-sdk-python/zscaler/ztb/site.py"
+  - "vendor/zscaler-sdk-python/zscaler/ztb/api_key.py"
+  - "vendor/zscaler-sdk-python/zscaler/ztb/devices.py"
+  - "vendor/zscaler-sdk-python/zscaler/ztb/groups_router.py"
+  - "vendor/zscaler-sdk-python/zscaler/ztb/template_router.py"
+  - "vendor/zscaler-sdk-python/zscaler/ztb/app_connector_config.py"
+  - "vendor/zscaler-sdk-python/zscaler/ztb/site2site_vpn.py"
+  - "vendor/zscaler-sdk-go/zscaler/zpa/services/branch_connector/branch_connector.go"
+  - "vendor/zscaler-sdk-go/zscaler/zpa/services/branch_connector_group/branch_connector_group.go"
 author-status: draft
 ---
 
-# Zero Trust Branch — SD-WAN with zero trust device segmentation for branch/factory
+# Zero Trust Branch - branch SD-WAN, segmentation, and ZTB API surface
 
-## What it is
+Zero Trust Branch is the one misc-cluster product with a real SDK surface in this refresh. Python exposes `client.ztb` resources for the ZTB API; Go, Terraform, Ansible, MCP, and Postman did not show an equivalent ZTB product surface in the audited trees.
 
-Zero Trust Branch (ZTB) combines SD-WAN (Software-Defined Wide Area Networking) with agentless device segmentation, designed for branch offices, factory floors, and data centers. It replaces traditional site-to-site VPNs and east-west firewall infrastructure while applying ZIA/ZPA policies to all branch traffic forwarded to the Zscaler Zero Trust Exchange (ZTE) (Tier A — vendor/zscaler-help/ztb-what-zero-trust-branch.md).
+## Source-family sweep
 
-The key differentiator is the **"network-of-one"** device segmentation model: every device on the branch network is automatically isolated with its own /32 subnet, eliminating lateral movement between devices without requiring NAC or east-west firewall hardware.
-
-## Core components
-
-| Component | Role |
+| Family | Audit result |
 |---|---|
-| **Zero Trust Branch appliance** | Physical or virtual device deployed at the branch site. Terminates ISP connections, manages multi-link forwarding, enforces device segmentation. |
-| **Zscaler Admin Console (SaaS)** | Centralized cloud management portal for all ZTB appliances. No on-premises management infrastructure required. |
+| Go SDK | No ZTB product service surface found. The Go SDK has ZPA Branch Connector and Branch Connector Group services under `/zpa/mgmtconfig/.../branchConnector` and `/branchConnectorGroup`, which are adjacent ZPA surfaces rather than the ZTB `/ztb/...` API (`vendor/zscaler-sdk-go/zscaler/zpa/services/branch_connector/branch_connector.go:13-16`, `vendor/zscaler-sdk-go/zscaler/zpa/services/branch_connector_group/branch_connector_group.go:11-18`). |
+| Python SDK | ZTB product surface found. `oneapi_client.py` exposes `client.ztb`, and `ztb_service.py` exposes alarms, API keys, app connector config, devices, groups, logs, policy comments, ransomware kill, sites, site-to-site VPN, and templates (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:279-285`; `vendor/zscaler-sdk-python/zscaler/ztb/ztb_service.py:37-44`, `:49-135`). |
+| Terraform | No ZTB product resources or data sources found in the audited ZIA or ZPA providers. |
+| Ansible | No ZTB product modules found in the audited ZIA or ZPA collections. |
+| MCP | No ZTB product tools found in the audited MCP server. |
+| Postman | No ZTB product endpoint family found in the audited OneAPI collection. |
+| Help | ZTB is covered by the Zero Trust Branch Help capture, including product positioning, ZTE forwarding, device segmentation, key features, and deployment form factors (`vendor/zscaler-help/ztb-what-zero-trust-branch.md:8-24`, `:33-47`). |
 
-## Appliance form factors
+## Product shape
 
-- **Physical appliances**: ZT800 series. Wall and rack mount options. Zero Touch Provisioning (ZTP) supported.
-- **Virtual machine**: VMware ESXi deployment.
+The Help capture says Zero Trust Branch combines SD-WAN capabilities with device segmentation for branches, factories, and data centers (`vendor/zscaler-help/ztb-what-zero-trust-branch.md:8`). It says ZTB appliances terminate ISP connections, forward branch and cloud traffic to the Zero Trust Exchange, and apply ZIA or ZPA policies based on traffic destination and user identity (`vendor/zscaler-help/ztb-what-zero-trust-branch.md:10`).
 
-The help portal documents hardware usage guidelines, physical port mapping, and a wall/rack mount instruction manual — ZTB is a hardware product with physical deployment considerations.
+The "network-of-one" model automatically discovers, classifies, and isolates devices including IoT, OT, IoMT, headless devices, and legacy systems (`vendor/zscaler-help/ztb-what-zero-trust-branch.md:12`). The feature list includes automatic device classification, clientless browser-based SSH/RDP/VNC access to OT assets, ZIA/ZPA forwarding policies, Zero Touch Provisioning, and a gateway mode that auto-provisions each endpoint with a `/32` subnet mask (`vendor/zscaler-help/ztb-what-zero-trust-branch.md:16-24`).
 
-## Traffic model
+Deployment uses Zero Trust Branch appliances plus the Zscaler Admin Console; captured options include Zero Touch Provisioning, VMware ESXi, and ZT800 hardware (`vendor/zscaler-help/ztb-what-zero-trust-branch.md:33-47`).
 
-All branch traffic flows to ZTE via the ZTB appliance:
+## Python SDK surface
 
-```
-Branch devices
-    → Zero Trust Branch appliance (default gateway, /32 per device)
-    → ZTE cloud (ZIA policies for internet traffic, ZPA policies for private app traffic)
-    → Internet / Private apps
-```
+The Python SDK exposes ZTB as `client.ztb`, but the auth story is internally divergent. `oneapi_client.py` creates a `ZTBService` for `client.ztb` when not using a legacy client (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:279-285`), and `ztb_service.py` says the service is used via the OneAPI authentication path while standalone access should use `LegacyZTBClient` or `LegacyZTBClientHelper` (`vendor/zscaler-sdk-python/zscaler/ztb/ztb_service.py:37-44`). The README instead says ZTB authenticates via API key, uses `POST /api/v3/api-key-auth/login`, and is available only through `LegacyZTBClient` because OneAPI/OAuth2 is not supported for ZTB (`vendor/zscaler-sdk-python/README.md:1722-1728`, `:1751-1755`). Keep that as an open clarification, not a resolved claim.
 
-Traffic never traverses the LAN between devices without going through the ZTB appliance first. This is the architectural basis for lateral movement prevention — there is no direct device-to-device path.
+| Resource | Source-backed operations |
+|---|---|
+| Sites | Site API provides CRUD and utility operations under `/ztb/api/v2`; inspected methods include list/get/create/update/delete sites, app-segment list/update, and cloud-site create (`vendor/zscaler-sdk-python/zscaler/ztb/site.py:34-42`, `:48-99`, `:157-241`, `:268-354`). |
+| API keys | API key auth resource exposes list, create, and revoke under `/ztb/api/v3` (`vendor/zscaler-sdk-python/zscaler/ztb/api_key.py:26-36`, `:42-108`, `:110-189`). |
+| Devices | Devices API lists active devices, category/type views, tags, grouping values, and OS rows across `/ztb/api/v2` and `/ztb/api/v3` (`vendor/zscaler-sdk-python/zscaler/ztb/devices.py:32-42`, `:48-181`, `:215-260`). |
+| Groups and templates | Groups Router and Template Router both expose list/get/create/update/delete-style methods (`vendor/zscaler-sdk-python/zscaler/ztb/groups_router.py:26-34`, `:40-115`, `:160-346`; `vendor/zscaler-sdk-python/zscaler/ztb/template_router.py:27-35`, `:41-108`, `:153-293`). |
+| App connector config | App Connector Config exposes get/create/delete methods under `/ztb/api/v3/appconnector/config` (`vendor/zscaler-sdk-python/zscaler/ztb/app_connector_config.py:24-35`, `:41-76`, `:78-148`). |
+| Site-to-site VPN / Cloud Gateway | Site2Site VPN exposes hub list and S2S get/create/update operations under `/ztb/api/v3/CloudGateway/...` (`vendor/zscaler-sdk-python/zscaler/ztb/site2site_vpn.py:32-40`, `:46-192`). |
 
-## Device segmentation — "network-of-one"
+## Programmability posture
 
-- ZTB automatically discovers and classifies devices on the network (based on traffic profiles)
-- Each device is provisioned with a /32 subnet mask via DHCP proxy or static IP automation
-- Devices within the same VLAN must communicate via the ZTB gateway — not directly with each other
-- Applies to IoT, OT, IoMT, headless devices, and legacy systems — no agent required on endpoints
+Use Python SDK source for capability-level claims. Do not infer Go/Terraform/Ansible/MCP/Postman parity from Python. Also do not treat Go ZPA Branch Connector files as the ZTB product API; their paths and package names are ZPA branch-connector surfaces, not `/ztb/...` service layers (`vendor/zscaler-sdk-go/zscaler/zpa/services/branch_connector/branch_connector.go:1-16`).
 
-This enables segmentation of shadow IoT devices that cannot run security agents.
+## Open questions
 
-## OT/IoT specific capabilities
-
-- Clientless browser-based access to OT assets via SSH, RDP, and VNC
-- Automatic device classification based on traffic profile
-- SD-WAN with direct-to-cloud for IoT/OT telemetry
-- Applicable to: manufacturing, utilities, healthcare, retail (POS/kiosks), logistics
-
-## Deployment modes
-
-- **Zero Touch Provisioning (ZTP)**: Appliance ships pre-configured; plug in and it self-provisions by calling back to Admin Console.
-- **Manual deployment**: ZT800 without ZTP (older firmware or specific scenarios).
-- **Virtual machine**: VMware ESXi for software-only deployments.
-
-## Zero Trust Provisioning (ZTP) process
-
-Appliance deployed → connects to internet via ISP → calls back to Zscaler → downloads configuration from Admin Console → operational. Minimizes on-site IT involvement for branch deployments.
-
-## Advanced networking features
-
-- **Bonding Interfaces (Ebond)**: Multi-WAN link aggregation for redundancy and load balancing
-- **Micro-Subnets**: Sub-VLAN segmentation constructs for fine-grained isolation beyond per-device /32
-- **VLAN default gateway takeover**: ZTB assumes DHCP proxy role and default gateway role for each configured VLAN
-
-## Policy enforcement
-
-Traffic is subject to:
-- **ZIA policies**: For internet-bound and SaaS-bound traffic
-- **ZPA policies**: For private application access
-- **Forwarding policies**: Granular rules for internet vs. non-internet traffic at the ZTB level
-
-## What it is not
-
-- Not a standalone SD-WAN product. ZTB requires ZTE (ZIA/ZPA) subscription — the cloud security enforcement layer is not optional.
-- Not a campus LAN solution. Designed for branch/factory/data-center edge, not large enterprise LAN environments.
-- Not a traditional firewall. Replaces the need for east-west firewalls at the branch, but relies on ZTE for internet egress inspection rather than a local firewall.
-
-## API surface
-
-ZTB is managed via the Zscaler Admin Console (SaaS portal). A separate ZTB API was not documented in available sources. Configuration, monitoring, and provisioning appear to be portal-driven. The SaaS-based management console is the primary operational surface.
-
-## Common questions
-
-- **"What is Zero Trust Branch?"** → An SD-WAN and device segmentation product for branch offices, factories, and data centers. It routes branch traffic through the Zscaler ZTE for ZIA/ZPA policy enforcement while providing agentless per-device isolation on the LAN.
-- **"Does Zero Trust Branch replace SD-WAN?"** → It replaces traditional site-to-site VPNs and overlay routing. It provides SD-WAN capabilities (multi-link management, direct-to-cloud forwarding) but is not a general-purpose enterprise SD-WAN. It is designed for simplicity and zero trust, not full network feature parity with enterprise SD-WAN products.
-- **"Does Zero Trust Branch require ZIA/ZPA?"** → Yes. ZTB forwards traffic to the ZTE; without ZIA/ZPA, there is no cloud-based policy enforcement point. ZTB is not a standalone product.
-- **"How does device segmentation work without NAC?"** → ZTB assigns every device a /32 subnet and acts as the default gateway for all VLANs. All inter-device traffic must pass through the ZTB appliance, which enforces policy. No separate NAC system required.
-- **"Can Zero Trust Branch handle OT/IoT devices?"** → Yes — this is a primary use case. Device classification is automatic based on traffic profiles. Clientless browser-based access to SSH/RDP/VNC is available for OT assets. No agent required on OT/IoT devices.
-- **"What is Zero Touch Provisioning (ZTP)?"** → A deployment method where the appliance self-provisions by contacting the Zscaler Admin Console. No on-site IT technician needed to configure the device — plug it in, it connects to internet, downloads its configuration.
-
-## Typical deployment scenario
-
-A manufacturing site with 50 IoT sensors, 10 OT machines, 20 employee workstations, and one ZTB appliance:
-
-1. ZTB appliance deployed as the default gateway for all VLANs
-2. All devices (sensors, OT, workstations) get /32 subnet masks via DHCP proxy
-3. Devices communicate with the internet → traffic goes: device → ZTB → ZTE (ZIA) → internet
-4. Devices access private apps → traffic goes: device → ZTB → ZTE (ZPA) → private app
-5. Sensor A tries to talk directly to Sensor B on the same VLAN → blocked; traffic must traverse ZTB first
-6. IoT device classification happens automatically based on traffic profile (no agent)
-7. Admin manages all sites via the central Zscaler Admin Console (SaaS)
+- `zero-trust-branch-01`: The Python SDK contains a `client.ztb` OneAPI path and a legacy API-key path, while its README says OneAPI/OAuth2 is not supported for ZTB. Confirm the supported auth mode and any source-of-truth drift. See [clarification `zero-trust-branch-01`](../_meta/clarifications.md#zero-trust-branch-01-ztb-python-sdk-auth-mode-divergence-and-non-python-coverage).
 
 ## Cross-links
 
-- ZIA (applies internet and SaaS policies to ZTB-forwarded traffic): [`../zia/index.md`](../zia/index.md)
-- ZPA (applies private access policies to ZTB-forwarded traffic): [`../zpa/index.md`](../zpa/index.md)
-- Cloud Connector (alternative for cloud workload connectivity; different use case): [`../cloud-connector/index.md`](../cloud-connector/index.md)
-- Portfolio map: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)
+- ZIA: [`../zia/index.md`](../zia/index.md)
+- ZPA: [`../zpa/index.md`](../zpa/index.md)
+- Cloud Connector: [`../cloud-connector/index.md`](../cloud-connector/index.md)
+- Claims ledger: [`./_claims-ledger.md`](./_claims-ledger.md)
