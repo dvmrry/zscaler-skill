@@ -154,6 +154,15 @@ jobs:
       - name: Check for orphan reference files
         run: ./scripts/check-orphans.py
 
+      - name: Check vendor family coverage (advisory)
+        # DAV-20 L1: flags a documentation area whose docs do not cite a vendor
+        # source family that actually has a surface — the class that let zbi ship
+        # without its Ansible coverage (#146/#149). Advisory while the per-product
+        # config registry (scripts/l1_inventory.py PRODUCTS) is expanded; promote
+        # to a blocking check once it covers the products with multi-family surface.
+        continue-on-error: true
+        run: ./scripts/check-family-coverage.py
+
       - name: Check for vendor-source drift
         # Drift is advisory follow-up work, not a merge gate; it surfaces in
         # the job log/summary. Without continue-on-error, every Renovate
