@@ -4,6 +4,14 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.13.4](https://github.com/dvmrry/zscaler-skill/compare/v0.13.3...v0.13.4) (2026-06-16)
+
+
+### Documentation
+
+* **zbi:** add missed ansible isolation coverage ([#149](https://github.com/dvmrry/zscaler-skill/issues/149)) ([4b7cf64](https://github.com/dvmrry/zscaler-skill/commit/4b7cf64c51721818468b92528ce50661bfb58a1e))
+* **zwa:** refresh workflow automation references ([#148](https://github.com/dvmrry/zscaler-skill/issues/148)) ([fa88fa4](https://github.com/dvmrry/zscaler-skill/commit/fa88fa4a99c4cb8977e14777353e3362ad8862bb))
+
 ## [0.13.3](https://github.com/dvmrry/zscaler-skill/compare/v0.13.2...v0.13.3) (2026-06-16)
 
 
