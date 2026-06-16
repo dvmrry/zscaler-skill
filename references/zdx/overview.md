@@ -3,7 +3,7 @@ product: zdx
 topic: "zdx-overview"
 title: "ZDX overview — architecture and scoring"
 content-type: reasoning
-last-verified: "2026-04-24"
+last-verified: "2026-06-15"
 confidence: high
 source-tier: doc
 sources:
@@ -127,9 +127,9 @@ For custom apps, at least one Web probe is required to enable monitoring; Networ
 
 ## Open questions
 
-- Exact weighting between Page Fetch Time vs Availability in the final score — not documented numerically.
-- What happens when ZCC can't reach the TPG (temporary cloud unreachable) — metrics are presumably buffered on-device and flushed on reconnect, but buffer size/retention not stated.
-- Whether "lowest value within the hour" excludes zero values (which would be probe failures) or includes them — the answer materially affects how availability affects the score.
+- Exact weighting between Page Fetch Time vs Availability in the final score — not documented numerically. See [clarification zdx-36](../_meta/clarifications.md#zdx-36-pft-vs-availability-score-weighting).
+- What happens when ZCC can't reach the TPG (temporary cloud unreachable) — metrics are presumably buffered on-device and flushed on reconnect, but buffer size/retention not stated. See [clarification zdx-19](../_meta/clarifications.md#zdx-19-zcc-metric-buffering-when-tpg-unreachable).
+- Whether "lowest value within the hour" excludes zero values (which would be probe failures) or includes them — the answer materially affects how availability affects the score. See [clarification zdx-37](../_meta/clarifications.md#zdx-37-zero-value-handling-in-the-lowest-value-within-hour-rollup).
 
 ## Cross-links
 

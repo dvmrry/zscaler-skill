@@ -3,13 +3,16 @@ product: zcc
 topic: "zcc-web-policy"
 title: "ZCC web policy — on-device policy and per-platform overrides"
 content-type: reference
-last-verified: "2026-05-01"
+last-verified: "2026-06-15"
+verified-against:
+  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
 confidence: medium
 source-tier: mixed
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py"
   - "vendor/zscaler-sdk-python/zscaler/zcc/web_policy.py"
   - "vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go"
+  - "vendor/zscaler-sdk-go/zscaler/zcc/services/failopen_policy/failopen_policy.go"
   - "vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md"
   - "vendor/zscaler-help/configuring-zscaler-client-connector-app-profiles.md"
 author-status: draft
@@ -19,7 +22,7 @@ author-status: draft
 
 The ZCC **Web Policy** object (called **App Profile** in the ZCC admin portal UI) is the on-endpoint policy that controls ZCC's own behavior — PAC URLs, which Forwarding Profile to use for ZIA/ZPA, whether ZCC installs the SSL root cert, uninstall-protection passwords, per-app bypasses, platform-specific settings, and disaster-recovery fallback behavior. It is **not** ZIA's URL filtering policy; those are different products in different places.
 
-**Naming note**: `WebPolicy` is the SDK/API name (wire path: `/zcc/papi/public/v1/web/policy/...` — note the slash between `web` and `policy`, confirmed in `web_policy.py:71` and `web_policy.go:14`). **App Profile** is the admin-portal UI name for the same object. When an admin says "the user's App Profile" or "edit the Windows app profile rule," they mean a Web Policy entry scoped to those users/that platform. See [`clarification zcc-07`](../_meta/clarifications.md#zcc-07-forwarding-profile-assignment-to-usersdevices).
+**Naming note**: `WebPolicy` is the SDK/API name (wire path: `/zcc/papi/public/v1/web/policy/...` — note the slash between `web` and `policy`, confirmed in `web_policy.py:76` and the Go const `baseWebPolicyEndpoint = "/zcc/papi/public/v1/web/policy"` at `web_policy.go:17`). **App Profile** is the admin-portal UI name for the same object. When an admin says "the user's App Profile" or "edit the Windows app profile rule," they mean a Web Policy entry scoped to those users/that platform. See [`clarification zcc-07`](../_meta/clarifications.md#zcc-07-forwarding-profile-assignment-to-usersdevices).
 
 Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-python/zscaler/zcc/web_policy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`; `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md`.
 
@@ -51,7 +54,7 @@ ZCC Web Policy and ZIA URL filtering policy are entirely separate constructs:
 | Where configured | ZCC Portal | ZIA Admin Portal |
 | What it controls | ZCC agent behavior, forwarding mode, passwords, SSL cert | Which URLs are allowed, blocked, or alerted on by ZIA cloud |
 | Enforcement point | On the endpoint (ZCC agent) | In the ZIA cloud (Service Edge) |
-| API object | `WebPolicy` / `/zcc/papi/public/v1/webPolicy/` | ZIA URL Category / Rule resources |
+| API object | `WebPolicy` / `/zcc/papi/public/v1/web/policy/` | ZIA URL Category / Rule resources |
 | Effect on traffic | Determines whether traffic reaches ZIA at all (via Forwarding Profile) | Determines what ZIA does with traffic that reaches it |
 
 ZCC Web Policy can bypass ZIA entirely (via Forwarding Profile action `NONE` on trusted networks) — in that case, ZIA URL filtering never runs for that traffic. Web Policy controls the gate; ZIA URL filtering controls what happens after the gate.
@@ -63,6 +66,16 @@ ZCC Web Policy can bypass ZIA entirely (via Forwarding Profile action `NONE` on 
 Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-python/zscaler/zcc/web_policy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`.
 
 From `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py` (Tier B — SDK/TF):
+
+### Top-level vs `policyExtension` dual fields (the `*Top` pattern)
+
+The Go `WebPolicy` struct is modeled on the ZCC admin UI's form-state, so **many settings appear twice on the wire** — once at the top level of the policy body and once inside `policyExtension` — with different wire types. The Go SDK names the top-level copy with a `Top` suffix and the `policyExtension` copy without it; the constructor populates both, and the API expects both (`web_policy.go:83–90`, comment block). Examples (top-level vs extension):
+
+- `useDefaultAdapterForDNS` — top-level `string` (`web_policy.go:243`) and inside `policyExtension` `string` (`web_policy.go:560`).
+- `enforceSplitDNS` / `disableDNSRouteExclusion` / `dropQuicTraffic` — top-level `string` (`web_policy.go:245–248`) vs extension `common.IntOrString` (`web_policy.go:572,578,579`).
+- `useTunnelSDK4_3` — top-level JSON **number** (`int`, `web_policy.go:319`) but a **quoted string** inside the iOS sub-policy (`IosPolicy.UseTunnelSDK43`, `web_policy.go:375`) — the wire shapes diverge intentionally.
+
+A tool that constructs a payload by hand and sets only one of the two copies can silently no-op or fail validation. When auditing snapshot JSON, expect to see both keys.
 
 ### Scope and evaluation
 
@@ -77,8 +90,8 @@ From `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py` (Tier B — SDK
 | `users` / `groups` | `users` / `groups` | list | Nested full user/group objects (for display; IDs are authoritative). |
 | `group_all` | `groupAll` | bool | Applies to all groups. When true, group_ids are ignored — broader flag takes priority. |
 | `enable_device_groups` | `enableDeviceGroups` | bool | Whether device-group scoping is in force. If false, `device_group_ids` is ignored. |
-| `forwarding_profile_id` | `forwardingProfileId` | int | **The assignment link.** References which Forwarding Profile this policy's users get. This is how Forwarding Profiles are assigned to users — it is a field on Web Policy, not a separate object. (`webpolicy.py:97`, `web_policy.go:33`) See [`./forwarding-profile.md`](./forwarding-profile.md). |
-| `zia_posture_config_id` | `ziaPostureConfigId` | int | ZIA device posture config reference. Cross-product hook for posture-gated access. (`webpolicy.py:115`, `web_policy.go:56`) |
+| `forwarding_profile_id` | `forwardingProfileId` | int | **The assignment link.** References which Forwarding Profile this policy's users get. This is how Forwarding Profiles are assigned to users — it is a field on Web Policy, not a separate object. (`webpolicy.py:98`, `web_policy.go:141`) See [`./forwarding-profile.md`](./forwarding-profile.md). |
+| `zia_posture_config_id` | `ziaPostureConfigId` | int | ZIA device posture config reference. Cross-product hook for posture-gated access. `ziaPostureConfigId` is `omitempty` in Go — absent from a fresh create body. (`webpolicy.py:116`, `web_policy.go:143`) |
 
 ### App bypass fields
 
@@ -96,15 +109,43 @@ From `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py` (Tier B — SDK
 | Python field | Wire key | Type | Role |
 |---|---|---|---|
 | `allow_unreachable_pac` | `allowUnreachablePac` | bool | Whether ZCC allows traffic if the configured PAC URL is unreachable. If false, traffic is blocked when PAC is down. Pairs with DR config. |
-| `pac_url` | `pac_url` (snake_case on wire) | str | The PAC URL honored by users on this policy. **Literal snake_case on the wire** — confirmed in both Python (`webpolicy.py:105, 303`) and Go (`web_policy.go:46`). Tools writing JSON by hand must preserve this case. |
-| `tunnel_zapp_traffic` | `tunnelZappTraffic` | bool | Whether ZCC's own traffic goes through the Z-Tunnel (vs. direct). Typically off for most tenants — ZCC's own management traffic bypasses inspection. (`webpolicy.py:114`) |
-| `reauth_period` | `reauth_period` (snake_case on wire) | int | How often ZCC prompts users to re-authenticate (in hours or days — exact unit not documented in SDK). **snake_case wire key** confirmed in both SDKs (`webpolicy.py:109, 306`, `web_policy.go:49`). |
+| `pac_url` | `pac_url` (snake_case on wire) | str | The PAC URL honored by users on this policy. **Literal snake_case on the wire** — confirmed in both Python (`webpolicy.py:106`) and Go (`PacURL string json:"pac_url"`, `web_policy.go:165`). Tools writing JSON by hand must preserve this case. |
+| `tunnel_zapp_traffic` | `tunnelZappTraffic` | bool | Whether ZCC's own (ZApp) traffic goes through the Z-Tunnel (vs. direct). (`webpolicy.py:115`, `web_policy.go:205`) |
+| `reauth_period` | `reauth_period` (snake_case on wire) | int | How often ZCC prompts users to re-authenticate (unit not documented in SDK). **snake_case wire key** confirmed in both SDKs (`webpolicy.py:110`, `ReauthPeriod ... json:"reauth_period"` `web_policy.go:208`). |
 | `reactivate_web_security_minutes` | `reactivateWebSecurityMinutes` | int | If a user disables web security (where allowed), how long before ZCC re-enables it automatically. Pairs with `send_disable_service_reason`. |
 | `send_disable_service_reason` | `sendDisableServiceReason` | bool | Whether ZCC prompts the user for a reason when disabling the service. Reason data surfaces in `download_disable_reasons()` CSV. |
 | `log_level` | `logLevel` | str/int | Logging verbosity level on the endpoint. Maps to Error/Warn/Info/Debug modes. |
 | `log_mode` | `logMode` | str/int | Log mode (may overlap with `log_level` — exact distinction not documented). |
 | `log_file_size` | `logFileSize` | int | Maximum size of ZCC log files on the endpoint. |
 | `highlight_active_control` | `highlightActiveControl` | bool | UI polish — highlight the active rule in ZCC's local admin UI. |
+
+### `device_type` integer enum
+
+`device_type` is serialized as a JSON number on the wire. The integer mapping is now documented directly in the Go SDK (`web_policy.go:65–69`, also reused by `GetWebPolicyByID` at `web_policy.go:708–709`):
+
+| Integer | Platform |
+|---|---|
+| 1 | iOS |
+| 2 | Android |
+| 3 | Windows |
+| 4 | macOS |
+| 5 | Linux |
+
+This is the value the `activate_web_policy` / `ActivateWebPolicy` call expects in its `device_type` / `DeviceType` field — see [§ Activation scope](#activation-scope-single-policy-device_type-not-bulk). The list endpoint's `device_type` **query param** uses the string form instead (`ios` / `android` / `windows` / `macos` / `linux`, `web_policy.py:45–46`). The same enum belongs in [`./api-schemas.md`](./api-schemas.md). The API also returns a companion `deviceType` string on reads (e.g. `"DEVICE_TYPE_MAC"`) that the Go SDK does not model (`web_policy.go:66–69`). The `DeviceTypeAlt` field at `:323` is a separate **int**-typed field sharing the `deviceType` JSON key (`json:"deviceType,omitempty"`) — it is not that string companion.
+
+### Captive-portal and fail-open knobs (top level)
+
+The rewritten Go struct surfaces several top-level network-behavior toggles that the older doc did not cover (`web_policy.go:152–154`):
+
+| Wire key | Go type | Role |
+|---|---|---|
+| `enableCaptivePortalDetection` | int | Whether ZCC detects captive portals (hotel/airport login pages) and temporarily relaxes interception so the user can authenticate. |
+| `enableFailOpen` | int | Top-level fail-open switch — allow direct traffic when ZCC cannot establish the tunnel/proxy. The tenant-level equivalent lives in `FailOpenPolicy` — see [§ Disaster Recovery vs fail-open](#disaster-recovery-block). |
+| `captivePortalWebSecDisableMinutes` | int | How long web security stays disabled while the captive-portal flow completes. |
+
+These same three keys are also the core of the standalone `FailOpenPolicy` object (`failopen_policy.go:18,22,23`), so a tenant can express captive-portal/fail-open behavior at both the App Profile level and the tenant level.
+
+The policy also carries an **`endToEndDiagnostics`** block keyed per network context — `trusted` / `vpnTrusted` / `offTrusted` / `splitVpnTrusted` ints (`web_policy.go:40–45`), surfaced at the WebPolicy top level (`web_policy.go:156`) and also embedded as JSON inside `policyExtension.zdxLiteConfigObj`. This toggles ZCC's end-to-end (ZDX-style) diagnostics independently for each trusted-network state.
 
 ---
 
@@ -121,7 +162,7 @@ Common fields across platforms (the wire keys vary by platform — see [§ insta
 | `disable_password` | Password a user must enter to disable ZCC. Empty = no password required. |
 | `logout_password` | Password a user must enter to log out of ZCC. |
 | `uninstall_password` | Password a user must enter to uninstall ZCC. |
-| `install_ssl_certs` (Python) / `install_certs` (Python — Android/macOS) | Whether ZCC pushes the Zscaler root CA into the OS certificate store. **Required for SSL inspection to work without cert errors.** Wire key differs by platform and SDK — see matrix below. |
+| install-SSL-cert (Python attr `install_ssl_certs` on Windows/Linux, `install_certs` on Android/macOS) | Whether ZCC pushes the Zscaler root CA into the OS certificate store. **Required for SSL inspection to work without cert errors.** Emitted wire key differs by platform AND by SDK — see matrix below. |
 
 ### Platform-specific fields (selected)
 
@@ -137,7 +178,11 @@ Common fields across platforms (the wire keys vary by platform — see [§ insta
 - `wifi_ssid` — SSID-based configuration for Android.
 - `custom_text` — custom notification text shown to Android users.
 
-**iOS**: Overlaps with Android for mobile-specific fields.
+**iOS**: The Go `IosPolicy` block is small — `disablePassword` / `logoutPassword` / `uninstallPassword` / `passcode` plus `ipv6Mode` (int) and `useTunnelSDK4_3` (quoted string) and `showVPNTunNotification` (`web_policy.go:368–376`). iOS carries no SSL-cert-install field (see matrix above). Most iOS-specific behavior lives in **top-level** iOS-only fields and two dedicated blocks rather than in the small `iosPolicy` sub-policy:
+
+- **`notificationTemplateContract`** (`web_policy.go:430–454`) — an iOS-only block of ZIA notification toggles: `ziaFirewall` / `ziaFirewallPopup`, `ziaDNS` / `ziaDNSPopup`, `ziaIPS` / `ziaIPSPopup`, plus ZPA-reauth and device-posture-failure notification timers. Pointer-typed and `omitempty` on the parent (`web_policy.go:320`), so only iOS payloads emit it.
+- **`enableZaisService`** (`web_policy.go:539`) — an iOS-only ZAIS service toggle inside `policyExtension`, emitted as a JSON number; `omitempty` keeps it off the wire for non-iOS device types.
+- Top-level iOS-only mirrors: `ipv6Mode`, `showVPNTunNotification`, `useTunnelSDK4_3`, `useZscalerNotificationFramework`, `switchFocusToNotification` (`web_policy.go:317–325`), all `omitempty`.
 
 ### `install_ssl_certs = false` is a common SSL inspection gap
 
@@ -145,17 +190,23 @@ If the SSL-cert-install field is `false` on any platform sub-policy, ZCC does no
 
 #### `install_ssl_certs` wire-key matrix
 
-The wire key for the SSL-cert-install field is **not consistent across platforms**, and the Python and Go SDKs disagree on Windows. Tools constructing payloads by hand or auditing snapshot JSON must use the right key per platform:
+The wire key for the per-OS SSL-cert-install field is **not consistent across platforms**, and the Python and Go SDKs disagree on **two** platforms (Windows *and* macOS) — in **opposite directions**. Tools constructing payloads by hand or auditing snapshot JSON must use the right key per platform AND per SDK, because a payload sent with the wrong key is silently ignored. (The Go MacPolicy carries an explicit comment that camelCase tags caused `{"success":"false","id":0}` on `/edit` until the field was switched to snake_case — `web_policy.go:389–394`.)
 
-| Platform | Python wire key | Go wire key | Notes |
+| Platform | Python emit key | Go wire key | Status |
 |---|---|---|---|
-| Windows | `install_ssl_certs` (snake_case) — `webpolicy.py:834, 892` | `installCerts` (camelCase) — `web_policy.go:206` | **SDK conflict** — one of the two is wrong on the wire. Verify against a real tenant before scripting. |
-| Linux | `installCerts` — `webpolicy.py:927, 943` | `installCerts` — `web_policy.go:106` | Consistent. |
-| macOS | `installCerts` — `webpolicy.py:1098, 1132` | `installCerts` — `web_policy.go:120` | Consistent. Python attr is `install_certs`, not `install_ssl_certs`. |
-| Android | `installCerts` — `webpolicy.py:1022, 1058` | `installCerts` — `web_policy.go:68` | Consistent. Python attr is `install_certs`. |
-| iOS | **Not present** | **Not present** | iOS sub-policy has no SSL-cert-install field at all (`webpolicy.py:951–972`, `web_policy.go:95–102`). iOS uses the device profile / MDM mechanism for cert install instead. |
+| Windows | `install_ssl_certs` (snake_case) — `webpolicy.py:895` | `installCerts` (camelCase) — `WindowsPolicy.InstallCerts`, `web_policy.go:465` | **Conflict** — Python snake / Go camel. |
+| macOS | `installCerts` (camelCase) — `webpolicy.py:1140` | `install_ssl_certs` (snake_case) — `MacPolicy.InstallSslCerts`, `web_policy.go:408` | **Conflict, INVERTED from Windows** — Python camel / Go snake. |
+| Linux | `installCerts` — `webpolicy.py:946` | `installCerts` — `LinuxPolicy.InstallCerts`, `web_policy.go:380` | Consistent (both camelCase). |
+| Android | `installCerts` — `webpolicy.py:1065` | `installCerts` — `AndroidPolicy.InstallCerts`, `web_policy.go:348` | Consistent (both camelCase). |
+| iOS | **Not present** | **Not present** | iOS sub-policy has no SSL-cert-install field at all (Python `IOSPolicy` `webpolicy.py:954–999`, Go `IosPolicy` `web_policy.go:368–376`). iOS uses the device profile / MDM mechanism for cert install instead. |
 
-**Operational implication**: a tenant deploying ZCC on iOS for the first time and expecting `install_ssl_certs = true` to push certs will be surprised — the field doesn't exist on iOS. iOS cert installation is an MDM concern, not a ZCC App Profile concern.
+Python attribute names are inconsistent too: Windows/Linux store it as `install_ssl_certs` but Android/macOS store it as `install_certs` — only the **emitted wire key** (above) matters for payloads.
+
+**Go-only top-level `install_ssl_certs`**: separate from all of the per-OS fields above, the Go `WebPolicy` carries a top-level `InstallSslCertsTop common.IntOrString json:"install_ssl_certs"` (`web_policy.go:186`). This is a UI form-state mirror with **no Python top-level equivalent** — do not confuse it with the per-OS sub-policy field. A payload that sets the top-level `install_ssl_certs` but not the matching per-OS key (or vice versa) can behave unexpectedly.
+
+**Operational implications**:
+- A tenant reporting "macOS users see cert errors but Windows users don't" may have intended the same setting on both, but because the cert wire-key differs **per platform AND per SDK**, a hand-built payload that uses the wrong key for one platform silently no-ops there and leaves that platform without the cert. Check the actual emitted key, not the Python attribute name.
+- A tenant deploying ZCC on iOS for the first time and expecting `install_ssl_certs = true` to push certs will be surprised — the field doesn't exist on iOS. iOS cert installation is an MDM concern, not a ZCC App Profile concern.
 
 Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`.
 
@@ -163,7 +214,7 @@ Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zsc
 
 ## On-Net policy
 
-The `onNetPolicy` sub-object controls what ZCC does when it detects it is on the corporate network. This is distinct from Trusted-Network evaluation in the Forwarding Profile (which controls where traffic goes per-network-type). Fields (`webpolicy.py:697–703`):
+The `onNetPolicy` sub-object controls what ZCC does when it detects it is on the corporate network. This is distinct from Trusted-Network evaluation in the Forwarding Profile (which controls where traffic goes per-network-type). Python models it as the `OnNetPolicy` class (`webpolicy.py:685–727`) wired into the parent `WebPolicy` as `on_net_policy` (`webpolicy.py:220–228`). Fields (`webpolicy.py:700–706`):
 
 | Wire key | Python attr | Role |
 |---|---|---|
@@ -173,7 +224,7 @@ The `onNetPolicy` sub-object controls what ZCC does when it detects it is on the
 | `predefinedTrustedNetworks` | `predefined_trusted_networks` | List of predefined trusted networks for the On-Net check. |
 | `predefinedTnAll` | `predefined_tn_all` | Shortcut: any predefined trusted network qualifies. |
 
-**Go SDK does not expose `onNetPolicy`** — the Go `WebPolicy` struct (`web_policy.go:18–57`) lacks this sub-object entirely. Operators using the Go SDK cannot read or write On-Net policy through it. Python SDK is the only programmatic path. Confidence on the field semantics is low; lab-test before relying on this path.
+**Go SDK does not expose `onNetPolicy`** — the Go `WebPolicy` struct (`web_policy.go:91–337`) has no `onNetPolicy` field anywhere; its nested blocks are limited to the five per-OS policies plus `policyExtension` and `disasterRecovery` (`web_policy.go:327–336`). Operators using the Go SDK cannot read or write On-Net policy through it. Python SDK is the only programmatic path. Confidence on the field semantics is low; lab-test before relying on this path.
 
 When both `onNetPolicy` and Forwarding Profile trusted-network configuration are present, the order of evaluation and any override semantics are an open question.
 
@@ -189,32 +240,47 @@ The `disasterRecovery` sub-object and the `enableZiaDR` / `enableZpaDR` flags en
 |---|---|---|
 | Disaster Recovery (`disasterRecovery` + `enableZiaDR`/`enableZpaDR`) | App Profile level | Prolonged ZIA or ZPA outage — ZCC switches to DR PAC/config for the duration |
 | Fail-open (`FailOpenPolicy`) | Tenant level | Transient tunnel/proxy unreachability — ZCC allows direct traffic temporarily |
+| `enableFailOpen` / `captivePortalWebSecDisableMinutes` | App Profile level | Top-level fail-open + captive-portal grace window on the policy itself (`web_policy.go:153–154`) |
 | `allow_unreachable_pac` | App Profile level | PAC URL unreachable — allow or block traffic while PAC is down |
 
-DR and fail-open are distinct mechanisms. DR is for multi-hour outages with an admin-provided fallback config; fail-open is for transient failures with a grace period. See [`./forwarding-profile.md`](./forwarding-profile.md) for FailOpenPolicy detail.
+DR and fail-open are distinct mechanisms. DR is for multi-hour outages with an admin-provided fallback config; fail-open is for transient failures with a grace period. Fail-open exists at **two layers**: a top-level `enableFailOpen` on the App Profile (`web_policy.go:153`) and a standalone tenant-level `FailOpenPolicy` object served from its own endpoint `/zcc/papi/public/v1/webFailOpenPolicy` (`failopen_policy.go:13`). The standalone object exposes the finer-grained knobs:
+
+| Wire key | Go field | Role |
+|---|---|---|
+| `enableWebSecOnProxyUnreachable` | `failopen_policy.go:25` | Keep web security on when the proxy is unreachable. |
+| `enableWebSecOnTunnelFailure` | `failopen_policy.go:26` | Keep web security on when the tunnel fails. |
+| `tunnelFailureRetryCount` | `failopen_policy.go:30` | How many times ZCC retries the tunnel before failing open. |
+| `enableStrictEnforcementPrompt` / `strictEnforcementPromptDelayMinutes` / `strictEnforcementPromptMessage` | `failopen_policy.go:24,28,29` | Strict-enforcement prompt: warn the user (with a delayed countdown + custom message) before allowing direct traffic. |
+
+See also [`./forwarding-profile.md`](./forwarding-profile.md).
 
 ### Python SDK SNAKE_CASE_KEYS bug — `enable_zia_dr`
 
-Python SDK's `SNAKE_CASE_KEYS` set lists `"enable_zia_dr"` (`webpolicy.py:79`), implying the wire key should remain snake_case. But `DisasterRecovery.request_format()` actually emits `"enableZiaDR"` (camelCase, `webpolicy.py:662`), and the Go SDK confirms `"enableZiaDR"` (`web_policy.go:79`). **The SNAKE_CASE_KEYS entry for this field is a Python SDK bug — the wire format is camelCase.** Same pattern affects `truncate_large_udpdns_response` and `purge_kerberos_preferred_dc_cache` in `PolicyExtension`: SNAKE_CASE_KEYS lists them but `request_format()` emits camelCase (`webpolicy.py:585, 587`).
+Python SDK's `SNAKE_CASE_KEYS` set lists `"enable_zia_dr"` (`webpolicy.py:80`), implying the wire key should remain snake_case. But `DisasterRecovery.request_format()` actually emits `"enableZiaDR"` (camelCase, `webpolicy.py:665`), and the Go SDK confirms it: `EnableZiaDR bool json:"enableZiaDR"` (`web_policy.go:490`). **The SNAKE_CASE_KEYS entry for this field is a Python SDK bug — the wire format is camelCase.** Same pattern affects `truncate_large_udpdns_response` and `purge_kerberos_preferred_dc_cache` in `PolicyExtension`: SNAKE_CASE_KEYS lists them (`webpolicy.py:77–78`) but `request_format()` emits `truncateLargeUDPDNSResponse` / `purgeKerberosPreferredDCCache` (camelCase, `webpolicy.py:588, 590`), and the Go `PolicyExtension` confirms both as `common.IntOrString` with camelCase tags (`web_policy.go:596, 598`).
 
-### Go vs Python `disasterRecovery` field divergence
+**Typing divergence**: Go now types these DR flags concretely — `EnableZiaDR` / `EnableZpaDR` / `AllowZiaTest` / `AllowZpaTest` as `bool` and `ZiaDRMethod` as `int` (`web_policy.go:488–494`) — while Python leaves them untyped (plain `config[...]` reads, `webpolicy.py:627–641`). A hand-built payload that quotes these booleans (`"enableZiaDR":"true"`) matches Python's loose shape but not Go's. Captured as a cross-source divergence in [`./api-divergences.md`](./api-divergences.md) (see *DR flags — concretely typed in Go, untyped in Python*).
 
-The two SDKs disagree on the field set. Fields in **Go only** (`web_policy.go:76–93`):
+### Go and Python `disasterRecovery` have converged
 
-- `policyId` — DR config's policy ID
-- `ziaPacUrl` — ZIA DR PAC URL
-- `ziaSecretKeyData` / `ziaSecretKeyName` — ZIA DR secret
-- `zpaSecretKeyData` / `zpaSecretKeyName` — ZPA DR secret
-- `ziaDRRecoveryMethod` (int) — Go's name for the DR method field
+A previous version of this doc described a large field-set divergence between the SDKs. **That divergence is no longer real** — the two SDKs now emit essentially the same `disasterRecovery` field set. The fields below exist in BOTH (Go `DisasterRecovery` struct `web_policy.go:487–505`; Python `DisasterRecovery.request_format()` `webpolicy.py:664–680`):
 
-Fields in **Python only** (`webpolicy.py:624–638`):
+| Wire key | Go field | Python emit | Role |
+|---|---|---|---|
+| `enableZiaDR` / `enableZpaDR` | `web_policy.go:490–491` | `webpolicy.py:665–666` | Enable ZIA / ZPA DR fallback. |
+| `ziaDRMethod` | `web_policy.go:494` | `webpolicy.py:667` | DR method. Both SDKs use `ziaDRMethod` — Go has an explicit comment "`ziaDRMethod` (not `ziaDRRecoveryMethod`)" (`web_policy.go:480`). |
+| `ziaCustomDbUrl` | `web_policy.go:495` | `webpolicy.py:668` | Custom DR database URL. |
+| `useZiaGlobalDb` / `ziaGlobalDbUrl` / `ziaGlobalDbUrlv2` | `web_policy.go:493,497–498` | `webpolicy.py:669–671` | ZIA global DB selection / URLs. |
+| `ziaDomainName` / `zpaDomainName` | `web_policy.go:496,502` | `webpolicy.py:672,675` | DR domain names. |
+| `ziaRSAPubKey` / `ziaRSAPubKeyName` | `web_policy.go:500–501` | `webpolicy.py:673–674` | ZIA RSA public key (+ name). |
+| `zpaRSAPubKey` / `zpaRSAPubKeyName` | `web_policy.go:503–504` | `webpolicy.py:677–678` | ZPA RSA public key (+ name). |
+| `allowZiaTest` / `allowZpaTest` | `web_policy.go:488–489` | `webpolicy.py:678–679` | Allow ZIA / ZPA DR test mode. |
 
-- `ziaCustomDbUrl` — custom database URL
-- `ziaRSAPubKey` / `ziaRSAPubKeyName` — ZIA RSA public key
-- `zpaRSAPubKey` / `zpaRSAPubKeyName` — ZPA RSA public key
-- `ziaDRMethod` — Python's name for the DR method field (Go calls it `ziaDRRecoveryMethod`)
+**The doc's previously-claimed Go-only secret-key fields** (`ziaSecretKeyData` / `ziaSecretKeyName` / `zpaSecretKeyData` / `zpaSecretKeyName`) and the `ziaDRRecoveryMethod` name **do not exist** anywhere in the current Go struct. The only genuine Go-side extras are read-side form-state, both `omitempty`:
 
-This is a meaningful gap — the two SDKs are managing different aspects of the DR config. Lab-test which set the API actually accepts before scripting either path.
+- `policyId` (`web_policy.go:492`) — DR config's policy ID, populated on read.
+- `ziaPacUrl` (`web_policy.go:499`) — ZIA DR PAC URL, populated on read.
+
+The "meaningful gap, lab-test which set the API accepts" framing no longer applies — the field sets match. The remaining real differences are the typing divergence above and the `ziaPacUrl`/`policyId` read-only extras. The typing divergence is captured in [`./api-divergences.md`](./api-divergences.md) (see *DR flags — concretely typed in Go, untyped in Python*).
 
 Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`.
 
@@ -222,22 +288,23 @@ Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zsc
 
 ## Policy Extension
 
-`policyExtension` (`webpolicy.py:336–468`, `web_policy.go:126–189`) is a grab-bag sub-object for advanced settings. **~60 fields total** — most rarely touched in normal operation. Selected high-signal fields:
+`policyExtension` (Python `PolicyExtension` class `webpolicy.py:320`; Go `PolicyExtension` struct `web_policy.go:512–631`) is a grab-bag sub-object for advanced settings — well over 60 fields, most rarely touched in normal operation. Selected high-signal fields (Python emit lines):
 
 | Wire key | Role |
 |---|---|
-| `truncateLargeUDPDNSResponse` | Truncate large UDP DNS responses (avoids EDNS buffer overflow issues). Note: Python SNAKE_CASE_KEYS bug — listed there but actually emits camelCase. |
-| `purgeKerberosPreferredDCCache` | Force ZCC to clear its cached preferred domain controller. Resolves stale KDC issues after network topology changes. Same SNAKE_CASE_KEYS bug. |
-| `dropQuicTraffic` | Drop QUIC (UDP 443) traffic at ZCC. Field exists in PolicyExtension (`webpolicy.py:417`); per-tenant operational effect on browser TCP fallback is operator-reported and not verified in this skill. |
-| `enableAntiTampering` / `overrideATCmdByPolicy` / `reactivateAntiTamperingTime` | Anti-tampering controls — prevent users from killing/modifying the ZCC process. (`webpolicy.py:411–415`) |
-| `enforceSplitDNS` | Force split DNS handling. (`webpolicy.py:416`) |
-| `enableFlowBasedTunnel` | Flow-based tunnel mode (alternative to packet-based). (`webpolicy.py:468`) |
-| `zpaAuthExpOnSleep` / `zpaAuthExpOnSysRestart` / `zpaAuthExpOnNetIpChange` / `zpaAuthExpOnWinLogonSession` / `zpaAuthExpOnWinSessionLock` | Granular ZPA re-auth triggers. (`webpolicy.py:377–387`) |
-| `zccFailCloseSettingsLockdownOnTunnelProcessExit` / `...OnFirewallError` / `...OnDriverError` / `zccFailCloseSettingsExitUninstallPassword` | Fail-close lockdown options when ZCC core fails. (`webpolicy.py:435–453`) Distinct from the FailOpenPolicy described in [`./forwarding-profile.md`](./forwarding-profile.md) — fail-close locks the device down on ZCC failure rather than allowing direct traffic. |
-| `enableZdpService` | Enable ZDP (Zscaler Data Protection / disable-protection) service. (`webpolicy.py:418`) |
-| `useDefaultAdapterForDNS` / `disableDNSRouteExclusion` / `prioritizeDnsExclusions` | DNS-handling controls. (`webpolicy.py:363–365, 402–404, 423`) |
-| `useV8JsEngine` | PAC engine selection — V8 vs the legacy JS engine. (`webpolicy.py:356`) |
-| `interceptZIATrafficAllAdapters` | Intercept ZIA traffic on all network adapters (vs primary only). (`webpolicy.py:408–410`) |
+| `truncateLargeUDPDNSResponse` | Truncate large UDP DNS responses (avoids EDNS buffer overflow issues). Note: Python SNAKE_CASE_KEYS bug — listed there but actually emits camelCase (`webpolicy.py:588`, Go `web_policy.go:596`). |
+| `purgeKerberosPreferredDCCache` | Force ZCC to clear its cached preferred domain controller. Resolves stale KDC issues after network topology changes. Same SNAKE_CASE_KEYS bug (`webpolicy.py:590`, Go `web_policy.go:598`). |
+| `dropQuicTraffic` | Drop QUIC (UDP 443) traffic at ZCC. Emitted at `webpolicy.py:585` (Go `web_policy.go:579`); per-tenant operational effect on browser TCP fallback is operator-reported and not verified in this skill. |
+| `enableAntiTampering` / `overrideATCmdByPolicy` / `reactivateAntiTamperingTime` | Anti-tampering controls — prevent users from killing/modifying the ZCC process. (`webpolicy.py:581–583`; Go `web_policy.go:575–576,597`) |
+| `enforceSplitDNS` | Force split DNS handling. (`webpolicy.py:584`; Go `web_policy.go:578`) |
+| `enableFlowBasedTunnel` | Flow-based tunnel mode (alternative to packet-based). (`webpolicy.py:606`; Go `web_policy.go:533`) |
+| `zpaAuthExpOnSleep` / `zpaAuthExpOnSysRestart` / `zpaAuthExpOnNetIpChange` / `zpaAuthExpOnWinLogonSession` / `zpaAuthExpOnWinSessionLock` | Granular ZPA re-auth triggers. (`webpolicy.py:567,571`; Go `web_policy.go:547–552`) |
+| `zccFailCloseSettingsLockdownOnTunnelProcessExit` / `...OnFirewallError` / `...OnDriverError` / `zccFailCloseSettingsExitUninstallPassword` | Fail-close lockdown options when ZCC core fails. (`webpolicy.py:596`; Go `web_policy.go:520,521,525,526`) These are the **fail-close** complement to the fail-open knobs above — fail-close locks the device down on ZCC failure rather than allowing direct traffic. |
+| `enableZdpService` | Enable ZDP (Zscaler Data Protection / disable-protection) service. (`webpolicy.py:586`; Go `web_policy.go:626`) |
+| `useDefaultAdapterForDNS` / `disableDNSRouteExclusion` / `prioritizeDnsExclusions` | DNS-handling controls. (`webpolicy.py:561,589`; Go `web_policy.go:560,572,602`) |
+| `useV8JsEngine` | PAC engine selection — V8 vs the legacy JS engine. (`webpolicy.py:554`; Go `web_policy.go:581`) |
+| `interceptZIATrafficAllAdapters` | Intercept ZIA traffic on all network adapters (vs primary only). (`webpolicy.py:580`; Go `web_policy.go:574`) |
+| `locationRulesetPolicies` | Binds ruleset policies for `splitVpnTrusted` / `vpnTrusted` network contexts; the nested `{id}` entries are always present (id `0` when unbound). Go-modeled (`web_policy.go:51–58,603`). |
 
 Most of these fields are rarely touched and need Zscaler Support context before reasoning about them.
 
@@ -257,7 +324,7 @@ Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zsc
 | `install_ssl_certs` | Next ZCC login / restart (cert is installed at startup) |
 | Log mode (`log_level`, `log_mode`) | Next ZCC login / restart |
 | Web Privacy settings (separate object) | Next ZCC login / restart |
-| ZIA URL filtering policy (ZIA cloud, not ZCC) | Near-immediate (ZIA cloud propagation ~15 min) — independent of ZCC restart |
+| ZIA URL filtering policy (ZIA cloud, not ZCC) | Independent of ZCC restart — propagates via ZIA cloud, not the App Profile download |
 
 An operator who pushes a critical forwarding or password policy change expecting it to take effect immediately on currently-connected devices will be surprised — those devices keep using the cached App Profile until their next ZCC restart/login event.
 
@@ -291,20 +358,29 @@ Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zsc
 
 From `vendor/zscaler-sdk-python/zscaler/zcc/web_policy.py` and `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`, all methods on `client.zcc.web_policy`. **Note the wire path uses `/web/policy/` with a slash — not `/webPolicy/`.**
 
-| Method | HTTP | Path | Source |
-|---|---|---|---|
-| `list_by_company(query_params={})` | GET | `/zcc/papi/public/v1/web/policy/listByCompany` | `web_policy.py:71`, `web_policy.go:226` |
-| `activate_web_policy(**kwargs)` | PUT | `/zcc/papi/public/v1/web/policy/activate` | `web_policy.py:121`, `web_policy.go:262` |
-| `web_policy_edit(**kwargs)` | PUT | `/zcc/papi/public/v1/web/policy/edit` | `web_policy.py:157`, `web_policy.go:283` |
-| `delete_web_policy(policy_id)` | DELETE | `/zcc/papi/public/v1/web/policy/{id}/delete` | `web_policy.py:191`, `web_policy.go:300` |
+Go renamed its functions in the rewrite — the Go column below reflects the current names. The Python method names and HTTP verbs are unchanged.
 
-Query params for `list_by_company` (`web_policy.py:39–50`): `page` (int), `page_size` (int), `device_type` (`ios` / `android` / `windows` / `macos` / `linux`), `search` (str), `search_type` (str).
+| Python method | Go function | HTTP | Path | Source |
+|---|---|---|---|---|
+| `list_by_company(query_params={})` | `GetPolicyListByCompanyID(...)` | GET | `/zcc/papi/public/v1/web/policy/listByCompany` | `web_policy.py:35,73,76`; `web_policy.go:800,802` |
+| — | `GetWebPolicyByID(ctx, svc, id, deviceType)` | GET | (builds on `listByCompany`, filters by id within a `deviceType`) | `web_policy.go:710` |
+| `activate_web_policy(**kwargs)` | `ActivateWebPolicy(...)` | PUT | `/zcc/papi/public/v1/web/policy/activate` | `web_policy.py:101,124,127`; `web_policy.go:832,838` |
+| `web_policy_edit(**kwargs)` | `UpdateWebPolicy(...)` | PUT | `/zcc/papi/public/v1/web/policy/edit` | `web_policy.py:152,449,452`; `web_policy.go:859,864` |
+| `delete_web_policy(policy_id)` | `DeleteWebPolicy(...)` | DELETE | `/zcc/papi/public/v1/web/policy/{id}/delete` | `web_policy.py:473,492,495`; `web_policy.go:880,882` |
+
+Note the Go function is `UpdateWebPolicy`, **not** `web_policy_edit` — both hit the `/edit` endpoint. The Go `baseWebPolicyEndpoint` const confirms the `/web/policy/` slashed path (`web_policy.go:17`).
+
+**`GetWebPolicyByID` is new** and worth knowing for scripting: it lists by `deviceType`, matches a single id, and falls back to a minimal record (id/name/description/device_type/active) when the strict decode fails because the list endpoint quotes fields the struct types as numbers (`web_policy.go:677–743`).
+
+**Create vs update signal**: `UpdateWebPolicy` is the single create-or-update path on `/edit`. The API treats **absence of `id`** in the PUT body as the "create" signal — the Go `WebPolicy.ID` field is `omitempty` precisely so a fresh create body has no `id` key (`web_policy.go:92–95`). It returns a bare `EditResponse {success, id}` (`web_policy.go:669–675`); callers refetch the full record via `GetWebPolicyByID` using the returned id + `deviceType` (`web_policy.go:853–858`). For scripting create-vs-update, drive it off the presence of `id`.
+
+Query params for `list_by_company` (`web_policy.py:45–50`): `page` (int), `page_size` (int), `device_type` (string form `ios` / `android` / `windows` / `macos` / `linux`), `search` (str), `search_type` (str).
 
 ### Activation scope — single policy + device_type, not bulk
 
-`activate_web_policy` takes `device_type` (int) and `policy_id` (int) as required kwargs (`web_policy.py:103–104`); the Go equivalent passes a `*WebPolicyActivation` struct with `DeviceType int` + `PolicyId int` (`web_policy.go:219–222`). **Activation is per-policy-per-platform**, not "activate everything." A tenant making changes across multiple policies or multiple platforms must call `activate_web_policy` once per `(policy_id, device_type)` pair.
+`activate_web_policy` takes `device_type` (int) and `policy_id` (int) as required kwargs (`web_policy.py:106–107`); the Go `ActivateWebPolicy` passes a `*WebPolicyActivation` struct with `DeviceType int` + `PolicyId int` (`web_policy.go:646–649`). The `device_type` here is the **integer** enum (1=iOS … 5=Linux — see [§ device_type integer enum](#device_type-integer-enum)), not the string form the list query param uses. **Activation is per-policy-per-platform**, not "activate everything." A tenant making changes across multiple policies or multiple platforms must call activate once per `(policy_id, device_type)` pair.
 
-The HTTP method is `PUT`, not `POST` — earlier wording in this doc said `POST` and was wrong. Confirmed in both SDKs: Python `web_policy.py:121` and Go `web_policy.go:268`.
+The HTTP method is `PUT`, not `POST`. Confirmed in both SDKs: Python `web_policy.py:124` and Go `ActivateWebPolicy` issues `"PUT"` against `/activate` (`web_policy.go:838,844`).
 
 Source: `vendor/zscaler-sdk-python/zscaler/zcc/web_policy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`.
 
@@ -312,13 +388,26 @@ Source: `vendor/zscaler-sdk-python/zscaler/zcc/web_policy.py`; `vendor/zscaler-s
 
 ## Edge cases
 
-- **`pac_url` is literal snake_case on the wire** (`pac_url`, not `pacUrl`). Tooling writing JSON by hand must preserve this exact key name. Three top-level fields stay snake_case in both Python and Go SDKs: `pac_url` (`webpolicy.py:105`, `web_policy.go:46`), `reauth_period` (`webpolicy.py:109`, `web_policy.go:49`), `device_type` (`webpolicy.py:95`, `web_policy.go:30`).
-- **Python `SNAKE_CASE_KEYS` set has bugs.** The set at `webpolicy.py:28–80` lists fields meant to bypass camelCase conversion, but at least three entries are actively wrong: `truncate_large_udpdns_response`, `purge_kerberos_preferred_dc_cache`, and `enable_zia_dr` are listed there but `request_format()` actually emits them as camelCase. The Go SDK confirms camelCase is the wire format. Don't trust SNAKE_CASE_KEYS membership as the source of truth — check `request_format()` output and the Go struct tags.
+- **`pac_url` is literal snake_case on the wire** (`pac_url`, not `pacUrl`). Tooling writing JSON by hand must preserve this exact key name. Three top-level fields stay snake_case in both Python and Go SDKs: `pac_url` (`webpolicy.py:106`, `web_policy.go:165`), `reauth_period` (`webpolicy.py:110`, `web_policy.go:208`), `device_type` (`webpolicy.py:96`, `web_policy.go:99`). The Go-only top-level `install_ssl_certs` mirror is also snake_case (`web_policy.go:186`).
+- **Python `SNAKE_CASE_KEYS` set has bugs.** The set at `webpolicy.py:29–81` lists fields meant to bypass camelCase conversion, but at least three entries are actively wrong: `truncate_large_udpdns_response` (`:77`), `purge_kerberos_preferred_dc_cache` (`:78`), and `enable_zia_dr` (`:80`) are listed there but `request_format()` actually emits them as camelCase (`webpolicy.py:588, 590, 665`). The Go struct tags confirm camelCase is the wire format (`web_policy.go:596, 598, 490`). Don't trust SNAKE_CASE_KEYS membership as the source of truth — check `request_format()` output and the Go struct tags.
 - **`group_all = true` with non-empty `group_ids`** — the broader flag takes priority at enforcement time; `group_ids` is effectively ignored. Audit for this as misconfiguration. Same for `enable_device_groups = false` with a populated `device_group_ids` list.
 - **Per-platform sub-policy of None** — means "no policy defined for this platform," not "inherit defaults." Devices on that platform fall through to the next matching Web Policy or the tenant default policy. If the tenant default policy is permissive, this can be a security gap.
 - **`activate_web_policy` is required** — Web Policy changes are staged until explicitly activated, analogous to ZIA's zone activation. Uncommitted changes are not served to endpoints. A tenant reporting "I made the change but it hasn't applied" should check whether activation was performed.
 - **`forwarding_profile_id` orphan reference** — a Web Policy that references a deleted Forwarding Profile ID will fail silently or fall back to a default, depending on ZCC's resolution logic. The exact fallback behavior is not documented in available sources. Audit joins regularly.
 - **Rule order gap management** — like ZIA policies, Web Policy rule order should be maintained with gaps (e.g., 10, 20, 30) rather than sequential integers to allow insertion without renumbering. The portal does not enforce contiguous ordering.
+
+---
+
+## Open questions
+
+These claims are operationally useful but not backed by the vendor SDK/API source. Lab-test or confirm against Zscaler Support before relying on them:
+
+- **`reauth_period` unit.** The field exists in both SDKs (`webpolicy.py:110`, `web_policy.go:208`) but neither documents whether the value is hours, days, or minutes. Verify against a tenant.
+- **`forwarding_profile_id` orphan-reference resolution.** A Web Policy can reference a deleted Forwarding Profile ID (the relationship is FK-shaped but not enforced at write time). What ZCC actually does at enforcement — fall back to a default, fail silently, or block — is not described in any available source. See [clarification `zcc-97`](../_meta/clarifications.md#zcc-97-forwarding_profile_id-orphan-reference-resolution).
+- **On-Net policy vs Forwarding Profile evaluation order.** When both `onNetPolicy` (Python-only) and Forwarding Profile trusted-network config are present, which wins and in what order is unverified. See [clarification `zcc-98`](../_meta/clarifications.md#zcc-98-on-net-policy-vs-forwarding-profile-evaluation-order).
+- **iOS cert installation via MDM.** The claim that iOS cert install is "an MDM / device-profile concern" (because no `installCerts` field exists in the iOS sub-policy) is inference from the absent field, not a positively-sourced statement. The absence is sourced (`web_policy.go:368–376`, `webpolicy.py:954–999`); the MDM mechanism is not.
+- **`dropQuicTraffic` browser-fallback effect.** The field exists (`web_policy.go:579`) but its operational effect on browser TCP fallback is operator-reported, not verified here. See [clarification `zcc-99`](../_meta/clarifications.md#zcc-99-dropquictraffic-browser-tcp-fallback-effect).
+- **`tunnel_zapp_traffic` default / typical value.** The field exists in both SDKs but neither encodes a default or "typical" value; avoid asserting one without a tenant capture.
 
 ---
 

@@ -3,7 +3,7 @@ product: zdx
 topic: "zdx-probes"
 title: "ZDX probes — Web, Cloud Path, and targeting criteria"
 content-type: reasoning
-last-verified: "2026-04-24"
+last-verified: "2026-06-15"
 confidence: high
 source-tier: doc
 sources:
@@ -153,9 +153,9 @@ Source: `vendor/zscaler-help/about-probes.md`; `vendor/zscaler-help/understandin
 
 Source: `vendor/zscaler-help/about-probes.md`; `vendor/zscaler-help/understanding-probing-criteria-logic.md`.
 
-- Exact probe frequency in Diagnostics Sessions (help doc says "updated session data every minute" but per-probe cadence during a session isn't specified) — [`./diagnostics-and-alerts.md`](./diagnostics-and-alerts.md).
-- Whether probe results are retained indefinitely or aged out, and at what granularity.
-- How Adaptive Mode affects scoring — is the score comparable across different probe cadences?
+- Exact probe frequency in Diagnostics Sessions (help doc says "updated session data every minute" but per-probe cadence during a session isn't specified) — [`./diagnostics-and-alerts.md`](./diagnostics-and-alerts.md). See [clarification zdx-30](../_meta/clarifications.md#zdx-30-per-probe-cadence-during-a-diagnostics-session).
+- Whether probe results are retained indefinitely or aged out, and at what granularity. See [clarification zdx-41](../_meta/clarifications.md#zdx-41-probe-result-retention-and-aging-granularity).
+- How Adaptive Mode affects scoring — is the score comparable across different probe cadences? See [clarification zdx-42](../_meta/clarifications.md#zdx-42-adaptive-mode-scoring-comparability).
 
 ## Cross-links
 

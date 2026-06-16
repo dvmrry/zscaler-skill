@@ -3,14 +3,20 @@ product: zcc
 topic: acceptable-use-policy
 title: "ZCC Acceptable Use Policy — in-app prompt for compliance and consent gating"
 content-type: reference
-last-verified: "2026-06-02"
-confidence: medium
-source-tier: doc
+last-verified: "2026-06-15"
+confidence: high
+source-tier: mixed
 sources:
   - "vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md"
   - "vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md"
   - "vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md"
   - "vendor/zscaler-sdk-go/zscaler/zcc/services/admin_roles/admin_roles.go"
+  - "vendor/zscaler-sdk-go/zscaler/zcc/services/notification_template/notification_template.go"
+  - "vendor/zscaler-sdk-go/zscaler/zcc/services/zia_posture/zia_posture.go"
+  - "vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network_v2/trusted_network_v2.go"
+  - "vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go"
+  - "vendor/zscaler-sdk-go/zscaler/zpa/services/userportal/aup/aup.go"
+  - "vendor/terraform-provider-zpa/zpa/provider.go"
   - "vendor/terraform-provider-zcc/docs/index.md"
   - "vendor/terraform-provider-zcc/docs/resources/zcc_notification_template.md"
   - "vendor/terraform-provider-zcc/docs/data-sources/zcc_notification_template.md"
@@ -30,7 +36,7 @@ The ZCC AUP is a separate construct from the ZIA end-user notification AUP that 
 
 The ZCC AUP operates at the agent layer: it is shown in the ZCC application window before any tunnel is established, and applies regardless of forwarding mode (Z-Tunnel, PAC, or direct). An operator asking "how do I show users an acceptable-use screen at ZCC login" is asking about this construct. An operator asking "how do I show an AUP to guest Wi-Fi users going through ZIA" is asking about the ZIA Location AUP.
 
-There is also a ZPA user portal AUP (`zpa_user_portal_aup` Terraform resource, `/userportal/aup` API endpoint), which controls the consent screen shown in the ZPA user portal web application — a third distinct construct. None of the three share configuration.
+There is also a ZPA user portal AUP (`zpa_user_portal_aup` Terraform resource at `vendor/terraform-provider-zpa/zpa/provider.go:194`; `/userportal/aup` API endpoint at `vendor/zscaler-sdk-go/zscaler/zpa/services/userportal/aup/aup.go:15`), which controls the consent screen shown in the ZPA user portal web application — a third distinct construct. None of the three share configuration (Tier B — SDK/TF).
 
 Source: `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md`; `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`; `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md`.
 
@@ -111,6 +117,8 @@ ZCC Portal > Administration > Client Connector Notifications > Acceptable Use Po
 
 The AUP is configured in the Notifications section, which is separate from App Profiles (WebPolicy objects). App Profiles control forwarding behavior, platform-specific passwords, SSL cert installation, and PAC URLs — they do not carry AUP frequency or message fields (Tier A — vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md; vendor/zscaler-help/configuring-zscaler-client-connector-app-profiles.md).
 
+A WebPolicy *does* link to a notification template, though — not to an AUP. The Go SDK `WebPolicy` struct carries `notificationTemplateId` (`vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go:321`) and an embedded `notificationTemplateContract` block (`web_policy.go:320`, struct at lines 430+). That contract attaches an end-user notification template (client/ZIA/app-update/service-status toggles and the ZPA-reauth fields) to the app profile; it governs the toast/popup notification surface, not the AUP consent screen, and contains no AUP frequency or message field (Tier B — SDK/TF).
+
 The AUP setting applies across all users in the tenant regardless of which App Profile they are assigned. There is no per-profile AUP override documented in available sources.
 
 The End User Notifications tab (a sibling tab in the same Notifications section) controls separate notification types: app update notifications, service status notifications, ZIA notifications, and ZPA reauthentication prompts. These are distinct from AUP. If a tenant uses Notification Templates (configured on the Notification Templates tab), the End User Notifications tab is suppressed and settings are managed on the templates tab instead — the AUP tab relationship to this mode is not described in the vendor source. See deferred item `zcc-50` (Tier A — vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md).
@@ -131,7 +139,13 @@ There is no ZCC AUP service module in the Python ZCC SDK (`vendor/zscaler-sdk-py
 
 ### Go SDK
 
-There is no AUP or notifications service package under `vendor/zscaler-sdk-go/zscaler/zcc/services/`. The services directory contains: admin_roles, admin_users, application_profiles, common, company, custom_ip_apps, devices, download_devices, entitlements, failopen_policy, forwarding_profile, manage_pass, predefined_ip_apps, process_based_apps, remove_devices, secrets, trusted_network, web_app_service, web_policy, and web_privacy. No notifications package exists (Tier B — SDK/TF).
+There is no AUP-specific service package under `vendor/zscaler-sdk-go/zscaler/zcc/services/`, but there **is** a full notifications surface. The services directory contains: admin_roles, admin_users, application_profiles, common, company, custom_ip_apps, devices, download_devices, entitlements, failopen_policy, forwarding_profile, manage_pass, **notification_template**, predefined_ip_apps, process_based_apps, remove_devices, secrets, trusted_network, **trusted_network_v2**, web_app_service, web_policy, web_privacy, and **zia_posture** (Tier B — SDK/TF).
+
+The `notification_template` package provides full CRUD against `/zcc/papi/public/v2/notification-templates` — `Get`, `GetByName`, `Create`, `Update`, `PartialUpdate`, `Delete`, `GetAll` (`vendor/zscaler-sdk-go/zscaler/zcc/services/notification_template/notification_template.go:15`, funcs at lines 60–160). The `NotificationTemplate` struct carries `enableClient`, `enableZia`, `enableAppUpdates`, `enableServiceStatus`, `enablePersistent`, `enableDoNotDisturb`, `durationInSeconds`, `isDefaultTemplate`, plus nested `ziaNotificationTemplate` and `zpaNotificationTemplate` sub-templates (`notification_template.go:26-58`). The ZIA sub-template toggles per-engine firewall/DNS/IPS popups; the ZPA sub-template toggles device-posture-failure and ZPA reauth prompts with timers. None of these fields is the AUP frequency or AUP message — the notification template governs the *end-user notification* surface (toast/popup notifications), which is distinct from the AUP consent gate.
+
+The other two packages omitted from earlier inventories are read/write surfaces of their own: `zia_posture` (CRUD against `/zcc/papi/public/v2/zia-posture-profiles`, `vendor/zscaler-sdk-go/zscaler/zcc/services/zia_posture/zia_posture.go:15`) and `trusted_network_v2` (CRUD against `/zcc/papi/public/v2/trusted-networks`, `vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network_v2/trusted_network_v2.go:15`).
+
+A grep for `aup` (case-insensitive) across the entire Go ZCC SDK service tree returns zero matches: no field named `aupFrequency`, `aupMessage`, or equivalent exists in any struct. The AUP frequency and message fields remain absent from the SDK even though the broader notifications surface is now fully modeled (Tier B — SDK/TF).
 
 ### Terraform
 
@@ -143,11 +157,13 @@ The ZIA provider has `resource_zia_end_user_notification.go` which manages the Z
 
 The ZPA provider has `resource_zpa_user_portal_aup.go` which manages the ZPA user portal AUP — also a separate construct.
 
-### Conclusion: admin-console-only for ZCC AUP
+### Conclusion: AUP frequency/message are console-only; end-user notifications are not
 
-The ZCC AUP is configurable only through the ZCC Portal admin console. There is no API endpoint, SDK method, or Terraform resource to read or write the ZCC AUP configuration from automation tooling. Any IaC or automation that needs to manage ZCC AUP settings must do so through the admin console UI or via direct API calls to an undocumented endpoint (if one exists — not confirmed from available sources).
+Draw the line carefully. The AUP *consent gate* — its frequency (Never / After User Enrollment / Daily / Weekly / Custom) and its HTML message body — has no API endpoint, SDK method, or Terraform resource. No struct in the Go or Python ZCC SDK carries an `aupFrequency`/`aupMessage` field (verified by grep — see Go SDK section above), and no Terraform resource exposes those fields. To manage AUP frequency/message you must use the ZCC Portal admin console, or a direct call to an undocumented endpoint (not confirmed from available sources).
 
-Source: `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md`; `vendor/zscaler-sdk-go/zscaler/zcc/services/admin_roles/admin_roles.go`.
+The broader **end-user notifications** surface, by contrast, *is* fully API/SDK/Terraform-managed. The Go SDK `notification_template` package offers CRUD against `/zcc/papi/public/v2/notification-templates` (`vendor/zscaler-sdk-go/zscaler/zcc/services/notification_template/notification_template.go:15`), and the `zcc_notification_template` Terraform resource manages the same template object (enable-client / enable-ZIA / enable-app-updates / enable-service-status plus the ZIA and ZPA sub-templates). Earlier statements that ZCC has "no notifications service package" were wrong: the AUP gate and the notification framework are separate surfaces, and only the former is console-bound.
+
+Source: `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md`; `vendor/zscaler-sdk-go/zscaler/zcc/services/notification_template/notification_template.go`; `vendor/zscaler-sdk-go/zscaler/zcc/services/admin_roles/admin_roles.go`.
 
 ---
 
@@ -211,5 +227,5 @@ Source: `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md`; 
 
 - App Profiles and Web Policy (per-platform policy; does not carry AUP fields) — [`./web-policy.md`](./web-policy.md)
 - Install parameters (MDM deployment, enrollment; no AUP skip parameter) — [`./install-parameters.md`](./install-parameters.md)
-- ZCC SDK service catalog (confirms no notifications/AUP API surface) — [`./sdk.md`](./sdk.md)
+- ZCC SDK service catalog (notification_template CRUD exists; AUP frequency/message fields do not) — [`./sdk.md`](./sdk.md)
 - Forwarding Profile (tunnel behavior after AUP accept) — [`./forwarding-profile.md`](./forwarding-profile.md)
