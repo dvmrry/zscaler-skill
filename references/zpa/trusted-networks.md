@@ -81,7 +81,7 @@ From `models/trusted_network.py` (Python SDK) and `zpa_trusted_network.go` (Go S
 | `modified_time` | `modifiedTime` | `ModifiedTime` | Audit timestamp. Read-only. |
 | `modified_by` | `modifiedBy` | `ModifiedBy` | Admin ID of last modifier. Read-only. |
 
-**Important:** ZPA Trusted Networks are read-only from the operator's perspective. The TF provider exposes only a **data source** (`data_source_zpa_trusted_network.go`), not a resource — there is no `resource_zpa_trusted_network.go`. Operators look up existing Trusted Network objects; they cannot create or delete them via API.
+**Important:** ZPA Trusted Networks are read-only from the operator's perspective. The TF provider exposes only a **data source** (`data_source_zpa_trusted_network.go`), not a resource — there is no `resource_zpa_trusted_network.go` — and the SDK exposes only read/lookup. So there is **no SDK or TF write surface** to create or delete them (whether the raw API itself would reject a write is not established in source).
 
 ## API endpoints
 
