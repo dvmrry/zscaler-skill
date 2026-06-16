@@ -3,7 +3,7 @@ product: zcc
 topic: "zcc-z-tunnel"
 title: "Z-Tunnel 1.0 vs 2.0 — architecture, deployment, and bypass semantics"
 content-type: reasoning
-last-verified: "2026-05-01"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: doc
 sources:
@@ -63,7 +63,7 @@ Key implications:
 
 > Z-Tunnel 2.0 has a tunneling architecture that uses DTLS or TLS to send packets to the Zscaler service. Because of this, Z-Tunnel 2.0 is capable of sending all ports and protocols. (`about-z-tunnel-1.0-z-tunnel-2.0.md:29`)
 
-> ⚠️ **DTLS-primary / TLS-fallback ordering is INFERRED, not documented.** The help article names both transports together at line 29 without precedence language. The `allow_tls_fallback` flag on forwarding profile actions implies DTLS is preferred with TLS as fallback, but this ordering is **derived from the flag name only** — no captured help article confirms it. **Confidence: medium.** When a customer reports Z-Tunnel 2.0 transport failures and asks "is it DTLS first?", say so explicitly.
+> ⚠️ **DTLS-primary / TLS-fallback ordering is INFERRED, not documented.** The help article names both transports together at line 29 without precedence language. The action-level `allowTLSFallback` flag on forwarding profile actions (SDK `ForwardingProfileActions.allow_tls_fallback` → wire key `allowTLSFallback`, `forwardingprofile.py:126`/`forwardingprofile.py:207`) implies DTLS is preferred with TLS as fallback, but this ordering is **derived from the flag name only** — no captured help article confirms it. (Note: a *separate* top-level `allowTlsFallback` with lowercase `tls` exists on the ZPA-action `PartnerInfo` block, `forwardingprofile.py:87` — don't conflate the two; the DTLS/TLS-fallback inference rests on the uppercase action-level key.) **Confidence: medium.** When a customer reports Z-Tunnel 2.0 transport failures and asks "is it DTLS first?", say so explicitly.
 - Packet-level tunnel carries **all** IP protocols — UDP, non-standard TCP ports, ICMP, etc. The whole endpoint's traffic can be covered.
 - Requires NAT with single egress IP per device (strict requirement, not a soft recommendation).
 - **Do not route Z-Tunnel 2.0 through GRE tunnels.** Double-encapsulation causes performance issues. Workarounds: (a) configure the forwarding profile to fall back to Z-Tunnel 1.0 when Trusted Network Criteria are met (keeping the corporate-LAN flow on the simpler 1.0), or (b) add a policy-based route on the upstream router that excludes Z-Tunnel 2.0 traffic from the GRE tunnel.
@@ -76,7 +76,7 @@ In the forwarding profile's per-network-type action (see [`./forwarding-profile.
 - **Network-type action**: Tunnel.
 - **Tunnel Version**: explicit selection of 1.0 or 2.0.
 
-These map to the SDK's `ForwardingProfileActions` object: `primary_transport` controls the transport preference (ZTUNNEL = 2.0, others likely DTLS / TLS markers for 1.0), `enable_packet_tunnel` toggles the packet-tunnel capability, and `tunnel2_fallback` configures the fallback behavior when 2.0 fails. See [`clarification zcc-04`](../_meta/clarifications.md#zcc-04-forwardingprofile-primary_transport-enum) for the enum string specifics — first tenant snapshot will surface the observed values.
+These map to the SDK's `ForwardingProfileActions` object: `primary_transport` controls the transport preference (ZTUNNEL = 2.0, others likely DTLS / TLS markers for 1.0), `enable_packet_tunnel` toggles the packet-tunnel capability, and `tunnel2_fallback_type` (wire key `tunnel2FallbackType`, `forwardingprofile.py:128`/`forwardingprofile.py:209`) configures the fallback behavior when 2.0 fails. See [`clarification zcc-04`](../_meta/clarifications.md#zcc-04-forwardingprofile-primary_transport-enum) for the enum string specifics — first tenant snapshot will surface the observed values.
 
 The typical best-practice config (from the 5-phase deployment guide): set all three network-type branches (On-Trusted Network, VPN-Trusted Network, Off-Trusted Network) to "Same as On-Trusted Network" during initial testing; diversify per branch only after a 1-2 week observation window.
 
@@ -148,8 +148,8 @@ Source: `vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md`; `vendor/
 From the Migration article:
 
 - **Tunnel mode and driver are per-forwarding-profile.** Tenants can run Z-Tunnel 1.0 and 2.0 simultaneously by maintaining two forwarding profiles scoped to different user/device groups.
-- **Z-Tunnel 2.0 → 1.0 fallback is automatic.** When 2.0 can't establish (single-IP NAT failure, Service Edge split-landing, etc.), ZCC falls back to 1.0 on the same connection attempt (`about-z-tunnel-1.0-z-tunnel-2.0.md:27`). `tunnel2_fallback` on the `ForwardingProfileActions` controls whether fallback is allowed at all.
-- **Phased rollout pattern** (recommended by Zscaler): (1) create test group + test forwarding profile + test app profile; (2) block ICMP as a baseline test for 2.0 covering non-web traffic; (3) exclude internal network ranges via Destination Exclusions; (4) 1-2 weeks observation; (5) batch rollout in 100-200-user increments (`best-practices-deploying-z-tunnel-2.0.md:104`, `migrating-z-tunnel-1.0-z-tunnel-2.0.md:132`).
+- **Z-Tunnel 2.0 → 1.0 fallback is automatic.** When 2.0 can't establish (single-IP NAT failure, Service Edge split-landing, etc.), ZCC falls back to 1.0 on the same connection attempt (`about-z-tunnel-1.0-z-tunnel-2.0.md:27`). `tunnel2_fallback_type` on the `ForwardingProfileActions` (wire key `tunnel2FallbackType`, `forwardingprofile.py:128`/`forwardingprofile.py:209`) controls the fallback behavior.
+- **Phased rollout pattern** (recommended by Zscaler): (1) create test group + test forwarding profile + test app profile; (2) block ICMP as a baseline test for 2.0 covering non-web traffic; (3) exclude internal network ranges via Destination Exclusions; (4) 1-2 weeks observation; (5) batch rollout in 100-200-user increments (`best-practices-deploying-z-tunnel-2.0.md:104`). The standalone *Migration* guide has since been reorganized into **6 phases**, with the batch rollout step now appearing as Phase 6 (`migrating-z-tunnel-1.0-z-tunnel-2.0.md:130-132`); the Deployment Best Practices article carries the same batch step as Phase 5 (`best-practices-deploying-z-tunnel-2.0.md:102,104`).
 
 ### 5-Phase deployment checklist
 
@@ -157,7 +157,7 @@ Codified from the Deployment Best Practices article for quick reference in skill
 
 | Phase | Step | Source |
 |---|---|---|
-| 1 | Create a test user group (synced between ZIA User Management and ZCC Directory Sync) | `best-practices-deploying-z-tunnel-2.0.md:19` |
+| 1 | Create a test user group. Groups created in **User Management in Internet & SaaS** are auto-available under **Directory Sync & Custom Root Cert in Client Connector** (Advanced Settings tab); they can also be synced manually between Internet & SaaS and Client Connector | `best-practices-deploying-z-tunnel-2.0.md:25` |
 | 1 | Create a new forwarding profile — `Tunnel Driver Type: Packet Filter-Based`, `On-Trusted Network: Tunnel`, `Tunnel Version: Z-Tunnel 2.0`, VPN-Trusted and Off-Trusted set to "Same as On-Trusted" | `best-practices-deploying-z-tunnel-2.0.md:19` |
 | 1 | Create a new app profile — `Rule Order: 1`, enable `Install Zscaler SSL Certificate`, link to the test forwarding profile, scope to the test user group | `best-practices-deploying-z-tunnel-2.0.md:19` |
 | 1 | Assign a supported ZCC version to the test users via App Store app-update config | `best-practices-deploying-z-tunnel-2.0.md:19` |
@@ -239,8 +239,8 @@ Either works; the GRE-as-default with no exclusion strategy is the failure mode.
 ## Open questions
 
 - Wire-format protocol details (framing, keepalive, session resumption) — not customer-documented. Zscaler Support / SE engagement territory.
-- Exact Service-Edge-side behavior on split-landing (does the control connection stay up while data reroutes, or does the whole session tear down?) — not documented.
-- Z-Tunnel 2.0 behavior under IPv6-only networks — the SDK has IPv6-specific flags (`drop_ipv6_traffic`, `drop_ipv6_traffic_in_ipv6_network`, `drop_ipv6_include_traffic_in_t2`) but the help-site docs focus on IPv4. Worth a tenant-specific lab if IPv6 is an operational concern.
+- Exact Service-Edge-side behavior on split-landing (does the control connection stay up while data reroutes, or does the whole session tear down?) — not documented. See [clarification `zcc-101`](../_meta/clarifications.md#zcc-101-service-edge-split-landing-control-connection-behavior).
+- Z-Tunnel 2.0 behavior under IPv6-only networks — the SDK carries three IPv6-specific forwarding-action flags, all confirmed in source: `drop_ipv6_traffic` (wire `dropIpv6Traffic`, `forwardingprofile.py:117`), `drop_ipv6_traffic_in_ipv6_network` (wire `dropIpv6TrafficInIpv6Network`, `forwardingprofile.py:118`), and `drop_ipv6_include_traffic_in_t2` (wire `dropIpv6IncludeTrafficInT2`, `forwardingprofile.py:136`). The flags exist; their runtime *behavior* (what each does to traffic on an IPv6-only network) is not described in the captured help-site docs, which focus on IPv4. Worth a tenant-specific lab if IPv6 is an operational concern. See [clarification `zcc-100`](../_meta/clarifications.md#zcc-100-ipv6-only-network-behavior-of-the-drop_ipv6-flags).
 
 ## Cross-links
 

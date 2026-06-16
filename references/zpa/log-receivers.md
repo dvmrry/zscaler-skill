@@ -3,13 +3,15 @@ product: zpa
 topic: "log-receivers"
 title: "ZPA Log Receivers — LSS configuration and architecture"
 content-type: reasoning
-last-verified: "2026-05-22"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: mixed
 sources:
   - "vendor/zscaler-help/about-log-streaming-service.md"
   - "vendor/zscaler-sdk-python/zscaler/zpa/lss.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py"
+  - "vendor/zscaler-sdk-go/zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go"
+  - "vendor/zscaler-sdk-go/zscaler/zpa/services/lssconfigcontroller/zpa_lss_client_types.go"
   - "vendor/terraform-provider-zpa/zpa/resource_zpa_lss_config_controller.go"
   - "vendor/terraform-provider-zpa/zpa/data_source_zpa_lss_config_log_types_formats.go"
   - "vendor/terraform-provider-zpa/zpa/validator.go"
@@ -89,24 +91,30 @@ An optional policy rule that gates which sessions/events are forwarded. Uses the
 
 Source: `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`; `vendor/terraform-provider-zpa/zpa/data_source_zpa_lss_config_log_types_formats.go`; `vendor/zscaler-help/about-log-streaming-service.md`.
 
-The Python SDK `source_log_map` and the TF data source `data_source_zpa_lss_config_log_types_formats.go` define the full set. (Tier A — vendor/zscaler-help/about-log-streaming-service.md confirms 12 log types.)
+The Python SDK `source_log_map` and the TF data source `data_source_zpa_lss_config_log_types_formats.go` define the full set. (Tier A — vendor/zscaler-help/about-log-streaming-service.md:44-55 lists exactly 12 human-facing log types.)
 
-| Internal code | Human label | Notes |
-|---|---|---|
-| `zpn_trans_log` | User Activity | Per-connection records; the primary "access log" stream. See [`./logs/access-log-schema.md`](./logs/access-log-schema.md). |
-| `zpn_auth_log` | User Status | User auth/enrollment events. |
-| `zpn_ast_auth_log` | App Connector Status | Connector availability and connection to ZPA. |
-| `zpn_ast_comprehensive_stats` | App Connector Metrics | Per-connector telemetry and metrics. |
-| `zpn_http_trans_log` | Browser Access | HTTP log records for Browser Access sessions. |
-| `zpn_audit_log` | Audit Logs | Admin Console session and change history. |
-| `zpn_sys_auth_log` | Private Service Edge Status | PSE availability and connection events. |
-| `zpn_pbroker_comprehensive_stats` | Private Service Edge Metrics | PSE telemetry. |
-| `zpn_waf_http_exchanges_log` | AppProtection (Web Inspection) | App Protection policy activity. |
-| (extended) | Microsegmentation | Microsegmentation Flow activity. (Tier A — vendor help doc.) |
-| (extended) | Private Cloud Controller Metrics | Private Cloud Controller telemetry. |
-| (extended) | Private Cloud Controller Status | Private Cloud Controller availability. |
+| Internal code | Human label | SDK `source_log_type`? | Notes |
+|---|---|---|---|
+| `zpn_trans_log` | User Activity | Yes | Per-connection records; the primary "access log" stream. See [`./logs/access-log-schema.md`](./logs/access-log-schema.md). |
+| `zpn_auth_log` | User Status | Yes | User auth/enrollment events. |
+| `zpn_ast_auth_log` | App Connector Status | Yes | Connector availability and connection to ZPA. |
+| `zpn_ast_comprehensive_stats` | App Connector Metrics | Yes | Per-connector telemetry and metrics. |
+| `zpn_http_trans_log` | Browser Access Logs | Yes | HTTP log records for Browser Access sessions. |
+| `zpn_audit_log` | Audit Logs | Yes | Admin Console session and change history. |
+| `zpn_sys_auth_log` | Private Service Edge Status | Yes | PSE availability and connection events. |
+| `zpn_pbroker_comprehensive_stats` | Private Service Edge Metrics | No (SDK); **Yes (TF resource)** | PSE telemetry. The Terraform resource `zpa_lss_config_controller` accepts this code as a live `source_log_type` (`vendor/terraform-provider-zpa/zpa/resource_zpa_lss_config_controller.go:225`); it is absent from the Python SDK `source_log_map`. |
+| `zpn_waf_http_exchanges_log` | AppProtection (Web Inspection) | Yes | App Protection policy activity. SDK key is `web_inspection`. |
+| `zms_flow_log` | Microsegmentation | No (SDK); unresolved (zpa-41) | Microsegmentation Flow activity. Present in TF data source (format lookup) but absent from TF resource write validator; receiver-API acceptance unconfirmed. |
+| `zpn_sitec_comprehensive_stats` | Private Cloud Controller Metrics | No (SDK); unresolved (zpa-41) | Private Cloud Controller telemetry. Present in TF data source (format lookup) and Postman format-lookup; absent from TF resource write validator; receiver-API acceptance unconfirmed. |
+| `zpn_sitec_auth_log` | Private Cloud Controller Status | No (SDK); unresolved (zpa-41) | Private Cloud Controller availability. Present in TF data source (format lookup) and Postman format-lookup; absent from TF resource write validator; receiver-API acceptance unconfirmed. |
+| `zpn_auth_log_1id` | User Status (Zidentity) *(inferred — see Open questions)* | No (SDK); unresolved (zpa-41) | Zidentity-era variant of the User Status log. Present in TF data source (format lookup); absent from TF resource write validator; receiver-API acceptance unconfirmed. |
+| `zpn_smb_inspection_log` | (SMB inspection) | No (SDK); unresolved (zpa-41) | SMB inspection log. Present in TF data source (format lookup); absent from TF resource write validator; receiver-API acceptance unconfirmed. |
+| `zpn_ldap_inspection_log` | (LDAP inspection) | No (SDK); unresolved (zpa-41) | LDAP inspection log. Present in TF data source (format lookup); absent from TF resource write validator; receiver-API acceptance unconfirmed. |
+| `zpn_krb_inspection_log` | (Kerberos inspection) | No (SDK); unresolved (zpa-41) | Kerberos inspection log. Present in TF data source (format lookup); absent from TF resource write validator; receiver-API acceptance unconfirmed. |
 
-The Python SDK `source_log_map` maps 8 human-readable keys; the TF data source and vendor help doc enumerate additional types. Extended types (`zpn_smb_inspection_log`, `zpn_ldap_inspection_log`, `zpn_krb_inspection_log`) appear in the TF data source for format lookups but may not be accepted on receiver `source_log_type` in all tenants.
+(Tier A — Python `source_log_map`: vendor/zscaler-sdk-python/zscaler/zpa/lss.py:27-36; TF data source code set: vendor/terraform-provider-zpa/zpa/data_source_zpa_lss_config_log_types_formats.go:21-38; human labels: vendor/zscaler-help/about-log-streaming-service.md:44-55.)
+
+**Two code sets, two purposes.** The Python SDK `source_log_map` maps exactly **8** human-readable keys to internal codes — `app_connector_metrics` → `zpn_ast_comprehensive_stats`, `app_connector_status` → `zpn_ast_auth_log`, `audit_logs` → `zpn_audit_log`, `browser_access` → `zpn_http_trans_log`, `private_svc_edge_status` → `zpn_sys_auth_log`, `user_activity` → `zpn_trans_log`, `user_status` → `zpn_auth_log`, `web_inspection` → `zpn_waf_http_exchanges_log` (vendor/zscaler-sdk-python/zscaler/zpa/lss.py:27-36). Those 8 are the codes the SDK will accept on a receiver's `source_log_type`. The TF data source enumerates **16** codes (vendor/terraform-provider-zpa/zpa/data_source_zpa_lss_config_log_types_formats.go:21-38), but that list validates the `log_type` argument to the format-lookup data source only (`GET /lssConfig/logType/formats`). The 8 extra codes — `zpn_pbroker_comprehensive_stats`, `zms_flow_log`, `zpn_sitec_comprehensive_stats`, `zpn_sitec_auth_log`, `zpn_auth_log_1id`, `zpn_smb_inspection_log`, `zpn_ldap_inspection_log`, `zpn_krb_inspection_log` — are valid for format lookups but absent from the Python SDK's `source_log_map`. The one exception is `zpn_pbroker_comprehensive_stats`, which the **Terraform resource** `zpa_lss_config_controller` additionally accepts as a live `source_log_type` (`vendor/terraform-provider-zpa/zpa/resource_zpa_lss_config_controller.go:225`) — so it is a confirmed streamable code via TF, just not via the Python SDK. The remaining 7 — `zms_flow_log`, `zpn_sitec_comprehensive_stats`, `zpn_sitec_auth_log`, `zpn_auth_log_1id`, `zpn_smb_inspection_log`, `zpn_ldap_inspection_log`, `zpn_krb_inspection_log` — appear only in the format-lookup set and the TF resource write validator does not include them; whether the ZPA API accepts them on a live receiver's `sourceLogType` is unresolved (see [zpa-41](../_meta/clarifications.md#zpa-41-format-only-log-type-codes-acceptance-on-a-receivers-sourcelogtype)).
 
 ## Output formats
 
@@ -167,7 +175,7 @@ LSS supports mutual TLS encryption between the log receiver and the App Connecto
 - Automatically receives a root certificate during deployment.
 - Trusts log receiver certificates signed by global public root CAs, or signed by custom root CAs used as the App Connector's enrollment certificate.
 
-The `use_tls` flag in the log receiver config enables TLS on the outbound stream. No CA certificate or peer verification field is exposed in the SDK or TF schema — TLS trust configuration happens outside the Log Receiver object. There is no SDK surface for pinning a specific CA via the Log Receiver object configuration.
+The `use_tls` flag in the log receiver config enables TLS on the outbound stream. No CA certificate or peer verification field is exposed in the SDK or TF schema — TLS trust configuration happens outside the Log Receiver object. There is no SDK surface for pinning a specific CA via the Log Receiver object configuration. The Python `LSSConfig` model carries only a `useTls` boolean and no CA/peer-verification attribute (vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py:122,159), matching the Go `LSSConfig` struct's `UseTLS bool`-only surface (vendor/zscaler-sdk-go/zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go:43).
 
 ## API endpoints
 
@@ -180,9 +188,9 @@ The `use_tls` flag in the log receiver config enables TLS on the outbound stream
 | Delete | `DELETE` | `/zpa/mgmtconfig/v2/admin/customers/{customerId}/lssConfig/{id}` |
 | Get formats | `GET` | `/zpa/mgmtconfig/v2/admin/lssConfig/logType/formats` |
 | Get status codes | `GET` | `/zpa/mgmtconfig/v2/admin/lssConfig/statusCodes` |
-| Get client types | `GET` | `/zpa/mgmtconfig/v2/admin/lssConfig/customers/{customerId}/clientTypes` |
+| Get client types | `GET` | `/zpa/mgmtconfig/v2/admin/lssConfig/customers/{customerId}/clientTypes` (Python, customer-scoped) — the Go SDK calls a non-customer-scoped path `/zpa/mgmtconfig/v2/admin/lssConfig/clientTypes` instead; see [`./api-divergences.md`](./api-divergences.md) → "GetClientTypes endpoint path". |
 
-Source: `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`; `vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py`.
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`; `vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/lssconfigcontroller/zpa_lss_client_types.go:11`. The Go SDK uses the non-customer-scoped path `lssConfig/clientTypes` (`vendor/zscaler-sdk-go/zscaler/zpa/services/lssconfigcontroller/zpa_lss_client_types.go:11`) while the Python customer-scoped path is the recommended replacement; the divergence is detailed in [`./api-divergences.md`](./api-divergences.md) → "GetClientTypes endpoint path".
 
 **SDK service** (`client.zpa.lss`): `list_configs`, `get_config`, `add_lss_config`, `update_lss_config`, `delete_lss_config`, `get_log_formats`, `get_client_types`, `get_status_codes`. Uses the v2 endpoint `/zpa/mgmtconfig/v2/admin/customers/{customer_id}/lssConfig`. (Tier A — sdk.md §2.22.)
 
@@ -223,6 +231,11 @@ The help doc does not publish explicit per-receiver throughput limits. Capacity 
 ## Admin Console
 
 Logs > Log Streaming > Log Receivers. Per-receiver columns: Name, Domain Name or IP Address, TCP Port, TLS Encryption, Log Type. Supports copy (clone configuration), edit, delete. (Tier A — vendor/zscaler-help/about-log-streaming-service.md.)
+
+## Open questions
+
+- **`zpn_auth_log_1id` human label.** The TF data source lists `zpn_auth_log_1id` as a valid format-lookup code (vendor/terraform-provider-zpa/zpa/data_source_zpa_lss_config_log_types_formats.go:32), but no source maps it to a human-facing label. The "User Status (Zidentity)" label in the Log types table is inferred from the `auth_log` stem plus the `_1id` suffix (Zidentity / "OneID") and is not directly confirmed — the help doc's 12 labels (vendor/zscaler-help/about-log-streaming-service.md:44-55) list only a single "User Status" with no Zidentity variant. Confirm the operator-facing name before relying on it. (Tracked as [`zpa-40`](../_meta/clarifications.md#zpa-40-zpn_auth_log_1id-human-facing-label).)
+- **Format-only codes' receiver acceptance.** `zpn_pbroker_comprehensive_stats` is established as a live `source_log_type` — the TF resource `zpa_lss_config_controller` validates it (`resource_zpa_lss_config_controller.go:225`), strong evidence the API accepts it on a receiver. For the remaining 7 codes present in the TF format-lookup set but absent from both the Python `source_log_map` and the TF resource's `source_log_type` set (`zms_flow_log`, `zpn_sitec_comprehensive_stats`, `zpn_sitec_auth_log`, `zpn_auth_log_1id`, `zpn_smb_inspection_log`, `zpn_ldap_inspection_log`, `zpn_krb_inspection_log`), whether the ZPA API rejects them on a receiver's `sourceLogType` (vs. the Python SDK simply not exposing a key) is not established in available sources — the SDK validates against its own map, not a server response. (Tracked as [`zpa-41`](../_meta/clarifications.md#zpa-41-format-only-log-type-codes-acceptance-on-a-receivers-sourcelogtype).)
 
 ## Cross-links
 

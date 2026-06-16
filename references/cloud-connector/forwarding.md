@@ -3,32 +3,43 @@ product: cloud-connector
 topic: "cloud-connector-forwarding"
 title: "Cloud Connector traffic forwarding — rules, methods, criteria, DNS"
 content-type: reasoning
-last-verified: "2026-04-24"
+last-verified: "2026-06-15"
 confidence: high
-source-tier: doc
+source-tier: mixed
 sources:
   - "https://help.zscaler.com/cloud-branch-connector/configuring-traffic-forwarding-rule"
   - "vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md"
+  - "vendor/zscaler-help/cbc-about-traffic-forwarding.md"
+  - "vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go"
+  - "vendor/terraform-provider-ztc/docs/resources/ztc_traffic_forwarding_rule.md"
+  - "vendor/terraform-provider-ztc/ztc/resource_ztc_traffic_forwarding_rule.go"
 author-status: draft
 ---
 
 # Cloud Connector traffic forwarding
 
-How Cloud Connector decides what to do with each packet it receives. Traffic forwarding rules are the policy engine — they match on workload/service/destination criteria and apply one of five forwarding methods. Parallel concept to ZCC's Forwarding Profile (client-side) but shaped for workloads.
+How Cloud Connector decides what to do with each packet it receives. Traffic forwarding rules are the policy engine — they match on workload/service/destination criteria and apply a forwarding method. Parallel concept to ZCC's Forwarding Profile (client-side) but shaped for workloads.
 
 ## Summary
 
-Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`.
+Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`; `vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go`.
 
-Five forwarding methods:
+The admin console exposes five forwarding-method labels — **ZIA, ZPA, Direct, Drop, Local** (`cbc-about-traffic-forwarding.md:38`). But the API `ForwardMethod` field carries a wider enum (`forwarding_rules.go:44` Supported Values: `INVALID`, `DIRECT`, `PROXYCHAIN`, `ZIA`, `ZPA`, `ECZPA`, `ECSELF`, `DROP`, `ENATDEDIP`, `GEOIP`), and two of the console labels map to different enum strings when you drive the rule through the SDK / Terraform / API:
 
-| Method | What it does | When to use |
-|---|---|---|
-| **ZIA** | Forward to ZIA for internet inspection | Workload-to-internet; default for internet-bound traffic |
-| **ZPA** | Forward to ZPA for private-app access | Workload-to-workload (private) |
-| **Direct** | Bypass Zscaler; send to destination directly | Exempt traffic (e.g., local cloud metadata endpoints, intra-VPC health checks) |
-| **Drop** | Discard traffic | Policy deny |
-| **Local** | Forward locally (Cloud Connector + ZTG only) | Cloud-to-cloud workload communication with local inspection |
+| Console label | API `ForwardMethod` | What it does | When to use |
+|---|---|---|---|
+| **ZIA** | `ZIA` | Forward to ZIA for internet inspection | Workload-to-internet; default for internet-bound traffic |
+| **ZPA** | `ECZPA` | Forward to ZPA for private-app access (Cloud Connector / `EC_RDR` rule) | Workload-to-workload (private) |
+| **Direct** | `DIRECT` | Bypass Zscaler; send to destination directly | Exempt traffic (e.g., local cloud metadata endpoints, intra-VPC health checks) |
+| **Drop** | `DROP` | Discard traffic | Policy deny |
+| **Local** | `LOCAL_SWITCH` (TF) / `ECSELF` (Go SDK enum) | Forward locally without leaving the public cloud | East-west / macrosegmentation between VPCs |
+
+The console→API mapping for ZPA→`ECZPA` is shown in `vendor/terraform-provider-ztc/docs/resources/ztc_traffic_forwarding_rule.md:206` (`forward_method = "ECZPA"`). The **Local** method is the one case where the layers disagree on the token: the Terraform provider's traffic-forwarding-rule resource validates `forward_method` against `LOCAL_SWITCH` (`vendor/terraform-provider-ztc/ztc/resource_ztc_traffic_forwarding_rule.go:169`; also listed in `vendor/terraform-provider-ztc/docs/resources/ztc_traffic_forwarding_rule.md:248`), while the Go SDK's `ForwardMethod` doc-comment enum for the same `/ecRules/ecRdr` data-plane rule lists `ECSELF` instead (`vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go:44`). The wire field is a free string, so neither value is proven against a live backend — see [`./api-divergences.md § forwardMethod enum`](./api-divergences.md). (Don't confuse this with the separate **Log and Control Forwarding** rule, whose `forward_method` is the fixed value `ECSELF` — that is a different rule type, covered in [Log and Control Forwarding Rule](#log-and-control-forwarding-rule-the-other-rule-type).) The remaining enum values (`PROXYCHAIN`, `ENATDEDIP`, `GEOIP`, `INVALID`) have no clean console label in the captured material:
+
+- **`PROXYCHAIN`** — proxy chaining: the rule forwards matched traffic to a configured proxy gateway (set via the **Forward to Proxy Gateway** action field, `cbc-configuring-traffic-forwarding-rule.md:120`; `proxyGateway` is only honored for this method, `forwarding_rules.go:154`). Only TCP-based network services are considered for policy match under proxy chaining (`forwarding_rules.go:135`).
+- **`ENATDEDIP`** / **`GEOIP`** — present in the API enum (`forwarding_rules.go:44`); their semantics are not documented in the captured material. See [Open questions](#open-questions).
+
+**Rule `Type` is a separate axis from `ForwardMethod`.** Each rule also carries a `Type` field (`forwarding_rules.go:34` Supported Values: `FIREWALL`, `DNS`, `DNAT`, `SNAT`, `FORWARDING`, `INTRUSION_PREVENTION`, `EC_DNS`, `EC_RDR`, `EC_SELF`, `DNS_RESPONSE`) that classifies the *kind* of rule, distinct from the forwarding *action*. Cloud Connector traffic-forwarding rules are `EC_RDR` type (see the `ECZPA` Terraform example, `ztc_traffic_forwarding_rule.md:205`). Don't conflate rule type with forwarding method.
 
 Rules are evaluated **top-down by rule order, first match wins**. Same pattern as ZIA URL Filter. A default rule with a default gateway is predefined for ZIA forwarding; custom rules evaluate before the default.
 
@@ -38,7 +49,9 @@ Rules are evaluated **top-down by rule order, first match wins**. Same pattern a
 
 ### Rule structure
 
-Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`.
+Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`; `vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go`.
+
+**API surface.** Traffic forwarding rules live under `GET /ztw/api/v1/ecRules/ecRdr` (`forwarding_rules.go:17`), with the usual `Get`/`Create` (POST)/`Update` (PUT)/`Delete` operations on `/ecRules/ecRdr/{id}`, a `/ecRules/ecRdr/count` sub-endpoint (`forwarding_rules.go:348`), and a paginated `GetAll` that reads all pages (`forwarding_rules.go:287,321`). Filterable by `ruleName`, `ruleOrder`, `ruleDescription`, `ruleForwardMethod`, and `location` (`forwarding_rules.go:294-307`).
 
 From *Configuring Traffic Forwarding Rules*, each rule has:
 
@@ -47,7 +60,8 @@ From *Configuring Traffic Forwarding Rules*, each rule has:
 - **Rule Order** — integer. Rules evaluate in ascending numerical order (Rule 1 before Rule 2). **Changing rule order moves the rule in the evaluation sequence** — same semantics as ZIA URL Filter's rule order.
 - **Rule Name** — display name. Auto-generated but editable. Max 31 chars.
 - **Rule Status** — enabled or disabled. **A disabled rule does not lose its place in the rule order** (same pattern as ZIA — see [`../zia/url-filtering.md § Disabled rules`](../zia/url-filtering.md)). The service skips it and moves to the next rule.
-- **Forwarding Method** — ZIA / ZPA / Direct / Drop / Local. Mutually exclusive per rule.
+- **Admin Rank** — integer rank assigned to the rule (`forwarding_rules.go:41` "Admin rank assigned to the forwarding rule"; exposed in Terraform as `rank`, `ztc_traffic_forwarding_rule.md:203`). Cloud Connector forwarding rules carry a Rank field, the same admin-rank construct ZIA URL Filtering rules use.
+- **Forwarding Method** — ZIA / ZPA / Direct / Drop / Local (console labels; see the console→API enum table in [Summary](#summary)). Mutually exclusive per rule.
 
 **Criteria section:**
 
@@ -60,12 +74,21 @@ All criteria ANDed together within a single rule. Multiple items within one crit
 - **Application Service Groups** — predefined groups Zscaler maintains: Office365, Zoom, Webex, RingCentral, LogMeIn, BlueJeans, AWS, Azure, GCP, Zscaler Cloud Endpoints, Talk_Desk, and others. Used to quickly scope a rule to "all Office 365 traffic" without enumerating endpoints.
 - **Applications** (per-application selection).
 - **Application Groups** (custom groupings of applications).
-- **Source IP Groups** — the workload-side source IPs.
-- **Destination IP Groups** — the destination addresses.
-- **Domains / FQDN** — domain-based matching.
+- **Source IP Groups** — the workload-side source IPs (`SrcIpGroups`, `forwarding_rules.go:120`). Can also reference App Connector source IP addresses (`cbc-configuring-traffic-forwarding-rule.md:88`).
+- **Source Workload Groups** — tag-based workload selectors from the workload-discovery service (`cbc-configuring-traffic-forwarding-rule.md:94`; `SrcWorkloadGroups`, `forwarding_rules.go:152`). "Referenced as a source object for the Local, Direct, ZIA, and ZPA criteria… only applicable to Cloud Connector traffic forwarding policies" (`:94`), and only available when workload discovery is enabled (`:96`). This is Cloud-Connector-specific and the policy hook for the tag-based workload-discovery integration — see [`./aws-workload-discovery.md`](./aws-workload-discovery.md).
+- **Destination IP Groups** — the destination addresses (`DestIpGroups`, `forwarding_rules.go:128`). Console label "Destination IPv4 Groups" (`cbc-configuring-traffic-forwarding-rule.md:104`).
+- **Destination Workload Groups** — tag-based VPC/traffic criteria (`cbc-configuring-traffic-forwarding-rule.md:422`,`:530`). **Local-method only**: "can only be applied to Cloud Connector traffic forwarding policies and are only applicable to the Local traffic forwarding method" (`:422`,`:530`). Workload-discovery-gated (`:424`,`:532`).
+- **Domains / FQDN** — domain-based matching ("IP Address Or WildCard FQDN", `cbc-configuring-traffic-forwarding-rule.md:106`). Wildcard domains/FQDNs limited to 16K per organization and 8,000 per rule (`:108`).
 - **Custom Domain Groups** — tenant-defined groups of domains.
 
-### The five forwarding methods
+**Action section:**
+
+Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`; `vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go`.
+
+- **Forward to Proxy Gateway** — optional drop-down to select a proxy gateway (`cbc-configuring-traffic-forwarding-rule.md:120`). This is the action that backs the `PROXYCHAIN` forwarding method; the `proxyGateway` field is "applicable only for the Proxy Chaining forwarding method" (`forwarding_rules.go:154`).
+- **WAN Selection** — `None` (default) / `Balanced` / `Best Link` (`cbc-configuring-traffic-forwarding-rule.md:316`). `None` defers to the Branch Configuration Template's Traffic Distribution setting; `Balanced` distributes evenly; `Best Link` always uses the best-performing WAN link. **Only applicable to hardware devices deployed in gateway mode** (`:322`) — Branch-side. (The API `WanSelection` field is marked deprecated/no-longer-configurable in the SDK, `forwarding_rules.go:49-51`, though the console still exposes it for gateway-mode Branch Connectors.)
+
+### The forwarding methods
 
 Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`.
 
@@ -99,22 +122,38 @@ Traffic bypasses Zscaler entirely. Cloud Connector routes it via the cloud provi
 
 Traffic is discarded. No forwarding; workload sees connection failure. Used for explicit deny rules — a specific destination the tenant wants to block for workloads.
 
-#### Local (Cloud Connector + ZTG only)
+#### Local (Cloud Connector + ZTG only) — API `LOCAL_SWITCH` / `ECSELF`
 
 > The local forwarding method is only available for Cloud Connector and Zscaler Zero Trust Gateways.
 
-Not available on Branch Connector. Forwards traffic locally within the Cloud Connector's own network context — used for cloud-to-cloud workload communication where the destination is reachable via local cloud networking but still needs local inspection. Semantics not fully documented in captured material.
+Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`.
+
+Not available on Branch Connector. Local is the **east-west / macrosegmentation** method: it "facilitates subnet-to-subnet or virtual private cloud (VPC)-to-VPC communication across Amazon Web Services (AWS), Microsoft Azure, and Google Cloud Platform (GCP), allowing you to permit ingress traffic to publicly hosted applications in AWS" and controls "traffic for east-west segmentation and macrosegmentation using 5-tuples" (`cbc-configuring-traffic-forwarding-rule.md:436`).
+
+Key properties (`cbc-configuring-traffic-forwarding-rule.md:450`):
+
+- Forwards traffic locally **within the public cloud** to the intended destination (an IP address or tag). **Traffic does not egress out of the public cloud.**
+- Can forward from any IP address or tag in a VPC to another IP address or tag in the **same or a different VPC**.
+- **Preserves the original client IP address.**
+
+Local pairs with **Destination Workload Groups**, which are "only applicable to the Local traffic forwarding method" (`cbc-configuring-traffic-forwarding-rule.md:422`,`:530`) — they tag VPC/traffic criteria for the local destination. Source Workload Groups can also scope a Local rule (`:94`).
 
 ### Predefined rules and gateway-mode gating
 
 Source: `vendor/zscaler-help/cbc-about-traffic-forwarding.md`; `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`.
 
-Per `vendor/zscaler-help/cbc-about-traffic-forwarding.md`, two predefined rules ship with every CC group:
+Per `vendor/zscaler-help/cbc-about-traffic-forwarding.md:41-45`, **three** predefined Direct rules ship, created by Zscaler. They are **disabled by default** (you can enable them), and they appear based on the licenses enabled in your tenant:
 
-- **Direct for Zscaler Cloud Endpoints** — sends Zscaler control-plane traffic direct (e.g., the CC's own connectivity to ZIA peer discovery). Always present, gateway-mode-only.
-- **WAN/LAN Destinations Group** — predefined destination set used by gateway-mode forwarding rules.
+- **Direct rule for Zscaler Cloud Endpoints** — "if the destination is a Zscaler Cloud Endpoints application service group, then the forwarding method is set to Direct" (`cbc-about-traffic-forwarding.md:42`). It matches on **destination = the Zscaler Cloud Endpoints application service group**, not on Cloud Connector control-plane / peer-discovery traffic.
+- **Direct rule for WAN Destinations Group** — "if the destination is a WAN IP group, then the forwarding method is set to Direct" (`cbc-about-traffic-forwarding.md:43`).
+- **Direct rule for LAN Destinations Group** — "if the destination is a LAN IP group, then the forwarding method is set to Direct" (`cbc-about-traffic-forwarding.md:45`). WAN and LAN are **separate** predefined rules, not one combined rule.
 
-**Both predefined rules are gateway-mode-only and license-gated.** A non-gateway-mode CC won't see them; a tenant without the relevant license tier won't be able to enable them. This matters for CC groups that operate in non-gateway mode (e.g., simpler workload-to-internet forwarding without ZIA inspection).
+**Gateway-mode-only.** "Predefined forwarding rules are only applicable to hardware devices deployed in gateway mode" and require a location or Branch Connector group configured for them; only gateway-mode devices can join the mandatory group used for these rules (`cbc-about-traffic-forwarding.md:47`). On a predefined rule you can edit **only** Rule Order, Rule Status, Location/Sublocation, and Cloud & Branch Connector Groups (`cbc-about-traffic-forwarding.md:49`) — the match/action are fixed.
+
+**ZPA predefined rules** (`cbc-configuring-traffic-forwarding-rule.md:135-138`):
+
+- **ZPA Forwarding Rule** (with default gateway) — created when the tenant is subscribed to the ZPA license.
+- **ZPA Pool For Stray Traffic** — a predefined rule with forwarding method **Drop**, "automatically created with view-only access when you enable a ZPA server's SKU on your Cloud or Branch Connector" (`cbc-configuring-traffic-forwarding-rule.md:138`). It is read-only and catches stray ZPA-server traffic.
 
 ### AWS-specific: GWLB vs ENI endpoint selection
 
@@ -174,9 +213,10 @@ Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`; `vendo
 
 ## Open questions
 
-- **Local forwarding method full semantics** — doc doesn't explain where "local" traffic goes (to an intra-Cloud-Connector module? to the same VPC's egress?). Needs clarification.
-- **Rule limits** — how many traffic forwarding rules can a tenant define? Not captured.
-- **Rule-rank-like admin ordering** — does Cloud Connector have the "admin rank gates order values" pattern that ZIA URL Filter has? Unclear.
+- **`ENATDEDIP` and `GEOIP` forwarding methods** — both appear in the API `ForwardMethod` enum (`forwarding_rules.go:44`) with no console label or documented semantics in the captured material. `ENATDEDIP` reads as some form of dedicated-IP NAT and `GEOIP` as geo-based forwarding, but neither is confirmed by source. Filed with `PROXYCHAIN` and the true backend enum as [clarification `cloud-connector-09`](../_meta/clarifications.md#cloud-connector-09-forwarding-method-semantics-and-the-true-backend-forwardmethod-enum).
+- **`PROXYCHAIN` end-to-end behavior** — the proxy-gateway action field and the method's TCP-only network-service constraint are sourced, but the full chaining topology (where the proxy gateway sits, auth, failover) is not in the captured material. See [clarification `cloud-connector-09`](../_meta/clarifications.md#cloud-connector-09-forwarding-method-semantics-and-the-true-backend-forwardmethod-enum).
+- **Rule limits** — how many traffic forwarding rules can a tenant define? Not captured. (Note: wildcard-domain/FQDN entries are capped at 16K per organization and 8,000 per rule, `cbc-configuring-traffic-forwarding-rule.md:108` — but that is the FQDN-entry limit, not a rule-count limit.) Filed with the admin-rank question as [clarification `cloud-connector-10`](../_meta/clarifications.md#cloud-connector-10-forwarding-rule-count-limit-and-admin-rank-rule-order-interaction).
+- **Admin Rank ↔ Rule Order interaction** — Cloud Connector forwarding rules carry an Admin Rank field (`forwarding_rules.go:41`), confirming the field exists, but whether rank *gates* the editable Rule Order values the way ZIA URL Filtering's admin-rank does is not stated in the captured source. See [clarification `cloud-connector-10`](../_meta/clarifications.md#cloud-connector-10-forwarding-rule-count-limit-and-admin-rank-rule-order-interaction).
 
 ## Cross-links
 

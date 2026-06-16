@@ -3,9 +3,9 @@ product: zia
 topic: "zia-dlp"
 title: "ZIA Data Loss Prevention — dictionaries, engines, policy rules"
 content-type: reasoning
-last-verified: "2026-04-24"
+last-verified: "2026-06-15"
 confidence: high
-source-tier: doc
+source-tier: mixed
 sources:
   - "https://help.zscaler.com/zia/about-dlp-engines"
   - "vendor/zscaler-help/about-dlp-engines.md"
@@ -16,6 +16,14 @@ sources:
   - "https://help.zscaler.com/zia/understanding-predefined-dlp-dictionaries"
   - "vendor/zscaler-help/understanding-predefined-dlp-dictionaries.md"
   - "vendor/zscaler-help/Understanding_Policy_Enforcement.txt"
+  - "vendor/zscaler-sdk-python/zscaler/zia/dlp_web_rules.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/models/dlp_web_rules.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/dlp_dictionary.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/dlp_engine.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/dlp_resources.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/dlp_templates.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/cloud_to_cloud_ir.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/zia_service.py"
 author-status: draft
 ---
 
@@ -103,9 +111,10 @@ Source: `vendor/zscaler-help/configuring-dlp-policy-rules-content-inspection.md`
 
 **File size limits** (*Configuring DLP Policy Rules with Content Inspection* + *About DLP Engines*):
 
-- **400 MB max file size** — files larger than this aren't inspected. Applies to files inside archives as well (each archive entry checked against the 400 MB cap).
-- **100 MB max extracted text** — DLP scans only the first 100 MB of extracted text from a file. A 400 MB DOCX with 200 MB of extracted text has its last 100 MB un-inspected.
-- **5 levels of compression** — nested archives beyond 5 levels deep aren't scanned. An attacker wrapping payload in 6-level-nested ZIPs silently evades DLP.
+- **400 MB max file size** — files larger than this aren't inspected (`configuring-dlp-policy-rules-content-inspection.md:22`; `about-dlp-engines.md:27`). **Caveat: the source contradicts itself** — the File Type subsection of the same content-inspection article states "Zscaler DLP engines can scan files of up to 100 MB" (`configuring-dlp-policy-rules-content-inspection.md:113`). See Open questions before treating 400 MB as authoritative.
+- **100 MB max per decompressed archive entry** — for archived files, each individual file's decompressed size can be at most 100 MB (`configuring-dlp-policy-rules-content-inspection.md:113`; `about-dlp-engines.md:27`). Note this is the *per-entry* decompressed cap, distinct from the 400 MB whole-file cap. (The content-inspection article's line 22 says "the maximum size also applies to files extracted from archive files," which reads as the 400 MB cap; line 113 and about-dlp-engines:27 give 100 MB for decompressed entries — see Open questions.)
+- **100 MB max extracted text** — DLP scans only the first 100 MB of extracted text from a file (`configuring-dlp-policy-rules-content-inspection.md:22`). A 400 MB DOCX with 200 MB of extracted text has its last 100 MB un-inspected.
+- **5 levels of compression** — nested archives beyond 5 levels deep aren't scanned (`about-dlp-engines.md:27`). An attacker wrapping payload in 6-level-nested ZIPs silently evades DLP.
 
 These limits affect real operational questions — "why didn't DLP catch this 500 MB PDF?" lands on the first limit.
 
@@ -123,13 +132,13 @@ Tenants in Evaluate All Rules mode have a fundamentally different DLP-rule menta
 
 Source: `vendor/zscaler-help/configuring-dlp-policy-rules-content-inspection.md`.
 
-Four destinations for DLP events (from *Configuring DLP Policy Rules with Content Inspection*):
+Five destinations for DLP events (from *Configuring DLP Policy Rules with Content Inspection*):
 
 1. **ZIA native action** — Allow or Block the transaction. The rule's default behavior.
 2. **DLP notification templates** — email the organization's auditor when a rule fires. Admin-configured templates.
 3. **ICAP receivers (third-party DLP)** — forward DLP-relevant transaction data to a third-party DLP solution (RSA, Symantec, etc.) via secure ICAP. **Zscaler does not accept ICAP responses** — ICAP is one-way forwarding, not a decision-making handoff. Zscaler decides based on its own policy; the third-party solution gets a copy for analysis.
 4. **Zscaler Incident Receiver** — Zscaler-native destination for outbound email policy rule content. Same ICAP transport; still one-way.
-5. **Cloud-to-Cloud Incident Forwarding (C2C)** — forward metadata + evidence directly to the customer's public cloud storage (AWS S3, Azure Blob, etc.). No appliance to deploy. This is where **ZWA ingests its incidents** (see [`../zwa/overview.md`](../zwa/overview.md)) — ZWA reads from the C2C incident stream.
+5. **Cloud-to-Cloud Incident Forwarding (C2C)** — forward metadata + evidence directly to the customer's public cloud storage (AWS S3, Azure Blob, etc.). No appliance to deploy. This is where **ZWA ingests its incidents** (see [`../zwa/overview.md`](../zwa/overview.md)) — ZWA reads from the C2C incident stream. C2C is a first-class configurable surface, not just a back-end pipe: the SDK exposes a dedicated `client.zia.cloud_to_cloud_ir` namespace driving `/cloudToCloudIR` (`vendor/zscaler-sdk-python/zscaler/zia/cloud_to_cloud_ir.py:78,123,187`, registered at `vendor/zscaler-sdk-python/zscaler/zia/zia_service.py:715`) — the configuration handle behind the ZWA-ingest claim.
 
 ### Pipeline position
 
@@ -148,6 +157,44 @@ Web module — Full-URL pass  (URL Filter, CAC, ATP content, DLP, Sandbox, Malwa
 ```
 
 DLP is in the terminal tier of the full-URL pass alongside Sandbox, Malware, File Type Control, and IPS content checks. All of these **share the SSL-decrypt dependency** — bypass SSL for a URL and all of them silently stop working for that URL.
+
+## API/SDK surface
+
+Source: `vendor/zscaler-sdk-python/zscaler/zia/dlp_web_rules.py`; `vendor/zscaler-sdk-python/zscaler/zia/models/dlp_web_rules.py`; `vendor/zscaler-sdk-python/zscaler/zia/dlp_dictionary.py`; `vendor/zscaler-sdk-python/zscaler/zia/dlp_engine.py`; `vendor/zscaler-sdk-python/zscaler/zia/dlp_resources.py`; `vendor/zscaler-sdk-python/zscaler/zia/dlp_templates.py`; `vendor/zscaler-sdk-python/zscaler/zia/cloud_to_cloud_ir.py`; `vendor/zscaler-sdk-python/zscaler/zia/zia_service.py`.
+
+The three-layer object model and the forwarding surfaces above are help-doc-backed behavior; this section pins the *wire shape* and the *separate configuration namespaces* to SDK source so the skill can reason about what is actually addressable via the API.
+
+### Namespaces
+
+The SDK splits DLP into distinct namespaces, each its own REST surface (`vendor/zscaler-sdk-python/zscaler/zia/zia_service.py`):
+
+| Namespace | Endpoint base | What it configures |
+|---|---|---|
+| `client.zia.dlp_web_rules` | `/webDlpRules` (`dlp_web_rules.py:64,118,184,278`) | The inline (web) DLP policy rules. |
+| `client.zia.dlp_dictionary` | `/dlpDictionaries` (`dlp_dictionary.py:78,189`; registered `zia_service.py:253`) | Detection primitives; `/dlpDictionaries/validateDlpPattern` (`dlp_dictionary.py:449`) validates a custom pattern. |
+| `client.zia.dlp_engine` | `/dlpEngines` (`dlp_engine.py:78,194`; registered `zia_service.py:261`) | Reusable detection units; `/dlpEngines/validateDlpExpr` (`dlp_engine.py:383`) validates an engine's Boolean expression. |
+| `client.zia.dlp_resources` | `/icapServers`, `/incidentReceiverServers`, `/idmprofile`, `/dlpExactDataMatchSchemas` (`dlp_resources.py:78,265,436,528`; registered `zia_service.py:285`) | The downstream forwarding/matching infrastructure: ICAP servers, Zscaler Incident Receivers, IDM profiles, EDM schemas. |
+| `client.zia.dlp_templates` | DLP notification templates (registered `zia_service.py:277`) | The email-notification templates referenced by a rule. |
+| `client.zia.cloud_to_cloud_ir` | `/cloudToCloudIR` (`cloud_to_cloud_ir.py:78,123,187`; registered `zia_service.py:715`) | Cloud-to-Cloud Incident Forwarding receivers (the C2C surface ZWA ingests from). |
+
+The split is the API-level expression of the doc's core indirection: **a rule references engines, never dictionaries** — the rule model carries a `dlp_engines` list (`models/dlp_web_rules.py:117-119`) and there is no dictionary field on the rule. Wrapping a custom dictionary in an engine first is a literal API requirement, not just a UI convention.
+
+The `validateDlpExpr` example expression `((D63.S > 1) AND (D38.S > 0))` (`dlp_engine.py:378`) shows the on-the-wire form of engine composition: dictionary IDs (`D63`, `D38`) combined with Boolean operators, each gated by a per-dictionary score threshold (`.S > N`) — the SDK-level confirmation of both the Boolean-operator composition and the confidence-score-threshold mechanics the help docs describe in prose.
+
+### Rule wire shape
+
+The web-rule model (`vendor/zscaler-sdk-python/zscaler/zia/models/dlp_web_rules.py`) carries far more than the prose above covers. Fields confirmed in source:
+
+- **`action`** (`:49`) and **`severity`** (`:61`) — the rule's outcome and an event-severity tag. The SDK types both as free strings (no enum is declared in the model), so the *allowed values* are not pinned here — see Open questions.
+- **`parent_rule` / `sub_rules`** (`:62-63`) — a rule hierarchy: a parent rule with nested sub-rules. The help-doc prose treats DLP rules as a flat first-match list; the wire model supports a parent/child structure.
+- **`ocr_enabled`** (`add_rule` keyword `dlp_web_rules.py:250`; model field absent — request-only) — OCR scan of image files, so text embedded in images is inspected.
+- **`without_content_inspection`** (`models/dlp_web_rules.py:53-55`; `dlp_web_rules.py:251`) — the **EXTERNALDLP / no-content-inspection** rule variant: a rule that forwards/acts without ZIA itself inspecting payload content (e.g. hand-off to a third party). A distinct mode from the normal content-inspection rule.
+- **`inspect_http_get_enabled`** (`models/dlp_web_rules.py:56`) — the wire field behind the doc's "Inspect HTTP GET Query Parameters" prose.
+- **`dlp_download_scan_enabled`** (`:57`) — enable DLP on the download direction (the `Inspect Downloads` toggle; see the EDM/IDM exclusion footgun below).
+- **`match_only`** (`:51`) and **`min_size`** (`:48`, KB) — file-size gating: `match_only` controls whether a minimum file size is used to qualify a transaction for evaluation.
+- **`user_risk_score_levels`** (`:76-78`) — risk-based DLP: scope a rule to user risk-score bands.
+- **`included_domain_profiles` / `excluded_domain_profiles`** (`:102-109`) and **`source_ip_groups`** (`:110-112`) — additional scoping dimensions (domain profiles, source IP groups) beyond the users/groups/departments/locations the prose lists.
+- **`zscaler_incident_receiver`** (`:66`), **`icap_server`** (`:137`), **`auditor`** (`:131`), **`external_auditor_email`** (`:67`, `dlp_web_rules.py:246`), **`notification_template`** (`:133-135`) — the per-rule handles wiring a rule to the forwarding surfaces in the `dlp_resources` / `dlp_templates` namespaces above.
 
 ## Cross-product hooks
 
@@ -186,13 +233,13 @@ Not deeply covered here.
 
 Source: `vendor/zscaler-help/configuring-dlp-policy-rules-content-inspection.md`; `vendor/zscaler-help/about-dlp-engines.md`; `vendor/zscaler-help/Understanding_Policy_Enforcement.txt`.
 
-- **Archive inspection has a 5-level recursion limit.** Nested ZIPs beyond 5 levels aren't scanned. Separate from the 400 MB file size limit.
+- **Archive inspection has a 5-level recursion limit.** Nested ZIPs beyond 5 levels aren't scanned (`about-dlp-engines.md:27`). Separate from the whole-file size cap; individual decompressed archive entries are themselves capped at 100 MB (`configuring-dlp-policy-rules-content-inspection.md:113`; `about-dlp-engines.md:27`).
 - **Content beyond 100 MB of extracted text isn't scanned.** An operator reporting "DLP didn't catch content in a big document" — the content may have been past the 100 MB inspection window.
 - **`Any` engine selection in a rule** — selects all engines. Risky in broad allowing/blocking rules; can cascade-trigger on unrelated dictionaries.
 - **ICAP receivers are one-way.** Third-party DLP can see the traffic but can't veto Zscaler's decision. Operators coming from Symantec DLP / Forcepoint DLP where third-party is decisive sometimes expect different semantics.
 - **Evaluate All Rules mode changes evaluation fundamentally.** A tenant migrating between modes needs to re-verify rule behavior — rules that were dormant under first-match-wins may all start firing.
 - **DLP rule scope depends on SSL Inspection rule scope.** DLP can't scope tighter than SSL Inspection decrypts. If SSL Inspection decrypts only a subset of traffic, DLP's effective scope is that subset regardless of what the DLP rule's criteria say.
-- **Large file uploads time out before DLP completes.** For files close to the 400 MB cap, DLP may take long enough that the HTTP connection's underlying timeout intervenes. Investigate with Web Insights — look for "DLP pending" or timeout states in log records.
+- **Large file uploads time out before DLP completes.** For files close to the whole-file size cap, DLP may take long enough that the HTTP connection's underlying timeout intervenes. Investigate with Web Insights — look for "DLP pending" or timeout states in log records. (Note the source disagrees on whether that cap is 400 MB or 100 MB — see Open questions.)
 
 ## Surprises worth flagging
 
@@ -216,10 +263,19 @@ These are configuration combinations and behaviors that silently fail or behave 
 
 ## Open questions
 
+- **Max file-size cap: 400 MB vs 100 MB — the source contradicts itself.** Two figures appear in the captured help docs:
+  - **400 MB** at `configuring-dlp-policy-rules-content-inspection.md:22` ("The Zscaler DLP engines support files up to 400 MB…") and `about-dlp-engines.md:27` ("Zscaler DLP engines can scan files with a maximum size of 400 MB.").
+  - **100 MB** at `configuring-dlp-policy-rules-content-inspection.md:113`, in the File Type subsection ("Zscaler DLP engines can scan files of up to 100 MB.").
+  The 100 MB figure at line 113 looks section-scoped or stale within the source itself, but it sits in the same article as the 400 MB claim at line 22, so this is an unresolved vendor contradiction, not a writer error. Treat 400 MB as the likely whole-file cap (it's the figure carried by two separate articles and the one the extracted-text/archive-entry 100 MB caps are framed against) but verify against a live tenant or a fresher capture before stating it as fact. Note the archive-entry decompressed cap (100 MB) is independently and consistently stated and is not part of this contradiction.
 - **Exact confidence-score threshold semantics** for predefined dictionaries — the thresholds are tunable but the score-to-confidence mapping isn't numeric in the help docs. Needs tenant tuning based on false-positive rates.
 - **Whether MIP label matching requires Microsoft 365 integration config** on the Zscaler side, or works purely from document-metadata inspection.
 - **Evaluate All Rules mode — specific semantics** for conflicting rule actions. If Rule 1 Blocks and Rule 3 Allows the same event, and both fire under Evaluate All Rules, what's the terminal action? Not captured here; help article exists (not yet vendored).
 - **EDM (Exact Data Matching) operational mechanics** — how the matching works without the source data leaving the tenant, hashing approach, update cadence. Likely covered in separate help articles.
+- **Allowed values for the rule `action` and `severity` fields** — the SDK model (`vendor/zscaler-sdk-python/zscaler/zia/models/dlp_web_rules.py:49,61`) carries both as free strings with no enum declared, so the concrete set (e.g. ALLOW / BLOCK / CONFIRM for action; the severity bands) is not pinned by SDK source. The help-doc prose names ALLOW / BLOCK / CONFIRM behaviorally but the wire enum is unconfirmed here.
+- **`parent_rule` / `sub_rules` semantics** — the rule model exposes a parent/child rule hierarchy (`models/dlp_web_rules.py:62-63`) but the SDK does not document how sub-rule evaluation composes with the flat first-match-wins / Evaluate-All-Rules order described from the help docs. How a parent rule's match interacts with its sub-rules' actions is unconfirmed.
+- **`without_content_inspection` (EXTERNALDLP) exact behavior** — the field is SDK-confirmed (`models/dlp_web_rules.py:53-55`) as a distinct no-content-inspection rule variant, but what the rule keys on instead of payload content, and which forwarding surfaces it pairs with, is not pinned by SDK source.
+
+These open DLP items are tracked together as `zia-58` in [`../_meta/clarifications.md`](../_meta/clarifications.md#zia-58-dlp-web-rule-actionseverity-enums-parentsub-rule-composition-externaldlp-behavior).
 
 ## Cross-links
 

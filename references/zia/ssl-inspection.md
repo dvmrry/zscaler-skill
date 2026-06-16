@@ -3,7 +3,7 @@ product: zia
 topic: "zia-ssl-inspection"
 title: "ZIA SSL/TLS inspection — pipeline position and policy semantics"
 content-type: reasoning
-last-verified: "2026-04-25"
+last-verified: "2026-06-15"
 confidence: high
 source-tier: doc
 sources:
@@ -21,6 +21,10 @@ sources:
   - "vendor/zscaler-help/About_SSL_TLS_Inspection_Policy.txt"
   - "https://help.zscaler.com/zia/configuring-url-filtering-policy"
   - "vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt"
+  - "https://help.zscaler.com/unified/ranges-limitations"
+  - "vendor/zscaler-help/ranges-limitations-zia.md"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/sslinspection/sslinspection.go"
+  - "vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py"
   - "https://duo.com/docs/duo-desktop"
   - "https://help.duo.com/s/article/9585"
 author-status: draft
@@ -137,9 +141,9 @@ Two non-obvious criterion behaviors worth calling out:
 
 - **IP-based destination groups get ignored when SNI is present.** From *Configuring SSL/TLS Inspection Policy*: "During policy evaluation, IP address-based destination groups in the rule criteria are ignored if an SNI value is present in HTTPS requests." A rule scoped by IP destination group will not match ordinary HTTPS traffic (which carries SNI) — it only matches the edge cases where SNI is absent.
 - **CONNECT User-Agent only works in explicit proxy mode.** "This criterion applies only to SSL/TLS traffic forwarded in explicit proxy mode (PAC or PAC over tunnel) and not to traffic forwarded via a transparent proxy (tunnel) or Z-Tunnel 1.0 due to lack of user agent context." User-agent-scoped SSL rules silently don't match transparent-proxy traffic.
-- **ZPA Application Segment criterion only shows Source-IP-Anchor-enabled segments.** Rule list is filtered to segments with the Source IP Anchor option enabled. Up to 255. At the API level, this is the `zpa_app_segments` list (`zscaler/zia/models/ssl_inspection_rules.py:113-115`) — a cross-product reference from ZIA into ZPA. Absent from URL Filtering and CAC rules. See [`../shared/source-ip-anchoring.md`](../shared/source-ip-anchoring.md) for why only SIPA-enabled segments appear here.
-- **Platforms criterion is SSL-inspection-specific.** The SDK exposes a `platforms` list filtering by client OS (`zscaler/zia/ssl_inspection_rules.py:159-160`). Enum values: `SCAN_IOS`, `SCAN_ANDROID`, `SCAN_MACOS`, `SCAN_WINDOWS`, `SCAN_LINUX`, `NO_CLIENT_CONNECTOR`. The console surfaces this as "Device Groups" but at the API level, SSL rules distinguish OS-level scans independently of the generic Device Groups criterion. `NO_CLIENT_CONNECTOR` specifically matches traffic that isn't forwarded via ZCC — useful for "always inspect on-CC devices; exempt non-CC" patterns.
-- **`road_warrior_for_kerberos` applies to remote PAC + Kerberos.** When `true` on an SSL rule, the rule applies to remote PAC users authenticating via Kerberos. Not available on URL Filtering or CAC rules — SSL-inspection-specific. (`zscaler/zia/models/ssl_inspection_rules.py:70`.)
+- **ZPA Application Segment criterion only shows Source-IP-Anchor-enabled segments.** Rule list is filtered to segments with the Source IP Anchor option enabled. Up to 255. At the API level, this is the `zpa_app_segments` list (`vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py:114`) — a cross-product reference from ZIA into ZPA. Absent from URL Filtering and CAC rules. See [`../shared/source-ip-anchoring.md`](../shared/source-ip-anchoring.md) for why only SIPA-enabled segments appear here.
+- **Platforms criterion is SSL-inspection-specific.** The SDK exposes a `platforms` list filtering by client OS (`vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py:70`; Go model `vendor/zscaler-sdk-go/zscaler/zia/services/sslinspection/sslinspection.go:59` — both declare it as a plain string list with no enum; the comment reads "Zscaler Client Connector device platforms"). The accepted enum values are not enforced in the service-layer SDK; they come from the TF provider validator (`vendor/terraform-provider-zia/zia/validator.go:2285`, `supportedSSLInspectionPlatforms`) and TF docs (`vendor/terraform-provider-zia/docs/resources/zia_ssl_inspection_rules.md:256`): `SCAN_IOS`, `SCAN_ANDROID`, `SCAN_MACOS`, `SCAN_WINDOWS`, `NO_CLIENT_CONNECTOR`, `SCAN_LINUX`. `NO_CLIENT_CONNECTOR` specifically matches traffic that isn't forwarded via ZCC — useful for "always inspect on-CC devices; exempt non-CC" patterns. (The console label for this criterion is not established by the captured help docs — the SSL/TLS rule criteria tree lists "Device Groups" and "Devices" as separate criteria; see Open questions.)
+- **`road_warrior_for_kerberos` applies to remote PAC + Kerberos.** When `true` on an SSL rule, the rule applies to remote PAC users authenticating via Kerberos. Not available on URL Filtering or CAC rules — SSL-inspection-specific. (`vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py:71`; Go model `vendor/zscaler-sdk-go/zscaler/zia/services/sslinspection/sslinspection.go:62`.)
 
 ### Action structure at the API level
 
@@ -153,19 +157,19 @@ action: {
 }
 ```
 
-Three top-level action types — `DECRYPT`, `DO_NOT_DECRYPT`, and `BLOCK`. The Go SDK's `validateSSLInspectionRule()` (`vendor/zscaler-sdk-go/zscaler/zia/services/sslinspection/sslinspection.go:241-300`) enforces per-type constraints:
+Three top-level action types — `DECRYPT`, `DO_NOT_DECRYPT`, and `BLOCK`. The Go SDK's `validateSSLInspectionRule()` (`vendor/zscaler-sdk-go/zscaler/zia/services/sslinspection/sslinspection.go:234`) enforces per-type constraints:
 
 - **`DECRYPT`** — takes a `decryptSubActions` block. Full inspection path.
 - **`DO_NOT_DECRYPT`** — takes a `doNotDecryptSubActions` block. The "Evaluate Other Policies" vs "Bypass Other Policies" distinction lives in sub-fields.
-- **`BLOCK`** — no sub-actions allowed. `showEUNATP` (end-user notification) must be false. `sslInterceptionCert` is conditional on other criteria; attempting to attach it unnecessarily fails validation.
+- **`BLOCK`** — no sub-actions allowed: setting either `decryptSubActions` or `doNotDecryptSubActions` is rejected (`sslinspection.go:286`). `showEUNATP` (ATP end-user notification) must be false (`sslinspection.go:297`). `sslInterceptionCert` is conditional — when `overrideDefaultCertificate` is false, attaching `sslInterceptionCert` fails validation (`sslinspection.go:292`).
 
-**`decryptSubActions`** contains (per Go SDK `sslinspection.go:140-175` and `zscaler/zia/models/ssl_inspection_rules.py:395-399, 454-474`) — **camelCase on the wire**:
+**`decryptSubActions`** contains (per Go SDK `vendor/zscaler-sdk-go/zscaler/zia/services/sslinspection/sslinspection.go:145-153` and Python `vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py:426-501`) — **camelCase on the wire**:
 
 - `minClientTLSVersion` — minimum TLS version enforced between client and the Public Service Edge.
 - `minServerTLSVersion` — minimum TLS version enforced between the Public Service Edge and the origin server. **These are independent** — you can require TLS 1.2 client-side but accept TLS 1.0 server-side if forced by an upstream partner.
 - `http2Enabled` — enable HTTP/2 inspection.
 - `blockUndecrypt` — block traffic that cannot be decrypted.
-- `serverCertificates` — action to take on untrusted server certs (`ALLOW` / `BLOCK` / `PASSTHROUGH`).
+- `serverCertificates` — action to take on untrusted server certs. Valid wire tokens are `ALLOW` / `BLOCK` / `PASS_THRU` (Go SDK enum comment, `vendor/zscaler-sdk-go/zscaler/zia/services/sslinspection/sslinspection.go:138`). The console label is "Pass Through" but the wire/SDK token is `PASS_THRU` — the same console-vs-wire split flagged for camelCase below. A `jq`/automation reader testing for `PASSTHROUGH` will never match.
 - `ocspCheck` — enable OCSP revocation check.
 - `blockSslTrafficWithNoSniEnabled` — block handshakes that don't include an SNI in the Client Hello.
 
@@ -178,13 +182,19 @@ Three top-level action types — `DECRYPT`, `DO_NOT_DECRYPT`, and `BLOCK`. The G
 
 **Type-mismatch validation.** Sending `decryptSubActions` when `type=DO_NOT_DECRYPT` (or vice versa) is validated on the Go SDK side — the wrong sub-object is rejected with an explicit error. Python SDK's kwargs pattern may pass it silently to the wire; behavior there is still unverified. When debugging "why isn't my TLS floor enforced?", check the `type` first, then confirm the sub-object matches.
 
+**Required-field and mutual-exclusion rules (Go SDK validator, `sslinspection.go:234-303`).** These are SDK-side, client-validated constraints (divergence class: SDK-validates-client-side) and explain otherwise-cryptic create/update rejections:
+
+- **`DECRYPT` requires three fields all set** — `serverCertificates`, `minClientTLSVersion`, and `minServerTLSVersion` must all be non-empty, or the rule is rejected (`sslinspection.go:248-253`). A DECRYPT rule missing any one of them fails before it reaches the wire.
+- **`DECRYPT` forbids both EUN flags** — the validator rejects the rule if *either* `showEUN` *or* `showEUNATP` is set (`sslinspection.go:259-261`). (The doc previously stated only "showEUN must be false"; both are forbidden.)
+- **`DO_NOT_DECRYPT` makes `bypassOtherPolicies` mutually exclusive with `serverCertificates` + `minTLSVersion`** (`sslinspection.go:271-282`). When `bypassOtherPolicies=true`, **both** `serverCertificates` and `minTLSVersion` must be EMPTY; when `bypassOtherPolicies=false`, **both** must be SET. This is the likeliest footgun: a "Bypass Other Policies" rule that also carries a TLS floor or a server-cert action is rejected, and an "Evaluate Other Policies" rule (bypass=false) that omits either is also rejected.
+
 ### Default rule and predefined markers
 
-Both `default_rule` (bool) and `predefined` (bool) are first-class SSL-rule fields. Built-in rules (Zscaler Recommended Exemptions, Microsoft 365 Click-to-Run, IoT Classifications) carry `predefined=true`; the terminal Inspect-All rule carries `default_rule=true`. Both are server-set and **echoed back on PUT** — don't strip them when updating rules programmatically. (`zscaler/zia/models/ssl_inspection_rules.py:123-125,208`.)
+Both `default_rule` (bool) and `predefined` (bool) are first-class SSL-rule fields. Built-in rules (Zscaler Recommended Exemptions, Microsoft 365 Click-to-Run, IoT Classifications) carry `predefined=true`; the terminal Inspect-All rule carries `default_rule=true`. Both are server-set and **echoed back on PUT** — don't strip them when updating rules programmatically. (`vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py:124,126`; Go model `vendor/zscaler-sdk-go/zscaler/zia/services/sslinspection/sslinspection.go:113,116`.)
 
-**`accessControl` field** is read-only on predefined rules (`zscaler/zia/models/ssl_inspection_rules.py:51`; called out in TF provider CLAUDE.md as a strip-on-reorder field). It surfaces system-managed access permissions and should be treated as opaque on PUT — strip from update payloads when reordering predefined rules to avoid validation rejection.
+**`accessControl` field** is read-only on predefined rules (`vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py:52`; Go model `vendor/zscaler-sdk-go/zscaler/zia/services/sslinspection/sslinspection.go:35`; called out in TF provider CLAUDE.md as a strip-on-reorder field). It surfaces system-managed access permissions and should be treated as opaque on PUT — strip from update payloads when reordering predefined rules to avoid validation rejection.
 
-**Wire-casing ambiguity on `showEUN` / `showEUNATP`** — the Python SDK's `Action.request_format()` emits these uppercase, but the init code accepts mixed-case aliases (`show_eun`, `showEun`, `showEUN`, `showEunatp`). This suggests the API may **return** `showEunatp` on reads and **expect** `showEUNATP` on writes — a read/write asymmetry similar to the `tz` field in locations. Not currently confirmed against a live API. Use uppercase on writes; tolerate mixed-case on reads.
+**Wire-casing ambiguity on `showEUN` / `showEUNATP`** — the Python SDK's `Action.request_format()` emits these uppercase (`vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py:315-316`), but the init code accepts mixed-case aliases (`show_eun` / `showEun` / `showEUN` at line 240; `show_eun_atp` / `showEUNATP` at lines 254-257). This suggests the API may **return** mixed-case on reads and **expect** `showEUNATP` on writes — a read/write asymmetry similar to the `tz` field in locations. Not currently confirmed against a live API. Use uppercase on writes; tolerate mixed-case on reads.
 
 ## Trust mechanics — what Zscaler presents to clients
 
@@ -312,9 +322,7 @@ If a specific S3 bucket / Blob container / CloudFront distribution must be bypas
 
 Source: `vendor/zscaler-help/Understanding_Policy_Enforcement.txt`; `vendor/zscaler-help/configuring-ssl-tls-inspection-policy.md`; `vendor/zscaler-help/ZIA_SSL_Inspection_Leading_Practices_Guide.txt`; `vendor/zscaler-help/Best_Practices_for_Testing_and_Rolling_Out_SSL_TLS_Inspection.txt`.
 
-Note: This checklist is derived from the cited SSL policy guides.
-
-Distilled from the MCP server's `commands/audit-ssl.md` and `skills/zia/audit-ssl-inspection-bypass/` reasoning. Use this when classifying a tenant's bypass rules by risk.
+Note: This checklist is derived from the cited SSL policy guides. Use it when classifying a tenant's bypass rules by risk.
 
 | Risk | Indicators |
 |---|---|
@@ -347,10 +355,10 @@ Source: `vendor/zscaler-help/configuring-ssl-tls-inspection-policy.md`; `vendor/
 
 ## Limits
 
-Source: `vendor/zscaler-help/configuring-ssl-tls-inspection-policy.md`.
+Source: `vendor/zscaler-help/ranges-limitations-zia.md`; `vendor/zscaler-help/configuring-ssl-tls-inspection-policy.md`.
 
-- **255 SSL Inspection rules total** = 245 custom + 10 predefined. Tighter than DLP (1,024) and several other policy types; large enterprises with hundreds of per-application exemption rules hit this cap and need to consolidate via destination groups rather than file a support ticket. The cap is NOT raisable.
-- **Rule name max length: 31 characters.** Lower than most other ZIA policies (which allow 128+). Automation scripts that generate descriptive rule names from app metadata will silently truncate — names get rejected at rule-save time.
+- **255 SSL Inspection rules total** = 245 custom + 10 predefined (`vendor/zscaler-help/ranges-limitations-zia.md:190`). Tighter than the 1,024 cap on "All Other Policy Rules (DLP, IPS, etc.)" (`ranges-limitations-zia.md:191`); large enterprises with hundreds of per-application exemption rules hit this cap and need to consolidate via destination groups. Notably, the same table annotates the 1,024 cap with "→ 2,048 via support" but lists **no support raise-path for the SSL row** — so a higher ceiling is not documented (unlike DLP). See Open questions for whether the SSL cap is genuinely fixed.
+- **Rule name max length: 31 characters** (`vendor/zscaler-help/configuring-ssl-tls-inspection-policy.md:27`). Lower than most other ZIA policies (which allow 128+). Automation scripts that generate descriptive rule names from app metadata will silently truncate — names get rejected at rule-save time.
 
 ## Worked example (covers eval Q4)
 
@@ -389,6 +397,8 @@ The "before or after" question in Q4 resolves to: **URL Filtering evaluates twic
 
 ## Open questions
 
+- **Is the 255 SSL Inspection rule cap raisable?** The ranges-and-limitations capture (`vendor/zscaler-help/ranges-limitations-zia.md:190`) lists "255 rules (245 custom + 10 predefined)" with no raise annotation, whereas the adjacent 1,024 "All Other Policy Rules" row is explicitly annotated "→ 2,048 via support" (`:191`). Absence of an annotation is not proof the SSL cap is fixed. The doc previously asserted "the cap is NOT raisable" without a source — that assertion is unverified. Needs confirmation from a Zscaler limits source or Support before re-stating as fact. (Tracked as `zia-66` in [`../_meta/clarifications.md`](../_meta/clarifications.md#zia-66-whether-the-255-ssl-inspection-rule-cap-is-raisable).)
+- **What does the console call the SSL-rule `platforms` (OS-scan) criterion?** The captured help docs (`vendor/zscaler-help/configuring-ssl-tls-inspection-policy.md:19`, `vendor/zscaler-help/About_SSL_TLS_Inspection_Policy.txt:94`) list "Device Groups" and "Devices" as their own separate criteria and do not name an OS/platform criterion. The `platforms` field maps to none of them by name, and no captured source states the console label for it. The doc previously asserted the console surfaces `platforms` as "Device Groups" without a source — unverified; needs confirmation from a console-facing help page.
 - Transparent vs explicit forwarding edge cases when a user mixes modes — [clarification `zia-11`](../_meta/clarifications.md#zia-11-transparent-vs-explicit-forwarding-mixed-mode)
 - Exact behavior of SSL decision on the URL filtering default rule — if SSL says "Do Not Inspect + Evaluate Other Policies" and URL filtering has no matching rule, does the default URL-filtering action still fire? — [clarification `zia-12`](../_meta/clarifications.md#zia-12-ssl-bypass-interaction-with-url-filtering-default-rule) (partially resolved by Policy Enforcement doc; edge case still open)
 

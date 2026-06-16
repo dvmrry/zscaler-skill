@@ -3,7 +3,7 @@ product: zia
 topic: "zia-api-casb"
 title: "ZIA API CASB and SaaS Security — out-of-band scan + Insights logs"
 content-type: reference
-last-verified: "2026-04-27"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: doc
 sources:
@@ -173,23 +173,35 @@ Key rule fields (see full schema in `CasbDLPRules` struct in `casb_dlp_rules.go`
 | `action` | string | Remediation action (see action table below) |
 | `severity` | string | `RULE_SEVERITY_HIGH`, `RULE_SEVERITY_MEDIUM`, `RULE_SEVERITY_LOW`, `RULE_SEVERITY_INFO` |
 | `withoutContentInspection` | bool | If true, content matching is skipped (metadata-only match) |
+| `accessControl` | string | Admin-scope access-control level on the rule object |
 | `collaborationScope` | []string | Sharing scope criteria — see values below |
 | `contentLocation` | string | For collaboration apps: channel type (`CONTENT_LOCATION_PRIVATE_CHANNEL`, etc.) |
 | `components` | []string | Which parts of the object to inspect (see values below) |
 | `fileTypes` | []string | File type categories to include; empty = all types |
 | `recipient` | string | Email recipient direction: `EMAIL_RECIPIENT_INTERNAL` or `EMAIL_RECIPIENT_EXTERNAL` |
+| `numberOfInternalCollaborators` | string | Selects the number of internal collaborators for files shared with specific collaborators or discoverable within the organization; value is a named count-range enum (`CASB_FILE_TYPE_COLLAB_COUNT_RANGE_1_TO_10`, `..._11_TO_100`, `..._101_TO_1000`, `CASB_FILE_TYPE_COLLAB_RANGE_1001_PLUS`) |
+| `numberOfExternalCollaborators` | string | Selects the number of external collaborators for files shared with specific collaborators or discoverable within the organization; same count-range enum as `numberOfInternalCollaborators` |
 | `quarantineLocation` | string | Quarantine folder name/path within the SaaS application |
 | `externalAuditorEmail` | string | Sends DLP email alerts to this address |
 | `bucketOwner` | string | User whose S3/GCP/Azure buckets are in scope |
 | `domains` | []string | External organization domains (for shared-channel content location) |
+| `deviceTrustLevels` | []string | Device-posture trust-level criteria (device-posture scoping) |
+| `watermarkDeleteOldVersion` | bool | Specifies whether to delete an old version of the watermarked file |
+| `includeCriteriaDomainProfile` | bool | Toggle: apply `criteriaDomainProfiles` as match criteria |
+| `includeEmailRecipientProfile` | bool | Toggle: apply `emailRecipientProfiles` as match criteria |
+| `includeEntityGroups` | bool | Toggle: apply `entityGroups` as match criteria |
 | `cloudAppTenants` | []IDNameExtensions | Tenant IDs this rule applies to |
 | `dlpEngines` | []IDNameExtensions | DLP engine references (same pool as inline DLP) |
 | `objectTypes` | []IDNameExtensions | Object type IDs within the SaaS platform |
 | `buckets` | []IDNameExtensions | Storage bucket IDs for cloud storage rules |
+| `labels` | []IDNameExtensions | Rule label references |
+| `devices` | []IDNameExtensions | Device IDs in scope (device-posture scoping) |
+| `deviceGroups` | []IDNameExtensions | Device-group IDs in scope (device-posture scoping) |
 | `users` / `groups` / `departments` | []IDNameExtensions | User/group/department scope |
 | `includedDomainProfiles` / `excludedDomainProfiles` / `criteriaDomainProfiles` | []IDNameExtensions | Domain profile criteria |
 | `emailRecipientProfiles` | []IDNameExtensions | Email recipient profile criteria |
 | `entityGroups` | []IDNameExtensions | Entity group criteria |
+| `auditor` | IDCustom | Auditor reference (`{id, name}`) — distinct from `auditorNotification` below |
 | `zscalerIncidentReceiver` | IDCustom | Incident receiver for DLP alerts |
 | `auditorNotification` | IDCustom | Admin notification template |
 | `casbEmailLabel` | IDCustom | Email label to apply (email app rules) |
@@ -261,9 +273,12 @@ Rule types use the `OFLCASB_AVP_*` prefix (the same category list as DLP rules).
 | `order` | int | Execution order |
 | `action` | string | Malware action (see table below) |
 | `state` | string | `ENABLED` or `DISABLED` |
+| `accessControl` | string | Admin-scope access-control level on the rule object |
 | `quarantineLocation` | string | Quarantine destination within the SaaS app |
 | `scanInboundEmailLink` | string | `SCAN_EMAIL_LINK_ENABLE` or `SCAN_EMAIL_LINK_DISABLE` |
 | `cloudAppTenants` | []IDNameExtensions | Tenant scope |
+| `cloudAppTenantIds` | []IDNameExtensions | Tenant-ID scope — distinct field from `cloudAppTenants` |
+| `cloudApplicationTenant` | []CasbTenants | Full CASB-tenant records in scope (`CasbTenants` shape: `tenantId`, `tenantName`, `saasApplication`, etc.) |
 | `buckets` | []IDNameExtensions | Storage bucket scope |
 | `labels` | []IDNameExtensions | Rule labels |
 | `casbEmailLabel` | IDCustom | Email label for email-type rules |

@@ -4,6 +4,62 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.12.8](https://github.com/dvmrry/zscaler-skill/compare/v0.12.7...v0.12.8) (2026-06-16)
+
+
+### Documentation
+
+* **zia:** refresh + enhance against current vendor source (DAV-19) ([#127](https://github.com/dvmrry/zscaler-skill/issues/127)) ([7ceee70](https://github.com/dvmrry/zscaler-skill/commit/7ceee701f6b91268fcd5dfba44117ab3bec2d98e))
+
+## [0.12.7](https://github.com/dvmrry/zscaler-skill/compare/v0.12.6...v0.12.7) (2026-06-16)
+
+
+### Documentation
+
+* **zpa:** refresh + enhance against current vendor source (DAV-19) ([#128](https://github.com/dvmrry/zscaler-skill/issues/128)) ([e496da9](https://github.com/dvmrry/zscaler-skill/commit/e496da9c54c88337a5fb4fe9210dd932d11dad9b))
+
+## [0.12.6](https://github.com/dvmrry/zscaler-skill/compare/v0.12.5...v0.12.6) (2026-06-16)
+
+
+### Documentation
+
+* **cloud-connector:** refresh + enhance against current vendor source (DAV-19) ([#130](https://github.com/dvmrry/zscaler-skill/issues/130)) ([16e737e](https://github.com/dvmrry/zscaler-skill/commit/16e737e1397fbf31bc055f6f77065971b17d76be))
+
+## [0.12.5](https://github.com/dvmrry/zscaler-skill/compare/v0.12.4...v0.12.5) (2026-06-16)
+
+
+### Documentation
+
+* **zcc:** refresh + enhance against current vendor source (DAV-19) ([#129](https://github.com/dvmrry/zscaler-skill/issues/129)) ([7c489b9](https://github.com/dvmrry/zscaler-skill/commit/7c489b929d5b45f27174e4dabcff3d7f028b3c89))
+
+## [0.12.4](https://github.com/dvmrry/zscaler-skill/compare/v0.12.3...v0.12.4) (2026-06-16)
+
+
+### Documentation
+
+* **zdx:** refresh + enhance against current vendor source (DAV-19) ([#132](https://github.com/dvmrry/zscaler-skill/issues/132)) ([ec846cc](https://github.com/dvmrry/zscaler-skill/commit/ec846cceef400b3909c16080086002d84a57fc5b))
+
+## [0.12.3](https://github.com/dvmrry/zscaler-skill/compare/v0.12.2...v0.12.3) (2026-06-16)
+
+
+### Documentation
+
+* **zidentity:** refresh + enhance against current vendor source (DAV-19) ([#126](https://github.com/dvmrry/zscaler-skill/issues/126)) ([1f3fb18](https://github.com/dvmrry/zscaler-skill/commit/1f3fb187769eb13a92460b773574aee554cbbb07))
+
+## [0.12.2](https://github.com/dvmrry/zscaler-skill/compare/v0.12.1...v0.12.2) (2026-06-16)
+
+
+### Bug Fixes
+
+* **hygiene:** unquoted-source-path lint no longer flags backticked nested /scripts/ paths ([#133](https://github.com/dvmrry/zscaler-skill/issues/133)) ([ef23dfb](https://github.com/dvmrry/zscaler-skill/commit/ef23dfbef1baa91e157de21a8ce58b43d7d90892))
+
+## [0.12.1](https://github.com/dvmrry/zscaler-skill/compare/v0.12.0...v0.12.1) (2026-06-15)
+
+
+### Documentation
+
+* **references:** independent vendor-MCP scrape (EASM, ZMS API, ZIA, ZDX, ZCC, ZPA) ([#123](https://github.com/dvmrry/zscaler-skill/issues/123)) ([3aad598](https://github.com/dvmrry/zscaler-skill/commit/3aad598ad676ebbcc73569bf976d0f1e2c4d61d9))
+
 ## [0.12.0](https://github.com/dvmrry/zscaler-skill/compare/v0.11.1...v0.12.0) (2026-06-14)
 
 

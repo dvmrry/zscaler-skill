@@ -3,7 +3,7 @@ product: cloud-connector
 topic: "cloud-connector-overview"
 title: "Cloud Connector overview — architecture, groups, HA, data plane"
 content-type: reasoning
-last-verified: "2026-04-24"
+last-verified: "2026-06-15"
 confidence: high
 source-tier: doc
 sources:
@@ -30,7 +30,7 @@ A Cloud Connector is a **virtual machine running inside the customer's cloud acc
 - **Cloud Connectors scale horizontally and are all active simultaneously.** No active/passive — a cloud-provider native load balancer distributes traffic across them.
 - **Outbound-only model.** Cloud Connectors initiate connections to the ZTE; they don't accept inbound connections from the internet. Same pattern as ZPA App Connectors.
 - **HA uses primary/secondary/tertiary gateway fallback.** If the primary gateway is unreachable, Cloud Connector fails over to secondary in ~30s, and can try a tertiary if both primary and secondary fail.
-- **Default fail-close, configurable fail-open.** When all gateways are unreachable, default behavior drops internet-bound traffic (fail-close); tenants can flip to fail-open (allow direct internet egress, skipping Zscaler) at the cost of skipping inspection.
+- **Default fail-close, configurable fail-open.** When no Cloud Connector in the group can reach any gateway, default behavior drops internet-bound workload traffic (fail-close); tenants can flip to fail-open so those workloads keep reaching the internet (`vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md:51`). What the egress path looks like under fail-open isn't cleanly stated by the source — see Open questions.
 
 ## Mechanics
 
@@ -103,7 +103,7 @@ Zscaler integrates with the native load balancing services of each cloud provide
 Health check mechanism:
 
 - Load balancer issues HTTP probes to each Cloud Connector VM on a configured health port.
-- Cloud Connector listens at path `/cchealth` on that port.
+- Cloud Connector listens on the configured port for the health-probe path the source captures as `?cchealth` (`vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md:30`). The leading `?` is almost certainly a text-extraction artifact of the JS-rendered page (the live path is conventionally `/cchealth`), but the captured material is what's quoted here.
 - Healthy response: HTTP **200**.
 - Unhealthy response: HTTP **503** (or no response = timeout).
 
@@ -127,18 +127,18 @@ When the primary gateway becomes healthy again, **new sessions** route back to p
 
 Source: `vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md`.
 
-**Default**: **fail-close**. If all configured gateways are unreachable, internet-bound workload traffic is **dropped**. Applications fail until ZTE connectivity is restored.
+**Default**: **fail-close**. The source: "The default gateway configuration will fail-close, meaning that internet-bound traffic from workloads is dropped if none of the Cloud Connectors in the same group are able to establish connectivity to any of the Internet & SaaS Service Edges" (`vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md:51`). Applications fail until ZTE connectivity is restored.
 
-**Alternative**: fail-open. Flip a config to allow internet-bound traffic to egress directly (skipping Zscaler inspection) when all gateways are down. Trade-off: availability over security.
+**Alternative**: fail-open. The source: "Customers can change this configuration to fail-open, allowing workloads that are accessing the internet to continue doing so. The fail-open option means the egressing traffic is flowing through Zscaler for inspection and policy control" (`vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md:51`).
 
 **This is the inverse of typical enterprise assumptions** ("fail-open means break access; fail-close means allow"). Read carefully:
 
-| Mode | If gateways unreachable |
+| Mode | If no Cloud Connector in the group can reach a gateway |
 |---|---|
-| fail-close (default) | **Traffic dropped.** Workload can't reach internet. |
-| fail-open | **Traffic egresses direct.** Workload reaches internet bypassing Zscaler. |
+| fail-close (default) | **Traffic dropped.** Workload can't reach internet (`vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md:51`). |
+| fail-open | **Workloads keep reaching the internet.** The source says egress still flows "through Zscaler for inspection and policy control" — but that wording sits oddly against "if none of the Cloud Connectors can establish connectivity," so the exact egress path is an open question (`vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md:51`). |
 
-Operators configuring this should be explicit about which semantic they want.
+Operators configuring this should be explicit about which semantic they want, and should not assume fail-open means a direct, un-inspected internet path — the captured help text does not say that.
 
 ### ZPA enrollment (workload-to-workload)
 
@@ -178,7 +178,9 @@ Both are outbound-only Zscaler VMs. Don't confuse them.
 | Authentication to ZTE | Via cloud provisioning template + provisioning URL | Via provisioning key + TLS client cert |
 | Grouping model | Cloud Connector Group | App Connector Group |
 | Scaling | Autoscaling (ASG/VMSS/MIG) | Static N+1 redundancy (all active) |
-| SDK module | `ztw` (Go SDK only) | `zpa.app_connector_groups` (both SDKs) |
+| SDK module | `ztw` (Python: `zscaler/ztw/` / Go: `zscaler/ztw/services/`) | App Connector groups (Python: `zscaler/zpa/app_connector_groups.py` / Go: `zscaler/zpa/services/appconnectorgroup/` — note camelCase, no underscores) |
+
+SDK module paths verified against source: ZTW ships in both SDKs — Python package `vendor/zscaler-sdk-python/zscaler/ztw/account_details.py:1` (under `zscaler/ztw/`) and Go services `vendor/zscaler-sdk-go/zscaler/ztw/services/service.go:1` (under `zscaler/ztw/services/`). App Connector groups likewise span both, but the module *naming* differs: Python uses snake_case `vendor/zscaler-sdk-python/zscaler/zpa/app_connector_groups.py:1`, while Go uses camelCase with no underscores at `vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group.go:1`. Don't assume the Python module string maps to the Go path.
 
 They **appear in the same traffic flow for workload-to-internal-app access**: Cloud Connector on the workload side, App Connector on the app side, ZPA Service Edge in the middle.
 
@@ -196,9 +198,10 @@ Source: `vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md
 
 ## Open questions
 
-- **Exact ZTG vs Cloud Connector group type semantics** — not documented in captured articles. Likely a naming evolution; lab-test or documentation search needed.
-- **Whether Cloud Connector's `/cchealth` probe port is configurable** — the help article implies "configured during deployment" but doesn't specify range.
-- **Fail-open + fail-close toggle location** — help article mentions "customers can change this configuration" but doesn't name the admin-portal path.
+- **Exact ZTG vs Cloud Connector group type semantics** — not documented in captured articles. Likely a naming evolution; lab-test or documentation search needed. See [clarification `cloud-connector-07`](../_meta/clarifications.md#cloud-connector-07-ztg-vs-cloud-connector-group-type-semantics).
+- **Whether Cloud Connector's `?cchealth` probe port is configurable** — the help article implies "configured during deployment" but doesn't specify range (`vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md:30`). Filed with the other HA mechanics as [clarification `cloud-connector-08`](../_meta/clarifications.md#cloud-connector-08-ha-mechanics-cchealth-port-fail-openclose-toggle-fail-open-egress-path).
+- **Fail-open + fail-close toggle location** — help article mentions "customers can change this configuration" but doesn't name the admin-portal path (`vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md:51`). See [clarification `cloud-connector-08`](../_meta/clarifications.md#cloud-connector-08-ha-mechanics-cchealth-port-fail-openclose-toggle-fail-open-egress-path).
+- **What the fail-open egress path actually is** — the source says fail-open lets "workloads that are accessing the internet to continue doing so" and that "the egressing traffic is flowing through Zscaler for inspection and policy control" (`vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md:51`). These two clauses are hard to reconcile: if no Cloud Connector in the group can reach a Service Edge (the precondition for fail-open to matter), it's unclear how that same traffic would still flow "through Zscaler for inspection." Whether fail-open routes direct-to-internet (no inspection) or via some retained/degraded Zscaler path is not resolved by the captured text; needs a lab test or a clearer source. Do not document either reading as fact. See [clarification `cloud-connector-08`](../_meta/clarifications.md#cloud-connector-08-ha-mechanics-cchealth-port-fail-openclose-toggle-fail-open-egress-path).
 
 ## Cross-links
 

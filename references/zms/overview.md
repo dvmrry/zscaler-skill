@@ -3,7 +3,7 @@ product: zms
 topic: "zms-overview"
 title: "ZMS — Zscaler Microsegmentation (workload east-west)"
 content-type: reasoning
-last-verified: "2026-04-25"
+last-verified: "2026-06-14"
 confidence: medium
 source-tier: doc
 sources:
@@ -20,7 +20,7 @@ author-status: draft
 
 **East-west / workload-to-workload policy** for servers, containers, and cloud workloads inside a VPC or across multi-cloud. Mental model: **ZPA segments user→app traffic; ZMS segments app→app traffic.** Both products live under the help-portal `/zpa/` namespace because ZMS is positioned as a ZPA add-on, but the enforcement model is fundamentally different.
 
-**Confidence is medium** — all coverage from marketing pages + one help-portal article. **No SDK module** (`zms` does not exist in Python or Go SDK as of the current pinned versions); configuration is portal-only. No Terraform provider resources for ZMS surfaced in the vendored providers.
+**Confidence is medium** — all coverage from marketing pages + one help-portal article. **The Python SDK ships a READ-ONLY `zscaler.zms` module** (`client.zms.*` — GraphQL queries only, no mutations; see [`./api.md`](./api.md)). There is **no Go SDK module** (`vendor/zscaler-sdk-go/zscaler/` has no `zms` directory) and **no Terraform provider** resources for ZMS surfaced in the vendored providers. **Write configuration is portal-only** — the SDK reads ZMS state but cannot change it.
 
 ## Why ZMS exists alongside ZPA
 
@@ -104,7 +104,7 @@ The captured material does not confirm this interpretation. Treat the second mod
 
 Source: `vendor/zscaler-help/what-is-microsegmentation-zpa.md`; `vendor/zscaler-help/microsegmentation-marketing.md`; `vendor/zscaler-help/zero-trust-microsegmentation-marketing.md`.
 
-1. **ZMS is not in the SDK.** Operators looking for `client.zms.*` won't find it; configuration is portal-only. This is the same pattern as AI Guard.
+1. **ZMS is read-only in the SDK.** Operators looking for `client.zms.*` **will** find it — but only for read-only GraphQL queries (see [`./api.md`](./api.md)); there are no mutations. Only **write** configuration is portal-only.
 2. **The 14-day telemetry window silently drops infrequent flows.** Don't mass-enforce policies generated from observation alone if your environment has known long-period workflows. Spot-check the recommendation against documented expected traffic patterns.
 3. **Agents enforce locally, not via tunnel.** A host that loses cloud connectivity continues to enforce its last-known policy via WFP / nftables — failure mode is fail-closed against unknown flows but allow-known. Different mental model from ZPA's App Connector dial-out (which fails closed entirely if Connectors lose cloud).
 4. **WFP / nftables = native OS firewall.** Conflicts with other firewall management tools (Windows Defender Firewall policies via GPO, host-based firewalls like Carbon Black, custom nftables rules) are real concerns. Captured docs don't cover conflict resolution; treat as unanswered.
@@ -131,7 +131,6 @@ Source: `vendor/zscaler-help/what-is-microsegmentation-zpa.md`; `vendor/zscaler-
 - **Container support** — agent-per-container vs host-agent-observing-containers?
 - **Cloud-native workload integration** — does ZMS hook into AWS Security Groups / Azure NSGs / GCP firewall rules, or does it pure-OS-level the enforcement and ignore cloud-native firewalls?
 - **Conflict resolution with other host firewalls** — what happens if Windows Defender Firewall via GPO and ZMS via WFP both have rules for the same flow?
-- **API surface** — captured docs don't reveal an API beyond "configure in admin portal." If ZPA admin portal hosts ZMS UI, is there a `client.zpa.*` extension we missed? (Spot-check of the Python SDK didn't find one.)
 - **Container orchestrator integration** — does ZMS integrate with Kubernetes admission control, service-mesh sidecars, or is it purely host-level?
 - **Observation-mode → enforce-mode transition** — what's the recommended cutover process? Captures don't cover this.
 - **Multi-cloud identity** — how does an AWS workload's identity (IAM role / instance profile) get represented in ZMS policy? Same for Azure / GCP.

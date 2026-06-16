@@ -3,7 +3,7 @@ product: zia
 topic: vse-clusters
 title: "ZIA Virtual Service Edge Clusters — HA grouping and traffic distribution for VSE VMs"
 content-type: reasoning
-last-verified: "2026-04-27"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: doc
 sources:
@@ -39,7 +39,7 @@ Source: `vendor/zscaler-help/about-virtual-service-edge-clusters-internet-saas.m
 
 Three reasons to cluster VSE instances rather than deploying standalone VMs: (Tier A — about-virtual-service-edge-clusters-internet-saas.md; about-virtual-service-edges-internet-saas.md)
 
-**N+1 redundancy.** A cluster of at least two VMs can absorb the loss of one member without a service interruption. The active load balancer detects the unhealthy VM and stops sending it traffic; surviving members absorb the load. A standalone VM has no failover partner.
+**N+1 redundancy.** A cluster of at least two VMs can absorb the loss of one member without a service interruption. The active load balancer is expected to detect an unhealthy VM and stop sending it traffic, with surviving members absorbing the load — but this per-VM health-monitoring behavior is not explicitly documented in the VSE cluster source; it is inferred from PSE cluster behavior (Tier B — by analogy with understanding-private-service-edge-internet-saas.md:33). A standalone VM has no failover partner.
 
 **Throughput aggregation.** Each VSE VM delivers up to 600 Mbps total throughput (on VMware ESXi with the optional SSL acceleration card). With up to 16 VMs in a cluster, aggregate throughput scales horizontally. A single-VM deployment is hard-capped at 600 Mbps; a cluster is not.
 
@@ -53,7 +53,9 @@ Source: `vendor/zscaler-help/about-virtual-service-edge-clusters-internet-saas.m
 
 **Maximum VMs per cluster:** 16. (Tier A — about-virtual-service-edge-clusters-internet-saas.md; confirmed in the sizing table in about-virtual-service-edges-internet-saas.md for ESXi and Hyper-V.)
 
-**Licensing:** each VSE VM in a cluster requires a separate VSE subscription. The cluster object itself does not consume a license; the VMs do. Budget N licenses for an N-VM cluster. (Tier A — about-virtual-service-edge-clusters-internet-saas.md)
+**Licensing:** each VSE VM in a cluster requires a separate VSE subscription. Budget N subscriptions for an N-VM cluster. (Tier A — about-virtual-service-edge-clusters-internet-saas.md:10)
+
+**Memory floor (cluster vs standalone):** joining a VM to a cluster raises its minimum memory from 32 GB (standalone) to 48 GB. On both VMware ESXi and Hyper-V the spec lists "Min memory (standalone) 32 GB" and "Min memory (cluster) 48 GB"; recommended memory is 48 GB regardless. Size cluster-member VMs for 48 GB RAM. (Tier A — about-virtual-service-edges-internet-saas.md:37-38)
 
 **Platform constraints on cluster size:**
 
@@ -67,14 +69,16 @@ Source: `vendor/zscaler-help/about-virtual-service-edge-clusters-internet-saas.m
 
 (Tier A — about-virtual-service-edges-internet-saas.md, sizing table.)
 
+> **Vendor source inconsistency on Hyper-V.** The source is self-contradictory about Hyper-V cluster support. The sizing table (about-virtual-service-edges-internet-saas.md:34) lists Hyper-V with "Max VMs per Cluster = 16," and the Clustering note (line 54) groups it with ESXi as having an "in-built load balancer for cluster mode." But the next line (line 55) lists Hyper-V alongside Azure/AWS/GCP under "native cluster mode not supported." This doc follows the sizing-table reading — Hyper-V supports native bundled-LB clustering — because two of the three vendor statements (table + line 54) agree on it and only the line-55 list dissents. The dissent is most likely a copy/paste slip in the vendor prose. Treat Hyper-V cluster support as confirmed-with-caveat and re-verify against Zscaler if a Hyper-V cluster deployment is planned.
+
 ## 4. Cluster vs standalone VSE
 
 Source: `vendor/zscaler-help/about-virtual-service-edge-clusters-internet-saas.md`.
 
 | Dimension | Standalone VSE | VSE Cluster (2–16 VMs) |
 |---|---|---|
-| Failover | None | Active-active; LB removes unhealthy member |
-| Throughput ceiling | 600 Mbps (1 VM) | Up to 9,600 Mbps (16 VMs × 600 Mbps) |
+| Failover | None | Active-active; LB removes unhealthy member (Tier B — inferred from PSE; not stated in VSE source) |
+| Throughput ceiling | 600 Mbps (1 VM) | 9,600 Mbps derived (16 × 600 Mbps; not a vendor-stated aggregate) |
 | Zscaler support posture | Evaluation / test only | Production — supported |
 | Policy object complexity | 1 VM = 1 object | N VMs behind 1 cluster object |
 | Load balancer | Not included | Bundled in each VM |
@@ -103,17 +107,17 @@ Source: `vendor/zscaler-help/about-virtual-service-edges-internet-saas.md`.
 
 On Azure, AWS, and GCP, the native VSE cluster mode (bundled LB + shared cluster VIP) is not supported. Horizontal scale and redundancy are achieved by deploying multiple VSE VMs behind a cloud-native load balancer (Azure Load Balancer, AWS ALB/NLB, GCP Load Balancing). The cluster construct as described in the on-premises model does not apply in these environments. (Tier A — about-virtual-service-edges-internet-saas.md)
 
-In cloud environments, customers configure the cloud LB to distribute traffic across the VSE VM instances. The Zscaler Admin Console cluster object may still be used to group the VMs, but the CARP/DSR/bundled-LB mechanics documented above are exclusive to ESXi and Hyper-V deployments.
+In cloud environments, customers configure the cloud LB to distribute traffic across the VSE VM instances. The CARP/DSR/bundled-LB mechanics documented above are exclusive to ESXi and Hyper-V deployments. Whether the Admin Console "VSE Cluster" object is still usable for grouping VMs in public-cloud deployments is not stated in the vendor sources — see Deferred item 6.
 
 ## 6. Health monitoring and auto-recovery
 
 Source: `vendor/zscaler-help/about-virtual-service-edge-clusters-internet-saas.md`; `vendor/zscaler-help/about-virtual-service-edges-internet-saas.md`; `vendor/zscaler-help/understanding-private-service-edge-internet-saas.md`.
 
-The active LB performs active health monitoring of the VSE instances in the cluster. An unhealthy VM is automatically removed from the LB pool. Traffic is redistributed to surviving healthy members. When the unhealthy VM recovers, the LB returns it to rotation. (Tier A — about-virtual-service-edge-clusters-internet-saas.md)
+The active LB receives ingress traffic through the cluster IP and directs it to the appropriate VSE instance; if the active LB fails, the passive LB takes over with no service disruption. (Tier A — about-virtual-service-edge-clusters-internet-saas.md) The VSE cluster source does not document the LB's health-monitoring or auto-removal behavior for unhealthy VSE instances. By analogy with the PSE cluster design, an unhealthy Service Edge is automatically removed from the LB pool via active health monitoring and traffic is redistributed to surviving members. (Tier B — by analogy with understanding-private-service-edge-internet-saas.md:33; not stated in the VSE source — see Deferred items.)
 
 The bundled LB's active-passive failover ensures that LB-layer failure is also handled without manual intervention: if the active LB fails, the passive takes over and traffic continues to flow. (Tier A — about-virtual-service-edge-clusters-internet-saas.md)
 
-No admin intervention is required for either VSE instance failure or LB active-passive failover.
+No admin intervention is required for LB active-passive failover (Tier A — sourced above). Auto-removal of an *unhealthy VSE instance* from service without admin intervention is **inferred** from PSE cluster behavior and is not explicitly documented for VSE clusters in the captured sources (Tier B).
 
 **Monitoring surface:** the Admin Console VSE Clusters page (Infrastructure > Internet & SaaS > Traffic Forwarding > Virtual Service Edges > Virtual Service Edge Clusters) displays cluster status, member VMs, cluster IP, and IPSec local termination status per cluster. (Tier A — about-virtual-service-edge-clusters-internet-saas.md)
 
@@ -149,7 +153,7 @@ Source: `vendor/zscaler-help/about-virtual-service-edges-internet-saas.md`; `ven
 
 **Per VM:** each VSE VM has its own management interface (SSH access, hypervisor console), its own service interfaces for user traffic, and — on ESXi/Hyper-V — its own LB interface. The VSE VM requires 3 virtual interfaces. (Tier A — about-virtual-service-edges-internet-saas.md)
 
-**Outbound connectivity:** each VSE VM must have outbound access to the Zscaler cloud for control-plane communication (CA for auth and policy, cloud routers + Nanolog for logging). The required IPs are published at `config.zscaler.com/<Zscaler Cloud Name>/zia-v-sedge`. The VM must also be able to reach hub IPs at `config.zscaler.com/<Zscaler Cloud Name>/hubs`. (Tier A — about-virtual-service-edges-internet-saas.md)
+**Outbound connectivity:** each VSE VM must have outbound access to the Zscaler cloud. The VSE source specifies this as the outbound connections published at `config.zscaler.com/<Zscaler Cloud Name>/zia-v-sedge`, plus access to/from the hub IPs at `config.zscaler.com/<Zscaler Cloud Name>/hubs`. (Tier A — about-virtual-service-edges-internet-saas.md:59-60) The specific cloud components this reaches (CA for auth and policy, cloud routers + Nanolog for logging) are documented for PSE rather than VSE. (Tier B — by analogy with understanding-private-service-edge-internet-saas.md:10,65; the VSE source does not enumerate them.)
 
 **1:1 NAT:** vendor docs for VSE do not document 1:1 static NAT support the same way the PSE docs do (PSE requires 1:1 NAT with the constraint that IPv6 is not supported in NAT mode). Whether VSE supports similar NAT topologies is not confirmed from available sources — see Deferred items.
 
@@ -157,7 +161,7 @@ Source: `vendor/zscaler-help/about-virtual-service-edges-internet-saas.md`; `ven
 
 Source: `vendor/zscaler-help/about-virtual-service-edges-internet-saas.md`.
 
-VSE policy and authentication follow the same model as Public Service Edges: admins define policies in the Zscaler Admin Console once; the policy applies regardless of whether a user connects to a VSE, a PSE, or a Public SE. Logs are compressed, tokenized, and transmitted from each VSE VM to the Zscaler cloud's Nanolog cluster for storage, analysis, and NSS export. (Tier A — about-virtual-service-edges-internet-saas.md)
+VSE policy and authentication follow the same model as Public Service Edges: admins define policies in the Zscaler Admin Console once; the policy applies regardless of whether a user connects to a VSE, a PSE, or a Public SE. Logs transmit to and are stored on the Zscaler cloud as the central repository for analytics. (Tier A — about-virtual-service-edges-internet-saas.md:79-81)
 
 Each VSE VM transmits its own logs to the cloud; the cluster does not aggregate logs internally before transmission. From the admin console analytics perspective, logs are associated with the tenant's cloud account and can be filtered by the location bound to the cluster. Whether individual log entries carry a VM-level identifier versus a cluster-level identifier is not explicitly documented — see Deferred items.
 
@@ -170,6 +174,8 @@ Source: `vendor/zscaler-help/about-virtual-service-edge-clusters-internet-saas.m
 **Creating a cluster:** the Admin Console VSE Clusters page (Infrastructure > Internet & SaaS > Traffic Forwarding > Virtual Service Edges > Virtual Service Edge Clusters) provides an Add action. A cluster is defined with a name, a cluster IP, and an initial membership of VSE VM instances. (Tier A — about-virtual-service-edge-clusters-internet-saas.md)
 
 **Adding VMs to an existing cluster:** VM instances appear in the "Virtual Service Edges" field of the cluster record; adding a new VSE VM to the field expands the cluster. The new VM must already be provisioned and registered with the Zscaler cloud before it can be added to a cluster.
+
+**Image requirement for new deployments:** a clean/new VSE deployment requires a VM image running Zscaler OS version 24. Provision cluster-member VMs from a v24 image before registering and adding them. (Tier A — about-virtual-service-edges-internet-saas.md:10)
 
 **Removing VMs:** reducing cluster membership by removing a VM from the cluster object redirects traffic away from that VM. Specific drain-before-removal behavior (connection graceful drain, quiesce window) is not documented in the vendor sources available — see Deferred items.
 
@@ -186,7 +192,7 @@ Source: `vendor/zscaler-help/about-virtual-service-edge-clusters-internet-saas.m
 | Load balancer | Bundled in each VSE VM (CARP active-passive) | Bundled in each PSE node (CARP active-passive) |
 | LB model | Active LB + passive standby per cluster | Active LB + passive standby per cluster |
 | SE instances | Active-active (up to 16) | Active-active (up to 10 for PSE 5 Dedicated LB) |
-| Max throughput | 600 Mbps per VM; 9,600 Mbps for 16-VM cluster | Up to ~24 Gbps (PSE 5 Dedicated LB design) |
+| Max throughput | 600 Mbps per VM (vendor-stated); 9,600 Mbps for a 16-VM cluster is derived (16 × 600 Mbps), not a vendor-published aggregate | Up to ~24 Gbps (PSE 5 Dedicated LB design) |
 | Cluster VIP | One cluster IP per cluster | One cluster VIP per cluster |
 | DSR | Yes | Yes |
 | Monitoring | Admin Console + customer hypervisor tooling | ZIA Admin Console + ZDX (PSE Health Dashboard requires ZDX subscription) |
@@ -210,7 +216,7 @@ The two constructs are not in competition; they apply to different deployment sc
 
 Source: `vendor/zscaler-help/about-virtual-service-edge-clusters-internet-saas.md`; `vendor/zscaler-help/about-virtual-service-edges-internet-saas.md`.
 
-**Public cloud (Azure, AWS, GCP): no native cluster mode.** The bundled LB and CARP-based cluster VIP mechanism are exclusive to VMware ESXi and Microsoft Hyper-V. On Azure, AWS, and GCP, the customer must use the cloud platform's native load balancing service to distribute traffic across multiple VSE VMs. The cluster construct in the Admin Console may still be used for grouping, but the on-premises LB mechanics do not apply. (Tier A — about-virtual-service-edges-internet-saas.md)
+**Public cloud (Azure, AWS, GCP): no native cluster mode.** The bundled LB and CARP-based cluster VIP mechanism are exclusive to VMware ESXi and Microsoft Hyper-V. On Azure, AWS, and GCP, the customer must use the cloud platform's native load balancing service to distribute traffic across multiple VSE VMs; the on-premises LB mechanics do not apply. (Tier A — about-virtual-service-edges-internet-saas.md:55) Whether the Admin Console cluster construct remains usable purely for grouping in these environments is not stated in the vendor sources — see Deferred item 6.
 
 **Source IP Anchoring (SIPA) is not supported with VSE.** This is a hard capability gap vs hardware PSE. Customers whose use case requires SIPA must use physical PSE hardware. (Tier A — about-virtual-service-edges-internet-saas.md)
 

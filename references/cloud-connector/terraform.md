@@ -3,7 +3,7 @@ product: cloud-connector
 topic: cc-terraform
 title: Cloud Connector Terraform provider
 content-type: reference
-last-verified: "2026-05-14"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: code
 sources:
@@ -21,7 +21,8 @@ author-status: draft
 ## Provider overview
 
 **Registry source**: `zscaler/ztc`  
-**Current version** (from README badge / index.md examples): `~> 0.1.9`
+**Current version**: `0.1.9` (`vendor/terraform-provider-ztc/ztc/common/version.go:3` sets `version = "0.1.9"`; `CHANGELOG.md:3` and `docs/guides/release-notes.md:19` both record `0.1.9 (May 13, 2026)` as the latest release). The `index.md` examples pin `version = "~> 0.1.6"` (`vendor/terraform-provider-ztc/docs/index.md:44,73`) and `~> 0.1.0` (`docs/index.md:162`), so published HCL may still constrain to earlier minors. Note: `vendor/terraform-provider-ztc/ztc/version.go:4` sets `ProviderVersion = "1.0.0"`, but that constant is a build-time placeholder ("set at build-time in the release process") that the release pipeline overwrites — it is not the released version; treat `common/version.go` / the CHANGELOG as authoritative.
+
 **Terraform minimum version**: 0.12.x
 
 The provider is named ZTC (Zero Trust Cloud) in Zscaler naming. It manages the Cloud & Branch Connector portal: traffic forwarding rules, DNS gateways, provisioning URLs, location templates, partner (AWS/Azure/GCP) integrations, and network policy objects.
@@ -84,7 +85,7 @@ provider "ztc" {
 
 ---
 
-## Resources (15 total)
+## Resources (16 total)
 
 ### Forwarding Gateways
 
@@ -100,8 +101,8 @@ Manages ZIA forwarding gateways and log/control (ECSELF) forwarding gateways. A 
 | `description` | String | Optional |
 | `type` | String | `ZIA` (traffic to ZIA) or `ECSELF` (log-and-control path) |
 | `fail_closed` | Bool | `true` = drop traffic when both proxies unreachable; `false` = allow |
-| `primary_type` | String | `AUTO`, `DC`, `MANUAL_OVERRIDE` |
-| `secondary_type` | String | Same values as `primary_type` |
+| `primary_type` | String | `NONE`, `AUTO`, `MANUAL_OVERRIDE`, `SUBCLOUD`, `VZEN`, `PZEN`, `DC` (TF schema `StringInSlice` at `vendor/terraform-provider-ztc/ztc/resource_ztc_forwarding_gateway.go:98-105`; matches SDK `zia_forwarding_gateway.go:46`) |
+| `secondary_type` | String | Same 7 values as `primary_type` (`resource_ztc_forwarding_gateway.go:114-121`; SDK `zia_forwarding_gateway.go:51`) |
 | `manual_primary` | String | Hostname or IP when type is `DC` or `MANUAL_OVERRIDE` |
 | `manual_secondary` | String | Hostname or IP when type is `DC` or `MANUAL_OVERRIDE` |
 | `subcloud_primary` | Block | ID of subcloud entity; only relevant when `primary_type = DC` and subclouds are configured |
@@ -111,7 +112,7 @@ Import: by `<GATEWAY_ID>` or `<GATEWAY_NAME>`.
 
 Gotchas:
 - When `primary_type = MANUAL_OVERRIDE`, set `manual_primary` to a raw IP or hostname, not a data-center name.
-- `subcloud_primary` / `subcloud_secondary` are not applicable to Cloud & Branch Connector per SDK struct comments; field exists in the schema but may have no effect.
+- `subcloud_primary` / `subcloud_secondary` are exposed as `id`+`name` blocks (`MaxItems: 1`) and are actively wired by the resource: set them when `primary_type` / `secondary_type` = `DC` and the org has subclouds associated. Schema descriptions read "If a manual (DC) primary/secondary proxy is used and if the organization has subclouds associated, you can specify a subcloud" (`vendor/terraform-provider-ztc/ztc/resource_ztc_forwarding_gateway.go:127-128`), and the resource reads/writes them via `d.Set` (`:187-190`) and expand (`:250-251`). The SDK struct comment still labels `SubCloudPrimary`/`SubCloudSecondary` "Not applicable to Cloud & Branch Connector" (`vendor/zscaler-sdk-go/zscaler/ztw/services/forwarding_gateways/zia_forwarding_gateway/zia_forwarding_gateway.go:38-41`), which conflicts with the TF schema's DC-proxy guidance — the TF provider treats them as functional for DC-type proxies.
 
 ---
 
@@ -181,8 +182,8 @@ API endpoint (from SDK): `POST /ztw/api/v1/ecRules/ecRdr`
 | `order` | Number | Execution order (lower = higher priority) |
 | `rank` | Number | Admin rank |
 | `type` | String | Rule category: `EC_RDR` for forwarding rules |
-| `forward_method` | String | `DIRECT`, `ZIA`, `ECZPA`, `DROP`, `LOCAL_SWITCH`, `PROXYCHAIN`, `ECSELF` |
-| `wan_selection` | String | `BALANCED_RULE`, `BESTLINK_RULE`, etc. — hardware gateway-mode only |
+| `forward_method` | String | `DIRECT`, `PROXYCHAIN`, `ZIA`, `ZPA`, `ECZPA`, `ECSELF`, `DROP`, `ENATDEDIP`, `GEOIP` (per the `ForwardMethod` doc comment at `vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go:44`; `INVALID` is a sentinel, and `ZPA`/`ECZPA` are distinct values) |
+| `wan_selection` | String | Deprecated and no longer configurable (`forwarding_rules.go:49`); see gotchas |
 | `src_ips` | List(String) | Source IPs; unrestricted if omitted |
 | `dest_addresses` | List(String) | Destination IPs or FQDNs; CIDR accepted |
 | `dest_countries` | List(String) | ISO 3166-1 alpha-2 country codes |
@@ -202,9 +203,9 @@ API endpoint (from SDK): `POST /ztw/api/v1/ecRules/ecRdr`
 Import: by `<RULE_ID>` or `<RULE_NAME>`.
 
 Gotchas:
-- `src_workload_groups` IDs must currently be retrieved using the ZIA provider's `zia_workload_groups` data source — there is no native `ztc_workload_groups` data source.
+- `src_workload_groups` IDs: use the native `ztc_workload_groups` data source — it is real compiled code (`vendor/terraform-provider-ztc/ztc/data_source_ztc_workload_groups.go`, registered at `provider.go:146`; schema fields `id`/`name`/`description`/`expression`/`expression_json` at `:17`,`:23`,`:28`,`:33`,`:38`). The vendor's own resource docs lag the code and still direct practitioners to the ZIA Terraform provider's `zia_workload_groups` data source (`vendor/terraform-provider-ztc/docs/resources/ztc_traffic_forwarding_rule.md:52-53`), but code is the authoritative source here — the native ZTC data source is functional. The ZIA provider remains a valid alternative since workload groups are cross-shared between ZIA and ZTC and return the same IDs. There is no `ztc_workload_groups` *resource* for mutation — create/update/delete go through the raw API or are authored ZIA-side.
 - `zpa_application_segments` and `zpa_application_segment_groups` have no corresponding data sources in the ZTC provider. IDs must be obtained outside Terraform and hardcoded.
-- `wan_selection` is noted in the SDK as deprecated and no longer configurable in some contexts.
+- `wan_selection` is deprecated and no longer configurable: the SDK struct comment states verbatim "This parameter was deprecated and is no longer configurable." (`vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go:49`). The values listed in that comment (`SMRULEF_ZPA_BROKERS_RULE`, `SMRULEF_APPC_DYNAMIC_SRC_IPGROUP`, `SMRULEF_EXCL_SRC_IP`, `BALANCED_RULE`, `BESTLINK_RULE`) are historical only.
 
 ---
 
@@ -501,7 +502,7 @@ Import: by `<CLOUD_ID>` or `<CLOUD_NAME>`.
 
 ---
 
-## Data Sources (19 total)
+## Data Sources (20 total)
 
 The following data sources are available. All support lookup by `id` (Number) or `name` (String) unless noted.
 
@@ -526,6 +527,7 @@ The following data sources are available. All support lookup by `id` (Number) or
 | `ztc_provisioning_url` | (read-only version) | `prov_url_data`, `used_in_ec_groups`, `last_mod_uid` |
 | `ztc_account_groups` | AWS account groups | `cloud_type`, `cloud_connector_groups`, `public_cloud_accounts` |
 | `ztc_supported_regions` | AWS/Azure/GCP regions for workload discovery | When `name`/`id` supplied: `cloud_type`; when neither supplied: `regions` list with id/name/cloud_type per region |
+| `ztc_workload_groups` | Workload group lookup by `id` or `name` (read-only; no matching resource) | `id`, `name`, `description`, `expression`, `expression_json` (`vendor/terraform-provider-ztc/ztc/provider.go:146`; schema fields at `data_source_ztc_workload_groups.go:17`, `:23`, `:28`, `:33`, `:38`). No `docs/data-sources/ztc_workload_groups.md` page exists in the provider repo — vendor docs gap, not a code gap. |
 
 ---
 
@@ -554,7 +556,7 @@ Both numeric ID and name are accepted as the import identifier for all resources
 
 ## Open questions / clarifications register
 
-1. **`ztc_dns_forwarding_gateway` vs `ztc_dns_gateway`**: Both resources target `/ztw/api/v1/dnsGateways`. The SDK has two packages targeting this same endpoint (`dns_gateway` and `forwarding_gateways/dns_forwarding_gateway`) with slightly different struct definitions (the latter adds a `Type` field). Whether the API distinguishes the two by `dnsGatewayType` is not confirmed from available sources. Which SDK package the Terraform provider uses for each TF resource is not verified.
+1. **`ztc_dns_forwarding_gateway` vs `ztc_dns_gateway`**: Both resources target `/ztw/api/v1/dnsGateways`. The SDK has two packages targeting this same endpoint (`dns_gateway` and `forwarding_gateways/dns_forwarding_gateway`) with slightly different struct definitions (the latter adds a `Type` field). Whether the API distinguishes the two by `dnsGatewayType` is not confirmed from available sources. Which SDK package the Terraform provider uses for each TF resource is not verified. See [clarification `cloud-connector-14`](../_meta/clarifications.md#cloud-connector-14-duplicate-dns-gateway-packages-and-the-type-field-semantics).
 
 Source: `vendor/terraform-provider-ztc/docs/resources/ztc_traffic_forwarding_log_rule.md`; `vendor/terraform-provider-ztc/ztc/resource_ztc_ip_destination_groups.go`; `vendor/terraform-provider-ztc/docs/resources/ztc_ip_source_groups.md`.
 
@@ -564,12 +566,14 @@ Source: `vendor/terraform-provider-ztc/docs/resources/ztc_traffic_forwarding_log
 
 4. **Resolved 2026-04-26.** `ztc_ip_source_groups` example uses wrong resource type. The example block references `zia_ip_source_groups` instead of `ztc_ip_source_groups`. This is a documentation bug. The correct resource type is `ztc_ip_source_groups`. Cross-provider ZIA source groups are a separate resource and are not interchangeable.
 
-5. **ZPA Application Segment IDs in `ztc_traffic_forwarding_rule`**: The `zparesources` package in the Go SDK (`vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/zparesources/zparesources.go`) exports `GetZPAApplicationSegments` which returns ZPA Application Segment IDs visible to the Cloud Connector tenant. Whether these IDs are the same as those returned by the `zpa_application_segment` data source in the ZPA Terraform provider has not been confirmed from a live cross-provider test. The ZTC provider does not expose a data source for this; using the `zparesources` Go package directly or the ZPA provider data source are the available options.
+5. **ZPA Application Segment IDs in `ztc_traffic_forwarding_rule`**: The `zparesources` package in the Go SDK (`vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/zparesources/zparesources.go`) exports `GetZPAApplicationSegments` which returns ZPA Application Segment IDs visible to the Cloud Connector tenant. Whether these IDs are the same as those returned by the `zpa_application_segment` data source in the ZPA Terraform provider has not been confirmed from a live cross-provider test. The ZTC provider does not expose a data source for this; using the `zparesources` Go package directly or the ZPA provider data source are the available options. Filed with the OneAPI question as [clarification `cloud-connector-16`](../_meta/clarifications.md#cloud-connector-16-ztc_traffic_forwarding_rule-oneapi-requirement-and-zpa-app-segment-id-equivalence).
 
-6. **`ztc_traffic_forwarding_rule` and OneAPI restriction**: Whether traffic forwarding rules require OneAPI or work with both auth frameworks is not confirmed from available sources.
+6. **`ztc_traffic_forwarding_rule` and OneAPI restriction**: Whether traffic forwarding rules require OneAPI or work with both auth frameworks is not confirmed from available sources. See [clarification `cloud-connector-16`](../_meta/clarifications.md#cloud-connector-16-ztc_traffic_forwarding_rule-oneapi-requirement-and-zpa-app-segment-id-equivalence).
 
-7. **`wan_selection` deprecation**: Not further confirmed from available sources. The SDK struct comments note the deprecation but current API behavior is not confirmed.
+7. **Resolved 2026-06-15.** `wan_selection` is deprecated and no longer configurable. The SDK struct comment at `vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go:49` states verbatim "This parameter was deprecated and is no longer configurable." The doc field row and gotcha have been updated accordingly.
 
-8. **`subcloud_primary` / `subcloud_secondary` applicability**: SDK struct comments mark these as "Not applicable to Cloud & Branch Connector." Whether the TF schema omits or exposes these fields is not verified from the reviewed TF resource source.
+8. **Resolved 2026-06-15.** `subcloud_primary` / `subcloud_secondary` are exposed by the TF resource. The schema registers both as `id`+`name` blocks (`MaxItems: 1`) with descriptions tying them to a manual (DC) proxy when the org has subclouds (`vendor/terraform-provider-ztc/ztc/resource_ztc_forwarding_gateway.go:127-128`), and the resource reads/writes them (`:187-190`, `:250-251`). The SDK struct comment still says "Not applicable to Cloud & Branch Connector" (`zia_forwarding_gateway.go:38-41`); that comment conflicts with the TF provider's own DC-proxy wiring. Residual open point: whether the *backend API* actually honors subclouds for Cloud & Branch Connector DC proxies (vs the TF schema merely exposing them) is not verifiable from source alone — would need a live tenant test. See [clarification `cloud-connector-15`](../_meta/clarifications.md#cloud-connector-15-subcloud_primarysecondary-backend-behavior-for-cc-dc-proxies).
 
-9. **Provider version parity**: The index.md examples show `~> 0.1.6` and `~> 0.1.0`. The v4.0.0 reference for legacy compatibility likely refers to the underlying Go SDK version (`zscaler-sdk-go/v3` using a v4 client path), not the provider version. The current stable ZTC provider version is not confirmed from available sources.
+9. **Resolved 2026-06-15.** Current provider version is `0.1.9`. `vendor/terraform-provider-ztc/ztc/common/version.go:3` bakes in `version = "0.1.9"`, and `CHANGELOG.md:3` + `docs/guides/release-notes.md:19` both record `0.1.9 (May 13, 2026)` as the latest release. The `index.md` examples pin `~> 0.1.6` (`docs/index.md:44,73`) and `~> 0.1.0` (`docs/index.md:162`). Caveat for future editors: `ztc/version.go:4` carries `ProviderVersion = "1.0.0"`, but that is a build-time placeholder overwritten by the release pipeline (its own comment: "set at build-time in the release process") — do not treat `1.0.0` as the released version. The `v4.0.0` references in `index.md` refer to the legacy-compatibility client framework, not the provider version.
+
+10. **Cross-doc `LOCAL_SWITCH` / "local" forwarding method**: This doc previously invented a `LOCAL_SWITCH` value in the `forward_method` enum (now corrected against `forwarding_rules.go:44`, which has no such value). The same notion appeared in `index.md`'s prose ("ZIA / ZPA / direct / drop / local"); the `index.md` forwarding-methods row has been updated to drop the unsourced "local" and point at this clarification. Whether "local switch" / "Local" is a real portal-only or hardware-gateway (Branch Connector) behavior the Go enum simply does not model, or an erroneous notion that propagated through docs, is unresolved. See [clarification `cloud-connector-17`](../_meta/clarifications.md#cloud-connector-17-local-local_switch-forwarding-method-real-behavior-or-doc-artifact).

@@ -3,7 +3,7 @@ product: zcc
 topic: "zcc-trusted-networks"
 title: "ZCC trusted networks — detection criteria and evaluation"
 content-type: reference
-last-verified: "2026-05-01"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: mixed
 sources:
@@ -84,7 +84,7 @@ Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/trustednetworks.py`; `vend
 
 The `condition_type` field on a TrustedNetwork decides whether ZCC requires **all** configured criteria within this TrustedNetwork to match (AND — strict) or **any** one of them (OR — permissive). **Distinct from the `conditionType` field on `ForwardingProfile`** — that one combines the profile's inline criteria with its referenced TrustedNetworks at a higher level. See [`./forwarding-profile.md § The profile object`](./forwarding-profile.md). The two fields share a wire name but operate at different levels of the criteria tree.
 
-**Critical type note**: The Go SDK (`trusted_network.go:22`) declares this field as `int` with no `omitempty` — zero is a valid wire value. **The Python client docstring (`trusted_networks.py:102`) incorrectly documents it as `condition_type (str):`** — this is a bug in the Python docs. The Python model (`trustednetworks.py:39`) reads it as untyped `Any` (`config["conditionType"]`) so doesn't enforce either. The Go struct is the ground-truth wire definition: send `int`, not string. **The specific integer-to-meaning mapping is not enumerated in either SDK** — see [`clarification zcc-06`](../_meta/clarifications.md#zcc-06-trustednetwork-condition_type-enum). Lab-test against a real tenant to determine which int maps to AND vs OR.
+**Critical type note**: The Go SDK (`trusted_network.go:22`) declares this field as `int` with no `omitempty` — zero is a valid wire value. **The Python service docstring (`trusted_networks.py:103`, the `add_trusted_network` docstring) incorrectly documents it as `condition_type (str):`** — this is a bug in the Python docs. The Python model (`trustednetworks.py:39`) reads it as untyped `Any` (`config["conditionType"]`) so doesn't enforce either. The Go struct is the ground-truth wire definition: send `int`, not string. **The specific integer-to-meaning mapping is not enumerated in either SDK** — see [`clarification zcc-06`](../_meta/clarifications.md#zcc-06-trustednetwork-condition_type-enum). Lab-test against a real tenant to determine which int maps to AND vs OR.
 
 **Operationally this is the critical field.**
 
@@ -252,20 +252,20 @@ From `vendor/zscaler-sdk-python/zscaler/zcc/trusted_networks.py` and confirmed a
 
 | Method | HTTP | Path | Source lines |
 |---|---|---|---|
-| `list_by_company(query_params={})` | GET | `/zcc/papi/public/v1/webTrustedNetwork/listByCompany` | `trusted_networks.py:64–68`, `trusted_network.go:60` |
-| `add_trusted_network(**kwargs)` | POST | `/zcc/papi/public/v1/webTrustedNetwork/create` | `trusted_networks.py:138–142`, `trusted_network.go:143` |
-| `update_trusted_network(**kwargs)` | PUT | `/zcc/papi/public/v1/webTrustedNetwork/edit` | `trusted_networks.py:194–198`, `trusted_network.go:183` |
-| `delete_trusted_network(network_id)` | DELETE | `/zcc/papi/public/v1/webTrustedNetwork/{id}/delete` | `trusted_networks.py:236–239`, `trusted_network.go:210` |
+| `list_by_company(query_params={})` | GET | `/zcc/papi/public/v1/webTrustedNetwork/listByCompany` | `trusted_networks.py:65–69`, `trusted_network.go:60` |
+| `add_trusted_network(**kwargs)` | POST | `/zcc/papi/public/v1/webTrustedNetwork/create` | `trusted_networks.py:139–143`, `trusted_network.go:143` |
+| `update_trusted_network(**kwargs)` | PUT | `/zcc/papi/public/v1/webTrustedNetwork/edit` | `trusted_networks.py:195–199`, `trusted_network.go:183` |
+| `delete_trusted_network(network_id)` | DELETE | `/zcc/papi/public/v1/webTrustedNetwork/{id}/delete` | `trusted_networks.py:237–241`, `trusted_network.go:210` |
 
-Query params for `list_by_company`: `page` (int), `page_size` (int), `search` (str) — `trusted_networks.py:32`.
+Query params for `list_by_company`: `page` (int), `page_size` (int), `search` (str) — `trusted_networks.py:38–41`.
 
 ### API gotchas
 
-**Response envelope**: The list endpoint wraps results under `trustedNetworkContracts`, not at the top-level array. The Go SDK unwraps it via `TrustedNetworksResponse.TrustedNetworkContracts []TrustedNetwork` (`trusted_network.go:38–41`); the Python SDK unwraps it at `trusted_networks.py:86`: `trusted_networks = response_body.get("trustedNetworkContracts", [])`. Any custom lister must unwrap this key.
+**Response envelope**: The list endpoint wraps results under `trustedNetworkContracts`, not at the top-level array. The Go SDK unwraps it via `TrustedNetworksResponse.TrustedNetworkContracts []TrustedNetwork` (`trusted_network.go:38–41`); the Python SDK unwraps it at `trusted_networks.py:87`: `trusted_networks = response_body.get("trustedNetworkContracts", [])`. Any custom lister must unwrap this key.
 
 **Create doesn't return the new object**: POST `/create` returns only `{success, errorCode}` — not the created TrustedNetwork. Documented in the Go SDK comment block at `trusted_network.go:43–46` ("The contract (id, networkName, etc.) is not returned; resolve the resource via `GetTrustedNetworkByName` after create"); struct definition at `trusted_network.go:47–50`. The Go SDK works around this by retrying `GetTrustedNetworkByName` up to 6 times with 2-second delays after create (`trusted_network.go:154–166`). The Python SDK doesn't implement this retry — callers using the Python SDK must re-fetch manually after create.
 
-**Update requires ID on the request body**: PUT `/edit` validates that `id` is non-empty before sending (`trusted_network.go:179–181`). Omitting the ID returns an error. The Python SDK passes kwargs straight to the request body via `body.update(kwargs)` (`trusted_networks.py:201`) without checking for `id` — callers must include `id` themselves or the API will reject the call without a clear client-side error.
+**Update requires ID on the request body**: PUT `/edit` validates that `id` is non-empty before sending (`trusted_network.go:179–181`). Omitting the ID returns an error. The Python SDK passes kwargs straight to the request body via `body.update(kwargs)` (`trusted_networks.py:202`) without checking for `id` — callers must include `id` themselves or the API will reject the call without a clear client-side error.
 
 **Error code semantics**: The mutation response treats `errorCode = "0"` as success; any other non-empty string is a failure (`trusted_network.go:53`). Don't test `errorCode` for truthiness alone — `"0"` is truthy in Python but means success.
 
@@ -278,8 +278,8 @@ Query params for `list_by_company`: `page` (int), `page_size` (int), `search` (s
 ## Open questions
 
 - `condition_type` enum values and AND/OR semantics within a TrustedNetwork — [clarification `zcc-06`](../_meta/clarifications.md#zcc-06-trustednetwork-condition_type-enum).
-- Whether trusted-network evaluation is stateful across network transitions (does ZCC debounce rapid changes? cache the previous result?) — not surfaced by SDK.
-- Precedence when multiple TrustedNetworks referenced by a single Forwarding Profile both partially match — not documented.
+- Whether trusted-network evaluation is stateful across network transitions (does ZCC debounce rapid changes? cache the previous result?) — not surfaced by SDK. See [clarification `zcc-95`](../_meta/clarifications.md#zcc-95-trusted-network-stateful-evaluation-across-transitions).
+- Precedence when multiple TrustedNetworks referenced by a single Forwarding Profile both partially match — not documented. See [clarification `zcc-96`](../_meta/clarifications.md#zcc-96-multiple-trustednetworks-partial-match-precedence).
 
 ---
 

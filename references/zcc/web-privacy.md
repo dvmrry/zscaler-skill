@@ -3,7 +3,7 @@ product: zcc
 topic: "zcc-web-privacy"
 title: "ZCC web privacy — telemetry and log-collection policy"
 content-type: reference
-last-verified: "2026-05-01"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: mixed
 sources:
@@ -59,21 +59,21 @@ The key distinction: **ZCC can suppress endpoint-context metadata** (hostname, O
 
 Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webprivacy.py`; `vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_privacy/web_privacy.go`.
 
-From `vendor/zscaler-sdk-python/zscaler/zcc/models/webprivacy.py` (lines 36–82) and `vendor/zscaler-sdk-go/zscaler/zcc/services/web_privacy/web_privacy.go` (lines 17–32). **The wire type for all "boolean" fields is actually `string`** — values come across as the numeric strings `'1'` / `'0'`, not JSON booleans. The Python model types every field as `Any` (`webprivacy.py:36–52`); the Go SDK types every field as `string` (`web_privacy.go:18–31`). Treat as boolean semantically; serialize as `'1'` / `'0'` strings.
+From `vendor/zscaler-sdk-python/zscaler/zcc/models/webprivacy.py` (lines 36–86) and `vendor/zscaler-sdk-go/zscaler/zcc/services/web_privacy/web_privacy.go` (lines 17–32). **The wire type for all "boolean" fields is actually `string`** — values come across as the numeric strings `'1'` / `'0'`, not JSON booleans. The Python model puts no type annotations on its instance attributes — each is a bare assignment from the config dict (`webprivacy.py:37–53`), e.g. `self.active = config["active"] if "active" in config else None`; `Any` appears in the file only as the `config: Optional[Dict[str, Any]]` parameter type (`webprivacy.py:27`), not as a per-field type. The Go SDK types every field as `string` (`web_privacy.go:18–31`). Treat as boolean semantically; serialize as `'1'` / `'0'` strings.
 
 | Python attr | Go field | Wire key | Role | Python line | Go line |
 |---|---|---|---|---|---|
-| `id` | `ID` | `id` | Tenant-scoped ID of this singleton object. | 46 | 18 |
-| `active` | `Active` | `active` | Whether this web-privacy config is live. Single-object per tenant; typically always true. | 36 | 19 |
-| `collect_machine_hostname` | `CollectMachineHostname` | `collectMachineHostname` | When true, ZCC reports the endpoint's machine hostname to the Zscaler cloud. When false, hostnames are redacted from NSS/LSS fields and the ZCC portal device inventory. | 37 | 21 |
-| `collect_user_info` | `CollectUserInfo` | `collectUserInfo` | When true, ZCC reports the OS-level logged-in username to the cloud. When false, logs show device-level identity (UDID) without the OS username. | 38 | 20 |
-| `collect_zdx_location` | `CollectZdxLocation` | `collectZdxLocation` | When true (at WebPrivacy level), enables ZDX location data collection. **Must also be true on `ZdxGroupEntitlements.collect_zdx_location`** — both must be set for collection to occur. | 39 | 22 |
-| `disable_crashlytics` | `DisableCrashlytics` | `disableCrashlytics` | When true, disables Google Crashlytics crash reporting on mobile ZCC builds (iOS, Android). When false, crash telemetry leaves ZCC toward Google infrastructure. | 40 | 24 |
-| `enable_packet_capture` | `EnablePacketCapture` | `enablePacketCapture` | When true, allows endpoints to capture network packets locally for diagnostic purposes. Capture stays on the device; not forwarded to cloud. Rarely enabled org-wide. | 41 | 23 |
-| `restrict_remote_packet_capture` | `RestrictRemotePacketCapture` | `restrictRemotePacketCapture` | When true, prevents admin-triggered remote packet capture from the ZCC portal. Independent of local packet capture above. | 50–52 | 26 |
-| `export_logs_for_non_admin` | `ExportLogsForNonAdmin` | `exportLogsForNonAdmin` | When true, non-admin local users can export ZCC's local log bundle (ZIP file via system tray). When false, only local admins/root can export. | 42 | 28 |
-| `grant_access_to_zscaler_log_folder` | `GrantAccessToZscalerLogFolder` | `grantAccessToZscalerLogFolder` | When true, the Zscaler log folder on the endpoint is readable by standard OS users. When false, only admin/root can access the folder path. | 43–45 | 27 |
-| `override_t2_protocol_setting` | `OverrideT2ProtocolSetting` | `overrideT2ProtocolSetting` | Overrides the Z-Tunnel 2.0 protocol selection behavior at the tenant level. Leave false unless debugging Z-Tunnel 2.0 transport issues under Zscaler Support direction. | 47–49 | 25 |
+| `id` | `ID` | `id` | Tenant-scoped ID of this singleton object. | 47 | 18 |
+| `active` | `Active` | `active` | Whether this web-privacy config is live. Single-object per tenant; typically always true. | 37 | 19 |
+| `collect_machine_hostname` | `CollectMachineHostname` | `collectMachineHostname` | When true, ZCC reports the endpoint's machine hostname to the Zscaler cloud. When false, hostnames are redacted from NSS/LSS fields and the ZCC portal device inventory. | 38 | 21 |
+| `collect_user_info` | `CollectUserInfo` | `collectUserInfo` | When true, ZCC reports the OS-level logged-in username to the cloud. When false, logs show device-level identity (UDID) without the OS username. | 39 | 20 |
+| `collect_zdx_location` | `CollectZdxLocation` | `collectZdxLocation` | When true (at WebPrivacy level), enables ZDX location data collection. **Must also be true on `ZdxGroupEntitlements.collect_zdx_location`** — both must be set for collection to occur. | 40 | 22 |
+| `disable_crashlytics` | `DisableCrashlytics` | `disableCrashlytics` | When true, disables Google Crashlytics crash reporting on mobile ZCC builds (iOS, Android). When false, crash telemetry leaves ZCC toward Google infrastructure. | 41 | 24 |
+| `enable_packet_capture` | `EnablePacketCapture` | `enablePacketCapture` | When true, allows endpoints to capture network packets locally for diagnostic purposes. Capture stays on the device; not forwarded to cloud. Rarely enabled org-wide. | 42 | 23 |
+| `restrict_remote_packet_capture` | `RestrictRemotePacketCapture` | `restrictRemotePacketCapture` | When true, prevents admin-triggered remote packet capture from the ZCC portal. Independent of local packet capture above. | 51–53 | 26 |
+| `export_logs_for_non_admin` | `ExportLogsForNonAdmin` | `exportLogsForNonAdmin` | When true, non-admin local users can export ZCC's local log bundle (ZIP file via system tray). When false, only local admins/root can export. | 43 | 28 |
+| `grant_access_to_zscaler_log_folder` | `GrantAccessToZscalerLogFolder` | `grantAccessToZscalerLogFolder` | When true, the Zscaler log folder on the endpoint is readable by standard OS users. When false, only admin/root can access the folder path. | 44–46 | 27 |
+| `override_t2_protocol_setting` | `OverrideT2ProtocolSetting` | `overrideT2ProtocolSetting` | Overrides the Z-Tunnel 2.0 protocol selection behavior at the tenant level. Leave false unless debugging Z-Tunnel 2.0 transport issues under Zscaler Support direction. | 48–50 | 25 |
 
 ### Go-only fields — three additional wire fields not in the Python model
 
@@ -81,11 +81,11 @@ The Go struct exposes three fields that the Python model is missing entirely. **
 
 | Wire key | Go field | Go line | Role |
 |---|---|---|---|
-| `enableAutoLogSnippet` | `EnableAutoLogSnippet` | 29 | Auto-collect log snippets — exact behavior not documented in vendor sources. The Python `set_web_privacy_info` docstring example at `web_privacy.py:108` passes `enable_auto_log_snippet='0'` as kwarg, which means the field reaches the wire via `body.update(kwargs)` (line 123), but Python's GET path will not deserialize it back into a `WebPrivacy` object. Effectively write-only via Python kwargs. |
+| `enableAutoLogSnippet` | `EnableAutoLogSnippet` | 29 | Auto-collect log snippets — exact behavior not documented in vendor sources. The Python `set_web_privacy_info` docstring example at `web_privacy.py:107` passes `enable_auto_log_snippet='0'` as kwarg, which means the field reaches the wire via `body.update(kwargs)` (line 122), but Python's GET path will not deserialize it back into a `WebPrivacy` object. Effectively write-only via Python kwargs. |
 | `enforceSecurePacUrls` | `EnforceSecurePacUrls` | 30 | Enforce HTTPS for PAC URLs. |
 | `enableFQDNMatchForVpnBypasses` | `EnableFQDNMatchForVpnBypasses` | 31 | Enable FQDN-based matching for VPN gateway bypasses (vs IP-based). Pairs with the Forwarding Profile's VPN Gateway Bypass list — see [`./forwarding-profile.md`](./forwarding-profile.md). |
 
-The object is a singleton — `get_web_privacy()` returns exactly one object (`web_privacy.py:67–72`, returns `form_response_body(response.get_body())` directly without iteration). Same in Go: `GetWebPrivacyInfo` returns `*WebPrivacyInfo` (singleton pointer, `web_privacy.go:37`).
+The object is a singleton. The Go SDK is the authoritative evidence: `GetWebPrivacyInfo` declares a typed return of `*WebPrivacyInfo` (single pointer, not a slice) at its signature (`web_privacy.go:34`) and returns `&privacyInfo` (`web_privacy.go:47`). The Python `get_web_privacy()` calls `form_response_body(response.get_body())` directly without iterating (`web_privacy.py:67`), which is consistent with a singleton — but `form_response_body` is inherited from `APIClient` (imported at `web_privacy.py:17`) and is not defined in this file, so the Python lines alone do not prove single-object behavior; the Go typed return is the confirming evidence.
 
 ---
 
@@ -188,14 +188,14 @@ All methods on `client.zcc.web_privacy` from Python SDK (`web_privacy.py`) and G
 
 | Method | HTTP | Full path | Python | Go |
 |---|---|---|---|---|
-| `get_web_privacy` / `GetWebPrivacyInfo` | GET | `/zcc/papi/public/v1/getWebPrivacyInfo` | `web_privacy.py:49–53` | `web_privacy.go:14, 37` |
-| `set_web_privacy_info` / `UpdateWebPrivacyInfo` | **PUT** | `/zcc/papi/public/v1/setWebPrivacyInfo` | `web_privacy.py:115–119` | `web_privacy.go:13, 50–55` |
+| `get_web_privacy` / `GetWebPrivacyInfo` | GET | `/zcc/papi/public/v1/getWebPrivacyInfo` | `web_privacy.py:48–52` | `web_privacy.go:14, 34` |
+| `set_web_privacy_info` / `UpdateWebPrivacyInfo` | **PUT** | `/zcc/papi/public/v1/setWebPrivacyInfo` | `web_privacy.py:114–118` | `web_privacy.go:13, 50–55` |
 
-**HTTP method clarification**: PUT, not POST or "PUT/POST". Earlier doc text was ambiguous; the Python implementation explicitly sets `http_method = "put".upper()` (`web_privacy.py:115`) and the Go SDK's `UpdateWebPrivacyInfo` uses `"PUT"` (`web_privacy.go:55`). There is no POST path for web-privacy operations.
+**HTTP method clarification**: PUT, not POST or "PUT/POST". Earlier doc text was ambiguous; the Python implementation explicitly sets `http_method = "put".upper()` (`web_privacy.py:114`) and the Go SDK's `UpdateWebPrivacyInfo` uses `"PUT"` (`web_privacy.go:55`). There is no POST path for web-privacy operations.
 
 ### Singleton — both SDKs
 
-GET returns exactly one object, not a list. Python's `get_web_privacy` calls `form_response_body(response.get_body())` directly without iteration (`web_privacy.py:67–72`). Go returns `*WebPrivacyInfo` (singleton pointer, `web_privacy.go:37`). The Python docstring at line 40 says "Returns Web Privacy Information" with `:obj:\`list\`` — that's a copy-paste bug in the docstring; the implementation returns a singleton.
+GET returns exactly one object, not a list. The Go SDK is the authoritative evidence: `GetWebPrivacyInfo` declares a typed return of `*WebPrivacyInfo` — a single pointer, not a slice — at its signature (`web_privacy.go:34`), returning `&privacyInfo` (`web_privacy.go:47`). Python's `get_web_privacy` calls `form_response_body(response.get_body())` directly without iteration (`web_privacy.py:67`), consistent with a singleton; note `form_response_body` is inherited from `APIClient` (imported at `web_privacy.py:17`) and not defined in this file, so the Python lines corroborate but do not by themselves prove single-object behavior — the Go typed return is the confirming evidence. The Python docstring at `web_privacy.py:39` says "Returns Web Privacy Information" with `:obj:\`list\`` — that's a copy-paste bug in the docstring; the implementation returns a singleton.
 
 ### Go SDK does a second GET round-trip after PUT
 
@@ -203,7 +203,7 @@ GET returns exactly one object, not a list. Python's `get_web_privacy` calls `fo
 
 ### Python `set_web_privacy_info` accepts kwargs not in the model
 
-The Python docstring example at `web_privacy.py:108` passes `enable_auto_log_snippet='0'` — but `enable_auto_log_snippet` is not a field in the Python `WebPrivacy` model. It reaches the wire via `body.update(kwargs)` at line 123 but won't be read back by the GET deserializer. This is a workaround for the three Go-only fields described above: a Python caller can write `enableAutoLogSnippet`, `enforceSecurePacUrls`, and `enableFQDNMatchForVpnBypasses` by passing them as kwargs, but cannot read them back through the Python SDK. Use Go SDK or direct HTTP for full read/write coverage of all fields.
+The Python docstring example at `web_privacy.py:107` passes `enable_auto_log_snippet='0'` — but `enable_auto_log_snippet` is not a field in the Python `WebPrivacy` model. It reaches the wire via `body.update(kwargs)` at line 122 but won't be read back by the GET deserializer. This is a workaround for the three Go-only fields described above: a Python caller can write `enableAutoLogSnippet`, `enforceSecurePacUrls`, and `enableFQDNMatchForVpnBypasses` by passing them as kwargs, but cannot read them back through the Python SDK. Use Go SDK or direct HTTP for full read/write coverage of all fields.
 
 ---
 

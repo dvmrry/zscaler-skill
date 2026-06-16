@@ -1,221 +1,194 @@
 ---
 product: zpa
 topic: "public-service-edges"
-title: "ZPA Service Edges — Public, Virtual, and Virtual Service Edge Clusters"
+title: "ZPA Public Service Edges — Zscaler-managed session brokers"
 content-type: reference
-last-verified: "2026-04-28"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: mixed
 sources:
-  - "vendor/zscaler-help/about-public-service-edges-internet-saas.md"
-  - "vendor/zscaler-help/about-virtual-service-edges-internet-saas.md"
-  - "vendor/zscaler-help/about-virtual-service-edge-clusters-internet-saas.md"
+  - "vendor/zscaler-help/about-private-service-edges.md"
+  - "vendor/zscaler-help/about-private-service-edge-groups.md"
+  - "vendor/zscaler-help/understanding-private-access-architecture.md"
   - "vendor/zscaler-sdk-python/zscaler/zpa/service_edges.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/models/service_edges.py"
-  - "vendor/terraform-provider-zpa/zpa/data_source_zpa_service_edge.go"
+  - "vendor/zscaler-sdk-python/zscaler/zpa/service_edge_group.py"
+  - "vendor/zscaler-sdk-python/zscaler/zpa/models/service_edge_groups.py"
   - "vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go"
+  - "vendor/terraform-provider-zpa/zpa/data_source_zpa_service_edge.go"
 author-status: draft
 ---
 
-# ZPA Service Edges — Public, Virtual, and Virtual Service Edge Clusters
+# ZPA Public Service Edges — Zscaler-managed session brokers
 
-> **Note on vendor source:** The help portal pages for ZPA-specific Public Service Edges return 404 as of April 2026. The ZIA-facing pages for Public Service Edges, Virtual Service Edges, and VSE Clusters have been vendored and are used here — the concepts and architecture apply across ZIA and ZPA Service Edge variants. ZPA-specific SDK/TF detail is sourced from code. Field-level ZPA specifics are **confidence: medium**.
-
----
-
-## 1. What Public Service Edges are
-
-A ZPA Public Service Edge (PSE) is a **Zscaler-operated, multi-tenant ZPA data-plane node** that brokers ZPA access sessions. When a ZCC client establishes a ZPA session, it connects to the nearest Public Service Edge, which manages the M-Tunnel end-to-end to the App Connector behind the tenant's firewall. This is the default path for road-warrior ZPA traffic.
-
-Public Service Edges are **entirely Zscaler-managed**. The operator does not deploy, configure, or update them. They are geo-distributed across Zscaler PoPs and selected automatically based on the client's source IP and ZPA geo-routing logic. Operators observe them in logs and health views; they cannot alter their behavior.
-
-**Architecture: active-active deployment** (Tier A — `about-public-service-edges-internet-saas.md`). PSEs handle hundreds of thousands of concurrent users with millions of concurrent sessions. Every inspection engine runs within the PSE; sandboxing is offloaded to dedicated Sandbox servers.
-
-**Policy distribution:** PSEs maintain a persistent connection to the Central Authority (CA) to download policy configurations. Policy is cached on the PSE per organization; on any policy change, all cached policies are purged and rebuilt on next request. The CA heartbeats every second.
-
-**Safe mode:** if a PSE cannot reach the CA, it switches to Safe mode — enforces all cached policies, attempts CA reconnect every second, continues full inspection. If no cached policy exists for a user/location, a default URL block policy applies.
+> **Scope.** This document covers the ZPA **Public** Service Edge — the Zscaler-operated, multi-tenant session-broker tier — plus the Service Edge Group API surface that distinguishes a public (Zscaler-managed) group from a private (operator-deployed) one. Customer-deployed brokering is the ZPA **Private** Service Edge, covered in full at [`./private-service-edges.md`](./private-service-edges.md); this doc cross-links rather than re-derives that detail.
+>
+> **No "Virtual Service Edge" in ZPA.** "Virtual Service Edge (VSE)" is a **ZIA-only** product term (a customer-run VM that does inline internet/SaaS inspection). It has no ZPA equivalent — the string appears nowhere in the ZPA Python SDK, Go SDK, or Terraform provider. ZPA's customer-deployed edge is the **Private Service Edge**. Earlier revisions of this doc described ZIA VSE sizing/clustering (VMware/Hyper-V tables, CARP, DSR, Marvell SSL cards) as if it were ZPA; that content was ZIA and has been removed. See [`../zia/private-service-edge.md`](../zia/private-service-edge.md) for the ZIA edge products.
 
 ---
 
-## 2. Virtual Service Edges (VSEs) — customer-deployed PSEs
+## 1. What ZPA Public Service Edges are
 
-A Virtual Service Edge is a **customer-operated VM** running a full-featured Zscaler service gateway dedicated to the organization's traffic. VSEs provide the same service coverage as Zscaler-cloud Public Service Edges (Firewall, DLP, SSL inspection) but run on customer-owned infrastructure.
+A ZPA Public Service Edge is a **session broker hosted in a Zscaler data center on multi-tenant infrastructure** — Private Access "runs on a unique multi-tenant infrastructure, separate from that of Internet & SaaS" (`vendor/zscaler-help/understanding-private-access-architecture.md:16`). Functionally it does exactly what a ZPA Private Service Edge does — "As with a Public Service Edge, a Private Service Edge manages the connections between Zscaler Client Connector and App Connectors. It registers with the Private Access Cloud. This allows a Private Service Edge to download the relevant policies and configurations so it can enforce all Private Access policies. It also caches path selection decisions" — the difference is only *where it runs* and *who manages it*: Public Service Edges "are deployed in Zscaler data centers around the world", whereas Private Service Edges are "single-tenant instance brokers" the organization hosts (`vendor/zscaler-help/about-private-service-edges.md:10,12`).
 
-**Note on product line:** the vendored VSE documentation is from ZIA. The concept applies to ZPA Virtual Service Edges; the specific sizing/specs below may differ for ZPA VSEs. Consult Zscaler for ZPA-specific VSE sizing.
+A Public Service Edge does **not** run SSL/inline inspection engines, sandboxing, firewall, or DLP. Those are ZIA functions. A ZPA Service Edge's job is brokering: Public and Private Service Edges "enforce user policies and provide secure transport to App Connectors", authenticate Zscaler Client Connector (ZCC) and App Connectors using public-key cryptography, and create/manage the Microtunnels (M-Tunnels) that carry application sessions end-to-end (`vendor/zscaler-help/understanding-private-access-architecture.md:29,31,35`). Best-path App Connector selection is attributed to **Private Access** as a whole rather than the Service Edge specifically — "Private Access identifies the best-path App Connector for the internal web application and connects them to it" (`vendor/zscaler-help/understanding-private-access-architecture.md:79`), selecting "the closest App Connector given the location of the user and the App Connector-to-application latency" (`vendor/zscaler-help/understanding-private-access-architecture.md:44`).
 
-### 2.1 Use cases for VSEs
+Public Service Edges are **Zscaler-maintained and deployed globally** — "Maintained by Zscaler and deployed globally, Public Service Edges are the cloud-based portion of the Private Access data forwarding path" (`vendor/zscaler-help/understanding-private-access-architecture.md:29`). The operator does not deploy, configure, or update them. A tenant can see Zscaler-managed Service Edges in the Admin Console, but "Private Service Edges that are managed by Zscaler are read only and cannot be configured" — the same read-only posture applies to the Public tier (`vendor/zscaler-help/about-private-service-edges.md:49`).
 
-VSEs serve the same use cases as ZIA Private Service Edges:
-- **Geopolitical / regulatory requirements** — traffic must remain on-premises or in a specific geography.
-- **High-latency regions** — locations far from the nearest Public Service Edge where round-trip to Zscaler PoP adds unacceptable latency.
-- **Apps that require the organization's IP as source** — when Source IP Anchoring (SIPA) semantics are needed at a specific egress.
-- **Localized content requirements** — content delivery or licensing tied to a specific geographic IP range.
-
-**Source IP Anchoring is NOT supported with Virtual Service Edges** (Tier A — vendor doc, `about-virtual-service-edges-internet-saas.md`).
-
-### 2.2 Customer ownership model
-
-- VSEs are **managed by the customer**, not by Zscaler Cloud Operations.
-- Zscaler does not require access to VSEs.
-- **Auto-upgrades** happen during scheduled maintenance windows without customer intervention (maintenance windows published in the Zscaler Trust Portal).
-- Zscaler hardens the VSE VM as a "jailed environment" — limited commands, hardened OS, unnecessary packages removed.
-- Audit log at `/var/log/auth.log` captures authentication attempts and commands. Customers should monitor this for unauthorized access.
-
-### 2.3 Sizing and platform support
-
-| Hypervisor / Cloud | vCPUs | Min RAM (standalone) | Min RAM (cluster) | Max VMs per cluster | Disk | Max throughput |
-|---|---|---|---|---|---|---|
-| VMware ESXi 6.0+ | 4 | 32 GB | 48 GB | 16 | 500 GB | 600 Mbps |
-| Microsoft Hyper-V | 4 | 32 GB | 48 GB | 16 | 500 GB | — |
-| Microsoft Azure | 4 | 32 GB | — | — | 500 GB | — |
-| AWS EC2 | 4 | 32 GB | — | — | 500 GB | — |
-| GCP | 4 | 32 GB | — | — | 500 GB | — |
-
-SSL acceleration card (Marvell NITROX CNN3510-500-C5-NHB-2.0-G, sold separately) raises SSL CPS from 400 to 3,500 on VMware ESXi. Recommended when doing SSL inspection at >100 Mbps.
-
-**Native cluster mode** is only supported on VMware ESXi and Hyper-V. For Azure, AWS, and GCP, use the public cloud's native load balancers for VSE redundancy — native cluster mode is not supported in those environments.
+**Authentication / key handling.** A Service Edge "use[s] only public keys for authenticating all remote systems and clients connecting with it. No private keys are stored or used, with the exception of the [Service Edge's] identity" (`vendor/zscaler-help/understanding-private-access-architecture.md:33`). ZCC and App Connectors authenticate with the organization's PKI; Service Edges authenticate with Zscaler's PKI (see [`./private-service-edges.md`](./private-service-edges.md) for Z-Tunnel/M-Tunnel mechanics, which are identical across the Public and Private tiers).
 
 ---
 
-## 3. Virtual Service Edge Clusters — HA and load distribution
+## 2. Public vs Private — when each is used
 
-VSE Clusters are **production-grade HA deployments** consisting of 2–16 VSE instances operating active-active (Tier A — vendor doc, `about-virtual-service-edge-clusters-internet-saas.md`).
+A ZPA tenant can use both tiers at once: Public Service Edges as the default global path, and Private Service Edges for specific sites, regulated workloads, or business-continuity. The Public tier is the default; the Private tier is deployed only when a specific driver requires operator-controlled, on-prem brokering. The full driver list, deployment model, sizing, enrollment, and HA design for the customer-deployed tier live in [`./private-service-edges.md`](./private-service-edges.md).
 
-### 3.1 Cluster architecture
-
-- **Minimum 2 VSEs** for N+1 redundancy. Standalone mode (1 VSE) is evaluation-only and does not support failover.
-- **Maximum 16 VSE instances** per cluster.
-- Each VSE in a cluster requires a separate VSE subscription.
-- Each VSE has a **load balancer (LB) bundled in**, designed to distribute user traffic evenly.
-
-**Load balancer HA mechanism:** Zscaler uses the **Common Address Redundancy Protocol (CARP)** for active-passive fault tolerance among LB instances. All VSE instances in the cluster are active simultaneously; only one LB instance is active at a time. The active LB receives ingress via the cluster IP address and routes to the appropriate VSE. If the active LB fails, the passive LB takes over automatically.
-
-**Direct Server Return (DSR) mode:** VSEs operate in DSR mode. Requests flow through the LB to the VSE; responses flow from the VSE directly to the user, bypassing the LB on the return path. This reduces LB bandwidth requirements.
-
-### 3.2 Cluster IP
-
-The cluster exposes a single **cluster IP address** that acts as the entry point for all inbound traffic. GRE/IPsec tunnels (or ZCC forwarding) target this cluster IP. Individual VSE instance IPs are not used by clients.
-
-### 3.3 External load balancers
-
-Zscaler does not recommend external load balancers with VSE clusters. If an external LB is required by organizational policy, a separate Zscaler guide covers that configuration.
-
----
-
-## 4. When to use PSEs vs VSEs
-
-| Criterion | Public Service Edge | Virtual Service Edge |
+| Dimension | Public Service Edge | Private Service Edge |
 |---|---|---|
-| Management overhead | None — Zscaler-managed | Requires customer ops team |
-| Traffic stays on-premises | No | Yes |
-| Source IP Anchoring | Yes | No |
-| Geopolitical / regulatory requirements | Only if Zscaler has a PoP in required region | Full control over traffic geography |
-| Maximum throughput | Effectively unlimited (Zscaler scales) | 600 Mbps per VM; scale via clusters |
-| HA / redundancy | Automatic (Zscaler multi-PoP) | Customer-configured cluster (2+ VSEs) |
-| SSL inspection throughput >100 Mbps | Automatic | Requires Marvell NITROX SSL acceleration card |
-| Setup cost | Zero | VM procurement + Zscaler VSE subscription |
+| Where it runs | Zscaler data center / PoP | Operator's DC, private cloud, or cloud VPC |
+| Who manages it | Zscaler (read-only to the tenant) | Operator deploys VM; Zscaler manages the software image |
+| Tenancy | Multi-tenant | Single-tenant (`vendor/zscaler-help/about-private-service-edges.md:10`) |
+| Selection | Automatic, by proximity / CA routing | Operator-influenced (trusted networks, grace distance) |
+| Operator deploys / configures | No | Yes — via provisioning key + Service Edge Group |
+| Default path | Yes | No — deployed for a specific driver |
 
-**Default recommendation:** use Public Service Edges. Deploy VSEs only when regulatory requirements, data residency mandates, or latency constraints in specific geographies make on-premises processing necessary.
+Drivers for adding a Private Service Edge (regulatory / data-residency, air-gapped networks, latency, business continuity, private-only routing) and the deployment detail are documented in [`./private-service-edges.md`](./private-service-edges.md); they are not repeated here.
 
 ---
 
-## 5. API/SDK objects for VSEs and VSE clusters
+## 3. The `is_public` flag — how a group is marked public vs private
+
+A Service Edge Group carries an explicit boolean that marks whether the group is a public (Zscaler-reachable) group or a private one. This is the on-API mechanism that distinguishes the two tiers.
+
+- **Python model:** `is_public` ← wire key `isPublic` (`vendor/zscaler-sdk-python/zscaler/zpa/models/service_edge_groups.py:54`).
+- **Terraform:** `is_public`, "Enable or disable public access for the Service Edge Group", default `false` (`vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go:91-96`). On the Go API the boolean is serialized to an uppercased string (`vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go:444`).
+- **Admin Console label:** "Publicly Accessible — Choose if the Private Service Edge group with specific trusted networks mapping is also available publicly for all users outside of these trusted networks. It is important to ensure the Private Service Edge is reachable over a public IP address if you need remote users to be able to connect to it" (`vendor/zscaler-help/about-private-service-edge-groups.md:38`).
+
+The related **grace-distance** controls let a Private Service Edge Group win over a *closer* Public Service Edge: `grace_distance_enabled` "allows ZPA Private Service Edge Groups within the specified distance to be prioritized over a closer ZPA Public Service Edge" (`vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go:214-218`), with `grace_distance_value` the maximum distance and `grace_distance_value_unit` one of `MILES`/`KMS` (`vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go:220-249`). This is the proximity-override the Admin Console calls "Public Service Edge Proximity Override" (`vendor/zscaler-help/about-private-service-edge-groups.md:45`).
+
+---
+
+## 4. How Public Service Edges appear in operator workflows
+
+1. **LSS access-log records.** ZPA LSS emits per-session records reported "primarily by the Public Service Edges or Private Service Edges" (`vendor/zscaler-help/understanding-private-access-architecture.md:89`). The operator sees the Service Edge that brokered a session but cannot influence which Public Service Edge was selected.
+
+2. **Automatic geo-selection.** Public Service Edges are Zscaler-deployed globally and selected automatically; the operator has no direct control over Public-tier selection. To bias selection toward an operator-run group, the levers are trusted-network mapping and grace distance on a *Private* Service Edge Group (§3), not configuration of the Public tier.
+
+3. **Read-only health.** The `control_channel_status` and broker connect/disconnect timestamps on the ServiceEdge object surface connectivity state (§5.2). For Zscaler-managed edges these are read-only — Public Service Edge health issues are Zscaler operational matters, not tenant configuration.
+
+---
+
+## 5. API / SDK surface
 
 ### 5.1 ServiceEdge individual instances — Python SDK
 
 | Property | `client.zpa.service_edges` |
 |---|---|
-| Class | `ServiceEdgeControllerAPI` |
+| Class | `ServiceEdgeControllerAPI` (`vendor/zscaler-sdk-python/zscaler/zpa/service_edges.py:26`) |
 | File | `zscaler/zpa/service_edges.py` |
 | Go parity | `serviceedgecontroller/` |
 
-The `/serviceEdge` API exposes individual Service Edge instances — these represent enrolled **Private** Service Edge nodes registered against the operator's tenant. The same model and endpoint also surface Public Service Edge instance data when queried from a tenant context, though the operator cannot enroll or configure those.
+The `/serviceEdge` endpoint exposes individual Service Edge instances. In practice these are the operator's **enrolled Private** Service Edge nodes — there is no API path to enroll or configure a Public (Zscaler-managed) Service Edge; those remain read-only.
 
-**Methods:**
+**Methods** (all under `_zpa_base_endpoint = /zpa/mgmtconfig/v1/admin/customers/{customer_id}`):
 
 | Method | HTTP | Endpoint | Notes |
 |---|---|---|---|
-| `list_service_edges(query_params=None)` | GET | `.../serviceEdge` | Paginated; `search`, `page`, `page_size` |
-| `get_service_edge(service_edge_id)` | GET | `.../serviceEdge/{id}` | |
-| `update_service_edge(service_edge_id, **kwargs)` | PUT | `.../serviceEdge/{id}` | Only `name`, `description`, `enabled` are operator-meaningful |
-| `delete_service_edge(service_edge_id, microtenant_id=None)` | DELETE | `.../serviceEdge/{id}` | Deregisters a Private SE; not applicable to Public SEs |
-| `bulk_delete_service_edges(service_edge_ids, microtenant_id=None)` | POST | `.../serviceEdge/bulkDelete` | Batch deregister |
+| `list_service_edges(query_params=None)` | GET | `.../serviceEdge` | Paginated (`vendor/zscaler-sdk-python/zscaler/zpa/service_edges.py:38,78`) |
+| `get_service_edge(service_edge_id, **kwargs)` | GET | `.../serviceEdge/{id}` | (`vendor/zscaler-sdk-python/zscaler/zpa/service_edges.py:103,124`) |
+| `update_service_edge(service_edge_id, **kwargs)` | PUT | `.../serviceEdge/{id}` | (`vendor/zscaler-sdk-python/zscaler/zpa/service_edges.py:140,172`) |
+| `delete_service_edge(service_edge_id, **kwargs)` | DELETE | `.../serviceEdge/{id}` | Deregisters a Private SE (`vendor/zscaler-sdk-python/zscaler/zpa/service_edges.py:201,222`) |
+| `bulk_delete_service_edges(service_edge_ids, **kwargs)` | POST | `.../serviceEdge/bulkDelete` | Batch deregister (`vendor/zscaler-sdk-python/zscaler/zpa/service_edges.py:238,250`) |
 
 ### 5.2 Key fields on the ServiceEdge model
 
-| Python field | Wire key | Notes |
-|---|---|---|
-| `id` | `id` | Opaque ZPA object ID |
-| `name` | `name` | Display name |
-| `enabled` | `enabled` | Read-only for Public SEs; mutable on Private SEs |
-| `latitude` / `longitude` / `location` | — | Geo coordinates of the PoP or customer site |
-| `public_ip` / `private_ip` | `publicIp` / `privateIp` | Routable IPs of the SE node |
-| `control_channel_status` | `controlChannelStatus` | CA connectivity state |
-| `ctrl_broker_name` | `ctrlBrokerName` | The CA broker this SE is connected to |
-| `current_version` / `expected_version` | — | Software version state |
-| `upgrade_status` / `upgrade_attempt` | — | Upgrade lifecycle state |
-| `last_broker_connect_time` | — | Timestamp of last CA channel establishment |
-| `service_edge_group_id` / `service_edge_group_name` | — | Which Service Edge Group this instance belongs to |
-| `provisioning_key_id` / `provisioning_key_name` | — | Private SE enrollment only; absent on Public SEs |
-| `sarge_version` | `sargeVersion` | Internal Zscaler component version string |
-| `zpn_sub_module_upgrade_list` | — | Per-module upgrade state; list of dicts |
+All wire keys below are read from `vendor/zscaler-sdk-python/zscaler/zpa/models/service_edges.py`.
 
-Fields related to provisioning keys (`provisioning_key_id`, `provisioning_key_name`, `enrollment_cert`) are only populated on **operator-enrolled Private Service Edges**. On Public Service Edges these will be absent or null.
+| Python field | Wire key | Line | Notes |
+|---|---|---|---|
+| `id` / `name` | `id` / `name` | 31-32 | Object ID / display name |
+| `enabled` | `enabled` | 38 | |
+| `fingerprint` | `fingerprint` | 36 | Hardware fingerprint the enrolled cert is pinned to |
+| `issued_cert_id` | `issuedCertId` | 37 | The TLS client cert issued to this Service Edge |
+| `enrollment_cert` | `enrollmentCert.name` | 72-74 | Enrollment certificate name (nested object) |
+| `latitude` / `longitude` / `location` | — | 39-41 | Geo of the PoP or customer site |
+| `private_ip` / `public_ip` | `privateIp` / `publicIp` | 59-60 | Routable IPs of the node |
+| `platform` | `platform` | 61 | Host platform |
+| `runtime_os` | `runtimeOS` | 62 | Runtime OS string |
+| `platform_detail` | `platformDetail` | 65 | Extended platform descriptor |
+| `control_channel_status` | `controlChannelStatus` | 47 | CA connectivity state |
+| `ctrl_broker_name` | `ctrlBrokerName` | 48 | The CA broker this SE is connected to |
+| `current_version` / `expected_version` | `currentVersion` / `expectedVersion` | 42-43 | Software version state |
+| `upgrade_status` / `upgrade_attempt` | `upgradeStatus` / `upgradeAttempt` | 45-46 | Upgrade lifecycle |
+| `last_broker_connect_time` / `last_broker_disconnect_time` | `lastBrokerConnectTime` / `lastBrokerDisconnectTime` | 49,53 | CA channel timestamps |
+| `service_edge_group_id` / `service_edge_group_name` | `serviceEdgeGroupId` / `serviceEdgeGroupName` | 70-71 | Owning Service Edge Group |
+| `provisioning_key_id` / `provisioning_key_name` | `provisioningKeyId` / `provisioningKeyName` | 68-69 | Private-SE enrollment only |
+| `sarge_version` | `sargeVersion` | 64 | Internal Zscaler component version |
+| `zpn_sub_module_upgrade_list` | `zpnSubModuleUpgradeList` | 77 | Per-module upgrade state (list) |
+
+`provisioning_key_id` / `provisioning_key_name` / `enrollment_cert` populate only on operator-enrolled Private Service Edges.
 
 ### 5.3 Service Edge Group — `ServiceEdgeGroupAPI`
 
-For operators deploying Private Service Edges, `resource_zpa_service_edge_group` is the management surface: grouping, geo tagging (`latitude`, `longitude`, `country_code`), trusted-network binding, upgrade scheduling, and business-continuity mode (`exclusive_for_business_continuity`).
+The group is the administrative unit for Service Edges. For the **operator-deployed Private** tier this is the create/configure surface (grouping, geo, trusted-network binding, upgrade scheduling, DR mode); a Zscaler-managed (public) group is read-only. Full Terraform-resource detail for the Private tier — required args, version-profile values, enrollment via `user_codes` / `enrollment_cert_id`, AWS/Azure modules — is in [`./private-service-edges.md`](./private-service-edges.md).
 
 | Property | `client.zpa.service_edge_group` |
 |---|---|
-| Class | `ServiceEdgeGroupAPI` |
+| Class | `ServiceEdgeGroupAPI` (`vendor/zscaler-sdk-python/zscaler/zpa/service_edge_group.py:26`) |
 | File | `zscaler/zpa/service_edge_group.py` |
 | Go parity | `serviceedgegroup/` |
 
-**Methods:**
+**Methods** (endpoint `.../serviceEdgeGroup[/{id}]`):
 
-| Method | Notes |
-|---|---|
-| `list_service_edge_groups(query_params=None)` | |
-| `get_service_edge_group(group_id)` | |
-| `add_service_edge_group(**kwargs)` | |
-| `update_service_edge_group(group_id, **kwargs)` | |
-| `delete_service_edge_group(group_id, microtenant_id=None)` | |
+| Method | HTTP | Line |
+|---|---|---|
+| `list_service_edge_groups(query_params=None)` | GET | 37,78 |
+| `get_service_edge_group(group_id, query_params=None)` | GET | 102,124 |
+| `add_service_edge_group(**kwargs)` | POST | 148,219 |
+| `update_service_edge_group(group_id, **kwargs)` | PUT | 249,282 |
+| `delete_service_edge_group(group_id, microtenant_id=None)` | DELETE | 320,343 |
+
+(All from `vendor/zscaler-sdk-python/zscaler/zpa/service_edge_group.py`.)
+
+**Group fields that distinguish public vs private and drive selection** — from `vendor/zscaler-sdk-python/zscaler/zpa/models/service_edge_groups.py`:
+
+| Python field | Wire key | Line | Purpose |
+|---|---|---|---|
+| `is_public` | `isPublic` | 54 | Marks the group public (Zscaler-reachable) vs private. See §3. |
+| `grace_distance_enabled` | `graceDistanceEnabled` | 56 | Allow this (private) group to override a closer Public SE within the grace distance |
+| `grace_distance_value` | `graceDistanceValue` | 57 | Override distance threshold |
+| `grace_distance_value_unit` | `graceDistanceValueUnit` | 58 | `MILES` / `KMS` |
+| `use_in_dr_mode` | `useInDrMode` | 65 | Hold the group in reserve for disaster recovery |
+| `version_profile_id` | `versionProfileId` | 43 | Software release track binding |
+| `version_profile_name` | `versionProfileName` | 44 | Release-track name |
+| `version_profile_visibility_scope` | `versionProfileVisibilityScope` | 46 | Visibility scope of the version profile |
+| `trusted_networks` | `trustedNetworks` | 68 | Trusted Networks whose users are preferentially routed to this group |
+| `latitude` / `longitude` / `location` | — | 40-42 | Geo of the group |
+| `microtenant_id` / `microtenant_name` | `microtenantId` / `microtenantName` | 59-60 | Microtenant scope |
+
+The Go Terraform resource confirms the same distinguishing fields: `is_public` (`vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go:91`), `use_in_dr_mode` (122), `grace_distance_*` (214-249), and the OAuth2 enrollment pair `enrollment_cert_id` / `user_codes` (251-262).
 
 ### 5.4 Terraform
 
-The TF provider exposes a **data source only** for individual Service Edge instances (`data.zpa_service_edge_controller`). No TF resource exists for creating or managing individual instances — enrollment is handled by the Private SE appliance via provisioning key, not by Terraform directly. The `service_edges` list field on `resource_zpa_service_edge_group` is `Computed` and carries a deprecation warning: "Service edge membership is managed externally."
+The TF provider exposes a **data source** for individual Service Edge instances (`data_source_zpa_service_edge.go`); there is no resource to create/manage individual instances — enrollment is done by the Private SE appliance via provisioning key (or the `user_codes`/`enrollment_cert_id` OAuth2 path on the group). The manageable resource is `resource_zpa_service_edge_group`, documented for the Private tier in [`./private-service-edges.md`](./private-service-edges.md).
 
 ---
 
-## 6. How PSEs appear in operator workflows
+## Open questions
 
-**1. LSS access log records.** ZPA LSS emits per-session records that include the Service Edge that brokered the session. The operator sees the SE identity in the log but cannot influence which SE was selected.
-
-**2. Geo-distribution and latency.** ZPA geo-routing selects the nearest Public Service Edge automatically. Operators have no direct control for Public SEs. Latency variation between sessions from different regions reflects which PoP the client was routed to.
-
-**3. Health monitoring.** `control_channel_status` and broker connect/disconnect timestamps in the ServiceEdge object surface connectivity state. This is read-only. Health problems with Public SEs are Zscaler operational issues, not tenant configuration issues.
-
----
-
-## 7. Geographic placement considerations
-
-For Public Service Edges: Zscaler manages PoP geography. The operator selects a ZPA cloud (e.g., `zscaler.net`, `zscalertwo.net`) and traffic is automatically geo-routed.
-
-For Private Service Edges / VSEs: the operator places the SE at a specific site (data center, branch, cloud region). Key considerations:
-- Place close to App Connectors to minimize the M-Tunnel path from SE to connector.
-- For regulatory data residency, ensure the SE and App Connectors are both within the required geographic boundary.
-- For latency-sensitive applications, place SEs close to the user population that will connect to them.
-- The `latitude`/`longitude`/`location` fields on the Service Edge Group are used by ZPA geo-routing to inform client proximity selection.
+- **Public-tier-specific behavior is inferred, not directly documented.** No ZPA-specific *Public* Service Edge help page is present in vendor sources (`help.zscaler.com/zpa/about-public-service-edges` and `.../understanding-service-edges` are referenced from `about-private-service-edges.md:10` and `understanding-private-access-architecture.md:37` but not captured). The Public-tier description in §1 is derived from the Private-SE page's "provide the functionality of a Public Service Edge" framing plus the architecture page. The earlier draft's quantitative claims about the Public tier ("hundreds of thousands of concurrent users with millions of concurrent sessions", per-second CA heartbeat, Safe-mode, default URL-block policy) came from the **ZIA** page `about-public-service-edges-internet-saas.md` and described ZIA gateway behavior, not ZPA — they have been removed. Whether any of those scale/Safe-mode behaviors apply to the ZPA broker tier is unconfirmed against a ZPA source. (Tracked as [`zpa-58`](../_meta/clarifications.md#zpa-58-zpa-public-tier-specific-behavior-scale-safe-mode).)
+- **Public-tier policy-caching / CA-reconnect semantics.** The Private-SE page states a Service Edge "registers with the Private Access Cloud … download[s] the relevant policies and configurations … also caches path selection decisions" (`about-private-service-edges.md:12`), but does not specify cache-invalidation, heartbeat cadence, or any fail-open/fail-closed behavior for the ZPA Public tier. Left unstated rather than imported from ZIA. (Tracked as [`zpa-59`](../_meta/clarifications.md#zpa-59-zpa-public-tier-policy-caching-ca-reconnect-semantics).)
+- **`upgrade_priority` semantics.** The Python `ServiceEdgeGroup` model exposes `upgrade_priority` (`models/service_edge_groups.py:63`) but no vendor source defines its allowed values or effect for the ZPA tier. (Tracked as [`zpa-60`](../_meta/clarifications.md#zpa-60-upgrade_priority-allowed-values-and-effect-for-the-zpa-service-edge-tier).)
 
 ---
 
 ## Cross-links
 
-- Service Edge form factors and M-Tunnel architecture — [`../shared/cloud-architecture.md §Service Edges`](../shared/cloud-architecture.md)
+- ZPA Private Service Edges (customer-deployed broker tier — sizing, enrollment, HA, Terraform) — [`./private-service-edges.md`](./private-service-edges.md)
+- Service Edge form factors and M-Tunnel architecture — [`../shared/cloud-architecture.md`](../shared/cloud-architecture.md)
 - App Connector (the other endpoint of the M-Tunnel) — [`./app-connector.md`](./app-connector.md)
 - Policy precedence and session gating — [`./policy-precedence.md`](./policy-precedence.md)
-- LSS access log schema (where SE identity appears) — [`./logs/access-log-schema.md`](./logs/access-log-schema.md)
-- ZIA Private Service Edge (different product, different concept) — [`../zia/private-service-edge.md`](../zia/private-service-edge.md)
-- Trusted Networks — PSE Group ↔ Trusted Network binding — [`./trusted-networks.md`](./trusted-networks.md)
-- SDK ServiceEdgeGroupAPI — [`./sdk.md §2.37 ServiceEdgeGroupAPI`](./sdk.md)
+- LSS access log schema (where Service Edge identity appears) — [`./logs/access-log-schema.md`](./logs/access-log-schema.md)
+- ZIA edge products (Public Service Edge, Virtual Service Edge — different product) — [`../zia/private-service-edge.md`](../zia/private-service-edge.md)
+- Trusted Networks — group ↔ Trusted Network binding — [`./trusted-networks.md`](./trusted-networks.md)
+- SDK ServiceEdgeGroupAPI — [`./sdk.md`](./sdk.md)

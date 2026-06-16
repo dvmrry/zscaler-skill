@@ -3,7 +3,7 @@ product: zia
 topic: "zia-api"
 title: "ZIA API surface"
 content-type: reference
-last-verified: "2026-04-23"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: mixed
 sources:
@@ -247,21 +247,22 @@ TF equivalent: `zia_url_filtering_rules` resource. See `vendor/terraform-provide
 
 **SDK-level findings** (`zscaler/zia/url_filtering.py`, `zscaler/zia/models/url_filtering_rules.py`):
 
-- **`urlCategories` and `urlCategories2` are ANDed, not ORed.** A rule fires only if the request matches a category from BOTH lists. Docs list both fields without stating the operator — an operator who expects OR will get surprisingly narrow matches. (`url_filtering.py:204-205`)
+- **`urlCategories` and `urlCategories2` are ANDed, not ORed.** A rule fires only if the request matches a category from BOTH lists. Docs list both fields without stating the operator — an operator who expects OR will get surprisingly narrow matches. (`url_filtering.py:205-206`)
 - **Full `action` enum**: `ANY`, `NONE`, `BLOCK`, `CAUTION`, `ALLOW`, `ICAP_RESPONSE`. Docs surface ALLOW / BLOCK / CAUTION publicly; `ICAP_RESPONSE` (hand off to ICAP for external processing) and the `ANY` / `NONE` sentinels are SDK-visible. (`url_filtering.py:166`)
 - **`block_override` + `override_users` / `override_groups` are conditional.** Override lists are silently ignored unless `block_override=True` AND `action=BLOCK`. (`url_filtering.py:191-194`)
 - **`ciparule` is a per-rule boolean** distinct from the tenant-wide `enableCIPACompliance` toggle in Advanced Policy Settings — two independent mechanisms; easy to conflate.
 - **Enumerated `request_methods`**: `CONNECT`, `DELETE`, `GET`, `HEAD`, `OPTIONS`, `OTHER`, `POST`, `PUT`, `TRACE`. (`url_filtering.py:196-199`)
-- **`user_agent_types` includes `MSCHREDGE`** (Microsoft Chromium-based Edge, likely distinct from `MSEDGE` legacy Edge). (`url_filtering.py:198`)
+- **`user_agent_types` includes `MSCHREDGE`** (Microsoft Chromium-based Edge, likely distinct from `MSEDGE` legacy Edge). (`url_filtering.py:199-200`)
+- **`device_trust_levels` is a per-rule match dimension** tying URL policy to ZCC device posture: enum `ANY`, `UNKNOWN_DEVICETRUSTLEVEL`, `LOW_TRUST`, `MEDIUM_TRUST`, `HIGH_TRUST` (`url_filtering.py:169-170`). Worth flagging because operators often don't realize device posture is a URL-filtering match criterion at the per-rule level, not just a tenant-wide posture setting.
 - **`last_modified_time` / `last_modified_by` are server-assigned but tolerated on PUT** — the SDK echoes them; don't trust them as input.
 
 **TF-level findings** (`terraform-provider-zia/zia/resource_zia_url_filtering_rules.go`):
 
-- **`rank` range is `0–7`** (validated by `IntBetween(0, 7)` at `:220`). Admin rank 0 is highest; 7 is lowest. Any value outside this range is rejected at plan time. Confirms the `zia-05` resolved clarification and publishes a numeric ceiling help docs omit.
-- **`time_quota` range: `15–600` minutes** (`IntBetween(15, 600)` at `:235`). "Leave blank = no quota" is true but values below 15 or above 600 are rejected — easy to hit when migrating old configs.
-- **`size_quota` range: `10–100,000` KB** (`IntBetween(10, 100000)` at `:241`). Same rejection pattern as `time_quota`.
+- **`rank` range is `0–7`** (validated by `IntBetween(0, 7)` at `:221`). Admin rank 0 is highest; 7 is lowest. Any value outside this range is rejected at plan time. Confirms the `zia-05` resolved clarification and publishes a numeric ceiling help docs omit.
+- **`time_quota` range: `15–600` minutes** (`IntBetween(15, 600)` at `:236`). "Leave blank = no quota" is true but values below 15 or above 600 are rejected — easy to hit when migrating old configs.
+- **`size_quota` range: `10–100,000` KB** (`IntBetween(10, 100000)` at `:242`). Same rejection pattern as `time_quota`.
 - **TF action enum** (4 values): `BLOCK`, `CAUTION`, `ALLOW`, `ISOLATE` (`:270-275`). Note this is narrower than the SDK enum (which also lists `ANY`, `NONE`, `ICAP_RESPONSE`) — the TF provider restricts to user-configurable values.
-- **`description` max length: 10,240 characters** (`StringLenBetween(0, 10240)` at `:197`).
+- **`description` max length: 10,240 characters** (`StringLenBetween(0, 10240)` at `:198`).
 - **`description` diffs suppressed via `noChangeInMultiLineText`** — the API normalizes whitespace / line endings. A plan-time diff in `description` that "looks right" is probably a whitespace-only delta the server rewrote. See [`../shared/terraform.md § Schema patterns worth knowing`](../shared/terraform.md#schema-patterns-worth-knowing).
 
 ### Cloud App Control rules
@@ -323,7 +324,7 @@ Separate resource from Advanced Policy Settings (the console page is different t
 
 - **UCaaS one-click toggles**: `enable_zoom`, `enable_logmein`, `enable_ringcentral`, `enable_webex`, `enable_talkdesk`. These are distinct from the Microsoft O365 toggles (`enable_office365`, `enable_msft_o365`).
 - **Per-product AI prompt logging**: `enable_chat_gpt_prompt`, `enable_microsoft_copilot_prompt`, `enable_gemini_prompt`, `enable_poe_prompt`, `enable_meta_prompt`, `enable_perplexity_prompt`. All separate booleans, all default `False`.
-- **Client-enforced mutual exclusion** (`url_filtering.py:515-527`): when `enable_cipa_compliance=True`, these four settings **must be False** or the SDK raises `ValueError`:
+- **Client-enforced mutual exclusion** (`url_filtering.py:516-528`): when `enable_cipa_compliance=True`, these four settings **must be False** or the SDK raises `ValueError`:
   - `enable_newly_registered_domains`
   - `consider_embedded_sites`
   - `enforce_safe_search`
@@ -360,7 +361,7 @@ SDK module: `zscaler/zia/tenancy_restriction_profile.py`. Corresponds to the *Te
 
 **SDK-level findings** (`zscaler/zia/tenancy_restriction_profile.py`, `zscaler/zia/models/tenancy_restriction_profile.py`):
 
-- **Full `app_type` enum — 15 values** (help article *Adding Tenant Profiles* lists 13; SDK reveals 2 additional):
+- **Full `app_type` enum — 16 values** (`tenancy_restriction_profile.py:147-150`; help article *Adding Tenant Profiles* lists 13; SDK reveals 3 additional — `BOX`, `FACEBOOK`, `AMAZON_S3`. Matches cloud-app-control.md's "16 supported apps per SDK"):
   - `YOUTUBE`, `GOOGLE`, `MSLOGINSERVICES`, `SLACK`, `BOX`, `FACEBOOK`, `AWS`, `DROPBOX`, `WEBEX_LOGIN_SERVICES`, `AMAZON_S3`, `ZOHO_LOGIN_SERVICES`, `GOOGLE_CLOUD_PLATFORM`, `ZOOM`, `IBMSMARTCLOUD`, `GITHUB`, `CHATGPT_AI`
   - Help article omits `BOX`, `FACEBOOK`, `AMAZON_S3`. Clarification `zia-08` should be updated with the SDK-authoritative list.
 - **`ms_login_services_tr_v2`** (bool) — selects between Microsoft Login Services v1 and v2 tenant-restriction protocols. Not a metadata flag; it changes the protocol spoken.
@@ -380,16 +381,19 @@ Not core to the skill's reasoning layer but worth knowing when reading tenant HC
 - **DLP Web Rules** — `min_size` range `0–96,000` KB (~93 MB) (`resource_zia_dlp_web_rules.go:189`).
 - **File Type Control Rules** — `min_size` and `max_size` both `0–409,600` KB (400 MB) (`resource_zia_file_type_control_rules.go:168, 175`).
 
-## Go-SDK-only surfaces (cross-SDK audit 2026-04-24)
+## Go-SDK-only surfaces (cross-SDK audit re-run 2026-06-15)
 
 Source: `vendor/zscaler-sdk-go/zscaler/zia/services/`; `vendor/zscaler-sdk-python/zscaler/zia/`.
 
-Cross-check against `vendor/zscaler-sdk-go/zscaler/zia/services/` surfaced services the Python SDK at `vendor/zscaler-sdk-python/zscaler/zia/` doesn't expose. These are real ZIA API surfaces — tooling that needs them must use the Go SDK or direct HTTP calls:
+Cross-check against `vendor/zscaler-sdk-go/zscaler/zia/services/` surfaced services the Python SDK at `vendor/zscaler-sdk-python/zscaler/zia/` doesn't expose. These are real ZIA API surfaces — tooling that needs them must use the Go SDK or direct HTTP calls. (Re-swept 2026-06-15 against the current Python tree: one prior entry — `email_profiles` — has since landed in Python and is no longer Go-only; see note below.)
 
-- **`scim_api`** (Go: `zia/services/scim_api/scim_user_api.go`, `scim_group_api.go`) — full SCIM CRUD for ZIA users and groups via a distinct `ScimZIAService` client. Python has no ZIA SCIM module at all; user management in Python is limited to the older `user_management` surface.
-- **`email_profiles`** (Go: `zia/services/email_profiles/email_profiles.go`) — DLP email profile CRUD with `GetAll` / `GetAllLite` / filter options. Python has no equivalent; closest is `end_user_notification.py` which serves a different purpose.
-- **`eventlogentryreport`** (Go) — event-log entry report CRUD (`GetAll`, `Create`, `Delete`). Python's `audit_logs` covers ZIA admin-action audit; this is a distinct report surface.
-- **`devicegroups`** (Go) — device-group CRUD. Python's `device_management` doesn't expose group-level CRUD.
+- **`scim_api`** (Go: `zia/services/scim_api/scim_user_api.go`, `scim_group_api.go`) — full SCIM CRUD for ZIA users and groups via a distinct `ScimZIAService` client. Python still has no ZIA SCIM module at all (only `authentication_settings.py` references the word "SCIM", a different purpose); user management in Python is limited to the older `user_management` surface. Re-verified 2026-06-15.
+- **`eventlogentryreport`** (Go) — event-log entry report CRUD (`GetAll`, `Create`, `Delete`). Python's `audit_logs.py` / `system_audit.py` cover ZIA admin-action audit; the event-log-entry report surface remains Python-absent (no `eventlog`-named module). Re-verified 2026-06-15.
+- **`devicegroups`** (Go) — device-group CRUD. Python's `device_management.py` exposes only `list_device_groups` (read of `/deviceGroups`, `vendor/zscaler-sdk-python/zscaler/zia/device_management.py:38`); it has no group-level create/update/delete. Still Go-only for write. Re-verified 2026-06-15.
+
+**Now in both SDKs (regressed off this list):**
+
+- **`email_profiles`** — formerly Go-only; the Python SDK now ships `vendor/zscaler-sdk-python/zscaler/zia/email_profiles.py` (`class EmailProfilesAPI` at `:26`, base endpoint `/zia/api/v1` at `:31`, `list_email_profiles` at `:37`). This is DLP email-profile access (Go side: `zia/services/email_profiles/email_profiles.go`). No longer a Go-SDK-only surface.
 - **Naming note: `advancedthreatsettings` (Go) == `atp_policy` (Python).** Same API surface (`GetAdvancedThreatSettings` / `GetMaliciousURLs` / `GetSecurityExceptions`) under different module names. `references/zia/malware-and-atp.md` uses the Python "ATP" naming; a Go-SDK-using reader will find it under `advancedthreatsettings`.
 
 Python-only modules the Go SDK doesn't carry (mostly newer features or SDK-lag not yet ported): `casb_dlp_rules`, `casb_malware_rules`, `cloud_browser_isolation`, `risk_profiles`, `sub_clouds`, `proxies`, `dns_gateways`, `dedicated_ip_gateways`.
@@ -499,7 +503,7 @@ Source: `vendor/zscaler-sdk-python/zscaler/zia/`.
 Complete list of ZIA submodules available at `vendor/zscaler-sdk-python/zscaler/zia/` — relevant to this skill:
 
 - `activate.py` — activation status / POST activate
-- `url_filters.py` — URL filtering rules
+- `url_filtering.py` — URL filtering rules
 - `cloudappcontrol.py` — Cloud App Control
 - `cloud_firewall.py`, `cloud_firewall_rules.py`, `cloud_firewall_dns.py`, `cloud_firewall_ips.py` — firewall module rules
 - `casb_dlp_rules.py`, `casb_malware_rules.py` — CASB
@@ -529,7 +533,10 @@ Data sources mirror many of these (see `vendor/terraform-provider-zia/docs/data-
 
 ## Open questions
 
-None specific to the API. See `zia/url-filtering.md`, `zia/ssl-inspection.md` for behavior-level clarifications.
+- **Cross-SDK parity is a moving target.** The 2026-06-15 re-sweep confirmed the four named Go-only surfaces (`scim_api`, `eventlogentryreport`, `devicegroups`-write, and the now-regressed `email_profiles`) against the current Python tree, but parity drifts release-to-release in both directions — `email_profiles` landing in Python is the example. The full module diff (`vendor/zscaler-sdk-go/zscaler/zia/services/` vs `vendor/zscaler-sdk-python/zscaler/zia/`) should be re-run on each vendor refresh rather than trusted from this dated list. Whether any *other* surface beyond the four named has since gained a Python counterpart was spot-checked, not exhaustively diffed. (Tracked as `zia-51` in [`../_meta/clarifications.md`](../_meta/clarifications.md#zia-51-cross-sdk-parity-drift-and-python-devicegroups-write-path).)
+- **`devicegroups` write-path in Python.** Python's `device_management.py` exposes `list_device_groups` (read) but no create/update/delete; whether the underlying `/deviceGroups` API supports group-level writes that simply aren't wrapped in the Python SDK yet (vs. being a Go-SDK-exclusive capability) is not source-verifiable from the SDK layer alone. (Tracked as `zia-51` in [`../_meta/clarifications.md`](../_meta/clarifications.md#zia-51-cross-sdk-parity-drift-and-python-devicegroups-write-path).)
+
+See `zia/url-filtering.md`, `zia/ssl-inspection.md` for behavior-level clarifications.
 
 ## Cross-links
 
