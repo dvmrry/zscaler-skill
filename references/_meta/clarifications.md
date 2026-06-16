@@ -3,7 +3,7 @@ product: meta
 topic: "clarifications-index"
 title: "Clarification index — open questions across references"
 content-type: reference
-last-verified: "2026-06-14"
+last-verified: "2026-06-15"
 confidence: high
 sources: []
 author-status: reviewed
@@ -23,6 +23,7 @@ Centralized list of open questions raised across `references/*.md`. Each entry h
 - `zdx-*` — ZDX (Digital Experience) behavior question
 - `zms-*` — ZMS (Microsegmentation) behavior question
 - `easm-*` — EASM (External Attack Surface Management) behavior question
+- `zid-*` — ZIdentity (identity / API-client / entitlement / admin-RBAC) behavior question
 - `shared-*` — cross-product or skill-wide question
 - `log-*` — log-schema / NSS / LSS question that spans multiple products
 
@@ -138,6 +139,46 @@ The vendor-MCP scrape (2026-06-14) added these open behavior questions — each 
 | [`zms-01`](#zms-01-fetchall-beyond-policyrules) | Whether ZMS `fetchAll` exists server-side beyond `policyRules` | SDK re-check / lab test |
 | [`easm-01`](#easm-01-finding-scan_type-allowed-values) | EASM finding `scan_type` allowed-value set | tenant snapshot / zscaler doc not yet read |
 | [`easm-02`](#easm-02-finding-risk-field-value-semantics) | EASM finding risk-field semantics (`risk_level` / `cisa_likelihood` / `epss_likelihood`) | tenant snapshot / zscaler doc not yet read |
+
+The ZIdentity refresh (2026-06-15) registered these open behavior questions from `references/zidentity/*.md` — each links to its detailed entry below:
+
+| ID | Title | Resolves with |
+|---|---|---|
+| [`zid-01`](#zid-01-admin-permission-level-enum-restricted-full-restrictive-view) | Admin permission-level enum (Restricted Full / Restrictive View vs Full / View Only / Restricted / None) | zscaler doc not yet read / tenant snapshot |
+| [`zid-02`](#zid-02-zidentity-role-to-per-product-scope-inheritance) | ZIdentity role to per-product (ZIA/ZPA) scope inheritance | tenant snapshot / zscaler doc not yet read |
+| [`zid-03`](#zid-03-role-management-apis-absent-from-the-sdk-surface) | Role-management APIs absent from the SDK surface | zscaler doc not yet read / live API trace |
+| [`zid-04`](#zid-04-admin-role-assignment-audit-trail) | Admin role-assignment audit trail | zscaler doc not yet read / live API trace |
+| [`zid-05`](#zid-05-scope-field-semantics-and-value-enum) | Entitlement `scope` field semantics and value enum (`Global` / `Limited` / `AllResources`) | vendor documentation / tenant-side check |
+| [`zid-06`](#zid-06-service-vs-administrative-entitlements-when-to-use-which) | Service vs administrative entitlements: when to use which | vendor documentation / operator experience |
+| [`zid-07`](#zid-07-get_service_entitlement-return-shape-for-multi-service-users) | `get_service_entitlement` return shape for multi-service users | lab test |
+| [`zid-08`](#zid-08-entitlement-api-behavior-by-user-idp-source) | Entitlement API behavior by user IdP source (SCIM vs internal) | tenant-side check |
+| [`zid-09`](#zid-09-scope-forward-compatibility-single-object-vs-list) | Scope forward-compatibility (single object vs list) | vendor API spec / changelog review |
+| [`zid-10`](#zid-10-entitlement-role-name-enum-completeness) | Entitlement role-name enum completeness | vendor documentation / live API enumeration |
+| [`zid-11`](#zid-11-access_token_life_time-field-semantics) | `access_token_life_time` field semantics (TTL vs active-flag docstring contradiction) | lab test / vendor documentation |
+| [`zid-12`](#zid-12-token-revocation-via-sdk-api) | Token revocation via SDK / API and propagation window | zscaler doc not yet read / lab test |
+| [`zid-13`](#zid-13-add_api_client_secret-expires_at-behavior) | `add_api_client_secret` `expires_at` behavior (omitted / past / range) | lab test |
+| [`zid-14`](#zid-14-jwks-authtype-request-body-unobserved-in-vendored-sources) | JWKS `authType` request body unobserved in vendored sources | tenant snapshot / zscaler doc not yet read |
+| [`zid-15`](#zid-15-bare-adminapiv1-prefix-acceptance-on-the-apizsapinet-host) | Bare `/admin/api/v1` prefix acceptance on the `api.zsapi.net` host | live API trace |
+| [`zid-16`](#zid-16-which-wire-host-a-live-tenant-actually-serves) | Which wire host a live tenant actually serves | live API trace |
+| [`zid-17`](#zid-17-group-dual-flag-semantics-isdynamicgroup-vs-dynamicgroup) | Group dual-flag semantics (`isDynamicGroup` vs `dynamicGroup`) | API spec review / lab test |
+| [`zid-18`](#zid-18-dynamic-group-membership-mutation-behavior) | Dynamic-group membership mutation behavior | lab test |
+| [`zid-19`](#zid-19-user-deduplication-in-bulk-add) | User deduplication in bulk add | lab test |
+| [`zid-20`](#zid-20-scim-sourced-group-mutation-semantics) | SCIM-sourced group mutation semantics | lab test / vendor documentation |
+| [`zid-21`](#zid-21-group-source-value-enum-completeness) | Group `source` value enum completeness | vendor documentation / live API enumeration |
+| [`zid-22`](#zid-22-group-enableddisabled-flag-on-the-wire) | Group enabled/disabled flag on the wire | tenant snapshot / vendor documentation |
+| [`zid-23`](#zid-23-empty-servicescopes-array-semantics) | Empty `serviceScopes` array semantics | tenant-side check / vendor documentation |
+| [`zid-24`](#zid-24-defaultapi-flag-behavior) | `defaultApi` flag behavior | vendor documentation / lab test |
+| [`zid-25`](#zid-25-resource-server-enumerability-hidden-internal-entries) | Resource-server enumerability (hidden internal entries) | tenant-side check / vendor documentation |
+| [`zid-26`](#zid-26-zidentity-snapshot-writer-output-shape) | ZIdentity snapshot writer output shape (`.records[]` vs `.[0].records[]`) | design decision |
+| [`zid-27`](#zid-27-secrets-snapshot-file-layout) | Secrets snapshot file layout | design decision |
+| [`zid-28`](#zid-28-authentication-levels-per-product-or-global-only) | Authentication levels: per-product or global only | zscaler doc not yet read / tenant-side check |
+| [`zid-29`](#zid-29-step-up-for-scim-users-without-a-mapped-external-idp-identity) | Step-up for SCIM users without a mapped external IdP identity | lab test / zscaler doc not yet read |
+| [`zid-30`](#zid-30-step-up-message-to-user-localization) | Step-up "message to user" localization | zscaler doc not yet read / tenant-side check |
+| [`zid-31`](#zid-31-where-step-up-elevation-is-logged) | Where step-up elevation is logged (ZIA Transaction / ZPA LSS) | lab test / zscaler doc not yet read |
+| [`zid-32`](#zid-32-omitting-id-on-user-create) | Omitting `id` on user create | lab test / API spec review |
+| [`zid-33`](#zid-33-about-revoking-access-tokens-articles-uncaptured) | About / Revoking Access Tokens articles uncaptured | zscaler doc not yet read / capture |
+| [`zid-34`](#zid-34-api-client-access-policy-article-uncaptured) | API Client Access Policy article uncaptured | zscaler doc not yet read / capture |
+| [`zid-35`](#zid-35-admin-roles-permissions-module-level-matrix-uncaptured) | Admin Roles & Permissions module × level matrix uncaptured | zscaler doc not yet read / capture |
 
 Partial / SDK-mined (resolved via code read or help-doc capture; full lab confirmation pending): `zcc-01`, `zcc-02`, `zcc-03`, `zcc-04`, `zcc-05`, `zcc-06`, `zcc-07`, **`log-04`** (field name + illustrative values confirmed via `web-log-schema.md`; full enum of `ruletype` / `reason` values still needs a tenant export). All six ZCC enum clarifications had their **datatype** (int vs string) resolved by the Go SDK cross-check on 2026-04-24; the integer-to-meaning mapping remains open for `zcc-01` through `zcc-04` and `zcc-06`.
 
@@ -3062,6 +3103,391 @@ EASM finding risk fields — `risk_level` / `severity_score` / `status` (`vendor
 
 **Status**: open
 **Resolves with**: tenant snapshot (collect observed values across live findings) OR zscaler doc not yet read
+
+---
+
+### zid-01 — Admin permission-level enum (Restricted Full / Restrictive View)
+
+*Origin: `references/zidentity/admin-rbac.md` § Open questions*
+
+The ZIdentity admin-RBAC capture lists four permission levels — Full / View Only / Restricted / None (`vendor/zscaler-help/admin-rbac-captures.md:124`) — but the extraction report notes shared docs elsewhere reference "Restricted Full" and "Restrictive View" as additional or alternate level names. Which enum is authoritative for ZIdentity admin roles is unresolved from the captured source.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (re-capture the live Admin Roles & Permissions article — see `zid-35`) OR tenant snapshot
+
+---
+
+### zid-02 — ZIdentity role to per-product scope inheritance
+
+*Origin: `references/zidentity/admin-rbac.md` § Open questions*
+
+It is unclear whether a ZIdentity "User Admin" role combined with Full Administrative Entitlements automatically inherits any ZIA/ZPA admin scope, or whether per-product admin scope must be configured separately in each product console. The captured admin-RBAC source (`vendor/zscaler-help/admin-rbac-captures.md`) describes ZIdentity-side role assignment but does not state how (or whether) it propagates into per-product feature/scope flags.
+
+**Status**: open
+**Resolves with**: tenant snapshot (compare a ZIdentity admin's role against the scope they actually receive in ZIA/ZPA) OR zscaler doc not yet read
+
+---
+
+### zid-03 — Role-management APIs absent from the SDK surface
+
+*Origin: `references/zidentity/admin-rbac.md` § Open questions*
+
+Neither SDK exposes an endpoint to list role definitions, create custom roles, assign roles, or query the permission matrix at runtime — the Go ZIdentity service catalog contains only `common`, `groups`, `resource_servers`, `user_entitlement`, and `users` (see `zid/sdk.md` item 1, resolved), and the Python `zid/` package has no role-management module. Whether role management is portal-only, or served by an admin endpoint the SDKs simply do not wrap, is not determinable from source.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR live API trace against a tenant
+
+---
+
+### zid-04 — Admin role-assignment audit trail
+
+*Origin: `references/zidentity/admin-rbac.md` § Open questions*
+
+No audit endpoint for ZIdentity role-assignment changes is wrapped in either SDK (the Python `zid/` package and Go `zid/services/` catalog carry no audit-log service). Whether ZIdentity records who-assigned-which-role-when, and where that record is read from, is not determinable from the SDK surface.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR live API trace against a tenant
+
+---
+
+### zid-05 — `scope` field semantics and value enum
+
+*Origin: `references/zidentity/user-entitlements.md` § Open questions; `references/zidentity/admin-rbac.md` § Open questions*
+
+The entitlement `scope` field is populated by both SDKs (Python `vendor/zscaler-sdk-python/zscaler/zid/models/user_entitlement.py:52-60`; the Go `Entitlements` struct carries `Scope common.IDNameDisplayName`) but no value enum or operational definition is documented in either SDK. Fixture examples include `Global`, `Limited`, and `AllResources`, yet what `Limited` actually restricts — which resources, at which granularity — is not stated. This is the same field surfaced from two docs (admin-rbac calls it `Entitlement.scope`; user-entitlements calls it `scope`).
+
+**Status**: open
+**Resolves with**: vendor documentation OR tenant-side check (read live entitlements and correlate each `scope` value with the access it grants)
+
+---
+
+### zid-06 — Service vs administrative entitlements: when to use which
+
+*Origin: `references/zidentity/admin-rbac.md` § Open questions*
+
+Both `get_service_entitlement` and `get_admin_entitlement` exist in the Python SDK (`vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py:37,81`). The response-shape difference is resolved (see `zid/sdk.md` item 5: admin entitlements answer "what can this user do?"; service entitlements answer "which tenant/service is this account tied to?"). What remains open is the *usage* guidance — whether a caller diagnosing a given access problem should read one, the other, or both — which no vendor source documents.
+
+**Status**: open
+**Resolves with**: vendor documentation OR operator experience
+
+---
+
+### zid-07 — `get_service_entitlement` return shape for multi-service users
+
+*Origin: `references/zidentity/user-entitlements.md` § Open questions*
+
+The Go SDK returns `[]Service` for service entitlements, but the Python SDK constructs a single `Service` object from the raw body at `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py:118` (`Service(self.form_response_body(response.get_body()))`). A single `Service.__init__` over an array-shaped body would parse it oddly rather than yield a list. The live wire shape for a user holding multiple service entitlements is undemonstrated in the vendored fixtures, so the Python behavior for that case is unverified.
+
+**Status**: open
+**Resolves with**: lab test (read service entitlements for a multi-service user, observe the body shape)
+
+---
+
+### zid-08 — Entitlement API behavior by user IdP source
+
+*Origin: `references/zidentity/user-entitlements.md` § Open questions*
+
+Whether the entitlement endpoints return different results for SCIM-provisioned vs ZIdentity-internal users is not addressed by either SDK. The `source` field on the user record (`vendor/zscaler-sdk-python/zscaler/zid/users.py:187` — `UI`/`API`/`SCIM`/`JIT`) gives user origin, but no entitlement endpoint accepts or exposes `source`, so any source-dependent behavior is invisible at the SDK layer.
+
+**Status**: open
+**Resolves with**: tenant-side check (compare entitlement responses for a SCIM user vs an internal user)
+
+---
+
+### zid-09 — Scope forward-compatibility (single object vs list)
+
+*Origin: `references/zidentity/user-entitlements.md` § Open questions*
+
+The Go SDK declares an unused `Scope` struct wrapping a *list* — `type Scope struct { Scope []common.IDNameDisplayName }` (`vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go:21-23`) — while the live `Entitlements` struct carries a single `Scope common.IDNameDisplayName` object. The unused list-shaped struct suggests a list-of-scopes design was considered or planned. Whether the wire format will change from a single scope object to a list is unknown.
+
+**Status**: open
+**Resolves with**: vendor API spec OR changelog review
+
+---
+
+### zid-10 — Entitlement role-name enum completeness
+
+*Origin: `references/zidentity/user-entitlements.md` § Open questions*
+
+Observed entitlement role names in test fixtures (`SuperAdmin`, `Admin`, `ReadOnly`, `PolicyAdmin`, `Auditor`) may not be exhaustive — no enum constants are exported in either SDK (`vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go` uses `omitempty` strings with no enumeration). The full set of valid role names cannot be confirmed from source.
+
+**Status**: open
+**Resolves with**: vendor role documentation OR live API enumeration
+
+---
+
+### zid-11 — `access_token_life_time` field semantics
+
+*Origin: `references/zidentity/api-clients.md` § Open questions*
+
+`add_api_client` accepts `access_token_life_time` with an example value of `86400` (= 24h, `vendor/zscaler-sdk-python/zscaler/zid/api_client.py:195`), but the field's own docstring at `vendor/zscaler-sdk-python/zscaler/zid/api_client.py:164` reads "Whether the client is active (true) or inactive (false)" — a description that fits an active-flag, not a token TTL, and contradicts the field name. Whether this is a per-client token-TTL override (and how it interacts with the tenant Authentication Session default) is unresolved from source.
+
+**Status**: open
+**Resolves with**: lab test (set distinct `access_token_life_time` values, observe issued-token lifetime) OR vendor documentation
+
+---
+
+### zid-12 — Token revocation via SDK / API
+
+*Origin: `references/zidentity/api-clients.md` § Open questions*
+
+The Python SDK exposes API-client and secret CRUD (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py:156-530`) but no token-revocation endpoint. Whether outstanding access tokens can be revoked programmatically (vs portal-only), and the post-revocation propagation window, is unconfirmed in SDK source. The "revocation takes effect at the next OneAPI call" timing is asserted from the help related-articles list but the source articles are uncaptured (see `zid-33`).
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read (capture the Revoking Access Tokens article — see `zid-33`) OR lab test
+
+---
+
+### zid-13 — `add_api_client_secret` `expires_at` behavior
+
+*Origin: `references/zidentity/sdk.md` § Open questions (item 2)*
+
+`add_api_client_secret` accepts `expires_at` as a string Unix epoch; the only SDK docstring example shows `'1785643102'` (a valid future epoch, `vendor/zscaler-sdk-python/zscaler/zid/api_client.py:458`). The API behavior when `expires_at` is omitted or set to a past value is not documented, and the acceptable range is not stated, so neither can be confirmed from source.
+
+**Status**: open
+**Resolves with**: lab test (create secrets with omitted / past / far-future `expires_at`, observe acceptance and resulting expiry)
+
+---
+
+### zid-14 — JWKS `authType` request body unobserved in vendored sources
+
+*Origin: `references/zidentity/api-divergences.md` § Open questions*
+
+The `JWKS` `authType` value is documented in the Python SDK docstring (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py:167`, alongside `SECRET` and `PUBKEYCERT`), but the captured Postman samples exercise only `SECRET` and `PUBKEYCERT` bodies. No live `JWKS`-configured client body was observed in the vendored sources, so the exact required fields for a JWKS client (e.g. `clientJWKsUrl` vs `publicKeys[]`) are inferred from the model, not seen on the wire.
+
+**Status**: open
+**Resolves with**: tenant snapshot (capture a JWKS-configured API client body) OR zscaler doc not yet read
+
+---
+
+### zid-15 — Bare `/admin/api/v1` prefix acceptance on the `api.zsapi.net` host
+
+*Origin: `references/zidentity/api-divergences.md` § Open questions*
+
+The two SDKs pair a path prefix with a host and neither crosses over: the Python SDK uses `api.zsapi.net` with a `/ziam/admin/api/v1` prefix, while the Go SDK uses `{vanity}-admin.zslogin.net` with a bare `/admin/api/v1` prefix (no `/ziam`). Whether the API accepts the bare `/admin/api/v1` prefix on the `api.zsapi.net` host (or only on the vanity-login host) is not determinable from source alone.
+
+**Status**: open
+**Resolves with**: live API trace (send a bare-prefix request to `api.zsapi.net`, observe acceptance)
+
+---
+
+### zid-16 — Which wire host a live tenant actually serves
+
+*Origin: `references/zidentity/resource-servers.md` § Open questions*
+
+The Go SDK builds requests against `{vanity_domain}-admin.zslogin.net` (`vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:402-414`) while the Python SDK uses `https://api.zsapi.net` as its base (`vendor/zscaler-sdk-python/zscaler/request_executor.py:32`). Both hosts are present in current vendor source, so both are presumably live, but whether a tenant routes them identically (one an edge/login-host alias, the other a gateway alias) or whether one is transitional cannot be determined from the SDKs alone. This is the host-routing twin of the prefix question in `zid-15`.
+
+**Status**: open
+**Resolves with**: live API trace against a tenant (resolve both hosts, compare responses)
+
+---
+
+### zid-17 — Group dual-flag semantics (`isDynamicGroup` vs `dynamicGroup`)
+
+*Origin: `references/zidentity/groups.md` § Open questions*
+
+The group record carries two separate dynamic-group booleans — `isDynamicGroup` and `dynamicGroup` (`vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go:26-27`; Python mirrors both at `vendor/zscaler-sdk-python/zscaler/zid/models/groups.py:89-90`). What the server does when the two flags disagree is undocumented; the Go test only ever sets `DynamicGroup: true`, so the relationship between the two is unverified.
+
+**Status**: open
+**Resolves with**: API spec review OR lab test (set the two flags to conflicting values, observe server behavior)
+
+---
+
+### zid-18 — Dynamic-group membership mutation behavior
+
+*Origin: `references/zidentity/groups.md` § Open questions*
+
+Whether `add_user_to_group` (`vendor/zscaler-sdk-python/zscaler/zid/groups.py`) on a *dynamic* group is rejected server-side or silently succeeds is unknown — dynamic groups derive membership from rules, so a manual add is logically ambiguous, and no source states which way the server resolves it.
+
+**Status**: open
+**Resolves with**: lab test (call a manual add against a dynamic group, observe accept vs reject)
+
+---
+
+### zid-19 — User deduplication in bulk add
+
+*Origin: `references/zidentity/groups.md` § Open questions*
+
+Whether duplicate user IDs in `add_users_to_group` (`vendor/zscaler-sdk-python/zscaler/zid/groups.py`) result in rejection, deduplication, or silent ignore is unknown from source.
+
+**Status**: open
+**Resolves with**: lab test (submit a bulk add with repeated user IDs, observe the result)
+
+---
+
+### zid-20 — SCIM-sourced group mutation semantics
+
+*Origin: `references/zidentity/groups.md` § Open questions*
+
+Whether SDK CRUD operations on SCIM-provisioned groups (`source: SCIM`) are rejected by the server — on the principle that the IdP owns the record — is undocumented. The `source` field exists (`vendor/zscaler-sdk-python/zscaler/zid/groups.py:167` lists `'SCIM'`, `'MANUAL'`) but no source states whether it gates mutation.
+
+**Status**: open
+**Resolves with**: lab test OR vendor documentation
+
+---
+
+### zid-21 — Group `source` value enum completeness
+
+*Origin: `references/zidentity/sdk.md` § Open questions (item 7)*
+
+For *users*, the `source` enum is fully documented — `UI`, `API`, `SCIM`, `JIT` (`vendor/zscaler-sdk-python/zscaler/zid/users.py:187`). For *groups*, the docstring lists only `'SCIM'` and `'MANUAL'` as examples (`vendor/zscaler-sdk-python/zscaler/zid/groups.py:167`) and the Go struct uses `omitempty` with no enumeration. Whether groups share the full user enum (and whether `JIT` / `API` / `UI` are valid group sources) cannot be confirmed from source.
+
+**Status**: open
+**Resolves with**: vendor documentation OR live API enumeration
+
+---
+
+### zid-22 — Group enabled/disabled flag on the wire
+
+*Origin: `references/zidentity/snapshot-schema.md` § Open questions*
+
+User records expose `status` as a boolean (active/disabled), but the group model carries no `status` field in either SDK. Whether groups have an equivalent enabled/disabled flag that the captured models simply omit, or whether groups have no such concept, is not confirmed from the vendored sources.
+
+**Status**: open
+**Resolves with**: tenant snapshot (read a live group record, check for a status field) OR vendor documentation
+
+---
+
+### zid-23 — Empty `serviceScopes` array semantics
+
+*Origin: `references/zidentity/resource-servers.md` § Open questions*
+
+The meaning of a resource server with an empty `serviceScopes` slice (vs a populated one) is not documented in either SDK — whether it means "no scopes available", "all scopes", or "scopes defined elsewhere" is unstated.
+
+**Status**: open
+**Resolves with**: tenant-side check (read live resource servers, correlate empty `serviceScopes` with grantable scopes) OR vendor documentation
+
+---
+
+### zid-24 — `defaultApi` flag behavior
+
+*Origin: `references/zidentity/resource-servers.md` § Open questions*
+
+The `defaultApi` boolean on the resource-server record is present in both SDKs (`vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go:22`; `vendor/zscaler-sdk-python/zscaler/zid/models/resource_servers.py:90`) but its operational meaning — which clients it applies to, what it overrides — is not described in any vendored source.
+
+**Status**: open
+**Resolves with**: vendor documentation OR lab test
+
+---
+
+### zid-25 — Resource-server enumerability (hidden internal entries)
+
+*Origin: `references/zidentity/sdk.md` § Open questions (item 6)*
+
+Whether `list_resource_servers` enumerates *all* resource servers in a tenant, or whether some are Zscaler-internal and hidden from the list, is not confirmed from source. Both SDKs hit the resource-servers endpoint with no filter parameter that would distinguish tenant-created from system-provided entries — via different host+prefix (Python `api.zsapi.net/ziam/admin/api/v1/resource-servers`, `vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py`; Go `{vanity}-admin.zslogin.net/admin/api/v1/resource-servers`, `vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go` + `oneapiconfig.go:404-414`).
+
+**Status**: open
+**Resolves with**: tenant-side check (list resource servers on a live tenant, compare against the console) OR vendor documentation
+
+---
+
+### zid-26 — ZIdentity snapshot writer output shape
+
+*Origin: `references/zidentity/snapshot-schema.md` § Open questions*
+
+Whether a future ZIdentity snapshot stores the raw list body (so jq uses `.records[]`) or wraps pages in an array (so jq uses `.[0].records[]`) is a writer decision not yet made — ZIdentity is not currently snapshotted. The doc's jq examples assume the raw single-object body, matching the SDK list models (`vendor/zscaler-sdk-python/zscaler/zid/models/users.py:36-67`); confirm and re-document once the writer exists.
+
+**Status**: open
+**Resolves with**: design decision (made when the ZIdentity snapshot writer is built; expected alongside the `linear/dav-19-zidentity-refresh` work)
+
+---
+
+### zid-27 — Secrets snapshot file layout
+
+*Origin: `references/zidentity/snapshot-schema.md` § Open questions*
+
+If API-client secrets are dumped to a snapshot, the per-client file/key naming convention (e.g. `api-client-secrets.json` keyed by client id) is undefined. More fundamentally, whether a live `GET /api-clients/{id}/secrets` returns the real secret `value` is unverified: the response **shape** carries a `value` field (`vendor/zscaler-sdk-python/zscaler/zid/models/api_client.py:287-318`, mapped at `:305`) and the Postman sample includes one, but that sample value is a synthetic placeholder and the portal documents the secret as not retrievable after creation. Treat `value` as sensitive and consider excluding it from the snapshot entirely rather than making a layout decision.
+
+**Status**: open
+**Resolves with**: a live `GET .../secrets` capture to confirm whether `value` is populated post-creation, plus the snapshot-writer design decision
+
+---
+
+### zid-28 — Authentication levels: per-product or global only
+
+*Origin: `references/zidentity/step-up-authentication.md` § Open questions*
+
+Whether ZIdentity authentication levels can be configured differently per-product or only globally is unresolved; the captured step-up material (`vendor/zscaler-help/understanding-step-up-authentication-zidentity.md`) describes a single tenant-wide level tree, but does not state whether per-product overrides exist.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR tenant-side check
+
+---
+
+### zid-29 — Step-up for SCIM users without a mapped external IdP identity
+
+*Origin: `references/zidentity/step-up-authentication.md` § Open questions*
+
+How step-up interacts with SCIM-provisioned users who lack a mapped external IdP identity — whether such users can step up at all — is not addressed by the captured step-up material (`vendor/zscaler-help/understanding-step-up-authentication-zidentity.md`).
+
+**Status**: open
+**Resolves with**: lab test (attempt a step-up challenge for a SCIM user with no external IdP mapping) OR zscaler doc not yet read
+
+---
+
+### zid-30 — Step-up "message to user" localization
+
+*Origin: `references/zidentity/step-up-authentication.md` § Open questions*
+
+Whether the per-level "message to user" field supports localization (multiple language strings) or only a single string per level is not stated in the captured step-up material (`vendor/zscaler-help/understanding-step-up-authentication-zidentity.md`).
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read OR tenant-side check
+
+---
+
+### zid-31 — Where step-up elevation is logged
+
+*Origin: `references/zidentity/step-up-authentication.md` § Open questions*
+
+Whether step-up elevation is recorded in ZIA Transaction logs or ZPA LSS User Activity logs — and with what field values — is not stated in the captured step-up material (`vendor/zscaler-help/understanding-step-up-authentication-zidentity.md`). Relevant to "can I see when a user was challenged" questions.
+
+**Status**: open
+**Resolves with**: lab test (trigger a step-up, search ZIA/ZPA logs for a corresponding record) OR zscaler doc not yet read
+
+---
+
+### zid-32 — Omitting `id` on user create
+
+*Origin: `references/zidentity/users.md` § Open questions*
+
+The `add_user` docstring example passes `id` explicitly (`vendor/zscaler-sdk-python/zscaler/zid/users.py`). Whether omitting `id` triggers server-side auto-generation or returns an error is unverified from source.
+
+**Status**: open
+**Resolves with**: lab test (create a user with no `id`, observe auto-generation vs error) OR API spec review
+
+---
+
+### zid-33 — About / Revoking Access Tokens articles uncaptured
+
+*Origin: `references/zidentity/api-clients.md` § Open questions*
+
+The `About Access Tokens` and `Revoking Access Tokens` help articles are named in the related-articles list of `vendor/zscaler-help/zidentity-about-api-clients.md` but are not captured in `vendor/zscaler-help/`. The "revocation takes effect at the next OneAPI call" timing and the post-revocation propagation window are therefore unverified against source. Capturing these pages would also resolve `zid-12`.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read / capture
+
+---
+
+### zid-34 — API Client Access Policy article uncaptured
+
+*Origin: `references/zidentity/api-clients.md` § Open questions*
+
+The API Client Access Policy is referenced in the captured API-clients help page, but the dedicated policy article is not in `vendor/zscaler-help/`. The specific knobs (source-IP / time-of-day / other conditions) are currently inferred by analogy to admin IP restriction, not read from source.
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read / capture
+
+---
+
+### zid-35 — Admin Roles & Permissions module × level matrix uncaptured
+
+*Origin: `references/zidentity/admin-rbac.md` § Open questions*
+
+The authoritative full permission matrix (25+ modules × 4 levels) is explicitly deferred to the live help portal by the capture (`vendor/zscaler-help/admin-rbac-captures.md:128`) and is not present in `vendor/zscaler-help/`. Capturing it would also resolve the permission-level enum question (`zid-01`).
+
+**Status**: open
+**Resolves with**: zscaler doc not yet read / capture
 
 ---
 

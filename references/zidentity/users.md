@@ -3,7 +3,7 @@ product: zidentity
 topic: "zidentity-users"
 title: "ZIdentity users — CRUD, fields, filters, IdP-sourced vs internal"
 content-type: reference
-last-verified: "2026-05-05"
+last-verified: "2026-06-15"
 confidence: high
 source-tier: code
 sources:
@@ -70,10 +70,11 @@ Variable `{{ZIAMBase}}` resolves to the ZIdentity ZIAM base URL. (`vendor/zscale
 | GET | `{{ZIAMBase}}/users/:id/groups` | Get groups for user |
 | GET | `{{ZIAMBase}}/users/:id/admin-entitlements` | Admin entitlements — see [`admin-rbac.md`](./admin-rbac.md) |
 | GET | `{{ZIAMBase}}/users/:id/service-entitlements` | Service entitlements — see [`admin-rbac.md`](./admin-rbac.md) |
-| POST | `{{ZIAMBase}}/users/:id:resetpassword` | Reset password — **NOT in SDK** |
-| POST | `{{ZIAMBase}}/users/:id:setskipmfa` | Set skip MFA — **NOT in SDK** |
-| PUT | `{{ZIAMBase}}/users/:id:updatepassword` | Update password — **NOT in SDK** |
-| POST | `{{ZIAMBase}}/users/bulkDelete` | Bulk delete — **NOT in SDK** |
+| POST | `{{ZIAMBase}}/users/:id:resetpassword` | Reset password — live ZIAM API op, **NOT in SDK** (Go stub commented out) |
+| POST | `{{ZIAMBase}}/users/:id:setskipmfa` | Set skip MFA — live ZIAM API op, **NOT in SDK** (Go stub commented out) |
+| PUT | `{{ZIAMBase}}/users/:id:updatepassword` | Update password — live ZIAM API op, **NOT in SDK** |
+
+There is no bulk-delete on the ZIAM users surface. The only `users/bulkDelete` in the Postman collection is `{{ZIABase}}/users/bulkDelete` (`vendor/zscaler-api-specs/oneapi-postman-collection.json:9928`) — that is the **ZIA** users API, not ZIdentity. ZIdentity exposes per-user delete only (`DELETE {{ZIAMBase}}/users/:id`). A grep for `{{ZIAMBase}}/users/bulkDelete` returns zero matches.
 
 ## User model fields
 
@@ -83,22 +84,22 @@ Python model: `UserRecord` in `zscaler/zid/models/users.py`. Go struct: `Users` 
 
 | Python attr | Go field | Wire key (JSON) | Type | Notes | Citation |
 |---|---|---|---|---|---|
-| `id` | `ID` | `id` | string | Auto-generated on create | `models/users.py:91`, `users.go:20` |
-| `source` | `Source` | `source` | string | Values: `UI`, `API`, `SCIM`, `JIT` | `models/users.py:92`, `users.go:21` |
-| `login_name` | `LoginName` | `loginName` | string | | `models/users.py:84`, `users.go:22` |
-| `display_name` | `DisplayName` | `displayName` | string | | `models/users.py:85`, `users.go:23` |
-| `first_name` | `FirstName` | `firstName` | string | | `models/users.py:86`, `users.go:24` |
-| `last_name` | `LastName` | `lastName` | string | | `models/users.py:87`, `users.go:25` |
-| `primary_email` | `PrimaryEmail` | `primaryEmail` | string | | `models/users.py:88`, `users.go:26` |
-| `secondary_email` | `SecondaryEmail` | `secondaryEmail` | string | | `models/users.py:89`, `users.go:27` |
-| `status` | `Status` | `status` | boolean | `true` = active, `false` = disabled | `models/users.py:90`, `users.go:28` |
-| `department` | `Department` | `department` | nested struct (`IDNameDisplayName`) | | `models/users.py:112`, `users.go:29` |
-| `idp` | `IDP` | `idp` | nested struct (`IDNameDisplayName`) | Populated for IdP-sourced users | `models/users.py:101`, `users.go:30` |
-| `custom_attrs_info` | `CustomAttrsInfo` | `customAttrsInfo` | dict / `map[string]interface{}` | Free-form key-value pairs | `models/users.py:99`, `users.go:31` |
-| `is_dynamic_group` | — | `isDynamicGroup` | boolean | Python only | `models/users.py:93` |
-| `dynamic_group` | — | `dynamicGroup` | object | Python only | `models/users.py:94` |
-| `admin_entitlement_enabled` | — | `adminEntitlementEnabled` | boolean | Python only | `models/users.py:95` |
-| `service_entitlement_enabled` | — | `serviceEntitlementEnabled` | boolean | Python only | `models/users.py:96` |
+| `id` | `ID` | `id` | string | Auto-generated on create | `models/users.py:92`, `users.go:20` |
+| `source` | `Source` | `source` | string | Values: `UI`, `API`, `SCIM`, `JIT` | `models/users.py:93`, `users.go:21` |
+| `login_name` | `LoginName` | `loginName` | string | | `models/users.py:85`, `users.go:22` |
+| `display_name` | `DisplayName` | `displayName` | string | | `models/users.py:86`, `users.go:23` |
+| `first_name` | `FirstName` | `firstName` | string | | `models/users.py:87`, `users.go:24` |
+| `last_name` | `LastName` | `lastName` | string | | `models/users.py:88`, `users.go:25` |
+| `primary_email` | `PrimaryEmail` | `primaryEmail` | string | | `models/users.py:89`, `users.go:26` |
+| `secondary_email` | `SecondaryEmail` | `secondaryEmail` | string | | `models/users.py:90`, `users.go:27` |
+| `status` | `Status` | `status` | boolean | `true` = active, `false` = disabled | `models/users.py:91`, `users.go:28` |
+| `department` | `Department` | `department` | nested struct (`IDNameDisplayName`) | | `models/users.py:115`, `users.go:29` |
+| `idp` | `IDP` | `idp` | nested struct (`IDNameDisplayName`) | Populated for IdP-sourced users | `models/users.py:104`, `users.go:30` |
+| `custom_attrs_info` | `CustomAttrsInfo` | `customAttrsInfo` | dict / `map[string]interface{}` | Free-form key-value pairs. **Python caveat**: the model attribute is assigned the entire raw record, not the `customAttrsInfo` sub-key — see Known bugs. | `models/users.py:100`, `users.go:31` |
+| `is_dynamic_group` | — | `isDynamicGroup` | boolean | Python only | `models/users.py:94` |
+| `dynamic_group` | — | `dynamicGroup` | object | Python only | `models/users.py:95` |
+| `admin_entitlement_enabled` | — | `adminEntitlementEnabled` | boolean | Python only | `models/users.py:96` |
+| `service_entitlement_enabled` | — | `serviceEntitlementEnabled` | boolean | Python only | `models/users.py:97` |
 
 The `IDNameDisplayName` nested struct (Go) has fields `ID string`, `Name string`, `DisplayName string`. (`vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go:14`)
 
@@ -108,12 +109,12 @@ The Python `Users` wrapper object (returned by `list_users`) carries pagination 
 
 | Python attr | Wire key | Go field | Citation |
 |---|---|---|---|
-| `results_total` | `results_total` | `ResultsTotal` | `models/users.py:38`, `common.go:23` |
-| `page_offset` | `pageOffset` | `PageOffset` | `models/users.py:39`, `common.go:24` |
-| `page_size` | `pageSize` | `PageSize` | `models/users.py:40`, `common.go:25` |
-| `next_link` | `next_link` | `NextLink` | `models/users.py:41`, `common.go:26` |
-| `prev_link` | `prev_link` | `PrevLink` | `models/users.py:42`, `common.go:27` |
-| `records` | `records` | `Records` | `models/users.py:43`, `common.go:28` |
+| `results_total` | `results_total` | `ResultsTotal` | `models/users.py:39`, `common.go:23` |
+| `page_offset` | `pageOffset` | `PageOffset` | `models/users.py:40`, `common.go:24` |
+| `page_size` | `pageSize` | `PageSize` | `models/users.py:41`, `common.go:25` |
+| `next_link` | `next_link` | `NextLink` | `models/users.py:42`, `common.go:26` |
+| `prev_link` | `prev_link` | `PrevLink` | `models/users.py:43`, `common.go:27` |
+| `records` | `records` | `Records` | `models/users.py:44`, `common.go:28` |
 
 ## Filter / query parameters
 
@@ -146,13 +147,13 @@ Full CRUD is supported. No activation step is exposed for ZIdentity user writes 
 
 **Deleting a user**: `delete_user` / `Delete` return `(None, response, None)` / `(*http.Response, nil)` on success — no body. (`users.py:297`, `users.go:120`)
 
-**Activating / deactivating**: Toggle the `status` boolean field via `update_user` / `Update`. There is no separate workflow endpoint. (`models/users.py:90`)
+**Activating / deactivating**: Toggle the `status` boolean field via `update_user` / `Update`. There is no separate workflow endpoint. (`models/users.py:91`)
 
 ## IdP-sourced vs ZIdentity-internal users
 
 Source: `vendor/zscaler-sdk-python/zscaler/zid/models/users.py`; `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`.
 
-Both types appear in the same list endpoint. Distinguish by the `source` field: (`models/users.py:92`, `users.go:21`)
+Both types appear in the same list endpoint. Distinguish by the `source` field: (`models/users.py:93`, `users.go:21`)
 
 | User type | `source` values | `idp` field |
 |---|---|---|
@@ -185,19 +186,25 @@ Source: `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-go
 
 **Python — `list_user_group_details` return type**: Despite the function name suggesting groups, the function returns `List[UserRecord]` (not group objects). (`users.py:333`)
 
+**Python — `custom_attrs_info` assignment**: `UserRecord.__init__` does `self.custom_attrs_info = config if isinstance(config, dict) else {}` — it assigns the ENTIRE raw response dict to the attribute, not a filtered `customAttrsInfo` sub-key. The Python model attribute therefore duplicates the full user record rather than isolating custom attributes. Callers wanting the actual custom attributes should read the `customAttrsInfo` key from the raw response dict, not the model attribute. (Identical to the groups bug at `models/groups.py:94`.) (`models/users.py:100`)
+
 ## Gaps
 
 Source: `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
-The following capabilities appear in the Postman collection but are absent from both SDKs:
+These are **live ZIdentity API operations** (present in the Postman collection on the `{{ZIAMBase}}` surface) that are **not implemented in either active SDK** — i.e. SDK gaps, not API gaps. Anyone scripting against the raw API can call them; SDK users cannot:
 
-1. **Password reset** — `POST /users/:id:resetpassword` — Postman only; commented-out stub exists in Go SDK (`users.go:134`)
-2. **Set skip MFA** — `POST /users/:id:setskipmfa` — Postman only; commented-out stub in Go SDK (`users.go:143`)
-3. **Update password** — `PUT /users/:id:updatepassword` — Postman only
-4. **Bulk delete** — `POST /users/bulkDelete` — Postman only
-5. **Group mutation via users API** — group association is read-only here; mutations go through the groups API (see [`groups.md`](./groups.md))
-6. **Provisioning source change** — `source` field is readable but not documented as changeable post-creation
-7. **Custom attributes validation** — `customAttrsInfo` accepted as free-form dict/map; backend constraints unknown
+1. **Password reset** — `POST /users/:id:resetpassword` — real ZIAM API op (`oneapi-postman-collection.json:133836`); Go stub scaffolded then commented out (`users.go:134`)
+2. **Set skip MFA** — `POST /users/:id:setskipmfa` — real ZIAM API op (`oneapi-postman-collection.json:133974`), a per-user MFA-bypass capability; Go stub scaffolded then commented out (`users.go:143`)
+3. **Update password** — `PUT /users/:id:updatepassword` — real ZIAM API op (`oneapi-postman-collection.json:134154`), admin-driven password set; no SDK coverage
+
+The following are genuine SDK + API gaps for the ZIdentity users surface:
+
+4. **Group mutation via users API** — group association is read-only here; mutations go through the groups API (see [`groups.md`](./groups.md))
+5. **Provisioning source change** — `source` field is readable but not documented as changeable post-creation
+6. **Custom attributes validation** — `customAttrsInfo` accepted as free-form dict/map; backend constraints unknown
+
+**Not a ZIdentity gap — bulk delete is ZIA, not ZIAM.** The Postman collection's only `users/bulkDelete` is `{{ZIABase}}/users/bulkDelete` (`oneapi-postman-collection.json:9928`), which is the ZIA users API. There is no bulk-delete on the ZIdentity (`{{ZIAMBase}}`) users surface — ZIdentity exposes per-user delete only.
 
 Admin/service entitlements endpoints (`/users/:id/admin-entitlements`, `/users/:id/service-entitlements`) are covered in [`admin-rbac.md`](./admin-rbac.md) and are not duplicated here.
 
@@ -205,7 +212,7 @@ Admin/service entitlements endpoints (`/users/:id/admin-entitlements`, `/users/:
 
 Source: `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
-- **Omitting `id` on create** — `add_user` docstring example passes `id` explicitly; it is unverified whether omitting `id` triggers server-side auto-generation or returns an error — *unverified, requires lab test or API spec review*
+- **Omitting `id` on create** — `add_user` docstring example passes `id` explicitly; it is unverified whether omitting `id` triggers server-side auto-generation or returns an error — *unverified, requires lab test or API spec review* — see [clarification `zid-32`](../_meta/clarifications.md#zid-32-omitting-id-on-user-create)
 
 ## Cross-links
 
