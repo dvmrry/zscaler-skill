@@ -3,7 +3,7 @@ product: zidentity
 topic: "zidentity-overview"
 title: "ZIdentity overview — unified identity across Zscaler services"
 content-type: reference
-last-verified: "2026-04-28"
+last-verified: "2026-06-15"
 confidence: high
 source-tier: doc
 sources:
@@ -169,11 +169,22 @@ The ZPA SDK exposes a read-only surface for step-up auth levels (`client.zpa.ste
 ZIdentity is the **OAuth 2.0 authorization server** for all OneAPI-based API access. The flow:
 
 1. An API client (created in ZIdentity admin portal) is issued a `client_id` and `client_secret` (or private key for JWT auth).
-2. The SDK/script exchanges these credentials at `https://<vanity>.zslogin.net/oauth2/v1/token` for a bearer access token.
-3. The access token is presented as `Authorization: Bearer <token>` on all OneAPI requests.
+2. The SDK/script exchanges these credentials at the **token endpoint** for a bearer access token.
+3. The access token is presented as `Authorization: Bearer <token>` on all OneAPI requests to the **API gateway**.
 4. ZIdentity validates the token and enforces the scopes associated with the API client.
 
-The `ZSCALER_VANITY_DOMAIN` environment variable (used in every SDK call) is the tenant's ZIdentity vanity domain — typically in the form `<tenant>` and resolved to `<tenant>.zslogin.net`.
+### Two distinct hosts (the common misconfiguration)
+
+The token endpoint and the API gateway are separate hosts. The `ZSCALER_VANITY_DOMAIN` is the bare subdomain label (e.g., `acme`, not `acme.zsapi.net`) and applies **only** to the token endpoint:
+
+| Host | Production | Non-production cloud (`<cloud>`) | Depends on vanity domain? |
+|---|---|---|---|
+| Token endpoint | `https://<vanity>.zslogin.net/oauth2/v1/token` | `https://<vanity>.zslogin<cloud>.net/oauth2/v1/token` | Yes |
+| API gateway | `https://api.zsapi.net` | `https://api.<cloud>.zsapi.net` | No — fixed gateway host |
+
+Source: token URL — Python `vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py:492,494`, Go `vendor/zscaler-sdk-go/zscaler/oneapiclient.go:251,253`. API gateway — Python `vendor/zscaler-sdk-python/zscaler/request_executor.py:32,176`, Go `vendor/zscaler-sdk-go/zscaler/oneapiclient.go:416,418`.
+
+The vanity domain is **not** part of the API gateway host. Setting `ZSCALER_VANITY_DOMAIN` to a full `<tenant>.zsapi.net` host (or to anything other than the bare subdomain label) is the most common OneAPI setup error.
 
 Government clouds (`zscalergov`, `zscalerten`, ZPA GOV, GOVUS) are not supported on OneAPI; those tenants use legacy per-product auth.
 
@@ -184,7 +195,7 @@ Government clouds (`zscalergov`, `zscalerten`, ZPA GOV, GOVUS) are not supported
 - **IP-based admin access restriction** — limit admin portal access to specific source IP ranges. Tenant-level setting in ZIdentity.
 - **Admin role management** — RBAC within ZIdentity for delegating portal access without granting full admin.
 - **Audit reports** — configuration-change log; shows what admin changed what setting and when.
-- **API Client Access Policy** — controls which API clients are permitted to call which scopes. Enforced by ZIdentity at token issuance.
+- **API Client Access Policy** — applies tenant-wide rules to all API clients beyond per-client scopes. (The dedicated policy help page is not captured in vendor sources; the specific enforcement point, rule knobs such as source-IP and time-of-day, and what is enforced where are all inferred by analogy, not confirmed from source — see [clarification `zid-34`](../_meta/clarifications.md#zid-34-api-client-access-policy-article-uncaptured).)
 
 ---
 

@@ -3,7 +3,7 @@ product: zidentity
 topic: zidentity-sdk
 title: "ZIdentity SDK reference — Python and Go service catalog"
 content-type: reference
-last-verified: "2026-04-26"
+last-verified: "2026-06-15"
 confidence: medium
 source-tier: code
 sources:
@@ -42,7 +42,7 @@ users = client.zid.users.list_users()
 
 `ZIdService` (`zscaler/zid/zid_service.py`) is instantiated inside `ZscalerClient`. It takes a `RequestExecutor` directly (not a parent client object — note the constructor signature differs from ZCC and ZDX service classes). All service properties (`api_client`, `groups`, `users`, `user_entitlement`, `resource_servers`) instantiate their API class on each property access.
 
-The base endpoint for all ZIdentity operations is `/ziam/admin/api/v1`.
+The base endpoint for all ZIdentity operations is `/ziam/admin/api/v1` **in the Python SDK** (`_zidentity_base_endpoint`, defined identically in all five service files — e.g., `vendor/zscaler-sdk-python/zscaler/zid/users.py:31`). The endpoint paths in the service-catalog tables below show this Python form. The **Go SDK** diverges on **both path and host**: its constants omit `/ziam` (`/admin/api/v1/...` — e.g., `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go:16`) and the client rewrites the target host to `https://{vanity}-admin.zslogin.net` (`vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:402-414`). The two SDKs do **not** reach the same wire URL — this is a cross-SDK host-and-path divergence, not a cosmetic prefix difference (see [`./api-divergences.md § 1`](./api-divergences.md)).
 
 ### Client construction — Go
 
@@ -110,11 +110,11 @@ Source: `vendor/zscaler-sdk-python/zscaler/zid/api_client.py`; `vendor/zscaler-s
 **Notable behavior:**
 - `list_api_clients` query params: `offset`, `limit`, `name[like]`. Returns an `APIClients` wrapper; individual records are in `result.records`.
 - `add_api_client` accepts a complex nested structure:
-  - `name`, `description`, `status` (bool), `access_token_life_time` (int, seconds).
+  - `name`, `description`, `status` (bool), `access_token_life_time` (int — field name implies token TTL in seconds, but semantics are unresolved; see [zid-11](../_meta/clarifications.md#zid-11-access_token_life_time-field-semantics)).
   - `client_authentication`: `auth_type` (`"SECRET"`, `"PUBKEYCERT"`, `"JWKS"`), `client_jw_ks_url`, `public_keys`, `client_certificates`.
   - `client_resources`: list of resource objects, each with `id`, `name`, `default_api` (bool), `selected_scopes` (list of `{id, name}` scope references).
 - `add_api_client_secret` is applicable only when `auth_type` is `"SECRET"`. Accepts `expires_at` (Unix epoch string).
-- Secret values are returned only at creation time; `get_api_client_secret` returns metadata, not the secret value.
+- Secret values are returned by `add_api_client_secret` at creation time. Whether `get_api_client_secret` also returns the `value` field on read is an API-server behavior not determinable from SDK source alone — see Open questions / [clarification `zid-27`](../_meta/clarifications.md#zid-27-secrets-snapshot-file-layout).
 - `delete_api_client` is permanent and unrecoverable per SDK docstring.
 
 **Go parity:** ❌ No dedicated `api-clients` Go package identified in the service directory. This surface is Python-only in the SDK.
@@ -152,7 +152,7 @@ Source: `vendor/zscaler-sdk-python/zscaler/zid/groups.py`; `vendor/zscaler-sdk-p
 - `replace_users_groups` performs a full replacement of the group's user membership — existing members not in the new list are removed.
 - `get_group` accepts `int` in the signature but uses string IDs in practice (consistent with Go string IDs).
 
-**Go parity:** ✅ `groups.Get`, `groups.GetAll`, `groups.GetByName`, create/update/delete, `groups.GetUsers` (member list). Go `GetByName` uses `strings.Contains` partial match and returns `[]Groups`.
+**Go parity:** ✅ `groups.Get`, `groups.GetAll`, `groups.GetByName`, `Create`/`Update`/`Delete`, plus the full membership set — `GetUsers` (member list), `AddUserToGroup`, `AddUserListToGroup`, `ReplaceUserListInGroup`, `DeleteUserFromGroup` (`groups.go:92,132,155,177,189`). Go `GetByName` uses `strings.Contains` partial match and returns `[]Groups`.
 
 ---
 
@@ -227,22 +227,19 @@ Source: `vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py`; `vendor/zsc
 - `get_resource_server` returns a `ResourceServersRecord` with fields: `id`, `name`, `display_name`, `description`, `primary_aud`, `default_api`, `service_scopes` (list of service+scope associations).
 - The Python SDK exposes **only read operations** for resource servers. No create, update, or delete.
 
-**Go SDK — additional write operations:**
+**Go SDK — also read-only:**
 
-The Go `resource_servers` package exposes full CRUD:
+The Go `resource_servers` package exposes **only read** operations — there is no `Create`, `Update`, or `Delete` in the package (`vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go:46-96`):
 
 | Go function | HTTP |
 |---|---|
 | `Get(ctx, service, resourceID)` | GET |
 | `GetAll(ctx, service, queryParams)` | GET (paginated) |
 | `GetByName(ctx, service, name)` | GET (search) |
-| `Create(ctx, service, resource)` | POST |
-| `Update(ctx, service, resourceID, resource)` | PUT |
-| `Delete(ctx, service, resourceID)` | DELETE |
 
 The `ResourceServers` Go struct includes: `ID`, `Name`, `DisplayName`, `Description`, `PrimaryAud`, `DefaultApi`, `ServiceScopes` (with nested `Service` and `Scopes`).
 
-**Go parity:** ⚠ Go has full CRUD; Python is read-only. Automation that needs to create or modify resource server registrations must use the Go SDK or the direct API.
+**Go parity:** ✅ Both SDKs are read-only for resource servers. Resource-server registrations are not created or modified through either SDK — that surface (if it exists at all) is not exposed by the captured SDK source.
 
 ---
 
@@ -284,10 +281,10 @@ ZIdentity uses `offset`/`limit` with `next_link`/`prev_link` cursor links in the
 | Service | Python methods | Go methods | Gap |
 |---|---|---|---|
 | `api_client` | `list_api_clients`, `get_api_client`, `add_api_client`, `update_api_client`, `delete_api_client`, `get_api_client_secret`, `add_api_client_secret`, `delete_api_client_secret` | None identified | Go SDK missing `api-clients` package |
-| `groups` | `list_groups`, `get_group`, `add_group`, `update_group`, `delete_group`, `list_group_users_details`, `add_user_to_group`, `add_users_to_group`, `replace_users_groups`, `remove_user_from_group` | `Get`, `GetAll`, `GetByName`, `Create`, `Update`, `Delete`, `GetUsers` | Go adds `GetUsers`; Python has equivalent via `list_group_users_details` |
+| `groups` | `list_groups`, `get_group`, `add_group`, `update_group`, `delete_group`, `list_group_users_details`, `add_user_to_group`, `add_users_to_group`, `replace_users_groups`, `remove_user_from_group` | `Get`, `GetAll`, `GetByName`, `Create`, `Update`, `Delete`, `GetUsers`, `AddUserToGroup`, `AddUserListToGroup`, `ReplaceUserListInGroup`, `DeleteUserFromGroup` | Functionally equivalent — both have full CRUD + the membership mutation set |
 | `users` | `list_users`, `get_user`, `add_user`, `update_user`, `delete_user`, `list_user_group_details` | `Get`, `GetAll`, `GetByName`, `Create`, `Update`, `Delete`, `GetGroupsByUser` | Functionally equivalent |
 | `user_entitlement` | `get_admin_entitlement`, `get_service_entitlement` | `GetAdminEntitlement`, `GetServiceEntitlement` | ✅ Parity |
-| `resource_servers` | `list_resource_servers`, `get_resource_server` | `Get`, `GetAll`, `GetByName`, `Create`, `Update`, `Delete` | Python read-only; Go has full CRUD |
+| `resource_servers` | `list_resource_servers`, `get_resource_server` | `Get`, `GetAll`, `GetByName` | Both read-only |
 
 ## Model classes
 
@@ -312,7 +309,7 @@ All model classes live under `vendor/zscaler-sdk-python/zscaler/zid/models/`.
 
 1. **Resolved 2026-04-26.** The Go SDK `api-clients` package is genuinely absent from the inspected Go ZIdentity service catalog. The catalog contains only `common`, `groups`, `resource_servers`, `user_entitlement`, and `users`. The `api_client` service (full CRUD for OAuth2 clients, plus secret lifecycle) is Python-only in the SDK.
 
-2. `add_api_client_secret` accepts `expires_at` as a string Unix epoch. The only example in the SDK docstring (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py`, line 458) shows `'1785643102'` (a valid future epoch timestamp). The API behavior when `expires_at` is omitted or set to a past value is not documented in the SDK source. The acceptable range for `expires_at` is not stated and cannot be confirmed from available sources.
+2. `add_api_client_secret` accepts `expires_at` as a string Unix epoch. The only example in the SDK docstring (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py`, line 458) shows `'1785643102'` (a valid future epoch timestamp). The API behavior when `expires_at` is omitted or set to a past value is not documented in the SDK source. The acceptable range for `expires_at` is not stated and cannot be confirmed from available sources. — see [clarification `zid-13`](../_meta/clarifications.md#zid-13-add_api_client_secret-expires_at-behavior)
 
 3. **Resolved 2026-04-26.** `get_group` declares `group_id: int` in its signature (`vendor/zscaler-sdk-python/zscaler/zid/groups.py`, line 113) but ZIdentity IDs are strings (e.g., `"ihlmch6ikg7m1"`). The Go SDK consistently uses `string` IDs for ZIdentity (`vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go`). The `int` type annotation in Python is a bug — it is inconsistent with the runtime ID format and will cause static analyzer false positives.
 
@@ -320,6 +317,6 @@ All model classes live under `vendor/zscaler-sdk-python/zscaler/zid/models/`.
 
 5. **Resolved 2026-04-26.** The `Entitlements` and `Service` naming reflects genuinely different response shapes. Per `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go`: `Entitlements` contains `Roles []IDNameDisplayName`, `Scope IDNameDisplayName`, and `Service Service` — representing which product roles the user holds and the scope of those roles. `Service` contains `ID`, `ServiceName`, `CloudName`, `CloudDomainName`, `OrgName`, `OrgID` — representing which Zscaler service instance the user is provisioned into. Admin entitlements answer "what can this user do?"; service entitlements answer "which tenant/service is this user's account tied to?".
 
-6. Whether all resource servers in a tenant are enumerable via `list_resource_servers` or whether some are Zscaler-internal and hidden from the list is not confirmed from available sources. The Go `resource_servers` package (`vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/`) and the Python `resource_servers.py` both call the same `/ziam/admin/api/v1/resource-servers` endpoint without any filtering parameter that would distinguish tenant-created from system-provided entries.
+6. Whether all resource servers in a tenant are enumerable via `list_resource_servers` or whether some are Zscaler-internal and hidden from the list is not confirmed from available sources. The Go `resource_servers` package (`vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/`) and the Python `resource_servers.py` both hit the resource-servers endpoint without any filtering parameter that would distinguish tenant-created from system-provided entries — albeit via different host+prefix (Python `api.zsapi.net/ziam/admin/api/v1/resource-servers`; Go `{vanity}-admin.zslogin.net/admin/api/v1/resource-servers`, `oneapiconfig.go:404-414`). — see [clarification `zid-25`](../_meta/clarifications.md#zid-25-resource-server-enumerability-hidden-internal-entries)
 
-7. **Partially resolved 2026-04-26.** Group `source` values are documented for users (not groups) in `vendor/zscaler-sdk-python/zscaler/zid/users.py` line 187: `"UI"`, `"API"`, `"SCIM"`, `"JIT"`. For groups, `vendor/zscaler-sdk-python/zscaler/zid/groups.py` line 167 lists `"SCIM"` and `"MANUAL"` as examples but does not enumerate the full set. The Go struct (`vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go`) uses `omitempty` with no enumeration. The full set of valid group source values cannot be confirmed from available sources.
+7. **Partially resolved 2026-04-26.** Group `source` values are documented for users (not groups) in `vendor/zscaler-sdk-python/zscaler/zid/users.py` line 187: `"UI"`, `"API"`, `"SCIM"`, `"JIT"`. For groups, `vendor/zscaler-sdk-python/zscaler/zid/groups.py` line 167 lists `"SCIM"` and `"MANUAL"` as examples but does not enumerate the full set. The Go struct (`vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go`) uses `omitempty` with no enumeration. The full set of valid group source values cannot be confirmed from available sources. — see [clarification `zid-21`](../_meta/clarifications.md#zid-21-group-source-value-enum-completeness)

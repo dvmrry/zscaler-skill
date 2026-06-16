@@ -245,7 +245,7 @@ Single host, per-product paths:
 | ZIA | `/zia/api/v1` | `https://api.zsapi.net/zia/api/v1` |
 | ZPA | `/zpa/mgmtconfig/v1`, `v2`, `/zpa/userconfig/v1` | `https://api.zsapi.net/zpa/mgmtconfig/v1` etc. |
 | ZDX | `/zdx/v1` | `https://api.zsapi.net/zdx/v1` |
-| ZIdentity | `/ziam/admin/api/v1` | `https://api.zsapi.net/ziam/admin/api/v1` |
+| ZIdentity | `/ziam/admin/api/v1` (Python/Postman); `/admin/api/v1` (Go — different host) | `https://api.zsapi.net/ziam/admin/api/v1` (Python/Postman); `https://{vanity}-admin.zslogin.net/admin/api/v1` (Go SDK) — see [api-divergences](../zidentity/api-divergences.md#base-path-and-host-differ-by-sdk) |
 | ZCC | `/zcc/papi/public/v1` | `https://api.zsapi.net/zcc/papi/public/v1` |
 | Cloud & Branch Connector | `/ztw/api/v1` | `https://api.zsapi.net/ztw/api/v1` |
 | Business Insights | `/bi/api/v1` | `https://api.zsapi.net/bi/api/v1` |

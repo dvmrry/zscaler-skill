@@ -4,6 +4,13 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.12.2](https://github.com/dvmrry/zscaler-skill/compare/v0.12.1...v0.12.2) (2026-06-16)
+
+
+### Bug Fixes
+
+* **hygiene:** unquoted-source-path lint no longer flags backticked nested /scripts/ paths ([#133](https://github.com/dvmrry/zscaler-skill/issues/133)) ([ef23dfb](https://github.com/dvmrry/zscaler-skill/commit/ef23dfbef1baa91e157de21a8ce58b43d7d90892))
+
 ## [0.12.1](https://github.com/dvmrry/zscaler-skill/compare/v0.12.0...v0.12.1) (2026-06-15)
 
 
