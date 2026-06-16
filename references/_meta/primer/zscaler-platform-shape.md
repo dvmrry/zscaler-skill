@@ -167,10 +167,7 @@ Each has a doc under `references/shared/` or `references/_meta/primer/`.
 
 These exist; the skill recognizes them but doesn't go deep. Recognize the names so you don't draw a blank:
 
-- **ZMS** — Workload Microsegmentation (east-west server-to-server policy)
 - **ZINS** — Shadow IT / IoT / SaaS reporting
-- **EASM** — External Attack Surface Management
-- **ZAI Guard** — AI/LLM traffic policy
 - **DSPM** — Data Security Posture Management (at-rest data discovery)
 - **Asset Exposure Management** — CAASM (cyber asset attack-surface management)
 - **UVM** — Unified Vulnerability Management
@@ -179,6 +176,8 @@ These exist; the skill recognizes them but doesn't go deep. Recognize the names 
 - **ITDR** — Identity Threat Detection and Response
 - **Resilience** — auto failover (Business+ tiers)
 - **Federal Cloud variants** — `zscalergov`, `zscalerten`, ZPA GOV/GOVUS
+
+**ZMS, EASM, and AI Guard are NOT out-of-scope** — each now has Tier 2 SDK coverage and a dedicated `references/` deep-dive (read-only for ZMS/EASM). See [`../portfolio-map.md`](../portfolio-map.md) and their reference docs.
 
 For each: check [`../portfolio-map.md`](../portfolio-map.md) before assuming.
 

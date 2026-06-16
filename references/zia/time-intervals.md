@@ -3,7 +3,7 @@ product: zia
 topic: time-intervals
 title: "ZIA Time Intervals — reusable schedule objects for policy rule evaluation"
 content-type: reference
-last-verified: "2026-04-27"
+last-verified: "2026-06-14"
 confidence: medium
 source-tier: doc
 sources:
@@ -12,6 +12,7 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zia/models/time_intervals.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_time_windows.py"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/time_intervals/time_intervals.go"
+  - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/time_intervals.py"
   - "vendor/terraform-provider-zia/docs/data-sources/zia_firewall_filtering_time_window.md"
 author-status: draft
 ---
@@ -70,6 +71,22 @@ The `TimeInterval` object exposed by both SDKs has the following fields:
 (Tier B — vendor/zscaler-sdk-python/zscaler/zia/models/time_intervals.py;
 vendor/zscaler-sdk-go/zscaler/zia/services/time_intervals/time_intervals.go)
 
+Python attr → wire-key mapping confirmed in the model: `name`→`name`,
+`start_time`→`startTime`, `end_time`→`endTime`, `days_of_week`→`daysOfWeek`;
+`days_of_week` is a list of strings.
+(`vendor/zscaler-sdk-python/zscaler/zia/models/time_intervals.py:39-43`)
+
+> **Go JSON-tag divergence on `startTime` required-ness.** In the Go struct, `StartTime`
+> is tagged `json:"startTime"` with **no `omitempty`**, while every other field carries
+> `omitempty`: `EndTime` is `json:"endTime,omitempty"`, `ID` is `json:"id,omitempty"`,
+> `Name` is `json:"name,omitempty"`, `DaysOfWeek` is `json:"daysOfWeek,omitempty"`.
+> (`vendor/zscaler-sdk-go/zscaler/zia/services/time_intervals/time_intervals.go:18-32`)
+> Consequence: a zero `startTime` (minute 0 / midnight) is always serialized by the Go
+> SDK, but a zero `endTime` would be dropped from the request body. The Python model has
+> no such per-field distinction — its `request_format()` emits `id`, `name`, `startTime`,
+> `endTime`, and `daysOfWeek` unconditionally.
+> (`vendor/zscaler-sdk-python/zscaler/zia/models/time_intervals.py:51-64`)
+
 ### Day-of-week enumeration
 
 Valid values for `days_of_week` / `daysOfWeek`:
@@ -99,6 +116,55 @@ HH:MM strings. The vendor help article illustrates times in 12-hour AM/PM notati
 1020 = 5:00 PM, 1439 = 23:59.
 (Tier B — vendor/zscaler-sdk-python/zscaler/zia/time_intervals.py example in docstring,
 lines 165–169)
+
+### Name field constraint
+
+The Zscaler MCP tool layer enforces a `name` constraint of **ASCII letters and spaces
+only, with the name required to start with a letter** — the regex `^[A-Za-z][A-Za-z ]*$`.
+Both SDKs send the name unvalidated, so this client-side check is an MCP-tool-layer
+addition, not a constraint provably reproduced in SDK source.
+(`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/time_intervals.py:53`)
+
+The MCP tool's module docstring states that ZIA rejects Time Interval names containing
+digits or special characters, that names like `Mon-Fri 08:00-17:00` or `Q1 Maintenance`
+are rejected at the API layer with the message `Name is not valid`, and that the
+create/update tools validate client-side so the call fails fast before reaching the API.
+(`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/time_intervals.py:23-31`) The same
+constraint, including those two rejected examples, is repeated verbatim in the create
+tool's `name` parameter field description.
+(`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/time_intervals.py:211-221`) The
+validation function's error message names the rejected special characters as hyphens,
+colons, em-dashes, slashes, and periods.
+(`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/time_intervals.py:70-74`)
+
+Practical effect for naming time intervals: use names like `Business Hours`,
+`After Hours`, `Weekday Mornings`, `Weekend All Day` — descriptive words only. Do not
+embed the schedule itself in the name (no `08:00-17:00`), do not use day abbreviations
+joined by hyphens (no `Mon-Fri`), and do not use quarter/version tokens with digits (no
+`Q1`).
+
+> **Where this constraint actually lives — SDK divergence.** The
+> `^[A-Za-z][A-Za-z ]*$` name check exists **only in the MCP tool layer**, not in either
+> SDK. The MCP tool runs `_validate_time_interval_name()` inside the shared payload
+> builder `_build_time_interval_payload()`, which both the create and update tools call
+> before sending. (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/time_intervals.py:101-123`;
+> `:265-275`; `:329-349`) An empty/whitespace-only name raises
+> `ValueError("Time Interval name cannot be empty.")`, and a non-matching name raises a
+> `ValueError`. (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/time_intervals.py:56-76`)
+> Neither SDK reproduces this:
+> - **Python SDK service** (`add_time_intervals` / `update_time_intervals`) performs no
+>   name validation — kwargs are passed straight through as the request body.
+>   (`vendor/zscaler-sdk-python/zscaler/zia/time_intervals.py:144-249`)
+> - **Python SDK model** (`TimeIntervals`) only maps fields; it contains no name-format
+>   validation. (`vendor/zscaler-sdk-python/zscaler/zia/models/time_intervals.py:37-64`)
+> - **Go SDK** sends `Name` as a plain `json:"name,omitempty"` string with no regex or
+>   rejection logic in the service.
+>   (`vendor/zscaler-sdk-go/zscaler/zia/services/time_intervals/time_intervals.go:18-83`)
+>
+> So callers using either SDK directly get no client-side name check; a name with digits
+> or special characters is sent unvalidated and the rejection (if any) comes back from the
+> ZIA API itself. The exact server-side rule is not provable from SDK source — see Open
+> questions.
 
 ### Recurrence model
 
@@ -148,7 +214,6 @@ on the rule type.
 | Cloud Firewall IPS Control | `/firewallIpsRules` | `cloud_firewall_ips_rules.py` | `zia_firewall_ips_rule` |
 | URL Filtering | `/urlFilteringRules` | `url_filtering_rules.py` | `zia_url_filtering_rules` |
 | DLP Web Rules | `/webDlpRules` | — (Python model absent; Go struct present) | `zia_dlp_web_rules` |
-| SSL Inspection | `/sslInspectionRules` | `ssl_inspection_rules.py` | `zia_ssl_inspection_rules` |
 | File Type Control | `/fileTypeControlRules` | `filetyperules.py` | `zia_file_type_control_rules` |
 | Cloud App Control | `/cloudApplicationRules` | `cloudappcontrol.py` | `zia_cloud_app_control_rule` |
 | Forwarding Control | `/forwardingRules` | `forwarding_control_policy.py` | `zia_forwarding_control_rule` |
@@ -169,6 +234,27 @@ Sources per column:
 Rule types confirmed as **not** having a `time_windows` field in the Python models or Go
 structs (based on the model file listing): CASB DLP rules, CASB Malware rules, FTP
 Control Policy.
+
+> **Caveat — SSL Inspection: SDK model exposes `timeWindows`, but the API ignores it.**
+> SSL Inspection is **excluded** from the table above — it is a genuine
+> SDK-model-vs-API divergence, not a usable scheduling target. The Python SDK *model*
+> serializes a `timeWindows` field on SSL inspection rules
+> (`vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py:121-122` deserialize,
+> `:207` serialize), so a caller can set it and the request will round-trip. But the ZIA
+> **API does not support time-of-day scheduling for SSL Inspection rules** — the field is
+> ignored. This is documented across the MCP server: the SSL inspection rule docstring states
+> "SSL Inspection rules do **not** support `time_windows`"
+> (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/time_intervals.py:8`); the create-rule skill
+> states SSL Inspection rules "have no `time_windows` attribute on the API" and "There is no
+> `time_windows` field on this API"
+> (`vendor/zscaler-mcp-server/skills/zia/create-ssl-inspection-rule/SKILL.md:23`, `:64`, `:198`);
+> and the rule-targets reference marks `time_windows` as applying to "every rule type **except
+> SSL Inspection**" (`vendor/zscaler-mcp-server/skills/zia/look-up-rule-targets/SKILL.md:57`).
+> For time-of-day enforcement on encrypted traffic, move the schedule to a **Cloud Firewall
+> Filtering** rule or a **URL Filtering** rule (both honor `timeWindows`); the SSL Inspection
+> rule then governs only what is decrypted when the scheduled layer permits the traffic
+> (`vendor/zscaler-mcp-server/skills/zia/create-ssl-inspection-rule/SKILL.md:64`).
+> Cross-reference: `references/zia/api-divergences.md` (SSL Inspection section).
 
 ### SDK field name note
 
@@ -238,6 +324,22 @@ Accessor: `client.zia.time_intervals`
 
 (Tier B — vendor/zscaler-sdk-python/zscaler/zia/time_intervals.py)
 
+The full wire endpoint is `/zia/api/v1/timeIntervals` (Python base `/zia/api/v1` +
+`/timeIntervals`), with GET list, GET `/{id}`, POST create, PUT `/{id}` (full
+replacement), and DELETE `/{id}`.
+(`vendor/zscaler-sdk-python/zscaler/zia/time_intervals.py:31`, `:73-76`, `:121-124`,
+`:177-180`, `:228-232`, `:271-274`) The Go SDK confirms the same endpoint constant
+`/zia/api/v1/timeIntervals` and that update uses `UpdateWithPut` (PUT full replacement).
+(`vendor/zscaler-sdk-go/zscaler/zia/services/time_intervals/time_intervals.go:14-16`, `:75`)
+
+> **Update is a full PUT replacement.** Because update is a PUT, an update call replaces
+> the whole object; any field not sent is dropped rather than left untouched. The Zscaler
+> MCP update tool compensates by backfilling `name`, `start_time`, `end_time`, and
+> `days_of_week` from the existing record when the caller does not supply them, so partial
+> updates behave as expected through that tool.
+> (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/time_intervals.py:329-349`) Callers
+> using the SDKs directly must send the complete object on update.
+
 Create example:
 
 ```python
@@ -265,6 +367,12 @@ Package: `zscaler/zia/services/time_intervals`
 | `GetAll` | `(ctx, service) ([]TimeInterval, error)` |
 
 (Tier B — vendor/zscaler-sdk-go/zscaler/zia/services/time_intervals/time_intervals.go)
+
+> **Get-by-name divergence.** The Go SDK adds `GetTimeIntervalByName`, which lists all
+> intervals and matches the name case-insensitively via `strings.EqualFold`.
+> (`vendor/zscaler-sdk-go/zscaler/zia/services/time_intervals/time_intervals.go:45-57`)
+> The Python SDK exposes no get-by-name equivalent — only list, get-by-id, add, update,
+> and delete. (`vendor/zscaler-sdk-python/zscaler/zia/time_intervals.py`)
 
 ### Terraform
 
@@ -414,3 +522,18 @@ See also [`_meta/clarifications.md`](../_meta/clarifications.md) — `zia-21` th
    "Work hours", "Weekends", and "Off hours" in the Firewall Time Windows catalog. Whether
    corresponding predefined objects also exist in the `/timeIntervals` catalog (distinct
    from the `/timeWindows` read-only list) is not confirmed from available sources.
+
+6. **Server-side name rule and literal `Name is not valid` string — unverified.** The
+   ASCII-letters-and-spaces name constraint (`^[A-Za-z][A-Za-z ]*$`) and the claim that
+   ZIA returns the literal API error `Name is not valid` are asserted only in the Zscaler
+   MCP tool layer (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/time_intervals.py:23-31`,
+   `:53`). They are not corroborated by any SDK service, model, or test in the vendor tree
+   — both SDKs send the name unvalidated
+   (`vendor/zscaler-sdk-python/zscaler/zia/time_intervals.py:144-249`;
+   `vendor/zscaler-sdk-go/zscaler/zia/services/time_intervals/time_intervals.go:18-83`),
+   and no vendor test exercises the name-rejection path. The MCP regex is the tool
+   author's reconstruction of ZIA's behavior. Whether it exactly matches ZIA's server rule
+   — including whether digits are truly rejected, which special characters (if any) are
+   allowed, and whether ZIA additionally enforces a max length, leading/trailing-space
+   handling, or name uniqueness — is not provable from the SDK source. Requires live API
+   testing or vendor confirmation.

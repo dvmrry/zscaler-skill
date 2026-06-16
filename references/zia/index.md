@@ -70,6 +70,7 @@ Field-and-endpoint-level catalogs derived from Zscaler SDKs and Postman collecti
 |---|---|---|
 | API endpoint inventory — full ZIA REST endpoint catalog with request/response shapes | [`./api-schemas.md`](./api-schemas.md) | draft |
 | Postman-collection-derived schemas — extracted struct shapes and parameter types from the OneAPI Postman collection | [`./api-postman-schemas.md`](./api-postman-schemas.md) | draft |
+| API source divergences — where the Go SDK, Python SDK, and MCP tooling disagree (e.g. Cloud App Control per-(rule, app, action) atomic validation) | [`./api-divergences.md`](./api-divergences.md) | draft |
 
 ## When the question spans multiple topics
 

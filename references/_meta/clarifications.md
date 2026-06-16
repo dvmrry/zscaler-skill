@@ -3,7 +3,7 @@ product: meta
 topic: "clarifications-index"
 title: "Clarification index — open questions across references"
 content-type: reference
-last-verified: "2026-05-30"
+last-verified: "2026-06-14"
 confidence: high
 sources: []
 author-status: reviewed
@@ -20,6 +20,9 @@ Centralized list of open questions raised across `references/*.md`. Each entry h
 - `zia-*` — ZIA-scoped behavior question
 - `zpa-*` — ZPA-scoped behavior question
 - `zcc-*` — ZCC (Client Connector) behavior question
+- `zdx-*` — ZDX (Digital Experience) behavior question
+- `zms-*` — ZMS (Microsegmentation) behavior question
+- `easm-*` — EASM (External Attack Surface Management) behavior question
 - `shared-*` — cross-product or skill-wide question
 - `log-*` — log-schema / NSS / LSS question that spans multiple products
 
@@ -119,7 +122,22 @@ experience, or vendor confirmation rather than more public-doc reading.
 
 ### Open
 
-`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-46`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-19`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `shared-20`–`shared-27`, `zcc-08`–`zcc-75`.
+`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-49`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-20`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `shared-20`–`shared-27`, `zcc-08`–`zcc-76`, `zdx-01`–`zdx-02`, `zms-01`, `easm-01`–`easm-02`.
+
+The vendor-MCP scrape (2026-06-14) added these open behavior questions — each links to its detailed entry below:
+
+| ID | Title | Resolves with |
+|---|---|---|
+| [`zia-47`](#zia-47-dns-control-block_response_code-accepted-values) | DNS Control `block_response_code` accepted-value set | lab test / tenant snapshot |
+| [`zia-48`](#zia-48-dns-control-redirect_ip-action-binding) | DNS Control `redirect_ip` action-binding (all `REDIR_*` vs `REDIR_RES` only) | lab test |
+| [`zia-49`](#zia-49-cac-per-app-action-validity) | CAC per-app action validity (which actions a given app accepts) | lab test |
+| [`zpa-20`](#zpa-20-zpn_status_pending-as-a-real-runtime-status) | Whether `ZPN_STATUS_PENDING` is a real App Connector runtime status | tenant snapshot / lab test |
+| [`zcc-76`](#zcc-76-otp-expiry-ttl-server-behavior) | Whether ZCC one-time passwords expire server-side (TTL) | lab test / zscaler doc not yet read |
+| [`zdx-01`](#zdx-01-probe-id-non-portability-server-behavior) | ZDX probe-ID non-portability — server behavior on a cross-pair probe ID | lab test |
+| [`zdx-02`](#zdx-02-concurrent-deeptrace-session-limits) | ZDX concurrent deeptrace session limits per tenant / per device | lab test / zscaler doc not yet read |
+| [`zms-01`](#zms-01-fetchall-beyond-policyrules) | Whether ZMS `fetchAll` exists server-side beyond `policyRules` | SDK re-check / lab test |
+| [`easm-01`](#easm-01-finding-scan_type-allowed-values) | EASM finding `scan_type` allowed-value set | tenant snapshot / zscaler doc not yet read |
+| [`easm-02`](#easm-02-finding-risk-field-value-semantics) | EASM finding risk-field semantics (`risk_level` / `cisa_likelihood` / `epss_likelihood`) | tenant snapshot / zscaler doc not yet read |
 
 Partial / SDK-mined (resolved via code read or help-doc capture; full lab confirmation pending): `zcc-01`, `zcc-02`, `zcc-03`, `zcc-04`, `zcc-05`, `zcc-06`, `zcc-07`, **`log-04`** (field name + illustrative values confirmed via `web-log-schema.md`; full enum of `ruletype` / `reason` values still needs a tenant export). All six ZCC enum clarifications had their **datatype** (int vs string) resolved by the Go SDK cross-check on 2026-04-24; the integer-to-meaning mapping remains open for `zcc-01` through `zcc-04` and `zcc-06`.
 
@@ -2934,6 +2952,116 @@ Whether a macOS user denial of the ZCC Network Extension (in System Settings →
 
 **Status**: open
 **Resolves with**: lab test (deny Network Extension on macOS; observe ZCC error state and portal visibility) OR zscaler doc not yet read
+
+---
+
+### zia-47 — DNS Control block_response_code accepted values
+
+*Origin: `references/zia/dns-control.md` § Open questions*
+
+A DNS Control rule with the `BLOCK` action carries a `block_response_code` field, but no vendored source enumerates which DNS response codes it accepts (NXDOMAIN, REFUSED, specific rcodes, etc.). All three sources describe it only as a free-form "DNS response code" string. Until the accepted set is known, the skill cannot say what a given block rule actually returns to the client resolver.
+
+**Status**: open
+**Resolves with**: lab test (configure a BLOCK rule, observe accepted values in the console / API) OR tenant snapshot
+
+---
+
+### zia-48 — DNS Control redirect_ip action binding
+
+*Origin: `references/zia/dns-control.md` § Open questions*
+
+Source disagrees on whether `redirect_ip` binds to all `REDIR_*` actions or only `REDIR_RES`. The commented Go validator binds `redirect_ip` only to `REDIR_RES` (`vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:286-290`), while the MCP field description claims it applies to all `REDIR_*` (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_firewall_dns_rules.py:276-279`). Which framing matches actual server validation is unresolved.
+
+**Status**: open
+**Resolves with**: lab test (submit `redirect_ip` against each `REDIR_*` action, observe which the API accepts)
+
+---
+
+### zia-49 — CAC per-app action validity
+
+*Origin: `references/zia/api-divergences.md` § Open questions*
+
+For Cloud App Control, which individual actions are valid for a given cloud application is not exposed by any read path in the vendored sources — `availableActions` returns a flat category-level `List[str]` only (`vendor/zscaler-sdk-python/zscaler/zia/cloudappcontrol.py:34`, `:84-91`). The whole-create-rejection contract (`INVALID_INPUT_ARGUMENT` / "Invalid action provided for selected applications") and the one-rule-per-app safe pattern are MCP-docstring claims, confirmed absent from both SDKs. Needs live-tenant probing to resolve which per-app action combinations the API actually accepts.
+
+**Status**: open
+**Resolves with**: lab test (probe a live tenant with per-app action combinations, capture the validation responses)
+
+---
+
+### zpa-20 — ZPN_STATUS_PENDING as a real runtime status
+
+*Origin: `references/zpa/app-connector.md` § Open questions*
+
+`ZPN_STATUS_PENDING` appears only in a single SKILL.md status table (`vendor/zscaler-mcp-server/skills/zpa/troubleshoot-app-connector/SKILL.md:102`); it is absent from the `troubleshoot-connector` command doc, all SDK source, and the zscaler-help status-log-field docs. Its existence as a real App Connector runtime status — and the wire-level value (`controlChannelStatus` / `runtime_status`) that would distinguish it from `ZPN_STATUS_NOT_ENROLLED` — is not confirmed beyond that one table. The full `ZPN_STATUS_*` enum can't be enumerated from SDK source because LSS status codes are fetched dynamically at runtime (`vendor/zscaler-sdk-python/zscaler/zpa/lss.py:609`).
+
+**Status**: open
+**Resolves with**: tenant snapshot (observe a connector in the pending state via API) OR lab test
+
+---
+
+### zcc-76 — OTP expiry / TTL server behavior
+
+*Origin: `references/zcc/otp.md` § Open questions*
+
+Neither `OtpResponse` model carries a TTL, expiry timestamp, or validity-window field (`vendor/zscaler-sdk-python/zscaler/zcc/models/secrets_otp.py:33-45`; `vendor/zscaler-sdk-go/zscaler/zcc/services/secrets/getotp/get_otp.go:15-27`). The "short-lived" characterization is MCP-tool docstring prose only. Whether a ZCC one-time password actually expires server-side — and on what window — is an open behavior question; the skill should not assert a TTL it cannot source.
+
+**Status**: open
+**Resolves with**: lab test (fetch an OTP, attempt the action after a delay, observe whether it is rejected) OR zscaler doc not yet read
+
+---
+
+### zdx-01 — Probe-ID non-portability server behavior
+
+*Origin: `references/zdx/diagnostics-and-alerts.md` § Open questions*
+
+ZDX `web_probe_id` / `cloudpath_probe_id` are read via device+app-nested paths (`vendor/zscaler-sdk-python/zscaler/zdx/devices.py:358-361`, `:486-489`), so a probe ID is implicitly scoped to one (device, app) pair. The non-portability is *inferred* from that nesting, not from a stated validation rule. The actual API behavior when a probe ID from one (device, app) pair is submitted against another pair — silent empty result, error, or cross-match — is not stated in source.
+
+**Status**: open
+**Resolves with**: lab test (submit a probe ID against a mismatched device/app pair, observe the API response)
+
+---
+
+### zdx-02 — Concurrent deeptrace session limits
+
+*Origin: `references/zdx/diagnostics-and-alerts.md` § Open questions*
+
+The deeptrace session-length set is resolved (5/15/30/60 min), but how many concurrent deeptrace sessions a tenant — or a single device — may run at once is not stated in any cited source file. Relevant to "why was my new trace rejected while another was running" questions.
+
+**Status**: open
+**Resolves with**: lab test (start overlapping deeptrace sessions, observe when one is rejected) OR zscaler doc not yet read
+
+---
+
+### zms-01 — fetchAll beyond policyRules
+
+*Origin: `references/zms/api.md` § Open questions*
+
+ZMS `fetchAll` (Python `fetch_all`) is implemented only on `policyRules` (`vendor/zscaler-sdk-python/zscaler/zms/policy_rules.py:45`, `:55`, `:75`, `:81`). No other ZMS list method (resources, resource_groups, app_zones, app_catalog, tags, agents, agent_groups, nonces) carries the argument, and no source states `fetchAll` exists for them server-side. Whether the GraphQL server actually accepts a `fetchAll` argument on other list queries — i.e. whether this is a client-SDK gap or a true server constraint — is unresolved (single-source Python SDK; no Go ZMS service exists to cross-check).
+
+**Status**: open
+**Resolves with**: SDK re-check on a future release OR lab test (issue a `fetchAll` argument against a non-policyRules query, observe whether the server accepts it)
+
+---
+
+### easm-01 — Finding scan_type allowed values
+
+*Origin: `references/easm/findings.md` § Open questions*
+
+EASM finding `scan_type` is present as a model attribute (`vendor/zscaler-sdk-python/zscaler/zeasm/models/findings.py:84`) but the source gives no enumeration, validator, or docstring describing its possible values — the model passes through whatever the API returns. The concrete value set is unverified, so the skill cannot map a `scan_type` value to a finding-source meaning.
+
+**Status**: open
+**Resolves with**: tenant snapshot (read live findings and collect observed `scan_type` values) OR zscaler doc not yet read
+
+---
+
+### easm-02 — Finding risk-field value semantics
+
+*Origin: `references/easm/findings.md` § Open questions*
+
+EASM finding risk fields — `risk_level` / `severity_score` / `status` (`vendor/zscaler-sdk-python/zscaler/zeasm/models/findings.py:82-86`), `cisa_likelihood` (`:70`), and `epss_likelihood` (`:73`) — carry no value enumerations, validators, or docstrings in the SDK model. The CISA-KEV reading of `cisa_likelihood` and the EPSS-probability reading of `epss_likelihood` (0–1?) are not stated in source. The actual value sets and units are unverified, so the skill cannot interpret a finding's risk posture from these fields alone.
+
+**Status**: open
+**Resolves with**: tenant snapshot (collect observed values across live findings) OR zscaler doc not yet read
 
 ---
 
