@@ -1,135 +1,73 @@
 ---
 product: dspm
 topic: overview
-title: "Data Security Posture Management (DSPM) — cloud data risk and classification"
+title: "Data Security Posture Management - data-at-rest posture and audit-scoped API surface"
 content-type: reference
-last-verified: "2026-04-28"
+last-verified: "2026-06-16"
+verified-against:
+  vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
+  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/terraform-provider-zia: 717926eb564bb21dea1f8e0c3222e6593b29f849
+  vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
+  vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
+  vendor/zpacloud-ansible: 84ab824d6ce5853c12add6ae3280dcfb8db273a2
+  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
+  vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: medium
 source-tier: doc
 sources:
   - "vendor/zscaler-help/dspm-what-data-security-posture-management.md"
+  - "vendor/zscaler-help/dspm-marketing.md"
+  - "vendor/zscaler-help/configuring-dlp-policy-rules-content-inspection.md"
 author-status: draft
 ---
 
-# Data Security Posture Management (DSPM) — cloud data risk and classification
+# Data Security Posture Management - data-at-rest posture and audit-scoped API surface
 
-## What it is
+Zscaler Data Security Posture Management (DSPM) is captured as an AI-powered solution for protecting data stored on-premises and in the cloud by continuously scanning for misconfigurations, vulnerabilities, and permissions that can contribute to attack vectors (`vendor/zscaler-help/dspm-what-data-security-posture-management.md:8`). It identifies where sensitive data resides, classifies sensitive data, detects duplicate data and misconfigurations, contextualizes exposure/posture, prioritizes risk, provides remediation guidance, and supports near-real-time alerts (`vendor/zscaler-help/dspm-what-data-security-posture-management.md:8-18`).
 
-Zscaler DSPM is an AI-powered solution that continuously scans cloud and on-premises data stores for sensitive data, misconfigurations, vulnerabilities, and permissions issues. It identifies where sensitive data lives, classifies it, detects duplicate data, and contextualizes data exposure and security posture — providing enriched dashboards, risk-prioritized findings, and step-by-step remediation guidance (Tier A — vendor/zscaler-help/dspm-what-data-security-posture-management.md).
+## Scope And Scanning Model
 
-DSPM is data-at-rest focused. It complements ZIA (which handles data-in-motion via DLP) and ZPA (which controls access to private data stores). DSPM specifically addresses the question: "What sensitive data do we have, where is it, who can access it, and is it properly protected?"
+The help capture says DSPM works with minimal access to AWS, Azure, GCP, and on-premises resources, and uses agentless deep scanning for cloud storage, databases, virtual machines, and on-premises data centers (`vendor/zscaler-help/dspm-what-data-security-posture-management.md:20-25`). Supported onboarding scopes include AWS Organization or Standalone Account, Azure Tenant or Management Group, GCP Organization, plus on-premises databases (`vendor/zscaler-help/dspm-what-data-security-posture-management.md:34-40`).
 
-## Supported cloud environments
+Supported datastore categories include managed cloud data stores, managed AI services, unmanaged databases/Snowflake/Databricks, on-premises data stores, and Microsoft Information Protection labels (`vendor/zscaler-help/dspm-what-data-security-posture-management.md:64-70`). Authentication mechanisms include cloud-native roles/principals/service accounts, credential-based access for unmanaged databases, and certificate-based mTLS (`vendor/zscaler-help/dspm-what-data-security-posture-management.md:57-62`).
 
-| Cloud | Onboarding model |
+## Classification, AI, And Data Residency
+
+DSPM classifies data with Zscaler DLP engines and dictionaries using full, incremental, historical, or sampling scans (`vendor/zscaler-help/dspm-what-data-security-posture-management.md:53-55`). It supports OCR for image files and images embedded in PDF or Microsoft Office documents (`vendor/zscaler-help/dspm-what-data-security-posture-management.md:72-74`). For certain regions, the capture says DSPM supports in-region scanning where data is processed in-region and only metadata is sent to the Zscaler Admin Console (`vendor/zscaler-help/dspm-what-data-security-posture-management.md:76-78`).
+
+The marketing capture frames DSPM as data-at-rest posture management that complements in-flight DLP. It says DSPM covers public cloud, SaaS applications, on-premises, endpoints, AI/GenAI services, and hybrid environments, while in-flight DLP monitors data movement across network channels (`vendor/zscaler-help/dspm-marketing.md:46-63`).
+
+## Source-Family Audit
+
+| Family | Audit result |
 |---|---|
-| AWS | Organization or Standalone Account |
-| Azure | Tenant or Management Group |
-| GCP | Organization |
-| On-premises | Data centers (databases) |
+| Go SDK | No product-specific DSPM service found in this audit pass. |
+| Python SDK | No product-specific DSPM service found in this audit pass. |
+| Terraform | No product-specific DSPM resource or data source found in this audit pass. |
+| Ansible | No product-specific DSPM module found in this audit pass. |
+| MCP | No product-specific DSPM tool found in this audit pass. |
+| Postman | No DSPM endpoint family found in the audited Postman collection. |
+| Help captures | Product behavior, supported scopes, posture labels, classification, authentication mechanisms, datastore categories, OCR, data residency, marketing positioning, and an admin-portal SSO nav reference are captured (`vendor/zscaler-help/dspm-what-data-security-posture-management.md:8-78`, `vendor/zscaler-help/dspm-marketing.md:46-63`, `vendor/zscaler-help/configuring-dlp-policy-rules-content-inspection.md:224`). |
 
-## Supported data store categories
+## API Surface
 
-- Managed cloud data stores (cloud storage services, managed databases)
-- Managed AI services
-- Unmanaged databases, Snowflake, and Databricks
-- On-premises databases
-- Microsoft Information Protection (MIP) labeled data
+This refresh did not find a DSPM SDK, Terraform, Ansible, MCP, or Postman surface. The help captures establish product capabilities and admin-console framing but do not provide endpoint-level API details or a complete scanner/orchestrator deployment contract. See [clarification dspm-01](../_meta/clarifications.md#dspm-01-dspm-programmableadmin-api-and-scanner-contract).
 
-## How scanning works
+## What DSPM Is Not
 
-DSPM uses an **agentless** approach:
-- No agent installation required on scanned resources
-- Minimal access required (cloud-native IAM roles)
-- Scanning is continuous and automated
+- It is not evidenced as an inline proxy; the source-backed scope is stored data posture across cloud/on-premises resources, while in-flight DLP covers data movement across network channels (`vendor/zscaler-help/dspm-marketing.md:56-63`).
+- It is not evidenced as a backup product or data catalog in the captured sources.
+- It is not evidenced as a broad public REST API product in the audited source families.
 
-### Authentication mechanisms
+## Open Questions
 
-| Method | When used |
-|---|---|
-| Cross-account IAM roles (AWS) | Managed cloud resources |
-| Service principals / managed identities (Azure) | Managed cloud resources |
-| Service accounts (GCP) | Managed cloud resources |
-| Credential-Based (username/password or access keys in vault) | Unmanaged databases |
-| Certificate-Based (mTLS) | Unmanaged databases requiring cert auth |
+- DSPM programmable/admin API details and scanner/orchestrator setup contract remain unresolved. See [clarification dspm-01](../_meta/clarifications.md#dspm-01-dspm-programmableadmin-api-and-scanner-contract).
 
-### Scan types
+## Cross-Links
 
-- Full scan
-- Incremental scan
-- Historical scan
-- Sampling scan
-
-### OCR support
-
-DSPM uses Optical Character Recognition to identify sensitive data in image files and in images embedded within PDF or Microsoft Office documents.
-
-## Data classification
-
-Classification is performed using Zscaler's DLP engines and dictionaries — the same underlying classification technology used by ZIA DLP. This consistency means findings map to the same data categories an organization may already use in ZIA DLP policy.
-
-### AI/ML model detection
-
-DSPM has dedicated posture labels for AI/ML:
-- "Has AI/ML Package" — checks if AI or ML packages are installed on a compute instance
-- "Has AI/ML Model" — checks if AI or ML models are present on a compute instance
-- "Guardrails" — indicates that guardrails are enabled for an AI service
-
-This makes DSPM relevant for organizations deploying ML workloads in cloud environments.
-
-## Posture labels (security checks)
-
-| Label | What it checks |
-|---|---|
-| Public Exposure | Resource accessible from the public internet |
-| Encryption | Customer-managed key vs. platform-managed key |
-| Logging | Access logs and audit trails enabled |
-| Backup Recovery | Backup and retention policy configuration |
-| Access Control | IAM policies and ACL configuration |
-| Guardrails | AI service guardrails enabled |
-| Has AI/ML Package | Compute instance has AI/ML packages |
-| Has AI/ML Model | Compute instance has AI/ML models |
-
-## Key capabilities
-
-- **Continuous monitoring**: Not a one-time scan; DSPM runs continuously to detect drift
-- **Risk prioritization**: Aggregates security data and prioritizes by severity
-- **Duplicate data detection**: Identifies the same sensitive data at multiple locations (redundancy risk and attack surface)
-- **Compliance mapping**: Security policies mapped to compliance frameworks (GDPR, NIST, and others)
-- **Remediation guidance**: Step-by-step remediation per finding
-- **Near-real-time alerts**: Configurable notifications for new findings
-- **Dashboards, graphs, reports**: Interactive visualization for security teams and compliance reporting
-
-## Data residency
-
-For regions with data residency requirements (e.g., GDPR), DSPM supports **in-region scanning**: data is processed within the region; only metadata is sent to the Zscaler Admin Console. Raw sensitive data is not exfiltrated to Zscaler infrastructure.
-
-## API surface
-
-No explicit DSPM REST API reference was found in available help portal sources. The product is administered via the Zscaler Admin Console (same as ZIA/ZPA). Treat as primarily portal-managed. A step-by-step configuration guide exists in the help portal.
-
-## Relationship to ZIA DLP
-
-DSPM and ZIA DLP are complementary, not overlapping:
-- **ZIA DLP**: Inspects data in motion — traffic passing through Zscaler proxies. Prevents data exfiltration via web, email, cloud apps in real time.
-- **DSPM**: Inspects data at rest — data stored in cloud/on-premises data stores. Identifies misconfigurations and exposures that could lead to breach.
-
-Both use the same Zscaler DLP classification engines/dictionaries, so findings are expressed in the same data category language.
-
-## Key operational notes
-
-- DSPM deployment requires cloud account onboarding (AWS/Azure/GCP) — admins must configure IAM roles/service principals to grant DSPM scanning access.
-- An "Orchestrator" is deployed in the customer's cloud environment (AWS, Azure, GCP) to coordinate scanning within the cloud account. Scanner instances run within the customer's cloud, ensuring data does not leave the customer's environment (only metadata returns to Zscaler).
-- The onboarding process involves deploying CloudFormation templates (AWS) or equivalent in Azure/GCP.
-
-## What DSPM is not
-
-- Not a data lake or data catalog. DSPM discovers and classifies data; it does not store it.
-- Not an inline proxy. Unlike ZIA, DSPM does not intercept live traffic.
-- Not a backup solution. Backup Recovery posture checks verify that backups exist; DSPM does not create them.
-
-## Cross-links
-
-- ZIA DLP (data-in-motion control; uses same DLP engines): [`../zia/dlp.md`](../zia/dlp.md)
-- AEM (asset exposure, SecOps platform): [`../aem/overview.md`](../aem/overview.md)
+- Claims ledger for this refresh: [`./_claims-ledger.md`](./_claims-ledger.md)
+- ZIA DLP: [`../zia/dlp.md`](../zia/dlp.md)
+- AEM: [`../aem/overview.md`](../aem/overview.md)
 - Portfolio map: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)

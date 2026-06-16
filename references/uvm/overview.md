@@ -1,157 +1,73 @@
 ---
 product: uvm
 topic: overview
-title: "Unified Vulnerability Management (UVM) — consolidated vulnerability tracking and remediation"
+title: "Unified Vulnerability Management - AnySource ingestion and audit-scoped API surface"
 content-type: reference
-last-verified: "2026-04-28"
+last-verified: "2026-06-16"
+verified-against:
+  vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
+  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/terraform-provider-zia: 717926eb564bb21dea1f8e0c3222e6593b29f849
+  vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
+  vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
+  vendor/zpacloud-ansible: 84ab824d6ce5853c12add6ae3280dcfb8db273a2
+  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
+  vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: medium
 source-tier: doc
 sources:
   - "vendor/zscaler-help/uvm-anysource-connector.md"
+  - "vendor/zscaler-help/uvm-unified-vulnerability-management-marketing.md"
 author-status: draft
 ---
 
-# Unified Vulnerability Management (UVM) — consolidated vulnerability tracking and remediation
+# Unified Vulnerability Management - AnySource ingestion and audit-scoped API surface
 
-## What it is
+Unified Vulnerability Management (UVM) is described in the captured SecOps context as a single platform for managing vulnerabilities and simplifying identification and remediation of security risks (`vendor/zscaler-help/uvm-anysource-connector.md:73-78`). The marketing capture frames UVM as risk prioritization with contextual insights into risk factors and mitigating controls (`vendor/zscaler-help/uvm-unified-vulnerability-management-marketing.md:8-19`).
 
-Unified Vulnerability Management (UVM) is one of two applications in the Zscaler Security Operations (SecOps) platform (the other is AEM). UVM provides a single platform for managing vulnerabilities — ingesting vulnerability findings from many different security scanners and tools, normalizing them, enriching them with asset context, prioritizing them, and tracking remediation (Tier A — vendor/zscaler-help/uvm-anysource-connector.md).
+## Ingestion And Data Model
 
-UVM does not perform its own scanning. It is an aggregation, normalization, and prioritization layer on top of existing vulnerability management tools. The value is consolidating findings from tools like Tenable, Qualys, CrowdStrike, Wiz, Prisma Cloud, etc. into a single, enriched, correlated view.
+The AnySource capture says UVM can create data sources using either dedicated vendor connectors or the AnySource connector, with AnySource allowing file uploads directly to the platform (`vendor/zscaler-help/uvm-anysource-connector.md:8`). Captured AnySource upload methods are Upload File, AWS S3, GCP, Webhook, and Upload File API (`vendor/zscaler-help/uvm-anysource-connector.md:10-16`).
 
-## Platform context
+The same capture includes a partial vendor connector list with examples such as Veracode, Apiiro, Aqua Security, Armis, AWS, Azure Blob, Azure Cloud Assets, CrowdStrike, Dragos, GitHub Advanced Security, Mandiant ASM, Microsoft Defender, Prisma Cloud, and Tenable (`vendor/zscaler-help/uvm-anysource-connector.md:18-45`). The marketing capture separately claims 150+ prebuilt integrations and names AnySource for flat files/webhooks and AnyTarget for downstream outputs (`vendor/zscaler-help/uvm-unified-vulnerability-management-marketing.md:21-24`).
 
-UVM shares the Zscaler SecOps platform with AEM. The underlying data layer is the **Zscaler Data Fabric for Security**, which harmonizes, deduplicates, correlates, and enriches data from Zscaler telemetry and third-party tools.
+Recommended AnySource fields are split between assets and findings: asset fields include hostname, type, IP, OS, owner, location, status, tags, software, and criticality; finding fields include vulnerability ID/name, severity/CVSS, description, affected asset, CVE, threat intel, tags, first/last seen timestamps, recommendations, and affected component (`vendor/zscaler-help/uvm-anysource-connector.md:47-71`).
 
-UVM is closely related to AEM:
-- **AEM** is asset-centric: build asset inventory, track coverage, create policies against asset posture
-- **UVM** is finding-centric: ingest vulnerability findings, prioritize, track remediation
+## Reporting And Workflows
 
-In practice, both are modules in the same SecOps portal.
+The marketing capture describes prebuilt and custom dashboards, dynamically updated feeds, custom workflows, two-way ticketing integration, and exception management (`vendor/zscaler-help/uvm-unified-vulnerability-management-marketing.md:26-35`). It says UVM is powered by the Data Fabric for Security and correlates findings across identity, assets, user behavior, mitigating controls, business processes, and organizational hierarchy (`vendor/zscaler-help/uvm-unified-vulnerability-management-marketing.md:37-47`).
 
-## Data ingestion — connectors
+## Source-Family Audit
 
-UVM supports a wide range of dedicated vendor connectors plus a generic AnySource connector.
+| Family | Audit result |
+|---|---|
+| Go SDK | No product-specific UVM service found in this audit pass. |
+| Python SDK | No product-specific UVM service found in this audit pass. |
+| Terraform | No product-specific UVM resource or data source found in this audit pass. |
+| Ansible | No product-specific UVM module found in this audit pass. |
+| MCP | No product-specific UVM tool found in this audit pass. |
+| Postman | No UVM endpoint family found in the audited Postman collection. |
+| Help captures | AnySource ingestion methods, partial vendor connector examples, recommended fields, SecOps context, marketing positioning, reporting, and workflow claims are captured (`vendor/zscaler-help/uvm-anysource-connector.md:8-78`, `vendor/zscaler-help/uvm-unified-vulnerability-management-marketing.md:16-47`). |
 
-### Dedicated vendor connectors (partial list)
+## API Surface
 
-- Veracode
-- Apiiro
-- Aqua Security
-- Armis
-- AWS
-- Azure Blob
-- Azure Cloud Assets
-- CrowdStrike
-- CrowdStrike CSPM
-- CrowdStrike Identity Protection
-- Dragos
-- Endor Labs
-- GitHub Advanced Security
-- GitHub Repositories
-- HCL BigFix
-- Ionix
-- Mandiant ASM
-- Microsoft Defender for Cloud Findings
-- Microsoft Defender for Endpoint
-- Microsoft Entra ID
-- Microsoft Intune Assets / Audit Events
-- Prisma Cloud
-- Prisma Cloud CSPM
-- SentinelOne
-- Snyk
-- Tenable
-- Wiz
+The only source-backed API phrase in this refresh is "Upload File API" as an AnySource ingestion method (`vendor/zscaler-help/uvm-anysource-connector.md:10-16`). The audited SDK, Terraform, Ansible, MCP, and Postman sources did not expose an endpoint path, schema, auth scope, or broader UVM administration API. See [clarification uvm-01](../_meta/clarifications.md#uvm-01-uvm-anysource-upload-file-api-endpoint-and-broader-api-surface).
 
-This list covers a wide range of scanner types: traditional vulnerability scanners, cloud security posture management (CSPM), application security testing, container security, OT/ICS security, and identity.
+## What UVM Is Not
 
-### AnySource connector
+- It is not evidenced here as a vulnerability scanner; the captured UVM surface focuses on vulnerability management, ingestion, correlation, prioritization, workflows, and remediation tracking (`vendor/zscaler-help/uvm-anysource-connector.md:8-16`, `:73-78`, `vendor/zscaler-help/uvm-unified-vulnerability-management-marketing.md:16-47`).
+- It is not evidenced as a broad public REST API product in the audited source families.
+- Do not treat the partial connector examples as a complete connector catalog; one capture labels the list partial and another marketing capture gives a broader 150+ integration claim (`vendor/zscaler-help/uvm-anysource-connector.md:18-20`, `vendor/zscaler-help/uvm-unified-vulnerability-management-marketing.md:21-24`).
 
-For sources without a dedicated connector. Supported ingestion methods:
-- Upload File (direct manual upload)
-- AWS S3 (pull-based)
-- GCP (pull-based)
-- Webhook (push-based from source system)
-- Upload File API (programmatic upload)
+## Open Questions
 
-AnySource files must include specific fields for effective data unification. Recommended fields:
+- UVM Upload File API endpoint/schema and broader API surface remain unresolved. See [clarification uvm-01](../_meta/clarifications.md#uvm-01-uvm-anysource-upload-file-api-endpoint-and-broader-api-surface).
 
-**For assets:**
-- Asset Name/Hostname, Asset Type, IP Addresses, OS, Owner, Location, Status, Tags, Software Installed, Asset Criticality
+## Cross-Links
 
-**For findings (vulnerabilities):**
-- Vulnerability Name/ID, Severity/CVSS score, Description, Affected Asset, CVE, Threat Intel, Tags, First Seen/Last Seen timestamps, Remediation guidance, Affected Component
-
-### ThreatLabz source
-
-A built-in source that streams ThreatLabz threat intelligence into UVM. Enriches vulnerability findings with current threat actor activity and exploitation data.
-
-## Key concepts
-
-### Data unification
-
-Incoming data is normalized, deduplicated, correlated, and enriched. An asset appearing in CrowdStrike, Tenable, and Intune is resolved into a single unified asset record with merged attributes.
-
-### Field unification and data model
-
-Fields from different sources are mapped to UVM's unified data model. Admins configure field mappings after creating a data source. Attribute reconciliation determines which value "wins" when sources disagree on a field value.
-
-### Policies and violations
-
-Admins configure security policies (e.g., "critical CVE must be remediated within 7 days"). UVM evaluates findings against policies and surfaces violations.
-
-### Suppression rules
-
-Admins configure rules to suppress known-acceptable findings from cluttering the UVM view.
-
-### Custom dashboards
-
-Widget-based dashboards with templates. Data can be visualized across the consolidated finding set.
-
-### Report export
-
-Reports can be scheduled or manually exported. An API exists for triggering report export ("Triggering Report Export Through an API" is documented in the help portal).
-
-### AI capabilities
-
-"Managing AI Capabilities in the SecOps Platform" is a documented help page, suggesting AI-driven features for prioritization or analysis. Details not fully captured in available sources.
-
-## Outegrations (outbound integrations)
-
-Ticketing integrations for remediation tracking:
-- Jira (with webhook)
-- ServiceNow (with webhook)
-- Azure DevOps (with webhook)
-
-## EASM integration
-
-External Attack Surface Management (EASM) is natively integrated into the SecOps platform. Internet-facing asset discoveries and risk findings from EASM flow automatically into UVM.
-
-## Admin surface
-
-Administered via the Zscaler SecOps portal. SSO support: Entra ID, Okta, PingOne, PingFederate, SecureAuth. RBAC with system roles and custom roles.
-
-## API surface
-
-- AnySource Upload File API: programmatic data ingestion
-- Report export API: trigger report generation/export
-- No comprehensive UVM REST API reference found in available sources
-
-## Key operational notes
-
-- UVM is not a scanner. It aggregates from scanners. Organizations without an existing vulnerability scanner will need to add one; UVM does not replace Tenable, Qualys, etc.
-- Field mapping configuration is required after adding a data source before data is usable in UVM.
-- The "AnySource" connector is highly flexible — any tool that can export CSV or structured data can feed into UVM.
-
-## What UVM is not
-
-- Not a vulnerability scanner. Use Tenable, Qualys, Wiz, etc. for actual scanning.
-- Not a patch management tool. UVM identifies and prioritizes vulnerabilities; patching is done through separate tools.
-- Not a SIEM. Raw event logs should go to your SIEM; UVM handles enriched vulnerability findings.
-
-## Cross-links
-
-- AEM (asset exposure management, same SecOps platform, asset-centric view): [`../aem/overview.md`](../aem/overview.md)
-- SOC Workbench (alert/incident triage, same SecOps platform): [`../soc-workbench/overview.md`](../soc-workbench/overview.md)
-- Risk360 (financial risk quantification using vulnerability context): [`../risk360/overview.md`](../risk360/overview.md)
+- Claims ledger for this refresh: [`./_claims-ledger.md`](./_claims-ledger.md)
+- AEM: [`../aem/overview.md`](../aem/overview.md)
+- SOC Workbench: [`../soc-workbench/overview.md`](../soc-workbench/overview.md)
+- Risk360: [`../risk360/overview.md`](../risk360/overview.md)
 - Portfolio map: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)
