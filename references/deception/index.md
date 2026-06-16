@@ -3,50 +3,41 @@ product: deception
 topic: "deception-index"
 title: "Zscaler Deception reference hub"
 content-type: reference
-last-verified: "2026-04-24"
+last-verified: "2026-06-16"
+verified-against:
+  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
+  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
+  vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
+  vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: medium
-sources: []
+source-tier: mixed
+sources:
+  - "vendor/zscaler-help/what-is-zscaler-deception.md"
+  - "vendor/zscaler-help/about-deception-strategy.md"
+  - "vendor/zscaler-help/About_Access_Policy.txt"
 author-status: reviewed
 ---
 
 # Zscaler Deception reference hub
 
-Entry point for **Zscaler Deception** questions — the active-defense threat-detection product that deploys decoys (fake servers, AD objects, endpoints, cloud assets) across an environment to detect lateral-movement attackers.
-
-Confidence is **medium** because the skill currently has only three captured help articles (from the `zpa-07` resolution) — the operational layer, configuration deep-dives, and Endpoint / Cloud decoy specifics are not yet captured. Promote to high once a fuller capture pass lands.
+Entry point for Zscaler Deception questions. The refreshed source-backed summary is [`./overview.md`](./overview.md); the per-claim forcing function is [`./_claims-ledger.md`](./_claims-ledger.md).
 
 ## Topics
 
 | Topic | File | Status |
 |---|---|---|
-| Architecture, decoy types, ZPA integration, threat model | [`./overview.md`](./overview.md) | draft |
+| Decoys, strategy, ZPA integration, and audited programmable surface | [`./overview.md`](./overview.md) | draft |
 
-## Why this product matters in the suite
+## Scope boundary
 
-Deception is **distinct from every other Zscaler product** in posture: where ZIA / ZPA / ZCC are inline-traffic enforcement and ZDX / ZBI / Risk360 are observation / mitigation, Deception is **active defense** — it manufactures traffic patterns (decoys appearing real) specifically to lure adversaries who have already bypassed perimeter defenses.
+Deception is a separate active-defense product, not a ZPA feature. Its Help capture says it uses decoys and lures to detect and disrupt threats such as reconnaissance, lateral movement, ransomware, and ICS/SCADA attacks (`vendor/zscaler-help/what-is-zscaler-deception.md:8`). It integrates with ZPA for Zero Trust Network decoys without extra network components (`vendor/zscaler-help/what-is-zscaler-deception.md:45-47`), and ZPA access-policy docs describe Deception-configured policy rules as constrained for rule-order changes and copy/edit/delete options (`vendor/zscaler-help/About_Access_Policy.txt:169-177`, `:185-190`).
 
-Where it shows up in skill answers:
+The audited public SDK/provider/MCP/Postman surface does not expose Deception product CRUD. Adjacent surfaces are documented in [`./overview.md`](./overview.md#source-family-sweep) and in the claims ledger.
 
-- **ZPA access policy ordering** — Deception-configured access rules must evaluate before regular ZPA rules to intercept attacker traffic to decoys. See [`../zpa/policy-precedence.md § Order and editing constraints`](../zpa/policy-precedence.md) and [clarification `zpa-07`](../_meta/clarifications.md#zpa-07-deception-policy-order-interaction).
-- **ZPA App Connectors** — Deception integrates with ZPA via dedicated App Connectors that route attacker traffic to ZTN (Zero Trust Network) decoys.
-- **Cross-product hooks** — referenced in [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md).
+## When to start here
 
-## When to start here vs elsewhere
-
-- **Start here** for "what is Deception?", "how do decoys work?", "should we deploy Deception?", "how does Deception integrate with ZPA?"
-- **Start in [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md)** for "why are Deception access rules ordered first?" — the policy-evaluation answer.
-- **Start in [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)** for "is Deception in scope for this skill?" — coverage tier check.
-
-## Coverage gaps (deferred)
-
-Captured here from the awareness-only audit:
-
-- Endpoint decoy specifics (Landmine policies)
-- Cloud decoy specifics (per-cloud-provider deployment)
-- ThreatParse natural-language attack reconstruction details
-- Detailed deployment runbooks
-- Integration with non-Zscaler SIEMs / SOAR platforms
-- Performance and footprint data for Decoy Connectors
-- Pricing / packaging details
-
-These gaps don't block answering common conceptual questions but do limit depth on operational deployments. Promote when fork-team signals Deception is in active scope.
+- Start here for "what is Deception?", "how do decoys work?", "what changes in ZPA when Deception is integrated?", or "what public automation surface did this refresh find?"
+- Start in [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md) for ZPA first-match policy-order behavior and Deception rule placement.
+- Start in [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md) for portfolio placement.

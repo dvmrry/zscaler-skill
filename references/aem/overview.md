@@ -1,115 +1,66 @@
 ---
 product: aem
 topic: overview
-title: "Asset Exposure Management (AEM) — asset inventory and attack surface tracking"
+title: "Asset Exposure Management (AEM) - asset inventory and attack surface tracking"
 content-type: reference
-last-verified: "2026-04-28"
+last-verified: "2026-06-16"
+verified-against:
+  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/terraform-provider-zia: 717926eb564bb21dea1f8e0c3222e6593b29f849
+  vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
+  vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
+  vendor/zpacloud-ansible: 84ab824d6ce5853c12add6ae3280dcfb8db273a2
+  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
+  vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
+  vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: medium
 source-tier: doc
 sources:
   - "vendor/zscaler-help/aem-what-zscaler-security-operations.md"
+  - "vendor/zscaler-help/asset-exposure-management-caasm-marketing.md"
 author-status: draft
 ---
 
-# Asset Exposure Management (AEM) — asset inventory and attack surface tracking
+# Asset Exposure Management (AEM) - asset inventory and attack surface tracking
+
+This is a thin Tier-C reference. The refresh found sourceable Help and marketing captures for AEM, but no product-specific SDK, Terraform, Ansible, MCP, or Postman surface in the audited vendor trees. Treat automation claims as unverified unless they point to a concrete source in [`_claims-ledger.md`](./_claims-ledger.md).
+
+## Source-family sweep
+
+| Family | Audit result |
+|---|---|
+| Go SDK | No AEM / Asset Exposure Management / CAASM service surface found in the audited Go SDK tree. |
+| Python SDK | No AEM / Asset Exposure Management / CAASM service surface found in the audited Python SDK tree. |
+| Terraform | No AEM / Asset Exposure Management / CAASM resources or data sources found in the audited ZIA or ZPA providers. |
+| Ansible | No AEM / Asset Exposure Management / CAASM modules found in the audited ZIA or ZPA collections. |
+| MCP | No AEM / Asset Exposure Management / CAASM tools found in the audited MCP server. |
+| Postman | No AEM / Asset Exposure Management / CAASM endpoint family found in the audited OneAPI collection. |
+| Help | AEM is covered by the SecOps/AEM capture and CAASM marketing capture. AEM is described as one of two Zscaler SecOps applications and as collecting/managing asset data to track inventory, attack surface, policy violations, and remediation (`vendor/zscaler-help/aem-what-zscaler-security-operations.md:10-13`). |
 
 ## What it is
 
-Asset Exposure Management (AEM) is one of two applications in the Zscaler Security Operations (SecOps) platform (the other is UVM). AEM enables organizations to collect and manage asset data from various sources, track asset inventory, understand their attack surface, create security policies, and track and remediate policy violations to reduce overall risk (Tier A — vendor/zscaler-help/aem-what-zscaler-security-operations.md).
+Asset Exposure Management (AEM) is one of the Zscaler Security Operations applications. The Help capture says AEM collects and manages asset data from multiple sources, tracks inventory and coverage, helps understand attack surface, and supports policies plus violation remediation (`vendor/zscaler-help/aem-what-zscaler-security-operations.md:12`). The same capture describes the SecOps platform data fabric as centralizing, transforming, harmonizing, deduplicating, correlating, and enriching data from Zscaler telemetry and third-party tools (`vendor/zscaler-help/aem-what-zscaler-security-operations.md:17-19`).
 
-AEM is primarily an **asset-centric** product: it builds a unified, enriched view of your asset estate by ingesting data from many different security and IT tools, then applies machine learning and AI to normalize, deduplicate, correlate, and enrich that data into a coherent picture of organizational risk.
+The marketing capture positions AEM around a unified asset inventory or "golden record", with asset visibility, relationship identification, coverage-gap analysis, CMDB health, remediation actions, and reporting/analytics (`vendor/zscaler-help/asset-exposure-management-caasm-marketing.md:20-49`). It also says AEM informs Risk360 and UVM by improving asset context and risk quantification (`vendor/zscaler-help/asset-exposure-management-caasm-marketing.md:55-59`).
 
-## Platform context — Zscaler SecOps
+## Data-source and workflow scope
 
-AEM is part of the Zscaler SecOps platform, which also includes:
-- **UVM** (Unified Vulnerability Management) — vulnerability-centric view
-- **Identity Protection** — identity risk detection
-- **SOC Workbench** — alert/incident triage and investigation
-- **EASM** (External Attack Surface Management) — internet-facing asset discovery (built into SecOps platform natively)
+The captured AEM data-source setup flow includes Details, Retrieval, Scheduling, Remediation Detection Settings, and Suppression Rules (`vendor/zscaler-help/aem-what-zscaler-security-operations.md:30-37`). The generic AnySource connector supports upload or extraction from storage platforms such as GCP and AWS S3 (`vendor/zscaler-help/aem-what-zscaler-security-operations.md:39-41`).
 
-The SecOps platform runs on the **Zscaler Data Fabric for Security**, which harmonizes disparate data from Zscaler telemetry and third-party tools.
+The captured connector list includes Azure Blob, Azure Cloud Assets, CrowdStrike, CrowdStrike Identity Protection, Microsoft Defender sources, Microsoft Entra ID, SentinelOne, Snyk, Wiz, Zscaler Client Connector Devices, ZIA Devices and Users, and AnySource (`vendor/zscaler-help/aem-what-zscaler-security-operations.md:43-57`). Outbound integrations in the capture are Jira, ServiceNow, and Azure DevOps with webhooks (`vendor/zscaler-help/aem-what-zscaler-security-operations.md:59-63`).
 
-## Key concepts
+## Programmability posture
 
-### Data sources (connectors)
+No product-specific AEM Go SDK, Python SDK, Terraform, Ansible, MCP, or Postman surface was found in the audited vendor trees. The Help capture supports a portal/data-source workflow and an AnySource ingestion concept, but it does not establish a public AEM configuration/query API or SDK operation set. See [clarification `aem-01`](../_meta/clarifications.md#aem-01-aem-anysource-report-and-api-endpoint-details).
 
-AEM ingests from external security tools via configurable connectors. Supported sources include:
+## Open questions
 
-- **Cloud assets**: Azure Cloud Assets, AWS (via AnySource), GCP (via AnySource)
-- **EDR/Security platforms**: CrowdStrike, CrowdStrike Identity Protection, Microsoft Defender for Cloud Findings, Microsoft Defender for Endpoint
-- **Identity**: Microsoft Entra ID
-- **Vulnerability tools**: Snyk, Wiz, SentinelOne
-- **File ingestion**: AnySource connector (upload file directly, AWS S3, GCP, webhook, Upload File API)
-- **Zscaler native**: ZCC Devices, ZIA Devices and Users, ThreatLabz
-
-### AnySource connector
-
-A generic connector for situations where no dedicated vendor connector exists. Supports:
-- Direct file upload
-- AWS S3 pull
-- GCP pull
-- Webhook (push-based)
-- Upload File API
-
-Files are stored in original format and mapped to AEM's unified data model via configurable field mappings. This makes AEM extensible to essentially any security or IT tool that can export data.
-
-### Data unification
-
-The core data processing layer. Incoming data from all sources is:
-1. Normalized (field types, formats standardized)
-2. Deduplicated (same asset appearing in multiple sources merged into one record)
-3. Enriched (additional context added from other sources)
-4. Correlated (relationships between entities established)
-
-### Asset inventory and coverage
-
-AEM maintains a unified asset inventory. Admins can understand which assets are tracked, which sources cover each asset, and where gaps exist (assets known from one source but not others).
-
-### Policies and policy violations
-
-Admins create policies defining expected security state. AEM continuously evaluates assets against policies and surfaces violations. Violations drive remediation workflows.
-
-### EASM integration
-
-External Attack Surface Management capabilities are natively built into the SecOps platform. EASM automatically discovers internet-facing assets and their risk findings. This information is merged into AEM's asset and finding data.
-
-### Outegrations (outbound integrations)
-
-AEM connects to ticketing and workflow tools for remediation tracking:
-- Jira (with webhook)
-- ServiceNow (with webhook)
-- Azure DevOps (with webhook)
-
-### Suppression rules
-
-Admins can configure rules to suppress false-positive or known-good findings from appearing in the AEM asset risk view.
-
-## Admin surface
-
-AEM is administered via the Zscaler SecOps portal. Authentication via SSO (Entra ID, Okta, PingOne, PingFederate, SecureAuth). Admin roles: system roles and custom roles; per-user role assignments and content permissions.
-
-**Navigation path**: Configure > Sources (for data source management).
-
-## API surface
-
-The help portal documents "Triggering Report Export Through an API" as a capability (consistent with SOC Workbench, which shares the platform). An AnySource "Upload File API" exists for programmatic data ingestion. No comprehensive public REST API reference was found for AEM configuration/querying in available sources.
-
-## Key operational notes
-
-- AEM and UVM share the same SecOps platform infrastructure and admin portal — they are separate views/modules, not separate products.
-- After creating a data source, field mapping configuration is required before AEM can correctly process and use the data.
-- Data runs on a configurable schedule; a "Process Now" option is available for immediate ingestion.
-- The SecOps platform (and therefore AEM) has its own SSO and SAML configuration — separate from ZIA/ZPA admin auth.
-
-## What AEM is not
-
-- Not a CMDB. AEM ingests from CMDBs (ServiceNow, etc.) but is not itself a configuration management database.
-- Not a vulnerability scanner. AEM ingests vulnerability data from scanners (Tenable, Qualys, etc. via AnySource, or direct connectors). The scanning is done by external tools.
-- Not an EDR. AEM ingests from EDR platforms (CrowdStrike, Defender, etc.) but does not perform endpoint detection itself.
+- `aem-01`: The public captures do not identify the authoritative AEM API surface, report-export endpoint details, AnySource upload contract, or whether those are exposed through OneAPI/SDK/provider tooling. See [clarification `aem-01`](../_meta/clarifications.md#aem-01-aem-anysource-report-and-api-endpoint-details).
 
 ## Cross-links
 
-- UVM (vulnerability management, same SecOps platform): [`../uvm/overview.md`](../uvm/overview.md)
-- SOC Workbench (alert/incident triage, same SecOps platform): [`../soc-workbench/overview.md`](../soc-workbench/overview.md)
-- Identity Protection (identity risk, same SecOps platform): [`../identity-protection/overview.md`](../identity-protection/overview.md)
-- Portfolio map: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)
+- UVM: [`../uvm/overview.md`](../uvm/overview.md)
+- SOC Workbench: [`../soc-workbench/overview.md`](../soc-workbench/overview.md)
+- Identity Protection: [`../identity-protection/overview.md`](../identity-protection/overview.md)
+- Claims ledger: [`./_claims-ledger.md`](./_claims-ledger.md)
