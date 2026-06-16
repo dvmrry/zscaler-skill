@@ -470,7 +470,7 @@ Source: `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md`; `vendor
 
 **shared-29** — Rate limits unconfirmed. The ZInsights endpoint is absent from the OneAPI rate-limiting guide. Whether it shares a bucket with Business Insights or has its own limits, and which response headers carry limit state, is unknown. See [clarification shared-29](../_meta/clarifications.md#shared-29-zinsights-graphql-rate-limits).
 
-**shared-30** — Introspection on production. Sources confirm introspection on the Beta environment. Production introspection support is not explicitly confirmed or denied. Until verified, treat production introspection as potentially disabled. See [clarification shared-30](../_meta/clarifications.md#shared-30-zinsights-production-introspection-support).
+**shared-30** — Introspection on production. The captured guide documents GraphQL introspection support for the Beta cloud environment only (`vendor/zscaler-help/automate-zscaler/guides-analytics-api.md:31`). Treat production introspection as unavailable unless vendor documentation or a live production test confirms an exception. See [clarification shared-30](../_meta/clarifications.md#shared-30-zinsights-production-introspection-support).
 
 **shared-31** — Pagination mechanism. No cursor or offset pagination is visible in the query examples. Whether `limit`-only is the intended design, or whether the API silently truncates results above some undocumented cap, is not confirmed. See [clarification shared-31](../_meta/clarifications.md#shared-31-zinsights-pagination-and-truncation-behavior).
 
@@ -480,7 +480,7 @@ Source: `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md`; `vendor
 
 **shared-34** — ZDX trend linkage. The captured GraphQL source does not list a ZDX domain, while the Postman collection exposes ZDX REST trend endpoints. The exact relationship between ZDX dashboards and ZInsights GraphQL is unresolved. See [clarification shared-34](../_meta/clarifications.md#shared-34-zdx-trend-linkage-to-zinsights-graphql).
 
-**shared-35** — Mutation support. The introspection query template retrieves `mutationType { name }`, implying mutations may exist. No mutation examples are present in captured sources. Whether any write operations are exposed (e.g., configuring report parameters) is unknown. See [clarification shared-35](../_meta/clarifications.md#shared-35-zinsights-mutation-support).
+**shared-35** — Mutation support. The introspection query template queries `mutationType { name }`, but no captured introspection output or mutation examples confirm mutation support. Whether any write operations exist is unknown. See [clarification shared-35](../_meta/clarifications.md#shared-35-zinsights-mutation-support).
 
 **shared-36** — `BYTES` unit behavior. The `WebTrafficUnits` enum is documented as having at least `TRANSACTIONS`. A `BYTES` value is implied by the SaaS Security Report UI (which shows Total Bytes, Upload Bytes, Download Bytes) but is not confirmed as a valid enum value in the API. See [clarification shared-36](../_meta/clarifications.md#shared-36-webtrafficunits-bytes-validity).
 

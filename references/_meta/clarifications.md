@@ -2485,7 +2485,7 @@ The ZInsights GraphQL endpoint is captured as `https://api.zsapi.net/zins/graphq
 
 *Origin: `references/shared/analytics-graphql.md` § Open questions*
 
-The captured GraphQL reference includes an introspection query template, but the doc does not separately state whether production introspection is enabled or whether only beta supports it. Clients should not assume production introspection is always available until verified.
+The captured guide documents GraphQL introspection support for the Beta cloud environment only (`vendor/zscaler-help/automate-zscaler/guides-analytics-api.md:31`). Production introspection is not confirmed by this source set; clients should assume it is unavailable unless vendor documentation or a live production test confirms an exception.
 
 **Status**: open — 2026-06-16
 **Resolves with**: vendor documentation for production introspection behavior or a live production introspection response capture
@@ -2540,7 +2540,7 @@ The captured ZInsights GraphQL domain list does not include ZDX, and the OneAPI 
 
 *Origin: `references/shared/analytics-graphql.md` § Open questions*
 
-The introspection query template asks for `mutationType { name }`, but the captured docs provide no mutation examples. Whether any write operations exist, such as report configuration or saved-query mutation, is unresolved.
+The introspection query template asks for `mutationType { name }`, but the captured docs provide no introspection output showing mutation fields and no mutation examples. Whether any write operations exist is unresolved.
 
 **Status**: open — 2026-06-16
 **Resolves with**: introspection output showing mutation fields plus vendor docs or live tests confirming their behavior
