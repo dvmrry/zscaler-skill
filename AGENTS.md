@@ -17,8 +17,6 @@ For Zscaler questions:
 - Do not answer Zscaler policy, API, log, or tenant-specific questions from
   memory.
 - For ad-hoc Q&A, read `agents/zscaler/prompt.md` and follow it.
-- For setup or repair of the `_data` runtime-data mount, use the
-  `zscaler-skill-setup` skill.
 <!-- capability-routing:start -->
 
 <!-- GENERATED from agents/_meta/capability-registry.json — do not edit by hand. -->
@@ -29,6 +27,7 @@ For Zscaler questions:
 - /z-architect — capacity, scaling, sizing, design, recommendation, SPOF, growth, topology, will this scale, single point of failure
 - /z-retro — existing-journal, postmortem, retro, lessons, warning ledger, decision gate, after the incident
 - /z-researcher — expand the reference, citation-backed, document behavior, mine sources, reference expansion, SDK divergences, drift in the reference, add a section
+- @zscaler-skill-setup — _data mount, runtime-data mount, set up the _data, repair the _data, check-data-contract, overlay submission
 
 <!-- capability-routing:end -->
 - Portable Agent Skills (`zscaler-investigator`, `zscaler-soc`) under `.agents/skills/` are
