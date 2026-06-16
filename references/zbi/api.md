@@ -1,42 +1,64 @@
 ---
 product: zbi
 topic: "zbi-api"
-title: "ZBI API — isolation profiles, banners, certificates, regions across the ZIA + ZPA SDK split"
+title: "ZBI API — split Zero Trust Browser / CBI surface and Business Insights namespace caveat"
 content-type: reference
-last-verified: "2026-05-05"
+last-verified: "2026-06-16"
+verified-against:
+  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/terraform-provider-zia: 717926eb564bb21dea1f8e0c3222e6593b29f849
+  vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
+  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
 confidence: high
 source-tier: code
 sources:
   - vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py
   - vendor/zscaler-sdk-python/zscaler/zia/models/cloud_browser_isolation.py
+  - vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py
+  - vendor/zscaler-sdk-python/zscaler/zbi/custom_apps.py
+  - vendor/zscaler-sdk-python/zscaler/oneapi_client.py
   - vendor/zscaler-sdk-python/zscaler/zpa/cbi_profile.py
   - vendor/zscaler-sdk-python/zscaler/zpa/cbi_banner.py
   - vendor/zscaler-sdk-python/zscaler/zpa/cbi_certificate.py
   - vendor/zscaler-sdk-python/zscaler/zpa/cbi_region.py
   - vendor/zscaler-sdk-python/zscaler/zpa/cbi_zpa_profile.py
+  - vendor/zscaler-sdk-go/zscaler/zia/services/browser_isolation/browser_isolation_profile.go
   - vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go
   - vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbibannercontroller/cbibannercontroller.go
   - vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbicertificatecontroller/cbicertificatecontroller.go
   - vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbiregions/cbiregions.go
   - vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbizpaprofile/cbizpaprofile.go
   - vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/isolationprofile/isolationprofile.go
+  - vendor/terraform-provider-zia/zia/data_source_zia_cloud_browser_isolation_profile.go
+  - vendor/terraform-provider-zia/zia/resource_zia_browser_control_policy.go
+  - vendor/terraform-provider-zia/zia/resource_zia_url_filtering_rules.go
+  - vendor/terraform-provider-zia/zia/resource_zia_cloud_app_control_rules.go
+  - vendor/terraform-provider-zia/zia/validator.go
+  - vendor/terraform-provider-zpa/zpa/provider.go
+  - vendor/terraform-provider-zpa/zpa/resource_zpa_cloud_browser_isolation_external_profile.go
+  - vendor/terraform-provider-zpa/zpa/resource_zpa_policy_access_isolation_rule.go
+  - vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/get_isolation_profile.py
+  - vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/access_isolation_rules.py
   - vendor/zscaler-api-specs/oneapi-postman-collection.json
 author-status: draft
 ---
 
-# ZBI API — isolation profiles, banners, certificates, regions across the ZIA + ZPA SDK split
+# ZBI API — split Zero Trust Browser / CBI surface and Business Insights namespace caveat
 
-This reference covers the API surface for ZBI (Zero Trust Browser Isolation / Cloud Browser Isolation) as expressed in the Python and Go SDKs. It does not repeat the architectural model (ephemeral containers, double-PSE traversal) or the policy-routing layer; see the cross-links below. Its primary purpose is to document the concrete field names, endpoint paths, and SDK accessor patterns needed to create and configure isolation profiles programmatically.
+This reference covers the programmable surface for Zero Trust Browser / Cloud Browser Isolation as expressed in the Python SDK, Go SDK, Terraform providers, MCP tools, and Postman collection. It does not repeat the architectural model or policy-routing layer; see the cross-links below. Its primary purpose is to document concrete field names, endpoint paths, SDK accessor patterns, and places where "ZBI" is a misleading name.
+
+**Naming guardrail:** Python `client.zbi` is **Zscaler Business Insights**, not Zero Trust Browser. The service wrapper says "Zscaler Business Insights (ZBI)" and OneAPI initializes `_zbi` with the comment "Zscaler Business Insights (REST API)" (`vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py:23-24`, `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:230`, `:316-319`). Its custom-app/report endpoints use `/bi/api/v1` (`vendor/zscaler-sdk-python/zscaler/zbi/custom_apps.py:28-34`, `:70-74`). Do not cite `client.zbi.*` as browser-isolation policy/profile management.
 
 ---
 
 ## ZIA / ZPA SDK split
 
-This is the most structurally surprising aspect of the CBI API surface. The HTTP endpoints all live under `/zpa/cbiconfig/...` or `/zpa/mgmtconfig/...`, but the Python SDK distributes the accessor methods across both `client.zia.*` and `client.zpa.*`. The Go SDK places everything under the ZPA service namespace with no ZIA accessor at all.
+This is the most structurally surprising aspect of the CBI API surface. The HTTP endpoints are split between ZIA `/browserIsolation/profiles`, ZPA `/zpa/cbiconfig/...`, and ZPA `/zpa/mgmtconfig/...`. The Python SDK distributes accessors across `client.zia.*` and `client.zpa.*`; the Go SDK also has both a ZIA read-only package and ZPA CBI packages.
 
 | Capability | Python accessor | Go package |
 |---|---|---|
-| List profiles (read-only, ZIA-side) | `client.zia.cloud_browser_isolation.list_isolation_profiles()` | not exposed |
+| List profiles (read-only, ZIA-side) | `client.zia.cloud_browser_isolation.list_isolation_profiles()` | `zia/services/browser_isolation` |
 | Full CRUD on CBI profiles | `client.zpa.cbi_profile.*` | `cbiprofilecontroller` |
 | Banner CRUD | `client.zpa.cbi_banner.*` | `cbibannercontroller` |
 | Certificate CRUD | `client.zpa.cbi_certificate.*` | `cbicertificatecontroller` |
@@ -44,7 +66,7 @@ This is the most structurally surprising aspect of the CBI API surface. The HTTP
 | ZPA-projection profile list | `client.zpa.cbi_zpa_profile.list_cbi_zpa_profiles()` | `cbizpaprofile` |
 | Isolation profile list (mgmt API) | `client.zpa.cbi_zpa_profile.list_isolation_profiles()` | `isolationprofile` |
 
-The HTTP endpoints reached are identical in both SDKs; only the Python accessor surface is split. The ZIA-side Python method (`list_isolation_profiles` under `client.zia`) hits `/zia/api/v1/browserIsolation/profiles` (`vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py:56-60`). All ZPA-side methods hit `/zpa/cbiconfig/...` or `/zpa/mgmtconfig/...` regardless of which Python accessor is used.
+The ZIA-side Python method (`list_isolation_profiles` under `client.zia`) hits `/zia/api/v1/browserIsolation/profiles` (`vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py:57-60`), and the Go ZIA package uses the same endpoint constant (`vendor/zscaler-sdk-go/zscaler/zia/services/browser_isolation/browser_isolation_profile.go:13`). ZPA-side methods hit `/zpa/cbiconfig/...` or `/zpa/mgmtconfig/...` depending on the controller (`vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go:13-15`, `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/isolationprofile/isolationprofile.go:14-15`).
 
 **ZIA model vs ZPA model.** The Python ZIA-side `CBIProfile` model has exactly four fields: `id`, `name`, `url`, `default_profile` (`vendor/zscaler-sdk-python/zscaler/zia/models/cloud_browser_isolation.py:29-38`). It is a read-only reference stub. The ZPA-side model (`vendor/zscaler-sdk-python/zscaler/zpa/cbi_profile.py`) carries all nested objects — SecurityControls, UserExperience, Banner, Regions, Certificates, etc. Use the ZPA-side for any write operation or for reading configurable fields.
 
@@ -450,9 +472,39 @@ Neither is the same as the writable `IsolationProfile` in `cbiprofilecontroller`
 
 | Method | Path | Python accessor | Go equivalent |
 |---|---|---|---|
-| `GET` | `/zia/api/v1/browserIsolation/profiles` | `client.zia.cloud_browser_isolation.list_isolation_profiles()` | not exposed |
+| `GET` | `/zia/api/v1/browserIsolation/profiles` | `client.zia.cloud_browser_isolation.list_isolation_profiles()` | `browser_isolation.GetAll()` / `GetByName()` |
 
-Source: `vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py:56-60`. Returns `CBIProfile` objects with only `id`; `name`; `url`; `defaultProfile` (`vendor/zscaler-sdk-python/zscaler/zia/models/cloud_browser_isolation.py:29-38`).
+Source: `vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py:57-60`; `vendor/zscaler-sdk-go/zscaler/zia/services/browser_isolation/browser_isolation_profile.go:13`; `vendor/zscaler-sdk-go/zscaler/zia/services/browser_isolation/browser_isolation_profile.go:30-48`. Returns `CBIProfile` objects with only `id`; `name`; `url`; `defaultProfile` (`vendor/zscaler-sdk-python/zscaler/zia/models/cloud_browser_isolation.py:29-39`; `vendor/zscaler-sdk-go/zscaler/zia/services/browser_isolation/browser_isolation_profile.go:16-26`).
+
+---
+
+## Terraform, MCP, and Postman surface
+
+### Terraform
+
+Terraform is not absent for browser isolation:
+
+- ZIA has a `zia_cloud_browser_isolation_profile` data source backed by the Go ZIA Browser Isolation service and returns `id`, `name`, `url`, and `default_profile` (`vendor/terraform-provider-zia/zia/data_source_zia_cloud_browser_isolation_profile.go:13-37`, `:45-63`).
+- ZIA `zia_browser_control_policy` has Smart Isolation fields and sends Smart Isolation-specific settings through a separate update path when configured (`vendor/terraform-provider-zia/zia/resource_zia_browser_control_policy.go:116-126`, `:170-177`, `:297-317`).
+- ZIA URL Filtering rules require a `cbi_profile` block when action is `ISOLATE`, and Cloud App Control rules carry a `cbi_profile` block for isolate action families (`vendor/terraform-provider-zia/zia/resource_zia_url_filtering_rules.go:52-63`, `:288-305`; `vendor/terraform-provider-zia/zia/resource_zia_cloud_app_control_rules.go:198-210`, `:698-705`; `vendor/terraform-provider-zia/zia/validator.go:650-667`).
+- ZPA registers CBI banner, certificate, external-profile, and isolation-rule resources plus CBI/isolation profile data sources (`vendor/terraform-provider-zpa/zpa/provider.go:157-159`, `:169`, `:226-232`).
+- The ZPA external-profile resource validates at least two regions on create/update and calls the Go SDK CBI profile `Create`, `Get`, `Update`, and `Delete` functions (`vendor/terraform-provider-zpa/zpa/resource_zpa_cloud_browser_isolation_external_profile.go:262-278`, `:287-292`, `:344-365`, `:372-378`).
+- The ZPA isolation-rule resource supports `ISOLATE` and `BYPASS_ISOLATE`, carries `zpn_isolation_profile_id`, and calls policyset controller create/update/delete paths (`vendor/terraform-provider-zpa/zpa/resource_zpa_policy_access_isolation_rule.go:14-19`, `:27-34`, `:81-84`, `:113-118`, `:191-199`, `:228-230`, `:242-249`).
+
+### MCP
+
+MCP exposes ZPA isolation profile and policy-rule tooling:
+
+- `get_zpa_isolation_profile` is read-only and lists all CBI profiles or returns an exact-name match by calling `client.zpa.cbi_profile.list_cbi_profiles()` (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/get_isolation_profile.py:8-19`, `:36-53`).
+- `access_isolation_rules` can list/get/create/update/delete ZPA isolation policy rules. Create requires `zpn_isolation_profile_id` when the action is isolate (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/access_isolation_rules.py:18-47`, `:83-108`, `:119-133`, `:136-186`, `:189-210`).
+
+### Postman / API specs
+
+The Postman collection mirrors the split surface:
+
+- ZIA Browser Isolation has a `GET {{ZIABase}}/browserIsolation/profiles` request (`vendor/zscaler-api-specs/oneapi-postman-collection.json:774-777`, `:823-829`).
+- ZPA CBI controllers include banner, certificate, and profile controller sections under `{{ZPABase}}/cbiconfig/cbi/api/customers/:customerId/...` (`vendor/zscaler-api-specs/oneapi-postman-collection.json:15801-15817`, `:17106-17133`, `:19193-19209`, `:21046-21059`, `:21392-21397`).
+- The separate ZPA mgmtconfig isolation-profile read path is also present at `{{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/isolation/profiles` (`vendor/zscaler-api-specs/oneapi-postman-collection.json:61255`).
 
 ---
 
@@ -470,4 +522,5 @@ Source: `vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py:56-60`
 
 - `references/zbi/overview.md` — Ephemeral container model, double-PSE traversal, Turbo Mode rendering architecture.
 - `references/zbi/policy-integration.md` — ZIA URL Filter `Isolate` action, ZPA Isolation Policy structure, and the subscription-tier model. The configurable knobs table in this file bridges that doc's feature list to the concrete API field names.
+- `references/zbi/_claims-ledger.md` — Claim-by-claim source map for this refresh.
 - `references/zia/sdk.md` — Lists `cloud_browser_isolation.py` as a ZIA SDK service; this file is the deeper dive on what that method actually hits and how it relates to the ZPA-side profile model.

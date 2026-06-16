@@ -87,8 +87,8 @@ Skim this before reading the full entries. Summary refreshed 2026-06-16:
 20 entries are resolved or clarified, 17 are partially resolved, and the current
 refresh queue has expanded the open register with `zia-50`–`zia-69`,
 `zpa-21`–`zpa-81`, `zcc-77`–`zcc-101`, `zdx-03`–`zdx-43`,
-`zid-01`–`zid-35`, `cloud-connector-01`–`cloud-connector-24`, and
-`ai-security-01`–`ai-security-04`.
+`zid-01`–`zid-35`, `cloud-connector-01`–`cloud-connector-24`,
+`ai-security-01`–`ai-security-04`, and `zbi-01`–`zbi-06`.
 Most open entries require lab tests,
 tenant snapshots, operator experience, or vendor confirmation rather than more
 public-doc reading.
@@ -5728,6 +5728,72 @@ This refresh found Python SDK runtime policy detection and public DaaS integrati
 
 **Status**: open
 **Resolves with**: vendor API documentation, SDK/provider source exposing admin-plane operations, or explicit vendor confirmation
+
+---
+
+### zbi-01 — Manual URL Filter Isolate SSL Inspection prerequisite
+
+*Origin: `references/zbi/policy-integration.md` § ZIA side — URL Filter `Isolate` action*
+
+The Zero Trust Browser traffic-flow article states that HTTP/HTTPS requests matching a URL Filtering policy with isolation are redirected to the isolation profile URL (`vendor/zscaler-help/what-is-zero-trust-browser.md:28`). The Smart Browser Isolation article separately states that Smart Isolation decrypts suspicious sites using SSL/TLS Inspection and auto-creates an editable SSL/TLS Inspection rule (`vendor/zscaler-help/configuring-smart-browser-isolation-policy.md:16`, `:24`). The captured sources do not explicitly state whether a manual URL Filtering `Isolate` rule has the same SSL/TLS Inspection prerequisite, nor the precise behavior for HTTPS traffic in an SSL bypass path.
+
+**Status**: open
+**Resolves with**: lab test across HTTPS URLs with inspect vs bypass, plus vendor documentation or API behavior notes for manual URL Filtering `ISOLATE`
+
+---
+
+### zbi-02 — `cbizpaprofile` vs `isolationprofile` preferred endpoint
+
+*Origin: `references/zbi/api.md` § `cbizpaprofile` vs `isolationprofile` — disambiguation note*
+
+The ZPA CBI SDK surface exposes two read-only profile-list paths with overlapping names but different bases and response shapes: `cbizpaprofile` uses `/zpa/cbiconfig/cbi/api/customers/{customerId}/zpaprofiles` (`vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbizpaprofile/cbizpaprofile.go:13-14`, `:62-70`), while `isolationprofile` uses `/zpa/mgmtconfig/v1/admin/customers/{customerId}/isolation/profiles` (`vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/isolationprofile/isolationprofile.go:14-15`, `:52-59`). The Postman collection contains both (`vendor/zscaler-api-specs/oneapi-postman-collection.json:19209`, `:61255`). Which endpoint should be preferred for policy workflows, and whether they can diverge at runtime, is not resolved by static source.
+
+**Status**: open
+**Resolves with**: tenant-side comparison of both endpoints across the same profiles OR vendor API documentation naming the preferred policy-reference source
+
+---
+
+### zbi-03 — Auto-created default profile lifecycle and `isDefault` mutability
+
+*Origin: `references/zbi/api.md` § Open questions*
+
+The help article says default isolation profiles are automatically created for organizations with Zero Trust Browser (`vendor/zscaler-help/what-is-zero-trust-browser.md:32`). SDK/provider models expose default flags such as `defaultProfile` / `isDefault` (`vendor/zscaler-sdk-go/zscaler/zia/services/browser_isolation/browser_isolation_profile.go:25-26`, `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go:30`), but static sources do not establish whether those flags are server-managed only, can be changed through profile CRUD, or how default profile creation is triggered.
+
+**Status**: open
+**Resolves with**: tenant-side profile CRUD test around default flags OR vendor documentation on default-profile lifecycle and mutability
+
+---
+
+### zbi-04 — `copyPaste` and `uploadDownload` enum completeness
+
+*Origin: `references/zbi/api.md` § Open questions*
+
+The Go `SecurityControls` struct declares `UploadDownload` and `CopyPaste` as strings (`vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go:80`, `:82`), and Python docstrings show example values such as `all` and `none` (`vendor/zscaler-sdk-python/zscaler/zpa/cbi_profile.py:149`, `:151`, `:273`, `:275`). The complete enum set, especially any directional copy/paste or upload/download values, is not enumerated by the inspected source.
+
+**Status**: open
+**Resolves with**: vendor API schema/docs OR tenant-side validation tests for likely directional values
+
+---
+
+### zbi-05 — Deleting a referenced isolation profile
+
+*Origin: `references/zbi/policy-integration.md` § Open questions*
+
+ZPA and Terraform expose CBI profile delete operations (`vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go:155-162`, `vendor/terraform-provider-zpa/zpa/resource_zpa_cloud_browser_isolation_external_profile.go:372-378`), and policy rules can reference `zpn_isolation_profile_id` (`vendor/terraform-provider-zpa/zpa/resource_zpa_policy_access_isolation_rule.go:81-84`, `:242-249`). Static sources do not state whether deleting a profile referenced by an isolation rule is blocked at delete time, leaves a dangling reference, or changes runtime behavior.
+
+**Status**: open
+**Resolves with**: lab test deleting or attempting to delete a referenced profile, plus vendor documentation if available
+
+---
+
+### zbi-06 — Profile update propagation to active isolated sessions
+
+*Origin: `references/zbi/policy-integration.md` § Open questions*
+
+SDKs and Terraform expose profile update operations (`vendor/zscaler-sdk-python/zscaler/zpa/cbi_profile.py:248-349`, `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go:146-153`, `vendor/terraform-provider-zpa/zpa/resource_zpa_cloud_browser_isolation_external_profile.go:344-369`), but captured sources do not say whether active isolated sessions continue with old settings, adopt the new profile settings live, restart, or fail when a referenced profile changes.
+
+**Status**: open
+**Resolves with**: tenant-side test updating visible and enforcement-affecting profile settings while an isolated session is active
 
 ---
 

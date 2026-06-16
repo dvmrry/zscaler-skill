@@ -3,9 +3,15 @@ product: zbi
 topic: "zbi-policy-integration"
 title: "ZBI policy integration — isolation profiles, ZIA and ZPA sides, subscription tiers"
 content-type: reasoning
-last-verified: "2026-04-24"
+last-verified: "2026-06-16"
+verified-against:
+  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/terraform-provider-zia: 717926eb564bb21dea1f8e0c3222e6593b29f849
+  vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
+  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
 confidence: high
-source-tier: doc
+source-tier: mixed
 sources:
   - "https://help.zscaler.com/zia/configuring-smart-browser-isolation-policy"
   - "vendor/zscaler-help/configuring-smart-browser-isolation-policy.md"
@@ -13,12 +19,26 @@ sources:
   - "vendor/zscaler-help/zpa-about-isolation-policy.md"
   - "https://help.zscaler.com/zero-trust-browser/understanding-isolation-miscellaneous-and-unknown-category-zia"
   - "vendor/zscaler-help/understanding-isolation-miscellaneous-unknown-category-zia.md"
+  - "vendor/zscaler-help/what-is-zero-trust-browser.md"
+  - "vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py"
+  - "vendor/zscaler-sdk-python/zscaler/zbi/custom_apps.py"
+  - "vendor/zscaler-sdk-python/zscaler/oneapi_client.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/browser_isolation/browser_isolation_profile.go"
+  - "vendor/zscaler-sdk-python/zscaler/zpa/cbi_profile.py"
+  - "vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go"
+  - "vendor/terraform-provider-zia/zia/resource_zia_browser_control_policy.go"
+  - "vendor/terraform-provider-zia/zia/resource_zia_url_filtering_rules.go"
+  - "vendor/terraform-provider-zia/zia/resource_zia_cloud_app_control_rules.go"
+  - "vendor/terraform-provider-zia/zia/validator.go"
+  - "vendor/terraform-provider-zpa/zpa/provider.go"
+  - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/access_isolation_rules.py"
 author-status: draft
 ---
 
 # ZBI policy integration — isolation profiles, ZIA and ZPA sides, subscription tiers
 
-ZBI has no standalone policy engine. Routing to an isolated session is decided by **ZIA URL Filter rules with `Isolate` action** (for internet traffic) or **ZPA Isolation Policy rules** (for private-app access). Both reference an **isolation profile** that configures the isolated session's behavior. The skill's job on ZBI questions is usually: route to the right product's policy, find the right isolation profile, and explain the interactions.
+Zero Trust Browser has no standalone policy engine in the captured sources. Routing to an isolated session is decided by **ZIA URL Filter rules with `Isolate` action** for internet traffic or **ZPA Isolation Policy rules** for private-app access; both rely on an **isolation profile** that configures the session behavior (`vendor/zscaler-help/what-is-zero-trust-browser.md:28`, `:32`, `vendor/zscaler-help/zpa-about-isolation-policy.md:16`). The skill's job on browser-isolation questions is usually: route to the right product's policy, find the right isolation profile, and explain the interactions.
 
 ## Summary
 
@@ -26,14 +46,14 @@ Source: `vendor/zscaler-help/configuring-smart-browser-isolation-policy.md`; `ve
 
 Three config objects interact:
 
-1. **Isolation profile** — tenant-level configurable object. Specifies Turbo Mode, copy/paste, file transfer, print, read-only, region selection, persistent state, PAC file, watermarking, etc. Separate isolation profiles exist for ZIA and for ZPA. **Default profiles are auto-created per organization at first ZBI login.**
-2. **ZIA-side policy** — URL Filter rules with `Isolate` action pointing to an isolation profile. Plus **Smart Browser Isolation** (the AI/ML-driven auto-isolation for suspicious sites).
-3. **ZPA-side policy** — Isolation Policy rules with rule-order evaluation and AND/OR conditions, each pointing to a ZPA isolation profile.
+1. **Isolation profile** — tenant-level configurable object. Specifies Turbo Mode, copy/paste, file transfer, print, read-only, region selection, persistent state, PAC file, watermarking, and related session behavior. Default isolation profiles are automatically created for organizations with Zero Trust Browser, and admins can manually create multiple profiles for both Internet & SaaS and Private Access (`vendor/zscaler-help/what-is-zero-trust-browser.md:32`).
+2. **ZIA-side policy** — URL Filter rules with `Isolate` action pointing to an isolation profile, plus **Smart Browser Isolation**, the AI/ML-driven auto-isolation policy for suspicious sites (`vendor/zscaler-help/configuring-smart-browser-isolation-policy.md:16`, `:22-24`, `:32-34`).
+3. **ZPA-side policy** — Isolation Policy rules with rule-order evaluation and AND/OR conditions, each pointing to a ZPA isolation profile (`vendor/zscaler-help/zpa-about-isolation-policy.md:16`, `:32-33`, `:48-50`).
 
 Subscription tiers affect what an organization can isolate:
 
-- **Full ZBI access** — isolate any URL categories via URL Filter rules, full isolation-profile customization.
-- **"Miscellaneous & Unknown Category" limited subscription** — can only isolate the M&U category; a preconfigured isolation profile with mostly-locked settings is auto-provisioned. The details matter for answering "why can't I configure this isolation profile the way I want?"
+- **Full Zero Trust Browser access** — the captured help says admins can manually create multiple isolation profiles for both ZIA and ZPA (`vendor/zscaler-help/what-is-zero-trust-browser.md:32`).
+- **"Miscellaneous & Unknown Category" limited subscription** — the captured help says this tier may only be able to isolate the M&U category and gets a preconfigured profile with mostly fixed settings (`vendor/zscaler-help/understanding-isolation-miscellaneous-unknown-category-zia.md:15`, `:17`, `:19-48`). The details matter for answering "why can't I configure this isolation profile the way I want?"
 
 ## Mechanics
 
@@ -61,7 +81,7 @@ Isolation profiles carry:
 - **Enable Watermarking** — overlay that identifies the user / session. Anti-screenshot / anti-screen-share control.
 - **Persistent State** — whether the session survives browser close (for pen-test / research workflows).
 
-Profiles are created in the ZIA Admin Portal (for ZIA use) or ZPA Admin Console (for ZPA use). A profile configured for ZIA isn't automatically available for ZPA — they are separate objects even though the feature set overlaps.
+Profiles are created in the ZIA Admin Portal or ZPA Admin Console according to the help text (`vendor/zscaler-help/what-is-zero-trust-browser.md:32`, `vendor/zscaler-help/configuring-smart-browser-isolation-policy.md:34`), and ZPA exposes a separate CBI profile configuration API (`vendor/zscaler-sdk-python/zscaler/zpa/cbi_profile.py:35`, `:37-84`, `:124-246`). Treat ZIA and ZPA profile identity as distinct unless a tenant-side API comparison proves they map one-to-one.
 
 ### ZIA side — URL Filter `Isolate` action
 
@@ -73,8 +93,8 @@ When a URL Filter rule with action `Isolate` matches a user's request, ZIA retur
 
 **Prerequisites:**
 
-- **SSL Inspection must decrypt the URL** for Isolate to fire on HTTPS traffic. Without decrypt, ZIA can only match on SNI; the 302-redirect response requires intercepting the request at the HTTP layer.
 - **The isolation profile must exist in the tenant** and be referenced by the rule.
+- **Manual URL Filter `Isolate` HTTPS decrypt behavior is unresolved in captured sources.** The traffic-flow article states that an HTTP/HTTPS request matching a URL filtering policy is redirected to the isolation profile URL (`vendor/zscaler-help/what-is-zero-trust-browser.md:28`), but it does not state the exact SSL Inspection precondition for manual URL Filtering rules. Do not claim "the API/policy will fail" without tenant evidence.
 
 **Operator patterns:**
 
@@ -97,9 +117,9 @@ Configuration:
 
 **Non-obvious prerequisites:**
 
-- **Malware Protection `Inspect Inbound Traffic` and `Inspect Outbound Traffic` must be enabled** (Policy > Malware Protection > Malware Policy). Smart Isolation relies on Malware Protection's content inspection to feed the AI/ML classifier.
-- **Enabling Smart Isolation automatically creates an editable SSL/TLS Inspection rule** to decrypt suspicious websites. This rule appears in the SSL Inspection policy list — operators auditing SSL rule count will see a new entry they didn't manually create.
-- **Isolation profiles for the relevant users/groups must exist** — Smart Isolation uses an existing profile, doesn't auto-create one (except on first login to tiered subscription — see next section).
+- **Malware Protection `Inspect Inbound Traffic` and `Inspect Outbound Traffic` must be enabled** (Policy > Malware Protection > Malware Policy) for Smart Isolation to work (`vendor/zscaler-help/configuring-smart-browser-isolation-policy.md:18`).
+- **Enabling Smart Isolation automatically creates an editable SSL/TLS Inspection rule** to decrypt suspicious websites (`vendor/zscaler-help/configuring-smart-browser-isolation-policy.md:24`). This rule appears in the SSL Inspection policy list — operators auditing SSL rule count will see a new entry they didn't manually create.
+- **Isolation profiles for the relevant users/groups must exist** — the field chooses an existing Browser Isolation Profile, and the help page says to create profiles in the ZIA Admin Portal for them to appear in the field (`vendor/zscaler-help/configuring-smart-browser-isolation-policy.md:32`, `:34`).
 
 **Failure modes:**
 
@@ -161,19 +181,23 @@ A limited-scope ZBI subscription that only lets the tenant isolate the **Miscell
 
 **Operational implication**: a tenant on the M&U tier asking "why can't I allow copy/paste on my isolation profile?" is hitting a subscription limit, not a configuration error. Upgrading to full ZBI access unlocks the remaining fields.
 
-### ZBI SDK surface
+### Programmable surface and `client.zbi` caveat
 
-Source: `vendor/zscaler-sdk-python/zscaler/zbi/custom_apps.py`; `vendor/zscaler-sdk-python/zscaler/zbi/report_configs.py`; `vendor/zscaler-sdk-python/zscaler/zbi/reports.py`; `vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/isolationprofile/isolationprofile.go`.
+Source: `vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py`; `vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py`; `vendor/zscaler-sdk-go/zscaler/zia/services/browser_isolation/browser_isolation_profile.go`; `vendor/zscaler-sdk-python/zscaler/zpa/cbi_profile.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go`; `vendor/terraform-provider-zia/zia/resource_zia_browser_control_policy.go`; `vendor/terraform-provider-zpa/zpa/provider.go`; `vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/access_isolation_rules.py`.
 
-From `vendor/zscaler-sdk-python/zscaler/zbi/`, the SDK covers:
+Do not use Python `client.zbi.*` for Zero Trust Browser. The current SDK labels that namespace as **Zscaler Business Insights** and exposes custom-app/report surfaces under `/bi/api/v1` (`vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py:23-24`, `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:230`, `:316-319`, `vendor/zscaler-sdk-python/zscaler/zbi/custom_apps.py:28-34`).
 
-| Service | Methods | Purpose |
+Browser-isolation policy and profile automation is split across ZIA and ZPA:
+
+| Surface | What it supports | Source line(s) |
 |---|---|---|
-| `client.zbi.custom_apps` | list / get / create / update / delete | Custom-defined applications for ZBI. |
-| `client.zbi.report_configs` | list / get / create / update / delete report configs | Reporting configuration objects. |
-| `client.zbi.reports` | list / download reports | Historical report retrieval. |
+| ZIA profile lookup | Python and Go list Cloud Browser Isolation profiles at `/zia/api/v1/browserIsolation/profiles`. | `vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py:37-60`; `vendor/zscaler-sdk-go/zscaler/zia/services/browser_isolation/browser_isolation_profile.go:13`, `:30-48` |
+| ZPA CBI profile management | Python and Go expose CBI profile create/read/update/delete. | `vendor/zscaler-sdk-python/zscaler/zpa/cbi_profile.py:37`, `:86`, `:124`, `:248`, `:351`; `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go:102`, `:137`, `:146`, `:155`, `:164` |
+| Terraform ZIA policy references | `zia_browser_control_policy` includes Smart Isolation toggle/profile fields; URL Filtering requires `cbi_profile` when action is `ISOLATE`; Cloud App Control carries `cbi_profile` for isolate action families. | `vendor/terraform-provider-zia/zia/resource_zia_browser_control_policy.go:116-126`, `:170-177`, `:297-317`; `vendor/terraform-provider-zia/zia/resource_zia_url_filtering_rules.go:52-63`, `:288-305`; `vendor/terraform-provider-zia/zia/resource_zia_cloud_app_control_rules.go:198-210`, `:698-705`; `vendor/terraform-provider-zia/zia/validator.go:650-667` |
+| Terraform ZPA CBI / Isolation Policy | Provider registers CBI banner, certificate, external profile, isolation rule, and CBI/isolation profile data sources. | `vendor/terraform-provider-zpa/zpa/provider.go:157-159`, `:169`, `:226-232` |
+| MCP ZPA isolation rules | MCP can list/get/create/update/delete ZPA isolation policy rules and requires `zpn_isolation_profile_id` when action is isolate. | `vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/access_isolation_rules.py:18-47`, `:83-108`, `:136-186`, `:189-210` |
 
-**Notable absence**: the SDK does NOT expose isolation profile management, URL Filter rule Isolate action configuration, ZPA Isolation Policy management, or Smart Isolation toggles. **Policy configuration is entirely in ZIA/ZPA/ZIA-Admin-Console-only** — the `zbi` SDK module is a reporting-and-custom-apps surface, not a policy surface. Scripts that want to audit ZBI policy need to pull from ZIA's URL Filter rules and ZPA's Isolation Policy, not from `client.zbi.*`.
+**Audit-scoped absence:** this refresh did not find a browser-isolation admin surface under Python `client.zbi`; that namespace is Business Insights. It also did not resolve all console-only UX feature toggles. Use [`./api.md`](./api.md) and [`./_claims-ledger.md`](./_claims-ledger.md) before claiming a surface is read-only, write-capable, or absent.
 
 ## Cross-product dependencies worth naming
 
@@ -181,7 +205,7 @@ Source: `vendor/zscaler-help/configuring-smart-browser-isolation-policy.md`; `ve
 
 | Dependency | Direction | Failure mode |
 |---|---|---|
-| SSL Inspection decrypt | ZBI depends on ZIA | Isolate action silently doesn't fire on SSL-bypassed URLs |
+| SSL Inspection decrypt | Smart Browser Isolation depends on ZIA | Captured source says Smart Isolation decrypts suspicious sites and auto-creates an editable SSL/TLS Inspection rule |
 | Malware Protection inspection toggles | Smart Isolation depends on ZIA Malware Protection | Smart Isolation silently doesn't fire |
 | Isolation profile existence | Policy rules depend on profile | Save-time validation usually catches; runtime if profile is deleted after rule creation is undocumented |
 | ZPA timeout family | ZPA Isolation session duration | "Minimum across all timeout policies" — can be surprisingly short if any ZPA timeout rule is tight |
@@ -196,7 +220,7 @@ Source: `vendor/zscaler-help/configuring-smart-browser-isolation-policy.md`; `ve
 - **Default rule in ZPA Isolation Policy is uneditable** — consistent with other ZPA policy families.
 - **ZPA Isolation requires an access policy AND an isolation policy** — both must evaluate favorably. A user can pass isolation policy (session gets isolated) but still fail access policy (app is unreachable) — results in "isolated session loads but the app inside is denied."
 - **Criteria use AND and OR only** on ZPA Isolation — no NOT. Contrast with ZDX's probing criteria which does use NOT.
-- **Smart Isolation's auto-generated SSL Inspection rule is editable** — admins can scope it narrower, which is sometimes the right call (e.g., exclude specific categories). Editing it to Do Not Inspect effectively disables Smart Isolation silently.
+- **Smart Isolation's auto-generated SSL Inspection rule is editable** — admins can scope it narrower, but captured sources do not state every runtime consequence of changing it.
 - **Misc & Unknown tier's auto-created URL Filter rule** — enabled-by-default-for-new, disabled-by-default-for-existing. An existing tenant upgrading to the tier won't see isolation happening until an admin enables the rule.
 
 ## Open questions
@@ -206,10 +230,12 @@ Source: `vendor/zscaler-help/configuring-smart-browser-isolation-policy.md`; `ve
 - Whether deleting an isolation profile that's still referenced by a rule breaks the rule silently or with an error — not documented.
 - How profile updates propagate to in-flight isolated sessions — change the profile while sessions are active: do they rebuild, finish on the old profile, or fail?
 - Whether Smart Isolation's AI/ML classifier is the same classifier as ATP's AI/ML (which recategorizes to Botnet / Phishing per [`../zia/malware-and-atp.md`](../zia/malware-and-atp.md)) or a separate model.
+- Whether manual URL Filtering `Isolate` has the same SSL/TLS Inspection prerequisite as Smart Isolation — not stated in captured sources.
 
 ## Cross-links
 
 - Overview (architecture + rendering) — [`./overview.md`](./overview.md)
+- Claims ledger for this refresh — [`./_claims-ledger.md`](./_claims-ledger.md)
 - ZIA URL Filtering (`Isolate` action origin) — [`../zia/url-filtering.md`](../zia/url-filtering.md)
 - ZIA Malware Protection and ATP (prerequisites for Smart Isolation) — [`../zia/malware-and-atp.md`](../zia/malware-and-atp.md)
 - ZPA policy precedence (Isolation Policy's place in family order) — [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md)

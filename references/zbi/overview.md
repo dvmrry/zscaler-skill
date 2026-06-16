@@ -3,31 +3,41 @@ product: zbi
 topic: "zbi-overview"
 title: "ZBI overview — architecture, traffic flow, rendering modes"
 content-type: reasoning
-last-verified: "2026-05-04"
+last-verified: "2026-06-16"
+verified-against:
+  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/terraform-provider-zia: 717926eb564bb21dea1f8e0c3222e6593b29f849
+  vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
 confidence: high
-source-tier: doc
+source-tier: mixed
 sources:
   - "https://help.zscaler.com/zero-trust-browser/what-is-zero-trust-browser"
   - "vendor/zscaler-help/what-is-zero-trust-browser.md"
   - "https://help.zscaler.com/zero-trust-browser/understanding-turbo-mode-isolation"
   - "vendor/zscaler-help/understanding-turbo-mode-isolation.md"
+  - "vendor/zscaler-help/configuring-smart-browser-isolation-policy.md"
+  - "vendor/zscaler-help/zpa-about-isolation-policy.md"
   - "vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py"
-  - "vendor/zscaler-sdk-python/zscaler/zbi/custom_apps.py"
-  - "vendor/zscaler-sdk-python/zscaler/zbi/report_configs.py"
-  - "vendor/zscaler-sdk-python/zscaler/zbi/reports.py"
+  - "vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py"
+  - "vendor/zscaler-sdk-python/zscaler/oneapi_client.py"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/browser_isolation/browser_isolation_profile.go"
+  - "vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/isolationprofile/isolationprofile.go"
+  - "vendor/terraform-provider-zia/zia/resource_zia_browser_control_policy.go"
+  - "vendor/terraform-provider-zpa/zpa/provider.go"
 author-status: draft
 ---
 
 # ZBI overview — architecture, traffic flow, rendering modes
 
-What ZBI actually does: render a web page on a Zscaler-hosted browser instance, then stream the rendering to the user's local browser. The user interacts with pixels (or with remotely-generated rendering instructions in Turbo Mode); the real HTML, CSS, and JavaScript never reach the endpoint.
+What Zero Trust Browser actually does: render a web page on a Zscaler-hosted browser instance, then stream the rendering to the user's local browser. The user interacts with pixels (or with remotely-generated rendering instructions in Turbo Mode); the real HTML, CSS, and JavaScript never reach the endpoint (`vendor/zscaler-help/what-is-zero-trust-browser.md:14`, `:18`, `vendor/zscaler-help/understanding-turbo-mode-isolation.md:15`, `:17`).
 
 ## Summary
 
 Source: `vendor/zscaler-help/what-is-zero-trust-browser.md`; `vendor/zscaler-help/understanding-turbo-mode-isolation.md`.
 
-**The isolation container is ephemeral and cloud-resident.** Each user gets an endpoint container allocated at first isolation request; subsequent requests in the same session reuse it; the container is destroyed when the user logs out manually or after **10 minutes of idle time**.
+**The isolation container is ephemeral and cloud-resident.** Each user gets an endpoint container allocated at first isolation request; subsequent requests hitting the same isolation profile reuse it; the container is destroyed when the user logs out manually or after **10 minutes of idle time** (`vendor/zscaler-help/what-is-zero-trust-browser.md:38`).
 
 **Traffic passes through Zscaler Public Service Edges twice** on the way to the destination:
 
@@ -36,7 +46,7 @@ Source: `vendor/zscaler-help/what-is-zero-trust-browser.md`; `vendor/zscaler-hel
 3. Cloud browser → PSE (second traversal!) → destination web page
 4. Cloud browser renders page → ZBI experience engine streams pixels (or Turbo Mode instructions) → user's browser
 
-Because the cloud browser's egress traffic hits a PSE too, **ZIA policies evaluate twice — once on the user's original request, and again on the cloud browser's request**. DLP, Sandbox, URL Filter, and CAC all get applied to the cloud browser's egress as well.
+Because the cloud browser's egress traffic hits a Public Service Edge too, the remote browser's request to the destination is also evaluated by the user's Internet & SaaS policies (`vendor/zscaler-help/what-is-zero-trust-browser.md:22`, `:30`). Treat this as a separate egress-inspection leg, not as proof that every policy family produces duplicate log events.
 
 ## Mechanics
 
@@ -82,7 +92,7 @@ Cloud browser ──egress──▶ Public Service Edge ──▶ Destination
 User browser ──HTTPS stream──────── Isolation profile URL
 ```
 
-**The double-PSE traversal is why ZIA policies apply on both legs.** This isn't a bug; it's the designed security model. If an operator asks "does DLP apply to isolated traffic?" — yes, on the cloud-browser-egress leg. If they ask "is URL Filter applied?" — yes, on both the user's initial request (that's how the Isolate action fires) and the cloud browser's outbound request.
+**The second Public Service Edge traversal is why isolated egress is still inspected.** This isn't a bug; it's the designed security model. If an operator asks whether ZIA policy still applies to isolated traffic, the source-backed answer is: the user's original request must hit a ZIA policy that redirects it to the isolation profile URL, and the cloud browser's outbound request to the original destination is also routed through the nearest Public Service Edges and evaluated against Internet & SaaS policies (`vendor/zscaler-help/what-is-zero-trust-browser.md:28`, `:30`).
 
 ### Rendering modes — pixel streaming vs Turbo Mode
 
@@ -130,7 +140,7 @@ Turbo Mode is configured per isolation profile, not globally. Same user on diffe
 
 ### Policy-evaluation placement
 
-ZBI doesn't have its own policy engine in the ZIA/ZPA sense. It composes with existing policies:
+Zero Trust Browser does not appear in the captured sources as a standalone policy family. Routing to isolation composes with existing ZIA and ZPA policies:
 
 - **ZIA URL Filter `Isolate` action** — how ZIA decides to route to ZBI. See [`../zia/url-filtering.md`](../zia/url-filtering.md).
 - **ZPA Isolation Policy** — how ZPA decides to route private-app access to ZBI. See [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md).
@@ -161,9 +171,16 @@ Boundary disclaimers that come up in scoping conversations:
 
 ## API surface
 
-Source: `vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py`; `vendor/zscaler-sdk-python/zscaler/zbi/custom_apps.py`; `vendor/zscaler-sdk-python/zscaler/zbi/report_configs.py`; `vendor/zscaler-sdk-python/zscaler/zbi/reports.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/isolationprofile/isolationprofile.go`.
+Source: `vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py`; `vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py`; `vendor/zscaler-sdk-go/zscaler/zia/services/browser_isolation/browser_isolation_profile.go`; `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go`; `vendor/terraform-provider-zia/zia/resource_zia_browser_control_policy.go`; `vendor/terraform-provider-zpa/zpa/provider.go`.
 
-**No dedicated ZBI / Zero Trust Browser REST API.** Configuration is primarily portal-managed via the Zscaler Admin Console — isolation profiles, regions, profile-level controls (clipboard / upload / download / print / read-only), Turbo Mode toggle. The ZIA API includes URL Filtering rule configuration that can reference an isolation profile (indirect access — you can wire the `Isolate` action and reference profile names via API, but the profile object itself is portal-configured). The Python SDK exposes `zscaler/zia/cloud_browser_isolation.py` (a thin surface) and the Go SDK has `zscaler/zpa/services/cloudbrowserisolation/*`; treat these as supplementary to portal config rather than a full management surface. **Caveat for users expecting a programmable surface:** if a question presupposes "configure isolation profiles via API" the honest answer is "portal."
+**No single dedicated "Zero Trust Browser" SDK namespace.** The programmable surface is split:
+
+- ZIA read/profile-reference surface: Python `client.zia.cloud_browser_isolation.list_isolation_profiles()` and Go `zia/services/browser_isolation` both list `/zia/api/v1/browserIsolation/profiles` (`vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py:37-60`, `vendor/zscaler-sdk-go/zscaler/zia/services/browser_isolation/browser_isolation_profile.go:13`, `:30-48`).
+- ZPA CBI configuration surface: Python `client.zpa.cbi_profile` and Go `zpa/services/cloudbrowserisolation/cbiprofilecontroller` expose profile create, read, update, and delete operations (`vendor/zscaler-sdk-python/zscaler/zpa/cbi_profile.py:37`, `:86`, `:124`, `:248`, `:351`; `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go:102`, `:137`, `:146`, `:155`, `:164`).
+- Terraform wraps both sides: ZIA has Smart Isolation/profile-reference fields, and ZPA registers CBI banner, certificate, external-profile, isolation-rule, and read-only data-source surfaces (`vendor/terraform-provider-zia/zia/resource_zia_browser_control_policy.go:116-126`, `:170-177`; `vendor/terraform-provider-zpa/zpa/provider.go:157-159`, `:169`, `:226-232`).
+- Python `client.zbi` is a **Business Insights** service, not browser isolation (`vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py:23-24`, `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:230`, `:316-319`).
+
+The honest answer to "is this programmable?" depends on the object. ZIA isolation-profile lookup and Smart Isolation/profile references are programmable; ZPA CBI profile/banner/certificate objects and isolation policy rules have write surfaces; several console UX features remain help-only or unresolved in captured sources.
 
 ## Light mentions (one-line each)
 
@@ -182,9 +199,9 @@ Features captured in vendor docs but not deep-dived here. Skill should recognize
 
 Source: `vendor/zscaler-help/what-is-zero-trust-browser.md`; `vendor/zscaler-help/understanding-turbo-mode-isolation.md`.
 
-- **URL Filter rule with `Isolate` action requires SSL Inspection for HTTPS** — to generate the 302 redirect at all. A site matching the rule but falling under an SSL bypass for that category silently won't be isolated.
+- **Smart Browser Isolation explicitly depends on SSL/TLS Inspection.** The Smart Isolation help page says suspicious websites are decrypted using SSL/TLS Inspection and enabling the feature creates an editable SSL/TLS Inspection rule (`vendor/zscaler-help/configuring-smart-browser-isolation-policy.md:16`, `:24`). Whether every manual URL Filtering `Isolate` rule has identical decrypt behavior is not established by the captured source; track that as an open question rather than stating it as a hard failure mode.
 - **During ZPA maintenance windows, Isolation may be unavailable.** From the ZPA Isolation help article: "If ZPA is undergoing a maintenance period, Isolation might not be available." Operator-visible failure mode.
-- **Isolated egress still hits URL Filter on the second PSE pass.** A rule that allows a destination for regular users but blocks it for isolated egress (unusual but possible) can produce "user sees rendering start, then page goes blank" — the destination loaded once, then URL Filter blocked the egress for further resources.
+- **Isolated egress still traverses Internet & SaaS policy on the second PSE pass.** The source says the remote browser's request to the original web page is routed through the nearest Public Service Edges and evaluated against all policies defined for the user (`vendor/zscaler-help/what-is-zero-trust-browser.md:30`). Specific log shapes and user-visible failure modes for second-leg blocks need tenant evidence.
 - **Smart Browser Isolation auto-creates an SSL Inspection rule.** When you enable Smart Isolation, ZIA silently adds a decrypt rule for suspicious websites. Operators auditing SSL Inspection rule count are often surprised. See [`./policy-integration.md`](./policy-integration.md).
 - **Isolation containers run in specific Zscaler data centers.** Region selection on the isolation profile controls which region hosts the container. Data-residency reviewers should know containers can be confined to specific regions; the default is "All."
 - **The cloud browser's egress is a Zscaler-owned IP, not the user's egress IP.** Destinations that geolocate by source IP see the user as being "wherever the container is," not where the user is. This is occasionally user-visible ("why am I seeing the US homepage when I'm in Germany?") and is inherent to the architecture.
@@ -202,6 +219,7 @@ Source: `vendor/zscaler-help/what-is-zero-trust-browser.md`; `vendor/zscaler-hel
 ## Cross-links
 
 - Policy integration (isolation profiles, ZIA / ZPA rule configuration) — [`./policy-integration.md`](./policy-integration.md)
+- Claims ledger for this refresh — [`./_claims-ledger.md`](./_claims-ledger.md)
 - ZIA URL Filter (`Isolate` action) — [`../zia/url-filtering.md`](../zia/url-filtering.md)
 - ZPA Isolation Policy (in the policy family evaluation order) — [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md)
 - SSL Inspection (prerequisite for isolating HTTPS) — [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md)
