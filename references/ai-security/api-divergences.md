@@ -24,6 +24,18 @@ sources:
   - "vendor/zguard-ai-integrations/Anthropic/claude-code-aiguard/hooks/scan_file_read.py"
   - "vendor/zguard-ai-integrations/Anthropic/claude-code-skill/README.md"
   - "vendor/zguard-ai-integrations/Anthropic/claude-code-skill/references/threat-categories.md"
+  - "vendor/zscaler-sdk-go/"
+  - "vendor/terraform-provider-zia/"
+  - "vendor/terraform-provider-zpa/"
+  - "vendor/terraform-provider-ztc/"
+  - "vendor/zscaler-mcp-server/"
+  - "vendor/zscaler-terraform-skills/"
+  - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
+  - "vendor/zscaler-help/dlp-incidents-workflow-automation-api.md"
+  - "vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md"
+  - "vendor/zscaler-help/legacy-getting-started-workflow-automation-api.md"
+  - "vendor/zscaler-help/understanding-workflows-workflow-automation.md"
+  - "vendor/zscaler-help/what-workflow-automation.md"
 author-status: draft
 ---
 
@@ -48,7 +60,7 @@ The SDK body sends `content` and `direction`, adds `policyId` only when provided
 
 For SDK calls and integration examples, use `IN` for prompt/request-side scanning and `OUT` for response/output-side scanning. The SDK docstrings define `direction` as `IN` or `OUT` (`vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py:51`, `vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py:131`), and the n8n integration documents the same request body shape (`vendor/zguard-ai-integrations/n8n/README.md:91`, `vendor/zguard-ai-integrations/n8n/README.md:95`).
 
-The DAS Help page is inconsistent with that literal set: its prose says direction should identify outbound prompt vs inbound response, and examples pass `"request"` and `"response"` (`vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md:78`, `:196`, `:200`, `:204`, `:208`). Treat `request`/`response` as unresolved Help-example literals until a live API check confirms whether they are accepted aliases. See [clarification ai-security-01](../_meta/clarifications.md#ai-security-01-ai-guard-direction-literal-aliases).
+The DAS Help page is inconsistent with that literal set: its prose says direction should identify outbound prompt vs inbound response, and examples pass `"request"` and `"response"` (`vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md:80`, `:196`, `:200`, `:204`, `:208`). Treat `request`/`response` as unresolved Help-example literals until a live API check confirms whether they are accepted aliases. See [clarification ai-security-01](../_meta/clarifications.md#ai-security-01-ai-guard-direction-literal-aliases).
 
 ## `policyId` requirement divergence
 
@@ -69,6 +81,8 @@ Do not generalize fail-open or fail-closed behavior across integrations:
 - n8n documents fail-closed behavior only for internal errors when its "Continue On Fail" path is enabled (`vendor/zguard-ai-integrations/n8n/README.md:96`).
 
 ## Source classes with no AI Guard admin-plane hit
+
+Source: `vendor/zscaler-sdk-go/`; `vendor/terraform-provider-zia/`; `vendor/terraform-provider-zpa/`; `vendor/terraform-provider-ztc/`; `vendor/zscaler-mcp-server/`; `vendor/zscaler-terraform-skills/`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md`; `vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md`; `vendor/zscaler-help/legacy-getting-started-workflow-automation-api.md`; `vendor/zscaler-help/understanding-workflows-workflow-automation.md`; `vendor/zscaler-help/what-workflow-automation.md`.
 
 This pass searched the vendored Go SDK, Terraform providers, MCP server, Postman API specs, and integration examples for AI Guard terms and endpoint names. The positive programmable surface in the inspected sources is the Python SDK / DAS policy-detection API plus public integration examples. No broad AI Guard admin-plane API, Go SDK service, Terraform resource, MCP tool, Postman endpoint, or Automation Hub procedure was found. This is an audit-scoped absence claim, not proof that no private or future surface exists. See [clarification ai-security-04](../_meta/clarifications.md#ai-security-04-ai-guard-admin-plane-programmability).
 
