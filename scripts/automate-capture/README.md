@@ -14,7 +14,11 @@ it against the Go/Python SDKs and the Terraform provider surfaces real divergenc
 
 1. **Capture** (`capture.cjs`, Node + Playwright) — renders each op page headlessly
    and dumps the raw `<article>` text plus first-class provenance. No parsing, no
-   LLM. Output:
+   LLM. A page is persisted only once it has fully rendered (method + path +
+   `Responses` + the `curl` example) and its text is stable across two reads; a
+   partial render is retried once, then fails hard rather than being written as a
+   success. Only the contract region (everything before the multi-language code
+   samples) is stored — lean, and lossless for what the parser reads. Output:
    - raw text → `vendor/zscaler-help/automate-zscaler/api-reference/<product>/<group>/<op>.txt`
    - provenance → `.../api-reference/provenance.json` (`source_url`, `sha256`,
      `captured_at`, `method`, `path`, `length` per op)

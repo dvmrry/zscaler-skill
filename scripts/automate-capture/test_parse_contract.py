@@ -111,6 +111,63 @@ def test_no_prose_parsed_as_field():
     assert "use_in_dr_mode" not in names, names
 
 
+APPSEG = "zpa/application-segment-management"
+SRVGRP = "zpa/server-group-management"
+SEGGRP = "zpa/segment-group-management"
+PROVKEY = "zpa/provisioning-key-management"
+
+
+@case
+def test_app_segment_create_shape():
+    c = load(f"{APPSEG}/adds-a-new-application-segment-for-the-specified-customer")
+    assert c["method"] == "POST", c["method"]
+    assert c["path"].endswith("/application"), c["path"]
+    dn = field(c["request_body"], "domainNames")  # nested array outside ACG
+    assert dn and dn["type"] == "string[]", dn
+    bt = field(c["request_body"], "bypassType")
+    assert bt and bt["enum"] == ["ALWAYS", "NEVER", "ON_NET"], bt
+    assert field(c["request_body"], "name")["required"] is True
+
+
+@case
+def test_server_group_create_required_and_enum():
+    c = load(f"{SRVGRP}/add-a-new-server-group")
+    cs = field(c["request_body"], "configSpace")  # required + enum in one field
+    assert cs and cs["required"] is True and cs["enum"] == ["DEFAULT", "SIEM"], cs
+    srv = field(c["request_body"], "servers")  # nested object-array outside ACG
+    assert srv and srv["type"] == "ApplicationServer[]", srv
+
+
+@case
+def test_segment_group_create_shape():
+    c = load(f"{SEGGRP}/adds-a-new-segment-group-for-the-specified-customer")
+    assert c["method"] == "POST", c["method"]
+    assert c["path"].endswith("/segmentGroup"), c["path"]
+    assert field(c["request_body"], "name")["required"] is True
+    apps = field(c["request_body"], "applications")  # nested object-array
+    assert apps and apps["type"] == "ApplicationBase[]", apps
+
+
+@case
+def test_provisioning_key_create_shape():
+    c = load(f"{PROVKEY}/adds-a-new-provisioning-key-for-the-specified-customer")
+    assert "/provisioningKey" in c["path"], c["path"]
+    ec = field(c["request_body"], "enrollmentCertId")
+    assert ec and ec["required"] is True and ec["type"] == "int64", ec
+    mu = field(c["request_body"], "maxUsage")
+    assert mu and mu["type"] == "int32", mu
+
+
+@case
+def test_update_returns_204_no_response_schema():
+    # PUT pages return 204 No Content — genuinely no response schema. Pin it so a
+    # parser regression that hallucinates a schema (or drops the body) is caught.
+    c = load(f"{SRVGRP}/updates-the-server-group-for-the-specified-id")
+    assert c["method"] == "PUT", c["method"]
+    assert len(c["request_body"]) > 0, "update must keep a request body"
+    assert c["response_schema"] == [], c["response_schema"]
+
+
 def main():
     if not os.path.isdir(RAW):
         print(f"FIXTURES MISSING: {RAW}")

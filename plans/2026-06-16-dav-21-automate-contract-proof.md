@@ -25,9 +25,16 @@ real divergences — or is it redundant?"** This proof answers yes.
 Server Group, Segment Group, Provisioning Key) × {create, update, get}, chosen for
 maximum cross-family overlap (all 5 exist in Go SDK + TF + Postman + web reference).
 
-- Capture: `scripts/automate-capture/capture.cjs` (headless Playwright)
+- Capture: `scripts/automate-capture/capture.cjs` (headless Playwright). Persists a
+  page only once it has fully rendered (method + path + `Responses` + the `curl`
+  example) and the article text is stable across two reads; a partial render is
+  retried once, then fails hard rather than being written. Only the contract region
+  (everything before the multi-language code samples) is stored, keeping fixtures
+  lean without losing anything the parser reads.
 - Parse: `scripts/automate-capture/parse_contract.py` (deterministic, stdlib)
-- Tests: `scripts/automate-capture/test_parse_contract.py` (10 cases, all pass)
+- Tests: `scripts/automate-capture/test_parse_contract.py` (15 cases across all 5
+  resources — including the 204/no-response-schema update case and nested
+  array/object types — all pass)
 
 Artifacts committed by this PR:
 
@@ -79,7 +86,7 @@ after that, FP rate across all axes is ≈ 0.
 
 ## Verdict
 
-GO. The pipeline captures cleanly (15/15), parses deterministically (10/10 tests), and
+GO. The pipeline captures cleanly (15/15), parses deterministically (15/15 tests), and
 reconciles to real, explainable, source-verifiable divergences led by a genuinely
 high-value class. This is the same content class `references/*/api-divergences.md` found
 most valuable, now produced deterministically rather than by prose archaeology.
