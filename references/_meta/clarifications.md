@@ -23,6 +23,7 @@ Centralized list of open questions raised across `references/*.md`. Each entry h
 - `zdx-*` — ZDX (Digital Experience) behavior question
 - `zms-*` — ZMS (Microsegmentation) behavior question
 - `easm-*` — EASM (External Attack Surface Management) behavior question
+- `zwa-*` — ZWA (Workflow Automation) behavior question
 - `cloud-connector-*` — Cloud & Branch Connector (ZTW) behavior question
 - `zid-*` — ZIdentity (identity / API-client / entitlement / admin-RBAC) behavior question
 - `shared-*` — cross-product or skill-wide question
@@ -88,7 +89,8 @@ Skim this before reading the full entries. Summary refreshed 2026-06-16:
 refresh queue has expanded the open register with `zia-50`–`zia-69`,
 `zpa-21`–`zpa-81`, `zcc-77`–`zcc-101`, `zdx-03`–`zdx-43`,
 `zid-01`–`zid-35`, `cloud-connector-01`–`cloud-connector-24`,
-`ai-security-01`–`ai-security-04`, and `zbi-01`–`zbi-06`.
+`ai-security-01`–`ai-security-04`, `zbi-01`–`zbi-06`, and
+`zwa-01`–`zwa-05`.
 Most open entries require lab tests,
 tenant snapshots, operator experience, or vendor confirmation rather than more
 public-doc reading.
@@ -130,7 +132,7 @@ public-doc reading.
 
 ### Open
 
-`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-69`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-81`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `shared-20`–`shared-37`, `zcc-08`–`zcc-101`, `zdx-01`–`zdx-43`, `zid-01`–`zid-35`, `zms-01`, `easm-01`–`easm-02`, `cloud-connector-01`–`cloud-connector-24`.
+`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-69`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-81`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `shared-20`–`shared-37`, `zcc-08`–`zcc-101`, `zdx-01`–`zdx-43`, `zid-01`–`zid-35`, `zms-01`, `easm-01`–`easm-02`, `cloud-connector-01`–`cloud-connector-24`, `zwa-01`–`zwa-05`.
 
 The vendor-MCP scrape (2026-06-14) added these open behavior questions — each links to its detailed entry below:
 
@@ -146,6 +148,16 @@ The vendor-MCP scrape (2026-06-14) added these open behavior questions — each 
 | [`zms-01`](#zms-01-fetchall-beyond-policyrules) | Whether ZMS `fetchAll` exists server-side beyond `policyRules` | SDK re-check / lab test |
 | [`easm-01`](#easm-01-finding-scan_type-allowed-values) | EASM finding `scan_type` allowed-value set | tenant snapshot / zscaler doc not yet read |
 | [`easm-02`](#easm-02-finding-risk-field-value-semantics) | EASM finding risk-field semantics (`risk_level` / `cisa_likelihood` / `epss_likelihood`) | tenant snapshot / zscaler doc not yet read |
+
+The 2026-06-16 ZWA refresh registered these open Workflow Automation behavior/source questions — each links to its detailed entry below:
+
+| ID | Title | Resolves with |
+|---|---|---|
+| [`zwa-01`](#zwa-01-workflow-configuration-programmability) | Workflow configuration programmability | vendor API documentation / SDK-provider source / lab test |
+| [`zwa-02`](#zwa-02-dlp-incident-delete-semantics) | DLP incident delete semantics | lab test / vendor documentation |
+| [`zwa-03`](#zwa-03-zwa-audit-log-retention-and-streaming) | ZWA audit-log retention and streaming | vendor documentation / support ticket / tenant snapshot |
+| [`zwa-04`](#zwa-04-current-vs-legacy-auth-boundary) | Current-vs-legacy auth boundary | vendor documentation / lab test |
+| [`zwa-05`](#zwa-05-trigger-context-query-param-sdk-coverage) | Trigger context query-param SDK coverage | SDK source update / lab test |
 
 The 2026-06-15 ZIA refresh registered these open ZIA behavior/source questions surfaced by the per-doc Open-questions sweep — each links to its detailed entry below:
 
@@ -5794,6 +5806,61 @@ SDKs and Terraform expose profile update operations (`vendor/zscaler-sdk-python/
 
 **Status**: open
 **Resolves with**: tenant-side test updating visible and enforcement-affecting profile settings while an isolated session is active
+
+---
+
+### zwa-01 — Workflow configuration programmability
+
+*Origin: `references/zwa/api.md` § Open questions*
+
+The captured help article documents predefined/custom workflows and says admins must map a workflow to incident transaction attributes before it triggers (`vendor/zscaler-help/understanding-workflows-workflow-automation.md:27-43`). The inspected SDK surface exposes DLP incident and customer-audit services only in Python (`vendor/zscaler-sdk-python/zscaler/zwa/zwa_service.py:27-41`) and DLP incident/customer-audit packages in Go (`vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go:102-350`, `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go:36-47`). The first-pass source sweep did not find SDK, MCP, Postman, Terraform, or Ansible create/update/delete/list operations for workflow templates, custom workflows, or workflow mappings. This is an audit-scoped absence, not proof that no private/future API exists.
+
+**Status**: open
+**Resolves with**: vendor API documentation, SDK/provider/MCP/Postman source exposing workflow configuration operations, or lab test against documented endpoints
+
+---
+
+### zwa-02 — DLP incident delete semantics
+
+*Origin: `references/zwa/api.md` § Open questions*
+
+The Go SDK exposes `DeleteDLPIncident(ctx, service, dlpIncidentID)` as `DELETE /dlp/v1/incidents/{id}` (`vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go:255-270`), and the legacy help capture lists DELETE on `/dlp/v1/incidents/{dlpIncidentId}` (`vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:215-244`). Python's inspected `DLPIncidentsAPI` does not expose a delete method; it exposes close/resolve via `incident_close()` instead (`vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py:586-645`). Static source does not explain whether DELETE hard-deletes, archives, requires elevated rights, is tenant-disabled, or differs operationally from closing an incident.
+
+**Status**: open
+**Resolves with**: lab test on a disposable incident, vendor documentation for DELETE semantics, or SDK issue/release note explaining parity
+
+---
+
+### zwa-03 — ZWA audit-log retention and streaming
+
+*Origin: `references/zwa/audit-logs.md` § Open questions*
+
+Python and Go expose a pull customer-audit API (`POST /customer/audit` / `/dlp/v1/customer/audit`) with field/time filters (`vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py:33-135`, `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go:12-47`). The inspected ZWA-specific sources do not document the retention period, supported module/action value sets, or whether ZWA audit logs can be pushed/streamed to a SIEM rather than polled. Cross-product ZIA/ZPA audit-log behavior should not be imported without a ZWA-specific source.
+
+**Status**: open
+**Resolves with**: vendor ZWA audit-log documentation, support confirmation, or tenant snapshot/operator evidence showing retention and any configured streaming destination
+
+---
+
+### zwa-04 — Current-vs-legacy auth boundary
+
+*Origin: `references/zwa/api.md` § Open questions*
+
+Python's general OneAPI client exposes `client.zwa` as `ZWAService` when not in legacy mode and uses `ZSCALER_CLIENT_ID`, `ZSCALER_CLIENT_SECRET` or `ZSCALER_PRIVATE_KEY`, and `ZSCALER_VANITY_DOMAIN` for OAuth-style auth (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:165-184`, `:233-244`, `:271-277`). Python also exposes `LegacyZWAClient`, which uses `key_id`, `key_secret`, and `cloud` (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:636-656`; `vendor/zscaler-sdk-python/zscaler/zwa/legacy.py:47-65`). Go ZWA uses API key ID/secret and posts to `/v1/auth/api-key/token` (`vendor/zscaler-sdk-go/zscaler/zwa/v2_config.go:45-49`, `:140-180`; `vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go:212-294`), matching the legacy help capture (`vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md:8-37`). The exact tenant/product migration boundary between current OneAPI access and legacy API-key access is not established by static source alone.
+
+**Status**: open
+**Resolves with**: current vendor migration documentation, tenant lab tests for the same operation through both Python client modes, or SDK maintainer clarification
+
+---
+
+### zwa-05 — Trigger context query-param SDK coverage
+
+*Origin: `references/zwa/api.md` § Open questions*
+
+The legacy help capture documents optional `fetchTriggerContext` on `GET /dlp/v1/incidents/{dlpIncidentId}/triggers`, used to include prefix/suffix trigger context (`vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:1592-1617`). The Python `get_incident_triggers(incident_id)` and Go `GetDLPIncidentTriggers(ctx, service, dlpIncidentID)` signatures expose only the incident ID and no query-param argument (`vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py:192-238`; `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go:312-330`). It is unclear whether callers can pass this through another SDK path, whether the SDK omits a still-supported server parameter, or whether the help page is ahead/behind the SDK.
+
+**Status**: open
+**Resolves with**: SDK source update, direct HTTP lab test with `fetchTriggerContext=true`, or vendor documentation/issue explaining intended SDK coverage
 
 ---
 

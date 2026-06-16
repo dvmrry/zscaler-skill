@@ -3,67 +3,90 @@ product: zwa
 topic: "zwa-index"
 title: "Workflow Automation (ZWA) reference hub"
 content-type: reference
-last-verified: "2026-04-24"
+last-verified: "2026-06-16"
+verified-against:
+  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/terraform-provider-zia: 717926eb564bb21dea1f8e0c3222e6593b29f849
+  vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
+  vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
+  vendor/zpacloud-ansible: 84ab824d6ce5853c12add6ae3280dcfb8db273a2
+  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
+  vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: high
 source-tier: mixed
 sources:
   - "vendor/zscaler-help/what-workflow-automation.md"
   - "vendor/zscaler-help/zwa-managing-incidents.md"
   - "vendor/zscaler-help/understanding-workflows-workflow-automation.md"
+  - "vendor/zscaler-help/legacy-getting-started-workflow-automation-api.md"
+  - "vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md"
   - "vendor/zscaler-help/dlp-incidents-workflow-automation-api.md"
+  - "vendor/zscaler-sdk-python/zscaler/oneapi_client.py"
+  - "vendor/zscaler-sdk-python/zscaler/zwa/zwa_service.py"
+  - "vendor/zscaler-sdk-python/zscaler/zwa/legacy.py"
   - "vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py"
+  - "vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py"
+  - "vendor/zscaler-sdk-go/zscaler/zwa/v2_config.go"
+  - "vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go"
   - "vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go"
+  - "vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go"
+  - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
+  - "vendor/terraform-provider-zia/zia/data_source_zia_dlp_incident_receiver_servers.go"
+  - "vendor/ziacloud-ansible/plugins/modules/zia_dlp_incident_receiver_info.py"
 author-status: draft
 ---
 
 # Zscaler Workflow Automation (ZWA) reference hub
 
-Source: `vendor/zscaler-help/what-workflow-automation.md`; `vendor/zscaler-help/zwa-managing-incidents.md`; `vendor/zscaler-help/understanding-workflows-workflow-automation.md`; `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md`.
+Source: `vendor/zscaler-help/what-workflow-automation.md`; `vendor/zscaler-help/zwa-managing-incidents.md`; `vendor/zscaler-help/understanding-workflows-workflow-automation.md`.
 
-Entry point for Workflow Automation — Zscaler's **DLP incident lifecycle management** product. Closes the loop between ZIA Data Protection (which detects DLP violations) and operator remediation (review, notify user, escalate, create ticket, close) either manually or via configurable automated workflows.
+Entry point for Zscaler Workflow Automation: the DLP incident management and remediation product. Zscaler describes Workflow Automation as an application for governance admins to automate management and resolution of Data Loss Prevention incidents, and says it integrates with Internet & SaaS to capture Data Protection incidents generated from DLP policies (`vendor/zscaler-help/what-workflow-automation.md:14`). The product's Incidents page is a closed-loop review/remediation surface that lists incident metadata and the data that triggered the incident (`vendor/zscaler-help/what-workflow-automation.md:16`).
 
-## What ZWA is for
+## Where ZWA sits
 
 Source: `vendor/zscaler-help/what-workflow-automation.md`; `vendor/zscaler-help/zwa-managing-incidents.md`; `vendor/zscaler-help/understanding-workflows-workflow-automation.md`.
 
-ZIA's DLP engine detects data-loss policy violations during traffic inspection (see [`../zia/malware-and-atp.md`](../zia/malware-and-atp.md) for the adjacent cybersecurity-policy model and [`../zia/ssl-inspection.md § SSL bypass is a cross-policy gate`](../zia/ssl-inspection.md) for the DLP-needs-decrypt dependency). ZWA picks up where detection ends: each DLP event lands as an **incident** in ZWA's admin console. Admins can triage manually or configure **workflows** that auto-notify users, escalate to managers, create tickets in external systems (ServiceNow, Jira), or close the incident.
+Use ZWA when the question is about **what happens after a DLP policy violation becomes an incident**: review, assign, prioritize, notify, escalate, create tickets, label, close, or audit the incident lifecycle. The captured help article for Managing Incidents says the Incidents page records transactions that violated Inline DLP, Endpoint DLP, Email DLP, and SaaS Security DLP policies configured in the Zscaler Admin Console (`vendor/zscaler-help/zwa-managing-incidents.md:16`). That is broader than a ZIA-inline-only mental model.
 
-Questions that land here: "what happens after DLP fires?", "how do I notify users about DLP violations?", "can I auto-create Jira tickets from DLP incidents?", "what's the difference between incident status Resolved vs Closed?"
+ZWA is downstream of DLP detection, not a replacement for DLP policy authoring. Workflow Automation groups incidents into incident groups and assigns priorities/admin ownership (`vendor/zscaler-help/what-workflow-automation.md:18`), then admins can remediate manually or configure predefined/custom workflows that automatically notify users, escalate, create tickets, or close incidents (`vendor/zscaler-help/understanding-workflows-workflow-automation.md:16-23`, `:27-43`).
+
+Questions that land here: "what happens after DLP fires?", "can I search for a DLP incident by transaction ID?", "how do I notify or escalate a user-facing DLP incident?", "can the SDK fetch evidence or generated tickets?", "why is my ZWA API client using API key auth instead of OneAPI?"
 
 ## Topics
 
-Source: `vendor/zscaler-help/what-workflow-automation.md`; `vendor/zscaler-help/zwa-managing-incidents.md`; `vendor/zscaler-help/understanding-workflows-workflow-automation.md`; `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md`; `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py`; `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go`.
+Source: `vendor/zscaler-help/what-workflow-automation.md`; `vendor/zscaler-help/zwa-managing-incidents.md`; `vendor/zscaler-help/understanding-workflows-workflow-automation.md`; `vendor/zscaler-sdk-python/zscaler/zwa/zwa_service.py`; `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go`; `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go`.
 
 | Topic | File | Status |
 |---|---|---|
-| Overview — incident model, workflow templates (9 predefined), manual vs automated remediation, ZIA→ZWA integration | [`./overview.md`](./overview.md) | draft |
-| API surface — `client.zwa.*` in Python and Go SDKs, incident search/triggers/tickets/evidence, audit logs | [`./api.md`](./api.md) | draft |
+| Overview - product model, incident lifecycle, portal actions, workflow templates and mappings | [`./overview.md`](./overview.md) | draft |
+| API surface - Python/Go incident services, audit logs, current-vs-legacy auth, explicit non-surfaces | [`./api.md`](./api.md) | draft |
+| Audit logs - customer audit query shape, SDK models, open retention/streaming questions | [`./audit-logs.md`](./audit-logs.md) | draft |
+| Claims ledger - claim-by-claim source map and open-question forcing function for this refresh | [`./_claims-ledger.md`](./_claims-ledger.md) | draft |
 
 ## Scope
 
-Source: `vendor/zscaler-help/what-workflow-automation.md`; `vendor/zscaler-help/zwa-managing-incidents.md`; `vendor/zscaler-help/understanding-workflows-workflow-automation.md`; `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md`.
+Source: `vendor/zscaler-help/zwa-managing-incidents.md`; `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py`; `vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py`; `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go`; `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go`.
 
 In scope:
 
-- Incident lifecycle (detection via ZIA DLP → Workflow Automation ingestion → triage → remediation)
-- Incident groups + priority assignment + admin ownership
-- Workflow templates (9 predefined: Auto Close, Auto Create Tickets, Auto Escalate, Auto Notify variants)
-- Custom workflows
-- Workflow mappings (which incidents trigger which workflow)
-- Notification channels (email, Slack, Microsoft Teams)
-- Ticketing integration (ServiceNow, Jira Software)
-- API surface: both Python and Go SDK `zwa` modules, audit logs
+- DLP incident lifecycle in the Workflow Automation console.
+- Incident grouping, priority, DLP admin assignment, user notification, escalation, labeling, and closure actions from the captured help surface (`vendor/zscaler-help/zwa-managing-incidents.md:214-221`, `:267-285`, `:288-367`).
+- Python `client.zwa.dlp_incidents` and `client.zwa.audit_logs`, which are the only two current Python service properties under ZWA (`vendor/zscaler-sdk-python/zscaler/zwa/zwa_service.py:27-41`).
+- Go `zwa/services/dlp_incidents` and `zwa/services/customeraudit`, including the Go-only `DeleteDLPIncident` function that should not be projected onto Python (`vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go:256-270`).
+- Auth differences between Python current OneAPI client, Python `LegacyZWAClient`, Go ZWA API-key auth, and the legacy help captures (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:165-184`, `:636-656`; `vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go:212-294`; `vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md:8-37`).
 
-Not in scope (explicitly deferred):
+Not in scope or explicitly absent from this source pass:
 
-- **Per-cloud DLP integration configuration** (Azure DLP, AWS DLP integration) — help articles exist (`configuring-azure-dlp-application-integration-*`, `configuring-amazon-web-services-dlp-application-integration-*`) but are operational and vendor-specific.
-- **Notification channel setup** (configuring Slack webhooks, Teams bots, email templates) — operational config; not reasoning-focused.
-- **Ticketing integration setup** (ServiceNow, Jira auth + field mapping) — integration-specific; operational.
+- No SDK/MCP/Postman/Terraform/Ansible workflow template or workflow mapping create/update/delete/list operation was found; treat workflow configuration programmability as unresolved, not as a supported automation target. See [clarification zwa-01](../_meta/clarifications.md#zwa-01-workflow-configuration-programmability).
+- No ZWA Workflow Automation MCP tool was found in the inspected MCP server source. This is an audit-scoped absence, not proof about future/private tools.
+- No ZWA Workflow Automation Postman surface was found in the inspected OneAPI Postman collection. The lone "DLP Incident Receiver" hit is a ZIA ICAP/DLP Incident Receiver configuration area (`vendor/zscaler-api-specs/oneapi-postman-collection.json:1928-1955`).
+- Terraform and Ansible hits in this pass are ZIA DLP Incident Receiver lookup surfaces, not ZWA incident lifecycle or workflow automation surfaces (`vendor/terraform-provider-zia/zia/data_source_zia_dlp_incident_receiver_servers.go:10`, `:51-64`; `vendor/ziacloud-ansible/plugins/modules/zia_dlp_incident_receiver_info.py:31`, `:119-124`).
 
-## When the question spans ZWA + another product
+## Routing notes
 
-Source: `vendor/zscaler-help/what-workflow-automation.md`; `vendor/zscaler-help/zwa-managing-incidents.md`; `vendor/zscaler-help/understanding-workflows-workflow-automation.md`.
+Source: `vendor/zscaler-help/zwa-managing-incidents.md`; `vendor/zscaler-help/understanding-workflows-workflow-automation.md`.
 
-- **"DLP triggered but no incident appears in Workflow Automation"** — ZIA side didn't produce an incident. Check ZIA DLP is inspecting (SSL must decrypt — [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md)), and check ZWA integration with ZIA is enabled.
-- **"DLP incident fires but workflow doesn't trigger"** — workflow mapping missing for the incident's attributes, or workflow is disabled. See [`./overview.md § Workflow mappings`](./overview.md).
-- **"Why does ZWA get partial data from ZIA?"** — DLP only sees decrypted content. SSL bypass upstream means ZIA DLP saw nothing, so ZWA has nothing to ingest. Cross-ref [`../shared/cross-product-integrations.md § SSL Inspection`](../shared/cross-product-integrations.md).
+- **"DLP triggered but no ZWA incident appears"** - first verify the upstream DLP policy and source type. ZWA is downstream of the recorded DLP incident; the Incidents page is populated by transactions violating configured DLP policies (`vendor/zscaler-help/zwa-managing-incidents.md:16`). For inline web DLP, cross-check ZIA SSL/TLS Inspection and DLP policy scope in [`../zia/dlp.md`](../zia/dlp.md) and [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md).
+- **"Incident exists but workflow did not run"** - workflow configuration is separate from incident ingestion. Zscaler says admins must map a workflow to incident transaction attributes before it automatically triggers (`vendor/zscaler-help/understanding-workflows-workflow-automation.md:43`).
+- **"Can I automate this?"** - incident search/retrieval, notes, labels, close, evidence URL, generated tickets, and audit-log search have SDK surfaces; workflow template/mapping configuration is not source-backed as programmable in this pass.
