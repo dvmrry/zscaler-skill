@@ -168,6 +168,33 @@ def test_update_returns_204_no_response_schema():
     assert c["response_schema"] == [], c["response_schema"]
 
 
+@case
+def test_zia_readonly_detected():
+    # ZIA expresses readonly differently than ZPA: "This is a read-only field."
+    c = load("zia/rule-labels/rule-label-resource-update-rule-label")
+    lm = field(c["response_schema"], "lastModifiedTime")
+    assert lm and lm["readonly"] is True, lm
+
+
+@case
+def test_zpa_readonly_ignored_in_put_post_calls():
+    # ZPA wording the first regex missed: "Read only property. ... ignored in PUT/POST calls."
+    c = load("zpa/provisioning-key-management/adds-a-new-provisioning-key-for-the-specified-customer")
+    zc = field(c["response_schema"], "zcomponentName")
+    assert zc and zc["readonly"] is True, zc
+
+
+@case
+def test_readonly_excludes_policy_eval_prose():
+    # "ignored during policy evaluation" is evaluation logic, NOT a readonly field —
+    # the broadened regex must not over-match it.
+    c = load("zia/firewall-policies/firewall-filtering-rules-resource-create-firewall-filtering-rule")
+    for fn in ("srcIpGroups", "destCountries", "deviceTrustLevels"):
+        f = field(c["request_body"], fn)
+        if f is not None:
+            assert f["readonly"] is False, (fn, f)
+
+
 def main():
     if not os.path.isdir(RAW):
         print(f"FIXTURES MISSING: {RAW}")

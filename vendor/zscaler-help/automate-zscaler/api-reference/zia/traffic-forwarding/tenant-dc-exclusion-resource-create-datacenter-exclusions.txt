@@ -1,0 +1,84 @@
+API ReferenceZscaler Internet Access APITraffic ForwardingTenant Dc Exclusion Resource Create Datacenter Exclusions
+Tenant Dc Exclusion Resource Create Datacenter Exclusions
+POST
+https://api.zsapi.net/zia/api/v1/dcExclusions
+
+Adds a data center (DC) exclusion to disable the tunnels terminating at a virtual IP address of a Zscaler DC, triggering a failover from primary to secondary tunnels in the event of service disruptions, incidents, disasters, etc. You can configure to exclude a specific DC based on the traffic forwarding method for a designated time period.
+
+Note: Currently, only the IPSec VPN tunnel forwarding method is supported for DC exclusion. .
+
+Request
+​
+APPLICATION/JSON
+BODY ARRAY
+
+Information about the DC exclusion configuration
+
+Array [
+dcid
+int32
+
+The unique identifier for the DC exclusion configuration
+
+expired
+boolean
+
+A Boolean value indicating whether the DC exclusion has expired
+
+startTime
+int32
+
+The timestamp (in epoch) when the DC exclusion is set to begin and tunnels are disabled for the data center. The exclusion can be set to begin within a month from the current date and it must be at least 5 minutes from the current time (e.g., if the current time is 11:30 AM UTC, set the startTime to 11:35 AM UTC after converting it to Unix time.)
+
+endTime
+int32
+
+The timestamp (in epoch) when the DC exclusion is set to expire and tunnels are re-enabled for the data center. The expiration can be set to happen within 15 days from the start time and it must be at least 2 hours from the start time (e.g., if the startTime Time is 11:30 AM UTC, set the endTime to 1:30 PM UTC after converting it to Unix time.)
+
+description
+string
+
+Additional information about the DC exclusion
+
+dcName
+object
+]
+Responses
+​
+200
+
+Successful Operation
+
+APPLICATION/JSON
+Schema
+Example (auto)
+SCHEMA
+Array [
+dcid
+int32
+
+The unique identifier for the DC exclusion configuration
+
+expired
+boolean
+
+A Boolean value indicating whether the DC exclusion has expired
+
+startTime
+int32
+
+The timestamp (in epoch) when the DC exclusion is set to begin and tunnels are disabled for the data center. The exclusion can be set to begin within a month from the current date and it must be at least 5 minutes from the current time (e.g., if the current time is 11:30 AM UTC, set the startTime to 11:35 AM UTC after converting it to Unix time.)
+
+endTime
+int32
+
+The timestamp (in epoch) when the DC exclusion is set to expire and tunnels are re-enabled for the data center. The expiration can be set to happen within 15 days from the start time and it must be at least 2 hours from the start time (e.g., if the startTime Time is 11:30 AM UTC, set the endTime to 1:30 PM UTC after converting it to Unix time.)
+
+description
+string
+
+Additional information about the DC exclusion
+
+dcName
+object
+]

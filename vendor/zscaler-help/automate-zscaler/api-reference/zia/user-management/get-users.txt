@@ -1,0 +1,104 @@
+API ReferenceZscaler Internet Access APIUser ManagementGet Users
+Get Users
+GET
+https://api.zsapi.net/zia/api/v1/users
+
+Gets a list of all users and allows user filtering by name, department, or group. The name search parameter performs a partial match. The dept and group parameters perform a 'starts with' match.
+
+Request
+​
+QUERY PARAMETERS
+name
+string
+
+Filters by user name.
+
+dept
+string
+
+Filters by department name.
+
+group
+string
+
+Filters by group name.
+
+page
+int32
+
+Specifies the page offset.
+
+Default value: 1
+pageSize
+int32
+
+Specifies the page size. The default size is 100 and the maximum size is 10,000.
+
+Default value: 100
+Responses
+​
+200
+
+Successful Operation
+
+APPLICATION/JSON
+Schema
+Example (auto)
+SCHEMA
+Array [
+id
+int32
+
+User ID
+
+name
+string
+REQUIRED
+
+User name. This appears when choosing users for policies.
+
+Note: The name field allows values containing UTF-8 characters up to a maximum of 127 characters.
+
+email
+string
+REQUIRED
+
+User email consists of a user name and domain name. It does not have to be a valid email address, but it must be unique and its domain must belong to the organization.
+
+Note: The email field allows values of alphanumeric characters and certain special characters up to a maximum of 127 characters. The use of the @ symbol is mandatory. This field corresponds to the User ID (also referred to as Login ID) field in the UI. However, the data validation in the UI uses different constraints.
+
+groups
+object[]
+REQUIRED
+department
+object
+comments
+string
+
+Additional information about this user.
+
+tempAuthEmail
+string
+
+Temporary Authentication Email. If you enabled one-time tokens or links, enter the email address to which the Zscaler service sends the tokens or links. If this is empty, the service sends the email to the User email.
+
+password
+string
+REQUIRED
+
+User's password. Applicable only when authentication type is Hosted DB. Password strength must follow what is defined in the auth settings.
+
+adminUser
+boolean
+
+True if this user is an Admin user
+
+Default value: false
+type
+string
+
+User type. Provided only if this user is not an end user.
+
+Possible values: [SUPERADMIN, ADMIN, AUDITOR, GUEST, REPORT_USER, UNAUTH_TRAFFIC_DEFAULT]
+
+]

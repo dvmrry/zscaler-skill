@@ -1,0 +1,91 @@
+API ReferenceZscaler Internet Access APIAdmin Audit LogsStart Audit Report Entry CSV Export
+Start Audit Report Entry CSV Export
+POST
+https://api.zsapi.net/zia/api/v1/auditlogEntryReport
+
+Creates an audit log report for the specified time period and saves it as a CSV file. The report includes audit information for every call made to the cloud service API during the specified time period. Creating a new audit log report overwrites a previously-generated report.
+
+Request
+​
+APPLICATION/JSON
+BODY
+
+Audit log entry request, which includes the following values:
+
+startTime: The timestamp, in epoch, of the admin's last login.
+endTime: The timestamp, in epoch, of the admin's last logout.
+actionTypes: The action performed by the admin in the Zscaler Admin Portal (i.e., Admin UI) or API. .
+category: The location in the Zscaler Admin Portal (i.e., Admin UI) where the actionType was performed. .
+subcategories: The area within a category where the actionType was performed. .
+actionResult: The outcome (i.e., Failure or Success) of an actionType.
+actionInterface: The interface (i.e., Admin UI or API) where the actionType was performed.
+clientIP: The source IP address for the admin.
+adminName: The admin's login ID.
+startTime
+int64
+
+Start time for audit log entry
+
+endTime
+int64
+
+End time for audit log entry
+
+page
+int32
+pageSize
+int32
+actionTypes
+string[]
+
+Action type for audit log entry
+
+Possible values: [SIGN_IN, SIGN_OUT, CREATE, UPDATE, DELETE, PATCH, AUDIT_OPERATION, ACTIVATE, FORCED_ACTIVATE, IMPORT, REPORT, DOWNLOAD]
+
+category
+string
+
+Category for audit log entry
+
+subcategories
+string[]
+
+Subcategories for audit log entry
+
+actionResult
+string
+
+Result for audit log entry
+
+actionInterface
+string
+
+Interface for audit log entry
+
+objectName
+string
+
+Object name for audit log entry
+
+clientIP
+string
+
+Client IP for audit log entry
+
+adminName
+string
+
+Admin name for audit log entry
+
+targetOrgId
+int32
+traceId
+string
+
+A trace ID is generated and logged for transactions associated with ZIA API requests made via . The trace ID helps admins correlate API transactions with the OneAPI platform and you can use the trace ID for debugging purposes.
+
+Responses
+​
+204
+
+Successful Operation

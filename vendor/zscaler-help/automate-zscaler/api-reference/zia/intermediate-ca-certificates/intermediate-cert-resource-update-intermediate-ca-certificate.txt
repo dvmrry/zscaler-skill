@@ -1,0 +1,160 @@
+API ReferenceZscaler Internet Access APIIntermediate CA CertificatesIntermediate Cert Resource Update Intermediate Ca Certificate
+Intermediate Cert Resource Update Intermediate Ca Certificate
+PUT
+https://api.zsapi.net/zia/api/v1/intermediateCaCertificate/:certId
+
+Updates intermediate CA certificate information for the specified ID.
+
+Request
+​
+PATH PARAMETERS
+certId
+int32
+REQUIRED
+
+The unique identifier for the intermediate CA certificate.
+
+APPLICATION/JSON
+BODY
+
+Intermediate CA certificate information.
+
+name
+string
+REQUIRED
+
+Name of the intermediate CA certificate
+
+type
+string
+REQUIRED
+
+Type of the intermediate CA certificate. Available types: Zscaler’s intermediate CA certificate (provided by Zscaler), custom intermediate certificate with software protection, and custom intermediate certificate with cloud HSM protection.
+
+Possible values: [ZSCALER, CUSTOM_SW, CUSTOM_HSM]
+
+region
+string
+
+Location of the HSM resources. Required for custom intermediate CA certificates with cloud HSM protection.
+
+Possible values: [GLOBAL, ASIA, EUROPE, US]
+
+status
+string
+
+Determines whether the intermediate CA certificate is enabled or disabled for SSL inspection. Subscription to cloud HSM protection allows a maximum of four active certificates for SSL inspection at a time, whereas software protection subscription allows only one active certificate.
+
+Possible values: [ENABLED, DISABLED]
+
+defaultCertificate
+boolean
+
+If set to true, the intermediate CA certificate is the default intermediate certificate. Only one certificate can be marked as the default intermediate certificate at a time.
+
+description
+string
+
+Description for the intermediate CA certificate
+
+currentState
+string
+
+Tracks the progress of the intermediate CA certificate in the configuration workflow
+
+Possible values: [GENERAL_DONE, KEYGEN_DONE, PUBKEY_DONE, ATTESTATION_DONE, ATTESTATION_VERIFY_DONE, CSRGEN_DONE, INTCERT_UPLOAD_DONE, CERTCHAIN_UPLOAD_DONE, CERT_READY]
+
+Responses
+​
+200
+
+Successful Operation
+
+APPLICATION/JSON
+Schema
+Example (auto)
+SCHEMA
+id
+int32
+
+Unique identifier for the intermediate CA certificate
+
+name
+string
+REQUIRED
+
+Name of the intermediate CA certificate
+
+type
+string
+REQUIRED
+
+Type of the intermediate CA certificate. Available types: Zscaler’s intermediate CA certificate (provided by Zscaler), custom intermediate certificate with software protection, and custom intermediate certificate with cloud HSM protection.
+
+Possible values: [ZSCALER, CUSTOM_SW, CUSTOM_HSM]
+
+region
+string
+
+Location of the HSM resources. Required for custom intermediate CA certificates with cloud HSM protection.
+
+Possible values: [GLOBAL, ASIA, EUROPE, US]
+
+status
+string
+
+Determines whether the intermediate CA certificate is enabled or disabled for SSL inspection. Subscription to cloud HSM protection allows a maximum of four active certificates for SSL inspection at a time, whereas software protection subscription allows only one active certificate.
+
+Possible values: [ENABLED, DISABLED]
+
+defaultCertificate
+boolean
+
+If set to true, the intermediate CA certificate is the default intermediate certificate. Only one certificate can be marked as the default intermediate certificate at a time.
+
+certStartDate
+int64
+
+Start date of the intermediate CA certificate’s validity period
+
+certExpDate
+int64
+
+Expiration date of the intermediate CA certificate’s validity period
+
+description
+string
+
+Description for the intermediate CA certificate
+
+currentState
+string
+
+Tracks the progress of the intermediate CA certificate in the configuration workflow
+
+Possible values: [GENERAL_DONE, KEYGEN_DONE, PUBKEY_DONE, ATTESTATION_DONE, ATTESTATION_VERIFY_DONE, CSRGEN_DONE, INTCERT_UPLOAD_DONE, CERTCHAIN_UPLOAD_DONE, CERT_READY]
+
+publicKey
+string
+
+Public key in the HSM key pair generated for the intermediate CA certificate
+
+keyGenerationTime
+int32
+
+Timestamp when the HSM key was generated
+
+hsmAttestationVerifiedTime
+int32
+
+Timestamp when the attestation for the HSM key was verified
+
+csrFileName
+string
+
+Certificate Signing Request (CSR) file name
+
+csrGenerationTime
+int32
+
+Timestamp when the Certificate Signing Request (CSR) was generated

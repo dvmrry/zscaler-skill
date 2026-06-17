@@ -1,0 +1,59 @@
+API ReferenceZscaler Internet Access APIData Loss PreventionDLP Engine Resource Get DLP Engines Summary
+DLP Engine Resource Get DLP Engines Summary
+GET
+https://api.zsapi.net/zia/api/v1/dlpEngines/lite
+
+Gets a name and ID dictionary for all DLP engines.
+
+Responses
+​
+200
+
+Successful Operation
+
+APPLICATION/JSON
+Schema
+Example (auto)
+SCHEMA
+Array [
+id
+int32
+
+The unique identifier for the DLP engine.
+
+name
+string
+
+The DLP engine name as configured by the admin. This attribute is required in POST and PUT requests for custom DLP engines.
+
+predefinedEngineName
+string
+
+The name of the predefined DLP engine.
+
+engineExpression
+string
+
+The logical expression that defines a DLP engine by combining DLP dictionaries using logical operators, namely All (AND), Any (OR), Exclude (NOT), and Sum (the total number of content matches). .
+
+Engine expression examples:
+
+((D63.S> 1))
+((D38.S> 1) AND (D63.S> 1))
+((D38.S> 1) OR (D63.S> 1))
+((D38.S> 0) AND ( NOT ( (D61.S> 0) ) )
+(SUM(D63.S, D38.S)> 3)
+
+In the preceding examples, 63 represents the ID of the Credit Cards dictionary ID, 61 is the Financial Statements ID, and 38 is the ABA Bank Routing Numbers dictionary ID. Each dictionary ID is wrapped around by a prefix (D) and a suffix (.S).
+
+customDlpEngine
+boolean
+
+Indicates whether this is a custom DLP engine. If this value is set to true, the engine is custom.
+
+description
+string
+
+The DLP engine's description.
+
+]
