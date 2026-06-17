@@ -695,6 +695,199 @@ def python_repo(path):
     return None
 
 
+# ---- MCP tool extraction ----------------------------------------------------
+
+_MCP_CONTROL_FIELDS = {
+    "confirmed",
+    "customer_id",
+    "kwargs",
+    "locale",
+    "microtenant_id",
+    "page",
+    "page_size",
+    "payload",
+    "query",
+    "query_params",
+    "search",
+    "service",
+    "settings",
+}
+_MCP_BODY_NAMES = {"body", "payload"}
+_MCP_WRITE_PREFIXES = ("add", "bulk_update", "create", "replace", "set", "update")
+
+
+def _mcp_field_key(raw):
+    if "_" in raw and not any(c.isupper() for c in raw):
+        return snake_to_camel(raw)
+    return raw
+
+
+def _mcp_is_control_field(name, routing=()):
+    return name in _MCP_CONTROL_FIELDS or _mcp_field_key(name) in routing
+
+
+def _mcp_public_functions(tree):
+    return {
+        n.name: n
+        for n in tree.body
+        if isinstance(n, ast.FunctionDef) and not n.name.startswith("_")
+    }
+
+
+def extract_mcp_tool_functions(src):
+    """Public MCP tool functions in a tool module."""
+    return sorted(_mcp_public_functions(ast.parse(src)))
+
+
+def _mcp_selected_functions(tree, method_names):
+    public = _mcp_public_functions(tree)
+    wanted = set(method_names or public)
+    selected = {name: fn for name, fn in public.items() if name in wanted}
+    helpers = {n.name: n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name.startswith("_")}
+    helper_names = set()
+    for fn in selected.values():
+        for node in ast.walk(fn):
+            if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id in helpers:
+                helper_names.add(node.func.id)
+    selected.update({name: helpers[name] for name in helper_names})
+    return selected
+
+
+def _mcp_attr_chain(node):
+    if isinstance(node, ast.Name):
+        return [node.id]
+    if isinstance(node, ast.Attribute):
+        chain = _mcp_attr_chain(node.value)
+        return [*chain, node.attr] if chain else None
+    return None
+
+
+def extract_mcp_sdk_calls(src, method_names=None):
+    """SDK call chains from selected MCP tools, resolving local aliases such as
+    `api = client.zpa.server_groups` so wrapper edges remain auditable."""
+    tree = ast.parse(src)
+    calls = set()
+    for fn in _mcp_selected_functions(tree, method_names).values():
+        aliases = {}
+        for node in ast.walk(fn):
+            if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name):
+                chain = _mcp_attr_chain(node.value)
+                if chain and chain[0] == "client":
+                    aliases[node.targets[0].id] = chain
+            elif isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
+                chain = _mcp_attr_chain(node.func)
+                if not chain:
+                    continue
+                if chain[0] == "client":
+                    calls.add(".".join(chain))
+                elif chain[0] in aliases:
+                    calls.add(".".join([*aliases[chain[0]], *chain[1:]]))
+    return sorted(calls)
+
+
+def _mcp_literal_body_keys(fn, routing=()):
+    keys = set()
+    loop_vars = {}
+    for node in ast.walk(fn):
+        if isinstance(node, ast.Assign) and isinstance(node.value, ast.Dict):
+            if any(isinstance(t, ast.Name) and t.id in _MCP_BODY_NAMES for t in node.targets):
+                keys.update(k.value for k in node.value.keys if isinstance(k, ast.Constant) and isinstance(k.value, str))
+        elif isinstance(node, ast.Assign):
+            for target in node.targets:
+                if (
+                    isinstance(target, ast.Subscript)
+                    and isinstance(target.value, ast.Name)
+                    and target.value.id in _MCP_BODY_NAMES
+                    and isinstance(target.slice, ast.Constant)
+                    and isinstance(target.slice.value, str)
+                ):
+                    keys.add(target.slice.value)
+        elif isinstance(node, ast.For) and isinstance(node.iter, (ast.List, ast.Tuple)):
+            loop_key_var = None
+            if isinstance(node.target, ast.Name):
+                loop_key_var = node.target.id
+            elif (
+                isinstance(node.target, (ast.List, ast.Tuple))
+                and node.target.elts
+                and isinstance(node.target.elts[0], ast.Name)
+            ):
+                loop_key_var = node.target.elts[0].id
+            values = []
+            for elt in node.iter.elts:
+                if isinstance(elt, (ast.List, ast.Tuple)) and elt.elts and isinstance(elt.elts[0], ast.Constant):
+                    values.append(elt.elts[0].value)
+            if loop_key_var and values:
+                loop_vars[loop_key_var] = [v for v in values if isinstance(v, str)]
+        elif isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
+            chain = _mcp_attr_chain(node.func)
+            if chain and chain[-1].startswith(_MCP_WRITE_PREFIXES):
+                keys.update(kw.arg for kw in node.keywords if kw.arg and not _mcp_is_control_field(kw.arg, routing))
+
+    for node in ast.walk(fn):
+        if (
+            isinstance(node, ast.Assign)
+            and isinstance(node.targets[0] if node.targets else None, ast.Subscript)
+            and isinstance(node.targets[0].value, ast.Name)
+            and node.targets[0].value.id in _MCP_BODY_NAMES
+            and isinstance(node.targets[0].slice, ast.Name)
+            and node.targets[0].slice.id in loop_vars
+        ):
+            keys.update(loop_vars[node.targets[0].slice.id])
+    return keys
+
+
+def extract_mcp_request_fields(src, method_names=None, routing=()):
+    """MCP write-tool request fields -> {camel_key: {mcp_key, source}}.
+
+    This is intentionally presence-only. MCP wrappers encode agent-facing tool
+    parameters and payload builders; they do not authoritatively encode API
+    required/readonly/enum constraints the way Terraform/Ansible sometimes do.
+    Read-only tools are therefore a present resource surface with zero field
+    surface unless a selected write tool exposes request fields.
+    """
+    tree = ast.parse(src)
+    fields = {}
+    for name, fn in _mcp_selected_functions(tree, method_names).items():
+        # A tool that operates on an EXISTING object (update/get/delete/edit/set/
+        # replace) takes that object's own id as its leading parameter. The contract
+        # models it as the generic `:id` path param, so it is absent from `routing`
+        # and would otherwise be counted as a request-body field — and it reaches the
+        # field set through several paths (the arg list, write-call kwargs, or a body
+        # dict). Treat it as routing for THIS tool so it is dropped everywhere. The
+        # `_id` guard leaves singleton updates (leading param is a real field) and all
+        # create/list tools untouched; per-tool scope keeps a legitimate FK body field
+        # of the same name on another tool (e.g. create) intact.
+        fn_routing = set(routing)
+        obj_ops = ("_update_", "_get_", "_delete_", "_edit_", "_set_", "_replace_")
+        args = fn.args.args
+        if any(op in name for op in obj_ops) and args and args[0].arg.endswith("_id"):
+            fn_routing.add(_mcp_field_key(args[0].arg))
+        raw_keys = set()
+        if name.startswith(("zia_create_", "zia_update_", "zia_add_", "zia_bulk_update_",
+                            "zpa_create_", "zpa_update_", "ztw_create_", "zcc_update_")):
+            raw_keys.update(
+                arg.arg
+                for arg in args
+                if not _mcp_is_control_field(arg.arg, fn_routing)
+            )
+        raw_keys.update(_mcp_literal_body_keys(fn, fn_routing))
+        if "action" in raw_keys:
+            raw_keys.discard("rule_action")
+        for key in raw_keys:
+            if not isinstance(key, str) or _mcp_is_control_field(key, fn_routing):
+                continue
+            fields.setdefault(_mcp_field_key(key), {"mcp_key": key, "source": set()})["source"].add(name)
+    if "action" in fields and fields.get("ruleAction", {}).get("mcp_key") == "rule_action":
+        fields.pop("ruleAction")
+    return {k: {"mcp_key": v["mcp_key"], "source": sorted(v["source"])} for k, v in fields.items()}
+
+
+def mcp_repo(path):
+    if path and path.startswith("vendor/zscaler-mcp-server/"):
+        return "zscaler-mcp-server"
+    return None
+
+
 # ---- contract type category ------------------------------------------------
 
 def contract_category(t):
@@ -1655,6 +1848,103 @@ PRODUCTS = {
 }
 
 
+def _mcp(tool_path, *functions):
+    cfg = {"paths": [f"vendor/zscaler-mcp-server/zscaler_mcp/tools/{tool_path}"]}
+    if functions:
+        cfg["functions"] = list(functions)
+    return cfg
+
+
+MCP_MAPPINGS = {
+    "zcc": {
+        "forwarding_profile": _mcp("zcc/list_forwarding_profiles.py", "zcc_list_forwarding_profiles"),
+    },
+    "zcloudconnector": {
+        "ip_destination_group": _mcp("ztw/ip_destination_groups.py"),
+        "ip_pool_group": _mcp("ztw/ip_groups.py"),
+        "ip_source_group": _mcp("ztw/ip_source_groups.py"),
+        "network_service": _mcp("ztw/network_services.py"),
+        "network_service_group": _mcp("ztw/network_service_groups.py"),
+        "public_cloud_info": _mcp("ztw/public_cloud_info.py"),
+    },
+    "zpa": {
+        "app_connector_group": _mcp("zpa/app_connector_groups.py"),
+        "application_server": _mcp("zpa/application_servers.py"),
+        "application_segment": _mcp("zpa/app_segments.py"),
+        "ba_certificate": _mcp("zpa/ba_certificate.py"),
+        "inspection_profile": _mcp("zpa/get_app_protection_profile.py"),
+        "lss_config": _mcp("zpa/lss.py", "zpa_list_lss_configs", "zpa_get_lss_config"),
+        "pra_credential": _mcp("zpa/pra_credential.py"),
+        "pra_portal": _mcp("zpa/pra_portal.py"),
+        "provisioning_key": _mcp("zpa/provisioning_key.py"),
+        "segment_group": _mcp("zpa/segment_groups.py"),
+        "server_group": _mcp("zpa/server_groups.py"),
+        "service_edge_group": _mcp("zpa/service_edge_groups.py"),
+    },
+    "zia": {
+        "advanced_settings": _mcp("zia/advanced_settings.py"),
+        "advanced_threat_settings": _mcp("zia/atp_settings.py", "zia_get_atp_settings", "zia_update_atp_settings"),
+        "atp_malicious_urls": _mcp(
+            "zia/atp_settings.py", "zia_list_atp_malicious_urls", "zia_add_atp_malicious_urls",
+            "zia_delete_atp_malicious_urls"
+        ),
+        "atp_malware_inspection": _mcp(
+            "zia/atp_malware_protection.py", "zia_get_atp_malware_inspection",
+            "zia_update_atp_malware_inspection"
+        ),
+        "atp_malware_policy": _mcp(
+            "zia/atp_malware_protection.py", "zia_get_atp_malware_policy",
+            "zia_update_atp_malware_policy"
+        ),
+        "atp_malware_protocols": _mcp(
+            "zia/atp_malware_protection.py", "zia_get_atp_malware_protocols",
+            "zia_update_atp_malware_protocols"
+        ),
+        "atp_malware_settings": _mcp(
+            "zia/atp_malware_protection.py", "zia_get_malware_settings", "zia_update_malware_settings"
+        ),
+        "atp_security_exceptions": _mcp(
+            "zia/atp_settings.py", "zia_get_atp_security_exceptions", "zia_update_atp_security_exceptions"
+        ),
+        "auth_settings_urls": _mcp("zia/auth_exempt_urls.py"),
+        "cloud_app_control_rule": _mcp("zia/cloud_app_control.py"),
+        "dlp_dictionary": _mcp("zia/list_dlp_dictionaries.py"),
+        "dlp_engine": _mcp("zia/list_dlp_engines.py"),
+        "file_type_rule": _mcp(
+            "zia/file_type_control_rules.py", "zia_list_file_type_control_rules", "zia_get_file_type_control_rule",
+            "zia_create_file_type_control_rule", "zia_update_file_type_control_rule",
+            "zia_delete_file_type_control_rule"
+        ),
+        "firewall_dns_rule": _mcp("zia/cloud_firewall_dns_rules.py"),
+        "firewall_filtering_rule": _mcp("zia/cloud_firewall_rules.py"),
+        "firewall_ips_rule": _mcp("zia/cloud_firewall_ips_rules.py"),
+        "gre_tunnel": _mcp("zia/gre_tunnels.py"),
+        "ip_destination_group": _mcp("zia/ip_destination_groups.py"),
+        "ip_source_group": _mcp("zia/ip_source_groups.py"),
+        "location": _mcp("zia/location_management.py"),
+        "mobile_malware_protection_policy": _mcp("zia/mobile_threat_settings.py"),
+        "network_application_group": _mcp("zia/network_app_groups.py"),
+        "network_service": _mcp("zia/network_services.py"),
+        "network_service_group": _mcp("zia/network_services_group.py"),
+        "rule_label": _mcp("zia/rule_labels.py"),
+        "sandbox_rule": _mcp("zia/sandbox_rules.py"),
+        "ssl_inspection_rule": _mcp("zia/ssl_inspection.py"),
+        "static_ip": _mcp("zia/static_ips.py"),
+        "url_category": _mcp("zia/url_categories.py"),
+        "url_filtering_rule": _mcp("zia/url_filtering_rules.py"),
+        "user": _mcp("zia/list_users.py"),
+        "vpn_credential": _mcp("zia/vpn_credentials.py"),
+        "workload_group": _mcp("zia/workload_groups.py"),
+    },
+}
+
+
+for product, mapping in MCP_MAPPINGS.items():
+    for resource in PRODUCTS[product]["resources"]:
+        if resource["name"] in mapping:
+            resource["mcp"] = mapping[resource["name"]]
+
+
 def _read(path):
     with open(os.path.join(ROOT, path), encoding="utf-8") as f:
         return f.read()
@@ -1785,9 +2075,57 @@ def reconcile_python(res, cfields):
     }
 
 
+def reconcile_mcp(res, cfields, routing=()):
+    cfg = res.get("mcp")
+    if not cfg:
+        return {"surface": "none"}
+
+    fields = {}
+    tools = []
+    sdk_calls = []
+    for path in cfg["paths"]:
+        src = _read(path)
+        available = set(extract_mcp_tool_functions(src))
+        functions = cfg.get("functions") or sorted(available)
+        missing = sorted(set(functions) - available)
+        if missing:
+            raise KeyError(f"missing MCP tool function(s) in {path}: {', '.join(missing)}")
+        tools.extend(functions)
+        sdk_calls.extend(extract_mcp_sdk_calls(src, functions))
+        for name, rec in extract_mcp_request_fields(src, functions, routing).items():
+            fields.setdefault(name, {"mcp_key": rec["mcp_key"], "source": set(), "paths": set()})
+            fields[name]["source"].update(rec["source"])
+            fields[name]["paths"].add(path)
+
+    fields = {
+        name: {
+            "mcp_key": rec["mcp_key"],
+            "source": sorted(rec["source"]),
+            "paths": sorted(rec["paths"]),
+        }
+        for name, rec in fields.items()
+    }
+    matched = {name for name in cfields if name in fields}
+    field_surface = "present" if fields else "none"
+    return {
+        "surface": "present",
+        "field_surface": field_surface,
+        "repo": "zscaler-mcp-server",
+        "paths": cfg["paths"],
+        "tools": sorted(set(tools)),
+        "sdk_calls": sorted(set(sdk_calls)),
+        "counts": {"mcp_tools": len(set(tools)), "mcp_fields": len(fields)},
+        "presence": {
+            "contract_unmatched_in_mcp": sorted(set(cfields) - matched) if fields else [],
+            "mcp_only_vs_contract": sorted(set(fields) - set(cfields)) if fields else [],
+        },
+    }
+
+
 def reconcile_one(res, contracts, product="zpa"):
     reads, writes = _contract_ops(res, contracts, product)
     operation = writes[0] if writes else reads[0]
+    routing = {p["name"] for op in [*reads, *writes] for p in op.get("path_params", []) + op.get("query_params", [])}
     # field universe = response schema (fullest); required comes from create bodies
     # only. Update-only singletons often reuse PUT/POST request bodies with product
     # semantics that are not creation requirements, so they opt out via
@@ -1883,6 +2221,7 @@ def reconcile_one(res, contracts, product="zpa"):
 
     rep["ansible"] = reconcile_ansible(res, cfields, required_names)
     rep["python"] = reconcile_python(res, cfields)
+    rep["mcp"] = reconcile_mcp(res, cfields, routing)
     return rep
 
 
@@ -1911,6 +2250,13 @@ def build_report(contracts, product="zpa"):
             len(r["python"].get("presence", {}).get("contract_unmatched_in_python", [])) for r in reports
         ),
         "python_only": sum(len(r["python"].get("presence", {}).get("python_only_vs_contract", [])) for r in reports),
+        "mcp_resources": sum(1 for r in reports if r["mcp"]["surface"] == "present"),
+        "mcp_no_surface": sum(1 for r in reports if r["mcp"]["surface"] == "none"),
+        "mcp_field_resources": sum(1 for r in reports if r["mcp"].get("field_surface") == "present"),
+        "mcp_contract_unmatched": sum(
+            len(r["mcp"].get("presence", {}).get("contract_unmatched_in_mcp", [])) for r in reports
+        ),
+        "mcp_only": sum(len(r["mcp"].get("presence", {}).get("mcp_only_vs_contract", [])) for r in reports),
     }
     report = {
         "product": product,
@@ -1938,13 +2284,14 @@ def render_markdown(report):
     out.append("status: generated")
     out.append('generator: "scripts/automate-capture/reconcile_contract.py"')
     out.append("---\n")
-    out.append(f"# automate.zscaler.com contract vs Go SDK / Python SDK / Terraform / Ansible — {product_label}\n")
+    out.append(f"# automate.zscaler.com contract vs Go SDK / Python SDK / Terraform / Ansible / MCP — {product_label}\n")
     out.append("> Generated by `scripts/automate-capture/reconcile_contract.py`. Do not edit by hand; "
                "re-run after re-capturing the contract or bumping the vendor submodules.\n")
     out.append("Diffs the rendered per-operation contract "
                f"(`{report['contract_json']}`) against the Go SDK struct, Python SDK model/request fields, "
                "Terraform provider schema, "
-               "and Ansible module argument specs "
+               "Ansible module argument specs, "
+               "and Zscaler MCP server tools "
                "for each resource.\n")
     out.append("## Totals\n")
     out.append(f"- Type drift (contract numeric vs Go string): **{t['type_drift']}**")
@@ -1963,6 +2310,11 @@ def render_markdown(report):
                f"**{t['python_no_surface']}** no surface")
     out.append(f"- Python SDK presence: **{t['python_contract_unmatched']}** contract-unmatched / "
                f"**{t['python_only']}** python-only fields\n")
+    out.append(f"- MCP tool surface: **{t['mcp_resources']}** present / "
+               f"**{t['mcp_no_surface']}** no surface "
+               f"(**{t['mcp_field_resources']}** with request-field surface)")
+    out.append(f"- MCP request-field presence: **{t['mcp_contract_unmatched']}** contract-unmatched / "
+               f"**{t['mcp_only']}** MCP-only fields\n")
     if report.get("contract_only_groups"):
         out.append("## Contract Groups Outside Terraform Scope\n")
         out.append("Captured contract groups with no Terraform resource mapping in this report:\n")
@@ -1978,6 +2330,7 @@ def render_markdown(report):
         out.append(f"## {r['resource']}\n")
         ansible = r["ansible"]
         python = r["python"]
+        mcp = r["mcp"]
         ansible_label = (
             f"Ansible {ansible['counts']['ansible']} fields"
             if ansible["surface"] == "present"
@@ -1988,9 +2341,14 @@ def render_markdown(report):
             if python["surface"] == "present"
             else "no Python surface"
         )
+        mcp_label = (
+            f"MCP {mcp['counts']['mcp_tools']} tools"
+            if mcp["surface"] == "present"
+            else "no MCP surface"
+        )
         out.append(f"`{r['method']} {r['path']}` — "
                    f"contract {r['counts']['contract']} / Go {r['counts']['go']} / TF {r['counts']['tf']} fields / "
-                   f"{ansible_label} / {python_label}\n")
+                   f"{ansible_label} / {python_label} / {mcp_label}\n")
         if r["type_drift"]:
             out.append("**Type drift** — contract says numeric, Go SDK declares string "
                        "(the API serializes these as JSON strings):\n")
@@ -2033,6 +2391,12 @@ def render_markdown(report):
         if python["surface"] == "present" and python["presence"]["python_only_vs_contract"]:
             out.append(f"**Python SDK fields absent from the contract:** "
                        f"{', '.join('`%s`' % x for x in python['presence']['python_only_vs_contract'])}\n")
+        if mcp["surface"] == "present" and mcp["presence"]["contract_unmatched_in_mcp"]:
+            out.append(f"**Contract fields unmatched in MCP request tools:** "
+                       f"{', '.join('`%s`' % x for x in mcp['presence']['contract_unmatched_in_mcp'])}\n")
+        if mcp["surface"] == "present" and mcp["presence"]["mcp_only_vs_contract"]:
+            out.append(f"**MCP request fields absent from the contract:** "
+                       f"{', '.join('`%s`' % x for x in mcp['presence']['mcp_only_vs_contract'])}\n")
         if r["presence"]["contract_only_vs_go"]:
             out.append(f"**Contract fields absent from the Go SDK struct:** "
                        f"{', '.join('`%s`' % x for x in r['presence']['contract_only_vs_go'])}\n")
@@ -2040,11 +2404,14 @@ def render_markdown(report):
             out.append(f"**Go SDK fields absent from the contract:** "
                        f"{', '.join('`%s`' % x for x in r['presence']['go_only_vs_contract'])}\n")
     out.append("## Scope\n")
-    out.append("Reconciles the contract against the Go SDK, Python SDK, Terraform provider, and Ansible modules "
+    out.append("Reconciles the contract against the Go SDK, Python SDK, Terraform provider, Ansible modules, "
+               "and Zscaler MCP server tools "
                "where those surfaces exist. Python SDK comparison is presence-only because most mutable wrappers "
-               "accept dynamic `**kwargs` and do not generally encode required or enum constraints. Resources "
+               "accept dynamic `**kwargs` and do not generally encode required or enum constraints. MCP comparison "
+               "is also presence-only: it records resource/tool coverage and request fields the wrapper exposes, "
+               "but does not infer required/readonly/enum constraints from natural-language tool descriptions. Resources "
                "without a mapped surface are marked explicitly. Field matching is conservative: exact names, with "
-               "TF/Ansible/Python snake_case→camelCase derived from the source key; unmatched fields are reported "
+               "TF/Ansible/Python/MCP snake_case→camelCase derived from the source key; unmatched fields are reported "
                "as presence differences, never guessed.\n")
     return "\n".join(out)
 
@@ -2074,6 +2441,9 @@ def main():
         print(f"  python surface={t['python_resources']} present/{t['python_no_surface']} none "
               f"presence(contract-unmatched/python-only)="
               f"{t['python_contract_unmatched']}/{t['python_only']}")
+        print(f"  mcp surface={t['mcp_resources']} present/{t['mcp_no_surface']} none "
+              f"field_resources={t['mcp_field_resources']} "
+              f"presence(contract-unmatched/mcp-only)={t['mcp_contract_unmatched']}/{t['mcp_only']}")
         print(f"  -> {json_out}")
         print(f"  -> {md_out}")
 

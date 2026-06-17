@@ -15,6 +15,7 @@ ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 from reconcile_contract import (  # noqa: E402
     ansible_category, build_report, contract_category, extract_ansible_argument_spec_fields,
     extract_ansible_sdk_calls, extract_go_struct_fields, extract_python_model_fields,
+    extract_mcp_request_fields, extract_mcp_sdk_calls, extract_mcp_tool_functions,
     extract_python_service_fields, extract_python_service_methods, extract_tf_schema_fields,
     go_category, snake_to_camel,
 )
@@ -364,6 +365,94 @@ def test_python_service_fields_method_scoped_and_snake_to_camel():
     assert "siblingOnly" not in f, "sibling service methods must not leak"
 
 
+MCP_FIXTURE = '''
+from typing import Annotated, Optional
+from pydantic import Field
+
+def _build_rule_payload(name=None, rule_action=None, protocols=None, child=None):
+    payload = {}
+    if name is not None:
+        payload["name"] = name
+    if rule_action is not None:
+        payload["action"] = rule_action
+    for param_name, param_value in [
+        ("protocols", protocols),
+        ("device_trust_levels", child),
+    ]:
+        if param_value is not None:
+            payload[param_name] = param_value
+    return payload
+
+def zia_create_thing(
+    name: Annotated[str, Field(description="Name")],
+    rule_action: Annotated[str, Field(description="Action")],
+    protocols: Optional[list[str]] = None,
+    service: str = "zia",
+):
+    client = get_zscaler_client(service=service)
+    api = client.zia.things
+    payload = _build_rule_payload(name=name, rule_action=rule_action, protocols=protocols)
+    return api.add_thing(**payload)
+
+def zia_update_thing(
+    thing_id: str,
+    customer_id: str,
+    segment_group_id: str,
+    enabled: Optional[bool] = None,
+    display_name: Optional[str] = None,
+    service: str = "zia",
+):
+    client = get_zscaler_client(service=service)
+    api = client.zia.things
+    body = {"enabled": enabled}
+    if display_name is not None:
+        body["displayName"] = display_name
+    return api.update_thing(thing_id, customer_id=customer_id, segment_group_id=segment_group_id, **body)
+
+def zia_get_thing(thing_id: str, search: str = None, query: str = None, service: str = "zia"):
+    client = get_zscaler_client(service=service)
+    thing = client.zia.things.get_thing(thing_id)
+    return thing
+
+def zia_create_sibling(sibling_only: str, service: str = "zia"):
+    client = get_zscaler_client(service=service)
+    return client.zia.siblings.add_sibling(sibling_only=sibling_only)
+'''
+
+
+@case
+def test_mcp_request_fields_and_sdk_calls_are_method_scoped():
+    assert extract_mcp_tool_functions(MCP_FIXTURE) == [
+        "zia_create_sibling", "zia_create_thing", "zia_get_thing", "zia_update_thing"
+    ]
+    f = extract_mcp_request_fields(
+        MCP_FIXTURE,
+        ["zia_create_thing", "zia_update_thing", "zia_get_thing"],
+        routing={"customerId", "thingId"}
+    )
+    assert set(f) == {"name", "action", "protocols", "deviceTrustLevels", "enabled", "displayName", "segmentGroupId"}, f
+    assert "thingId" not in f and "customerId" not in f and "service" not in f and "query" not in f and "search" not in f
+    assert "siblingOnly" not in f, "sibling MCP tool fields must not leak"
+    calls = extract_mcp_sdk_calls(MCP_FIXTURE, ["zia_create_thing", "zia_update_thing", "zia_get_thing"])
+    assert calls == [
+        "client.zia.things.add_thing",
+        "client.zia.things.get_thing",
+        "client.zia.things.update_thing",
+    ], calls
+
+
+@case
+def test_mcp_update_leading_object_id_dropped_without_routing():
+    # Regression: the contract usually models the target object's id as a generic
+    # `:id` path param, so an update tool's descriptive leading id (thing_id ->
+    # thingId) is absent from `routing`. It is still the object's own routing id
+    # and must be dropped, while a later FK body field (segment_group_id) stays.
+    f = extract_mcp_request_fields(MCP_FIXTURE, ["zia_update_thing"], routing=set())
+    assert "thingId" not in f, ("leading object id must drop without routing", f)
+    assert "customerId" not in f, f
+    assert "segmentGroupId" in f and "enabled" in f and "displayName" in f, f
+
+
 @case
 def test_snake_to_camel():
     assert snake_to_camel("version_profile_id") == "versionProfileId"
@@ -410,6 +499,9 @@ def test_integration_stable_invariants():
     assert report["totals"]["ansible_no_surface"] == 3, report["totals"]
     assert report["totals"]["python_resources"] == 16, report["totals"]
     assert report["totals"]["python_no_surface"] == 0, report["totals"]
+    assert report["totals"]["mcp_resources"] == 12, report["totals"]
+    assert report["totals"]["mcp_no_surface"] == 4, report["totals"]
+    assert report["totals"]["mcp_field_resources"] == 10, report["totals"]
     acg = next(r for r in report["resources"] if r["resource"] == "app_connector_group")
     # Numeric-as-string is foundational ZPA behavior — `id` must show type drift.
     drift = {d["field"] for d in acg["type_drift"]}
@@ -438,6 +530,9 @@ def test_integration_stable_invariants():
     # P2#3: extranetDTO matches extranet_dto by case-fold -> not "unmatched".
     assert "extranetDTO" not in set(sg["presence"]["contract_unmatched_in_tf"]), \
         sg["presence"]["contract_unmatched_in_tf"]
+    assert "client.zpa.server_groups.add_group" in sg["mcp"]["sdk_calls"], sg["mcp"]
+    assert "appConnectorGroupIds" in set(sg["mcp"]["presence"]["mcp_only_vs_contract"]), \
+        sg["mcp"]["presence"]
 
 
 @case
@@ -459,6 +554,9 @@ def test_integration_zia_registry():
     assert report["totals"]["ansible_no_surface"] == 2, report["totals"]
     assert report["totals"]["python_resources"] == 54, report["totals"]
     assert report["totals"]["python_no_surface"] == 0, report["totals"]
+    assert report["totals"]["mcp_resources"] == 33, report["totals"]
+    assert report["totals"]["mcp_no_surface"] == 21, report["totals"]
+    assert report["totals"]["mcp_field_resources"] == 25, report["totals"]
     for name in (
         "advanced_settings", "advanced_threat_settings", "atp_malicious_urls",
         "atp_malware_inspection", "atp_malware_policy", "atp_malware_protocols",
@@ -491,6 +589,12 @@ def test_integration_zia_registry():
     url_rule = next(r for r in report["resources"] if r["resource"] == "url_filtering_rule")
     assert any(d["field"] == "action" for d in url_rule["enum"]["value_conflict"]), \
         url_rule["enum"]["value_conflict"]
+    assert "client.zia.url_filtering.add_rule" in url_rule["mcp"]["sdk_calls"], url_rule["mcp"]
+    assert "action" not in set(url_rule["mcp"]["presence"]["contract_unmatched_in_mcp"]), \
+        url_rule["mcp"]["presence"]
+    atp_settings = next(r for r in report["resources"] if r["resource"] == "advanced_threat_settings")
+    assert atp_settings["mcp"]["surface"] == "present" and atp_settings["mcp"]["field_surface"] == "none", \
+        atp_settings["mcp"]
     conflict_fields = {d["field"] for d in nss["enum"]["value_conflict"]}
     assert conflict_fields == {"status", "type"}, nss["enum"]["value_conflict"]
     location = next(r for r in report["resources"] if r["resource"] == "location")
@@ -543,6 +647,8 @@ def test_integration_zcc_ztw_registries():
     assert len(zcc["resources"]) == 4, len(zcc["resources"])
     assert zcc["totals"]["python_resources"] == 4, zcc["totals"]
     assert zcc["totals"]["ansible_no_surface"] == 4, zcc["totals"]
+    assert zcc["totals"]["mcp_resources"] == 1 and zcc["totals"]["mcp_no_surface"] == 3, \
+        zcc["totals"]
     assert any("zcc_trusted_network" in note for note in zcc["scope_notes"]), zcc["scope_notes"]
     device_cleanup = next(r for r in zcc["resources"] if r["resource"] == "device_cleanup")
     assert device_cleanup["counts"]["contract"] == 10, device_cleanup["counts"]
@@ -554,6 +660,8 @@ def test_integration_zcc_ztw_registries():
         forwarding_profile["presence"]
     assert "forwardingProfileZpaActions" not in forwarding_profile["presence"]["contract_unmatched_in_tf"], \
         forwarding_profile["presence"]
+    assert forwarding_profile["mcp"]["tools"] == ["zcc_list_forwarding_profiles"], forwarding_profile["mcp"]
+    assert forwarding_profile["mcp"]["field_surface"] == "none", forwarding_profile["mcp"]
 
     ztw = build_report(json.load(open(ztw_contract, encoding="utf-8")), "zcloudconnector")
     assert ztw["display"] == "ZTW", ztw
@@ -564,6 +672,9 @@ def test_integration_zcc_ztw_registries():
         ztw["totals"]
     assert ztw["totals"]["python_resources"] == 12 and ztw["totals"]["python_no_surface"] == 4, \
         ztw["totals"]
+    assert ztw["totals"]["mcp_resources"] == 6 and ztw["totals"]["mcp_no_surface"] == 10, \
+        ztw["totals"]
+    assert ztw["totals"]["mcp_field_resources"] == 3, ztw["totals"]
     dns_gateway = next(r for r in ztw["resources"] if r["resource"] == "dns_gateway")
     assert {d["field"] for d in dns_gateway["enum"]["value_conflict"]} == {
         "dnsGatewayType", "ecDnsGatewayOptionsPrimary", "ecDnsGatewayOptionsSecondary", "failureBehavior"
@@ -577,6 +688,9 @@ def test_integration_zcc_ztw_registries():
     dns_rule = next(r for r in ztw["resources"] if r["resource"] == "traffic_forwarding_dns_rule")
     assert any(d["field"] == "action" for d in dns_rule["enum"]["value_conflict"]), \
         dns_rule["enum"]["value_conflict"]
+    ztw_ip_dst = next(r for r in ztw["resources"] if r["resource"] == "ip_destination_group")
+    assert "client.ztw.ip_destination_groups.add_ip_destination_group" in ztw_ip_dst["mcp"]["sdk_calls"], \
+        ztw_ip_dst["mcp"]
 
 
 def main():
