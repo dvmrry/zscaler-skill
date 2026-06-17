@@ -405,11 +405,69 @@ ZPA_RESOURCES = [
 ]
 
 ZIA_RESOURCES = [
+    {"name": "advanced_settings", "group": "advanced-settings",
+     "update": "advanced-settings-resource-update-advanced-settings",
+     "get": "advanced-settings-resource-get-advanced-settings",
+     "compare_required": False,
+     "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/advanced_settings/advanced_settings.go", "AdvancedSettings"),
+     "tf": "vendor/terraform-provider-zia/zia/resource_zia_advanced_settings.go"},
+    {"name": "advanced_threat_settings", "group": "advanced-threat-protection-policy",
+     "update": "cyber-threat-protection-resource-update-config",
+     "get": "cyber-threat-protection-resource-get-config",
+     "compare_required": False,
+     "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/advancedthreatsettings/advancedthreatsettings.go", "AdvancedThreatSettings"),
+     "tf": "vendor/terraform-provider-zia/zia/resource_zia_atp_settings.go"},
     {"name": "admin_role", "group": "admin-role-management",
      "create": "admin-role-resource-add-role",
      "get": "admin-role-resource-get-role",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/adminuserrolemgmt/roles/adminroles.go", "AdminRoles"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_admin_roles.go"},
+    {"name": "alerts", "group": "alerts",
+     "create": "alert-subscription-resource-add-alert-subscription",
+     "get": "alert-subscription-resource-get-alert-subscription",
+     "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/alerts/alerts.go", "AlertSubscriptions"),
+     "tf": "vendor/terraform-provider-zia/zia/resource_zia_alerts.go"},
+    {"name": "atp_malicious_urls", "group": "advanced-threat-protection-policy",
+     "update": "cyber-threat-protection-resource-update-malicious-urls",
+     "get": "cyber-threat-protection-resource-get-malicious-urls",
+     "compare_required": False,
+     "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/advancedthreatsettings/advancedthreatsettings.go", "MaliciousURLs"),
+     "tf": "vendor/terraform-provider-zia/zia/resource_zia_atp_malicious_urls.go"},
+    {"name": "atp_malware_inspection", "group": "malware-protection-policy",
+     "update": "cyber-threat-protection-resource-update-atp-malware-inspection-config",
+     "get": "cyber-threat-protection-resource-get-atp-malware-inspection-config",
+     "compare_required": False,
+     "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/malware_protection/malware_protection.go", "ATPMalwareInspection"),
+     "tf": "vendor/terraform-provider-zia/zia/resource_zia_atp_malware_inspection.go"},
+    {"name": "atp_malware_policy", "group": "malware-protection-policy",
+     "update": "cyber-threat-protection-resource-update-malware-policy-config",
+     "get": "cyber-threat-protection-resource-get-malware-policy-config",
+     "compare_required": False,
+     "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/malware_protection/malware_protection.go", "MalwarePolicy"),
+     "tf": "vendor/terraform-provider-zia/zia/resource_zia_atp_malware_policy.go"},
+    {"name": "atp_malware_protocols", "group": "malware-protection-policy",
+     "update": "cyber-threat-protection-resource-update-atp-malware-protocols-config",
+     "get": "cyber-threat-protection-resource-get-atp-malware-protocols-config",
+     "compare_required": False,
+     "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/malware_protection/malware_protection.go", "ATPMalwareProtocols"),
+     "tf": "vendor/terraform-provider-zia/zia/resource_zia_atp_malware_protocols.go"},
+    {"name": "atp_malware_settings", "group": "malware-protection-policy",
+     "get": "cyber-threat-protection-resource-get-malware-settings-config",
+     "compare_required": False,
+     "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/malware_protection/malware_protection.go", "MalwareSettings"),
+     "tf": "vendor/terraform-provider-zia/zia/resource_zia_atp_malware_settings.go"},
+    {"name": "atp_security_exceptions", "group": "advanced-threat-protection-policy",
+     "update": "cyber-threat-protection-resource-update-security-exceptions",
+     "get": "cyber-threat-protection-resource-get-security-exceptions",
+     "compare_required": False,
+     "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/advancedthreatsettings/advancedthreatsettings.go", "SecurityExceptions"),
+     "tf": "vendor/terraform-provider-zia/zia/resource_zia_atp_security_exceptions.go"},
+    {"name": "auth_settings_urls", "group": "user-authentication-settings",
+     "update": "update-auth-exempted-urls",
+     "get": "get-auth-exempted-urls",
+     "compare_required": False,
+     "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/user_authentication_settings/user_authentication_settings.go", "ExemptedUrls"),
+     "tf": "vendor/terraform-provider-zia/zia/resource_zia_auth_settings_urls.go"},
     {"name": "bandwidth_class", "group": "bandwidth-control-classes",
      "create": "bandwidth-class-resource-add-bandwidth-class",
      "get": "bandwidth-class-resource-get-bandwidth-class",
@@ -435,6 +493,12 @@ ZIA_RESOURCES = [
      "get": "web-application-rule-resource-get-rule-by-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go", "WebApplicationRules"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_cloud_app_control_rules.go"},
+    {"name": "browser_control_policy", "group": "browser-control-policy",
+     "update": "browser-control-settings-resource-update-config",
+     "get": "browser-control-settings-resource-get-config",
+     "compare_required": False,
+     "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/browser_control_settings/browser_control_settings.go", "BrowserControlSettings"),
+     "tf": "vendor/terraform-provider-zia/zia/resource_zia_browser_control_policy.go"},
     {"name": "custom_file_type", "group": "file-type-control-policy",
      "create": "custom-file-type-resource-create-custom-file-type",
      "get": "custom-file-type-resource-get-custom-file-type-by-id",
@@ -460,6 +524,12 @@ ZIA_RESOURCES = [
      "get": "dlp-notification-template-resource-get-template-by-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/dlp/dlp_notification_templates/dlp_notification_templates.go", "DlpNotificationTemplates"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_dlp_notification_templates.go"},
+    {"name": "end_user_notification", "group": "end-user-notifications",
+     "update": "end-user-notification-resource-update-eun-details",
+     "get": "end-user-notification-resource-get-eun-details",
+     "compare_required": False,
+     "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/end_user_notification/end_user_notification.go", "UserNotificationSettings"),
+     "tf": "vendor/terraform-provider-zia/zia/resource_zia_end_user_notification.go"},
     {"name": "extranet", "group": "traffic-forwarding",
      "create": "extranet-resource-add-extranet",
      "get": "extranet-resource-get-extranet-with-id",
@@ -490,6 +560,12 @@ ZIA_RESOURCES = [
      "get": "forwarding-rules-resource-get-forwarding-rule",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/forwarding_control_policy/forwarding_rules/forwarding_rules.go", "ForwardingRules"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_rule.go"},
+    {"name": "ftp_control_policy", "group": "ftp-control-policy",
+     "update": "ftp-settings-resource-update-ftp-settings",
+     "get": "ftp-settings-resource-get-ftp-settings",
+     "compare_required": False,
+     "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/ftp_control_policy/ftp_control_policy.go", "FTPControlPolicy"),
+     "tf": "vendor/terraform-provider-zia/zia/resource_zia_ftp_control_policy.go"},
     {"name": "gre_tunnel", "group": "traffic-forwarding",
      "create": "gre-tunnel-resource-add-gre-tunnel",
      "get": "gre-tunnel-resource-get-gre-tunel-by-id",
@@ -530,6 +606,12 @@ ZIA_RESOURCES = [
      "get": "dnat-rule-resource-update-rule",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/nat_control_policies/nat_control_policies.go", "NatControlPolicies"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_nat_control_rules.go"},
+    {"name": "mobile_malware_protection_policy", "group": "mobile-malware-protection-policy",
+     "update": "mobile-malware-protection-resource-update-mobile-malware-protection-config",
+     "get": "mobile-malware-protection-resource-get-mobile-malware-protection-config",
+     "compare_required": False,
+     "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/mobile_threat_settings/mobile_threat_settings.go", "MobileAdvanceThreatSettings"),
+     "tf": "vendor/terraform-provider-zia/zia/resource_zia_mobile_malware_protection_policy.go"},
     {"name": "nss_server", "group": "cloud-nanolog-streaming-service-nss",
      "create": "nss-resource-add-nss-server",
      "get": "nss-resource-get-nss-server",
@@ -555,6 +637,14 @@ ZIA_RESOURCES = [
      "get": "ba-rule-resource-get-rule-by-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_rules/sandbox_rules.go", "SandboxRules"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_sandbox_rules.go"},
+    {"name": "security_policy_settings", "group": "security-policy-settings",
+     "update": "create-whitelist",
+     "extra_updates": ["manage-blacklist"],
+     "get": "get-config",
+     "extra_gets": ["get-advanced-policy"],
+     "compare_required": False,
+     "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/security_policy_settings/security_policy_settings.go", "ListUrls"),
+     "tf": "vendor/terraform-provider-zia/zia/resource_zia_security_policy_settings.go"},
     {"name": "ssl_inspection_rule", "group": "ssl-inspection-policy",
      "create": "ssl-inspection-rule-resource-add-ssl-inspection-rule",
      "get": "ssl-inspection-rule-resource-get-rule-by-id",
@@ -570,6 +660,12 @@ ZIA_RESOURCES = [
      "get": "get-url-categories",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/urlcategories/urlcategories.go", "URLCategory"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_url_categories.go"},
+    {"name": "url_filtering_and_cloud_app_settings", "group": "url-cloud-app-control-policy-settings",
+     "update": "advanced-url-filtering-cloud-app-resource-update-advanced-url-filt-options",
+     "get": "advanced-url-filtering-cloud-app-resource-get-advanced-url-filt-options",
+     "compare_required": False,
+     "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go", "URLAdvancedPolicySettings"),
+     "tf": "vendor/terraform-provider-zia/zia/resource_zia_url_filtering_and_cloud_app_settings.go"},
     {"name": "user", "group": "user-management",
      "create": "add-user",
      "get": "get-user",
@@ -597,6 +693,23 @@ ZIA_RESOURCES = [
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_zpa_gateway.go"},
 ]
 
+ZIA_CONTRACT_ONLY_GROUPS = [
+    "api-authentication",
+    "authentication-settings",
+    "event-logs",
+    "intermediate-ca-certificates",
+    "iot-report",
+    "organization-details",
+    "pac-files",
+    "policy-export",
+    "remote-assistance-support",
+    "service-edges",
+    "shadow-it-report",
+    "system-audit-report",
+    "time",
+    "time-intervals",
+]
+
 PRODUCTS = {
     "zpa": {
         "contract_json": "vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json",
@@ -605,6 +718,7 @@ PRODUCTS = {
     "zia": {
         "contract_json": "vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json",
         "resources": ZIA_RESOURCES,
+        "contract_only_groups": ZIA_CONTRACT_ONLY_GROUPS,
     },
 }
 
@@ -614,19 +728,35 @@ def _read(path):
         return f.read()
 
 
-def reconcile_one(res, contracts, product="zpa"):
-    create_key = f"{product}/{res['group']}/{res['create']}"
-    get_key = f"{product}/{res['group']}/{res['get']}"
-    create = contracts.get(create_key)
-    get = contracts.get(get_key)
-    if not create or not get:
-        missing = [k for k, v in ((create_key, create), (get_key, get)) if not v]
+def _contract_ops(res, contracts, product):
+    read_slugs = [res["get"], *res.get("extra_gets", [])]
+    write_slugs = [x for x in (res.get("create"), res.get("update"), *res.get("extra_updates", [])) if x]
+    op_keys = [(slug, f"{product}/{res['group']}/{slug}") for slug in read_slugs + write_slugs]
+    missing = [key for _, key in op_keys if key not in contracts]
+    if missing:
         raise KeyError(f"missing contract operation(s) for {res['name']}: {', '.join(missing)}")
-    # field universe = response schema (fullest); required comes from create body
-    cfields = {f["name"]: f for f in (get.get("response_schema") or create.get("response_schema") or [])}
-    creq = {f["name"]: f for f in create.get("request_body", [])}
-    for name, f in creq.items():
-        cfields.setdefault(name, dict(f))
+    reads = [contracts[f"{product}/{res['group']}/{slug}"] for slug in read_slugs]
+    writes = [contracts[f"{product}/{res['group']}/{slug}"] for slug in write_slugs]
+    return reads, writes
+
+
+def reconcile_one(res, contracts, product="zpa"):
+    reads, writes = _contract_ops(res, contracts, product)
+    operation = writes[0] if writes else reads[0]
+    # field universe = response schema (fullest); required comes from create bodies
+    # only. Update-only singletons often reuse PUT/POST request bodies with product
+    # semantics that are not creation requirements, so they opt out via
+    # compare_required=False and still get type/presence/readonly/enum coverage.
+    cfields = {}
+    for op in [*reads, *writes]:
+        for f in op.get("response_schema") or []:
+            cfields.setdefault(f["name"], dict(f))
+    creq = {}
+    if res.get("compare_required", True) and res.get("create"):
+        create_op = contracts[f"{product}/{res['group']}/{res['create']}"]
+        creq = {f["name"]: f for f in create_op.get("request_body", [])}
+        for name, f in creq.items():
+            cfields.setdefault(name, dict(f))
     required_names = {n for n, f in creq.items() if f["required"]}
 
     go_path, struct = res["go"]
@@ -648,8 +778,8 @@ def reconcile_one(res, contracts, product="zpa"):
     matched_tf = {name for name in cset if tf_get(name)}
     rep = {
         "resource": res["name"],
-        "method": create.get("method") or get.get("method"),
-        "path": create.get("path") or get.get("path"),
+        "method": operation.get("method"),
+        "path": operation.get("path"),
         "counts": {"contract": len(cset), "go": len(goset), "tf": len(tf)},
         "presence": {
             "contract_only_vs_go": sorted(cset - goset),
@@ -718,12 +848,15 @@ def build_report(contracts, product="zpa"):
         "readonly_fields": sum(len(r["readonly"]) for r in reports),
         "readonly_disagree": sum(1 for r in reports for x in r["readonly"] if not x["agree"]),
     }
-    return {
+    report = {
         "product": product,
         "contract_json": PRODUCTS[product]["contract_json"],
         "resources": reports,
         "totals": totals,
     }
+    if PRODUCTS[product].get("contract_only_groups"):
+        report["contract_only_groups"] = PRODUCTS[product]["contract_only_groups"]
+    return report
 
 
 # ---- markdown rendering ----------------------------------------------------
@@ -751,6 +884,12 @@ def render_markdown(report):
                f"**{t['enum_one_sided']}** one-sided")
     out.append(f"- Contract readonly fields checked: **{t['readonly_fields']}** "
                f"(TF disagreement: {t['readonly_disagree']})\n")
+    if report.get("contract_only_groups"):
+        out.append("## Contract Groups Outside Terraform Scope\n")
+        out.append("Captured contract groups with no Terraform resource mapping in this report:\n")
+        for group in report["contract_only_groups"]:
+            out.append(f"- `{group}`")
+        out.append("")
     for r in report["resources"]:
         out.append(f"## {r['resource']}\n")
         out.append(f"`{r['method']} {r['path']}` — "

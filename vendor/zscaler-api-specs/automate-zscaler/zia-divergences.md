@@ -14,8 +14,37 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 - Type drift (contract numeric vs Go string): **0**
 - Required drift (contract vs TF): **48**
-- Enum: **60** match / **11** value-conflict / **29** one-sided
+- Enum: **63** match / **11** value-conflict / **37** one-sided
 - Contract readonly fields checked: **1** (TF disagreement: 0)
+
+## Contract Groups Outside Terraform Scope
+
+Captured contract groups with no Terraform resource mapping in this report:
+
+- `api-authentication`
+- `authentication-settings`
+- `event-logs`
+- `intermediate-ca-certificates`
+- `iot-report`
+- `organization-details`
+- `pac-files`
+- `policy-export`
+- `remote-assistance-support`
+- `service-edges`
+- `shadow-it-report`
+- `system-audit-report`
+- `time`
+- `time-intervals`
+
+## advanced_settings
+
+`PUT /zia/api/v1/advancedSettings` — contract 50 / Go 51 / TF 50 fields
+
+**Go SDK fields absent from the contract:** `apiSessionTimeout`
+
+## advanced_threat_settings
+
+`PUT /zia/api/v1/cyberThreatProtection/advancedThreatSettings` — contract 48 / Go 48 / TF 48 fields
 
 ## admin_role
 
@@ -28,6 +57,38 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 **Enum value conflicts:**
 
 - `roleType`: contract ['ORG_ADMIN', 'EXEC_INSIGHT', 'EXEC_INSIGHT_AND_ORG_ADMIN', 'SDWAN'] vs TF ['ORG_ADMIN', 'EXEC_INSIGHT', 'EXEC_INSIGHT_AND_ORG_ADMIN', 'SDWAN', 'PUBLIC_API']
+
+## alerts
+
+`POST /zia/api/v1/alertSubscriptions` — contract 9 / Go 9 / TF 9 fields
+
+## atp_malicious_urls
+
+`PUT /zia/api/v1/cyberThreatProtection/maliciousUrls` — contract 1 / Go 1 / TF 1 fields
+
+## atp_malware_inspection
+
+`PUT /zia/api/v1/cyberThreatProtection/atpMalwareInspection` — contract 2 / Go 2 / TF 2 fields
+
+## atp_malware_policy
+
+`PUT /zia/api/v1/cyberThreatProtection/malwarePolicy` — contract 2 / Go 2 / TF 2 fields
+
+## atp_malware_protocols
+
+`PUT /zia/api/v1/cyberThreatProtection/atpMalwareProtocols` — contract 3 / Go 3 / TF 3 fields
+
+## atp_malware_settings
+
+`GET /zia/api/v1/cyberThreatProtection/malwareSettings` — contract 16 / Go 16 / TF 16 fields
+
+## atp_security_exceptions
+
+`PUT /zia/api/v1/cyberThreatProtection/securityExceptions` — contract 1 / Go 1 / TF 1 fields
+
+## auth_settings_urls
+
+`POST /zia/api/v1/authSettings/exemptedUrls` — contract 1 / Go 1 / TF 1 fields
 
 ## bandwidth_class
 
@@ -77,6 +138,10 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 **Contract fields absent from the Go SDK struct:** `formSharingDomainProfiles`, `lastModifiedBy`, `sharingDomainProfiles`
 
+## browser_control_policy
+
+`PUT /zia/api/v1/browserControlSettings` — contract 16 / Go 16 / TF 15 fields
+
 ## custom_file_type
 
 `POST /zia/api/v1/customFileTypes` — contract 5 / Go 5 / TF 6 fields
@@ -118,6 +183,10 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 - `subject`: contract required=False, TF required=True (TF stricter than API)
 
 **Go SDK fields absent from the contract:** `tlsEnabled`
+
+## end_user_notification
+
+`PUT /zia/api/v1/eun` — contract 30 / Go 30 / TF 30 fields
 
 ## extranet
 
@@ -194,6 +263,10 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 **Go SDK fields absent from the contract:** `appServiceGroups`, `dedicatedIPGateway`
 
+## ftp_control_policy
+
+`PUT /zia/api/v1/ftpSettings` — contract 4 / Go 4 / TF 4 fields
+
 ## gre_tunnel
 
 `POST /zia/api/v1/greTunnels` — contract 12 / Go 12 / TF 9 fields
@@ -204,15 +277,13 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 ## ip_destination_group
 
-`POST /zia/api/v1/ipDestinationGroups` — contract 9 / Go 8 / TF 8 fields
+`POST /zia/api/v1/ipDestinationGroups` — contract 10 / Go 8 / TF 8 fields
 
 **Required drift:**
 
 - `name`: contract required=False, TF required=True (TF stricter than API)
 
 **Contract fields absent from the Go SDK struct:** `ipAddresses`, `urlCategories`
-
-**Go SDK fields absent from the contract:** `isNonEditable`
 
 ## ip_source_group
 
@@ -270,6 +341,10 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 - `order`: contract required=False, TF required=True (TF stricter than API)
 - `rank`: contract required=True, TF required=False (contract stricter than TF)
 
+## mobile_malware_protection_policy
+
+`PUT /zia/api/v1/mobileAdvanceThreatSettings` — contract 8 / Go 8 / TF 8 fields
+
 ## nss_server
 
 `POST /zia/api/v1/nssServers` — contract 6 / Go 6 / TF 6 fields
@@ -315,6 +390,10 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 **Contract fields absent from the Go SDK struct:** `cbiProfile`, `cbiProfileId`
 
+## security_policy_settings
+
+`PUT /zia/api/v1/security` — contract 2 / Go 2 / TF 2 fields
+
 ## ssl_inspection_rule
 
 `POST /zia/api/v1/sslInspectionRules` — contract 32 / Go 32 / TF 28 fields
@@ -345,6 +424,12 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 - `id`: contract required=True, TF required=False (contract stricter than TF)
 
 **Go SDK fields absent from the contract:** `categoryGroup`, `regexPatterns`, `regexPatternsRetainingParentCategory`, `urlType`, `val`
+
+## url_filtering_and_cloud_app_settings
+
+`PUT /zia/api/v1/advancedUrlFilterAndCloudAppSettings` — contract 21 / Go 29 / TF 28 fields
+
+**Go SDK fields absent from the contract:** `enableClaudePrompt`, `enableCreativeCommonsSearchResults`, `enableDeepSeekPrompt`, `enableGrammarlyPrompt`, `enableGrokPrompt`, `enableMistralAIPrompt`, `enableWriterPrompt`, `zveloDbLookupDisabled`
 
 ## user
 

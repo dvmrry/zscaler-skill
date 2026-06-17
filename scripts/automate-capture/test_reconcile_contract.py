@@ -252,7 +252,21 @@ def test_integration_zia_registry():
     import json
     os.environ["REPO_ROOT"] = ROOT
     report = build_report(json.load(open(contract, encoding="utf-8")), "zia")
-    assert len(report["resources"]) == 38, len(report["resources"])
+    assert len(report["resources"]) == 54, len(report["resources"])
+    assert "api-authentication" in report["contract_only_groups"], report["contract_only_groups"]
+    for name in (
+        "advanced_settings", "advanced_threat_settings", "atp_malicious_urls",
+        "atp_malware_inspection", "atp_malware_policy", "atp_malware_protocols",
+        "atp_malware_settings", "atp_security_exceptions", "auth_settings_urls",
+        "browser_control_policy", "end_user_notification", "ftp_control_policy",
+        "mobile_malware_protection_policy", "security_policy_settings",
+        "url_filtering_and_cloud_app_settings",
+    ):
+        resource = next(r for r in report["resources"] if r["resource"] == name)
+        assert resource["required_drift"] == [], (name, resource["required_drift"])
+    security_settings = next(r for r in report["resources"] if r["resource"] == "security_policy_settings")
+    assert security_settings["counts"]["contract"] == 2, security_settings["counts"]
+    assert security_settings["counts"]["tf"] == 2, security_settings["counts"]
     admin_role = next(r for r in report["resources"] if r["resource"] == "admin_role")
     assert any(d["field"] == "roleType" for d in admin_role["enum"]["value_conflict"]), \
         admin_role["enum"]["value_conflict"]
