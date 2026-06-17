@@ -25,7 +25,7 @@ it against the Go/Python SDKs and the Terraform provider surfaces real divergenc
 2. **Parse** (`parse_contract.py`, Python stdlib) — deterministically turns the raw
    text into normalized contract JSON. No browser. Output:
    - `vendor/zscaler-api-specs/automate-zscaler/<product>-api-reference.json`
-     (contract data, alongside the Postman collection — the same family).
+     (contract data, separate from the Postman examples).
 3. **Reconcile** (`reconcile_contract.py`, Python stdlib) — diffs the normalized
    contract against the Go SDK struct and the Terraform provider schema, on the
    high-signal axes (presence, type drift, required-vs-optional, readonly-vs-computed,
@@ -92,12 +92,17 @@ URLs). `parse_contract.py` writes one `<product>-api-reference.json` per product
 **EASM**, **ZCC**, **ZCell**, **ZCloudConnector**, **ZDX**, **ZIA**, **ZID**, and
 **ZPA** — all operation pages from the sitemap for each product.
 
-Reconciliation still covers only the resources mapped in `reconcile_contract.py`'s
-registry (a curated ZPA subset); the other product contracts are captured but not yet
-reconciled (their registries — Go SDK structs + Terraform resources — are follow-ons).
+Reconciliation currently covers all 16 mapped ZPA resources and a growing ZIA
+registry (30 resources after the policy-rule slice); the other product contracts are
+captured but not yet reconciled (their registries — Go SDK structs + Terraform
+resources — are follow-ons).
 
-Still deferred: reconciler registry expansion (ZPA beyond the 5 mapped resources, then
-the captured non-ZPA products); the 7th source family `automate-contract` in
-`scripts/l1_inventory.py`; source-precedence wiring; and Python-SDK / Postman
-cross-checks in the reconciler (currently Go SDK + Terraform, which carry the type /
-required / readonly / enum signal).
+The normalized contract is exposed to L1 inventory as the `automate-contract`
+family for configured products. Source precedence treats it as the preferred source
+for rendered API contract metadata (`required`, `readonly`, `enum`, method/path)
+while SDK and Terraform sources remain authoritative for wrapper/provider behavior.
+
+Still deferred: further reconciler registry expansion for ZIA and the captured
+non-ZIA products, broader per-product L1 configs beyond the first configured
+products, and Python-SDK / Postman cross-checks in the reconciler (currently Go SDK
++ Terraform, which carry the type / required / readonly / enum signal).

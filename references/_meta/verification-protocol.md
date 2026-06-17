@@ -32,7 +32,7 @@ Every finding lands in one of four tiers. The tier dictates language, confidence
 
 ### Tier A — Source-verified
 
-**Definition:** the finding is directly observable in vendored material — SDK code, TF schema/validator, Postman collection, vendored help-portal capture, official Zscaler doc with a captured URL.
+**Definition:** the finding is directly observable in vendored material — SDK code, TF schema/validator, Automate contract capture, Postman collection, vendored help-portal capture, official Zscaler doc with a captured URL.
 
 **Evidence required:** a citation chain in the form `vendor/<repo>/path/to/file:line` or equivalent. The citation must point to text/code that, when read by an independent reader, confirms the claim without further interpretation.
 
@@ -97,7 +97,7 @@ When using chain-of-evidence verification, **list each link explicitly** in the 
 When a user reports a behavior:
 
 1. **Default treatment is tier C** (operator-reported), not tier A.
-2. **Before threading into any doc**, attempt source verification: grep TF validators, SDK models, Postman, help docs, issue trackers. Use the steps below.
+2. **Before threading into any doc**, attempt source verification: grep TF validators, SDK models, Automate contract captures, Postman, help docs, issue trackers. Use the steps below.
 3. **If source confirms** the claim → promote to tier A and thread with citation.
 4. **If source partially confirms** (e.g., write-side enum verified, read-side stripping not) → split the finding into the verified part (tier A) and the unverified part (tier C, marked as candidate). Do not encode the unverified part as fact.
 5. **If source disagrees** with the user → flag the conflict, document both perspectives, do not silently accept the user's assertion. Default to source unless the user produces tier-B reproduction evidence.
@@ -111,15 +111,21 @@ When a user reports a behavior:
 
 For a claim about API behavior:
 
-1. **TF provider validator** — `vendor/terraform-provider-{zia,zpa,zcc,ztc}/**/validator.go`, `**/resource_*.go` (`ValidateFunc`, `StringInSlice`, map-based validator patterns).
-2. **Python SDK model** — `vendor/zscaler-sdk-python/zscaler/<product>/models/*.py` (constants, dataclass field types, validators).
-3. **Go SDK model + service** — `vendor/zscaler-sdk-go/zscaler/<product>/services/**/*.go` (struct tags, enum constants).
-4. **Postman collection** — `vendor/zscaler-api-specs/oneapi-postman-collection.json` (request/response examples).
-5. **Vendored help captures** — `vendor/zscaler-help/*.md` (text matches).
-6. **Upstream issues** — `gh issue list --repo zscaler/<repo> --search "<term>"` for already-discussed problems.
-7. **`scripts/find-asymmetries.py` output** — `_data/schemas/asymmetry-candidates.md` for cross-source mismatches the script already surfaced.
+1. **Automate contract capture, when present** — `vendor/zscaler-api-specs/automate-zscaler/<product>-api-reference.json` plus the raw/provenance tree under `vendor/zscaler-help/automate-zscaler/api-reference/`. This is the preferred source for rendered API method/path and field-level contract metadata (`required`, `readonly`, `enum`) because it is captured from the operation reference itself.
+2. **TF provider validator** — `vendor/terraform-provider-{zia,zpa,zcc,ztc}/**/validator.go`, `**/resource_*.go` (`ValidateFunc`, `StringInSlice`, map-based validator patterns). This is authoritative for what the Terraform provider accepts or rejects, not for what the API itself accepts.
+3. **Python SDK model** — `vendor/zscaler-sdk-python/zscaler/<product>/models/*.py` (constants, dataclass field types, validators).
+4. **Go SDK model + service** — `vendor/zscaler-sdk-go/zscaler/<product>/services/**/*.go` (struct tags, enum constants). SDK sources remain authoritative for wrapper coverage, method signatures, request shaping, and client-side normalization.
+5. **Postman collection** — `vendor/zscaler-api-specs/oneapi-postman-collection.json` (request/response examples). Treat as examples/fallback schema evidence, not as stronger than the captured Automate contract for products that have both.
+6. **Vendored help captures** — `vendor/zscaler-help/*.md` and product-specific Automate prose pages (text matches outside the structured operation contract).
+7. **Upstream issues** — `gh issue list --repo zscaler/<repo> --search "<term>"` for already-discussed problems.
+8. **`scripts/find-asymmetries.py` output** — `_data/schemas/asymmetry-candidates.md` for cross-source mismatches the script already surfaced.
 
-If steps 1–7 yield nothing, the claim stays tier C.
+If steps 1–8 yield nothing, the claim stays tier C.
+
+Do not collapse these source classes into a single "API says" claim. The
+Automate contract can verify the API reference's field metadata; SDK and
+Terraform sources verify client/provider behavior; a divergence between them is
+itself a finding, not something to smooth over in prose.
 
 ## Mechanics — frontmatter and language
 

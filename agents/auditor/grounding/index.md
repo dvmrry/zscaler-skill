@@ -75,7 +75,7 @@ if its body says "documented", "covered", "certified", "complete", or
 Check these boundaries explicitly:
 
 - **Help / product docs** - public Help pages, product docs, PDFs, and captured article trees.
-- **API / schema** - API docs, Postman/OpenAPI/schema captures, request/response examples, and log schemas.
+- **API / schema** - Automate contract captures, API docs, Postman/OpenAPI/schema captures, request/response examples, and log schemas.
 - **SDKs** - Python, Go, or product-specific SDK service/model/example/test files.
 - **Terraform / IaC** - providers, modules, examples, validators, and changelogs.
 - **MCP / tools / automation** - MCP servers, scripts, skills, commands, and Automation Hub captures.
