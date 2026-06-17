@@ -31,8 +31,10 @@ SPEC_DIR="vendor/zscaler-api-specs/automate-zscaler"
 echo "=== automate.zscaler.com API-reference sweep ==="
 echo ""
 
-# Preflight: the capturer needs Playwright (its isolated, pinned dependency).
-if ! node -e "require('playwright')" >/dev/null 2>&1; then
+# Preflight: the capturer needs Playwright (its isolated, pinned dependency). Resolve
+# it from ${CAP} — that's where `npm install` puts node_modules, and where capture.cjs
+# itself resolves it from; the repo root does not see that directory.
+if ! ( cd "${CAP}" && node -e "require('playwright')" ) >/dev/null 2>&1; then
     cat >&2 <<'MSG'
 ✗ Playwright not found — the capturer needs it (isolated, pinned dependency).
   Install once:
@@ -64,9 +66,12 @@ done
 n="$(grep -cvE '^[[:space:]]*(#|$)' "${combined}" || true)"
 echo "--- capturing ${products[*]} (${n} ops) ---"
 capture_failures=0
+# --prune is safe here: the combined list is the COMPLETE expected op set for the
+# selected products, so ops missing from it were removed/renamed upstream and their
+# stale raw/provenance should go. (Never prune on a partial/retry capture.)
 # A partial capture is recorded in provenance.json (per-op error) and returns
 # non-zero; warn but still parse what succeeded so the diff is visible.
-if ! node "${CAP}/capture.cjs" "${combined}" "${RAW_DIR}"; then
+if ! node "${CAP}/capture.cjs" --prune "${combined}" "${RAW_DIR}"; then
     echo "⚠ some pages failed to render — see provenance.json errors; re-run to retry." >&2
     capture_failures=1
 fi

@@ -78,6 +78,12 @@ Escape hatch: `PLAYWRIGHT_EXECUTABLE=/path/to/chrome-headless-shell` reuses an
 existing browser instead of an in-tree install. `CAPTURE_DELAY_MS` (default 250)
 throttles between pages.
 
+Provenance accumulates: re-running merges into `provenance.json` (a re-captured op
+replaces its entry; a fresh error never clobbers a good capture), so you can recover
+a transient failure by re-capturing just those ops. The refresh script passes
+`--prune` to drop ops no longer in the URL list (removed/renamed upstream) — only
+safe with a **complete** list, so never pass `--prune` to a partial/retry capture.
+
 ## Scope
 
 Per-product operation lists live in `urls/<product>.txt` (sitemap-derived canonical
