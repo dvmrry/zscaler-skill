@@ -1,0 +1,70 @@
+API ReferenceZscaler Digital Experience APIAlertsGets the historical alert rules defined across an organization
+Gets the historical alert rules defined across an organization
+GET
+https://api.zsapi.net/zdx/v1/alerts/historical
+
+Gets the historical alert rules defined across an organization. All historical alert rules are returned if the search filter is not specified. The endpoint defaults to the last 2 hours if not provided. Historical alerts have ended on date. The ended on date will used to pull alerts in conjunction the provided filters. Cannot exceed 14 days API limit.
+
+Request
+​
+QUERY PARAMETERS
+from
+integer
+
+Possible values: >= 0
+
+The start time (in seconds) for the query. The value is entered in Unix Epoch. If not entered, returns the data for the last 2 hours.
+
+to
+integer
+
+Possible values: >= 0
+
+The end time (in seconds) for the query. The value is entered in Unix Epoch. If not entered, returns the data for the last 2 hours.
+
+dept
+integer[]
+
+The department (ID). You can add multiple department IDs.
+
+loc
+integer[]
+
+The Zscaler location (ID). You can add multiple location IDs.
+
+geo
+string[]
+
+The active geolocation (ID). You can add multiple active geolocation IDs.
+
+offset
+string
+
+The next_offset value from the last request. You must enter this value to get the next batch from the list. When the next_offset value becomes null, the list is complete.
+
+limit
+integer
+
+Possible values: >= 1 and <= 10000
+
+The number of items that must be returned per request from the list.
+
+Default value: 1000
+Responses
+​
+200
+401
+403
+
+Successful Operation
+
+APPLICATION/JSON
+Schema
+Example (auto)
+SCHEMA
+alerts
+object[]
+next_offset
+string
+
+This value must be entered in the next request to get the next batch from the list.

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Fixture tests for parse_contract.py — the parser is the trust boundary, so it
-is pinned against hand-verified facts from the committed ZPA capture fixtures.
+is pinned against hand-verified facts from the committed capture fixtures.
 Runnable from anywhere: resolves fixtures + import relative to this file."""
 import os
 import sys
@@ -193,6 +193,42 @@ def test_readonly_excludes_policy_eval_prose():
         f = field(c["request_body"], fn)
         if f is not None:
             assert f["readonly"] is False, (fn, f)
+
+
+@case
+def test_named_primitive_alias_type_detected():
+    # ZCell renders enum aliases as "SimStatusEnum (string)"; keep the field and enum.
+    c = load("zcell/sim-handling/sim-resource-update-sim-status")
+    status = field(c["request_body"], "status")
+    assert status and status["type"] == "SimStatusEnum (string)", status
+    assert status["required"] is True and status["enum"] == ["ACTIVE", "INACTIVE"], status
+
+
+@case
+def test_named_primitive_alias_array_detected():
+    # Some filters render as named primitive arrays, e.g. "SanitizedString50 (string)[]".
+    c = load("zcell/sim-handling/sim-resource-get-all-sims")
+    iccid = field(c["request_body"], "iccid")
+    assert iccid and iccid["type"] == "SanitizedString50 (string)[]", iccid
+
+
+@case
+def test_named_primitive_alias_does_not_parse_parenthetical_prose():
+    c = load("zid/users/users-ops-add")
+    source = field(c["response_schema"], "source")
+    assert source and source["type"] == "SourceType (string)", source
+    names = [f["name"] for f in c["response_schema"]]
+    assert "Whether" not in names and "true" not in names, names
+
+
+@case
+def test_byte_primitive_type_detected():
+    # ZCC uses Java-ish byte fields; they are primitive types, not prose.
+    c = load("zcc/public-api-controller/gets-the-list-of-admin-users-in-your-organization")
+    user_type = field(c["query_params"], "userType")
+    assert user_type and user_type["type"] == "byte", user_type
+    service_type = field(c["response_schema"], "serviceType")
+    assert service_type and service_type["type"] == "byte", service_type
 
 
 def main():

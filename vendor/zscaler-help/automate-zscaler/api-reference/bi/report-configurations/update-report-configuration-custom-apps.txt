@@ -1,0 +1,128 @@
+API ReferenceBusiness Insights APIReport ConfigurationsUpdate Report Configuration (Custom Apps)
+Update Report Configuration (Custom Apps)
+PUT
+https://api.zsapi.net/bi/api/v1/reports/:report_type/:id
+
+Update a Report Configuration associated with Custom Applications. Please note that currently, only the customapps report_type is supported.
+
+Request
+​
+PATH PARAMETERS
+report_type
+string
+REQUIRED
+
+Possible values: [customapps]
+
+Type of report. Currently only "customapps" is supported.
+
+id
+int32
+REQUIRED
+
+The unique identifier for the report configuration.
+
+APPLICATION/JSON
+BODYREQUIRED
+report_schema
+string[]
+
+Optional list of fields to include in the report output. The available fields depend on the selected sub_type: For OVERVIEW: application_name, access_path, uniqueuserscount, transactions For USERS: application_name, access_path, user_email_id, transactions, login_date
+
+delivery_information
+object[]
+schedule_params
+object
+backfill_params
+object
+name
+string
+REQUIRED
+sub_type
+string
+REQUIRED
+
+Possible values: [OVERVIEW, USERS]
+
+enabled
+boolean
+Default value: true
+custom_ids
+int32[]
+REQUIRED
+
+Currently supports exactly one Custom App reference ID. Multiple values will be rejected.
+
+Possible values: >= 1, <= 1
+
+Examples
+Update backfill report (OVERVIEW sub_type)
+Update backfill report (USERS sub_type)
+Update scheduled report (OVERVIEW sub_type)
+Update scheduled report (USERS sub_type)
+Responses
+​
+200
+400
+401
+403
+405
+415
+429
+500
+
+Report configuration updated successfully.
+
+APPLICATION/JSON
+Schema
+Example (auto)
+updatedBackfillOverview
+updatedBackfillUsers
+updatedScheduledOverview
+updatedScheduledUsers
+SCHEMA
+id
+int32
+report_schema
+string[]
+
+Optional list of fields to include in the report output. The available fields depend on the selected sub_type: For OVERVIEW: application_name, access_path, uniqueuserscount, transactions For USERS: application_name, access_path, user_email_id, transactions, login_date
+
+delivery_information
+object[]
+schedule_params
+object
+backfill_params
+object
+name
+string
+REQUIRED
+sub_type
+string
+REQUIRED
+
+Possible values: [OVERVIEW, USERS]
+
+enabled
+boolean
+Default value: true
+custom_ids
+int32[]
+REQUIRED
+
+Currently supports exactly one Custom App reference ID. Multiple values will be rejected.
+
+Possible values: >= 1, <= 1
+
+status
+string
+
+Possible values: [ACCEPTED, SCHEDULED_SUCCESS, SCHEDULED_FAILED, FAILED, SUCCESS, IN_PROGRESS, UPDATED]
+
+nextRuntime
+int64
+
+Next runtime timestamp (seconds since epoch).
+
+custom_apps
+object[]
