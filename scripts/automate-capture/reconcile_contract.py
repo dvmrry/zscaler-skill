@@ -42,6 +42,8 @@ def go_category(t):
     t = t.lstrip("*")
     if t.startswith("[]"):
         return "array"
+    if t.startswith("map["):
+        return "object"
     if t in _GO_NUM:
         return "number"
     if t == "bool":
@@ -71,7 +73,7 @@ def extract_go_struct_fields(src, struct_name):
     # Only depth-1 lines: Name  Type  `json:"name,..."`. Skip lines inside nested
     # struct{...} blocks by tracking braces on the field-type position.
     bdepth = 0
-    fre = re.compile(r"^\s*([A-Z]\w*)\s+([\[\]\*\w.]+)\s+`[^`]*json:\"([^\",]+)")
+    fre = re.compile(r"^\s*([A-Z]\w*)\s+([^\s`]+)\s+`[^`]*json:\"([^\",]+)")
     for line in body.split("\n"):
         if bdepth == 0:
             fm = fre.match(line)
@@ -233,12 +235,20 @@ def contract_category(t):
         return None
     arr = t.endswith("[]")
     base = t[:-2] if arr else t
-    if base in ("int32", "int64", "integer", "number", "float", "double", "long"):
-        return "array" if arr else "number"
+    alias = re.fullmatch(
+        r"[A-Z][A-Za-z0-9_]* \((string|boolean|number|integer|int32|int64|object|float|double|long|byte|date|date-time)\)",
+        base,
+    )
+    if alias:
+        base = alias.group(1)
+    if arr:
+        return "array"
+    if base in ("int32", "int64", "integer", "number", "float", "double", "long", "byte"):
+        return "number"
     if base == "boolean":
         return "boolean"
-    if base == "string":
-        return "array" if arr else "string"
+    if base in ("string", "date", "date-time"):
+        return "string"
     return "object"
 
 
@@ -250,11 +260,56 @@ RESOURCES = [
      "get": "gets-the-app-connector-group-details-for-the-specified-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group.go", "AppConnectorGroup"),
      "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_app_connector_group.go"},
+    {"name": "application_server", "group": "server-management",
+     "create": "adds-a-new-server-for-the-specified-customer",
+     "get": "gets-the-server-details-for-the-specified-id",
+     "go": ("vendor/zscaler-sdk-go/zscaler/zpa/services/appservercontroller/zpa_app_server_controller.go", "ApplicationServer"),
+     "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_app_server_controller.go"},
     {"name": "application_segment", "group": "application-segment-management",
      "create": "adds-a-new-application-segment-for-the-specified-customer",
      "get": "gets-the-application-segment-details-for-the-specified-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go", "ApplicationSegmentResource"),
      "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go"},
+    {"name": "ba_certificate", "group": "certificate-management",
+     "create": "adds-a-certificate-with-a-private-key-for-the-specified-customer",
+     "get": "gets-the-certificate-details-for-the-specified-id",
+     "go": ("vendor/zscaler-sdk-go/zscaler/zpa/services/bacertificate/zpa_ba_certificate.go", "BaCertificate"),
+     "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_ba_certificate.go"},
+    {"name": "emergency_access", "group": "emergency-access-management",
+     "create": "add-emergency-access-user",
+     "get": "get-emergency-access-user",
+     "go": ("vendor/zscaler-sdk-go/zscaler/zpa/services/emergencyaccess/emergencyaccess.go", "EmergencyAccess"),
+     "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_emergency_access.go"},
+    {"name": "inspection_custom_control", "group": "appprotection-control-management",
+     "create": "create-custom-control",
+     "get": "get-custom-control-by-id",
+     "go": ("vendor/zscaler-sdk-go/zscaler/zpa/services/inspectioncontrol/inspection_custom_controls/zpa_inspection_custom_controls.go", "InspectionCustomControl"),
+     "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_inspection_custom_controls.go"},
+    {"name": "inspection_profile", "group": "appprotection-profile-management",
+     "create": "add-inspection-profile",
+     "get": "get-inspection-profile",
+     "go": ("vendor/zscaler-sdk-go/zscaler/zpa/services/inspectioncontrol/inspection_profile/zpa_inspection_profile.go", "InspectionProfile"),
+     "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_inspection_profile.go"},
+    {"name": "pra_approval", "group": "privileged-approval-management",
+     "create": "add-privileged-approval",
+     "get": "get-privileged-approval",
+     "go": ("vendor/zscaler-sdk-go/zscaler/zpa/services/privilegedremoteaccess/praapproval/praapproval.go", "PrivilegedApproval"),
+     "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_pra_approval.go"},
+    {"name": "pra_console", "group": "privileged-console-management",
+     "create": "add-pra-console",
+     "get": "get-pra-console",
+     "go": ("vendor/zscaler-sdk-go/zscaler/zpa/services/privilegedremoteaccess/praconsole/praconsole.go", "PRAConsole"),
+     "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_pra_console_controller.go"},
+    {"name": "pra_credential", "group": "privileged-credential-management",
+     "create": "add-credential",
+     "get": "get-credential",
+     "go": ("vendor/zscaler-sdk-go/zscaler/zpa/services/privilegedremoteaccess/pracredential/credential_controller.go", "Credential"),
+     "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_pra_credential_controller.go"},
+    {"name": "pra_portal", "group": "privileged-portal-management",
+     "create": "add",
+     "get": "get-pra-portal",
+     "go": ("vendor/zscaler-sdk-go/zscaler/zpa/services/privilegedremoteaccess/praportal/praportal.go", "PRAPortal"),
+     "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_pra_portal_controller.go"},
     {"name": "server_group", "group": "server-group-management",
      "create": "add-a-new-server-group",
      "get": "gets-the-server-group-details-for-the-specified-id",
@@ -270,6 +325,11 @@ RESOURCES = [
      "get": "gets-details-of-the-provisioning-key-for-the-specified-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go", "ProvisioningKey"),
      "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_provisioning_key.go"},
+    {"name": "service_edge_group", "group": "private-service-edge-group-management",
+     "create": "add-private-broker-group",
+     "get": "get-private-broker-group",
+     "go": ("vendor/zscaler-sdk-go/zscaler/zpa/services/serviceedgegroup/zpa_service_edge_group.go", "ServiceEdgeGroup"),
+     "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go"},
 ]
 
 CONTRACT_JSON = "vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json"

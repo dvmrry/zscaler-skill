@@ -12,10 +12,10 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 ## Totals
 
-- Type drift (contract numeric vs Go string): **32**
-- Required drift (contract vs TF): **12**
-- Enum: **8** match / **0** value-conflict / **2** one-sided
-- Contract readonly fields checked: **4** (TF disagreement: 0)
+- Type drift (contract numeric vs Go string): **91**
+- Required drift (contract vs TF): **33**
+- Enum: **15** match / **3** value-conflict / **7** one-sided
+- Contract readonly fields checked: **6** (TF disagreement: 0)
 
 ## app_connector_group
 
@@ -41,6 +41,23 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 **Go SDK fields absent from the contract:** `enrollmentCertId`, `nameWithoutTrim`, `readOnly`, `restrictionType`, `zscalerManaged`
 
+## application_server
+
+`POST /zpa/mgmtconfig/v1/admin/customers/:customerId/server` — contract 12 / Go 12 / TF 8 fields
+
+**Type drift** — contract says numeric, Go SDK declares string (the API serializes these as JSON strings):
+
+- `creationTime`: contract `int32` vs Go `string`
+- `id`: contract `int64` vs Go `string`
+- `microtenantId`: contract `int64` vs Go `string`
+- `modifiedBy`: contract `int64` vs Go `string`
+- `modifiedTime`: contract `int32` vs Go `string`
+
+**Required drift:**
+
+- `address`: contract required=False, TF required=True (TF stricter than API)
+- `enabled`: contract required=True, TF required=False (contract stricter than TF)
+
 ## application_segment
 
 `POST /zpa/mgmtconfig/v1/admin/customers/:customerId/application` — contract 51 / Go 52 / TF 35 fields
@@ -63,6 +80,170 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 **Contract fields absent from the Go SDK struct:** `commonAppsDto`, `inconsistentConfigDetails`, `inspectionApps`, `praApps`, `tcpProtocols`, `udpProtocols`
 
 **Go SDK fields absent from the contract:** `applications`, `policyStyle`, `readOnly`, `restrictionType`, `shareToMicrotenants`, `tags`, `zscalerManaged`
+
+## ba_certificate
+
+`POST /zpa/mgmtconfig/v1/admin/customers/:customerId/certificate` — contract 20 / Go 20 / TF 6 fields
+
+**Type drift** — contract says numeric, Go SDK declares string (the API serializes these as JSON strings):
+
+- `creationTime`: contract `int32` vs Go `string`
+- `id`: contract `int64` vs Go `string`
+- `microtenantId`: contract `int64` vs Go `string`
+- `modifiedBy`: contract `int64` vs Go `string`
+- `modifiedTime`: contract `int32` vs Go `string`
+- `validFromInEpochSec`: contract `int64` vs Go `string`
+- `validToInEpochSec`: contract `int64` vs Go `string`
+
+**Required drift:**
+
+- `certBlob`: contract required=True, TF required=False (contract stricter than TF)
+
+## emergency_access
+
+`POST /zpa/mgmtconfig/v1/admin/customers/:customerId/emergencyAccess/user` — contract 10 / Go 11 / TF 4 fields
+
+**Type drift** — contract says numeric, Go SDK declares string (the API serializes these as JSON strings):
+
+- `activatedOn`: contract `int64` vs Go `string`
+- `lastLoginTime`: contract `int64` vs Go `string`
+
+**Required drift:**
+
+- `emailId`: contract required=True, TF required=False (contract stricter than TF)
+- `firstName`: contract required=True, TF required=False (contract stricter than TF)
+- `lastName`: contract required=True, TF required=False (contract stricter than TF)
+
+**Go SDK fields absent from the contract:** `activateNow`
+
+## inspection_custom_control
+
+`POST /zpa/mgmtconfig/v1/admin/customers/:customerId/inspectionControls/custom` — contract 21 / Go 20 / TF 12 fields
+
+**Type drift** — contract says numeric, Go SDK declares string (the API serializes these as JSON strings):
+
+- `controlNumber`: contract `int32` vs Go `string`
+- `creationTime`: contract `int32` vs Go `string`
+- `id`: contract `int64` vs Go `string`
+- `modifiedBy`: contract `int64` vs Go `string`
+- `modifiedTime`: contract `int32` vs Go `string`
+- `paranoiaLevel`: contract `int32` vs Go `string`
+
+**Required drift:**
+
+- `severity`: contract required=False, TF required=True (TF stricter than API)
+- `type`: contract required=False, TF required=True (TF stricter than API)
+
+**Enum value conflicts:**
+
+- `controlType`: contract ['WEBSOCKET_PREDEFINED', 'WEBSOCKET_CUSTOM', 'THREATLABZ', 'CUSTOM', 'PREDEFINED', 'API_PREDEFINED', 'ADP_PREDEFINED'] vs TF ['WEBSOCKET_PREDEFINED', 'WEBSOCKET_CUSTOM', 'THREATLABZ', 'CUSTOM', 'PREDEFINED', 'API_PREDEFINED']
+- `defaultAction`: contract ['PASS', 'BLOCK', 'REDIRECT', 'ALLOW'] vs TF ['PASS', 'BLOCK', 'REDIRECT']
+- `protocolType`: contract ['HTTP', 'HTTPS', 'FTP', 'RDP', 'SSH', 'WEBSOCKET', 'VNC', 'REALVNC', 'NONE', 'AUTO', 'DYNAMIC', 'KRB', 'LDAP', 'SMB'] vs TF ['HTTP', 'HTTPS', 'FTP', 'RDP', 'SSH', 'WEBSOCKET', 'VNC', 'NONE', 'AUTO', 'DYNAMIC']
+
+**Contract fields absent from the Go SDK struct:** `controlException`
+
+## inspection_profile
+
+`POST /zpa/mgmtconfig/v1/admin/customers/:customerId/inspectionProfile` — contract 21 / Go 21 / TF 17 fields
+
+**Type drift** — contract says numeric, Go SDK declares string (the API serializes these as JSON strings):
+
+- `creationTime`: contract `int32` vs Go `string`
+- `id`: contract `int64` vs Go `string`
+- `incarnationNumber`: contract `int32` vs Go `string`
+- `modifiedBy`: contract `int64` vs Go `string`
+- `modifiedTime`: contract `int32` vs Go `string`
+- `paranoiaLevel`: contract `int32` vs Go `string`
+
+**Required drift:**
+
+- `customControls`: contract required=False, TF required=True (TF stricter than API)
+- `name`: contract required=True, TF required=False (contract stricter than TF)
+- `paranoiaLevel`: contract required=True, TF required=False (contract stricter than TF)
+
+**Contract fields absent from the Go SDK struct:** `exceptionsVersion`, `predefinedADPControls`
+
+**Go SDK fields absent from the contract:** `commonGlobalOverrideActionsConfig`, `overrideAction`
+
+## pra_approval
+
+`POST /zpa/mgmtconfig/v1/admin/customers/:customerId/approval` — contract 11 / Go 12 / TF 8 fields
+
+**Type drift** — contract says numeric, Go SDK declares string (the API serializes these as JSON strings):
+
+- `creationTime`: contract `int32` vs Go `string`
+- `endTime`: contract `int32` vs Go `string`
+- `id`: contract `int64` vs Go `string`
+- `microtenantId`: contract `int64` vs Go `string`
+- `modifiedBy`: contract `int64` vs Go `string`
+- `modifiedTime`: contract `int32` vs Go `string`
+- `startTime`: contract `int32` vs Go `string`
+
+**Required drift:**
+
+- `applications`: contract required=False, TF required=True (TF stricter than API)
+
+**Go SDK fields absent from the contract:** `microtenantName`
+
+## pra_console
+
+`POST /zpa/mgmtconfig/v1/admin/customers/:customerId/praConsole` — contract 13 / Go 12 / TF 8 fields
+
+**Type drift** — contract says numeric, Go SDK declares string (the API serializes these as JSON strings):
+
+- `creationTime`: contract `int32` vs Go `string`
+- `id`: contract `int64` vs Go `string`
+- `microtenantId`: contract `int64` vs Go `string`
+- `modifiedBy`: contract `int64` vs Go `string`
+- `modifiedTime`: contract `int32` vs Go `string`
+
+**Required drift:**
+
+- `name`: contract required=True, TF required=False (contract stricter than TF)
+- `praApplication`: contract required=False, TF required=True (TF stricter than API)
+- `praPortals`: contract required=False, TF required=True (TF stricter than API)
+
+**Contract fields absent from the Go SDK struct:** `inconsistentConfigDetails`
+
+## pra_credential
+
+`POST /zpa/mgmtconfig/v1/admin/customers/:customerId/credential` — contract 15 / Go 16 / TF 10 fields
+
+**Type drift** — contract says numeric, Go SDK declares string (the API serializes these as JSON strings):
+
+- `creationTime`: contract `int32` vs Go `string`
+- `id`: contract `int64` vs Go `string`
+- `lastCredentialResetTime`: contract `int32` vs Go `string`
+- `microtenantId`: contract `int64` vs Go `string`
+- `modifiedBy`: contract `int64` vs Go `string`
+- `modifiedTime`: contract `int32` vs Go `string`
+
+**Required drift:**
+
+- `credentialType`: contract required=True, TF required=False (contract stricter than TF)
+- `name`: contract required=True, TF required=False (contract stricter than TF)
+
+**Go SDK fields absent from the contract:** `targetMicrotenantId`
+
+## pra_portal
+
+`POST /zpa/mgmtconfig/v1/admin/customers/:customerId/praPortal` — contract 21 / Go 31 / TF 15 fields
+
+**Type drift** — contract says numeric, Go SDK declares string (the API serializes these as JSON strings):
+
+- `certificateId`: contract `int64` vs Go `string`
+- `creationTime`: contract `int32` vs Go `string`
+- `id`: contract `int64` vs Go `string`
+- `microtenantId`: contract `int64` vs Go `string`
+- `modifiedBy`: contract `int64` vs Go `string`
+- `modifiedTime`: contract `int32` vs Go `string`
+- `userPortalGid`: contract `int64` vs Go `string`
+
+**Required drift:**
+
+- `name`: contract required=True, TF required=False (contract stricter than TF)
+
+**Go SDK fields absent from the contract:** `action`, `approvalReviewers`, `cName`, `certManagedByZsRadio`, `hideInfoTooltip`, `isSRAPortal`, `managedByZs`, `objectType`, `restrictedEntity`, `scopeName`
 
 ## server_group
 
@@ -127,6 +308,31 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 **Contract fields absent from the Go SDK struct:** `exportable`
 
 **Go SDK fields absent from the contract:** `appConnectorGroupId`, `appConnectorGroupName`, `associationType`, `readOnly`, `restrictionType`, `zscalerManaged`
+
+## service_edge_group
+
+`POST /zpa/mgmtconfig/v1/admin/customers/:customerId/serviceEdgeGroup` — contract 33 / Go 41 / TF 27 fields
+
+**Type drift** — contract says numeric, Go SDK declares string (the API serializes these as JSON strings):
+
+- `creationTime`: contract `int32` vs Go `string`
+- `geoLocationId`: contract `int64` vs Go `string`
+- `graceDistanceValue`: contract `double` vs Go `string`
+- `id`: contract `int64` vs Go `string`
+- `microtenantId`: contract `int64` vs Go `string`
+- `modifiedBy`: contract `int64` vs Go `string`
+- `modifiedTime`: contract `int32` vs Go `string`
+- `versionProfileId`: contract `int64` vs Go `string`
+
+**Required drift:**
+
+- `latitude`: contract required=False, TF required=True (TF stricter than API)
+- `location`: contract required=False, TF required=True (TF stricter than API)
+- `longitude`: contract required=False, TF required=True (TF stricter than API)
+
+**Contract fields absent from the Go SDK struct:** `upgradePriority`
+
+**Go SDK fields absent from the contract:** `enrollmentCertId`, `exclusiveForBusinessContinuity`, `nameWithoutTrim`, `objectType`, `readOnly`, `restrictedEntity`, `restrictionType`, `scopeName`, `zscalerManaged`
 
 ## Scope
 
