@@ -104,10 +104,37 @@ func resourceThing() *schema.Resource {
 \t\t\t\t\t\t"leaked": {
 \t\t\t\t\t\t\tType:     schema.TypeString,
 \t\t\t\t\t\t\tRequired: true,
+\t\t\t\t\t\t\tValidateFunc: validation.StringInSlice([]string{"nested"}, false),
 \t\t\t\t\t\t},
 \t\t\t\t\t},
 \t\t\t\t},
 \t\t\t},
+\t\t},
+\t}
+}
+"""
+
+
+TF_HELPER_BEFORE_RESOURCE_FIXTURE = """
+func getPolicyRuleResourceSchema() *schema.Resource {
+\treturn &schema.Resource{
+\t\tSchema: map[string]*schema.Schema{
+\t\t\t"helper_only": {
+\t\t\t\tType:     schema.TypeString,
+\t\t\t\tRequired: true,
+\t\t\t},
+\t\t},
+\t}
+}
+
+func resourceThing() *schema.Resource {
+\treturn &schema.Resource{
+\t\tSchema: map[string]*schema.Schema{
+\t\t\t"name": {
+\t\t\t\tType:     schema.TypeString,
+\t\t\t\tRequired: true,
+\t\t\t},
+\t\t\t"policy_rule_resource": getPolicyRuleResourceSchema(),
 \t\t},
 \t}
 }
@@ -123,6 +150,7 @@ def test_tf_schema_top_level_and_enum():
     assert f["name"]["required"] is True
     assert f["mode"]["enum"] == ["A", "B", "C"]
     assert f["computedId"]["computed"] is True and f["computedId"]["required"] is False
+    assert f["block"]["enum"] is None, "nested schema enums must not attach to parent fields"
 
 
 @case
@@ -140,6 +168,15 @@ def test_tf_helper_valued_key_present_flags_unknown():
     assert "portRange" in f, "helper-valued keys must count as present"
     assert f["portRange"]["inline"] is False
     assert f["portRange"]["required"] is None and f["portRange"]["enum"] is None
+
+
+@case
+def test_tf_schema_anchors_to_resource_function_not_helper_schema():
+    f = extract_tf_schema_fields(TF_HELPER_BEFORE_RESOURCE_FIXTURE)
+    assert set(f) == {"name", "policyRuleResource"}, set(f)
+    assert "helperOnly" not in f, "helper schemas before the resource must not be scanned"
+    assert f["name"]["required"] is True
+    assert f["policyRuleResource"]["inline"] is False
 
 
 @case
