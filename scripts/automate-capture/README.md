@@ -50,12 +50,24 @@ never folded into the repo's normal checks. `node_modules/` is gitignored.
 
 ## Run it
 
+The production entry point is the refresh script — it runs the whole pipeline for
+every product list in `urls/`, then audits the prose markdowns and Postman:
+
 ```bash
 cd scripts/automate-capture
 npm install                        # installs the pinned Playwright (1.61.0)
 npx playwright install chromium    # fetches the matching browser build
-node capture.cjs subset-urls.txt ../../vendor/zscaler-help/automate-zscaler/api-reference
 cd ../..
+git submodule update --init vendor/zscaler-sdk-go vendor/terraform-provider-zpa
+./scripts/refresh-automate-zscaler.sh            # all products in urls/  (currently zpa)
+./scripts/refresh-automate-zscaler.sh zpa        # or one product
+```
+
+Or drive a stage directly:
+
+```bash
+node scripts/automate-capture/capture.cjs scripts/automate-capture/urls/zpa.txt \
+  vendor/zscaler-help/automate-zscaler/api-reference
 python3 scripts/automate-capture/parse_contract.py       # raw tree -> normalized JSON
 python3 scripts/automate-capture/reconcile_contract.py   # contract vs Go SDK / TF -> divergences
 python3 scripts/automate-capture/test_parse_contract.py
@@ -64,17 +76,23 @@ python3 scripts/automate-capture/test_reconcile_contract.py
 
 Escape hatch: `PLAYWRIGHT_EXECUTABLE=/path/to/chrome-headless-shell` reuses an
 existing browser instead of an in-tree install. `CAPTURE_DELAY_MS` (default 250)
-throttles between pages. `reconcile_contract.py` reads the vendored Go SDK and
-Terraform submodules, so initialize them first (`git submodule update --init`).
+throttles between pages.
+
+Provenance accumulates: re-running merges into `provenance.json` (a re-captured op
+replaces its entry; a fresh error never clobbers a good capture), so you can recover
+a transient failure by re-capturing just those ops. The refresh script passes
+`--prune` to drop ops no longer in the URL list (removed/renamed upstream) — only
+safe with a **complete** list, so never pass `--prune` to a partial/retry capture.
 
 ## Scope
 
-Captures, parses, and reconciles a **15-operation ZPA proof subset** (5 resources ×
-create/update/get, chosen for maximum cross-family overlap). `subset-urls.txt` records
-exactly which operations were captured.
+Per-product operation lists live in `urls/<product>.txt` (sitemap-derived canonical
+URLs). Currently the **full ZPA surface** is captured and parsed (`urls/zpa.txt`, all
+operations across every ZPA group). Reconciliation covers the resources mapped in
+`reconcile_contract.py`'s registry (a curated ZPA subset); expanding that registry —
+and adding the other eight products' URL lists — is the next increment.
 
-Still deferred to the productionization PR: the full 1167-page sweep wired into
-`scripts/refresh-automate-zscaler.sh`; the 7th source family `automate-contract` in
-`scripts/l1_inventory.py`; source-precedence wiring; and Python-SDK / Postman
-cross-checks in the reconciler (currently Go SDK + Terraform, which carry the type /
-required / readonly / enum signal).
+Still deferred: the other products (ZIA, ZDX, ZCC, cloud-connector, …); the 7th source
+family `automate-contract` in `scripts/l1_inventory.py`; source-precedence wiring; and
+Python-SDK / Postman cross-checks in the reconciler (currently Go SDK + Terraform, which
+carry the type / required / readonly / enum signal).

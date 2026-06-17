@@ -119,10 +119,13 @@ jobs:
         # contract and the normalized JSON; reconcile_contract.py's extractors diff
         # it against vendored Go SDK / Terraform source. Submodules are initialized
         # above, so the reconciler integration smoke test runs (it self-skips if
-        # the vendor sources are absent).
+        # the vendor sources are absent). provenance.cjs guards the capture
+        # merge/prune rules (a fresh error never clobbers a good capture; prune only
+        # drops ops missing from a full URL list).
         run: |
           uv run scripts/automate-capture/test_parse_contract.py
           uv run scripts/automate-capture/test_reconcile_contract.py
+          node --test scripts/automate-capture/provenance.test.cjs
 
       - name: Check helper command references in docs
         run: node scripts/check-helper-command-refs.mjs

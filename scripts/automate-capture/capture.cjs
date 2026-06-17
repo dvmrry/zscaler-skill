@@ -30,6 +30,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { mergeProvenance } = require('./provenance.cjs');
 
 let chromium;
 try {
@@ -45,10 +46,16 @@ try {
   process.exit(2);
 }
 
-const urlList = process.argv[2];
-const outDir = process.argv[3];
+const rawArgs = process.argv.slice(2);
+// --prune removes raw/provenance entries for ops no longer in the URL list (full
+// sweeps only; the refresh script passes it). NEVER pass it with a partial/retry
+// list — it would delete the rest of the swept product.
+const prune = rawArgs.includes('--prune');
+const positional = rawArgs.filter((a) => !a.startsWith('--'));
+const urlList = positional[0];
+const outDir = positional[1];
 if (!urlList || !outDir) {
-  process.stderr.write('usage: node capture.cjs <url-list-file> <out-dir>\n');
+  process.stderr.write('usage: node capture.cjs [--prune] <url-list-file> <out-dir>\n');
   process.exit(2);
 }
 const delayMs = parseInt(process.env.CAPTURE_DELAY_MS || '250', 10);
@@ -152,10 +159,19 @@ async function renderAndExtract(page, url) {
   } finally {
     await browser.close();
   }
-  provenance.sort((a, b) => a.operation.localeCompare(b.operation));
+  // Merge this run into any existing provenance (accumulate, don't overwrite); see
+  // provenance.cjs for the merge + prune rules. The caller owns the I/O.
   fs.mkdirSync(outDir, { recursive: true });
-  fs.writeFileSync(path.join(outDir, 'provenance.json'), JSON.stringify(provenance, null, 2) + '\n');
+  const provPath = path.join(outDir, 'provenance.json');
+  const existing = fs.existsSync(provPath) ? JSON.parse(fs.readFileSync(provPath, 'utf8')) : [];
+  const { merged, removedRawFiles } = mergeProvenance(existing, provenance, { prune });
+  for (const rf of removedRawFiles) fs.rmSync(path.join(outDir, rf), { force: true });
+  fs.writeFileSync(provPath, JSON.stringify(merged, null, 2) + '\n');
   const ok = provenance.filter((r) => !r.error).length;
-  process.stdout.write(`\nCaptured ${ok}/${provenance.length} -> ${outDir}\n`);
+  const mergedOk = merged.filter((r) => !r.error).length;
+  process.stdout.write(`\nCaptured ${ok}/${provenance.length} this run; `
+    + `provenance now ${mergedOk}/${merged.length} ops`
+    + (removedRawFiles.length ? `; pruned ${removedRawFiles.length} stale` : '')
+    + ` -> ${outDir}\n`);
   if (ok < provenance.length) process.exit(1);
 })().catch((e) => { process.stderr.write(`FATAL ${e.message}\n`); process.exit(1); });
