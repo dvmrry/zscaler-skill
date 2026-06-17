@@ -14,7 +14,8 @@ ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 
 from reconcile_contract import (  # noqa: E402
     ansible_category, build_report, contract_category, extract_ansible_argument_spec_fields,
-    extract_ansible_sdk_calls, extract_go_struct_fields, extract_tf_schema_fields,
+    extract_ansible_sdk_calls, extract_go_struct_fields, extract_python_model_fields,
+    extract_python_service_fields, extract_python_service_methods, extract_tf_schema_fields,
     go_category, snake_to_camel,
 )
 
@@ -222,6 +223,79 @@ def test_ansible_sdk_calls_extracted():
     assert extract_ansible_sdk_calls(ANSIBLE_FIXTURE) == ["client.foo.create"]
 
 
+PYTHON_MODEL_FIXTURE = '''
+class Thing:
+    def __init__(self, config=None):
+        if config:
+            self.id = config["id"] if "id" in config else None
+            self.enabled = config["enabled"] if "enabled" in config else False
+            self.tags = ZscalerCollection.form_list(config["tags"] if "tags" in config else [], str)
+            self.port_ranges = []
+            if "portRanges" in config:
+                for port_range in config["portRanges"]:
+                    self.port_ranges.append({"from": port_range.get("from"), "to": port_range.get("to")})
+
+    def request_format(self):
+        current_obj_format = {
+            "id": self.id,
+            "enabled": self.enabled,
+            "tags": self.tags,
+            "portRanges": [{"from": pr["from"], "to": pr["to"]} for pr in self.port_ranges],
+        }
+        return current_obj_format
+
+class Other:
+    def __init__(self, config=None):
+        if config:
+            self.should_not_leak = config["shouldNotLeak"] if "shouldNotLeak" in config else None
+
+    def request_format(self):
+        return {"alsoShouldNotLeak": self.should_not_leak}
+'''
+
+
+PYTHON_SERVICE_FIXTURE = '''
+class ThingAPI:
+    def get_thing(self):
+        request, error = self._request_executor.create_request("GET", "/thing")
+        result = {"id": 1, "display_name": "x"}
+        return result
+
+    def update_thing(self, **kwargs):
+        payload = {
+            "displayName": kwargs.get("display_name"),
+            "enabled": kwargs.get("enabled"),
+            "portRanges": [{"from": item["from"], "to": item["to"]} for item in kwargs.get("port_ranges", [])],
+        }
+        request, error = self._request_executor.create_request("PUT", "/thing", payload)
+        return request
+
+    def sibling_thing(self):
+        payload = {"siblingOnly": True}
+        request, error = self._request_executor.create_request("PUT", "/sibling", payload)
+        return request
+'''
+
+
+@case
+def test_python_model_fields_target_class_and_top_level_request_format():
+    f = extract_python_model_fields(PYTHON_MODEL_FIXTURE, "Thing")
+    assert set(f) == {"id", "enabled", "tags", "portRanges"}, set(f)
+    assert "from" not in f and "to" not in f, "nested list-comprehension dict keys must not leak"
+    assert "shouldNotLeak" not in f and "alsoShouldNotLeak" not in f, "sibling classes must not leak"
+    assert f["tags"]["category"] == "array"
+
+
+@case
+def test_python_service_fields_method_scoped_and_snake_to_camel():
+    methods = extract_python_service_methods(PYTHON_SERVICE_FIXTURE)
+    assert methods == ["get_thing", "sibling_thing", "update_thing"], methods
+    f = extract_python_service_fields(PYTHON_SERVICE_FIXTURE, ["get_thing", "update_thing"])
+    assert set(f) == {"id", "displayName", "enabled", "portRanges"}, set(f)
+    assert "from" not in f and "to" not in f, "nested payload dict keys must not leak"
+    assert "siblingOnly" not in f, "sibling service methods must not leak"
+
+
 @case
 def test_snake_to_camel():
     assert snake_to_camel("version_profile_id") == "versionProfileId"
@@ -266,6 +340,8 @@ def test_integration_stable_invariants():
     report = build_report(json.load(open(contract, encoding="utf-8")))
     assert report["totals"]["ansible_resources"] == 13, report["totals"]
     assert report["totals"]["ansible_no_surface"] == 3, report["totals"]
+    assert report["totals"]["python_resources"] == 16, report["totals"]
+    assert report["totals"]["python_no_surface"] == 0, report["totals"]
     acg = next(r for r in report["resources"] if r["resource"] == "app_connector_group")
     # Numeric-as-string is foundational ZPA behavior — `id` must show type drift.
     drift = {d["field"] for d in acg["type_drift"]}
@@ -287,6 +363,10 @@ def test_integration_stable_invariants():
     ansible_conflicts = {d["field"] for d in aseg["ansible"]["enum"]["value_conflict"]}
     assert ansible_conflicts == {"tcpProtocols", "udpProtocols"}, \
         aseg["ansible"]["enum"]["value_conflict"]
+    assert "tcpProtocols" in set(aseg["python"]["presence"]["contract_unmatched_in_python"]), \
+        aseg["python"]["presence"]["contract_unmatched_in_python"]
+    assert "to" not in set(aseg["python"]["presence"]["python_only_vs_contract"]), \
+        aseg["python"]["presence"]["python_only_vs_contract"]
     # P2#3: extranetDTO matches extranet_dto by case-fold -> not "unmatched".
     assert "extranetDTO" not in set(sg["presence"]["contract_unmatched_in_tf"]), \
         sg["presence"]["contract_unmatched_in_tf"]
@@ -309,6 +389,8 @@ def test_integration_zia_registry():
     assert "api-authentication" in report["contract_only_groups"], report["contract_only_groups"]
     assert report["totals"]["ansible_resources"] == 52, report["totals"]
     assert report["totals"]["ansible_no_surface"] == 2, report["totals"]
+    assert report["totals"]["python_resources"] == 54, report["totals"]
+    assert report["totals"]["python_no_surface"] == 0, report["totals"]
     for name in (
         "advanced_settings", "advanced_threat_settings", "atp_malicious_urls",
         "atp_malware_inspection", "atp_malware_policy", "atp_malware_protocols",
@@ -323,6 +405,15 @@ def test_integration_zia_registry():
     security_settings = next(r for r in report["resources"] if r["resource"] == "security_policy_settings")
     assert security_settings["counts"]["contract"] == 2, security_settings["counts"]
     assert security_settings["counts"]["tf"] == 2, security_settings["counts"]
+    assert security_settings["python"]["counts"]["python"] == 2, security_settings["python"]
+    malware_policy = next(r for r in report["resources"] if r["resource"] == "atp_malware_policy")
+    assert malware_policy["python"]["presence"]["contract_unmatched_in_python"] == [], \
+        malware_policy["python"]
+    nss = next(r for r in report["resources"] if r["resource"] == "nss_server")
+    assert nss["python"]["presence"] == {
+        "contract_unmatched_in_python": [],
+        "python_only_vs_contract": [],
+    }, nss["python"]["presence"]
     admin_role = next(r for r in report["resources"] if r["resource"] == "admin_role")
     assert any(d["field"] == "roleType" for d in admin_role["enum"]["value_conflict"]), \
         admin_role["enum"]["value_conflict"]
@@ -332,7 +423,6 @@ def test_integration_zia_registry():
     url_rule = next(r for r in report["resources"] if r["resource"] == "url_filtering_rule")
     assert any(d["field"] == "action" for d in url_rule["enum"]["value_conflict"]), \
         url_rule["enum"]["value_conflict"]
-    nss = next(r for r in report["resources"] if r["resource"] == "nss_server")
     conflict_fields = {d["field"] for d in nss["enum"]["value_conflict"]}
     assert conflict_fields == {"status", "type"}, nss["enum"]["value_conflict"]
     location = next(r for r in report["resources"] if r["resource"] == "location")
