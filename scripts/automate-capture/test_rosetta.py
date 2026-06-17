@@ -51,11 +51,10 @@ FIXTURE_REPORTS = {
                         "contract": ["A", "B"],
                         "tf": ["A"],
                     }],
-                    "one_sided": [{
-                        "field": "country",
-                        "contract": ["US"],
-                        "tf": None,
-                    }],
+                    "one_sided": [
+                        {"field": "country", "contract": ["US"], "tf": None},
+                        {"field": "scope", "contract": None, "tf": ["X", "Y"]},
+                    ],
                 },
                 "python": {
                     "surface": "present",
@@ -95,7 +94,13 @@ FIXTURE_REPORTS = {
                             "repo": "ziacloud-ansible",
                             "path": "vendor/ziacloud-ansible/plugins/modules/zia_thing.py",
                         }],
-                        "one_sided": [],
+                        "one_sided": [{
+                            "field": "scope",
+                            "contract": None,
+                            "ansible": ["X", "Y", "Z"],
+                            "repo": "ziacloud-ansible",
+                            "path": "vendor/ziacloud-ansible/plugins/modules/zia_thing.py",
+                        }],
                     },
                 },
                 "mcp": {
@@ -222,6 +227,24 @@ def test_routing_rules_and_evidence():
     type_drift = [r for r in rows if r["field"] == "id" and r["divergence_type"] == "type_drift"][0]
     assert type_drift["target_repo"] == "zscaler/zscaler-sdk-go"
     assert type_drift["confidence"] == "LOW"
+
+    # one-sided enum, contract constrains but client does not -> client repo, LOW
+    country = [r for r in rows if r["field"] == "country" and r["divergence_type"] == "enum_one_sided"]
+    assert len(country) == 1, country
+    assert country[0]["direction"] == "client_missing_enum_validation"
+    assert country[0]["target_repo"] == "zscaler/terraform-provider-zia"
+    assert country[0]["confidence"] == "LOW"
+    assert country[0]["evidence"]["contract_values"] == ["US"]
+
+    # one-sided enum, client constrains but contract does not, on 2 surfaces -> docs, HIGH (corroborated)
+    scope = [r for r in rows if r["field"] == "scope" and r["divergence_type"] == "enum_one_sided"]
+    assert len(scope) == 1, "corroborating surfaces must collapse into one docs ticket"
+    assert scope[0]["direction"] == "client_enum_not_documented"
+    assert scope[0]["target_repo"] == "automate.zscaler.com docs"
+    assert scope[0]["confidence"] == "HIGH"
+    assert scope[0]["source_surface"] == "ansible,tf"
+    assert scope[0]["evidence"]["tf_values"] == ["X", "Y"]
+    assert scope[0]["evidence"]["ansible_values"] == ["X", "Y", "Z"]
 
 
 def main():

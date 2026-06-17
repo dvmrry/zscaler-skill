@@ -538,6 +538,73 @@ def route_enums(product: str, resource: dict, rows: list[dict]) -> None:
             )
 
 
+def route_one_sided_enums(product: str, resource: dict, rows: list[dict]) -> None:
+    """One-sided enums: exactly one side constrains the value set. Actionable but
+    lower-certainty than a value conflict, so confidence is capped.
+
+    - contract constrains, client does not -> client may lack validation; file
+      against the client repo at LOW confidence (pass-through clients may
+      intentionally defer to API rejection).
+    - client constrains, contract does not -> docs likely omit allowed values (or
+      the client over-constrains); route to docs, grouped per field so multiple
+      corroborating surfaces raise confidence instead of duplicating tickets.
+    """
+    docs_case: dict[str, dict[str, list]] = defaultdict(dict)  # field -> {surface: values}
+    sources = (
+        ("tf", resource.get("enum") or {}),
+        ("ansible", (resource.get("ansible") or {}).get("enum") or {}),
+    )
+    for surface, enum_block in sources:
+        block = resource.get("ansible", {}) if surface == "ansible" else {}
+        for item in enum_block.get("one_sided", []):
+            field = item["field"]
+            contract_vals = item.get("contract")
+            surface_vals = item.get(surface)
+            if surface_vals and not contract_vals:
+                docs_case[field][surface] = surface_vals
+            elif contract_vals and not surface_vals:
+                _append_row(
+                    rows,
+                    product=product,
+                    resource=resource["resource"],
+                    field=field,
+                    divergence_type="enum_one_sided",
+                    direction="client_missing_enum_validation",
+                    target_repo=repo_for_surface(product, surface, block),
+                    suggested_action="Contract constrains this enum but the client does not; add "
+                    "client-side validation or confirm the client defers to API rejection.",
+                    confidence="LOW",
+                    source_surface=surface,
+                    source_repo=repo_for_surface(product, surface, block),
+                    evidence={
+                        "contract_values": contract_vals,
+                        "surface": _surface_evidence(product, resource, surface),
+                    },
+                )
+    for field, by_surface in sorted(docs_case.items()):
+        surfaces = sorted(by_surface)
+        evidence = {"surfaces": surfaces, "contract": _contract_evidence(resource)}
+        for surface in surfaces:
+            evidence[f"{surface}_values"] = by_surface[surface]
+        _append_row(
+            rows,
+            product=product,
+            resource=resource["resource"],
+            field=field,
+            divergence_type="enum_one_sided",
+            direction="client_enum_not_documented",
+            target_repo=CONTRACT_REPO,
+            suggested_action="Client(s) constrain this enum but the contract documents no values; ask "
+            "vendor docs/support to publish the allowed values or confirm the client over-constrains.",
+            confidence="HIGH" if len(surfaces) >= 2 else "MEDIUM",
+            source_surface=",".join(surfaces),
+            source_repo=",".join(
+                sorted({repo_for_surface(product, surface, resource.get(surface, {})) for surface in surfaces})
+            ),
+            evidence=evidence,
+        )
+
+
 def route_type_drift(product: str, resource: dict, rows: list[dict]) -> None:
     for item in resource.get("type_drift", []):
         _append_row(
@@ -587,6 +654,7 @@ def build_issue_routing(
             route_presence_only(product, resource, cfields, rows)
             route_required(product, resource, rows)
             route_enums(product, resource, rows)
+            route_one_sided_enums(product, resource, rows)
             route_type_drift(product, resource, rows)
             route_readonly(product, resource, rows)
     rows.sort(key=lambda item: (
