@@ -91,6 +91,17 @@ def _is_name(s):
     return bool(re.match(r"^[A-Za-z_][A-Za-z0-9_]*$", s))
 
 
+def _parse_enum(raw):
+    """Parse bracketed enum values from Automate pages.
+
+    Most pages render values as comma-separated lists. A few ZIA pages render the
+    same list shape as `A|B|C`; split those only when no commas are present so we
+    do not reinterpret comma-delimited pages that happen to include a pipe.
+    """
+    sep = "|" if "|" in raw and "," not in raw else ","
+    return [x.strip() for x in raw.split(sep) if x.strip()]
+
+
 def _parse_fields(lines):
     """Parse a slice of lines into field dicts using the name/type discriminator."""
     fields = []
@@ -117,7 +128,7 @@ def _parse_fields(lines):
             else:
                 m = _ENUM_RE.search(ln)
                 if m:
-                    enum = [x.strip() for x in m.group(1).split(",") if x.strip()]
+                    enum = _parse_enum(m.group(1))
             i += 1
         fields.append({
             "name": name, "type": typ,
