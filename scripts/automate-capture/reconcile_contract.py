@@ -4,13 +4,13 @@ the Go SDK struct and the Terraform provider schema, and report real divergences
 
 This is the DAV-21 payoff: the rendered contract is the vendor's actual per-operation
 schema (required/readonly/enum). Diffing it against the client-side sources surfaces
-where they disagree — led by the numeric-as-string contract gap (the contract types
-ZPA IDs as int64 while the Go SDK and TF treat them as strings).
+where they disagree — numeric-vs-string fields, required/readonly drift, enum drift,
+and coverage gaps.
 
 Inputs:
   - normalized contract  : vendor/zscaler-api-specs/automate-zscaler/<product>-api-reference.json
   - Go SDK struct        : vendor/zscaler-sdk-go/... (json tags + Go type)
-  - Terraform schema     : vendor/terraform-provider-zpa/... (Required/Optional/Computed + enum)
+  - Terraform schema     : vendor/terraform-provider-*... (Required/Optional/Computed + enum)
 
 High-signal axes (conservative — exact names; TF snake_case→camelCase is the only
 alias, derived from the TF key itself; anything unmatched is reported, never guessed):
@@ -321,7 +321,7 @@ def contract_category(t):
 
 # ---- registry --------------------------------------------------------------
 
-RESOURCES = [
+ZPA_RESOURCES = [
     {"name": "app_connector_group", "group": "app-connector-group-management",
      "create": "adds-a-new-app-connector-group-for-the-specified-customer",
      "get": "gets-the-app-connector-group-details-for-the-specified-id",
@@ -404,7 +404,84 @@ RESOURCES = [
      "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go"},
 ]
 
-CONTRACT_JSON = "vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json"
+ZIA_RESOURCES = [
+    {"name": "bandwidth_class", "group": "bandwidth-control-classes",
+     "create": "bandwidth-class-resource-add-bandwidth-class",
+     "get": "bandwidth-class-resource-get-bandwidth-class",
+     "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/bandwidth_control/bandwidth_classes/bandwidth_classes.go", "BandwidthClasses"),
+     "tf": "vendor/terraform-provider-zia/zia/resource_zia_bandwidth_classes.go"},
+    {"name": "ip_destination_group", "group": "firewall-policies",
+     "create": "ip-destination-group-resource-add-destination-ip-group",
+     "get": "ip-destination-group-resource-get-destination-ip-group-by-id",
+     "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/ipdestinationgroups/ipdestinationgroups.go", "IPDestinationGroups"),
+     "tf": "vendor/terraform-provider-zia/zia/resource_zia_fw_filtering_ip_destination_groups.go"},
+    {"name": "ip_source_group", "group": "firewall-policies",
+     "create": "ip-source-group-resource-add-source-ip-group",
+     "get": "ip-source-group-resource-get-source-ip-group-by-id",
+     "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/ipsourcegroups/ipsourcegroups.go", "IPSourceGroups"),
+     "tf": "vendor/terraform-provider-zia/zia/resource_zia_fw_filtering_ip_source_groups.go"},
+    {"name": "location", "group": "location-management",
+     "create": "add-location",
+     "get": "get-location",
+     "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/location/locationmanagement/locationmanagement.go", "Locations"),
+     "tf": "vendor/terraform-provider-zia/zia/resource_zia_location_management.go"},
+    {"name": "network_application_group", "group": "firewall-policies",
+     "create": "network-application-group-resource-create-network-application-group",
+     "get": "network-application-group-resource-get-network-application-group-by-id",
+     "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/networkapplicationgroups/networkapplicationgroups.go", "NetworkApplicationGroups"),
+     "tf": "vendor/terraform-provider-zia/zia/resource_zia_fw_filtering_network_application_groups.go"},
+    {"name": "network_service", "group": "firewall-policies",
+     "create": "network-service-resource-add-custom-network-service",
+     "get": "network-service-resource-get-network-service-by-id",
+     "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/networkservices/networkservices.go", "NetworkServices"),
+     "tf": "vendor/terraform-provider-zia/zia/resource_zia_fw_filtering_network_services.go"},
+    {"name": "network_service_group", "group": "firewall-policies",
+     "create": "network-service-group-resource-add-custom-network-service-group",
+     "get": "network-service-group-resource-get-network-service-group-by-id",
+     "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/networkservicegroups/networkservicegroups.go", "NetworkServiceGroups"),
+     "tf": "vendor/terraform-provider-zia/zia/resource_zia_fw_filtering_network_services_groups.go"},
+    {"name": "nss_server", "group": "cloud-nanolog-streaming-service-nss",
+     "create": "nss-resource-add-nss-server",
+     "get": "nss-resource-get-nss-server",
+     "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/cloudnss/nss_servers/nss_servers.go", "NSSServers"),
+     "tf": "vendor/terraform-provider-zia/zia/resource_zia_nss_server.go"},
+    {"name": "risk_profile", "group": "cloud-applications",
+     "create": "cloud-application-risk-profile-resource-add-risk-profile",
+     "get": "cloud-application-risk-profile-resource-get-risk-profile-by-id",
+     "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/cloudapplications/risk_profiles/risk_profiles.go", "RiskProfiles"),
+     "tf": "vendor/terraform-provider-zia/zia/resource_zia_risk_profiles.go"},
+    {"name": "rule_label", "group": "rule-labels",
+     "create": "rule-label-resource-add-rule-label",
+     "get": "rule-label-resource-get-rule-label-by-id",
+     "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/rule_labels/rule_labels.go", "RuleLabels"),
+     "tf": "vendor/terraform-provider-zia/zia/resource_zia_rule_labels.go"},
+    {"name": "url_category", "group": "url-categories",
+     "create": "add-custom-category",
+     "get": "get-url-categories",
+     "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/urlcategories/urlcategories.go", "URLCategory"),
+     "tf": "vendor/terraform-provider-zia/zia/resource_zia_url_categories.go"},
+    {"name": "user", "group": "user-management",
+     "create": "add-user",
+     "get": "get-user",
+     "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/usermanagement/users/users.go", "Users"),
+     "tf": "vendor/terraform-provider-zia/zia/resource_zia_user_management_users.go"},
+    {"name": "workload_group", "group": "workload-groups",
+     "create": "workload-group-resource-add-workload-group",
+     "get": "workload-group-resource-get-workload-group-by-id",
+     "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/workloadgroups/workloadgroups.go", "WorkloadGroup"),
+     "tf": "vendor/terraform-provider-zia/zia/resource_zia_workload_groups.go"},
+]
+
+PRODUCTS = {
+    "zpa": {
+        "contract_json": "vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json",
+        "resources": ZPA_RESOURCES,
+    },
+    "zia": {
+        "contract_json": "vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json",
+        "resources": ZIA_RESOURCES,
+    },
+}
 
 
 def _read(path):
@@ -412,9 +489,14 @@ def _read(path):
         return f.read()
 
 
-def reconcile_one(res, contracts):
-    create = contracts.get(f"zpa/{res['group']}/{res['create']}", {})
-    get = contracts.get(f"zpa/{res['group']}/{res['get']}", {})
+def reconcile_one(res, contracts, product="zpa"):
+    create_key = f"{product}/{res['group']}/{res['create']}"
+    get_key = f"{product}/{res['group']}/{res['get']}"
+    create = contracts.get(create_key)
+    get = contracts.get(get_key)
+    if not create or not get:
+        missing = [k for k, v in ((create_key, create), (get_key, get)) if not v]
+        raise KeyError(f"missing contract operation(s) for {res['name']}: {', '.join(missing)}")
     # field universe = response schema (fullest); required comes from create body
     cfields = {f["name"]: f for f in (get.get("response_schema") or create.get("response_schema") or [])}
     creq = {f["name"]: f for f in create.get("request_body", [])}
@@ -499,8 +581,9 @@ def reconcile_one(res, contracts):
     return rep
 
 
-def build_report(contracts):
-    reports = [reconcile_one(r, contracts) for r in RESOURCES]
+def build_report(contracts, product="zpa"):
+    resources = PRODUCTS[product]["resources"]
+    reports = [reconcile_one(r, contracts, product) for r in resources]
     totals = {
         "type_drift": sum(len(r["type_drift"]) for r in reports),
         "required_drift": sum(len(r["required_drift"]) for r in reports),
@@ -510,25 +593,32 @@ def build_report(contracts):
         "readonly_fields": sum(len(r["readonly"]) for r in reports),
         "readonly_disagree": sum(1 for r in reports for x in r["readonly"] if not x["agree"]),
     }
-    return {"product": "zpa", "resources": reports, "totals": totals}
+    return {
+        "product": product,
+        "contract_json": PRODUCTS[product]["contract_json"],
+        "resources": reports,
+        "totals": totals,
+    }
 
 
 # ---- markdown rendering ----------------------------------------------------
 
 def render_markdown(report):
     t = report["totals"]
+    product = report["product"]
+    product_upper = product.upper()
     out = []
     out.append("---")
-    out.append('title: "DAV-21 automate.zscaler.com contract reconciliation — ZPA"')
+    out.append(f'title: "DAV-21 automate.zscaler.com contract reconciliation — {product_upper}"')
     out.append("status: generated")
     out.append('generator: "scripts/automate-capture/reconcile_contract.py"')
     out.append("---\n")
-    out.append("# automate.zscaler.com contract vs Go SDK / Terraform — ZPA\n")
+    out.append(f"# automate.zscaler.com contract vs Go SDK / Terraform — {product_upper}\n")
     out.append("> Generated by `scripts/automate-capture/reconcile_contract.py`. Do not edit by hand; "
                "re-run after re-capturing the contract or bumping the vendor submodules.\n")
     out.append("Diffs the rendered per-operation contract "
-               "(`vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json`) against the Go SDK "
-               "struct and the Terraform provider schema for each resource.\n")
+               f"(`{report['contract_json']}`) against the Go SDK struct and the Terraform provider schema "
+               "for each resource.\n")
     out.append("## Totals\n")
     out.append(f"- Type drift (contract numeric vs Go string): **{t['type_drift']}**")
     out.append(f"- Required drift (contract vs TF): **{t['required_drift']}**")
@@ -573,24 +663,25 @@ def render_markdown(report):
 
 
 def main():
-    contracts = json.load(open(os.path.join(ROOT, CONTRACT_JSON), encoding="utf-8"))
-    report = build_report(contracts)
     out_dir = os.path.join(ROOT, "vendor/zscaler-api-specs/automate-zscaler")
-    json_out = os.path.join(out_dir, "zpa-divergences.json")
-    md_out = os.path.join(out_dir, "zpa-divergences.md")
-    with open(json_out, "w", encoding="utf-8") as f:
-        json.dump(report, f, indent=2)
-        f.write("\n")
-    with open(md_out, "w", encoding="utf-8") as f:
-        # exactly one trailing newline (sections already embed their own blank lines)
-        f.write(render_markdown(report).rstrip("\n") + "\n")
-    t = report["totals"]
-    print(f"reconciled {len(report['resources'])} resources")
-    print(f"  type_drift={t['type_drift']} required_drift={t['required_drift']} "
-          f"enum(match/conflict/one-sided)={t['enum_match']}/{t['enum_value_conflict']}/{t['enum_one_sided']} "
-          f"readonly={t['readonly_fields']}(disagree {t['readonly_disagree']})")
-    print(f"  -> {json_out}")
-    print(f"  -> {md_out}")
+    for product, cfg in PRODUCTS.items():
+        contracts = json.load(open(os.path.join(ROOT, cfg["contract_json"]), encoding="utf-8"))
+        report = build_report(contracts, product)
+        json_out = os.path.join(out_dir, f"{product}-divergences.json")
+        md_out = os.path.join(out_dir, f"{product}-divergences.md")
+        with open(json_out, "w", encoding="utf-8") as f:
+            json.dump(report, f, indent=2)
+            f.write("\n")
+        with open(md_out, "w", encoding="utf-8") as f:
+            # exactly one trailing newline (sections already embed their own blank lines)
+            f.write(render_markdown(report).rstrip("\n") + "\n")
+        t = report["totals"]
+        print(f"reconciled {product}: {len(report['resources'])} resources")
+        print(f"  type_drift={t['type_drift']} required_drift={t['required_drift']} "
+              f"enum(match/conflict/one-sided)={t['enum_match']}/{t['enum_value_conflict']}/{t['enum_one_sided']} "
+              f"readonly={t['readonly_fields']}(disagree {t['readonly_disagree']})")
+        print(f"  -> {json_out}")
+        print(f"  -> {md_out}")
 
 
 if __name__ == "__main__":

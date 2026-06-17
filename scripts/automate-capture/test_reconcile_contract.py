@@ -208,8 +208,9 @@ def test_integration_stable_invariants():
     # Real reconciliation if vendor submodules + contract are present; else skip.
     go = os.path.join(ROOT, "vendor/zscaler-sdk-go/zscaler/zpa/services/"
                             "appconnectorgroup/zpa_app_connector_group.go")
+    tf = os.path.join(ROOT, "vendor/terraform-provider-zpa/zpa/resource_zpa_app_connector_group.go")
     contract = os.path.join(ROOT, "vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json")
-    if not (os.path.exists(go) and os.path.exists(contract)):
+    if not (os.path.exists(go) and os.path.exists(tf) and os.path.exists(contract)):
         print("    (skipped: vendor sources not present)")
         return
     import json
@@ -236,6 +237,28 @@ def test_integration_stable_invariants():
     # P2#3: extranetDTO matches extranet_dto by case-fold -> not "unmatched".
     assert "extranetDTO" not in set(sg["presence"]["contract_unmatched_in_tf"]), \
         sg["presence"]["contract_unmatched_in_tf"]
+
+
+@case
+def test_integration_zia_starter_registry():
+    # Real reconciliation if vendor submodules + contract are present; else skip.
+    go = os.path.join(ROOT, "vendor/zscaler-sdk-go/zscaler/zia/services/"
+                            "cloudnss/nss_servers/nss_servers.go")
+    tf = os.path.join(ROOT, "vendor/terraform-provider-zia/zia/resource_zia_nss_server.go")
+    contract = os.path.join(ROOT, "vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json")
+    if not (os.path.exists(go) and os.path.exists(tf) and os.path.exists(contract)):
+        print("    (skipped: ZIA vendor sources not present)")
+        return
+    import json
+    os.environ["REPO_ROOT"] = ROOT
+    report = build_report(json.load(open(contract, encoding="utf-8")), "zia")
+    assert len(report["resources"]) == 13, len(report["resources"])
+    nss = next(r for r in report["resources"] if r["resource"] == "nss_server")
+    conflict_fields = {d["field"] for d in nss["enum"]["value_conflict"]}
+    assert conflict_fields == {"status", "type"}, nss["enum"]["value_conflict"]
+    location = next(r for r in report["resources"] if r["resource"] == "location")
+    assert any(d["field"] == "profile" for d in location["enum"]["value_conflict"]), \
+        location["enum"]["value_conflict"]
 
 
 def main():
