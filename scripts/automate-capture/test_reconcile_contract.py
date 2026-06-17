@@ -396,6 +396,8 @@ def zia_create_thing(
 
 def zia_update_thing(
     thing_id: str,
+    customer_id: str,
+    segment_group_id: str,
     enabled: Optional[bool] = None,
     display_name: Optional[str] = None,
     service: str = "zia",
@@ -405,7 +407,7 @@ def zia_update_thing(
     body = {"enabled": enabled}
     if display_name is not None:
         body["displayName"] = display_name
-    return api.update_thing(thing_id, **body)
+    return api.update_thing(thing_id, customer_id=customer_id, segment_group_id=segment_group_id, **body)
 
 def zia_get_thing(thing_id: str, search: str = None, query: str = None, service: str = "zia"):
     client = get_zscaler_client(service=service)
@@ -423,9 +425,13 @@ def test_mcp_request_fields_and_sdk_calls_are_method_scoped():
     assert extract_mcp_tool_functions(MCP_FIXTURE) == [
         "zia_create_sibling", "zia_create_thing", "zia_get_thing", "zia_update_thing"
     ]
-    f = extract_mcp_request_fields(MCP_FIXTURE, ["zia_create_thing", "zia_update_thing", "zia_get_thing"])
-    assert set(f) == {"name", "action", "protocols", "deviceTrustLevels", "enabled", "displayName"}, f
-    assert "thingId" not in f and "service" not in f and "query" not in f and "search" not in f
+    f = extract_mcp_request_fields(
+        MCP_FIXTURE,
+        ["zia_create_thing", "zia_update_thing", "zia_get_thing"],
+        routing={"customerId", "thingId"}
+    )
+    assert set(f) == {"name", "action", "protocols", "deviceTrustLevels", "enabled", "displayName", "segmentGroupId"}, f
+    assert "thingId" not in f and "customerId" not in f and "service" not in f and "query" not in f and "search" not in f
     assert "siblingOnly" not in f, "sibling MCP tool fields must not leak"
     calls = extract_mcp_sdk_calls(MCP_FIXTURE, ["zia_create_thing", "zia_update_thing", "zia_get_thing"])
     assert calls == [
@@ -433,6 +439,18 @@ def test_mcp_request_fields_and_sdk_calls_are_method_scoped():
         "client.zia.things.get_thing",
         "client.zia.things.update_thing",
     ], calls
+
+
+@case
+def test_mcp_update_leading_object_id_dropped_without_routing():
+    # Regression: the contract usually models the target object's id as a generic
+    # `:id` path param, so an update tool's descriptive leading id (thing_id ->
+    # thingId) is absent from `routing`. It is still the object's own routing id
+    # and must be dropped, while a later FK body field (segment_group_id) stays.
+    f = extract_mcp_request_fields(MCP_FIXTURE, ["zia_update_thing"], routing=set())
+    assert "thingId" not in f, ("leading object id must drop without routing", f)
+    assert "customerId" not in f, f
+    assert "segmentGroupId" in f and "enabled" in f and "displayName" in f, f
 
 
 @case

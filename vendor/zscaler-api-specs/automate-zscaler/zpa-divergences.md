@@ -25,7 +25,7 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 - Python SDK presence: **41** contract-unmatched / **22** python-only fields
 
 - MCP tool surface: **12** present / **4** no surface (**10** with request-field surface)
-- MCP request-field presence: **156** contract-unmatched / **13** MCP-only fields
+- MCP request-field presence: **152** contract-unmatched / **14** MCP-only fields
 
 ## app_connector_group
 
@@ -57,7 +57,7 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 **Contract fields unmatched in MCP request tools:** `city`, `connectorGroupType`, `connectors`, `creationTime`, `dcHostingInfo`, `geoLocationId`, `id`, `ipAcl`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `npAssistantGroup`, `praEnabled`, `serverGroups`, `siteId`, `siteName`, `tcpQuickAckApp`, `tcpQuickAckAssistant`, `tcpQuickAckReadAssistant`, `upgradePriority`, `useInDrMode`, `versionProfileId`, `versionProfileName`, `versionProfileVisibilityScope`, `wafDisabled`
 
-**MCP request fields absent from the contract:** `connectorIds`, `enrollmentCertName`, `serverGroupIds`, `versionProfile`
+**MCP request fields absent from the contract:** `connectorIds`, `enrollmentCertId`, `enrollmentCertName`, `serverGroupIds`, `versionProfile`
 
 **Contract fields absent from the Go SDK struct:** `city`, `ipAcl`, `upgradePriority`
 
@@ -120,7 +120,7 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 **Python SDK fields absent from the contract:** `applicationGroup`, `policyStyle`, `readOnly`, `restrictionType`, `tags`, `zscalerManaged`
 
-**Contract fields unmatched in MCP request tools:** `appRecommendationId`, `clientlessApps`, `commonAppsDto`, `creationTime`, `defaultIdleTimeout`, `defaultMaxAge`, `id`, `inconsistentConfigDetails`, `inspectionApps`, `isIncompleteDRConfig`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `praApps`, `segmentGroupId`, `segmentGroupName`, `serverGroups`, `sharedMicrotenantDetails`, `tcpProtocols`, `udpProtocols`, `zpnErId`
+**Contract fields unmatched in MCP request tools:** `appRecommendationId`, `clientlessApps`, `commonAppsDto`, `creationTime`, `defaultIdleTimeout`, `defaultMaxAge`, `id`, `inconsistentConfigDetails`, `inspectionApps`, `isIncompleteDRConfig`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `praApps`, `segmentGroupName`, `serverGroups`, `sharedMicrotenantDetails`, `tcpProtocols`, `udpProtocols`, `zpnErId`
 
 **MCP request fields absent from the contract:** `serverGroupIds`
 
@@ -329,7 +329,7 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 **Contract fields unmatched in MCP request tools:** `creationTime`, `id`, `lastCredentialResetTime`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `passphrase`, `userName`
 
-**MCP request fields absent from the contract:** `queryParams`, `username`
+**MCP request fields absent from the contract:** `username`
 
 **Go SDK fields absent from the contract:** `targetMicrotenantId`
 
@@ -355,7 +355,7 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 **Python SDK fields absent from the contract:** `approvalReviewers`
 
-**Contract fields unmatched in MCP request tools:** `certificateId`, `certificateName`, `creationTime`, `extDomain`, `extDomainName`, `extDomainTranslation`, `extLabel`, `getcName`, `id`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `userPortalGid`, `userPortalName`
+**Contract fields unmatched in MCP request tools:** `certificateName`, `creationTime`, `extDomain`, `extDomainName`, `extDomainTranslation`, `extLabel`, `getcName`, `id`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `userPortalGid`, `userPortalName`
 
 **Go SDK fields absent from the contract:** `action`, `approvalReviewers`, `cName`, `certManagedByZsRadio`, `hideInfoTooltip`, `isSRAPortal`, `managedByZs`, `objectType`, `restrictedEntity`, `scopeName`
 
@@ -446,9 +446,9 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 **Contract fields unmatched in the Python SDK model/request surface:** `expirationInEpochSec`, `exportable`, `ipAcl`, `microtenantId`, `microtenantName`, `uiConfig`
 
-**Contract fields unmatched in MCP request tools:** `creationTime`, `enabled`, `enrollmentCertId`, `enrollmentCertName`, `expirationInEpochSec`, `exportable`, `id`, `ipAcl`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `provisioningKey`, `uiConfig`, `usageCount`, `zcomponentId`, `zcomponentName`
+**Contract fields unmatched in MCP request tools:** `creationTime`, `enabled`, `enrollmentCertName`, `expirationInEpochSec`, `exportable`, `id`, `ipAcl`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `provisioningKey`, `uiConfig`, `usageCount`, `zcomponentId`, `zcomponentName`
 
-**MCP request fields absent from the contract:** `description`, `keyType`
+**MCP request fields absent from the contract:** `componentId`, `description`, `keyType`
 
 **Contract fields absent from the Go SDK struct:** `exportable`
 
@@ -481,7 +481,7 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 **Contract fields unmatched in the Python SDK model/request surface:** `city`
 
-**Contract fields unmatched in MCP request tools:** `altCloud`, `city`, `creationTime`, `geoLocationId`, `id`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `serviceEdges`, `siteId`, `siteName`, `trustedNetworks`, `upgradePriority`, `useInDrMode`, `versionProfileId`, `versionProfileVisibilityScope`
+**Contract fields unmatched in MCP request tools:** `altCloud`, `city`, `creationTime`, `geoLocationId`, `id`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `serviceEdges`, `siteId`, `siteName`, `trustedNetworks`, `upgradePriority`, `useInDrMode`, `versionProfileVisibilityScope`
 
 **MCP request fields absent from the contract:** `serviceEdgeIds`, `trustedNetworkIds`
 

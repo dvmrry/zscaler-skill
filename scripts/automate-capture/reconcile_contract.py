@@ -707,6 +707,7 @@ _MCP_CONTROL_FIELDS = {
     "page_size",
     "payload",
     "query",
+    "query_params",
     "search",
     "service",
     "settings",
@@ -721,8 +722,8 @@ def _mcp_field_key(raw):
     return raw
 
 
-def _mcp_is_control_field(name):
-    return name in _MCP_CONTROL_FIELDS or (name.endswith("_id") and not name.endswith("_ids"))
+def _mcp_is_control_field(name, routing=()):
+    return name in _MCP_CONTROL_FIELDS or _mcp_field_key(name) in routing
 
 
 def _mcp_public_functions(tree):
@@ -784,7 +785,7 @@ def extract_mcp_sdk_calls(src, method_names=None):
     return sorted(calls)
 
 
-def _mcp_literal_body_keys(fn):
+def _mcp_literal_body_keys(fn, routing=()):
     keys = set()
     loop_vars = {}
     for node in ast.walk(fn):
@@ -820,7 +821,7 @@ def _mcp_literal_body_keys(fn):
         elif isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
             chain = _mcp_attr_chain(node.func)
             if chain and chain[-1].startswith(_MCP_WRITE_PREFIXES):
-                keys.update(kw.arg for kw in node.keywords if kw.arg and not _mcp_is_control_field(kw.arg))
+                keys.update(kw.arg for kw in node.keywords if kw.arg and not _mcp_is_control_field(kw.arg, routing))
 
     for node in ast.walk(fn):
         if (
@@ -835,7 +836,7 @@ def _mcp_literal_body_keys(fn):
     return keys
 
 
-def extract_mcp_request_fields(src, method_names=None):
+def extract_mcp_request_fields(src, method_names=None, routing=()):
     """MCP write-tool request fields -> {camel_key: {mcp_key, source}}.
 
     This is intentionally presence-only. MCP wrappers encode agent-facing tool
@@ -847,19 +848,33 @@ def extract_mcp_request_fields(src, method_names=None):
     tree = ast.parse(src)
     fields = {}
     for name, fn in _mcp_selected_functions(tree, method_names).items():
+        # A tool that operates on an EXISTING object (update/get/delete/edit/set/
+        # replace) takes that object's own id as its leading parameter. The contract
+        # models it as the generic `:id` path param, so it is absent from `routing`
+        # and would otherwise be counted as a request-body field — and it reaches the
+        # field set through several paths (the arg list, write-call kwargs, or a body
+        # dict). Treat it as routing for THIS tool so it is dropped everywhere. The
+        # `_id` guard leaves singleton updates (leading param is a real field) and all
+        # create/list tools untouched; per-tool scope keeps a legitimate FK body field
+        # of the same name on another tool (e.g. create) intact.
+        fn_routing = set(routing)
+        obj_ops = ("_update_", "_get_", "_delete_", "_edit_", "_set_", "_replace_")
+        args = fn.args.args
+        if any(op in name for op in obj_ops) and args and args[0].arg.endswith("_id"):
+            fn_routing.add(_mcp_field_key(args[0].arg))
         raw_keys = set()
         if name.startswith(("zia_create_", "zia_update_", "zia_add_", "zia_bulk_update_",
                             "zpa_create_", "zpa_update_", "ztw_create_", "zcc_update_")):
             raw_keys.update(
                 arg.arg
-                for arg in fn.args.args
-                if not _mcp_is_control_field(arg.arg)
+                for arg in args
+                if not _mcp_is_control_field(arg.arg, fn_routing)
             )
-        raw_keys.update(_mcp_literal_body_keys(fn))
+        raw_keys.update(_mcp_literal_body_keys(fn, fn_routing))
         if "action" in raw_keys:
             raw_keys.discard("rule_action")
         for key in raw_keys:
-            if not isinstance(key, str) or _mcp_is_control_field(key):
+            if not isinstance(key, str) or _mcp_is_control_field(key, fn_routing):
                 continue
             fields.setdefault(_mcp_field_key(key), {"mcp_key": key, "source": set()})["source"].add(name)
     if "action" in fields and fields.get("ruleAction", {}).get("mcp_key") == "rule_action":
@@ -2060,7 +2075,7 @@ def reconcile_python(res, cfields):
     }
 
 
-def reconcile_mcp(res, cfields):
+def reconcile_mcp(res, cfields, routing=()):
     cfg = res.get("mcp")
     if not cfg:
         return {"surface": "none"}
@@ -2077,7 +2092,7 @@ def reconcile_mcp(res, cfields):
             raise KeyError(f"missing MCP tool function(s) in {path}: {', '.join(missing)}")
         tools.extend(functions)
         sdk_calls.extend(extract_mcp_sdk_calls(src, functions))
-        for name, rec in extract_mcp_request_fields(src, functions).items():
+        for name, rec in extract_mcp_request_fields(src, functions, routing).items():
             fields.setdefault(name, {"mcp_key": rec["mcp_key"], "source": set(), "paths": set()})
             fields[name]["source"].update(rec["source"])
             fields[name]["paths"].add(path)
@@ -2110,6 +2125,7 @@ def reconcile_mcp(res, cfields):
 def reconcile_one(res, contracts, product="zpa"):
     reads, writes = _contract_ops(res, contracts, product)
     operation = writes[0] if writes else reads[0]
+    routing = {p["name"] for op in [*reads, *writes] for p in op.get("path_params", []) + op.get("query_params", [])}
     # field universe = response schema (fullest); required comes from create bodies
     # only. Update-only singletons often reuse PUT/POST request bodies with product
     # semantics that are not creation requirements, so they opt out via
@@ -2205,7 +2221,7 @@ def reconcile_one(res, contracts, product="zpa"):
 
     rep["ansible"] = reconcile_ansible(res, cfields, required_names)
     rep["python"] = reconcile_python(res, cfields)
-    rep["mcp"] = reconcile_mcp(res, cfields)
+    rep["mcp"] = reconcile_mcp(res, cfields, routing)
     return rep
 
 

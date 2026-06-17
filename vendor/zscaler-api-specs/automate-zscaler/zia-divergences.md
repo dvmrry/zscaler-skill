@@ -25,7 +25,7 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 - Python SDK presence: **39** contract-unmatched / **47** python-only fields
 
 - MCP tool surface: **33** present / **21** no surface (**25** with request-field surface)
-- MCP request-field presence: **165** contract-unmatched / **31** MCP-only fields
+- MCP request-field presence: **163** contract-unmatched / **31** MCP-only fields
 
 ## Contract Groups Outside Terraform Scope
 
@@ -233,7 +233,7 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 **Contract fields unmatched in the Python SDK model/request surface:** `numberOfApplications`
 
-**Contract fields unmatched in MCP request tools:** `accessControl`, `applications`, `browserEunTemplateId`, `cascadingEnabled`, `cbiProfile`, `cloudAppInstances`, `cloudAppRiskProfile`, `eunEnabled`, `eunTemplateId`, `formSharingDomainProfiles`, `id`, `lastModifiedBy`, `lastModifiedTime`, `numberOfApplications`, `predefined`, `sharingDomainProfiles`, `state`, `tenancyProfileIds`, `type`, `userRiskScoreLevels`, `validityTimeZoneId`
+**Contract fields unmatched in MCP request tools:** `accessControl`, `applications`, `browserEunTemplateId`, `cascadingEnabled`, `cbiProfile`, `cloudAppInstances`, `cloudAppRiskProfile`, `eunEnabled`, `eunTemplateId`, `formSharingDomainProfiles`, `id`, `lastModifiedBy`, `lastModifiedTime`, `numberOfApplications`, `predefined`, `sharingDomainProfiles`, `state`, `tenancyProfileIds`, `type`, `userRiskScoreLevels`
 
 **MCP request fields absent from the contract:** `cloudApplications`, `enabled`, `resolveCloudApps`, `ruleType`
 
@@ -882,7 +882,7 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 **Python SDK fields absent from the contract:** `sourceIpGroups`, `userAgentTypes`, `userRiskScoreLevels`
 
-**Contract fields unmatched in MCP request tools:** `cbiProfile`, `id`, `lastModifiedBy`, `lastModifiedTime`, `state`, `validityTimeZoneId`
+**Contract fields unmatched in MCP request tools:** `cbiProfile`, `id`, `lastModifiedBy`, `lastModifiedTime`, `state`
 
 **MCP request fields absent from the contract:** `enabled`, `userAgentTypes`
 
