@@ -240,7 +240,7 @@ def test_integration_stable_invariants():
 
 
 @case
-def test_integration_zia_starter_registry():
+def test_integration_zia_registry():
     # Real reconciliation if vendor submodules + contract are present; else skip.
     go = os.path.join(ROOT, "vendor/zscaler-sdk-go/zscaler/zia/services/"
                             "cloudnss/nss_servers/nss_servers.go")
@@ -252,13 +252,20 @@ def test_integration_zia_starter_registry():
     import json
     os.environ["REPO_ROOT"] = ROOT
     report = build_report(json.load(open(contract, encoding="utf-8")), "zia")
-    assert len(report["resources"]) == 13, len(report["resources"])
+    assert len(report["resources"]) == 24, len(report["resources"])
     nss = next(r for r in report["resources"] if r["resource"] == "nss_server")
     conflict_fields = {d["field"] for d in nss["enum"]["value_conflict"]}
     assert conflict_fields == {"status", "type"}, nss["enum"]["value_conflict"]
     location = next(r for r in report["resources"] if r["resource"] == "location")
     assert any(d["field"] == "profile" for d in location["enum"]["value_conflict"]), \
         location["enum"]["value_conflict"]
+    dlp_dictionary = next(r for r in report["resources"] if r["resource"] == "dlp_dictionary")
+    dlp_conflicts = {d["field"] for d in dlp_dictionary["enum"]["value_conflict"]}
+    assert dlp_conflicts == {"customPhraseMatchType", "dictionaryType"}, \
+        dlp_dictionary["enum"]["value_conflict"]
+    vpn = next(r for r in report["resources"] if r["resource"] == "vpn_credential")
+    assert any(d["field"] == "type" for d in vpn["enum"]["value_conflict"]), \
+        vpn["enum"]["value_conflict"]
 
 
 def main():
