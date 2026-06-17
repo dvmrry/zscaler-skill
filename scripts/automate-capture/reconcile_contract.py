@@ -155,6 +155,7 @@ def _strip_go_comments(s):
 
 _TF_MARKER = "Schema: map[string]*schema.Schema{"
 _TF_FRAMEWORK_ATTR_MARKER = "Attributes: map[string]schema.Attribute{"
+_TF_FRAMEWORK_BLOCK_MARKER = "Blocks: map[string]schema.Block{"
 _RESOURCE_FUNC_RE = re.compile(r"func\s+resource\w+\s*\(\)\s*\*schema\.Resource\s*\{")
 _FRAMEWORK_RESOURCE_SCHEMA_RE = re.compile(
     r"func\s+\(r\s+\*\w+Resource\)\s+Schema\s*\([^)]*\)\s*\{"
@@ -359,11 +360,12 @@ def _extract_tf_enum(cb):
 
 
 def extract_tf_framework_schema_fields(src):
-    """Top-level Terraform Plugin Framework attributes -> TF field map.
+    """Top-level Terraform Plugin Framework attributes/blocks -> TF field map.
 
-    Only the resource's Schema method and its top-level Attributes map are scanned,
-    so nested Blocks / SingleNestedAttribute child Attributes cannot bleed into the
-    resource surface. Helper-valued attributes are present with unknown flags.
+    Only the resource's Schema method and its top-level Attributes / Blocks maps are
+    scanned, so nested child Attributes cannot bleed into the resource surface.
+    Helper-valued attributes and top-level nested blocks are present with unknown
+    flags.
     """
     src = _tf_framework_schema_source(src)
     blocks = dict(_scan_value_blocks_depth1(src, _TF_FRAMEWORK_ATTR_MARKER))
@@ -383,6 +385,15 @@ def extract_tf_framework_schema_fields(src):
             "computed": bool(re.search(r"\bComputed:\s*true", cb)),
             "enum": _extract_tf_enum(cb),
         }
+    for key in _tf_top_level_keys(src, _TF_FRAMEWORK_BLOCK_MARKER):
+        out.setdefault(snake_to_camel(key), {
+            "tf_key": key,
+            "inline": False,
+            "required": None,
+            "optional": None,
+            "computed": None,
+            "enum": None,
+        })
     return out
 
 

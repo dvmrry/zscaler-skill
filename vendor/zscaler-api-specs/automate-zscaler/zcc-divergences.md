@@ -45,7 +45,7 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 ## forwarding_profile
 
-`POST /zcc/papi/public/v1/webForwardingProfile/edit` — contract 22 / Go 26 / TF 23 fields / no Ansible surface / Python 28 fields
+`POST /zcc/papi/public/v1/webForwardingProfile/edit` — contract 22 / Go 26 / TF 26 fields / no Ansible surface / Python 28 fields
 
 **Required drift:**
 

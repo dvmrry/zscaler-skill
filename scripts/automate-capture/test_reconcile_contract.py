@@ -183,7 +183,13 @@ func (r *ThingResource) Schema(ctx context.Context, req resource.SchemaRequest, 
             },
         },
         Blocks: map[string]schema.Block{
-            "block_must_not_leak": nestedHelper(),
+            "top_level_block": schema.ListNestedBlock{
+                NestedObject: schema.NestedBlockObject{
+                    Blocks: map[string]schema.Block{
+                        "child_block_must_not_leak": nestedHelper(),
+                    },
+                },
+            },
         },
     }
 }
@@ -231,15 +237,16 @@ def test_tf_schema_anchors_to_resource_function_not_helper_schema():
 @case
 def test_tf_plugin_framework_top_level_attributes_only():
     f = extract_tf_schema_fields(TF_FRAMEWORK_FIXTURE)
-    assert set(f) == {"id", "name", "mode", "helperList", "settings"}, set(f)
+    assert set(f) == {"id", "name", "mode", "helperList", "settings", "topLevelBlock"}, set(f)
     assert "nestedLeak" not in f and "childMustNotLeak" not in f, \
         "nested Plugin Framework attributes must not be captured"
-    assert "blockMustNotLeak" not in f, "nested Plugin Framework blocks must not be captured"
+    assert "childBlockMustNotLeak" not in f, "nested Plugin Framework blocks must not be captured"
     assert f["id"]["computed"] is True and f["id"]["required"] is False
     assert f["name"]["required"] is True
     assert f["mode"]["enum"] == ["A", "B"]
     assert f["helperList"]["inline"] is False and f["helperList"]["required"] is None
     assert f["settings"]["inline"] is True and f["settings"]["computed"] is True
+    assert f["topLevelBlock"]["inline"] is False and f["topLevelBlock"]["required"] is None
 
 
 ANSIBLE_FIXTURE = '''
@@ -543,6 +550,10 @@ def test_integration_zcc_ztw_registries():
     forwarding_profile = next(r for r in zcc["resources"] if r["resource"] == "forwarding_profile")
     assert {d["field"] for d in forwarding_profile["required_drift"]} == {"name"}, \
         forwarding_profile["required_drift"]
+    assert "forwardingProfileActions" not in forwarding_profile["presence"]["contract_unmatched_in_tf"], \
+        forwarding_profile["presence"]
+    assert "forwardingProfileZpaActions" not in forwarding_profile["presence"]["contract_unmatched_in_tf"], \
+        forwarding_profile["presence"]
 
     ztw = build_report(json.load(open(ztw_contract, encoding="utf-8")), "zcloudconnector")
     assert ztw["display"] == "ZTW", ztw
