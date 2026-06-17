@@ -13,9 +13,21 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 ## Totals
 
 - Type drift (contract numeric vs Go string): **0**
-- Required drift (contract vs TF): **26**
-- Enum: **34** match / **6** value-conflict / **7** one-sided
+- Required drift (contract vs TF): **27**
+- Enum: **35** match / **7** value-conflict / **15** one-sided
 - Contract readonly fields checked: **1** (TF disagreement: 0)
+
+## admin_role
+
+`POST /zia/api/v1/adminRoles` — contract 19 / Go 19 / TF 20 fields
+
+**Required drift:**
+
+- `name`: contract required=True, TF required=False (contract stricter than TF)
+
+**Enum value conflicts:**
+
+- `roleType`: contract ['ORG_ADMIN', 'EXEC_INSIGHT', 'EXEC_INSIGHT_AND_ORG_ADMIN', 'SDWAN'] vs TF ['ORG_ADMIN', 'EXEC_INSIGHT', 'EXEC_INSIGHT_AND_ORG_ADMIN', 'SDWAN', 'PUBLIC_API']
 
 ## bandwidth_class
 

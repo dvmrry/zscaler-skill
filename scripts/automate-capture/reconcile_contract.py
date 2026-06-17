@@ -405,6 +405,11 @@ ZPA_RESOURCES = [
 ]
 
 ZIA_RESOURCES = [
+    {"name": "admin_role", "group": "admin-role-management",
+     "create": "admin-role-resource-add-role",
+     "get": "admin-role-resource-get-role",
+     "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/adminuserrolemgmt/roles/adminroles.go", "AdminRoles"),
+     "tf": "vendor/terraform-provider-zia/zia/resource_zia_admin_roles.go"},
     {"name": "bandwidth_class", "group": "bandwidth-control-classes",
      "create": "bandwidth-class-resource-add-bandwidth-class",
      "get": "bandwidth-class-resource-get-bandwidth-class",

@@ -252,7 +252,10 @@ def test_integration_zia_registry():
     import json
     os.environ["REPO_ROOT"] = ROOT
     report = build_report(json.load(open(contract, encoding="utf-8")), "zia")
-    assert len(report["resources"]) == 24, len(report["resources"])
+    assert len(report["resources"]) == 25, len(report["resources"])
+    admin_role = next(r for r in report["resources"] if r["resource"] == "admin_role")
+    assert any(d["field"] == "roleType" for d in admin_role["enum"]["value_conflict"]), \
+        admin_role["enum"]["value_conflict"]
     nss = next(r for r in report["resources"] if r["resource"] == "nss_server")
     conflict_fields = {d["field"] for d in nss["enum"]["value_conflict"]}
     assert conflict_fields == {"status", "type"}, nss["enum"]["value_conflict"]

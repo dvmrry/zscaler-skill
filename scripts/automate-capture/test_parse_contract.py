@@ -231,6 +231,20 @@ def test_byte_primitive_type_detected():
     assert service_type and service_type["type"] == "byte", service_type
 
 
+@case
+def test_pipe_delimited_enum_values_detected():
+    # Some ZIA pages render enum members as A|B|C inside the same bracketed
+    # "Possible values" pattern used by comma-delimited pages.
+    c = load("zia/admin-role-management/admin-role-resource-get-role")
+    role_type = field(c["response_schema"], "roleType")
+    assert role_type and role_type["enum"] == [
+        "ORG_ADMIN",
+        "EXEC_INSIGHT",
+        "EXEC_INSIGHT_AND_ORG_ADMIN",
+        "SDWAN",
+    ], role_type
+
+
 def main():
     if not os.path.isdir(RAW):
         print(f"FIXTURES MISSING: {RAW}")
