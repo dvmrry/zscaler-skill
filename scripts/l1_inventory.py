@@ -7,7 +7,7 @@ collision-free anchors (no fuzzy term matching):
   go-sdk / python-sdk : per-product SDK package directory          (dir-anchor)
   terraform           : provider file whose SDK *import* matches the product
                         anchor AND that defines a resource/data source
-  postman             : request URL contains an SDK endpoint stem  (endpoint-path)
+  postman             : request URL contains a configured Postman endpoint stem
   automate-contract   : rendered Automate contract JSON operations (endpoint-path)
   mcp / ansible       : the collection / tools dir of the SDK parent (parent-scoped)
 
@@ -28,7 +28,8 @@ FAMILIES = ["go-sdk", "python-sdk", "terraform", "mcp", "ansible", "automate-con
 # collections / mcp tool dirs. `go_anchor` = SDK import-path substrings
 # identifying the product's Go packages (the TF wrapper-edge anchor too).
 # `resource_stems` scope the parent-organized families (mcp/ansible) and seed
-# the Go endpoint-keyword filter. `endpoint_stems` anchor Postman by URL path.
+# the Go endpoint-keyword filter. `endpoint_stems` anchor contract paths; use
+# `postman_endpoint_stems` when the collection's base-variable path shape differs.
 PRODUCTS = {
     "zia": dict(parents=["zia"],
                 go_anchor=["zia/services"],
@@ -41,6 +42,7 @@ PRODUCTS = {
                 go_anchor=["zpa/services"],
                 py_globs=["zscaler-sdk-python/zscaler/zpa/*.py"],
                 endpoint_stems=["/zpa/"],
+                postman_endpoint_stems=["/mgmtconfig/", "/cbiconfig/", "/userconfig/"],
                 resource_stems=["zpa"],
                 mcp_all_parent=True,
                 doc_area="zpa"),
@@ -325,7 +327,7 @@ def _ansible_symbols(path):
 
 
 def _postman_requests(cfg):
-    out, stems = [], cfg["endpoint_stems"]
+    out, stems = [], cfg.get("postman_endpoint_stems", cfg["endpoint_stems"])
     path = V + "/zscaler-api-specs/oneapi-postman-collection.json"
     if not os.path.exists(path):
         return out
