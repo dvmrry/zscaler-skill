@@ -59,8 +59,8 @@ npm install                        # installs the pinned Playwright (1.61.0)
 npx playwright install chromium    # fetches the matching browser build
 cd ../..
 git submodule update --init vendor/zscaler-sdk-go vendor/terraform-provider-zpa
-./scripts/refresh-automate-zscaler.sh            # all products in urls/  (currently zpa)
-./scripts/refresh-automate-zscaler.sh zpa        # or one product
+./scripts/refresh-automate-zscaler.sh            # all products in urls/
+./scripts/refresh-automate-zscaler.sh zpa        # or selected products
 ```
 
 Or drive a stage directly:
@@ -88,15 +88,16 @@ safe with a **complete** list, so never pass `--prune` to a partial/retry captur
 
 Per-product operation lists live in `urls/<product>.txt` (sitemap-derived canonical
 URLs). `parse_contract.py` writes one `<product>-api-reference.json` per product into
-`vendor/zscaler-api-specs/automate-zscaler/`. Captured and parsed so far: **ZPA**
-(`urls/zpa.txt`) and **ZIA** (`urls/zia.txt`) — all operations across every group.
+`vendor/zscaler-api-specs/automate-zscaler/`. Captured and parsed so far: **BI**,
+**EASM**, **ZCC**, **ZCell**, **ZCloudConnector**, **ZDX**, **ZIA**, **ZID**, and
+**ZPA** — all operation pages from the sitemap for each product.
 
 Reconciliation still covers only the resources mapped in `reconcile_contract.py`'s
-registry (a curated ZPA subset); ZIA contract data is captured but not yet reconciled
-(its registry — ZIA Go SDK structs + Terraform resources — is a follow-on).
+registry (a curated ZPA subset); the other product contracts are captured but not yet
+reconciled (their registries — Go SDK structs + Terraform resources — are follow-ons).
 
-Still deferred: the remaining products (ZDX, ZCC, cloud-connector, zid, easm, bi,
-zcell); reconciler registry expansion (ZPA beyond the 5 mapped resources, then ZIA);
-the 7th source family `automate-contract` in `scripts/l1_inventory.py`; source-precedence
-wiring; and Python-SDK / Postman cross-checks in the reconciler (currently Go SDK +
-Terraform, which carry the type / required / readonly / enum signal).
+Still deferred: reconciler registry expansion (ZPA beyond the 5 mapped resources, then
+the captured non-ZPA products); the 7th source family `automate-contract` in
+`scripts/l1_inventory.py`; source-precedence wiring; and Python-SDK / Postman
+cross-checks in the reconciler (currently Go SDK + Terraform, which carry the type /
+required / readonly / enum signal).

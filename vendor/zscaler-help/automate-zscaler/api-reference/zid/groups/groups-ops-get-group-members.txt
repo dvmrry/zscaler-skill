@@ -1,0 +1,107 @@
+API ReferenceZIdentity APIGroupsGroups Ops Get Group Members
+Groups Ops Get Group Members
+GET
+https://api.zsapi.net/ziam/admin/api/v1/groups/:id/users
+
+Retrieves the list of users details for a specific group using the group ID.
+
+Request
+​
+PATH PARAMETERS
+id
+string
+REQUIRED
+
+Unique identifier for the group (used in endpoints where group ID is required).
+
+QUERY PARAMETERS
+offset
+int32
+
+Possible values: >= 0
+
+The starting point for pagination, with the number of records that can be skipped before fetching results.
+
+limit
+int32
+
+Possible values: >= 0 and <= 1000
+
+The maximum number of records to return per request. Minimum: 0, Maximum: 1000
+
+loginname
+string[]
+
+Filters results by one or multiple login names.
+
+loginname[like]
+string
+
+Filter results by login name using a case-insensitive partial match.
+
+displayname[like]
+string
+
+Filters results by display name using a case-insensitive partial match.
+
+primaryemail[like]
+string
+
+Filter results by primary email using a case-insensitive partial match.
+
+domainname
+string[]
+
+Filters results by a domain name or by multiple domain.
+
+idpname
+string[]
+
+Filters results by one or more identity provider names.
+
+Responses
+​
+200
+401
+
+The request was successful, and a paginated list of users details are returned.
+
+APPLICATION/JSON
+Schema
+Example (auto)
+SCHEMA
+Array [
+results_total
+int64
+REQUIRED
+
+The total number of user details available.
+
+pageOffset
+int64
+REQUIRED
+
+The starting point of the current page in pagination. Helps determine which set of records is being displayed.
+
+pageSize
+int64
+REQUIRED
+
+The number of records included in a single response page.
+
+next_link
+string
+REQUIRED
+
+URL link to the next page of user detail records, if available. Helps to navigate through paginated results.
+
+prev_link
+string
+REQUIRED
+
+URL link to the previous page of user detail records, if available.
+
+records
+object[]
+REQUIRED
+]

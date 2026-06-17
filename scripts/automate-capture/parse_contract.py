@@ -25,8 +25,9 @@ A field block is:  name \n type [\n REQUIRED] [\n "Possible values: [..]"] [\n p
   - enum:     "Possible values: [A, B, C]"
 
 Field-vs-prose discriminator: a field is a `name` line whose NEXT line is a type
-token, where types are a closed primitive set plus PascalCase object refs. That
-cleanly separates camelCase field names (e.g. praEnabled) from types (string).
+token, where types are a closed primitive set, PascalCase object refs, or named
+primitive aliases like `SourceType (string)`. That cleanly separates camelCase
+field names (e.g. praEnabled) from types (string).
 """
 import json
 import os
@@ -35,7 +36,7 @@ import sys
 
 PRIMITIVES = {
     "string", "boolean", "number", "integer", "int32", "int64",
-    "object", "float", "double", "long", "date", "date-time",
+    "object", "float", "double", "long", "byte", "date", "date-time",
 }
 
 # Lines that are structural, never a field name.
@@ -68,11 +69,17 @@ _READONLY_RE = re.compile(
 
 
 def _is_type(s):
-    """A type token: primitive, or PascalCase object ref, with optional [] suffix."""
+    """A type token: primitive, PascalCase object ref, or named primitive alias."""
     if not s:
         return False
     base = s[:-2] if s.endswith("[]") else s
     if base in PRIMITIVES:
+        return True
+    if re.match(
+        r"^[A-Z][A-Za-z0-9_]* "
+        r"\((string|boolean|number|integer|int32|int64|object|float|double|long|byte|date|date-time)\)$",
+        base,
+    ):
         return True
     return bool(re.match(r"^[A-Z][A-Za-z0-9_]*$", base))
 

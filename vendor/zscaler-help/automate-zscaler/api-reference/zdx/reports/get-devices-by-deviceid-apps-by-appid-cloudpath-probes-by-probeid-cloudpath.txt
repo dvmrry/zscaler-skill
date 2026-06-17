@@ -1,0 +1,63 @@
+API ReferenceZscaler Digital Experience APIReportsGets the Cloud Path hop data for an application on a specific device
+Gets the Cloud Path hop data for an application on a specific device
+GET
+https://api.zsapi.net/zdx/v1/devices/:deviceid/apps/:appid/cloudpath-probes/:probeid/cloudpath
+
+Gets the Cloud Path hop data for an application on a specific device. Includes the summary data for the entire path like the total number of hops, packet loss, latency, and tunnel type (if available). It also includes a similar summary of data for each individual hop. If the time range is not specified, the endpoint defaults to the last 2 hours.
+
+Request
+​
+PATH PARAMETERS
+deviceid
+integer
+REQUIRED
+
+The device ID.
+
+appid
+integer
+REQUIRED
+
+The application ID assigned by ZDX. For example, 12 for Microsoft Teams Call Quality.
+
+Example: 12
+probeid
+integer
+REQUIRED
+
+The probe ID.
+
+Example: 12
+QUERY PARAMETERS
+from
+integer
+
+Possible values: >= 0
+
+The start time (in seconds) for the query. The value is entered in Unix Epoch. If not entered, returns the data for the last 2 hours.
+
+to
+integer
+
+Possible values: >= 0
+
+The end time (in seconds) for the query. The value is entered in Unix Epoch. If not entered, returns the data for the last 2 hours.
+
+Responses
+​
+200
+401
+403
+
+Successful Operation
+
+APPLICATION/JSON
+Schema
+Example (auto)
+SCHEMA
+Array [
+timestamp
+integer
+cloudpath
+object[]
+]
