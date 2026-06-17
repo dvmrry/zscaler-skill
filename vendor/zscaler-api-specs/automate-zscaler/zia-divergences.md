@@ -13,8 +13,8 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 ## Totals
 
 - Type drift (contract numeric vs Go string): **0**
-- Required drift (contract vs TF): **10**
-- Enum: **31** match / **3** value-conflict / **6** one-sided
+- Required drift (contract vs TF): **26**
+- Enum: **34** match / **6** value-conflict / **7** one-sided
 - Contract readonly fields checked: **1** (TF disagreement: 0)
 
 ## bandwidth_class
@@ -22,6 +22,66 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 `POST /zia/api/v1/bandwidthClasses` — contract 12 / Go 13 / TF 6 fields
 
 **Go SDK fields absent from the contract:** `fileSize`
+
+## custom_file_type
+
+`POST /zia/api/v1/customFileTypes` — contract 5 / Go 5 / TF 6 fields
+
+## dc_exclusion
+
+`POST /zia/api/v1/dcExclusions` — contract 6 / Go 6 / TF 8 fields
+
+## dlp_dictionary
+
+`POST /zia/api/v1/dlpDictionaries` — contract 28 / Go 29 / TF 20 fields
+
+**Enum value conflicts:**
+
+- `customPhraseMatchType`: contract ['MATCH_ALL_CUSTOM_PHRASE_PATTERN_DICTIONARY', 'MATCH_ANY_CUSTOM_PHRASE_PATTERN_DICTIONARY'] vs TF ['MATCH_ALL_CUSTOM_PHRASE_PATTERN_DICTIONARY', 'MATCH_ANY_CUSTOM_PHRASE_PATTERN_DICTIONARY', 'MATCH_CUSTOM_ANY_PATTERN_WITH_ANY_PHRASE']
+- `dictionaryType`: contract ['PATTERNS_AND_PHRASES', 'EXACT_DATA_MATCH', 'INDEXED_DATA_MATCH'] vs TF ['PATTERNS_AND_PHRASES', 'EXACT_DATA_MATCH', 'INDEXED_DATA_MATCH', 'MIP_TAG']
+
+**Contract fields absent from the Go SDK struct:** `idmProfileMatchAccuracy`, `includeSsnNumbers`, `ssnNumbers`
+
+**Go SDK fields absent from the contract:** `confidenceLevelForPredefinedDict`, `idmProfileMatchAccuracyDetails`, `predefinedPhrases`, `thresholdAllowed`
+
+## dlp_engine
+
+`POST /zia/api/v1/dlpEngines` — contract 6 / Go 6 / TF 6 fields
+
+**Required drift:**
+
+- `name`: contract required=False, TF required=True (TF stricter than API)
+
+## dlp_notification_template
+
+`POST /zia/api/v1/dlpNotificationTemplates` — contract 6 / Go 7 / TF 8 fields
+
+**Required drift:**
+
+- `htmlMessage`: contract required=False, TF required=True (TF stricter than API)
+- `name`: contract required=False, TF required=True (TF stricter than API)
+- `plainTextMessage`: contract required=False, TF required=True (TF stricter than API)
+- `subject`: contract required=False, TF required=True (TF stricter than API)
+
+**Go SDK fields absent from the contract:** `tlsEnabled`
+
+## extranet
+
+`POST /zia/api/v1/extranet` — contract 6 / Go 7 / TF 6 fields
+
+**Required drift:**
+
+- `name`: contract required=False, TF required=True (TF stricter than API)
+
+**Go SDK fields absent from the contract:** `extranetIpPoolList`
+
+## gre_tunnel
+
+`POST /zia/api/v1/greTunnels` — contract 12 / Go 12 / TF 9 fields
+
+**Required drift:**
+
+- `sourceIp`: contract required=False, TF required=True (TF stricter than API)
 
 ## ip_destination_group
 
@@ -95,6 +155,16 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 - `status`: contract ['ENABLED', 'DISABLED', 'DISABLED_BY_SERVICE_PROVIDER', 'NOT_PROVISIONED_IN_SERVICE_PROVIDER', 'IN_TRIAL'] vs TF ['ENABLED', 'DISABLED']
 - `type`: contract ['NONE', 'SOFTWARE_AA_FLAG', 'NSS_FOR_WEB', 'NSS_FOR_FIREWALL', 'VZEN', 'VZEN_SME', 'VZEN_SMLB', 'PINNED_NSS', 'MD5_CAPABLE', 'ADP', 'ZIRSVR', 'NSS_FOR_ZPA'] vs TF ['NSS_FOR_FIREWALL', 'NSS_FOR_WEB']
 
+## proxy
+
+`POST /zia/api/v1/proxies` — contract 11 / Go 11 / TF 10 fields
+
+**Required drift:**
+
+- `address`: contract required=True, TF required=False (contract stricter than TF)
+- `name`: contract required=True, TF required=False (contract stricter than TF)
+- `port`: contract required=True, TF required=False (contract stricter than TF)
+
 ## risk_profile
 
 `POST /zia/api/v1/riskProfiles` — contract 37 / Go 37 / TF 35 fields
@@ -106,6 +176,18 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 ## rule_label
 
 `POST /zia/api/v1/ruleLabels` — contract 7 / Go 7 / TF 4 fields
+
+## static_ip
+
+`POST /zia/api/v1/staticIP` — contract 10 / Go 11 / TF 7 fields
+
+**Required drift:**
+
+- `ipAddress`: contract required=False, TF required=True (TF stricter than API)
+- `latitude`: contract required=True, TF required=False (contract stricter than TF)
+- `longitude`: contract required=True, TF required=False (contract stricter than TF)
+
+**Go SDK fields absent from the contract:** `city`
 
 ## url_category
 
@@ -127,9 +209,30 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 **Go SDK fields absent from the contract:** `authMethods`, `deleted`
 
+## vpn_credential
+
+`POST /zia/api/v1/vpnCredentials` — contract 8 / Go 8 / TF 6 fields
+
+**Required drift:**
+
+- `type`: contract required=True, TF required=False (contract stricter than TF)
+
+**Enum value conflicts:**
+
+- `type`: contract ['CN', 'IP', 'UFQDN', 'XAUTH'] vs TF ['IP', 'UFQDN']
+
 ## workload_group
 
 `POST /zia/api/v1/workloadGroups` — contract 7 / Go 7 / TF 5 fields
+
+## zpa_gateway
+
+`POST /zia/api/v1/zpaGateways` — contract 9 / Go 9 / TF 7 fields
+
+**Required drift:**
+
+- `name`: contract required=False, TF required=True (TF stricter than API)
+- `zpaServerGroup`: contract required=False, TF required=True (TF stricter than API)
 
 ## Scope
 
