@@ -13,8 +13,9 @@ sys.path.insert(0, HERE)
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 
 from reconcile_contract import (  # noqa: E402
-    build_report, contract_category, extract_go_struct_fields,
-    extract_tf_schema_fields, go_category, snake_to_camel,
+    ansible_category, build_report, contract_category, extract_ansible_argument_spec_fields,
+    extract_ansible_sdk_calls, extract_go_struct_fields, extract_tf_schema_fields,
+    go_category, snake_to_camel,
 )
 
 CASES = []
@@ -179,6 +180,48 @@ def test_tf_schema_anchors_to_resource_function_not_helper_schema():
     assert f["policyRuleResource"]["inline"] is False
 
 
+ANSIBLE_FIXTURE = '''
+MODE_CHOICES = ["A", "B"]
+
+def main():
+    port_spec = dict(
+        leaked=dict(type="str", required=True, choices=["nested"]),
+    )
+    argument_spec = {}
+    argument_spec.update(
+        dict(
+            name=dict(type="str", required=True),
+            mode=dict(type="str", choices=MODE_CHOICES),
+            count=dict(type="int", required=False),
+            enabled=dict(type="bool"),
+            tags=dict(type="list", elements="str"),
+            port_ranges=dict(type="list", elements="dict", options=port_spec, required=False),
+            state=dict(type="str", choices=["present", "absent"], default="present"),
+        )
+    )
+    client.foo.create(name="x")
+'''
+
+
+@case
+def test_ansible_argument_spec_top_level_enum_required_and_nested_options():
+    f = extract_ansible_argument_spec_fields(ANSIBLE_FIXTURE)
+    assert set(f) == {"name", "mode", "count", "enabled", "tags", "portRanges"}, set(f)
+    assert "leaked" not in f, "nested options= fields must not be captured"
+    assert "state" not in f, "module lifecycle state is not an API field"
+    assert f["name"]["required"] is True
+    assert f["mode"]["enum"] == ["A", "B"]
+    assert f["count"]["category"] == "number"
+    assert f["enabled"]["category"] == "boolean"
+    assert f["tags"]["category"] == "array"
+    assert f["portRanges"]["category"] == "array"
+
+
+@case
+def test_ansible_sdk_calls_extracted():
+    assert extract_ansible_sdk_calls(ANSIBLE_FIXTURE) == ["client.foo.create"]
+
+
 @case
 def test_snake_to_camel():
     assert snake_to_camel("version_profile_id") == "versionProfileId"
@@ -192,6 +235,11 @@ def test_categories():
     assert go_category("int64") == "number"
     assert go_category("[]string") == "array"
     assert go_category("*SubType") == "object"
+    assert ansible_category("str") == "string"
+    assert ansible_category("int") == "number"
+    assert ansible_category("bool") == "boolean"
+    assert ansible_category("list") == "array"
+    assert ansible_category("dict") == "object"
     assert contract_category("int64") == "number"
     assert contract_category("string[]") == "array"
     assert contract_category("SanitizedString50 (string)") == "string"
@@ -216,6 +264,8 @@ def test_integration_stable_invariants():
     import json
     os.environ["REPO_ROOT"] = ROOT
     report = build_report(json.load(open(contract, encoding="utf-8")))
+    assert report["totals"]["ansible_resources"] == 13, report["totals"]
+    assert report["totals"]["ansible_no_surface"] == 3, report["totals"]
     acg = next(r for r in report["resources"] if r["resource"] == "app_connector_group")
     # Numeric-as-string is foundational ZPA behavior — `id` must show type drift.
     drift = {d["field"] for d in acg["type_drift"]}
@@ -234,6 +284,9 @@ def test_integration_stable_invariants():
     aseg = next(r for r in report["resources"] if r["resource"] == "application_segment")
     unmatched = set(aseg["presence"]["contract_unmatched_in_tf"])
     assert "tcpPortRange" not in unmatched and "udpPortRange" not in unmatched, unmatched
+    ansible_conflicts = {d["field"] for d in aseg["ansible"]["enum"]["value_conflict"]}
+    assert ansible_conflicts == {"tcpProtocols", "udpProtocols"}, \
+        aseg["ansible"]["enum"]["value_conflict"]
     # P2#3: extranetDTO matches extranet_dto by case-fold -> not "unmatched".
     assert "extranetDTO" not in set(sg["presence"]["contract_unmatched_in_tf"]), \
         sg["presence"]["contract_unmatched_in_tf"]
@@ -254,6 +307,8 @@ def test_integration_zia_registry():
     report = build_report(json.load(open(contract, encoding="utf-8")), "zia")
     assert len(report["resources"]) == 54, len(report["resources"])
     assert "api-authentication" in report["contract_only_groups"], report["contract_only_groups"]
+    assert report["totals"]["ansible_resources"] == 52, report["totals"]
+    assert report["totals"]["ansible_no_surface"] == 2, report["totals"]
     for name in (
         "advanced_settings", "advanced_threat_settings", "atp_malicious_urls",
         "atp_malware_inspection", "atp_malware_policy", "atp_malware_protocols",
@@ -264,6 +319,7 @@ def test_integration_zia_registry():
     ):
         resource = next(r for r in report["resources"] if r["resource"] == name)
         assert resource["required_drift"] == [], (name, resource["required_drift"])
+        assert resource["ansible"]["required_drift"] == [], (name, resource["ansible"]["required_drift"])
     security_settings = next(r for r in report["resources"] if r["resource"] == "security_policy_settings")
     assert security_settings["counts"]["contract"] == 2, security_settings["counts"]
     assert security_settings["counts"]["tf"] == 2, security_settings["counts"]
@@ -289,6 +345,8 @@ def test_integration_zia_registry():
     vpn = next(r for r in report["resources"] if r["resource"] == "vpn_credential")
     assert any(d["field"] == "type" for d in vpn["enum"]["value_conflict"]), \
         vpn["enum"]["value_conflict"]
+    assert any(d["field"] == "type" for d in vpn["ansible"]["enum"]["value_conflict"]), \
+        vpn["ansible"]["enum"]["value_conflict"]
     casb_dlp = next(r for r in report["resources"] if r["resource"] == "casb_dlp_rule")
     casb_conflicts = {d["field"] for d in casb_dlp["enum"]["value_conflict"]}
     assert casb_conflicts == {"contentLocation", "type"}, casb_dlp["enum"]["value_conflict"]
