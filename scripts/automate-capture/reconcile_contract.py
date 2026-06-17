@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """reconcile_contract.py — diff the captured automate.zscaler.com contract against
-the Go SDK struct and the Terraform provider schema, and report real divergences.
+client surfaces and report real divergences.
 
 This is the DAV-21 payoff: the rendered contract is the vendor's actual per-operation
 schema (required/readonly/enum). Diffing it against the client-side sources surfaces
@@ -11,6 +11,7 @@ Inputs:
   - normalized contract  : vendor/zscaler-api-specs/automate-zscaler/<product>-api-reference.json
   - Go SDK struct        : vendor/zscaler-sdk-go/... (json tags + Go type)
   - Terraform schema     : vendor/terraform-provider-*... (Required/Optional/Computed + enum)
+  - Python SDK model     : vendor/zscaler-sdk-python/... (wire-key model/request fields)
 
 High-signal axes (conservative — exact names; TF snake_case→camelCase is the only
 alias, derived from the TF key itself; anything unmatched is reported, never guessed):
@@ -21,6 +22,9 @@ alias, derived from the TF key itself; anything unmatched is reported, never gue
                       Optional+Computed server-defaults are NOT treated as readonly)
   - enum            : match / value-conflict (both list values, they differ) /
                       one-sided (only one side constrains)
+  - Python presence : model/request payload keys only; the Python SDK mostly accepts
+                      dynamic **kwargs and does not generally encode required/enum
+                      constraints, so those are not inferred.
 
 Extractors take source TEXT (pure, unit-tested in test_reconcile_contract.py); thin
 file wrappers read from disk. Run from the repo root:
@@ -410,6 +414,164 @@ def ansible_repo(path):
     return None
 
 
+# ---- Python SDK model/service extraction -----------------------------------
+
+_PYTHON_MODEL_ONLY_FIELDS = set()
+
+
+def _ast_string(node):
+    if isinstance(node, ast.Constant) and isinstance(node.value, str):
+        return node.value
+    return None
+
+
+def _python_config_key(node):
+    if not (isinstance(node, ast.Subscript) and isinstance(node.value, ast.Name) and node.value.id == "config"):
+        return None
+    return _ast_string(node.slice)
+
+
+def _python_dict_top_level_keys(node):
+    if not isinstance(node, ast.Dict):
+        return []
+    return [k.value for k in node.keys if isinstance(k, ast.Constant) and isinstance(k.value, str)]
+
+
+def _python_value_category(node):
+    if isinstance(node, (ast.List, ast.ListComp)):
+        return "array"
+    if isinstance(node, ast.Constant):
+        if isinstance(node.value, bool):
+            return "boolean"
+        if isinstance(node.value, (int, float)):
+            return "number"
+        if isinstance(node.value, str):
+            return "string"
+    if isinstance(node, ast.Call):
+        if isinstance(node.func, ast.Attribute) and node.func.attr == "form_list":
+            return "array"
+        return "object"
+    return None
+
+
+def _python_class(tree, class_name):
+    return next((n for n in tree.body if isinstance(n, ast.ClassDef) and n.name == class_name), None)
+
+
+def extract_python_model_fields(src, class_name):
+    """Top-level Python SDK model/request fields -> {wire_key: {category, source}}.
+    Pure (takes source text). Only the named class is inspected, and request_format
+    collection reads only top-level dict literals assigned/returned by that method,
+    so nested helper model fields cannot bleed into the resource surface."""
+    tree = ast.parse(src)
+    cls = _python_class(tree, class_name)
+    if cls is None:
+        return {}
+    fields = {}
+    attr_category = {}
+
+    for fn in (n for n in cls.body if isinstance(n, ast.FunctionDef) and n.name == "__init__"):
+        for node in ast.walk(fn):
+            key = _python_config_key(node)
+            if isinstance(key, str) and key not in _PYTHON_MODEL_ONLY_FIELDS:
+                fields.setdefault(key, {"category": None, "source": set()})["source"].add("config")
+            if isinstance(node, ast.Assign):
+                for target in node.targets:
+                    if isinstance(target, ast.Attribute) and isinstance(target.value, ast.Name) and target.value.id == "self":
+                        category = _python_value_category(node.value)
+                        if category:
+                            attr_category[target.attr] = category
+
+    for fn in (n for n in cls.body if isinstance(n, ast.FunctionDef) and n.name == "request_format"):
+        for stmt in fn.body:
+            dict_node = None
+            if isinstance(stmt, ast.Assign) and isinstance(stmt.value, ast.Dict):
+                dict_node = stmt.value
+            elif isinstance(stmt, ast.Return) and isinstance(stmt.value, ast.Dict):
+                dict_node = stmt.value
+            if dict_node is None:
+                continue
+            for key, value in zip(dict_node.keys, dict_node.values, strict=False):
+                wire_key = _ast_string(key)
+                if not wire_key or wire_key in _PYTHON_MODEL_ONLY_FIELDS:
+                    continue
+                category = _python_value_category(value)
+                if category is None and isinstance(value, ast.Attribute):
+                    category = attr_category.get(value.attr)
+                rec = fields.setdefault(wire_key, {"category": None, "source": set()})
+                rec["source"].add("request_format")
+                if category:
+                    rec["category"] = category
+
+    return {k: {"category": v["category"], "source": sorted(v["source"])} for k, v in fields.items()}
+
+
+def _python_service_field_key(raw):
+    if "_" in raw and not any(c.isupper() for c in raw):
+        return snake_to_camel(raw)
+    return raw
+
+
+def extract_python_service_methods(src):
+    tree = ast.parse(src)
+    methods = []
+    for cls in (n for n in tree.body if isinstance(n, ast.ClassDef)):
+        for fn in (n for n in cls.body if isinstance(n, ast.FunctionDef)):
+            if any(
+                isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Attribute)
+                and node.func.attr == "create_request"
+                for node in ast.walk(fn)
+            ):
+                methods.append(fn.name)
+    return sorted(set(methods))
+
+
+def _python_direct_dicts(stmts):
+    for stmt in stmts:
+        if isinstance(stmt, ast.Assign) and isinstance(stmt.value, ast.Dict):
+            yield stmt.value
+        elif isinstance(stmt, ast.Return) and isinstance(stmt.value, ast.Dict):
+            yield stmt.value
+        elif isinstance(stmt, (ast.If, ast.For, ast.While, ast.With)):
+            yield from _python_direct_dicts(stmt.body)
+            yield from _python_direct_dicts(stmt.orelse)
+        elif isinstance(stmt, ast.Try):
+            yield from _python_direct_dicts(stmt.body)
+            for handler in stmt.handlers:
+                yield from _python_direct_dicts(handler.body)
+            yield from _python_direct_dicts(stmt.orelse)
+            yield from _python_direct_dicts(stmt.finalbody)
+
+
+def extract_python_service_fields(src, method_names):
+    """Top-level literal dict keys inside selected Python SDK service methods.
+    This covers service-only wrappers that build request/response dictionaries but
+    have no dedicated model class. The scan is method-scoped so sibling endpoints in
+    large shared service files cannot pollute a resource's field surface."""
+    wanted = set(method_names or [])
+    if not wanted:
+        return {}
+    tree = ast.parse(src)
+    fields = {}
+    for cls in (n for n in tree.body if isinstance(n, ast.ClassDef)):
+        for fn in (n for n in cls.body if isinstance(n, ast.FunctionDef) and n.name in wanted):
+            for node in _python_direct_dicts(fn.body):
+                for key in _python_dict_top_level_keys(node):
+                    if key in _PYTHON_MODEL_ONLY_FIELDS:
+                        continue
+                    fields.setdefault(_python_service_field_key(key), {"category": None, "source": set()})[
+                        "source"
+                    ].add(fn.name)
+    return {k: {"category": v["category"], "source": sorted(v["source"])} for k, v in fields.items()}
+
+
+def python_repo(path):
+    if path and path.startswith("vendor/zscaler-sdk-python/"):
+        return "zscaler-sdk-python"
+    return None
+
+
 # ---- contract type category ------------------------------------------------
 
 def contract_category(t):
@@ -442,93 +604,143 @@ ZPA_RESOURCES = [
      "get": "gets-the-app-connector-group-details-for-the-specified-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group.go", "AppConnectorGroup"),
      "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_app_connector_group.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zpa/models/app_connector_groups.py", "AppConnectorGroup"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zpa/app_connector_groups.py",
+                "methods": ["list_connector_groups", "get_connector_group", "add_connector_group", "update_connector_group"]},
      "ansible": "vendor/zpacloud-ansible/plugins/modules/zpa_app_connector_groups.py"},
     {"name": "application_server", "group": "server-management",
      "create": "adds-a-new-server-for-the-specified-customer",
      "get": "gets-the-server-details-for-the-specified-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zpa/services/appservercontroller/zpa_app_server_controller.go", "ApplicationServer"),
      "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_app_server_controller.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zpa/models/application_servers.py", "AppServers"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zpa/servers.py",
+                "methods": ["list_servers", "get_server", "add_server", "update_server"]},
      "ansible": "vendor/zpacloud-ansible/plugins/modules/zpa_application_server.py"},
     {"name": "application_segment", "group": "application-segment-management",
      "create": "adds-a-new-application-segment-for-the-specified-customer",
      "get": "gets-the-application-segment-details-for-the-specified-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go", "ApplicationSegmentResource"),
      "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py", "ApplicationSegments"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py",
+                "methods": ["list_segments", "get_segment", "add_segment", "update_segment"]},
      "ansible": "vendor/zpacloud-ansible/plugins/modules/zpa_application_segment.py"},
     {"name": "ba_certificate", "group": "certificate-management",
      "create": "adds-a-certificate-with-a-private-key-for-the-specified-customer",
      "get": "gets-the-certificate-details-for-the-specified-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zpa/services/bacertificate/zpa_ba_certificate.go", "BaCertificate"),
      "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_ba_certificate.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zpa/models/certificates.py", "Certificate"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zpa/certificates.py",
+                "methods": ["list_certificates", "get_certificate", "add_certificate", "update_certificate"]},
      "ansible": "vendor/zpacloud-ansible/plugins/modules/zpa_ba_certificate.py"},
     {"name": "emergency_access", "group": "emergency-access-management",
      "create": "add-emergency-access-user",
      "get": "get-emergency-access-user",
      "go": ("vendor/zscaler-sdk-go/zscaler/zpa/services/emergencyaccess/emergencyaccess.go", "EmergencyAccess"),
-     "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_emergency_access.go"},
+     "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_emergency_access.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zpa/models/emergency_access.py", "EmergencyAccessUser"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zpa/emergency_access.py",
+                "methods": ["list_users", "get_user", "add_user", "update_user"]}},
     {"name": "inspection_custom_control", "group": "appprotection-control-management",
      "create": "create-custom-control",
      "get": "get-custom-control-by-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zpa/services/inspectioncontrol/inspection_custom_controls/zpa_inspection_custom_controls.go", "InspectionCustomControl"),
-     "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_inspection_custom_controls.go"},
+     "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_inspection_custom_controls.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zpa/models/app_protection_profile.py", "CustomControls"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zpa/app_protection.py",
+                "methods": ["list_custom_controls", "get_custom_control", "add_custom_control", "update_custom_control"]}},
     {"name": "inspection_profile", "group": "appprotection-profile-management",
      "create": "add-inspection-profile",
      "get": "get-inspection-profile",
      "go": ("vendor/zscaler-sdk-go/zscaler/zpa/services/inspectioncontrol/inspection_profile/zpa_inspection_profile.go", "InspectionProfile"),
-     "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_inspection_profile.go"},
+     "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_inspection_profile.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zpa/models/app_protection_profile.py", "AppProtectionProfile"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zpa/app_protection.py",
+                "methods": ["list_profiles", "get_profile", "add_profile", "update_profile"]}},
     {"name": "lss_config", "group": "log-streaming-service-lss-configuration",
      "create": "add-a-new-lss-configuration-for-the-specified-customer",
      "get": "gets-the-lss-configuration-details-for-the-specified-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go", "LSSResource"),
      "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_lss_config_controller.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py", "LSSResourceModel"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zpa/lss.py",
+                "methods": ["list_configs", "get_config", "add_lss_config", "update_lss_config"]},
      "ansible": "vendor/zpacloud-ansible/plugins/modules/zpa_lss_config_controller.py"},
     {"name": "pra_approval", "group": "privileged-approval-management",
      "create": "add-privileged-approval",
      "get": "get-privileged-approval",
      "go": ("vendor/zscaler-sdk-go/zscaler/zpa/services/privilegedremoteaccess/praapproval/praapproval.go", "PrivilegedApproval"),
      "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_pra_approval.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zpa/models/pra_approval.py", "PrivilegedRemoteAccessApproval"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zpa/pra_approval.py",
+                "methods": ["list_approval", "get_approval", "add_approval", "update_approval"]},
      "ansible": "vendor/zpacloud-ansible/plugins/modules/zpa_pra_approval.py"},
     {"name": "pra_console", "group": "privileged-console-management",
      "create": "add-pra-console",
      "get": "get-pra-console",
      "go": ("vendor/zscaler-sdk-go/zscaler/zpa/services/privilegedremoteaccess/praconsole/praconsole.go", "PRAConsole"),
      "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_pra_console_controller.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zpa/models/pra_console.py", "PrivilegedRemoteAccessConsole"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zpa/pra_console.py",
+                "methods": ["list_consoles", "get_console", "add_console", "update_console"]},
      "ansible": "vendor/zpacloud-ansible/plugins/modules/zpa_pra_console_controller.py"},
     {"name": "pra_credential", "group": "privileged-credential-management",
      "create": "add-credential",
      "get": "get-credential",
      "go": ("vendor/zscaler-sdk-go/zscaler/zpa/services/privilegedremoteaccess/pracredential/credential_controller.go", "Credential"),
      "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_pra_credential_controller.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zpa/models/pra_credential.py", "PrivilegedRemoteAccessCredential"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zpa/pra_credential.py",
+                "methods": ["list_credentials", "get_credential", "add_credential", "update_credential"]},
      "ansible": "vendor/zpacloud-ansible/plugins/modules/zpa_pra_credential_controller.py"},
     {"name": "pra_portal", "group": "privileged-portal-management",
      "create": "add",
      "get": "get-pra-portal",
      "go": ("vendor/zscaler-sdk-go/zscaler/zpa/services/privilegedremoteaccess/praportal/praportal.go", "PRAPortal"),
      "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_pra_portal_controller.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zpa/models/pra_portal.py", "PrivilegedRemoteAccessPortal"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zpa/pra_portal.py",
+                "methods": ["list_portals", "get_portal", "add_portal", "update_portal"]},
      "ansible": "vendor/zpacloud-ansible/plugins/modules/zpa_pra_portal_controller.py"},
     {"name": "server_group", "group": "server-group-management",
      "create": "add-a-new-server-group",
      "get": "gets-the-server-group-details-for-the-specified-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zpa/services/servergroup/zpa_server_group.go", "ServerGroup"),
      "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_server_group.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zpa/models/server_group.py", "ServerGroup"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zpa/server_groups.py",
+                "methods": ["list_groups", "get_group", "add_group", "update_group"]},
      "ansible": "vendor/zpacloud-ansible/plugins/modules/zpa_server_group.py"},
     {"name": "segment_group", "group": "segment-group-management",
      "create": "adds-a-new-segment-group-for-the-specified-customer",
      "get": "gets-the-segment-group-details-for-the-specified-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zpa/services/segmentgroup/zpa_segment_group.go", "SegmentGroup"),
      "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zpa/models/segment_group.py", "SegmentGroup"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zpa/segment_groups.py",
+                "methods": ["list_groups", "get_group", "add_group", "update_group"]},
      "ansible": "vendor/zpacloud-ansible/plugins/modules/zpa_segment_group.py"},
     {"name": "provisioning_key", "group": "provisioning-key-management",
      "create": "adds-a-new-provisioning-key-for-the-specified-customer",
      "get": "gets-details-of-the-provisioning-key-for-the-specified-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go", "ProvisioningKey"),
      "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_provisioning_key.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zpa/models/provisioning_keys.py", "ProvisioningKey"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zpa/provisioning.py",
+                "methods": ["list_provisioning_keys", "get_provisioning_key", "add_provisioning_key",
+                            "update_provisioning_key"]},
      "ansible": "vendor/zpacloud-ansible/plugins/modules/zpa_provisioning_key.py"},
     {"name": "service_edge_group", "group": "private-service-edge-group-management",
      "create": "add-private-broker-group",
      "get": "get-private-broker-group",
      "go": ("vendor/zscaler-sdk-go/zscaler/zpa/services/serviceedgegroup/zpa_service_edge_group.go", "ServiceEdgeGroup"),
      "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zpa/models/service_edge_groups.py", "ServiceEdgeGroup"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zpa/service_edge_group.py",
+                "methods": ["list_service_edge_groups", "get_service_edge_group", "add_service_edge_group",
+                            "update_service_edge_group"]},
      "ansible": "vendor/zpacloud-ansible/plugins/modules/zpa_service_edge_groups.py"},
 ]
 
@@ -539,6 +751,9 @@ ZIA_RESOURCES = [
      "compare_required": False,
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/advanced_settings/advanced_settings.go", "AdvancedSettings"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_advanced_settings.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/advanced_settings.py", "AdvancedSettings"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/advanced_settings.py",
+                "methods": ["get_advanced_settings", "update_advanced_settings"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_advanced_settings.py"},
     {"name": "advanced_threat_settings", "group": "advanced-threat-protection-policy",
      "update": "cyber-threat-protection-resource-update-config",
@@ -546,17 +761,28 @@ ZIA_RESOURCES = [
      "compare_required": False,
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/advancedthreatsettings/advancedthreatsettings.go", "AdvancedThreatSettings"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_atp_settings.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/advanced_threat_settings.py",
+                          "AdvancedThreatProtectionSettings"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/atp_policy.py",
+                "methods": ["get_atp_settings", "update_atp_settings"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_atp_settings.py"},
     {"name": "admin_role", "group": "admin-role-management",
      "create": "admin-role-resource-add-role",
      "get": "admin-role-resource-get-role",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/adminuserrolemgmt/roles/adminroles.go", "AdminRoles"),
-     "tf": "vendor/terraform-provider-zia/zia/resource_zia_admin_roles.go"},
+     "tf": "vendor/terraform-provider-zia/zia/resource_zia_admin_roles.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/admin_roles.py", "AdminRoles"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/admin_roles.py",
+                "methods": ["list_roles", "get_role", "add_role", "update_role"]}},
     {"name": "alerts", "group": "alerts",
      "create": "alert-subscription-resource-add-alert-subscription",
      "get": "alert-subscription-resource-get-alert-subscription",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/alerts/alerts.go", "AlertSubscriptions"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_alerts.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/alert_subscriptions.py", "AlertSubscriptions"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/alert_subscriptions.py",
+                "methods": ["list_alert_subscriptions", "get_alert_subscription", "add_alert_subscription",
+                            "update_alert_subscription"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_alerts.py"},
     {"name": "atp_malicious_urls", "group": "advanced-threat-protection-policy",
      "update": "cyber-threat-protection-resource-update-malicious-urls",
@@ -564,6 +790,8 @@ ZIA_RESOURCES = [
      "compare_required": False,
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/advancedthreatsettings/advancedthreatsettings.go", "MaliciousURLs"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_atp_malicious_urls.go",
+     "python": {"service": "vendor/zscaler-sdk-python/zscaler/zia/atp_policy.py",
+                "methods": ["get_atp_malicious_urls", "add_atp_malicious_urls"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_atp_malicious_urls.py"},
     {"name": "atp_malware_inspection", "group": "malware-protection-policy",
      "update": "cyber-threat-protection-resource-update-atp-malware-inspection-config",
@@ -571,6 +799,8 @@ ZIA_RESOURCES = [
      "compare_required": False,
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/malware_protection/malware_protection.go", "ATPMalwareInspection"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_atp_malware_inspection.go",
+     "python": {"service": "vendor/zscaler-sdk-python/zscaler/zia/malware_protection_policy.py",
+                "methods": ["get_atp_malware_inspection", "update_atp_malware_inspection"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_atp_malware_inspection.py"},
     {"name": "atp_malware_policy", "group": "malware-protection-policy",
      "update": "cyber-threat-protection-resource-update-malware-policy-config",
@@ -578,6 +808,8 @@ ZIA_RESOURCES = [
      "compare_required": False,
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/malware_protection/malware_protection.go", "MalwarePolicy"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_atp_malware_policy.go",
+     "python": {"service": "vendor/zscaler-sdk-python/zscaler/zia/malware_protection_policy.py",
+                "methods": ["get_atp_malware_policy", "update_atp_malware_policy"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_atp_malware_policy.py"},
     {"name": "atp_malware_protocols", "group": "malware-protection-policy",
      "update": "cyber-threat-protection-resource-update-atp-malware-protocols-config",
@@ -585,12 +817,17 @@ ZIA_RESOURCES = [
      "compare_required": False,
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/malware_protection/malware_protection.go", "ATPMalwareProtocols"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_atp_malware_protocols.go",
+     "python": {"service": "vendor/zscaler-sdk-python/zscaler/zia/malware_protection_policy.py",
+                "methods": ["get_atp_malware_protocols", "update_atp_malware_protocols"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_atp_malware_protocols.py"},
     {"name": "atp_malware_settings", "group": "malware-protection-policy",
      "get": "cyber-threat-protection-resource-get-malware-settings-config",
      "compare_required": False,
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/malware_protection/malware_protection.go", "MalwareSettings"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_atp_malware_settings.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/malware_protection_settings.py", "MalwareSettings"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/malware_protection_policy.py",
+                "methods": ["get_malware_settings", "update_malware_settings"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_atp_malware_settings.py"},
     {"name": "atp_security_exceptions", "group": "advanced-threat-protection-policy",
      "update": "cyber-threat-protection-resource-update-security-exceptions",
@@ -598,6 +835,8 @@ ZIA_RESOURCES = [
      "compare_required": False,
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/advancedthreatsettings/advancedthreatsettings.go", "SecurityExceptions"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_atp_security_exceptions.go",
+     "python": {"service": "vendor/zscaler-sdk-python/zscaler/zia/atp_policy.py",
+                "methods": ["get_atp_security_exceptions", "update_atp_security_exceptions"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_atp_security_exceptions.py"},
     {"name": "auth_settings_urls", "group": "user-authentication-settings",
      "update": "update-auth-exempted-urls",
@@ -605,36 +844,53 @@ ZIA_RESOURCES = [
      "compare_required": False,
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/user_authentication_settings/user_authentication_settings.go", "ExemptedUrls"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_auth_settings_urls.go",
+     "python": {"service": "vendor/zscaler-sdk-python/zscaler/zia/authentication_settings.py",
+                "methods": ["get_exempted_urls", "add_urls_to_exempt_list"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_auth_settings_urls.py"},
     {"name": "bandwidth_class", "group": "bandwidth-control-classes",
      "create": "bandwidth-class-resource-add-bandwidth-class",
      "get": "bandwidth-class-resource-get-bandwidth-class",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/bandwidth_control/bandwidth_classes/bandwidth_classes.go", "BandwidthClasses"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_bandwidth_classes.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/bandwidth_classes.py", "BandwidthClasses"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/bandwidth_classes.py",
+                "methods": ["list_classes", "get_class", "add_class", "update_class"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_bandwidth_classes.py"},
     {"name": "bandwidth_control_rule", "group": "bandwidth-control-classes",
      "create": "bandwidth-control-rule-resource-add-rule",
      "get": "bandwidth-control-rule-resource-get-rule-by-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/bandwidth_control/bandwidth_control_rules/bandwidth_control_rules.go", "BandwidthControlRules"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_bandwidth_control_rules.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/bandwidth_control_rules.py", "BandwidthControlRules"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/bandwidth_control_rules.py",
+                "methods": ["list_rules", "get_rule", "add_rule", "update_rule"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_bandwidth_control_rules.py"},
     {"name": "casb_dlp_rule", "group": "saas-security-api",
      "create": "casb-dlp-rule-resource-add-rule",
      "get": "casb-dlp-rule-resource-get-rule-by-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/saas_security_api/casb_dlp_rules/casb_dlp_rules.go", "CasbDLPRules"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_casb_dlp_rules.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/casb_dlp_rules.py", "CasbdDlpRules"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/casb_dlp_rules.py",
+                "methods": ["list_rules", "get_rule", "add_rule", "update_rule"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_casb_dlp_rules.py"},
     {"name": "casb_malware_rule", "group": "saas-security-api",
      "create": "casb-malware-rule-resource-add-rule",
      "get": "casb-malware-rule-resource-get-rule-by-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/saas_security_api/casb_malware_rules/casb_malware_rules.go", "CasbMalwareRules"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_casb_malware_rules.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/casb_malware_rules.py", "CasbMalwareRules"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/casb_malware_rules.py",
+                "methods": ["list_rules", "get_rule", "add_rule", "update_rule"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_casb_malware_rules.py"},
     {"name": "cloud_app_control_rule", "group": "cloud-app-control-policy",
      "create": "web-application-rule-resource-add-rule",
      "get": "web-application-rule-resource-get-rule-by-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go", "WebApplicationRules"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_cloud_app_control_rules.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/cloudappcontrol.py", "CloudApplicationControl"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/cloudappcontrol.py",
+                "methods": ["list_rules", "get_rule", "add_rule", "update_rule"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_cloud_app_control_rules.py"},
     {"name": "browser_control_policy", "group": "browser-control-policy",
      "update": "browser-control-settings-resource-update-config",
@@ -642,36 +898,55 @@ ZIA_RESOURCES = [
      "compare_required": False,
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/browser_control_settings/browser_control_settings.go", "BrowserControlSettings"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_browser_control_policy.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/browser_control_settings.py", "BrowserControlSettings"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/browser_control_settings.py",
+                "methods": ["get_browser_control_settings", "update_browser_control_settings"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_browser_control_policy.py"},
     {"name": "custom_file_type", "group": "file-type-control-policy",
      "create": "custom-file-type-resource-create-custom-file-type",
      "get": "custom-file-type-resource-get-custom-file-type-by-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/filetypecontrol/custom_file_types/custom_file_types.go", "CustomFileTypes"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_custom_file_types.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/custom_file_types.py", "CustomFileTypes"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/custom_file_types.py",
+                "methods": ["list_custom_file_types", "get_custom_file_tytpe", "add_custom_file_type",
+                            "update_custom_file_type"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_custom_file_types.py"},
     {"name": "dc_exclusion", "group": "traffic-forwarding",
      "create": "tenant-dc-exclusion-resource-create-datacenter-exclusions",
      "get": "tenant-dc-exclusion-resource-get-datacenter-exclusions",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/trafficforwarding/dc_exclusions/dc_exclusions.go", "DCExclusions"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_dc_exclusions.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/traffic_dc_exclusions.py", "TrafficDcExclusions"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/traffic_datacenters.py",
+                "methods": ["list_datacenters"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_dc_exclusions.py"},
     {"name": "dlp_dictionary", "group": "data-loss-prevention",
      "create": "dlp-dictionary-resource-add-custom-dlp-dictionary",
      "get": "dlp-dictionary-resource-get-dlp-dictionary-by-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/dlp/dlpdictionaries/dlpdictionaries.go", "DlpDictionary"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_dlp_dictionaries.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/dlp_dictionary.py", "DLPDictionary"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/dlp_dictionary.py",
+                "methods": ["list_dicts", "get_dict", "add_dict", "update_dict"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_dlp_dictionaries.py"},
     {"name": "dlp_engine", "group": "data-loss-prevention",
      "create": "dlp-engine-resource-add-custom-dlp-engine",
      "get": "dlp-engine-resource-get-dlp-engine-by-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/dlp/dlp_engines/dlp_engines.go", "DLPEngines"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_dlp_engines.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/dlp_engine.py", "DLPEngine"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/dlp_engine.py",
+                "methods": ["list_dlp_engines", "get_dlp_engines", "add_dlp_engine", "update_dlp_engine"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_dlp_engine.py"},
     {"name": "dlp_notification_template", "group": "data-loss-prevention",
      "create": "dlp-notification-template-resource-addtemplate",
      "get": "dlp-notification-template-resource-get-template-by-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/dlp/dlp_notification_templates/dlp_notification_templates.go", "DlpNotificationTemplates"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_dlp_notification_templates.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/dlp_templates.py", "DLPTemplates"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/dlp_templates.py",
+                "methods": ["list_dlp_templates", "get_dlp_templates", "add_dlp_template", "update_dlp_template"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_dlp_notification_template.py"},
     {"name": "end_user_notification", "group": "end-user-notifications",
      "update": "end-user-notification-resource-update-eun-details",
@@ -679,42 +954,64 @@ ZIA_RESOURCES = [
      "compare_required": False,
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/end_user_notification/end_user_notification.go", "UserNotificationSettings"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_end_user_notification.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/endusernotification.py", "EndUserNotification"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/end_user_notification.py",
+                "methods": ["get_eun_settings", "update_eun_settings"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_end_user_notification.py"},
     {"name": "extranet", "group": "traffic-forwarding",
      "create": "extranet-resource-add-extranet",
      "get": "extranet-resource-get-extranet-with-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/trafficforwarding/extranet/extranet.go", "Extranet"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_extranet.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/traffic_extranet.py", "TrafficExtranet"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/traffic_extranet.py",
+                "methods": ["list_extranets", "get_extranet", "add_extranet", "update_extranet"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_extranet.py"},
     {"name": "file_type_rule", "group": "file-type-control-policy",
      "create": "file-type-rule-resource-add-rule",
      "get": "file-type-rule-resource-get-rule-by-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/filetypecontrol/filetypecontrol.go", "FileTypeRules"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_file_type_control_rules.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/filetyperules.py", "FileTypeControlRules"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/file_type_control_rule.py",
+                "methods": ["list_rules", "get_rule", "add_rule", "update_rule"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_file_type_control_rules.py"},
     {"name": "firewall_dns_rule", "group": "dns-control-policy",
      "create": "firewall-dns-rules-resource-create-firewall-dns-rule",
      "get": "firewall-dns-rules-resource-get-firewall-dns-rule",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go", "FirewallDNSRules"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_firewall_dns_rules.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_dns_rules.py", "FirewallDNSRules"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_dns.py",
+                "methods": ["list_rules", "get_rule", "add_rule", "update_rule"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_cloud_firewall_dns_rules.py"},
     {"name": "firewall_filtering_rule", "group": "firewall-policies",
      "create": "firewall-filtering-rules-resource-create-firewall-filtering-rule",
      "get": "firewall-filtering-rules-resource-get-firewall-filtering-rule",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/filteringrules/filteringrules.go", "FirewallFilteringRules"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_firewall_filtering_rules.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_rules.py", "FirewallRule"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_rules.py",
+                "methods": ["list_rules", "get_rule", "add_rule", "update_rule"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_cloud_firewall_rule.py"},
     {"name": "firewall_ips_rule", "group": "ips-control-policy",
      "create": "firewall-ips-rules-resource-create-firewall-ips-rule",
      "get": "firewall-ips-rules-resource-get-firewall-ips-rule",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_policies/ips_policies.go", "FirewallIPSRules"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_firewall_ips_rules.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_ips_rules.py", "FirewallIPSrules"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_ips.py",
+                "methods": ["list_rules", "get_rule", "add_rule", "update_rule"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_cloud_firewall_ips_rules.py"},
     {"name": "forwarding_rule", "group": "forwarding-control-policy",
      "create": "forwarding-rules-resource-create-forwarding-rule",
      "get": "forwarding-rules-resource-get-forwarding-rule",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/forwarding_control_policy/forwarding_rules/forwarding_rules.go", "ForwardingRules"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_rule.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/forwarding_control_policy.py",
+                          "ForwardingControlRule"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/forwarding_control.py",
+                "methods": ["list_rules", "get_rule", "add_rule", "update_rule"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_forwarding_control_rule.py"},
     {"name": "ftp_control_policy", "group": "ftp-control-policy",
      "update": "ftp-settings-resource-update-ftp-settings",
@@ -722,54 +1019,89 @@ ZIA_RESOURCES = [
      "compare_required": False,
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/ftp_control_policy/ftp_control_policy.go", "FTPControlPolicy"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_ftp_control_policy.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/ftp_control_policy.py", "FTPControlPolicy"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/ftp_control_policy.py",
+                "methods": ["get_ftp_settings", "update_ftp_settings"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_ftp_control_policy.py"},
     {"name": "gre_tunnel", "group": "traffic-forwarding",
      "create": "gre-tunnel-resource-add-gre-tunnel",
      "get": "gre-tunnel-resource-get-gre-tunel-by-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/trafficforwarding/gretunnels/gretunnels.go", "GreTunnels"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_traffic_forwarding_gre_tunnels.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/gre_tunnels.py", "TrafficGRETunnel"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/gre_tunnel.py",
+                "methods": ["list_gre_tunnels", "get_gre_tunnel", "add_gre_tunnel", "update_gre_tunnel"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_traffic_forwarding_gre_tunnels.py"},
     {"name": "ip_destination_group", "group": "firewall-policies",
      "create": "ip-destination-group-resource-add-destination-ip-group",
      "get": "ip-destination-group-resource-get-destination-ip-group-by-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/ipdestinationgroups/ipdestinationgroups.go", "IPDestinationGroups"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_fw_filtering_ip_destination_groups.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_destination_groups.py",
+                          "IPDestinationGroups"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py",
+                "methods": ["list_ip_destination_groups", "get_ip_destination_group", "add_ip_destination_group",
+                            "update_ip_destination_group"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_cloud_firewall_ip_destination_groups.py"},
     {"name": "ip_source_group", "group": "firewall-policies",
      "create": "ip-source-group-resource-add-source-ip-group",
      "get": "ip-source-group-resource-get-source-ip-group-by-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/ipsourcegroups/ipsourcegroups.go", "IPSourceGroups"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_fw_filtering_ip_source_groups.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_source_groups.py", "IPSourceGroup"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py",
+                "methods": ["list_ip_source_groups", "get_ip_source_group", "add_ip_source_group",
+                            "update_ip_source_group"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_cloud_firewall_ip_source_groups.py"},
     {"name": "location", "group": "location-management",
      "create": "add-location",
      "get": "get-location",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/location/locationmanagement/locationmanagement.go", "Locations"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_location_management.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/location_management.py", "LocationManagement"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/locations.py",
+                "methods": ["list_locations", "get_location", "add_location", "update_location"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_location_management.py"},
     {"name": "network_application_group", "group": "firewall-policies",
      "create": "network-application-group-resource-create-network-application-group",
      "get": "network-application-group-resource-get-network-application-group-by-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/networkapplicationgroups/networkapplicationgroups.go", "NetworkApplicationGroups"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_fw_filtering_network_application_groups.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_nw_application_groups.py",
+                          "NetworkApplicationGroups"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py",
+                "methods": ["list_network_app_groups", "get_network_app_group", "add_network_app_group",
+                            "update_network_app_group"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_cloud_firewall_network_application_group.py"},
     {"name": "network_service", "group": "firewall-policies",
      "create": "network-service-resource-add-custom-network-service",
      "get": "network-service-resource-get-network-service-by-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/networkservices/networkservices.go", "NetworkServices"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_fw_filtering_network_services.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_nw_service.py", "NetworkServices"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py",
+                "methods": ["list_network_services", "get_network_service", "add_network_service",
+                            "update_network_service"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_cloud_firewall_network_services.py"},
     {"name": "network_service_group", "group": "firewall-policies",
      "create": "network-service-group-resource-add-custom-network-service-group",
      "get": "network-service-group-resource-get-network-service-group-by-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/networkservicegroups/networkservicegroups.go", "NetworkServiceGroups"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_fw_filtering_network_services_groups.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_nw_service_groups.py",
+                          "NetworkServiceGroups"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py",
+                "methods": ["list_network_svc_groups", "get_network_svc_group", "add_network_svc_group",
+                            "update_network_svc_group"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_cloud_firewall_network_services_groups.py"},
     {"name": "nat_control_rule", "group": "nat-control-policy",
      "create": "dnat-rule-resource-add-rule",
      "get": "dnat-rule-resource-update-rule",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/nat_control_policies/nat_control_policies.go", "NatControlPolicies"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_nat_control_rules.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/nat_control_policy.py", "NatControlPolicy"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/nat_control_policy.py",
+                "methods": ["list_rules", "get_rule", "add_rule", "update_rule"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_nat_control_policy.py"},
     {"name": "mobile_malware_protection_policy", "group": "mobile-malware-protection-policy",
      "update": "mobile-malware-protection-resource-update-mobile-malware-protection-config",
@@ -777,36 +1109,55 @@ ZIA_RESOURCES = [
      "compare_required": False,
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/mobile_threat_settings/mobile_threat_settings.go", "MobileAdvanceThreatSettings"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_mobile_malware_protection_policy.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/mobile_threat_settings.py",
+                          "MobileAdvancedThreatSettings"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/mobile_threat_settings.py",
+                "methods": ["get_mobile_advanced_settings", "update_mobile_advanced_settings"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_mobile_advanced_threat_settings.py"},
     {"name": "nss_server", "group": "cloud-nanolog-streaming-service-nss",
      "create": "nss-resource-add-nss-server",
      "get": "nss-resource-get-nss-server",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/cloudnss/nss_servers/nss_servers.go", "NSSServers"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_nss_server.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/nss_servers.py", "Nssservers"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/nss_servers.py",
+                "methods": ["list_nss_servers", "get_nss_server", "add_nss_server", "update_nss_server"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_nss_servers.py"},
     {"name": "proxy", "group": "forwarding-control-policy",
      "create": "proxy-resource-add-proxy",
      "get": "proxy-resource-get-proxy-by-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/forwarding_control_policy/proxies/proxies.go", "Proxies"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_proxies.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/proxies.py", "Proxies"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/proxies.py",
+                "methods": ["list_proxies", "get_proxy", "add_proxy", "update_proxy"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_third_party_proxy_service.py"},
     {"name": "risk_profile", "group": "cloud-applications",
      "create": "cloud-application-risk-profile-resource-add-risk-profile",
      "get": "cloud-application-risk-profile-resource-get-risk-profile-by-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/cloudapplications/risk_profiles/risk_profiles.go", "RiskProfiles"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_risk_profiles.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/risk_profiles.py", "RiskProfiles"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/risk_profiles.py",
+                "methods": ["list_risk_profiles", "get_risk_profile", "add_risk_profile", "update_risk_profile"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_risk_profiles.py"},
     {"name": "rule_label", "group": "rule-labels",
      "create": "rule-label-resource-add-rule-label",
      "get": "rule-label-resource-get-rule-label-by-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/rule_labels/rule_labels.go", "RuleLabels"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_rule_labels.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/rule_labels.py", "RuleLabels"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/rule_labels.py",
+                "methods": ["list_labels", "get_label", "add_label", "update_label"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_rule_labels.py"},
     {"name": "sandbox_rule", "group": "sandbox-policy-settings",
      "create": "ba-rule-resource-add-rule",
      "get": "ba-rule-resource-get-rule-by-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_rules/sandbox_rules.go", "SandboxRules"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_sandbox_rules.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/sandboxrules.py", "SandboxRules"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/sandbox_rules.py",
+                "methods": ["list_rules", "get_rule", "add_rule", "update_rule"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_sandbox_rules.py"},
     {"name": "security_policy_settings", "group": "security-policy-settings",
      "update": "create-whitelist",
@@ -816,24 +1167,37 @@ ZIA_RESOURCES = [
      "compare_required": False,
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/security_policy_settings/security_policy_settings.go", "ListUrls"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_security_policy_settings.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/security_policy_settings.py",
+                          "SecurityPolicySettings"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/security_policy_settings.py",
+                "methods": ["get_whitelist", "get_blacklist", "replace_whitelist", "replace_blacklist"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_security_policy_settings.py"},
     {"name": "ssl_inspection_rule", "group": "ssl-inspection-policy",
      "create": "ssl-inspection-rule-resource-add-ssl-inspection-rule",
      "get": "ssl-inspection-rule-resource-get-rule-by-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/sslinspection/sslinspection.go", "SSLInspectionRules"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_ssl_inspection_rules.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py", "SSLInspectionRules"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/ssl_inspection_rules.py",
+                "methods": ["list_rules", "get_rule", "add_rule", "update_rule"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_ssl_inspection_rules.py"},
     {"name": "static_ip", "group": "traffic-forwarding",
      "create": "static-ip-resource-add-static-ip",
      "get": "static-ip-resource-get-static-ip-by-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/trafficforwarding/staticips/staticips.go", "StaticIP"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_traffic_forwarding_static_ips.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/traffic_static_ip.py", "TrafficStaticIP"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/traffic_static_ip.py",
+                "methods": ["list_static_ips", "get_static_ip", "add_static_ip", "update_static_ip"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_traffic_forwarding_static_ip.py"},
     {"name": "url_category", "group": "url-categories",
      "create": "add-custom-category",
      "get": "get-url-categories",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/urlcategories/urlcategories.go", "URLCategory"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_url_categories.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/urlcategory.py", "URLCategory"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/url_categories.py",
+                "methods": ["list_categories", "get_category", "add_url_category", "update_url_category"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_url_categories.py"},
     {"name": "url_filtering_and_cloud_app_settings", "group": "url-cloud-app-control-policy-settings",
      "update": "advanced-url-filtering-cloud-app-resource-update-advanced-url-filt-options",
@@ -841,35 +1205,56 @@ ZIA_RESOURCES = [
      "compare_required": False,
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go", "URLAdvancedPolicySettings"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_url_filtering_and_cloud_app_settings.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/url_filter_cloud_app_settings.py",
+                          "AdvancedUrlFilterAndCloudAppSettings"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py",
+                "methods": ["get_url_and_app_settings", "update_url_and_app_settings"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_url_filtering_and_cloud_app_settings.py"},
     {"name": "user", "group": "user-management",
      "create": "add-user",
      "get": "get-user",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/usermanagement/users/users.go", "Users"),
-     "tf": "vendor/terraform-provider-zia/zia/resource_zia_user_management_users.go"},
+     "tf": "vendor/terraform-provider-zia/zia/resource_zia_user_management_users.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/user_management.py", "UserManagement"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/user_management.py",
+                "methods": ["list_users", "get_user", "add_user", "update_user"]}},
     {"name": "url_filtering_rule", "group": "url-filtering-policy",
      "create": "add-rule",
      "get": "get-rule-by-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go", "URLFilteringRule"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_url_filtering_rules.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rules.py", "URLFilteringRule"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py",
+                "methods": ["list_rules", "get_rule", "add_rule", "update_rule"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_url_filtering_rules.py"},
     {"name": "vpn_credential", "group": "traffic-forwarding",
      "create": "add-vpn-credential",
      "get": "get-vpn-credential",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/trafficforwarding/vpncredentials/vpncredentials.go", "VPNCredentials"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_traffic_forwarding_vpn_credentials.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/traffic_vpn_credentials.py",
+                          "TrafficVPNCredentials"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/traffic_vpn_credentials.py",
+                "methods": ["list_vpn_credentials", "get_vpn_credential", "add_vpn_credential",
+                            "update_vpn_credential"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_traffic_forwarding_vpn_credentials.py"},
     {"name": "workload_group", "group": "workload-groups",
      "create": "workload-group-resource-add-workload-group",
      "get": "workload-group-resource-get-workload-group-by-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/workloadgroups/workloadgroups.go", "WorkloadGroup"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_workload_groups.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/workload_groups.py", "WorkloadGroups"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/workload_groups.py",
+                "methods": ["list_groups", "get_group", "add_group", "update_group"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_workload_groups.py"},
     {"name": "zpa_gateway", "group": "forwarding-control-policy",
      "create": "zpa-gateway-resource-add-zpa-gateway",
      "get": "zpa-gateway-resource-get-zpa-gateway-by-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zia/services/forwarding_control_policy/zpa_gateways/zpa_gateways.go", "ZPAGateways"),
      "tf": "vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_zpa_gateway.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zia/models/zpa_gateway.py", "ZPAGateway"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zia/zpa_gateway.py",
+                "methods": ["list_gateways", "get_gateway", "add_gateway", "update_gateway"]},
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_ip_source_anchoring_zpa_gateway.py"},
 ]
 
@@ -981,6 +1366,45 @@ def reconcile_ansible(res, cfields, required_names):
     return rep
 
 
+def _python_cfg_paths(cfg):
+    paths = []
+    if cfg.get("model"):
+        paths.append(cfg["model"][0])
+    if cfg.get("service"):
+        paths.append(cfg["service"])
+    return paths
+
+
+def reconcile_python(res, cfields):
+    cfg = res.get("python")
+    if not cfg:
+        return {"surface": "none"}
+
+    fields = {}
+    if cfg.get("model"):
+        model_path, class_name = cfg["model"]
+        model_fields = extract_python_model_fields(_read(model_path), class_name)
+        fields.update(model_fields)
+    service_methods = []
+    if cfg.get("service"):
+        service_src = _read(cfg["service"])
+        service_methods = [m for m in extract_python_service_methods(service_src) if not cfg.get("methods") or m in cfg["methods"]]
+        fields.update(extract_python_service_fields(service_src, cfg.get("methods") or service_methods))
+
+    matched = {name for name in cfields if name in fields}
+    return {
+        "surface": "present",
+        "repo": "zscaler-sdk-python",
+        "paths": _python_cfg_paths(cfg),
+        "methods": service_methods,
+        "counts": {"python": len(fields)},
+        "presence": {
+            "contract_unmatched_in_python": sorted(set(cfields) - matched),
+            "python_only_vs_contract": sorted(set(fields) - set(cfields)),
+        },
+    }
+
+
 def reconcile_one(res, contracts, product="zpa"):
     reads, writes = _contract_ops(res, contracts, product)
     operation = writes[0] if writes else reads[0]
@@ -1076,6 +1500,7 @@ def reconcile_one(res, contracts, product="zpa"):
             rep["enum"]["one_sided"].append({"field": name, "contract": ce, "tf": te})
 
     rep["ansible"] = reconcile_ansible(res, cfields, required_names)
+    rep["python"] = reconcile_python(res, cfields)
     return rep
 
 
@@ -1098,6 +1523,12 @@ def build_report(contracts, product="zpa"):
             len(r["ansible"].get("enum", {}).get("value_conflict", [])) for r in reports
         ),
         "ansible_enum_one_sided": sum(len(r["ansible"].get("enum", {}).get("one_sided", [])) for r in reports),
+        "python_resources": sum(1 for r in reports if r["python"]["surface"] == "present"),
+        "python_no_surface": sum(1 for r in reports if r["python"]["surface"] == "none"),
+        "python_contract_unmatched": sum(
+            len(r["python"].get("presence", {}).get("contract_unmatched_in_python", [])) for r in reports
+        ),
+        "python_only": sum(len(r["python"].get("presence", {}).get("python_only_vs_contract", [])) for r in reports),
     }
     report = {
         "product": product,
@@ -1122,11 +1553,12 @@ def render_markdown(report):
     out.append("status: generated")
     out.append('generator: "scripts/automate-capture/reconcile_contract.py"')
     out.append("---\n")
-    out.append(f"# automate.zscaler.com contract vs Go SDK / Terraform / Ansible — {product_upper}\n")
+    out.append(f"# automate.zscaler.com contract vs Go SDK / Python SDK / Terraform / Ansible — {product_upper}\n")
     out.append("> Generated by `scripts/automate-capture/reconcile_contract.py`. Do not edit by hand; "
                "re-run after re-capturing the contract or bumping the vendor submodules.\n")
     out.append("Diffs the rendered per-operation contract "
-               f"(`{report['contract_json']}`) against the Go SDK struct, Terraform provider schema, "
+               f"(`{report['contract_json']}`) against the Go SDK struct, Python SDK model/request fields, "
+               "Terraform provider schema, "
                "and Ansible module argument specs "
                "for each resource.\n")
     out.append("## Totals\n")
@@ -1142,6 +1574,10 @@ def render_markdown(report):
     out.append(f"- Ansible enum: **{t['ansible_enum_match']}** match / "
                f"**{t['ansible_enum_value_conflict']}** value-conflict / "
                f"**{t['ansible_enum_one_sided']}** one-sided\n")
+    out.append(f"- Python SDK surface: **{t['python_resources']}** present / "
+               f"**{t['python_no_surface']}** no surface")
+    out.append(f"- Python SDK presence: **{t['python_contract_unmatched']}** contract-unmatched / "
+               f"**{t['python_only']}** python-only fields\n")
     if report.get("contract_only_groups"):
         out.append("## Contract Groups Outside Terraform Scope\n")
         out.append("Captured contract groups with no Terraform resource mapping in this report:\n")
@@ -1151,14 +1587,20 @@ def render_markdown(report):
     for r in report["resources"]:
         out.append(f"## {r['resource']}\n")
         ansible = r["ansible"]
+        python = r["python"]
         ansible_label = (
             f"Ansible {ansible['counts']['ansible']} fields"
             if ansible["surface"] == "present"
             else "no Ansible surface"
         )
+        python_label = (
+            f"Python {python['counts']['python']} fields"
+            if python["surface"] == "present"
+            else "no Python surface"
+        )
         out.append(f"`{r['method']} {r['path']}` — "
                    f"contract {r['counts']['contract']} / Go {r['counts']['go']} / TF {r['counts']['tf']} fields / "
-                   f"{ansible_label}\n")
+                   f"{ansible_label} / {python_label}\n")
         if r["type_drift"]:
             out.append("**Type drift** — contract says numeric, Go SDK declares string "
                        "(the API serializes these as JSON strings):\n")
@@ -1195,6 +1637,12 @@ def render_markdown(report):
         if ansible["surface"] == "present" and ansible["presence"]["ansible_only_vs_contract"]:
             out.append(f"**Ansible module fields absent from the contract:** "
                        f"{', '.join('`%s`' % x for x in ansible['presence']['ansible_only_vs_contract'])}\n")
+        if python["surface"] == "present" and python["presence"]["contract_unmatched_in_python"]:
+            out.append(f"**Contract fields unmatched in the Python SDK model/request surface:** "
+                       f"{', '.join('`%s`' % x for x in python['presence']['contract_unmatched_in_python'])}\n")
+        if python["surface"] == "present" and python["presence"]["python_only_vs_contract"]:
+            out.append(f"**Python SDK fields absent from the contract:** "
+                       f"{', '.join('`%s`' % x for x in python['presence']['python_only_vs_contract'])}\n")
         if r["presence"]["contract_only_vs_go"]:
             out.append(f"**Contract fields absent from the Go SDK struct:** "
                        f"{', '.join('`%s`' % x for x in r['presence']['contract_only_vs_go'])}\n")
@@ -1202,11 +1650,12 @@ def render_markdown(report):
             out.append(f"**Go SDK fields absent from the contract:** "
                        f"{', '.join('`%s`' % x for x in r['presence']['go_only_vs_contract'])}\n")
     out.append("## Scope\n")
-    out.append("Reconciles the contract against the Go SDK, Terraform provider, and Ansible modules where a "
-               "mutable Ansible module exists. Resources without one are marked as no Ansible surface. Python SDK "
-               "and Postman cross-checks remain documented next steps. Field matching is conservative: exact names, "
-               "with TF/Ansible snake_case→camelCase derived from the source key; unmatched fields are reported as "
-               "presence differences, never guessed.\n")
+    out.append("Reconciles the contract against the Go SDK, Python SDK, Terraform provider, and Ansible modules "
+               "where those surfaces exist. Python SDK comparison is presence-only because most mutable wrappers "
+               "accept dynamic `**kwargs` and do not generally encode required or enum constraints. Resources "
+               "without a mapped surface are marked explicitly. Field matching is conservative: exact names, with "
+               "TF/Ansible/Python snake_case→camelCase derived from the source key; unmatched fields are reported "
+               "as presence differences, never guessed.\n")
     return "\n".join(out)
 
 
@@ -1232,6 +1681,9 @@ def main():
               f"required_drift={t['ansible_required_drift']} "
               f"enum(match/conflict/one-sided)="
               f"{t['ansible_enum_match']}/{t['ansible_enum_value_conflict']}/{t['ansible_enum_one_sided']}")
+        print(f"  python surface={t['python_resources']} present/{t['python_no_surface']} none "
+              f"presence(contract-unmatched/python-only)="
+              f"{t['python_contract_unmatched']}/{t['python_only']}")
         print(f"  -> {json_out}")
         print(f"  -> {md_out}")
 
