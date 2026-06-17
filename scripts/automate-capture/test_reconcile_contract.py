@@ -142,6 +142,59 @@ func resourceThing() *schema.Resource {
 }
 """
 
+TF_FRAMEWORK_FIXTURE = """
+func nestedHelper() schema.SingleNestedBlock {
+    return schema.SingleNestedBlock{
+        Attributes: map[string]schema.Attribute{
+            "nested_leak": schema.StringAttribute{
+                Required: true,
+                Validators: []validator.String{
+                    stringvalidator.OneOf("nested"),
+                },
+            },
+        },
+    }
+}
+
+func (r *ThingResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+    resp.Schema = schema.Schema{
+        Attributes: map[string]schema.Attribute{
+            "id": schema.StringAttribute{
+                Computed: true,
+            },
+            "name": schema.StringAttribute{
+                Required: true,
+            },
+            "mode": schema.StringAttribute{
+                Optional: true,
+                Validators: []validator.String{
+                    stringvalidator.OneOf("A", "B"),
+                },
+            },
+            "helper_list": stringListOC("helper"),
+            "settings": schema.SingleNestedAttribute{
+                Optional: true,
+                Computed: true,
+                Attributes: map[string]schema.Attribute{
+                    "child_must_not_leak": schema.BoolAttribute{
+                        Required: true,
+                    },
+                },
+            },
+        },
+        Blocks: map[string]schema.Block{
+            "top_level_block": schema.ListNestedBlock{
+                NestedObject: schema.NestedBlockObject{
+                    Blocks: map[string]schema.Block{
+                        "child_block_must_not_leak": nestedHelper(),
+                    },
+                },
+            },
+        },
+    }
+}
+"""
+
 
 @case
 def test_tf_schema_top_level_and_enum():
@@ -179,6 +232,21 @@ def test_tf_schema_anchors_to_resource_function_not_helper_schema():
     assert "helperOnly" not in f, "helper schemas before the resource must not be scanned"
     assert f["name"]["required"] is True
     assert f["policyRuleResource"]["inline"] is False
+
+
+@case
+def test_tf_plugin_framework_top_level_attributes_only():
+    f = extract_tf_schema_fields(TF_FRAMEWORK_FIXTURE)
+    assert set(f) == {"id", "name", "mode", "helperList", "settings", "topLevelBlock"}, set(f)
+    assert "nestedLeak" not in f and "childMustNotLeak" not in f, \
+        "nested Plugin Framework attributes must not be captured"
+    assert "childBlockMustNotLeak" not in f, "nested Plugin Framework blocks must not be captured"
+    assert f["id"]["computed"] is True and f["id"]["required"] is False
+    assert f["name"]["required"] is True
+    assert f["mode"]["enum"] == ["A", "B"]
+    assert f["helperList"]["inline"] is False and f["helperList"]["required"] is None
+    assert f["settings"]["inline"] is True and f["settings"]["computed"] is True
+    assert f["topLevelBlock"]["inline"] is False and f["topLevelBlock"]["required"] is None
 
 
 ANSIBLE_FIXTURE = '''
@@ -454,6 +522,61 @@ def test_integration_zia_registry():
         resource = next(r for r in report["resources"] if r["resource"] == name)
         actual = {d["field"] for d in resource["required_drift"]}
         assert actual == fields, (name, resource["required_drift"])
+
+
+@case
+def test_integration_zcc_ztw_registries():
+    zcc_tf = os.path.join(ROOT, "vendor/terraform-provider-zcc/internal/framework/resources/"
+                                "forwarding_profile.go")
+    ztw_tf = os.path.join(ROOT, "vendor/terraform-provider-ztc/ztc/resource_ztc_dns_gateway.go")
+    zcc_contract = os.path.join(ROOT, "vendor/zscaler-api-specs/automate-zscaler/zcc-api-reference.json")
+    ztw_contract = os.path.join(ROOT, "vendor/zscaler-api-specs/automate-zscaler/"
+                                      "zcloudconnector-api-reference.json")
+    if not (os.path.exists(zcc_tf) and os.path.exists(ztw_tf)
+            and os.path.exists(zcc_contract) and os.path.exists(ztw_contract)):
+        print("    (skipped: ZCC/ZTW vendor sources not present)")
+        return
+    import json
+    os.environ["REPO_ROOT"] = ROOT
+
+    zcc = build_report(json.load(open(zcc_contract, encoding="utf-8")), "zcc")
+    assert len(zcc["resources"]) == 4, len(zcc["resources"])
+    assert zcc["totals"]["python_resources"] == 4, zcc["totals"]
+    assert zcc["totals"]["ansible_no_surface"] == 4, zcc["totals"]
+    assert any("zcc_trusted_network" in note for note in zcc["scope_notes"]), zcc["scope_notes"]
+    device_cleanup = next(r for r in zcc["resources"] if r["resource"] == "device_cleanup")
+    assert device_cleanup["counts"]["contract"] == 10, device_cleanup["counts"]
+    assert "object" not in device_cleanup["presence"]["contract_only_vs_go"], device_cleanup["presence"]
+    forwarding_profile = next(r for r in zcc["resources"] if r["resource"] == "forwarding_profile")
+    assert {d["field"] for d in forwarding_profile["required_drift"]} == {"name"}, \
+        forwarding_profile["required_drift"]
+    assert "forwardingProfileActions" not in forwarding_profile["presence"]["contract_unmatched_in_tf"], \
+        forwarding_profile["presence"]
+    assert "forwardingProfileZpaActions" not in forwarding_profile["presence"]["contract_unmatched_in_tf"], \
+        forwarding_profile["presence"]
+
+    ztw = build_report(json.load(open(ztw_contract, encoding="utf-8")), "zcloudconnector")
+    assert ztw["display"] == "ZTW", ztw
+    assert len(ztw["resources"]) == 16, len(ztw["resources"])
+    assert "public" in ztw["contract_only_groups"], ztw["contract_only_groups"]
+    assert "location_management" not in {r["resource"] for r in ztw["resources"]}
+    assert ztw["totals"]["ansible_resources"] == 0 and ztw["totals"]["ansible_no_surface"] == 16, \
+        ztw["totals"]
+    assert ztw["totals"]["python_resources"] == 12 and ztw["totals"]["python_no_surface"] == 4, \
+        ztw["totals"]
+    dns_gateway = next(r for r in ztw["resources"] if r["resource"] == "dns_gateway")
+    assert {d["field"] for d in dns_gateway["enum"]["value_conflict"]} == {
+        "dnsGatewayType", "ecDnsGatewayOptionsPrimary", "ecDnsGatewayOptionsSecondary", "failureBehavior"
+    }, dns_gateway["enum"]["value_conflict"]
+    provisioning_url = next(r for r in ztw["resources"] if r["resource"] == "provisioning_url")
+    assert any(d["field"] == "provUrlType" for d in provisioning_url["enum"]["value_conflict"]), \
+        provisioning_url["enum"]["value_conflict"]
+    forwarding_rule = next(r for r in ztw["resources"] if r["resource"] == "traffic_forwarding_rule")
+    assert any(d["field"] == "forwardMethod" for d in forwarding_rule["enum"]["value_conflict"]), \
+        forwarding_rule["enum"]["value_conflict"]
+    dns_rule = next(r for r in ztw["resources"] if r["resource"] == "traffic_forwarding_dns_rule")
+    assert any(d["field"] == "action" for d in dns_rule["enum"]["value_conflict"]), \
+        dns_rule["enum"]["value_conflict"]
 
 
 def main():
