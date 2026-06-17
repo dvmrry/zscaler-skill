@@ -15,7 +15,7 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 - Type drift (contract numeric vs Go string): **32**
 - Required drift (contract vs TF): **12**
 - Enum: **8** match / **0** value-conflict / **2** one-sided
-- Contract readonly fields checked: **3** (TF disagreement: 0)
+- Contract readonly fields checked: **4** (TF disagreement: 0)
 
 ## app_connector_group
 

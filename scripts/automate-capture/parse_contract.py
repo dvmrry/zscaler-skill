@@ -49,7 +49,22 @@ LANG_TABS = {
     "SWIFT", "KOTLIN", "RUST",
 }
 _ENUM_RE = re.compile(r"Possible values:\s*\[(.*)\]")
-_READONLY_RE = re.compile(r"Only applicable for a GET request|Ignored in PUT/POST/DELETE")
+# Readonly is expressed in prose, and the wording varies by product:
+#   ZPA: "Only applicable for a GET request. Ignored in PUT/POST/DELETE requests."
+#        "Read only. Ignored in PUT/POST calls."
+#   ZIA: "This is a read-only field." / "this attribute is a read-only field" /
+#        "This field is read-only." / "... is read-only" / "Read Only. ..."
+# Deliberately NOT matched — these are not readonly fields: "ignored during policy
+# evaluation" (evaluation logic), "ignored by PUT requests, but required for POST"
+# (settable on create), "non-editable ... cannot be modified" (conditional state).
+_READONLY_RE = re.compile(
+    r"Only applicable for a GET request"
+    r"|Ignored in PUT/POST"
+    r"|read-only field"
+    r"|is read-only"
+    r"|\bRead only\.",
+    re.IGNORECASE,
+)
 
 
 def _is_type(s):
