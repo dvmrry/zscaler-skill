@@ -252,7 +252,7 @@ def test_integration_zia_registry():
     import json
     os.environ["REPO_ROOT"] = ROOT
     report = build_report(json.load(open(contract, encoding="utf-8")), "zia")
-    assert len(report["resources"]) == 30, len(report["resources"])
+    assert len(report["resources"]) == 38, len(report["resources"])
     admin_role = next(r for r in report["resources"] if r["resource"] == "admin_role")
     assert any(d["field"] == "roleType" for d in admin_role["enum"]["value_conflict"]), \
         admin_role["enum"]["value_conflict"]
@@ -275,6 +275,23 @@ def test_integration_zia_registry():
     vpn = next(r for r in report["resources"] if r["resource"] == "vpn_credential")
     assert any(d["field"] == "type" for d in vpn["enum"]["value_conflict"]), \
         vpn["enum"]["value_conflict"]
+    casb_dlp = next(r for r in report["resources"] if r["resource"] == "casb_dlp_rule")
+    casb_conflicts = {d["field"] for d in casb_dlp["enum"]["value_conflict"]}
+    assert casb_conflicts == {"contentLocation", "type"}, casb_dlp["enum"]["value_conflict"]
+    expected_required = {
+        "bandwidth_control_rule": {"name", "order"},
+        "casb_dlp_rule": {"name"},
+        "casb_malware_rule": {"name"},
+        "cloud_app_control_rule": {"order"},
+        "firewall_dns_rule": {"action", "rank"},
+        "firewall_filtering_rule": {"order"},
+        "firewall_ips_rule": {"action", "rank"},
+        "nat_control_rule": {"order", "rank"},
+    }
+    for name, fields in expected_required.items():
+        resource = next(r for r in report["resources"] if r["resource"] == name)
+        actual = {d["field"] for d in resource["required_drift"]}
+        assert actual == fields, (name, resource["required_drift"])
 
 
 def main():
