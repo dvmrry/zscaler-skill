@@ -85,6 +85,7 @@ python3 "${CAP}/parse_contract.py" "${RAW_DIR}" "${SPEC_DIR}"
 if [[ -d "vendor/zscaler-sdk-go/zscaler" && -d "vendor/terraform-provider-zpa/zpa" ]]; then
     echo "--- reconciling contract vs Go SDK / Terraform ---"
     python3 "${CAP}/reconcile_contract.py"
+    echo "--- synthesizing rosetta + issue-routing artifacts ---" && python3 "${CAP}/rosetta.py"
 else
     echo "(vendor SDK/TF submodules not initialized — skipping reconcile; run:"
     echo "  git submodule update --init vendor/zscaler-sdk-go vendor/terraform-provider-zpa)"
