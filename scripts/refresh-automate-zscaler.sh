@@ -77,11 +77,10 @@ if ! node "${CAP}/capture.cjs" --prune "${combined}" "${RAW_DIR}"; then
 fi
 
 echo ""
-echo "--- parsing raw -> normalized contract JSON ---"
-# NOTE: while only ZPA is swept, the whole api-reference tree is ZPA, so a single
-# zpa-api-reference.json is correct. Per-product output is a follow-on when other
-# products are added to urls/.
-python3 "${CAP}/parse_contract.py" "${RAW_DIR}" "${SPEC_DIR}/zpa-api-reference.json"
+echo "--- parsing raw -> normalized contract JSON (per product) ---"
+# parse_contract.py walks the whole raw tree and writes one
+# <product>-api-reference.json per product into SPEC_DIR.
+python3 "${CAP}/parse_contract.py" "${RAW_DIR}" "${SPEC_DIR}"
 
 if [[ -d "vendor/zscaler-sdk-go/zscaler" && -d "vendor/terraform-provider-zpa/zpa" ]]; then
     echo "--- reconciling contract vs Go SDK / Terraform ---"

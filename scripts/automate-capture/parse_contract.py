@@ -190,17 +190,26 @@ def parse_tree(raw_dir):
 def main():
     raw_dir = sys.argv[1] if len(sys.argv) > 1 else \
         "vendor/zscaler-help/automate-zscaler/api-reference"
-    out = sys.argv[2] if len(sys.argv) > 2 else \
-        "vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json"
+    out_dir = sys.argv[2] if len(sys.argv) > 2 else \
+        "vendor/zscaler-api-specs/automate-zscaler"
+    # Tolerate a legacy <product>-api-reference.json file arg — use its directory.
+    if out_dir.endswith(".json"):
+        out_dir = os.path.dirname(out_dir)
     contracts = parse_tree(raw_dir)
-    os.makedirs(os.path.dirname(out), exist_ok=True)
-    with open(out, "w", encoding="utf-8") as f:
-        json.dump(contracts, f, indent=2)
-        f.write("\n")
-    n_body = sum(len(c["request_body"]) for c in contracts.values())
-    n_resp = sum(len(c["response_schema"]) for c in contracts.values())
-    print(f"Parsed {len(contracts)} ops -> {out}")
-    print(f"  request-body fields: {n_body}   response-schema fields: {n_resp}")
+    # Split per product (first path segment of the operation key) so each product
+    # gets its own <product>-api-reference.json alongside the Postman collection.
+    by_product = {}
+    for op, c in contracts.items():
+        by_product.setdefault(op.split("/")[0], {})[op] = c
+    os.makedirs(out_dir, exist_ok=True)
+    for product, ops in sorted(by_product.items()):
+        out = os.path.join(out_dir, f"{product}-api-reference.json")
+        with open(out, "w", encoding="utf-8") as f:
+            json.dump(ops, f, indent=2)
+            f.write("\n")
+        n_body = sum(len(c["request_body"]) for c in ops.values())
+        n_resp = sum(len(c["response_schema"]) for c in ops.values())
+        print(f"{product}: {len(ops)} ops -> {out}  (req {n_body}, resp {n_resp})")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,49 @@
+API ReferenceZscaler Internet Access APIURL CategoriesURL Category Resource Get Categories With Matching Domains
+URL Category Resource Get Categories With Matching Domains
+POST
+https://api.zsapi.net/zia/api/v1/urlCategories/review/domains
+
+For the specified list of URLs, finds matching entries present in existing custom URL categories. This endpoint allows you to review URLs for potential matches in existing categories to group-related entries in a single category.
+
+The URLs specified are matched against the entries present in urls (referred as Custom URLs in the UI) and dbCategorizedUrls (referred as URLs Retaining Parent Category in the UI) fields of custom URL categories. The matches are returned only for URLs of Subdomain type that match with existing wildcard entries and not vice versa. The only exception is when a wildcard URL is matched against another wildcard entry, but the former is identified as a subdomain in relation to the wildcard match. For example, if a URL such as .teams.microsoft.com matches with .microsoft.com, the .teams.microsoft.com entry in this case is regarded as a subdomain in relation to the match found and is returned as part of the API response. However, if .teams.microsoft.com matches with teams.microsoft.com, this becomes a wildcard match against a subdomain and is discarded in the response.
+
+Note: A maximum of 100 URLs can be sent in a request.
+
+The matches found through this request can be added to the required custom URL categories using the PUT /urlCategories/review/domains request.
+
+Request
+​
+APPLICATION/JSON
+BODY ARRAYREQUIRED
+
+The list of URLs that must be matched against the entries present in existing custom URL categories
+
+Array [
+string
+]
+Responses
+​
+200
+
+Successful Operation
+
+APPLICATION/JSON
+Schema
+Example (auto)
+SCHEMA
+Array [
+url
+string
+
+The URL that has a match in one or more existing custom URL categories
+
+domainType
+string
+
+The domain type of the URL
+
+Possible values: [WILDCARD, SUBDOMAIN]
+
+matches
+object[]
+]
