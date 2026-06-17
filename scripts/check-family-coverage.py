@@ -18,8 +18,14 @@ import os, glob, re, sys
 import l1_inventory as l1
 
 
-def _family_of(subdir):
-    """Map a vendor/<subdir> repo name to the source family it represents."""
+def _family_of_path(path):
+    """Map a vendor path to the source family it represents."""
+    if path.startswith("vendor/zscaler-api-specs/automate-zscaler/"):
+        return "automate-contract"
+    m = re.match(r'vendor/([A-Za-z0-9._-]+)', path)
+    if not m:
+        return None
+    subdir = m.group(1)
     if subdir == "zscaler-sdk-go":
         return "go-sdk"
     if subdir == "zscaler-sdk-python":
@@ -40,8 +46,11 @@ def _split_frontmatter(text):
     return (m.group(1), text[m.end():]) if m else ("", text)
 
 
-def _frontmatter_source_subdirs(fm):
-    """vendor/<subdir> repos listed under the frontmatter `sources:` block (quoted or unquoted)."""
+_VENDOR_PATH = re.compile(r'vendor/[A-Za-z0-9._/-]+')
+
+
+def _frontmatter_source_paths(fm):
+    """vendor/... paths listed under the frontmatter `sources:` block (quoted or unquoted)."""
     out, in_sources = [], False
     for line in fm.splitlines():
         if re.match(r'^sources:\s*$', line):
@@ -49,24 +58,24 @@ def _frontmatter_source_subdirs(fm):
             continue
         if in_sources:
             if re.match(r'^\s+-\s', line):              # a YAML list item under sources:
-                m = re.search(r'vendor/([A-Za-z0-9._-]+)', line)
+                m = _VENDOR_PATH.search(line)
                 if m:
-                    out.append(m.group(1))
+                    out.append(m.group(0))
             elif re.match(r'^\S', line):                # next top-level key ends the block
                 in_sources = False
     return out
 
 
 # In the body, only a backticked path counts as a citation (not quoted prose).
-_BACKTICK_CITE = re.compile(r'`vendor/([A-Za-z0-9._-]+)')
+_BACKTICK_CITE = re.compile(r'`(vendor/[A-Za-z0-9._/-]+)')
 
 
 def documented_families(area):
     fams = set()
     for f in glob.glob(os.path.join(l1.ROOT, "references", area, "*.md")):
         fm, body = _split_frontmatter(l1._read(f))
-        for subdir in _frontmatter_source_subdirs(fm) + _BACKTICK_CITE.findall(body):
-            fam = _family_of(subdir)
+        for path in _frontmatter_source_paths(fm) + _BACKTICK_CITE.findall(body):
+            fam = _family_of_path(path)
             if fam:
                 fams.add(fam)
     return fams

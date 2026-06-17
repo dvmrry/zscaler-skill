@@ -8,6 +8,7 @@ collision-free anchors (no fuzzy term matching):
   terraform           : provider file whose SDK *import* matches the product
                         anchor AND that defines a resource/data source
   postman             : request URL contains an SDK endpoint stem  (endpoint-path)
+  automate-contract   : rendered Automate contract JSON operations (endpoint-path)
   mcp / ansible       : the collection / tools dir of the SDK parent (parent-scoped)
 
 A product whose SDK lives in its own top-level package and has no parent IaC
@@ -21,7 +22,7 @@ import ast, json, re, os, glob, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 V = os.path.join(ROOT, "vendor")
 ANSIBLE_COLL = {"zia": "ziacloud-ansible", "zpa": "zpacloud-ansible"}
-FAMILIES = ["go-sdk", "python-sdk", "terraform", "mcp", "ansible", "postman"]
+FAMILIES = ["go-sdk", "python-sdk", "terraform", "mcp", "ansible", "automate-contract", "postman"]
 
 # Per-area config. `parents` = the SDK parent products that own the IaC
 # collections / mcp tool dirs. `go_anchor` = SDK import-path substrings
@@ -29,6 +30,20 @@ FAMILIES = ["go-sdk", "python-sdk", "terraform", "mcp", "ansible", "postman"]
 # `resource_stems` scope the parent-organized families (mcp/ansible) and seed
 # the Go endpoint-keyword filter. `endpoint_stems` anchor Postman by URL path.
 PRODUCTS = {
+    "zia": dict(parents=["zia"],
+                go_anchor=["zia/services"],
+                py_globs=["zscaler-sdk-python/zscaler/zia/*.py"],
+                endpoint_stems=["/zia/api/"],
+                resource_stems=["zia"],
+                mcp_all_parent=True,
+                doc_area="zia"),
+    "zpa": dict(parents=["zpa"],
+                go_anchor=["zpa/services"],
+                py_globs=["zscaler-sdk-python/zscaler/zpa/*.py"],
+                endpoint_stems=["/zpa/"],
+                resource_stems=["zpa"],
+                mcp_all_parent=True,
+                doc_area="zpa"),
     "zbi": dict(parents=["zia", "zpa"],
                 go_anchor=["cloudbrowserisolation", "zia/services/browser_isolation"],
                 py_globs=["zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py",
@@ -280,7 +295,7 @@ def _mcp_files(cfg):
     out = []
     for parent in cfg["parents"]:
         for f in glob.glob(V + f"/zscaler-mcp-server/zscaler_mcp/tools/{parent}/*.py"):
-            if any(s in os.path.basename(f) for s in cfg["resource_stems"]):
+            if cfg.get("mcp_all_parent") or any(s in os.path.basename(f) for s in cfg["resource_stems"]):
                 out.append(f)
     return sorted(set(out))
 
@@ -335,6 +350,33 @@ def _postman_requests(cfg):
     return out
 
 
+def _contract_ops(cfg):
+    products = cfg.get("contract_products", cfg.get("parents", []))
+    if isinstance(products, str):
+        products = [products]
+    stems = cfg.get("contract_endpoint_stems", cfg["endpoint_stems"])
+    out = {}
+    for product in products:
+        path = os.path.join(V, "zscaler-api-specs", "automate-zscaler", f"{product}-api-reference.json")
+        if not os.path.exists(path):
+            continue
+        data = json.load(open(path, encoding="utf-8"))
+        items = []
+        for op, contract in sorted(data.items()):
+            api_path = contract.get("path") or ""
+            if stems and not any(stem in api_path for stem in stems):
+                continue
+            method = contract.get("method") or "?"
+            body = len(contract.get("request_body") or [])
+            resp = len(contract.get("response_schema") or [])
+            items.append({"kind": "operation",
+                          "name": f"{method} {api_path} req={body} resp={resp}",
+                          "operation": op})
+        if items:
+            out[_rel(path)] = items
+    return out
+
+
 def get_inventory(product):
     """Return {family: {relative_path: [items]}} for a configured product."""
     cfg = PRODUCTS[product]
@@ -345,6 +387,7 @@ def get_inventory(product):
     inv["terraform"] = {_rel(f): _tf_symbols(f) for f in _tf_files(cfg)}
     inv["mcp"] = {_rel(f): _py_symbols(f) for f in _mcp_files(cfg)}
     inv["ansible"] = {_rel(f): _ansible_symbols(f) for f in _ansible_files(cfg)}
+    inv["automate-contract"] = _contract_ops(cfg)
     inv["postman"] = {"oneapi-postman-collection.json": _postman_requests(cfg)}
     return inv
 
