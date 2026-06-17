@@ -13,8 +13,8 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 ## Totals
 
 - Type drift (contract numeric vs Go string): **0**
-- Required drift (contract vs TF): **36**
-- Enum: **44** match / **9** value-conflict / **21** one-sided
+- Required drift (contract vs TF): **48**
+- Enum: **60** match / **11** value-conflict / **29** one-sided
 - Contract readonly fields checked: **1** (TF disagreement: 0)
 
 ## admin_role
@@ -34,6 +34,48 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 `POST /zia/api/v1/bandwidthClasses` — contract 12 / Go 13 / TF 6 fields
 
 **Go SDK fields absent from the contract:** `fileSize`
+
+## bandwidth_control_rule
+
+`POST /zia/api/v1/bandwidthControlRules` — contract 21 / Go 21 / TF 15 fields
+
+**Required drift:**
+
+- `name`: contract required=True, TF required=False (contract stricter than TF)
+- `order`: contract required=False, TF required=True (TF stricter than API)
+
+## casb_dlp_rule
+
+`POST /zia/api/v1/casbDlpRules` — contract 53 / Go 53 / TF 45 fields
+
+**Required drift:**
+
+- `name`: contract required=True, TF required=False (contract stricter than TF)
+
+**Enum value conflicts:**
+
+- `contentLocation`: contract ['ANY', 'CONTENT_LOCATION_PRIVATE_CHANNEL', 'CONTENT_LOCATION_PUBLIC_CHANNEL', 'CONTENT_LOCATION_SHARED_CHANNEL', 'CONTENT_LOCATION_DIRECT_MESSAGE', 'CONTENT_LOCATION_MULTI_PERSON_DIRECT_MESSAGE'] vs TF ['CONTENT_LOCATION_PRIVATE_CHANNEL', 'CONTENT_LOCATION_PUBLIC_CHANNEL', 'CONTENT_LOCATION_SHARED_CHANNEL', 'CONTENT_LOCATION_DIRECT_MESSAGE', 'CONTENT_LOCATION_MULTI_PERSON_DIRECT_MESSAGE']
+- `type`: contract ['ANY', 'NONE', 'OFLCASB_DLP_FILE', 'OFLCASB_DLP_EMAIL', 'OFLCASB_DLP_CRM', 'OFLCASB_DLP_ITSM', 'OFLCASB_DLP_COLLAB', 'OFLCASB_DLP_REPO', 'OFLCASB_DLP_STORAGE', 'OFLCASB_DLP_GENAI'] vs TF ['OFLCASB_DLP_FILE', 'OFLCASB_DLP_EMAIL', 'OFLCASB_DLP_CRM', 'OFLCASB_DLP_ITSM', 'OFLCASB_DLP_COLLAB', 'OFLCASB_DLP_REPO', 'OFLCASB_DLP_STORAGE', 'OFLCASB_DLP_GENAI']
+
+## casb_malware_rule
+
+`POST /zia/api/v1/casbMalwareRules` — contract 16 / Go 18 / TF 15 fields
+
+**Required drift:**
+
+- `name`: contract required=True, TF required=False (contract stricter than TF)
+
+**Go SDK fields absent from the contract:** `cloudAppTenantIds`, `cloudApplicationTenant`
+
+## cloud_app_control_rule
+
+`POST /zia/api/v1/webApplicationRules/:rule_type` — contract 42 / Go 39 / TF 36 fields
+
+**Required drift:**
+
+- `order`: contract required=False, TF required=True (TF stricter than API)
+
+**Contract fields absent from the Go SDK struct:** `formSharingDomainProfiles`, `lastModifiedBy`, `sharingDomainProfiles`
 
 ## custom_file_type
 
@@ -99,6 +141,40 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 **Contract fields absent from the Go SDK struct:** `fileTypeCategories`
 
 **Go SDK fields absent from the contract:** `browserEunTemplateId`
+
+## firewall_dns_rule
+
+`POST /zia/api/v1/firewallDnsRules` — contract 41 / Go 43 / TF 41 fields
+
+**Required drift:**
+
+- `action`: contract required=True, TF required=False (contract stricter than TF)
+- `rank`: contract required=True, TF required=False (contract stricter than TF)
+
+**Go SDK fields absent from the contract:** `defaultDnsRuleNameUsed`, `isWebEunEnabled`
+
+## firewall_filtering_rule
+
+`POST /zia/api/v1/firewallFilteringRules` — contract 38 / Go 39 / TF 37 fields
+
+**Required drift:**
+
+- `order`: contract required=False, TF required=True (TF stricter than API)
+
+**Contract fields absent from the Go SDK struct:** `destIpv6Groups`, `srcIpv6Groups`
+
+**Go SDK fields absent from the contract:** `accessControl`, `enableFullLogging`, `zpaAppSegments`
+
+## firewall_ips_rule
+
+`POST /zia/api/v1/firewallIpsRules` — contract 37 / Go 39 / TF 37 fields
+
+**Required drift:**
+
+- `action`: contract required=True, TF required=False (contract stricter than TF)
+- `rank`: contract required=True, TF required=False (contract stricter than TF)
+
+**Go SDK fields absent from the contract:** `eunTemplateId`, `isEunEnabled`
 
 ## forwarding_rule
 
@@ -184,6 +260,15 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 **Required drift:**
 
 - `name`: contract required=False, TF required=True (TF stricter than API)
+
+## nat_control_rule
+
+`POST /zia/api/v1/dnatRules` — contract 36 / Go 36 / TF 33 fields
+
+**Required drift:**
+
+- `order`: contract required=False, TF required=True (TF stricter than API)
+- `rank`: contract required=True, TF required=False (contract stricter than TF)
 
 ## nss_server
 
