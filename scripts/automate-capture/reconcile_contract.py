@@ -154,7 +154,11 @@ def _strip_go_comments(s):
 
 
 _TF_MARKER = "Schema: map[string]*schema.Schema{"
+_TF_FRAMEWORK_ATTR_MARKER = "Attributes: map[string]schema.Attribute{"
 _RESOURCE_FUNC_RE = re.compile(r"func\s+resource\w+\s*\(\)\s*\*schema\.Resource\s*\{")
+_FRAMEWORK_RESOURCE_SCHEMA_RE = re.compile(
+    r"func\s+\(r\s+\*\w+Resource\)\s+Schema\s*\([^)]*\)\s*\{"
+)
 
 
 def _go_block_end(src, open_idx):
@@ -207,6 +211,17 @@ def _tf_resource_func_source(src):
     return src[open_idx + 1:_go_block_end(src, open_idx)]
 
 
+def _tf_framework_schema_source(src):
+    """Prefer the Plugin Framework resource Schema method over helper block builders."""
+    m = _FRAMEWORK_RESOURCE_SCHEMA_RE.search(src)
+    if not m:
+        return src
+    open_idx = src.find("{", m.start(), m.end())
+    if open_idx == -1:
+        return src
+    return src[open_idx + 1:_go_block_end(src, open_idx)]
+
+
 def _drop_nested_schema_maps(src):
     """Remove nested schema maps from a top-level field block before flag/enum reads."""
     out = []
@@ -222,15 +237,15 @@ def _drop_nested_schema_maps(src):
     return "".join(out)
 
 
-def _tf_top_level_keys(src):
-    """Every depth-1 key in the top-level Schema map — including helper-valued keys
+def _tf_top_level_keys(src, open_marker=_TF_MARKER):
+    """Every depth-1 key in a Terraform schema map — including helper-valued keys
     (`"k": resourceFooSchema()`), which inline-block scanning misses. String/comment
     aware so braces and colons in literals/comments don't confuse depth or key
     detection."""
-    mi = src.find(_TF_MARKER)
+    mi = src.find(open_marker)
     if mi == -1:
         return []
-    i = mi + len(_TF_MARKER)
+    i = mi + len(open_marker)
     n = len(src)
     depth = 1
     keys = []
@@ -270,6 +285,107 @@ def _tf_top_level_keys(src):
     return keys
 
 
+def _scan_value_blocks_depth1(src, open_marker):
+    """Yield (key, block_text) for depth-1 `"key": schema.XAttribute{...}` values.
+
+    Terraform Plugin Framework attributes include the concrete attribute type before
+    the opening brace (`schema.StringAttribute{...}`), so the SDKv2 block scanner's
+    `"key": { ... }` assumption is too narrow. Helper-valued attributes are left for
+    `_tf_top_level_keys` and reported as present with unknown flags.
+    """
+    mi = src.find(open_marker)
+    if mi == -1:
+        return
+    i = mi + len(open_marker)
+    n = len(src)
+    depth = 1
+    while i < n and depth:
+        c = src[i]
+        if c == "/" and i + 1 < n and src[i + 1] == "/":
+            j = src.find("\n", i)
+            i = n if j == -1 else j
+            continue
+        if c == "/" and i + 1 < n and src[i + 1] == "*":
+            j = src.find("*/", i)
+            i = n if j == -1 else j + 2
+            continue
+        if c == "`":
+            j = src.find("`", i + 1)
+            i = n if j == -1 else j + 1
+            continue
+        if c == '"':
+            k = i + 1
+            while k < n and src[k] != '"':
+                if src[k] == "\\":
+                    k += 1
+                k += 1
+            token = src[i + 1:k]
+            j = k + 1
+            while j < n and src[j] in " \t\n":
+                j += 1
+            if depth == 1 and j < n and src[j] == ":" and re.fullmatch(r"[a-z0-9_]+", token):
+                j += 1
+                while j < n and src[j] in " \t\n":
+                    j += 1
+                open_idx = src.find("{", j)
+                comma_idx = src.find(",", j)
+                if open_idx != -1 and (comma_idx == -1 or open_idx < comma_idx):
+                    end_idx = _go_block_end(src, open_idx)
+                    yield token, src[open_idx + 1:end_idx]
+                    i = end_idx + 1
+                    continue
+            i = k + 1
+            continue
+        if c == "{":
+            depth += 1
+        elif c == "}":
+            depth -= 1
+        i += 1
+
+
+def _extract_tf_enum(cb):
+    em = re.search(r"StringInSlice\(\s*\[\]string\{([^}]*)\}", cb)
+    if em:
+        return re.findall(r'"([^"]+)"', em.group(1))
+    em = re.search(r"(?:string|int64)validator\.OneOf(?:CaseInsensitive)?\(([^)]*)\)", cb)
+    if em and "..." not in em.group(1):
+        strings = re.findall(r'"([^"]+)"', em.group(1))
+        if strings:
+            return strings
+        numbers = re.findall(r"\b-?\d+\b", em.group(1))
+        if numbers:
+            return numbers
+    return None
+
+
+def extract_tf_framework_schema_fields(src):
+    """Top-level Terraform Plugin Framework attributes -> TF field map.
+
+    Only the resource's Schema method and its top-level Attributes map are scanned,
+    so nested Blocks / SingleNestedAttribute child Attributes cannot bleed into the
+    resource surface. Helper-valued attributes are present with unknown flags.
+    """
+    src = _tf_framework_schema_source(src)
+    blocks = dict(_scan_value_blocks_depth1(src, _TF_FRAMEWORK_ATTR_MARKER))
+    out = {}
+    for key in _tf_top_level_keys(src, _TF_FRAMEWORK_ATTR_MARKER):
+        block = blocks.get(key)
+        if block is None:
+            out[snake_to_camel(key)] = {"tf_key": key, "inline": False, "required": None,
+                                        "optional": None, "computed": None, "enum": None}
+            continue
+        cb = _strip_go_comments(block)
+        out[snake_to_camel(key)] = {
+            "tf_key": key,
+            "inline": True,
+            "required": bool(re.search(r"\bRequired:\s*true", cb)),
+            "optional": bool(re.search(r"\bOptional:\s*true", cb)),
+            "computed": bool(re.search(r"\bComputed:\s*true", cb)),
+            "enum": _extract_tf_enum(cb),
+        }
+    return out
+
+
 def extract_tf_schema_fields(src):
     """Top-level TF schema keys -> {camel_key: {tf_key, inline, required, optional,
     computed, enum}}. Pure (takes source text). Helper-valued keys are recorded as
@@ -286,18 +402,14 @@ def extract_tf_schema_fields(src):
                                         "optional": None, "computed": None, "enum": None}
             continue
         cb = _strip_go_comments(_drop_nested_schema_maps(block))
-        enum = None
-        em = re.search(r"StringInSlice\(\s*\[\]string\{([^}]*)\}", cb)
-        if em:
-            enum = re.findall(r'"([^"]+)"', em.group(1))
         out[snake_to_camel(key)] = {
             "tf_key": key, "inline": True,
             "required": bool(re.search(r"\bRequired:\s*true", cb)),
             "optional": bool(re.search(r"\bOptional:\s*true", cb)),
             "computed": bool(re.search(r"\bComputed:\s*true", cb)),
-            "enum": enum,
+            "enum": _extract_tf_enum(cb),
         }
-    return out
+    return out or extract_tf_framework_schema_fields(src)
 
 
 # ---- Ansible module argument_spec extraction -------------------------------
@@ -594,6 +706,16 @@ def contract_category(t):
     if base in ("string", "date", "date-time"):
         return "string"
     return "object"
+
+
+def _generic_response_placeholder(field):
+    """The parser represents bare primitive/object responses as a synthetic field
+    named after the type (`object`, `string`, `integer`, ...). Those are response
+    shapes, not API object fields, so they should not create presence drift when a
+    write operation returns a generic wrapper while the read operation has the real
+    schema."""
+    name = field.get("name")
+    return name in {"object", "string", "boolean", "integer", "number"} and contract_category(field.get("type")) == contract_category(name)
 
 
 # ---- registry --------------------------------------------------------------
@@ -1258,6 +1380,228 @@ ZIA_RESOURCES = [
      "ansible": "vendor/ziacloud-ansible/plugins/modules/zia_ip_source_anchoring_zpa_gateway.py"},
 ]
 
+ZCC_RESOURCES = [
+    {"name": "device_cleanup", "group": "public-api-controller",
+     "update": "adds-or-updates-the-configuration-for-device-cleanup",
+     "get": "gets-the-configuration-for-device-cleanup",
+     "compare_required": False,
+     "go": ("vendor/zscaler-sdk-go/zscaler/zcc/services/devices/devices.go", "DeviceCleanupInfo"),
+     "tf": "vendor/terraform-provider-zcc/internal/framework/resources/device_cleanup.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py", "SetDeviceCleanupInfo"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zcc/devices.py",
+                "methods": ["get_device_cleanup_info", "update_device_cleanup_info"]}},
+    {"name": "failopen_policy", "group": "public-api-controller",
+     "update": "updates-a-specific-fail-open-policy-for-the-company",
+     "get": "gets-the-list-of-fail-open-policies-for-the-company",
+     "compare_required": False,
+     "go": ("vendor/zscaler-sdk-go/zscaler/zcc/services/failopen_policy/failopen_policy.go", "WebFailOpenPolicy"),
+     "tf": "vendor/terraform-provider-zcc/internal/framework/resources/failopen_policy.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zcc/models/failopenpolicy.py", "FailOpenPolicy"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zcc/fail_open_policy.py",
+                "methods": ["list_by_company", "update_failopen_policy"]}},
+    {"name": "forwarding_profile", "group": "public-api-controller",
+     "create": "updates-a-forwarding-profile",
+     "get": "gets-the-list-of-forwarding-profiles-by-company",
+     "go": ("vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go",
+            "ForwardingProfile"),
+     "tf": "vendor/terraform-provider-zcc/internal/framework/resources/forwarding_profile.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py",
+                          "ForwardingProfile"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zcc/forwarding_profile.py",
+                "methods": ["list_by_company", "update_forwarding_profile"]}},
+    {"name": "web_privacy", "group": "public-api-controller",
+     "update": "adds-or-updates-the-configuration-information-for-end-user-and-device-related-pii",
+     "get": "gets-the-configuration-information-for-end-user-and-device-related-pii",
+     "compare_required": False,
+     "go": ("vendor/zscaler-sdk-go/zscaler/zcc/services/web_privacy/web_privacy.go", "WebPrivacyInfo"),
+     "tf": "vendor/terraform-provider-zcc/internal/framework/resources/web_privacy.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/zcc/models/webprivacy.py", "WebPrivacy"),
+                "service": "vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py",
+                "methods": ["get_web_privacy", "set_web_privacy_info"]}},
+]
+
+ZCC_SCOPE_NOTES = [
+    "`zcc_trusted_network` is not reconciled here because Terraform uses the Go SDK v2 trusted-network API "
+    "(`/zcc/papi/public/v2/trusted-networks`) while the captured Automate contract currently exposes only the "
+    "older v1 `webTrustedNetwork` operations.",
+    "`zcc_notification_template` and `zcc_zia_posture` are Terraform Plugin Framework resources, but no matching "
+    "captured Automate contract operations are present in `zcc-api-reference.json`.",
+]
+
+ZTW_RESOURCES = [
+    {"name": "activation_status", "group": "activation",
+     "update": "ec-activate-z-resource-activate",
+     "get": "ec-activate-z-resource-get-org-edit-activate-status",
+     "compare_required": False,
+     "go": ("vendor/zscaler-sdk-go/zscaler/ztw/services/activation/activation.go", "ECAdminActivation"),
+     "tf": "vendor/terraform-provider-ztc/ztc/resource_ztc_activation_status.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/ztw/models/activation.py", "Activation"),
+                "service": "vendor/zscaler-sdk-python/zscaler/ztw/activation.py",
+                "methods": ["activate", "get_status"]}},
+    {"name": "account_group", "group": "partner-integrations",
+     "create": "aws-account-group-z-resource-create-account-group",
+     "get": "aws-account-group-z-resource-get-account-group-by-id",
+     "update": "aws-account-group-z-resource-update-account-group",
+     "go": ("vendor/zscaler-sdk-go/zscaler/ztw/services/partner_integrations/account_groups/account_groups.go",
+            "AccountGroups"),
+     "tf": "vendor/terraform-provider-ztc/ztc/resource_ztc_account_groups.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/ztw/models/account_groups.py", "AccountGroups"),
+                "service": "vendor/zscaler-sdk-python/zscaler/ztw/account_groups.py",
+                "methods": ["list_account_groups", "get_account_group", "add_account_group", "update_account_group"]}},
+    {"name": "dns_forwarding_gateway", "group": "dns-gateway",
+     "create": "ec-dns-gateway-z-resource-add-dns-gateway",
+     "get": "ec-dns-gateway-z-resource-get-gateway-by-id",
+     "update": "ec-dns-gateway-z-resource-update-dns-gateway",
+     "go": ("vendor/zscaler-sdk-go/zscaler/ztw/services/forwarding_gateways/dns_forwarding_gateway/"
+            "dns_forwarding_gateway.go", "DNSGateway"),
+     "tf": "vendor/terraform-provider-ztc/ztc/resource_ztc_dns_forwarding_gateway.go"},
+    {"name": "dns_gateway", "group": "dns-gateway",
+     "create": "ec-dns-gateway-z-resource-add-dns-gateway",
+     "get": "ec-dns-gateway-z-resource-get-gateway-by-id",
+     "update": "ec-dns-gateway-z-resource-update-dns-gateway",
+     "go": ("vendor/zscaler-sdk-go/zscaler/ztw/services/dns_gateway/dns_gateway.go", "DNSGateway"),
+     "tf": "vendor/terraform-provider-ztc/ztc/resource_ztc_dns_gateway.go"},
+    {"name": "forwarding_gateway", "group": "forwarding-gateways",
+     "create": "ec-gateway-z-resource-add-gateway",
+     "get": "ec-gateway-z-resource-get-gateway-by-id",
+     "update": "ec-gateway-z-resource-edit-gateway",
+     "go": ("vendor/zscaler-sdk-go/zscaler/ztw/services/forwarding_gateways/zia_forwarding_gateway/"
+            "zia_forwarding_gateway.go", "ECGateway"),
+     "tf": "vendor/terraform-provider-ztc/ztc/resource_ztc_forwarding_gateway.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/ztw/models/forwarding_gateways.py",
+                          "ForwardingGateways"),
+                "service": "vendor/zscaler-sdk-python/zscaler/ztw/forwarding_gateways.py",
+                "methods": ["list_gateways", "list_gateway_lite", "add_gateway"]}},
+    {"name": "ip_destination_group", "group": "policy-resources",
+     "create": "ip-destination-group-z-resource-add-destination-ip-group",
+     "get": "ip-destination-group-z-resource-get-destination-ip-group-by-id",
+     "update": "ip-destination-group-z-resource-edit-destination-ip-group",
+     "go": ("vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/ipdestinationgroups/"
+            "ipdestinationgroups.go", "IPDestinationGroups"),
+     "tf": "vendor/terraform-provider-ztc/ztc/resource_ztc_ip_destination_groups.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/ztw/models/ip_destination_groups.py",
+                          "IPDestinationGroups"),
+                "service": "vendor/zscaler-sdk-python/zscaler/ztw/ip_destination_groups.py",
+                "methods": ["list_ip_destination_groups", "add_ip_destination_group",
+                            "update_ip_destination_group"]}},
+    {"name": "ip_pool_group", "group": "policy-resources",
+     "create": "ip-group-z-resource-add-ip-group",
+     "get": "ip-group-z-resource-get-ip-group-by-id",
+     "update": "ip-group-z-resource-edit-ip-group",
+     "go": ("vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/ipgroups/ipgroups.go", "IPGroups"),
+     "tf": "vendor/terraform-provider-ztc/ztc/resource_ztc_ip_pool_groups.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/ztw/models/ip_groups.py", "IPGroups"),
+                "service": "vendor/zscaler-sdk-python/zscaler/ztw/ip_groups.py",
+                "methods": ["list_ip_groups", "add_ip_group"]}},
+    {"name": "ip_source_group", "group": "policy-resources",
+     "create": "ip-source-group-z-resource-add-source-ip-group",
+     "get": "ip-source-group-z-resource-get-source-ip-group-by-id",
+     "update": "ip-source-group-z-resource-edit-source-ip-group",
+     "go": ("vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/ipsourcegroups/ipsourcegroups.go",
+            "IPSourceGroups"),
+     "tf": "vendor/terraform-provider-ztc/ztc/resource_ztc_ip_source_groups.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/ztw/models/ip_source_groups.py",
+                          "IPSourceGroup"),
+                "service": "vendor/zscaler-sdk-python/zscaler/ztw/ip_source_groups.py",
+                "methods": ["list_ip_source_groups", "add_ip_source_group"]}},
+    {"name": "location_template", "group": "location-management",
+     "create": "location-template-z-resource-create-location-template",
+     "get": "location-template-z-resource-get-location-template",
+     "update": "location-template-z-resource-update-location-template",
+     "go": ("vendor/zscaler-sdk-go/zscaler/ztw/services/locationmanagement/locationtemplate/"
+            "locationtemplates.go", "LocationTemplate"),
+     "tf": "vendor/terraform-provider-ztc/ztc/resource_ztc_location_template.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/ztw/models/location_templates.py",
+                          "LocationTemplate"),
+                "service": "vendor/zscaler-sdk-python/zscaler/ztw/location_template.py",
+                "methods": ["list_location_templates", "add_location_template", "update_location_template"]}},
+    {"name": "network_service", "group": "policy-resources",
+     "create": "network-service-resource-add-custom-network-service",
+     "get": "network-service-z-resource-get-network-service-by-id",
+     "update": "network-service-resource-edit-network-service",
+     "go": ("vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/networkservices/networkservices.go",
+            "NetworkServices"),
+     "tf": "vendor/terraform-provider-ztc/ztc/resource_ztc_network_services.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/ztw/models/nw_service.py", "NetworkServices"),
+                "service": "vendor/zscaler-sdk-python/zscaler/ztw/nw_service.py",
+                "methods": ["list_network_services", "add_network_service", "update_network_service"]}},
+    {"name": "network_service_group", "group": "policy-resources",
+     "create": "network-service-group-z-resource-add-custom-network-service-group",
+     "get": "zcloudconnector/all/network-service-group-z-resource-get-network-service-group-by-id",
+     "update": "zcloudconnector/all/network-service-group-z-resource-edit-network-service-group",
+     "extra_gets": ["network-service-group-z-resource-get-network-service-groups"],
+     "go": ("vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/networkservicegroups/"
+            "networkservicegroups.go", "NetworkServiceGroups"),
+     "tf": "vendor/terraform-provider-ztc/ztc/resource_ztc_network_services_groups.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/ztw/models/nw_service_groups.py",
+                          "NetworkServiceGroups"),
+                "service": "vendor/zscaler-sdk-python/zscaler/ztw/nw_service_groups.py",
+                "methods": ["list_network_svc_groups"]}},
+    {"name": "provisioning_url", "group": "private",
+     "create": "ec-prov-url-z-resource-create-prov-url",
+     "get": "zcloudconnector/provisioning/ec-prov-url-z-resource-get-prov-url-by-id",
+     "update": "ec-prov-url-z-resource-update-ec-group",
+     "go": ("vendor/zscaler-sdk-go/zscaler/ztw/services/provisioning/provisioning_url/"
+            "provisioning_url.go", "ProvisioningURL"),
+     "tf": "vendor/terraform-provider-ztc/ztc/resource_ztc_provisioning_url.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/ztw/models/provisioning_url.py",
+                          "ProvisioningURL"),
+                "service": "vendor/zscaler-sdk-python/zscaler/ztw/provisioning_url.py",
+                "methods": ["list_provisioning_url", "get_provisioning_url", "add_provisioning_url",
+                            "update_provisioning_url"]}},
+    {"name": "public_cloud_info", "group": "partner-integrations",
+     "create": "aws-account-z-resource-create-aws-account",
+     "get": "aws-account-z-resource-get-aws-account-by-id",
+     "update": "aws-account-z-resource-update-aws-account",
+     "go": ("vendor/zscaler-sdk-go/zscaler/ztw/services/partner_integrations/public_cloud_info/"
+            "public_cloud_info.go", "PublicCloudInfo"),
+     "tf": "vendor/terraform-provider-ztc/ztc/resource_ztc_public_cloud_info.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/ztw/models/public_cloud_info.py",
+                          "PublicCloudInfo"),
+                "service": "vendor/zscaler-sdk-python/zscaler/ztw/public_cloud_info.py",
+                "methods": ["list_public_cloud_info", "get_public_cloud_info", "add_public_cloud_info",
+                            "update_public_cloud_info"]}},
+    {"name": "traffic_forwarding_dns_rule", "group": "dns-control-forwarding-rule",
+     "create": "ec-rule-z-resource-create-ec-dns-forwarding-rule",
+     "get": "ec-rule-z-resource-get-ec-dns-by-id",
+     "update": "ec-rule-z-resource-update-ec-dns-rule",
+     "go": ("vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/traffic_dns_rules/"
+            "traffic_dns_rules.go", "ECDNSRules"),
+     "tf": "vendor/terraform-provider-ztc/ztc/resource_ztc_traffic_forwarding_dns_rule.go"},
+    {"name": "traffic_forwarding_rule", "group": "policy-management",
+     "create": "ec-rule-z-resource-create-rdr-rule",
+     "get": "ec-rule-z-resource-get-forwarding-rule-by-id",
+     "update": "ec-rule-z-resource-update-ec-rdr-rule",
+     "go": ("vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/"
+            "forwarding_rules.go", "ForwardingRules"),
+     "tf": "vendor/terraform-provider-ztc/ztc/resource_ztc_traffic_forwarding_rule.go",
+     "python": {"model": ("vendor/zscaler-sdk-python/zscaler/ztw/models/forwarding_rules.py",
+                          "ForwardingControlRule"),
+                "service": "vendor/zscaler-sdk-python/zscaler/ztw/forwarding_rules.py",
+                "methods": ["list_rules", "add_rule", "update_rule"]}},
+    {"name": "traffic_forwarding_log_rule", "group": "log-and-control-forwarding",
+     "create": "ec-rule-z-resource-create-self-rule",
+     "get": "ec-rule-z-resource-get-ec-self-rule-by-id",
+     "update": "ec-rule-z-resource-update-self-rule",
+     "go": ("vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/traffic_log_rules/"
+            "traffic_log_rules.go", "ECTrafficLogRules"),
+     "tf": "vendor/terraform-provider-ztc/ztc/resource_ztc_traffic_log_forwarding_rule.go"},
+]
+
+ZTW_CONTRACT_ONLY_GROUPS = [
+    "admin-and-role-management",
+    "authentication",
+    "cloud-branch-connector-groups",
+    "public",
+    "workload-groups",
+]
+
+ZTW_SCOPE_NOTES = [
+    "`resource_ztc_location_management.go` is not reconciled because "
+    "`terraform-provider-ztc` does not register `ztc_location_management` in `ResourcesMap`; it is exposed only "
+    "as a data source in the captured provider map.",
+]
+
 ZIA_CONTRACT_ONLY_GROUPS = [
     "api-authentication",
     "authentication-settings",
@@ -1276,6 +1620,18 @@ ZIA_CONTRACT_ONLY_GROUPS = [
 ]
 
 PRODUCTS = {
+    "zcc": {
+        "contract_json": "vendor/zscaler-api-specs/automate-zscaler/zcc-api-reference.json",
+        "resources": ZCC_RESOURCES,
+        "scope_notes": ZCC_SCOPE_NOTES,
+    },
+    "zcloudconnector": {
+        "display": "ZTW",
+        "contract_json": "vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json",
+        "resources": ZTW_RESOURCES,
+        "contract_only_groups": ZTW_CONTRACT_ONLY_GROUPS,
+        "scope_notes": ZTW_SCOPE_NOTES,
+    },
     "zpa": {
         "contract_json": "vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json",
         "resources": ZPA_RESOURCES,
@@ -1293,15 +1649,28 @@ def _read(path):
         return f.read()
 
 
+def _contract_key(product, res, ref):
+    """Resolve an operation reference.
+
+    Most registry entries live under one contract group and can use bare slugs.
+    Some products split create/update/read across groups (for example ZTW
+    provisioning URLs), so entries may also pin the full
+    `product/group/operation` key.
+    """
+    if "/" in ref:
+        return ref if ref.startswith(f"{product}/") else f"{product}/{ref}"
+    return f"{product}/{res['group']}/{ref}"
+
+
 def _contract_ops(res, contracts, product):
     read_slugs = [res["get"], *res.get("extra_gets", [])]
     write_slugs = [x for x in (res.get("create"), res.get("update"), *res.get("extra_updates", [])) if x]
-    op_keys = [(slug, f"{product}/{res['group']}/{slug}") for slug in read_slugs + write_slugs]
+    op_keys = [(slug, _contract_key(product, res, slug)) for slug in read_slugs + write_slugs]
     missing = [key for _, key in op_keys if key not in contracts]
     if missing:
         raise KeyError(f"missing contract operation(s) for {res['name']}: {', '.join(missing)}")
-    reads = [contracts[f"{product}/{res['group']}/{slug}"] for slug in read_slugs]
-    writes = [contracts[f"{product}/{res['group']}/{slug}"] for slug in write_slugs]
+    reads = [contracts[_contract_key(product, res, slug)] for slug in read_slugs]
+    writes = [contracts[_contract_key(product, res, slug)] for slug in write_slugs]
     return reads, writes
 
 
@@ -1415,10 +1784,12 @@ def reconcile_one(res, contracts, product="zpa"):
     cfields = {}
     for op in [*reads, *writes]:
         for f in op.get("response_schema") or []:
+            if _generic_response_placeholder(f):
+                continue
             cfields.setdefault(f["name"], dict(f))
     creq = {}
     if res.get("compare_required", True) and res.get("create"):
-        create_op = contracts[f"{product}/{res['group']}/{res['create']}"]
+        create_op = contracts[_contract_key(product, res, res["create"])]
         creq = {f["name"]: f for f in create_op.get("request_body", [])}
         for name, f in creq.items():
             cfields.setdefault(name, dict(f))
@@ -1536,8 +1907,12 @@ def build_report(contracts, product="zpa"):
         "resources": reports,
         "totals": totals,
     }
+    if PRODUCTS[product].get("display"):
+        report["display"] = PRODUCTS[product]["display"]
     if PRODUCTS[product].get("contract_only_groups"):
         report["contract_only_groups"] = PRODUCTS[product]["contract_only_groups"]
+    if PRODUCTS[product].get("scope_notes"):
+        report["scope_notes"] = PRODUCTS[product]["scope_notes"]
     return report
 
 
@@ -1545,15 +1920,14 @@ def build_report(contracts, product="zpa"):
 
 def render_markdown(report):
     t = report["totals"]
-    product = report["product"]
-    product_upper = product.upper()
+    product_label = report.get("display", report["product"].upper())
     out = []
     out.append("---")
-    out.append(f'title: "DAV-21 automate.zscaler.com contract reconciliation — {product_upper}"')
+    out.append(f'title: "DAV-21 automate.zscaler.com contract reconciliation — {product_label}"')
     out.append("status: generated")
     out.append('generator: "scripts/automate-capture/reconcile_contract.py"')
     out.append("---\n")
-    out.append(f"# automate.zscaler.com contract vs Go SDK / Python SDK / Terraform / Ansible — {product_upper}\n")
+    out.append(f"# automate.zscaler.com contract vs Go SDK / Python SDK / Terraform / Ansible — {product_label}\n")
     out.append("> Generated by `scripts/automate-capture/reconcile_contract.py`. Do not edit by hand; "
                "re-run after re-capturing the contract or bumping the vendor submodules.\n")
     out.append("Diffs the rendered per-operation contract "
@@ -1583,6 +1957,11 @@ def render_markdown(report):
         out.append("Captured contract groups with no Terraform resource mapping in this report:\n")
         for group in report["contract_only_groups"]:
             out.append(f"- `{group}`")
+        out.append("")
+    if report.get("scope_notes"):
+        out.append("## Scope Notes\n")
+        for note in report["scope_notes"]:
+            out.append(f"- {note}")
         out.append("")
     for r in report["resources"]:
         out.append(f"## {r['resource']}\n")
