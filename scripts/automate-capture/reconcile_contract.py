@@ -149,6 +149,72 @@ def _strip_go_comments(s):
 
 
 _TF_MARKER = "Schema: map[string]*schema.Schema{"
+_RESOURCE_FUNC_RE = re.compile(r"func\s+resource\w+\s*\(\)\s*\*schema\.Resource\s*\{")
+
+
+def _go_block_end(src, open_idx):
+    """Return the matching brace index for a Go block, skipping comments/strings."""
+    i = open_idx + 1
+    depth = 1
+    n = len(src)
+    while i < n and depth:
+        c = src[i]
+        if c == "/" and i + 1 < n and src[i + 1] == "/":
+            j = src.find("\n", i)
+            i = n if j == -1 else j + 1
+            continue
+        if c == "/" and i + 1 < n and src[i + 1] == "*":
+            j = src.find("*/", i)
+            i = n if j == -1 else j + 2
+            continue
+        if c == '"':
+            i += 1
+            while i < n and src[i] != '"':
+                if src[i] == "\\":
+                    i += 1
+                i += 1
+            i += 1
+            continue
+        if c == "`":
+            i += 1
+            while i < n and src[i] != "`":
+                i += 1
+            i += 1
+            continue
+        if c == "{":
+            depth += 1
+        elif c == "}":
+            depth -= 1
+            if depth == 0:
+                return i
+        i += 1
+    return n
+
+
+def _tf_resource_func_source(src):
+    """Prefer the actual Terraform resource function over helper schemas in the file."""
+    m = _RESOURCE_FUNC_RE.search(src)
+    if not m:
+        return src
+    open_idx = src.find("{", m.start(), m.end())
+    if open_idx == -1:
+        return src
+    return src[open_idx + 1:_go_block_end(src, open_idx)]
+
+
+def _drop_nested_schema_maps(src):
+    """Remove nested schema maps from a top-level field block before flag/enum reads."""
+    out = []
+    i = 0
+    while True:
+        mi = src.find(_TF_MARKER, i)
+        if mi == -1:
+            out.append(src[i:])
+            break
+        out.append(src[i:mi])
+        open_idx = mi + len(_TF_MARKER) - 1
+        i = _go_block_end(src, open_idx) + 1
+    return "".join(out)
 
 
 def _tf_top_level_keys(src):
@@ -205,6 +271,7 @@ def extract_tf_schema_fields(src):
     present (inline=False) with unknown flags (None) — we don't resolve helper bodies,
     so we never claim a flag/enum divergence we can't see. Comments are stripped
     before flag/enum reads so commented-out attributes don't count."""
+    src = _tf_resource_func_source(src)
     blocks = dict(_scan_blocks_depth1(src, _TF_MARKER))
     out = {}
     for key in _tf_top_level_keys(src):
@@ -213,7 +280,7 @@ def extract_tf_schema_fields(src):
             out[snake_to_camel(key)] = {"tf_key": key, "inline": False, "required": None,
                                         "optional": None, "computed": None, "enum": None}
             continue
-        cb = _strip_go_comments(block)
+        cb = _strip_go_comments(_drop_nested_schema_maps(block))
         enum = None
         em = re.search(r"StringInSlice\(\s*\[\]string\{([^}]*)\}", cb)
         if em:
@@ -290,6 +357,11 @@ RESOURCES = [
      "get": "get-inspection-profile",
      "go": ("vendor/zscaler-sdk-go/zscaler/zpa/services/inspectioncontrol/inspection_profile/zpa_inspection_profile.go", "InspectionProfile"),
      "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_inspection_profile.go"},
+    {"name": "lss_config", "group": "log-streaming-service-lss-configuration",
+     "create": "add-a-new-lss-configuration-for-the-specified-customer",
+     "get": "gets-the-lss-configuration-details-for-the-specified-id",
+     "go": ("vendor/zscaler-sdk-go/zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go", "LSSResource"),
+     "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_lss_config_controller.go"},
     {"name": "pra_approval", "group": "privileged-approval-management",
      "create": "add-privileged-approval",
      "get": "get-privileged-approval",

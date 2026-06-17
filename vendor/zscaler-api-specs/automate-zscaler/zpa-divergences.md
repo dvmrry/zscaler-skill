@@ -12,9 +12,9 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 ## Totals
 
-- Type drift (contract numeric vs Go string): **91**
-- Required drift (contract vs TF): **33**
-- Enum: **15** match / **3** value-conflict / **7** one-sided
+- Type drift (contract numeric vs Go string): **92**
+- Required drift (contract vs TF): **28**
+- Enum: **15** match / **3** value-conflict / **4** one-sided
 - Contract readonly fields checked: **6** (TF disagreement: 0)
 
 ## app_connector_group
@@ -74,8 +74,6 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 **Required drift:**
 
 - `domainNames`: contract required=False, TF required=True (TF stricter than API)
-- `serverGroups`: contract required=False, TF required=True (TF stricter than API)
-- `zpnErId`: contract required=False, TF required=True (TF stricter than API)
 
 **Contract fields absent from the Go SDK struct:** `commonAppsDto`, `inconsistentConfigDetails`, `inspectionApps`, `praApps`, `tcpProtocols`, `udpProtocols`
 
@@ -157,13 +155,26 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 **Required drift:**
 
-- `customControls`: contract required=False, TF required=True (TF stricter than API)
 - `name`: contract required=True, TF required=False (contract stricter than TF)
 - `paranoiaLevel`: contract required=True, TF required=False (contract stricter than TF)
 
 **Contract fields absent from the Go SDK struct:** `exceptionsVersion`, `predefinedADPControls`
 
 **Go SDK fields absent from the contract:** `commonGlobalOverrideActionsConfig`, `overrideAction`
+
+## lss_config
+
+`POST /zpa/mgmtconfig/v2/admin/customers/:customerId/lssConfig` — contract 6 / Go 5 / TF 5 fields
+
+**Type drift** — contract says numeric, Go SDK declares string (the API serializes these as JSON strings):
+
+- `id`: contract `int64` vs Go `string`
+
+**Required drift:**
+
+- `config`: contract required=True, TF required=False (contract stricter than TF)
+
+**Contract fields absent from the Go SDK struct:** `inconsistentConfigDetails`
 
 ## pra_approval
 
@@ -257,10 +268,7 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 **Required drift:**
 
-- `appConnectorGroups`: contract required=False, TF required=True (TF stricter than API)
 - `configSpace`: contract required=True, TF required=False (contract stricter than TF)
-- `extranetDTO`: contract required=False, TF required=True (TF stricter than API)
-- `servers`: contract required=False, TF required=True (TF stricter than API)
 
 **Contract fields absent from the Go SDK struct:** `inconsistentConfigDetails`
 

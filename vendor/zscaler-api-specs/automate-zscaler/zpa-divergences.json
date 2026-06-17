@@ -281,18 +281,6 @@
           "contract_required": false,
           "tf_required": true,
           "direction": "tf_stricter"
-        },
-        {
-          "field": "serverGroups",
-          "contract_required": false,
-          "tf_required": true,
-          "direction": "tf_stricter"
-        },
-        {
-          "field": "zpnErId",
-          "contract_required": false,
-          "tf_required": true,
-          "direction": "tf_stricter"
         }
       ],
       "readonly": [
@@ -612,24 +600,7 @@
             ]
           }
         ],
-        "one_sided": [
-          {
-            "field": "rules",
-            "contract": null,
-            "tf": [
-              "REQUEST_HEADERS",
-              "REQUEST_URI",
-              "QUERY_STRING",
-              "REQUEST_COOKIES",
-              "REQUEST_METHOD",
-              "REQUEST_BODY",
-              "RESPONSE_HEADERS",
-              "RESPONSE_BODY",
-              "WS_MAX_PAYLOAD_SIZE",
-              "WS_MAX_FRAGMENT_PER_MESSAGE"
-            ]
-          }
-        ]
+        "one_sided": []
       }
     },
     {
@@ -694,12 +665,6 @@
       ],
       "required_drift": [
         {
-          "field": "customControls",
-          "contract_required": false,
-          "tf_required": true,
-          "direction": "tf_stricter"
-        },
-        {
           "field": "name",
           "contract_required": true,
           "tf_required": false,
@@ -718,28 +683,48 @@
           "zsDefinedControlChoice"
         ],
         "value_conflict": [],
-        "one_sided": [
-          {
-            "field": "controlsInfo",
-            "contract": null,
-            "tf": [
-              "WEBSOCKET_PREDEFINED",
-              "WEBSOCKET_CUSTOM",
-              "THREATLABZ",
-              "CUSTOM",
-              "PREDEFINED"
-            ]
-          },
-          {
-            "field": "customControls",
-            "contract": null,
-            "tf": [
-              "PASS",
-              "BLOCK",
-              "REDIRECT"
-            ]
-          }
+        "one_sided": []
+      }
+    },
+    {
+      "resource": "lss_config",
+      "method": "POST",
+      "path": "/zpa/mgmtconfig/v2/admin/customers/:customerId/lssConfig",
+      "counts": {
+        "contract": 6,
+        "go": 5,
+        "tf": 5
+      },
+      "presence": {
+        "contract_only_vs_go": [
+          "inconsistentConfigDetails"
+        ],
+        "go_only_vs_contract": [],
+        "contract_unmatched_in_tf": [
+          "inconsistentConfigDetails",
+          "policyRule"
         ]
+      },
+      "type_drift": [
+        {
+          "field": "id",
+          "contract": "int64",
+          "go": "string"
+        }
+      ],
+      "required_drift": [
+        {
+          "field": "config",
+          "contract_required": true,
+          "tf_required": false,
+          "direction": "contract_stricter"
+        }
+      ],
+      "readonly": [],
+      "enum": {
+        "match": [],
+        "value_conflict": [],
+        "one_sided": []
       }
     },
     {
@@ -1099,28 +1084,10 @@
       ],
       "required_drift": [
         {
-          "field": "appConnectorGroups",
-          "contract_required": false,
-          "tf_required": true,
-          "direction": "tf_stricter"
-        },
-        {
           "field": "configSpace",
           "contract_required": true,
           "tf_required": false,
           "direction": "contract_stricter"
-        },
-        {
-          "field": "extranetDTO",
-          "contract_required": false,
-          "tf_required": true,
-          "direction": "tf_stricter"
-        },
-        {
-          "field": "servers",
-          "contract_required": false,
-          "tf_required": true,
-          "direction": "tf_stricter"
         }
       ],
       "readonly": [
@@ -1459,11 +1426,11 @@
     }
   ],
   "totals": {
-    "type_drift": 91,
-    "required_drift": 33,
+    "type_drift": 92,
+    "required_drift": 28,
     "enum_match": 15,
     "enum_value_conflict": 3,
-    "enum_one_sided": 7,
+    "enum_one_sided": 4,
     "readonly_fields": 6,
     "readonly_disagree": 0
   }
