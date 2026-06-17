@@ -36,6 +36,7 @@ type Thing struct {
 \tEnabled bool     `json:"enabled"`
 \tTags    []string `json:"tags,omitempty"`
 \tSub     SubType  `json:"sub,omitempty"`
+\tMeta    map[string]interface{} `json:"meta,omitempty"`
 \tIgnored string   `json:"-"`
 }
 
@@ -48,13 +49,14 @@ type Other struct {
 @case
 def test_go_struct_boundary_and_categories():
     f = extract_go_struct_fields(GO_FIXTURE, "Thing")
-    assert set(f) == {"id", "count", "enabled", "tags", "sub"}, set(f)
+    assert set(f) == {"id", "count", "enabled", "tags", "sub", "meta"}, set(f)
     assert "shouldNotAppear" not in f, "fields from a sibling struct must not leak"
     assert f["id"]["category"] == "string"
     assert f["count"]["category"] == "number"
     assert f["enabled"]["category"] == "boolean"
     assert f["tags"]["category"] == "array"
     assert f["sub"]["category"] == "object"
+    assert f["meta"]["category"] == "object"
 
 
 @case
@@ -155,6 +157,11 @@ def test_categories():
     assert go_category("*SubType") == "object"
     assert contract_category("int64") == "number"
     assert contract_category("string[]") == "array"
+    assert contract_category("SanitizedString50 (string)") == "string"
+    assert contract_category("SanitizedString50 (string)[]") == "array"
+    assert contract_category("SimStatusEnum (string)") == "string"
+    assert contract_category("byte") == "number"
+    assert contract_category("SomeObject[]") == "array"
     assert contract_category("boolean") == "boolean"
     assert contract_category(None) is None
 
