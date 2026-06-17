@@ -13,8 +13,8 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 ## Totals
 
 - Type drift (contract numeric vs Go string): **0**
-- Required drift (contract vs TF): **27**
-- Enum: **35** match / **7** value-conflict / **15** one-sided
+- Required drift (contract vs TF): **36**
+- Enum: **44** match / **9** value-conflict / **21** one-sided
 - Contract readonly fields checked: **1** (TF disagreement: 0)
 
 ## admin_role
@@ -86,6 +86,37 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 - `name`: contract required=False, TF required=True (TF stricter than API)
 
 **Go SDK fields absent from the contract:** `extranetIpPoolList`
+
+## file_type_rule
+
+`POST /zia/api/v1/fileTypeRules` — contract 35 / Go 35 / TF 30 fields
+
+**Required drift:**
+
+- `name`: contract required=False, TF required=True (TF stricter than API)
+- `order`: contract required=False, TF required=True (TF stricter than API)
+
+**Contract fields absent from the Go SDK struct:** `fileTypeCategories`
+
+**Go SDK fields absent from the contract:** `browserEunTemplateId`
+
+## forwarding_rule
+
+`POST /zia/api/v1/forwardingRules` — contract 39 / Go 38 / TF 36 fields
+
+**Required drift:**
+
+- `name`: contract required=True, TF required=False (contract stricter than TF)
+- `order`: contract required=False, TF required=True (TF stricter than API)
+- `rank`: contract required=True, TF required=False (contract stricter than TF)
+
+**Enum value conflicts:**
+
+- `forwardMethod`: contract ['INVALID', 'DIRECT', 'PROXYCHAIN', 'ZIA', 'ZPA', 'ECZPA', 'ECSELF', 'DROP'] vs TF ['INVALID', 'DIRECT', 'PROXYCHAIN', 'ZIA', 'ZPA', 'ECZPA', 'ECSELF', 'DROP', 'ENATDEDIP', 'GEOIP']
+
+**Contract fields absent from the Go SDK struct:** `devices`, `nwApplications`, `timeWindows`
+
+**Go SDK fields absent from the contract:** `appServiceGroups`, `dedicatedIPGateway`
 
 ## gre_tunnel
 
@@ -189,6 +220,25 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 `POST /zia/api/v1/ruleLabels` — contract 7 / Go 7 / TF 4 fields
 
+## sandbox_rule
+
+`POST /zia/api/v1/sandboxRules` — contract 31 / Go 29 / TF 23 fields
+
+**Required drift:**
+
+- `fileTypes`: contract required=True, TF required=False (contract stricter than TF)
+
+**Contract fields absent from the Go SDK struct:** `cbiProfile`, `cbiProfileId`
+
+## ssl_inspection_rule
+
+`POST /zia/api/v1/sslInspectionRules` — contract 32 / Go 32 / TF 28 fields
+
+**Required drift:**
+
+- `action`: contract required=True, TF required=False (contract stricter than TF)
+- `rank`: contract required=True, TF required=False (contract stricter than TF)
+
 ## static_ip
 
 `POST /zia/api/v1/staticIP` — contract 10 / Go 11 / TF 7 fields
@@ -220,6 +270,20 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 - `department`: contract required=False, TF required=True (TF stricter than API)
 
 **Go SDK fields absent from the contract:** `authMethods`, `deleted`
+
+## url_filtering_rule
+
+`POST /zia/api/v1/urlFilteringRules` — contract 36 / Go 42 / TF 39 fields
+
+**Required drift:**
+
+- `order`: contract required=False, TF required=True (TF stricter than API)
+
+**Enum value conflicts:**
+
+- `action`: contract ['BLOCK', 'CAUTION', 'ALLOW', 'ISOLATE', 'ICAP_RESPONSE'] vs TF ['BLOCK', 'CAUTION', 'ALLOW', 'ISOLATE']
+
+**Go SDK fields absent from the contract:** `browserEunTemplateId`, `cbiProfileId`, `sourceCountries`, `sourceIpGroups`, `userAgentTypes`, `userRiskScoreLevels`
 
 ## vpn_credential
 
