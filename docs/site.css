@@ -167,6 +167,56 @@ body {
 }
 .doc .nav .sub a { padding-left: 0.6rem; }
 
+.mobile-doc-toc {
+  display: none;
+  grid-column: 1 / -1;
+  margin: 0 0 1.5rem;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--font-sans);
+}
+.mobile-doc-toc summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 0.75rem 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+.mobile-doc-toc summary::-webkit-details-marker { display: none; }
+.mobile-doc-toc summary::after {
+  content: "+";
+  float: right;
+  color: var(--accent);
+}
+.mobile-doc-toc[open] summary::after { content: "-"; }
+.mobile-doc-toc .toc-links {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.15rem;
+  padding: 0 0 0.9rem;
+}
+.mobile-doc-toc a,
+.mobile-doc-toc .toc-group {
+  display: block;
+  padding: 0.35rem 0;
+  text-decoration: none;
+  font-size: 0.86rem;
+  line-height: 1.35;
+}
+.mobile-doc-toc a { color: var(--ink); }
+.mobile-doc-toc a:hover { color: var(--accent); }
+.mobile-doc-toc .toc-group {
+  padding-top: 0.8rem;
+  font-size: 0.64rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
 .doc .body {
   grid-column: 1; grid-row: 1;
   min-width: 0;
@@ -320,6 +370,7 @@ body {
   background: var(--paper-deep);
   padding: 0.05em 0.32em;
   border-radius: 2px;
+  overflow-wrap: anywhere;
 }
 .doc pre,
 .content pre {
@@ -709,13 +760,33 @@ table.rules td:first-child {
   .doc { gap: 2rem; }
 }
 @media (max-width: 780px) {
+  .topbar {
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.65rem 1rem;
+  }
+  .topbar .right { display: none; }
   .doc { grid-template-columns: 1fr; padding: 2rem 1.25rem 5rem; }
   .doc .nav { display: none; }
+  .doc .body { grid-column: 1; grid-row: auto; }
+  .mobile-doc-toc { display: block; }
   .doc-head h1 { font-size: 1.75rem; }
   .deflist > div { grid-template-columns: 1fr; gap: 0.25rem; }
   table.tbl { font-size: 0.86rem; }
   table.rules td:first-child { width: auto; white-space: normal; }
   .glance li { grid-template-columns: 1fr; gap: 0.25rem; }
+  .pipeline {
+    display: grid;
+    grid-template-columns: 1fr;
+    overflow-x: visible;
+  }
+  .pl-stage { min-width: 0; border-left: 1px solid var(--rule); }
+  .pl-stage + .pl-stage { border-left: 1px solid var(--rule); border-top: none; }
+  .pl-arrow {
+    justify-content: center;
+    padding: 0.15rem 0;
+    transform: rotate(90deg);
+  }
 }
 
 /* ──────────────────────────────────────────────────────────────────

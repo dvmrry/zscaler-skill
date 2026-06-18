@@ -104,9 +104,9 @@ Same a/b/c/d as `/z-investigator` (see [`investigator/prompt.md § Step 2`](../i
 - **a.** Read source schemas for any logs / config files you'll analyze
 - **b.** Read the canonical product / feature reference for any Zscaler component in scope
 - **c.** Verify framing claims as `Open (uncertain)` until evidence supports them
-- **d.** Check existing evidence on disk — `_data/cases/<operative-slug>/evidence/`, `_data/snapshot/<cloud>/`, `_data/schemas/`. Read any operative-directory `journal.md` or `posture.md` already in place; do not browse sibling case directories.
+- **d.** Check existing evidence on disk — `_data/cases/<operative-slug>/evidence/`, `_data/snapshot/<cloud>/`, `_data/schemas/`, and any `zscalerctl` dump/diff artifacts in the operative overlay. Read any operative-directory `journal.md` or `posture.md` already in place; do not browse sibling case directories.
 
-A SOC review especially leans on **(a)** and **(d)** — schemas tell you what posture controls a given config field actually enables, and the snapshot is the canonical source for "what's actually configured."
+A SOC review especially leans on **(a)** and **(d)** — schemas tell you what posture controls a given config field actually enables, and a fresh `zscalerctl`-generated snapshot/diff is the preferred read-only evidence for "what's actually configured." If the cache is stale or missing, draft a bounded `zscalerctl --format json ...` command rather than guessing or using raw API calls.
 
 ### 3. Apply the posture lens for each subtype in scope
 

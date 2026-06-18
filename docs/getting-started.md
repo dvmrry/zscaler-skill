@@ -68,9 +68,10 @@ Start a Claude Code session and confirm the skill loads with `/skills`.
 
 ## Set Up ZIA and ZPA Credentials
 
-Credentials are consumed by external tooling — the `zscalerctl` CLI or a
-private data-repo populator — that produces the `_data/snapshot/` dumps this
-skill reads. No script in this repo connects to Zscaler directly.
+Credentials are consumed by external tooling — preferably the read-only
+`zscalerctl` companion once it is available, or a private data-repo populator —
+that produces the `_data/snapshot/` dumps this skill reads. No script in this
+repo connects to Zscaler directly.
 
 Create the API client in ZIdentity. This is a one-time setup and requires
 ZIdentity admin access. Zscaler can move console navigation over time, so treat
@@ -142,9 +143,11 @@ answering tenant-specific questions, in a cloud-first layout —
 
 Populate it out of band: a private runtime-data repository, or a sanitized dump
 from the read-only [`zscalerctl`](https://github.com/dvmrry/zscalerctl) CLI.
-Credentialed tenant reads are out of scope for this repo. Without a snapshot,
-most tenant-specific answers revert to "I can't verify, here's the general
-mechanism."
+The intended pre-release companion model is: `zscalerctl` observes tenant state,
+`_data/` stores its fast local snapshots and diffs, and this skill interprets
+that observed state. Credentialed tenant reads are out of scope for this repo.
+Without a snapshot or explicit command output, most tenant-specific answers
+revert to "I can't verify, here's the general mechanism."
 
 See [`scripts/README.md`](../scripts/README.md) for the full inventory.
 

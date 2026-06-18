@@ -22,10 +22,12 @@
       key: 'welcome',
       label: 'Welcome',
       href: 'welcome/',
-      match: [/\/welcome\//, /readers-guide/, /onboarding/, /source\.html\?.*p=_meta\/primer/],
+      match: [/\/welcome\//, /readers-guide/, /operator-guide/, /install\.html/, /onboarding/, /source\.html\?.*p=_meta\/primer/],
       children: [
         { href: 'welcome/',                       label: 'Index',          match: [/\/welcome\/(index\.html)?$/] },
         { href: 'readers-guide.html',             label: "Reader's Guide", match: [/readers-guide/] },
+        { href: 'operator-guide.html',            label: 'Operator Guide', match: [/operator-guide/] },
+        { href: 'install.html',                   label: 'Install',        match: [/install\.html/] },
         { href: 'onboarding.html',                label: 'Slideshow',      match: [/onboarding/] },
         { href: 'source.html?p=_meta/primer',     label: 'Documents',      match: [/source\.html\?.*p=_meta\/primer/] },
       ],
@@ -54,8 +56,18 @@
       ],
     },
     {
+      key: 'zcc',
+      label: 'ZCC',
+      href: 'zcc/',
+      match: [/\/zcc\//, /\/zcc\/?$/, /source\.html\?.*p=zcc(\/|$)/],
+      children: [
+        { href: 'zcc/',              label: 'Index',     match: [/\/zcc\/(index\.html)?$/] },
+        { href: 'source.html?p=zcc', label: 'Documents', match: [/source\.html\?.*p=zcc(\/|$)/], external: 'source' },
+      ],
+    },
+    {
       key: 'cloud-connector',
-      label: 'Cloud Connector',
+      label: 'ZTW',
       href: 'cloud-connector/',
       match: [/cloud-connector\//, /source\.html\?.*p=cloud-connector(\/|$)/],
       children: [
@@ -64,16 +76,36 @@
         { href: 'source.html?p=cloud-connector',     label: 'Documents', match: [/source\.html\?.*p=cloud-connector(\/|$)/], external: 'source' },
       ],
     },
+    {
+      key: 'zidentity',
+      label: 'ZID',
+      href: 'zidentity/',
+      match: [/\/zidentity\//, /\/zidentity\/?$/, /source\.html\?.*p=zidentity(\/|$)/],
+      children: [
+        { href: 'zidentity/',              label: 'Index',     match: [/\/zidentity\/(index\.html)?$/] },
+        { href: 'source.html?p=zidentity', label: 'Documents', match: [/source\.html\?.*p=zidentity(\/|$)/], external: 'source' },
+      ],
+    },
+    {
+      key: 'zdx',
+      label: 'ZDX',
+      href: 'zdx/',
+      match: [/\/zdx\//, /\/zdx\/?$/, /source\.html\?.*p=zdx(\/|$)/],
+      children: [
+        { href: 'zdx/',              label: 'Index',     match: [/\/zdx\/(index\.html)?$/] },
+        { href: 'source.html?p=zdx', label: 'Documents', match: [/source\.html\?.*p=zdx(\/|$)/], external: 'source' },
+      ],
+    },
   ];
 
   const RAIL_STATE_KEY = 'zskill:rail-hidden';
 
   // depth: 0 if at docs/ root (index.html, readers-guide.html, onboarding.html, source.html),
-  // 1 if in a subdir (zia/*, zpa/*, cloud-connector/*).
+  // 1 if in a subdir (zia/*, zpa/*, zcc/*, cloud-connector/*, zidentity/*, zdx/*).
   const path = location.pathname;
   const search = location.search;
   const pathAndSearch = path + search;
-  const depth = /\/(zia|zpa|cloud-connector|welcome)\//.test(path) ? 1 : 0;
+  const depth = /\/(zia|zpa|zcc|cloud-connector|zidentity|zdx|welcome)\//.test(path) ? 1 : 0;
   const prefix = depth === 1 ? '../' : '';
 
   const currentSection = sections.find(s => s.match.some(re => re.test(pathAndSearch)));
@@ -90,6 +122,7 @@
       height: 38px; padding: 0 1.5rem;
       font-family: 'IBM Plex Sans', system-ui, sans-serif;
       font-size: 11.5px;
+      overflow: hidden;
     }
     #site-nav .sn-row--sub {
       height: 32px;
@@ -102,7 +135,7 @@
       font-size: 10px; color: #1a1814; margin-right: 2rem; white-space: nowrap;
       text-decoration: none;
     }
-    #site-nav .sn-links { display: flex; overflow-x: auto; }
+    #site-nav .sn-links { display: flex; flex: 1; min-width: 0; overflow-x: auto; }
     #site-nav a.sn-link {
       display: inline-flex; align-items: center;
       height: inherit; padding: 0 0.9rem;
@@ -221,6 +254,8 @@
   }
 
   document.body.prepend(nav);
+  injectMobileDocToc();
+  requestAnimationFrame(revealActiveNavLinks);
 
   // Set --site-nav-height so the sidebar and body padding-top can
   // align under the fixed nav. Recompute on resize.
@@ -250,6 +285,55 @@
     e.preventDefault();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
+
+  function injectMobileDocToc() {
+    const doc = document.querySelector('.doc');
+    const sideNav = doc && doc.querySelector('.nav');
+    const body = doc && doc.querySelector('.body');
+    if (!doc || !sideNav || !body || doc.querySelector('.mobile-doc-toc')) return;
+
+    const links = sideNav.querySelectorAll('li');
+    if (!links.length) return;
+
+    const details = document.createElement('details');
+    details.className = 'mobile-doc-toc';
+    const summary = document.createElement('summary');
+    summary.textContent = 'On this page';
+    details.appendChild(summary);
+
+    const wrap = document.createElement('div');
+    wrap.className = 'toc-links';
+
+    links.forEach(function (li) {
+      if (li.classList.contains('nav-group')) {
+        const group = document.createElement('span');
+        group.className = 'toc-group';
+        group.textContent = li.textContent.trim();
+        wrap.appendChild(group);
+        return;
+      }
+      const a = li.querySelector('a[href^="#"]');
+      if (!a) return;
+      const clone = a.cloneNode(true);
+      clone.addEventListener('click', function () {
+        details.removeAttribute('open');
+      });
+      wrap.appendChild(clone);
+    });
+
+    if (!wrap.children.length) return;
+    details.appendChild(wrap);
+    doc.insertBefore(details, body);
+  }
+
+  function revealActiveNavLinks() {
+    nav.querySelectorAll('.sn-links').forEach(function (row) {
+      const active = row.querySelector('.sn-link.active');
+      if (!active) return;
+      const left = active.offsetLeft - row.offsetLeft;
+      row.scrollLeft = Math.max(0, left - (row.clientWidth - active.clientWidth) / 2);
+    });
+  }
 
   // Auto-load the shared left-sidebar (file-tree navigation). Always
   // loaded — every page gets the sidebar, and the rail toggle hides

@@ -13,7 +13,7 @@ The product is **codified behavior**, not API access. An agent with live API key
 - **The behavior LLMs hallucinate** — URL-filter rule order and first-match semantics, the wildcard-vs-exact specificity gotcha, the two-pass SSL inspection model, Cloud App Control ↔ URL Filtering interaction, ZPA app-segment matching, and cross-product policy evaluation.
 - **Honest coverage tiers** — deep operational depth (SDK / Terraform / OneAPI) on ZIA, ZPA, ZCC, ZDX, ZIdentity, and Cloud & Branch Connector; awareness-level on the rest of the portfolio — and it tells you which tier it's standing on before it answers.
 - **Source-graded answers** — every reference carries `confidence`, `source-tier`, and `sources`; a [verification protocol](./references/_meta/verification-protocol.md) gates what earns a place, so unverified claims don't get dressed up as fact.
-- **Tenant-aware, fail-closed** — answers tenant-specific questions ("is `reddit.com` blocked in *our* tenant?") from a mounted `_data/` snapshot, and declines rather than guesses when there's no snapshot.
+- **Tenant-aware, fail-closed** — answers tenant-specific questions ("is `reddit.com` blocked in *our* tenant?") from observed tenant state: mounted `_data/` snapshots/diffs, explicit command output, or the read-only `zscalerctl` companion when available. It declines rather than guesses when there is no tenant observation.
 - **Structured workflows** — repeatable, evidence-based roles for investigation, research, audit, and review when a task needs a defined output, not just a chat answer.
 
 [`SKILL.md`](./SKILL.md) is the routing surface — the question-shape table that sends each query to the right reference. [`references/_meta/portfolio-map.md`](./references/_meta/portfolio-map.md) is the per-product coverage index.
@@ -49,7 +49,7 @@ node scripts/setup-data-mount.mjs --data-url <git-url-or-path> --data-ref <branc
 node scripts/check-data-contract.mjs
 ```
 
-The snapshot itself is populated out of band — e.g. a private overlay, or a sanitized dump from the read-only [`zscalerctl`](https://github.com/dvmrry/zscalerctl) CLI. Credentialed tenant reads are out of scope for this repo; the references plus a mounted snapshot are the operational surface.
+The snapshot itself is populated out of band — e.g. a private overlay, or a sanitized dump from the read-only [`zscalerctl`](https://github.com/dvmrry/zscalerctl) CLI. Pre-release companion model: `zscalerctl` observes tenant state, `_data/` stores fast local snapshots/diffs, and this skill interprets the observed state with policy semantics. Credentialed tenant reads are out of scope for this repo.
 
 ## Entry points
 
@@ -78,6 +78,7 @@ Each role's canonical logic lives in `agents/<role>/workflow.md`; the loaders un
 **Reference**
 - [references/_meta/portfolio-map.md](./references/_meta/portfolio-map.md) — product coverage tiers
 - [references/_meta/clarifications.md](./references/_meta/clarifications.md) — open / partial / resolved ambiguity register
+- [references/_meta/tooling.md](./references/_meta/tooling.md) — pre-release `zscalerctl` companion contract and `_data/` cache model
 - [references/_meta/verification-protocol.md](./references/_meta/verification-protocol.md) — how a finding earns its place
 - [docs/data-contract/](./docs/data-contract/) — expected `_data/` layout
 
