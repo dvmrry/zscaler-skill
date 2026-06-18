@@ -10,7 +10,7 @@ sys.path.insert(0, HERE)
 RAW = os.path.normpath(os.path.join(
     HERE, "..", "..", "vendor", "zscaler-help", "automate-zscaler", "api-reference"))
 
-from parse_contract import parse_contract  # noqa: E402
+from parse_contract import build_components, parse_contract  # noqa: E402
 
 ACG = "zpa/app-connector-group-management"
 
@@ -43,6 +43,7 @@ def test_acg_create_path_param_required():
     c = load(f"{ACG}/adds-a-new-app-connector-group-for-the-specified-customer")
     cid = field(c["path_params"], "customerId")
     assert cid and cid["type"] == "int64" and cid["required"] is True, cid
+    assert cid["description"] == "The unique identifier of the ZPA tenant.", cid
 
 
 @case
@@ -50,6 +51,7 @@ def test_acg_create_query_param_optional():
     c = load(f"{ACG}/adds-a-new-app-connector-group-for-the-specified-customer")
     mt = field(c["query_params"], "microtenantId")
     assert mt and mt["required"] is False, mt
+    assert mt["description"].startswith("The unique identifier of the microtenant"), mt
 
 
 @case
@@ -127,6 +129,8 @@ def test_app_segment_create_shape():
     bt = field(c["request_body"], "bypassType")
     assert bt and bt["enum"] == ["ALWAYS", "NEVER", "ON_NET"], bt
     assert field(c["request_body"], "name")["required"] is True
+    adp = field(c["request_body"], "adpEnabled")
+    assert adp and adp["description"] == "adpEnabled", adp
 
 
 @case
@@ -182,6 +186,7 @@ def test_zpa_readonly_ignored_in_put_post_calls():
     c = load("zpa/provisioning-key-management/adds-a-new-provisioning-key-for-the-specified-customer")
     zc = field(c["response_schema"], "zcomponentName")
     assert zc and zc["readonly"] is True, zc
+    assert "ignored in PUT/POST" in zc["description"], zc
 
 
 @case
@@ -243,6 +248,146 @@ def test_pipe_delimited_enum_values_detected():
         "EXEC_INSIGHT_AND_ORG_ADMIN",
         "SDWAN",
     ], role_type
+
+
+@case
+def test_component_graph_resolves_list_wrapper_sibling():
+    ops = {
+        "zpa/widget-management/list-widgets": {
+            "operation_summary": "Gets all Widgets.",
+            "method": "GET",
+            "path": "/widgets",
+            "path_params": [],
+            "query_params": [],
+            "request_body": [],
+            "response_schema": [
+                {"name": "currentCount", "type": "int64", "required": False, "readonly": False, "enum": None},
+                {"name": "list", "type": "Widget[]", "required": False, "readonly": False, "enum": None},
+                {"name": "totalCount", "type": "int64", "required": False, "readonly": False, "enum": None},
+                {"name": "totalPages", "type": "int32", "required": False, "readonly": False, "enum": None},
+            ],
+        },
+        "zpa/widget-management/get-widget": {
+            "operation_summary": "Gets the Widget details.",
+            "method": "GET",
+            "path": "/widgets/:id",
+            "path_params": [],
+            "query_params": [],
+            "request_body": [],
+            "response_schema": [
+                {"name": "id", "type": "int64", "required": False, "readonly": False, "enum": None},
+                {"name": "name", "type": "string", "required": False, "readonly": False, "enum": None},
+                {"name": "child", "type": "ChildWidget", "required": False, "readonly": False, "enum": None},
+            ],
+        },
+    }
+    graph = build_components(ops)
+    widget = graph["schemas"]["Widget"]
+    assert widget["status"] == "resolved", widget
+    assert widget["resolution"] == "list-wrapper-sibling", widget
+    assert [f["name"] for f in widget["fields"]] == ["child", "id", "name"], widget
+    child = graph["schemas"]["ChildWidget"]
+    assert child["status"] == "unresolved", child
+    assert child["referenced_by"] == [{
+        "operation": "zpa/widget-management/get-widget",
+        "section": "response_schema",
+        "field": "child",
+        "type": "ChildWidget",
+    }], child
+
+
+@case
+def test_component_graph_token_match_resolves_single_path_family():
+    ops = {
+        "zpa/ref/uses-user": {
+            "operation_summary": "Uses a nested reference.",
+            "method": "GET",
+            "path": "/refs",
+            "path_params": [],
+            "query_params": [],
+            "request_body": [],
+            "response_schema": [
+                {"name": "user", "type": "EmergencyAccessUserDTO", "required": False, "readonly": False, "enum": None},
+            ],
+        },
+        "zpa/emergency-access-user/get-users": {
+            "operation_summary": "Gets Emergency Access User details.",
+            "method": "GET",
+            "path": "/emergencyAccess/user",
+            "path_params": [],
+            "query_params": [],
+            "request_body": [],
+            "response_schema": [
+                {"name": "id", "type": "string", "required": False, "readonly": False, "enum": None},
+                {"name": "name", "type": "string", "required": False, "readonly": False, "enum": None},
+            ],
+        },
+        "zpa/emergency-access-user/get-user": {
+            "operation_summary": "Gets an Emergency Access User by ID.",
+            "method": "GET",
+            "path": "/emergencyAccess/user/:userId",
+            "path_params": [],
+            "query_params": [],
+            "request_body": [],
+            "response_schema": [
+                {"name": "email", "type": "string", "required": False, "readonly": False, "enum": None},
+            ],
+        },
+    }
+    graph = build_components(ops)
+    user = graph["schemas"]["EmergencyAccessUserDTO"]
+    assert user["status"] == "resolved", user
+    assert user["resolution"] == "operation-token-match", user
+    assert [f["name"] for f in user["fields"]] == ["email", "id", "name"], user
+    assert user["source_operations"] == [
+        "zpa/emergency-access-user/get-user",
+        "zpa/emergency-access-user/get-users",
+    ], user
+
+
+@case
+def test_component_graph_token_match_rejects_multi_path_family():
+    ops = {
+        "zpa/ref/uses-inspection": {
+            "operation_summary": "Uses a nested reference.",
+            "method": "GET",
+            "path": "/refs",
+            "path_params": [],
+            "query_params": [],
+            "request_body": [],
+            "response_schema": [
+                {"name": "control", "type": "InspectionControlBaseEntity", "required": False, "readonly": False, "enum": None},
+            ],
+        },
+        "zpa/inspection-control/get-custom": {
+            "operation_summary": "Gets Inspection Control custom details.",
+            "method": "GET",
+            "path": "/inspectionControls/custom",
+            "path_params": [],
+            "query_params": [],
+            "request_body": [],
+            "response_schema": [
+                {"name": "customOnly", "type": "string", "required": False, "readonly": False, "enum": None},
+            ],
+        },
+        "zpa/inspection-control/get-exceptions": {
+            "operation_summary": "Gets Inspection Control exception details.",
+            "method": "GET",
+            "path": "/inspectionControls/exceptions",
+            "path_params": [],
+            "query_params": [],
+            "request_body": [],
+            "response_schema": [
+                {"name": "exceptionOnly", "type": "string", "required": False, "readonly": False, "enum": None},
+            ],
+        },
+    }
+    graph = build_components(ops)
+    control = graph["schemas"]["InspectionControlBaseEntity"]
+    assert control["status"] == "unresolved", control
+    assert control["resolution"] == "unresolved-token-multi-family", control
+    assert control["fields"] == [], control
+    assert control["source_operations"] == [], control
 
 
 def main():
