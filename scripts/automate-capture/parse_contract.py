@@ -4,9 +4,11 @@
 Deterministic, no network, no LLM. Reads the raw <article> text that capture.cjs
 dumped and emits, per operation, {operation, source_url, raw_sha256, method, path,
 path_params, query_params, request_body, response_schema} where each field is
-{name, type, required, readonly, enum}. The parser is the trust boundary between
-the rendered page and every downstream consumer, so it is pinned by
-test_parse_contract.py against committed fixtures.
+{name, type, required, readonly, enum, description?}. It also emits a conservative
+per-product <product>-components.json graph for nested object refs found in those
+field types. The parser is the trust boundary between the rendered page and every
+downstream consumer, so it is pinned by test_parse_contract.py against committed
+fixtures.
 
 Grammar (observed, ZPA OneAPI reference):
   <breadcrumb/title>
@@ -29,6 +31,7 @@ token, where types are a closed primitive set, PascalCase object refs, or named
 primitive aliases like `SourceType (string)`. That cleanly separates camelCase
 field names (e.g. praEnabled) from types (string).
 """
+import copy
 import json
 import os
 import re
@@ -102,6 +105,11 @@ def _parse_enum(raw):
     return [x.strip() for x in raw.split(sep) if x.strip()]
 
 
+def _description(lines):
+    clean = [re.sub(r"\s+", " ", line.strip()) for line in lines if line.strip()]
+    return " ".join(clean) if clean else None
+
+
 def _parse_fields(lines):
     """Parse a slice of lines into field dicts using the name/type discriminator."""
     fields = []
@@ -115,6 +123,7 @@ def _parse_fields(lines):
         i += 2
         required = readonly = False
         enum = None
+        description_lines = []
         # Consume annotation lines until the next field starts or the slice ends.
         while i < n:
             ln = lines[i].strip()
@@ -125,15 +134,23 @@ def _parse_fields(lines):
                 required = True
             elif _READONLY_RE.search(ln):
                 readonly = True
+                if ln:
+                    description_lines.append(ln)
             else:
                 m = _ENUM_RE.search(ln)
                 if m:
                     enum = _parse_enum(m.group(1))
+                elif ln:
+                    description_lines.append(ln)
             i += 1
-        fields.append({
+        field = {
             "name": name, "type": typ,
             "required": required, "readonly": readonly, "enum": enum,
-        })
+        }
+        desc = _description(description_lines)
+        if desc:
+            field["description"] = desc
+        fields.append(field)
     return fields
 
 
@@ -220,6 +237,153 @@ def parse_tree(raw_dir):
     return dict(sorted(contracts.items()))
 
 
+def _ref_type(typ):
+    """Return a nested object type reference, excluding primitives/aliases."""
+    if not typ:
+        return None
+    base = typ[:-2] if typ.endswith("[]") else typ
+    if base in PRIMITIVES or base == "REQUIRED" or "(" in base:
+        return None
+    if re.fullmatch(r"[A-Z][A-Za-z0-9_]*", base):
+        return base
+    return None
+
+
+def _group_name(operation_key):
+    parts = operation_key.split("/")
+    return parts[1] if len(parts) > 2 else ""
+
+
+def _is_page_wrapper(fields):
+    names = {f.get("name") for f in fields}
+    return names == {"currentCount", "list", "totalCount", "totalPages"}
+
+
+def _wrapper_list_ref(fields):
+    if not _is_page_wrapper(fields):
+        return None
+    for field in fields:
+        if field.get("name") == "list":
+            return _ref_type(field.get("type"))
+    return None
+
+
+def _same_collection_path(collection_path, candidate_path):
+    if not collection_path or not candidate_path:
+        return False
+    return candidate_path == collection_path or candidate_path.startswith(collection_path + "/:")
+
+
+def _camel_tokens(value):
+    spaced = re.sub(r"([a-z0-9])([A-Z])", r"\1 \2", value)
+    return re.findall(r"[a-z0-9]+", spaced.lower())
+
+
+def _type_tokens(type_name):
+    tokens = _camel_tokens(type_name)
+    return [t for t in tokens if t not in {"dto", "resource", "base", "entity"}]
+
+
+def _operation_tokens(operation_key, operation):
+    text = " ".join([
+        operation_key.replace("/", " ").replace("-", " "),
+        str(operation.get("operation_summary") or ""),
+        str(operation.get("path") or ""),
+    ])
+    return set(re.findall(r"[a-z0-9]+", re.sub(r"([a-z0-9])([A-Z])", r"\1 \2", text).lower()))
+
+
+def _merge_fields(operations):
+    fields = {}
+    source_operations = []
+    for op_key, operation in operations:
+        schema = operation.get("response_schema") or []
+        if not schema or _is_page_wrapper(schema):
+            continue
+        source_operations.append(op_key)
+        for field in schema:
+            name = field.get("name")
+            if name:
+                fields.setdefault(name, copy.deepcopy(field))
+    return [fields[name] for name in sorted(fields)], sorted(source_operations)
+
+
+def build_components(operations):
+    """Build a conservative nested-type component graph.
+
+    Resolution rules:
+    - exact list-wrapper evidence wins: if a response wrapper has `list: Type[]`,
+      resolve Type from non-wrapper response schemas in the same operation group.
+    - otherwise, resolve only when all normalized type-name tokens appear in an
+      operation's key/summary/path text.
+    - unresolved refs stay explicit with their referenced_by locations.
+    """
+    refs = {}
+    wrapper_sources = {}
+    for op_key, operation in operations.items():
+        for section in ("path_params", "query_params", "request_body", "response_schema"):
+            for field in operation.get(section) or []:
+                ref = _ref_type(field.get("type"))
+                if not ref:
+                    continue
+                refs.setdefault(ref, []).append({
+                    "operation": op_key,
+                    "section": section,
+                    "field": field["name"],
+                    "type": field["type"],
+                })
+        list_ref = _wrapper_list_ref(operation.get("response_schema") or [])
+        if list_ref:
+            wrapper_sources.setdefault(list_ref, []).append({
+                "group": _group_name(op_key),
+                "path": operation.get("path"),
+            })
+
+    by_group = {}
+    for op_key, operation in operations.items():
+        by_group.setdefault(_group_name(op_key), []).append((op_key, operation))
+
+    schemas = {}
+    for ref in sorted(refs):
+        candidates = []
+        resolution = None
+        for source in sorted(wrapper_sources.get(ref, []), key=lambda x: (x["group"], x.get("path") or "")):
+            for op_key, operation in by_group.get(source["group"], []):
+                if _same_collection_path(source.get("path"), operation.get("path")):
+                    candidates.append((op_key, operation))
+            resolution = "list-wrapper-sibling"
+        if not candidates:
+            tokens = set(_type_tokens(ref))
+            if tokens:
+                for op_key, operation in operations.items():
+                    schema = operation.get("response_schema") or []
+                    if not schema or _is_page_wrapper(schema):
+                        continue
+                    if tokens <= _operation_tokens(op_key, operation):
+                        candidates.append((op_key, operation))
+                if candidates:
+                    resolution = "operation-token-match"
+
+        fields, source_operations = _merge_fields(sorted(candidates))
+        schemas[ref] = {
+            "status": "resolved" if fields else "unresolved",
+            "resolution": resolution or "unresolved",
+            "fields": fields,
+            "source_operations": source_operations,
+            "referenced_by": refs[ref],
+        }
+
+    return {
+        "schemas": schemas,
+        "summary": {
+            "referenced_types": len(schemas),
+            "resolved": sum(1 for s in schemas.values() if s["status"] == "resolved"),
+            "unresolved": sum(1 for s in schemas.values() if s["status"] == "unresolved"),
+            "references": sum(len(s["referenced_by"]) for s in schemas.values()),
+        },
+    }
+
+
 def main():
     raw_dir = sys.argv[1] if len(sys.argv) > 1 else \
         "vendor/zscaler-help/automate-zscaler/api-reference"
@@ -240,9 +404,19 @@ def main():
         with open(out, "w", encoding="utf-8") as f:
             json.dump(ops, f, indent=2)
             f.write("\n")
+        components = {"product": product, **build_components(ops)}
+        component_out = os.path.join(out_dir, f"{product}-components.json")
+        with open(component_out, "w", encoding="utf-8") as f:
+            json.dump(components, f, indent=2)
+            f.write("\n")
         n_body = sum(len(c["request_body"]) for c in ops.values())
         n_resp = sum(len(c["response_schema"]) for c in ops.values())
         print(f"{product}: {len(ops)} ops -> {out}  (req {n_body}, resp {n_resp})")
+        print(
+            f"{product}: {components['summary']['referenced_types']} component refs "
+            f"({components['summary']['resolved']} resolved, "
+            f"{components['summary']['unresolved']} unresolved) -> {component_out}"
+        )
 
 
 if __name__ == "__main__":

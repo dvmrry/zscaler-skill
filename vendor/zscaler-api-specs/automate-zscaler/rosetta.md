@@ -53,64 +53,64 @@ generator: "scripts/automate-capture/rosetta.py"
 
 `PUT /zcc/papi/public/v1/webFailOpenPolicy/edit`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `active` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `captivePortalWebSecDisableMinutes` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `companyId` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `companyIds` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `createdBy` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `editedBy` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `enableCaptivePortalDetection` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `enableFailOpen` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `enableStrictEnforcementPrompt` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `enableWebSecOnProxyUnreachable` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `enableWebSecOnTunnelFailure` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `errorCode` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `errorInfoArguments` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `errorMessage` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `id` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `responseData` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `strictEnforcementPromptDelayMinutes` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `strictEnforcementPromptMessage` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `success` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `tunnelFailureRetryCount` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `active` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `captivePortalWebSecDisableMinutes` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `companyId` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `companyIds` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `createdBy` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `editedBy` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `enableCaptivePortalDetection` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `enableFailOpen` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `enableStrictEnforcementPrompt` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `enableWebSecOnProxyUnreachable` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `enableWebSecOnTunnelFailure` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `errorCode` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `errorInfoArguments` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `errorMessage` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `id` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `responseData` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `strictEnforcementPromptDelayMinutes` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `strictEnforcementPromptMessage` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `success` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `tunnelFailureRetryCount` | ] | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 
 ### `forwarding_profile`
 
 `POST /zcc/papi/public/v1/webForwardingProfile/edit`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `active` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `addCondition` | **—** | **—** | ✓ | **—** | **—** | **—** |
-| `condition` | **—** | **—** | ✓ | **—** | **—** | **—** |
-| `conditionType` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `dnsSearchDomains` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `dnsServers` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `enableAllDefaultAdaptersTN` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `enableLWFDriver` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `enableSplitVpnTN` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `enableUnifiedTunnel` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `evaluateTrustedNetwork` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `forwardingProfileActions` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `forwardingProfileZpaActions` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `hostname` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `id` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
-| `predefinedTnAll` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `predefinedTrustedNetworkOption` | **—** | **—** | ✓ | **—** | **—** | **—** |
-| `predefinedTrustedNetworks` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `resolvedIpsForHostname` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `skipTrustedCriteriaMatch` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `trustedDhcpServers` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `trustedEgressIps` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `trustedGateways` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `trustedNetworkIds` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `trustedNetworkIdsSelected` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `trustedNetworks` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `trustedSubnets` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `unifiedTunnel` | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `active` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `addCondition` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
+| `condition` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
+| `conditionType` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `dnsSearchDomains` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `dnsServers` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `enableAllDefaultAdaptersTN` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `enableLWFDriver` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `enableSplitVpnTN` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `enableUnifiedTunnel` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `evaluateTrustedNetwork` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `forwardingProfileActions` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `forwardingProfileZpaActions` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `hostname` | The hostname of the network. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `id` | ID of the forwarding profile. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `name` | Specifies the name of the forwarding profile. | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
+| `predefinedTnAll` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `predefinedTrustedNetworkOption` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
+| `predefinedTrustedNetworks` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `resolvedIpsForHostname` | The IP addresses that the hostname resolves to. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `skipTrustedCriteriaMatch` | Indicates if Skip Trusted Criteria match for VPN Adapters is enabled. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `trustedDhcpServers` | The DHCP server of the trusted network. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `trustedEgressIps` | The egress IP address of the network. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `trustedGateways` | The IP address of the default gateway. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `trustedNetworkIds` | The IDs of trusted networks. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `trustedNetworkIdsSelected` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `trustedNetworks` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `trustedSubnets` | The subnet of the trusted network. ] | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `unifiedTunnel` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
 
 ### `web_privacy`
 
@@ -140,368 +140,368 @@ generator: "scripts/automate-capture/rosetta.py"
 
 `POST /ztw/api/v1/accountGroups`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `cloudConnectorGroups` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `cloudType` | ✓ | ✓ | ✓ | **✓ enum1** | **—** | **—** |
-| `description` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `id` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
-| `publicCloudAccounts` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `cloudConnectorGroups` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `cloudType` | The cloud type. The default and manadatory value is AWS. | ✓ | ✓ | ✓ | **✓ enum1** | **—** | **—** |
+| `description` | (Optional) The description of the AWS account group. Must be less than or equal to 512 characters. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `id` | The ID of the AWS account group. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `name` | The name of the AWS account group. Must be non-null, non-empty, unique, and 128 characters or fewer in length. | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
+| `publicCloudAccounts` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 
 ### `activation_status`
 
 `PUT /ztw/api/v1/ecAdminActivateStatus/activate`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `adminActivateStatus` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `adminStatusMap` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `orgEditStatus` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `orgLastActivateStatus` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `adminActivateStatus` | Admin activation status. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `adminStatusMap` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `orgEditStatus` | Organization policy edit status. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `orgLastActivateStatus` | Organization policy last activation status. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 
 ### `dns_forwarding_gateway`
 
 `POST /ztw/api/v1/dnsGateways`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `dnsGatewayType` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `ecDnsGatewayOptionsPrimary` | ✓ | ✓ | **—** | **✓ enum≠** | **—** | **—** |
-| `ecDnsGatewayOptionsSecondary` | ✓ | ✓ | **—** | **✓ enum≠** | **—** | **—** |
-| `failureBehavior` | ✓ | ✓ | **—** | **✓ enum≠** | **—** | **—** |
-| `id` | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `lastModifiedBy` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `lastModifiedTime` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `name` | ✓ | ✓ | **—** | **✓ req** | **—** | **—** |
-| `primaryIp` | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `secondaryIp` | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `type` | **—** | ✓ | **—** | **—** | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `dnsGatewayType` | Specifies the type of DNS gateway. | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `ecDnsGatewayOptionsPrimary` | Specifies the primary DNS server for EC DNS gateway. | ✓ | ✓ | **—** | **✓ enum≠** | **—** | **—** |
+| `ecDnsGatewayOptionsSecondary` | Specifies the secondary DNS server for EC DNS gateway. | ✓ | ✓ | **—** | **✓ enum≠** | **—** | **—** |
+| `failureBehavior` | Specifies the failure behavior if the DNS server is unreachable. | ✓ | ✓ | **—** | **✓ enum≠** | **—** | **—** |
+| `id` | ID of the DNS gateway. | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `lastModifiedBy` |  | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `lastModifiedTime` | Timestamp when the DNS gateway was last modified. | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `name` | Name of the DNS gateway. | ✓ | ✓ | **—** | **✓ req** | **—** | **—** |
+| `primaryIp` | The primary IP address of the DNS gateway. | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `secondaryIp` | The secondary IP address of the DNS gateway. | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `type` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
 
 ### `dns_gateway`
 
 `POST /ztw/api/v1/dnsGateways`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `dnsGatewayType` | ✓ | ✓ | **—** | **✓ enum≠** | **—** | **—** |
-| `ecDnsGatewayOptionsPrimary` | ✓ | ✓ | **—** | **✓ enum≠** | **—** | **—** |
-| `ecDnsGatewayOptionsSecondary` | ✓ | ✓ | **—** | **✓ enum≠** | **—** | **—** |
-| `failureBehavior` | ✓ | ✓ | **—** | **✓ enum≠** | **—** | **—** |
-| `id` | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `lastModifiedBy` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `lastModifiedTime` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `name` | ✓ | ✓ | **—** | **✓ req** | **—** | **—** |
-| `primaryIp` | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `secondaryIp` | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `dnsGatewayType` | Specifies the type of DNS gateway. | ✓ | ✓ | **—** | **✓ enum≠** | **—** | **—** |
+| `ecDnsGatewayOptionsPrimary` | Specifies the primary DNS server for EC DNS gateway. | ✓ | ✓ | **—** | **✓ enum≠** | **—** | **—** |
+| `ecDnsGatewayOptionsSecondary` | Specifies the secondary DNS server for EC DNS gateway. | ✓ | ✓ | **—** | **✓ enum≠** | **—** | **—** |
+| `failureBehavior` | Specifies the failure behavior if the DNS server is unreachable. | ✓ | ✓ | **—** | **✓ enum≠** | **—** | **—** |
+| `id` | ID of the DNS gateway. | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `lastModifiedBy` |  | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `lastModifiedTime` | Timestamp when the DNS gateway was last modified. | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `name` | Name of the DNS gateway. | ✓ | ✓ | **—** | **✓ req** | **—** | **—** |
+| `primaryIp` | The primary IP address of the DNS gateway. | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `secondaryIp` | The secondary IP address of the DNS gateway. | ✓ | ✓ | **—** | ✓ | **—** | **—** |
 
 ### `forwarding_gateway`
 
 `POST /ztw/api/v1/gateways`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `description` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `dnsGatewayType` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `ecDnsGatewayOptionsPrimary` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `ecDnsGatewayOptionsSecondary` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `failClosed` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `failureBehavior` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `id` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `lastModifiedBy` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `lastModifiedTime` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `manualPrimary` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `manualSecondary` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `primaryIp` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `primaryType` | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
-| `secondaryIp` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `secondaryType` | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
-| `subcloudPrimary` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `subcloudSecondary` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `type` | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `description` | Description of the gateway. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `dnsGatewayType` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `ecDnsGatewayOptionsPrimary` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `ecDnsGatewayOptionsSecondary` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `failClosed` | A true value indicates that traffic must be dropped when both primary and secondary proxies defined in the gateway are unreachable. A false value indicates that traffic must be allowed. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `failureBehavior` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `id` | ID of the gateway. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `lastModifiedBy` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `lastModifiedTime` | Timestamp when the gateway was last modified. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `manualPrimary` | Specifies the primary proxy through which traffic must be forwarded. Depending on the type of proxy forwarding, this field includes a preconfigured data center, or a specified IP address or domain name. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `manualSecondary` | Specifies the secondary proxy through which traffic must be forwarded. Depending on the type of proxy forwarding, this field includes a preconfigured data center, or a specified IP address or domain name. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `name` | Name of the gateway. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `primaryIp` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `primaryType` | Type of the primary proxy, such as automatic proxy (AUTO), manual proxy (DC) that forwards traffic through selected data centers, or override (MANUAL_OVERRIDE) that forwards traffic through a specified IP address or domain. | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
+| `secondaryIp` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `secondaryType` | Type of the secondary proxy, such as automatic proxy (AUTO), manual proxy (DC) that forwards traffic through selected data centers, or override (MANUAL_OVERRIDE) that forwards traffic through a specified IP address or domain. | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
+| `subcloudPrimary` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `subcloudSecondary` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `type` | Type of the gateway. Supported types are ZIA and ECSELF (Log and Control gateway). | ✓ | ✓ | **—** | ✓ | **—** | **—** |
 
 ### `ip_destination_group`
 
 `POST /ztw/api/v1/ipDestinationGroups`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `addresses` | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `countries` | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `creatorContext` | ✓ | **—** | ✓ | **—** | **—** | **—** |
-| `description` | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `id` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `ipAddresses` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `ipCategories` | ✓ | ✓ | ✓ | **✓ enum1** | **—** | **—** |
-| `isNonEditable` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | **✓ req** | **—** | ✓ |
-| `type` | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `urlCategories` | ✓ | **—** | ✓ | **—** | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `addresses` | IP addresses or domain names included in the group. | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
+| `countries` | Countries included in the group. | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
+| `creatorContext` | Indicates whether the IP group or IP pool is created in Cloud & Branch Connector (EC) or ZIA. | ✓ | **—** | ✓ | **—** | **—** | **—** |
+| `description` | Description of the group. | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
+| `id` | ID of the destination IP group. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `ipAddresses` | IP addresses or domain names included in the group. | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `ipCategories` | Not applicable to Cloud & Branch Connector. | ✓ | ✓ | ✓ | **✓ enum1** | **—** | **—** |
+| `isNonEditable` | Indicates if the group is view-only (true) and is editable (false). | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `name` | Name of the destination IP group. | ✓ | ✓ | ✓ | **✓ req** | **—** | ✓ |
+| `type` | Type of the destination IP group. | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
+| `urlCategories` | Not applicable to Cloud & Branch Connector. | ✓ | **—** | ✓ | **—** | **—** | **—** |
 
 ### `ip_pool_group`
 
 `POST /ztw/api/v1/ipGroups`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `creatorContext` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `description` | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `extranetIpPool` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `id` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `ipAddresses` | ✓ | ✓ | ✓ | **✓ req** | **—** | ✓ |
-| `isNonEditable` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `isPredefined` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | **✓ req** | **—** | ✓ |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `creatorContext` | Indicates whether the IP group or IP pool is created in Cloud & Branch Connector (EC) or ZIA. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `description` | Description of the IP group or IP pool. | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
+| `extranetIpPool` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `id` | ID of the IP address group or IP pool. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `ipAddresses` | IP addresses included in the IP group or IP pool. | ✓ | ✓ | ✓ | **✓ req** | **—** | ✓ |
+| `isNonEditable` | Indicates if the IP group is view-only (true) or is editable (false). | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `isPredefined` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `name` | Name of the IP address group or IP pool. | ✓ | ✓ | ✓ | **✓ req** | **—** | ✓ |
 
 ### `ip_source_group`
 
 `POST /ztw/api/v1/ipSourceGroups`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `creatorContext` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `description` | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `id` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `ipAddresses` | ✓ | ✓ | ✓ | **✓ req** | **—** | ✓ |
-| `isNonEditable` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | **✓ req** | **—** | ✓ |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `creatorContext` | Indicates whether the IP group or IP pool is created in Cloud & Branch Connector (EC) or ZIA. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `description` | Description of the IP group or IP pool. | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
+| `id` | ID of the IP address group or IP pool. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `ipAddresses` | IP addresses included in the IP group or IP pool. | ✓ | ✓ | ✓ | **✓ req** | **—** | ✓ |
+| `isNonEditable` | Indicates if the IP group is view-only (true) or is editable (false). | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `name` | Name of the IP address group or IP pool. | ✓ | ✓ | ✓ | **✓ req** | **—** | ✓ |
 
 ### `location_template`
 
 `POST /ztw/api/v1/locationTemplate`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `desc` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `editable` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `id` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `lastModTime` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `lastModUid` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `template` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `desc` | Description of Cloud & Branch Connector location template. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `editable` | Whether Cloud & Branch Connector location template is editable. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `id` | ID of Cloud & Branch Connector location template. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `lastModTime` | Last time Cloud & Branch Connector location template was modified. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `lastModUid` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `name` | Name of Cloud & Branch Connector location template. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `template` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 
 ### `network_service`
 
 `POST /ztw/api/v1/networkServices`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `creatorContext` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `description` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `destTcpPorts` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `destUdpPorts` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `id` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `isNameL10nTag` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
-| `srcTcpPorts` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `srcUdpPorts` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `start` | **—** | **—** | ✓ | **—** | **—** | **—** |
-| `tag` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `type` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `creatorContext` | Context in which the network service was created: Cloud Connector (EC) or ZIA. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `description` | Description of network service. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `destTcpPorts` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `destUdpPorts` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `id` | ID of network service. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `isNameL10nTag` | Indicates whether name is a tag that can be used to look up the display string, typically from a localization resource bundle. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `name` | Name of network service. | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
+| `srcTcpPorts` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `srcUdpPorts` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `start` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
+| `tag` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `type` | Type of network service: standard, predefined, or custom. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 
 ### `network_service_group`
 
 `POST /ztw/api/v1/networkServiceGroups`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `creatorContext` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `description` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `id` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
-| `services` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `creatorContext` | Indicates whether the network service group is created in Cloud & Branch Connector (EC) or ZIA. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `description` | Description of the network service group. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `id` | ID of the network service group. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `name` | Name of the network service group. | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
+| `services` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 
 ### `provisioning_url`
 
 `POST /ztw/api/v1/provUrl`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `desc` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `id` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `lastModTime` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `lastModUid` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `location` | **—** | **—** | ✓ | **—** | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
-| `provUrl` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `provUrlData` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `provUrlType` | ✓ | ✓ | ✓ | **✓ enum≠** | **—** | **—** |
-| `status` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `usedInEcGroups` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `desc` | Description of Cloud & Branch Connector provisioning template. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `id` | ID of Cloud & Branch Connector provisioning template. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `lastModTime` | Last time Cloud & Branch Connector provisioning template was modified. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `lastModUid` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `location` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
+| `name` | Name of Cloud & Branch Connector provisioning template. | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
+| `provUrl` | URL of Cloud & Branch Connector provisioning template. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `provUrlData` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `provUrlType` | URL type of Cloud & Branch Connector provisioning template. | ✓ | ✓ | ✓ | **✓ enum≠** | **—** | **—** |
+| `status` | Deployment status of Cloud & Branch Connector provisioning template. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `usedInEcGroups` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 
 ### `public_cloud_info`
 
 `POST /ztw/api/v1/publicCloudInfo`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `accountDetails` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `accountGroups` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `cloudType` | ✓ | ✓ | ✓ | **✓ enum1** | **—** | **—** |
-| `externalId` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `id` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `lastModTime` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `lastModUser` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `lastSyncTime` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `permissionStatus` | **—** | **—** | ✓ | **—** | **—** | **—** |
-| `regionStatus` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `supportedRegions` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `accountDetails` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `accountGroups` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `cloudType` | The cloud type. The default and mandatory value is AWS. | ✓ | ✓ | ✓ | **✓ enum1** | **—** | **—** |
+| `externalId` | A unique external ID for the AWS account. Note: The ID must be unique across different organizations. Two organizations cannot use the same external ID. Multiple accounts can share the same external ID within the same organization. The ID must be between 2 and 128 characters long. The ID can include letters, numbers, and the following symbols: +, =, ,, ., @ ,:, /, and -. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `id` | The unique ID of the AWS account. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `lastModTime` | The date and time when the AWS account was last modified. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `lastModUser` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `lastSyncTime` | The last time the AWS account was synced. permissionStatus Indicates whether the provided credentials (external ID and AWS role name) have permission to access the AWS account. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `name` | The name of the AWS account. The name must be non-null, non-empty, unique, and 128 characters or fewer in length. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `permissionStatus` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
+| `regionStatus` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `supportedRegions` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 
 ### `traffic_forwarding_dns_rule`
 
 `POST /ztw/api/v1/ecRules/ecDns`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `accessControl` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `action` | ✓ | ✓ | **—** | **✓ enum≠** | **—** | **—** |
-| `blockResponseCode` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `defaultRule` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `departments` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `description` | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `destAddresses` | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `destCountries` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `destIpCategories` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `destIpGroups` | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `destIpv6Groups` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `deviceGroups` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `devices` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `dnsGateway` | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `ecGroups` | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `groups` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `id` | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `labels` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `lastModifiedBy` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `lastModifiedTime` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `locationGroups` | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `locations` | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `name` | ✓ | ✓ | **—** | **✓ req** | **—** | **—** |
-| `order` | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `predefined` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `rank` | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `redirectIp` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `resCategories` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `sourceCountries` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `sourceIpGroupExclusion` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `srcIpGroups` | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `srcIps` | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `srcIpv6Groups` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `state` | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `templateSyncedRuleFlag` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `timeWindows` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `type` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `users` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `zpaIpGroup` | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `accessControl` | Access permission to the rule available for the current user. | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `action` | Action triggered when the traffic aligns with the policy. | ✓ | ✓ | **—** | **✓ enum≠** | **—** | **—** |
+| `blockResponseCode` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `defaultRule` | Indicates whether the rule is a default rule. | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `departments` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `description` | The description of the rule. | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `destAddresses` | The destination IP addresses to which the rule applies. | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `destCountries` | The destination countries to which the rule applies. | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `destIpCategories` | The destination IP categories to which the rule applies. | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `destIpGroups` |  | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `destIpv6Groups` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `deviceGroups` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `devices` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `dnsGateway` |  | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `ecGroups` |  | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `groups` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `id` | The ID of the rule. | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `labels` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `lastModifiedBy` |  | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `lastModifiedTime` | Timestamp when the rule was last modified. | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `locationGroups` |  | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `locations` |  | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `name` | The name of the rule. | ✓ | ✓ | **—** | **✓ req** | **—** | **—** |
+| `order` | The order of the rule. | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `predefined` | Specifies whether the rule is predefined. | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `rank` | The admin rank assigned to the rule. | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `redirectIp` | The IP address to which the traffic is redirected to when the DNS rule is triggered. | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `resCategories` | The destination IP address categories for which the DNS rule applies. | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `sourceCountries` | The source countries to which the rule applies. | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `sourceIpGroupExclusion` | Specifies whether source IP addresses and groups are included or excluded. | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `srcIpGroups` |  | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `srcIps` | The source IP addresses to which the rule applies. | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `srcIpv6Groups` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `state` | Specifies whether the rule is enabled or disabled. | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `templateSyncedRuleFlag` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `timeWindows` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `type` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `users` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `zpaIpGroup` |  | ✓ | ✓ | **—** | ✓ | **—** | **—** |
 
 ### `traffic_forwarding_log_rule`
 
 `POST /ztw/api/v1/ecRules/self`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `accessControl` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `appServiceGroups` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `blockResponseCode` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `defaultRule` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `departments` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `description` | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `destAddresses` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `destCountries` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `destIpCategories` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `destIpGroups` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `destIpv6Groups` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `deviceGroups` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `devices` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `ecGroups` | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `forwardMethod` | ✓ | ✓ | **—** | **✓ enum≠** | **—** | **—** |
-| `groups` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `id` | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `labels` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `lastModifiedBy` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `lastModifiedTime` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `locationGroups` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `locations` | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `name` | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `nwApplicationGroups` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `nwApplications` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `nwServiceGroups` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `nwServices` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `order` | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `proxyGateway` | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `rank` | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `resCategories` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `sourceCountries` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `sourceIpGroupExclusion` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `srcIpGroups` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `srcIps` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `srcIpv6Groups` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `state` | ✓ | ✓ | **—** | **✓ enum1** | **—** | **—** |
-| `timeWindows` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `type` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `users` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `wanSelection` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `zpaAppSegments` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `zpaApplicationSegmentGroups` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `zpaApplicationSegments` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `zpaBrokerRule` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `zpaGateway` | ✓ | **—** | **—** | **—** | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `accessControl` | Access permission available for the current user to the rule. | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `appServiceGroups` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `blockResponseCode` | Not applicable to Cloud & Branch Connector. | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `defaultRule` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `departments` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `description` | Description of the rule. | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `destAddresses` | The destination IP addresses to which the rule applies. | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `destCountries` | Not applicable to Cloud & Branch Connector. | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `destIpCategories` | Not applicable to Cloud & Branch Connector. | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `destIpGroups` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `destIpv6Groups` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `deviceGroups` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `devices` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `ecGroups` |  | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `forwardMethod` | The forwarding method used in the rule, indicating whether the traffic is sent to ZIA, ZPA, directly to the destination (DIRECT), or dropped (DROP). | ✓ | ✓ | **—** | **✓ enum≠** | **—** | **—** |
+| `groups` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `id` | ID of the rule. | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `labels` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `lastModifiedBy` |  | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `lastModifiedTime` | Timestamp when the rule was last modified. | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `locationGroups` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `locations` |  | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `name` | Name of the rule. | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `nwApplicationGroups` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `nwApplications` | Not applicable to Cloud & Branch Connector. | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `nwServiceGroups` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `nwServices` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `order` | The rule order that indicates the rule's position in the execution order. Zscaler evaluates rules in ascending numerical order (Rule 1 before Rule 2, and so on). | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `proxyGateway` |  | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `rank` | Not applicable to Cloud & Branch Connector. | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `resCategories` | Not applicable to Cloud & Branch Connector. | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `sourceCountries` | Not applicable to Cloud & Branch Connector. | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `sourceIpGroupExclusion` | Not applicable to Cloud & Branch Connector. | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `srcIpGroups` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `srcIps` | The source IP addresses to which the rule applies. | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `srcIpv6Groups` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `state` | Specifies whether the rule is enabled or disabled. | ✓ | ✓ | **—** | **✓ enum1** | **—** | **—** |
+| `timeWindows` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `type` | Type of the rule. By default, all traffic forwarding rules are assigned the EC_RDR type. | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `users` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `wanSelection` | This parameter was deprecated and is no longer configurable. | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `zpaAppSegments` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `zpaApplicationSegmentGroups` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `zpaApplicationSegments` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `zpaBrokerRule` | Not applicable to Cloud & Branch Connector. | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `zpaGateway` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
 
 ### `traffic_forwarding_rule`
 
 `POST /ztw/api/v1/ecRules/ecRdr`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `accessControl` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `appServiceGroups` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `blockResponseCode` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `defaultRule` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `departments` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `description` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `destAddresses` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `destCountries` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `destIpCategories` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `destIpGroups` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `destIpv6Groups` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `destWorkloadGroups` | **—** | **—** | ✓ | **—** | **—** | **—** |
-| `deviceGroups` | ✓ | **—** | ✓ | **—** | **—** | **—** |
-| `devices` | ✓ | **—** | ✓ | **—** | **—** | **—** |
-| `ecGroups` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `forwardMethod` | ✓ | ✓ | ✓ | **✓ req enum≠** | **—** | **—** |
-| `groups` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `id` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `labels` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `lastModifiedBy` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `lastModifiedTime` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `locationGroups` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `locations` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
-| `nwApplicationGroups` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `nwApplications` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `nwServiceGroups` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `nwServices` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `order` | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
-| `proxyGateway` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `rank` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `resCategories` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `sourceCountries` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `sourceIpGroupExclusion` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `srcIpGroups` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `srcIps` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `srcIpv6Groups` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `srcWorkloadGroups` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `state` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `timeWindows` | ✓ | **—** | ✓ | **—** | **—** | **—** |
-| `type` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `users` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `wanSelection` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `zpaAppSegments` | ✓ | **—** | ✓ | **—** | **—** | **—** |
-| `zpaApplicationSegmentGroups` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `zpaApplicationSegments` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `zpaBrokerRule` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `zpaGateway` | ✓ | **—** | ✓ | **—** | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `accessControl` | Access permission available for the current user to the rule. | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `appServiceGroups` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `blockResponseCode` | Not applicable to Cloud & Branch Connector. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `defaultRule` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `departments` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `description` | Description of the rule. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `destAddresses` | The destination IP addresses to which the rule applies. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `destCountries` | Not applicable to Cloud & Branch Connector. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `destIpCategories` | Not applicable to Cloud & Branch Connector. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `destIpGroups` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `destIpv6Groups` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `destWorkloadGroups` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
+| `deviceGroups` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
+| `devices` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
+| `ecGroups` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `forwardMethod` | The forwarding method used in the rule, indicating whether the traffic is sent to ZIA, ZPA, directly to the destination (DIRECT), or dropped (DROP). | ✓ | ✓ | ✓ | **✓ req enum≠** | **—** | **—** |
+| `groups` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `id` | ID of the rule. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `labels` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `lastModifiedBy` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `lastModifiedTime` | Timestamp when the rule was last modified. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `locationGroups` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `locations` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `name` | Name of the rule. | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
+| `nwApplicationGroups` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `nwApplications` | Not applicable to Cloud & Branch Connector. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `nwServiceGroups` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `nwServices` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `order` | The rule order that indicates the rule's position in the execution order. Zscaler evaluates rules in ascending numerical order (Rule 1 before Rule 2, and so on). | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
+| `proxyGateway` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `rank` | Not applicable to Cloud & Branch Connector. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `resCategories` | Not applicable to Cloud & Branch Connector. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `sourceCountries` | Not applicable to Cloud & Branch Connector. | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `sourceIpGroupExclusion` | Not applicable to Cloud & Branch Connector. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `srcIpGroups` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `srcIps` | The source IP addresses to which the rule applies. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `srcIpv6Groups` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `srcWorkloadGroups` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `state` | Specifies whether the rule is enabled or disabled. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `timeWindows` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
+| `type` | Type of the rule. By default, all traffic forwarding rules are assigned the EC_RDR type. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `users` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `wanSelection` | This parameter was deprecated and is no longer configurable. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `zpaAppSegments` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
+| `zpaApplicationSegmentGroups` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `zpaApplicationSegments` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `zpaBrokerRule` | Not applicable to Cloud & Branch Connector. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `zpaGateway` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
 
 ## ZIA
 
@@ -510,1059 +510,1059 @@ generator: "scripts/automate-capture/rosetta.py"
 
 `POST /zia/api/v1/adminRoles`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `adminAcctAccess` | ✓ | ✓ | ✓ | **✓ enum1** | **—** | **—** |
-| `alertingAccess` | ✓ | ✓ | ✓ | **✓ enum1** | **—** | **—** |
-| `analysisAccess` | ✓ | ✓ | ✓ | **✓ enum1** | **—** | **—** |
-| `dashboardAccess` | ✓ | ✓ | ✓ | **✓ enum1** | **—** | **—** |
-| `deviceInfoAccess` | ✓ | ✓ | ✓ | **✓ enum1** | **—** | **—** |
-| `extFeaturePermissions` | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `featurePermissions` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `id` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `isAuditor` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `isNonEditable` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `logsLimit` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
-| `permissions` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `policyAccess` | ✓ | ✓ | ✓ | **✓ enum1** | **—** | **—** |
-| `rank` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `reportAccess` | ✓ | ✓ | ✓ | **✓ enum1** | **—** | **—** |
-| `reportTimeDuration` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `roleType` | ✓ | ✓ | ✓ | **✓ enum≠** | **—** | **—** |
-| `usernameAccess` | ✓ | ✓ | ✓ | **✓ enum1** | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `adminAcctAccess` | Admin and role management access permission | ✓ | ✓ | ✓ | **✓ enum1** | **—** | **—** |
+| `alertingAccess` | Alerting access permission | ✓ | ✓ | ✓ | **✓ enum1** | **—** | **—** |
+| `analysisAccess` | Insights Logs access permission | ✓ | ✓ | ✓ | **✓ enum1** | **—** | **—** |
+| `dashboardAccess` | Dashboard access permission | ✓ | ✓ | ✓ | **✓ enum1** | **—** | **—** |
+| `deviceInfoAccess` | Device information access permission. When set to NONE, device information is obfuscated. | ✓ | ✓ | ✓ | **✓ enum1** | **—** | **—** |
+| `extFeaturePermissions` |  | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `featurePermissions` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `id` | Admin role ID | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `isAuditor` | Indicates whether this is an auditor role Default value: false | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `isNonEditable` | Indicates whether or not this admin user is editable Default value: false | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `logsLimit` | Enter the number of days an admin with this role can view logs. Admins can view real-time logs of every transaction performed by your users regardless of where they are in the world. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `name` | Name of the admin role | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
+| `permissions` | List of functional areas to which this role has access. This attribute is subject to change. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `policyAccess` | Policy access permission | ✓ | ✓ | ✓ | **✓ enum1** | **—** | **—** |
+| `rank` | Admin rank of this admin role. This is applicable only when the admin rank is enabled in the advanced settings. Default value is 7 (the lowest rank). The assigned admin rank determines the roles or admin users this user can manage and the rule orders the admin can access. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `reportAccess` | Report access permission | ✓ | ✓ | ✓ | **✓ enum1** | **—** | **—** |
+| `reportTimeDuration` | Time duration allocated to the report dashboard. The default value of -1 indicates that no time restriction is applied to the report dashboard. Time Unit is in hours. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `roleType` | The admin role type. This attribute is subject to change. | ✓ | ✓ | ✓ | **✓ enum≠** | **—** | **—** |
+| `usernameAccess` | Username access permission. When set to NONE, the username is obfuscated. | ✓ | ✓ | ✓ | **✓ enum1** | **—** | **—** |
 
 ### `advanced_settings`
 
 `PUT /zia/api/v1/advancedSettings`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `apiSessionTimeout` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `authBypassApps` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `authBypassUrlCategories` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `authBypassUrls` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `basicBypassApps` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `basicBypassUrlCategories` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `blockConnectHostSniMismatch` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `blockDomainFrontingApps` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `blockDomainFrontingOnHostHeader` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `blockHttpTunnelOnNonHttpPorts` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `blockNonCompliantHttpRequestOnHttpPorts` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `blockNonHttpOnHttpPortEnabled` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `cascadeUrlFiltering` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `digestAuthBypassApps` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `digestAuthBypassUrlCategories` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `digestAuthBypassUrls` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `dnsResolutionOnTransparentProxyApps` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `dnsResolutionOnTransparentProxyExemptApps` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `dnsResolutionOnTransparentProxyExemptUrlCategories` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `dnsResolutionOnTransparentProxyExemptUrls` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `dnsResolutionOnTransparentProxyIPv6Apps` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `dnsResolutionOnTransparentProxyIPv6ExemptApps` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `dnsResolutionOnTransparentProxyIPv6ExemptUrlCategories` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `dnsResolutionOnTransparentProxyIPv6UrlCategories` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `dnsResolutionOnTransparentProxyIpv6Apps` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `dnsResolutionOnTransparentProxyIpv6ExemptApps` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `dnsResolutionOnTransparentProxyIpv6ExemptUrlCategories` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `dnsResolutionOnTransparentProxyIpv6UrlCategories` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `dnsResolutionOnTransparentProxyUrlCategories` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `dnsResolutionOnTransparentProxyUrls` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `domainFrontingBypassUrlCategories` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `dynamicUserRiskEnabled` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `ecsForAllEnabled` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `ecsObject` | ✓ | ✓ | **—** | **—** | ✓ | **—** |
-| `enableAdminRankAccess` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `enableDnsResolutionOnTransparentProxy` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `enableEvaluatePolicyOnGlobalSSLBypass` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `enableEvaluatePolicyOnGlobalSslBypass` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `enableIPv6DnsOptimizationOnAllTransparentProxy` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `enableIPv6DnsResolutionOnTransparentProxy` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `enableIpv6DnsOptimizationOnAllTransparentProxy` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `enableIpv6DnsResolutionOnTransparentProxy` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `enableOffice365` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `enablePolicyForUnauthenticatedTraffic` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `enforceSurrogateIpForWindowsApp` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `http2NonbrowserTrafficEnabled` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `httpRangeHeaderRemoveUrlCategories` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `kerberosBypassApps` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `kerberosBypassUrlCategories` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `kerberosBypassUrls` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `logInternalIp` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `preferSniOverConnHost` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `preferSniOverConnHostApps` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `sipaXffHeaderEnabled` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `sniDnsOptimizationBypassUrlCategories` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `trackHttpTunnelOnHttpPorts` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `uiSessionTimeout` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `zscalerClientConnector1AndPacRoadWarriorInFirewall` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `apiSessionTimeout` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `authBypassApps` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `authBypassUrlCategories` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `authBypassUrls` | Custom URLs that are exempted from cookie authentication for users | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `basicBypassApps` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `basicBypassUrlCategories` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `blockConnectHostSniMismatch` | A Boolean value indicating whether CONNECT host and SNI mismatch (i.e., CONNECT host doesn't match the SSL/TLS client hello SNI) is blocked or not | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `blockDomainFrontingApps` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `blockDomainFrontingOnHostHeader` | A Boolean value indicating whether to block HTTP and HTTPS transactions that have an FQDN mismatch between: The request URL and the request's host header. The service doesn't consider it a mismatch if either of the fields, host header, or FQDN URL is empty. The SNI and the inner request's host header. The service doesn't consider it a mismatch if either of the fields, host header, or SNI is empty. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `blockHttpTunnelOnNonHttpPorts` | A Boolean value indicating whether HTTP CONNECT method requests to non-standard ports are allowed or not (i.e., requests directed to ports other than the standard HTTP and HTTPS ports, 80 and 443) | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `blockNonCompliantHttpRequestOnHttpPorts` | A Boolean value indicating whether to allow or block traffic that is not compliant with RFC HTTP protocol standards | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `blockNonHttpOnHttpPortEnabled` | A Boolean value indicating whether non-HTTP Traffic on HTTP and HTTPS ports are allowed or blocked | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `cascadeUrlFiltering` | A Boolean value indicating whether to apply the URL Filtering policy even when the Cloud App Control policy already allows a transaction explicitly | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `digestAuthBypassApps` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `digestAuthBypassUrlCategories` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `digestAuthBypassUrls` | Custom URLs that are exempted from Digest authentication | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `dnsResolutionOnTransparentProxyApps` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `dnsResolutionOnTransparentProxyExemptApps` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `dnsResolutionOnTransparentProxyExemptUrlCategories` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `dnsResolutionOnTransparentProxyExemptUrls` | URLs that are excluded from DNS optimization on transparent proxy mode | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `dnsResolutionOnTransparentProxyIPv6Apps` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `dnsResolutionOnTransparentProxyIPv6ExemptApps` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `dnsResolutionOnTransparentProxyIPv6ExemptUrlCategories` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `dnsResolutionOnTransparentProxyIPv6UrlCategories` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `dnsResolutionOnTransparentProxyIpv6Apps` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `dnsResolutionOnTransparentProxyIpv6ExemptApps` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `dnsResolutionOnTransparentProxyIpv6ExemptUrlCategories` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `dnsResolutionOnTransparentProxyIpv6UrlCategories` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `dnsResolutionOnTransparentProxyUrlCategories` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `dnsResolutionOnTransparentProxyUrls` | URLs to which DNS optimization on transparent proxy mode applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `domainFrontingBypassUrlCategories` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `dynamicUserRiskEnabled` | A Boolean value indicating whether to dynamically update user risk score by tracking risky user activities in real time | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `ecsForAllEnabled` | A Boolean value indicating whether or not to include the ECS option in all DNS queries, originating from all locations and remote users. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `ecsObject` |  | ✓ | ✓ | **—** | **—** | ✓ | **—** |
+| `enableAdminRankAccess` | A Boolean value indicating whether ranks are enabled for admins to allow admin ranks in policy configuration and management | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `enableDnsResolutionOnTransparentProxy` | A Boolean value indicating whether DNS optimization is enabled or disabled for Z-Tunnel 2.0 and mode traffic (e.g., traffic via GRE or IPSec tunnels without a PAC file). This setting allows Zscaler to perform a DNS lookup and override the externally resolved IP addresses in the outbound HTTP and HTTPS connections to establish a connection to the destination server that is geographically closer to the ZIA Service Edge (Public, Private, or Virtual). | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `enableEvaluatePolicyOnGlobalSSLBypass` | A Boolean value indicating whether policy evaluation for global SSL bypass traffic is enabled or not | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `enableEvaluatePolicyOnGlobalSslBypass` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `enableIPv6DnsOptimizationOnAllTransparentProxy` | A Boolean value indicating whether DNS optimization is enabled or disabled for all IPv6 transparent proxy traffic | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `enableIPv6DnsResolutionOnTransparentProxy` | A Boolean value indicating whether DNS optimization is enabled or disabled for IPv6 traffic sent via Z-Tunnel 2.0 and mode traffic (e.g., traffic via GRE or IPSec tunnels without a PAC file). | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `enableIpv6DnsOptimizationOnAllTransparentProxy` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `enableIpv6DnsResolutionOnTransparentProxy` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `enableOffice365` | A Boolean value indicating whether Microsoft Office 365 One Click Configuration is enabled or not | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `enablePolicyForUnauthenticatedTraffic` | A Boolean value indicating whether policies that include user and department criteria can be configured and applied for unauthenticated traffic | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `enforceSurrogateIpForWindowsApp` | Enforce Surrogate IP authentication for Windows app traffic | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `http2NonbrowserTrafficEnabled` | A Boolean value indicating whether or not HTTP/2 should be the default web protocol for accessing various applications at your organizational level | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `httpRangeHeaderRemoveUrlCategories` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `kerberosBypassApps` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `kerberosBypassUrlCategories` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `kerberosBypassUrls` | Custom URLs that are exempted from Kerberos authentication | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `logInternalIp` | A Boolean value indicating whether to log internal IP address present in X-Forwarded-For (XFF) proxy header or not | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `preferSniOverConnHost` | A Boolean value indicating whether or not to use the SSL/TLS client hello Server Name Indication (SNI) for DNS resolution instead of the CONNECT host for forward proxy connections | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `preferSniOverConnHostApps` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `sipaXffHeaderEnabled` | A Boolean value indicating whether or not to insert XFF header to all traffic forwarded from ZIA to ZPA, including source IP-anchored and ZIA-inspected ZPA application traffic. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `sniDnsOptimizationBypassUrlCategories` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `trackHttpTunnelOnHttpPorts` | A Boolean value indicating whether to apply configured policies on tunneled HTTP traffic sent via a CONNECT method request on port 80 | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `uiSessionTimeout` | Specifies the login session timeout for admins accessing the ZIA Admin Portal | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `zscalerClientConnector1AndPacRoadWarriorInFirewall` | A Boolean value indicating whether to apply the Firewall rules configured without a specified location criteria (or with the Road Warrior location) to remote user traffic forwarded via Z-Tunnel 1.0 or PAC files | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 
 ### `advanced_threat_settings`
 
 `PUT /zia/api/v1/cyberThreatProtection/advancedThreatSettings`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `activeXBlocked` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `activeXCapture` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `adSpywareSitesBlocked` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `adSpywareSitesCapture` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `alertForUnknownOrSuspiciousC2Traffic` | ✓ | ✓ | ✓ | **—** | ✓ | **—** |
-| `anonymizerBlocked` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `anonymizerCapture` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `bitTorrentBlocked` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `bitTorrentCapture` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `blockCountriesCapture` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `blockedCountries` | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | **—** |
-| `browserExploitsBlocked` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `browserExploitsCapture` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `cmdCtlServerBlocked` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `cmdCtlServerCapture` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `cmdCtlTrafficBlocked` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `cmdCtlTrafficCapture` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `cookieStealingBlocked` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `cookieStealingPCAPEnabled` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `cookieStealingPcapEnabled` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `cryptoMiningBlocked` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `cryptoMiningCapture` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `dgaDomainsBlocked` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `dgaDomainsCapture` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `fileFormatVunerabilitesBlocked` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `fileFormatVunerabilitesCapture` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `googleTalkBlocked` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `googleTalkCapture` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `ircTunnellingBlocked` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `ircTunnellingCapture` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `knownPhishingSitesBlocked` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `knownPhishingSitesCapture` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `maliciousUrlsCapture` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `malwareSitesBlocked` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `malwareSitesCapture` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `potentialMaliciousRequestsBlocked` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `potentialMaliciousRequestsCapture` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `riskTolerance` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `riskToleranceCapture` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `sshTunnellingBlocked` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `sshTunnellingCapture` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `suspectAdwareSpywareSitesBlocked` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `suspectAdwareSpywareSitesCapture` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `suspectedPhishingSitesBlocked` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `suspectedPhishingSitesCapture` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `torBlocked` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `torCapture` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `webspamBlocked` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `webspamCapture` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `activeXBlocked` | A Boolean value specifying whether sites are allowed or blocked from accessing vulnerable ActiveX controls that are known to have been exploited. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `activeXCapture` | A Boolean value specifying whether packet capture (PCAP) is enabled or not for ActiveX controls | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `adSpywareSitesBlocked` | A Boolean value specifying whether to allow or block websites known to contain adware or spyware that displays malicious advertisements that can collect users' information without their knowledge | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `adSpywareSitesCapture` | A Boolean value specifying whether packet capture (PCAP) is enabled or not for adware and spyware sites | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `alertForUnknownOrSuspiciousC2Traffic` | A Boolean value specifying whether to send alerts upon detecting unknown or suspicious C2 traffic | ✓ | ✓ | ✓ | **—** | ✓ | **—** |
+| `anonymizerBlocked` | A Boolean value specifying whether to allow or block applications and methods used to obscure the destination and the content accessed by the user, therefore blocking traffic to anonymizing web proxies. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `anonymizerCapture` | A Boolean value specifying whether packet capture (PCAP) is enabled or not for anonymizers | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `bitTorrentBlocked` | A Boolean value specifying whether to allow or block the usage of BitTorrent, a popular P2P file sharing application that supports content download with encryption. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `bitTorrentCapture` | A Boolean value specifying whether packet capture (PCAP) is enabled or not for BitTorrent | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `blockCountriesCapture` | A Boolean value specifying whether packet capture (PCAP) is enabled or not for blocked countries | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `blockedCountries` | A Boolean value specifying whether to allow or block requests to websites located in specific countries based on the ISO3166 mapping of countries to their IP address space | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | **—** |
+| `browserExploitsBlocked` | A Boolean value specifying whether known web browser vulnerabilities prone to exploitation are allowed or blocked. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `browserExploitsCapture` | A Boolean value specifying whether packet capture (PCAP) is enabled or not for browser exploits | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `cmdCtlServerBlocked` | A Boolean value specifying whether connections to known Command & Control (C2) Servers are allowed or blocked | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `cmdCtlServerCapture` | A Boolean value specifying whether packet capture (PCAP) is enabled or not for connections to known C2 servers | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `cmdCtlTrafficBlocked` | A Boolean value specifying whether botnets are allowed or blocked from sending or receiving commands to unknown servers | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `cmdCtlTrafficCapture` | A Boolean value specifying whether packet capture (PCAP) is enabled or not for botnets | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `cookieStealingBlocked` | A Boolean value specifying whether to allow or block third-party websites that gather cookie information, which can be used to personally identify users, track internet activity, or steal a user's session or sensitive information. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `cookieStealingPCAPEnabled` | A Boolean value specifying whether packet capture (PCAP) is enabled or not for cookie stealing | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `cookieStealingPcapEnabled` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `cryptoMiningBlocked` | A Boolean value specifying whether to allow or block cryptocurrency mining network traffic and scripts, which can negatively impact endpoint device performance and potentially lead to a misuse of company resources. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `cryptoMiningCapture` | A Boolean value specifying whether packet capture (PCAP) is enabled or not for cryptomining | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `dgaDomainsBlocked` | A Boolean value specifying whether to allow or block domains that are suspected to be generated using domain generation algorithms (DGA) | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `dgaDomainsCapture` | A Boolean value specifying whether packet capture (PCAP) is enabled or not for DGA domains | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `fileFormatVunerabilitesBlocked` | A Boolean value specifying whether known file format vulnerabilities and suspicious or malicious content in Microsoft Office or PDF documents are allowed or blocked | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `fileFormatVunerabilitesCapture` | A Boolean value specifying whether packet capture (PCAP) is enabled or not for file format vulnerabilities | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `googleTalkBlocked` | A Boolean value specifying whether to allow or block access to Google Hangouts, a popular P2P VoIP application. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `googleTalkCapture` | A Boolean value specifying whether packet capture (PCAP) is enabled or not for Google Hangouts | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `ircTunnellingBlocked` | A Boolean value specifying whether to allow or block IRC traffic being tunneled over HTTP and HTTPS | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `ircTunnellingCapture` | A Boolean value specifying whether packet capture (PCAP) is enabled or not for IRC tunnels | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `knownPhishingSitesBlocked` | A Boolean value specifying whether known phishing sites are allowed or blocked | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `knownPhishingSitesCapture` | A Boolean value specifying whether packet capture (PCAP) is enabled or not for known phishing sites | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `maliciousUrlsCapture` | A Boolean value specifying whether packet capture (PCAP) is enabled or not for malicious URLs | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `malwareSitesBlocked` | A Boolean value specifying whether known malicious sites and content are allowed or blocked | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `malwareSitesCapture` | A Boolean value specifying whether packet capture (PCAP) is enabled or not for malicious sites | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `potentialMaliciousRequestsBlocked` | A Boolean value specifying whether to allow or block this type of cross-site scripting (XSS) | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `potentialMaliciousRequestsCapture` | A Boolean value specifying whether packet capture (PCAP) is enabled or not for (XSS) attacks | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `riskTolerance` | The Page Risk tolerance index set between 0 and 100 (100 being the highest risk). Users are blocked from accessing web pages with higher Page Risk than the specified value. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `riskToleranceCapture` | A Boolean value specifying whether packet capture (PCAP) is enabled or not for suspicious web pages | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `sshTunnellingBlocked` | A Boolean value specifying whether to allow or block SSH traffic being tunneled over HTTP and HTTPS | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `sshTunnellingCapture` | A Boolean value specifying whether packet capture (PCAP) is enabled or not for SSH tunnels | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `suspectAdwareSpywareSitesBlocked` | A Boolean value specifying whether to allow or block any detections of communication and callback traffic associated with spyware agents and data transmission | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `suspectAdwareSpywareSitesCapture` | A Boolean value specifying whether packet capture (PCAP) is enabled or not for suspected adware and spyware sites | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `suspectedPhishingSitesBlocked` | A Boolean value specifying whether to allow or block suspected phishing sites identified through heuristic detection. The Zscaler service can inspect the content of a website for indications that it might be a phishing site. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `suspectedPhishingSitesCapture` | A Boolean value specifying whether packet capture (PCAP) is enabled or not for suspected phishing sites | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `torBlocked` | A Boolean value specifying whether to allow or block the usage of Tor, a popular P2P anonymizer protocol with support for encryption. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `torCapture` | A Boolean value specifying whether packet capture (PCAP) is enabled or not for Tor | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `webspamBlocked` | A Boolean value specifying whether to allow or block web pages that pretend to contain useful information, to get higher ranking in search engine results or drive traffic to phishing, adware, or spyware distribution sites. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `webspamCapture` | A Boolean value specifying whether packet capture (PCAP) is enabled or not for web spam | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 
 ### `alerts`
 
 `POST /zia/api/v1/alertSubscriptions`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `complySeverities` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `deleted` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `description` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `email` | ✓ | ✓ | ✓ | ✓ | **✓ req** | **—** |
-| `id` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `manageSeverities` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `pt0Severities` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `secureSeverities` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `systemSeverities` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `complySeverities` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `deleted` | Deletes an existing alert subscription | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `description` | Additional comments or information about the alert subscription | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `email` | The email address of the alert recipient | ✓ | ✓ | ✓ | ✓ | **✓ req** | **—** |
+| `id` | System-generated identifier for the alert subscription | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `manageSeverities` | Specifies the various severity levels | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `pt0Severities` | Lists the severity levels of the Patient 0 Alert class information that the recipient receives | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `secureSeverities` | Lists the severity levels of the Secure Alert class information that the recipient receives | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `systemSeverities` | Lists the severity levels of the System Alerts class information that the recipient receives | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 
 ### `atp_malicious_urls`
 
 `PUT /zia/api/v1/cyberThreatProtection/maliciousUrls`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `maliciousUrls` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `maliciousUrls` | List of malicious URLs that are blocked by the ATP policy | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 ### `atp_malware_inspection`
 
 `PUT /zia/api/v1/cyberThreatProtection/atpMalwareInspection`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `inspectInbound` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `inspectOutbound` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `inspectInbound` | A Boolean value that enables or disables scanning of incoming internet traffic for malicious content | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `inspectOutbound` | A Boolean value that enables or disables scanning of outgoing internet traffic for malicious content | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 ### `atp_malware_policy`
 
 `PUT /zia/api/v1/cyberThreatProtection/malwarePolicy`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `blockPasswordProtectedArchiveFiles` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `blockUnscannableFiles` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `blockPasswordProtectedArchiveFiles` | A Boolean value indicating whether to allow or block users from uploading or downloading password-protected files | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `blockUnscannableFiles` | A Boolean value indicating whether to allow or block users from uploading or downloading files that the Zscaler service is unable to scan. This might occur if the file is an unrecognized file format, an excessive size, or recursively compressed. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 ### `atp_malware_protocols`
 
 `PUT /zia/api/v1/cyberThreatProtection/atpMalwareProtocols`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `inspectFtp` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `inspectFtpOverHttp` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `inspectHttp` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `inspectFtp` | A Boolean value that enables or disables scanning of FTP traffic for malicious content in real time | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `inspectFtpOverHttp` | A Boolean value that enables or disables scanning of FTP over HTTP traffic for malicious content in real time | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `inspectHttp` | A Boolean value that enables or disables scanning of HTTP traffic (and HTTPS traffic if is enabled) for malicious content in real time | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 ### `atp_malware_settings`
 
 `GET /zia/api/v1/cyberThreatProtection/malwareSettings`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `adwareBlocked` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `adwareCapture` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `ransomwareBlocked` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `ransomwareCapture` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `remoteAccessToolBlocked` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `remoteAccessToolCapture` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `spywareBlocked` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `spywareCapture` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `trojanBlocked` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `trojanCapture` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `unwantedApplicationsBlocked` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `unwantedApplicationsCapture` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `virusBlocked` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `virusCapture` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `wormBlocked` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `wormCapture` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `adwareBlocked` | A Boolean value indicating whether malicious files that automatically render advertisements and install adware are allowed or blocked | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `adwareCapture` | A Boolean value specifying whether packet capture (PCAP) is enabled or disabled for adware | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `ransomwareBlocked` | A Boolean value specifying whether to allow or block malicious programs that can encrypt files and prevent users from accessing their devices, files, or data until a ransom payment is made. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `ransomwareCapture` | A Boolean value specifying whether packet capture (PCAP) is enabled or disabled for ransomware | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `remoteAccessToolBlocked` | A Boolean value specifying whether to allow or block file download from tools that are common from remote access sites | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `remoteAccessToolCapture` | A Boolean value specifying whether packet capture (PCAP) is enabled or disabled for remote access tools | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `spywareBlocked` | A Boolean value indicating whether malicious files that covertly gather information about a user or an organization are allowed or blocked | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `spywareCapture` | A Boolean value specifying whether packet capture (PCAP) is enabled or disabled for spyware | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `trojanBlocked` | A Boolean value that allows or blocks malicious programs such as Trojan viruses that are presented as beneficial or useful | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `trojanCapture` | A Boolean value specifying whether packet capture (PCAP) is enabled or disabled for Trojan viruses | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `unwantedApplicationsBlocked` | A Boolean value that allows or blocks unwanted files that are downloaded alongside intentional programs downloaded by users | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `unwantedApplicationsCapture` | A Boolean value specifying whether packet capture (PCAP) is enabled or disabled for unwanted applications | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `virusBlocked` | A Boolean value that indicates if malicious programs that cause damage to systems and data are allowed or blocked. This setting applies to any viruses that don't fit into the more specific malware categories. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `virusCapture` | A Boolean value specifying whether packet capture (PCAP) is enabled or disabled for viruses | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `wormBlocked` | A Boolean value indicating whether malicious programs that duplicate themselves to spread malicious code to other devices are allowed or blocked | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `wormCapture` | A Boolean value specifying whether packet capture (PCAP) is enabled or disabled for worms | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 
 ### `atp_security_exceptions`
 
 `PUT /zia/api/v1/cyberThreatProtection/securityExceptions`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `bypassUrls` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `bypassUrls` | Allowlist URLs that are not inspected by the ATP policy | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 ### `auth_settings_urls`
 
 `POST /zia/api/v1/authSettings/exemptedUrls`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `exemptUrls` | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `urls` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `exemptUrls` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
+| `urls` | Domains or URLs which are exempted from SSL Inspection | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 
 ### `bandwidth_class`
 
 `POST /zia/api/v1/bandwidthClasses`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `applicationServiceGroups` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `applications` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `fileSize` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `getfileSize` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `id` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `isNameL10nTag` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | ✓ | **✓ req** | **—** |
-| `networkApplications` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `networkServices` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `type` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `urlCategories` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `urls` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `webApplications` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `applicationServiceGroups` | The application service groups included in the bandwidth class | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `applications` | The applications included in the bandwidth class | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `fileSize` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `getfileSize` | The file size for a bandwidth class | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `id` | System-generated identifier for the bandwidth class | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `isNameL10nTag` | Indicates whether the bandwidth class name is localized | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `name` | Name of the bandwidth class | ✓ | ✓ | ✓ | ✓ | **✓ req** | **—** |
+| `networkApplications` | The network applications included in the bandwidth class | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `networkServices` | The network services included in the bandwidth class | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `type` | The application type for which the bandwidth class is configured | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `urlCategories` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `urls` | The URLs included in the bandwidth class. You can include multiple entries. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `webApplications` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 
 ### `bandwidth_control_rule`
 
 `POST /zia/api/v1/bandwidthControlRules`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `accessControl` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `bandwidthClasses` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `defaultRule` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `description` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `deviceGroups` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `deviceTrustLevels` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `devices` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `enabled` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `id` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `labels` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `lastModifiedBy` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `lastModifiedTime` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `locationGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `locations` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `maxBandwidth` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `minBandwidth` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `name` | ✓ | ✓ | ✓ | **✓ req** | ✓ | **—** |
-| `order` | ✓ | ✓ | ✓ | **✓ req** | ✓ | **—** |
-| `protocols` | ✓ | ✓ | ✓ | ✓ | **✓ enum≠** | **—** |
-| `rank` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `state` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `timeWindows` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `accessControl` | Access privilege of this rule based on the admin's Role Based Authorization (RBA) state | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `bandwidthClasses` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `defaultRule` | A Boolean value that indicates whether the rule is a default rule | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `description` | Additional information about the rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `deviceGroups` |  | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `deviceTrustLevels` | List of device trust levels for which the rule must be applied. While the High Trust, Medium Trust, or Low Trust evaluation is applicable only to Zscaler Client Connector traffic, Unknown evaluation applies to all traffic. The trust levels are assigned to the devices based on your posture configurations in the Zscaler Client Connector Portal. If no value is set, this field is ignored during the policy evaluation. | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `devices` |  | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `enabled` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `id` | System-generated identifier for bandwidth control rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `labels` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `lastModifiedBy` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `lastModifiedTime` | Timestamp of when the rule was last modified. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `locationGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `locations` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `maxBandwidth` | The maximum percentage of a location’s bandwidth to be guaranteed for each selected bandwidth class. This percentage includes bandwidth for uploads and downloads. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `minBandwidth` | The minimum percentage of a location’s bandwidth you want to be guaranteed for each selected bandwidth class. This percentage includes bandwidth for uploads and downloads. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `name` | Rule name | ✓ | ✓ | ✓ | **✓ req** | ✓ | **—** |
+| `order` | Rule order. Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on), and the Rule Order reflects this rule’s place in the order. You can change the value, but if you've enabled the Admin Rank, your assigned admin rank determines the Rule Order values you can select. | ✓ | ✓ | ✓ | **✓ req** | ✓ | **—** |
+| `protocols` |  | ✓ | ✓ | ✓ | ✓ | **✓ enum≠** | **—** |
+| `rank` | Admin rank of the Bandwidth Control policy rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `state` | Indicates whether the rule is enabled or disabled. An enabled rule is actively enforced. A disabled rule is not actively enforced but does not lose its place in the rule order. The service skips it and moves to the next rule. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `timeWindows` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 
 ### `browser_control_policy`
 
 `PUT /zia/api/v1/browserControlSettings`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `allowAllBrowsers` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `blockedChromeVersions` | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
-| `blockedFirefoxVersions` | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
-| `blockedInternetExplorerVersions` | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
-| `blockedOperaVersions` | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
-| `blockedSafariVersions` | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
-| `bypassAllBrowsers` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `bypassApplications` | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
-| `bypassPlugins` | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
-| `enableSmartBrowserIsolation` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `enableWarnings` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `pluginCheckFrequency` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `smartIsolationGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `smartIsolationProfile` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `smartIsolationProfileId` | ✓ | ✓ | ✓ | **—** | ✓ | **—** |
-| `smartIsolationUsers` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `allowAllBrowsers` | A Boolean value that specifies whether or not to allow all the browsers and their respective versions access to the internet | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `blockedChromeVersions` | Versions of Google Chrome browser that need to be blocked. If not set, all Google Chrome versions are allowed. | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
+| `blockedFirefoxVersions` | Versions of Mozilla Firefox browser that need to be blocked. If not set, all Mozilla Firefox versions are allowed. | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
+| `blockedInternetExplorerVersions` | Versions of Microsoft browser that need to be blocked. If not set, all Microsoft browser versions are allowed. | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
+| `blockedOperaVersions` | Versions of Opera browser that need to be blocked. If not set, all Opera versions are allowed. | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
+| `blockedSafariVersions` | Versions of Apple Safari browser that need to be blocked. If not set, all Apple Safari versions are allowed. | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
+| `bypassAllBrowsers` | If set to true, all the browsers are bypassed for warnings. If not set, all vulnerable browsers are warned. This attribute has effect only if the 'enableWarnings' is set to true. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `bypassApplications` | List of applications that need to be bypassed for warnings. This attribute has effect only if the 'enableWarnings' attribute is set to true. If not set, all vulnerable applications are warned. | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
+| `bypassPlugins` | List of plugins that need to be bypassed for warnings. This attribute has effect only if the 'enableWarnings' attribute is set to true. If not set, all vulnerable plugins are warned. | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
+| `enableSmartBrowserIsolation` | A Boolean value that specifies if Smart Browser Isolation is enabled | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `enableWarnings` | A Boolean value that specifies if the warnings are enabled | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `pluginCheckFrequency` | Specifies how frequently the service checks browsers and relevant applications to warn users regarding outdated or vulnerable browsers, plugins, and applications. If not set, the warnings are disabled | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `smartIsolationGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `smartIsolationProfile` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `smartIsolationProfileId` | The isolation profile ID | ✓ | ✓ | ✓ | **—** | ✓ | **—** |
+| `smartIsolationUsers` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 
 ### `casb_dlp_rule`
 
 `POST /zia/api/v1/casbDlpRules`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `accessControl` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `action` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `auditor` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `auditorNotification` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `bucketOwner` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `buckets` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `casbEmailLabel` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `casbTombstoneTemplate` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `cloudAppTenantIds` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `cloudAppTenants` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `collaborationScope` | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | **—** |
-| `components` | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | **—** |
-| `contentLocation` | ✓ | ✓ | ✓ | **✓ enum≠** | **✓ enum≠** | **—** |
-| `criteriaDomainProfileIds` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `criteriaDomainProfiles` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `departments` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `description` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `deviceGroups` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `deviceTrustLevels` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `devices` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `dlpEngines` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `domains` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `emailRecipientProfileIds` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `emailRecipientProfiles` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `enabled` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `entityGroupIds` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `entityGroups` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `excludedDomainProfileIds` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `excludedDomainProfiles` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `externalAuditorEmail` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `fileTypes` | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | **—** |
-| `groups` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `id` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `includeCriteriaDomainProfile` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `includeEmailRecipientProfile` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `includeEntityGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `includedDomainProfileIds` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `includedDomainProfiles` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `labels` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `lastModifiedBy` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `lastModifiedTime` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | **✓ req** | ✓ | **—** |
-| `numberOfExternalCollaborators` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `numberOfInternalCollaborators` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `objectTypeIds` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `objectTypes` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `order` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `quarantineLocation` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `rank` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `receiver` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `recipient` | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
-| `redactionProfile` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `ruleType` | **—** | **—** | ✓ | **—** | **—** | **—** |
-| `severity` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `state` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `tag` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `type` | ✓ | ✓ | ✓ | **✓ enum≠** | **✓ req enum≠** | **—** |
-| `users` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `watermarkDeleteOldVersion` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `watermarkProfile` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `withoutContentInspection` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `zscalerIncidentReceiver` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `accessControl` | Access privilege of this rule based on the admin's Role Based Authorization (RBA) state | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `action` | The configured action for the policy rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `auditor` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `auditorNotification` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `bucketOwner` | A user who inspect their buckets for sensitive data. When you choose a user, their buckets are available in the Buckets field. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `buckets` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `casbEmailLabel` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `casbTombstoneTemplate` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `cloudAppTenantIds` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `cloudAppTenants` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `collaborationScope` | Collaboration scope for the rule | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | **—** |
+| `components` | List of components for which the rule is applied. Zscaler service inspects these components for sensitive data. | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | **—** |
+| `contentLocation` | The location for the content that the Zscaler service inspects for sensitive data | ✓ | ✓ | ✓ | **✓ enum≠** | **✓ enum≠** | **—** |
+| `criteriaDomainProfileIds` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `criteriaDomainProfiles` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `departments` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `description` | An admin editable text-based description of the rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `deviceGroups` |  | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `deviceTrustLevels` | List of device trust levels for which the rule must be applied. While the High Trust, Medium Trust, or Low Trust evaluation is applicable only to Zscaler Client Connector traffic, Unknown evaluation applies to all traffic. The trust levels are assigned to the devices based on your posture configurations in the Zscaler Client Connector Portal. If no value is set, this field is ignored during the policy evaluation. | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `devices` |  | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `dlpEngines` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `domains` | The domain for the external organization sharing the channel. This field is applicable only when you select CONTENT_LOCATION_SHARED_CHANNEL in the 'contentLocation' field. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `emailRecipientProfileIds` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `emailRecipientProfiles` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `enabled` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `entityGroupIds` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `entityGroups` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `excludedDomainProfileIds` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `excludedDomainProfiles` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `externalAuditorEmail` | Email address of the external auditor to whom the DLP email alerts are sent | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `fileTypes` | File types for which the rule is applied. If not set, the rule is applied across all file types. | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | **—** |
+| `groups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `id` | System-generated identifier for the SaaS Security Data at Rest Scanning DLP rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `includeCriteriaDomainProfile` | If true, criteriaDomainProfiles is included as part of the criteria, else they are excluded from the criteria. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `includeEmailRecipientProfile` | If true, emailRecipientProfiles is included as part of the criteria, else they are excluded from the criteria. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `includeEntityGroups` | If true, entityGroups is included as part of the criteria, else are excluded from the criteria. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `includedDomainProfileIds` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `includedDomainProfiles` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `labels` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `lastModifiedBy` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `lastModifiedTime` | Timestamp of when the rule was last modified | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `name` | Rule name | ✓ | ✓ | ✓ | **✓ req** | ✓ | **—** |
+| `numberOfExternalCollaborators` | Selects the number of external collaborators for files that are shared with specific collaborators outside of an organization | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `numberOfInternalCollaborators` | Selects the number of internal collaborators for files that are shared with specific collaborators or are discoverable within an organization | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `objectTypeIds` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `objectTypes` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `order` | Order of rule execution with respect to other SaaS Security Data at Rest Scanning DLP rules | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `quarantineLocation` | Location where all the quarantined files are moved and necessary actions are taken by either deleting or restoring the data | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `rank` | Admin rank that is assigned to this rule. Mandatory when admin rank-based access restriction is enabled. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `receiver` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `recipient` | Specifies if the email recipient is internal or external | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
+| `redactionProfile` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `ruleType` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
+| `severity` | The severity level of the incidents that match the policy rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `state` | Administrative state of the rule | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `tag` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `type` | The type of SaaS Security Data at Rest Scanning DLP rule | ✓ | ✓ | ✓ | **✓ enum≠** | **✓ req enum≠** | **—** |
+| `users` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `watermarkDeleteOldVersion` | A Boolean value that specifies whether to delete an old version of the watermarked file | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `watermarkProfile` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `withoutContentInspection` | If true, Content Matching is set to None | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `zscalerIncidentReceiver` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 
 ### `casb_malware_rule`
 
 `POST /zia/api/v1/casbMalwareRules`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `accessControl` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `action` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `bucketIds` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `buckets` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `casbEmailLabel` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `casbTombstoneTemplate` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `cloudAppTenantIds` | **—** | ✓ | **—** | **—** | ✓ | **—** |
-| `cloudAppTenants` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `cloudApplicationTenant` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `description` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `enabled` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `id` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `labels` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `lastModifiedBy` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `lastModifiedTime` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | **✓ req** | ✓ | **—** |
-| `order` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `quarantineLocation` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `rank` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `ruleType` | **—** | **—** | ✓ | **—** | **—** | **—** |
-| `scanInboundEmailLink` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `state` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `type` | ✓ | ✓ | ✓ | ✓ | **✓ req enum≠** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `accessControl` | Access privilege of this rule based on the admin's Role Based Authorization (RBA) state | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `action` | The configured action for the policy rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `bucketIds` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `buckets` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `casbEmailLabel` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `casbTombstoneTemplate` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `cloudAppTenantIds` |  | **—** | ✓ | **—** | **—** | ✓ | **—** |
+| `cloudAppTenants` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `cloudApplicationTenant` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `description` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `enabled` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `id` | System-generated identifier for a SaaS Security Data at Rest Scanning Malware rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `labels` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `lastModifiedBy` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `lastModifiedTime` | Timestamp of when the rule was last modified | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `name` | Rule name | ✓ | ✓ | ✓ | **✓ req** | ✓ | **—** |
+| `order` | Order of rule execution with respect to other SaaS Security Data at Rest Scanning Malware rules | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `quarantineLocation` | Location where all the quarantined files are moved and necessary actions are taken by either deleting or restoring the data | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `rank` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `ruleType` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
+| `scanInboundEmailLink` | Enables or disables the scan inbound email link | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `state` | Administrative state of the rule | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `type` | The type of SaaS Security Data at Rest Scanning Malware rule | ✓ | ✓ | ✓ | ✓ | **✓ req enum≠** | **—** |
 
 ### `cloud_app_control_rule`
 
 `POST /zia/api/v1/webApplicationRules/:rule_type`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `accessControl` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `actions` | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | ✓ |
-| `applications` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `browserEunTemplateId` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `cascadingEnabled` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `cbiProfile` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `cloudAppInstances` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `cloudAppRiskProfile` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `cloudApplications` | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `departments` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `description` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `deviceGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `deviceTrustLevels` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `devices` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `enabled` | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `enforceTimeValidity` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `eunEnabled` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `eunTemplateId` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `formSharingDomainProfiles` | ✓ | **—** | ✓ | **—** | **—** | **—** |
-| `groups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `id` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `labels` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `lastModifiedBy` | ✓ | **—** | ✓ | **—** | **—** | **—** |
-| `lastModifiedTime` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `locationGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `locations` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `name` | ✓ | ✓ | ✓ | ✓ | **✓ req** | ✓ |
-| `numberOfApplications` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `order` | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
-| `predefined` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `rank` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `resolveCloudApps` | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `ruleType` | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `sharingDomainProfiles` | ✓ | **—** | ✓ | **—** | **—** | **—** |
-| `sizeQuota` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `state` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `tenancyProfileIds` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `timeQuota` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `timeWindows` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `type` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `userAgentTypes` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `userRiskScoreLevels` | ✓ | ✓ | ✓ | ✓ | **✓ enum≠** | **—** |
-| `users` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `validityEndTime` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `validityStartTime` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `validityTimeZoneId` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `accessControl` | Access privilege of this rule based on the admin's RBA state. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `actions` | Action taken when traffic matches rule. | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | ✓ |
+| `applications` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `browserEunTemplateId` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `cascadingEnabled` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `cbiProfile` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `cloudAppInstances` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `cloudAppRiskProfile` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `cloudApplications` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
+| `departments` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `description` | Additional information about this rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `deviceGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `deviceTrustLevels` | List of device trust levels for which the rule must be applied. While the High Trust, Medium Trust, or Low Trust evaluation is applicable only to Zscaler Client Connector traffic, Unknown evaluation applies to all traffic. The trust levels are assigned to the devices based on your in the Zscaler Client Connector Portal. If no value is set, this field is ignored during the policy evaluation. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `devices` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `enabled` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
+| `enforceTimeValidity` | Enforce a set a validity time period for the Web Application rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `eunEnabled` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `eunTemplateId` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `formSharingDomainProfiles` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
+| `groups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `id` | Web Application Rule Id | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `labels` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `lastModifiedBy` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
+| `lastModifiedTime` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `locationGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `locations` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `name` | Rule Name | ✓ | ✓ | ✓ | ✓ | **✓ req** | ✓ |
+| `numberOfApplications` |  | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `order` | Order of execution of rule with respect to other Web Application rules | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
+| `predefined` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `rank` | Admin rank of the admin who creates this rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `resolveCloudApps` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
+| `ruleType` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
+| `sharingDomainProfiles` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
+| `sizeQuota` | Daily limit value for size up to which uploading and/or downloading of data is allowed from the Web Application Rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `state` | Rule State | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `tenancyProfileIds` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `timeQuota` | Daily limit value for time up to which uploading and/or downloading of data is allowed from the Web Application Rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `timeWindows` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `type` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `userAgentTypes` | User Agent types on which this rule will be applied | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `userRiskScoreLevels` | List of user risk score levels for which policy must be applied. If not set, the policy will be applied for all user risk score levels. | ✓ | ✓ | ✓ | ✓ | **✓ enum≠** | **—** |
+| `users` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `validityEndTime` | If enforceTimeValidity is set to true, the Web Application rule ceases to be valid on this end date and time. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `validityStartTime` | If enforceTimeValidity is set to true, the Web Application rule ceases to be valid on this start date and time. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `validityTimeZoneId` | Validity time zone id for start and end time if rule has time based expiry | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 ### `custom_file_type`
 
 `POST /zia/api/v1/customFileTypes`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `description` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `extension` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `fileTypeId` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `id` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `name` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `description` | Additional information about the custom file type, if any. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `extension` | Specifies the file type extension. The maximum extension length is 10 characters. Existing Zscaler extensions cannot be added to custom file types. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `fileTypeId` | File type ID. This ID is assigned and maintained for all file types including predefined and custom file types, and this value is different from the custom file type ID. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `id` | Custom file type ID. This ID is assigned and maintained exclusively for custom file types, and this value is different from the file type ID (i.e., fileTypeId field). | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `name` | Custom file type name | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 
 ### `dc_exclusion`
 
 `POST /zia/api/v1/dcExclusions`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `datacenterId` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `dcName` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `dcid` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `description` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `endTime` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `endTimeUtc` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `expired` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `name` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `startTime` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `startTimeUtc` | **—** | **—** | **—** | **—** | ✓ | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `datacenterId` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `dcName` | ] | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `dcid` | The unique identifier for the DC exclusion configuration | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `description` | Additional information about the DC exclusion | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `endTime` | The timestamp (in epoch) when the DC exclusion is set to expire and tunnels are re-enabled for the data center. The expiration can be set to happen within 15 days from the start time and it must be at least 2 hours from the start time (e.g., if the startTime Time is 11:30 AM UTC, set the endTime to 1:30 PM UTC after converting it to Unix time.) | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `endTimeUtc` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `expired` | A Boolean value indicating whether the DC exclusion has expired | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `name` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `startTime` | The timestamp (in epoch) when the DC exclusion is set to begin and tunnels are disabled for the data center. The exclusion can be set to begin within a month from the current date and it must be at least 5 minutes from the current time (e.g., if the current time is 11:30 AM UTC, set the startTime to 11:35 AM UTC after converting it to Unix time.) | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `startTimeUtc` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
 
 ### `dlp_dictionary`
 
 `POST /zia/api/v1/dlpDictionaries`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `binNumbers` | ✓ | ✓ | **—** | ✓ | ✓ | **—** |
-| `confidenceLevelForPredefinedDict` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `confidenceThreshold` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `custom` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `customPhraseMatchType` | ✓ | ✓ | ✓ | **✓ enum≠** | ✓ | **—** |
-| `customPhraseSupported` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `description` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `dictTemplateId` | ✓ | ✓ | **—** | ✓ | ✓ | **—** |
-| `dictionaryCloningEnabled` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `dictionaryType` | ✓ | ✓ | ✓ | **✓ enum≠** | ✓ | **—** |
-| `exactDataMatchDetails` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `hierarchicalDictionary` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `hierarchicalIdentifiers` | ✓ | ✓ | ✓ | **✓ enum1** | **—** | **—** |
-| `id` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `idmProfileMatchAccuracy` | ✓ | **—** | **—** | ✓ | ✓ | **—** |
-| `idmProfileMatchAccuracyDetails` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `ignoreExactMatchIdmDict` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `includeBinNumbers` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `includeSsnNumbers` | ✓ | **—** | ✓ | **—** | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | ✓ | **✓ req** | **—** |
-| `nameL10nTag` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `patterns` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `phrases` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `predefinedClone` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `predefinedCountActionType` | ✓ | ✓ | **—** | **—** | ✓ | **—** |
-| `predefinedPhrases` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `proximity` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `proximityEnabledForCustomDictionary` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `proximityLengthEnabled` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `ssnNumbers` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `thresholdAllowed` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `thresholdType` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `unicodePhraseMatchingEnabled` | **—** | **—** | ✓ | **—** | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `binNumbers` | The list of Bank Identification Number (BIN) values that are included or excluded from the Credit Cards dictionary. BIN values can be specified only for Diners Club, Mastercard, RuPay, and Visa cards. Up to 512 BIN values can be configured in a dictionary. Note: This field is applicable only to the predefined Credit Cards dictionary and its clones. | ✓ | ✓ | **—** | ✓ | ✓ | **—** |
+| `confidenceLevelForPredefinedDict` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `confidenceThreshold` | The DLP confidence threshold | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `custom` | This value is set to true for custom DLP dictionaries. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `customPhraseMatchType` | The DLP custom phrase match type | ✓ | ✓ | ✓ | **✓ enum≠** | ✓ | **—** |
+| `customPhraseSupported` | A Boolean constant that indicates that custom phrases are supported for the DLP dictionary using the true value. This field is applicable only to predefined DLP dictionaries with a . | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `description` | The description of the DLP dictionary | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `dictTemplateId` | ID of the predefined dictionary (original source dictionary) that is used for cloning. This field is applicable only to cloned dictionaries. Only a limited set of identification-based predefined dictionaries (e.g., Credit Cards, Social Security Numbers, National Identification Numbers, etc.) can be cloned. Up to 4 clones can be created from a predefined dictionary. | ✓ | ✓ | **—** | ✓ | ✓ | **—** |
+| `dictionaryCloningEnabled` | A Boolean constant that indicates that the cloning option is supported for the DLP dictionary using the true value. This field is applicable only to predefined DLP dictionaries. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `dictionaryType` | The DLP dictionary type. | ✓ | ✓ | ✓ | **✓ enum≠** | ✓ | **—** |
+| `exactDataMatchDetails` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `hierarchicalDictionary` | A true value indicates that the DLP dictionary is of hierarchical type that includes sub-dictionaries. A false value indicates that the dictionary is not hierarchical. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `hierarchicalIdentifiers` | The list of identifiers selected within a DLP dictionary of hierarchical type. Each identifier represents a sub-dictionary that consists of specific patterns. To retrieve the list of identifiers that are available for selection within a specific hierarchical dictionary, send a GET request to /dlpDictionaries/{dictId}/predefinedIdentifiers. To learn about hierarchical dictionaries, see . Note: This field is applicable to predefined hierarchical dictionaries, such as the Driver’s License (United States), Passport Number (European Union), and Credentials and Secrets dictionaries or their clones. | ✓ | ✓ | ✓ | **✓ enum1** | **—** | **—** |
+| `id` | Unique identifier for the DLP dictionary | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `idmProfileMatchAccuracy` |  | ✓ | **—** | **—** | ✓ | ✓ | **—** |
+| `idmProfileMatchAccuracyDetails` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `ignoreExactMatchIdmDict` | Indicates whether to exclude documents that are a 100% match to already-indexed documents from triggering an Indexed Document Match (IDM) Dictionary. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `includeBinNumbers` | A true value denotes that the specified Bank Identification Number (BIN) values are included in the Credit Cards dictionary. A false value denotes that the specified BIN values are excluded from the Credit Cards dictionary. Note: This field is applicable only to the predefined Credit Cards dictionary and its clones. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `includeSsnNumbers` | A true value denotes that the Social Security numbers (SSNs) specified using the ssnNumbers field are included in the dictionary. A false value denotes that the specified SSNs are excluded from the dictionary. Note: This field is applicable only to the predefined Social Security Numbers (US) dictionary and its clones. | ✓ | **—** | ✓ | **—** | **—** | **—** |
+| `name` | The DLP dictionary's name | ✓ | ✓ | ✓ | ✓ | **✓ req** | **—** |
+| `nameL10nTag` | Indicates whether the name is localized or not. This is always set to True for predefined DLP dictionaries. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `patterns` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `phrases` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `predefinedClone` | This field is set to true if the dictionary is cloned from a predefined dictionary. Otherwise, it is set to false. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `predefinedCountActionType` | This field specifies whether duplicate matches of a phrase from a dictionary must be counted individually toward the match count or ignored, thereby maintaining a single count for multiple occurrences. Note: This field is currently applicable only to the , such as Names (US), Names (Canada), and Names (Spain). | ✓ | ✓ | **—** | **—** | ✓ | **—** |
+| `predefinedPhrases` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `proximity` | The DLP dictionary proximity length that defines how close a high confidence phrase must be to an instance of the pattern (that the dictionary detects) to count as a match. Note: Proximity length is supported only for specific predefined DLP dictionaries with a and custom DLP dictionaries configured with the Match Any Patterns And Any Phrases option. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `proximityEnabledForCustomDictionary` | A Boolean constant that indicates if proximity length is enabled or disabled for a custom DLP dictionary. A true value indicates that proximity length is enabled, whereas a false value indicates that it is disabled. Note: This field is applicable only for specific custom DLP dictionaries configured with the Match Any Patterns And Any Phrases option. For predefined DLP dictionaries, this field value is always set to false. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `proximityLengthEnabled` | A Boolean constant that indicates whether the proximity length option is supported for a DLP dictionary or not. A true value indicates that the proximity length option is supported, whereas a false value indicates that it is not supported. Note: Proximity length is supported only for specific predefined DLP dictionaries with a and custom DLP dictionaries configured with the Match Any Patterns And Any Phrases option. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `ssnNumbers` | The list of Social Security numbers (SSNs) that are included or excluded from the dictionary based on the value set for includeSsnNumbers. Up to 512 SSNs can be added to a dictionary. Note: This field is applicable only to the predefined Social Security Numbers (US) dictionary and its clones. | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `thresholdAllowed` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `thresholdType` | DLP threshold type | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `unicodePhraseMatchingEnabled` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
 
 ### `dlp_engine`
 
 `POST /zia/api/v1/dlpEngines`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `customDlpEngine` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `description` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `engineExpression` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `id` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `name` | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | **—** |
-| `predefinedEngineName` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `customDlpEngine` | Indicates whether this is a custom DLP engine. If this value is set to true, the engine is custom. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `description` | The DLP engine's description. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `engineExpression` | The logical expression that defines a DLP engine by combining DLP dictionaries using logical operators, namely All (AND), Any (OR), Exclude (NOT), and Sum (the total number of content matches). . Engine expression examples: ((D63.S> 1)) ((D38.S> 1) AND (D63.S> 1)) ((D38.S> 1) OR (D63.S> 1)) ((D38.S> 0) AND ( NOT ( (D61.S> 0) ) ) (SUM(D63.S, D38.S)> 3) In the preceding examples, 63 represents the ID of the Credit Cards dictionary ID, 61 is the Financial Statements ID, and 38 is the ABA Bank Routing Numbers dictionary ID. Each dictionary ID is wrapped around by a prefix (D) and a suffix (.S). | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `id` | The unique identifier for the DLP engine. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `name` | The DLP engine name as configured by the admin. This attribute is required in POST and PUT requests for custom DLP engines. | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | **—** |
+| `predefinedEngineName` | The name of the predefined DLP engine. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 
 ### `dlp_notification_template`
 
 `POST /zia/api/v1/dlpNotificationTemplates`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `attachContent` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `htmlMessage` | ✓ | ✓ | ✓ | **✓ req** | ✓ | **—** |
-| `id` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `name` | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | **—** |
-| `plainTextMessage` | ✓ | ✓ | ✓ | **✓ req** | ✓ | **—** |
-| `subject` | ✓ | ✓ | ✓ | **✓ req** | ✓ | **—** |
-| `tlsEnabled` | **—** | ✓ | ✓ | **—** | ✓ | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `attachContent` | If set to true, the content that is violation is attached to the DLP notification email. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `htmlMessage` | The template for the HTML message body that must be displayed in the DLP notification email. | ✓ | ✓ | ✓ | **✓ req** | ✓ | **—** |
+| `id` | The unique identifier for a DLP notification template. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `name` | The DLP notification template name. | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | **—** |
+| `plainTextMessage` | The template for the plain text UTF-8 message body that must be displayed in the DLP notification email. | ✓ | ✓ | ✓ | **✓ req** | ✓ | **—** |
+| `subject` | The Subject line that is displayed within the DLP notification email. | ✓ | ✓ | ✓ | **✓ req** | ✓ | **—** |
+| `tlsEnabled` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
 
 ### `end_user_notification`
 
 `PUT /zia/api/v1/eun`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `aupCustomFrequency` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `aupDayOffset` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `aupFrequency` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `aupMessage` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `cautionAgainAfter` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `cautionCustomText` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `cautionPerDomain` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `customText` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `displayCompLogo` | ✓ | ✓ | ✓ | **—** | ✓ | **—** |
-| `displayCompName` | ✓ | ✓ | ✓ | **—** | ✓ | **—** |
-| `displayReason` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `idpProxyNotificationText` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `notificationType` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `orgPolicyLink` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `quarantineCustomNotificationText` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `redirectUrl` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `securityReviewCustomLocation` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `securityReviewEnabled` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `securityReviewSubmitToSecurityCloud` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `securityReviewText` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `supportEmail` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `supportPhone` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `urlCatReviewCustomLocation` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `urlCatReviewEnabled` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `urlCatReviewSubmitToSecurityCloud` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `urlCatReviewText` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `webDlpReviewCustomLocation` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `webDlpReviewEnabled` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `webDlpReviewSubmitToSecurityCloud` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `webDlpReviewText` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `aupCustomFrequency` | The custom frequency (in days) for showing the AUP to the end users. Valid range is 1 to 180. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `aupDayOffset` | Specifies which day of the week or month the AUP is shown for users when aupFrequency is set. Valid range is 1 to 31. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `aupFrequency` | The frequency at which the Acceptable Use Policy (AUP) is shown to the end users | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `aupMessage` | The acceptable use statement that is shown in the AUP | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `cautionAgainAfter` | The time interval at which the caution notification is shown when users continue browsing a restricted site. Note: The recommended setting for complex websites, such as Social Networking sites, is at least 5 minutes. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `cautionCustomText` | The custom message that appears in the caution notification | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `cautionPerDomain` | Specifies whether to display the caution notification at a specific time interval for URLs in the Miscellaneous or Unknown category. This option is applicable when a user browses a URL or a sub-domain of a URL in the Miscellaneous or Unknown category. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `customText` | The custom text shown in the EUN | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `displayCompLogo` | A Boolean value indicating whether your organization's logo appears in the EUN or not | ✓ | ✓ | ✓ | **—** | ✓ | **—** |
+| `displayCompName` | A Boolean value indicating whether the organization's name appears in the EUN or not | ✓ | ✓ | ✓ | **—** | ✓ | **—** |
+| `displayReason` | A Boolean value indicating whether or not the reason for cautioning or blocking access to a site, file, or application is shown when the respective notification is triggered | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `idpProxyNotificationText` | The message that appears in the IdP Proxy notification | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `notificationType` | The type of EUN as default or custom | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `orgPolicyLink` | The URL of the organization's policy page. This field is required for the default notification type. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `quarantineCustomNotificationText` | The message that appears in the quarantine notification | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `redirectUrl` | The redirect URL for the external site hosting the EUN specified when the custom notification type is selected | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `securityReviewCustomLocation` | A custom URL location where users' review requests for possible misclassified URLs are sent | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `securityReviewEnabled` | A Boolean value indicating whether the Security Violation notification is enabled or disabled | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `securityReviewSubmitToSecurityCloud` | A Boolean value indicating whether users' review requests for blocked URLs are submitted to the Zscaler service (i.e., Security Cloud) or a custom location. A true value indicates that the request is sent to the Security cloud, whereas a false value indicates that the request is sent to the specified custom location. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `securityReviewText` | The message that appears in the Security Violation notification | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `supportEmail` | The email address for writing to IT Support | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `supportPhone` | The phone number for contacting IT Support | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `urlCatReviewCustomLocation` | A custom URL location where users' review requests for blocked URLs are sent | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `urlCatReviewEnabled` | A Boolean value indicating whether the URL Categorization notification is enabled or disabled | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `urlCatReviewSubmitToSecurityCloud` | A Boolean value indicating whether users' review requests for possibly misclassified URLs are submitted to the Zscaler service (i.e., Security Cloud) or a custom location. A true value indicates that the request is sent to the Security cloud, whereas a false value indicates that the request is sent to the specified custom location. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `urlCatReviewText` | The message that appears in the URL Categorization notification | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `webDlpReviewCustomLocation` | A custom URL location where users' review requests for the web DLP policy violation are sent | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `webDlpReviewEnabled` | A Boolean value indicating whether the Web DLP Violation notification is enabled or disabled | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `webDlpReviewSubmitToSecurityCloud` | A Boolean value indicating whether users' review requests for web DLP policy violation are submitted to the Zscaler service (i.e., Security Cloud) or a custom location. A true value indicates that the request is sent to the Security cloud, whereas a false value indicates that the request is sent to the specified custom location. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `webDlpReviewText` | The message that appears in the Web DLP Violation notification | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 
 ### `extranet`
 
 `POST /zia/api/v1/extranet`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `createdAt` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `description` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `extranetDNSList` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `extranetDnsList` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `extranetIpPoolList` | **—** | ✓ | ✓ | **—** | ✓ | **—** |
-| `id` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `modifiedAt` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `createdAt` | The Unix timestamp when the extranet was created | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `description` | The description of the extranet | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `extranetDNSList` | extranetIpPoolList Information about the traffic selectors specified for the extranet. Type: Array | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `extranetDnsList` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `extranetIpPoolList` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
+| `id` | The unique identifier for the extranet | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `modifiedAt` | The Unix timestamp when the extranet was last modified | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `name` | The name of the extranet | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | **—** |
 
 ### `file_type_rule`
 
 `POST /zia/api/v1/fileTypeRules`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `accessControl` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `activeContent` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `browserEunTemplateId` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `capturePCAP` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `capturePcap` | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `cloudApplications` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `departments` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `description` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `deviceGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `deviceTrustLevels` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `devices` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `enabled` | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `fileTypeCategories` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `fileTypes` | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum≠** | ✓ |
-| `filteringAction` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `groups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `id` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `labels` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `lastModifiedBy` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `lastModifiedTime` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `locationGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `locations` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `maxSize` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `minSize` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `name` | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | ✓ |
-| `operation` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `order` | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
-| `passwordProtected` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `protocols` | ✓ | ✓ | ✓ | ✓ | **✓ enum≠** | ✓ |
-| `rank` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `resolveCloudApps` | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `sizeQuota` | ✓ | ✓ | ✓ | **—** | ✓ | ✓ |
-| `state` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `timeQuota` | ✓ | ✓ | ✓ | **—** | ✓ | ✓ |
-| `timeWindows` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `unscannable` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `urlCategories` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `users` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `zpaAppSegments` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `accessControl` | Access privilege of this rule based on the admin's RBA state. Ignored if the request is POST or PUT. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `activeContent` | Flag to check whether a file has active content or not | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `browserEunTemplateId` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `capturePCAP` | Enable or disable Capture PCAP Settings | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `capturePcap` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
+| `cloudApplications` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `departments` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `description` | Comments provided by the administrator | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `deviceGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `deviceTrustLevels` | List of device trust levels for which the rule must be applied. While the High Trust, Medium Trust, or Low Trust evaluation is applicable only to Zscaler Client Connector traffic, Unknown evaluation applies to all traffic. The trust levels are assigned to the devices based on your in the Zscaler Client Connector Portal. If no value is set, this field is ignored during the policy evaluation. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `devices` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `enabled` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
+| `fileTypeCategories` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `fileTypes` | This field is replaced with fileTypeCategories. Zscaler recommends updating your API configurations to use the fileTypeCategories attribute in place of fileTypes. | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum≠** | ✓ |
+| `filteringAction` | Action taken when traffic matches policy. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `groups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `id` | System-generated identifier for a file type policy | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `labels` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `lastModifiedBy` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `lastModifiedTime` | Timestamp when the rule was last modified. Ignored if the request is POST or PUT. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `locationGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `locations` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `maxSize` | Maximum file size (in KB) used for evaluation of the FTP rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `minSize` | Minimum file size (in KB) used for evaluation of the FTP rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `name` | Rule Name | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | ✓ |
+| `operation` | File operation performed. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `order` | Order of policy execution with respect to other file type policies. Order N indicates N-th file type policy is evaluated. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
+| `passwordProtected` | A Boolean field indicating whether the rule applies to password-protected files. This criterion is used in combination with the fileTypes criterion and is applicable only to specific file types such as 7-Zip, RAR, ZIP, ZIPx, PDF, password-protected Microsoft Office files, and other password-protected and encrypted files. So, when the passwordProtected field is set to true, only the applicable file types can be specified using the fileTypes field. Note: Traffic is evaluated against this criterion only when uploading and downloading of password-protected files is allowed at the organization level via the Security Exceptions in the Malware Protection policy. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `protocols` | Protocol for the given rule. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | **✓ enum≠** | ✓ |
+| `rank` | Admin rank. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `resolveCloudApps` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
+| `sizeQuota` | Size quota in KB, beyond which the policy must be applied. If not set, size quota is not enforced. Ignored if action is BLOCK. | ✓ | ✓ | ✓ | **—** | ✓ | ✓ |
+| `state` | Administrative state of the policy. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `timeQuota` | Time quota in minutes, after which the policy must be applied. If not set, no time quota is enforced. Ignored if action is BLOCK. | ✓ | ✓ | ✓ | **—** | ✓ | ✓ |
+| `timeWindows` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `unscannable` | Flag to check whether a file is unscannable or not | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `urlCategories` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `users` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `zpaAppSegments` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 ### `firewall_dns_rule`
 
 `POST /zia/api/v1/firewallDnsRules`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `accessControl` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `action` | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | ✓ |
-| `applicationGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `applications` | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | ✓ |
-| `blockResponseCode` | ✓ | ✓ | ✓ | **✓ enum1** | ✓ | ✓ |
-| `capturePCAP` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `capturePcap` | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `defaultDnsRuleNameUsed` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `defaultRule` | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `departments` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `description` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `destAddresses` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `destCountries` | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
-| `destIpCategories` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `destIpGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `destIpv6Groups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `deviceGroups` | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `devices` | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `dnsGateway` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `dnsRuleRequestTypes` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `ednsEcsObject` | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `enableFullLogging` | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `enabled` | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `groups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `id` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `isDefaultRuleName` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `isWebEunEnabled` | **—** | ✓ | ✓ | **—** | ✓ | **—** |
-| `labels` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `lastModifiedBy` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `lastModifiedTime` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `locationGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `locations` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `name` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `order` | ✓ | ✓ | ✓ | ✓ | **✓ req** | ✓ |
-| `predefined` | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `protocols` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `rank` | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | ✓ |
-| `redirectIp` | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `resCategories` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `resolveCloudApps` | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `sourceCountries` | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
-| `srcIpGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `srcIps` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `srcIpv6Groups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `state` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `timeWindows` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `users` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `zpaIpGroup` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `accessControl` | The admin’s access privilege to this rule based on the assigned role | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `action` | The action configured for the rule that must take place if the traffic matches the rule criteria, such as allowing, blocking, or redirecting the traffic. | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | ✓ |
+| `applicationGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `applications` | DNS tunnels and network applications to which the rule applies | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | ✓ |
+| `blockResponseCode` | When the action is selected as BLOCK_WITH_RESPONSE to block the DNS traffic and send a response code to the client, specify the response code using this field. | ✓ | ✓ | ✓ | **✓ enum1** | ✓ | ✓ |
+| `capturePCAP` | A Boolean value that indicates whether packet capture (PCAP) is enabled or not | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `capturePcap` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
+| `defaultDnsRuleNameUsed` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `defaultRule` | A Boolean field that indicates that the rule is predefined by using a true value | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
+| `departments` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `description` | The description of the rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `destAddresses` | Destination IP addresses or FQDNs to which the rule applies. If not set, the rule is not restricted to a specific destination IP address. Each IP entry can be a single IP address, CIDR (e.g., 10.10.33.0/24), or an IP range (e.g., 10.10.33.1-10.10.33.10). | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `destCountries` | Destination countries for which the rule is applicable. If not set, the rule is not restricted to specific destination countries. | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
+| `destIpCategories` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `destIpGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `destIpv6Groups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `deviceGroups` |  | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
+| `devices` |  | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
+| `dnsGateway` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `dnsRuleRequestTypes` | DNS request types to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `ednsEcsObject` |  | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
+| `enableFullLogging` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
+| `enabled` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
+| `groups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `id` | Unique identifier generated for the rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `isDefaultRuleName` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `isWebEunEnabled` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
+| `labels` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `lastModifiedBy` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `lastModifiedTime` | The timestamp when the rule was last modified | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `locationGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `locations` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `name` | The name of the DNS Control rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `order` | Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on), and this field specifies the order of execution for the rule. | ✓ | ✓ | ✓ | ✓ | **✓ req** | ✓ |
+| `predefined` | A Boolean value that indicates whether the rule is the Default Cloud IPS Rule or not | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
+| `protocols` | The protocols to which the rules applies | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `rank` | The admin rank specified for the rule based on your assigned admin rank. Admin rank determines the rule order that can be specified for the rule. Admin rank can be configured if it is enabled in the Advanced Settings. . | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | ✓ |
+| `redirectIp` | The IP address to which the traffic will be redirected to when the DNAT rule is triggered. If not set, no redirection is done to specific IP addresses. | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
+| `resCategories` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `resolveCloudApps` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
+| `sourceCountries` | The countries of origin of traffic for which the rule is applicable. If not set, the rule is not restricted to specific source countries. | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
+| `srcIpGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `srcIps` | Source IP addresses or FQDNs to which the rule applies. If not set, the rule is not restricted to a specific source IP address. Each IP entry can be a single IP address, CIDR (e.g., 10.10.33.0/24), or an IP range (e.g., 10.10.33.1-10.10.33.10). | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `srcIpv6Groups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `state` | The state of the rule indicating whether it is enabled or disabled | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `timeWindows` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `users` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `zpaIpGroup` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 ### `firewall_filtering_rule`
 
 `POST /zia/api/v1/firewallFilteringRules`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `accessControl` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `action` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `appServiceGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `appServices` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `defaultRule` | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `departments` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `description` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `destAddresses` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `destCountries` | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
-| `destIpCategories` | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | ✓ |
-| `destIpGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `destIpv6Groups` | ✓ | **—** | ✓ | **—** | ✓ | ✓ |
-| `deviceGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `deviceTrustLevels` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `devices` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `enableFullLogging` | **—** | ✓ | ✓ | **—** | ✓ | ✓ |
-| `enabled` | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `excludeSrcCountries` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `groups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `id` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `labels` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `lastModifiedBy` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `lastModifiedTime` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `locationGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `locations` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `name` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `nwApplicationGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `nwApplications` | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | ✓ |
-| `nwServiceGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `nwServices` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `order` | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
-| `predefined` | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `rank` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `sourceCountries` | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
-| `srcIpGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `srcIps` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `srcIpv6Groups` | ✓ | **—** | ✓ | **—** | ✓ | **—** |
-| `state` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `timeWindows` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `users` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `workloadGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `zpaAppSegments` | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `accessControl` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `action` | The action the Firewall Filtering policy rule takes when packets match the rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appServiceGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appServices` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `defaultRule` | If set to true, the default rule is applied Default value: false | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
+| `departments` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `description` | Additional information about the rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `destAddresses` | List of destination IP addresses for which the rule is applicable. CIDR notation can be used for destination IP addresses. If not set, the rule is not restricted to a specific destination addresses unless specified by destCountries, destIpGroups or destIpCategories. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `destCountries` | Destination countries for which the rule is applicable. If not set, the rule is not restricted to specific destination countries. | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
+| `destIpCategories` | IP address categories of destination for which the DNAT rule is applicable. If not set, the rule is not restricted to specific destination IP categories. | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | ✓ |
+| `destIpGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `destIpv6Groups` |  | ✓ | **—** | ✓ | **—** | ✓ | ✓ |
+| `deviceGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `deviceTrustLevels` | List of device trust levels for which the rule must be applied. While the High Trust, Medium Trust, or Low Trust evaluation is applicable only to Zscaler Client Connector traffic, Unknown evaluation applies to all traffic. The trust levels are assigned to the devices based on your in the Zscaler Client Connector Portal. If no value is set, this field is ignored during the policy evaluation. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `devices` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `enableFullLogging` |  | **—** | ✓ | ✓ | **—** | ✓ | ✓ |
+| `enabled` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
+| `excludeSrcCountries` | Indicates whether the countries specified in the sourceCountries field are included or excluded from the rule. A true value denotes that the specified source countries are excluded from the rule. A false value denotes that the rule is applied to the source countries if there is a match. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `groups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `id` | Unique identifier for the Firewall Filtering policy rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `labels` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `lastModifiedBy` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `lastModifiedTime` | Timestamp when the rule was last modified. Ignored if the request is POST or PUT. For GET, ignored if or the rule is current version. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `locationGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `locations` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `name` | Name of the Firewall Filtering policy rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `nwApplicationGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `nwApplications` | User-defined network service applications to which the rule is applied. If not set, the rule is not restricted to a specific network service application. | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | ✓ |
+| `nwServiceGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `nwServices` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `order` | Rule order number of the Firewall Filtering policy rule | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
+| `predefined` | If set to true, a predefined rule is applied Default value: false | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
+| `rank` | Admin rank of the Firewall Filtering policy rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `sourceCountries` | The list of source countries that must be included or excluded from the rule based on the excludeSrcCountries field value. If no value is set, this field is ignored during policy evaluation and the rule is applied to all source countries. | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
+| `srcIpGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `srcIps` | User-defined source IP addresses for which the rule is applicable. If not set, the rule is not restricted to a specific source IP address. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `srcIpv6Groups` |  | ✓ | **—** | ✓ | **—** | ✓ | **—** |
+| `state` | Determines whether the Firewall Filtering policy rule is enabled or disabled | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `timeWindows` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `users` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `workloadGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `zpaAppSegments` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
 
 ### `firewall_ips_rule`
 
 `POST /zia/api/v1/firewallIpsRules`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `accessControl` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `action` | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | ✓ |
-| `capturePCAP` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `capturePcap` | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `defaultRule` | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `departments` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `description` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `destAddresses` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `destCountries` | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
-| `destIpCategories` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `destIpGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `destIpv6Groups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `deviceGroups` | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `devices` | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `enableFullLogging` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `enabled` | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `eunTemplateId` | **—** | ✓ | ✓ | **—** | ✓ | **—** |
-| `fileTypes` | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `groups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `id` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `isEunEnabled` | **—** | ✓ | ✓ | **—** | ✓ | **—** |
-| `labels` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `lastModifiedBy` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `lastModifiedTime` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `locationGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `locations` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `name` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `nwServiceGroups` | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `nwServices` | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `order` | ✓ | ✓ | ✓ | ✓ | **✓ req** | ✓ |
-| `predefined` | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `protocols` | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `rank` | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | ✓ |
-| `resCategories` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `sourceCountries` | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
-| `srcIpGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `srcIps` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `srcIpv6Groups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `state` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `threatCategories` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `timeWindows` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `users` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `zpaAppSegments` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `accessControl` | The admin’s access privilege to this rule based on the assigned role | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `action` | The action configured for the rule that must take place if the traffic matches the rule criteria, such as allowing or blocking the traffic or bypassing the rule. | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | ✓ |
+| `capturePCAP` | A Boolean value that indicates whether packet capture (PCAP) is enabled or not | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `capturePcap` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
+| `defaultRule` | A Boolean value that indicates whether the rule is the Default Cloud IPS Rule or not | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
+| `departments` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `description` | The description of the rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `destAddresses` | Destination IP addresses or FQDNs to which the rule applies. If not set, the rule is not restricted to a specific destination IP address. Each IP entry can be a single IP address, CIDR (e.g., 10.10.33.0/24), or an IP range (e.g., 10.10.33.1-10.10.33.10). | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `destCountries` | Destination countries for which the rule is applicable. If not set, the rule is not restricted to specific destination countries. | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
+| `destIpCategories` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `destIpGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `destIpv6Groups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `deviceGroups` |  | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
+| `devices` |  | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
+| `enableFullLogging` | A Boolean value that indicates whether full logging is enabled. A true value indicates that full logging is enabled, whereas a false value indicates that aggregate logging is enabled. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `enabled` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
+| `eunTemplateId` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
+| `fileTypes` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
+| `groups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `id` | Unique identifier generated for the rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `isEunEnabled` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
+| `labels` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `lastModifiedBy` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `lastModifiedTime` | The timestamp when the rule was last modified | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `locationGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `locations` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `name` | The name of the IPS Control rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `nwServiceGroups` |  | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
+| `nwServices` |  | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
+| `order` | Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on), and this field specifies the order of execution for the rule. | ✓ | ✓ | ✓ | ✓ | **✓ req** | ✓ |
+| `predefined` | A Boolean field that indicates that the rule is predefined by using a true value | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
+| `protocols` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
+| `rank` | The admin rank specified for the rule based on your assigned admin rank. Admin rank determines the rule order that can be specified for the rule. Admin rank can be configured if it is enabled in the Advanced Settings. . | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | ✓ |
+| `resCategories` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `sourceCountries` | The countries of origin of traffic for which the rule is applicable. If not set, the rule is not restricted to specific source countries. | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
+| `srcIpGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `srcIps` | Source IP addresses or FQDNs to which the rule applies. If not set, the rule is not restricted to a specific source IP address. Each IP entry can be a single IP address, CIDR (e.g., 10.10.33.0/24), or an IP range (e.g., 10.10.33.1-10.10.33.10). | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `srcIpv6Groups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `state` | The state of the rule indicating whether it is enabled or disabled | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `threatCategories` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `timeWindows` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `users` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `zpaAppSegments` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 ### `forwarding_rule`
 
 `POST /zia/api/v1/forwardingRules`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `appServiceGroups` | **—** | ✓ | **—** | **—** | ✓ | **—** |
-| `dedicatedIPGateway` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `departments` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `description` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `destAddresses` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `destCountries` | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | **—** |
-| `destIpCategories` | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
-| `destIpGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `destIpv6Groups` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `deviceGroups` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `devices` | ✓ | **—** | ✓ | **—** | **—** | **—** |
-| `ecGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `enabled` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `forwardMethod` | ✓ | ✓ | ✓ | **✓ enum≠** | **✓ req** | **—** |
-| `groups` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `id` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `labels` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `lastModifiedBy` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `lastModifiedTime` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `locationGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `locations` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `name` | ✓ | ✓ | ✓ | **✓ req** | ✓ | **—** |
-| `nwApplicationGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `nwApplications` | ✓ | **—** | ✓ | **—** | **✓ enum1** | **—** |
-| `nwServiceGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `nwServices` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `order` | ✓ | ✓ | ✓ | **✓ req** | ✓ | **—** |
-| `proxyGateway` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `rank` | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | **—** |
-| `resCategories` | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
-| `srcIpGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `srcIps` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `srcIpv6Groups` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `state` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `timeWindows` | ✓ | **—** | ✓ | **—** | **—** | **—** |
-| `type` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `users` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `zpaAppSegments` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `zpaApplicationSegmentGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `zpaApplicationSegments` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `zpaBrokerRule` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `zpaGateway` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `appServiceGroups` |  | **—** | ✓ | **—** | **—** | ✓ | **—** |
+| `dedicatedIPGateway` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `departments` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `description` | Additional information about the forwarding rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `destAddresses` | List of destination IP addresses or FQDNs for which the rule is applicable. CIDR notation can be used for destination IP addresses. If not set, the rule is not restricted to a specific destination addresses unless specified by destCountries, destIpGroups, or destIpCategories. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `destCountries` | Destination countries for which the rule is applicable. If not set, the rule is not restricted to specific destination countries. | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | **—** |
+| `destIpCategories` | List of destination IP categories to which the rule applies. If not set, the rule is not restricted to specific destination IP categories. | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
+| `destIpGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `destIpv6Groups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `deviceGroups` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `devices` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
+| `ecGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `enabled` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `forwardMethod` | The type of traffic forwarding method selected from the available options | ✓ | ✓ | ✓ | **✓ enum≠** | **✓ req** | **—** |
+| `groups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `id` | A unique identifier assigned to the forwarding rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `labels` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `lastModifiedBy` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `lastModifiedTime` | Timestamp when the rule was last modified. This field is not applicable for POST or PUT request. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `locationGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `locations` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `name` | The name of the forwarding rule | ✓ | ✓ | ✓ | **✓ req** | ✓ | **—** |
+| `nwApplicationGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `nwApplications` | User-defined network service applications to which the rule applies. If not set, the rule is not restricted to a specific network service application. | ✓ | **—** | ✓ | **—** | **✓ enum1** | **—** |
+| `nwServiceGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `nwServices` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `order` | The order of execution for the forwarding rule order | ✓ | ✓ | ✓ | **✓ req** | ✓ | **—** |
+| `proxyGateway` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `rank` | Admin rank assigned to the forwarding rule | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | **—** |
+| `resCategories` | List of destination domain categories to which the rule applies | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
+| `srcIpGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `srcIps` | User-defined source IP addresses for which the rule is applicable. If not set, the rule is not restricted to a specific source IP address. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `srcIpv6Groups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `state` | Indicates whether the forwarding rule is enabled or disabled | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `timeWindows` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
+| `type` | The rule type selected from the available options | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `users` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `zpaAppSegments` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `zpaApplicationSegmentGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `zpaApplicationSegments` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `zpaBrokerRule` | The predefined ZPA Broker Rule generated by Zscaler | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `zpaGateway` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 
 ### `ftp_control_policy`
 
 `PUT /zia/api/v1/ftpSettings`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `ftpEnabled` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `ftpOverHttpEnabled` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `urlCategories` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `urls` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `ftpEnabled` | Indicates whether to enable native FTP. When enabled, users can connect to native FTP sites and download files. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `ftpOverHttpEnabled` | Indicates whether to enable FTP over HTTP. By default, the Zscaler service doesn't allow users from a location to upload or download files from FTP sites that use FTP over HTTP. Select this to enable browsers to connect to FTP over HTTP sites and download files. If a remote user uses a dedicated port, then the service supports FTP over HTTP for them. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `urlCategories` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `urls` | Domains or URLs included for the FTP Control settings | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 
 ### `gre_tunnel`
 
 `POST /zia/api/v1/greTunnels`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `comment` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `id` | ✓ | ✓ | ✓ | **—** | ✓ | **—** |
-| `internalIpRange` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `ipAddress` | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `ipUnnumbered` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `lastModificationTime` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `lastModifiedBy` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `managedBy` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `primaryDestVip` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `secondaryDestVip` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `sourceIp` | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
-| `staticIpAddress` | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `subCloud` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `subcloud` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `withinCountry` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `comment` | Additional information about this GRE tunnel | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `id` | Unique identifier of the static IP address that is associated to a GRE tunnel | ✓ | ✓ | ✓ | **—** | ✓ | **—** |
+| `internalIpRange` | The start of the internal IP address in /29 CIDR range | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `ipAddress` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
+| `ipUnnumbered` | This is required to support the automated SD-WAN provisioning of GRE tunnels, when set to true gre_tun_ip and gre_tun_id are set to null | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `lastModificationTime` | When the GRE tunnel information was last modified | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `lastModifiedBy` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `managedBy` |  | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `primaryDestVip` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `secondaryDestVip` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `sourceIp` | The source IP address of the GRE tunnel. This is typically a static IP address in the organization or SD-WAN. This IP address must be provisioned within the Zscaler service using the /staticIP endpoint. | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
+| `staticIpAddress` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
+| `subCloud` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `subcloud` | Restrict the data center virtual IP addresses (VIPs) only to those part of the subcloud | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `withinCountry` | Restrict the data center virtual IP addresses (VIPs) only to those within the same country as the source IP address | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 
 ### `ip_destination_group`
 
 `POST /zia/api/v1/ipDestinationGroups`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `addresses` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `countries` | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
-| `description` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `id` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `ipAddresses` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `ipCategories` | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
-| `isNonEditable` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | ✓ |
-| `type` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `urlCategories` | ✓ | **—** | **—** | **—** | **✓ enum1** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `addresses` | Destination FQDNs, domains, or IP addresses within the group. This list must reflect the type of addresses that are specified in the type attribute. DSTN_FQDN type must contain only FQDNs. DSTN_DOMAIN type can be a mix of FQDNs, domains, or wildcard domains. DSTN_IP type can have any of the following: Single IP address Range of IP Addresses (e.g., 1.1.1.1 - 1.1.1.255) IP addresses specified by subnet mask. (e.g., 1.1.1.0/24) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `countries` | Destination IP address counties. You can identify destinations based on the location of a server. | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
+| `description` | Additional information about the destination IP group | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `id` | Unique identifer for the destination IP group | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `ipAddresses` | Destination FQDNs or IP addresses within the group. This list cannot contain both. The IP address can be any of the following: Single IP address Range of IP Addresses (e.g., 1.1.1.1 - 1.1.1.255) IP addresses specified by subnet mask. (e.g., 1.1.1.0/24) | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `ipCategories` | Destination IP address URL categories. You can identify destinations based on the URL category of the domain. | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
+| `isNonEditable` | If set to true, the destination IP address group is non-editable. This field is applicable only to predefined IP address groups, which cannot be modified. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `name` | Destination IP group name | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | ✓ |
+| `type` | Destination IP group type (i.e., the group can contain destination IP addresses or FQDNs) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `urlCategories` | This attribute is present for backward compatibility only. Zscaler recommends using the ipCategories attribute. Destination IP address URL categories. You can identify destinations based on the URL category of the domain. | ✓ | **—** | **—** | **—** | **✓ enum1** | **—** |
 
 ### `ip_source_group`
 
 `POST /zia/api/v1/ipSourceGroups`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `description` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `id` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `ipAddresses` | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
-| `isNonEditable` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | ✓ |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `description` | The description of the source IP address group. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `id` | A unique identifier of the source IP address group. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `ipAddresses` | Source IP addresses added to the group. | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
+| `isNonEditable` | If set to true, the source IP address group is non-editable. This field is applicable only to predefined IP address groups, which cannot be modified. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `name` | The name of the source IP address group. | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | ✓ |
 
 ### `location`
 
 `POST /zia/api/v1/locations`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `aupBlockInternetUntilAccepted` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `aupEnabled` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `aupForceSslInspection` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `aupTimeoutInDays` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `authRequired` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `basicAuthEnabled` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `cautionEnabled` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `childCount` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `city` | ✓ | **—** | **—** | **—** | ✓ | **—** |
-| `cookiesAndProxy` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `country` | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
-| `defaultExtranetDns` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `defaultExtranetTsPool` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `description` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `digestAuthEnabled` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `displayTimeUnit` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `dnBandwidth` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `dynamiclocationGroups` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `ecLocation` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `excludeFromDynamicGroups` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `excludeFromManualGroups` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `extranet` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `extranetDns` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `extranetIpPool` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `geoOverride` | ✓ | ✓ | ✓ | **—** | ✓ | **—** |
-| `id` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `idleTimeInMinutes` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `iotDiscoveryEnabled` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `iotEnforcePolicySet` | **—** | ✓ | ✓ | **—** | ✓ | **—** |
-| `ipAddresses` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `ipsControl` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `ipv6Dns64Prefix` | ✓ | ✓ | **—** | ✓ | ✓ | **—** |
-| `ipv6Enabled` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `kerberosAuth` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `language` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `latitude` | ✓ | **—** | ✓ | **—** | ✓ | **—** |
-| `location` | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `longitude` | ✓ | **—** | ✓ | **—** | ✓ | **—** |
-| `managedBy` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `matchInChild` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `nonEditable` | **—** | **—** | ✓ | **—** | **—** | **—** |
-| `ofwEnabled` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `other6SubLocation` | ✓ | ✓ | **—** | ✓ | ✓ | **—** |
-| `otherSubLocation` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `parentId` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `ports` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `profile` | ✓ | ✓ | ✓ | **✓ enum≠** | **✓ enum≠** | **—** |
-| `sslScanEnabled` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `state` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `staticLocationGroups` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `subLocAccIds` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `subLocScope` | **—** | ✓ | ✓ | **—** | ✓ | **—** |
-| `subLocScopeEnabled` | **—** | ✓ | ✓ | **—** | ✓ | **—** |
-| `subLocScopeValues` | **—** | ✓ | ✓ | **—** | ✓ | **—** |
-| `surrogateIP` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `surrogateIPEnforcedForKnownBrowsers` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `surrogateIp` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `surrogateIpEnforcedForKnownBrowsers` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `surrogateRefreshTimeInMinutes` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `surrogateRefreshTimeUnit` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `tz` | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
-| `upBandwidth` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `virtualZenClusters` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `virtualZens` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `vpnCredentials` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `xffForwardEnabled` | ✓ ro | ✓ | ✓ | **✓ ro** | ✓ | **—** |
-| `zappSSLScanEnabled` | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `zappSslScanEnabled` | **—** | **—** | ✓ | **—** | ✓ | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `aupBlockInternetUntilAccepted` | For First Time AUP Behavior, Block Internet Access. When set, all internet access (including non-HTTP traffic) is disabled until the user accepts the AUP. Default value: false | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `aupEnabled` | Enable AUP. When set to true, AUP is enabled for the location. Default value: false | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `aupForceSslInspection` | For First Time AUP Behavior, Force SSL Inspection. When set, Zscaler forces SSL Inspection in order to enforce AUP for HTTPS traffic. Default value: false | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `aupTimeoutInDays` | Custom AUP Frequency. Refresh time (in days) to re-validate the AUP. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `authRequired` | Enforce Authentication. Required when ports are enabled, IP Surrogate is enabled, or Kerberos Authentication is enabled. Default value: false | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `basicAuthEnabled` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `cautionEnabled` | Enable Caution. When set to true, a caution notifcation is enabled for the location. Default value: false | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `childCount` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `city` |  | ✓ | **—** | **—** | **—** | ✓ | **—** |
+| `cookiesAndProxy` | If set to true, the surrogateIPEnforcedForKnownBrowsers option is enabled for all authentication methods including cookie-based, Kerberos, Basic, and Digest authentication to leverage the existing IP address-to-user mapping (acquired from surrogate IP) to authenticate users and prevent further authentication challenges for traffic originating from that source IP address. If set to false, surrogate IP for known browsers is only supported for cookie-based authentication and all other methods require authentication after each request. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `country` | Country | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
+| `defaultExtranetDns` | A Boolean value indicating that the DNS server configuration used in the extranet is the designated default DNS server | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `defaultExtranetTsPool` | A Boolean value indicating that the traffic selector specified in the extranet is the designated default traffic selector | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `description` | Additional notes or information regarding the location or sub-location. The description cannot exceed 1024 characters. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `digestAuthEnabled` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `displayTimeUnit` | Display Time Unit. The time unit to display for IP Surrogate idle time to disassociation. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `dnBandwidth` | Download bandwidth in kbps. The value 0 implies no Bandwidth Control enforcement. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `dynamiclocationGroups` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `ecLocation` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `excludeFromDynamicGroups` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `excludeFromManualGroups` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `extranet` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `extranetDns` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `extranetIpPool` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `geoOverride` | If this field is set to true, the latitude and longitude values must be provided. By default, it's set to false. | ✓ | ✓ | ✓ | **—** | ✓ | **—** |
+| `id` | Location ID. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `idleTimeInMinutes` | Idle Time to Disassociation. The user mapping idle time (in minutes) is required if a Surrogate IP is enabled. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `iotDiscoveryEnabled` | If this field is set to true, IoT discovery is enabled for this location. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `iotEnforcePolicySet` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
+| `ipAddresses` | For locations: IP addresses of the egress points that are provisioned in the Zscaler Cloud. Each entry is a single IP address (e.g., 238.10.33.9). For sub-locations: Egress, internal, or GRE tunnel IP addresses. Each entry is either a single IP address, CIDR (e.g., 10.10.33.0/24), or range (e.g., 10.10.33.1-10.10.33.10)). | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `ipsControl` | Enable IPS Control. When set to true, IPS Control is enabled for the location if Firewall is enabled. Default value: false | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `ipv6Dns64Prefix` |  | ✓ | ✓ | **—** | ✓ | ✓ | **—** |
+| `ipv6Enabled` | If set to true, IPv6 is enabled for the location and IPv6 traffic from the location can be forwarded to the Zscaler service to enforce security policies. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `kerberosAuth` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `language` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `latitude` | The value of latitude must be set to 7-digit precision after decimal point, ranging between -90 and 90 degrees. Note: This field is mandatory if geoOverride is set to true. | ✓ | **—** | ✓ | **—** | ✓ | **—** |
+| `location` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
+| `longitude` | The value of longitude must be set to 7-digit precision after decimal point, ranging between -180 and 180 degrees. Note: This field is mandatory if geoOverride is set to true. | ✓ | **—** | ✓ | **—** | ✓ | **—** |
+| `managedBy` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `matchInChild` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `name` | Location Name. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `nonEditable` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
+| `ofwEnabled` | Enable Firewall. When set to true, Firewall is enabled for the location. Default value: false | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `other6SubLocation` | If set to true, indicates that this is a default sub-location created by the Zscaler service to accommodate IPv6 addresses that are not part of any user-defined sub-locations. The default sub-location is created with the name Other6 and it can be renamed, if required. This field is applicable only if ipv6Enabled is set is true. | ✓ | ✓ | **—** | ✓ | ✓ | **—** |
+| `otherSubLocation` | If set to true, indicates that this is a default sub-location created by the Zscaler service to accommodate IPv4 addresses that are not part of any user-defined sub-locations. The default sub-location is created with the name Other and it can be renamed, if required. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `parentId` | Parent Location ID. If this ID does not exist or is 0, it is implied that it is a parent location. Otherwise, it is a sub-location whose parent has this ID. x-applicableTo: SUB | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `ports` | IP ports that are associated with the location. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `profile` | (Optional) Profile tag that specifies the location traffic type. If not specified, this tag is automatically set to best possible value using certain criteria. The criteria used for setting best possible value is as follows: When invoked with a partner API key, it automatically sets the profile attribute to CORPORATE. When invoked using public API, it automatically sets the profile attribute based on the following criteria: If the location has authentication enabled, then it sets profile to CORPORATE. If the location has authentication disabled and name contains "guest", then it sets profile to GUESTWIFI. For all other locations with authentication disabled, it sets profile to SERVER. | ✓ | ✓ | ✓ | **✓ enum≠** | **✓ enum≠** | **—** |
+| `sslScanEnabled` | This parameter was deprecated and no longer has an effect on SSL policy. It remains supported in the API payload in order to maintain backwards compatibility with existing scripts, but it will be removed in future. Enable SSL Inspection. Set to true in order to apply your SSL Inspection policy to HTTPS traffic in the location and inspect HTTPS transactions for data leakage, malicious content, and viruses. Default value: false | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `state` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `staticLocationGroups` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `subLocAccIds` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `subLocScope` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
+| `subLocScopeEnabled` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
+| `subLocScopeValues` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
+| `surrogateIP` | Enable Surrogate IP. When set to true, users are mapped to internal device IP addresses. . Default value: false | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `surrogateIPEnforcedForKnownBrowsers` | Enforce Surrogate IP for Known Browsers. When set to true, IP Surrogate is enforced for all known browsers. Default value: false | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `surrogateIp` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `surrogateIpEnforcedForKnownBrowsers` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `surrogateRefreshTimeInMinutes` | Refresh Time for re-validation of Surrogacy. The surrogate refresh time (in minutes) to re-validate the IP surrogates. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `surrogateRefreshTimeUnit` | Display Refresh Time Unit. The time unit to display for refresh time for re-validation of surrogacy. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `tz` | Timezone of the location. If not specified, it defaults to GMT. | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
+| `upBandwidth` | Upload bandwidth in kbps. The value 0 implies no Bandwidth Control enforcement. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `virtualZenClusters` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `virtualZens` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `vpnCredentials` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `xffForwardEnabled` | Enable XFF Forwarding for a location. When set to true, traffic is passed to Zscaler Cloud via the X-Forwarded-For (XFF) header. Note: For sub-locations, this attribute is a read-only field as the value is inherited from the parent location. Default value: false | ✓ ro | ✓ | ✓ | **✓ ro** | ✓ | **—** |
+| `zappSSLScanEnabled` | This parameter was deprecated and no longer has an effect on SSL policy. It remains supported in the API payload in order to maintain backwards compatibility with existing scripts, but it will be removed in future. Enable Zscaler App SSL Setting. When set to true, the Zscaler App SSL Scan Setting takes effect, irrespective of the SSL policy that is configured for the location. Default value: false | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `zappSslScanEnabled` |  | **—** | **—** | ✓ | **—** | ✓ | **—** |
 
 ### `mobile_malware_protection_policy`
 
 `PUT /zia/api/v1/mobileAdvanceThreatSettings`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `blockAppsCommunicatingWithAdWebsites` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `blockAppsCommunicatingWithRemoteUnknownServers` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `blockAppsSendingDeviceIdentifier` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `blockAppsSendingLocationInfo` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `blockAppsSendingPersonallyIdentifiableInfo` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `blockAppsSendingUnencryptedUserCredentials` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `blockAppsWithKnownVulnerabilities` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `blockAppsWithMaliciousActivity` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `blockAppsCommunicatingWithAdWebsites` | Blocks an application from communicating with known advertisement websites | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `blockAppsCommunicatingWithRemoteUnknownServers` | Blocks an application from communicating with unknown servers (i.e., servers not normally or historically associated with the application) | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `blockAppsSendingDeviceIdentifier` | Blocks an application from leaking device identifiers via communication in an unencrypted format or for an unknown purpose | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `blockAppsSendingLocationInfo` | Blocks an application from leaking device location details via communication in an unencrypted format or for an unknown purpose | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `blockAppsSendingPersonallyIdentifiableInfo` | Blocks an application from leaking a user's personally identifiable information (PII) via communication in an unencrypted format or for an unknown purpose | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `blockAppsSendingUnencryptedUserCredentials` | Blocks an application from leaking a user's credentials in an unencrypted format | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `blockAppsWithKnownVulnerabilities` | Blocks applications that contain vulnerabilities or which are using insecure features, modules, or protocols | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `blockAppsWithMaliciousActivity` | Blocks applications that are known to be malicious, compromised, or perform activities unknown to or hidden from the user | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 
 ### `nat_control_rule`
 
 `POST /zia/api/v1/dnatRules`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `accessControl` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `action` | **—** | **—** | ✓ | **—** | **—** | **—** |
-| `defaultRule` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `departments` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `description` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `destAddresses` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `destCountries` | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | **—** |
-| `destIpCategories` | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
-| `destIpGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `destIpv6Groups` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `deviceGroups` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `devices` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `enableFullLogging` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `enabled` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `groups` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `id` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `labels` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `lastModifiedBy` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `lastModifiedTime` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `locationGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `locations` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `name` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `nwServiceGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `nwServices` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `order` | ✓ | ✓ | ✓ | **✓ req** | ✓ | **—** |
-| `predefined` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `rank` | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | **—** |
-| `redirectFqdn` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `redirectIp` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `redirectPort` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `resCategories` | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
-| `srcIpGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `srcIps` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `srcIpv6Groups` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `state` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `timeWindows` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `trustedResolverRule` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `users` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `accessControl` | Access privilege of this rule based on the admin's Role Based Authorization (RBA) state. Ignored if the request is POST or PUT. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `action` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
+| `defaultRule` | If set to true, the default rule is applied | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `departments` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `description` | Comments provided by administrator | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `destAddresses` | List of destination IP addresses or FQDNs to which this rule is applied. CIDR notations can be used destination IP addresses. If not set, the rules are not restricted to specific destination addresses unless specified by destCountries, destIpGroups or destIpCategories | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `destCountries` | Destination countries for which the rule is applicable. If not set, the rule is not restricted to specific destination countries. | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | **—** |
+| `destIpCategories` | IP address categories of destination for which the DNAT rule is applicable. If not set, the rule is not restricted to specific destination IP categories. | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
+| `destIpGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `destIpv6Groups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `deviceGroups` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `devices` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `enableFullLogging` | Indicates whether full logging is enabled | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `enabled` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `groups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `id` | System-generated identifier for the DNAT control rule. Ignored if the request is POST. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `labels` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `lastModifiedBy` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `lastModifiedTime` | Timestamp of when the rule was last modified. Ignored if the request is POST or PUT. For GET, ignored if the rule is current version. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `locationGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `locations` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `name` | Rule name | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `nwServiceGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `nwServices` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `order` | Order of policy execution with respect to other NAT Control rules of the same kind. Order N indicates N-th NAT Control rule of the same kind is evaluated. | ✓ | ✓ | ✓ | **✓ req** | ✓ | **—** |
+| `predefined` | If set to true, a predefined rule is applied | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `rank` | Admin rank that is assigned to this rule | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | **—** |
+| `redirectFqdn` | FQDN to which the traffic will be redirected to when the DNAT rule is triggered. This is mutually exclusive to redirect IP | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `redirectIp` | IP address to which the traffic will be redirected to when the DNAT rule is triggered. If not set, no redirection is done to specific IP address. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `redirectPort` | Port to which the traffic will redirected to when the DNAT rule is triggered. If not set, no redirection is done to specific port. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `resCategories` | Resolved categories of destination for which the DNAT rule is applicable. If not set, the rule is not restricted to specific destination IP categories. | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
+| `srcIpGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `srcIps` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `srcIpv6Groups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `state` | State whether it is enabled, disabled, or just set to monitoring. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `timeWindows` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `trustedResolverRule` | Set to true in the predefined rule for Zscaler Trusted DNS Resolver | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `users` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 
 ### `network_application_group`
 
@@ -1579,22 +1579,22 @@ generator: "scripts/automate-capture/rosetta.py"
 
 `POST /zia/api/v1/networkServices`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `creatorContext` | **—** | **—** | ✓ | **—** | **—** | **—** |
-| `description` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `destTcpPorts` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `destUdpPorts` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `id` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `isNameL10nTag` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | ✓ |
-| `ports` | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `protocol` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `srcTcpPorts` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `srcUdpPorts` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `start` | **—** | **—** | ✓ | **—** | **—** | **—** |
-| `tag` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `type` | ✓ | ✓ | ✓ | ✓ | **✓ enum≠** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `creatorContext` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
+| `description` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `destTcpPorts` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `destUdpPorts` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `id` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `isNameL10nTag` | Default value: false | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `name` |  | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | ✓ |
+| `ports` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
+| `protocol` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `srcTcpPorts` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `srcUdpPorts` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `start` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
+| `tag` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `type` |  | ✓ | ✓ | ✓ | ✓ | **✓ enum≠** | **—** |
 
 ### `network_service_group`
 
@@ -1612,390 +1612,390 @@ generator: "scripts/automate-capture/rosetta.py"
 
 `POST /zia/api/v1/nssServers`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `icapSvrId` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `id` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `name` | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | **—** |
-| `state` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `status` | ✓ | ✓ | ✓ | **✓ enum≠** | **✓ enum≠** | **—** |
-| `type` | ✓ | ✓ | ✓ | **✓ enum≠** | **✓ enum≠** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `icapSvrId` | The ICAP server ID | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `id` | System-generated identifier of the NSS server based on the software platform | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `name` | NSS server name | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | **—** |
+| `state` | The health of the NSS server | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `status` | Enables or disables the status of the NSS server | ✓ | ✓ | ✓ | **✓ enum≠** | **✓ enum≠** | **—** |
+| `type` | The server type. The NSS for Web type is selected by default. | ✓ | ✓ | ✓ | **✓ enum≠** | **✓ enum≠** | **—** |
 
 ### `proxy`
 
 `POST /zia/api/v1/proxies`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `address` | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | **—** |
-| `base64EncodeXauHeader` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `cert` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `description` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `id` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `insertXauHeader` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `lastModifiedBy` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `lastModifiedTime` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | **✓ req** | ✓ | **—** |
-| `port` | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | **—** |
-| `type` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `address` | The IP address or the FQDN of the third-party proxy service | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | **—** |
+| `base64EncodeXauHeader` | Flag indicating whether the added X-Authenticated-User header is Base64 encoded. When enabled, the user ID is encoded using the Base64 encoding method. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `cert` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `description` | Additional notes or information | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `id` | Proxy ID | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `insertXauHeader` | Flag indicating whether X-Authenticated-User header is added by the proxy. Enable to automatically insert authenticated user ID to the HTTP header, X-Authenticated-User. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `lastModifiedBy` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `lastModifiedTime` | Timestamp of when the proxy was last modified | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `name` | Proxy name | ✓ | ✓ | ✓ | **✓ req** | ✓ | **—** |
+| `port` | The port number on which the third-party proxy service listens to the requests forwarded from Zscaler | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | **—** |
+| `type` | Gateway type | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 
 ### `risk_profile`
 
 `POST /zia/api/v1/riskProfiles`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `adminAuditLogs` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `certifications` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `createTime` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `customTags` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `dataBreach` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `dataEncryptionInTransit` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `dnsCaaPolicy` | ✓ | ✓ | ✓ | **✓ enum1** | ✓ | **—** |
-| `domainBasedMessageAuth` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `domainKeysIdentifiedMail` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `evasive` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `excludeCertificates` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `fileSharing` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `httpSecurityHeaders` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `id` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `lastModTime` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `malwareScanningForContent` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `mfaSupport` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `modifiedBy` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `passwordStrength` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `poorItemsOfService` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `profileName` | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | **—** |
-| `profileType` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `remoteScreenSharing` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `riskIndex` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `senderPolicyFramework` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `sourceIpRestrictions` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `sslCertKeySize` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `sslCertValidity` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `sslPinned` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `status` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `supportForWaf` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `vulnerability` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `vulnerabilityDisclosure` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `vulnerableToHeartBleed` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `vulnerableToLogJam` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `vulnerableToPoodle` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `weakCipherSupport` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `adminAuditLogs` | Filters applications based on their support for logging and tracking all administrative activities to identify potential security threats. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `certifications` | List of certifications to be included or excluded for the profile. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `createTime` | Timestamp of when the profile was created. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `customTags` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `dataBreach` | Filters applications based on their history of reported data breaches in the last three years. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `dataEncryptionInTransit` | Filters applications based on their support for encrypting data in transit. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `dnsCaaPolicy` | Filters applications based on their implementation of DNS Certification Authority Authorization (CAA) policy that helps prevent unauthorized SSL certificates. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | **✓ enum1** | ✓ | **—** |
+| `domainBasedMessageAuth` | Filters applications based on their support for Domain-Based Message Authentication, Reporting, and Conformance (DMARC), which helps prevent email spoofing and phishing attacks. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `domainKeysIdentifiedMail` | Filters applications based on their support for DomainKeys Identified Mail (DKIM) authentication, which helps prevent email tampering. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `evasive` | Filters applications based on their support for anonymous access without requiring user authentication that can increase the risk of malicious activity. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `excludeCertificates` | Indicates if the certificates are included or not. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `fileSharing` | Filters applications based on their support for file sharing features that can increase the risk of data exfiltration. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `httpSecurityHeaders` | Filters applications based on their implementation of all security headers (X-XSS-Protection, X-Frame-Options, Strict-Transport-Security, Content-Security-Policy, and X-Content-Type-Options) to protect against common web attacks. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `id` | System-generated identifier for the cloud application risk profile | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `lastModTime` | Timestamp of when the profile was last modified. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `malwareScanningForContent` | Filters applications based on their support for content malware scanning. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `mfaSupport` | Filters applications based on their support for multi-factor authentication to enhance user account security. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `modifiedBy` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `passwordStrength` | Filters applications based on their password strength requirements under Hosting Info. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `poorItemsOfService` | Filters applications based on the presence of questionable terms and conditions in their legal agreements, such as sharing customer data with third-party applications. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `profileName` | Cloud application risk profile name | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | **—** |
+| `profileType` | Risk profile type. The default profile type is CLOUD_APPLICATIONS. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `remoteScreenSharing` | Filters applications based on their support for remote access screen sharing, which can increase the risk of data exfiltration if not properly secured. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `riskIndex` | The risk index number of the cloud applications. It represents the risk score assigned to each cloud application based on the risk attribute values. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `senderPolicyFramework` | Filters applications based on their support for sender policy framework (SPF) authentication, which helps prevent email spoofing. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `sourceIpRestrictions` | Filters applications based on their ability to restrict access to specific IP addresses, reducing the attack surface. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `sslCertKeySize` | Filters applications based on the key size of their SSL certificates. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `sslCertValidity` | Filters applications based on the validity period of their SSL certificates. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `sslPinned` | Filters applications based on their use of pinned SSL certificates, making it difficult for attackers to decrypt and validate traffic. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `status` | Status of the applications. You can select the application status for cloud applications while adding a cloud application risk profile, and select the risk profile as a criterion in the Cloud App Control Policy rule. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `supportForWaf` | Filters applications based on their support for web application firewalls (WAFs) to protect against common web attacks. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `vulnerability` | Filters applications based on their published CVE vulnerabilities. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `vulnerabilityDisclosure` | Filters applications based on their policy for disclosing known vulnerabilities, allowing ethical hackers to report potential security threats. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `vulnerableToHeartBleed` | Filters applications based on their vulnerability to the Heartbleed attack. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `vulnerableToLogJam` | Filters applications based on their vulnerability to the Logjam attack. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `vulnerableToPoodle` | Filters applications based on their vulnerability to the POODLE attack. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `weakCipherSupport` | Filters applications based on their support for weak ciphers with key sizes less than 128 bits that can compromise SSL connections. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 
 ### `rule_label`
 
 `POST /zia/api/v1/ruleLabels`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `createdBy` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `description` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `id` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `lastModifiedBy` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `lastModifiedTime` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | ✓ | **✓ req** | ✓ |
-| `referencedRuleCount` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `createdBy` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `description` | The rule label description. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `id` | The unique identifier for the rule label. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `lastModifiedBy` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `lastModifiedTime` | Timestamp when the rule lable was last modified. This is a read-only field. Ignored by PUT and DELETE requests. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `name` | The rule label name. | ✓ | ✓ | ✓ | ✓ | **✓ req** | ✓ |
+| `referencedRuleCount` | The number of rules that reference the label. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 
 ### `sandbox_rule`
 
 `POST /zia/api/v1/sandboxRules`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `accessControl` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `baPolicyCategories` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `baRuleAction` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `byThreatScore` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `cbiProfile` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `cbiProfileId` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `defaultRule` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `departments` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `description` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `deviceGroups` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `devices` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `enabled` | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `fileTypes` | ✓ | ✓ | ✓ | **✓ req enum1** | **✓ req enum≠** | ✓ |
-| `firstTimeEnable` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `firstTimeOperation` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `groups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `id` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `labels` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `lastModifiedBy` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `lastModifiedTime` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `locationGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `locations` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `mlActionEnabled` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `name` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `order` | ✓ | ✓ | ✓ | ✓ | **✓ req** | ✓ |
-| `protocols` | ✓ | ✓ | ✓ | ✓ | **✓ enum≠** | ✓ |
-| `rank` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `state` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `timeWindows` | ✓ | ✓ | **—** | **—** | **—** | ✓ |
-| `urlCategories` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `users` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `zpaAppSegments` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `accessControl` | The admin’s access privilege to this rule based on the assigned role | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `baPolicyCategories` | The threat categories to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `baRuleAction` | The action configured for the rule that must take place if the traffic matches the rule criteria | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `byThreatScore` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `cbiProfile` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `cbiProfileId` | Unique identifier of the cloud browser isolation profiles to which the rule applies | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `defaultRule` | A Boolean value that indicates whether the rule is marked as the default rule. | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `departments` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `description` | The description of the rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `deviceGroups` |  | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `devices` |  | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `enabled` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
+| `fileTypes` | The file types to which the rule applies | ✓ | ✓ | ✓ | **✓ req enum1** | **✓ req enum≠** | ✓ |
+| `firstTimeEnable` | A Boolean value indicating whether a First-Time Action is specifically configured for the rule. The First-Time Action takes place when users download unknown files. The action to be applied is specified using the firstTimeOperation field. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `firstTimeOperation` | The action that must take place when users download unknown files for the first time | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `groups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `id` | Unique identifier generated for the rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `labels` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `lastModifiedBy` |  | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `lastModifiedTime` | The timestamp when the rule was last modified | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `locationGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `locations` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `mlActionEnabled` | A Boolean value indicating whether to enable or disable the AI Instant Verdict option to have the Zscaler service use AI analysis to instantly assign threat scores to unknown files. This option is available to use only with specific rule actions such as Quarantine and Allow and Scan for First-Time Action. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `name` | The name of the Sandbox rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `order` | Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on), and this field specifies the order of execution for the rule. | ✓ | ✓ | ✓ | ✓ | **✓ req** | ✓ |
+| `protocols` | The protocols to which the rule applies | ✓ | ✓ | ✓ | ✓ | **✓ enum≠** | ✓ |
+| `rank` | The admin rank specified for the rule based on your assigned admin rank. Admin rank determines the rule order that can be specified for the rule. Admin rank can be configured if it is enabled in the Advanced Settings. . | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `state` | The state of the rule indicating whether it is enabled or disabled | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `timeWindows` |  | ✓ | ✓ | **—** | **—** | **—** | ✓ |
+| `urlCategories` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `users` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `zpaAppSegments` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 
 ### `security_policy_settings`
 
 `PUT /zia/api/v1/security`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `blacklistUrls` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `urlType` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `urls` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `whitelistUrls` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `blacklistUrls` | URLs on the denylist for your organization. Allow up to 25000 URLs. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `urlType` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `urls` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `whitelistUrls` | Allowlist URLs whose contents are not scanned. Allows up to 255 URLs. There may be trusted websites the content of which might be blocked due to anti-virus, anti-spyware, or anti-malware policies. Enter the URLs of sites you do not want scanned. The service allows users to download content from these URLs without inspecting the traffic. The allowlist applies to the Malware Protection, Advanced Threats Protection, and Sandbox policies. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 
 ### `ssl_inspection_rule`
 
 `POST /zia/api/v1/sslInspectionRules`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `accessControl` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `action` | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | ✓ |
-| `cloudApplications` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `defaultRule` | ✓ | ✓ | ✓ | **—** | **—** | ✓ |
-| `departments` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `description` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `destIpGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `deviceGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `deviceTrustLevels` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `devices` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `enabled` | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `groups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `id` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `labels` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `lastModifiedBy` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `lastModifiedTime` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `locationGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `locations` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `name` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `order` | ✓ | ✓ | ✓ | ✓ | **✓ req** | ✓ |
-| `platforms` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `predefined` | ✓ | ✓ | ✓ | **—** | **—** | ✓ |
-| `proxyGateways` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `rank` | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | ✓ |
-| `resolveCloudApps` | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `roadWarriorForKerberos` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `sourceIpGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `state` | ✓ | ✓ | ✓ | **✓ enum1** | **—** | **—** |
-| `timeWindows` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `urlCategories` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `userAgentTypes` | ✓ | ✓ | ✓ | ✓ | **✓ enum≠** | ✓ |
-| `users` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `workloadGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `zpaAppSegments` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `accessControl` | Access privilege to this rule based on the admin's RBA | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `action` |  | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | ✓ |
+| `cloudApplications` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `defaultRule` | A Boolean value that indicates whether the rule is the default rule or not | ✓ | ✓ | ✓ | **—** | **—** | ✓ |
+| `departments` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `description` | Description provided by the administrator. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `destIpGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `deviceGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `deviceTrustLevels` | List of device trust levels for which the rule must be applied. While the High Trust, Medium Trust, or Low Trust evaluation is applicable only to Zscaler Client Connector traffic, Unknown evaluation applies to all traffic. The trust levels are assigned to the devices based on your posture configurations in the Zscaler Client Connector Portal. If no value is set, this field is ignored during the policy evaluation. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `devices` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `enabled` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
+| `groups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `id` | System generated identifier for the SSL inspection rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `labels` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `lastModifiedBy` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `lastModifiedTime` | Timestamp when the rule was last modified. Ignore if the request is POST or PUT. For GET, ignore if the rule is for the current version. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `locationGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `locations` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `name` | Rule name | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `order` | Order of rule execution with respect to other SSL inspection rules. | ✓ | ✓ | ✓ | ✓ | **✓ req** | ✓ |
+| `platforms` | Zscaler Client Connector device platforms for which the rule must be applied. If not set, rule is applied to all device platforms | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `predefined` | A Boolean value that indicates whether the rule is a predefined SSL inspection rule or not | ✓ | ✓ | ✓ | **—** | **—** | ✓ |
+| `proxyGateways` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `rank` | Admin rank assigned to this rule | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | ✓ |
+| `resolveCloudApps` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
+| `roadWarriorForKerberos` | When set to true, the rule is applied to remote users that use PAC with Kerberos authentication. Otherwise, it is a don't care. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `sourceIpGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `state` | State whether it is enabled, disabled, or just set to monitoring | ✓ | ✓ | ✓ | **✓ enum1** | **—** | **—** |
+| `timeWindows` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `urlCategories` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `userAgentTypes` | User agent type list | ✓ | ✓ | ✓ | ✓ | **✓ enum≠** | ✓ |
+| `users` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `workloadGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `zpaAppSegments` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 ### `static_ip`
 
 `POST /zia/api/v1/staticIP`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `city` | **—** | ✓ | ✓ | **—** | ✓ | **—** |
-| `comment` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `geoOverride` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `id` | ✓ | ✓ | ✓ | **—** | ✓ | **—** |
-| `ipAddress` | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
-| `lastModificationTime` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `lastModifiedBy` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `latitude` | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | ✓ |
-| `longitude` | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | ✓ |
-| `managedBy` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `routableIP` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `routableIp` | **—** | **—** | **—** | **—** | ✓ | ✓ |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `city` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
+| `comment` | Additional information about this static IP address | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `geoOverride` | If not set, geographic coordinates and city are automatically determined from the IP address. Otherwise, the latitude and longitude coordinates must be provided. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `id` | The unique identifier for the static IP address | ✓ | ✓ | ✓ | **—** | ✓ | **—** |
+| `ipAddress` | The static IP address | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
+| `lastModificationTime` | When the static IP address was last modified | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `lastModifiedBy` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `latitude` | Required only if the geoOverride attribute is set. Latitude with 7 digit precision after decimal point, ranges between -90 and 90 degrees. | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | ✓ |
+| `longitude` | Required only if the geoOverride attribute is set. Longitude with 7 digit precision after decimal point, ranges between -180 and 180 degrees. | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | ✓ |
+| `managedBy` |  | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `routableIP` | Indicates whether a non-RFC 1918 IP address is publicly routable. This attribute is ignored if there is no ZIA Private Service Edge associated to the organization. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `routableIp` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
 
 ### `url_category`
 
 `POST /zia/api/v1/urlCategories`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `categoryGroup` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `configuredName` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `customCategory` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `customIpRangesCount` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `customUrlsCount` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `dbCategorizedUrls` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `description` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `editable` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `id` | ✓ | ✓ | ✓ | **✓ req enum1** | **✓ req enum1** | **—** |
-| `ipRanges` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `ipRangesRetainingParentCategory` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `ipRangesRetainingParentCategoryCount` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `keywords` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `keywordsRetainingParentCategory` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `name` | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `regexPatterns` | **—** | ✓ | ✓ | **—** | ✓ | **—** |
-| `regexPatternsRetainingParentCategory` | **—** | ✓ | ✓ | **—** | ✓ | **—** |
-| `scopes` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `superCategory` | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | ✓ |
-| `type` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `urlKeywordCounts` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `urlType` | **—** | ✓ | ✓ | **—** | ✓ | **—** |
-| `urls` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `urlsRetainingParentCategoryCount` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `val` | **—** | ✓ | **—** | **—** | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `categoryGroup` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `configuredName` | Name of the URL category. This is only required for custom URL categories. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `customCategory` | Set to true for custom URL category. Up to 48 custom URL categories can be added per organization. Default value: false | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `customIpRangesCount` | The number of custom IP address ranges associated to the URL category. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `customUrlsCount` | The number of custom URLs associated to the URL category. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `dbCategorizedUrls` | URLs added to a custom URL category are also retained under the original parent URL category (i.e., the predefined category the URL previously belonged to). The URLs entered are covered by policies that reference the original parent URL category as well as those that reference the custom URL category. For example, if you add www.amazon.com, this URL is covered by policies that reference the custom URL category as well as policies that reference its parent URL category of "Online Shopping". | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `description` | Description of the URL category. Contains tag name and needs to be localized on client side in case of predefined category (customCategory=null or =false), else it contains the user-entered description which does not have localization support. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `editable` | Value is set to false for custom URL category when due to scope user does not have edit permission Default value: false | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `id` | URL category | ✓ | ✓ | ✓ | **✓ req enum1** | **✓ req enum1** | **—** |
+| `ipRanges` | Custom IP address ranges associated to a URL category. Up to 2000 custom IP address ranges and retaining parent custom IP address ranges can be added, per organization, across all categories. Note: This field is available only if the option to configure custom IP ranges is enabled for your organization. To enable this option, contact Zscaler Support. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `ipRangesRetainingParentCategory` | The retaining parent custom IP address ranges associated to a URL category. Up to 2000 custom IP ranges and retaining parent custom IP address ranges can be added, per organization, across all categories. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `ipRangesRetainingParentCategoryCount` | The number of custom IP address ranges associated to the URL category, that also need to be retained under the original parent category. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `keywords` | Custom keywords associated to a URL category. Up to 2048 custom keywords can be added per organization across all categories (including bandwidth classes). | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `keywordsRetainingParentCategory` | Retained custom keywords from the parent URL category that is associated to a URL category. Up to 2048 retained parent keywords can be added per organization across all categories (including bandwidth classes). | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `name` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
+| `regexPatterns` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
+| `regexPatternsRetainingParentCategory` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
+| `scopes` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `superCategory` | Super Category of the URL category. This field is required when creating custom URL categories. | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | ✓ |
+| `type` | Type of the custom categories. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `urlKeywordCounts` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `urlType` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
+| `urls` | Custom URLs to add to a URL category. Up to 25,000 custom URLs can be added per organization across all categories (including bandwidth classes). | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `urlsRetainingParentCategoryCount` | The number of custom URLs associated to the URL category, that also need to be retained under the original parent category. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `val` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
 
 ### `url_filtering_and_cloud_app_settings`
 
 `PUT /zia/api/v1/advancedUrlFilterAndCloudAppSettings`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `blockSkype` | ✓ | ✓ | ✓ | **—** | ✓ | **—** |
-| `considerEmbeddedSites` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `enableBlockOverrideForNonAuthUser` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `enableCIPACompliance` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `enableChatGptPrompt` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `enableCipaCompliance` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `enableClaudePrompt` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `enableCreativeCommonsSearchResults` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `enableDeepSeekPrompt` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `enableDynamicContentCat` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `enableGeminiPrompt` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `enableGrammarlyPrompt` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `enableGrokPrompt` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `enableMetaPrompt` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `enableMicrosoftCoPilotPrompt` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `enableMicrosoftCopilotPrompt` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `enableMistralAIPrompt` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `enableMsftO365` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `enableNewlyRegisteredDomains` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `enableOffice365` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `enablePOEPrompt` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `enablePerPlexityPrompt` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `enablePerplexityPrompt` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `enablePoePrompt` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `enableUcaasLogMeIn` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `enableUcaasRingCentral` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `enableUcaasTalkdesk` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `enableUcaasWebex` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `enableUcaasZoom` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `enableWriterPrompt` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `enforceSafeSearch` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `safeSearchApps` | ✓ | ✓ | **—** | **✓ enum1** | **—** | **—** |
-| `zveloDbLookupDisabled` | **—** | ✓ | **—** | **—** | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `blockSkype` | A Boolean value indicating whether access to Skype is blocked or not. | ✓ | ✓ | ✓ | **—** | ✓ | **—** |
+| `considerEmbeddedSites` | A Boolean value that indicates if URL filtering rules must be applied to sites that are translated using translation services or not. For example, when this feature is enabled, if you have a rule that blocks www.gambling.com, and a user translates the page to another language using Google Translate, the service blocks the translated page. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `enableBlockOverrideForNonAuthUser` | A Boolean value indicating if authorized users can temporarily override block action on websites by providing their authentication information | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `enableCIPACompliance` | A Boolean value indicating if the predefined CIPA Compliance Rule is enabled or not. . | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `enableChatGptPrompt` | A Boolean value indicating if the use of generative AI prompts with ChatGPT by users should be categorized and logged | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `enableCipaCompliance` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `enableClaudePrompt` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `enableCreativeCommonsSearchResults` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `enableDeepSeekPrompt` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `enableDynamicContentCat` | A Boolean value that indicates if dynamic categorization of URLs by analyzing content of uncategorized websites using AI/ML tools is enabled or not. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `enableGeminiPrompt` | A Boolean value indicating if the use of generative AI prompts with Google Gemini by users should be categorized and logged | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `enableGrammarlyPrompt` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `enableGrokPrompt` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `enableMetaPrompt` | A Boolean value indicating if the use of generative AI prompts with Meta AI by users should be categorized and logged | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `enableMicrosoftCoPilotPrompt` | A Boolean value indicating if the use of generative AI prompts with Microsoft Copilot by users should be categorized and logged | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `enableMicrosoftCopilotPrompt` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `enableMistralAIPrompt` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `enableMsftO365` | A Boolean value indicating if the Zscaler service is allowed to permit secure local breakout for Office 365 traffic automatically without any manual configuration needed. Enabling this option turns off SSL Interception for all Office 365 destinations as per Microsoft's recommendation. If you want to continue using existing granular controls for Office 365, disable this option and enable preexisting configuration. . | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `enableNewlyRegisteredDomains` | A Boolean value indicating whether newly registered and observed domains that are identified within hours of going live are allowed or blocked | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `enableOffice365` | A Boolean value that enables or disables Microsoft Office 365 configuration. If you want to continue using existing granular controls for Office 365, then it is recommended to turn off the enableMsftO365 option and enable this option instead. This is a legacy option used for backward compatibility. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `enablePOEPrompt` | A Boolean value indicating if the use of generative AI prompts with Poe by users should be categorized and logged | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `enablePerPlexityPrompt` | A Boolean value indicating if the use of generative AI prompts with Perplexity by users should be categorized and logged | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `enablePerplexityPrompt` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `enablePoePrompt` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `enableUcaasLogMeIn` | A Boolean value indicating if the Zscaler service is allowed to automatically permit secure local breakout for GoTo traffic, without any manual configuration needed. When enabled, this option turns off SSL interception for all GoTo destinations. To continue using existing granular controls for GoTo traffic, disable this option and enable Cloud Application and Firewall Network Application policies accordingly. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `enableUcaasRingCentral` | A Boolean value indicating if the Zscaler service is allowed to automatically permit secure local breakout for RingCentral traffic, without any manual configuration needed. When enabled, this option turns off SSL interception for all RingCentral destinations. To continue using existing granular controls for RingCentral traffic, disable this option and enable Cloud Application and Firewall Network Application policies accordingly. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `enableUcaasTalkdesk` | A Boolean value indicating if the Zscaler service is allowed to automatically permit secure local breakout for Talkdesk traffic, with minimal or no manual configuration needed. When enabled, this option turns off SSL interception for all Talkdesk destinations. To continue using existing granular controls for Talkdesk traffic, disable this option and enable Cloud Application, DNS, and Firewall Network Application policies accordingly. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `enableUcaasWebex` | A Boolean value indicating if the Zscaler service is allowed to automatically permit secure local breakout for Webex traffic, without any manual configuration needed. When enabled, this option turns off SSL interception for all Webex destinations. To continue using existing granular controls for Webex traffic, disable this option and enable Cloud Application and Firewall Network Application policies accordingly. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `enableUcaasZoom` | A Boolean value indicating if the Zscaler service is allowed to automatically permit secure local breakout for Zoom traffic, without any manual configuration needed. When enabled, this option turns off SSL interception for all Zoom destinations. To continue using existing granular controls for Zoom traffic, disable this option and enable Cloud Application and Firewall Network Application policies accordingly. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `enableWriterPrompt` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `enforceSafeSearch` | A Boolean value that indicates whether only safe content must be returned for web, image, and video search. Safe search is supported for specific search engines and other platforms. Note: must be enabled for this option. . | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `safeSearchApps` | A list of applications for which the SafeSearch enforcement applies. You cannot modify this field when the enforceSafeSearch field is disabled. | ✓ | ✓ | **—** | **✓ enum1** | **—** | **—** |
+| `zveloDbLookupDisabled` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
 
 ### `url_filtering_rule`
 
 `POST /zia/api/v1/urlFilteringRules`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `action` | ✓ | ✓ | ✓ | **✓ enum≠** | **✓ req enum≠** | ✓ |
-| `blockOverride` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `browserEunTemplateId` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `cbiProfile` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `cbiProfileId` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `cipaRule` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `ciparule` | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `departments` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `description` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `deviceGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `deviceTrustLevels` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `devices` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `enabled` | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `endUserNotificationUrl` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `enforceTimeValidity` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `groups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `id` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `labels` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `lastModifiedBy` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `lastModifiedTime` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `locationGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `locations` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `name` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `order` | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | ✓ |
-| `overrideGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `overrideUsers` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `protocols` | ✓ | ✓ | ✓ | ✓ | **✓ req enum≠** | ✓ |
-| `rank` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `requestMethods` | ✓ | ✓ | ✓ | ✓ | **✓ enum≠** | ✓ |
-| `sizeQuota` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `sourceCountries` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `sourceIpGroups` | **—** | ✓ | ✓ | **—** | ✓ | **—** |
-| `state` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `timeQuota` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `timeWindows` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `urlCategories` | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | ✓ |
-| `urlCategories2` | ✓ | ✓ | ✓ | **—** | **—** | ✓ |
-| `userAgentTypes` | **—** | ✓ | ✓ | **—** | ✓ | ✓ |
-| `userRiskScoreLevels` | **—** | ✓ | ✓ | **—** | ✓ | **—** |
-| `users` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `validityEndTime` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `validityStartTime` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `validityTimeZoneId` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `workloadGroups` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `action` | Action taken when traffic matches rule criteria. Note: The ISOLATE action is available only if Cloud Browser Isolation is enabled for your organization. . | ✓ | ✓ | ✓ | **✓ enum≠** | **✓ req enum≠** | ✓ |
+| `blockOverride` | When set to true, a 'BLOCK' action triggered by the rule could be overridden. If true and both overrideGroup and overrideUsers are not set, the BLOCK triggered by this rule could be overridden for any users. If blockOverride is not set, 'BLOCK' action cannot be overridden. Default value: false | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `browserEunTemplateId` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `cbiProfile` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `cbiProfileId` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `cipaRule` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `ciparule` | If set to true, the CIPA Compliance rule is enabled Default value: false | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
+| `departments` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `description` | Additional information about the URL Filtering rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `deviceGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `deviceTrustLevels` | List of device trust levels for which the rule must be applied. While the High Trust, Medium Trust, or Low Trust evaluation is applicable only to Zscaler Client Connector traffic, Unknown evaluation applies to all traffic. The trust levels are assigned to the devices based on your in the Zscaler Client Connector Portal. If no value is set, this field is ignored during the policy evaluation. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `devices` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `enabled` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
+| `endUserNotificationUrl` | URL of end user notification page to be displayed when the rule is matched. Not applicable if either 'overrideUsers' or 'overrideGroups' is specified. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `enforceTimeValidity` | Enforce a set a validity time period for the URL Filtering rule. . | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `groups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `id` | URL Filtering Rule ID | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `labels` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `lastModifiedBy` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `lastModifiedTime` | When the rule was last modified | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `locationGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `locations` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `name` | Rule Name | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `order` | Order of execution of rule with respect to other URL Filtering rules | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | ✓ |
+| `overrideGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `overrideUsers` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `protocols` | Protocol criteria | ✓ | ✓ | ✓ | ✓ | **✓ req enum≠** | ✓ |
+| `rank` | Admin rank of the admin who creates this rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `requestMethods` | Request method for which the rule must be applied. If not set, rule is applied to all methods | ✓ | ✓ | ✓ | ✓ | **✓ enum≠** | ✓ |
+| `sizeQuota` | Size quota in KB beyond which the URL Filtering rule is applied. If not set, no quota is enforced. If a policy rule action is set to 'BLOCK', this field is not applicable. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `sourceCountries` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `sourceIpGroups` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
+| `state` | Rule State | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `timeQuota` | Time quota in minutes, after which the URL Filtering rule is applied. If not set, no quota is enforced. If a policy rule action is set to 'BLOCK', this field is not applicable. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `timeWindows` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `urlCategories` | List of URL categories for which rule is be applied. | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | ✓ |
+| `urlCategories2` | List of URL categories for which rule is applied. Note: The urlCategories and urlCategories2 parameters are connected with a logical AND operator so that the URL Filtering policy rules are triggered when it matches the selected categories in both the URL Categories fields. . | ✓ | ✓ | ✓ | **—** | **—** | ✓ |
+| `userAgentTypes` |  | **—** | ✓ | ✓ | **—** | ✓ | ✓ |
+| `userRiskScoreLevels` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
+| `users` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `validityEndTime` | If enforceTimeValidity is set to true, the URL Filtering rule ceases to be valid on this end date and time. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `validityStartTime` | If enforceTimeValidity is set to true, the URL Filtering rule is valid starting on this date and time. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `validityTimeZoneId` | If enforceTimeValidity is set to true, the URL Filtering rule date and time is valid based on this time zone ID. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `workloadGroups` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 ### `user`
 
 `POST /zia/api/v1/users`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `adminUser` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `authMethods` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `comments` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `deleted` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `department` | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
-| `email` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `groups` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `id` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `password` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `tempAuthEmail` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `type` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `adminUser` | True if this user is an Admin user Default value: false | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `authMethods` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `comments` | Additional information about this user. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `deleted` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `department` |  | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
+| `email` | User email consists of a user name and domain name. It does not have to be a valid email address, but it must be unique and its domain must belong to the organization. Note: The email field allows values of alphanumeric characters and certain special characters up to a maximum of 127 characters. The use of the @ symbol is mandatory. This field corresponds to the User ID (also referred to as Login ID) field in the UI. However, the data validation in the UI uses different constraints. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `groups` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `id` | User ID | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `name` | User name. This appears when choosing users for policies. Note: The name field allows values containing UTF-8 characters up to a maximum of 127 characters. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `password` | User's password. Applicable only when authentication type is Hosted DB. Password strength must follow what is defined in the auth settings. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `tempAuthEmail` | Temporary Authentication Email. If you enabled one-time tokens or links, enter the email address to which the Zscaler service sends the tokens or links. If this is empty, the service sends the email to the User email. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `type` | User type. Provided only if this user is not an end user. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 
 ### `vpn_credential`
 
 `POST /zia/api/v1/vpnCredentials`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `comments` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `credentialType` | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `disabled` | **—** | **—** | ✓ | **—** | ✓ | **—** |
-| `fqdn` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `id` | ✓ | ✓ | ✓ | **—** | ✓ | **—** |
-| `ipAddress` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `location` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `managedBy` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `preSharedKey` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `type` | ✓ | ✓ | ✓ | **✓ req enum≠** | **✓ enum≠** | ✓ |
-| `updatePsk` | **—** | **—** | **—** | **—** | ✓ | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `comments` | Additional information about this VPN credential. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `credentialType` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
+| `disabled` |  | **—** | **—** | ✓ | **—** | ✓ | **—** |
+| `fqdn` | Fully Qualified Domain Name. Applicable only to UFQDN or XAUTH (or HOSTED_MOBILE_USERS) auth type. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `id` | VPN credential id | ✓ | ✓ | ✓ | **—** | ✓ | **—** |
+| `ipAddress` | Static IP address for VPN that is or provisioned by Zscaler. This is a required field for IP auth type and is not applicable to other auth types. Note: If you want Zscaler to provision static IP addresses for your organization, contact Zscaler Support. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `location` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `managedBy` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `preSharedKey` | Pre-shared key. This is a required field for UFQDN and IP auth type. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `type` | VPN authentication type (i.e., how the VPN credential is sent to the server). It is not modifiable after VpnCredential is created. Note: Zscaler no longer supports adding a new XAUTH VPN credential, but existing entries can be edited or deleted using the respective endpoints. | ✓ | ✓ | ✓ | **✓ req enum≠** | **✓ enum≠** | ✓ |
+| `updatePsk` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
 
 ### `workload_group`
 
 `POST /zia/api/v1/workloadGroups`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `description` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `expression` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `expressionJson` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `id` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `lastModifiedBy` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `lastModifiedTime` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `description` | The description of the workload group | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `expression` | The workload group expression containing tag types, tags, and their relationships. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `expressionJson` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `id` | A unique identifier assigned to the workload group | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `lastModifiedBy` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `lastModifiedTime` | Timestamp when the workload group was last modified | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `name` | The name of the workload group | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 
 ### `zpa_gateway`
 
 `POST /zia/api/v1/zpaGateways`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `description` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `id` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `lastModifiedBy` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `lastModifiedTime` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | **—** |
-| `type` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `zpaAppSegments` | ✓ | ✓ | ✓ | ✓ | **✓ req** | **—** |
-| `zpaServerGroup` | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | **—** |
-| `zpaTenantId` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `description` | Additional details about the ZPA gateway | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `id` | A unique identifier assigned to the ZPA gateway | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `lastModifiedBy` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `lastModifiedTime` | Timestamp when the ZPA gateway was last modified | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `name` | The name of the ZPA gateway | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | **—** |
+| `type` | Indicates whether the ZPA gateway is configured for Zscaler Internet Access (using option ZPA) or Zscaler Cloud Connector (using option ECZPA) | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `zpaAppSegments` |  | ✓ | ✓ | ✓ | ✓ | **✓ req** | **—** |
+| `zpaServerGroup` |  | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | **—** |
+| `zpaTenantId` | The ID of the ZPA tenant where Source IP Anchoring is configured | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 
 ## ZPA
 
@@ -2004,125 +2004,125 @@ generator: "scripts/automate-capture/rosetta.py"
 
 `POST /zpa/mgmtconfig/v1/admin/customers/:customerId/appConnectorGroup`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `city` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `cityCountry` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `connectorGroupType` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `connectorIds` | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `connectors` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `countryCode` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `creationTime` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `dcHostingInfo` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `description` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `dnsQueryType` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `enabled` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `enrollmentCertId` | **—** | ✓ | ✓ | **—** | ✓ | ✓ |
-| `enrollmentCertName` | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `geoLocationId` | ✓ | **✓ type** | **—** | **—** | **—** | **—** |
-| `id` | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
-| `ipAcl` | ✓ | **—** | ✓ | **—** | **—** | **—** |
-| `latitude` | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
-| `location` | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
-| `longitude` | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
-| `lssAppConnectorGroup` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `microtenantId` | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
-| `microtenantName` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `modifiedBy` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `modifiedTime` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `nameWithoutTrim` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `npAssistantGroup` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `overrideVersionProfile` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `praEnabled` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `readOnly` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `restrictionType` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `serverGroupIds` | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `serverGroups` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `siteId` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `siteName` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `tcpQuickAckApp` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `tcpQuickAckAssistant` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `tcpQuickAckReadAssistant` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `upgradeDay` | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
-| `upgradePriority` | ✓ | **—** | ✓ | **—** | **—** | **—** |
-| `upgradeTimeInSecs` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `useInDrMode` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `userCodes` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `version` | **—** | **—** | ✓ | **—** | **—** | **—** |
-| `versionProfile` | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `versionProfileId` | ✓ | **✓ type** | ✓ | ✓ | **✓ enum1** | **—** |
-| `versionProfileName` | ✓ ro | ✓ | ✓ | **✓ enum1 ro** | **—** | **—** |
-| `versionProfileVisibilityScope` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `wafDisabled` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `zscalerManaged` | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `city` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `cityCountry` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `connectorGroupType` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `connectorIds` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
+| `connectors` |  | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `countryCode` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `creationTime` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `dcHostingInfo` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `description` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `dnsQueryType` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `enabled` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `enrollmentCertId` |  | **—** | ✓ | ✓ | **—** | ✓ | ✓ |
+| `enrollmentCertName` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
+| `geoLocationId` |  | ✓ | **✓ type** | **—** | **—** | **—** | **—** |
+| `id` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
+| `ipAcl` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
+| `latitude` |  | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
+| `location` |  | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
+| `longitude` |  | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
+| `lssAppConnectorGroup` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `microtenantId` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
+| `microtenantName` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `modifiedBy` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `modifiedTime` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `name` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `nameWithoutTrim` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `npAssistantGroup` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `overrideVersionProfile` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `praEnabled` | praEnabled | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `readOnly` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `restrictionType` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `serverGroupIds` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
+| `serverGroups` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `siteId` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `siteName` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `tcpQuickAckApp` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `tcpQuickAckAssistant` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `tcpQuickAckReadAssistant` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `upgradeDay` |  | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
+| `upgradePriority` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ | **—** | ✓ | **—** | **—** | **—** |
+| `upgradeTimeInSecs` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `useInDrMode` | use_in_dr_mode | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `userCodes` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `version` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
+| `versionProfile` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
+| `versionProfileId` |  | ✓ | **✓ type** | ✓ | ✓ | **✓ enum1** | **—** |
+| `versionProfileName` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ ro | ✓ | ✓ | **✓ enum1 ro** | **—** | **—** |
+| `versionProfileVisibilityScope` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `wafDisabled` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `zscalerManaged` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
 
 ### `application_segment`
 
 `POST /zpa/mgmtconfig/v1/admin/customers/:customerId/application`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `adpEnabled` | ✓ | ✓ | ✓ | **—** | ✓ | ✓ |
-| `apiProtectionEnabled` | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `appRecommendationId` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `applicationGroup` | **—** | **—** | ✓ | **—** | **—** | **—** |
-| `applications` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `autoAppProtectEnabled` | ✓ | ✓ | ✓ | **—** | **—** | ✓ |
-| `bypassOnReauth` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `bypassType` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `clientlessApps` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `commonAppsDto` | ✓ | **—** | ✓ | **—** | **—** | **—** |
-| `configSpace` | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `creationTime` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `defaultIdleTimeout` | ✓ | **✓ type** | **—** | **—** | **—** | **—** |
-| `defaultMaxAge` | ✓ | **✓ type** | **—** | **—** | **—** | **—** |
-| `description` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `domainNames` | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
-| `doubleEncrypt` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `enabled` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `extranetEnabled` | ✓ | ✓ | ✓ | **—** | **—** | ✓ |
-| `fqdnDnsCheck` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `healthCheckType` | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
-| `healthReporting` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `icmpAccessType` | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
-| `id` | ✓ ro | ✓ | ✓ | **✓ ro** | ✓ | **—** |
-| `inconsistentConfigDetails` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `inspectTrafficWithZia` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `inspectionApps` | ✓ | **—** | ✓ | **—** | **—** | **—** |
-| `ipAnchored` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `isCnameEnabled` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `isIncompleteDRConfig` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `matchStyle` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `microtenantId` | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
-| `microtenantName` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `modifiedBy` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `modifiedTime` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `passiveHealthEnabled` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `policyStyle` | **—** | ✓ | ✓ | **—** | ✓ | **—** |
-| `praApps` | ✓ | **—** | ✓ | **—** | **—** | **—** |
-| `readOnly` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `restrictionType` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `segmentGroupId` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `segmentGroupName` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `selectConnectorCloseToApp` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `serverGroupIds` | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `serverGroups` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `shareToMicrotenants` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `sharedMicrotenantDetails` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `tags` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `tcpKeepAlive` | ✓ | **✓ type** | ✓ | **✓ enum1** | ✓ | ✓ |
-| `tcpPortRange` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `tcpPortRanges` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `tcpProtocols` | ✓ | **—** | **—** | **—** | **✓ enum≠** | **—** |
-| `udpPortRange` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `udpPortRanges` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `udpProtocols` | ✓ | **—** | **—** | **—** | **✓ enum≠** | **—** |
-| `useInDrMode` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `weightedLoadBalancing` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `zpnErId` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `zscalerManaged` | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `adpEnabled` | adpEnabled | ✓ | ✓ | ✓ | **—** | ✓ | ✓ |
+| `apiProtectionEnabled` | apiProtectionEnabled | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
+| `appRecommendationId` |  | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `applicationGroup` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
+| `applications` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `autoAppProtectEnabled` | autoAppProtectEnabled | ✓ | ✓ | ✓ | **—** | **—** | ✓ |
+| `bypassOnReauth` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `bypassType` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `clientlessApps` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `commonAppsDto` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
+| `configSpace` |  | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
+| `creationTime` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `defaultIdleTimeout` |  | ✓ | **✓ type** | **—** | **—** | **—** | **—** |
+| `defaultMaxAge` |  | ✓ | **✓ type** | **—** | **—** | **—** | **—** |
+| `description` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `domainNames` |  | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
+| `doubleEncrypt` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `enabled` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `extranetEnabled` |  | ✓ | ✓ | ✓ | **—** | **—** | ✓ |
+| `fqdnDnsCheck` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `healthCheckType` |  | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
+| `healthReporting` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `icmpAccessType` |  | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
+| `id` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ ro | ✓ | ✓ | **✓ ro** | ✓ | **—** |
+| `inconsistentConfigDetails` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `inspectTrafficWithZia` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `inspectionApps` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
+| `ipAnchored` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `isCnameEnabled` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `isIncompleteDRConfig` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `matchStyle` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `microtenantId` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
+| `microtenantName` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `modifiedBy` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `modifiedTime` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `name` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `passiveHealthEnabled` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `policyStyle` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
+| `praApps` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
+| `readOnly` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `restrictionType` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `segmentGroupId` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `segmentGroupName` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `selectConnectorCloseToApp` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `serverGroupIds` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
+| `serverGroups` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `shareToMicrotenants` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `sharedMicrotenantDetails` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `tags` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `tcpKeepAlive` |  | ✓ | **✓ type** | ✓ | **✓ enum1** | ✓ | ✓ |
+| `tcpPortRange` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `tcpPortRanges` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `tcpProtocols` |  | ✓ | **—** | **—** | **—** | **✓ enum≠** | **—** |
+| `udpPortRange` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `udpPortRanges` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `udpProtocols` |  | ✓ | **—** | **—** | **—** | **✓ enum≠** | **—** |
+| `useInDrMode` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `weightedLoadBalancing` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `zpnErId` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `zscalerManaged` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
 
 ### `application_server`
 
@@ -2147,28 +2147,28 @@ generator: "scripts/automate-capture/rosetta.py"
 
 `POST /zpa/mgmtconfig/v1/admin/customers/:customerId/certificate`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `cName` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `certBlob` | ✓ | ✓ | **—** | **✓ req** | ✓ | ✓ |
-| `certChain` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `certificate` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `creationTime` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `description` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `id` | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
-| `issuedBy` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `issuedTo` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `microtenantId` | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
-| `microtenantName` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `modifiedBy` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `modifiedTime` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `publicKey` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `san` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `serialNo` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `status` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `validFromInEpochSec` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `validToInEpochSec` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `cName` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `certBlob` |  | ✓ | ✓ | **—** | **✓ req** | ✓ | ✓ |
+| `certChain` |  | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `certificate` | The certificate text is in PEM format. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `creationTime` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `description` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `id` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
+| `issuedBy` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `issuedTo` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `microtenantId` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
+| `microtenantName` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `modifiedBy` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `modifiedTime` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `name` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `publicKey` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `san` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `serialNo` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `status` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `validFromInEpochSec` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `validToInEpochSec` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
 
 ### `emergency_access`
 
@@ -2192,60 +2192,60 @@ generator: "scripts/automate-capture/rosetta.py"
 
 `POST /zpa/mgmtconfig/v1/admin/customers/:customerId/inspectionControls/custom`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `action` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `actionValue` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `associatedInspectionProfileNames` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `controlException` | ✓ | **—** | ✓ | **—** | **—** | **—** |
-| `controlNumber` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `controlRuleJson` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `controlType` | ✓ | ✓ | ✓ | **✓ enum≠** | **—** | **—** |
-| `creationTime` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `defaultAction` | ✓ | ✓ | ✓ | **✓ enum≠** | **—** | **—** |
-| `defaultActionValue` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `description` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `id` | ✓ | **✓ type** | ✓ | ✓ | **—** | **—** |
-| `modifiedBy` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `modifiedTime` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `paranoiaLevel` | ✓ | **✓ type** | ✓ | ✓ | **—** | **—** |
-| `protocolType` | ✓ | ✓ | ✓ | **✓ enum≠** | **—** | **—** |
-| `rules` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `severity` | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
-| `type` | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
-| `version` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `action` | The action of the custom control. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `actionValue` | Denotes the action. Supports any string. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `associatedInspectionProfileNames` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `controlException` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
+| `controlNumber` | The AppProtection control number. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `controlRuleJson` | The AppProtection control rule. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `controlType` | The control type of the custom control. | ✓ | ✓ | ✓ | **✓ enum≠** | **—** | **—** |
+| `creationTime` | The time the custom control is created. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `defaultAction` | The performed action. | ✓ | ✓ | ✓ | **✓ enum≠** | **—** | **—** |
+| `defaultActionValue` | Used to provide the redirect URL if the default action is set to REDIRECT. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `description` | The description of the custom control. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `id` | The unique identifier of the AppProtection custom control. | ✓ | **✓ type** | ✓ | ✓ | **—** | **—** |
+| `modifiedBy` | The unique identifier of the tenant who modified the custom control. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `modifiedTime` | The time the custom control is modified. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `name` | The name of the custom control. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `paranoiaLevel` | The OWASP Predefined Paranoia Level. To learn more, see Configuring AppProtection Profiles. | ✓ | **✓ type** | ✓ | ✓ | **—** | **—** |
+| `protocolType` | The protocol type of the custom control. | ✓ | ✓ | ✓ | **✓ enum≠** | **—** | **—** |
+| `rules` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `severity` | The severity of the AppProtection control number. To learn more, see About AppProtection Controls. | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
+| `type` | The rules to be applied to the request or response type. | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
+| `version` | The predefined control version. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 
 ### `inspection_profile`
 
 `POST /zpa/mgmtconfig/v1/admin/customers/:customerId/inspectionProfile`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `apiDiscoveryEnabled` | **—** | **—** | ✓ | **—** | **—** | **—** |
-| `apiProfile` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `checkControlDeploymentStatus` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `commonGlobalOverrideActionsConfig` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `controlsInfo` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `creationTime` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `customControls` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `description` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `exceptionsVersion` | ✓ | **—** | ✓ | **—** | **—** | **—** |
-| `globalControlActions` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `id` | ✓ | **✓ type** | ✓ | ✓ | **—** | **—** |
-| `incarnationNumber` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `modifiedBy` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `modifiedTime` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
-| `overrideAction` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `paranoiaLevel` | ✓ | **✓ type** | ✓ | **✓ req** | **—** | **—** |
-| `predefinedADPControls` | ✓ | **—** | ✓ | **—** | **—** | **—** |
-| `predefinedApiControls` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `predefinedControls` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `predefinedControlsVersion` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `threatlabzControls` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `websocketControls` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `zsDefinedControlChoice` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `apiDiscoveryEnabled` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
+| `apiProfile` | If set to true, API protection provides inspection of API traffic by flagging transactions that include security violations. To learn more, see About API Protection Controls. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `checkControlDeploymentStatus` | Indicates whether or not the service needs to perform additional validations. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `commonGlobalOverrideActionsConfig` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `controlsInfo` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `creationTime` | The time the AppProtection profile is created. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `customControls` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `description` | The description of the application. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `exceptionsVersion` | The control exception version. To learn more, see Configuring AppProtection Profiles Using API. | ✓ | **—** | ✓ | **—** | **—** | **—** |
+| `globalControlActions` | The actions of the predefined, custom, or override controls. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `id` | The unique identifier of the application. | ✓ | **✓ type** | ✓ | ✓ | **—** | **—** |
+| `incarnationNumber` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `modifiedBy` | The unique identifier of the tenant who modified the AppProtection profile. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `modifiedTime` | The time the AppProtection profile is modified. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `name` | The name of the application. | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
+| `overrideAction` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `paranoiaLevel` | The OWASP Predefined Paranoia Level. To learn more, see Configuring AppProtection Profiles. | ✓ | **✓ type** | ✓ | **✓ req** | **—** | **—** |
+| `predefinedADPControls` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
+| `predefinedApiControls` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `predefinedControls` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `predefinedControlsVersion` | The protocol for the AppProtection application. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `threatlabzControls` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `websocketControls` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `zsDefinedControlChoice` | Indicates the user's choice for the ThreatLabZ Controls. The supported values are ALL: Zscaler handles the ThreatLabZ Controls for the AppProtection profile. SPECIFIC: User handles the ThreatLabZ Controls for the AppProtection profile. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 
 ### `lss_config`
 
@@ -2373,36 +2373,36 @@ generator: "scripts/automate-capture/rosetta.py"
 
 `POST /zpa/mgmtconfig/v1/admin/customers/:customerId/associationType/:associationType/provisioningKey`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `appConnectorGroupId` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `appConnectorGroupName` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `associationType` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `componentId` | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `creationTime` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `description` | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `enabled` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `enrollmentCertId` | ✓ | **✓ type** | ✓ | ✓ | **—** | ✓ |
-| `enrollmentCertName` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `expirationInEpochSec` | ✓ | **✓ type** | **—** | **—** | **—** | **—** |
-| `exportable` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `id` | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
-| `ipAcl` | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `keyType` | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `maxUsage` | ✓ | **✓ type** | ✓ | **✓ req** | ✓ | ✓ |
-| `microtenantId` | ✓ | **✓ type** | **—** | ✓ | ✓ | **—** |
-| `microtenantName` | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `modifiedBy` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `modifiedTime` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | ✓ | **✓ req** | ✓ |
-| `provisioningKey` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `readOnly` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `restrictionType` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `uiConfig` | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `usageCount` | ✓ | **✓ type** | ✓ | ✓ | **—** | **—** |
-| `zcomponentId` | ✓ | **✓ type** | ✓ | **✓ req** | **—** | **—** |
-| `zcomponentName` | ✓ ro | ✓ | ✓ | **✓ ro** | **—** | **—** |
-| `zscalerManaged` | **—** | ✓ | **—** | **—** | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `appConnectorGroupId` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `appConnectorGroupName` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `associationType` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `componentId` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
+| `creationTime` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `description` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
+| `enabled` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `enrollmentCertId` |  | ✓ | **✓ type** | ✓ | ✓ | **—** | ✓ |
+| `enrollmentCertName` | Read only property. Applicable only for GET calls, ignored in PUT/POST calls. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `expirationInEpochSec` |  | ✓ | **✓ type** | **—** | **—** | **—** | **—** |
+| `exportable` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `id` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
+| `ipAcl` |  | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `keyType` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
+| `maxUsage` |  | ✓ | **✓ type** | ✓ | **✓ req** | ✓ | ✓ |
+| `microtenantId` |  | ✓ | **✓ type** | **—** | ✓ | ✓ | **—** |
+| `microtenantName` |  | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `modifiedBy` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `modifiedTime` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `name` |  | ✓ | ✓ | ✓ | ✓ | **✓ req** | ✓ |
+| `provisioningKey` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `readOnly` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `restrictionType` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `uiConfig` |  | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `usageCount` | defaults to 0 | ✓ | **✓ type** | ✓ | ✓ | **—** | **—** |
+| `zcomponentId` |  | ✓ | **✓ type** | ✓ | **✓ req** | **—** | **—** |
+| `zcomponentName` | Read only property. Applicable only for GET calls, ignored in PUT/POST calls. | ✓ ro | ✓ | ✓ | **✓ ro** | **—** | **—** |
+| `zscalerManaged` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
 
 ### `segment_group`
 
@@ -2433,80 +2433,80 @@ generator: "scripts/automate-capture/rosetta.py"
 
 `POST /zpa/mgmtconfig/v1/admin/customers/:customerId/serverGroup`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `appConnectorGroupIds` | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `appConnectorGroups` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `applications` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `configSpace` | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
-| `creationTime` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `description` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `dynamicDiscovery` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `enabled` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `extranetDTO` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `extranetEnabled` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `id` | ✓ ro | ✓ | ✓ | **✓ ro** | ✓ | **—** |
-| `inconsistentConfigDetails` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `ipAnchored` | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `microtenantId` | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
-| `microtenantName` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `modifiedBy` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `modifiedTime` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `readOnly` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `restrictionType` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `serverIds` | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `servers` | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `weight` | **—** | **—** | ✓ | **—** | **—** | **—** |
-| `zscalerManaged` | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `appConnectorGroupIds` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
+| `appConnectorGroups` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `applications` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `configSpace` |  | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
+| `creationTime` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `description` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `dynamicDiscovery` | Defaults to false. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `enabled` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `extranetDTO` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `extranetEnabled` | Defaults to false. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `id` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ ro | ✓ | ✓ | **✓ ro** | ✓ | **—** |
+| `inconsistentConfigDetails` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `ipAnchored` |  | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
+| `microtenantId` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
+| `microtenantName` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `modifiedBy` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `modifiedTime` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `name` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `readOnly` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `restrictionType` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `serverIds` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
+| `servers` |  | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `weight` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
+| `zscalerManaged` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
 
 ### `service_edge_group`
 
 `POST /zpa/mgmtconfig/v1/admin/customers/:customerId/serviceEdgeGroup`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `altCloud` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `city` | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `cityCountry` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `countryCode` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `creationTime` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `description` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `enabled` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `enrollmentCertId` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `exclusiveForBusinessContinuity` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `geoLocationId` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `graceDistanceEnabled` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `graceDistanceValue` | ✓ | **✓ type** | ✓ | ✓ | ✓ | ✓ |
-| `graceDistanceValueUnit` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `id` | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
-| `isPublic` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `latitude` | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
-| `location` | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
-| `longitude` | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
-| `microtenantId` | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
-| `microtenantName` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `modifiedBy` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `modifiedTime` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `nameWithoutTrim` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `objectType` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `overrideVersionProfile` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `readOnly` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `restrictedEntity` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `restrictionType` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `scopeName` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `serviceEdgeIds` | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `serviceEdges` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `siteId` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `siteName` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `trustedNetworkIds` | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `trustedNetworks` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `upgradeDay` | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
-| `upgradePriority` | ✓ | **—** | ✓ | **—** | **—** | **—** |
-| `upgradeTimeInSecs` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `useInDrMode` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `versionProfileId` | ✓ | **✓ type** | ✓ | ✓ | **✓ enum1** | ✓ |
-| `versionProfileName` | ✓ ro | ✓ | ✓ | **✓ enum1 ro** | **—** | ✓ |
-| `versionProfileVisibilityScope` | ✓ ro | ✓ | ✓ | **✓ enum1 ro** | **—** | **—** |
-| `zscalerManaged` | **—** | ✓ | **—** | **—** | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `altCloud` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `city` |  | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `cityCountry` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `countryCode` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `creationTime` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `description` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `enabled` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `enrollmentCertId` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `exclusiveForBusinessContinuity` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `geoLocationId` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `graceDistanceEnabled` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `graceDistanceValue` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | ✓ |
+| `graceDistanceValueUnit` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `id` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
+| `isPublic` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `latitude` |  | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
+| `location` |  | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
+| `longitude` |  | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
+| `microtenantId` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
+| `microtenantName` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `modifiedBy` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `modifiedTime` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `name` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `nameWithoutTrim` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `objectType` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `overrideVersionProfile` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `readOnly` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `restrictedEntity` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `restrictionType` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `scopeName` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `serviceEdgeIds` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
+| `serviceEdges` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `siteId` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `siteName` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `trustedNetworkIds` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
+| `trustedNetworks` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `upgradeDay` |  | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
+| `upgradePriority` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ | **—** | ✓ | **—** | **—** | **—** |
+| `upgradeTimeInSecs` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `useInDrMode` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `versionProfileId` |  | ✓ | **✓ type** | ✓ | ✓ | **✓ enum1** | ✓ |
+| `versionProfileName` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ ro | ✓ | ✓ | **✓ enum1 ro** | **—** | ✓ |
+| `versionProfileVisibilityScope` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ ro | ✓ | ✓ | **✓ enum1 ro** | **—** | **—** |
+| `zscalerManaged` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
