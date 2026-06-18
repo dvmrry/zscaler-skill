@@ -213,6 +213,7 @@ The 2026-06-15 ZIA refresh registered these open ZIA behavior/source questions s
 | [`zia-67`](#zia-67-tenant-profile-per-app-wire-mechanic-and-v1v2-protocol-semantics) | Tenant Profile per-app wire mechanic and v1/v2 protocol semantics | zscaler doc not yet read / lab test |
 | [`zia-68`](#zia-68-terraform-url_categories_predefined-ea-gating-sandbox-v1v2-endpoint-static-ip-throttle) | Terraform `url_categories_predefined` EA gating, sandbox v1/v2 endpoint, static-IP throttle | zscaler doc not yet read / lab test |
 | [`zia-69`](#zia-69-workload-group-runtime-expression-evaluation-expressionjson-sync-and-tag-type-enum) | Workload-group runtime expression evaluation, `expressionJson` sync, and tag-type enum | lab test / zscaler doc not yet read |
+| [`zia-70`](#zia-70-dlp_web_rules-live-read-returns-undocumented-uctemplateid) | `dlp_web_rules` live read returns undocumented `ucTemplateId` | lab test / zscaler confirmation |
 
 The ZPA reference re-verification pass (2026-06-15) registered the remaining `## Open questions` items from the ZPA docs — each links to its detailed entry below:
 
@@ -4358,6 +4359,17 @@ Workload-group field shapes are SDK/TF-confirmed but their runtime semantics are
 
 ---
 
+### zia-70 — `dlp_web_rules` live read returns undocumented `ucTemplateId`
+
+*Origin: live ZIA `web_dlp_rules` read observation*
+
+A live ZIA `web_dlp_rules` GET returns a flat integer field `ucTemplateId` that appears in no captured source. The Go SDK models the notification template as `EUNTemplateID int` (wire `eunTemplateId`, `vendor/zscaler-sdk-go/zscaler/zia/services/dlp/dlp_web_rules/dlp_web_rules.go:78`) plus `NotificationTemplate *common.IDCustom` (`:90`); the Postman-derived schema carries only `eunTemplateId` (`references/zia/api-schemas.md:847`); and the automate.zscaler.com DLP-web-rule reference documents the template as the `notificationTemplate` object, with no flat template id (`vendor/zscaler-help/automate-zscaler/api-reference/zia/data-loss-prevention/web-dlp-rule-resource-add-rule.txt:122`). `ucTemplateId` is in none of them — an API-only name absent from every static surface (SDK, Postman, Automate reference).
+
+**Status**: open
+**Resolves with**: lab test (read a DLP web rule with a notification template set; observe whether the payload also carries `notificationTemplate`/`eunTemplateId` with the same id and whether `ucTemplateId` holds a non-zero value — co-occurrence ⇒ redundant flat alias, sole template id ⇒ live rename of `eun_template_id`) OR zscaler confirmation of the field's meaning
+
+---
+
 ### cloud-connector-01 — Per-region status representation (RegionStatus.status)
 
 *Origin: `references/cloud-connector/aws-workload-discovery.md` § Open questions*
@@ -4667,6 +4679,8 @@ The `/zcc/papi/public/v2` families are confirmed in the Go SDK — notification-
 **Resolves with**: zscaler doc not yet read (vendor API changelog / deprecation notice) OR lab test (compare v1 and v2 responses for the same tenant object)
 
 **2026-06-18 narrowing**: the generated ZCC reconciliation documents the current contract boundary: `zcc_trusted_network` is not reconciled because Terraform uses the Go SDK v2 trusted-network API at `/zcc/papi/public/v2/trusted-networks`, while the captured Automate contract currently exposes only older v1 `webTrustedNetwork` operations (`vendor/zscaler-api-specs/automate-zscaler/zcc-divergences.md:30-33`). That confirms the v1/v2 split in the public contract corpus; it does not establish deprecation, supersession, or migration timing.
+
+**2026-06-18 live-fetch data point**: a live ZCC fetch of the v2 endpoints `/zcc/papi/public/v2/notification-templates` and `/zcc/papi/public/v2/zia-posture-profiles` returned HTTP 404 against a OneAPI gateway. Consistent with the v2 families being Go-SDK-only and not yet mounted on the OneAPI gateway for that cloud — it supports the v1/v2-coexistence question rather than v2 superseding v1.
 
 ---
 
