@@ -3,7 +3,7 @@ product: zbi
 topic: "zbi-api"
 title: "ZBI API — split Zero Trust Browser / CBI surface and Business Insights namespace caveat"
 content-type: reference
-last-verified: "2026-06-16"
+last-verified: "2026-06-18"
 verified-against:
   vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
   vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
@@ -52,6 +52,8 @@ sources:
   - vendor/zpacloud-ansible/plugins/modules/zpa_policy_access_isolation_rule_v2.py
   - vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/get_isolation_profile.py
   - vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/access_isolation_rules.py
+  - vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json
+  - vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json
   - vendor/zscaler-api-specs/oneapi-postman-collection.json
 author-status: draft
 ---
@@ -61,6 +63,8 @@ author-status: draft
 This reference covers the programmable surface for Zero Trust Browser / Cloud Browser Isolation as expressed in the Python SDK, Go SDK, Terraform providers, Ansible collections, MCP tools, and Postman collection. It does not repeat the architectural model or policy-routing layer; see the cross-links below. Its primary purpose is to document concrete field names, endpoint paths, SDK accessor patterns, and places where "ZBI" is a misleading name.
 
 **Naming guardrail:** Python `client.zbi` is **Zscaler Business Insights**, not Zero Trust Browser. The service wrapper says "Zscaler Business Insights (ZBI)" and OneAPI initializes `_zbi` with the comment "Zscaler Business Insights (REST API)" (`vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py:23-24`, `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:230`, `:316-319`). Its custom-app/report endpoints use `/bi/api/v1` (`vendor/zscaler-sdk-python/zscaler/zbi/custom_apps.py:28-34`, `:70-74`). Do not cite `client.zbi.*` as browser-isolation policy/profile management.
+
+**Automate contract scope:** Zero Trust Browser / CBI does not have a standalone `zbi-api-reference.json` contract file. The captured operation contract appears under the parent ZIA and ZPA products: ZIA exposes the read-only `GET /zia/api/v1/browserIsolation/profiles` operation with four response fields (`id`, `name`, `url`, `defaultProfile`) (`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:11448-11457`, `:11459-11488`), while ZPA exposes the CBI banner, certificate, profile, region, ZPA-profile, and management isolation-profile paths under `/zpa/cbiconfig/...` and `/zpa/mgmtconfig/...` (`vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json:10056-10060`, `:10439-10444`, `:10573-10578`, `:10641-10646`). Treat the contract as authoritative for documented method/path and field metadata, then use SDK/Terraform/Ansible/MCP sources below for wrapper behavior and client-side constraints.
 
 ---
 

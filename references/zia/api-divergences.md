@@ -4,8 +4,11 @@ topic: "api-divergences"
 title: "ZIA API source divergences"
 content-type: reference
 confidence: medium
-last-verified: "2026-06-15"
+last-verified: "2026-06-18"
 sources:
+  - "vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json"
+  - "vendor/zscaler-api-specs/automate-zscaler/zia-divergences.md"
+  - "vendor/zscaler-api-specs/automate-zscaler/rosetta.md"
   - "vendor/zscaler-sdk-python/zscaler/zia/cloudappcontrol.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/models/cloudappcontrol.py"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go"
@@ -28,17 +31,21 @@ author-status: draft
 
 # ZIA API source divergences
 
-The Go SDK and the Python SDK are two independent views of the same ZIA management API, produced separately and updated at different cadences. Where they agree, confidence is high. Where they diverge, an engineer needs to know which source to trust before writing code — and the answer changes by field, endpoint, and resource type.
+The captured Automate operation contract, Go SDK, Python SDK, Terraform provider, Ansible collection, and MCP tools are independent views of the same ZIA management API, produced separately and updated at different cadences. Where they agree, confidence is high. Where they diverge, an engineer needs to know which source to trust before writing code — and the answer changes by field, endpoint, and resource type.
 
 A third signal here is the Zscaler MCP server's ZIA tools. The MCP layer carries operator-observation notes (API error strings, behavioral quirks) in its docstrings and enforces some constraints client-side. Those notes can describe real API behavior, but they are not reproducible from SDK source and are flagged accordingly. Where a claim about how ZIA behaves exists ONLY in MCP docstrings — not in either SDK — it is called out as an observation, not source-backed product behavior.
 
-This pass covers Cloud App Control (CAC), URL Filtering, SSL Inspection, and Authentication Settings. The Postman / oneapi-specs collection was not consulted in this scrape (see Open questions).
+This historical prose pass began with Cloud App Control (CAC), URL Filtering, SSL Inspection, and Authentication Settings. DAV-21/DAV-23 added the generated contract reconciliation and rosetta table across the Terraform-managed ZIA surface; use that generated layer for field-level required/readonly/enum coverage and use the narrative sections below for the human-readable explanations of high-value divergences.
 
 **Quick trust hierarchy (applies unless an entry below overrides it):**
 
 - For wire shape: trust the SDK source you're actually calling. Where the two SDKs disagree on a request body, check the Go SDK's json struct tags: fields carry `,omitempty` (e.g. the CAC `WebApplicationRules` struct, `vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:18-32`), so a zero-valued field is dropped from the serialized body — meaning the field one SDK omits is optional on the wire, and the other SDK proves the call round-trips without it.
 - The CAC `availableActions` endpoint returns a flat `List[str]` of category-level actions; neither SDK exposes per-app action validity.
 - MCP docstring claims about API error codes and behavioral quirks are observations pending live-tenant confirmation, not SDK-backed facts.
+
+**Contract reconciliation now feeds this doc.** For documented method/path and field metadata (`required`, `readonly`, `enum`), the verification protocol prefers the captured Automate contract when it exists; Terraform validators remain authoritative only for what the provider accepts, SDKs for wrapper behavior, and Postman for examples/fallback evidence (`references/_meta/verification-protocol.md:114-118`). The generated ZIA reconciliation diffs `vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json` against Go, Python, Terraform, Ansible, and MCP surfaces (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.md:7-11`). Its current totals are 0 contract-vs-Go numeric/string type drifts, 48 contract-vs-Terraform required-flag drifts, 11 enum value conflicts, 37 one-sided enum constraints, and 1 readonly field with no Terraform disagreement (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.md:13-18`).
+
+Use the rosetta table as the field-level index when a section below summarizes a resource rather than spelling out every field. It defines the `req`, `enum≠`, `enum1`, `ro`, `ro!`, and `type` markers (`vendor/zscaler-api-specs/automate-zscaler/rosetta.md:11-20`) and begins the ZIA resource table at `admin_role` (`vendor/zscaler-api-specs/automate-zscaler/rosetta.md:506-515`). The generated ZIA report also records captured contract groups that are outside Terraform's managed-resource scope, such as `api-authentication`, `event-logs`, `pac-files`, `service-edges`, `time`, and `time-intervals`; those are coverage boundaries, not missing Terraform mappings (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.md:30-47`).
 
 ---
 

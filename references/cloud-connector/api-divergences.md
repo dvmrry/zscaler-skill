@@ -5,12 +5,14 @@ title: "Cloud Connector (ZTW/ZTC) API source divergences"
 content-type: reference
 confidence: medium
 source-tier: code
-last-verified: "2026-06-15"
+last-verified: "2026-06-18"
 verified-against:
   vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
   vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
   vendor/terraform-provider-ztc: 766a6c1e0be3266203a3cea4b5255ab4a6f26695
 sources:
+  - "vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json"
+  - "vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-divergences.md"
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go"
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/traffic_dns_rules/traffic_dns_rules.go"
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/traffic_log_rules/traffic_log_rules.go"
@@ -37,7 +39,7 @@ author-status: draft
 
 # Cloud Connector (ZTW/ZTC) API source divergences
 
-The Go SDK (`zscaler/ztw`), the Python SDK (`zscaler.ztw`), and the Zscaler Terraform provider (`ztc_*`) are three independently maintained views of the same Cloud & Branch Connector management API. Each was produced separately and updated at a different cadence. Where they agree, confidence is high. Where they diverge, an engineer needs to know which source to trust before writing code — and the answer changes by field, endpoint, and resource type.
+The captured Automate operation contract, Go SDK (`zscaler/ztw`), Python SDK (`zscaler.ztw`), Zscaler Terraform provider (`ztc_*`), and MCP tools are independently maintained views of the same Cloud & Branch Connector management API. Each was produced separately and updated at a different cadence. Where they agree, confidence is high. Where they diverge, an engineer needs to know which source to trust before writing code — and the answer changes by field, endpoint, and resource type.
 
 A fourth signal is the help-site / Admin Console capture (`vendor/zscaler-help/cbc-*`). The console exposes operator-facing names ("forwarding method", "VM Size", "Local") that do not map one-to-one onto the API enums. Those console↔API gaps are real and trip up operators reading both surfaces, so they are documented here alongside the source-vs-source disagreements.
 
@@ -49,6 +51,10 @@ This product carries an extra wrinkle the ZIA/ZPA divergence docs do not: the sa
 - The Go SDK treats enum-typed fields (`forwardMethod`, `type`, `action`) as **free strings** — the "Supported Values" lists in the Go doc comments are documentation, not validation. The Terraform provider, by contrast, enforces its enum with `validation.StringInSlice`. When the two enums disagree, neither is authoritative for what the *backend* accepts; the field is a free string on the wire and the real answer needs a live tenant.
 - Console (help-capture) names are operator labels, not API values. Always translate to the API enum before writing code.
 - Several of these divergences are also documented inline in the per-topic docs (`api.md`, `forwarding.md`, `dns-subsystem.md`, `sdk.md`, `terraform.md`). This file is the centralized, source-vs-source view; the per-topic docs carry the operator-facing treatment. Cross-references are noted per entry.
+
+**Contract reconciliation now feeds this doc.** For documented method/path and field metadata (`required`, `readonly`, `enum`), the verification protocol prefers the captured Automate contract when it exists; Terraform validators remain authoritative only for what the provider accepts, and SDKs remain authoritative for wrapper behavior (`references/_meta/verification-protocol.md:114-118`). The generated ZTW reconciliation diffs `vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json` against Go, Python, Terraform, Ansible, and MCP surfaces (`vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-divergences.md:7-11`). It currently covers 16 mapped resources, with 17 contract-vs-Terraform required-flag drifts, 11 enum value conflicts, 4 one-sided enum constraints, no numeric/string type drift, no Ansible surface, Python present for 12 resources, and MCP present for 6 (`vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-divergences.md:13-28`).
+
+The generated report also marks contract groups outside Terraform's managed-resource scope (`admin-and-role-management`, `authentication`, `cloud-branch-connector-groups`, `public`, and `workload-groups`) and notes that `ztc_location_management` is registered only as a data source in the captured provider map, not a managed resource (`vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-divergences.md:30-42`).
 
 ---
 

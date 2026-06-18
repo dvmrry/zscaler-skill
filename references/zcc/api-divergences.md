@@ -5,11 +5,13 @@ title: "ZCC API source divergences"
 content-type: reference
 confidence: medium
 source-tier: code
-last-verified: "2026-06-15"
+last-verified: "2026-06-18"
 verified-against:
   vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
   vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00 (v1.9.31)
 sources:
+  - "vendor/zscaler-api-specs/automate-zscaler/zcc-api-reference.json"
+  - "vendor/zscaler-api-specs/automate-zscaler/zcc-divergences.md"
   - "vendor/zscaler-sdk-go/zscaler/zcc/services/**"
   - "vendor/zscaler-sdk-python/zscaler/zcc/**"
 author-status: draft
@@ -17,7 +19,7 @@ author-status: draft
 
 # ZCC API source divergences
 
-The Go SDK and the Python SDK are two independent views of the same ZCC management API (`/zcc/papi/public/...`), produced separately and updated at different cadences. Where they agree, confidence is high. Where they diverge, an engineer needs to know which source to trust before writing code — and the answer changes by field, endpoint, and resource type.
+The captured Automate operation contract, Go SDK, Python SDK, Terraform provider, and MCP tools are independent views of the same ZCC management API (`/zcc/papi/public/...`), produced separately and updated at different cadences. Where they agree, confidence is high. Where they diverge, an engineer needs to know which source to trust before writing code — and the answer changes by field, endpoint, and resource type.
 
 ZCC is the most divergence-rich of the Zscaler SDK pairs. Two pressures drive it: (1) the ZCC web API returns numeric fields inconsistently — sometimes as JSON numbers, sometimes as quoted strings, sometimes camelCase, sometimes snake_case, and the casing of the *same* logical field can differ per platform and per SDK; (2) the Go SDK was refactored more recently than the Python SDK's v1.9.31 baseline, splitting some services into new packages and adding three `/v2` services (`notification_template`, `zia_posture`, `trusted_network_v2`) the Python SDK does not yet expose on the v2 path.
 
@@ -27,6 +29,10 @@ ZCC is the most divergence-rich of the Zscaler SDK pairs. Two pressures drive it
 - For **reads** (decoding a GET/listByCompany response), trust whichever SDK models the richer / more permissively-typed shape — frequently this is the one using a string-or-number tolerant type.
 - For **writes**, trust the Go SDK or direct HTTP: several Python ZCC write methods send hardcoded empty bodies (see Entitlements below) and are effectively no-ops.
 - When the GET and POST/PUT shapes of the *same* resource disagree on a field's type, that is the API's own contract — not an SDK bug. Build write bodies from the request struct, never by echoing back the GET struct.
+
+**Contract reconciliation now feeds this doc.** For documented method/path and field metadata (`required`, `readonly`, `enum`), the verification protocol prefers the captured Automate contract when it exists; Terraform validators remain authoritative only for what the provider accepts, and SDKs remain authoritative for wrapper behavior (`references/_meta/verification-protocol.md:114-118`). The generated ZCC reconciliation diffs `vendor/zscaler-api-specs/automate-zscaler/zcc-api-reference.json` against Go, Python, Terraform, Ansible, and MCP surfaces (`vendor/zscaler-api-specs/automate-zscaler/zcc-divergences.md:7-11`). It currently covers 4 mapped resources, with 1 contract-vs-Terraform required-flag drift, 3 one-sided enum constraints, no enum value conflicts, no numeric/string type drift, no Ansible surface, Python present for all 4 resources, and MCP present for 1 (`vendor/zscaler-api-specs/automate-zscaler/zcc-divergences.md:13-28`).
+
+The generated report also records the ZCC boundary conditions that the prose below should not paper over: `zcc_trusted_network` is not reconciled because Terraform uses the v2 trusted-network API while Automate currently exposes only older v1 `webTrustedNetwork` operations, and `zcc_notification_template` / `zcc_zia_posture` have Terraform resources but no matching captured Automate operations (`vendor/zscaler-api-specs/automate-zscaler/zcc-divergences.md:30-33`).
 
 ---
 
