@@ -296,6 +296,100 @@ def test_component_graph_resolves_list_wrapper_sibling():
     }], child
 
 
+@case
+def test_component_graph_token_match_resolves_single_path_family():
+    ops = {
+        "zpa/ref/uses-user": {
+            "operation_summary": "Uses a nested reference.",
+            "method": "GET",
+            "path": "/refs",
+            "path_params": [],
+            "query_params": [],
+            "request_body": [],
+            "response_schema": [
+                {"name": "user", "type": "EmergencyAccessUserDTO", "required": False, "readonly": False, "enum": None},
+            ],
+        },
+        "zpa/emergency-access-user/get-users": {
+            "operation_summary": "Gets Emergency Access User details.",
+            "method": "GET",
+            "path": "/emergencyAccess/user",
+            "path_params": [],
+            "query_params": [],
+            "request_body": [],
+            "response_schema": [
+                {"name": "id", "type": "string", "required": False, "readonly": False, "enum": None},
+                {"name": "name", "type": "string", "required": False, "readonly": False, "enum": None},
+            ],
+        },
+        "zpa/emergency-access-user/get-user": {
+            "operation_summary": "Gets an Emergency Access User by ID.",
+            "method": "GET",
+            "path": "/emergencyAccess/user/:userId",
+            "path_params": [],
+            "query_params": [],
+            "request_body": [],
+            "response_schema": [
+                {"name": "email", "type": "string", "required": False, "readonly": False, "enum": None},
+            ],
+        },
+    }
+    graph = build_components(ops)
+    user = graph["schemas"]["EmergencyAccessUserDTO"]
+    assert user["status"] == "resolved", user
+    assert user["resolution"] == "operation-token-match", user
+    assert [f["name"] for f in user["fields"]] == ["email", "id", "name"], user
+    assert user["source_operations"] == [
+        "zpa/emergency-access-user/get-user",
+        "zpa/emergency-access-user/get-users",
+    ], user
+
+
+@case
+def test_component_graph_token_match_rejects_multi_path_family():
+    ops = {
+        "zpa/ref/uses-inspection": {
+            "operation_summary": "Uses a nested reference.",
+            "method": "GET",
+            "path": "/refs",
+            "path_params": [],
+            "query_params": [],
+            "request_body": [],
+            "response_schema": [
+                {"name": "control", "type": "InspectionControlBaseEntity", "required": False, "readonly": False, "enum": None},
+            ],
+        },
+        "zpa/inspection-control/get-custom": {
+            "operation_summary": "Gets Inspection Control custom details.",
+            "method": "GET",
+            "path": "/inspectionControls/custom",
+            "path_params": [],
+            "query_params": [],
+            "request_body": [],
+            "response_schema": [
+                {"name": "customOnly", "type": "string", "required": False, "readonly": False, "enum": None},
+            ],
+        },
+        "zpa/inspection-control/get-exceptions": {
+            "operation_summary": "Gets Inspection Control exception details.",
+            "method": "GET",
+            "path": "/inspectionControls/exceptions",
+            "path_params": [],
+            "query_params": [],
+            "request_body": [],
+            "response_schema": [
+                {"name": "exceptionOnly", "type": "string", "required": False, "readonly": False, "enum": None},
+            ],
+        },
+    }
+    graph = build_components(ops)
+    control = graph["schemas"]["InspectionControlBaseEntity"]
+    assert control["status"] == "unresolved", control
+    assert control["resolution"] == "unresolved-token-multi-family", control
+    assert control["fields"] == [], control
+    assert control["source_operations"] == [], control
+
+
 def main():
     if not os.path.isdir(RAW):
         print(f"FIXTURES MISSING: {RAW}")

@@ -274,6 +274,23 @@ def _same_collection_path(collection_path, candidate_path):
     return candidate_path == collection_path or candidate_path.startswith(collection_path + "/:")
 
 
+def _path_family(path):
+    if not path:
+        return None
+    family = path
+    while re.search(r"/:[^/]+$", family):
+        family = re.sub(r"/:[^/]+$", "", family)
+    return family
+
+
+def _single_path_family(operations):
+    families = {
+        family for _, operation in operations
+        if (family := _path_family(operation.get("path")))
+    }
+    return len(families) == 1
+
+
 def _camel_tokens(value):
     spaced = re.sub(r"([a-z0-9])([A-Z])", r"\1 \2", value)
     return re.findall(r"[a-z0-9]+", spaced.lower())
@@ -315,7 +332,8 @@ def build_components(operations):
     - exact list-wrapper evidence wins: if a response wrapper has `list: Type[]`,
       resolve Type from non-wrapper response schemas in the same operation group.
     - otherwise, resolve only when all normalized type-name tokens appear in an
-      operation's key/summary/path text.
+      operation's key/summary/path text and all matching operations belong to
+      the same path family.
     - unresolved refs stay explicit with their referenced_by locations.
     """
     refs = {}
@@ -355,14 +373,18 @@ def build_components(operations):
         if not candidates:
             tokens = set(_type_tokens(ref))
             if tokens:
+                matches = []
                 for op_key, operation in operations.items():
                     schema = operation.get("response_schema") or []
                     if not schema or _is_page_wrapper(schema):
                         continue
                     if tokens <= _operation_tokens(op_key, operation):
-                        candidates.append((op_key, operation))
-                if candidates:
+                        matches.append((op_key, operation))
+                if matches and _single_path_family(matches):
+                    candidates = matches
                     resolution = "operation-token-match"
+                elif matches:
+                    resolution = "unresolved-token-multi-family"
 
         fields, source_operations = _merge_fields(sorted(candidates))
         schemas[ref] = {
