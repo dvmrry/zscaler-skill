@@ -3,7 +3,7 @@ product: cloud-connector
 topic: "cloud-connector-forwarding"
 title: "Cloud Connector traffic forwarding — rules, methods, criteria, DNS"
 content-type: reasoning
-last-verified: "2026-06-15"
+last-verified: "2026-06-18"
 confidence: high
 source-tier: mixed
 sources:
@@ -13,6 +13,7 @@ sources:
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go"
   - "vendor/terraform-provider-ztc/docs/resources/ztc_traffic_forwarding_rule.md"
   - "vendor/terraform-provider-ztc/ztc/resource_ztc_traffic_forwarding_rule.go"
+  - "vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-divergences.json"
 author-status: draft
 ---
 
@@ -38,6 +39,8 @@ The console→API mapping for ZPA→`ECZPA` is shown in `vendor/terraform-provid
 
 - **`PROXYCHAIN`** — proxy chaining: the rule forwards matched traffic to a configured proxy gateway (set via the **Forward to Proxy Gateway** action field, `cbc-configuring-traffic-forwarding-rule.md:120`; `proxyGateway` is only honored for this method, `forwarding_rules.go:154`). Only TCP-based network services are considered for policy match under proxy chaining (`forwarding_rules.go:135`).
 - **`ENATDEDIP`** / **`GEOIP`** — present in the API enum (`forwarding_rules.go:44`); their semantics are not documented in the captured material. See [Open questions](#open-questions).
+
+The Automate contract now gives a third source on the documented `forwardMethod` vocabulary for traffic-forwarding rules: the contract records `INVALID`, `DIRECT`, `PROXYCHAIN`, `ZIA`, `ZPA`, `ECZPA`, `ECSELF`, `DROP`, `ENATDEDIP`, and `GEOIP`, while Terraform accepts only `DIRECT`, `LOCAL_SWITCH`, `ZIA`, `ECZPA`, and `DROP` for this resource (`vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-divergences.json:2300-2303`, `:2370-2391`). This is a documented-source divergence, not proof of live backend acceptance.
 
 **Rule `Type` is a separate axis from `ForwardMethod`.** Each rule also carries a `Type` field (`forwarding_rules.go:34` Supported Values: `FIREWALL`, `DNS`, `DNAT`, `SNAT`, `FORWARDING`, `INTRUSION_PREVENTION`, `EC_DNS`, `EC_RDR`, `EC_SELF`, `DNS_RESPONSE`) that classifies the *kind* of rule, distinct from the forwarding *action*. Cloud Connector traffic-forwarding rules are `EC_RDR` type (see the `ECZPA` Terraform example, `ztc_traffic_forwarding_rule.md:205`). Don't conflate rule type with forwarding method.
 
@@ -213,7 +216,7 @@ Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`; `vendo
 
 ## Open questions
 
-- **`ENATDEDIP` and `GEOIP` forwarding methods** — both appear in the API `ForwardMethod` enum (`forwarding_rules.go:44`) with no console label or documented semantics in the captured material. `ENATDEDIP` reads as some form of dedicated-IP NAT and `GEOIP` as geo-based forwarding, but neither is confirmed by source. Filed with `PROXYCHAIN` and the true backend enum as [clarification `cloud-connector-09`](../_meta/clarifications.md#cloud-connector-09-forwarding-method-semantics-and-the-true-backend-forwardmethod-enum).
+- **`ENATDEDIP` and `GEOIP` forwarding methods** — both appear in the Go SDK and Automate contract enum, but still have no console label or documented semantics in the captured material (`vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-divergences.json:2370-2384`). `ENATDEDIP` reads as some form of dedicated-IP NAT and `GEOIP` as geo-based forwarding, but neither behavior is confirmed by source. Filed with `PROXYCHAIN` and backend acceptance as [clarification `cloud-connector-09`](../_meta/clarifications.md#cloud-connector-09-forwarding-method-semantics-and-the-true-backend-forwardmethod-enum).
 - **`PROXYCHAIN` end-to-end behavior** — the proxy-gateway action field and the method's TCP-only network-service constraint are sourced, but the full chaining topology (where the proxy gateway sits, auth, failover) is not in the captured material. See [clarification `cloud-connector-09`](../_meta/clarifications.md#cloud-connector-09-forwarding-method-semantics-and-the-true-backend-forwardmethod-enum).
 - **Rule limits** — how many traffic forwarding rules can a tenant define? Not captured. (Note: wildcard-domain/FQDN entries are capped at 16K per organization and 8,000 per rule, `cbc-configuring-traffic-forwarding-rule.md:108` — but that is the FQDN-entry limit, not a rule-count limit.) Filed with the admin-rank question as [clarification `cloud-connector-10`](../_meta/clarifications.md#cloud-connector-10-forwarding-rule-count-limit-and-admin-rank-rule-order-interaction).
 - **Admin Rank ↔ Rule Order interaction** — Cloud Connector forwarding rules carry an Admin Rank field (`forwarding_rules.go:41`), confirming the field exists, but whether rank *gates* the editable Rule Order values the way ZIA URL Filtering's admin-rank does is not stated in the captured source. See [clarification `cloud-connector-10`](../_meta/clarifications.md#cloud-connector-10-forwarding-rule-count-limit-and-admin-rank-rule-order-interaction).

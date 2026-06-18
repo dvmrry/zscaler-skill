@@ -8,6 +8,7 @@ last-verified: "2026-06-18"
 sources:
   - "vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json"
   - "vendor/zscaler-api-specs/automate-zscaler/zia-divergences.md"
+  - "vendor/zscaler-api-specs/automate-zscaler/zia-divergences.json"
   - "vendor/zscaler-api-specs/automate-zscaler/rosetta.md"
   - "vendor/zscaler-sdk-python/zscaler/zia/cloudappcontrol.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/models/cloudappcontrol.py"
@@ -80,7 +81,7 @@ Use the rosetta table as the field-level index when a section below summarizes a
 
 - **Python SDK:** the signature returns `List[str]` (`vendor/zscaler-sdk-python/zscaler/zia/cloudappcontrol.py:34`); the discovery POST goes to `.../availableActions` with body `{cloudApps: [...]}` (`cloudappcontrol.py:66-72`), and the result is validated as a list (`cloudappcontrol.py:84-91`).
 
-**Significance / which to trust:** Action vocabulary is surfaced at the CATEGORY level (the path segment `rule_type`), not per-app. The apps in the body act only as a filter. The endpoint does not return per-app action validity — there is no read path that enumerates which actions are valid for a single given app.
+**Significance / which to trust:** Action vocabulary is surfaced at the CATEGORY level (the path segment `rule_type`), not per-app. The apps in the body act only as a filter. The endpoint does not return per-app action validity — there is no read path that enumerates which actions are valid for a single given app. The Automate contract now supplies the captured category-level action vocabulary for the rule body: `actions` is a contract-only enum on `POST /zia/api/v1/webApplicationRules/:rule_type`, with examples spanning AI/ML actions through webmail actions (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.json:2134-2137`, `:2174-2186`, `:2356-2362`).
 
 ---
 
@@ -225,7 +226,7 @@ The CAC policy table per `rule_type` is reportedly evaluated top-to-bottom, firs
 
 ## Open questions
 
-- **No source enumerates per-app action validity.** The whole point of the CAC seed — which actions are individually valid for a given app — is genuinely not exposed by any read path in the vendored sources; `availableActions` returns a flat category-level `List[str]` only. (`vendor/zscaler-sdk-python/zscaler/zia/cloudappcontrol.py:34`, `:84-91`) Needs live-tenant probing to resolve. (Tracked as `zia-49` in [`references/_meta/clarifications.md`](../_meta/clarifications.md#zia-49-cac-per-app-action-validity).)
+- **No source enumerates per-app action validity.** The CAC action vocabulary is now captured at the contract/category level (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.json:2174-2186`, `:2356-2362`), but which actions are individually valid for a given app is genuinely not exposed by any read path in the vendored sources; `availableActions` returns a flat category-level `List[str]` only (`vendor/zscaler-sdk-python/zscaler/zia/cloudappcontrol.py:34`, `:84-91`). Needs live-tenant probing to resolve. (Tracked as `zia-49` in [`references/_meta/clarifications.md`](../_meta/clarifications.md#zia-49-cac-per-app-action-validity).)
 - **CAC atomic-validation contract is observation-only.** The `INVALID_INPUT_ARGUMENT` / "Invalid action provided for selected applications" whole-create-rejection behavior and the one-rule-per-app safe pattern are in MCP docstrings only, confirmed absent from both SDKs. Confirm against a live tenant before treating as product behavior. (Tracked as `zia-53` in [`references/_meta/clarifications.md`](../_meta/clarifications.md#zia-53-cac-atomic-validation-contract-and-representative-app-action-quirk).)
 - **Representative-app quirk specifics unverified.** The "11 actions" count and the AZURE_DEVOPS->[] vs GITHUB->full-set example are MCP-docstring claims (`cloud_app_control.py:311-318`), not in any SDK; unverified against source. (Tracked as `zia-53` in [`references/_meta/clarifications.md`](../_meta/clarifications.md#zia-53-cac-atomic-validation-contract-and-representative-app-action-quirk).)
 - **Postman / oneapi-specs not consulted for ZIA in this pass.** A Postman cross-check would raise confidence on two divergences in particular: the `availableActions` `type` field and the 31-char CAC name limit. The ZPA divergences doc uses Postman as a third source; ZIA has no such cross-check yet. *(Methodology/coverage note, not a ZIA-behavior question — not registered.)*
