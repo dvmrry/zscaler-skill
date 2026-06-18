@@ -3,7 +3,7 @@ product: meta
 topic: "clarifications-index"
 title: "Clarification index — open questions across references"
 content-type: reference
-last-verified: "2026-06-16"
+last-verified: "2026-06-18"
 confidence: high
 sources: []
 author-status: reviewed
@@ -96,8 +96,8 @@ Each entry follows this template. Body is narrative — the existing zia-01 entr
 
 ## Status summary
 
-Skim this before reading the full entries. Summary refreshed 2026-06-16:
-20 entries are resolved or clarified, 17 are partially resolved, and the current
+Skim this before reading the full entries. Summary refreshed 2026-06-18:
+20 entries are resolved or clarified, 25 are partially resolved, and the current
 refresh queue has expanded the open register with `zia-50`–`zia-69`,
 `zpa-21`–`zpa-81`, `zcc-77`–`zcc-101`, `zdx-03`–`zdx-43`,
 `zid-01`–`zid-35`, `cloud-connector-01`–`cloud-connector-24`,
@@ -111,6 +111,11 @@ refresh queue has expanded the open register with `zia-50`–`zia-69`,
 Most open entries require lab tests,
 tenant snapshots, operator experience, or vendor confirmation rather than more
 public-doc reading.
+
+The 2026-06-18 Automate-contract / rosetta closure pass narrowed several
+previously open source-surface questions without settling their runtime
+semantics: `zia-49`, `zia-53`, `zia-57`, `cloud-connector-09`, `zcc-80`,
+`zbi-02`, `zbi-03`, and `zbi-04`.
 
 ### Resolved
 
@@ -146,6 +151,14 @@ public-doc reading.
 | [`zia-11`](#zia-11-transparent-vs-explicit-forwarding-mixed-mode) | Transparent vs explicit forwarding mixed mode | Silent per-session drift for tenants not gating rules by Device/Location Group |
 | [`log-01`](#log-01-nss-feed-format-versions) | NSS feed format versions | Exact field-presence differences between CSV/JSON/TSV output templates |
 | [`log-02`](#log-02-cloud-nss-vs-legacy-nss-divergence) | Cloud NSS vs legacy NSS divergence | Both source from the same Nanolog — field content parity expected; branching most likely needed for format (Cloud NSS recommends JSON) and per-instance feed-count limits, not field presence |
+| [`zia-49`](#zia-49-cac-per-app-action-validity) | CAC per-app action validity | Contract now supplies the category-level `actions` vocabulary; no read path exposes per-app validity |
+| [`zia-53`](#zia-53-cac-atomic-validation-contract-and-representative-app-action-quirk) | CAC atomic-validation contract and representative-app quirk | Contract narrows the action vocabulary; whole-create rejection and representative-app behavior remain MCP-observation/lab-test questions |
+| [`zia-57`](#zia-57-ftp-and-file-type-control-field-dependency-and-enum-surfaces) | FTP and File Type Control field-dependency and enum surfaces | Contract now supplies the static `fileTypes` vocabulary; field dependencies, protocol acceptance, and FTP per-site scope remain open |
+| [`cloud-connector-09`](#cloud-connector-09-forwarding-method-semantics-and-the-true-backend-forwardmethod-enum) | `ENATDEDIP`/`GEOIP`/`PROXYCHAIN` semantics + true `forwardMethod` enum | Automate contract now gives an independent contract enum and records Terraform disagreement; runtime semantics and backend acceptance remain open |
+| [`zcc-80`](#zcc-80-zcc-v1-vs-v2-endpoint-coexistence) | ZCC v1 vs v2 endpoint coexistence / supersession | Reconciler confirms Automate currently exposes only older v1 `webTrustedNetwork` while Terraform uses Go SDK v2 trusted networks; supersession/migration remains open |
+| [`zbi-02`](#zbi-02-cbizpaprofile-vs-isolationprofile-preferred-endpoint) | `cbizpaprofile` vs `isolationprofile` preferred endpoint | Automate contract confirms both paths are first-class documented GET operations; preference and runtime divergence remain open |
+| [`zbi-03`](#zbi-03-auto-created-default-profile-lifecycle-and-isdefault-mutability) | Auto-created default profile lifecycle and `isDefault` mutability | ZIA-side `defaultProfile` is documented as Zscaler-set; ZPA-side `isDefault` mutability and lifecycle remain open |
+| [`zbi-04`](#zbi-04-copypaste-and-uploaddownload-enum-completeness) | `copyPaste` and `uploadDownload` enum completeness | Automate examples corroborate `all`/`none`; no formal enum or directional values are documented |
 
 ### Open
 
@@ -3377,8 +3390,10 @@ Source disagrees on whether `redirect_ip` binds to all `REDIR_*` actions or only
 
 For Cloud App Control, which individual actions are valid for a given cloud application is not exposed by any read path in the vendored sources — `availableActions` returns a flat category-level `List[str]` only (`vendor/zscaler-sdk-python/zscaler/zia/cloudappcontrol.py:34`, `:84-91`). The whole-create-rejection contract (`INVALID_INPUT_ARGUMENT` / "Invalid action provided for selected applications") and the one-rule-per-app safe pattern are MCP-docstring claims, confirmed absent from both SDKs. Needs live-tenant probing to resolve which per-app action combinations the API actually accepts.
 
-**Status**: open
+**Status**: partially resolved — last updated 2026-06-18
 **Resolves with**: lab test (probe a live tenant with per-app action combinations, capture the validation responses)
+
+**2026-06-18 narrowing**: the Automate contract now gives a static category-level `actions` vocabulary for `POST /zia/api/v1/webApplicationRules/:rule_type`, including the generated contract-only action list in the ZIA divergence report (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.json:2134-2137`, `:2174-2186`, `:2356-2362`). That closes the "what is the captured documented action vocabulary?" part. It does **not** close per-app validity: the contract still describes a rule body, not a read path that maps each app to its individually accepted actions.
 
 ---
 
@@ -4158,8 +4173,10 @@ The Go SDK defines the custom IPS signature rules import + import-status path (`
 
 Two Cloud App Control behaviors are documented only in MCP-server tool docstrings, confirmed absent from both SDKs, and so are observation-only until live-tenant confirmation. First, the atomic-validation contract: a per-app-invalid action is said to reject the whole create with `INVALID_INPUT_ARGUMENT` / "Invalid action provided for selected applications", motivating a one-rule-per-app safe pattern. Second, the representative-app quirk: `list_available_actions(rule_type, cloud_apps)` is said to surface the action list only when `cloud_apps` contains a "representative" app for the category — e.g. `rule_type=SYSTEM_AND_DEVELOPMENT, cloud_apps=[AZURE_DEVOPS]` returns `[]` even though the category has 11 actions, while `cloud_apps=[GITHUB]` returns the full set (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_app_control.py:311-318`). The "11 actions" count and the AZURE_DEVOPS-vs-GITHUB example are MCP-docstring claims, not in any SDK. This is the API-divergence framing of the same gap `zia-49` tracks at the action-validity level.
 
-**Status**: open
+**Status**: partially resolved — last updated 2026-06-18
 **Resolves with**: lab test (probe a live tenant: submit a mixed-validity multi-app create to observe the atomic-rejection behavior; call `list_available_actions` with non-representative vs representative apps to confirm the empty-vs-full response)
+
+**2026-06-18 narrowing**: the Automate contract now corroborates a broad category-level Cloud App Control action vocabulary on `webApplicationRules/:rule_type`, with `actions` represented as a contract-only enum in the generated ZIA divergence report (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.json:2134-2137`, `:2174-2186`, `:2356-2362`). That improves the static action-vocabulary footing, but the atomic multi-app rejection behavior and the representative-app empty/full response quirk remain MCP-observation-only until tested against a tenant.
 
 ---
 
@@ -4202,8 +4219,10 @@ Three open items on Bandwidth Control classes. First, the help docs describe pre
 
 Four source-unresolvable items on the content-inspection surfaces. (1) Whether a per-site FTP Control rule layer exists outside the SDK — the help docs describe FTP Control with multiple levels and per-site access (`vendor/zscaler-help/about-ftp-control.md:17-21`) but the SDK exposes only the tenant-wide `/ftpSettings` object (`vendor/zscaler-sdk-python/zscaler/zia/ftp_control_policy.py:35`, `:77`); whether per-site FTP allow/deny lives elsewhere (URL Filtering on FTP-protocol conditions, or a UI-only surface) is not determinable from SDK source. (2) The File Type Control `filtering_action`-to-field dependency contract is not encoded in source — `min_size`/`max_size`/`operation`/`active_content`/`unscannable`/`password_protected` are flat kwargs with no client-side validation tying any to a `filtering_action` value, so which combinations the API accepts/rejects (e.g. whether `active_content` is meaningful with `ALLOW`) is unstated. (3) The full `file_types` enum is not statically available — the model treats it as a free string list (`vendor/zscaler-sdk-python/zscaler/zia/models/filetyperules.py:77`); the complete token set is returned at runtime by `/fileTypeCategories`, not hardcoded. (4) The `protocols` value set is only partially confirmed — `HTTP_RULE`/`HTTPS_RULE`/`FTP_RULE` are confirmed from help (`vendor/zscaler-help/about-file-type-control.md:29`), but the model stores `protocols` as an unconstrained string list (`vendor/zscaler-sdk-python/zscaler/zia/models/filetyperules.py:49`) with no enum, so whether additional tokens are accepted is undeterminable from this source.
 
-**Status**: open
+**Status**: partially resolved — last updated 2026-06-18
 **Resolves with**: lab test (read `/fileTypeCategories` and probe `filtering_action`/field and `protocols` combinations on a live tenant) OR zscaler doc not yet read (FTP Control configuration reference)
+
+**2026-06-18 narrowing**: the Automate contract/reconciler now captures a static documented `fileTypes` vocabulary for `POST /zia/api/v1/fileTypeRules`; the generated report shows `filteringAction`, `operation`, and `state` as enum matches, and `fileTypes` as a contract-only enum beginning with `ANY`, `NONE`, and `FTCATEGORY_*` values and ending at `FTCATEGORY_TS` (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.json:4754-4757`, `:4795-4805`, `:5084-5091`). That resolves the "no static enum source" sub-question for `fileTypes`. It does not resolve FTP per-site scope, field-dependency validation, or whether `protocols` accepts any values beyond `HTTP_RULE`, `HTTPS_RULE`, and `FTP_RULE`.
 
 ---
 
@@ -4433,8 +4452,10 @@ Three high-availability mechanics are named in the captured HA help article but 
 
 The console-label and runtime semantics of several `ForwardMethod` enum values are unconfirmed, and the sources disagree on the enum itself. The Go doc-comment lists ten values including `ENATDEDIP`, `GEOIP`, and `PROXYCHAIN` (`vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go:44`), the Terraform validator lists a smaller set, and the wire field is a free string. Specifically unresolved: (1) `ENATDEDIP` (reads as dedicated-IP NAT) and `GEOIP` (reads as geo-based forwarding) have no console label or documented semantics in captures; (2) `PROXYCHAIN`'s full chaining topology — where the proxy gateway sits, auth, failover — is not in source (only the proxy-gateway action field and its TCP-only network-service constraint are sourced); (3) the full set of values the `ecRdr` endpoint actually accepts — and whether `LOCAL_SWITCH`, `ENATDEDIP`, `GEOIP`, `PROXYCHAIN`, and bare `ZPA` are all live — is unknown without a tenant.
 
-**Status**: open
+**Status**: partially resolved — last updated 2026-06-18
 **Resolves with**: lab test (submit each candidate `forwardMethod` against the `ecRdr` endpoint, observe acceptance and behavior) OR Postman / oneapi-spec cross-check (a third independent source on the enum)
+
+**2026-06-18 narrowing**: the captured Automate contract now gives a third source on the documented `traffic_forwarding_rule.forwardMethod` enum for `POST /ztw/api/v1/ecRules/ecRdr`, and the generated reconciliation records the precise divergence: contract has `INVALID`, `DIRECT`, `PROXYCHAIN`, `ZIA`, `ZPA`, `ECZPA`, `ECSELF`, `DROP`, `ENATDEDIP`, and `GEOIP`, while Terraform accepts `DIRECT`, `LOCAL_SWITCH`, `ZIA`, `ECZPA`, and `DROP` (`vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-divergences.json:2300-2303`, `:2370-2391`). This closes the "Postman / oneapi-spec cross-check" part of the evidence request. It still does not prove which values the backend accepts in a tenant or what `ENATDEDIP` / `GEOIP` / `PROXYCHAIN` do operationally.
 
 ---
 
@@ -4642,8 +4663,10 @@ The full `WebPolicy` field set is modeled from UI request-body captures (`payloa
 
 The `/zcc/papi/public/v2` families are confirmed in the Go SDK — notification-templates (`vendor/zscaler-sdk-go/zscaler/zcc/services/notification_template/notification_template.go:15`), zia-posture-profiles (`vendor/zscaler-sdk-go/zscaler/zcc/services/zia_posture/zia_posture.go:15`), and trusted-networks (`vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network_v2/trusted_network_v2.go:15`). The Python SDK does not expose these v2 services. Whether the v2 endpoints supersede or coexist with their v1 equivalents long-term — and whether a tenant should migrate — is not stated in the SDK source.
 
-**Status**: open
+**Status**: partially resolved — last updated 2026-06-18
 **Resolves with**: zscaler doc not yet read (vendor API changelog / deprecation notice) OR lab test (compare v1 and v2 responses for the same tenant object)
+
+**2026-06-18 narrowing**: the generated ZCC reconciliation documents the current contract boundary: `zcc_trusted_network` is not reconciled because Terraform uses the Go SDK v2 trusted-network API at `/zcc/papi/public/v2/trusted-networks`, while the captured Automate contract currently exposes only older v1 `webTrustedNetwork` operations (`vendor/zscaler-api-specs/automate-zscaler/zcc-divergences.md:30-33`). That confirms the v1/v2 split in the public contract corpus; it does not establish deprecation, supersession, or migration timing.
 
 ---
 
@@ -5832,8 +5855,10 @@ The Zero Trust Browser traffic-flow article states that HTTP/HTTPS requests matc
 
 The ZPA CBI SDK surface exposes two read-only profile-list paths with overlapping names but different bases and response shapes: `cbizpaprofile` uses `/zpa/cbiconfig/cbi/api/customers/{customerId}/zpaprofiles` (`vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbizpaprofile/cbizpaprofile.go:13-14`, `:62-70`), while `isolationprofile` uses `/zpa/mgmtconfig/v1/admin/customers/{customerId}/isolation/profiles` (`vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/isolationprofile/isolationprofile.go:14-15`, `:52-59`). The Postman collection contains both (`vendor/zscaler-api-specs/oneapi-postman-collection.json:19209`, `:61255`). Which endpoint should be preferred for policy workflows, and whether they can diverge at runtime, is not resolved by static source.
 
-**Status**: open
+**Status**: partially resolved — last updated 2026-06-18
 **Resolves with**: tenant-side comparison of both endpoints across the same profiles OR vendor API documentation naming the preferred policy-reference source
+
+**2026-06-18 narrowing**: the Automate contract confirms both paths are first-class documented GET operations: `get-all-zpa-profiles` uses `/zpa/cbiconfig/cbi/api/customers/:customerId/zpaprofiles`, while `get-profiles-for-customer` uses `/zpa/mgmtconfig/v1/admin/customers/:customerId/isolation/profiles` (`vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json:10602-10608`, `:10640-10646`). This closes "is one path merely an SDK artifact?" but not "which should policy workflows prefer?" or "can the two datasets diverge at runtime?"
 
 ---
 
@@ -5843,8 +5868,10 @@ The ZPA CBI SDK surface exposes two read-only profile-list paths with overlappin
 
 The help article says default isolation profiles are automatically created for organizations with Zero Trust Browser (`vendor/zscaler-help/what-is-zero-trust-browser.md:32`). SDK/provider models expose default flags such as `defaultProfile` / `isDefault` (`vendor/zscaler-sdk-go/zscaler/zia/services/browser_isolation/browser_isolation_profile.go:25-26`, `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go:30`), but static sources do not establish whether those flags are server-managed only, can be changed through profile CRUD, or how default profile creation is triggered.
 
-**Status**: open
+**Status**: partially resolved — last updated 2026-06-18
 **Resolves with**: tenant-side profile CRUD test around default flags OR vendor documentation on default-profile lifecycle and mutability
+
+**2026-06-18 narrowing**: the ZIA Automate contract describes `defaultProfile` on `GET /zia/api/v1/browserIsolation/profiles` as "Zscaler sets this field" (`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:11483-11488`). The ZPA CBI contract examples show `isDefault=false` / certificate `isDefault` flags in profile responses (`vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json:10760-10766`), but do not mark ZPA-side profile `isDefault` as readonly or explain create/update behavior. Treat ZIA-side `defaultProfile` as server-set; ZPA-side lifecycle and mutability still need a tenant test or vendor doc.
 
 ---
 
@@ -5854,8 +5881,10 @@ The help article says default isolation profiles are automatically created for o
 
 The Go `SecurityControls` struct declares `UploadDownload` and `CopyPaste` as strings (`vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go:80`, `:82`), and Python docstrings show example values such as `all` and `none` (`vendor/zscaler-sdk-python/zscaler/zpa/cbi_profile.py:149`, `:151`, `:273`, `:275`). The complete enum set, especially any directional copy/paste or upload/download values, is not enumerated by the inspected source.
 
-**Status**: open
+**Status**: partially resolved — last updated 2026-06-18
 **Resolves with**: vendor API schema/docs OR tenant-side validation tests for likely directional values
+
+**2026-06-18 narrowing**: the Automate contract examples corroborate the same observed values: profile reads show `copyPaste=none` and `uploadDownload=none`, and update examples show `copyPaste=all` and `uploadDownload=all` (`vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json:10760-10766`, `:10805-10812`). These are examples, not a formal enum list, so they confirm `all`/`none` but do not close the question of directional or additional values.
 
 ---
 

@@ -533,15 +533,17 @@ The Postman collection mirrors the split surface:
 - ZPA CBI controllers include banner, certificate, and profile controller sections under `{{ZPABase}}/cbiconfig/cbi/api/customers/:customerId/...` (`vendor/zscaler-api-specs/oneapi-postman-collection.json:15801-15817`, `:17106-17133`, `:19193-19209`, `:21046-21059`, `:21392-21397`).
 - The separate ZPA mgmtconfig isolation-profile read path is also present at `{{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/isolation/profiles` (`vendor/zscaler-api-specs/oneapi-postman-collection.json:61255`).
 
+The Automate contract corroborates both ZPA profile-list paths as documented GET operations: `/zpa/cbiconfig/cbi/api/customers/:customerId/zpaprofiles` for `get-all-zpa-profiles` and `/zpa/mgmtconfig/v1/admin/customers/:customerId/isolation/profiles` for `get-profiles-for-customer` (`vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json:10602-10608`, `:10640-10646`). It also confirms that the ZIA-side `defaultProfile` flag is server-set: the field description says "Zscaler sets this field" (`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:11483-11488`).
+
 ---
 
 ## Open questions
 
-- **`cbizpaprofile` vs `isolationprofile` preferred endpoint** — Two read-only controllers serve what appear to be overlapping datasets via different ZPA base paths (cbiconfig vs mgmtconfig), with different response struct shapes. Which endpoint the ZPA admin console uses, whether their contents differ at runtime, and which one should be preferred for lookups in policy workflows is unresolved. Requires vendor documentation or tenant-side API comparison — *unverified, requires vendor clarification or lab test.*
+- **`cbizpaprofile` vs `isolationprofile` preferred endpoint** — Both paths are now confirmed in the Automate contract, not just SDK/Postman artifacts (`vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json:10602-10608`, `:10640-10646`). Which endpoint the ZPA admin console uses, whether their contents differ at runtime, and which one should be preferred for lookups in policy workflows remains unresolved. See [clarification `zbi-02`](../_meta/clarifications.md#zbi-02-cbizpaprofile-vs-isolationprofile-preferred-endpoint).
 
-- **Auto-created default profile lifecycle** — `policy-integration.md` states "default profiles are auto-created per organization at first ZBI login," but neither SDK exposes a method to detect or manage this auto-creation step. Whether `isDefault: true` can be set or cleared via the profile CRUD endpoints, or whether it is purely server-managed, is not stated in the SDK source — *unverified, requires vendor documentation or tenant-side test.*
+- **Auto-created default profile lifecycle** — ZIA-side `defaultProfile` is documented as set by Zscaler (`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:11483-11488`). The remaining open piece is ZPA-side `isDefault`: whether it can be set or cleared via profile CRUD, and exactly how default profile creation is triggered, still needs vendor documentation or a tenant-side test. See [clarification `zbi-03`](../_meta/clarifications.md#zbi-03-auto-created-default-profile-lifecycle-and-isdefault-mutability).
 
-- **`copyPaste` and `uploadDownload` enum values** — The SecurityControls struct declares these as `string` type but the SDK source only documents `all` and `none` as example values in the Python docstring. Whether other valid enum values exist (e.g., directional copy/paste options) is not enumerated in the SDK source — *unverified, requires vendor API documentation or Postman collection response inspection.*
+- **`copyPaste` and `uploadDownload` enum values** — The SecurityControls struct declares these as `string` type; SDK and Automate examples corroborate `all` and `none` (`vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json:10760-10766`, `:10805-10812`). Whether other valid enum values exist (e.g., directional copy/paste options) is not formally enumerated in the captured contract. See [clarification `zbi-04`](../_meta/clarifications.md#zbi-04-copypaste-and-uploaddownload-enum-completeness).
 
 ---
 
