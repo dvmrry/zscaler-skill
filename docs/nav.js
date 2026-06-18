@@ -342,7 +342,7 @@
   // (hub pages, source.html) skip the extra fetch.
   ensureDocsLib(function () {
     const sidebarScript = document.createElement('script');
-    sidebarScript.src = prefix + 'left-sidebar.js?v=6';
+    sidebarScript.src = prefix + 'left-sidebar.js?v=7';
     sidebarScript.async = true;
     document.body.appendChild(sidebarScript);
   });
