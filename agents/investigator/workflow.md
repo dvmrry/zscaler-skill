@@ -11,6 +11,7 @@ sources:
   - agents/investigator/harness.md
   - agents/investigator/case-intake.md
   - agents/investigator/grounding/index.md
+  - agents/siem-emission-discipline.md
   - scripts/investigator-artifacts.mjs
 author-status: reviewed
 summary: Evidence-based Zscaler troubleshooting investigation

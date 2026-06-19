@@ -257,12 +257,24 @@ def check_pointer_targets(findings: list[Finding]) -> None:
         for wrapper in sorted(wrapper_dir.glob("*.md")):
             text = wrapper.read_text(encoding="utf-8")
             for ref in sorted(set(CANONICAL_REF_RE.findall(text))):
-                if not (REPO_ROOT / ref).exists():
+                resolved = (REPO_ROOT / ref).resolve()
+                if not resolved.exists():
                     findings.append(
                         Finding(
                             "error",
                             wrapper,
                             f"points at canonical path that does not exist (rename/move?): {ref}",
+                        )
+                    )
+                    continue
+                try:
+                    resolved.relative_to(AGENTS_ROOT)
+                except ValueError:
+                    findings.append(
+                        Finding(
+                            "error",
+                            wrapper,
+                            f"canonical pointer escapes agents/ (path traversal?): {ref}",
                         )
                     )
 
