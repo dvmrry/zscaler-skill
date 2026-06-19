@@ -23,7 +23,7 @@
     '_meta': 'Meta',
     'zia': 'ZIA',
     'zpa': 'ZPA',
-    'cloud-connector': 'Cloud Connector',
+    'cloud-connector': 'ZTW / Cloud & Branch',
     'zcc': 'Zscaler Client Connector',
     'zdx': 'ZDX',
     'zbi': 'ZBI',
@@ -68,7 +68,7 @@
   ];
 
   // Resolve relative path so file links work from any page.
-  const PREFIX = /\/(zia|zpa|cloud-connector|welcome)\//.test(location.pathname) ? '../' : '';
+  const PREFIX = /\/(zia|zpa|zcc|cloud-connector|zidentity|zdx|welcome)\//.test(location.pathname) ? '../' : '';
   const SOURCE_URL = PREFIX + 'source.html';
 
 
@@ -312,7 +312,7 @@
     // Reader's guide and onboarding live under Welcome → expand the
     // _meta group since those primers are conceptually part of the
     // welcome cluster.
-    if (/(readers-guide|onboarding)\.html$/.test(location.pathname)) return '_meta';
+    if (/(readers-guide|operator-guide|install|onboarding)\.html$/.test(location.pathname)) return '_meta';
     return null;
   }
 })();

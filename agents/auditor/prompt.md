@@ -59,6 +59,8 @@ Optional second arg: a **subset of checks** to focus on (e.g., `confidence` for 
 
 If scope is missing or unclear, ask **one** clarifying question — don't fabricate a default scope.
 
+For tenant-config audit scopes, prefer read-only observed state from `_data/` snapshots, `zscalerctl` dumps, or `zscalerctl diff` artifacts. If the required tenant fact is absent, draft a bounded `zscalerctl --format json ...` command for the operator to run. Do not fall back to raw APIs, SDK credential spelunking, or write-lane tests to fill an audit gap.
+
 ## Discipline
 
 Follow [`./harness.md`](./harness.md), [`./grounding/index.md`](./grounding/index.md), plus the audit register format and severity scale in [`auditor/methodology.md`](./methodology.md):
