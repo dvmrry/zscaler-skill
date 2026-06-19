@@ -48,12 +48,19 @@ artifact that can answer the current question, then stop.
    cards. Read a child card only when the index names it as relevant.
 3. **Search long ledgers, don't page them in.** For
    `references/_meta/clarifications.md`, search by product prefix and keyword
-   first, for example `rg -n "^(### )?zia-|ucTemplateId|urlCategories2"
+   first, for example `rg -n "^(### )?(zia|shared)-|ucTemplateId|urlCategories2"
    references/_meta/clarifications.md`, then read the small matching section.
+   Always include the `shared-` prefix alongside the product one — cross-product
+   clarifications (37 entries) live under `shared-`, not under each product, so a
+   product-only grep silently misses them.
 4. **Default search exclusions.** Broad searches should exclude local runtime
    copies and generated/stale workspaces: `--glob '!.claude/worktrees/**'`.
-   Exclude `vendor/**` unless the current workflow explicitly asks for source
-   verification, SDK/TF/API surface checks, or citation repair.
+   Exclude raw vendor source under `vendor/**` unless the current workflow
+   explicitly asks for source verification, SDK/TF/API surface checks, or
+   citation repair. **Exception:** `vendor/zscaler-api-specs/automate-zscaler/`
+   (the captured API contract, divergences, rosetta, and the `issue-routing`
+   worklist) is reference-grade reconciliation data, not raw vendor source —
+   search it like `references/**`, not like a vendor tree.
 5. **Treat `_data/` as tenant evidence, not reference background.** Search
    `_data/snapshot/`, `_data/cases/`, or `_data/iac/` only when the question is
    tenant-specific, case-specific, or deployment-specific.
@@ -63,6 +70,13 @@ artifact that can answer the current question, then stop.
 7. **Record what mattered.** Procedural roles with artifacts should record the
    files actually used, not every file considered. Rejected broad searches do
    not belong in evidence ledgers.
+
+**Safety boundaries are not budgeted.** A doc that prevents a harmful action —
+`agents/siem-emission-discipline.md` (tenant-data / SIEM emission rules) — is a
+required read for any emit-capable role, loaded eagerly, never deferred to an
+on-demand trigger. A leak rule loaded only when the model remembers it is not a
+control. Context-budget trimming applies to reference material, not safety
+boundaries.
 
 If a task genuinely needs broad source mining, switch to the researcher or
 auditor workflow instead of turning the ad-hoc surface into an unbounded crawl.

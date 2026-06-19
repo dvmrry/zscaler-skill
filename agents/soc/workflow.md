@@ -26,11 +26,11 @@ required-reads:
   - agents/soc/prompt.md
   - agents/soc/harness.md
   - agents/soc/grounding/index.md
+  - agents/siem-emission-discipline.md
 optional-reads:
   - agents/soc/grounding/security-taxonomy.md
   - agents/auditor/methodology.md
   - agents/investigator/methodology.md
-  - agents/siem-emission-discipline.md
   - agents/clarification-pattern.md
 supporting-scripts:
   - scripts/soc-artifacts.mjs
@@ -60,10 +60,12 @@ Optional reads:
   judging evidence sufficiency.
 - `agents/investigator/methodology.md` — load when a posture finding depends on
   live troubleshooting claim status.
-- `agents/siem-emission-discipline.md` — load before emitting or running SIEM
-  queries.
 - `agents/clarification-pattern.md` — load when the scope needs a closed-set
   clarification.
+
+`agents/siem-emission-discipline.md` is a **required** read (see `required-reads`),
+not optional: it is the SIEM / tenant-data leak boundary and must be loaded before
+any telemetry emission, never deferred to "when remembered."
 
 On MCP runtimes, the role entrypoint is server-provided (prompt `soc-review`),
 and the final review answer is produced by the `render_soc_report` tool — not
