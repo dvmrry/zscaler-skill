@@ -9,7 +9,6 @@ confidence: medium
 source-tier: practice
 sources:
   - "references/_meta/clarifications.md"
-  - "references/_meta/tooling.md"
   - "references/shared/terminology.md"
   - "references/shared/cloud-architecture.md"
   - "agents/siem-emission-discipline.md"

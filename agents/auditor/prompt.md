@@ -59,7 +59,7 @@ Optional second arg: a **subset of checks** to focus on (e.g., `confidence` for 
 
 If scope is missing or unclear, ask **one** clarifying question — don't fabricate a default scope.
 
-For tenant-config audit scopes, prefer read-only observed state from `_data/` snapshots, `zscalerctl` dumps, or `zscalerctl diff` artifacts. If the required tenant fact is absent, draft a bounded `zscalerctl --format json ...` command for the operator to run. Do not use raw SDK/API calls or write-lane tests to fill an audit gap unless the user explicitly redirects the task.
+For tenant-config audit scopes, prefer read-only observed state from `_data/` snapshots, `zscalerctl` dumps, or `zscalerctl diff` artifacts. If the required tenant fact is absent, draft a bounded `zscalerctl --format json ...` command for the operator to run. Do not fall back to raw APIs, SDK credential spelunking, or write-lane tests to fill an audit gap.
 
 ## Discipline
 

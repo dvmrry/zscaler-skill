@@ -73,7 +73,7 @@ Follow [`./harness.md`](./harness.md), [`./grounding/index.md`](./grounding/inde
 - Do not mark findings `Resolved` without verification (re-read the snapshot, re-run the query)
 - Findings outside scope go in Notes or "Out-of-scope observations," not silently dropped or chased
 
-The discipline around evidence sourcing follows [`investigator/methodology.md`](../investigator/methodology.md) — disk first (`_data/snapshot/<cloud>/`, `_data/cases/<operative>/evidence/`), then SIEM, then live API, then portal as last resort. See [`investigator/prompt.md § Step 4`](../investigator/prompt.md) for the full preference ladder.
+The discipline around evidence sourcing follows [`investigator/methodology.md`](../investigator/methodology.md) — disk first (`_data/snapshot/<cloud>/`, `_data/cases/<operative>/evidence/`), then SIEM, then a read-only `zscalerctl` read, then portal as last resort. See [`investigator/prompt.md § Step 4`](../investigator/prompt.md) for the full preference ladder.
 
 When asking the user a clarifying question — subtype inference, threat-model selection, scope disambiguation — format the question as a multiple-choice block (per [`agents/clarification-pattern.md`](../clarification-pattern.md)), never plain prose. Example for subtype inference:
 
@@ -106,7 +106,7 @@ Same a/b/c/d as `/z-investigator` (see [`investigator/prompt.md § Step 2`](../i
 - **c.** Verify framing claims as `Open (uncertain)` until evidence supports them
 - **d.** Check existing evidence on disk — `_data/cases/<operative-slug>/evidence/`, `_data/snapshot/<cloud>/`, `_data/schemas/`, and any `zscalerctl` dump/diff artifacts in the operative overlay. Read any operative-directory `journal.md` or `posture.md` already in place; do not browse sibling case directories.
 
-A SOC review especially leans on **(a)** and **(d)** — schemas tell you what posture controls a given config field actually enables, and a fresh `zscalerctl`-generated snapshot/diff is the preferred read-only evidence for "what's actually configured." If the cache is stale or missing, draft a bounded `zscalerctl --format json ...` command rather than guessing or using raw API calls.
+A SOC review especially leans on **(a)** and **(d)** — schemas tell you what posture controls a given config field actually enables, and a fresh `zscalerctl`-generated snapshot/diff is the preferred read-only evidence for "what's actually configured." If the cache is stale or missing, draft a bounded `zscalerctl --format json ...` command rather than guessing. Do not fall back to raw APIs, SDK credential spelunking, or write-lane tests.
 
 ### 3. Apply the posture lens for each subtype in scope
 

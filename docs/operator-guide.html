@@ -50,7 +50,7 @@
       <p class="lede">How to ask the Zscaler skill for useful work: pick the right surface, give the agent enough context, keep tenant access bounded, and read the answer without mistaking sourced evidence for runtime proof.</p>
       <dl class="frontmatter">
         <dt>Best first move</dt><dd>Use <code>@zscaler</code> for grounded Q&amp;A; switch to a slash role when you need a durable artifact.</dd>
-        <dt>Tenant data</dt><dd>Mount snapshots under <code>_data/</code>; prefer read-only validation commands before any write-lane test.</dd>
+        <dt>Tenant data</dt><dd>Mount snapshots under <code>_data/</code>; the skill uses read-only <code>zscalerctl</code>/snapshot validation only — it does not run write-lane tests.</dd>
         <dt>Read with</dt><dd><a href="readers-guide.html" style="color: var(--accent-ink);">Reader's Guide</a> for concepts; <a href="source.html?p=_meta/verification-protocol" style="color: var(--accent-ink);">verification protocol</a> for source discipline.</dd>
         <dt>Canonical logic</dt><dd><code>agents/</code> owns the workflows; runtime adapters are loaders, not the source of truth.</dd>
       </dl>
@@ -60,7 +60,7 @@
       <h2>At a glance</h2>
       <ul>
         <li><span class="key">Ask from evidence</span><span>Product behavior should be answered from references, snapshots, captured contracts, or source citations. If none exist, expect an explicit gap.</span></li>
-        <li><span class="key">Start read-only</span><span>Most questions can be narrowed with references, <code>_data/</code> snapshots, <code>zscalerctl</code> reads, or curl GETs. Treat writes as a last-mile confirmation path.</span></li>
+        <li><span class="key">Start read-only</span><span>Most questions can be narrowed with references, <code>_data/</code> snapshots, or read-only <code>zscalerctl</code> reads. The skill stays read-only; any write-lane test is a separate human step.</span></li>
         <li><span class="key">Use the companion split</span><span><code>zscalerctl</code> observes tenant state; this skill interprets it with policy semantics, source tiers, and clarification boundaries.</span></li>
         <li><span class="key">Name the task shape</span><span>Debugging, posture review, architecture, reference expansion, and doc audit are different workflows. The more specific the shape, the better the output.</span></li>
         <li><span class="key">Preserve uncertainty</span><span>Contract metadata can prove documented paths, fields, enums, and readonly flags. It cannot prove live backend acceptance unless the tenant is tested.</span></li>
@@ -105,7 +105,7 @@
         <div><dt>Timeframe</dt><dd>For investigations, include when it started, whether it is still happening, and any known change window.</dd></div>
         <div><dt>Evidence source</dt><dd>Name the snapshot, file, log export, API output, Terraform plan, PR, or reference path the agent should inspect.</dd></div>
         <div><dt>Desired artifact</dt><dd>Ask for a short answer, a command checklist, a journal, a posture register, a PR review, or reference edits.</dd></div>
-        <div><dt>Access boundary</dt><dd>Say read-only, no tenant calls, curl only, <code>zscalerctl</code> only, or write test allowed. When in doubt, keep it read-only.</dd></div>
+        <div><dt>Access boundary</dt><dd>Say read-only, no tenant calls, or <code>zscalerctl</code> reads only. The skill is read-only by contract — it never runs raw API or write tests.</dd></div>
         <div><dt>Observation source</dt><dd>If this is tenant-specific, say whether the agent should use a local snapshot, a recent <code>zscalerctl</code> dump/diff, or draft an on-demand read command.</dd></div>
       </div>
 
@@ -116,7 +116,7 @@
 
 /z-soc Review ZCC forwarding profile exposure for least privilege. Use the mounted snapshot only; produce a posture register.
 
-@zscaler Draft curl or zscalerctl GET commands to verify whether these read-only fields appear in our tenant. Do not file vendor issues.</code></pre>
+@zscaler Draft read-only zscalerctl GET commands to verify whether these read-only fields appear in our tenant. Do not file vendor issues.</code></pre>
 
       <div class="warn">
         <span class="label">Avoid vague asks</span>
@@ -151,7 +151,7 @@
       <div class="steps">
         <div class="step"><div><span class="head">Mount or point at data.</span>Use <code>zscaler-skill-setup</code> when <code>_data/</code> is missing or stale.</div></div>
         <div class="step"><div><span class="head">State the boundary.</span>Tell the agent whether it may inspect snapshots only, run read-only commands, or draft commands for a human to run.</div></div>
-        <div class="step"><div><span class="head">Prefer read validation.</span>Use <code>zscalerctl</code> reads or curl GETs to observe fields, enums, and object shape before any write-lane test.</div></div>
+        <div class="step"><div><span class="head">Prefer read validation.</span>Use read-only <code>zscalerctl</code> reads to observe fields, enums, and object shape. The skill does not run write tests.</div></div>
         <div class="step"><div><span class="head">Use cached dumps when fresh.</span>A recent <code>zscalerctl</code> dump or diff in <code>_data/</code> is faster than a live read and should be the normal path for broad inventory questions.</div></div>
         <div class="step"><div><span class="head">Record the result.</span>When a read narrows a clarification, update the ledger as partially resolved unless it proves the whole behavior.</div></div>
       </div>

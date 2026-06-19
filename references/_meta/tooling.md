@@ -64,7 +64,7 @@ observation is already present, use this shape:
 
 > This needs tenant observation. If `@zscalerctl` is installed, use it for the
 > read-only fetch, then return the JSON here; I will apply the Zscaler policy
-> semantics. If you prefer, I can draft the bounded `zscalerctl` or curl command
+> semantics. If you prefer, I can draft the bounded read-only `zscalerctl` command
 > for you to run.
 
 Keep the handoff narrow:
@@ -87,14 +87,15 @@ pipeline:
 - manifests that record product, cloud, command, timestamp, and partial errors.
 
 Agents should prefer those local artifacts for normal Q&A because they are fast
-and avoid unnecessary live API calls. Use live `zscalerctl` reads only for
+and avoid unnecessary live reads. Use live `zscalerctl` reads only for
 missing, stale, narrow, or explicitly current checks.
 
 ## Issue-routing and validation
 
 The rosetta-stone and clarification worklists can propose read-only validation
-commands, but they should not file vendor issues or run write-lane tests without
-explicit human authorization. A good validation packet includes:
+commands, but they must not file vendor issues or run write-lane tests — those
+steps are outside this skill's read-only contract and belong to the human
+operator. A good validation packet includes:
 
 - the read-only command;
 - the field or enum being observed;
