@@ -42,6 +42,7 @@ const ADAPTER_POINTER_FILES = {
     ".devin/workflows/z-retro.md",
   ],
   "z-soc": [
+    ".agents/skills/zscaler-soc/SKILL.md",
     ".claude/commands/z-soc.md",
     ".devin/workflows/z-soc.md",
   ],
@@ -171,6 +172,15 @@ function checkWorkflow(filePath, findings) {
     requireExists(helper, owner, findings, "supporting script");
     if (!body.includes(helper)) {
       findings.push(finding(owner, `body should mention supporting script: ${helper}`));
+    }
+  }
+
+  const supportingScripts = new Set(Array.isArray(data["supporting-scripts"]) ? data["supporting-scripts"] : []);
+  const mentionedMcpServers = [...body.matchAll(/scripts\/[A-Za-z0-9-]+-mcp-server\.mjs/g)]
+    .map((match) => match[0]);
+  for (const helper of [...new Set(mentionedMcpServers)]) {
+    if (!supportingScripts.has(helper)) {
+      findings.push(finding(owner, `body mentions MCP server not listed in supporting-scripts: ${helper}`));
     }
   }
 

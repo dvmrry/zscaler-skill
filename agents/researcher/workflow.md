@@ -9,6 +9,8 @@ confidence: medium
 sources:
   - agents/researcher/prompt.md
   - agents/researcher/grounding/index.md
+  - agents/researcher/writer.md
+  - agents/researcher/verifier.md
   - agents/declared-records.md
   - scripts/prepare-overlay-submission.mjs
 author-status: reviewed
@@ -22,6 +24,9 @@ required-reads:
   - agents/researcher/prompt.md
   - agents/researcher/grounding/index.md
   - agents/declared-records.md
+optional-reads:
+  - agents/researcher/writer.md
+  - agents/researcher/verifier.md
 supporting-scripts:
   - scripts/check-hygiene.py
   - scripts/check-citations.sh
@@ -31,7 +36,10 @@ supporting-scripts:
 
 # Zscaler Researcher Workflow
 
-Load and follow the files listed in `required-reads`.
+Load and follow the files listed in `required-reads`. Load
+`agents/researcher/writer.md` only for Step 3a and
+`agents/researcher/verifier.md` only for Step 3b, or let a runtime-specific
+subagent wrapper load those files.
 
 Use this workflow to expand reference docs from source material. Follow the
 parse, extract, write, and verify checkpoints in `agents/researcher/prompt.md`.

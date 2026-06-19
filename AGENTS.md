@@ -30,7 +30,8 @@ For Zscaler questions:
 - @zscaler-skill-setup — _data mount, runtime-data mount, set up the _data, repair the _data, check-data-contract, overlay submission
 
 <!-- capability-routing:end -->
-- Portable Agent Skills (`zscaler-investigator`, `zscaler-soc`) under `.agents/skills/` are
+- Portable Agent Skills (`zscaler-investigator`, `zscaler-soc`,
+  `zscaler-skill-setup`) under `.agents/skills/` are
   open-standard loaders for the canonical workflows; prefer the slash commands above for direct
   invocation.
 - Load only the files needed for the current question.

@@ -33,6 +33,7 @@ optional-reads:
   - agents/clarification-pattern.md
 supporting-scripts:
   - scripts/investigator-artifacts.mjs
+  - scripts/investigator-mcp-server.mjs
   - scripts/prepare-overlay-submission.mjs
 ---
 

@@ -24,6 +24,7 @@ required-reads:
   - agents/architect/prompt.md
   - agents/architect/harness.md
   - agents/architect/grounding/index.md
+optional-reads:
   - agents/architect/methodology.md
   - agents/declared-records.md
   - agents/siem-emission-discipline.md
@@ -32,7 +33,8 @@ supporting-scripts:
 
 # Zscaler Architect Workflow
 
-Load and follow the files listed in `required-reads`.
+Load and follow the files listed in `required-reads`. Load files listed in
+`optional-reads` only when the recommendation subtype needs them.
 
 Use this workflow for capacity, scaling, and structural architecture review. Map
 scope, planning horizon, and evidence access. Review configuration first, layer
@@ -44,3 +46,9 @@ targeted clarifying question.
 Available on demand:
 
 - `agents/architect/diagnostics/template.md` — load only when authoring or reviewing a verified reusable diagnostic.
+- `agents/architect/methodology.md` — load when writing the full recommendation
+  register or resolving a structural-risk judgment.
+- `agents/declared-records.md` — load when persisting durable warnings,
+  recommendations, decisions, or action items.
+- `agents/siem-emission-discipline.md` — load before emitting or running SIEM
+  queries.

@@ -55,6 +55,12 @@ RUNTIME_SKILL_PREFIXES = {
     REPO_ROOT / ".claude" / "skills": "claude-",
 }
 
+EXPECTED_PORTABLE_SKILL_WORKFLOWS = {
+    "zscaler-investigator": AGENTS_ROOT / "investigator" / "workflow.md",
+    "zscaler-soc": AGENTS_ROOT / "soc" / "workflow.md",
+    "zscaler-skill-setup": AGENTS_ROOT / "setup" / "workflow.md",
+}
+
 
 @dataclass
 class Finding:
@@ -152,16 +158,15 @@ def check_skill(skill_file: Path, findings: list[Finding], allow_smoke_tests: bo
             )
         )
 
-    if name == "zscaler-investigator":
-        expected_workflow = AGENTS_ROOT / "investigator" / "workflow.md"
-        if expected_workflow not in agent_targets:
-            findings.append(
-                Finding(
-                    "error",
-                    skill_file,
-                    "zscaler-investigator must reference agents/investigator/workflow.md",
-                )
+    expected_workflow = EXPECTED_PORTABLE_SKILL_WORKFLOWS.get(name)
+    if expected_workflow and expected_workflow not in agent_targets:
+        findings.append(
+            Finding(
+                "error",
+                skill_file,
+                f"{name} must reference {rel(expected_workflow)}",
             )
+        )
 
     if is_smoke_test and "agent-skill-smoke-test: loaded" not in body:
         findings.append(Finding("error", skill_file, "smoke-test skill must define its expected marker output"))
