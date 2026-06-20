@@ -42,11 +42,13 @@ Investigation is hypothesis-driven, not doc-driven. For every turn, do these in 
 
 1. **State the active hypothesis** — cite the journal claim by `# H<n>` or short tag.
 2. **Name the signal/evidence needed** to validate or invalidate it. Be specific: which field, which file, which query.
-3. **Fetch (or propose) the cheapest source** that closes the gap. RCA is a mismatch between **expected behavior** (product reference) and **observed reality** (tenant config, runtime signal). Source preference: product reference → tenant snapshot → operative-directory evidence → script logs → SIEM/runtime logs → live API → portal. One source per turn.
+3. **Fetch (or propose) the cheapest source** that closes the gap. RCA is a mismatch between **expected behavior** (product reference) and **observed reality** (tenant config, runtime signal). Source preference: product reference → `zscalerctl`-generated snapshot/diff in `_data/` → operative-directory evidence → bounded read-only `zscalerctl` command output → script logs → SIEM/runtime logs → portal. One source per turn.
 4. **Update the journal** — move the claim's status based on what the evidence showed. `Open (likely/uncertain)` → `Confirmed (medium/high)` if validated, `Ruled out` if invalidated, `Stale` if the underlying state changed.
 5. **Pick the next hypothesis or evidence source** and surface it in `Next evidence needed` for the journal's top Open claim.
 
 The loop is recursive: every turn after the first journal output follows it. Halt-and-wait at checkpoints per [`harness.md`](./harness.md); within a turn, do one cycle, not many.
+
+`zscalerctl` is a pre-release companion, not a hard requirement. When it is installed, use it as the preferred read-only way to observe tenant config; when it is absent, draft the narrow command for the operator or work from `_data/` artifacts already present. Do not fall back to raw APIs, SDK credential spelunking, or write-lane tests.
 
 ## User framing — what to include for best results
 
@@ -192,11 +194,11 @@ Don't investigate yet. Name the source you'd consult to confirm or rule out each
 RCA is fundamentally **expected vs observed**: the product reference says what *should* happen; the snapshot / log / API says what *is* happening. The gap between them is the finding.
 
 1. **Product reference** — what's the *expected* behavior? Look at the ZIA / ZPA / ZCC / ZDX / ZIdentity / shared reference doc that covers the framing's product or feature. The framing→file mapping in Step 2b is your routing table for picking the right doc. This tier is first because it grounds *what should be true* before you check what is true. Skipping it produces hypotheses anchored in the wrong product mental model (ZIA allow-by-default vs ZPA deny-by-default; per-app vs per-segment; IdP-claim vs SCIM-claim).
-2. **Tenant snapshot** — `_data/snapshot/<cloud>/` (or fork-specific `_data/<cloud>/`). API-derived config dumps for *this* tenant: connector groups, segments, rules, profiles. **This is the canonical source for "what's actually configured"** — use it before any live API call. Snapshots can be stale; if state-drift matters for the question, refresh via the fork’s snapshot process — don't bypass to a one-off API call.
+2. **Tenant snapshot** — `_data/snapshot/<cloud>/` (or fork-specific `_data/<cloud>/`). API-derived config dumps for *this* tenant: connector groups, segments, rules, profiles. **This is the canonical source for "what's actually configured"** — use it before any on-demand read. Snapshots can be stale; if state-drift matters for the question, refresh via the fork’s snapshot process — don't bypass to a one-off raw read.
 3. **Operative directory** — `_data/cases/<operative-slug>/evidence/` (read `MANIFEST.md` first to see what's already captured) and the existing `journal.md` claims. The user may have already provided the answer; reading it costs nothing.
 4. **Script outputs** — `_data/schemas/`. Recent script output (issue-watch digests, find-asymmetries, hygiene digests).
 5. **Runtime logs / SIEM** — Splunk / Sentinel / Elastic / Sumo / Chronicle. Use only when the question is about **runtime / log-flow data** (transactions, sessions, events) rather than configuration. Per-SIEM emission discipline lives in [`../siem-emission-discipline.md`](../siem-emission-discipline.md), a required read for this role — loaded up front as the SIEM/tenant-data safety boundary, so its rules are in hand before any emission.
-6. **Live API** — only when both the snapshot doesn't have the answer and the question requires *now-state* (in-flight session counts, current connector status, etc.). When you do call an API, save the response to `evidence/` per the manifest convention so the next investigation can use it from disk.
+6. **On-demand read-only `zscalerctl` read** — only when the snapshot doesn't have the answer and the question requires *now-state* (in-flight session counts, current connector status, etc.). Draft a bounded read-only `zscalerctl --format json` command (`list`/`get`/`show`/`dump`/`diff`); do not fall back to raw APIs or write-lane tests. Save the returned JSON to `evidence/` per the manifest convention so the next investigation can use it from disk.
 7. **Portal / admin console** — last resort, manual lookup. Cite the navigation path in the source field; if the result is informative enough to keep, screenshot to `evidence/` with a manifest entry.
 
 How to apply, per hypothesis:

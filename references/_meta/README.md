@@ -30,6 +30,7 @@ Anything under `references/_meta/` is skill-internal. Anything else under `refer
 | [`primer/`](./primer/) | Foundational educational material — networking basics, identity, zero-trust philosophy, Zscaler platform shape. Synthesis docs, not vendor-sourced; cite-light by design. |
 | [`runbooks.md`](./runbooks.md) | Cross-product operational runbooks. |
 | [`template.md`](./template.md) | Frontmatter template for new reference files. Copy this when authoring. |
+| [`tooling.md`](./tooling.md) | Contract between the skill reasoning layer, the optional `zscalerctl` tenant-observation companion, and `_data/` overlays. |
 | [`verification-protocol.md`](./verification-protocol.md) | The discipline for resolving open questions / verifying claims; how a clarification moves from open to resolved. |
 
 ## Conventions

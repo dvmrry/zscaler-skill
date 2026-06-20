@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ZIA · Reference</title>
-<link rel="stylesheet" href="../site.css?v=20">
+<link rel="stylesheet" href="../site.css?v=21">
 </head>
 <body>
 
@@ -12,14 +12,12 @@
   <a class="brand" href="../index.html" style="text-decoration:none;color:inherit;">Zscaler Skill</a>
   <span class="sep">·</span>
   <span class="crumbs">
-    <a href="../readers-guide.html">Reader's Guide</a>
+    <a href="index.html">ZIA</a>
     <span class="sep"> › </span>
-    <a href="#">References</a>
-    <span class="sep"> › </span>
-    <span style="color: var(--ink);">ZIA</span>
+    <span style="color: var(--ink);">Reference</span>
   </span>
   <span class="right">
-    <span><strong>Tier</strong>Doc + SDK</span>
+    <span><strong>Tier</strong>Doc + SDK + TF</span>
     <span><strong>Confidence</strong>High</span>
     <span><strong>Verified</strong>2026-04-24</span>
   </span>
@@ -53,7 +51,20 @@
   </nav>
 
   <!-- ── Body ── -->
-  <div class="body">
+  <main class="body">
+
+    <header class="doc-head">
+      <div class="kicker">Reference · ZIA · URL Filtering, SSL Inspection, Policy Pipeline</div>
+      <h1>Zscaler Internet Access</h1>
+      <p class="lede">How ZIA decides whether internet and SaaS traffic passes — URL Filtering, SSL Inspection, Cloud App Control, and the staged policy pipeline that connects them.</p>
+      <dl class="frontmatter">
+        <dt>Product</dt><dd><code>zia</code></dd>
+        <dt>Topics</dt><dd>url-filtering · ssl-inspection · cloud-app-control · policy-order · wildcard-semantics</dd>
+        <dt>Source tier</dt><dd>Help-doc verified, SDK / Terraform cross-referenced</dd>
+        <dt>Read first</dt><dd><a href="../readers-guide.html" style="color: var(--accent-ink);">A Reader's Guide to the Zero Trust Exchange</a> &nbsp;&mdash; ch. IV frames ZIA's role in the platform</dd>
+        <dt>Read after</dt><dd><a href="forwarding.html" style="color: var(--accent-ink);">ZIA Traffic Forwarding</a> · <code>references/zia/url-filtering.md</code> · <code>references/zia/ssl-inspection.md</code></dd>
+      </dl>
+    </header>
 
     <!-- § At a glance -->
     <section id="glance">
@@ -119,8 +130,8 @@
             <tr><td>rank</td><td>integer (1–7)</td><td>Admin rank gate — who can create or edit this rule</td><td>Higher rank = constrained to appear earlier in order; <code>enableAdminRankAccess</code> must be on in Advanced Settings</td></tr>
             <tr><td>state</td><td>string enum</td><td><code>ENABLED</code> or <code>DISABLED</code></td><td>Disabled rules skip evaluation but retain their order slot — position is occupied</td></tr>
             <tr><td>action</td><td>string enum</td><td><code>ALLOW</code>, <code>CAUTION</code>, <code>BLOCK</code>, <code>ISOLATE</code>, <code>ICAP_RESPONSE_MODE</code></td><td><code>ISOLATE</code> requires Zero Trust Browser; <code>ICAP_RESPONSE_MODE</code> appears on tenants with ICAP integration</td></tr>
-            <tr><td>urlCategories</td><td>array of strings</td><td>Category codes matched by this rule (e.g. <code>"OTHER_ADULT_MATERIAL"</code>, <code>"CUSTOM_89"</code>)</td><td>Always strings in real API responses — not <code>{id, name}</code> objects</td></tr>
-            <tr><td>urlCategories2</td><td>array of strings</td><td>AND operator: URL must match both categories simultaneously</td><td>Does not appear in real API responses (verified Z2 tenant — count 0). Likely write-only or deprecated</td></tr>
+            <tr><td>urlCategories</td><td>array of strings</td><td>Category codes matched by this rule (e.g. <code>"OTHER_ADULT_MATERIAL"</code>, <code>"CUSTOM_89"</code>)</td><td>Observed as strings in tested tenant snapshots — not <code>{id, name}</code> objects</td></tr>
+            <tr><td>urlCategories2</td><td>array of strings</td><td>AND operator: URL must match both categories simultaneously</td><td>Not observed in tested tenant snapshots; contract/SDK still model it. Treat absence as unused on this tenant, not proof it is removed</td></tr>
             <tr><td>protocols</td><td>array of strings</td><td><code>HTTPS_RULE</code>, <code>HTTP_RULE</code>, <code>FTP_RULE</code>, etc.</td><td>Rules using Protocol criterion only evaluate at the post-decrypt (full-URL) pass — silently don't fire if SSL is not inspecting</td></tr>
             <tr><td>requestMethods</td><td>array</td><td>HTTP methods (<code>GET</code>, <code>POST</code>, etc.)</td><td>Post-decrypt only — same silent-no-fire risk as protocols</td></tr>
             <tr><td>blockOverride</td><td>boolean</td><td>Permits user to self-override a Block action</td><td>Silently ignored unless <code>action = BLOCK</code>; most common "why doesn't override work?" root cause</td></tr>
@@ -491,7 +502,17 @@
       </div>
     </section>
 
-  </div><!-- /.body -->
+    <footer class="docfoot">
+      <div class="links">
+        <a href="../readers-guide.html">&larr; A Reader's Guide to the Zero Trust Exchange</a>
+        <a href="forwarding.html">ZIA Traffic Forwarding</a>
+        <a href="#glance">&uarr; Top</a>
+      </div>
+      <p>Reference document. Last verified 2026-04-24. Confidence: high. Source tier: doc + SDK + Terraform provider.</p>
+      <p>Cite open clarifications by ID when an answer depends on them. Lab-test before publishing answers that hinge on <code>zia-02</code>, <code>zia-11</code>, or <code>zia-15</code>.</p>
+    </footer>
+
+  </main><!-- /.body -->
 
   <div id="rail" class="rail"></div>
 
@@ -546,6 +567,6 @@
   window.addEventListener('load', spy);
 </script>
 
-<script src="../nav.js?v=21"></script>
+<script src="../nav.js?v=28"></script>
 </body>
 </html>

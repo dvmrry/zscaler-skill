@@ -62,14 +62,14 @@ This skill encodes **how Zscaler actually behaves** — rule precedence, wildcar
 Two kinds of question this skill handles:
 
 - **General behavior** — "how do wildcards match?", "what happens when URL filtering and cloud app control both apply?". Answerable anywhere, sourced from `references/`.
-- **Tenant-specific lookups** — "is `reddit.com` in a URL category in *our* tenant?". Requires a `_data/snapshot/` populated by the refresh scripts. Public upstream does not track `_data/`; tenant snapshots live only in private runtime-data mounts or forks.
+- **Tenant-specific lookups** — "is `reddit.com` in a URL category in *our* tenant?". Requires observed tenant state: either a `_data/snapshot/` populated by a private overlay, explicit user-provided command output, or — when available — read-only `zscalerctl` output. Public upstream does not track `_data/`; tenant snapshots live only in private runtime-data mounts or forks.
 
 Structured troubleshooting with a symptom, affected scope, and timeframe should
 use the portable `zscaler-investigator` skill or the `/z-investigator` runtime
 adapter. This broad `zscaler` entrypoint is for ad-hoc Q&A and lightweight
 lookups, not discovery-journal investigations.
 
-## Check for a snapshot first
+## Check tenant observation first
 
 Before answering tenant-specific questions, check whether `_data/snapshot/` has any runtime data:
 
@@ -77,7 +77,9 @@ Before answering tenant-specific questions, check whether `_data/snapshot/` has 
 find _data/snapshot -mindepth 1 -type f -print -quit
 ```
 
-If empty, say so explicitly (see **When to decline**) and still answer the general case where possible. If populated, read the relevant JSON (`_data/snapshot/<cloud>/zia/url-categories.json`, `_data/snapshot/<cloud>/zia/url-filtering-rules.json`, `_data/snapshot/<cloud>/zpa/app-segments.json`, etc.) and cite the specific rule IDs you used.
+If populated, read the relevant JSON (`_data/snapshot/<cloud>/zia/url-categories.json`, `_data/snapshot/<cloud>/zia/url-filtering-rules.json`, `_data/snapshot/<cloud>/zpa/app-segments.json`, etc.) and cite the specific rule IDs you used. If the overlay records that the snapshot or diff was produced by `zscalerctl`, treat it as the fast local cache of read-only tenant observation.
+
+If `_data/snapshot/` is empty or stale and the question is tenant-specific, do **not** invent tenant truth. When the optional `@zscalerctl` companion is available, hand off or draft a bounded read-only command (`zscalerctl --format json ...`) for the operator to run, then apply this skill's policy semantics to the returned JSON. Until `zscalerctl` is officially adopted, use soft language: "if installed", "when available", or "I can draft the read-only command." See [`references/_meta/tooling.md`](references/_meta/tooling.md).
 
 `_data/schemas/` is a separate cache for log-schema decompositions, query skeletons, and script-generated reports (gitignored; populated by scripts such as `splunk-query.sh`, `issue-watch.py`, and `find-asymmetries.py`). Raw logs are a validation layer, not a primary source — see **When to consult logs** below.
 
@@ -174,7 +176,7 @@ If the question shape isn't here, start with `references/shared/policy-evaluatio
 
 **For prerequisite-knowledge questions** ("what's a proxy?", "what's the difference between SAML and OIDC?", "what does zero trust actually mean?", "how does NAT work?"), start with [`references/_meta/primer/`](references/_meta/primer/) — five primer docs covering generic networking, forwarding paradigms, zero-trust philosophy, identity protocols, and the Zscaler platform shape. Use this when the asker is non-networking-background or when you need to set up conceptual scaffolding before diving into a product-specific answer.
 
-**For meta-questions about the skill itself** ("where does general Zscaler knowledge end and tenant-specific data begin?", "how should this skill combine doc knowledge with what we know operationally?"), see [`references/_meta/layering-model.md`](references/_meta/layering-model.md) — the three-layer framing (general / tenant / SME tribal) with anti-patterns and operational implications for fine-tune training.
+**For meta-questions about the skill itself** ("where does general Zscaler knowledge end and tenant-specific data begin?", "how should this skill combine doc knowledge with what we know operationally?"), see [`references/_meta/layering-model.md`](references/_meta/layering-model.md) — the three-layer framing (general / tenant / SME tribal) with anti-patterns and operational implications for fine-tune training. For the pre-release `zscalerctl` companion boundary, see [`references/_meta/tooling.md`](references/_meta/tooling.md): `zscalerctl` observes tenant state; this skill reasons over it.
 
 **If you are an AI agent**, prefer [`references/_meta/agent-patterns.md`](references/_meta/agent-patterns.md) over the prose runbooks below. It contains typed Python functions for the same diagnostic / recovery flows in copy-pasteable form: `detect_cloud()`, `is_gov_cloud()`, `detect_auth_framework()`, `smoke_test_creds()`, `enumerate_endpoints()`, `interpret_error()`, plus a composite `diagnose_tenant()`. The canonical implementation lives at `scripts/agent_patterns.py`. Lift functions verbatim or `import agent_patterns as ap`.
 
@@ -239,7 +241,7 @@ When you do query, cite the SPL pattern by name from [`references/shared/splunk-
 
 ## When to decline
 
-- **Tenant state needed, snapshot empty** — say so directly, and still answer the general case if there is one.
+- **Tenant state needed, no observation available** — say so directly, and still answer the general case if there is one. If `@zscalerctl` is available, offer or draft a bounded read-only command; otherwise ask for a snapshot or sanitized command output.
 - **Relevant reference is still a stub** (`author-status: stub`, no body yet) — say the skill hasn't written this down yet, describe what you know from the file's TODO headings, and mark **Confidence: low**.
 - **Question maps to a known open clarification** — if a reference doc cross-links an entry in [`references/_meta/clarifications.md`](references/_meta/clarifications.md) that covers the user's question, cite the clarification ID (e.g. "this hits `zia-03` — wildcard tokenization is unresolved in our public material"), answer what you can, and flag the gap rather than hallucinating the rest.
 - **T1 — operational deep-dive (SDK / TF / API + multi-component coverage)** — ZIA, ZPA (including AppProtection inline WAF/IPS sub-component and Browser Access), ZCC (forwarding profiles, trusted networks, fail-open), ZIdentity (unified identity, OneAPI auth, step-up authentication), Cloud & Branch Connector (ZTW/ZTC — Cloud Connector VM architecture, traffic forwarding rules, SDK/TF surface), and ZDX (score, probes, diagnostic sessions, alerts — **T1 borderline: observability layer rather than enforcement, per 2026-05-04 verification gate**). Answer with full confidence and cite specific reference sections including API endpoints, rule semantics, and policy evaluation order.
