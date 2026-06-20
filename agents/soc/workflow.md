@@ -26,10 +26,11 @@ required-reads:
   - agents/soc/prompt.md
   - agents/soc/harness.md
   - agents/soc/grounding/index.md
+  - agents/siem-emission-discipline.md
+optional-reads:
   - agents/soc/grounding/security-taxonomy.md
   - agents/auditor/methodology.md
   - agents/investigator/methodology.md
-  - agents/siem-emission-discipline.md
   - agents/clarification-pattern.md
 supporting-scripts:
   - scripts/soc-artifacts.mjs
@@ -38,7 +39,8 @@ supporting-scripts:
 
 # Zscaler SOC Workflow
 
-Load and follow the files listed in `required-reads`.
+Load and follow the files listed in `required-reads`. Load files listed in
+`optional-reads` only when the subtype or evidence source needs them.
 
 Use this workflow for security posture review of tenant configuration,
 telemetry, and access state. Parse scope, subtype, and threat model. Ground
@@ -49,6 +51,21 @@ Do not change tenant state. If scope is ambiguous, ask one targeted clarifying
 question.
 
 Supporting scripts: `scripts/soc-artifacts.mjs`, `scripts/soc-mcp-server.mjs`.
+
+Optional reads:
+
+- `agents/soc/grounding/security-taxonomy.md` — load when assigning posture
+  domains, control families, or threat-model labels.
+- `agents/auditor/methodology.md` — load when writing audit-style findings or
+  judging evidence sufficiency.
+- `agents/investigator/methodology.md` — load when a posture finding depends on
+  live troubleshooting claim status.
+- `agents/clarification-pattern.md` — load when the scope needs a closed-set
+  clarification.
+
+`agents/siem-emission-discipline.md` is a **required** read (see `required-reads`),
+not optional: it is the SIEM / tenant-data leak boundary and must be loaded before
+any telemetry emission, never deferred to "when remembered."
 
 On MCP runtimes, the role entrypoint is server-provided (prompt `soc-review`),
 and the final review answer is produced by the `render_soc_report` tool — not

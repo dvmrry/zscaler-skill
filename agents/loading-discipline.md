@@ -1,12 +1,13 @@
 ---
 topic: "loading-discipline"
-title: "Loading discipline — stage announcements for I/O-driven pauses"
+title: "Loading discipline — stage announcements and context budgets"
 content-type: reference
-last-verified: "2026-05-06"
+last-verified: "2026-06-18"
 confidence: medium
 source-tier: practice
 sources:
   - "Internal UX practice — Cascade silent-think anti-pattern; long answer pauses without surfaced action read as stuck"
+  - "Skill Creator progressive-disclosure guidance — keep core instructions lean, load detailed references only when needed"
   - "agents/siem-emission-discipline.md (parallel cross-cutting discipline pattern)"
 author-status: draft
 ---
@@ -15,7 +16,11 @@ author-status: draft
 
 Long pauses without surfaced action read as stuck. Especially in Cascade and other runtimes where the model thinks silently between user-visible turns. A short stage line — *what's about to happen*, not *progress* — gives the user a "things are alive" signal without claiming false precision.
 
-This file is the contract for those announcements. The intent is consistency over speed: if every role uses the same phrasing for the same kind of action, the user's mental model stays steady across surfaces. Roles that opt into this discipline declare it as a dependency in their prompt frontmatter.
+This file is the contract for those announcements and for bounded context
+loading. The intent is consistency over speed: if every role uses the same
+phrasing for the same kind of action, and the same rules for what *not* to load,
+the user's mental model stays steady across surfaces. Roles that opt into this
+discipline declare it as a dependency in their prompt frontmatter.
 
 ## Contract
 
@@ -28,6 +33,53 @@ A stage line:
 5. Is **suppressed for trivial / in-context answers**. If the answer is already in the conversation context and no I/O is needed, say nothing — go straight to the answer.
 6. Uses the **fixed stage vocabulary** below. Models that pick fresh wording each turn destroy the consistency-over-speed value.
 7. Never claims a source was checked until it was actually read, searched, or queried. The line precedes the action and reflects what is truly about to happen.
+
+## Context budget
+
+Treat the context window as a shared runtime resource. Load the smallest
+artifact that can answer the current question, then stop.
+
+1. **Route, then read.** Use workflow metadata, the capability registry, or a
+   short `rg` search to choose a source. Do not open broad product folders,
+   `references/_meta/clarifications.md`, runbooks, or vendor trees before a
+   concrete question points there.
+2. **Prefer indexes before bodies.** Load `agents/**/grounding/index.md`,
+   `references/<product>/index.md`, or a source viewer index before child
+   cards. Read a child card only when the index names it as relevant.
+3. **Search long ledgers, don't page them in.** For
+   `references/_meta/clarifications.md`, search by product prefix and keyword
+   first, for example `rg -n "^(### )?(zia|shared)-|ucTemplateId|urlCategories2"
+   references/_meta/clarifications.md`, then read the small matching section.
+   Always include the `shared-` prefix alongside the product one — cross-product
+   clarifications (37 entries) live under `shared-`, not under each product, so a
+   product-only grep silently misses them.
+4. **Default search exclusions.** Broad searches should exclude local runtime
+   copies and generated/stale workspaces: `--glob '!.claude/worktrees/**'`.
+   Exclude raw vendor source under `vendor/**` unless the current workflow
+   explicitly asks for source verification, SDK/TF/API surface checks, or
+   citation repair. **Exception:** `vendor/zscaler-api-specs/automate-zscaler/`
+   (the captured API contract, divergences, rosetta, and the `issue-routing`
+   worklist) is reference-grade reconciliation data, not raw vendor source —
+   search it like `references/**`, not like a vendor tree.
+5. **Treat `_data/` as tenant evidence, not reference background.** Search
+   `_data/snapshot/`, `_data/cases/`, or `_data/iac/` only when the question is
+   tenant-specific, case-specific, or deployment-specific.
+6. **One-pass answer budget.** For ad-hoc Q&A, aim for one primary reference
+   plus one clarification check. Add more only when the user asks for a
+   comparison, conflict, or cross-product behavior.
+7. **Record what mattered.** Procedural roles with artifacts should record the
+   files actually used, not every file considered. Rejected broad searches do
+   not belong in evidence ledgers.
+
+**Safety boundaries are not budgeted.** A doc that prevents a harmful action —
+`agents/siem-emission-discipline.md` (tenant-data / SIEM emission rules) — is a
+required read for any emit-capable role, loaded eagerly, never deferred to an
+on-demand trigger. A leak rule loaded only when the model remembers it is not a
+control. Context-budget trimming applies to reference material, not safety
+boundaries.
+
+If a task genuinely needs broad source mining, switch to the researcher or
+auditor workflow instead of turning the ad-hoc surface into an unbounded crawl.
 
 ## Stage vocabulary
 

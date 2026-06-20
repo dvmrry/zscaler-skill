@@ -18,6 +18,7 @@ known-runtimes:
   - claude
 required-reads:
   - agents/zscaler/prompt.md
+optional-reads:
   - agents/loading-discipline.md
   - agents/clarification-pattern.md
   - agents/_meta/capability-registry.json
@@ -26,16 +27,28 @@ supporting-scripts:
 
 # Zscaler Ad-Hoc Q&A Workflow
 
-Load and follow the files listed in `required-reads`.
+Load and follow `agents/zscaler/prompt.md` first. Load files listed in
+`optional-reads` only when their trigger applies.
 
 Use this workflow for conversational, citation-backed Zscaler Q&A. Read only the
 specific references or tenant snapshot files needed for the current question.
 If the question becomes procedural, offer the relevant `/z-*` handoff instead of
 silently switching modes.
 
+Optional reads:
+
+- `agents/_meta/capability-registry.json` — load when the request has a
+  procedural cue, ambiguous role ownership, or needs a hand-off capsule.
+- `agents/clarification-pattern.md` — load when asking a closed-set
+  clarification or when clarification formatting is drifting.
+- `agents/loading-discipline.md` — load when the turn needs multiple file
+  reads, a broad search, or stage/context-loading discipline is drifting.
+
 ## Capability routing
 
-Before answering, decide whether the request is ad-hoc Q&A or a job another role owns. Consult `agents/_meta/capability-registry.json`:
+Before answering, decide whether the request is ad-hoc Q&A or a job another
+role owns. If the request has procedural cues, consult
+`agents/_meta/capability-registry.json`:
 
 - Apply each entry's `intent`. Route to an entry only when its `threshold` is met: `all-required` → every `requiredSignals` item is present in the request; `any-cue` → at least one `cueSignals` term is present AND no `negativeSignals` term is. The investigator entry is `all-required` (symptom + affected-scope + timeframe) — never route to it on a single keyword. Match signals by **meaning, not literal substring** — "admin access controls" satisfies SOC's `RBAC`/`least-privilege`; "connector group sizing" satisfies the architect's `capacity`.
 - **One high-confidence match** → suggest that role's `primary-command` (read it from the role's `workflow.md`, e.g. `/z-soc`) and emit the entry's **hand-off capsule**: fill `capsule.fields` from the conversation and render `capsule.wording`, so the next role starts with the context. Example: "This is an investigation — run `/z-investigator`. Carry this context: <rendered capsule>."

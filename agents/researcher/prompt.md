@@ -160,6 +160,8 @@ Halt and wait.
 
 ### 3a - Write
 
+Use `agents/researcher/writer.md` as the writer-pass contract.
+
 Run the writer pass with only:
 
 1. The full extraction report from Step 2
@@ -169,6 +171,8 @@ Run the writer pass with only:
 The writer edits the target file and returns a structured summary. Route Open Items into an Open questions / validation gaps section unless the extraction report directly supports adding them to the body.
 
 ### 3b - Verify
+
+Use `agents/researcher/verifier.md` as the verifier-pass contract.
 
 Run a read-only verification pass:
 

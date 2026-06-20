@@ -55,6 +55,12 @@ RUNTIME_SKILL_PREFIXES = {
     REPO_ROOT / ".claude" / "skills": "claude-",
 }
 
+EXPECTED_PORTABLE_SKILL_WORKFLOWS = {
+    "zscaler-investigator": AGENTS_ROOT / "investigator" / "workflow.md",
+    "zscaler-soc": AGENTS_ROOT / "soc" / "workflow.md",
+    "zscaler-skill-setup": AGENTS_ROOT / "setup" / "workflow.md",
+}
+
 
 @dataclass
 class Finding:
@@ -152,16 +158,15 @@ def check_skill(skill_file: Path, findings: list[Finding], allow_smoke_tests: bo
             )
         )
 
-    if name == "zscaler-investigator":
-        expected_workflow = AGENTS_ROOT / "investigator" / "workflow.md"
-        if expected_workflow not in agent_targets:
-            findings.append(
-                Finding(
-                    "error",
-                    skill_file,
-                    "zscaler-investigator must reference agents/investigator/workflow.md",
-                )
+    expected_workflow = EXPECTED_PORTABLE_SKILL_WORKFLOWS.get(name)
+    if expected_workflow and expected_workflow not in agent_targets:
+        findings.append(
+            Finding(
+                "error",
+                skill_file,
+                f"{name} must reference {rel(expected_workflow)}",
             )
+        )
 
     if is_smoke_test and "agent-skill-smoke-test: loaded" not in body:
         findings.append(Finding("error", skill_file, "smoke-test skill must define its expected marker output"))
@@ -232,6 +237,48 @@ def check_runtime_adapters(findings: list[Finding], strict: bool) -> None:
                     findings.append(Finding(severity, adapter, f"possible stale adapter path: {label}"))
 
 
+WRAPPER_POINTER_DIRS = [
+    REPO_ROOT / ".claude" / "commands",
+    REPO_ROOT / ".claude" / "agents",
+    REPO_ROOT / ".devin" / "workflows",
+]
+
+CANONICAL_REF_RE = re.compile(r"agents/[A-Za-z0-9_./-]+\.md")
+
+
+def check_pointer_targets(findings: list[Finding]) -> None:
+    """Thin wrappers point back at canonical agents/** files. A rename or move of
+    a canonical file silently breaks the wrapper (for example the researcher
+    writer pass) because nothing re-checks the pointer. Verify every agents/**.md
+    path a wrapper references actually exists."""
+    for wrapper_dir in WRAPPER_POINTER_DIRS:
+        if not wrapper_dir.exists():
+            continue
+        for wrapper in sorted(wrapper_dir.glob("*.md")):
+            text = wrapper.read_text(encoding="utf-8")
+            for ref in sorted(set(CANONICAL_REF_RE.findall(text))):
+                resolved = (REPO_ROOT / ref).resolve()
+                if not resolved.exists():
+                    findings.append(
+                        Finding(
+                            "error",
+                            wrapper,
+                            f"points at canonical path that does not exist (rename/move?): {ref}",
+                        )
+                    )
+                    continue
+                try:
+                    resolved.relative_to(AGENTS_ROOT)
+                except ValueError:
+                    findings.append(
+                        Finding(
+                            "error",
+                            wrapper,
+                            f"canonical pointer escapes agents/ (path traversal?): {ref}",
+                        )
+                    )
+
+
 def check_runtime_skill_collisions(skill_names: list[str], findings: list[Finding], strict: bool) -> None:
     canonical_names = set(skill_names)
     for skill_file in runtime_skill_files():
@@ -297,6 +344,7 @@ def main() -> int:
 
     check_routing_docs(skill_names, findings)
     check_runtime_adapters(findings, args.strict_adapters)
+    check_pointer_targets(findings)
     check_runtime_skill_collisions(skill_names, findings, args.strict_adapters)
 
     errors = [finding for finding in findings if finding.severity == "error"]

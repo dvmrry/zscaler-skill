@@ -11,6 +11,7 @@ sources:
   - agents/investigator/harness.md
   - agents/investigator/case-intake.md
   - agents/investigator/grounding/index.md
+  - agents/siem-emission-discipline.md
   - scripts/investigator-artifacts.mjs
 author-status: reviewed
 summary: Evidence-based Zscaler troubleshooting investigation
@@ -24,15 +25,16 @@ required-reads:
   - agents/investigator/harness.md
   - agents/investigator/case-intake.md
   - agents/investigator/grounding/index.md
+  - agents/siem-emission-discipline.md
 optional-reads:
   - agents/investigator/methodology.md
   - agents/investigator/diagnostics/template.md
-  - agents/siem-emission-discipline.md
   - agents/tenant-schema-derivation.md
   - agents/loading-discipline.md
   - agents/clarification-pattern.md
 supporting-scripts:
   - scripts/investigator-artifacts.mjs
+  - scripts/investigator-mcp-server.mjs
   - scripts/prepare-overlay-submission.mjs
 ---
 
@@ -99,13 +101,13 @@ Before responding, load:
 2. `agents/investigator/harness.md`
 3. `agents/investigator/case-intake.md`
 4. `agents/investigator/grounding/index.md`
+5. `agents/siem-emission-discipline.md` — the SIEM / tenant-data leak boundary; loaded eagerly so the safety rules are present before any emission, not only when remembered.
 
 Available on demand. Do not load these before the first response unless the
 trigger applies:
 
 - `agents/investigator/methodology.md` — load when stuck, drifting, or preparing handoff.
 - `agents/investigator/diagnostics/template.md` — load only when authoring or reviewing a verified reusable diagnostic.
-- `agents/siem-emission-discipline.md` — load before emitting or running SIEM queries.
 - `agents/tenant-schema-derivation.md` — load when canonical-vs-tenant field mismatch appears.
 - `agents/loading-discipline.md` — load if stage-announcement cadence drifts.
 - `agents/clarification-pattern.md` — load if clarification format drifts.

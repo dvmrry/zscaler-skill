@@ -119,13 +119,13 @@ If `permissionConfig` is set, the harness copies that JSON into
 `.devin/config.local.json` for the duration of the run and **restores/removes it
 afterward** (via `try/finally`), leaving the workspace clean. It never touches the
 user's real `.devin/config.json`. The shipped
-`scenarios/mcp-readonly.config.json` locks the session to the investigator MCP
-tools plus reads only:
+`scenarios/mcp-readonly.config.json` locks the session to the Zscaler MCP
+workflow tools plus reads only:
 
 ```json
 {
   "permissions": {
-    "allow": ["mcp__zscaler-investigator__*", "Read(**)"],
+    "allow": ["mcp__zscaler-investigator__*", "mcp__zscaler-auditor__*", "mcp__zscaler-soc__*", "Read(**)"],
     "deny": ["Exec(*)", "Write(**)"]
   }
 }

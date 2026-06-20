@@ -97,7 +97,9 @@ See [`docs/data-contract/iac.md`](docs/data-contract/iac.md) for the precedence 
 
 ## Question routing
 
-Go straight to the reference file that covers the question shape. Only read more than one if the question genuinely spans them.
+Go straight to the reference file that covers the question shape. Treat this
+table as a resolver, not a preload list: select one row, read the named file,
+then stop unless the question genuinely spans multiple products or policies.
 
 | Question shape | Start with |
 |---|---|
@@ -182,7 +184,11 @@ If the question shape isn't here, start with `references/shared/policy-evaluatio
 
 **For verifying a finding before threading it into the skill** — i.e., any time a user reports behavior that's not yet documented — apply [`references/_meta/verification-protocol.md`](references/_meta/verification-protocol.md). The four-tier model (source-verified / behavior-verified / operator-reported / inferred) governs what language is permitted, where the finding can land, and how user assertions get treated when they conflict with sources. **This is binding for assistant behavior:** treat user-reported behavior as a tier-C candidate by default, run the source-check sequence before threading, never use "verified" language for unverified content, and hold the line on tier C/D when users push for tier-A treatment without producing evidence.
 
-**Before quoting any reference summary, check `references/_meta/clarifications.md` for the question's domain** — `zia-*`, `zpa-*`, `shared-*`, `log-*`. Summaries distil the doc; clarifications flag where the doc's cheerful prose hides an unresolved ambiguity. Cite the clarification ID in your answer when one applies and adjust confidence accordingly.
+**Before quoting any reference summary, do a targeted clarification lookup** —
+search `references/_meta/clarifications.md` by the selected product prefix,
+cited clarification ID, or the specific field/behavior in question. Do not load
+the entire clarification ledger for routine answers. When a matching entry
+applies, cite the clarification ID and adjust confidence accordingly.
 
 ## Answer format
 

@@ -82,7 +82,7 @@ Files at the root of `agents/` apply across roles:
 - [`siem-emission-discipline.md`](./siem-emission-discipline.md) — execution modes (agent-direct / user-handoff / coworking), placeholder plumbing, public/private boundary for SIEM queries
 - [`tenant-schema-derivation.md`](./tenant-schema-derivation.md) — canonical-vs-tenant schema distinction, derivation recipes per SIEM, storage template
 - [`clarification-pattern.md`](./clarification-pattern.md) — standard clarify-before-routing pattern for underspecified Zscaler requests
-- [`loading-discipline.md`](./loading-discipline.md) — bounded file-loading and stage-announcement discipline for agent workflows
+- [`loading-discipline.md`](./loading-discipline.md) — bounded context loading, search exclusions, and stage-announcement discipline for agent workflows
 - [`declared-records.md`](./declared-records.md) — lightweight metadata convention for durable findings, recommendations, warnings, decisions, claims, and action items
 
 ## Frontmatter conventions
