@@ -3,7 +3,7 @@ product: zia
 topic: "zia-dlp"
 title: "ZIA Data Loss Prevention — dictionaries, engines, policy rules"
 content-type: reasoning
-last-verified: "2026-06-15"
+last-verified: "2026-06-21"
 confidence: high
 source-tier: mixed
 sources:
@@ -16,6 +16,10 @@ sources:
   - "https://help.zscaler.com/zia/understanding-predefined-dlp-dictionaries"
   - "vendor/zscaler-help/understanding-predefined-dlp-dictionaries.md"
   - "vendor/zscaler-help/Understanding_Policy_Enforcement.txt"
+  - "vendor/zscaler-api-specs/automate-zscaler/observed-contract-overlays.md"
+  - "vendor/zscaler-api-specs/automate-zscaler/observed-contract-overlays.json"
+  - "vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/dlp/dlp_web_rules/dlp_web_rules.go"
   - "vendor/zscaler-sdk-python/zscaler/zia/dlp_web_rules.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/models/dlp_web_rules.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/dlp_dictionary.py"
@@ -193,8 +197,17 @@ The web-rule model (`vendor/zscaler-sdk-python/zscaler/zia/models/dlp_web_rules.
 - **`dlp_download_scan_enabled`** (`:57`) — enable DLP on the download direction (the `Inspect Downloads` toggle; see the EDM/IDM exclusion footgun below).
 - **`match_only`** (`:51`) and **`min_size`** (`:48`, KB) — file-size gating: `match_only` controls whether a minimum file size is used to qualify a transaction for evaluation.
 - **`user_risk_score_levels`** (`:76-78`) — risk-based DLP: scope a rule to user risk-score bands.
+- **`dlp_content_locations_scopes`** (`dlpContentLocationsScopes`) — content-location match scopes. This field is documented in Automate for Web DLP create/read/update operations (`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:81631-81638`, `:97694-97700`, `:121756-121762`) and modeled by both Go and Python SDKs (`vendor/zscaler-sdk-go/zscaler/zia/services/dlp/dlp_web_rules/dlp_web_rules.go:163-164`; `vendor/zscaler-sdk-python/zscaler/zia/models/dlp_web_rules.py:79-80`, `:237`), but the 2026-06-21 overlay records it as absent from the Terraform provider (`vendor/zscaler-api-specs/automate-zscaler/observed-contract-overlays.md:40-42`).
 - **`included_domain_profiles` / `excluded_domain_profiles`** (`:102-109`) and **`source_ip_groups`** (`:110-112`) — additional scoping dimensions (domain profiles, source IP groups) beyond the users/groups/departments/locations the prose lists.
 - **`zscaler_incident_receiver`** (`:66`), **`icap_server`** (`:137`), **`auditor`** (`:131`), **`external_auditor_email`** (`:67`, `dlp_web_rules.py:246`), **`notification_template`** (`:133-135`) — the per-rule handles wiring a rule to the forwarding surfaces in the `dlp_resources` / `dlp_templates` namespaces above.
+
+### Observed live-read overlays
+
+Source: `vendor/zscaler-api-specs/automate-zscaler/observed-contract-overlays.md`; `vendor/zscaler-api-specs/automate-zscaler/observed-contract-overlays.json`.
+
+The clean-room overlay records two Web DLP rule fields that appeared in live read responses but are absent from the checked-in Automate contract, the same-day 2026-06-21 Playwright recapture, the vendored Go SDK, the vendored Python SDK, and the Terraform provider: `deeplyNestedContentEnabled` / `deeply_nested_content_enabled` and `timeoutFailClosedEnabled` / `timeout_fail_closed_enabled` (`observed-contract-overlays.md:18-25`; `observed-contract-overlays.json:9-53`). The overlay retains no tenant identifiers, object IDs, object names, field values, or payload excerpts, and explicitly treats both fields as read-side observations with unknown write status (`observed-contract-overlays.md:11-16`, `:22-25`).
+
+The 2026-06-21 Automate recapture is a negative-control check rather than a stale-doc assumption: all six Web DLP operation pages recaptured with the Automate Playwright scraper had raw hashes matching the checked-in `zia-api-reference.json`, and the fields were still absent (`observed-contract-overlays.md:27-38`; `observed-contract-overlays.json:55-91`). Treat both as known read-side holds until Zscaler documents them or a lab write-test proves they are accepted on create/update.
 
 ## Cross-product hooks
 
@@ -263,6 +276,8 @@ These are configuration combinations and behaviors that silently fail or behave 
 
 ## Open questions
 
+Source: `vendor/zscaler-sdk-python/zscaler/zia/models/dlp_web_rules.py`; `vendor/zscaler-api-specs/automate-zscaler/observed-contract-overlays.md`; `vendor/zscaler-api-specs/automate-zscaler/observed-contract-overlays.json`.
+
 - **Max file-size cap: 400 MB vs 100 MB — the source contradicts itself.** Two figures appear in the captured help docs:
   - **400 MB** at `configuring-dlp-policy-rules-content-inspection.md:22` ("The Zscaler DLP engines support files up to 400 MB…") and `about-dlp-engines.md:27` ("Zscaler DLP engines can scan files with a maximum size of 400 MB.").
   - **100 MB** at `configuring-dlp-policy-rules-content-inspection.md:113`, in the File Type subsection ("Zscaler DLP engines can scan files of up to 100 MB.").
@@ -274,6 +289,7 @@ These are configuration combinations and behaviors that silently fail or behave 
 - **Allowed values for the rule `action` and `severity` fields** — the SDK model (`vendor/zscaler-sdk-python/zscaler/zia/models/dlp_web_rules.py:49,61`) carries both as free strings with no enum declared, so the concrete set (e.g. ALLOW / BLOCK / CONFIRM for action; the severity bands) is not pinned by SDK source. The help-doc prose names ALLOW / BLOCK / CONFIRM behaviorally but the wire enum is unconfirmed here.
 - **`parent_rule` / `sub_rules` semantics** — the rule model exposes a parent/child rule hierarchy (`models/dlp_web_rules.py:62-63`) but the SDK does not document how sub-rule evaluation composes with the flat first-match-wins / Evaluate-All-Rules order described from the help docs. How a parent rule's match interacts with its sub-rules' actions is unconfirmed.
 - **`without_content_inspection` (EXTERNALDLP) exact behavior** — the field is SDK-confirmed (`models/dlp_web_rules.py:53-55`) as a distinct no-content-inspection rule variant, but what the rule keys on instead of payload content, and which forwarding surfaces it pairs with, is not pinned by SDK source.
+- **Live-read-only fields `deeplyNestedContentEnabled` and `timeoutFailClosedEnabled`** — observed in downstream clean-room live reads, but absent from the Automate contract, same-day recapture, SDKs, and Terraform provider; write status unknown (`vendor/zscaler-api-specs/automate-zscaler/observed-contract-overlays.md:18-29`). Treat as known holds until documented or write-tested.
 
 These open DLP items are tracked together as `zia-58` in [`../_meta/clarifications.md`](../_meta/clarifications.md#zia-58-dlp-web-rule-actionseverity-enums-parentsub-rule-composition-externaldlp-behavior).
 
