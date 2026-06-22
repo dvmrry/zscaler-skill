@@ -176,7 +176,6 @@ def module_slice(js: str, module_id: int | str) -> str | None:
     paren = brace = bracket = 0
     quote: str | None = None
     escaped = False
-    template = False
     while i < len(js):
         ch = js[i]
         if quote:
@@ -186,12 +185,10 @@ def module_slice(js: str, module_id: int | str) -> str | None:
                 escaped = True
             elif ch == quote:
                 quote = None
-                template = False
             i += 1
             continue
         if ch in ("'", '"', "`"):
             quote = ch
-            template = ch == "`"
             i += 1
             continue
         if ch == "(":
@@ -809,7 +806,15 @@ def pair_delta_rows(
         used_live: set[str] = set()
         used_old: set[str] = set()
 
-        def add_row(strategy: str, old_key: str | None, live_key: str | None) -> None:
+        def add_row(
+            strategy: str,
+            old_key: str | None,
+            live_key: str | None,
+            *,
+            product: str = product,
+            old: dict[str, dict[str, object]] = old,
+            live: dict[str, dict[str, object]] = live,
+        ) -> None:
             previous = old.get(old_key or "", {})
             current = live.get(live_key or "", {})
             rows.append(
@@ -834,7 +839,16 @@ def pair_delta_rows(
             used_old.add(key)
             used_live.add(key)
 
-        def add_signature_matches(strategy: str, loose_params: bool = False) -> None:
+        def add_signature_matches(
+            strategy: str,
+            loose_params: bool = False,
+            *,
+            product: str = product,
+            old: dict[str, dict[str, object]] = old,
+            live: dict[str, dict[str, object]] = live,
+            used_old: set[str] = used_old,
+            used_live: set[str] = used_live,
+        ) -> None:
             live_by_sig: dict[tuple[str, str], list[str]] = defaultdict(list)
             old_by_sig: dict[tuple[str, str], list[str]] = defaultdict(list)
             for key, op in live.items():
