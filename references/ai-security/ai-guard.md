@@ -198,7 +198,7 @@ AI Guard has an API surface:
 - **Proxy-mode provider API pathing**: Applications send provider-shaped requests to `https://proxy.zseclipse.net` using provider-specific paths such as `/v1/messages`, `/v1/chat/completions`, Bedrock model paths, Gemini `generateContent`, and Vertex paths.
 - **DaaS policy detection API**: Applications call `https://api.<cloud>.zseclipse.net/v1/detection/execute-policy` for an explicit policy ID, or `/v1/detection/resolve-and-execute-policy` for AI Guard policy resolution.
 - **Python SDK**: `zscaler.zaiguard.policy_detection.PolicyDetectionAPI` exposes `execute_policy(content, direction, policy_id=None, transaction_id=None)` and `resolve_and_execute_policy(content, direction, transaction_id=None)`. Authentication uses `AIGUARD_API_KEY`, `AIGUARD_CLOUD`, and optional `AIGUARD_OVERRIDE_URL`.
-- **Admin/config APIs**: No comprehensive public REST API reference for AI Guard administration was found in available sources.
+- **Admin/config APIs**: The reconstructed Automate snapshot exposes a documented admin-plane contract for detection policies, policy match rules, LLM applications, LLM providers, and credentials; no Go SDK, Terraform, MCP, Postman, or Automation Hub wrapper is captured for that contract (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:9`; `references/ai-security/api-divergences.md#automate-admin-plane-contract-vs-client-surfaces`).
 
 Direction values are documented in the SDK and most integration examples as `IN` and `OUT`. The DAS/API Help page examples use `request` and `response` strings instead; accepted alias behavior is unresolved by static sources, so SDK callers should use `IN`/`OUT` and track the divergence in [`./api-divergences.md`](./api-divergences.md#direction-value-divergence) and [clarification ai-security-01](../_meta/clarifications.md#ai-security-01-ai-guard-direction-literal-aliases). Conceptually, `IN` covers user prompts, tool input, command arguments, or file content before the AI application consumes it; `OUT` covers model responses, tool output, URL checks, or response content before it is returned downstream.
 
@@ -213,9 +213,9 @@ The SDK request/response model matters for resilient DaaS integrations:
 
 When a policy ID is supplied, examples call `execute-policy`. When no policy ID is supplied, examples call `resolve-and-execute-policy`, relying on the API key's associated application and policy to resolve the effective policy. The Python SDK model also shows that the resolved-policy response can include `policyId`, `policyName`, and `policyVersion`, while the explicit execution response model does not expose those fields as top-level attributes.
 
-The public Python SDK exposes runtime policy detection only. It does not expose Help-documented portal objects such as LLM Provider, LLM Provider Credential, AI Application, Policy Configuration, Policy Control, Tenant Settings, RBAC Role, Dashboard, Insights, Usage, or Log Export management.
+The public Python SDK exposes runtime policy detection only. It does not expose the Automate-documented admin-plane objects such as LLM Provider, LLM Provider Credential, AI Application, Policy Configuration, Policy Control, or related credential/application management.
 
-For implementation caveats, see [`./api-divergences.md`](./api-divergences.md): it records the SDK-vs-Help direction literal mismatch, `policyId` ambiguity for `execute-policy`, detector-taxonomy differences, integration failure posture, and audit-scoped absence of broad admin-plane automation in inspected public sources.
+For implementation caveats, see [`./api-divergences.md`](./api-divergences.md): it records the SDK-vs-Help direction literal mismatch, `policyId` ambiguity for `execute-policy`, detector-taxonomy differences, integration failure posture, the Automate admin-plane contract, client-wrapper gaps, and action-path encoding questions in inspected public sources.
 
 ## Integration examples
 

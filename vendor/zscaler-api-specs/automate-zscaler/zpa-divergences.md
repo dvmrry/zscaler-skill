@@ -12,10 +12,10 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 ## Totals
 
-- Type drift (contract numeric vs Go string): **92**
+- Type drift (contract vs Go primitive category): **92**
 - Required drift (contract vs TF): **28**
 - Enum: **15** match / **3** value-conflict / **4** one-sided
-- Contract readonly fields checked: **6** (TF disagreement: 0)
+- Contract readonly fields checked: **5** (TF disagreement: 0)
 
 - Ansible module surface: **13** present / **3** no surface
 - Ansible required drift: **4**
@@ -29,9 +29,9 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 ## app_connector_group
 
-`POST /zpa/mgmtconfig/v1/admin/customers/:customerId/appConnectorGroup` — contract 39 / Go 41 / TF 26 fields / Ansible 24 fields / Python 41 fields / MCP 5 tools
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/appConnectorGroup` — contract 39 / Go 41 / TF 26 fields / Ansible 24 fields / Python 41 fields / MCP 5 tools
 
-**Type drift** — contract says numeric, Go SDK declares string (the API serializes these as JSON strings):
+**Type drift** — contract and Go SDK disagree on the primitive field category:
 
 - `creationTime`: contract `int32` vs Go `string`
 - `geoLocationId`: contract `int64` vs Go `string`
@@ -65,9 +65,9 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 ## application_server
 
-`POST /zpa/mgmtconfig/v1/admin/customers/:customerId/server` — contract 12 / Go 12 / TF 8 fields / Ansible 6 fields / Python 7 fields / MCP 5 tools
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/server` — contract 12 / Go 12 / TF 8 fields / Ansible 6 fields / Python 7 fields / MCP 5 tools
 
-**Type drift** — contract says numeric, Go SDK declares string (the API serializes these as JSON strings):
+**Type drift** — contract and Go SDK disagree on the primitive field category:
 
 - `creationTime`: contract `int32` vs Go `string`
 - `id`: contract `int64` vs Go `string`
@@ -92,9 +92,9 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 ## application_segment
 
-`POST /zpa/mgmtconfig/v1/admin/customers/:customerId/application` — contract 51 / Go 52 / TF 35 fields / Ansible 32 fields / Python 51 fields / MCP 5 tools
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/application` — contract 51 / Go 52 / TF 35 fields / Ansible 32 fields / Python 51 fields / MCP 5 tools
 
-**Type drift** — contract says numeric, Go SDK declares string (the API serializes these as JSON strings):
+**Type drift** — contract and Go SDK disagree on the primitive field category:
 
 - `creationTime`: contract `int32` vs Go `string`
 - `defaultIdleTimeout`: contract `int32` vs Go `string`
@@ -130,9 +130,9 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 ## ba_certificate
 
-`POST /zpa/mgmtconfig/v1/admin/customers/:customerId/certificate` — contract 20 / Go 20 / TF 6 fields / Ansible 5 fields / Python 18 fields / MCP 4 tools
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/certificate` — contract 20 / Go 20 / TF 6 fields / Ansible 5 fields / Python 18 fields / MCP 4 tools
 
-**Type drift** — contract says numeric, Go SDK declares string (the API serializes these as JSON strings):
+**Type drift** — contract and Go SDK disagree on the primitive field category:
 
 - `creationTime`: contract `int32` vs Go `string`
 - `id`: contract `int64` vs Go `string`
@@ -154,9 +154,9 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 ## emergency_access
 
-`POST /zpa/mgmtconfig/v1/admin/customers/:customerId/emergencyAccess/user` — contract 10 / Go 11 / TF 4 fields / no Ansible surface / Python 11 fields / no MCP surface
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/emergencyAccess/user` — contract 10 / Go 11 / TF 4 fields / no Ansible surface / Python 11 fields / no MCP surface
 
-**Type drift** — contract says numeric, Go SDK declares string (the API serializes these as JSON strings):
+**Type drift** — contract and Go SDK disagree on the primitive field category:
 
 - `activatedOn`: contract `int64` vs Go `string`
 - `lastLoginTime`: contract `int64` vs Go `string`
@@ -173,9 +173,9 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 ## inspection_custom_control
 
-`POST /zpa/mgmtconfig/v1/admin/customers/:customerId/inspectionControls/custom` — contract 21 / Go 20 / TF 12 fields / no Ansible surface / Python 21 fields / no MCP surface
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/inspectionControls/custom` — contract 21 / Go 20 / TF 12 fields / no Ansible surface / Python 21 fields / no MCP surface
 
-**Type drift** — contract says numeric, Go SDK declares string (the API serializes these as JSON strings):
+**Type drift** — contract and Go SDK disagree on the primitive field category:
 
 - `controlNumber`: contract `int32` vs Go `string`
 - `creationTime`: contract `int32` vs Go `string`
@@ -199,9 +199,9 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 ## inspection_profile
 
-`POST /zpa/mgmtconfig/v1/admin/customers/:customerId/inspectionProfile` — contract 21 / Go 21 / TF 17 fields / no Ansible surface / Python 22 fields / MCP 1 tools
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/inspectionProfile` — contract 21 / Go 21 / TF 17 fields / no Ansible surface / Python 22 fields / MCP 1 tools
 
-**Type drift** — contract says numeric, Go SDK declares string (the API serializes these as JSON strings):
+**Type drift** — contract and Go SDK disagree on the primitive field category:
 
 - `creationTime`: contract `int32` vs Go `string`
 - `id`: contract `int64` vs Go `string`
@@ -223,9 +223,9 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 ## lss_config
 
-`POST /zpa/mgmtconfig/v2/admin/customers/:customerId/lssConfig` — contract 6 / Go 5 / TF 5 fields / Ansible 4 fields / Python 8 fields / MCP 2 tools
+`POST /zpa/mgmtconfig/v2/admin/customers/{customerId}/lssConfig` — contract 6 / Go 5 / TF 5 fields / Ansible 4 fields / Python 8 fields / MCP 2 tools
 
-**Type drift** — contract says numeric, Go SDK declares string (the API serializes these as JSON strings):
+**Type drift** — contract and Go SDK disagree on the primitive field category:
 
 - `id`: contract `int64` vs Go `string`
 
@@ -249,9 +249,9 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 ## pra_approval
 
-`POST /zpa/mgmtconfig/v1/admin/customers/:customerId/approval` — contract 11 / Go 12 / TF 8 fields / Ansible 7 fields / Python 9 fields / no MCP surface
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/approval` — contract 11 / Go 12 / TF 8 fields / Ansible 7 fields / Python 9 fields / no MCP surface
 
-**Type drift** — contract says numeric, Go SDK declares string (the API serializes these as JSON strings):
+**Type drift** — contract and Go SDK disagree on the primitive field category:
 
 - `creationTime`: contract `int32` vs Go `string`
 - `endTime`: contract `int32` vs Go `string`
@@ -275,9 +275,9 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 ## pra_console
 
-`POST /zpa/mgmtconfig/v1/admin/customers/:customerId/praConsole` — contract 13 / Go 12 / TF 8 fields / Ansible 8 fields / Python 11 fields / no MCP surface
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/praConsole` — contract 13 / Go 12 / TF 8 fields / Ansible 8 fields / Python 11 fields / no MCP surface
 
-**Type drift** — contract says numeric, Go SDK declares string (the API serializes these as JSON strings):
+**Type drift** — contract and Go SDK disagree on the primitive field category:
 
 - `creationTime`: contract `int32` vs Go `string`
 - `id`: contract `int64` vs Go `string`
@@ -301,9 +301,9 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 ## pra_credential
 
-`POST /zpa/mgmtconfig/v1/admin/customers/:customerId/credential` — contract 15 / Go 16 / TF 10 fields / Ansible 11 fields / Python 9 fields / MCP 5 tools
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/credential` — contract 15 / Go 16 / TF 10 fields / Ansible 11 fields / Python 9 fields / MCP 5 tools
 
-**Type drift** — contract says numeric, Go SDK declares string (the API serializes these as JSON strings):
+**Type drift** — contract and Go SDK disagree on the primitive field category:
 
 - `creationTime`: contract `int32` vs Go `string`
 - `id`: contract `int64` vs Go `string`
@@ -335,9 +335,9 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 ## pra_portal
 
-`POST /zpa/mgmtconfig/v1/admin/customers/:customerId/praPortal` — contract 21 / Go 31 / TF 15 fields / Ansible 9 fields / Python 22 fields / MCP 5 tools
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/praPortal` — contract 21 / Go 31 / TF 15 fields / Ansible 9 fields / Python 22 fields / MCP 5 tools
 
-**Type drift** — contract says numeric, Go SDK declares string (the API serializes these as JSON strings):
+**Type drift** — contract and Go SDK disagree on the primitive field category:
 
 - `certificateId`: contract `int64` vs Go `string`
 - `creationTime`: contract `int32` vs Go `string`
@@ -361,9 +361,9 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 ## server_group
 
-`POST /zpa/mgmtconfig/v1/admin/customers/:customerId/serverGroup` — contract 18 / Go 20 / TF 13 fields / Ansible 8 fields / Python 20 fields / MCP 5 tools
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/serverGroup` — contract 18 / Go 20 / TF 13 fields / Ansible 8 fields / Python 20 fields / MCP 5 tools
 
-**Type drift** — contract says numeric, Go SDK declares string (the API serializes these as JSON strings):
+**Type drift** — contract and Go SDK disagree on the primitive field category:
 
 - `creationTime`: contract `int32` vs Go `string`
 - `microtenantId`: contract `int64` vs Go `string`
@@ -391,9 +391,9 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 ## segment_group
 
-`POST /zpa/mgmtconfig/v1/admin/customers/:customerId/segmentGroup` — contract 15 / Go 16 / TF 6 fields / Ansible 5 fields / Python 11 fields / MCP 5 tools
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/segmentGroup` — contract 15 / Go 16 / TF 6 fields / Ansible 5 fields / Python 11 fields / MCP 5 tools
 
-**Type drift** — contract says numeric, Go SDK declares string (the API serializes these as JSON strings):
+**Type drift** — contract and Go SDK disagree on the primitive field category:
 
 - `creationTime`: contract `int32` vs Go `string`
 - `id`: contract `int64` vs Go `string`
@@ -416,9 +416,9 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 ## provisioning_key
 
-`POST /zpa/mgmtconfig/v1/admin/customers/:customerId/associationType/:associationType/provisioningKey` — contract 19 / Go 24 / TF 15 fields / Ansible 6 fields / Python 13 fields / MCP 5 tools
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/provisioningKey` — contract 19 / Go 24 / TF 15 fields / Ansible 6 fields / Python 13 fields / MCP 5 tools
 
-**Type drift** — contract says numeric, Go SDK declares string (the API serializes these as JSON strings):
+**Type drift** — contract and Go SDK disagree on the primitive field category:
 
 - `creationTime`: contract `int32` vs Go `string`
 - `enrollmentCertId`: contract `int64` vs Go `string`
@@ -456,9 +456,9 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 ## service_edge_group
 
-`POST /zpa/mgmtconfig/v1/admin/customers/:customerId/serviceEdgeGroup` — contract 33 / Go 41 / TF 27 fields / Ansible 20 fields / Python 32 fields / MCP 5 tools
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/serviceEdgeGroup` — contract 33 / Go 41 / TF 27 fields / Ansible 20 fields / Python 32 fields / MCP 5 tools
 
-**Type drift** — contract says numeric, Go SDK declares string (the API serializes these as JSON strings):
+**Type drift** — contract and Go SDK disagree on the primitive field category:
 
 - `creationTime`: contract `int32` vs Go `string`
 - `geoLocationId`: contract `int64` vs Go `string`

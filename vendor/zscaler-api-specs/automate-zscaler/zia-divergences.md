@@ -12,17 +12,17 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 ## Totals
 
-- Type drift (contract numeric vs Go string): **0**
-- Required drift (contract vs TF): **48**
+- Type drift (contract vs Go primitive category): **0**
+- Required drift (contract vs TF): **47**
 - Enum: **63** match / **11** value-conflict / **37** one-sided
-- Contract readonly fields checked: **1** (TF disagreement: 0)
+- Contract readonly fields checked: **9** (TF disagreement: 0)
 
 - Ansible module surface: **52** present / **2** no surface
 - Ansible required drift: **44**
 - Ansible enum: **72** match / **18** value-conflict / **38** one-sided
 
 - Python SDK surface: **54** present / **0** no surface
-- Python SDK presence: **39** contract-unmatched / **47** python-only fields
+- Python SDK presence: **39** contract-unmatched / **46** python-only fields
 
 - MCP tool surface: **33** present / **21** no surface (**25** with request-field surface)
 - MCP request-field presence: **163** contract-unmatched / **31** MCP-only fields
@@ -213,7 +213,7 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 ## cloud_app_control_rule
 
-`POST /zia/api/v1/webApplicationRules/:rule_type` — contract 42 / Go 39 / TF 36 fields / Ansible 32 fields / Python 41 fields / MCP 6 tools
+`POST /zia/api/v1/webApplicationRules/{rule_type}` — contract 42 / Go 39 / TF 36 fields / Ansible 32 fields / Python 41 fields / MCP 6 tools
 
 **Required drift:**
 
@@ -321,7 +321,7 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 ## extranet
 
-`POST /zia/api/v1/extranet` — contract 6 / Go 7 / TF 6 fields / Ansible 5 fields / Python 7 fields / no MCP surface
+`POST /zia/api/v1/extranet` — contract 7 / Go 7 / TF 6 fields / Ansible 5 fields / Python 7 fields / no MCP surface
 
 **Required drift:**
 
@@ -333,11 +333,7 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 **Contract fields unmatched in the Ansible module:** `createdAt`, `extranetDNSList`, `modifiedAt`
 
-**Ansible module fields absent from the contract:** `extranetDnsList`, `extranetIpPoolList`
-
-**Python SDK fields absent from the contract:** `extranetIpPoolList`
-
-**Go SDK fields absent from the contract:** `extranetIpPoolList`
+**Ansible module fields absent from the contract:** `extranetDnsList`
 
 ## file_type_rule
 
@@ -845,10 +841,6 @@ Captured contract groups with no Terraform resource mapping in this report:
 ## user
 
 `POST /zia/api/v1/users` — contract 10 / Go 12 / TF 10 fields / no Ansible surface / Python 10 fields / MCP 1 tools
-
-**Required drift:**
-
-- `department`: contract required=False, TF required=True (TF stricter than API)
 
 **Go SDK fields absent from the contract:** `authMethods`, `deleted`
 

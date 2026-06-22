@@ -12,7 +12,7 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 ## Totals
 
-- Type drift (contract numeric vs Go string): **0**
+- Type drift (contract vs Go primitive category): **6**
 - Required drift (contract vs TF): **1**
 - Enum: **0** match / **0** value-conflict / **3** one-sided
 - Contract readonly fields checked: **0** (TF disagreement: 0)
@@ -42,6 +42,12 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 `PUT /zcc/papi/public/v1/webFailOpenPolicy/edit` — contract 20 / Go 14 / TF 11 fields / no Ansible surface / Python 14 fields / no MCP surface
 
+**Type drift** — contract and Go SDK disagree on the primitive field category:
+
+- `enableCaptivePortalDetection`: contract `string` vs Go `int`
+- `enableFailOpen`: contract `string` vs Go `int`
+- `enableStrictEnforcementPrompt`: contract `string` vs Go `int`
+
 **Contract fields unmatched in the Python SDK model/request surface:** `companyIds`, `errorCode`, `errorInfoArguments`, `errorMessage`, `responseData`, `success`
 
 **Contract fields absent from the Go SDK struct:** `companyIds`, `errorCode`, `errorInfoArguments`, `errorMessage`, `responseData`, `success`
@@ -49,6 +55,12 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 ## forwarding_profile
 
 `POST /zcc/papi/public/v1/webForwardingProfile/edit` — contract 22 / Go 26 / TF 26 fields / no Ansible surface / Python 28 fields / MCP 1 tools
+
+**Type drift** — contract and Go SDK disagree on the primitive field category:
+
+- `enableSplitVpnTN`: contract `string` vs Go `int`
+- `evaluateTrustedNetwork`: contract `string` vs Go `int`
+- `skipTrustedCriteriaMatch`: contract `string` vs Go `int`
 
 **Required drift:**
 

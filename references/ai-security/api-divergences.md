@@ -3,7 +3,7 @@ product: ai-security
 topic: "ai-guard-api-divergences"
 title: "AI Guard API and integration divergences"
 content-type: reference
-last-verified: "2026-06-16"
+last-verified: "2026-06-21"
 verified-against:
   vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
   vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
@@ -24,6 +24,8 @@ sources:
   - "vendor/zguard-ai-integrations/Anthropic/claude-code-aiguard/hooks/scan_file_read.py"
   - "vendor/zguard-ai-integrations/Anthropic/claude-code-skill/README.md"
   - "vendor/zguard-ai-integrations/Anthropic/claude-code-skill/references/threat-categories.md"
+  - "vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json"
+  - "vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md"
   - "vendor/zscaler-sdk-go/"
   - "vendor/terraform-provider-zia/"
   - "vendor/terraform-provider-zpa/"
@@ -41,7 +43,7 @@ author-status: draft
 
 # AI Guard API and integration divergences
 
-This page records the differences between public Help, the Python SDK, and the public integration examples. Use it when a question depends on exact request shape, detector taxonomy, or failure posture rather than on product-level positioning.
+This page records the differences between public Help, the Python SDK, the reconstructed Automate contract, and the public integration examples. Use it when a question depends on exact request shape, detector taxonomy, or failure posture rather than on product-level positioning.
 
 ## Runtime API surface
 
@@ -80,11 +82,15 @@ Do not generalize fail-open or fail-closed behavior across integrations:
 - Claude Code file-read hooks are explicitly fail-open to avoid blocking Claude Code when AI Guard is unavailable (`vendor/zguard-ai-integrations/Anthropic/claude-code-aiguard/README.md:377`, `vendor/zguard-ai-integrations/Anthropic/claude-code-aiguard/README.md:379`). The hook code allows file reads when the API key is missing, when the API call returns an error, or when an exception occurs (`vendor/zguard-ai-integrations/Anthropic/claude-code-aiguard/hooks/scan_file_read.py:148`, `:165`, `:224`).
 - n8n documents fail-closed behavior only for internal errors when its "Continue On Fail" path is enabled (`vendor/zguard-ai-integrations/n8n/README.md:96`).
 
-## Source classes with no AI Guard admin-plane hit
+## Automate admin-plane contract vs client surfaces
 
-Source: `vendor/zscaler-sdk-go`; `vendor/terraform-provider-zia`; `vendor/terraform-provider-zpa`; `vendor/terraform-provider-ztc`; `vendor/zscaler-mcp-server`; `vendor/zscaler-terraform-skills`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md`; `vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md`; `vendor/zscaler-help/legacy-getting-started-workflow-automation-api.md`; `vendor/zscaler-help/understanding-workflows-workflow-automation.md`; `vendor/zscaler-help/what-workflow-automation.md`.
+Source: `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json`; `vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md`; `vendor/zscaler-sdk-go`; `vendor/terraform-provider-zia`; `vendor/terraform-provider-zpa`; `vendor/terraform-provider-ztc`; `vendor/zscaler-mcp-server`; `vendor/zscaler-terraform-skills`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
-This pass searched the vendored Go SDK, Terraform providers, MCP server, Postman API specs, and integration examples for AI Guard terms and endpoint names. The positive programmable surface in the inspected sources is the Python SDK / DAS policy-detection API plus public integration examples. No broad AI Guard admin-plane API, Go SDK service, Terraform resource, MCP tool, Postman endpoint, or Automation Hub procedure was found. This is an audit-scoped absence claim, not proof that no private or future surface exists. See [clarification ai-security-04](../_meta/clarifications.md#ai-security-04-ai-guard-admin-plane-programmability).
+The reconstructed Automate snapshot now exposes **45 AI Guard operations** across detection policies, detection-policy match rules, LLM applications, LLM providers, and application/provider credential objects (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:9`; examples: detection-policy create `POST /v1/detections/policies` at `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:1-14`, match-rule criteria at `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:3253-3275`, and LLM application/provider credential surfaces at `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:5433-5455` and `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:6470-6475`). This resolves the earlier audit-scoped absence of a documented AI Guard admin-plane API.
+
+That does **not** mean the client surfaces are caught up. The same pass still found no matching Go SDK service, Terraform resource, MCP tool, Postman endpoint, or Automation Hub procedure in the inspected client/source classes. Treat the Automate contract as the documented method/path/field surface, and treat client absence as a wrapper-coverage gap until a client source adds those operations. See [clarification ai-security-04](../_meta/clarifications.md#ai-security-04-ai-guard-admin-plane-programmability).
+
+One caveat remains on the reconstructed paths: the structural validation report flags eight AI Guard action paths with adjacent path-template fragments such as `/v1/detections/policies/{id}{disable}` and `/v1/llm-application-credentials/{id}{regenerate}` (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:22`, `vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:28-35`). Those paths come from the embedded Docusaurus API object, but the colon/subpath form the live gateway accepts is not confirmed by static sources. Track that under [clarification ai-security-05](../_meta/clarifications.md#ai-security-05-ai-guard-adjacent-action-path-template-encoding).
 
 ## Cross-links
 

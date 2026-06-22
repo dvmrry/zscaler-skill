@@ -3,12 +3,14 @@ product: zdx
 topic: zdx-sdk
 title: "ZDX SDK reference — Python and Go service catalog"
 content-type: reference
-last-verified: "2026-06-15"
+last-verified: "2026-06-21"
 confidence: medium
 source-tier: code
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zdx/zdx_service.py"
   - "vendor/zscaler-sdk-python/zscaler/zdx/legacy.py"
+  - "vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py"
+  - "vendor/zscaler-api-specs/automate-zscaler/zdx-api-reference.json"
   - "vendor/zscaler-sdk-go/zscaler/zdx/services/common/common.go"
   - "vendor/zscaler-sdk-go/zscaler/zdx/services/service.go"
 author-status: draft
@@ -296,7 +298,7 @@ Generates a shareable, optionally obfuscated snapshot of ZDX alert data.
 
 **Notable behavior:**
 - `share_snapshot` kwargs: `name` (str), `alert_id` (str), `expiry` (int, hours; must be between 2 hours and 90 days), `obfuscation` (list of strings: `"USER_NAME"`, `"LOCATION"`, `"DEVICE_NAME"`, `"IP_ADDRESS"`, `"WIFI_NAME"`).
-- ⚠️ `obfuscation` is accepted as a kwarg but is **not placed in the HTTP request body** in the current SDK version — `share_snapshot` builds the body from `name`/`alert_id`/`expiry` only (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:91-106`). The documented values describe the API contract, not confirmed SDK behavior. See [clarification `zdx-35`](../_meta/clarifications.md#zdx-35-share_snapshot-obfuscation-transmission).
+- ⚠️ `obfuscation` is accepted as a kwarg but is **not placed in the HTTP request body** in the current SDK version — `share_snapshot` builds the body from `name`/`alert_id`/`expiry` only (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:91-106`). The reconstructed Automate contract confirms `obfuscation` as an optional request-body field with values `USER_NAME`, `LOCATION`, `DEVICE_NAME`, `IP_ADDRESS`, and `WIFI_NAME`, so the gap is the Python wrapper's transmission behavior, not the contract vocabulary (`vendor/zscaler-api-specs/automate-zscaler/zdx-api-reference.json:91575-91588`). See [clarification `zdx-35`](../_meta/clarifications.md#zdx-35-share_snapshot-obfuscation-transmission).
 - The `expiry` value is converted from hours to Unix epoch (`current_time + hours * 3600`) inside the method before sending.
 - The `@zdx_params` decorator is applied, so `expiry` is routed through `query_params` first and then extracted to the body.
 - Returns a `Snapshot` object with `id`, `name`, `alert_id`, `expiry` (epoch), `obfuscation`, `url`, `status`.

@@ -3,7 +3,7 @@ product: ai-security
 topic: "ai-security-claims-ledger"
 title: "AI Security claims ledger - Tier 2 first-pass refresh"
 content-type: reference
-last-verified: "2026-06-16"
+last-verified: "2026-06-21"
 verified-against:
   vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
   vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
@@ -24,6 +24,8 @@ sources:
   - "vendor/zguard-ai-integrations/Anthropic/claude-code-aiguard/hooks/scan_file_read.py"
   - "vendor/zguard-ai-integrations/Anthropic/claude-code-skill/README.md"
   - "vendor/zguard-ai-integrations/Anthropic/claude-code-skill/references/threat-categories.md"
+  - "vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json"
+  - "vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md"
 author-status: draft
 ---
 
@@ -43,4 +45,4 @@ This ledger covers the AI Guard claims changed or explicitly guarded in the Tier
 | The Python SDK marks `policy_id` optional for `execute_policy`, while the DAS Help page states `policyId` is required for that option. | `api-divergences.md`, `clarifications.md` | `vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py:43`, `vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py:84`, `vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md:78` |
 | AI Guard response models expose per-detector responses and throttling details, including `retryAfterMillis`. | `ai-guard.md`, `api-divergences.md` | `vendor/zscaler-sdk-python/zscaler/zaiguard/models/policy_detection.py:70`, `vendor/zscaler-sdk-python/zscaler/zaiguard/models/policy_detection.py:119`, `vendor/zscaler-sdk-python/zscaler/zaiguard/models/policy_detection.py:133`, `vendor/zscaler-sdk-python/zscaler/zaiguard/models/policy_detection.py:135`, `vendor/zscaler-sdk-python/zscaler/zaiguard/models/policy_detection.py:216`, `vendor/zscaler-sdk-python/zscaler/zaiguard/models/policy_detection.py:225` |
 | Integration failure posture is host-specific: Windsurf pre-hooks fail open on missing API key but fail closed on API errors, Claude Code file-read hooks fail open on missing key/API errors/exceptions, and n8n documents fail-closed behavior only for its "Continue On Fail" path. | `ai-guard.md`, `api-divergences.md` | `vendor/zguard-ai-integrations/Windsurf/README.md:17`, `vendor/zguard-ai-integrations/Anthropic/claude-code-aiguard/README.md:377`, `vendor/zguard-ai-integrations/Anthropic/claude-code-aiguard/README.md:379`, `vendor/zguard-ai-integrations/Anthropic/claude-code-aiguard/hooks/scan_file_read.py:148`, `vendor/zguard-ai-integrations/Anthropic/claude-code-aiguard/hooks/scan_file_read.py:165`, `vendor/zguard-ai-integrations/Anthropic/claude-code-aiguard/hooks/scan_file_read.py:224`, `vendor/zguard-ai-integrations/n8n/README.md:96` |
-| No AI Guard admin-plane API, Go SDK service, Terraform resource, MCP tool, Postman endpoint, or Automation Hub procedure was found in the inspected source classes. | `ai-guard-coverage.md`, `api-divergences.md`, `clarifications.md` | `AUDIT-SCOPED ABSENCE -> references/ai-security/api-divergences.md#source-classes-with-no-ai-guard-admin-plane-hit` |
+| The reconstructed Automate snapshot exposes a documented AI Guard admin-plane contract, while the inspected Go SDK, Terraform, MCP, Postman, and Automation Hub client/source classes still do not wrap that admin plane. | `ai-guard-coverage.md`, `api-divergences.md`, `clarifications.md` | `vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:9`; `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:1`; `CLIENT-WRAPPER GAP -> references/ai-security/api-divergences.md#automate-admin-plane-contract-vs-client-surfaces` |

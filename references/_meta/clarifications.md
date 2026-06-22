@@ -96,12 +96,12 @@ Each entry follows this template. Body is narrative — the existing zia-01 entr
 
 ## Status summary
 
-Skim this before reading the full entries. Summary refreshed 2026-06-18:
-20 entries are resolved or clarified, 25 are partially resolved, and the current
-refresh queue has expanded the open register with `zia-50`–`zia-69`,
-`zpa-21`–`zpa-81`, `zcc-77`–`zcc-101`, `zdx-03`–`zdx-43`,
-`zid-01`–`zid-35`, `cloud-connector-01`–`cloud-connector-24`,
-`ai-security-01`–`ai-security-04`, `zbi-01`–`zbi-06`,
+Skim this before reading the full entries. Summary refreshed 2026-06-21:
+20 entries are resolved or clarified, 27 are partially resolved, and the current
+refresh queue has expanded the open register with `zia-50`–`zia-70`,
+`zpa-21`–`zpa-81`, `zcc-77`–`zcc-101`, `zdx-03`–`zdx-44`,
+`zid-01`–`zid-36`, `cloud-connector-01`–`cloud-connector-25`,
+`ai-security-01`–`ai-security-05`, `zbi-01`–`zbi-06`,
 `zwa-01`–`zwa-05`, Tier-C insights entries `business-insights-01`,
 `soc-workbench-01`, and `unified-01`, Tier-C risk entries
 `risk360-01`–`risk360-02`, `breach-predictor-01`, `uvm-01`, and
@@ -116,6 +116,16 @@ The 2026-06-18 Automate-contract / rosetta closure pass narrowed several
 previously open source-surface questions without settling their runtime
 semantics: `zia-49`, `zia-53`, `zia-57`, `cloud-connector-09`, `zcc-80`,
 `zbi-02`, `zbi-03`, and `zbi-04`.
+
+The 2026-06-21 Docusaurus-blob snapshot pass promoted the reconstructed
+Automate contracts and narrowed two more items without closing their live
+behavior: `zdx-35` (the contract confirms the `obfuscation` request field while
+the Python wrapper still appears not to send it) and `ai-security-04` (the
+contract exposes an AI Guard admin-plane API while client wrappers remain
+absent). It also opened static-evidence caveats for adjacent action-path
+encoding (`ai-security-05`, `zid-36`), ZCloudConnector default-response success
+schema handling (`cloud-connector-25`), and ZDX snapshot base-path encoding
+(`zdx-44`).
 
 ### Resolved
 
@@ -156,13 +166,15 @@ semantics: `zia-49`, `zia-53`, `zia-57`, `cloud-connector-09`, `zcc-80`,
 | [`zia-57`](#zia-57-ftp-and-file-type-control-field-dependency-and-enum-surfaces) | FTP and File Type Control field-dependency and enum surfaces | Contract now supplies the static `fileTypes` vocabulary; field dependencies, protocol acceptance, and FTP per-site scope remain open |
 | [`cloud-connector-09`](#cloud-connector-09-forwarding-method-semantics-and-the-true-backend-forwardmethod-enum) | `ENATDEDIP`/`GEOIP`/`PROXYCHAIN` semantics + true `forwardMethod` enum | Automate contract now gives an independent contract enum and records Terraform disagreement; runtime semantics and backend acceptance remain open |
 | [`zcc-80`](#zcc-80-zcc-v1-vs-v2-endpoint-coexistence) | ZCC v1 vs v2 endpoint coexistence / supersession | Reconciler confirms Automate currently exposes only older v1 `webTrustedNetwork` while Terraform uses Go SDK v2 trusted networks; supersession/migration remains open |
+| [`zdx-35`](#zdx-35-share_snapshot-obfuscation-transmission) | `share_snapshot` obfuscation transmission | Automate contract now confirms `obfuscation` is a request-body field; Python wrapper transmission remains open |
+| [`ai-security-04`](#ai-security-04-ai-guard-admin-plane-programmability) | AI Guard admin-plane programmability | Automate contract now exposes the admin-plane API; captured client wrappers remain absent |
 | [`zbi-02`](#zbi-02-cbizpaprofile-vs-isolationprofile-preferred-endpoint) | `cbizpaprofile` vs `isolationprofile` preferred endpoint | Automate contract confirms both paths are first-class documented GET operations; preference and runtime divergence remain open |
 | [`zbi-03`](#zbi-03-auto-created-default-profile-lifecycle-and-isdefault-mutability) | Auto-created default profile lifecycle and `isDefault` mutability | ZIA-side `defaultProfile` is documented as Zscaler-set; ZPA-side `isDefault` mutability and lifecycle remain open |
 | [`zbi-04`](#zbi-04-copypaste-and-uploaddownload-enum-completeness) | `copyPaste` and `uploadDownload` enum completeness | Automate examples corroborate `all`/`none`; no formal enum or directional values are documented |
 
 ### Open
 
-`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-69`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-81`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `shared-20`–`shared-37`, `zcc-08`–`zcc-101`, `zdx-01`–`zdx-43`, `zid-01`–`zid-35`, `zms-01`, `easm-01`–`easm-02`, `cloud-connector-01`–`cloud-connector-24`, `zwa-01`–`zwa-05`, `business-insights-01`, `soc-workbench-01`, `unified-01`, `risk360-01`–`risk360-02`, `breach-predictor-01`, `uvm-01`, `dspm-01`, `aem-01`, `deception-01`, `identity-protection-01`, `zero-trust-branch-01`, `zscaler-cellular-01`.
+`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-70`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-81`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `shared-20`–`shared-37`, `zcc-08`–`zcc-101`, `zdx-01`–`zdx-44`, `zid-01`–`zid-36`, `zms-01`, `easm-01`–`easm-02`, `cloud-connector-01`–`cloud-connector-25`, `ai-security-01`–`ai-security-03`, `ai-security-05`, `zwa-01`–`zwa-05`, `business-insights-01`, `soc-workbench-01`, `unified-01`, `risk360-01`–`risk360-02`, `breach-predictor-01`, `uvm-01`, `dspm-01`, `aem-01`, `deception-01`, `identity-protection-01`, `zero-trust-branch-01`, `zscaler-cellular-01`.
 
 The vendor-MCP scrape (2026-06-14) added these open behavior questions — each links to its detailed entry below:
 
@@ -356,6 +368,7 @@ The ZDX deep-dive refresh (2026-06-15) registered these open ZDX-behavior questi
 | [`zdx-41`](#zdx-41-probe-result-retention-and-aging-granularity) | Probe-result retention period and aging granularity | zscaler doc not yet read / tenant snapshot |
 | [`zdx-42`](#zdx-42-adaptive-mode-scoring-comparability) | Whether Adaptive Mode keeps scores comparable across cadences | zscaler doc not yet read / lab test |
 | [`zdx-43`](#zdx-43-inventory-time-range-filter-server-support) | Whether the inventory endpoint honors the time-range filter server-side | lab test / zscaler doc not yet read |
+| [`zdx-44`](#zdx-44-snapshot-endpoint-base-path-in-the-automate-contract) | Snapshot endpoint base path in the Automate contract | live API trace / vendor spec |
 
 The ZIdentity refresh (2026-06-15) registered these open behavior questions from `references/zidentity/*.md` — each links to its detailed entry below:
 
@@ -396,6 +409,7 @@ The ZIdentity refresh (2026-06-15) registered these open behavior questions from
 | [`zid-33`](#zid-33-about-revoking-access-tokens-articles-uncaptured) | About / Revoking Access Tokens articles uncaptured | zscaler doc not yet read / capture |
 | [`zid-34`](#zid-34-api-client-access-policy-article-uncaptured) | API Client Access Policy article uncaptured | zscaler doc not yet read / capture |
 | [`zid-35`](#zid-35-admin-roles-permissions-module-level-matrix-uncaptured) | Admin Roles & Permissions module × level matrix uncaptured | zscaler doc not yet read / capture |
+| [`zid-36`](#zid-36-zidentity-user-action-path-template-encoding) | ZIdentity user-action path-template encoding | live API trace / vendor spec |
 
 Partial / SDK-mined (resolved via code read or help-doc capture; full lab confirmation pending): `zcc-01`, `zcc-02`, `zcc-03`, `zcc-04`, `zcc-05`, `zcc-06`, `zcc-07`, **`log-04`** (field name + illustrative values confirmed via `web-log-schema.md`; full enum of `ruletype` / `reason` values still needs a tenant export). All six ZCC enum clarifications had their **datatype** (int vs string) resolved by the Go SDK cross-check on 2026-04-24; the integer-to-meaning mapping remains open for `zcc-01` through `zcc-04` and `zcc-06`.
 
@@ -429,6 +443,7 @@ The Cloud & Branch Connector (ZTW) deep-dive refresh (2026-06-15) added these op
 | [`cloud-connector-22`](#cloud-connector-22-cc-region-coverage-govcloud-china-gcp-deployment-and-wds-vs-ztg-region-set-parity) | CC region coverage: GovCloud / China / GCP deploy / WDS-vs-ZTG parity | zscaler doc not yet read / tenant snapshot / support ticket |
 | [`cloud-connector-23`](#cloud-connector-23-dest_workload_groups_ids-binding-to-local_switch-local) | `dest_workload_groups_ids` binding to `LOCAL_SWITCH` / "Local" | lab test |
 | [`cloud-connector-24`](#cloud-connector-24-field-character-limit-enforcement-on-dns-and-log-and-control-rules) | Field character-limit enforcement on DNS / Log-and-Control rules | lab test / zscaler doc not yet read |
+| [`cloud-connector-25`](#cloud-connector-25-zcloudconnector-default-response-success-schema-semantics) | ZCloudConnector default-response success schema semantics | vendor spec / live response |
 
 ---
 
@@ -4367,6 +4382,8 @@ Workload-group field shapes are SDK/TF-confirmed but their runtime semantics are
 
 A live ZIA `web_dlp_rules` GET returns a flat integer field `ucTemplateId` that appears in no captured source. The Go SDK models the notification template as `EUNTemplateID int` (wire `eunTemplateId`, `vendor/zscaler-sdk-go/zscaler/zia/services/dlp/dlp_web_rules/dlp_web_rules.go:78`) plus `NotificationTemplate *common.IDCustom` (`:90`); the Go-SDK-derived api-schemas `WebDLPRules` table carries both `eunTemplateId` and the `notificationTemplate` object (`references/zia/api-schemas.md:1488,:1492`); and the automate.zscaler.com DLP-web-rule reference documents the template as the `notificationTemplate` object, with no flat template id (`vendor/zscaler-help/automate-zscaler/api-reference/zia/data-loss-prevention/web-dlp-rule-resource-add-rule.txt:122`). `ucTemplateId` is in none of them — an API-only name absent from every static surface checked: the Go SDK, its derived api-schemas table, and the automate.zscaler.com reference.
 
+**2026-06-21 snapshot check**: the reconstructed Automate contract still models Web DLP rules with `notificationTemplate` and nested `notificationTemplate.id` fields (`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:116429`, `vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:116441`, `vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:182243`, `vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:182273`) and does not settle the live `ucTemplateId` meaning. Keep this open: the remaining question is whether `ucTemplateId` is a redundant flat alias, a tenant-specific/live rename, or a field emitted only under some notification-template state.
+
 **Status**: open
 **Resolves with**: lab test (read a DLP web rule with a notification template set; observe whether the payload also carries `notificationTemplate`/`eunTemplateId` with the same id and whether `ucTemplateId` holds a non-zero value — co-occurrence ⇒ redundant flat alias, sole template id ⇒ live rename of `eun_template_id`) OR zscaler confirmation of the field's meaning
 
@@ -4635,6 +4652,17 @@ The help pages state character limits for Log-and-Control rule fields (name ≤ 
 
 **Status**: open
 **Resolves with**: lab test (submit over-length name/description values, observe whether the API rejects them) OR zscaler doc not yet read
+
+---
+
+### cloud-connector-25 — ZCloudConnector default-response success schema semantics
+
+*Origin: `references/cloud-connector/api-divergences.md` § Contract reconciliation caveat*
+
+The reconstructed OpenAPI snapshot carries 165 ZCloudConnector operations, but the structural validation report flags 124 of them as `default_response_as_success`: the exporter used a schema-bearing `default` response as the success schema because no explicit `2xx` schema was present (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:14`, `vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:23`, `vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:36-70`, `vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:150-159`). This preserves useful method/path/field metadata for reconciliation, but it does not prove the intended success status code for those operations or whether the embedded `default` response is a success envelope rather than a catch-all envelope.
+
+**Status**: open
+**Resolves with**: vendor OpenAPI/spec clarification OR live response capture for representative ZCloudConnector operations that currently rely on `default` response schemas
 
 ---
 
@@ -5275,9 +5303,9 @@ Only the 2-hour default look-back is documented for the probe-read endpoints (de
 
 *Origin: `references/zdx/diagnostics-and-alerts.md` § Open questions*
 
-The Python `share_snapshot` docstring documents an `obfuscation` argument with enum values `USER_NAME` / `LOCATION` / `DEVICE_NAME` / `IP_ADDRESS` / `WIFI_NAME` (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:43-45`), but the body-builder copies only `name`, `alert_id`, and the converted `expiry` into the request body (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:95-106`); `obfuscation` is not in the `@zdx_params` shorthand path (`vendor/zscaler-sdk-python/zscaler/utils.py:390`) and is not extracted into the body. From source alone it is unclear whether an `obfuscation` value passed by a caller reaches the API in this SDK version. The API contract and enum set themselves are not in question — only this Python client's transmission of the field.
+The Python `share_snapshot` docstring documents an `obfuscation` argument with enum values `USER_NAME` / `LOCATION` / `DEVICE_NAME` / `IP_ADDRESS` / `WIFI_NAME` (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:43-45`), but the body-builder copies only `name`, `alert_id`, and the converted `expiry` into the request body (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:95-106`); `obfuscation` is not in the `@zdx_params` shorthand path (`vendor/zscaler-sdk-python/zscaler/utils.py:390`) and is not extracted into the body. The reconstructed Automate contract now independently confirms `obfuscation` as an optional request-body field on both alert and user snapshot creation, with the same enum values (`vendor/zscaler-api-specs/automate-zscaler/zdx-api-reference.json:91575-91588`, `vendor/zscaler-api-specs/automate-zscaler/zdx-api-reference.json:91734-91745`). The remaining question is this Python wrapper's transmission of the field, not the contract vocabulary.
 
-**Status**: open
+**Status**: partially resolved — last updated 2026-06-21
 **Resolves with**: code read (a future SDK release that wires the field) OR lab test (capture the outbound snapshot request body)
 
 ---
@@ -5367,6 +5395,17 @@ Help articles reference an "Adaptive Mode" that dynamically adjusts probe freque
 
 **Status**: open
 **Resolves with**: lab test (compare inventory results across time windows) OR zscaler doc not yet read
+
+---
+
+### zdx-44 — Snapshot endpoint base path in the Automate contract
+
+*Origin: `references/zdx/api-divergences.md` § Cross-SDK ergonomics*
+
+The reconstructed Automate contract publishes alert and user snapshot creation as `POST /snapshot/alert` and `POST /snapshot/user`, and the proof validation flags both as path-prefix anomalies relative to the usual ZDX `/v1` path prefix (`vendor/zscaler-api-specs/automate-zscaler/zdx-api-reference.json:91526-91538`, `vendor/zscaler-api-specs/automate-zscaler/zdx-api-reference.json:91675-91687`, `vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:160-161`). The Python SDK composes the alert snapshot method with `_zdx_base_endpoint = "/zdx/v1"` plus `/snapshot/alert` (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:27`, `vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:83-87`). Which base path a live OneAPI tenant accepts for the snapshot routes is not confirmed by static sources.
+
+**Status**: open
+**Resolves with**: live API trace against the OneAPI gateway OR vendor OpenAPI/spec clarification for ZDX snapshot route base paths
 
 ---
 
@@ -5755,6 +5794,17 @@ The authoritative full permission matrix (25+ modules × 4 levels) is explicitly
 
 ---
 
+### zid-36 — ZIdentity user-action path-template encoding
+
+*Origin: `references/zidentity/users.md` § Postman collection endpoints*
+
+The ZIdentity user action operations are corroborated across surfaces, but their URL spelling differs by source. The Postman surface uses colon-suffix verbs such as `/users/:id:resetpassword`, `/users/:id:setskipmfa`, and `/users/:id:updatepassword`, while the reconstructed Automate snapshot encodes the same actions as adjacent path templates `/users/{id}{resetpassword}`, `/users/{id}{setskipmfa}`, and `/users/{id}{updatepassword}` (`vendor/zscaler-api-specs/automate-zscaler/zid-api-reference.json:5420-5421`, `vendor/zscaler-api-specs/automate-zscaler/zid-api-reference.json:5532-5533`, `vendor/zscaler-api-specs/automate-zscaler/zid-api-reference.json:5946-5947`). The proof validation flags those adjacent templates for review (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:162-164`). Treat action existence as corroborated, but the exact live URL spelling remains open.
+
+**Status**: open
+**Resolves with**: live API trace OR vendor OpenAPI/spec clarification for ZIdentity action-route encoding
+
+---
+
 ### ai-security-01 — AI Guard direction literal aliases
 
 *Origin: `references/ai-security/api-divergences.md` § Direction value divergence*
@@ -5790,12 +5840,23 @@ The public Help article gives a 15-item capability list (`vendor/zscaler-help/ai
 
 ### ai-security-04 — AI Guard admin-plane programmability
 
-*Origin: `references/ai-security/api-divergences.md` § Source classes with no AI Guard admin-plane hit*
+*Origin: `references/ai-security/api-divergences.md` § Automate admin-plane contract vs client surfaces*
 
-This refresh found Python SDK runtime policy detection and public DaaS integration examples, but no broad AI Guard admin-plane API, Go SDK service, Terraform resource, MCP tool, Postman endpoint, or Automation Hub procedure in the inspected source classes. This is an audit-scoped absence, not proof that no private or future admin automation surface exists.
+The 2026-06-16 refresh found Python SDK runtime policy detection and public DaaS integration examples, but no broad AI Guard admin-plane client wrapper, Go SDK service, Terraform resource, MCP tool, Postman endpoint, or Automation Hub procedure in the inspected source classes. The 2026-06-21 Docusaurus-blob snapshot narrows that: the reconstructed Automate contract now exposes 45 AI Guard operations across detection policies, detection-policy match rules, LLM applications, LLM providers, and application/provider credentials (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:9`; example policy create at `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:1-14`). What remains open is client-wrapper availability: no captured Go SDK service, Terraform resource, MCP tool, Postman endpoint, or Automation Hub procedure wraps that admin-plane contract yet.
+
+**Status**: partially resolved — last updated 2026-06-21
+**Resolves with**: SDK/provider/MCP/Postman source exposing AI Guard admin-plane operations, or vendor confirmation of wrapper roadmap / intended raw-API-only status
+
+---
+
+### ai-security-05 — AI Guard adjacent action-path template encoding
+
+*Origin: `references/ai-security/api-divergences.md` § Automate admin-plane contract vs client surfaces*
+
+The reconstructed AI Guard contract includes eight adjacent path-template action routes, including `/v1/detections/policies/{id}{disable}`, `/v1/detections/policies/{id}{enable}`, `/v1/detections/policies/{id}{referential}-check`, and `/v1/llm-application-credentials/{id}{regenerate}`; the structural validation report flags them as `adjacent_path_templates` (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:22`, `vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:28-35`). The normalized operation files preserve the same paths and parameter names, for example `disable` and `enable` are parsed as separate path parameters (`vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:488-500`, `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:738-750`). Static sources do not confirm whether the live API expects colon-suffix verbs, subresource paths, or the adjacent template spelling exactly as embedded.
 
 **Status**: open
-**Resolves with**: vendor API documentation, SDK/provider source exposing admin-plane operations, or explicit vendor confirmation
+**Resolves with**: live API trace OR vendor OpenAPI/spec clarification for AI Guard action-route encoding
 
 ---
 

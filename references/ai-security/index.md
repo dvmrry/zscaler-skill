@@ -3,7 +3,7 @@ product: ai-security
 topic: "ai-security-index"
 title: "AI Security family reference hub"
 content-type: reference
-last-verified: "2026-06-16"
+last-verified: "2026-06-21"
 confidence: medium
 source-tier: mixed
 verified-against:
@@ -27,6 +27,8 @@ sources:
   - "vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.md"
   - "vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py"
   - "vendor/zscaler-sdk-python/zscaler/zaiguard/models/policy_detection.py"
+  - "vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json"
+  - "vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md"
   - "vendor/zguard-ai-integrations/README.md"
   - "vendor/zscaler-help/ai-security-marketing.md"
   - "vendor/zscaler-help/ai-guardrails-marketing.md"
@@ -39,7 +41,7 @@ Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard
 
 Entry point for **Zscaler AI Security** questions — the family of products that secures enterprise AI usage, including AI Guard (runtime guardrails), AI Guardrails (marketing/runtime-guardrails surface for AI Guard; no separate technical Help surface captured), AI Red Teaming (vulnerability assessment for customer LLM apps), and the broader four-pillar governance framework.
 
-Confidence is **high for AI Guard runtime detection, deployment shape, and admin-portal operating model** because every article visible in the public AI Guard Help category tree was captured on 2026-05-22, and the Python SDK policy-detection request/response surface is also vendored. Confidence remains **medium for the broader AI Security family** because AI Guardrails and AI Red Teaming still have mostly marketing-level coverage, and no Go SDK, Terraform, MCP, Postman, Automation Hub, or broad admin-configuration API surface is captured.
+Confidence is **high for AI Guard runtime detection, deployment shape, and admin-portal operating model** because every article visible in the public AI Guard Help category tree was captured on 2026-05-22, and the Python SDK policy-detection request/response surface is also vendored. The reconstructed Automate snapshot adds a documented admin-plane API surface for detection policies, match rules, LLM applications/providers, and credentials (`vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:1`; `vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:9`). Confidence remains **medium for the broader AI Security family** because AI Guardrails and AI Red Teaming still have mostly marketing-level coverage, and no Go SDK, Terraform, MCP, Postman, or Automation Hub client wrapper for the AI Guard admin plane is captured.
 
 ## Topics
 
@@ -49,7 +51,7 @@ Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard
 |---|---|---|
 | Four-pillar framework, AI Guard detector categories, deployment modes (Proxy / DaaS / OnPrem), ZIA proxy-chain integration, Python policy-detection SDK surface, AI Red Teaming, edge cases | [`./overview.md`](./overview.md) | draft |
 | AI Guard runtime enforcement, admin objects, policy control, tenant/provider/app setup, observability, log exports, and SDK/API surface | [`./ai-guard.md`](./ai-guard.md) | draft |
-| AI Guard API and integration divergences — direction literals, `policyId`, detector taxonomy, integration failure posture, and audit-scoped admin-plane absence | [`./api-divergences.md`](./api-divergences.md) | draft |
+| AI Guard API and integration divergences — direction literals, `policyId`, detector taxonomy, integration failure posture, Automate admin-plane contract, and client-wrapper gaps | [`./api-divergences.md`](./api-divergences.md) | draft |
 | AI Guard public-source coverage manifest and certification boundary | [`./ai-guard-coverage.md`](./ai-guard-coverage.md) | draft |
 | AI Security claims ledger for this Tier 2 refresh | [`./_claims-ledger.md`](./_claims-ledger.md) | draft |
 
@@ -84,8 +86,8 @@ Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard
 - Custom-detector authoring — fixed-set vs extensible.
 - Log export event schema and exact SIEM field mapping. Destinations are captured, but field-level schema is not.
 - AI Red Teaming + AI Guard interlock — does Red Teaming output configure Guard rules?
-- Full AI Guard admin-configuration automation surface. Public Help documents portal administration, but no broad admin API/SDK/Terraform surface is captured.
-- Go SDK, Terraform, MCP, Postman, and Automation Hub coverage for AI Guard admin-plane automation remains an audit-scoped absence in [API divergences](./api-divergences.md#source-classes-with-no-ai-guard-admin-plane-hit).
+- Full AI Guard admin-configuration automation client coverage. The reconstructed Automate snapshot documents admin-plane operations, but the captured client wrappers do not yet expose them.
+- Go SDK, Terraform, MCP, Postman, and Automation Hub coverage for AI Guard admin-plane automation remains absent from the captured client/source classes even though the reconstructed Automate contract now exposes the admin-plane API surface. See [API divergences](./api-divergences.md#automate-admin-plane-contract-vs-client-surfaces).
 - Gov-cloud availability (likely deferred until commercial cloud GA stabilizes).
 
 These don't block conceptual answers; they limit operational depth.

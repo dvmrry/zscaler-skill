@@ -922,6 +922,77 @@ def _generic_response_placeholder(field):
     return name in {"object", "string", "boolean", "integer", "number"} and contract_category(field.get("type")) == contract_category(name)
 
 
+def _contract_top_level_name(field):
+    """Project rendered-text and blob-flattened contract fields to the resource
+    field universe used by the reconciler.
+
+    The original rendered-text parser emitted top-level fields only. The
+    Docusaurus-blob extractor preserves nested paths (`connectors[].id`,
+    `[].active`, ...). Multi-surface reconciliation is still a top-level
+    comparison, so keep `city` and list item roots like `[].active` -> `active`,
+    but do not let nested child paths become client-missing-field divergences.
+    """
+    name = field.get("name")
+    if not isinstance(name, str) or not name:
+        return None
+    top_name = field.get("top_name")
+    if isinstance(top_name, str) and top_name and top_name != "$":
+        normalized = name
+        while normalized.startswith("[]."):
+            normalized = normalized[3:]
+        if normalized in {top_name, f"{top_name}[]"}:
+            return top_name
+        return None
+
+    normalized = name
+    while normalized.startswith("[]."):
+        normalized = normalized[3:]
+    if "." in normalized:
+        return None
+    if normalized.endswith("[]"):
+        normalized = normalized[:-2]
+    return normalized or None
+
+
+def _contract_reconcile_field(field):
+    """Return a contract field suitable for top-level reconciliation, or None."""
+    if _generic_response_placeholder(field):
+        return None
+    name = _contract_top_level_name(field)
+    if not name:
+        return None
+    projected = dict(field)
+    projected["name"] = name
+    return projected
+
+
+DISPLAY_PATH_PREFIXES = {
+    "zcc": "/zcc",
+    "zcloudconnector": "/ztw/api/v1",
+    "zia": "/zia/api/v1",
+    "zpa": "/zpa",
+}
+
+
+def display_contract_path(product, path):
+    """Human-facing product-relative path for generated reports.
+
+    The Docusaurus operation object often stores the path relative to the
+    product server (`/locations` with server `/zia/api/v1`). Matching should use
+    the embedded path, but the report/worklist should keep the product prefix so
+    operators do not have to infer which `/locations` or `/ipGroups` API is meant.
+    """
+    if not path:
+        return path
+    normalized = str(path)
+    if not normalized.startswith("/"):
+        normalized = "/" + normalized
+    prefix = DISPLAY_PATH_PREFIXES.get(product)
+    if prefix and normalized != prefix and not normalized.startswith(prefix + "/"):
+        return prefix.rstrip("/") + normalized
+    return normalized
+
+
 # ---- registry --------------------------------------------------------------
 
 ZPA_RESOURCES = [
@@ -2132,14 +2203,19 @@ def reconcile_one(res, contracts, product="zpa"):
     # compare_required=False and still get type/presence/readonly/enum coverage.
     cfields = {}
     for op in [*reads, *writes]:
-        for f in op.get("response_schema") or []:
-            if _generic_response_placeholder(f):
+        for raw in op.get("response_schema") or []:
+            f = _contract_reconcile_field(raw)
+            if not f:
                 continue
             cfields.setdefault(f["name"], dict(f))
     creq = {}
     if res.get("compare_required", True) and res.get("create"):
         create_op = contracts[_contract_key(product, res, res["create"])]
-        creq = {f["name"]: f for f in create_op.get("request_body", [])}
+        creq = {
+            f["name"]: f
+            for raw in create_op.get("request_body", [])
+            if (f := _contract_reconcile_field(raw))
+        }
         for name, f in creq.items():
             cfields.setdefault(name, dict(f))
     required_names = {n for n, f in creq.items() if f["required"]}
@@ -2164,7 +2240,8 @@ def reconcile_one(res, contracts, product="zpa"):
     rep = {
         "resource": res["name"],
         "method": operation.get("method"),
-        "path": operation.get("path"),
+        "path": display_contract_path(product, operation.get("path")),
+        "contract_path": operation.get("path"),
         "counts": {"contract": len(cset), "go": len(goset), "tf": len(tf)},
         "presence": {
             "contract_only_vs_go": sorted(cset - goset),
@@ -2294,7 +2371,7 @@ def render_markdown(report):
                "and Zscaler MCP server tools "
                "for each resource.\n")
     out.append("## Totals\n")
-    out.append(f"- Type drift (contract numeric vs Go string): **{t['type_drift']}**")
+    out.append(f"- Type drift (contract vs Go primitive category): **{t['type_drift']}**")
     out.append(f"- Required drift (contract vs TF): **{t['required_drift']}**")
     out.append(f"- Enum: **{t['enum_match']}** match / **{t['enum_value_conflict']}** value-conflict / "
                f"**{t['enum_one_sided']}** one-sided")
@@ -2350,8 +2427,7 @@ def render_markdown(report):
                    f"contract {r['counts']['contract']} / Go {r['counts']['go']} / TF {r['counts']['tf']} fields / "
                    f"{ansible_label} / {python_label} / {mcp_label}\n")
         if r["type_drift"]:
-            out.append("**Type drift** — contract says numeric, Go SDK declares string "
-                       "(the API serializes these as JSON strings):\n")
+            out.append("**Type drift** — contract and Go SDK disagree on the primitive field category:\n")
             for d in r["type_drift"]:
                 out.append(f"- `{d['field']}`: contract `{d['contract']}` vs Go `{d['go']}`")
             out.append("")

@@ -3,7 +3,7 @@ product: shared
 topic: "oneapi"
 title: "OneAPI — unified API gateway, auth flows, rate limits, error model"
 content-type: reasoning
-last-verified: "2026-04-28"
+last-verified: "2026-06-21"
 confidence: high
 source-tier: doc
 sources:
@@ -22,6 +22,8 @@ sources:
   - "vendor/zscaler-help/legacy-understanding-zia-api.md"
   - "vendor/zscaler-help/legacy-understanding-zpa-api.md"
   - "vendor/zscaler-help/legacy-api-rate-limit-summary.md"
+  - "scripts/automate-capture/README.md"
+  - "vendor/zscaler-api-specs/automate-zscaler/rosetta.md"
 author-status: draft
 ---
 
@@ -43,9 +45,9 @@ Zscaler maintains a public OneAPI documentation hub at `https://automate.zscaler
 
 We've vendored the relevant captures under `vendor/zscaler-help/automate-zscaler/`.
 
-**No standalone OpenAPI/Swagger spec is published.** Confirmed via thorough sweep — no `/swagger.json`, no `/openapi.yaml`, no downloadable spec link. The API reference data lives inside the Docusaurus JS bundle and isn't extractable as a standard spec. Zscaler's chatbot was correct to be ambiguous.
+**No standalone OpenAPI/Swagger spec is published.** Confirmed via thorough sweep — no `/swagger.json`, no `/openapi.yaml`, no downloadable spec link. The API reference data lives inside the Docusaurus JS bundle. This repository now has a best-effort extractor that rebuilds per-product OpenAPI-compatible snapshots from the embedded `frontMatter.api` objects, but those files are reconstructed artifacts, not vendor-published specifications (`scripts/automate-capture/README.md:110-141`; `vendor/zscaler-api-specs/automate-zscaler/rosetta.md:22-31`).
 
-**The Postman collection is the closest thing to a machine-readable API surface.** Vendored at `vendor/zscaler-api-specs/oneapi-postman-collection.json` (~14 MB, Postman v2.1.0 schema). 7 product folders covering every OneAPI surface — including the only ZPA documentation Zscaler publishes (web docs are absent for ZPA on automate.zscaler.com).
+**The Postman collection remains useful, but no longer stands alone as the only machine-readable surface.** Vendored at `vendor/zscaler-api-specs/oneapi-postman-collection.json` (~14 MB, Postman v2.1.0 schema). The reconstructed Automate contracts feed the rosetta reconciliation for ZIA, ZPA, ZCC, and ZTW/Cloud Connector, while Postman is treated as reference-only rather than a constraint-bearing reconciliation leg (`vendor/zscaler-api-specs/automate-zscaler/rosetta.md:22-24`).
 
 ## Authentication mechanisms (5 paths in the wild)
 
@@ -453,7 +455,7 @@ Note: This section summarizes the cited OneAPI mechanics above.
 
 4. **ZPA web reference docs don't exist** at automate.zscaler.com — Postman is the only published API surface. This is a staged rollout per Zscaler; check periodically for ZPA web pages.
 
-5. **No public OpenAPI / Swagger spec.** Confirmed. The Postman collection is the closest equivalent. Tooling that wants OpenAPI must either reverse-engineer from Postman or wait for Zscaler to publish.
+5. **No vendor-published OpenAPI / Swagger download.** Confirmed. The Automate site embeds enough per-operation schema data for this repo to reconstruct OpenAPI-compatible snapshots, but they are best-effort derived artifacts with explicit caveats, not an official static `openapi.json` from Zscaler (`scripts/automate-capture/README.md:110-141`).
 
 6. **ZIA + CBC require activation; nothing else does.** A script that activates ZIA changes correctly but never activates CBC changes will silently leave CBC in an inactive-config state.
 
