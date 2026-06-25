@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """Extract compiled Docusaurus OpenAPI operation blobs from automate.zscaler.com.
 
-This is an exploratory proof tool, deliberately separate from the production
-rendered-text capture pipeline. The deployed Docusaurus site does not serve the
-aggregate openapispecs/*.json inputs, but each generated operation chunk carries a
+This is the production static-contract capturer for the structured Automate API
+reference. The deployed Docusaurus site does not serve the aggregate
+openapispecs/*.json inputs, but each generated operation chunk carries a
 compressed frontMatter.api object. This script rebuilds per-product operation JSON
-from those blobs and compares it with the committed rendered-text scrape.
+from those blobs and compares it with the committed contract snapshot so a refresh
+cannot silently lose fields or operations.
 
-Default output is outside the repo:
+Default working output is outside the repo:
   /tmp/zscaler-automate-blob-proof/
 """
 
@@ -939,7 +940,7 @@ def write_markdown(report: dict[str, object], path: pathlib.Path) -> None:
     compare = report["comparison"]
     products = compare["products"]
     lines = [
-        "# Automate Docusaurus Blob Proof",
+        "# Automate Docusaurus Snapshot",
         "",
         f"Captured at: `{report['captured_at']}`",
         f"Main JS: `{report['main_js']}`",
@@ -953,7 +954,7 @@ def write_markdown(report: dict[str, object], path: pathlib.Path) -> None:
         f"{report.get('route_completeness', {}).get('api_mdx_operations', 0)}**",
         f"- API blobs decoded: **{report['decoded_ops']}**",
         f"- Decode failures: **{len(report['decode_failures'])}**",
-        f"- Existing rendered-text ops: **{compare['totals'].get('existing_ops', 0)}**",
+        f"- Existing committed contract ops: **{compare['totals'].get('existing_ops', 0)}**",
         f"- Live-only route keys: **{compare['totals'].get('live_only_ops', 0)}**",
         f"- Existing-only route keys: **{compare['totals'].get('existing_only_ops', 0)}**",
         f"- Live-only loose method/path signatures: "
@@ -997,11 +998,11 @@ def write_markdown(report: dict[str, object], path: pathlib.Path) -> None:
             f"{compare['totals'].get(f'blob_{section}_nested_fields', 0)}"
         )
         lines.append(
-            f"- Blob top-level fields new vs rendered text: "
+            f"- Blob top-level fields new vs committed contract: "
             f"{compare['totals'].get(f'blob_{section}_new_top_vs_existing', 0)}"
         )
         lines.append(
-            f"- Rendered-text top-level fields missing from blob: "
+            f"- Committed contract top-level fields missing from blob: "
             f"{compare['totals'].get(f'blob_{section}_missing_top_vs_existing', 0)}"
         )
         lines.append("")
@@ -1030,7 +1031,7 @@ def write_markdown(report: dict[str, object], path: pathlib.Path) -> None:
         lines.append(f"### `{ex['operation']}` / `{ex['section']}`")
         if ex["rendered_text_object_refs"]:
             refs = ", ".join(f"`{r['name']}: {r['type']}`" for r in ex["rendered_text_object_refs"][:8])
-            lines.append(f"- Rendered-text object refs: {refs}")
+            lines.append(f"- Existing contract object refs: {refs}")
         lines.append(f"- Blob nested fields ({ex['nested_field_count']}):")
         lines.extend(f"  - `{field}`" for field in ex["sample_nested_fields"][:12])
         lines.append("")

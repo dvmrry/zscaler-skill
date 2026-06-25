@@ -1,0 +1,2008 @@
+{
+  "components": {
+    "securitySchemes": {
+      "Bearer": {
+        "scheme": "bearer",
+        "type": "http"
+      },
+      "BearerAuth": {
+        "scheme": "bearer",
+        "type": "http"
+      },
+      "bearerAuth": {
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  },
+  "info": {
+    "description": "API Reference Guide for the Zscaler External Attack Surface Management API",
+    "title": "Zscaler External Attack Surface Management API",
+    "version": "docusaurus-blob-snapshot"
+  },
+  "openapi": "3.0.3",
+  "paths": {
+    "/organizations": {
+      "get": {
+        "description": "Retrieves all organizations configured for a tenant in the EASM Admin Portal. To learn more, see <a href=\"https://help.zscaler.com/easm/creating-managing-organizations\" target=\"_blank\">Creating & Managing Organizations</a>",
+        "operationId": "Retrieves all organizations configured for a tenant in the EASM Admin Portal",
+        "parameters": [
+          {
+            "description": "API authentication token",
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "default": "Bearer your-token",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "next_page": {
+                      "type": "integer"
+                    },
+                    "prev_page": {
+                      "type": "integer"
+                    },
+                    "results": {
+                      "description": "Details obtained for the organizations",
+                      "items": {
+                        "description": "Information about an organization configured in EASM",
+                        "properties": {
+                          "id": {
+                            "description": "The unique identifier of an organization",
+                            "example": "12345",
+                            "type": "string"
+                          },
+                          "name": {
+                            "description": "The name of an organization",
+                            "example": "Default",
+                            "type": "string"
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "total_results": {
+                      "description": "The total number of organizations present in the response",
+                      "example": 1,
+                      "type": "integer"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "description": "Inferred Url",
+            "url": "https://api.zsapi.net/easm/easm-ui/v1"
+          }
+        ],
+        "tags": [
+          "Organizations"
+        ],
+        "x-zscaler-docusaurus": {
+          "api_blob_sha256": "ee9fcf39f1845a6a9d497fd08b1693c1c09d6d5a9ff509797ebd1bc3138ef5af",
+          "chunk_id": 54189,
+          "chunk_url": "https://automate.zscaler.com/assets/js/55c64f1f.3cb43e22.js",
+          "module": 28228
+        },
+        "x-zscaler-docusaurus-extras": {
+          "postman": {
+            "description": {
+              "content": "Retrieves all organizations configured for a tenant in the EASM Admin Portal. To learn more, see <a href=\"https://help.zscaler.com/easm/creating-managing-organizations\" target=\"_blank\">Creating & Managing Organizations</a>",
+              "type": "text/plain"
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "name": "Retrieves all organizations configured for a tenant in the EASM Admin Portal",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "organizations"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        "x-zscaler-operation-key": "easm/organizations/retrieves-all-organizations-configured-for-a-tenant-in-the-easm-admin-portal",
+        "x-zscaler-source-url": "https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/easm/organizations/retrieves-all-organizations-configured-for-a-tenant-in-the-easm-admin-portal"
+      }
+    },
+    "/organizations/{orgId}/assets": {
+      "get": {
+        "description": "Retrieves the list of internet-facing assets detected for your organization by EASM. To learn more, see <a href=\"https://help.zscaler.com/easm/about-asset-inventory\" target=\"_blank\">About Asset Inventory</a> and <a href=\"https://help.zscaler.com/easm/understanding-asset-discovery\" target=\"_blank\">Understanding Asset Discovery</a>.",
+        "operationId": "Retrieves the list of internet-facing assets detected for your organization by EASM",
+        "parameters": [
+          {
+            "description": "API authentication token",
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "default": "Bearer your-token",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Identifier extracted from the path. Renamed automatically; review the description and tighten the schema if needed.",
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "next_link": {
+                      "description": "The URL with a page offset to access the subsequent set of assets",
+                      "type": "string"
+                    },
+                    "prev_link": {
+                      "description": "The URL with a page offset to access the previous set of assets",
+                      "type": "string"
+                    },
+                    "results": {
+                      "description": "The list of assets and their details",
+                      "items": {
+                        "description": "Information about the asset",
+                        "properties": {
+                          "country": {
+                            "description": "The country of origin detected for the asset",
+                            "type": "string"
+                          },
+                          "findings_count": {
+                            "description": "The number of findings detected for the asset",
+                            "type": "integer"
+                          },
+                          "first_seen": {
+                            "description": "The timestamp when the asset was first discovered in a scan",
+                            "type": "string"
+                          },
+                          "id": {
+                            "description": "A unique identifier assigned to the asset by EASM",
+                            "type": "string"
+                          },
+                          "is_stale": {
+                            "description": "A Boolean value that indicates if the asset was not detected in a scan for over 30 days and is therefore marked as stale",
+                            "type": "boolean"
+                          },
+                          "last_seen": {
+                            "description": "The timestamp when the finding was last observed in a scan",
+                            "type": "string"
+                          },
+                          "name": {
+                            "description": "Asset name",
+                            "type": "string"
+                          },
+                          "profile_id": {
+                            "description": "ID of the <a href=\"https://help.zscaler.com/easm/about-discovery-profiles\" target=\"_blank\">discovery profile</a> through which this asset was detected",
+                            "type": "string"
+                          },
+                          "risk_level": {
+                            "description": "The risk level assigned to the asset from the following values: Minimum, Low, Medium, High, and Critical.",
+                            "type": "string"
+                          },
+                          "risk_score": {
+                            "description": "The risk score computed for the asset",
+                            "type": "number"
+                          },
+                          "status": {
+                            "description": "Indicates the <a href=\"https://help.zscaler.com/easm/modifying-asset-status\" target=\"_blank\">asset status</a> as Approved, Candidate, or Archived.",
+                            "type": "string"
+                          },
+                          "type": {
+                            "description": "The asset type categorized into Domain, Host, Web Page, Certificate, ASN, IP Address, and IP Block.",
+                            "type": "string"
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "total_results": {
+                      "type": "integer"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "description": "Inferred Url",
+            "url": "https://api.zsapi.net/easm/easm-ui/v1"
+          }
+        ],
+        "tags": [
+          "Assets"
+        ],
+        "x-zscaler-docusaurus": {
+          "api_blob_sha256": "1af28402e03de05bae18ff4603c241b7b3dce7d82e6f853aa42ba3ef4056d3e3",
+          "chunk_id": 13755,
+          "chunk_url": "https://automate.zscaler.com/assets/js/95f46d82.651e23ad.js",
+          "module": 40469
+        },
+        "x-zscaler-docusaurus-extras": {
+          "postman": {
+            "description": {
+              "content": "Retrieves the list of internet-facing assets detected for your organization by EASM. To learn more, see <a href=\"https://help.zscaler.com/easm/about-asset-inventory\" target=\"_blank\">About Asset Inventory</a> and <a href=\"https://help.zscaler.com/easm/understanding-asset-discovery\" target=\"_blank\">Understanding Asset Discovery</a>.",
+              "type": "text/plain"
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "name": "Retrieves the list of internet-facing assets detected for your organization by EASM",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "organizations",
+                ":orgId",
+                "assets"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "description": {
+                    "content": "(Required) Identifier extracted from the path. Renamed automatically; review the description and tighten the schema if needed.",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "orgId",
+                  "type": "any",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        "x-zscaler-operation-key": "easm/assets/retrieves-the-list-of-internet-facing-assets-detected-for-your-organization-by-easm",
+        "x-zscaler-source-url": "https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/easm/assets/retrieves-the-list-of-internet-facing-assets-detected-for-your-organization-by-easm"
+      }
+    },
+    "/organizations/{orgId}/assets/{assetId}/certificates": {
+      "get": {
+        "description": "Retrieves the list of SSL/TLS certificates used by an asset based on the specified asset ID. To learn more, see <a href=\"https://help.zscaler.com/easm/understanding-asset-details\" target=\"_blank\">Understanding Asset Details</a>.",
+        "operationId": "Retrieves the list of SSL/TLS certificates used by an asset based on the specified asset ID",
+        "parameters": [
+          {
+            "description": "API authentication token",
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "default": "Bearer your-token",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Identifier extracted from the path. Renamed automatically; review the description and tighten the schema if needed.",
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Identifier extracted from the path. Renamed automatically; review the description and tighten the schema if needed.",
+            "in": "path",
+            "name": "assetId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "Certificates": {
+                      "description": "The list of certificates running on an asset and their details",
+                      "items": {
+                        "description": "Information about the certificate",
+                        "properties": {
+                          "expires_at": {
+                            "description": "The certificate's date of expiration",
+                            "type": "string"
+                          },
+                          "first_seen": {
+                            "description": "The timestamp when the certificate was first detected in the asset",
+                            "type": "string"
+                          },
+                          "is_stale": {
+                            "description": "A true value indicates that the certificate was not detected in more than 30 days and is therefore marked stale. A false value indicates that the certificate was observed in the scan in the last 30 days.",
+                            "type": "boolean"
+                          },
+                          "issued_at": {
+                            "description": "The certificate's date of issue",
+                            "type": "string"
+                          },
+                          "last_seen": {
+                            "description": "The timestamp when the certificate was last detected in the asset",
+                            "type": "string"
+                          },
+                          "subject_common_name": {
+                            "description": "The server name protected by the SSL certificate",
+                            "type": "string"
+                          },
+                          "subject_key_identifier": {
+                            "description": "The Subject Key Identifier (SKI) of the certificate, which is an extension providing a unique identifier for the certificate's public key.",
+                            "type": "string"
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "description": "Inferred Url",
+            "url": "https://api.zsapi.net/easm/easm-ui/v1"
+          }
+        ],
+        "tags": [
+          "Assets"
+        ],
+        "x-zscaler-docusaurus": {
+          "api_blob_sha256": "36edcb7a9983a021bb029a19751b384a006baadbea7fd90c06a8c75f93f7bf38",
+          "chunk_id": 81376,
+          "chunk_url": "https://automate.zscaler.com/assets/js/6f55e4f0.f075df27.js",
+          "module": 56396
+        },
+        "x-zscaler-docusaurus-extras": {
+          "postman": {
+            "description": {
+              "content": "Retrieves the list of SSL/TLS certificates used by an asset based on the specified asset ID. To learn more, see <a href=\"https://help.zscaler.com/easm/understanding-asset-details\" target=\"_blank\">Understanding Asset Details</a>.",
+              "type": "text/plain"
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "name": "Retrieves the list of SSL/TLS certificates used by an asset based on the specified asset ID",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "organizations",
+                ":orgId",
+                "assets",
+                ":assetId",
+                "certificates"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "description": {
+                    "content": "(Required) Identifier extracted from the path. Renamed automatically; review the description and tighten the schema if needed.",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "orgId",
+                  "type": "any",
+                  "value": ""
+                },
+                {
+                  "description": {
+                    "content": "(Required) Identifier extracted from the path. Renamed automatically; review the description and tighten the schema if needed.",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "assetId",
+                  "type": "any",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        "x-zscaler-operation-key": "easm/assets/retrieves-the-list-of-ssl-tls-certificates-used-by-an-asset-based-on-the-specified-asset-id",
+        "x-zscaler-source-url": "https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/easm/assets/retrieves-the-list-of-ssl-tls-certificates-used-by-an-asset-based-on-the-specified-asset-id"
+      }
+    },
+    "/organizations/{orgId}/assets/{assetId}/services": {
+      "get": {
+        "description": "Retrieves the list of services running on an asset based on the specified asset ID. To learn more, see <a href=\"https://help.zscaler.com/easm/understanding-asset-details\" target=\"_blank\">Understanding Asset Details</a>.",
+        "operationId": "Retrieves the list of services running on an asset based on the specified asset ID",
+        "parameters": [
+          {
+            "description": "API authentication token",
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "default": "Bearer your-token",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Identifier extracted from the path. Renamed automatically; review the description and tighten the schema if needed.",
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Identifier extracted from the path. Renamed automatically; review the description and tighten the schema if needed.",
+            "in": "path",
+            "name": "assetId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "Services": {
+                      "description": "The list of services running on an asset and their details",
+                      "items": {
+                        "description": "Information about the service",
+                        "properties": {
+                          "created_at": {
+                            "description": "The timestamp when the service was first detected in the asset",
+                            "type": "string"
+                          },
+                          "ip": {
+                            "type": "string"
+                          },
+                          "port": {
+                            "description": "The port used by the service",
+                            "type": "string"
+                          },
+                          "protocol": {
+                            "description": "The protocol used by the service",
+                            "type": "string"
+                          },
+                          "updated_at": {
+                            "description": "The timestamp when the service was first seen in the asset",
+                            "type": "string"
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "description": "Inferred Url",
+            "url": "https://api.zsapi.net/easm/easm-ui/v1"
+          }
+        ],
+        "tags": [
+          "Assets"
+        ],
+        "x-zscaler-docusaurus": {
+          "api_blob_sha256": "0c646a57d900e9213d74edfb82418d58e97e5385c6c36c710fd767546b264f68",
+          "chunk_id": 63995,
+          "chunk_url": "https://automate.zscaler.com/assets/js/d50a0ee2.9ecaeeef.js",
+          "module": 30340
+        },
+        "x-zscaler-docusaurus-extras": {
+          "postman": {
+            "description": {
+              "content": "Retrieves the list of services running on an asset based on the specified asset ID. To learn more, see <a href=\"https://help.zscaler.com/easm/understanding-asset-details\" target=\"_blank\">Understanding Asset Details</a>.",
+              "type": "text/plain"
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "name": "Retrieves the list of services running on an asset based on the specified asset ID",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "organizations",
+                ":orgId",
+                "assets",
+                ":assetId",
+                "services"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "description": {
+                    "content": "(Required) Identifier extracted from the path. Renamed automatically; review the description and tighten the schema if needed.",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "orgId",
+                  "type": "any",
+                  "value": ""
+                },
+                {
+                  "description": {
+                    "content": "(Required) Identifier extracted from the path. Renamed automatically; review the description and tighten the schema if needed.",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "assetId",
+                  "type": "any",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        "x-zscaler-operation-key": "easm/assets/retrieves-the-list-of-services-running-on-an-asset-based-on-the-specified-asset-id",
+        "x-zscaler-source-url": "https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/easm/assets/retrieves-the-list-of-services-running-on-an-asset-based-on-the-specified-asset-id"
+      }
+    },
+    "/organizations/{orgId}/assets/{assetId}/technologies": {
+      "get": {
+        "description": "Retrieves the list of technologies used on an asset based on the specified asset ID. To learn more, see <a href=\"https://help.zscaler.com/easm/understanding-asset-details\" target=\"_blank\">Understanding Asset Details</a>.",
+        "operationId": "Retrieves the list of technologies used on an asset based on the specified asset ID",
+        "parameters": [
+          {
+            "description": "API authentication token",
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "default": "Bearer your-token",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Identifier extracted from the path. Renamed automatically; review the description and tighten the schema if needed.",
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Identifier extracted from the path. Renamed automatically; review the description and tighten the schema if needed.",
+            "in": "path",
+            "name": "assetId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "Technologies": {
+                      "description": "The list of technologies used by an asset and their details",
+                      "items": {
+                        "description": "Information about the technology",
+                        "properties": {
+                          "created_at": {
+                            "description": "The timestamp when the technology was first detected in the asset",
+                            "type": "string"
+                          },
+                          "cves": {
+                            "description": "The CVE IDs for any associated vulnerabilities or exploits, highlighting any risky technologies used on the asset, such as those with known vulnerabilities or deprecated technologies (e.g., ISC BIND, Apache HTTP Server, etc.).",
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "ip": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "description": "The technology name",
+                            "type": "string"
+                          },
+                          "updated_at": {
+                            "description": "The timestamp when the technology was last observed in the asset",
+                            "type": "string"
+                          },
+                          "version": {
+                            "description": "The version of the technology",
+                            "type": "string"
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "description": "Inferred Url",
+            "url": "https://api.zsapi.net/easm/easm-ui/v1"
+          }
+        ],
+        "tags": [
+          "Assets"
+        ],
+        "x-zscaler-docusaurus": {
+          "api_blob_sha256": "73286751b8a9a280cca6166eafca9ad390061730c6fe498f571cf122c5ba115f",
+          "chunk_id": 67304,
+          "chunk_url": "https://automate.zscaler.com/assets/js/d909e596.456840e8.js",
+          "module": 43954
+        },
+        "x-zscaler-docusaurus-extras": {
+          "postman": {
+            "description": {
+              "content": "Retrieves the list of technologies used on an asset based on the specified asset ID. To learn more, see <a href=\"https://help.zscaler.com/easm/understanding-asset-details\" target=\"_blank\">Understanding Asset Details</a>.",
+              "type": "text/plain"
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "name": "Retrieves the list of technologies used on an asset based on the specified asset ID",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "organizations",
+                ":orgId",
+                "assets",
+                ":assetId",
+                "technologies"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "description": {
+                    "content": "(Required) Identifier extracted from the path. Renamed automatically; review the description and tighten the schema if needed.",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "orgId",
+                  "type": "any",
+                  "value": ""
+                },
+                {
+                  "description": {
+                    "content": "(Required) Identifier extracted from the path. Renamed automatically; review the description and tighten the schema if needed.",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "assetId",
+                  "type": "any",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        "x-zscaler-operation-key": "easm/assets/retrieves-the-list-of-technologies-used-on-an-asset-based-on-the-specified-asset-id",
+        "x-zscaler-source-url": "https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/easm/assets/retrieves-the-list-of-technologies-used-on-an-asset-based-on-the-specified-asset-id"
+      }
+    },
+    "/organizations/{orgId}/findings": {
+      "get": {
+        "description": "Retrieves the list of findings identified and tracked for an organization's internet-facing assets scanned by EASM",
+        "operationId": "Retrieves the list of findings identified and tracked for an organization's internet-facing assets scanned by EASM",
+        "parameters": [
+          {
+            "description": "API authentication token",
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "default": "Bearer your-token",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Identifier extracted from the path. Renamed automatically; review the description and tighten the schema if needed.",
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Information about findings",
+                  "properties": {
+                    "results": {
+                      "description": "The list of findings detected for an organization",
+                      "items": {
+                        "description": "Information about findings",
+                        "properties": {
+                          "category": {
+                            "description": "The finding's classification such as Exposure, Vulnerability, or Misconfiguration.",
+                            "type": "string"
+                          },
+                          "cisa_likelihood": {
+                            "description": "Indicates whether a vulnerability is listed in the <a href=\"https://www.cisa.gov/known-exploited-vulnerabilities-catalog\" target=\"_blank\">Known Exploited Vulnerabilities (KEV) catalog, if applicable.</a>",
+                            "type": "string"
+                          },
+                          "country": {
+                            "description": "The geographical location of the asset to which the finding is associated",
+                            "type": "string"
+                          },
+                          "description": {
+                            "description": "A detailed description of the finding gathered from open-source intelligence, such as the <a href=\"https://nvd.nist.gov/\" target=\"_blank\">National Vulnerability Database (NVD)</a>, and Zscaler's research team.",
+                            "type": "string"
+                          },
+                          "epss_likelihood": {
+                            "description": "The Exploit Prediction Scoring System (EPSS) likelihood indicates the probability of a vulnerability being exploited in the wild, if applicable.",
+                            "type": "string"
+                          },
+                          "first_seen": {
+                            "description": "The timestamp when the finding was first detected in the associated asset",
+                            "type": "string"
+                          },
+                          "id": {
+                            "description": "Finding ID",
+                            "type": "string"
+                          },
+                          "impacted_asset_id": {
+                            "description": "The ID of the asset to which the finding is associated",
+                            "type": "string"
+                          },
+                          "impacted_asset_name": {
+                            "description": "The name of the asset to which the finding is associated",
+                            "type": "string"
+                          },
+                          "is_stale": {
+                            "description": "A Boolean value that indicates if the asset was not detected in a scan for over 30 days and is therefore marked as stale",
+                            "type": "boolean"
+                          },
+                          "last_seen": {
+                            "description": "The timestamp when the finding was last detected during scanning",
+                            "type": "string"
+                          },
+                          "name": {
+                            "description": "Finding name",
+                            "type": "string"
+                          },
+                          "profile_id": {
+                            "description": "ID of the Discovery Profile through which this finding was detected",
+                            "type": "string"
+                          },
+                          "risk_level": {
+                            "description": "The risk level assigned to the finding ranging from Low, Medium, High, and Critical.",
+                            "type": "string"
+                          },
+                          "risk_score": {
+                            "description": "A risk score computed for the finding ranging from 1 to 100",
+                            "type": "string"
+                          },
+                          "scan_type": {
+                            "description": "The scanning service that was used to uncover the risk, such as Web, Network, Certificate, and DNS scans.",
+                            "type": "string"
+                          },
+                          "severity_score": {
+                            "description": "The Common Vulnerability Scoring System (CVSS) score that indicates the qualitative measure of severity of a vulnerability using a numerical value ranging from 1 to 10, if applicable.",
+                            "type": "number"
+                          },
+                          "status": {
+                            "description": "Indicates the finding's current status in its workflow tracked from discovery to closure",
+                            "type": "string"
+                          },
+                          "type": {
+                            "description": "The finding's type which is a sub-classification within the assigned <code>category</code>",
+                            "type": "string"
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "total_results": {
+                      "description": "The total number of findings in the response",
+                      "type": "integer"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "description": "Inferred Url",
+            "url": "https://api.zsapi.net/easm/easm-ui/v1"
+          }
+        ],
+        "tags": [
+          "Findings"
+        ],
+        "x-zscaler-docusaurus": {
+          "api_blob_sha256": "49777a5a127b20d1c1b1c936b7c39b1358f2269b505d2f23c10379f60335f7d5",
+          "chunk_id": 25723,
+          "chunk_url": "https://automate.zscaler.com/assets/js/79c5c009.39c94434.js",
+          "module": 29441
+        },
+        "x-zscaler-docusaurus-extras": {
+          "postman": {
+            "description": {
+              "type": "text/plain"
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "name": "Retrieves the list of findings identified and tracked for an organization's internet-facing assets scanned by EASM",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "organizations",
+                ":orgId",
+                "findings"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "description": {
+                    "content": "(Required) Identifier extracted from the path. Renamed automatically; review the description and tighten the schema if needed.",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "orgId",
+                  "type": "any",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        "x-zscaler-operation-key": "easm/findings/retrieves-the-list-of-findings-identified-and-tracked-for-an-organizations-internet-facing-assets-scanned-by-easm",
+        "x-zscaler-source-url": "https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/easm/findings/retrieves-the-list-of-findings-identified-and-tracked-for-an-organizations-internet-facing-assets-scanned-by-easm"
+      }
+    },
+    "/organizations/{orgId}/findings/{findingId}/details": {
+      "get": {
+        "description": "Retrieves details for a finding based on the specified ID. To learn more, see <a href=\"https://help.zscaler.com/easm/understanding-finding-details\" target=\"_blank\">Understanding Finding Details</a>.",
+        "operationId": "Retrieves details for a finding based on the specified ID",
+        "parameters": [
+          {
+            "description": "API authentication token",
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "default": "Bearer your-token",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Identifier extracted from the path. Renamed automatically; review the description and tighten the schema if needed.",
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Identifier extracted from the path. Renamed automatically; review the description and tighten the schema if needed.",
+            "in": "path",
+            "name": "findingId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Information about findings",
+                  "properties": {
+                    "category": {
+                      "description": "The finding's classification such as Exposure, Vulnerability, or Misconfiguration.",
+                      "type": "string"
+                    },
+                    "cisa_likelihood": {
+                      "description": "Indicates whether a vulnerability is listed in the <a href=\"https://www.cisa.gov/known-exploited-vulnerabilities-catalog\" target=\"_blank\">Known Exploited Vulnerabilities (KEV) catalog, if applicable.</a>",
+                      "type": "string"
+                    },
+                    "country": {
+                      "description": "The geographical location of the asset to which the finding is associated",
+                      "type": "string"
+                    },
+                    "description": {
+                      "description": "A detailed description of the finding gathered from open-source intelligence, such as the <a href=\"https://nvd.nist.gov/\" target=\"_blank\">National Vulnerability Database (NVD)</a>, and Zscaler's research team.",
+                      "type": "string"
+                    },
+                    "epss_likelihood": {
+                      "description": "The Exploit Prediction Scoring System (EPSS) likelihood indicates the probability of a vulnerability being exploited in the wild, if applicable.",
+                      "type": "string"
+                    },
+                    "first_seen": {
+                      "description": "The timestamp when the finding was first detected in the associated asset",
+                      "type": "string"
+                    },
+                    "id": {
+                      "description": "Finding ID",
+                      "type": "string"
+                    },
+                    "impacted_asset_id": {
+                      "description": "The ID of the asset to which the finding is associated",
+                      "type": "string"
+                    },
+                    "impacted_asset_name": {
+                      "description": "The name of the asset to which the finding is associated",
+                      "type": "string"
+                    },
+                    "is_stale": {
+                      "description": "A Boolean value that indicates if the asset was not detected in a scan for over 30 days and is therefore marked as stale",
+                      "type": "boolean"
+                    },
+                    "last_seen": {
+                      "description": "The timestamp when the finding was last detected during scanning",
+                      "type": "string"
+                    },
+                    "name": {
+                      "description": "Finding name",
+                      "type": "string"
+                    },
+                    "profile_id": {
+                      "description": "ID of the Discovery Profile through which this finding was detected",
+                      "type": "string"
+                    },
+                    "risk_level": {
+                      "description": "The risk level assigned to the finding ranging from Low, Medium, High, and Critical.",
+                      "type": "string"
+                    },
+                    "risk_score": {
+                      "description": "A risk score computed for the finding ranging from 1 to 100",
+                      "type": "string"
+                    },
+                    "scan_type": {
+                      "description": "The scanning service that was used to uncover the risk, such as Web, Network, Certificate, and DNS scans.",
+                      "type": "string"
+                    },
+                    "severity_score": {
+                      "description": "The Common Vulnerability Scoring System (CVSS) score that indicates the qualitative measure of severity of a vulnerability using a numerical value ranging from 1 to 10, if applicable.",
+                      "type": "number"
+                    },
+                    "status": {
+                      "description": "Indicates the finding's current status in its workflow tracked from discovery to closure",
+                      "type": "string"
+                    },
+                    "type": {
+                      "description": "The finding's type which is a sub-classification within the assigned <code>category</code>",
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "description": "Inferred Url",
+            "url": "https://api.zsapi.net/easm/easm-ui/v1"
+          }
+        ],
+        "tags": [
+          "Findings"
+        ],
+        "x-zscaler-docusaurus": {
+          "api_blob_sha256": "e4303a8f21d26283cbfcffb8d1438d7f42b064efe5c6ff3570f0e5c003702dfa",
+          "chunk_id": 8669,
+          "chunk_url": "https://automate.zscaler.com/assets/js/0ca341a3.3418b28c.js",
+          "module": 67644
+        },
+        "x-zscaler-docusaurus-extras": {
+          "postman": {
+            "description": {
+              "content": "Retrieves details for a finding based on the specified ID. To learn more, see <a href=\"https://help.zscaler.com/easm/understanding-finding-details\" target=\"_blank\">Understanding Finding Details</a>.",
+              "type": "text/plain"
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "name": "Retrieves details for a finding based on the specified ID",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "organizations",
+                ":orgId",
+                "findings",
+                ":findingId",
+                "details"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "description": {
+                    "content": "(Required) Identifier extracted from the path. Renamed automatically; review the description and tighten the schema if needed.",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "orgId",
+                  "type": "any",
+                  "value": ""
+                },
+                {
+                  "description": {
+                    "content": "(Required) Identifier extracted from the path. Renamed automatically; review the description and tighten the schema if needed.",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "findingId",
+                  "type": "any",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        "x-zscaler-operation-key": "easm/findings/retrieves-details-for-a-finding-based-on-the-specified-id",
+        "x-zscaler-source-url": "https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/easm/findings/retrieves-details-for-a-finding-based-on-the-specified-id"
+      }
+    },
+    "/organizations/{orgId}/findings/{findingId}/evidence": {
+      "get": {
+        "description": "Retrieves scan evidence details for a finding based on the specified ID. This is a subset of the scan output obtained for the associated asset that can be attributed to the finding. To learn more, see <a href=\"https://help.zscaler.com/easm/understanding-finding-details\" target=\"_blank\">Understanding Finding Details</a>.",
+        "operationId": "Retrieves scan evidence details for a finding based on the specified ID",
+        "parameters": [
+          {
+            "description": "API authentication token",
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "default": "Bearer your-token",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Identifier extracted from the path. Renamed automatically; review the description and tighten the schema if needed.",
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Identifier extracted from the path. Renamed automatically; review the description and tighten the schema if needed.",
+            "in": "path",
+            "name": "findingId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "content": {
+                      "description": "The scan output information",
+                      "type": "string"
+                    },
+                    "source_type": {
+                      "description": "The scanning service used to detect the risk, such as Web, Network, Certificate, or DNS scans.",
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "description": "Inferred Url",
+            "url": "https://api.zsapi.net/easm/easm-ui/v1"
+          }
+        ],
+        "tags": [
+          "Findings"
+        ],
+        "x-zscaler-docusaurus": {
+          "api_blob_sha256": "fb5adbb54f1b5f5de70d32bbbed0e7d91769372d20a6633f403b8b20923b245a",
+          "chunk_id": 85669,
+          "chunk_url": "https://automate.zscaler.com/assets/js/57cbdb94.6cf5af1e.js",
+          "module": 93932
+        },
+        "x-zscaler-docusaurus-extras": {
+          "postman": {
+            "description": {
+              "content": "Retrieves scan evidence details for a finding based on the specified ID. This is a subset of the scan output obtained for the associated asset that can be attributed to the finding. To learn more, see <a href=\"https://help.zscaler.com/easm/understanding-finding-details\" target=\"_blank\">Understanding Finding Details</a>.",
+              "type": "text/plain"
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "name": "Retrieves scan evidence details for a finding based on the specified ID",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "organizations",
+                ":orgId",
+                "findings",
+                ":findingId",
+                "evidence"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "description": {
+                    "content": "(Required) Identifier extracted from the path. Renamed automatically; review the description and tighten the schema if needed.",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "orgId",
+                  "type": "any",
+                  "value": ""
+                },
+                {
+                  "description": {
+                    "content": "(Required) Identifier extracted from the path. Renamed automatically; review the description and tighten the schema if needed.",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "findingId",
+                  "type": "any",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        "x-zscaler-operation-key": "easm/findings/retrieves-scan-evidence-details-for-a-finding-based-on-the-specified-id",
+        "x-zscaler-source-url": "https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/easm/findings/retrieves-scan-evidence-details-for-a-finding-based-on-the-specified-id"
+      }
+    },
+    "/organizations/{orgId}/findings/{findingId}/scan-output": {
+      "get": {
+        "description": "Retrieves the complete scan output for a finding based on the specified ID. To learn more, see <a href=\"https://help.zscaler.com/easm/understanding-finding-details\" target=\"_blank\">Understanding Finding Details</a>.",
+        "operationId": "Retrieves the complete scan output for a finding based on the specified ID",
+        "parameters": [
+          {
+            "description": "API authentication token",
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "default": "Bearer your-token",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Identifier extracted from the path. Renamed automatically; review the description and tighten the schema if needed.",
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Identifier extracted from the path. Renamed automatically; review the description and tighten the schema if needed.",
+            "in": "path",
+            "name": "findingId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "content": {
+                      "description": "The scan output information",
+                      "type": "string"
+                    },
+                    "source_type": {
+                      "description": "The scanning service used to detect the risk, such as Web, Network, Certificate, or DNS scans.",
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "description": "Inferred Url",
+            "url": "https://api.zsapi.net/easm/easm-ui/v1"
+          }
+        ],
+        "tags": [
+          "Findings"
+        ],
+        "x-zscaler-docusaurus": {
+          "api_blob_sha256": "45a786daf2c540df64c1f7ae66bbfa2d2501298135a6b192346f13eb42cf33a4",
+          "chunk_id": 89879,
+          "chunk_url": "https://automate.zscaler.com/assets/js/8de47969.49b93d96.js",
+          "module": 76124
+        },
+        "x-zscaler-docusaurus-extras": {
+          "postman": {
+            "description": {
+              "content": "Retrieves the complete scan output for a finding based on the specified ID. To learn more, see <a href=\"https://help.zscaler.com/easm/understanding-finding-details\" target=\"_blank\">Understanding Finding Details</a>.",
+              "type": "text/plain"
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "name": "Retrieves the complete scan output for a finding based on the specified ID",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "organizations",
+                ":orgId",
+                "findings",
+                ":findingId",
+                "scan-output"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "description": {
+                    "content": "(Required) Identifier extracted from the path. Renamed automatically; review the description and tighten the schema if needed.",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "orgId",
+                  "type": "any",
+                  "value": ""
+                },
+                {
+                  "description": {
+                    "content": "(Required) Identifier extracted from the path. Renamed automatically; review the description and tighten the schema if needed.",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "findingId",
+                  "type": "any",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        "x-zscaler-operation-key": "easm/findings/retrieves-the-complete-scan-output-for-a-finding-based-on-the-specified-id",
+        "x-zscaler-source-url": "https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/easm/findings/retrieves-the-complete-scan-output-for-a-finding-based-on-the-specified-id"
+      }
+    },
+    "/organizations/{orgId}/lookalike-domains": {
+      "get": {
+        "description": "Retrieves the list of lookalike domains for an organization based on the specified ID. To learn more, see <a href=\"https://help.zscaler.com/easm/about-lookalike-domains\" target=\"_blank\">About Lookalike Domains</a>.",
+        "operationId": "Retrieves the list of lookalike domains for an organization based on the specified ID",
+        "parameters": [
+          {
+            "description": "API authentication token",
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "default": "Bearer your-token",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Identifier extracted from the path. Renamed automatically; review the description and tighten the schema if needed.",
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "results": {
+                      "description": "The list of lookalike domains identified for the seed domains configured for an organization",
+                      "items": {
+                        "description": "Information about lookalike domains",
+                        "properties": {
+                          "created_date": {
+                            "description": "The timestamp when the lookalike domain was detected in a scan and added to EASM",
+                            "type": "string"
+                          },
+                          "deception_method": {
+                            "description": "One or more deception methods used in the lookalike domain name to impersonate a legitimate domain",
+                            "items": {
+                              "description": "The list of deception methods used by lookalike domain names for impersonating legitimate domains",
+                              "enum": [
+                                "EdgeInsertion",
+                                "Extension",
+                                "Homograph",
+                                "Hyphenation",
+                                "KeyboardTypos",
+                                "MidInsertion",
+                                "Omission",
+                                "PhoneticReplacement",
+                                "Repetition",
+                                "TldSwap",
+                                "Typoglycemia",
+                                "VowelReplacement",
+                                "Typos"
+                              ],
+                              "type": "string",
+                              "x-enum-varnames": [
+                                "DeceptionMethodEdgeInsertion",
+                                "DeceptionMethodExtension",
+                                "DeceptionMethodHomograph",
+                                "DeceptionMethodHyphenation",
+                                "DeceptionMethodKeyboardTypos",
+                                "DeceptionMethodMidInsertion",
+                                "DeceptionMethodMidOmission",
+                                "DeceptionMethodPhoneticReplacement",
+                                "DeceptionMethodRepetition",
+                                "DeceptionMethodTldSwap",
+                                "DeceptionMethodTypoglycemia",
+                                "DeceptionMethodVowelReplacement",
+                                "DeceptionMethodTypos"
+                              ]
+                            },
+                            "type": "array"
+                          },
+                          "description": {
+                            "description": "A description of the lookalike domain, why it is suspicious, and the deception tactics used.",
+                            "type": "string"
+                          },
+                          "expiration_date": {
+                            "description": "The domain registration expiration date, if available.",
+                            "type": "string"
+                          },
+                          "is_registered": {
+                            "description": "Indicates whether the domain is registered with a registrar or not",
+                            "type": "boolean"
+                          },
+                          "lookalike_raw": {
+                            "description": "The lookalike domain URL",
+                            "type": "string"
+                          },
+                          "original_domain": {
+                            "description": "The legitimate domain mimicked by the lookalike domain",
+                            "type": "string"
+                          },
+                          "registered_by": {
+                            "description": "An individual or entity that owns the registered domain, if available.",
+                            "type": "string"
+                          },
+                          "registrar": {
+                            "description": "The internet company that was used to register the domain, if available.",
+                            "type": "string"
+                          },
+                          "remediation": {
+                            "description": "Risk remediation recommendations for the lookalike domain",
+                            "type": "string"
+                          },
+                          "risk_category": {
+                            "description": "The risk categorization of the lookalike domain",
+                            "enum": [
+                              "Phishing Lookalike",
+                              "Registered Lookalike",
+                              "Preventative Lookalike",
+                              "Watchlist Lookalike"
+                            ],
+                            "type": "string",
+                            "x-enum-varnames": [
+                              "PhishingLookalike",
+                              "RegisteredLookalike",
+                              "PreventativeLookalike",
+                              "WatchlistLookalike"
+                            ]
+                          },
+                          "risk_score": {
+                            "description": "A risk score assigned to the lookalike domain",
+                            "type": "integer"
+                          },
+                          "status": {
+                            "description": "The status assigned to the lookalike domain entry",
+                            "enum": [
+                              "NOT_VERIFIED",
+                              "VERIFIED",
+                              "RISK_ACCEPTED",
+                              "RESOLVED",
+                              "DISPUTED"
+                            ],
+                            "type": "string",
+                            "x-enum-varnames": [
+                              "NotVerified",
+                              "Verified",
+                              "RiskAccepted",
+                              "Resolved",
+                              "Disputed"
+                            ]
+                          },
+                          "updated_date": {
+                            "description": "The timestamp when the lookalike domain's status was last updated",
+                            "type": "string"
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "total_results": {
+                      "description": "The total number of lookalike domains present in the response",
+                      "type": "integer"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "description": "Inferred Url",
+            "url": "https://api.zsapi.net/easm/easm-ui/v1"
+          }
+        ],
+        "tags": [
+          "Lookalike Domains"
+        ],
+        "x-zscaler-docusaurus": {
+          "api_blob_sha256": "47d78b45f7e5a1e92d063f032c55e75ef2c91359b019a3d5bb8bc5d466012cb8",
+          "chunk_id": 68107,
+          "chunk_url": "https://automate.zscaler.com/assets/js/dda0015e.55489fb8.js",
+          "module": 63024
+        },
+        "x-zscaler-docusaurus-extras": {
+          "postman": {
+            "description": {
+              "content": "Retrieves the list of lookalike domains for an organization based on the specified ID. To learn more, see <a href=\"https://help.zscaler.com/easm/about-lookalike-domains\" target=\"_blank\">About Lookalike Domains</a>.",
+              "type": "text/plain"
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "name": "Retrieves the list of lookalike domains for an organization based on the specified ID",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "organizations",
+                ":orgId",
+                "lookalike-domains"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "description": {
+                    "content": "(Required) Identifier extracted from the path. Renamed automatically; review the description and tighten the schema if needed.",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "orgId",
+                  "type": "any",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        "x-zscaler-operation-key": "easm/lookalike-domains/retrieves-the-list-of-lookalike-domains-for-an-organization-based-on-the-specified-id",
+        "x-zscaler-source-url": "https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/easm/lookalike-domains/retrieves-the-list-of-lookalike-domains-for-an-organization-based-on-the-specified-id"
+      }
+    },
+    "/organizations/{orgId}/lookalike-domains/{lookalikeRaw}/details": {
+      "get": {
+        "description": "Retrieves details for a lookalike domain based on the specified ID. To learn more, see <a href=\"https://help.zscaler.com/easm/understanding-lookalike-domain-details\" target=\"_blank\">Understanding Lookalike Domain Details</a>.",
+        "operationId": "Retrieves details for a lookalike domain based on the specified ID",
+        "parameters": [
+          {
+            "description": "API authentication token",
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "default": "Bearer your-token",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Identifier extracted from the path. Renamed automatically; review the description and tighten the schema if needed.",
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Identifier extracted from the path. Renamed automatically; review the description and tighten the schema if needed.",
+            "in": "path",
+            "name": "lookalikeRaw",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "results": {
+                      "description": "The list of lookalike domains identified for the seed domains configured for an organization",
+                      "items": {
+                        "description": "Information about lookalike domains",
+                        "properties": {
+                          "created_date": {
+                            "description": "The timestamp when the lookalike domain was detected in a scan and added to EASM",
+                            "type": "string"
+                          },
+                          "deception_method": {
+                            "description": "One or more deception methods used in the lookalike domain name to impersonate a legitimate domain",
+                            "items": {
+                              "description": "The list of deception methods used by lookalike domain names for impersonating legitimate domains",
+                              "enum": [
+                                "EdgeInsertion",
+                                "Extension",
+                                "Homograph",
+                                "Hyphenation",
+                                "KeyboardTypos",
+                                "MidInsertion",
+                                "Omission",
+                                "PhoneticReplacement",
+                                "Repetition",
+                                "TldSwap",
+                                "Typoglycemia",
+                                "VowelReplacement",
+                                "Typos"
+                              ],
+                              "type": "string",
+                              "x-enum-varnames": [
+                                "DeceptionMethodEdgeInsertion",
+                                "DeceptionMethodExtension",
+                                "DeceptionMethodHomograph",
+                                "DeceptionMethodHyphenation",
+                                "DeceptionMethodKeyboardTypos",
+                                "DeceptionMethodMidInsertion",
+                                "DeceptionMethodMidOmission",
+                                "DeceptionMethodPhoneticReplacement",
+                                "DeceptionMethodRepetition",
+                                "DeceptionMethodTldSwap",
+                                "DeceptionMethodTypoglycemia",
+                                "DeceptionMethodVowelReplacement",
+                                "DeceptionMethodTypos"
+                              ]
+                            },
+                            "type": "array"
+                          },
+                          "description": {
+                            "description": "A description of the lookalike domain, why it is suspicious, and the deception tactics used.",
+                            "type": "string"
+                          },
+                          "expiration_date": {
+                            "description": "The domain registration expiration date, if available.",
+                            "type": "string"
+                          },
+                          "is_registered": {
+                            "description": "Indicates whether the domain is registered with a registrar or not",
+                            "type": "boolean"
+                          },
+                          "lookalike_raw": {
+                            "description": "The lookalike domain URL",
+                            "type": "string"
+                          },
+                          "original_domain": {
+                            "description": "The legitimate domain mimicked by the lookalike domain",
+                            "type": "string"
+                          },
+                          "registered_by": {
+                            "description": "An individual or entity that owns the registered domain, if available.",
+                            "type": "string"
+                          },
+                          "registrar": {
+                            "description": "The internet company that was used to register the domain, if available.",
+                            "type": "string"
+                          },
+                          "remediation": {
+                            "description": "Risk remediation recommendations for the lookalike domain",
+                            "type": "string"
+                          },
+                          "risk_category": {
+                            "description": "The risk categorization of the lookalike domain",
+                            "enum": [
+                              "Phishing Lookalike",
+                              "Registered Lookalike",
+                              "Preventative Lookalike",
+                              "Watchlist Lookalike"
+                            ],
+                            "type": "string",
+                            "x-enum-varnames": [
+                              "PhishingLookalike",
+                              "RegisteredLookalike",
+                              "PreventativeLookalike",
+                              "WatchlistLookalike"
+                            ]
+                          },
+                          "risk_score": {
+                            "description": "A risk score assigned to the lookalike domain",
+                            "type": "integer"
+                          },
+                          "status": {
+                            "description": "The status assigned to the lookalike domain entry",
+                            "enum": [
+                              "NOT_VERIFIED",
+                              "VERIFIED",
+                              "RISK_ACCEPTED",
+                              "RESOLVED",
+                              "DISPUTED"
+                            ],
+                            "type": "string",
+                            "x-enum-varnames": [
+                              "NotVerified",
+                              "Verified",
+                              "RiskAccepted",
+                              "Resolved",
+                              "Disputed"
+                            ]
+                          },
+                          "updated_date": {
+                            "description": "The timestamp when the lookalike domain's status was last updated",
+                            "type": "string"
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "total_results": {
+                      "description": "The total number of lookalike domains present in the response",
+                      "type": "integer"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "description": "Inferred Url",
+            "url": "https://api.zsapi.net/easm/easm-ui/v1"
+          }
+        ],
+        "tags": [
+          "Lookalike Domains"
+        ],
+        "x-zscaler-docusaurus": {
+          "api_blob_sha256": "8eae44a032f897ae87312ad79fb4bf37b58cf46a1ab17ce4d97ce1e5157df403",
+          "chunk_id": 26677,
+          "chunk_url": "https://automate.zscaler.com/assets/js/a679312e.cdcf64f2.js",
+          "module": 47055
+        },
+        "x-zscaler-docusaurus-extras": {
+          "postman": {
+            "description": {
+              "content": "Retrieves details for a lookalike domain based on the specified ID. To learn more, see <a href=\"https://help.zscaler.com/easm/understanding-lookalike-domain-details\" target=\"_blank\">Understanding Lookalike Domain Details</a>.",
+              "type": "text/plain"
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "name": "Retrieves details for a lookalike domain based on the specified ID",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "organizations",
+                ":orgId",
+                "lookalike-domains",
+                ":lookalikeRaw",
+                "details"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "description": {
+                    "content": "(Required) Identifier extracted from the path. Renamed automatically; review the description and tighten the schema if needed.",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "orgId",
+                  "type": "any",
+                  "value": ""
+                },
+                {
+                  "description": {
+                    "content": "(Required) Identifier extracted from the path. Renamed automatically; review the description and tighten the schema if needed.",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "lookalikeRaw",
+                  "type": "any",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        "x-zscaler-operation-key": "easm/lookalike-domains/retrieves-details-for-a-lookalike-domain-based-on-the-specified-id",
+        "x-zscaler-source-url": "https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/easm/lookalike-domains/retrieves-details-for-a-lookalike-domain-based-on-the-specified-id"
+      }
+    }
+  },
+  "servers": [
+    {
+      "description": "Inferred Url",
+      "url": "https://api.zsapi.net/easm/easm-ui/v1"
+    }
+  ],
+  "x-zscaler-source": {
+    "kind": "automate-docusaurus-blobs",
+    "operation_count": 11,
+    "product": "easm"
+  }
+}

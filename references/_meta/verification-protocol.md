@@ -111,7 +111,7 @@ When a user reports a behavior:
 
 For a claim about API behavior:
 
-1. **Automate contract capture, when present** — `vendor/zscaler-api-specs/automate-zscaler/<product>-api-reference.json` plus the raw/provenance tree under `vendor/zscaler-help/automate-zscaler/api-reference/`. This is the preferred source for rendered API method/path and field-level contract metadata (`required`, `readonly`, `enum`) because it is captured from the operation reference itself.
+1. **Automate contract capture, when present** — `vendor/zscaler-api-specs/automate-zscaler/<product>-api-reference.json` plus the product-scoped OpenAPI snapshots under `vendor/zscaler-api-specs/automate-zscaler/openapi/`. This is the preferred source for documented API method/path and field-level contract metadata (`required`, `readonly`, `enum`) because it is extracted from the operation reference's Docusaurus `frontMatter.api` object.
 2. **TF provider validator** — `vendor/terraform-provider-{zia,zpa,zcc,ztc}/**/validator.go`, `**/resource_*.go` (`ValidateFunc`, `StringInSlice`, map-based validator patterns). This is authoritative for what the Terraform provider accepts or rejects, not for what the API itself accepts.
 3. **Python SDK model** — `vendor/zscaler-sdk-python/zscaler/<product>/models/*.py` (constants, dataclass field types, validators).
 4. **Go SDK model + service** — `vendor/zscaler-sdk-go/zscaler/<product>/services/**/*.go` (struct tags, enum constants). SDK sources remain authoritative for wrapper coverage, method signatures, request shaping, and client-side normalization.

@@ -923,14 +923,14 @@ def _generic_response_placeholder(field):
 
 
 def _contract_top_level_name(field):
-    """Project rendered-text and blob-flattened contract fields to the resource
+    """Project contract and blob-flattened fields to the resource
     field universe used by the reconciler.
 
-    The original rendered-text parser emitted top-level fields only. The
-    Docusaurus-blob extractor preserves nested paths (`connectors[].id`,
-    `[].active`, ...). Multi-surface reconciliation is still a top-level
-    comparison, so keep `city` and list item roots like `[].active` -> `active`,
-    but do not let nested child paths become client-missing-field divergences.
+    The durable Docusaurus snapshot includes both top-level fields and nested
+    paths (`connectors[].id`, `[].active`, ...). Multi-surface reconciliation is
+    still a top-level comparison, so keep `city` and list item roots like
+    `[].active` -> `active`, but do not let nested child paths become
+    client-missing-field divergences.
     """
     name = field.get("name")
     if not isinstance(name, str) or not name:

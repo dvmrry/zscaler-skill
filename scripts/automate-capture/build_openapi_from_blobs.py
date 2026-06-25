@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Build inline OpenAPI artifacts from decoded automate.zscaler.com blobs.
 
-This is a proof-stage converter for the Docusaurus blob snapshot produced by
-extract_docusaurus_blobs.py. It intentionally keeps schemas inline and preserves
-operation provenance with x-zscaler-* extensions; component extraction and deeper
-codegen cleanup are later steps.
+This converter turns the Docusaurus blob snapshot produced by
+extract_docusaurus_blobs.py into product-scoped OpenAPI-compatible specs. It
+keeps operation schemas inline and preserves provenance with x-zscaler-*
+extensions so downstream mappers can trace each operation back to the deployed
+Automate page.
 """
 
 from __future__ import annotations
@@ -484,9 +485,9 @@ def validate_spec(product: str, spec: dict[str, object], build_issues: list[dict
 def write_validation_report(report: dict[str, object], out_dir: pathlib.Path) -> None:
     (out_dir / "openapi-validation-report.json").write_text(sorted_json(report), encoding="utf-8")
     lines = [
-        "# OpenAPI Proof Validation Report",
+        "# OpenAPI Snapshot Validation Report",
         "",
-        "This report is structural validation for the inline proof artifact. It is not a full OpenAPI parser result.",
+        "This report is structural validation for the inline OpenAPI snapshot. It is not a full OpenAPI parser result.",
         "",
         "## Summary",
         "",
@@ -512,7 +513,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--raw-dir", type=pathlib.Path, default=DEFAULT_RAW_BLOBS)
     parser.add_argument("--out-dir", type=pathlib.Path, default=DEFAULT_OUT)
-    parser.add_argument("--version", default="docusaurus-blob-proof")
+    parser.add_argument("--version", default="docusaurus-blob-snapshot")
     args = parser.parse_args()
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
