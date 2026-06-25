@@ -8,6 +8,8 @@ confidence: high
 source-tier: code
 sources:
   - "vendor/zscaler-sdk-python/README.md"
+  - "vendor/zscaler-sdk-python/CHANGELOG.md"
+  - "vendor/zscaler-sdk-python/zscaler/constants.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/zpa_service.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/policies.py"
@@ -36,7 +38,7 @@ Source: `vendor/zscaler-sdk-python/README.md`.
 Same two-framework model as ZIA — see [`../zia/api.md`](../zia/api.md#authentication-two-frameworks) for the full description. Summary:
 
 - **OneAPI** (current, OAuth 2.0 via ZIdentity): unified `ZscalerClient` exposes `.zpa` as the ZPA resource root.
-- **Legacy** (older, ZPA-specific credentials): `from zscaler.oneapi_client import LegacyZPAClient`. Use for pre-ZIdentity tenants and ZPA gov clouds (`GOV`, `GOVUS`), which do not support OneAPI.
+- **Legacy** (older, ZPA-specific credentials): `from zscaler.oneapi_client import LegacyZPAClient`. Use for pre-ZIdentity tenants, older SDKs, and provider paths that still document ZPA `GOV` / `GOVUS` as legacy-only. Current Python SDK releases also model FedRAMP OneAPI routing for `cloud=gov` / `cloud=govus` (`vendor/zscaler-sdk-python/CHANGELOG.md:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:26`), so check the selected client surface before assuming gov means legacy.
 
 ZPA-legacy auth uses a Client ID + Client Secret + customer ID issued in the ZPA Admin Portal. Per SDK README, these map to env vars when using the unified client under legacy mode.
 

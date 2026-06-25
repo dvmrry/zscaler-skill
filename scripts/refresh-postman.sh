@@ -42,6 +42,12 @@ if ! curl -sL --fail -o "${TMP_FILE}" "${COLLECTION_URL}"; then
     exit 1
 fi
 
+if ! python3 -m json.tool "${TMP_FILE}" >/dev/null; then
+    echo "✗ Downloaded file is not valid JSON. Refusing to replace ${OUTPUT_FILE}." >&2
+    echo "  Check the URL — Zscaler may be returning an HTML or error page." >&2
+    exit 1
+fi
+
 NEW_SIZE="$(wc -c < "${TMP_FILE}")"
 NEW_HASH="$(shasum -a 256 "${TMP_FILE}" | awk '{print $1}')"
 

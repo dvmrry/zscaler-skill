@@ -3,7 +3,7 @@ product: ai-security
 topic: "ai-security-overview"
 title: "AI Security family — AI Guard, AI Guardrails, AI Red Teaming, governance"
 content-type: reasoning
-last-verified: "2026-06-16"
+last-verified: "2026-06-21"
 confidence: medium
 source-tier: mixed
 verified-against:
@@ -29,6 +29,8 @@ sources:
   - "vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.md"
   - "vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py"
   - "vendor/zscaler-sdk-python/zscaler/zaiguard/models/policy_detection.py"
+  - "vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json"
+  - "vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md"
   - "vendor/zguard-ai-integrations/README.md"
   - "https://www.zscaler.com/products-and-solutions/ai-security"
   - "vendor/zscaler-help/ai-security-marketing.md"
@@ -43,7 +45,7 @@ Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-secur
 
 Zscaler's AI Security stack is **a family, not a single product**. Marketing groups four pillars under "AI Security"; help-portal docs treat individual sub-products (AI Guard, AI Guardrails, AI Red Teaming) as discrete services. This page maps the family so the skill can route a user's question to the right component before claiming depth.
 
-**Confidence is high for AI Guard runtime detection, deployment shape, and portal operating model**, because every article visible in the public AI Guard Help category tree was captured on 2026-05-22 and mapped into this repo, and the pinned Python SDK policy-detection methods/models are also captured. **Confidence remains medium for the broader AI Security family**: AI Guardrails and AI Red Teaming still have mostly marketing-level coverage, and no Terraform, Go SDK, Postman, or broad AI Guard admin-configuration API surface is captured.
+**Confidence is high for AI Guard runtime detection, deployment shape, and portal operating model**, because every article visible in the public AI Guard Help category tree was captured on 2026-05-22 and mapped into this repo, and the pinned Python SDK policy-detection methods/models are also captured. The reconstructed Automate snapshot now adds a documented AI Guard admin-plane contract with 45 operations, but the captured Go SDK, Terraform, MCP, Postman, and Automation Hub sources still do not wrap that admin plane (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:9`; `references/ai-security/api-divergences.md#automate-admin-plane-contract-vs-client-surfaces`). **Confidence remains medium for the broader AI Security family**: AI Guardrails and AI Red Teaming still have mostly marketing-level coverage, and the client-wrapper story for AI Guard admin automation is currently a gap.
 
 ## The four pillars
 

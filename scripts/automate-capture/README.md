@@ -1,108 +1,126 @@
-# automate.zscaler.com capture pipeline (DAV-21)
+# automate.zscaler.com capture pipeline
 
 Captures the per-operation **API contract** from the automate.zscaler.com OneAPI
-reference — field-level `required` / `readonly` / `enum` that exists nowhere else
-in machine-readable form (no `openapi.json` is published; the schema is baked into
-the Docusaurus JS bundles, so it must be rendered and read).
+reference: documented method/path, request and response shape, field-level
+`required`, `readOnly`, `enum`, and provenance. The current production path reads
+the compiled Docusaurus operation blobs directly, not rendered browser text.
 
-This is the highest-authority source for *what the API actually accepts and
-returns*, distinct from the SDK's client view and Postman's examples. Reconciling
-it against the Go/Python SDKs and the Terraform provider surfaces real divergences
-(see the proof report: `plans/2026-06-16-dav-21-automate-contract-proof.md`).
+The snapshot is the highest-authority static source for documented Automate API
+metadata, distinct from SDK wrapper behavior, Terraform/Ansible validators, MCP
+tool coverage, and Postman examples. It does **not** prove live backend acceptance
+for every value; tenant validation and vendor confirmation still own runtime
+semantics.
 
-## Three stages, clean boundary
+## Production stages
 
-1. **Capture** (`capture.cjs`, Node + Playwright) — renders each op page headlessly
-   and dumps the raw `<article>` text plus first-class provenance. No parsing, no
-   LLM. A page is persisted only once it has fully rendered (method + path +
-   `Responses` + the `curl` example) and its text is stable across two reads; a
-   partial render is retried once, then fails hard rather than being written as a
-   success. Only the contract region (everything before the multi-language code
-   samples) is stored — lean, and lossless for what the parser reads. Output:
-   - raw text → `vendor/zscaler-help/automate-zscaler/api-reference/<product>/<group>/<op>.txt`
-   - provenance → `.../api-reference/provenance.json` (`source_url`, `sha256`,
-     `captured_at`, `method`, `path`, `length` per op)
-2. **Parse** (`parse_contract.py`, Python stdlib) — deterministically turns the raw
-   text into normalized contract JSON. No browser. Output:
-   - `vendor/zscaler-api-specs/automate-zscaler/<product>-api-reference.json`
-     (contract data, separate from the Postman examples).
+1. **Extract** (`extract_docusaurus_blobs.py`, Python stdlib) — fetches the
+   deployed Docusaurus route table and lazy MDX operation chunks, decodes each
+   compressed `frontMatter.api` object, and writes a working snapshot under
+   `/tmp/zscaler-automate-blob-proof/` by default:
+   - reconstructed normalized contracts:
+     `reconstructed/<product>-api-reference.json`
+   - raw decoded blobs with source URL and blob hash:
+     `raw-blobs/<product>-raw-api.json`
+   - flattened sheets for downstream mapping/readiness work:
+     `sheets/automate-fields.json` and `sheets/automate-operations.json`
+   - old-vs-new comparison:
+     `compare-summary.{json,md}`
+2. **Publish OpenAPI** (`build_openapi_from_blobs.py`, Python stdlib) — converts
+   the decoded blobs into product-scoped OpenAPI-compatible specs while preserving
+   `x-zscaler-*` provenance extensions:
+   - `vendor/zscaler-api-specs/automate-zscaler/openapi/<product>.openapi.json`
+   - `vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.{json,md}`
 3. **Reconcile** (`reconcile_contract.py`, Python stdlib) — diffs the normalized
-   contract against the Go SDK struct and the Terraform provider schema, on the
-   high-signal axes (presence, type drift, required-vs-optional, readonly-vs-computed,
-   enum). Conservative matching only (exact JSON tags / TF keys; TF snake→camel from
-   the key; nothing fuzzy). Output (a generated pair, regenerate after re-capture or a
-   submodule bump):
+   contract against Go SDK, Python SDK, Terraform, Ansible, and MCP surfaces on the
+   high-signal axes: presence, type drift, required-vs-optional,
+   readonly-vs-computed, and enum constraints. Output:
    - `vendor/zscaler-api-specs/automate-zscaler/<product>-divergences.json`
    - `vendor/zscaler-api-specs/automate-zscaler/<product>-divergences.md`
+4. **Synthesize** (`rosetta.py`, Python stdlib) — builds the cross-surface table
+   and issue-routing worklist:
+   - `vendor/zscaler-api-specs/automate-zscaler/rosetta.{json,md}`
+   - `vendor/zscaler-api-specs/automate-zscaler/issue-routing.{json,md}`
 
-Raw-text-on-disk is the boundary: the browser never touches the deterministic,
-testable core. `parse_contract.py` and the `reconcile_contract.py` extractors are the
-trust boundary, pinned by `test_parse_contract.py` (committed fixtures) and
-`test_reconcile_contract.py` (inline source fixtures + a real-data smoke test). Both
-test files run in CI (the hygiene workflow).
-
-## Why Playwright is isolated here
-
-The repo has no root `package.json`; its Node fast checks are stdlib-only. The
-capturer is a **manual maintenance tool**, not a CI check, so its Playwright
-dependency is pinned in *this directory's* `package.json` and installed on demand —
-never folded into the repo's normal checks. `node_modules/` is gitignored.
+The extractor is the capture trust boundary. It is guarded by route-completeness
+checks, loss-aware comparison against the committed snapshot, field-flattening
+tests, and OpenAPI structural validation. The reconciler and rosetta layers have
+their own fixture and real-data smoke tests.
 
 ## Run it
 
-The production entry point is the refresh script — it runs the whole pipeline for
-every product list in `urls/`, then audits the prose markdowns and Postman:
+The production entry point is the refresh script:
 
 ```bash
-cd scripts/automate-capture
-npm install                        # installs the pinned Playwright (1.61.0)
-npx playwright install chromium    # fetches the matching browser build
-cd ../..
-git submodule update --init vendor/zscaler-sdk-go vendor/terraform-provider-zpa
-./scripts/refresh-automate-zscaler.sh            # all products in urls/
-./scripts/refresh-automate-zscaler.sh zpa        # or selected products
+git submodule update --init --recursive
+./scripts/refresh-automate-zscaler.sh
 ```
 
-Or drive a stage directly:
+The script captures all products from the live Docusaurus route table, publishes
+the normalized contract JSON, writes durable OpenAPI specs, regenerates
+divergence/rosetta artifacts when vendor submodules are present, and audits the
+separate prose markdown captures. Optional product arguments limit which
+normalized `<product>-api-reference.json` files are published from the live
+snapshot; the Docusaurus route discovery itself is always global.
+
+To keep the working snapshot for inspection:
 
 ```bash
-node scripts/automate-capture/capture.cjs scripts/automate-capture/urls/zpa.txt \
-  vendor/zscaler-help/automate-zscaler/api-reference
-python3 scripts/automate-capture/parse_contract.py       # raw tree -> normalized JSON
-python3 scripts/automate-capture/reconcile_contract.py   # contract vs Go SDK / TF -> divergences
-python3 scripts/automate-capture/test_parse_contract.py
-python3 scripts/automate-capture/test_reconcile_contract.py
+AUTOMATE_SNAPSHOT_DIR=/tmp/zscaler-automate-blob-proof \
+  ./scripts/refresh-automate-zscaler.sh
 ```
 
-Escape hatch: `PLAYWRIGHT_EXECUTABLE=/path/to/chrome-headless-shell` reuses an
-existing browser instead of an in-tree install. `CAPTURE_DELAY_MS` (default 250)
-throttles between pages.
+Or drive stages directly:
 
-Provenance accumulates: re-running merges into `provenance.json` (a re-captured op
-replaces its entry; a fresh error never clobbers a good capture), so you can recover
-a transient failure by re-capturing just those ops. The refresh script passes
-`--prune` to drop ops no longer in the URL list (removed/renamed upstream) — only
-safe with a **complete** list, so never pass `--prune` to a partial/retry capture.
+```bash
+python3 scripts/automate-capture/extract_docusaurus_blobs.py \
+  --out-dir /tmp/zscaler-automate-blob-proof \
+  --existing-dir vendor/zscaler-api-specs/automate-zscaler
+
+python3 scripts/automate-capture/build_openapi_from_blobs.py \
+  --raw-dir /tmp/zscaler-automate-blob-proof/raw-blobs \
+  --out-dir vendor/zscaler-api-specs/automate-zscaler/openapi
+
+python3 scripts/automate-capture/reconcile_contract.py
+python3 scripts/automate-capture/rosetta.py
+```
 
 ## Scope
 
-Per-product operation lists live in `urls/<product>.txt` (sitemap-derived canonical
-URLs). `parse_contract.py` writes one `<product>-api-reference.json` per product into
-`vendor/zscaler-api-specs/automate-zscaler/`. Captured and parsed so far: **BI**,
-**EASM**, **ZCC**, **ZCell**, **ZCloudConnector**, **ZDX**, **ZIA**, **ZID**, and
-**ZPA** — all operation pages from the sitemap for each product.
+Captured products: **AI Guard**, **BI**, **EASM**, **Event Monitoring**, **ZCC**,
+**ZCell**, **ZCloudConnector/ZTW**, **ZDX**, **ZIA**, **ZID**, and **ZPA**.
 
-Reconciliation currently covers all 16 mapped ZPA resources and a growing ZIA
-registry (30 resources after the policy-rule slice); the other product contracts are
-captured but not yet reconciled (their registries — Go SDK structs + Terraform
-resources — are follow-ons).
+Reconciliation currently covers the mapped multi-surface resources for **ZIA**
+(54), **ZPA** (16), **ZCC** (4), and **ZCloudConnector/ZTW** (16); the other
+product contracts are captured and available as contract/OpenAPI evidence but
+are not yet fully reconciled against client surfaces.
 
 The normalized contract is exposed to L1 inventory as the `automate-contract`
-family for configured products. Source precedence treats it as the preferred source
-for rendered API contract metadata (`required`, `readonly`, `enum`, method/path)
-while SDK and Terraform sources remain authoritative for wrapper/provider behavior.
+family for configured products. Source precedence treats it as the preferred
+source for API contract metadata (`required`, `readonly`, `enum`, method/path)
+while SDK, Terraform, Ansible, and MCP sources remain authoritative for their
+own wrapper/provider behavior.
 
-Still deferred: further reconciler registry expansion for ZIA and the captured
-non-ZIA products, broader per-product L1 configs beyond the first configured
-products, and Python-SDK / Postman cross-checks in the reconciler (currently Go SDK
-+ Terraform, which carry the type / required / readonly / enum signal).
+## OpenAPI and flattened fields
+
+The committed OpenAPI specs are intentionally product-scoped and mostly inline:
+they are designed as a deterministic mapping substrate rather than a polished
+vendor-published spec. The builder preserves unresolved `$ref` edges with stub
+component entries instead of masking them, and keeps per-operation source URL and
+blob hashes in `x-zscaler-*` extensions.
+
+The flattened blob data includes nested paths such as
+`connectors[].assistantVersion.platform`. Existing DAV-21/DAV-23 reconciliation is
+top-level-resource-field oriented, so `reconcile_contract.py` projects blob fields
+back to top-level names (`[].active` -> `active`) and drops nested child paths for
+the six-surface rosetta comparison. Use the flattened sheets for nested-field
+mapping/readiness work rather than treating every nested child as a top-level
+client gap.
+
+## Legacy rendered-text scraper
+
+The earlier Playwright rendered-text scraper has been retired from the production
+refresh path. The checked-in contract data now comes from the compiled Docusaurus
+`frontMatter.api` blobs, which are faster to capture, carry nested schema detail,
+and are less lossy than rendered prose. Historical references to rendered-text
+recaptures in clarification notes describe past negative-control checks, not the
+current refresh mechanism.

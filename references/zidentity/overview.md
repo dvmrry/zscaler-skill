@@ -12,6 +12,8 @@ sources:
   - "vendor/zscaler-help/understanding-zidentity-apis.md"
   - "vendor/zscaler-help/understanding-step-up-authentication-zidentity.md"
   - "vendor/zscaler-help/understanding-step-up-authentication.md"
+  - "vendor/zscaler-sdk-python/CHANGELOG.md"
+  - "vendor/zscaler-sdk-python/zscaler/constants.py"
 author-status: draft
 ---
 
@@ -186,7 +188,7 @@ Source: token URL — Python `vendor/zscaler-sdk-python/zscaler/oneapi_oauth_cli
 
 The vanity domain is **not** part of the API gateway host. Setting `ZSCALER_VANITY_DOMAIN` to a full `<tenant>.zsapi.net` host (or to anything other than the bare subdomain label) is the most common OneAPI setup error.
 
-Government clouds (`zscalergov`, `zscalerten`, ZPA GOV, GOVUS) are not supported on OneAPI; those tenants use legacy per-product auth.
+Government-cloud OneAPI support is now client/version-specific rather than a blanket "unsupported" rule. The vendored Python SDK v1.9.32+ models FedRAMP OneAPI routing for `cloud=gov` / `cloud=govus`, using `zidentitygov.net` / `zidentitygov.us` identity providers and `api.zscalergov.net` / `api.zscalergov.us` API gateways (`vendor/zscaler-sdk-python/CHANGELOG.md:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:26`). Terraform/provider government-cloud paths may still require product-specific legacy auth.
 
 ---
 

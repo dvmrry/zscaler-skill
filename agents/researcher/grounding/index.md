@@ -59,7 +59,7 @@ When instructions are ambiguous, bias toward:
 This workflow exists to build a comprehensive, source-grounded Zscaler product
 knowledge base from every relevant vendor or vendor-adjacent source class
 available in this repo. Help docs explain public/admin behavior; Automate
-contract captures explain rendered API contract metadata; SDKs, API docs,
+contract captures explain documented API contract metadata; SDKs, API docs,
 schemas, and Postman collections explain programmable surfaces;
 Terraform providers and modules explain IaC-manageable surfaces; MCP servers
 and tools explain operational automation; public integration repositories,
@@ -83,7 +83,7 @@ source-class checklist for the scoped product or feature. Check every relevant
 class before claiming coverage:
 
 1. **Help and product docs** - `vendor/zscaler-help/`, Automate docs, PDFs/text captures, and public help pages already captured locally.
-2. **API and schema sources** - Automate normalized contract JSON and raw captures under `vendor/zscaler-api-specs/automate-zscaler/` and `vendor/zscaler-help/automate-zscaler/api-reference/`, API docs, Postman collections, OpenAPI/GraphQL/schema captures, request/response examples, log schemas, and field catalogs.
+2. **API and schema sources** - Automate normalized contract JSON, OpenAPI snapshots, and validation reports under `vendor/zscaler-api-specs/automate-zscaler/`, API docs, Postman collections, OpenAPI/GraphQL/schema captures, request/response examples, log schemas, and field catalogs.
 3. **SDKs** - Python SDK, Go SDK, and any product-specific model/service/example/test files.
 4. **Terraform and IaC** - Terraform providers, modules, validators, examples, and changelogs for fields that are configurable as code.
 5. **MCP / tools / automation** - MCP servers, skills, scripts, commands, Automation Hub captures, and tool docs that expose operational workflows.

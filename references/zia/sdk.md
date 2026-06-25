@@ -23,6 +23,8 @@ sources:
   - vendor/zscaler-sdk-python/zscaler/zia/bandwidth_control_rules.py
   - vendor/zscaler-sdk-python/zscaler/zia/browser_control_settings.py
   - vendor/zscaler-sdk-python/zscaler/zia/secure_browsing.py
+  - vendor/zscaler-sdk-python/CHANGELOG.md
+  - vendor/zscaler-sdk-python/zscaler/constants.py
   - vendor/zscaler-sdk-go/zscaler/zia/services/secure_browsing/secure_browsing.go
   - vendor/zscaler-sdk-python/zscaler/zia/casb_dlp_rules.py
   - vendor/zscaler-sdk-python/zscaler/zia/casb_malware_rules.py
@@ -137,7 +139,7 @@ with LegacyZIAClient(config) as client:
     users, _, _ = client.user_management.list_users()
 ```
 
-Government clouds (`zscalergov`, `zscalerten`, ZPA `GOV`, `GOVUS`) do not support OneAPI.
+Government-cloud OneAPI support is SDK/version-specific. Current Python SDK releases model FedRAMP OneAPI routing for `cloud=gov` / `cloud=govus`, using dedicated Zidentity auth domains and API gateways (`vendor/zscaler-sdk-python/CHANGELOG.md:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:26`). Older SDKs and Terraform/provider paths may still require product-specific legacy auth.
 
 **Environment variables** (all optional when provided in config dict):
 

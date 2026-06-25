@@ -3,7 +3,7 @@ product: ai-guard
 topic: coverage
 title: "AI Guard public-source coverage manifest"
 content-type: reference
-last-verified: "2026-06-16"
+last-verified: "2026-06-21"
 verified-against:
   vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
   vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
@@ -41,6 +41,8 @@ sources:
   - "vendor/zscaler-sdk-python/CHANGELOG.md"
   - "vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py"
   - "vendor/zscaler-sdk-python/zscaler/zaiguard/models/policy_detection.py"
+  - "vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json"
+  - "vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md"
   - "vendor/zguard-ai-integrations/README.md"
   - "vendor/zguard-ai-integrations/github-actions/README.md"
   - "vendor/zguard-ai-integrations/Windsurf/README.md"
@@ -69,13 +71,13 @@ This manifest is the certification boundary for AI Guard coverage in this repo. 
 
 Acceptable shorthand: **all publicly discoverable Zscaler AI Guard Help features are documented and certified in this repo as of 2026-05-22**.
 
-Do not extend that sentence to private roadmap features, unpublished tenant entitlements, commercial packaging, field-level log schemas not present in Help, or broad admin APIs not present in public SDK/API sources.
+Do not extend that sentence to private roadmap features, unpublished tenant entitlements, commercial packaging, field-level log schemas not present in Help, or client-wrapper coverage not present in public SDK/API sources.
 
 ## Source classes checked
 
 Source: `.gitmodules`; `vendor/README.md`; `vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py`; `vendor/zguard-ai-integrations/README.md`; `vendor/zscaler-sdk-go`; `vendor/terraform-provider-zia`; `vendor/terraform-provider-zpa`; `vendor/terraform-provider-ztc`; `vendor/zscaler-mcp-server`; `vendor/zscaler-terraform-skills`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md`; `vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md`; `vendor/zscaler-help/legacy-getting-started-workflow-automation-api.md`; `vendor/zscaler-help/understanding-workflows-workflow-automation.md`; `vendor/zscaler-help/what-workflow-automation.md`.
 
-This pass checked the captured public Help tree, the Python SDK policy-detection surface, public `zguard-ai-integrations` examples, and the vendored Go SDK, Terraform providers, Terraform skills, MCP server, Postman API specs, and local Automation Hub captures available in this repository. The positive AI Guard programmable surface found in those sources is the Python SDK / DaaS policy-detection API plus integration examples; no AI Guard admin-plane API, Go SDK service, Terraform resource, MCP tool, Postman endpoint, or Automation Hub procedure was found in the captured source classes. Treat that as an audit-scoped absence claim, not as proof about private or future surfaces; see [`./api-divergences.md`](./api-divergences.md#source-classes-with-no-ai-guard-admin-plane-hit).
+This pass checked the captured public Help tree, the Python SDK policy-detection surface, public `zguard-ai-integrations` examples, the reconstructed Automate snapshot, and the vendored Go SDK, Terraform providers, Terraform skills, MCP server, Postman API specs, and local Automation Hub captures available in this repository. The positive AI Guard programmable surface now has two layers: Python SDK / DaaS policy detection plus integration examples, and a documented Automate admin-plane contract with 45 operations (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:9`). No Go SDK service, Terraform resource, MCP tool, Postman endpoint, or Automation Hub procedure for that admin-plane contract was found in the captured source classes. Treat that as a client-wrapper gap, not as proof about private or future surfaces; see [`./api-divergences.md`](./api-divergences.md#automate-admin-plane-contract-vs-client-surfaces).
 
 ## Help article coverage
 
@@ -115,9 +117,9 @@ The vendored Python SDK exposes AI Guard runtime policy detection under `zscaler
 | `/v1/detection/resolve-and-execute-policy` | Covered: automatic policy resolution with optional `transactionId` |
 | Request fields | Covered: `content`, `direction`, optional `policyId`, optional `transactionId` |
 | Response fields | Covered: action/severity/status/error/detector response/throttling model summarized in [`./ai-guard.md`](./ai-guard.md) |
-| Admin/config APIs | Not found in public SDK/API sources. Portal-admin objects are documented from Help, not claimed as programmable. |
+| Admin/config APIs | Reconstructed Automate contract covers detection policies, match rules, LLM applications, providers, and credentials; Go SDK / Terraform / MCP / Postman wrappers are not captured. |
 
-No broad AI Guard admin-plane surface was found in the vendored Go SDK, Terraform providers, MCP server, Postman API specs, or Automation Hub captures during this pass. The positive programmable surface remains Python SDK policy detection plus public DaaS integration examples.
+No broad AI Guard admin-plane wrapper was found in the vendored Go SDK, Terraform providers, MCP server, Postman API specs, or Automation Hub captures during this pass. The positive programmable surfaces are Python SDK policy detection plus public DaaS integration examples, and the reconstructed Automate admin-plane contract.
 
 ## Integration coverage
 
@@ -134,7 +136,8 @@ Source: `vendor/zscaler-help/ai-guard-about-ai-guard-insights.md`; `vendor/zscal
 - Log-export destinations are captured, but field-level export schemas are not.
 - Custom detector authoring beyond the documented detector configuration fields is not confirmed.
 - AI Red Teaming and AI Guard workflow interlock is not confirmed.
-- Broad admin automation for LLM providers, credentials, applications, policy configurations, policy controls, RBAC roles, tenant settings, dashboard data, insights, usage, or log exports is not found in public SDK/API captures.
+- Client wrappers for the Automate admin-plane contract are not found in Go SDK, Terraform, MCP, Postman, or Automation Hub captures.
+- Runtime availability and exact action-path encoding for the reconstructed admin-plane endpoints still require live/vendor confirmation.
 
 These gaps do not mean the public AI Guard Help surface is incomplete in this repo. They mark boundaries where public Help/SDK sources do not expose enough detail to certify behavior beyond the documented surface.
 

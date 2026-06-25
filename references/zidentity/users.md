@@ -3,7 +3,7 @@ product: zidentity
 topic: "zidentity-users"
 title: "ZIdentity users — CRUD, fields, filters, IdP-sourced vs internal"
 content-type: reference
-last-verified: "2026-06-15"
+last-verified: "2026-06-21"
 confidence: high
 source-tier: code
 sources:
@@ -12,6 +12,8 @@ sources:
   - "vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go"
   - "vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go"
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
+  - "vendor/zscaler-api-specs/automate-zscaler/zid-api-reference.json"
+  - "vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md"
 author-status: draft
 ---
 
@@ -73,6 +75,8 @@ Variable `{{ZIAMBase}}` resolves to the ZIdentity ZIAM base URL. (`vendor/zscale
 | POST | `{{ZIAMBase}}/users/:id:resetpassword` | Reset password — live ZIAM API op, **NOT in SDK** (Go stub commented out) |
 | POST | `{{ZIAMBase}}/users/:id:setskipmfa` | Set skip MFA — live ZIAM API op, **NOT in SDK** (Go stub commented out) |
 | PUT | `{{ZIAMBase}}/users/:id:updatepassword` | Update password — live ZIAM API op, **NOT in SDK** |
+
+The reconstructed Automate snapshot independently carries the same three user-action operations, but encodes them as adjacent path templates (`/users/{id}{resetpassword}`, `/users/{id}{setskipmfa}`, `/users/{id}{updatepassword}`) rather than the Postman colon-suffix form above (`vendor/zscaler-api-specs/automate-zscaler/zid-api-reference.json:5420-5421`, `vendor/zscaler-api-specs/automate-zscaler/zid-api-reference.json:5532-5533`, `vendor/zscaler-api-specs/automate-zscaler/zid-api-reference.json:5946-5947`). The OpenAPI snapshot validation flags these adjacent templates for review (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:163-165`). Treat the action existence as corroborated, but the exact live URL spelling as an open encoding question; see [clarification `zid-36`](../_meta/clarifications.md#zid-36-zidentity-user-action-path-template-encoding).
 
 There is no bulk-delete on the ZIAM users surface. The only `users/bulkDelete` in the Postman collection is `{{ZIABase}}/users/bulkDelete` (`vendor/zscaler-api-specs/oneapi-postman-collection.json:9928`) — that is the **ZIA** users API, not ZIdentity. ZIdentity exposes per-user delete only (`DELETE {{ZIAMBase}}/users/:id`). A grep for `{{ZIAMBase}}/users/bulkDelete` returns zero matches.
 

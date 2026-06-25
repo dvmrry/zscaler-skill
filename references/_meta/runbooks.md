@@ -14,6 +14,8 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/utils.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/legacy.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/legacy.py"
+  - "vendor/zscaler-sdk-python/CHANGELOG.md"
+  - "vendor/zscaler-sdk-python/zscaler/constants.py"
 author-status: draft
 ---
 
@@ -41,7 +43,7 @@ Use this when starting a new automation, or when an inherited script is failing 
 Run the [cloud detection](#diagnostic-1-which-cloud-is-this-tenant-on) procedure. Outcomes:
 
 - **Commercial cloud** (`zscaler.net`, `zscalertwo.net`, `zscalerthree.net`, `zscloud.net`, `zscalerbeta.net`, `zscalerone.net`): OneAPI eligible if tenant has migrated to ZIdentity.
-- **Gov cloud** (`zscalergov`, `zscalerten`, ZPA `GOV` / `GOVUS`): **Cannot use OneAPI** — must use the product-specific legacy path.
+- **Gov cloud** (`zscalergov`, `zscalerten`, ZPA `GOV` / `GOVUS`; Python SDK `gov` / `govus`): do not assume a single answer. Current Python SDK releases model FedRAMP OneAPI routing for `cloud=gov` / `cloud=govus`, while Terraform provider docs still require product-specific legacy auth for their government-cloud modes (`vendor/zscaler-sdk-python/CHANGELOG.md:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:26`).
 - **Sub-cloud** (custom CONUS or tenant-specific subcloud): same OneAPI-vs-legacy logic as the parent commercial cloud.
 
 ### Step 2 — Identify the product set
@@ -50,7 +52,7 @@ What products does this script touch?
 
 - **ZDX** in scope → ZDX is **OneAPI-capable**: both SDKs route ZDX through the ZIdentity OAuth path when not using a legacy client (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:386-387`; Python `oneapi_client.py` `zdx` → `ZDXService`). ZDX also retains a **dedicated legacy SHA256-signed flow** (`vendor/zscaler-sdk-python/zscaler/zdx/legacy.py`). Prefer OneAPI on ZIdentity-configured commercial tenants (confirm per Step 3); use ZDX legacy on non-ZIdentity or gov tenants — the same OneAPI-or-legacy pattern as ZCC.
 - **Only ZCC** in scope → can use either **OneAPI** (if ZIdentity-configured) or **ZCC legacy** (apiKey + secretKey). OneAPI preferred for new code.
-- **ZIA, ZPA, ZIdentity, ZTW (Cloud Connector), or BI** in scope → eligible for OneAPI on commercial clouds; must use product-specific legacy on gov clouds.
+- **ZIA, ZPA, ZIdentity, ZTW (Cloud Connector), or BI** in scope → eligible for OneAPI on commercial clouds; on gov clouds, choose by client surface and version. Python SDK v1.9.32+ has `gov` / `govus` OneAPI routing; Terraform/provider paths may still require product-specific legacy auth.
 
 ### Step 3 — Confirm OneAPI is actually configured
 
@@ -66,12 +68,12 @@ Even on a commercial cloud, OneAPI requires a ZIdentity API client to be created
 | Commercial, NOT ZIdentity-configured | ZPA | **ZPA legacy** (Client ID + Customer ID) |
 | Commercial, NOT ZIdentity-configured | ZCC | **ZCC legacy** (apiKey + secretKey) |
 | Commercial, NOT ZIdentity-configured | ZDX | **ZDX legacy** |
-| Gov cloud | ZIA | **ZIA legacy** (no OneAPI) |
-| Gov cloud | ZPA | **ZPA legacy** (`GOV` / `GOVUS` clouds) |
-| Gov cloud | ZCC | **ZCC legacy** |
-| Gov cloud | ZDX | **ZDX legacy** |
+| Gov cloud, Python SDK v1.9.32+ with `cloud=gov` / `cloud=govus` | ZIA / ZPA / ZIdentity-family OneAPI surfaces | **OneAPI OAuth 2.0** via FedRAMP Zidentity / API hosts, if the tenant has a ZIdentity API client |
+| Gov cloud, Terraform provider or older SDK/client | ZIA | **ZIA legacy** unless the specific client release documents OneAPI support |
+| Gov cloud, Terraform provider or older SDK/client | ZPA | **ZPA legacy** (`GOV` / `GOVUS` clouds) unless the specific client release documents OneAPI support |
+| Gov cloud, Terraform provider or older SDK/client | ZCC / ZDX | **Product-specific legacy** unless the specific client release documents OneAPI support |
 
-**Multi-product scripts on gov clouds:** must implement multiple legacy auth paths. There is no unified gov-cloud auth.
+**Multi-product scripts on gov clouds:** verify the selected client first. Python SDK v1.9.32+ has FedRAMP OneAPI hosts for `gov` / `govus`, but Terraform and older SDK/client paths may still require multiple legacy auth flows.
 
 **Multi-product scripts touching ZDX:** ZDX works over OneAPI like the other products; its dedicated legacy SHA256 flow remains available as a fallback for non-ZIdentity / gov tenants — implement it where ZIdentity isn't configured.
 
@@ -91,13 +93,13 @@ See [`../shared/oneapi.md § Authentication mechanisms`](../shared/oneapi.md) fo
    - `admin.zscaler.net` → cloud is `zscaler.net` (commercial default)
    - `admin.zscalertwo.net` → cloud is `zscalertwo.net`
    - `admin.zscloud.net` → cloud is `zscloud.net`
-   - `admin.zscalergov.net` → cloud is `zscalergov` (US Gov cloud — **forced legacy**)
-   - `admin.zscalerten.net` → cloud is `zscalerten` (US Gov 10 — **forced legacy**)
+   - `admin.zscalergov.net` → cloud is `zscalergov` (US Gov cloud — check the selected client/provider before choosing OneAPI vs legacy)
+   - `admin.zscalerten.net` → cloud is `zscalerten` (US Gov 10 — check the selected client/provider before choosing OneAPI vs legacy)
    - For ZPA: `admin.zpacloud.com` (commercial), `admin.zpagov.net` (`GOV`), `admin.zpagov-us.net` (`GOVUS`)
 2. **Check the env var** if set: `ZSCALER_CLOUD=...` will name the cloud explicitly. **Note (per `tf-zia#552`):** for production commercial-cloud tenants, this var should be **unset** — the SDK defaults to commercial. Setting it is for gov / beta / non-default commercial only.
 3. **Failing both:** call the SDK's `LegacyZIAClient` config to read `cloud` (or the OneAPI vanity domain detection routine) — but if you're at this point, the tenant is undocumented and a TAM ticket is warranted before scripting against it.
 
-**Output of this step:** one of `commercial / gov / unknown`. If gov → skip OneAPI consideration entirely.
+**Output of this step:** one of `commercial / gov / unknown`. If gov → check the client/provider's documented support before choosing OneAPI or legacy.
 
 ### Diagnostic 2 — Is OneAPI configured for this tenant?
 

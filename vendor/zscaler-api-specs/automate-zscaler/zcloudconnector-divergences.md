@@ -12,7 +12,7 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 ## Totals
 
-- Type drift (contract numeric vs Go string): **0**
+- Type drift (contract vs Go primitive category): **0**
 - Required drift (contract vs TF): **17**
 - Enum: **12** match / **11** value-conflict / **4** one-sided
 - Contract readonly fields checked: **0** (TF disagreement: 0)
@@ -22,7 +22,7 @@ Diffs the rendered per-operation contract (`vendor/zscaler-api-specs/automate-zs
 - Ansible enum: **0** match / **0** value-conflict / **0** one-sided
 
 - Python SDK surface: **12** present / **4** no surface
-- Python SDK presence: **4** contract-unmatched / **5** python-only fields
+- Python SDK presence: **5** contract-unmatched / **4** python-only fields
 
 - MCP tool surface: **6** present / **10** no surface (**3** with request-field surface)
 - MCP request-field presence: **12** contract-unmatched / **0** MCP-only fields
@@ -173,9 +173,9 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 ## public_cloud_info
 
-`POST /ztw/api/v1/publicCloudInfo` — contract 11 / Go 11 / TF 7 fields / no Ansible surface / Python 12 fields / MCP 1 tools
+`POST /ztw/api/v1/publicCloudInfo` — contract 12 / Go 11 / TF 7 fields / no Ansible surface / Python 12 fields / MCP 1 tools
 
-**Python SDK fields absent from the contract:** `permissionStatus`
+**Contract fields absent from the Go SDK struct:** `permissionStatus`
 
 ## traffic_forwarding_dns_rule
 
@@ -195,7 +195,7 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 ## traffic_forwarding_rule
 
-`POST /ztw/api/v1/ecRules/ecRdr` — contract 45 / Go 42 / TF 28 fields / no Ansible surface / Python 45 fields / no MCP surface
+`POST /ztw/api/v1/ecRules/ecRdr` — contract 46 / Go 42 / TF 28 fields / no Ansible surface / Python 45 fields / no MCP surface
 
 **Required drift:**
 
@@ -207,23 +207,23 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 - `forwardMethod`: contract ['INVALID', 'DIRECT', 'PROXYCHAIN', 'ZIA', 'ZPA', 'ECZPA', 'ECSELF', 'DROP', 'ENATDEDIP', 'GEOIP'] vs TF ['DIRECT', 'LOCAL_SWITCH', 'ZIA', 'ECZPA', 'DROP']
 
-**Contract fields unmatched in the Python SDK model/request surface:** `accessControl`, `sourceCountries`
+**Contract fields unmatched in the Python SDK model/request surface:** `accessControl`, `sourceCountries`, `templateSyncedRuleFlag`
 
 **Python SDK fields absent from the contract:** `destWorkloadGroups`, `srcWorkloadGroups`
 
-**Contract fields absent from the Go SDK struct:** `deviceGroups`, `devices`, `timeWindows`, `zpaAppSegments`, `zpaGateway`
+**Contract fields absent from the Go SDK struct:** `deviceGroups`, `devices`, `templateSyncedRuleFlag`, `timeWindows`, `zpaAppSegments`, `zpaGateway`
 
 **Go SDK fields absent from the contract:** `defaultRule`, `srcWorkloadGroups`
 
 ## traffic_forwarding_log_rule
 
-`POST /ztw/api/v1/ecRules/self` — contract 45 / Go 14 / TF 11 fields / no Ansible surface / no Python surface / no MCP surface
+`POST /ztw/api/v1/ecRules/self` — contract 46 / Go 14 / TF 11 fields / no Ansible surface / no Python surface / no MCP surface
 
 **Enum value conflicts:**
 
 - `forwardMethod`: contract ['INVALID', 'DIRECT', 'PROXYCHAIN', 'ZIA', 'ZPA', 'ECZPA', 'ECSELF', 'DROP', 'ENATDEDIP', 'GEOIP'] vs TF ['ECSELF']
 
-**Contract fields absent from the Go SDK struct:** `accessControl`, `appServiceGroups`, `blockResponseCode`, `departments`, `destAddresses`, `destCountries`, `destIpCategories`, `destIpGroups`, `destIpv6Groups`, `deviceGroups`, `devices`, `groups`, `labels`, `locationGroups`, `nwApplicationGroups`, `nwApplications`, `nwServiceGroups`, `nwServices`, `resCategories`, `sourceCountries`, `sourceIpGroupExclusion`, `srcIpGroups`, `srcIps`, `srcIpv6Groups`, `timeWindows`, `users`, `wanSelection`, `zpaAppSegments`, `zpaApplicationSegmentGroups`, `zpaApplicationSegments`, `zpaBrokerRule`, `zpaGateway`
+**Contract fields absent from the Go SDK struct:** `accessControl`, `appServiceGroups`, `blockResponseCode`, `departments`, `destAddresses`, `destCountries`, `destIpCategories`, `destIpGroups`, `destIpv6Groups`, `deviceGroups`, `devices`, `groups`, `labels`, `locationGroups`, `nwApplicationGroups`, `nwApplications`, `nwServiceGroups`, `nwServices`, `resCategories`, `sourceCountries`, `sourceIpGroupExclusion`, `srcIpGroups`, `srcIps`, `srcIpv6Groups`, `templateSyncedRuleFlag`, `timeWindows`, `users`, `wanSelection`, `zpaAppSegments`, `zpaApplicationSegmentGroups`, `zpaApplicationSegments`, `zpaBrokerRule`, `zpaGateway`
 
 **Go SDK fields absent from the contract:** `defaultRule`
 

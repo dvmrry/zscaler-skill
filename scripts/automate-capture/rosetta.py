@@ -16,14 +16,16 @@ from pathlib import Path
 
 from reconcile_contract import (  # reuse the registry only; no source extraction runs
     PRODUCTS as RECONCILE_PRODUCTS,
+    _contract_reconcile_field,
     _contract_ops,
-    _generic_response_placeholder,
+    display_contract_path,
 )
 
 ROOT = Path(os.environ.get("REPO_ROOT", "."))
 SPEC_DIR = ROOT / "vendor/zscaler-api-specs/automate-zscaler"
 RECONCILED_PRODUCTS = ("zpa", "zia", "zcc", "zcloudconnector")
 THIN_PRODUCTS = {
+    "aiguard": "AI Guard",
     "bi": "Business Insights",
     "easm": "EASM",
     "zcell": "Zscaler Cellular",
@@ -126,23 +128,29 @@ def contract_fields_for_resource(product: str, resource: dict, contracts: dict) 
     if cfg:
         reads, writes = _contract_ops(cfg, contracts, product)
         for op in [*reads, *writes]:
-            for field in op.get("response_schema") or []:
-                if field.get("name") and not _generic_response_placeholder(field):
+            for raw in op.get("response_schema") or []:
+                field = _contract_reconcile_field(raw)
+                if field and field.get("name"):
                     fields.setdefault(field["name"], _contract_field_from_schema(field))
         if cfg.get("compare_required", True) and cfg.get("create"):
             create_op = writes[0] if writes else None
-            for field in (create_op or {}).get("request_body") or []:
-                if field.get("name"):
+            for raw in (create_op or {}).get("request_body") or []:
+                field = _contract_reconcile_field(raw)
+                if field and field.get("name"):
                     fields.setdefault(field["name"], _contract_field_from_schema(field))
         return fields
 
     # Fallback for future reports if a resource has not yet been added to the
     # local registry: use the operation pinned in the divergence report.
     for op in contracts.values():
-        if op.get("method") == resource.get("method") and op.get("path") == resource.get("path"):
+        if (
+            op.get("method") == resource.get("method")
+            and display_contract_path(product, op.get("path")) == resource.get("path")
+        ):
             for section in ("response_schema", "request_body"):
-                for field in op.get(section) or []:
-                    if field.get("name") and not _generic_response_placeholder(field):
+                for raw in op.get(section) or []:
+                    field = _contract_reconcile_field(raw)
+                    if field and field.get("name"):
                         fields.setdefault(field["name"], _contract_field_from_schema(field))
             return fields
     return fields

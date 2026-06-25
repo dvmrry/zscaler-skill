@@ -13,11 +13,12 @@ sys.path.insert(0, HERE)
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 
 from reconcile_contract import (  # noqa: E402
+    _contract_reconcile_field,
     ansible_category, build_report, contract_category, extract_ansible_argument_spec_fields,
     extract_ansible_sdk_calls, extract_go_struct_fields, extract_python_model_fields,
     extract_mcp_request_fields, extract_mcp_sdk_calls, extract_mcp_tool_functions,
     extract_python_service_fields, extract_python_service_methods, extract_tf_schema_fields,
-    go_category, snake_to_camel,
+    display_contract_path, go_category, snake_to_camel,
 )
 
 CASES = []
@@ -65,6 +66,27 @@ def test_go_struct_boundary_and_categories():
 @case
 def test_go_struct_missing_returns_empty():
     assert extract_go_struct_fields(GO_FIXTURE, "Nonexistent") == {}
+
+
+@case
+def test_blob_flattened_contract_fields_project_to_top_level_only():
+    assert _contract_reconcile_field({"name": "city", "type": "string"})["name"] == "city"
+    assert _contract_reconcile_field({"name": "[].active", "top_name": "active", "type": "boolean"})["name"] == "active"
+    assert _contract_reconcile_field({"name": "tags[]", "top_name": "tags", "type": "string[]"})["name"] == "tags"
+    assert _contract_reconcile_field({"name": "connectors[].id", "top_name": "connectors", "type": "string"}) is None
+    assert _contract_reconcile_field({"name": "[].forwardingProfileActions[].networkType", "top_name": "forwardingProfileActions", "type": "string"}) is None
+    assert _contract_reconcile_field({"name": "object", "type": "object"}) is None
+
+
+@case
+def test_display_contract_path_preserves_product_context():
+    assert display_contract_path("zia", "/locations") == "/zia/api/v1/locations"
+    assert display_contract_path("zcloudconnector", "/ipGroups") == "/ztw/api/v1/ipGroups"
+    assert display_contract_path("zpa", "/mgmtconfig/v1/admin/customers/{customerId}/server") == \
+        "/zpa/mgmtconfig/v1/admin/customers/{customerId}/server"
+    assert display_contract_path("zcc", "/papi/public/v1/setDeviceCleanupInfo") == \
+        "/zcc/papi/public/v1/setDeviceCleanupInfo"
+    assert display_contract_path("zia", "/zia/api/v1/locations") == "/zia/api/v1/locations"
 
 
 # TF schema exercising: nested Elem (must not leak), commented-out attributes (must

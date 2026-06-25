@@ -2,7 +2,7 @@
 """Tests for rosetta.py.
 
 These pin the synthesis trust boundary with inline divergence-report fixtures.
-They do not depend on the full captured corpus or vendor submodules.
+They do not depend on the full captured snapshot or vendor submodules.
 """
 
 import os

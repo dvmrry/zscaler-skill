@@ -3,7 +3,7 @@ product: zdx
 topic: "zdx-diagnostics-and-alerts"
 title: "ZDX Diagnostics Sessions (deeptraces) and Alerts"
 content-type: reasoning
-last-verified: "2026-06-15"
+last-verified: "2026-06-21"
 verified-against:
   vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
 confidence: high
@@ -17,6 +17,7 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zdx/alerts.py"
   - "vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py"
   - "vendor/zscaler-sdk-python/zscaler/zdx/models/snapshot.py"
+  - "vendor/zscaler-api-specs/automate-zscaler/zdx-api-reference.json"
   - "vendor/zscaler-sdk-python/zscaler/zdx/legacy.py"
   - "vendor/zscaler-sdk-python/zscaler/zdx/devices.py"
   - "vendor/zscaler-sdk-python/zscaler/zdx/apps.py"
@@ -202,7 +203,7 @@ Source: `vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py`; `vendor/zscaler-sdk
 
 ZDX has a separate `snapshot` service whose single operation shares a point-in-time snapshot of one alert's details — useful for handing an alert to someone who isn't in the ZDX console (e.g. an app owner or a vendor) without giving them tenant access. It is keyed by alert ID, so it lives alongside the Alerts surface, not the Diagnostics surface.
 
-`client.zdx.snapshot.share_snapshot(...)` is `POST /zdx/v1/snapshot/alert` (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:31`, `:83-87`; service exposed as the `snapshot` property at `vendor/zscaler-sdk-python/zscaler/zdx/legacy.py:427-434`). It is the only method on the service.
+`client.zdx.snapshot.share_snapshot(...)` is `POST /zdx/v1/snapshot/alert` (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:31`, `vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:83-87`; service exposed as the `snapshot` property at `vendor/zscaler-sdk-python/zscaler/zdx/legacy.py:427-434`). It is the only method on the service.
 
 | Field | Type | Meaning |
 |---|---|---|
@@ -238,7 +239,7 @@ Source: `vendor/zscaler-help/understanding-diagnostics-session-status.md`; `vend
 - **Server-side behavior for a mismatched/non-portable probe ID (unverified).** The non-portability of `web_probe_id` / `cloudpath_probe_id` across (device, app) pairs is inferred from the device+app-nested read paths (`vendor/zscaler-sdk-python/zscaler/zdx/devices.py:358-361`, `:486-489`), not from a stated validation rule. The actual API error when a probe ID from one pair is submitted against another is not stated in source. (Tracked as `zdx-01` in [`references/_meta/clarifications.md`](../_meta/clarifications.md#zdx-01-probe-id-non-portability-server-behavior).)
 - **Maximum `since` / look-back window and probe-ID expiry (unverified).** Only the 2h default is documented (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zdx/device_web_probes.py:30`; `vendor/zscaler-mcp-server/zscaler_mcp/tools/zdx/device_cloudpath_probes.py:36`). No source states a max look-back window or whether probe IDs expire after the look-back window. See [clarification zdx-34](../_meta/clarifications.md#zdx-34-maximum-look-back-window-and-probe-id-expiry).
 - **`cloud_path_probe_id` corroboration (partial).** `deeptrace_test.go` produced no grep hits for the start-payload wire keys, so the `cloud_path_probe_id` key is corroborated by the production struct tag (`vendor/zscaler-sdk-go/zscaler/zdx/services/troubleshooting/deeptrace/deeptrace.go:45`) and the example, but not by a serialization assertion in tests.
-- **Whether `share_snapshot` actually transmits `obfuscation` (unverified).** The `share_snapshot` docstring documents an `obfuscation` argument (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:43-45`), but the body-builder only copies `name`, `alert_id`, and the converted `expiry` into the request body (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:91-106`); `obfuscation` is not in the `@zdx_params` shorthand list (`vendor/zscaler-sdk-python/zscaler/utils.py:408-420`) and is not extracted into the body here. From source alone it is unclear whether an `obfuscation` value passed by a caller reaches the API in this SDK version, or whether the obfuscation set is documented but not wired through this code path. The documented enum values (`USER_NAME`/`LOCATION`/`DEVICE_NAME`/`IP_ADDRESS`/`WIFI_NAME`) and the API contract itself are not in question — only this Python client's transmission of the field. See [clarification zdx-35](../_meta/clarifications.md#zdx-35-share_snapshot-obfuscation-transmission).
+- **Whether `share_snapshot` actually transmits `obfuscation` (unverified).** The `share_snapshot` docstring documents an `obfuscation` argument (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:43-45`), and the reconstructed Automate contract models `obfuscation` as an optional request-body field with the documented values (`vendor/zscaler-api-specs/automate-zscaler/zdx-api-reference.json:91575-91588`). However, the body-builder only copies `name`, `alert_id`, and the converted `expiry` into the request body (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:91-106`); `obfuscation` is not in the `@zdx_params` shorthand list (`vendor/zscaler-sdk-python/zscaler/utils.py:408-420`) and is not extracted into the body here. From source alone it is unclear whether an `obfuscation` value passed by a caller reaches the API in this SDK version. The contract vocabulary is now pinned; only this Python client's transmission of the field remains open. See [clarification zdx-35](../_meta/clarifications.md#zdx-35-share_snapshot-obfuscation-transmission).
 
 ## Cross-links
 
