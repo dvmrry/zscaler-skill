@@ -26,12 +26,14 @@ sources:
   - "vendor/zscaler-help/legacy-securing-zia-apis-oauth-2.0.md"
   - "vendor/zscaler-help/legacy-authentication-settings.md"
   - "vendor/zscaler-help/legacy-apis-home.md"
+  - "vendor/zscaler-sdk-python/CHANGELOG.md"
+  - "vendor/zscaler-sdk-python/zscaler/constants.py"
 author-status: draft
 ---
 
 # Legacy Zscaler APIs — auth, session management, rate limits, and error codes
 
-Reference for the pre-OneAPI ("legacy") Zscaler API layer. Legacy APIs are being replaced by OneAPI but remain active for tenants not yet migrated to ZIdentity, gov clouds, and several products that have not yet published OneAPI endpoints. The help portal hosts them at `help.zscaler.com/legacy-apis`.
+Reference for the pre-OneAPI ("legacy") Zscaler API layer. Legacy APIs are being replaced by OneAPI but remain active for tenants not yet migrated to ZIdentity, older client/provider versions, government-cloud paths that a selected client still treats as legacy-only, and several products that have not yet published OneAPI endpoints. The help portal hosts them at `help.zscaler.com/legacy-apis`.
 
 **Migration note**: Zscaler is progressively migrating documentation to `automate.zscaler.com`. New integrations should use OneAPI where available. See [`./oneapi.md`](./oneapi.md).
 
@@ -391,7 +393,7 @@ with LegacyZPAClient(config) as client:
 
 Enable via env var on the unified client path: `ZSCALER_USE_LEGACY=true`. Per-product legacy credential vars are documented in `vendor/zscaler-sdk-python/README.md § Legacy API Framework`.
 
-Gov clouds (`GOV`, `GOVUS`) do not support OneAPI and must use the legacy client path.
+Gov-cloud handling is client/version-specific. Current Python SDK releases model FedRAMP OneAPI routing for `cloud=gov` / `cloud=govus`, while older SDKs and some provider paths still require the legacy client path (`vendor/zscaler-sdk-python/CHANGELOG.md:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:26`).
 
 ---
 

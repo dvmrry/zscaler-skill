@@ -22,6 +22,10 @@ sources:
   - "vendor/zscaler-help/legacy-understanding-zia-api.md"
   - "vendor/zscaler-help/legacy-understanding-zpa-api.md"
   - "vendor/zscaler-help/legacy-api-rate-limit-summary.md"
+  - "vendor/zscaler-sdk-python/CHANGELOG.md"
+  - "vendor/zscaler-sdk-python/zscaler/constants.py"
+  - "vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py"
+  - "vendor/zscaler-sdk-python/zscaler/request_executor.py"
   - "scripts/automate-capture/README.md"
   - "vendor/zscaler-api-specs/automate-zscaler/rosetta.md"
 author-status: draft
@@ -55,18 +59,18 @@ Source: `vendor/zscaler-help/automate-zscaler/api-authentication-overview.md`; `
 
 Related references: [`legacy-api.md`](./legacy-api.md), [`../zia/api.md`](../zia/api.md), [`../zpa/api.md`](../zpa/api.md), [`../zcc/api.md`](../zcc/api.md), and [`../zdx/api.md`](../zdx/api.md).
 
-OneAPI is the modern path. **Four legacy paths still exist** because (a) gov-cloud tenants don't have OneAPI, (b) some products retain a dedicated legacy auth flow in parallel with OneAPI (ZDX SHA256-signed flow, ZCC legacy path), and (c) plenty of tenants haven't migrated to ZIdentity yet. Operational reality: any code touching multiple Zscaler products today must be prepared to deal with 2–3 different auth flows.
+OneAPI is the modern path. **Four legacy paths still exist** because (a) government-cloud support is SDK/provider/version-specific, not uniform across every client surface, (b) some products retain a dedicated legacy auth flow in parallel with OneAPI (ZDX SHA256-signed flow, ZCC legacy path), and (c) plenty of tenants haven't migrated to ZIdentity yet. Operational reality: any code touching multiple Zscaler products today must be prepared to deal with 2–3 different auth flows.
 
 | Mechanism | Used by | Endpoint | Notes |
 |---|---|---|---|
-| **OneAPI OAuth 2.0** | ZIA, ZPA, ZIdentity, ZCC (OneAPI path), ZTW, BI | `https://<vanity>.zslogin.net/oauth2/v1/token` | Modern path. Client-credentials flow via ZIdentity. **Not supported in gov clouds** (`zscalergov`, `zscalerten`, ZPA `GOV`/`GOVUS`). |
+| **OneAPI OAuth 2.0** | ZIA, ZPA, ZIdentity, ZCC (OneAPI path), ZTW, BI | Commercial: `https://<vanity>.zslogin.net/oauth2/v1/token`; Python SDK FedRAMP: `https://<vanity>.zidentitygov.net/oauth2/v1/token` or `https://<vanity>.zidentitygov.us/oauth2/v1/token` | Modern path. Client-credentials flow via ZIdentity. Current Python SDK (v1.9.32+) models `cloud=gov` / `cloud=govus` with dedicated auth and API hosts (`vendor/zscaler-sdk-python/CHANGELOG.md:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:17`; `vendor/zscaler-sdk-python/zscaler/constants.py:26`); Terraform provider docs still require legacy for their government-cloud modes. |
 | **ZIA legacy** | ZIA (pre-ZIdentity tenants + gov clouds) | `POST https://<cloud>.zscaler.net/api/v1/authenticatedSession` | Username + password + API key + obfuscated timestamp. Algorithm below. |
 | **ZPA legacy** | ZPA (pre-ZIdentity tenants + gov clouds `GOV`/`GOVUS`) | `POST /signin` (per cloud) | `client_id`, `client_secret`, `customer_id` issued in ZPA Admin Portal. |
 | **ZDX legacy** | ZDX (legacy tenants / direct-cloud host path) | `POST https://api.zdxcloud.net/v1/oauth/token` or `POST https://api.zsapi.net/zdx/v1/oauth/token` | SHA256-signed `key+timestamp`. **15-minute timestamp window.** ZDX also supports the OneAPI OAuth 2.0 path (see [`../zdx/api.md § Auth`](../zdx/api.md)). |
 | **ZCC legacy** | ZCC (legacy path) | `POST https://api.zsapi.net/zcc/papi/auth/v1/login` | apiKey + secretKey, returns JWT. |
 
 **When you need a legacy path** (any one of these → must use the corresponding legacy auth):
-- Tenant is on a gov cloud (`zscalergov` / `zscalerten` for ZIA/ZCC; ZPA `GOV` / `GOVUS`).
+- The selected client/provider does not support the tenant's government cloud. Current Python SDK releases model FedRAMP OneAPI routing for `cloud=gov` / `cloud=govus` (`vendor/zscaler-sdk-python/CHANGELOG.md:21`; `vendor/zscaler-sdk-python/zscaler/request_executor.py:176`; `vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py:495`), but Terraform provider docs still direct `zscalergov` / `zscalerten` and ZPA `GOV` / `GOVUS` users to legacy auth.
 - Tenant hasn't migrated to ZIdentity yet (some enterprises remain on legacy auth indefinitely; the migration is opt-in, not forced).
 - The product is ZDX and the tenant or tooling requires the direct SHA256-signed legacy flow (e.g. using `LegacyZDXClient` / `WithZdxLegacyClient`).
 - Code is interfacing with an older automation script written before OneAPI shipped.
@@ -471,13 +475,13 @@ Source: `vendor/zscaler-help/legacy-api-authentication.md`.
 
 Related references: [`legacy-api.md`](./legacy-api.md), [`../zia/api.md`](../zia/api.md), [`../zpa/api.md`](../zpa/api.md), [`../zcc/api.md`](../zcc/api.md), and [`../zdx/api.md`](../zdx/api.md).
 
-Legacy authentication covers the pre-OneAPI, pre-ZIdentity API auth patterns for ZIA and ZPA. These paths remain in active use for gov-cloud tenants, pre-ZIdentity tenants, and code written before OneAPI shipped.
+Legacy authentication covers the pre-OneAPI, pre-ZIdentity API auth patterns for ZIA and ZPA. These paths remain in active use for pre-ZIdentity tenants, older client versions, Terraform/provider government-cloud paths, and code written before OneAPI shipped.
 
 The table above (§ Authentication mechanisms) summarizes the five auth paths. This section provides operational detail for the two legacy paths most commonly needed: ZIA legacy and ZPA legacy.
 
 ### When legacy auth is required
 
-- **Gov clouds**: ZIA/ZCC tenants on `zscalergov` / `zscalerten`; ZPA tenants on `GOV` / `GOVUS` clouds do not support OneAPI (Tier A — vendor/zscaler-help/legacy-getting-started-zia-api.md).
+- **Gov clouds**: support is client/version-specific. The vendored Python SDK v1.9.32+ added FedRAMP OneAPI routing for `cloud=gov` / `cloud=govus`, with `zidentitygov.net` / `zidentitygov.us` auth domains and `api.zscalergov.net` / `api.zscalergov.us` API gateways (`vendor/zscaler-sdk-python/CHANGELOG.md:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:26`). Terraform provider docs still direct `zscalergov` / `zscalerten` and ZPA `GOV` / `GOVUS` users to legacy auth.
 - **Pre-ZIdentity tenants**: Enterprises that have not migrated to ZIdentity remain on legacy auth indefinitely — migration is opt-in.
 - **ZDX**: OneAPI-capable (the SDKs route ZDX via ZIdentity OAuth), but it also retains a dedicated legacy SHA256-signed token flow used on non-ZIdentity / gov tenants or by tooling pinned to it.
 - **Legacy automation code**: Existing scripts targeting the product-specific legacy APIs.

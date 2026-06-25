@@ -7,8 +7,8 @@ confidence: medium
 source-tier: code
 last-verified: "2026-06-18"
 verified-against:
-  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
-  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00 (v1.9.31)
+  vendor/zscaler-sdk-go: 3ade7d3f013e212e975e368cf8b0c8736d58a80f
+  vendor/zscaler-sdk-python: 33b96b3f4767d3548594eafd76cb06b5ff6ed843 (v1.9.33)
 sources:
   - "vendor/zscaler-api-specs/automate-zscaler/zcc-api-reference.json"
   - "vendor/zscaler-api-specs/automate-zscaler/zcc-divergences.md"
@@ -21,7 +21,7 @@ author-status: draft
 
 The captured Automate operation contract, Go SDK, Python SDK, Terraform provider, and MCP tools are independent views of the same ZCC management API (`/zcc/papi/public/...`), produced separately and updated at different cadences. Where they agree, confidence is high. Where they diverge, an engineer needs to know which source to trust before writing code — and the answer changes by field, endpoint, and resource type.
 
-ZCC is the most divergence-rich of the Zscaler SDK pairs. Two pressures drive it: (1) the ZCC web API returns numeric fields inconsistently — sometimes as JSON numbers, sometimes as quoted strings, sometimes camelCase, sometimes snake_case, and the casing of the *same* logical field can differ per platform and per SDK; (2) the Go SDK was refactored more recently than the Python SDK's v1.9.31 baseline, splitting some services into new packages and adding three `/v2` services (`notification_template`, `zia_posture`, `trusted_network_v2`) the Python SDK does not yet expose on the v2 path.
+ZCC is the most divergence-rich of the Zscaler SDK pairs. Two pressures drive it: (1) the ZCC web API returns numeric fields inconsistently — sometimes as JSON numbers, sometimes as quoted strings, sometimes camelCase, sometimes snake_case, and the casing of the *same* logical field can differ per platform and per SDK; (2) the Go SDK was refactored more recently than the Python SDK baseline, splitting some services into new packages and adding three `/v2` services (`notification_template`, `zia_posture`, `trusted_network_v2`) the current Python SDK does not yet expose on the v2 path.
 
 **Quick trust hierarchy (applies unless an entry below overrides it):**
 
@@ -90,9 +90,9 @@ The Go SDK splits forwarding profiles into a **GET/response** struct (`forwardin
 **What each source says:**
 
 - **Go SDK:** `optimiseForUnstableConnections` and `sendAllDNSToTrustedServer` appear on the action structs, and `trustedNetworkIdsSelected` on the profile. (`vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go:62,74,44`)
-- **Python SDK (v1.9.31):** the field-coverage gap that earlier docs described is now mostly closed; these specific fields remain Go-only at this pin.
+- **Python SDK (v1.9.33):** the field-coverage gap that earlier docs described is now mostly closed; these specific fields remain Go-only at this pin.
 
-**Significance / which to trust:** For these three fields, trust the Go SDK. Most of the rest of the forwarding-profile surface is now mirrored in both SDKs at v1.9.31.
+**Significance / which to trust:** For these three fields, trust the Go SDK. Most of the rest of the forwarding-profile surface is now mirrored in both SDKs at v1.9.33.
 
 ---
 
@@ -337,7 +337,7 @@ So the casing is **inverted between the two SDKs for both macOS and Windows.**
 
 - **Go SDK (v1):** `trusted_network` package targets `/zcc/papi/public/v1/webTrustedNetwork` with verb-suffixed paths (`/create`, `/edit`, `/listByCompany`, `/{id}/delete`). (`vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network/trusted_network.go:15,143,183,210`)
 - **Go SDK (v2):** `trusted_network_v2` package targets `/zcc/papi/public/v2/trusted-networks` with RESTful verbs (`POST`, `GET /{id}`, `PUT /{id}`, `PATCH /{id}`). (`vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network_v2/trusted_network_v2.go:15,66,102,111,127`)
-- **Python SDK (v1.9.31):** has the v1 `trusted_networks` service; no `/v2/trusted-networks` equivalent.
+- **Python SDK (v1.9.33):** has the v1 `trusted_networks` service; no `/v2/trusted-networks` equivalent.
 
 **Significance / which to trust:** Callers must consciously pick a surface. The two coexist in the Go SDK simultaneously; the v2 surface is Go-only at this pin.
 
@@ -443,7 +443,7 @@ So the casing is **inverted between the two SDKs for both macOS and Windows.**
 **What each source says:**
 
 - **Go SDK:** `notification_template` (`/zcc/papi/public/v2/notification-templates`), `zia_posture` (`/zcc/papi/public/v2/zia-posture-profiles`), and `trusted_network_v2` (`/zcc/papi/public/v2/trusted-networks`) each provide full CRUD on the `/v2` path prefix the rest of ZCC does not use. `NotificationTemplate` carries `ziaNotificationTemplate` (with granular `enableZiaFirewall`/`enableZiaDNS`/`enableZiaIPS` toggles and their popup variants) and `zpaNotificationTemplate` sub-templates; `ZIAPosture` carries `highTrustCriteria`/`mediumTrustCriteria`/`lowTrustCriteria` each holding a `cs []TrustCriteriaSet`; `TrustedNetworkV2` is the RESTful replacement for the v1 verb-suffixed surface and is documented separately above. (`vendor/zscaler-sdk-go/zscaler/zcc/services/notification_template/notification_template.go:15,39-49`, `vendor/zscaler-sdk-go/zscaler/zcc/services/zia_posture/zia_posture.go:15,34-48`, `vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network_v2/trusted_network_v2.go:15`)
-- **Python SDK (v1.9.31):** has no equivalents for any of the three services.
+- **Python SDK (v1.9.33):** has no equivalents for any of the three services.
 
 **Significance / which to trust:** These three surfaces are reachable only via the Go SDK (or direct HTTP) at this pin. They each warrant their own reference (see index.md topic gaps).
 

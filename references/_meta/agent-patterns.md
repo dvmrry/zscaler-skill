@@ -10,6 +10,8 @@ sources:
   - "scripts/agent_patterns.py"
   - "references/shared/oneapi.md"
   - "references/_meta/runbooks.md"
+  - "vendor/zscaler-sdk-python/CHANGELOG.md"
+  - "vendor/zscaler-sdk-python/zscaler/constants.py"
 author-status: reviewed
 ---
 
@@ -39,7 +41,7 @@ The `diagnose_tenant()` composite in `scripts/agent_patterns.py` is a worked-exa
 
 **What it answers:** "Is this tenant on a commercial cloud, a gov cloud, or unknown?"
 
-**Why agents need this:** gov clouds force-require legacy auth. OneAPI is unsupported. Pick the wrong path → 401 on every call.
+**Why agents need this:** gov clouds no longer imply a single auth answer. Current Python SDK releases model FedRAMP OneAPI routing for `cloud=gov` / `cloud=govus`, while older SDKs and some provider paths still require legacy auth (`vendor/zscaler-sdk-python/CHANGELOG.md:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:26`). Pick the wrong path → 401 on every call.
 
 ```python
 GOV_CLOUDS = frozenset({"zscalergov", "zscalerten", "GOV", "GOVUS"})
