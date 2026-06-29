@@ -3,11 +3,11 @@ product: zbi
 topic: "zbi-api"
 title: "ZBI API — split Zero Trust Browser / CBI surface and Business Insights namespace caveat"
 content-type: reference
-last-verified: "2026-06-18"
+last-verified: "2026-06-29"
 verified-against:
   vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
   vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
-  vendor/terraform-provider-zia: 717926eb564bb21dea1f8e0c3222e6593b29f849
+  vendor/terraform-provider-zia: 6e6509f001ca71adcedfd4884250d09227395bf0
   vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 84ab824d6ce5853c12add6ae3280dcfb8db273a2
