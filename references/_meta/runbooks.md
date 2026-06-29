@@ -16,6 +16,9 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zpa/legacy.py"
   - "vendor/zscaler-sdk-python/CHANGELOG.md"
   - "vendor/zscaler-sdk-python/zscaler/constants.py"
+  - "vendor/zscaler-sdk-go/zscaler/oneapiclient.go"
+  - "vendor/terraform-provider-zia/docs/index.md"
+  - "vendor/terraform-provider-zpa/docs/index.md"
 author-status: draft
 ---
 
@@ -43,7 +46,7 @@ Use this when starting a new automation, or when an inherited script is failing 
 Run the [cloud detection](#diagnostic-1-which-cloud-is-this-tenant-on) procedure. Outcomes:
 
 - **Commercial cloud** (`zscaler.net`, `zscalertwo.net`, `zscalerthree.net`, `zscloud.net`, `zscalerbeta.net`, `zscalerone.net`): OneAPI eligible if tenant has migrated to ZIdentity.
-- **Gov cloud** (`zscalergov`, `zscalerten`, ZPA `GOV` / `GOVUS`; Python SDK `gov` / `govus`): do not assume a single answer. Current Python SDK releases model FedRAMP OneAPI routing for `cloud=gov` / `cloud=govus`, while Terraform provider docs still require product-specific legacy auth for their government-cloud modes (`vendor/zscaler-sdk-python/CHANGELOG.md:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:26`).
+- **Gov cloud** (`zscalergov`, `zscalerten`, ZPA `GOV` / `GOVUS`; OneAPI-capable clients use `gov` / `govus`): do not assume a single answer. Current Go/Python SDKs model FedRAMP OneAPI routing for `cloud=gov` / `cloud=govus`, ZIA Terraform v4.7.25+ documents the same path, and ZPA Terraform still requires product-specific legacy auth for `GOV` / `GOVUS` (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:404-438`; `vendor/zscaler-sdk-python/CHANGELOG.md:21`; `vendor/terraform-provider-zia/docs/index.md:140-149`; `vendor/terraform-provider-zpa/docs/index.md:34`).
 - **Sub-cloud** (custom CONUS or tenant-specific subcloud): same OneAPI-vs-legacy logic as the parent commercial cloud.
 
 ### Step 2 — Identify the product set
@@ -52,7 +55,7 @@ What products does this script touch?
 
 - **ZDX** in scope → ZDX is **OneAPI-capable**: both SDKs route ZDX through the ZIdentity OAuth path when not using a legacy client (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:386-387`; Python `oneapi_client.py` `zdx` → `ZDXService`). ZDX also retains a **dedicated legacy SHA256-signed flow** (`vendor/zscaler-sdk-python/zscaler/zdx/legacy.py`). Prefer OneAPI on ZIdentity-configured commercial tenants (confirm per Step 3); use ZDX legacy on non-ZIdentity or gov tenants — the same OneAPI-or-legacy pattern as ZCC.
 - **Only ZCC** in scope → can use either **OneAPI** (if ZIdentity-configured) or **ZCC legacy** (apiKey + secretKey). OneAPI preferred for new code.
-- **ZIA, ZPA, ZIdentity, ZTW (Cloud Connector), or BI** in scope → eligible for OneAPI on commercial clouds; on gov clouds, choose by client surface and version. Python SDK v1.9.32+ has `gov` / `govus` OneAPI routing; Terraform/provider paths may still require product-specific legacy auth.
+- **ZIA, ZPA, ZIdentity, ZTW (Cloud Connector), or BI** in scope → eligible for OneAPI on commercial clouds; on gov clouds, choose by client surface and version. Current Go/Python SDKs and ZIA Terraform have `gov` / `govus` OneAPI routing; ZPA Terraform `GOV` / `GOVUS` remains legacy.
 
 ### Step 3 — Confirm OneAPI is actually configured
 
@@ -68,12 +71,13 @@ Even on a commercial cloud, OneAPI requires a ZIdentity API client to be created
 | Commercial, NOT ZIdentity-configured | ZPA | **ZPA legacy** (Client ID + Customer ID) |
 | Commercial, NOT ZIdentity-configured | ZCC | **ZCC legacy** (apiKey + secretKey) |
 | Commercial, NOT ZIdentity-configured | ZDX | **ZDX legacy** |
-| Gov cloud, Python SDK v1.9.32+ with `cloud=gov` / `cloud=govus` | ZIA / ZPA / ZIdentity-family OneAPI surfaces | **OneAPI OAuth 2.0** via FedRAMP Zidentity / API hosts, if the tenant has a ZIdentity API client |
-| Gov cloud, Terraform provider or older SDK/client | ZIA | **ZIA legacy** unless the specific client release documents OneAPI support |
-| Gov cloud, Terraform provider or older SDK/client | ZPA | **ZPA legacy** (`GOV` / `GOVUS` clouds) unless the specific client release documents OneAPI support |
+| Gov cloud, Go/Python SDK with `cloud=gov` / `cloud=govus` | ZIA / ZPA / ZIdentity-family OneAPI surfaces | **OneAPI OAuth 2.0** via FedRAMP Zidentity / API hosts, if the tenant has a ZIdentity API client |
+| Gov cloud, Terraform provider | ZIA | **OneAPI OAuth 2.0** with `zscaler_cloud = "gov"` / `"govus"` on provider v4.7.25+, else legacy |
+| Gov cloud, Terraform provider | ZPA | **ZPA legacy** (`GOV` / `GOVUS` clouds) |
+| Gov cloud, older SDK/client | ZIA / ZPA | **Product-specific legacy** unless the specific client release documents OneAPI support |
 | Gov cloud, Terraform provider or older SDK/client | ZCC / ZDX | **Product-specific legacy** unless the specific client release documents OneAPI support |
 
-**Multi-product scripts on gov clouds:** verify the selected client first. Python SDK v1.9.32+ has FedRAMP OneAPI hosts for `gov` / `govus`, but Terraform and older SDK/client paths may still require multiple legacy auth flows.
+**Multi-product scripts on gov clouds:** verify the selected client first. Current Go/Python SDKs and ZIA Terraform have FedRAMP OneAPI hosts for `gov` / `govus`, but ZPA Terraform and older SDK/client paths may still require legacy auth.
 
 **Multi-product scripts touching ZDX:** ZDX works over OneAPI like the other products; its dedicated legacy SHA256 flow remains available as a fallback for non-ZIdentity / gov tenants — implement it where ZIdentity isn't configured.
 
@@ -85,7 +89,7 @@ See [`../shared/oneapi.md § Authentication mechanisms`](../shared/oneapi.md) fo
 
 ### Diagnostic 1 — Which cloud is this tenant on?
 
-**Why you need this:** the cloud determines auth eligibility (gov → no OneAPI), API base URLs, and which subcloud-routing rules apply.
+**Why you need this:** the cloud determines auth eligibility, API base URLs, and which subcloud-routing rules apply. Gov no longer means "always legacy"; it means "check the selected client/provider's documented gov support."
 
 **Procedure:**
 
@@ -155,8 +159,9 @@ Start
 │  └─ NO (token request itself returns 401) → continue ↓
 │
 ├─ Are you using OneAPI on a gov cloud?
-│  └─ YES → Gov clouds don't support OneAPI. Switch to legacy auth.
-│           See decision matrix above.
+│  └─ YES → Verify this client/provider supports FedRAMP OneAPI (`gov` / `govus`)
+│           and that the tenant has a ZIdentity API client. If not, switch to the
+│           product-specific legacy auth path. See decision matrix above.
 │  └─ NO → continue ↓
 │
 ├─ Is the tenant on ZIdentity?
@@ -345,9 +350,9 @@ auth_path = "OneAPI" if os.environ.get("ZSCALER_CLIENT_ID") else "legacy"
 print(f"Using auth path: {auth_path}", file=sys.stderr)  # Log explicitly for audit trail
 ```
 
-### Gov-cloud forced-legacy pattern
+### Gov-cloud client-gated auth pattern
 
-A tenant on a gov cloud cannot use OneAPI. The tooling needs to recognize this and select legacy automatically:
+A tenant on a gov cloud needs a client-gated auth decision. Current Go/Python SDKs and ZIA Terraform can use FedRAMP OneAPI `gov` / `govus`; ZPA Terraform `GOV` / `GOVUS`, older SDKs, and pre-ZIdentity tenants still need legacy:
 
 ```python
 def is_gov_cloud(cloud_name):
@@ -355,7 +360,8 @@ def is_gov_cloud(cloud_name):
 
 cloud = os.environ.get("ZSCALER_CLOUD") or os.environ.get("ZIA_CLOUD") or "zscaler.net"
 if is_gov_cloud(cloud):
-    # Forced legacy — OneAPI not available
+    # Do not auto-select OneAPI or legacy from "gov" alone.
+    # Check client/provider support and whether the tenant has a ZIdentity API client.
     from zscaler.oneapi_client import LegacyZIAClient
     client = LegacyZIAClient({"username": ..., "api_key": ..., "cloud": cloud, ...})
 else:

@@ -109,12 +109,16 @@ Known `ZSCALER_CLOUD` values:
 - **Commercial**: omit the var for the default path. Explicit commercial values
   include `zscaler.net`, `zscalertwo.net`, `zscalerthree.net`, `zscloud.net`,
   `zscalerbeta.net`, and `zscalerone.net`.
-- **Gov**: `zscalergov` and `zscalerten`.
-- **ZPA-only gov values** also exist (`GOV`, `GOVUS`); use the legacy path if
-  your ZPA tenant uses these.
+- **Gov**: current OneAPI-capable SDKs and the ZIA Terraform provider use
+  `gov` / `govus`; legacy ZIA provider paths use `zscalergov` /
+  `zscalerten`.
+- **ZPA-only gov values** also exist (`GOV`, `GOVUS`); the ZPA Terraform
+  provider still documents those as legacy-only.
 
 Default commercial-cloud tenants usually leave `ZSCALER_CLOUD` unset. Set it
-when running against gov clouds, beta clouds, or a non-default commercial cloud.
+when running against gov clouds, beta clouds, or a non-default commercial cloud,
+but check the selected client/provider docs before assuming a gov value means
+OneAPI or legacy.
 
 ## Set Up Runtime Data
 

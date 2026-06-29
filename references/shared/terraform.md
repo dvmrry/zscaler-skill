@@ -3,7 +3,7 @@ product: shared
 topic: "terraform-provider"
 title: "Zscaler Terraform providers (ZIA + ZPA)"
 content-type: reference
-last-verified: "2026-04-23"
+last-verified: "2026-06-29"
 confidence: medium
 source-tier: mixed
 sources:
@@ -51,7 +51,7 @@ ZPA follows the identical pattern — substitute `zscaler/zpa` and the matching 
 Both providers support two auth frameworks, same as the SDK. From `vendor/terraform-provider-zia/docs/index.md`:
 
 - **OneAPI (v4.0.0+)** — OAuth 2.0 Client Credentials flow via ZIdentity. Recommended for new deployments.
-- **Legacy** — provider-specific API keys + username/password. Required for tenants not migrated to ZIdentity, and for gov clouds (`zscalergov`, `zscalerten` for ZIA; `GOV`, `GOVUS` for ZPA — OneAPI is not supported in these).
+- **Legacy** — provider-specific API keys + username/password. Required for tenants not migrated to ZIdentity, and still required for ZPA provider `GOV` / `GOVUS` paths (`vendor/terraform-provider-zpa/docs/index.md:34`; `vendor/terraform-provider-zpa/docs/index.md:196`). ZIA provider v4.7.25+ now documents FedRAMP OneAPI support through `zscaler_cloud = "gov"` / `"govus"` (`vendor/terraform-provider-zia/docs/index.md:35`; `vendor/terraform-provider-zia/docs/index.md:140-149`), while the older legacy ZIA cloud values remain `zscalergov` / `zscalerten`.
 
 Environment variables (OneAPI mode):
 

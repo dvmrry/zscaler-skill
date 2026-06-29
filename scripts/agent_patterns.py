@@ -4,7 +4,7 @@ A small, dependency-free (stdlib + zscaler SDK) module with typed functions
 covering the five most-asked diagnostic patterns:
 
   - detect_cloud()              — cloud class (commercial / gov / unknown)
-  - is_gov_cloud()              — boolean check for gov-cloud forced-legacy
+  - is_gov_cloud()              — boolean check for gov-cloud routing decisions
   - detect_auth_framework()     — OneAPI vs legacy from env vars
   - smoke_test_creds()          — verify a credential set actually works
   - enumerate_endpoints()       — list available SDK endpoints by product
@@ -111,7 +111,9 @@ def is_gov_cloud(
 ) -> bool:
     """True iff the tenant is on a gov cloud (zscalergov, zscalerten, GOV, GOVUS).
 
-    Gov clouds force-require legacy auth; OneAPI is unsupported.
+    Gov clouds require a client/provider-specific auth decision. Current
+    SDK/provider versions may support FedRAMP OneAPI via gov/govus, while
+    older clients and some provider paths still require legacy auth.
 
     >>> is_gov_cloud(env={"ZSCALER_CLOUD": "zscalergov"})
     True
@@ -433,21 +435,25 @@ def diagnose_tenant(
       smoke_test_product : which product to smoke-test against if client given
 
     Returns a TenantDiagnosis with cloud class, auth framework, smoke test
-    result, endpoint enumeration, and advisory notes (e.g., "OneAPI configured
-    but tenant is gov-cloud — use legacy instead").
+    result, endpoint enumeration, and advisory notes (e.g., "gov-cloud detected
+    — verify the selected client/provider supports FedRAMP OneAPI before using it").
     """
     if env is None:
         env = dict(os.environ)
 
     cloud_class, cloud_details = detect_cloud(env=env, admin_url=admin_url)
     auth_framework = detect_auth_framework(env=env)
-    forced_legacy = cloud_class == "gov"
+    # Back-compat field: gov clouds used to be treated as blanket legacy-only.
+    # Current SDK/provider support is mixed, so do not force legacy from cloud
+    # class alone. Use the advisory to make callers choose by client/provider.
+    forced_legacy = False
 
     advisories: list[str] = []
-    if forced_legacy and auth_framework == "oneapi":
+    if cloud_class == "gov" and auth_framework == "oneapi":
         advisories.append(
-            "Gov-cloud tenant + OneAPI env vars: OneAPI is not supported on gov clouds. "
-            "Switch to the relevant legacy auth path."
+            "Gov-cloud tenant + OneAPI env vars: verify this client/provider supports "
+            "FedRAMP OneAPI (gov/govus). ZPA Terraform GOV/GOVUS and older clients "
+            "still need legacy auth."
         )
     if auth_framework == "unknown":
         advisories.append(

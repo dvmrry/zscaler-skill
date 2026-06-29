@@ -12,6 +12,9 @@ sources:
   - "references/_meta/runbooks.md"
   - "vendor/zscaler-sdk-python/CHANGELOG.md"
   - "vendor/zscaler-sdk-python/zscaler/constants.py"
+  - "vendor/zscaler-sdk-go/zscaler/oneapiclient.go"
+  - "vendor/terraform-provider-zia/docs/index.md"
+  - "vendor/terraform-provider-zpa/docs/index.md"
 author-status: reviewed
 ---
 
@@ -41,7 +44,7 @@ The `diagnose_tenant()` composite in `scripts/agent_patterns.py` is a worked-exa
 
 **What it answers:** "Is this tenant on a commercial cloud, a gov cloud, or unknown?"
 
-**Why agents need this:** gov clouds no longer imply a single auth answer. Current Python SDK releases model FedRAMP OneAPI routing for `cloud=gov` / `cloud=govus`, while older SDKs and some provider paths still require legacy auth (`vendor/zscaler-sdk-python/CHANGELOG.md:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:26`). Pick the wrong path → 401 on every call.
+**Why agents need this:** gov clouds no longer imply a single auth answer. Current Go/Python SDK releases model FedRAMP OneAPI routing for `cloud=gov` / `cloud=govus`, ZIA Terraform v4.7.25+ documents the same path, and ZPA Terraform `GOV` / `GOVUS` still requires legacy auth (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:404-438`; `vendor/zscaler-sdk-python/CHANGELOG.md:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:21-28`; `vendor/terraform-provider-zia/docs/index.md:140-149`; `vendor/terraform-provider-zpa/docs/index.md:34`). Pick the wrong path → 401 on every call.
 
 ```python
 GOV_CLOUDS = frozenset({"zscalergov", "zscalerten", "GOV", "GOVUS"})
@@ -90,7 +93,7 @@ detect_cloud(env={})
 
 ## Pattern 2 — `is_gov_cloud` (gov-cloud boolean check)
 
-**What it answers:** "Should this tenant be using legacy auth?" (true if gov cloud)
+**What it answers:** "Is this tenant in a gov cloud family?" (true means auth must be chosen by client/provider support, not by cloud alone)
 
 **Why agents need this:** the most-frequently-needed binary signal. Wraps `detect_cloud` for the common case.
 
@@ -250,7 +253,7 @@ def interpret_error(status_code, body=None):
         return ErrorInterpretation(400, label or "Bad Request", "fix-config", "Check field types/enums.")
     if status_code == 401:
         return ErrorInterpretation(401, "Unauthorized", "fix-creds",
-            "Common: missing audience param on OneAPI, expired secret, OneAPI on gov cloud (use legacy).")
+            "Common: missing audience param on OneAPI, expired secret, or wrong gov-cloud auth path for this client/provider.")
     if status_code == 403:
         return ErrorInterpretation(403, "Forbidden", "fix-creds", "Auth OK, RBAC denies. Check API client scopes.")
     if status_code == 404:
@@ -316,10 +319,10 @@ def diagnose_tenant(env=None, admin_url=None, client=None, smoke_test_product="z
         env = dict(os.environ)
     cloud_class, cloud_details = detect_cloud(env=env, admin_url=admin_url)
     auth_framework = detect_auth_framework(env=env)
-    forced_legacy = cloud_class == "gov"
+    forced_legacy = False  # compatibility field; gov no longer implies blanket legacy-only
     advisories = []
-    if forced_legacy and auth_framework == "oneapi":
-        advisories.append("Gov-cloud + OneAPI env vars: switch to legacy auth.")
+    if cloud_class == "gov" and auth_framework == "oneapi":
+        advisories.append("Gov-cloud + OneAPI env vars: verify this client/provider supports FedRAMP OneAPI.")
     if auth_framework == "unknown":
         advisories.append("No recognizable auth env vars. Set OneAPI or legacy vars.")
     smoke = endpoints = None

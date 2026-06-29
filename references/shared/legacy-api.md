@@ -393,7 +393,7 @@ with LegacyZPAClient(config) as client:
 
 Enable via env var on the unified client path: `ZSCALER_USE_LEGACY=true`. Per-product legacy credential vars are documented in `vendor/zscaler-sdk-python/README.md § Legacy API Framework`.
 
-Gov-cloud handling is client/version-specific. Current Python SDK releases model FedRAMP OneAPI routing for `cloud=gov` / `cloud=govus`, while older SDKs and some provider paths still require the legacy client path (`vendor/zscaler-sdk-python/CHANGELOG.md:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:26`).
+Gov-cloud handling is client/version-specific. Current Go/Python SDKs and ZIA Terraform provider releases model FedRAMP OneAPI routing for `cloud=gov` / `cloud=govus`, while older SDKs and ZPA Terraform `GOV` / `GOVUS` still require the legacy client path (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:404-438`; `vendor/zscaler-sdk-python/CHANGELOG.md:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:21-28`; `vendor/terraform-provider-zia/docs/index.md:140-149`; `vendor/terraform-provider-zpa/docs/index.md:34`).
 
 ---
 
