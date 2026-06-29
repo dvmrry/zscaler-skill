@@ -1,0 +1,116 @@
+name: Auto tag
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: "Version component to bump"
+        required: true
+        default: patch
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      create_release:
+        description: "Create a GitHub release for the new tag"
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: write
+
+concurrency:
+  group: auto-tag-main
+  cancel-in-progress: false
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Create next version tag
+        id: tag
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          DISPATCH_BUMP: ${{ github.event.inputs.bump }}
+        run: |
+          set -euo pipefail
+
+          git fetch --force --tags origin
+
+          if git tag --points-at "$GITHUB_SHA" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "HEAD already has a version tag; nothing to do."
+            echo "created=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          latest="$(
+            git tag --list 'v[0-9]*.[0-9]*.[0-9]*' \
+              | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' \
+              | sort -V \
+              | tail -n 1
+          )" || true
+          if [[ -z "${latest}" ]]; then
+            latest="v0.0.0"
+          fi
+
+          version="${latest#v}"
+          IFS=. read -r major minor patch <<< "$version"
+
+          bump="patch"
+          if [[ "$EVENT_NAME" == "workflow_dispatch" && -n "${DISPATCH_BUMP:-}" ]]; then
+            bump="$DISPATCH_BUMP"
+          fi
+
+          case "$bump" in
+            major)
+              major=$((major + 1))
+              minor=0
+              patch=0
+              ;;
+            minor)
+              minor=$((minor + 1))
+              patch=0
+              ;;
+            patch)
+              patch=$((patch + 1))
+              ;;
+            *)
+              echo "Unsupported bump value: $bump" >&2
+              exit 1
+              ;;
+          esac
+
+          next="v${major}.${minor}.${patch}"
+          while git rev-parse -q --verify "refs/tags/${next}" >/dev/null; do
+            patch=$((patch + 1))
+            next="v${major}.${minor}.${patch}"
+          done
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "$next" "$GITHUB_SHA" -m "Release $next"
+          git push origin "refs/tags/${next}"
+
+          echo "created=true" >> "$GITHUB_OUTPUT"
+          echo "tag=${next}" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub release
+        if: steps.tag.outputs.created == 'true' && (github.event_name == 'push' || github.event.inputs.create_release == 'true')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          set -euo pipefail
+          gh release create "$TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "$TAG" \
+            --generate-notes
