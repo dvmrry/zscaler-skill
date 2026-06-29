@@ -139,7 +139,7 @@ with LegacyZIAClient(config) as client:
     users, _, _ = client.user_management.list_users()
 ```
 
-Government-cloud OneAPI support is SDK/version-specific. Current Python SDK releases model FedRAMP OneAPI routing for `cloud=gov` / `cloud=govus`, using dedicated Zidentity auth domains and API gateways (`vendor/zscaler-sdk-python/CHANGELOG.md:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:26`). Older SDKs and Terraform/provider paths may still require product-specific legacy auth.
+Government-cloud OneAPI support is client/version-specific. Current Go and Python SDK releases model FedRAMP OneAPI routing for `cloud=gov` / `cloud=govus`, using dedicated Zidentity auth domains and API gateways (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:404-438`; `vendor/zscaler-sdk-python/CHANGELOG.md:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:21-28`). Older SDKs and non-ZIA provider paths may still require product-specific legacy auth.
 
 **Environment variables** (all optional when provided in config dict):
 

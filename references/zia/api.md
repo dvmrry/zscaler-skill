@@ -10,6 +10,10 @@ sources:
   - "https://help.zscaler.com/zia/configuring-url-categories-using-api"
   - "vendor/zscaler-help/Configuring_URL_Categories_Using_API.txt"
   - "vendor/zscaler-sdk-python/README.md"
+  - "vendor/zscaler-sdk-python/CHANGELOG.md"
+  - "vendor/zscaler-sdk-python/zscaler/constants.py"
+  - "vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py"
+  - "vendor/zscaler-sdk-python/zscaler/request_executor.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/activate.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/cloudappcontrol.py"
@@ -49,11 +53,11 @@ Environment variables (per SDK README):
 | `ZSCALER_CLIENT_ID` | API client ID from ZIdentity |
 | `ZSCALER_CLIENT_SECRET` | Client secret (for secret-based auth) |
 | `ZSCALER_PRIVATE_KEY` | Private key string (for JWT private-key auth) |
-| `ZSCALER_VANITY_DOMAIN` | Your organization's ZIdentity domain (forms `https://<vanity>.zslogin.net/oauth2/v1/token`) |
-| `ZSCALER_CLOUD` | Cloud name for the API base URL (`$api.<cloud>.zsapi.net`). Optional; omit for default. |
+| `ZSCALER_VANITY_DOMAIN` | Your organization's ZIdentity domain (commercial forms `https://<vanity>.zslogin.net/oauth2/v1/token`; FedRAMP OneAPI uses `zidentitygov.net` / `zidentitygov.us`) |
+| `ZSCALER_CLOUD` | Cloud name for the API base URL. Optional; omit for default commercial. Current Python SDK releases use `gov` / `govus` for FedRAMP OneAPI gateways, not the commercial `api.<cloud>.zsapi.net` pattern. |
 | `ZSCALER_PARTNER_ID` | Optional partner ID; sets `x-partner-id` header |
 
-OneAPI is not currently supported in Zscaler gov clouds (`zscalergov`, `zscalerten`, ZPA `GOV`, `GOVUS`) per SDK README.
+Government-cloud OneAPI support is client/version-specific. The vendored Python SDK v1.9.32+ models `cloud=gov` and `cloud=govus` by routing OAuth to `zidentitygov.net` / `zidentitygov.us` and API calls to `api.zscalergov.net` / `api.zscalergov.us` (`vendor/zscaler-sdk-python/CHANGELOG.md:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:17-28`; `vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py:495-499`; `vendor/zscaler-sdk-python/zscaler/request_executor.py:176-185`). Do not extrapolate that to older SDKs, Terraform ZPA `GOV` / `GOVUS`, or tenants without ZIdentity.
 
 Python client instantiation:
 
@@ -90,7 +94,7 @@ with LegacyZIAClient(config) as client:
     users, _, _ = client.user_management.list_users()
 ```
 
-Legacy mode is supported by Zscaler gov clouds. New deployments should prefer OneAPI.
+Legacy mode remains supported for pre-ZIdentity tenants and government-cloud paths whose selected client/provider still documents legacy auth. New deployments should prefer OneAPI only after confirming the tenant and selected client surface support it.
 
 ## SDK response shape
 

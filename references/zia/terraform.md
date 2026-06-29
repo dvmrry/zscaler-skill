@@ -111,13 +111,13 @@ provider "zia" {
   client_id     = var.client_id
   client_secret = var.client_secret   # or private_key
   vanity_domain = var.vanity_domain
-  zscaler_cloud = "beta"              # optional; omit for production
+  zscaler_cloud = "beta"              # optional; omit for production; use "gov"/"govus" for FedRAMP OneAPI
 }
 ```
 
 Environment variables: `ZSCALER_CLIENT_ID`, `ZSCALER_CLIENT_SECRET`, `ZSCALER_PRIVATE_KEY`, `ZSCALER_VANITY_DOMAIN`, `ZSCALER_CLOUD`.
 
-OneAPI is not available on `zscalergov` and `zscalerten` clouds.
+FedRAMP OneAPI is available in the current provider through `zscaler_cloud = "gov"` or `"govus"`; the provider docs say this requires provider version `>= v4.7.25` (`vendor/terraform-provider-zia/docs/index.md:35`; `vendor/terraform-provider-zia/docs/index.md:140-149`). The older legacy cloud names (`zscalergov`, `zscalerten`) remain legacy-mode values, not OneAPI `ZSCALER_CLOUD` values.
 
 **Legacy (backwards-compatible):** Username + password + API key.
 

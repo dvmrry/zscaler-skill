@@ -188,7 +188,7 @@ Source: token URL — Python `vendor/zscaler-sdk-python/zscaler/oneapi_oauth_cli
 
 The vanity domain is **not** part of the API gateway host. Setting `ZSCALER_VANITY_DOMAIN` to a full `<tenant>.zsapi.net` host (or to anything other than the bare subdomain label) is the most common OneAPI setup error.
 
-Government-cloud OneAPI support is now client/version-specific rather than a blanket "unsupported" rule. The vendored Python SDK v1.9.32+ models FedRAMP OneAPI routing for `cloud=gov` / `cloud=govus`, using `zidentitygov.net` / `zidentitygov.us` identity providers and `api.zscalergov.net` / `api.zscalergov.us` API gateways (`vendor/zscaler-sdk-python/CHANGELOG.md:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:26`). Terraform/provider government-cloud paths may still require product-specific legacy auth.
+Government-cloud OneAPI support is now client/version-specific rather than a blanket "unsupported" rule. The vendored Go and Python SDKs model FedRAMP OneAPI routing for `cloud=gov` / `cloud=govus`, using `zidentitygov.net` / `zidentitygov.us` identity providers and `api.zscalergov.net` / `api.zscalergov.us` API gateways (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:404-438`; `vendor/zscaler-sdk-python/CHANGELOG.md:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:21-28`). ZIA Terraform v4.7.25+ documents the same `gov` / `govus` path, while ZPA Terraform `GOV` / `GOVUS` remains legacy-only (`vendor/terraform-provider-zia/docs/index.md:140-149`; `vendor/terraform-provider-zpa/docs/index.md:34`).
 
 ---
 
