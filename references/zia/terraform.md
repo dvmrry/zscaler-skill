@@ -3,9 +3,9 @@ product: zia
 topic: "zia-terraform"
 title: "ZIA Terraform provider resource catalog"
 content-type: reference
-last-verified: "2026-06-15"
+last-verified: "2026-06-29"
 verified-against:
-  vendor/terraform-provider-zia: 717926eb564bb21dea1f8e0c3222e6593b29f849
+  vendor/terraform-provider-zia: 6e6509f001ca71adcedfd4884250d09227395bf0
 confidence: medium
 source-tier: mixed
 sources:
@@ -51,6 +51,8 @@ sources:
   - "vendor/terraform-provider-zia/docs/resources/zia_firewall_filtering_network_service_groups.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_firewall_filtering_rule.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_firewall_ips_rule.md"
+  - "vendor/terraform-provider-zia/docs/resources/zia_http_header_action_profile.md"
+  - "vendor/terraform-provider-zia/docs/resources/zia_http_header_profile.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_ips_signature_rules.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_forwarding_control_proxies.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_forwarding_control_rule.md"
@@ -86,12 +88,13 @@ sources:
   - "vendor/terraform-provider-zia/zia/resource_zia_cloud_app_control_rules.go"
   - "vendor/terraform-provider-zia/zia/resource_zia_url_categories.go"
   - "vendor/terraform-provider-zia/zia/resource_zia_user_management_users.go"
+  - "vendor/terraform-provider-zia/zia/provider.go"
 author-status: draft
 ---
 
 # ZIA Terraform provider resource catalog
 
-Complete catalog of the 72 resources and corresponding data sources in the `zscaler/zia` Terraform provider (registry source `zscaler/zia`, v4.x). Resources are grouped by ZIA functional area. Most configuration resources require activation to take effect; action-style resources such as `zia_sandbox_file_submission` are not staged policy configuration. See the [Activation lifecycle](#activation-lifecycle) section.
+Complete catalog of the 74 resources and corresponding data sources in the `zscaler/zia` Terraform provider (registry source `zscaler/zia`, v4.x). Resources are grouped by ZIA functional area. Most configuration resources require activation to take effect; action-style resources such as `zia_sandbox_file_submission` are not staged policy configuration. See the [Activation lifecycle](#activation-lifecycle) section.
 
 > **For HCL authoring guidance** — best practices, decision tables, anti-patterns, CI/CD with the activation step, secret hygiene — see Zscaler's official skill bundle, vendored at [`vendor/zscaler-terraform-skills/skills/zia-skill/`](../../vendor/zscaler-terraform-skills/skills/zia-skill/) (upstream: `zscaler/zscaler-terraform-skills`, MIT). This doc covers the resource catalog and provider internals; their skill covers how to *write* HCL against the catalog.
 
@@ -180,6 +183,14 @@ Gotcha: `ISOLATE` action requires a Cloud Browser Isolation (CBI) subscription a
 
 Import: by numeric ID or rule name.
 
+### `zia_http_header_profile` and `zia_http_header_action_profile`
+
+Source: `vendor/terraform-provider-zia/docs/resources/zia_http_header_profile.md`; `vendor/terraform-provider-zia/docs/resources/zia_http_header_action_profile.md`.
+
+HTTP Header Control now has two Terraform-managed profile resources: `zia_http_header_profile` models the matching criteria evaluated against traffic, and `zia_http_header_action_profile` models the header key/value pairs applied to matching traffic. The provider registers both resources and both matching data sources. (`vendor/terraform-provider-zia/docs/resources/zia_http_header_profile.md:16,49-64`; `vendor/terraform-provider-zia/docs/resources/zia_http_header_action_profile.md:16,47-56`; `vendor/terraform-provider-zia/zia/provider.go:191-192,299-300`)
+
+URL filtering rules can reference these profiles through `http_header_profiles` and `http_header_action_profiles` blocks. (`vendor/terraform-provider-zia/docs/resources/zia_url_filtering_rules.md:134-154`)
+
 ### `zia_url_filtering_and_cloud_app_settings`
 
 Source: `vendor/terraform-provider-zia/docs/resources/zia_url_filtering_and_cloud_app_settings.md`.
@@ -247,6 +258,8 @@ Gotcha: Provider v4.7.23 suppresses URL-order-only diffs for `urls` after import
 Gotcha: A maximum of 48 custom URL categories is allowed per tenant. The `val` attribute (not the string ID) must be used when cross-referencing this category in `zia_dlp_web_rules`. Import by numeric ID or name.
 
 Gotcha: Large custom categories can be expensive during Terraform refresh and planning. Upstream issue [zscaler/terraform-provider-zia#575](https://github.com/zscaler/terraform-provider-zia/issues/575) reported an approximately 20,000-URL category taking about 18 minutes during plan/refresh. v4.7.22 attempted to reduce URL diff churn but introduced a `SetNew only operates on computed keys` failure; v4.7.23 is the relevant fixed baseline for large imported categories.
+
+Gotcha: Starting in terraform-provider-zia v4.7.26, deleting a custom URL category first detaches that category from rule-based resources that reference it, avoiding the API refusal for still-attached categories. (`vendor/terraform-provider-zia/CHANGELOG.md:10-15`; `vendor/terraform-provider-zia/zia/resource_zia_url_categories.go:497-514`)
 
 ### `zia_url_categories_predefined`
 
@@ -1329,6 +1342,8 @@ Data sources have the same names as corresponding resources (prefix `data.zia_*`
 |---|---|
 | `zia_url_filtering_rules` | URL filtering rule by name or ID |
 | `zia_url_filtering_and_cloud_app_settings` | URL and Cloud App Control advanced settings singleton |
+| `zia_http_header_profile` | HTTP Header Control matching profile by name or ID |
+| `zia_http_header_action_profile` | HTTP Header Control action profile by name or ID |
 | `zia_url_categories` | URL category (custom or predefined) by name or ID |
 | `zia_cloud_app_control_rule` | Cloud App Control rule by name, type, and ID |
 | `zia_cloud_app_control_rule_actions` | Available actions for a given Cloud App Control rule type |

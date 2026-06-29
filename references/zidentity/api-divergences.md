@@ -5,9 +5,9 @@ title: "ZIdentity API source divergences"
 content-type: reference
 source-tier: code
 confidence: medium
-last-verified: "2026-06-15"
+last-verified: "2026-06-29"
 verified-against:
-  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
+  vendor/zscaler-sdk-go: 4371c9bab44d852526721b4b5999e2471dda5198
   vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zid/**"
@@ -96,7 +96,7 @@ This doc records the source-vs-source disagreements found across the `zid` surfa
 **What each source says:**
 
 - **Python SDK:** the client-secret token request sets `"audience": "https://api.zscaler.com"` in the form body (`vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py:298`); the private-key path sets the same `audience` form field and an `"aud": "https://api.zscaler.com"` JWT claim (`vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py:389,375`).
-- **Go SDK:** the client-secret token request sets `data.Set("audience", "https://api.zscaler.com")` (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:260`); the cert path sets the JWT `"aud": "https://api.zscaler.com"` claim and the `audience` form field (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:321,335`).
+- **Go SDK:** the client-secret token request sets `data.Set("audience", "https://api.zscaler.com")` (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:255`); the cert path sets the JWT `"aud": "https://api.zscaler.com"` claim and the `audience` form field (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:316,330`).
 
 **Significance / which to trust:** The `audience` value is a fixed constant set by the SDK on every token exchange — it is not a caller-supplied parameter, and it is the same string (`https://api.zscaler.com`) for both client-secret and JWT-bearer grants in both SDKs. Any documentation that frames `audience` as a required manual input is wrong; the SDK injects it. A raw-HTTP caller reproducing the token exchange must send this exact audience.
 
