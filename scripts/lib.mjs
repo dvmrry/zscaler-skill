@@ -135,6 +135,80 @@ export function runtimeDataRelative(root, ...segments) {
   return path.join(runtimeDataMountPath(root), ...segments);
 }
 
+export function runtimeMountIgnorePattern(mountPath) {
+  return `${normalizeMountPath(mountPath)}/`;
+}
+
+function gitPath(root, gitPathArg) {
+  const output = gitTryOutput(root, ["rev-parse", "--git-path", gitPathArg]);
+  if (!output) return null;
+  return path.isAbsolute(output) ? output : path.resolve(root, output);
+}
+
+export function runtimeMountIgnoreStatus(root, mountPath) {
+  const mount = normalizeMountPath(mountPath);
+  const pattern = runtimeMountIgnorePattern(mount);
+  const isGitRepo = gitTryOutput(root, ["rev-parse", "--show-toplevel"]) !== "";
+
+  if (!isGitRepo) {
+    return { mountPath: mount, pattern, isGitRepo: false, ignored: false };
+  }
+  if (mount === DEFAULT_DATA_MOUNT) {
+    return {
+      mountPath: mount,
+      pattern,
+      isGitRepo: true,
+      ignored: true,
+      reason: "default-mount",
+    };
+  }
+
+  try {
+    childProcess.execFileSync("git", ["check-ignore", "-q", "--", mount], {
+      cwd: root,
+      stdio: ["ignore", "ignore", "ignore"],
+    });
+    return { mountPath: mount, pattern, isGitRepo: true, ignored: true };
+  } catch {
+    return { mountPath: mount, pattern, isGitRepo: true, ignored: false };
+  }
+}
+
+export function ensureRuntimeMountExcluded(root, mountPath) {
+  const mount = normalizeMountPath(mountPath);
+  const status = runtimeMountIgnoreStatus(root, mount);
+  if (mount === DEFAULT_DATA_MOUNT) {
+    return { ...status, changed: false, skipped: true, reason: "default-mount" };
+  }
+  if (!status.isGitRepo) {
+    return { ...status, changed: false, skipped: true, reason: "not-git-repo" };
+  }
+  if (status.ignored) {
+    return { ...status, changed: false, skipped: false, reason: "already-ignored" };
+  }
+
+  const excludePath = gitPath(root, "info/exclude");
+  if (!excludePath) {
+    return { ...status, changed: false, skipped: true, reason: "git-exclude-unavailable" };
+  }
+
+  fs.mkdirSync(path.dirname(excludePath), { recursive: true });
+  const existing = fs.existsSync(excludePath) ? fs.readFileSync(excludePath, "utf8") : "";
+  const separator = existing === "" || existing.endsWith("\n") ? "" : "\n";
+  fs.appendFileSync(
+    excludePath,
+    `${separator}# zscaler-skill runtime data mount (local)\n${status.pattern}\n`,
+    "utf8",
+  );
+
+  return {
+    ...runtimeMountIgnoreStatus(root, mount),
+    changed: true,
+    skipped: false,
+    excludePath,
+  };
+}
+
 // Validate and normalize overlay allowed-root entries: each must be a relative
 // path under the runtime data mount with no traversal. Trailing slashes are
 // stripped.

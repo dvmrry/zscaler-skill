@@ -11,6 +11,7 @@ import {
   gitTryOutput,
   normalizeMountPath,
   readJsonObject,
+  runtimeMountIgnoreStatus,
 } from "./lib.mjs";
 
 function usage(exitCode = 0) {
@@ -136,6 +137,12 @@ function checkDataContract(root, mountPath = DEFAULT_DATA_MOUNT) {
     }
   } else {
     info.push(`${mount} appears to be an ordinary directory`);
+    const ignoreStatus = runtimeMountIgnoreStatus(root, mount);
+    if (mount !== DEFAULT_DATA_MOUNT && ignoreStatus.isGitRepo && !ignoreStatus.ignored) {
+      warnings.push(
+        `${mount}/ is a custom runtime-data mount but is not ignored by git; run setup-data-mount.mjs or add ${ignoreStatus.pattern} to .git/info/exclude`,
+      );
+    }
   }
 
   if (warnings.some((warning) => warning.includes(`${mount}/snapshot/`))) {

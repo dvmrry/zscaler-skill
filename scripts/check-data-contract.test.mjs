@@ -22,6 +22,14 @@ function runCheckCommand(args) {
   );
 }
 
+function git(root, args) {
+  return childProcess.execFileSync("git", args, {
+    cwd: root,
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  }).trim();
+}
+
 function makeDataSkeleton(root, mountPath = "_data") {
   const dataDir = path.join(root, mountPath);
   fs.mkdirSync(dataDir, { recursive: true });
@@ -53,6 +61,29 @@ test("checkDataContract accepts a configured runtime mount path", () => {
   assert.ok(report.warnings.some((warning) => warning.includes("tenant-data/snapshot/ contains only skeleton files")));
   assert.ok(report.warnings.some((warning) => warning.includes("no tenant-data/snapshot content")));
   assert.ok(report.info.some((line) => line.includes("tenant-data appears to be an ordinary directory")));
+});
+
+test("checkDataContract warns when a custom runtime mount is not ignored", () => {
+  const root = tempRepo();
+  git(root, ["init", "-b", "main"]);
+  makeDataSkeleton(root, "tenant-data");
+
+  const report = checkDataContract(root, "tenant-data");
+
+  assert.ok(report.warnings.some((warning) => warning.includes("tenant-data/ is a custom runtime-data mount")));
+  assert.ok(report.warnings.some((warning) => warning.includes(".git/info/exclude")));
+});
+
+test("checkDataContract accepts a custom runtime mount that is locally ignored", () => {
+  const root = tempRepo();
+  git(root, ["init", "-b", "main"]);
+  makeDataSkeleton(root, "tenant-data");
+  const excludePath = path.join(root, ".git", "info", "exclude");
+  fs.appendFileSync(excludePath, "tenant-data/\n", "utf8");
+
+  const report = checkDataContract(root, "tenant-data");
+
+  assert.ok(!report.warnings.some((warning) => warning.includes("custom runtime-data mount")));
 });
 
 test("check-data-contract CLI reads mountPath without expanding unrelated private source", () => {

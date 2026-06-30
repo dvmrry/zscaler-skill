@@ -126,6 +126,28 @@ test("setupDataMount copies a local source into a configured runtime mount", () 
   assert.ok(result.report.info.some((line) => line.includes("tenant-data appears")));
 });
 
+test("setupDataMount adds a custom runtime mount to the local git exclude", () => {
+  const root = tempDir("zscaler-data-mount-custom-ignore-");
+  git(root, ["init", "-b", "main"]);
+  const source = makeOverlaySource();
+
+  const result = setupDataMount({
+    root,
+    dataUrl: source,
+    dataRef: null,
+    dryRun: false,
+    force: false,
+    mode: "copy",
+    mountPath: "tenant-data",
+  });
+
+  assert.equal(result.plan.localExclude.changed, true);
+  assert.equal(result.plan.localExclude.pattern, "tenant-data/");
+  assert.equal(fs.existsSync(path.join(root, "tenant-data", "schemas", "fields.json")), true);
+  assert.match(fs.readFileSync(result.plan.localExclude.excludePath, "utf8"), /tenant-data\//);
+  assert.equal(git(root, ["status", "--short"]), "");
+});
+
 test("setupDataMount refuses to replace populated data without force", () => {
   const root = tempDir("zscaler-data-populated-");
   makeDataSkeleton(root);

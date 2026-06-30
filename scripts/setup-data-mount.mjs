@@ -10,6 +10,7 @@ import {
   DEFAULT_DATA_MOUNT,
   DATA_REQUIRED_DIRS,
   DATA_SKELETON_FILES,
+  ensureRuntimeMountExcluded,
   expandConfigString,
   gitTryOutput,
   normalizeMountPath,
@@ -257,10 +258,15 @@ function setupDataMount(options) {
     configPath: options.configPath || null,
     dryRun: Boolean(options.dryRun),
     force: Boolean(options.force),
+    localExclude: null,
   };
 
   if (options.dryRun) {
     return { plan, report: null };
+  }
+
+  if (mode !== "submodule") {
+    plan.localExclude = ensureRuntimeMountExcluded(root, mountPath);
   }
 
   if (mode === "copy") {
@@ -294,6 +300,11 @@ function printResult(result) {
   if (result.plan.dryRun) {
     process.stdout.write("Dry run: no files changed\n");
     return;
+  }
+  if (result.plan.localExclude?.changed) {
+    process.stdout.write(
+      `Local exclude: added ${result.plan.localExclude.pattern} to ${result.plan.localExclude.excludePath}\n`,
+    );
   }
   for (const line of result.report.info) process.stdout.write(`INFO: ${line}\n`);
   for (const line of result.report.warnings) process.stdout.write(`WARN: ${line}\n`);
