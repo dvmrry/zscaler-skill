@@ -174,7 +174,7 @@ schema handling (`cloud-connector-25`), and ZDX snapshot base-path encoding
 
 ### Open
 
-`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-70`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-81`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `shared-20`–`shared-37`, `zcc-08`–`zcc-101`, `zdx-01`–`zdx-44`, `zid-01`–`zid-36`, `zms-01`, `easm-01`–`easm-02`, `cloud-connector-01`–`cloud-connector-25`, `ai-security-01`–`ai-security-03`, `ai-security-05`, `zwa-01`–`zwa-05`, `business-insights-01`, `soc-workbench-01`, `unified-01`, `risk360-01`–`risk360-02`, `breach-predictor-01`, `uvm-01`, `dspm-01`, `aem-01`, `deception-01`, `identity-protection-01`, `zero-trust-branch-01`, `zscaler-cellular-01`.
+`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-70`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-81`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `shared-20`–`shared-37`, `zcc-08`–`zcc-101`, `zdx-01`–`zdx-44`, `zid-01`–`zid-36`, `zms-01`, `easm-01`–`easm-02`, `cloud-connector-01`–`cloud-connector-25`, `ai-security-01`–`ai-security-03`, `ai-security-05`–`ai-security-06`, `zwa-01`–`zwa-05`, `business-insights-01`, `soc-workbench-01`, `unified-01`, `risk360-01`–`risk360-02`, `breach-predictor-01`, `uvm-01`, `dspm-01`, `aem-01`, `deception-01`, `identity-protection-01`, `zero-trust-branch-01`, `zscaler-cellular-01`.
 
 The vendor-MCP scrape (2026-06-14) added these open behavior questions — each links to its detailed entry below:
 
@@ -5857,6 +5857,17 @@ The reconstructed AI Guard contract includes eight adjacent path-template action
 
 **Status**: open
 **Resolves with**: live API trace OR vendor OpenAPI/spec clarification for AI Guard action-route encoding
+
+---
+
+### ai-security-06 — AI Guard DAS endpoint host selection
+
+*Origin: `references/ai-security/api-divergences.md` § Runtime endpoint host divergence*
+
+The captured DAS Help page uses the global host `https://api.zseclipse.net` for both policy execution and policy resolution (`vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md:50`, `:100`, `:158`). The legacy Python AI Guard client still defaults to `https://api.us1.zseclipse.net`, accepts `AIGUARD_CLOUD`, and constructs `https://api.<cloud>.zseclipse.net` unless an override URL is supplied (`vendor/zscaler-sdk-python/zscaler/zaiguard/legacy.py:58`, `:75`, `:78`, `:81`). Public integration examples also still document region-derived hosts (`vendor/zguard-ai-integrations/Microsoft/README.md:519`; `vendor/zguard-ai-integrations/github-actions/README.md:66`; `vendor/zguard-ai-integrations/github-actions/scripts/scan_policy.py:38-42`). Static sources do not establish whether global and regional hosts both work, whether one is preferred, or whether the regional examples are stale.
+
+**Status**: open
+**Resolves with**: live API trace across global/regional hosts OR vendor documentation / SDK update that states the preferred AI Guard DAS endpoint host
 
 ---
 
