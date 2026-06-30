@@ -55,9 +55,13 @@ Supporting scripts:
 
 ## Closeout Option
 
-If the research run produced durable `_data` artifacts such as schema notes,
-evidence summaries, or plans, offer overlay submission only as an explicit user
-choice after verification. Submission must never happen automatically.
+If the research run produced durable runtime-data artifacts such as schema
+notes, evidence summaries, or plans, first respect the configured runtime-data
+tracking mode. In a private work mirror with `runtimeData.tracking: "tracked"`,
+the closeout is an ordinary local commit in that mirror. For installations that
+still use a separate overlay repository, offer overlay submission only as an
+explicit user choice after verification. Submission must never happen
+automatically.
 
 Use:
 

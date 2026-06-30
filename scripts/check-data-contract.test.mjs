@@ -86,6 +86,28 @@ test("checkDataContract accepts a custom runtime mount that is locally ignored",
   assert.ok(!report.warnings.some((warning) => warning.includes("custom runtime-data mount")));
 });
 
+test("checkDataContract accepts a tracked work-mirror runtime mount", () => {
+  const root = tempRepo();
+  git(root, ["init", "-b", "main"]);
+  makeDataSkeleton(root, "tenant-data");
+
+  const report = checkDataContract(root, "tenant-data", { tracking: "tracked" });
+
+  assert.ok(report.info.some((line) => line.includes("tenant-data is configured as tracked runtime data")));
+  assert.ok(!report.warnings.some((warning) => warning.includes("not ignored by git")));
+});
+
+test("checkDataContract warns when tracked runtime data is ignored", () => {
+  const root = tempRepo();
+  git(root, ["init", "-b", "main"]);
+  makeDataSkeleton(root, "tenant-data");
+  fs.appendFileSync(path.join(root, ".git", "info", "exclude"), "tenant-data/\n", "utf8");
+
+  const report = checkDataContract(root, "tenant-data", { tracking: "tracked" });
+
+  assert.ok(report.warnings.some((warning) => warning.includes("configured as tracked runtime data but is ignored")));
+});
+
 test("check-data-contract CLI reads mountPath without expanding unrelated private source", () => {
   const root = tempRepo();
   makeDataSkeleton(root, "tenant-data");
@@ -94,6 +116,7 @@ test("check-data-contract CLI reads mountPath without expanding unrelated privat
     `${JSON.stringify({
       runtimeData: {
         mountPath: "tenant-data",
+        tracking: "tracked",
         source: "$ZSCALER_TEST_UNSET_PRIVATE_SOURCE",
       },
     }, null, 2)}\n`,
@@ -102,6 +125,7 @@ test("check-data-contract CLI reads mountPath without expanding unrelated privat
 
   const output = runCheckCommand(["--root", root]);
   assert.match(output, /tenant-data appears to be an ordinary directory/);
+  assert.match(output, /tenant-data is configured as tracked runtime data/);
   assert.match(output, /Errors: 0/);
 });
 

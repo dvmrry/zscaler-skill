@@ -37,6 +37,8 @@ Collect these values before running commands:
 - **Mount path**: optional, default `_data`. If a root config sets
   `runtimeData.mountPath`, use that configured mount path in commands and path
   examples.
+- **Tracking**: optional, default `ignored`. Use `tracked` only for a private
+  work mirror that intentionally commits the runtime-data mount in this repo.
 - **Config file**: optional. If `zscaler-skill-setup.json` exists at the repo
   root, the helper reads it automatically. CLI flags override config values.
 - **Force**: optional. Use only when the user confirms replacing populated
@@ -57,6 +59,7 @@ node scripts/setup-data-mount.mjs \
   --root <repo-root> \
   --config <optional-config-json> \
   --mount-path <optional-runtime-data-path> \
+  --tracking <ignored|tracked> \
   --data-url <git-url-or-local-path> \
   --data-ref <ref> \
   --mode <auto|checkout|copy|submodule>
@@ -82,7 +85,27 @@ The public example file is `zscaler-skill-setup.example.json`. The real
 `zscaler-skill-setup.json` is ignored because it may contain private data source
 URLs.
 
+## Work Mirror Tracking
+
+The preferred private-mirror model is to commit the runtime-data mount directly
+to the work mirror. In that case, the root config should set:
+
+```json
+{
+  "runtimeData": {
+    "mountPath": "tenant-data",
+    "tracking": "tracked"
+  }
+}
+```
+
+This mode tells the checker not to require a local ignore for the mount. If
+`tracking` is omitted or set to `ignored`, setup protects custom mounts by
+adding the mount path to the local Git exclude before writing runtime data.
+
 ## Overlay Submission
+
+Legacy/optional path only.
 
 Use this only when the user explicitly wants to prepare runtime-data artifacts
 for a configured overlay repository. Submission is opt-in. Do not push or

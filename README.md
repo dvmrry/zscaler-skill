@@ -42,14 +42,15 @@ Ask grounded questions directly:
 @zscaler does *.example.com cover app.example.com?
 ```
 
-For tenant-specific answers, mount a runtime-data snapshot into `_data/`:
+For tenant-specific answers, mount a runtime-data snapshot into `_data/`
+or the configured work-mirror runtime mount:
 
 ```bash
 node scripts/setup-data-mount.mjs --data-url <git-url-or-path> --data-ref <branch> --mode checkout
 node scripts/check-data-contract.mjs
 ```
 
-The snapshot itself is populated out of band — e.g. a private overlay, or a sanitized dump from the read-only [`zscalerctl`](https://github.com/dvmrry/zscalerctl) CLI. Pre-release companion model: `zscalerctl` observes tenant state, `_data/` stores fast local snapshots/diffs, and this skill interprets the observed state with policy semantics. Credentialed tenant reads are out of scope for this repo.
+The snapshot itself is populated out of band — e.g. a private work mirror, a local runtime-data checkout, or a sanitized dump from the read-only [`zscalerctl`](https://github.com/dvmrry/zscalerctl) CLI. Pre-release companion model: `zscalerctl` observes tenant state, the runtime-data mount stores fast local snapshots/diffs, and this skill interprets the observed state with policy semantics. Credentialed tenant reads are out of scope for this repo.
 
 ## Entry points
 

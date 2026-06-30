@@ -19,7 +19,7 @@
   <span class="right">
     <span><strong>Shape</strong>Setup</span>
     <span><strong>Audience</strong>Operators</span>
-    <span><strong>Boundary</strong>Public + private overlay</span>
+    <span><strong>Boundary</strong>Public + private runtime data</span>
   </span>
 </div>
 
@@ -36,7 +36,7 @@
 
     <h4>Runtime data</h4>
     <ul>
-      <li><a href="#overlay">Private overlays</a></li>
+      <li><a href="#runtime-data">Private runtime data</a></li>
       <li><a href="#snapshot">Tenant snapshots</a></li>
       <li><a href="#verify">Verify setup</a></li>
       <li><a href="#troubleshoot">Troubleshoot</a></li>
@@ -50,7 +50,7 @@
       <p class="lede">Install the Zscaler skill as a source-backed knowledge base, then attach private runtime data without committing tenant material to the public checkout.</p>
       <dl class="frontmatter">
         <dt>Public repo contains</dt><dd>Skill logic, HTML docs, reference notes, verification scripts, and vendored source trees.</dd>
-        <dt>Public repo omits</dt><dd>Tenant snapshots, credentials, work-machine overlays, and private mirror pointers.</dd>
+        <dt>Public repo omits</dt><dd>Tenant snapshots, credentials, work-machine runtime data, and private mirror pointers.</dd>
         <dt>Install model</dt><dd>Clone with submodules, register the repo as a skill, then mount runtime data from a private source if tenant-aware answers are needed. The default mount is <code>_data/</code>.</dd>
         <dt>Related</dt><dd><a href="operator-guide.html" style="color: var(--accent-ink);">Operator Guide</a> · <code>references/_meta/tooling.md</code> · <a href="data-contract/README.md" style="color: var(--accent-ink);">Data contract</a> · <code>docs/getting-started.md</code></dd>
       </dl>
@@ -62,7 +62,7 @@
         <li><span class="key">Submodules matter</span><span>The <code>vendor/</code> tree carries SDKs, Terraform providers, Ansible modules, MCP code, and captured contract data used for citations and reconciliation.</span></li>
         <li><span class="key">Skill loading is local</span><span>Most file-based agents load the repo through <code>SKILL.md</code> or a thin runtime adapter that points back to canonical files under <code>agents/</code>.</span></li>
         <li><span class="key">Tenant data is separate</span><span><code>_data/</code> is the default ignored runtime-data mount. Populate it from a private repo, local directory, or sanitized read-only dump; local installs may configure a different mount path.</span></li>
-        <li><span class="key">Private mirrors can add pointers</span><span>Internal forks may know where the overlay lives. The public install guide names the hook point, not the private URL.</span></li>
+        <li><span class="key">Private mirrors can add pointers</span><span>Internal forks may know where runtime data lives. The public install guide names the hook point, not the private URL.</span></li>
       </ul>
     </section>
 
@@ -121,14 +121,14 @@ ln -s "$(pwd)" ~/.claude/skills/zscaler</code></pre>
       </table>
     </section>
 
-    <section class="section" id="overlay">
-      <div class="section-num">§ 4 · Private mirrors and overlays</div>
-      <h2>Private mirrors and overlays</h2>
-      <p class="standfirst">This is the boundary that is easy to misrepresent: the public repo knows how to mount runtime data, but it should not know your private overlay URL or credential path.</p>
+    <section class="section" id="runtime-data">
+      <div class="section-num">§ 4 · Private mirrors and runtime data</div>
+      <h2>Private mirrors and runtime data</h2>
+      <p class="standfirst">This is the boundary that is easy to misrepresent: the public repo knows how to mount runtime data, but it should not know your private tenant URLs or credential paths.</p>
 
       <div class="warn">
         <span class="label">Intentional omission</span>
-        If an internal mirror carries pointers that let slash commands discover a private overlay automatically, keep those pointers in the private mirror or private runtime configuration. Do not copy private repo URLs, tenant names, secrets, or work-machine paths into the public install guide.
+        If an internal mirror carries pointers that let slash commands discover private runtime data automatically, keep those pointers in the private mirror or private runtime configuration. Do not copy private repo URLs, tenant names, secrets, or work-machine paths into the public install guide.
       </div>
 
       <p>The public shape is:</p>
@@ -140,7 +140,7 @@ ln -s "$(pwd)" ~/.claude/skills/zscaler</code></pre>
 
 node scripts/check-data-contract.mjs</code></pre>
 
-      <p>An internal mirror can make this nicer with a local <code>zscaler-skill-setup.json</code> that sets <code>runtimeData.source</code>, <code>runtimeData.ref</code>, and optionally <code>runtimeData.mountPath</code>. The public template uses environment variables such as <code>${ZSCALER_SKILL_OVERLAY_SOURCE}</code> so private URLs stay outside committed docs. The invariant is that the runtime-data mount remains runtime data, not public source.</p>
+      <p>An internal mirror can make this nicer with a local <code>zscaler-skill-setup.json</code> that sets <code>runtimeData.mountPath</code> and <code>runtimeData.tracking</code>. Use <code>tracking: "tracked"</code> when the work mirror intentionally commits runtime data directly; use <code>tracking: "ignored"</code> for local-only mounts. If setup needs to clone or copy a runtime-data source, the same config may set <code>runtimeData.source</code> and <code>runtimeData.ref</code>. The public template uses environment variables such as <code>${ZSCALER_SKILL_RUNTIME_SOURCE}</code> so private URLs stay outside committed docs.</p>
 
       <p>Once the companion CLI is official, the intended provenance model is: <code>zscalerctl</code> is the tenant-observation producer, and the runtime-data mount stores its fast local snapshots and diffs.</p>
     </section>
@@ -151,7 +151,7 @@ node scripts/check-data-contract.mjs</code></pre>
       <p class="standfirst">Tenant-aware answers require a snapshot or explicit command output. Credentials and live reads are intentionally outside this repo.</p>
 
       <div class="steps">
-        <div class="step"><div><span class="head">Populate out of band.</span>Use a private runtime-data repo, a sanitized export, or read-only <code>zscalerctl</code> output.</div></div>
+        <div class="step"><div><span class="head">Populate out of band.</span>Use a private work mirror, a sanitized export, or read-only <code>zscalerctl</code> output.</div></div>
         <div class="step"><div><span class="head">Mount runtime data.</span>The expected layout is documented in <code>docs/data-contract/</code>; <code>_data/</code> is the default mount path.</div></div>
         <div class="step"><div><span class="head">Validate the contract.</span>Run <code>node scripts/check-data-contract.mjs</code> after mounting.</div></div>
         <div class="step"><div><span class="head">Ask bounded questions.</span>Name the product, object, cloud, and whether the agent may inspect snapshots only or propose read commands.</div></div>
@@ -192,7 +192,7 @@ node scripts/check-data-contract.mjs
           <tr><td>References cite missing <code>vendor/...</code> files</td><td>Submodules were not initialized.</td><td>Run <code>git submodule update --init --recursive</code>.</td></tr>
           <tr><td>Tenant-specific answers decline</td><td><code>_data/snapshot/</code> is empty or not mounted.</td><td>Mount runtime data and run <code>check-data-contract.mjs</code>.</td></tr>
           <tr><td>Skill does not appear in the agent runtime</td><td>The runtime cannot see the skill directory or symlink.</td><td>Confirm the symlink target exists and restart the agent session.</td></tr>
-          <tr><td>Commands mention private overlay paths that do not exist</td><td>The instructions came from a private mirror assumption.</td><td>Replace the placeholder with the local/private overlay source or use the public manual mount path.</td></tr>
+          <tr><td>Commands mention private runtime-data paths that do not exist</td><td>The instructions came from a private mirror assumption.</td><td>Replace the placeholder with the local runtime-data source, or use the public manual mount path.</td></tr>
           <tr><td>Docs preview looks stale</td><td>Browser cache kept an old JS/CSS asset.</td><td>Reload the page after cache-key bumps, or open the exact HTML file path again.</td></tr>
         </tbody>
       </table>

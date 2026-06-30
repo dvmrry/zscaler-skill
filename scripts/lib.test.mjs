@@ -11,6 +11,7 @@ import {
   expandConfigObject,
   normalizeMountPath,
   normalizeAllowedRoots,
+  normalizeRuntimeDataTracking,
   readJsonObject,
 } from "./lib.mjs";
 
@@ -121,8 +122,8 @@ test("expandConfigObject expands environment variables on demand", () => {
 
 test("expandConfigObject rejects missing environment variables", () => {
   assert.throws(
-    () => expandConfigObject({ source: "$ZSCALER_TEST_MISSING_OVERLAY" }, {}),
-    /environment variable ZSCALER_TEST_MISSING_OVERLAY is not set/,
+    () => expandConfigObject({ source: "$ZSCALER_TEST_MISSING_RUNTIME_SOURCE" }, {}),
+    /environment variable ZSCALER_TEST_MISSING_RUNTIME_SOURCE is not set/,
   );
 });
 
@@ -136,6 +137,13 @@ test("normalizeMountPath rejects unsafe mount paths", () => {
   for (const bad of ["", "/abs", "../secret", "tenant/../secret", "-option", ".git", ".git/private"]) {
     assert.throws(() => normalizeMountPath(bad), /runtime data mount path/);
   }
+});
+
+test("normalizeRuntimeDataTracking accepts explicit tracking modes", () => {
+  assert.equal(normalizeRuntimeDataTracking(), "ignored");
+  assert.equal(normalizeRuntimeDataTracking("ignored"), "ignored");
+  assert.equal(normalizeRuntimeDataTracking("tracked"), "tracked");
+  assert.throws(() => normalizeRuntimeDataTracking("public"), /runtime data tracking/);
 });
 
 test("normalizeAllowedRoots keeps valid _data roots and strips trailing slashes", () => {

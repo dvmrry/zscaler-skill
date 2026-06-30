@@ -130,6 +130,29 @@ test("setupDataMount adds a custom runtime mount to the local git exclude", () =
   const root = tempDir("zscaler-data-mount-custom-ignore-");
   git(root, ["init", "-b", "main"]);
   const source = makeOverlaySource();
+  const mountPath = "tenant-runtime-test-data";
+
+  const result = setupDataMount({
+    root,
+    dataUrl: source,
+    dataRef: null,
+    dryRun: false,
+    force: false,
+    mode: "copy",
+    mountPath,
+  });
+
+  assert.equal(result.plan.localExclude.changed, true);
+  assert.equal(result.plan.localExclude.pattern, `${mountPath}/`);
+  assert.equal(fs.existsSync(path.join(root, mountPath, "schemas", "fields.json")), true);
+  assert.match(fs.readFileSync(result.plan.localExclude.excludePath, "utf8"), new RegExp(`${mountPath}/`));
+  assert.equal(git(root, ["status", "--short"]), "");
+});
+
+test("setupDataMount leaves a tracked work-mirror runtime mount trackable", () => {
+  const root = tempDir("zscaler-data-mount-custom-tracked-");
+  git(root, ["init", "-b", "main"]);
+  const source = makeOverlaySource();
 
   const result = setupDataMount({
     root,
@@ -139,13 +162,13 @@ test("setupDataMount adds a custom runtime mount to the local git exclude", () =
     force: false,
     mode: "copy",
     mountPath: "tenant-data",
+    tracking: "tracked",
   });
 
-  assert.equal(result.plan.localExclude.changed, true);
-  assert.equal(result.plan.localExclude.pattern, "tenant-data/");
+  assert.equal(result.plan.tracking, "tracked");
+  assert.equal(result.plan.localExclude, null);
   assert.equal(fs.existsSync(path.join(root, "tenant-data", "schemas", "fields.json")), true);
-  assert.match(fs.readFileSync(result.plan.localExclude.excludePath, "utf8"), /tenant-data\//);
-  assert.equal(git(root, ["status", "--short"]), "");
+  assert.match(git(root, ["status", "--short"]), /\?\? tenant-data\//);
 });
 
 test("setupDataMount refuses to replace populated data without force", () => {
@@ -353,15 +376,15 @@ test("setup-data-mount CLI supports runtimeData config and env-expanded source",
   const root = tempDir("zscaler-data-config-runtime-");
   makeDataSkeleton(root, "tenant-data");
   const source = makeOverlaySource();
-  const previous = process.env.ZSCALER_TEST_OVERLAY_SOURCE;
-  process.env.ZSCALER_TEST_OVERLAY_SOURCE = source;
+  const previous = process.env.ZSCALER_TEST_RUNTIME_SOURCE;
+  process.env.ZSCALER_TEST_RUNTIME_SOURCE = source;
   try {
     fs.writeFileSync(
       path.join(root, "zscaler-skill-setup.json"),
       `${JSON.stringify({
         runtimeData: {
           mountPath: "tenant-data",
-          source: "$ZSCALER_TEST_OVERLAY_SOURCE",
+          source: "$ZSCALER_TEST_RUNTIME_SOURCE",
           ref: "main",
           mode: "auto",
         },
@@ -379,9 +402,9 @@ test("setup-data-mount CLI supports runtimeData config and env-expanded source",
     assert.equal(fs.existsSync(path.join(root, "_data")), false);
   } finally {
     if (previous === undefined) {
-      delete process.env.ZSCALER_TEST_OVERLAY_SOURCE;
+      delete process.env.ZSCALER_TEST_RUNTIME_SOURCE;
     } else {
-      process.env.ZSCALER_TEST_OVERLAY_SOURCE = previous;
+      process.env.ZSCALER_TEST_RUNTIME_SOURCE = previous;
     }
   }
 });

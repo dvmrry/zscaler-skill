@@ -16,6 +16,7 @@ import path from "node:path";
 export const DEFAULT_DATA_MOUNT = "_data";
 export const DATA_REQUIRED_DIRS = ["cases", "schemas", "snapshot", "iac", "audits", "soc-reviews"];
 export const DATA_SKELETON_FILES = new Set([".gitkeep", "README.md"]);
+export const DEFAULT_RUNTIME_DATA_TRACKING = "ignored";
 
 // Git ref names we are willing to hand to git as a --branch value. Deliberately
 // stricter than git's own rules: a conservative charset that cannot be read as
@@ -70,6 +71,14 @@ export function normalizeMountPath(value = DEFAULT_DATA_MOUNT) {
     throw new Error("runtime data mount path must not be inside .git");
   }
   return normalized;
+}
+
+export function normalizeRuntimeDataTracking(value = DEFAULT_RUNTIME_DATA_TRACKING) {
+  const tracking = value ?? DEFAULT_RUNTIME_DATA_TRACKING;
+  if (tracking !== "ignored" && tracking !== "tracked") {
+    throw new Error("runtime data tracking must be one of: ignored, tracked");
+  }
+  return tracking;
 }
 
 // Reject a value that git could interpret as an option rather than a positional
@@ -152,15 +161,6 @@ export function runtimeMountIgnoreStatus(root, mountPath) {
 
   if (!isGitRepo) {
     return { mountPath: mount, pattern, isGitRepo: false, ignored: false };
-  }
-  if (mount === DEFAULT_DATA_MOUNT) {
-    return {
-      mountPath: mount,
-      pattern,
-      isGitRepo: true,
-      ignored: true,
-      reason: "default-mount",
-    };
   }
 
   try {

@@ -8,12 +8,14 @@ import {
   assertNotOption,
   assertSafeRef,
   DEFAULT_DATA_MOUNT,
+  DEFAULT_RUNTIME_DATA_TRACKING,
   DATA_REQUIRED_DIRS,
   DATA_SKELETON_FILES,
   ensureRuntimeMountExcluded,
   expandConfigString,
   gitTryOutput,
   normalizeMountPath,
+  normalizeRuntimeDataTracking,
   readJsonObject,
   runGit,
 } from "./lib.mjs";
@@ -21,7 +23,7 @@ import {
 function usage(exitCode = 0) {
   const out = exitCode === 0 ? process.stdout : process.stderr;
   out.write(`Usage:
-  node scripts/setup-data-mount.mjs [--config <json>] [--mount-path <path>] [--data-url <git-url-or-local-path>] [--data-ref <ref>] [--mode auto|checkout|copy|submodule] [--root <repo-root>] [--force] [--dry-run]
+  node scripts/setup-data-mount.mjs [--config <json>] [--mount-path <path>] [--tracking ignored|tracked] [--data-url <git-url-or-local-path>] [--data-ref <ref>] [--mode auto|checkout|copy|submodule] [--root <repo-root>] [--force] [--dry-run]
 
 Creates or replaces the runtime data mount. Defaults to _data.
 
@@ -46,6 +48,7 @@ function parseArgs(argv) {
     mode: null,
     mountPath: null,
     root: path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."),
+    tracking: null,
   };
 
   for (let i = 2; i < argv.length; i += 1) {
@@ -81,6 +84,11 @@ function parseArgs(argv) {
       i += 1;
       continue;
     }
+    if (arg === "--tracking") {
+      args.tracking = argv[i + 1] || "";
+      i += 1;
+      continue;
+    }
     if (arg === "--dry-run") {
       args.dryRun = true;
       continue;
@@ -107,6 +115,9 @@ function parseArgs(argv) {
     mode: args.mode ?? configValue(runtimeData.mode ?? config.mode) ?? "checkout",
     mountPath: normalizeMountPath(args.mountPath ?? configValue(runtimeData.mountPath ?? config.mountPath) ?? DEFAULT_DATA_MOUNT),
     root: args.root,
+    tracking: normalizeRuntimeDataTracking(
+      args.tracking ?? configValue(runtimeData.tracking ?? config.tracking) ?? DEFAULT_RUNTIME_DATA_TRACKING,
+    ),
   };
 
   if (!merged.dataUrl) {
@@ -259,13 +270,14 @@ function setupDataMount(options) {
     dryRun: Boolean(options.dryRun),
     force: Boolean(options.force),
     localExclude: null,
+    tracking: normalizeRuntimeDataTracking(options.tracking),
   };
 
   if (options.dryRun) {
     return { plan, report: null };
   }
 
-  if (mode !== "submodule") {
+  if (mode !== "submodule" && plan.tracking === "ignored") {
     plan.localExclude = ensureRuntimeMountExcluded(root, mountPath);
   }
 
@@ -285,7 +297,7 @@ function setupDataMount(options) {
   }
 
   ensureRequiredDirs(dataDir);
-  const report = checkDataContract(root, mountPath);
+  const report = checkDataContract(root, mountPath, { tracking: plan.tracking });
   return { plan, report };
 }
 
@@ -297,6 +309,7 @@ function printResult(result) {
   process.stdout.write(`Source: ${result.plan.dataUrl}\n`);
   if (result.plan.configPath) process.stdout.write(`Config: ${result.plan.configPath}\n`);
   if (result.plan.dataRef) process.stdout.write(`Ref: ${result.plan.dataRef}\n`);
+  process.stdout.write(`Tracking: ${result.plan.tracking}\n`);
   if (result.plan.dryRun) {
     process.stdout.write("Dry run: no files changed\n");
     return;

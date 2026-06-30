@@ -5,11 +5,13 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 import {
   DEFAULT_DATA_MOUNT,
+  DEFAULT_RUNTIME_DATA_TRACKING,
   DATA_REQUIRED_DIRS,
   DATA_SKELETON_FILES,
   expandConfigString,
   gitTryOutput,
   normalizeMountPath,
+  normalizeRuntimeDataTracking,
   readJsonObject,
   runtimeMountIgnoreStatus,
 } from "./lib.mjs";
@@ -17,7 +19,7 @@ import {
 function usage(exitCode = 0) {
   const out = exitCode === 0 ? process.stdout : process.stderr;
   out.write(`Usage:
-  node scripts/check-data-contract.mjs [--root <repo-root>] [--config <json>] [--mount-path <path>]
+  node scripts/check-data-contract.mjs [--root <repo-root>] [--config <json>] [--mount-path <path>] [--tracking ignored|tracked]
 
 Verifies the runtime data mount contract without reading tenant contents.
 Defaults to _data unless zscaler-skill-setup.json or --mount-path says otherwise.
@@ -30,6 +32,7 @@ function parseArgs(argv) {
     config: null,
     mountPath: null,
     root: path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."),
+    tracking: null,
   };
 
   for (let i = 2; i < argv.length; i += 1) {
@@ -50,6 +53,11 @@ function parseArgs(argv) {
       i += 1;
       continue;
     }
+    if (arg === "--tracking") {
+      args.tracking = argv[i + 1] || "";
+      i += 1;
+      continue;
+    }
     throw new Error(`Unknown argument: ${arg}`);
   }
 
@@ -63,6 +71,9 @@ function parseArgs(argv) {
   return {
     root: args.root,
     mountPath: normalizeMountPath(args.mountPath ?? configValue(runtimeData.mountPath ?? config.mountPath) ?? DEFAULT_DATA_MOUNT),
+    tracking: normalizeRuntimeDataTracking(
+      args.tracking ?? configValue(runtimeData.tracking ?? config.tracking) ?? DEFAULT_RUNTIME_DATA_TRACKING,
+    ),
   };
 }
 
@@ -99,8 +110,9 @@ function detectDataSubmodule(root, mountPath = DEFAULT_DATA_MOUNT) {
   };
 }
 
-function checkDataContract(root, mountPath = DEFAULT_DATA_MOUNT) {
+function checkDataContract(root, mountPath = DEFAULT_DATA_MOUNT, options = {}) {
   const mount = normalizeMountPath(mountPath);
+  const tracking = normalizeRuntimeDataTracking(options.tracking);
   const dataDir = path.join(root, mount);
   const errors = [];
   const warnings = [];
@@ -138,9 +150,19 @@ function checkDataContract(root, mountPath = DEFAULT_DATA_MOUNT) {
   } else {
     info.push(`${mount} appears to be an ordinary directory`);
     const ignoreStatus = runtimeMountIgnoreStatus(root, mount);
-    if (mount !== DEFAULT_DATA_MOUNT && ignoreStatus.isGitRepo && !ignoreStatus.ignored) {
+    if (tracking === "tracked") {
+      info.push(`${mount} is configured as tracked runtime data`);
+      if (ignoreStatus.isGitRepo && ignoreStatus.ignored) {
+        warnings.push(
+          `${mount}/ is configured as tracked runtime data but is ignored by git; remove the ignore rule before committing work-mirror data`,
+        );
+      }
+    } else if (ignoreStatus.isGitRepo && !ignoreStatus.ignored) {
+      const subject = mount === DEFAULT_DATA_MOUNT
+        ? `${mount}/ is configured for ignored runtime data`
+        : `${mount}/ is a custom runtime-data mount`;
       warnings.push(
-        `${mount}/ is a custom runtime-data mount but is not ignored by git; run setup-data-mount.mjs or add ${ignoreStatus.pattern} to .git/info/exclude`,
+        `${subject} but is not ignored by git; run setup-data-mount.mjs or add ${ignoreStatus.pattern} to .git/info/exclude`,
       );
     }
   }
@@ -168,7 +190,7 @@ function printReport(report) {
 function main() {
   try {
     const args = parseArgs(process.argv);
-    const report = checkDataContract(args.root, args.mountPath);
+    const report = checkDataContract(args.root, args.mountPath, { tracking: args.tracking });
     printReport(report);
     process.exit(report.errors.length === 0 ? 0 : 1);
   } catch (error) {

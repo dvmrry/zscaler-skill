@@ -4,8 +4,8 @@ description: >
   Use when setting up or repairing this repo's runtime-data mount (default
   _data, configurable via zscaler-skill-setup.json), including mounting a
   user-supplied data repository or local directory, choosing setup-data-mount
-  mode, verifying the public data contract, or preparing selected runtime-data
-  artifacts for an overlay submission.
+  mode, verifying the public data contract, or configuring a private work
+  mirror that intentionally tracks runtime data.
 ---
 
 # Zscaler Skill Setup

@@ -1,7 +1,7 @@
 # Getting Started
 
 This walkthrough is for a private fork or local checkout that will use tenant
-snapshots and local overlays. Public upstream does not track runtime data;
+snapshots and local runtime data. Public upstream does not track runtime data;
 create a local runtime-data mount before using snapshot-backed workflows. The
 default mount path is `_data/`, and local installs may configure a different
 relative mount path in `zscaler-skill-setup.json`.
@@ -16,7 +16,7 @@ relative mount path in `zscaler-skill-setup.json`.
   script uses the uv single-file-script pattern; dependencies install on first
   run, no virtualenv setup needed.
 - **Node 18+** for deterministic workflow helpers such as case-intake,
-  runtime-data setup, data-contract checks, and overlay submission.
+  runtime-data setup, data-contract checks, and artifact handling.
 - **Git** for submodule fetch.
 - **ZIA and ZPA admin access** to create the API client credentials used below.
 
@@ -149,7 +149,7 @@ local:
 
 ```bash
 cp zscaler-skill-setup.example.json zscaler-skill-setup.json
-export ZSCALER_SKILL_OVERLAY_SOURCE=<git-url-or-local-path>
+export ZSCALER_SKILL_RUNTIME_SOURCE=<git-url-or-local-path>
 
 node scripts/setup-data-mount.mjs
 node scripts/check-data-contract.mjs
@@ -161,7 +161,8 @@ The config's preferred shape is:
 {
   "runtimeData": {
     "mountPath": "_data",
-    "source": "${ZSCALER_SKILL_OVERLAY_SOURCE}",
+    "tracking": "ignored",
+    "source": "${ZSCALER_SKILL_RUNTIME_SOURCE}",
     "ref": "main",
     "mode": "checkout"
   }
@@ -171,6 +172,9 @@ The config's preferred shape is:
 Change `runtimeData.mountPath` only when your fork intentionally wants a name
 other than `_data`. In that case, pass the same mount path to
 `check-data-contract.mjs`, or let the checker read it from the root config.
+If your private work mirror intentionally commits runtime data directly in this
+repo, set `runtimeData.tracking` to `tracked`; otherwise leave it as `ignored`
+so custom mounts are protected by the local Git exclude.
 
 ## Populate the snapshot
 

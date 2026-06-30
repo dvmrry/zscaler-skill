@@ -145,19 +145,35 @@ Preferred local config shape:
 {
   "runtimeData": {
     "mountPath": "_data",
-    "source": "${ZSCALER_SKILL_OVERLAY_SOURCE}",
+    "tracking": "ignored",
+    "source": "${ZSCALER_SKILL_RUNTIME_SOURCE}",
     "ref": "main",
     "mode": "checkout"
   }
 }
 ```
 
-The setup helper also accepts `--mount-path <path>` for one-off runs.
+The setup helper also accepts `--mount-path <path>` and
+`--tracking ignored|tracked` for one-off runs. Keep `tracking: "ignored"` for
+public/local checkouts; setup will protect a custom ignored mount with a local
+Git exclude. In a private work mirror that intentionally commits runtime data
+directly in this repo, use:
+
+```json
+{
+  "runtimeData": {
+    "mountPath": "tenant-data",
+    "tracking": "tracked"
+  }
+}
+```
 
 Missing required directories are errors. Empty runtime directories are warnings,
 because snapshot-backed reasoning and tenant schema hints are unavailable.
 
-To prepare selected runtime artifacts for a configured overlay repository:
+Most private mirrors should commit runtime-data artifacts directly to the
+configured tracked mount. The separate overlay-submission helper remains for
+installations that still use a second repository:
 
 ```bash
 node scripts/prepare-overlay-submission.mjs \

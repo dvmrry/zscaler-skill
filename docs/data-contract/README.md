@@ -11,7 +11,9 @@ directory, or explicit submodule that follows the same directory shape.
 `_data/` is the default mount path. Local installs may set
 `runtimeData.mountPath` in the ignored root `zscaler-skill-setup.json`; when
 they do, substitute that configured mount path anywhere this contract says
-`_data/`.
+`_data/`. Public/local installs default to `runtimeData.tracking: "ignored"`;
+private work mirrors may set `tracking: "tracked"` when the runtime-data mount
+is intentionally committed in the mirror.
 
 Expected top-level directories:
 
@@ -70,9 +72,22 @@ contain a private data source URL. Preferred config shape:
 {
   "runtimeData": {
     "mountPath": "_data",
-    "source": "${ZSCALER_SKILL_OVERLAY_SOURCE}",
+    "tracking": "ignored",
+    "source": "${ZSCALER_SKILL_RUNTIME_SOURCE}",
     "ref": "main",
     "mode": "checkout"
+  }
+}
+```
+
+For a private work mirror that commits runtime data directly in this repo,
+the config may be as small as:
+
+```json
+{
+  "runtimeData": {
+    "mountPath": "tenant-data",
+    "tracking": "tracked"
   }
 }
 ```
@@ -138,7 +153,9 @@ _data/snapshot/
 The snapshot uses `--cloud`, `ZSCALER_CLOUD`, or `default` as the `<cloud>`
 slug, recorded in `_manifest.json`.
 
-Whatever populates the snapshot (a private overlay, or a `zscalerctl` dump) writes here; config-replay tooling reads from here.
+Whatever populates the snapshot (a private work mirror, a local runtime-data
+checkout, or a `zscalerctl` dump) writes here; config-replay tooling reads from
+here.
 
 **Multi-tenant / multi-cloud forks** should keep one directory per tenant cloud
 or tenant slug under `_data/snapshot/`. Do not mix multiple clouds into a
@@ -185,11 +202,12 @@ dirs are created on demand; the `soc-reviews/` parent is part of the contract.
 
 ## Privacy
 
-Everything under `_data/` is gitignored by default. Forks that want to commit
-`iac/`, `schemas/`, or case content do so deliberately by adjusting
-`.gitignore`. **Tenant snapshots and raw operational logs should generally not
-be committed**, even to private forks, unless the org has explicit guidance
-otherwise (see `iac.md` §
+Everything under `_data/` is gitignored by default in the public template.
+Forks that want to commit `iac/`, `schemas`, or case content do so deliberately
+by either adjusting `.gitignore` or using a separate mount with
+`runtimeData.tracking: "tracked"` in the private work mirror. **Tenant snapshots
+and raw operational logs should generally not be committed**, even to private
+forks, unless the org has explicit guidance otherwise (see `iac.md` §
 Sanitization).
 
 Automation may pre-populate `_data` before use. Public upstream does not ship
