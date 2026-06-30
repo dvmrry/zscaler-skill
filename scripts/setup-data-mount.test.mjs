@@ -11,10 +11,10 @@ function tempDir(prefix) {
   return fs.mkdtempSync(path.join(os.tmpdir(), prefix));
 }
 
-function makeDataSkeleton(root) {
-  const dataDir = path.join(root, "_data");
+function makeDataSkeleton(root, mountPath = "_data") {
+  const dataDir = path.join(root, mountPath);
   fs.mkdirSync(dataDir, { recursive: true });
-  fs.writeFileSync(path.join(dataDir, "README.md"), "# _data\n", "utf8");
+  fs.writeFileSync(path.join(dataDir, "README.md"), `# ${mountPath}\n`, "utf8");
   for (const dir of DATA_REQUIRED_DIRS) {
     const target = path.join(dataDir, dir);
     fs.mkdirSync(target, { recursive: true });
@@ -101,6 +101,29 @@ test("setupDataMount copies a local data source and runs the contract check", ()
   assert.equal(fs.existsSync(path.join(root, "_data", "schemas", "fields.json")), true);
   assert.equal(fs.existsSync(path.join(root, "_data", "snapshot", "zs1", "_manifest.json")), true);
   assert.ok(!result.report.warnings.some((warning) => warning.includes("snapshot-backed reasoning unavailable")));
+});
+
+test("setupDataMount copies a local source into a configured runtime mount", () => {
+  const root = tempDir("zscaler-data-mount-custom-");
+  makeDataSkeleton(root, "tenant-data");
+  const source = makeOverlaySource();
+
+  const result = setupDataMount({
+    root,
+    dataUrl: source,
+    dataRef: null,
+    dryRun: false,
+    force: false,
+    mode: "auto",
+    mountPath: "tenant-data",
+  });
+
+  assert.equal(result.plan.mountPath, "tenant-data");
+  assert.equal(result.plan.mode, "copy");
+  assert.deepEqual(result.report.errors, []);
+  assert.equal(fs.existsSync(path.join(root, "tenant-data", "schemas", "fields.json")), true);
+  assert.equal(fs.existsSync(path.join(root, "_data")), false);
+  assert.ok(result.report.info.some((line) => line.includes("tenant-data appears")));
 });
 
 test("setupDataMount refuses to replace populated data without force", () => {
@@ -302,6 +325,43 @@ test("setup-data-mount CLI can load defaults from root setup config", () => {
   assert.match(output, /Ref: main/);
   assert.match(output, /Errors: 0/);
   assert.equal(fs.existsSync(path.join(root, "_data", "schemas", "fields.json")), true);
+});
+
+test("setup-data-mount CLI supports runtimeData config and env-expanded source", () => {
+  const root = tempDir("zscaler-data-config-runtime-");
+  makeDataSkeleton(root, "tenant-data");
+  const source = makeOverlaySource();
+  const previous = process.env.ZSCALER_TEST_OVERLAY_SOURCE;
+  process.env.ZSCALER_TEST_OVERLAY_SOURCE = source;
+  try {
+    fs.writeFileSync(
+      path.join(root, "zscaler-skill-setup.json"),
+      `${JSON.stringify({
+        runtimeData: {
+          mountPath: "tenant-data",
+          source: "$ZSCALER_TEST_OVERLAY_SOURCE",
+          ref: "main",
+          mode: "auto",
+        },
+      }, null, 2)}\n`,
+      "utf8",
+    );
+
+    const output = runSetupCommand(["--root", root]);
+
+    assert.match(output, /Mode: copy/);
+    assert.match(output, /Config: /);
+    assert.match(output, /Ref: main/);
+    assert.match(output, /Errors: 0/);
+    assert.equal(fs.existsSync(path.join(root, "tenant-data", "schemas", "fields.json")), true);
+    assert.equal(fs.existsSync(path.join(root, "_data")), false);
+  } finally {
+    if (previous === undefined) {
+      delete process.env.ZSCALER_TEST_OVERLAY_SOURCE;
+    } else {
+      process.env.ZSCALER_TEST_OVERLAY_SOURCE = previous;
+    }
+  }
 });
 
 test("setup-data-mount CLI flags override setup config values", () => {

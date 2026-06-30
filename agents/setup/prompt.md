@@ -18,10 +18,11 @@ author-status: draft
 
 # Zscaler Skill Setup
 
-Use this workflow when setting up or repairing the repo's `_data` runtime-data
-mount. Keep the setup operation deterministic: collect inputs, print the exact
-command, run the helper, then run the contract check. Do not reimplement mount
-logic in prose.
+Use this workflow when setting up or repairing the repo's runtime-data mount.
+The default mount path is `_data`, but a local `zscaler-skill-setup.json` may
+set `runtimeData.mountPath` to another relative path. Keep the setup operation
+deterministic: collect inputs, print the exact command, run the helper, then
+run the contract check. Do not reimplement mount logic in prose.
 
 ## Inputs
 
@@ -33,10 +34,13 @@ Collect these values before running commands:
   `checkout` unless the user explicitly needs a materialized copy or a parent
   repo submodule.
 - **Data ref**: optional, default `main`.
+- **Mount path**: optional, default `_data`. If a root config sets
+  `runtimeData.mountPath`, use that configured mount path in commands and path
+  examples.
 - **Config file**: optional. If `zscaler-skill-setup.json` exists at the repo
   root, the helper reads it automatically. CLI flags override config values.
 - **Force**: optional. Use only when the user confirms replacing populated
-  `_data` content.
+  runtime-data content.
 
 ## Procedure
 
@@ -52,6 +56,7 @@ The command shape is:
 node scripts/setup-data-mount.mjs \
   --root <repo-root> \
   --config <optional-config-json> \
+  --mount-path <optional-runtime-data-path> \
   --data-url <git-url-or-local-path> \
   --data-ref <ref> \
   --mode <auto|checkout|copy|submodule>
@@ -60,7 +65,7 @@ node scripts/setup-data-mount.mjs \
 Then verify:
 
 ```bash
-node scripts/check-data-contract.mjs --root <repo-root>
+node scripts/check-data-contract.mjs --root <repo-root> --mount-path <runtime-data-path>
 ```
 
 Add `--force` to the setup command only after explicit confirmation that
@@ -79,14 +84,14 @@ URLs.
 
 ## Overlay Submission
 
-Use this only when the user explicitly wants to prepare `_data` artifacts for a
-configured overlay repository. Submission is opt-in. Do not push or create a PR
-unless the user asks for that follow-up.
+Use this only when the user explicitly wants to prepare runtime-data artifacts
+for a configured overlay repository. Submission is opt-in. Do not push or
+create a PR unless the user asks for that follow-up.
 
 Collect:
 
-- **Artifact path**: one or more selected paths under `_data/cases`,
-  `_data/schemas`, or `_data/iac`.
+- **Artifact path**: one or more selected paths under `<mount>/cases`,
+  `<mount>/schemas`, or `<mount>/iac`.
 - **Overlay repo URL or local path**: from `zscaler-skill-setup.json` or the
   `--repo-url` flag.
 - **Approval**: required. The helper expects `--approve`.
@@ -96,22 +101,23 @@ Command shape:
 ```bash
 node scripts/prepare-overlay-submission.mjs \
   --root <repo-root> \
-  --case-path _data/cases/<case-slug> \
+  --case-path <mount>/cases/<case-slug> \
   --approve
 ```
 
 The helper validates allowed roots, scans for obvious secret material, copies
 selected artifacts into a temporary overlay checkout, commits to a named branch,
 and prints JSON with status, branch, files, warnings, and next action.
-Input paths use runtime `_data/...` paths; submitted overlay paths are relative
-to the overlay repo root, for example `_data/cases/foo` becomes `cases/foo`.
+Input paths use runtime mount paths; submitted overlay paths are relative to
+the overlay repo root, for example `_data/cases/foo` or
+`tenant-data/cases/foo` becomes `cases/foo`.
 
 ## Capability Report
 
 After the contract check, distinguish setup state from live integration state:
 
-- No `_data/snapshot` content means snapshot-backed reasoning is unavailable.
-- No `_data/schemas` content means tenant schema hints are unavailable.
+- No `<mount>/snapshot` content means snapshot-backed reasoning is unavailable.
+- No `<mount>/schemas` content means tenant schema hints are unavailable.
 - Missing cloud, SIEM, or Zscaler credentials may block live refresh or live
   validation, but they do not mean the `_data` mount contract failed.
 

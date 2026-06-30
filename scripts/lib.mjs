@@ -10,8 +10,10 @@ import childProcess from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 
-// The _data runtime-mount contract: top-level dirs and the files that count
-// as an empty "skeleton" tree (safe to replace without --force).
+// The runtime-data mount contract: top-level dirs and the files that count
+// as an empty "skeleton" tree (safe to replace without --force). _data is the
+// default mount name, but local installations may configure a different mount.
+export const DEFAULT_DATA_MOUNT = "_data";
 export const DATA_REQUIRED_DIRS = ["cases", "schemas", "snapshot", "iac", "audits", "soc-reviews"];
 export const DATA_SKELETON_FILES = new Set([".gitkeep", "README.md"]);
 
@@ -22,6 +24,52 @@ const SAFE_REF = /^[A-Za-z0-9._/-]+$/;
 
 export function toPosix(relativePath) {
   return relativePath.split(path.sep).join("/");
+}
+
+export function expandConfigString(value, env = process.env) {
+  if (typeof value !== "string") return value;
+  return value.replace(/\$\{([A-Za-z_][A-Za-z0-9_]*)\}|\$([A-Za-z_][A-Za-z0-9_]*)/g, (match, braced, bare) => {
+    const name = braced || bare;
+    if (!Object.prototype.hasOwnProperty.call(env, name)) {
+      throw new Error(`environment variable ${name} is not set for config value ${match}`);
+    }
+    return env[name];
+  });
+}
+
+export function expandConfigObject(value, env = process.env) {
+  if (typeof value === "string") return expandConfigString(value, env);
+  if (Array.isArray(value)) return value.map((item) => expandConfigObject(item, env));
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, nested]) => [key, expandConfigObject(nested, env)]),
+    );
+  }
+  return value;
+}
+
+export function normalizeMountPath(value = DEFAULT_DATA_MOUNT) {
+  if (typeof value !== "string" || value.trim() === "") {
+    throw new Error("runtime data mount path must be a non-empty string");
+  }
+  const raw = value.trim();
+  if (path.isAbsolute(raw)) {
+    throw new Error(`runtime data mount path must be relative: ${value}`);
+  }
+  if (raw.split(/[\\/]+/).includes("..")) {
+    throw new Error(`runtime data mount path must not contain '..': ${value}`);
+  }
+  const normalized = toPosix(path.normalize(raw)).replace(/\/+$/, "");
+  if (normalized === "" || normalized === "." || normalized === ".." || normalized.startsWith("../")) {
+    throw new Error(`runtime data mount path must stay inside the repo: ${value}`);
+  }
+  if (normalized.startsWith("-")) {
+    throw new Error(`runtime data mount path must not start with '-': ${value}`);
+  }
+  if (normalized === ".git" || normalized.startsWith(".git/")) {
+    throw new Error("runtime data mount path must not be inside .git");
+  }
+  return normalized;
 }
 
 // Reject a value that git could interpret as an option rather than a positional
@@ -73,24 +121,27 @@ export function readJsonObject(filePath) {
 }
 
 // Validate and normalize overlay allowed-root entries: each must be a relative
-// path under _data/ with no traversal. Trailing slashes are stripped.
-export function normalizeAllowedRoots(roots) {
+// path under the runtime data mount with no traversal. Trailing slashes are
+// stripped.
+export function normalizeAllowedRoots(roots, mountPath = DEFAULT_DATA_MOUNT) {
   if (!Array.isArray(roots) || roots.length === 0) {
     throw new Error("allowed roots must be a non-empty array");
   }
+  const mount = normalizeMountPath(mountPath);
   return roots.map((entry) => {
     if (typeof entry !== "string" || entry === "") {
       throw new Error(`allowed root must be a non-empty string: ${entry}`);
     }
-    const normalized = entry.replace(/\/+$/, "");
-    if (path.isAbsolute(normalized)) {
+    const raw = entry.replace(/\/+$/, "");
+    if (path.isAbsolute(raw)) {
       throw new Error(`allowed root must be relative: ${entry}`);
     }
-    if (normalized.split("/").includes("..")) {
+    if (raw.split(/[\\/]+/).includes("..")) {
       throw new Error(`allowed root must not contain '..': ${entry}`);
     }
-    if (!normalized.startsWith("_data/")) {
-      throw new Error(`allowed root must be under _data/: ${entry}`);
+    const normalized = toPosix(path.normalize(raw)).replace(/\/+$/, "");
+    if (normalized !== mount && !normalized.startsWith(`${mount}/`)) {
+      throw new Error(`allowed root must be under ${mount}/: ${entry}`);
     }
     return normalized;
   });

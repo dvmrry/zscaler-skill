@@ -7,9 +7,12 @@ import { checkDataContract } from "./check-data-contract.mjs";
 import {
   assertNotOption,
   assertSafeRef,
+  DEFAULT_DATA_MOUNT,
   DATA_REQUIRED_DIRS,
   DATA_SKELETON_FILES,
+  expandConfigString,
   gitTryOutput,
+  normalizeMountPath,
   readJsonObject,
   runGit,
 } from "./lib.mjs";
@@ -17,12 +20,12 @@ import {
 function usage(exitCode = 0) {
   const out = exitCode === 0 ? process.stdout : process.stderr;
   out.write(`Usage:
-  node scripts/setup-data-mount.mjs [--config <json>] [--data-url <git-url-or-local-path>] [--data-ref <ref>] [--mode auto|checkout|copy|submodule] [--root <repo-root>] [--force] [--dry-run]
+  node scripts/setup-data-mount.mjs [--config <json>] [--mount-path <path>] [--data-url <git-url-or-local-path>] [--data-ref <ref>] [--mode auto|checkout|copy|submodule] [--root <repo-root>] [--force] [--dry-run]
 
-Creates or replaces the _data runtime data mount.
+Creates or replaces the runtime data mount. Defaults to _data.
 
-Mode checkout clones a git repository or local git checkout into _data without
-registering a parent-repo submodule. Mode copy materializes a local directory.
+Mode checkout clones a git repository or local git checkout into the mount
+without registering a parent-repo submodule. Mode copy materializes a local directory.
 Mode submodule is only for flows that deliberately want a parent-repo gitlink.
 If --config is omitted, ./zscaler-skill-setup.json is used when it exists.
 CLI flags override config values.
@@ -40,6 +43,7 @@ function parseArgs(argv) {
     force: false,
     forceSet: false,
     mode: null,
+    mountPath: null,
     root: path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."),
   };
 
@@ -71,6 +75,11 @@ function parseArgs(argv) {
       i += 1;
       continue;
     }
+    if (arg === "--mount-path") {
+      args.mountPath = argv[i + 1] || "";
+      i += 1;
+      continue;
+    }
     if (arg === "--dry-run") {
       args.dryRun = true;
       continue;
@@ -86,13 +95,16 @@ function parseArgs(argv) {
   const defaultConfig = path.join(args.root, "zscaler-skill-setup.json");
   const configPath = args.config ? path.resolve(args.root, args.config) : defaultConfig;
   const config = readJsonObject(configPath);
+  const runtimeData = config.runtimeData || {};
+  const configValue = (value) => typeof value === "string" ? expandConfigString(value) : value;
   const merged = {
     configPath: fs.existsSync(configPath) ? configPath : null,
-    dataUrl: args.dataUrl ?? config.dataUrl ?? null,
-    dataRef: args.dataRef ?? config.dataRef ?? "main",
+    dataUrl: args.dataUrl ?? configValue(runtimeData.source ?? runtimeData.dataUrl ?? config.dataUrl) ?? null,
+    dataRef: args.dataRef ?? configValue(runtimeData.ref ?? runtimeData.dataRef ?? config.dataRef) ?? "main",
     dryRun: args.dryRun,
-    force: args.forceSet ? args.force : Boolean(config.force),
-    mode: args.mode ?? config.mode ?? "checkout",
+    force: args.forceSet ? args.force : Boolean(runtimeData.force ?? config.force),
+    mode: args.mode ?? configValue(runtimeData.mode ?? config.mode) ?? "checkout",
+    mountPath: normalizeMountPath(args.mountPath ?? configValue(runtimeData.mountPath ?? config.mountPath) ?? DEFAULT_DATA_MOUNT),
     root: args.root,
   };
 
@@ -176,14 +188,14 @@ function isGitSource(root, dataUrl, localSource) {
   return isGitRepo(localSource) || fs.existsSync(path.join(localSource, ".git"));
 }
 
-function trackedDataPaths(root) {
-  const output = gitTryOutput(root, ["ls-files", "--", "_data"]);
+function trackedDataPaths(root, mountPath) {
+  const output = gitTryOutput(root, ["ls-files", "--", mountPath]);
   return output ? output.split("\n").filter(Boolean) : [];
 }
 
-function removeDataForSubmodule(root, dataDir) {
-  if (isGitRepo(root) && trackedDataPaths(root).length > 0) {
-    runGit(root, ["rm", "-r", "--quiet", "_data"]);
+function removeDataForSubmodule(root, dataDir, mountPath) {
+  if (isGitRepo(root) && trackedDataPaths(root, mountPath).length > 0) {
+    runGit(root, ["rm", "-r", "--quiet", mountPath]);
     fs.rmSync(dataDir, { recursive: true, force: true });
     return;
   }
@@ -194,13 +206,13 @@ function removeDataForRuntimeMount(dataDir) {
   fs.rmSync(dataDir, { recursive: true, force: true });
 }
 
-function cloneCheckout(root, options, dataDir) {
+function cloneCheckout(root, options, dataDir, mountPath) {
   removeDataForRuntimeMount(dataDir);
   const cloneArgs = ["clone"];
   if (options.dataRef) {
     cloneArgs.push("--branch", options.dataRef);
   }
-  cloneArgs.push("--", options.dataUrl, "_data");
+  cloneArgs.push("--", options.dataUrl, mountPath);
   runGit(root, cloneArgs);
 }
 
@@ -214,7 +226,8 @@ function setupDataMount(options) {
   const root = path.resolve(options.root);
   assertNotOption(options.dataUrl, "data url");
   if (options.dataRef) assertSafeRef(options.dataRef, "data ref");
-  const dataDir = path.join(root, "_data");
+  const mountPath = normalizeMountPath(options.mountPath || DEFAULT_DATA_MOUNT);
+  const dataDir = path.join(root, mountPath);
   const localSource = resolveLocalSource(root, options.dataUrl);
   const requestedMode = options.mode || "checkout";
   const mode = requestedMode === "auto"
@@ -230,12 +243,13 @@ function setupDataMount(options) {
   }
 
   if (!safeToReplace && !options.force) {
-    throw new Error("_data contains non-skeleton files; re-run with --force to replace it");
+    throw new Error(`${mountPath} contains non-skeleton files; re-run with --force to replace it`);
   }
 
   const plan = {
     root,
     dataDir,
+    mountPath,
     dataUrl: options.dataUrl,
     dataRef: options.dataRef || null,
     mode,
@@ -253,19 +267,19 @@ function setupDataMount(options) {
     removeDataForRuntimeMount(dataDir);
     copyDirectory(localSource, dataDir);
   } else if (mode === "checkout") {
-    cloneCheckout(root, options, dataDir);
+    cloneCheckout(root, options, dataDir, mountPath);
   } else {
-    removeDataForSubmodule(root, dataDir);
+    removeDataForSubmodule(root, dataDir, mountPath);
     const submoduleArgs = ["-c", "protocol.file.allow=always", "submodule", "add", "--force"];
     if (options.dataRef) {
       submoduleArgs.push("--branch", options.dataRef);
     }
-    submoduleArgs.push("--", options.dataUrl, "_data");
+    submoduleArgs.push("--", options.dataUrl, mountPath);
     runGit(root, submoduleArgs);
   }
 
   ensureRequiredDirs(dataDir);
-  const report = checkDataContract(root);
+  const report = checkDataContract(root, mountPath);
   return { plan, report };
 }
 

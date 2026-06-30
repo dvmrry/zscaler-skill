@@ -1,4 +1,4 @@
-# `_data/` runtime data contract
+# Runtime data contract
 
 Single home for everything that becomes per-fork or per-tenant. The
 skill-internal docs (methodologies, playbooks, registers) live under
@@ -8,6 +8,10 @@ fork-specific IaC) lives here.
 Public upstream does not track `_data/`; it tracks this contract instead.
 Runtime deployments create `_data/` from a local checkout, copied data
 directory, or explicit submodule that follows the same directory shape.
+`_data/` is the default mount path. Local installs may set
+`runtimeData.mountPath` in the ignored root `zscaler-skill-setup.json`; when
+they do, substitute that configured mount path anywhere this contract says
+`_data/`.
 
 Expected top-level directories:
 
@@ -22,6 +26,13 @@ Run the public contract check after creating or replacing `_data`:
 
 ```bash
 node scripts/check-data-contract.mjs
+```
+
+If you configured a different mount path, either let the checker read the root
+config or pass it explicitly:
+
+```bash
+node scripts/check-data-contract.mjs --mount-path <runtime-data-path>
 ```
 
 The checker verifies the directory shape, reports whether `_data` appears to be
@@ -53,7 +64,21 @@ contents unless `--force` is explicit, then runs the same public contract check.
 If a root-level `zscaler-skill-setup.json` exists, the helper reads setup
 defaults from it. Use [`../../zscaler-skill-setup.example.json`](../../zscaler-skill-setup.example.json)
 as the public-safe template. The real config is gitignored because it may
-contain a private data source URL.
+contain a private data source URL. Preferred config shape:
+
+```json
+{
+  "runtimeData": {
+    "mountPath": "_data",
+    "source": "${ZSCALER_SKILL_OVERLAY_SOURCE}",
+    "ref": "main",
+    "mode": "checkout"
+  }
+}
+```
+
+The older top-level `dataUrl`, `dataRef`, and `mode` keys still work for
+compatibility, but new installs should use `runtimeData`.
 
 ## Subdirectories
 
