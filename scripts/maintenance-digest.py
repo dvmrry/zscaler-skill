@@ -13,7 +13,7 @@ without trying to perform reference distillation or agent review.
 
 Usage:
     ./scripts/maintenance-digest.py
-    ./scripts/maintenance-digest.py --output _data/schemas/maintenance-digest.md
+    ./scripts/maintenance-digest.py --output <runtime-data-mount>/schemas/maintenance-digest.md
     ./scripts/maintenance-digest.py --sticky-label maintenance-digest --bootstrap-if-missing
 """
 

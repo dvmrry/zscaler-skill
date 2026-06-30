@@ -32,6 +32,7 @@ import {
   resolveFileLineSource,
   resolveBareFilePath,
 } from "./artifacts-source-lib.mjs";
+import { runtimeDataRelative } from "./lib.mjs";
 
 // ── Version ───────────────────────────────────────────────────────────────────
 let HELPER_VERSION = "unknown";
@@ -44,7 +45,6 @@ try {
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const SOC_DATA_DIR = "_data/soc-reviews";
 const REVIEW_INTAKE_BASENAME = "review-intake";
 const REGISTER_BASENAME = "register";
 const FINDINGS_BASENAME = "findings.jsonl";
@@ -168,9 +168,11 @@ function appendJsonl(filePath, value) {
 
 function reviewPaths(root, reviewSlug) {
   assertSafeSlug(reviewSlug);
-  const reviewDir = path.join(root, SOC_DATA_DIR, reviewSlug);
+  const reviewRelativeDir = runtimeDataRelative(root, "soc-reviews", reviewSlug);
+  const reviewDir = path.join(root, reviewRelativeDir);
   return {
     reviewDir,
+    reviewRelativeDir,
     reviewIntakePath: path.join(reviewDir, `${REVIEW_INTAKE_BASENAME}.md`),
     reviewIntakeJsonPath: path.join(reviewDir, `${REVIEW_INTAKE_BASENAME}.json`),
     registerPath: path.join(reviewDir, `${REGISTER_BASENAME}.md`),
@@ -357,7 +359,7 @@ function usage(exitCode = 0) {
   node scripts/soc-artifacts.mjs soc-status --root <repo> --review-slug <slug>
   node scripts/soc-artifacts.mjs capabilities
 
-Creates and manages _data/soc-reviews/<slug>/ : review-intake.md, review-intake.json,
+Creates and manages <runtime-data-mount>/soc-reviews/<slug>/ : review-intake.md, review-intake.json,
 register.md (derived), findings.jsonl (append-only), evidence/ (recorded evidence).
 `);
   process.exit(exitCode);
@@ -559,7 +561,7 @@ ${subtype || "(not specified — infer from scope)"}
 // ── record-evidence ───────────────────────────────────────────────────────────
 
 /**
- * Store tenant evidence under _data/soc-reviews/<slug>/evidence/<name>.*
+ * Store tenant evidence under <runtime-data-mount>/soc-reviews/<slug>/evidence/<name>.*
  * and register it in review-intake.json.evidenceRecorded.
  *
  * This is the SOC analog of the auditor's record-check-output.

@@ -120,6 +120,21 @@ export function readJsonObject(filePath) {
   return parsed;
 }
 
+export function runtimeDataMountPath(root, fallback = DEFAULT_DATA_MOUNT) {
+  const config = readJsonObject(path.join(root, "zscaler-skill-setup.json"));
+  const runtimeData = config.runtimeData || {};
+  const configured = runtimeData.mountPath ?? config.mountPath ?? fallback;
+  return normalizeMountPath(typeof configured === "string" ? expandConfigString(configured) : configured);
+}
+
+export function runtimeDataPath(root, ...segments) {
+  return path.join(root, runtimeDataMountPath(root), ...segments);
+}
+
+export function runtimeDataRelative(root, ...segments) {
+  return path.join(runtimeDataMountPath(root), ...segments);
+}
+
 // Validate and normalize overlay allowed-root entries: each must be a relative
 // path under the runtime data mount with no traversal. Trailing slashes are
 // stripped.

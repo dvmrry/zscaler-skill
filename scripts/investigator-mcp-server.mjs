@@ -20,6 +20,7 @@ import {
   writeTmpJson as writeTmpJsonWithPrefix,
   writeTmpFile as writeTmpFileWithPrefix,
 } from "./mcp-server-lib.mjs";
+import { runtimeDataPath } from "./lib.mjs";
 
 import {
   openCase,
@@ -95,7 +96,7 @@ function resolveResourceContent(uri) {
     return { uri, mimeType: "text/markdown", text };
   }
   if (kind === "journal") {
-    const journalPath = path.join(root, "_data", "cases", slug, "journal.md");
+    const journalPath = runtimeDataPath(root, "cases", slug, "journal.md");
     const text = fs.readFileSync(journalPath, "utf8");
     return { uri, mimeType: "text/markdown", text };
   }
@@ -104,7 +105,7 @@ function resolveResourceContent(uri) {
     // consistent with the report/journal kinds. caseStatus() itself returns
     // phase "no-case" rather than throwing (correct for the doctor tool, wrong
     // for a resource read), so assert the case directory exists first.
-    const caseDir = path.join(root, "_data", "cases", slug);
+    const caseDir = runtimeDataPath(root, "cases", slug);
     if (!fs.existsSync(path.join(caseDir, "case-intake.md"))) {
       throw new Error(`no such case: ${slug}`);
     }
@@ -841,8 +842,9 @@ function handleRequest(raw) {
 
   // ── resources/list ────────────────────────────────────────────────────────
   if (method === "resources/list") {
-    // Enumerate existing cases if _data/cases exists; degrade gracefully if absent.
-    const casesDir = path.join(path.resolve(new URL("..", import.meta.url).pathname), "_data", "cases");
+    // Enumerate existing cases if the runtime data cases dir exists; degrade gracefully if absent.
+    const root = path.resolve(new URL("..", import.meta.url).pathname);
+    const casesDir = runtimeDataPath(root, "cases");
     const resources = [];
     try {
       const entries = fs.readdirSync(casesDir, { withFileTypes: true });
@@ -856,7 +858,7 @@ function handleRequest(raw) {
         );
       }
     } catch {
-      // _data/cases absent — return empty list; templates remain the discovery surface.
+      // Runtime data cases dir absent — return empty list; templates remain the discovery surface.
     }
     process.stdout.write(`${JSON.stringify(makeResponse(id, { resources }))}\n`);
     return;

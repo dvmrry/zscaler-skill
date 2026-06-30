@@ -3,6 +3,10 @@ import fs from "node:fs";
 import crypto from "node:crypto";
 import path from "node:path";
 import process from "node:process";
+import {
+  DEFAULT_DATA_MOUNT,
+  runtimeDataMountPath,
+} from "./lib.mjs";
 
 const CASE_INTAKE_BASENAME = "case-intake";
 const WORKFLOW_DIR = "workflow";
@@ -123,7 +127,7 @@ function usage(exitCode = 0) {
   node scripts/investigator-artifacts.mjs import-evidence --root <repo> --case-slug <slug> --source-file <file> --name <name> --source <source> (--query <text>|--query-file <file>|--request-text <text>) --summary <text> --captured-at <ISO-UTC> --touched-claim <claim> [--active-hypothesis <tag>] [--allow-placeholder-query]
   node scripts/investigator-artifacts.mjs import-evidence --root <repo> --case-slug <slug> --input-json <file>
 
-Creates and verifies _data/cases/<slug>/case-intake.md,
+Creates and verifies <runtime-data-mount>/cases/<slug>/case-intake.md,
 case-intake.json, journal.md, workflow/01-loads.json, and optional workflow turn state.
 `);
   process.exit(exitCode);
@@ -291,10 +295,13 @@ function loadJson(root, jsonPath, requiredArgName) {
 
 function casePaths(root, caseSlug) {
   assertSafeSlug(caseSlug);
-  const caseDir = path.join(root, "_data", "cases", caseSlug);
+  const mountPath = runtimeDataMountPath(root);
+  const caseRelativeDir = path.join(mountPath, "cases", caseSlug);
+  const caseDir = path.join(root, caseRelativeDir);
   const workflowDir = path.join(caseDir, WORKFLOW_DIR);
   return {
     caseDir,
+    caseRelativeDir,
     workflowDir,
     caseIntakePath: path.join(caseDir, `${CASE_INTAKE_BASENAME}.md`),
     caseIntakeJsonPath: path.join(caseDir, `${CASE_INTAKE_BASENAME}.json`),
@@ -1631,6 +1638,7 @@ function isTelemetryReferencePath(relativePath) {
 
 function caseIntakeStatus(framing, proposedLoads, root = null) {
   const issues = [];
+  const mountPath = root ? runtimeDataMountPath(root) : DEFAULT_DATA_MOUNT;
   if (!String(framing.workingDirectory || "").trim()) {
     issues.push("workingDirectory is required");
   }
@@ -1646,10 +1654,10 @@ function caseIntakeStatus(framing, proposedLoads, root = null) {
   if (!proposedLoads.includes("agents/investigator/harness.md")) {
     issues.push("proposed loads must include agents/investigator/harness.md");
   }
-  if (proposedLoads.some((load) => load.startsWith("_data/snapshot/"))) {
+  if (proposedLoads.some((load) => load.startsWith(`${mountPath}/snapshot/`))) {
     issues.push("Step 1 proposed loads must not include tenant snapshot files");
   }
-  if (proposedLoads.some((load) => load.startsWith("_data/cases/"))) {
+  if (proposedLoads.some((load) => load.startsWith(`${mountPath}/cases/`))) {
     issues.push("Step 1 proposed loads must not browse case artifacts");
   }
   if (root) {
@@ -1864,7 +1872,7 @@ function importEvidence(args) {
       throw new Error(`evidence destination already exists: ${destination}`);
     }
     destinations.add(destination);
-    const evidenceRef = path.join("_data", "cases", args.caseSlug, EVIDENCE_DIR_BASENAME, filename);
+    const evidenceRef = path.join(paths.caseRelativeDir, EVIDENCE_DIR_BASENAME, filename);
     const manifestRow = `| ${markdownCell(evidenceRef)} | ${markdownCell(source)} | ${markdownCell(capturedAt)} | ${markdownCell(sourceFileHash)} | ${markdownCell(queryRef)} | ${markdownCell(summary)} | ${markdownCell(touchedClaims.join("; "))} |`;
     prepared.push({
       sourceFile,
@@ -1901,7 +1909,7 @@ function importEvidence(args) {
     status: "ok",
     operation: "import-evidence",
     evidenceRefs: prepared.map((item) => item.evidenceRef),
-    manifestPath: path.join("_data", "cases", args.caseSlug, EVIDENCE_DIR_BASENAME, EVIDENCE_MANIFEST_BASENAME),
+    manifestPath: path.join(paths.caseRelativeDir, EVIDENCE_DIR_BASENAME, EVIDENCE_MANIFEST_BASENAME),
     manifestRows: prepared.map((item) => item.manifestRow),
     turnJsonPath: null,
     warnings: [],
@@ -2221,10 +2229,7 @@ ${status === "pass" ? "Open." : "Blocked before grounding."}
 
 function verifyCaseFiles(root, caseSlug) {
   assertSafeSlug(caseSlug);
-  const caseDir = path.join(root, "_data", "cases", caseSlug);
-  const caseIntakePath = path.join(caseDir, `${CASE_INTAKE_BASENAME}.md`);
-  const caseIntakeJsonPath = path.join(caseDir, `${CASE_INTAKE_BASENAME}.json`);
-  const journalPath = path.join(caseDir, "journal.md");
+  const { caseDir, caseIntakePath, caseIntakeJsonPath, journalPath } = casePaths(root, caseSlug);
 
   const caseIntakeMd = fs.readFileSync(caseIntakePath, "utf8");
   const caseIntakeJson = JSON.parse(fs.readFileSync(caseIntakeJsonPath, "utf8"));
@@ -2267,10 +2272,7 @@ function openCase(args) {
   const proposedLoads = normalizeProposedLoads(args.proposedLoads);
   const { status, blockingIssues } = caseIntakeStatus(framing, proposedLoads, root);
 
-  const caseDir = path.join(root, "_data", "cases", args.caseSlug);
-  const caseIntakePath = path.join(caseDir, `${CASE_INTAKE_BASENAME}.md`);
-  const caseIntakeJsonPath = path.join(caseDir, `${CASE_INTAKE_BASENAME}.json`);
-  const journalPath = path.join(caseDir, "journal.md");
+  const { caseDir, caseIntakePath, caseIntakeJsonPath, journalPath } = casePaths(root, args.caseSlug);
   const timestamp = new Date().toISOString();
   const nextStep = status === "pass"
     ? "Load only the proposed files (open-case already verified this intake)."

@@ -181,6 +181,37 @@ test("openCase creates passing case intake, JSON, and journal artifacts", () => 
   assert.match(caseIntakeMd, /^Blocking Issues: none$/m);
 });
 
+test("openCase uses configured runtime data mount", () => {
+  const root = tempRepo();
+  fs.writeFileSync(
+    path.join(root, "zscaler-skill-setup.json"),
+    `${JSON.stringify({ runtimeData: { mountPath: "tenant-data" } }, null, 2)}\n`,
+    "utf8",
+  );
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+
+  const result = openCase({
+    root,
+    caseSlug: "custom-mount-case",
+    framingJson: framingPath,
+    proposedLoads: [
+      "agents/investigator/prompt.md",
+      "agents/investigator/harness.md",
+    ],
+  });
+
+  assert.equal(result.status, "pass");
+  assert.ok(result.caseDir.includes(`${path.sep}tenant-data${path.sep}cases${path.sep}`));
+  assert.equal(fs.existsSync(path.join(root, "tenant-data", "cases", "custom-mount-case", "journal.md")), true);
+  assert.equal(fs.existsSync(path.join(root, "_data")), false);
+});
+
 test("openCase blocks speculative telemetry loads without telemetry framing", () => {
   const root = tempRepo();
   const framingPath = writeJson(root, "framing.json", {

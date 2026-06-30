@@ -125,6 +125,23 @@ test("open-audit: creates all three artifacts with correct markers", () => {
   fs.rmSync(root, { recursive: true, force: true });
 });
 
+test("open-audit: uses configured runtime data mount", () => {
+  const root = tempRepo();
+  fs.writeFileSync(
+    path.join(root, "zscaler-skill-setup.json"),
+    `${JSON.stringify({ runtimeData: { mountPath: "tenant-data" } }, null, 2)}\n`,
+    "utf8",
+  );
+  const scopeFile = writeScopeFile(root, makeScope({ paths: ["references/zpa/index.md"] }));
+
+  const result = openAudit({ root, auditSlug: "custom-mount-audit", scopeJson: scopeFile });
+
+  assert.equal(result.status, "pass");
+  assert.ok(result.auditDir.includes(`${path.sep}tenant-data${path.sep}audits${path.sep}`));
+  assert.equal(fs.existsSync(path.join(root, "tenant-data", "audits", "custom-mount-audit", "register.md")), true);
+  assert.equal(fs.existsSync(path.join(root, "_data")), false);
+});
+
 test("open-audit: rejects missing scope.paths AND scope.topic", () => {
   const root = tempRepo();
   const scopeFile = writeScopeFile(root, { description: "No scope", scope: {}, checksRun: [] });

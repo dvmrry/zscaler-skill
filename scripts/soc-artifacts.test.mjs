@@ -132,6 +132,23 @@ test("open-review: creates all three artifacts with correct markers", () => {
   fs.rmSync(root, { recursive: true, force: true });
 });
 
+test("open-review: uses configured runtime data mount", () => {
+  const root = tempRepo();
+  fs.writeFileSync(
+    path.join(root, "zscaler-skill-setup.json"),
+    `${JSON.stringify({ runtimeData: { mountPath: "tenant-data" } }, null, 2)}\n`,
+    "utf8",
+  );
+  const scopeFile = writeScopeFile(root, makeScope({ paths: ["references/zidentity/admin-rbac.md"] }));
+
+  const result = openReview({ root, reviewSlug: "custom-mount-review", scopeJson: scopeFile });
+
+  assert.equal(result.status, "pass");
+  assert.ok(result.reviewDir.includes(`${path.sep}tenant-data${path.sep}soc-reviews${path.sep}`));
+  assert.equal(fs.existsSync(path.join(root, "tenant-data", "soc-reviews", "custom-mount-review", "register.md")), true);
+  assert.equal(fs.existsSync(path.join(root, "_data")), false);
+});
+
 test("open-review: writes threatModel and subtype to intake", () => {
   const root = tempRepo();
   const scopeFile = writeScopeFile(root, makeScope({
