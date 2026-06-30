@@ -15,9 +15,13 @@ sources:
   - "vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md"
   - "vendor/zscaler-sdk-python/README.md"
   - "vendor/zscaler-sdk-python/zscaler/oneapi_client.py"
+  - "vendor/zscaler-sdk-python/zscaler/zaiguard/legacy.py"
   - "vendor/zscaler-sdk-python/zscaler/zaiguard/zaiguard_service.py"
   - "vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py"
   - "vendor/zscaler-sdk-python/zscaler/zaiguard/models/policy_detection.py"
+  - "vendor/zguard-ai-integrations/Microsoft/README.md"
+  - "vendor/zguard-ai-integrations/github-actions/README.md"
+  - "vendor/zguard-ai-integrations/github-actions/scripts/scan_policy.py"
   - "vendor/zguard-ai-integrations/Windsurf/README.md"
   - "vendor/zguard-ai-integrations/n8n/README.md"
   - "vendor/zguard-ai-integrations/Anthropic/claude-code-aiguard/README.md"
@@ -57,6 +61,12 @@ The exposed methods are:
 | `resolve_and_execute_policy(content, direction, transaction_id=None)` | `/v1/detection/resolve-and-execute-policy` | Automatic policy resolution for the API key/application association. |
 
 The SDK body sends `content` and `direction`, adds `policyId` only when provided, and adds `transactionId` only when provided (`vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py:79`, `vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py:84`, `vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py:87`, `vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py:157`, `vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py:162`). The response model includes top-level action, severity, direction, detector responses, and throttling details with `retryAfterMillis` (`vendor/zscaler-sdk-python/zscaler/zaiguard/models/policy_detection.py:208`, `:212`, `:214`, `:216`, `:225`, `:135`).
+
+## Runtime endpoint host divergence
+
+The captured DAS Help page uses the global host `https://api.zseclipse.net` for both explicit policy execution and policy resolution (`vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md:50`, `:100`, `:158`). The Python legacy AI Guard client still defaults to `https://api.us1.zseclipse.net`, accepts `AIGUARD_CLOUD`, and constructs `https://api.<cloud>.zseclipse.net` unless `AIGUARD_OVERRIDE_URL` / `override_url` is supplied (`vendor/zscaler-sdk-python/zscaler/zaiguard/legacy.py:58`, `:75`, `:78`, `:81`). Public integration examples also still describe region-derived hosts such as `https://api.{cloud}.zseclipse.net` (`vendor/zguard-ai-integrations/Microsoft/README.md:519`; `vendor/zguard-ai-integrations/github-actions/README.md:66`; `vendor/zguard-ai-integrations/github-actions/scripts/scan_policy.py:38-42`).
+
+Treat this as an endpoint-host source divergence, not a runtime acceptance result: static sources do not prove whether global and regional hosts both work, whether one is preferred, or whether the regional examples are stale. Use the Help-global host when following the current Help page, but use SDK/integration override knobs when an implementation needs to pin the host. See [clarification ai-security-06](../_meta/clarifications.md#ai-security-06-ai-guard-das-endpoint-host-selection).
 
 ## Direction value divergence
 
