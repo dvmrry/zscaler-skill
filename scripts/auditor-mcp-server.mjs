@@ -53,7 +53,7 @@ function readMcpEntrypoint() {
 // ── Error constant ────────────────────────────────────────────────────────────
 // force is not available over MCP; repair flows use audit_status -> open_audit.
 const FORCE_OVER_MCP_ERROR =
-  "force is not available over MCP. Repair flow: run audit_status and follow its nextActions. " +
+  "force is not available over MCP. Repair flows: run audit_status and follow its nextCommands/nextActions. " +
   "Replacing existing audit artifacts is a human decision — use the CLI with explicit user approval.";
 
 // ── Resource URI helpers ──────────────────────────────────────────────────────
@@ -162,6 +162,7 @@ const AUDIT_STATUS_OUTPUT_SCHEMA = {
     },
     checksRecorded: { type: "array", items: { type: "string" } },
     blockingIssues: { type: "array", items: { type: "string" } },
+    nextCommands: { type: "array", items: { type: "string" } },
     nextActions: { type: "array", items: { type: "string" } },
   },
   required: [
@@ -172,6 +173,7 @@ const AUDIT_STATUS_OUTPUT_SCHEMA = {
     "findingCounts",
     "checksRecorded",
     "blockingIssues",
+    "nextCommands",
     "nextActions",
   ],
 };
@@ -184,7 +186,7 @@ const TOOLS = [
     title: "Audit status (read-only doctor)",
     description:
       "Run FIRST when resuming an audit, after any gate failure, or whenever audit state is uncertain. " +
-      "Reports phase (no-audit|open|has-findings), intake state, finding counts, checks recorded, and nextActions. " +
+      "Reports phase (no-audit|open|has-findings), intake state, finding counts, checks recorded, and the exact legal nextCommands/nextActions. " +
       "Never mutates. " +
       "Discipline: open the audit to record scope before recording findings; " +
       "every finding needs a resolving source (no fabricated findings).",

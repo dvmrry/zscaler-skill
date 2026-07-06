@@ -118,7 +118,7 @@ function resolveResourceContent(uri) {
 
 // Change 1: error returned when force is passed over MCP.
 const FORCE_OVER_MCP_ERROR =
-  "force is not available over MCP. Repair flows: run status and follow its nextCommands/nextActions; abandon_turn clears a blocked pending turn. Replacing existing artifacts is a human decision — use the CLI with explicit user approval.";
+  "force is not available over MCP. Repair flows: run status and follow its nextCommands/nextActions. abandon_turn clears a blocked pending turn. Replacing existing artifacts is a human decision — use the CLI with explicit user approval.";
 
 // Output schema for the status tool — describes caseStatus() return shape.
 const STATUS_OUTPUT_SCHEMA = {

@@ -71,9 +71,11 @@ govern reasoning; the MCP entrypoint at `agents/auditor/mcp-entrypoint.md` is
 what the server returns for the `audit` prompt.
 
 **CLI path (shell-only runtimes).** When the MCP server is not available, follow
-the existing CLI command sequence:
+the existing CLI command sequence. When resuming or after any failure, run
+`audit-status` first and follow its `nextCommands` and `nextActions`.
 
 ```bash
+node scripts/auditor-artifacts.mjs audit-status --root <repo> --audit-slug <slug>
 node scripts/auditor-artifacts.mjs open-audit --root <repo> --audit-slug <slug> --scope-json <file>
 node scripts/auditor-artifacts.mjs record-finding --root <repo> --audit-slug <slug> --finding-json <file>
 node scripts/auditor-artifacts.mjs render-audit-report --root <repo> --audit-slug <slug>

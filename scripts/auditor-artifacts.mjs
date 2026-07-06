@@ -749,7 +749,7 @@ export function renderAuditReport({ root, auditSlug }) {
  * Read-only doctor: returns a status summary for the audit.
  *
  * Returns:
- *   { operation, auditSlug, phase, intake, findingCounts, checksRecorded, blockingIssues, nextActions }
+ *   { operation, auditSlug, phase, intake, findingCounts, checksRecorded, blockingIssues, nextCommands, nextActions }
  *
  * phase values:
  *   "no-audit"    — audit does not exist
@@ -762,6 +762,9 @@ export function auditStatus({ root, auditSlug }) {
   const paths = auditPaths(resolvedRoot, auditSlug);
 
   if (!fs.existsSync(paths.auditIntakePath)) {
+    const baseCmd = "node scripts/auditor-artifacts.mjs";
+    const rootFlag = `--root ${resolvedRoot}`;
+    const slugFlag = `--audit-slug ${auditSlug}`;
     return {
       operation: "audit-status",
       auditSlug,
@@ -770,8 +773,11 @@ export function auditStatus({ root, auditSlug }) {
       findingCounts: { bySeverity: {}, byStatus: {}, total: 0 },
       checksRecorded: [],
       blockingIssues: [],
+      nextCommands: [
+        `${baseCmd} open-audit ${rootFlag} ${slugFlag} --scope-json <path-to-scope-json>`,
+      ],
       nextActions: [
-        `Run: node scripts/auditor-artifacts.mjs open-audit --root ${resolvedRoot} --audit-slug ${auditSlug} --scope-json <path-to-scope-json>`,
+        "Call open_audit with a scope object to create the audit intake.",
       ],
     };
   }
@@ -819,21 +825,31 @@ export function auditStatus({ root, auditSlug }) {
 
   const phase = total > 0 ? "has-findings" : "open";
 
+  const nextCommands = [];
   const nextActions = [];
   const baseCmd = "node scripts/auditor-artifacts.mjs";
   const rootFlag = `--root ${resolvedRoot}`;
   const slugFlag = `--audit-slug ${auditSlug}`;
 
   if (phase === "open") {
-    nextActions.push(
+    nextCommands.push(
       `${baseCmd} record-finding ${rootFlag} ${slugFlag} --finding-json <path-to-finding-json>`,
+    );
+    nextActions.push(
+      "Call record_finding with an evidence-backed finding object.",
     );
   } else {
-    nextActions.push(
+    nextCommands.push(
       `${baseCmd} render-audit-report ${rootFlag} ${slugFlag}`,
     );
-    nextActions.push(
+    nextCommands.push(
       `${baseCmd} record-finding ${rootFlag} ${slugFlag} --finding-json <path-to-finding-json>`,
+    );
+    nextActions.push(
+      "Call render_audit_report to produce the final artifact-derived answer.",
+    );
+    nextActions.push(
+      "Call record_finding to add another evidence-backed finding before rendering.",
     );
   }
 
@@ -845,6 +861,7 @@ export function auditStatus({ root, auditSlug }) {
     findingCounts: { bySeverity, byStatus, total },
     checksRecorded,
     blockingIssues,
+    nextCommands,
     nextActions,
   };
 }

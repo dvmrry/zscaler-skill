@@ -893,7 +893,7 @@ export function renderSocReport({ root, reviewSlug }) {
  * Read-only doctor: returns a status summary for the SOC review.
  *
  * Returns:
- *   { operation, reviewSlug, phase, intake, findingCounts, evidenceRecorded, blockingIssues, nextActions }
+ *   { operation, reviewSlug, phase, intake, findingCounts, evidenceRecorded, blockingIssues, nextCommands, nextActions }
  *
  * phase values:
  *   "no-review"    — review does not exist
@@ -906,6 +906,9 @@ export function socStatus({ root, reviewSlug }) {
   const paths = reviewPaths(resolvedRoot, reviewSlug);
 
   if (!fs.existsSync(paths.reviewIntakePath)) {
+    const baseCmd = "node scripts/soc-artifacts.mjs";
+    const rootFlag = `--root ${resolvedRoot}`;
+    const slugFlag = `--review-slug ${reviewSlug}`;
     return {
       operation: "soc-status",
       reviewSlug,
@@ -914,8 +917,11 @@ export function socStatus({ root, reviewSlug }) {
       findingCounts: { bySeverity: {}, byStatus: {}, total: 0 },
       evidenceRecorded: [],
       blockingIssues: [],
+      nextCommands: [
+        `${baseCmd} open-review ${rootFlag} ${slugFlag} --scope-json <path-to-scope-json>`,
+      ],
       nextActions: [
-        `Run: node scripts/soc-artifacts.mjs open-review --root ${resolvedRoot} --review-slug ${reviewSlug} --scope-json <path-to-scope-json>`,
+        "Call open_review with a scope object to create the SOC review intake.",
       ],
     };
   }
@@ -965,24 +971,37 @@ export function socStatus({ root, reviewSlug }) {
 
   const phase = total > 0 ? "has-findings" : "open";
 
+  const nextCommands = [];
   const nextActions = [];
   const baseCmd = "node scripts/soc-artifacts.mjs";
   const rootFlag = `--root ${resolvedRoot}`;
   const slugFlag = `--review-slug ${reviewSlug}`;
 
   if (phase === "open") {
-    nextActions.push(
+    nextCommands.push(
       `${baseCmd} record-evidence ${rootFlag} ${slugFlag} --name <name> --source-file <path>`,
     );
-    nextActions.push(
+    nextCommands.push(
       `${baseCmd} record-finding ${rootFlag} ${slugFlag} --finding-json <path-to-finding-json>`,
+    );
+    nextActions.push(
+      "Call record_evidence when a finding will cite tenant-captured evidence.",
+    );
+    nextActions.push(
+      "Call record_finding with an evidence-backed posture finding.",
     );
   } else {
-    nextActions.push(
+    nextCommands.push(
       `${baseCmd} render-soc-report ${rootFlag} ${slugFlag}`,
     );
-    nextActions.push(
+    nextCommands.push(
       `${baseCmd} record-finding ${rootFlag} ${slugFlag} --finding-json <path-to-finding-json>`,
+    );
+    nextActions.push(
+      "Call render_soc_report to produce the final artifact-derived answer.",
+    );
+    nextActions.push(
+      "Call record_finding to add another evidence-backed posture finding before rendering.",
     );
   }
 
@@ -994,6 +1013,7 @@ export function socStatus({ root, reviewSlug }) {
     findingCounts: { bySeverity, byStatus, total },
     evidenceRecorded,
     blockingIssues,
+    nextCommands,
     nextActions,
   };
 }

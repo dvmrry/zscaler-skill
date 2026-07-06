@@ -94,9 +94,11 @@ govern reasoning; the MCP entrypoint at `agents/soc/mcp-entrypoint.md` is what
 the server returns for the `soc-review` prompt.
 
 **CLI path (shell-only runtimes).** When the MCP server is not available, follow
-the CLI command sequence:
+the CLI command sequence. When resuming or after any failure, run `soc-status`
+first and follow its `nextCommands` and `nextActions`.
 
 ```bash
+node scripts/soc-artifacts.mjs soc-status --root <repo> --review-slug <slug>
 node scripts/soc-artifacts.mjs open-review --root <repo> --review-slug <slug> --scope-json <file>
 node scripts/soc-artifacts.mjs record-evidence --root <repo> --review-slug <slug> --name <name> --source-file <path>
 node scripts/soc-artifacts.mjs record-finding --root <repo> --review-slug <slug> --finding-json <file>

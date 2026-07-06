@@ -76,6 +76,24 @@ function writeFindingFile(root, finding) {
   return p;
 }
 
+function dispatchedCommands(scriptName) {
+  const source = fs.readFileSync(path.join(SCRIPTS_DIR, scriptName), "utf8");
+  return new Set([...source.matchAll(/if \(args\.command === "([^"]+)"\)/g)].map((m) => m[1]));
+}
+
+function assertNextCommandsDispatched(commands, scriptName) {
+  assert.ok(Array.isArray(commands), "nextCommands should be an array");
+  const validCommands = dispatchedCommands(scriptName);
+  for (const command of commands) {
+    const match = command.match(new RegExp(`^node scripts/${scriptName.replace(".", "\\.")} ([^\\s]+)`));
+    assert.ok(match, `command should be a node helper invocation: ${command}`);
+    assert.ok(
+      validCommands.has(match[1]),
+      `subcommand ${match[1]} should exist in ${scriptName} CLI dispatch`,
+    );
+  }
+}
+
 // ── open-audit happy path ─────────────────────────────────────────────────────
 
 test("open-audit: creates all three artifacts with correct markers", () => {
@@ -437,6 +455,8 @@ test("audit-status: phase no-audit when audit does not exist", () => {
   assert.equal(result.operation, "audit-status");
   assert.equal(result.phase, "no-audit");
   assert.equal(result.intake.present, false);
+  assert.ok(result.nextCommands.length > 0, "no-audit should offer an open-audit CLI repair");
+  assertNextCommandsDispatched(result.nextCommands, "auditor-artifacts.mjs");
 
   fs.rmSync(root, { recursive: true, force: true });
 });
@@ -449,6 +469,12 @@ test("audit-status: phase open after open-audit with no findings", () => {
   const result = auditStatus({ root, auditSlug: "phase-open-test" });
   assert.equal(result.phase, "open");
   assert.equal(result.findingCounts.total, 0);
+  assert.ok(result.nextCommands.length > 0, "open phase should offer a legal CLI next command");
+  assert.ok(
+    result.nextCommands.some((c) => c.includes(" record-finding ")),
+    "open phase should offer record-finding",
+  );
+  assertNextCommandsDispatched(result.nextCommands, "auditor-artifacts.mjs");
 
   fs.rmSync(root, { recursive: true, force: true });
 });
@@ -473,6 +499,11 @@ test("audit-status: phase has-findings after recording a finding", () => {
   assert.equal(result.findingCounts.total, 1);
   assert.equal(result.findingCounts.byStatus["Open"], 1);
   assert.equal(result.findingCounts.bySeverity["Low"], 1);
+  assert.ok(
+    result.nextCommands.some((c) => c.includes(" render-audit-report ")),
+    "has-findings should offer render-audit-report",
+  );
+  assertNextCommandsDispatched(result.nextCommands, "auditor-artifacts.mjs");
 
   fs.rmSync(root, { recursive: true, force: true });
 });
