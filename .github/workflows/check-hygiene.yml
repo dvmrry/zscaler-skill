@@ -6,8 +6,10 @@ name: Doc hygiene
 #   - check-doc-links.py:        HTML link / asset path resolution in docs/**
 #   - check-citation-density.py: reference source-anchor coverage and Source: audit
 #   - check-workflow-metadata.mjs: workflow metadata and adapter-reference check
+#   - check-capability-registry.mjs: role-routing registry contract
 #   - node --test:            stdlib helper regressions for investigator gates
 #                             and _data setup/data-contract helpers
+#   - check-mcp-conformance.mjs: in-process JSON-RPC checks for role MCP servers
 #   - check-orphans.py:          reference files with no inbound links from anywhere
 #   - check-workflow-evals.py:   agent workflow eval coverage and fixture health
 #   - check-vendor-drift.py:     refs whose cited vendor sources may have drifted
@@ -108,11 +110,25 @@ jobs:
       - name: Check portable Agent Skill contracts
         run: ./scripts/check-agent-skills.py
 
+      - name: Check capability registry
+        # Gates the role-routing registry so handoff cues resolve to valid
+        # canonical workflow metadata before adapter/runtime docs depend on it.
+        run: node scripts/check-capability-registry.mjs
+
       - name: Check workflow metadata
         run: node scripts/check-workflow-metadata.mjs
 
       - name: Run Node helper regression tests
         run: node --test scripts/*.test.mjs scripts/bridge/*.test.mjs
+
+      - name: Check MCP server conformance
+        # Gates tool, prompt, resource, and error semantics for all role MCP
+        # servers. MCP_CONFORMANCE_OFFLINE skips the optional Inspector probe
+        # (an npx download) so the deterministic in-process JSON-RPC assertions
+        # run without network access.
+        env:
+          MCP_CONFORMANCE_OFFLINE: "1"
+        run: node scripts/check-mcp-conformance.mjs
 
       - name: Run automate-capture snapshot + reconciler tests
         # The Docusaurus blob extractor is the capture trust boundary; the OpenAPI
