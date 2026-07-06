@@ -8,6 +8,7 @@ confidence: medium
 source-tier: code
 sources:
   - vendor/zscaler-sdk-python/zscaler/zpa/
+  - vendor/zscaler-sdk-python/docsrc/zs/guides/release_notes.rst
   - vendor/zscaler-sdk-python/README.md
   - vendor/zscaler-sdk-go/zscaler/zpa/services/
 author-status: draft
@@ -816,8 +817,8 @@ Manages time-bounded access approvals for PRA sessions.
 |---|---|---|
 | `list_approval` | `(query_params=None) -> APIResult[List[PrivilegedRemoteAccessApproval]]` | `sort_by`, `sort_dir` (`ASC`\|`DESC`) supported |
 | `get_approval` | `(approval_id: str, query_params=None) -> APIResult[PrivilegedRemoteAccessApproval]` | |
-| `add_approval` | `(**kwargs) -> APIResult[PrivilegedRemoteAccessApproval]` | Uses `validate_and_convert_times` for time fields |
-| `update_approval` | `(approval_id: str, **kwargs) -> APIResult[PrivilegedRemoteAccessApproval]` | |
+| `add_approval` | `(**kwargs) -> APIResult[PrivilegedRemoteAccessApproval]` | Uses `validate_and_convert_times` for time fields; v1.9.34 only serializes `workingHours` when `working_hours` is explicitly provided (`vendor/zscaler-sdk-python/docsrc/zs/guides/release_notes.rst:9-20`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_approval.py:193-220`) |
+| `update_approval` | `(approval_id: str, **kwargs) -> APIResult[PrivilegedRemoteAccessApproval]` | Same `working_hours` behavior as create (`vendor/zscaler-sdk-python/zscaler/zpa/pra_approval.py:285-312`) |
 | `delete_approval` | `(approval_id: str, microtenant_id=None) -> APIResult[None]` | |
 
 ---

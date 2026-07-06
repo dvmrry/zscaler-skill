@@ -3,7 +3,7 @@ product: cloud-connector
 topic: cc-insights-monitoring
 title: "Cloud Connector Insights & monitoring — health, traffic, operational metrics"
 content-type: reference
-last-verified: "2026-06-15"
+last-verified: "2026-07-06"
 confidence: medium
 source-tier: doc
 sources:
@@ -29,6 +29,7 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/ztw/discovery_service.py"
   - "vendor/zscaler-sdk-python/zscaler/ztw/public_cloud_info.py"
   - "vendor/terraform-provider-ztc/docs/data-sources/ztc_edge_connector_group.md"
+  - "vendor/terraform-provider-ztc/CHANGELOG.md"
 author-status: draft
 ---
 
@@ -386,6 +387,8 @@ ext, resp, err = client.ztw.public_cloud_info.generate_external_id()            
 ### 4.3 Terraform (read-side data sources)
 
 The ZTC Terraform provider exposes `ztc_edge_connector_group` as a data source, which returns all per-VM state fields available in the SDK including `status`, `operational_status`, `zia_gateway`, `zpa_broker`, `build_version`, `last_upgrade_time`, `upgrade_status`, `nat_ip`, and the full management/service network configuration. Useful for GitOps health checks via `terraform plan` output.
+
+Use provider v0.2.0 or newer for this data source: the v0.2.0 changelog records a fix for an `ec_instances.0.dns_ip` type-conversion panic/failure on `ztc_edge_connector_group` (`vendor/terraform-provider-ztc/CHANGELOG.md:3-12`).
 
 ```hcl
 data "ztc_edge_connector_group" "prod" {

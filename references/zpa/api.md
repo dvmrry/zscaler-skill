@@ -3,7 +3,7 @@ product: zpa
 topic: "zpa-api"
 title: "ZPA API surface"
 content-type: reference
-last-verified: "2026-06-15"
+last-verified: "2026-07-06"
 confidence: high
 source-tier: code
 sources:
@@ -17,6 +17,7 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_user_api.go"
+  - "vendor/terraform-provider-zpa/CHANGELOG.md"
   - "vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go"
   - "vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment_pra.go"
   - "vendor/terraform-provider-zpa/zpa/resource_zpa_policy_access_rule_v2.go"
@@ -125,7 +126,7 @@ resource "zpa_application_segment" "this" {
 
 **TF-level findings** (`terraform-provider-zpa/zpa/resource_zpa_application_segment.go`):
 
-- **`select_connector_close_to_app` is `ForceNew`** (`:194`). Toggling connector-proximity routing on an existing segment requires **destroy and recreate** — the API refuses in-place updates to this flag. Plan for access interruption when changing it. Applies to all segment variants (base, `_pra`, `_inspection`, `_browser_access`).
+- **`select_connector_close_to_app` mutability changed in provider v4.4.6.** The v4.4.6 changelog says the provider removed `ForceNew` from this attribute on `zpa_application_segment`, and the current schema now shows only `TypeBool` + `Optional` (`vendor/terraform-provider-zpa/CHANGELOG.md:3-12`; `vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go:194-197`). Do not repeat older "API refuses in-place updates" wording unless you are explicitly working with a pre-v4.4.6 provider or a different segment variant whose schema still proves `ForceNew`.
 - **`bypass_type` enum (3 values)**: `ALWAYS`, `NEVER`, `ON_NET` (`:84-86`). **`ON_NET`** (bypass only for on-network users) is undocumented in most App Segment help articles.
 - **`icmp_access_type` enum**: `PING_TRACEROUTING`, `PING`, `NONE` (default `NONE`) (`:176-184`). Controls ICMP handling on the segment.
 - **`health_reporting` enum**: `NONE`, `ON_ACCESS`, `CONTINUOUS` (default `NONE`) (`:165-174`).

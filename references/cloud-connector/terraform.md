@@ -3,11 +3,13 @@ product: cloud-connector
 topic: cc-terraform
 title: Cloud Connector Terraform provider
 content-type: reference
-last-verified: "2026-06-15"
+last-verified: "2026-07-06"
 confidence: medium
 source-tier: code
 sources:
   - vendor/terraform-provider-ztc/docs/index.md
+  - vendor/terraform-provider-ztc/CHANGELOG.md
+  - vendor/terraform-provider-ztc/docs/guides/release-notes.md
   - vendor/terraform-provider-ztc/docs/resources/
   - vendor/terraform-provider-ztc/docs/data-sources/
   - vendor/terraform-provider-ztc/README.md
@@ -21,7 +23,7 @@ author-status: draft
 ## Provider overview
 
 **Registry source**: `zscaler/ztc`  
-**Current version**: `0.1.9` (`vendor/terraform-provider-ztc/ztc/common/version.go:3` sets `version = "0.1.9"`; `CHANGELOG.md:3` and `docs/guides/release-notes.md:19` both record `0.1.9 (May 13, 2026)` as the latest release). The `index.md` examples pin `version = "~> 0.1.6"` (`vendor/terraform-provider-ztc/docs/index.md:44,73`) and `~> 0.1.0` (`docs/index.md:162`), so published HCL may still constrain to earlier minors. Note: `vendor/terraform-provider-ztc/ztc/version.go:4` sets `ProviderVersion = "1.0.0"`, but that constant is a build-time placeholder ("set at build-time in the release process") that the release pipeline overwrites — it is not the released version; treat `common/version.go` / the CHANGELOG as authoritative.
+**Current release in the vendored source**: `v0.2.0`. Both changelog surfaces record 0.2.0 on June 29, 2026 (`vendor/terraform-provider-ztc/CHANGELOG.md:3-12`; `vendor/terraform-provider-ztc/docs/guides/release-notes.md:15-28`). Version source caveat: `vendor/terraform-provider-ztc/ztc/common/version.go:3` still bakes in `version = "0.1.9"`, while `vendor/terraform-provider-ztc/ztc/version.go:4` remains the build-time placeholder `ProviderVersion = "1.0.0"`; use the release notes for release identity and treat the in-code version constants as stale/build-time artifacts.
 
 **Terraform minimum version**: 0.12.x
 
@@ -529,6 +531,8 @@ The following data sources are available. All support lookup by `id` (Number) or
 | `ztc_supported_regions` | AWS/Azure/GCP regions for workload discovery | When `name`/`id` supplied: `cloud_type`; when neither supplied: `regions` list with id/name/cloud_type per region |
 | `ztc_workload_groups` | Workload group lookup by `id` or `name` (read-only; no matching resource) | `id`, `name`, `description`, `expression`, `expression_json` (`vendor/terraform-provider-ztc/ztc/provider.go:146`; schema fields at `data_source_ztc_workload_groups.go:17`, `:23`, `:28`, `:33`, `:38`). No `docs/data-sources/ztc_workload_groups.md` page exists in the provider repo — vendor docs gap, not a code gap. |
 
+Provider v0.2.0 fixes a `ztc_edge_connector_group` data-source failure where `ec_instances.0.dns_ip` could be returned as an empty list and fail Terraform type conversion; upgrade to v0.2.0 before relying on this data source for automated health checks (`vendor/terraform-provider-ztc/CHANGELOG.md:3-12`; `vendor/terraform-provider-ztc/docs/data-sources/ztc_edge_connector_group.md:16-34`).
+
 ---
 
 ## Activation
@@ -574,6 +578,6 @@ Source: `vendor/terraform-provider-ztc/docs/resources/ztc_traffic_forwarding_log
 
 8. **Resolved 2026-06-15.** `subcloud_primary` / `subcloud_secondary` are exposed by the TF resource. The schema registers both as `id`+`name` blocks (`MaxItems: 1`) with descriptions tying them to a manual (DC) proxy when the org has subclouds (`vendor/terraform-provider-ztc/ztc/resource_ztc_forwarding_gateway.go:127-128`), and the resource reads/writes them (`:187-190`, `:250-251`). The SDK struct comment still says "Not applicable to Cloud & Branch Connector" (`zia_forwarding_gateway.go:38-41`); that comment conflicts with the TF provider's own DC-proxy wiring. Residual open point: whether the *backend API* actually honors subclouds for Cloud & Branch Connector DC proxies (vs the TF schema merely exposing them) is not verifiable from source alone — would need a live tenant test. See [clarification `cloud-connector-15`](../_meta/clarifications.md#cloud-connector-15-subcloud_primarysecondary-backend-behavior-for-cc-dc-proxies).
 
-9. **Resolved 2026-06-15.** Current provider version is `0.1.9`. `vendor/terraform-provider-ztc/ztc/common/version.go:3` bakes in `version = "0.1.9"`, and `CHANGELOG.md:3` + `docs/guides/release-notes.md:19` both record `0.1.9 (May 13, 2026)` as the latest release. The `index.md` examples pin `~> 0.1.6` (`docs/index.md:44,73`) and `~> 0.1.0` (`docs/index.md:162`). Caveat for future editors: `ztc/version.go:4` carries `ProviderVersion = "1.0.0"`, but that is a build-time placeholder overwritten by the release pipeline (its own comment: "set at build-time in the release process") — do not treat `1.0.0` as the released version. The `v4.0.0` references in `index.md` refer to the legacy-compatibility client framework, not the provider version.
+9. **Updated 2026-07-06.** The vendored provider is tagged `v0.2.0`, and `CHANGELOG.md` / the generated release-notes doc both identify 0.2.0 as the June 29, 2026 release with the `ztc_edge_connector_group` fix (`vendor/terraform-provider-ztc/CHANGELOG.md:3-12`; `vendor/terraform-provider-ztc/docs/guides/release-notes.md:15-28`). The stale constants remain: `ztc/common/version.go:3` still says `0.1.9`, and `ztc/version.go:4` still says `ProviderVersion = "1.0.0"` as a build-time placeholder. For release identity, trust the tag/release notes over those constants.
 
 10. **Cross-doc `LOCAL_SWITCH` / "local" forwarding method**: This doc previously invented a `LOCAL_SWITCH` value in the `forward_method` enum (now corrected against `forwarding_rules.go:44`, which has no such value). The same notion appeared in `index.md`'s prose ("ZIA / ZPA / direct / drop / local"); the `index.md` forwarding-methods row has been updated to drop the unsourced "local" and point at this clarification. Whether "local switch" / "Local" is a real portal-only or hardware-gateway (Branch Connector) behavior the Go enum simply does not model, or an erroneous notion that propagated through docs, is unresolved. See [clarification `cloud-connector-17`](../_meta/clarifications.md#cloud-connector-17-local-local_switch-forwarding-method-real-behavior-or-doc-artifact).

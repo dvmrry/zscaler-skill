@@ -3,7 +3,7 @@ product: zia
 topic: "zia-terraform"
 title: "ZIA Terraform provider resource catalog"
 content-type: reference
-last-verified: "2026-06-29"
+last-verified: "2026-07-06"
 verified-against:
   vendor/terraform-provider-zia: 6e6509f001ca71adcedfd4884250d09227395bf0
 confidence: medium
@@ -86,6 +86,7 @@ sources:
   - "vendor/terraform-provider-zia/docs/resources/zia_virtual_service_edge_node.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_workload_groups.md"
   - "vendor/terraform-provider-zia/zia/resource_zia_cloud_app_control_rules.go"
+  - "https://github.com/zscaler/terraform-provider-zia/issues/585"
   - "vendor/terraform-provider-zia/zia/resource_zia_url_categories.go"
   - "vendor/terraform-provider-zia/zia/resource_zia_user_management_users.go"
   - "vendor/terraform-provider-zia/zia/provider.go"
@@ -223,7 +224,7 @@ Cloud App Control policy rules that allow, block, or isolate access to specific 
 | `applications` | List(String) | Optional; specific cloud app IDs |
 | `cbi_profile` | Block | Optional; Cloud Browser Isolation profile |
 
-Gotcha: ISOLATE actions require a CBI subscription and cannot be mixed with other action types in the same rule. Provider v4.7.23 removed local `MaxItems` caps from `tenancy_profile_ids` and `cloud_app_instances` after [zscaler/terraform-provider-zia#577](https://github.com/zscaler/terraform-provider-zia/issues/577) showed API responses with more than eight tenancy profile IDs; treat their effective limits as API-owned, not provider-owned. Import by compound key `rule_type:rule_id`.
+Gotcha: ISOLATE actions require a CBI subscription and cannot be mixed with other action types in the same rule. Provider v4.7.23 removed local `MaxItems` caps from `tenancy_profile_ids` and `cloud_app_instances` after [zscaler/terraform-provider-zia#577](https://github.com/zscaler/terraform-provider-zia/issues/577) showed API responses with more than eight tenancy profile IDs; treat their effective limits as API-owned, not provider-owned. Upstream issue [zscaler/terraform-provider-zia#585](https://github.com/zscaler/terraform-provider-zia/issues/585) reports a tenant case where deleting multiple `zia_cloud_app_control_rule` objects from one category in a single apply failed with HTTP 400 "Rule is not allowed at order N" while one-at-a-time deletion or `terraform apply -parallelism=1` succeeded; provider maintainers had not reproduced it, so treat this as a tracked sequencing caveat rather than a confirmed provider defect. The resource code serializes create/update/delete through a package-level lock and invokes reorder logic after updates, while delete calls the rule-type delete endpoint directly (`vendor/terraform-provider-zia/zia/resource_zia_cloud_app_control_rules.go:20-31`, `:527-558`, `:574-590`). Import by compound key `rule_type:rule_id`.
 
 ### `zia_cloud_application_instance`
 

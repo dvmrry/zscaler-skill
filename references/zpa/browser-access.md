@@ -3,9 +3,9 @@ product: zpa
 topic: "browser-access"
 title: "Browser Access — clientless ZPA via a web browser"
 content-type: reference
-last-verified: "2026-06-15"
+last-verified: "2026-07-06"
 verified-against:
-  vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
+  vendor/terraform-provider-zpa: dcf12469a9a8f648be0691c74e9816fc94ec7ddc
   vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
   vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
 confidence: high
@@ -13,7 +13,9 @@ source-tier: mixed
 sources:
   - "vendor/zscaler-help/about-browser-access.md"
   - "vendor/zscaler-help/using-wildcard-certificates-browser-access-applications.md"
+  - "vendor/terraform-provider-zpa/CHANGELOG.md"
   - "vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment_browser_access.go"
+  - "vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go"
   - "vendor/zscaler-sdk-python/zscaler/zpa/app_segments_ba.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/app_segments_ba_v2.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py"
@@ -238,7 +240,7 @@ Resource type: `zpa_application_segment_browser_access`. This is a separate Terr
 
 Key Terraform constraints:
 - **`certificate_id` conflicts with `ext_label` + `ext_domain`**. If a custom external label/domain is configured on a clientless app, pinning a certificate ID is rejected at plan/apply time (`resource_zpa_application_segment_browser_access.go:41-50`).
-- **`select_connector_close_to_app` is NOT `ForceNew` on this resource.** In the base `zpa_application_segment` resource this attribute *is* `ForceNew` (`resource_zpa_application_segment.go:194-198`), so toggling it there recreates the segment. On `zpa_application_segment_browser_access` it is a plain optional bool with no `ForceNew` — in fact this resource declares no `ForceNew` attributes at all (`resource_zpa_application_segment_browser_access.go:221-224`). Do not assume the base resource's recreate-on-change behavior carries over; this is one of the field-level divergences behind the "treat them as distinct" caution above.
+- **`select_connector_close_to_app` is not `ForceNew` on current base or Browser Access schemas.** Browser Access exposes it as a plain optional bool (`vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment_browser_access.go:221-224`). As of provider v4.4.6, the base `zpa_application_segment` schema does the same after removing `ForceNew` (`vendor/terraform-provider-zpa/CHANGELOG.md:3-12`; `vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go:194-197`). Older provider versions differed for the base resource, so check provider version before reusing older migration notes.
 
 ---
 

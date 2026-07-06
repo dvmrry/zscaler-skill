@@ -3,7 +3,7 @@ product: shared
 topic: "terraform-provider"
 title: "Zscaler Terraform providers (ZIA + ZPA)"
 content-type: reference
-last-verified: "2026-06-29"
+last-verified: "2026-07-06"
 confidence: medium
 source-tier: mixed
 sources:
@@ -13,6 +13,8 @@ sources:
   - "https://registry.terraform.io/providers/zscaler/zpa/latest/docs"
   - "vendor/terraform-provider-zpa/docs/index.md"
   - "vendor/terraform-provider-zpa/README.md"
+  - "vendor/terraform-provider-zpa/CHANGELOG.md"
+  - "vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go"
 author-status: draft
 ---
 
@@ -198,7 +200,7 @@ These fields on ZIA/ZPA resources are immutable at the API level. Changing them 
 - VPN credentials — `type`, `fqdn`, `ip_address`, `pre_shared_key` all `ForceNew` (`resource_zia_traffic_forwarding_vpn_credentials.go:77, 87, 93, 99`). Rotating a PSK or migrating from IP to UFQDN requires full credential recreation.
 
 **ZPA:**
-- Application Segments (all variants) — `select_connector_close_to_app` is `ForceNew`. Toggling connector-proximity routing requires segment recreation.
+- Application Segments — `select_connector_close_to_app` is a provider-version caveat, not a blanket ForceNew rule. Provider v4.4.6 removed `ForceNew` from the base `zpa_application_segment` schema; older providers treated it as recreate-on-change, and variant resources still need per-schema verification (`vendor/terraform-provider-zpa/CHANGELOG.md:3-12`; `vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go:194-197`).
 - Policy Access rules — `reauth_timeout` and `reauth_idle_timeout` are both `ForceNew` (`common.go:554-562`). **Changing a session/idle timeout on an existing rule requires destroy-recreate** — the API refuses in-place updates. This can renumber nearby rules; plan carefully.
 
 ### Validator enums richer than help docs
