@@ -3,16 +3,20 @@ product: zpa
 topic: "privileged-remote-access"
 title: "Privileged Remote Access (PRA) — clientless RDP/SSH/VNC"
 content-type: reasoning
-last-verified: "2026-06-15"
+last-verified: "2026-07-06"
 verified-against:
-  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/zscaler-sdk-python: a3a7bee6cf145f426f49a83c1719a73cdd413e6f
+  vendor/zpacloud-ansible: 8250d345297bef45a8deec75f77bad0fde3bb18a
   vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
   vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
 confidence: medium
 source-tier: mixed
 sources:
   - "vendor/zscaler-help/privileged-remote-access-captures.md"
+  - "vendor/zscaler-sdk-python/docsrc/zs/guides/release_notes.rst"
   - "vendor/zscaler-sdk-python/zscaler/zpa/pra_approval.py"
+  - "vendor/zpacloud-ansible/CHANGELOG.md"
+  - "vendor/zpacloud-ansible/plugins/modules/zpa_pra_approval.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/pra_console.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/pra_credential.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/pra_credential_pool.py"
@@ -174,11 +178,13 @@ Source: `vendor/zscaler-help/privileged-remote-access-captures.md`; `vendor/zsca
 
 3. **Approval windows are start+duration, not floating.** An approval granted for 2pm-4pm is usable only during that window. Users who miss the window need to re-request.
 
-4. **Recording transcoding is async.** A session that just ended isn't immediately streamable. Check status before expecting playback; use prioritized transcoding for urgent forensic review.
+4. **`working_hours` is optional in current Python SDK / Ansible clients.** Python SDK v1.9.34 fixes `pra_approval.working_hours`, defaults time conversion to UTC when working hours are omitted, and serializes `workingHours` only when a caller explicitly supplies it because the API rejects a partial or empty `workingHours` object (`vendor/zscaler-sdk-python/docsrc/zs/guides/release_notes.rst:9-20`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_approval.py:193-220`, `:285-312`). The ZPA Ansible collection v2.2.5 carries the same operational fix for `zpa_pra_approval`, including truly optional `working_hours` and sending only the intended update payload (`vendor/zpacloud-ansible/CHANGELOG.md:3-12`; `vendor/zpacloud-ansible/plugins/modules/zpa_pra_approval.py:289-371`).
 
-5. **PRA sessions don't respect ZCC posture on clientless flows.** When a user reaches PRA via a browser on an unmanaged device, ZCC posture doesn't evaluate — posture policies that gate RDP access only work when the user comes from a ZCC-enrolled device. For clientless PRA, rely on IdP + Approval + Capabilities, not on device posture.
+5. **Recording transcoding is async.** A session that just ended isn't immediately streamable. Check status before expecting playback; use prioritized transcoding for urgent forensic review.
 
-6. **PRA is not a full PAM replacement.** It covers session brokering + credential pooling + recording, but lacks the credential-vaulting / rotation / secrets-management breadth of a dedicated PAM (CyberArk, HashiCorp Vault). Tenants with heavy PAM requirements typically pair PRA with an external PAM: PAM manages vaulting and rotation; PRA consumes the current cred and handles the session-broker layer.
+6. **PRA sessions don't respect ZCC posture on clientless flows.** When a user reaches PRA via a browser on an unmanaged device, ZCC posture doesn't evaluate — posture policies that gate RDP access only work when the user comes from a ZCC-enrolled device. For clientless PRA, rely on IdP + Approval + Capabilities, not on device posture.
+
+7. **PRA is not a full PAM replacement.** It covers session brokering + credential pooling + recording, but lacks the credential-vaulting / rotation / secrets-management breadth of a dedicated PAM (CyberArk, HashiCorp Vault). Tenants with heavy PAM requirements typically pair PRA with an external PAM: PAM manages vaulting and rotation; PRA consumes the current cred and handles the session-broker layer.
 
 ## Common questions this unlocks
 

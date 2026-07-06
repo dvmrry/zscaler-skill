@@ -3,11 +3,11 @@ product: ztw
 topic: "azure-deployment"
 title: "Cloud Connector on Azure — deployment shape, NIC model, scaling, HA"
 content-type: reasoning
-last-verified: "2026-05-05"
+last-verified: "2026-07-06"
 confidence: high
 source-tier: mixed
 verified-against:
-  vendor/terraform-azurerm-cloud-connector-modules: 4c65a1c2eec3235934b06115b34086210e0cb11e
+  vendor/terraform-azurerm-cloud-connector-modules: b530ca475148f6bb6d66b22473bf0559dd1e8f54
 sources:
   - "github.com/zscaler/terraform-azurerm-cloud-connector-modules"
   - "vendor/zscaler-help/cbc-configuring-cloud-provisioning-template.md"
@@ -24,6 +24,9 @@ sources:
   - "vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-nsg-azure/variables.tf"
   - "vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-lb-azure/main.tf"
   - "vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-lb-azure/variables.tf"
+  - "vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-gwlb-azure/README.md"
+  - "vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-public-lb-azure/README.md"
+  - "vendor/terraform-azurerm-cloud-connector-modules/CHANGELOG.md"
   - "vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-function-app-azure/main.tf"
   - "vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-function-app-azure/variables.tf"
   - "vendor/terraform-azurerm-cloud-connector-modules/examples/README.md"
@@ -214,6 +217,10 @@ The reference TF + Zscaler's published HA guidance recommend:
 | Default behavior on full ZIA unreachability | Fail-close (drop) — switchable to fail-open | Runtime behavior, not IaC-derived |
 | NAT Gateway | One per AZ | Reference recommendation per the Azure NAT Gateway zone-pinning model |
 | Upgrade window | Configurable per CC Group (Admin Console) | Maintains redundancy during upgrade — Zscaler-managed |
+
+### Azure GWLB ingress-inspection support
+
+The vendored Azure Terraform modules now include first-class Gateway Load Balancer support for Cloud Connector. The module changelog describes Azure GWLB as enabling transparent inline inspection for ingress traffic that the older egress-only private-LB topology did not cover, and adds both greenfield and brownfield GWLB examples (`vendor/terraform-azurerm-cloud-connector-modules/CHANGELOG.md:1-15`). The new `terraform-zscc-gwlb-azure` module creates an Azure Gateway Load Balancer with dual VXLAN tunnel interfaces, an HTTP probe, and a backend pool for Cloud Connectors; it is intended to chain behind a consumer Public Load Balancer (`vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-gwlb-azure/README.md:1-9`). The public-LB module exposes `gateway_load_balancer_frontend_ip_configuration_id`; setting it redirects inbound public-LB traffic through the GWLB and Cloud Connector VMs before reaching the original backend (`vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-public-lb-azure/README.md:1-10`, `:45`).
 
 ## Common failure modes
 

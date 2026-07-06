@@ -3,7 +3,7 @@ product: ztw
 topic: "aws-deployment"
 title: "Cloud Connector on AWS — deployment shape, ENI model, scaling, HA"
 content-type: reasoning
-last-verified: "2026-05-03"
+last-verified: "2026-07-06"
 verified-against:
   vendor/terraform-provider-ztc: 92f2d7c686b53c7bb5421d07581de9ae90be136b
 confidence: high
@@ -19,6 +19,7 @@ sources:
   - "vendor/terraform-aws-cloud-connector-modules/modules/terraform-zscc-ccvm-aws/ (instance + ENI model)"
   - "vendor/terraform-aws-cloud-connector-modules/modules/terraform-zscc-asg-aws/ (ASG, scaling policy, lifecycle hooks)"
   - "vendor/terraform-aws-cloud-connector-modules/modules/terraform-zscc-asg-lambda-aws/ (Lambda lifecycle helper)"
+  - "vendor/terraform-aws-cloud-connector-modules/modules/terraform-zscc-lambda-aws/ (legacy route-table Lambda helper)"
   - "vendor/terraform-aws-cloud-connector-modules/modules/terraform-zscc-gwlb-aws/ (GWLB, target group, health probe)"
   - "vendor/terraform-aws-cloud-connector-modules/modules/terraform-zscc-iam-aws/ (CC instance IAM policies)"
   - "vendor/terraform-aws-cloud-connector-modules/modules/terraform-zscc-sg-aws/ (mgmt + service SG rules)"
@@ -297,6 +298,8 @@ The `terraform-zscc-iam-aws` module attaches an instance profile to each CC EC2 
 | CloudWatch metrics RW | `cloudwatch:PutMetricData` | Conditioned to `cloudwatch:namespace = "Zscaler/CloudConnectors"` | `main.tf:138-153` |
 | CloudWatch metrics RO + tags | `cloudwatch:GetMetricStatistics`, `ListMetrics`, `ec2:DescribeTags` | `*` | `main.tf:155-172` |
 | Cloud Tags subscription (optional) | `sns:ListTopics`, `ListSubscriptions`, `Subscribe`, `Unsubscribe`, `sqs:CreateQueue`, `DeleteQueue` | `*` (with optional `var.iam_tags_condition` conditions); only when `cloud_tags_enabled = true` | `main.tf:191-216` |
+
+Legacy/non-GWLB Lambda route-table failover is still present in the reference modules, but its `ec2:ReplaceRoute` permission is now constrained with an `ec2:ResourceTag/Name` condition matching the module's deployment tag pattern (`vendor/terraform-aws-cloud-connector-modules/modules/terraform-zscc-lambda-aws/main.tf:59-68`). This is a reference-IaC least-privilege tightening, not a runtime Cloud Connector API change.
 
 ## CloudFormation deployment flow
 

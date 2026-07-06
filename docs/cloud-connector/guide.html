@@ -389,7 +389,7 @@
     <section class="section" id="azure">
       <div class="section-num">§ 3 · Azure deployment</div>
       <h2>Azure deployment</h2>
-      <p class="standfirst">Cloud Connector on Azure uses a dual-NIC VM published via Azure Marketplace, routes workload traffic via UDR to an Internal Load Balancer, and scales via VMSS with a mandatory Azure Function App for orphan cleanup.</p>
+      <p class="standfirst">Cloud Connector on Azure uses a dual-NIC VM published via Azure Marketplace, routes workload traffic via UDR to an Internal Load Balancer, and now has reference Terraform patterns for Azure Gateway Load Balancer ingress inspection. VMSS scaling still depends on the mandatory Azure Function App for orphan cleanup.</p>
 
       <div class="subsection" id="azure-nics">
         <h3>Marketplace image and dual-NIC architecture</h3>
@@ -445,6 +445,7 @@
             <tr><td>Successes to recovery</td><td>1</td></tr>
           </tbody>
         </table>
+        <p>The Azure Terraform modules also include Gateway Load Balancer patterns for transparent ingress inspection. A consumer Public Load Balancer can be chained to the GWLB frontend so inbound traffic traverses Cloud Connector before reaching the backend; this is separate from the traditional egress ILB + UDR pattern.</p>
 
         <h4>NAT Gateway</h4>
         <p>The reference Terraform deploys one NAT Gateway per CC service subnet for egress to ZIA Public Service Edges. The NAT Gateway's public IP becomes the egress source IP that ZIA sees. For multi-AZ deployments, Zscaler recommends one NAT Gateway per availability zone — Azure NAT Gateways are zone-specific, so a shared gateway across AZs is a single point of AZ failure for egress.</p>
