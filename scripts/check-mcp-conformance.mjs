@@ -236,6 +236,11 @@ async function runInProcessConformance(config) {
 // ── Official inspector attempt ────────────────────────────────────────────────
 
 async function tryOfficialInspector() {
+  // MCP_CONFORMANCE_OFFLINE=1 skips the npx probe entirely (CI runs offline;
+  // the in-process assertions below are the deterministic gate either way).
+  if (process.env.MCP_CONFORMANCE_OFFLINE === "1") {
+    return { available: false, reason: "MCP_CONFORMANCE_OFFLINE=1" };
+  }
   return new Promise((resolve) => {
     // Verify the CLI flag: npx @modelcontextprotocol/inspector --cli
     // We first check --help to discover available flags without running a full session.
