@@ -116,12 +116,13 @@ empty.
 - **Z-Tunnel wire-format internals are not customer-documented.**
   `references/zcc/z-tunnel.md` covers the operational layer. Protocol-level
   questions remain Zscaler Support territory.
-- **Tier 2 has programmable but shallow coverage.** ZBI and ZWA have documented
-  product behavior and programmable surface, but thinner operational depth than
-  Tier 1 policy and traffic-control planes.
+- **Tier 2 has programmable but shallow coverage.** ZBI, ZWA, AI Guard, ZMS,
+  EASM, and Zscaler Cellular / ZCell have documented product behavior and
+  programmable surface, but thinner operational depth than Tier 1 policy and
+  traffic-control planes.
 - **Tier 3 has reasoning coverage, no verified API surface.** Deception,
-  Risk360, AI Security family, ZMS, ZSDK, ITDR / Identity Protection, DSPM,
-  AEM, UVM, Zscaler Cellular, SOC Workbench, Breach Predictor, Business
+  Risk360, AI Security family beyond AI Guard, ZSDK, ITDR / Identity
+  Protection, DSPM, AEM, UVM, SOC Workbench, Breach Predictor, Business
   Insights, Zero Trust Branch, and Experience Center / unified topics can be
   answered conceptually, but the skill must avoid inventing SDK, Terraform, or
   API behavior.
