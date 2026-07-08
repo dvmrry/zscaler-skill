@@ -468,6 +468,11 @@ test("passing force to open_audit returns isError with FORCE_OVER_MCP_ERROR mess
     assert.match(text, /force is not available over MCP/, `error must include force-rejection message, got: ${text}`);
     assert.match(
       text,
+      /Repair flows: run audit_status and follow its nextCommands\/nextActions\./,
+      `error must point to audit_status nextCommands/nextActions, got: ${text}`,
+    );
+    assert.match(
+      text,
       /Replacing existing audit artifacts is a human decision/,
       `error must include human-decision text, got: ${text}`,
     );
@@ -506,6 +511,7 @@ test("passing force to record_finding returns isError with FORCE_OVER_MCP_ERROR 
     });
     assert.equal(resp.result.isError, true, "expected isError:true when force is passed to record_finding over MCP");
     assert.match(resp.result.content[0].text, /force is not available over MCP/);
+    assert.match(resp.result.content[0].text, /Repair flows: run audit_status and follow its nextCommands\/nextActions\./);
   } finally {
     server.close();
   }
@@ -1066,6 +1072,15 @@ test("tools/list: audit_status has outputSchema with required phase field", asyn
       Array.isArray(auditStatusTool.outputSchema.required) &&
         auditStatusTool.outputSchema.required.includes("phase"),
       "outputSchema.required should include 'phase'",
+    );
+    assert.ok(
+      auditStatusTool.outputSchema.required.includes("nextCommands"),
+      "outputSchema.required should include 'nextCommands'",
+    );
+    assert.equal(
+      auditStatusTool.outputSchema.properties?.nextCommands?.type,
+      "array",
+      "nextCommands property should be an array",
     );
     const phaseEnum = auditStatusTool.outputSchema.properties?.phase?.enum;
     assert.ok(Array.isArray(phaseEnum), "phase property should have an enum");

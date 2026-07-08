@@ -24,7 +24,8 @@ premises that have not been confirmed by recorded artifacts.
 Execute these steps in order. Each gate must pass before the next begins.
 
 1. **audit_status** — Run audit_status first whenever resuming, after any gate
-   failure, or when audit state is uncertain. Follow nextActions exactly.
+   failure, or when audit state is uncertain. Follow nextCommands/nextActions
+   exactly.
 2. **open_audit** — Create the audit intake. Declare scope (paths or topic) and
    description. Do not adopt any premise in the scope that is not supported by
    evidence; open the audit with the scope as given and let evidence decide.
@@ -58,7 +59,7 @@ finding statuses — the model does not.
 ## Status-first recovery rule
 
 After any gate failure, tool error, or uncertain state: call **audit_status**
-first. Read nextActions. Do not guess the next step.
+first. Read nextCommands and nextActions. Do not guess the next step.
 
 ## Answer-from-artifact rule
 

@@ -260,7 +260,7 @@ evidence-gated records, answer-from-artifact, and fabrication-resistant errors.
 
 | Tool | Read-only | Description |
 |---|---|---|
-| `audit_status` | yes | Read-only doctor: phase, finding counts, checks recorded, nextActions |
+| `audit_status` | yes | Read-only doctor: phase, finding counts, checks recorded, nextCommands/nextActions |
 | `open_audit` | no | Create audit intake (scope + description) |
 | `record_finding` | no | Record an evidence-gated finding into findings.jsonl, re-derive register.md |
 | `record_check_output` | no | Store a CI/check script's output as evidence under `checks/<name>.txt` |
@@ -336,7 +336,7 @@ answer-from-artifact, and fabrication-resistant errors.
 
 | Tool | Read-only | Description |
 |---|---|---|
-| `soc_status` | yes | Read-only doctor: phase, finding counts, evidence recorded, nextActions (outputSchema) |
+| `soc_status` | yes | Read-only doctor: phase, finding counts, evidence recorded, nextCommands/nextActions (outputSchema) |
 | `open_review` | no | Create review intake (scope + description + optional threat model) |
 | `record_evidence` | no | Store tenant evidence under `evidence/<name>.*` and register it in the intake JSON |
 | `record_finding` | no | Record an evidence-gated finding into findings.jsonl, re-derive register.md |
