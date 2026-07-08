@@ -137,6 +137,8 @@ Defined in `site.css`. Use `<a class="doc-link">` with three children: a `<div>`
 - **Backticks** for `--token-names`, code identifiers, file paths.
 - **Anchor IDs** are kebab-case nouns (`#triage`, `#ssl-anatomy`, not `#table-of-triage-cases`).
 - **One H1 per page.** Section heads are H2; sub-heads H3; component labels (e.g., margin-note titles) are H4 in `var(--font-sans)` uppercase.
+- **Review scratch stays local.** Do not commit generated patch dumps such as
+  `full_diff.txt`; summarize the finding or link the PR instead.
 
 ## What goes where
 
