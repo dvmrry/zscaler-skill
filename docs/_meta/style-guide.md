@@ -178,6 +178,6 @@ The skill uses parallel naming conventions across `references/` (markdown source
 | `guide.html` | **Comprehensive editorial reference** — multi-feature rollup in prose form | n/a (refs uses per-feature files) | 500–900+ lines of dense scannable reference |
 | `<feature>.md` | **Per-feature reference** | Granular, one feature per file | n/a (rolled up into guide.html) |
 
-Single-file products (currently 12 of them — `aem`, `breach-predictor`, `business-insights`, `dspm`, `identity-protection`, `soc-workbench`, `unified`, `uvm`, `workflow-automation`, `zero-trust-branch`, `zero-trust-browser`, `zscaler-cellular`) use `overview.md` only. **Promotion rule**: when a product grows past one file's worth of content, add `index.md` as the hub (catalog) and demote `overview.md` to a narrative chapter linked from the index.
+Single-file products (currently 11 of them — `aem`, `breach-predictor`, `business-insights`, `dspm`, `identity-protection`, `soc-workbench`, `unified`, `uvm`, `workflow-automation`, `zero-trust-branch`, `zero-trust-browser`) use `overview.md` only. **Promotion rule**: when a product grows past one file's worth of content, add `index.md` as the hub (catalog) and demote `overview.md` to a narrative chapter linked from the index.
 
 `reference.html` (the previous name for `guide.html`) was renamed in 2026-04-30 because "reference" overlaps semantically with `references/` itself, while `guide` reads more naturally for the comprehensive editorial role.
