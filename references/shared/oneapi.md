@@ -421,9 +421,24 @@ The vendored Postman collection (`vendor/zscaler-api-specs/oneapi-postman-collec
 | ZIdentity | 4 |
 | Zscaler Business Insights | 2 |
 
-**ZPA's web-published docs are absent** from automate.zscaler.com — sitemap returns 0 ZPA URLs as of 2026-04-24. The Postman collection is the **only machine-readable ZPA reference** Zscaler publishes. Categories include: Application / Policy Set / Microtenant / PRA Approval / PRA Console / PRA Portal / Service Edge / SCIM / LSS / Connector / Server Group / Customer / IdP / SAML Attribute / Provisioning Key / Trusted Network / Inspection Profile / Isolation Profile / Posture Profile (full list in `vendor/zscaler-help/automate-zscaler/postman-collection-note.md`).
+**ZPA now has a reconstructed Automate contract in this repo.** The earlier
+2026-04-24 sitemap pass found no ZPA URLs, but the later Docusaurus-blob
+capture recovered ZPA operation metadata from automate.zscaler.com's embedded
+`frontMatter.api` objects. The current reconstructed snapshot records **188 ZPA
+operations across 125 paths with 0 structural validation issues**
+(`vendor/zscaler-api-specs/automate-zscaler/openapi/openapi-validation-report.md:7-19`)
+and preserves per-operation source URLs and blob hashes
+(`vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json:2-14`). The
+Postman collection is still useful as a published collection and historical
+coverage cross-check, but it is no longer the only machine-readable ZPA surface
+available to this repository.
 
-When answering questions about ZPA endpoint shapes, response payloads, or URI patterns, the Postman collection is the authoritative source — not help.zscaler.com (which has no ZPA reference) and not the SDK source (which lags new endpoints).
+When answering questions about ZPA endpoint shapes, response payloads, or URI
+patterns, prefer the reconstructed Automate contract and rosetta outputs for
+the captured snapshot, then cross-check Postman and SDK source when the
+question is about publication status or client implementation drift. Preserve
+the caveat: these are reconstructed artifacts, not an official static
+`openapi.json` published by Zscaler.
 
 The collection is named "OneAPI Copy 3" internally — Zscaler naming artifact, ignore.
 
@@ -460,7 +475,7 @@ Note: This section summarizes the cited OneAPI mechanics above.
 
 3. **Rate-limit response headers differ per product.** Code that polls `x-ratelimit-remaining` for ZIA needs to switch to `RateLimit-Remaining` for ZDX (OneAPI gateway path, help-documented; the SDK direct-cloud transport reads `X-Ratelimit-*-Second` — the per-host mapping is inferred, see [`../zdx/api-divergences.md`](../zdx/api-divergences.md)) and `X-Rate-Limit-Remaining` for ZCC. Same conceptual field, three names.
 
-4. **ZPA web reference docs don't exist** at automate.zscaler.com — Postman is the only published API surface. This is a staged rollout per Zscaler; check periodically for ZPA web pages.
+4. **ZPA has reconstructed Automate contract coverage in this repo, but still no official downloadable OpenAPI.** Treat the generated ZPA snapshot as a captured contract artifact, not as a vendor-published static spec.
 
 5. **No vendor-published OpenAPI / Swagger download.** Confirmed. The Automate site embeds enough per-operation schema data for this repo to reconstruct OpenAPI-compatible snapshots, but they are best-effort derived artifacts with explicit caveats, not an official static `openapi.json` from Zscaler (`scripts/automate-capture/README.md:110-141`).
 
@@ -558,7 +573,10 @@ ZPA legacy returns a Bearer token with approximately 1-hour TTL. Unlike ZIA, the
 
 **ZPA legacy APIs covered:** The ZPA API gives programmatic access to the full ZPA feature set: Application Segments, Segment Groups, App Connectors, Access Policies, SAML Attributes, SCIM, LSS, Microtenants, Privileged Remote Access, Posture Profiles, Trusted Networks, Enrollment Certificates, Isolation Profiles, and approximately 40 other feature areas (Tier A — vendor/zscaler-help/legacy-understanding-zpa-api.md).
 
-Note: ZPA's API documentation is not published on help.zscaler.com. The Postman collection in `vendor/zscaler-api-specs/oneapi-postman-collection.json` is the only machine-readable ZPA API surface Zscaler publishes.
+Note: ZPA's legacy API documentation is not published on help.zscaler.com. The
+Postman collection in `vendor/zscaler-api-specs/oneapi-postman-collection.json`
+remains the published collection surface; this repo also carries the
+reconstructed Automate ZPA contract described above.
 
 ### Legacy vs OneAPI — comparison
 
