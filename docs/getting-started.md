@@ -139,6 +139,9 @@ Use the actual branch or tag for your runtime-data source. Mode `checkout`
 clones the runtime data directly into `_data/` without registering a parent-repo
 submodule.
 
+After the setup steps, run `node scripts/doctor.mjs` to confirm the local
+install and get the next command or doc pointer for anything missing.
+
 ## Populate the snapshot
 
 `_data/snapshot/` holds sanitized tenant configuration the skill cites when
