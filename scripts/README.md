@@ -107,14 +107,19 @@ Validate workflow metadata and runtime adapter pointers:
 node scripts/check-workflow-metadata.mjs
 ```
 
-The `_data` mount contract check verifies a runtime data mount without reading
-tenant contents:
+The runtime data mount contract check verifies a runtime data mount without
+reading tenant contents. `_data` is the default mount path, configured by the
+tracked `zscaler-skill-runtime.json`:
 
 ```bash
 node scripts/check-data-contract.mjs
 ```
 
-To create `_data` from a user-supplied data source:
+If `zscaler-skill-runtime.json` or local `zscaler-skill-setup.json` sets
+`runtimeData.mountPath`, the checker reads that automatically. You can also
+pass `--mount-path <path>`.
+
+To create the runtime data mount from a user-supplied data source:
 
 ```bash
 node scripts/setup-data-mount.mjs \
@@ -125,21 +130,50 @@ node scripts/setup-data-mount.mjs \
 
 Use the actual branch or tag for your runtime-data source.
 
-Mode `checkout` clones a repository or local path into `_data` without
+Mode `checkout` clones a repository or local path into the mount without
 registering a parent-repo submodule. Mode `copy` materializes a local directory
 copy. Use `--mode submodule` only when a release/build flow deliberately wants
-a pinned `_data` gitlink. The setup helper refuses to replace populated `_data`
-unless `--force` is explicit and runs the data contract check after setup.
+a pinned runtime-data gitlink. The setup helper refuses to replace populated
+runtime data unless `--force` is explicit and runs the data contract check
+after setup.
 
 If `zscaler-skill-setup.json` exists at the repo root, the setup helper reads
-defaults from it. CLI flags override config values. The public template is
+private bootstrap defaults from it. CLI flags override config values. The public template is
 [`../zscaler-skill-setup.example.json`](../zscaler-skill-setup.example.json);
 the real config is gitignored because it may contain a private data source URL.
+Preferred local setup-config shape:
+
+```json
+{
+  "runtimeData": {
+    "source": "${ZSCALER_SKILL_RUNTIME_SOURCE}",
+    "ref": "main",
+    "mode": "checkout"
+  }
+}
+```
+
+The setup helper also accepts `--mount-path <path>` and
+`--tracking ignored|tracked` for one-off runs. Keep `tracking: "ignored"` for
+public/local checkouts; setup will protect a custom ignored mount with a local
+Git exclude. In a private work mirror that intentionally commits runtime data
+directly in this repo, commit this in `zscaler-skill-runtime.json`:
+
+```json
+{
+  "runtimeData": {
+    "mountPath": "tenant-data",
+    "tracking": "tracked"
+  }
+}
+```
 
 Missing required directories are errors. Empty runtime directories are warnings,
 because snapshot-backed reasoning and tenant schema hints are unavailable.
 
-To prepare selected runtime artifacts for a configured overlay repository:
+Most private mirrors should commit runtime-data artifacts directly to the
+configured tracked mount. The separate overlay-submission helper remains for
+installations that still use a second repository:
 
 ```bash
 node scripts/prepare-overlay-submission.mjs \
@@ -152,8 +186,10 @@ for obvious secret material, creates a branch in a temporary overlay checkout,
 commits the selected files, and prints the next `git push` command. It does not
 push by default. Configure the overlay target in local
 `zscaler-skill-setup.json` under `overlaySubmission`, or pass `--repo-url`.
-The overlay repository is treated as the `_data` content root, so runtime paths
-are copied without the `_data/` prefix (`_data/cases/foo` → `cases/foo`).
+The overlay repository is treated as the runtime-data content root, so runtime
+paths are copied without the mount prefix (`_data/cases/foo` or
+`tenant-data/cases/foo` → `cases/foo`). If `runtimeData.mountPath` is set, the
+submission helper reads it automatically; otherwise pass `--mount-path`.
 
 ## When to add a new script
 

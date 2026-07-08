@@ -119,7 +119,7 @@ def main() -> int:
         *drift_section(changes),
         "## Asymmetry Candidates",
         "",
-        "`scripts/find-asymmetries.py` runs in this workflow and uploads `_data/schemas/asymmetry-candidates.md` as an artifact when present.",
+        "`scripts/find-asymmetries.py` runs in this workflow and uploads the runtime-data asymmetry report as an artifact when present.",
         "",
     ]
     output = args.output if args.output.is_absolute() else REPO_ROOT / args.output

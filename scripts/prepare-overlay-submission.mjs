@@ -8,27 +8,34 @@ import {
   assertNotOption,
   assertSafeRef,
   containedRelative,
+  DEFAULT_DATA_MOUNT,
+  expandConfigObject,
+  expandConfigString,
+  normalizeMountPath,
   normalizeAllowedRoots,
-  readJsonObject,
+  readRuntimeDataConfigs,
   runGit,
+  runtimeDataMountSettings,
+  SETUP_CONFIG_FILE,
   toPosix,
 } from "./lib.mjs";
 
-const DEFAULT_ALLOWED_ROOTS = ["_data/cases", "_data/schemas", "_data/iac"];
+const DEFAULT_OVERLAY_ROOTS = ["cases", "schemas", "iac"];
 const DEFAULT_BRANCH_PREFIX = "artifact-submission/";
 const MAX_SCAN_BYTES = 5 * 1024 * 1024;
 
 function usage(exitCode = 0) {
   const out = exitCode === 0 ? process.stdout : process.stderr;
   out.write(`Usage:
-  node scripts/prepare-overlay-submission.mjs [--root <repo-root>] [--config <json>] [--repo-url <git-url-or-local-path>] [--default-branch <branch>] [--branch-prefix <prefix>] [--artifact <path>]... [--case-path <path>] [--approve] [--dry-run]
+  node scripts/prepare-overlay-submission.mjs [--root <repo-root>] [--config <json>] [--mount-path <path>] [--repo-url <git-url-or-local-path>] [--default-branch <branch>] [--branch-prefix <prefix>] [--artifact <path>]... [--case-path <path>] [--approve] [--dry-run]
 
 Validates selected runtime artifacts and prepares a submission branch in the
 configured overlay repository. The helper never pushes by default.
 
 If --config is omitted, ./zscaler-skill-setup.json is used when it exists.
 The config may contain overlaySubmission.repoUrl, defaultBranch, branchPrefix,
-allowedRoots, and requireExplicitApproval.
+allowedRoots, and requireExplicitApproval. Defaults to the configured runtime
+data mount (_data in public upstream) unless --mount-path says otherwise.
 `);
   process.exit(exitCode);
 }
@@ -45,6 +52,7 @@ function parseArgs(argv) {
     config: null,
     defaultBranch: null,
     dryRun: false,
+    mountPath: null,
     repoUrl: null,
     root: scriptRoot(),
   };
@@ -85,6 +93,11 @@ function parseArgs(argv) {
       i += 1;
       continue;
     }
+    if (arg === "--mount-path") {
+      args.mountPath = argv[i + 1] || "";
+      i += 1;
+      continue;
+    }
     if (arg === "--root") {
       args.root = path.resolve(argv[i + 1] || "");
       i += 1;
@@ -95,28 +108,34 @@ function parseArgs(argv) {
 
   const configPath = args.config
     ? path.resolve(args.root, args.config)
-    : path.join(args.root, "zscaler-skill-setup.json");
-  const config = readJsonObject(configPath);
+    : path.join(args.root, SETUP_CONFIG_FILE);
+  const { setupConfig: config } = readRuntimeDataConfigs(args.root, configPath);
   const overlay = config.overlaySubmission || {};
+  const configValue = (value) => typeof value === "string" ? expandConfigString(value) : value;
+  const mountPath = runtimeDataMountSettings(args.root, {
+    configPath,
+    mountPath: args.mountPath,
+  }).mountPath;
 
   return {
     approve: args.approve,
     artifacts: args.artifacts.filter(Boolean),
-    branchPrefix: args.branchPrefix ?? overlay.branchPrefix ?? DEFAULT_BRANCH_PREFIX,
+    branchPrefix: args.branchPrefix ?? configValue(overlay.branchPrefix) ?? DEFAULT_BRANCH_PREFIX,
     configPath: fs.existsSync(configPath) ? configPath : null,
-    defaultBranch: args.defaultBranch ?? overlay.defaultBranch ?? "main",
+    defaultBranch: args.defaultBranch ?? configValue(overlay.defaultBranch) ?? "main",
     dryRun: args.dryRun,
-    mode: overlay.mode ?? "pull-request",
-    repoUrl: args.repoUrl ?? overlay.repoUrl ?? null,
+    mountPath,
+    mode: configValue(overlay.mode) ?? "pull-request",
+    repoUrl: args.repoUrl ?? configValue(overlay.repoUrl) ?? null,
     requireExplicitApproval: overlay.requireExplicitApproval !== false,
     root: args.root,
     allowedRoots: Array.isArray(overlay.allowedRoots) && overlay.allowedRoots.length
-      ? overlay.allowedRoots
-      : DEFAULT_ALLOWED_ROOTS,
+      ? expandConfigObject(overlay.allowedRoots)
+      : DEFAULT_OVERLAY_ROOTS.map((root) => `${mountPath}/${root}`),
   };
 }
 
-function validateArtifact(root, artifact, allowedRoots) {
+function validateArtifact(root, artifact, allowedRoots, mountPath = DEFAULT_DATA_MOUNT) {
   const absolute = path.resolve(root, artifact);
   const relative = containedRelative(root, absolute);
   if (relative === null) {
@@ -135,14 +154,16 @@ function validateArtifact(root, artifact, allowedRoots) {
   if (!allowed) {
     throw new Error(`artifact is outside allowed roots: ${relative}`);
   }
-  return { absolute, relative, overlayRelative: runtimePathToOverlayPath(relative) };
+  return { absolute, relative, overlayRelative: runtimePathToOverlayPath(relative, mountPath) };
 }
 
-function runtimePathToOverlayPath(runtimePath) {
-  if (!runtimePath.startsWith("_data/")) {
-    throw new Error(`runtime artifact path must start with _data/: ${runtimePath}`);
+function runtimePathToOverlayPath(runtimePath, mountPath = DEFAULT_DATA_MOUNT) {
+  const mount = normalizeMountPath(mountPath);
+  const normalized = toPosix(path.normalize(runtimePath)).replace(/\/+$/, "");
+  if (normalized !== mount && !normalized.startsWith(`${mount}/`)) {
+    throw new Error(`runtime artifact path must start with ${mount}/: ${runtimePath}`);
   }
-  const overlayPath = runtimePath.slice("_data/".length);
+  const overlayPath = normalized.slice(`${mount}/`.length);
   if (!overlayPath || overlayPath.startsWith("../") || path.isAbsolute(overlayPath)) {
     throw new Error(`invalid overlay artifact path: ${runtimePath}`);
   }
@@ -257,10 +278,11 @@ function prepareOverlaySubmission(options) {
   }
   assertNotOption(options.repoUrl, "repo url");
   assertSafeRef(options.defaultBranch, "default branch");
-  const allowedRoots = normalizeAllowedRoots(options.allowedRoots);
+  const mountPath = normalizeMountPath(options.mountPath || DEFAULT_DATA_MOUNT);
+  const allowedRoots = normalizeAllowedRoots(options.allowedRoots, mountPath);
 
   const artifacts = options.artifacts.map((artifactPath) => ({
-    ...validateArtifact(root, artifactPath, allowedRoots),
+    ...validateArtifact(root, artifactPath, allowedRoots, mountPath),
     root,
   }));
   const scan = scanArtifacts(artifacts);

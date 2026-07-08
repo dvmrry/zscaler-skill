@@ -29,6 +29,7 @@ import {
   readServerVersion,
   writeTmpJson as writeTmpJsonWithPrefix,
 } from "./mcp-server-lib.mjs";
+import { runtimeDataPath } from "./lib.mjs";
 
 import {
   openReview,
@@ -105,7 +106,7 @@ function resolveResourceContent(uri) {
     return { uri, mimeType: "text/markdown", text };
   }
   if (kind === "register") {
-    const registerPath = path.join(root, "_data", "soc-reviews", slug, "register.md");
+    const registerPath = runtimeDataPath(root, "soc-reviews", slug, "register.md");
     if (!fs.existsSync(registerPath)) {
       throw new Error(`no such review: ${slug}`);
     }
@@ -115,7 +116,7 @@ function resolveResourceContent(uri) {
   if (kind === "status") {
     // A resource read of a missing review must 404 consistently with report/register kinds.
     // socStatus() returns phase "no-review" rather than throwing — assert existence first.
-    const reviewIntakePath = path.join(root, "_data", "soc-reviews", slug, "review-intake.md");
+    const reviewIntakePath = runtimeDataPath(root, "soc-reviews", slug, "review-intake.md");
     if (!fs.existsSync(reviewIntakePath)) {
       throw new Error(`no such review: ${slug}`);
     }
@@ -238,7 +239,7 @@ const TOOLS = [
     title: "Record tenant evidence",
     description:
       "Store recorded tenant evidence (a snapshot excerpt, SIEM query result, API response, log) " +
-      "under _data/soc-reviews/<slug>/evidence/<name>.* and note it in review-intake.json.evidenceRecorded. " +
+      "under <runtime-data-mount>/soc-reviews/<slug>/evidence/<name>.* and note it in review-intake.json.evidenceRecorded. " +
       "A finding can then cite 'evidence:<name>' as its resolving source. " +
       "evidence_type: snapshot|siem|api|log (default: snapshot). " +
       "This is the SOC analog of the auditor's record_check_output — recorded evidence becomes " +
@@ -511,11 +512,8 @@ function handleRequest(raw) {
 
   // ── resources/list ────────────────────────────────────────────────────────
   if (method === "resources/list") {
-    const reviewsDir = path.join(
-      path.resolve(new URL("..", import.meta.url).pathname),
-      "_data",
-      "soc-reviews",
-    );
+    const root = path.resolve(new URL("..", import.meta.url).pathname);
+    const reviewsDir = runtimeDataPath(root, "soc-reviews");
     const resources = [];
     try {
       const entries = fs.readdirSync(reviewsDir, { withFileTypes: true });
@@ -529,7 +527,7 @@ function handleRequest(raw) {
         );
       }
     } catch {
-      // _data/soc-reviews absent — return empty list.
+      // Runtime data SOC reviews dir absent — return empty list.
     }
     process.stdout.write(`${JSON.stringify(makeResponse(id, { resources }))}\n`);
     return;

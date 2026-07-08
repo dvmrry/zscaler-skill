@@ -633,7 +633,9 @@ After composing the parsed framing and proposed loads, follow
 [`case-intake.md`](./case-intake.md). Do not summarize or collapse the
 helper-backed transaction:
 
-1. Resolve `case_dir` to `<working-dir>/_data/cases/<slug>`.
+1. Resolve `case_dir` to `<working-dir>/<runtime-mount>/cases/<slug>` (`_data`
+   is the default runtime mount; substitute the configured mount path if root
+   config changes it).
 2. Write the parsed framing to a JSON file.
 3. Run `node scripts/investigator-artifacts.mjs open-case` with the repo
    root, slug, framing JSON, and proposed load list.
@@ -695,7 +697,8 @@ _data/snapshot/<cloud>/
 ```
 
 Use a recursive file-listing tool. The canonical public path is singular
-`_data/snapshot/<cloud>/`.
+`_data/snapshot/<cloud>/`; substitute the configured runtime mount path when
+the repo uses one.
 
 If the fork-specific `_data/<cloud>/` layout exists and the canonical path is
 empty, show both attempts plainly.
@@ -800,9 +803,10 @@ Cannot save journal — working directory unknown. Reply with the absolute path
 of the repo root and I will retry the save.
 ```
 
-Some runtimes' native file-write tools refuse gitignored paths. `_data/` is
-deliberately gitignored as a privacy posture. NEVER edit `.gitignore` to enable
-a write — use `save-journal` (or a shell write as the fallback below) instead.
+Some runtimes' native file-write tools refuse gitignored paths. Public upstream
+ignores `_data/` as a privacy posture; private mirrors may use a configured
+tracked mount instead. NEVER edit `.gitignore` just to enable a write — use
+`save-journal` (or a shell write as the fallback below) instead.
 
 Render the full journal to a temp file. If using the compound Step 3 command
 (`initialize-turn-ledger --journal-file`), pass the temp path there — the

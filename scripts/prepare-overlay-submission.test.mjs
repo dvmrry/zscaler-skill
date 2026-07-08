@@ -31,9 +31,9 @@ function commitAll(root, message) {
   ]);
 }
 
-function makeRootWithCase() {
+function makeRootWithCase(mountPath = "_data") {
   const root = tempDir("zscaler-overlay-root-");
-  const caseDir = path.join(root, "_data", "cases", "2026-05-18-example");
+  const caseDir = path.join(root, mountPath, "cases", "2026-05-18-example");
   fs.mkdirSync(caseDir, { recursive: true });
   fs.writeFileSync(path.join(caseDir, "case-intake.json"), "{\"status\":\"pass\"}\n", "utf8");
   fs.writeFileSync(path.join(caseDir, "journal.md"), "# Journal\n", "utf8");
@@ -229,6 +229,27 @@ test("prepareOverlaySubmission reports binary files as unscanned text", () => {
   assert.deepEqual(result.warnings, ["_data/cases/2026-05-18-example/artifact.bin: not scanned as text"]);
 });
 
+test("prepareOverlaySubmission accepts artifacts under a configured runtime mount", () => {
+  const { root, caseDir } = makeRootWithCase("tenant-data");
+  const overlay = makeOverlayRepo();
+
+  const result = prepareOverlaySubmission({
+    approve: true,
+    artifacts: [caseDir],
+    branchPrefix: "case-submission/",
+    defaultBranch: "main",
+    dryRun: true,
+    mountPath: "tenant-data",
+    repoUrl: overlay,
+    requireExplicitApproval: true,
+    root,
+    allowedRoots: ["tenant-data/cases"],
+  });
+
+  assert.equal(result.files[0], "cases/2026-05-18-example");
+  assert.equal(result.sourceFiles[0], "tenant-data/cases/2026-05-18-example");
+});
+
 test("prepareOverlaySubmission rejects allowed roots with traversal", () => {
   const { root, caseDir } = makeRootWithCase();
   const overlay = makeOverlayRepo();
@@ -315,7 +336,12 @@ test("runtimePathToOverlayPath maps runtime _data paths to overlay-root paths", 
   assert.equal(runtimePathToOverlayPath("_data/cases/example"), "cases/example");
   assert.equal(runtimePathToOverlayPath("_data/schemas/fields.json"), "schemas/fields.json");
   assert.equal(runtimePathToOverlayPath("_data/iac/main.tf"), "iac/main.tf");
+  assert.equal(runtimePathToOverlayPath("tenant-data/cases/example", "tenant-data"), "cases/example");
   assert.throws(() => runtimePathToOverlayPath("references/zpa/app-segments.md"), /must start with _data/);
+  assert.throws(
+    () => runtimePathToOverlayPath("_data/cases/example", "tenant-data"),
+    /must start with tenant-data/,
+  );
 });
 
 test("prepareOverlaySubmission creates an overlay branch and commit without pushing", () => {

@@ -3,21 +3,35 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
-import { DATA_REQUIRED_DIRS, DATA_SKELETON_FILES, gitTryOutput } from "./lib.mjs";
+import {
+  DEFAULT_DATA_MOUNT,
+  DATA_REQUIRED_DIRS,
+  DATA_SKELETON_FILES,
+  gitTryOutput,
+  normalizeMountPath,
+  normalizeRuntimeDataTracking,
+  runtimeMountIgnoreStatus,
+  runtimeDataMountSettings,
+} from "./lib.mjs";
 
 function usage(exitCode = 0) {
   const out = exitCode === 0 ? process.stdout : process.stderr;
   out.write(`Usage:
-  node scripts/check-data-contract.mjs [--root <repo-root>]
+  node scripts/check-data-contract.mjs [--root <repo-root>] [--config <json>] [--mount-path <path>] [--tracking ignored|tracked]
 
-Verifies the _data runtime mount contract without reading tenant contents.
+Verifies the runtime data mount contract without reading tenant contents.
+Defaults to _data unless zscaler-skill-runtime.json, zscaler-skill-setup.json,
+or --mount-path says otherwise.
 `);
   process.exit(exitCode);
 }
 
 function parseArgs(argv) {
   const args = {
+    config: null,
+    mountPath: null,
     root: path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."),
+    tracking: null,
   };
 
   for (let i = 2; i < argv.length; i += 1) {
@@ -28,10 +42,35 @@ function parseArgs(argv) {
       i += 1;
       continue;
     }
+    if (arg === "--config") {
+      args.config = argv[i + 1] || "";
+      i += 1;
+      continue;
+    }
+    if (arg === "--mount-path") {
+      args.mountPath = argv[i + 1] || "";
+      i += 1;
+      continue;
+    }
+    if (arg === "--tracking") {
+      args.tracking = argv[i + 1] || "";
+      i += 1;
+      continue;
+    }
     throw new Error(`Unknown argument: ${arg}`);
   }
 
-  return args;
+  const settings = runtimeDataMountSettings(args.root, {
+    configPath: args.config,
+    mountPath: args.mountPath,
+    tracking: args.tracking,
+  });
+
+  return {
+    root: args.root,
+    mountPath: settings.mountPath,
+    tracking: settings.tracking,
+  };
 }
 
 function listUsefulEntries(dir) {
@@ -45,15 +84,17 @@ function gitLsTree(root, targetPath) {
   return gitTryOutput(root, ["ls-tree", "HEAD", targetPath]);
 }
 
-function detectDataSubmodule(root) {
-  const dataGit = path.join(root, "_data", ".git");
+function detectDataSubmodule(root, mountPath = DEFAULT_DATA_MOUNT) {
+  const mount = normalizeMountPath(mountPath);
+  const dataGit = path.join(root, mount, ".git");
   const gitmodules = path.join(root, ".gitmodules");
-  const lsTree = gitLsTree(root, "_data");
+  const lsTree = gitLsTree(root, mount);
 
   const gitFileLooksLikeSubmodule = fs.existsSync(dataGit) && fs.statSync(dataGit).isFile();
   const gitmodulesMentionsData = fs.existsSync(gitmodules)
-    && fs.readFileSync(gitmodules, "utf8").includes("path = _data");
-  const treeMatch = /^160000 commit ([0-9a-f]{40})\t_data$/m.exec(lsTree);
+    && fs.readFileSync(gitmodules, "utf8").includes(`path = ${mount}`);
+  const escapedMount = mount.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const treeMatch = new RegExp(`^160000 commit ([0-9a-f]{40})\\t${escapedMount}$`, "m").exec(lsTree);
 
   if (!gitFileLooksLikeSubmodule && !gitmodulesMentionsData && !treeMatch) {
     return { isSubmodule: false };
@@ -65,50 +106,68 @@ function detectDataSubmodule(root) {
   };
 }
 
-function checkDataContract(root) {
-  const dataDir = path.join(root, "_data");
+function checkDataContract(root, mountPath = DEFAULT_DATA_MOUNT, options = {}) {
+  const mount = normalizeMountPath(mountPath);
+  const tracking = normalizeRuntimeDataTracking(options.tracking);
+  const dataDir = path.join(root, mount);
   const errors = [];
   const warnings = [];
   const info = [];
 
   if (!fs.existsSync(dataDir) || !fs.statSync(dataDir).isDirectory()) {
-    errors.push("_data/ directory is missing");
+    errors.push(`${mount}/ directory is missing`);
     return { errors, warnings, info };
   }
 
   const readmePath = path.join(dataDir, "README.md");
   if (!fs.existsSync(readmePath) || !fs.statSync(readmePath).isFile()) {
-    warnings.push("_data/README.md is missing");
+    warnings.push(`${mount}/README.md is missing`);
   }
 
   for (const dirname of DATA_REQUIRED_DIRS) {
     const dir = path.join(dataDir, dirname);
     if (!fs.existsSync(dir) || !fs.statSync(dir).isDirectory()) {
-      errors.push(`_data/${dirname}/ directory is missing`);
+      errors.push(`${mount}/${dirname}/ directory is missing`);
       continue;
     }
     const usefulEntries = listUsefulEntries(dir);
     if (usefulEntries.length === 0) {
-      warnings.push(`_data/${dirname}/ contains only skeleton files`);
+      warnings.push(`${mount}/${dirname}/ contains only skeleton files`);
     }
   }
 
-  const submodule = detectDataSubmodule(root);
+  const submodule = detectDataSubmodule(root, mount);
   if (submodule.isSubmodule) {
     if (submodule.pinnedCommit) {
-      info.push(`_data appears to be a git submodule pinned at ${submodule.pinnedCommit}`);
+      info.push(`${mount} appears to be a git submodule pinned at ${submodule.pinnedCommit}`);
     } else {
-      info.push("_data appears to be a git submodule; pinned commit unavailable from current HEAD");
+      info.push(`${mount} appears to be a git submodule; pinned commit unavailable from current HEAD`);
     }
   } else {
-    info.push("_data appears to be an ordinary directory");
+    info.push(`${mount} appears to be an ordinary directory`);
+    const ignoreStatus = runtimeMountIgnoreStatus(root, mount);
+    if (tracking === "tracked") {
+      info.push(`${mount} is configured as tracked runtime data`);
+      if (ignoreStatus.isGitRepo && ignoreStatus.ignored) {
+        warnings.push(
+          `${mount}/ is configured as tracked runtime data but is ignored by git; remove the ignore rule before committing work-mirror data`,
+        );
+      }
+    } else if (ignoreStatus.isGitRepo && !ignoreStatus.ignored) {
+      const subject = mount === DEFAULT_DATA_MOUNT
+        ? `${mount}/ is configured for ignored runtime data`
+        : `${mount}/ is a custom runtime-data mount`;
+      warnings.push(
+        `${subject} but is not ignored by git; run setup-data-mount.mjs or add ${ignoreStatus.pattern} to .git/info/exclude`,
+      );
+    }
   }
 
-  if (warnings.some((warning) => warning.includes("_data/snapshot/"))) {
-    warnings.push("no _data/snapshot content: snapshot-backed reasoning unavailable");
+  if (warnings.some((warning) => warning.includes(`${mount}/snapshot/`))) {
+    warnings.push(`no ${mount}/snapshot content: snapshot-backed reasoning unavailable`);
   }
-  if (warnings.some((warning) => warning.includes("_data/schemas/"))) {
-    warnings.push("no _data/schemas content: tenant schema hints unavailable");
+  if (warnings.some((warning) => warning.includes(`${mount}/schemas/`))) {
+    warnings.push(`no ${mount}/schemas content: tenant schema hints unavailable`);
   }
 
   return { errors, warnings, info };
@@ -127,7 +186,7 @@ function printReport(report) {
 function main() {
   try {
     const args = parseArgs(process.argv);
-    const report = checkDataContract(args.root);
+    const report = checkDataContract(args.root, args.mountPath, { tracking: args.tracking });
     printReport(report);
     process.exit(report.errors.length === 0 ? 0 : 1);
   } catch (error) {

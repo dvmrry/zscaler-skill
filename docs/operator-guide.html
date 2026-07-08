@@ -50,7 +50,7 @@
       <p class="lede">How to ask the Zscaler skill for useful work: pick the right surface, give the agent enough context, keep tenant access bounded, and read the answer without mistaking sourced evidence for runtime proof.</p>
       <dl class="frontmatter">
         <dt>Best first move</dt><dd>Use <code>@zscaler</code> for grounded Q&amp;A; switch to a slash role when you need a durable artifact.</dd>
-        <dt>Tenant data</dt><dd>Mount snapshots under <code>_data/</code>; the skill uses read-only <code>zscalerctl</code>/snapshot validation only — it does not run write-lane tests.</dd>
+        <dt>Tenant data</dt><dd>Mount snapshots under the runtime-data mount; <code>_data/</code> is the default from <code>zscaler-skill-runtime.json</code>. The skill uses read-only <code>zscalerctl</code>/snapshot validation only — it does not run write-lane tests.</dd>
         <dt>Read with</dt><dd><a href="readers-guide.html" style="color: var(--accent-ink);">Reader's Guide</a> for concepts; <a href="source.html?p=_meta/verification-protocol" style="color: var(--accent-ink);">verification protocol</a> for source discipline.</dd>
         <dt>Canonical logic</dt><dd><code>agents/</code> owns the workflows; runtime adapters are loaders, not the source of truth.</dd>
       </dl>
@@ -60,7 +60,7 @@
       <h2>At a glance</h2>
       <ul>
         <li><span class="key">Ask from evidence</span><span>Product behavior should be answered from references, snapshots, captured contracts, or source citations. If none exist, expect an explicit gap.</span></li>
-        <li><span class="key">Start read-only</span><span>Most questions can be narrowed with references, <code>_data/</code> snapshots, or read-only <code>zscalerctl</code> reads. The skill stays read-only; any write-lane test is a separate human step.</span></li>
+        <li><span class="key">Start read-only</span><span>Most questions can be narrowed with references, mounted snapshots, or read-only <code>zscalerctl</code> reads. The skill stays read-only; any write-lane test is a separate human step.</span></li>
         <li><span class="key">Use the companion split</span><span><code>zscalerctl</code> observes tenant state; this skill interprets it with policy semantics, source tiers, and clarification boundaries.</span></li>
         <li><span class="key">Name the task shape</span><span>Debugging, posture review, architecture, reference expansion, and doc audit are different workflows. The more specific the shape, the better the output.</span></li>
         <li><span class="key">Preserve uncertainty</span><span>Contract metadata can prove documented paths, fields, enums, and readonly flags. It cannot prove live backend acceptance unless the tenant is tested.</span></li>
@@ -78,7 +78,7 @@
         </thead>
         <tbody>
           <tr><td><code>@zscaler</code></td><td>A definition, behavior explanation, product lookup, or tenant-aware read.</td><td>Conversational answer with citations and confidence.</td></tr>
-          <tr><td><code>zscaler-skill-setup</code></td><td>Set up or repair the <code>_data/</code> mount before asking tenant-specific questions.</td><td>Verified data mount or a concrete repair path.</td></tr>
+          <tr><td><code>zscaler-skill-setup</code></td><td>Set up or repair the runtime-data mount before asking tenant-specific questions.</td><td>Verified data mount or a concrete repair path.</td></tr>
           <tr><td><code>/z-investigator</code></td><td>A live or historical symptom with affected scope and timeframe.</td><td>Discovery journal with hypotheses, evidence, and next checks.</td></tr>
           <tr><td><code>/z-soc</code></td><td>Security posture, least privilege, exposure, RBAC, telemetry coverage, or defensibility.</td><td>Posture register with findings and remediation framing.</td></tr>
           <tr><td><code>/z-architect</code></td><td>Capacity, scaling, topology, design tradeoffs, or SPOF questions.</td><td>Recommendation register and decision notes.</td></tr>
@@ -149,10 +149,10 @@
       <p class="standfirst">Tenant truth lives outside the public references. The skill should read a mounted snapshot or explicit command output, not imagine your environment.</p>
 
       <div class="steps">
-        <div class="step"><div><span class="head">Mount or point at data.</span>Use <code>zscaler-skill-setup</code> when <code>_data/</code> is missing or stale.</div></div>
+        <div class="step"><div><span class="head">Mount or point at data.</span>Use <code>zscaler-skill-setup</code> when the runtime-data mount is missing or stale.</div></div>
         <div class="step"><div><span class="head">State the boundary.</span>Tell the agent whether it may inspect snapshots only, run read-only commands, or draft commands for a human to run.</div></div>
         <div class="step"><div><span class="head">Prefer read validation.</span>Use read-only <code>zscalerctl</code> reads to observe fields, enums, and object shape. The skill does not run write tests.</div></div>
-        <div class="step"><div><span class="head">Use cached dumps when fresh.</span>A recent <code>zscalerctl</code> dump or diff in <code>_data/</code> is faster than a live read and should be the normal path for broad inventory questions.</div></div>
+        <div class="step"><div><span class="head">Use cached dumps when fresh.</span>A recent <code>zscalerctl</code> dump or diff in the runtime-data mount is faster than a live read and should be the normal path for broad inventory questions.</div></div>
         <div class="step"><div><span class="head">Record the result.</span>When a read narrows a clarification, update the ledger as partially resolved unless it proves the whole behavior.</div></div>
       </div>
     </section>
@@ -181,8 +181,8 @@
       <table class="tbl">
         <thead><tr><th>Artifact</th><th>Typical home</th><th>Use it for</th></tr></thead>
         <tbody>
-          <tr><td>Discovery journal</td><td><code>_data/cases/&lt;slug&gt;/journal.md</code></td><td>Investigation hypotheses, evidence, ruled-out paths, and next checks.</td></tr>
-          <tr><td>Posture register</td><td><code>_data/cases/&lt;slug&gt;/posture.md</code></td><td>SOC findings, severity, evidence, and remediation.</td></tr>
+          <tr><td>Discovery journal</td><td><code>&lt;runtime-mount&gt;/cases/&lt;slug&gt;/journal.md</code></td><td>Investigation hypotheses, evidence, ruled-out paths, and next checks.</td></tr>
+          <tr><td>Posture register</td><td><code>&lt;runtime-mount&gt;/cases/&lt;slug&gt;/posture.md</code></td><td>SOC findings, severity, evidence, and remediation.</td></tr>
           <tr><td>Reference edit</td><td><code>references/&lt;product&gt;/</code></td><td>Source-backed product behavior and API notes.</td></tr>
           <tr><td>Clarification</td><td><code>references/_meta/clarifications.md</code></td><td>Open, partially resolved, or resolved ambiguities with stable IDs.</td></tr>
           <tr><td>Validation checklist</td><td>Chat, case directory, or PR body</td><td>Human-run read commands and expected evidence shape.</td></tr>

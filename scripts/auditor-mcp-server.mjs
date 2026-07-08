@@ -29,6 +29,7 @@ import {
   readServerVersion,
   writeTmpJson as writeTmpJsonWithPrefix,
 } from "./mcp-server-lib.mjs";
+import { runtimeDataPath } from "./lib.mjs";
 
 import {
   openAudit,
@@ -102,7 +103,7 @@ function resolveResourceContent(uri) {
   // Consequence: auditor://audit/<slug>/... URIs only resolve audits stored under the
   // repo this server binary lives in. Cross-repo resource reads are NOT supported by
   // design. Operators running the server from a different repo will get -32002 for any
-  // audit that does not exist under that repo's _data/audits/. See workflow.md or
+  // audit that does not exist under that repo's runtime-data audits dir. See workflow.md or
   // runtime-adapters.md for deployment notes.
   const root = path.resolve(new URL("..", import.meta.url).pathname);
 
@@ -112,7 +113,7 @@ function resolveResourceContent(uri) {
     return { uri, mimeType: "text/markdown", text };
   }
   if (kind === "register") {
-    const registerPath = path.join(root, "_data", "audits", slug, "register.md");
+    const registerPath = runtimeDataPath(root, "audits", slug, "register.md");
     if (!fs.existsSync(registerPath)) {
       throw new Error(`no such audit: ${slug}`);
     }
@@ -122,7 +123,7 @@ function resolveResourceContent(uri) {
   if (kind === "status") {
     // A resource read of a missing audit must 404 consistently with report/register kinds.
     // auditStatus() returns phase "no-audit" rather than throwing — assert existence first.
-    const auditIntakePath = path.join(root, "_data", "audits", slug, "audit-intake.md");
+    const auditIntakePath = runtimeDataPath(root, "audits", slug, "audit-intake.md");
     if (!fs.existsSync(auditIntakePath)) {
       throw new Error(`no such audit: ${slug}`);
     }
@@ -276,7 +277,7 @@ const TOOLS = [
     name: "record_check_output",
     title: "Record CI/check output as evidence",
     description:
-      "Store a check script's captured output under _data/audits/<slug>/checks/<name>.txt " +
+      "Store a check script's captured output under <runtime-data-mount>/audits/<slug>/checks/<name>.txt " +
       "and register it in audit-intake.json.checksRun. " +
       "A finding can then cite 'check:<name>' as its resolving source. " +
       "Equivalent to import-evidence in the investigator — this is how deterministic " +
@@ -517,11 +518,8 @@ function handleRequest(raw) {
 
   // ── resources/list ────────────────────────────────────────────────────────
   if (method === "resources/list") {
-    const auditsDir = path.join(
-      path.resolve(new URL("..", import.meta.url).pathname),
-      "_data",
-      "audits",
-    );
+    const root = path.resolve(new URL("..", import.meta.url).pathname);
+    const auditsDir = runtimeDataPath(root, "audits");
     const resources = [];
     try {
       const entries = fs.readdirSync(auditsDir, { withFileTypes: true });
@@ -535,7 +533,7 @@ function handleRequest(raw) {
         );
       }
     } catch {
-      // _data/audits absent — return empty list; templates remain the discovery surface.
+      // Runtime data audits dir absent — return empty list; templates remain the discovery surface.
     }
     process.stdout.write(`${JSON.stringify(makeResponse(id, { resources }))}\n`);
     return;

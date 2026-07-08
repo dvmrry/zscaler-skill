@@ -38,7 +38,7 @@ Response file format:
     (only IDs you want to validate need to be present)
 
 Validation output is human-readable to stdout AND saved as a markdown
-report under `_data/schemas/eval-results-<UTC-date>.md`.
+report under `<runtime-data-mount>/logs/eval-results-<UTC-date>.md`.
 
 Exit code: 0 if all listed/validated evals pass; 1 if any validation fails.
 """
@@ -49,9 +49,11 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+from runtime_data import runtime_data_path
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 EVALS_FILE = REPO_ROOT / "references" / "_meta" / "evals" / "evals.json"
-RESULTS_DIR = REPO_ROOT / "_data" / "logs"
+RESULTS_DIR = runtime_data_path("logs", root=REPO_ROOT)
 
 
 def load_evals() -> list[dict]:

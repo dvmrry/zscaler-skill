@@ -23,7 +23,7 @@ author-status: draft
 
 This is the canonical ad-hoc-surface playbook. It is reached by typing `@zscaler` in either Cascade or Claude Code — the runtime adapter is a small loader at the repo root (extensionless, named `zscaler`) that points back to this file via the standard `<!-- adapter-deps:start --> ... <!-- adapter-deps:end -->` marker pattern. There is no slash command, because there is no procedural harness to drive. The output shape is a conversational answer with citations, not a structured artifact.
 
-The procedural roles (`/z-investigator`, `/z-architect`, `/z-auditor`, `/z-soc`, `/z-retro`, `/z-researcher`) handle their own discipline. Use `zscaler-skill-setup` for `_data` setup or repair. This surface handles everything else: definitions, "what does X mean", "is X allowed in our tenant", "what does the destination see", "how does this work in our config".
+The procedural roles (`/z-investigator`, `/z-architect`, `/z-auditor`, `/z-soc`, `/z-retro`, `/z-researcher`) handle their own discipline. Use `zscaler-skill-setup` for runtime-data setup or repair. This surface handles everything else: definitions, "what does X mean", "is X allowed in our tenant", "what does the destination see", "how does this work in our config".
 
 ## What you are doing
 
@@ -39,7 +39,7 @@ The procedural roles (`/z-investigator`, `/z-architect`, `/z-auditor`, `/z-soc`,
 
 ## Where things live (one line, not a directory map)
 
-Reference content is under `references/` organised by product (`zia/`, `zpa/`, `zdx/`, `cloud-connector/`, `zidentity/`, `zwa/`, `zbi/`) plus `shared/` for cross-product material and `_meta/` for clarifications, evals, and skill metadata. Cross-product clarifications and open questions live in `references/_meta/clarifications.md`. Shared terminology, disambiguations, and naming conventions are in `references/shared/terminology.md`. Tenant-specific data (policies, config, log samples) is under `_data/snapshot/<cloud>/`. Use targeted `rg` searches against these directories to locate the specific content the question needs; do not enumerate them upfront. Exclude stale local runtime copies (`--glob '!.claude/worktrees/**'`) and skip `vendor/**` unless the current question explicitly needs source verification, SDK/TF/API surface checks, or citation repair.
+Reference content is under `references/` organised by product (`zia/`, `zpa/`, `zdx/`, `cloud-connector/`, `zidentity/`, `zwa/`, `zbi/`) plus `shared/` for cross-product material and `_meta/` for clarifications, evals, and skill metadata. Cross-product clarifications and open questions live in `references/_meta/clarifications.md`. Shared terminology, disambiguations, and naming conventions are in `references/shared/terminology.md`. Tenant-specific data (policies, config, log samples) is under `_data/snapshot/<cloud>/` by default. If root `zscaler-skill-runtime.json` or local `zscaler-skill-setup.json` sets `runtimeData.mountPath`, treat that configured relative path as the runtime-data mount and substitute it for `_data` in tenant-data paths. Use targeted `rg` searches against these directories to locate the specific content the question needs; do not enumerate them upfront. Exclude stale local runtime copies (`--glob '!.claude/worktrees/**'`) and skip `vendor/**` unless the current question explicitly needs source verification, SDK/TF/API surface checks, or citation repair.
 
 ## Tenant observation and zscalerctl
 

@@ -1,8 +1,10 @@
 # Getting Started
 
 This walkthrough is for a private fork or local checkout that will use tenant
-snapshots and local overlays. Public upstream does not track `_data/`; create a
-local runtime-data mount before using snapshot-backed workflows.
+snapshots and local runtime data. Public upstream does not track runtime data;
+create a local runtime-data mount before using snapshot-backed workflows. The
+default mount path is `_data/`, and local installs may configure a different
+relative mount path in the committed `zscaler-skill-runtime.json`.
 
 ## Prerequisites
 
@@ -14,7 +16,7 @@ local runtime-data mount before using snapshot-backed workflows.
   script uses the uv single-file-script pattern; dependencies install on first
   run, no virtualenv setup needed.
 - **Node 18+** for deterministic workflow helpers such as case-intake,
-  runtime-data setup, data-contract checks, and overlay submission.
+  runtime-data setup, data-contract checks, and artifact handling.
 - **Git** for submodule fetch.
 - **ZIA and ZPA admin access** to create the API client credentials used below.
 
@@ -122,9 +124,9 @@ OneAPI or legacy.
 
 ## Set Up Runtime Data
 
-`_data/` is an ignored runtime-data mount. Create it from a private data
-repository or local directory before relying on tenant snapshots, schema hints,
-or case history:
+`_data/` is the default ignored runtime-data mount. Create it from a private
+data repository or local directory before relying on tenant snapshots, schema
+hints, or case history:
 
 ```bash
 node scripts/setup-data-mount.mjs \
@@ -142,17 +144,61 @@ submodule.
 After the setup steps, run `node scripts/doctor.mjs` to confirm the local
 install and get the next command or doc pointer for anything missing.
 
+For repeatable local setup from a private source, copy the public bootstrap
+template and keep the real setup file local:
+
+```bash
+cp zscaler-skill-setup.example.json zscaler-skill-setup.json
+export ZSCALER_SKILL_RUNTIME_SOURCE=<git-url-or-local-path>
+
+node scripts/setup-data-mount.mjs
+node scripts/check-data-contract.mjs
+```
+
+The ignored setup config's preferred shape is:
+
+```json
+{
+  "runtimeData": {
+    "source": "${ZSCALER_SKILL_RUNTIME_SOURCE}",
+    "ref": "main",
+    "mode": "checkout"
+  }
+}
+```
+
+Change the committed `zscaler-skill-runtime.json` only when your fork or work
+mirror intentionally wants a mount name other than `_data`, or wants to track
+runtime data directly:
+
+```json
+{
+  "runtimeData": {
+    "mountPath": "tenant-data",
+    "tracking": "tracked"
+  }
+}
+```
+
+That work-mirror mode avoids a separate overlay repository: commit the runtime
+files under the configured mount in the private mirror, while public upstream
+keeps `_data/` ignored. The ignored setup file remains optional and is only
+needed when a workstation wants `setup-data-mount.mjs` to clone or copy from a
+private source.
+
 ## Populate the snapshot
 
-`_data/snapshot/` holds sanitized tenant configuration the skill cites when
-answering tenant-specific questions, in a cloud-first layout —
-`_data/snapshot/<cloud>/<product>/*.json` (see [`docs/data-contract/`](./data-contract/)).
+`_data/snapshot/` (or `<configured-mount>/snapshot/`) holds sanitized tenant
+configuration the skill cites when answering tenant-specific questions, in a
+cloud-first layout — `<mount>/snapshot/<cloud>/<product>/*.json` (see
+[`docs/data-contract/`](./data-contract/)).
 
 Populate it out of band: a private runtime-data repository, or a sanitized dump
 from the read-only [`zscalerctl`](https://github.com/dvmrry/zscalerctl) CLI.
 The intended pre-release companion model is: `zscalerctl` observes tenant state,
-`_data/` stores its fast local snapshots and diffs, and this skill interprets
-that observed state. Credentialed tenant reads are out of scope for this repo.
+the runtime-data mount stores its fast local snapshots and diffs, and this
+skill interprets that observed state. Credentialed tenant reads are out of
+scope for this repo.
 Without a snapshot or explicit command output, most tenant-specific answers
 revert to "I can't verify, here's the general mechanism."
 

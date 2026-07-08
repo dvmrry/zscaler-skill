@@ -59,7 +59,7 @@ Optional second arg: a **subset of checks** to focus on (e.g., `confidence` for 
 
 If scope is missing or unclear, ask **one** clarifying question — don't fabricate a default scope.
 
-For tenant-config audit scopes, prefer read-only observed state from `_data/` snapshots, `zscalerctl` dumps, or `zscalerctl diff` artifacts. If the required tenant fact is absent, draft a bounded `zscalerctl --format json ...` command for the operator to run. Do not fall back to raw APIs, SDK credential spelunking, or write-lane tests to fill an audit gap.
+For tenant-config audit scopes, prefer read-only observed state from the runtime-data mount (`_data/` by default, or the mount configured in root runtime/setup config), `zscalerctl` dumps, or `zscalerctl diff` artifacts. If the required tenant fact is absent, draft a bounded `zscalerctl --format json ...` command for the operator to run. Do not fall back to raw APIs, SDK credential spelunking, or write-lane tests to fill an audit gap.
 
 ## Discipline
 
@@ -291,7 +291,7 @@ Do not mark the overall audit `Complete` until every finding has a non-`Open` st
 
 ## Incident-driven audits
 
-Most audits are routine / scheduled. Some are **triggered by an incident** — a hygiene-failure investigation surfaces "what else might be wrong?" and the natural follow-up is an audit pass. When that happens, the audit register can be saved alongside the case journal at `_data/cases/<slug>/audit.md` (rather than as ephemeral chat output). See [`../../docs/data-contract/cases.md`](../../docs/data-contract/cases.md) for the convention. Case artifacts are gitignored by default (private posture); incident-driven audits inherit the same.
+Most audits are routine / scheduled. Some are **triggered by an incident** — a hygiene-failure investigation surfaces "what else might be wrong?" and the natural follow-up is an audit pass. When that happens, the audit register can be saved alongside the case journal at `_data/cases/<slug>/audit.md` or the equivalent path under the configured runtime-data mount (rather than as ephemeral chat output). See [`../../docs/data-contract/cases.md`](../../docs/data-contract/cases.md) for the convention. Case artifacts are gitignored by default in public upstream (private posture); incident-driven audits inherit the same.
 
 ## What this command will NOT do
 

@@ -11,10 +11,10 @@ function tempDir(prefix) {
   return fs.mkdtempSync(path.join(os.tmpdir(), prefix));
 }
 
-function makeDataSkeleton(root) {
-  const dataDir = path.join(root, "_data");
+function makeDataSkeleton(root, mountPath = "_data") {
+  const dataDir = path.join(root, mountPath);
   fs.mkdirSync(dataDir, { recursive: true });
-  fs.writeFileSync(path.join(dataDir, "README.md"), "# _data\n", "utf8");
+  fs.writeFileSync(path.join(dataDir, "README.md"), `# ${mountPath}\n`, "utf8");
   for (const dir of DATA_REQUIRED_DIRS) {
     const target = path.join(dataDir, dir);
     fs.mkdirSync(target, { recursive: true });
@@ -101,6 +101,74 @@ test("setupDataMount copies a local data source and runs the contract check", ()
   assert.equal(fs.existsSync(path.join(root, "_data", "schemas", "fields.json")), true);
   assert.equal(fs.existsSync(path.join(root, "_data", "snapshot", "zs1", "_manifest.json")), true);
   assert.ok(!result.report.warnings.some((warning) => warning.includes("snapshot-backed reasoning unavailable")));
+});
+
+test("setupDataMount copies a local source into a configured runtime mount", () => {
+  const root = tempDir("zscaler-data-mount-custom-");
+  makeDataSkeleton(root, "tenant-data");
+  const source = makeOverlaySource();
+
+  const result = setupDataMount({
+    root,
+    dataUrl: source,
+    dataRef: null,
+    dryRun: false,
+    force: false,
+    mode: "auto",
+    mountPath: "tenant-data",
+  });
+
+  assert.equal(result.plan.mountPath, "tenant-data");
+  assert.equal(result.plan.mode, "copy");
+  assert.deepEqual(result.report.errors, []);
+  assert.equal(fs.existsSync(path.join(root, "tenant-data", "schemas", "fields.json")), true);
+  assert.equal(fs.existsSync(path.join(root, "_data")), false);
+  assert.ok(result.report.info.some((line) => line.includes("tenant-data appears")));
+});
+
+test("setupDataMount adds a custom runtime mount to the local git exclude", () => {
+  const root = tempDir("zscaler-data-mount-custom-ignore-");
+  git(root, ["init", "-b", "main"]);
+  const source = makeOverlaySource();
+  const mountPath = "tenant-runtime-test-data";
+
+  const result = setupDataMount({
+    root,
+    dataUrl: source,
+    dataRef: null,
+    dryRun: false,
+    force: false,
+    mode: "copy",
+    mountPath,
+  });
+
+  assert.equal(result.plan.localExclude.changed, true);
+  assert.equal(result.plan.localExclude.pattern, `${mountPath}/`);
+  assert.equal(fs.existsSync(path.join(root, mountPath, "schemas", "fields.json")), true);
+  assert.match(fs.readFileSync(result.plan.localExclude.excludePath, "utf8"), new RegExp(`${mountPath}/`));
+  assert.equal(git(root, ["status", "--short"]), "");
+});
+
+test("setupDataMount leaves a tracked work-mirror runtime mount trackable", () => {
+  const root = tempDir("zscaler-data-mount-custom-tracked-");
+  git(root, ["init", "-b", "main"]);
+  const source = makeOverlaySource();
+
+  const result = setupDataMount({
+    root,
+    dataUrl: source,
+    dataRef: null,
+    dryRun: false,
+    force: false,
+    mode: "copy",
+    mountPath: "tenant-data",
+    tracking: "tracked",
+  });
+
+  assert.equal(result.plan.tracking, "tracked");
+  assert.equal(result.plan.localExclude, null);
+  assert.equal(fs.existsSync(path.join(root, "tenant-data", "schemas", "fields.json")), true);
+  assert.match(git(root, ["status", "--short"]), /\?\? tenant-data\//);
 });
 
 test("setupDataMount refuses to replace populated data without force", () => {
@@ -302,6 +370,78 @@ test("setup-data-mount CLI can load defaults from root setup config", () => {
   assert.match(output, /Ref: main/);
   assert.match(output, /Errors: 0/);
   assert.equal(fs.existsSync(path.join(root, "_data", "schemas", "fields.json")), true);
+});
+
+test("setup-data-mount CLI supports runtimeData config and env-expanded source", () => {
+  const root = tempDir("zscaler-data-config-runtime-");
+  makeDataSkeleton(root, "tenant-data");
+  const source = makeOverlaySource();
+  const previous = process.env.ZSCALER_TEST_RUNTIME_SOURCE;
+  process.env.ZSCALER_TEST_RUNTIME_SOURCE = source;
+  try {
+    fs.writeFileSync(
+      path.join(root, "zscaler-skill-setup.json"),
+      `${JSON.stringify({
+        runtimeData: {
+          mountPath: "tenant-data",
+          source: "$ZSCALER_TEST_RUNTIME_SOURCE",
+          ref: "main",
+          mode: "auto",
+        },
+      }, null, 2)}\n`,
+      "utf8",
+    );
+
+    const output = runSetupCommand(["--root", root]);
+
+    assert.match(output, /Mode: copy/);
+    assert.match(output, /Config: /);
+    assert.match(output, /Ref: main/);
+    assert.match(output, /Errors: 0/);
+    assert.equal(fs.existsSync(path.join(root, "tenant-data", "schemas", "fields.json")), true);
+    assert.equal(fs.existsSync(path.join(root, "_data")), false);
+  } finally {
+    if (previous === undefined) {
+      delete process.env.ZSCALER_TEST_RUNTIME_SOURCE;
+    } else {
+      process.env.ZSCALER_TEST_RUNTIME_SOURCE = previous;
+    }
+  }
+});
+
+test("setup-data-mount CLI combines tracked runtime config with ignored bootstrap source", () => {
+  const root = tempDir("zscaler-data-config-runtime-split-");
+  git(root, ["init", "-b", "main"]);
+  makeDataSkeleton(root, "tenant-data");
+  const source = makeOverlaySource();
+  fs.writeFileSync(
+    path.join(root, "zscaler-skill-runtime.json"),
+    `${JSON.stringify({
+      runtimeData: {
+        mountPath: "tenant-data",
+        tracking: "tracked",
+      },
+    }, null, 2)}\n`,
+    "utf8",
+  );
+  fs.writeFileSync(
+    path.join(root, "zscaler-skill-setup.json"),
+    `${JSON.stringify({
+      runtimeData: {
+        source,
+        mode: "auto",
+      },
+    }, null, 2)}\n`,
+    "utf8",
+  );
+
+  const output = runSetupCommand(["--root", root]);
+
+  assert.match(output, /Mode: copy/);
+  assert.match(output, /Tracking: tracked/);
+  assert.match(output, /Errors: 0/);
+  assert.equal(fs.existsSync(path.join(root, "tenant-data", "schemas", "fields.json")), true);
+  assert.match(git(root, ["status", "--short"]), /\?\? tenant-data\//);
 });
 
 test("setup-data-mount CLI flags override setup config values", () => {

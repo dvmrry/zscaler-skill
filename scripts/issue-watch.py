@@ -10,9 +10,10 @@ Status: functional. Two output modes:
   Local mode (default)
     Walks the configured vendored upstream repos via the public GitHub REST API.
     Compares against last-seen timestamps per repo (saved to
-    _data/logs/issue-watch-state.json). Outputs new and updated issues to
-    _data/logs/issues-new.md for human triage. Both files live in _data/logs/
-    (gitignored upstream — populated per-fork).
+    <runtime-data-mount>/logs/issue-watch-state.json). Outputs new and updated
+    issues to <runtime-data-mount>/logs/issues-new.md for human triage. Both
+    files live in the runtime-data mount (gitignored upstream — populated
+    per-fork).
 
   Sticky-issue mode (CI-friendly)
     Activated by --sticky-label LABEL (or --sticky-issue NUMBER). Finds a
@@ -42,7 +43,7 @@ Authentication:
 
 Manual review workflow:
     1. Run script (or let CI run it).
-    2. Open _data/logs/issues-new.md (local) or the sticky issue (CI).
+    2. Open <runtime-data-mount>/logs/issues-new.md (local) or the sticky issue (CI).
     3. For each surfaced issue: source-check + thread per
        references/_meta/verification-protocol.md, or skip if not behavioral.
     4. Comment on the sticky issue (if used) to record the triage decision.
@@ -59,9 +60,11 @@ from pathlib import Path
 
 import httpx
 
+from runtime_data import runtime_data_path
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
-STATE_FILE = REPO_ROOT / "_data" / "logs" / "issue-watch-state.json"
-OUTPUT = REPO_ROOT / "_data" / "logs" / "issues-new.md"
+STATE_FILE = runtime_data_path("logs", "issue-watch-state.json", root=REPO_ROOT)
+OUTPUT = runtime_data_path("logs", "issues-new.md", root=REPO_ROOT)
 
 REPOS = [
     "zscaler/zscaler-sdk-python",

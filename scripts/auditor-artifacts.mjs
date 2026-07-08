@@ -26,6 +26,7 @@ import {
   resolveFileLineSource,
   resolveBareFilePath,
 } from "./artifacts-source-lib.mjs";
+import { runtimeDataRelative } from "./lib.mjs";
 
 // ── Version ───────────────────────────────────────────────────────────────────
 let HELPER_VERSION = "unknown";
@@ -38,7 +39,6 @@ try {
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const AUDIT_DATA_DIR = "_data/audits";
 const AUDIT_INTAKE_BASENAME = "audit-intake";
 const REGISTER_BASENAME = "register";
 const FINDINGS_BASENAME = "findings.jsonl";
@@ -138,9 +138,11 @@ function appendJsonl(filePath, value) {
 
 function auditPaths(root, auditSlug) {
   assertSafeSlug(auditSlug);
-  const auditDir = path.join(root, AUDIT_DATA_DIR, auditSlug);
+  const auditRelativeDir = runtimeDataRelative(root, "audits", auditSlug);
+  const auditDir = path.join(root, auditRelativeDir);
   return {
     auditDir,
+    auditRelativeDir,
     auditIntakePath: path.join(auditDir, `${AUDIT_INTAKE_BASENAME}.md`),
     auditIntakeJsonPath: path.join(auditDir, `${AUDIT_INTAKE_BASENAME}.json`),
     registerPath: path.join(auditDir, `${REGISTER_BASENAME}.md`),
@@ -273,7 +275,7 @@ function usage(exitCode = 0) {
   node scripts/auditor-artifacts.mjs audit-status --root <repo> --audit-slug <slug>
   node scripts/auditor-artifacts.mjs capabilities
 
-Creates and manages _data/audits/<slug>/ : audit-intake.md, audit-intake.json,
+Creates and manages <runtime-data-mount>/audits/<slug>/ : audit-intake.md, audit-intake.json,
 register.md (derived), findings.jsonl (append-only).
 `);
   process.exit(exitCode);
@@ -569,7 +571,7 @@ export function recordFinding(args) {
 // ── record-check-output ───────────────────────────────────────────────────────
 
 /**
- * Store a CI/check script's captured output under _data/audits/<slug>/checks/<name>.txt.
+ * Store a CI/check script's captured output under <runtime-data-mount>/audits/<slug>/checks/<name>.txt.
  * Registers the check in audit-intake.json.checksRun.
  *
  * This is the evidence-recording step that allows a finding to cite "check:<name>"

@@ -11,14 +11,14 @@ Status: functional. Passes 1 + 2 implemented.
   - Pass 2: Postman request body vs response example field-path diff.
 Passes 3-5 documented inline as future-work scaffolding.
 
-Output: _data/schemas/asymmetry-candidates.md (gitignored upstream — populate per-fork).
+Output: <runtime-data-mount>/schemas/asymmetry-candidates.md (gitignored upstream — populate per-fork).
 
 Run:
     ./scripts/find-asymmetries.py
 
 Manual review workflow:
     1. Run script.
-    2. Open _data/schemas/asymmetry-candidates.md.
+    2. Open <runtime-data-mount>/schemas/asymmetry-candidates.md.
     3. For each candidate, eyeball: known finding (skip), real new finding
        (open clarification + thread into doc), false positive (note + move on).
     4. Re-run periodically as upstream submodules bump.
@@ -97,6 +97,8 @@ from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 
+from runtime_data import runtime_data_path
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TF_PROVIDERS = [
     ("zia", REPO_ROOT / "vendor" / "terraform-provider-zia" / "zia"),
@@ -105,7 +107,7 @@ TF_PROVIDERS = [
     ("ztc", REPO_ROOT / "vendor" / "terraform-provider-ztc" / "ztc"),
 ]
 POSTMAN_COLLECTION = REPO_ROOT / "vendor" / "zscaler-api-specs" / "oneapi-postman-collection.json"
-OUTPUT = REPO_ROOT / "_data" / "schemas" / "asymmetry-candidates.md"
+OUTPUT = runtime_data_path("schemas", "asymmetry-candidates.md", root=REPO_ROOT)
 
 # Thresholds tuned by triage:
 #   - Skip near-duplicate scan for sets larger than NEAR_DUP_MAX_SET_SIZE
