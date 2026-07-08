@@ -96,18 +96,17 @@ Each entry follows this template. Body is narrative — the existing zia-01 entr
 
 ## Status summary
 
-Skim this before reading the full entries. Summary refreshed 2026-06-21:
-20 entries are resolved or clarified, 27 are partially resolved, and the current
+Skim this before reading the full entries. Summary refreshed 2026-07-08:
+20 entries are resolved or clarified, 28 are partially resolved, and the current
 refresh queue has expanded the open register with `zia-50`–`zia-70`,
 `zpa-21`–`zpa-81`, `zcc-77`–`zcc-101`, `zdx-03`–`zdx-44`,
-`zid-01`–`zid-36`, `cloud-connector-01`–`cloud-connector-25`,
+`zid-01`–`zid-36`, `cloud-connector-01`–`cloud-connector-26`,
 `ai-security-01`–`ai-security-05`, `zbi-01`–`zbi-06`,
 `zwa-01`–`zwa-05`, Tier-C insights entries `business-insights-01`,
 `soc-workbench-01`, and `unified-01`, Tier-C risk entries
 `risk360-01`–`risk360-02`, `breach-predictor-01`, `uvm-01`, and
 `dspm-01`, and Tier-C misc entries `aem-01`, `deception-01`,
-`identity-protection-01`, `zero-trust-branch-01`, and
-`zscaler-cellular-01`.
+`identity-protection-01`, and `zero-trust-branch-01`.
 Most open entries require lab tests,
 tenant snapshots, operator experience, or vendor confirmation rather than more
 public-doc reading.
@@ -126,6 +125,10 @@ absent). It also opened static-evidence caveats for adjacent action-path
 encoding (`ai-security-05`, `zid-36`), ZCloudConnector default-response success
 schema handling (`cloud-connector-25`), and ZDX snapshot base-path encoding
 (`zdx-44`).
+
+The 2026-07-08 upstream-issue sweep opened `cloud-connector-26` for Cloud
+Connector traffic-forwarding rule labels: static sources show a contract field
+and a Terraform provider gap, while live write acceptance remains unverified.
 
 ### Resolved
 
@@ -171,10 +174,11 @@ schema handling (`cloud-connector-25`), and ZDX snapshot base-path encoding
 | [`zbi-02`](#zbi-02-cbizpaprofile-vs-isolationprofile-preferred-endpoint) | `cbizpaprofile` vs `isolationprofile` preferred endpoint | Automate contract confirms both paths are first-class documented GET operations; preference and runtime divergence remain open |
 | [`zbi-03`](#zbi-03-auto-created-default-profile-lifecycle-and-isdefault-mutability) | Auto-created default profile lifecycle and `isDefault` mutability | ZIA-side `defaultProfile` is documented as Zscaler-set; ZPA-side `isDefault` mutability and lifecycle remain open |
 | [`zbi-04`](#zbi-04-copypaste-and-uploaddownload-enum-completeness) | `copyPaste` and `uploadDownload` enum completeness | Automate examples corroborate `all`/`none`; no formal enum or directional values are documented |
+| [`zscaler-cellular-01`](#zscaler-cellular-01-zscaler-cellular-admin-and-api-surface) | Zscaler Cellular admin and API surface | Automate contract and Python SDK now establish a public ZCell API/SDK surface; tenant entitlement, backend acceptance, and ZIA/ZPA policy-object mapping remain open |
 
 ### Open
 
-`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-70`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-81`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `shared-20`–`shared-37`, `zcc-08`–`zcc-101`, `zdx-01`–`zdx-44`, `zid-01`–`zid-36`, `zms-01`, `easm-01`–`easm-02`, `cloud-connector-01`–`cloud-connector-25`, `ai-security-01`–`ai-security-03`, `ai-security-05`–`ai-security-06`, `zwa-01`–`zwa-05`, `business-insights-01`, `soc-workbench-01`, `unified-01`, `risk360-01`–`risk360-02`, `breach-predictor-01`, `uvm-01`, `dspm-01`, `aem-01`, `deception-01`, `identity-protection-01`, `zero-trust-branch-01`, `zscaler-cellular-01`.
+`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-70`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-81`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `shared-20`–`shared-37`, `zcc-08`–`zcc-101`, `zdx-01`–`zdx-44`, `zid-01`–`zid-36`, `zms-01`, `easm-01`–`easm-02`, `cloud-connector-01`–`cloud-connector-26`, `ai-security-01`–`ai-security-03`, `ai-security-05`–`ai-security-06`, `zwa-01`–`zwa-05`, `business-insights-01`, `soc-workbench-01`, `unified-01`, `risk360-01`–`risk360-02`, `breach-predictor-01`, `uvm-01`, `dspm-01`, `aem-01`, `deception-01`, `identity-protection-01`, `zero-trust-branch-01`.
 
 The vendor-MCP scrape (2026-06-14) added these open behavior questions — each links to its detailed entry below:
 
@@ -444,6 +448,7 @@ The Cloud & Branch Connector (ZTW) deep-dive refresh (2026-06-15) added these op
 | [`cloud-connector-23`](#cloud-connector-23-dest_workload_groups_ids-binding-to-local_switch-local) | `dest_workload_groups_ids` binding to `LOCAL_SWITCH` / "Local" | lab test |
 | [`cloud-connector-24`](#cloud-connector-24-field-character-limit-enforcement-on-dns-and-log-and-control-rules) | Field character-limit enforcement on DNS / Log-and-Control rules | lab test / zscaler doc not yet read |
 | [`cloud-connector-25`](#cloud-connector-25-zcloudconnector-default-response-success-schema-semantics) | ZCloudConnector default-response success schema semantics | vendor spec / live response |
+| [`cloud-connector-26`](#cloud-connector-26-ztc_traffic_forwarding_rule-label-support) | `ztc_traffic_forwarding_rule` label support | provider source update / lab test |
 
 ---
 
@@ -4666,6 +4671,17 @@ The reconstructed OpenAPI snapshot carries 165 ZCloudConnector operations, but t
 
 ---
 
+### cloud-connector-26 — ztc_traffic_forwarding_rule label support
+
+*Origin: `references/cloud-connector/terraform.md` § Policy Management — Traffic Forwarding Rules*
+
+Upstream issue [zscaler/terraform-provider-ztc#46](https://github.com/zscaler/terraform-provider-ztc/issues/46) reports GUI support for Cloud Connector traffic-forwarding rule labels and requests Terraform `rule_label` support. The `ztc_traffic_forwarding_rule` provider schema currently exposes no `labels` / `rule_label` field in its top-level schema (`vendor/terraform-provider-ztc/ztc/resource_ztc_traffic_forwarding_rule.go:123-248`), while the reconstructed ZCloudConnector contract models a `labels` array on the `/ecRules/ecRdr` rule shape (`vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json:22873-22880`, `:25052-25060`). Static sources can establish the provider gap and the contract field; they do not prove live backend write acceptance or provider implementation timing.
+
+**Status**: open
+**Resolves with**: provider source update adding `labels` / `rule_label`, lab test writing labels through the API, or vendor documentation clarifying GUI/API behavior
+
+---
+
 ### zcc-77 — WebPolicy `*Top` vs nested-block precedence on write
 
 *Origin: `references/zcc/api-schemas.md` § Open questions*
@@ -6134,10 +6150,10 @@ The Python SDK exposes `client.ztb` through `oneapi_client.py` (`vendor/zscaler-
 
 *Origin: `references/zscaler-cellular/overview.md` § Open questions*
 
-The Cellular Help capture describes Zscaler SIM, Cellular Edge, IP/IMEI/IMSI policy identifiers, and Cellular Admin Portal capabilities (`vendor/zscaler-help/cellular-what-zscaler-cellular.md:8`, `:10-15`, `:26-29`, `:45-67`). The refresh found no product-specific Go SDK, Python SDK, Terraform, Ansible, MCP, or Postman surface in the audited vendor trees. Public sources do not identify a Cellular Admin Portal API, SIM lifecycle endpoint set, eSIM activation API, Cellular Edge deployment API, or the exact ZIA/ZPA policy object mapping for IP/IMEI/IMSI identifiers.
+The Cellular Help capture describes Zscaler SIM, Cellular Edge, IP/IMEI/IMSI policy identifiers, and Cellular Admin Portal capabilities (`vendor/zscaler-help/cellular-what-zscaler-cellular.md:8`, `:10-15`, `:26-29`, `:45-67`). The 2026-07-08 re-check narrowed the old surface question: the captured Automate contract now exposes 36 ZCell operations, and the Python SDK exposes `client.zcell` as a OneAPI-only service (`vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:28`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:281-287`; `vendor/zscaler-sdk-python/zscaler/zcell/zcell_service.py:37-103`). The exact tenant entitlement boundary, live backend acceptance, and ZIA/ZPA policy object mapping for IP/IMEI/IMSI identifiers remain unresolved.
 
-**Status**: open
-**Resolves with**: vendor API documentation, Help capture for Cellular admin/API pages, SDK/provider source exposing Cellular operations, or tenant-side API capture
+**Status**: partially resolved — last updated 2026-07-08
+**Resolves with**: tenant-side API capture, vendor entitlement documentation, or vendor documentation mapping Cellular IP/IMEI/IMSI identifiers to ZIA/ZPA policy objects
 
 ---
 

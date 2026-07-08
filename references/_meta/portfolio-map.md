@@ -78,7 +78,7 @@ The skill uses SDK namespace names (ZIA, ZPA, etc.) as canonical reference paths
 
 (ZBI and ZWA marketing aliases live in the Tier 2 section now that those products are classified T2.)
 
-## Tier 2 — Programmable but shallow (5 products)
+## Tier 2 — Programmable but shallow (6 products)
 
 Have an SDK / TF surface — programmable, or read-only/query-only — but reference coverage is thin compared to Tier 1 (may not match a single Tier 1 sub-component's depth). Answer with full confidence on what's documented; explicitly note the coverage gap when relevant. Promotion to T1 is appropriate when reference coverage broadens to multi-component depth.
 
@@ -91,11 +91,13 @@ Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`.
 | **AI Guard** | Runtime prompt/response policy detection for AI and LLM applications. Broader AI Security family includes AI Guardrails and AI Red Teaming, but only AI Guard policy detection has verified SDK coverage. | [`ai-security/index.md`](../ai-security/index.md) | Python `zscaler/zaiguard/` policy detection: `/detection/execute-policy`, `/detection/resolve-and-execute-policy`. No verified Go SDK, Terraform, or broad admin-configuration API surface. |
 | **ZMS — Zscaler Microsegmentation** | East-west / workload-to-workload policy via host agents (Win/Linux); AI policy recommendations (14-day rolling telemetry); local OS enforcement (WFP / nftables). Positioned as a ZPA add-on. | [`zms/overview.md`](../zms/overview.md) · [`zms/api.md`](../zms/api.md) | Python `zscaler/zms/` **read-only** GraphQL (`client.zms.*`, `POST /zms/graphql`); no Go SDK, no Terraform. Write config portal-only. |
 | **EASM — External Attack Surface Management** | Outside-in discovery of internet-exposed assets (domains/IPs/services/certs); CISA-KEV + EPSS risk prioritization. Exposure Management suite; distinct from AEM (inside-out CAASM). | [`easm/overview.md`](../easm/overview.md) | Python `zscaler/zeasm/` **read-only** (organizations, findings, lookalike domains); no Go SDK. |
+| **ZCell — Zscaler Cellular** | SIM / Cellular Edge management surface for IoT/OT cellular connectivity: anomaly policies, SIM inventory/actions, SIM analytics, SIM location groups, tags, customer regions, audit, and network-event search. | [`zscaler-cellular/index.md`](../zscaler-cellular/index.md) · [`zscaler-cellular/api.md`](../zscaler-cellular/api.md) | Captured Automate contract with 36 operations plus Python `client.zcell.*`; no Go SDK, Terraform, Ansible, or MCP surface found. |
 
 ### Marketing-name aliases (Tier 2)
 
 - **"Workflow Automation"** is the marketing name for **ZWA**. Both refer to the same product; canonical reference is `references/zwa/`. (Help portal URL path also still uses `workflow-automation/`, and Zscaler help nav surfaces "Workflow Automation" as the product label — but the SDK / TF / OneAPI scope name is `zwa`, which is what this skill uses.)
 - **"Zero Trust Browser" / "ZTB" / "Zscaler Isolation" (legacy) / "Cloud Browser Isolation"** are all marketing names for **ZBI**. Canonical reference is `references/zbi/`. SDK module is `zbi` (Python `zscaler/zia/cloud_browser_isolation.py` and Go `zscaler/zpa/services/cloudbrowserisolation/*`). ZTB is the current marketing abbreviation.
+- **"Zscaler Cellular" / "ZCell"** refer to the same product family. Canonical reference is `references/zscaler-cellular/`; Automate uses product key `zcell`, and the Python SDK accessor is `client.zcell`.
 
 ## Tier 3 — Reasoning content, no API
 
@@ -129,7 +131,7 @@ AI-powered **at-rest** data security: discovery, LLM-based classification, postu
 Risk-based vulnerability prioritization powered by the Data Fabric (Avalor acquisition, March 2025). Out-of-the-box multifactor scoring that considers BOTH risk factors AND mitigating controls (unlike traditional CVSS-only tools); customizable factors and weights; 150+ prebuilt integrations spanning CVE feeds, threat intel, identity, cloud services, user behavior. Distinguishing primitives: **AnySource connector** (integrate flat files / webhooks; new connectors in weeks) and **AnyTarget connector** (push to any downstream). Two-way ticketing integration with auto reconciliation. Marketed metrics: 80% of "critical" issues downgraded to "medium" after context-aware prioritization, 10× triage capacity. Positioned as a CTEM accelerator. Reasoning doc: [`../uvm/overview.md`](../uvm/overview.md). Capture: `vendor/zscaler-help/uvm-unified-vulnerability-management-marketing.md`. No customer SDK; integration is via connector framework.
 
 #### Zscaler Cellular
-**Zero-Trust SIM card for IoT/OT cellular connectivity** (GA August 2025). Two deployment modes: (1) Zscaler Cellular Service — plug-and-play agentless security for cellular IoT; (2) Zscaler Cellular Partner Service — partner-managed SIM infrastructure with HA/failover. Multi-operator coverage (520+ global carriers per company press releases). The SIM steers all device traffic to the Zero Trust Exchange — no on-device software, no VPN client, no infrastructure changes. Use cases: POS systems, EV chargers, vending machines, vehicle telemetry, industrial IoT, government deployments. **No customer-facing API/SDK** — provisioning is via Zscaler-issued SIMs through Zscaler Account team or partner channel. Reasoning doc: [`../zscaler-cellular/overview.md`](../zscaler-cellular/overview.md). Capture: `vendor/zscaler-help/zscaler-cellular-marketing.md`.
+Moved to Tier 2 after the ZCell Automate contract and Python `client.zcell` surface were captured. See [`../zscaler-cellular/index.md`](../zscaler-cellular/index.md).
 
 #### SOC Workbench
 SecOps-suite product that consolidates alerts from Zscaler and third-party tools into prioritized, context-enriched **incidents** — distinct from raw alerts — using AI-driven correlation against historical attack patterns and business context (user role, asset criticality, vulnerability state). Ingests Zscaler telemetry (ZCC, ZIA, ThreatLabz) plus third-party connectors (CrowdStrike, Microsoft Defender, SentinelOne, Wiz, Snyk, Entra ID, Azure Blob/Cloud Assets) and a generic AnySource connector (S3, GCP, webhook, file upload). Outbound workflow integrations Zscaler calls **"outegrations"** (intentional branding, not a typo) cover Jira and ServiceNow with webhook support. Built on the Data Fabric for Security (shared with AEM / UVM / Identity Protection); ZTE integration provides automatic inline ZIA/ZPA controls when threats are identified. Positioned as an alert-fatigue solution, not a SIEM replacement — raw event retention still belongs in NSS/LSS or your SIEM. One documented API endpoint ("Triggering Report Export Through an API") plus the AnySource webhook / Upload File ingestion path; no comprehensive public API reference for the product itself. Reasoning doc: [`../soc-workbench/overview.md`](../soc-workbench/overview.md). Capture: `vendor/zscaler-help/soc-what-zscaler-soc-workbench.md`. No SDK / TF surface — portal-managed.
@@ -233,13 +235,13 @@ Never pretend deep-dive coverage exists where it doesn't. Confidence drop is hon
 Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscaler-help/zero-trust-exchange-zte-marketing.md`; `vendor/zscaler-help/security-operations-suite-marketing.md`.
 
 - **Tier 1 — Core products:** 6 (ZIA, ZPA [incl AppProtection], ZCC, ZDX, ZIdentity, Cloud Connector)
-- **Tier 2 — Programmable but shallow:** 5 (ZBI, ZWA, AI Guard, ZMS, EASM)
-- **Tier 3 — Reasoning content, no API:** 14 (Deception, Risk360, AI Security family surfaces beyond AI Guard, ZSDK, ITDR, DSPM, AEM, UVM, Zscaler Cellular, SOC Workbench, Breach Predictor, Business Insights, Zero Trust Branch, Experience Center / unified) plus a CASB disambiguation entry (CASB is delivered via ZIA + DSPM/SaaS Security, not a standalone product)
+- **Tier 2 — Programmable but shallow:** 6 (ZBI, ZWA, AI Guard, ZMS, EASM, Zscaler Cellular / ZCell)
+- **Tier 3 — Reasoning content, no API:** 13 (Deception, Risk360, AI Security family surfaces beyond AI Guard, ZSDK, ITDR, DSPM, AEM, UVM, SOC Workbench, Breach Predictor, Business Insights, Zero Trust Branch, Experience Center / unified) plus a CASB disambiguation entry (CASB is delivered via ZIA + DSPM/SaaS Security, not a standalone product)
 - **Tier 4 — Paragraph-only:** 11 (Resilience, Business Continuity Cloud, CTEM, Cloud Protection / ZTC, Posture Control, Microsoft Copilot Data Protection, Red Canary MDR, Managed Threat Hunting, ZTE for B2B, Shadow IT / SaaS Security Report / ZINS, Federal Cloud variants)
 - **Tier 5 — Out of scope:** 0 (currently empty; reserved for deprecated / internal / unshipped)
 - **Architectural pillars named:** 4 (ZTE, Data Fabric, Agentic SecOps, plus the customer-segment "Zero Trust for X" framing)
 
-Total Zscaler portfolio: roughly 36 distinct products + 4 architectural pillars at this date. Full operational depth on 6 (Tier 1), programmable coverage on 5 more (Tier 2), reasoning-content awareness on 14 more (Tier 3), paragraph-level awareness on 11 more (Tier 4) — at-minimum aware of all the rest, deliberately ignore none.
+Total Zscaler portfolio: roughly 36 distinct products + 4 architectural pillars at this date. Full operational depth on 6 (Tier 1), programmable coverage on 6 more (Tier 2), reasoning-content awareness on 13 more (Tier 3), paragraph-level awareness on 11 more (Tier 4) — at-minimum aware of all the rest, deliberately ignore none.
 
 ## Maintenance
 
