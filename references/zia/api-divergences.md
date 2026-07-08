@@ -5,6 +5,10 @@ title: "ZIA API source divergences"
 content-type: reference
 confidence: medium
 last-verified: "2026-06-18"
+verified-against:
+  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
 sources:
   - "vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json"
   - "vendor/zscaler-api-specs/automate-zscaler/zia-divergences.md"

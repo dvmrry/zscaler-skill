@@ -29,7 +29,8 @@ The central question is: **is this defensible?** (posture). The auditor asks
 Execute these steps in order. Each gate must pass before the next begins.
 
 1. **soc_status** — Run soc_status first whenever resuming, after any gate
-   failure, or when review state is uncertain. Follow nextActions exactly.
+   failure, or when review state is uncertain. Follow nextCommands/nextActions
+   exactly.
 2. **open_review** — Create the review intake. Declare scope (paths or topic),
    description, and optionally a threat model and subtype. Do not adopt any
    premise in the scope that is not supported by evidence; open the review with
@@ -82,7 +83,7 @@ Evidence transitions finding statuses — the model does not.
 ## Status-first recovery rule
 
 After any gate failure, tool error, or uncertain state: call **soc_status**
-first. Read nextActions. Do not guess the next step.
+first. Read nextCommands and nextActions. Do not guess the next step.
 
 ## Answer-from-artifact rule
 

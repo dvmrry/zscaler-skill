@@ -593,6 +593,11 @@ test("passing force to open_case returns isError with MCP repair message", async
     assert.equal(resp.result.isError, true, "expected isError:true when force is passed over MCP");
     const text = resp.result.content[0].text;
     assert.match(text, /force is not available over MCP/, `error must include force-rejection message, got: ${text}`);
+    assert.match(
+      text,
+      /Repair flows: run status and follow its nextCommands\/nextActions\./,
+      `error must point to status nextCommands/nextActions, got: ${text}`,
+    );
     assert.match(text, /Replacing existing artifacts is a human decision/, `error must include human-decision repair text, got: ${text}`);
   } finally {
     server.close();
@@ -621,6 +626,7 @@ test("passing force to record_loads returns isError with MCP repair message", as
     assert.equal(resp.result.isError, true, "expected isError:true when force is passed to record_loads over MCP");
     const text = resp.result.content[0].text;
     assert.match(text, /force is not available over MCP/, `error must include force-rejection message, got: ${text}`);
+    assert.match(text, /Repair flows: run status and follow its nextCommands\/nextActions\./);
   } finally {
     server.close();
   }
@@ -646,6 +652,7 @@ test("passing force to initialize_turn_ledger returns isError with MCP repair me
     assert.equal(resp.result.isError, true, "expected isError:true when force is passed to initialize_turn_ledger over MCP");
     const text = resp.result.content[0].text;
     assert.match(text, /force is not available over MCP/, `error must include force-rejection message, got: ${text}`);
+    assert.match(text, /Repair flows: run status and follow its nextCommands\/nextActions\./);
   } finally {
     server.close();
   }

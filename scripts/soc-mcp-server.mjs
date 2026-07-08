@@ -53,7 +53,7 @@ function readMcpEntrypoint() {
 // ── Error constant ────────────────────────────────────────────────────────────
 // force is not available over MCP; repair flows use soc_status -> open_review.
 const FORCE_OVER_MCP_ERROR =
-  "force is not available over MCP. Repair flow: run soc_status and follow its nextActions. " +
+  "force is not available over MCP. Repair flows: run soc_status and follow its nextCommands/nextActions. " +
   "Replacing existing review artifacts is a human decision — use the CLI with explicit user approval.";
 
 // ── Resource URI helpers ──────────────────────────────────────────────────────
@@ -155,6 +155,7 @@ const SOC_STATUS_OUTPUT_SCHEMA = {
     },
     evidenceRecorded: { type: "array", items: { type: "string" } },
     blockingIssues: { type: "array", items: { type: "string" } },
+    nextCommands: { type: "array", items: { type: "string" } },
     nextActions: { type: "array", items: { type: "string" } },
   },
   required: [
@@ -165,6 +166,7 @@ const SOC_STATUS_OUTPUT_SCHEMA = {
     "findingCounts",
     "evidenceRecorded",
     "blockingIssues",
+    "nextCommands",
     "nextActions",
   ],
 };
@@ -177,7 +179,7 @@ const TOOLS = [
     title: "SOC review status (read-only doctor)",
     description:
       "Run FIRST when resuming a review, after any gate failure, or whenever review state is uncertain. " +
-      "Reports phase (no-review|open|has-findings), intake state, finding counts, evidence recorded, and nextActions. " +
+      "Reports phase (no-review|open|has-findings), intake state, finding counts, evidence recorded, and the exact legal nextCommands/nextActions. " +
       "Never mutates. " +
       "Discipline: open the review to declare scope before recording findings; " +
       "every finding needs a resolving source — framework tags (CWE, NIST, MITRE, OWASP, CISA) classify findings but do NOT prove them; " +

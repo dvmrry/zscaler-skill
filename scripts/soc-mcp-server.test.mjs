@@ -436,6 +436,7 @@ test("passing force to open_review returns isError with FORCE_OVER_MCP_ERROR mes
     assert.equal(resp.result.isError, true);
     const text = resp.result.content[0].text;
     assert.match(text, /force is not available over MCP/);
+    assert.match(text, /Repair flows: run soc_status and follow its nextCommands\/nextActions\./);
     assert.match(text, /Replacing existing review artifacts is a human decision/);
   } finally {
     server.close();
@@ -1006,6 +1007,15 @@ test("tools/list: soc_status has outputSchema with required phase field", async 
       Array.isArray(socStatusTool.outputSchema.required) &&
         socStatusTool.outputSchema.required.includes("phase"),
       "outputSchema.required should include 'phase'",
+    );
+    assert.ok(
+      socStatusTool.outputSchema.required.includes("nextCommands"),
+      "outputSchema.required should include 'nextCommands'",
+    );
+    assert.equal(
+      socStatusTool.outputSchema.properties?.nextCommands?.type,
+      "array",
+      "nextCommands property should be an array",
     );
     const phaseEnum = socStatusTool.outputSchema.properties?.phase?.enum;
     assert.ok(Array.isArray(phaseEnum));
