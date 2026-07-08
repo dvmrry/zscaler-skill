@@ -4,7 +4,7 @@ This walkthrough is for a private fork or local checkout that will use tenant
 snapshots and local runtime data. Public upstream does not track runtime data;
 create a local runtime-data mount before using snapshot-backed workflows. The
 default mount path is `_data/`, and local installs may configure a different
-relative mount path in `zscaler-skill-setup.json`.
+relative mount path in the committed `zscaler-skill-runtime.json`.
 
 ## Prerequisites
 
@@ -144,8 +144,8 @@ submodule.
 After the setup steps, run `node scripts/doctor.mjs` to confirm the local
 install and get the next command or doc pointer for anything missing.
 
-For repeatable local setup, copy the public template and keep the real file
-local:
+For repeatable local setup from a private source, copy the public bootstrap
+template and keep the real setup file local:
 
 ```bash
 cp zscaler-skill-setup.example.json zscaler-skill-setup.json
@@ -155,13 +155,11 @@ node scripts/setup-data-mount.mjs
 node scripts/check-data-contract.mjs
 ```
 
-The config's preferred shape is:
+The ignored setup config's preferred shape is:
 
 ```json
 {
   "runtimeData": {
-    "mountPath": "_data",
-    "tracking": "ignored",
     "source": "${ZSCALER_SKILL_RUNTIME_SOURCE}",
     "ref": "main",
     "mode": "checkout"
@@ -169,12 +167,24 @@ The config's preferred shape is:
 }
 ```
 
-Change `runtimeData.mountPath` only when your fork intentionally wants a name
-other than `_data`. In that case, pass the same mount path to
-`check-data-contract.mjs`, or let the checker read it from the root config.
-If your private work mirror intentionally commits runtime data directly in this
-repo, set `runtimeData.tracking` to `tracked`; otherwise leave it as `ignored`
-so custom mounts are protected by the local Git exclude.
+Change the committed `zscaler-skill-runtime.json` only when your fork or work
+mirror intentionally wants a mount name other than `_data`, or wants to track
+runtime data directly:
+
+```json
+{
+  "runtimeData": {
+    "mountPath": "tenant-data",
+    "tracking": "tracked"
+  }
+}
+```
+
+That work-mirror mode avoids a separate overlay repository: commit the runtime
+files under the configured mount in the private mirror, while public upstream
+keeps `_data/` ignored. The ignored setup file remains optional and is only
+needed when a workstation wants `setup-data-mount.mjs` to clone or copy from a
+private source.
 
 ## Populate the snapshot
 

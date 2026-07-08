@@ -5,15 +5,13 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 import {
   DEFAULT_DATA_MOUNT,
-  DEFAULT_RUNTIME_DATA_TRACKING,
   DATA_REQUIRED_DIRS,
   DATA_SKELETON_FILES,
-  expandConfigString,
   gitTryOutput,
   normalizeMountPath,
   normalizeRuntimeDataTracking,
-  readJsonObject,
   runtimeMountIgnoreStatus,
+  runtimeDataMountSettings,
 } from "./lib.mjs";
 
 function usage(exitCode = 0) {
@@ -22,7 +20,8 @@ function usage(exitCode = 0) {
   node scripts/check-data-contract.mjs [--root <repo-root>] [--config <json>] [--mount-path <path>] [--tracking ignored|tracked]
 
 Verifies the runtime data mount contract without reading tenant contents.
-Defaults to _data unless zscaler-skill-setup.json or --mount-path says otherwise.
+Defaults to _data unless zscaler-skill-runtime.json, zscaler-skill-setup.json,
+or --mount-path says otherwise.
 `);
   process.exit(exitCode);
 }
@@ -61,19 +60,16 @@ function parseArgs(argv) {
     throw new Error(`Unknown argument: ${arg}`);
   }
 
-  const configPath = args.config
-    ? path.resolve(args.root, args.config)
-    : path.join(args.root, "zscaler-skill-setup.json");
-  const config = readJsonObject(configPath);
-  const runtimeData = config.runtimeData || {};
-  const configValue = (value) => typeof value === "string" ? expandConfigString(value) : value;
+  const settings = runtimeDataMountSettings(args.root, {
+    configPath: args.config,
+    mountPath: args.mountPath,
+    tracking: args.tracking,
+  });
 
   return {
     root: args.root,
-    mountPath: normalizeMountPath(args.mountPath ?? configValue(runtimeData.mountPath ?? config.mountPath) ?? DEFAULT_DATA_MOUNT),
-    tracking: normalizeRuntimeDataTracking(
-      args.tracking ?? configValue(runtimeData.tracking ?? config.tracking) ?? DEFAULT_RUNTIME_DATA_TRACKING,
-    ),
+    mountPath: settings.mountPath,
+    tracking: settings.tracking,
   };
 }
 

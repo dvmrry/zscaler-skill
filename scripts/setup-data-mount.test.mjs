@@ -409,6 +409,41 @@ test("setup-data-mount CLI supports runtimeData config and env-expanded source",
   }
 });
 
+test("setup-data-mount CLI combines tracked runtime config with ignored bootstrap source", () => {
+  const root = tempDir("zscaler-data-config-runtime-split-");
+  git(root, ["init", "-b", "main"]);
+  makeDataSkeleton(root, "tenant-data");
+  const source = makeOverlaySource();
+  fs.writeFileSync(
+    path.join(root, "zscaler-skill-runtime.json"),
+    `${JSON.stringify({
+      runtimeData: {
+        mountPath: "tenant-data",
+        tracking: "tracked",
+      },
+    }, null, 2)}\n`,
+    "utf8",
+  );
+  fs.writeFileSync(
+    path.join(root, "zscaler-skill-setup.json"),
+    `${JSON.stringify({
+      runtimeData: {
+        source,
+        mode: "auto",
+      },
+    }, null, 2)}\n`,
+    "utf8",
+  );
+
+  const output = runSetupCommand(["--root", root]);
+
+  assert.match(output, /Mode: copy/);
+  assert.match(output, /Tracking: tracked/);
+  assert.match(output, /Errors: 0/);
+  assert.equal(fs.existsSync(path.join(root, "tenant-data", "schemas", "fields.json")), true);
+  assert.match(git(root, ["status", "--short"]), /\?\? tenant-data\//);
+});
+
 test("setup-data-mount CLI flags override setup config values", () => {
   const root = tempDir("zscaler-data-config-override-");
   makeDataSkeleton(root);

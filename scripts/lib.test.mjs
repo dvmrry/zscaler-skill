@@ -13,6 +13,7 @@ import {
   normalizeAllowedRoots,
   normalizeRuntimeDataTracking,
   readJsonObject,
+  runtimeDataMountSettings,
 } from "./lib.mjs";
 
 function tempDir(prefix) {
@@ -144,6 +145,60 @@ test("normalizeRuntimeDataTracking accepts explicit tracking modes", () => {
   assert.equal(normalizeRuntimeDataTracking("ignored"), "ignored");
   assert.equal(normalizeRuntimeDataTracking("tracked"), "tracked");
   assert.throws(() => normalizeRuntimeDataTracking("public"), /runtime data tracking/);
+});
+
+test("runtimeDataMountSettings reads committed runtime layout config", () => {
+  const root = tempDir("zskill-lib-runtime-config-");
+  fs.writeFileSync(
+    path.join(root, "zscaler-skill-runtime.json"),
+    `${JSON.stringify({
+      runtimeData: {
+        mountPath: "tenant-data",
+        tracking: "tracked",
+      },
+    }, null, 2)}\n`,
+    "utf8",
+  );
+
+  assert.deepEqual(
+    {
+      mountPath: runtimeDataMountSettings(root).mountPath,
+      tracking: runtimeDataMountSettings(root).tracking,
+    },
+    {
+      mountPath: "tenant-data",
+      tracking: "tracked",
+    },
+  );
+});
+
+test("runtimeDataMountSettings lets ignored setup config override layout only", () => {
+  const root = tempDir("zskill-lib-runtime-setup-override-");
+  fs.writeFileSync(
+    path.join(root, "zscaler-skill-runtime.json"),
+    `${JSON.stringify({
+      runtimeData: {
+        mountPath: "tenant-data",
+        tracking: "tracked",
+      },
+    }, null, 2)}\n`,
+    "utf8",
+  );
+  fs.writeFileSync(
+    path.join(root, "zscaler-skill-setup.json"),
+    `${JSON.stringify({
+      runtimeData: {
+        mountPath: "local-data",
+        tracking: "ignored",
+        source: "$ZSCALER_TEST_UNSET_PRIVATE_SOURCE",
+      },
+    }, null, 2)}\n`,
+    "utf8",
+  );
+
+  const settings = runtimeDataMountSettings(root);
+  assert.equal(settings.mountPath, "local-data");
+  assert.equal(settings.tracking, "ignored");
 });
 
 test("normalizeAllowedRoots keeps valid _data roots and strips trailing slashes", () => {

@@ -17,6 +17,8 @@ export const DEFAULT_DATA_MOUNT = "_data";
 export const DATA_REQUIRED_DIRS = ["cases", "schemas", "snapshot", "iac", "audits", "soc-reviews"];
 export const DATA_SKELETON_FILES = new Set([".gitkeep", "README.md"]);
 export const DEFAULT_RUNTIME_DATA_TRACKING = "ignored";
+export const RUNTIME_CONFIG_FILE = "zscaler-skill-runtime.json";
+export const SETUP_CONFIG_FILE = "zscaler-skill-setup.json";
 
 // Git ref names we are willing to hand to git as a --branch value. Deliberately
 // stricter than git's own rules: a conservative charset that cannot be read as
@@ -129,11 +131,59 @@ export function readJsonObject(filePath) {
   return parsed;
 }
 
-export function runtimeDataMountPath(root, fallback = DEFAULT_DATA_MOUNT) {
-  const config = readJsonObject(path.join(root, "zscaler-skill-setup.json"));
-  const runtimeData = config.runtimeData || {};
-  const configured = runtimeData.mountPath ?? config.mountPath ?? fallback;
-  return normalizeMountPath(typeof configured === "string" ? expandConfigString(configured) : configured);
+function objectConfig(value) {
+  return value && typeof value === "object" && !Array.isArray(value) ? value : {};
+}
+
+export function readRuntimeDataConfigs(root, setupConfigPath = null) {
+  const runtimeConfigPath = path.join(root, RUNTIME_CONFIG_FILE);
+  const resolvedSetupConfigPath = setupConfigPath
+    ? path.resolve(root, setupConfigPath)
+    : path.join(root, SETUP_CONFIG_FILE);
+  const runtimeConfig = readJsonObject(runtimeConfigPath);
+  const setupConfig = readJsonObject(resolvedSetupConfigPath);
+  return {
+    runtimeConfig,
+    setupConfig,
+    runtimeData: objectConfig(runtimeConfig.runtimeData),
+    setupRuntimeData: objectConfig(setupConfig.runtimeData),
+    runtimeConfigPath,
+    setupConfigPath: resolvedSetupConfigPath,
+  };
+}
+
+export function runtimeDataMountSettings(root, options = {}) {
+  const {
+    runtimeConfig,
+    setupConfig,
+    runtimeData,
+    setupRuntimeData,
+    runtimeConfigPath,
+    setupConfigPath,
+  } = readRuntimeDataConfigs(root, options.configPath || null);
+  const configValue = (value) => typeof value === "string" ? expandConfigString(value) : value;
+  return {
+    mountPath: normalizeMountPath(
+      options.mountPath
+        ?? configValue(setupRuntimeData.mountPath ?? setupConfig.mountPath)
+        ?? configValue(runtimeData.mountPath ?? runtimeConfig.mountPath)
+        ?? DEFAULT_DATA_MOUNT,
+    ),
+    tracking: normalizeRuntimeDataTracking(
+      options.tracking
+        ?? configValue(setupRuntimeData.tracking ?? setupConfig.tracking)
+        ?? configValue(runtimeData.tracking ?? runtimeConfig.tracking)
+        ?? DEFAULT_RUNTIME_DATA_TRACKING,
+    ),
+    runtimeConfigPath,
+    setupConfigPath,
+    runtimeConfigExists: fs.existsSync(runtimeConfigPath),
+    setupConfigExists: fs.existsSync(setupConfigPath),
+  };
+}
+
+export function runtimeDataMountPath(root) {
+  return runtimeDataMountSettings(root).mountPath;
 }
 
 export function runtimeDataPath(root, ...segments) {

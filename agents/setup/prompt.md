@@ -19,10 +19,12 @@ author-status: draft
 # Zscaler Skill Setup
 
 Use this workflow when setting up or repairing the repo's runtime-data mount.
-The default mount path is `_data`, but a local `zscaler-skill-setup.json` may
-set `runtimeData.mountPath` to another relative path. Keep the setup operation
-deterministic: collect inputs, print the exact command, run the helper, then
-run the contract check. Do not reimplement mount logic in prose.
+The default mount path is `_data`, but the committed
+`zscaler-skill-runtime.json` may set a different shared mount path and tracking
+mode. A local `zscaler-skill-setup.json` may override mount/tracking on one
+workstation and may hold private bootstrap source settings. Keep the setup
+operation deterministic: collect inputs, print the exact command, run the
+helper, then run the contract check. Do not reimplement mount logic in prose.
 
 ## Inputs
 
@@ -83,12 +85,12 @@ node scripts/setup-data-mount.mjs --root <repo-root>
 
 The public example file is `zscaler-skill-setup.example.json`. The real
 `zscaler-skill-setup.json` is ignored because it may contain private data source
-URLs.
+URLs. Shared non-secret layout belongs in `zscaler-skill-runtime.json`.
 
 ## Work Mirror Tracking
 
 The preferred private-mirror model is to commit the runtime-data mount directly
-to the work mirror. In that case, the root config should set:
+to the work mirror. In that case, commit this in `zscaler-skill-runtime.json`:
 
 ```json
 {
@@ -145,4 +147,5 @@ After the contract check, distinguish setup state from live integration state:
   validation, but they do not mean the `_data` mount contract failed.
 
 Do not print secrets. Do not record private URLs in committed files. If the data
-source is private, keep it in the user's command or local root config.
+source is private, keep it in the user's command or local setup config. The
+committed runtime config should contain only layout/tracking choices.

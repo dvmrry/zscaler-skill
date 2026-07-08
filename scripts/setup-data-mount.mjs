@@ -8,7 +8,6 @@ import {
   assertNotOption,
   assertSafeRef,
   DEFAULT_DATA_MOUNT,
-  DEFAULT_RUNTIME_DATA_TRACKING,
   DATA_REQUIRED_DIRS,
   DATA_SKELETON_FILES,
   ensureRuntimeMountExcluded,
@@ -16,8 +15,10 @@ import {
   gitTryOutput,
   normalizeMountPath,
   normalizeRuntimeDataTracking,
-  readJsonObject,
+  readRuntimeDataConfigs,
   runGit,
+  runtimeDataMountSettings,
+  SETUP_CONFIG_FILE,
 } from "./lib.mjs";
 
 function usage(exitCode = 0) {
@@ -30,7 +31,10 @@ Creates or replaces the runtime data mount. Defaults to _data.
 Mode checkout clones a git repository or local git checkout into the mount
 without registering a parent-repo submodule. Mode copy materializes a local directory.
 Mode submodule is only for flows that deliberately want a parent-repo gitlink.
-If --config is omitted, ./zscaler-skill-setup.json is used when it exists.
+Mount path/tracking come from zscaler-skill-runtime.json, optionally overridden
+by ./zscaler-skill-setup.json or CLI flags. If --config is omitted, the setup
+helper reads ./zscaler-skill-setup.json for private bootstrap source settings
+when it exists.
 CLI flags override config values.
 The helper never knows private URLs unless the caller provides one at runtime.
 `);
@@ -101,10 +105,17 @@ function parseArgs(argv) {
     throw new Error(`Unknown argument: ${arg}`);
   }
 
-  const defaultConfig = path.join(args.root, "zscaler-skill-setup.json");
+  const defaultConfig = path.join(args.root, SETUP_CONFIG_FILE);
   const configPath = args.config ? path.resolve(args.root, args.config) : defaultConfig;
-  const config = readJsonObject(configPath);
-  const runtimeData = config.runtimeData || {};
+  const {
+    setupConfig: config,
+    setupRuntimeData: runtimeData,
+  } = readRuntimeDataConfigs(args.root, configPath);
+  const mountSettings = runtimeDataMountSettings(args.root, {
+    configPath,
+    mountPath: args.mountPath,
+    tracking: args.tracking,
+  });
   const configValue = (value) => typeof value === "string" ? expandConfigString(value) : value;
   const merged = {
     configPath: fs.existsSync(configPath) ? configPath : null,
@@ -113,11 +124,9 @@ function parseArgs(argv) {
     dryRun: args.dryRun,
     force: args.forceSet ? args.force : Boolean(runtimeData.force ?? config.force),
     mode: args.mode ?? configValue(runtimeData.mode ?? config.mode) ?? "checkout",
-    mountPath: normalizeMountPath(args.mountPath ?? configValue(runtimeData.mountPath ?? config.mountPath) ?? DEFAULT_DATA_MOUNT),
+    mountPath: mountSettings.mountPath,
     root: args.root,
-    tracking: normalizeRuntimeDataTracking(
-      args.tracking ?? configValue(runtimeData.tracking ?? config.tracking) ?? DEFAULT_RUNTIME_DATA_TRACKING,
-    ),
+    tracking: mountSettings.tracking,
   };
 
   if (!merged.dataUrl) {

@@ -4,7 +4,7 @@ import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { checkDataContract } from "./check-data-contract.mjs";
-import { gitTryOutput } from "./lib.mjs";
+import { gitTryOutput, runtimeDataMountSettings } from "./lib.mjs";
 
 const MIN_NODE_VERSION = "18.0.0";
 const REQUIRED_LAYOUT = [
@@ -26,8 +26,8 @@ function usage(exitCode = 0) {
 
 Runs a local setup health check against the skill install this script belongs
 to, and prints the next command or doc pointer for anything missing. An absent
-_data/ mount is optional (skip); a present-but-invalid one fails. No network
-calls are made.
+runtime-data mount is optional (skip); a present-but-invalid one fails. No
+network calls are made.
 `);
   process.exit(exitCode);
 }
@@ -224,33 +224,36 @@ function dataSetupNext(root) {
   return "docs/getting-started.md#set-up-runtime-data";
 }
 
-// _data/ is optional: absent -> skip (never affects the exit code). But a
-// _data/ that EXISTS and violates the contract is broken state, not an
+// The runtime mount is optional: absent -> skip (never affects the exit code).
+// But a mount that EXISTS and violates the contract is broken state, not an
 // optional absence — it FAILs and the doctor exits 1 (fail-closed, matching
 // the skill's tenant-answer discipline).
 function checkDataRuntimeMount(root) {
-  const dataDir = path.join(root, "_data");
+  const settings = runtimeDataMountSettings(root);
+  const mountPath = settings.mountPath;
+  const dataDir = path.join(root, mountPath);
+  const checkName = `${mountPath} runtime mount`;
   if (!fs.existsSync(dataDir)) {
     return {
-      name: "_data runtime mount",
+      name: checkName,
       status: "skip",
-      detail: "_data/ not present; runtime data is optional",
+      detail: `${mountPath}/ not present; runtime data is optional`,
       next: dataSetupNext(root),
     };
   }
   if (!fs.statSync(dataDir).isDirectory()) {
     return {
-      name: "_data runtime mount",
+      name: checkName,
       status: "FAIL",
-      detail: "_data exists but is not a directory",
+      detail: `${mountPath} exists but is not a directory`,
       next: dataSetupNext(root),
     };
   }
 
-  const report = checkDataContract(root);
+  const report = checkDataContract(root, mountPath, { tracking: settings.tracking });
   if (report.errors.length > 0) {
     return {
-      name: "_data runtime mount",
+      name: checkName,
       status: "FAIL",
       detail: `${report.errors.length} contract error(s): ${report.errors.join("; ")}`,
       next: dataSetupNext(root),
@@ -259,7 +262,7 @@ function checkDataRuntimeMount(root) {
 
   const detailParts = [`contract valid`, `${report.warnings.length} warning(s)`];
   return {
-    name: "_data runtime mount",
+    name: checkName,
     status: "ok",
     detail: detailParts.join("; "),
   };

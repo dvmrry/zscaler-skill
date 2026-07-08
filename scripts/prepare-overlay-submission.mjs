@@ -13,8 +13,10 @@ import {
   expandConfigString,
   normalizeMountPath,
   normalizeAllowedRoots,
-  readJsonObject,
+  readRuntimeDataConfigs,
   runGit,
+  runtimeDataMountSettings,
+  SETUP_CONFIG_FILE,
   toPosix,
 } from "./lib.mjs";
 
@@ -32,8 +34,8 @@ configured overlay repository. The helper never pushes by default.
 
 If --config is omitted, ./zscaler-skill-setup.json is used when it exists.
 The config may contain overlaySubmission.repoUrl, defaultBranch, branchPrefix,
-allowedRoots, and requireExplicitApproval. Defaults to the _data runtime mount
-unless runtimeData.mountPath or --mount-path says otherwise.
+allowedRoots, and requireExplicitApproval. Defaults to the configured runtime
+data mount (_data in public upstream) unless --mount-path says otherwise.
 `);
   process.exit(exitCode);
 }
@@ -106,12 +108,14 @@ function parseArgs(argv) {
 
   const configPath = args.config
     ? path.resolve(args.root, args.config)
-    : path.join(args.root, "zscaler-skill-setup.json");
-  const config = readJsonObject(configPath);
-  const runtimeData = config.runtimeData || {};
+    : path.join(args.root, SETUP_CONFIG_FILE);
+  const { setupConfig: config } = readRuntimeDataConfigs(args.root, configPath);
   const overlay = config.overlaySubmission || {};
   const configValue = (value) => typeof value === "string" ? expandConfigString(value) : value;
-  const mountPath = normalizeMountPath(args.mountPath ?? configValue(runtimeData.mountPath ?? config.mountPath) ?? DEFAULT_DATA_MOUNT);
+  const mountPath = runtimeDataMountSettings(args.root, {
+    configPath,
+    mountPath: args.mountPath,
+  }).mountPath;
 
   return {
     approve: args.approve,

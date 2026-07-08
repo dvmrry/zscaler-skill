@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import {
+  checkDataRuntimeMount,
   checkGitHooksPath,
   checkRepoLayout,
   compareVersions,
@@ -100,6 +101,31 @@ test("a present-but-invalid _data mount fails the run (deliberate fail-closed)",
     { name: "Node version", status: "ok", detail: "ok" },
     { name: "_data runtime mount", status: "FAIL", detail: "2 contract error(s)" },
   ]), 1);
+});
+
+test("doctor honors the committed runtime-data mount path", () => {
+  const root = tempDir();
+  fs.writeFileSync(
+    path.join(root, "zscaler-skill-runtime.json"),
+    `${JSON.stringify({
+      runtimeData: {
+        mountPath: "tenant-data",
+        tracking: "tracked",
+      },
+    }, null, 2)}\n`,
+    "utf8",
+  );
+  const mount = path.join(root, "tenant-data");
+  fs.mkdirSync(mount, { recursive: true });
+  fs.writeFileSync(path.join(mount, "README.md"), "# tenant-data\n", "utf8");
+  for (const dirname of ["cases", "schemas", "snapshot", "iac", "audits", "soc-reviews"]) {
+    fs.mkdirSync(path.join(mount, dirname), { recursive: true });
+    fs.writeFileSync(path.join(mount, dirname, ".gitkeep"), "", "utf8");
+  }
+
+  const result = checkDataRuntimeMount(root);
+  assert.equal(result.name, "tenant-data runtime mount");
+  assert.equal(result.status, "ok");
 });
 
 test("next commands embed the repo root so they are cwd-safe", () => {

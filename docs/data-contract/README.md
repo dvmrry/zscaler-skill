@@ -5,15 +5,18 @@ skill-internal docs (methodologies, playbooks, registers) live under
 `references/_meta/`; runtime data (tenant snapshots, script outputs,
 fork-specific IaC) lives here.
 
-Public upstream does not track `_data/`; it tracks this contract instead.
-Runtime deployments create `_data/` from a local checkout, copied data
-directory, or explicit submodule that follows the same directory shape.
-`_data/` is the default mount path. Local installs may set
-`runtimeData.mountPath` in the ignored root `zscaler-skill-setup.json`; when
-they do, substitute that configured mount path anywhere this contract says
-`_data/`. Public/local installs default to `runtimeData.tracking: "ignored"`;
-private work mirrors may set `tracking: "tracked"` when the runtime-data mount
-is intentionally committed in the mirror.
+Public upstream does not track `_data/`; it tracks this contract and the
+non-secret layout file [`../../zscaler-skill-runtime.json`](../../zscaler-skill-runtime.json)
+instead. `_data/` is the default mount path. Private work mirrors may commit a
+different layout there, for example `runtimeData.mountPath: "tenant-data"` and
+`runtimeData.tracking: "tracked"`, then commit the runtime files directly in the
+mirror. When a different mount path is configured, substitute that path anywhere
+this contract says `_data/`.
+
+The ignored root `zscaler-skill-setup.json` is only for local bootstrap/source
+settings such as a private data repository URL. It may locally override
+mount/tracking for one workstation, but shared layout belongs in
+`zscaler-skill-runtime.json`.
 
 Expected top-level directories:
 
@@ -63,16 +66,14 @@ or `--mode submodule` only when a release/build flow deliberately wants a
 pinned `_data` gitlink. The helper refuses to replace populated `_data`
 contents unless `--force` is explicit, then runs the same public contract check.
 
-If a root-level `zscaler-skill-setup.json` exists, the helper reads setup
-defaults from it. Use [`../../zscaler-skill-setup.example.json`](../../zscaler-skill-setup.example.json)
+If a root-level `zscaler-skill-setup.json` exists, the helper reads private
+bootstrap defaults from it. Use [`../../zscaler-skill-setup.example.json`](../../zscaler-skill-setup.example.json)
 as the public-safe template. The real config is gitignored because it may
-contain a private data source URL. Preferred config shape:
+contain a private data source URL. Preferred setup-config shape:
 
 ```json
 {
   "runtimeData": {
-    "mountPath": "_data",
-    "tracking": "ignored",
     "source": "${ZSCALER_SKILL_RUNTIME_SOURCE}",
     "ref": "main",
     "mode": "checkout"
@@ -81,7 +82,7 @@ contain a private data source URL. Preferred config shape:
 ```
 
 For a private work mirror that commits runtime data directly in this repo,
-the config may be as small as:
+commit the shared layout in `zscaler-skill-runtime.json`:
 
 ```json
 {

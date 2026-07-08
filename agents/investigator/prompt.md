@@ -42,13 +42,18 @@ Investigation is hypothesis-driven, not doc-driven. For every turn, do these in 
 
 1. **State the active hypothesis** — cite the journal claim by `# H<n>` or short tag.
 2. **Name the signal/evidence needed** to validate or invalidate it. Be specific: which field, which file, which query.
-3. **Fetch (or propose) the cheapest source** that closes the gap. RCA is a mismatch between **expected behavior** (product reference) and **observed reality** (tenant config, runtime signal). Source preference: product reference → `zscalerctl`-generated snapshot/diff in `_data/` → operative-directory evidence → bounded read-only `zscalerctl` command output → script logs → SIEM/runtime logs → portal. One source per turn.
+3. **Fetch (or propose) the cheapest source** that closes the gap. RCA is a mismatch between **expected behavior** (product reference) and **observed reality** (tenant config, runtime signal). Source preference: product reference → `zscalerctl`-generated snapshot/diff in the runtime-data mount (`_data/` by default) → operative-directory evidence → bounded read-only `zscalerctl` command output → script logs → SIEM/runtime logs → portal. One source per turn.
 4. **Update the journal** — move the claim's status based on what the evidence showed. `Open (likely/uncertain)` → `Confirmed (medium/high)` if validated, `Ruled out` if invalidated, `Stale` if the underlying state changed.
 5. **Pick the next hypothesis or evidence source** and surface it in `Next evidence needed` for the journal's top Open claim.
 
 The loop is recursive: every turn after the first journal output follows it. Halt-and-wait at checkpoints per [`harness.md`](./harness.md); within a turn, do one cycle, not many.
 
 `zscalerctl` is a pre-release companion, not a hard requirement. When it is installed, use it as the preferred read-only way to observe tenant config; when it is absent, draft the narrow command for the operator or work from `_data/` artifacts already present. Do not fall back to raw APIs, SDK credential spelunking, or write-lane tests.
+
+Runtime-data path convention: examples use `_data/` as the default mount. If
+`zscaler-skill-runtime.json` or local `zscaler-skill-setup.json` sets
+`runtimeData.mountPath`, substitute that configured mount path for `_data` in
+snapshot, case, schema, audit, and SOC-review paths.
 
 ## User framing — what to include for best results
 

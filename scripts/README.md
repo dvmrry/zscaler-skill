@@ -108,14 +108,16 @@ node scripts/check-workflow-metadata.mjs
 ```
 
 The runtime data mount contract check verifies a runtime data mount without
-reading tenant contents. `_data` is the default mount path:
+reading tenant contents. `_data` is the default mount path, configured by the
+tracked `zscaler-skill-runtime.json`:
 
 ```bash
 node scripts/check-data-contract.mjs
 ```
 
-If `zscaler-skill-setup.json` sets `runtimeData.mountPath`, the checker reads
-that automatically. You can also pass `--mount-path <path>`.
+If `zscaler-skill-runtime.json` or local `zscaler-skill-setup.json` sets
+`runtimeData.mountPath`, the checker reads that automatically. You can also
+pass `--mount-path <path>`.
 
 To create the runtime data mount from a user-supplied data source:
 
@@ -136,16 +138,14 @@ runtime data unless `--force` is explicit and runs the data contract check
 after setup.
 
 If `zscaler-skill-setup.json` exists at the repo root, the setup helper reads
-defaults from it. CLI flags override config values. The public template is
+private bootstrap defaults from it. CLI flags override config values. The public template is
 [`../zscaler-skill-setup.example.json`](../zscaler-skill-setup.example.json);
 the real config is gitignored because it may contain a private data source URL.
-Preferred local config shape:
+Preferred local setup-config shape:
 
 ```json
 {
   "runtimeData": {
-    "mountPath": "_data",
-    "tracking": "ignored",
     "source": "${ZSCALER_SKILL_RUNTIME_SOURCE}",
     "ref": "main",
     "mode": "checkout"
@@ -157,7 +157,7 @@ The setup helper also accepts `--mount-path <path>` and
 `--tracking ignored|tracked` for one-off runs. Keep `tracking: "ignored"` for
 public/local checkouts; setup will protect a custom ignored mount with a local
 Git exclude. In a private work mirror that intentionally commits runtime data
-directly in this repo, use:
+directly in this repo, commit this in `zscaler-skill-runtime.json`:
 
 ```json
 {

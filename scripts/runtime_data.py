@@ -1,9 +1,10 @@
 """Runtime-data mount path helpers for Python scripts.
 
-The public template defaults to ``_data``. Local installs may set
-``runtimeData.mountPath`` in the ignored root ``zscaler-skill-setup.json``.
-Only the mount path is expanded here; private source URLs in the same config
-are deliberately left unread by callers that only need local output paths.
+The public template defaults to ``_data``. Installs may commit the non-secret
+layout in ``zscaler-skill-runtime.json`` and may locally override it from the
+ignored ``zscaler-skill-setup.json``. Only mount/tracking strings are expanded
+here; private source URLs in setup config are deliberately left unread by
+callers that only need local output paths.
 """
 
 from __future__ import annotations
@@ -16,6 +17,9 @@ from pathlib import Path
 from typing import Any
 
 DEFAULT_DATA_MOUNT = "_data"
+DEFAULT_RUNTIME_DATA_TRACKING = "ignored"
+RUNTIME_CONFIG_FILE = "zscaler-skill-runtime.json"
+SETUP_CONFIG_FILE = "zscaler-skill-setup.json"
 REPO_ROOT = Path(__file__).resolve().parent.parent
 _ENV_RE = re.compile(r"\$\{([A-Za-z_][A-Za-z0-9_]*)\}|\$([A-Za-z_][A-Za-z0-9_]*)")
 
@@ -50,8 +54,7 @@ def normalize_mount_path(value: Any = DEFAULT_DATA_MOUNT) -> str:
     return normalized
 
 
-def _read_root_config(root: Path) -> dict[str, Any]:
-    config_path = root / "zscaler-skill-setup.json"
+def _read_json_object(config_path: Path) -> dict[str, Any]:
     if not config_path.exists():
         return {}
     parsed = json.loads(config_path.read_text(encoding="utf-8"))
@@ -60,13 +63,58 @@ def _read_root_config(root: Path) -> dict[str, Any]:
     return parsed
 
 
+def _object_config(value: Any) -> dict[str, Any]:
+    return value if isinstance(value, dict) else {}
+
+
+def normalize_runtime_data_tracking(value: Any = DEFAULT_RUNTIME_DATA_TRACKING) -> str:
+    tracking = DEFAULT_RUNTIME_DATA_TRACKING if value is None else value
+    if tracking not in {"ignored", "tracked"}:
+        raise RuntimeError("runtime data tracking must be one of: ignored, tracked")
+    return tracking
+
+
+def _first_configured(*values: Any, default: Any) -> Any:
+    for value in values:
+        if value is not None:
+            return value
+    return default
+
+
+def runtime_data_mount_settings(root: Path = REPO_ROOT) -> dict[str, Any]:
+    runtime_config = _read_json_object(root / RUNTIME_CONFIG_FILE)
+    setup_config = _read_json_object(root / SETUP_CONFIG_FILE)
+    runtime_data = _object_config(runtime_config.get("runtimeData"))
+    setup_runtime_data = _object_config(setup_config.get("runtimeData"))
+
+    configured_mount = _first_configured(
+        setup_runtime_data.get("mountPath"),
+        setup_config.get("mountPath"),
+        runtime_data.get("mountPath"),
+        runtime_config.get("mountPath"),
+        default=DEFAULT_DATA_MOUNT,
+    )
+    configured_tracking = _first_configured(
+        setup_runtime_data.get("tracking"),
+        setup_config.get("tracking"),
+        runtime_data.get("tracking"),
+        runtime_config.get("tracking"),
+        default=DEFAULT_RUNTIME_DATA_TRACKING,
+    )
+
+    if isinstance(configured_mount, str):
+        configured_mount = expand_config_string(configured_mount)
+    if isinstance(configured_tracking, str):
+        configured_tracking = expand_config_string(configured_tracking)
+
+    return {
+        "mountPath": normalize_mount_path(configured_mount),
+        "tracking": normalize_runtime_data_tracking(configured_tracking),
+    }
+
+
 def runtime_data_mount_path(root: Path = REPO_ROOT) -> str:
-    config = _read_root_config(root)
-    runtime_data = config.get("runtimeData") if isinstance(config.get("runtimeData"), dict) else {}
-    configured = runtime_data.get("mountPath", config.get("mountPath", DEFAULT_DATA_MOUNT))
-    if isinstance(configured, str):
-        configured = expand_config_string(configured)
-    return normalize_mount_path(configured)
+    return str(runtime_data_mount_settings(root)["mountPath"])
 
 
 def runtime_data_path(*segments: str, root: Path = REPO_ROOT) -> Path:

@@ -129,6 +129,26 @@ test("check-data-contract CLI reads mountPath without expanding unrelated privat
   assert.match(output, /Errors: 0/);
 });
 
+test("check-data-contract CLI reads committed runtime layout config", () => {
+  const root = tempRepo();
+  makeDataSkeleton(root, "tenant-data");
+  fs.writeFileSync(
+    path.join(root, "zscaler-skill-runtime.json"),
+    `${JSON.stringify({
+      runtimeData: {
+        mountPath: "tenant-data",
+        tracking: "tracked",
+      },
+    }, null, 2)}\n`,
+    "utf8",
+  );
+
+  const output = runCheckCommand(["--root", root]);
+  assert.match(output, /tenant-data appears to be an ordinary directory/);
+  assert.match(output, /tenant-data is configured as tracked runtime data/);
+  assert.match(output, /Errors: 0/);
+});
+
 test("checkDataContract warns when runtime README is missing", () => {
   const root = tempRepo();
   const dataDir = path.join(root, "_data");
