@@ -2,9 +2,8 @@
 
 **Purpose of this file:** crash-recovery artifact. If the session dies, read this to know what the project is, what's been done, and what's next without reconstructing from a 99MB transcript.
 
-Last updated: 2026-05-18 (0.2.0 release sweep — runtime workflow migration,
-deterministic investigator gates, `_data` runtime mount, overlay submission,
-and green release validation).
+Last updated: 2026-07-06 (operator-doc refresh for weekly upstream automation,
+Automate contract capture, advisory vendor gates, and auto-tagged releases).
 
 ## TL;DR for new fork admins
 
@@ -12,16 +11,26 @@ If you just forked this and are here because [`README.md`](./README.md) step 2 s
 
 1. **The skill is feature-complete as a knowledge/reasoning artifact.** All `references/` docs are drafted and cited; `SKILL.md` routes to them; `references/_meta/evals/evals.json` exercises them. You can hand the skill to Claude and get useful answers about Zscaler policy evaluation today, with no further work.
 2. **Scope: eight products + architectural layer.** Products covered: ZIA, ZPA, ZCC (Client Connector), ZDX (Digital Experience), ZBI (Cloud Browser Isolation), ZIdentity (unified auth + OneAPI + step-up), Cloud & Branch Connector (ZTW/ZTC/CBC), ZWA (Workflow Automation — DLP incidents). Architectural layer covered: policy evaluation, cloud architecture (Central Authority + Service Edges + BC Cloud), SIPA, SCIM, PAC files, Locations/sublocations/Location Groups, Device Posture, Firewall Control (Filtering/NAT/DNS/IPS), Browser Access, Privileged Remote Access, Subclouds, NSS architecture. **Out of scope:** ZMS, ZINS, EASM, ZAI Guard (vendored in SDKs, not written up), Federal Cloud (deferred — tenant signal pending).
-3. **`_data/` is a runtime-data mount.** Public upstream does not track tenant data. Create `_data/` with `scripts/setup-data-mount.mjs`, verify it with `scripts/check-data-contract.mjs`, then run `scripts/snapshot-refresh.py` once your credentials are set up. Script now dumps ZIA + ZPA + ZCC (use `--zia-only` / `--zpa-only` / `--zcc-only` to scope). Without a snapshot, the skill falls back to general answers for tenant-specific questions — still useful, just hedged.
-4. **5 of 8 scripts are scaffolds, not functional code.** Only `url-lookup.py` and `snapshot-refresh.py` are complete end-to-end. The other five (`access-check.py`, `ssl-audit.py`, `sandbox-check.py`, `connector-health.py`, `zpa-app-check.py`) have docstrings, argument parsing, auth wiring, and logical structure but leave TODOs where live-API response shape needs confirmation. First-run-against-real-tenant is where those TODOs become tractable.
+3. **`_data/` is a runtime-data mount.** Public upstream does not track tenant data. Create `_data/` with `scripts/setup-data-mount.mjs`, verify it with `scripts/check-data-contract.mjs`, then populate it out of band from a private overlay or read-only `zscalerctl` dump. Without a snapshot, the skill falls back to general answers for tenant-specific questions — still useful, just hedged.
+4. **Credentialed live-tenant diagnostics are out of scope here.** The never-validated SDK diagnostic scripts were removed; this repo keeps reference hygiene, data-mount checks, Automate capture maintenance, and the `splunk-query.sh` stub. Tenant reads belong in the read-only `zscalerctl` companion or another private data-populator.
 5. **Known API / documentation blind spots** — all have operator-level workarounds documented:
    - **Malware Protection and ATP block diagnosis** — no API, console-only (workflow codified in `references/zia/malware-and-atp.md`).
    - **Snapshot schema docs** — deferred until post-fork (decided; see §4 below). Postman collection at `vendor/zscaler-api-specs/oneapi-postman-collection.json` is now an additional spec source for stitching response-shape detail before tenant data exists.
    - **Z-Tunnel wire-format protocol internals** — permanently deferred after targeted search confirmed no public docs (operational layer codified in `references/zcc/z-tunnel.md`).
    - **ZCC int-enum semantic mappings** (`zcc-01` through `zcc-04`, `zcc-06`) — datatype resolved via Go SDK; integer-to-meaning mapping pending first tenant snapshot.
    - **Lab-testable clarifications** (6 remaining) — see §Pending lab tests.
-   - **No public OpenAPI / Swagger spec** — confirmed permanently 2026-04-24 via thorough sweep of automate.zscaler.com. Not published anywhere. Postman collection vendored at `vendor/zscaler-api-specs/oneapi-postman-collection.json` is the closest machine-readable surface.
+   - **No vendor-published OpenAPI / Swagger spec** — the repo now carries a reconstructed Automate contract and generated OpenAPI snapshots under `vendor/zscaler-api-specs/automate-zscaler/`; the vendored Postman collection remains an additional machine-readable source.
 6. **Rest of this document is the roadmap and the audit trail** — skim §7-step roadmap and subsequent ✅-DONE sections to see what's been built; skip to §Pending lab tests, §Known findings, and **§Priority recommendation for next session** for work you might want to pick up.
+
+## Since 2026-05-18
+
+- The DAV-19 reference refresh landed across ZIdentity, ZDX, ZCC, Cloud Connector, ZPA, and ZIA in the v0.12.3-v0.12.8 releases on 2026-06-16; v0.13.x then added setup routing and Tier 2 / Tier 3 refreshes for shared ledgers, AI Security, ZBI, ZWA, and the Tier-C stubs.
+- The DAV-20 vendor family-coverage check is now part of the hygiene workflow: `scripts/check-family-coverage.py` is wired into `.github/workflows/check-hygiene.yml` as an advisory gate.
+- automate.zscaler.com contract capture moved from a proof subset to the Docusaurus blob pipeline in `scripts/automate-capture/`, with normalized contracts, OpenAPI snapshots, rosetta / issue-routing output, and per-product divergence files under `vendor/zscaler-api-specs/automate-zscaler/`.
+- The weekly upstream loop is automated: `renovate.json` groups git-submodule bumps before 9am UTC Monday, `.github/workflows/check-hygiene.yml` and `.github/workflows/issue-watch.yml` run Monday at 13:00 UTC, and `.github/workflows/maintenance-digest.yml` follows at 13:20 UTC.
+- Vendor bump PRs get a `vendor-impact.yml` summary comment, and vendor drift / family-coverage findings are advisory so expected upstream movement is visible without blocking every bump.
+- Weekly doc-threading PRs fold upstream changes back into the references; PR #198 / commit `9673804` is the current example.
+- Release tags are now created by `.github/workflows/auto-tag.yml` on pushes to `main`; `.github/workflows/release-please.yml` is kept for manual changelog / VERSION maintenance.
 
 ## Goal
 
@@ -34,11 +43,11 @@ This repo is designed to be **forked privately to run against a real tenant**. T
 | File | What it is |
 |---|---|
 | `SKILL.md` | Anthropic-canonical skill entrypoint — extensive question-routing table |
-| `references/_meta/clarifications.md` | **Canonical index** of open/partial/resolved ambiguities with sources. Status summary near the top is the quick-scan view (20 resolved/clarified, 17 partially resolved, 152 open as of 2026-05-18). |
+| `references/_meta/clarifications.md` | **Canonical index** of open/partial/resolved ambiguities with sources. Status summary near the top is the quick-scan view (20 resolved or clarified, 27 partially resolved, and an expanded open register as of the 2026-06-21 refresh). |
 | `references/zia/*.md`, `references/zpa/*.md`, `references/zcc/*.md`, `references/zdx/*.md`, `references/zbi/*.md`, `references/zidentity/*.md`, `references/cloud-connector/*.md`, `references/zwa/*.md`, `references/shared/*.md` | Distilled reference docs; each cites vendored sources and links to `_meta/clarifications.md` by ID |
 | `vendor/zscaler-help/README.md` | Drop convention, workflow, refresh instructions for the pinned bibliography |
 | `vendor/zscaler-help/*.pdf`, `vendor/zscaler-help/*.md` | Pinned bibliography — every reference doc cites something here |
-| `scripts/url-lookup.py`, `scripts/snapshot-refresh.py`, `scripts/splunk-query.sh` | Tooling scaffolds (Python via `uv run --script`). `snapshot-refresh.py` covers ZIA + ZPA + ZCC. |
+| `scripts/setup-data-mount.mjs`, `scripts/check-data-contract.mjs`, `scripts/refresh-automate-zscaler.sh`, `scripts/splunk-query.sh` | Runtime data mount setup/checks, Automate capture refresh, and the Splunk helper stub. Credentialed tenant reads are out of scope for this repo. |
 | `references/_meta/evals/evals.json` | Skill eval prompts (14 canonical Q→A prompts with structured assertions, must_cite_files, must_not_say traps) |
 | `_data/snapshot/` | Where tenant snapshot JSON lands inside the ignored `_data/` runtime-data mount |
 
@@ -66,8 +75,8 @@ This repo is designed to be **forked privately to run against a real tenant**. T
 - **Tenancy Restriction**: SDK authoritative list (16 app types) propagated to `zia-08` clarification; help article's 13-app list marked stale.
 
 ### 4. Snapshot schema docs ⏸ DEFERRED until post-fork (decided 2026-04-23)
-- Rationale: writing schema docs pre-fork risks describing a structure `snapshot-refresh.py` doesn't actually emit the way the SDK models suggest. Real tenant output is the authoritative reference.
-- When the fork's first `snapshot-refresh.py` run produces output, return here and write `references/zia/snapshot-schema.md` + `references/zpa/snapshot-schema.md` from **real examples** — anonymized excerpts, wire-format (camelCase) key tables, and jq cheatsheets for common skill operations.
+- Rationale: writing schema docs pre-fork risks describing a structure the tenant-data producer does not actually emit. Real tenant output is the authoritative reference.
+- When the fork's first private overlay or `zscalerctl` dump produces output, return here and write `references/zia/snapshot-schema.md` + `references/zpa/snapshot-schema.md` from **real examples** — anonymized excerpts, wire-format (camelCase) key tables, and jq cheatsheets for common skill operations.
 - Gap to manage in the meantime: `api.md` uses SDK snake_case in most places; snapshot JSON will be camelCase. Skill operators hitting the JSON directly need to translate mentally. If that friction shows up before the fork runs, fall back to option (B) from the discussion — a short wire-format-key table appended to each `api.md`.
 
 ### 5. TF provider schema mining ✅ DONE (2026-04-23)
@@ -112,7 +121,7 @@ Product scope extended from ZIA+ZPA to ZIA+ZPA+ZCC after QA review surfaced that
   - `entitlements.md` — (second pass) ZPA and ZDX group entitlements; `zpa_enable_for_all` trump card, Machine Tunnel gating, ZDX `collect_zdx_location` dual-source
 - **SKILL.md updated:** scope description mentions ZCC; routing table adds three ZCC rows and a ZCC API row; "out of scope" note refined to list what's still out (ZDX, ZIdentity, ZMS, ZINS, EASM).
 - **`_meta/clarifications.md`:** added 7 new entries `zcc-01` through `zcc-07` covering enum values the SDK doesn't validate (condition_type, network_type, action_type, primary_transport) plus systemProxyData precedence and forwarding-profile assignment mechanism.
-- **Snapshot scope gap closed (second pass 2026-04-24):** `scripts/snapshot-refresh.py` now dumps ZCC (forwarding-profiles, trusted-networks, fail-open-policy, web-policy) under `_data/snapshot/<cloud>/zcc/`. New `--zcc-only` flag mirrors `--zia-only` / `--zpa-only`. First fork-admin run will resolve enum clarifications `zcc-01` through `zcc-04` and `zcc-06` via observed values.
+- **Snapshot scope gap closed at the time (second pass 2026-04-24):** the then-current `scripts/snapshot-refresh.py` dumped ZCC (forwarding-profiles, trusted-networks, fail-open-policy, web-policy) under `_data/snapshot/<cloud>/zcc/`. That credentialed script was later removed; current tenant snapshots come from a private overlay or read-only `zscalerctl` dump.
 
 Remaining ZCC areas **not written up**: ZCC admin users / roles / secrets (`client.zcc.admin_user`, `client.zcc.secrets`, `client.zcc.company`) — rarely relevant to policy-reasoning questions; captive-portal detection deep-dive (covered at feature level in forwarding-profile.md, but exact heuristics not documented); Z-Tunnel 1.0 vs 2.0 protocol internals (not customer-documented).
 
@@ -127,7 +136,7 @@ Remaining ZCC areas **not written up**: ZCC admin users / roles / secrets (`clie
 - **`README.md` rewritten** as a fork-admin onboarding walkthrough:
   - 7-step first-run path: clone → read PLAN.md → install skill → set up creds → first snapshot → try a script → run evals
   - Helper scripts table (all 7 scripts with one-line "what question it answers" summaries)
-  - Submodule-bump guidance (periodic work as upstream SDK / TF provider evolves)
+  - Submodule-bump guidance (now superseded by the weekly Renovate loop; see `docs/maintenance.md`)
   - Contributing guidance (stub→draft progression, clarification workflow)
   - **Known gaps** section up front: Malware Protection / ATP API blind spots, pending lab tests, deferred snapshot schema, Z-Tunnel undocumented.
 - PLAN.md stays as the canonical hand-off doc; README points to it as step 2 of the onboarding path.
@@ -163,6 +172,8 @@ Architecture coverage landed 2026-04-23. Captured articles (all in `vendor/zscal
 - **Federal Cloud** specifics — out of scope unless we later confirm tenant relevance.
 
 ## Pending lab tests (for fork admin)
+
+These are optional refinements, not prerequisites for using the skill; the current status for each ID lives in `references/_meta/clarifications.md`.
 
 Ranked by ease + value:
 
@@ -206,13 +217,13 @@ These live inside what we've already declared "covered" but where the docs still
 |---|---|---|---|
 | **Z-Tunnel 1.0 vs 2.0 protocol internals** | ~~"Is my transport problem Z-Tunnel 1.0 falling back from 2.0?" "Why does Z-Tunnel 2.0 perform differently on UDP-restricted networks?"~~ **DONE (2026-04-24).** Wrote `references/zcc/z-tunnel.md` covering CONNECT-vs-DTLS architecture, single-IP-NAT-or-silent-fallback footgun, GRE+2.0 incompatibility, the 4-layer Z-Tunnel-2.0 bypass architecture (VPN Gateway → Destination Exclusions/Inclusions with specificity-wins conflict resolution → Port-based Win/macOS-only → Domain-based PAC), and the 3.8+ Windows redirect-web-traffic truth table. Side effect: partially resolved `zcc-05` via the bypass article. **Wire-format protocol internals permanently deferred (2026-04-24):** a targeted search sweep across help.zscaler.com confirmed Zscaler does not publicly document DTLS cipher/version, frame format beyond HTTP CONNECT, fallback trigger timers, or telemetry fields. Protocol-level questions are Zscaler Support territory — do not re-investigate. | | Done (operational); wire-format internals permanently deferred — do not re-investigate |
 | **Central Authority depth** | ~~"What happens to policy during a CA outage?" "When policy is 'pushed,' is it immediate or eventual-consistent across Service Edges?" "What does the activation mechanism actually do at the CA level?"~~ **DONE (2026-04-24).** Captured `understanding-private-access-architecture.md`, `understanding-business-continuity-cloud-components.md`, and `zia-activation.md`. Wrote `references/shared/cloud-architecture.md` synthesizing the full platform: ZIA CA (active-passive) vs ZPA CA (active-active) split, Service Edge form factors and data-plane properties, Nanolog / Feed Central / BC Cloud, Z-Tunnel vs M-Tunnel distinction (M-Tunnel is ZPA-only, MPLS-label-switched), PKI and certificate trust model. Extended `shared/activation.md` with EUSA endpoints + 3-value status enum. Added Microtunnel and BC Cloud rows to `shared/terminology.md`. Remaining fine-grained CA internals (cross-cluster replication protocol, policy-push serialization format) still not public. | | Done (operational); wire-level CA internals still deferred |
-| **ZCC enum values (`zcc-01` through `zcc-04`, `zcc-06`)** | Every ZCC forwarding-profile / trusted-network answer currently hedges on the literal enum strings. | First tenant snapshot resolves the values-in-use for this tenant. Complete enum closure needs zscaler-doc discovery or Zscaler-support confirmation. | Low effort (snapshot) — 5 min to extend `snapshot-refresh.py`; schedule for first fork-admin run |
+| **ZCC enum values (`zcc-01` through `zcc-04`, `zcc-06`)** | Every ZCC forwarding-profile / trusted-network answer currently hedges on the literal enum strings. | First tenant snapshot resolves the values-in-use for this tenant. Complete enum closure needs zscaler-doc discovery or Zscaler-support confirmation. | Low effort when a private overlay or `zscalerctl` dump includes ZCC forwarding-profile / trusted-network data |
 | **App Profile assignment (`zcc-07`)** | "Which forwarding profile does user X actually get?" Right now the skill can describe profile semantics but can't answer this from API data. | (a) Check for SDK version bump that adds App Profiles surface, (b) direct HTTP discovery against undocumented endpoints, (c) admin-portal walkthrough as the documented flow (accept "console-only" as the answer). | Medium effort; (c) is cheap and probably enough |
 | **systemProxyData precedence (`zcc-05`)** | "Does ZCC honor the system proxy when `actionType: TUNNEL` is also set?" Cascade order between ZCC-native forwarding and OS-level proxy isn't documented. | Lab test: populate both on a profile, observe with Wireshark. | Low effort once a lab endpoint exists |
 | **Captive-portal detection deep-dive** | ~~Currently covered as a FailOpenPolicy setting. Operational questions — "why did the grace period expire before I finished auth?" "how does ZCC detect the portal?" — need a dedicated doc.~~ **Partially done (2026-04-24).** Captured `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md` which confirms captive-portal settings moved from global to App Profile scope. Threaded into `references/zcc/forwarding-profile.md`. Remaining gap: the actual detection heuristics (which HTTP probes ZCC uses, timing of state transitions) — no public doc found. | | Partially done |
 | **Malware Protection / ATP console-only diagnosis workflow** | ~~Skill currently says "no API, use the console." That's correct but not helpful.~~ **DONE (2026-04-24).** Wrote `references/zia/malware-and-atp.md` covering both policies' mechanics, category shape, Page Risk scoring, Blocked Malicious URLs, AI/ML recategorization, security-exceptions bypass behavior, and the Security-Dashboard → Web-Insights → category-based-remediation workflow. Opened [`clarification log-04`](references/_meta/clarifications.md#log-04-mp-atp-blocked-policy-type-log-field) for the exact `blockedpolicytype` field name + enum (first tenant Web Insights export closes it). | | Done |
 | **ZCC deferred areas: web_policy, web_privacy, devices, entitlements** | ~~On-device URL filtering (distinct from ZIA URL filtering). Telemetry-collection policy. Device lifecycle (force-remove, inventory). Service entitlements (who gets ZPA/ZDX/Endpoint DLP). All SDK-surface-present, not written up.~~ **DONE (2026-04-24, second pass).** Wrote `web-policy.md`, `web-privacy.md`, `devices.md`, `entitlements.md`. Side effect: resolved `zcc-07` partially by discovering `WebPolicy.forwarding_profile_id` is the assignment mechanism. | | Done |
-| **ZCC snapshot extension** | ~~`snapshot-refresh.py` doesn't dump ZCC. 10-line fix documented in `references/zcc/api.md § Snapshotting ZCC configuration`.~~ **DONE (2026-04-24).** `snapshot-refresh.py` now has `refresh_zcc()` covering forwarding-profiles, trusted-networks, fail-open-policy, and web-policy. New `--zcc-only` flag. | | Done |
+| **ZCC snapshot extension** | ~~`snapshot-refresh.py` doesn't dump ZCC. 10-line fix documented in `references/zcc/api.md § Snapshotting ZCC configuration`.~~ **DONE at the time (2026-04-24).** The credentialed script was later removed; current tenant snapshots come from a private overlay or read-only `zscalerctl` dump. | | Superseded |
 
 ### B. Product scope expansions
 
@@ -293,15 +304,21 @@ After the product-scope build-out closed at ZWA, ran a consolidation pass coveri
 
 ### D. Script completion backlog
 
-Five scaffolds (`access-check.py`, `ssl-audit.py`, `sandbox-check.py`, `connector-health.py`, `zpa-app-check.py`) plus the bash stub (`splunk-query.sh`). Each scaffold's internal TODOs are specific and tractable **once a real tenant snapshot exists** to confirm SDK response shapes. First-run-against-tenant resolves most TODOs in one pass; the remainder need operator judgment on rule-classification thresholds etc.
+**2026-07 note:** this backlog is superseded. The credentialed SDK diagnostic
+scaffolds were removed in 2026-06; tenant reads now belong to the read-only
+`zscalerctl` companion or another private data-populator.
 
-Priority order for a fork admin: (1) `access-check.py` highest value, (2) `ssl-audit.py` and `sandbox-check.py` tie for second, (3) `zpa-app-check.py` and `connector-health.py` tie for third, (4) `splunk-query.sh` only if Splunk is the SIEM.
+The original backlog was five scaffolds (`access-check.py`, `ssl-audit.py`,
+`sandbox-check.py`, `connector-health.py`, `zpa-app-check.py`) plus the bash
+stub (`splunk-query.sh`). That plan is no longer the current tenant-read path.
+
+For Splunk-only work, `splunk-query.sh` remains a stub.
 
 ### E. Documentation maintenance
 
 - **Duplicate refarch PDF** — see §Known findings above. Delete one after user confirms.
 - **5-level wildcard cap "gotcha" elevation** — see §Known findings. Move the 5-level cap from a matching-table row to a Surprises/Gotchas callout at the top of `wildcard-semantics.md`; add a cross-link from `url-filtering.md § Specificity`.
-- **Submodule bumps** — periodic work as upstream SDK / TF provider evolves. Guidance in `README.md § Submodule management`. A new SDK version typically adds resources and validator enums; skim the diff and propagate to `api.md` files.
+- **Submodule bumps** — Renovate now opens grouped upstream bump PRs before 9am UTC Monday. Use a manual bump only to fast-track a specific source; review the `vendor-impact.yml` comment and propagate real API / reference changes to the `api.md` files.
 - **`last-verified` refresh** — reference docs carry a per-file `last-verified` date. When revisiting a doc, update the date even if content stays the same, so staleness is visible.
 
 ### Architectural-components buildout — ✅ DONE (2026-04-24, seventh pass)
@@ -370,7 +387,7 @@ Eighth pass also: SKILL.md (4 new routing rows), `shared/index.md` (1 row), `zia
 
 **Blocked on a real tenant (unblock with first fork-admin run):**
 
-4. **5 script scaffolds** — `access-check.py`, `ssl-audit.py`, `sandbox-check.py`, `connector-health.py`, `zpa-app-check.py`. TODOs close on first live API run.
+4. **Credentialed SDK diagnostic scripts** — superseded. The never-validated scaffolds were removed in 2026-06; tenant reads now belong to `zscalerctl` or another private data-populator.
 5. **ZCC int-enum semantic mappings** — `zcc-01` through `zcc-04`, `zcc-06`. First tenant snapshot reveals values-in-use.
 6. **Six lab-testable clarifications** — `zia-02`, `zia-12`, `zia-14`, `zia-15`, `zpa-04`, `shared-06`. See § Pending lab tests.
 7. **Snapshot schema docs** — deferred until first real output (decided in § 4 of 7-step roadmap). Write from real anonymized examples.
@@ -385,7 +402,7 @@ Eighth pass also: SKILL.md (4 new routing rows), `shared/index.md` (1 row), `zia
 
 **Hygiene / maintenance (background, not blocking):**
 
-13. **Submodule bumps** — upstream SDKs and TF providers ship new resources and validator enums. Skim diffs when bumping; propagate to `api.md` files.
+13. **Submodule bumps** — weekly Renovate PRs cover the normal upstream cadence. Manual bumps are for fast-tracking; skim the vendor-impact summary and propagate real SDK / provider / contract changes to the reference docs.
 14. **`last-verified` date refresh** — when touching a reference doc, bump the date even if content's unchanged, so staleness is visible.
 15. **README + SKILL.md routing-table hygiene** — the routing-table rows grow as docs are added. Periodically review for redundancy or better question-shape phrasing.
 
@@ -396,6 +413,11 @@ Eighth pass also: SKILL.md (4 new routing rows), `shared/index.md` (1 row), `zia
 After the eighth pass committed and pushed, a portfolio audit and a portal recon surfaced two distinct lines of work neither in the existing roadmap nor scoped under "blocked on tenant." Both are actionable now.
 
 ### Discovery 1: `automate.zscaler.com` is the public OneAPI Automation Hub — ✅ SCRAPED 2026-04-24 (ninth pass)
+
+**2026-07 note:** this section records the April rendered-page / Postman pass.
+The current contract source is the June Docusaurus blob capture described in
+§Since 2026-05-18; it now publishes generated OpenAPI snapshots and includes
+ZPA contract JSON under `vendor/zscaler-api-specs/automate-zscaler/`.
 
 Public Docusaurus doc site. **No login wall.** A Sonnet capture agent did a thorough sweep covering all three top sections plus the Postman collection.
 

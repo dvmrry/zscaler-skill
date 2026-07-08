@@ -73,7 +73,7 @@ Each role's canonical logic lives in `agents/<role>/workflow.md`; the loaders un
 **Usage**
 - [docs/getting-started.md](./docs/getting-started.md) — fork setup, credentials, first snapshot, first script run
 - [scripts/README.md](./scripts/README.md) — script inventory, support boundary, conventions
-- [docs/maintenance.md](./docs/maintenance.md) — CI, sticky issues, submodule updates, contribution rules
+- [docs/maintenance.md](./docs/maintenance.md) — CI, automated weekly upstream refresh, sticky issues, contribution rules
 
 **Reference**
 - [references/_meta/portfolio-map.md](./references/_meta/portfolio-map.md) — product coverage tiers
