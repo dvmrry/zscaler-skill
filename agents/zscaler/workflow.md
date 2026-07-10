@@ -14,6 +14,7 @@ author-status: reviewed
 summary: Grounded ad-hoc Zscaler Q&A
 primary-command: "@zscaler"
 known-runtimes:
+  - codex
   - devin
   - claude
 required-reads:

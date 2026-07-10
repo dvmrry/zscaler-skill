@@ -1,7 +1,9 @@
 # Release Process
 
-This repository uses Release Please to prepare semantic-versioned releases from
-conventional commits on `main`.
+This repository uses Release Please to prepare semantic-versioned release PRs
+from conventional commits on `main`. Merging a release PR changes `VERSION`;
+that change triggers `auto-tag.yml`, which creates the matching tag and GitHub
+release.
 
 ## Version Source
 
@@ -9,6 +11,12 @@ conventional commits on `main`.
 - `CHANGELOG.md` is updated by release PRs.
 - `.release-please-manifest.json` records the last released version used by
   Release Please.
+- `pyproject.toml` mirrors the same version for workspace metadata.
+- `uv.lock` mirrors the workspace package version generated from
+  `pyproject.toml`.
+
+`node scripts/check-release-state.mjs` fails when these five surfaces disagree
+or when the repository already has a newer semantic-version tag.
 
 ## Commit Conventions
 
@@ -36,10 +44,13 @@ the marker.
 ## Release Flow
 
 1. Merge normal PRs to `main`.
-2. Release Please opens or updates a release PR when releasable commits exist.
-3. Review the generated `VERSION` and `CHANGELOG.md` changes.
-4. Merge the release PR.
-5. Release Please creates the GitHub release and `vX.Y.Z` tag.
+2. Dispatch `release-please.yml` when a release is desired. Release Please
+   opens or updates a release PR when releasable commits exist.
+3. Review the generated `VERSION`, `CHANGELOG.md`, manifest,
+   `pyproject.toml`, and `uv.lock` changes.
+4. Merge the release PR after required checks pass.
+5. The `VERSION` change triggers `auto-tag.yml`, which creates exactly
+   `v<contents-of-VERSION>` and the matching GitHub release.
 
 Release PRs must still receive the normal hygiene check before merge. The
 release PR check behavior depends on token configuration:
@@ -50,5 +61,6 @@ release PR check behavior depends on token configuration:
   trigger required checks on its own PRs. Admin-merge is the standing procedure
   in that case.
 
-Do not hand-edit tags for ordinary releases. Use manual tags only for historical
-backfills or repairs, and record that decision in the release PR or issue.
+Normal pushes to `main` do not create releases. Do not hand-edit tags for
+ordinary releases. Use manual tags only for historical backfills or repairs,
+and record that decision in the release PR or issue.

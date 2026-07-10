@@ -2,15 +2,15 @@
 
 **Purpose of this file:** crash-recovery artifact. If the session dies, read this to know what the project is, what's been done, and what's next without reconstructing from a 99MB transcript.
 
-Last updated: 2026-07-06 (operator-doc refresh for weekly upstream automation,
-Automate contract capture, advisory vendor gates, and auto-tagged releases).
+Last updated: 2026-07-09 (release-state repair, portable runtime coverage, and
+onboarding/state cleanup).
 
 ## TL;DR for new fork admins
 
-If you just forked this and are here because [`README.md`](./README.md) step 2 said to read PLAN.md, the parts you actually need to know:
+If you are maintaining a fork, the parts you actually need to know are:
 
-1. **The skill is feature-complete as a knowledge/reasoning artifact.** All `references/` docs are drafted and cited; `SKILL.md` routes to them; `references/_meta/evals/evals.json` exercises them. You can hand the skill to Claude and get useful answers about Zscaler policy evaluation today, with no further work.
-2. **Scope: eight products + architectural layer.** Products covered: ZIA, ZPA, ZCC (Client Connector), ZDX (Digital Experience), ZBI (Cloud Browser Isolation), ZIdentity (unified auth + OneAPI + step-up), Cloud & Branch Connector (ZTW/ZTC/CBC), ZWA (Workflow Automation — DLP incidents). Architectural layer covered: policy evaluation, cloud architecture (Central Authority + Service Edges + BC Cloud), SIPA, SCIM, PAC files, Locations/sublocations/Location Groups, Device Posture, Firewall Control (Filtering/NAT/DNS/IPS), Browser Access, Privileged Remote Access, Subclouds, NSS architecture. **Out of scope:** ZMS, ZINS, EASM, ZAI Guard (vendored in SDKs, not written up), Federal Cloud (deferred — tenant signal pending).
+1. **The skill is substantial and usable, but coverage is intentionally tiered.** `SKILL.md` routes the committed reference corpus and 25 behavioral evals pin the highest-value answer shapes. Hygiene checks still report high-confidence references without eval coverage and sections that need denser source attribution; do not describe the corpus as exhaustively evaluated.
+2. **Use the portfolio map for current scope.** [`references/_meta/portfolio-map.md`](./references/_meta/portfolio-map.md) is the canonical product/depth inventory. Tier 1 has six products with operational depth; Tier 2 and Tier 3 include additional programmable or conceptual coverage such as ZBI, ZWA, AI Guard, ZMS, and EASM. Do not copy a static product list into onboarding docs.
 3. **`_data/` is a runtime-data mount.** Public upstream does not track tenant data. Create `_data/` with `scripts/setup-data-mount.mjs`, verify it with `scripts/check-data-contract.mjs`, then populate it out of band from a private overlay or read-only `zscalerctl` dump. Without a snapshot, the skill falls back to general answers for tenant-specific questions — still useful, just hedged.
 4. **Credentialed live-tenant diagnostics are out of scope here.** The never-validated SDK diagnostic scripts were removed; this repo keeps reference hygiene, data-mount checks, Automate capture maintenance, and the `splunk-query.sh` stub. Tenant reads belong in the read-only `zscalerctl` companion or another private data-populator.
 5. **Known API / documentation blind spots** — all have operator-level workarounds documented:
@@ -20,7 +20,7 @@ If you just forked this and are here because [`README.md`](./README.md) step 2 s
    - **ZCC int-enum semantic mappings** (`zcc-01` through `zcc-04`, `zcc-06`) — datatype resolved via Go SDK; integer-to-meaning mapping pending first tenant snapshot.
    - **Lab-testable clarifications** (6 remaining) — see §Pending lab tests.
    - **No vendor-published OpenAPI / Swagger spec** — the repo now carries a reconstructed Automate contract and generated OpenAPI snapshots under `vendor/zscaler-api-specs/automate-zscaler/`; the vendored Postman collection remains an additional machine-readable source.
-6. **Rest of this document is the roadmap and the audit trail** — skim §7-step roadmap and subsequent ✅-DONE sections to see what's been built; skip to §Pending lab tests, §Known findings, and **§Priority recommendation for next session** for work you might want to pick up.
+6. **Most of this document is historical build context.** For current work, start with [`IMPROVEMENTS.md`](./IMPROVEMENTS.md), the open status in [`references/_meta/clarifications.md`](./references/_meta/clarifications.md), and the advisory outputs from `check-hygiene.py` / `check-vendor-drift.py`. Use the completed roadmap sections only when reconstructing why a design exists.
 
 ## Since 2026-05-18
 
@@ -29,8 +29,8 @@ If you just forked this and are here because [`README.md`](./README.md) step 2 s
 - automate.zscaler.com contract capture moved from a proof subset to the Docusaurus blob pipeline in `scripts/automate-capture/`, with normalized contracts, OpenAPI snapshots, rosetta / issue-routing output, and per-product divergence files under `vendor/zscaler-api-specs/automate-zscaler/`.
 - The weekly upstream loop is automated: `renovate.json` groups git-submodule bumps before 9am UTC Monday, `.github/workflows/check-hygiene.yml` and `.github/workflows/issue-watch.yml` run Monday at 13:00 UTC, and `.github/workflows/maintenance-digest.yml` follows at 13:20 UTC.
 - Vendor bump PRs get a `vendor-impact.yml` summary comment, and vendor drift / family-coverage findings are advisory so expected upstream movement is visible without blocking every bump.
-- Weekly doc-threading PRs fold upstream changes back into the references; PR #198 / commit `9673804` is the current example.
-- Release tags are now created by `.github/workflows/auto-tag.yml` on pushes to `main`; `.github/workflows/release-please.yml` is kept for manual changelog / VERSION maintenance.
+- Weekly doc-threading PRs fold upstream changes back into the references; PR #198 / commit `9673804` is one example.
+- Release Please prepares version/changelog updates. A `VERSION` change triggers `.github/workflows/auto-tag.yml`, which publishes exactly that version; ordinary pushes to `main` no longer invent patch versions independently.
 
 ## Goal
 
@@ -48,7 +48,7 @@ This repo is designed to be **forked privately to run against a real tenant**. T
 | `vendor/zscaler-help/README.md` | Drop convention, workflow, refresh instructions for the pinned bibliography |
 | `vendor/zscaler-help/*.pdf`, `vendor/zscaler-help/*.md` | Pinned bibliography — every reference doc cites something here |
 | `scripts/setup-data-mount.mjs`, `scripts/check-data-contract.mjs`, `scripts/refresh-automate-zscaler.sh`, `scripts/splunk-query.sh` | Runtime data mount setup/checks, Automate capture refresh, and the Splunk helper stub. Credentialed tenant reads are out of scope for this repo. |
-| `references/_meta/evals/evals.json` | Skill eval prompts (14 canonical Q→A prompts with structured assertions, must_cite_files, must_not_say traps) |
+| `references/_meta/evals/evals.json` | 25 skill eval prompts with structured assertions, `must_cite_files`, and `must_not_say` traps |
 | `_data/snapshot/` | Where tenant snapshot JSON lands inside the ignored `_data/` runtime-data mount |
 
 ## 7-step roadmap — state

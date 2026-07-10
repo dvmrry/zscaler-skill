@@ -38,7 +38,7 @@ This directory holds the agent infrastructure for the skill — playbooks, metho
 | `agents/` | Agent infrastructure: how to operate (playbooks, methodologies, grounding cards/indexes, diagnostics templates) | AI agents executing role-specific workflows |
 | `references/` | Product knowledge: what to know (Zscaler product docs, schemas, log refs) | Both agents (as evidence) and human readers |
 | `_data/` | Evidence and state: tenant snapshots, IaC overlays, local case artifacts, and eval outputs. `_data` is the default runtime-data mount; substitute the mount configured in `zscaler-skill-runtime.json` or local setup config when present. | Agents and operators investigating current state |
-| `.agents/skills/` | Agent Skills: trigger metadata and loaders for canonical workflows | Codex, Devin, and other compatible runtimes |
+| `.agents/skills/` | Portable Agent Skills: trigger metadata and thin loaders for every workflow that declares Codex support | Codex and other compatible runtimes |
 | `_meta/` | Agent-layer meta-documentation: runtime adapter policy, workflow metadata, and workflow artifact notes | Maintainers and auditing agents |
 
 The split keeps `references/` focused as a knowledge base, lets agent personas route to predictable paths, and makes it easier to add new agent workflows without touching product docs.
@@ -131,5 +131,6 @@ Role routing is driven by `agents/_meta/capability-registry.json` (routing-only 
 7. Declare first-turn files in `workflow.md` `required-reads`; use `optional-reads` for conditional workflow support files.
 8. Add a `capability-registry.json` entry (intent signals + capsule) and run `node scripts/gen-capability-routing.mjs` to refresh the AGENTS.md routing block.
 9. Update this README's "Available workflows" table.
-10. Add a portable skill under `.agents/skills/` when the workflow should be natively discoverable by Codex, Devin, or another Agent Skills-compatible runtime.
+10. Add a portable skill under `.agents/skills/` whenever `known-runtimes`
+    includes `codex`; `check-agent-skills.py` derives and enforces that contract.
 11. Wire optional runtime adapters (`.claude/commands/<role>.md` for Claude Code, `.devin/workflows/<role>.md` for Devin) that invoke `agents/{role}/workflow.md`. Keep adapters thin; move workflow logic back into `agents/**`.

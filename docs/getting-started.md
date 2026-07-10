@@ -46,16 +46,18 @@ The hook (`.githooks/pre-push`) runs the local hygiene suite before push.
 Failures block the push; bypass with `git push --no-verify` if you really need
 to. CI runs the same hygiene family on PRs and pushes to `main`.
 
-## Read PLAN.md
+## Check Current Project State (Maintainers)
 
-[`PLAN.md`](../PLAN.md) is the crash-recovery and onboarding artifact. It lists:
+Ordinary users can skip this section. If you are maintaining or extending a
+fork, use these state sources:
 
-- The roadmap that built this skill, with per-step state.
-- Pending lab tests for open clarifications.
-- Crash-recovery hints if an agent session dies mid-work.
+- [`IMPROVEMENTS.md`](../IMPROVEMENTS.md) — current improvement backlog.
+- [`references/_meta/clarifications.md`](../references/_meta/clarifications.md)
+  — unresolved product-behavior questions and lab-test status.
+- [`PLAN.md`](../PLAN.md) — historical build record and crash-recovery context.
 
-If you need to know where the skill stands or what is safe to extend, start
-there.
+Run `node scripts/check-fast.mjs` before making changes; it is a more reliable
+current-state signal than completed roadmap prose.
 
 ## Install as a Claude Skill
 
