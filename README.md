@@ -23,7 +23,7 @@ The product is **codified behavior**, not API access. An agent with live API key
 The skill is a directory Claude (or any file-based agent) loads. Symlink it into your skills path:
 
 ```bash
-git clone --recursive <fork-url> zscaler-skill
+git clone <fork-url> zscaler-skill
 cd zscaler-skill
 
 git config core.hooksPath .githooks
@@ -31,7 +31,17 @@ mkdir -p ~/.claude/skills
 ln -s "$(pwd)" ~/.claude/skills/zscaler
 ```
 
-Install Node 18+ for the deterministic workflow helpers. Full setup — credentials, ZIdentity / legacy auth, snapshot behavior — is in [docs/getting-started.md](./docs/getting-started.md).
+That is enough for grounded Q&A from the committed reference corpus. Maintainers
+who audit source provenance, refresh references, or run the researcher workflow
+should also initialize the pinned upstream source repositories:
+
+```bash
+git submodule update --init --recursive
+```
+
+Install Node 18+ for the deterministic workflow helpers. Full private-fork
+setup — source checkout, credentials, runtime data, and snapshot behavior — is
+in [docs/getting-started.md](./docs/getting-started.md).
 
 ## Quick start
 
@@ -70,7 +80,16 @@ Default to `@zscaler`; reach for a procedural role when the task has a defined d
 | `/z-soc` | Security-posture review | A posture register |
 | `/z-retro` | Journal-first incident postmortem | A warning ledger + proceed/stop decision |
 
-Each role's canonical logic lives in `agents/<role>/workflow.md`; the loaders under `.agents/skills/`, `.claude/commands/`, and `.devin/workflows/` (plus the repo-root [`zscaler`](./zscaler) file) are thin pointers at those workflows, not copies. See [`AGENTS.md`](./AGENTS.md) for the runtime model.
+Each role's canonical logic lives in `agents/<role>/workflow.md`; the loaders
+under `.agents/skills/`, `.claude/commands/`, and `.devin/workflows/` (plus the
+repo-root [`zscaler`](./zscaler) file) are thin pointers at those workflows,
+not copies.
+
+Portable Agent Skill names are `zscaler`, `zscaler-skill-setup`,
+`zscaler-investigator`, `zscaler-researcher`, `zscaler-architect`,
+`zscaler-auditor`, `zscaler-soc`, and `zscaler-retro`. Claude and Devin expose
+the `/z-*` command names shown above; setup is a portable skill rather than a
+slash-command adapter. See [`AGENTS.md`](./AGENTS.md) for the runtime model.
 
 ## Documentation
 

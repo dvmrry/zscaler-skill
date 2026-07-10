@@ -3,10 +3,10 @@ product: zia
 topic: "firewall"
 title: "ZIA Firewall Control — Filtering, NAT, DNS, IPS"
 content-type: reasoning
-last-verified: "2026-06-15"
+last-verified: "2026-07-09"
 verified-against:
   vendor/terraform-provider-zia: 717926eb564bb21dea1f8e0c3222e6593b29f849
-  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/zscaler-sdk-python: 6ff5bc97d02e1e1b4c564e2f0a8986edc730e03f
   vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
   vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
 confidence: high
@@ -154,7 +154,7 @@ Source: `vendor/zscaler-help/about-ips-control.md`; `vendor/terraform-provider-z
 - **Signature source**: Zscaler's research team + industry-vendor feeds. Updated continuously by Zscaler; no operator action needed.
 - **Custom signatures**: Snort-like syntax. Uploaded as part of custom threat categories; referenced in IPS Control rules.
 - **Custom-signature automation surfaces**: Terraform `zia_ips_signature_rules`, Python SDK `client.zia.ips_signature_rules`, and MCP `zia_*_ips_signature_rule*` tools manage custom IPS signature definitions separately from `zia_firewall_ips_rule`. The signature automation surfaces validate `rule_text`, assign signatures to threat categories, and expose dynamic-validation status fields. IPS policy rules then reference the relevant threat category.
-- **Two distinct SDK surfaces — signature definitions vs the rule engine**: The signature-definition resource above (`client.zia.ips_signature_rules`) is separate from the IPS **policy-rule** engine `client.zia.cloud_firewall_ips` (`vendor/zscaler-sdk-python/zscaler/zia/zia_service.py:228`, class `FirewallIPSRulesAPI`), which drives the **`/firewallIpsRules`** endpoint (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_ips.py:75,131,223,323,372`; same path in Go as `firewallIpsRulesEndpoint = "/zia/api/v1/firewallIpsRules"`, `vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_policies/ips_policies.go:15`). The policy rule carries an `action` enum — `ALLOW`, `BLOCK_DROP`, `BLOCK_RESET`, `BYPASS_IPS` (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_ips.py:172-173`; Go `Action` field at `vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_policies/ips_policies.go:38`) — which is what decides allow/block/bypass-inspection per flow. The `BYPASS_IPS` value is the wire-level form of the "bypass IPS inspection" action mentioned in the sub-policy table above; the signature-definition resource has no such action field.
+- **Two distinct SDK surfaces — signature definitions vs the rule engine**: The signature-definition resource above (`client.zia.ips_signature_rules`) is separate from the IPS **policy-rule** engine `client.zia.cloud_firewall_ips` (`vendor/zscaler-sdk-python/zscaler/zia/zia_service.py:236`, class `FirewallIPSRulesAPI`), which drives the **`/firewallIpsRules`** endpoint (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_ips.py:75,131,223,323,372`; same path in Go as `firewallIpsRulesEndpoint = "/zia/api/v1/firewallIpsRules"`, `vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_policies/ips_policies.go:15`). The policy rule carries an `action` enum — `ALLOW`, `BLOCK_DROP`, `BLOCK_RESET`, `BYPASS_IPS` (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_ips.py:172-173`; Go `Action` field at `vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_policies/ips_policies.go:38`) — which is what decides allow/block/bypass-inspection per flow. The `BYPASS_IPS` value is the wire-level form of the "bypass IPS inspection" action mentioned in the sub-policy table above; the signature-definition resource has no such action field.
 - **Protocol coverage**: HTTP, HTTPS, FTP, DNS, TCP, UDP, IP-based ports and protocols. IPS sees non-web traffic, unlike URL Filter / CAC / DLP.
 - **Default rule: BLOCK ALL**. The shipped default blocks all traffic that matches any signature — customer rules allow-list specific traffic patterns or user populations.
 - **ATP-first evaluation**: If both ATP (`references/zia/malware-and-atp.md`) and IPS Control are licensed, ATP rules evaluate **before** IPS rules. An ATP block pre-empts IPS.

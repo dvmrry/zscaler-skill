@@ -7,8 +7,8 @@ last-verified: "2026-06-15"
 confidence: medium
 source-tier: mixed
 verified-against:
-  zscaler-sdk-go: "fe52adcee3dc10bbad12ea8e9f8e17a4583c655a"
-  zscaler-sdk-python: "b3c3645fd530b668c463ce5f1331cfcfc7cb4c00"
+  vendor/zscaler-sdk-go: "fe52adcee3dc10bbad12ea8e9f8e17a4583c655a"
+  vendor/zscaler-sdk-python: "b3c3645fd530b668c463ce5f1331cfcfc7cb4c00"
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py"
   - "vendor/zscaler-sdk-python/zscaler/zcc/devices.py"

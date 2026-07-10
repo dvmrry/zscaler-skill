@@ -53,7 +53,7 @@ Most weeks, a maintainer does not need to start the upstream bump by hand.
 - The bump PR does not merge itself; `renovate.json` has no automerge setting.
   Review the checks and the vendor-impact comment, then merge manually.
 - Upstream doc changes are threaded into the references by weekly doc-threading
-  PRs; PR #198 / commit `9673804` is the current example.
+  PRs; PR #198 / commit `9673804` is one example.
 
 ## Submodule Management
 

@@ -5,10 +5,10 @@ title: "ZIdentity API source divergences"
 content-type: reference
 source-tier: code
 confidence: medium
-last-verified: "2026-06-29"
+last-verified: "2026-07-09"
 verified-against:
   vendor/zscaler-sdk-go: 4371c9bab44d852526721b4b5999e2471dda5198
-  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/zscaler-sdk-python: 6ff5bc97d02e1e1b4c564e2f0a8986edc730e03f
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zid/**"
   - "vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py"
@@ -40,11 +40,27 @@ This doc records the source-vs-source disagreements found across the `zid` surfa
 
 **What each source says:**
 
-- **Python SDK:** every `zid` service class sets `_zidentity_base_endpoint = "/ziam/admin/api/v1"`. (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py:31`, `vendor/zscaler-sdk-python/zscaler/zid/users.py:31`, `vendor/zscaler-sdk-python/zscaler/zid/groups.py:31`, `vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py:31`) The request executor resolves the host to `https://api.zsapi.net` for production (`vendor/zscaler-sdk-python/zscaler/request_executor.py:32`) or `https://api.{cloud}.zsapi.net` for non-prod (`vendor/zscaler-sdk-python/zscaler/request_executor.py:176`). Net production URL: `https://api.zsapi.net/ziam/admin/api/v1/...`
+- **Python SDK:** every `zid` service class sets `_zidentity_base_endpoint = "/ziam/admin/api/v1"`. (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py:31`, `vendor/zscaler-sdk-python/zscaler/zid/users.py:31`, `vendor/zscaler-sdk-python/zscaler/zid/groups.py:31`, `vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py:31`) The request executor resolves the host to `https://api.zsapi.net` for production (`vendor/zscaler-sdk-python/zscaler/request_executor.py:33`) or `https://api.{cloud}.zsapi.net` for non-government non-production clouds (`vendor/zscaler-sdk-python/zscaler/request_executor.py:186-189`). Net production URL: `https://api.zsapi.net/ziam/admin/api/v1/...`
 - **Go SDK:** every `zid` service constant uses the bare `/admin/api/v1` prefix (`vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go:16`, `vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go:17`, `vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go:13`, `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go:12`). The client detects a ZIdentity request by the substring `/admin/api/v1` and rewrites the host to the vanity-domain admin host: `https://{vanity}-admin.zslogin.net` for production, `https://{vanity}-admin.zslogin{cloud}.net` otherwise. (`vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:388,410,412`) Net production URL: `https://{vanity}-admin.zslogin.net/admin/api/v1/...`
 - **Postman:** the `ZIAMBase` collection variable is `{{oneAPIBaseUrl}}/ziam/admin/api/v1` (`vendor/zscaler-api-specs/oneapi-postman-collection.json:136360`), matching the Python prefix.
 
 **Significance / which to trust:** This is the headline divergence. The same logical API is reached two different ways: Python and Postman hit `api.zsapi.net/ziam/admin/api/v1`; Go hits `{vanity}-admin.zslogin.net/admin/api/v1`. Anyone tracing traffic, writing a raw-HTTP caller, or configuring an allowlist must know which SDK they are mirroring — the host and the `/ziam` prefix both change. Trust each SDK's own constant for that SDK; trust Postman/Python for the `api.zsapi.net` path.
+
+### Government OneAPI uses dedicated identity and API domains
+
+The current Python SDK special-cases the FedRAMP cloud selectors rather than
+feeding them into the commercial hostname pattern:
+
+- `gov` authenticates at `https://{vanity}.zidentitygov.net/oauth2/v1/token`
+  and sends API traffic to `https://api.zscalergov.net`.
+- `govus` authenticates at `https://{vanity}.zidentitygov.us/oauth2/v1/token`
+  and sends API traffic to `https://api.zscalergov.us`.
+
+Source: `vendor/zscaler-sdk-python/zscaler/constants.py:21-29`; `vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py:480-501`; `vendor/zscaler-sdk-python/zscaler/request_executor.py:172-189`.
+
+Do not construct government URLs as `api.gov.zsapi.net` or
+`{vanity}.zslogingov.net`; those follow the old commercial-pattern inference,
+not the current SDK contract.
 
 ---
 

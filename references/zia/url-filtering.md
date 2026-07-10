@@ -3,9 +3,12 @@ product: zia
 topic: "zia-url-filtering"
 title: "ZIA URL filtering rule precedence"
 content-type: reasoning
-last-verified: "2026-04-24"
+last-verified: "2026-07-09"
 confidence: medium
 source-tier: mixed
+verified-against:
+  vendor/zscaler-sdk-python: 6ff5bc97d02e1e1b4c564e2f0a8986edc730e03f
+  vendor/zscaler-sdk-go: 4371c9bab44d852526721b4b5999e2471dda5198
 sources:
   - "https://help.zscaler.com/zscaler-deployments-operations/url-filtering-deployment-and-operations-guide"
   - "vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt"
@@ -96,6 +99,7 @@ Protocols (AND) User Agent (AND) [Device Groups (OR) Devices] (AND) Device Trust
 
 - **`userRiskScoreLevels`** (`zscaler/zia/models/url_filtering_rules.py:79-81`) — list of enum values for user-risk-score-based rule scoping. Distinct from the `userRiskProfile` reference; this field gates rule match by current risk-score level (e.g., `LOW`/`MEDIUM`/`HIGH`/`CRITICAL`). Will appear in snapshot JSON for tenants using risk-based policy.
 - **`workloadGroups`** — present in the model + `reformat_params` list (`url_filtering.py:43`); referenced by ID. Workload Groups are a separate ZIA primitive; rules can scope by them. No dedicated reference doc yet.
+- **`httpHeaderProfiles` and `httpHeaderActionProfiles`** — current Python and Go read models expose the HTTP Header Control match profiles and header-insertion action profiles attached to a URL Filtering rule. The Python add/update docstrings name snake-case `http_header_profile_ids` and `http_header_action_profile_ids`, but those names are not present in the method's ID-field reformat list. Treat Python write support through those documented kwargs as unverified; the wire/read fields themselves are corroborated by both SDK models.
 
 ### Actions
 

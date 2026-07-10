@@ -3,7 +3,7 @@ product: zpa
 topic: "zpa-terraform"
 title: "ZPA Terraform provider — resource catalog"
 content-type: reference
-last-verified: "2026-06-15"
+last-verified: "2026-07-09"
 confidence: medium
 source-tier: code
 sources:
@@ -73,6 +73,7 @@ sources:
   - "vendor/terraform-provider-zpa/docs/resources/zpa_policy_redirection_rule.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_emergency_access_user.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_private_cloud_group.md"
+  - "vendor/terraform-provider-zpa/docs/data-sources/zpa_private_cloud.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_c2c_ip_ranges.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_zia_cloud_config.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_user_portal_aup.md"
@@ -1110,6 +1111,7 @@ The provider exposes data sources for all major resource types, enabling lookup 
 | `zpa_policy_type` | Lists policy set IDs by type |
 | `zpa_posture_profile` | Posture profile lookup (for `POSTURE` conditions) |
 | `zpa_private_cloud_controller` | Private cloud controller lookup |
+| `zpa_private_cloud` | Private Cloud lookup by name or ID; returns group associations, SIEM/exporter/broker relationships, fire-drill settings, management flags, and microtenant metadata |
 | `zpa_risk_score_values` | Valid risk score values for `RISK_FACTOR_TYPE` conditions |
 | `zpa_saml_attribute` | SAML attribute lookup by IdP (for SAML conditions) |
 | `zpa_scim_attribute_header` | SCIM attribute header lookup |
