@@ -21,10 +21,13 @@ This harness defines the hard stops for `/z-retro`. It is intentionally lighter 
 ## Required input
 
 Retro requires exactly one case directory and a readable `journal.md`.
+Case paths are under the configured runtime-data mount (`_data` by default);
+resolve the mount with `node scripts/runtime-data-path.mjs` when a downstream
+runtime config may be selected.
 
 If either is missing or ambiguous, stop before drafting:
 
-- Missing case directory: ask for the `_data/cases/<slug>/` path.
+- Missing case directory: ask for the `<mount>/cases/<slug>/` path.
 - Multiple matching case directories: ask one multiple-choice clarification.
 - Missing `journal.md`: recommend `/z-investigator` or ask for the correct case directory.
 

@@ -9,6 +9,8 @@ on:
 jobs:
   digest:
     runs-on: ubuntu-latest
+    env:
+      ZSCALER_SKILL_RUNTIME_CONFIG: ${{ vars.ZSCALER_SKILL_RUNTIME_CONFIG }}
     permissions:
       contents: read
       issues: write
@@ -21,6 +23,10 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v8.3.0
 
+      - name: Resolve runtime artifact path
+        id: runtime_paths
+        run: echo "digest_path=$(node scripts/runtime-data-path.mjs schemas maintenance-digest.md)" >> "$GITHUB_OUTPUT"
+
       - name: Update sticky maintenance issue
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -28,13 +34,13 @@ jobs:
           ./scripts/maintenance-digest.py \
             --stale-days 60 \
             --scrape-days 90 \
-            --output _data/schemas/maintenance-digest.md \
+            --output "${{ steps.runtime_paths.outputs.digest_path }}" \
             --sticky-label maintenance-digest \
             --bootstrap-if-missing
-          cat _data/schemas/maintenance-digest.md >> "$GITHUB_STEP_SUMMARY"
+          cat "${{ steps.runtime_paths.outputs.digest_path }}" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload digest artifact
         uses: actions/upload-artifact@v7
         with:
           name: maintenance-digest
-          path: _data/schemas/maintenance-digest.md
+          path: ${{ steps.runtime_paths.outputs.digest_path }}

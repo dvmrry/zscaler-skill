@@ -62,7 +62,7 @@ This skill encodes **how Zscaler actually behaves** — rule precedence, wildcar
 Two kinds of question this skill handles:
 
 - **General behavior** — "how do wildcards match?", "what happens when URL filtering and cloud app control both apply?". Answerable anywhere, sourced from `references/`.
-- **Tenant-specific lookups** — "is `reddit.com` in a URL category in *our* tenant?". Requires observed tenant state: either a `_data/snapshot/` populated by a private overlay, explicit user-provided command output, or — when available — read-only `zscalerctl` output. Public upstream does not track `_data/`; tenant snapshots live only in private runtime-data mounts or forks.
+- **Tenant-specific lookups** — "is `reddit.com` in a URL category in *our* tenant?". Requires observed tenant state: either a configured runtime-data snapshot (`_data/snapshot/` by default), explicit user-provided command output, or — when available — read-only `zscalerctl` output. Public upstream does not track runtime data; tenant snapshots live only in private runtime-data mounts or forks.
 
 Structured troubleshooting with a symptom, affected scope, and timeframe should
 use the portable `zscaler-investigator` skill or the `/z-investigator` runtime
@@ -71,26 +71,29 @@ lookups, not discovery-journal investigations.
 
 ## Check tenant observation first
 
-Before answering tenant-specific questions, check whether `_data/snapshot/` has any runtime data:
+Before answering tenant-specific questions, resolve the configured mount and
+check whether its `snapshot/` directory has any runtime data:
 
 ```bash
-find _data/snapshot -mindepth 1 -type f -print -quit
+RUNTIME_DATA="$(node scripts/runtime-data-path.mjs)"
+find "$RUNTIME_DATA/snapshot" -mindepth 1 -type f -print -quit
 ```
 
-If populated, read the relevant JSON (`_data/snapshot/<cloud>/zia/url-categories.json`, `_data/snapshot/<cloud>/zia/url-filtering-rules.json`, `_data/snapshot/<cloud>/zpa/app-segments.json`, etc.) and cite the specific rule IDs you used. If the overlay records that the snapshot or diff was produced by `zscalerctl`, treat it as the fast local cache of read-only tenant observation.
+If populated, read the relevant JSON (`<mount>/snapshot/<cloud>/zia/url-categories.json`, `<mount>/snapshot/<cloud>/zia/url-filtering-rules.json`, `<mount>/snapshot/<cloud>/zpa/app-segments.json`, etc.) and cite the specific rule IDs you used. If the overlay records that the snapshot or diff was produced by `zscalerctl`, treat it as the fast local cache of read-only tenant observation.
 
-If `_data/snapshot/` is empty or stale and the question is tenant-specific, do **not** invent tenant truth. When the optional `@zscalerctl` companion is available, hand off or draft a bounded read-only command (`zscalerctl --format json ...`) for the operator to run, then apply this skill's policy semantics to the returned JSON. Until `zscalerctl` is officially adopted, use soft language: "if installed", "when available", or "I can draft the read-only command." See [`references/_meta/tooling.md`](references/_meta/tooling.md).
+If `<mount>/snapshot/` is empty or stale and the question is tenant-specific, do **not** invent tenant truth. When the optional `@zscalerctl` companion is available, hand off or draft a bounded read-only command (`zscalerctl --format json ...`) for the operator to run, then apply this skill's policy semantics to the returned JSON. Until `zscalerctl` is officially adopted, use soft language: "if installed", "when available", or "I can draft the read-only command." See [`references/_meta/tooling.md`](references/_meta/tooling.md).
 
-`_data/schemas/` is a separate cache for log-schema decompositions, query skeletons, and script-generated reports (gitignored; populated by scripts such as `splunk-query.sh`, `issue-watch.py`, and `find-asymmetries.py`). Raw logs are a validation layer, not a primary source — see **When to consult logs** below.
+`<mount>/schemas/` is a separate cache for log-schema decompositions, query skeletons, and script-generated reports (gitignored in the default public layout; populated by scripts such as `splunk-query.sh`, `issue-watch.py`, and `find-asymmetries.py`). Raw logs are a validation layer, not a primary source — see **When to consult logs** below.
 
 ## Vendor source vs production IaC
 
 The skill ships with Zscaler Terraform provider source under `vendor/terraform-provider-{zia,zpa,zcc,ztc}/`. Those repositories are useful for resource schemas, validation rules, provider coverage, and field-level shapes. Deployment examples or modules, when vendored, live separately under `vendor/terraform-*-modules/`. Provider source and example modules are reference material, not production truth.
 
-If a fork has populated `_data/iac/` (empty in upstream), treat that as **production truth** for "how is X actually deployed in our environment" questions. The source under `vendor/` remains useful for "what's possible" / "what fields exist" / "what defaults Zscaler ships." Where the two diverge for a specific deployment, prefer `_data/iac/` for env-specific answers and cite the reference for context.
+If a fork has populated `<mount>/iac/` (empty in upstream), treat that as **production truth** for "how is X actually deployed in our environment" questions. The source under `vendor/` remains useful for "what's possible" / "what fields exist" / "what defaults Zscaler ships." Where the two diverge for a specific deployment, prefer the configured runtime IaC for env-specific answers and cite the reference for context.
 
 ```bash
-find _data/iac -mindepth 1 -type f -print -quit   # check before assuming vendor source reflects this fork's deployment
+RUNTIME_DATA="$(node scripts/runtime-data-path.mjs)"
+find "$RUNTIME_DATA/iac" -mindepth 1 -type f -print -quit
 ```
 
 See [`docs/data-contract/iac.md`](docs/data-contract/iac.md) for the precedence rules and structure.

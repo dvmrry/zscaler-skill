@@ -18,13 +18,12 @@ import {
   readRuntimeDataConfigs,
   runGit,
   runtimeDataMountSettings,
-  SETUP_CONFIG_FILE,
 } from "./lib.mjs";
 
 function usage(exitCode = 0) {
   const out = exitCode === 0 ? process.stdout : process.stderr;
   out.write(`Usage:
-  node scripts/setup-data-mount.mjs [--config <json>] [--mount-path <path>] [--tracking ignored|tracked] [--data-url <git-url-or-local-path>] [--data-ref <ref>] [--mode auto|checkout|copy|submodule] [--root <repo-root>] [--force] [--dry-run]
+  node scripts/setup-data-mount.mjs [--runtime-config <json>] [--config <setup-json>] [--mount-path <path>] [--tracking ignored|tracked] [--data-url <git-url-or-local-path>] [--data-ref <ref>] [--mode auto|checkout|copy|submodule] [--root <repo-root>] [--force] [--dry-run]
 
 Creates or replaces the runtime data mount. Defaults to _data.
 
@@ -35,6 +34,9 @@ Mount path/tracking come from zscaler-skill-runtime.json, optionally overridden
 by ./zscaler-skill-setup.json or CLI flags. If --config is omitted, the setup
 helper reads ./zscaler-skill-setup.json for private bootstrap source settings
 when it exists.
+ZSCALER_SKILL_RUNTIME_CONFIG or --runtime-config may select a downstream shared
+runtime config. ZSCALER_SKILL_SETUP_CONFIG or --config may select a private
+setup config. Explicitly selected missing files are errors.
 CLI flags override config values.
 The helper never knows private URLs unless the caller provides one at runtime.
 `);
@@ -52,6 +54,7 @@ function parseArgs(argv) {
     mode: null,
     mountPath: null,
     root: path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."),
+    runtimeConfig: null,
     tracking: null,
   };
 
@@ -59,7 +62,18 @@ function parseArgs(argv) {
     const arg = argv[i];
     if (arg === "--help" || arg === "-h") usage(0);
     if (arg === "--config") {
-      args.config = argv[i + 1] || null;
+      if (!argv[i + 1] || argv[i + 1].startsWith("--")) {
+        throw new Error("--config requires a value");
+      }
+      args.config = argv[i + 1];
+      i += 1;
+      continue;
+    }
+    if (arg === "--runtime-config") {
+      if (!argv[i + 1] || argv[i + 1].startsWith("--")) {
+        throw new Error("--runtime-config requires a value");
+      }
+      args.runtimeConfig = argv[i + 1];
       i += 1;
       continue;
     }
@@ -105,20 +119,25 @@ function parseArgs(argv) {
     throw new Error(`Unknown argument: ${arg}`);
   }
 
-  const defaultConfig = path.join(args.root, SETUP_CONFIG_FILE);
-  const configPath = args.config ? path.resolve(args.root, args.config) : defaultConfig;
+  const configPath = args.config || null;
+  const runtimeConfigPath = args.runtimeConfig || null;
   const {
     setupConfig: config,
     setupRuntimeData: runtimeData,
-  } = readRuntimeDataConfigs(args.root, configPath);
+    setupConfigPath,
+  } = readRuntimeDataConfigs(args.root, {
+    runtimeConfigPath,
+    setupConfigPath: configPath,
+  });
   const mountSettings = runtimeDataMountSettings(args.root, {
-    configPath,
     mountPath: args.mountPath,
+    runtimeConfigPath,
+    setupConfigPath: configPath,
     tracking: args.tracking,
   });
   const configValue = (value) => typeof value === "string" ? expandConfigString(value) : value;
   const merged = {
-    configPath: fs.existsSync(configPath) ? configPath : null,
+    configPath: fs.existsSync(setupConfigPath) ? setupConfigPath : null,
     dataUrl: args.dataUrl ?? configValue(runtimeData.source ?? runtimeData.dataUrl ?? config.dataUrl) ?? null,
     dataRef: args.dataRef ?? configValue(runtimeData.ref ?? runtimeData.dataRef ?? config.dataRef) ?? "main",
     dryRun: args.dryRun,
@@ -126,6 +145,8 @@ function parseArgs(argv) {
     mode: args.mode ?? configValue(runtimeData.mode ?? config.mode) ?? "checkout",
     mountPath: mountSettings.mountPath,
     root: args.root,
+    runtimeConfigPath: mountSettings.runtimeConfigPath,
+    runtimeConfigSelectedBy: mountSettings.runtimeConfigSelectedBy,
     tracking: mountSettings.tracking,
   };
 
@@ -276,6 +297,8 @@ function setupDataMount(options) {
     mode,
     requestedMode,
     configPath: options.configPath || null,
+    runtimeConfigPath: options.runtimeConfigPath || null,
+    runtimeConfigSelectedBy: options.runtimeConfigSelectedBy || "default",
     dryRun: Boolean(options.dryRun),
     force: Boolean(options.force),
     localExclude: null,
@@ -316,6 +339,9 @@ function printResult(result) {
   process.stdout.write(`Mode: ${result.plan.mode}\n`);
   process.stdout.write(`Target: ${result.plan.dataDir}\n`);
   process.stdout.write(`Source: ${result.plan.dataUrl}\n`);
+  if (result.plan.runtimeConfigSelectedBy !== "default") {
+    process.stdout.write(`Runtime config: ${result.plan.runtimeConfigPath}\n`);
+  }
   if (result.plan.configPath) process.stdout.write(`Config: ${result.plan.configPath}\n`);
   if (result.plan.dataRef) process.stdout.write(`Ref: ${result.plan.dataRef}\n`);
   process.stdout.write(`Tracking: ${result.plan.tracking}\n`);

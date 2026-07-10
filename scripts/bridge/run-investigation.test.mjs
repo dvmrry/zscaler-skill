@@ -351,8 +351,8 @@ test("installPermissionConfig restores a pre-existing config.local.json and neve
 
 // ── Auditor evaluation path (fixture-based) ───────────────────────────────────
 
-function makeAuditFixture(root, slug, { withFindings = [] } = {}) {
-  const auditDir = path.join(root, "_data", "audits", slug);
+function makeAuditFixture(root, slug, { mountPath = "_data", withFindings = [] } = {}) {
+  const auditDir = path.join(root, mountPath, "audits", slug);
   fs.mkdirSync(auditDir, { recursive: true });
 
   // Create a stub source file so file:line citations of "README.md:1" resolve.
@@ -461,6 +461,36 @@ test("computeAuditDiskStatus: returns has-findings and allFindingsSourced:true f
     const result = computeAuditDiskStatus(root, slug);
     assert.equal(result.ok, true);
     assert.equal(result.phase, "has-findings");
+    assert.equal(result.findingCounts.total, 1);
+    assert.equal(result.allFindingsSourced, true);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("computeAuditDiskStatus: honors a configured runtime-data mount", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "aud-bridge-custom-mount-"));
+  const slug = "fixture-audit-custom-mount";
+  fs.writeFileSync(
+    path.join(root, "zscaler-skill-runtime.json"),
+    JSON.stringify({ runtimeData: { mountPath: "tenant-data", tracking: "ignored" } }),
+    "utf8",
+  );
+  makeAuditFixture(root, slug, {
+    mountPath: "tenant-data",
+    withFindings: [
+      {
+        findingId: "F-001",
+        description: "A test finding",
+        source: "README.md:1",
+        severity: "Low",
+        status: "Open",
+      },
+    ],
+  });
+  try {
+    const result = computeAuditDiskStatus(root, slug);
+    assert.equal(result.ok, true);
     assert.equal(result.findingCounts.total, 1);
     assert.equal(result.allFindingsSourced, true);
   } finally {
@@ -593,8 +623,8 @@ test("computeAuditDiskStatus: allFindingsSourced is false when a finding has a n
  * findings.jsonl. Also writes a stub README.md at root so file:line citations
  * of "README.md:1" resolve.
  */
-function makeSocFixture(root, slug, { withFindings = [] } = {}) {
-  const reviewDir = path.join(root, "_data", "soc-reviews", slug);
+function makeSocFixture(root, slug, { mountPath = "_data", withFindings = [] } = {}) {
+  const reviewDir = path.join(root, mountPath, "soc-reviews", slug);
   fs.mkdirSync(reviewDir, { recursive: true });
 
   // Stub source file so file:line citations of "README.md:1" resolve.
@@ -685,6 +715,39 @@ test("computeSocDiskStatus: returns has-findings and allFindingsSourced:true for
     const result = computeSocDiskStatus(root, slug);
     assert.equal(result.ok, true);
     assert.equal(result.phase, "has-findings");
+    assert.equal(result.findingCounts.total, 1);
+    assert.equal(result.allFindingsSourced, true);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("computeSocDiskStatus: honors a configured runtime-data mount", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "soc-bridge-custom-mount-"));
+  const slug = "fixture-soc-custom-mount";
+  fs.writeFileSync(
+    path.join(root, "zscaler-skill-runtime.json"),
+    JSON.stringify({ runtimeData: { mountPath: "tenant-data", tracking: "ignored" } }),
+    "utf8",
+  );
+  makeSocFixture(root, slug, {
+    mountPath: "tenant-data",
+    withFindings: [
+      {
+        findingId: "S-001",
+        title: "A test finding",
+        category: "Access control",
+        taxonomy: ["CWE-269"],
+        source: "README.md:1",
+        severity: "Low",
+        confidence: "high",
+        status: "Open",
+      },
+    ],
+  });
+  try {
+    const result = computeSocDiskStatus(root, slug);
+    assert.equal(result.ok, true);
     assert.equal(result.findingCounts.total, 1);
     assert.equal(result.allFindingsSourced, true);
   } finally {

@@ -64,8 +64,9 @@ node scripts/bridge/run-investigation.mjs --help
 node --test scripts/bridge/run-investigation.test.mjs
 ```
 
-Run output lands in `<root>/_data/bridge-runs/<scenario.id>-<timestamp>/` by
-default (`_data/` is gitignored, so runs are never committed).
+Run output lands in `<root>/<mount>/bridge-runs/<scenario.id>-<timestamp>/`,
+where `<mount>` is resolved from the selected runtime config (`_data` by
+default). Ignored mounts keep runs out of commits.
 
 ## Scenario format
 
@@ -104,7 +105,7 @@ plausible.
 ## Run quality digest
 
 Every run prints a **Run quality** section (also appended to `report.md`) and
-writes a per-run digest JSON to `_data/bridge-digests/<run>.json` (gitignored).
+writes a per-run digest JSON to `<mount>/bridge-digests/<run>.json`.
 The digest is deterministic and self-contained — objective signals only, every
 inferred signal tagged with an `outcomeBasis`. The Devin export records tool
 *calls* but not *results*, so gate friction is inferred from duplicate calls and

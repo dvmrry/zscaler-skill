@@ -13,6 +13,26 @@ different layout there, for example `runtimeData.mountPath: "tenant-data"` and
 mirror. When a different mount path is configured, substitute that path anywhere
 this contract says `_data/`.
 
+## Downstream selection
+
+Select a downstream-owned, non-secret runtime config without rewriting the
+upstream root file:
+
+```bash
+export ZSCALER_SKILL_RUNTIME_CONFIG=deployments/acme-zscaler-runtime.json
+node scripts/runtime-data-path.mjs --json
+node scripts/check-data-contract.mjs
+```
+
+`--runtime-config <path>` takes precedence over the environment selector. A
+selected config replaces the root config rather than merging with it. Relative
+config and mount paths must stay inside the repository, and an explicitly
+selected missing, malformed, or structurally invalid config is an error.
+
+Private setup can likewise select a local config through
+`ZSCALER_SKILL_SETUP_CONFIG` or `--config`. Resolution precedence is explicit
+CLI values, selected setup config, selected runtime config, then defaults.
+
 The ignored root `zscaler-skill-setup.json` is only for local bootstrap/source
 settings such as a private data repository URL. It may locally override
 mount/tracking for one workstation, but shared layout belongs in
@@ -95,6 +115,24 @@ commit the shared layout in `zscaler-skill-runtime.json`:
 
 The older top-level `dataUrl`, `dataRef`, and `mode` keys still work for
 compatibility, but new installs should use `runtimeData`.
+
+For installations that submit selected artifacts to a separate overlay
+repository, non-secret policy may also live in the selected runtime config:
+
+```json
+{
+  "overlaySubmission": {
+    "allowedRoots": ["cases", "schemas", "iac"],
+    "defaultBranch": "main",
+    "branchPrefix": "runtime-data/",
+    "requireExplicitApproval": true
+  }
+}
+```
+
+The overlay repository URL remains private. Put `overlaySubmission.repoUrl` in
+the ignored setup config or pass `--repo-url`; the helper rejects it in a
+committed runtime config.
 
 ## Subdirectories
 

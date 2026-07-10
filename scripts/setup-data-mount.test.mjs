@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { isSkeletonTree, setupDataMount } from "./setup-data-mount.mjs";
-import { DATA_REQUIRED_DIRS } from "./lib.mjs";
+import { DATA_REQUIRED_DIRS, RUNTIME_CONFIG_ENV, SETUP_CONFIG_ENV } from "./lib.mjs";
 
 function tempDir(prefix) {
   return fs.mkdtempSync(path.join(os.tmpdir(), prefix));
@@ -62,12 +62,16 @@ function makeGitOverlaySource() {
   return source;
 }
 
-function runSetupCommand(args) {
+function runSetupCommand(args, options = {}) {
+  const env = { ...process.env };
+  delete env[RUNTIME_CONFIG_ENV];
+  delete env[SETUP_CONFIG_ENV];
   return childProcess.execFileSync(
     process.execPath,
     [path.join(import.meta.dirname, "setup-data-mount.mjs"), ...args],
     {
       encoding: "utf8",
+      env: { ...env, ...options.env },
       stdio: ["ignore", "pipe", "pipe"],
     },
   );
@@ -442,6 +446,33 @@ test("setup-data-mount CLI combines tracked runtime config with ignored bootstra
   assert.match(output, /Errors: 0/);
   assert.equal(fs.existsSync(path.join(root, "tenant-data", "schemas", "fields.json")), true);
   assert.match(git(root, ["status", "--short"]), /\?\? tenant-data\//);
+});
+
+test("setup-data-mount CLI accepts a downstream-selected runtime config", () => {
+  const root = tempDir("zscaler-data-selected-runtime-");
+  const source = makeOverlaySource();
+  fs.writeFileSync(
+    path.join(root, "downstream-runtime.json"),
+    JSON.stringify({ runtimeData: { mountPath: "downstream-data", tracking: "tracked" } }),
+    "utf8",
+  );
+  fs.writeFileSync(
+    path.join(root, "zscaler-skill-setup.json"),
+    JSON.stringify({ runtimeData: { source, mode: "auto" } }),
+    "utf8",
+  );
+
+  const output = runSetupCommand([
+    "--root",
+    root,
+    "--runtime-config",
+    "downstream-runtime.json",
+  ]);
+
+  assert.match(output, /Runtime config: .*downstream-runtime\.json/);
+  assert.match(output, /Target: .*downstream-data/);
+  assert.match(output, /Tracking: tracked/);
+  assert.equal(fs.existsSync(path.join(root, "downstream-data", "schemas", "fields.json")), true);
 });
 
 test("setup-data-mount CLI flags override setup config values", () => {

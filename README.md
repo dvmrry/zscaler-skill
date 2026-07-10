@@ -56,9 +56,13 @@ For tenant-specific answers, mount a runtime-data snapshot into `_data/`
 or the configured work-mirror runtime mount. The committed
 `zscaler-skill-runtime.json` controls the public, non-secret mount layout; the
 ignored `zscaler-skill-setup.json` is only needed when the setup helper should
-clone or copy from a private source.
+clone or copy from a private source. Downstream installations can select their
+own committed runtime config without rewriting the upstream root file.
 
 ```bash
+# Optional downstream selector:
+export ZSCALER_SKILL_RUNTIME_CONFIG=deployments/acme-zscaler-runtime.json
+node scripts/runtime-data-path.mjs --json
 node scripts/setup-data-mount.mjs --data-url <git-url-or-path> --data-ref <branch> --mode checkout
 node scripts/check-data-contract.mjs
 ```
