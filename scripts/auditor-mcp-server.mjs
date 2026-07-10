@@ -34,6 +34,7 @@ import { runtimeDataPath } from "./lib.mjs";
 import {
   openAudit,
   recordFinding,
+  updateFinding,
   recordCheckOutput,
   renderAuditReport,
   auditStatus,
@@ -142,7 +143,7 @@ const AUDIT_STATUS_OUTPUT_SCHEMA = {
     auditSlug: { type: "string" },
     phase: {
       type: "string",
-      enum: ["no-audit", "open", "has-findings"],
+      enum: ["no-audit", "open", "has-findings", "complete"],
     },
     intake: {
       type: "object",
@@ -187,7 +188,7 @@ const TOOLS = [
     title: "Audit status (read-only doctor)",
     description:
       "Run FIRST when resuming an audit, after any gate failure, or whenever audit state is uncertain. " +
-      "Reports phase (no-audit|open|has-findings), intake state, finding counts, checks recorded, and the exact legal nextCommands/nextActions. " +
+      "Reports phase (no-audit|open|has-findings|complete), intake state, finding counts, checks recorded, and the exact legal nextCommands/nextActions. " +
       "Never mutates. " +
       "Discipline: open the audit to record scope before recording findings; " +
       "every finding needs a resolving source (no fabricated findings).",
@@ -227,7 +228,7 @@ const TOOLS = [
         scope: {
           type: "object",
           description:
-            "Scope object: { workingDir?, scope: { paths?: string[], topic?: string }, description: string, checksRun?: string[] }.",
+            "Scope object: { workingDir?, mode?: reference|diff, base?, head?, scope: { paths?: string[], topic?: string }, description: string, checksRun?: string[] }. Diff mode requires base and head.",
         },
       },
       required: ["root", "audit_slug", "scope"],
@@ -261,10 +262,39 @@ const TOOLS = [
         finding: {
           type: "object",
           description:
-            "Finding object: { findingId, description, source, severity (Critical|High|Medium|Low|Info), status (Open|Acknowledged|Resolved|Acceptable|Wontfix), remediation?, notes? }.",
+            "Finding object: { findingId, description, source, severity (Critical|High|Medium|Low|Info), status (Open|Acknowledged|Resolved|Acceptable|Wontfix), remediation?, verificationSource?, notes? }. Initial Resolved records require verificationSource.",
         },
       },
       required: ["root", "audit_slug", "finding"],
+    },
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: false,
+      openWorldHint: false,
+    },
+  },
+  {
+    name: "update_finding",
+    title: "Update an existing finding",
+    description:
+      "Append a revised snapshot for an existing stable finding ID and re-derive register.md without inflating finding counts. " +
+      "Use this after remediation or disposition; do not create a replacement ID. " +
+      "A Resolved update MUST include verificationSource as a resolving path:line or check:<name> that proves the original failure no longer holds. " +
+      "Description, original source, and severity remain immutable. " +
+      "Replay the original failure and an adjacent bypass before closing the finding.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        root: { type: "string", description: "Absolute path to the repo root." },
+        audit_slug: { type: "string", description: "Audit slug." },
+        finding_update: {
+          type: "object",
+          description:
+            "Finding update: { findingId, status (Open|Acknowledged|Resolved|Acceptable|Wontfix), remediation?, verificationSource?, notes? }. verificationSource is required for Resolved.",
+        },
+      },
+      required: ["root", "audit_slug", "finding_update"],
     },
     annotations: {
       readOnlyHint: false,
@@ -387,6 +417,21 @@ function dispatchTool(name, params) {
         const tmp = writeTmpJson(params.finding);
         tmpDir = tmp.dir;
         return recordFinding({
+          root: params.root,
+          auditSlug: params.audit_slug,
+          findingJson: tmp.filePath,
+        });
+      } finally {
+        if (tmpDir) cleanupTmp(tmpDir);
+      }
+    }
+
+    case "update_finding": {
+      let tmpDir = null;
+      try {
+        const tmp = writeTmpJson(params.finding_update);
+        tmpDir = tmp.dir;
+        return updateFinding({
           root: params.root,
           auditSlug: params.audit_slug,
           findingJson: tmp.filePath,
@@ -568,7 +613,7 @@ function handleRequest(raw) {
         name: "audit",
         description:
           "Start a new Zscaler audit with the auditor role entrypoint. " +
-          "Drives the evidence-gated audit workflow: audit_status -> open_audit -> record_finding -> render_audit_report.",
+          "Drives the evidence-gated audit workflow: audit_status -> open_audit -> record_finding -> update_finding -> render_audit_report.",
         arguments: [
           {
             name: "scope",

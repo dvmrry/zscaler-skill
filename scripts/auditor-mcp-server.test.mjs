@@ -7,7 +7,7 @@
  *
  * Coverage:
  * - initialize: advertises tools, resources, prompts, and protocolVersion
- * - tools/list: 6 tools with annotations and titles; readOnly flags correct
+ * - tools/list: 7 tools with annotations and titles; readOnly flags correct
  * - record_finding via protocol: evidence gate rejects unresolving source
  * - force param rejected over MCP (FORCE_OVER_MCP_ERROR)
  * - unknown tool: -32602
@@ -93,10 +93,10 @@ Description: A test audit for MCP server tests
   );
 
   const registerHeader =
-    "| ID | Description | Source | Severity | Status | Remediation | Notes |";
-  let registerContent = `# Audit Register\n\n${registerHeader}\n|---|---|---|---|---|---|---|\n`;
+    "| ID | Description | Source | Severity | Status | Remediation | Verification | Notes |";
+  let registerContent = `# Audit Register\n\n${registerHeader}\n|---|---|---|---|---|---|---|---|\n`;
   if (withFinding) {
-    registerContent += `| F-001 | Test finding | ${readmeRelPath}:1 | Low | Open |  |  |\n`;
+    registerContent += `| F-001 | Test finding | ${readmeRelPath}:1 | Low | Open |  |  |  |\n`;
   }
   registerContent += "\n";
   fs.writeFileSync(path.join(auditDir, "register.md"), registerContent, "utf8");
@@ -109,7 +109,9 @@ Description: A test audit for MCP server tests
       severity: "Low",
       status: "Open",
       remediation: "",
+      verificationSource: "",
       notes: "",
+      revision: 1,
       recordedAt: timestamp,
     });
     fs.writeFileSync(path.join(auditDir, "findings.jsonl"), `${finding}\n`, "utf8");
@@ -221,7 +223,7 @@ test("A5: initialize advertises resources and prompts capabilities", async () =>
 
 // ── tools/list ────────────────────────────────────────────────────────────────
 
-test("tools/list returns exactly 6 tools with inputSchemas, annotations, and titles", async () => {
+test("tools/list returns exactly 7 tools with inputSchemas, annotations, and titles", async () => {
   const server = spawnServer();
   try {
     await server.call({
@@ -234,8 +236,8 @@ test("tools/list returns exactly 6 tools with inputSchemas, annotations, and tit
     const tools = resp.result.tools;
     assert.equal(
       tools.length,
-      6,
-      `expected 6 tools, got ${tools.length}: ${tools.map((t) => t.name).join(", ")}`,
+      7,
+      `expected 7 tools, got ${tools.length}: ${tools.map((t) => t.name).join(", ")}`,
     );
     for (const tool of tools) {
       assert.ok(tool.name, "tool missing name");
@@ -291,7 +293,7 @@ test("tools/list: readOnly annotations correct (audit_status, render_audit_repor
     }
 
     // Write tools.
-    for (const name of ["open_audit", "record_finding", "record_check_output"]) {
+    for (const name of ["open_audit", "record_finding", "update_finding", "record_check_output"]) {
       assert.equal(
         byName[name].annotations.readOnlyHint,
         false,
@@ -706,9 +708,9 @@ test("A3: successful open_audit result includes structuredContent", async () => 
   }
 });
 
-// ── Full happy path: open_audit -> record_finding -> render_audit_report ──────
+// ── Full happy path: open -> record -> verify/update -> render ────────────────
 
-test("full happy path: open_audit -> record_finding -> render_audit_report", async () => {
+test("full happy path: open_audit -> record_finding -> update_finding -> render_audit_report", async () => {
   const root = tempDir();
   const slug = `mcp-happy-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
@@ -733,6 +735,9 @@ test("full happy path: open_audit -> record_finding -> render_audit_report", asy
           root,
           audit_slug: slug,
           scope: {
+            mode: "diff",
+            base: "base-sha",
+            head: "head-sha",
             scope: { topic: "MCP integration test", paths: ["README.md"] },
             description: "Test audit via MCP for integration",
           },
@@ -744,6 +749,10 @@ test("full happy path: open_audit -> record_finding -> render_audit_report", asy
     const openResult = JSON.parse(openResp.result.content[0].text);
     assert.equal(openResult.status, "pass");
     assert.equal(openResult.operation, "open-audit");
+    const intake = JSON.parse(fs.readFileSync(openResult.auditIntakeJsonPath, "utf8"));
+    assert.equal(intake.mode, "diff");
+    assert.equal(intake.base, "base-sha");
+    assert.equal(intake.head, "head-sha");
 
     // Step 2: record_finding
     const recordResp = await server.call({
@@ -784,7 +793,43 @@ test("full happy path: open_audit -> record_finding -> render_audit_report", asy
     assert.equal(statusResult.findingCounts.total, 1);
     assert.ok(statusResult.structuredContent === undefined || true); // structuredContent on outer result
 
-    // Step 4: render_audit_report
+    // Step 4: update_finding closes the same stable ID with verification.
+    const updateResp = await server.call({
+      jsonrpc: "2.0",
+      method: "tools/call",
+      params: {
+        name: "update_finding",
+        arguments: {
+          root,
+          audit_slug: slug,
+          finding_update: {
+            findingId: "F-001",
+            status: "Resolved",
+            verificationSource: "README.md:2",
+            notes: "Replayed the original scenario and inspected the adjacent line.",
+          },
+        },
+      },
+    });
+    assert.ok(!updateResp.result.isError, `update_finding isError: ${updateResp.result.content[0].text}`);
+    const updateResult = JSON.parse(updateResp.result.content[0].text);
+    assert.equal(updateResult.findingId, "F-001");
+    assert.equal(updateResult.findingStatus, "Resolved");
+    assert.equal(updateResult.findingCount, 1);
+
+    const closedStatusResp = await server.call({
+      jsonrpc: "2.0",
+      method: "tools/call",
+      params: {
+        name: "audit_status",
+        arguments: { root, audit_slug: slug },
+      },
+    });
+    const closedStatus = JSON.parse(closedStatusResp.result.content[0].text);
+    assert.equal(closedStatus.phase, "complete");
+    assert.equal(closedStatus.findingCounts.total, 1);
+
+    // Step 5: render_audit_report
     const reportResp = await server.call({
       jsonrpc: "2.0",
       method: "tools/call",
@@ -800,6 +845,8 @@ test("full happy path: open_audit -> record_finding -> render_audit_report", asy
     assert.match(reportResult.report, /F-001/);
     // Verify answer-from-artifact: finding from ledger appears in report.
     assert.match(reportResult.report, /README\.md:1/);
+    assert.match(reportResult.report, /\*\*Status:\*\* Resolved/);
+    assert.match(reportResult.report, /\*\*Verification:\*\* README\.md:2/);
   } finally {
     server.close();
   }
@@ -999,6 +1046,7 @@ test("drift guard: every gate tool named in mcp-entrypoint.md exists in tools/li
     "audit_status",
     "open_audit",
     "record_finding",
+    "update_finding",
     "render_audit_report",
   ]);
 
@@ -1087,6 +1135,7 @@ test("tools/list: audit_status has outputSchema with required phase field", asyn
     assert.ok(phaseEnum.includes("no-audit"), "phase enum should include 'no-audit'");
     assert.ok(phaseEnum.includes("open"), "phase enum should include 'open'");
     assert.ok(phaseEnum.includes("has-findings"), "phase enum should include 'has-findings'");
+    assert.ok(phaseEnum.includes("complete"), "phase enum should include 'complete'");
   } finally {
     server.close();
   }

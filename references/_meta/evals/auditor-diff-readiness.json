@@ -1,0 +1,61 @@
+{
+  "$schema": "auditor-diff-readiness-evals/v1",
+  "description": "Regression contract for diff-readiness failure modes that an editorial-only audit missed during PR #214.",
+  "sourceChange": {
+    "pullRequest": 214,
+    "mergeCommit": "e93b7cc"
+  },
+  "playbookPath": "agents/auditor/diff-readiness.md",
+  "fixtures": [
+    {
+      "id": "release-readiness",
+      "candidatePath": "references/_meta/evals/fixtures/auditor-diff/unsafe-auto-tag.yml.txt",
+      "remediatedPath": "references/_meta/evals/fixtures/auditor-diff/fixed-auto-tag.yml.txt",
+      "expectedFindings": [
+        {
+          "id": "release-event-identity",
+          "failureMode": "identity",
+          "minimumSeverity": "High",
+          "expectedSignals": [
+            "manual dispatch must resolve main rather than the requested ref",
+            "the tag target must be the commit that introduced VERSION rather than ambient GITHUB_SHA"
+          ]
+        },
+        {
+          "id": "release-partial-state-recovery",
+          "failureMode": "lifecycle",
+          "minimumSeverity": "High",
+          "expectedSignals": [
+            "an existing tag must not suppress repair of a missing release",
+            "retry behavior must reconcile tag and release independently"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "provenance-readiness",
+      "candidatePath": "references/_meta/evals/fixtures/auditor-diff/unsafe-verified-against.py.txt",
+      "remediatedPath": "references/_meta/evals/fixtures/auditor-diff/fixed-verified-against.py.txt",
+      "expectedFindings": [
+        {
+          "id": "provenance-yaml-shape",
+          "failureMode": "input shape",
+          "minimumSeverity": "High",
+          "expectedSignals": [
+            "flow mappings and alternate indentation must parse",
+            "wrong types and duplicate fields or keys must fail explicitly"
+          ]
+        },
+        {
+          "id": "provenance-source-root-model",
+          "failureMode": "repository state",
+          "minimumSeverity": "High",
+          "expectedSignals": [
+            "declared but uninitialized submodules remain recognized roots",
+            "tracked non-submodule provenance roots remain valid"
+          ]
+        }
+      ]
+    }
+  ]
+}

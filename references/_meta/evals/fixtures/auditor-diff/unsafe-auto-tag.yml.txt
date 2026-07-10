@@ -1,0 +1,33 @@
+# Deliberately unsafe review fixture derived from the pre-remediation release
+# workflow in PR #214. This is data for auditor evaluation, not an active
+# GitHub Actions workflow.
+
+name: Auto tag VERSION
+
+on:
+  push:
+    branches: [main]
+    paths: [VERSION]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Create tag
+        shell: bash
+        run: |
+          version="$(tr -d '[:space:]' < VERSION)"
+          tag="v${version}"
+          if git rev-parse --verify --quiet "refs/tags/${tag}"; then
+            echo "${tag} already exists"
+            exit 0
+          fi
+          git tag -a "${tag}" "${GITHUB_SHA}" -m "Release ${tag}"
+          git push origin "refs/tags/${tag}"

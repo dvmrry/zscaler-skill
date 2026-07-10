@@ -377,10 +377,10 @@ function makeAuditFixture(root, slug, { withFindings = [] } = {}) {
     "utf8",
   );
 
-  const header = "| ID | Description | Source | Severity | Status | Remediation | Notes |";
-  let reg = `# Audit Register\n\n${header}\n|---|---|---|---|---|---|---|\n`;
+  const header = "| ID | Description | Source | Severity | Status | Remediation | Verification | Notes |";
+  let reg = `# Audit Register\n\n${header}\n|---|---|---|---|---|---|---|---|\n`;
   for (const f of withFindings) {
-    reg += `| ${f.findingId} | ${f.description} | ${f.source} | ${f.severity} | ${f.status} |  |  |\n`;
+    reg += `| ${f.findingId} | ${f.description} | ${f.source} | ${f.severity} | ${f.status} |  | ${f.verificationSource || ""} |  |\n`;
   }
   reg += "\n";
   fs.writeFileSync(path.join(auditDir, "register.md"), reg, "utf8");
@@ -463,6 +463,66 @@ test("computeAuditDiskStatus: returns has-findings and allFindingsSourced:true f
     assert.equal(result.phase, "has-findings");
     assert.equal(result.findingCounts.total, 1);
     assert.equal(result.allFindingsSourced, true);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("computeAuditDiskStatus: collapses revisions and requires proof for Resolved", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "aud-bridge-"));
+  const slug = "fixture-audit-closure";
+  makeAuditFixture(root, slug, {
+    withFindings: [
+      {
+        findingId: "AUD-DIFF-001",
+        description: "A stable finding",
+        source: "README.md:1",
+        severity: "High",
+        status: "Open",
+        revision: 1,
+      },
+      {
+        findingId: "AUD-DIFF-001",
+        description: "A stable finding",
+        source: "README.md:1",
+        severity: "High",
+        status: "Resolved",
+        verificationSource: "README.md:1",
+        revision: 2,
+      },
+    ],
+  });
+  try {
+    const result = computeAuditDiskStatus(root, slug);
+    assert.equal(result.ok, true);
+    assert.equal(result.phase, "complete");
+    assert.equal(result.findingCounts.total, 1);
+    assert.equal(result.findingCounts.byStatus.Resolved, 1);
+    assert.equal(result.allFindingsSourced, true);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("computeAuditDiskStatus: rejects a Resolved snapshot without verification evidence", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "aud-bridge-"));
+  const slug = "fixture-audit-unverified-closure";
+  makeAuditFixture(root, slug, {
+    withFindings: [
+      {
+        findingId: "AUD-DIFF-001",
+        description: "A stable finding",
+        source: "README.md:1",
+        severity: "Low",
+        status: "Resolved",
+      },
+    ],
+  });
+  try {
+    const result = computeAuditDiskStatus(root, slug);
+    assert.equal(result.ok, true);
+    assert.equal(result.phase, "complete");
+    assert.equal(result.allFindingsSourced, false);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }

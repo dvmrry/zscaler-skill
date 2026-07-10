@@ -1,5 +1,5 @@
 ---
-description: Run an editorial / structural audit of skill references.
+description: Run an evidence-backed reference or diff/release-readiness audit.
 ---
 
 # /z-auditor
