@@ -5,18 +5,22 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { checkDataContract } from "./check-data-contract.mjs";
-import { DATA_REQUIRED_DIRS } from "./lib.mjs";
+import { DATA_REQUIRED_DIRS, RUNTIME_CONFIG_ENV, SETUP_CONFIG_ENV } from "./lib.mjs";
 
 function tempRepo() {
   return fs.mkdtempSync(path.join(os.tmpdir(), "zscaler-data-contract-"));
 }
 
-function runCheckCommand(args) {
+function runCheckCommand(args, options = {}) {
+  const env = { ...process.env };
+  delete env[RUNTIME_CONFIG_ENV];
+  delete env[SETUP_CONFIG_ENV];
   return childProcess.execFileSync(
     process.execPath,
     [path.join(import.meta.dirname, "check-data-contract.mjs"), ...args],
     {
       encoding: "utf8",
+      env: { ...env, ...options.env },
       stdio: ["ignore", "pipe", "pipe"],
     },
   );
@@ -146,6 +150,24 @@ test("check-data-contract CLI reads committed runtime layout config", () => {
   const output = runCheckCommand(["--root", root]);
   assert.match(output, /tenant-data appears to be an ordinary directory/);
   assert.match(output, /tenant-data is configured as tracked runtime data/);
+  assert.match(output, /Errors: 0/);
+});
+
+test("check-data-contract CLI honors the downstream runtime config selector", () => {
+  const root = tempRepo();
+  makeDataSkeleton(root, "downstream-data");
+  fs.writeFileSync(
+    path.join(root, "root-runtime.json"),
+    JSON.stringify({ runtimeData: { mountPath: "downstream-data", tracking: "tracked" } }),
+    "utf8",
+  );
+
+  const output = runCheckCommand(["--root", root], {
+    env: { ZSCALER_SKILL_RUNTIME_CONFIG: "root-runtime.json" },
+  });
+
+  assert.match(output, /downstream-data appears to be an ordinary directory/);
+  assert.match(output, /downstream-data is configured as tracked runtime data/);
   assert.match(output, /Errors: 0/);
 });
 

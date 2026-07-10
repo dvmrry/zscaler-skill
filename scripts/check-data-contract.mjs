@@ -17,11 +17,13 @@ import {
 function usage(exitCode = 0) {
   const out = exitCode === 0 ? process.stdout : process.stderr;
   out.write(`Usage:
-  node scripts/check-data-contract.mjs [--root <repo-root>] [--config <json>] [--mount-path <path>] [--tracking ignored|tracked]
+  node scripts/check-data-contract.mjs [--root <repo-root>] [--runtime-config <json>] [--config <setup-json>] [--mount-path <path>] [--tracking ignored|tracked]
 
 Verifies the runtime data mount contract without reading tenant contents.
 Defaults to _data unless zscaler-skill-runtime.json, zscaler-skill-setup.json,
 or --mount-path says otherwise.
+ZSCALER_SKILL_RUNTIME_CONFIG/--runtime-config and
+ZSCALER_SKILL_SETUP_CONFIG/--config select alternate downstream config files.
 `);
   process.exit(exitCode);
 }
@@ -31,6 +33,7 @@ function parseArgs(argv) {
     config: null,
     mountPath: null,
     root: path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."),
+    runtimeConfig: null,
     tracking: null,
   };
 
@@ -43,7 +46,18 @@ function parseArgs(argv) {
       continue;
     }
     if (arg === "--config") {
-      args.config = argv[i + 1] || "";
+      if (!argv[i + 1] || argv[i + 1].startsWith("--")) {
+        throw new Error("--config requires a value");
+      }
+      args.config = argv[i + 1];
+      i += 1;
+      continue;
+    }
+    if (arg === "--runtime-config") {
+      if (!argv[i + 1] || argv[i + 1].startsWith("--")) {
+        throw new Error("--runtime-config requires a value");
+      }
+      args.runtimeConfig = argv[i + 1];
       i += 1;
       continue;
     }
@@ -61,7 +75,8 @@ function parseArgs(argv) {
   }
 
   const settings = runtimeDataMountSettings(args.root, {
-    configPath: args.config,
+    runtimeConfigPath: args.runtimeConfig || null,
+    setupConfigPath: args.config || null,
     mountPath: args.mountPath,
     tracking: args.tracking,
   });

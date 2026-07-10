@@ -19,6 +19,8 @@ export const DATA_SKELETON_FILES = new Set([".gitkeep", "README.md"]);
 export const DEFAULT_RUNTIME_DATA_TRACKING = "ignored";
 export const RUNTIME_CONFIG_FILE = "zscaler-skill-runtime.json";
 export const SETUP_CONFIG_FILE = "zscaler-skill-setup.json";
+export const RUNTIME_CONFIG_ENV = "ZSCALER_SKILL_RUNTIME_CONFIG";
+export const SETUP_CONFIG_ENV = "ZSCALER_SKILL_SETUP_CONFIG";
 
 // Git ref names we are willing to hand to git as a --branch value. Deliberately
 // stricter than git's own rules: a conservative charset that cannot be read as
@@ -131,24 +133,64 @@ export function readJsonObject(filePath) {
   return parsed;
 }
 
-function objectConfig(value) {
-  return value && typeof value === "object" && !Array.isArray(value) ? value : {};
+function objectConfig(value, label) {
+  if (value === undefined || value === null) return {};
+  if (typeof value === "object" && !Array.isArray(value)) return value;
+  throw new Error(`${label} must be a JSON object`);
 }
 
-export function readRuntimeDataConfigs(root, setupConfigPath = null) {
-  const runtimeConfigPath = path.join(root, RUNTIME_CONFIG_FILE);
-  const resolvedSetupConfigPath = setupConfigPath
-    ? path.resolve(root, setupConfigPath)
-    : path.join(root, SETUP_CONFIG_FILE);
+function selectedConfigPath(root, optionValue, envName, defaultFile, env) {
+  const configuredOption = typeof optionValue === "string" && optionValue.trim()
+    ? optionValue.trim()
+    : null;
+  const envValue = typeof env[envName] === "string" && env[envName].trim()
+    ? env[envName].trim()
+    : null;
+  const selected = configuredOption ?? envValue;
+  const expanded = selected ? expandConfigString(selected, env) : null;
+  const configPath = expanded ? path.resolve(root, expanded) : path.join(root, defaultFile);
+  if (expanded && !path.isAbsolute(expanded) && containedRelative(root, configPath) === null) {
+    throw new Error(`${envName} or explicit relative config path must stay inside the repo: ${selected}`);
+  }
+  if (selected && !fs.existsSync(configPath)) {
+    throw new Error(`${envName} or explicit config path selects a missing file: ${configPath}`);
+  }
+  return {
+    configPath,
+    selected: Boolean(selected),
+    selectedBy: configuredOption ? "option" : envValue ? envName : "default",
+  };
+}
+
+export function readRuntimeDataConfigs(root, options = {}) {
+  const env = options.env ?? process.env;
+  const runtimeSelection = selectedConfigPath(
+    root,
+    options.runtimeConfigPath,
+    RUNTIME_CONFIG_ENV,
+    RUNTIME_CONFIG_FILE,
+    env,
+  );
+  const setupSelection = selectedConfigPath(
+    root,
+    options.setupConfigPath,
+    SETUP_CONFIG_ENV,
+    SETUP_CONFIG_FILE,
+    env,
+  );
+  const runtimeConfigPath = runtimeSelection.configPath;
+  const resolvedSetupConfigPath = setupSelection.configPath;
   const runtimeConfig = readJsonObject(runtimeConfigPath);
   const setupConfig = readJsonObject(resolvedSetupConfigPath);
   return {
     runtimeConfig,
     setupConfig,
-    runtimeData: objectConfig(runtimeConfig.runtimeData),
-    setupRuntimeData: objectConfig(setupConfig.runtimeData),
+    runtimeData: objectConfig(runtimeConfig.runtimeData, `${runtimeConfigPath}: runtimeData`),
+    setupRuntimeData: objectConfig(setupConfig.runtimeData, `${resolvedSetupConfigPath}: runtimeData`),
     runtimeConfigPath,
     setupConfigPath: resolvedSetupConfigPath,
+    runtimeConfigSelectedBy: runtimeSelection.selectedBy,
+    setupConfigSelectedBy: setupSelection.selectedBy,
   };
 }
 
@@ -160,8 +202,15 @@ export function runtimeDataMountSettings(root, options = {}) {
     setupRuntimeData,
     runtimeConfigPath,
     setupConfigPath,
-  } = readRuntimeDataConfigs(root, options.configPath || null);
-  const configValue = (value) => typeof value === "string" ? expandConfigString(value) : value;
+    runtimeConfigSelectedBy,
+    setupConfigSelectedBy,
+  } = readRuntimeDataConfigs(root, {
+    env: options.env,
+    runtimeConfigPath: options.runtimeConfigPath,
+    setupConfigPath: options.setupConfigPath ?? options.configPath,
+  });
+  const env = options.env ?? process.env;
+  const configValue = (value) => typeof value === "string" ? expandConfigString(value, env) : value;
   return {
     mountPath: normalizeMountPath(
       options.mountPath
@@ -177,13 +226,15 @@ export function runtimeDataMountSettings(root, options = {}) {
     ),
     runtimeConfigPath,
     setupConfigPath,
+    runtimeConfigSelectedBy,
+    setupConfigSelectedBy,
     runtimeConfigExists: fs.existsSync(runtimeConfigPath),
     setupConfigExists: fs.existsSync(setupConfigPath),
   };
 }
 
-export function runtimeDataMountPath(root) {
-  return runtimeDataMountSettings(root).mountPath;
+export function runtimeDataMountPath(root, options = {}) {
+  return runtimeDataMountSettings(root, options).mountPath;
 }
 
 export function runtimeDataPath(root, ...segments) {
@@ -259,9 +310,9 @@ export function ensureRuntimeMountExcluded(root, mountPath) {
   };
 }
 
-// Validate and normalize overlay allowed-root entries: each must be a relative
-// path under the runtime data mount with no traversal. Trailing slashes are
-// stripped.
+// Validate and normalize overlay allowed-root entries. Entries may be written
+// relative to the mount ("cases") or include the mount ("_data/cases") for
+// backward compatibility. Trailing slashes are stripped.
 export function normalizeAllowedRoots(roots, mountPath = DEFAULT_DATA_MOUNT) {
   if (!Array.isArray(roots) || roots.length === 0) {
     throw new Error("allowed roots must be a non-empty array");
@@ -279,10 +330,13 @@ export function normalizeAllowedRoots(roots, mountPath = DEFAULT_DATA_MOUNT) {
       throw new Error(`allowed root must not contain '..': ${entry}`);
     }
     const normalized = toPosix(path.normalize(raw)).replace(/\/+$/, "");
-    if (normalized !== mount && !normalized.startsWith(`${mount}/`)) {
-      throw new Error(`allowed root must be under ${mount}/: ${entry}`);
+    if (normalized === mount || normalized.startsWith(`${mount}/`)) {
+      return normalized;
     }
-    return normalized;
+    if (["cases", "schemas", "iac"].includes(normalized.split("/")[0])) {
+      return `${mount}/${normalized}`;
+    }
+    throw new Error(`allowed root must be mount-relative or under ${mount}/: ${entry}`);
   });
 }
 

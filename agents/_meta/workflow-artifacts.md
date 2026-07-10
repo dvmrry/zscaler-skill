@@ -20,6 +20,11 @@ not guarantee that each runtime interprets the same prose contract the same
 way. For workflows where correctness matters, use structured artifacts as the
 portable execution contract.
 
+Runtime artifact examples below use `_data` as the default mount. Executable
+consumers must resolve the selected runtime config through
+`scripts/runtime-data-path.mjs` or the shared runtime-data library instead of
+hardcoding that default.
+
 The principle:
 
 > Runtime adapters may vary. Workflow phase artifacts should not.

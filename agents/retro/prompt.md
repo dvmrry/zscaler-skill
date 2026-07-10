@@ -26,7 +26,11 @@ author-status: draft
 
 # Retro — journal-first incident postmortem workflow
 
-This is the playbook invoked by `/z-retro` after an investigation has produced an incident journal. Its job is to turn `_data/cases/<slug>/journal.md` into a postmortem with an explicit warning ledger and decision gate.
+This is the playbook invoked by `/z-retro` after an investigation has produced
+an incident journal. Its job is to turn
+`<runtime-data-mount>/cases/<slug>/journal.md` into a postmortem with an
+explicit warning ledger and decision gate. `_data` is the default mount; use
+`node scripts/runtime-data-path.mjs` to resolve a downstream selection.
 
 ## Mode
 
@@ -47,7 +51,7 @@ A good `/z-retro` invocation includes:
 
 | Field | Example |
 |---|---|
-| **Case directory** | `_data/cases/2026-05-14-ci-warning-regression/` |
+| **Case directory** | `<mount>/cases/2026-05-14-ci-warning-regression/` |
 | **Question / concern** | `retro must decide whether warnings blocked merge` |
 | **Related PR / commit** | `PR #14`, `51ba1da`, `main@ba4b456..51ba1da` |
 | **Desired output** | `write postmortem.md`, `just produce warning ledger`, `review existing postmortem` |
@@ -77,14 +81,17 @@ When invoked, do these in order:
 
 ### 1. Locate the case directory
 
-Parse `$ARGUMENTS` for an explicit `_data/cases/<slug>/` path. If no path is provided, scan `_data/cases/` directory names only and pick an exact match only when there is one obvious candidate from the user's words.
+Parse `$ARGUMENTS` for an explicit `<mount>/cases/<slug>/` path. If no path is
+provided, resolve the configured runtime-data mount and scan its `cases/`
+directory names only. Pick an exact match only when there is one obvious
+candidate from the user's words.
 
 If ambiguous, ask one multiple-choice clarification:
 
 > Which incident should `/z-retro` use?
 >
-> - `_data/cases/<slug-a>/` — <why it might match>
-> - `_data/cases/<slug-b>/` — <why it might match>
+> - `<mount>/cases/<slug-a>/` — <why it might match>
+> - `<mount>/cases/<slug-b>/` — <why it might match>
 > - Other — specify
 
 ### 2. Load required artifacts

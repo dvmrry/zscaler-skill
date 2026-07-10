@@ -4,6 +4,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
+import { RUNTIME_CONFIG_ENV, SETUP_CONFIG_ENV } from "./lib.mjs";
 import { prepareOverlaySubmission, runtimePathToOverlayPath } from "./prepare-overlay-submission.mjs";
 
 function tempDir(prefix) {
@@ -46,6 +47,21 @@ function makeOverlayRepo() {
   fs.writeFileSync(path.join(repo, "README.md"), "# overlay\n", "utf8");
   commitAll(repo, "initial overlay");
   return repo;
+}
+
+function runPrepareCommand(args, options = {}) {
+  const env = { ...process.env };
+  delete env[RUNTIME_CONFIG_ENV];
+  delete env[SETUP_CONFIG_ENV];
+  return childProcess.execFileSync(
+    process.execPath,
+    [path.join(import.meta.dirname, "prepare-overlay-submission.mjs"), ...args],
+    {
+      encoding: "utf8",
+      env: { ...env, ...options.env },
+      stdio: ["ignore", "pipe", "pipe"],
+    },
+  );
 }
 
 test("prepareOverlaySubmission requires explicit approval by default", () => {
@@ -248,6 +264,68 @@ test("prepareOverlaySubmission accepts artifacts under a configured runtime moun
 
   assert.equal(result.files[0], "cases/2026-05-18-example");
   assert.equal(result.sourceFiles[0], "tenant-data/cases/2026-05-18-example");
+});
+
+test("prepare-overlay-submission CLI merges shared policy with a private repo target", () => {
+  const { root, caseDir } = makeRootWithCase("tenant-data");
+  const overlay = makeOverlayRepo();
+  fs.writeFileSync(
+    path.join(root, "downstream-runtime.json"),
+    JSON.stringify({
+      runtimeData: { mountPath: "tenant-data", tracking: "tracked" },
+      overlaySubmission: {
+        allowedRoots: ["cases"],
+        branchPrefix: "shared-submission/",
+        defaultBranch: "main",
+        requireExplicitApproval: false,
+      },
+    }),
+    "utf8",
+  );
+  fs.writeFileSync(
+    path.join(root, "zscaler-skill-setup.json"),
+    JSON.stringify({ overlaySubmission: { repoUrl: overlay } }),
+    "utf8",
+  );
+
+  const output = runPrepareCommand([
+    "--root",
+    root,
+    "--runtime-config",
+    "downstream-runtime.json",
+    "--case-path",
+    path.relative(root, caseDir),
+    "--dry-run",
+  ]);
+
+  assert.match(output, /Status: dry-run/);
+  assert.match(output, /Branch: shared-submission\/2026-05-18-example-/);
+  assert.match(output, /FILE: cases\/2026-05-18-example/);
+});
+
+test("prepare-overlay-submission rejects private repoUrl in shared runtime config", () => {
+  const { root, caseDir } = makeRootWithCase();
+  fs.writeFileSync(
+    path.join(root, "downstream-runtime.json"),
+    JSON.stringify({
+      runtimeData: { mountPath: "_data", tracking: "ignored" },
+      overlaySubmission: { repoUrl: "https://example.invalid/private-overlay.git" },
+    }),
+    "utf8",
+  );
+
+  assert.throws(
+    () => runPrepareCommand([
+      "--root",
+      root,
+      "--runtime-config",
+      "downstream-runtime.json",
+      "--case-path",
+      path.relative(root, caseDir),
+      "--dry-run",
+    ]),
+    /private bootstrap data/,
+  );
 });
 
 test("prepareOverlaySubmission rejects allowed roots with traversal", () => {
