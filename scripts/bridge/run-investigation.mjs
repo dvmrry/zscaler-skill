@@ -83,6 +83,7 @@ import {
 
 import {
   auditStatus,
+  latestFindings,
   renderAuditReport,
   resolveSource,
 } from "../auditor-artifacts.mjs";
@@ -545,9 +546,9 @@ function computeCaseReport(root, caseSlug) {
  * Returns:
  *   { ok, phase, findingCounts, checksRecorded, allFindingsSourced, error? }
  *
- * allFindingsSourced is true when every finding in the findings.jsonl has a
- * non-empty source field (evidence-gated at record time, so this is a post-hoc
- * confirmation check).
+ * allFindingsSourced is true when every latest finding snapshot has resolving
+ * original evidence and every Resolved snapshot has resolving verification
+ * evidence. The helper gates both at write time; this is a post-hoc check.
  */
 function computeAuditDiskStatus(root, auditSlug) {
   try {
@@ -563,8 +564,8 @@ function computeAuditDiskStatus(root, auditSlug) {
     try {
       if (fs.existsSync(findingsPath)) {
         const lines = fs.readFileSync(findingsPath, "utf8").trim().split("\n").filter(Boolean);
-        for (const line of lines) {
-          const f = JSON.parse(line);
+        const findings = latestFindings(lines.map((line) => JSON.parse(line)));
+        for (const f of findings) {
           if (!f.source || String(f.source).trim() === "") {
             allFindingsSourced = false;
             break;
@@ -573,6 +574,16 @@ function computeAuditDiskStatus(root, auditSlug) {
           if (!resolved.resolves) {
             allFindingsSourced = false;
             break;
+          }
+          if (f.status === "Resolved") {
+            const verification = resolveSource(root, checksDir, f.verificationSource);
+            if (
+              !verification.resolves ||
+              (verification.type !== "file-line" && verification.type !== "check")
+            ) {
+              allFindingsSourced = false;
+              break;
+            }
           }
         }
       }

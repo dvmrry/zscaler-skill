@@ -3,7 +3,7 @@ role: auditor
 artifact: methodology
 title: "Audit methodology — evidence-based finding discipline"
 content-type: reference
-last-verified: "2026-04-29"
+last-verified: "2026-07-10"
 confidence: high
 source-tier: practice
 sources:
@@ -34,11 +34,13 @@ For each finding, document:
 
 | Field | Content |
 |---|---|
+| **Finding ID** | Stable identifier such as `AUD-001` or `AUD-DIFF-001`; reuse it through remediation closure |
 | **Finding** | One-sentence description (e.g., "`siem-log-mapping.md` claims `confidence: high` but cites only one source") |
 | **Source** | Exact reference: file path + line, script output, API call + result. Same standard as a discovery journal claim. |
 | **Severity** | `Critical` / `High` / `Medium` / `Low` / `Info` — see [Severity scale](#severity-scale) |
 | **Status** | `Open` / `Acknowledged` / `Resolved` / `Acceptable` / `Wontfix` — see [Status lifecycle](#status-lifecycle) |
 | **Remediation** | Specific action to resolve, OR "n/a — accepted" with reason |
+| **Verification** | Reproduction, check, or counterexample that will prove/disprove closure |
 | **Timestamp** | When the finding was identified |
 | **Notes** | Caveats, scope-limited applicability, related findings |
 
@@ -56,6 +58,23 @@ Severity captures **impact if not addressed**, not editorial priority. Use the l
 
 When in doubt between two adjacent levels, pick the lower one. Reviewers can promote later.
 
+For PR-style reporting, the optional priority labels map as follows: `P0` =
+Critical, `P1` = High, `P2` = Medium, `P3` = Low. The durable register stores
+the canonical severity; priority notation is only a presentation alias.
+
+## Advisory calibration
+
+Severity follows demonstrated impact, not the fact that a tool printed a line.
+
+- A required check failure is normally blocking and should become a finding.
+- A repository-configured advisory, warning, or `continue-on-error` result stays
+  advisory unless evidence shows it breaks CI, misleads users, or causes wrong
+  operational behavior.
+- A known baseline warning should be reported once as backlog, not rediscovered
+  as a fresh High finding on every audit.
+- An unavailable required check is a residual risk or blocker depending on the
+  requested decision; it is not proof that the change passes.
+
 ## Status lifecycle
 
 | Status | Meaning | When to use |
@@ -67,6 +86,37 @@ When in doubt between two adjacent levels, pick the lower one. Reviewers can pro
 | **Wontfix** | Known issue, out of scope, not worth fixing | Used sparingly; record reason |
 
 Do not mark a finding `Resolved` until you've **verified** the fix landed (re-run the check, re-read the file). "I edited it" is not the same as "the finding no longer holds."
+
+Use the same finding ID for closure. Durable audits append an updated snapshot
+through `update-finding` / `update_finding`; inline audits revise the existing
+register row. A Resolved update must cite a verification source strong enough
+to prove the original failure no longer holds.
+
+## Inline and durable registers
+
+- **Durable register:** use MCP/CLI artifacts when the user requests a
+  resumable audit or authorizes audit-state writes. The rendered report is the
+  answer source of truth.
+- **Inline register:** use when MCP is unavailable and the request is an
+  ephemeral read-only review that does not authorize filesystem writes. Keep
+  the same fields and stable IDs, and state that the register is not resumable
+  from disk.
+
+The evidence and closure bar is identical in both modes.
+
+## Remediation closure protocol
+
+For every prior finding:
+
+1. Restate or reproduce the original failure scenario.
+2. Read the changed implementation and focused regression test.
+3. Attempt at least one neighboring bypass or counterexample.
+4. Re-run the resolving check.
+5. Update the original finding to `Resolved` only when the failure is falsified;
+   otherwise retain `Open` and attach the new evidence.
+
+Prefer an independent closure reviewer when available. Keep unexecuted live
+integrations under residual test gaps rather than narrating them as success.
 
 ## Example workflow
 

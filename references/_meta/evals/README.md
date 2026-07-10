@@ -1,9 +1,9 @@
 ---
 product: shared
 topic: "evals-index"
-title: "Eval suite — behavioral specifications + runner usage"
+title: "Eval suite — behavioral specifications and runner usage"
 content-type: reference
-last-verified: "2026-04-30"
+last-verified: "2026-07-10"
 confidence: high
 sources: []
 author-status: draft
@@ -51,6 +51,14 @@ Failure on any of those four → eval fails.
 
 When a reference doc is materially updated, the corresponding eval (if one exists) should be re-run to confirm behavior didn't drift. New high-confidence ref content without a matching eval is a coverage gap — see `IMPROVEMENTS.md` "Eval coverage as a freshness signal."
 
+The auditor has an additional diff-readiness regression contract in
+[`auditor-diff-readiness.json`](./auditor-diff-readiness.json). Its inert
+candidate/remediation pairs capture release-workflow and provenance-parser
+failure modes from PR #214. `scripts/auditor-diff-readiness-evals.test.mjs`
+guards the fixture contract in CI, while
+`scripts/bridge/scenarios/auditor-diff-readiness.json` provides an optional
+local live-agent discovery run.
+
 The `must_cite_files` paths are validated by `scripts/check-hygiene.py` to catch eval-references-deleted-file rot. If you delete or rename a referenced file, update the eval too.
 
 ## Schema
@@ -61,4 +69,5 @@ See `evals.json` § `schema_notes` for field-level documentation.
 
 - [`scripts/run-evals.py`](../../../scripts/run-evals.py) — the runner
 - [`scripts/check-hygiene.py`](../../../scripts/check-hygiene.py) — validates `must_cite_files` paths
+- [`scripts/auditor-diff-readiness-evals.test.mjs`](../../../scripts/auditor-diff-readiness-evals.test.mjs) — validates the auditor diff fixture contract
 - [`../../../IMPROVEMENTS.md`](../../../IMPROVEMENTS.md) — eval-coverage and runner improvements

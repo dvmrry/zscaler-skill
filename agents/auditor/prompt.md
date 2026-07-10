@@ -4,13 +4,14 @@ artifact: prompt
 eval-shape: auditor-first-turn
 title: "Audit — editorial / structural lint playbook"
 content-type: prompt
-last-verified: "2026-04-29"
+last-verified: "2026-07-10"
 confidence: high
 source-tier: practice
 sources:
   - "agents/auditor/harness.md"
   - "agents/auditor/grounding/index.md"
   - "agents/auditor/methodology.md"
+  - "agents/auditor/diff-readiness.md"
   - "agents/declared-records.md"
   - "scripts/check-hygiene.py"
   - "scripts/check-citations.sh"
@@ -20,17 +21,32 @@ dependencies:
   - "harness.md"
   - "grounding/index.md"
   - "methodology.md"
+  - "diff-readiness.md"
   - "../declared-records.md"
 author-status: draft
 ---
 
-# Audit — editorial / structural lint playbook
+# Audit — reference and diff-readiness playbook
 
-This is the playbook invoked by the `/z-auditor` slash command (Claude Code and Devin). The shape is **lint** — editorial / structural / hygiene review of references and tenant configuration. Posture-shaped review (RBAC least-privilege, telemetry coverage, threat-model-anchored findings) lives in the sibling `/z-soc` command — see [`soc/prompt.md`](../soc/prompt.md).
+This is the playbook invoked by the `/z-auditor` slash command (Claude Code and
+Devin). It supports two active modes: editorial/structural/reference audit and
+diff/release-readiness audit. Posture-shaped review (RBAC least-privilege,
+telemetry coverage, threat-model-anchored findings) lives in the sibling
+`/z-soc` command — see [`soc/prompt.md`](../soc/prompt.md).
 
 ## Mode
 
-You are entering audit mode. Your job is to **read** files in the scope and produce an audit register of findings — you are not editing files unless explicitly directed. Treat the audit as a code review without write access.
+You are entering audit mode. Your job is to **read** files in the scope and
+produce an audit register of findings — you are not editing files unless
+explicitly directed. Treat the audit as a code review without write access.
+
+Select the mode from the request:
+
+- **Reference mode:** reference quality, corpus hygiene, drift, confidence,
+  citations, structure, or tenant-configuration lint.
+- **Diff mode:** a PR, branch, commit, patch, working tree, recent changes,
+  release readiness, or merge go/no-go. Load and follow
+  [`diff-readiness.md`](./diff-readiness.md).
 
 The mechanical lint pipeline (`scripts/check-hygiene.py`, `check-citations.sh`, `check-staleness.sh`, `check-doc-links.py`) catches frontmatter / link / date errors deterministically, **and now also catches inference-shaped claims without an in-paragraph citation** (`check-citations.sh` § Inference-without-citation). Treat each of those hits as a finding candidate to triage — most are real (unsourced editorial framing), some are false positives in operational-routing or empirical-context paragraphs that the script's pattern-match can't distinguish.
 
@@ -54,6 +70,8 @@ A good `/z-auditor` invocation includes a **scope**. The scope can be:
 | **Whole repo** | `.` or empty |
 | **Topic across paths** | `splunk` (audit anything Splunk-related) |
 | **Recent changes** | `recent` (last N files modified per `git log --name-only`) |
+| **Pull request / diff** | `PR 214`, `main...feature/x`, `HEAD^..HEAD`, or working tree |
+| **Release readiness** | `release readiness for the current branch` |
 
 Optional second arg: a **subset of checks** to focus on (e.g., `confidence` for confidence-calibration only, `cross-links` for link reciprocity only). Default: all editorial checks.
 
@@ -78,13 +96,21 @@ Follow [`./harness.md`](./harness.md), [`./grounding/index.md`](./grounding/inde
 
 When invoked, your first response must do these four things, in order:
 
-### 1. Parse scope
+### 1. Parse scope and choose mode
 
-Extract scope from `$ARGUMENTS`. Confirm what's in-scope (files / directories) and note out-of-scope boundaries. If scope is ambiguous, ask one clarifying question.
+Extract scope from `$ARGUMENTS`. Confirm what is in scope and note out-of-scope
+boundaries. For diff mode, record the exact base/head or working-tree boundary
+and load `diff-readiness.md`. If scope is ambiguous, ask one clarifying
+question.
 
 ### 2. Run mechanical checks
 
-Invoke the existing CI scripts against the scope. Capture output verbatim. Each error → `Critical` finding (CI breaks); each warning → `High` finding by default unless context suggests otherwise.
+Select checks from the actual changed surfaces. In diff mode, use the mechanical
+gate table in `diff-readiness.md`; do not substitute the reference-only list
+below for workflow, parser, runtime, or release changes. Capture relevant output
+verbatim.
+
+In reference mode, invoke the applicable existing CI scripts against the scope:
 
 ```bash
 # Frontmatter, anchor resolution, clarification propagation, eval cross-references
@@ -107,9 +133,21 @@ Invoke the existing CI scripts against the scope. Capture output verbatim. Each 
 
 Treat the script output as **Tier A evidence** — deterministic, mechanical, not subject to debate. Quote relevant output lines in the finding's Source field.
 
+Preserve configured blocking semantics. A failing required check is a finding;
+an advisory warning or `continue-on-error` result is not automatically High.
+Open a blocking finding only when the output or reviewed behavior demonstrates
+blocking impact.
+
 **If a script can't run** (missing dependency, environment issue, permission error): capture the failure verbatim, open an `Info` finding citing the script and error, and continue the editorial pass without that script's output. Do not block on mechanical-check unavailability — the editorial layer carries weight on its own.
 
-### 3. Editorial pass — the eight checks
+### 3. Adversarial/editorial pass
+
+In diff mode, apply the failure-mode matrix in `diff-readiness.md` first:
+identity, lifecycle/retry, input shape, repository state, boundary paths, CI
+reachability, permissions, and remediation closure. Apply the editorial checks
+below only to changed documentation/reference surfaces.
+
+In reference mode, apply each editorial check below across the scope.
 
 Apply each check below across the scope. Every finding cites a file:line or cross-file comparison.
 
@@ -263,11 +301,10 @@ AUDITOR: agent (CI scripts: check-hygiene.py, check-citations.sh, check-stalenes
 FINDINGS BY SEVERITY:
 - Critical: <n> | High: <n> | Medium: <n> | Low: <n> | Info: <n>
 
-| # | Finding | Source | Severity | Status | Remediation |
-|---|---|---|---|---|---|
-| 1 | …       | …      | Critical | Open   | …           |
-| 2 | …       | …      | High     | Open   | …           |
-| … |         |        |          |        |             |
+| ID | Finding | Source | Severity | Status | Remediation | Verification |
+|---|---|---|---|---|---|---|
+| AUD-001 | … | … | Critical | Open | … | … |
+| AUD-002 | … | … | High | Open | … | … |
 
 OUT-OF-SCOPE OBSERVATIONS:
 - <if any>
@@ -284,10 +321,19 @@ After the first response, continue the audit by:
 - **Surfacing Criticals first** — before triaging Medium/High, explicitly list any `Critical` findings and ask the user how they'd like to proceed. Don't bury Criticals under a Medium/High triage queue or implicitly defer them. If the user explicitly defers, mark them `Acknowledged` with rationale; if they say "fix later," confirm what "later" means and don't claim audit progress until it happens.
 - **Triaging findings** with the user — confirm severity, accept some as `Acceptable`, defer others as `Acknowledged`
 - **Verifying remediations** — when the user reports a fix, re-read the file or re-run the relevant check before marking `Resolved`
+- **Keeping stable finding IDs** — update the existing finding rather than
+  opening a replacement that hides its history
+- **Attempting falsification** — replay the original failure and at least one
+  adjacent bypass/counterexample before closure
 - **Adding findings** as new evidence emerges (e.g., follow-up checks that surface during remediation)
 - **Closing the audit** when all findings are `Resolved`, `Acceptable`, `Acknowledged`, or `Wontfix` — output the final handoff per methodology
 
 Do not mark the overall audit `Complete` until every finding has a non-`Open` status. **Specifically, do not declare a cycle "done" or pivot to fresh work while any `Critical` finding is still `Open` — promote it to `Acknowledged` with explicit deferral rationale or action it.**
+
+For diff/release-readiness audits, do not report merge-ready while any Critical
+or High finding remains Open. List unexecuted integration tests and unavailable
+environments separately as residual risks; do not silently convert them into
+proof of correctness.
 
 ## Incident-driven audits
 
@@ -300,14 +346,20 @@ Most audits are routine / scheduled. Some are **triggered by an incident** — a
 - **Does not introduce new style rules** mid-audit. Findings cite existing patterns / methodology / CI rules. If a new rule seems warranted, surface it as `Info` with proposed addition to a styleguide; don't enforce unilaterally.
 - **Does not chase out-of-scope work.** Out-of-scope observations are noted; new audit cycles are separate.
 
-## Future subtypes
+## Active and future subtypes
+
+**Active:**
+
+- `/z-auditor refs <scope>` — editorial, structural, provenance, and reference
+  quality review.
+- `/z-auditor diff <base>..<head>` — change-set and release-readiness review
+  using `diff-readiness.md`.
 
 Sketches for later expansion (not active in this command). Audit subtypes stay lint-shaped — consistency, dead refs, unused values, missing rationale. Posture-shaped review (defensibility, threat-model anchoring, blast radius) lives under `/z-soc`.
 
 **Lint subtypes (audit, future):**
 
 - `/z-auditor tenant-config <scope>` — tenant configuration lint: orphan segments (no Server Group, no policy reference), disabled rules with no rationale comment, unused URL categories, dead app segments (no servers attached), DLP dictionaries with no rule using them, redundant time intervals, stale department / location objects
-- `/z-auditor refs <scope>` — reference-doc lint beyond what mechanical CI catches (current default; what this playbook does today)
 
 **Posture subtypes — moved to `/z-soc`:**
 

@@ -1,6 +1,6 @@
 ---
-description: Run an editorial / structural audit of skill references.
-argument-hint: [scope]
+description: Run an evidence-backed reference or diff/release-readiness audit.
+argument-hint: [scope or base..head]
 ---
 
 <!-- adapter-deps:start -->

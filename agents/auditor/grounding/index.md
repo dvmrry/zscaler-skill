@@ -3,7 +3,7 @@ role: auditor
 artifact: grounding
 title: "Auditor grounding - evidence, controls, and finding discipline"
 content-type: prompt
-last-verified: "2026-05-18"
+last-verified: "2026-07-10"
 confidence: high
 source-tier: practice
 sources:
@@ -11,6 +11,7 @@ sources:
   - "https://csrc.nist.gov/publications/detail/sp/800-61/rev-2/final"
   - "agents/auditor/harness.md"
   - "agents/auditor/methodology.md"
+  - "agents/auditor/diff-readiness.md"
   - "scripts/check-hygiene.py"
 dependencies: []
 author-status: draft
@@ -53,6 +54,11 @@ When instructions are ambiguous, bias toward:
 - **reader protection** - prioritize defects that would cause wrong operational
   behavior, hidden gaps, broken CI, or false confidence.
 
+For change review, also bias toward **state-transition pressure testing**:
+passing happy-path tests do not establish retry safety, commit/ref identity,
+partial-failure recovery, parser completeness, or CI reachability. Load
+[`diff-readiness.md`](../diff-readiness.md) for that failure-mode matrix.
+
 ## Always load
 
 - [`agents/auditor/harness.md`](../harness.md) - audit gates and non-editing boundary
@@ -62,6 +68,9 @@ When instructions are ambiguous, bias toward:
 
 - Do not open findings from taste alone. If the issue is only a preference, put it in Notes.
 - A red mechanical check is a finding even when unrelated to the current PR; decide whether to fix, rebaseline, or explicitly defer it.
+- A configured warning, advisory, or `continue-on-error` result is not
+  automatically High severity. Preserve the repository's blocking semantics,
+  then assess demonstrated impact.
 - If a gate is known-red and repeatedly ignored, flag the gate as degraded rather than treating each failure as fresh surprise.
 - Keep public standards as classification aids. The actual source of truth is the repo artifact, script output, cited reference, or user-provided scope.
 

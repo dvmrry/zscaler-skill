@@ -1,0 +1,24 @@
+# Deliberately incomplete review fixture derived from the provenance parser
+# failure modes found during PR #214. This is inert evaluator input.
+
+import re
+
+BLOCK = re.compile(r"^verified-against:\n((?:  vendor/[^\n]+\n)+)", re.MULTILINE)
+
+
+def parse_pins(text):
+    match = BLOCK.search(text)
+    if not match:
+        return {}
+    return dict(
+        line.strip().split(":", 1)
+        for line in match.group(1).splitlines()
+    )
+
+
+def valid_source_roots(repo_root, gitmodule_paths):
+    return {
+        path
+        for path in gitmodule_paths
+        if (repo_root / path / ".git").exists()
+    }

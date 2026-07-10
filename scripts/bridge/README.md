@@ -131,7 +131,16 @@ workflow tools plus reads only:
 }
 ```
 
-## Bundled scenario: `forge6-replay`
+## Bundled scenarios
+
+`scenarios/auditor-diff-readiness.json` runs the upgraded auditor against inert
+release-workflow and provenance-parser candidates derived from PR #214. It
+hides the expected-results contract and fixed fixtures, requires multiple
+evidence-backed findings, and checks the MCP gate order. The static fixture
+contract remains CI-covered even though this live run requires Devin auth and
+network access.
+
+### `forge6-replay`
 
 `scenarios/forge6-replay.json` replays the false-premise RCA drill as a repeatable
 regression. A single turn instructs the agent to investigate a report of an
