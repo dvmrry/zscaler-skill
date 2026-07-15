@@ -23,6 +23,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 V = os.path.join(ROOT, "vendor")
 ANSIBLE_COLL = {"zia": "ziacloud-ansible", "zpa": "zpacloud-ansible"}
 FAMILIES = ["go-sdk", "python-sdk", "terraform", "mcp", "ansible", "automate-contract", "postman"]
+MCP_PACKAGE_ROOTS = ("src/zscaler_mcp", "zscaler_mcp")
 
 # Per-area config. `parents` = the SDK parent products that own the IaC
 # collections / mcp tool dirs. `go_anchor` = SDK import-path substrings
@@ -295,8 +296,16 @@ def _tf_files(cfg):
 
 def _mcp_files(cfg):
     out = []
+    package_root = next(
+        (
+            candidate
+            for candidate in MCP_PACKAGE_ROOTS
+            if os.path.isdir(os.path.join(V, "zscaler-mcp-server", candidate))
+        ),
+        MCP_PACKAGE_ROOTS[0],
+    )
     for parent in cfg["parents"]:
-        for f in glob.glob(V + f"/zscaler-mcp-server/zscaler_mcp/tools/{parent}/*.py"):
+        for f in glob.glob(V + f"/zscaler-mcp-server/{package_root}/tools/{parent}/*.py"):
             if cfg.get("mcp_all_parent") or any(s in os.path.basename(f) for s in cfg["resource_stems"]):
                 out.append(f)
     return sorted(set(out))

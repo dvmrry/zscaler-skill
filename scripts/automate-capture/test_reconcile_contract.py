@@ -7,6 +7,7 @@ integration smoke test runs the real reconciliation if the vendor submodules are
 present, asserting only stable invariants (skipped otherwise)."""
 import os
 import sys
+import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -14,6 +15,7 @@ ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 
 from reconcile_contract import (  # noqa: E402
     _contract_reconcile_field,
+    _mcp_package_root,
     ansible_category, build_report, contract_category, extract_ansible_argument_spec_fields,
     extract_ansible_sdk_calls, extract_go_struct_fields, extract_python_model_fields,
     extract_mcp_request_fields, extract_mcp_sdk_calls, extract_mcp_tool_functions,
@@ -480,6 +482,19 @@ def test_snake_to_camel():
     assert snake_to_camel("version_profile_id") == "versionProfileId"
     assert snake_to_camel("name") == "name"
     assert snake_to_camel("dns_query_type") == "dnsQueryType"
+
+
+@case
+def test_mcp_package_root_supports_src_and_legacy_layouts():
+    with tempfile.TemporaryDirectory() as repo_root:
+        src_root = "vendor/zscaler-mcp-server/src/zscaler_mcp"
+        os.makedirs(os.path.join(repo_root, src_root, "tools"))
+        assert _mcp_package_root(repo_root) == src_root
+
+    with tempfile.TemporaryDirectory() as repo_root:
+        legacy_root = "vendor/zscaler-mcp-server/zscaler_mcp"
+        os.makedirs(os.path.join(repo_root, legacy_root, "tools"))
+        assert _mcp_package_root(repo_root) == legacy_root
 
 
 @case

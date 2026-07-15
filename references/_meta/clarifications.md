@@ -262,14 +262,13 @@ The ZPA reference re-verification pass (2026-06-15) registered the remaining `##
 | [`zpa-45`](#zpa-45-machine-tunnel-provisioning-key-mechanism) | Machine-tunnel provisioning key mechanism | zscaler doc not yet read / tenant snapshot |
 | [`zpa-46`](#zpa-46-api-enforcement-of-the-chrome_posture_profile-vs-chrome_enterprise-operand-form-split) | API enforcement of the CHROME_POSTURE_PROFILE vs CHROME_ENTERPRISE operand-form split | lab test |
 | [`zpa-47`](#zpa-47-private-service-edge-vm-sizing-and-per-instance-session-limits) | PSE VM sizing and per-instance session limits | zscaler doc not yet read |
-| [`zpa-48`](#zpa-48-pse-provisioning-key-apiterraform-support) | PSE provisioning-key API/Terraform support | zscaler doc not yet read / lab test |
 | [`zpa-49`](#zpa-49-supported-hypervisor-cloud-image-formats-for-zpa-pses) | Supported hypervisor / cloud-image formats for ZPA PSEs | zscaler doc not yet read |
 | [`zpa-50`](#zpa-50-zpa-pse-dedicated-hardware-appliance-availability) | ZPA PSE dedicated hardware appliance availability | zscaler doc not yet read / support ticket |
 | [`zpa-51`](#zpa-51-private-cloud-controller-product-positioning) | Private Cloud Controller product positioning | zscaler doc not yet read |
 | [`zpa-52`](#zpa-52-restart_private_controller-operational-semantics) | `restart_private_controller` operational semantics (graceful vs hard) | lab test |
 | [`zpa-53`](#zpa-53-service-edge-auto-delete-schedule-accepted-frequency-values-and-defaults) | Service Edge Auto-Delete schedule accepted `frequency` values + defaults | zscaler doc not yet read / lab test |
 | [`zpa-54`](#zpa-54-pse-location-geoip-update-propagation-delay) | PSE location / GeoIP update propagation delay | zscaler doc not yet read / operator experience |
-| [`zpa-55`](#zpa-55-pse-oauth2-enrollment-path-licensereplacement-semantics) | PSE OAuth2 enrollment path license/replacement semantics | zscaler doc not yet read / lab test |
+| [`zpa-55`](#zpa-55-pse-oauth2-enrollment-path-licensereplacement-semantics) | PSE OAuth2 enrollment licensing prerequisites | zscaler doc not yet read / tenant confirmation |
 | [`zpa-56`](#zpa-56-maximum-pses-per-group) | Maximum PSEs per group | zscaler doc not yet read / support ticket |
 | [`zpa-57`](#zpa-57-whether-session-recording-approval-workflow-and-credential-pooling-are-formally-absent-from-base-non-pra-zpa) | Whether session recording / approval / credential pooling are absent from base ZPA | zscaler doc not yet read |
 | [`zpa-58`](#zpa-58-zpa-public-tier-specific-behavior-scale-safe-mode) | ZPA Public-tier-specific behavior (scale / Safe-mode) | zscaler doc not yet read |
@@ -3728,12 +3727,12 @@ The Deployment Prerequisites document referenced in help sources was not capture
 
 ### zpa-48 — PSE provisioning-key API/Terraform support
 
-*Origin: `references/zpa/private-service-edges.md` § Open questions*
+*Origin: `references/zpa/private-service-edges.md` § Enrollment credentials*
 
-There is no `zpa_service_edge_provisioning_key` resource in the captured Terraform provider docs (the App Connector equivalent `zpa_provisioning_key` exists). Whether PSE provisioning keys can be created via the API/Terraform or are Admin-Console-only is unconfirmed.
+The AWS PSE module v2.0.0 confirms that PSE provisioning keys can be managed through Terraform's generic `zpa_provisioning_key` resource. Its provisioning-key submodule fixes `association_type` to `SERVICE_EDGE_GRP`, binds `zcomponent_id` to the PSE Group, and can alternatively read an existing key (`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zpa-provisioning-key/main.tf:9-23`; `vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zpa-provisioning-key/variables.tf:25-35,43-58`).
 
-**Status**: open
-**Resolves with**: zscaler doc not yet read / lab test
+**Status**: resolved (2026-07-15)
+**Resolved by**: `vendor/terraform-aws-zpa-private-service-edge-modules` v2.0.0 module source
 
 ---
 
@@ -3807,10 +3806,10 @@ The help docs note that if a PSE Group location is updated for an existing activ
 
 *Origin: `references/zpa/private-service-edges.md` § Open questions*
 
-The `enrollment_cert_id` + `user_codes` pattern on `zpa_service_edge_group` suggests an OAuth2 enrollment flow distinct from the traditional provisioning-key path. Whether it requires a specific ZPA license tier, and whether it replaces or supplements the provisioning-key flow, is not resolved from available sources.
+The AWS PSE module v2.0.0 establishes that OAuth2 user-code onboarding is the default/recommended flow and that provisioning-key onboarding remains fully supported. It requires ZPA Terraform provider 4.4.0 or later, but the source does not state whether the OAuth2 path also requires a particular ZPA license or tenant-side feature enablement (`vendor/terraform-aws-zpa-private-service-edge-modules/README.md:21-48,54-61`).
 
 **Status**: open
-**Resolves with**: zscaler doc not yet read / lab test
+**Resolves with**: zscaler doc not yet read / tenant confirmation
 
 ---
 

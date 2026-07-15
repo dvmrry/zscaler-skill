@@ -3,10 +3,10 @@ product: zpa
 topic: "browser-access"
 title: "Browser Access — clientless ZPA via a web browser"
 content-type: reference
-last-verified: "2026-07-06"
+last-verified: "2026-07-15"
 verified-against:
   vendor/terraform-provider-zpa: dcf12469a9a8f648be0691c74e9816fc94ec7ddc
-  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
   vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
 confidence: high
 source-tier: mixed
@@ -166,25 +166,25 @@ Browser Access apps are configured as a sub-object (`clientlessApps`) within a s
 
 The **Browser Access page** (Policies > Access Control > Clientless > Access Methods > Browser Access) shows all configured BA apps with: Name, Segment Group, Server Groups, Canonical Name (CNAME), Certificate, Domain (FQDN), Status, Application Protocol, Application Port.
 
-**Per-BA-app fields (`clientlessApps` / SDK `BAAppDto`).** Each entry in the segment's clientless-app list carries the following fields. Wire keys (the JSON the API sees) are shown alongside the SDK attribute names; all cited from `models/application_segment.py:758-778`:
+**Per-BA-app fields (`clientlessApps` / SDK `BAAppDto`).** Each entry in the segment's clientless-app list carries the following fields. Wire keys (the JSON the API sees) are shown alongside the SDK attribute names; all cited from `models/application_segment.py:761-781`:
 
 | SDK attribute | Wire key | Purpose |
 |---|---|---|
-| `domain` | `domain` | External FQDN of the BA app (`:767`). |
-| `application_protocol` | `applicationProtocol` | `HTTP` or `HTTPS` (`:766`). |
-| `application_port` | `applicationPort` | App port (`:765`). |
-| `certificate_id` | `certificateId` | Browser Access cert object (`:763`). |
-| `cname` | `cname` | Zscaler- or customer-managed CNAME (`:773`). |
-| `trust_untrusted_cert` | `trustUntrustedCert` | Tolerate a backend cert that can't be validated (`:771`). |
-| `allow_options` | `allowOptions` | Permit `OPTIONS` requests (CORS preflight) (`:772`). |
-| `local_domain` | `localDomain` | Internal hostname when it differs from the external one (`:769`). |
-| `hidden` | `hidden` | Hide the app from the portal (`:768`). |
-| `ext_domain` / `ext_domain_name` / `ext_label` | `extDomain` / `extDomainName` / `extLabel` | Custom external label/domain (`:776-778`); these are the fields behind the §9.3 Terraform `certificate_id`-conflicts-with-`ext_label`/`ext_domain` rule. |
+| `domain` | `domain` | External FQDN of the BA app (`:770`). |
+| `application_protocol` | `applicationProtocol` | `HTTP` or `HTTPS` (`:769`). |
+| `application_port` | `applicationPort` | App port (`:768`). |
+| `certificate_id` | `certificateId` | Browser Access cert object (`:766`). |
+| `cname` | `cname` | Zscaler- or customer-managed CNAME (`:776`). |
+| `trust_untrusted_cert` | `trustUntrustedCert` | Tolerate a backend cert that can't be validated (`:774`). |
+| `allow_options` | `allowOptions` | Permit `OPTIONS` requests (CORS preflight) (`:775`). |
+| `local_domain` | `localDomain` | Internal hostname when it differs from the external one (`:772`). |
+| `hidden` | `hidden` | Hide the app from the portal (`:771`). |
+| `ext_domain` / `ext_domain_name` / `ext_label` | `extDomain` / `extDomainName` / `extLabel` | Custom external label/domain (`:779-781`); these are the fields behind the §9.3 Terraform `certificate_id`-conflicts-with-`ext_label`/`ext_domain` rule. |
 
 Two of these map directly onto behavior documented elsewhere in this doc:
 
-- **`trust_untrusted_cert`** (`:771`) is the programmatic counterpart to the §5 "backend SSL **cannot be validated**" behavior — the SDK/API knob that lines up with resolution option (a) "accept and document." The field name maps cleanly onto tolerating the backend cert mismatch rather than surfacing the web-server certificate error; the exact service-side effect is not spelled out in the SDK source (see Open questions).
-- **`allow_options`** (`:772`) is the field that lines up with the CORS / `OPTIONS`-preflight handling described in §3 — by name, it governs whether `OPTIONS` requests are allowed/forwarded. The precise ingress behavior is likewise inferred from the field name, not confirmed in source (see Open questions).
+- **`trust_untrusted_cert`** (`:774`) is the programmatic counterpart to the §5 "backend SSL **cannot be validated**" behavior — the SDK/API knob that lines up with resolution option (a) "accept and document." The field name maps cleanly onto tolerating the backend cert mismatch rather than surfacing the web-server certificate error; the exact service-side effect is not spelled out in the SDK source (see Open questions).
+- **`allow_options`** (`:775`) is the field that lines up with the CORS / `OPTIONS`-preflight handling described in §3 — by name, it governs whether `OPTIONS` requests are allowed/forwarded. The precise ingress behavior is likewise inferred from the field name, not confirmed in source (see Open questions).
 
 **Constraints on app segments hosting Browser Access apps:**
 - **Double Encryption** is not supported when Browser Access is enabled on any application in the segment.
@@ -277,7 +277,7 @@ Key Terraform constraints:
 
 ## Open questions
 
-- **Exact runtime semantics of `trust_untrusted_cert` and `allow_options`.** Both fields are present on the SDK clientless-app model (`models/application_segment.py:771,772`), and their names strongly imply the behavior described in §8 (tolerate a backend cert mismatch; pass `OPTIONS` preflight through to the backend). But the SDK model is only a passthrough struct — it does not document what the ZPA service does with each flag. The precise ingress behavior (e.g. whether `allow_options` blocks vs forwards `OPTIONS`, and whether `trust_untrusted_cert` suppresses the §5 web-server certificate error end-to-end or only on the backend leg) is inferred from the field names and not confirmed in vendor source. Needs an admin-help or API-reference citation before stating it as definite. (Tracked as [`zpa-36`](../_meta/clarifications.md#zpa-36-runtime-semantics-of-trust_untrusted_cert-and-allow_options).)
+- **Exact runtime semantics of `trust_untrusted_cert` and `allow_options`.** Both fields are present on the SDK clientless-app model (`models/application_segment.py:774,775`), and their names strongly imply the behavior described in §8 (tolerate a backend cert mismatch; pass `OPTIONS` preflight through to the backend). But the SDK model is only a passthrough struct — it does not document what the ZPA service does with each flag. The precise ingress behavior (e.g. whether `allow_options` blocks vs forwards `OPTIONS`, and whether `trust_untrusted_cert` suppresses the §5 web-server certificate error end-to-end or only on the backend leg) is inferred from the field names and not confirmed in vendor source. Needs an admin-help or API-reference citation before stating it as definite. (Tracked as [`zpa-36`](../_meta/clarifications.md#zpa-36-runtime-semantics-of-trust_untrusted_cert-and-allow_options).)
 
 ---
 

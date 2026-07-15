@@ -1919,8 +1919,27 @@ PRODUCTS = {
 }
 
 
+_MCP_PACKAGE_ROOTS = (
+    "vendor/zscaler-mcp-server/src/zscaler_mcp",
+    "vendor/zscaler-mcp-server/zscaler_mcp",
+)
+
+
+def _mcp_package_root(repo_root=ROOT):
+    """Return the vendored MCP package root for src or legacy layouts.
+
+    The upstream project adopted a src layout in v0.13.1. Keep the legacy
+    candidate for older pinned submodules and use the current src layout as the
+    deterministic fallback when vendor sources are not initialized.
+    """
+    for candidate in _MCP_PACKAGE_ROOTS:
+        if os.path.isdir(os.path.join(repo_root, candidate)):
+            return candidate
+    return _MCP_PACKAGE_ROOTS[0]
+
+
 def _mcp(tool_path, *functions):
-    cfg = {"paths": [f"vendor/zscaler-mcp-server/zscaler_mcp/tools/{tool_path}"]}
+    cfg = {"paths": [f"{_mcp_package_root()}/tools/{tool_path}"]}
     if functions:
         cfg["functions"] = list(functions)
     return cfg

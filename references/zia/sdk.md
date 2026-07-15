@@ -139,7 +139,7 @@ with LegacyZIAClient(config) as client:
     users, _, _ = client.user_management.list_users()
 ```
 
-Government-cloud OneAPI support is client/version-specific. Current Go and Python SDK releases model FedRAMP OneAPI routing for `cloud=gov` / `cloud=govus`, using dedicated Zidentity auth domains and API gateways (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:404-438`; `vendor/zscaler-sdk-python/CHANGELOG.md:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:21-28`). Older SDKs and non-ZIA provider paths may still require product-specific legacy auth.
+Government-cloud OneAPI support is client/version-specific. Current Go and Python SDK releases model FedRAMP OneAPI routing for `cloud=gov` / `cloud=govus`, using dedicated Zidentity auth domains and API gateways (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:404-438`; `vendor/zscaler-sdk-python/CHANGELOG.md:156`; `vendor/zscaler-sdk-python/zscaler/constants.py:21-28`). Older SDKs and non-ZIA provider paths may still require product-specific legacy auth.
 
 **Environment variables** (all optional when provided in config dict):
 
@@ -864,7 +864,7 @@ This is separate from the older `client.zia.browser_control_settings` accessor, 
 | `list_time_windows` | `()` | GET `/timeWindows`. |
 | `list_time_windows_lite` | `()` | GET `/timeWindows/lite`. |
 
-**Historical SDK quirk (fixed in 1.9.22, April 23, 2026):** In zscaler-sdk-python versions earlier than 1.9.22, `list_network_services_lite()` returned `is_name_l10n_tag` as `None` even when the API populated it. Root cause: `APIClient.form_response_body()` ran response keys through `pydash.strings.camel_case`, which re-tokenized camelCase keys with digit/letter boundaries (`L10n` → `L10N`) and broke the model lookup. PR #493 replaced the normalizer with the SDK's own `to_lower_camel_case` helper. The fix is central — any OneAPI response field of that shape (e.g. `ipV6Enabled`) was affected. Operators on older SDK versions should upgrade. (`vendor/zscaler-sdk-python/CHANGELOG.md:81`; tracking issue [#492](https://github.com/zscaler/zscaler-sdk-python/issues/492), fix [#493](https://github.com/zscaler/zscaler-sdk-python/pull/493))
+**Historical SDK quirk (fixed in 1.9.22, April 23, 2026):** In zscaler-sdk-python versions earlier than 1.9.22, `list_network_services_lite()` returned `is_name_l10n_tag` as `None` even when the API populated it. Root cause: `APIClient.form_response_body()` ran response keys through `pydash.strings.camel_case`, which re-tokenized camelCase keys with digit/letter boundaries (`L10n` → `L10N`) and broke the model lookup. PR #493 replaced the normalizer with the SDK's own `to_lower_camel_case` helper. The fix is central — any OneAPI response field of that shape (e.g. `ipV6Enabled`) was affected. Operators on older SDK versions should upgrade. (`vendor/zscaler-sdk-python/CHANGELOG.md:322`; tracking issue [#492](https://github.com/zscaler/zscaler-sdk-python/issues/492), fix [#493](https://github.com/zscaler/zscaler-sdk-python/pull/493))
 
 **Go parity:** Yes (`firewallpolicies/`, `firewalldnscontrolpolicies/`, `firewallipscontrolpolicies/`)
 
