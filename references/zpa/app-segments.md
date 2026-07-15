@@ -3,11 +3,11 @@ product: zpa
 topic: "zpa-app-segments"
 title: "ZPA application segment matching"
 content-type: reasoning
-last-verified: "2026-07-06"
+last-verified: "2026-07-15"
 verified-against:
   vendor/terraform-provider-zpa: dcf12469a9a8f648be0691c74e9816fc94ec7ddc
   vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
-  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
   vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
 confidence: high
 source-tier: mixed
@@ -112,8 +112,8 @@ A few fields live at the API/TF level but are absent from or under-documented in
   - **`policy_style`** (py `:55`, sent `:256`; go `PolicyStyle` `:76`) — finer-grained policy-style selector (undocumented enum).
   - **`zpn_er_id`** (py `:136`, sent `:255`; go `ZPNERID` `:74`, JSON key `zpnErId`) — Zscaler internal reference identifier.
 - **Newer segment fields neither SDK section called out before.** Modeled on the Go `ApplicationSegmentResource` and (where noted) the Python models:
-  - **`app_recommendation_id`** (go `AppRecommendationId` `:46`; Python carries it on the Browser Access `AppResource` model, `application_segment.py:861`) — links a segment back to an app-recommendation record.
-  - **`default_idle_timeout`** (go `DefaultIdleTimeout` `:68`; Python `AppResource` `:866`) and **`default_max_age`** (go `DefaultMaxAge` `:69`; Python `AppResource` `:867`) — session-lifecycle timers, emitted as strings.
+  - **`app_recommendation_id`** (go `AppRecommendationId` `:46`; Python carries it on the Browser Access `AppResource` model, `application_segment.py:864`) — links a segment back to an app-recommendation record.
+  - **`default_idle_timeout`** (go `DefaultIdleTimeout` `:68`; Python `AppResource` `:869`) and **`default_max_age`** (go `DefaultMaxAge` `:69`; Python `AppResource` `:870`) — session-lifecycle timers, emitted as strings.
   - **`share_to_microtenants`** (go `ShareToMicrotenants` `:72`, JSON `shareToMicrotenants`) — the microtenant-share target list (the payload the Share operation below sets).
   - **`tags`** (py `:154`; go `Tags` `:75`) — namespace/key/value tag objects attached to the segment.
 - **Browser Access app resources expose `inconsistentConfigDetails`.** The Python SDK model for Browser Access app resources (`AppResource`) now carries the API's `inconsistentConfigDetails` field. Treat it as a server-reported configuration warning attached to the app resource, not as application-segment matching or policy precedence by itself.

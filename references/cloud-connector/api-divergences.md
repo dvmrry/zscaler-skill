@@ -5,10 +5,10 @@ title: "Cloud Connector (ZTW/ZTC) API source divergences"
 content-type: reference
 confidence: medium
 source-tier: code
-last-verified: "2026-06-29"
+last-verified: "2026-07-15"
 verified-against:
   vendor/zscaler-sdk-go: 4371c9bab44d852526721b4b5999e2471dda5198
-  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
   vendor/terraform-provider-ztc: 766a6c1e0be3266203a3cea4b5255ab4a6f26695
 sources:
   - "vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json"

@@ -3,11 +3,11 @@ product: zpa
 topic: "zpa-private-service-edges"
 title: "ZPA Private Service Edges — on-prem brokering for private app access"
 content-type: reference
-last-verified: "2026-06-15"
+last-verified: "2026-07-15"
 confidence: medium
 source-tier: doc
 verified-against:
-  vendor/terraform-aws-zpa-private-service-edge-modules: 281208029caac90939ab0b8b335342f5cb39fe4d
+  vendor/terraform-aws-zpa-private-service-edge-modules: b555a112e27ac25a018b8681a5a339fe7c40458a
   vendor/terraform-azurerm-zpa-private-service-edge-modules: 7c64477411d028ee67c47d58c1cde872d469ec44
 sources:
   - "vendor/zscaler-help/about-private-service-edges.md"
@@ -28,9 +28,13 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zpa/zpa_service.py"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/serviceedgegroup/zpa_service_edge_group.go"
   - "vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf"
+  - "vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/main.tf"
+  - "vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zpa-provisioning-key/main.tf"
+  - "vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zpa-provisioning-key/variables.tf"
   - "vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-asg-aws/variables.tf"
   - "vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-asg-aws/main.tf"
   - "vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-psevm-aws/variables.tf"
+  - "vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-psevm-aws/main.tf"
   - "vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-sg-aws/main.tf"
   - "vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-iam-aws/main.tf"
   - "vendor/terraform-aws-zpa-private-service-edge-modules/examples/README.md"
@@ -106,7 +110,7 @@ All traffic between ZCC and the PSE, and between the App Connector and the PSE, 
 
 ### Control plane
 
-The PSE registers with the **ZPA Central Authority (CA)** — the ZPA cloud's control plane. Registration uses a provisioning key, which the PSE presents to the CA during enrollment to obtain a signed TLS client certificate. After enrollment:
+The PSE registers with the **ZPA Central Authority (CA)** — the ZPA cloud's control plane. Enrollment can use the traditional provisioning-key flow or the newer OAuth2 user-code flow; the current AWS module defaults to OAuth2 and retains provisioning keys as a supported secondary method (`vendor/terraform-aws-zpa-private-service-edge-modules/README.md:21-48`). After enrollment:
 
 - The PSE downloads ZPA policy and configuration from the CA.
 - It caches path-selection decisions to reduce latency on repeat sessions.
@@ -167,16 +171,18 @@ Deployment guidance: **deploy in N+1 configuration**, where N PSEs carry the exp
 
 A PSE Group can also be designated for **disaster recovery** (`use_in_dr_mode` / `exclusive_for_business_continuity`). In this mode the group is held in reserve and only activated when primary groups are unavailable.
 
-### Enrollment and the provisioning key
+### Enrollment methods
 
-Enrollment is the one-time process by which a PSE obtains its identity:
+Enrollment is the one-time process by which a PSE obtains its identity. In the traditional provisioning-key flow:
 
 1. On first boot, the PSE generates a local private key encrypted against the VM's hardware fingerprint.
 2. It generates a Certificate Signing Request (CSR) and authenticates it to the ZPA CA using the **provisioning key** configured for its PSE Group.
 3. The CA returns a signed TLS client certificate.
 4. The signed certificate is pinned to the hardware fingerprint of that specific VM.
 
-After enrollment, the PSE is bound to a single ZPA tenant. It cannot be re-enrolled without a new provisioning key. **PSE VMs must not be cloned** after enrollment — the cloned VM's hardware fingerprint will not match the enrolled certificate, and enrollment will fail.
+The current AWS module also supports an OAuth2 user-code flow and makes it the default: each VM publishes its generated code to AWS SSM Parameter Store, Terraform collects the codes, and the Service Edge Group is created with them. This path requires ZPA Terraform provider 4.4.0 or later and does not require a provisioning key (`vendor/terraform-aws-zpa-private-service-edge-modules/README.md:21-48`).
+
+After enrollment, the PSE is paired with a single customer account and cannot be enrolled again. To replace or scale out, deploy a new VM and enroll that new instance with fresh material for the selected OAuth2 or provisioning-key flow. **PSE VMs must not be cloned** after enrollment — the cloned VM's hardware fingerprint will not match the enrolled certificate, and enrollment will fail.
 
 ## Configuration
 
@@ -201,9 +207,9 @@ Three Terraform resources are relevant:
 | `enrollment_cert_id` + `user_codes` | OAuth2 enrollment path — provide the enrollment cert and the user codes displayed on the PSE VMs after boot to complete enrollment via Terraform. (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:230-231`) |
 | `microtenant_id` | Scope to a microtenant (requires microtenant license). (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:224`) |
 
-> **Module coverage gap — `grace_distance_*` and `use_in_dr_mode`**: These are valid provider arguments (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:205-207, :223`) but are **absent from both the AWS and Azure reference module wrappers** (`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf:1-82`; `vendor/terraform-azurerm-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf:1-82`). Operators using those modules who need grace distance or DR mode must extend the module or switch to the raw `zpa_service_edge_group` resource directly.
+> **Module coverage gap — `grace_distance_*` and `use_in_dr_mode`**: These are valid provider arguments (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:205-207, :223`) but are **absent from both the AWS and Azure reference module wrappers** (`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf:1-95`; `vendor/terraform-azurerm-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf:1-82`). Operators using those modules who need grace distance or DR mode must extend the module or switch to the raw `zpa_service_edge_group` resource directly.
 
-The `service_edges` block within `zpa_service_edge_group` is deprecated and scheduled for removal. PSE membership is managed externally (via provisioning key enrollment), not by Terraform. Omit this block in new configurations.
+The `service_edges` block within `zpa_service_edge_group` is deprecated and scheduled for removal. PSE membership is established through enrollment rather than by populating this block. Omit it in new configurations.
 
 ```hcl
 resource "zpa_service_edge_group" "dc_east" {
@@ -283,7 +289,7 @@ The vendor repos ship ready-to-run example configurations. Summaries below; see 
 
 ### Module defaults and instance types
 
-The `terraform-zpa-service-edge-group` module wrapper (identical in both the AWS and Azure repos) applies these defaults (`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf:12-82`; `vendor/terraform-azurerm-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf:12-82`):
+The AWS and Azure `terraform-zpa-service-edge-group` wrappers still share several defaults, but they are no longer identical (`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf:12-95`; `vendor/terraform-azurerm-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf:12-82`):
 
 | Variable | Default | Provider field |
 |---|---|---|
@@ -291,10 +297,11 @@ The `terraform-zpa-service-edge-group` module wrapper (identical in both the AWS
 | `pse_is_public` | `false` | `is_public` |
 | `pse_group_upgrade_day` | `SUNDAY` | `upgrade_day` |
 | `pse_group_upgrade_time_in_secs` | `66600` (18:30 UTC) | `upgrade_time_in_secs` |
-| `pse_group_version_profile_id` | `2` (New Release) | `version_profile_id` |
 | `pse_group_override_version_profile` | `false` | `override_version_profile` |
 
-**AWS PSE VM** (`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-psevm-aws/variables.tf:34-47`):
+Version-profile handling now differs by cloud wrapper. Azure still defaults `pse_group_version_profile_id` to `"2"` (New Release). AWS defaults it to an empty string: with override disabled the module sends `null` and accepts the API-computed profile; with override enabled, an empty value resolves the `Default` profile, while explicit `0`, `1`, or `2` remains supported (`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf:57-76`; `vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/main.tf:10-33`; `vendor/terraform-azurerm-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf:51-70`). AWS additionally exposes `pse_group_city_country` and OAuth2 `user_codes`; the Azure wrapper does not expose those inputs (`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf:24-28,91-95`).
+
+**AWS PSE VM** (`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-psevm-aws/variables.tf:34-47,78-93`; `vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-psevm-aws/main.tf:16-28`):
 - Default instance type: `m5.large`
 - Approved types: `t3.xlarge`, `m5.large`, `m5.xlarge`, `m5.2xlarge`, `m5.4xlarge`
 - EBS: `gp3`, encrypted; IMDSv2 enforced
@@ -305,7 +312,7 @@ The `terraform-zpa-service-edge-group` module wrapper (identical in both the AWS
 - Image: RedHat / `rh-rhel` / `rh-rhel9` (latest)
 - `zones_enabled` defaults to `false`
 
-**AWS ASG defaults** (`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-asg-aws/variables.tf:66-138`; `vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-asg-aws/main.tf:84, 92-101`):
+**AWS ASG defaults** (`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-asg-aws/variables.tf:66-138`; `vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-asg-aws/main.tf:62-68,86-100,107-117`):
 
 | Parameter | Default |
 |---|---|
@@ -317,11 +324,11 @@ The `terraform-zpa-service-edge-group` module wrapper (identical in both the AWS
 | `target_cpu_util_value` | `50` % |
 | `warm_pool_enabled` | `false` |
 
-Enabled CloudWatch metrics (8): GroupDesiredCapacity, GroupInServiceInstances, GroupMaxSize, GroupMinSize, GroupPendingInstances, GroupStandbyInstances, GroupTerminatingInstances, GroupTotalInstances (`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-asg-aws/main.tf:92-101`).
+Enabled CloudWatch metrics (8): GroupDesiredCapacity, GroupInServiceInstances, GroupMaxSize, GroupMinSize, GroupPendingInstances, GroupStandbyInstances, GroupTerminatingInstances, GroupTotalInstances (`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-asg-aws/main.tf:75-84`).
 
 ### IAM and security groups (AWS)
 
-The `terraform-zspse-iam-aws` module creates an `aws_iam_role` with an `ec2.amazonaws.com` assume-role trust and an instance profile (`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-iam-aws/main.tf:8-46`). No IAM policies are attached — operators must attach any additional policies required for the PSE VM to access other AWS services.
+The `terraform-zspse-iam-aws` module creates an `aws_iam_role` with an `ec2.amazonaws.com` assume-role trust and an instance profile (`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-iam-aws/main.tf:8-46`). It also attaches an inline SSM policy for the OAuth token relay, granting `PutParameter`, `AddTagsToResource`, `GetParameter`, and `DeleteParameter` on `parameter/zpa/oauth-tokens/*` (`:49-73`). Operators remain responsible for any unrelated AWS-service permissions.
 
 The `terraform-zspse-sg-aws` module creates three inbound security group rules (`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-sg-aws/main.tf:42-73`):
 - SSH TCP/22 from VPC CIDR
@@ -354,7 +361,7 @@ Key kwargs for `add_service_edge_group` / `update_service_edge_group`: `name`, `
 | `delete_service_edge(service_edge_id)` | DELETE | `/serviceEdge/{id}` |
 | `bulk_delete_service_edges(service_edge_ids)` | POST | `/serviceEdge/bulkDelete` |
 
-Individual PSE instances are enrolled via provisioning key, not created via the API. The API manages the instance record after enrollment (rename, enable/disable, deregister).
+Individual PSE instances are enrolled rather than created through the Service Edge CRUD surface. The current AWS module supports either OAuth2 user codes or provisioning keys; after enrollment, the API manages the instance record (rename, enable/disable, deregister).
 
 **Private Cloud Group** (`client.zpa.private_cloud_group`):
 
@@ -385,11 +392,11 @@ This is the controller-level (instance) resource, the same relationship to Priva
 
 `serviceedgegroup` package (`zscaler/zpa/services/serviceedgegroup/`): `Get`, `GetByName`, `Create`, `Update`, `Delete`, `GetAll` — all using `*ServiceEdgeGroup` struct. Key struct fields from the Go model: `GraceDistanceEnabled`, `GraceDistanceValue`, `GraceDistanceValueUnit`, `UseInDrMode`, `ExclusiveForBusinessContinuity`, `IsPublic`, `AltCloud` (alternative cloud domain override), `SiteID`, `TrustedNetworks`, `ServiceEdges`, `EnrollmentCertID`. Every ZPA call must pass `common.Filter{MicroTenantID: service.MicroTenantID()}`.
 
-### Provisioning keys
+### Enrollment credentials
 
-A provisioning key is a single-use-per-instance shared secret that associates a PSE with a PSE Group during enrollment. Provisioning keys for PSEs are managed separately from App Connector provisioning keys in the ZPA Admin Console (Infrastructure > Private Access > Component > Private Service Edge Groups > Provisioning Keys). Each PSE Group has its own provisioning key; a single key can be used to enroll multiple PSEs into the same group. The key is presented by the PSE VM during enrollment; it does not persist on the PSE after enrollment completes (the TLS client cert takes over for ongoing authentication).
+A provisioning key is a shared enrollment secret that associates a PSE with a PSE Group. Provisioning keys for PSEs are managed separately from App Connector provisioning keys in the ZPA Admin Console (Infrastructure > Private Access > Component > Private Service Edge Groups > Provisioning Keys). The key is presented during enrollment; the TLS client certificate takes over for ongoing authentication.
 
-There is no Terraform resource for ZPA PSE provisioning keys in the captured vendor sources (unlike App Connector provisioning keys, which have `zpa_provisioning_key`). Provisioning key generation must be done via the Admin Console or ZPA API directly.
+The AWS module's secondary provisioning-key flow creates the generic Terraform `zpa_provisioning_key` resource with association type `SERVICE_EDGE_GRP` and binds it to the PSE Group, or reads a caller-supplied key (`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zpa-provisioning-key/main.tf:9-23`; `vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zpa-provisioning-key/variables.tf:25-35,43-58`). The default OAuth2 flow does not use a provisioning key; it relays per-VM user codes through SSM instead (`vendor/terraform-aws-zpa-private-service-edge-modules/README.md:21-48`).
 
 ## Admin Console navigation
 
@@ -496,7 +503,7 @@ A PSE Group with `is_public = false` is invisible to users outside the mapped Tr
 ZCC and App Connectors authenticate the PSE using Zscaler's PKI — the same PKI used for Public SEs. There is no mechanism to use an enterprise internal CA for PSE authentication. Firewall SSL inspection between ZCC and the PSE will break the Z-Tunnel if the firewall is re-signing certificates with an enterprise CA — the pinned-certificate verification will fail. Traffic between ZCC and the PSE must not be subjected to MITM / SSL break-and-inspect.
 
 **4. PSE VM cloning breaks enrollment.**
-The enrollment certificate is pinned to the hardware fingerprint of the VM at enrollment time. Cloning the VM after enrollment creates a second VM with a different hardware fingerprint. The cloned VM cannot use the enrolled certificate and will fail to authenticate to the CA. If you need to scale out PSEs, enroll each new VM separately using the PSE Group's provisioning key.
+The enrollment certificate is pinned to the hardware fingerprint of the VM at enrollment time. Cloning the VM after enrollment creates a second VM with a different hardware fingerprint. The cloned VM cannot use the enrolled certificate and will fail to authenticate to the CA. If you need to scale out PSEs, enroll each new VM separately with fresh material for the selected OAuth2 or provisioning-key flow.
 
 **5. NAT and firewall transit.**
 The PSE must be able to reach the ZPA CA (outbound to Zscaler cloud infrastructure). If the PSE is behind NAT, the CA sees the NAT public IP rather than the PSE's private IP; this is generally fine for control-plane connectivity. Inbound from ZCC: ZCC clients establish connections to the PSE's data-plane IP or FQDN. If the PSE is behind a firewall, the firewall must allow inbound ZPA tunnel traffic (port 443 TCP, plus optionally UDP for DTLS) from client source IPs to the PSE's data-plane IP. App Connectors connect outbound to the PSE on the same port; no inbound from App Connectors to the PSE is required on the App Connector's firewall.
@@ -519,14 +526,13 @@ The `ReadOnly` and `ZscalerManaged` fields on the `ServiceEdgeGroup` struct (Go 
 ## Open questions
 
 - **PSE VM sizing specifics** — the Deployment Prerequisites document referenced in help sources was not available in the captured vendor corpus. vCPU, vRAM, and disk requirements per PSE VM and per-instance session limits are not confirmed. Validate against the current Deployment Prerequisites doc before provisioning. (Tracked as [`zpa-47`](../_meta/clarifications.md#zpa-47-private-service-edge-vm-sizing-and-per-instance-session-limits).)
-- **Provisioning key Terraform resource** — there is no `zpa_service_edge_provisioning_key` resource in the captured Terraform provider docs. The App Connector equivalent (`zpa_provisioning_key`) exists. Confirm whether PSE provisioning keys can be created via the API/Terraform or are Admin Console-only. (Tracked as [`zpa-48`](../_meta/clarifications.md#zpa-48-pse-provisioning-key-apiterraform-support).)
 - **Supported hypervisor list** — VMware (ESXi/vSphere) is confirmed. It is not confirmed whether OVA images are provided for Hyper-V, KVM, or cloud-native VM formats (AWS AMI, Azure image) for ZPA PSEs specifically. ZIA VSEs support those platforms, but ZPA PSEs may differ. (Tracked as [`zpa-49`](../_meta/clarifications.md#zpa-49-supported-hypervisor-cloud-image-formats-for-zpa-pses).)
 - **PSE hardware appliance** — the ZIA PSE product has dedicated hardware appliances (PSE 3, PSE 5 physical clusters). It is not confirmed whether ZPA PSEs are virtual-only or also available as dedicated hardware. The help sources describe only VM images. (Tracked as [`zpa-50`](../_meta/clarifications.md#zpa-50-zpa-pse-dedicated-hardware-appliance-availability).)
 - **Private Cloud Controller vs PSE Group — product positioning** — the SDK surface is now documented above: `/privateCloudControllerGroup` (group container) and `/privateCloudController` (member instance) form the same group/instance pairing as `/serviceEdgeGroup` ÷ `/serviceEdge`, with `site_id` and `privateBrokerGroupIds` linking the group to a ZPA site (`vendor/zscaler-sdk-python/zscaler/zpa/private_cloud_group.py:180`, `:201`). What the SDK source does **not** settle is the product semantics: whether the Private Cloud Controller family is a sovereign/private-cloud ZPA control-plane variant or simply an alternate PSE grouping type, and whether it is in scope for standard PSE deployments using Zscaler's public ZPA CA. Confirm against ZPA Private Cloud product docs before treating it as part of a standard PSE rollout. (Tracked as [`zpa-51`](../_meta/clarifications.md#zpa-51-private-cloud-controller-product-positioning).)
 - **`restart_private_controller` operational semantics** — the SDK exposes `PUT /privateCloudController/{id}/restart` (`vendor/zscaler-sdk-python/zscaler/zpa/private_cloud_controller.py:245`, `:267`), but the source does not state whether the restart is graceful (drains sessions first) or hard, nor whether an equivalent restart action exists for ordinary `serviceEdge` instances (none is present in `service_edges.py` as captured). Confirm restart behavior and session impact before using it on a live controller. (Tracked as [`zpa-52`](../_meta/clarifications.md#zpa-52-restart_private_controller-operational-semantics).)
 - **Auto Delete schedule defaults and accepted `frequency` values** — `ServiceEdgeScheduleAPI` accepts `frequency` / `frequencyInterval` (`vendor/zscaler-sdk-python/zscaler/zpa/service_edge_schedule.py:121-122`), but the SDK does not enumerate the accepted enum values (e.g. days vs weeks) or the default cadence when the schedule is first enabled. Confirm the accepted values and defaults against the ZPA API reference or Admin Console. (Tracked as [`zpa-53`](../_meta/clarifications.md#zpa-53-service-edge-auto-delete-schedule-accepted-frequency-values-and-defaults).)
 - **Location / GeoIP update behavior** — the help docs note that if the PSE Group location is updated for an existing active connection, the PSE uses the old location until the next new connection. The propagation delay for location changes across the CA topology is not quantified. Treat location changes as requiring a maintenance window. (Tracked as [`zpa-54`](../_meta/clarifications.md#zpa-54-pse-location-geoip-update-propagation-delay).)
-- **OAuth2 enrollment path** — the `enrollment_cert_id` + `user_codes` pattern in `zpa_service_edge_group` suggests a newer enrollment flow distinct from the traditional provisioning-key-only path. Whether this requires a specific ZPA license tier or replaces the provisioning key flow (or supplements it) is not resolved from the available sources. (Tracked as [`zpa-55`](../_meta/clarifications.md#zpa-55-pse-oauth2-enrollment-path-licensereplacement-semantics).)
+- **OAuth2 enrollment licensing prerequisites** — the AWS module now establishes that OAuth2 user-code enrollment is the default and provisioning-key enrollment remains supported, but it does not state whether OAuth2 requires a particular ZPA license or tenant-side enablement beyond provider 4.4.0+. Confirm that prerequisite before standardizing on the default flow. (Tracked as [`zpa-55`](../_meta/clarifications.md#zpa-55-pse-oauth2-enrollment-path-licensereplacement-semantics).)
 - **Maximum PSEs per group** — unlike App Connector Groups, no documented maximum PSE count per PSE Group was found in the captured sources. Confirm with Zscaler documentation or support for large-scale deployments. (Tracked as [`zpa-56`](../_meta/clarifications.md#zpa-56-maximum-pses-per-group).)
 
 ## Cross-links
